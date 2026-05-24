@@ -10,33 +10,37 @@ function init() {
   const TOTAL = 99;
 
   const colors = [
-    "#F9C996","#B5D1F6","#e9f4ac","#ded3f4",
-    "#F7B067","#6C9CDC","#dfef87","#cfbfef",
-    "#F18200","#3D80D8","#cde647","#B2A1EA",
-    "#B1620F","#1760C1","#96a834","#8473a9",
+    "#000000",
+    // "#B5D1F6",
+    // "#e9f4ac",
+    // "#ded3f4",
+    // "#F7B067","#6C9CDC","#dfef87","#cfbfef",
+    // "#F18200","#3D80D8","#cde647","#B2A1EA",
+    // "#B1620F","#1760C1","#96a834","#8473a9",
   ];
 
   const drukChars = "АБВГДЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const otherChars = (
-    "АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯабвгдежзиклмнопрстуфхцчшщэюя" +
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    "АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯабвгдежзиклмнопрстуфхцчшщэюя" + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   ).split("");
 
   const otherFonts = [
-    { family: "'Inter', sans-serif",      weight: "400" },
-    { family: "'Inter', sans-serif",      weight: "700" },
-    { family: "'Inter', sans-serif",      weight: "900" },
-    { family: "'Mulish', sans-serif",     weight: "300" },
-    { family: "'Mulish', sans-serif",     weight: "400" },
-    { family: "'Mulish', sans-serif",     weight: "700" },
-    { family: "'Open Sans', sans-serif",  weight: "300" },
-    { family: "'Open Sans', sans-serif",  weight: "400" },
-    { family: "'Open Sans', sans-serif",  weight: "700" },
+    { family: "'Inter', sans-serif", weight: "400" },
+    { family: "'Inter', sans-serif", weight: "700" },
+    { family: "'Inter', sans-serif", weight: "900" },
+    { family: "'Mulish', sans-serif", weight: "300" },
+    { family: "'Mulish', sans-serif", weight: "400" },
+    { family: "'Mulish', sans-serif", weight: "700" },
+    { family: "'Open Sans', sans-serif", weight: "300" },
+    { family: "'Open Sans', sans-serif", weight: "400" },
+    { family: "'Open Sans', sans-serif", weight: "700" },
     { family: "'Acari Sans', sans-serif", weight: "400" },
   ];
 
   // Deterministic pseudo-random helper (no Math.random so layout is stable)
-  function pr(seed) { return ((seed * 2654435769) >>> 0) / 4294967296; }
+  function pr(seed) {
+    return ((seed * 2654435769) >>> 0) / 4294967296;
+  }
 
   const particles = Array.from({ length: TOTAL }, (_, i) => {
     const isDruk = i % 3 !== 2;
@@ -46,8 +50,8 @@ function init() {
     let tier;
     if (isDruk) {
       // druk index within all druk particles
-      const di = Math.floor(i * 2 / 3);
-      tier = di % 8 === 0 ? 2 : (di % 3 === 1 ? 1 : 0); // ~1 huge per 8, rest small/medium
+      const di = Math.floor((i * 2) / 3);
+      tier = di % 8 === 0 ? 2 : di % 3 === 1 ? 1 : 0; // ~1 huge per 8, rest small/medium
     } else {
       tier = i % 3 === 0 ? 0 : 1; // only small and medium for text fonts
     }
@@ -58,17 +62,20 @@ function init() {
       fontWeight = i % 2 === 0 ? "700" : "500";
       fontFamily = "'Druk Wide', sans-serif";
       baseFontSize =
-        tier === 0 ? 48 + Math.floor(pr(i * 3)     * 40)   // 48–88
-      : tier === 1 ? 100 + Math.floor(pr(i * 3 + 1) * 70)  // 100–170
-      :              186 + Math.floor(pr(i * 3 + 2) * 70);  // 186–256
+        tier === 0
+          ? 48 + Math.floor(pr(i * 3) * 40) // 48–88
+          : tier === 1
+            ? 100 + Math.floor(pr(i * 3 + 1) * 70) // 100–170
+            : 186 + Math.floor(pr(i * 3 + 2) * 70); // 186–256
       char = drukChars[Math.floor(i * 1.618) % drukChars.length];
     } else {
       const f = otherFonts[i % otherFonts.length];
       fontWeight = f.weight;
       fontFamily = f.family;
       baseFontSize =
-        tier === 0 ? 14 + Math.floor(pr(i * 7)     * 18)   // 14–32
-      :              38 + Math.floor(pr(i * 7 + 1) * 36);   // 38–74
+        tier === 0
+          ? 14 + Math.floor(pr(i * 7) * 18) // 14–32
+          : 38 + Math.floor(pr(i * 7 + 1) * 36); // 38–74
       char = otherChars[Math.floor(i * 2.618) % otherChars.length];
     }
 
@@ -112,7 +119,7 @@ function init() {
         rotate: -3,
         stagger: { each: -0.05, repeat: -1 },
       },
-      0
+      0,
     )
     .seek(99);
 
@@ -127,9 +134,9 @@ function init() {
       ctx.save();
       ctx.translate(cw / 2, ch / 2);
       ctx.rotate(p.rotate);
-      ctx.font         = `${p.fontWeight} ${fs}px ${p.fontFamily}`;
-      ctx.fillStyle    = p.color;
-      ctx.textAlign    = "center";
+      ctx.font = `${p.fontWeight} ${fs}px ${p.fontFamily}`;
+      ctx.fillStyle = p.color;
+      ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(p.char, p.x, p.y);
       ctx.restore();

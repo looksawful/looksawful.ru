@@ -14,17 +14,28 @@ const ROUTE_STOPS = [
     id: "title-anchor",
     selector: '[data-awfulhead-anchor="hero-title"]',
     focus: "cover",
-    progress: 0,
+    progress: 0.0,
+
+    anchorX: 0.26,
+    anchorY: 0,
+
+    moveX: -450,
+    moveY: -250,
+
+    scale: 1,
   },
   {
     id: "title-role",
     selector: ".hero__title-role",
     focus: "cover",
     progress: 0.16,
-    x: 0.78,
-    y: 0.12,
-    offsetX: -0.04,
-    offsetY: -0.28,
+
+    anchorX: 0.78,
+    anchorY: 0.12,
+
+    moveX: -8,
+    moveY: -56,
+
     scale: 0.82,
   },
   {
@@ -32,14 +43,21 @@ const ROUTE_STOPS = [
     selector: ".hero__note",
     focus: "cover",
     progress: 0.32,
-    x: 0.18,
-    y: 0,
-    offsetX: 0,
-    offsetY: -0.42,
+
+    anchorX: 0.18,
+    anchorY: 0,
+
+    moveX: 0,
+    moveY: -84,
+
     scale: 0.72,
+
     mobile: {
-      x: 0.18,
-      offsetY: -0.4,
+      anchorX: 0.18,
+      anchorY: 0,
+      moveX: 0,
+      moveY: -80,
+      scale: 0.72,
     },
   },
   {
@@ -47,14 +65,21 @@ const ROUTE_STOPS = [
     selector: ".contact-links",
     focus: "cover",
     progress: 0.48,
-    x: 0.74,
-    y: 0,
-    offsetX: 0,
-    offsetY: -0.42,
+
+    anchorX: 0.74,
+    anchorY: 0,
+
+    moveX: 0,
+    moveY: -84,
+
     scale: 0.72,
+
     mobile: {
-      x: 0.22,
-      offsetY: -0.38,
+      anchorX: 0.22,
+      anchorY: 0,
+      moveX: 0,
+      moveY: -76,
+      scale: 0.72,
     },
   },
   {
@@ -62,16 +87,27 @@ const ROUTE_STOPS = [
     selector: '[data-awfulhead-anchor="hero-about"]',
     focus: "about",
     progress: 0.64,
+
+    anchorX: 0.22,
+    anchorY: 0,
+
+    moveX: 0,
+    moveY: -56,
+
+    scale: 0.82,
   },
   {
     id: "about-middle",
     selector: ".hero__intro",
     focus: "about",
     progress: 0.79,
-    x: 0.44,
-    y: 0.32,
-    offsetX: 0,
-    offsetY: -0.18,
+
+    anchorX: 0.44,
+    anchorY: 0.32,
+
+    moveX: 0,
+    moveY: -36,
+
     scale: 0.72,
   },
   {
@@ -79,14 +115,21 @@ const ROUTE_STOPS = [
     selector: ".hero__intro",
     focus: "about",
     progress: 0.91,
-    x: 0.7,
-    y: 0.66,
-    offsetX: 0,
-    offsetY: -0.08,
+
+    anchorX: 0.7,
+    anchorY: 0.66,
+
+    moveX: 0,
+    moveY: -16,
+
     scale: 0.68,
+
     mobile: {
-      x: 0.34,
-      y: 0.8,
+      anchorX: 0.34,
+      anchorY: 0.8,
+      moveX: 0,
+      moveY: -16,
+      scale: 0.68,
     },
   },
   {
@@ -94,15 +137,21 @@ const ROUTE_STOPS = [
     selector: ".hero__intro",
     focus: "about",
     progress: 1,
-    x: 0.82,
-    y: 0.9,
-    offsetX: 0,
-    offsetY: 0.18,
+
+    anchorX: 0.82,
+    anchorY: 0.9,
+
+    moveX: 0,
+    moveY: 36,
+
     scale: 0.66,
+
     mobile: {
-      x: 0.5,
-      y: 0.92,
-      offsetY: 0.08,
+      anchorX: 0.5,
+      anchorY: 0.92,
+      moveX: 0,
+      moveY: 16,
+      scale: 0.66,
     },
   },
 ];
@@ -110,36 +159,31 @@ const ROUTE_STOPS = [
 const SEGMENT_VARIANTS = ["split", "fall", "split", "fall", "split", "fall", "exit-fall"];
 
 const FALL_STACK = [
-  { x: -120, y: 305, rotation: -20 },
-  { x: -44, y: 365, rotation: 14 },
-  { x: 72, y: 285, rotation: 26 },
-  { x: 20, y: 340, rotation: -12 },
-  { x: -86, y: 420, rotation: 18 },
-  { x: 120, y: 385, rotation: -24 },
+  { x: -58, y: 112, rotation: -16 },
+  { x: -22, y: 144, rotation: 12 },
+  { x: 54, y: 106, rotation: 18 },
+  { x: 16, y: 132, rotation: -10 },
+  { x: -46, y: 162, rotation: 14 },
+  { x: 72, y: 150, rotation: -18 },
 ];
 
 const SPLIT_DRIFT = [
-  { y: -210, rotation: -92 },
-  { y: 138, rotation: 76 },
-  { y: -64, rotation: 124 },
-  { y: 220, rotation: -108 },
-  { y: -148, rotation: 68 },
-  { y: 72, rotation: -132 },
+  { x: -84, y: -56, rotation: -24 },
+  { x: 76, y: -68, rotation: 22 },
+  { x: -92, y: 12, rotation: 32 },
+  { x: 88, y: 34, rotation: -30 },
+  { x: -56, y: 82, rotation: 18 },
+  { x: 72, y: 92, rotation: -24 },
 ];
 
 const clampProgress = gsap.utils.clamp(0, 1);
 const clampUnit = gsap.utils.clamp(0, 1);
-const routeEase = gsap.parseEase("sine.inOut");
-const fallEase = gsap.parseEase("power1.in");
-const splitEase = gsap.parseEase("power2.out");
-const collectEase = gsap.parseEase("power3.inOut");
-const liftEase = gsap.parseEase("sine.inOut");
-const scaleEase = gsap.parseEase("sine.inOut");
 
-function readNumber(value, fallback) {
-  const number = Number.parseFloat(value);
-  return Number.isFinite(number) ? number : fallback;
-}
+const routeEase = gsap.parseEase("sine.inOut");
+const splitEase = gsap.parseEase("power2.out");
+const fallEase = gsap.parseEase("power1.in");
+const collectEase = "power3.out";
+const scaleEase = gsap.parseEase("sine.inOut");
 
 function normalize(value, start, end) {
   return clampUnit((value - start) / (end - start || 1));
@@ -214,6 +258,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
   mouth.setAttribute("stroke-linejoin", "round");
 
   const headShapes = [leftEye, rightEye, rightBrow, dashGroup, nose, mouth];
+
   const headParts = headShapes.map((shape) => {
     const part = document.createElementNS("http://www.w3.org/2000/svg", "g");
     part.setAttribute("data-awfulhead-part", "");
@@ -232,12 +277,14 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
   });
 
   gsap.set(headParts, {
+    transformBox: "fill-box",
     transformOrigin: "50% 50%",
   });
 
   const setSvgX = gsap.quickSetter(svg, "x", "px");
   const setSvgY = gsap.quickSetter(svg, "y", "px");
   const setSvgScale = gsap.quickSetter(svg, "scale");
+
   const partSetters = headParts.map((part) => ({
     x: gsap.quickSetter(part, "x", "px"),
     y: gsap.quickSetter(part, "y", "px"),
@@ -247,10 +294,13 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
 
   const leftBase = { x: -62, y: -8 };
   const rightBase = { x: 26, y: -24 };
+
   let isEyeTrackingActive = true;
   let isHeadVisible = true;
+  let isScrollActive = false;
   let routeProgress = 0;
   let routePointMap = new Map();
+  let collectTween = null;
 
   function resetEyes() {
     leftEye.setAttribute("cx", leftBase.x);
@@ -275,11 +325,13 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
 
     const dx1 = ((mouseX - leftBase.x) / 200) * eyeStrength;
     const dy1 = ((mouseY - leftBase.y) / 200) * eyeStrength;
+
     leftEye.setAttribute("cx", leftBase.x + dx1);
     leftEye.setAttribute("cy", leftBase.y + dy1);
 
     const dx2 = ((mouseX - rightBase.x) / 200) * eyeStrength;
     const dy2 = ((mouseY - rightBase.y) / 200) * 0.5 * eyeStrength;
+
     rightEye.setAttribute("cx", rightBase.x + dx2);
     rightEye.setAttribute("cy", rightBase.y + dy2);
   }
@@ -325,25 +377,19 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     const isCompact = window.matchMedia("(max-width: 68rem)").matches;
     const pointSettings = isCompact && point.mobile ? { ...point, ...point.mobile } : point;
     const target = document.querySelector(pointSettings.selector);
-    const dataset = target?.dataset ?? {};
 
-    const fallbackX = readNumber(dataset.awfulheadAnchorX, 0.5);
-    const fallbackY = readNumber(dataset.awfulheadAnchorY, 0.5);
-    const fallbackOffsetX = readNumber(dataset.awfulheadOffsetX, 0);
-    const fallbackOffsetY = readNumber(dataset.awfulheadOffsetY, 0);
-    const fallbackScale = readNumber(dataset.awfulheadScale, 1);
-    const x = readNumber(pointSettings.x, fallbackX);
-    const y = readNumber(pointSettings.y, fallbackY);
-    const offsetX = readNumber(pointSettings.offsetX, fallbackOffsetX);
-    const offsetY = readNumber(pointSettings.offsetY, fallbackOffsetY);
-    const scale = readNumber(pointSettings.scale, fallbackScale);
+    const anchorX = pointSettings.anchorX;
+    const anchorY = pointSettings.anchorY;
+    const moveX = pointSettings.moveX;
+    const moveY = pointSettings.moveY;
+    const scale = pointSettings.scale;
 
     if (!target) {
       return {
         id: pointSettings.id,
         progress: pointSettings.progress,
-        x: window.innerWidth * 0.5,
-        y: window.innerHeight * 0.42,
+        x: window.innerWidth * 0.5 + moveX,
+        y: window.innerHeight * 0.42 + moveY,
         scale,
       };
     }
@@ -351,14 +397,15 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     const rect = target.getBoundingClientRect();
     const documentLeft = rect.left + window.scrollX;
     const documentTop = rect.top + window.scrollY;
-    const headSize = getHeadSize();
     const focusScroll = focusScrolls[pointSettings.focus] ?? focusScrolls.cover;
 
     return {
       id: pointSettings.id,
       progress: pointSettings.progress,
-      x: documentLeft - window.scrollX + rect.width * x + headSize * offsetX,
-      y: documentTop - focusScroll + rect.height * y + headSize * offsetY,
+
+      x: documentLeft - window.scrollX + rect.width * anchorX + moveX,
+      y: documentTop - focusScroll + rect.height * anchorY + moveY,
+
       scale,
     };
   }
@@ -387,6 +434,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
 
     if (clampedProgress <= firstStop.progress) {
       const point = getRoutePoint(firstStop);
+
       return {
         segmentIndex: 0,
         variant: getSegmentVariant(0),
@@ -397,6 +445,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
 
     if (clampedProgress >= lastStop.progress) {
       const point = getRoutePoint(lastStop);
+
       return {
         segmentIndex: ROUTE_STOPS.length - 2,
         variant: getSegmentVariant(ROUTE_STOPS.length - 2),
@@ -409,9 +458,11 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
       const nextStop = ROUTE_STOPS[index + 1];
       return nextStop && clampedProgress >= stop.progress && clampedProgress <= nextStop.progress;
     });
+
     const safeSegmentIndex = Math.max(0, segmentIndex);
     const from = getRoutePoint(ROUTE_STOPS[safeSegmentIndex]);
     const to = getRoutePoint(ROUTE_STOPS[safeSegmentIndex + 1]);
+
     const localProgress = normalize(clampedProgress, from.progress, to.progress);
     const easedProgress = routeEase(localProgress);
 
@@ -427,91 +478,50 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     };
   }
 
-  function getNearestStopProgress(progress) {
-    const frame = getRouteFrame(progress);
-    const fromStop = ROUTE_STOPS[frame.segmentIndex];
-    const toStop = ROUTE_STOPS[frame.segmentIndex + 1] ?? fromStop;
-
-    return frame.localProgress < 0.5 ? fromStop.progress : toStop.progress;
-  }
-
-  function getViewportExitX(index, segmentIndex) {
-    const side = (index + segmentIndex) % 2 === 0 ? -1 : 1;
-    const viewportInSvgUnits = (window.innerWidth / getHeadSize()) * 420;
-    return side * (Math.max(900, viewportInSvgUnits) + index * 120);
-  }
-
   function getScatterTarget(variant, index, segmentIndex) {
     if (variant === "exit-fall") {
       const stack = FALL_STACK[index];
       const viewportFall = (window.innerHeight / getHeadSize()) * 430;
 
       return {
-        x: stack.x * 0.72,
-        y: viewportFall + 360 + index * 54,
-        rotation: stack.rotation * 2.3,
+        x: stack.x * 0.85,
+        y: viewportFall + 280 + index * 42,
+        rotation: stack.rotation * 2.4,
       };
     }
 
     if (variant === "split") {
       const drift = SPLIT_DRIFT[index];
+      const sideShift = segmentIndex % 2 === 0 ? -8 : 8;
+
       return {
-        x: getViewportExitX(index, segmentIndex),
-        y: drift.y + (segmentIndex % 2 === 0 ? -40 : 40),
+        x: drift.x + sideShift,
+        y: drift.y,
         rotation: drift.rotation,
       };
     }
 
     const stack = FALL_STACK[index];
-    const segmentShift = segmentIndex % 2 === 0 ? -24 : 24;
+    const sideShift = segmentIndex % 2 === 0 ? -10 : 10;
+
     return {
-      x: stack.x + segmentShift,
+      x: stack.x + sideShift,
       y: stack.y,
       rotation: stack.rotation,
     };
   }
 
-  function getSplitTransform(localProgress, target, index) {
-    const breakProgress = splitEase(normalize(localProgress, index * 0.018, 0.5 + index * 0.012));
-    const collectProgress = collectEase(normalize(localProgress, 0.44 + index * 0.014, 1));
-    const amount = localProgress < 0.5 ? breakProgress : 1 - collectProgress;
+  function getScatterAmount(localProgress, index) {
+    const stagger = index * 0.015;
+    const progress = normalize(localProgress, stagger, 1);
+    const bell = Math.sin(progress * Math.PI);
 
-    return {
-      x: target.x * amount,
-      y: target.y * amount,
-      rotation: target.rotation * amount,
-      scale: 1,
-      amount,
-    };
-  }
-
-  function getFallTransform(localProgress, target, index) {
-    const breakProgress = fallEase(normalize(localProgress, index * 0.018, 0.52 + index * 0.012));
-    const collectProgress = collectEase(normalize(localProgress, 0.44 + index * 0.018, 1));
-    const liftProgress = liftEase(normalize(collectProgress, 0.64, 1));
-
-    if (localProgress < 0.5) {
-      return {
-        x: target.x * breakProgress,
-        y: target.y * breakProgress,
-        rotation: target.rotation * breakProgress,
-        scale: 1,
-        amount: breakProgress,
-      };
-    }
-
-    return {
-      x: target.x * (1 - collectProgress),
-      y: target.y * (1 - liftProgress),
-      rotation: target.rotation * (1 - collectProgress),
-      scale: 1,
-      amount: Math.max(1 - collectProgress, 1 - liftProgress),
-    };
+    return splitEase(Math.max(0, bell));
   }
 
   function getExitFallTransform(localProgress, target, index) {
     const fallProgress = fallEase(normalize(localProgress, index * 0.025, 1));
-    const driftProgress = splitEase(normalize(localProgress, 0.16 + index * 0.012, 1));
+    const driftProgress = splitEase(normalize(localProgress, 0.12 + index * 0.012, 1));
 
     return {
       x: target.x * driftProgress,
@@ -529,11 +539,15 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
       return getExitFallTransform(frame.localProgress, target, index);
     }
 
-    if (frame.variant === "split") {
-      return getSplitTransform(frame.localProgress, target, index);
-    }
+    const amount = getScatterAmount(frame.localProgress, index);
 
-    return getFallTransform(frame.localProgress, target, index);
+    return {
+      x: target.x * amount,
+      y: target.y * amount,
+      rotation: target.rotation * amount,
+      scale: 1,
+      amount,
+    };
   }
 
   function setHeadPosition(position) {
@@ -542,7 +556,51 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     setSvgScale(position.scale);
   }
 
+  function stopCollectingHeadParts() {
+    collectTween?.kill();
+    collectTween = null;
+  }
+
+  function collectHeadParts() {
+    stopCollectingHeadParts();
+
+    isScrollActive = false;
+
+    collectTween = gsap.to(headParts, {
+      x: 0,
+      y: 0,
+      rotation: 0,
+      scale: 1,
+      duration: 0.34,
+      ease: collectEase,
+      overwrite: "auto",
+      stagger: {
+        each: 0.012,
+        from: "center",
+      },
+      onStart() {
+        stopEyeTracking();
+      },
+      onComplete() {
+        collectTween = null;
+        startEyeTracking();
+      },
+    });
+  }
+
   function setHeadParts(frame) {
+    if (fallOnScroll && !isScrollActive) {
+      partSetters.forEach((setters) => {
+        setters.x(0);
+        setters.y(0);
+        setters.rotation(0);
+        setters.scale(1);
+      });
+
+      startEyeTracking();
+      return;
+    }
+
     let maxScatterAmount = 0;
 
     headParts.forEach((_, index) => {
@@ -553,6 +611,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
       setters.y(transform.y);
       setters.rotation(transform.rotation);
       setters.scale(transform.scale);
+
       maxScatterAmount = Math.max(maxScatterAmount, transform.amount);
     });
 
@@ -572,6 +631,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     }
 
     const frame = getRouteFrame(routeProgress);
+
     setHeadPosition(frame.position);
     setHeadParts(frame);
   }
@@ -583,6 +643,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
 
     isHeadVisible = true;
     container.style.visibility = "visible";
+    startEyeTracking();
   }
 
   function hideHead() {
@@ -597,55 +658,26 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
 
   function setupScrollRoute() {
     const trigger = document.querySelector(HERO_ROUTE.triggerSelector) ?? container.closest(".hero") ?? container;
-    let settleTween;
-    const settleDelay = gsap.delayedCall(0.12, settleToNearestStop).pause();
+    const collectDelay = gsap.delayedCall(0.14, collectHeadParts).pause();
 
     function isTriggerVisible() {
       const rect = trigger.getBoundingClientRect();
       return rect.bottom > 0 && rect.top < window.innerHeight;
     }
 
-    function stopSettling() {
-      settleDelay.pause(0);
-      settleTween?.kill();
-      settleTween = null;
+    function stopIdleCollectDelay() {
+      collectDelay.pause(0);
     }
 
-    function settleToNearestStop() {
-      if (!isHeadVisible) {
-        return;
-      }
-
-      const targetProgress = getNearestStopProgress(routeProgress);
-
-      if (Math.abs(targetProgress - routeProgress) < 0.001) {
-        renderRouteProgress(targetProgress);
-        return;
-      }
-
-      settleTween = gsap.to(
-        { progress: routeProgress },
-        {
-          progress: targetProgress,
-          duration: 0.28,
-          ease: "power2.out",
-          overwrite: true,
-          onUpdate() {
-            renderRouteProgress(this.targets()[0].progress);
-          },
-          onComplete() {
-            settleTween = null;
-          },
-        },
-      );
-    }
-
-    function scheduleSettling() {
-      settleDelay.restart(true);
+    function scheduleCollecting() {
+      collectDelay.restart(true);
     }
 
     function syncHeadWithScroll(self) {
-      stopSettling();
+      stopIdleCollectDelay();
+      stopCollectingHeadParts();
+
+      isScrollActive = true;
       routeProgress = clampProgress(self.progress);
 
       if (!isTriggerVisible()) {
@@ -655,7 +687,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
 
       showHead();
       renderRouteProgress(routeProgress);
-      scheduleSettling();
+      scheduleCollecting();
     }
 
     const routeTrigger = ScrollTrigger.create({
@@ -663,15 +695,36 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
       start: HERO_ROUTE.start,
       end: HERO_ROUTE.end,
       invalidateOnRefresh: true,
+
       onEnter: syncHeadWithScroll,
       onEnterBack: syncHeadWithScroll,
       onUpdate: syncHeadWithScroll,
+
       onLeave: () => {
-        stopSettling();
+        stopIdleCollectDelay();
+        stopCollectingHeadParts();
+
+        isScrollActive = true;
         routeProgress = 1;
+
+        showHead();
+        renderRouteProgress(1);
+        collectHeadParts();
         hideHead();
       },
-      onLeaveBack: syncHeadWithScroll,
+
+      onLeaveBack: () => {
+        stopIdleCollectDelay();
+        stopCollectingHeadParts();
+
+        isScrollActive = false;
+        routeProgress = 0;
+
+        showHead();
+        renderRouteProgress(0);
+        collectHeadParts();
+      },
+
       onRefresh: (self) => {
         refreshRoutePoints();
         syncHeadWithScroll(self);
@@ -702,7 +755,6 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
   }
 
   if (fallOnScroll) {
-    hideHead();
     setupScrollRoute();
   } else {
     renderRouteProgress(0);

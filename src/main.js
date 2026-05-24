@@ -1,9 +1,5 @@
-import "./styles/variables.css";
-import "./styles/base.css";
-import "./styles/animations.css";
-import "./styles/media.css";
-import "./styles/layout.css";
 import "./styles/style.css";
+import { mountJesteiColors } from "./components/jesteipool-colors/main.js";
 import { mountAwfulHead } from "./components/awfulhead/awfulhead.js";
 import { initGsapRevealHooks } from "./components/gsap-reveal/gsap-reveal.js";
 import { initHeroTitleAnimation } from "./components/hero-title/hero-title.js";
@@ -178,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mountMacbookSceneLazy();
   mountArc("arc-container");
   mountSpiral("spiral-container");
-
+  mountJesteiColors("jestei-colors-container"); // ← вот здесь
   const lettersCanvas = document.getElementById("letters-canvas");
   if (lettersCanvas) mountLetters(lettersCanvas);
 });
@@ -202,3 +198,84 @@ function mountMacbookSceneLazy() {
   );
   obs.observe(canvas);
 }
+
+// function initProjectSectionScroll() {
+//   const sections = [...document.querySelectorAll(".project > .screen")];
+
+//   if (!sections.length) return;
+
+//   let isLocked = false;
+//   let touchStartY = 0;
+
+//   const getCurrentSectionIndex = () => {
+//     const viewportCenter = window.scrollY + window.innerHeight / 2;
+
+//     return sections.findIndex((section) => {
+//       const top = section.offsetTop;
+//       const bottom = top + section.offsetHeight;
+//       return viewportCenter >= top && viewportCenter < bottom;
+//     });
+//   };
+
+//   const scrollToSection = (index) => {
+//     const target = sections[index];
+
+//     if (!target || isLocked) return;
+
+//     isLocked = true;
+
+//     target.scrollIntoView({
+//       behavior: "smooth",
+//       block: "start",
+//     });
+
+//     window.setTimeout(() => {
+//       isLocked = false;
+//     }, 850);
+//   };
+
+//   const handleWheel = (event) => {
+//     const index = getCurrentSectionIndex();
+
+//     if (index === -1) return;
+
+//     const direction = Math.sign(event.deltaY);
+
+//     if (direction === 0) return;
+
+//     const nextIndex = index + direction;
+
+//     if (nextIndex < 0 || nextIndex >= sections.length) return;
+
+//     event.preventDefault();
+//     scrollToSection(nextIndex);
+//   };
+
+//   const handleTouchStart = (event) => {
+//     touchStartY = event.touches[0].clientY;
+//   };
+
+//   const handleTouchEnd = (event) => {
+//     const index = getCurrentSectionIndex();
+
+//     if (index === -1) return;
+
+//     const touchEndY = event.changedTouches[0].clientY;
+//     const delta = touchStartY - touchEndY;
+
+//     if (Math.abs(delta) < 48) return;
+
+//     const direction = Math.sign(delta);
+//     const nextIndex = index + direction;
+
+//     if (nextIndex < 0 || nextIndex >= sections.length) return;
+
+//     scrollToSection(nextIndex);
+//   };
+
+//   window.addEventListener("wheel", handleWheel, { passive: false });
+//   window.addEventListener("touchstart", handleTouchStart, { passive: true });
+//   window.addEventListener("touchend", handleTouchEnd, { passive: true });
+// }
+
+// initProjectSectionScroll();
