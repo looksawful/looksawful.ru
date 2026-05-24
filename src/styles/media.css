@@ -1,0 +1,141 @@
+/* ==========================================================================
+   Media Container System
+   Utility classes for images, video, canvas containers
+   ==========================================================================
+
+   USAGE:
+     <figure class="media ar-16-9 bg-alpha">…</figure>
+     <figure class="media ar-1-1 bg-solid-black">…</figure>
+     <canvas class="media ar-4-3 bg-alpha">…</canvas>
+
+   ANATOMY:
+     Base:       .media            — основа контейнера
+     Sizing:     .media--fullscreen / .media--fullwidth / .media--fullheight
+     Ratio:      .ar-1-1 / .ar-3-2 / .ar-4-3 / .ar-16-9 / .ar-9-16 / .ar-191-100
+                 .ar-horizontal / .ar-vertical / .ar-square
+     Background: .bg-alpha / .bg-solid-white / .bg-solid-black / .bg-solid-mid
+     Border:     .bg-border
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+
+.media {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  overflow: hidden;
+}
+
+/* Дочерний контент — изображение, видео, канвас — заполняет контейнер */
+.media > img,
+.media > video,
+.media > canvas,
+.media > iframe {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.media > canvas {
+  object-fit: unset; /* canvas не поддерживает object-fit, используем CSS-размер */
+}
+
+/* --------------------------------------------------------------------------
+   Sizing модификаторы
+   -------------------------------------------------------------------------- */
+
+.media--fullscreen {
+  inline-size: 100dvw;
+  block-size: 100dvh;
+}
+
+.media--fullwidth {
+  inline-size: 100%;
+  /* высота — задаётся через .ar-* или явно */
+}
+
+.media--fullheight {
+  block-size: 100%;
+  /* ширина — задаётся через .ar-* или явно */
+}
+
+/* --------------------------------------------------------------------------
+   Aspect Ratio
+   -------------------------------------------------------------------------- */
+
+.ar-1-1,
+.ar-square {
+  aspect-ratio: 1 / 1;
+}
+
+.ar-3-2 {
+  aspect-ratio: 3 / 2;
+}
+
+.ar-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+.ar-16-9,
+.ar-horizontal {
+  aspect-ratio: 16 / 9;
+}
+
+.ar-16-10 {
+  aspect-ratio: 16 / 10;
+}
+
+.ar-9-16,
+.ar-vertical {
+  aspect-ratio: 9 / 16;
+}
+
+.ar-191-100 {
+  aspect-ratio: 191 / 100;
+} /* 1.91:1 — OpenGraph / соцсети */
+
+/* --------------------------------------------------------------------------
+   Backgrounds
+   -------------------------------------------------------------------------- */
+
+/* Прозрачный — контент виден насквозь */
+.bg-alpha {
+  background: transparent;
+}
+
+/* Белый / чёрный / серый solid */
+.bg-solid-white {
+  background: #ffffff;
+}
+.bg-solid-black {
+  background: #111111;
+}
+.bg-solid-mid {
+  background: var(--color-surface, #e5e5e5);
+}
+
+/* Плейсхолдер (диагональная штриховка) — показывает что место занято */
+.bg-placeholder {
+  background:
+    linear-gradient(135deg, transparent 49%, var(--color-line, #d9d9d9) 50%, transparent 51%),
+    var(--color-surface, #e5e5e5);
+}
+
+/* Граница (редкая ситуация) */
+.bg-border {
+  background: transparent;
+  outline: 1px solid var(--color-line, #d9d9d9);
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+.overflow-visible {
+  overflow: visible;
+}

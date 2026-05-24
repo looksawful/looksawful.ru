@@ -1,0 +1,304 @@
+/* ==========================================================================
+   Layout Utility System
+   Utility classes for width, padding, overflow, display, grid/flex
+   ==========================================================================
+
+   ПРИНЦИПЫ:
+   — Утилиты не меняют визуальный результат, они формализуют уже существующие паттерны
+   — Используются поверх компонентных классов, не вместо них
+   — Префикс u- для layout-утилит (существующие u-hidden, u-visually-hidden уже так)
+
+   ОГЛАВЛЕНИЕ:
+   1. Ширина
+   2. Грид-колонки (page-grid контекст)
+   3. Паддинг по оси block (вертикальный)
+   4. Паддинг по оси inline (горизонтальный)
+   5. Min-block-size / высота
+   6. Overflow
+   7. Display
+   8. Flex helpers
+   9. Grid helpers
+   10. Align helpers
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Ширина
+   --------------------------------------------------------------------------
+   u-w-full        — 100% ширины родителя
+   u-w-content     — ограничено --content-max, без отступов
+   u-w-screen      — 100vw (выезжает за поля)
+   -------------------------------------------------------------------------- */
+
+.u-w-full {
+  inline-size: 100%;
+}
+.u-w-content {
+  max-inline-size: var(--content-max);
+}
+.u-w-screen {
+  inline-size: 100vw;
+  margin-inline: calc(50% - 50vw);
+}
+
+/* --------------------------------------------------------------------------
+   2. Грид-колонки (используются внутри page-grid / project / project-article--full-grid)
+   --------------------------------------------------------------------------
+   u-col-full      — от края до края вьюпорта (full-start / full-end)
+   u-col-bleed     — от левого поля до правого поля (bleed-start / bleed-end)
+   u-col-content   — контентная зона (content-start / content-end)
+   -------------------------------------------------------------------------- */
+
+.u-col-full {
+  grid-column: full;
+}
+.u-col-bleed {
+  grid-column: bleed;
+}
+.u-col-content {
+  grid-column: content;
+}
+
+/* --------------------------------------------------------------------------
+   3. Padding block (вертикальный ритм)
+   --------------------------------------------------------------------------
+   u-pb-0 … u-pb-8 — соответствуют --space-1 … --space-8
+   u-pb-section    — u-section-gap (alias)
+   u-pb-screen     — min-block-size 100svh
+   -------------------------------------------------------------------------- */
+
+.u-pb-0 {
+  padding-block: 0;
+}
+.u-pb-1 {
+  padding-block: var(--space-1);
+}
+.u-pb-2 {
+  padding-block: var(--space-2);
+}
+.u-pb-3 {
+  padding-block: var(--space-3);
+}
+.u-pb-4 {
+  padding-block: var(--space-4);
+}
+.u-pb-5 {
+  padding-block: var(--space-5);
+}
+.u-pb-6 {
+  padding-block: var(--space-6);
+}
+.u-pb-7 {
+  padding-block: var(--space-7);
+}
+.u-pb-8 {
+  padding-block: var(--space-8);
+}
+
+/* padding-block только сверху */
+.u-pbs-1 {
+  padding-block-start: var(--space-1);
+}
+.u-pbs-2 {
+  padding-block-start: var(--space-2);
+}
+.u-pbs-3 {
+  padding-block-start: var(--space-3);
+}
+.u-pbs-4 {
+  padding-block-start: var(--space-4);
+}
+.u-pbs-5 {
+  padding-block-start: var(--space-5);
+}
+
+/* padding-block только снизу */
+.u-pbe-1 {
+  padding-block-end: var(--space-1);
+}
+.u-pbe-2 {
+  padding-block-end: var(--space-2);
+}
+.u-pbe-3 {
+  padding-block-end: var(--space-3);
+}
+.u-pbe-4 {
+  padding-block-end: var(--space-4);
+}
+.u-pbe-5 {
+  padding-block-end: var(--space-5);
+}
+
+/* --------------------------------------------------------------------------
+   4. Padding inline (горизонтальные поля)
+   --------------------------------------------------------------------------
+   u-pi-edge    — горизонтальные поля = --edge-pad (основные поля страницы)
+   u-pi-tight   — нулевые поля (или убирает edge-pad для bleed/full блоков)
+   -------------------------------------------------------------------------- */
+
+.u-pi-edge {
+  padding-inline: var(--edge-pad);
+}
+.u-pi-tight {
+  padding-inline: 0;
+}
+
+/* --------------------------------------------------------------------------
+   5. Min-block-size
+   --------------------------------------------------------------------------
+   u-min-screen    — минимум 100svh (fullscreen секция)
+   u-min-banner    — минимум clamp(12rem, 30vw, 20rem) (баннеры проектов)
+   -------------------------------------------------------------------------- */
+
+.u-min-screen {
+  min-block-size: 100svh;
+}
+.u-min-banner {
+  min-block-size: clamp(12rem, 30vw, 20rem);
+}
+
+/* --------------------------------------------------------------------------
+   6. Overflow
+   --------------------------------------------------------------------------
+   u-overflow-hidden   — скрывает оверфлоу
+   u-overflow-clip-x   — скрывает горизонтальный оверфлоу (в отличие от hidden не влияет на scroll)
+   u-overflow-visible  — явно разрешает (для вложенных sticky/fixed)
+   -------------------------------------------------------------------------- */
+
+.u-overflow-hidden {
+  overflow: hidden;
+}
+.u-overflow-clip-x {
+  overflow-x: clip;
+}
+.u-overflow-visible {
+  overflow: visible;
+}
+
+/* --------------------------------------------------------------------------
+   7. Display
+   -------------------------------------------------------------------------- */
+
+.u-block {
+  display: block;
+}
+.u-flex {
+  display: flex;
+}
+.u-grid {
+  display: grid;
+}
+.u-contents {
+  display: contents;
+}
+
+/* --------------------------------------------------------------------------
+   8. Flex helpers (используются вместе с .u-flex)
+   -------------------------------------------------------------------------- */
+
+.u-flex-wrap {
+  flex-wrap: wrap;
+}
+.u-flex-center {
+  align-items: center;
+  justify-content: center;
+}
+.u-flex-between {
+  justify-content: space-between;
+}
+.u-flex-col {
+  flex-direction: column;
+}
+.u-gap-1 {
+  gap: var(--space-1);
+}
+.u-gap-2 {
+  gap: var(--space-2);
+}
+.u-gap-3 {
+  gap: var(--space-3);
+}
+.u-gap-4 {
+  gap: var(--space-4);
+}
+.u-gap-5 {
+  gap: var(--space-5);
+}
+
+/* --------------------------------------------------------------------------
+   9. Grid helpers (используются вместе с .u-grid)
+   --------------------------------------------------------------------------
+   u-grid-2     — 2 равные колонки (с fallback на 1)
+   u-grid-auto  — auto-fill с min 18rem
+   u-rows-gap-* — row-gap по шкале space
+   -------------------------------------------------------------------------- */
+
+.u-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.u-grid-auto {
+  grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+}
+
+/* inherit columns (для вложенных гридов, наследующих page-grid) */
+.u-grid-inherit {
+  grid-template-columns: inherit;
+}
+
+/* subgrid колонки (если браузер поддерживает) */
+@supports (grid-template-columns: subgrid) {
+  .u-grid-sub {
+    grid-template-columns: subgrid;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   10. Align helpers
+   -------------------------------------------------------------------------- */
+
+.u-align-start {
+  align-items: start;
+}
+.u-align-center {
+  align-items: center;
+}
+.u-align-end {
+  align-items: end;
+}
+.u-justify-start {
+  justify-items: start;
+}
+.u-justify-end {
+  justify-items: end;
+}
+.u-place-center {
+  place-items: center;
+}
+
+/* Self-alignment */
+.u-self-start {
+  align-self: start;
+}
+.u-self-center {
+  align-self: center;
+}
+.u-self-end {
+  align-self: end;
+}
+.u-self-stretch {
+  align-self: stretch;
+}
+
+/* --------------------------------------------------------------------------
+   11. Isolation / stacking
+   -------------------------------------------------------------------------- */
+
+.u-isolate {
+  isolation: isolate;
+}
+.u-relative {
+  position: relative;
+}
+.u-sticky-top {
+  position: sticky;
+  top: 0;
+}

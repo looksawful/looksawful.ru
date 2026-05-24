@@ -1,0 +1,30 @@
+{
+  "note": "PBR maps generated without light/shadow/combined bake.",
+  "map_size": 512,
+  "processed_materials": [
+    "body",
+    "Dark",
+    "Material.007",
+    "black",
+    "dark",
+    "screen-glass",
+    "Material.004",
+    "Material.005",
+    "glass.003",
+    "Apple-logo",
+    "Material.003",
+    "key",
+    "key.002",
+    "Face.069",
+    "Material.002",
+    "Material.006",
+    "key.001",
+    "key.003"
+  ],
+  "skipped_materials": [
+    "SCREEN_UI_EXTERNAL",
+    "WEB_speaker_left_raycast_baked",
+    "WEB_speaker_right_raycast_baked"
+  ],
+  "screen_material": "SCREEN_UI_EXTERNAL was intentionally not modified."
+}

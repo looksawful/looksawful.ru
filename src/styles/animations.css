@@ -1,0 +1,80 @@
+.appear-on-view {
+  animation: appear-on-view linear both;
+  animation-range: entry 0% cover 28%;
+  animation-timeline: view();
+  will-change: opacity, transform;
+}
+
+.gsap-reveal {
+  --gsap-reveal-opacity: 1;
+  --gsap-reveal-y: 0rem;
+  --gsap-reveal-scale: 1;
+
+  opacity: var(--gsap-reveal-opacity, 1);
+  transform: translate3d(0, var(--gsap-reveal-y, 0), 0) scale(var(--gsap-reveal-scale, 1));
+  will-change: opacity, transform;
+}
+
+.gsap-reveal--text {
+  transform-origin: left center;
+}
+
+.gsap-reveal--image {
+  transform-origin: center;
+}
+
+@keyframes appear-on-view {
+  from {
+    opacity: 0;
+    transform: translate3d(-1.5rem, -0.75rem, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.slider {
+  animation: auto-run 20s linear infinite;
+  will-change: transform;
+}
+
+@keyframes auto-run {
+  from {
+    transform: perspective(1000px) rotateX(-15deg) rotateY(0deg);
+  }
+
+  to {
+    transform: perspective(1000px) rotateX(-15deg) rotateY(-360deg);
+  }
+}
+
+.orbit__track {
+  animation: orbit-spin 22s linear infinite;
+  will-change: transform;
+}
+
+@keyframes orbit-spin {
+  from {
+    transform: perspective(1000px) rotateX(-15deg) rotateY(0deg);
+  }
+
+  to {
+    transform: perspective(1000px) rotateX(-15deg) rotateY(-360deg);
+  }
+}
+
+@supports not (animation-timeline: view()) {
+  .appear-on-view {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gsap-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    will-change: auto;
+  }
+}
