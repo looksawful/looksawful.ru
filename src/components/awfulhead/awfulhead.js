@@ -269,6 +269,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
 
   svg.appendChild(group);
   container.appendChild(svg);
+  container.style.visibility = "visible";
 
   gsap.set(svg, {
     xPercent: -50,
@@ -754,9 +755,11 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     });
   }
 
+  renderRouteProgress(0);
+
   if (fallOnScroll) {
     setupScrollRoute();
   } else {
-    renderRouteProgress(0);
+    startEyeTracking();
   }
 }

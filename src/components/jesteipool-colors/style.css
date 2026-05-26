@@ -1,40 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
-
-* {
-  box-sizing: border-box;
-}
-
-html {
+.jestei-colors {
   font-family: "Inter", system-ui, sans-serif;
-  font-size: 16px;
-}
-
-body {
-  margin: 0;
-}
-
-h1 {
-  margin: 0 0 2rem;
-  font-size: 3rem;
-  font-weight: 700;
-  line-height: 1.1;
-  color: rgba(0, 0, 0, 0.85);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  opacity: 0;
-}
-
-.page {
-  min-height: 100vh;
-  padding: 2rem;
-  background: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  font-size: 16px;
 }
 
-#svg-stage {
+.jestei-colors #svg-stage {
   width: min(100%, 500px);
   height: min(100vw, 500px);
   display: block;
@@ -43,25 +18,25 @@ h1 {
   flex: 0 0 auto;
 }
 
-#gradient {
+.jestei-colors #gradient {
   height: 0;
 }
 
-.palette-trigger {
+.jestei-colors .palette-trigger {
   cursor: pointer;
 }
 
-.palette-trigger path {
+.jestei-colors .palette-trigger path {
   pointer-events: none;
 }
 
-.shape-hit {
+.jestei-colors .shape-hit {
   fill: transparent;
   pointer-events: all;
   cursor: pointer;
 }
 
-.palette-panel {
+.jestei-colors .palette-panel {
   --palette-text: rgba(0, 0, 0, 0.55);
   --palette-muted: rgba(0, 0, 0, 0.65);
   --palette-code: rgba(0, 0, 0, 0.5);
@@ -75,11 +50,11 @@ h1 {
   overflow: hidden;
 }
 
-.panel-header {
+.jestei-colors .panel-header {
   margin-bottom: 1.1rem;
 }
 
-.panel-title {
+.jestei-colors .panel-title {
   margin: 0 0 0.5rem;
   font-size: 1.5rem;
   font-weight: 700;
@@ -88,19 +63,19 @@ h1 {
   color: var(--palette-text);
 }
 
-.panel-desc {
+.jestei-colors .panel-desc {
   margin: 0;
   font-size: 1rem;
   line-height: 1.6;
   color: var(--palette-muted);
 }
 
-.swatches {
+.jestei-colors .swatches {
   display: flex;
   gap: 0.85rem;
 }
 
-.swatch-item {
+.jestei-colors .swatch-item {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -108,7 +83,7 @@ h1 {
   gap: 0;
 }
 
-.swatch-dot {
+.jestei-colors .swatch-dot {
   width: 64px;
   height: 64px;
   border-radius: 50%;
@@ -116,14 +91,14 @@ h1 {
   outline-offset: 2px;
 }
 
-.swatch-name {
+.jestei-colors .swatch-name {
   margin: 0 0 0.15rem;
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--palette-text);
 }
 
-.swatch-code {
+.jestei-colors .swatch-code {
   margin: 0;
   font-size: 0.85rem;
   font-family: "Courier New", monospace;
@@ -131,7 +106,7 @@ h1 {
   color: var(--palette-code);
 }
 
-.swatch-rgba,
-.swatch-use {
+.jestei-colors .swatch-rgba,
+.jestei-colors .swatch-use {
   display: none;
 }

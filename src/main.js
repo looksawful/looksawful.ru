@@ -9,6 +9,9 @@ import { mountMacbookScene } from "./threejs/macbook-scene.js";
 import { mountArc } from "./components/canvas-animations/arc.js";
 import { mountSpiral } from "./components/canvas-animations/spiral.js";
 import { mountLetters } from "./components/002-letters/mount.js";
+import { mountJesteiInterfaceCases } from "./components/page-sections/interface-cases.js";
+import { mountMusicShoots } from "./components/page-sections/music-shoots.js";
+import { observeOnceVisible, toggleBodyClassByVisibility } from "./utils/observer.js";
 
 const THREE_CANVAS_TARGETS = ["#three-canvas"];
 
@@ -56,61 +59,19 @@ function initProjectNav() {
 function initSidebarVisibilityZones() {
   const zones = [...document.querySelectorAll("[data-sidebar-hidden-zone]")];
 
-  if (!zones.length || !("IntersectionObserver" in window)) {
-    return;
-  }
-
-  const activeZones = new Set();
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          activeZones.add(entry.target);
-          return;
-        }
-
-        activeZones.delete(entry.target);
-      });
-
-      document.body.classList.toggle("is-sidebar-hidden", activeZones.size > 0);
-    },
-    {
-      rootMargin: "-18% 0px -32% 0px",
-      threshold: 0,
-    },
-  );
-
-  zones.forEach((zone) => observer.observe(zone));
+  toggleBodyClassByVisibility(zones, "is-sidebar-hidden", {
+    rootMargin: "-18% 0px -32% 0px",
+    threshold: 0,
+  });
 }
 
 function initProjectSidebarState() {
   const projects = [...document.querySelectorAll(".project")];
 
-  if (!projects.length || !("IntersectionObserver" in window)) {
-    return;
-  }
-
-  const visibleProjects = new Set();
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          visibleProjects.add(entry.target);
-          return;
-        }
-
-        visibleProjects.delete(entry.target);
-      });
-
-      document.body.classList.toggle("is-project-visible", visibleProjects.size > 0);
-    },
-    {
-      rootMargin: "-12% 0px -45% 0px",
-      threshold: 0,
-    },
-  );
-
-  projects.forEach((project) => observer.observe(project));
+  toggleBodyClassByVisibility(projects, "is-project-visible", {
+    rootMargin: "-12% 0px -45% 0px",
+    threshold: 0,
+  });
 }
 
 function mountThreeScenes() {
@@ -129,36 +90,21 @@ function mountThreeScenes() {
     return;
   }
 
-  if (!("IntersectionObserver" in window)) {
-    lazyCanvases.forEach((canvas) => {
+  observeOnceVisible(
+    lazyCanvases,
+    (canvas) => {
       mountThreeCanvas(canvas);
-    });
-    return;
-  }
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) {
-          return;
-        }
-
-        mountThreeCanvas(entry.target);
-        observer.unobserve(entry.target);
-      });
     },
     {
       rootMargin: "75% 0px",
       threshold: 0,
     },
   );
-
-  lazyCanvases.forEach((canvas) => {
-    observer.observe(canvas);
-  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  mountJesteiInterfaceCases();
+  mountMusicShoots();
   initGsapRevealHooks();
   initHeroTitleAnimation();
   initJesteiPoolAnimation();
@@ -183,20 +129,13 @@ function mountMacbookSceneLazy() {
   const canvas = document.getElementById("jestei-laptop-canvas");
   if (!(canvas instanceof HTMLCanvasElement)) return;
 
-  if (!("IntersectionObserver" in window)) {
-    mountMacbookScene(canvas);
-    return;
-  }
-
-  const obs = new IntersectionObserver(
-    (entries) => {
-      if (!entries[0].isIntersecting) return;
+  observeOnceVisible(
+    [canvas],
+    () => {
       mountMacbookScene(canvas);
-      obs.disconnect();
     },
     { rootMargin: "75% 0px", threshold: 0 },
   );
-  obs.observe(canvas);
 }
 
 // function initProjectSectionScroll() {

@@ -210,7 +210,7 @@ function addLaptopObjects(scene, renderer) {
 
   // Загружаем текстуру экрана
   const screenTexture = new THREE.TextureLoader().load(
-    new URL("./models/Record%20Pool-1.png", import.meta.url).href,
+    new URL("../assets/projects/jestei/ui/record-pool-screen.png", import.meta.url).href,
     (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
       // Если модель уже загружена — применяем сразу

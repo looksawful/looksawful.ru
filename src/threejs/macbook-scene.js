@@ -18,8 +18,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
-const GLB_URL = "/three_export/macbook_threejs_ready.glb";
-const SCREEN_URL = "/web_assets/screen/screen_ui_current.png";
+const GLB_URL = new URL("../assets/projects/jestei/macbook/model/macbook-threejs-ready.glb", import.meta.url).href;
+const SCREEN_URL = new URL("../assets/projects/jestei/macbook/screen/screen-ui-current.png", import.meta.url).href;
 
 /**
  * Общая композиция.

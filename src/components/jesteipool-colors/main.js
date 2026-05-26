@@ -1,4 +1,6 @@
-﻿import { gsap } from "gsap";
+﻿import "./style.css";
+
+import { gsap } from "gsap";
 import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 import { CustomEase } from "gsap/CustomEase";
 import { EasePack } from "gsap/EasePack";
@@ -9,87 +11,7 @@ export function mountJesteiColors(containerId) {
   const container = document.getElementById(containerId);
   if (!container || container.dataset.jesteiColorsMounted === "true") return;
   container.dataset.jesteiColorsMounted = "true";
-
-  // ── Стили ──────────────────────────────────────────────────────────────────
-  const style = document.createElement("style");
-  style.textContent = `
-    #${containerId} {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2rem;
-      width: 100%;
-    }
-    #${containerId} #svg-stage {
-      width: min(100%, 500px);
-      height: min(100vw, 500px);
-      display: block;
-      margin: 0 auto;
-      overflow: visible;
-      flex: 0 0 auto;
-    }
-    #${containerId} .palette-trigger { cursor: pointer; }
-    #${containerId} .palette-trigger path { pointer-events: none; }
-    #${containerId} .shape-hit {
-      fill: transparent;
-      pointer-events: all;
-      cursor: pointer;
-    }
-    #${containerId} .palette-panel {
-      --palette-text: rgba(0, 0, 0, 0.55);
-      --palette-muted: rgba(0, 0, 0, 0.65);
-      --palette-code: rgba(0, 0, 0, 0.5);
-      width: min(100%, 500px);
-      height: 172px;
-      flex: 0 0 172px;
-      opacity: 0;
-      visibility: hidden;
-      padding: 1.25rem 0 0;
-      overflow: hidden;
-    }
-    #${containerId} .panel-header { margin-bottom: 1.1rem; }
-    #${containerId} .panel-title {
-      margin: 0 0 0.5rem;
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--palette-text);
-    }
-    #${containerId} .panel-desc {
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1.6;
-      color: var(--palette-muted);
-    }
-    #${containerId} .swatches { display: flex; gap: 0.85rem; }
-    #${containerId} .swatch-item {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    #${containerId} .swatch-dot {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      margin-bottom: 0.75rem;
-    }
-    #${containerId} .swatch-name {
-      margin: 0 0 0.15rem;
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--palette-text);
-    }
-    #${containerId} .swatch-code {
-      margin: 0;
-      font-size: 0.85rem;
-      font-family: "Courier New", monospace;
-      letter-spacing: 0.04em;
-      color: var(--palette-code);
-    }
-  `;
-  document.head.appendChild(style);
+  container.classList.add("jestei-colors");
 
   // ── HTML ───────────────────────────────────────────────────────────────────
   const CIRCLE_D_INIT =
@@ -132,6 +54,8 @@ export function mountJesteiColors(containerId) {
   // ── Весь оригинальный код ниже, DOM-ссылки через container ─────────────────
 
   CustomEase.create("liquidOut", "M0,0 C0.04,0 0.18,0.52 0.36,0.78 0.54,1.06 0.74,1.09 0.88,1.02 1,0.97 1,1 1,1");
+
+  const scopeSelector = `#${containerId}`;
 
   const ORANGE_COLOR = "#F18200";
   const PEAR_COLOR = "#D1E231";
@@ -349,7 +273,7 @@ export function mountJesteiColors(containerId) {
     });
 
     gsap.fromTo(
-      "#palette-info .panel-title, #palette-info .panel-desc, #palette-info .swatch-item",
+      `${scopeSelector} .panel-title, ${scopeSelector} .panel-desc, ${scopeSelector} .swatch-item`,
       { y: 10, opacity: 0 },
       {
         y: 0,
