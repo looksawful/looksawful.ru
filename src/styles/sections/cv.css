@@ -66,7 +66,6 @@
   letter-spacing: -0.04em;
 }
 
-.cv-experience__role,
 .cv-experience__summary p {
   margin: 0;
   color: var(--copy);
@@ -77,6 +76,40 @@
   text-wrap: pretty;
 }
 
+.cv-role-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem 0.32rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cv-role-chips li::before {
+  content: none;
+}
+
+.cv-role-chip {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.64rem;
+  padding: 0.25rem 0.54rem 0.3rem;
+  border: 1px solid #111;
+  border-radius: 999px;
+  color: #111;
+  background: #fff;
+  font-size: clamp(0.68rem, 0.64vw, 0.78rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+.cv-role-chips li:nth-child(even) .cv-role-chip {
+  color: #fff;
+  background: #111;
+}
+
 .cv-experience__summary {
   display: grid;
   gap: 0.34rem;
@@ -84,15 +117,27 @@
 }
 
 .cv-experience__summary h4,
-.cv-task-area__title,
-.cv-task-group h4 {
+.cv-task-area__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  width: fit-content;
   margin: 0;
   color: #111;
-  font-size: clamp(0.68rem, 0.62vw, 0.76rem);
+  font-size: clamp(0.74rem, 0.72vw, 0.88rem);
   font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.02em;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
   text-transform: lowercase;
+}
+
+.cv-experience__summary h4::before,
+.cv-task-area__title::before {
+  content: "";
+  display: block;
+  inline-size: 1.15rem;
+  block-size: 1px;
+  background: currentColor;
 }
 
 .cv-experience__summary p {
@@ -120,10 +165,6 @@
   min-inline-size: 0;
 }
 
-.cv-task-area__title {
-  color: #6f6f6f;
-}
-
 .cv-task-groups {
   display: grid;
   gap: clamp(1.15rem, 1.45vw, 1.65rem);
@@ -135,9 +176,13 @@
 }
 
 .cv-task-group h4 {
+  margin: 0;
   color: #6f6f6f;
   font-size: clamp(0.64rem, 0.58vw, 0.72rem);
   font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: lowercase;
 }
 
 .cv-task-chips {
@@ -477,6 +522,12 @@
     min-block-size: 2.18rem;
     padding: 0.42rem 0.72rem 0.48rem;
     font-size: clamp(0.82rem, 3.65vw, 1rem);
+  }
+
+  .cv-role-chip {
+    min-block-size: 1.72rem;
+    padding: 0.28rem 0.58rem 0.32rem;
+    font-size: clamp(0.72rem, 3.05vw, 0.86rem);
   }
 }
 

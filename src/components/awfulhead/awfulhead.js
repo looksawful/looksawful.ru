@@ -5,7 +5,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const FREE_FALL_DISTANCE_VH = 1.15;
 const FREE_FALL_DURATION = 0.72;
-const IDLE_PARK_DELAY = 0.1;
+const IDLE_PARK_DELAY = 0.32;
 
 const ROUTE_RANGE = {
   startSelectors: [".hero", "#lead", "#cv"],
@@ -16,90 +16,35 @@ const ROUTE_RANGE = {
 
 const ROUTE_STOPS = [
   {
-    id: "hero-name-start",
-    requiredSelectors: [".hero__title-name", ".hero"],
-    selector: ".hero__title-name",
-    selectorFallbacks: [".hero"],
+    id: "hero-top-left",
+    requiredSelectors: [".hero"],
     focusSelector: ".hero__screen--cover",
     focusFallbacks: [".hero"],
     scrollRatio: 0.04,
-    anchorX: 0,
-    anchorY: 0.16,
-    moveXByHead: -0.46,
-    moveYByHead: -0.12,
+    viewportX: 0.24,
+    viewportY: 0.16,
     scale: 0.94,
-    variant: "split",
+    variant: "hold",
     mobile: {
-      anchorY: 0.18,
-      moveXByHead: -0.34,
-      moveYByHead: -0.02,
+      viewportX: 0.24,
+      viewportY: 0.14,
       scale: 0.8,
     },
   },
   {
-    id: "hero-role",
-    requiredSelectors: [".hero__title-role", ".hero__title-name", ".hero"],
-    selector: ".hero__title-role",
-    selectorFallbacks: [".hero__title-name", ".hero"],
+    id: "hero-bottom-right",
+    requiredSelectors: [".hero"],
     focusSelector: ".hero__screen--cover",
     focusFallbacks: [".hero"],
-    scrollRatio: 0.2,
-    anchorX: 1,
-    anchorY: 0.22,
-    moveXByHead: 0.34,
-    moveYByHead: -0.14,
+    scrollRatio: 0.46,
+    viewportX: 0.76,
+    viewportY: 0.5,
     scale: 0.8,
-    variant: "fall",
+    variant: "hold",
     mobile: {
-      anchorX: 0,
-      anchorY: 1,
-      moveXByHead: -0.12,
-      moveYByHead: -0.08,
+      viewportX: 0.78,
+      viewportY: 0.42,
       scale: 0.72,
-    },
-  },
-  {
-    id: "hero-note",
-    requiredSelectors: [".hero__note", ".hero"],
-    selector: ".hero__note",
-    selectorFallbacks: [".hero"],
-    focusSelector: ".hero__screen--cover",
-    focusFallbacks: [".hero"],
-    scrollRatio: 0.42,
-    anchorX: 0,
-    anchorY: 0.22,
-    moveXByHead: -0.36,
-    moveYByHead: -0.12,
-    scale: 0.72,
-    variant: "split",
-    mobile: {
-      anchorX: 0,
-      anchorY: 1,
-      moveXByHead: -0.12,
-      moveYByHead: -0.08,
-      scale: 0.68,
-    },
-  },
-  {
-    id: "hero-contacts",
-    requiredSelectors: [".contact-links", ".hero"],
-    selector: ".contact-links",
-    selectorFallbacks: [".hero"],
-    focusSelector: ".hero__screen--cover",
-    focusFallbacks: [".hero"],
-    scrollRatio: 0.62,
-    anchorX: 1,
-    anchorY: 0.24,
-    moveXByHead: 0.3,
-    moveYByHead: -0.1,
-    scale: 0.7,
-    variant: "fall",
-    mobile: {
-      anchorX: 1,
-      anchorY: 0,
-      moveXByHead: 0,
-      moveYByHead: 0.08,
-      scale: 0.64,
     },
   },
   {
@@ -108,13 +53,13 @@ const ROUTE_STOPS = [
     focusSelector: "#lead",
     focusFallbacks: [".lead__intro"],
     scrollRatio: 0.14,
-    viewportX: 0.08,
-    viewportY: 0.36,
+    viewportX: 0.88,
+    viewportY: 0.56,
     scale: 0.72,
     variant: "hold",
     mobile: {
-      viewportX: 0.86,
-      viewportY: 0.18,
+      viewportX: 0.84,
+      viewportY: 0.5,
       scale: 0.64,
     },
   },
@@ -124,13 +69,13 @@ const ROUTE_STOPS = [
     focusSelector: "#lead",
     focusFallbacks: [".lead__intro"],
     scrollRatio: 0.88,
-    viewportX: 0.08,
-    viewportY: 0.62,
+    viewportX: 0.88,
+    viewportY: 0.72,
     scale: 0.72,
     variant: "hold",
     mobile: {
-      viewportX: 0.86,
-      viewportY: 0.82,
+      viewportX: 0.84,
+      viewportY: 0.74,
       scale: 0.64,
     },
   },
@@ -140,13 +85,13 @@ const ROUTE_STOPS = [
     focusSelector: "#cv",
     focusFallbacks: ["main", ".site-main"],
     scrollRatio: 0.04,
-    viewportX: 0.86,
-    viewportY: 0.16,
+    viewportX: 0.88,
+    viewportY: 0.76,
     scale: 0.62,
     variant: "hold",
     mobile: {
       viewportX: 0.82,
-      viewportY: 0.14,
+      viewportY: 0.76,
       scale: 0.6,
     },
   },
@@ -155,15 +100,31 @@ const ROUTE_STOPS = [
     requiredSelectors: ["#cv"],
     focusSelector: "#cv",
     focusFallbacks: ["main", ".site-main"],
-    scrollRatio: 0.82,
-    viewportX: 0.86,
-    viewportY: 0.16,
+    scrollRatio: 0.72,
+    viewportX: 0.88,
+    viewportY: 0.78,
     scale: 0.62,
     variant: "hold",
     mobile: {
       viewportX: 0.82,
-      viewportY: 0.14,
+      viewportY: 0.78,
       scale: 0.6,
+    },
+  },
+  {
+    id: "cv-corner-grow",
+    requiredSelectors: ["#cv"],
+    focusSelector: "#cv",
+    focusFallbacks: ["main", ".site-main"],
+    scrollRatio: 0.98,
+    viewportX: 0.86,
+    viewportY: 0.82,
+    scale: 3,
+    variant: "hold",
+    mobile: {
+      viewportX: 0.76,
+      viewportY: 0.72,
+      scale: 1.8,
     },
   },
 ];
@@ -757,6 +718,11 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
 
   function getSafeHeroParkingPosition() {
     const isCompact = window.matchMedia("(max-width: 48rem)").matches;
+    const routePosition = getRouteFrame(routeProgress).position;
+
+    if (routePosition) {
+      return clampHeadPosition(routePosition);
+    }
 
     return clampHeadPosition({
       x: window.innerWidth * (isCompact ? 0.82 : 0.24),
@@ -811,7 +777,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
           x: parkingPosition.x,
           y: parkingPosition.y,
           scale: parkingPosition.scale,
-          duration: 0.34,
+          duration: 0.46,
           ease: collectEase,
           overwrite: "auto",
         },
@@ -824,7 +790,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
           y: 0,
           rotation: 0,
           scale: 1,
-          duration: 0.34,
+          duration: 0.46,
           ease: collectEase,
           overwrite: "auto",
           stagger: {
@@ -976,7 +942,7 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
       endTrigger,
       start: ROUTE_RANGE.start,
       end: ROUTE_RANGE.end,
-      scrub: 0.6,
+      scrub: 0.9,
       invalidateOnRefresh: true,
 
       onEnter: syncHeadWithScroll,
@@ -986,12 +952,14 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
       onLeave: () => {
         stopIdleCollectDelay();
         stopCollectingHeadParts();
+        stopFreeFall();
 
         routeProgress = 1;
+        isScrollActive = false;
+        isFreeFallActive = false;
 
         showHead();
         renderRouteProgress(1);
-        playFreeFall();
       },
 
       onLeaveBack: () => {

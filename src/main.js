@@ -1,19 +1,20 @@
 import "./styles/index.css";
 import { renderPage } from "./sections/index.js";
 import { initComponents } from "./components/index.js";
+import { withPreloadState } from "./components/preload-state/preload-state.js";
 
 let appInitialized = false;
 
-function runInitStep(label, callback) {
+async function runInitStep(label, callback) {
   try {
-    return callback();
+    return await callback();
   } catch (error) {
     console.error(`[init] ${label} failed`, error);
     return null;
   }
 }
 
-function initApp() {
+async function initApp() {
   if (appInitialized) {
     return;
   }
@@ -25,15 +26,20 @@ function initApp() {
     return;
   }
 
-  runInitStep("renderPage", () => renderPage(main));
+  await runInitStep("renderPage", () =>
+    withPreloadState(document.body, () => renderPage(main), {
+      delay: 420,
+      fixed: true,
+    }),
+  );
 
   appInitialized = true;
 
-  runInitStep("initComponents", () => initComponents());
+  await runInitStep("initComponents", () => initComponents());
 }
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initApp, { once: true });
 } else {
-  initApp();
+  void initApp();
 }
