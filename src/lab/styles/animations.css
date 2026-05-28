@@ -1,0 +1,49 @@
+.hero-title-word {
+  display: block;
+  white-space: nowrap;
+}
+
+.hero-title-letter {
+  display: inline-block;
+  will-change: color, transform;
+}
+
+.gsap-reveal {
+  opacity: var(--gsap-reveal-opacity, 1);
+  transform: translate3d(0, var(--gsap-reveal-y, 0), 0) scale(var(--gsap-reveal-scale, 1));
+  will-change: opacity, transform;
+}
+
+.gsap-reveal--text {
+  transform-origin: left center;
+}
+
+.gsap-reveal--image {
+  transform-origin: center;
+}
+
+.orbit__track {
+  animation: auto-run 22s linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .gsap-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    will-change: auto;
+  }
+}

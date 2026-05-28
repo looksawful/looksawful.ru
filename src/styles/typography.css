@@ -1,0 +1,15 @@
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --page: calc(100vw - 64px);
+  --mb: 136px;
+  --mb-m: 72px;
+  --bd: 1px solid #d9d9d9;
+  --copy: #222;
+  --fs: 16px;
+  --heading-hero: clamp(3rem, 10vw, 9rem);
+  --heading-hero-secondary: clamp(3rem, 9vw, 8rem);
+  --text-hero-support: clamp(1.05rem, 1.6vw, 1.25rem);
+  --text-display: clamp(2.2rem, 5.8vw, 4.2rem);
+  --type-copy-sm: clamp(0.9rem, 0.84vw, 1rem);
+}

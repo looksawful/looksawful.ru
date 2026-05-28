@@ -1,0 +1,39 @@
+.lead-section {
+  min-block-size: 100svh;
+  display: grid;
+  grid-template-columns: minmax(clamp(2rem, 8vw, 9rem), 1fr) minmax(0, 80rem) minmax(clamp(2rem, 8vw, 9rem), 1fr);
+  align-content: center;
+  padding-block: 6rem;
+}
+
+.lead-section > * {
+  grid-column: 2;
+}
+
+.lead__intro {
+  justify-self: center;
+  inline-size: min(100%, 78rem);
+  max-inline-size: none;
+  color: #222;
+  font-size: clamp(1.55rem, 3.65vw, 3.05rem);
+  line-height: 1.14;
+  text-align: justify;
+  text-wrap: pretty;
+  hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+@media (max-width: 48rem) {
+  .lead-section {
+    grid-template-columns: minmax(1rem, 1fr) minmax(0, 100%) minmax(1rem, 1fr);
+    align-content: start;
+    padding-block: 5rem;
+  }
+
+  .lead__intro {
+    font-size: clamp(1.35rem, 6.8vw, 1.95rem);
+    line-height: 1.13;
+    text-align: left;
+  }
+}

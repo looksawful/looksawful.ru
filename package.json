@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test:structure": "node --test tests/page-structure.test.js",
     "build": "vite build",
     "preview": "vite preview"
   },

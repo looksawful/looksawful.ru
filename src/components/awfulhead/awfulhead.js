@@ -3,155 +3,167 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const HERO_ROUTE = {
-  triggerSelector: ".hero",
+const FREE_FALL_DISTANCE_VH = 1.15;
+const FREE_FALL_DURATION = 0.72;
+const IDLE_PARK_DELAY = 0.1;
+
+const ROUTE_RANGE = {
+  startSelectors: [".hero", "#lead", "#cv"],
+  endSelectors: ["#cv", "#lead", ".hero"],
   start: "top top",
   end: "bottom top",
 };
 
 const ROUTE_STOPS = [
   {
-    id: "title-anchor",
-    selector: '[data-awfulhead-anchor="hero-title"]',
-    focus: "cover",
-    progress: 0.0,
-
-    anchorX: 0.26,
-    anchorY: 0,
-
-    moveX: -450,
-    moveY: -250,
-
-    scale: 1,
+    id: "hero-name-start",
+    requiredSelectors: [".hero__title-name", ".hero"],
+    selector: ".hero__title-name",
+    selectorFallbacks: [".hero"],
+    focusSelector: ".hero__screen--cover",
+    focusFallbacks: [".hero"],
+    scrollRatio: 0.04,
+    anchorX: 0,
+    anchorY: 0.16,
+    moveXByHead: -0.46,
+    moveYByHead: -0.12,
+    scale: 0.94,
+    variant: "split",
+    mobile: {
+      anchorY: 0.18,
+      moveXByHead: -0.34,
+      moveYByHead: -0.02,
+      scale: 0.8,
+    },
   },
   {
-    id: "title-role",
+    id: "hero-role",
+    requiredSelectors: [".hero__title-role", ".hero__title-name", ".hero"],
     selector: ".hero__title-role",
-    focus: "cover",
-    progress: 0.16,
-
-    anchorX: 0.78,
-    anchorY: 0.12,
-
-    moveX: -8,
-    moveY: -56,
-
-    scale: 0.82,
+    selectorFallbacks: [".hero__title-name", ".hero"],
+    focusSelector: ".hero__screen--cover",
+    focusFallbacks: [".hero"],
+    scrollRatio: 0.2,
+    anchorX: 1,
+    anchorY: 0.22,
+    moveXByHead: 0.34,
+    moveYByHead: -0.14,
+    scale: 0.8,
+    variant: "fall",
+    mobile: {
+      anchorX: 0,
+      anchorY: 1,
+      moveXByHead: -0.12,
+      moveYByHead: -0.08,
+      scale: 0.72,
+    },
   },
   {
     id: "hero-note",
+    requiredSelectors: [".hero__note", ".hero"],
     selector: ".hero__note",
-    focus: "cover",
-    progress: 0.32,
-
-    anchorX: 0.18,
-    anchorY: 0,
-
-    moveX: 0,
-    moveY: -84,
-
+    selectorFallbacks: [".hero"],
+    focusSelector: ".hero__screen--cover",
+    focusFallbacks: [".hero"],
+    scrollRatio: 0.42,
+    anchorX: 0,
+    anchorY: 0.22,
+    moveXByHead: -0.36,
+    moveYByHead: -0.12,
     scale: 0.72,
-
+    variant: "split",
     mobile: {
-      anchorX: 0.18,
-      anchorY: 0,
-      moveX: 0,
-      moveY: -80,
-      scale: 0.72,
-    },
-  },
-  {
-    id: "contacts",
-    selector: ".contact-links",
-    focus: "cover",
-    progress: 0.48,
-
-    anchorX: 0.74,
-    anchorY: 0,
-
-    moveX: 0,
-    moveY: -84,
-
-    scale: 0.72,
-
-    mobile: {
-      anchorX: 0.22,
-      anchorY: 0,
-      moveX: 0,
-      moveY: -76,
-      scale: 0.72,
-    },
-  },
-  {
-    id: "about-anchor",
-    selector: '[data-awfulhead-anchor="hero-about"]',
-    focus: "about",
-    progress: 0.64,
-
-    anchorX: 0.22,
-    anchorY: 0,
-
-    moveX: 0,
-    moveY: -56,
-
-    scale: 0.82,
-  },
-  {
-    id: "about-middle",
-    selector: ".hero__intro",
-    focus: "about",
-    progress: 0.79,
-
-    anchorX: 0.44,
-    anchorY: 0.32,
-
-    moveX: 0,
-    moveY: -36,
-
-    scale: 0.72,
-  },
-  {
-    id: "about-end",
-    selector: ".hero__intro",
-    focus: "about",
-    progress: 0.91,
-
-    anchorX: 0.7,
-    anchorY: 0.66,
-
-    moveX: 0,
-    moveY: -16,
-
-    scale: 0.68,
-
-    mobile: {
-      anchorX: 0.34,
-      anchorY: 0.8,
-      moveX: 0,
-      moveY: -16,
+      anchorX: 0,
+      anchorY: 1,
+      moveXByHead: -0.12,
+      moveYByHead: -0.08,
       scale: 0.68,
     },
   },
   {
-    id: "hero-exit",
-    selector: ".hero__intro",
-    focus: "about",
-    progress: 1,
-
-    anchorX: 0.82,
-    anchorY: 0.9,
-
-    moveX: 0,
-    moveY: 36,
-
-    scale: 0.66,
-
+    id: "hero-contacts",
+    requiredSelectors: [".contact-links", ".hero"],
+    selector: ".contact-links",
+    selectorFallbacks: [".hero"],
+    focusSelector: ".hero__screen--cover",
+    focusFallbacks: [".hero"],
+    scrollRatio: 0.62,
+    anchorX: 1,
+    anchorY: 0.24,
+    moveXByHead: 0.3,
+    moveYByHead: -0.1,
+    scale: 0.7,
+    variant: "fall",
     mobile: {
-      anchorX: 0.5,
-      anchorY: 0.92,
-      moveX: 0,
-      moveY: 16,
-      scale: 0.66,
+      anchorX: 1,
+      anchorY: 0,
+      moveXByHead: 0,
+      moveYByHead: 0.08,
+      scale: 0.64,
+    },
+  },
+  {
+    id: "lead-sticky-top",
+    requiredSelectors: ["#lead", ".lead__intro"],
+    focusSelector: "#lead",
+    focusFallbacks: [".lead__intro"],
+    scrollRatio: 0.14,
+    viewportX: 0.08,
+    viewportY: 0.36,
+    scale: 0.72,
+    variant: "hold",
+    mobile: {
+      viewportX: 0.86,
+      viewportY: 0.18,
+      scale: 0.64,
+    },
+  },
+  {
+    id: "lead-sticky-bottom",
+    requiredSelectors: ["#lead", ".lead__intro"],
+    focusSelector: "#lead",
+    focusFallbacks: [".lead__intro"],
+    scrollRatio: 0.88,
+    viewportX: 0.08,
+    viewportY: 0.62,
+    scale: 0.72,
+    variant: "hold",
+    mobile: {
+      viewportX: 0.86,
+      viewportY: 0.82,
+      scale: 0.64,
+    },
+  },
+  {
+    id: "cv-corner-enter",
+    requiredSelectors: ["#cv"],
+    focusSelector: "#cv",
+    focusFallbacks: ["main", ".site-main"],
+    scrollRatio: 0.04,
+    viewportX: 0.86,
+    viewportY: 0.16,
+    scale: 0.62,
+    variant: "hold",
+    mobile: {
+      viewportX: 0.82,
+      viewportY: 0.14,
+      scale: 0.6,
+    },
+  },
+  {
+    id: "cv-corner-hold",
+    requiredSelectors: ["#cv"],
+    focusSelector: "#cv",
+    focusFallbacks: ["main", ".site-main"],
+    scrollRatio: 0.82,
+    viewportX: 0.86,
+    viewportY: 0.16,
+    scale: 0.62,
+    variant: "hold",
+    mobile: {
+      viewportX: 0.82,
+      viewportY: 0.14,
+      scale: 0.6,
     },
   },
 ];
@@ -193,8 +205,35 @@ function interpolate(from, to, progress) {
   return from + (to - from) * progress;
 }
 
+function clampBetween(value, min, max) {
+  if (min > max) {
+    return (min + max) * 0.5;
+  }
+
+  return Math.max(min, Math.min(max, value));
+}
+
 function getSegmentVariant(index) {
   return SEGMENT_VARIANTS[index % SEGMENT_VARIANTS.length];
+}
+
+function asArray(value) {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean);
+  }
+
+  return value ? [value] : [];
+}
+
+function getFirstExistingElement(selectors, fallback = null) {
+  for (const selector of asArray(selectors)) {
+    const element = document.querySelector(selector);
+    if (element) {
+      return element;
+    }
+  }
+
+  return fallback;
 }
 
 export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fallOnScroll = false } = {}) {
@@ -299,9 +338,11 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
   let isEyeTrackingActive = true;
   let isHeadVisible = true;
   let isScrollActive = false;
+  let isFreeFallActive = false;
   let routeProgress = 0;
-  let routePointMap = new Map();
+  let routePoints = [];
   let collectTween = null;
+  let freeFallTween = null;
 
   function resetEyes() {
     leftEye.setAttribute("cx", leftBase.x);
@@ -359,127 +400,222 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     return Number.isFinite(size) && size > 0 ? size : 180;
   }
 
+  function clampHeadPosition(position) {
+    const scale = position.scale ?? 1;
+    const radius = (getHeadSize() * scale) / 2;
+    const margin = window.matchMedia("(max-width: 48rem)").matches ? 10 : 18;
+
+    return {
+      ...position,
+      scale,
+      x: clampBetween(position.x, radius + margin, window.innerWidth - radius - margin),
+      y: clampBetween(position.y, radius + margin, window.innerHeight - radius - margin),
+    };
+  }
+
   function getDocumentTop(element) {
     return element.getBoundingClientRect().top + window.scrollY;
   }
 
-  function getFocusScrolls() {
-    const hero = document.querySelector(HERO_ROUTE.triggerSelector) ?? container.closest(".hero") ?? container;
-    const cover = hero.querySelector(".hero__screen--cover") ?? hero;
-    const about = document.getElementById("hero-about") ?? hero;
+  function getRequiredSelectors(point) {
+    const selectors = point.requiredSelectors
+      ? asArray(point.requiredSelectors)
+      : [point.selector, ...asArray(point.selectorFallbacks), point.focusSelector, ...asArray(point.focusFallbacks)];
+
+    return selectors.filter(Boolean);
+  }
+
+  function canUsePoint(point) {
+    const requiredSelectors = getRequiredSelectors(point);
+
+    if (!requiredSelectors.length) {
+      return true;
+    }
+
+    return Boolean(getFirstExistingElement(requiredSelectors));
+  }
+
+  function buildRouteStops() {
+    const stops = ROUTE_STOPS.filter(canUsePoint);
+
+    if (stops.length) {
+      return stops;
+    }
+
+    return [
+      {
+        id: "awfulhead-floating-fallback",
+        viewportX: 0.5,
+        viewportY: 0.34,
+        scale: 0.82,
+        variant: "hold",
+      },
+    ];
+  }
+
+  function getResponsivePointSettings(point) {
+    const isCompact = window.matchMedia("(max-width: 68rem)").matches;
+    return isCompact && point.mobile ? { ...point, ...point.mobile } : point;
+  }
+
+  function getAvailableRouteAnchors() {
+    const anchors = [
+      getFirstExistingElement(ROUTE_RANGE.startSelectors),
+      getFirstExistingElement(["#lead", ".lead__intro"]),
+      getFirstExistingElement(["#cv"]),
+      container.closest(".hero, section"),
+      container.parentElement,
+    ].filter(Boolean);
+
+    return anchors
+      .filter((element, index, list) => list.indexOf(element) === index)
+      .sort((left, right) => getDocumentTop(left) - getDocumentTop(right));
+  }
+
+  function getRouteMetrics() {
+    const anchors = getAvailableRouteAnchors();
+    const startElement = anchors[0] ?? container.parentElement ?? container;
+    const endElement =
+      getFirstExistingElement(ROUTE_RANGE.endSelectors, anchors[anchors.length - 1] ?? startElement) ?? startElement;
+    const startTop = getDocumentTop(startElement);
+    const endHeight = Math.max(endElement.getBoundingClientRect().height, window.innerHeight * 0.6);
+    const endTop = getDocumentTop(endElement) + endHeight;
 
     return {
-      cover: getDocumentTop(cover),
-      about: getDocumentTop(about),
+      startElement,
+      endElement,
+      startTop,
+      endTop: Math.max(startTop + 1, endTop),
     };
   }
 
-  function resolvePoint(point, focusScrolls) {
-    const isCompact = window.matchMedia("(max-width: 68rem)").matches;
-    const pointSettings = isCompact && point.mobile ? { ...point, ...point.mobile } : point;
-    const target = document.querySelector(pointSettings.selector);
+  function resolvePoint(point, routeMetrics) {
+    const pointSettings = getResponsivePointSettings(point);
+    const target = getFirstExistingElement([pointSettings.selector, ...asArray(pointSettings.selectorFallbacks)], null);
+    const focusElement = getFirstExistingElement(
+      [pointSettings.focusSelector, ...asArray(pointSettings.focusFallbacks)],
+      target ?? routeMetrics.startElement,
+    );
 
-    const anchorX = pointSettings.anchorX;
-    const anchorY = pointSettings.anchorY;
-    const moveX = pointSettings.moveX;
-    const moveY = pointSettings.moveY;
-    const scale = pointSettings.scale;
+    const focusTop = getDocumentTop(focusElement);
+    const focusHeight = Math.max(focusElement.getBoundingClientRect().height, 1);
+    const rawScroll =
+      focusTop +
+      focusHeight * (pointSettings.scrollRatio ?? 0) +
+      window.innerHeight * (pointSettings.scrollOffsetVh ?? 0) +
+      (pointSettings.scrollOffset ?? 0);
 
-    if (!target) {
-      return {
-        id: pointSettings.id,
-        progress: pointSettings.progress,
-        x: window.innerWidth * 0.5 + moveX,
-        y: window.innerHeight * 0.42 + moveY,
-        scale,
-      };
+    const stopScroll = Math.min(routeMetrics.endTop, Math.max(routeMetrics.startTop, rawScroll));
+
+    const moveX = pointSettings.moveX ?? getHeadSize() * (pointSettings.moveXByHead ?? 0);
+    const moveY = pointSettings.moveY ?? getHeadSize() * (pointSettings.moveYByHead ?? 0);
+
+    let x = window.innerWidth * 0.5 + moveX;
+    let y = window.innerHeight * 0.42 + moveY;
+
+    if (typeof pointSettings.viewportX === "number") {
+      x = window.innerWidth * pointSettings.viewportX + moveX;
+    } else if (target) {
+      const rect = target.getBoundingClientRect();
+      x = rect.left + rect.width * (pointSettings.anchorX ?? 0.5) + moveX;
     }
 
-    const rect = target.getBoundingClientRect();
-    const documentLeft = rect.left + window.scrollX;
-    const documentTop = rect.top + window.scrollY;
-    const focusScroll = focusScrolls[pointSettings.focus] ?? focusScrolls.cover;
+    if (typeof pointSettings.viewportY === "number") {
+      y = window.innerHeight * pointSettings.viewportY + moveY;
+    } else if (target) {
+      const rect = target.getBoundingClientRect();
+      y = rect.top + window.scrollY - stopScroll + rect.height * (pointSettings.anchorY ?? 0.5) + moveY;
+    }
 
     return {
       id: pointSettings.id,
-      progress: pointSettings.progress,
-
-      x: documentLeft - window.scrollX + rect.width * anchorX + moveX,
-      y: documentTop - focusScroll + rect.height * anchorY + moveY,
-
-      scale,
+      progress: normalize(stopScroll, routeMetrics.startTop, routeMetrics.endTop),
+      x,
+      y,
+      scale: pointSettings.scale ?? 1,
+      variant: pointSettings.variant ?? "split",
     };
   }
 
   function refreshRoutePoints() {
-    const focusScrolls = getFocusScrolls();
-    routePointMap = new Map(ROUTE_STOPS.map((point) => [point.id, resolvePoint(point, focusScrolls)]));
-  }
+    const routeMetrics = getRouteMetrics();
 
-  function getRoutePoint(stop) {
-    return (
-      routePointMap.get(stop.id) ?? {
-        id: stop.id,
-        progress: stop.progress,
-        x: window.innerWidth * 0.5,
-        y: window.innerHeight * 0.42,
-        scale: 1,
-      }
-    );
+    routePoints = buildRouteStops()
+      .map((point) => resolvePoint(point, routeMetrics))
+      .filter(Boolean)
+      .sort((left, right) => left.progress - right.progress);
   }
 
   function getRouteFrame(progress) {
     const clampedProgress = clampProgress(progress);
-    const firstStop = ROUTE_STOPS[0];
-    const lastStop = ROUTE_STOPS[ROUTE_STOPS.length - 1];
+    const defaultPoint = {
+      id: "route-default",
+      progress: 0,
+      x: window.innerWidth * 0.5,
+      y: window.innerHeight * 0.42,
+      scale: 1,
+      variant: "split",
+    };
 
-    if (clampedProgress <= firstStop.progress) {
-      const point = getRoutePoint(firstStop);
+    const firstStop = routePoints[0] ?? defaultPoint;
+    const lastStop = routePoints[routePoints.length - 1] ?? firstStop;
 
+    if (routePoints.length < 2 || clampedProgress <= firstStop.progress) {
       return {
         segmentIndex: 0,
-        variant: getSegmentVariant(0),
+        variant: firstStop.variant ?? getSegmentVariant(0),
         localProgress: 0,
-        position: point,
+        position: firstStop,
       };
     }
 
     if (clampedProgress >= lastStop.progress) {
-      const point = getRoutePoint(lastStop);
-
       return {
-        segmentIndex: ROUTE_STOPS.length - 2,
-        variant: getSegmentVariant(ROUTE_STOPS.length - 2),
+        segmentIndex: Math.max(0, routePoints.length - 2),
+        variant: lastStop.variant ?? getSegmentVariant(Math.max(0, routePoints.length - 2)),
         localProgress: 1,
-        position: point,
+        position: lastStop,
       };
     }
 
-    const segmentIndex = ROUTE_STOPS.findIndex((stop, index) => {
-      const nextStop = ROUTE_STOPS[index + 1];
-      return nextStop && clampedProgress >= stop.progress && clampedProgress <= nextStop.progress;
-    });
+    for (let index = 0; index < routePoints.length - 1; index += 1) {
+      const from = routePoints[index];
+      const to = routePoints[index + 1];
 
-    const safeSegmentIndex = Math.max(0, segmentIndex);
-    const from = getRoutePoint(ROUTE_STOPS[safeSegmentIndex]);
-    const to = getRoutePoint(ROUTE_STOPS[safeSegmentIndex + 1]);
+      if (clampedProgress <= to.progress) {
+        const localProgress = normalize(clampedProgress, from.progress, to.progress);
+        const easedProgress = routeEase(localProgress);
 
-    const localProgress = normalize(clampedProgress, from.progress, to.progress);
-    const easedProgress = routeEase(localProgress);
+        return {
+          segmentIndex: index,
+          variant: to.variant ?? from.variant ?? getSegmentVariant(index),
+          localProgress,
+          position: {
+            x: interpolate(from.x, to.x, easedProgress),
+            y: interpolate(from.y, to.y, easedProgress),
+            scale: interpolate(from.scale, to.scale, scaleEase(localProgress)),
+          },
+        };
+      }
+    }
 
     return {
-      segmentIndex: safeSegmentIndex,
-      variant: getSegmentVariant(safeSegmentIndex),
-      localProgress,
-      position: {
-        x: interpolate(from.x, to.x, easedProgress),
-        y: interpolate(from.y, to.y, easedProgress),
-        scale: interpolate(from.scale, to.scale, scaleEase(localProgress)),
-      },
+      segmentIndex: Math.max(0, routePoints.length - 2),
+      variant: lastStop.variant ?? "exit-fall",
+      localProgress: 1,
+      position: lastStop,
     };
   }
 
   function getScatterTarget(variant, index, segmentIndex) {
+    if (variant === "hold") {
+      return {
+        x: 0,
+        y: 0,
+        rotation: 0,
+      };
+    }
+
     if (variant === "exit-fall") {
       const stack = FALL_STACK[index];
       const viewportFall = (window.innerHeight / getHeadSize()) * 430;
@@ -534,6 +670,16 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
   }
 
   function getPartTransform(frame, index) {
+    if (frame.variant === "hold") {
+      return {
+        x: 0,
+        y: 0,
+        rotation: 0,
+        scale: 1,
+        amount: 0,
+      };
+    }
+
     const target = getScatterTarget(frame.variant, index, frame.segmentIndex);
 
     if (frame.variant === "exit-fall") {
@@ -551,10 +697,12 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     };
   }
 
-  function setHeadPosition(position) {
-    setSvgX(position.x);
-    setSvgY(position.y);
-    setSvgScale(position.scale);
+  function setHeadPosition(position, { keepInViewport = true } = {}) {
+    const safePosition = keepInViewport ? clampHeadPosition(position) : position;
+
+    setSvgX(safePosition.x);
+    setSvgY(safePosition.y);
+    setSvgScale(safePosition.scale);
   }
 
   function stopCollectingHeadParts() {
@@ -562,23 +710,91 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     collectTween = null;
   }
 
+  function stopFreeFall() {
+    freeFallTween?.kill();
+    freeFallTween = null;
+    isFreeFallActive = false;
+  }
+
+  function getSafeLeadParkingPosition() {
+    const leadText = document.querySelector(".lead__intro");
+    const isCompact = window.matchMedia("(max-width: 48rem)").matches;
+    const fallback = {
+      x: window.innerWidth * (isCompact ? 0.84 : 0.08),
+      y: window.innerHeight * (isCompact ? 0.18 : 0.5),
+      scale: isCompact ? 0.64 : 0.72,
+    };
+
+    if (!(leadText instanceof HTMLElement)) {
+      return clampHeadPosition(fallback);
+    }
+
+    const rect = leadText.getBoundingClientRect();
+    const scale = isCompact ? 0.64 : 0.72;
+    const headRadius = (getHeadSize() * scale) / 2;
+    const sideGap = headRadius + 24;
+    const hasLeftParking = rect.left > sideGap * 1.15;
+    const hasRightParking = window.innerWidth - rect.right > sideGap * 1.15;
+
+    if (hasLeftParking) {
+      return clampHeadPosition({
+        x: rect.left - sideGap,
+        y: clampBetween(rect.top + rect.height * 0.5, window.innerHeight * 0.18, window.innerHeight * 0.82),
+        scale,
+      });
+    }
+
+    if (hasRightParking) {
+      return clampHeadPosition({
+        x: rect.right + sideGap,
+        y: clampBetween(rect.top + rect.height * 0.5, window.innerHeight * 0.18, window.innerHeight * 0.82),
+        scale,
+      });
+    }
+
+    return clampHeadPosition(fallback);
+  }
+
+  function getSafeHeroParkingPosition() {
+    const isCompact = window.matchMedia("(max-width: 48rem)").matches;
+
+    return clampHeadPosition({
+      x: window.innerWidth * (isCompact ? 0.82 : 0.24),
+      y: window.innerHeight * (isCompact ? 0.14 : 0.16),
+      scale: isCompact ? 0.66 : 0.82,
+    });
+  }
+
+  function getIdleParkingPosition() {
+    const lead = document.getElementById("lead");
+    const cv = document.getElementById("cv");
+
+    if (cv instanceof HTMLElement) {
+      const cvRect = cv.getBoundingClientRect();
+      if (cvRect.top <= window.innerHeight * 0.58 && cvRect.bottom >= window.innerHeight * 0.18) {
+        return clampHeadPosition(getRouteFrame(routeProgress).position);
+      }
+    }
+
+    if (lead instanceof HTMLElement) {
+      const leadRect = lead.getBoundingClientRect();
+      if (leadRect.top <= window.innerHeight * 0.72 && leadRect.bottom >= window.innerHeight * 0.18) {
+        return getSafeLeadParkingPosition();
+      }
+    }
+
+    return getSafeHeroParkingPosition();
+  }
+
   function collectHeadParts() {
     stopCollectingHeadParts();
 
     isScrollActive = false;
+    isFreeFallActive = false;
 
-    collectTween = gsap.to(headParts, {
-      x: 0,
-      y: 0,
-      rotation: 0,
-      scale: 1,
-      duration: 0.34,
-      ease: collectEase,
-      overwrite: "auto",
-      stagger: {
-        each: 0.012,
-        from: "center",
-      },
+    const parkingPosition = getIdleParkingPosition();
+
+    collectTween = gsap.timeline({
       onStart() {
         stopEyeTracking();
       },
@@ -587,10 +803,41 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
         startEyeTracking();
       },
     });
+
+    collectTween
+      .to(
+        svg,
+        {
+          x: parkingPosition.x,
+          y: parkingPosition.y,
+          scale: parkingPosition.scale,
+          duration: 0.34,
+          ease: collectEase,
+          overwrite: "auto",
+        },
+        0,
+      )
+      .to(
+        headParts,
+        {
+          x: 0,
+          y: 0,
+          rotation: 0,
+          scale: 1,
+          duration: 0.34,
+          ease: collectEase,
+          overwrite: "auto",
+          stagger: {
+            each: 0.012,
+            from: "center",
+          },
+        },
+        0,
+      );
   }
 
   function setHeadParts(frame) {
-    if (fallOnScroll && !isScrollActive) {
+    if (fallOnScroll && !isScrollActive && !isFreeFallActive) {
       partSetters.forEach((setters) => {
         setters.x(0);
         setters.y(0);
@@ -637,6 +884,52 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     setHeadParts(frame);
   }
 
+  function renderFreeFall(progress, basePosition) {
+    const easedProgress = fallEase(progress);
+
+    setHeadPosition(
+      {
+        x: basePosition.x,
+        y: basePosition.y + window.innerHeight * FREE_FALL_DISTANCE_VH * easedProgress,
+        scale: interpolate(basePosition.scale, basePosition.scale * 0.92, progress),
+      },
+      {
+        keepInViewport: window.matchMedia("(max-width: 48rem)").matches,
+      },
+    );
+
+    setHeadParts({
+      variant: "exit-fall",
+      segmentIndex: Math.max(0, routePoints.length - 1),
+      localProgress: progress,
+    });
+  }
+
+  function playFreeFall() {
+    stopFreeFall();
+
+    const basePosition = { ...getRouteFrame(routeProgress).position };
+    const state = { progress: 0 };
+
+    isScrollActive = false;
+    isFreeFallActive = true;
+    stopEyeTracking();
+    stopCollectingHeadParts();
+
+    freeFallTween = gsap.to(state, {
+      progress: 1,
+      duration: FREE_FALL_DURATION,
+      ease: "power2.in",
+      overwrite: "auto",
+      onUpdate: () => {
+        renderFreeFall(state.progress, basePosition);
+      },
+      onComplete: () => {
+        freeFallTween = null;
+      },
+    });
+  }
+
   function showHead() {
     if (isHeadVisible) {
       return;
@@ -647,54 +940,43 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
     startEyeTracking();
   }
 
-  function hideHead() {
-    if (!isHeadVisible) {
-      return;
-    }
-
-    isHeadVisible = false;
-    container.style.visibility = "hidden";
-    stopEyeTracking();
-  }
-
   function setupScrollRoute() {
-    const trigger = document.querySelector(HERO_ROUTE.triggerSelector) ?? container.closest(".hero") ?? container;
-    const collectDelay = gsap.delayedCall(0.14, collectHeadParts).pause();
-
-    function isTriggerVisible() {
-      const rect = trigger.getBoundingClientRect();
-      return rect.bottom > 0 && rect.top < window.innerHeight;
-    }
+    const routeMetrics = getRouteMetrics();
+    const trigger = routeMetrics.startElement;
+    const endTrigger = routeMetrics.endElement;
+    const collectDelay = gsap.delayedCall(IDLE_PARK_DELAY, collectHeadParts).pause();
 
     function stopIdleCollectDelay() {
       collectDelay.pause(0);
     }
 
     function scheduleCollecting() {
+      if (routeProgress >= 0.98 || freeFallTween) {
+        return;
+      }
+
       collectDelay.restart(true);
     }
 
     function syncHeadWithScroll(self) {
       stopIdleCollectDelay();
       stopCollectingHeadParts();
+      stopFreeFall();
 
       isScrollActive = true;
       routeProgress = clampProgress(self.progress);
-
-      if (!isTriggerVisible()) {
-        hideHead();
-        return;
-      }
 
       showHead();
       renderRouteProgress(routeProgress);
       scheduleCollecting();
     }
 
-    const routeTrigger = ScrollTrigger.create({
+    ScrollTrigger.create({
       trigger,
-      start: HERO_ROUTE.start,
-      end: HERO_ROUTE.end,
+      endTrigger,
+      start: ROUTE_RANGE.start,
+      end: ROUTE_RANGE.end,
+      scrub: 0.6,
       invalidateOnRefresh: true,
 
       onEnter: syncHeadWithScroll,
@@ -705,25 +987,23 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
         stopIdleCollectDelay();
         stopCollectingHeadParts();
 
-        isScrollActive = true;
         routeProgress = 1;
 
         showHead();
         renderRouteProgress(1);
-        collectHeadParts();
-        hideHead();
+        playFreeFall();
       },
 
       onLeaveBack: () => {
         stopIdleCollectDelay();
         stopCollectingHeadParts();
+        stopFreeFall();
 
         isScrollActive = false;
         routeProgress = 0;
 
         showHead();
         renderRouteProgress(0);
-        collectHeadParts();
       },
 
       onRefresh: (self) => {
@@ -731,16 +1011,20 @@ export function mountAwfulHead(containerId = "awfulhead", { eyeStrength = 1, fal
         syncHeadWithScroll(self);
       },
     });
-
-    syncHeadWithScroll(routeTrigger);
   }
 
   function refreshPosition() {
     refreshRoutePoints();
 
-    if (isHeadVisible) {
-      renderRouteProgress(routeProgress);
+    if (!isHeadVisible) {
+      return;
     }
+
+    if (isFreeFallActive) {
+      stopFreeFall();
+    }
+
+    renderRouteProgress(routeProgress);
   }
 
   document.addEventListener("mousemove", trackEyes);

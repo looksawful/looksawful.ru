@@ -1,0 +1,114 @@
+import {
+	beginMount,
+	completeMount,
+	createAnimationKey,
+	createCanvasAnimation,
+	disposeCanvasAnimationsByPrefix,
+	drawRoundedCover,
+	isCurrentMount,
+	loadCoverImages,
+	noop,
+} from "../../shared/canvas-animation.js";
+
+const SPIRAL_KEY_PREFIX = "spiral:";
+
+const spiralCoverUrls = [
+	new URL("../../assets/projects/jestei/media/spiral/14-fevralya.webp", import.meta.url).href,
+	new URL("../../assets/projects/jestei/media/spiral/techno.webp", import.meta.url).href,
+	new URL("../../assets/projects/jestei/media/spiral/unknown-blue-flare.webp", import.meta.url).href,
+	new URL("../../assets/projects/jestei/media/spiral/hip-hop-classic.webp", import.meta.url).href,
+	new URL("../../assets/projects/jestei/media/spiral/phonk.webp", import.meta.url).href,
+	new URL("../../assets/projects/jestei/media/spiral/club-hits.webp", import.meta.url).href,
+	new URL("../../assets/projects/jestei/media/spiral/remiksy.webp", import.meta.url).href,
+	new URL("../../assets/projects/jestei/media/spiral/novaya-shkola.webp", import.meta.url).href,
+	new URL("../../assets/projects/jestei/media/spiral/indie-dance.webp", import.meta.url).href,
+	new URL("../../assets/projects/jestei/media/spiral/hyper-pop.webp", import.meta.url).href,
+	new URL("../../assets/projects/jestei/media/spiral/khity-russian.webp", import.meta.url).href,
+];
+
+const config = {
+	speed: 0.00004,
+	turns: 1.5,
+	cardScale: 0.25,
+	cardGrowthScale: 1.5,
+	radiusScale: 0.4,
+	alphaScale: 2,
+};
+
+const renderSpiral = ({ ctx, images, time, width, height, reducedMotion }) => {
+	if (!width || !height || !images.length) {
+		return;
+	}
+
+	const centerX = width * 0.5;
+	const centerY = height * 0.5;
+	const minSide = Math.min(width, height);
+	const maxSide = Math.max(width, height);
+	const timeOffset = reducedMotion ? 0 : time * config.speed;
+
+	ctx.clearRect(0, 0, width, height);
+
+	images.forEach((item, index) => {
+		const t = (index / images.length + timeOffset) % 1;
+		const angle = -t * Math.PI * 2 * config.turns + Math.PI / 2;
+		const size = minSide * config.cardScale * (t * config.cardGrowthScale);
+		const radius = size + t * maxSide * config.radiusScale;
+		const x = centerX + Math.cos(angle) * radius;
+		const y = centerY + Math.sin(angle) * radius;
+
+		ctx.globalAlpha = Math.min(1, t * config.alphaScale);
+		ctx.save();
+		ctx.translate(x, y);
+		ctx.rotate(angle + Math.PI / 2);
+		drawRoundedCover(ctx, item.imageElement, -size * 0.5, -size * 0.5, size);
+		ctx.restore();
+	});
+
+	ctx.globalAlpha = 1;
+};
+
+export const mountSpiral = async (canvasId = "spiral-container") => {
+	const canvas = document.getElementById(canvasId);
+	const ctx = canvas?.getContext?.("2d");
+
+	if (!canvas) {
+		console.error(`Canvas with id "${canvasId}" not found`);
+		return noop;
+	}
+
+	if (!ctx) {
+		console.error(`Failed to get 2d context from canvas "${canvasId}"`);
+		return noop;
+	}
+
+	const key = createAnimationKey(SPIRAL_KEY_PREFIX, canvasId);
+	const mountToken = beginMount(key);
+	const images = await loadCoverImages(spiralCoverUrls);
+
+	if (!isCurrentMount(key, mountToken)) {
+		return noop;
+	}
+
+	const dispose = createCanvasAnimation({
+		key,
+		canvas,
+		ctx,
+		renderFrame: ({ time, width, height, reducedMotion }) =>
+			renderSpiral({
+				ctx,
+				images,
+				time,
+				width,
+				height,
+				reducedMotion,
+			}),
+	});
+
+	return completeMount(key, mountToken, dispose);
+};
+
+if (import.meta.hot) {
+	import.meta.hot.dispose(() => {
+		disposeCanvasAnimationsByPrefix(SPIRAL_KEY_PREFIX);
+	});
+}

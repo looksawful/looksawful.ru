@@ -1,0 +1,6 @@
+@import "./typography.css";
+@import "./reset.css";
+@import "./components/awfulhead.css";
+@import "./sections/hero.css";
+@import "./sections/lead.css";
+@import "./sections/cv.css";

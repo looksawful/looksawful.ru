@@ -1,0 +1,125 @@
+.jestei-colors {
+  inline-size: 100%;
+  min-block-size: 100%;
+  font-family: "Rubik", system-ui, sans-serif;
+  color: #151718;
+}
+
+.jestei-colors__list {
+  display: grid;
+  inline-size: 100%;
+  min-block-size: 100%;
+  background: #151718;
+}
+
+.jestei-colors__row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.5fr) minmax(0, 1.65fr) minmax(8rem, 0.45fr);
+  align-items: center;
+  gap: 1.5rem;
+  min-block-size: 8.6rem;
+  padding: 1.35rem 1.55rem;
+  background: var(--jestei-row-bg);
+  color: var(--jestei-row-fg);
+  line-height: 1;
+}
+
+.jestei-colors__title,
+.jestei-colors__family,
+.jestei-colors__swatch-name,
+.jestei-colors__swatch-hex {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.jestei-colors__title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.jestei-colors__family {
+  justify-self: end;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.jestei-colors__swatches {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: center;
+}
+
+.jestei-colors__swatch {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.7rem;
+  min-inline-size: 0;
+}
+
+.jestei-colors__dot {
+  inline-size: 2.45rem;
+  block-size: 2.45rem;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px currentColor,
+    inset 0 0 0 1px rgba(21, 23, 24, 0.12);
+}
+
+.jestei-colors__swatch-text {
+  display: grid;
+  gap: 0.3rem;
+  min-inline-size: 0;
+}
+
+.jestei-colors__swatch-name {
+  overflow-wrap: anywhere;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.jestei-colors__swatch-hex {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.72;
+}
+
+@media (max-width: 72rem) {
+  .jestei-colors__row {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 1.1rem;
+    min-block-size: auto;
+    padding: 1.35rem 1.2rem;
+  }
+
+  .jestei-colors__family {
+    justify-self: start;
+    text-align: left;
+  }
+}
+
+@media (max-width: 42rem) {
+  .jestei-colors__title {
+    font-size: 1.55rem;
+  }
+
+  .jestei-colors__swatches {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  .jestei-colors__swatch {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .jestei-colors__dot {
+    inline-size: 2.1rem;
+    block-size: 2.1rem;
+  }
+}

@@ -1,0 +1,227 @@
+.project > .screen {
+  position: relative;
+  block-size: 100vh;
+  min-block-size: 100vh;
+  overflow: hidden;
+}
+
+@supports (height: 100svh) {
+  .project > .screen {
+    block-size: 100svh;
+    min-block-size: 100svh;
+  }
+}
+
+@supports (height: 100dvh) {
+  .project > .screen {
+    block-size: 100dvh;
+    min-block-size: 100dvh;
+  }
+}
+
+.screen__top,
+.screen__bottom {
+  position: absolute;
+  inset-inline: clamp(2rem, 6vw, 6.5rem);
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  gap: clamp(2rem, 6vw, 7rem);
+  pointer-events: none;
+}
+
+.screen__top {
+  top: clamp(1.5rem, 4vw, 4rem);
+  align-items: flex-start;
+}
+
+.screen__bottom {
+  bottom: clamp(1.5rem, 4vw, 4rem);
+  align-items: flex-end;
+}
+
+.screen__title,
+.screen__subtitle {
+  max-inline-size: clamp(14rem, 25vw, 28rem);
+  font-weight: 700;
+  text-transform: lowercase;
+  text-wrap: balance;
+}
+
+.screen__title {
+  font-size: var(--screen-title);
+  line-height: 0.9;
+  letter-spacing: -0.065em;
+}
+
+.screen__subtitle {
+  font-size: var(--screen-subtitle);
+  line-height: 0.96;
+  letter-spacing: -0.05em;
+}
+
+.screen__list h3 {
+  max-inline-size: clamp(12rem, 19vw, 18rem);
+  font-size: var(--screen-kicker);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-transform: lowercase;
+}
+
+.screen__title--project {
+  max-inline-size: 11ch;
+  font-size: var(--heading-project);
+  line-height: 0.82;
+  letter-spacing: -0.08em;
+}
+
+.screen__text,
+.screen__list,
+.screen__list p,
+.screen__list li {
+  max-inline-size: clamp(16rem, 23vw, 29rem);
+  color: #1d1d1d;
+  font-size: var(--screen-text);
+  font-weight: 500;
+  line-height: 1.24;
+  letter-spacing: -0.026em;
+  text-transform: lowercase;
+  text-wrap: pretty;
+}
+
+.screen__text--right,
+.screen__bottom > .screen__text:last-child,
+.screen__bottom > .screen__list:last-child,
+.screen__bottom > .screen__list:last-child p {
+  text-align: right;
+}
+
+.screen__group,
+.screen__list {
+  display: grid;
+  gap: clamp(0.4rem, 0.85vw, 0.75rem);
+}
+
+.screen__list ul {
+  display: grid;
+  gap: clamp(0.3rem, 0.6vw, 0.55rem);
+}
+
+.screen__visual {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  z-index: 5;
+  translate: -50% -50%;
+  pointer-events: auto;
+}
+
+.screen__top p,
+.screen__bottom p {
+  hyphens: auto;
+}
+
+.screen__bottom > .screen__text:first-child,
+.screen__bottom .screen__group .screen__text {
+  text-align: justify;
+}
+
+.screen__bottom > .screen__text:first-child {
+  text-indent: clamp(1.5rem, 4vw, 4rem);
+}
+
+.screen__visual--cover {
+  inline-size: min(34vw, 28rem);
+  block-size: min(68vw, 58rem);
+  aspect-ratio: 1;
+  overflow: visible;
+}
+
+.screen__visual--cover img {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: auto;
+  block-size: 100%;
+  max-inline-size: none;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+}
+
+.screen__visual--video {
+  inline-size: min(64vw, 66rem);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 1.6vw, 1.5rem);
+}
+
+.video-card {
+  aspect-ratio: 4/5;
+  overflow: hidden;
+}
+
+.project-video,
+.packaging-image img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.screen__visual--packaging {
+  inline-size: min(74vw, 76rem);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.2vw, 1.25rem);
+  align-items: center;
+}
+
+.screen__visual--packaging .video-card,
+.packaging-image {
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.banner {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  inline-size: 100%;
+  block-size: 100%;
+  perspective: 10000px;
+  overflow: hidden;
+}
+
+.banner .slider {
+  position: absolute;
+  top: 25%;
+  left: calc(50% - 100px);
+  inline-size: 200px;
+  block-size: 250px;
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateY(0deg);
+  animation: auto-run 20s linear infinite;
+  will-change: transform;
+}
+
+.banner .slider .item {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(calc((var(--position) - 1) * (360deg / var(--quantity)))) translateZ(550px);
+}
+
+.banner .slider .item img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+@keyframes auto-run {
+  from {
+    transform: perspective(1000px) rotateX(-15deg) rotateY(0);
+  }
+
+  to {
+    transform: perspective(1000px) rotateX(-15deg) rotateY(-360deg);
+  }
+}

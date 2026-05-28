@@ -5,6 +5,8 @@ dist-ssr/
 build/
 out/
 .next/
+.tmp/
+.vercel/
 
 *.local
 
@@ -49,6 +51,5 @@ coverage/
 *.txt
 *.mov
 *.m4v
-
 
 
