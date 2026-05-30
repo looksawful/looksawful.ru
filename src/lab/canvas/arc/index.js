@@ -14,148 +14,139 @@ const ARC_KEY_PREFIX = "arc:";
 
 const arcItems = [
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/70s.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/70s.webp",
 		title: "70's",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/80s.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/80s.webp",
 		title: "80's",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/90s.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/90s.webp",
 		title: "90's",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/afro-house.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/afro-house.webp",
 		title: "Afro House",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/ai.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/ai.webp",
 		title: "AI",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/amapiano.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/amapiano.webp",
 		title: "Amapiano",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/apple-music.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/apple-music.webp",
 		title: "Apple Music",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/bass-house.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/bass-house.webp",
 		title: "Bass House",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/billboard.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/billboard.webp",
 		title: "Billboard",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/blaash.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/blaash.webp",
 		title: "BLAASH",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/drum-and-bass.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/drum-and-bass.webp",
 		title: "Drum & Bass",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/dubstep.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/dubstep.webp",
 		title: "Dubstep",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/khity.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/khity.webp",
 		title: "Хиты",
 	},
 	{
-		imageUrl: new URL(
-			"../../assets/projects/jestei/media/arc/luchshie-treki-mesyatsa.webp",
-			import.meta.url,
-		).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/luchshie-treki-mesyatsa.webp",
 		title: "Лучшие треки месяца",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/mages.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/mages.webp",
 		title: "Mages",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/memy-i-prikoly.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/memy-i-prikoly.webp",
 		title: "Мемы и приколы",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/mirovye-novinki.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/mirovye-novinki.webp",
 		title: "Мировые новинки",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/moombahton.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/moombahton.webp",
 		title: "Moombahton",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/novaya-volna.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/novaya-volna.webp",
 		title: "Новая волна",
 	},
 	{
-		imageUrl: new URL(
-			"../../assets/projects/jestei/media/arc/organic-and-melodic-house.webp",
-			import.meta.url,
-		).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/organic-and-melodic-house.webp",
 		title: "Organic & Melodic House",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/r-and-b-classic.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/r-and-b-classic.webp",
 		title: "R&B Classic",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/rave.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/rave.webp",
 		title: "Rave",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/reels-top.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/reels-top.webp",
 		title: "Reels Top",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/rock-hits.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/rock-hits.webp",
 		title: "Rock Hits",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/slap-house.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/slap-house.webp",
 		title: "Slap House",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/spotify.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/spotify.webp",
 		title: "Spotify",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/styled.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/styled.webp",
 		title: "Styled",
 	},
 	{
-		imageUrl: new URL(
-			"../../assets/projects/jestei/media/arc/tantsevalnye-remiksy.webp",
-			import.meta.url,
-		).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/tantsevalnye-remiksy.webp",
 		title: "Танцевальные ремиксы",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/tiktok-top.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/tiktok-top.webp",
 		title: "TikTok Top",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/tranzhishny.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/tranzhishny.webp",
 		title: "Транзишны",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/trap.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/trap.webp",
 		title: "Trap",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/uk-bass.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/uk-bass.webp",
 		title: "UK Bass",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/uk-garage.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/uk-garage.webp",
 		title: "UK Garage",
 	},
 	{
-		imageUrl: new URL("../../assets/projects/jestei/media/arc/zvuki-dlya-skretcha.webp", import.meta.url).href,
+		imageUrl: "/src/lab/assets/projects/jestei/media/arc/zvuki-dlya-skretcha.webp",
 		title: "Звуки для скрэтча",
 	},
 ];

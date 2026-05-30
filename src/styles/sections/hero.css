@@ -44,6 +44,16 @@
   font-size: var(--heading-hero-secondary);
 }
 
+.hero-title-word {
+  display: block;
+  white-space: nowrap;
+}
+
+.hero-title-letter {
+  display: inline-block;
+  will-change: transform;
+}
+
 .hero__note,
 .contact-links {
   align-self: end;

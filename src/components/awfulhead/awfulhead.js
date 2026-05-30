@@ -39,12 +39,12 @@ const ROUTE_STOPS = [
     scrollRatio: 0.46,
     viewportX: 0.76,
     viewportY: 0.5,
-    scale: 0.8,
+    scale: 0.0,
     variant: "hold",
     mobile: {
       viewportX: 0.78,
       viewportY: 0.42,
-      scale: 0.72,
+      scale: 0.0,
     },
   },
   {

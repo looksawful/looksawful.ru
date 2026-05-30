@@ -13,17 +13,17 @@ import {
 const SPIRAL_KEY_PREFIX = "spiral:";
 
 const spiralCoverUrls = [
-	new URL("../../assets/projects/jestei/media/spiral/14-fevralya.webp", import.meta.url).href,
-	new URL("../../assets/projects/jestei/media/spiral/techno.webp", import.meta.url).href,
-	new URL("../../assets/projects/jestei/media/spiral/unknown-blue-flare.webp", import.meta.url).href,
-	new URL("../../assets/projects/jestei/media/spiral/hip-hop-classic.webp", import.meta.url).href,
-	new URL("../../assets/projects/jestei/media/spiral/phonk.webp", import.meta.url).href,
-	new URL("../../assets/projects/jestei/media/spiral/club-hits.webp", import.meta.url).href,
-	new URL("../../assets/projects/jestei/media/spiral/remiksy.webp", import.meta.url).href,
-	new URL("../../assets/projects/jestei/media/spiral/novaya-shkola.webp", import.meta.url).href,
-	new URL("../../assets/projects/jestei/media/spiral/indie-dance.webp", import.meta.url).href,
-	new URL("../../assets/projects/jestei/media/spiral/hyper-pop.webp", import.meta.url).href,
-	new URL("../../assets/projects/jestei/media/spiral/khity-russian.webp", import.meta.url).href,
+	"/src/lab/assets/projects/jestei/media/spiral/14-fevralya.webp",
+	"/src/lab/assets/projects/jestei/media/spiral/techno.webp",
+	"/src/lab/assets/projects/jestei/media/spiral/unknown-blue-flare.webp",
+	"/src/lab/assets/projects/jestei/media/spiral/hip-hop-classic.webp",
+	"/src/lab/assets/projects/jestei/media/spiral/phonk.webp",
+	"/src/lab/assets/projects/jestei/media/spiral/club-hits.webp",
+	"/src/lab/assets/projects/jestei/media/spiral/remiksy.webp",
+	"/src/lab/assets/projects/jestei/media/spiral/novaya-shkola.webp",
+	"/src/lab/assets/projects/jestei/media/spiral/indie-dance.webp",
+	"/src/lab/assets/projects/jestei/media/spiral/hyper-pop.webp",
+	"/src/lab/assets/projects/jestei/media/spiral/khity-russian.webp",
 ];
 
 const config = {
