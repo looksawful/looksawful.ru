@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "looksawful.ru"
+        }
+      ],
+      "destination": "https://www.looksawful.ru/$1",
+      "permanent": true
+    }
+  ]
+}

@@ -6,150 +6,15 @@ import {
 	disposeCanvasAnimationsByPrefix,
 	drawRoundedCover,
 	isCurrentMount,
-	loadImageItems,
+	loadMedia,
 	noop,
 } from "../../shared/canvas-animation.js";
+import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
 const ARC_KEY_PREFIX = "arc:";
-
-const arcItems = [
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/70s.webp",
-		title: "70's",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/80s.webp",
-		title: "80's",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/90s.webp",
-		title: "90's",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/afro-house.webp",
-		title: "Afro House",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/ai.webp",
-		title: "AI",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/amapiano.webp",
-		title: "Amapiano",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/apple-music.webp",
-		title: "Apple Music",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/bass-house.webp",
-		title: "Bass House",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/billboard.webp",
-		title: "Billboard",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/blaash.webp",
-		title: "BLAASH",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/drum-and-bass.webp",
-		title: "Drum & Bass",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/dubstep.webp",
-		title: "Dubstep",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/khity.webp",
-		title: "Хиты",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/luchshie-treki-mesyatsa.webp",
-		title: "Лучшие треки месяца",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/mages.webp",
-		title: "Mages",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/memy-i-prikoly.webp",
-		title: "Мемы и приколы",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/mirovye-novinki.webp",
-		title: "Мировые новинки",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/moombahton.webp",
-		title: "Moombahton",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/novaya-volna.webp",
-		title: "Новая волна",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/organic-and-melodic-house.webp",
-		title: "Organic & Melodic House",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/r-and-b-classic.webp",
-		title: "R&B Classic",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/rave.webp",
-		title: "Rave",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/reels-top.webp",
-		title: "Reels Top",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/rock-hits.webp",
-		title: "Rock Hits",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/slap-house.webp",
-		title: "Slap House",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/spotify.webp",
-		title: "Spotify",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/styled.webp",
-		title: "Styled",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/tantsevalnye-remiksy.webp",
-		title: "Танцевальные ремиксы",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/tiktok-top.webp",
-		title: "TikTok Top",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/tranzhishny.webp",
-		title: "Транзишны",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/trap.webp",
-		title: "Trap",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/uk-bass.webp",
-		title: "UK Bass",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/uk-garage.webp",
-		title: "UK Garage",
-	},
-	{
-		imageUrl: "/src/lab/assets/projects/jestei/media/arc/zvuki-dlya-skretcha.webp",
-		title: "Звуки для скрэтча",
-	},
-];
+const arcItems = createAnimationItems(CV_ANIMATION_SCENES.jesteiGraphicArc.modules, {
+	getTitle: (stem) => stem.replace(/-/g, " "),
+});
 
 const config = {
 	slots: 10,
@@ -293,6 +158,24 @@ const renderArc = ({ ctx, items, titleStyle, time, width, height, reducedMotion 
 	ctx.globalAlpha = 1;
 };
 
+// Прогрессивная загрузка: создать массив заглушек, затем заполнять по мере загрузки
+const loadItemsProgressive = (sourceItems, onItemLoaded) => {
+	const items = sourceItems.map((item) => ({ ...item, imageElement: null }));
+
+	sourceItems.forEach((srcItem, index) => {
+		loadMedia(srcItem.imageUrl)
+			.then((el) => {
+				items[index].imageElement = el;
+				onItemLoaded?.();
+			})
+			.catch(() => {
+				// оставляем null — будет нарисован placeholder
+			});
+	});
+
+	return items;
+};
+
 export const mountArc = async (canvasId = "arc-container") => {
 	const canvas = document.getElementById(canvasId);
 
@@ -314,11 +197,12 @@ export const mountArc = async (canvasId = "arc-container") => {
 
 	await loadTitleFont(titleStyle);
 
-	const items = await loadImageItems(arcItems);
-
 	if (!isCurrentMount(key, mountToken)) {
 		return noop;
 	}
+
+	// Начинаем анимацию сразу с заглушками, грузим медиа в фоне
+	const items = loadItemsProgressive(arcItems, noop);
 
 	const dispose = createCanvasAnimation({
 		key,

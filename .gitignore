@@ -1,5 +1,13 @@
 node_modules/
 
+# Оригиналы медиа до сжатия (большие файлы, вне git)
+_media-originals/
+_media-originals/**
+_backup_large_images/
+_backup_large_images/**
+sandbox/
+sandbox/**
+
 dist/
 dist-ssr/
 build/
@@ -43,14 +51,11 @@ Desktop.ini
 coverage/
 
 *.blend1
-*.blend1
 
-*.psd
 *.psd
 *.pdf
 *.txt
-*.mov
-*.m4v
 
 
 .vercel
+.env*

@@ -8,7 +8,7 @@ const CANVAS_MOUNTERS = {
   spiral: () => import("../../lab/canvas/spiral/index.js").then((module) => module.mountSpiral),
 };
 
-const LOGO_INSPECTOR_MODEL_URL = "/src/lab/assets/projects/jestei/logo/logo-inspector.glb";
+const LOGO_INSPECTOR_MODEL_URL = new URL("../../lab/assets/projects/jestei/logo/logo-inspector.glb", import.meta.url).href;
 
 function normalizeDispose(dispose) {
   if (typeof dispose === "function") {

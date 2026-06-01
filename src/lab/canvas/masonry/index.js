@@ -5,55 +5,14 @@ import {
 	createCanvasAnimation,
 	disposeCanvasAnimationsByPrefix,
 	isCurrentMount,
-	loadImage,
+	loadMedia,
 	noop,
 	roundedRect,
 } from "../../shared/canvas-animation.js";
+import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
 const MASONRY_KEY_PREFIX = "masonry:";
-
-const masonryItems = [
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (2).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (3).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (4).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (5).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (6).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (7).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (8).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (9).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (10).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (11).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (12).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (13).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (14).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (15).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (16).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (17).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (18).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (19).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (20).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (21).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (22).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (23).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (24).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (27).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (28).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (30).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (31).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (32).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (33).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (34).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (35).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (36).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (37).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (38).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (39).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (40).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (41).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (42).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (43).webp" },
-	{ imageUrl: "/src/lab/assets/projects/jestei/media/masonry/masonry-image (44).webp" },
-];
+const masonryItems = createAnimationItems(CV_ANIMATION_SCENES.jesteiInterfaceMasonry.modules);
 
 const config = {
 	columnCount: "auto",
@@ -89,26 +48,38 @@ const config = {
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-const loadImages = async (items) =>
-	Promise.all(
-		items.map(async (item, sourceIndex) => {
-			try {
-				return {
-					...item,
-					sourceIndex,
-					imageElement: await loadImage(item.imageUrl),
-					imageLoadError: null,
-				};
-			} catch (error) {
-				return {
-					...item,
-					sourceIndex,
-					imageElement: null,
-					imageLoadError: error,
-				};
+// Прогрессивная загрузка с батчингом: сначала грузим первые N, потом порциями в фоне
+const loadImagesProgressive = (items, { initialCount = 30, batchSize = 10 } = {}) => {
+	const loaded = items.map((item, sourceIndex) => ({
+		...item,
+		sourceIndex,
+		imageElement: null,
+		imageLoadError: null,
+	}));
+
+	const loadOne = (index) => {
+		const mediaUrl = loaded[index]?.mediaUrl || loaded[index]?.imageUrl;
+		if (!mediaUrl) return Promise.resolve();
+		return loadMedia(mediaUrl)
+			.then((el) => { loaded[index].imageElement = el; })
+			.catch((err) => { loaded[index].imageLoadError = err; });
+	};
+
+	const firstEnd = Math.min(initialCount, items.length);
+	for (let i = 0; i < firstEnd; i++) loadOne(i);
+
+	if (items.length > firstEnd) {
+		(async () => {
+			for (let i = firstEnd; i < items.length; i += batchSize) {
+				const end = Math.min(i + batchSize, items.length);
+				await Promise.all(Array.from({ length: end - i }, (_, j) => loadOne(i + j)));
+				await new Promise((r) => setTimeout(r, 80));
 			}
-		}),
-	);
+		})();
+	}
+
+	return loaded;
+};
 
 const drawImagePlaceholder = (ctx, x, y, width, height, radius) => {
 	ctx.save();
@@ -132,8 +103,8 @@ const drawRoundedImage = (ctx, image, x, y, width, height, radius) => {
 		return;
 	}
 
-	const sourceWidth = image.naturalWidth || image.width || 1;
-	const sourceHeight = image.naturalHeight || image.height || 1;
+	const sourceWidth = image.videoWidth || image.naturalWidth || image.width || 1;
+	const sourceHeight = image.videoHeight || image.naturalHeight || image.height || 1;
 	const sourceRatio = sourceWidth / sourceHeight;
 	const targetRatio = width / height;
 
@@ -253,8 +224,8 @@ const buildLanes = ({ width, count, padding }) => {
 
 const getItemAspectRatio = (item) => {
 	const image = item?.imageElement;
-	const width = image?.naturalWidth || image?.width || 1;
-	const height = image?.naturalHeight || image?.height || 1;
+	const width = image?.videoWidth || image?.naturalWidth || image?.width || 1;
+	const height = image?.videoHeight || image?.naturalHeight || image?.height || 1;
 
 	return width / height;
 };
@@ -703,7 +674,7 @@ export const mountMasonry = async (canvasId = "masonry-container") => {
 
 	const key = createAnimationKey(MASONRY_KEY_PREFIX, canvasId);
 	const mountToken = beginMount(key);
-	const items = await loadImages(masonryItems);
+	const items = loadImagesProgressive(masonryItems);
 
 	if (!isCurrentMount(key, mountToken)) {
 		return createDisposeHandle();

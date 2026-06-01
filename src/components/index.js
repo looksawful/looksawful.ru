@@ -1,8 +1,10 @@
-import { mountAwfulHead } from "./awfulhead/awfulhead.js";
+import { mountawfulface } from "./awfulface/awfulface.js";
+import { initCvGroupAnimations } from "./cv-group-animations/cv-group-animations.js";
 import { initCvTaskPreviews } from "./cv-task-previews/cv-task-previews.js";
 import { initHeroTitleAnimation } from "./hero-title/hero-title.js";
 import { initPageNavigation } from "./page-navigation/page-navigation.js";
 import { initPreloadStates } from "./preload-state/preload-state.js";
+import { renderCvExperience } from "../sections/cv/cv-renderer.js";
 
 function runComponentStep(label, callback) {
   try {
@@ -14,13 +16,15 @@ function runComponentStep(label, callback) {
 }
 
 function mountFaces() {
-  mountAwfulHead("awfulhead-hero", { fallOnScroll: true });
+  mountawfulface("awfulface-hero", { fallOnScroll: true });
 }
 
 export function initComponents() {
   runComponentStep("initPreloadStates", () => initPreloadStates());
   runComponentStep("initHeroTitleAnimation", () => initHeroTitleAnimation());
-  runComponentStep("mountAwfulHead", () => mountFaces());
+  runComponentStep("mountawfulface", () => mountFaces());
+  runComponentStep("renderCvExperience", () => renderCvExperience());
+  runComponentStep("initCvGroupAnimations", () => initCvGroupAnimations());
   runComponentStep("initCvTaskPreviews", () => initCvTaskPreviews());
   runComponentStep("initPageNavigation", () => initPageNavigation());
 }

@@ -3,6 +3,8 @@ const NAV_CV_CLASS = "is-page-nav-cv";
 const ACTIVE_CLASS = "is-active";
 const PROJECT_ACTIVE_CLASS = "is-project-active";
 const TOP_BUTTON_VISIBLE_CLASS = "is-visible";
+const PAGE_NAV_ENABLED = false;
+const PROJECT_NAV_ENABLED = false;
 const SECTION_LINKS = [
   { id: "hero", label: "обо мне" },
   { id: "lead", label: "что я умею" },
@@ -75,23 +77,31 @@ function getActiveTarget(targets, viewportRatio = 0.42) {
 function buildNavigation(sectionTargets, projectTargets) {
   const nav = document.createElement("nav");
   const primaryList = document.createElement("div");
-  const projectList = document.createElement("div");
+  const projectList = PROJECT_NAV_ENABLED ? document.createElement("div") : null;
 
   nav.className = "page-nav";
   nav.setAttribute("aria-label", "Навигация по странице");
   primaryList.className = "page-nav__primary";
-  projectList.className = "page-nav__projects";
-  projectList.setAttribute("aria-label", "Проекты");
 
   sectionTargets.forEach((item) => {
     primaryList.appendChild(createLink({ ...item, className: "page-nav__link" }));
   });
 
-  projectTargets.forEach((item) => {
-    projectList.appendChild(createLink({ ...item, className: "page-nav__project" }));
-  });
+  if (projectList) {
+    projectList.className = "page-nav__projects";
+    projectList.setAttribute("aria-label", "Проекты");
 
-  nav.append(primaryList, projectList);
+    projectTargets.forEach((item) => {
+      projectList.appendChild(createLink({ ...item, className: "page-nav__project" }));
+    });
+  }
+
+  nav.append(primaryList);
+
+  if (projectList) {
+    nav.appendChild(projectList);
+  }
+
   document.body.appendChild(nav);
 
   return nav;
@@ -119,12 +129,12 @@ function setActiveLink(links, activeId) {
 }
 
 export function initPageNavigation() {
-  if (document.querySelector(".page-nav")) {
+  if (!PAGE_NAV_ENABLED || document.querySelector(".page-nav")) {
     return;
   }
 
   const sectionTargets = getSectionTargets();
-  const projectTargets = getProjectTargets();
+  const projectTargets = PROJECT_NAV_ENABLED ? getProjectTargets() : [];
   const lead = document.getElementById("lead");
   const cv = document.getElementById("cv");
 
@@ -144,10 +154,10 @@ export function initPageNavigation() {
     const isCvVisible =
       cvRect && cvRect.top <= window.innerHeight * 0.58 && cvRect.bottom >= window.innerHeight * 0.2;
     const activeSection = getActiveTarget(sectionTargets);
-    const activeProject = isCvVisible ? getActiveTarget(projectTargets, 0.36) : null;
+    const activeProject = PROJECT_NAV_ENABLED && isCvVisible ? getActiveTarget(projectTargets, 0.36) : null;
 
     document.documentElement.classList.toggle(NAV_VISIBLE_CLASS, shouldShowNav);
-    document.documentElement.classList.toggle(NAV_CV_CLASS, Boolean(isCvVisible));
+    document.documentElement.classList.toggle(NAV_CV_CLASS, PROJECT_NAV_ENABLED && Boolean(isCvVisible));
     topButton.classList.toggle(TOP_BUTTON_VISIBLE_CLASS, window.scrollY > window.innerHeight * 0.65);
 
     if (activeSection) {

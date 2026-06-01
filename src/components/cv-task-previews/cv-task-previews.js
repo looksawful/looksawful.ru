@@ -704,7 +704,7 @@ function setWorkToggleText(button, shouldOpen) {
   const text = button.querySelector(WORK_TOGGLE_TEXT_SELECTOR);
 
   if (text) {
-    text.textContent = "подробнее";
+    text.textContent = shouldOpen ? "свернуть" : "подробнее";
   }
 
   button.setAttribute("aria-label", shouldOpen ? "Свернуть подробности проекта" : "Показать подробности проекта");

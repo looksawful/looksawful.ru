@@ -211,8 +211,11 @@ html.is-page-nav-cv .page-nav__projects {
   .page-nav__project {
     flex: 0 0 auto;
     max-inline-size: none;
-    padding: 0.28rem 0.55rem 0.31rem;
+    min-block-size: 2rem;
+    padding: 0.4rem 0.6rem 0.44rem;
     border: 1px solid rgba(17, 17, 17, 0.18);
+    line-height: 1.1;
+    white-space: nowrap;
   }
 
   .page-nav__link::before,
@@ -229,15 +232,31 @@ html.is-page-nav-cv .page-nav__projects {
   }
 
   .page-nav__link {
-    font-size: 0.72rem;
+    font-size: clamp(0.72rem, 2.9vw, 0.8rem);
   }
 
   .page-nav__project {
-    font-size: 0.66rem;
+    font-size: clamp(0.66rem, 2.7vw, 0.74rem);
   }
 
   .page-top-button {
     inset-inline-end: 14px;
     inset-block-end: calc(5.4rem + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 38rem) {
+  .page-nav {
+    gap: 0.32rem;
+    padding-inline: 10px;
+  }
+
+  .page-nav__primary,
+  .page-nav__projects {
+    gap: 0.38rem;
+  }
+
+  .page-top-button {
+    inset-inline-end: 10px;
   }
 }

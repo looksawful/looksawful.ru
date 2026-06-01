@@ -17,7 +17,7 @@
   color: #222;
   font-size: clamp(1.55rem, 3.65vw, 3.05rem);
   line-height: 1.14;
-  text-align: justify;
+  /* text-align: justify; */
   text-wrap: pretty;
   hyphens: none;
   word-break: normal;

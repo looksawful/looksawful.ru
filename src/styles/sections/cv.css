@@ -28,6 +28,19 @@
   padding-block: clamp(2.6rem, 4vw, 4.8rem) 0;
 }
 
+.cv-preview {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  overflow: hidden;
+}
+
+.cv-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .cv-experience {
   grid-column: 1 / -1;
   display: grid;
@@ -1359,6 +1372,10 @@ html.has-cv-demo-open body {
     padding-block: clamp(2.15rem, 10vw, 3.7rem);
   }
 
+  .cv-preview {
+    height: clamp(13rem, 55vw, 21rem);
+  }
+
   .cv-project-logo {
     inline-size: clamp(6.4rem, 24vw, 8.6rem);
     justify-self: start;
@@ -1526,6 +1543,7 @@ html.has-cv-demo-open body {
     inline-size: 100%;
     max-block-size: 86dvh;
     border-radius: 0.42rem;
+    -webkit-overflow-scrolling: touch;
   }
 
   .cv-work-lightbox__stage {
@@ -1547,6 +1565,7 @@ html.has-cv-demo-open body {
     border-inline-start: 0;
     border-radius: 1.1rem 1.1rem 0 0;
     transform: translateY(100%);
+    -webkit-overflow-scrolling: touch;
   }
 
   .cv-demo-panel__body {
@@ -1607,6 +1626,10 @@ html.has-cv-demo-open body {
 
   .cv-experience__item--featured h3 {
     font-size: clamp(2.25rem, 12vw, 3.55rem);
+  }
+
+  .cv-preview {
+    height: clamp(11rem, 62vw, 15.5rem);
   }
 }
 /* Restored dev content viewer overrides. Keeps the recovered preprod CV grid/colors, but uses the newer large media layout and lightbox. */
@@ -1810,8 +1833,7 @@ html.has-cv-demo-open body {
     linear-gradient(45deg, rgba(17, 17, 17, 0.035) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(17, 17, 17, 0.035) 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, rgba(17, 17, 17, 0.035) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(17, 17, 17, 0.035) 75%),
-    #f7f7f7;
+    linear-gradient(-45deg, transparent 75%, rgba(17, 17, 17, 0.035) 75%), #f7f7f7;
   background-position:
     0 0,
     0 0.5rem,
@@ -2105,4 +2127,3 @@ html.has-cv-demo-open body {
   line-height: 1;
   text-align: center;
 }
-

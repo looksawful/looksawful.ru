@@ -1,14 +1,14 @@
-.awfulhead-container,
-.awfulhead-container svg {
+.awfulface-container,
+.awfulface-container svg {
   overflow: visible;
 }
 
-.awfulhead-container svg {
+.awfulface-container svg {
   inline-size: 100%;
   block-size: auto;
 }
 
-.awfulhead-container--hero {
+.awfulface-container--hero {
   position: fixed;
   inset: 0;
   z-index: 10;
@@ -17,7 +17,7 @@
   pointer-events: none;
 }
 
-.awfulhead-container--hero svg {
+.awfulface-container--hero svg {
   position: absolute;
   inline-size: clamp(8rem, 15vw, 16rem);
   max-inline-size: none;

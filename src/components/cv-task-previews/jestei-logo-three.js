@@ -2,8 +2,9 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import logoModelUrl from "../../lab/assets/projects/jestei/logo/logo.glb?url";
 
-const LOGO_MODEL_URL = "/src/lab/assets/projects/jestei/logo/logo.glb";
+const LOGO_MODEL_URL = logoModelUrl;
 
 function prepareMesh(child, renderer, materials) {
   if (!child.isMesh) {

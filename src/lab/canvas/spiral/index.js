@@ -11,6 +11,21 @@ import {
 } from "../../shared/canvas-animation.js";
 
 const SPIRAL_KEY_PREFIX = "spiral:";
+const SPIRAL_ASSET_MODULES = import.meta.glob("../../assets/projects/jestei/media/spiral/*.webp", {
+	eager: true,
+	query: "?url",
+	import: "default",
+});
+const resolveSpiralAsset = (sourcePath) => {
+	const filename = sourcePath.split("/").pop();
+	const assetUrl = SPIRAL_ASSET_MODULES[`../../assets/projects/jestei/media/spiral/${filename}`];
+
+	if (!assetUrl) {
+		throw new Error(`[spiral] unresolved asset: ${sourcePath}`);
+	}
+
+	return assetUrl;
+};
 
 const spiralCoverUrls = [
 	"/src/lab/assets/projects/jestei/media/spiral/14-fevralya.webp",
@@ -24,7 +39,7 @@ const spiralCoverUrls = [
 	"/src/lab/assets/projects/jestei/media/spiral/indie-dance.webp",
 	"/src/lab/assets/projects/jestei/media/spiral/hyper-pop.webp",
 	"/src/lab/assets/projects/jestei/media/spiral/khity-russian.webp",
-];
+].map(resolveSpiralAsset);
 
 const config = {
 	speed: 0.00004,

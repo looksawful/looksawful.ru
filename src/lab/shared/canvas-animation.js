@@ -1,6 +1,9 @@
 const pendingMounts = new Map();
 const activeAnimations = new Map();
 const imageCache = new Map();
+const mediaCache = new Map();
+
+const MP4_PATTERN = /\.mp4(?:$|[?#])/i;
 
 export const noop = () => {};
 
@@ -206,24 +209,164 @@ export const loadImage = (imageUrl) => {
   return request;
 };
 
+export const isVideoUrl = (url) => MP4_PATTERN.test(String(url || ""));
+
+export const loadVideo = (videoUrl) => {
+  if (!videoUrl) {
+    return Promise.reject(new Error("Cannot load an empty video URL."));
+  }
+
+  const cachedMedia = mediaCache.get(videoUrl);
+
+  if (cachedMedia) {
+    return cachedMedia;
+  }
+
+  const request = new Promise((resolve, reject) => {
+    const VideoConstructor = globalThis.document?.createElement;
+
+    if (!VideoConstructor) {
+      reject(new Error("Video element is not available in this environment."));
+      return;
+    }
+
+    const video = globalThis.document.createElement("video");
+
+    video.preload = "metadata";
+    video.muted = true;
+    video.defaultMuted = true;
+    video.loop = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.controls = false;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("muted", "");
+    video.setAttribute("autoplay", "");
+    video.setAttribute("loop", "");
+
+    const cleanup = () => {
+      video.removeEventListener("loadeddata", handleLoaded);
+      video.removeEventListener("canplay", handleLoaded);
+      video.removeEventListener("error", handleError);
+    };
+
+    const handleLoaded = async () => {
+      cleanup();
+
+      try {
+        await video.play?.();
+      } catch {}
+
+      resolve(video);
+    };
+
+    const handleError = () => {
+      cleanup();
+      reject(new Error(`Failed to load video: ${videoUrl}`));
+    };
+
+    video.addEventListener("loadeddata", handleLoaded, { once: true });
+    video.addEventListener("canplay", handleLoaded, { once: true });
+    video.addEventListener("error", handleError, { once: true });
+    video.src = videoUrl;
+    video.load?.();
+  }).catch((error) => {
+    mediaCache.delete(videoUrl);
+    throw error;
+  });
+
+  mediaCache.set(videoUrl, request);
+  return request;
+};
+
+export const loadMedia = (mediaUrl) => (isVideoUrl(mediaUrl) ? loadVideo(mediaUrl) : loadImage(mediaUrl));
+
+export const getMediaDimensions = (media) => {
+  if (!media) {
+    return { width: 1, height: 1 };
+  }
+
+  const width = media.videoWidth || media.naturalWidth || media.width || 1;
+  const height = media.videoHeight || media.naturalHeight || media.height || 1;
+
+  return {
+    width: Math.max(1, width),
+    height: Math.max(1, height),
+  };
+};
+
 export const loadImageItems = async (items) =>
   Promise.all(
     items.map(async (item) => {
       try {
+        const mediaUrl = item.mediaUrl || item.imageUrl;
+        const mediaElement = await loadMedia(mediaUrl);
+
         return {
           ...item,
-          imageElement: await loadImage(item.imageUrl),
+          imageElement: mediaElement,
+          mediaElement,
           imageLoadError: null,
         };
       } catch (error) {
         return {
           ...item,
           imageElement: null,
+          mediaElement: null,
           imageLoadError: error,
         };
       }
     }),
   );
+
+/**
+ * Progressive media loader.
+ * Returns a mutable `items` array immediately (all with imageElement=null as placeholders).
+ * Loads first `initialCount` items synchronously (awaited), then loads the rest in background
+ * batches of `batchSize`. Updates the shared array in-place so the animation always sees fresh data.
+ *
+ * Usage:
+ *   const items = await loadMediaProgressively(rawItems, { initialCount: 24 });
+ *   // animation starts with first 24 loaded, rest arrive silently
+ */
+export const loadMediaProgressively = async (sourceItems, { initialCount = 24, batchSize = 8 } = {}) => {
+  const items = sourceItems.map((item) => ({
+    ...item,
+    imageElement: null,
+    mediaElement: null,
+    imageLoadError: null,
+  }));
+
+  const loadOne = async (index) => {
+    const item = items[index];
+    if (!item) return;
+    const mediaUrl = item.mediaUrl || item.imageUrl;
+    try {
+      const mediaElement = await loadMedia(mediaUrl);
+      items[index] = { ...item, imageElement: mediaElement, mediaElement, imageLoadError: null };
+    } catch (error) {
+      items[index] = { ...item, imageElement: null, mediaElement: null, imageLoadError: error };
+    }
+  };
+
+  // Load initial batch first — animation waits for these
+  const firstBatch = Math.min(initialCount, items.length);
+  await Promise.all(Array.from({ length: firstBatch }, (_, i) => loadOne(i)));
+
+  // Load the rest in background, in small batches to avoid flooding the network
+  if (items.length > firstBatch) {
+    const loadBackground = async () => {
+      for (let i = firstBatch; i < items.length; i += batchSize) {
+        await Promise.all(Array.from({ length: Math.min(batchSize, items.length - i) }, (_, j) => loadOne(i + j)));
+        // Yield control back to browser between batches
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+    };
+    loadBackground(); // intentionally not awaited
+  }
+
+  return items;
+};
 
 export const loadCoverImages = async (coverUrls) =>
   Promise.all(
@@ -278,11 +421,12 @@ export const drawRoundedCover = (ctx, image, x, y, size, radius = size * 0.1) =>
     return;
   }
 
-  const aspect = image.width / image.height;
-  const sourceWidth = aspect > 1 ? image.height : image.width;
+  const { width: mediaWidth, height: mediaHeight } = getMediaDimensions(image);
+  const aspect = mediaWidth / mediaHeight;
+  const sourceWidth = aspect > 1 ? mediaHeight : mediaWidth;
   const sourceHeight = sourceWidth;
-  const sourceX = (image.width - sourceWidth) * 0.5;
-  const sourceY = (image.height - sourceHeight) * 0.5;
+  const sourceX = (mediaWidth - sourceWidth) * 0.5;
+  const sourceY = (mediaHeight - sourceHeight) * 0.5;
 
   ctx.save();
   ctx.beginPath();
