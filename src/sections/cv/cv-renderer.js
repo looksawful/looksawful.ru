@@ -80,8 +80,9 @@ const renderWorkToggle = (project) => `
 const renderTaskChip = (item) => {
   const chip = normalizeChip(item);
   const demoAttribute = chip.demoId ? ` data-demo-id="${escapeHtml(chip.demoId)}"` : "";
+  const className = chip.demoId ? "cv-task-chip cv-task-chip--filled" : "cv-task-chip";
 
-  return `<li><span class="cv-task-chip"${demoAttribute}>${escapeHtml(chip.label)}</span></li>`;
+  return `<li><span class="${className}"${demoAttribute}>${escapeHtml(chip.label)}</span></li>`;
 };
 
 const renderAnimationPreview = (animation) => {

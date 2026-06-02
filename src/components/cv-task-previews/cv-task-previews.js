@@ -15,11 +15,6 @@ const LIGHTBOX_CLASS = "cv-task-lightbox";
 const OPEN_CLASS = "is-open";
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const DESKTOP_PREVIEW_QUERY = "(hover: hover) and (pointer: fine)";
-const TONE_COUNT = 24;
-const TONE_SEQUENCE = [
-  1, 12, 6, 19, 3, 15, 9, 22, 5, 17, 11, 24,
-  2, 14, 8, 21, 4, 16, 10, 23, 7, 18, 13, 20,
-];
 const EXPANDED_CLASS = "is-expanded";
 const CV_LOGO_URLS = {
   lyve: lyveLogoUrl,
@@ -45,21 +40,6 @@ function getReducedMotionPreference() {
 
 function canShowHoverPreview() {
   return window.matchMedia(DESKTOP_PREVIEW_QUERY).matches;
-}
-
-function assignChipTones(chips) {
-  chips.forEach((chip) => {
-    if (chip.dataset.tone) {
-      return;
-    }
-
-    const list = chip.closest(".cv-task-chips");
-    const row = list ? [...document.querySelectorAll(".cv-task-chips")].indexOf(list) : 0;
-    const chipIndex = [...(list?.querySelectorAll(CHIP_SELECTOR) ?? chips)].indexOf(chip);
-    const sequenceIndex = (chipIndex * 5 + row * 7) % TONE_COUNT;
-
-    chip.dataset.tone = TONE_SEQUENCE[sequenceIndex];
-  });
 }
 
 function getDemo(chip) {
@@ -629,7 +609,7 @@ function getRelatedChips(chip) {
 }
 
 function animateChipCluster(activeChip) {
-  if (getReducedMotionPreference()) {
+  if (getReducedMotionPreference() || !activeChip.matches(DEMO_CHIP_SELECTOR)) {
     return;
   }
 
@@ -637,7 +617,7 @@ function animateChipCluster(activeChip) {
 
   gsap.killTweensOf(chips);
   gsap.to(chips, {
-    scale: (_, chip) => (chip === activeChip ? 1.045 : 1),
+    scale: (_, chip) => (chip === activeChip ? 1.055 : 0.985),
     y: (_, chip) => (chip === activeChip ? -1 : 0),
     duration: 0.18,
     ease: "power2.out",
@@ -816,9 +796,9 @@ export function initCvTaskPreviews() {
     return;
   }
 
-  assignChipTones(chips);
+  demoChips.forEach((chip) => {
+    prepareDemoChip(chip);
 
-  chips.forEach((chip) => {
     chip.addEventListener("pointerenter", (event) => {
       animateChipCluster(chip);
       showPreview(event);
@@ -829,6 +809,4 @@ export function initCvTaskPreviews() {
       hidePreview();
     });
   });
-
-  demoChips.forEach(prepareDemoChip);
 }
