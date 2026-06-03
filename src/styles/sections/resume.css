@@ -1,0 +1,74 @@
+.resume-page {
+  padding-block: clamp(5.5rem, 8vw, 8rem) clamp(4rem, 7vw, 7rem);
+}
+
+.resume-hero {
+  width: min(100vw - 64px, 78rem);
+  margin: 0 auto clamp(2rem, 4vw, 4rem);
+}
+
+.resume-hero__eyebrow {
+  margin: 0 0 clamp(0.5rem, 1vw, 0.9rem);
+  color: rgba(17, 17, 17, 0.5);
+  font-size: clamp(0.78rem, 0.76vw, 0.9rem);
+  font-weight: 680;
+  line-height: 1;
+}
+
+.resume-hero h1 {
+  margin: 0;
+  color: #111;
+  font-size: clamp(2.2rem, 4.8vw, 5.2rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.058em;
+  text-transform: lowercase;
+}
+
+.resume-hero > p {
+  margin: 0;
+  color: #252525;
+  font-size: clamp(1rem, 1.05vw, 1.24rem);
+  font-weight: 520;
+  line-height: 1.34;
+  letter-spacing: -0.012em;
+  text-wrap: pretty;
+}
+
+.cv-section--resume {
+  min-block-size: 0;
+  padding-block-start: 0;
+}
+
+.cv-section--resume .cv-experience {
+  gap: clamp(1.6rem, 2.8vw, 3rem);
+}
+
+.cv-section--resume .cv-experience__item--resume {
+  border-top: 1px solid rgba(17, 17, 17, 0.14);
+  padding-block-start: clamp(1rem, 1.8vw, 1.8rem);
+}
+
+.cv-section--resume .cv-task-domain--resume {
+  padding-block-start: 0;
+}
+
+.cv-section--resume .cv-task-domain--resume + .cv-task-domain--resume {
+  padding-block-start: clamp(0.55rem, 0.9vw, 0.9rem);
+}
+
+.cv-section--resume .cv-task-chips {
+  max-inline-size: 100%;
+}
+
+@media (max-width: 68rem) {
+  .resume-page {
+    padding-block: 4rem calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  .resume-hero {
+    grid-template-columns: 1fr;
+    width: min(100vw - 28px, 78rem);
+    margin-block-end: 2.4rem;
+  }
+}

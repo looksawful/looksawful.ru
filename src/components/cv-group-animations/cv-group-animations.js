@@ -6,6 +6,7 @@ const ANIMATION_MOUNTERS = {
   diagonal: () => import("../../lab/canvas/cv-diagonal/index.js").then((module) => module.mountCvDiagonal),
   horizontal: () => import("../../lab/canvas/cv-horizontal/index.js").then((module) => module.mountCvHorizontal),
   masonry: () => import("../../lab/canvas/masonry/index.js").then((module) => module.mountMasonry),
+  spiral: () => import("../../lab/canvas/spiral/index.js").then((module) => module.mountSpiral),
 };
 
 const mountedPreviews = new WeakMap();
@@ -39,7 +40,10 @@ async function mountPreview(preview) {
 
   try {
     const mount = await loadMount();
-    const dispose = await mount(canvas.id);
+    const dispose = await mount(canvas.id, {
+      scene: canvas.dataset.cvAnimationScene,
+      variant: canvas.dataset.cvAnimationVariant,
+    });
 
     mountedPreviews.set(preview, normalizeDispose(dispose));
   } catch (error) {

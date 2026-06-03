@@ -9,37 +9,15 @@ import {
 	loadCoverImages,
 	noop,
 } from "../../shared/canvas-animation.js";
+import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
 const SPIRAL_KEY_PREFIX = "spiral:";
-const SPIRAL_ASSET_MODULES = import.meta.glob("../../assets/projects/jestei/media/spiral/*.webp", {
-	eager: true,
-	query: "?url",
-	import: "default",
-});
-const resolveSpiralAsset = (sourcePath) => {
-	const filename = sourcePath.split("/").pop();
-	const assetUrl = SPIRAL_ASSET_MODULES[`../../assets/projects/jestei/media/spiral/${filename}`];
+const DEFAULT_SPIRAL_SCENE = "jesteiLandingSpiral";
 
-	if (!assetUrl) {
-		throw new Error(`[spiral] unresolved asset: ${sourcePath}`);
-	}
-
-	return assetUrl;
+const getSpiralUrls = (sceneId = DEFAULT_SPIRAL_SCENE) => {
+	const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_SPIRAL_SCENE];
+	return createAnimationItems(scene.modules).map((item) => item.imageUrl);
 };
-
-const spiralCoverUrls = [
-	"/src/lab/assets/projects/jestei/media/spiral/14-fevralya.webp",
-	"/src/lab/assets/projects/jestei/media/spiral/techno.webp",
-	"/src/lab/assets/projects/jestei/media/spiral/unknown-blue-flare.webp",
-	"/src/lab/assets/projects/jestei/media/spiral/hip-hop-classic.webp",
-	"/src/lab/assets/projects/jestei/media/spiral/phonk.webp",
-	"/src/lab/assets/projects/jestei/media/spiral/club-hits.webp",
-	"/src/lab/assets/projects/jestei/media/spiral/remiksy.webp",
-	"/src/lab/assets/projects/jestei/media/spiral/novaya-shkola.webp",
-	"/src/lab/assets/projects/jestei/media/spiral/indie-dance.webp",
-	"/src/lab/assets/projects/jestei/media/spiral/hyper-pop.webp",
-	"/src/lab/assets/projects/jestei/media/spiral/khity-russian.webp",
-].map(resolveSpiralAsset);
 
 const config = {
 	speed: 0.00004,
@@ -82,7 +60,7 @@ const renderSpiral = ({ ctx, images, time, width, height, reducedMotion }) => {
 	ctx.globalAlpha = 1;
 };
 
-export const mountSpiral = async (canvasId = "spiral-container") => {
+export const mountSpiral = async (canvasId = "spiral-container", options = {}) => {
 	const canvas = document.getElementById(canvasId);
 	const ctx = canvas?.getContext?.("2d");
 
@@ -98,7 +76,8 @@ export const mountSpiral = async (canvasId = "spiral-container") => {
 
 	const key = createAnimationKey(SPIRAL_KEY_PREFIX, canvasId);
 	const mountToken = beginMount(key);
-	const images = await loadCoverImages(spiralCoverUrls);
+	const sceneId = options.scene || canvas.dataset.cvAnimationScene || DEFAULT_SPIRAL_SCENE;
+	const images = await loadCoverImages(getSpiralUrls(sceneId));
 
 	if (!isCurrentMount(key, mountToken)) {
 		return noop;

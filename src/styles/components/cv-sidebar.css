@@ -1,0 +1,51 @@
+.cv-context-sidebar {
+  position: fixed;
+  z-index: 55;
+  inset-block-start: 50%;
+  inset-inline-end: clamp(0.8rem, 1.4vw, 1.4rem);
+  display: grid;
+  inline-size: clamp(7.6rem, 9.2vw, 9.6rem);
+  padding: 0.72rem;
+  border: 1px solid rgba(17, 17, 17, 0.12);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 0.75rem 2.4rem rgba(17, 17, 17, 0.08);
+  backdrop-filter: blur(16px);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.cv-context-sidebar.is-visible {
+  pointer-events: auto;
+}
+
+.cv-context-sidebar a {
+  font-size: clamp(0.58rem, 0.56vw, 0.68rem);
+  line-height: 1.15;
+}
+
+.cv-context-sidebar__list {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.cv-context-sidebar__list a {
+  width: fit-content;
+  color: #111;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  opacity: 0.48;
+  transition: opacity 140ms ease;
+}
+
+.cv-context-sidebar__list a.is-active,
+.cv-context-sidebar__list a:hover {
+  opacity: 1;
+}
+
+@media (max-width: 68rem) {
+  .cv-context-sidebar {
+    display: none;
+  }
+}

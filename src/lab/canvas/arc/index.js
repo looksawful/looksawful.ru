@@ -12,9 +12,14 @@ import {
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
 const ARC_KEY_PREFIX = "arc:";
-const arcItems = createAnimationItems(CV_ANIMATION_SCENES.jesteiGraphicArc.modules, {
-	getTitle: (stem) => stem.replace(/-/g, " "),
-});
+const DEFAULT_ARC_SCENE = "jesteiGraphicArc";
+
+const getArcItems = (sceneId = DEFAULT_ARC_SCENE) => {
+	const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_ARC_SCENE];
+	return createAnimationItems(scene.modules, {
+		getTitle: (stem) => stem.replace(/-/g, " "),
+	});
+};
 
 const config = {
 	slots: 10,
@@ -176,7 +181,7 @@ const loadItemsProgressive = (sourceItems, onItemLoaded) => {
 	return items;
 };
 
-export const mountArc = async (canvasId = "arc-container") => {
+export const mountArc = async (canvasId = "arc-container", options = {}) => {
 	const canvas = document.getElementById(canvasId);
 
 	if (!canvas) {
@@ -194,6 +199,7 @@ export const mountArc = async (canvasId = "arc-container") => {
 	const key = createAnimationKey(ARC_KEY_PREFIX, canvasId);
 	const mountToken = beginMount(key);
 	const titleStyle = getTitleStyle(canvas);
+	const sceneId = options.scene || canvas.dataset.cvAnimationScene || DEFAULT_ARC_SCENE;
 
 	await loadTitleFont(titleStyle);
 
@@ -202,7 +208,7 @@ export const mountArc = async (canvasId = "arc-container") => {
 	}
 
 	// Начинаем анимацию сразу с заглушками, грузим медиа в фоне
-	const items = loadItemsProgressive(arcItems, noop);
+	const items = loadItemsProgressive(getArcItems(sceneId), noop);
 
 	const dispose = createCanvasAnimation({
 		key,

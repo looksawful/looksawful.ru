@@ -11,5 +11,15 @@
       "destination": "https://www.looksawful.ru/$1",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/pet-projects/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/resume/:path*",
+      "destination": "/index.html"
+    }
   ]
 }

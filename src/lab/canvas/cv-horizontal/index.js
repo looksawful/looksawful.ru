@@ -12,26 +12,27 @@ import {
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
 const CV_HORIZONTAL_KEY_PREFIX = "cv-horizontal:";
+const DEFAULT_HORIZONTAL_SCENE = "jesteiProductHorizontal";
 const config = {
   rowCount: 3,
   minRowHeight: 72,
-  maxRowCount: 5,
-  gap: 10,
-  radius: 10,
+  maxRowCount: 3,
+  gap: 8,
+  radius: 8,
   padding: 0,
 
-  speed: 0.034,
+  speed: 0.012,
   direction: "left",
 
   fade: {
     enabled: true,
     size: 0.16,
     sizes: {},
-    sides: { left: true, right: true },
+    sides: { top: true, right: true, bottom: true, left: true },
   },
 
   preload: 360,
-  cycleGap: 10,
+  cycleGap: 8,
 
   tallSpanRatio: 0.62,
   portraitSpanRatio: 0.92,
@@ -49,7 +50,10 @@ const config = {
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-const cvHorizontalItems = createAnimationItems(CV_ANIMATION_SCENES.jesteiProductHorizontal.modules);
+const getHorizontalItems = (sceneId = DEFAULT_HORIZONTAL_SCENE) => {
+  const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_HORIZONTAL_SCENE];
+  return createAnimationItems(scene.modules);
+};
 
 const createDisposeHandle = (dispose = noop) => {
   const handle = () => dispose();
@@ -58,7 +62,7 @@ const createDisposeHandle = (dispose = noop) => {
 };
 
 // Прогрессивная загрузка с батчингом: сначала грузим первые N, потом порциями в фоне
-const loadImages = (items, { initialCount = 30, batchSize = 10 } = {}) => {
+const loadImages = (items, { initialCount = 30, batchSize = 10, onItemLoad = noop } = {}) => {
   const loaded = items.map((item, sourceIndex) => ({
     ...item,
     sourceIndex,
@@ -70,8 +74,14 @@ const loadImages = (items, { initialCount = 30, batchSize = 10 } = {}) => {
     const mediaUrl = loaded[index]?.mediaUrl || loaded[index]?.imageUrl;
     if (!mediaUrl) return Promise.resolve();
     return loadMedia(mediaUrl)
-      .then((el) => { loaded[index].imageElement = el; })
-      .catch((err) => { loaded[index].imageLoadError = err; });
+      .then((el) => {
+        loaded[index].imageElement = el;
+        onItemLoad();
+      })
+      .catch((err) => {
+        loaded[index].imageLoadError = err;
+        onItemLoad();
+      });
   };
 
   // Первый батч — сразу
@@ -384,78 +394,16 @@ const getVisibleTiles = ({ layout }) => {
   return visibleTiles.sort((a, b) => a.x - b.x || a.y - b.y);
 };
 
-const findReplacementItem = ({
-  items,
-  usedItemIndexes,
-  preferredOrientation,
-  preferredSpanRows,
-  seedIndex,
-  rowCount,
-}) => {
-  if (!items.length || usedItemIndexes.size >= items.length) {
-    return null;
-  }
-
-  for (let offset = 0; offset < items.length; offset += 1) {
-    const index = Math.abs(seedIndex + offset) % items.length;
-    const item = items[index];
-
-    if (!item || usedItemIndexes.has(item.sourceIndex)) {
-      continue;
-    }
-
-    const ratio = getItemAspectRatio(item);
-    const orientation = getItemOrientation(ratio);
-    const spanRows = getSpanRows({ ratio, rowCount });
-
-    if (orientation === preferredOrientation && spanRows === preferredSpanRows) {
-      return item;
-    }
-  }
-
-  for (let offset = 0; offset < items.length; offset += 1) {
-    const index = Math.abs(seedIndex + offset) % items.length;
-    const item = items[index];
-
-    if (!item || usedItemIndexes.has(item.sourceIndex)) {
-      return item;
-    }
-  }
-
-  return null;
-};
-
-const getDrawableItem = ({ layout, tile, usedItemIndexes, entryIndex }) => {
-  const baseIndex = tile.item?.sourceIndex ?? tile.itemIndex;
-
-  if (!usedItemIndexes.has(baseIndex)) {
-    return tile.item;
-  }
-
-  return findReplacementItem({
-    items: layout.items,
-    usedItemIndexes,
-    preferredOrientation: tile.orientation,
-    preferredSpanRows: tile.spanRows,
-    seedIndex: tile.itemIndex + entryIndex * 11,
-    rowCount: layout.rowCount,
-  });
-};
-
 const drawLayout = ({ ctx, width, height, layout }) => {
   if (!layout) {
     return;
   }
 
-  const usedItemIndexes = new Set();
-
   ctx.clearRect(0, 0, width, height);
 
-  getVisibleTiles({ layout }).forEach(({ tile, x, y }, entryIndex) => {
-    let drawableItem = tile.item;
-
+  getVisibleTiles({ layout }).forEach(({ tile, x, y }) => {
     if (
-      intersectsViewport({
+      !intersectsViewport({
         x,
         y,
         width: tile.width,
@@ -464,21 +412,10 @@ const drawLayout = ({ ctx, width, height, layout }) => {
         viewportHeight: height,
       })
     ) {
-      drawableItem = getDrawableItem({
-        layout,
-        tile,
-        usedItemIndexes,
-        entryIndex,
-      });
-
-      if (!drawableItem) {
-        return;
-      }
-
-      usedItemIndexes.add(drawableItem.sourceIndex);
+      return;
     }
 
-    drawRoundedImage(ctx, drawableItem?.imageElement, x, y, tile.width, tile.height, config.radius);
+    drawRoundedImage(ctx, tile.item?.imageElement, x, y, tile.width, tile.height, config.radius);
   });
 
   ctx.globalAlpha = 1;
@@ -501,6 +438,18 @@ const applyFadeSide = ({ ctx, width, height, side, size }) => {
   }
 
   let gradient = null;
+
+  if (side === "top") {
+    gradient = ctx.createLinearGradient(0, 0, 0, size);
+    gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+    gradient.addColorStop(1, "rgba(0, 0, 0, 1)");
+  }
+
+  if (side === "bottom") {
+    gradient = ctx.createLinearGradient(0, height, 0, height - size);
+    gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+    gradient.addColorStop(1, "rgba(0, 0, 0, 1)");
+  }
 
   if (side === "left") {
     gradient = ctx.createLinearGradient(0, 0, size, 0);
@@ -529,9 +478,15 @@ const applyCanvasFadeMask = ({ ctx, width, height }) => {
 
   const leftSize = resolveSizeValue(config.fade.sizes.left, width, config.fade.size);
   const rightSize = resolveSizeValue(config.fade.sizes.right, width, config.fade.size);
+  const topSize = resolveSizeValue(config.fade.sizes.top, height, config.fade.size);
+  const bottomSize = resolveSizeValue(config.fade.sizes.bottom, height, config.fade.size);
 
   ctx.save();
   ctx.globalCompositeOperation = "destination-in";
+
+  if (config.fade.sides.top) {
+    applyFadeSide({ ctx, width, height, side: "top", size: topSize });
+  }
 
   if (config.fade.sides.left) {
     applyFadeSide({ ctx, width, height, side: "left", size: leftSize });
@@ -539,6 +494,10 @@ const applyCanvasFadeMask = ({ ctx, width, height }) => {
 
   if (config.fade.sides.right) {
     applyFadeSide({ ctx, width, height, side: "right", size: rightSize });
+  }
+
+  if (config.fade.sides.bottom) {
+    applyFadeSide({ ctx, width, height, side: "bottom", size: bottomSize });
   }
 
   ctx.restore();
@@ -554,7 +513,7 @@ const renderCvHorizontal = ({ ctx, width, height, layout }) => {
   ctx.globalCompositeOperation = "source-over";
 };
 
-export const mountCvHorizontal = async (canvasId = "cv-horizontal-container") => {
+export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", options = {}) => {
   const canvas = globalThis.document?.getElementById?.(canvasId);
 
   if (!canvas) {
@@ -571,7 +530,15 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container") =>
 
   const key = createAnimationKey(CV_HORIZONTAL_KEY_PREFIX, canvasId);
   const mountToken = beginMount(key);
-  const items = loadImages(cvHorizontalItems, { initialCount: 30, batchSize: 10 });
+  let itemLoadVersion = 0;
+  const sceneId = options.scene || canvas.dataset.cvAnimationScene || DEFAULT_HORIZONTAL_SCENE;
+  const items = loadImages(getHorizontalItems(sceneId), {
+    initialCount: 30,
+    batchSize: 10,
+    onItemLoad: () => {
+      itemLoadVersion += 1;
+    },
+  });
 
   if (!isCurrentMount(key, mountToken)) {
     return createDisposeHandle();
@@ -580,6 +547,7 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container") =>
   const state = {
     layout: null,
     lastTime: null,
+    layoutVersion: -1,
     disposed: false,
   };
 
@@ -597,12 +565,17 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container") =>
         return;
       }
 
-      const shouldRebuild = !state.layout || state.layout.width !== width || state.layout.height !== height;
+      const shouldRebuild =
+        !state.layout ||
+        state.layout.width !== width ||
+        state.layout.height !== height ||
+        state.layoutVersion !== itemLoadVersion;
 
       if (shouldRebuild) {
         const previousOffset = state.layout?.offset || 0;
         state.layout = buildLayout({ width, height, items });
         state.layout.offset = previousOffset % state.layout.cycleLength;
+        state.layoutVersion = itemLoadVersion;
       }
 
       const dt = state.lastTime === null ? 16.6667 : clamp(time - state.lastTime, 0, 50);

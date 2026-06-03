@@ -12,6 +12,7 @@ import {
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
 const CV_DIAGONAL_KEY_PREFIX = "cv-diagonal:";
+const DEFAULT_DIAGONAL_SCENE = "styxGraphicDiagonal";
 const DIAGONAL_ANGLE = (-45 * Math.PI) / 180;
 
 const config = {
@@ -52,7 +53,10 @@ const config = {
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-const cvDiagonalItems = createAnimationItems(CV_ANIMATION_SCENES.styxGraphicDiagonal.modules);
+const getDiagonalItems = (sceneId = DEFAULT_DIAGONAL_SCENE) => {
+	const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_DIAGONAL_SCENE];
+	return createAnimationItems(scene.modules);
+};
 
 const createDisposeHandle = (dispose = noop) => {
 	const handle = () => dispose();
@@ -61,7 +65,7 @@ const createDisposeHandle = (dispose = noop) => {
 };
 
 // Прогрессивная загрузка с батчингом: сначала грузим первые N, потом порциями в фоне
-const loadImages = (items, { initialCount = 30, batchSize = 10 } = {}) => {
+const loadImages = (items, { initialCount = 30, batchSize = 10, onItemLoad = noop } = {}) => {
 	const loaded = items.map((item, sourceIndex) => ({
 		...item,
 		sourceIndex,
@@ -73,8 +77,14 @@ const loadImages = (items, { initialCount = 30, batchSize = 10 } = {}) => {
 		const mediaUrl = loaded[index]?.mediaUrl || loaded[index]?.imageUrl;
 		if (!mediaUrl) return Promise.resolve();
 		return loadMedia(mediaUrl)
-			.then((el) => { loaded[index].imageElement = el; })
-			.catch((err) => { loaded[index].imageLoadError = err; });
+			.then((el) => {
+				loaded[index].imageElement = el;
+				onItemLoad();
+			})
+			.catch((err) => {
+				loaded[index].imageLoadError = err;
+				onItemLoad();
+			});
 	};
 
 	const firstEnd = Math.min(initialCount, items.length);
@@ -521,7 +531,7 @@ const renderCvDiagonal = ({ ctx, width, height, layout }) => {
 	ctx.globalCompositeOperation = "source-over";
 };
 
-export const mountCvDiagonal = async (canvasId = "cv-diagonal-container") => {
+export const mountCvDiagonal = async (canvasId = "cv-diagonal-container", options = {}) => {
 	const canvas = globalThis.document?.getElementById?.(canvasId);
 
 	if (!canvas) {
@@ -538,7 +548,15 @@ export const mountCvDiagonal = async (canvasId = "cv-diagonal-container") => {
 
 	const key = createAnimationKey(CV_DIAGONAL_KEY_PREFIX, canvasId);
 	const mountToken = beginMount(key);
-	const items = loadImages(cvDiagonalItems, { initialCount: 30, batchSize: 10 });
+	let itemLoadVersion = 0;
+	const sceneId = options.scene || canvas.dataset.cvAnimationScene || DEFAULT_DIAGONAL_SCENE;
+	const items = loadImages(getDiagonalItems(sceneId), {
+		initialCount: 30,
+		batchSize: 10,
+		onItemLoad: () => {
+			itemLoadVersion += 1;
+		},
+	});
 
 	if (!isCurrentMount(key, mountToken)) {
 		return createDisposeHandle();
@@ -547,6 +565,7 @@ export const mountCvDiagonal = async (canvasId = "cv-diagonal-container") => {
 	const state = {
 		layout: null,
 		lastTime: null,
+		layoutVersion: -1,
 		disposed: false,
 	};
 
@@ -564,11 +583,16 @@ export const mountCvDiagonal = async (canvasId = "cv-diagonal-container") => {
 				return;
 			}
 
-			const shouldRebuild = !state.layout || state.layout.width !== width || state.layout.height !== height;
+			const shouldRebuild =
+				!state.layout ||
+				state.layout.width !== width ||
+				state.layout.height !== height ||
+				state.layoutVersion !== itemLoadVersion;
 
 			if (shouldRebuild) {
 				const previousOffset = state.layout?.offset || 0;
 				state.layout = buildLayout({ width, height, items, previousOffset });
+				state.layoutVersion = itemLoadVersion;
 			}
 
 			const dt = state.lastTime === null ? 16.6667 : clamp(time - state.lastTime, 0, 50);

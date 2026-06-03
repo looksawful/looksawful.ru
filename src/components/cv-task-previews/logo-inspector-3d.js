@@ -1,25 +1,30 @@
 import * as THREE from "three";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const STYLE_ID = "logo-inspector-3d-styles";
 
 const DEFAULT_VARIANTS = [
-  { id: "brand-orange", label: "Orange", color: "#f08b2f" },
-  { id: "mono-black", label: "Black", color: "#141414" },
-  { id: "mono-white", label: "White", color: "#f6f2eb" },
-  { id: "event-green", label: "Event", color: "#87b84d" },
-  { id: "pro-blue", label: "Pro", color: "#1e90ff" },
-  { id: "feature-lavender", label: "Feature", color: "#b39cff" },
+  { id: "brand-orange", label: "Gold Drop", color: "#F18200" },
+  { id: "event-pear", label: "Pear Event", color: "#D1E231" },
+  { id: "pro-blue", label: "Dodger Pro", color: "#157AFF" },
 ];
 
-const DEFAULT_CAMERA = { fov: 32, near: 0.1, far: 100, distance: 6.6 };
-
+const DEFAULT_CAMERA = { fov: 30, near: 0.1, far: 100, distance: 6.2 };
 const ROTATE_SPEED_X = 0.008;
 const ROTATE_SPEED_Y = 0.01;
 const WHEEL_ZOOM_SPEED = 0.0025;
-const AUTO_SPIN_SPEED = 0.68;
+const AUTO_SPIN_SPEED = 0.62;
 const MIN_DISTANCE = 3.4;
-const MAX_DISTANCE = 9.5;
+const MAX_DISTANCE = 9.2;
+
+function getLogoIconSvg(color) {
+  return `
+    <svg class="logo-inspector-3d__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M24 0.144981V12.0945C24.0025 12.1669 24.0037 12.2397 24.0037 12.3126C24.0037 12.3855 24.0025 12.4582 24 12.5307V24H18.8972V19.6041C17.5904 20.9329 15.7719 21.7564 13.7623 21.7564C9.7879 21.7564 6.56586 18.5344 6.56586 14.56C6.56586 10.5856 9.7879 7.36356 13.7623 7.36356C15.7719 7.36356 17.5904 8.18706 18.8972 9.51591V0.144981H24ZM18.8972 14.56C18.8972 17.3959 16.5967 19.6964 13.7608 19.6964C10.9249 19.6964 8.6244 17.3959 8.6244 14.56C8.6244 11.7241 10.9249 9.42361 13.7608 9.42361C16.5967 9.42361 18.8972 11.7241 18.8972 14.56ZM16.7887 14.56C16.7887 16.2323 15.4332 17.5878 13.7608 17.5878C12.0884 17.5878 10.733 16.2323 10.733 14.56C10.733 12.8876 12.0884 11.5321 13.7608 11.5321C15.4332 11.5321 16.7887 12.8876 16.7887 14.56ZM0 7.36356L5.68889 11.4203C5.43405 12.2217 5.29664 13.0754 5.29664 13.9611C5.29664 14.9372 5.4637 15.8743 5.77065 16.7454L0 20.455V7.36356Z" fill="${color}"/>
+    </svg>
+  `;
+}
 
 function injectStyles() {
   if (document.getElementById(STYLE_ID)) return;
@@ -30,9 +35,10 @@ function injectStyles() {
     .logo-inspector-3d {
       position: relative;
       width: 100%;
-      min-height: 560px;
-      border: 1px solid #808080;
-      background: #dcdcdc;
+      min-height: 520px;
+      border: 1px solid rgba(17, 17, 17, 0.16);
+      border-radius: 8px;
+      background: #e2e2e2;
       overflow: hidden;
     }
 
@@ -49,65 +55,131 @@ function injectStyles() {
 
     .logo-inspector-3d__controls {
       position: absolute;
-      top: 16px;
-      left: 16px;
+      left: 50%;
+      bottom: 16px;
       z-index: 2;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       gap: 8px;
-      max-width: min(320px, calc(100% - 32px));
+      width: min(100% - 88px, 42rem);
+      transform: translateX(-50%);
     }
 
     .logo-inspector-3d__chip {
-      border: 1px solid #8d8d8d;
-      border-radius: 999px;
-      padding: 6px 12px;
-      background: rgba(255, 255, 255, 0.86);
-      color: #1d1d1d;
-      font: 600 13px/1.1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      width: fit-content;
+      min-height: 34px;
+      padding: 6px 12px;
+      border: 1px solid rgba(17, 17, 17, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #151718;
+      font: 650 13px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       cursor: pointer;
+      box-shadow: 0 6px 18px rgba(17, 17, 17, 0.06);
       transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
     }
 
     .logo-inspector-3d__chip:hover {
-      border-color: #5a5a5a;
+      border-color: rgba(17, 17, 17, 0.42);
+      background: #fff;
     }
 
     .logo-inspector-3d__chip.is-active {
-      border-color: #6267ff;
-      box-shadow: 0 0 0 2px rgba(98, 103, 255, .18);
-      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(21, 122, 255, 0.72);
+      box-shadow: 0 0 0 3px rgba(21, 122, 255, 0.14), 0 10px 24px rgba(17, 17, 17, 0.08);
+      background: #fff;
     }
 
-    .logo-inspector-3d__swatch {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 1px solid rgba(0,0,0,.18);
+    .logo-inspector-3d__icon {
+      width: 18px;
+      height: 18px;
       flex: 0 0 auto;
+      display: block;
+    }
+
+    .logo-inspector-3d__arrow {
+      position: absolute;
+      top: 50%;
+      z-index: 3;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(17, 17, 17, 0.08);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 8px 22px rgba(17, 17, 17, 0.08);
+      cursor: pointer;
+      transform: translateY(-50%);
+    }
+
+    .logo-inspector-3d__arrow::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 8px;
+      height: 8px;
+      margin: auto;
+      border-top: 2px solid #151718;
+      border-left: 2px solid #151718;
+    }
+
+    .logo-inspector-3d__arrow--prev {
+      left: 18px;
+    }
+
+    .logo-inspector-3d__arrow--prev::before {
+      transform: translateX(2px) rotate(-45deg);
+    }
+
+    .logo-inspector-3d__arrow--next {
+      right: 18px;
+    }
+
+    .logo-inspector-3d__arrow--next::before {
+      transform: translateX(-2px) rotate(135deg);
     }
 
     .logo-inspector-3d__status {
       position: absolute;
       right: 16px;
-      bottom: 16px;
+      top: 16px;
       z-index: 2;
       padding: 6px 10px;
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.82);
+      background: rgba(255, 255, 255, 0.9);
       color: #404040;
       font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       border: 1px solid #c2c2c2;
+    }
+
+    .logo-inspector-3d__status[hidden] {
+      display: none;
     }
 
     .logo-inspector-3d__status.is-error {
       color: #991b1b;
       border-color: #efb6b6;
       background: rgba(255, 242, 242, 0.95);
+    }
+
+    @media (max-width: 640px) {
+      .logo-inspector-3d__controls {
+        bottom: 12px;
+        width: calc(100% - 24px);
+        overflow-x: auto;
+        justify-content: flex-start;
+        scrollbar-width: none;
+      }
+
+      .logo-inspector-3d__controls::-webkit-scrollbar {
+        display: none;
+      }
+
+      .logo-inspector-3d__arrow {
+        display: none;
+      }
     }
   `;
 
@@ -120,12 +192,10 @@ function clamp(value, min, max) {
 
 function createFallbackMesh() {
   const group = new THREE.Group();
-  const outer = new THREE.Mesh(new THREE.TorusGeometry(1.25, 0.35, 48, 160));
-  const inner = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.25, 40, 140));
-  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.44, 2.9, 0.16));
-  plate.position.set(1.55, -0.22, 0.0);
-  outer.rotation.x = 0.2;
-  inner.rotation.x = -0.1;
+  const outer = new THREE.Mesh(new THREE.TorusGeometry(1.25, 0.3, 72, 180));
+  const inner = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.2, 56, 140));
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.4, 2.6, 0.18));
+  plate.position.set(1.45, -0.18, 0);
   group.add(outer, inner, plate);
   return group;
 }
@@ -136,7 +206,7 @@ function centerAndScaleObject(object) {
   const center = bounds.getCenter(new THREE.Vector3());
   const size = bounds.getSize(new THREE.Vector3());
   const maxDimension = Math.max(size.x, size.y, size.z, 0.001);
-  const scale = 2 / maxDimension;
+  const scale = 2.45 / maxDimension;
   object.position.sub(center);
   object.scale.multiplyScalar(scale);
   object.updateWorldMatrix(true, true);
@@ -166,23 +236,29 @@ function disposeObjectResources(object) {
   });
 }
 
-function applyVariantColor(root, hexColor) {
+function applyVariantColor(root, hexColor, renderer) {
   const color = new THREE.Color(hexColor);
 
   traverseMeshes(root, (mesh) => {
-    const base = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
-    const material = new THREE.MeshStandardMaterial({
+    mesh.geometry?.computeVertexNormals?.();
+
+    const material = new THREE.MeshPhysicalMaterial({
       color,
-      roughness: 0.56,
-      metalness: 0.12,
-      emissive: new THREE.Color("#000000"),
+      roughness: 0.34,
+      metalness: 0.64,
+      clearcoat: 0.42,
+      clearcoatRoughness: 0.36,
+      envMapIntensity: 1.24,
     });
 
-    if (base && base.transparent) {
-      material.transparent = true;
-      material.opacity = base.opacity;
+    material.side = THREE.FrontSide;
+
+    if (renderer?.capabilities && material.map) {
+      material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
     }
 
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     mesh.material = material;
   });
 }
@@ -207,40 +283,44 @@ export function createLogoInspector3D(target, options = {}) {
     modelUrl = "./logo.glb",
     variants = DEFAULT_VARIANTS,
     initialVariantId = variants[0]?.id,
-    minHeight = 560,
-    background = "#dcdcdc",
+    minHeight = 520,
+    background = "#e2e2e2",
     autoSpin = true,
   } = options;
 
   const root = document.createElement("section");
   root.className = "logo-inspector-3d";
-  root.style.minHeight = `${Math.max(240, Number(minHeight) || 560)}px`;
+  root.style.minHeight = `${Math.max(320, Number(minHeight) || 520)}px`;
   root.style.background = background;
 
   const canvasHost = document.createElement("div");
   canvasHost.className = "logo-inspector-3d__canvas";
+
+  const prevButton = document.createElement("button");
+  prevButton.type = "button";
+  prevButton.className = "logo-inspector-3d__arrow logo-inspector-3d__arrow--prev";
+  prevButton.setAttribute("aria-label", "Предыдущий цвет логотипа");
+
+  const nextButton = document.createElement("button");
+  nextButton.type = "button";
+  nextButton.className = "logo-inspector-3d__arrow logo-inspector-3d__arrow--next";
+  nextButton.setAttribute("aria-label", "Следующий цвет логотипа");
 
   const controls = document.createElement("div");
   controls.className = "logo-inspector-3d__controls";
 
   const status = document.createElement("div");
   status.className = "logo-inspector-3d__status";
-  status.textContent = "Loading 3D model...";
+  status.hidden = true;
 
-  root.append(canvasHost, controls, status);
+  root.append(canvasHost, prevButton, nextButton, controls, status);
   host.appendChild(root);
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(background);
 
-  const camera = new THREE.PerspectiveCamera(
-    DEFAULT_CAMERA.fov,
-    1,
-    DEFAULT_CAMERA.near,
-    DEFAULT_CAMERA.far,
-  );
-
-  const baseDirection = new THREE.Vector3(3.35, 2.55, 5.2).normalize();
+  const camera = new THREE.PerspectiveCamera(DEFAULT_CAMERA.fov, 1, DEFAULT_CAMERA.near, DEFAULT_CAMERA.far);
+  const baseDirection = new THREE.Vector3(3.2, 2.35, 5.1).normalize();
   let cameraDistance = DEFAULT_CAMERA.distance;
 
   const updateCamera = () => {
@@ -256,34 +336,35 @@ export function createLogoInspector3D(target, options = {}) {
     alpha: false,
     powerPreference: "high-performance",
   });
+  const pmremGenerator = new THREE.PMREMGenerator(renderer);
 
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.06;
+  renderer.toneMappingExposure = 1.04;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
+  scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
   canvasHost.appendChild(renderer.domElement);
 
   const stage = new THREE.Group();
   const spinner = new THREE.Group();
-  stage.rotation.x = 0.4;
-  stage.rotation.z = -0.22;
+  stage.rotation.x = 0.36;
+  stage.rotation.z = -0.18;
   stage.add(spinner);
   scene.add(stage);
 
-  const ambient = new THREE.AmbientLight("#ffffff", 0.28);
-  const hemisphere = new THREE.HemisphereLight("#dfe8ff", "#17131b", 0.8);
-  const key = new THREE.DirectionalLight("#ffffff", 1.9);
-  const fill = new THREE.DirectionalLight("#c4d8ff", 0.52);
-  const rim = new THREE.DirectionalLight("#ffd59c", 1.1);
+  const ambient = new THREE.AmbientLight("#ffffff", 0.3);
+  const key = new THREE.DirectionalLight("#ffffff", 2.4);
+  const fill = new THREE.DirectionalLight("#dbe9ff", 0.74);
+  const rim = new THREE.DirectionalLight("#fff2d2", 1.3);
 
-  key.position.set(4.8, 4.8, 4.6);
-  fill.position.set(-3.6, 1.5, 3.2);
-  rim.position.set(-4.8, 5, -4.8);
-
-  scene.add(ambient, hemisphere, key, fill, rim);
+  key.position.set(4.8, 4.4, 5);
+  fill.position.set(-4, 1.8, 3.4);
+  rim.position.set(-4.4, 5.2, -4.8);
+  scene.add(ambient, key, fill, rim);
 
   let meshRoot = null;
+  let activeVariantIndex = Math.max(0, variants.findIndex((variant) => variant.id === initialVariantId));
   let autoSpinAngle = 0;
   const dragRotation = { x: 0, y: 0 };
   let paused = false;
@@ -295,34 +376,40 @@ export function createLogoInspector3D(target, options = {}) {
   const setStatus = (text, isError = false) => {
     status.textContent = text;
     status.classList.toggle("is-error", isError);
+    status.hidden = !isError;
   };
 
   const setVariant = (variantId) => {
-    const variant = variants.find((v) => v.id === variantId) || variants[0];
-    if (!variant || !meshRoot) return;
+    const nextIndex = variants.findIndex((variant) => variant.id === variantId);
+    activeVariantIndex = nextIndex >= 0 ? nextIndex : 0;
+    const variant = variants[activeVariantIndex];
 
     controls.querySelectorAll("button").forEach((button) => {
       button.classList.toggle("is-active", button.dataset.variantId === variant.id);
     });
 
-    applyVariantColor(meshRoot, variant.color);
-    setStatus(`Variant: ${variant.label}`);
+    if (meshRoot) {
+      applyVariantColor(meshRoot, variant.color, renderer);
+    }
   };
 
-  for (const variant of variants) {
+  const shiftVariant = (direction) => {
+    const nextIndex = (activeVariantIndex + direction + variants.length) % variants.length;
+    setVariant(variants[nextIndex].id);
+  };
+
+  variants.forEach((variant) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "logo-inspector-3d__chip";
     button.dataset.variantId = variant.id;
-
-    const swatch = document.createElement("span");
-    swatch.className = "logo-inspector-3d__swatch";
-    swatch.style.background = variant.color;
-
-    button.append(swatch, document.createTextNode(variant.label));
+    button.innerHTML = `${getLogoIconSvg(variant.color)}<span>${variant.label}</span>`;
     button.addEventListener("click", () => setVariant(variant.id));
     controls.appendChild(button);
-  }
+  });
+
+  prevButton.addEventListener("click", () => shiftVariant(-1));
+  nextButton.addEventListener("click", () => shiftVariant(1));
 
   const resize = () => {
     const width = Math.max(canvasHost.clientWidth, 1);
@@ -398,6 +485,7 @@ export function createLogoInspector3D(target, options = {}) {
     raf = requestAnimationFrame(renderLoop);
   };
 
+  setVariant(variants[activeVariantIndex]?.id);
   renderLoop();
 
   loadModel(modelUrl)
@@ -410,8 +498,7 @@ export function createLogoInspector3D(target, options = {}) {
       meshRoot = loadedRoot;
       centerAndScaleObject(meshRoot);
       spinner.add(meshRoot);
-      setVariant(initialVariantId);
-      setStatus("Ready");
+      setVariant(variants[activeVariantIndex]?.id);
     })
     .catch((error) => {
       console.error(error);
@@ -420,7 +507,7 @@ export function createLogoInspector3D(target, options = {}) {
       meshRoot = createFallbackMesh();
       centerAndScaleObject(meshRoot);
       spinner.add(meshRoot);
-      setVariant(initialVariantId);
+      setVariant(variants[activeVariantIndex]?.id);
       setStatus("Model load failed. Using fallback shape.", true);
     });
 
@@ -446,6 +533,7 @@ export function createLogoInspector3D(target, options = {}) {
         disposeObjectResources(meshRoot);
       }
 
+      pmremGenerator.dispose();
       renderer.dispose();
       root.remove();
     },

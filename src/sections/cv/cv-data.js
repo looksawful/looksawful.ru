@@ -1,5 +1,85 @@
 const chip = (label, demoId) => (demoId ? { label, demoId } : label);
 
+const getModuleUrl = (moduleValue) =>
+  typeof moduleValue === "string" ? moduleValue : moduleValue?.default || "";
+
+const getFilename = (path = "") => path.split(/[\\/]/).pop() || "";
+const getStem = (filename = "") => filename.replace(/\.[^.]+$/, "");
+const getReadableTitle = (stem = "") => stem.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
+
+const createMediaItems = (modules, { limit, titlePrefix } = {}) =>
+  Object.entries(modules)
+    .map(([path, moduleValue]) => {
+      const filename = getFilename(path);
+      const stem = getStem(filename);
+
+      return {
+        src: getModuleUrl(moduleValue),
+        alt: getReadableTitle(stem),
+        filename,
+        title: titlePrefix ? `${titlePrefix} ${getReadableTitle(stem)}` : getReadableTitle(stem),
+        type: /\.(mp4|webm|mov)$/i.test(filename) ? "video" : "image",
+      };
+    })
+    .filter((item) => item.src)
+    .sort((a, b) => a.filename.localeCompare(b.filename, "ru", { numeric: true }))
+    .slice(0, limit ?? Number.POSITIVE_INFINITY);
+
+const mediaGroup = (items, options = {}) => ({
+  type: "media-group",
+  items,
+  ...options,
+});
+
+const demo = (type, options = {}) => ({
+  type,
+  ...options,
+});
+
+const jesteiEditorialModules = import.meta.glob(
+  "../../assets/cv/chip-content/01-jestei-pool/{05-proizvel-redizayn-lendinga-osnovnogo-produkta,33-sozdal-dizayn-oblozhek-pleylistov-na-sayte}/**/*.{webp,png,jpg,jpeg,avif}",
+  {
+    eager: true,
+    query: "?url",
+    import: "default",
+  },
+);
+
+const styxArtDirectionModules = import.meta.glob("../../lab/assets/projects/styx/campaign-*.{webp,png,jpg,jpeg,avif}", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+
+const styxProductionModules = import.meta.glob(
+  "../../lab/assets/projects/styx/{archive/legacy,media}/**/*.{webp,png,jpg,jpeg,avif,mp4}",
+  {
+    eager: true,
+    query: "?url",
+    import: "default",
+  },
+);
+
+const lyveInterfaceModules = import.meta.glob("../../assets/cv/animations/lyve-graphic-carousel/**/*.{webp,png,jpg,jpeg,avif}", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+
+const newsletterSources = [
+  new URL("../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 8.png", import.meta.url)
+    .href,
+  new URL("../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 9.png", import.meta.url)
+    .href,
+];
+
+const MEDIA_GROUPS = {
+  jesteiEditorial: createMediaItems(jesteiEditorialModules, { limit: 18 }),
+  styxArtDirection: createMediaItems(styxArtDirectionModules, { limit: 10 }),
+  styxProduction: createMediaItems(styxProductionModules, { limit: 12 }),
+  lyveInterface: createMediaItems(lyveInterfaceModules, { limit: 5 }),
+};
+
 export const CV_PROJECTS = [
   {
     id: "jesteipool",
@@ -20,7 +100,11 @@ export const CV_PROJECTS = [
       {
         area: "interface",
         title: "ux/ui лид",
-        animation: { type: "masonry", canvasId: "masonry-container" },
+        animation: {
+          type: "horizontal",
+          canvasId: "cv-jestei-interface-horizontal",
+          scene: "jesteiInterfaceMasonry",
+        },
         chips: [
           "Формирование UI/UX-стратегии сервиса",
           "Перевод бизнес-задач в дизайн-решения",
@@ -69,7 +153,11 @@ export const CV_PROJECTS = [
       {
         area: "product",
         title: "продуктовый дизайн",
-        animation: { type: "horizontal", canvasId: "cv-horizontal-container" },
+        animation: {
+          type: "diagonal",
+          canvasId: "cv-jestei-product-diagonal",
+          scene: "jesteiProductHorizontal",
+        },
         chips: [
           chip("Цветовая сегментация продуктов и аудиторий", "jestei-pool-audience-colors"),
           chip("Концепция «три подписки — три темы»", "jestei-pool-premium-products"),
@@ -93,7 +181,6 @@ export const CV_PROJECTS = [
           "Модальные окна «Что нового»",
           "Триггеры апгрейда подписки",
           "Виджеты, CTA и модальные окна для апгрейда",
-          chip("Дизайн системы рассылок", "jestei-pool-newsletters"),
           chip("Дизайн тарифов", "jestei-pool-premium-products"),
           "Карты пользовательских маршрутов",
           "Структура и оформление плейлистов",
@@ -103,16 +190,13 @@ export const CV_PROJECTS = [
       {
         area: "graphic",
         title: "графический дизайн",
-        animation: { type: "arc", canvasId: "arc-container" },
+        animation: {
+          type: "arc",
+          canvasId: "cv-jestei-graphic-arc",
+          scene: "jesteiGraphicArc",
+        },
         chips: [
-          "Ребрендинг сервиса",
-          chip("Разработка фирменного стиля", "jestei-pool-brand-style"),
-          chip("Разработка нового логотипа", "jestei-pool-24"),
-          chip("Подбор брендового шрифта", "jestei-pool-25"),
-          chip("Создание цветовой палитры", "jestei-pool-26"),
-          "Разработка иконок",
           "Оптимизация системы баннеров",
-          chip("Дизайн рассылок бренда", "jestei-pool-newsletters"),
           "Дизайн субтитров",
           "Оформление соцсетей",
           "Создание и арт-дирекшн баннеров",
@@ -122,8 +206,40 @@ export const CV_PROJECTS = [
         ],
       },
       {
+        area: "graphic",
+        title: "разработка фирменного стиля",
+        demo: demo("logo-inspector", {
+          id: "jestei-logo-inspector",
+          minHeight: 520,
+        }),
+        chips: [
+          "Ребрендинг сервиса",
+          chip("Разработка фирменного стиля", "jestei-pool-brand-style"),
+          chip("Разработка нового логотипа", "jestei-pool-24"),
+          chip("Подбор брендового шрифта", "jestei-pool-25"),
+          chip("Создание цветовой палитры", "jestei-pool-26"),
+          "Разработка иконок",
+        ],
+      },
+      {
         area: "development",
         title: "разработка",
+        animations: [
+          {
+            type: "arc",
+            canvasId: "cv-jestei-development-arc",
+            scene: "jesteiLandingArc",
+            tone: "dark",
+            size: "square",
+          },
+          {
+            type: "spiral",
+            canvasId: "cv-jestei-development-spiral",
+            scene: "jesteiLandingSpiral",
+            tone: "dark",
+            size: "square",
+          },
+        ],
         chips: [
           chip("Анимации для лендинга", "jestei-pool-36"),
           "Точечные правки CSS и TypeScript",
@@ -133,11 +249,31 @@ export const CV_PROJECTS = [
       {
         area: "editorial",
         title: "редактура",
+        media: mediaGroup(MEDIA_GROUPS.jesteiEditorial, {
+          variant: "strip",
+          auto: true,
+          size: "wide",
+        }),
         chips: [
           "Информирующий и вежливый тон текстов сайта",
           "Процесс редактирования интерфейсных текстов",
           "Система оповещений «Что нового?»",
           "Корректура текстов на сайте",
+        ],
+      },
+      {
+        area: "editorial",
+        title: "дизайн брендовой рассылки",
+        demo: demo("newsletter-canvas", {
+          id: "jestei-newsletter-canvas",
+          sources: newsletterSources,
+          minHeight: 420,
+          alt: "брендовые рассылки Jestei Pool",
+        }),
+        chips: [
+          chip("Дизайн системы рассылок", "jestei-pool-newsletters"),
+          chip("Дизайн рассылок бренда", "jestei-pool-newsletters"),
+          "Интерфейсный тон промо-сообщений",
         ],
       },
     ],
@@ -158,7 +294,11 @@ export const CV_PROJECTS = [
       {
         area: "graphic",
         title: "графический дизайн",
-        animation: { type: "diagonal", canvasId: "cv-diagonal-container" },
+        animation: {
+          type: "diagonal",
+          canvasId: "cv-styx-graphic-diagonal",
+          scene: "styxGraphicDiagonal",
+        },
         chips: [
           chip("ДНК бренда: логотип и фирменный стиль", "styx-brand-dna"),
           chip("Визуальная подача бренда", "styx-visual-presentation"),
@@ -174,11 +314,21 @@ export const CV_PROJECTS = [
       {
         area: "analysis",
         title: "арт-дирекшн",
+        media: mediaGroup(MEDIA_GROUPS.styxArtDirection, {
+          variant: "strip",
+          auto: true,
+          size: "portrait",
+        }),
         chips: ["Концепция брендовых съёмок", chip("Стилистика кампейнов и каталожной съёмки", "styx-shoot-style")],
       },
       {
         area: "product",
         title: "фото и продакшен",
+        media: mediaGroup(MEDIA_GROUPS.styxProduction, {
+          variant: "orbit",
+          size: "square",
+          tone: "dark",
+        }),
         chips: [
           chip("Продюсирование съёмок", "styx-shoot-production"),
           chip("Фотосъёмка кампейнов", "styx-campaign-photo"),
@@ -206,7 +356,7 @@ export const CV_PROJECTS = [
       {
         area: "graphic",
         title: "графический дизайн",
-        animation: { type: "carousel", canvasId: "cv-carousel-container" },
+        animation: { type: "carousel", canvasId: "cv-lyve-graphic-carousel" },
         chips: [
           "ДНК бренда на основе авторских иллюстраций",
           "Логотип для бренда",
@@ -218,6 +368,10 @@ export const CV_PROJECTS = [
       {
         area: "interface",
         title: "дизайн интерфейса",
+        media: mediaGroup(MEDIA_GROUPS.lyveInterface, {
+          variant: "strip",
+          size: "wide",
+        }),
         chips: ["Минималистичная дизайн-система сайта", "Игривый визуальный язык интерфейса"],
       },
     ],
@@ -232,11 +386,7 @@ export const CV_PROJECTS = [
     summary:
       "SENSETIQUE — московская фотостудия и продакшн для моды, рекламы и визуального контента. Студия объединяла съёмочные залы, белые циклорамы, естественный свет, реквизит и продюсерскую команду. Проекты строились вокруг fashion-съёмок, модельных тестов, лукбуков, каталогов, предметной фотографии и творческих съёмок.",
     domains: [
-      {
-        area: "analysis",
-        title: "концепция",
-        chips: ["Концепция фотостудии", "Бизнес-план запуска"],
-      },
+      { area: "analysis", title: "концепция", chips: ["Концепция фотостудии", "Бизнес-план запуска"] },
       {
         area: "product",
         title: "управление запуском",
@@ -249,7 +399,6 @@ export const CV_PROJECTS = [
           "Организация первого потока клиентов",
         ],
       },
-
       {
         area: "analysis",
         title: "концепция и продажи",
@@ -300,11 +449,7 @@ export const CV_PROJECTS = [
     summary:
       "Mad Cow Films — международный рекламный продакшн с офисами в Лондоне и Москве. Компания делает рекламные ролики, бренд-контент и съёмочные проекты для коммерческих клиентов. В работе соединяет креативную разработку, режиссёрскую базу, продюсирование, подготовку съёмок и сервисное производство.",
     domains: [
-      {
-        area: "editorial",
-        title: "документы",
-        chips: ["Документы для тендерных заявок", "Брифы и презентации", "Сборка проектной документации"],
-      },
+      { area: "editorial", title: "документы", chips: ["Документы для тендерных заявок", "Брифы и презентации", "Сборка проектной документации"] },
       {
         area: "analysis",
         title: "продюсирование",
@@ -335,13 +480,7 @@ export const CV_PROJECTS = [
       {
         area: "analysis",
         title: "подготовка проектов",
-        chips: [
-          "Переговоры с подрядчиками",
-          "Оптимизация смет и бюджетов",
-          "Подготовка смет",
-          "Мудборды для проектов",
-          "Брифы для съёмок",
-        ],
+        chips: ["Переговоры с подрядчиками", "Оптимизация смет и бюджетов", "Подготовка смет", "Мудборды для проектов", "Брифы для съёмок"],
       },
       {
         area: "product",
@@ -361,11 +500,7 @@ export const CV_PROJECTS = [
           "Работа на съёмках для изданий",
         ],
       },
-      {
-        area: "graphic",
-        title: "презентации",
-        chips: ["Презентации для проектов", "Проектные визуалы"],
-      },
+      { area: "graphic", title: "презентации", chips: ["Презентации для проектов", "Проектные визуалы"] },
     ],
   },
   {
@@ -378,20 +513,11 @@ export const CV_PROJECTS = [
     summary:
       "Издательство «Прогресс» — российское издательство переводной, гуманитарной, художественной и образовательной литературы. Компания выпускает книги и работает с полным издательским циклом: текстом, структурой, редакционной подготовкой, иллюстрациями, вёрсткой и подготовкой материалов к печати.",
     domains: [
-      {
-        area: "analysis",
-        title: "клиентская работа",
-        chips: ["Переговоры с клиентами", "Анализ требований к изданию"],
-      },
+      { area: "analysis", title: "клиентская работа", chips: ["Переговоры с клиентами", "Анализ требований к изданию"] },
       {
         area: "graphic",
         title: "книжный дизайн",
-        chips: [
-          "Концепции и макеты книг",
-          "Предпечатная подготовка иллюстраций",
-          "Вёрстка и контроль процесса",
-          "Подготовка книги к типографии",
-        ],
+        chips: ["Концепции и макеты книг", "Предпечатная подготовка иллюстраций", "Вёрстка и контроль процесса", "Подготовка книги к типографии"],
       },
     ],
   },
@@ -404,12 +530,6 @@ export const CV_PROJECTS = [
     roles: ["jr-верстальщик"],
     summary:
       "«Московские новости» / РИА Новости — ежедневная городская общественно-политическая газета о Москве. Издание писало о городской жизни, политике, экономике, культуре, обществе и повестке дня.",
-    domains: [
-      {
-        area: "graphic",
-        title: "газетная вёрстка",
-        chips: ["Вёрстка полос ежедневной газеты"],
-      },
-    ],
+    domains: [{ area: "graphic", title: "газетная вёрстка", chips: ["Вёрстка полос ежедневной газеты"] }],
   },
 ];

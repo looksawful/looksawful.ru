@@ -1,5 +1,6 @@
 import { mountawfulface } from "./awfulface/awfulface.js";
 import { initCvGroupAnimations } from "./cv-group-animations/cv-group-animations.js";
+import { initCvSidebar } from "./cv-sidebar/cv-sidebar.js";
 import { initCvTaskPreviews } from "./cv-task-previews/cv-task-previews.js";
 import { initHeroTitleAnimation } from "./hero-title/hero-title.js";
 import { initPageNavigation } from "./page-navigation/page-navigation.js";
@@ -26,5 +27,6 @@ export function initComponents() {
   runComponentStep("renderCvExperience", () => renderCvExperience());
   runComponentStep("initCvGroupAnimations", () => initCvGroupAnimations());
   runComponentStep("initCvTaskPreviews", () => initCvTaskPreviews());
+  runComponentStep("initCvSidebar", () => initCvSidebar());
   runComponentStep("initPageNavigation", () => initPageNavigation());
 }

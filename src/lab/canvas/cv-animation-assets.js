@@ -43,6 +43,24 @@ const lyveGraphicCarouselModules = import.meta.glob(
   },
 );
 
+const jesteiLandingArcModules = import.meta.glob(
+  "../../assets/cv/chip-content/01-jestei-pool/36-pridumal-i-napisal-animacii-dlya-lendinga/Details/canvas-animations/assets/arc/**/*.{webp,png,jpg,jpeg,avif,mp4}",
+  {
+    eager: true,
+    query: "?url",
+    import: "default",
+  },
+);
+
+const jesteiLandingSpiralModules = import.meta.glob(
+  "../../assets/cv/chip-content/01-jestei-pool/36-pridumal-i-napisal-animacii-dlya-lendinga/Details/canvas-animations/assets/spiral/**/*.{webp,png,jpg,jpeg,avif,mp4}",
+  {
+    eager: true,
+    query: "?url",
+    import: "default",
+  },
+);
+
 export const CV_ANIMATION_SCENES = {
   jesteiInterfaceMasonry: {
     label: "Jestei Pool / ux-ui / masonry",
@@ -68,6 +86,18 @@ export const CV_ANIMATION_SCENES = {
     label: "Lyve Moscow / graphic / carousel",
     directory: "src/assets/cv/animations/lyve-graphic-carousel",
     modules: lyveGraphicCarouselModules,
+  },
+  jesteiLandingArc: {
+    label: "Jestei Pool / landing / legacy arc",
+    directory:
+      "src/assets/cv/chip-content/01-jestei-pool/36-pridumal-i-napisal-animacii-dlya-lendinga/Details/canvas-animations/assets/arc",
+    modules: jesteiLandingArcModules,
+  },
+  jesteiLandingSpiral: {
+    label: "Jestei Pool / landing / legacy spiral",
+    directory:
+      "src/assets/cv/chip-content/01-jestei-pool/36-pridumal-i-napisal-animacii-dlya-lendinga/Details/canvas-animations/assets/spiral",
+    modules: jesteiLandingSpiralModules,
   },
 };
 
