@@ -100,15 +100,17 @@ function createLine(attrs = {}) {
   });
 }
 
-export function mountawfulface(containerId = "awfulface", { eyeStrength = 1 } = {}) {
+export function mountawfulface(containerId = "awfulface", { eyeStrength = 1, variant = "hero", fallOnScroll = true } = {}) {
   const container = document.getElementById(containerId);
 
   if (!container || container.dataset.awfulfaceMounted === "true") {
     return;
   }
 
+  const isInline = variant === "inline";
+
   container.dataset.awfulfaceMounted = "true";
-  container.classList.add("awfulface-container", "awfulface-container--hero");
+  container.classList.add("awfulface-container", isInline ? "awfulface-container--inline" : "awfulface-container--hero");
 
   const svg = svgEl("svg", {
     width: FACE_SIZE,
@@ -223,6 +225,22 @@ export function mountawfulface(containerId = "awfulface", { eyeStrength = 1 } = 
   }
 
   function placeFace() {
+    if (isInline) {
+      state.scale = 1;
+      gsap.set(svg, {
+        x: 0,
+        y: 0,
+        scale: 1,
+        rotation: 0,
+        visibility: "visible",
+      });
+
+      gsap.set(container, {
+        visibility: "visible",
+      });
+      return;
+    }
+
     const layout = getLayout();
     const rect = getHeroRect();
     const rawSvgWidth = Number.parseFloat(getComputedStyle(svg).width) || FACE_SIZE;
@@ -442,7 +460,6 @@ export function mountawfulface(containerId = "awfulface", { eyeStrength = 1 } = 
   resetParts();
 
   document.addEventListener("mousemove", trackEyes);
-  window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("resize", handleResize);
 
   if (document.fonts?.ready) {
@@ -453,7 +470,10 @@ export function mountawfulface(containerId = "awfulface", { eyeStrength = 1 } = 
     });
   }
 
-  handleScroll();
+  if (fallOnScroll && !isInline) {
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+  }
 
   return function destroyAwfulface() {
     state.timeline?.kill();

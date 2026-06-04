@@ -1,5 +1,6 @@
-@import "./typography.css";
+@import "./design-system.css";
 @import "./reset.css";
+@import "./typography.css";
 @import "./components/awfulface.css";
 @import "./components/site-navigation.css";
 @import "./components/cv-sidebar.css";

@@ -4,7 +4,7 @@ import cvHtml from "./cv/cv.html?raw";
 import { getPetProjectBySlug } from "./pet-projects/pet-project-data.js";
 import { renderPetProjectPage } from "./pet-projects/pet-projects-renderer.js";
 import { renderResumePage } from "./resume/resume-renderer.js";
-import { renderSiteNavigation } from "./site-navigation/site-navigation.js";
+import { renderSiteFooter, renderSiteNavigation } from "./site-navigation/site-navigation.js";
 
 const SECTION_HTML = (content) => content.trim();
 const PET_PROJECT_PATH_PATTERN = /^\/pet-projects\/([^/]+)\/?$/;
@@ -28,18 +28,22 @@ export function renderPage(target = document.getElementById("main")) {
 
   if (petProjectSlug) {
     renderDocumentTitle(petProjectSlug);
-    target.innerHTML = `${renderSiteNavigation("projects")}${renderPetProjectPage(petProjectSlug)}`;
+    target.innerHTML = `${renderSiteNavigation("projects")}${renderPetProjectPage(petProjectSlug)}${renderSiteFooter()}`;
     return;
   }
 
   if (RESUME_PATH_PATTERN.test(window.location.pathname)) {
     document.title = "Резюме — Иван Крушинский";
-    target.innerHTML = `${renderSiteNavigation("resume")}${renderResumePage()}`;
+    target.innerHTML = `${renderSiteNavigation("resume")}${renderResumePage()}${renderSiteFooter()}`;
     return;
   }
 
   renderDocumentTitle("");
-  target.innerHTML = [renderSiteNavigation("home"), SECTION_HTML(heroHtml), SECTION_HTML(leadHtml), SECTION_HTML(cvHtml)].join(
-    "\n\n",
-  );
+  target.innerHTML = [
+    renderSiteNavigation("home"),
+    SECTION_HTML(heroHtml),
+    SECTION_HTML(leadHtml),
+    SECTION_HTML(cvHtml),
+    renderSiteFooter(),
+  ].join("\n\n");
 }

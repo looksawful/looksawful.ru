@@ -4,8 +4,8 @@ import styxLogoUrl from "../../assets/cv/logos/styx-logo.svg";
 import { CV_TASK_DEMOS } from "./cv-task-demo-data.js";
 import { mountCvDemoVisuals } from "./cv-task-visual-demos.js";
 
-const CHIP_SELECTOR = ".cv-task-chip";
-const DEMO_CHIP_SELECTOR = ".cv-task-chip[data-demo-id]";
+const CHIP_SELECTOR = ".cv-task-chip, .cv-task-list-item";
+const DEMO_CHIP_SELECTOR = ".cv-task-chip[data-demo-id], .cv-task-list-item[data-demo-id]";
 const WORK_TOGGLE_SELECTOR = ".cv-work-toggle";
 const WORK_TOGGLE_TEXT_SELECTOR = ".cv-work-toggle__text";
 const PROJECT_MORE_BUTTON_SELECTOR = ".cv-project-more__button";
@@ -605,7 +605,9 @@ function handlePanelKeydown(event) {
 }
 
 function getRelatedChips(chip) {
-  return [...(chip.closest(".cv-task-chips")?.querySelectorAll(CHIP_SELECTOR) ?? [])];
+  const group = chip.closest(".cv-task-chips, .cv-task-list-group");
+
+  return [...(group?.querySelectorAll(CHIP_SELECTOR) ?? [])];
 }
 
 function animateChipCluster(activeChip) {

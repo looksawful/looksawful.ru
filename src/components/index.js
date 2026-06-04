@@ -5,7 +5,9 @@ import { initCvTaskPreviews } from "./cv-task-previews/cv-task-previews.js";
 import { initHeroTitleAnimation } from "./hero-title/hero-title.js";
 import { initPageNavigation } from "./page-navigation/page-navigation.js";
 import { initPreloadStates } from "./preload-state/preload-state.js";
+import { initSystemMotion } from "./system-motion/system-motion.js";
 import { renderCvExperience } from "../sections/cv/cv-renderer.js";
+import { initSiteNavigationState } from "../sections/site-navigation/site-navigation.js";
 
 function runComponentStep(label, callback) {
   try {
@@ -22,6 +24,7 @@ function mountFaces() {
 
 export function initComponents() {
   runComponentStep("initPreloadStates", () => initPreloadStates());
+  runComponentStep("initSiteNavigationState", () => initSiteNavigationState());
   runComponentStep("initHeroTitleAnimation", () => initHeroTitleAnimation());
   runComponentStep("mountawfulface", () => mountFaces());
   runComponentStep("renderCvExperience", () => renderCvExperience());
@@ -29,4 +32,5 @@ export function initComponents() {
   runComponentStep("initCvTaskPreviews", () => initCvTaskPreviews());
   runComponentStep("initCvSidebar", () => initCvSidebar());
   runComponentStep("initPageNavigation", () => initPageNavigation());
+  runComponentStep("initSystemMotion", () => initSystemMotion());
 }

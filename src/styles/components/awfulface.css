@@ -24,3 +24,19 @@
   transform-origin: center;
   will-change: transform;
 }
+
+.awfulface-container--inline {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+
+.awfulface-container--inline svg {
+  position: static;
+  inline-size: 100%;
+  max-inline-size: none;
+  transform-origin: center;
+  will-change: transform;
+}

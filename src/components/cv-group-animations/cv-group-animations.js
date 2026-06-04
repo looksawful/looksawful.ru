@@ -10,6 +10,7 @@ const ANIMATION_MOUNTERS = {
 };
 
 const mountedPreviews = new WeakMap();
+const mountedSliders = new WeakMap();
 
 const normalizeDispose = (dispose) => {
   if (typeof dispose === "function") {
@@ -52,8 +53,87 @@ async function mountPreview(preview) {
   }
 }
 
+function initPreviewSlider(slider) {
+  if (!(slider instanceof HTMLElement) || mountedSliders.has(slider)) {
+    return () => {};
+  }
+
+  const track = slider.querySelector(".cv-preview-row--slider");
+  const prev = slider.querySelector("[data-cv-slider-prev]");
+  const next = slider.querySelector("[data-cv-slider-next]");
+
+  if (!(track instanceof HTMLElement)) {
+    return () => {};
+  }
+
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartScrollLeft = 0;
+
+  const getStep = () => {
+    const item = track.querySelector(".cv-preview");
+    const itemWidth = item instanceof HTMLElement ? item.getBoundingClientRect().width : track.clientWidth * 0.8;
+    const gap = Number.parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || "0") || 0;
+    return itemWidth + gap;
+  };
+
+  const scrollByStep = (direction) => {
+    track.scrollBy({ left: getStep() * direction, behavior: "smooth" });
+  };
+
+  const onPointerDown = (event) => {
+    isDragging = true;
+    dragStartX = event.clientX;
+    dragStartScrollLeft = track.scrollLeft;
+    track.classList.add("is-dragging");
+    track.setPointerCapture?.(event.pointerId);
+  };
+
+  const onPointerMove = (event) => {
+    if (!isDragging) {
+      return;
+    }
+
+    event.preventDefault();
+    track.scrollLeft = dragStartScrollLeft - (event.clientX - dragStartX);
+  };
+
+  const onPointerUp = (event) => {
+    isDragging = false;
+    track.classList.remove("is-dragging");
+    track.releasePointerCapture?.(event.pointerId);
+  };
+
+  const onPrev = () => scrollByStep(-1);
+  const onNext = () => scrollByStep(1);
+
+  prev?.addEventListener("click", onPrev);
+  next?.addEventListener("click", onNext);
+  track.addEventListener("pointerdown", onPointerDown);
+  track.addEventListener("pointermove", onPointerMove, { passive: false });
+  track.addEventListener("pointerup", onPointerUp);
+  track.addEventListener("pointercancel", onPointerUp);
+  track.addEventListener("pointerleave", onPointerUp);
+
+  const dispose = () => {
+    prev?.removeEventListener("click", onPrev);
+    next?.removeEventListener("click", onNext);
+    track.removeEventListener("pointerdown", onPointerDown);
+    track.removeEventListener("pointermove", onPointerMove);
+    track.removeEventListener("pointerup", onPointerUp);
+    track.removeEventListener("pointercancel", onPointerUp);
+    track.removeEventListener("pointerleave", onPointerUp);
+    mountedSliders.delete(slider);
+  };
+
+  mountedSliders.set(slider, dispose);
+  return dispose;
+}
+
 export function initCvGroupAnimations(root = document) {
   const previews = [...root.querySelectorAll("[data-cv-animation]")];
+  const sliders = [...root.querySelectorAll("[data-cv-preview-slider]")];
+  const sliderDisposers = sliders.map(initPreviewSlider);
 
   observeOnceVisible(
     previews,
@@ -71,5 +151,6 @@ export function initCvGroupAnimations(root = document) {
       mountedPreviews.get(preview)?.();
       mountedPreviews.delete(preview);
     });
+    sliderDisposers.forEach((dispose) => dispose());
   };
 }

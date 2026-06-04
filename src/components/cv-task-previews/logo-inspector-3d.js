@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import jesteiLogoSvg from "../../assets/cv/logos/jestei-logo.svg?raw";
 
 const STYLE_ID = "logo-inspector-3d-styles";
 
@@ -19,11 +20,9 @@ const MIN_DISTANCE = 3.4;
 const MAX_DISTANCE = 9.2;
 
 function getLogoIconSvg(color) {
-  return `
-    <svg class="logo-inspector-3d__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M24 0.144981V12.0945C24.0025 12.1669 24.0037 12.2397 24.0037 12.3126C24.0037 12.3855 24.0025 12.4582 24 12.5307V24H18.8972V19.6041C17.5904 20.9329 15.7719 21.7564 13.7623 21.7564C9.7879 21.7564 6.56586 18.5344 6.56586 14.56C6.56586 10.5856 9.7879 7.36356 13.7623 7.36356C15.7719 7.36356 17.5904 8.18706 18.8972 9.51591V0.144981H24ZM18.8972 14.56C18.8972 17.3959 16.5967 19.6964 13.7608 19.6964C10.9249 19.6964 8.6244 17.3959 8.6244 14.56C8.6244 11.7241 10.9249 9.42361 13.7608 9.42361C16.5967 9.42361 18.8972 11.7241 18.8972 14.56ZM16.7887 14.56C16.7887 16.2323 15.4332 17.5878 13.7608 17.5878C12.0884 17.5878 10.733 16.2323 10.733 14.56C10.733 12.8876 12.0884 11.5321 13.7608 11.5321C15.4332 11.5321 16.7887 12.8876 16.7887 14.56ZM0 7.36356L5.68889 11.4203C5.43405 12.2217 5.29664 13.0754 5.29664 13.9611C5.29664 14.9372 5.4637 15.8743 5.77065 16.7454L0 20.455V7.36356Z" fill="${color}"/>
-    </svg>
-  `;
+  return jesteiLogoSvg
+    .replace("<svg", '<svg class="logo-inspector-3d__icon" aria-hidden="true" focusable="false"')
+    .replace(/fill="#151718"/g, `fill="${color}"`);
 }
 
 function injectStyles() {
@@ -108,8 +107,8 @@ function injectStyles() {
       height: 38px;
       border: 1px solid rgba(17, 17, 17, 0.08);
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.92);
-      box-shadow: 0 8px 22px rgba(17, 17, 17, 0.08);
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(17, 17, 17, 0.08);
       cursor: pointer;
       transform: translateY(-50%);
     }
@@ -118,11 +117,11 @@ function injectStyles() {
       content: "";
       position: absolute;
       inset: 0;
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       margin: auto;
-      border-top: 2px solid #151718;
-      border-left: 2px solid #151718;
+      border-top: 2px solid #111;
+      border-left: 2px solid #111;
     }
 
     .logo-inspector-3d__arrow--prev {
@@ -130,7 +129,7 @@ function injectStyles() {
     }
 
     .logo-inspector-3d__arrow--prev::before {
-      transform: translateX(2px) rotate(-45deg);
+      transform: translateX(1px) rotate(-45deg);
     }
 
     .logo-inspector-3d__arrow--next {
@@ -138,7 +137,7 @@ function injectStyles() {
     }
 
     .logo-inspector-3d__arrow--next::before {
-      transform: translateX(-2px) rotate(135deg);
+      transform: translateX(-1px) rotate(135deg);
     }
 
     .logo-inspector-3d__status {

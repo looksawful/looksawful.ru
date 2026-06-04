@@ -1,7 +1,7 @@
-const MIN_CANVAS_SCALE = 0.35;
-const MAX_CANVAS_SCALE = 8;
-const WHEEL_ZOOM_FACTOR = 0.0014;
-const MAX_WHEEL_ZOOM_DELTA = 0.22;
+const MIN_CANVAS_SCALE = 0.82;
+const MAX_CANVAS_SCALE = 2.2;
+const WHEEL_ZOOM_FACTOR = 0.0007;
+const MAX_WHEEL_ZOOM_DELTA = 0.11;
 const ZOOM_EASING_FACTOR = 0.18;
 const DRAG_SENSITIVITY = 0.88;
 const PINCH_SENSITIVITY = 0.92;
@@ -19,8 +19,8 @@ function ensureStyles() {
       position: relative;
       width: 100%;
       min-height: 320px;
-      background: #f2f2f2;
-      border: 1px solid #d6d6d6;
+      background: transparent;
+      border: 0;
       overflow: hidden;
       touch-action: none;
       user-select: none;
@@ -30,7 +30,7 @@ function ensureStyles() {
       display: block;
       width: 100%;
       height: 100%;
-      background: #efefef;
+      background: transparent;
     }
   `;
 

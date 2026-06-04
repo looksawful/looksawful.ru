@@ -21,6 +21,10 @@ const escapeHtml = (value = "") =>
 
 const normalizeChip = (item) => (typeof item === "string" ? { label: item } : item);
 const normalizeList = (value) => (Array.isArray(value) ? value : value ? [value] : []);
+const DEFAULT_MEDIA_CAPTION = "внимание: этот текст является рыбой.";
+const AUTO_LIST_GROUP_TITLES = ["заголовок группы 01", "заголовок группы 02", "заголовок группы 03"];
+const AUTO_LIST_GROUP_CAPTION = "подпись группы";
+const AUTO_LIST_MIN_ITEMS = 5;
 
 const renderRoleChips = (roles = []) => `
   <ul class="cv-role-chips">
@@ -65,6 +69,7 @@ const renderProjectCopy = (paragraphs = []) =>
 
 const renderProjectHero = (project) => `
   <section class="cv-project-hero cv-project-hero--${escapeHtml(project.logo?.modifier || "default")}">
+    <div class="cv-project-hero__banner" aria-hidden="true"></div>
     <div class="cv-project-hero__body">
       ${renderLogo(project.logo, { hero: true })}
       <div class="cv-project-hero__content">
@@ -115,6 +120,17 @@ const renderTaskChip = (item) => {
   return `<li><span class="${className}"${demoAttribute}>${escapeHtml(chip.label)}</span></li>`;
 };
 
+const renderTaskListItem = (item) => {
+  const chip = normalizeChip(item);
+  const demoAttribute = chip.demoId ? ` data-demo-id="${escapeHtml(chip.demoId)}"` : "";
+  const className = toClassName(["cv-task-list-item", chip.demoId && "cv-task-list-item--interactive"]);
+
+  return `<li><span class="${className}"${demoAttribute}>${escapeHtml(chip.label)}</span></li>`;
+};
+
+const renderMediaCaption = (caption = DEFAULT_MEDIA_CAPTION) =>
+  caption === false ? "" : `<p class="cv-media-caption ds-caption">${escapeHtml(caption || DEFAULT_MEDIA_CAPTION)}</p>`;
+
 const renderAnimationPreview = (animation) => {
   if (!animation) {
     return "";
@@ -128,21 +144,50 @@ const renderAnimationPreview = (animation) => {
   const sceneAttribute = animation.scene ? ` data-cv-animation-scene="${escapeHtml(animation.scene)}"` : "";
   const variantAttribute = animation.variant ? ` data-cv-animation-variant="${escapeHtml(animation.variant)}"` : "";
 
+  if (animation.type === "placeholder") {
+    return `
+      <section class="${toClassName([className, "cv-preview--placeholder", "ds-evidence"])}" aria-label="${escapeHtml(animation.label || "пустая canvas-область")}">
+        <span class="cv-preview__placeholder" aria-hidden="true"></span>
+        ${renderMediaCaption(animation.caption)}
+      </section>
+    `;
+  }
+
   return `
-    <section class="${className}" data-cv-animation="${escapeHtml(animation.type)}">
+    <section class="${toClassName([className, "ds-evidence"])}" data-cv-animation="${escapeHtml(animation.type)}">
       <canvas id="${escapeHtml(animation.canvasId)}" class="cv-canvas"${sceneAttribute}${variantAttribute}></canvas>
+      ${renderMediaCaption(animation.caption)}
     </section>
   `;
 };
 
-const renderAnimationPreviews = (animations = []) =>
-  animations.length
-    ? `
-      <div class="${toClassName(["cv-preview-row", animations.length === 1 && "cv-preview-row--single"])}">
-        ${animations.map(renderAnimationPreview).join("")}
-      </div>
-    `
-    : "";
+const renderAnimationPreviews = (animations = [], group = {}) => {
+  if (!animations.length) {
+    return "";
+  }
+
+  const row = `
+    <div class="${toClassName([
+      "cv-preview-row",
+      animations.length === 1 && "cv-preview-row--single",
+      group.slider && "cv-preview-row--slider",
+    ])}">
+      ${animations.map(renderAnimationPreview).join("")}
+    </div>
+  `;
+
+  if (!group.slider) {
+    return row;
+  }
+
+  return `
+    <section class="cv-preview-slider" data-cv-preview-slider aria-label="${escapeHtml(group.sliderLabel || "canvas-превью")}">
+      <button class="cv-preview-slider__arrow cv-preview-slider__arrow--prev" type="button" data-cv-slider-prev aria-label="предыдущие canvas-превью"></button>
+      ${row}
+      <button class="cv-preview-slider__arrow cv-preview-slider__arrow--next" type="button" data-cv-slider-next aria-label="следующие canvas-превью"></button>
+    </section>
+  `;
+};
 
 const renderMediaAsset = (item, index = 0, count = 1) => {
   if (!item?.src) {
@@ -177,12 +222,14 @@ const renderMediaGroup = (media) => {
     media.auto && "cv-media-group--auto",
   ]);
   const items = media.auto ? [...media.items, ...media.items] : media.items;
+  const styleAttribute = media.speed ? ` style="--media-speed: ${escapeHtml(media.speed)}"` : "";
 
   return `
-    <section class="${className}" aria-label="${escapeHtml(media.label || "визуальные материалы")}">
+    <section class="${toClassName([className, "ds-evidence"])}" aria-label="${escapeHtml(media.label || "визуальные материалы")}"${styleAttribute}>
       <div class="cv-media-group__track">
         ${items.map((item, index) => renderMediaAsset(item, index, items.length)).join("")}
       </div>
+      ${renderMediaCaption(media.caption)}
     </section>
   `;
 };
@@ -200,20 +247,28 @@ const renderDemoPreview = (preview) => {
 
   if (preview.type === "logo-inspector") {
     return `
-      <section class="${className}"${idAttribute} data-cv-visual-demo="logo-inspector:jestei"${minHeightAttribute}></section>
+      <section class="${toClassName([className, "ds-evidence"])}"${idAttribute}>
+        <div class="cv-embedded-demo__mount" data-cv-visual-demo="logo-inspector:jestei"${minHeightAttribute}></div>
+        ${renderMediaCaption(preview.caption)}
+      </section>
     `;
   }
 
   if (preview.type === "newsletter-canvas") {
     return `
       <section
-        class="${className}"
+        class="${toClassName([className, "ds-evidence"])}"
         ${idAttribute}
-        data-cv-visual-demo="newsletter-canvas:jestei"
-        data-cv-newsletter-sources="${escapeHtml(JSON.stringify(preview.sources || []))}"
-        data-cv-alt="${escapeHtml(preview.alt || "newsletter canvas")}"
-        ${minHeightAttribute}
-      ></section>
+      >
+        <div
+          class="cv-embedded-demo__mount"
+          data-cv-visual-demo="newsletter-canvas:jestei"
+          data-cv-newsletter-sources="${escapeHtml(JSON.stringify(preview.sources || []))}"
+          data-cv-alt="${escapeHtml(preview.alt || "newsletter canvas")}"
+          ${minHeightAttribute}
+        ></div>
+        ${renderMediaCaption(preview.caption)}
+      </section>
     `;
   }
 
@@ -234,6 +289,9 @@ const normalizeGroups = (domain) =>
       demo: domain.demo,
       demos: domain.demos,
       visual: domain.visual,
+      listGroups: domain.listGroups,
+      slider: domain.slider,
+      sliderLabel: domain.sliderLabel,
     },
   ];
 
@@ -243,27 +301,96 @@ const hasGroupVisual = (group) =>
 
 const renderTaskGroupVisual = (group) => `
   ${renderDemoPreviews(group.demos ?? group.demo)}
-  ${renderAnimationPreviews(group.animations ?? (group.animation ? [group.animation] : []))}
+  ${renderAnimationPreviews(group.animations ?? (group.animation ? [group.animation] : []), group)}
   ${renderMediaGroups(group.medias ?? group.media)}
 `;
 
-const renderTaskGroupMeta = (group, domain) => `
-  <div class="cv-task-group__meta">
-    <h4 class="cv-task-domain__title">${escapeHtml(domain.title)}</h4>
-    ${group.title ? `<h5 class="cv-task-group__title">${escapeHtml(group.title)}</h5>` : ""}
-    <ul class="cv-task-chips">
-      ${(group.chips ?? []).map(renderTaskChip).join("")}
-    </ul>
+const createAutoListGroups = (items = []) => {
+  const chunks = Math.min(3, Math.max(1, Math.ceil(items.length / 8)));
+  const chunkSize = Math.ceil(items.length / chunks);
+
+  return Array.from({ length: chunks }, (_, index) => ({
+    title: AUTO_LIST_GROUP_TITLES[index] ?? "заголовок группы",
+    caption: AUTO_LIST_GROUP_CAPTION,
+    items: items.slice(index * chunkSize, (index + 1) * chunkSize),
+  })).filter((group) => group.items.length);
+};
+
+const getDomainLayoutClasses = (layout) => {
+  const tokens = new Set(normalizeList(layout).flatMap((item) => String(item).split(/\s+/)).filter(Boolean));
+
+  if (!tokens.size) {
+    return [];
+  }
+
+  return [
+    tokens.has("two-column") && "cv-task-domain--two-column",
+    tokens.has("media-left") && "cv-task-domain--media-left",
+    tokens.has("media-right") && "cv-task-domain--media-right",
+    tokens.has("text-left") && "cv-task-domain--text-left",
+    tokens.has("text-right") && "cv-task-domain--text-right",
+    tokens.has("compact") && "cv-task-domain--two-column-compact",
+    (tokens.has("always") || tokens.has("always-split")) && "cv-task-domain--two-column-always",
+    tokens.has("collapse-on-mobile") && "cv-task-domain--collapse-on-mobile",
+  ];
+};
+
+const getTaskListGroups = (group, domain, project) => {
+  if (group.listGroups?.length) {
+    return group.listGroups;
+  }
+
+  const chips = group.chips ?? [];
+  const shouldUseLists = chips.length >= AUTO_LIST_MIN_ITEMS;
+
+  return shouldUseLists ? createAutoListGroups(chips) : [];
+};
+
+const renderTaskListGroups = (listGroups = []) => `
+  <div class="cv-task-list-groups ds-structured-list">
+    ${listGroups
+      .map(
+        (listGroup) => `
+          <section class="cv-task-list-group ds-list-section">
+            <h5>${escapeHtml(listGroup.title)}</h5>
+            ${listGroup.caption ? `<p class="cv-task-list-group__caption ds-caption">${escapeHtml(listGroup.caption)}</p>` : ""}
+            <ul>
+              ${(listGroup.items ?? []).map(renderTaskListItem).join("")}
+            </ul>
+          </section>
+        `,
+      )
+      .join("")}
   </div>
 `;
 
-const renderTaskGroup = (group, domain) => {
+const renderTaskGroupMeta = (group, domain, project) => {
+  const listGroups = getTaskListGroups(group, domain, project);
+
+  return `
+    <div class="cv-task-group__meta">
+      <h4 class="cv-task-domain__title type-domain-title">${escapeHtml(domain.title)}</h4>
+      ${group.title ? `<h5 class="cv-task-group__title">${escapeHtml(group.title)}</h5>` : ""}
+      ${
+        listGroups.length
+          ? renderTaskListGroups(listGroups)
+          : `
+            <ul class="cv-task-chips">
+              ${(group.chips ?? []).map(renderTaskChip).join("")}
+            </ul>
+          `
+      }
+    </div>
+  `;
+};
+
+const renderTaskGroup = (group, domain, project) => {
   const withVisual = hasGroupVisual(group);
 
   return `
     <div class="${toClassName(["cv-task-group", withVisual && "cv-task-group--with-visual"])}">
-      ${withVisual ? `<div class="cv-task-group__visual">${renderTaskGroupVisual(group)}</div>` : ""}
-      ${renderTaskGroupMeta(group, domain)}
+      ${withVisual ? `<div class="cv-task-group__visual ds-evidence">${renderTaskGroupVisual(group)}</div>` : ""}
+      ${renderTaskGroupMeta(group, domain, project)}
     </div>
   `;
 };
@@ -272,11 +399,11 @@ const hasDomainVisual = (domain) => normalizeGroups(domain).some(hasGroupVisual)
 
 const renderTaskDomain = (domain, project) => `
   <section
-    class="${toClassName(["cv-task-domain", hasDomainVisual(domain) && "cv-task-domain--with-visual"])}"
+    class="${toClassName(["cv-task-domain", "ds-surface", hasDomainVisual(domain) && "cv-task-domain--with-visual", ...getDomainLayoutClasses(domain.layout)])}"
     data-project-id="${escapeHtml(project.id)}"
     data-task-area="${escapeHtml(domain.area)}"
   >
-    ${normalizeGroups(domain).map((group) => renderTaskGroup(group, domain)).join("")}
+    ${normalizeGroups(domain).map((group) => renderTaskGroup(group, domain, project)).join("")}
   </section>
 `;
 

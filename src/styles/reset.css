@@ -20,11 +20,11 @@ ul {
 }
 
 body {
-  background: #fff;
-  color: #111;
-  font-family: "Rubik", system-ui, sans-serif;
-  font-size: var(--fs);
-  line-height: 1.38;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-root);
+  line-height: var(--line-body);
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
