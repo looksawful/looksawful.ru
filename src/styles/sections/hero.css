@@ -42,6 +42,7 @@
 .hero__title-role {
   justify-self: end;
   font-size: var(--heading-hero-secondary);
+  font-weight: var(--font-weight-medium);
 }
 
 .hero-title-word {

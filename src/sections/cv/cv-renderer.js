@@ -21,9 +21,7 @@ const escapeHtml = (value = "") =>
 
 const normalizeChip = (item) => (typeof item === "string" ? { label: item } : item);
 const normalizeList = (value) => (Array.isArray(value) ? value : value ? [value] : []);
-const DEFAULT_MEDIA_CAPTION = "внимание: этот текст является рыбой.";
 const AUTO_LIST_GROUP_TITLES = ["заголовок группы 01", "заголовок группы 02", "заголовок группы 03"];
-const AUTO_LIST_GROUP_CAPTION = "подпись группы";
 const AUTO_LIST_MIN_ITEMS = 5;
 
 const renderRoleChips = (roles = []) => `
@@ -114,22 +112,18 @@ const renderProjectHeader = (project) => `
 
 const renderTaskChip = (item) => {
   const chip = normalizeChip(item);
-  const demoAttribute = chip.demoId ? ` data-demo-id="${escapeHtml(chip.demoId)}"` : "";
-  const className = chip.demoId ? "cv-task-chip cv-task-chip--filled" : "cv-task-chip";
-
-  return `<li><span class="${className}"${demoAttribute}>${escapeHtml(chip.label)}</span></li>`;
+  return `<li><span class="cv-task-chip">${escapeHtml(chip.label)}</span></li>`;
 };
 
 const renderTaskListItem = (item) => {
   const chip = normalizeChip(item);
-  const demoAttribute = chip.demoId ? ` data-demo-id="${escapeHtml(chip.demoId)}"` : "";
-  const className = toClassName(["cv-task-list-item", chip.demoId && "cv-task-list-item--interactive"]);
-
-  return `<li><span class="${className}"${demoAttribute}>${escapeHtml(chip.label)}</span></li>`;
+  return `<li><span class="cv-task-list-item">${escapeHtml(chip.label)}</span></li>`;
 };
 
-const renderMediaCaption = (caption = DEFAULT_MEDIA_CAPTION) =>
-  caption === false ? "" : `<p class="cv-media-caption ds-caption">${escapeHtml(caption || DEFAULT_MEDIA_CAPTION)}</p>`;
+const renderMediaCaption = (caption) =>
+  typeof caption === "string" && caption.trim()
+    ? `<p class="cv-media-caption ds-caption">${escapeHtml(caption.trim())}</p>`
+    : "";
 
 const renderAnimationPreview = (animation) => {
   if (!animation) {
@@ -148,6 +142,18 @@ const renderAnimationPreview = (animation) => {
     return `
       <section class="${toClassName([className, "cv-preview--placeholder", "ds-evidence"])}" aria-label="${escapeHtml(animation.label || "пустая canvas-область")}">
         <span class="cv-preview__placeholder" aria-hidden="true"></span>
+        ${renderMediaCaption(animation.caption)}
+      </section>
+    `;
+  }
+
+  if (animation.type === "video-placeholder") {
+    return `
+      <section class="${toClassName([className, "cv-preview--video-placeholder", "ds-evidence"])}" aria-label="${escapeHtml(animation.label || "видео")}">
+        <div class="cv-video-placeholder">
+          <span class="cv-video-placeholder__label">${escapeHtml(animation.label || "видео")}</span>
+          <button class="cv-video-placeholder__button" type="button" aria-label="включить звук">unmute</button>
+        </div>
         ${renderMediaCaption(animation.caption)}
       </section>
     `;
@@ -290,6 +296,7 @@ const normalizeGroups = (domain) =>
       demos: domain.demos,
       visual: domain.visual,
       listGroups: domain.listGroups,
+      listLayout: domain.listLayout,
       slider: domain.slider,
       sliderLabel: domain.sliderLabel,
     },
@@ -311,7 +318,6 @@ const createAutoListGroups = (items = []) => {
 
   return Array.from({ length: chunks }, (_, index) => ({
     title: AUTO_LIST_GROUP_TITLES[index] ?? "заголовок группы",
-    caption: AUTO_LIST_GROUP_CAPTION,
     items: items.slice(index * chunkSize, (index + 1) * chunkSize),
   })).filter((group) => group.items.length);
 };
@@ -341,22 +347,42 @@ const getTaskListGroups = (group, domain, project) => {
   }
 
   const chips = group.chips ?? [];
-  const shouldUseLists = chips.length >= AUTO_LIST_MIN_ITEMS;
+  const shouldUseLists = chips.length >= AUTO_LIST_MIN_ITEMS || (project.variant === "featured" && chips.length > 0);
 
   return shouldUseLists ? createAutoListGroups(chips) : [];
 };
 
-const renderTaskListGroups = (listGroups = []) => `
-  <div class="cv-task-list-groups ds-structured-list">
+const getTaskListLayoutTokens = (layout) =>
+  new Set(normalizeList(layout).flatMap((item) => String(item).split(/\s+/)).filter(Boolean));
+
+const getTaskListLayoutClasses = (layout) => {
+  const tokens = getTaskListLayoutTokens(layout);
+
+  return [
+    tokens.has("alternating-media") && "cv-task-list-groups--alternating-media",
+    tokens.has("media-placeholders") && "cv-task-list-groups--media-placeholders",
+    tokens.has("compact") && "cv-task-list-groups--compact",
+  ];
+};
+
+const hasTaskListMedia = (layout) => {
+  const tokens = getTaskListLayoutTokens(layout);
+  return tokens.has("alternating-media") || tokens.has("media-placeholders");
+};
+
+const renderTaskListGroups = (listGroups = [], layout) => `
+  <div class="${toClassName(["cv-task-list-groups", "ds-structured-list", ...getTaskListLayoutClasses(layout)])}">
     ${listGroups
       .map(
         (listGroup) => `
           <section class="cv-task-list-group ds-list-section">
-            <h5>${escapeHtml(listGroup.title)}</h5>
-            ${listGroup.caption ? `<p class="cv-task-list-group__caption ds-caption">${escapeHtml(listGroup.caption)}</p>` : ""}
-            <ul>
-              ${(listGroup.items ?? []).map(renderTaskListItem).join("")}
-            </ul>
+            <div class="cv-task-list-group__content">
+              <h5>${escapeHtml(listGroup.title)}</h5>
+              <ul>
+                ${(listGroup.items ?? []).map(renderTaskListItem).join("")}
+              </ul>
+            </div>
+            ${hasTaskListMedia(layout) ? `<div class="cv-task-list-group__media" aria-hidden="true"></div>` : ""}
           </section>
         `,
       )
@@ -373,7 +399,7 @@ const renderTaskGroupMeta = (group, domain, project) => {
       ${group.title ? `<h5 class="cv-task-group__title">${escapeHtml(group.title)}</h5>` : ""}
       ${
         listGroups.length
-          ? renderTaskListGroups(listGroups)
+          ? renderTaskListGroups(listGroups, group.listLayout ?? domain.listLayout)
           : `
             <ul class="cv-task-chips">
               ${(group.chips ?? []).map(renderTaskChip).join("")}

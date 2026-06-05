@@ -22,11 +22,11 @@
 .site-topbar__brand {
   justify-self: start;
   color: var(--site-link-blue);
-  font-size: clamp(0.92rem, 1vw, 1.12rem);
-  font-weight: 720;
+  font-size: clamp(0.72rem, 0.76vw, 0.88rem);
+  font-weight: var(--font-weight-book);
   line-height: 1;
-  text-decoration: underline;
-  text-underline-offset: 0.16em;
+  text-decoration: none;
+  text-transform: lowercase;
   opacity: 0;
   pointer-events: none;
   transform: translateY(-0.35rem);
@@ -46,26 +46,27 @@
   grid-column: 2;
   justify-self: end;
   justify-content: flex-end;
-  gap: clamp(0.9rem, 1.9vw, 2.4rem);
+  gap: clamp(0.76rem, 1.45vw, 1.75rem);
   inline-size: 100%;
   pointer-events: auto;
 }
 
 .site-topbar__links a {
   color: var(--site-link-blue);
-  font-size: clamp(0.86rem, 0.92vw, 1.06rem);
-  font-weight: 760;
+  font-size: clamp(0.72rem, 0.74vw, 0.86rem);
+  font-weight: var(--font-weight-book);
   line-height: 1;
   letter-spacing: 0;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
-  text-transform: uppercase;
+  text-decoration: none;
+  text-transform: lowercase;
   background: transparent;
 }
 
 .site-topbar__links a[aria-current="page"],
-.site-topbar__links a:hover {
+.site-topbar__links a:hover,
+.site-topbar__links a:focus-visible,
+.site-topbar__brand:hover,
+.site-topbar__brand:focus-visible {
   color: var(--color-link-hover);
 }
 
@@ -80,8 +81,9 @@
   color: var(--color-muted);
   background: transparent;
   font-size: clamp(0.7rem, 0.72vw, 0.82rem);
-  font-weight: 560;
+  font-weight: var(--font-weight-book);
   line-height: 1.2;
+  text-transform: lowercase;
 }
 
 .site-footer small {
@@ -128,7 +130,7 @@
 
   .site-topbar__links a {
     flex: 0 0 auto;
-    font-size: clamp(0.76rem, 3vw, 0.9rem);
+    font-size: clamp(0.72rem, 2.8vw, 0.84rem);
   }
 
   .site-footer {

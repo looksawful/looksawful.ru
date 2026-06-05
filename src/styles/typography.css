@@ -79,7 +79,7 @@ h5,
 h6 {
   margin-block: 0;
   color: var(--color-ink);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-medium);
   letter-spacing: var(--letter-normal);
   text-wrap: balance;
 }
@@ -98,28 +98,28 @@ p {
 
 .type-section-title {
   font-size: var(--type-section-title);
-  font-weight: var(--font-weight-black);
+  font-weight: var(--font-weight-medium);
   line-height: var(--line-tight);
   letter-spacing: var(--letter-display);
 }
 
 .type-project-title {
   font-size: var(--type-project-title);
-  font-weight: var(--font-weight-black);
+  font-weight: var(--font-weight-medium);
   line-height: var(--line-tight);
   letter-spacing: var(--letter-tight);
 }
 
 .type-domain-title {
   font-size: var(--type-domain-title);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-medium);
   line-height: var(--line-heading);
 }
 
 .type-group-title,
 .type-list-title {
   font-size: var(--type-list-title);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-medium);
   line-height: var(--line-label);
   letter-spacing: var(--letter-normal);
 }
@@ -142,19 +142,19 @@ p {
 .type-list-item {
   color: var(--color-ink-soft);
   font-size: var(--type-list-item);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-book);
   line-height: var(--line-body);
 }
 
 .type-label {
   font-size: var(--type-label);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-book);
   line-height: var(--line-label);
 }
 
 .type-control {
   font-size: var(--type-control);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-book);
   line-height: var(--line-label);
 }
 

@@ -2111,7 +2111,7 @@ html.has-cv-demo-open body {
 
 .cv-project-hero {
   grid-column: 1 / -1;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid var(--cv-border);
   border-radius: var(--cv-radius-project);
   background: var(--cv-surface-raised);
@@ -2139,15 +2139,18 @@ html.has-cv-demo-open body {
   position: relative;
   display: grid;
   inline-size: 100%;
-  block-size: 100%;
-  min-block-size: clamp(7rem, 9vw, 9.5rem);
+  block-size: clamp(6.5rem, 9vw, 9.5rem);
+  max-block-size: clamp(6.5rem, 9vw, 9.5rem);
+  min-inline-size: 0;
+  min-block-size: 0;
   aspect-ratio: auto;
   place-items: center;
   margin: 0;
-  overflow: visible;
+  overflow: hidden;
   border: 0;
   border-radius: 0;
   background: transparent;
+  contain: layout paint;
 }
 
 .cv-experience__item--featured .cv-project-logo--hero {
@@ -2163,6 +2166,8 @@ html.has-cv-demo-open body {
 .cv-project-logo--hero img {
   inline-size: 100%;
   block-size: 100%;
+  max-inline-size: 100%;
+  max-block-size: 100%;
   object-fit: contain;
 }
 
@@ -2177,6 +2182,9 @@ html.has-cv-demo-open body {
 .cv-project-hero h3 {
   font-size: clamp(2.05rem, 3.2vw, 3.8rem);
   line-height: 0.92;
+}
+.cv-project-hero {
+  overflow: visible;
 }
 
 .cv-project-hero .cv-role-chips {
@@ -2705,8 +2713,34 @@ html.has-cv-demo-open body {
 }
 
 .cv-project-hero__banner {
-  min-block-size: clamp(12rem, 26vw, 24rem);
-  background: #d7d7d4;
+  position: relative;
+  block-size: clamp(4.75rem, 8vw, 8rem);
+  min-block-size: clamp(4.75rem, 8vw, 8rem);
+  max-block-size: clamp(4.75rem, 8vw, 8rem);
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.cv-project-hero__banner::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+
+  inline-size: 135%;
+  block-size: 135%;
+
+  translate: -50% -50%;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: auto 100%;
+  pointer-events: none;
+}
+
+.cv-project-hero--jestei .cv-project-hero__banner::before {
+  background-image: url("../../assets/cover-banner-jesteipool.png");
 }
 
 .cv-project-hero__body {
@@ -2744,6 +2778,39 @@ html.has-cv-demo-open body {
   display: block;
 }
 
+.cv-project-hero,
+.cv-task-domain,
+.cv-task-group,
+.cv-task-group__visual,
+.cv-preview,
+.cv-embedded-demo,
+.cv-media-group,
+.cv-demo-media,
+.cv-task-preview__media-frame {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.cv-canvas,
+.cv-preview canvas,
+.cv-embedded-demo canvas,
+.newsletter-canvas-surface,
+.logo-inspector-3d canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+}
+
+.logo-inspector-3d,
+.newsletter-canvas-stage {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  max-block-size: min(42rem, 78vh);
+  contain: layout paint;
+}
+
 .cv-media-caption {
   position: absolute;
   inset-inline: clamp(0.5rem, 0.8vw, 0.8rem);
@@ -2753,7 +2820,7 @@ html.has-cv-demo-open body {
   overflow: hidden;
   color: rgba(17, 17, 17, 0.46);
   font-size: clamp(0.58rem, 0.58vw, 0.68rem);
-  font-weight: 560;
+  font-weight: var(--font-weight-book);
   line-height: 1;
   text-align: center;
   text-overflow: ellipsis;
@@ -2883,7 +2950,7 @@ html.has-cv-demo-open body {
   font-size: clamp(0.72rem, 0.72vw, 0.84rem);
   font-weight: 520;
   line-height: 1.25;
-  text-transform: none;
+  text-transform: lowercase;
 }
 
 .cv-task-list-group li::before {
@@ -2951,7 +3018,7 @@ html.has-cv-demo-open body {
 .cv-section-title {
   color: var(--color-ink);
   font-size: var(--type-section-title);
-  font-weight: var(--font-weight-black);
+  font-weight: var(--font-weight-bold);
   line-height: var(--line-tight);
   letter-spacing: var(--letter-display);
 }
@@ -2970,7 +3037,7 @@ html.has-cv-demo-open body {
 
 .cv-project-hero h3 {
   font-size: clamp(2.05rem, 3.4vw, 3.8rem);
-  font-weight: var(--font-weight-black);
+  font-weight: var(--font-weight-bold);
   line-height: var(--line-tight);
   letter-spacing: var(--letter-tight);
 }
@@ -2979,7 +3046,7 @@ html.has-cv-demo-open body {
 .cv-project-hero .cv-experience__summary p {
   color: var(--color-ink);
   font-size: var(--type-body);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-book);
   line-height: var(--line-body);
 }
 
@@ -2987,12 +3054,13 @@ html.has-cv-demo-open body {
 .cv-project-period--hero {
   color: var(--color-muted);
   font-size: var(--type-caption);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-book);
 }
 
 .cv-role-chip,
 .cv-task-chip {
   font-size: var(--type-control);
+  font-weight: var(--font-weight-book);
   line-height: var(--line-label);
 }
 
@@ -3016,7 +3084,7 @@ html.has-cv-demo-open body {
 .cv-task-domain__title {
   color: var(--color-ink);
   font-size: var(--type-domain-title);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-medium);
   line-height: var(--line-heading);
   letter-spacing: var(--letter-tight);
 }
@@ -3024,7 +3092,7 @@ html.has-cv-demo-open body {
 .cv-task-group__title {
   color: var(--color-muted);
   font-size: var(--type-label);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-book);
   line-height: var(--line-label);
 }
 
@@ -3059,7 +3127,7 @@ html.has-cv-demo-open body {
   gap: var(--space-2);
   color: var(--color-ink);
   font-size: var(--type-list-title);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-medium);
   line-height: var(--line-label);
   letter-spacing: var(--letter-normal);
   padding: var(--space-4) var(--space-4) var(--space-2);
@@ -3080,7 +3148,7 @@ html.has-cv-demo-open body {
   margin: 0;
   color: var(--color-muted);
   font-size: var(--type-caption);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-book);
   line-height: var(--line-label);
   padding: 0 var(--space-4) var(--space-3);
   border-block-end: var(--border-soft);
@@ -3098,7 +3166,7 @@ html.has-cv-demo-open body {
   border-block-end: var(--border-soft);
   color: var(--color-ink-soft);
   font-size: var(--type-body-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-book);
   line-height: 1.42;
 }
 
@@ -3241,6 +3309,7 @@ html.has-cv-demo-open body {
   border-radius: var(--radius-sm);
   background: var(--color-surface-raised);
   box-shadow: var(--elevation-flat);
+  font-weight: var(--font-weight-book);
 }
 
 .cv-task-chip--filled {
@@ -3270,5 +3339,229 @@ html.has-cv-demo-open body {
 
   .cv-task-list-groups {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Lowercase and calmer weights are applied at the CV shell level.
+   Canvas/code internals are excluded because their visual systems render their own content. */
+.cv-section,
+.cv-task-area,
+.cv-task-domain,
+.cv-project-hero {
+  text-transform: lowercase;
+}
+
+.cv-section :where(pre, code, kbd, samp, .type-code, .cv-code, .cv-demo-visual-canvas) {
+  text-transform: none;
+}
+
+.cv-section-title,
+.cv-project-hero h3,
+.cv-task-domain__title {
+  font-weight: var(--font-weight-medium);
+}
+
+.cv-project-hero .cv-role-chip,
+.cv-project-copy p,
+.cv-experience__summary p,
+.cv-task-group__title,
+.cv-task-list-group h5,
+.cv-task-list-group li,
+.cv-task-chip,
+.cv-role-chip,
+.cv-media-caption {
+  font-weight: var(--font-weight-book);
+}
+
+.cv-project-logo--hero,
+.cv-embedded-demo,
+.cv-preview,
+.cv-task-preview__media-frame,
+.cv-demo-media,
+.cv-media-group {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.cv-project-logo--hero canvas,
+.cv-project-logo--hero img,
+.cv-embedded-demo canvas,
+.cv-preview canvas,
+.cv-task-preview__media-frame canvas,
+.newsletter-canvas-surface,
+.logo-inspector-3d canvas {
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+}
+
+.logo-inspector-3d,
+.newsletter-canvas-stage,
+.cv-embedded-demo--logo-inspector,
+.cv-embedded-demo--newsletter-canvas {
+  min-block-size: clamp(18rem, 38vw, 32rem);
+  max-block-size: min(42rem, 78vh);
+}
+
+/* Annotation pass: compact evidence/list variants.
+   These rules sit at the end of the CV module so they normalize older CV blocks
+   without touching canvas internals or changing the project data itself. */
+
+
+.cv-task-list-group__caption {
+  display: none;
+}
+
+.cv-task-list-item--interactive,
+.cv-task-list-item--interactive:hover,
+.cv-task-list-item--interactive:focus-visible {
+  color: inherit;
+  text-decoration: none;
+  cursor: default;
+  outline: 0;
+  pointer-events: none;
+}
+
+.cv-task-list-groups--alternating-media,
+.cv-task-list-groups--media-placeholders {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.cv-task-list-groups--alternating-media .cv-task-list-group,
+.cv-task-list-groups--media-placeholders .cv-task-list-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, clamp(8rem, 20vw, 14rem));
+  gap: var(--space-4);
+  align-items: stretch;
+  padding: var(--space-4);
+  background: var(--color-surface-raised);
+}
+
+.cv-task-list-groups--alternating-media .cv-task-list-group:nth-child(even),
+.cv-task-list-groups--media-placeholders .cv-task-list-group:nth-child(even) {
+  grid-template-columns: minmax(8rem, clamp(8rem, 20vw, 14rem)) minmax(0, 1fr);
+}
+
+.cv-task-list-groups--alternating-media .cv-task-list-group__content,
+.cv-task-list-groups--media-placeholders .cv-task-list-group__content {
+  min-inline-size: 0;
+}
+
+.cv-task-list-groups--alternating-media .cv-task-list-group:nth-child(even) .cv-task-list-group__content,
+.cv-task-list-groups--media-placeholders .cv-task-list-group:nth-child(even) .cv-task-list-group__content {
+  order: 2;
+}
+
+.cv-task-list-groups--alternating-media .cv-task-list-group:nth-child(even) .cv-task-list-group__media,
+.cv-task-list-groups--media-placeholders .cv-task-list-group:nth-child(even) .cv-task-list-group__media {
+  order: 1;
+}
+
+.cv-task-list-group__media {
+  aspect-ratio: 1;
+  min-block-size: 8rem;
+  border: var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.cv-task-list-groups--alternating-media .cv-task-list-group h5,
+.cv-task-list-groups--media-placeholders .cv-task-list-group h5 {
+  padding: 0 0 var(--space-2);
+  background: transparent;
+}
+
+.cv-task-list-groups--alternating-media .cv-task-list-group ul,
+.cv-task-list-groups--media-placeholders .cv-task-list-group ul {
+  padding: var(--space-1) 0 0;
+}
+
+.cv-embedded-demo--logo-inspector,
+.cv-embedded-demo--logo-inspector .cv-embedded-demo__mount,
+.cv-embedded-demo--logo-inspector .logo-inspector-3d {
+  background: #050505;
+}
+
+.cv-embedded-demo--logo-inspector {
+  border-color: #050505;
+}
+
+.cv-embedded-demo--logo-inspector .cv-media-caption {
+  display: none;
+}
+
+.cv-embedded-demo--newsletter-canvas {
+  width: min(100%, 34rem);
+  justify-self: center;
+  margin-inline: auto;
+}
+
+.cv-embedded-demo--newsletter-canvas .newsletter-canvas-stage {
+  inline-size: min(100%, 34rem);
+  min-block-size: clamp(31rem, 68vw, 46rem);
+  max-block-size: min(48rem, 82vh);
+}
+
+.cv-preview--video-placeholder {
+  position: relative;
+  aspect-ratio: 1;
+  min-block-size: clamp(12rem, 28vw, 20rem);
+  background: var(--color-surface-soft);
+}
+
+.cv-video-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--color-border);
+  border-radius: inherit;
+  background: #fff;
+  color: var(--color-muted);
+}
+
+.cv-video-placeholder__label {
+  font-size: var(--type-caption);
+  font-weight: var(--font-weight-book);
+}
+
+.cv-video-placeholder__button {
+  position: absolute;
+  inset-inline-end: var(--space-3);
+  inset-block-end: var(--space-3);
+  border: var(--border-soft);
+  border-radius: 999px;
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: var(--type-caption);
+  padding: 0.42rem 0.7rem;
+  cursor: pointer;
+}
+
+@media (max-width: 64rem) {
+  .cv-task-list-groups--alternating-media .cv-task-list-group,
+  .cv-task-list-groups--media-placeholders .cv-task-list-group,
+  .cv-task-list-groups--alternating-media .cv-task-list-group:nth-child(even),
+  .cv-task-list-groups--media-placeholders .cv-task-list-group:nth-child(even) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cv-task-list-groups--alternating-media .cv-task-list-group:nth-child(even) .cv-task-list-group__content,
+  .cv-task-list-groups--media-placeholders .cv-task-list-group:nth-child(even) .cv-task-list-group__content,
+  .cv-task-list-groups--alternating-media .cv-task-list-group:nth-child(even) .cv-task-list-group__media,
+  .cv-task-list-groups--media-placeholders .cv-task-list-group:nth-child(even) .cv-task-list-group__media {
+    order: initial;
+  }
+}
+
+@media (max-width: 760px) {
+  .cv-project-hero__banner {
+    block-size: clamp(4.5rem, 18vw, 6.75rem);
+    min-block-size: clamp(4.5rem, 18vw, 6.75rem);
+    max-block-size: clamp(4.5rem, 18vw, 6.75rem);
   }
 }

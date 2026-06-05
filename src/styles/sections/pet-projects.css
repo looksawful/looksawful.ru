@@ -1388,3 +1388,43 @@
     min-block-size: 8.5rem;
   }
 }
+
+/* Site-level pet typography normalization. Keeps project pages quiet and readable. */
+.pet-projects,
+.pet-page {
+  text-transform: lowercase;
+}
+
+.pet-page :where(pre, code, kbd, samp, .pet-code, .pet-code *, .pet-code-visual, .pet-code-visual *) {
+  text-transform: none;
+}
+
+.pet-projects h2,
+.pet-card h3,
+.pet-product-hero h1,
+.pet-page-section h2,
+.pet-page-section h3,
+.pet-paths h3 {
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-normal);
+}
+
+.pet-projects__eyebrow,
+.pet-projects__header p:not(.pet-projects__eyebrow),
+.pet-card__cover figcaption,
+.pet-card__mark span,
+.pet-card__meta,
+.pet-card__body p,
+.pet-card__github,
+.pet-tech-list li,
+.pet-breadcrumbs,
+.pet-breadcrumbs a,
+.pet-product-hero__subtitle,
+.pet-product-hero__description,
+.pet-button,
+.pet-page-section p,
+.pet-note-list p,
+.pet-instructions__article p,
+.pet-paths dt {
+  font-weight: var(--font-weight-book);
+}

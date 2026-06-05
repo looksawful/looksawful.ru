@@ -1,7 +1,7 @@
-const MIN_CANVAS_SCALE = 0.82;
-const MAX_CANVAS_SCALE = 2.2;
-const WHEEL_ZOOM_FACTOR = 0.0007;
-const MAX_WHEEL_ZOOM_DELTA = 0.11;
+const MIN_CANVAS_SCALE = 0.72;
+const MAX_CANVAS_SCALE = 1.45;
+const WHEEL_ZOOM_FACTOR = 0.00045;
+const MAX_WHEEL_ZOOM_DELTA = 0.07;
 const ZOOM_EASING_FACTOR = 0.18;
 const DRAG_SENSITIVITY = 0.88;
 const PINCH_SENSITIVITY = 0.92;
@@ -17,11 +17,16 @@ function ensureStyles() {
   style.textContent = `
     .newsletter-canvas-stage {
       position: relative;
-      width: 100%;
-      min-height: 320px;
+      width: min(100%, 34rem);
+      min-width: 0;
+      height: clamp(32rem, 70vw, var(--newsletter-canvas-max-height, 48rem));
+      min-height: min(var(--newsletter-canvas-min-height, 32rem), 82vh);
+      max-height: min(var(--newsletter-canvas-max-height, 48rem), 88vh);
+      margin-inline: auto;
       background: transparent;
       border: 0;
       overflow: hidden;
+      contain: layout paint;
       touch-action: none;
       user-select: none;
     }
@@ -30,6 +35,8 @@ function ensureStyles() {
       display: block;
       width: 100%;
       height: 100%;
+      max-width: 100%;
+      max-height: 100%;
       background: transparent;
     }
   `;
@@ -112,7 +119,10 @@ export function createNewsletterCanvas(target, options = {}) {
 
   const stage = document.createElement("div");
   stage.className = `newsletter-canvas-stage ${className}`.trim();
-  stage.style.minHeight = `${Math.max(1, Number(minHeight) || 320)}px`;
+  const safeMinHeight = clamp(Number(minHeight) || 520, 420, 680);
+  const safeMaxHeight = clamp(safeMinHeight + 260, 560, 860);
+  stage.style.setProperty("--newsletter-canvas-min-height", `${safeMinHeight}px`);
+  stage.style.setProperty("--newsletter-canvas-max-height", `${safeMaxHeight}px`);
 
   const canvas = document.createElement("canvas");
   canvas.className = "newsletter-canvas-surface";
@@ -144,8 +154,11 @@ export function createNewsletterCanvas(target, options = {}) {
   }
 
   const fitScale = () => {
-    if (!state.canvasSource || state.viewport.width === 0) return 1;
-    return state.viewport.width / state.canvasSource.width;
+    if (!state.canvasSource || state.viewport.width === 0 || state.viewport.height === 0) return 1;
+    return Math.min(
+      state.viewport.width / state.canvasSource.width,
+      state.viewport.height / state.canvasSource.height,
+    ) * 0.96;
   };
 
   const clampTransform = (next) => {
@@ -411,8 +424,9 @@ export function createNewsletterCanvas(target, options = {}) {
     const entry = entries[0];
     if (!entry) return;
 
-    const nextWidth = Math.max(1, Math.round(entry.contentRect.width));
-    const nextHeight = Math.max(1, Math.round(entry.contentRect.height));
+    const bounds = stage.getBoundingClientRect();
+    const nextWidth = Math.max(1, Math.round(bounds.width || entry.contentRect.width || 1));
+    const nextHeight = Math.max(1, Math.round(bounds.height || entry.contentRect.height || safeMinHeight || 1));
 
     if (state.viewport.width === nextWidth && state.viewport.height === nextHeight) {
       return;

@@ -13,10 +13,11 @@ import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-asset
 
 const SPIRAL_KEY_PREFIX = "spiral:";
 const DEFAULT_SPIRAL_SCENE = "jesteiLandingSpiral";
+const SPIRAL_ITEM_LIMIT = 5;
 
 const getSpiralUrls = (sceneId = DEFAULT_SPIRAL_SCENE) => {
 	const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_SPIRAL_SCENE];
-	return createAnimationItems(scene.modules).map((item) => item.imageUrl);
+	return createAnimationItems(scene.modules).slice(0, SPIRAL_ITEM_LIMIT).map((item) => item.imageUrl);
 };
 
 const config = {
@@ -26,6 +27,8 @@ const config = {
 	cardGrowthScale: 1.5,
 	radiusScale: 0.4,
 	alphaScale: 2,
+	rotationOffset: Math.PI / 2,
+	direction: -1,
 };
 
 const renderSpiral = ({ ctx, images, time, width, height, reducedMotion }) => {
@@ -43,7 +46,7 @@ const renderSpiral = ({ ctx, images, time, width, height, reducedMotion }) => {
 
 	images.forEach((item, index) => {
 		const t = (index / images.length + timeOffset) % 1;
-		const angle = -t * Math.PI * 2 * config.turns + Math.PI / 2;
+		const angle = config.direction * t * Math.PI * 2 * config.turns + config.rotationOffset;
 		const size = minSide * config.cardScale * (t * config.cardGrowthScale);
 		const radius = size + t * maxSide * config.radiusScale;
 		const x = centerX + Math.cos(angle) * radius;

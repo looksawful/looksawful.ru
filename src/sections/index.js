@@ -16,7 +16,7 @@ function getPetProjectSlug(pathname = window.location.pathname) {
 
 function renderDocumentTitle(slug) {
   const project = getPetProjectBySlug(slug);
-  document.title = project ? `${project.title} — пет-проект` : "Иван Крушинский";
+  document.title = project ? `${project.title.toLocaleLowerCase("ru-RU")} — пет-проект` : "иван крушинский";
 }
 
 export function renderPage(target = document.getElementById("main")) {
@@ -33,7 +33,7 @@ export function renderPage(target = document.getElementById("main")) {
   }
 
   if (RESUME_PATH_PATTERN.test(window.location.pathname)) {
-    document.title = "Резюме — Иван Крушинский";
+    document.title = "резюме — иван крушинский";
     target.innerHTML = `${renderSiteNavigation("resume")}${renderResumePage()}${renderSiteFooter()}`;
     return;
   }

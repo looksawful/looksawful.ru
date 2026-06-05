@@ -10,7 +10,7 @@ const NAV_LINKS = [
 export function renderSiteNavigation(active = "") {
   return `
     <header class="site-topbar" aria-label="главная навигация">
-      <a class="site-topbar__brand" href="/#hero">Иван Крушинский</a>
+      <a class="site-topbar__brand" href="/#hero">иван крушинский</a>
       <nav class="site-topbar__links" aria-label="разделы сайта">
         ${NAV_LINKS.map(
           (link) => `
@@ -25,7 +25,7 @@ export function renderSiteNavigation(active = "") {
 export function renderSiteFooter() {
   return `
     <footer class="site-footer" aria-label="подвал сайта">
-      <small>© 2026 Иван Крушинский. Все права защищены.</small>
+      <small>© 2026 иван крушинский. все права защищены.</small>
       <nav class="site-footer__links" aria-label="социальные ссылки">
         <a href="https://github.com/looksawful" target="_blank" rel="noreferrer">github</a>
         <a href="https://instagram.com/looksawful" target="_blank" rel="noreferrer">instagram</a>

@@ -1,5 +1,6 @@
 .resume-page {
   padding-block: clamp(5.5rem, 8vw, 8rem) clamp(4rem, 7vw, 7rem);
+  text-transform: lowercase;
 }
 
 .resume-hero {
@@ -11,7 +12,7 @@
   margin: 0 0 clamp(0.5rem, 1vw, 0.9rem);
   color: rgba(17, 17, 17, 0.5);
   font-size: clamp(0.78rem, 0.76vw, 0.9rem);
-  font-weight: 680;
+  font-weight: var(--font-weight-book);
   line-height: 1;
 }
 
@@ -19,7 +20,7 @@
   margin: 0;
   color: #111;
   font-size: clamp(2.2rem, 4.8vw, 5.2rem);
-  font-weight: 800;
+  font-weight: var(--font-weight-medium);
   line-height: 0.95;
   letter-spacing: -0.058em;
   text-transform: lowercase;
@@ -29,7 +30,7 @@
   margin: 0;
   color: #252525;
   font-size: clamp(1rem, 1.05vw, 1.24rem);
-  font-weight: 520;
+  font-weight: var(--font-weight-book);
   line-height: 1.34;
   letter-spacing: -0.012em;
   text-wrap: pretty;

@@ -6,11 +6,11 @@ const VISIBLE_CLASS = "is-visible";
 const DESKTOP_QUERY = "(min-width: 68.01rem)";
 const HOME_PATH_PATTERN = /^\/(?:index\.html)?$/;
 const SIDEBAR_LINKS = [
-  { id: "hero", label: "Иван Крушинский", type: "intro" },
+  { id: "hero", label: "иван крушинский", type: "intro" },
   { id: "cv-jesteipool", label: "джести пул", type: "project" },
   { id: "cv-styx-jewels", label: "стикс джевел", type: "project" },
   { id: "cv-lyve-moscow", label: "лив москоу", type: "project" },
-  { id: "pet-projects", label: "Пет-проекты", type: "pet" },
+  { id: "pet-projects", label: "пет-проекты", type: "pet" },
 ];
 
 function getProjectTitle(article) {

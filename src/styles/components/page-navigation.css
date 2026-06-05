@@ -70,7 +70,7 @@ html.is-page-nav-cv .page-nav__projects {
   max-inline-size: 100%;
   border-radius: 999px;
   line-height: 1;
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
   text-transform: lowercase;
   text-wrap: balance;
   transition:
@@ -81,14 +81,14 @@ html.is-page-nav-cv .page-nav__projects {
 .page-nav__link {
   padding-block: 0.12rem;
   font-size: clamp(0.72rem, 0.72vw, 0.86rem);
-  font-weight: 760;
+  font-weight: var(--font-weight-book);
 }
 
 .page-nav__project {
   padding-block: 0.1rem;
   color: rgba(17, 17, 17, 0.54);
   font-size: clamp(0.64rem, 0.62vw, 0.74rem);
-  font-weight: 650;
+  font-weight: var(--font-weight-book);
 }
 
 .page-nav__link::before,
@@ -137,9 +137,9 @@ html.is-page-nav-cv .page-nav__projects {
   color: #111;
   font: inherit;
   font-size: clamp(0.68rem, 0.66vw, 0.78rem);
-  font-weight: 720;
+  font-weight: var(--font-weight-book);
   line-height: 1;
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
   text-transform: lowercase;
   opacity: 0;
   pointer-events: none;

@@ -61,6 +61,15 @@ const jesteiLandingSpiralModules = import.meta.glob(
   },
 );
 
+const jesteiLandingMasonryModules = import.meta.glob(
+  "../../assets/cv/chip-content/01-jestei-pool/36-pridumal-i-napisal-animacii-dlya-lendinga/Details/canvas-animations/assets/masonry/**/*.{webp,png,jpg,jpeg,avif,mp4}",
+  {
+    eager: true,
+    query: "?url",
+    import: "default",
+  },
+);
+
 export const CV_ANIMATION_SCENES = {
   jesteiInterfaceMasonry: {
     label: "Jestei Pool / ux-ui / masonry",
@@ -98,6 +107,12 @@ export const CV_ANIMATION_SCENES = {
     directory:
       "src/assets/cv/chip-content/01-jestei-pool/36-pridumal-i-napisal-animacii-dlya-lendinga/Details/canvas-animations/assets/spiral",
     modules: jesteiLandingSpiralModules,
+  },
+  jesteiLandingMasonry: {
+    label: "Jestei Pool / landing / legacy masonry",
+    directory:
+      "src/assets/cv/chip-content/01-jestei-pool/36-pridumal-i-napisal-animacii-dlya-lendinga/Details/canvas-animations/assets/masonry",
+    modules: jesteiLandingMasonryModules,
   },
 };
 

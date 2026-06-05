@@ -6,9 +6,9 @@ import jesteiLogoSvg from "../../assets/cv/logos/jestei-logo.svg?raw";
 const STYLE_ID = "logo-inspector-3d-styles";
 
 const DEFAULT_VARIANTS = [
-  { id: "brand-orange", label: "Gold Drop", color: "#F18200" },
-  { id: "event-pear", label: "Pear Event", color: "#D1E231" },
-  { id: "pro-blue", label: "Dodger Pro", color: "#157AFF" },
+  { id: "brand-orange", label: "для клубных диджеев", color: "#F18200" },
+  { id: "event-pear", label: "для ивент диджеев", color: "#D1E231" },
+  { id: "pro-blue", label: "для подписчиков про тарифа", color: "#157AFF" },
 ];
 
 const DEFAULT_CAMERA = { fov: 30, near: 0.1, far: 100, distance: 6.2 };
@@ -34,11 +34,16 @@ function injectStyles() {
     .logo-inspector-3d {
       position: relative;
       width: 100%;
-      min-height: 520px;
-      border: 1px solid rgba(17, 17, 17, 0.16);
+      min-width: 0;
+      height: clamp(20rem, 44vw, var(--logo-inspector-max-height, 36rem));
+      min-height: min(var(--logo-inspector-min-height, 22rem), 72vh);
+      max-height: min(var(--logo-inspector-max-height, 38rem), 76vh);
+      border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 8px;
-      background: #e2e2e2;
+      background: #050505;
       overflow: hidden;
+      contain: layout paint;
+      isolation: isolate;
     }
 
     .logo-inspector-3d__canvas {
@@ -46,6 +51,15 @@ function injectStyles() {
       inset: 0;
       touch-action: none;
       cursor: grab;
+      min-width: 0;
+    }
+
+    .logo-inspector-3d__canvas canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100%;
+      max-height: 100%;
     }
 
     .logo-inspector-3d__canvas.is-dragging {
@@ -58,10 +72,26 @@ function injectStyles() {
       bottom: 16px;
       z-index: 2;
       display: flex;
+      align-items: center;
       justify-content: center;
       gap: 8px;
       width: min(100% - 88px, 42rem);
       transform: translateX(-50%);
+    }
+
+    .logo-inspector-3d__controls-title {
+      margin: 0 8px 0 0;
+      color: rgba(255, 255, 255, 0.74);
+      font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      white-space: nowrap;
+    }
+
+    .logo-inspector-3d__controls-list {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 0;
     }
 
     .logo-inspector-3d__chip {
@@ -75,7 +105,7 @@ function injectStyles() {
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.9);
       color: #151718;
-      font: 650 13px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font: 500 13px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       cursor: pointer;
       box-shadow: 0 6px 18px rgba(17, 17, 17, 0.06);
       transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
@@ -173,6 +203,10 @@ function injectStyles() {
       }
 
       .logo-inspector-3d__controls::-webkit-scrollbar {
+        display: none;
+      }
+
+      .logo-inspector-3d__controls-title {
         display: none;
       }
 
@@ -283,13 +317,16 @@ export function createLogoInspector3D(target, options = {}) {
     variants = DEFAULT_VARIANTS,
     initialVariantId = variants[0]?.id,
     minHeight = 520,
-    background = "#e2e2e2",
+    background = "#050505",
     autoSpin = true,
   } = options;
 
   const root = document.createElement("section");
   root.className = "logo-inspector-3d";
-  root.style.minHeight = `${Math.max(320, Number(minHeight) || 520)}px`;
+  const safeMinHeight = clamp(Number(minHeight) || 520, 280, 560);
+  const safeMaxHeight = clamp(safeMinHeight + 120, 360, 680);
+  root.style.setProperty("--logo-inspector-min-height", `${safeMinHeight}px`);
+  root.style.setProperty("--logo-inspector-max-height", `${safeMaxHeight}px`);
   root.style.background = background;
 
   const canvasHost = document.createElement("div");
@@ -307,6 +344,14 @@ export function createLogoInspector3D(target, options = {}) {
 
   const controls = document.createElement("div");
   controls.className = "logo-inspector-3d__controls";
+
+  const controlsTitle = document.createElement("p");
+  controlsTitle.className = "logo-inspector-3d__controls-title";
+  controlsTitle.textContent = "цветовые темы и тарифы";
+
+  const controlsList = document.createElement("div");
+  controlsList.className = "logo-inspector-3d__controls-list";
+  controls.append(controlsTitle, controlsList);
 
   const status = document.createElement("div");
   status.className = "logo-inspector-3d__status";
@@ -404,15 +449,17 @@ export function createLogoInspector3D(target, options = {}) {
     button.dataset.variantId = variant.id;
     button.innerHTML = `${getLogoIconSvg(variant.color)}<span>${variant.label}</span>`;
     button.addEventListener("click", () => setVariant(variant.id));
-    controls.appendChild(button);
+    controlsList.appendChild(button);
   });
 
   prevButton.addEventListener("click", () => shiftVariant(-1));
   nextButton.addEventListener("click", () => shiftVariant(1));
 
   const resize = () => {
-    const width = Math.max(canvasHost.clientWidth, 1);
-    const height = Math.max(canvasHost.clientHeight, 1);
+    const bounds = canvasHost.getBoundingClientRect();
+    const rootBounds = root.getBoundingClientRect();
+    const width = Math.max(Math.floor(bounds.width || canvasHost.clientWidth || rootBounds.width || 1), 1);
+    const height = Math.max(Math.floor(bounds.height || canvasHost.clientHeight || rootBounds.height || safeMinHeight || 1), 1);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
@@ -507,7 +554,7 @@ export function createLogoInspector3D(target, options = {}) {
       centerAndScaleObject(meshRoot);
       spinner.add(meshRoot);
       setVariant(variants[activeVariantIndex]?.id);
-      setStatus("Model load failed. Using fallback shape.", true);
+      setStatus("модель не загрузилась, показываю fallback", true);
     });
 
   return {

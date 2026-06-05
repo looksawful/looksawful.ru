@@ -31,6 +31,8 @@ const mediaGroup = (items, options = {}) => ({
   ...options,
 });
 
+const MEDIA_CAPTION = "внимание: этот текст является рыбой.";
+
 const demo = (type, options = {}) => ({
   type,
   ...options,
@@ -66,6 +68,13 @@ const lyveInterfaceModules = import.meta.glob("../../assets/cv/animations/lyve-g
   import: "default",
 });
 
+const styxProductionItems = createMediaItems(styxProductionModules).filter(
+  (item) =>
+    !/(web interfaces|brand identity|design systems|3d cgi|lyve|plant|раст|уход|reference|variant|asset-|bottom)/i.test(
+      `${item.title} ${item.filename}`,
+    ),
+);
+
 const newsletterSources = [
   new URL("../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 8.png", import.meta.url)
     .href,
@@ -76,7 +85,7 @@ const newsletterSources = [
 const MEDIA_GROUPS = {
   jesteiEditorial: createMediaItems(jesteiEditorialModules, { limit: 18 }),
   styxArtDirection: createMediaItems(styxArtDirectionModules, { limit: 10 }),
-  styxProduction: createMediaItems(styxProductionModules, { limit: 12 }),
+  styxProduction: [...createMediaItems(styxArtDirectionModules, { limit: 6 }), ...styxProductionItems].slice(0, 18),
   lyveInterface: createMediaItems(lyveInterfaceModules, { limit: 5 }),
 };
 
@@ -100,9 +109,10 @@ export const CV_PROJECTS = [
       {
         area: "interface",
         title: "ux/ui лид",
+        listLayout: "alternating-media",
         animation: {
-          type: "horizontal",
-          canvasId: "cv-jestei-interface-horizontal",
+          type: "masonry",
+          canvasId: "cv-jestei-interface-masonry",
           scene: "jesteiInterfaceMasonry",
         },
         listGroups: [
@@ -245,38 +255,36 @@ export const CV_PROJECTS = [
         sliderLabel: "разработка canvas-анимаций",
         animations: [
           {
-            type: "arc",
-            canvasId: "cv-jestei-development-arc",
-            scene: "jesteiLandingArc",
-            tone: "dark",
-            size: "square",
-          },
-          {
-            type: "spiral",
-            canvasId: "cv-jestei-development-spiral",
-            scene: "jesteiLandingSpiral",
-            tone: "dark",
-            size: "square",
-          },
-          {
-            type: "placeholder",
-            tone: "dark",
-            size: "square",
-            label: "пустая область canvas 01",
-          },
-          {
-            type: "placeholder",
-            tone: "dark",
-            size: "square",
-            label: "пустая область canvas 02",
-          },
-          {
-            type: "placeholder",
-            tone: "dark",
-            size: "square",
-            label: "пустая область canvas 03",
-          },
-        ],
+          type: "arc",
+          canvasId: "cv-jestei-development-arc",
+          scene: "jesteiLandingArc",
+          tone: "dark",
+          size: "square",
+          caption: MEDIA_CAPTION,
+        },
+        {
+          type: "spiral",
+          canvasId: "cv-jestei-development-spiral",
+          scene: "jesteiLandingSpiral",
+          tone: "dark",
+          size: "square",
+          caption: MEDIA_CAPTION,
+        },
+        {
+          type: "masonry",
+          canvasId: "cv-jestei-development-masonry",
+          scene: "jesteiLandingMasonry",
+          tone: "dark",
+          size: "square",
+          caption: MEDIA_CAPTION,
+        },
+        {
+          type: "placeholder",
+          tone: "dark",
+          size: "square",
+          label: "пустая область canvas",
+        },
+      ],
         chips: [
           chip("Анимации для лендинга", "jestei-pool-36"),
           "Точечные правки CSS и TypeScript",
@@ -320,7 +328,7 @@ export const CV_PROJECTS = [
   {
     id: "Styx Jewels",
     variant: "featured",
-    title: "Styx Jewels",
+    title: "styx jewels",
     period: "2021–2025",
     logo: {
       modifier: "styx",
@@ -333,6 +341,7 @@ export const CV_PROJECTS = [
       {
         area: "graphic",
         title: "графический дизайн",
+        listLayout: "alternating-media",
         animation: {
           type: "diagonal",
           canvasId: "cv-styx-graphic-diagonal",
@@ -352,13 +361,19 @@ export const CV_PROJECTS = [
       },
       {
         area: "analysis",
-        title: "арт-дирекшн",
+        title: "фирменный стиль",
         media: mediaGroup(MEDIA_GROUPS.styxArtDirection, {
           variant: "strip",
           auto: true,
           size: "portrait",
         }),
-        chips: ["Концепция брендовых съёмок", chip("Стилистика кампейнов и каталожной съёмки", "styx-shoot-style")],
+        chips: [
+          "брендовая упаковка",
+          "дизайн печатной продукции",
+          "дизайн сертификатов",
+          "дизайн рекламы",
+          "дизайн буклетов",
+        ],
       },
       {
         area: "product",
@@ -367,14 +382,36 @@ export const CV_PROJECTS = [
           variant: "orbit",
           size: "square",
           tone: "dark",
+          speed: "320s",
         }),
         chips: [
           chip("Продюсирование съёмок", "styx-shoot-production"),
           chip("Фотосъёмка кампейнов", "styx-campaign-photo"),
           chip("Организация мини-студии для каталога", "styx-mini-studio"),
-          chip("Сканографические анимации для бренда", "styx-scanography"),
           chip("Ретушь и стилизация кадров", "styx-retouch"),
           "Обработка коллабораций и каталожных съёмок",
+        ],
+      },
+      {
+        area: "product",
+        title: "сканографические анимации для бренда",
+        layout: "two-column media-right compact collapse-on-mobile",
+        animations: [
+          {
+            type: "video-placeholder",
+            label: "видео 01",
+            size: "square",
+          },
+          {
+            type: "video-placeholder",
+            label: "видео 02",
+            size: "square",
+          },
+        ],
+        chips: [
+          "Сканографические анимации для бренда",
+          "Подготовка видеоанимаций для коммуникаций",
+          "Плейсхолдеры под два квадратных видео со звуком",
         ],
       },
     ],
