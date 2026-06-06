@@ -35,16 +35,15 @@ const demo = (type, options = {}) => ({
   ...options,
 });
 
-const taskGroupImageModules = import.meta.glob("../../assets/cv/task-group-images/*.{webp,png,jpg,jpeg,avif}", {
-  eager: true,
-  query: "?url",
-  import: "default",
-});
+const TASK_GROUP_IMAGE_URLS = {
+  "jestei-ui-ux-strategy.webp": new URL("../../assets/cv/task-group-images/jestei-ui-ux-strategy.webp", import.meta.url).href,
+  "jestei-design-system.webp": new URL("../../assets/cv/task-group-images/jestei-design-system.webp", import.meta.url).href,
+  "jestei-design-process.webp": new URL("../../assets/cv/task-group-images/jestei-design-process.webp", import.meta.url).href,
+};
 
 const getTaskGroupImageSrc = (filename) => {
   const normalizedFilename = String(filename || "").trim();
-  const entry = Object.entries(taskGroupImageModules).find(([path]) => getFilename(path) === normalizedFilename);
-  return entry ? getModuleUrl(entry[1]) : "";
+  return TASK_GROUP_IMAGE_URLS[normalizedFilename] || "";
 };
 
 const taskGroupImage = (filename, alt) => ({
