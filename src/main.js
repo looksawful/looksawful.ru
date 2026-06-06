@@ -1,7 +1,6 @@
 import "./styles/index.css";
 import { renderPage } from "./sections/index.js";
 import { initComponents } from "./components/index.js";
-import { withPreloadState } from "./components/preload-state/preload-state.js";
 
 let appInitialized = false;
 
@@ -26,12 +25,7 @@ async function initApp() {
     return;
   }
 
-  await runInitStep("renderPage", () =>
-    withPreloadState(document.body, () => renderPage(main), {
-      delay: 420,
-      fixed: true,
-    }),
-  );
+  await runInitStep("renderPage", () => renderPage(main));
 
   appInitialized = true;
 
