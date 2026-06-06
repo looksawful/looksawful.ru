@@ -1,5 +1,5 @@
 import { CV_PROJECTS } from "./cv-data.js";
-import { getTechIcon, renderPetProjectsSection } from "../pet-projects/pet-projects-renderer.js";
+import { getTechIcon } from "../pet-projects/pet-projects-renderer.js";
 
 const toClassName = (parts) => parts.filter(Boolean).join(" ");
 
@@ -337,7 +337,14 @@ const normalizeGroups = (domain) =>
 
 const hasGroupVisual = (group) =>
   group?.visual !== false &&
-  Boolean(group?.animation || normalizeList(group?.animations).length || group?.media || group?.medias || group?.demo || group?.demos);
+  Boolean(
+    group?.animation ||
+    normalizeList(group?.animations).length ||
+    group?.media ||
+    group?.medias ||
+    group?.demo ||
+    group?.demos,
+  );
 
 const renderTaskGroupVisual = (group) => `
   ${renderDemoPreviews(group.demos ?? group.demo)}
@@ -356,7 +363,11 @@ const createAutoListGroups = (items = []) => {
 };
 
 const getDomainLayoutClasses = (layout) => {
-  const tokens = new Set(normalizeList(layout).flatMap((item) => String(item).split(/\s+/)).filter(Boolean));
+  const tokens = new Set(
+    normalizeList(layout)
+      .flatMap((item) => String(item).split(/\s+/))
+      .filter(Boolean),
+  );
 
   if (!tokens.size) {
     return [];
@@ -386,7 +397,11 @@ const getTaskListGroups = (group, domain, project) => {
 };
 
 const getTaskListLayoutTokens = (layout) =>
-  new Set(normalizeList(layout).flatMap((item) => String(item).split(/\s+/)).filter(Boolean));
+  new Set(
+    normalizeList(layout)
+      .flatMap((item) => String(item).split(/\s+/))
+      .filter(Boolean),
+  );
 
 const getTaskListLayoutClasses = (layout) => {
   const tokens = getTaskListLayoutTokens(layout);
@@ -421,7 +436,9 @@ const renderTaskListMedia = (layout, visualHtml, index) => {
 };
 
 const getTaskListGroupTechnologies = (listGroup, group, domain) =>
-  normalizeList(listGroup.technologies ?? group.technologies ?? domain.technologies ?? DEFAULT_TECHNOLOGIES[domain.area]);
+  normalizeList(
+    listGroup.technologies ?? group.technologies ?? domain.technologies ?? DEFAULT_TECHNOLOGIES[domain.area],
+  );
 
 const renderTaskGroupImageSlot = (image) => {
   if (!image) {
@@ -508,7 +525,9 @@ const renderTaskDomain = (domain, project) => `
     data-project-id="${escapeHtml(project.id)}"
     data-task-area="${escapeHtml(domain.area)}"
   >
-    ${normalizeGroups(domain).map((group) => renderTaskGroup(group, domain, project)).join("")}
+    ${normalizeGroups(domain)
+      .map((group) => renderTaskGroup(group, domain, project))
+      .join("")}
   </section>
 `;
 
@@ -586,10 +605,7 @@ const renderResumeProject = (project) => `
   </article>
 `;
 
-const renderHomeExperience = () =>
-  `${CV_PROJECTS.slice(0, 3)
-    .map((project, index) => (index === 2 ? `${renderProject(project)}${renderPetProjectsSection()}` : renderProject(project)))
-    .join("")}`;
+const renderHomeExperience = () => CV_PROJECTS.slice(0, 3).map(renderProject).join("");
 
 const renderResumeExperience = () => CV_PROJECTS.map(renderResumeProject).join("");
 
