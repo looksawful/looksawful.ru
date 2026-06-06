@@ -54,7 +54,7 @@ const renderBreadcrumbs = (project) => `
   <nav class="pet-breadcrumbs" aria-label="хлебные крошки">
     <a href="/">главная</a>
     <span aria-hidden="true">/</span>
-    <a href="/#pet-projects">пет-проекты</a>
+    <a href="/#showcase">пет-проекты</a>
     <span aria-hidden="true">/</span>
     <span aria-current="page">${escapeHtml(project.title)}</span>
   </nav>
@@ -183,7 +183,7 @@ export function renderPetProjectPage(slug) {
         <div class="pet-page__inner">
           <h1>пет-проект не найден</h1>
           <p>Такой страницы пока нет.</p>
-          <a class="pet-button pet-button--primary" href="/#pet-projects">вернуться к пет-проектам</a>
+          <a class="pet-button pet-button--primary" href="/#showcase">вернуться к пет-проектам</a>
         </div>
       </section>
     `;
@@ -203,5 +203,6 @@ export function renderPetProjectPage(slug) {
   </article>
 `;
 }
+
 
 
