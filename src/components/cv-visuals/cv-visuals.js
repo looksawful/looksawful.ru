@@ -241,10 +241,21 @@ export async function initCvVisuals(root = document) {
       },
     ) || noop;
 
-  const visualDisposers = await Promise.all(visualTargets.map(safeMountVisualDemo));
+  const stopVisualObserver =
+    observeOnceVisible(
+      visualTargets,
+      (target) => {
+        void safeMountVisualDemo(target);
+      },
+      {
+        rootMargin: '60% 0px',
+        threshold: 0,
+      },
+    ) || noop;
 
   return () => {
     stopAnimationObserver();
+    stopVisualObserver();
     animationPreviews.forEach((preview) => {
       mountedAnimations.get(preview)?.();
       mountedAnimations.delete(preview);
@@ -254,6 +265,6 @@ export async function initCvVisuals(root = document) {
       mountedVisualDemos.delete(target);
     });
     sliderDisposers.forEach((dispose) => dispose());
-    visualDisposers.forEach((dispose) => dispose());
   };
 }
+
