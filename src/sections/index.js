@@ -1,8 +1,3 @@
-import { getPetProjectBySlug } from "./pet-projects/pet-project-data.js";
-import { renderPetProjectPage } from "./pet-projects/pet-projects-renderer.js";
-import { renderResumePage } from "./resume/resume-renderer.js";
-import { renderSiteFooter } from "./site-footer/site-footer.js";
-
 const PET_PROJECT_PATH_PATTERN = /^\/pet-projects\/([^/]+)$/;
 const RESUME_PATH = "/resume";
 
@@ -23,16 +18,15 @@ function setResumeTitle() {
   document.title = "резюме — иван крушинский";
 }
 
-function setPetProjectTitle(slug) {
-  const project = getPetProjectBySlug(slug);
-  document.title = project ? `${project.title.toLocaleLowerCase("ru-RU")} — пет-проект` : "иван крушинский";
+function setPetProjectTitle(project) {
+  document.title = project ? project.title.toLocaleLowerCase("ru-RU") + " — пет-проект" : "иван крушинский";
 }
 
-function renderRoutedPage(target, html) {
-  target.innerHTML = `${html}${renderSiteFooter()}`;
+function renderRoutedPage(target, html, footerHtml = "") {
+  target.innerHTML = html + footerHtml;
 }
 
-export function renderPage(target = document.getElementById("main")) {
+export async function renderPage(target = document.getElementById("main")) {
   if (!(target instanceof HTMLElement)) {
     return;
   }
@@ -41,14 +35,25 @@ export function renderPage(target = document.getElementById("main")) {
   const petProjectSlug = getPetProjectSlug(pathname);
 
   if (petProjectSlug) {
-    setPetProjectTitle(petProjectSlug);
-    renderRoutedPage(target, renderPetProjectPage(petProjectSlug));
+    const [{ getPetProjectBySlug }, { renderPetProjectPage }, { renderSiteFooter }] = await Promise.all([
+      import("./pet-projects/pet-project-data.js"),
+      import("./pet-projects/pet-projects-renderer.js"),
+      import("./site-footer/site-footer.js"),
+    ]);
+
+    setPetProjectTitle(getPetProjectBySlug(petProjectSlug));
+    renderRoutedPage(target, renderPetProjectPage(petProjectSlug), renderSiteFooter());
     return;
   }
 
   if (pathname === RESUME_PATH) {
+    const [{ renderResumePage }, { renderSiteFooter }] = await Promise.all([
+      import("./resume/resume-renderer.js"),
+      import("./site-footer/site-footer.js"),
+    ]);
+
     setResumeTitle();
-    renderRoutedPage(target, renderResumePage());
+    renderRoutedPage(target, renderResumePage(), renderSiteFooter());
     return;
   }
 
