@@ -105,11 +105,11 @@ const styxProductionItems = createMediaItems(styxProductionModules).filter(
 
 const newsletterSources = [
   new URL(
-    "../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 8.png",
+    "../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 8.webp",
     import.meta.url,
   ).href,
   new URL(
-    "../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 9.png",
+    "../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 9.webp",
     import.meta.url,
   ).href,
 ];
@@ -611,3 +611,5 @@ export const CV_PROJECTS = [
     domains: [{ area: "graphic", title: "газетная вёрстка", chips: ["Вёрстка полос ежедневной газеты"] }],
   },
 ];
+
+
