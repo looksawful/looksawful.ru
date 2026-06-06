@@ -1,5 +1,5 @@
 import { CV_PROJECTS } from "./cv-data.js";
-import { renderPetProjectsSection } from "../pet-projects/pet-projects-renderer.js";
+import { getTechIcon } from "../pet-projects/pet-projects-renderer.js";
 
 const toClassName = (parts) => parts.filter(Boolean).join(" ");
 
@@ -19,10 +19,16 @@ const escapeHtml = (value = "") =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-const normalizeChip = (item) => (typeof item === "string" ? { label: item } : item);
 const normalizeList = (value) => (Array.isArray(value) ? value : value ? [value] : []);
 const AUTO_LIST_GROUP_TITLES = ["заголовок группы 01", "заголовок группы 02", "заголовок группы 03"];
 const AUTO_LIST_MIN_ITEMS = 5;
+const DEFAULT_TECHNOLOGIES = {
+  interface: ["Figma", "UX", "UI", "design system"],
+  product: ["Figma", "арт-дирекшн", "прототипы"],
+  graphic: ["Figma", "Illustrator", "Photoshop"],
+  analysis: ["Figma", "бренд-система", "гайдлайны"],
+  editorial: ["Figma", "copywriting", "email"],
+};
 
 const renderRoleChips = (roles = []) => `
   <ul class="cv-role-chips">
@@ -111,14 +117,21 @@ const renderProjectHeader = (project) => `
 `;
 
 const renderTaskChip = (item) => {
-  const chip = normalizeChip(item);
-  return `<li><span class="cv-task-chip">${escapeHtml(chip.label)}</span></li>`;
+  return `<li><span class="cv-task-chip">${escapeHtml(item)}</span></li>`;
 };
 
 const renderTaskListItem = (item) => {
-  const chip = normalizeChip(item);
-  return `<li><span class="cv-task-list-item">${escapeHtml(chip.label)}</span></li>`;
+  return `<li><span class="cv-task-list-item">${escapeHtml(item)}</span></li>`;
 };
+
+const renderTechChips = (technologies = []) =>
+  technologies.length
+    ? `
+      <ul class="pet-tech-list cv-task-tech-list" aria-label="технологии">
+        ${technologies.map((technology) => `<li>${getTechIcon(technology)}<span>${escapeHtml(technology)}</span></li>`).join("")}
+      </ul>
+    `
+    : "";
 
 const renderMediaCaption = (caption) =>
   typeof caption === "string" && caption.trim()
@@ -324,7 +337,14 @@ const normalizeGroups = (domain) =>
 
 const hasGroupVisual = (group) =>
   group?.visual !== false &&
-  Boolean(group?.animation || normalizeList(group?.animations).length || group?.media || group?.medias || group?.demo || group?.demos);
+  Boolean(
+    group?.animation ||
+    normalizeList(group?.animations).length ||
+    group?.media ||
+    group?.medias ||
+    group?.demo ||
+    group?.demos,
+  );
 
 const renderTaskGroupVisual = (group) => `
   ${renderDemoPreviews(group.demos ?? group.demo)}
@@ -343,7 +363,11 @@ const createAutoListGroups = (items = []) => {
 };
 
 const getDomainLayoutClasses = (layout) => {
-  const tokens = new Set(normalizeList(layout).flatMap((item) => String(item).split(/\s+/)).filter(Boolean));
+  const tokens = new Set(
+    normalizeList(layout)
+      .flatMap((item) => String(item).split(/\s+/))
+      .filter(Boolean),
+  );
 
   if (!tokens.size) {
     return [];
@@ -373,7 +397,11 @@ const getTaskListGroups = (group, domain, project) => {
 };
 
 const getTaskListLayoutTokens = (layout) =>
-  new Set(normalizeList(layout).flatMap((item) => String(item).split(/\s+/)).filter(Boolean));
+  new Set(
+    normalizeList(layout)
+      .flatMap((item) => String(item).split(/\s+/))
+      .filter(Boolean),
+  );
 
 const getTaskListLayoutClasses = (layout) => {
   const tokens = getTaskListLayoutTokens(layout);
@@ -407,7 +435,33 @@ const renderTaskListMedia = (layout, visualHtml, index) => {
   `;
 };
 
-const renderTaskListGroups = (listGroups = [], layout, visualHtml = "") => `
+const getTaskListGroupTechnologies = (listGroup, group, domain) =>
+  normalizeList(
+    listGroup.technologies ?? group.technologies ?? domain.technologies ?? DEFAULT_TECHNOLOGIES[domain.area],
+  );
+
+const renderTaskGroupImageSlot = (image) => {
+  if (!image) {
+    return "";
+  }
+
+  return `
+    <figure class="cv-task-list-group__image-slot">
+      ${
+        image.src
+          ? `<img src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt || "")}" loading="lazy" decoding="async" />`
+          : `
+            <figcaption>
+              <span>image slot</span>
+              <code>src/assets/cv/task-group-images/${escapeHtml(image.filename || "image.webp")}</code>
+            </figcaption>
+          `
+      }
+    </figure>
+  `;
+};
+
+const renderTaskListGroups = (listGroups = [], layout, visualHtml = "", group = {}, domain = {}) => `
   <div class="${toClassName(["cv-task-list-groups", "ds-structured-list", ...getTaskListLayoutClasses(layout)])}">
     ${listGroups
       .map(
@@ -418,6 +472,8 @@ const renderTaskListGroups = (listGroups = [], layout, visualHtml = "") => `
               <ul>
                 ${(listGroup.items ?? []).map(renderTaskListItem).join("")}
               </ul>
+              ${renderTaskGroupImageSlot(listGroup.image)}
+              ${renderTechChips(getTaskListGroupTechnologies(listGroup, group, domain))}
             </div>
             ${renderTaskListMedia(layout, visualHtml, index)}
           </section>
@@ -438,7 +494,7 @@ const renderTaskGroupMeta = (group, domain, project) => {
       ${group.title ? `<h5 class="cv-task-group__title">${escapeHtml(group.title)}</h5>` : ""}
       ${
         listGroups.length
-          ? renderTaskListGroups(listGroups, listLayout, visualHtml)
+          ? renderTaskListGroups(listGroups, listLayout, visualHtml, group, domain)
           : `
             <ul class="cv-task-chips">
               ${(group.chips ?? []).map(renderTaskChip).join("")}
@@ -465,11 +521,13 @@ const hasDomainVisual = (domain) => normalizeGroups(domain).some(hasGroupVisual)
 
 const renderTaskDomain = (domain, project) => `
   <section
-    class="${toClassName(["cv-task-domain", "ds-surface", hasDomainVisual(domain) && "cv-task-domain--with-visual", ...getDomainLayoutClasses(domain.layout)])}"
+    class="${toClassName(["cv-task-domain", hasDomainVisual(domain) && "cv-task-domain--with-visual", ...getDomainLayoutClasses(domain.layout)])}"
     data-project-id="${escapeHtml(project.id)}"
     data-task-area="${escapeHtml(domain.area)}"
   >
-    ${normalizeGroups(domain).map((group) => renderTaskGroup(group, domain, project)).join("")}
+    ${normalizeGroups(domain)
+      .map((group) => renderTaskGroup(group, domain, project))
+      .join("")}
   </section>
 `;
 
@@ -547,16 +605,7 @@ const renderResumeProject = (project) => `
   </article>
 `;
 
-const renderResumeCta = () => `
-  <section class="cv-resume-cta" aria-label="полное резюме">
-    <a href="/resume/">посмотреть ещё</a>
-  </section>
-`;
-
-const renderHomeExperience = () =>
-  `${CV_PROJECTS.slice(0, 3)
-    .map((project, index) => (index === 2 ? `${renderProject(project)}${renderPetProjectsSection()}` : renderProject(project)))
-    .join("")}${renderResumeCta()}`;
+const renderHomeExperience = () => CV_PROJECTS.slice(0, 3).map(renderProject).join("");
 
 const renderResumeExperience = () => CV_PROJECTS.map(renderResumeProject).join("");
 

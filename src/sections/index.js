@@ -1,12 +1,8 @@
-import heroHtml from "./hero/hero.html?raw";
-import leadHtml from "./lead/lead.html?raw";
-import cvHtml from "./cv/cv.html?raw";
 import { getPetProjectBySlug } from "./pet-projects/pet-project-data.js";
 import { renderPetProjectPage } from "./pet-projects/pet-projects-renderer.js";
 import { renderResumePage } from "./resume/resume-renderer.js";
 import { renderSiteFooter } from "./site-navigation/site-navigation.js";
 
-const SECTION_HTML = (content) => content.trim();
 const PET_PROJECT_PATH_PATTERN = /^\/pet-projects\/([^/]+)\/?$/;
 const RESUME_PATH_PATTERN = /^\/resume\/?$/;
 
@@ -16,6 +12,7 @@ function getPetProjectSlug(pathname = window.location.pathname) {
 
 function renderDocumentTitle(slug) {
   const project = getPetProjectBySlug(slug);
+
   document.title = project ? `${project.title.toLocaleLowerCase("ru-RU")} — пет-проект` : "иван крушинский";
 }
 
@@ -39,11 +36,4 @@ export function renderPage(target = document.getElementById("main")) {
   }
 
   renderDocumentTitle("");
-  target.innerHTML = [
-    SECTION_HTML(heroHtml),
-    renderResumePage({ embedded: true }),
-    SECTION_HTML(leadHtml),
-    SECTION_HTML(cvHtml),
-    renderSiteFooter(),
-  ].join("\n\n");
 }

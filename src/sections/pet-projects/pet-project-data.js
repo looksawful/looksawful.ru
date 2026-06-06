@@ -1,5 +1,4 @@
-const publicProjectPath = (slug, area) => `/pet-projects/${slug}/${area}/`;
-const sourceProjectPath = (slug, area) => `public/pet-projects/${slug}/${area}/`;
+const projectPath = (slug, area) => `/pet-projects/${slug}/${area}/`;
 
 export const PET_PROJECTS = [
   {
@@ -32,7 +31,7 @@ export const PET_PROJECTS = [
     ],
     download: {
       label: "архив появится после сборки",
-      href: publicProjectPath("hot", "downloads") + "hot-windows.zip",
+      href: projectPath("hot", "downloads") + "hot-windows.zip",
       disabled: true,
     },
     mediaPlan: ["экран тренировки", "экран выбора приложения", "экран статистики", "desktop-окно Windows"],
@@ -42,8 +41,7 @@ export const PET_PROJECTS = [
     title: "Awful Cases",
     shortTitle: "Cases",
     subtitle: "быстрая смена регистра выделенного текста",
-    description:
-      "AutoHotkey-скрипт для Windows: быстро меняем регистр выделенного текста горячими клавишами.",
+    description: "AutoHotkey-скрипт для Windows: быстро меняем регистр выделенного текста горячими клавишами.",
     githubUrl: "https://github.com/looksawful/awful-cases",
     githubLabel: "github.com/looksawful/awful-cases",
     technologies: ["Windows", "AutoHotkey v2", "горячие клавиши"],
@@ -72,7 +70,7 @@ export const PET_PROJECTS = [
     ],
     download: {
       label: "скачать архив программы",
-      href: publicProjectPath("awful-cases", "downloads") + "awful-cases.zip",
+      href: projectPath("awful-cases", "downloads") + "awful-cases.zip",
     },
     mediaPlan: ["таблица горячих клавиш", "пример смены регистра", "окно настроек или tray", "архив релиза"],
   },
@@ -111,7 +109,7 @@ export const PET_PROJECTS = [
     ],
     download: {
       label: "архив можно добавить позже",
-      href: publicProjectPath("berserk-timer", "downloads") + "berserk-timer.zip",
+      href: projectPath("berserk-timer", "downloads") + "berserk-timer.zip",
       disabled: true,
     },
     mediaPlan: ["запуск таймера", "процесс отсчёта", "завершение с сообщением", "пример аргументов CLI"],
@@ -150,7 +148,7 @@ export const PET_PROJECTS = [
     ],
     download: {
       label: "архив можно добавить позже",
-      href: publicProjectPath("moves-awful", "downloads") + "moves-awful.zip",
+      href: projectPath("moves-awful", "downloads") + "moves-awful.zip",
       disabled: true,
     },
     mediaPlan: ["живое canvas-превью", "вариант горизонтальной галереи", "вариант 3D-карусели", "пример в лендинге"],
@@ -158,12 +156,12 @@ export const PET_PROJECTS = [
 ].map((project) => ({
   ...project,
   paths: {
-    logos: sourceProjectPath(project.slug, "logos"),
-    cardBanner: sourceProjectPath(project.slug, "card-banner"),
-    hero: sourceProjectPath(project.slug, "hero"),
-    screenshots: sourceProjectPath(project.slug, "screenshots"),
-    downloads: sourceProjectPath(project.slug, "downloads"),
-    preview: sourceProjectPath(project.slug, "preview"),
+    logos: projectPath(project.slug, "logos"),
+    cardBanner: projectPath(project.slug, "card-banner"),
+    hero: projectPath(project.slug, "hero"),
+    screenshots: projectPath(project.slug, "screenshots"),
+    downloads: projectPath(project.slug, "downloads"),
+    preview: projectPath(project.slug, "preview"),
   },
 }));
 
