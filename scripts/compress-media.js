@@ -23,16 +23,16 @@ const ROOT = join(__dirname, "..");
 
 // Папки с медиа для анимаций
 const MEDIA_DIRS = [
-  "src/lab/assets/projects/jestei/media/arc",
-  "src/lab/assets/projects/jestei/media/masonry",
-  "src/lab/assets/projects/jestei/media/spiral",
-  "src/lab/assets/projects/jestei/media/carousel",
-  "src/lab/assets/cv/media/horizontal",
-  "src/lab/assets/cv/media/diagonal",
-  "src/lab/assets/cv/media/arc",
-  "src/lab/assets/cv/media/masonry",
-  "src/lab/assets/cv/logos/media/horizontal",
-  "src/lab/assets/cv/logos/media/carousel",
+  "src/visuals/assets/projects/jestei/media/arc",
+  "src/visuals/assets/projects/jestei/media/masonry",
+  "src/visuals/assets/projects/jestei/media/spiral",
+  "src/visuals/assets/projects/jestei/media/carousel",
+  "src/visuals/assets/cv/media/horizontal",
+  "src/visuals/assets/cv/media/diagonal",
+  "src/visuals/assets/cv/media/arc",
+  "src/visuals/assets/cv/media/masonry",
+  "src/visuals/assets/cv/logos/media/horizontal",
+  "src/visuals/assets/cv/logos/media/carousel",
 ];
 
 const ORIGINALS_DIR = join(ROOT, "_media-originals");
@@ -162,3 +162,4 @@ main().catch((err) => {
   console.error("Критическая ошибка:", err);
   process.exit(1);
 });
+

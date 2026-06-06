@@ -30,26 +30,6 @@ const renderCodeVisual = (project) => `
   </div>
 `;
 
-const renderPetProjectCard = (project) => `
-  <a class="pet-card pet-card--${escapeHtml(project.tone)}" href="/pet-projects/${escapeHtml(project.slug)}/">
-    <div class="pet-card__cover" data-asset-path="${escapeHtml(project.paths.cardBanner)}" aria-hidden="true"></div>
-    <div class="pet-card__body">
-      <h3>${escapeHtml(project.title)}</h3>
-      <p>${escapeHtml(project.description)}</p>
-      ${renderTechChips(project.technologies)}
-      <span class="pet-card__github">${escapeHtml(project.githubLabel)}</span>
-    </div>
-  </a>
-`;
-
-export const renderPetProjectsSection = () => `
-  <section class="pet-projects" id="pet-projects" aria-labelledby="pet-projects-title">
-    <div class="pet-projects__grid">
-      ${PET_PROJECTS.map(renderPetProjectCard).join("")}
-    </div>
-  </section>
-`;
-
 const renderBreadcrumbs = (project) => `
   <nav class="pet-breadcrumbs" aria-label="хлебные крошки">
     <a href="/">главная</a>
@@ -203,6 +183,7 @@ export function renderPetProjectPage(slug) {
   </article>
 `;
 }
+
 
 
 
