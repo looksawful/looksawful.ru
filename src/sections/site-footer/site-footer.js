@@ -1,7 +1,3 @@
-export function renderSiteNavigation() {
-  return "";
-}
-
 export function renderSiteFooter() {
   return `
     <footer class="site-footer" aria-label="подвал сайта">
@@ -14,8 +10,4 @@ export function renderSiteFooter() {
       </nav>
     </footer>
   `;
-}
-
-export function initSiteNavigationState() {
-  return () => {};
 }
