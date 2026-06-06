@@ -1,5 +1,5 @@
 import { CV_PROJECTS } from "./cv-data.js";
-import { getTechIcon } from "../pet-projects/pet-projects-renderer.js";
+import { getTechIcon } from "../../shared/tech-icons.js";
 
 const toClassName = (parts) => parts.filter(Boolean).join(" ");
 
@@ -624,3 +624,4 @@ export function renderCvExperience(root = document) {
     target.innerHTML = target.dataset.cvMode === "resume" ? renderResumeExperience() : renderHomeExperience();
   });
 }
+
