@@ -23,18 +23,15 @@ function runIdle(callback) {
 }
 
 async function initLazyComponents() {
-  const [{ mountCvDemoVisuals }, { initCvGroupAnimations }, { initCvInlineVideos }, { initPreloadStates }] =
-    await Promise.all([
-      import("./cv-task-previews/cv-task-visual-demos.js"),
-      import("./cv-group-animations/cv-group-animations.js"),
-      import("./cv-inline-video/cv-inline-video.js"),
-      import("./preload-state/preload-state.js"),
-    ]);
+  const [{ mountCvDemoVisuals }, { initCvGroupAnimations }, { initCvInlineVideos }] = await Promise.all([
+    import("./cv-task-previews/cv-task-visual-demos.js"),
+    import("./cv-group-animations/cv-group-animations.js"),
+    import("./cv-inline-video/cv-inline-video.js"),
+  ]);
 
   runComponentStep("mountCvDemoVisuals", () => mountCvDemoVisuals(document));
   runComponentStep("initCvGroupAnimations", () => initCvGroupAnimations());
   runComponentStep("initCvInlineVideos", () => initCvInlineVideos());
-  runComponentStep("initPreloadStates", () => initPreloadStates());
 }
 
 export function initComponents() {

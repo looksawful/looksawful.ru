@@ -3,7 +3,6 @@
 @import "./typography.css";
 @import "./components/awfulface.css";
 @import "./components/site-navigation.css";
-@import "./components/preload-state.css";
 @import "./sections/hero.css";
 @import "./sections/lead.css";
 @import "./sections/cv.css";
