@@ -1,7 +1,9 @@
 import { mountawfulface } from "./awfulface/awfulface.js";
 import { initCvGroupAnimations } from "./cv-group-animations/cv-group-animations.js";
+import { initCvInlineVideos } from "./cv-inline-video/cv-inline-video.js";
+import { mountCvProjectLogos } from "./cv-project-logos/cv-project-logos.js";
 import { initCvSidebar } from "./cv-sidebar/cv-sidebar.js";
-import { initCvTaskPreviews } from "./cv-task-previews/cv-task-previews.js";
+import { mountCvDemoVisuals } from "./cv-task-previews/cv-task-visual-demos.js";
 import { initHeroTitleAnimation } from "./hero-title/hero-title.js";
 import { initPageNavigation } from "./page-navigation/page-navigation.js";
 import { initPreloadStates } from "./preload-state/preload-state.js";
@@ -28,8 +30,10 @@ export function initComponents() {
   runComponentStep("initHeroTitleAnimation", () => initHeroTitleAnimation());
   runComponentStep("mountawfulface", () => mountFaces());
   runComponentStep("renderCvExperience", () => renderCvExperience());
+  runComponentStep("mountCvProjectLogos", () => mountCvProjectLogos());
   runComponentStep("initCvGroupAnimations", () => initCvGroupAnimations());
-  runComponentStep("initCvTaskPreviews", () => initCvTaskPreviews());
+  runComponentStep("initCvInlineVideos", () => initCvInlineVideos());
+  runComponentStep("mountCvDemoVisuals", () => mountCvDemoVisuals(document));
   runComponentStep("initCvSidebar", () => initCvSidebar());
   runComponentStep("initPageNavigation", () => initPageNavigation());
   runComponentStep("initSystemMotion", () => initSystemMotion());

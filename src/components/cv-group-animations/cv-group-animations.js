@@ -1,4 +1,4 @@
-import { observeOnceVisible } from "../../lab/shared/observer.js";
+import { observeOnceVisible } from "./observer.js";
 
 const ANIMATION_MOUNTERS = {
   arc: () => import("../../lab/canvas/arc/index.js").then((module) => module.mountArc),

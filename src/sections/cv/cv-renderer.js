@@ -147,13 +147,33 @@ const renderAnimationPreview = (animation) => {
     `;
   }
 
-  if (animation.type === "video-placeholder") {
+  if (animation.type === "video") {
     return `
-      <section class="${toClassName([className, "cv-preview--video-placeholder", "ds-evidence"])}" aria-label="${escapeHtml(animation.label || "видео")}">
-        <div class="cv-video-placeholder">
-          <span class="cv-video-placeholder__label">${escapeHtml(animation.label || "видео")}</span>
-          <button class="cv-video-placeholder__button" type="button" aria-label="включить звук">unmute</button>
-        </div>
+      <section class="${toClassName([className, "cv-preview--video", "ds-evidence"])}" aria-label="${escapeHtml(animation.label || "видео")}">
+        <figure class="cv-inline-video" data-cv-inline-video>
+          <video
+            class="cv-inline-video__media"
+            src="${escapeHtml(animation.src)}"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            aria-label="${escapeHtml(animation.label || "видео")}"
+            data-cv-inline-video-media
+          ></video>
+          <button class="cv-inline-video__sound" type="button" aria-label="включить звук" aria-pressed="false" data-cv-inline-video-sound>
+            <svg class="cv-inline-video__icon cv-inline-video__icon--muted" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+              <path d="m17 9-4 4m0-4 4 4"></path>
+            </svg>
+            <svg class="cv-inline-video__icon cv-inline-video__icon--sound" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+              <path d="M16 9.5c.8.8 1.2 1.6 1.2 2.5s-.4 1.7-1.2 2.5"></path>
+              <path d="M18.5 7c1.4 1.5 2.1 3.1 2.1 5s-.7 3.5-2.1 5"></path>
+            </svg>
+          </button>
+        </figure>
         ${renderMediaCaption(animation.caption)}
       </section>
     `;
@@ -361,6 +381,7 @@ const getTaskListLayoutClasses = (layout) => {
   return [
     tokens.has("alternating-media") && "cv-task-list-groups--alternating-media",
     tokens.has("media-placeholders") && "cv-task-list-groups--media-placeholders",
+    tokens.has("visual-first-media") && "cv-task-list-groups--visual-first-media",
     tokens.has("compact") && "cv-task-list-groups--compact",
   ];
 };
@@ -370,11 +391,27 @@ const hasTaskListMedia = (layout) => {
   return tokens.has("alternating-media") || tokens.has("media-placeholders");
 };
 
-const renderTaskListGroups = (listGroups = [], layout) => `
+const shouldPlaceVisualInTaskList = (layout) => getTaskListLayoutTokens(layout).has("visual-first-media");
+
+const renderTaskListMedia = (layout, visualHtml, index) => {
+  if (!hasTaskListMedia(layout)) {
+    return "";
+  }
+
+  const shouldUseVisual = index === 0 && shouldPlaceVisualInTaskList(layout) && visualHtml;
+
+  return `
+    <div class="${toClassName(["cv-task-list-group__media", shouldUseVisual && "cv-task-list-group__media--visual"])}" aria-hidden="${shouldUseVisual ? "false" : "true"}">
+      ${shouldUseVisual ? visualHtml : ""}
+    </div>
+  `;
+};
+
+const renderTaskListGroups = (listGroups = [], layout, visualHtml = "") => `
   <div class="${toClassName(["cv-task-list-groups", "ds-structured-list", ...getTaskListLayoutClasses(layout)])}">
     ${listGroups
       .map(
-        (listGroup) => `
+        (listGroup, index) => `
           <section class="cv-task-list-group ds-list-section">
             <div class="cv-task-list-group__content">
               <h5>${escapeHtml(listGroup.title)}</h5>
@@ -382,7 +419,7 @@ const renderTaskListGroups = (listGroups = [], layout) => `
                 ${(listGroup.items ?? []).map(renderTaskListItem).join("")}
               </ul>
             </div>
-            ${hasTaskListMedia(layout) ? `<div class="cv-task-list-group__media" aria-hidden="true"></div>` : ""}
+            ${renderTaskListMedia(layout, visualHtml, index)}
           </section>
         `,
       )
@@ -392,6 +429,8 @@ const renderTaskListGroups = (listGroups = [], layout) => `
 
 const renderTaskGroupMeta = (group, domain, project) => {
   const listGroups = getTaskListGroups(group, domain, project);
+  const listLayout = group.listLayout ?? domain.listLayout;
+  const visualHtml = shouldPlaceVisualInTaskList(listLayout) ? renderTaskGroupVisual(group) : "";
 
   return `
     <div class="cv-task-group__meta">
@@ -399,7 +438,7 @@ const renderTaskGroupMeta = (group, domain, project) => {
       ${group.title ? `<h5 class="cv-task-group__title">${escapeHtml(group.title)}</h5>` : ""}
       ${
         listGroups.length
-          ? renderTaskListGroups(listGroups, group.listLayout ?? domain.listLayout)
+          ? renderTaskListGroups(listGroups, listLayout, visualHtml)
           : `
             <ul class="cv-task-chips">
               ${(group.chips ?? []).map(renderTaskChip).join("")}
@@ -412,10 +451,11 @@ const renderTaskGroupMeta = (group, domain, project) => {
 
 const renderTaskGroup = (group, domain, project) => {
   const withVisual = hasGroupVisual(group);
+  const visualMovesIntoList = shouldPlaceVisualInTaskList(group.listLayout ?? domain.listLayout);
 
   return `
-    <div class="${toClassName(["cv-task-group", withVisual && "cv-task-group--with-visual"])}">
-      ${withVisual ? `<div class="cv-task-group__visual ds-evidence">${renderTaskGroupVisual(group)}</div>` : ""}
+    <div class="${toClassName(["cv-task-group", withVisual && "cv-task-group--with-visual", visualMovesIntoList && "cv-task-group--visual-in-list"])}">
+      ${withVisual && !visualMovesIntoList ? `<div class="cv-task-group__visual ds-evidence">${renderTaskGroupVisual(group)}</div>` : ""}
       ${renderTaskGroupMeta(group, domain, project)}
     </div>
   `;
@@ -465,6 +505,48 @@ const renderCompactProject = (project) => `
 const renderProject = (project) =>
   project.variant === "compact" ? renderCompactProject(project) : renderFeaturedProject(project);
 
+const getProjectPeriod = (project) => project.period || project.year || "";
+
+const renderResumeDomain = (domain) => {
+  const groups = normalizeGroups(domain);
+  const chips = groups.flatMap((group) => {
+    const listGroups = normalizeList(group.listGroups);
+
+    if (listGroups.length) {
+      return listGroups.flatMap((listGroup) => listGroup.items ?? []);
+    }
+
+    return group.chips ?? [];
+  });
+
+  return `
+    <section class="resume-timeline-domain">
+      <h4>${escapeHtml(domain.title)}</h4>
+      <ul class="cv-task-chips">
+        ${chips.map(renderTaskChip).join("")}
+      </ul>
+    </section>
+  `;
+};
+
+const renderResumeProject = (project) => `
+  <article class="resume-timeline-item" id="resume-${escapeHtml(toSlug(project.id || project.title))}">
+    <div class="resume-timeline-item__date">
+      <time>${escapeHtml(getProjectPeriod(project))}</time>
+    </div>
+    <div class="resume-timeline-item__content">
+      <header class="resume-timeline-item__header">
+        <h3>${escapeHtml(project.title)}</h3>
+        ${renderRoleChips(project.roles)}
+      </header>
+      ${project.summary ? `<p class="resume-timeline-item__summary">${escapeHtml(project.summary)}</p>` : renderProjectCopy(project.copy)}
+      <div class="resume-timeline-item__domains">
+        ${(project.domains ?? []).map(renderResumeDomain).join("")}
+      </div>
+    </div>
+  </article>
+`;
+
 const renderResumeCta = () => `
   <section class="cv-resume-cta" aria-label="полное резюме">
     <a href="/resume/">посмотреть ещё</a>
@@ -476,14 +558,20 @@ const renderHomeExperience = () =>
     .map((project, index) => (index === 2 ? `${renderProject(project)}${renderPetProjectsSection()}` : renderProject(project)))
     .join("")}${renderResumeCta()}`;
 
-const renderResumeExperience = () => CV_PROJECTS.map(renderProject).join("");
+const renderResumeExperience = () => CV_PROJECTS.map(renderResumeProject).join("");
 
 export function renderCvExperience(root = document) {
-  const target = root.querySelector("[data-cv-experience]");
+  const targets = [...root.querySelectorAll("[data-cv-experience]")];
 
-  if (!(target instanceof HTMLElement)) {
+  if (!targets.length) {
     return;
   }
 
-  target.innerHTML = target.dataset.cvMode === "resume" ? renderResumeExperience() : renderHomeExperience();
+  targets.forEach((target) => {
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    target.innerHTML = target.dataset.cvMode === "resume" ? renderResumeExperience() : renderHomeExperience();
+  });
 }

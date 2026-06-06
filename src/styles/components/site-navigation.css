@@ -1,5 +1,6 @@
 .site-topbar {
   --site-link-blue: var(--color-link);
+  --site-nav-font-size: clamp(0.72rem, 0.74vw, 0.86rem);
 
   position: fixed;
   z-index: 80;
@@ -22,7 +23,7 @@
 .site-topbar__brand {
   justify-self: start;
   color: var(--site-link-blue);
-  font-size: clamp(0.72rem, 0.76vw, 0.88rem);
+  font-size: var(--site-nav-font-size);
   font-weight: var(--font-weight-book);
   line-height: 1;
   text-decoration: none;
@@ -53,7 +54,7 @@
 
 .site-topbar__links a {
   color: var(--site-link-blue);
-  font-size: clamp(0.72rem, 0.74vw, 0.86rem);
+  font-size: var(--site-nav-font-size);
   font-weight: var(--font-weight-book);
   line-height: 1;
   letter-spacing: 0;

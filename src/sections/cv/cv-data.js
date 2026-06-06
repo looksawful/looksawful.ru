@@ -1,7 +1,6 @@
 const chip = (label, demoId) => (demoId ? { label, demoId } : label);
 
-const getModuleUrl = (moduleValue) =>
-  typeof moduleValue === "string" ? moduleValue : moduleValue?.default || "";
+const getModuleUrl = (moduleValue) => (typeof moduleValue === "string" ? moduleValue : moduleValue?.default || "");
 
 const getFilename = (path = "") => path.split(/[\\/]/).pop() || "";
 const getStem = (filename = "") => filename.replace(/\.[^.]+$/, "");
@@ -38,6 +37,16 @@ const demo = (type, options = {}) => ({
   ...options,
 });
 
+const styxVisualSystemLoopUrl = new URL(
+  "../../assets/cv/animations/styx-graphic-diagonal/styx-visual-system-loop-zwCa4H7L.mp4",
+  import.meta.url,
+).href;
+
+const styxBasementLoopUrl = new URL(
+  "../../assets/cv/animations/styx-graphic-diagonal/basement-16x9-Ci2Jjxc4.mp4",
+  import.meta.url,
+).href;
+
 const jesteiEditorialModules = import.meta.glob(
   "../../assets/cv/chip-content/01-jestei-pool/{05-proizvel-redizayn-lendinga-osnovnogo-produkta,33-sozdal-dizayn-oblozhek-pleylistov-na-sayte}/**/*.{webp,png,jpg,jpeg,avif}",
   {
@@ -47,14 +56,14 @@ const jesteiEditorialModules = import.meta.glob(
   },
 );
 
-const styxArtDirectionModules = import.meta.glob("../../lab/assets/projects/styx/campaign-*.{webp,png,jpg,jpeg,avif}", {
+const styxArtDirectionModules = import.meta.glob("../../assets/cv/animations/styx-graphic-diagonal/campaign-*.{webp,png,jpg,jpeg,avif}", {
   eager: true,
   query: "?url",
   import: "default",
 });
 
 const styxProductionModules = import.meta.glob(
-  "../../lab/assets/projects/styx/{archive/legacy,media}/**/*.{webp,png,jpg,jpeg,avif,mp4}",
+  "../../assets/cv/animations/styx-graphic-diagonal/**/*.{webp,png,jpg,jpeg,avif,mp4}",
   {
     eager: true,
     query: "?url",
@@ -62,24 +71,31 @@ const styxProductionModules = import.meta.glob(
   },
 );
 
-const lyveInterfaceModules = import.meta.glob("../../assets/cv/animations/lyve-graphic-carousel/**/*.{webp,png,jpg,jpeg,avif}", {
-  eager: true,
-  query: "?url",
-  import: "default",
-});
+const lyveInterfaceModules = import.meta.glob(
+  "../../assets/cv/animations/lyve-graphic-carousel/**/*.{webp,png,jpg,jpeg,avif}",
+  {
+    eager: true,
+    query: "?url",
+    import: "default",
+  },
+);
 
 const styxProductionItems = createMediaItems(styxProductionModules).filter(
   (item) =>
     !/(web interfaces|brand identity|design systems|3d cgi|lyve|plant|раст|уход|reference|variant|asset-|bottom)/i.test(
       `${item.title} ${item.filename}`,
-    ),
+    ) && !/(styx-visual-system-loop|basement-16x9)/i.test(item.filename),
 );
 
 const newsletterSources = [
-  new URL("../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 8.png", import.meta.url)
-    .href,
-  new URL("../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 9.png", import.meta.url)
-    .href,
+  new URL(
+    "../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 8.png",
+    import.meta.url,
+  ).href,
+  new URL(
+    "../../assets/cv/chip-content/01-jestei-pool/37-razrabotal-dizayn-dlya-rassylok-brenda/Section 9.png",
+    import.meta.url,
+  ).href,
 ];
 
 const MEDIA_GROUPS = {
@@ -109,7 +125,7 @@ export const CV_PROJECTS = [
       {
         area: "interface",
         title: "ux/ui лид",
-        listLayout: "alternating-media",
+        // listLayout: "alternating-media visual-first-media",
         animation: {
           type: "masonry",
           canvasId: "cv-jestei-interface-masonry",
@@ -117,60 +133,42 @@ export const CV_PROJECTS = [
         },
         listGroups: [
           {
-            title: "стратегия и архитектура",
+            title: "UI/UX стратегия сервиса",
             items: [
-              "Формирование UI/UX-стратегии сервиса",
-              "Перевод бизнес-задач в дизайн-решения",
-              "Арт-дирекшн страниц, разделов и лендингов",
-              "Архитектура продуктовых дизайн-решений",
-              "Формирование задач для дизайнеров",
-              "Брифинг дизайнеров по целям, сценариям и ограничениям",
-              "Контроль дизайн-процесса от брифа до релиза",
-              "Синхронизация дизайнеров, продукта и разработки",
-              "Курирование переработки дизайн-системы",
-              "Внедрение единых интерфейсных стандартов",
-              "Формирование правил сетки, полей и адаптива",
-              "Формирование принципов типографики и цветовых тем",
-              "Построение процесса работы с компонентами",
-              "Внедрение переменных в дизайн-систему",
-            ],
-          },
-          {
-            title: "сценарии и продуктовые решения",
-            items: [
-              "Настройка Dev Mode для передачи макетов",
+              "Арт-дирекшн интерфейсов сервиса",
+              "Архитектура дизайн решений",
               "Проектирование новых UI-организмов",
-              "Формирование требований к компонентам",
-              "Выявление и решение проблем продукта",
               "Выявление и решение проблем интерфейса",
-              "Проектирование пользовательских сценариев",
               "Прототипирование продуктовых сценариев",
               "Создание CJM и оптимизация маршрутов",
-              "Анализ тепловых карт и внедрение улучшений",
+              "Перевод бизнес-задач в дизайн-решения",
               "Переработка структуры страниц и разделов",
               "Переработка навигации внутри разделов",
-              "Переработка тарифов и продуктовых блоков",
-              "Курирование адаптивов для всех основных устройств",
-              "Формирование требований к брейкпоинтам",
+              "Прототипирование новых организмов и анимаций",
             ],
           },
           {
-            title: "контроль и передача",
+            title: "Архитектура дизайн-системы",
             items: [
+              // "Настройка Dev Mode для передачи макетов",
+              "Разработка интерфейсных стандартов",
+              "Рефакторинг дизайн-системы",
+              "Формирование требований к компонентам",
+              "Формирование правил сетки, полей и адаптива",
+              "Формирование принципов типографики и цветовых тем",
+            ],
+          },
+          {
+            title: "Контроль дизайн-процесса",
+            items: [
+              "Формирование задач для дизайнеров",
+              "Синхронизация дизайнеров, продукта и разработки",
+              "Переработка дизайн-системы",
               "Контроль качества UI, UX и адаптива",
-              "Проверка макетов перед разработкой",
-              "Контроль соответствия макетов дизайн-системе",
-              "Формирование правок для дизайнеров",
-              "Ревью страниц отдельно от библиотеки компонентов",
               "Сопровождение макетов документацией",
-              "Документация по сценариям и компонентам",
               "Подготовка спецификаций для разработки",
-              "Технические комментарии для разработки",
-              "Передача дизайн-решений в разработку",
               "Контроль реализации интерфейсов на сайте",
-              "Тестирование интерфейсов после внедрения",
-              "Формирование правок для разработчиков",
-              "Ведение полного цикла интерфейсной задачи",
+              "Участие в написании css для новых компонентов",
             ],
           },
         ],
@@ -183,6 +181,7 @@ export const CV_PROJECTS = [
           canvasId: "cv-jestei-product-diagonal",
           scene: "jesteiProductHorizontal",
         },
+
         chips: [
           chip("Цветовая сегментация продуктов и аудиторий", "jestei-pool-audience-colors"),
           chip("Концепция «три подписки — три темы»", "jestei-pool-premium-products"),
@@ -212,25 +211,25 @@ export const CV_PROJECTS = [
           chip("Дизайн динамических плейлистов", "jestei-pool-33"),
         ],
       },
-      {
-        area: "graphic",
-        title: "графический дизайн",
-        animation: {
-          type: "arc",
-          canvasId: "cv-jestei-graphic-arc",
-          scene: "jesteiGraphicArc",
-          tone: "dark",
-        },
-        chips: [
-          "Оптимизация системы баннеров",
-          "Дизайн субтитров",
-          "Оформление соцсетей",
-          "Создание и арт-дирекшн баннеров",
-          chip("Дизайн обложек плейлистов", "jestei-pool-33"),
-          "Оформление сезонных акций",
-          "Внедрение нейросетей в графический пайплайн",
-        ],
-      },
+      // {
+      //   area: "graphic",
+      //   title: "графический дизайн",
+      //   animation: {
+      //     type: "arc",
+      //     canvasId: "cv-jestei-graphic-arc",
+      //     scene: "jesteiGraphicArc",
+      //     tone: "dark",
+      //   },
+      //   chips: [
+      //     "Оптимизация системы баннеров",
+      //     "Дизайн субтитров",
+      //     "Оформление соцсетей",
+      //     "Создание и арт-дирекшн баннеров",
+      //     chip("Дизайн обложек плейлистов", "jestei-pool-33"),
+      //     "Оформление сезонных акций",
+      //     "Внедрение нейросетей в графический пайплайн",
+      //   ],
+      // },
       {
         area: "graphic",
         title: "разработка фирменного стиля",
@@ -248,81 +247,39 @@ export const CV_PROJECTS = [
           "Разработка иконок",
         ],
       },
-      {
-        area: "development",
-        title: "разработка",
-        slider: true,
-        sliderLabel: "разработка canvas-анимаций",
-        animations: [
-          {
-          type: "arc",
-          canvasId: "cv-jestei-development-arc",
-          scene: "jesteiLandingArc",
-          tone: "dark",
-          size: "square",
-          caption: MEDIA_CAPTION,
-        },
-        {
-          type: "spiral",
-          canvasId: "cv-jestei-development-spiral",
-          scene: "jesteiLandingSpiral",
-          tone: "dark",
-          size: "square",
-          caption: MEDIA_CAPTION,
-        },
-        {
-          type: "masonry",
-          canvasId: "cv-jestei-development-masonry",
-          scene: "jesteiLandingMasonry",
-          tone: "dark",
-          size: "square",
-          caption: MEDIA_CAPTION,
-        },
-        {
-          type: "placeholder",
-          tone: "dark",
-          size: "square",
-          label: "пустая область canvas",
-        },
-      ],
-        chips: [
-          chip("Анимации для лендинга", "jestei-pool-36"),
-          "Точечные правки CSS и TypeScript",
-          "Коммиты в продуктовый код",
-        ],
-      },
-      {
-        area: "editorial",
-        title: "редактура",
-        media: mediaGroup(MEDIA_GROUPS.jesteiEditorial, {
-          variant: "strip",
-          auto: true,
-          size: "wide",
-          speed: "92s",
-        }),
-        chips: [
-          "Информирующий и вежливый тон текстов сайта",
-          "Процесс редактирования интерфейсных текстов",
-          "Система оповещений «Что нового?»",
-          "Корректура текстов на сайте",
-        ],
-      },
-      {
-        area: "editorial",
-        title: "дизайн брендовой рассылки",
-        layout: "two-column media-left compact",
-        demo: demo("newsletter-canvas", {
-          id: "jestei-newsletter-canvas",
-          sources: newsletterSources.slice(0, 1),
-          minHeight: 460,
-          alt: "брендовые рассылки Jestei Pool",
-        }),
-        chips: [
-          chip("Дизайн системы рассылок", "jestei-pool-newsletters"),
-          chip("Дизайн рассылок бренда", "jestei-pool-newsletters"),
-          "Интерфейсный тон промо-сообщений",
-        ],
-      },
+      // {s
+      // {
+      //   area: "editorial",
+      //   title: "редактура",
+      //   media: mediaGroup(MEDIA_GROUPS.jesteiEditorial, {
+      //     variant: "strip",
+      //     auto: true,
+      //     size: "wide",
+      //     speed: "92s",
+      //   }),
+      //   chips: [
+      //     "Информирующий и вежливый тон текстов сайта",
+      //     "Процесс редактирования интерфейсных текстов",
+      //     "Система оповещений «Что нового?»",
+      //     "Корректура текстов на сайте",
+      //   ],
+      // },
+      // {
+      //   area: "editorial",
+      //   title: "дизайн брендовой рассылки",
+      //   layout: "two-column media-left compact",
+      //   demo: demo("newsletter-canvas", {
+      //     id: "jestei-newsletter-canvas",
+      //     sources: newsletterSources.slice(0, 1),
+      //     minHeight: 460,
+      //     alt: "брендовые рассылки Jestei Pool",
+      //   }),
+      //   chips: [
+      //     chip("Дизайн системы рассылок", "jestei-pool-newsletters"),
+      //     chip("Дизайн рассылок бренда", "jestei-pool-newsletters"),
+      //     "Интерфейсный тон промо-сообщений",
+      //   ],
+      // },
     ],
   },
   {
@@ -398,20 +355,22 @@ export const CV_PROJECTS = [
         layout: "two-column media-right compact collapse-on-mobile",
         animations: [
           {
-            type: "video-placeholder",
-            label: "видео 01",
+            type: "video",
+            src: styxVisualSystemLoopUrl,
+            label: "styx visual system loop",
             size: "square",
           },
           {
-            type: "video-placeholder",
-            label: "видео 02",
+            type: "video",
+            src: styxBasementLoopUrl,
+            label: "styx basement loop",
             size: "square",
           },
         ],
         chips: [
           "Сканографические анимации для бренда",
           "Подготовка видеоанимаций для коммуникаций",
-          "Плейсхолдеры под два квадратных видео со звуком",
+          "Два видеолупа с ручным включением звука",
         ],
       },
     ],
@@ -527,7 +486,11 @@ export const CV_PROJECTS = [
     summary:
       "Mad Cow Films — международный рекламный продакшн с офисами в Лондоне и Москве. Компания делает рекламные ролики, бренд-контент и съёмочные проекты для коммерческих клиентов. В работе соединяет креативную разработку, режиссёрскую базу, продюсирование, подготовку съёмок и сервисное производство.",
     domains: [
-      { area: "editorial", title: "документы", chips: ["Документы для тендерных заявок", "Брифы и презентации", "Сборка проектной документации"] },
+      {
+        area: "editorial",
+        title: "документы",
+        chips: ["Документы для тендерных заявок", "Брифы и презентации", "Сборка проектной документации"],
+      },
       {
         area: "analysis",
         title: "продюсирование",
@@ -558,7 +521,13 @@ export const CV_PROJECTS = [
       {
         area: "analysis",
         title: "подготовка проектов",
-        chips: ["Переговоры с подрядчиками", "Оптимизация смет и бюджетов", "Подготовка смет", "Мудборды для проектов", "Брифы для съёмок"],
+        chips: [
+          "Переговоры с подрядчиками",
+          "Оптимизация смет и бюджетов",
+          "Подготовка смет",
+          "Мудборды для проектов",
+          "Брифы для съёмок",
+        ],
       },
       {
         area: "product",
@@ -591,11 +560,20 @@ export const CV_PROJECTS = [
     summary:
       "Издательство «Прогресс» — российское издательство переводной, гуманитарной, художественной и образовательной литературы. Компания выпускает книги и работает с полным издательским циклом: текстом, структурой, редакционной подготовкой, иллюстрациями, вёрсткой и подготовкой материалов к печати.",
     domains: [
-      { area: "analysis", title: "клиентская работа", chips: ["Переговоры с клиентами", "Анализ требований к изданию"] },
+      {
+        area: "analysis",
+        title: "клиентская работа",
+        chips: ["Переговоры с клиентами", "Анализ требований к изданию"],
+      },
       {
         area: "graphic",
         title: "книжный дизайн",
-        chips: ["Концепции и макеты книг", "Предпечатная подготовка иллюстраций", "Вёрстка и контроль процесса", "Подготовка книги к типографии"],
+        chips: [
+          "Концепции и макеты книг",
+          "Предпечатная подготовка иллюстраций",
+          "Вёрстка и контроль процесса",
+          "Подготовка книги к типографии",
+        ],
       },
     ],
   },
