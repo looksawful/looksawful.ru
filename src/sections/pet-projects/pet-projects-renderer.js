@@ -26,7 +26,7 @@ const TECH_ICONS = {
   motion: iconSvg('<path d="M5 12h7M5 7h12M5 17h4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="m15 13 4 4m0 0-4 4m4-4H11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>'),
 };
 
-const getTechIcon = (technology = "") => {
+export const getTechIcon = (technology = "") => {
   const key = technology.toLowerCase();
 
   if (key.includes("electron")) return TECH_ICONS.electron;

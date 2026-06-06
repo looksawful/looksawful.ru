@@ -5,6 +5,16 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import logoModelUrl from "../../lab/assets/projects/jestei/logo/logo.glb?url";
 
 const LOGO_MODEL_URL = logoModelUrl;
+const MIN_RENDER_SIZE = 64;
+const MAX_RENDER_SIZE = 320;
+
+function clampRenderSize(value) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return 0;
+  }
+
+  return Math.min(Math.max(Math.round(value), MIN_RENDER_SIZE), MAX_RENDER_SIZE);
+}
 
 function prepareMesh(child, renderer, materials) {
   if (!child.isMesh) {
@@ -55,6 +65,8 @@ export function mountJesteiLogoThree(canvas) {
   let frameId = 0;
   let disposed = false;
   let model = null;
+  let lastWidth = 0;
+  let lastHeight = 0;
 
   dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
   loader.setDRACOLoader(dracoLoader);
@@ -72,13 +84,20 @@ export function mountJesteiLogoThree(canvas) {
   camera.position.set(0, 0, 2.5);
 
   const resize = () => {
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
+    const bounds = canvas.getBoundingClientRect();
+    const width = clampRenderSize(bounds.width || canvas.clientWidth);
+    const height = clampRenderSize(bounds.height || canvas.clientHeight);
 
     if (!width || !height) {
       return;
     }
 
+    if (width === lastWidth && height === lastHeight) {
+      return;
+    }
+
+    lastWidth = width;
+    lastHeight = height;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
@@ -123,6 +142,8 @@ export function mountJesteiLogoThree(canvas) {
     },
   );
 
+  const resizeObserver = new ResizeObserver(resize);
+  resizeObserver.observe(canvas);
   window.addEventListener("resize", resize);
   resize();
   animate();
@@ -130,6 +151,7 @@ export function mountJesteiLogoThree(canvas) {
   return () => {
     disposed = true;
     window.removeEventListener("resize", resize);
+    resizeObserver.disconnect();
     cancelAnimationFrame(frameId);
     pmremGenerator.dispose();
     dracoLoader.dispose();

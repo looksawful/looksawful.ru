@@ -1,7 +1,7 @@
 .resume-page {
   padding-block: clamp(5.5rem, 8vw, 8rem) clamp(4rem, 7vw, 7rem);
   color: #111;
-  background: #f7f7f4;
+  background: #fff;
   text-transform: lowercase;
 }
 
@@ -161,7 +161,7 @@
 }
 
 .resume-timeline-item__date::before {
-  content: "";
+  content: none;
   position: absolute;
   inset-block-start: 0.38rem;
   inset-inline-end: -1.28rem;

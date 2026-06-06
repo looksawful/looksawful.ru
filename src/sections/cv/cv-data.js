@@ -1,5 +1,3 @@
-const chip = (label, demoId) => (demoId ? { label, demoId } : label);
-
 const getModuleUrl = (moduleValue) => (typeof moduleValue === "string" ? moduleValue : moduleValue?.default || "");
 
 const getFilename = (path = "") => path.split(/[\\/]/).pop() || "";
@@ -35,6 +33,24 @@ const MEDIA_CAPTION = "внимание: этот текст является р
 const demo = (type, options = {}) => ({
   type,
   ...options,
+});
+
+const taskGroupImageModules = import.meta.glob("../../assets/cv/task-group-images/*.{webp,png,jpg,jpeg,avif}", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+
+const getTaskGroupImageSrc = (filename) => {
+  const normalizedFilename = String(filename || "").trim();
+  const entry = Object.entries(taskGroupImageModules).find(([path]) => getFilename(path) === normalizedFilename);
+  return entry ? getModuleUrl(entry[1]) : "";
+};
+
+const taskGroupImage = (filename, alt) => ({
+  filename,
+  src: getTaskGroupImageSrc(filename),
+  alt,
 });
 
 const styxVisualSystemLoopUrl = new URL(
@@ -134,6 +150,8 @@ export const CV_PROJECTS = [
         listGroups: [
           {
             title: "UI/UX стратегия сервиса",
+            image: taskGroupImage("jestei-ui-ux-strategy.webp", "UI/UX стратегия сервиса Jestei Pool"),
+            technologies: ["Figma", "CJM", "прототипы", "дизайн-система"],
             items: [
               "Арт-дирекшн интерфейсов сервиса",
               "Архитектура дизайн решений",
@@ -149,6 +167,8 @@ export const CV_PROJECTS = [
           },
           {
             title: "Архитектура дизайн-системы",
+            image: taskGroupImage("jestei-design-system.webp", "Архитектура дизайн-системы Jestei Pool"),
+            technologies: ["Figma", "Dev Mode", "tokens", "components"],
             items: [
               // "Настройка Dev Mode для передачи макетов",
               "Разработка интерфейсных стандартов",
@@ -160,6 +180,8 @@ export const CV_PROJECTS = [
           },
           {
             title: "Контроль дизайн-процесса",
+            image: taskGroupImage("jestei-design-process.webp", "Контроль дизайн-процесса Jestei Pool"),
+            technologies: ["Figma", "Notion", "HTML", "CSS"],
             items: [
               "Формирование задач для дизайнеров",
               "Синхронизация дизайнеров, продукта и разработки",
@@ -183,16 +205,16 @@ export const CV_PROJECTS = [
         },
 
         chips: [
-          chip("Цветовая сегментация продуктов и аудиторий", "jestei-pool-audience-colors"),
-          chip("Концепция «три подписки — три темы»", "jestei-pool-premium-products"),
+          "Цветовая сегментация продуктов и аудиторий",
+          "Концепция «три подписки — три темы»",
           "Разделение сценариев для трёх аудиторий сервиса",
           "Инструменты под задачи каждой аудитории",
-          chip("Фильтрация треков для основного каталога", "jestei-pool-02"),
-          chip("Расширенная фильтрация для Event DJ", "jestei-pool-09"),
+          "Фильтрация треков для основного каталога",
+          "Расширенная фильтрация для Event DJ",
           "Архитектура основного лендинга",
-          chip("Архитектура лендинга Event-раздела", "jestei-pool-07"),
-          chip("Дизайн основного лендинга", "jestei-pool-05"),
-          chip("Дизайн лендинга для Event DJ", "jestei-pool-07"),
+          "Архитектура лендинга Event-раздела",
+          "Дизайн основного лендинга",
+          "Дизайн лендинга для Event DJ",
           "Дизайн страницы трека",
           "Перестройка навигации Event-раздела",
           "Концепция «день для Event, ночь для клуба»",
@@ -205,10 +227,10 @@ export const CV_PROJECTS = [
           "Модальные окна «Что нового»",
           "Триггеры апгрейда подписки",
           "Виджеты, CTA и модальные окна для апгрейда",
-          chip("Дизайн тарифов", "jestei-pool-premium-products"),
+          "Дизайн тарифов",
           "Карты пользовательских маршрутов",
           "Структура и оформление плейлистов",
-          chip("Дизайн динамических плейлистов", "jestei-pool-33"),
+          "Дизайн динамических плейлистов",
         ],
       },
       // {
@@ -225,7 +247,7 @@ export const CV_PROJECTS = [
       //     "Дизайн субтитров",
       //     "Оформление соцсетей",
       //     "Создание и арт-дирекшн баннеров",
-      //     chip("Дизайн обложек плейлистов", "jestei-pool-33"),
+      //     "Дизайн обложек плейлистов",
       //     "Оформление сезонных акций",
       //     "Внедрение нейросетей в графический пайплайн",
       //   ],
@@ -240,10 +262,10 @@ export const CV_PROJECTS = [
         }),
         chips: [
           "Ребрендинг сервиса",
-          chip("Разработка фирменного стиля", "jestei-pool-brand-style"),
-          chip("Разработка нового логотипа", "jestei-pool-24"),
-          chip("Подбор брендового шрифта", "jestei-pool-25"),
-          chip("Создание цветовой палитры", "jestei-pool-26"),
+          "Разработка фирменного стиля",
+          "Разработка нового логотипа",
+          "Подбор брендового шрифта",
+          "Создание цветовой палитры",
           "Разработка иконок",
         ],
       },
@@ -275,8 +297,8 @@ export const CV_PROJECTS = [
       //     alt: "брендовые рассылки Jestei Pool",
       //   }),
       //   chips: [
-      //     chip("Дизайн системы рассылок", "jestei-pool-newsletters"),
-      //     chip("Дизайн рассылок бренда", "jestei-pool-newsletters"),
+      //     "Дизайн системы рассылок",
+      //     "Дизайн рассылок бренда",
       //     "Интерфейсный тон промо-сообщений",
       //   ],
       // },
@@ -305,15 +327,15 @@ export const CV_PROJECTS = [
           scene: "styxGraphicDiagonal",
         },
         chips: [
-          chip("ДНК бренда: логотип и фирменный стиль", "styx-brand-dna"),
-          chip("Визуальная подача бренда", "styx-visual-presentation"),
-          chip("Дизайн подарочной упаковки", "styx-packaging"),
-          chip("Дизайн визиток", "styx-business-cards"),
-          chip("Дизайн буклетов", "styx-booklets"),
-          chip("Дизайн сертификатов", "styx-certificate"),
-          chip("Дизайн соцсетей", "styx-social"),
-          chip("Рекламные публикации", "styx-ads"),
-          chip("Баннеры для Сплита и Долями", "styx-installments-banners"),
+          "ДНК бренда: логотип и фирменный стиль",
+          "Визуальная подача бренда",
+          "Дизайн подарочной упаковки",
+          "Дизайн визиток",
+          "Дизайн буклетов",
+          "Дизайн сертификатов",
+          "Дизайн соцсетей",
+          "Рекламные публикации",
+          "Баннеры для Сплита и Долями",
         ],
       },
       {
@@ -342,10 +364,10 @@ export const CV_PROJECTS = [
           speed: "320s",
         }),
         chips: [
-          chip("Продюсирование съёмок", "styx-shoot-production"),
-          chip("Фотосъёмка кампейнов", "styx-campaign-photo"),
-          chip("Организация мини-студии для каталога", "styx-mini-studio"),
-          chip("Ретушь и стилизация кадров", "styx-retouch"),
+          "Продюсирование съёмок",
+          "Фотосъёмка кампейнов",
+          "Организация мини-студии для каталога",
+          "Ретушь и стилизация кадров",
           "Обработка коллабораций и каталожных съёмок",
         ],
       },
