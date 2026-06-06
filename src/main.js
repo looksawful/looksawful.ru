@@ -1,8 +1,13 @@
 import "./styles/index.css";
-import { renderPage } from "./sections/index.js";
 import { initComponents } from "./components/index.js";
 
 let appInitialized = false;
+
+const ROUTED_PAGE_PATTERN = /^\/(?:resume|pet-projects\/[^/]+)\/?$/;
+
+function isRoutedPage(pathname = window.location.pathname) {
+  return ROUTED_PAGE_PATTERN.test(pathname);
+}
 
 async function runInitStep(label, callback) {
   try {
@@ -11,6 +16,15 @@ async function runInitStep(label, callback) {
     console.error(`[init] ${label} failed`, error);
     return null;
   }
+}
+
+async function renderRoutedPage(main) {
+  if (!isRoutedPage()) {
+    return;
+  }
+
+  const { renderPage } = await import("./sections/index.js");
+  renderPage(main);
 }
 
 async function initApp() {
@@ -25,7 +39,7 @@ async function initApp() {
     return;
   }
 
-  await runInitStep("renderPage", () => renderPage(main));
+  await runInitStep("renderRoutedPage", () => renderRoutedPage(main));
 
   appInitialized = true;
 
