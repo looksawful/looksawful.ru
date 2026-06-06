@@ -2,9 +2,10 @@
 @import "./reset.css";
 @import "./typography.css";
 @import "./components/awfulface.css";
-@import "./components/site-navigation.css";
+@import "./components/site-footer.css";
 @import "./sections/hero.css";
-@import "./sections/lead.css";
 @import "./sections/cv.css";
 @import "./sections/pet-projects.css";
 @import "./sections/resume.css";
+
+
