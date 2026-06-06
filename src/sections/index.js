@@ -1,7 +1,7 @@
 import { getPetProjectBySlug } from "./pet-projects/pet-project-data.js";
 import { renderPetProjectPage } from "./pet-projects/pet-projects-renderer.js";
 import { renderResumePage } from "./resume/resume-renderer.js";
-import { renderSiteFooter } from "./site-navigation/site-navigation.js";
+import { renderSiteFooter } from "./site-footer/site-footer.js";
 
 const PET_PROJECT_PATH_PATTERN = /^\/pet-projects\/([^/]+)\/?$/;
 const RESUME_PATH_PATTERN = /^\/resume\/?$/;
@@ -37,3 +37,4 @@ export function renderPage(target = document.getElementById("main")) {
 
   renderDocumentTitle("");
 }
+
