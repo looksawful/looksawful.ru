@@ -13,9 +13,11 @@ function runComponentStep(label, callback) {
   }
 }
 
-function runIdle(callback) {
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(callback, { timeout: 1400 });
+function runAfterFirstPaint(callback) {
+  if ("requestAnimationFrame" in window) {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(callback);
+    });
     return;
   }
 
@@ -39,7 +41,7 @@ export function initComponents() {
   runComponentStep("mountCvProjectLogos", () => mountCvProjectLogos());
   runComponentStep("initSystemMotion", () => initSystemMotion());
 
-  runIdle(() => {
+  runAfterFirstPaint(() => {
     void initLazyComponents();
   });
 }
