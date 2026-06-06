@@ -35,17 +35,6 @@ const demo = (type, options = {}) => ({
   ...options,
 });
 
-const TASK_GROUP_IMAGE_URLS = {
-  "jestei-ui-ux-strategy.webp": new URL("../../assets/cv/task-group-images/jestei-ui-ux-strategy.webp", import.meta.url).href,
-  "jestei-design-system.webp": new URL("../../assets/cv/task-group-images/jestei-design-system.webp", import.meta.url).href,
-  "jestei-design-process.webp": new URL("../../assets/cv/task-group-images/jestei-design-process.webp", import.meta.url).href,
-};
-
-const getTaskGroupImageSrc = (filename) => {
-  const normalizedFilename = String(filename || "").trim();
-  return TASK_GROUP_IMAGE_URLS[normalizedFilename] || "";
-};
-
 const taskGroupImage = (filename, alt) => ({
   filename,
   src: getTaskGroupImageSrc(filename),
@@ -148,9 +137,7 @@ export const CV_PROJECTS = [
         },
         listGroups: [
           {
-            title: "UI/UX стратегия сервиса",
-            image: taskGroupImage("jestei-ui-ux-strategy.webp", "UI/UX стратегия сервиса Jestei Pool"),
-            technologies: ["Figma", "CJM", "прототипы", "дизайн-система"],
+            title: "UI/UX стратегия сервиса",            technologies: ["Figma", "CJM", "прототипы", "дизайн-система"],
             items: [
               "Арт-дирекшн интерфейсов сервиса",
               "Архитектура дизайн решений",
@@ -165,9 +152,7 @@ export const CV_PROJECTS = [
             ],
           },
           {
-            title: "Архитектура дизайн-системы",
-            image: taskGroupImage("jestei-design-system.webp", "Архитектура дизайн-системы Jestei Pool"),
-            technologies: ["Figma", "Dev Mode", "tokens", "components"],
+            title: "Архитектура дизайн-системы",            technologies: ["Figma", "Dev Mode", "tokens", "components"],
             items: [
               // "Настройка Dev Mode для передачи макетов",
               "Разработка интерфейсных стандартов",
@@ -178,9 +163,7 @@ export const CV_PROJECTS = [
             ],
           },
           {
-            title: "Контроль дизайн-процесса",
-            image: taskGroupImage("jestei-design-process.webp", "Контроль дизайн-процесса Jestei Pool"),
-            technologies: ["Figma", "Notion", "HTML", "CSS"],
+            title: "Контроль дизайн-процесса",            technologies: ["Figma", "Notion", "HTML", "CSS"],
             items: [
               "Формирование задач для дизайнеров",
               "Синхронизация дизайнеров, продукта и разработки",
