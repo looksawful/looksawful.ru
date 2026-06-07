@@ -1,5 +1,4 @@
 import "./styles/index.css";
-import { renderPage } from "./sections/index.js";
 import { initComponents } from "./components/index.js";
 
 let appInitialized = false;
@@ -24,8 +23,6 @@ async function initApp() {
     console.error("[init] main container not found");
     return;
   }
-
-  await runInitStep("renderPage", () => renderPage(main));
 
   appInitialized = true;
 
