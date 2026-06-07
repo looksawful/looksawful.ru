@@ -3,18 +3,15 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import logoModelUrl from "../../visuals/assets/projects/jestei/logo/logo.glb?url";
+import {
+  createFrameTimer,
+  disposeObjectResources,
+  resizePerspectiveRenderer,
+} from "../../visuals/shared/three-rendering.js";
 
 const LOGO_MODEL_URL = logoModelUrl;
 const MIN_RENDER_SIZE = 64;
 const MAX_RENDER_SIZE = 320;
-
-function clampRenderSize(value) {
-  if (!Number.isFinite(value) || value <= 0) {
-    return 0;
-  }
-
-  return Math.min(Math.max(Math.round(value), MIN_RENDER_SIZE), MAX_RENDER_SIZE);
-}
 
 function prepareMesh(child, renderer, materials) {
   if (!child.isMesh) {
@@ -65,18 +62,17 @@ export function mountJesteiLogoThree(canvas) {
   let frameId = 0;
   let disposed = false;
   let model = null;
-  let lastWidth = 0;
-  let lastHeight = 0;
+  const resizeState = { width: 0, height: 0, pixelRatio: 0 };
+  const frameTimer = createFrameTimer();
 
   dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
   loader.setDRACOLoader(dracoLoader);
-
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.9;
 
-  scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+  const environmentTexture = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environment = environmentTexture;
   scene.add(new THREE.DirectionalLight(0xffffff, 2));
   scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.2));
   scene.children[0].position.set(3, 4, 5);
@@ -84,23 +80,15 @@ export function mountJesteiLogoThree(canvas) {
   camera.position.set(0, 0, 2.5);
 
   const resize = () => {
-    const bounds = canvas.getBoundingClientRect();
-    const width = clampRenderSize(bounds.width || canvas.clientWidth);
-    const height = clampRenderSize(bounds.height || canvas.clientHeight);
-
-    if (!width || !height) {
-      return;
-    }
-
-    if (width === lastWidth && height === lastHeight) {
-      return;
-    }
-
-    lastWidth = width;
-    lastHeight = height;
-    renderer.setSize(width, height, false);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
+    resizePerspectiveRenderer(renderer, camera, canvas, resizeState, {
+      minWidth: MIN_RENDER_SIZE,
+      minHeight: MIN_RENDER_SIZE,
+      maxWidth: MAX_RENDER_SIZE,
+      maxHeight: MAX_RENDER_SIZE,
+      fallbackWidth: MIN_RENDER_SIZE,
+      fallbackHeight: MIN_RENDER_SIZE,
+      maxPixelRatio: 2,
+    });
   };
 
   const animate = () => {
@@ -111,8 +99,10 @@ export function mountJesteiLogoThree(canvas) {
     frameId = requestAnimationFrame(animate);
     resize();
 
+    const { delta } = frameTimer.tick();
+
     if (model) {
-      model.rotation.y += 0.01;
+      model.rotation.y += delta * 0.6;
 
       logoMaterials.forEach((material) => {
         material.color.set("#000000");
@@ -127,6 +117,7 @@ export function mountJesteiLogoThree(canvas) {
     LOGO_MODEL_URL,
     (gltf) => {
       if (disposed) {
+        disposeObjectResources(gltf.scene);
         return;
       }
 
@@ -153,6 +144,13 @@ export function mountJesteiLogoThree(canvas) {
     window.removeEventListener("resize", resize);
     resizeObserver.disconnect();
     cancelAnimationFrame(frameId);
+    if (model) {
+      scene.remove(model);
+      disposeObjectResources(model);
+      model = null;
+    }
+
+    environmentTexture.dispose?.();
     pmremGenerator.dispose();
     dracoLoader.dispose();
     renderer.dispose();
