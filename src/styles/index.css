@@ -3,8 +3,9 @@
 @import "./typography.css";
 @import "./components/awfulface.css";
 @import "./components/site-footer.css";
-@import "./components/system-motion.css";
 @import "./sections/hero.css";
 @import "./sections/cv.css";
+@import "./sections/showcase.css";
+@import "./sections/cv-list.css";
 @import "./sections/pet-projects.css";
 @import "./sections/resume.css";

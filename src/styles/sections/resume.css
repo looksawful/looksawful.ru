@@ -10,6 +10,7 @@
 .resume-section-heading,
 .cv-section--resume .cv-row {
   width: min(100vw - 64px, 76rem);
+  min-inline-size: 0;
   margin-inline: auto;
 }
 
@@ -56,6 +57,10 @@
   margin-block-end: clamp(2.4rem, 5vw, 5rem);
   padding-block: clamp(1.2rem, 2vw, 2rem);
   border-block: 1px solid rgba(17, 17, 17, 0.16);
+}
+
+.resume-summary > * {
+  min-inline-size: 0;
 }
 
 .resume-summary h2,
@@ -152,23 +157,16 @@
   border-block-end: 1px solid rgba(17, 17, 17, 0.14);
 }
 
+.resume-timeline-item > * {
+  min-inline-size: 0;
+}
+
 .resume-timeline-item__date {
   position: relative;
   color: rgba(17, 17, 17, 0.58);
   font-size: clamp(0.82rem, 0.82vw, 0.96rem);
   font-weight: 700;
   line-height: 1.08;
-}
-
-.resume-timeline-item__date::before {
-  content: none;
-  position: absolute;
-  inset-block-start: 0.38rem;
-  inset-inline-end: -1.28rem;
-  inline-size: 0.52rem;
-  block-size: 0.52rem;
-  border-radius: 50%;
-  background: #111;
 }
 
 .resume-timeline-item__content {
@@ -263,9 +261,5 @@
   .resume-timeline-item {
     grid-template-columns: 1fr;
     gap: 0.7rem;
-  }
-
-  .resume-timeline-item__date::before {
-    display: none;
   }
 }

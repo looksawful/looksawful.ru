@@ -1,0 +1,251 @@
+.cv-experience__item--featured {
+  --showcase-title-size: clamp(2.05rem, 3.25vw, 3.8rem);
+  --showcase-domain-title-size: clamp(1.12rem, 1.36vw, 1.58rem);
+  --showcase-group-title-size: clamp(0.82rem, 0.84vw, 0.98rem);
+  --showcase-body-size: clamp(0.92rem, 0.94vw, 1.08rem);
+  --showcase-chip-size: clamp(0.72rem, 0.7vw, 0.84rem);
+
+  --showcase-text: #111;
+  --showcase-copy: #252525;
+  --showcase-muted: rgba(17, 17, 17, 0.58);
+  --showcase-border: rgba(17, 17, 17, 0.14);
+  --showcase-border-strong: rgba(17, 17, 17, 0.28);
+  --showcase-surface: #ffffff;
+  --showcase-surface-soft: #f3f3f1;
+
+  gap: var(--cv-space-section);
+}
+
+.cv-project-hero {
+  border-color: var(--showcase-border);
+}
+
+.cv-project-hero__body {
+  background: var(--showcase-surface-soft);
+}
+
+.cv-project-hero__content {
+  gap: clamp(0.54rem, 0.78vw, 0.86rem);
+}
+
+.cv-project-hero h3 {
+  color: var(--showcase-text);
+  font-size: var(--showcase-title-size);
+  font-weight: var(--font-weight-medium);
+  line-height: 0.94;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.cv-project-period--hero {
+  color: var(--showcase-muted);
+  font-size: clamp(0.72rem, 0.72vw, 0.86rem);
+  font-weight: 600;
+}
+
+.cv-project-hero .cv-project-copy {
+  max-inline-size: 48rem;
+  margin-block-start: clamp(0.28rem, 0.48vw, 0.56rem);
+}
+
+.cv-project-hero .cv-project-copy p,
+.cv-project-hero .cv-experience__summary p {
+  color: var(--showcase-copy);
+  font-size: var(--showcase-body-size);
+  font-weight: var(--font-weight-book);
+  line-height: 1.34;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+
+.cv-project-hero .cv-role-chips {
+  width: fit-content;
+  max-inline-size: 100%;
+  border: 1px solid rgba(17, 17, 17, 0.34);
+  border-radius: var(--cv-radius-inner);
+  background: transparent;
+}
+
+.cv-project-hero .cv-role-chip {
+  min-block-size: 1.78rem;
+  padding: 0.32rem 0.68rem 0.36rem;
+  border: 0;
+  border-radius: 0;
+  color: var(--showcase-text);
+  background: transparent;
+  font-size: clamp(0.72rem, 0.74vw, 0.88rem);
+  font-weight: 620;
+  line-height: 1;
+}
+
+.cv-project-hero .cv-role-chips li + li {
+  border-inline-start: 1px solid rgba(17, 17, 17, 0.2);
+}
+
+.cv-experience__item--featured .cv-task-area {
+  gap: clamp(1rem, 1.45vw, 1.7rem);
+}
+
+.cv-experience__item--featured .cv-task-domains {
+  gap: clamp(1rem, 1.45vw, 1.7rem);
+}
+
+.cv-experience__item--featured .cv-task-domain {
+  border-color: var(--showcase-border);
+  box-shadow: 0 12px 34px rgba(17, 17, 17, 0.035);
+}
+
+.cv-experience__item--featured .cv-task-group__meta {
+  gap: clamp(0.68rem, 0.9vw, 1rem);
+}
+
+.cv-experience__item--featured .cv-task-domain__title {
+  color: var(--showcase-text);
+  font-size: var(--showcase-domain-title-size);
+  font-weight: var(--font-weight-medium);
+  line-height: 0.98;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.cv-experience__item--featured .cv-task-group__title {
+  color: var(--showcase-muted);
+  font-size: var(--showcase-group-title-size);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.cv-experience__item--featured .cv-task-chips {
+  gap: 0.48rem 0.52rem;
+}
+
+.cv-experience__item--featured .cv-task-chip {
+  min-block-size: 1.84rem;
+  padding: 0.36rem 0.62rem 0.4rem;
+  border-color: rgba(17, 17, 17, 0.13);
+  border-radius: var(--cv-radius-inner);
+  color: #171717;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(17, 17, 17, 0.035);
+  font-size: var(--showcase-chip-size);
+  font-weight: 600;
+  line-height: 1.14;
+  text-transform: lowercase;
+  transform: none;
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+.cv-experience__item--featured .cv-task-chip:hover,
+.cv-experience__item--featured .cv-task-chip--filled:hover {
+  border-color: rgba(17, 17, 17, 0.26);
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(17, 17, 17, 0.05);
+}
+
+.cv-experience__item--featured .cv-task-chip--filled {
+  border-color: rgba(17, 17, 17, 0.18);
+  background: color-mix(in srgb, var(--task-bg, #f4f4f1) 74%, white);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--task-accent, #111) 7%, transparent);
+  will-change: auto;
+}
+
+.cv-experience__item--featured .cv-task-chip--filled::after {
+  inline-size: 0.36rem;
+  block-size: 0.36rem;
+  margin-inline-start: 0.38rem;
+}
+
+.cv-experience__item--featured .cv-task-list-groups {
+  gap: clamp(0.7rem, 1vw, 1.1rem);
+}
+
+.cv-experience__item--featured .cv-task-list-group {
+  gap: clamp(0.58rem, 0.82vw, 0.92rem);
+}
+
+.cv-experience__item--featured .cv-task-list-group__title {
+  color: var(--showcase-muted);
+  font-size: clamp(0.76rem, 0.74vw, 0.88rem);
+  font-weight: 700;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.cv-experience__item--featured .cv-task-list {
+  gap: 0.36rem;
+}
+
+.cv-experience__item--featured .cv-task-list-item {
+  color: #252525;
+  font-size: clamp(0.78rem, 0.76vw, 0.9rem);
+  font-weight: var(--font-weight-book);
+  line-height: 1.28;
+}
+
+.cv-experience__item--featured .cv-task-group__visual,
+.cv-experience__item--featured .cv-preview,
+.cv-experience__item--featured .cv-work-media {
+  border-color: var(--showcase-border);
+}
+
+.cv-experience__item--featured .cv-media-caption,
+.cv-experience__item--featured .ds-caption {
+  color: rgba(17, 17, 17, 0.44);
+  font-size: clamp(0.68rem, 0.66vw, 0.78rem);
+  line-height: 1.18;
+}
+
+@media (max-width: 760px) {
+  .cv-project-hero h3 {
+    font-size: clamp(1.78rem, 10vw, 2.55rem);
+    line-height: 0.94;
+  }
+
+  .cv-project-hero .cv-project-copy p,
+  .cv-project-hero .cv-experience__summary p {
+    font-size: clamp(0.94rem, 3.8vw, 1.08rem);
+    line-height: 1.28;
+  }
+
+  .cv-project-hero .cv-role-chips {
+    width: 100%;
+    border: 0;
+    gap: 0.36rem;
+  }
+
+  .cv-project-hero .cv-role-chip {
+    min-block-size: 1.78rem;
+    border: 1px solid rgba(17, 17, 17, 0.22);
+    border-radius: 999px;
+    background: #fff;
+    font-size: clamp(0.76rem, 3.2vw, 0.9rem);
+  }
+
+  .cv-experience__item--featured .cv-task-domain__title {
+    font-size: clamp(1.04rem, 5vw, 1.34rem);
+    line-height: 1;
+  }
+
+  .cv-experience__item--featured .cv-task-chip {
+    min-block-size: 1.92rem;
+    padding: 0.38rem 0.62rem 0.42rem;
+    font-size: clamp(0.78rem, 3.25vw, 0.94rem);
+  }
+}
+.cv-experience__item--featured .cv-project-hero {
+  outline: 6px solid red;
+}
+
+html body .cv-experience__item--featured .cv-project-hero {
+  outline: 8px solid red !important;
+}
+
+html body .cv-experience__item--featured .cv-project-hero h3 {
+  color: red !important;
+  font-size: 5rem !important;
+}
