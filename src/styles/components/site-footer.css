@@ -28,11 +28,20 @@
 .site-footer__links a {
   color: var(--color-link);
   text-decoration: none;
+  border-radius: var(--radius-xs);
+  transition:
+    color var(--motion-fast) var(--ease-standard),
+    opacity var(--motion-fast) var(--ease-standard);
 }
 
 .site-footer__links a:hover,
 .site-footer__links a:focus-visible {
   color: var(--color-link-hover);
+}
+
+.site-footer__links a:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--color-focus) 48%, transparent);
+  outline-offset: 0.22rem;
 }
 
 @media (max-width: 38rem) {
