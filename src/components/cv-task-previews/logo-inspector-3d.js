@@ -2,6 +2,12 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import jesteiLogoSvg from "../../assets/cv/logos/jestei-logo.svg?raw";
+import {
+  createFrameTimer,
+  disposeMaterial,
+  disposeObjectResources,
+  resizePerspectiveRenderer,
+} from "../../visuals/shared/three-rendering.js";
 
 const STYLE_ID = "logo-inspector-3d-styles";
 
@@ -251,28 +257,12 @@ function traverseMeshes(object, onMesh) {
   });
 }
 
-function disposeMaterial(material) {
-  Object.values(material).forEach((value) => {
-    if (value instanceof THREE.Texture) value.dispose();
-  });
-  material.dispose();
-}
-
-function disposeObjectResources(object) {
-  traverseMeshes(object, (mesh) => {
-    mesh.geometry?.dispose();
-    if (Array.isArray(mesh.material)) {
-      mesh.material.forEach(disposeMaterial);
-    } else if (mesh.material) {
-      disposeMaterial(mesh.material);
-    }
-  });
-}
-
 function applyVariantColor(root, hexColor, renderer) {
   const color = new THREE.Color(hexColor);
 
   traverseMeshes(root, (mesh) => {
+    const previousMaterial = mesh.material;
+
     mesh.geometry?.computeVertexNormals?.();
 
     const material = new THREE.MeshPhysicalMaterial({
@@ -293,6 +283,12 @@ function applyVariantColor(root, hexColor, renderer) {
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     mesh.material = material;
+
+    if (Array.isArray(previousMaterial)) {
+      previousMaterial.forEach(disposeMaterial);
+    } else {
+      disposeMaterial(previousMaterial);
+    }
   });
 }
 
@@ -385,9 +381,9 @@ export function createLogoInspector3D(target, options = {}) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.04;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
-  scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+  const environmentTexture = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environment = environmentTexture;
   canvasHost.appendChild(renderer.domElement);
 
   const stage = new THREE.Group();
@@ -455,14 +451,16 @@ export function createLogoInspector3D(target, options = {}) {
   prevButton.addEventListener("click", () => shiftVariant(-1));
   nextButton.addEventListener("click", () => shiftVariant(1));
 
+  const resizeState = { width: 0, height: 0, pixelRatio: 0 };
+
   const resize = () => {
-    const bounds = canvasHost.getBoundingClientRect();
     const rootBounds = root.getBoundingClientRect();
-    const width = Math.max(Math.floor(bounds.width || canvasHost.clientWidth || rootBounds.width || 1), 1);
-    const height = Math.max(Math.floor(bounds.height || canvasHost.clientHeight || rootBounds.height || safeMinHeight || 1), 1);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(width, height, false);
+
+    resizePerspectiveRenderer(renderer, camera, canvasHost, resizeState, {
+      fallbackWidth: rootBounds.width || 1,
+      fallbackHeight: rootBounds.height || safeMinHeight || 1,
+      maxPixelRatio: 2,
+    });
   };
 
   const resizeObserver = new ResizeObserver(resize);
@@ -474,7 +472,7 @@ export function createLogoInspector3D(target, options = {}) {
     paused = true;
     lastPointer = { x: event.clientX, y: event.clientY };
     canvasHost.classList.add("is-dragging");
-    renderer.domElement.setPointerCapture(event.pointerId);
+    renderer.domElement.setPointerCapture?.(event.pointerId);
   };
 
   const onPointerMove = (event) => {
@@ -494,8 +492,8 @@ export function createLogoInspector3D(target, options = {}) {
     paused = false;
     canvasHost.classList.remove("is-dragging");
 
-    if (renderer.domElement.hasPointerCapture(event.pointerId)) {
-      renderer.domElement.releasePointerCapture(event.pointerId);
+    if (renderer.domElement.hasPointerCapture?.(event.pointerId)) {
+      renderer.domElement.releasePointerCapture?.(event.pointerId);
     }
   };
 
@@ -511,13 +509,14 @@ export function createLogoInspector3D(target, options = {}) {
   renderer.domElement.addEventListener("pointercancel", onPointerUp);
   renderer.domElement.addEventListener("wheel", onWheel, { passive: false });
 
-  const clock = new THREE.Clock();
+  const frameTimer = createFrameTimer();
 
   const renderLoop = () => {
     if (destroyed) return;
 
-    const delta = clock.getDelta();
-    const elapsed = clock.elapsedTime;
+    const { delta, elapsed } = frameTimer.tick();
+
+    resize();
 
     if (autoSpin && !paused) {
       autoSpinAngle += delta * AUTO_SPIN_SPEED;
@@ -579,6 +578,7 @@ export function createLogoInspector3D(target, options = {}) {
         disposeObjectResources(meshRoot);
       }
 
+      environmentTexture.dispose?.();
       pmremGenerator.dispose();
       renderer.dispose();
       root.remove();

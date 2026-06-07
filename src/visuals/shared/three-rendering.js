@@ -1,7 +1,7 @@
 export const DEFAULT_MAX_PIXEL_RATIO = 2;
 
 export function getSafePixelRatio(maxPixelRatio = DEFAULT_MAX_PIXEL_RATIO) {
-  return Math.min(window.devicePixelRatio || 1, maxPixelRatio);
+  return Math.min(globalThis.devicePixelRatio || 1, maxPixelRatio);
 }
 
 export function getElementRenderSize(element, options = {}) {
@@ -14,9 +14,16 @@ export function getElementRenderSize(element, options = {}) {
     fallbackHeight = 1,
   } = options;
 
-  const rect = element.getBoundingClientRect();
-  const rawWidth = rect.width || element.clientWidth || fallbackWidth;
-  const rawHeight = rect.height || element.clientHeight || fallbackHeight;
+  if (!element) {
+    return {
+      width: Math.max(1, Math.floor(fallbackWidth)),
+      height: Math.max(1, Math.floor(fallbackHeight)),
+    };
+  }
+
+  const rect = element.getBoundingClientRect?.();
+  const rawWidth = rect?.width || element.clientWidth || fallbackWidth;
+  const rawHeight = rect?.height || element.clientHeight || fallbackHeight;
 
   const width = Math.min(Math.max(Math.floor(rawWidth), minWidth), maxWidth);
   const height = Math.min(Math.max(Math.floor(rawHeight), minHeight), maxHeight);
@@ -50,7 +57,7 @@ export function resizePerspectiveRenderer(renderer, camera, element, state = {},
 
   const pixelRatio = getSafePixelRatio(maxPixelRatio);
 
-  if (renderer.getPixelRatio() !== pixelRatio) {
+  if (renderer.getPixelRatio?.() !== pixelRatio) {
     renderer.setPixelRatio(pixelRatio);
   }
 
@@ -62,9 +69,12 @@ export function resizePerspectiveRenderer(renderer, camera, element, state = {},
   state.height = height;
   state.pixelRatio = pixelRatio;
 
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
   renderer.setSize(width, height, false);
+
+  if (camera) {
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix?.();
+  }
 
   return true;
 }
