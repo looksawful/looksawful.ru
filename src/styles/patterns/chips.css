@@ -1,0 +1,26 @@
+.chip-list,
+.cv-role-chips,
+.cv-task-chips {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip,
+.cv-role-chip,
+.cv-task-chip {
+  display: inline-flex;
+  align-items: center;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.chip-list > li::before,
+.cv-role-chips > li::before,
+.cv-task-chips > li::before {
+  content: none;
+}

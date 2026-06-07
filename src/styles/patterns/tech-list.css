@@ -1,0 +1,29 @@
+.tech-list,
+.pet-tech-list,
+.cv-task-tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tech-list li,
+.pet-tech-list li,
+.cv-task-tech-list li {
+  display: inline-flex;
+  align-items: center;
+  min-inline-size: 0;
+}
+
+.tech-list__icon,
+.pet-tech-list__icon {
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
+.tech-list li::before,
+.pet-tech-list li::before,
+.cv-task-tech-list li::before {
+  content: none;
+}
