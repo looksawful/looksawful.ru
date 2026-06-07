@@ -15,7 +15,6 @@
   --showcase-border-strong: rgba(17, 17, 17, 0.26);
   --showcase-surface: #fff;
   --showcase-surface-soft: #f6f6f4;
-  --showcase-tag-bg: rgba(255, 255, 255, 0.76);
 }
 
 .cv-section .cv-experience__item--featured .cv-project-hero {
@@ -88,10 +87,7 @@
   border-inline-start: 1px solid rgba(17, 17, 17, 0.2);
 }
 
-.cv-section .cv-experience__item--featured .cv-task-area {
-  gap: clamp(1rem, 1.45vw, 1.7rem);
-}
-
+.cv-section .cv-experience__item--featured .cv-task-area,
 .cv-section .cv-experience__item--featured .cv-task-domains {
   gap: clamp(1rem, 1.45vw, 1.7rem);
 }
@@ -127,8 +123,6 @@
   text-wrap: balance;
 }
 
-/* SIMPLE CHIP GROUPS */
-
 .cv-section .cv-experience__item--featured .cv-task-list-groups--chips {
   display: flex;
   flex-wrap: wrap;
@@ -136,7 +130,8 @@
   gap: 0.46rem 0.5rem;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-groups--chips .cv-task-list-group {
+.cv-section .cv-experience__item--featured .cv-task-list-groups--chips .cv-task-list-group,
+.cv-section .cv-experience__item--featured .cv-task-list-group--chips {
   display: contents;
   border: 0;
   border-radius: 0;
@@ -185,17 +180,13 @@
   line-height: inherit;
 }
 
-/* STRUCTURED CARD GROUPS */
-
-.cv-section .cv-experience__item--featured .cv-task-list-groups--cards,
-.cv-section .cv-experience__item--featured .cv-task-list-groups:not(.cv-task-list-groups--chips) {
+.cv-section .cv-experience__item--featured .cv-task-list-groups--cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   gap: clamp(0.78rem, 1vw, 1.1rem);
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-groups--cards .cv-task-list-group,
-.cv-section .cv-experience__item--featured .cv-task-list-groups:not(.cv-task-list-groups--chips) .cv-task-list-group {
+.cv-section .cv-experience__item--featured .cv-task-list-groups--cards .cv-task-list-group {
   display: grid;
   align-content: start;
   overflow: hidden;
@@ -205,18 +196,13 @@
   box-shadow: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-groups--cards .cv-task-list-group__content,
-.cv-section
-  .cv-experience__item--featured
-  .cv-task-list-groups:not(.cv-task-list-groups--chips)
-  .cv-task-list-group__content {
+.cv-section .cv-experience__item--featured .cv-task-list-groups--cards .cv-task-list-group__content {
   display: grid;
   gap: 0.56rem;
   padding: clamp(0.72rem, 0.95vw, 1rem);
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-groups--cards h5,
-.cv-section .cv-experience__item--featured .cv-task-list-groups:not(.cv-task-list-groups--chips) h5 {
+.cv-section .cv-experience__item--featured .cv-task-list-groups--cards h5 {
   margin: 0;
   padding: 0;
   color: var(--showcase-muted);
@@ -228,11 +214,7 @@
   text-wrap: balance;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-groups--cards ul:not(.cv-task-tech-list),
-.cv-section
-  .cv-experience__item--featured
-  .cv-task-list-groups:not(.cv-task-list-groups--chips)
-  ul:not(.cv-task-tech-list) {
+.cv-section .cv-experience__item--featured .cv-task-list-groups--cards ul:not(.cv-task-tech-list) {
   display: grid;
   gap: 0.3rem;
   margin: 0;
@@ -240,26 +222,18 @@
   list-style: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-groups--cards ul:not(.cv-task-tech-list) li,
-.cv-section
-  .cv-experience__item--featured
-  .cv-task-list-groups:not(.cv-task-list-groups--chips)
-  ul:not(.cv-task-tech-list)
-  li {
+.cv-section .cv-experience__item--featured .cv-task-list-groups--cards ul:not(.cv-task-tech-list) li {
   margin: 0;
   padding-block: 0;
   border: 0;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-groups--cards .cv-task-list-item,
-.cv-section .cv-experience__item--featured .cv-task-list-groups:not(.cv-task-list-groups--chips) .cv-task-list-item {
+.cv-section .cv-experience__item--featured .cv-task-list-groups--cards .cv-task-list-item {
   color: #252525;
   font-size: clamp(0.82rem, 0.82vw, 0.96rem);
   font-weight: var(--font-weight-book);
   line-height: 1.28;
 }
-
-/* TECHNOLOGY TAGS WITH ICONS */
 
 .cv-section .cv-experience__item--featured .cv-task-tech-list {
   display: flex;
@@ -308,8 +282,6 @@
 .cv-section .cv-experience__item--featured .cv-task-tech-list li::before {
   content: none;
 }
-
-/* FALLBACK PLAIN CHIPS */
 
 .cv-section .cv-experience__item--featured .cv-task-chips {
   gap: 0.46rem 0.5rem;
