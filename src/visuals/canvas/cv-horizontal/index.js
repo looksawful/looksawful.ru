@@ -8,6 +8,10 @@ import {
   loadMedia,
   noop,
   roundedRect,
+  createMediaLoader,
+  drawCanvasLoadingState,
+  getCanvasMountOptions,
+  limitAnimationItems,
 } from "../../shared/canvas-animation.js";
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
@@ -34,6 +38,9 @@ const config = {
   preload: 360,
   cycleGap: 8,
 
+  maxPasses: 5,
+  maxDrawItems: 220,
+
   tallSpanRatio: 0.62,
   portraitSpanRatio: 0.92,
   landscapeRatio: 1.18,
@@ -52,7 +59,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const getHorizontalItems = (sceneId = DEFAULT_HORIZONTAL_SCENE) => {
   const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_HORIZONTAL_SCENE];
-  return createAnimationItems(scene.modules);
+  return limitAnimationItems(createAnimationItems(scene.modules), sceneId, { defaultMaxItems: 42 });
 };
 
 const createDisposeHandle = (dispose = noop) => {
@@ -62,45 +69,31 @@ const createDisposeHandle = (dispose = noop) => {
 };
 
 // Прогрессивная загрузка с батчингом: сначала грузим первые N, потом порциями в фоне
-const loadImages = (items, { initialCount = 30, batchSize = 10, onItemLoad = noop } = {}) => {
-  const loaded = items.map((item, sourceIndex) => ({
-    ...item,
-    sourceIndex,
-    imageElement: null,
-    imageLoadError: null,
-  }));
+const loadImages = (
+  items,
+  {
+    initialCount = 12,
+    batchSize = 6,
+    maxItems = 42,
+    onItemLoad = noop,
+    onLoadingChange = noop,
+    sceneId = "",
+  } = {},
+) => {
+  const loader = createMediaLoader(items, {
+    maxItems,
+    initialCount,
+    batchSize,
+    sceneId,
+    onItemLoad,
+    onLoadingChange,
+  });
 
-  const loadOne = (index) => {
-    const mediaUrl = loaded[index]?.mediaUrl || loaded[index]?.imageUrl;
-    if (!mediaUrl) return Promise.resolve();
-    return loadMedia(mediaUrl)
-      .then((el) => {
-        loaded[index].imageElement = el;
-        onItemLoad();
-      })
-      .catch((err) => {
-        loaded[index].imageLoadError = err;
-        onItemLoad();
-      });
-  };
-
-  // Первый батч — сразу
-  const firstEnd = Math.min(initialCount, items.length);
-  for (let i = 0; i < firstEnd; i++) loadOne(i);
-
-  // Остальное — батчами с паузой
-  if (items.length > firstEnd) {
-    (async () => {
-      for (let i = firstEnd; i < items.length; i += batchSize) {
-        const end = Math.min(i + batchSize, items.length);
-        await Promise.all(Array.from({ length: end - i }, (_, j) => loadOne(i + j)));
-        await new Promise((r) => setTimeout(r, 80));
-      }
-    })();
-  }
-
-  return loaded;
+  loader.items.cancel = loader.cancel;
+  return loader.items;
 };
+
+const getLoadedItemCount = (items) => items.reduce((count, item) => count + (item?.imageElement ? 1 : 0), 0);
 
 const drawImagePlaceholder = (ctx, x, y, width, height, radius) => {
   ctx.save();
@@ -308,29 +301,41 @@ const createTile = ({ item, itemIndex, rows, rowHeight, padding }) => {
   };
 };
 
-const buildBaseTiles = ({ items, rows, padding }) => {
-  if (!rows.length) {
+const buildBaseTiles = ({ items, rows, padding, requiredLength = 0 }) => {
+  if (!rows.length || !items.length) {
     return [];
   }
 
   const rowHeight = rows[0].height;
+  const tiles = [];
+  let itemIndex = 0;
+  let currentLength = Math.min(...rows.map((row) => row.length));
+  const safeRequiredLength = Math.max(requiredLength, rowHeight * 4, 1);
+  const maxIterations = Math.min(Math.max(items.length * 24, rows.length * 20, 120), 720);
 
-  return items.map((item, itemIndex) =>
-    createTile({
+  while (itemIndex < maxIterations && currentLength < safeRequiredLength) {
+    const item = items[itemIndex % items.length];
+    const tile = createTile({
       item,
       itemIndex,
       rows,
       rowHeight,
       padding,
-    }),
-  );
+    });
+
+    tiles.push(tile);
+    itemIndex += 1;
+    currentLength = Math.min(...rows.map((row) => row.length));
+  }
+
+  return tiles;
 };
 
 const buildLayout = ({ width, height, items }) => {
   const padding = getPadding();
   const rowCount = getRowCount({ height, itemCount: items.length, padding });
   const rows = buildRows({ height, count: rowCount, padding });
-  const tiles = buildBaseTiles({ items, rows, padding });
+  const tiles = buildBaseTiles({ items, rows, padding, requiredLength: width + config.preload * 2 });
   const contentLength = Math.max(...rows.map((row) => row.length), 1);
   const cycleLength = Math.max(1, contentLength + config.cycleGap);
 
@@ -370,7 +375,7 @@ const intersectsViewport = ({ x, y, width, height, viewportWidth, viewportHeight
 
 const getVisibleTiles = ({ layout }) => {
   const visibleTiles = [];
-  const passCount = Math.ceil((layout.width + config.preload * 2 + layout.cycleLength) / layout.cycleLength) + 2;
+  const passCount = Math.min(config.maxPasses || 5, Math.ceil((layout.width + config.preload * 2 + layout.cycleLength) / layout.cycleLength) + 2);
 
   for (let pass = -1; pass <= passCount; pass += 1) {
     const shift = pass * layout.cycleLength + layout.directionSign * layout.offset;
@@ -387,11 +392,13 @@ const getVisibleTiles = ({ layout }) => {
         return;
       }
 
-      visibleTiles.push({ tile, x, y });
+      if (visibleTiles.length < (config.maxDrawItems || 220)) {
+        visibleTiles.push({ tile, x, y });
+      }
     });
   }
 
-  return visibleTiles.sort((a, b) => a.x - b.x || a.y - b.y);
+  return visibleTiles;
 };
 
 const drawLayout = ({ ctx, width, height, layout }) => {
@@ -532,11 +539,26 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", op
   const mountToken = beginMount(key);
   let itemLoadVersion = 0;
   const sceneId = options.scene || canvas.dataset.cvAnimationScene || DEFAULT_HORIZONTAL_SCENE;
+  const tuning = getCanvasMountOptions(canvas, options, {
+    maxItems: 42,
+    initialCount: 12,
+    batchSize: 6,
+    fps: 30,
+  });
   const items = loadImages(getHorizontalItems(sceneId), {
-    initialCount: 30,
-    batchSize: 10,
+    maxItems: tuning.maxItems,
+    initialCount: tuning.initialCount,
+    batchSize: tuning.batchSize,
+    sceneId,
     onItemLoad: () => {
       itemLoadVersion += 1;
+    },
+    onLoadingChange: ({ hasLoaded, isComplete }) => {
+      if (hasLoaded) {
+        canvas.closest?.("[data-cv-animation], .cv-preview")?.classList.add("is-canvas-ready");
+      } else if (!isComplete) {
+        canvas.closest?.("[data-cv-animation], .cv-preview")?.classList.add("is-canvas-loading");
+      }
     },
   });
 
@@ -555,6 +577,8 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", op
     key,
     canvas,
     ctx,
+    maxDpr: tuning.maxDpr,
+    fps: tuning.fps,
     renderFrame: ({ time, width, height, reducedMotion }) => {
       if (state.disposed) {
         return;
@@ -562,6 +586,13 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", op
 
       if (!width || !height || !items.length) {
         ctx.clearRect(0, 0, width || 0, height || 0);
+        return;
+      }
+
+      const loadedItemCount = getLoadedItemCount(items);
+
+      if (!loadedItemCount) {
+        drawCanvasLoadingState(ctx, width, height);
         return;
       }
 
@@ -590,6 +621,7 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", op
 
   return createDisposeHandle(() => {
     state.disposed = true;
+    items.cancel?.();
     dispose();
   });
 };

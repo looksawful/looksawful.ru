@@ -35,7 +35,7 @@ const config = {
 	},
 
 	preload: 260,
-	cycleGap: 14,
+	cycleGap: 0,
 
 	tallSpanRatio: 0.62,
 	portraitSpanRatio: 0.92,
@@ -271,33 +271,38 @@ const choosePlacement = ({ rows, spanRows }) => {
 	};
 };
 
+
+
+
 const createTile = ({ item, itemIndex, rows, rowHeight, padding }) => {
-	const ratio = getItemAspectRatio(item);
-	const spanRows = getSpanRows({ ratio, rowCount: rows.length });
-	const metrics = getTileMetrics({ item, rowHeight, spanRows });
-	const placement = choosePlacement({ rows, spanRows });
-	const targetRows = rows.slice(placement.startRow, placement.startRow + spanRows);
-	const nextLength = placement.x + metrics.width + config.gap;
+  const ratio = getItemAspectRatio(item);
+  const spanRows = getSpanRows({ ratio, rowCount: rows.length });
+  const metrics = getTileMetrics({ item, rowHeight, spanRows });
+  const placement = choosePlacement({ rows, spanRows });
+  const targetRows = rows.slice(placement.startRow, placement.startRow + spanRows);
+  const nextLength = placement.x + metrics.width + config.gap;
 
-	targetRows.forEach((row) => {
-		row.length = nextLength;
-	});
+  targetRows.forEach((row) => {
+    row.length = nextLength;
+  });
 
-	const row = rows[placement.startRow];
-	const xCenter = padding.left + placement.x + metrics.width * 0.5;
-	const yCenter = row.y + metrics.height * 0.5;
+  const row = rows[placement.startRow];
+  const xCenter = padding.left + placement.x + metrics.width * 0.5;
+  const yCenter = row.y + metrics.height * 0.5;
 
-	return {
-		item,
-		itemIndex,
-		ratio: metrics.ratio,
-		orientation: metrics.orientation,
-		spanRows: metrics.spanRows,
-		width: metrics.width,
-		height: metrics.height,
-		xCenter,
-		yCenter,
-	};
+  return {
+    item,
+    itemIndex,
+    startRow: placement.startRow,
+    rowIndex: placement.startRow,
+    ratio: metrics.ratio,
+    orientation: metrics.orientation,
+    spanRows: metrics.spanRows,
+    width: metrics.width,
+    height: metrics.height,
+    xCenter,
+    yCenter,
+  };
 };
 
 const buildBaseTiles = ({ items, rows, padding }) => {
@@ -331,38 +336,43 @@ const buildBaseTiles = ({ items, rows, padding }) => {
 };
 
 
-const buildLayout = ({ width, height, items, previousOffset = 0 }) => {
-	const stage = getRotatedViewportBounds({ width, height, angle: DIAGONAL_ANGLE });
-	const padding = getPadding();
-	const visibleRowCount = getRowCount({ height, itemCount: Math.max(items.length, 8), padding });
-	const visibleInnerHeight = getInnerHeight(height, padding);
-	const visibleTotalGap = config.gap * Math.max(0, visibleRowCount - 1);
-	const targetRowHeight = Math.max(1, (visibleInnerHeight - visibleTotalGap) / visibleRowCount);
-	const stageInnerHeight = getInnerHeight(stage.height, padding);
-	const stageRowCount = Math.max(1, Math.ceil((stageInnerHeight + config.gap) / (targetRowHeight + config.gap)));
-	const rows = buildRows({ height: stage.height, count: stageRowCount, padding }).map((row) => ({
-		...row,
-		requiredLength: stage.width + config.preload * 2,
-	}));
-	const tiles = buildBaseTiles({ items, rows, padding });
-	const contentLength = Math.max(...rows.map((row) => row.length), 1);
-	const cycleLength = Math.max(1, contentLength + config.cycleGap);
 
-	return {
-		width,
-		height,
-		stageWidth: stage.width,
-		stageHeight: stage.height,
-		padding,
-		rows,
-		rowCount: stageRowCount,
-		visibleRowCount,
-		tiles,
-		items,
-		cycleLength,
-		offset: previousOffset % cycleLength,
-		directionSign: getDirectionSign(),
-	};
+const buildLayout = ({ width, height, items, previousOffset = 0 }) => {
+  const stage = getRotatedViewportBounds({ width, height, angle: DIAGONAL_ANGLE });
+  const padding = getPadding();
+  const visibleRowCount = getRowCount({ height, itemCount: Math.max(items.length, 8), padding });
+  const visibleInnerHeight = getInnerHeight(height, padding);
+  const visibleTotalGap = config.gap * Math.max(0, visibleRowCount - 1);
+  const targetRowHeight = Math.max(1, (visibleInnerHeight - visibleTotalGap) / visibleRowCount);
+  const stageInnerHeight = getInnerHeight(stage.height, padding);
+  const stageRowCount = Math.max(1, Math.ceil((stageInnerHeight + config.gap) / (targetRowHeight + config.gap)));
+  const requiredLength = stage.width + config.preload * 2;
+
+  const rows = buildRows({ height: stage.height, count: stageRowCount, padding }).map((row) => ({
+    ...row,
+    requiredLength,
+  }));
+
+  const tiles = buildBaseTiles({ items, rows, padding });
+  const rowCycleLengths = rows.map((row) => Math.max(1, row.length + config.gap));
+  const cycleLength = Math.max(...rowCycleLengths, 1);
+
+  return {
+    width,
+    height,
+    stageWidth: stage.width,
+    stageHeight: stage.height,
+    padding,
+    rows,
+    rowCount: stageRowCount,
+    visibleRowCount,
+    tiles,
+    items,
+    rowCycleLengths,
+    cycleLength,
+    offset: previousOffset % cycleLength,
+    directionSign: getDirectionSign(),
+  };
 };
 
 const updateLayout = ({ layout, dt, reducedMotion }) => {
@@ -382,30 +392,43 @@ const updateLayout = ({ layout, dt, reducedMotion }) => {
 const getTileLeft = (tile, shift) => tile.xCenter + shift - tile.width * 0.5;
 const getTileTop = (tile) => tile.yCenter - tile.height * 0.5;
 
+
+
+
+
 const getVisibleTiles = ({ layout }) => {
-	if (!layout?.tiles || !layout?.stageWidth) {
-		return [];
-	}
+  if (!layout?.tiles?.length || !layout?.cycleLength) {
+    return [];
+  }
 
-	const visibleTiles = [];
-	const passCount = Math.ceil((layout.stageWidth + config.preload * 2 + layout.cycleLength) / layout.cycleLength) + 2;
+  const visibleTiles = [];
+  const stageWidth = layout.stageWidth || layout.width || 1;
+  const passCount = Math.min(
+    config.maxPasses || 10,
+    Math.ceil((stageWidth + config.preload * 2 + layout.cycleLength * 2) / layout.cycleLength) + 4,
+  );
+  const maxDrawItems = config.maxDrawItems || 520;
 
-	for (let pass = -1; pass <= passCount; pass += 1) {
-		const shift = pass * layout.cycleLength + layout.directionSign * layout.offset;
+  for (let pass = -passCount; pass <= passCount; pass += 1) {
+    const shift = pass * layout.cycleLength + layout.directionSign * layout.offset;
 
-		layout.tiles.forEach((tile) => {
-			const x = getTileLeft(tile, shift);
-			const y = getTileTop(tile);
+    for (const tile of layout.tiles) {
+      const x = getTileLeft(tile, shift);
+      const y = getTileTop(tile);
 
-			if (x + tile.width < -config.preload || x > layout.stageWidth + config.preload) {
-				return;
-			}
+      if (x + tile.width < -config.preload || x > stageWidth + config.preload) {
+        continue;
+      }
 
-			visibleTiles.push({ tile, x, y, pass });
-		});
-	}
+      visibleTiles.push({ tile, x, y, pass });
 
-	return visibleTiles.sort((a, b) => a.x - b.x || a.y - b.y || a.tile.itemIndex - b.tile.itemIndex);
+      if (visibleTiles.length >= maxDrawItems) {
+        return visibleTiles;
+      }
+    }
+  }
+
+  return visibleTiles;
 };
 
 const getDrawableItem = ({ tile }) => tile.item;

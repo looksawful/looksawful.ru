@@ -1,36 +1,41 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
-import jesteiLogoSvg from "../../assets/cv/logos/jestei-logo.svg?raw";
-import {
-  createFrameTimer,
-  disposeMaterial,
-  disposeObjectResources,
-  resizePerspectiveRenderer,
-} from "../../visuals/shared/three-rendering.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const STYLE_ID = "logo-inspector-3d-styles";
 
 const DEFAULT_VARIANTS = [
-  { id: "brand-orange", label: "для клубных диджеев", color: "#F18200" },
-  { id: "event-pear", label: "для ивент диджеев", color: "#D1E231" },
-  { id: "pro-blue", label: "для подписчиков про тарифа", color: "#157AFF" },
+  {
+    id: "club",
+    theme: "Клуб",
+    token: "Gold Drop",
+    hex: "#E18200",
+    color: "#E18200",
+    palette: ["#FFE3B1", "#FFBE4A", "#E18200", "#B76600", "#7A4200", "#2A1600"],
+  },
+  {
+    id: "event",
+    theme: "Ивент",
+    token: "Pear",
+    hex: "#D1E231",
+    color: "#D1E231",
+    palette: ["#F4FFB8", "#EAF85A", "#D1E231", "#A1B314", "#5E6A08", "#1A2000"],
+  },
+  {
+    id: "pro",
+    theme: "Про",
+    token: "Dodger Blue",
+    hex: "#157AFF",
+    color: "#157AFF",
+    palette: ["#D8ECFF", "#74B8FF", "#157AFF", "#0D55C8", "#082F78", "#050C22"],
+  },
 ];
 
-const DEFAULT_CAMERA = { fov: 30, near: 0.1, far: 100, distance: 6.2 };
-const ROTATE_SPEED_X = 0.008;
-const ROTATE_SPEED_Y = 0.01;
-const WHEEL_ZOOM_SPEED = 0.0025;
-const AUTO_SPIN_SPEED = 0.62;
-const MIN_DISTANCE = 3.4;
-const MAX_DISTANCE = 9.2;
-
-function getLogoIconSvg(color) {
-  return jesteiLogoSvg
-    .replace("<svg", '<svg class="logo-inspector-3d__icon" aria-hidden="true" focusable="false"')
-    .replace(/fill="#151718"/g, `fill="${color}"`);
-}
+const CAMERA_DISTANCE = 8;
+const IDLE_SPIN_SPEED = 0.42;
+const DRAG_ROTATE_SPEED = 0.008;
+const RETURN_EASE = 0.08;
 
 function injectStyles() {
   if (document.getElementById(STYLE_ID)) return;
@@ -40,25 +45,36 @@ function injectStyles() {
   style.textContent = `
     .logo-inspector-3d {
       position: relative;
+      display: block;
       width: 100%;
       min-width: 0;
-      height: clamp(20rem, 44vw, var(--logo-inspector-max-height, 36rem));
-      min-height: min(var(--logo-inspector-min-height, 22rem), 72vh);
-      max-height: min(var(--logo-inspector-max-height, 38rem), 76vh);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 8px;
-      background: #050505;
+      height: clamp(20rem, 44vw, 38rem);
+      min-height: min(22rem, 72vh);
+      max-height: min(38rem, 76vh);
       overflow: hidden;
       contain: layout paint;
       isolation: isolate;
+      border-radius: 8px;
+      color: #f4f4f0;
+      background: #050505;
     }
 
     .logo-inspector-3d__canvas {
       position: absolute;
+      z-index: 1;
       inset: 0;
-      touch-action: none;
-      cursor: grab;
       min-width: 0;
+      cursor: default;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .logo-inspector-3d__canvas.is-hovering {
+      cursor: grab;
+    }
+
+    .logo-inspector-3d__canvas.is-dragging {
+      cursor: grabbing;
     }
 
     .logo-inspector-3d__canvas canvas {
@@ -69,156 +85,204 @@ function injectStyles() {
       max-height: 100%;
     }
 
-    .logo-inspector-3d__canvas.is-dragging {
-      cursor: grabbing;
-    }
 
-    .logo-inspector-3d__controls {
+
+    .logo-inspector-3d__overlay {
       position: absolute;
-      left: 50%;
-      bottom: 16px;
       z-index: 2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: min(100% - 88px, 42rem);
-      transform: translateX(-50%);
+      inset: 0;
+      display: grid;
+      align-items: stretch;
+      padding: clamp(1.2rem, 2.4vw, 2rem);
+      pointer-events: none;
     }
 
-    .logo-inspector-3d__controls-title {
-      margin: 0 8px 0 0;
-      color: rgba(255, 255, 255, 0.74);
-      font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    .logo-inspector-3d__columns {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(1rem, 2.4vw, 1.8rem);
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .logo-inspector-3d__column {
+      --accent: #fff;
+      --gradient-start: #fff;
+      --gradient-mid: #fff;
+      --gradient-end: #000;
+
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 18px;
+    }
+
+
+
+
+
+    .logo-inspector-3d__header {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      justify-items: center;
+      gap: 0.18rem;
+      align-self: start;
+      min-width: 0;
+      padding-block-start: clamp(0.35rem, 0.9vw, 0.75rem);
+      text-align: center;
+    }
+
+    .logo-inspector-3d__color-name {
+      color: var(--accent);
+      font-size: clamp(1.15rem, 1.8vw, 1.75rem);
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0.025em;
+      text-transform: uppercase;
+      text-shadow: 0 0 22px color-mix(in srgb, var(--accent) 22%, transparent);
       white-space: nowrap;
     }
 
-    .logo-inspector-3d__controls-list {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-width: 0;
+    .logo-inspector-3d__theme {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: clamp(0.66rem, 0.8vw, 0.82rem);
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
-    .logo-inspector-3d__chip {
+    .logo-inspector-3d__token-list {
+      position: relative;
+      z-index: 2;
+      align-self: end;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.56rem 0.64rem;
+      min-width: 0;
+      padding: 0.8rem 0.9rem 1rem;
+      margin-block-end: clamp(0.1rem, 0.35vw, 0.4rem);
+    }
+
+    .logo-inspector-3d__token-item {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 34px;
-      padding: 6px 12px;
-      border: 1px solid rgba(17, 17, 17, 0.18);
+      gap: 0.38rem;
+      min-width: 0;
+      padding: 0.38rem 0.6rem 0.4rem 0.46rem;
+      border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.9);
-      color: #151718;
-      font: 500 13px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      cursor: pointer;
-      box-shadow: 0 6px 18px rgba(17, 17, 17, 0.06);
-      transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+      color: rgba(255, 255, 255, 0.76);
+      background: rgba(255, 255, 255, 0.045);
+      box-shadow:
+        0 0 18px color-mix(in srgb, var(--accent) 8%, transparent),
+        inset 0 0 0 1px rgba(255,255,255,0.02);
+      backdrop-filter: blur(10px);
     }
 
-    .logo-inspector-3d__chip:hover {
-      border-color: rgba(17, 17, 17, 0.42);
-      background: #fff;
-    }
-
-    .logo-inspector-3d__chip.is-active {
-      border-color: rgba(21, 122, 255, 0.72);
-      box-shadow: 0 0 0 3px rgba(21, 122, 255, 0.14), 0 10px 24px rgba(17, 17, 17, 0.08);
-      background: #fff;
-    }
-
-    .logo-inspector-3d__icon {
-      width: 18px;
-      height: 18px;
+    .logo-inspector-3d__dot {
+      width: clamp(0.56rem, 0.72vw, 0.72rem);
+      aspect-ratio: 1;
       flex: 0 0 auto;
-      display: block;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      background: var(--dot);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--dot) 32%, transparent);
     }
 
-    .logo-inspector-3d__arrow {
-      position: absolute;
-      top: 50%;
-      z-index: 3;
-      width: 38px;
-      height: 38px;
-      border: 1px solid rgba(17, 17, 17, 0.08);
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 4px 14px rgba(17, 17, 17, 0.08);
-      cursor: pointer;
-      transform: translateY(-50%);
+    .logo-inspector-3d__hex {
+      font-size: clamp(0.52rem, 0.62vw, 0.66rem);
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
     }
 
-    .logo-inspector-3d__arrow::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      width: 7px;
-      height: 7px;
-      margin: auto;
-      border-top: 2px solid #111;
-      border-left: 2px solid #111;
-    }
+    @media (max-width: 56rem) {
+      .logo-inspector-3d__columns {
+        gap: 0.5rem;
+      }
 
-    .logo-inspector-3d__arrow--prev {
-      left: 18px;
-    }
+      .logo-inspector-3d__column::before {
+        inset: 12% 1% 16%;
+        }
 
-    .logo-inspector-3d__arrow--prev::before {
-      transform: translateX(1px) rotate(-45deg);
-    }
+      .logo-inspector-3d__color-name {
+        font-size: clamp(0.8rem, 2.35vw, 1.05rem);
+      }
 
-    .logo-inspector-3d__arrow--next {
-      right: 18px;
-    }
+      .logo-inspector-3d__theme {
+        font-size: clamp(0.48rem, 1.5vw, 0.62rem);
+      }
 
-    .logo-inspector-3d__arrow--next::before {
-      transform: translateX(-1px) rotate(135deg);
+      .logo-inspector-3d__token-list {
+        gap: 0.34rem;
+        padding: 0.55rem 0.25rem 0.7rem;
+      }
+
+      .logo-inspector-3d__token-item {
+        gap: 0.26rem;
+        padding: 0.26rem 0.42rem 0.28rem 0.34rem;
+      }
+
+      .logo-inspector-3d__hex {
+        font-size: clamp(0.42rem, 1.2vw, 0.52rem);
+      }
     }
 
     .logo-inspector-3d__status {
       position: absolute;
-      right: 16px;
-      top: 16px;
-      z-index: 2;
-      padding: 6px 10px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.9);
-      color: #404040;
-      font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      border: 1px solid #c2c2c2;
+      z-index: 4;
+      inset-block-start: 16px;
+      inset-inline-end: 16px;
+      max-width: min(22rem, calc(100% - 32px));
+      padding: 0.4rem 0.58rem 0.45rem;
+      border: 1px solid rgba(255, 115, 115, 0.38);
+      border-radius: 999px;
+      color: #ffd2d2;
+      background: rgba(130, 0, 0, 0.22);
+      font-size: 0.7rem;
+      font-weight: 600;
+      line-height: 1;
+      pointer-events: none;
+      backdrop-filter: blur(14px);
     }
 
     .logo-inspector-3d__status[hidden] {
       display: none;
     }
 
-    .logo-inspector-3d__status.is-error {
-      color: #991b1b;
-      border-color: #efb6b6;
-      background: rgba(255, 242, 242, 0.95);
-    }
-
-    @media (max-width: 640px) {
-      .logo-inspector-3d__controls {
-        bottom: 12px;
-        width: calc(100% - 24px);
-        overflow-x: auto;
-        justify-content: flex-start;
-        scrollbar-width: none;
+    @media (max-width: 56rem) {
+      .logo-inspector-3d {
+        height: clamp(34rem, 104vw, 48rem);
+        max-height: none;
       }
 
-      .logo-inspector-3d__controls::-webkit-scrollbar {
-        display: none;
+      .logo-inspector-3d__labels {
+        margin-block-end: clamp(4.4rem, 12vw, 6rem);
       }
 
-      .logo-inspector-3d__controls-title {
-        display: none;
+      .logo-inspector-3d__theme {
+        font-size: clamp(0.66rem, 2.2vw, 0.86rem);
       }
 
-      .logo-inspector-3d__arrow {
-        display: none;
+      .logo-inspector-3d__token {
+        font-size: clamp(0.48rem, 1.7vw, 0.62rem);
+      }
+
+      .logo-inspector-3d__swatches {
+        gap: 0.5rem;
+      }
+
+      .logo-inspector-3d__swatch-group {
+        gap: 0.22rem;
+        padding: 0.28rem 0.34rem;
       }
     }
   `;
@@ -235,62 +299,159 @@ function createFallbackMesh() {
   const outer = new THREE.Mesh(new THREE.TorusGeometry(1.25, 0.3, 72, 180));
   const inner = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.2, 56, 140));
   const plate = new THREE.Mesh(new THREE.BoxGeometry(0.4, 2.6, 0.18));
+
   plate.position.set(1.45, -0.18, 0);
   group.add(outer, inner, plate);
+
   return group;
 }
 
-function centerAndScaleObject(object) {
+function traverseMeshes(object, callback) {
+  object.traverse((child) => {
+    if (child instanceof THREE.Mesh) callback(child);
+  });
+}
+
+function disposeMaterial(material, textureCache, materialCache) {
+  if (!material || materialCache.has(material)) return;
+
+  for (const value of Object.values(material)) {
+    if (value instanceof THREE.Texture && !textureCache.has(value)) {
+      textureCache.add(value);
+      value.dispose();
+    }
+  }
+
+  materialCache.add(material);
+  material.dispose();
+}
+
+function disposeObjectResources(object, cache = {}) {
+  const geometries = cache.geometries || new Set();
+  const textures = cache.textures || new Set();
+  const materials = cache.materials || new Set();
+
+  traverseMeshes(object, (mesh) => {
+    if (mesh.geometry && !geometries.has(mesh.geometry)) {
+      geometries.add(mesh.geometry);
+      mesh.geometry.dispose();
+    }
+
+    if (Array.isArray(mesh.material)) {
+      mesh.material.forEach((material) => disposeMaterial(material, textures, materials));
+    } else {
+      disposeMaterial(mesh.material, textures, materials);
+    }
+  });
+
+  cache.geometries = geometries;
+  cache.textures = textures;
+  cache.materials = materials;
+
+  return cache;
+}
+
+function centerAndScaleObject(object, targetSize = 2.35) {
   object.updateWorldMatrix(true, true);
+
   const bounds = new THREE.Box3().setFromObject(object);
   const center = bounds.getCenter(new THREE.Vector3());
   const size = bounds.getSize(new THREE.Vector3());
   const maxDimension = Math.max(size.x, size.y, size.z, 0.001);
-  const scale = 2.45 / maxDimension;
+  const scale = targetSize / maxDimension;
+
   object.position.sub(center);
   object.scale.multiplyScalar(scale);
   object.updateWorldMatrix(true, true);
 }
 
-function traverseMeshes(object, onMesh) {
-  object.traverse((child) => {
-    if (child instanceof THREE.Mesh) onMesh(child);
-  });
-}
-
-function applyVariantColor(root, hexColor, renderer) {
-  const color = new THREE.Color(hexColor);
+function applyVariantColor(root, colorValue, logoGroup) {
+  const color = new THREE.Color(colorValue);
 
   traverseMeshes(root, (mesh) => {
-    const previousMaterial = mesh.material;
-
     mesh.geometry?.computeVertexNormals?.();
-
-    const material = new THREE.MeshPhysicalMaterial({
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
+    mesh.userData.logoGroup = logoGroup;
+    mesh.material = new THREE.MeshPhysicalMaterial({
       color,
       roughness: 0.34,
       metalness: 0.64,
       clearcoat: 0.42,
       clearcoatRoughness: 0.36,
       envMapIntensity: 1.24,
+      side: THREE.FrontSide,
+    });
+  });
+}
+
+function createVariantLogo(sourceRoot, variant, index) {
+  const group = new THREE.Group();
+  const root = sourceRoot.clone(true);
+
+  group.name = `logo-${variant.id}`;
+  group.userData.variant = variant;
+  group.userData.index = index;
+  group.userData.baseRotationX = 0.18;
+  group.userData.baseRotationY = -0.2 + index * 0.2;
+  group.userData.baseRotationZ = -0.08;
+  group.userData.hasManualRotation = false;
+
+  root.position.set(0, 0, 0);
+  root.rotation.set(0, 0, 0);
+  root.scale.set(1, 1, 1);
+
+  applyVariantColor(root, variant.color, group);
+
+  group.add(root);
+  group.rotation.set(group.userData.baseRotationX, group.userData.baseRotationY, group.userData.baseRotationZ);
+
+  return group;
+}
+
+
+
+function createSimpleOverlay(variants) {
+  const overlay = document.createElement("div");
+  overlay.className = "logo-inspector-3d__overlay";
+
+  const columns = document.createElement("div");
+  columns.className = "logo-inspector-3d__columns";
+
+  variants.slice(0, 3).forEach((variant) => {
+    const column = document.createElement("div");
+    column.className = "logo-inspector-3d__column";
+    column.style.setProperty("--accent", variant.color);
+    column.style.setProperty("--gradient-start", variant.palette[0]);
+    column.style.setProperty("--gradient-mid", variant.palette[2]);
+    column.style.setProperty("--gradient-end", variant.palette[5]);
+
+    const header = document.createElement("div");
+    header.className = "logo-inspector-3d__header";
+    header.innerHTML = `
+      <span class="logo-inspector-3d__color-name">${variant.token}</span>
+      <span class="logo-inspector-3d__theme">${variant.theme}</span>
+    `;
+
+    const tokenList = document.createElement("div");
+    tokenList.className = "logo-inspector-3d__token-list";
+
+    variant.palette.forEach((color) => {
+      const token = document.createElement("span");
+      token.className = "logo-inspector-3d__token-item";
+      token.innerHTML = `
+        <span class="logo-inspector-3d__dot" style="--dot: ${color}"></span>
+        <span class="logo-inspector-3d__hex">${color}</span>
+      `;
+      tokenList.appendChild(token);
     });
 
-    material.side = THREE.FrontSide;
-
-    if (renderer?.capabilities && material.map) {
-      material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    }
-
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    mesh.material = material;
-
-    if (Array.isArray(previousMaterial)) {
-      previousMaterial.forEach(disposeMaterial);
-    } else {
-      disposeMaterial(previousMaterial);
-    }
+    column.append(header, tokenList);
+    columns.appendChild(column);
   });
+
+  overlay.appendChild(columns);
+  return overlay;
 }
 
 async function loadModel(modelUrl) {
@@ -315,234 +476,245 @@ export function createLogoInspector3D(target, options = {}) {
   injectStyles();
 
   const host = typeof target === "string" ? document.querySelector(target) : target;
+
   if (!host) {
     throw new Error("createLogoInspector3D: target not found");
   }
 
-  const {
-    modelUrl = "./logo.glb",
-    variants = DEFAULT_VARIANTS,
-    initialVariantId = variants[0]?.id,
-    minHeight = 520,
-    background = "#050505",
-    autoSpin = true,
-  } = options;
+  const { modelUrl = "./logo.glb", variants = DEFAULT_VARIANTS, background = "#050505" } = options;
+
+  host.textContent = "";
 
   const root = document.createElement("section");
   root.className = "logo-inspector-3d";
-  const safeMinHeight = clamp(Number(minHeight) || 520, 280, 560);
-  const safeMaxHeight = clamp(safeMinHeight + 120, 360, 680);
-  root.style.setProperty("--logo-inspector-min-height", `${safeMinHeight}px`);
-  root.style.setProperty("--logo-inspector-max-height", `${safeMaxHeight}px`);
   root.style.background = background;
 
   const canvasHost = document.createElement("div");
   canvasHost.className = "logo-inspector-3d__canvas";
 
-  const prevButton = document.createElement("button");
-  prevButton.type = "button";
-  prevButton.className = "logo-inspector-3d__arrow logo-inspector-3d__arrow--prev";
-  prevButton.setAttribute("aria-label", "Предыдущий цвет логотипа");
-
-  const nextButton = document.createElement("button");
-  nextButton.type = "button";
-  nextButton.className = "logo-inspector-3d__arrow logo-inspector-3d__arrow--next";
-  nextButton.setAttribute("aria-label", "Следующий цвет логотипа");
-
-  const controls = document.createElement("div");
-  controls.className = "logo-inspector-3d__controls";
-
-  const controlsTitle = document.createElement("p");
-  controlsTitle.className = "logo-inspector-3d__controls-title";
-  controlsTitle.textContent = "цветовые темы и тарифы";
-
-  const controlsList = document.createElement("div");
-  controlsList.className = "logo-inspector-3d__controls-list";
-  controls.append(controlsTitle, controlsList);
+  const overlay = createSimpleOverlay(variants);
 
   const status = document.createElement("div");
   status.className = "logo-inspector-3d__status";
   status.hidden = true;
 
-  root.append(canvasHost, prevButton, nextButton, controls, status);
+  root.append(canvasHost, overlay, status);
   host.appendChild(root);
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(background);
 
-  const camera = new THREE.PerspectiveCamera(DEFAULT_CAMERA.fov, 1, DEFAULT_CAMERA.near, DEFAULT_CAMERA.far);
-  const baseDirection = new THREE.Vector3(3.2, 2.35, 5.1).normalize();
-  let cameraDistance = DEFAULT_CAMERA.distance;
-
-  const updateCamera = () => {
-    cameraDistance = clamp(cameraDistance, MIN_DISTANCE, MAX_DISTANCE);
-    camera.position.copy(baseDirection.clone().multiplyScalar(cameraDistance));
-    camera.lookAt(0, 0, 0);
-  };
-
-  updateCamera();
+  const camera = new THREE.OrthographicCamera(-3.3, 3.3, 1.9, -1.9, 0.1, 100);
+  camera.position.set(0, 0, CAMERA_DISTANCE);
+  camera.lookAt(0, 0, 0);
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: false,
     powerPreference: "high-performance",
   });
-  const pmremGenerator = new THREE.PMREMGenerator(renderer);
 
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.04;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
 
+  const pmremGenerator = new THREE.PMREMGenerator(renderer);
   const environmentTexture = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environment = environmentTexture;
+
   canvasHost.appendChild(renderer.domElement);
 
   const stage = new THREE.Group();
-  const spinner = new THREE.Group();
-  stage.rotation.x = 0.36;
-  stage.rotation.z = -0.18;
-  stage.add(spinner);
+  stage.rotation.x = 0.24;
+  stage.rotation.z = -0.04;
   scene.add(stage);
 
-  const ambient = new THREE.AmbientLight("#ffffff", 0.3);
+  scene.add(new THREE.AmbientLight("#ffffff", 0.34));
+
   const key = new THREE.DirectionalLight("#ffffff", 2.4);
-  const fill = new THREE.DirectionalLight("#dbe9ff", 0.74);
-  const rim = new THREE.DirectionalLight("#fff2d2", 1.3);
+  const fill = new THREE.DirectionalLight("#dbe9ff", 0.72);
+  const rim = new THREE.DirectionalLight("#fff2d2", 1.2);
 
   key.position.set(4.8, 4.4, 5);
   fill.position.set(-4, 1.8, 3.4);
   rim.position.set(-4.4, 5.2, -4.8);
-  scene.add(ambient, key, fill, rim);
+  scene.add(key, fill, rim);
 
-  let meshRoot = null;
-  let activeVariantIndex = Math.max(0, variants.findIndex((variant) => variant.id === initialVariantId));
-  let autoSpinAngle = 0;
-  const dragRotation = { x: 0, y: 0 };
-  let paused = false;
-  let pointerDown = false;
-  let lastPointer = { x: 0, y: 0 };
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+
+  let sourceRoot = null;
+  let hoveredLogo = null;
+  let draggedLogo = null;
+  let lastPointerX = 0;
+  let lastPointerY = 0;
   let raf = 0;
   let destroyed = false;
+  let lastTime = performance.now();
 
-  const setStatus = (text, isError = false) => {
+  const setStatus = (text) => {
     status.textContent = text;
-    status.classList.toggle("is-error", isError);
-    status.hidden = !isError;
+    status.hidden = !text;
   };
 
-  const setVariant = (variantId) => {
-    const nextIndex = variants.findIndex((variant) => variant.id === variantId);
-    activeVariantIndex = nextIndex >= 0 ? nextIndex : 0;
-    const variant = variants[activeVariantIndex];
+  const getLogoFromObject = (object) => {
+    let current = object;
 
-    controls.querySelectorAll("button").forEach((button) => {
-      button.classList.toggle("is-active", button.dataset.variantId === variant.id);
-    });
-
-    if (meshRoot) {
-      applyVariantColor(meshRoot, variant.color, renderer);
+    while (current) {
+      if (current.userData?.variant) return current;
+      if (current.userData?.logoGroup) return current.userData.logoGroup;
+      current = current.parent;
     }
+
+    return null;
   };
 
-  const shiftVariant = (direction) => {
-    const nextIndex = (activeVariantIndex + direction + variants.length) % variants.length;
-    setVariant(variants[nextIndex].id);
+  const pickLogo = (event) => {
+    const rect = renderer.domElement.getBoundingClientRect();
+
+    if (!rect.width || !rect.height) {
+      return null;
+    }
+
+    pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(pointer, camera);
+
+    const intersections = raycaster.intersectObjects(stage.children, true);
+    return intersections.length ? getLogoFromObject(intersections[0].object) : null;
   };
 
-  variants.forEach((variant) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "logo-inspector-3d__chip";
-    button.dataset.variantId = variant.id;
-    button.innerHTML = `${getLogoIconSvg(variant.color)}<span>${variant.label}</span>`;
-    button.addEventListener("click", () => setVariant(variant.id));
-    controlsList.appendChild(button);
-  });
+  const updateHover = (event) => {
+    if (draggedLogo) return;
 
-  prevButton.addEventListener("click", () => shiftVariant(-1));
-  nextButton.addEventListener("click", () => shiftVariant(1));
+    hoveredLogo = pickLogo(event);
+    canvasHost.classList.toggle("is-hovering", Boolean(hoveredLogo));
+  };
 
-  const resizeState = { width: 0, height: 0, pixelRatio: 0 };
+  const clearHover = () => {
+    if (draggedLogo) return;
+
+    hoveredLogo = null;
+    canvasHost.classList.remove("is-hovering");
+  };
+
+  const handlePointerDown = (event) => {
+    const logo = pickLogo(event);
+
+    if (!logo) {
+      return;
+    }
+
+    event.preventDefault();
+
+    draggedLogo = logo;
+    hoveredLogo = logo;
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+    logo.userData.hasManualRotation = true;
+
+    canvasHost.classList.add("is-hovering", "is-dragging");
+    renderer.domElement.setPointerCapture?.(event.pointerId);
+  };
+
+  const handlePointerMove = (event) => {
+    if (!draggedLogo) {
+      updateHover(event);
+      return;
+    }
+
+    event.preventDefault();
+
+    const dx = event.clientX - lastPointerX;
+    const dy = event.clientY - lastPointerY;
+
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+
+    draggedLogo.rotation.y += dx * DRAG_ROTATE_SPEED;
+    draggedLogo.rotation.x = clamp(
+      draggedLogo.rotation.x + dy * DRAG_ROTATE_SPEED,
+      -Math.PI * 0.62,
+      Math.PI * 0.62,
+    );
+  };
+
+  const handlePointerUp = (event) => {
+    if (!draggedLogo) {
+      return;
+    }
+
+    renderer.domElement.releasePointerCapture?.(event.pointerId);
+    draggedLogo = null;
+    canvasHost.classList.remove("is-dragging");
+    updateHover(event);
+  };
+
+  const layoutLogos = () => {
+    const width = Math.max(canvasHost.clientWidth || root.clientWidth || 1, 1);
+    const height = Math.max(canvasHost.clientHeight || root.clientHeight || 1, 1);
+    const aspect = width / height;
+    const compact = width < 760;
+    const viewWidth = compact ? 5.8 : 6.8;
+    const viewHeight = viewWidth / Math.max(aspect, 0.48);
+
+    camera.left = -viewWidth * 0.5;
+    camera.right = viewWidth * 0.5;
+    camera.top = viewHeight * 0.5;
+    camera.bottom = -viewHeight * 0.5;
+    camera.updateProjectionMatrix();
+
+    const spacing = compact ? 1.78 : 2.16;
+    const scale = compact ? 0.68 : 0.84;
+    const y = compact ? 0.08 : 0.12;
+
+    stage.children.forEach((logo, index) => {
+      logo.position.set((index - 1) * spacing, y, 0);
+      logo.scale.setScalar(scale);
+    });
+  };
 
   const resize = () => {
-    const rootBounds = root.getBoundingClientRect();
+    const bounds = canvasHost.getBoundingClientRect();
+    const width = Math.max(Math.floor(bounds.width || canvasHost.clientWidth || 1), 1);
+    const height = Math.max(Math.floor(bounds.height || canvasHost.clientHeight || 1), 1);
 
-    resizePerspectiveRenderer(renderer, camera, canvasHost, resizeState, {
-      fallbackWidth: rootBounds.width || 1,
-      fallbackHeight: rootBounds.height || safeMinHeight || 1,
-      maxPixelRatio: 2,
-    });
+    renderer.setSize(width, height, false);
+    layoutLogos();
   };
 
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(canvasHost);
-  resize();
 
-  const onPointerDown = (event) => {
-    pointerDown = true;
-    paused = true;
-    lastPointer = { x: event.clientX, y: event.clientY };
-    canvasHost.classList.add("is-dragging");
-    renderer.domElement.setPointerCapture?.(event.pointerId);
-  };
+  renderer.domElement.addEventListener("pointerdown", handlePointerDown);
+  renderer.domElement.addEventListener("pointermove", handlePointerMove);
+  renderer.domElement.addEventListener("pointerup", handlePointerUp);
+  renderer.domElement.addEventListener("pointercancel", handlePointerUp);
+  renderer.domElement.addEventListener("pointerleave", clearHover);
 
-  const onPointerMove = (event) => {
-    if (!pointerDown) return;
-
-    const dx = event.clientX - lastPointer.x;
-    const dy = event.clientY - lastPointer.y;
-    lastPointer = { x: event.clientX, y: event.clientY };
-
-    dragRotation.y += dx * ROTATE_SPEED_Y;
-    dragRotation.x += dy * ROTATE_SPEED_X;
-    dragRotation.x = clamp(dragRotation.x, -0.55, 0.55);
-  };
-
-  const onPointerUp = (event) => {
-    pointerDown = false;
-    paused = false;
-    canvasHost.classList.remove("is-dragging");
-
-    if (renderer.domElement.hasPointerCapture?.(event.pointerId)) {
-      renderer.domElement.releasePointerCapture?.(event.pointerId);
-    }
-  };
-
-  const onWheel = (event) => {
-    event.preventDefault();
-    cameraDistance += event.deltaY * WHEEL_ZOOM_SPEED;
-    updateCamera();
-  };
-
-  renderer.domElement.addEventListener("pointerdown", onPointerDown);
-  renderer.domElement.addEventListener("pointermove", onPointerMove);
-  renderer.domElement.addEventListener("pointerup", onPointerUp);
-  renderer.domElement.addEventListener("pointercancel", onPointerUp);
-  renderer.domElement.addEventListener("wheel", onWheel, { passive: false });
-
-  const frameTimer = createFrameTimer();
-
-  const renderLoop = () => {
+  const renderLoop = (time) => {
     if (destroyed) return;
 
-    const { delta, elapsed } = frameTimer.tick();
+    const delta = clamp((time - lastTime) / 1000, 0, 0.05);
+    lastTime = time;
 
-    resize();
+    stage.children.forEach((logo) => {
+      const isPausedByUser = logo === hoveredLogo || logo === draggedLogo;
 
-    if (autoSpin && !paused) {
-      autoSpinAngle += delta * AUTO_SPIN_SPEED;
-      stage.rotation.y = Math.sin(elapsed * 0.22) * 0.12;
-    }
+      if (!isPausedByUser) {
+        logo.rotation.y += delta * IDLE_SPIN_SPEED;
+      }
 
-    spinner.rotation.y = autoSpinAngle + dragRotation.y;
-    spinner.rotation.x = dragRotation.x;
+      if (!logo.userData.hasManualRotation && !isPausedByUser) {
+        logo.rotation.x += (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
+        logo.rotation.z += (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
+      }
+    });
 
     renderer.render(scene, camera);
     raf = requestAnimationFrame(renderLoop);
   };
-
-  setVariant(variants[activeVariantIndex]?.id);
-  renderLoop();
 
   loadModel(modelUrl)
     .then((loadedRoot) => {
@@ -551,50 +723,60 @@ export function createLogoInspector3D(target, options = {}) {
         return;
       }
 
-      meshRoot = loadedRoot;
-      centerAndScaleObject(meshRoot);
-      spinner.add(meshRoot);
-      setVariant(variants[activeVariantIndex]?.id);
+      sourceRoot = loadedRoot;
+      centerAndScaleObject(sourceRoot, 2.35);
+
+      variants.slice(0, 3).forEach((variant, index) => {
+        stage.add(createVariantLogo(sourceRoot, variant, index));
+      });
+
+      layoutLogos();
     })
     .catch((error) => {
       console.error(error);
+
       if (destroyed) return;
 
-      meshRoot = createFallbackMesh();
-      centerAndScaleObject(meshRoot);
-      spinner.add(meshRoot);
-      setVariant(variants[activeVariantIndex]?.id);
-      setStatus("модель не загрузилась, показываю fallback", true);
+      sourceRoot = createFallbackMesh();
+      centerAndScaleObject(sourceRoot, 2.35);
+
+      variants.slice(0, 3).forEach((variant, index) => {
+        stage.add(createVariantLogo(sourceRoot, variant, index));
+      });
+
+      layoutLogos();
+      setStatus("модель не загрузилась, показываю fallback");
     });
+
+  resize();
+  raf = requestAnimationFrame(renderLoop);
 
   return {
     element: root,
-    setVariant,
-    resize,
-    destroy() {
+    dispose() {
       if (destroyed) return;
-      destroyed = true;
 
+      destroyed = true;
       cancelAnimationFrame(raf);
       resizeObserver.disconnect();
 
-      renderer.domElement.removeEventListener("pointerdown", onPointerDown);
-      renderer.domElement.removeEventListener("pointermove", onPointerMove);
-      renderer.domElement.removeEventListener("pointerup", onPointerUp);
-      renderer.domElement.removeEventListener("pointercancel", onPointerUp);
-      renderer.domElement.removeEventListener("wheel", onWheel);
+      renderer.domElement.removeEventListener("pointerdown", handlePointerDown);
+      renderer.domElement.removeEventListener("pointermove", handlePointerMove);
+      renderer.domElement.removeEventListener("pointerup", handlePointerUp);
+      renderer.domElement.removeEventListener("pointercancel", handlePointerUp);
+      renderer.domElement.removeEventListener("pointerleave", clearHover);
 
-      if (meshRoot) {
-        spinner.remove(meshRoot);
-        disposeObjectResources(meshRoot);
+      const cache = {};
+      disposeObjectResources(stage, cache);
+
+      if (sourceRoot) {
+        disposeObjectResources(sourceRoot, cache);
       }
 
-      environmentTexture.dispose?.();
+      environmentTexture.dispose();
       pmremGenerator.dispose();
       renderer.dispose();
       root.remove();
     },
   };
 }
-
-

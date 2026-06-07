@@ -8,6 +8,7 @@ import {
   loadImage,
   noop,
   roundedRect,
+  limitAnimationItems,
 } from "../../shared/canvas-animation.js";
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
@@ -71,7 +72,11 @@ const getTitle = (stem) => {
   return stem.replace(/[-_]+/g, " ");
 };
 
-const cvCarouselItems = createAnimationItems(CV_ANIMATION_SCENES.lyveGraphicCarousel.modules, { getTitle });
+const cvCarouselItems = limitAnimationItems(
+  createAnimationItems(CV_ANIMATION_SCENES.lyveGraphicCarousel.modules, { getTitle }),
+  "lyveGraphicCarousel",
+  { defaultMaxItems: 12 },
+);
 
 const createDisposeHandle = (dispose = noop) => {
   const handle = () => dispose();

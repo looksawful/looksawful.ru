@@ -1,13 +1,14 @@
 import {
-	beginMount,
-	completeMount,
-	createAnimationKey,
-	createCanvasAnimation,
-	disposeCanvasAnimationsByPrefix,
-	drawRoundedCover,
-	isCurrentMount,
-	loadCoverImages,
-	noop,
+  beginMount,
+  completeMount,
+  createAnimationKey,
+  createCanvasAnimation,
+  disposeCanvasAnimationsByPrefix,
+  drawRoundedCover,
+  isCurrentMount,
+  loadCoverImages,
+  noop,
+  limitAnimationItems,
 } from "../../shared/canvas-animation.js";
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
@@ -17,7 +18,7 @@ const SPIRAL_ITEM_LIMIT = 5;
 
 const getSpiralUrls = (sceneId = DEFAULT_SPIRAL_SCENE) => {
 	const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_SPIRAL_SCENE];
-	return createAnimationItems(scene.modules).slice(0, SPIRAL_ITEM_LIMIT).map((item) => item.imageUrl);
+	return limitAnimationItems(createAnimationItems(scene.modules), sceneId, { defaultMaxItems: SPIRAL_ITEM_LIMIT }).map((item) => item.imageUrl);
 };
 
 const config = {

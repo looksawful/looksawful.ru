@@ -1,13 +1,16 @@
 import {
-	beginMount,
-	completeMount,
-	createAnimationKey,
-	createCanvasAnimation,
-	disposeCanvasAnimationsByPrefix,
-	isCurrentMount,
-	loadMedia,
-	noop,
-	roundedRect,
+  beginMount,
+  completeMount,
+  createAnimationKey,
+  createCanvasAnimation,
+  disposeCanvasAnimationsByPrefix,
+  isCurrentMount,
+  loadMedia,
+  noop,
+  roundedRect,
+  limitAnimationItems,
+  getCanvasMountOptions,
+  drawCanvasLoadingState,
 } from "../../shared/canvas-animation.js";
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
@@ -282,7 +285,16 @@ export const mountMasonry = async (canvasId = "masonry-container", options = {})
 	const sceneConfig = getSceneConfig(sceneId);
 	const key = createAnimationKey(MASONRY_KEY_PREFIX, canvasId);
 	const mountToken = beginMount(key);
-	const items = loadImagesProgressive(getSceneItems(sceneId));
+	const tuning = getCanvasMountOptions(canvas, options, {
+    maxItems: 36,
+    initialCount: 12,
+    batchSize: 6,
+    fps: 30,
+  });
+  const items = loadImagesProgressive(getSceneItems(sceneId), {
+    initialCount: tuning.initialCount,
+    batchSize: tuning.batchSize,
+  });
 
 	if (!isCurrentMount(key, mountToken)) {
 		return createDisposeHandle();
@@ -294,16 +306,23 @@ export const mountMasonry = async (canvasId = "masonry-container", options = {})
 	};
 
 	const baseDispose = createCanvasAnimation({
-		key,
-		canvas,
-		ctx,
-		renderFrame: ({ time, width, height, reducedMotion }) => {
+    key,
+    canvas,
+    ctx,
+    maxDpr: tuning.maxDpr,
+    fps: tuning.fps,
+    renderFrame: ({ time, width, height, reducedMotion }) => {
 			if (state.disposed) return;
 
 			if (!width || !height || !items.length) {
 				ctx.clearRect(0, 0, width || 0, height || 0);
 				return;
-			}
+      }
+
+      if (!items.some((item) => item?.imageElement)) {
+        drawCanvasLoadingState(ctx, width, height);
+        return;
+      }
 
 			const loadedCount = getLoadedCount(items);
 			const shouldRebuild =

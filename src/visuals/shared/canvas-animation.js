@@ -7,6 +7,125 @@ const MP4_PATTERN = /\.mp4(?:$|[?#])/i;
 
 export const noop = () => {};
 
+export const getDefaultCanvasMaxDpr = () => {
+  const win = globalThis.window;
+  const nav = globalThis.navigator;
+
+  const memory = Number(nav?.deviceMemory) || 8;
+  const cores = Number(nav?.hardwareConcurrency) || 8;
+  const coarsePointer = Boolean(win?.matchMedia?.("(pointer: coarse)")?.matches);
+  const reducedMotion = Boolean(win?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);
+
+  if (reducedMotion) return 1;
+  if (memory <= 4 || cores <= 4 || coarsePointer) return 1.35;
+  return 1.75;
+};
+
+export const getCanvasQualityProfile = () => {
+  const win = globalThis.window;
+  const nav = globalThis.navigator;
+
+  const memory = Number(nav?.deviceMemory) || 8;
+  const cores = Number(nav?.hardwareConcurrency) || 8;
+  const reducedMotion = Boolean(win?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);
+  const coarsePointer = Boolean(win?.matchMedia?.("(pointer: coarse)")?.matches);
+
+  if (reducedMotion) return "reduced";
+  if (memory <= 4 || cores <= 4 || coarsePointer) return "low";
+  return "normal";
+};
+
+export const getCanvasMountOptions = (canvas, options = {}, defaults = {}) => {
+  const dataset = canvas?.dataset || {};
+  const quality = options.quality || dataset.cvAnimationQuality || getCanvasQualityProfile();
+
+  const qualityDefaults = {
+    reduced: { maxDpr: 1, maxItems: 12, initialCount: 4, batchSize: 4, fps: 24 },
+    low: { maxDpr: 1.25, maxItems: 20, initialCount: 8, batchSize: 4, fps: 30 },
+    normal: { maxDpr: getDefaultCanvasMaxDpr(), maxItems: 36, initialCount: 12, batchSize: 6, fps: 60 },
+  };
+
+  const profile = qualityDefaults[quality] || qualityDefaults.normal;
+
+  const numberFrom = (value, fallback, min = 1, max = Number.POSITIVE_INFINITY) => {
+    const numeric = Number(value);
+
+    if (!Number.isFinite(numeric)) {
+      return fallback;
+    }
+
+    return Math.min(max, Math.max(min, Math.floor(numeric)));
+  };
+
+  return {
+    quality,
+    maxDpr: Number(options.maxDpr ?? dataset.cvAnimationDpr ?? defaults.maxDpr ?? profile.maxDpr),
+    maxItems: numberFrom(options.maxItems ?? dataset.cvAnimationMaxItems, defaults.maxItems ?? profile.maxItems, 1, 160),
+    initialCount: numberFrom(
+      options.initialCount ?? dataset.cvAnimationInitialCount,
+      defaults.initialCount ?? profile.initialCount,
+      1,
+      80,
+    ),
+    batchSize: numberFrom(options.batchSize ?? dataset.cvAnimationBatchSize, defaults.batchSize ?? profile.batchSize, 1, 32),
+    fps: numberFrom(options.fps ?? dataset.cvAnimationFps, defaults.fps ?? profile.fps, 1, 60),
+    speedScale: Number(options.speedScale ?? dataset.cvAnimationSpeed ?? defaults.speedScale ?? 1) || 1,
+  };
+};
+
+export const limitAnimationItems = (items, sceneId = "", options = {}) => {
+  const maxItems = Math.max(1, Math.floor(Number(options.maxItems ?? options.defaultMaxItems ?? 36) || 36));
+  const source = Array.isArray(items) ? items : [];
+
+  return source.slice(0, maxItems).map((item, sourceIndex) => ({
+    ...item,
+    sceneId,
+    sourceIndex: item.sourceIndex ?? sourceIndex,
+  }));
+};
+
+export const markCanvasState = (canvas, state) => {
+  const host = canvas?.closest?.("[data-cv-animation], .cv-preview, .cv-embedded-demo") || canvas?.parentElement;
+
+  if (!host) {
+    return;
+  }
+
+  host.classList.toggle("is-canvas-loading", state === "loading");
+  host.classList.toggle("is-canvas-ready", state === "ready");
+  host.classList.toggle("is-canvas-error", state === "error");
+  canvas.dataset.canvasState = state;
+};
+
+export const drawCanvasLoadingState = (ctx, width, height, message = "loading") => {
+  if (!ctx || !width || !height) {
+    return;
+  }
+
+  ctx.save();
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = "rgba(17, 17, 17, 0.035)";
+  ctx.fillRect(0, 0, width, height);
+
+  const size = Math.max(16, Math.min(width, height) * 0.07);
+  const x = width * 0.5;
+  const y = height * 0.5;
+
+  ctx.globalAlpha = 0.58;
+  ctx.strokeStyle = "rgba(17, 17, 17, 0.34)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(x, y, size, 0, Math.PI * 1.52);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(17, 17, 17, 0.5)";
+  ctx.font = "600 11px Rubik, Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(message, x, y + size + 18);
+  ctx.restore();
+};
+
 export const createAnimationKey = (prefix, canvasId) => `${prefix}${canvasId}`;
 
 export const beginMount = (key) => {
@@ -27,12 +146,16 @@ export const completeMount = (key, token, dispose) => () => {
   dispose();
 };
 
-export const getDevicePixelRatio = () =>
-  Math.max(1, globalThis.devicePixelRatio || globalThis.window?.devicePixelRatio || 1);
+export const getDevicePixelRatio = (maxDpr = getDefaultCanvasMaxDpr()) => {
+  const source = globalThis.devicePixelRatio || globalThis.window?.devicePixelRatio || 1;
+  return Math.max(1, Math.min(Number(source) || 1, Number(maxDpr) || 1));
+};
 
 export const resizeCanvasToDisplaySize = (canvas, ctx, dpr = getDevicePixelRatio()) => {
-  const width = Math.max(1, Math.round((canvas.clientWidth || 0) * dpr));
-  const height = Math.max(1, Math.round((canvas.clientHeight || 0) * dpr));
+  const cssWidth = Math.max(1, Math.round(canvas.clientWidth || 0));
+  const cssHeight = Math.max(1, Math.round(canvas.clientHeight || 0));
+  const width = Math.max(1, Math.round(cssWidth * dpr));
+  const height = Math.max(1, Math.round(cssHeight * dpr));
   const changed = canvas.width !== width || canvas.height !== height;
 
   if (changed) {
@@ -41,7 +164,15 @@ export const resizeCanvasToDisplaySize = (canvas, ctx, dpr = getDevicePixelRatio
   }
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  return changed;
+
+  return {
+    changed,
+    cssWidth,
+    cssHeight,
+    pixelWidth: width,
+    pixelHeight: height,
+    dpr,
+  };
 };
 
 export const disposeCanvasAnimation = (key) => {
@@ -62,45 +193,97 @@ export const disposeCanvasAnimationsByPrefix = (prefix) => {
   });
 };
 
-export const createCanvasAnimation = ({ key, canvas, ctx, renderFrame }) => {
+export const createCanvasAnimation = ({
+  key,
+  canvas,
+  ctx,
+  renderFrame,
+  maxDpr,
+  fps = 60,
+  pauseOffscreen = true,
+  onStateChange = noop,
+}) => {
   disposeCanvasAnimation(key);
 
   let disposed = false;
   let frameId;
   let running = false;
+  let inViewport = true;
   let reducedMotion = false;
+  let lastFrameTime = 0;
+  let lastRenderTime = 0;
+  let resizeInfo = null;
 
   const doc = globalThis.document;
   const win = globalThis.window;
   const motionQuery = win?.matchMedia?.("(prefers-reduced-motion: reduce)");
+  const frameInterval = fps > 0 && fps < 60 ? 1000 / fps : 0;
 
-  const resize = () => resizeCanvasToDisplaySize(canvas, ctx);
+  const emitState = (state) => {
+    markCanvasState(canvas, state);
+    onStateChange(state);
+  };
+
+  const resize = () => {
+    resizeInfo = resizeCanvasToDisplaySize(canvas, ctx, getDevicePixelRatio(maxDpr));
+    return resizeInfo;
+  };
+
+  const canRun = () => !disposed && !doc?.hidden && (!pauseOffscreen || inViewport);
 
   const frame = (time = 0) => {
     if (disposed || !running) {
       return;
     }
 
+    if (!canRun()) {
+      stop();
+      return;
+    }
+
+    if (frameInterval && time - lastRenderTime < frameInterval) {
+      frameId = globalThis.requestAnimationFrame(frame);
+      return;
+    }
+
+    const previousFrameTime = lastFrameTime || time;
+    const delta = Math.min(50, Math.max(0, time - previousFrameTime || 16.6667));
+    lastFrameTime = time;
+    lastRenderTime = time;
+
     resize();
 
-    renderFrame({
-      canvas,
-      ctx,
-      time,
-      width: canvas.clientWidth || 0,
-      height: canvas.clientHeight || 0,
-      reducedMotion,
-    });
+    try {
+      renderFrame({
+        canvas,
+        ctx,
+        time,
+        delta,
+        dt: delta,
+        elapsed: time,
+        width: canvas.clientWidth || resizeInfo?.cssWidth || 0,
+        height: canvas.clientHeight || resizeInfo?.cssHeight || 0,
+        dpr: resizeInfo?.dpr || getDevicePixelRatio(maxDpr),
+        reducedMotion,
+        inViewport,
+      });
+    } catch (error) {
+      console.error(`[canvas-animation] render failed for ${key}`, error);
+      emitState("error");
+      stop();
+      return;
+    }
 
     frameId = globalThis.requestAnimationFrame(frame);
   };
 
   const start = () => {
-    if (disposed || running || typeof globalThis.requestAnimationFrame !== "function") {
+    if (disposed || running || typeof globalThis.requestAnimationFrame !== "function" || !canRun()) {
       return;
     }
 
     running = true;
+    lastFrameTime = 0;
     frameId = globalThis.requestAnimationFrame(frame);
   };
 
@@ -129,9 +312,33 @@ export const createCanvasAnimation = ({ key, canvas, ctx, renderFrame }) => {
 
   const resizeObserver = globalThis.ResizeObserver ? new globalThis.ResizeObserver(resize) : null;
 
+  const intersectionObserver =
+    pauseOffscreen && globalThis.IntersectionObserver
+      ? new globalThis.IntersectionObserver(
+          (entries) => {
+            const entry = entries[0];
+
+            inViewport = Boolean(entry?.isIntersecting);
+
+            if (inViewport) {
+              resize();
+              start();
+            } else {
+              stop();
+            }
+          },
+          {
+            root: null,
+            rootMargin: "280px 0px",
+            threshold: 0,
+          },
+        )
+      : null;
+
   handleMotionChange();
   resize();
   resizeObserver?.observe(canvas);
+  intersectionObserver?.observe(canvas);
   win?.addEventListener?.("resize", resize);
   doc?.addEventListener?.("visibilitychange", handleVisibilityChange);
 
@@ -149,8 +356,10 @@ export const createCanvasAnimation = ({ key, canvas, ctx, renderFrame }) => {
     disposed = true;
     stop();
     resizeObserver?.disconnect();
+    intersectionObserver?.disconnect();
     win?.removeEventListener?.("resize", resize);
     doc?.removeEventListener?.("visibilitychange", handleVisibilityChange);
+    markCanvasState(canvas, "");
 
     if (motionQuery?.removeEventListener) {
       motionQuery.removeEventListener("change", handleMotionChange);
@@ -168,6 +377,125 @@ export const createCanvasAnimation = ({ key, canvas, ctx, renderFrame }) => {
 
   return dispose;
 };
+
+export const createMediaLoader = (
+  sourceItems,
+  {
+    maxItems = 36,
+    initialCount = 12,
+    batchSize = 6,
+    onItemLoad = noop,
+    onLoadingChange = noop,
+    sceneId = "",
+  } = {},
+) => {
+  let cancelled = false;
+  let loadedCount = 0;
+  let completedCount = 0;
+
+  const items = limitAnimationItems(sourceItems, sceneId, { maxItems }).map((item, sourceIndex) => ({
+    ...item,
+    sourceIndex: item.sourceIndex ?? sourceIndex,
+    imageElement: null,
+    mediaElement: null,
+    imageLoadError: null,
+  }));
+
+  const notify = () => {
+    const hasLoaded = loadedCount > 0;
+    const isComplete = completedCount >= items.length;
+
+    onLoadingChange({
+      loadedCount,
+      completedCount,
+      totalCount: items.length,
+      isLoading: !isComplete && !hasLoaded,
+      isComplete,
+      hasLoaded,
+    });
+  };
+
+  const loadOne = async (index) => {
+    if (cancelled) return;
+
+    const item = items[index];
+    const mediaUrl = item?.mediaUrl || item?.imageUrl;
+
+    if (!item || !mediaUrl) {
+      completedCount += 1;
+      notify();
+      return;
+    }
+
+    try {
+      const mediaElement = await loadMedia(mediaUrl);
+
+      if (cancelled) return;
+
+      item.imageElement = mediaElement;
+      item.mediaElement = mediaElement;
+      item.imageLoadError = null;
+      loadedCount += 1;
+    } catch (error) {
+      if (cancelled) return;
+
+      item.imageLoadError = error;
+    } finally {
+      if (!cancelled) {
+        completedCount += 1;
+        onItemLoad({ item, index, loadedCount, completedCount, totalCount: items.length });
+        notify();
+      }
+    }
+  };
+
+  const start = () => {
+    const firstEnd = Math.min(Math.max(1, initialCount), items.length);
+
+    for (let i = 0; i < firstEnd; i += 1) {
+      void loadOne(i);
+    }
+
+    if (items.length > firstEnd) {
+      void (async () => {
+        for (let i = firstEnd; i < items.length && !cancelled; i += batchSize) {
+          const end = Math.min(i + Math.max(1, batchSize), items.length);
+          await Promise.all(Array.from({ length: end - i }, (_, j) => loadOne(i + j)));
+          await new Promise((resolve) => globalThis.setTimeout?.(resolve, 48) ?? resolve());
+        }
+      })();
+    }
+
+    notify();
+  };
+
+  const cancel = () => {
+    cancelled = true;
+    items.forEach((item) => {
+      const media = item.mediaElement || item.imageElement;
+
+      if (media?.tagName === "VIDEO") {
+        media.pause?.();
+        media.removeAttribute?.("src");
+        media.load?.();
+      }
+    });
+  };
+
+  start();
+
+  return {
+    items,
+    cancel,
+    get loadedCount() {
+      return loadedCount;
+    },
+    get completedCount() {
+      return completedCount;
+    },
+  };
+};
+
 
 export const loadImage = (imageUrl) => {
   if (!imageUrl) {

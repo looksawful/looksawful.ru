@@ -1,13 +1,14 @@
 import {
-	beginMount,
-	completeMount,
-	createAnimationKey,
-	createCanvasAnimation,
-	disposeCanvasAnimationsByPrefix,
-	drawRoundedCover,
-	isCurrentMount,
-	loadMedia,
-	noop,
+  beginMount,
+  completeMount,
+  createAnimationKey,
+  createCanvasAnimation,
+  disposeCanvasAnimationsByPrefix,
+  drawRoundedCover,
+  isCurrentMount,
+  loadMedia,
+  noop,
+  limitAnimationItems,
 } from "../../shared/canvas-animation.js";
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
