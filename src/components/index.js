@@ -39,12 +39,8 @@ async function initContentEnhancements() {
 
 async function initVisualEnhancements() {
   try {
-    const [{ initCvVisuals }, { initCvInlineVideos }] = await Promise.all([
-      import("./cv-visuals/cv-visuals.js"),
-      import("./cv-inline-video/cv-inline-video.js"),
-    ]);
+    const { initCvInlineVideos } = await import("./cv-inline-video/cv-inline-video.js");
 
-    runComponentStep("initCvVisuals", () => initCvVisuals(document));
     runComponentStep("initCvInlineVideos", () => initCvInlineVideos());
   } catch (error) {
     console.error("[components] initVisualEnhancements failed", error);
