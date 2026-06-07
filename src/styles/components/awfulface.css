@@ -12,8 +12,6 @@
   position: fixed;
   inset: 0;
   z-index: 10;
-  inline-size: 100vw;
-  block-size: 100svh;
   pointer-events: none;
 }
 
@@ -22,7 +20,6 @@
   inline-size: clamp(12rem, 18vw, 16rem);
   max-inline-size: none;
   transform-origin: center;
-  will-change: transform;
 }
 
 .awfulface-container--inline {
@@ -38,5 +35,4 @@
   inline-size: 100%;
   max-inline-size: none;
   transform-origin: center;
-  will-change: transform;
 }

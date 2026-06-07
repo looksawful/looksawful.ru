@@ -20,11 +20,6 @@ ul {
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-  font-size: var(--font-size-root);
-  line-height: var(--line-body);
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
