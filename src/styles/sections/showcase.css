@@ -382,3 +382,19 @@
     font-size: clamp(0.68rem, 2.8vw, 0.78rem);
   }
 }
+
+.case-project {
+  position: relative;
+}
+
+.case-hero {
+  border-color: var(--showcase-border);
+}
+
+.case-domain {
+  border-color: var(--showcase-border);
+}
+
+.case-evidence {
+  border-color: var(--showcase-border);
+}
