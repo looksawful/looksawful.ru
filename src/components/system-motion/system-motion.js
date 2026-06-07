@@ -1,5 +1,3 @@
-import { gsap } from "gsap";
-
 const MOTION_SELECTOR = [
   ".cv-section-title",
   ".cv-project-hero",
@@ -28,6 +26,7 @@ export function initSystemMotion(root = document) {
     }
 
     mountedTargets.add(target);
+    target.classList.add("is-motion-ready");
     return true;
   });
 
@@ -42,21 +41,8 @@ export function initSystemMotion(root = document) {
           return;
         }
 
+        entry.target.classList.add("is-motion-visible");
         observer.unobserve(entry.target);
-        gsap.fromTo(
-          entry.target,
-          {
-            autoAlpha: 0.82,
-            y: 8,
-          },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.34,
-            ease: "power2.out",
-            clearProps: "opacity,visibility,transform",
-          },
-        );
       });
     },
     {
