@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import jesteiLogoSvg from "../../assets/cv/logos/jestei-logo.svg?raw";
 import {
   createFrameTimer,
@@ -296,8 +297,17 @@ async function loadModel(modelUrl) {
   if (!modelUrl) return createFallbackMesh();
 
   const loader = new GLTFLoader();
-  const gltf = await loader.loadAsync(modelUrl);
-  return gltf.scene;
+  const dracoLoader = new DRACOLoader();
+
+  dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
+  loader.setDRACOLoader(dracoLoader);
+
+  try {
+    const gltf = await loader.loadAsync(modelUrl);
+    return gltf.scene;
+  } finally {
+    dracoLoader.dispose();
+  }
 }
 
 export function createLogoInspector3D(target, options = {}) {

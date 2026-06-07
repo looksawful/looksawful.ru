@@ -18,7 +18,7 @@ export const CANVAS_DEMO_MOUNTERS = {
 };
 
 export const LOGO_INSPECTOR_MODEL_URL = new URL(
-  "../../visuals/assets/projects/jestei/logo/logo-inspector.glb",
+  "../../visuals/assets/projects/jestei/logo/logo.glb",
   import.meta.url,
 ).href;
 
