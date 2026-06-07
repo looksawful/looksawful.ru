@@ -27,17 +27,13 @@ function runWhenIdle(callback) {
   window.setTimeout(callback, 120);
 }
 
-async function initContent() {
+async function initContentEnhancements() {
   try {
-    const [{ renderCvExperience }, { mountCvProjectLogos }] = await Promise.all([
-      import("../sections/cv/cv-renderer.js"),
-      import("./cv-project-logos/cv-project-logos.js"),
-    ]);
+    const { mountCvProjectLogos } = await import("./cv-project-logos/cv-project-logos.js");
 
-    runComponentStep("renderCvExperience", () => renderCvExperience());
     runComponentStep("mountCvProjectLogos", () => mountCvProjectLogos());
   } catch (error) {
-    console.error("[components] initContent failed", error);
+    console.error("[components] initContentEnhancements failed", error);
   }
 }
 
@@ -73,7 +69,7 @@ async function initDecorations() {
 
 export function initComponents() {
   runAfterFirstPaint(() => {
-    void initContent()
+    void initContentEnhancements()
       .then(() => initVisualEnhancements())
       .then(() => {
         runWhenIdle(() => {
