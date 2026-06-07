@@ -39,6 +39,10 @@
   --color-link: var(--link-blue);
   --color-link-hover: var(--link-blue-hover);
   --color-focus: var(--focus-ring);
+  --color-focus-soft: color-mix(in srgb, var(--color-focus) 48%, transparent);
+  --focus-outline: 1px solid var(--color-focus-soft);
+  --focus-outline-strong: 2px solid var(--color-focus);
+  --focus-outline-offset: 0.22rem;
 
   /* Foundation: spacing. The scale keeps outer gaps larger than inner gaps. */
   --space-0: 0;
@@ -79,6 +83,8 @@
   --layout-page: calc(100vw - 64px);
   --layout-content: 78rem;
   --layout-wide: 80rem;
+  --layout-resume: 76rem;
+  --layout-readable: 56rem;
   --section-gap: var(--space-8);
   --section-gap-mobile: clamp(4.5rem, 18vw, 6rem);
   --project-gap: var(--space-8);
@@ -126,7 +132,11 @@
 .ds-evidence,
 .ds-list-section,
 .ds-table-lite,
-.ds-code-visual {
+.ds-code-visual,
+.ds-stack,
+.ds-cluster,
+.ds-layout,
+.ds-split {
   min-inline-size: 0;
 }
 
@@ -185,16 +195,23 @@
   color: var(--color-link);
   text-decoration: underline;
   text-decoration-thickness: 1px;
+  text-decoration-skip-ink: auto;
   text-underline-offset: 0.18em;
+  border-radius: var(--radius-xs);
+  transition:
+    color var(--motion-fast) var(--ease-standard),
+    text-decoration-color var(--motion-fast) var(--ease-standard);
 }
 
-.ds-link:hover {
+.ds-link:hover,
+.ds-link:focus-visible {
   color: var(--color-link-hover);
 }
 
+.ds-link:focus-visible,
 .ds-focus-ring:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 3px;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
 }
 
 .ds-stack {
@@ -346,11 +363,10 @@
   margin: 0;
   min-block-size: 18rem;
   overflow: auto;
+  overscroll-behavior-inline: contain;
   border: var(--border-row);
   border-radius: var(--radius-sm);
-  background:
-    linear-gradient(90deg, var(--code-line-bg) 0 3.2rem, transparent 3.2rem),
-    var(--code-bg);
+  background: linear-gradient(90deg, var(--code-line-bg) 0 3.2rem, transparent 3.2rem), var(--code-bg);
   color: var(--color-ink-soft);
   font-family: var(--font-mono);
   font-size: var(--type-code);
@@ -413,30 +429,72 @@
 }
 
 @media (max-width: 64rem) {
-  .ds-layout--two-column:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(.ds-layout--always-split),
-  .ds-layout--media-left:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(.ds-layout--always-split),
-  .ds-layout--media-right:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(.ds-layout--always-split),
-  .ds-layout--text-left:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(.ds-layout--always-split),
-  .ds-layout--text-right:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(.ds-layout--always-split),
+  .ds-layout--two-column:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(
+      .ds-layout--always-split
+    ),
+  .ds-layout--media-left:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(
+      .ds-layout--always-split
+    ),
+  .ds-layout--media-right:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(
+      .ds-layout--always-split
+    ),
+  .ds-layout--text-left:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(
+      .ds-layout--always-split
+    ),
+  .ds-layout--text-right:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(
+      .ds-layout--always-split
+    ),
   .ds-layout--collapse-on-mobile,
-  .ds-split--two-column:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(.ds-split--always-split),
-  .ds-split--media-left:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(.ds-split--always-split),
-  .ds-split--media-right:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(.ds-split--always-split),
-  .ds-split--text-left:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(.ds-split--always-split),
-  .ds-split--text-right:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(.ds-split--always-split),
+  .ds-split--two-column:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(
+      .ds-split--always-split
+    ),
+  .ds-split--media-left:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(
+      .ds-split--always-split
+    ),
+  .ds-split--media-right:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(
+      .ds-split--always-split
+    ),
+  .ds-split--text-left:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(
+      .ds-split--always-split
+    ),
+  .ds-split--text-right:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(
+      .ds-split--always-split
+    ),
   .ds-split--collapse-on-mobile {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .ds-layout--media-left:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(.ds-layout--always-split) > *,
-  .ds-layout--media-right:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(.ds-layout--always-split) > *,
-  .ds-layout--text-left:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(.ds-layout--always-split) > *,
-  .ds-layout--text-right:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(.ds-layout--always-split) > *,
+  .ds-layout--media-left:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(
+      .ds-layout--always-split
+    )
+    > *,
+  .ds-layout--media-right:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(
+      .ds-layout--always-split
+    )
+    > *,
+  .ds-layout--text-left:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(
+      .ds-layout--always-split
+    )
+    > *,
+  .ds-layout--text-right:not(.ds-layout--two-column-compact):not(.ds-layout--two-column-always):not(
+      .ds-layout--always-split
+    )
+    > *,
   .ds-layout--collapse-on-mobile > *,
-  .ds-split--media-left:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(.ds-split--always-split) > *,
-  .ds-split--media-right:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(.ds-split--always-split) > *,
-  .ds-split--text-left:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(.ds-split--always-split) > *,
-  .ds-split--text-right:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(.ds-split--always-split) > *,
+  .ds-split--media-left:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(
+      .ds-split--always-split
+    )
+    > *,
+  .ds-split--media-right:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(
+      .ds-split--always-split
+    )
+    > *,
+  .ds-split--text-left:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(.ds-split--always-split)
+    > *,
+  .ds-split--text-right:not(.ds-split--two-column-compact):not(.ds-split--two-column-always):not(
+      .ds-split--always-split
+    )
+    > *,
   .ds-split--collapse-on-mobile > * {
     order: initial;
   }
