@@ -22,7 +22,6 @@
   --letter-tight: -0.018em;
   --letter-display: -0.052em;
 
-  /* Foundation scale. It stays compact because this is a CV/product portfolio, not a marketing page. */
   --type-step-0: clamp(0.68rem, 0.66vw, 0.78rem);
   --type-step-1: clamp(0.74rem, 0.72vw, 0.86rem);
   --type-step-2: clamp(0.84rem, 0.82vw, 0.98rem);
@@ -34,7 +33,6 @@
   --type-step-8: clamp(3rem, 8vw, 7rem);
   --type-step-9: clamp(3rem, 10vw, 9rem);
 
-  /* Semantic type roles. Productive roles are dense; expressive roles create section hierarchy. */
   --type-caption: var(--type-step-0);
   --type-label: var(--type-step-1);
   --type-control: var(--type-step-1);
@@ -52,7 +50,6 @@
   --type-section-title: var(--type-step-7);
   --type-display: var(--type-step-8);
 
-  /* Legacy aliases consumed by older modules. */
   --fs: var(--font-size-root);
   --heading-hero: var(--type-step-9);
   --heading-hero-secondary: clamp(3rem, 9vw, 8rem);
@@ -69,6 +66,8 @@ body {
   line-height: var(--line-body);
   letter-spacing: var(--letter-normal);
   text-rendering: optimizeLegibility;
+  font-synthesis-weight: none;
+  font-synthesis-style: none;
 }
 
 h1,
@@ -175,7 +174,22 @@ p {
   color: var(--color-link);
   text-decoration: underline;
   text-decoration-thickness: 1px;
+  text-decoration-skip-ink: auto;
   text-underline-offset: 0.18em;
+  border-radius: var(--radius-xs);
+  transition:
+    color var(--motion-fast) var(--ease-standard),
+    text-decoration-color var(--motion-fast) var(--ease-standard);
+}
+
+.type-link:hover,
+.type-link:focus-visible {
+  color: var(--color-link-hover);
+}
+
+.type-link:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--color-focus) 48%, transparent);
+  outline-offset: 0.22rem;
 }
 
 .type-placeholder {
