@@ -398,3 +398,36 @@
 .case-evidence {
   border-color: var(--showcase-border);
 }
+/* Center inline showcase videos inside their media frame without changing video size. */
+.cv-section .cv-experience__item--featured .cv-work-media:has(.cv-inline-video__media),
+.cv-section .cv-experience__item--featured .cv-preview:has(.cv-inline-video__media),
+.cv-section .cv-experience__item--featured .cv-task-group__visual:has(.cv-inline-video__media),
+.cv-section .cv-experience__item--featured .cv-inline-video {
+  display: grid;
+  place-items: center;
+}
+
+.cv-section .cv-experience__item--featured .cv-inline-video__media {
+  display: block;
+  margin: auto;
+  justify-self: center;
+  align-self: center;
+  object-position: center center;
+}
+/* Force-center Styx inline videos without changing their rendered size. */
+.cv-section .cv-experience__item--featured .cv-inline-video:has(video[src*="styx-graphic-diagonal"]) {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.cv-section .cv-experience__item--featured video.cv-inline-video__media[src*="styx-graphic-diagonal"] {
+  position: static;
+  inset: auto;
+  display: block;
+  margin: auto;
+  object-position: 50% 50%;
+  transform: none;
+}
+
