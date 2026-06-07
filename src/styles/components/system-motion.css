@@ -1,0 +1,21 @@
+.is-motion-ready {
+  opacity: 0.82;
+  transform: translateY(8px);
+}
+
+.is-motion-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 340ms var(--ease-standard),
+    transform 340ms var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-motion-ready,
+  .is-motion-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
