@@ -65,7 +65,8 @@ export function mountJesteiLogoThree(canvas) {
   const resizeState = { width: 0, height: 0, pixelRatio: 0 };
   const frameTimer = createFrameTimer();
 
-  dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
+  dracoLoader.setDecoderPath("/draco/");
+  dracoLoader.setDecoderConfig({ type: "wasm" });
   loader.setDRACOLoader(dracoLoader);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -157,4 +158,6 @@ export function mountJesteiLogoThree(canvas) {
     delete canvas.dataset.threeMounted;
   };
 }
+
+
 

@@ -299,7 +299,8 @@ async function loadModel(modelUrl) {
   const loader = new GLTFLoader();
   const dracoLoader = new DRACOLoader();
 
-  dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
+  dracoLoader.setDecoderPath("/draco/");
+  dracoLoader.setDecoderConfig({ type: "wasm" });
   loader.setDRACOLoader(dracoLoader);
 
   try {
@@ -595,3 +596,5 @@ export function createLogoInspector3D(target, options = {}) {
     },
   };
 }
+
+
