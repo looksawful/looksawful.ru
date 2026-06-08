@@ -614,3 +614,101 @@
 }
 /* dom media scenes:end */
 
+
+/* jestei landing showcase:start */
+.cv-task-domain--landing .cv-task-group__visual {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.cv-landing-animation-strip {
+  position: relative;
+  min-inline-size: 0;
+}
+
+.cv-landing-animation-strip__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(18rem, 32rem);
+  gap: clamp(0.9rem, 1.6vw, 1.4rem);
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+.cv-landing-animation-strip__track::-webkit-scrollbar {
+  display: none;
+}
+
+.cv-landing-animation-strip__track.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+.cv-landing-animation-strip .cv-preview {
+  aspect-ratio: 1 / 1;
+  min-block-size: clamp(18rem, 34vw, 32rem);
+  scroll-snap-align: center;
+}
+
+.cv-scroll-row-button {
+  position: absolute;
+  z-index: 4;
+  inset-block-start: 50%;
+  display: grid;
+  place-items: center;
+  inline-size: clamp(2rem, 3.5vw, 2.8rem);
+  aspect-ratio: 1 / 1;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 999px;
+  color: inherit;
+  background: color-mix(in srgb, var(--color-surface, #050505) 82%, transparent);
+  transform: translateY(-50%);
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+}
+
+.cv-scroll-row-button--prev {
+  inset-inline-start: 0.6rem;
+}
+
+.cv-scroll-row-button--next {
+  inset-inline-end: 0.6rem;
+}
+
+.cv-media-group--landing-screenshots {
+  margin-block-start: clamp(0.5rem, 1.2vw, 1rem);
+}
+
+.cv-media-group--landing-screenshots .cv-media-group__track {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.cv-media-group--landing-screenshots .cv-media-card img,
+.cv-media-group--landing-screenshots .cv-media-card video {
+  aspect-ratio: 9 / 13;
+}
+
+@media (max-width: 64rem) {
+  .cv-media-group--landing-screenshots .cv-media-group__track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
+  .cv-landing-animation-strip__track {
+    grid-auto-columns: minmax(78vw, 1fr);
+  }
+
+  .cv-scroll-row-button {
+    display: none;
+  }
+
+  .cv-media-group--landing-screenshots .cv-media-group__track {
+    grid-template-columns: 1fr;
+  }
+}
+/* jestei landing showcase:end */
+
