@@ -241,6 +241,81 @@ const renderMediaScene = (element) => {
   setState(element, "ready");
 };
 
+
+const getExtensionFromUrl = (url = "") => {
+  const cleanUrl = String(url).split("?")[0].split("#")[0];
+  const extension = cleanUrl.split(".").pop();
+
+  return extension ? extension.toLowerCase() : "";
+};
+
+const createManualItemFromCard = (card, index) => {
+  const media = card.querySelector("img, video");
+
+  if (!media) {
+    return null;
+  }
+
+  const source = media.currentSrc || media.getAttribute("src");
+
+  if (!source) {
+    return null;
+  }
+
+  const title =
+    media.getAttribute("alt") ||
+    media.getAttribute("aria-label") ||
+    card.getAttribute("aria-label") ||
+    "media " + (index + 1);
+
+  return {
+    item: {
+      imageUrl: source,
+      mediaUrl: source,
+      title,
+      stem: title,
+    },
+    extension: getExtensionFromUrl(source),
+  };
+};
+
+const mountExistingMediaCards = (root = document) => {
+  const cards = root.querySelectorAll(".cv-media-group:not([data-cv-media-scene]) .cv-media-card");
+
+  cards.forEach((card, index) => {
+    if (card.dataset.cvMediaLightboxMounted === "true") {
+      return;
+    }
+
+    const mediaData = createManualItemFromCard(card, index);
+
+    if (!mediaData) {
+      return;
+    }
+
+    card.dataset.cvMediaLightboxMounted = "true";
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", "открыть изображение: " + mediaData.item.title);
+    card.style.setProperty("--media-index", String(index));
+    card.style.setProperty("--media-count", String(cards.length));
+
+    card.addEventListener("click", () => {
+      openLightbox(mediaData.item, mediaData.extension);
+    });
+
+    card.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+
+      event.preventDefault();
+      openLightbox(mediaData.item, mediaData.extension);
+    });
+  });
+};
+
+
 export function initCvMediaScenes(root = document) {
   root.querySelectorAll("[data-cv-media-scene]").forEach(renderMediaScene);
 }
