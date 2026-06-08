@@ -17,6 +17,7 @@ const SCENE_LABELS = {
   styxScanographyLoops: "Styx Jewels / scanography loops",
   lyveGraphicCarousel: "Lyve Moscow / graphic / carousel",
   lyveInterfaceStrip: "Lyve Moscow / interface / horizontal",
+  jesteiLandingScreenshots: "Jestei Pool / landing / screenshots",
 };
 
 const SCENE_DEFAULT_MAX_ITEMS = {
@@ -32,6 +33,7 @@ const SCENE_DEFAULT_MAX_ITEMS = {
   styxScanographyLoops: 6,
   lyveGraphicCarousel: 12,
   lyveInterfaceStrip: 12,
+  jesteiLandingScreenshots: 4,
 };
 
 const getModuleUrl = (moduleValue) =>
