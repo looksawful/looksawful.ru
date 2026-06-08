@@ -6,6 +6,7 @@
   align-content: center;
   row-gap: 4rem;
   padding-block: 6rem;
+  overflow: visible;
 }
 
 .hero__screen > * {
@@ -17,16 +18,26 @@
   position: relative;
 }
 
+.hero__screen--cover {
+  isolation: isolate;
+}
+
 .hero__headline-wrap {
   justify-self: center;
   inline-size: min(100%, 78rem);
+  min-inline-size: 0;
+  overflow: visible;
 }
 
 .hero__title {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   display: grid;
   gap: 0;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  overflow: visible;
   font-size: var(--heading-hero);
   line-height: 0.86;
   letter-spacing: 0;
@@ -35,28 +46,48 @@
 .hero__title-name,
 .hero__title-role {
   display: block;
-  inline-size: min-content;
+  inline-size: 100%;
   max-inline-size: 100%;
+  min-inline-size: 0;
+  overflow: visible;
   font-weight: 800;
 }
 
+.hero__title-name {
+  justify-self: stretch;
+}
+
 .hero__title-role {
-  justify-self: end;
+  justify-self: stretch;
   font-size: var(--heading-hero-secondary);
   font-weight: var(--font-weight-medium);
 }
 
 .hero-title-word {
   display: block;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  overflow: visible;
   white-space: nowrap;
+}
+
+.hero__title-name .hero-title-word {
+  margin-inline: 0 auto;
+}
+
+.hero__title-role .hero-title-word {
+  margin-inline: auto 0;
 }
 
 .hero-title-letter {
   display: inline-block;
+  transform-origin: 50% 58%;
 }
 
 .hero__note,
 .contact-links {
+  position: relative;
+  z-index: 3;
   align-self: end;
   max-inline-size: 24rem;
   font-size: var(--text-hero-support);
@@ -98,17 +129,49 @@
 
 @media (max-width: 48rem) {
   .hero__screen {
-    grid-template-columns: minmax(1rem, 1fr) minmax(0, 100%) minmax(1rem, 1fr);
-    row-gap: clamp(2.5rem, 12vw, 4rem);
-    padding-block: clamp(4rem, 18vw, 6rem);
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    row-gap: clamp(2.1rem, 10vw, 3.6rem);
+    padding-block: clamp(3.4rem, 14vw, 5.4rem);
+    padding-inline: 10px;
+  }
+
+  .hero__screen > * {
+    grid-column: 1;
   }
 
   .hero__headline-wrap {
     inline-size: 100%;
+    justify-self: stretch;
+  }
+
+  .hero__title {
+    font-size: clamp(2.45rem, 13.4vw, 5.2rem);
+    line-height: 0.94;
+  }
+
+  .hero__title-role {
+    font-size: clamp(1.8rem, 9.8vw, 3.7rem);
+    line-height: 0.96;
+    letter-spacing: -0.02em;
   }
 
   .hero__note,
   .contact-links {
     max-inline-size: min(100%, 24rem);
+  }
+}
+
+@media (max-width: 23rem) {
+  .hero__screen {
+    padding-inline: 8px;
+  }
+
+  .hero__title {
+    font-size: clamp(2.1rem, 12.4vw, 3rem);
+  }
+
+  .hero__title-role {
+    font-size: clamp(1.55rem, 9.2vw, 2.35rem);
   }
 }
