@@ -59,9 +59,9 @@ async function initDecorations() {
       import("./system-motion/system-motion.js"),
     ]);
 
-    runComponentStep("mountawfulface", () => mountawfulface("awfulface-hero"));
     runComponentStep("initHeroTitleAnimation", () => initHeroTitleAnimation());
-    runComponentStep("initSystemMotion", () => initSystemMotion());
+    runComponentStep("mountawfulface", () => mountawfulface("awfulface-hero"));
+runComponentStep("initSystemMotion", () => initSystemMotion());
   } catch (error) {
     console.error("[components] initDecorations failed", error);
   }
