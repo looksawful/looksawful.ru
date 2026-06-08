@@ -234,9 +234,7 @@ const getCardMetrics = ({ t, width, height }) => {
   const x = lerp(-overscan, width + overscan, t);
   const y = height * config.centerY + (1 - focus) * height * config.farYOffset;
 
-  const fadeIn = smoothstep(0, config.edgeFadeRange, t);
-  const fadeOut = 1 - smoothstep(1 - config.edgeFadeRange, 1, t);
-  const alpha = clamp01(fadeIn * fadeOut);
+  const alpha = 1;
 
   const rotation = lerp(config.maxRotation, -config.maxRotation, t);
 
@@ -398,3 +396,4 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(CV_CAROUSEL_KEY_PREFIX);
   });
 }
+
