@@ -489,3 +489,128 @@
   }
 }
 
+
+/* dom media scenes:start */
+.cv-media-group[data-cv-media-scene] {
+  --media-count: 1;
+  position: relative;
+  min-inline-size: 0;
+  overflow: hidden;
+}
+
+.cv-media-group__track {
+  min-inline-size: 0;
+}
+
+.cv-media-card {
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.cv-media-card img,
+.cv-media-card video {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.cv-media-group--orbit {
+  --media-radius: clamp(8.5rem, 24vw, 18rem);
+  --media-card-size: clamp(7rem, 18vw, 13rem);
+  --media-speed: 320s;
+
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1;
+  min-block-size: clamp(18rem, 40vw, 32rem);
+  border-radius: var(--radius-m, 1rem);
+  perspective: 90rem;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.08), transparent 52%),
+    radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.035), transparent 60%),
+    #050505;
+}
+
+.cv-media-group--orbit .cv-media-group__track {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: cvMediaOrbit var(--media-speed) linear infinite;
+  will-change: transform;
+}
+
+.cv-media-group--orbit .cv-media-card {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: var(--media-card-size);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: clamp(0.6rem, 1.4vw, 1rem);
+  background: #101010;
+  backface-visibility: hidden;
+  transform:
+    translate3d(-50%, -50%, 0)
+    rotateY(calc((360deg / var(--media-count)) * var(--media-index)))
+    translateZ(var(--media-radius));
+  box-shadow: 0 1rem 4rem rgba(0, 0, 0, 0.42);
+}
+
+.cv-media-group--orbit.cv-media-group--square .cv-media-card {
+  aspect-ratio: 1 / 1;
+}
+
+.cv-media-group--strip .cv-media-group__track {
+  display: flex;
+  gap: clamp(0.8rem, 1.5vw, 1.4rem);
+  animation: cvMediaMarquee var(--media-speed, 120s) linear infinite;
+  will-change: transform;
+}
+
+.cv-media-group--strip .cv-media-card {
+  flex: 0 0 auto;
+  inline-size: clamp(9rem, 18vw, 16rem);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: clamp(0.6rem, 1.2vw, 1rem);
+  background: #101010;
+}
+
+.cv-media-group--grid .cv-media-group__track {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.4vw, 1.25rem);
+}
+
+.cv-media-group--grid .cv-media-card {
+  overflow: hidden;
+  border-radius: clamp(0.7rem, 1.2vw, 1rem);
+  background: #101010;
+}
+
+.cv-media-group--grid .cv-media-card img,
+.cv-media-group--grid .cv-media-card video {
+  aspect-ratio: 16 / 10;
+}
+
+@keyframes cvMediaOrbit {
+  to {
+    transform: rotateY(-360deg);
+  }
+}
+
+@keyframes cvMediaMarquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cv-media-group--orbit .cv-media-group__track,
+  .cv-media-group--strip .cv-media-group__track {
+    animation-play-state: paused;
+  }
+}
+/* dom media scenes:end */
+
