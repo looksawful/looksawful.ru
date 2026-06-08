@@ -522,3 +522,36 @@
     order: initial;
   }
 }
+
+/* hierarchy refactor tokens:start */
+:root {
+  --space-hairline: 0.0625rem;
+  --space-list-indent: clamp(0.82rem, 0.84vw, 1rem);
+  --space-list-gap: clamp(0.42rem, 0.52vw, 0.64rem);
+  --space-list-section: clamp(0.82rem, 1vw, 1.18rem);
+  --space-title-to-meta: clamp(0.62rem, 0.8vw, 0.95rem);
+  --space-meta-to-copy: clamp(0.9rem, 1.1vw, 1.35rem);
+
+  --type-overline: clamp(0.68rem, 0.64vw, 0.78rem);
+  --type-list-title: clamp(0.9rem, 0.9vw, 1.08rem);
+  --type-list-body: clamp(0.84rem, 0.84vw, 1rem);
+  --type-list-meta: clamp(0.68rem, 0.68vw, 0.8rem);
+
+  --line-list-title: 1.16;
+  --line-list-body: 1.46;
+  --letter-overline: 0.015em;
+
+  --surface-project: var(--neutral-0);
+  --surface-domain: color-mix(in srgb, var(--neutral-0) 82%, var(--neutral-50));
+  --surface-group: var(--neutral-0);
+  --surface-group-muted: color-mix(in srgb, var(--neutral-0) 66%, var(--neutral-50));
+  --surface-chip: color-mix(in srgb, var(--neutral-0) 88%, var(--neutral-50));
+
+  --line-hierarchy-soft: rgba(17, 17, 17, 0.08);
+  --line-hierarchy: rgba(17, 17, 17, 0.14);
+  --line-hierarchy-strong: rgba(17, 17, 17, 0.28);
+
+  --marker-size: 0.34rem;
+  --marker-color: rgba(17, 17, 17, 0.42);
+}
+/* hierarchy refactor tokens:end */

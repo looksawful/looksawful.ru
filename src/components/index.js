@@ -29,9 +29,13 @@ function runWhenIdle(callback) {
 
 async function initContentEnhancements() {
   try {
-    const { mountCvProjectLogos } = await import("./cv-project-logos/cv-project-logos.js");
+    const [{ mountCvProjectLogos }, { mountTechIcons }] = await Promise.all([
+      import("./cv-project-logos/cv-project-logos.js"),
+      import("./tech-icons/tech-icons.js"),
+    ]);
 
     runComponentStep("mountCvProjectLogos", () => mountCvProjectLogos());
+    runComponentStep("mountTechIcons", () => mountTechIcons(document));
   } catch (error) {
     console.error("[components] initContentEnhancements failed", error);
   }
