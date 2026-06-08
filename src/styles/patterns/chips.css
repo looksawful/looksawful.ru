@@ -24,3 +24,32 @@
 .cv-task-chips > li::before {
   content: none;
 }
+
+/* hierarchy refactor chips:start */
+.chip-list,
+.cv-role-chips,
+.cv-task-chips {
+  gap: var(--space-2);
+}
+
+.chip,
+.cv-role-chip,
+.cv-task-chip {
+  justify-content: center;
+  min-block-size: 1.85rem;
+  padding: 0.38rem 0.68rem 0.42rem;
+  border: 1px solid var(--line-hierarchy);
+  border-radius: var(--radius-pill);
+  color: var(--color-ink);
+  background: var(--surface-chip);
+  font-size: var(--type-control);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-normal);
+}
+
+.cv-role-chips li,
+.cv-task-chips li,
+.chip-list li {
+  min-inline-size: 0;
+}
+/* hierarchy refactor chips:end */

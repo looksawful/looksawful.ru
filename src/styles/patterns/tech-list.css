@@ -27,3 +27,42 @@
 .cv-task-tech-list li::before {
   content: none;
 }
+
+/* hierarchy refactor tech-list:start */
+.tech-list,
+.pet-tech-list,
+.cv-task-tech-list {
+  gap: 0.38rem;
+}
+
+.tech-list li,
+.pet-tech-list li,
+.cv-task-tech-list li {
+  gap: 0.34rem;
+  min-block-size: 1.46rem;
+  padding: 0.2rem 0.48rem 0.24rem;
+  border: 1px solid var(--line-hierarchy-soft);
+  border-radius: var(--radius-pill);
+  background: rgba(17, 17, 17, 0.032);
+}
+
+.tech-list__icon,
+.pet-tech-list__icon,
+.cv-task-tech-list .pet-tech-list__icon {
+  inline-size: 0.72rem;
+  block-size: 0.72rem;
+  flex: 0 0 auto;
+  color: currentColor;
+  opacity: 0.82;
+}
+
+.cv-task-tech-list--domain {
+  margin-block: calc(var(--space-title-to-meta) * -0.26) var(--space-meta-to-copy);
+  padding-block-end: var(--space-2);
+  border-block-end: 1px solid var(--line-hierarchy-soft);
+}
+
+.cv-task-tech-list--domain + .cv-task-list-groups {
+  margin-block-start: 0;
+}
+/* hierarchy refactor tech-list:end */
