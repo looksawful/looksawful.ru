@@ -490,129 +490,7 @@
 }
 
 
-/* dom media scenes:start */
-.cv-media-group[data-cv-media-scene] {
-  --media-count: 1;
-  position: relative;
-  min-inline-size: 0;
-  overflow: hidden;
-}
 
-.cv-media-group__track {
-  min-inline-size: 0;
-}
-
-.cv-media-card {
-  margin: 0;
-  min-inline-size: 0;
-}
-
-.cv-media-card img,
-.cv-media-card video {
-  display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: cover;
-}
-
-.cv-media-group--orbit {
-  --media-radius: clamp(8.5rem, 24vw, 18rem);
-  --media-card-size: clamp(7rem, 18vw, 13rem);
-  --media-speed: 320s;
-
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1 / 1;
-  min-block-size: clamp(18rem, 40vw, 32rem);
-  border-radius: var(--radius-m, 1rem);
-  perspective: 90rem;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.08), transparent 52%),
-    radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.035), transparent 60%),
-    #050505;
-}
-
-.cv-media-group--orbit .cv-media-group__track {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  animation: cvMediaOrbit var(--media-speed) linear infinite;
-  will-change: transform;
-}
-
-.cv-media-group--orbit .cv-media-card {
-  position: absolute;
-  inset-block-start: 50%;
-  inset-inline-start: 50%;
-  inline-size: var(--media-card-size);
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  border-radius: clamp(0.6rem, 1.4vw, 1rem);
-  background: #101010;
-  backface-visibility: hidden;
-  transform:
-    translate3d(-50%, -50%, 0)
-    rotateY(calc((360deg / var(--media-count)) * var(--media-index)))
-    translateZ(var(--media-radius));
-  box-shadow: 0 1rem 4rem rgba(0, 0, 0, 0.42);
-}
-
-.cv-media-group--orbit.cv-media-group--square .cv-media-card {
-  aspect-ratio: 1 / 1;
-}
-
-.cv-media-group--strip .cv-media-group__track {
-  display: flex;
-  gap: clamp(0.8rem, 1.5vw, 1.4rem);
-  animation: cvMediaMarquee var(--media-speed, 120s) linear infinite;
-  will-change: transform;
-}
-
-.cv-media-group--strip .cv-media-card {
-  flex: 0 0 auto;
-  inline-size: clamp(9rem, 18vw, 16rem);
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  border-radius: clamp(0.6rem, 1.2vw, 1rem);
-  background: #101010;
-}
-
-.cv-media-group--grid .cv-media-group__track {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(0.75rem, 1.4vw, 1.25rem);
-}
-
-.cv-media-group--grid .cv-media-card {
-  overflow: hidden;
-  border-radius: clamp(0.7rem, 1.2vw, 1rem);
-  background: #101010;
-}
-
-.cv-media-group--grid .cv-media-card img,
-.cv-media-group--grid .cv-media-card video {
-  aspect-ratio: 16 / 10;
-}
-
-@keyframes cvMediaOrbit {
-  to {
-    transform: rotateY(-360deg);
-  }
-}
-
-@keyframes cvMediaMarquee {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cv-media-group--orbit .cv-media-group__track,
-  .cv-media-group--strip .cv-media-group__track {
-    animation-play-state: paused;
-  }
-}
-/* dom media scenes:end */
 
 
 /* jestei landing showcase:start */
@@ -712,3 +590,217 @@
 }
 /* jestei landing showcase:end */
 
+
+
+
+
+/* dom media scenes:start */
+.cv-media-group[data-cv-media-scene] {
+  --media-count: 1;
+  position: relative;
+  min-inline-size: 0;
+  overflow: hidden;
+}
+
+.cv-media-group__track {
+  min-inline-size: 0;
+}
+
+.cv-media-card {
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.cv-media-card img,
+.cv-media-card video {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.cv-media-group--orbit {
+  --orbit-card-width: clamp(7.8rem, 10vw, 11.5rem);
+  --orbit-card-radius: 6px;
+  --orbit-gap: clamp(1.1rem, 1.4vw, 1.8rem);
+  --orbit-min-radius: 12rem;
+  --orbit-max-radius: 64rem;
+  --orbit-height: clamp(21rem, 42vw, 34rem);
+
+  --orbit-perspective: clamp(920px, 92vw, 1400px);
+  --orbit-perspective-origin-x: 50%;
+  --orbit-perspective-origin-y: 48%;
+  --orbit-track-tilt: -2deg;
+
+  --orbit-radius: clamp(
+    var(--orbit-min-radius),
+    calc((var(--media-count) * (var(--orbit-card-width) + var(--orbit-gap))) / 6.28318),
+    var(--orbit-max-radius)
+  );
+
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 7;
+  min-block-size: var(--orbit-height);
+  border-radius: var(--radius-m, 1rem);
+  overflow: hidden;
+  perspective: var(--orbit-perspective);
+  perspective-origin: var(--orbit-perspective-origin-x) var(--orbit-perspective-origin-y);
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.08), transparent 52%),
+    radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.035), transparent 60%),
+    #050505;
+}
+
+.cv-media-group--orbit .cv-media-group__track {
+  position: absolute;
+  inset: 0;
+  display: block;
+  min-inline-size: 0;
+  padding: 0;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  animation: cvMediaOrbit var(--media-speed, 120s) linear infinite;
+  will-change: transform;
+}
+
+.cv-media-group--orbit .cv-media-card {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: var(--orbit-card-width);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: var(--orbit-card-radius);
+  background: #101010;
+  backface-visibility: hidden;
+  transform:
+    translate(-50%, -50%)
+    rotateY(calc((360deg / var(--media-count)) * var(--media-index)))
+    translateZ(var(--orbit-radius));
+  box-shadow: 0 1.25rem 3.2rem rgba(0, 0, 0, 0.42);
+}
+
+.cv-media-group--orbit.cv-media-group--square .cv-media-card {
+  aspect-ratio: 1 / 1;
+}
+
+.cv-media-group--strip .cv-media-group__track {
+  display: flex;
+  gap: clamp(0.8rem, 1.5vw, 1.4rem);
+  animation: cvMediaMarquee var(--media-speed, 120s) linear infinite;
+  will-change: transform;
+}
+
+.cv-media-group--strip .cv-media-card {
+  flex: 0 0 auto;
+  inline-size: clamp(9rem, 18vw, 16rem);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: clamp(0.6rem, 1.2vw, 1rem);
+  background: #101010;
+}
+
+.cv-media-group--grid .cv-media-group__track {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.4vw, 1.25rem);
+}
+
+.cv-media-group--grid .cv-media-card {
+  overflow: hidden;
+  border-radius: clamp(0.7rem, 1.2vw, 1rem);
+  background: #101010;
+}
+
+.cv-media-group--grid .cv-media-card img,
+.cv-media-group--grid .cv-media-card video {
+  aspect-ratio: 16 / 10;
+}
+
+@keyframes cvMediaOrbit {
+  from {
+    transform:
+      translateZ(calc(var(--orbit-radius) * -1))
+      rotateX(var(--orbit-track-tilt))
+      rotateY(0deg);
+  }
+
+  to {
+    transform:
+      translateZ(calc(var(--orbit-radius) * -1))
+      rotateX(var(--orbit-track-tilt))
+      rotateY(-360deg);
+  }
+}
+
+@keyframes cvMediaMarquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 760px) {
+  .cv-media-group--orbit {
+    --orbit-card-width: clamp(6.4rem, 24vw, 8.8rem);
+    --orbit-gap: clamp(0.8rem, 2.2vw, 1.2rem);
+    --orbit-min-radius: 8rem;
+    --orbit-max-radius: 34rem;
+    --orbit-height: clamp(18rem, 88vw, 26rem);
+    --orbit-perspective: clamp(820px, 140vw, 1200px);
+    --orbit-track-tilt: -1.5deg;
+
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cv-media-group--orbit .cv-media-group__track,
+  .cv-media-group--strip .cv-media-group__track {
+    animation-play-state: paused;
+  }
+}
+/* dom media scenes:end */
+
+/* styx photo orbit tuning:start */
+.cv-media-group--orbit[data-cv-media-scene="styxPhotoProduction"] {
+  --orbit-card-width: clamp(11rem, 15vw, 18rem);
+  --orbit-gap: clamp(1.15rem, 1.4vw, 1.8rem);
+  --orbit-min-radius: 16rem;
+  --orbit-max-radius: 86rem;
+  --orbit-height: clamp(24rem, 46vw, 38rem);
+  --orbit-perspective: clamp(920px, 88vw, 1320px);
+  --orbit-perspective-origin-y: 47%;
+  --orbit-track-tilt: -1.5deg;
+
+  aspect-ratio: 16 / 7;
+}
+
+.cv-media-group--orbit[data-cv-media-scene="styxPhotoProduction"] .cv-media-card,
+.cv-media-group--orbit.cv-media-group--square[data-cv-media-scene="styxPhotoProduction"] .cv-media-card {
+  inline-size: var(--orbit-card-width);
+  aspect-ratio: 2 / 3;
+}
+
+.cv-media-group--orbit[data-cv-media-scene="styxPhotoProduction"] .cv-media-card img,
+.cv-media-group--orbit[data-cv-media-scene="styxPhotoProduction"] .cv-media-card video {
+  object-fit: cover;
+}
+
+@media (max-width: 760px) {
+  .cv-media-group--orbit[data-cv-media-scene="styxPhotoProduction"] {
+    --orbit-card-width: clamp(8rem, 32vw, 11rem);
+    --orbit-gap: clamp(0.8rem, 2vw, 1.2rem);
+    --orbit-min-radius: 10rem;
+    --orbit-max-radius: 42rem;
+    --orbit-height: clamp(22rem, 92vw, 30rem);
+    --orbit-perspective: clamp(800px, 128vw, 1100px);
+
+    aspect-ratio: 1 / 1;
+  }
+}
+/* styx photo orbit tuning:end */
