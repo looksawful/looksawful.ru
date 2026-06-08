@@ -54,7 +54,7 @@ const renderSpiral = ({ ctx, images, time, width, height, reducedMotion }) => {
 		const y = centerY + Math.sin(angle) * radius;
 
 		ctx.globalAlpha = Math.min(1, t * config.alphaScale);
-		ctx.save();
+ctx.save();
 		ctx.translate(x, y);
 		ctx.rotate(angle + Math.PI / 2);
 		drawRoundedCover(ctx, item.imageElement, -size * 0.5, -size * 0.5, size);
@@ -110,3 +110,5 @@ if (import.meta.hot) {
 		disposeCanvasAnimationsByPrefix(SPIRAL_KEY_PREFIX);
 	});
 }
+
+

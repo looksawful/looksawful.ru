@@ -29,11 +29,11 @@ const config = {
 	direction: "left",
 
 	fade: {
-		enabled: false,
-		size: 0.16,
-		sizes: {},
-		sides: { left: false, right: false },
-	},
+enabled: false,
+size: 0,
+sizes: {},
+sides: { top: false, right: false, bottom: false, left: false },
+},
 
 	preload: 260,
 	cycleGap: 0,
@@ -553,7 +553,6 @@ const applyCanvasFadeMask = ({ ctx, width, height }) => {
 
 const renderCvDiagonal = ({ ctx, width, height, layout }) => {
 	drawLayout({ ctx, width, height, layout });
-	applyCanvasFadeMask({ ctx, width, height });
 
 	ctx.globalAlpha = 1;
 	ctx.globalCompositeOperation = "source-over";
@@ -647,3 +646,6 @@ if (import.meta.hot) {
 		disposeCanvasAnimationsByPrefix(CV_DIAGONAL_KEY_PREFIX);
 	});
 }
+
+
+

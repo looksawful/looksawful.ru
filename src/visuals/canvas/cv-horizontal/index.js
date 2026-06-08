@@ -29,10 +29,7 @@ const config = {
   direction: "left",
 
   fade: {
-    enabled: true,
-    size: 0.16,
-    sizes: {},
-    sides: { top: true, right: true, bottom: true, left: true },
+    enabled: false, size: 0, sizes: {}, sides: { top: false, right: false, bottom: false, left: false },
   },
 
   preload: 360,
@@ -514,7 +511,6 @@ const applyCanvasFadeMask = ({ ctx, width, height }) => {
 
 const renderCvHorizontal = ({ ctx, width, height, layout }) => {
   drawLayout({ ctx, width, height, layout });
-  applyCanvasFadeMask({ ctx, width, height });
 
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = "source-over";
@@ -635,3 +631,5 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(CV_HORIZONTAL_KEY_PREFIX);
   });
 }
+
+

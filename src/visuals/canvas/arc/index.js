@@ -132,10 +132,10 @@ const renderArc = ({ ctx, items, titleStyle, time, width, height, reducedMotion 
 		const topZone = Math.max(0, Math.cos(angle - Math.PI * 1.5));
 		const focus = Math.pow(topZone, config.cardFocusPower);
 		const size = cardBaseSize * (config.cardMinScale + focus * config.cardMaxBonus);
-		const edge = Math.abs(x - centerX) / centerX;
-		const alpha = clamp01(1 - (edge - config.edgeFadeStart) * config.edgeFadePower);
+const edge = Math.abs(x - centerX) / centerX;
+const alpha = clamp01(1 - (edge - config.edgeFadeStart) * config.edgeFadePower);
 
-		ctx.globalAlpha = alpha;
+ctx.globalAlpha = alpha;
 		ctx.save();
 		ctx.translate(x, y);
 		ctx.rotate(angle + Math.PI / 2);
@@ -239,3 +239,5 @@ if (import.meta.hot) {
 		disposeCanvasAnimationsByPrefix(ARC_KEY_PREFIX);
 	});
 }
+
+
