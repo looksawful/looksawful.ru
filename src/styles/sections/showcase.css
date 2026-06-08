@@ -1987,3 +1987,195 @@
 }
 /* styx orbit background restore:end */
 
+/* experiment visual surface cleanup:start */
+.cv-section {
+  --visual-control-line: rgba(17, 17, 17, 0.24);
+  --visual-list-card-line: rgba(17, 17, 17, 0.16);
+  --visual-divider-line: rgba(17, 17, 17, 0.10);
+}
+
+/* remove structural borders */
+.cv-section .cv-experience__item--featured,
+.cv-section .cv-experience__item--featured .case-project,
+.cv-section .cv-experience__item--featured .case-domain,
+.cv-section .cv-experience__item--featured .case-evidence,
+.cv-section .cv-experience__item--featured .ds-evidence,
+.cv-section .cv-experience__item--featured .ds-panel,
+.cv-section .cv-experience__item--featured .ds-surface,
+.cv-section .cv-experience__item--featured .cv-project-hero,
+.cv-section .cv-experience__item--featured .cv-project-hero__banner,
+.cv-section .cv-experience__item--featured .cv-project-hero__body,
+.cv-section .cv-experience__item--featured .cv-task-area,
+.cv-section .cv-experience__item--featured .cv-task-domains,
+.cv-section .cv-experience__item--featured .cv-task-domain,
+.cv-section .cv-experience__item--featured .cv-task-group,
+.cv-section .cv-experience__item--featured .cv-task-group__visual,
+.cv-section .cv-experience__item--featured .cv-task-group__meta,
+.cv-section .cv-experience__item--featured .cv-task-list-groups,
+.cv-section .cv-experience__item--featured .cv-preview-row,
+.cv-section .cv-experience__item--featured .cv-preview,
+.cv-section .cv-experience__item--featured .cv-media-group,
+.cv-section .cv-experience__item--featured .cv-media-group__track,
+.cv-section .cv-experience__item--featured .cv-media-card,
+.cv-section .cv-experience__item--featured .cv-landing-animation-strip,
+.cv-section .cv-experience__item--featured .cv-landing-animation-strip__track,
+.cv-section .resume-timeline-item,
+.cv-section .resume-timeline-item__content {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* remove grey fills, but do not touch canvas, dark, orbit stages */
+.cv-section .cv-experience__item--featured .case-project,
+.cv-section .cv-experience__item--featured .case-domain,
+.cv-section .cv-experience__item--featured .case-evidence,
+.cv-section .cv-experience__item--featured .ds-evidence,
+.cv-section .cv-experience__item--featured .ds-panel,
+.cv-section .cv-experience__item--featured .ds-surface,
+.cv-section .cv-experience__item--featured .cv-project-hero,
+.cv-section .cv-experience__item--featured .cv-project-hero__banner,
+.cv-section .cv-experience__item--featured .cv-project-hero__body,
+.cv-section .cv-experience__item--featured .cv-task-area,
+.cv-section .cv-experience__item--featured .cv-task-domains,
+.cv-section .cv-experience__item--featured .cv-task-domain,
+.cv-section .cv-experience__item--featured .cv-task-group,
+.cv-section .cv-experience__item--featured .cv-task-group__visual,
+.cv-section .cv-experience__item--featured .cv-task-group__meta,
+.cv-section .cv-experience__item--featured .cv-task-list-groups,
+.cv-section .cv-experience__item--featured .cv-preview:not(:has(canvas)),
+.cv-section .cv-experience__item--featured .cv-preview-row:not(:has(canvas)),
+.cv-section .cv-experience__item--featured .cv-media-group:not(.cv-media-group--dark):not(.cv-media-group--orbit),
+.cv-section .cv-experience__item--featured .cv-media-group:not(.cv-media-group--dark):not(.cv-media-group--orbit) .cv-media-group__track,
+.cv-section .cv-experience__item--featured .cv-media-group:not(.cv-media-group--dark):not(.cv-media-group--orbit) .cv-media-card,
+.cv-section .resume-timeline-item,
+.cv-section .resume-timeline-item__content {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* keep borders for task/list cards */
+.cv-section .cv-experience__item--featured .cv-task-list-group,
+.cv-section .cv-experience__item--featured .ds-list-section,
+.cv-task-list-group.ds-list-section {
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--visual-list-card-line) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* keep internal list-card dividers */
+.cv-section .cv-experience__item--featured .cv-task-list-group__content > h5,
+.cv-task-list-group__content > h5 {
+  border-block-end: 1px solid var(--visual-divider-line) !important;
+}
+
+/* keep borders for chips, tags, pills, tabs and buttons */
+.cv-role-chip,
+.cv-task-chip,
+.ds-chip,
+.tech-list li,
+.pet-tech-list li,
+.cv-task-tech-list li,
+[class*="chip"],
+[class*="tag"],
+[class*="badge"],
+[class*="pill"],
+[role="tab"],
+.tab,
+.tabs button,
+.tabs a,
+button,
+.button,
+.btn,
+.cv-scroll-row-button,
+.cv-inline-video__sound,
+.cv-media-lightbox__close {
+  border-color: var(--visual-control-line) !important;
+  box-shadow: none !important;
+}
+
+/* remove grey fills from chips/buttons, keep their borders */
+.cv-role-chip,
+.cv-task-chip,
+.ds-chip,
+.tech-list li,
+.pet-tech-list li,
+.cv-task-tech-list li,
+[class*="chip"],
+[class*="tag"],
+[class*="badge"],
+[class*="pill"],
+[role="tab"],
+.tab,
+.tabs button,
+.tabs a,
+button,
+.button,
+.btn,
+.cv-scroll-row-button,
+.cv-inline-video__sound {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* hide redundant section headings marked in HTML */
+:where(header, div):has(> [data-experiment-hide-heading]) {
+  display: none !important;
+}
+
+/* compact CV only, not showcase case projects */
+.cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured),
+.cv-section .resume-timeline-item {
+  gap: clamp(0.45rem, 0.85vw, 0.82rem) !important;
+  padding-block: 0 !important;
+  margin-block: 0 clamp(2.2rem, 4.4vw, 4.2rem) !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) h3,
+.cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) h4,
+.cv-section .resume-timeline-item h3,
+.cv-section .resume-timeline-item h4,
+.cv-section .resume-timeline-item__title,
+.cv-section .cv-experience__title {
+  max-inline-size: 100% !important;
+  margin-block: 0 clamp(0.34rem, 0.65vw, 0.58rem) !important;
+  font-size: clamp(1.75rem, 3.1vw, 3rem) !important;
+  line-height: 0.92 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) .cv-role-chips,
+.cv-section .resume-timeline-item .cv-role-chips {
+  gap: 0.28rem !important;
+  margin-block: 0 clamp(0.42rem, 0.72vw, 0.68rem) !important;
+}
+
+.cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) .cv-role-chip,
+.cv-section .resume-timeline-item .cv-role-chip {
+  min-block-size: 1.35rem !important;
+  padding: 0.16rem 0.42rem 0.19rem !important;
+  font-size: clamp(0.56rem, 0.62vw, 0.68rem) !important;
+  line-height: 1 !important;
+}
+
+.cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) p,
+.cv-section .resume-timeline-item p,
+.cv-section .resume-timeline-item__summary,
+.cv-section .cv-experience__summary {
+  max-inline-size: 52rem !important;
+  margin-block: 0 !important;
+  font-size: clamp(0.82rem, 0.92vw, 1rem) !important;
+  line-height: 1.36 !important;
+}
+/* experiment visual surface cleanup:end */
+
