@@ -590,10 +590,6 @@
 }
 /* jestei landing showcase:end */
 
-
-
-
-
 /* dom media scenes:start */
 .cv-media-group[data-cv-media-scene] {
   --media-count: 1;
@@ -804,3 +800,115 @@
   }
 }
 /* styx photo orbit tuning:end */
+
+/* cv media lightbox:start */
+.cv-media-group[data-cv-media-scene] .cv-media-card {
+  cursor: zoom-in;
+  transition:
+    transform 180ms ease,
+    filter 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.cv-media-group[data-cv-media-scene] .cv-media-card:hover,
+.cv-media-group[data-cv-media-scene] .cv-media-card:focus-visible {
+  filter: brightness(1.04) contrast(1.02);
+  box-shadow: 0 1.55rem 4rem rgba(0, 0, 0, 0.5);
+}
+
+.cv-media-group--orbit[data-cv-media-scene] .cv-media-card:hover,
+.cv-media-group--orbit[data-cv-media-scene] .cv-media-card:focus-visible {
+  transform:
+    translate(-50%, -50%)
+    rotateY(calc((360deg / var(--media-count)) * var(--media-index)))
+    translateZ(calc(var(--orbit-radius) + 0.75rem))
+    scale(1.035);
+}
+
+.cv-media-group[data-cv-media-scene] .cv-media-card:focus-visible {
+  outline: 1px solid color-mix(in srgb, currentColor 52%, transparent);
+  outline-offset: 0.28rem;
+}
+
+.has-cv-media-lightbox .cv-media-group--orbit .cv-media-group__track,
+.has-cv-media-lightbox .cv-media-group--strip .cv-media-group__track {
+  animation-play-state: paused !important;
+}
+
+.cv-media-lightbox[hidden] {
+  display: none;
+}
+
+.cv-media-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.cv-media-lightbox__stage {
+  display: grid;
+  place-items: center;
+  inline-size: min(100%, 88rem);
+  block-size: min(100%, 88vh);
+}
+
+.cv-media-lightbox__stage img,
+.cv-media-lightbox__stage video {
+  display: block;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  border-radius: 8px;
+  object-fit: contain;
+  box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.28);
+}
+
+.cv-media-lightbox__close {
+  position: fixed;
+  inset-block-start: clamp(0.8rem, 2vw, 1.4rem);
+  inset-inline-end: clamp(0.8rem, 2vw, 1.4rem);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  inline-size: 2.4rem;
+  aspect-ratio: 1;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 999px;
+  color: #111;
+  background: rgba(255, 255, 255, 0.72);
+  font: inherit;
+  cursor: pointer;
+}
+
+.has-cv-media-lightbox {
+  overflow: hidden;
+}
+/* cv media lightbox:end */
+
+/* scanography video alignment:start */
+.cv-task-group__visual video,
+.cv-preview video,
+.cv-inline-video video,
+.cv-inline-video__frame video,
+.cv-video video,
+.cv-video-frame video {
+  display: block;
+  inline-size: 100% !important;
+  block-size: 100% !important;
+  margin: auto !important;
+  object-fit: cover !important;
+  object-position: 50% 50% !important;
+  transform: none !important;
+}
+
+.cv-preview,
+.cv-inline-video,
+.cv-inline-video__frame,
+.cv-video,
+.cv-video-frame {
+  overflow: hidden;
+}
+/* scanography video alignment:end */
