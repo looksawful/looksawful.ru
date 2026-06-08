@@ -50,8 +50,16 @@ const getSceneConfig = (sceneId) => ({
 	...(SCENE_CONFIGS[sceneId] || {}),
 });
 
-const getSceneItems = (sceneId) =>
-	createAnimationItems(CV_ANIMATION_SCENES[resolveSceneId(sceneId)].modules);
+const getSceneItems = (sceneId) => {
+  const resolvedSceneId = resolveSceneId(sceneId);
+  const scene = CV_ANIMATION_SCENES[resolvedSceneId];
+
+  return limitAnimationItems(
+    createAnimationItems(scene.modules),
+    resolvedSceneId,
+    { defaultMaxItems: scene.defaultMaxItems || 36 },
+  );
+};
 
 const loadImagesProgressive = (items, { initialCount = 24, batchSize = 10 } = {}) => {
 	const loaded = items.map((item, sourceIndex) => ({

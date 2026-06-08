@@ -17,9 +17,13 @@ const DEFAULT_ARC_SCENE = "jesteiGraphicArc";
 
 const getArcItems = (sceneId = DEFAULT_ARC_SCENE) => {
 	const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_ARC_SCENE];
-	return createAnimationItems(scene.modules, {
-		getTitle: (stem) => stem.replace(/-/g, " "),
-	});
+	return limitAnimationItems(
+    createAnimationItems(scene.modules, {
+      getTitle: (stem) => stem.replace(/-/g, " "),
+    }),
+    sceneId,
+    { defaultMaxItems: scene.defaultMaxItems || 18 },
+  );
 };
 
 const config = {

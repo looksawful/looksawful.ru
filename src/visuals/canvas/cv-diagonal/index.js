@@ -7,6 +7,7 @@ import {
 	isCurrentMount,
 	loadMedia,
 	noop,
+  limitAnimationItems,
 	roundedRect,
 } from "../../shared/canvas-animation.js";
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
@@ -55,7 +56,11 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const getDiagonalItems = (sceneId = DEFAULT_DIAGONAL_SCENE) => {
 	const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_DIAGONAL_SCENE];
-	return createAnimationItems(scene.modules);
+	return limitAnimationItems(
+    createAnimationItems(scene.modules),
+    sceneId,
+    { defaultMaxItems: scene.defaultMaxItems || 30 },
+  );
 };
 
 const createDisposeHandle = (dispose = noop) => {

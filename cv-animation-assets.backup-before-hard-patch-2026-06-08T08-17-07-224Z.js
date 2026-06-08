@@ -1,4 +1,4 @@
-const animationModules = import.meta.glob("../../assets/cv/animations/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}", {
+const animationModules = import.meta.glob("../../assets/cv/animations/**/*.{webp,png,jpg,jpeg,avif,mp4,webm}", {
   eager: true,
   query: "?url",
   import: "default",
@@ -8,30 +8,22 @@ const SCENE_LABELS = {
   jesteiInterfaceMasonry: "Jestei Pool / ux-ui / masonry",
   jesteiProductHorizontal: "Jestei Pool / product / horizontal",
   jesteiGraphicArc: "Jestei Pool / graphic / arc",
+  styxGraphicDiagonal: "Styx Jewels / graphic / diagonal",
+  lyveGraphicCarousel: "Lyve Moscow / graphic / carousel",
   jesteiLandingArc: "Jestei Pool / landing / arc",
   jesteiLandingSpiral: "Jestei Pool / landing / spiral",
   jesteiLandingMasonry: "Jestei Pool / landing / masonry",
-  styxGraphicDiagonal: "Styx Jewels / graphic / diagonal",
-  styxBrandIdentity: "Styx Jewels / brand identity / horizontal",
-  styxPhotoProduction: "Styx Jewels / photo production / arc",
-  styxScanographyLoops: "Styx Jewels / scanography loops",
-  lyveGraphicCarousel: "Lyve Moscow / graphic / carousel",
-  lyveInterfaceStrip: "Lyve Moscow / interface / horizontal",
 };
 
 const SCENE_DEFAULT_MAX_ITEMS = {
   jesteiInterfaceMasonry: 36,
   jesteiProductHorizontal: 42,
   jesteiGraphicArc: 18,
+  styxGraphicDiagonal: 30,
+  lyveGraphicCarousel: 12,
   jesteiLandingArc: 18,
   jesteiLandingSpiral: 5,
   jesteiLandingMasonry: 36,
-  styxGraphicDiagonal: 30,
-  styxBrandIdentity: 24,
-  styxPhotoProduction: 24,
-  styxScanographyLoops: 6,
-  lyveGraphicCarousel: 12,
-  lyveInterfaceStrip: 12,
 };
 
 const getModuleUrl = (moduleValue) =>
@@ -63,7 +55,9 @@ const buildAnimationScenes = () => {
   Object.entries(animationModules).forEach(([path, moduleValue]) => {
     const folder = getFolderFromPath(path);
 
-    if (!folder) return;
+    if (!folder) {
+      return;
+    }
 
     const id = folderToSceneId(folder);
 
