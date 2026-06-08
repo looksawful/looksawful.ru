@@ -1,3 +1,4 @@
+import { initCvMediaScenes } from "../../visuals/dom/cv-media-scenes.js";
 import { observeOnceVisible } from "./observer.js";
 import {
   LOGO_INSPECTOR_MODEL_URL,
@@ -223,6 +224,7 @@ function initPreviewSlider(slider) {
 }
 
 export async function initCvVisuals(root = document) {
+  initCvMediaScenes(typeof root !== "undefined" ? root : document);
   const visualTargets = [...root.querySelectorAll("[data-cv-visual-demo]")];
   const animationPreviews = [...root.querySelectorAll("[data-cv-animation]")];
   const sliders = [...root.querySelectorAll("[data-cv-preview-slider]")];
