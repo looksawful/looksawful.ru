@@ -1119,3 +1119,272 @@
   block-size: 0.68rem;
 }
 /* hierarchy refactor final tuning:end */
+
+/* showcase layout system:start */
+.cv-section .cv-experience__item--featured {
+  --project-hero-padding-block: clamp(2.25rem, 4vw, 4.25rem);
+  --project-hero-padding-inline: clamp(1.5rem, 3.4vw, 3.75rem);
+  --project-logo-slot-min: clamp(8.5rem, 15vw, 13.5rem);
+  --project-logo-slot-max: clamp(12rem, 22vw, 20rem);
+  --project-logo-slot-size: clamp(var(--project-logo-slot-min), 18vw, var(--project-logo-slot-max));
+  --project-hero-content-gap: clamp(0.72rem, 1.1vw, 1.18rem);
+  --project-hero-title-gap: clamp(0.58rem, 0.86vw, 0.94rem);
+  --project-hero-copy-gap: clamp(1rem, 1.35vw, 1.5rem);
+  --project-container-line: rgba(17, 17, 17, 0.14);
+  --project-container-line-soft: rgba(17, 17, 17, 0.075);
+}
+
+.cv-section .cv-experience__item--featured.case-project {
+  border-color: var(--project-container-line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-project);
+  box-shadow: none;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--project-container-line);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, rgba(17, 17, 17, 0.018), rgba(17, 17, 17, 0) 42%),
+    var(--surface-project);
+}
+
+.cv-section .cv-experience__item--featured .cv-project-hero__banner {
+  display: none;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-hero__body {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(var(--project-logo-slot-min), var(--project-logo-slot-size)) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(1.35rem, 2.8vw, 3rem);
+  min-block-size: clamp(18rem, 30vw, 28rem);
+  padding: var(--project-hero-padding-block) var(--project-hero-padding-inline);
+}
+
+.cv-section .cv-experience__item--featured .cv-project-logo {
+  display: grid;
+  place-items: center;
+  inline-size: var(--project-logo-slot-size);
+  block-size: var(--project-logo-slot-size);
+  min-inline-size: var(--project-logo-slot-min);
+  min-block-size: var(--project-logo-slot-min);
+  max-inline-size: var(--project-logo-slot-max);
+  max-block-size: var(--project-logo-slot-max);
+  margin: 0;
+  overflow: visible;
+  contain: layout style;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-logo img,
+.cv-section .cv-experience__item--featured .cv-project-logo svg,
+.cv-section .cv-experience__item--featured .cv-project-logo canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-logo img,
+.cv-section .cv-experience__item--featured .cv-project-logo svg {
+  object-fit: contain;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-logo canvas {
+  object-fit: contain;
+  overflow: visible;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-hero__content {
+  display: grid;
+  align-content: center;
+  gap: var(--project-hero-content-gap);
+  min-inline-size: 0;
+  max-inline-size: min(100%, 52rem);
+}
+
+.cv-section .cv-experience__item--featured .cv-experience__title-line {
+  display: grid;
+  gap: 0;
+  min-inline-size: 0;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-hero h3 {
+  margin: 0;
+  max-inline-size: 100%;
+  font-size: clamp(3.4rem, 7.2vw, 5.9rem);
+  line-height: 0.86;
+  letter-spacing: -0.055em;
+  text-wrap: balance;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+  margin: var(--project-hero-title-gap) 0 0;
+  padding: 0;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-copy {
+  margin-block-start: var(--project-hero-copy-gap);
+  max-inline-size: min(100%, 48rem);
+}
+
+.cv-section .cv-experience__item--featured .cv-project-copy p {
+  margin: 0;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-period--hero {
+  align-self: start;
+  justify-self: end;
+  white-space: nowrap;
+  color: var(--color-muted);
+}
+
+.cv-section .cv-experience__item--featured .cv-task-area {
+  display: grid;
+  gap: clamp(1.4rem, 2.4vw, 2.8rem);
+}
+
+.cv-section .cv-experience__item--featured .cv-task-domains {
+  display: grid;
+  gap: clamp(1.75rem, 3vw, 3.25rem);
+}
+
+.cv-section .cv-experience__item--featured .cv-task-domain {
+  border-color: var(--project-container-line-soft);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, rgba(17, 17, 17, 0.012), rgba(17, 17, 17, 0) 12rem),
+    var(--surface-domain);
+  box-shadow: none;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-group {
+  gap: clamp(1rem, 1.8vw, 2rem);
+}
+
+.cv-section .cv-experience__item--featured .cv-task-group--with-visual {
+  align-items: stretch;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-group__visual {
+  min-inline-size: 0;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-group__meta {
+  min-inline-size: 0;
+  align-content: start;
+}
+
+.cv-section .cv-experience__item--featured .case-evidence,
+.cv-section .cv-experience__item--featured .ds-evidence {
+  border-color: var(--project-container-line-soft);
+}
+
+@media (max-width: 78rem) {
+  .cv-section .cv-experience__item--featured {
+    --project-logo-slot-size: clamp(8rem, 18vw, 13rem);
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-hero__body {
+    grid-template-columns: minmax(7.5rem, var(--project-logo-slot-size)) minmax(0, 1fr);
+    grid-template-areas:
+      "logo period"
+      "logo content";
+    align-items: center;
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-logo {
+    grid-area: logo;
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-hero__content {
+    grid-area: content;
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-period--hero {
+    grid-area: period;
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-hero h3 {
+    font-size: clamp(2.9rem, 7.4vw, 5rem);
+  }
+}
+
+@media (max-width: 56rem) {
+  .cv-section .cv-experience__item--featured {
+    --project-logo-slot-size: clamp(7rem, 30vw, 10rem);
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-hero__body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "period"
+      "logo"
+      "content";
+    justify-items: start;
+    min-block-size: auto;
+    padding: clamp(1.35rem, 7vw, 2.4rem);
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-logo {
+    inline-size: var(--project-logo-slot-size);
+    block-size: var(--project-logo-slot-size);
+    min-inline-size: 0;
+    min-block-size: 0;
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-period--hero {
+    justify-self: start;
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-hero h3 {
+    font-size: clamp(2.55rem, 14vw, 4.2rem);
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-copy {
+    margin-block-start: clamp(0.8rem, 2.8vw, 1.15rem);
+  }
+}
+
+@media (max-width: 38rem) {
+  .cv-section .cv-experience__item--featured {
+    --project-logo-slot-size: clamp(6.5rem, 38vw, 9.5rem);
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-hero__body {
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .cv-section .cv-experience__item--featured .cv-project-hero h3 {
+    font-size: clamp(2.2rem, 16vw, 3.25rem);
+    letter-spacing: -0.06em;
+  }
+
+  .cv-section .cv-experience__item--featured .cv-role-chip {
+    min-block-size: 1.62rem;
+    padding: 0.28rem 0.52rem 0.32rem;
+  }
+}
+/* showcase layout system:end */
+
+/* tech chip separator cleanup:start */
+.cv-section .cv-experience__item--featured .cv-task-group__meta > .cv-task-tech-list,
+.cv-section .cv-experience__item--featured .cv-task-tech-list--domain {
+  padding-block-end: 0;
+  border-block-end: 0;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-group__meta > .cv-task-tech-list + .cv-task-list-groups,
+.cv-section .cv-experience__item--featured .cv-task-tech-list--domain + .cv-task-list-groups {
+  margin-block-start: 0;
+}
+/* tech chip separator cleanup:end */
+
