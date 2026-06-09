@@ -4,17 +4,17 @@ const activeAnimations = new Map();
 const imageCache = new Map();
 
 const spiralCoverUrls = [
-  new URL("./assets/spiral/14-fevralya.webp", import.meta.url).href,
-  new URL("./assets/spiral/techno.webp", import.meta.url).href,
-  new URL("./assets/spiral/unknown-blue-flare.webp", import.meta.url).href,
-  new URL("./assets/spiral/hip-hop-classic.webp", import.meta.url).href,
-  new URL("./assets/spiral/phonk.webp", import.meta.url).href,
-  new URL("./assets/spiral/club-hits.webp", import.meta.url).href,
-  new URL("./assets/spiral/remiksy.webp", import.meta.url).href,
-  new URL("./assets/spiral/novaya-shkola.webp", import.meta.url).href,
-  new URL("./assets/spiral/indie-dance.webp", import.meta.url).href,
-  new URL("./assets/spiral/hyper-pop.webp", import.meta.url).href,
-  new URL("./assets/spiral/khity-russian.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/14-fevralya.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/techno.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/unknown-blue-flare.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/hip-hop-classic.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/phonk.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/club-hits.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/remiksy.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/novaya-shkola.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/indie-dance.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/hyper-pop.webp", import.meta.url).href,
+  new URL("../../../../assets/jestei/animations/landing-motion-spiral/spiral/khity-russian.webp", import.meta.url).href,
 ];
 
 const config = {
