@@ -4568,3 +4568,23 @@ button,
 }
 /* styx photo production cover fit:end */
 
+/* styx communications static gallery:start */
+.cv-task-side-gallery--communications-static {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: clamp(0.65rem, 1vw, 0.9rem) !important;
+}
+
+.cv-task-side-gallery--communications-static .cv-task-side-gallery__link {
+  aspect-ratio: 1 / 1 !important;
+  min-inline-size: 0 !important;
+  overflow: hidden !important;
+}
+
+.cv-task-side-gallery--communications-static .cv-task-side-gallery__media {
+  inline-size: 100% !important;
+  block-size: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+/* styx communications static gallery:end */
