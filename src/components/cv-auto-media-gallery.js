@@ -1,5 +1,5 @@
 const mediaModules = import.meta.glob(
-  "../assets/cv/auto-galleries/**/*.{png,jpg,jpeg,webp,avif,gif,mp4,webm,m4v}",
+  "../assets/*/galleries/**/*.{png,jpg,jpeg,webp,avif,gif,mp4,webm,m4v}",
   {
     eager: true,
     query: "?url",
