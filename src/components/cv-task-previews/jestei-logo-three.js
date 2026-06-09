@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import logoModelUrl from "../../visuals/assets/projects/jestei/logo/logo.glb?url";
+import logoModelUrl from "../../assets/jestei/models/logo.glb?url";
 import {
   createFrameTimer,
   disposeObjectResources,
