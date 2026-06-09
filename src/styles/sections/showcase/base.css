@@ -4588,3 +4588,44 @@ button,
   object-position: center center !important;
 }
 /* styx communications static gallery:end */
+
+/* jestei static extra sections:start */
+.cv-jestei-static-extra-sections {
+  margin-block-start: clamp(2.5rem, 5vw, 6rem);
+}
+
+.cv-jestei-static-extra-sections__stack {
+  display: grid;
+  gap: clamp(2.25rem, 4vw, 4rem);
+}
+
+.cv-jestei-static-extra {
+  align-items: stretch;
+}
+
+.cv-jestei-static-extra__gallery {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: clamp(0.65rem, 1vw, 0.9rem) !important;
+  inline-size: 100%;
+}
+
+.cv-jestei-static-extra__gallery .cv-task-side-gallery__link {
+  aspect-ratio: 4 / 3 !important;
+  min-inline-size: 0 !important;
+  overflow: hidden !important;
+}
+
+.cv-jestei-static-extra__gallery .cv-task-side-gallery__media {
+  inline-size: 100% !important;
+  block-size: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+
+@media (max-width: 68rem) {
+  .cv-jestei-static-extra__gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+/* jestei static extra sections:end */
