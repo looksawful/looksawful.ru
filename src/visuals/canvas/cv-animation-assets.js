@@ -4,6 +4,7 @@ const animationModules = import.meta.glob("../../assets/cv/animations/**/*.{webp
   import: "default",
 });
 
+
 const SCENE_LABELS = {
   jesteiInterfaceMasonry: "Jestei Pool / ux-ui / masonry",
   jesteiProductHorizontal: "Jestei Pool / product / horizontal",
@@ -47,7 +48,8 @@ const folderToSceneId = (folder) =>
 
 const getFolderFromPath = (path) => {
   const normalized = path.replaceAll("\\", "/");
-  const match = normalized.match(/\/animations\/([^/]+)\//);
+  const match = normalized.match(/\/cv\/animations\/([^/]+)\//);
+
   return match?.[1] || "";
 };
 
@@ -61,8 +63,9 @@ export const getReadableTitle = (stem) => stem.replace(/[-_]+/g, " ");
 
 const buildAnimationScenes = () => {
   const scenes = {};
+  const moduleEntries = Object.entries(animationModules);
 
-  Object.entries(animationModules).forEach(([path, moduleValue]) => {
+  moduleEntries.forEach(([path, moduleValue]) => {
     const folder = getFolderFromPath(path);
 
     if (!folder) return;
@@ -73,9 +76,9 @@ const buildAnimationScenes = () => {
       scenes[id] = {
         id,
         label: SCENE_LABELS[id] || getReadableTitle(folder),
-        directory: `src/assets/cv/animations/${folder}`,
+        directory: "src/assets/cv/animations/" + folder,
         folder,
-        defaultMaxItems: SCENE_DEFAULT_MAX_ITEMS[id] || 36,
+defaultMaxItems: SCENE_DEFAULT_MAX_ITEMS[id] || 36,
         modules: {},
       };
     }
