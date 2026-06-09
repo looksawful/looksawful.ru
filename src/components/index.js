@@ -2,7 +2,7 @@ function runComponentStep(label, callback) {
   try {
     return callback();
   } catch (error) {
-    console.error(`[components] ${label} failed`, error);
+    console.error("[components] " + label + " failed", error);
     return null;
   }
 }
@@ -29,12 +29,8 @@ function runWhenIdle(callback) {
 
 async function initContentEnhancements() {
   try {
-    const [{ mountCvProjectLogos }, { mountTechIcons }] = await Promise.all([
-      import("./cv-project-logos/cv-project-logos.js"),
-      import("./tech-icons/tech-icons.js"),
-    ]);
+    const { mountTechIcons } = await import("./tech-icons/tech-icons.js");
 
-    runComponentStep("mountCvProjectLogos", () => mountCvProjectLogos());
     runComponentStep("mountTechIcons", () => mountTechIcons(document));
   } catch (error) {
     console.error("[components] initContentEnhancements failed", error);
@@ -65,7 +61,7 @@ async function initDecorations() {
 
     runComponentStep("initHeroTitleAnimation", () => initHeroTitleAnimation());
     runComponentStep("mountawfulface", () => mountawfulface("awfulface-hero"));
-runComponentStep("initSystemMotion", () => initSystemMotion());
+    runComponentStep("initSystemMotion", () => initSystemMotion());
   } catch (error) {
     console.error("[components] initDecorations failed", error);
   }
