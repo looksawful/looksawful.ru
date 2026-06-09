@@ -5,139 +5,139 @@ const imageCache = new Map();
 
 const arcItems = [
   {
-    imageUrl: new URL("./assets/arc/70s.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/70s.webp", import.meta.url).href,
     title: "70's",
   },
   {
-    imageUrl: new URL("./assets/arc/80s.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/80s.webp", import.meta.url).href,
     title: "80's",
   },
   {
-    imageUrl: new URL("./assets/arc/90s.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/90s.webp", import.meta.url).href,
     title: "90's",
   },
   {
-    imageUrl: new URL("./assets/arc/afro-house.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/afro-house.webp", import.meta.url).href,
     title: "Afro House",
   },
   {
-    imageUrl: new URL("./assets/arc/ai.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/ai.webp", import.meta.url).href,
     title: "AI",
   },
   {
-    imageUrl: new URL("./assets/arc/amapiano.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/amapiano.webp", import.meta.url).href,
     title: "Amapiano",
   },
   {
-    imageUrl: new URL("./assets/arc/apple-music.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/apple-music.webp", import.meta.url).href,
     title: "Apple Music",
   },
   {
-    imageUrl: new URL("./assets/arc/bass-house.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/bass-house.webp", import.meta.url).href,
     title: "Bass House",
   },
   {
-    imageUrl: new URL("./assets/arc/billboard.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/billboard.webp", import.meta.url).href,
     title: "Billboard",
   },
   {
-    imageUrl: new URL("./assets/arc/blaash.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/blaash.webp", import.meta.url).href,
     title: "BLAASH",
   },
   {
-    imageUrl: new URL("./assets/arc/drum-and-bass.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/drum-and-bass.webp", import.meta.url).href,
     title: "Drum & Bass",
   },
   {
-    imageUrl: new URL("./assets/arc/dubstep.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/dubstep.webp", import.meta.url).href,
     title: "Dubstep",
   },
   {
-    imageUrl: new URL("./assets/arc/khity.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/khity.webp", import.meta.url).href,
     title: "Хиты",
   },
   {
-    imageUrl: new URL("./assets/arc/luchshie-treki-mesyatsa.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/luchshie-treki-mesyatsa.webp", import.meta.url).href,
     title: "Лучшие треки месяца",
   },
   {
-    imageUrl: new URL("./assets/arc/mages.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/mages.webp", import.meta.url).href,
     title: "Mages",
   },
   {
-    imageUrl: new URL("./assets/arc/memy-i-prikoly.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/memy-i-prikoly.webp", import.meta.url).href,
     title: "Мемы и приколы",
   },
   {
-    imageUrl: new URL("./assets/arc/mirovye-novinki.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/mirovye-novinki.webp", import.meta.url).href,
     title: "Мировые новинки",
   },
   {
-    imageUrl: new URL("./assets/arc/moombahton.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/moombahton.webp", import.meta.url).href,
     title: "Moombahton",
   },
   {
-    imageUrl: new URL("./assets/arc/novaya-volna.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/novaya-volna.webp", import.meta.url).href,
     title: "Новая волна",
   },
   {
-    imageUrl: new URL("./assets/arc/organic-and-melodic-house.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/organic-and-melodic-house.webp", import.meta.url).href,
     title: "Organic & Melodic House",
   },
   {
-    imageUrl: new URL("./assets/arc/r-and-b-classic.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/r-and-b-classic.webp", import.meta.url).href,
     title: "R&B Classic",
   },
   {
-    imageUrl: new URL("./assets/arc/rave.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/rave.webp", import.meta.url).href,
     title: "Rave",
   },
   {
-    imageUrl: new URL("./assets/arc/reels-top.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/reels-top.webp", import.meta.url).href,
     title: "Reels Top",
   },
   {
-    imageUrl: new URL("./assets/arc/rock-hits.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/rock-hits.webp", import.meta.url).href,
     title: "Rock Hits",
   },
   {
-    imageUrl: new URL("./assets/arc/slap-house.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/slap-house.webp", import.meta.url).href,
     title: "Slap House",
   },
   {
-    imageUrl: new URL("./assets/arc/spotify.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/spotify.webp", import.meta.url).href,
     title: "Spotify",
   },
   {
-    imageUrl: new URL("./assets/arc/styled.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/styled.webp", import.meta.url).href,
     title: "Styled",
   },
   {
-    imageUrl: new URL("./assets/arc/tantsevalnye-remiksy.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/tantsevalnye-remiksy.webp", import.meta.url).href,
     title: "Танцевальные ремиксы",
   },
   {
-    imageUrl: new URL("./assets/arc/tiktok-top.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/tiktok-top.webp", import.meta.url).href,
     title: "TikTok Top",
   },
   {
-    imageUrl: new URL("./assets/arc/tranzhishny.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/tranzhishny.webp", import.meta.url).href,
     title: "Транзишны",
   },
   {
-    imageUrl: new URL("./assets/arc/trap.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/trap.webp", import.meta.url).href,
     title: "Trap",
   },
   {
-    imageUrl: new URL("./assets/arc/uk-bass.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/uk-bass.webp", import.meta.url).href,
     title: "UK Bass",
   },
   {
-    imageUrl: new URL("./assets/arc/uk-garage.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/uk-garage.webp", import.meta.url).href,
     title: "UK Garage",
   },
   {
-    imageUrl: new URL("./assets/arc/zvuki-dlya-skretcha.webp", import.meta.url).href,
+    imageUrl: new URL("../../../../assets/jestei/animations/landing-motion-arc/arc/zvuki-dlya-skretcha.webp", import.meta.url).href,
     title: "Звуки для скрэтча",
   },
 ];

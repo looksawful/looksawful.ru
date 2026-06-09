@@ -4516,3 +4516,75 @@ button,
 
 
 
+
+
+/* styx photo production gallery pair:start */
+.cv-photo-production-gallery-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.9rem, 1.4vw, 1.25rem);
+  inline-size: min(100%, 68rem);
+  margin: clamp(1.4rem, 2.4vw, 2rem) auto 0;
+}
+
+.cv-photo-production-gallery-pair__grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: clamp(0.7rem, 1vw, 0.9rem) !important;
+  inline-size: 100%;
+}
+
+.cv-photo-production-gallery-pair__grid .cv-task-side-gallery__link {
+  aspect-ratio: 4 / 3;
+  min-inline-size: 0;
+}
+
+.cv-photo-production-gallery-pair__grid .cv-task-side-gallery__media {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 68rem) {
+  .cv-photo-production-gallery-pair {
+    grid-template-columns: 1fr;
+  }
+}
+/* styx photo production gallery pair:end */
+
+/* styx photo production cover fit:start */
+.cv-task-side-image:has(img[src*="/assets/styx/galleries/styx-photo-production/"]) {
+  overflow: hidden;
+}
+
+.cv-task-side-image:has(img[src*="/assets/styx/galleries/styx-photo-production/"]) img,
+.cv-task-side-image:has(img[src*="/assets/styx/galleries/styx-photo-production/"]) .cv-task-side-image__media,
+.cv-task-side-image:has(img[src*="/assets/styx/galleries/styx-photo-production/"]) .cv-task-side-media,
+.cv-task-side-image:has(img[src*="/assets/styx/galleries/styx-photo-production/"]) .cv-task-side-media__image {
+  inline-size: 100% !important;
+  block-size: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+/* styx photo production cover fit:end */
+
+/* styx communications static gallery:start */
+.cv-task-side-gallery--communications-static {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: clamp(0.65rem, 1vw, 0.9rem) !important;
+}
+
+.cv-task-side-gallery--communications-static .cv-task-side-gallery__link {
+  aspect-ratio: 1 / 1 !important;
+  min-inline-size: 0 !important;
+  overflow: hidden !important;
+}
+
+.cv-task-side-gallery--communications-static .cv-task-side-gallery__media {
+  inline-size: 100% !important;
+  block-size: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+/* styx communications static gallery:end */

@@ -1,4 +1,4 @@
-const animationModules = import.meta.glob("../../assets/cv/animations/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}", {
+const animationModules = import.meta.glob("../../assets/*/animations/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}", {
   eager: true,
   query: "?url",
   import: "default",
@@ -48,7 +48,7 @@ const folderToSceneId = (folder) =>
 
 const getFolderFromPath = (path) => {
   const normalized = path.replaceAll("\\", "/");
-  const match = normalized.match(/\/cv\/animations\/([^/]+)\//);
+  const match = normalized.match(/\/assets\/[^/]+\/animations\/([^/]+)\//);
 
   return match?.[1] || "";
 };
@@ -76,7 +76,7 @@ const buildAnimationScenes = () => {
       scenes[id] = {
         id,
         label: SCENE_LABELS[id] || getReadableTitle(folder),
-        directory: "src/assets/cv/animations/" + folder,
+        directory: "src/assets/*/animations/" + folder,
         folder,
 defaultMaxItems: SCENE_DEFAULT_MAX_ITEMS[id] || 36,
         modules: {},

@@ -1,6 +1,6 @@
 const gallerySources = {
   "jestei-brand-identity": import.meta.glob(
-    "../assets/cv/auto-galleries/jestei-brand-identity-masonry/*.{jpg,jpeg,png,webp,avif}",
+    "../assets/jestei/galleries/jestei-brand-identity-masonry/*.{jpg,jpeg,png,webp,avif}",
     {
       eager: true,
       query: "?url",
