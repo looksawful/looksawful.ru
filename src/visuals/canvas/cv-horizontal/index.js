@@ -56,7 +56,7 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const getHorizontalItems = (sceneId = DEFAULT_HORIZONTAL_SCENE) => {
   const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_HORIZONTAL_SCENE];
-  return limitAnimationItems(createAnimationItems(scene.modules), sceneId, { defaultMaxItems: 42 });
+  return limitAnimationItems(createAnimationItems(scene.modules), sceneId, { defaultMaxItems: scene.defaultMaxItems || 20 });
 };
 
 const createDisposeHandle = (dispose = noop) => {
@@ -631,5 +631,6 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(CV_HORIZONTAL_KEY_PREFIX);
   });
 }
+
 
 
