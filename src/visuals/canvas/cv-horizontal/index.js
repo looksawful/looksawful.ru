@@ -16,7 +16,7 @@ import {
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
 const CV_HORIZONTAL_KEY_PREFIX = "cv-horizontal:";
-const DEFAULT_HORIZONTAL_SCENE = "jesteiProductHorizontal";
+const DEFAULT_HORIZONTAL_SCENE = "jesteiProductCanvas";
 const config = {
   rowCount: 3,
   minRowHeight: 72,
@@ -631,6 +631,4 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(CV_HORIZONTAL_KEY_PREFIX);
   });
 }
-
-
 

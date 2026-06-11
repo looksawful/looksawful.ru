@@ -15,10 +15,10 @@ import {
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
 const MASONRY_KEY_PREFIX = "masonry:";
-const DEFAULT_MASONRY_SCENE = "jesteiInterfaceMasonry";
+const DEFAULT_MASONRY_SCENE = "jesteiUxCanvas";
 
 const SCENE_CONFIGS = {
-	jesteiInterfaceMasonry: {
+	jesteiUxCanvas: {
 		rowCount: 3,
 		gap: 8,
 		radius: 8,
@@ -369,3 +369,4 @@ if (import.meta.hot) {
 		disposeCanvasAnimationsByPrefix(MASONRY_KEY_PREFIX);
 	});
 }
+
