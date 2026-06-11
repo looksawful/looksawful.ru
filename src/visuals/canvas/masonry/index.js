@@ -29,16 +29,6 @@ const SCENE_CONFIGS = {
 		minRatio: 0.86,
 		maxRatio: 2.75,
 	},
-	jesteiLandingMasonry: {
-		rowCount: 3,
-		gap: 8,
-		radius: 8,
-		speed: 0.018,
-		fillMultiplier: 4.8,
-		background: "#000",
-		minRatio: 0.82,
-		maxRatio: 1.75,
-	},
 };
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));

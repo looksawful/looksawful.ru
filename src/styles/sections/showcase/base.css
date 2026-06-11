@@ -1735,58 +1735,6 @@
   scroll-snap-type: none !important;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-preview[data-cv-animation="landing-arc"],
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-preview[data-cv-animation="landing-spiral"],
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-preview[data-cv-animation="landing-masonry"] {
-  display: grid !important;
-  place-items: center !important;
-  min-inline-size: 0 !important;
-  min-block-size: 0 !important;
-  height: auto !important;
-  overflow: hidden !important;
-  border: 0 !important;
-  border-radius: clamp(0.34rem, 0.42vw, 0.52rem) !important;
-  background: #000 !important;
-  background-color: #000 !important;
-  background-image: none !important;
-  box-shadow: none !important;
-  scroll-snap-align: start !important;
-}
-
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-preview[data-cv-animation="landing-arc"],
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-preview[data-cv-animation="landing-spiral"] {
-  flex: 0 0 clamp(14rem, 28vw, 26rem) !important;
-  inline-size: clamp(14rem, 28vw, 26rem) !important;
-  aspect-ratio: 1 / 1 !important;
-}
-
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-preview[data-cv-animation="landing-masonry"] {
-  flex: 0 0 clamp(22rem, 44vw, 42rem) !important;
-  inline-size: clamp(22rem, 44vw, 42rem) !important;
-  aspect-ratio: 16 / 9 !important;
-}
-
-.cv-section
-  .cv-experience__item--featured
-  .cv-task-domain--landing
-  .cv-preview[data-cv-animation="landing-arc"]
-  .cv-canvas,
-.cv-section
-  .cv-experience__item--featured
-  .cv-task-domain--landing
-  .cv-preview[data-cv-animation="landing-spiral"]
-  .cv-canvas,
-.cv-section
-  .cv-experience__item--featured
-  .cv-task-domain--landing
-  .cv-preview[data-cv-animation="landing-masonry"]
-  .cv-canvas {
-  display: block !important;
-  inline-size: 100% !important;
-  block-size: 100% !important;
-  background: transparent !important;
-}
-
 .cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-scroll-row-button {
   position: absolute !important;
   inset-block-start: 50% !important;
@@ -1880,17 +1828,6 @@
 }
 
 @media (max-width: 42rem) {
-  .cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-preview[data-cv-animation="landing-arc"],
-  .cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-preview[data-cv-animation="landing-spiral"] {
-    flex-basis: clamp(14rem, 78vw, 23rem) !important;
-    inline-size: clamp(14rem, 78vw, 23rem) !important;
-  }
-
-  .cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-preview[data-cv-animation="landing-masonry"] {
-    flex-basis: clamp(18rem, 88vw, 30rem) !important;
-    inline-size: clamp(18rem, 88vw, 30rem) !important;
-  }
-
   .cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-scroll-row-button {
     display: none !important;
   }
@@ -2734,8 +2671,7 @@ button,
     grid-template-columns: minmax(0, 1.22fr) minmax(18rem, 0.78fr) !important;
   }
 
-  .cv-section .cv-task-meta-layout--scanography-gallery > .cv-task-side-gallery,
-  .cv-section .cv-task-meta-layout--scanography-gallery > .cv-auto-media-gallery {
+  .cv-section .cv-task-meta-layout--scanography-gallery > .cv-task-side-gallery {
     grid-column: 1 !important;
     grid-row: 1 !important;
   }
@@ -2759,32 +2695,17 @@ button,
     grid-row: 1 !important;
   }
 
-  .cv-section .cv-task-gallery-split:has(> .cv-auto-media-gallery) {
-    grid-template-columns: minmax(28rem, 1.1fr) minmax(min(100%, 30rem), 0.9fr) !important;
-  }
-
-  .cv-section .cv-task-gallery-split:has(> .cv-auto-media-gallery) > .cv-auto-media-gallery {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-  }
-
-  .cv-section .cv-task-gallery-split:has(> .cv-auto-media-gallery) > .cv-task-list-group {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-  }
 }
 
 @media (max-width: 68rem) {
   .cv-section .cv-task-meta-layout--scanography-gallery > .cv-task-list-groups--side-media,
-  .cv-section .cv-task-meta-layout--side-image:has(> .cv-task-side-gallery) > .cv-task-list-groups--side-media,
-  .cv-section .cv-task-gallery-split:has(> .cv-auto-media-gallery) > .cv-task-list-group {
+  .cv-section .cv-task-meta-layout--side-image:has(> .cv-task-side-gallery) > .cv-task-list-groups--side-media {
     grid-column: 1 !important;
     grid-row: 1 !important;
   }
 
   .cv-section .cv-task-meta-layout--scanography-gallery > .cv-task-side-gallery,
-  .cv-section .cv-task-meta-layout--side-image:has(> .cv-task-side-gallery) > .cv-task-side-gallery,
-  .cv-section .cv-task-gallery-split:has(> .cv-auto-media-gallery) > .cv-auto-media-gallery {
+  .cv-section .cv-task-meta-layout--side-image:has(> .cv-task-side-gallery) > .cv-task-side-gallery {
     grid-column: 1 !important;
     grid-row: 2 !important;
   }

@@ -18,10 +18,6 @@ const animationModules = import.meta.glob(
 const SCENE_LABELS = {
   jesteiUxCanvas: "Jestei Pool / ux-ui / masonry",
   jesteiProductCanvas: "Jestei Pool / product / horizontal",
-  jesteiGraphicArc: "Jestei Pool / graphic / arc",
-  jesteiLandingArc: "Jestei Pool / landing / arc",
-  jesteiLandingSpiral: "Jestei Pool / landing / spiral",
-  jesteiLandingMasonry: "Jestei Pool / landing / masonry",
   styxGraphicDiagonal: "Styx Jewels / graphic / diagonal",
   styxBrandIdentity: "Styx Jewels / brand identity / horizontal",
   styxPhotoProduction: "Styx Jewels / photo production / arc",
@@ -34,10 +30,6 @@ const SCENE_LABELS = {
 const SCENE_DEFAULT_MAX_ITEMS = {
   jesteiUxCanvas: 18,
   jesteiProductCanvas: 20,
-  jesteiGraphicArc: 12,
-  jesteiLandingArc: 12,
-  jesteiLandingSpiral: 5,
-  jesteiLandingMasonry: 18,
   styxGraphicDiagonal: 12,
   styxBrandIdentity: 14,
   styxPhotoProduction: 24,
