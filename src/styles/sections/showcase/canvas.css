@@ -1,65 +1,9 @@
-/* showcase canvas legacy loading states:start */
-.cv-preview.is-canvas-loading,
-.cv-preview.is-canvas-error,
-.cv-embedded-demo.is-canvas-loading,
-.cv-embedded-demo.is-canvas-error {
-  position: relative;
-}
-
-.cv-preview.is-canvas-loading::after,
-.cv-embedded-demo.is-canvas-loading::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent), rgba(17, 17, 17, 0.025);
-  background-size: 220% 100%;
-  animation: cv-canvas-loading-sweep 1.4s linear infinite;
-}
-
-.cv-preview.is-canvas-ready::after,
-.cv-embedded-demo.is-canvas-ready::after {
-  content: none;
-}
-
-.cv-preview.is-canvas-error::after,
-.cv-embedded-demo.is-canvas-error::after {
-  content: "canvas error";
-  position: absolute;
-  inset: auto 0.8rem 0.8rem auto;
-  padding: 0.34rem 0.48rem 0.38rem;
-  border: 1px solid rgba(17, 17, 17, 0.18);
-  border-radius: 999px;
-  color: rgba(17, 17, 17, 0.62);
-  background: rgba(255, 255, 255, 0.82);
-  font-size: 0.64rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-@keyframes cv-canvas-loading-sweep {
-  from {
-    background-position: 220% 0;
-  }
-
-  to {
-    background-position: -220% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cv-preview.is-canvas-loading::after,
-  .cv-embedded-demo.is-canvas-loading::after {
-    animation: none;
-  }
-}
-
-/* jestei landing showcase:start */
+/* showcase canvas landing visual gap:start */
 .cv-task-domain--landing .cv-task-group__visual {
   display: grid;
   gap: clamp(1rem, 2vw, 1.75rem);
 }
-/* showcase canvas legacy loading states:end */
+/* showcase canvas landing visual gap:end */
 
 /* showcase canvas:start */
 .cv-section .cv-experience__item--featured .cv-preview[data-cv-animation],
