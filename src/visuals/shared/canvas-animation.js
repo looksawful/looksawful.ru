@@ -57,18 +57,26 @@ export const getCanvasMountOptions = (canvas, options = {}, defaults = {}) => {
     return Math.min(max, Math.max(min, Math.floor(numeric)));
   };
 
+  const getProfileDefault = (key) => {
+    if (quality === "normal") {
+      return defaults[key] ?? profile[key];
+    }
+
+    return profile[key] ?? defaults[key];
+  };
+
   return {
     quality,
-    maxDpr: Number(options.maxDpr ?? dataset.cvAnimationDpr ?? defaults.maxDpr ?? profile.maxDpr),
-    maxItems: numberFrom(options.maxItems ?? dataset.cvAnimationMaxItems, defaults.maxItems ?? profile.maxItems, 1, 160),
+    maxDpr: Number(options.maxDpr ?? dataset.cvAnimationDpr ?? getProfileDefault("maxDpr")),
+    maxItems: numberFrom(options.maxItems ?? dataset.cvAnimationMaxItems, getProfileDefault("maxItems"), 1, 160),
     initialCount: numberFrom(
       options.initialCount ?? dataset.cvAnimationInitialCount,
-      defaults.initialCount ?? profile.initialCount,
+      getProfileDefault("initialCount"),
       1,
       80,
     ),
-    batchSize: numberFrom(options.batchSize ?? dataset.cvAnimationBatchSize, defaults.batchSize ?? profile.batchSize, 1, 32),
-    fps: numberFrom(options.fps ?? dataset.cvAnimationFps, defaults.fps ?? profile.fps, 1, 60),
+    batchSize: numberFrom(options.batchSize ?? dataset.cvAnimationBatchSize, getProfileDefault("batchSize"), 1, 32),
+    fps: numberFrom(options.fps ?? dataset.cvAnimationFps, getProfileDefault("fps"), 1, 60),
     speedScale: Number(options.speedScale ?? dataset.cvAnimationSpeed ?? defaults.speedScale ?? 1) || 1,
   };
 };
