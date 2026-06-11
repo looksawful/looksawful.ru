@@ -1,29 +1,12 @@
 /* showcase canvas:start */
-.cv-section .cv-experience__item--featured .cv-preview-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-  gap: var(--media-organism-gap);
-  align-items: stretch;
-  min-inline-size: 0;
-}
-
-.cv-section .cv-experience__item--featured .cv-preview-row--single {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.cv-section .cv-experience__item--featured .cv-preview {
+.cv-section .cv-experience__item--featured .cv-preview[data-cv-animation],
+.cv-section .cv-experience__item--featured .cv-embedded-demo {
   position: relative;
-  min-inline-size: 0;
-  overflow: hidden;
-  border-radius: var(--media-card-radius);
 }
 
-.cv-section .cv-experience__item--featured .cv-preview--square {
-  aspect-ratio: 1;
-}
-
-.cv-section .cv-experience__item--featured .cv-canvas,
-.cv-section .cv-experience__item--featured .cv-preview canvas {
+.cv-section .cv-experience__item--featured .cv-preview[data-cv-animation] .cv-canvas,
+.cv-section .cv-experience__item--featured .cv-preview[data-cv-animation] canvas,
+.cv-section .cv-experience__item--featured .cv-embedded-demo canvas {
   display: block;
   inline-size: 100%;
   block-size: 100%;
@@ -39,14 +22,14 @@
   overflow: visible;
 }
 
-.cv-preview.is-canvas-loading,
-.cv-preview.is-canvas-error,
+.cv-preview[data-cv-animation].is-canvas-loading,
+.cv-preview[data-cv-animation].is-canvas-error,
 .cv-embedded-demo.is-canvas-loading,
 .cv-embedded-demo.is-canvas-error {
   position: relative;
 }
 
-.cv-preview.is-canvas-loading::after,
+.cv-preview[data-cv-animation].is-canvas-loading::after,
 .cv-embedded-demo.is-canvas-loading::after {
   content: "";
   position: absolute;
@@ -59,12 +42,12 @@
   animation: cv-canvas-loading-sweep 1.4s linear infinite;
 }
 
-.cv-preview.is-canvas-ready::after,
+.cv-preview[data-cv-animation].is-canvas-ready::after,
 .cv-embedded-demo.is-canvas-ready::after {
   content: none;
 }
 
-.cv-preview.is-canvas-error::after,
+.cv-preview[data-cv-animation].is-canvas-error::after,
 .cv-embedded-demo.is-canvas-error::after {
   content: "canvas error";
   position: absolute;
@@ -90,7 +73,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cv-preview.is-canvas-loading::after,
+  .cv-preview[data-cv-animation].is-canvas-loading::after,
   .cv-embedded-demo.is-canvas-loading::after {
     animation: none;
   }
