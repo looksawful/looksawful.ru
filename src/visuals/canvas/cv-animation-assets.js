@@ -6,8 +6,8 @@ const animationModules = import.meta.glob("../../assets/*/animations/**/*.{webp,
 
 
 const SCENE_LABELS = {
-  jesteiInterfaceMasonry: "Jestei Pool / ux-ui / masonry",
-  jesteiProductHorizontal: "Jestei Pool / product / horizontal",
+  jesteiUxCanvas: "Jestei Pool / ux-ui / masonry",
+  jesteiProductCanvas: "Jestei Pool / product / horizontal",
   jesteiGraphicArc: "Jestei Pool / graphic / arc",
   jesteiLandingArc: "Jestei Pool / landing / arc",
   jesteiLandingSpiral: "Jestei Pool / landing / spiral",
@@ -22,8 +22,8 @@ const SCENE_LABELS = {
 };
 
 const SCENE_DEFAULT_MAX_ITEMS = {
-  jesteiInterfaceMasonry: 18,
-  jesteiProductHorizontal: 20,
+  jesteiUxCanvas: 18,
+  jesteiProductCanvas: 20,
   jesteiGraphicArc: 12,
   jesteiLandingArc: 12,
   jesteiLandingSpiral: 5,
