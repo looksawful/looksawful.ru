@@ -213,6 +213,7 @@ export const createCanvasAnimation = ({
   let lastFrameTime = 0;
   let lastRenderTime = 0;
   let resizeInfo = null;
+  let resizeRequested = true;
 
   const doc = globalThis.document;
   const win = globalThis.window;
@@ -225,7 +226,12 @@ export const createCanvasAnimation = ({
   };
 
   const resize = () => {
+    if (disposed) {
+      return resizeInfo;
+    }
+
     resizeInfo = resizeCanvasToDisplaySize(canvas, ctx, getDevicePixelRatio(maxDpr));
+    resizeRequested = false;
     return resizeInfo;
   };
 
@@ -251,7 +257,9 @@ export const createCanvasAnimation = ({
     lastFrameTime = time;
     lastRenderTime = time;
 
-    resize();
+    if (resizeRequested || !resizeInfo) {
+      resize();
+    }
 
     try {
       renderFrame({
@@ -261,8 +269,8 @@ export const createCanvasAnimation = ({
         delta,
         dt: delta,
         elapsed: time,
-        width: canvas.clientWidth || resizeInfo?.cssWidth || 0,
-        height: canvas.clientHeight || resizeInfo?.cssHeight || 0,
+        width: resizeInfo?.cssWidth || 0,
+        height: resizeInfo?.cssHeight || 0,
         dpr: resizeInfo?.dpr || getDevicePixelRatio(maxDpr),
         reducedMotion,
         inViewport,
