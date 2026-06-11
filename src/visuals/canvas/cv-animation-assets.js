@@ -1,6 +1,10 @@
 const animationModules = import.meta.glob(
   [
     "../../assets/*/animations/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    "!../../assets/jestei/animations/landing-motion-spiral/**",
+    "!../../assets/jestei/animations/landing-motion-masonry/**",
+    "!../../assets/jestei/animations/landing-motion-arc/**",
+    "!../../assets/styx/animations/styx-scanography-loops/**",
     "!../../assets/styx/animations/styx-photo-production/**",
   ],
   {
