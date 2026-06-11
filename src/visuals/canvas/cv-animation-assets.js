@@ -22,18 +22,18 @@ const SCENE_LABELS = {
 };
 
 const SCENE_DEFAULT_MAX_ITEMS = {
-  jesteiInterfaceMasonry: 36,
-  jesteiProductHorizontal: 42,
-  jesteiGraphicArc: 18,
-  jesteiLandingArc: 18,
+  jesteiInterfaceMasonry: 18,
+  jesteiProductHorizontal: 20,
+  jesteiGraphicArc: 12,
+  jesteiLandingArc: 12,
   jesteiLandingSpiral: 5,
-  jesteiLandingMasonry: 36,
-  styxGraphicDiagonal: 30,
-  styxBrandIdentity: 24,
-  styxPhotoProduction: 24,
+  jesteiLandingMasonry: 18,
+  styxGraphicDiagonal: 12,
+  styxBrandIdentity: 14,
+  styxPhotoProduction: 12,
   styxScanographyLoops: 6,
-  lyveGraphicCarousel: 12,
-  lyveInterfaceStrip: 12,
+  lyveGraphicCarousel: 8,
+  lyveInterfaceStrip: 8,
   jesteiLandingScreenshots: 4,
 };
 
@@ -127,3 +127,4 @@ export const getAnimationSceneSummaries = () =>
     fileCount: Object.keys(scene.modules).length,
     defaultMaxItems: scene.defaultMaxItems,
   }));
+

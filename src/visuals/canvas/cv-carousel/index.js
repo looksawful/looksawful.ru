@@ -75,7 +75,7 @@ const getTitle = (stem) => {
 const cvCarouselItems = limitAnimationItems(
   createAnimationItems(CV_ANIMATION_SCENES.lyveGraphicCarousel.modules, { getTitle }),
   "lyveGraphicCarousel",
-  { defaultMaxItems: 12 },
+  { defaultMaxItems: CV_ANIMATION_SCENES.lyveGraphicCarousel.defaultMaxItems || 8 },
 );
 
 const createDisposeHandle = (dispose = noop) => {
@@ -396,4 +396,5 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(CV_CAROUSEL_KEY_PREFIX);
   });
 }
+
 
