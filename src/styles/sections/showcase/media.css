@@ -130,5 +130,36 @@
     flex-basis: min(78vw, 18rem);
   }
 }
+/* showcase media interactivity:start */
+.cv-media-group[data-cv-media-scene] .cv-media-card {
+  cursor: zoom-in;
+  transition:
+    transform 180ms ease,
+    filter 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.cv-media-group[data-cv-media-scene] .cv-media-card:hover,
+.cv-media-group[data-cv-media-scene] .cv-media-card:focus-visible {
+  filter: brightness(1.04) contrast(1.02);
+  box-shadow: 0 1.55rem 4rem rgba(0, 0, 0, 0.5);
+}
+
+.cv-media-group--orbit[data-cv-media-scene] .cv-media-card:hover,
+.cv-media-group--orbit[data-cv-media-scene] .cv-media-card:focus-visible {
+  transform: translate(-50%, -50%) rotateY(calc((360deg / var(--media-count)) * var(--media-index)))
+    translateZ(calc(var(--orbit-radius) + 0.75rem)) scale(1.035);
+}
+
+.cv-media-group[data-cv-media-scene] .cv-media-card:focus-visible {
+  outline: 1px solid color-mix(in srgb, currentColor 52%, transparent);
+  outline-offset: 0.28rem;
+}
+
+.has-cv-media-lightbox .cv-media-group--orbit .cv-media-group__track,
+.has-cv-media-lightbox .cv-media-group--strip .cv-media-group__track {
+  animation-play-state: paused !important;
+}
+/* showcase media interactivity:end */
 /* showcase media:end */
 
