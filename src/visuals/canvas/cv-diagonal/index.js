@@ -9,6 +9,7 @@ import {
 	noop,
   limitAnimationItems,
 	roundedRect,
+  setMediaItemsPlayback,
 } from "../../shared/canvas-animation.js";
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
@@ -71,10 +72,12 @@ const createDisposeHandle = (dispose = noop) => {
 
 // Прогрессивная загрузка с батчингом: сначала грузим первые N, потом порциями в фоне
 const loadImages = (items, { initialCount = 30, batchSize = 10, onItemLoad = noop } = {}) => {
+  let playbackEnabled = true;
 	const loaded = items.map((item, sourceIndex) => ({
 		...item,
 		sourceIndex,
 		imageElement: null,
+    mediaElement: null,
 		imageLoadError: null,
 	}));
 
@@ -84,6 +87,8 @@ const loadImages = (items, { initialCount = 30, batchSize = 10, onItemLoad = noo
 		return loadMedia(mediaUrl)
 			.then((el) => {
 				loaded[index].imageElement = el;
+        loaded[index].mediaElement = el;
+        setMediaItemsPlayback([loaded[index]], playbackEnabled);
 				onItemLoad();
 			})
 			.catch((err) => {
@@ -104,6 +109,15 @@ const loadImages = (items, { initialCount = 30, batchSize = 10, onItemLoad = noo
 			}
 		})();
 	}
+
+  loaded.setPlaybackEnabled = (enabled) => {
+    playbackEnabled = Boolean(enabled);
+    setMediaItemsPlayback(loaded, playbackEnabled);
+  };
+  loaded.cancel = () => {
+    playbackEnabled = false;
+    setMediaItemsPlayback(loaded, false);
+  };
 
 	return loaded;
 };
@@ -600,6 +614,9 @@ export const mountCvDiagonal = async (canvasId = "cv-diagonal-container", option
 		key,
 		canvas,
 		ctx,
+    onActiveChange: (isActive) => {
+      items.setPlaybackEnabled?.(isActive);
+    },
 		renderFrame: ({ time, width, height, reducedMotion }) => {
 			if (state.disposed) {
 				return;
@@ -634,6 +651,7 @@ export const mountCvDiagonal = async (canvasId = "cv-diagonal-container", option
 
 	return createDisposeHandle(() => {
 		state.disposed = true;
+    items.cancel?.();
 		dispose();
 	});
 };

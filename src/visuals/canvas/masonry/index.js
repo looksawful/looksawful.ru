@@ -11,6 +11,7 @@ import {
   limitAnimationItems,
   getCanvasMountOptions,
   drawCanvasLoadingState,
+  setMediaItemsPlayback,
 } from "../../shared/canvas-animation.js";
 import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
 
@@ -62,10 +63,12 @@ const getSceneItems = (sceneId) => {
 };
 
 const loadImagesProgressive = (items, { initialCount = 24, batchSize = 10 } = {}) => {
+  let playbackEnabled = true;
 	const loaded = items.map((item, sourceIndex) => ({
 		...item,
 		sourceIndex,
 		imageElement: null,
+    mediaElement: null,
 		imageLoadError: null,
 	}));
 
@@ -76,6 +79,8 @@ const loadImagesProgressive = (items, { initialCount = 24, batchSize = 10 } = {}
 		return loadMedia(mediaUrl)
 			.then((element) => {
 				loaded[index].imageElement = element;
+        loaded[index].mediaElement = element;
+        setMediaItemsPlayback([loaded[index]], playbackEnabled);
 			})
 			.catch((error) => {
 				loaded[index].imageLoadError = error;
@@ -98,6 +103,15 @@ const loadImagesProgressive = (items, { initialCount = 24, batchSize = 10 } = {}
 			}
 		})();
 	}
+
+  loaded.setPlaybackEnabled = (enabled) => {
+    playbackEnabled = Boolean(enabled);
+    setMediaItemsPlayback(loaded, playbackEnabled);
+  };
+  loaded.cancel = () => {
+    playbackEnabled = false;
+    setMediaItemsPlayback(loaded, false);
+  };
 
 	return loaded;
 };
@@ -319,6 +333,9 @@ export const mountMasonry = async (canvasId = "masonry-container", options = {})
     ctx,
     maxDpr: tuning.maxDpr,
     fps: tuning.fps,
+    onActiveChange: (isActive) => {
+      items.setPlaybackEnabled?.(isActive);
+    },
     renderFrame: ({ time, width, height, reducedMotion }) => {
 			if (state.disposed) return;
 
@@ -360,6 +377,7 @@ export const mountMasonry = async (canvasId = "masonry-container", options = {})
 
 	return createDisposeHandle(() => {
 		state.disposed = true;
+    items.cancel?.();
 		dispose();
 	});
 };

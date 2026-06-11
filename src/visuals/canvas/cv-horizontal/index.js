@@ -87,6 +87,7 @@ const loadImages = (
   });
 
   loader.items.cancel = loader.cancel;
+  loader.items.setPlaybackEnabled = loader.setPlaybackEnabled;
   return loader.items;
 };
 
@@ -575,6 +576,9 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", op
     ctx,
     maxDpr: tuning.maxDpr,
     fps: tuning.fps,
+    onActiveChange: (isActive) => {
+      items.setPlaybackEnabled?.(isActive);
+    },
     renderFrame: ({ time, width, height, reducedMotion }) => {
       if (state.disposed) {
         return;

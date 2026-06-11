@@ -210,6 +210,7 @@ export const createCanvasAnimation = ({
   fps = 60,
   pauseOffscreen = true,
   onStateChange = noop,
+  onActiveChange = noop,
 }) => {
   disposeCanvasAnimation(key);
 
@@ -222,6 +223,7 @@ export const createCanvasAnimation = ({
   let lastRenderTime = 0;
   let resizeInfo = null;
   let resizeRequested = true;
+  let activeState = null;
 
   const doc = globalThis.document;
   const win = globalThis.window;
@@ -231,6 +233,15 @@ export const createCanvasAnimation = ({
   const emitState = (state) => {
     markCanvasState(canvas, state);
     onStateChange(state);
+  };
+
+  const emitActive = (isActive) => {
+    if (activeState === isActive) {
+      return;
+    }
+
+    activeState = isActive;
+    onActiveChange(isActive);
   };
 
   const resize = () => {
@@ -299,12 +310,14 @@ export const createCanvasAnimation = ({
     }
 
     running = true;
+    emitActive(true);
     lastFrameTime = 0;
     frameId = globalThis.requestAnimationFrame(frame);
   };
 
   const stop = () => {
     running = false;
+    emitActive(false);
 
     if (frameId !== undefined) {
       globalThis.cancelAnimationFrame?.(frameId);
@@ -394,6 +407,33 @@ export const createCanvasAnimation = ({
   return dispose;
 };
 
+export const setMediaElementPlayback = (media, enabled) => {
+  if (media?.tagName !== "VIDEO") {
+    return;
+  }
+
+  if (!enabled) {
+    media.pause?.();
+    return;
+  }
+
+  const playRequest = media.play?.();
+
+  if (playRequest?.catch) {
+    playRequest.catch(noop);
+  }
+};
+
+export const setMediaItemsPlayback = (items, enabled) => {
+  if (!Array.isArray(items)) {
+    return;
+  }
+
+  items.forEach((item) => {
+    setMediaElementPlayback(item?.mediaElement || item?.imageElement, enabled);
+  });
+};
+
 export const createMediaLoader = (
   sourceItems,
   {
@@ -406,6 +446,7 @@ export const createMediaLoader = (
   } = {},
 ) => {
   let cancelled = false;
+  let playbackEnabled = true;
   let loadedCount = 0;
   let completedCount = 0;
 
@@ -451,6 +492,7 @@ export const createMediaLoader = (
       item.imageElement = mediaElement;
       item.mediaElement = mediaElement;
       item.imageLoadError = null;
+      setMediaElementPlayback(mediaElement, playbackEnabled);
       loadedCount += 1;
     } catch (error) {
       if (cancelled) return;
@@ -487,15 +529,21 @@ export const createMediaLoader = (
 
   const cancel = () => {
     cancelled = true;
+    playbackEnabled = false;
     items.forEach((item) => {
       const media = item.mediaElement || item.imageElement;
 
       if (media?.tagName === "VIDEO") {
-        media.pause?.();
+        setMediaElementPlayback(media, false);
         media.removeAttribute?.("src");
         media.load?.();
       }
     });
+  };
+
+  const setPlaybackEnabled = (enabled) => {
+    playbackEnabled = Boolean(enabled);
+    setMediaItemsPlayback(items, playbackEnabled);
   };
 
   start();
@@ -503,6 +551,7 @@ export const createMediaLoader = (
   return {
     items,
     cancel,
+    setPlaybackEnabled,
     get loadedCount() {
       return loadedCount;
     },
@@ -597,9 +646,7 @@ export const loadVideo = (videoUrl) => {
     const handleLoaded = async () => {
       cleanup();
 
-      try {
-        await video.play?.();
-      } catch {}
+      setMediaElementPlayback(video, true);
 
       resolve(video);
     };
