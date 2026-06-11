@@ -1,3 +1,117 @@
-/* showcase  */
-/* showcase  */
+/* showcase galleries:start */
+.cv-section .cv-experience__item--featured .cv-task-gallery-stack {
+  display: grid;
+  gap: clamp(0.9rem, 1.3vw, 1.4rem);
+}
+
+.cv-section .cv-experience__item--featured .cv-task-gallery-split,
+.cv-section .cv-experience__item--featured .cv-task-gallery-row {
+  min-inline-size: 0;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-gallery-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(16rem, 1.14fr);
+  gap: clamp(0.78rem, 1.2vw, 1.35rem);
+  align-items: stretch;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-side-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.42rem, 0.64vw, 0.72rem);
+  min-inline-size: 0;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-side-gallery__link {
+  position: relative;
+  display: block;
+  min-inline-size: 0;
+  overflow: hidden;
+  border: 1px solid var(--showcase-border-soft);
+  border-radius: var(--media-card-radius);
+  background: #111;
+  text-decoration: none;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-side-gallery__media {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1);
+  transition:
+    transform var(--motion-medium) var(--ease-standard),
+    opacity var(--motion-fast) var(--ease-standard);
+}
+
+.cv-section .cv-experience__item--featured .cv-task-side-gallery__link:hover .cv-task-side-gallery__media,
+.cv-section .cv-experience__item--featured .cv-task-side-gallery__link:focus-visible .cv-task-side-gallery__media {
+  transform: scale(1.025);
+}
+
+.cv-section .cv-experience__item--featured .cv-task-side-gallery__link--video .cv-task-side-gallery__media {
+  background: #111;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-side-gallery--mixed,
+.cv-section .cv-experience__item--featured .cv-task-side-gallery--portfolio-row,
+.cv-section .cv-experience__item--featured .cv-jestei-static-extra__gallery,
+.cv-section .cv-experience__item--featured .cv-task-side-gallery--communications-static {
+  align-content: stretch;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-side-gallery--mixed .cv-task-side-gallery__link:first-child {
+  grid-row: span 2;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-side-gallery--mixed .cv-task-side-gallery__link:first-child .cv-task-side-gallery__media {
+  aspect-ratio: 4 / 5;
+}
+
+.cv-section .cv-experience__item--featured .cv-photo-production-gallery-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.72rem, 1vw, 1rem);
+  min-inline-size: 0;
+}
+
+.cv-section .cv-experience__item--featured .cv-photo-production-gallery-pair__grid {
+  min-inline-size: 0;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-meta-layout--scanography-gallery,
+.cv-section .cv-experience__item--featured .cv-task-meta-layout--jestei-identity,
+.cv-section .cv-experience__item--featured .cv-task-meta-layout--with-gallery {
+  min-inline-size: 0;
+}
+
+.cv-section .cv-experience__item--featured .cv-task-side-gallery img,
+.cv-section .cv-experience__item--featured .cv-task-side-gallery video {
+  max-inline-size: 100%;
+}
+
+@media (max-width: 960px) {
+  .cv-section .cv-experience__item--featured .cv-task-gallery-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cv-section .cv-experience__item--featured .cv-photo-production-gallery-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .cv-section .cv-experience__item--featured .cv-task-side-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .cv-section .cv-experience__item--featured .cv-task-side-gallery__media {
+    aspect-ratio: 1;
+  }
+}
+/* showcase galleries:end */
 
