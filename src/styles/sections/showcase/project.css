@@ -1,3 +1,65 @@
+/* showcase project legacy pass 1:start */
+/* cv project role chip segmented fix:start */
+.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chips,
+.cv-section .cv-project-hero .cv-role-chips {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  width: fit-content !important;
+  max-inline-size: 100% !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid rgba(17, 17, 17, 0.26) !important;
+  border-radius: var(--cv-radius-inner, 0.42rem) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  list-style: none !important;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chips > li,
+.cv-section .cv-project-hero .cv-role-chips > li {
+  display: inline-flex !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chips > li + li,
+.cv-section .cv-project-hero .cv-role-chips > li + li {
+  border-inline-start: 1px solid rgba(17, 17, 17, 0.18) !important;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chip,
+.cv-section .cv-project-hero .cv-role-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-block-size: 1.78rem !important;
+  padding: 0.32rem 0.68rem 0.36rem !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chip::before,
+.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chip::after,
+.cv-section .cv-project-hero .cv-role-chip::before,
+.cv-section .cv-project-hero .cv-role-chip::after {
+  display: none !important;
+  content: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: none !important;
+}
+/* cv project role chip segmented fix:end */
+/* showcase project legacy pass 1:end */
+
 /* showcase project:start */
 .cv-section .cv-project-hero,
 .cv-section .cv-project-hero__body,
