@@ -4,6 +4,26 @@ const pendingMounts = new Map();
 const activeAnimations = new Map();
 const imageCache = new Map();
 
+const CANVAS_BACKGROUND_COLOR = "#000";
+
+const prepareCanvasBackground = (canvas) => {
+  canvas.style.backgroundColor = CANVAS_BACKGROUND_COLOR;
+  canvas.style.background = CANVAS_BACKGROUND_COLOR;
+};
+
+const clearCanvasBackground = (ctx, width, height) => {
+  const safeWidth = Math.max(0, width || 0);
+  const safeHeight = Math.max(0, height || 0);
+
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.clearRect(0, 0, safeWidth, safeHeight);
+  ctx.fillStyle = CANVAS_BACKGROUND_COLOR;
+  ctx.fillRect(0, 0, safeWidth, safeHeight);
+  ctx.restore();
+};
+
 const masonryItems = [
   { imageUrl: new URL("./assets/masonry/masonry-image (2).webp", import.meta.url).href },
   { imageUrl: new URL("./assets/masonry/masonry-image (3).webp", import.meta.url).href },
@@ -796,7 +816,7 @@ const drawLayout = ({ ctx, width, height, layout }) => {
 
   const usedItemIndexes = new Set();
 
-  ctx.clearRect(0, 0, width, height);
+  clearCanvasBackground(ctx, width, height);
 
   getVisibleTiles({ layout }).forEach(({ lane, tile, x, y }) => {
     const isVisibleNow = intersectsViewport({
@@ -913,6 +933,7 @@ export const mountMasonry = async (canvasId = "masonry-container") => {
   }
 
   const ctx = canvas.getContext?.("2d");
+  prepareCanvasBackground(canvas);
 
   if (!ctx) {
     console.error(`Failed to get 2d context from canvas "${canvasId}"`);
@@ -943,7 +964,7 @@ export const mountMasonry = async (canvasId = "masonry-container") => {
       }
 
       if (!width || !height || !items.length) {
-        ctx.clearRect(0, 0, width || 0, height || 0);
+        clearCanvasBackground(ctx, width || 0, height || 0);
         return;
       }
 
@@ -975,3 +996,4 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(MASONRY_KEY_PREFIX);
   });
 }
+

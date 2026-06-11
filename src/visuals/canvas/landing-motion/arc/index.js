@@ -3,6 +3,26 @@ const pendingMounts = new Map();
 const activeAnimations = new Map();
 const imageCache = new Map();
 
+const CANVAS_BACKGROUND_COLOR = "#000";
+
+const prepareCanvasBackground = (canvas) => {
+  canvas.style.backgroundColor = CANVAS_BACKGROUND_COLOR;
+  canvas.style.background = CANVAS_BACKGROUND_COLOR;
+};
+
+const clearCanvasBackground = (ctx, width, height) => {
+  const safeWidth = Math.max(0, width || 0);
+  const safeHeight = Math.max(0, height || 0);
+
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  ctx.clearRect(0, 0, safeWidth, safeHeight);
+  ctx.fillStyle = CANVAS_BACKGROUND_COLOR;
+  ctx.fillRect(0, 0, safeWidth, safeHeight);
+  ctx.restore();
+};
+
 const arcItems = [
   {
     imageUrl: new URL("./assets/arc/70s.webp", import.meta.url).href,
@@ -507,7 +527,7 @@ const renderArc = ({ ctx, items, titleStyle, time, width, height, reducedMotion 
   const arcRadius = minSide * config.radiusScale;
   const cardBaseSize = minSide * config.cardBaseScale;
 
-  ctx.clearRect(0, 0, width, height);
+  clearCanvasBackground(ctx, width, height);
 
   for (let i = 0; i < config.slots; i += 1) {
     const raw = i / config.slots + phase;
@@ -580,6 +600,7 @@ export const mountArc = async (canvasId = "arc-container") => {
   }
 
   const ctx = canvas.getContext("2d");
+  prepareCanvasBackground(canvas);
 
   if (!ctx) {
     console.error(`Failed to get 2d context from canvas "${canvasId}"`);
@@ -616,3 +637,4 @@ export const mountArc = async (canvasId = "arc-container") => {
 
   return completeMount(key, mountToken, dispose);
 };
+
