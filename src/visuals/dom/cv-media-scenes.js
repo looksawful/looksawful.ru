@@ -319,3 +319,56 @@ const mountExistingMediaCards = (root = document) => {
 export function initCvMediaScenes(root = document) {
   root.querySelectorAll("[data-cv-media-scene]").forEach(renderMediaScene);
 }
+const getMediaLinkExtension = (url) => {
+  const cleanUrl = String(url || "").split("?")[0].split("#")[0];
+  const match = cleanUrl.match(/\.([a-z0-9]+)$/i);
+
+  return match ? match[1].toLowerCase() : "";
+};
+
+const getMediaLinkTitle = (link, href) => {
+  const explicitLabel = link.getAttribute("aria-label");
+  const imageAlt = link.querySelector("img")?.getAttribute("alt");
+  const fileName = decodeURIComponent(String(href || "").split("/").pop() || "");
+
+  return explicitLabel || imageAlt || fileName || "media";
+};
+
+function initStaticMediaLightboxLinks(root = document) {
+  const scope = root || document;
+
+  scope.addEventListener("click", (event) => {
+    const link = event.target?.closest?.('a[data-cv-lightbox="media"]');
+
+    if (!link) {
+      return;
+    }
+
+    const href = link.getAttribute("href");
+
+    if (!href) {
+      return;
+    }
+
+    const extension = getMediaLinkExtension(href);
+
+    if (!extension) {
+      return;
+    }
+
+    event.preventDefault();
+
+    openLightbox(
+      {
+        title: getMediaLinkTitle(link, href),
+        mediaUrl: href,
+        imageUrl: href,
+        sourceUrl: href,
+      },
+      extension,
+    );
+  });
+}
+
+initStaticMediaLightboxLinks(document);
+
