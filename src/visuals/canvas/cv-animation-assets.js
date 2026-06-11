@@ -1,8 +1,14 @@
-const animationModules = import.meta.glob("../../assets/*/animations/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}", {
-  eager: true,
-  query: "?url",
-  import: "default",
-});
+const animationModules = import.meta.glob(
+  [
+    "../../assets/*/animations/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    "!../../assets/styx/animations/styx-photo-production/**",
+  ],
+  {
+    eager: true,
+    query: "?url",
+    import: "default",
+  },
+);
 
 
 const SCENE_LABELS = {
@@ -30,7 +36,7 @@ const SCENE_DEFAULT_MAX_ITEMS = {
   jesteiLandingMasonry: 18,
   styxGraphicDiagonal: 12,
   styxBrandIdentity: 14,
-  styxPhotoProduction: 12,
+  styxPhotoProduction: 24,
   styxScanographyLoops: 6,
   lyveGraphicCarousel: 8,
   lyveInterfaceStrip: 8,
@@ -89,7 +95,46 @@ defaultMaxItems: SCENE_DEFAULT_MAX_ITEMS[id] || 36,
   return scenes;
 };
 
-export const CV_ANIMATION_SCENES = buildAnimationScenes();
+const buildPublicModules = (basePath, filenames) =>
+  Object.fromEntries(filenames.map((filename) => [basePath + "/" + filename, basePath + "/" + filename]));
+
+const buildRepeatedPublicModules = (basePath, filenames, count) => {
+  const entries = [];
+
+  for (let index = 0; index < count; index += 1) {
+    const filename = filenames[index % filenames.length];
+    const slot = String(index + 1).padStart(2, "0");
+
+    entries.push([basePath + "/" + slot + "-" + filename, basePath + "/" + filename]);
+  }
+
+  return Object.fromEntries(entries);
+};
+
+const PUBLIC_SCENE_OVERRIDES = {
+  styxPhotoProduction: {
+    id: "styxPhotoProduction",
+    label: SCENE_LABELS.styxPhotoProduction,
+    directory: "public/assets/styx/galleries/styx-photo-production",
+    folder: "styx-photo-production",
+    defaultMaxItems: SCENE_DEFAULT_MAX_ITEMS.styxPhotoProduction || 24,
+    modules: buildRepeatedPublicModules("/assets/styx/galleries/styx-photo-production", [
+      "1.webp",
+      "2.webp",
+      "3.webp",
+      "4.webp",
+      "5.webp",
+      "6.webp",
+      "7.webp",
+      "8.webp",
+    ], 24),
+  },
+};
+
+export const CV_ANIMATION_SCENES = {
+  ...buildAnimationScenes(),
+  ...PUBLIC_SCENE_OVERRIDES,
+};
 
 export const getAnimationScene = (sceneId, fallbackSceneId) =>
   CV_ANIMATION_SCENES[sceneId] ||
