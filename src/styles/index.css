@@ -7,8 +7,8 @@
 @import "./components/site-footer.css";
 @import "./sections/hero.css";
 @import "./sections/cv.css";
-@import "./sections/showcase/index.css";
 @import "./sections/cv-list.css";
 @import "./sections/pet-projects.css";
 @import "./sections/resume.css";
+@import "./sections/showcase/index.css";
 
