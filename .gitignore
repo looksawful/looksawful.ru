@@ -62,3 +62,10 @@ coverage/
 .audit/
 audit-*.cjs
 *.audit.md
+# local media sources / generated normalization folders
+*.7z
+**/_normalized_300dpi/
+**/_source/
+**/_raw/
+**/_tmp/
+
