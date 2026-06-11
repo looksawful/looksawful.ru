@@ -9,6 +9,7 @@ const ORBIT_MOBILE_LIMIT = 14;
 const PRELOAD_COUNT = 4;
 
 let activeLightbox = null;
+let staticMediaLightboxLinksMounted = false;
 
 const getExtension = (filename = "") => filename.split(".").pop()?.toLowerCase() || "";
 
@@ -317,7 +318,9 @@ const mountExistingMediaCards = (root = document) => {
 
 
 export function initCvMediaScenes(root = document) {
+  initStaticMediaLightboxLinks(document);
   root.querySelectorAll("[data-cv-media-scene]").forEach(renderMediaScene);
+  mountExistingMediaCards(root);
 }
 const getMediaLinkExtension = (url) => {
   const cleanUrl = String(url || "").split("?")[0].split("#")[0];
@@ -336,6 +339,12 @@ const getMediaLinkTitle = (link, href) => {
 
 function initStaticMediaLightboxLinks(root = document) {
   const scope = root || document;
+
+  if (staticMediaLightboxLinksMounted) {
+    return;
+  }
+
+  staticMediaLightboxLinksMounted = true;
 
   scope.addEventListener("click", (event) => {
     const link = event.target?.closest?.('a[data-cv-lightbox="media"]');
@@ -369,6 +378,4 @@ function initStaticMediaLightboxLinks(root = document) {
     );
   });
 }
-
-initStaticMediaLightboxLinks(document);
 
