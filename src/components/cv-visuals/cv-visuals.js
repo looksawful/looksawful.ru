@@ -240,7 +240,7 @@ export async function initCvVisuals(root = document) {
         void mountAnimationPreview(preview);
       },
       {
-        rootMargin: "70% 0px",
+        rootMargin: globalThis.window?.matchMedia?.("(pointer: coarse), (max-width: 760px)")?.matches ? "35% 0px" : "70% 0px",
         threshold: 0,
       },
     ) || noop;
@@ -252,7 +252,7 @@ export async function initCvVisuals(root = document) {
         void safeMountVisualDemo(target);
       },
       {
-        rootMargin: '60% 0px',
+        rootMargin: globalThis.window?.matchMedia?.("(pointer: coarse), (max-width: 760px)")?.matches ? "30% 0px" : "60% 0px",
         threshold: 0,
       },
     ) || noop;
