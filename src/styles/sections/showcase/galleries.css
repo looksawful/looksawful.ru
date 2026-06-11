@@ -1477,10 +1477,23 @@
 
 .cv-section .cv-jestei-landing-motion__split {
   display: grid;
-  grid-template-columns: minmax(18rem, 0.82fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 0.92fr);
   gap: clamp(1rem, 1.65vw, 2rem);
-  align-items: stretch;
+  align-items: start;
   min-inline-size: 0;
+}
+
+.cv-section .cv-jestei-landing-motion__split .cv-task-list-groups {
+  align-self: start;
+}
+
+.cv-section .cv-jestei-landing-motion__split .cv-task-list-group {
+  align-self: start;
+  block-size: auto;
+}
+
+.cv-section .cv-jestei-landing-motion__split .cv-task-list-group__content {
+  min-block-size: auto;
 }
 
 .cv-section .cv-jestei-landing-motion__media-column {
@@ -1499,8 +1512,8 @@
 }
 
 .cv-section .cv-jestei-landing-motion__media-column .cv-jestei-landing-motion__shot {
-  aspect-ratio: 4 / 5;
-  min-block-size: clamp(16rem, 26vw, 30rem);
+  aspect-ratio: 16 / 9;
+  min-block-size: 0;
 }
 
 .cv-section .cv-jestei-landing-motion__event-gallery {
@@ -1511,7 +1524,7 @@
 }
 
 .cv-section .cv-jestei-landing-motion__event-gallery .cv-jestei-landing-motion__shot {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
 }
 
 .cv-section .cv-jestei-landing-motion__image {
@@ -1545,10 +1558,6 @@
   .cv-section .cv-jestei-landing-motion__animation--arc,
   .cv-section .cv-jestei-landing-motion__animation--masonry {
     min-block-size: clamp(18rem, 96vw, 28rem);
-  }
-
-  .cv-section .cv-jestei-landing-motion__media-column .cv-jestei-landing-motion__shot {
-    min-block-size: clamp(14rem, 96vw, 26rem);
   }
 }
 /* showcase Jestei landing motion section:end */
