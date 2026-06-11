@@ -1,4 +1,6 @@
 export const ANIMATION_MOUNTERS = {
+  "landing-arc": () => import("../../visuals/canvas/landing-motion/arc/index.js").then((module) => module.mountArc),
+  "landing-masonry": () => import("../../visuals/canvas/landing-motion/masonry/index.js").then((module) => module.mountMasonry),
   carousel: () => import("../../visuals/canvas/cv-carousel/index.js").then((module) => module.mountCvCarousel),
   diagonal: () => import("../../visuals/canvas/cv-diagonal/index.js").then((module) => module.mountCvDiagonal),
   horizontal: () => import("../../visuals/canvas/cv-horizontal/index.js").then((module) => module.mountCvHorizontal),
