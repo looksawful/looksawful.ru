@@ -632,33 +632,6 @@
 /* styx photo orbit tuning:end */
 
 
-/* scanography video alignment:start */
-.cv-task-group__visual video,
-.cv-preview video,
-.cv-inline-video video,
-.cv-inline-video__frame video,
-.cv-video video,
-.cv-video-frame video {
-  display: block;
-  inline-size: 100% !important;
-  block-size: 100% !important;
-  margin: auto !important;
-  object-fit: cover !important;
-  object-position: 50% 50% !important;
-  transform: none !important;
-}
-
-.cv-preview,
-.cv-inline-video,
-.cv-inline-video__frame,
-.cv-video,
-.cv-video-frame {
-  overflow: hidden;
-}
-/* scanography video alignment:end */
-
-
-
 /* showcase layout system:start */
 .cv-section .cv-experience__item--featured {
   --project-hero-padding-block: clamp(2.25rem, 4vw, 4.25rem);

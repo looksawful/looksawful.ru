@@ -53,6 +53,31 @@
   align-self: center;
 }
 
+/* scanography video alignment:start */
+.cv-task-group__visual video,
+.cv-preview video,
+.cv-inline-video video,
+.cv-inline-video__frame video,
+.cv-video video,
+.cv-video-frame video {
+  display: block;
+  inline-size: 100% !important;
+  block-size: 100% !important;
+  margin: auto !important;
+  object-fit: cover !important;
+  object-position: 50% 50% !important;
+  transform: none !important;
+}
+
+.cv-preview,
+.cv-inline-video,
+.cv-inline-video__frame,
+.cv-video,
+.cv-video-frame {
+  overflow: hidden;
+}
+/* scanography video alignment:end */
+
 .cv-section .cv-experience__item--featured .cv-inline-video:has(video[src*="styx-graphic-diagonal"]) {
   position: relative;
   display: grid;
