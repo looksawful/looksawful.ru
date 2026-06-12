@@ -378,3 +378,25 @@
 }
 /* showcase task typography:end */
 
+/* synced side card height:start */
+.cv-side-card-height-synced {
+  min-block-size: var(--cv-synced-side-height, auto) !important;
+  block-size: var(--cv-synced-side-height, auto) !important;
+  align-self: stretch !important;
+}
+
+.cv-side-card-height-synced > .cv-task-list-group__content {
+  min-block-size: var(--cv-synced-side-height, auto) !important;
+  block-size: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 900px) {
+  .cv-side-card-height-synced,
+  .cv-side-card-height-synced > .cv-task-list-group__content {
+    min-block-size: auto !important;
+    block-size: auto !important;
+  }
+}
+/* synced side card height:end */
+
