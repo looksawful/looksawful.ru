@@ -56,10 +56,7 @@ function handleVideo(video) {
 }
 
 function initGalleryAspectFit() {
-  const selector = [
-    ".cv-task-side-gallery--portfolio-row .cv-task-side-gallery__media",
-    ".cv-task-side-gallery--jestei-identity .cv-task-side-gallery__media"
-  ].join(", ");
+  const selector = ".cv-task-side-gallery--portfolio-row .cv-task-side-gallery__media";
 
   document.querySelectorAll(selector).forEach(function (media) {
     if (media.tagName.toLowerCase() === "img") {
