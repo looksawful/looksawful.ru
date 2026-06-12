@@ -125,6 +125,12 @@ function resetEyes(eyes) {
   eyes.right.setAttribute("cy", EYES.right.y);
 }
 
+function isInViewport(svg) {
+  const rect = svg.getBoundingClientRect();
+
+  return rect.bottom > 0 && rect.top < window.innerHeight;
+}
+
 function updateEyes({ svg, eyes, pointer, eyeStrength }) {
   const rect = svg.getBoundingClientRect();
 
@@ -165,7 +171,23 @@ export function mountawfulface(
   let frame = 0;
   let lastPointer = null;
 
+  const resetPointer = () => {
+    lastPointer = null;
+
+    if (frame) {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+    }
+
+    resetEyes(eyes);
+  };
+
   const handlePointerMove = (event) => {
+    if (!isInViewport(svg)) {
+      resetPointer();
+      return;
+    }
+
     lastPointer = {
       clientX: event.clientX,
       clientY: event.clientY,
@@ -178,16 +200,31 @@ export function mountawfulface(
     frame = window.requestAnimationFrame(() => {
       frame = 0;
 
-      if (lastPointer) {
+      if (lastPointer && isInViewport(svg)) {
         updateEyes({ svg, eyes, pointer: lastPointer, eyeStrength });
       }
     });
+  };
+
+  const handlePointerOut = (event) => {
+    if (!event.relatedTarget) {
+      resetPointer();
+    }
+  };
+
+  const handleScroll = () => {
+    if (!isInViewport(svg)) {
+      resetPointer();
+    }
   };
 
   const trackPointer = canTrackPointer({ isInline });
 
   if (trackPointer) {
     document.addEventListener("pointermove", handlePointerMove, { passive: true });
+    document.addEventListener("pointerout", handlePointerOut, { passive: true });
+    window.addEventListener("blur", resetPointer);
+    window.addEventListener("scroll", handleScroll, { passive: true });
   }
 
   resetEyes(eyes);
@@ -199,6 +236,9 @@ export function mountawfulface(
 
     if (trackPointer) {
       document.removeEventListener("pointermove", handlePointerMove);
+      document.removeEventListener("pointerout", handlePointerOut);
+      window.removeEventListener("blur", resetPointer);
+      window.removeEventListener("scroll", handleScroll);
     }
 
     svg.remove();
