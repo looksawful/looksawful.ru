@@ -19,16 +19,6 @@
   block-size: 100%;
 }
 
-.cv-section .cv-experience__item--featured .cv-project-logo canvas {
-  display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  max-inline-size: 100%;
-  max-block-size: 100%;
-  object-fit: contain;
-  overflow: visible;
-}
-
 .cv-preview[data-cv-animation].is-canvas-loading,
 .cv-preview[data-cv-animation].is-canvas-error,
 .cv-embedded-demo.is-canvas-loading,
