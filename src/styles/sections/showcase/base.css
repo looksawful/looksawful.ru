@@ -2224,62 +2224,6 @@ button,
 /* styx shooting equal height:end */
 
 
-/* scanography force order:start */
-.cv-section .cv-scanography-video-only {
-  order: 2 !important;
-  inline-size: 100% !important;
-  display: block !important;
-}
-
-.cv-section .cv-scanography-extra-galleries {
-  order: 3 !important;
-  inline-size: 100% !important;
-  margin-block-start: clamp(1.4rem, 2vw, 2.4rem) !important;
-}
-
-.cv-section .cv-scanography-video-only .cv-scanography-video-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: clamp(0.75rem, 1vw, 1rem) !important;
-  inline-size: 100% !important;
-}
-
-.cv-section .cv-scanography-video-only .cv-scanography-video-card {
-  display: block !important;
-  overflow: hidden !important;
-  aspect-ratio: 1 / 1 !important;
-  border: 1px solid var(--line-hierarchy, rgba(0, 0, 0, 0.12)) !important;
-  border-radius: var(--radius-md, 1rem) !important;
-  background: #000 !important;
-  text-decoration: none !important;
-}
-
-.cv-section .cv-scanography-video-only .cv-scanography-video-card__media {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  background: #000 !important;
-}
-
-.cv-section .cv-task-meta-layout--scanography-gallery {
-  display: grid !important;
-  grid-template-columns: minmax(18rem, 0.78fr) minmax(0, 1.22fr) !important;
-  gap: clamp(1rem, 1.35vw, 1.65rem) !important;
-  align-items: stretch !important;
-  inline-size: 100% !important;
-}
-
-@media (max-width: 900px) {
-  .cv-section .cv-scanography-video-only .cv-scanography-video-grid,
-  .cv-section .cv-task-meta-layout--scanography-gallery {
-    grid-template-columns: 1fr !important;
-  }
-}
-/* scanography force order:end */
-
-
-
 /* synced side card height:start */
 .cv-side-card-height-synced {
   min-block-size: var(--cv-synced-side-height, auto) !important;
