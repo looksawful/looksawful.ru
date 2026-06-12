@@ -25,7 +25,7 @@
 .cv-section .cv-experience__item--featured .cv-project-hero {
   position: relative;
   overflow: hidden;
-  margin-block-end: var(--cv-art-space-lg) !important;
+  margin-block-end: var(--cv-art-space-lg);
   border: 1px solid var(--project-container-line);
   border-radius: var(--radius-md);
   background: linear-gradient(180deg, rgba(17, 17, 17, 0.018), rgba(17, 17, 17, 0) 42%), var(--surface-project);
@@ -41,9 +41,9 @@
   grid-template-columns: minmax(var(--project-logo-slot-min), var(--project-logo-slot-size)) minmax(0, 1fr) auto;
   grid-template-areas: "logo content period";
   align-items: center;
-  gap: var(--cv-art-space-xl) !important;
+  gap: var(--cv-art-space-xl);
   min-block-size: clamp(18rem, 30vw, 28rem);
-  padding: clamp(1.6rem, 3.2vw, 4rem) !important;
+  padding: clamp(1.6rem, 3.2vw, 4rem);
 }
 
 .cv-section .cv-experience__item--featured .cv-project-logo {
@@ -80,8 +80,8 @@
   display: grid;
   grid-area: content;
   align-content: center;
-  gap: var(--cv-art-space-sm) !important;
-  max-inline-size: min(100%, var(--cv-art-readable-wide)) !important;
+  gap: var(--cv-art-space-sm);
+  max-inline-size: min(100%, var(--cv-art-readable-wide));
   text-align: start;
 }
 
@@ -93,12 +93,12 @@
 .cv-section .cv-experience__item--featured .cv-project-hero h3 {
   max-inline-size: 100%;
   margin: 0;
-  color: var(--cv-art-ink) !important;
-  font-size: var(--cv-art-project-title) !important;
-  font-weight: var(--cv-art-weight-display) !important;
-  line-height: 0.86 !important;
-  letter-spacing: -0.07em !important;
-  text-wrap: balance !important;
+  color: var(--cv-art-ink);
+  font-size: var(--cv-art-project-title);
+  font-weight: var(--cv-art-weight-display);
+  line-height: 0.86;
+  letter-spacing: -0.07em;
+  text-wrap: balance;
 }
 
 .cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chips {
@@ -160,12 +160,12 @@
 
 .cv-section .cv-experience__item--featured .cv-project-hero .cv-project-copy p {
   max-inline-size: var(--cv-art-readable);
-  margin: 0 !important;
-  color: var(--cv-art-copy) !important;
-  font-size: var(--cv-art-project-copy) !important;
-  font-weight: var(--cv-art-weight-copy) !important;
-  line-height: 1.42 !important;
-  letter-spacing: -0.004em !important;
+  margin: 0;
+  color: var(--cv-art-copy);
+  font-size: var(--cv-art-project-copy);
+  font-weight: var(--cv-art-weight-copy);
+  line-height: 1.42;
+  letter-spacing: -0.004em;
   text-wrap: pretty;
 }
 
