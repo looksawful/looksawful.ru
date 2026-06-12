@@ -633,19 +633,6 @@
 
 
 /* showcase layout system:start */
-.cv-section .cv-experience__item--featured {
-  --project-hero-padding-block: clamp(2.25rem, 4vw, 4.25rem);
-  --project-hero-padding-inline: clamp(1.5rem, 3.4vw, 3.75rem);
-  --project-logo-slot-min: clamp(8.5rem, 15vw, 13.5rem);
-  --project-logo-slot-max: clamp(12rem, 22vw, 20rem);
-  --project-logo-slot-size: clamp(var(--project-logo-slot-min), 18vw, var(--project-logo-slot-max));
-  --project-hero-content-gap: clamp(0.72rem, 1.1vw, 1.18rem);
-  --project-hero-title-gap: clamp(0.58rem, 0.86vw, 0.94rem);
-  --project-hero-copy-gap: clamp(1rem, 1.35vw, 1.5rem);
-  --project-container-line: rgba(17, 17, 17, 0.14);
-  --project-container-line-soft: rgba(17, 17, 17, 0.075);
-}
-
 .cv-section .cv-experience__item--featured.case-project {
   border-color: var(--project-container-line);
   border-radius: var(--radius-lg);
