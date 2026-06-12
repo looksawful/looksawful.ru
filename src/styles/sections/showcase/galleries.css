@@ -1550,4 +1550,147 @@
   }
 }
 /* showcase Jestei landing motion section:end */
+/* showcase photo essays:start */
+.cv-section .cv-photo-essays {
+  gap: clamp(1.6rem, 3vw, 3.4rem);
+}
+
+.cv-section .cv-project-hero--photo-essays .cv-project-hero__body {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.cv-section .cv-photo-essays__stack {
+  display: grid;
+  gap: clamp(1.6rem, 3vw, 3.4rem);
+}
+
+.cv-section .cv-photo-essay {
+  display: grid;
+  gap: clamp(1rem, 1.8vw, 2rem);
+}
+
+.cv-section .cv-photo-essay__intro {
+  max-inline-size: 58rem;
+}
+
+.cv-section .cv-photo-essay__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem 0.72rem;
+  margin: 0;
+  color: var(--showcase-faint, rgba(17, 17, 17, 0.42));
+  font-size: var(--showcase-tech-size, clamp(0.64rem, 0.62vw, 0.74rem));
+  font-weight: var(--font-weight-medium);
+  line-height: 1.1;
+  text-transform: lowercase;
+}
+
+.cv-section .cv-photo-essay__body {
+  display: grid;
+  gap: clamp(0.55rem, 0.9vw, 0.82rem);
+  min-inline-size: 0;
+}
+
+.cv-section .cv-photo-essay__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.65rem, 1vw, 0.95rem);
+  min-inline-size: 0;
+  align-items: start;
+}
+
+.cv-section .cv-photo-essay__grid--count-1 {
+  grid-template-columns: minmax(0, 1fr);
+  max-inline-size: min(100%, 48rem);
+}
+
+.cv-section .cv-photo-essay__grid--count-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-inline-size: min(100%, 68rem);
+}
+
+.cv-section .cv-photo-essay__grid--count-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cv-section .cv-photo-essay__grid--count-4,
+.cv-section .cv-photo-essay__grid--count-5,
+.cv-section .cv-photo-essay__grid--count-6,
+.cv-section .cv-photo-essay__grid--count-7,
+.cv-section .cv-photo-essay__grid--count-8 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.cv-section .cv-photo-essay__frame {
+  min-inline-size: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line-hierarchy, rgba(0, 0, 0, 0.12));
+  border-radius: var(--radius-md, 1rem);
+  background: #050505;
+}
+
+.cv-section .cv-photo-essay__frame--4x5 {
+  aspect-ratio: 4 / 5;
+}
+
+.cv-section .cv-photo-essay__frame--1x1 {
+  aspect-ratio: 1 / 1;
+}
+
+.cv-section .cv-photo-essay__frame--5x4 {
+  aspect-ratio: 5 / 4;
+}
+
+.cv-section .cv-photo-essay__frame--16x9 {
+  aspect-ratio: 16 / 9;
+}
+
+.cv-section .cv-photo-essay__frame--9x6 {
+  aspect-ratio: 9 / 6;
+}
+
+.cv-section .cv-photo-essay__image {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.cv-section .cv-photo-essay__credits {
+  margin: 0;
+  color: var(--showcase-faint, rgba(17, 17, 17, 0.42));
+  font-size: clamp(0.68rem, 0.66vw, 0.78rem);
+  font-weight: var(--font-weight-book);
+  line-height: 1.26;
+  letter-spacing: 0.01em;
+  text-wrap: pretty;
+}
+
+@media (max-width: 68rem) {
+  .cv-section .cv-photo-essay__grid,
+  .cv-section .cv-photo-essay__grid--count-3,
+  .cv-section .cv-photo-essay__grid--count-4,
+  .cv-section .cv-photo-essay__grid--count-5,
+  .cv-section .cv-photo-essay__grid--count-6,
+  .cv-section .cv-photo-essay__grid--count-7,
+  .cv-section .cv-photo-essay__grid--count-8 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .cv-section .cv-photo-essay__grid,
+  .cv-section .cv-photo-essay__grid--count-2,
+  .cv-section .cv-photo-essay__grid--count-3,
+  .cv-section .cv-photo-essay__grid--count-4,
+  .cv-section .cv-photo-essay__grid--count-5,
+  .cv-section .cv-photo-essay__grid--count-6,
+  .cv-section .cv-photo-essay__grid--count-7,
+  .cv-section .cv-photo-essay__grid--count-8 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* showcase photo essays:end */
 
