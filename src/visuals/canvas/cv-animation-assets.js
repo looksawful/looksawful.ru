@@ -1,8 +1,6 @@
 const animationModules = import.meta.glob(
   [
     "../../assets/*/animations/**/*.{webp,png,jpg,jpeg,avif,gif}",
-    "!../../assets/jestei/animations/landing-motion-spiral/**",
-    "!../../assets/jestei/animations/landing-motion-masonry/**",
     "!../../assets/jestei/animations/landing-motion-arc/**",
     "!../../assets/styx/animations/styx-scanography-loops/**",
     "!../../assets/styx/animations/styx-photo-production/**",
@@ -24,7 +22,6 @@ const SCENE_LABELS = {
   styxScanographyLoops: "Styx Jewels / scanography loops",
   lyveGraphicCarousel: "Lyve Moscow / graphic / carousel",
   lyveInterfaceStrip: "Lyve Moscow / interface / horizontal",
-  jesteiLandingScreenshots: "Jestei Pool / landing / screenshots",
 };
 
 const SCENE_DEFAULT_MAX_ITEMS = {
@@ -36,7 +33,6 @@ const SCENE_DEFAULT_MAX_ITEMS = {
   styxScanographyLoops: 6,
   lyveGraphicCarousel: 8,
   lyveInterfaceStrip: 8,
-  jesteiLandingScreenshots: 4,
 };
 
 const getModuleUrl = (moduleValue) =>
