@@ -61,12 +61,12 @@
 .cv-video video,
 .cv-video-frame video {
   display: block;
-  inline-size: 100% !important;
-  block-size: 100% !important;
-  margin: auto !important;
-  object-fit: cover !important;
-  object-position: 50% 50% !important;
-  transform: none !important;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: auto;
+  object-fit: cover;
+  object-position: 50% 50%;
+  transform: none;
 }
 
 .cv-preview,
