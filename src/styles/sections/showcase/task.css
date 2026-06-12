@@ -9,19 +9,6 @@
   --showcase-tech-size: var(--type-list-meta);
 }
 
-.cv-section .cv-experience__item--featured .cv-project-hero__content {
-  gap: var(--space-title-to-meta);
-}
-
-.cv-section .cv-experience__item--featured .cv-project-hero h3 {
-  margin: 0;
-  line-height: 0.92;
-}
-
-.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chips {
-  margin-block-start: clamp(0.18rem, 0.32vw, 0.38rem);
-}
-
 .cv-section .cv-experience__item--featured .cv-task-group__meta {
   gap: var(--space-list-section);
 }
@@ -221,17 +208,6 @@
 /* showcase task legacy pass 1:end */
 
 /* showcase task typography:start */
-.cv-section .cv-experience__item--featured .cv-project-hero h3 {
-  color: var(--showcase-text);
-  font-size: var(--showcase-title-size);
-  font-weight: var(--font-weight-medium);
-  line-height: 0.94;
-  letter-spacing: 0;
-  text-wrap: balance;
-}
-
-.cv-section .cv-experience__item--featured .cv-project-hero .cv-project-copy p,
-.cv-section .cv-experience__item--featured .cv-project-hero .cv-experience__summary p,
 .cv-section .cv-experience__item--featured .cv-task-domain__summary {
   color: var(--showcase-copy);
   font-size: var(--showcase-body-size);
@@ -379,13 +355,6 @@
 }
 
 @media (max-width: 760px) {
-  .cv-section .cv-experience__item--featured .cv-project-hero h3 {
-    font-size: clamp(1.78rem, 10vw, 2.55rem);
-    line-height: 0.94;
-  }
-
-  .cv-section .cv-experience__item--featured .cv-project-hero .cv-project-copy p,
-  .cv-section .cv-experience__item--featured .cv-project-hero .cv-experience__summary p,
   .cv-section .cv-experience__item--featured .cv-task-domain__summary {
     font-size: clamp(0.94rem, 3.8vw, 1.08rem);
     line-height: 1.28;
