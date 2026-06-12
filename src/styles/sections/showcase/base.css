@@ -2114,66 +2114,6 @@ button,
 
 
 
-/* scanography square videos restore:start */
-.cv-section .cv-task-domain--scanography-videos-restored .cv-task-group {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) !important;
-  gap: clamp(1.2rem, 1.8vw, 2.25rem) !important;
-}
-
-.cv-section .cv-task-domain--scanography-videos-restored .cv-task-group__meta {
-  order: 1 !important;
-}
-
-.cv-section .cv-task-domain--scanography-videos-restored .cv-task-group__visual {
-  order: 2 !important;
-  display: block !important;
-  inline-size: 100% !important;
-  min-inline-size: 0 !important;
-}
-
-.cv-section .cv-task-domain--scanography-videos-restored .cv-scanography-video-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: clamp(0.75rem, 1vw, 1rem) !important;
-  inline-size: 100% !important;
-}
-
-.cv-section .cv-task-domain--scanography-videos-restored .cv-scanography-video-card {
-  display: block !important;
-  overflow: hidden !important;
-  aspect-ratio: 1 / 1 !important;
-  border: 1px solid var(--line-hierarchy, rgba(0, 0, 0, 0.12)) !important;
-  border-radius: var(--radius-md, 1rem) !important;
-  background: #000 !important;
-  text-decoration: none !important;
-}
-
-.cv-section .cv-task-domain--scanography-videos-restored .cv-scanography-video-card__media {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  background: #000 !important;
-}
-
-@media (max-width: 760px) {
-  .cv-section .cv-task-domain--scanography-videos-restored .cv-scanography-video-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
-/* scanography square videos restore:end */
-
-
-
-
-
-
-
-
-
-
-
 /* styx shooting equal height:start */
 .cv-section .cv-task-meta-layout--styx-shooting {
   align-items: stretch !important;
