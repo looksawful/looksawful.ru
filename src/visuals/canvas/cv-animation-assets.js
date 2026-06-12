@@ -1,6 +1,6 @@
 const animationModules = import.meta.glob(
   [
-    "../../assets/*/animations/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    "../../assets/*/animations/**/*.{webp,png,jpg,jpeg,avif,gif}",
     "!../../assets/jestei/animations/landing-motion-spiral/**",
     "!../../assets/jestei/animations/landing-motion-masonry/**",
     "!../../assets/jestei/animations/landing-motion-arc/**",
@@ -107,7 +107,40 @@ const buildRepeatedPublicModules = (basePath, filenames, count) => {
   return Object.fromEntries(entries);
 };
 
-const PUBLIC_SCENE_OVERRIDES = {
+const buildPublicModuleAliases = (entries) =>
+  Object.fromEntries(entries.map(({ path, url }) => [path, url]));
+
+const buildStyxGraphicDiagonalScene = (scene = {}) => ({
+  id: "styxGraphicDiagonal",
+  label: SCENE_LABELS.styxGraphicDiagonal,
+  directory: scene.directory || "src/assets/styx/animations/styx-graphic-diagonal + public/assets/styx/video",
+  folder: scene.folder || "styx-graphic-diagonal",
+  defaultMaxItems: scene.defaultMaxItems || SCENE_DEFAULT_MAX_ITEMS.styxGraphicDiagonal || 12,
+  modules: {
+    ...(scene.modules || {}),
+    ...buildPublicModuleAliases([
+      {
+        path: "/assets/styx/animations/styx-graphic-diagonal/basement-16x9-Ci2Jjxc4.mp4",
+        url: "/assets/styx/video/styx-scanography-loops/basement-16x9-Ci2Jjxc4.mp4",
+      },
+      {
+        path: "/assets/styx/animations/styx-graphic-diagonal/box-animation-side-DJxRwJf8.mp4",
+        url: "/assets/styx/video/styx-graphic-design/04.mp4",
+      },
+      {
+        path: "/assets/styx/animations/styx-graphic-diagonal/box-animation-top-CdTfNhGZ.mp4",
+        url: "/assets/styx/video/styx-graphic-design/04.mp4",
+      },
+      {
+        path: "/assets/styx/animations/styx-graphic-diagonal/styx-visual-system-loop-zwCa4H7L.mp4",
+        url: "/assets/styx/video/styx-scanography-loops/styx-visual-system-loop-zwCa4H7L.mp4",
+      },
+    ]),
+  },
+});
+
+const buildPublicSceneOverrides = (sourceScenes) => ({
+  styxGraphicDiagonal: buildStyxGraphicDiagonalScene(sourceScenes.styxGraphicDiagonal),
   styxPhotoProduction: {
     id: "styxPhotoProduction",
     label: SCENE_LABELS.styxPhotoProduction,
@@ -125,11 +158,13 @@ const PUBLIC_SCENE_OVERRIDES = {
       "8.webp",
     ], 24),
   },
-};
+});
+
+const sourceAnimationScenes = buildAnimationScenes();
 
 export const CV_ANIMATION_SCENES = {
-  ...buildAnimationScenes(),
-  ...PUBLIC_SCENE_OVERRIDES,
+  ...sourceAnimationScenes,
+  ...buildPublicSceneOverrides(sourceAnimationScenes),
 };
 
 export const getAnimationScene = (sceneId, fallbackSceneId) =>
