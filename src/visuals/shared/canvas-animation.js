@@ -629,12 +629,10 @@ export const loadVideo = (videoUrl) => {
     video.muted = true;
     video.defaultMuted = true;
     video.loop = true;
-    video.autoplay = true;
     video.playsInline = true;
     video.controls = false;
     video.setAttribute("playsinline", "");
     video.setAttribute("muted", "");
-    video.setAttribute("autoplay", "");
     video.setAttribute("loop", "");
 
     const cleanup = () => {
@@ -645,9 +643,6 @@ export const loadVideo = (videoUrl) => {
 
     const handleLoaded = async () => {
       cleanup();
-
-      setMediaElementPlayback(video, true);
-
       resolve(video);
     };
 
