@@ -36,7 +36,7 @@
     linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent),
     rgba(17, 17, 17, 0.025);
   background-size: 220% 100%;
-  animation: cv-canvas-loading-sweep 1.4s linear infinite;
+  animation: var(--cv-canvas-loading-animation, cv-canvas-loading-sweep 1.4s linear infinite);
 }
 
 .cv-preview[data-cv-animation].is-canvas-ready::after,
@@ -70,9 +70,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cv-preview[data-cv-animation].is-canvas-loading::after,
-  .cv-embedded-demo.is-canvas-loading::after {
-    animation: none;
+  :root {
+    --cv-canvas-loading-animation: none;
   }
 }
 /* showcase canvas:end */
