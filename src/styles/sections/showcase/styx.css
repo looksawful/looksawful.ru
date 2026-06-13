@@ -1,7 +1,7 @@
 /* showcase Styx:start */
 /*
   Styx-specific showcase galleries.
-  Extracted from galleries-legacy.css and imported after galleries.css, so these rules do not need !important.
+  Imported after galleries.css, so these rules can stay close to the project they tune.
 */
 
 /* styx photo production gallery pair:start */
