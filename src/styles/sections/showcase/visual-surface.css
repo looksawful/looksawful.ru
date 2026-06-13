@@ -141,10 +141,6 @@ button,
 }
 
 /* hide redundant section headings marked in HTML */
-:where(header, div):has(> [data-experiment-hide-heading]) {
-  display: none !important;
-}
-
 /* compact CV only, not showcase case projects */
 .cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured),
 .cv-section .resume-timeline-item {
