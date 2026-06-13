@@ -1,7 +1,7 @@
 /* showcase Scanography:start */
 /*
   Scanography-specific showcase galleries and videos.
-  Extracted from galleries-legacy.css and imported after galleries.css, so these rules do not need !important.
+  Imported after galleries.css, so project-specific sizing stays out of the shared gallery layer.
 */
 
 /* scanography split videos and gallery:start */
