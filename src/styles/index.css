@@ -1,14 +1,8 @@
-@import "./design-system.css";
-@import "./reset.css";
-@import "./typography.css";
-@import "./patterns/chips.css";
-@import "./patterns/tech-list.css";
-@import "./components/awfulface.css";
-@import "./components/site-footer.css";
+@import "./core.css";
+@import "./components.css";
 @import "./sections/hero.css";
 @import "./sections/cv.css";
 @import "./sections/cv-list.css";
-@import "./sections/pet-projects.css";
 @import "./sections/resume.css";
-@import "./sections/showcase/index.css";
+@import "./sections/showcase.css";
 

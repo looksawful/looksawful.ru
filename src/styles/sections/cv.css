@@ -1557,26 +1557,6 @@
   box-shadow: none;
 }
 
-@keyframes cvMediaMarquee {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes cvMediaOrbit {
-  from {
-    transform: rotateY(0deg);
-  }
-
-  to {
-    transform: rotateY(-360deg);
-  }
-}
-
 @media (max-width: 760px) {
   .cv-experience {
     gap: clamp(2.6rem, 12vw, 4rem);
