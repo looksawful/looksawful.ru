@@ -245,14 +245,6 @@
   min-inline-size: 0;
 }
 
-.cv-media-card img,
-.cv-media-card video {
-  display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: cover;
-}
-
 .cv-media-group--orbit {
   --orbit-card-width: clamp(7.8rem, 10vw, 11.5rem);
   --orbit-card-radius: 6px;
@@ -717,11 +709,6 @@
 .cv-section .cv-experience__item--featured .cv-media-group:not([data-cv-media-scene]) .cv-media-card:focus-visible {
   filter: brightness(1.035) contrast(1.02);
   box-shadow: 0 1.1rem 2.8rem rgba(0, 0, 0, 0.2);
-}
-
-.cv-section .cv-experience__item--featured .cv-media-group:not([data-cv-media-scene]) .cv-media-card:focus-visible {
-  outline: 1px solid rgba(17, 17, 17, 0.42);
-  outline-offset: 0.22rem;
 }
 
 @media (max-width: 72rem) {
