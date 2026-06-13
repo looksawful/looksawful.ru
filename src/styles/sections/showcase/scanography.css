@@ -1,0 +1,173 @@
+/* showcase Scanography:start */
+/*
+  Scanography-specific showcase galleries and videos.
+  Extracted from galleries-legacy.css and imported after galleries.css, so these rules do not need !important.
+*/
+
+/* scanography split videos and gallery:start */
+.cv-section .cv-scanography-video-only {
+  order: 2;
+  inline-size: 100%;
+  display: block;
+}
+
+.cv-section .cv-scanography-video-only .cv-scanography-video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1vw, 1rem);
+  inline-size: 100%;
+}
+
+.cv-section .cv-scanography-video-only .cv-scanography-video-card {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--line-hierarchy, rgba(0, 0, 0, 0.12));
+  border-radius: var(--radius-md, 1rem);
+  background: #000;
+  text-decoration: none;
+}
+
+.cv-section .cv-scanography-video-only .cv-scanography-video-card__media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.cv-section .cv-scanography-extra-galleries {
+  order: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.4rem, 2vw, 2.4rem);
+  inline-size: 100%;
+  margin-block-start: clamp(1.4rem, 2vw, 2.4rem);
+}
+
+.cv-section .cv-scanography-gallery-block__summary {
+  margin: 0;
+  max-inline-size: 42ch;
+  color: var(--showcase-muted);
+  font-size: clamp(0.9rem, 0.86vw, 1rem);
+  font-weight: var(--font-weight-book);
+  line-height: 1.45;
+}
+
+.cv-section .cv-task-meta-layout--scanography-gallery {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.78fr) minmax(0, 1.22fr);
+  gap: clamp(1rem, 1.35vw, 1.65rem);
+  align-items: stretch;
+  inline-size: 100%;
+}
+
+.cv-section .cv-task-meta-layout--scanography-gallery .cv-task-list-groups--side-media {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-self: stretch;
+  block-size: 100%;
+  gap: 0;
+}
+
+.cv-section .cv-task-meta-layout--scanography-gallery .cv-task-list-group {
+  align-self: stretch;
+  block-size: 100%;
+  inline-size: 100%;
+  max-inline-size: none;
+}
+
+.cv-section .cv-task-meta-layout--scanography-gallery .cv-task-list-group__content {
+  display: grid;
+  align-content: center;
+  block-size: 100%;
+  min-block-size: 100%;
+  inline-size: 100%;
+  max-inline-size: none;
+  box-sizing: border-box;
+}
+
+.cv-section .cv-task-meta-layout--scanography-gallery .cv-task-list-group__content > h5,
+.cv-section .cv-task-meta-layout--scanography-gallery .cv-task-list-group__content > p,
+.cv-section .cv-task-meta-layout--scanography-gallery .cv-task-list-group__content > ul {
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+  text-align: left;
+}
+
+.cv-section .cv-scanography-extra-galleries > .cv-task-meta-layout--scanography-gallery {
+  inline-size: 100%;
+}
+
+.cv-section .cv-task-meta-layout--scanography-gallery > .cv-task-side-gallery {
+  align-self: stretch;
+}
+
+.cv-section .cv-task-meta-layout--scanography-gallery-duplicate {
+  margin-block-start: 0;
+}
+
+@media (max-width: 900px) {
+  .cv-section .cv-scanography-video-only .cv-scanography-video-grid,
+  .cv-section .cv-task-meta-layout--scanography-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .cv-section .cv-task-meta-layout--scanography-gallery .cv-task-list-group__content {
+    min-block-size: auto;
+  }
+}
+/* scanography split videos and gallery:end */
+
+/* scanography square videos restore:start */
+.cv-section .cv-task-domain--scanography-videos-restored .cv-task-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.2rem, 1.8vw, 2.25rem);
+}
+
+.cv-section .cv-task-domain--scanography-videos-restored .cv-task-group__meta {
+  order: 1;
+}
+
+.cv-section .cv-task-domain--scanography-videos-restored .cv-task-group__visual {
+  order: 2;
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.cv-section .cv-task-domain--scanography-videos-restored .cv-scanography-video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1vw, 1rem);
+  inline-size: 100%;
+}
+
+.cv-section .cv-task-domain--scanography-videos-restored .cv-scanography-video-card {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--line-hierarchy, rgba(0, 0, 0, 0.12));
+  border-radius: var(--radius-md, 1rem);
+  background: #000;
+  text-decoration: none;
+}
+
+.cv-section .cv-task-domain--scanography-videos-restored .cv-scanography-video-card__media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+@media (max-width: 760px) {
+  .cv-section .cv-task-domain--scanography-videos-restored .cv-scanography-video-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* scanography square videos restore:end */
+
+/* showcase Scanography:end */
+
