@@ -1019,9 +1019,6 @@
     padding: 1rem;
   }
 
-  .pet-product-hero__banner {
-    min-block-size: 8.5rem;
-  }
 }
 
 /* Project section layout system. These classes are intentionally opt-in. */

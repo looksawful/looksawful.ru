@@ -183,7 +183,7 @@
 
 .has-cv-media-lightbox .cv-media-group--orbit .cv-media-group__track,
 .has-cv-media-lightbox .cv-media-group--strip .cv-media-group__track {
-  animation-play-state: paused !important;
+  animation-play-state: paused;
 }
 /* showcase media interactivity:end */
 /* showcase media:end */
