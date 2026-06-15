@@ -738,7 +738,6 @@
 }
 
 .cv-section .cv-experience__item--featured .task-side-gallery--mixed,
-.cv-section .cv-experience__item--featured .cv-jestei-static-extra__gallery,
 .cv-section .cv-experience__item--featured .task-side-gallery--communications-static {
   align-content: stretch;
 }
@@ -981,44 +980,6 @@
 */
 
 /* jestei static extra sections:start */
-.cv-jestei-static-extra-sections {
-  margin-block-start: clamp(2.5rem, 5vw, 6rem);
-}
-
-.cv-jestei-static-extra-sections__stack {
-  display: grid;
-  gap: clamp(2.25rem, 4vw, 4rem);
-}
-
-.cv-jestei-static-extra {
-  align-items: stretch;
-}
-
-.cv-jestei-static-extra__gallery {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(0.65rem, 1vw, 0.9rem);
-  inline-size: 100%;
-}
-
-.cv-jestei-static-extra__gallery .task-side-gallery__link {
-  aspect-ratio: 4 / 3;
-  min-inline-size: 0;
-  overflow: hidden;
-}
-
-.cv-jestei-static-extra__gallery .task-side-gallery__media {
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: cover;
-  object-position: center center;
-}
-
-@media (max-width: 68rem) {
-  .cv-jestei-static-extra__gallery {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 /* jestei static extra sections:end */
 
 /* showcase Jestei product rows and identity gallery:start */
@@ -1232,3 +1193,46 @@
   aspect-ratio: 4 / 3;
 }
 /* shared media composition:end */
+
+/* static extra layout:start */
+.cv-section .cv-experience__item--featured .task-domain--static-extra {
+  display: grid;
+  gap: clamp(1.25rem, 2vw, 2rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.cv-section .cv-experience__item--featured .static-extra-stack {
+  display: grid;
+  gap: clamp(1.25rem, 1.8vw, 2.25rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.cv-section .cv-experience__item--featured .task-meta-layout--static-extra {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.1rem, 1.6vw, 2rem);
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 64rem) {
+  .cv-section .cv-experience__item--featured .task-meta-layout--static-extra {
+    grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr);
+  }
+}
+
+.cv-section .cv-experience__item--featured .task-side-gallery--static-extra {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.55rem, 0.72vw, 0.8rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.cv-section .cv-experience__item--featured .task-side-gallery--static-extra .task-side-gallery__link {
+  aspect-ratio: 1 / 1;
+}
+/* static extra layout:end */
