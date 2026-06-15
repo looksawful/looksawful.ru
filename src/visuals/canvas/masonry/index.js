@@ -13,7 +13,7 @@ import {
   drawCanvasLoadingState,
   setMediaItemsPlayback,
 } from "../../shared/canvas-animation.js";
-import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
+import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
 
 const MASONRY_KEY_PREFIX = "masonry:";
 const DEFAULT_MASONRY_SCENE = "jesteiUxCanvas";
@@ -34,7 +34,7 @@ const SCENE_CONFIGS = {
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const resolveSceneId = (sceneId) =>
-	CV_ANIMATION_SCENES[sceneId] ? sceneId : DEFAULT_MASONRY_SCENE;
+	ANIMATION_SCENES[sceneId] ? sceneId : DEFAULT_MASONRY_SCENE;
 
 const getSceneConfig = (sceneId) => ({
 	...SCENE_CONFIGS[DEFAULT_MASONRY_SCENE],
@@ -43,7 +43,7 @@ const getSceneConfig = (sceneId) => ({
 
 const getSceneItems = (sceneId) => {
   const resolvedSceneId = resolveSceneId(sceneId);
-  const scene = CV_ANIMATION_SCENES[resolvedSceneId];
+  const scene = ANIMATION_SCENES[resolvedSceneId];
 
   return limitAnimationItems(
     createAnimationItems(scene.modules),
@@ -293,7 +293,7 @@ export const mountMasonry = async (canvasId = "masonry-container", options = {})
 		return createDisposeHandle();
 	}
 
-	const sceneId = resolveSceneId(options.scene || canvas.dataset.cvAnimationScene);
+	const sceneId = resolveSceneId(options.scene || canvas.dataset.animationScene);
 	const sceneConfig = getSceneConfig(sceneId);
 	const key = createAnimationKey(MASONRY_KEY_PREFIX, canvasId);
 	const mountToken = beginMount(key);
@@ -377,4 +377,3 @@ if (import.meta.hot) {
 		disposeCanvasAnimationsByPrefix(MASONRY_KEY_PREFIX);
 	});
 }
-

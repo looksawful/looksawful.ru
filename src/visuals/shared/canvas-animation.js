@@ -37,7 +37,7 @@ export const getCanvasQualityProfile = () => {
 
 export const getCanvasMountOptions = (canvas, options = {}, defaults = {}) => {
   const dataset = canvas?.dataset || {};
-  const quality = options.quality || dataset.cvAnimationQuality || getCanvasQualityProfile();
+  const quality = options.quality || dataset.animationQuality || getCanvasQualityProfile();
 
   const qualityDefaults = {
     reduced: { maxDpr: 1, maxItems: 12, initialCount: 4, batchSize: 4, fps: 24 },
@@ -67,17 +67,17 @@ export const getCanvasMountOptions = (canvas, options = {}, defaults = {}) => {
 
   return {
     quality,
-    maxDpr: Number(options.maxDpr ?? dataset.cvAnimationDpr ?? getProfileDefault("maxDpr")),
-    maxItems: numberFrom(options.maxItems ?? dataset.cvAnimationMaxItems, getProfileDefault("maxItems"), 1, 160),
+    maxDpr: Number(options.maxDpr ?? dataset.animationDpr ?? getProfileDefault("maxDpr")),
+    maxItems: numberFrom(options.maxItems ?? dataset.animationMaxItems, getProfileDefault("maxItems"), 1, 160),
     initialCount: numberFrom(
-      options.initialCount ?? dataset.cvAnimationInitialCount,
+      options.initialCount ?? dataset.animationInitialCount,
       getProfileDefault("initialCount"),
       1,
       80,
     ),
-    batchSize: numberFrom(options.batchSize ?? dataset.cvAnimationBatchSize, getProfileDefault("batchSize"), 1, 32),
-    fps: numberFrom(options.fps ?? dataset.cvAnimationFps, getProfileDefault("fps"), 1, 60),
-    speedScale: Number(options.speedScale ?? dataset.cvAnimationSpeed ?? defaults.speedScale ?? 1) || 1,
+    batchSize: numberFrom(options.batchSize ?? dataset.animationBatchSize, getProfileDefault("batchSize"), 1, 32),
+    fps: numberFrom(options.fps ?? dataset.animationFps, getProfileDefault("fps"), 1, 60),
+    speedScale: Number(options.speedScale ?? dataset.animationSpeed ?? defaults.speedScale ?? 1) || 1,
   };
 };
 
@@ -93,7 +93,7 @@ export const limitAnimationItems = (items, sceneId = "", options = {}) => {
 };
 
 export const markCanvasState = (canvas, state) => {
-  const host = canvas?.closest?.("[data-cv-animation], .cv-preview, .cv-embedded-demo") || canvas?.parentElement;
+  const host = canvas?.closest?.("[data-animation], .media-preview, .embedded-demo") || canvas?.parentElement;
 
   if (!host) {
     return;

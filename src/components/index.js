@@ -29,9 +29,7 @@ function runWhenIdle(callback) {
 
 async function initContentEnhancements() {
   try {
-    const { mountTechIcons } = await import("./tech-icons/tech-icons.js");
 
-    runComponentStep("mountTechIcons", () => mountTechIcons(document));
   } catch (error) {
     console.error("[components] initContentEnhancements failed", error);
   }
@@ -39,12 +37,12 @@ async function initContentEnhancements() {
 
 async function initVisualEnhancements() {
   try {
-    const [{ initCvVisuals }, { initCvInlineVideos }] = await Promise.all([
-      import("./cv-visuals/cv-visuals.js"),
-      import("./cv-inline-video/cv-inline-video.js"),
+    const [{ initShowcaseVisuals }, { initCvInlineVideos }] = await Promise.all([
+      import("./showcase-visuals/showcase-visuals.js"),
+      import("./showcase-inline-video/showcase-inline-video.js"),
     ]);
 
-    runComponentStep("initCvVisuals", () => initCvVisuals(document));
+    runComponentStep("initShowcaseVisuals", () => initShowcaseVisuals(document));
     runComponentStep("initCvInlineVideos", () => initCvInlineVideos());
   } catch (error) {
     console.error("[components] initVisualEnhancements failed", error);
@@ -78,4 +76,3 @@ export function initComponents() {
       });
   });
 }
-

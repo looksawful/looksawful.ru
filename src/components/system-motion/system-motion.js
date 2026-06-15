@@ -1,7 +1,7 @@
 const MOTION_SELECTOR = [
   ".cv-section-title",
-  ".cv-project-hero",
-  ".cv-task-domain",
+  ".case-header",
+  ".task-domain",
   ".pet-card",
   ".pet-page-section",
   ".resume-hero",

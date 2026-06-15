@@ -996,4 +996,3 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(MASONRY_KEY_PREFIX);
   });
 }
-
