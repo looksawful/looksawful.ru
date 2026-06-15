@@ -148,7 +148,7 @@
 }
 
 .cv-experience__item--compact .cv-experience__title-line,
-.cv-experience__item--compact .cv-role-chips {
+.cv-experience__item--compact .pills {
   grid-column: 1;
 }
 
@@ -240,7 +240,7 @@
   text-wrap: pretty;
 }
 
-.cv-role-chips {
+.pills {
   display: flex;
   flex-wrap: wrap;
   gap: 0.34rem;
@@ -260,11 +260,11 @@
   text-transform: lowercase;
 }
 
-.cv-role-chips li::before {
+.pills li::before {
   content: none;
 }
 
-.cv-role-chip {
+.pill {
   display: inline-flex;
   align-items: center;
   min-block-size: 1.72rem;
@@ -280,7 +280,7 @@
   text-wrap: balance;
 }
 
-.cv-experience__item--featured .cv-role-chip {
+.cv-experience__item--featured .pill {
   min-block-size: 1.86rem;
   padding: 0.34rem 0.78rem 0.4rem;
   border: 0;
@@ -290,7 +290,7 @@
   font-weight: 660;
 }
 
-.cv-experience__item--featured .cv-role-chips {
+.cv-experience__item--featured .pills {
   display: inline-flex;
   flex-wrap: nowrap;
   width: fit-content;
@@ -302,7 +302,7 @@
   background: transparent;
 }
 
-.cv-experience__item--featured .cv-role-chips li + li {
+.cv-experience__item--featured .pills li + li {
   border-inline-start: 1px solid rgba(17, 17, 17, 0.42);
 }
 
@@ -323,7 +323,7 @@
   text-wrap: pretty;
 }
 
-.cv-experience__item--compact .cv-role-chip {
+.cv-experience__item--compact .pill {
   min-block-size: 1.56rem;
   padding: 0.24rem 0.52rem 0.28rem;
   color: #333;
@@ -592,7 +592,7 @@
   text-wrap: balance;
 }
 
-.cv-task-chips {
+.chips--task {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -605,11 +605,11 @@
   list-style: none;
 }
 
-.cv-task-chips li {
+.chips--task li {
   display: contents;
 }
 
-.cv-task-chips li::before {
+.chips--task li::before {
   content: none;
 }
 
@@ -753,7 +753,7 @@
   text-transform: lowercase;
 }
 
-.cv-task-chip {
+.chip--task {
   --chip-bg: var(--task-bg, #f4f6fb);
   --chip-shadow: var(--task-shadow, rgba(17, 17, 17, 0.08));
 
@@ -782,22 +782,22 @@
     box-shadow 160ms ease;
 }
 
-.cv-task-chip[data-demo-id] {
+.chip--task[data-demo-id] {
   cursor: pointer;
 }
 
-.cv-task-chip:not([data-demo-id]) {
+.chip--task:not([data-demo-id]) {
   cursor: default;
 }
 
-.cv-task-chip--filled {
+.chip--filled {
   border-color: color-mix(in srgb, var(--task-accent) 30%, var(--task-border));
   background: color-mix(in srgb, var(--chip-bg) 86%, white);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--task-accent) 8%, transparent);
   will-change: transform;
 }
 
-.cv-task-chip--filled::after {
+.chip--filled::after {
   content: "";
   inline-size: 0.42rem;
   block-size: 0.42rem;
@@ -807,17 +807,17 @@
   background: color-mix(in srgb, var(--task-accent) 76%, #111);
 }
 
-.cv-task-chip:focus-visible {
+.chip--task:focus-visible {
   outline: 2px solid #111;
   outline-offset: 3px;
 }
 
-.cv-task-chip:hover {
+.chip--task:hover {
   border-color: color-mix(in srgb, var(--task-border) 68%, var(--task-accent));
   background: color-mix(in srgb, var(--chip-bg) 78%, white);
 }
 
-.cv-task-chip--filled:hover {
+.chip--filled:hover {
   background: var(--chip-bg);
   box-shadow: 0 0.18rem 0.44rem var(--chip-shadow);
 }
@@ -840,7 +840,7 @@
   .cv-experience__project,
   .cv-task-area,
   .cv-task-domains,
-  .cv-task-chips,
+  .chips--task,
   .cv-experience__year {
     grid-column: 1;
   }
@@ -902,7 +902,7 @@
   }
 
   .cv-experience__item--compact .cv-experience__title-line,
-  .cv-experience__item--compact .cv-role-chips,
+  .cv-experience__item--compact .pills,
   .cv-experience__item--compact .cv-experience__summary,
   .cv-experience__item--compact .cv-work-toggle {
     grid-column: 1;
@@ -931,7 +931,7 @@
     font-size: clamp(0.82rem, 3.25vw, 0.98rem);
   } */
 
-  .cv-experience__item--featured .cv-role-chips {
+  .cv-experience__item--featured .pills {
     flex-wrap: wrap;
     width: 100%;
     gap: 0.36rem;
@@ -940,11 +940,11 @@
     overflow: visible;
   }
 
-  .cv-experience__item--featured .cv-role-chips li + li {
+  .cv-experience__item--featured .pills li + li {
     border-inline-start: 0;
   }
 
-  .cv-experience__item--featured .cv-role-chip {
+  .cv-experience__item--featured .pill {
     min-block-size: 1.9rem;
     padding: 0.34rem 0.66rem 0.4rem;
     border: 1px solid rgba(17, 17, 17, 0.42);
@@ -1014,11 +1014,11 @@
     font-size: clamp(0.88rem, 3.45vw, 1.04rem);
   }
 
-  .cv-task-chips {
+  .chips--task {
     gap: 0.48rem 0.5rem;
   }
 
-  .cv-task-chip {
+  .chip--task {
     min-block-size: 2rem;
     padding: 0.4rem 0.64rem 0.46rem;
     font-size: clamp(0.8rem, 3.3vw, 0.96rem);
@@ -1038,7 +1038,7 @@
     min-block-size: 7.25rem;
   }
 
-  .cv-role-chip {
+  .pill {
     min-block-size: 1.76rem;
     padding: 0.3rem 0.62rem 0.34rem;
     font-size: clamp(0.74rem, 3.05vw, 0.88rem);
@@ -1245,7 +1245,7 @@
   line-height: 0.92;
 }
 
-.cv-project-hero .cv-role-chips {
+.cv-project-hero .pills {
   width: fit-content;
   max-inline-size: 100%;
   border: 1px solid rgba(17, 17, 17, 0.36);
@@ -1253,7 +1253,7 @@
   background: transparent;
 }
 
-.cv-project-hero .cv-role-chip {
+.cv-project-hero .pill {
   min-block-size: 1.82rem;
   padding: 0.34rem 0.72rem 0.38rem;
   border: 0;
@@ -1263,7 +1263,7 @@
   font-weight: 680;
 }
 
-.cv-project-hero .cv-role-chips li + li {
+.cv-project-hero .pills li + li {
   border-inline-start: 1px solid rgba(17, 17, 17, 0.22);
 }
 
@@ -1353,12 +1353,12 @@
   font-size: clamp(0.86rem, 0.86vw, 1rem);
 }
 
-.cv-task-chips {
+.chips--task {
   gap: 0.48rem;
   max-inline-size: none;
 }
 
-.cv-task-chip {
+.chip--task {
   min-block-size: 1.9rem;
   padding: 0.38rem 0.66rem 0.42rem;
   border: 1px solid rgba(17, 17, 17, 0.12);
@@ -1373,17 +1373,17 @@
   transform: none;
 }
 
-.cv-task-chip--filled {
+.chip--filled {
   border-color: rgba(17, 17, 17, 0.18);
   background: #f8f8f8;
 }
 
-.cv-task-chip--filled::after {
+.chip--filled::after {
   content: none;
 }
 
-.cv-task-chip:hover,
-.cv-task-chip--filled:hover {
+.chip--task:hover,
+.chip--filled:hover {
   border-color: rgba(17, 17, 17, 0.36);
   background: #fff;
   transform: translateY(-1px);
@@ -1550,7 +1550,7 @@
   font-weight: 720;
 }
 
-.cv-experience__item--compact .cv-task-chip {
+.cv-experience__item--compact .chip--task {
   min-block-size: 1.44rem;
   padding: 0.22rem 0.46rem 0.26rem;
   font-size: clamp(0.62rem, 0.62vw, 0.72rem);
@@ -1579,17 +1579,17 @@
     font-size: clamp(1.65rem, 10vw, 2.4rem);
   }
 
-  .cv-project-hero .cv-role-chips {
+  .cv-project-hero .pills {
     flex-wrap: wrap;
     border: 0;
     gap: 0.36rem;
   }
 
-  .cv-project-hero .cv-role-chips li + li {
+  .cv-project-hero .pills li + li {
     border-inline-start: 0;
   }
 
-  .cv-project-hero .cv-role-chip {
+  .cv-project-hero .pill {
     border: 1px solid rgba(17, 17, 17, 0.18);
     border-radius: 999px;
     background: #fff;
@@ -1730,11 +1730,11 @@
   text-wrap: pretty;
 }
 
-.cv-section .cv-experience__item--compact .cv-role-chips {
+.cv-section .cv-experience__item--compact .pills {
   gap: 0.28rem;
 }
 
-.cv-section .cv-experience__item--compact .cv-role-chip {
+.cv-section .cv-experience__item--compact .pill {
   min-block-size: 1.44rem;
   padding: 0.22rem 0.48rem 0.26rem;
   border-color: var(--cv-list-border);
@@ -1808,11 +1808,11 @@
   line-height: 1.12;
 }
 
-.cv-section .cv-experience__item--compact .cv-task-chips {
+.cv-section .cv-experience__item--compact .chips--task {
   gap: 0.32rem;
 }
 
-.cv-section .cv-experience__item--compact .cv-task-chip {
+.cv-section .cv-experience__item--compact .chip--task {
   min-block-size: 1.36rem;
   padding: 0.2rem 0.42rem 0.24rem;
   border-color: rgba(17, 17, 17, 0.1);
@@ -1829,21 +1829,21 @@
     background-color var(--motion-fast) var(--ease-standard);
 }
 
-.cv-section .cv-experience__item--compact .cv-task-chip:hover,
-.cv-section .cv-experience__item--compact .cv-task-chip--filled:hover {
+.cv-section .cv-experience__item--compact .chip--task:hover,
+.cv-section .cv-experience__item--compact .chip--filled:hover {
   border-color: rgba(17, 17, 17, 0.18);
   background: #fff;
   box-shadow: none;
 }
 
-.cv-section .cv-experience__item--compact .cv-task-chip--filled {
+.cv-section .cv-experience__item--compact .chip--filled {
   border-color: rgba(17, 17, 17, 0.14);
   background: color-mix(in srgb, var(--task-bg, #f4f4f1) 56%, white);
   box-shadow: none;
   will-change: auto;
 }
 
-.cv-section .cv-experience__item--compact .cv-task-chip--filled::after {
+.cv-section .cv-experience__item--compact .chip--filled::after {
   inline-size: 0.3rem;
   block-size: 0.3rem;
   margin-inline-start: 0.32rem;
@@ -1899,8 +1899,8 @@
     line-height: 1.28;
   }
 
-  .cv-section .cv-experience__item--compact .cv-role-chip,
-  .cv-section .cv-experience__item--compact .cv-task-chip {
+  .cv-section .cv-experience__item--compact .pill,
+  .cv-section .cv-experience__item--compact .chip--task {
     font-size: clamp(0.72rem, 3vw, 0.84rem);
   }
 
@@ -2122,8 +2122,8 @@
   gap: 0.48rem;
 }
 
-.cv-section--resume .cv-role-chips,
-.cv-section--resume .cv-task-chips {
+.cv-section--resume .pills,
+.cv-section--resume .chips--task {
   display: flex;
   flex-wrap: wrap;
   gap: 0.42rem;
@@ -2132,8 +2132,8 @@
   list-style: none;
 }
 
-.cv-section--resume .cv-role-chip,
-.cv-section--resume .cv-task-chip {
+.cv-section--resume .pill,
+.cv-section--resume .chip--task {
   min-block-size: auto;
   padding: 0.34rem 0.56rem 0.38rem;
   border: 1px solid rgba(17, 17, 17, 0.14);
@@ -2150,8 +2150,8 @@
   transform: none;
 }
 
-.cv-section--resume .cv-task-chip::after,
-.cv-section--resume .cv-role-chip::after {
+.cv-section--resume .chip--task::after,
+.cv-section--resume .pill::after {
   content: none;
 }
 

@@ -65,11 +65,11 @@
   white-space: nowrap;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-chips {
+.cv-section .cv-experience__item--featured .chips--task {
   gap: 0.46rem 0.5rem;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-chip {
+.cv-section .cv-experience__item--featured .chip--task {
   min-block-size: 1.84rem;
   padding: 0.36rem 0.62rem 0.4rem;
   border-color: rgba(17, 17, 17, 0.13);
@@ -88,21 +88,21 @@
     box-shadow var(--motion-fast) var(--ease-standard);
 }
 
-.cv-section .cv-experience__item--featured .cv-task-chip:hover,
-.cv-section .cv-experience__item--featured .cv-task-chip--filled:hover {
+.cv-section .cv-experience__item--featured .chip--task:hover,
+.cv-section .cv-experience__item--featured .chip--filled:hover {
   border-color: rgba(17, 17, 17, 0.26);
   background: #fff;
   box-shadow: 0 6px 18px rgba(17, 17, 17, 0.05);
 }
 
-.cv-section .cv-experience__item--featured .cv-task-chip--filled {
+.cv-section .cv-experience__item--featured .chip--filled {
   border-color: rgba(17, 17, 17, 0.18);
   background: color-mix(in srgb, var(--task-bg, #f4f4f1) 74%, white);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--task-accent, #111) 7%, transparent);
   will-change: auto;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-chip--filled::after {
+.cv-section .cv-experience__item--featured .chip--filled::after {
   inline-size: 0.36rem;
   block-size: 0.36rem;
   margin-inline-start: 0.38rem;
@@ -116,7 +116,7 @@
 }
 
 @media (max-width: 760px) {
-  .cv-section .cv-experience__item--featured .cv-task-chip {
+  .cv-section .cv-experience__item--featured .chip--task {
     min-block-size: 1.92rem;
     padding: 0.38rem 0.62rem 0.42rem;
     font-size: clamp(0.78rem, 3.25vw, 0.94rem);
@@ -324,8 +324,8 @@
 }
 
 /* keep chips, tags, tabs and buttons bordered */
-.cv-section .cv-role-chip,
-.cv-section .cv-task-chip,
+.cv-section .pill,
+.cv-section .chip--task,
 .cv-section .ds-chip,
 .cv-section .chips--tech li,
 .cv-section .chips--tech li,
@@ -348,8 +348,8 @@
 }
 
 /* remove grey fills from chips/buttons, keep borders */
-.cv-section .cv-role-chip,
-.cv-section .cv-task-chip,
+.cv-section .pill,
+.cv-section .chip--task,
 .cv-section .ds-chip,
 .cv-section .chips--tech li,
 .cv-section .chips--tech li,
@@ -398,14 +398,14 @@
   letter-spacing: -0.04em;
 }
 
-.cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) .cv-role-chips,
-.cv-section .resume-timeline-item .cv-role-chips {
+.cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) .pills,
+.cv-section .resume-timeline-item .pills {
   gap: 0.28rem;
   margin-block: 0 clamp(0.42rem, 0.72vw, 0.68rem);
 }
 
-.cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) .cv-role-chip,
-.cv-section .resume-timeline-item .cv-role-chip {
+.cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) .pill,
+.cv-section .resume-timeline-item .pill {
   min-block-size: 1.35rem;
   padding: 0.16rem 0.42rem 0.19rem;
   font-size: clamp(0.56rem, 0.62vw, 0.68rem);
@@ -489,7 +489,7 @@
   text-wrap: pretty;
 }
 
-.cv-section .cv-role-chips,
+.cv-section .pills,
 .cv-section .chips--tech {
   display: flex;
   flex-wrap: wrap;
@@ -499,8 +499,8 @@
   list-style: none;
 }
 
-.cv-section .cv-role-chip,
-.cv-section .cv-task-chip,
+.cv-section .pill,
+.cv-section .chip--task,
 .cv-section .chips--tech li {
   display: inline-flex;
   align-items: center;
@@ -795,7 +795,7 @@
 /* showcase project:start */
 /* showcase project:start */
 .cv-section .cv-project-copy,
-.cv-section .cv-role-chips {
+.cv-section .pills {
   min-inline-size: 0;
 }
 
@@ -803,7 +803,7 @@
   margin: 0;
 }
 
-.cv-section .cv-role-chips {
+.cv-section .pills {
   display: flex;
   flex-wrap: wrap;
   gap: 0.34rem;
@@ -812,7 +812,7 @@
   list-style: none;
 }
 
-.cv-section .cv-role-chip {
+.cv-section .pill {
   display: inline-flex;
   align-items: center;
   min-block-size: 1.58rem;
@@ -837,7 +837,7 @@
 }
 
 @media (max-width: 760px) {
-  .cv-section .cv-role-chip {
+  .cv-section .pill {
     min-block-size: 1.52rem;
     font-size: clamp(0.66rem, 2.8vw, 0.78rem);
   }
@@ -866,7 +866,7 @@
 .cv-section .cv-experience__item--featured .cv-project-copy,
 .cv-section .cv-experience__item--featured .cv-project-logo,
 .cv-section .cv-experience__item--featured .cv-experience__title-line,
-.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chips {
+.cv-section .cv-experience__item--featured .cv-project-hero .pills {
   min-inline-size: 0;
 }
 
@@ -949,7 +949,7 @@
   text-wrap: balance;
 }
 
-.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chips {
+.cv-section .cv-experience__item--featured .cv-project-hero .pills {
   display: inline-flex;
   flex-wrap: nowrap;
   width: fit-content;
@@ -965,7 +965,7 @@
   list-style: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chips > li {
+.cv-section .cv-experience__item--featured .cv-project-hero .pills > li {
   display: inline-flex;
   margin: 0;
   padding: 0;
@@ -975,11 +975,11 @@
   box-shadow: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chips > li + li {
+.cv-section .cv-experience__item--featured .cv-project-hero .pills > li + li {
   border-inline-start: 1px solid rgba(17, 17, 17, 0.18);
 }
 
-.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chip {
+.cv-section .cv-experience__item--featured .cv-project-hero .pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -992,8 +992,8 @@
   box-shadow: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chip::before,
-.cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chip::after {
+.cv-section .cv-experience__item--featured .cv-project-hero .pill::before,
+.cv-section .cv-experience__item--featured .cv-project-hero .pill::after {
   display: none;
   content: none;
   border: 0;
@@ -1079,7 +1079,7 @@
     --project-logo-slot-size: clamp(6.5rem, 38vw, 9.5rem);
   }
 
-  .cv-section .cv-experience__item--featured .cv-project-hero .cv-role-chip {
+  .cv-section .cv-experience__item--featured .cv-project-hero .pill {
     min-block-size: 1.62rem;
     padding: 0.28rem 0.52rem 0.32rem;
   }
