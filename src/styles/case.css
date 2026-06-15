@@ -109,7 +109,7 @@
 }
 
 .cv-section .cv-experience__item--featured .cv-media-caption,
-.cv-section .cv-experience__item--featured .ds-caption {
+.cv-section .cv-experience__item--featured .caption {
   color: rgba(17, 17, 17, 0.44);
   font-size: clamp(0.68rem, 0.66vw, 0.78rem);
   line-height: 1.18;
@@ -249,9 +249,9 @@
 .cv-section .cv-experience__item--featured .case-project,
 .cv-section .cv-experience__item--featured .case-domain,
 .cv-section .cv-experience__item--featured .case-evidence,
-.cv-section .cv-experience__item--featured .ds-evidence,
-.cv-section .cv-experience__item--featured .ds-panel,
-.cv-section .cv-experience__item--featured .ds-surface,
+.cv-section .cv-experience__item--featured .detail,
+.cv-section .cv-experience__item--featured .panel,
+.cv-section .cv-experience__item--featured .surface,
 .cv-section .cv-experience__item--featured .case-header,
 .cv-section .cv-experience__item--featured .case-header__banner,
 .cv-section .cv-experience__item--featured .case-header__body,
@@ -279,9 +279,9 @@
 .cv-section .cv-experience__item--featured .case-project,
 .cv-section .cv-experience__item--featured .case-domain,
 .cv-section .cv-experience__item--featured .case-evidence,
-.cv-section .cv-experience__item--featured .ds-evidence,
-.cv-section .cv-experience__item--featured .ds-panel,
-.cv-section .cv-experience__item--featured .ds-surface,
+.cv-section .cv-experience__item--featured .detail,
+.cv-section .cv-experience__item--featured .panel,
+.cv-section .cv-experience__item--featured .surface,
 .cv-section .cv-experience__item--featured .case-header,
 .cv-section .cv-experience__item--featured .case-header__banner,
 .cv-section .cv-experience__item--featured .case-header__body,
@@ -306,8 +306,8 @@
 
 /* keep list-card borders */
 .cv-section .cv-experience__item--featured .cv-task-list-group,
-.cv-section .cv-experience__item--featured .ds-list-section,
-.cv-task-list-group.ds-list-section {
+.cv-section .cv-experience__item--featured .list-section,
+.cv-task-list-group.list-section {
   border-width: 1px;
   border-style: solid;
   border-color: var(--visual-list-card-line);
@@ -603,7 +603,7 @@
 }
 
 .cv-section .cv-experience__item--featured .cv-task-list-group,
-.cv-section .cv-experience__item--featured .cv-task-list-group.ds-list-section,
+.cv-section .cv-experience__item--featured .cv-task-list-group.list-section,
 .cv-section .cv-experience__item--featured .cv-task-list-groups--cards .cv-task-list-group,
 .cv-section .cv-experience__item--featured .cv-task-list-groups--auto .cv-task-list-group,
 .cv-section .cv-experience__item--featured .cv-task-list-groups--side-media .cv-task-list-group {
@@ -619,7 +619,7 @@
 }
 
 .cv-section .cv-experience__item--featured .cv-task-list-group__content,
-.cv-section .cv-experience__item--featured .cv-task-list-group.ds-list-section .cv-task-list-group__content,
+.cv-section .cv-experience__item--featured .cv-task-list-group.list-section .cv-task-list-group__content,
 .cv-section .cv-experience__item--featured .cv-task-list-groups--cards .cv-task-list-group__content,
 .cv-section .cv-experience__item--featured .cv-task-list-groups--auto .cv-task-list-group__content,
 .cv-section .cv-experience__item--featured .cv-task-list-groups--side-media .cv-task-list-group__content {
@@ -634,7 +634,7 @@
 
 .cv-section .cv-experience__item--featured .cv-task-list-group__content > h5,
 .cv-section .cv-experience__item--featured .cv-task-list-group h5,
-.cv-section .cv-experience__item--featured .cv-task-list-group.ds-list-section .cv-task-list-group__content > h5,
+.cv-section .cv-experience__item--featured .cv-task-list-group.list-section .cv-task-list-group__content > h5,
 .cv-section .cv-experience__item--featured .cv-task-list-groups--cards .cv-task-list-group__content > h5,
 .cv-section .cv-experience__item--featured .cv-task-list-groups--auto .cv-task-list-group__content > h5,
 .cv-section .cv-experience__item--featured .cv-task-list-groups--side-media .cv-task-list-group__content > h5 {

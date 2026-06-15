@@ -27,12 +27,12 @@
 }
 
 .cv-section .cv-experience__item--featured .cv-task-list-groups,
-.cv-section .cv-experience__item--featured .ds-structured-list {
+.cv-section .cv-experience__item--featured .structured-list {
   gap: var(--space-3);
 }
 
 .cv-section .cv-experience__item--featured .cv-task-list-group,
-.cv-section .cv-experience__item--featured .ds-list-section {
+.cv-section .cv-experience__item--featured .list-section {
   overflow: hidden;
   border: 1px solid var(--line-hierarchy);
   border-radius: var(--radius-md);
