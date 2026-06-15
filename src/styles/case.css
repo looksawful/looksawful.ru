@@ -138,12 +138,12 @@
 .case-evidence {
   border-color: var(--showcase-border);
 }
-.cv-landing-animation-strip {
+.landing-animation-strip {
   position: relative;
   min-inline-size: 0;
 }
 
-.cv-landing-animation-strip__track {
+.landing-animation-strip__track {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(18rem, 32rem);
@@ -155,22 +155,22 @@
   cursor: grab;
 }
 
-.cv-landing-animation-strip__track::-webkit-scrollbar {
+.landing-animation-strip__track::-webkit-scrollbar {
   display: none;
 }
 
-.cv-landing-animation-strip__track.is-dragging {
+.landing-animation-strip__track.is-dragging {
   cursor: grabbing;
   scroll-snap-type: none;
 }
 
-.cv-landing-animation-strip .media-preview {
+.landing-animation-strip .media-preview {
   aspect-ratio: 1 / 1;
   min-block-size: clamp(18rem, 34vw, 32rem);
   scroll-snap-align: center;
 }
 
-.cv-scroll-row-button {
+.scroll-row-button {
   position: absolute;
   z-index: 4;
   inset-block-start: 50%;
@@ -187,11 +187,11 @@
   backdrop-filter: blur(16px);
 }
 
-.cv-scroll-row-button--prev {
+.scroll-row-button--prev {
   inset-inline-start: 0.6rem;
 }
 
-.cv-scroll-row-button--next {
+.scroll-row-button--next {
   inset-inline-end: 0.6rem;
 }
 
@@ -215,11 +215,11 @@
 }
 
 @media (max-width: 48rem) {
-  .cv-landing-animation-strip__track {
+  .landing-animation-strip__track {
     grid-auto-columns: minmax(78vw, 1fr);
   }
 
-  .cv-scroll-row-button {
+  .scroll-row-button {
     display: none;
   }
 
@@ -267,8 +267,8 @@
 .cv-section .cv-experience__item--featured .media-group,
 .cv-section .cv-experience__item--featured .media-group__track,
 .cv-section .cv-experience__item--featured .media-card,
-.cv-section .cv-experience__item--featured .cv-landing-animation-strip,
-.cv-section .cv-experience__item--featured .cv-landing-animation-strip__track,
+.cv-section .cv-experience__item--featured .landing-animation-strip,
+.cv-section .cv-experience__item--featured .landing-animation-strip__track,
 .cv-section .resume-timeline-item,
 .cv-section .resume-timeline-item__content {
   border-color: transparent;
@@ -339,7 +339,7 @@
 .cv-section button,
 .cv-section .button,
 .cv-section .btn,
-.cv-section .cv-scroll-row-button,
+.cv-section .scroll-row-button,
 .cv-section .cv-inline-video__sound,
 .cv-section .cv-media-lightbox__close {
   border-color: var(--visual-control-line);
@@ -362,7 +362,7 @@
 .cv-section button,
 .cv-section .button,
 .cv-section .btn,
-.cv-section .cv-scroll-row-button,
+.cv-section .scroll-row-button,
 .cv-inline-video__sound {
   background: transparent;
   background-color: transparent;
@@ -1123,10 +1123,10 @@
 .task-side-gallery--product-audiences,
 .task-side-gallery--product-event,
 .task-side-gallery--product-routes,
-.cv-jestei-landing-motion__split--club,
-.cv-jestei-landing-motion__split--event,
-.cv-jestei-landing-motion__tile-gallery--club,
-.cv-jestei-landing-motion__tile-gallery--event,
+.jestei-landing-motion__split--club,
+.jestei-landing-motion__split--event,
+.jestei-landing-motion__tile-gallery--club,
+.jestei-landing-motion__tile-gallery--event,
 .task-list-group--auto,
 .task-list-group__media,
 .task-list-group__image-slot,
