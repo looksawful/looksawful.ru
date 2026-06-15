@@ -738,8 +738,8 @@
 }
 
 .cv-section .cv-experience__item--featured .task-side-gallery--mixed,
-.cv-section .cv-experience__item--featured .task-side-gallery--portfolio-row,
-.cv-section .cv-experience__item--featured .cv-jestei-static-extra__gallery,
+.cv-section .cv-experience__item--featured .task-side-gallery--row,
+.cv-section .cv-experience__item--featured .static-extra__gallery,
 .cv-section .cv-experience__item--featured .task-side-gallery--communications-static {
   align-content: stretch;
 }
@@ -796,7 +796,7 @@
 /* showcase galleries:end */
 
 /* showcase gallery modifier hooks:start */
-.gallery-pair--jestei-identity,
+.gallery-pair--identity,
 .task-side-gallery--product-audiences,
 .task-side-gallery--product-event,
 .task-side-gallery--product-routes {
@@ -988,33 +988,33 @@
 */
 
 /* jestei static extra sections:start */
-.cv-jestei-static-extra-sections {
+.static-extra-sections {
   margin-block-start: clamp(2.5rem, 5vw, 6rem);
 }
 
-.cv-jestei-static-extra-sections__stack {
+.static-extra-sections__stack {
   display: grid;
   gap: clamp(2.25rem, 4vw, 4rem);
 }
 
-.cv-jestei-static-extra {
+.static-extra {
   align-items: stretch;
 }
 
-.cv-jestei-static-extra__gallery {
+.static-extra__gallery {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(0.65rem, 1vw, 0.9rem);
   inline-size: 100%;
 }
 
-.cv-jestei-static-extra__gallery .task-side-gallery__link {
+.static-extra__gallery .task-side-gallery__link {
   aspect-ratio: 4 / 3;
   min-inline-size: 0;
   overflow: hidden;
 }
 
-.cv-jestei-static-extra__gallery .task-side-gallery__media {
+.static-extra__gallery .task-side-gallery__media {
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
@@ -1022,14 +1022,14 @@
 }
 
 @media (max-width: 68rem) {
-  .cv-jestei-static-extra__gallery {
+  .static-extra__gallery {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 /* jestei static extra sections:end */
 
 /* showcase Jestei product rows and identity gallery:start */
-.cv-section .task-list-groups--product-gallery-rows {
+.cv-section .task-list-groups--gallery-rows {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(1.25rem, 1.8vw, 2.25rem);
@@ -1037,14 +1037,14 @@
   min-inline-size: 0;
 }
 
-.cv-section .task-list-groups--product-gallery-rows > .task-gallery-split {
+.cv-section .task-list-groups--gallery-rows > .task-gallery-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   inline-size: 100%;
   min-inline-size: 0;
 }
 
-.cv-section .task-list-groups--product-gallery-rows .task-gallery-row--product {
+.cv-section .task-list-groups--gallery-rows .task-gallery-row--media {
   display: grid;
   grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr);
   gap: clamp(1.1rem, 1.6vw, 2rem);
@@ -1053,18 +1053,18 @@
   min-inline-size: 0;
 }
 
-.cv-section .task-list-groups--product-gallery-rows .task-gallery-row--product > .task-list-group {
+.cv-section .task-list-groups--gallery-rows .task-gallery-row--media > .task-list-group {
   inline-size: 100%;
   max-inline-size: none;
   min-inline-size: 0;
   block-size: 100%;
 }
 
-.cv-section .task-list-groups--product-gallery-rows .task-gallery-row--product .task-list-group__content {
+.cv-section .task-list-groups--gallery-rows .task-gallery-row--media .task-list-group__content {
   min-block-size: clamp(12rem, 18vw, 17rem);
 }
 
-.cv-section .task-list-groups--product-gallery-rows .task-gallery-row--product > .task-side-gallery--portfolio-row {
+.cv-section .task-list-groups--gallery-rows .task-gallery-row--media > .task-side-gallery--row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-auto-rows: auto;
@@ -1079,8 +1079,8 @@
   align-content: stretch;
 }
 
-.cv-section .task-list-groups--product-gallery-rows .task-gallery-row--product > .task-side-gallery--portfolio-row .task-side-gallery__link,
-.cv-section .task-list-groups--product-gallery-rows .task-gallery-row--product > .task-side-gallery--portfolio-row .task-side-gallery__link:nth-child(n) {
+.cv-section .task-list-groups--gallery-rows .task-gallery-row--media > .task-side-gallery--row .task-side-gallery__link,
+.cv-section .task-list-groups--gallery-rows .task-gallery-row--media > .task-side-gallery--row .task-side-gallery__link:nth-child(n) {
   display: block;
   grid-column: auto;
   grid-row: auto;
@@ -1091,7 +1091,7 @@
   overflow: hidden;
 }
 
-.cv-section .task-list-groups--product-gallery-rows .task-gallery-row--product > .task-side-gallery--portfolio-row .task-side-gallery__media {
+.cv-section .task-list-groups--gallery-rows .task-gallery-row--media > .task-side-gallery--row .task-side-gallery__media {
   display: block;
   inline-size: 100%;
   block-size: 100%;
@@ -1128,32 +1128,32 @@
   object-position: center center;
 }
 
-.cv-section .task-meta-layout--jestei-identity-showcase {
+.cv-section .task-meta-layout--identity-gallery {
   display: grid;
   grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr);
   gap: clamp(1rem, 1.35vw, 1.65rem);
   align-items: stretch;
 }
 
-.cv-section .task-meta-layout--jestei-identity-showcase .task-list-groups--side-media {
+.cv-section .task-meta-layout--identity-gallery .task-list-groups--side-media {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
 }
 
-.cv-section .task-meta-layout--jestei-identity-showcase .task-list-group__content {
+.cv-section .task-meta-layout--identity-gallery .task-list-group__content {
   min-block-size: clamp(12rem, 18vw, 17rem);
 }
 
-.cv-section .task-side-image--jestei-identity-cover,
-.cv-section .task-side-image--jestei-identity-cover .task-side-image__card,
-.cv-section .task-side-image--jestei-identity-cover .task-side-image__link {
+.cv-section .task-side-image--cover,
+.cv-section .task-side-image--cover .task-side-image__card,
+.cv-section .task-side-image--cover .task-side-image__link {
   display: block;
   inline-size: 100%;
   block-size: 100%;
   min-inline-size: 0;
 }
 
-.cv-section .task-side-image--jestei-identity-cover .task-side-image__card {
+.cv-section .task-side-image--cover .task-side-image__card {
   min-block-size: clamp(14rem, 24vw, 22rem);
   overflow: hidden;
   border: 1px solid var(--line-hierarchy, rgba(0, 0, 0, 0.12));
@@ -1161,7 +1161,7 @@
   background: #050505;
 }
 
-.cv-section .task-side-image--jestei-identity-cover .task-side-image__media {
+.cv-section .task-side-image--cover .task-side-image__media {
   display: block;
   inline-size: 100%;
   block-size: 100%;
@@ -1170,8 +1170,8 @@
 }
 
 @media (max-width: 68rem) {
-  .cv-section .task-list-groups--product-gallery-rows .task-gallery-row--product,
-  .cv-section .task-meta-layout--jestei-identity-showcase {
+  .cv-section .task-list-groups--gallery-rows .task-gallery-row--media,
+  .cv-section .task-meta-layout--identity-gallery {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -1181,7 +1181,7 @@
 }
 
 @media (max-width: 760px) {
-  .cv-section .task-list-groups--product-gallery-rows .task-gallery-row--product > .task-side-gallery--portfolio-row {
+  .cv-section .task-list-groups--gallery-rows .task-gallery-row--media > .task-side-gallery--row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
