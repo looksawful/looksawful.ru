@@ -228,7 +228,7 @@
   inset-inline-end: clamp(0.45rem, 0.8vw, 0.75rem);
 }
 
-.cv-section .cv-experience__item--featured .task-domain--landing .cv-media-group--landing-screenshots {
+.cv-section .cv-experience__item--featured .task-domain--landing .media-group--landing-screenshots {
   display: block;
   inline-size: 100%;
   margin-block-start: 0;
@@ -244,8 +244,8 @@
 .cv-section
   .cv-experience__item--featured
   .task-domain--landing
-  .cv-media-group--landing-screenshots
-  .cv-media-group__track {
+  .media-group--landing-screenshots
+  .media-group__track {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(0.55rem, 0.8vw, 0.9rem);
@@ -255,8 +255,8 @@
 .cv-section
   .cv-experience__item--featured
   .task-domain--landing
-  .cv-media-group--landing-screenshots
-  .cv-media-card {
+  .media-group--landing-screenshots
+  .media-card {
   overflow: hidden;
   aspect-ratio: 16 / 10;
   border-radius: clamp(0.38rem, 0.48vw, 0.56rem);
@@ -267,14 +267,14 @@
 .cv-section
   .cv-experience__item--featured
   .task-domain--landing
-  .cv-media-group--landing-screenshots
-  .cv-media-card
+  .media-group--landing-screenshots
+  .media-card
   img,
 .cv-section
   .cv-experience__item--featured
   .task-domain--landing
-  .cv-media-group--landing-screenshots
-  .cv-media-card
+  .media-group--landing-screenshots
+  .media-card
   video {
   display: block;
   inline-size: 100%;
@@ -287,8 +287,8 @@
   .cv-section
     .cv-experience__item--featured
     .task-domain--landing
-    .cv-media-group--landing-screenshots
-    .cv-media-group__track {
+    .media-group--landing-screenshots
+    .media-group__track {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -301,8 +301,8 @@
   .cv-section
     .cv-experience__item--featured
     .task-domain--landing
-    .cv-media-group--landing-screenshots
-    .cv-media-group__track {
+    .media-group--landing-screenshots
+    .media-group__track {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -327,28 +327,28 @@
 /* showcase canvas landing visual gap:end */
 
 /* showcase canvas:start */
-.cv-section .cv-experience__item--featured .cv-preview[data-cv-animation],
-.cv-section .cv-experience__item--featured .cv-embedded-demo {
+.cv-section .cv-experience__item--featured .media-preview[data-cv-animation],
+.cv-section .cv-experience__item--featured .embedded-demo {
   position: relative;
 }
 
-.cv-section .cv-experience__item--featured .cv-preview[data-cv-animation] .cv-canvas,
-.cv-section .cv-experience__item--featured .cv-preview[data-cv-animation] canvas,
-.cv-section .cv-experience__item--featured .cv-embedded-demo canvas {
+.cv-section .cv-experience__item--featured .media-preview[data-cv-animation] .cv-canvas,
+.cv-section .cv-experience__item--featured .media-preview[data-cv-animation] canvas,
+.cv-section .cv-experience__item--featured .embedded-demo canvas {
   display: block;
   inline-size: 100%;
   block-size: 100%;
 }
 
-.cv-preview[data-cv-animation].is-canvas-loading,
-.cv-preview[data-cv-animation].is-canvas-error,
-.cv-embedded-demo.is-canvas-loading,
-.cv-embedded-demo.is-canvas-error {
+.media-preview[data-cv-animation].is-canvas-loading,
+.media-preview[data-cv-animation].is-canvas-error,
+.embedded-demo.is-canvas-loading,
+.embedded-demo.is-canvas-error {
   position: relative;
 }
 
-.cv-preview[data-cv-animation].is-canvas-loading::after,
-.cv-embedded-demo.is-canvas-loading::after {
+.media-preview[data-cv-animation].is-canvas-loading::after,
+.embedded-demo.is-canvas-loading::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -360,13 +360,13 @@
   animation: var(--cv-canvas-loading-animation, cv-canvas-loading-sweep 1.4s linear infinite);
 }
 
-.cv-preview[data-cv-animation].is-canvas-ready::after,
-.cv-embedded-demo.is-canvas-ready::after {
+.media-preview[data-cv-animation].is-canvas-ready::after,
+.embedded-demo.is-canvas-ready::after {
   content: none;
 }
 
-.cv-preview[data-cv-animation].is-canvas-error::after,
-.cv-embedded-demo.is-canvas-error::after {
+.media-preview[data-cv-animation].is-canvas-error::after,
+.embedded-demo.is-canvas-error::after {
   content: "canvas error";
   position: absolute;
   inset: auto 0.8rem 0.8rem auto;

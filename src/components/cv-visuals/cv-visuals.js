@@ -152,7 +152,7 @@ function initPreviewSlider(slider) {
     return noop;
   }
 
-  const track = slider.querySelector(".cv-preview-row--slider");
+  const track = slider.querySelector(".media-preview-row--slider");
   const prev = slider.querySelector("[data-cv-slider-prev]");
   const next = slider.querySelector("[data-cv-slider-next]");
 
@@ -165,7 +165,7 @@ function initPreviewSlider(slider) {
   let dragStartScrollLeft = 0;
 
   const getStep = () => {
-    const item = track.querySelector(".cv-preview");
+    const item = track.querySelector(".media-preview");
     const itemWidth = item instanceof HTMLElement ? item.getBoundingClientRect().width : track.clientWidth * 0.8;
     const gap = Number.parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || "0") || 0;
     return itemWidth + gap;

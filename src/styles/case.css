@@ -108,7 +108,7 @@
   margin-inline-start: 0.38rem;
 }
 
-.cv-section .cv-experience__item--featured .cv-media-caption,
+.cv-section .cv-experience__item--featured .media-caption,
 .cv-section .cv-experience__item--featured .caption {
   color: rgba(17, 17, 17, 0.44);
   font-size: clamp(0.68rem, 0.66vw, 0.78rem);
@@ -164,7 +164,7 @@
   scroll-snap-type: none;
 }
 
-.cv-landing-animation-strip .cv-preview {
+.cv-landing-animation-strip .media-preview {
   aspect-ratio: 1 / 1;
   min-block-size: clamp(18rem, 34vw, 32rem);
   scroll-snap-align: center;
@@ -195,21 +195,21 @@
   inset-inline-end: 0.6rem;
 }
 
-.cv-media-group--landing-screenshots {
+.media-group--landing-screenshots {
   margin-block-start: clamp(0.5rem, 1.2vw, 1rem);
 }
 
-.cv-media-group--landing-screenshots .cv-media-group__track {
+.media-group--landing-screenshots .media-group__track {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.cv-media-group--landing-screenshots .cv-media-card img,
-.cv-media-group--landing-screenshots .cv-media-card video {
+.media-group--landing-screenshots .media-card img,
+.media-group--landing-screenshots .media-card video {
   aspect-ratio: 9 / 13;
 }
 
 @media (max-width: 64rem) {
-  .cv-media-group--landing-screenshots .cv-media-group__track {
+  .media-group--landing-screenshots .media-group__track {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -223,7 +223,7 @@
     display: none;
   }
 
-  .cv-media-group--landing-screenshots .cv-media-group__track {
+  .media-group--landing-screenshots .media-group__track {
     grid-template-columns: 1fr;
   }
 }
@@ -262,11 +262,11 @@
 .cv-section .cv-experience__item--featured .task-group__visual,
 .cv-section .cv-experience__item--featured .task-group__meta,
 .cv-section .cv-experience__item--featured .task-list-groups,
-.cv-section .cv-experience__item--featured .cv-preview-row,
-.cv-section .cv-experience__item--featured .cv-preview,
-.cv-section .cv-experience__item--featured .cv-media-group,
-.cv-section .cv-experience__item--featured .cv-media-group__track,
-.cv-section .cv-experience__item--featured .cv-media-card,
+.cv-section .cv-experience__item--featured .media-preview-row,
+.cv-section .cv-experience__item--featured .media-preview,
+.cv-section .cv-experience__item--featured .media-group,
+.cv-section .cv-experience__item--featured .media-group__track,
+.cv-section .cv-experience__item--featured .media-card,
 .cv-section .cv-experience__item--featured .cv-landing-animation-strip,
 .cv-section .cv-experience__item--featured .cv-landing-animation-strip__track,
 .cv-section .resume-timeline-item,
@@ -292,11 +292,11 @@
 .cv-section .cv-experience__item--featured .task-group__visual,
 .cv-section .cv-experience__item--featured .task-group__meta,
 .cv-section .cv-experience__item--featured .task-list-groups,
-.cv-section .cv-experience__item--featured .cv-preview:not(:has(canvas)),
-.cv-section .cv-experience__item--featured .cv-preview-row:not(:has(canvas)),
-.cv-section .cv-experience__item--featured .cv-media-group:not(.cv-media-group--dark):not(.cv-media-group--orbit),
-.cv-section .cv-experience__item--featured .cv-media-group:not(.cv-media-group--dark):not(.cv-media-group--orbit) .cv-media-group__track,
-.cv-section .cv-experience__item--featured .cv-media-group:not(.cv-media-group--dark):not(.cv-media-group--orbit) .cv-media-card,
+.cv-section .cv-experience__item--featured .media-preview:not(:has(canvas)),
+.cv-section .cv-experience__item--featured .media-preview-row:not(:has(canvas)),
+.cv-section .cv-experience__item--featured .media-group:not(.media-group--dark):not(.media-group--orbit),
+.cv-section .cv-experience__item--featured .media-group:not(.media-group--dark):not(.media-group--orbit) .media-group__track,
+.cv-section .cv-experience__item--featured .media-group:not(.media-group--dark):not(.media-group--orbit) .media-card,
 .cv-section .resume-timeline-item,
 .cv-section .resume-timeline-item__content {
   background: transparent;
@@ -568,9 +568,9 @@
   padding-inline: var(--cv-art-space-md);
 }
 
-.cv-section .cv-experience__item--featured .task-group__visual .cv-preview-row,
-.cv-section .cv-experience__item--featured .task-group__visual .cv-preview,
-.cv-section .cv-experience__item--featured .task-group__visual .cv-media-group {
+.cv-section .cv-experience__item--featured .task-group__visual .media-preview-row,
+.cv-section .cv-experience__item--featured .task-group__visual .media-preview,
+.cv-section .cv-experience__item--featured .task-group__visual .media-group {
   margin-inline: 0;
 }
 
@@ -764,7 +764,7 @@
   grid-row: 1;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--selected-side-visual .cv-preview {
+.cv-section .cv-experience__item--featured .task-domain--selected-side-visual .media-preview {
   aspect-ratio: 16 / 9;
   block-size: auto;
 }
@@ -1119,7 +1119,7 @@
 .cv-section--jobs,
 .case-logo--jestei,
 .case-header--lyve,
-.cv-showcase-gallery-pair--jestei-identity,
+.gallery-pair--jestei-identity,
 .task-side-gallery--product-audiences,
 .task-side-gallery--product-event,
 .task-side-gallery--product-routes,
@@ -1131,11 +1131,11 @@
 .task-list-group__media,
 .task-list-group__image-slot,
 .task-list-group__title,
-.cv-embedded-demo__mount {
+.embedded-demo__mount {
   min-inline-size: 0;
 }
 
-.cv-embedded-demo__mount {
+.embedded-demo__mount {
   inline-size: 100%;
 }
 

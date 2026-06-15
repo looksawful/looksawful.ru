@@ -29,7 +29,7 @@
   padding-block: clamp(2.6rem, 4vw, 4.8rem) 0;
 }
 
-.cv-preview {
+.media-preview {
   position: relative;
   width: 100%;
   height: 520px;
@@ -876,7 +876,7 @@
     padding-block: clamp(2.15rem, 10vw, 3.7rem);
   }
 
-  .cv-preview {
+  .media-preview {
     height: clamp(13rem, 55vw, 21rem);
   }
 
@@ -1065,7 +1065,7 @@
     font-size: clamp(2.25rem, 12vw, 3.55rem);
   }
 
-  .cv-preview {
+  .media-preview {
     height: clamp(11rem, 62vw, 15.5rem);
   }
 }
@@ -1389,17 +1389,17 @@
   transform: translateY(-1px);
 }
 
-.cv-preview-row {
+.media-preview-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(0.7rem, 1vw, 1rem);
 }
 
-.cv-preview-row--single {
+.media-preview-row--single {
   grid-template-columns: minmax(0, 1fr);
 }
 
-.cv-preview {
+.media-preview {
   display: block;
   justify-self: stretch;
   width: auto;
@@ -1410,32 +1410,32 @@
   background: #f1f1f1;
 }
 
-.cv-preview--dark {
+.media-preview--dark {
   background: #000;
   --arc-title-color: rgba(255, 255, 255, 0.92);
   --cv-carousel-title-color: rgba(255, 255, 255, 0.92);
 }
 
-.cv-preview--square {
+.media-preview--square {
   height: auto;
   aspect-ratio: 1 / 1;
   min-block-size: 0;
 }
 
-.cv-embedded-demo {
+.embedded-demo {
   overflow: hidden;
   border: 1px solid var(--cv-border-soft);
   border-radius: var(--cv-radius-inner);
   background: #dedede;
 }
 
-.cv-embedded-demo--logo-inspector .logo-inspector-3d,
-.cv-embedded-demo--newsletter-canvas .newsletter-canvas-stage {
+.embedded-demo--logo-inspector .logo-inspector-3d,
+.embedded-demo--newsletter-canvas .newsletter-canvas-stage {
   border: 0;
   border-radius: 0;
 }
 
-.cv-media-group {
+.media-group {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--cv-border-soft);
@@ -1443,22 +1443,22 @@
   background: #ececec;
 }
 
-.cv-media-group__track {
+.media-group__track {
   display: flex;
   gap: 0.5rem;
   min-inline-size: max-content;
   padding: 0.5rem;
 }
 
-.cv-media-group--auto .cv-media-group__track {
+.media-group--auto .media-group__track {
   animation: cvMediaMarquee 28s linear infinite;
 }
 
-.cv-media-group:hover .cv-media-group__track {
+.media-group:hover .media-group__track {
   animation-play-state: paused;
 }
 
-.cv-media-card {
+.media-card {
   flex: 0 0 auto;
   inline-size: clamp(13rem, 20vw, 20rem);
   aspect-ratio: 16 / 9;
@@ -1468,40 +1468,40 @@
   background: #ddd;
 }
 
-.cv-media-group--portrait .cv-media-card {
+.media-group--portrait .media-card {
   inline-size: clamp(8.4rem, 12vw, 12rem);
   aspect-ratio: 3 / 4;
 }
 
-.cv-media-group--square .cv-media-card {
+.media-group--square .media-card {
   inline-size: clamp(10rem, 14vw, 14rem);
   aspect-ratio: 1;
 }
 
-.cv-media-card img,
-.cv-media-card video {
+.media-card img,
+.media-card video {
   display: block;
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
 }
 
-.cv-media-group--strip {
+.media-group--strip {
   scrollbar-width: none;
 }
 
-.cv-media-group--strip::-webkit-scrollbar,
-.cv-media-group--strip .cv-media-group__track::-webkit-scrollbar {
+.media-group--strip::-webkit-scrollbar,
+.media-group--strip .media-group__track::-webkit-scrollbar {
   display: none;
 }
 
-.cv-media-group--orbit {
+.media-group--orbit {
   height: clamp(21rem, 42vw, 34rem);
   background: #050505;
   perspective: 900px;
 }
 
-.cv-media-group--orbit .cv-media-group__track {
+.media-group--orbit .media-group__track {
   position: absolute;
   inset: 0;
   display: block;
@@ -1511,7 +1511,7 @@
   animation: cvMediaOrbit 32s linear infinite;
 }
 
-.cv-media-group--orbit .cv-media-card {
+.media-group--orbit .media-card {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1595,15 +1595,15 @@
     background: #fff;
   }
 
-  .cv-preview-row {
+  .media-preview-row {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .cv-preview {
+  .media-preview {
     height: clamp(17rem, 80vw, 28rem);
   }
 
-  .cv-preview--square {
+  .media-preview--square {
     height: auto;
   }
 
@@ -1616,11 +1616,11 @@
     font-size: clamp(1.08rem, 6vw, 1.42rem);
   }
 
-  .cv-media-group--orbit {
+  .media-group--orbit {
     height: clamp(18rem, 88vw, 26rem);
   }
 
-  .cv-media-group--orbit .cv-media-card {
+  .media-group--orbit .media-card {
     inline-size: clamp(7rem, 28vw, 10rem);
     transform: translate(-50%, -50%) rotateY(calc(360deg / var(--media-count) * var(--media-index)))
       translateZ(clamp(8rem, 40vw, 15rem));
