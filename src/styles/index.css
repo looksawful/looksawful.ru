@@ -1,8 +1,7 @@
 @import "./core.css";
 @import "./components.css";
-@import "./sections/hero.css";
-@import "./sections/cv.css";
-@import "./sections/cv-list.css";
-@import "./sections/resume.css";
-@import "./sections/showcase.css";
-
+@import "./hero.css";
+@import "./cv.css";
+@import "./cv-list.css";
+@import "./resume.css";
+@import "./showcase.css";
