@@ -38,7 +38,7 @@ const enhanceTechList = (list) => {
 };
 
 export const mountTechIcons = (root = document) => {
-  for (const list of root.querySelectorAll(".tech-list, .pet-tech-list, .cv-task-tech-list")) {
+  for (const list of root.querySelectorAll(".tech-list, .cv-task-tech-list")) {
     enhanceTechList(list);
   }
 };
