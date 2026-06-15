@@ -29,9 +29,7 @@ function runWhenIdle(callback) {
 
 async function initContentEnhancements() {
   try {
-    const { mountTechIcons } = await import("./tech-icons/tech-icons.js");
 
-    runComponentStep("mountTechIcons", () => mountTechIcons(document));
   } catch (error) {
     console.error("[components] initContentEnhancements failed", error);
   }
@@ -78,4 +76,3 @@ export function initComponents() {
       });
   });
 }
-
