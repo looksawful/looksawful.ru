@@ -13,76 +13,52 @@
 .cv-section .task-group__visual,
 .cv-section .task-group__meta,
 .cv-section .task-meta-layout,
-.cv-section .task-meta-layout-stack,
-.showcase-section .case-list-shell--experience,
-.showcase-section .case--featured,
-.showcase-section .task-area,
-.showcase-section .task-domains,
-.showcase-section .task-domain,
-.showcase-section .task-group,
-.showcase-section .task-group__visual,
-.showcase-section .task-group__meta,
-.showcase-section .task-meta-layout,
-.showcase-section .task-meta-layout-stack {
+.cv-section .task-meta-layout-stack {
   min-inline-size: 0;
 }
 
-.showcase-section .cv-row--experience,
-.showcase-section .case-list-shell--experience {
+.showcase-section .cv-row--experience {
   gap: clamp(2.5rem, 6vw, 7rem);
 }
 
-.cv-section .cv-experience__item--featured,
-.showcase-section .case--featured {
+.cv-section .cv-experience__item--featured {
   gap: clamp(1.6rem, 3vw, 3.4rem);
 }
 
-.cv-section .task-area,
-.showcase-section .task-area {
+.cv-section .task-area {
   gap: clamp(1.8rem, 3.4vw, 3.6rem);
 }
 
-.cv-section .task-domains,
-.showcase-section .task-domains {
+.cv-section .task-domains {
   gap: clamp(1.8rem, 3.2vw, 3.8rem);
 }
 
-.cv-section .task-domain,
-.showcase-section .task-domain {
+.cv-section .task-domain {
   gap: clamp(0.9rem, 1.6vw, 1.6rem);
 }
 
-.cv-section .task-domain__intro,
-.showcase-section .task-domain__intro {
+.cv-section .task-domain__intro {
   gap: clamp(0.42rem, 0.72vw, 0.74rem);
 }
 
-.cv-section .task-group,
-.showcase-section .task-group {
+.cv-section .task-group {
   gap: clamp(0.9rem, 1.55vw, 1.65rem);
 }
 
-.cv-section .task-meta-layout-stack,
-.showcase-section .task-meta-layout-stack {
+.cv-section .task-meta-layout-stack {
   gap: clamp(0.78rem, 1.1vw, 1.2rem);
 }
 
 @media (max-width: 760px) {
   .showcase-section .cv-row--experience,
-.cv-section .cv-experience__item--featured,
-.cv-section .task-area,
-.cv-section .task-domains,
-.showcase-section .case-list-shell--experience,
-.showcase-section .case--featured,
-.showcase-section .task-area,
-.showcase-section .task-domains {
+  .cv-section .cv-experience__item--featured,
+  .cv-section .task-area,
+  .cv-section .task-domains {
     gap: clamp(1.25rem, 7vw, 2rem);
   }
 
   .cv-section .task-domain,
-.cv-section .task-group,
-.showcase-section .task-domain,
-.showcase-section .task-group {
+  .cv-section .task-group {
     gap: clamp(0.72rem, 4vw, 1.05rem);
   }
 }

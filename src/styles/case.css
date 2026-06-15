@@ -1,7 +1,6 @@
 /* showcase tokens:start */
 /* showcase tokens:start */
-.cv-section .cv-experience__item--featured,
-.showcase-section .case--featured {
+.cv-section .cv-experience__item--featured {
   --showcase-title-size: clamp(2.15rem, 3.45vw, 4rem);
   --showcase-domain-title-size: clamp(1.2rem, 1.52vw, 1.76rem);
   --showcase-group-title-size: clamp(0.82rem, 0.84vw, 0.98rem);
@@ -24,32 +23,25 @@
 
 /* showcase base:start */
 .cv-section .cv-experience__item--featured .task-area,
-.cv-section .cv-experience__item--featured .task-domains,
-.showcase-section .case--featured .task-area,
-.showcase-section .case--featured .task-domains {
+.cv-section .cv-experience__item--featured .task-domains {
   gap: clamp(1rem, 1.45vw, 1.7rem);
 }
 
-.cv-section .cv-experience__item--featured .task-domain,
-.showcase-section .case--featured .task-domain {
+.cv-section .cv-experience__item--featured .task-domain {
   border-color: var(--showcase-border);
   box-shadow: 0 12px 34px rgba(17, 17, 17, 0.035);
 }
 
-.cv-section .cv-experience__item--featured .task-group__visual,
-.showcase-section .case--featured .task-group__visual {
+.cv-section .cv-experience__item--featured .task-group__visual {
   background: var(--showcase-surface-soft);
 }
 
-.cv-section .cv-experience__item--featured .task-group__meta,
-.showcase-section .case--featured .task-group__meta {
+.cv-section .cv-experience__item--featured .task-group__meta {
   gap: clamp(0.66rem, 0.9vw, 1rem);
 }
 
 .cv-section .cv-experience__item--featured .task-list-groups--chips .task-list-group,
-.cv-section .cv-experience__item--featured .task-list-group--chips,
-.showcase-section .case--featured .task-list-groups--chips .task-list-group,
-.showcase-section .case--featured .task-list-group--chips {
+.cv-section .cv-experience__item--featured .task-list-group--chips {
   display: contents;
   border: 0;
   border-radius: 0;
@@ -57,34 +49,27 @@
   box-shadow: none;
 }
 
-.cv-section .cv-experience__item--featured .task-list-groups--chips .task-list-group__content,
-.showcase-section .case--featured .task-list-groups--chips .task-list-group__content {
+.cv-section .cv-experience__item--featured .task-list-groups--chips .task-list-group__content {
   display: contents;
 }
 
 .cv-section .cv-experience__item--featured .task-list-groups--chips h5,
 .cv-section .cv-experience__item--featured .task-list-groups--chips .chips--tech,
-.cv-section .cv-experience__item--featured .task-list-groups--chips .task-list-group__image-slot,
-.showcase-section .case--featured .task-list-groups--chips h5,
-.showcase-section .case--featured .task-list-groups--chips .chips--tech,
-.showcase-section .case--featured .task-list-groups--chips .task-list-group__image-slot {
+.cv-section .cv-experience__item--featured .task-list-groups--chips .task-list-group__image-slot {
   display: none;
 }
 
-.cv-section .cv-experience__item--featured .chips--tech span,
-.showcase-section .case--featured .chips--tech span {
+.cv-section .cv-experience__item--featured .chips--tech span {
   display: inline;
   min-inline-size: 0;
   white-space: nowrap;
 }
 
-.cv-section .cv-experience__item--featured .chips--task,
-.showcase-section .case--featured .chips--task {
+.cv-section .cv-experience__item--featured .chips--task {
   gap: 0.46rem 0.5rem;
 }
 
-.cv-section .cv-experience__item--featured .chip--task,
-.showcase-section .case--featured .chip--task {
+.cv-section .cv-experience__item--featured .chip--task {
   min-block-size: 1.84rem;
   padding: 0.36rem 0.62rem 0.4rem;
   border-color: rgba(17, 17, 17, 0.13);
@@ -104,49 +89,41 @@
 }
 
 .cv-section .cv-experience__item--featured .chip--task:hover,
-.cv-section .cv-experience__item--featured .chip--filled:hover,
-.showcase-section .case--featured .chip--task:hover,
-.showcase-section .case--featured .chip--filled:hover {
+.cv-section .cv-experience__item--featured .chip--filled:hover {
   border-color: rgba(17, 17, 17, 0.26);
   background: #fff;
   box-shadow: 0 6px 18px rgba(17, 17, 17, 0.05);
 }
 
-.cv-section .cv-experience__item--featured .chip--filled,
-.showcase-section .case--featured .chip--filled {
+.cv-section .cv-experience__item--featured .chip--filled {
   border-color: rgba(17, 17, 17, 0.18);
   background: color-mix(in srgb, var(--task-bg, #f4f4f1) 74%, white);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--task-accent, #111) 7%, transparent);
   will-change: auto;
 }
 
-.cv-section .cv-experience__item--featured .chip--filled::after,
-.showcase-section .case--featured .chip--filled::after {
+.cv-section .cv-experience__item--featured .chip--filled::after {
   inline-size: 0.36rem;
   block-size: 0.36rem;
   margin-inline-start: 0.38rem;
 }
 
 .cv-section .cv-experience__item--featured .media-caption,
-.cv-section .cv-experience__item--featured .caption,
-.showcase-section .case--featured .media-caption,
-.showcase-section .case--featured .caption {
+.cv-section .cv-experience__item--featured .caption {
   color: rgba(17, 17, 17, 0.44);
   font-size: clamp(0.68rem, 0.66vw, 0.78rem);
   line-height: 1.18;
 }
 
 @media (max-width: 760px) {
-  .cv-section .cv-experience__item--featured .chip--task,
-.showcase-section .case--featured .chip--task {
+  .cv-section .cv-experience__item--featured .chip--task {
     min-block-size: 1.92rem;
     padding: 0.38rem 0.62rem 0.42rem;
     font-size: clamp(0.78rem, 3.25vw, 0.94rem);
   }
 }
 
-.case-project,
-.case--project {
+.case-project {
   position: relative;
 }
 
@@ -261,8 +238,7 @@
 */
 
 /* experiment visual surface cleanup:start */
-.cv-section,
-.showcase-section {
+.cv-section {
   --visual-control-line: rgba(17, 17, 17, 0.24);
   --visual-list-card-line: rgba(17, 17, 17, 0.16);
   --visual-divider-line: rgba(17, 17, 17, 0.10);
@@ -294,33 +270,7 @@
 .cv-section .cv-experience__item--featured .landing-animation-strip,
 .cv-section .cv-experience__item--featured .landing-animation-strip__track,
 .cv-section .resume-timeline-item,
-.cv-section .resume-timeline-item__content,
-.showcase-section .case--featured,
-.showcase-section .case--featured .case--project,
-.showcase-section .case--featured .case-domain,
-.showcase-section .case--featured .case-evidence,
-.showcase-section .case--featured .detail,
-.showcase-section .case--featured .panel,
-.showcase-section .case--featured .surface,
-.showcase-section .case--featured .case-header,
-.showcase-section .case--featured .case-header__banner,
-.showcase-section .case--featured .case-header__body,
-.showcase-section .case--featured .task-area,
-.showcase-section .case--featured .task-domains,
-.showcase-section .case--featured .task-domain,
-.showcase-section .case--featured .task-group,
-.showcase-section .case--featured .task-group__visual,
-.showcase-section .case--featured .task-group__meta,
-.showcase-section .case--featured .task-list-groups,
-.showcase-section .case--featured .media-preview-row,
-.showcase-section .case--featured .media-preview,
-.showcase-section .case--featured .media-group,
-.showcase-section .case--featured .media-group__track,
-.showcase-section .case--featured .media-card,
-.showcase-section .case--featured .landing-animation-strip,
-.showcase-section .case--featured .landing-animation-strip__track,
-.showcase-section .resume-timeline-item,
-.showcase-section .resume-timeline-item__content {
+.cv-section .resume-timeline-item__content {
   border-color: transparent;
   box-shadow: none;
 }
@@ -348,30 +298,7 @@
 .cv-section .cv-experience__item--featured .media-group:not(.media-group--dark):not(.media-group--orbit) .media-group__track,
 .cv-section .cv-experience__item--featured .media-group:not(.media-group--dark):not(.media-group--orbit) .media-card,
 .cv-section .resume-timeline-item,
-.cv-section .resume-timeline-item__content,
-.showcase-section .case--featured .case--project,
-.showcase-section .case--featured .case-domain,
-.showcase-section .case--featured .case-evidence,
-.showcase-section .case--featured .detail,
-.showcase-section .case--featured .panel,
-.showcase-section .case--featured .surface,
-.showcase-section .case--featured .case-header,
-.showcase-section .case--featured .case-header__banner,
-.showcase-section .case--featured .case-header__body,
-.showcase-section .case--featured .task-area,
-.showcase-section .case--featured .task-domains,
-.showcase-section .case--featured .task-domain,
-.showcase-section .case--featured .task-group,
-.showcase-section .case--featured .task-group__visual,
-.showcase-section .case--featured .task-group__meta,
-.showcase-section .case--featured .task-list-groups,
-.showcase-section .case--featured .media-preview:not(:has(canvas)),
-.showcase-section .case--featured .media-preview-row:not(:has(canvas)),
-.showcase-section .case--featured .media-group:not(.media-group--dark):not(.media-group--orbit),
-.showcase-section .case--featured .media-group:not(.media-group--dark):not(.media-group--orbit) .media-group__track,
-.showcase-section .case--featured .media-group:not(.media-group--dark):not(.media-group--orbit) .media-card,
-.showcase-section .resume-timeline-item,
-.showcase-section .resume-timeline-item__content {
+.cv-section .resume-timeline-item__content {
   background: transparent;
   background-color: transparent;
   background-image: none;
@@ -380,9 +307,7 @@
 /* keep list-card borders */
 .cv-section .cv-experience__item--featured .task-list-group,
 .cv-section .cv-experience__item--featured .list-section,
-.task-list-group.list-section,
-.showcase-section .case--featured .task-list-group,
-.showcase-section .case--featured .list-section {
+.task-list-group.list-section {
   border-width: 1px;
   border-style: solid;
   border-color: var(--visual-list-card-line);
@@ -394,8 +319,7 @@
 
 /* keep internal list-card dividers */
 .cv-section .cv-experience__item--featured .task-list-group__content > h5,
-.task-list-group__content > h5,
-.showcase-section .case--featured .task-list-group__content > h5 {
+.task-list-group__content > h5 {
   border-block-end: 1px solid var(--visual-divider-line);
 }
 
@@ -417,25 +341,7 @@
 .cv-section .btn,
 .cv-section .scroll-row-button,
 .cv-section .cv-inline-video__sound,
-.cv-section .cv-media-lightbox__close,
-.showcase-section .pill,
-.showcase-section .chip--task,
-.showcase-section .chip,
-.showcase-section .chips--tech li,
-.showcase-section [class*="chip"],
-.showcase-section [class*="tag"],
-.showcase-section [class*="badge"],
-.showcase-section [class*="pill"],
-.showcase-section [role="tab"],
-.showcase-section .tab,
-.showcase-section .tabs button,
-.showcase-section .tabs a,
-.showcase-section button,
-.showcase-section .button,
-.showcase-section .btn,
-.showcase-section .scroll-row-button,
-.showcase-section .cv-inline-video__sound,
-.showcase-section .cv-media-lightbox__close {
+.cv-section .cv-media-lightbox__close {
   border-color: var(--visual-control-line);
   box-shadow: none;
 }
@@ -457,23 +363,7 @@
 .cv-section .button,
 .cv-section .btn,
 .cv-section .scroll-row-button,
-.cv-inline-video__sound,
-.showcase-section .pill,
-.showcase-section .chip--task,
-.showcase-section .chip,
-.showcase-section .chips--tech li,
-.showcase-section [class*="chip"],
-.showcase-section [class*="tag"],
-.showcase-section [class*="badge"],
-.showcase-section [class*="pill"],
-.showcase-section [role="tab"],
-.showcase-section .tab,
-.showcase-section .tabs button,
-.showcase-section .tabs a,
-.showcase-section button,
-.showcase-section .button,
-.showcase-section .btn,
-.showcase-section .scroll-row-button {
+.cv-inline-video__sound {
   background: transparent;
   background-color: transparent;
   background-image: none;
@@ -482,9 +372,7 @@
 /* hide redundant section headings marked in HTML */
 /* compact CV only, not showcase case projects */
 .cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured),
-.cv-section .resume-timeline-item,
-.showcase-section .case:not(.case--project):not(.case--featured),
-.showcase-section .resume-timeline-item {
+.cv-section .resume-timeline-item {
   gap: clamp(0.45rem, 0.85vw, 0.82rem);
   padding-block: 0;
   margin-block: 0 clamp(2.2rem, 4.4vw, 4.2rem);
@@ -500,13 +388,7 @@
 .cv-section .resume-timeline-item h3,
 .cv-section .resume-timeline-item h4,
 .cv-section .resume-timeline-item__title,
-.cv-section .cv-experience__title,
-.showcase-section .case:not(.case--project):not(.case--featured) h3,
-.showcase-section .case:not(.case--project):not(.case--featured) h4,
-.showcase-section .resume-timeline-item h3,
-.showcase-section .resume-timeline-item h4,
-.showcase-section .resume-timeline-item__title,
-.showcase-section .cv-experience__title {
+.cv-section .cv-experience__title {
   max-inline-size: 100%;
   margin-block: 0 clamp(0.34rem, 0.65vw, 0.58rem);
   font-size: clamp(1.75rem, 3.1vw, 3rem);
@@ -515,17 +397,13 @@
 }
 
 .cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) .pills,
-.cv-section .resume-timeline-item .pills,
-.showcase-section .case:not(.case--project):not(.case--featured) .pills,
-.showcase-section .resume-timeline-item .pills {
+.cv-section .resume-timeline-item .pills {
   gap: 0.28rem;
   margin-block: 0 clamp(0.42rem, 0.72vw, 0.68rem);
 }
 
 .cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) .pill,
-.cv-section .resume-timeline-item .pill,
-.showcase-section .case:not(.case--project):not(.case--featured) .pill,
-.showcase-section .resume-timeline-item .pill {
+.cv-section .resume-timeline-item .pill {
   min-block-size: 1.35rem;
   padding: 0.16rem 0.42rem 0.19rem;
   font-size: clamp(0.56rem, 0.62vw, 0.68rem);
@@ -535,11 +413,7 @@
 .cv-section .cv-experience__item:not(.case-project):not(.cv-experience__item--featured) p,
 .cv-section .resume-timeline-item p,
 .cv-section .resume-timeline-item__summary,
-.cv-section .cv-experience__summary,
-.showcase-section .case:not(.case--project):not(.case--featured) p,
-.showcase-section .resume-timeline-item p,
-.showcase-section .resume-timeline-item__summary,
-.showcase-section .cv-experience__summary {
+.cv-section .cv-experience__summary {
   max-inline-size: 52rem;
   margin-block: 0;
   font-size: clamp(0.82rem, 0.92vw, 1rem);
@@ -558,8 +432,7 @@
 */
 
 /* cv expressive editorial system:start */
-.cv-section,
-.showcase-section {
+.cv-section {
   --cv-art-ink: #0f0f0f;
   --cv-art-copy: rgba(15, 15, 15, 0.78);
   --cv-art-muted: rgba(15, 15, 15, 0.56);
@@ -596,18 +469,14 @@
   --cv-art-radius: 0.85rem;
 }
 
-.cv-section .cv-experience__item--featured.case-project,
-.showcase-section .case--featured.case-project {
+.cv-section .cv-experience__item--featured.case-project {
   display: grid;
   gap: var(--cv-art-space-xxl);
 }
 
 .cv-section .case-description p,
 .cv-section .case-header .case-description p,
-.cv-section .cv-experience__summary p,
-.showcase-section .case-description p,
-.showcase-section .case-header .case-description p,
-.showcase-section .cv-experience__summary p {
+.cv-section .cv-experience__summary p {
   max-inline-size: var(--cv-art-readable);
   margin: 0;
   color: var(--cv-art-copy);
@@ -619,9 +488,7 @@
 }
 
 .cv-section .pills,
-.cv-section .chips--tech,
-.showcase-section .pills,
-.showcase-section .chips--tech {
+.cv-section .chips--tech {
   display: flex;
   flex-wrap: wrap;
   gap: 0.36rem;
@@ -632,10 +499,7 @@
 
 .cv-section .pill,
 .cv-section .chip--task,
-.cv-section .chips--tech li,
-.showcase-section .pill,
-.showcase-section .chip--task,
-.showcase-section .chips--tech li {
+.cv-section .chips--tech li {
   display: inline-flex;
   align-items: center;
   min-block-size: 1.48rem;
@@ -652,21 +516,17 @@
 }
 
 .cv-section .cv-experience__item--featured .task-area,
-.cv-section .cv-experience__item--featured .task-domains,
-.showcase-section .case--featured .task-area,
-.showcase-section .case--featured .task-domains {
+.cv-section .cv-experience__item--featured .task-domains {
   display: grid;
   gap: var(--cv-art-space-xxl);
 }
 
-.cv-section .cv-experience__item--featured .task-domain,
-.showcase-section .case--featured .task-domain {
+.cv-section .cv-experience__item--featured .task-domain {
   display: grid;
   gap: var(--cv-art-space-xl);
 }
 
-.cv-section .cv-experience__item--featured .task-domain__intro,
-.showcase-section .case--featured .task-domain__intro {
+.cv-section .cv-experience__item--featured .task-domain__intro {
   display: grid;
   gap: var(--cv-art-space-sm);
   inline-size: 100%;
@@ -676,9 +536,7 @@
 }
 
 .cv-section .cv-experience__item--featured .task-domain__intro > .task-domain__title,
-.cv-section .cv-experience__item--featured .task-domain__title,
-.showcase-section .case--featured .task-domain__intro > .task-domain__title,
-.showcase-section .case--featured .task-domain__title {
+.cv-section .cv-experience__item--featured .task-domain__title {
   max-inline-size: var(--cv-art-readable-wide);
   margin: 0;
   color: var(--cv-art-ink);
@@ -690,8 +548,7 @@
   text-wrap: balance;
 }
 
-.cv-section .cv-experience__item--featured .task-domain__summary,
-.showcase-section .case--featured .task-domain__summary {
+.cv-section .cv-experience__item--featured .task-domain__summary {
   max-inline-size: var(--cv-art-readable);
   margin: 0;
   color: var(--cv-art-copy);
@@ -701,29 +558,23 @@
   letter-spacing: -0.004em;
 }
 
-.cv-section .cv-experience__item--featured .task-group,
-.showcase-section .case--featured .task-group {
+.cv-section .cv-experience__item--featured .task-group {
   display: grid;
   gap: var(--cv-art-space-xl);
   margin: 0;
 }
 
-.cv-section .cv-experience__item--featured .task-group__visual,
-.showcase-section .case--featured .task-group__visual {
+.cv-section .cv-experience__item--featured .task-group__visual {
   padding-inline: var(--cv-art-space-md);
 }
 
 .cv-section .cv-experience__item--featured .task-group__visual .media-preview-row,
 .cv-section .cv-experience__item--featured .task-group__visual .media-preview,
-.cv-section .cv-experience__item--featured .task-group__visual .media-group,
-.showcase-section .case--featured .task-group__visual .media-preview-row,
-.showcase-section .case--featured .task-group__visual .media-preview,
-.showcase-section .case--featured .task-group__visual .media-group {
+.cv-section .cv-experience__item--featured .task-group__visual .media-group {
   margin-inline: 0;
 }
 
-.cv-section .cv-experience__item--featured .task-group__meta,
-.showcase-section .case--featured .task-group__meta {
+.cv-section .cv-experience__item--featured .task-group__meta {
   display: grid;
   align-content: start;
   gap: var(--cv-art-space-md);
@@ -733,11 +584,7 @@
 .cv-section .cv-experience__item--featured .task-list-groups,
 .cv-section .cv-experience__item--featured .task-list-groups--cards,
 .cv-section .cv-experience__item--featured .task-list-groups--auto,
-.cv-section .cv-experience__item--featured .task-list-groups--side-media,
-.showcase-section .case--featured .task-list-groups,
-.showcase-section .case--featured .task-list-groups--cards,
-.showcase-section .case--featured .task-list-groups--auto,
-.showcase-section .case--featured .task-list-groups--side-media {
+.cv-section .cv-experience__item--featured .task-list-groups--side-media {
   display: grid;
   gap: var(--cv-art-space-lg);
   inline-size: 100%;
@@ -746,14 +593,11 @@
 }
 
 .cv-section .cv-experience__item--featured .task-list-groups--cards,
-.cv-section .cv-experience__item--featured .task-list-groups--auto,
-.showcase-section .case--featured .task-list-groups--cards,
-.showcase-section .case--featured .task-list-groups--auto {
+.cv-section .cv-experience__item--featured .task-list-groups--auto {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--cv-art-list-min)), 1fr));
 }
 
-.cv-section .cv-experience__item--featured .task-list-groups--side-media,
-.showcase-section .case--featured .task-list-groups--side-media {
+.cv-section .cv-experience__item--featured .task-list-groups--side-media {
   grid-template-columns: minmax(0, 1fr);
   max-inline-size: var(--cv-art-list-max);
 }
@@ -762,12 +606,7 @@
 .cv-section .cv-experience__item--featured .task-list-group.list-section,
 .cv-section .cv-experience__item--featured .task-list-groups--cards .task-list-group,
 .cv-section .cv-experience__item--featured .task-list-groups--auto .task-list-group,
-.cv-section .cv-experience__item--featured .task-list-groups--side-media .task-list-group,
-.showcase-section .case--featured .task-list-group,
-.showcase-section .case--featured .task-list-group.list-section,
-.showcase-section .case--featured .task-list-groups--cards .task-list-group,
-.showcase-section .case--featured .task-list-groups--auto .task-list-group,
-.showcase-section .case--featured .task-list-groups--side-media .task-list-group {
+.cv-section .cv-experience__item--featured .task-list-groups--side-media .task-list-group {
   display: grid;
   align-content: start;
   inline-size: 100%;
@@ -783,12 +622,7 @@
 .cv-section .cv-experience__item--featured .task-list-group.list-section .task-list-group__content,
 .cv-section .cv-experience__item--featured .task-list-groups--cards .task-list-group__content,
 .cv-section .cv-experience__item--featured .task-list-groups--auto .task-list-group__content,
-.cv-section .cv-experience__item--featured .task-list-groups--side-media .task-list-group__content,
-.showcase-section .case--featured .task-list-group__content,
-.showcase-section .case--featured .task-list-group.list-section .task-list-group__content,
-.showcase-section .case--featured .task-list-groups--cards .task-list-group__content,
-.showcase-section .case--featured .task-list-groups--auto .task-list-group__content,
-.showcase-section .case--featured .task-list-groups--side-media .task-list-group__content {
+.cv-section .cv-experience__item--featured .task-list-groups--side-media .task-list-group__content {
   display: grid;
   gap: var(--cv-art-space-sm);
   min-inline-size: 0;
@@ -803,13 +637,7 @@
 .cv-section .cv-experience__item--featured .task-list-group.list-section .task-list-group__content > h5,
 .cv-section .cv-experience__item--featured .task-list-groups--cards .task-list-group__content > h5,
 .cv-section .cv-experience__item--featured .task-list-groups--auto .task-list-group__content > h5,
-.cv-section .cv-experience__item--featured .task-list-groups--side-media .task-list-group__content > h5,
-.showcase-section .case--featured .task-list-group__content > h5,
-.showcase-section .case--featured .task-list-group h5,
-.showcase-section .case--featured .task-list-group.list-section .task-list-group__content > h5,
-.showcase-section .case--featured .task-list-groups--cards .task-list-group__content > h5,
-.showcase-section .case--featured .task-list-groups--auto .task-list-group__content > h5,
-.showcase-section .case--featured .task-list-groups--side-media .task-list-group__content > h5 {
+.cv-section .cv-experience__item--featured .task-list-groups--side-media .task-list-group__content > h5 {
   display: block;
   margin: 0;
   padding: 0;
@@ -829,19 +657,13 @@
 .cv-section .cv-experience__item--featured .task-list-group__content > h5::before,
 .cv-section .cv-experience__item--featured .task-list-group__content > h5::after,
 .cv-section .cv-experience__item--featured .task-list-group h5::before,
-.cv-section .cv-experience__item--featured .task-list-group h5::after,
-.showcase-section .case--featured .task-list-group__content > h5::before,
-.showcase-section .case--featured .task-list-group__content > h5::after,
-.showcase-section .case--featured .task-list-group h5::before,
-.showcase-section .case--featured .task-list-group h5::after {
+.cv-section .cv-experience__item--featured .task-list-group h5::after {
   display: none;
   content: none;
 }
 
 .cv-section .cv-experience__item--featured .task-list-group__content > h5 + ul:not(.chips--tech),
-.cv-section .cv-experience__item--featured .task-list-group h5 + ul:not(.chips--tech),
-.showcase-section .case--featured .task-list-group__content > h5 + ul:not(.chips--tech),
-.showcase-section .case--featured .task-list-group h5 + ul:not(.chips--tech) {
+.cv-section .cv-experience__item--featured .task-list-group h5 + ul:not(.chips--tech) {
   margin-block-start: var(--cv-art-space-xs);
   padding-block-start: 0;
   border-top: 0;
@@ -851,12 +673,7 @@
 .cv-section .cv-experience__item--featured .task-list-group__content > ul:not(.chips--tech),
 .cv-section .cv-experience__item--featured .task-list-groups--cards ul:not(.chips--tech),
 .cv-section .cv-experience__item--featured .task-list-groups--auto ul:not(.chips--tech),
-.cv-section .cv-experience__item--featured .task-list-groups--side-media ul:not(.chips--tech),
-.showcase-section .case--featured .task-list-group ul:not(.chips--tech),
-.showcase-section .case--featured .task-list-group__content > ul:not(.chips--tech),
-.showcase-section .case--featured .task-list-groups--cards ul:not(.chips--tech),
-.showcase-section .case--featured .task-list-groups--auto ul:not(.chips--tech),
-.showcase-section .case--featured .task-list-groups--side-media ul:not(.chips--tech) {
+.cv-section .cv-experience__item--featured .task-list-groups--side-media ul:not(.chips--tech) {
   display: grid;
   gap: 0.32rem;
   margin: 0;
@@ -868,9 +685,7 @@
 }
 
 .cv-section .cv-experience__item--featured .task-list-group ul:not(.chips--tech) > li,
-.cv-section .cv-experience__item--featured .task-list-group__content > ul:not(.chips--tech) > li,
-.showcase-section .case--featured .task-list-group ul:not(.chips--tech) > li,
-.showcase-section .case--featured .task-list-group__content > ul:not(.chips--tech) > li {
+.cv-section .cv-experience__item--featured .task-list-group__content > ul:not(.chips--tech) > li {
   display: block;
   margin: 0;
   padding: 0;
@@ -882,11 +697,7 @@
 .cv-section .cv-experience__item--featured .task-list-group ul:not(.chips--tech) > li::before,
 .cv-section .cv-experience__item--featured .task-list-group ul:not(.chips--tech) > li::after,
 .cv-section .cv-experience__item--featured .task-list-group__content > ul:not(.chips--tech) > li::before,
-.cv-section .cv-experience__item--featured .task-list-group__content > ul:not(.chips--tech) > li::after,
-.showcase-section .case--featured .task-list-group ul:not(.chips--tech) > li::before,
-.showcase-section .case--featured .task-list-group ul:not(.chips--tech) > li::after,
-.showcase-section .case--featured .task-list-group__content > ul:not(.chips--tech) > li::before,
-.showcase-section .case--featured .task-list-group__content > ul:not(.chips--tech) > li::after {
+.cv-section .cv-experience__item--featured .task-list-group__content > ul:not(.chips--tech) > li::after {
   display: none;
   content: none;
 }
@@ -894,11 +705,7 @@
 .cv-section .cv-experience__item--featured .task-list-item,
 .cv-section .cv-experience__item--featured .task-list-groups--cards .task-list-item,
 .cv-section .cv-experience__item--featured .task-list-groups--auto .task-list-item,
-.cv-section .cv-experience__item--featured .task-list-groups--side-media .task-list-item,
-.showcase-section .case--featured .task-list-item,
-.showcase-section .case--featured .task-list-groups--cards .task-list-item,
-.showcase-section .case--featured .task-list-groups--auto .task-list-item,
-.showcase-section .case--featured .task-list-groups--side-media .task-list-item {
+.cv-section .cv-experience__item--featured .task-list-groups--side-media .task-list-item {
   color: var(--cv-art-muted);
   font-size: var(--cv-art-list-body);
   font-weight: var(--cv-art-weight-copy);
@@ -909,16 +716,11 @@
 .cv-section .task-list-item strong,
 .cv-section .task-list-item b,
 .cv-section .case-description strong,
-.cv-section .case-description b,
-.showcase-section .task-list-item strong,
-.showcase-section .task-list-item b,
-.showcase-section .case-description strong,
-.showcase-section .case-description b {
+.cv-section .case-description b {
   font-weight: 500;
 }
 
-.cv-section .cv-experience__item--featured .task-meta-layout--side-image,
-.showcase-section .case--featured .task-meta-layout--side-image {
+.cv-section .cv-experience__item--featured .task-meta-layout--side-image {
   display: grid;
   grid-template-columns: minmax(var(--cv-art-list-min), var(--cv-art-list-max)) minmax(0, 1fr);
   gap: var(--cv-art-space-lg);
@@ -927,15 +729,13 @@
   min-inline-size: 0;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--static-side-image .task-side-image,
-.showcase-section .case--featured .task-domain--static-side-image .task-side-image {
+.cv-section .cv-experience__item--featured .task-domain--static-side-image .task-side-image {
   align-self: center;
   inline-size: 100%;
   min-inline-size: 0;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--static-side-image .task-side-image__card,
-.showcase-section .case--featured .task-domain--static-side-image .task-side-image__card {
+.cv-section .cv-experience__item--featured .task-domain--static-side-image .task-side-image__card {
   display: block;
   aspect-ratio: 16 / 9;
   inline-size: 100%;
@@ -946,8 +746,7 @@
   background: #000;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--selected-side-visual > .task-group--with-visual,
-.showcase-section .case--featured .task-domain--selected-side-visual > .task-group--with-visual {
+.cv-section .cv-experience__item--featured .task-domain--selected-side-visual > .task-group--with-visual {
   display: grid;
   grid-template-columns: minmax(var(--cv-art-list-min), var(--cv-art-list-max)) minmax(0, 1fr);
   gap: var(--cv-art-space-lg);
@@ -955,41 +754,33 @@
   inline-size: 100%;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--selected-side-visual.task-domain--selected-media-right .task-group__meta,
-.showcase-section .case--featured .task-domain--selected-side-visual.task-domain--selected-media-right .task-group__meta {
+.cv-section .cv-experience__item--featured .task-domain--selected-side-visual.task-domain--selected-media-right .task-group__meta {
   grid-column: 1;
   grid-row: 1;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--selected-side-visual.task-domain--selected-media-right .task-group__visual,
-.showcase-section .case--featured .task-domain--selected-side-visual.task-domain--selected-media-right .task-group__visual {
+.cv-section .cv-experience__item--featured .task-domain--selected-side-visual.task-domain--selected-media-right .task-group__visual {
   grid-column: 2;
   grid-row: 1;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--selected-side-visual .media-preview,
-.showcase-section .case--featured .task-domain--selected-side-visual .media-preview {
+.cv-section .cv-experience__item--featured .task-domain--selected-side-visual .media-preview {
   aspect-ratio: 16 / 9;
   block-size: auto;
 }
 
 @media (max-width: 68rem) {
   .cv-section .cv-experience__item--featured .task-meta-layout--side-image,
-.cv-section .cv-experience__item--featured .task-domain--selected-side-visual > .task-group--with-visual,
-.showcase-section .case--featured .task-meta-layout--side-image,
-.showcase-section .case--featured .task-domain--selected-side-visual > .task-group--with-visual {
+  .cv-section .cv-experience__item--featured .task-domain--selected-side-visual > .task-group--with-visual {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .cv-section .cv-experience__item--featured .task-list-groups--side-media,
-.showcase-section .case--featured .task-list-groups--side-media {
+  .cv-section .cv-experience__item--featured .task-list-groups--side-media {
     max-inline-size: none;
   }
 
   .cv-section .cv-experience__item--featured .task-domain--selected-side-visual .task-group__meta,
-.cv-section .cv-experience__item--featured .task-domain--selected-side-visual .task-group__visual,
-.showcase-section .case--featured .task-domain--selected-side-visual .task-group__meta,
-.showcase-section .case--featured .task-domain--selected-side-visual .task-group__visual {
+  .cv-section .cv-experience__item--featured .task-domain--selected-side-visual .task-group__visual {
     grid-column: 1;
     grid-row: auto;
   }
@@ -1002,19 +793,15 @@
 /* showcase project:start */
 /* showcase project:start */
 .cv-section .case-description,
-.cv-section .pills,
-.showcase-section .case-description,
-.showcase-section .pills {
+.cv-section .pills {
   min-inline-size: 0;
 }
 
-.cv-section .case-description p,
-.showcase-section .case-description p {
+.cv-section .case-description p {
   margin: 0;
 }
 
-.cv-section .pills,
-.showcase-section .pills {
+.cv-section .pills {
   display: flex;
   flex-wrap: wrap;
   gap: 0.34rem;
@@ -1023,8 +810,7 @@
   list-style: none;
 }
 
-.cv-section .pill,
-.showcase-section .pill {
+.cv-section .pill {
   display: inline-flex;
   align-items: center;
   min-block-size: 1.58rem;
@@ -1040,8 +826,7 @@
   text-transform: lowercase;
 }
 
-.cv-section .case-period,
-.showcase-section .case-period {
+.cv-section .case-period {
   color: rgba(17, 17, 17, 0.58);
   font-size: clamp(0.72rem, 0.75vw, 0.88rem);
   font-weight: 650;
@@ -1050,8 +835,7 @@
 }
 
 @media (max-width: 760px) {
-  .cv-section .pill,
-.showcase-section .pill {
+  .cv-section .pill {
     min-block-size: 1.52rem;
     font-size: clamp(0.66rem, 2.8vw, 0.78rem);
   }
@@ -1061,8 +845,7 @@
 
 /* showcase project-hero:start */
 /* showcase project hero:start */
-.cv-section .cv-experience__item--featured,
-.showcase-section .case--featured {
+.cv-section .cv-experience__item--featured {
   --project-hero-padding-block: clamp(2.25rem, 4vw, 4.25rem);
   --project-hero-padding-inline: clamp(1.5rem, 3.4vw, 3.75rem);
   --project-logo-slot-min: clamp(8.5rem, 15vw, 13.5rem);
@@ -1081,19 +864,11 @@
 .cv-section .cv-experience__item--featured .case-description,
 .cv-section .cv-experience__item--featured .case-logo,
 .cv-section .cv-experience__item--featured .cv-experience__title-line,
-.cv-section .cv-experience__item--featured .case-header .pills,
-.showcase-section .case--featured .case-header,
-.showcase-section .case--featured .case-header__body,
-.showcase-section .case--featured .case-header__content,
-.showcase-section .case--featured .case-description,
-.showcase-section .case--featured .case-logo,
-.showcase-section .case--featured .case-title-line,
-.showcase-section .case--featured .case-header .pills {
+.cv-section .cv-experience__item--featured .case-header .pills {
   min-inline-size: 0;
 }
 
-.cv-section .cv-experience__item--featured .case-header,
-.showcase-section .case--featured .case-header {
+.cv-section .cv-experience__item--featured .case-header {
   position: relative;
   overflow: hidden;
   margin-block-end: var(--cv-art-space-lg);
@@ -1102,13 +877,11 @@
   background: linear-gradient(180deg, rgba(17, 17, 17, 0.018), rgba(17, 17, 17, 0) 42%), var(--surface-project);
 }
 
-.cv-section .cv-experience__item--featured .case-header__banner,
-.showcase-section .case--featured .case-header__banner {
+.cv-section .cv-experience__item--featured .case-header__banner {
   display: none;
 }
 
-.cv-section .cv-experience__item--featured .case-header__body,
-.showcase-section .case--featured .case-header__body {
+.cv-section .cv-experience__item--featured .case-header__body {
   position: relative;
   display: grid;
   grid-template-columns: minmax(var(--project-logo-slot-min), var(--project-logo-slot-size)) minmax(0, 1fr) auto;
@@ -1119,8 +892,7 @@
   padding: clamp(1.6rem, 3.2vw, 4rem);
 }
 
-.cv-section .cv-experience__item--featured .case-logo,
-.showcase-section .case--featured .case-logo {
+.cv-section .cv-experience__item--featured .case-logo {
   display: grid;
   grid-area: logo;
   place-items: center;
@@ -1137,10 +909,7 @@
 
 .cv-section .cv-experience__item--featured .case-logo img,
 .cv-section .cv-experience__item--featured .case-logo svg,
-.cv-section .cv-experience__item--featured .case-logo canvas,
-.showcase-section .case--featured .case-logo img,
-.showcase-section .case--featured .case-logo svg,
-.showcase-section .case--featured .case-logo canvas {
+.cv-section .cv-experience__item--featured .case-logo canvas {
   display: block;
   inline-size: 100%;
   block-size: 100%;
@@ -1149,13 +918,11 @@
   object-fit: contain;
 }
 
-.cv-section .cv-experience__item--featured .case-logo canvas,
-.showcase-section .case--featured .case-logo canvas {
+.cv-section .cv-experience__item--featured .case-logo canvas {
   overflow: visible;
 }
 
-.cv-section .cv-experience__item--featured .case-header__content,
-.showcase-section .case--featured .case-header__content {
+.cv-section .cv-experience__item--featured .case-header__content {
   display: grid;
   grid-area: content;
   align-content: center;
@@ -1164,14 +931,12 @@
   text-align: start;
 }
 
-.cv-section .cv-experience__item--featured .cv-experience__title-line,
-.showcase-section .case--featured .case-title-line {
+.cv-section .cv-experience__item--featured .cv-experience__title-line {
   display: grid;
   gap: 0;
 }
 
-.cv-section .cv-experience__item--featured .case-header h3,
-.showcase-section .case--featured .case-header h3 {
+.cv-section .cv-experience__item--featured .case-header h3 {
   max-inline-size: 100%;
   margin: 0;
   color: var(--cv-art-ink);
@@ -1182,8 +947,7 @@
   text-wrap: balance;
 }
 
-.cv-section .cv-experience__item--featured .case-header .pills,
-.showcase-section .case--featured .case-header .pills {
+.cv-section .cv-experience__item--featured .case-header .pills {
   display: inline-flex;
   flex-wrap: nowrap;
   width: fit-content;
@@ -1199,8 +963,7 @@
   list-style: none;
 }
 
-.cv-section .cv-experience__item--featured .case-header .pills > li,
-.showcase-section .case--featured .case-header .pills > li {
+.cv-section .cv-experience__item--featured .case-header .pills > li {
   display: inline-flex;
   margin: 0;
   padding: 0;
@@ -1210,13 +973,11 @@
   box-shadow: none;
 }
 
-.cv-section .cv-experience__item--featured .case-header .pills > li + li,
-.showcase-section .case--featured .case-header .pills > li + li {
+.cv-section .cv-experience__item--featured .case-header .pills > li + li {
   border-inline-start: 1px solid rgba(17, 17, 17, 0.18);
 }
 
-.cv-section .cv-experience__item--featured .case-header .pill,
-.showcase-section .case--featured .case-header .pill {
+.cv-section .cv-experience__item--featured .case-header .pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1230,9 +991,7 @@
 }
 
 .cv-section .cv-experience__item--featured .case-header .pill::before,
-.cv-section .cv-experience__item--featured .case-header .pill::after,
-.showcase-section .case--featured .case-header .pill::before,
-.showcase-section .case--featured .case-header .pill::after {
+.cv-section .cv-experience__item--featured .case-header .pill::after {
   display: none;
   content: none;
   border: 0;
@@ -1240,14 +999,12 @@
   background: none;
 }
 
-.cv-section .cv-experience__item--featured .case-header .case-description,
-.showcase-section .case--featured .case-header .case-description {
+.cv-section .cv-experience__item--featured .case-header .case-description {
   margin-block-start: var(--project-hero-copy-gap);
   max-inline-size: min(100%, 48rem);
 }
 
-.cv-section .cv-experience__item--featured .case-header .case-description p,
-.showcase-section .case--featured .case-header .case-description p {
+.cv-section .cv-experience__item--featured .case-header .case-description p {
   max-inline-size: var(--cv-art-readable);
   margin: 0;
   color: var(--cv-art-copy);
@@ -1258,8 +1015,7 @@
   text-wrap: pretty;
 }
 
-.cv-section .cv-experience__item--featured .case-period--hero,
-.showcase-section .case--featured .case-period--hero {
+.cv-section .cv-experience__item--featured .case-period--hero {
   grid-area: period;
   align-self: start;
   justify-self: end;
@@ -1272,13 +1028,11 @@
 }
 
 @media (max-width: 78rem) {
-  .cv-section .cv-experience__item--featured,
-.showcase-section .case--featured {
+  .cv-section .cv-experience__item--featured {
     --project-logo-slot-size: clamp(8rem, 18vw, 13rem);
   }
 
-  .cv-section .cv-experience__item--featured .case-header__body,
-.showcase-section .case--featured .case-header__body {
+  .cv-section .cv-experience__item--featured .case-header__body {
     grid-template-columns: minmax(7.5rem, var(--project-logo-slot-size)) minmax(0, 1fr);
     grid-template-areas:
       "logo period"
@@ -1288,13 +1042,11 @@
 }
 
 @media (max-width: 56rem) {
-  .cv-section .cv-experience__item--featured,
-.showcase-section .case--featured {
+  .cv-section .cv-experience__item--featured {
     --project-logo-slot-size: clamp(7rem, 30vw, 10rem);
   }
 
-  .cv-section .cv-experience__item--featured .case-header__body,
-.showcase-section .case--featured .case-header__body {
+  .cv-section .cv-experience__item--featured .case-header__body {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "period"
@@ -1304,33 +1056,28 @@
     min-block-size: auto;
   }
 
-  .cv-section .cv-experience__item--featured .case-logo,
-.showcase-section .case--featured .case-logo {
+  .cv-section .cv-experience__item--featured .case-logo {
     inline-size: var(--project-logo-slot-size);
     block-size: var(--project-logo-slot-size);
     min-inline-size: 0;
     min-block-size: 0;
   }
 
-  .cv-section .cv-experience__item--featured .case-period--hero,
-.showcase-section .case--featured .case-period--hero {
+  .cv-section .cv-experience__item--featured .case-period--hero {
     justify-self: start;
   }
 
-  .cv-section .cv-experience__item--featured .case-header .case-description,
-.showcase-section .case--featured .case-header .case-description {
+  .cv-section .cv-experience__item--featured .case-header .case-description {
     margin-block-start: clamp(0.8rem, 2.8vw, 1.15rem);
   }
 }
 
 @media (max-width: 38rem) {
-  .cv-section .cv-experience__item--featured,
-.showcase-section .case--featured {
+  .cv-section .cv-experience__item--featured {
     --project-logo-slot-size: clamp(6.5rem, 38vw, 9.5rem);
   }
 
-  .cv-section .cv-experience__item--featured .case-header .pill,
-.showcase-section .case--featured .case-header .pill {
+  .cv-section .cv-experience__item--featured .case-header .pill {
     min-block-size: 1.62rem;
     padding: 0.28rem 0.52rem 0.32rem;
   }
@@ -1339,9 +1086,6 @@
 @media (min-width: 56.001rem) {
   .cv-section .cv-experience__item--featured
     .case-header:is(.case-header--jestei, .case-header--styx)
-    .case-header__body,
-.showcase-section .case--featured
-    .case-header:is(.case-header--jestei, .case-header--styx)
     .case-header__body {
     grid-template-columns: minmax(0, 1fr) minmax(var(--project-logo-slot-min), var(--project-logo-slot-size)) auto;
     grid-template-areas: "content logo period";
@@ -1349,17 +1093,11 @@
 
   .cv-section .cv-experience__item--featured
     .case-header:is(.case-header--jestei, .case-header--styx)
-    .case-logo,
-.showcase-section .case--featured
-    .case-header:is(.case-header--jestei, .case-header--styx)
     .case-logo {
     justify-self: end;
   }
 
   .cv-section .cv-experience__item--featured
-    .case-header:is(.case-header--jestei, .case-header--styx)
-    .case-header__content,
-.showcase-section .case--featured
     .case-header:is(.case-header--jestei, .case-header--styx)
     .case-header__content {
     justify-self: start;
