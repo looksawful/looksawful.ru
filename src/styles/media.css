@@ -738,7 +738,6 @@
 }
 
 .cv-section .cv-experience__item--featured .task-side-gallery--mixed,
-.cv-section .cv-experience__item--featured .task-side-gallery--portfolio-row,
 .cv-section .cv-experience__item--featured .cv-jestei-static-extra__gallery,
 .cv-section .cv-experience__item--featured .task-side-gallery--communications-static {
   align-content: stretch;
@@ -1023,20 +1022,6 @@
 /* jestei static extra sections:end */
 
 /* showcase Jestei product rows and identity gallery:start */
-.cv-section .task-list-groups--product-gallery-rows {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: clamp(1.25rem, 1.8vw, 2.25rem);
-  inline-size: 100%;
-  min-inline-size: 0;
-}
-
-.cv-section .task-list-groups--product-gallery-rows > .task-gallery-split {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  inline-size: 100%;
-  min-inline-size: 0;
-}
 
 .gallery-pair {
   display: grid;
