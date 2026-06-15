@@ -91,7 +91,7 @@
   border-block-end: 1px solid var(--line-hierarchy-soft);
 }
 
-.chips--domain + .cv-task-list-groups {
+.chips--domain + .task-list-groups {
   margin-block-start: 0;
 }
 /* hierarchy refactor chips--tech:end */

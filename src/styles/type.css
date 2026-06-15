@@ -211,12 +211,12 @@ p {
 }
 
 .type-domain-title,
-.cv-task-domain__title {
+.task-domain__title {
   margin: 0;
   text-wrap: balance;
 }
 
-.cv-task-list-group__content > h5 {
+.task-list-group__content > h5 {
   margin: 0;
   color: var(--color-ink);
   font-size: var(--type-list-title);
@@ -226,7 +226,7 @@ p {
   text-wrap: balance;
 }
 
-.cv-task-list-item {
+.task-list-item {
   color: var(--color-ink-soft);
   font-size: var(--type-list-body);
   font-weight: var(--font-weight-book);

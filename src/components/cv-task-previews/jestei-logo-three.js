@@ -158,6 +158,3 @@ export function mountJesteiLogoThree(canvas) {
     delete canvas.dataset.threeMounted;
   };
 }
-
-
-

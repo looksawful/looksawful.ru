@@ -1,8 +1,8 @@
 function syncGraphicSideLayout(layout) {
   const gallery = layout.querySelector(':scope > aside[aria-label="styx graphic design media gallery"]');
-  const listGroups = layout.querySelector(":scope > .cv-task-list-groups--side-media");
-  const card = listGroups ? listGroups.querySelector(":scope > .cv-task-list-group") : null;
-  const content = card ? card.querySelector(":scope > .cv-task-list-group__content") : null;
+  const listGroups = layout.querySelector(":scope > .task-list-groups--side-media");
+  const card = listGroups ? listGroups.querySelector(":scope > .task-list-group") : null;
+  const content = card ? card.querySelector(":scope > .task-list-group__content") : null;
 
   if (!gallery || !listGroups || !card || !content) return;
 
@@ -29,7 +29,7 @@ function syncGraphicSideLayout(layout) {
 
 function initGraphicSideLayouts() {
   const layouts = Array.from(
-    document.querySelectorAll('.cv-task-meta-layout')
+    document.querySelectorAll('.task-meta-layout')
   ).filter((layout) =>
     layout.querySelector(':scope > aside[aria-label="styx graphic design media gallery"]')
   );

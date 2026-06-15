@@ -6,14 +6,14 @@
 
 .showcase-section .cv-row--experience,
 .cv-section .cv-experience__item--featured,
-.cv-section .cv-task-area,
-.cv-section .cv-task-domains,
-.cv-section .cv-task-domain,
-.cv-section .cv-task-group,
-.cv-section .cv-task-group__visual,
-.cv-section .cv-task-group__meta,
-.cv-section .cv-task-meta-layout,
-.cv-section .cv-task-meta-layout-stack {
+.cv-section .task-area,
+.cv-section .task-domains,
+.cv-section .task-domain,
+.cv-section .task-group,
+.cv-section .task-group__visual,
+.cv-section .task-group__meta,
+.cv-section .task-meta-layout,
+.cv-section .task-meta-layout-stack {
   min-inline-size: 0;
 }
 
@@ -25,55 +25,55 @@
   gap: clamp(1.6rem, 3vw, 3.4rem);
 }
 
-.cv-section .cv-task-area {
+.cv-section .task-area {
   gap: clamp(1.8rem, 3.4vw, 3.6rem);
 }
 
-.cv-section .cv-task-domains {
+.cv-section .task-domains {
   gap: clamp(1.8rem, 3.2vw, 3.8rem);
 }
 
-.cv-section .cv-task-domain {
+.cv-section .task-domain {
   gap: clamp(0.9rem, 1.6vw, 1.6rem);
 }
 
-.cv-section .cv-task-domain__intro {
+.cv-section .task-domain__intro {
   gap: clamp(0.42rem, 0.72vw, 0.74rem);
 }
 
-.cv-section .cv-task-group {
+.cv-section .task-group {
   gap: clamp(0.9rem, 1.55vw, 1.65rem);
 }
 
-.cv-section .cv-task-meta-layout-stack {
+.cv-section .task-meta-layout-stack {
   gap: clamp(0.78rem, 1.1vw, 1.2rem);
 }
 
 @media (max-width: 760px) {
   .showcase-section .cv-row--experience,
   .cv-section .cv-experience__item--featured,
-  .cv-section .cv-task-area,
-  .cv-section .cv-task-domains {
+  .cv-section .task-area,
+  .cv-section .task-domains {
     gap: clamp(1.25rem, 7vw, 2rem);
   }
 
-  .cv-section .cv-task-domain,
-  .cv-section .cv-task-group {
+  .cv-section .task-domain,
+  .cv-section .task-group {
     gap: clamp(0.72rem, 4vw, 1.05rem);
   }
 }
 /* showcase layout:end */
 
 /* showcase semantic layout hooks:start */
-.cv-task-domain--with-visual,
-.cv-task-domain--two-column,
-.cv-task-domain--two-column-compact,
-.cv-task-domain--media-left,
-.cv-task-domain--media-right,
-.cv-task-domain--collapse-on-mobile,
-.cv-task-domain--jestei-identity-showcase,
-.cv-task-gallery-split--static-row,
-.cv-task-group__visual--full,
+.task-domain--with-visual,
+.task-domain--two-column,
+.task-domain--two-column-compact,
+.task-domain--media-left,
+.task-domain--media-right,
+.task-domain--collapse-on-mobile,
+.task-domain--jestei-identity-showcase,
+.task-gallery-split--static-row,
+.task-group__visual--full,
 .cv-section--jobs,
 .case-logo--jestei,
 .case-header--lyve {
@@ -81,9 +81,9 @@
 }
 
 @media (max-width: 68rem) {
-  .cv-task-domain--collapse-on-mobile .cv-task-group--with-visual,
-  .cv-task-domain--two-column .cv-task-group--with-visual,
-  .cv-task-domain--two-column-compact .cv-task-group--with-visual {
+  .task-domain--collapse-on-mobile .task-group--with-visual,
+  .task-domain--two-column .task-group--with-visual,
+  .task-domain--two-column-compact .task-group--with-visual {
     grid-template-columns: minmax(0, 1fr);
   }
 }

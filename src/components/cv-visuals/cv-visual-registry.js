@@ -8,7 +8,7 @@ export const ANIMATION_MOUNTERS = {
 };
 
 export const THREE_DEMO_MOUNTERS = {
-  logo: () => import("../cv-task-previews/jestei-logo-three.js").then((module) => module.mountJesteiLogoThree),
+  logo: () => import("../task-previews/jestei-logo-three.js").then((module) => module.mountJesteiLogoThree),
 };
 
 export const CANVAS_DEMO_MOUNTERS = {
@@ -25,4 +25,3 @@ export const loadAnimationMount = (type) => ANIMATION_MOUNTERS[type]?.();
 export const loadThreeDemoMount = (scene) => THREE_DEMO_MOUNTERS[scene]?.();
 
 export const loadCanvasDemoMount = (demo) => CANVAS_DEMO_MOUNTERS[demo]?.();
-

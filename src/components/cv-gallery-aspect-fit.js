@@ -20,7 +20,7 @@ function setAspectClass(link, width, height) {
 }
 
 function handleImage(image) {
-  const link = image.closest(".cv-task-side-gallery__link");
+  const link = image.closest(".task-side-gallery__link");
   if (!link) return;
 
   if (image.complete && image.naturalWidth && image.naturalHeight) {
@@ -38,7 +38,7 @@ function handleImage(image) {
 }
 
 function handleVideo(video) {
-  const link = video.closest(".cv-task-side-gallery__link");
+  const link = video.closest(".task-side-gallery__link");
   if (!link) return;
 
   if (video.videoWidth && video.videoHeight) {
@@ -56,7 +56,7 @@ function handleVideo(video) {
 }
 
 function initGalleryAspectFit() {
-  const selector = ".cv-task-side-gallery--portfolio-row .cv-task-side-gallery__media";
+  const selector = ".task-side-gallery--portfolio-row .task-side-gallery__media";
 
   document.querySelectorAll(selector).forEach(function (media) {
     if (media.tagName.toLowerCase() === "img") {

@@ -6,12 +6,12 @@
 */
 
 /* showcase Jestei landing motion section:start */
-.cv-section .cv-task-domain--jestei-landing-motion {
+.cv-section .task-domain--jestei-landing-motion {
   display: grid;
   gap: clamp(1.3rem, 2.4vw, 2.6rem);
 }
 
-.cv-section .cv-task-domain--jestei-landing-motion .cv-task-domain__summary {
+.cv-section .task-domain--jestei-landing-motion .task-domain__summary {
   max-inline-size: 54rem;
   margin: 0;
   color: var(--showcase-muted, rgba(17, 17, 17, 0.58));
@@ -21,7 +21,7 @@
   text-wrap: pretty;
 }
 
-.cv-section .cv-task-group--jestei-landing-motion {
+.cv-section .task-group--jestei-landing-motion {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(1.25rem, 2.2vw, 2.6rem);
@@ -76,18 +76,18 @@
   min-inline-size: 0;
 }
 
-.cv-section .cv-jestei-landing-motion__split .cv-task-list-groups {
+.cv-section .cv-jestei-landing-motion__split .task-list-groups {
   display: grid;
   align-self: stretch;
   min-inline-size: 0;
 }
 
-.cv-section .cv-jestei-landing-motion__split .cv-task-list-group {
+.cv-section .cv-jestei-landing-motion__split .task-list-group {
   align-self: stretch;
   block-size: 100%;
 }
 
-.cv-section .cv-jestei-landing-motion__split .cv-task-list-group__content {
+.cv-section .cv-jestei-landing-motion__split .task-list-group__content {
   min-block-size: 100%;
 }
 
@@ -147,7 +147,7 @@
 /* showcase Jestei landing:end */
 
 /* isolated jestei landing motion:start */
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-task-group__visual {
+.cv-section .cv-experience__item--featured .task-domain--landing .task-group__visual {
   display: grid;
   gap: clamp(0.9rem, 1.5vw, 1.45rem);
   min-inline-size: 0;
@@ -159,7 +159,7 @@
   box-shadow: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-landing-animation-strip {
+.cv-section .cv-experience__item--featured .task-domain--landing .cv-landing-animation-strip {
   position: relative;
   display: block;
   inline-size: 100%;
@@ -173,7 +173,7 @@
   box-shadow: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-landing-animation-strip__track {
+.cv-section .cv-experience__item--featured .task-domain--landing .cv-landing-animation-strip__track {
   display: flex;
   align-items: stretch;
   gap: clamp(0.55rem, 0.8vw, 0.9rem);
@@ -191,17 +191,17 @@
 
 .cv-section
   .cv-experience__item--featured
-  .cv-task-domain--landing
+  .task-domain--landing
   .cv-landing-animation-strip__track::-webkit-scrollbar {
   display: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-landing-animation-strip__track.is-dragging {
+.cv-section .cv-experience__item--featured .task-domain--landing .cv-landing-animation-strip__track.is-dragging {
   cursor: grabbing;
   scroll-snap-type: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-scroll-row-button {
+.cv-section .cv-experience__item--featured .task-domain--landing .cv-scroll-row-button {
   position: absolute;
   inset-block-start: 50%;
   z-index: 4;
@@ -220,15 +220,15 @@
   backdrop-filter: blur(12px);
 }
 
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-scroll-row-button--prev {
+.cv-section .cv-experience__item--featured .task-domain--landing .cv-scroll-row-button--prev {
   inset-inline-start: clamp(0.45rem, 0.8vw, 0.75rem);
 }
 
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-scroll-row-button--next {
+.cv-section .cv-experience__item--featured .task-domain--landing .cv-scroll-row-button--next {
   inset-inline-end: clamp(0.45rem, 0.8vw, 0.75rem);
 }
 
-.cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-media-group--landing-screenshots {
+.cv-section .cv-experience__item--featured .task-domain--landing .cv-media-group--landing-screenshots {
   display: block;
   inline-size: 100%;
   margin-block-start: 0;
@@ -243,7 +243,7 @@
 
 .cv-section
   .cv-experience__item--featured
-  .cv-task-domain--landing
+  .task-domain--landing
   .cv-media-group--landing-screenshots
   .cv-media-group__track {
   display: grid;
@@ -254,7 +254,7 @@
 
 .cv-section
   .cv-experience__item--featured
-  .cv-task-domain--landing
+  .task-domain--landing
   .cv-media-group--landing-screenshots
   .cv-media-card {
   overflow: hidden;
@@ -266,13 +266,13 @@
 
 .cv-section
   .cv-experience__item--featured
-  .cv-task-domain--landing
+  .task-domain--landing
   .cv-media-group--landing-screenshots
   .cv-media-card
   img,
 .cv-section
   .cv-experience__item--featured
-  .cv-task-domain--landing
+  .task-domain--landing
   .cv-media-group--landing-screenshots
   .cv-media-card
   video {
@@ -286,7 +286,7 @@
 @media (max-width: 64rem) {
   .cv-section
     .cv-experience__item--featured
-    .cv-task-domain--landing
+    .task-domain--landing
     .cv-media-group--landing-screenshots
     .cv-media-group__track {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -294,13 +294,13 @@
 }
 
 @media (max-width: 42rem) {
-  .cv-section .cv-experience__item--featured .cv-task-domain--landing .cv-scroll-row-button {
+  .cv-section .cv-experience__item--featured .task-domain--landing .cv-scroll-row-button {
     display: none;
   }
 
   .cv-section
     .cv-experience__item--featured
-    .cv-task-domain--landing
+    .task-domain--landing
     .cv-media-group--landing-screenshots
     .cv-media-group__track {
     grid-template-columns: minmax(0, 1fr);
@@ -320,7 +320,7 @@
 
 /* showcase canvas:start */
 /* showcase canvas landing visual gap:start */
-.cv-task-domain--landing .cv-task-group__visual {
+.task-domain--landing .task-group__visual {
   display: grid;
   gap: clamp(1rem, 2vw, 1.75rem);
 }
