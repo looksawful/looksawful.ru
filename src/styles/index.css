@@ -249,6 +249,7 @@ p {
 }
 
 .block__header,
+.text-block,
 .resume-item__header {
   display: grid;
   gap: 0.7rem;
@@ -439,3 +440,18 @@ a[href$=".mp4"] {
     font-size: clamp(1.5rem, 8.6vw, 2.1rem);
   }
 }
+
+/* text-list:start */
+.text-list {
+  display: grid;
+  gap: 0.35rem;
+  max-width: var(--text);
+  padding: 0;
+  list-style: none;
+}
+
+.text-list li {
+  font-size: var(--md);
+  line-height: 1.25;
+}
+/* text-list:end */
