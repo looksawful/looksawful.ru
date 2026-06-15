@@ -56,7 +56,7 @@ function handleVideo(video) {
 }
 
 function initGalleryAspectFit() {
-  const selector = ".task-side-gallery--portfolio-row .task-side-gallery__media";
+  const selector = ".task-side-gallery--row .task-side-gallery__media";
 
   document.querySelectorAll(selector).forEach(function (media) {
     if (media.tagName.toLowerCase() === "img") {
