@@ -112,7 +112,7 @@
 }
 
 /* .cv-experience__item--featured .cv-experience__title-line::after {
-  content: "╨║╨╗╤О╤З╨╡╨▓╨╛╨╣ ╨┐╤А╨╛╨╡╨║╤В";
+  content: "ключевой проект";
   display: inline-flex;
   width: fit-content;
   min-block-size: 1.72rem;
@@ -1666,7 +1666,7 @@
 }
 
 .cv-resume-cta a::after {
-  content: " тЖТ";
+  content: " →";
 }
 
 .cv-resume-cta a:hover {
