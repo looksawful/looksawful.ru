@@ -241,7 +241,7 @@ p {
   line-height: var(--line-label);
 }
 
-.cv-project-copy,
+.case-description,
 .resume-timeline-item__summary {
   text-wrap: pretty;
 }

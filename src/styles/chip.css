@@ -57,7 +57,6 @@
 /* component chips:end */
 
 /* component tech list:start */
-.chips--tech,
 .chips--tech {
   display: flex;
   flex-wrap: wrap;
@@ -66,7 +65,6 @@
   list-style: none;
 }
 
-.chips--tech li,
 .chips--tech li {
   display: inline-flex;
   align-items: center;
@@ -74,12 +72,10 @@
 }
 
 /* hierarchy refactor chips--tech:start */
-.chips--tech,
 .chips--tech {
   gap: 0.38rem;
 }
 
-.chips--tech li,
 .chips--tech li {
   gap: 0.34rem;
   min-block-size: 1.46rem;
