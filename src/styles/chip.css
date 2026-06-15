@@ -1,0 +1,128 @@
+/* component chips:start */
+.chip-list,
+.cv-role-chips,
+.cv-task-chips {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip,
+.cv-role-chip,
+.cv-task-chip {
+  display: inline-flex;
+  align-items: center;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.chip-list > li::before,
+.cv-role-chips > li::before,
+.cv-task-chips > li::before {
+  content: none;
+}
+
+/* hierarchy refactor chips:start */
+.chip-list,
+.cv-role-chips,
+.cv-task-chips {
+  gap: var(--space-2);
+}
+
+.chip,
+.cv-role-chip,
+.cv-task-chip {
+  justify-content: center;
+  min-block-size: 1.85rem;
+  padding: 0.38rem 0.68rem 0.42rem;
+  border: 1px solid var(--line-hierarchy);
+  border-radius: var(--radius-pill);
+  color: var(--color-ink);
+  background: var(--surface-chip);
+  font-size: var(--type-control);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-normal);
+}
+
+.cv-role-chips li,
+.cv-task-chips li,
+.chip-list li {
+  min-inline-size: 0;
+}
+/* hierarchy refactor chips:end */
+/* component chips:end */
+
+/* component tech list:start */
+.tech-list,
+.pet-tech-list,
+.cv-task-tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tech-list li,
+.pet-tech-list li,
+.cv-task-tech-list li {
+  display: inline-flex;
+  align-items: center;
+  min-inline-size: 0;
+}
+
+.tech-list__icon,
+.pet-tech-list__icon {
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
+.tech-list li::before,
+.pet-tech-list li::before,
+.cv-task-tech-list li::before {
+  content: none;
+}
+
+/* hierarchy refactor tech-list:start */
+.tech-list,
+.pet-tech-list,
+.cv-task-tech-list {
+  gap: 0.38rem;
+}
+
+.tech-list li,
+.pet-tech-list li,
+.cv-task-tech-list li {
+  gap: 0.34rem;
+  min-block-size: 1.46rem;
+  padding: 0.2rem 0.48rem 0.24rem;
+  border: 1px solid var(--line-hierarchy-soft);
+  border-radius: var(--radius-pill);
+  background: rgba(17, 17, 17, 0.032);
+}
+
+.tech-list__icon,
+.pet-tech-list__icon,
+.cv-task-tech-list .pet-tech-list__icon {
+  inline-size: 0.72rem;
+  block-size: 0.72rem;
+  flex: 0 0 auto;
+  color: currentColor;
+  opacity: 0.82;
+}
+
+.cv-task-tech-list--domain {
+  margin-block: calc(var(--space-title-to-meta) * -0.26) var(--space-meta-to-copy);
+  padding-block-end: var(--space-2);
+  border-block-end: 1px solid var(--line-hierarchy-soft);
+}
+
+.cv-task-tech-list--domain + .cv-task-list-groups {
+  margin-block-start: 0;
+}
+/* hierarchy refactor tech-list:end */
+/* component tech list:end */

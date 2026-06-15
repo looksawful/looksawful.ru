@@ -1,5 +1,7 @@
 @import "./core.css";
-@import "./components.css";
+@import "./chip.css";
+@import "./awfulface.css";
+@import "./footer.css";
 @import "./hero.css";
 @import "./cv.css";
 @import "./cv-list.css";
