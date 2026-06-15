@@ -1,10 +1,10 @@
 /* showcase lightbox:start */
 /* showcase lightbox:start */
-.lightbox[hidden] {
+.cv-media-lightbox[hidden] {
   display: none;
 }
 
-.lightbox {
+.cv-media-lightbox {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -21,7 +21,7 @@
   backdrop-filter: blur(12px);
 }
 
-.lightbox__stage {
+.cv-media-lightbox__stage {
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -33,8 +33,8 @@
   overflow: hidden;
 }
 
-.lightbox__stage img,
-.lightbox__stage video {
+.cv-media-lightbox__stage img,
+.cv-media-lightbox__stage video {
   display: block;
   inline-size: auto;
   block-size: auto;
@@ -43,11 +43,11 @@
   object-fit: contain;
 }
 
-.lightbox__stage video {
+.cv-media-lightbox__stage video {
   background: #000;
 }
 
-.lightbox__close {
+.cv-media-lightbox__close {
   position: fixed;
   inset-block-start: clamp(12px, 2vw, 24px);
   inset-inline-end: clamp(12px, 2vw, 24px);
@@ -63,23 +63,23 @@
   cursor: pointer;
 }
 
-.has-lightbox {
+.has-cv-media-lightbox {
   overflow: hidden;
 }
 
 @media (max-width: 760px) {
-  .lightbox {
+  .cv-media-lightbox {
     padding: 12px;
   }
 
-  .lightbox__stage {
+  .cv-media-lightbox__stage {
     inline-size: 100%;
     block-size: calc(100dvh - 24px);
     max-inline-size: calc(100vw - 24px);
     max-block-size: calc(100dvh - 24px);
   }
 
-  .lightbox__close {
+  .cv-media-lightbox__close {
     inset-block-start: 12px;
     inset-inline-end: 12px;
   }

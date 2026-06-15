@@ -341,7 +341,7 @@
 .cv-section .btn,
 .cv-section .cv-scroll-row-button,
 .cv-section .cv-inline-video__sound,
-.cv-section .lightbox__close {
+.cv-section .cv-media-lightbox__close {
   border-color: var(--visual-control-line);
   box-shadow: none;
 }
