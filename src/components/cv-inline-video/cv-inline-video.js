@@ -1,13 +1,13 @@
 export function initCvInlineVideos(root = document) {
-  const players = [...root.querySelectorAll("[data-cv-inline-video]")];
+  const players = [...root.querySelectorAll("[data-inline-video]")];
 
   players.forEach((player) => {
     if (!(player instanceof HTMLElement) || player.dataset.cvInlineVideoReady === "true") {
       return;
     }
 
-    const video = player.querySelector("[data-cv-inline-video-media]");
-    const soundButton = player.querySelector("[data-cv-inline-video-sound]");
+    const video = player.querySelector("[data-inline-video-media]");
+    const soundButton = player.querySelector("[data-inline-video-sound]");
 
     if (!(video instanceof HTMLVideoElement) || !(soundButton instanceof HTMLButtonElement)) {
       return;

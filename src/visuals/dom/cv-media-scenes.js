@@ -65,7 +65,7 @@ const getTrack = (element) => {
 const setState = (element, state) => {
   element.dataset.cvMediaState = state;
   element.dataset.cvMediaReady = state === "ready" ? "true" : "false";
-  element.toggleAttribute("data-cv-media-empty", state === "empty");
+  element.toggleAttribute("data-media-empty", state === "empty");
 };
 
 const createImage = (item, index) => {
@@ -106,15 +106,15 @@ const createVideo = (item, isLightbox = false) => {
 const createLightbox = () => {
   const lightbox = document.createElement("div");
 
-  lightbox.className = "cv-media-lightbox";
+  lightbox.className = "lightbox";
   lightbox.hidden = true;
   lightbox.innerHTML = `
-    <button class="cv-media-lightbox__close" type="button" aria-label="закрыть">×</button>
-    <div class="cv-media-lightbox__stage" role="dialog" aria-modal="true"></div>
+    <button class="lightbox__close" type="button" aria-label="закрыть">×</button>
+    <div class="lightbox__stage" role="dialog" aria-modal="true"></div>
   `;
 
   lightbox.addEventListener("click", (event) => {
-    if (event.target === lightbox || event.target.closest(".cv-media-lightbox__close")) {
+    if (event.target === lightbox || event.target.closest(".lightbox__close")) {
       closeLightbox();
     }
   });
@@ -137,7 +137,7 @@ const getLightbox = () => {
 
 const openLightbox = (item, extension) => {
   const lightbox = getLightbox();
-  const stage = lightbox.querySelector(".cv-media-lightbox__stage");
+  const stage = lightbox.querySelector(".lightbox__stage");
 
   stage.textContent = "";
 
@@ -154,7 +154,7 @@ const openLightbox = (item, extension) => {
   }
 
   lightbox.hidden = false;
-  document.documentElement.classList.add("has-cv-media-lightbox");
+  document.documentElement.classList.add("has-lightbox");
 };
 
 function closeLightbox() {
@@ -162,9 +162,9 @@ function closeLightbox() {
     return;
   }
 
-  activeLightbox.querySelector(".cv-media-lightbox__stage").textContent = "";
+  activeLightbox.querySelector(".lightbox__stage").textContent = "";
   activeLightbox.hidden = true;
-  document.documentElement.classList.remove("has-cv-media-lightbox");
+  document.documentElement.classList.remove("has-lightbox");
 }
 
 const createCard = ({ item, index, count }) => {
@@ -281,7 +281,7 @@ const createManualItemFromCard = (card, index) => {
 };
 
 const mountExistingMediaCards = (root = document) => {
-  const cards = root.querySelectorAll(".media-group:not([data-cv-media-scene]) .media-card");
+  const cards = root.querySelectorAll(".media-group:not([data-media-scene]) .media-card");
 
   cards.forEach((card, index) => {
     if (card.dataset.cvMediaLightboxMounted === "true") {
@@ -319,7 +319,7 @@ const mountExistingMediaCards = (root = document) => {
 
 export function initCvMediaScenes(root = document) {
   initStaticMediaLightboxLinks(document);
-  root.querySelectorAll("[data-cv-media-scene]").forEach(renderMediaScene);
+  root.querySelectorAll("[data-media-scene]").forEach(renderMediaScene);
   mountExistingMediaCards(root);
 }
 const getMediaLinkExtension = (url) => {
@@ -347,7 +347,7 @@ function initStaticMediaLightboxLinks(root = document) {
   staticMediaLightboxLinksMounted = true;
 
   scope.addEventListener("click", (event) => {
-    const link = event.target?.closest?.('a[data-cv-lightbox="media"]');
+    const link = event.target?.closest?.('a[data-lightbox="media"]');
 
     if (!link) {
       return;

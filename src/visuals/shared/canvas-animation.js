@@ -93,7 +93,7 @@ export const limitAnimationItems = (items, sceneId = "", options = {}) => {
 };
 
 export const markCanvasState = (canvas, state) => {
-  const host = canvas?.closest?.("[data-cv-animation], .media-preview, .embedded-demo") || canvas?.parentElement;
+  const host = canvas?.closest?.("[data-animation], .media-preview, .embedded-demo") || canvas?.parentElement;
 
   if (!host) {
     return;

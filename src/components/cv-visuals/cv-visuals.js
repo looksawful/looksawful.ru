@@ -153,8 +153,8 @@ function initPreviewSlider(slider) {
   }
 
   const track = slider.querySelector(".media-preview-row--slider");
-  const prev = slider.querySelector("[data-cv-slider-prev]");
-  const next = slider.querySelector("[data-cv-slider-next]");
+  const prev = slider.querySelector("[data-slider-prev]");
+  const next = slider.querySelector("[data-slider-next]");
 
   if (!(track instanceof HTMLElement)) {
     return noop;
@@ -227,9 +227,9 @@ function initPreviewSlider(slider) {
 export async function initCvVisuals(root = document) {
   initCvMediaScenes(typeof root !== "undefined" ? root : document);
   initCvScrollRows(typeof root !== "undefined" ? root : document);
-  const visualTargets = [...root.querySelectorAll("[data-cv-visual-demo]")];
-  const animationPreviews = [...root.querySelectorAll("[data-cv-animation]")];
-  const sliders = [...root.querySelectorAll("[data-cv-preview-slider]")];
+  const visualTargets = [...root.querySelectorAll("[data-visual-demo]")];
+  const animationPreviews = [...root.querySelectorAll("[data-animation]")];
+  const sliders = [...root.querySelectorAll("[data-preview-slider]")];
 
   const sliderDisposers = sliders.map(initPreviewSlider);
 

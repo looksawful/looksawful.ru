@@ -95,7 +95,7 @@
   transform: none;
 }
 
-.media-group[data-cv-media-scene] {
+.media-group[data-media-scene] {
   position: relative;
   min-inline-size: 0;
   overflow: hidden;
@@ -157,7 +157,7 @@
   }
 }
 /* showcase media interactivity:start */
-.media-group[data-cv-media-scene] .media-card {
+.media-group[data-media-scene] .media-card {
   cursor: zoom-in;
   transition:
     transform 180ms ease,
@@ -165,25 +165,25 @@
     box-shadow 180ms ease;
 }
 
-.media-group[data-cv-media-scene] .media-card:hover,
-.media-group[data-cv-media-scene] .media-card:focus-visible {
+.media-group[data-media-scene] .media-card:hover,
+.media-group[data-media-scene] .media-card:focus-visible {
   filter: brightness(1.04) contrast(1.02);
   box-shadow: 0 1.55rem 4rem rgba(0, 0, 0, 0.5);
 }
 
-.media-group--orbit[data-cv-media-scene] .media-card:hover,
-.media-group--orbit[data-cv-media-scene] .media-card:focus-visible {
+.media-group--orbit[data-media-scene] .media-card:hover,
+.media-group--orbit[data-media-scene] .media-card:focus-visible {
   transform: translate(-50%, -50%) rotateY(calc((360deg / var(--media-count)) * var(--media-index)))
     translateZ(calc(var(--orbit-radius) + 0.75rem)) scale(1.035);
 }
 
-.media-group[data-cv-media-scene] .media-card:focus-visible {
+.media-group[data-media-scene] .media-card:focus-visible {
   outline: 1px solid color-mix(in srgb, currentColor 52%, transparent);
   outline-offset: 0.28rem;
 }
 
-.has-cv-media-lightbox .media-group--orbit .media-group__track,
-.has-cv-media-lightbox .media-group--strip .media-group__track {
+.has-lightbox .media-group--orbit .media-group__track,
+.has-lightbox .media-group--strip .media-group__track {
   animation-play-state: paused;
 }
 /* showcase media interactivity:end */
@@ -212,9 +212,9 @@
 .cv-section .cv-experience__item--featured .media-card,
 .cv-section .cv-experience__item--featured .media-card:hover,
 .cv-section .cv-experience__item--featured .media-card:focus-visible,
-.cv-section .cv-experience__item--featured .media-group:not([data-cv-media-scene]) .media-card,
-.cv-section .cv-experience__item--featured .media-group:not([data-cv-media-scene]) .media-card:hover,
-.cv-section .cv-experience__item--featured .media-group:not([data-cv-media-scene]) .media-card:focus-visible {
+.cv-section .cv-experience__item--featured .media-group:not([data-media-scene]) .media-card,
+.cv-section .cv-experience__item--featured .media-group:not([data-media-scene]) .media-card:hover,
+.cv-section .cv-experience__item--featured .media-group:not([data-media-scene]) .media-card:focus-visible {
   box-shadow: none;
 }
 
@@ -377,12 +377,12 @@
 }
 
 /* interaction: keep focus, remove visual shadow */
-.cv-section .cv-experience__item--featured .media-group:not([data-cv-media-scene]) .media-card:hover,
-.cv-section .cv-experience__item--featured .media-group:not([data-cv-media-scene]) .media-card:focus-visible {
+.cv-section .cv-experience__item--featured .media-group:not([data-media-scene]) .media-card:hover,
+.cv-section .cv-experience__item--featured .media-group:not([data-media-scene]) .media-card:focus-visible {
   filter: brightness(1.025) contrast(1.015);
 }
 
-.cv-section .cv-experience__item--featured .media-group:not([data-cv-media-scene]) .media-card:focus-visible {
+.cv-section .cv-experience__item--featured .media-group:not([data-media-scene]) .media-card:focus-visible {
   outline: 1px solid rgba(17, 17, 17, 0.42);
   outline-offset: 0.22rem;
 }
