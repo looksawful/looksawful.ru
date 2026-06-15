@@ -937,21 +937,6 @@
 
 /* showcase Scanography:end */
 /* showcase scanography:end */
-
-/* showcase jestei:start */
-/* showcase Jestei:start */
-/*
-  Project-specific Jestei showcase layer.
-  Keep this file after galleries.css in showcase/index.css.
-*/
-
-/* jestei static extra sections:start */
-/* jestei static extra sections:end */
-
-/* showcase Jestei product rows and identity gallery:start */
-/* showcase Jestei product rows and identity gallery:end */
-
-/* showcase Jestei:end */
 /* showcase jestei:end */
 
 /* shared media composition:start */
@@ -1011,80 +996,3 @@
   object-position: center center;
 }
 /* shared media composition:end */
-
-/* static extra layout:start */
-.cv-section .cv-experience__item--featured .task-domain--gallery-set {
-  display: grid;
-  gap: clamp(1.25rem, 2vw, 2rem);
-  width: 100%;
-  min-width: 0;
-}
-
-.cv-section .cv-experience__item--featured .task-meta-layout-stack--side-gallery {
-  display: grid;
-  gap: clamp(1.25rem, 1.8vw, 2.25rem);
-  width: 100%;
-  min-width: 0;
-}
-
-.cv-section .cv-experience__item--featured .task-meta-layout--side-gallery {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: clamp(1.1rem, 1.6vw, 2rem);
-  align-items: stretch;
-  width: 100%;
-  min-width: 0;
-}
-
-@media (min-width: 64rem) {
-  .cv-section .cv-experience__item--featured .task-meta-layout--side-gallery {
-    grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr);
-  }
-}
-
-.cv-section .cv-experience__item--featured .task-side-gallery--static {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(0.55rem, 0.72vw, 0.8rem);
-  width: 100%;
-  min-width: 0;
-}
-
-.cv-section .cv-experience__item--featured .task-side-gallery--static .task-side-gallery__link {
-  aspect-ratio: 1 / 1;
-}
-/* static extra layout:end */
-
-/* shared identity media layout:start */
-.cv-section .cv-experience__item--featured .task-meta-layout--side-cover-gallery > .task-side-image {
-  width: 100%;
-  min-width: 0;
-  align-self: stretch;
-}
-
-.cv-section .cv-experience__item--featured .task-side-image,
-.cv-section .cv-experience__item--featured .task-side-image__card,
-.cv-section .cv-experience__item--featured .task-side-image__link {
-  display: block;
-  width: 100%;
-  min-width: 0;
-}
-
-.cv-section .cv-experience__item--featured .task-meta-layout--side-cover-gallery > .task-side-image .task-side-image__card,
-.cv-section .cv-experience__item--featured .task-meta-layout--side-cover-gallery > .task-side-image .task-side-image__link {
-  height: 100%;
-}
-
-.cv-section .cv-experience__item--featured .task-side-image__media {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  object-fit: cover;
-  object-position: center center;
-}
-
-.cv-section .cv-experience__item--featured .task-side-image--cover-fit .task-side-image__media {
-  aspect-ratio: 4 / 3;
-}
-/* shared identity media layout:end */

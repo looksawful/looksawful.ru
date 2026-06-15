@@ -6,37 +6,6 @@
 */
 
 /* styx photo production gallery pair:start */
-.photo-gallery-pair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(0.9rem, 1.4vw, 1.25rem);
-  inline-size: min(100%, 68rem);
-  margin: clamp(1.4rem, 2.4vw, 2rem) auto 0;
-}
-
-.photo-gallery-pair__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(0.7rem, 1vw, 0.9rem);
-  inline-size: 100%;
-}
-
-.photo-gallery-pair__grid .task-side-gallery__link {
-  aspect-ratio: 4 / 3;
-  min-inline-size: 0;
-}
-
-.photo-gallery-pair__grid .task-side-gallery__media {
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: cover;
-}
-
-@media (max-width: 68rem) {
-  .photo-gallery-pair {
-    grid-template-columns: 1fr;
-  }
-}
 /* styx photo production gallery pair:end */
 
 /* styx communications static gallery:start */

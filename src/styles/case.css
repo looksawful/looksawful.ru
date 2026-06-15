@@ -729,23 +729,6 @@
   min-inline-size: 0;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--static-side-image .task-side-image {
-  align-self: center;
-  inline-size: 100%;
-  min-inline-size: 0;
-}
-
-.cv-section .cv-experience__item--featured .task-domain--static-side-image .task-side-image__card {
-  display: block;
-  aspect-ratio: 16 / 9;
-  inline-size: 100%;
-  overflow: hidden;
-  margin: 0;
-  border: 1px solid var(--cv-art-line);
-  border-radius: var(--cv-art-radius);
-  background: #000;
-}
-
 .cv-section .cv-experience__item--featured .task-domain--selected-side-visual > .task-group--with-visual {
   display: grid;
   grid-template-columns: minmax(var(--cv-art-list-min), var(--cv-art-list-max)) minmax(0, 1fr);
@@ -1118,10 +1101,6 @@
 .cv-section--jobs,
 .case-logo--jestei,
 .case-header--lyve,
-.jestei-landing-motion__split--club,
-.jestei-landing-motion__split--event,
-.jestei-landing-motion__tile-gallery--club,
-.jestei-landing-motion__tile-gallery--event,
 .task-list-group--auto,
 .task-list-group__media,
 .task-list-group__image-slot,
