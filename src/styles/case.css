@@ -326,7 +326,7 @@
 /* keep chips, tags, tabs and buttons bordered */
 .cv-section .pill,
 .cv-section .chip--task,
-.cv-section .ds-chip,
+.cv-section .chip,
 .cv-section .chips--tech li,
 .cv-section [class*="chip"],
 .cv-section [class*="tag"],
@@ -349,7 +349,7 @@
 /* remove grey fills from chips/buttons, keep borders */
 .cv-section .pill,
 .cv-section .chip--task,
-.cv-section .ds-chip,
+.cv-section .chip,
 .cv-section .chips--tech li,
 .cv-section [class*="chip"],
 .cv-section [class*="tag"],
