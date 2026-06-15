@@ -1128,7 +1128,15 @@
 /* showcase jestei:end */
 
 /* shared media composition:start */
-.cv-section .cv-experience__item--featured .task-meta-layout {
+.cv-section .cv-experience__item--featured .task-meta-layout,
+.cv-section .cv-experience__item--featured .task-list-groups,
+.cv-section .cv-experience__item--featured .task-list-group,
+.cv-section .cv-experience__item--featured .task-list-group__content,
+.cv-section .cv-experience__item--featured .task-side-gallery,
+.cv-section .cv-experience__item--featured .task-gallery-stack,
+.cv-section .cv-experience__item--featured .task-gallery-row,
+.cv-section .cv-experience__item--featured .gallery-pair,
+.cv-section .cv-experience__item--featured .photo-gallery-pair {
   width: 100%;
   min-width: 0;
 }
@@ -1146,13 +1154,6 @@
   }
 }
 
-.cv-section .cv-experience__item--featured .task-list-groups,
-.cv-section .cv-experience__item--featured .task-list-group,
-.cv-section .cv-experience__item--featured .task-list-group__content {
-  width: 100%;
-  min-width: 0;
-}
-
 .cv-section .cv-experience__item--featured .task-list-groups--side-media,
 .cv-section .cv-experience__item--featured .task-list-groups--cards,
 .cv-section .cv-experience__item--featured .task-list-groups--auto {
@@ -1164,14 +1165,11 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(1.25rem, 1.8vw, 2.25rem);
-  width: 100%;
-  min-width: 0;
 }
 
 .cv-section .cv-experience__item--featured .task-gallery-split,
 .cv-section .cv-experience__item--featured .task-gallery-row {
   display: grid;
-  width: 100%;
   min-width: 0;
 }
 
@@ -1188,7 +1186,6 @@
 }
 
 .cv-section .cv-experience__item--featured .task-gallery-row > .task-list-group {
-  width: 100%;
   max-width: none;
   min-width: 0;
   height: 100%;
@@ -1200,8 +1197,6 @@
 
 .cv-section .cv-experience__item--featured .task-side-gallery {
   display: grid;
-  width: 100%;
-  min-width: 0;
   gap: clamp(0.55rem, 0.72vw, 0.8rem);
   overflow: visible;
 }
