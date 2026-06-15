@@ -796,12 +796,6 @@
 /* showcase galleries:end */
 
 /* showcase gallery modifier hooks:start */
-.gallery-pair--jestei-identity,
-.task-side-gallery--product-audiences,
-.task-side-gallery--product-event,
-.task-side-gallery--product-routes {
-  min-inline-size: 0;
-}
 /* showcase gallery modifier hooks:end */
 /* showcase galleries:end */
 
