@@ -1012,51 +1012,7 @@
   object-position: center center;
 }
 
-.cv-section .task-meta-layout--jestei-identity-showcase {
-  display: grid;
-  grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr);
-  gap: clamp(1rem, 1.35vw, 1.65rem);
-  align-items: stretch;
-}
-
-.cv-section .task-meta-layout--jestei-identity-showcase .task-list-groups--side-media {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.cv-section .task-meta-layout--jestei-identity-showcase .task-list-group__content {
-  min-block-size: clamp(12rem, 18vw, 17rem);
-}
-
-.cv-section .task-side-image--jestei-identity-cover,
-.cv-section .task-side-image--jestei-identity-cover .task-side-image__card,
-.cv-section .task-side-image--jestei-identity-cover .task-side-image__link {
-  display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  min-inline-size: 0;
-}
-
-.cv-section .task-side-image--jestei-identity-cover .task-side-image__card {
-  min-block-size: clamp(14rem, 24vw, 22rem);
-  overflow: hidden;
-  border: 1px solid var(--line-hierarchy, rgba(0, 0, 0, 0.12));
-  border-radius: var(--radius-md, 1rem);
-  background: #050505;
-}
-
-.cv-section .task-side-image--jestei-identity-cover .task-side-image__media {
-  display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: cover;
-  object-position: center center;
-}
-
 @media (max-width: 68rem) {
-  .cv-section .task-meta-layout--jestei-identity-showcase {
-    grid-template-columns: minmax(0, 1fr);
-  }
 
   .gallery-pair {
     grid-template-columns: minmax(0, 1fr);
@@ -1236,3 +1192,37 @@
   aspect-ratio: 1 / 1;
 }
 /* static extra layout:end */
+
+/* shared identity media layout:start */
+.cv-section .cv-experience__item--featured .task-meta-layout--with-gallery > .task-side-image {
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.cv-section .cv-experience__item--featured .task-side-image,
+.cv-section .cv-experience__item--featured .task-side-image__card,
+.cv-section .cv-experience__item--featured .task-side-image__link {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.cv-section .cv-experience__item--featured .task-meta-layout--with-gallery > .task-side-image .task-side-image__card,
+.cv-section .cv-experience__item--featured .task-meta-layout--with-gallery > .task-side-image .task-side-image__link {
+  height: 100%;
+}
+
+.cv-section .cv-experience__item--featured .task-side-image__media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.cv-section .cv-experience__item--featured .task-side-image--cover .task-side-image__media {
+  aspect-ratio: 4 / 3;
+}
+/* shared identity media layout:end */
