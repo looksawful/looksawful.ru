@@ -61,14 +61,16 @@
 /* styx communications static gallery:end */
 
 /* styx graphic split duplicated galleries:start */
-.cv-section .task-meta-layout-stack--styx-graphic {
+.cv-section .task-meta-layout-stack--styx-graphic,
+.showcase-section .task-meta-layout-stack--styx-graphic {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(1.4rem, 2vw, 2.4rem);
   inline-size: 100%;
 }
 
-.cv-section .task-meta-layout--styx-graphic-single {
+.cv-section .task-meta-layout--styx-graphic-single,
+.showcase-section .task-meta-layout--styx-graphic-single {
   display: grid;
   grid-template-columns: minmax(18rem, 0.78fr) minmax(0, 1.22fr);
   gap: clamp(1rem, 1.35vw, 1.65rem);
@@ -76,7 +78,8 @@
   inline-size: 100%;
 }
 
-.cv-section .task-meta-layout--styx-graphic-single .task-list-groups--side-media {
+.cv-section .task-meta-layout--styx-graphic-single .task-list-groups--side-media,
+.showcase-section .task-meta-layout--styx-graphic-single .task-list-groups--side-media {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-self: stretch;
@@ -84,14 +87,16 @@
   gap: 0;
 }
 
-.cv-section .task-meta-layout--styx-graphic-single .task-list-group {
+.cv-section .task-meta-layout--styx-graphic-single .task-list-group,
+.showcase-section .task-meta-layout--styx-graphic-single .task-list-group {
   align-self: stretch;
   block-size: 100%;
   inline-size: 100%;
   max-inline-size: none;
 }
 
-.cv-section .task-meta-layout--styx-graphic-single .task-list-group__content {
+.cv-section .task-meta-layout--styx-graphic-single .task-list-group__content,
+.showcase-section .task-meta-layout--styx-graphic-single .task-list-group__content {
   display: block;
   box-sizing: border-box;
   block-size: 100%;
@@ -100,34 +105,40 @@
   max-inline-size: none;
 }
 
-.cv-section .task-meta-layout--styx-graphic-single .task-side-gallery {
+.cv-section .task-meta-layout--styx-graphic-single .task-side-gallery,
+.showcase-section .task-meta-layout--styx-graphic-single .task-side-gallery {
   align-self: stretch;
 }
 
 @media (max-width: 900px) {
-  .cv-section .task-meta-layout--styx-graphic-single {
+  .cv-section .task-meta-layout--styx-graphic-single,
+.showcase-section .task-meta-layout--styx-graphic-single {
     grid-template-columns: 1fr;
   }
 
-  .cv-section .task-meta-layout--styx-graphic-single .task-list-group__content {
+  .cv-section .task-meta-layout--styx-graphic-single .task-list-group__content,
+.showcase-section .task-meta-layout--styx-graphic-single .task-list-group__content {
     min-block-size: auto;
   }
 }
 /* styx graphic split duplicated galleries:end */
 
 /* graphic side layout hard sync:start */
-.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) {
+.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]),
+.showcase-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) {
   align-items: stretch;
 }
 
-.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media {
+.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media,
+.showcase-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-self: stretch;
   block-size: 100%;
 }
 
-.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group {
+.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group,
+.showcase-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group {
   display: grid;
   align-self: stretch;
   block-size: 100%;
@@ -136,7 +147,8 @@
   max-inline-size: none;
 }
 
-.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group > .task-list-group__content {
+.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group > .task-list-group__content,
+.showcase-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group > .task-list-group__content {
   display: grid;
   align-content: center;
   block-size: 100%;
@@ -146,24 +158,34 @@
   box-sizing: border-box;
 }
 
-.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > aside[aria-label="styx graphic design media gallery"] {
+.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > aside[aria-label="styx graphic design media gallery"],
+.showcase-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > aside[aria-label="styx graphic design media gallery"] {
   align-self: stretch;
 }
 
 .cv-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media,
 .cv-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group,
-.cv-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group > .task-list-group__content {
+.cv-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group > .task-list-group__content,
+.showcase-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media,
+.showcase-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group,
+.showcase-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group > .task-list-group__content {
   min-block-size: var(--graphic-side-gallery-height, auto);
   block-size: var(--graphic-side-gallery-height, auto);
 }
 
 @media (max-width: 900px) {
   .cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media,
-  .cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group,
-  .cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group > .task-list-group__content,
-  .cv-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media,
-  .cv-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group,
-  .cv-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group > .task-list-group__content {
+.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group,
+.cv-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group > .task-list-group__content,
+.cv-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media,
+.cv-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group,
+.cv-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group > .task-list-group__content,
+.showcase-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media,
+.showcase-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group,
+.showcase-section .task-meta-layout:has(> aside[aria-label="styx graphic design media gallery"]) > .task-list-groups--side-media > .task-list-group > .task-list-group__content,
+.showcase-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media,
+.showcase-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group,
+.showcase-section .task-meta-layout.is-graphic-side-height-synced > .task-list-groups--side-media > .task-list-group > .task-list-group__content {
     min-block-size: auto;
     block-size: auto;
   }
@@ -187,25 +209,29 @@
 /* styx photo production cover fit:end */
 
 /* styx shooting equal height:start */
-.cv-section .task-meta-layout--styx-shooting {
+.cv-section .task-meta-layout--styx-shooting,
+.showcase-section .task-meta-layout--styx-shooting {
   align-items: stretch;
 }
 
-.cv-section .task-meta-layout--styx-shooting .task-list-groups--side-media {
+.cv-section .task-meta-layout--styx-shooting .task-list-groups--side-media,
+.showcase-section .task-meta-layout--styx-shooting .task-list-groups--side-media {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-self: stretch;
   block-size: 100%;
 }
 
-.cv-section .task-meta-layout--styx-shooting .task-list-group {
+.cv-section .task-meta-layout--styx-shooting .task-list-group,
+.showcase-section .task-meta-layout--styx-shooting .task-list-group {
   align-self: stretch;
   block-size: 100%;
   inline-size: 100%;
   max-inline-size: none;
 }
 
-.cv-section .task-meta-layout--styx-shooting .task-list-group__content {
+.cv-section .task-meta-layout--styx-shooting .task-list-group__content,
+.showcase-section .task-meta-layout--styx-shooting .task-list-group__content {
   display: grid;
   align-content: center;
   block-size: 100%;
@@ -217,19 +243,25 @@
 
 .cv-section .task-meta-layout--styx-shooting .task-list-group__content > h5,
 .cv-section .task-meta-layout--styx-shooting .task-list-group__content > p,
-.cv-section .task-meta-layout--styx-shooting .task-list-group__content > ul {
+.cv-section .task-meta-layout--styx-shooting .task-list-group__content > ul,
+.showcase-section .task-meta-layout--styx-shooting .task-list-group__content > h5,
+.showcase-section .task-meta-layout--styx-shooting .task-list-group__content > p,
+.showcase-section .task-meta-layout--styx-shooting .task-list-group__content > ul {
   margin-inline-start: 0;
   margin-inline-end: 0;
   text-align: left;
 }
 
 .cv-section .task-meta-layout--styx-shooting .task-side-image,
-.cv-section .task-meta-layout--styx-shooting .task-side-gallery {
+.cv-section .task-meta-layout--styx-shooting .task-side-gallery,
+.showcase-section .task-meta-layout--styx-shooting .task-side-image,
+.showcase-section .task-meta-layout--styx-shooting .task-side-gallery {
   align-self: stretch;
 }
 
 @media (max-width: 900px) {
-  .cv-section .task-meta-layout--styx-shooting .task-list-group__content {
+  .cv-section .task-meta-layout--styx-shooting .task-list-group__content,
+.showcase-section .task-meta-layout--styx-shooting .task-list-group__content {
     min-block-size: auto;
   }
 }
@@ -240,20 +272,27 @@
 /* styx orbit background restore:start */
 .cv-section .cv-experience__item--featured .media-group--orbit,
 .cv-section .cv-experience__item--featured .media-group--orbit.media-group--dark,
-.cv-section .cv-experience__item--featured .media-group--dark.media-group--orbit {
+.cv-section .cv-experience__item--featured .media-group--dark.media-group--orbit,
+.showcase-section .case--featured .media-group--orbit,
+.showcase-section .case--featured .media-group--orbit.media-group--dark,
+.showcase-section .case--featured .media-group--dark.media-group--orbit {
   background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.08), transparent 34%), #050505;
 }
 
-.cv-section .cv-experience__item--featured .media-group--orbit .media-group__track {
+.cv-section .cv-experience__item--featured .media-group--orbit .media-group__track,
+.showcase-section .case--featured .media-group--orbit .media-group__track {
   background: transparent;
 }
 
-.cv-section .cv-experience__item--featured .media-group--orbit .media-card {
+.cv-section .cv-experience__item--featured .media-group--orbit .media-card,
+.showcase-section .case--featured .media-group--orbit .media-card {
   background: transparent;
 }
 
 .cv-section .cv-experience__item--featured .media-group--orbit .media-card:hover,
-.cv-section .cv-experience__item--featured .media-group--orbit .media-card:focus-visible {
+.cv-section .cv-experience__item--featured .media-group--orbit .media-card:focus-visible,
+.showcase-section .case--featured .media-group--orbit .media-card:hover,
+.showcase-section .case--featured .media-group--orbit .media-card:focus-visible {
   box-shadow: none;
 }
 /* styx orbit background restore:end */

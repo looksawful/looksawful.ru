@@ -6,12 +6,14 @@
 */
 
 /* showcase Jestei landing motion section:start */
-.cv-section .task-domain--jestei-landing-motion {
+.cv-section .task-domain--jestei-landing-motion,
+.showcase-section .task-domain--jestei-landing-motion {
   display: grid;
   gap: clamp(1.3rem, 2.4vw, 2.6rem);
 }
 
-.cv-section .task-domain--jestei-landing-motion .task-domain__summary {
+.cv-section .task-domain--jestei-landing-motion .task-domain__summary,
+.showcase-section .task-domain--jestei-landing-motion .task-domain__summary {
   max-inline-size: 54rem;
   margin: 0;
   color: var(--showcase-muted, rgba(17, 17, 17, 0.58));
@@ -21,14 +23,16 @@
   text-wrap: pretty;
 }
 
-.cv-section .task-group--jestei-landing-motion {
+.cv-section .task-group--jestei-landing-motion,
+.showcase-section .task-group--jestei-landing-motion {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(1.25rem, 2.2vw, 2.6rem);
   min-inline-size: 0;
 }
 
-.cv-section .jestei-landing-motion__animation-wrap {
+.cv-section .jestei-landing-motion__animation-wrap,
+.showcase-section .jestei-landing-motion__animation-wrap {
   display: block;
   inline-size: 100%;
   min-inline-size: 0;
@@ -37,7 +41,8 @@
   background: #050505;
 }
 
-.cv-section .jestei-landing-motion__animation {
+.cv-section .jestei-landing-motion__animation,
+.showcase-section .jestei-landing-motion__animation {
   display: block;
   inline-size: 100%;
   min-inline-size: 0;
@@ -46,29 +51,34 @@
   background: #050505;
 }
 
-.cv-section .jestei-landing-motion__animation--arc {
+.cv-section .jestei-landing-motion__animation--arc,
+.showcase-section .jestei-landing-motion__animation--arc {
   aspect-ratio: 16 / 7;
   min-block-size: clamp(18rem, 34vw, 34rem);
 }
 
-.cv-section .jestei-landing-motion__animation--masonry {
+.cv-section .jestei-landing-motion__animation--masonry,
+.showcase-section .jestei-landing-motion__animation--masonry {
   aspect-ratio: 16 / 9;
   min-block-size: clamp(22rem, 42vw, 42rem);
 }
 
-.cv-section .jestei-landing-motion__animation .cv-canvas {
+.cv-section .jestei-landing-motion__animation .cv-canvas,
+.showcase-section .jestei-landing-motion__animation .cv-canvas {
   display: block;
   inline-size: 100%;
   block-size: 100%;
 }
 
-.cv-section .jestei-landing-motion__stack {
+.cv-section .jestei-landing-motion__stack,
+.showcase-section .jestei-landing-motion__stack {
   display: grid;
   gap: clamp(1.5rem, 3vw, 3.4rem);
   min-inline-size: 0;
 }
 
-.cv-section .jestei-landing-motion__split {
+.cv-section .jestei-landing-motion__split,
+.showcase-section .jestei-landing-motion__split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(20rem, 1fr);
   gap: clamp(1rem, 1.65vw, 2rem);
@@ -76,22 +86,26 @@
   min-inline-size: 0;
 }
 
-.cv-section .jestei-landing-motion__split .task-list-groups {
+.cv-section .jestei-landing-motion__split .task-list-groups,
+.showcase-section .jestei-landing-motion__split .task-list-groups {
   display: grid;
   align-self: stretch;
   min-inline-size: 0;
 }
 
-.cv-section .jestei-landing-motion__split .task-list-group {
+.cv-section .jestei-landing-motion__split .task-list-group,
+.showcase-section .jestei-landing-motion__split .task-list-group {
   align-self: stretch;
   block-size: 100%;
 }
 
-.cv-section .jestei-landing-motion__split .task-list-group__content {
+.cv-section .jestei-landing-motion__split .task-list-group__content,
+.showcase-section .jestei-landing-motion__split .task-list-group__content {
   min-block-size: 100%;
 }
 
-.cv-section .jestei-landing-motion__tile-gallery {
+.cv-section .jestei-landing-motion__tile-gallery,
+.showcase-section .jestei-landing-motion__tile-gallery {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(0.7rem, 1vw, 0.95rem);
@@ -99,7 +113,8 @@
   align-self: stretch;
 }
 
-.cv-section .jestei-landing-motion__shot {
+.cv-section .jestei-landing-motion__shot,
+.showcase-section .jestei-landing-motion__shot {
   min-inline-size: 0;
   margin: 0;
   overflow: hidden;
@@ -109,7 +124,8 @@
   aspect-ratio: 4 / 3;
 }
 
-.cv-section .jestei-landing-motion__image {
+.cv-section .jestei-landing-motion__image,
+.showcase-section .jestei-landing-motion__image {
   display: block;
   inline-size: 100%;
   block-size: 100%;
@@ -117,28 +133,35 @@
   object-position: center center;
 }
 
-.cv-section .jestei-landing-motion__masonry-copy {
+.cv-section .jestei-landing-motion__masonry-copy,
+.showcase-section .jestei-landing-motion__masonry-copy {
   inline-size: min(100%, 44rem);
 }
 
 @media (max-width: 68rem) {
   .cv-section .jestei-landing-motion__animation--arc,
-  .cv-section .jestei-landing-motion__animation--masonry {
+.cv-section .jestei-landing-motion__animation--masonry,
+.showcase-section .jestei-landing-motion__animation--arc,
+.showcase-section .jestei-landing-motion__animation--masonry {
     aspect-ratio: 4 / 3;
   }
 
-  .cv-section .jestei-landing-motion__split {
+  .cv-section .jestei-landing-motion__split,
+.showcase-section .jestei-landing-motion__split {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (max-width: 760px) {
   .cv-section .jestei-landing-motion__animation--arc,
-  .cv-section .jestei-landing-motion__animation--masonry {
+.cv-section .jestei-landing-motion__animation--masonry,
+.showcase-section .jestei-landing-motion__animation--arc,
+.showcase-section .jestei-landing-motion__animation--masonry {
     min-block-size: clamp(18rem, 96vw, 28rem);
   }
 
-  .cv-section .jestei-landing-motion__tile-gallery {
+  .cv-section .jestei-landing-motion__tile-gallery,
+.showcase-section .jestei-landing-motion__tile-gallery {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -147,7 +170,8 @@
 /* showcase Jestei landing:end */
 
 /* isolated jestei landing motion:start */
-.cv-section .cv-experience__item--featured .task-domain--landing .task-group__visual {
+.cv-section .cv-experience__item--featured .task-domain--landing .task-group__visual,
+.showcase-section .case--featured .task-domain--landing .task-group__visual {
   display: grid;
   gap: clamp(0.9rem, 1.5vw, 1.45rem);
   min-inline-size: 0;
@@ -159,7 +183,8 @@
   box-shadow: none;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--landing .landing-animation-strip {
+.cv-section .cv-experience__item--featured .task-domain--landing .landing-animation-strip,
+.showcase-section .case--featured .task-domain--landing .landing-animation-strip {
   position: relative;
   display: block;
   inline-size: 100%;
@@ -173,7 +198,8 @@
   box-shadow: none;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--landing .landing-animation-strip__track {
+.cv-section .cv-experience__item--featured .task-domain--landing .landing-animation-strip__track,
+.showcase-section .case--featured .task-domain--landing .landing-animation-strip__track {
   display: flex;
   align-items: stretch;
   gap: clamp(0.55rem, 0.8vw, 0.9rem);
@@ -192,16 +218,22 @@
 .cv-section
   .cv-experience__item--featured
   .task-domain--landing
+  .landing-animation-strip__track::-webkit-scrollbar,
+.showcase-section
+  .case--featured
+  .task-domain--landing
   .landing-animation-strip__track::-webkit-scrollbar {
   display: none;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--landing .landing-animation-strip__track.is-dragging {
+.cv-section .cv-experience__item--featured .task-domain--landing .landing-animation-strip__track.is-dragging,
+.showcase-section .case--featured .task-domain--landing .landing-animation-strip__track.is-dragging {
   cursor: grabbing;
   scroll-snap-type: none;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button {
+.cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button,
+.showcase-section .case--featured .task-domain--landing .scroll-row-button {
   position: absolute;
   inset-block-start: 50%;
   z-index: 4;
@@ -220,15 +252,18 @@
   backdrop-filter: blur(12px);
 }
 
-.cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button--prev {
+.cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button--prev,
+.showcase-section .case--featured .task-domain--landing .scroll-row-button--prev {
   inset-inline-start: clamp(0.45rem, 0.8vw, 0.75rem);
 }
 
-.cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button--next {
+.cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button--next,
+.showcase-section .case--featured .task-domain--landing .scroll-row-button--next {
   inset-inline-end: clamp(0.45rem, 0.8vw, 0.75rem);
 }
 
-.cv-section .cv-experience__item--featured .task-domain--landing .media-group--landing-screenshots {
+.cv-section .cv-experience__item--featured .task-domain--landing .media-group--landing-screenshots,
+.showcase-section .case--featured .task-domain--landing .media-group--landing-screenshots {
   display: block;
   inline-size: 100%;
   margin-block-start: 0;
@@ -245,6 +280,11 @@
   .cv-experience__item--featured
   .task-domain--landing
   .media-group--landing-screenshots
+  .media-group__track,
+.showcase-section
+  .case--featured
+  .task-domain--landing
+  .media-group--landing-screenshots
   .media-group__track {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -254,6 +294,11 @@
 
 .cv-section
   .cv-experience__item--featured
+  .task-domain--landing
+  .media-group--landing-screenshots
+  .media-card,
+.showcase-section
+  .case--featured
   .task-domain--landing
   .media-group--landing-screenshots
   .media-card {
@@ -275,6 +320,18 @@
   .task-domain--landing
   .media-group--landing-screenshots
   .media-card
+  video,
+.showcase-section
+  .case--featured
+  .task-domain--landing
+  .media-group--landing-screenshots
+  .media-card
+  img,
+.showcase-section
+  .case--featured
+  .task-domain--landing
+  .media-group--landing-screenshots
+  .media-card
   video {
   display: block;
   inline-size: 100%;
@@ -288,18 +345,29 @@
     .cv-experience__item--featured
     .task-domain--landing
     .media-group--landing-screenshots
+    .media-group__track,
+.showcase-section
+    .case--featured
+    .task-domain--landing
+    .media-group--landing-screenshots
     .media-group__track {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 42rem) {
-  .cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button {
+  .cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button,
+.showcase-section .case--featured .task-domain--landing .scroll-row-button {
     display: none;
   }
 
   .cv-section
     .cv-experience__item--featured
+    .task-domain--landing
+    .media-group--landing-screenshots
+    .media-group__track,
+.showcase-section
+    .case--featured
     .task-domain--landing
     .media-group--landing-screenshots
     .media-group__track {
@@ -328,13 +396,18 @@
 
 /* showcase canvas:start */
 .cv-section .cv-experience__item--featured .media-preview[data-cv-animation],
-.cv-section .cv-experience__item--featured .embedded-demo {
+.cv-section .cv-experience__item--featured .embedded-demo,
+.showcase-section .case--featured .media-preview[data-cv-animation],
+.showcase-section .case--featured .embedded-demo {
   position: relative;
 }
 
 .cv-section .cv-experience__item--featured .media-preview[data-cv-animation] .cv-canvas,
 .cv-section .cv-experience__item--featured .media-preview[data-cv-animation] canvas,
-.cv-section .cv-experience__item--featured .embedded-demo canvas {
+.cv-section .cv-experience__item--featured .embedded-demo canvas,
+.showcase-section .case--featured .media-preview[data-cv-animation] .cv-canvas,
+.showcase-section .case--featured .media-preview[data-cv-animation] canvas,
+.showcase-section .case--featured .embedded-demo canvas {
   display: block;
   inline-size: 100%;
   block-size: 100%;
