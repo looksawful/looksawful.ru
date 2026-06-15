@@ -10,9 +10,9 @@ import {
   roundedRect,
   limitAnimationItems,
 } from "../../shared/canvas-animation.js";
-import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
+import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
 
-const CV_CAROUSEL_KEY_PREFIX = "cv-carousel:";
+const CV_CAROUSEL_KEY_PREFIX = "showcase-carousel:";
 
 const CV_CAROUSEL_TITLES = {
   1: "Art Direction",
@@ -73,9 +73,9 @@ const getTitle = (stem) => {
 };
 
 const cvCarouselItems = limitAnimationItems(
-  createAnimationItems(CV_ANIMATION_SCENES.lyveGraphicCarousel.modules, { getTitle }),
+  createAnimationItems(ANIMATION_SCENES.lyveGraphicCarousel.modules, { getTitle }),
   "lyveGraphicCarousel",
-  { defaultMaxItems: CV_ANIMATION_SCENES.lyveGraphicCarousel.defaultMaxItems || 8 },
+  { defaultMaxItems: ANIMATION_SCENES.lyveGraphicCarousel.defaultMaxItems || 8 },
 );
 
 const createDisposeHandle = (dispose = noop) => {
@@ -199,10 +199,10 @@ const getTitleStyle = (canvas) => {
 
   return {
     fontFamily:
-      styles?.getPropertyValue("--cv-carousel-title-font-family").trim() ||
+      styles?.getPropertyValue("--showcase-carousel-title-font-family").trim() ||
       `"Commissioner Variable", "Commissioner", sans-serif`,
-    fontWeight: styles?.getPropertyValue("--cv-carousel-title-font-weight").trim() || "600",
-    color: styles?.getPropertyValue("--cv-carousel-title-color").trim() || "rgba(0, 0, 0, 0.92)",
+    fontWeight: styles?.getPropertyValue("--showcase-carousel-title-font-weight").trim() || "600",
+    color: styles?.getPropertyValue("--showcase-carousel-title-color").trim() || "rgba(0, 0, 0, 0.92)",
   };
 };
 
@@ -216,7 +216,7 @@ const loadTitleFont = async ({ fontFamily, fontWeight }) => {
   try {
     await fonts.load(`${fontWeight} 16px ${fontFamily}`);
   } catch (error) {
-    console.warn("CV carousel font load failed, using fallback font.", error);
+    console.warn("SHOWCASE carousel font load failed, using fallback font.", error);
   }
 };
 
@@ -323,7 +323,7 @@ const renderCvCarousel = ({ ctx, items, titleStyle, time, width, height, reduced
   ctx.globalCompositeOperation = "source-over";
 };
 
-export const mountCvCarousel = async (canvasId = "cv-carousel-container") => {
+export const mountShowcaseCarousel = async (canvasId = "showcase-carousel-container") => {
   const canvas = globalThis.document?.getElementById?.(canvasId);
 
   if (!canvas) {
@@ -388,13 +388,11 @@ export const mountCvCarousel = async (canvasId = "cv-carousel-container") => {
   });
 };
 
-export const mountCvScrollCarousel = mountCvCarousel;
-export const mountHorizontalCarousel = mountCvCarousel;
+export const mountShowcaseScrollCarousel = mountShowcaseCarousel;
+export const mountHorizontalCarousel = mountShowcaseCarousel;
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
     disposeCanvasAnimationsByPrefix(CV_CAROUSEL_KEY_PREFIX);
   });
 }
-
-

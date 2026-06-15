@@ -637,4 +637,3 @@ export const mountArc = async (canvasId = "arc-container") => {
 
   return completeMount(key, mountToken, dispose);
 };
-

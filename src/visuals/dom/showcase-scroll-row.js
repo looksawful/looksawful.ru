@@ -1,12 +1,12 @@
 export function initCvScrollRows(root = document) {
-  root.querySelectorAll("[data-cv-scroll-row]").forEach((row) => {
+  root.querySelectorAll("[data-showcase-scroll-row]").forEach((row) => {
     if (row.dataset.cvScrollMounted === "true") {
       return;
     }
 
-    const track = row.querySelector("[data-cv-scroll-track]");
-    const prev = row.querySelector("[data-cv-scroll-prev]");
-    const next = row.querySelector("[data-cv-scroll-next]");
+    const track = row.querySelector("[data-showcase-scroll-track]");
+    const prev = row.querySelector("[data-showcase-scroll-prev]");
+    const next = row.querySelector("[data-showcase-scroll-next]");
 
     if (!track) {
       return;

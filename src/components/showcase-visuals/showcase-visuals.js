@@ -1,12 +1,12 @@
-import { initCvScrollRows } from "../../visuals/dom/cv-scroll-row.js";
-import { initCvMediaScenes } from "../../visuals/dom/cv-media-scenes.js";
+import { initCvScrollRows } from "../../visuals/dom/showcase-scroll-row.js";
+import { initShowcaseMediaScenes } from "../../visuals/dom/showcase-media-scenes.js";
 import { observeOnceVisible } from "./observer.js";
 import {
   LOGO_INSPECTOR_MODEL_URL,
   loadAnimationMount,
   loadCanvasDemoMount,
   loadThreeDemoMount,
-} from "./cv-visual-registry.js";
+} from "./showcase-visual-registry.js";
 
 const mountedAnimations = new WeakMap();
 const mountedSliders = new WeakMap();
@@ -27,7 +27,7 @@ function normalizeDispose(dispose) {
 }
 
 function getDemoParts(target) {
-  return target.dataset.cvVisualDemo?.split(":") ?? [];
+  return target.dataset.visualDemo?.split(":") ?? [];
 }
 
 async function mountThreeDemo(canvas) {
@@ -61,7 +61,7 @@ async function mountCanvasDemo(canvas) {
 }
 
 async function mountLogoInspector(target) {
-  const { createLogoInspector3D } = await import("../cv-task-previews/logo-inspector-3d.js");
+  const { createLogoInspector3D } = await import("../showcase-task-previews/logo-inspector-3d.js");
   const controller = createLogoInspector3D(target, {
     modelUrl: LOGO_INSPECTOR_MODEL_URL,
     minHeight: target.dataset.cvMinHeight ? Number(target.dataset.cvMinHeight) : 560,
@@ -73,7 +73,7 @@ async function mountLogoInspector(target) {
 }
 
 async function mountNewsletterCanvas(target) {
-  const { createNewsletterCanvas } = await import("../cv-task-previews/newsletter-canvas.js");
+  const { createNewsletterCanvas } = await import("../showcase-task-previews/newsletter-canvas.js");
   const sources = JSON.parse(target.dataset.cvNewsletterSources || "[]");
   const controller = createNewsletterCanvas(target, {
     src: sources,
@@ -113,7 +113,7 @@ async function safeMountVisualDemo(target) {
     return await mountVisualDemo(target);
   } catch (error) {
     mountedVisualDemos.delete(target);
-    console.error("[cv-visuals] failed to mount visual demo", error);
+    console.error("[showcase-visuals] failed to mount visual demo", error);
     return noop;
   }
 }
@@ -123,9 +123,9 @@ async function mountAnimationPreview(preview) {
     return;
   }
 
-  const animationType = preview.dataset.cvAnimation;
+  const animationType = preview.dataset.animation;
   const loadMount = loadAnimationMount(animationType);
-  const canvas = preview.querySelector(".cv-canvas");
+  const canvas = preview.querySelector(".visual-canvas");
 
   if (!(canvas instanceof HTMLCanvasElement) || !loadMount) {
     return;
@@ -136,14 +136,14 @@ async function mountAnimationPreview(preview) {
   try {
     const mount = await loadMount;
     const dispose = await mount(canvas.id, {
-      scene: canvas.dataset.cvAnimationScene,
-      variant: canvas.dataset.cvAnimationVariant,
+      scene: canvas.dataset.animationScene,
+      variant: canvas.dataset.animationVariant,
     });
 
     mountedAnimations.set(preview, normalizeDispose(dispose));
   } catch (error) {
     mountedAnimations.delete(preview);
-    console.error(`[cv-visuals] failed to mount animation "${animationType}"`, error);
+    console.error(`[showcase-visuals] failed to mount animation "${animationType}"`, error);
   }
 }
 
@@ -152,9 +152,9 @@ function initPreviewSlider(slider) {
     return noop;
   }
 
-  const track = slider.querySelector(".cv-preview-row--slider");
-  const prev = slider.querySelector("[data-cv-slider-prev]");
-  const next = slider.querySelector("[data-cv-slider-next]");
+  const track = slider.querySelector(".media-preview-row--slider");
+  const prev = slider.querySelector("[data-showcase-slider-prev]");
+  const next = slider.querySelector("[data-showcase-slider-next]");
 
   if (!(track instanceof HTMLElement)) {
     return noop;
@@ -165,7 +165,7 @@ function initPreviewSlider(slider) {
   let dragStartScrollLeft = 0;
 
   const getStep = () => {
-    const item = track.querySelector(".cv-preview");
+    const item = track.querySelector(".media-preview");
     const itemWidth = item instanceof HTMLElement ? item.getBoundingClientRect().width : track.clientWidth * 0.8;
     const gap = Number.parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || "0") || 0;
     return itemWidth + gap;
@@ -224,12 +224,12 @@ function initPreviewSlider(slider) {
   return dispose;
 }
 
-export async function initCvVisuals(root = document) {
-  initCvMediaScenes(typeof root !== "undefined" ? root : document);
+export async function initShowcaseVisuals(root = document) {
+  initShowcaseMediaScenes(typeof root !== "undefined" ? root : document);
   initCvScrollRows(typeof root !== "undefined" ? root : document);
-  const visualTargets = [...root.querySelectorAll("[data-cv-visual-demo]")];
-  const animationPreviews = [...root.querySelectorAll("[data-cv-animation]")];
-  const sliders = [...root.querySelectorAll("[data-cv-preview-slider]")];
+  const visualTargets = [...root.querySelectorAll("[data-visual-demo]")];
+  const animationPreviews = [...root.querySelectorAll("[data-animation]")];
+  const sliders = [...root.querySelectorAll("[data-showcase-preview-slider]")];
 
   const sliderDisposers = sliders.map(initPreviewSlider);
 
@@ -271,4 +271,3 @@ export async function initCvVisuals(root = document) {
     sliderDisposers.forEach((dispose) => dispose());
   };
 }
-

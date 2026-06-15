@@ -158,15 +158,15 @@ const buildPublicSceneOverrides = (sourceScenes) => ({
 
 const sourceAnimationScenes = buildAnimationScenes();
 
-export const CV_ANIMATION_SCENES = {
+export const ANIMATION_SCENES = {
   ...sourceAnimationScenes,
   ...buildPublicSceneOverrides(sourceAnimationScenes),
 };
 
 export const getAnimationScene = (sceneId, fallbackSceneId) =>
-  CV_ANIMATION_SCENES[sceneId] ||
-  CV_ANIMATION_SCENES[fallbackSceneId] ||
-  Object.values(CV_ANIMATION_SCENES)[0];
+  ANIMATION_SCENES[sceneId] ||
+  ANIMATION_SCENES[fallbackSceneId] ||
+  Object.values(ANIMATION_SCENES)[0];
 
 export const createAnimationItems = (modules, { getTitle } = {}) =>
   Object.entries(modules || {})
@@ -192,11 +192,10 @@ export const createAnimationItems = (modules, { getTitle } = {}) =>
     }));
 
 export const getAnimationSceneSummaries = () =>
-  Object.entries(CV_ANIMATION_SCENES).map(([id, scene]) => ({
+  Object.entries(ANIMATION_SCENES).map(([id, scene]) => ({
     id,
     label: scene.label,
     directory: scene.directory,
     fileCount: Object.keys(scene.modules).length,
     defaultMaxItems: scene.defaultMaxItems,
   }));
-

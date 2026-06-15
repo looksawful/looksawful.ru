@@ -1,6 +1,6 @@
-import "./components/cv-sync-side-card-height.js";
-import "./components/cv-sync-graphic-side-layouts.js";
-import "./components/cv-gallery-aspect-fit.js";
+import "./components/showcase-sync-side-card-height.js";
+import "./components/showcase-sync-graphic-side-layouts.js";
+import "./components/showcase-gallery-aspect-fit.js";
 import "./styles/index.css";
 import { initComponents } from "./components/index.js";
 
@@ -37,4 +37,3 @@ if (document.readyState === "loading") {
 } else {
   void initApp();
 }
-

@@ -15,11 +15,11 @@ function isTargetTitle(value) {
 }
 
 function findMediaPeer(card) {
-  const layout = card.closest(".cv-task-meta-layout");
+  const layout = card.closest(".task-meta-layout");
 
   if (layout) {
     const media = Array.from(
-      layout.querySelectorAll(".cv-task-side-gallery, .cv-task-side-image, .cv-task-group__visual")
+      layout.querySelectorAll(".task-side-gallery, .task-side-image, .task-group__visual")
     ).find((node) => !node.contains(card) && node !== card);
 
     if (media) return media;
@@ -29,12 +29,12 @@ function findMediaPeer(card) {
 
   while (sibling) {
     if (
-      sibling.matches(".cv-task-side-gallery, .cv-task-side-image, .cv-task-group__visual") ||
-      sibling.querySelector(".cv-task-side-gallery, .cv-task-side-image, .cv-task-group__visual")
+      sibling.matches(".task-side-gallery, .task-side-image, .task-group__visual") ||
+      sibling.querySelector(".task-side-gallery, .task-side-image, .task-group__visual")
     ) {
-      return sibling.matches(".cv-task-side-gallery, .cv-task-side-image, .cv-task-group__visual")
+      return sibling.matches(".task-side-gallery, .task-side-image, .task-group__visual")
         ? sibling
-        : sibling.querySelector(".cv-task-side-gallery, .cv-task-side-image, .cv-task-group__visual");
+        : sibling.querySelector(".task-side-gallery, .task-side-image, .task-group__visual");
     }
 
     sibling = sibling.nextElementSibling;
@@ -62,12 +62,12 @@ function syncCardHeight(card, media) {
 }
 
 function initSideCardHeightSync() {
-  const titles = Array.from(document.querySelectorAll(".cv-task-list-group h5"));
+  const titles = Array.from(document.querySelectorAll(".task-list-group h5"));
 
   titles.forEach((title) => {
     if (!isTargetTitle(title.textContent)) return;
 
-    const card = title.closest(".cv-task-list-group");
+    const card = title.closest(".task-list-group");
     const media = findMediaPeer(card);
 
     if (!card || !media) return;

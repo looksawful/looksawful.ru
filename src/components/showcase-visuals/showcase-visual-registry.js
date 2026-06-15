@@ -1,14 +1,14 @@
 export const ANIMATION_MOUNTERS = {
   "landing-arc": () => import("../../visuals/canvas/landing-motion/arc/index.js").then((module) => module.mountArc),
   "landing-masonry": () => import("../../visuals/canvas/landing-motion/masonry/index.js").then((module) => module.mountMasonry),
-  carousel: () => import("../../visuals/canvas/cv-carousel/index.js").then((module) => module.mountCvCarousel),
-  diagonal: () => import("../../visuals/canvas/cv-diagonal/index.js").then((module) => module.mountCvDiagonal),
-  horizontal: () => import("../../visuals/canvas/cv-horizontal/index.js").then((module) => module.mountCvHorizontal),
+  carousel: () => import("../../visuals/canvas/showcase-carousel/index.js").then((module) => module.mountShowcaseCarousel),
+  diagonal: () => import("../../visuals/canvas/showcase-diagonal/index.js").then((module) => module.mountShowcaseDiagonal),
+  horizontal: () => import("../../visuals/canvas/showcase-horizontal/index.js").then((module) => module.mountShowcaseHorizontal),
   masonry: () => import("../../visuals/canvas/masonry/index.js").then((module) => module.mountMasonry),
 };
 
 export const THREE_DEMO_MOUNTERS = {
-  logo: () => import("../cv-task-previews/jestei-logo-three.js").then((module) => module.mountJesteiLogoThree),
+  logo: () => import("../showcase-task-previews/jestei-logo-three.js").then((module) => module.mountJesteiLogoThree),
 };
 
 export const CANVAS_DEMO_MOUNTERS = {
@@ -25,4 +25,3 @@ export const loadAnimationMount = (type) => ANIMATION_MOUNTERS[type]?.();
 export const loadThreeDemoMount = (scene) => THREE_DEMO_MOUNTERS[scene]?.();
 
 export const loadCanvasDemoMount = (demo) => CANVAS_DEMO_MOUNTERS[demo]?.();
-

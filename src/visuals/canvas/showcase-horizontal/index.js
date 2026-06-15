@@ -13,9 +13,9 @@ import {
   getCanvasMountOptions,
   limitAnimationItems,
 } from "../../shared/canvas-animation.js";
-import { createAnimationItems, CV_ANIMATION_SCENES } from "../cv-animation-assets.js";
+import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
 
-const CV_HORIZONTAL_KEY_PREFIX = "cv-horizontal:";
+const CV_HORIZONTAL_KEY_PREFIX = "showcase-horizontal:";
 const DEFAULT_HORIZONTAL_SCENE = "jesteiProductCanvas";
 const config = {
   rowCount: 3,
@@ -55,7 +55,7 @@ const config = {
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const getHorizontalItems = (sceneId = DEFAULT_HORIZONTAL_SCENE) => {
-  const scene = CV_ANIMATION_SCENES[sceneId] ?? CV_ANIMATION_SCENES[DEFAULT_HORIZONTAL_SCENE];
+  const scene = ANIMATION_SCENES[sceneId] ?? ANIMATION_SCENES[DEFAULT_HORIZONTAL_SCENE];
   return limitAnimationItems(createAnimationItems(scene.modules), sceneId, { defaultMaxItems: scene.defaultMaxItems || 20 });
 };
 
@@ -517,7 +517,7 @@ const renderCvHorizontal = ({ ctx, width, height, layout }) => {
   ctx.globalCompositeOperation = "source-over";
 };
 
-export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", options = {}) => {
+export const mountShowcaseHorizontal = async (canvasId = "showcase-horizontal-container", options = {}) => {
   const canvas = globalThis.document?.getElementById?.(canvasId);
 
   if (!canvas) {
@@ -535,7 +535,7 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", op
   const key = createAnimationKey(CV_HORIZONTAL_KEY_PREFIX, canvasId);
   const mountToken = beginMount(key);
   let itemLoadVersion = 0;
-  const sceneId = options.scene || canvas.dataset.cvAnimationScene || DEFAULT_HORIZONTAL_SCENE;
+  const sceneId = options.scene || canvas.dataset.animationScene || DEFAULT_HORIZONTAL_SCENE;
   const tuning = getCanvasMountOptions(canvas, options, {
     maxItems: 42,
     initialCount: 12,
@@ -552,9 +552,9 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", op
     },
     onLoadingChange: ({ hasLoaded, isComplete }) => {
       if (hasLoaded) {
-        canvas.closest?.("[data-cv-animation], .cv-preview")?.classList.add("is-canvas-ready");
+        canvas.closest?.("[data-animation], .media-preview")?.classList.add("is-canvas-ready");
       } else if (!isComplete) {
-        canvas.closest?.("[data-cv-animation], .cv-preview")?.classList.add("is-canvas-loading");
+        canvas.closest?.("[data-animation], .media-preview")?.classList.add("is-canvas-loading");
       }
     },
   });
@@ -626,13 +626,12 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", op
   });
 };
 
-export const mountHorizontalMasonry = mountCvHorizontal;
-export const mountHorizontal = mountCvHorizontal;
-export const mountHorisontal = mountCvHorizontal;
+export const mountHorizontalMasonry = mountShowcaseHorizontal;
+export const mountHorizontal = mountShowcaseHorizontal;
+export const mountHorisontal = mountShowcaseHorizontal;
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
     disposeCanvasAnimationsByPrefix(CV_HORIZONTAL_KEY_PREFIX);
   });
 }
-

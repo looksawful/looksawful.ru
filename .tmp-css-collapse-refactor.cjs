@@ -176,7 +176,7 @@ function fixKnownHasSelectors(text) {
 }
 
 function moveKeyframesToShowcase(text) {
-  const names = ["cvMediaOrbit", "cvMediaMarquee"];
+  const names = ["showcaseMediaOrbit", "showcaseMediaMarquee"];
   const found = [];
   let out = text;
 

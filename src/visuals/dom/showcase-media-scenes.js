@@ -1,4 +1,4 @@
-import { createAnimationItems, getAnimationScene } from "../canvas/cv-animation-assets.js";
+import { createAnimationItems, getAnimationScene } from "../canvas/showcase-animation-assets.js";
 
 const IMAGE_EXTENSIONS = new Set(["webp", "png", "jpg", "jpeg", "avif", "gif"]);
 const VIDEO_EXTENSIONS = new Set(["mp4", "webm"]);
@@ -14,15 +14,15 @@ let staticMediaLightboxLinksMounted = false;
 const getExtension = (filename = "") => filename.split(".").pop()?.toLowerCase() || "";
 
 const getVariant = (element) => {
-  if (element.classList.contains("cv-media-group--orbit")) return "orbit";
-  if (element.classList.contains("cv-media-group--strip")) return "strip";
-  if (element.classList.contains("cv-media-group--grid")) return "grid";
+  if (element.classList.contains("media-group--orbit")) return "orbit";
+  if (element.classList.contains("media-group--strip")) return "strip";
+  if (element.classList.contains("media-group--grid")) return "grid";
 
   return "default";
 };
 
 const getLimit = (element, scene, variant) => {
-  const attrLimit = Number.parseInt(element.dataset.cvMediaLimit || "", 10);
+  const attrLimit = Number.parseInt(element.dataset.mediaLimit || "", 10);
   const requestedLimit =
     Number.isFinite(attrLimit) && attrLimit > 0 ? attrLimit : scene?.defaultMaxItems || DEFAULT_LIMIT;
 
@@ -49,14 +49,14 @@ const getRepeat = (element, variant) => {
 };
 
 const getTrack = (element) => {
-  const existing = element.querySelector(".cv-media-group__track");
+  const existing = element.querySelector(".media-group__track");
 
   if (existing) {
     return existing;
   }
 
   const track = document.createElement("div");
-  track.className = "cv-media-group__track";
+  track.className = "media-group__track";
   element.appendChild(track);
 
   return track;
@@ -65,7 +65,7 @@ const getTrack = (element) => {
 const setState = (element, state) => {
   element.dataset.cvMediaState = state;
   element.dataset.cvMediaReady = state === "ready" ? "true" : "false";
-  element.toggleAttribute("data-cv-media-empty", state === "empty");
+  element.toggleAttribute("data-media-empty", state === "empty");
 };
 
 const createImage = (item, index) => {
@@ -171,7 +171,7 @@ const createCard = ({ item, index, count }) => {
   const card = document.createElement("figure");
   const extension = getExtension(item.filename);
 
-  card.className = "cv-media-card";
+  card.className = "media-card";
   card.tabIndex = 0;
   card.role = "button";
   card.ariaLabel = item.title || item.stem || `media ${index + 1}`;
@@ -209,7 +209,7 @@ const renderMediaScene = (element) => {
 
   setState(element, "loading");
 
-  const sceneId = element.dataset.cvMediaScene;
+  const sceneId = element.dataset.mediaScene;
   const scene = getAnimationScene(sceneId);
   const variant = getVariant(element);
 
@@ -281,7 +281,7 @@ const createManualItemFromCard = (card, index) => {
 };
 
 const mountExistingMediaCards = (root = document) => {
-  const cards = root.querySelectorAll(".cv-media-group:not([data-cv-media-scene]) .cv-media-card");
+  const cards = root.querySelectorAll(".media-group:not([data-media-scene]) .media-card");
 
   cards.forEach((card, index) => {
     if (card.dataset.cvMediaLightboxMounted === "true") {
@@ -317,9 +317,9 @@ const mountExistingMediaCards = (root = document) => {
 };
 
 
-export function initCvMediaScenes(root = document) {
+export function initShowcaseMediaScenes(root = document) {
   initStaticMediaLightboxLinks(document);
-  root.querySelectorAll("[data-cv-media-scene]").forEach(renderMediaScene);
+  root.querySelectorAll("[data-media-scene]").forEach(renderMediaScene);
   mountExistingMediaCards(root);
 }
 const getMediaLinkExtension = (url) => {
@@ -347,7 +347,7 @@ function initStaticMediaLightboxLinks(root = document) {
   staticMediaLightboxLinksMounted = true;
 
   scope.addEventListener("click", (event) => {
-    const link = event.target?.closest?.('a[data-cv-lightbox="media"]');
+    const link = event.target?.closest?.('a[]');
 
     if (!link) {
       return;
@@ -378,4 +378,3 @@ function initStaticMediaLightboxLinks(root = document) {
     );
   });
 }
-
