@@ -1,0 +1,126 @@
+/* cv:start */
+.cv-section--resume,
+.cv-section--jobs {
+  width: var(--page);
+  margin: 0 auto var(--mb);
+  padding: clamp(2rem, 4vw, 4rem) clamp(0.9rem, 1.2vw, 1.125rem) clamp(5rem, 8vw, 8rem);
+}
+
+.cv-section--resume .cv-row,
+.cv-section--jobs .cv-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 78rem) minmax(0, 1fr);
+  gap: clamp(1.25rem, 2.2vw, 2.75rem);
+  align-items: start;
+}
+
+.cv-section--resume .cv-experience,
+.cv-section--jobs .cv-experience {
+  grid-column: 2;
+  display: grid;
+  gap: clamp(1.8rem, 3vw, 3.2rem);
+}
+
+.resume-section-heading {
+  grid-column: 2;
+  margin: 0 0 clamp(1.2rem, 2vw, 2rem);
+  font-size: clamp(1.8rem, 4vw, 4rem);
+  font-weight: 700;
+  line-height: 0.94;
+  letter-spacing: -0.04em;
+}
+
+.resume-timeline-item {
+  display: grid;
+  grid-template-columns: clamp(6rem, 9vw, 9rem) minmax(0, 1fr);
+  gap: clamp(1rem, 2vw, 2rem);
+  padding-block: clamp(1.1rem, 2vw, 2rem);
+  border-top: 1px solid rgba(17, 17, 17, 0.16);
+}
+
+.resume-timeline-item:first-child {
+  border-top: 0;
+}
+
+.resume-timeline-item__date {
+  color: rgba(17, 17, 17, 0.58);
+  font-size: clamp(0.72rem, 0.72vw, 0.86rem);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.resume-timeline-item__content {
+  display: grid;
+  gap: clamp(0.48rem, 0.8vw, 0.8rem);
+  min-width: 0;
+}
+
+.resume-timeline-item__header {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.resume-timeline-item h3 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.4vw, 2.6rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+}
+
+.resume-timeline-item__summary {
+  max-width: 52rem;
+  margin: 0;
+  color: rgba(17, 17, 17, 0.76);
+  font-size: clamp(0.86rem, 0.92vw, 1rem);
+  line-height: 1.38;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pills li::before {
+  content: none;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.72rem;
+  padding: 0.3rem 0.64rem 0.34rem;
+  border: 1px solid rgba(17, 17, 17, 0.22);
+  border-radius: 999px;
+  color: #111;
+  background: transparent;
+  font-size: clamp(0.7rem, 0.68vw, 0.82rem);
+  font-weight: 600;
+  line-height: 1;
+}
+
+@media (max-width: 760px) {
+  .cv-section--resume,
+  .cv-section--jobs {
+    width: 100%;
+    padding-inline: 14px;
+  }
+
+  .cv-section--resume .cv-row,
+  .cv-section--jobs .cv-row,
+  .resume-timeline-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cv-section--resume .cv-experience,
+  .cv-section--jobs .cv-experience,
+  .resume-section-heading {
+    grid-column: 1;
+  }
+}
+/* cv:end */

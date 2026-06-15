@@ -1,211 +1,25 @@
-/* showcase jestei-landing:start */
-/* showcase Jestei landing:start */
-/*
-  Jestei landing section only.
-  Extracted from jestei.css.
-*/
-
-/* showcase Jestei landing motion section:start */
-/* showcase Jestei landing motion section:end */
-
-/* showcase Jestei landing:end */
-
-/* isolated jestei landing motion:start */
-.cv-section .cv-experience__item--featured .task-domain--landing .task-group__visual {
-  display: grid;
-  gap: clamp(0.9rem, 1.5vw, 1.45rem);
-  min-inline-size: 0;
-  overflow: visible;
-  border-color: transparent;
-  background: transparent;
-  background-color: transparent;
-  background-image: none;
-  box-shadow: none;
-}
-
-.cv-section .cv-experience__item--featured .task-domain--landing .landing-animation-strip {
-  position: relative;
-  display: block;
-  inline-size: 100%;
-  min-inline-size: 0;
-  overflow: hidden;
-  border: 0;
-  border-radius: clamp(0.38rem, 0.48vw, 0.56rem);
-  background: #000;
-  background-color: #000;
-  background-image: none;
-  box-shadow: none;
-}
-
-.cv-section .cv-experience__item--featured .task-domain--landing .landing-animation-strip__track {
-  display: flex;
-  align-items: stretch;
-  gap: clamp(0.55rem, 0.8vw, 0.9rem);
-  min-inline-size: 0;
-  max-inline-size: 100%;
-  padding: clamp(0.55rem, 0.8vw, 0.9rem);
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-inline: contain;
-  scroll-snap-type: x proximity;
-  scrollbar-width: none;
-  cursor: grab;
-  background: #000;
-}
-
-.cv-section
-  .cv-experience__item--featured
-  .task-domain--landing
-  .landing-animation-strip__track::-webkit-scrollbar {
-  display: none;
-}
-
-.cv-section .cv-experience__item--featured .task-domain--landing .landing-animation-strip__track.is-dragging {
-  cursor: grabbing;
-  scroll-snap-type: none;
-}
-
-.cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button {
-  position: absolute;
-  inset-block-start: 50%;
-  z-index: 4;
-  display: grid;
-  place-items: center;
-  inline-size: clamp(2rem, 3vw, 2.45rem);
-  block-size: clamp(2rem, 3vw, 2.45rem);
-  padding: 0;
-  border: 1px solid rgba(17, 17, 17, 0.18);
-  border-radius: 999px;
-  color: #111;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: none;
-  transform: translateY(-50%);
-  cursor: pointer;
-  backdrop-filter: blur(12px);
-}
-
-.cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button--prev {
-  inset-inline-start: clamp(0.45rem, 0.8vw, 0.75rem);
-}
-
-.cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button--next {
-  inset-inline-end: clamp(0.45rem, 0.8vw, 0.75rem);
-}
-
-.cv-section .cv-experience__item--featured .task-domain--landing .media-group--landing-screenshots {
-  display: block;
-  inline-size: 100%;
-  margin-block-start: 0;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  background-color: transparent;
-  background-image: none;
-  box-shadow: none;
-}
-
-.cv-section
-  .cv-experience__item--featured
-  .task-domain--landing
-  .media-group--landing-screenshots
-  .media-group__track {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(0.55rem, 0.8vw, 0.9rem);
-  padding: 0;
-}
-
-.cv-section
-  .cv-experience__item--featured
-  .task-domain--landing
-  .media-group--landing-screenshots
-  .media-card {
-  overflow: hidden;
-  aspect-ratio: 16 / 10;
-  border-radius: clamp(0.38rem, 0.48vw, 0.56rem);
-  background: #f6f6f4;
-  box-shadow: none;
-}
-
-.cv-section
-  .cv-experience__item--featured
-  .task-domain--landing
-  .media-group--landing-screenshots
-  .media-card
-  img,
-.cv-section
-  .cv-experience__item--featured
-  .task-domain--landing
-  .media-group--landing-screenshots
-  .media-card
-  video {
-  display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: cover;
-  object-position: 50% 50%;
-}
-
-@media (max-width: 64rem) {
-  .cv-section
-    .cv-experience__item--featured
-    .task-domain--landing
-    .media-group--landing-screenshots
-    .media-group__track {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 42rem) {
-  .cv-section .cv-experience__item--featured .task-domain--landing .scroll-row-button {
-    display: none;
-  }
-
-  .cv-section
-    .cv-experience__item--featured
-    .task-domain--landing
-    .media-group--landing-screenshots
-    .media-group__track {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-/* isolated jestei landing motion:end */
-
-/* jestei landing modifier hooks:start */
-/* jestei landing modifier hooks:end */
-/* showcase jestei-landing:end */
-
-/* showcase canvas:start */
-/* showcase canvas landing visual gap:start */
-.task-domain--landing .task-group__visual {
-  display: grid;
-  gap: clamp(1rem, 2vw, 1.75rem);
-}
-/* showcase canvas landing visual gap:end */
-
-/* showcase canvas:start */
-.cv-section .cv-experience__item--featured .media-preview[data-cv-animation],
-.cv-section .cv-experience__item--featured .embedded-demo {
+/* canvas:start */
+[data-showcase-animation],
+.embedded-demo {
   position: relative;
 }
 
-.cv-section .cv-experience__item--featured .media-preview[data-cv-animation] .cv-canvas,
-.cv-section .cv-experience__item--featured .media-preview[data-cv-animation] canvas,
-.cv-section .cv-experience__item--featured .embedded-demo canvas {
+[data-showcase-animation] canvas,
+[data-showcase-animation] .showcase-canvas,
+.embedded-demo canvas {
   display: block;
   inline-size: 100%;
   block-size: 100%;
 }
 
-.media-preview[data-cv-animation].is-canvas-loading,
-.media-preview[data-cv-animation].is-canvas-error,
+[data-showcase-animation].is-canvas-loading,
+[data-showcase-animation].is-canvas-error,
 .embedded-demo.is-canvas-loading,
 .embedded-demo.is-canvas-error {
   position: relative;
 }
 
-.media-preview[data-cv-animation].is-canvas-loading::after,
+[data-showcase-animation].is-canvas-loading::after,
 .embedded-demo.is-canvas-loading::after {
   content: "";
   position: absolute;
@@ -215,15 +29,15 @@
     linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent),
     rgba(17, 17, 17, 0.025);
   background-size: 220% 100%;
-  animation: var(--cv-canvas-loading-animation, cv-canvas-loading-sweep 1.4s linear infinite);
+  animation: var(--showcase-canvas-loading-animation, showcase-canvas-loading-sweep 1.4s linear infinite);
 }
 
-.media-preview[data-cv-animation].is-canvas-ready::after,
+[data-showcase-animation].is-canvas-ready::after,
 .embedded-demo.is-canvas-ready::after {
   content: none;
 }
 
-.media-preview[data-cv-animation].is-canvas-error::after,
+[data-showcase-animation].is-canvas-error::after,
 .embedded-demo.is-canvas-error::after {
   content: "canvas error";
   position: absolute;
@@ -238,7 +52,7 @@
   line-height: 1;
 }
 
-@keyframes cv-canvas-loading-sweep {
+@keyframes showcase-canvas-loading-sweep {
   from {
     background-position: 220% 0;
   }
@@ -250,8 +64,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --cv-canvas-loading-animation: none;
+    --showcase-canvas-loading-animation: none;
   }
 }
-/* showcase canvas:end */
-/* showcase canvas:end */
+/* canvas:end */

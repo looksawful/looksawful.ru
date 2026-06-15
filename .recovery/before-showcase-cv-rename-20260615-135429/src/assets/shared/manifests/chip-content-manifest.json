@@ -1,0 +1,101 @@
+[
+  {
+    "ProjectNumber": "01",
+    "Project": "Jestei Pool",
+    "ProjectSlug": "01-jestei-pool",
+    "ChipNumber": "02",
+    "Chip": "разработал новый дизайн фильтра для треков для двух продуктов",
+    "ChipSlug": "02-razrabotal-novyy-dizayn-filtra-dlya-trekov-dlya-dvuh-produktov",
+    "DemoId": "jestei-pool-02",
+    "FileCount": 4,
+    "AssetPath": "src/assets/cv/chip-content/01-jestei-pool/02-razrabotal-novyy-dizayn-filtra-dlya-trekov-dlya-dvuh-produktov"
+  },
+  {
+    "ProjectNumber": "01",
+    "Project": "Jestei Pool",
+    "ProjectSlug": "01-jestei-pool",
+    "ChipNumber": "05",
+    "Chip": "произвел редизайн лендинга основного продукта",
+    "ChipSlug": "05-proizvel-redizayn-lendinga-osnovnogo-produkta",
+    "DemoId": "jestei-pool-05",
+    "FileCount": 7,
+    "AssetPath": "src/assets/cv/chip-content/01-jestei-pool/05-proizvel-redizayn-lendinga-osnovnogo-produkta"
+  },
+  {
+    "ProjectNumber": "01",
+    "Project": "Jestei Pool",
+    "ProjectSlug": "01-jestei-pool",
+    "ChipNumber": "07",
+    "Chip": "придумал дизайн для лендинга ивент-диджеев",
+    "ChipSlug": "07-pridumal-dizayn-dlya-lendinga-ivent-didzheev",
+    "DemoId": "jestei-pool-07",
+    "FileCount": 2,
+    "AssetPath": "src/assets/cv/chip-content/01-jestei-pool/07-pridumal-dizayn-dlya-lendinga-ivent-didzheev"
+  },
+  {
+    "ProjectNumber": "01",
+    "Project": "Jestei Pool",
+    "ProjectSlug": "01-jestei-pool",
+    "ChipNumber": "09",
+    "Chip": "создал фильтр для ивента",
+    "ChipSlug": "09-sozdal-filtr-dlya-iventa",
+    "DemoId": "jestei-pool-09",
+    "FileCount": 1,
+    "AssetPath": "src/assets/cv/chip-content/01-jestei-pool/09-sozdal-filtr-dlya-iventa"
+  },
+  {
+    "ProjectNumber": "01",
+    "Project": "Jestei Pool",
+    "ProjectSlug": "01-jestei-pool",
+    "ChipNumber": "24",
+    "Chip": "разработал новый логотип",
+    "ChipSlug": "24-razrabotal-novyy-logotip",
+    "DemoId": "jestei-pool-24",
+    "FileCount": 14,
+    "AssetPath": "src/assets/cv/chip-content/01-jestei-pool/24-razrabotal-novyy-logotip"
+  },
+  {
+    "ProjectNumber": "01",
+    "Project": "Jestei Pool",
+    "ProjectSlug": "01-jestei-pool",
+    "ChipNumber": "25",
+    "Chip": "подобрал брендовый шрифт",
+    "ChipSlug": "25-podobral-brendovyy-shrift",
+    "DemoId": "jestei-pool-25",
+    "FileCount": 2,
+    "AssetPath": "src/assets/cv/chip-content/01-jestei-pool/25-podobral-brendovyy-shrift"
+  },
+  {
+    "ProjectNumber": "01",
+    "Project": "Jestei Pool",
+    "ProjectSlug": "01-jestei-pool",
+    "ChipNumber": "26",
+    "Chip": "создал цветовую палитру",
+    "ChipSlug": "26-sozdal-cvetovuyu-palitru",
+    "DemoId": "jestei-pool-26",
+    "FileCount": 25,
+    "AssetPath": "src/assets/cv/chip-content/01-jestei-pool/26-sozdal-cvetovuyu-palitru"
+  },
+  {
+    "ProjectNumber": "01",
+    "Project": "Jestei Pool",
+    "ProjectSlug": "01-jestei-pool",
+    "ChipNumber": "33",
+    "Chip": "создал дизайн обложек плейлистов на сайте",
+    "ChipSlug": "33-sozdal-dizayn-oblozhek-pleylistov-na-sayte",
+    "DemoId": "jestei-pool-33",
+    "FileCount": 56,
+    "AssetPath": "src/assets/cv/chip-content/01-jestei-pool/33-sozdal-dizayn-oblozhek-pleylistov-na-sayte"
+  },
+  {
+    "ProjectNumber": "01",
+    "Project": "Jestei Pool",
+    "ProjectSlug": "01-jestei-pool",
+    "ChipNumber": "36",
+    "Chip": "придумал и написал анимации для лендинга",
+    "ChipSlug": "36-pridumal-i-napisal-animacii-dlya-lendinga",
+    "DemoId": "jestei-pool-36",
+    "FileCount": 110,
+    "AssetPath": "src/assets/cv/chip-content/01-jestei-pool/36-pridumal-i-napisal-animacii-dlya-lendinga"
+  }
+]
