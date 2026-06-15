@@ -13,7 +13,7 @@ import {
   getCanvasMountOptions,
   limitAnimationItems,
 } from "../../shared/canvas-animation.js";
-import { createAnimationItems, SHOWCASE_ANIMATION_SCENES } from "../showcase-animation-assets.js";
+import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
 
 const CV_HORIZONTAL_KEY_PREFIX = "showcase-horizontal:";
 const DEFAULT_HORIZONTAL_SCENE = "jesteiProductCanvas";
@@ -55,7 +55,7 @@ const config = {
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const getHorizontalItems = (sceneId = DEFAULT_HORIZONTAL_SCENE) => {
-  const scene = SHOWCASE_ANIMATION_SCENES[sceneId] ?? SHOWCASE_ANIMATION_SCENES[DEFAULT_HORIZONTAL_SCENE];
+  const scene = ANIMATION_SCENES[sceneId] ?? ANIMATION_SCENES[DEFAULT_HORIZONTAL_SCENE];
   return limitAnimationItems(createAnimationItems(scene.modules), sceneId, { defaultMaxItems: scene.defaultMaxItems || 20 });
 };
 
@@ -535,7 +535,7 @@ export const mountShowcaseHorizontal = async (canvasId = "showcase-horizontal-co
   const key = createAnimationKey(CV_HORIZONTAL_KEY_PREFIX, canvasId);
   const mountToken = beginMount(key);
   let itemLoadVersion = 0;
-  const sceneId = options.scene || canvas.dataset.showcaseAnimationScene || DEFAULT_HORIZONTAL_SCENE;
+  const sceneId = options.scene || canvas.dataset.animationScene || DEFAULT_HORIZONTAL_SCENE;
   const tuning = getCanvasMountOptions(canvas, options, {
     maxItems: 42,
     initialCount: 12,
@@ -552,9 +552,9 @@ export const mountShowcaseHorizontal = async (canvasId = "showcase-horizontal-co
     },
     onLoadingChange: ({ hasLoaded, isComplete }) => {
       if (hasLoaded) {
-        canvas.closest?.("[data-showcase-animation], .media-preview")?.classList.add("is-canvas-ready");
+        canvas.closest?.("[data-animation], .media-preview")?.classList.add("is-canvas-ready");
       } else if (!isComplete) {
-        canvas.closest?.("[data-showcase-animation], .media-preview")?.classList.add("is-canvas-loading");
+        canvas.closest?.("[data-animation], .media-preview")?.classList.add("is-canvas-loading");
       }
     },
   });

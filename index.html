@@ -14,8 +14,8 @@
   </head>
   <body>
     <main id="main">
-      <section class="hero" id="hero">
-        <div class="hero__screen hero__screen--cover">
+      <section class="hero section" id="hero">
+        <div class="hero__screen hero__screen--cover section__screen">
           <div class="hero__headline-wrap">
             <div class="awfulface-container awfulface-container--hero" id="awfulface-hero"></div>
             <h1 class="hero__title" id="hero-title">
@@ -34,29 +34,31 @@
             <a href="https://github.com/looksawful">github @looksawful</a>
           </address>
         </div>
-      </section>+
+      </section>
+      +
 
-      <section aria-labelledby="showcase-title" id="showcase">
-        <section>
-          <div data-section-list="" data-section-mode="showcase">
-            <article data-project-id="jesteipool" id="project-jesteipool">
-              <section>
+      <section aria-labelledby="showcase-title" id="showcase" class="section work">
+        <section class="section__screen">
+          <div class="stack" data-section-list="" data-section-mode="showcase">
+            <article data-project-id="jesteipool" id="project-jesteipool" class="project stack">
+              <section class="project__header">
                 <div aria-hidden="true"></div>
-                <div>
-                  <figure>
+                <div class="project__head">
+                  <figure class="project__logo">
                     <canvas
-                      data-showcase-visual-demo="three:logo"
+                      data-visual-demo="three:logo"
                       data-three-scene="logo"
                       id="project-jestei-logo-canvas"
+                      class="visual-canvas"
                     ></canvas>
                   </figure>
                   <div>
                     <div>
-                      <h3>jestei pool</h3>
+                      <h3 class="title title--display">jestei pool</h3>
                     </div>
-                    <ul>
-                      <li><span>арт-директор</span></li>
-                      <li><span>ui/ux лид</span></li>
+                    <ul class="chips chips--role">
+                      <li class="chip"><span>арт-директор</span></li>
+                      <li class="chip"><span>ui/ux лид</span></li>
                     </ul>
                     <div>
                       <p>
@@ -65,26 +67,26 @@
                       </p>
                     </div>
                   </div>
-                  <time>с 2024</time>
+                  <time class="meta">с 2024</time>
                 </div>
               </section>
               <!-- Jestei Pool project content removed. Rebuild from generic showcase modules. -->
             </article>
-            <article data-project-id="Styx Jewels" id="project-styx-jewels">
-              <section>
+            <article data-project-id="Styx Jewels" id="project-styx-jewels" class="project stack">
+              <section class="project__header">
                 <div aria-hidden="true"></div>
-                <div>
-                  <figure>
+                <div class="project__head">
+                  <figure class="project__logo">
                     <img src="/assets/styx/branding/styx-logo.svg" alt="" decoding="async" loading="lazy" />
                   </figure>
                   <div>
                     <div>
-                      <h3>styx jewels</h3>
+                      <h3 class="title title--display">styx jewels</h3>
                     </div>
-                    <ul>
-                      <li><span>дизайнер</span></li>
-                      <li><span>продюсер</span></li>
-                      <li><span>фотограф</span></li>
+                    <ul class="chips chips--role">
+                      <li class="chip"><span>дизайнер</span></li>
+                      <li class="chip"><span>продюсер</span></li>
+                      <li class="chip"><span>фотограф</span></li>
                     </ul>
                     <div>
                       <p>
@@ -93,21 +95,21 @@
                       </p>
                     </div>
                   </div>
-                  <time>2021–2025</time>
+                  <time class="meta">2021–2025</time>
                 </div>
               </section>
               <div>
                 <div>
-                  <section data-project-id="Styx Jewels" data-task-area="graphic">
-                    <header>
-                      <h4>графический дизайн</h4>
-                      <ul aria-label="технологии блока">
-                        <li>Figma</li>
-                        <li>Photoshop</li>
-                        <li>Illustrator</li>
-                        <li>Indesign</li>
-                        <li>Blender</li>
-                        <li>CorelDraw</li>
+                  <section data-project-id="Styx Jewels" data-task-area="graphic" class="block stack">
+                    <header class="block__header">
+                      <h4 class="title title--xl">графический дизайн</h4>
+                      <ul aria-label="технологии блока" class="chips chips--skill">
+                        <li class="chip">Figma</li>
+                        <li class="chip">Photoshop</li>
+                        <li class="chip">Illustrator</li>
+                        <li class="chip">Indesign</li>
+                        <li class="chip">Blender</li>
+                        <li class="chip">CorelDraw</li>
                       </ul>
                       <p>
                         разработал визуальный язык бренда и фирменный стиль: логотипы, упаковку, печатные носители,
@@ -117,10 +119,11 @@
                     <div>
                       <div>
                         <div>
-                          <section data-showcase-animation="diagonal">
+                          <section data-animation="diagonal" class="media media--wide">
                             <canvas
-                              data-showcase-animation-scene="styxGraphicDiagonal"
+                              data-animation-scene="styxGraphicDiagonal"
                               id="project-styx-graphic-diagonal"
+                              class="visual-canvas"
                             ></canvas>
                           </section>
                         </div>
@@ -131,23 +134,24 @@
                             <div>
                               <section>
                                 <div>
-                                  <h5>бренд и упаковка</h5>
-                                  <ul>
-                                    <li><span>логотип и фирменный стиль</span></li>
-                                    <li><span>Визуальная подача бренда</span></li>
-                                    <li><span>Дизайн подарочной упаковки</span></li>
-                                    <li><span>Дизайн визиток</span></li>
-                                    <li><span>Дизайн буклетов</span></li>
+                                  <h5 class="title title--lg">бренд и упаковка</h5>
+                                  <ul class="chips chips--role">
+                                    <li class="chip"><span>логотип и фирменный стиль</span></li>
+                                    <li class="chip"><span>Визуальная подача бренда</span></li>
+                                    <li class="chip"><span>Дизайн подарочной упаковки</span></li>
+                                    <li class="chip"><span>Дизайн визиток</span></li>
+                                    <li class="chip"><span>Дизайн буклетов</span></li>
                                   </ul>
                                 </div>
                                 <div aria-hidden="true"></div>
                               </section>
                             </div>
-                            <aside aria-label="styx brand and packaging gallery">
+                            <aside aria-label="styx brand and packaging gallery" class="media-grid">
                               <a
                                 href="/assets/styx/galleries/styx-graphic-design/01.webp"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                class="media-card"
                               >
                                 <img
                                   src="/assets/styx/galleries/styx-graphic-design/01.webp"
@@ -160,6 +164,7 @@
                                 href="/assets/styx/galleries/styx-graphic-design/02.webp"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                class="media-card"
                               >
                                 <img
                                   src="/assets/styx/galleries/styx-graphic-design/02.webp"
@@ -172,6 +177,7 @@
                                 href="/assets/styx/galleries/styx-graphic-design/03.webp"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                class="media-card"
                               >
                                 <img
                                   src="/assets/styx/galleries/styx-graphic-design/03.webp"
@@ -185,6 +191,7 @@
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="open styx brand and packaging video"
+                                class="media-card media-card--video"
                               >
                                 <video
                                   src="/assets/styx/video/styx-graphic-design/04.mp4"
@@ -201,22 +208,23 @@
                             <div>
                               <section>
                                 <div>
-                                  <h5>коммуникации и реклама</h5>
-                                  <ul>
-                                    <li><span>Дизайн сертификатов</span></li>
-                                    <li><span>визуалы для соцсетей</span></li>
-                                    <li><span>Рекламные публикации</span></li>
-                                    <li><span>Баннеры для Сплита и Долями</span></li>
+                                  <h5 class="title title--lg">коммуникации и реклама</h5>
+                                  <ul class="chips chips--role">
+                                    <li class="chip"><span>Дизайн сертификатов</span></li>
+                                    <li class="chip"><span>визуалы для соцсетей</span></li>
+                                    <li class="chip"><span>Рекламные публикации</span></li>
+                                    <li class="chip"><span>Баннеры для Сплита и Долями</span></li>
                                   </ul>
                                 </div>
                                 <div aria-hidden="true"></div>
                               </section>
                             </div>
-                            <aside aria-label="styx communications gallery">
+                            <aside aria-label="styx communications gallery" class="media-grid">
                               <a
                                 href="/assets/styx/galleries/styx-communications/01.webp"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                class="media-card"
                               >
                                 <img
                                   src="/assets/styx/galleries/styx-communications/01.webp"
@@ -229,6 +237,7 @@
                                 href="/assets/styx/galleries/styx-communications/02.webp"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                class="media-card"
                               >
                                 <img
                                   src="/assets/styx/galleries/styx-communications/02.webp"
@@ -241,6 +250,7 @@
                                 href="/assets/styx/galleries/styx-communications/03.webp"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                class="media-card"
                               >
                                 <img
                                   src="/assets/styx/galleries/styx-communications/03.webp"
@@ -253,6 +263,7 @@
                                 href="/assets/styx/galleries/styx-communications/4.webp"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                class="media-card"
                               >
                                 <img
                                   src="/assets/styx/galleries/styx-communications/4.webp"
@@ -267,9 +278,9 @@
                       </div>
                     </div>
                   </section>
-                  <section data-project-id="Styx Jewels" data-task-area="analysis">
-                    <header>
-                      <h4>Дизайн печатной продукции</h4>
+                  <section data-project-id="Styx Jewels" data-task-area="analysis" class="block stack">
+                    <header class="block__header">
+                      <h4 class="title title--xl">Дизайн печатной продукции</h4>
                       <p>
                         Разработал визуальный язык и дизайн печатных материалов бренда,подарочной упаковки и рекламных
                         материалов.
@@ -277,10 +288,11 @@
                     </header>
                     <div>
                       <div>
-                        <section data-showcase-animation="horizontal">
+                        <section data-animation="horizontal" class="media media--wide">
                           <canvas
-                            data-showcase-animation-scene="styxBrandIdentity"
+                            data-animation-scene="styxBrandIdentity"
                             id="project-styx-brand-identity-horizontal"
+                            class="visual-canvas"
                           ></canvas>
                         </section>
                       </div>
@@ -288,13 +300,13 @@
                         <div>
                           <section>
                             <div>
-                              <h5>Фирменные печатные материалы и упаковка</h5>
-                              <ul>
-                                <li><span>Брендовой упаковки</span></li>
-                                <li><span>Подарочные сертификаты</span></li>
-                                <li><span>Рекламные буклеты</span></li>
-                                <li><span>Рекламные буклеты</span></li>
-                                <li><span>Визитки и стикеры</span></li>
+                              <h5 class="title title--lg">Фирменные печатные материалы и упаковка</h5>
+                              <ul class="chips chips--role">
+                                <li class="chip"><span>Брендовой упаковки</span></li>
+                                <li class="chip"><span>Подарочные сертификаты</span></li>
+                                <li class="chip"><span>Рекламные буклеты</span></li>
+                                <li class="chip"><span>Рекламные буклеты</span></li>
+                                <li class="chip"><span>Визитки и стикеры</span></li>
                               </ul>
                             </div>
                           </section>
@@ -302,9 +314,9 @@
                       </div>
                     </div>
                   </section>
-                  <section data-project-id="Styx Jewels" data-task-area="product">
-                    <header>
-                      <h4>фото и продакшен</h4>
+                  <section data-project-id="Styx Jewels" data-task-area="product" class="block stack">
+                    <header class="block__header">
+                      <h4 class="title title--xl">фото и продакшен</h4>
                       <p>
                         снимал украшения, кампейны, лукбуки и каталоги бренда. собирал мини-студию, создавал арты для
                         печати, рекламы и соцсетей.
@@ -312,36 +324,36 @@
                     </header>
                     <div>
                       <div>
-                        <section
+                        <!-- <section
                           aria-label="фото и продакшен"
-                          data-showcase-media-scene="styxPhotoProduction"
-                          data-showcase-media-limit="24"
+                          data-media-scene="styxPhotoProduction"
+                          data-media-limit="24"
                           style="--media-speed: 72s"
-                        >
+                         class="media media--orbit">
                           <div></div>
-                        </section>
+                        </section> -->
                       </div>
                       <div>
                         <div>
                           <div>
                             <section>
                               <div>
-                                <h5>Съемки</h5>
-                                <ul>
-                                  <li><span>Продюсирование съёмок бренда</span></li>
-                                  <li><span>Фотосъёмки кампейнов и лукбуков бренда</span></li>
-                                  <li>
+                                <h5 class="title title--lg">Съемки</h5>
+                                <ul class="chips chips--role">
+                                  <li class="chip"><span>Продюсирование съёмок бренда</span></li>
+                                  <li class="chip"><span>Фотосъёмки кампейнов и лукбуков бренда</span></li>
+                                  <li class="chip">
                                     <span
                                       >спроектировал мини-студию бренда для каталожных схемок и помог закупить
                                       оборудование</span
                                     >
                                   </li>
-                                  <li><span>арт-обработка кадров</span></li>
+                                  <li class="chip"><span>арт-обработка кадров</span></li>
                                 </ul>
                               </div>
                             </section>
                           </div>
-                          <aside aria-label="styx photo production image">
+                          <aside aria-label="styx photo production image" class="media-grid">
                             <figure>
                               <img
                                 alt="styx photo production image"
@@ -353,12 +365,13 @@
                           </aside>
                         </div>
                         <!-- styx-photo-production-gallery-pair:start -->
-                        <div aria-label="styx photo production gallery">
-                          <aside aria-label="styx photo production gallery 1">
+                        <div aria-label="styx photo production gallery" class="media-grid">
+                          <aside aria-label="styx photo production gallery 1" class="media-grid">
                             <a
                               href="/assets/styx/galleries/styx-photo-production/1.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-photo-production/1.webp"
@@ -371,6 +384,7 @@
                               href="/assets/styx/galleries/styx-photo-production/2.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-photo-production/2.webp"
@@ -383,6 +397,7 @@
                               href="/assets/styx/galleries/styx-photo-production/3.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-photo-production/3.webp"
@@ -395,6 +410,7 @@
                               href="/assets/styx/galleries/styx-photo-production/4.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-photo-production/4.webp"
@@ -404,11 +420,12 @@
                               />
                             </a>
                           </aside>
-                          <aside aria-label="styx photo production gallery 2">
+                          <aside aria-label="styx photo production gallery 2" class="media-grid">
                             <a
                               href="/assets/styx/galleries/styx-photo-production/5.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-photo-production/5.webp"
@@ -421,6 +438,7 @@
                               href="/assets/styx/galleries/styx-photo-production/6.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-photo-production/6.webp"
@@ -433,6 +451,7 @@
                               href="/assets/styx/galleries/styx-photo-production/7.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-photo-production/7.webp"
@@ -445,6 +464,7 @@
                               href="/assets/styx/galleries/styx-photo-production/8.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-photo-production/8.webp"
@@ -459,13 +479,13 @@
                       </div>
                     </div>
                   </section>
-                  <section data-project-id="Styx Jewels" data-task-area="product">
-                    <header>
-                      <h4>экспериментальная сканография</h4>
-                      <ul aria-label="технологии блока">
-                        <li>сканография</li>
-                        <li>экспериментальная фотография</li>
-                        <li>моушен дизайн</li>
+                  <section data-project-id="Styx Jewels" data-task-area="product" class="block stack">
+                    <header class="block__header">
+                      <h4 class="title title--xl">экспериментальная сканография</h4>
+                      <ul aria-label="технологии блока" class="chips chips--skill">
+                        <li class="chip">сканография</li>
+                        <li class="chip">экспериментальная фотография</li>
+                        <li class="chip">моушен дизайн</li>
                       </ul>
                       <p>
                         использовал экспериментальный авторский подход к созданию анимации при помощи сканографии:
@@ -485,6 +505,7 @@
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="open styx scanography visual system video"
+                            class="media-card media-card--video"
                           >
                             <video
                               src="/assets/styx/video/styx-scanography-loops/styx-visual-system-loop-zwCa4H7L.mp4"
@@ -500,6 +521,7 @@
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="open styx scanography basement video"
+                            class="media-card media-card--video"
                           >
                             <video
                               src="/assets/styx/video/styx-scanography-loops/basement-16x9-Ci2Jjxc4.mp4"
@@ -518,7 +540,7 @@
                           <div>
                             <section>
                               <div>
-                                <h5>портретная сканография</h5>
+                                <h5 class="title title--lg">портретная сканография</h5>
                                 <p>
                                   Вместе со съемками лукбуков я экспериментировал с техникой сканографии для создания
                                   портретов моделей и предметных композиций. Эти кадры стали частью визуальной системы
@@ -528,11 +550,12 @@
                               <div aria-hidden="true"></div>
                             </section>
                           </div>
-                          <aside aria-label="scanography extra material">
+                          <aside aria-label="scanography extra material" class="media-grid">
                             <a
                               href="/assets/styx/galleries/styx-scanography-extra/01.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-scanography-extra/01.webp"
@@ -545,6 +568,7 @@
                               href="/assets/styx/galleries/styx-scanography-extra/02.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-scanography-extra/02.webp"
@@ -557,6 +581,7 @@
                               href="/assets/styx/galleries/styx-scanography-extra/03.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-scanography-extra/03.webp"
@@ -569,6 +594,7 @@
                               href="/assets/styx/galleries/styx-scanography-extra/04.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-scanography-extra/04.webp"
@@ -583,7 +609,7 @@
                           <div>
                             <section>
                               <div>
-                                <h5>предметная сканография</h5>
+                                <h5 class="title title--lg">предметная сканография</h5>
                                 <p>
                                   Сканография ювелирки позволяет получить с одной стороны очень детальтные снимки с
                                   высокой резкостью и очень точной детализацией, а с другой стороны — получать
@@ -595,11 +621,12 @@
                               <div aria-hidden="true"></div>
                             </section>
                           </div>
-                          <aside aria-label="scanography material">
+                          <aside aria-label="scanography material" class="media-grid">
                             <a
                               href="/assets/styx/galleries/styx-scanography-gallery/01.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-scanography-gallery/01.webp"
@@ -612,6 +639,7 @@
                               href="/assets/styx/galleries/styx-scanography-gallery/02.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-scanography-gallery/02.webp"
@@ -624,6 +652,7 @@
                               href="/assets/styx/galleries/styx-scanography-gallery/03.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-scanography-gallery/03.webp"
@@ -636,6 +665,7 @@
                               href="/assets/styx/galleries/styx-scanography-gallery/04.webp"
                               target="_blank"
                               rel="noopener noreferrer"
+                              class="media-card"
                             >
                               <img
                                 src="/assets/styx/galleries/styx-scanography-gallery/04.webp"
@@ -656,22 +686,22 @@
         </section>
       </section>
 
-      <section aria-labelledby="resume-title" id="resume">
+      <section aria-labelledby="resume-title" id="resume" class="section resume">
         <div>
-          <h2 id="resume-title">Еще раньше</h2>
+          <h2 id="resume-title" class="title title--xl">Еще раньше</h2>
         </div>
-        <section>
-          <div data-section-list data-section-mode="resume">
-            <article id="resume-jesteipool">
-              <div><time>с 2024</time></div>
+        <section class="section__screen">
+          <div class="stack" data-section-list data-section-mode="resume">
+            <article id="resume-jesteipool" class="resume-item">
+              <div><time class="meta">с 2024</time></div>
               <div>
-                <header>
-                  <h3>jestei pool</h3>
-                  <ul>
-                    <li><span>арт-директор</span></li>
-                    <li><span>ui/ux лид</span></li>
-                    <li><span>дизайн-лид</span></li>
-                    <li><span>продуктовый дизайнер</span></li>
+                <header class="resume-item__header">
+                  <h3 class="title title--lg">jestei pool</h3>
+                  <ul class="chips chips--role">
+                    <li class="chip"><span>арт-директор</span></li>
+                    <li class="chip"><span>ui/ux лид</span></li>
+                    <li class="chip"><span>дизайн-лид</span></li>
+                    <li class="chip"><span>продуктовый дизайнер</span></li>
                   </ul>
                 </header>
                 <p>
@@ -680,16 +710,16 @@
                 </p>
               </div>
             </article>
-            <article id="resume-styx-jewels">
-              <div><time>2021–2025</time></div>
+            <article id="resume-styx-jewels" class="resume-item">
+              <div><time class="meta">2021–2025</time></div>
               <div>
-                <header>
-                  <h3>styx jewels</h3>
-                  <ul>
-                    <li><span>дизайнер</span></li>
+                <header class="resume-item__header">
+                  <h3 class="title title--lg">styx jewels</h3>
+                  <ul class="chips chips--role">
+                    <li class="chip"><span>дизайнер</span></li>
 
-                    <li><span>продюсер</span></li>
-                    <li><span>фотограф</span></li>
+                    <li class="chip"><span>продюсер</span></li>
+                    <li class="chip"><span>фотограф</span></li>
                   </ul>
                 </header>
                 <p>
@@ -698,14 +728,14 @@
                 </p>
               </div>
             </article>
-            <article id="resume-lyve-moscow">
-              <div><time>2025</time></div>
+            <article id="resume-lyve-moscow" class="resume-item">
+              <div><time class="meta">2025</time></div>
               <div>
-                <header>
-                  <h3>Lyve Moscow</h3>
-                  <ul>
-                    <li><span>дизайнер</span></li>
-                    <li><span>иллюстратор</span></li>
+                <header class="resume-item__header">
+                  <h3 class="title title--lg">Lyve Moscow</h3>
+                  <ul class="chips chips--role">
+                    <li class="chip"><span>дизайнер</span></li>
+                    <li class="chip"><span>иллюстратор</span></li>
                   </ul>
                 </header>
                 <p>
@@ -714,14 +744,14 @@
                 </p>
               </div>
             </article>
-            <article id="resume-sensetique">
-              <div><time>2017–2018</time></div>
+            <article id="resume-sensetique" class="resume-item">
+              <div><time class="meta">2017–2018</time></div>
               <div>
-                <header>
-                  <h3>Sensetique photostudio</h3>
-                  <ul>
-                    <li><span>директор фотостудии</span></li>
-                    <li><span>генеральный продюсер</span></li>
+                <header class="resume-item__header">
+                  <h3 class="title title--lg">Sensetique photostudio</h3>
+                  <ul class="chips chips--role">
+                    <li class="chip"><span>директор фотостудии</span></li>
+                    <li class="chip"><span>генеральный продюсер</span></li>
                   </ul>
                 </header>
                 <p>
@@ -730,13 +760,13 @@
                 </p>
               </div>
             </article>
-            <article id="resume-madcow">
-              <div><time>2019</time></div>
+            <article id="resume-madcow" class="resume-item">
+              <div><time class="meta">2019</time></div>
               <div>
-                <header>
-                  <h3>Mad Cow Films</h3>
-                  <ul>
-                    <li><span>ассистент продюсера</span></li>
+                <header class="resume-item__header">
+                  <h3 class="title title--lg">Mad Cow Films</h3>
+                  <ul class="chips chips--role">
+                    <li class="chip"><span>ассистент продюсера</span></li>
                   </ul>
                 </header>
                 <p>
@@ -745,15 +775,15 @@
                 </p>
               </div>
             </article>
-            <article id="resume-line">
-              <div><time>2017</time></div>
+            <article id="resume-line" class="resume-item">
+              <div><time class="meta">2017</time></div>
               <div>
-                <header>
-                  <h3>LI-NE Agency</h3>
-                  <ul>
-                    <li><span>ассистент продюсера</span></li>
-                    <li><span>jr-продюсер</span></li>
-                    <li><span>линейный продюсер</span></li>
+                <header class="resume-item__header">
+                  <h3 class="title title--lg">LI-NE Agency</h3>
+                  <ul class="chips chips--role">
+                    <li class="chip"><span>ассистент продюсера</span></li>
+                    <li class="chip"><span>jr-продюсер</span></li>
+                    <li class="chip"><span>линейный продюсер</span></li>
                   </ul>
                 </header>
                 <p>
@@ -762,13 +792,13 @@
                 </p>
               </div>
             </article>
-            <article id="resume-progress">
-              <div><time>2013–2015</time></div>
+            <article id="resume-progress" class="resume-item">
+              <div><time class="meta">2013–2015</time></div>
               <div>
-                <header>
-                  <h3>Издательство Прогресс</h3>
-                  <ul>
-                    <li><span>книжный дизайнер</span></li>
+                <header class="resume-item__header">
+                  <h3 class="title title--lg">Издательство Прогресс</h3>
+                  <ul class="chips chips--role">
+                    <li class="chip"><span>книжный дизайнер</span></li>
                   </ul>
                 </header>
                 <p>
@@ -777,13 +807,13 @@
                 </p>
               </div>
             </article>
-            <article id="resume-ria">
-              <div><time>2012</time></div>
+            <article id="resume-ria" class="resume-item">
+              <div><time class="meta">2012</time></div>
               <div>
-                <header>
-                  <h3>РИА Новости / Московские новости</h3>
-                  <ul>
-                    <li><span>jr-верстальщик</span></li>
+                <header class="resume-item__header">
+                  <h3 class="title title--lg">РИА Новости / Московские новости</h3>
+                  <ul class="chips chips--role">
+                    <li class="chip"><span>jr-верстальщик</span></li>
                   </ul>
                 </header>
                 <p>Ежедневная городская общественно-политическая газета о Москве. Работал с газетной вёрсткой полос.</p>

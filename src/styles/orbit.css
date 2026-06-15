@@ -1,58 +1,66 @@
-/* orbit:start */
-[data-showcase-media-scene] {
-  --orbit-card-size: clamp(8.5rem, 17vw, 15rem);
-  --orbit-radius: clamp(11rem, 28vw, 22rem);
-  --orbit-duration: var(--media-speed, 72s);
+[data-media-scene] {
+  --orbit-size: min(100%, clamp(22rem, 64vw, 46rem));
+  --orbit-card: clamp(6.5rem, 14vw, 11.5rem);
+  --orbit-radius: calc((var(--orbit-size) - var(--orbit-card)) / 2);
+  --orbit-speed: var(--media-speed, 72s);
 
   position: relative;
   display: grid;
   place-items: center;
-  inline-size: 100%;
-  min-block-size: calc(var(--orbit-radius) * 2 + var(--orbit-card-size));
+  min-height: calc(var(--orbit-size) + clamp(2rem, 5vw, 5rem));
   overflow: hidden;
-  border-radius: var(--radius-outer);
-  background: #050505;
+  isolation: isolate;
+  background: #000;
+  color: #fff;
 }
 
-[data-showcase-media-scene] > div,
-[data-showcase-media-scene] .media-group__track {
+[data-media-scene] > div,
+[data-media-scene] .media-group__track {
   position: relative;
-  inline-size: calc(var(--orbit-radius) * 2 + var(--orbit-card-size));
-  block-size: calc(var(--orbit-radius) * 2 + var(--orbit-card-size));
-  animation: showcase-media-orbit-rotate var(--orbit-duration) linear infinite;
+  width: var(--orbit-size);
+  height: var(--orbit-size);
+  animation: orbit-rotate var(--orbit-speed) linear infinite;
+  animation-timeline: view();
   transform-origin: 50% 50%;
+  will-change: transform;
 }
 
-[data-showcase-media-scene] .media-card {
+[data-media-scene] .media-card {
   position: absolute;
-  inset-block-start: 50%;
-  inset-inline-start: 50%;
-  inline-size: var(--orbit-card-size);
-  block-size: var(--orbit-card-size);
+  top: 50%;
+  left: 50%;
+  width: var(--orbit-card);
+  height: var(--orbit-card);
   overflow: hidden;
-  border-radius: var(--radius-inner);
-  background: #111;
-  transform:
-    translate(-50%, -50%)
-    rotate(var(--orbit-angle, 0deg))
-    translateY(calc(-1 * var(--orbit-radius)))
+  border: 1px solid #fff;
+  border-radius: 0;
+  background: #000;
+  box-shadow: 0 0 0 1px #000;
+  transform: translate(-50%, -50%) rotate(var(--orbit-angle, 0deg)) translateY(calc(-1 * var(--orbit-radius)))
     rotate(calc(-1 * var(--orbit-angle, 0deg)));
+  animation:
+    orbit-card-show both,
+    orbit-card-blur both;
+  animation-timeline: view(10% 30%), view();
+  will-change: transform, opacity, filter;
 }
 
-[data-showcase-media-scene] .media-card img,
-[data-showcase-media-scene] .media-card video {
+[data-media-scene] .media-card img,
+[data-media-scene] .media-card video {
   display: block;
-  inline-size: 100%;
-  block-size: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
-[data-showcase-media-scene]:hover > div,
-[data-showcase-media-scene]:focus-within > div {
+[data-media-scene]:hover > div,
+[data-media-scene]:focus-within > div,
+[data-media-scene]:hover .media-group__track,
+[data-media-scene]:focus-within .media-group__track {
   animation-play-state: paused;
 }
 
-@keyframes showcase-media-orbit-rotate {
+@keyframes orbit-rotate {
   from {
     transform: rotate(0deg);
   }
@@ -62,17 +70,52 @@
   }
 }
 
+@keyframes orbit-card-show {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--orbit-angle, 0deg)) translateY(calc(-1 * var(--orbit-radius)))
+      rotate(calc(-1 * var(--orbit-angle, 0deg))) translateY(200px) scale(0.6);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--orbit-angle, 0deg)) translateY(calc(-1 * var(--orbit-radius)))
+      rotate(calc(-1 * var(--orbit-angle, 0deg))) translateY(0) scale(1);
+  }
+}
+
+@keyframes orbit-card-blur {
+  0% {
+    filter: blur(20px);
+  }
+
+  45%,
+  55% {
+    filter: blur(0);
+  }
+
+  100% {
+    filter: blur(20px);
+  }
+}
+
 @media (max-width: 48rem) {
-  [data-showcase-media-scene] {
-    --orbit-card-size: clamp(6.2rem, 26vw, 9rem);
-    --orbit-radius: clamp(8rem, 34vw, 13rem);
+  [data-media-scene] {
+    --orbit-size: min(100%, clamp(18rem, 88vw, 32rem));
+    --orbit-card: clamp(5rem, 24vw, 8rem);
+    min-height: calc(var(--orbit-size) + 2rem);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-showcase-media-scene] > div,
-  [data-showcase-media-scene] .media-group__track {
+  [data-media-scene] > div,
+  [data-media-scene] .media-group__track,
+  [data-media-scene] .media-card {
     animation: none;
   }
+
+  [data-media-scene] .media-card {
+    opacity: 1;
+    filter: none;
+  }
 }
-/* orbit:end */

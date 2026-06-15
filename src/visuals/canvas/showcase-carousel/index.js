@@ -10,7 +10,7 @@ import {
   roundedRect,
   limitAnimationItems,
 } from "../../shared/canvas-animation.js";
-import { createAnimationItems, SHOWCASE_ANIMATION_SCENES } from "../showcase-animation-assets.js";
+import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
 
 const CV_CAROUSEL_KEY_PREFIX = "showcase-carousel:";
 
@@ -73,9 +73,9 @@ const getTitle = (stem) => {
 };
 
 const cvCarouselItems = limitAnimationItems(
-  createAnimationItems(SHOWCASE_ANIMATION_SCENES.lyveGraphicCarousel.modules, { getTitle }),
+  createAnimationItems(ANIMATION_SCENES.lyveGraphicCarousel.modules, { getTitle }),
   "lyveGraphicCarousel",
-  { defaultMaxItems: SHOWCASE_ANIMATION_SCENES.lyveGraphicCarousel.defaultMaxItems || 8 },
+  { defaultMaxItems: ANIMATION_SCENES.lyveGraphicCarousel.defaultMaxItems || 8 },
 );
 
 const createDisposeHandle = (dispose = noop) => {

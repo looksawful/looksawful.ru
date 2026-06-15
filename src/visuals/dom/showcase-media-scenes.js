@@ -22,7 +22,7 @@ const getVariant = (element) => {
 };
 
 const getLimit = (element, scene, variant) => {
-  const attrLimit = Number.parseInt(element.dataset.showcaseMediaLimit || "", 10);
+  const attrLimit = Number.parseInt(element.dataset.mediaLimit || "", 10);
   const requestedLimit =
     Number.isFinite(attrLimit) && attrLimit > 0 ? attrLimit : scene?.defaultMaxItems || DEFAULT_LIMIT;
 
@@ -65,7 +65,7 @@ const getTrack = (element) => {
 const setState = (element, state) => {
   element.dataset.cvMediaState = state;
   element.dataset.cvMediaReady = state === "ready" ? "true" : "false";
-  element.toggleAttribute("data-showcase-media-empty", state === "empty");
+  element.toggleAttribute("data-media-empty", state === "empty");
 };
 
 const createImage = (item, index) => {
@@ -209,7 +209,7 @@ const renderMediaScene = (element) => {
 
   setState(element, "loading");
 
-  const sceneId = element.dataset.showcaseMediaScene;
+  const sceneId = element.dataset.mediaScene;
   const scene = getAnimationScene(sceneId);
   const variant = getVariant(element);
 
@@ -281,7 +281,7 @@ const createManualItemFromCard = (card, index) => {
 };
 
 const mountExistingMediaCards = (root = document) => {
-  const cards = root.querySelectorAll(".media-group:not([data-showcase-media-scene]) .media-card");
+  const cards = root.querySelectorAll(".media-group:not([data-media-scene]) .media-card");
 
   cards.forEach((card, index) => {
     if (card.dataset.cvMediaLightboxMounted === "true") {
@@ -319,7 +319,7 @@ const mountExistingMediaCards = (root = document) => {
 
 export function initShowcaseMediaScenes(root = document) {
   initStaticMediaLightboxLinks(document);
-  root.querySelectorAll("[data-showcase-media-scene]").forEach(renderMediaScene);
+  root.querySelectorAll("[data-media-scene]").forEach(renderMediaScene);
   mountExistingMediaCards(root);
 }
 const getMediaLinkExtension = (url) => {

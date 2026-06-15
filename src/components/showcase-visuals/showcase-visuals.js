@@ -27,7 +27,7 @@ function normalizeDispose(dispose) {
 }
 
 function getDemoParts(target) {
-  return target.dataset.showcaseVisualDemo?.split(":") ?? [];
+  return target.dataset.visualDemo?.split(":") ?? [];
 }
 
 async function mountThreeDemo(canvas) {
@@ -123,9 +123,9 @@ async function mountAnimationPreview(preview) {
     return;
   }
 
-  const animationType = preview.dataset.showcaseAnimation;
+  const animationType = preview.dataset.animation;
   const loadMount = loadAnimationMount(animationType);
-  const canvas = preview.querySelector(".showcase-canvas");
+  const canvas = preview.querySelector(".visual-canvas");
 
   if (!(canvas instanceof HTMLCanvasElement) || !loadMount) {
     return;
@@ -136,8 +136,8 @@ async function mountAnimationPreview(preview) {
   try {
     const mount = await loadMount;
     const dispose = await mount(canvas.id, {
-      scene: canvas.dataset.showcaseAnimationScene,
-      variant: canvas.dataset.showcaseAnimationVariant,
+      scene: canvas.dataset.animationScene,
+      variant: canvas.dataset.animationVariant,
     });
 
     mountedAnimations.set(preview, normalizeDispose(dispose));
@@ -227,8 +227,8 @@ function initPreviewSlider(slider) {
 export async function initShowcaseVisuals(root = document) {
   initShowcaseMediaScenes(typeof root !== "undefined" ? root : document);
   initCvScrollRows(typeof root !== "undefined" ? root : document);
-  const visualTargets = [...root.querySelectorAll("[data-showcase-visual-demo]")];
-  const animationPreviews = [...root.querySelectorAll("[data-showcase-animation]")];
+  const visualTargets = [...root.querySelectorAll("[data-visual-demo]")];
+  const animationPreviews = [...root.querySelectorAll("[data-animation]")];
   const sliders = [...root.querySelectorAll("[data-showcase-preview-slider]")];
 
   const sliderDisposers = sliders.map(initPreviewSlider);

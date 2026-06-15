@@ -11,7 +11,7 @@ import {
 	roundedRect,
   setMediaItemsPlayback,
 } from "../../shared/canvas-animation.js";
-import { createAnimationItems, SHOWCASE_ANIMATION_SCENES } from "../showcase-animation-assets.js";
+import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
 
 const CV_DIAGONAL_KEY_PREFIX = "showcase-diagonal:";
 const DEFAULT_DIAGONAL_SCENE = "styxGraphicDiagonal";
@@ -56,7 +56,7 @@ sides: { top: false, right: false, bottom: false, left: false },
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const getDiagonalItems = (sceneId = DEFAULT_DIAGONAL_SCENE) => {
-	const scene = SHOWCASE_ANIMATION_SCENES[sceneId] ?? SHOWCASE_ANIMATION_SCENES[DEFAULT_DIAGONAL_SCENE];
+	const scene = ANIMATION_SCENES[sceneId] ?? ANIMATION_SCENES[DEFAULT_DIAGONAL_SCENE];
 	return limitAnimationItems(
     createAnimationItems(scene.modules),
     sceneId,
@@ -590,7 +590,7 @@ export const mountShowcaseDiagonal = async (canvasId = "showcase-diagonal-contai
 	const key = createAnimationKey(CV_DIAGONAL_KEY_PREFIX, canvasId);
 	const mountToken = beginMount(key);
 	let itemLoadVersion = 0;
-	const sceneId = options.scene || canvas.dataset.showcaseAnimationScene || DEFAULT_DIAGONAL_SCENE;
+	const sceneId = options.scene || canvas.dataset.animationScene || DEFAULT_DIAGONAL_SCENE;
 	const items = loadImages(getDiagonalItems(sceneId), {
 		initialCount: 30,
 		batchSize: 10,
