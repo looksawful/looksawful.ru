@@ -552,9 +552,9 @@ export const mountCvHorizontal = async (canvasId = "cv-horizontal-container", op
     },
     onLoadingChange: ({ hasLoaded, isComplete }) => {
       if (hasLoaded) {
-        canvas.closest?.("[data-cv-animation], .cv-preview")?.classList.add("is-canvas-ready");
+        canvas.closest?.("[data-cv-animation], .media-preview")?.classList.add("is-canvas-ready");
       } else if (!isComplete) {
-        canvas.closest?.("[data-cv-animation], .cv-preview")?.classList.add("is-canvas-loading");
+        canvas.closest?.("[data-cv-animation], .media-preview")?.classList.add("is-canvas-loading");
       }
     },
   });
@@ -635,4 +635,3 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(CV_HORIZONTAL_KEY_PREFIX);
   });
 }
-

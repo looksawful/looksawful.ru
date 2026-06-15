@@ -61,7 +61,7 @@ async function mountCanvasDemo(canvas) {
 }
 
 async function mountLogoInspector(target) {
-  const { createLogoInspector3D } = await import("../task-previews/logo-inspector-3d.js");
+  const { createLogoInspector3D } = await import("../cv-task-previews/logo-inspector-3d.js");
   const controller = createLogoInspector3D(target, {
     modelUrl: LOGO_INSPECTOR_MODEL_URL,
     minHeight: target.dataset.cvMinHeight ? Number(target.dataset.cvMinHeight) : 560,
@@ -73,7 +73,7 @@ async function mountLogoInspector(target) {
 }
 
 async function mountNewsletterCanvas(target) {
-  const { createNewsletterCanvas } = await import("../task-previews/newsletter-canvas.js");
+  const { createNewsletterCanvas } = await import("../cv-task-previews/newsletter-canvas.js");
   const sources = JSON.parse(target.dataset.cvNewsletterSources || "[]");
   const controller = createNewsletterCanvas(target, {
     src: sources,

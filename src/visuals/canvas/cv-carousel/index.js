@@ -396,5 +396,3 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(CV_CAROUSEL_KEY_PREFIX);
   });
 }
-
-

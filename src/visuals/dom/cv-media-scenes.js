@@ -14,9 +14,9 @@ let staticMediaLightboxLinksMounted = false;
 const getExtension = (filename = "") => filename.split(".").pop()?.toLowerCase() || "";
 
 const getVariant = (element) => {
-  if (element.classList.contains("cv-media-group--orbit")) return "orbit";
-  if (element.classList.contains("cv-media-group--strip")) return "strip";
-  if (element.classList.contains("cv-media-group--grid")) return "grid";
+  if (element.classList.contains("media-group--orbit")) return "orbit";
+  if (element.classList.contains("media-group--strip")) return "strip";
+  if (element.classList.contains("media-group--grid")) return "grid";
 
   return "default";
 };
@@ -49,14 +49,14 @@ const getRepeat = (element, variant) => {
 };
 
 const getTrack = (element) => {
-  const existing = element.querySelector(".cv-media-group__track");
+  const existing = element.querySelector(".media-group__track");
 
   if (existing) {
     return existing;
   }
 
   const track = document.createElement("div");
-  track.className = "cv-media-group__track";
+  track.className = "media-group__track";
   element.appendChild(track);
 
   return track;
@@ -171,7 +171,7 @@ const createCard = ({ item, index, count }) => {
   const card = document.createElement("figure");
   const extension = getExtension(item.filename);
 
-  card.className = "cv-media-card";
+  card.className = "media-card";
   card.tabIndex = 0;
   card.role = "button";
   card.ariaLabel = item.title || item.stem || `media ${index + 1}`;
@@ -281,7 +281,7 @@ const createManualItemFromCard = (card, index) => {
 };
 
 const mountExistingMediaCards = (root = document) => {
-  const cards = root.querySelectorAll(".cv-media-group:not([data-cv-media-scene]) .cv-media-card");
+  const cards = root.querySelectorAll(".media-group:not([data-cv-media-scene]) .media-card");
 
   cards.forEach((card, index) => {
     if (card.dataset.cvMediaLightboxMounted === "true") {
@@ -378,4 +378,3 @@ function initStaticMediaLightboxLinks(root = document) {
     );
   });
 }
-

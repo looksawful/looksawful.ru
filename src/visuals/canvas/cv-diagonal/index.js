@@ -664,6 +664,3 @@ if (import.meta.hot) {
 		disposeCanvasAnimationsByPrefix(CV_DIAGONAL_KEY_PREFIX);
 	});
 }
-
-
-
