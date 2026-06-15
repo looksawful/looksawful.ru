@@ -54,20 +54,12 @@
 }
 
 .cv-section .cv-experience__item--featured .cv-task-list-groups--chips h5,
-.cv-section .cv-experience__item--featured .cv-task-list-groups--chips .cv-task-tech-list,
+.cv-section .cv-experience__item--featured .cv-task-list-groups--chips .chips--tech,
 .cv-section .cv-experience__item--featured .cv-task-list-groups--chips .cv-task-list-group__image-slot {
   display: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-tech-list .pet-tech-list__icon {
-  inline-size: 0.58rem;
-  block-size: 0.58rem;
-  flex: 0 0 auto;
-  color: currentColor;
-  opacity: 0.86;
-}
-
-.cv-section .cv-experience__item--featured .cv-task-tech-list span {
+.cv-section .cv-experience__item--featured .chips--tech span {
   display: inline;
   min-inline-size: 0;
   white-space: nowrap;
@@ -335,9 +327,8 @@
 .cv-section .cv-role-chip,
 .cv-section .cv-task-chip,
 .cv-section .ds-chip,
-.cv-section .tech-list li,
-.cv-section .pet-tech-list li,
-.cv-section .cv-task-tech-list li,
+.cv-section .chips--tech li,
+.cv-section .chips--tech li,
 .cv-section [class*="chip"],
 .cv-section [class*="tag"],
 .cv-section [class*="badge"],
@@ -360,9 +351,8 @@
 .cv-section .cv-role-chip,
 .cv-section .cv-task-chip,
 .cv-section .ds-chip,
-.cv-section .tech-list li,
-.cv-section .pet-tech-list li,
-.cv-section .cv-task-tech-list li,
+.cv-section .chips--tech li,
+.cv-section .chips--tech li,
 .cv-section [class*="chip"],
 .cv-section [class*="tag"],
 .cv-section [class*="badge"],
@@ -500,8 +490,7 @@
 }
 
 .cv-section .cv-role-chips,
-.cv-section .cv-task-tech-list,
-.cv-section .pet-tech-list {
+.cv-section .chips--tech {
   display: flex;
   flex-wrap: wrap;
   gap: 0.36rem;
@@ -512,8 +501,7 @@
 
 .cv-section .cv-role-chip,
 .cv-section .cv-task-chip,
-.cv-section .cv-task-tech-list li,
-.cv-section .pet-tech-list li {
+.cv-section .chips--tech li {
   display: inline-flex;
   align-items: center;
   min-block-size: 1.48rem;
@@ -676,18 +664,18 @@
   content: none;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-group__content > h5 + ul:not(.cv-task-tech-list),
-.cv-section .cv-experience__item--featured .cv-task-list-group h5 + ul:not(.cv-task-tech-list) {
+.cv-section .cv-experience__item--featured .cv-task-list-group__content > h5 + ul:not(.chips--tech),
+.cv-section .cv-experience__item--featured .cv-task-list-group h5 + ul:not(.chips--tech) {
   margin-block-start: var(--cv-art-space-xs);
   padding-block-start: 0;
   border-top: 0;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-group ul:not(.cv-task-tech-list),
-.cv-section .cv-experience__item--featured .cv-task-list-group__content > ul:not(.cv-task-tech-list),
-.cv-section .cv-experience__item--featured .cv-task-list-groups--cards ul:not(.cv-task-tech-list),
-.cv-section .cv-experience__item--featured .cv-task-list-groups--auto ul:not(.cv-task-tech-list),
-.cv-section .cv-experience__item--featured .cv-task-list-groups--side-media ul:not(.cv-task-tech-list) {
+.cv-section .cv-experience__item--featured .cv-task-list-group ul:not(.chips--tech),
+.cv-section .cv-experience__item--featured .cv-task-list-group__content > ul:not(.chips--tech),
+.cv-section .cv-experience__item--featured .cv-task-list-groups--cards ul:not(.chips--tech),
+.cv-section .cv-experience__item--featured .cv-task-list-groups--auto ul:not(.chips--tech),
+.cv-section .cv-experience__item--featured .cv-task-list-groups--side-media ul:not(.chips--tech) {
   display: grid;
   gap: 0.32rem;
   margin: 0;
@@ -698,8 +686,8 @@
   background: transparent;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-group ul:not(.cv-task-tech-list) > li,
-.cv-section .cv-experience__item--featured .cv-task-list-group__content > ul:not(.cv-task-tech-list) > li {
+.cv-section .cv-experience__item--featured .cv-task-list-group ul:not(.chips--tech) > li,
+.cv-section .cv-experience__item--featured .cv-task-list-group__content > ul:not(.chips--tech) > li {
   display: block;
   margin: 0;
   padding: 0;
@@ -708,10 +696,10 @@
   background: transparent;
 }
 
-.cv-section .cv-experience__item--featured .cv-task-list-group ul:not(.cv-task-tech-list) > li::before,
-.cv-section .cv-experience__item--featured .cv-task-list-group ul:not(.cv-task-tech-list) > li::after,
-.cv-section .cv-experience__item--featured .cv-task-list-group__content > ul:not(.cv-task-tech-list) > li::before,
-.cv-section .cv-experience__item--featured .cv-task-list-group__content > ul:not(.cv-task-tech-list) > li::after {
+.cv-section .cv-experience__item--featured .cv-task-list-group ul:not(.chips--tech) > li::before,
+.cv-section .cv-experience__item--featured .cv-task-list-group ul:not(.chips--tech) > li::after,
+.cv-section .cv-experience__item--featured .cv-task-list-group__content > ul:not(.chips--tech) > li::before,
+.cv-section .cv-experience__item--featured .cv-task-list-group__content > ul:not(.chips--tech) > li::after {
   display: none;
   content: none;
 }

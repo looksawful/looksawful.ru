@@ -234,8 +234,7 @@ p {
   letter-spacing: var(--letter-normal);
 }
 
-.cv-task-tech-list,
-.pet-tech-list {
+.chips--tech {
   color: var(--color-muted);
   font-size: var(--type-list-meta);
   font-weight: var(--font-weight-medium);
