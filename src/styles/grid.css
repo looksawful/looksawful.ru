@@ -163,29 +163,11 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
 }
 
-.cv-section .cv-experience__item--featured .task-gallery-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--case-gap);
-  align-items: start;
-  min-width: 0;
-}
-
-@media (min-width: 64rem) {
-  .cv-section .cv-experience__item--featured .task-gallery-row {
-    grid-template-columns: minmax(var(--case-panel-min), 0.45fr) minmax(var(--case-media-min), 1fr);
-  }
-}
-
 .cv-section .cv-experience__item--featured .task-side-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
   gap: clamp(0.65rem, 1vw, 1rem);
   min-width: 0;
-}
-
-.cv-section .cv-experience__item--featured .task-side-gallery--row {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
 }
 
 .cv-section .cv-experience__item--featured .task-side-gallery__link,

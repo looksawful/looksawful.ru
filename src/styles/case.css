@@ -754,12 +754,12 @@
   inline-size: 100%;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--selected-side-visual.task-domain--selected-media-right .task-group__meta {
+.cv-section .cv-experience__item--featured .task-domain--selected-side-visual.task-domain--media-featured-right .task-group__meta {
   grid-column: 1;
   grid-row: 1;
 }
 
-.cv-section .cv-experience__item--featured .task-domain--selected-side-visual.task-domain--selected-media-right .task-group__visual {
+.cv-section .cv-experience__item--featured .task-domain--selected-side-visual.task-domain--media-featured-right .task-group__visual {
   grid-column: 2;
   grid-row: 1;
 }
@@ -1134,14 +1134,14 @@
   inline-size: 100%;
 }
 
-.task-side-image--styx-photo-production {
+.task-side-image--cover-fit {
   overflow: hidden;
 }
 
-.task-side-image--styx-photo-production img,
-.task-side-image--styx-photo-production .task-side-image__media,
-.task-side-image--styx-photo-production .task-side-media,
-.task-side-image--styx-photo-production .task-side-media__image {
+.task-side-image--cover-fit img,
+.task-side-image--cover-fit .task-side-image__media,
+.task-side-image--cover-fit .task-side-media,
+.task-side-image--cover-fit .task-side-media__image {
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
