@@ -1,3 +1,52 @@
 /* utilities:start */
-/* intentionally empty during safe css flattening */
+.bg-dark {
+  background: #000;
+  color: #fff;
+}
+
+.bg-white {
+  background: #fff;
+  color: #000;
+}
+
+.bg-gray {
+  background: #f4f4f1;
+  color: #000;
+}
+
+.bg-transparent {
+  background: transparent;
+}
+
+.border-thin {
+  border: 1px solid currentColor;
+}
+
+.border-thick {
+  border: 2px solid currentColor;
+}
+
+.border-square {
+  border-radius: 0;
+}
+
+.radius-outer {
+  border-radius: var(--radius-outer, 2rem);
+}
+
+.radius-inner {
+  border-radius: var(--radius-inner, 1rem);
+}
+
+.radius-tight {
+  border-radius: var(--radius-tight, 0.5rem);
+}
+
+.no-border {
+  border: 0;
+}
+
+.no-radius {
+  border-radius: 0;
+}
 /* utilities:end */
