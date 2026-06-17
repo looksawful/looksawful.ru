@@ -24,9 +24,12 @@ const SCENE_LABELS = {
   lyveInterfaceStrip: "Lyve Moscow / interface / horizontal",
   jesteiLogoCanvas: "Jestei Pool / logo / prepared",
   jesteiColorCanvas: "Jestei Pool / color / prepared",
+  jesteiColorPhotoLoop: "Jestei Pool / color / photo loop",
+  jesteiColorBeforeAfter: "Jestei Pool / color / before-after",
   jesteiFormCanvas: "Jestei Pool / form / prepared",
   jesteiDepthCanvas: "Jestei Pool / depth / prepared",
   jesteiMotionCanvas: "Jestei Pool / motion / prepared",
+  jesteiMotionPhotoLoop: "Jestei Pool / motion / photo loop",
   jesteiLanguageCanvas: "Jestei Pool / language / prepared",
 };
 
@@ -41,9 +44,12 @@ const SCENE_DEFAULT_MAX_ITEMS = {
   lyveInterfaceStrip: 8,
   jesteiLogoCanvas: 12,
   jesteiColorCanvas: 20,
+  jesteiColorPhotoLoop: 24,
+  jesteiColorBeforeAfter: 2,
   jesteiFormCanvas: 18,
   jesteiDepthCanvas: 18,
   jesteiMotionCanvas: 20,
+  jesteiMotionPhotoLoop: 24,
   jesteiLanguageCanvas: 12,
 };
 
@@ -148,6 +154,30 @@ const buildStyxGraphicDiagonalScene = (scene = {}) => ({
 });
 
 const buildPublicSceneOverrides = (sourceScenes) => ({
+  jesteiColorPhotoLoop: {
+    id: "jesteiColorPhotoLoop",
+    label: SCENE_LABELS.jesteiColorPhotoLoop,
+    directory: "src/assets/jestei/animations/jestei-color-photo-loop",
+    folder: "jestei-color-photo-loop",
+    defaultMaxItems: SCENE_DEFAULT_MAX_ITEMS.jesteiColorPhotoLoop || 24,
+    modules: sourceScenes.jesteiColorPhotoLoop?.modules || {},
+  },
+  jesteiMotionPhotoLoop: {
+    id: "jesteiMotionPhotoLoop",
+    label: SCENE_LABELS.jesteiMotionPhotoLoop,
+    directory: "src/assets/jestei/animations/jestei-motion-photo-loop",
+    folder: "jestei-motion-photo-loop",
+    defaultMaxItems: SCENE_DEFAULT_MAX_ITEMS.jesteiMotionPhotoLoop || 24,
+    modules: sourceScenes.jesteiMotionPhotoLoop?.modules || {},
+  },
+  jesteiColorBeforeAfter: {
+    id: "jesteiColorBeforeAfter",
+    label: SCENE_LABELS.jesteiColorBeforeAfter,
+    directory: "src/assets/jestei/animations/jestei-color-before-after",
+    folder: "jestei-color-before-after",
+    defaultMaxItems: SCENE_DEFAULT_MAX_ITEMS.jesteiColorBeforeAfter || 2,
+    modules: sourceScenes.jesteiColorBeforeAfter?.modules || {},
+  },
   styxGraphicDiagonal: buildStyxGraphicDiagonalScene(sourceScenes.styxGraphicDiagonal),
   styxPhotoProduction: {
     id: "styxPhotoProduction",
@@ -211,3 +241,5 @@ export const getAnimationSceneSummaries = () =>
     fileCount: Object.keys(scene.modules).length,
     defaultMaxItems: scene.defaultMaxItems,
   }));
+
+
