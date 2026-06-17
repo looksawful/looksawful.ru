@@ -42,8 +42,12 @@
 }
 
 @keyframes before-after-sweep {
-  from { left: 28%; }
-  to { left: 72%; }
+  from {
+    left: 28%;
+  }
+  to {
+    left: 72%;
+  }
 }
 
 .media-mask-soft {
@@ -53,7 +57,9 @@
 
 .media-mask-blob {
   overflow: hidden;
-  clip-path: path("M0.08,0.42 C0.02,0.18 0.22,0.02 0.48,0.04 C0.76,0.06 0.98,0.2 0.94,0.48 C0.9,0.78 0.72,0.98 0.42,0.94 C0.16,0.91 0.02,0.68 0.08,0.42 Z");
+  clip-path: path(
+    "M0.08,0.42 C0.02,0.18 0.22,0.02 0.48,0.04 C0.76,0.06 0.98,0.2 0.94,0.48 C0.9,0.78 0.72,0.98 0.42,0.94 C0.16,0.91 0.02,0.68 0.08,0.42 Z"
+  );
 }
 
 .media-mask-rounded {
@@ -66,4 +72,27 @@
     clip-path: none;
     border-radius: 42% 58% 55% 45% / 48% 38% 62% 52%;
   }
+}
+.media-mask-soft,
+.media-mask-blob,
+.media-mask-rounded {
+  overflow: hidden;
+}
+
+.media-mask-soft > .media-item,
+.media-mask-soft img,
+.media-mask-soft video {
+  clip-path: ellipse(46% 42% at 50% 50%);
+}
+
+.media-mask-blob > .media-item,
+.media-mask-blob img,
+.media-mask-blob video {
+  border-radius: 38% 62% 58% 42% / 52% 42% 58% 48%;
+}
+
+.media-mask-rounded > .media-item,
+.media-mask-rounded img,
+.media-mask-rounded video {
+  border-radius: clamp(2rem, 10vw, 8rem);
 }

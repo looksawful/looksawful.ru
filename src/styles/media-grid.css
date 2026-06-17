@@ -1,4 +1,5 @@
 /* media-grid */
+
 .media-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -23,7 +24,9 @@
 .media-row > .media-vertical-three,
 .media-row > .media-centered-quad,
 .media-row > .media-diagonal-masonry,
-.media-row > .media-orbit-static {
+.media-row > .media-orbit-static,
+.media-row > .media-static-orbit,
+.media-row > .media-eight-mixed {
   margin: 0;
 }
 
@@ -98,6 +101,7 @@
   background: var(--black);
   color: var(--white);
   aspect-ratio: 1;
+  text-decoration: none;
 }
 
 .media-item img,
@@ -110,7 +114,8 @@
 }
 
 .media-contain img,
-.media-contain video {
+.media-contain video,
+.media-contain canvas {
   object-fit: contain;
 }
 
@@ -153,10 +158,103 @@
   aspect-ratio: 16 / 9;
 }
 
+/* safe media ratio modifiers */
+
+.media-item.media-item--square {
+  aspect-ratio: 1;
+}
+
+.media-item.media-item--landscape {
+  aspect-ratio: 16 / 9;
+}
+
+.media-item.media-item--strip {
+  aspect-ratio: 4 / 1;
+}
+
+.media-item.media-item--wide {
+  aspect-ratio: 2 / 1;
+}
+
+.media-item.media-item--portrait {
+  aspect-ratio: 9 / 16;
+}
+
+.media-item.media-item--vertical {
+  aspect-ratio: 4 / 5;
+}
+
+.media-item.media-item--horizontal {
+  aspect-ratio: 5 / 4;
+}
+
+/* safe media-six format modifiers */
+
+.media-six.media-square > .media-item {
+  aspect-ratio: 1;
+}
+
+.media-six.media-landscape > .media-item {
+  aspect-ratio: 16 / 9;
+}
+
+.media-six.media-strip > .media-item {
+  aspect-ratio: 4 / 1;
+}
+
+.media-six.media-wide > .media-item {
+  aspect-ratio: 2 / 1;
+}
+
+.media-six.media-portrait > .media-item {
+  aspect-ratio: 9 / 16;
+}
+
+.media-six.media-vertical > .media-item {
+  aspect-ratio: 4 / 5;
+}
+
+.media-six.media-horizontal > .media-item {
+  aspect-ratio: 5 / 4;
+}
+
+/* safe media-eight format modifiers */
+
+.media-eight.media-square > .media-item {
+  aspect-ratio: 1;
+}
+
+.media-eight.media-landscape > .media-item {
+  aspect-ratio: 16 / 9;
+}
+
+.media-eight.media-strip > .media-item {
+  aspect-ratio: 4 / 1;
+}
+
+.media-eight.media-wide > .media-item {
+  aspect-ratio: 2 / 1;
+}
+
+.media-eight.media-portrait > .media-item {
+  aspect-ratio: 9 / 16;
+}
+
+.media-eight.media-vertical > .media-item {
+  aspect-ratio: 4 / 5;
+}
+
+.media-eight.media-horizontal > .media-item {
+  aspect-ratio: 5 / 4;
+}
+
+/* old overlap */
+
 .media-overlap {
   --overlap-shift: clamp(2.5rem, 9vw, 7rem);
   --overlap-lift: clamp(1.2rem, 3vw, 2.4rem);
   --overlap-height: clamp(16rem, 34vw, 32rem);
+
   position: relative;
   min-height: var(--overlap-height);
   margin: 0;
@@ -188,6 +286,8 @@
   transform: translate(calc(-50% + var(--overlap-shift)), calc(-50% - var(--overlap-lift))) scale(1.08);
 }
 
+/* masonry */
+
 .media-masonry {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-auto-flow: dense;
@@ -213,10 +313,13 @@
   grid-row: span 1;
 }
 
+/* old orbit */
+
 .media-orbit-static {
   --orbit-size: min(100%, clamp(18rem, 58vw, 44rem));
   --orbit-card: clamp(5rem, 13vw, 10rem);
   --orbit-radius: calc((var(--orbit-size) - var(--orbit-card)) / 2);
+
   position: relative;
   display: grid;
   place-items: center;
@@ -238,27 +341,104 @@
 .media-orbit-static > .media-item:nth-child(1) {
   --orbit-angle: 0deg;
 }
+
 .media-orbit-static > .media-item:nth-child(2) {
   --orbit-angle: 45deg;
 }
+
 .media-orbit-static > .media-item:nth-child(3) {
   --orbit-angle: 90deg;
 }
+
 .media-orbit-static > .media-item:nth-child(4) {
   --orbit-angle: 135deg;
 }
+
 .media-orbit-static > .media-item:nth-child(5) {
   --orbit-angle: 180deg;
 }
+
 .media-orbit-static > .media-item:nth-child(6) {
   --orbit-angle: 225deg;
 }
+
 .media-orbit-static > .media-item:nth-child(7) {
   --orbit-angle: 270deg;
 }
+
 .media-orbit-static > .media-item:nth-child(8) {
   --orbit-angle: 315deg;
 }
+
+/* lab static orbit */
+
+.media-static-orbit {
+  --orbit-card: clamp(8rem, 16vw, 14rem);
+  --orbit-radius-x: clamp(9rem, 28vw, 26rem);
+  --orbit-radius-z: clamp(2rem, 8vw, 8rem);
+
+  position: relative;
+  display: block;
+  min-height: clamp(25rem, 52vw, 44rem);
+  margin: 0;
+  padding: 0;
+  overflow: clip;
+  perspective: 1100px;
+  transform-style: preserve-3d;
+  isolation: isolate;
+}
+
+.media-static-orbit::before {
+  content: "";
+  position: absolute;
+  inset: 10% auto 10% 50%;
+  border-left: var(--line);
+  opacity: 0.25;
+}
+
+.media-static-orbit > .media-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--orbit-card);
+  aspect-ratio: 4 / 5;
+  transform-style: preserve-3d;
+}
+
+.media-static-orbit > .media-item:nth-child(1) {
+  z-index: 5;
+  transform: translate(-50%, -50%) translateX(calc(var(--orbit-radius-x) * -1)) translateZ(0) rotateY(-44deg)
+    scale(0.75);
+}
+
+.media-static-orbit > .media-item:nth-child(2) {
+  z-index: 7;
+  transform: translate(-50%, -50%) translateX(calc(var(--orbit-radius-x) * -0.55)) translateZ(var(--orbit-radius-z))
+    rotateY(-28deg) scale(0.9);
+}
+
+.media-static-orbit > .media-item:nth-child(3) {
+  z-index: 9;
+  transform: translate(-50%, -50%) translateX(0) translateZ(calc(var(--orbit-radius-z) * 1.45)) rotateY(0deg)
+    scale(1.08);
+}
+
+.media-static-orbit > .media-item:nth-child(4) {
+  z-index: 7;
+  transform: translate(-50%, -50%) translateX(calc(var(--orbit-radius-x) * 0.55)) translateZ(var(--orbit-radius-z))
+    rotateY(28deg) scale(0.9);
+}
+
+.media-static-orbit > .media-item:nth-child(5) {
+  z-index: 5;
+  transform: translate(-50%, -50%) translateX(var(--orbit-radius-x)) translateZ(0) rotateY(44deg) scale(0.75);
+}
+
+.media-static-orbit > .media-item:nth-child(n + 6) {
+  display: none;
+}
+
+/* ribbon */
 
 .media-ribbon {
   width: 100vw;
@@ -280,8 +460,11 @@
   transform: scale(0.74);
 }
 
+/* diagonal masonry */
+
 .media-diagonal-masonry {
   --diagonal-row: clamp(7rem, 11vw, 13rem);
+
   width: 100vw;
   margin-inline: calc(50% - 50vw);
   padding: var(--gap-lg) var(--gap);
@@ -312,6 +495,31 @@
 
 .media-diagonal-masonry .media-item {
   aspect-ratio: 1;
+}
+
+/* lab mixed eight */
+
+.media-eight-mixed {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: clamp(7rem, 10vw, 11rem);
+  grid-auto-flow: dense;
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+}
+
+.media-eight-mixed > .media-item {
+  aspect-ratio: auto;
+}
+
+.media-eight-mixed > .media-item:nth-child(1) {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.media-eight-mixed > .media-item:nth-child(4) {
+  grid-column: span 2;
 }
 
 @media (max-width: 48rem) {
@@ -365,4 +573,70 @@
     width: auto;
     transform: none;
   }
+
+  .media-static-orbit {
+    --orbit-card: clamp(5.5rem, 24vw, 9rem);
+    --orbit-radius-x: clamp(6rem, 33vw, 14rem);
+
+    min-height: clamp(17rem, 72vw, 29rem);
+  }
+
+  .media-eight-mixed {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: clamp(3.2rem, 15vw, 5.2rem);
+    gap: clamp(0.35rem, 2vw, 0.75rem);
+  }
+}
+.media-overlap-three {
+  --overlap-card-width: clamp(18rem, 36vw, 32rem);
+  --overlap-stage-height: clamp(24rem, 48vw, 40rem);
+  --overlap-scale-1: 0.74;
+  --overlap-scale-2: 0.92;
+  --overlap-scale-3: 1.12;
+  --overlap-x-1: -96%;
+  --overlap-x-2: -50%;
+  --overlap-x-3: -4%;
+
+  position: relative;
+  display: block;
+  min-height: var(--overlap-stage-height);
+  margin: 0;
+  padding: 0;
+  overflow: clip;
+  isolation: isolate;
+}
+
+.media-overlap-three > .media-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--overlap-card-width);
+  overflow: hidden;
+  border: var(--line);
+  border-radius: var(--r);
+  background: var(--black);
+  transform-origin: 50% 50%;
+}
+
+.media-overlap-three > .media-item:nth-child(1) {
+  z-index: 1;
+  transform: translate(var(--overlap-x-1), -50%) scale(var(--overlap-scale-1));
+}
+
+.media-overlap-three > .media-item:nth-child(2) {
+  z-index: 2;
+  transform: translate(var(--overlap-x-2), -50%) scale(var(--overlap-scale-2));
+}
+
+.media-overlap-three > .media-item:nth-child(3) {
+  z-index: 3;
+  transform: translate(var(--overlap-x-3), -50%) scale(var(--overlap-scale-3));
+}
+
+.media-overlap-three > .media-item img,
+.media-overlap-three > .media-item video,
+.media-overlap-three > .media-item canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }

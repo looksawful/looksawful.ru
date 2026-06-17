@@ -1,8 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap");
 @import "./awfulface.css";
 @import "./canvas.css";
+@import "./lead-text.css";
 @import "./orbit.css";
 @import "./media-grid.css";
+@import "./media-effects.css";
 @import "./skeleton.css";
 
 /* tokens */

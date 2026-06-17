@@ -9,7 +9,7 @@
 .lead-center__text {
   max-width: 12ch;
   font-size: clamp(3rem, 14vw, 12rem);
-  font-weight: 800;
+  font-weight: 600;
   line-height: 0.9;
   letter-spacing: -0.06em;
   text-transform: lowercase;
@@ -72,4 +72,87 @@
   line-height: 1.05;
   letter-spacing: -0.035em;
   text-wrap: balance;
+}
+
+/* lead-display system */
+
+.lead-display {
+  display: grid;
+  place-items: center;
+  min-height: clamp(28rem, 76vw, 64rem);
+  width: 100%;
+  text-align: center;
+}
+
+.lead-display p {
+  max-width: min(100%, 14ch);
+  margin: 0 auto;
+  font-size: clamp(6rem, 21vw, 24rem);
+  font-weight: 600;
+  line-height: 0.78;
+  letter-spacing: -0.09em;
+  text-transform: lowercase;
+  text-wrap: balance;
+}
+
+.lead-display--short p {
+  max-width: 8ch;
+  font-size: clamp(8rem, 28vw, 32rem);
+}
+
+.lead-display--medium p {
+  max-width: 12ch;
+  font-size: clamp(6rem, 20vw, 22rem);
+}
+
+.lead-display--long p {
+  max-width: 18ch;
+  font-size: clamp(4rem, 12vw, 13rem);
+  line-height: 0.84;
+}
+
+.lead-display--paragraph p {
+  max-width: 27ch;
+  font-size: clamp(3rem, 4vw, 4.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.0275em;
+}
+
+.lead-display--multi {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-content: center;
+}
+
+.lead-display--multi p {
+  max-width: 28ch;
+  font-size: clamp(2.8rem, 7vw, 7rem);
+  line-height: 0.95;
+}
+
+@media (max-width: 48rem) {
+  .lead-display {
+    min-height: clamp(18rem, 88vw, 34rem);
+  }
+
+  .lead-display p {
+    font-size: clamp(4.2rem, 23vw, 9.5rem);
+  }
+
+  .lead-display--short p {
+    font-size: clamp(5.4rem, 30vw, 12rem);
+  }
+
+  .lead-display--medium p {
+    font-size: clamp(4rem, 20vw, 9rem);
+  }
+
+  .lead-display--long p {
+    font-size: clamp(2.7rem, 12vw, 5.8rem);
+  }
+
+  .lead-display--paragraph p,
+  .lead-display--multi p {
+    font-size: clamp(2rem, 8vw, 4rem);
+  }
 }
