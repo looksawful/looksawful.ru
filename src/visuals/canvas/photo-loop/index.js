@@ -7,31 +7,50 @@ import {
   getCanvasMountOptions,
   limitAnimationItems,
   noop,
-  roundedRect,
 } from "../../shared/canvas-animation.js";
 import { ANIMATION_SCENES, createAnimationItems } from "../showcase-animation-assets.js";
+
+const CONFIG = {
+  autoSpeed: 42,
+  direction: 1,
+  hoverAutoFactor: 0,
+  hoverStopEase: 0.075,
+  resumeEase: 0.045,
+  dragSensitivity: 1.12,
+  dragFriction: 0.82,
+  momentumFriction: 0.92,
+  dragReleaseBoost: 0.62,
+  cardSize: {
+    min: 120,
+    max: 320,
+    viewportRatio: 0.42,
+    containerHeightRatio: 0.72,
+  },
+  gap: {
+    min: 36,
+    max: 96,
+    cardRatio: 0.28,
+  },
+  hoverScale: 1.08,
+  hoverEase: 0.13,
+  offscreenSteps: 3,
+  minimumTrackCopies: 2,
+  imageSmoothing: true,
+  background: "#f4f4f4",
+  pixelRatioLimit: 2,
+};
 
 const KEY_PREFIX = "showcase-photo-loop:";
 const DEFAULT_SCENE = "jesteiColorPhotoLoop";
 
-const CONFIG = {
-  maxItems: 24,
-  initialCount: 8,
-  batchSize: 4,
-  fps: 60,
-  speedScale: 1,
-  autoSpeed: 0.034,
-  dragFactor: 1,
-  momentumFriction: 0.92,
-  hoverScale: 1.035,
-  cardRatio: 1.25,
-  gap: 14,
-  radius: 14,
-};
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
 
-const noopDispose = () => {};
-const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-const wrap = (value, size) => ((value % size) + size) % size;
+function positiveModulo(value, modulus) {
+  if (!modulus) return value;
+  return ((value % modulus) + modulus) % modulus;
+}
 
 const getCanvas = (canvasOrId) => {
   if (typeof canvasOrId === "string") {
@@ -43,92 +62,13 @@ const getCanvas = (canvasOrId) => {
 
 const ensureCanvasId = (canvas) => {
   if (!canvas.id) {
-    canvas.id = "showcase-photo-loop-" + Math.random().toString(36).slice(2, 9);
+    canvas.id = "photo-loop-canvas-" + Math.random().toString(36).slice(2, 9);
   }
 
   return canvas.id;
 };
 
 const getMedia = (item) => item?.imageElement || item?.mediaElement || null;
-
-const getMediaDimensions = (media) => ({
-  width: Math.max(1, media?.videoWidth || media?.naturalWidth || media?.width || 1),
-  height: Math.max(1, media?.videoHeight || media?.naturalHeight || media?.height || 1),
-});
-
-const drawCover = (ctx, media, x, y, width, height, radius) => {
-  if (!media || width <= 0 || height <= 0) {
-    return false;
-  }
-
-  const source = getMediaDimensions(media);
-  const sourceRatio = source.width / source.height;
-  const targetRatio = width / height;
-
-  let sx = 0;
-  let sy = 0;
-  let sw = source.width;
-  let sh = source.height;
-
-  if (sourceRatio > targetRatio) {
-    sw = source.height * targetRatio;
-    sx = (source.width - sw) * 0.5;
-  } else {
-    sh = source.width / targetRatio;
-    sy = (source.height - sh) * 0.5;
-  }
-
-  ctx.save();
-
-  if (radius > 0) {
-    ctx.beginPath();
-    roundedRect(ctx, x, y, width, height, Math.min(radius, width * 0.5, height * 0.5));
-    ctx.closePath();
-    ctx.clip();
-  }
-
-  ctx.drawImage(media, sx, sy, sw, sh, x, y, width, height);
-  ctx.restore();
-
-  return true;
-};
-
-const drawPlaceholder = (ctx, x, y, width, height, radius) => {
-  ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
-  ctx.beginPath();
-  roundedRect(ctx, x, y, width, height, radius);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-};
-
-const drawEmptyState = (ctx, width, height) => {
-  ctx.save();
-
-  ctx.fillStyle = "#111";
-  ctx.fillRect(0, 0, width, height);
-
-  ctx.globalAlpha = 0.2;
-  ctx.strokeStyle = "#fff";
-  ctx.lineWidth = 1;
-
-  for (let x = -height; x < width + height; x += 32) {
-    ctx.beginPath();
-    ctx.moveTo(x, height);
-    ctx.lineTo(x + height, 0);
-    ctx.stroke();
-  }
-
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = "#fff";
-  ctx.font = "700 12px Rubik, Arial, sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("add images: 01.webp, 02.webp, ...", width * 0.5, height * 0.5);
-
-  ctx.restore();
-};
 
 const getSceneItems = (canvas, options, maxItems) => {
   const sceneId = options.scene || canvas.dataset.animationScene || DEFAULT_SCENE;
@@ -146,17 +86,280 @@ const getSceneItems = (canvas, options, maxItems) => {
   });
 };
 
-const getMetrics = (width, height) => {
-  const cardHeight = Math.max(96, height * 0.78);
-  const cardWidth = cardHeight * CONFIG.cardRatio;
+class PhotoLoopCanvas {
+  constructor(canvas, ctx, loader, config) {
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.loader = loader;
+    this.config = config;
+    this.images = [];
+    this.items = [];
+    this.width = 0;
+    this.height = 0;
+    this.cardSize = 0;
+    this.gap = 0;
+    this.step = 0;
+    this.trackLength = 0;
+    this.offset = 0;
+    this.hoveredId = null;
+    this.pointer = { x: 0, y: 0, active: false };
+    this.drag = { active: false, id: null, lastX: 0, velocity: 0 };
+    this.autoFactor = 1;
+    this.targetAutoFactor = 1;
+    this.externalVelocity = 0;
+    this.disposed = false;
+    this.lastImageCount = -1;
 
-  return {
-    cardWidth,
-    cardHeight,
-    step: cardWidth + CONFIG.gap,
-    y: (height - cardHeight) * 0.5,
-  };
-};
+    this.onPointerEnter = (event) => {
+      this.pointer.active = true;
+      this.setPointer(event);
+    };
+
+    this.onPointerMove = (event) => {
+      this.pointer.active = true;
+      this.setPointer(event);
+
+      if (!this.drag.active) return;
+
+      const dx = event.clientX - this.drag.lastX;
+      this.offset += dx * this.config.dragSensitivity;
+      this.drag.velocity = dx;
+      this.drag.lastX = event.clientX;
+      this.keepOffsetInRange();
+    };
+
+    this.onPointerLeave = () => {
+      this.pointer.active = false;
+      this.hoveredId = null;
+
+      if (this.drag.active) this.endDrag();
+    };
+
+    this.onPointerDown = (event) => {
+      this.canvas.setPointerCapture?.(event.pointerId);
+      this.canvas.classList.add("is-dragging");
+      this.drag.active = true;
+      this.drag.id = event.pointerId;
+      this.drag.lastX = event.clientX;
+      this.drag.velocity = 0;
+      this.setPointer(event);
+    };
+
+    this.onPointerUp = () => this.endDrag();
+    this.onPointerCancel = () => this.endDrag();
+this.bindEvents();
+  }
+
+  bindEvents() {
+    this.canvas.addEventListener("pointerenter", this.onPointerEnter);
+    this.canvas.addEventListener("pointermove", this.onPointerMove);
+    this.canvas.addEventListener("pointerleave", this.onPointerLeave);
+    this.canvas.addEventListener("pointerdown", this.onPointerDown);
+    this.canvas.addEventListener("pointerup", this.onPointerUp);
+    this.canvas.addEventListener("pointercancel", this.onPointerCancel);
+  }
+
+  destroy() {
+    this.disposed = true;
+    this.canvas.classList.remove("is-dragging");
+
+    this.canvas.removeEventListener("pointerenter", this.onPointerEnter);
+    this.canvas.removeEventListener("pointermove", this.onPointerMove);
+    this.canvas.removeEventListener("pointerleave", this.onPointerLeave);
+    this.canvas.removeEventListener("pointerdown", this.onPointerDown);
+    this.canvas.removeEventListener("pointerup", this.onPointerUp);
+    this.canvas.removeEventListener("pointercancel", this.onPointerCancel);
+  }
+
+  syncImages() {
+    const nextImages = this.loader.items.map((item) => getMedia(item)).filter(Boolean);
+
+    if (nextImages.length === this.lastImageCount) {
+      return;
+    }
+
+    this.images = nextImages;
+    this.lastImageCount = nextImages.length;
+    this.buildItems();
+  }
+
+  setPointer(event) {
+    const rect = this.canvas.getBoundingClientRect();
+    this.pointer.x = event.clientX - rect.left;
+    this.pointer.y = event.clientY - rect.top;
+  }
+
+  endDrag() {
+    if (!this.drag.active) return;
+
+    this.canvas.classList.remove("is-dragging");
+    this.externalVelocity += this.drag.velocity * this.config.dragReleaseBoost;
+    this.drag.active = false;
+    this.drag.id = null;
+  }
+
+  resize(width, height) {
+    const previousTrackLength = this.trackLength;
+
+    this.width = Math.max(1, width);
+    this.height = Math.max(1, height);
+    this.ctx.imageSmoothingEnabled = this.config.imageSmoothing;
+
+    const sizeByWidth = this.width * this.config.cardSize.viewportRatio;
+    const sizeByHeight = this.height * this.config.cardSize.containerHeightRatio;
+
+    this.cardSize = clamp(Math.min(sizeByWidth, sizeByHeight), this.config.cardSize.min, this.config.cardSize.max);
+
+    this.gap = clamp(this.cardSize * this.config.gap.cardRatio, this.config.gap.min, this.config.gap.max);
+
+    this.step = this.cardSize + this.gap;
+
+    this.buildItems();
+
+    if (previousTrackLength > 0 && this.trackLength > 0) {
+      this.offset = (this.offset / previousTrackLength) * this.trackLength;
+    }
+
+    this.keepOffsetInRange();
+  }
+
+  buildItems() {
+    if (!this.images.length || !this.step) {
+      this.items = [];
+      this.trackLength = 0;
+      return;
+    }
+
+    const visibleWidth = this.width + this.step * this.config.offscreenSteps * 2;
+    const visibleItems = Math.ceil(visibleWidth / this.step) + 1;
+    const imageCount = this.images.length;
+
+    const requiredCopies = Math.max(this.config.minimumTrackCopies, Math.ceil(visibleItems / imageCount) + 1);
+
+    const total = imageCount * requiredCopies;
+
+    this.items = Array.from({ length: total }, (_, index) => ({
+      id: index,
+      image: this.images[index % imageCount],
+      scale: 1,
+      targetScale: 1,
+    }));
+
+    this.trackLength = total * this.step;
+  }
+
+  tick(deltaSeconds, reducedMotion) {
+    this.syncImages();
+
+    if (!this.items.length) return;
+
+    if (!reducedMotion) {
+      this.update(deltaSeconds);
+    } else {
+      this.updateHover();
+
+      for (const item of this.items) {
+        item.targetScale = item.id === this.hoveredId ? this.config.hoverScale : 1;
+        item.scale += (item.targetScale - item.scale) * this.config.hoverEase;
+      }
+    }
+  }
+
+  update(dt) {
+    this.updateHover();
+
+    this.targetAutoFactor = this.hoveredId !== null || this.drag.active ? this.config.hoverAutoFactor : 1;
+
+    const ease = this.targetAutoFactor < this.autoFactor ? this.config.hoverStopEase : this.config.resumeEase;
+
+    this.autoFactor += (this.targetAutoFactor - this.autoFactor) * ease;
+
+    this.offset += this.config.autoSpeed * this.config.direction * this.autoFactor * dt;
+    this.offset += this.externalVelocity;
+
+    this.externalVelocity *= this.drag.active ? this.config.dragFriction : this.config.momentumFriction;
+
+    if (Math.abs(this.externalVelocity) < 0.01) {
+      this.externalVelocity = 0;
+    }
+
+    this.keepOffsetInRange();
+
+    for (const item of this.items) {
+      item.targetScale = item.id === this.hoveredId ? this.config.hoverScale : 1;
+      item.scale += (item.targetScale - item.scale) * this.config.hoverEase;
+    }
+  }
+
+  updateHover() {
+    if (!this.pointer.active || this.drag.active || !this.items.length) {
+      this.hoveredId = null;
+      return;
+    }
+
+    let hit = null;
+    const y = (this.height - this.cardSize) / 2;
+
+    for (const item of this.items) {
+      const x = this.getItemX(item.id);
+      const currentScale = item.id === this.hoveredId ? this.config.hoverScale : item.scale;
+
+      const size = this.cardSize * currentScale;
+      const drawX = x - (size - this.cardSize) / 2;
+      const drawY = y - (size - this.cardSize) / 2;
+
+      const insideX = this.pointer.x >= drawX && this.pointer.x <= drawX + size;
+      const insideY = this.pointer.y >= drawY && this.pointer.y <= drawY + size;
+
+      if (insideX && insideY) {
+        hit = item.id;
+        break;
+      }
+    }
+
+    this.hoveredId = hit;
+  }
+
+  getItemX(index) {
+    if (!this.trackLength) return 0;
+
+    const start = -this.step * this.config.offscreenSteps;
+
+    return start + positiveModulo(index * this.step + this.offset - start, this.trackLength);
+  }
+
+  keepOffsetInRange() {
+    if (!this.trackLength) return;
+
+    this.offset = positiveModulo(this.offset, this.trackLength);
+  }
+
+  draw() {
+    const ctx = this.ctx;
+
+    ctx.clearRect(0, 0, this.width, this.height);
+    ctx.fillStyle = this.config.background;
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    if (!this.items.length) return;
+
+    const y = (this.height - this.cardSize) / 2;
+
+    for (const item of this.items) {
+      const x = this.getItemX(item.id);
+
+      if (x > this.width + this.step || x + this.cardSize < -this.step) {
+        continue;
+      }
+
+      const size = this.cardSize * item.scale;
+      const drawX = x - (size - this.cardSize) / 2;
+      const drawY = y - (size - this.cardSize) / 2;
+
+      ctx.drawImage(item.image, drawX, drawY, size, size);
+    }
+  }
+}
 
 export const mountShowcasePhotoLoop = (canvasOrId, options = {}) => {
   const canvas = getCanvas(canvasOrId);
@@ -176,11 +379,11 @@ export const mountShowcasePhotoLoop = (canvasOrId, options = {}) => {
   const token = beginMount(key);
 
   const tuning = getCanvasMountOptions(canvas, options, {
-    maxItems: CONFIG.maxItems,
-    initialCount: CONFIG.initialCount,
-    batchSize: CONFIG.batchSize,
-    fps: CONFIG.fps,
-    speedScale: CONFIG.speedScale,
+    maxItems: options.maxItems || 24,
+    initialCount: options.initialCount || 8,
+    batchSize: options.batchSize || 4,
+    fps: options.fps || 60,
+    speedScale: options.speedScale || 1,
   });
 
   const sceneId = options.scene || canvas.dataset.animationScene || DEFAULT_SCENE;
@@ -193,149 +396,32 @@ export const mountShowcasePhotoLoop = (canvasOrId, options = {}) => {
     sceneId,
   });
 
-  const state = {
-    disposed: false,
-    offset: 0,
-    velocity: 0,
-    dragging: false,
-    pointerX: 0,
-    hoverX: null,
-    hoverY: null,
-  };
-
-  const getPointer = (event) => {
-    const rect = canvas.getBoundingClientRect();
-
-    return {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    };
-  };
-
-  const handlePointerDown = (event) => {
-    state.dragging = true;
-    state.pointerX = event.clientX;
-    state.velocity = 0;
-    canvas.setPointerCapture?.(event.pointerId);
-  };
-
-  const handlePointerMove = (event) => {
-    const pointer = getPointer(event);
-
-    state.hoverX = pointer.x;
-    state.hoverY = pointer.y;
-
-    if (!state.dragging) {
-      return;
-    }
-
-    const dx = event.clientX - state.pointerX;
-    state.pointerX = event.clientX;
-    state.offset -= dx * CONFIG.dragFactor;
-    state.velocity = -dx;
-  };
-
-  const handlePointerUp = (event) => {
-    state.dragging = false;
-    canvas.releasePointerCapture?.(event.pointerId);
-  };
-
-  const handlePointerLeave = () => {
-    state.hoverX = null;
-    state.hoverY = null;
-  };
-
-  const handleWheel = (event) => {
-    event.preventDefault();
-    state.offset += event.deltaY || event.deltaX || 0;
-  };
-
-  canvas.addEventListener("pointerdown", handlePointerDown);
-  canvas.addEventListener("pointermove", handlePointerMove);
-  canvas.addEventListener("pointerup", handlePointerUp);
-  canvas.addEventListener("pointercancel", handlePointerUp);
-  canvas.addEventListener("pointerleave", handlePointerLeave);
-  canvas.addEventListener("wheel", handleWheel, { passive: false });
+  const controller = new PhotoLoopCanvas(canvas, ctx, loader, {
+    ...CONFIG,
+    pixelRatioLimit: tuning.maxDpr || CONFIG.pixelRatioLimit,
+  });
 
   const baseDispose = createCanvasAnimation({
     key,
     canvas,
     ctx,
-    maxDpr: tuning.maxDpr,
+    maxDpr: tuning.maxDpr || CONFIG.pixelRatioLimit,
     fps: tuning.fps,
     onActiveChange: (isActive) => loader.setPlaybackEnabled(isActive),
     renderFrame: ({ delta, width, height, reducedMotion }) => {
-      if (state.disposed) {
-        return;
-      }
+      if (controller.disposed) return;
 
-      ctx.clearRect(0, 0, width, height);
-
-      const loadedItems = loader.items.filter((item) => getMedia(item));
-
-      if (!loadedItems.length) {
-        drawEmptyState(ctx, width, height);
-        return;
-      }
-
-      const metrics = getMetrics(width, height);
-      const cycle = Math.max(1, metrics.step * loadedItems.length);
-
-      if (!reducedMotion && !state.dragging) {
-        state.offset += (delta || 16.67) * CONFIG.autoSpeed * tuning.speedScale + state.velocity;
-        state.velocity *= CONFIG.momentumFriction;
-      }
-
-      state.offset = wrap(state.offset, cycle);
-
-      for (let index = 0; index < loadedItems.length + 3; index += 1) {
-        const item = loadedItems[index % loadedItems.length];
-        let x = index * metrics.step - state.offset;
-
-        while (x < -metrics.step) {
-          x += cycle;
-        }
-
-        while (x > width + metrics.step) {
-          x -= cycle;
-        }
-
-        const isHovered =
-          state.hoverX !== null &&
-          state.hoverX >= x &&
-          state.hoverX <= x + metrics.cardWidth &&
-          state.hoverY >= metrics.y &&
-          state.hoverY <= metrics.y + metrics.cardHeight;
-
-        const scale = isHovered ? CONFIG.hoverScale : 1;
-        const drawWidth = metrics.cardWidth * scale;
-        const drawHeight = metrics.cardHeight * scale;
-        const drawX = x - (drawWidth - metrics.cardWidth) * 0.5;
-        const drawY = metrics.y - (drawHeight - metrics.cardHeight) * 0.5;
-        const media = getMedia(item);
-
-        if (media) {
-          drawCover(ctx, media, drawX, drawY, drawWidth, drawHeight, CONFIG.radius);
-        } else {
-          drawPlaceholder(ctx, drawX, drawY, drawWidth, drawHeight, CONFIG.radius);
-        }
-      }
+      controller.resize(width, height);
+      controller.tick(Math.min((delta || 16.67) / 1000, 0.05) * tuning.speedScale, reducedMotion);
+      controller.draw();
     },
   });
 
   const dispose = completeMount(key, token, baseDispose);
 
   return () => {
-    state.disposed = true;
+    controller.destroy();
     loader.cancel();
-
-    canvas.removeEventListener("pointerdown", handlePointerDown);
-    canvas.removeEventListener("pointermove", handlePointerMove);
-    canvas.removeEventListener("pointerup", handlePointerUp);
-    canvas.removeEventListener("pointercancel", handlePointerUp);
-    canvas.removeEventListener("pointerleave", handlePointerLeave);
-    canvas.removeEventListener("wheel", handleWheel);
-
     dispose();
   };
 };
@@ -355,4 +441,3 @@ export const initShowcasePhotoLoop = (root = document) => {
   return mounted;
 };
 
-export const disposeShowcasePhotoLoop = noopDispose;
