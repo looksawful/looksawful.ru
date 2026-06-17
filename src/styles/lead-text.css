@@ -1,0 +1,75 @@
+/* lead-text */
+.lead-center {
+  display: grid;
+  place-items: center;
+  min-height: clamp(18rem, 44vw, 38rem);
+  text-align: center;
+}
+
+.lead-center__text {
+  max-width: 12ch;
+  font-size: clamp(3rem, 14vw, 12rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  text-transform: lowercase;
+  text-wrap: balance;
+}
+
+.lead-center__text[data-words="short"] {
+  font-size: clamp(4rem, 18vw, 15rem);
+}
+
+.lead-center__text[data-words="long"] {
+  max-width: 18ch;
+  font-size: clamp(2.4rem, 9vw, 7.6rem);
+}
+
+.lead-book {
+  display: grid;
+  gap: var(--gap);
+  max-width: min(100%, 58rem);
+}
+
+.lead-book h4,
+.lead-book h5 {
+  font-size: clamp(1.8rem, 4vw, 4.4rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  text-wrap: balance;
+}
+
+.lead-book p {
+  max-width: 36em;
+  font-size: clamp(1.15rem, 1.75vw, 1.8rem);
+  line-height: 1.22;
+  font-weight: 500;
+}
+
+.thesis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 0.55rem;
+  max-width: min(100%, 70rem);
+  margin-inline: auto;
+  padding: 0;
+  list-style: none;
+}
+
+.thesis-grid li,
+.thesis-item {
+  display: grid;
+  align-items: center;
+  min-height: clamp(4.5rem, 8vw, 8rem);
+  padding: clamp(0.9rem, 1.6vw, 1.6rem);
+  border: var(--line);
+  border-radius: var(--r-lg);
+  background: transparent;
+  font-size: clamp(1.05rem, 1.8vw, 2rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}

@@ -22,6 +22,12 @@ const SCENE_LABELS = {
   styxScanographyLoops: "Styx Jewels / scanography loops",
   lyveGraphicCarousel: "Lyve Moscow / graphic / carousel",
   lyveInterfaceStrip: "Lyve Moscow / interface / horizontal",
+  jesteiLogoCanvas: "Jestei Pool / logo / prepared",
+  jesteiColorCanvas: "Jestei Pool / color / prepared",
+  jesteiFormCanvas: "Jestei Pool / form / prepared",
+  jesteiDepthCanvas: "Jestei Pool / depth / prepared",
+  jesteiMotionCanvas: "Jestei Pool / motion / prepared",
+  jesteiLanguageCanvas: "Jestei Pool / language / prepared",
 };
 
 const SCENE_DEFAULT_MAX_ITEMS = {
@@ -33,6 +39,12 @@ const SCENE_DEFAULT_MAX_ITEMS = {
   styxScanographyLoops: 6,
   lyveGraphicCarousel: 8,
   lyveInterfaceStrip: 8,
+  jesteiLogoCanvas: 12,
+  jesteiColorCanvas: 20,
+  jesteiFormCanvas: 18,
+  jesteiDepthCanvas: 18,
+  jesteiMotionCanvas: 20,
+  jesteiLanguageCanvas: 12,
 };
 
 const getModuleUrl = (moduleValue) =>
