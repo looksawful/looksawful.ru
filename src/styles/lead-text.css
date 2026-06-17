@@ -79,7 +79,6 @@
 .lead-display {
   display: grid;
   place-items: center;
-  min-height: clamp(28rem, 76vw, 64rem);
   width: 100%;
   text-align: center;
 }
@@ -131,10 +130,6 @@
 }
 
 @media (max-width: 48rem) {
-  .lead-display {
-    min-height: clamp(18rem, 88vw, 34rem);
-  }
-
   .lead-display p {
     font-size: clamp(4.2rem, 23vw, 9.5rem);
   }

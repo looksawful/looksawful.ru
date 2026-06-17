@@ -226,6 +226,11 @@ p {
   border-top: 0;
 }
 
+.block > .block:first-of-type {
+  padding-block-start: 0;
+  border-top: 0;
+}
+
 .project__head {
   display: grid;
   grid-template-columns: clamp(7rem, 12vw, 12rem) minmax(0, 1fr) max-content;
@@ -258,11 +263,16 @@ p {
 }
 
 .block__header,
+.project__head > div,
 .text-block,
 .resume-item__header {
   display: grid;
   gap: 0.7rem;
   max-width: 56rem;
+}
+
+.project__head > div {
+  gap: var(--gap);
 }
 
 .meta {
@@ -465,5 +475,14 @@ p {
 [data-animation="diagonal"] canvas,
 [data-animation="landing-arc"] canvas {
   background: transparent;
+}
+
+.bg-black {
+  background: var(--black);
+  color: var(--white);
+}
+
+.no-stroke {
+  border-color: transparent;
 }
 

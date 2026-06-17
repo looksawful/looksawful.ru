@@ -7,6 +7,7 @@ import {
   getCanvasMountOptions,
   limitAnimationItems,
   noop,
+  roundedRect,
 } from "../../shared/canvas-animation.js";
 import { ANIMATION_SCENES, createAnimationItems } from "../showcase-animation-assets.js";
 
@@ -58,6 +59,43 @@ const CONFIG = {
 
 const KEY_PREFIX = "showcase-diagonal-loop:";
 const DEFAULT_SCENE = "jesteiDepthDiagonalLoop";
+const DEFAULT_CARD_RADIUS = 12;
+
+const parseCssLength = (value, fallback = DEFAULT_CARD_RADIUS, elementStyles = null, rootStyles = null) => {
+  const input = String(value || "").trim();
+
+  if (!input) {
+    return fallback;
+  }
+
+  const numeric = Number.parseFloat(input);
+
+  if (!Number.isFinite(numeric)) {
+    return fallback;
+  }
+
+  if (input.endsWith("rem")) {
+    const rootFontSize = Number.parseFloat(rootStyles?.fontSize) || 16;
+    return numeric * rootFontSize;
+  }
+
+  if (input.endsWith("em")) {
+    const fontSize = Number.parseFloat(elementStyles?.fontSize) || Number.parseFloat(rootStyles?.fontSize) || 16;
+    return numeric * fontSize;
+  }
+
+  return numeric;
+};
+
+const getDesignRadius = (canvas) => {
+  const win = globalThis.window;
+  const doc = globalThis.document;
+  const elementStyles = win?.getComputedStyle?.(canvas) || null;
+  const rootStyles = doc?.documentElement ? win?.getComputedStyle?.(doc.documentElement) || null : null;
+  const radiusToken = elementStyles?.getPropertyValue("--r") || rootStyles?.getPropertyValue("--r");
+
+  return parseCssLength(radiusToken, DEFAULT_CARD_RADIUS, elementStyles, rootStyles);
+};
 
 const getCanvas = (canvasOrId) => {
   if (typeof canvasOrId === "string") {
@@ -107,6 +145,7 @@ class DiagonalLoopCanvas {
       images: [],
     };
 
+    this.cardRadius = getDesignRadius(canvas);
     this.lastImageCount = -1;
     this.disposed = false;
   }
@@ -126,6 +165,7 @@ class DiagonalLoopCanvas {
     this.state.width = Math.max(1, width);
     this.state.height = Math.max(1, height);
     this.ctx.imageSmoothingEnabled = this.config.render.smoothing;
+    this.cardRadius = getDesignRadius(this.canvas);
   }
 
   tick(deltaSeconds, reducedMotion) {
@@ -316,7 +356,8 @@ class DiagonalLoopCanvas {
     ctx.save();
     ctx.globalAlpha = 1;
     ctx.beginPath();
-    ctx.rect(x, y, card.size, card.size);
+    roundedRect(ctx, x, y, card.size, card.size, Math.min(this.cardRadius, card.size * 0.5));
+    ctx.closePath();
     ctx.clip();
     this.drawImageCover(card.image, x, y, card.size, card.size);
     ctx.restore();

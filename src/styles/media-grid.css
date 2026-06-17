@@ -388,14 +388,6 @@
   isolation: isolate;
 }
 
-.media-static-orbit::before {
-  content: "";
-  position: absolute;
-  inset: 10% auto 10% 50%;
-  border-left: var(--line);
-  opacity: 0.25;
-}
-
 .media-static-orbit > .media-item {
   position: absolute;
   top: 50%;

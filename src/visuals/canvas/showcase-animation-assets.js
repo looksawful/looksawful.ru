@@ -36,7 +36,7 @@ const SCENE_LABELS = {
 const SCENE_DEFAULT_MAX_ITEMS = {
   jesteiUxCanvas: 18,
   jesteiProductCanvas: 20,
-  styxGraphicDiagonal: 12,
+  styxGraphicDiagonal: 36,
   styxBrandIdentity: 14,
   styxPhotoProduction: 24,
   styxScanographyLoops: 6,

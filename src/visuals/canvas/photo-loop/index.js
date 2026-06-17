@@ -36,7 +36,7 @@ const CONFIG = {
   offscreenSteps: 3,
   minimumTrackCopies: 2,
   imageSmoothing: true,
-  background: "#f4f4f4",
+  background: "#fff",
   pixelRatioLimit: 2,
 };
 
@@ -69,6 +69,34 @@ const ensureCanvasId = (canvas) => {
 };
 
 const getMedia = (item) => item?.imageElement || item?.mediaElement || null;
+
+const getMediaSize = (media) => ({
+  width: Math.max(1, media?.videoWidth || media?.naturalWidth || media?.width || 1),
+  height: Math.max(1, media?.videoHeight || media?.naturalHeight || media?.height || 1),
+});
+
+const drawImageCover = (ctx, media, x, y, width, height) => {
+  if (!media || !width || !height) return;
+
+  const source = getMediaSize(media);
+  const sourceRatio = source.width / source.height;
+  const targetRatio = width / height;
+
+  let sx = 0;
+  let sy = 0;
+  let sw = source.width;
+  let sh = source.height;
+
+  if (sourceRatio > targetRatio) {
+    sw = source.height * targetRatio;
+    sx = (source.width - sw) * 0.5;
+  } else {
+    sh = source.width / targetRatio;
+    sy = (source.height - sh) * 0.5;
+  }
+
+  ctx.drawImage(media, sx, sy, sw, sh, x, y, width, height);
+};
 
 const getSceneItems = (canvas, options, maxItems) => {
   const sceneId = options.scene || canvas.dataset.animationScene || DEFAULT_SCENE;
@@ -356,7 +384,7 @@ this.bindEvents();
       const drawX = x - (size - this.cardSize) / 2;
       const drawY = y - (size - this.cardSize) / 2;
 
-      ctx.drawImage(item.image, drawX, drawY, size, size);
+      drawImageCover(ctx, item.image, drawX, drawY, size, size);
     }
   }
 }
