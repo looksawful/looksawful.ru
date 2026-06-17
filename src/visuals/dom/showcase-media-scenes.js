@@ -347,7 +347,7 @@ function initStaticMediaLightboxLinks(root = document) {
   staticMediaLightboxLinksMounted = true;
 
   scope.addEventListener("click", (event) => {
-    const link = event.target?.closest?.('a[]');
+    const link = event.target?.closest?.('a[href]');
 
     if (!link) {
       return;
@@ -378,3 +378,4 @@ function initStaticMediaLightboxLinks(root = document) {
     );
   });
 }
+

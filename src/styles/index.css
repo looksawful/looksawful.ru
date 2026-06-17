@@ -437,3 +437,33 @@ p {
   width: 100%;
   height: 100%;
 }
+
+/* media surfaces should not use black container fill */
+.media,
+.media-item,
+[data-animation],
+.embedded-demo {
+  background: transparent;
+  color: var(--black);
+}
+
+.media canvas,
+[data-animation] canvas,
+.embedded-demo canvas {
+  background: transparent;
+}
+
+[data-animation="photo-loop"],
+[data-animation="before-after"],
+[data-animation="diagonal"],
+[data-animation="landing-arc"] {
+  background: transparent;
+}
+
+[data-animation="photo-loop"] canvas,
+[data-animation="before-after"] canvas,
+[data-animation="diagonal"] canvas,
+[data-animation="landing-arc"] canvas {
+  background: transparent;
+}
+

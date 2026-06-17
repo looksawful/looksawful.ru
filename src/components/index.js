@@ -45,8 +45,6 @@ async function initVisualEnhancements() {
     runComponentStep("initCvInlineVideos", () => initCvInlineVideos());
     const { initShowcasePhotoLoop } = await import("../visuals/canvas/photo-loop/index.js");
     runComponentStep("initShowcasePhotoLoop", () => initShowcasePhotoLoop(document));
-    const { initShowcaseDiagonalLoop } = await import("../visuals/canvas/diagonal-loop/index.js");
-    runComponentStep("initShowcaseDiagonalLoop", () => initShowcaseDiagonalLoop(document));
 } catch (error) {
     console.error("[components] base visual enhancements failed", error);
   }
@@ -91,6 +89,8 @@ export function initComponents() {
       });
   });
 }
+
+
 
 
 
