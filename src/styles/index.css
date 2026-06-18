@@ -1,12 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap");
 @import "./awfulface.css";
 @import "./canvas.css";
+@import "./typography.css";
 @import "./lead-text.css";
 @import "./orbit.css";
 @import "./media-grid.css";
+@import "./media-caption.css";
 @import "./media-effects.css";
 @import "./skeleton.css";
 @import "./site-header.css";
+@import "./project-responsibilities.css";
+@import "./showcase-toc.css";
+@import "./lightbox.css";
 
 /* tokens */
 :root {
@@ -80,13 +85,6 @@ ul {
 ul {
   padding: 0;
   list-style: none;
-}
-
-p {
-  max-width: var(--text);
-  font-size: var(--md);
-  line-height: 1.25;
-  text-wrap: pretty;
 }
 
 /* layout */
@@ -232,6 +230,15 @@ p {
   border-top: 0;
 }
 
+.section-divider {
+  width: 100%;
+  border-top: var(--line);
+}
+
+.no-divider {
+  border-top: 0;
+}
+
 .project__head {
   display: grid;
   grid-template-columns: clamp(7rem, 12vw, 12rem) minmax(0, 1fr) max-content;
@@ -244,60 +251,6 @@ p {
   width: clamp(7rem, 12vw, 12rem);
   aspect-ratio: 1;
   object-fit: contain;
-}
-
-.title {
-  font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-  text-transform: lowercase;
-  text-wrap: balance;
-}
-
-.title--display,
-.title--xl {
-  font-size: var(--xl);
-}
-
-.title--lg {
-  font-size: var(--lg);
-}
-
-.block__header,
-.project__head > div,
-.text-block,
-.resume-item__header {
-  display: grid;
-  gap: 0.7rem;
-  max-width: 56rem;
-}
-
-.project__head > div {
-  gap: var(--gap);
-}
-
-.meta {
-  font-size: var(--sm);
-  line-height: 1.15;
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.chip {
-  padding: 0.26rem 0.5rem 0.3rem;
-  border: var(--line);
-  border-radius: 999px;
-  font-size: var(--sm);
-  line-height: 1.15;
-}
-
-.chips--skill .chip {
-  background: var(--black);
-  color: var(--white);
 }
 
 .resume-item {
@@ -419,27 +372,13 @@ p {
   }
 }
 
-/* text-list */
-.text-list {
-  display: grid;
-  gap: 0.35rem;
-  max-width: var(--text);
-  padding: 0;
-  list-style: none;
-}
-
-.text-list li {
-  font-size: var(--md);
-  line-height: 1.25;
-}
-
 /* media */
 .media {
   min-height: clamp(18rem, 42vw, 42rem);
   margin: 0;
   overflow: hidden;
   border: var(--line);
-  border-radius: var(--r-lg);
+  border-radius: var(--r);
   background: var(--black);
   color: var(--white);
 }
@@ -486,4 +425,3 @@ p {
 .no-stroke {
   border-color: transparent;
 }
-

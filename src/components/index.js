@@ -29,6 +29,13 @@ function runWhenIdle(callback) {
 
 async function initContentEnhancements() {
   try {
+    const [{ initShowcaseToc }, { initLightbox }] = await Promise.all([
+      import("./showcase-toc.js"),
+      import("./lightbox.js"),
+    ]);
+
+    runComponentStep("initShowcaseToc", () => initShowcaseToc(document));
+    runComponentStep("initLightbox", () => initLightbox(document));
   } catch (error) {
     console.error("[components] initContentEnhancements failed", error);
   }
@@ -45,7 +52,7 @@ async function initVisualEnhancements() {
     runComponentStep("initCvInlineVideos", () => initCvInlineVideos());
     const { initShowcasePhotoLoop } = await import("../visuals/canvas/photo-loop/index.js");
     runComponentStep("initShowcasePhotoLoop", () => initShowcasePhotoLoop(document));
-} catch (error) {
+  } catch (error) {
     console.error("[components] base visual enhancements failed", error);
   }
 
@@ -54,11 +61,6 @@ async function initVisualEnhancements() {
     runComponentStep("initShowcaseBeforeAfter", () => initShowcaseBeforeAfter(document));
   } catch (error) {
     console.error("[components] initShowcaseBeforeAfter import failed", error);
-  }
-
-  try {
-} catch (error) {
-    console.error("[components] initShowcasePhotoLoop import failed", error);
   }
 }
 
@@ -89,8 +91,5 @@ export function initComponents() {
       });
   });
 }
-
-
-
 
 

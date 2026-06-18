@@ -1,0 +1,56 @@
+/* lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  background: rgba(255, 255, 255, 0.92);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+
+.lightbox.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox__dialog {
+  display: grid;
+  gap: 0.7rem;
+  width: min(100%, 88rem);
+  max-height: calc(100vh - clamp(1.5rem, 6vw, 4rem));
+}
+
+.lightbox__toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.lightbox__close {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.55);
+  font: inherit;
+  font-size: var(--xs);
+  line-height: 1;
+  text-transform: lowercase;
+  cursor: pointer;
+}
+
+.lightbox__body {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
+.lightbox__body img,
+.lightbox__body video {
+  max-width: 100%;
+  max-height: calc(100vh - clamp(5rem, 12vw, 8rem));
+  border-radius: var(--r);
+  object-fit: contain;
+}

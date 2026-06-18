@@ -1,0 +1,62 @@
+/* project responsibilities */
+.project-responsibilities {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.65rem;
+}
+
+.project-responsibilities--one {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.project-responsibilities--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.project-responsibilities--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.responsibility-card {
+  display: grid;
+  align-content: start;
+  gap: 0.9rem;
+  min-width: 0;
+  padding: clamp(0.9rem, 1.4vw, 1.3rem);
+  border: var(--line);
+  border-radius: var(--r);
+  background: transparent;
+}
+
+.responsibility-card__title {
+  font-size: var(--sm);
+  font-weight: 700;
+  line-height: 1.05;
+  text-transform: lowercase;
+}
+
+.responsibility-card__list {
+  display: grid;
+  gap: 0.35rem;
+  max-width: var(--text);
+  padding: 0;
+  list-style: none;
+}
+
+.responsibility-card__list li {
+  font-size: var(--sm);
+  line-height: 1.2;
+}
+
+.responsibility-card .chips--skill .chip {
+  background: transparent;
+  color: var(--black);
+}
+
+@media (max-width: 48rem) {
+  .project-responsibilities,
+  .project-responsibilities--two,
+  .project-responsibilities--three {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
