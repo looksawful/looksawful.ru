@@ -1,8 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap");
 @import "./awfulface.css";
 @import "./canvas.css";
+@import "./lead-text.css";
 @import "./orbit.css";
+@import "./media-grid.css";
+@import "./media-effects.css";
+@import "./skeleton.css";
+@import "./site-header.css";
 
+/* tokens */
 :root {
   --font: "Rubik", system-ui, sans-serif;
   --black: #000;
@@ -26,6 +32,7 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
+/* reset */
 *,
 *::before,
 *::after {
@@ -82,6 +89,7 @@ p {
   text-wrap: pretty;
 }
 
+/* layout */
 .section {
   min-width: 0;
 }
@@ -100,6 +108,7 @@ p {
   grid-column: 2;
 }
 
+/* hero */
 .hero__screen {
   min-height: 100vh;
   min-height: 100svh;
@@ -198,6 +207,7 @@ p {
   text-decoration: none;
 }
 
+/* cases */
 .stack {
   display: grid;
   gap: var(--gap-lg);
@@ -214,6 +224,11 @@ p {
 
 .project:first-child,
 .resume-item:first-child {
+  border-top: 0;
+}
+
+.block > .block:first-of-type {
+  padding-block-start: 0;
   border-top: 0;
 }
 
@@ -249,11 +264,16 @@ p {
 }
 
 .block__header,
+.project__head > div,
 .text-block,
 .resume-item__header {
   display: grid;
   gap: 0.7rem;
   max-width: 56rem;
+}
+
+.project__head > div {
+  gap: var(--gap);
 }
 
 .meta {
@@ -284,6 +304,7 @@ p {
   grid-template-columns: clamp(6rem, 10vw, 10rem) minmax(0, 1fr);
 }
 
+/* footer */
 .site-footer {
   display: flex;
   align-items: center;
@@ -313,6 +334,7 @@ p {
   text-decoration: none;
 }
 
+/* mobile */
 @media (max-width: 48rem) {
   .section__screen,
   .hero__screen {
@@ -397,7 +419,7 @@ p {
   }
 }
 
-/* text-list:start */
+/* text-list */
 .text-list {
   display: grid;
   gap: 0.35rem;
@@ -410,9 +432,8 @@ p {
   font-size: var(--md);
   line-height: 1.25;
 }
-/* text-list:end */
 
-/* media-system:start */
+/* media */
 .media {
   min-height: clamp(18rem, 42vw, 42rem);
   margin: 0;
@@ -428,101 +449,41 @@ p {
   height: 100%;
 }
 
-.media-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--gap);
-  align-items: start;
+/* media surfaces should not use black container fill */
+.media,
+.media-item,
+[data-animation],
+.embedded-demo {
+  background: transparent;
+  color: var(--black);
 }
 
-.media-row > .text-block,
-.media-row > .media-grid {
-  margin: 0;
+.media canvas,
+[data-animation] canvas,
+.embedded-demo canvas {
+  background: transparent;
 }
 
-.media-row--reverse > .text-block {
-  order: 2;
+[data-animation="photo-loop"],
+[data-animation="before-after"],
+[data-animation="diagonal"],
+[data-animation="landing-arc"] {
+  background: transparent;
 }
 
-.media-row--reverse > .media-grid {
-  order: 1;
+[data-animation="photo-loop"] canvas,
+[data-animation="before-after"] canvas,
+[data-animation="diagonal"] canvas,
+[data-animation="landing-arc"] canvas {
+  background: transparent;
 }
 
-.media-grid {
-  display: grid;
-  gap: var(--gap);
-  margin: 0;
-  padding: 0;
-}
-
-.media-grid--banner,
-.media-grid--one {
-  grid-template-columns: 1fr;
-}
-
-.media-grid--two,
-.media-grid--quad,
-.media-grid--double-quad {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.media-grid--three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.media-grid--eight {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.media-grid--mixed {
-  grid-template-columns: 2fr 1fr;
-}
-
-.media-grid--double-quad > .media-grid {
-  margin: 0;
-}
-
-.media-card,
-.media-grid--one > figure {
-  display: block;
-  aspect-ratio: 1;
-  overflow: hidden;
-  border: var(--line);
-  border-radius: var(--r);
+.bg-black {
   background: var(--black);
+  color: var(--white);
 }
 
-.media-grid--banner > .media-card {
-  aspect-ratio: 16 / 9;
+.no-stroke {
+  border-color: transparent;
 }
 
-.media-grid--mixed > .media-card:first-child {
-  aspect-ratio: 2 / 1;
-}
-
-.media-card--video,
-a[href$=".mp4"] {
-  aspect-ratio: 16 / 9;
-}
-
-.media-card img,
-.media-card video,
-.media-grid--one > figure img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-@media (max-width: 48rem) {
-  .media-row,
-  .media-grid,
-  .media-grid--two,
-  .media-grid--three,
-  .media-grid--quad,
-  .media-grid--eight,
-  .media-grid--double-quad,
-  .media-grid--mixed {
-    grid-template-columns: 1fr;
-  }
-}
-/* media-system:end */

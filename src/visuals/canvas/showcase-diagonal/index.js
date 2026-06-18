@@ -364,11 +364,18 @@ const buildLayout = ({ width, height, items, previousOffset = 0 }) => {
   const visibleTotalGap = config.gap * Math.max(0, visibleRowCount - 1);
   const targetRowHeight = Math.max(1, (visibleInnerHeight - visibleTotalGap) / visibleRowCount);
   const stageInnerHeight = getInnerHeight(stage.height, padding);
-  const stageRowCount = Math.max(1, Math.ceil((stageInnerHeight + config.gap) / (targetRowHeight + config.gap)));
-  const requiredLength = stage.width + config.preload * 2;
+  const rowStep = targetRowHeight + config.gap;
+  const rowSpan = stageInnerHeight + config.preload * 2;
+  const stageRowCount = Math.max(visibleRowCount, Math.ceil((rowSpan + config.gap) / rowStep));
+  const rowFieldHeight = stageRowCount * rowStep - config.gap;
+  const rowStartY = padding.top - Math.max(0, rowFieldHeight - stageInnerHeight) * 0.5;
+  const requiredLength = stage.width + config.preload * 4;
 
-  const rows = buildRows({ height: stage.height, count: stageRowCount, padding }).map((row) => ({
-    ...row,
+  const rows = Array.from({ length: stageRowCount }, (_, index) => ({
+    index,
+    y: rowStartY + index * rowStep,
+    height: targetRowHeight,
+    length: 0,
     requiredLength,
   }));
 

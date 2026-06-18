@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="ru">
   <head>
     <meta charset="utf-8" />
@@ -13,6 +14,15 @@
     <script src="/src/main.js" type="module"></script>
   </head>
   <body>
+    <header aria-label="навигация по странице" class="site-header">
+      <nav aria-label="разделы портфолио" class="site-header__nav">
+        <a href="#resume">резюме</a>
+        <a href="#project-jesteipool">джести пул</a>
+        <a href="#project-styx">стикс</a>
+        <a href="#project-shootings">съемки</a>
+        <a hidden="" href="#project-petprojects">петпроекты</a>
+      </nav>
+    </header>
     <main id="main">
       <section class="hero section" id="hero">
         <div class="hero__screen hero__screen--cover section__screen">
@@ -36,8 +46,10 @@
         </div>
       </section>
       <section aria-labelledby="showcase-title" class="section work" id="showcase">
+        <!-- showcase: component headers restored; hero and resume are unchanged -->
         <section class="section__screen">
           <div class="stack">
+            <!-- case: jesteipool -->
             <article class="project stack" id="project-jesteipool">
               <section class="project__header">
                 <div aria-hidden="true"></div>
@@ -66,642 +78,1339 @@
               </section>
               <section class="block">
                 <header class="block__header">
-                  <h4 class="title title--xl">ux/ui лид</h4>
-                  <ul class="chips chips--skill">
-                    <li class="chip">Figma</li>
-                    <li class="chip">HTML</li>
-                    <li class="chip">Canvas</li>
-                    <li class="chip">Blender</li>
-                    <li class="chip">Photoshop</li>
-                    <li class="chip">Adobe Illustrator</li>
-                    <li class="chip">Comfy UI</li>
-                    <li class="chip">Topaz</li>
-                    <li class="chip">After Effects</li>
-                    <li class="chip">Premiere</li>
-                    <li class="chip">CSS</li>
-                  </ul>
-                  <p>
-                    проектировал подписки, сценарии доступа, прогрессивную фильтрацию и навигацию для разных групп
-                    пользователей. помогал упростить поиск музыки и работу с каталогом.
-                  </p>
+                  <!-- section: лого -->
+                  <!--
+<h4 class="title title--xl">Лого</h4>
+-->
                 </header>
-                <section class="media media--wide" data-animation="masonry">
-                  <canvas
-                    class="visual-canvas"
-                    data-animation-scene="jesteiUxCanvas"
-                    id="project-jestei-ux-canvas"
-                  ></canvas>
-                </section>
-                <section class="text-block">
-                  <h5 class="title title--lg">UI/UX стратегия сервиса</h5>
-                  <ul class="text-list">
-                    <li>арт-дирекшн сервиса</li>
-                    <li>поиск и исправление проблем интерфейса</li>
-                    <li>проектирование новых разделов сайта</li>
-                    <li>анализ и редизайн пользовательских маршрутов</li>
-                    <li>создание cjm</li>
-                    <li>подготовка прототипов</li>
-                    <li>переработка структуры страниц</li>
-                    <li>редизайн навигации между разделами</li>
-                    <li>адаптация интерфейсов под разные аудитории</li>
-                    <li>проектирование анимаций и состояний интерфейса</li>
-                  </ul>
-                </section>
-                <section class="text-block">
-                  <h5 class="title title--lg">Архитектура дизайн-системы</h5>
-                  <ul class="text-list">
-                    <li>развитие дизайн-системы</li>
-                    <li>требования к компонентам</li>
-                    <li>правила для состояний компонентов</li>
-                    <li>правила сетки и отступов</li>
-                    <li>адаптивные принципы интерфейса</li>
-                  </ul>
-                </section>
-                <section class="text-block">
-                  <h5 class="title title--lg">Контроль дизайн-процесса</h5>
-                  <ul class="text-list">
-                    <li>постановка задач дизайнерам</li>
-                    <li>дизайн-ревью</li>
-                    <li>синхронизация дизайна и разработки</li>
-                    <li>контроль качества интерфейсов</li>
-                    <li>контроль адаптивности</li>
-                    <li>подготовка документации и спецификаций для разработчиков, пользователей и команды</li>
-                    <li>подготовка спецификаций</li>
-                    <li>контроль реализации компонентов</li>
-                  </ul>
-                </section>
-              </section>
-              <section class="block">
+                <!--
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">исходный знак</h5>
+                  <p>знак начал собирать вокруг себя узнаваемый визуальный язык.</p>
+                </header>
+                <aside aria-label="jestei logo before strip" class="media-strip">
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-01/01.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-01/01.webp" />
+                  </a>
+                </aside>
+                -->
+                <!-- <section class="lead-display lead-display--paragraph">
+                  <p>
+                    прежний знак был мелким, не собирал вокруг себя цельный визуальный язык и работал как техническая
+                    отметка сервиса: без достаточной узнаваемости, характера, единства и энергии.
+                  </p>
+                </section> -->
                 <header class="block__header">
-                  <h4 class="title title--xl">разработка фирменного стиля</h4>
-                  <ul class="chips chips--skill">
-                    <li class="chip">Figma</li>
-                    <li class="chip">Branding</li>
-                    <li class="chip">Print</li>
-                    <li class="chip">Adobe</li>
-                  </ul>
+                  <!--
+<h4 class="title title--xl">как стало</h4>
+-->
+                </header>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">новый логотип</h5>
                   <p>
-                    проектировал подписки, сценарии доступа, прогрессивную фильтрацию и навигацию для разных групп
-                    пользователей. помогал упростить поиск музыки и работу с каталогом.
+                    у него появились объём, шрифт, версии, разделение по аудиториям, перспектива и ощущение движения.
                   </p>
                 </header>
-                <section class="media media--wide" id="jestei-logo-inspector">
+                <section class="media no-stroke" id="jestei-logo-inspector">
                   <div data-visual-demo="logo-inspector:jestei"></div>
                 </section>
-                <section class="text-block">
-                  <h5 class="title title--lg">айдентика сервиса</h5>
-                  <ul class="text-list">
-                    <li>ребрендинг сервиса</li>
-                    <li>новый логотип</li>
-                    <li>фирменный стиль</li>
-                    <li>система цветовых тем</li>
-                    <li>подбор шрифтов</li>
-                    <li>библиотека иконок</li>
-                    <li>визуальные правила для продуктов</li>
-                    <li>оформление коммуникаций</li>
-                  </ul>
+                <!--
+<section class="lead-display lead-display--paragraph">
+                  <p>
+                    знак начал собирать вокруг себя узнаваемый язык. теперь в нем появился объём, шрифт, версии,
+                    разделение по аудиториям, перспективу и ощущение движения. логотип стал самостоятельным визуальным
+                    объектом для интерфейса, промо, продуктовых карточек, подписок и анимаций. логотип стал частью
+                    интерфейса и и полноценным элементом визуальной системы. появилась логика версий, визуальный язык
+                    стал масштабируемым, а бренд стал заметнее в продуктовых сценариях. знак начал работать как
+                    самостоятельный визуальный объект.
+                  </p>
                 </section>
-                <aside aria-label="jestei identity cover image" class="media-grid media-grid--banner">
+-->
+                <!-- <header class="block__header component-caption">
+                  <h5 class="title title--xl">логотип как система</h5>
+                  <p>
+                    логотип стал самостоятельным визуальным объектом для интерфейса, промо, продуктовых карточек,
+                    подписок и анимаций.
+                  </p>
+                </header> -->
+                <section class="lead-display lead-display--paragraph">
+                  <p>
+                    логотип стал самостоятельным визуальным объектом для интерфейса, промо, продуктовых карточек,
+                    подписок и анимаций.
+                  </p>
+                </section>
+                <aside aria-label="jestei logo system main image" class="media-banner">
                   <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-identity-showcase/cover.webp"
+                    class="media-item media-contain bg-black no-stroke"
+                    href="/assets/media/jesteipool/section-01/02.webp"
                     rel="noopener noreferrer"
                     target="_blank"
-                    ><img
-                      alt="jestei identity cover image"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-identity-showcase/cover.webp"
-                  /></a>
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-01/02.webp" />
+                  </a>
                 </aside>
-                <aside aria-label="jestei identity gallery" class="media-grid media-grid--eight">
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">логотип в дизайн-системе</h5>
+                  <p>
+                    он перестал быть просто знаком и стал полноценной частью визуальной системы. появилась логика
+                    версий, язык стал масштабируемым, а бренд стал заметнее.
+                  </p>
+                </header>
+                <aside aria-label="jestei logo system supporting images" class="media-three media-landscape">
                   <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-identity-showcase/01.webp"
+                    class="media-item media-contain bg-black no-stroke"
+                    href="/assets/media/jesteipool/section-01/03.webp"
                     rel="noopener noreferrer"
                     target="_blank"
-                    ><img
-                      alt="jestei identity image 1"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-identity-showcase/01.webp"
-                  /></a>
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-01/03.webp" />
+                  </a>
                   <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-identity-showcase/02.webp"
+                    class="media-item media-contain bg-black no-stroke"
+                    href="/assets/media/jesteipool/section-01/04.webp"
                     rel="noopener noreferrer"
                     target="_blank"
-                    ><img
-                      alt="jestei identity image 2"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-identity-showcase/02.webp"
-                  /></a>
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-01/04.webp" />
+                  </a>
                   <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-identity-showcase/03.webp"
+                    class="media-item media-contain bg-black no-stroke"
+                    href="/assets/media/jesteipool/section-01/05.webp"
                     rel="noopener noreferrer"
                     target="_blank"
-                    ><img
-                      alt="jestei identity image 3"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-identity-showcase/03.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-identity-showcase/04.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="jestei identity image 4"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-identity-showcase/04.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-identity-showcase/05.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="jestei identity image 5"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-identity-showcase/05.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-identity-showcase/06.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="jestei identity image 6"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-identity-showcase/06.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-identity-showcase/07.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="jestei identity image 7"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-identity-showcase/07.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-identity-showcase/08.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="jestei identity image 8"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-identity-showcase/08.webp"
-                  /></a>
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-01/05.webp" />
+                  </a>
                 </aside>
               </section>
               <section class="block">
                 <header class="block__header">
-                  <h4 class="title title--xl">лендинги</h4>
-                  <p>
-                    спроектировал и реализовал от анализа до продакшена два лендинга: для основной аудитории клубных
-                    диджеев и для аудитории ивент-диджеев.
-                  </p>
+                  <!-- section: цвет -->
+                  <!--
+<h4 class="title title--xl">Цвет</h4>
+-->
                 </header>
-                <section class="media media--wide" data-animation="landing-arc">
-                  <canvas class="visual-canvas" id="project-jestei-landing-arc"></canvas>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">цвет по диагонали</h5>
+-->
+                    <!--
+<p>
+                      диагональная анимация показывает, как цветовая система проходит через разные уровни продукта: от
+                      общего впечатления к фокусу в центре и дальше к следующему состоянию.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">новый подход к цвету</h5>
+                    <p>раньше визуальный язык сервиса почти полностью держался на серо-оранжевой палитре.</p>
+                  </header>
+                  <section class="media" data-animation="diagonal">
+                    <canvas
+                      class="visual-canvas"
+                      data-animation-scene="jesteiColorDiagonal"
+                      id="project-jestei-color-diagonal"
+                    ></canvas>
+                  </section>
                 </section>
-                <section class="media media--wide" data-animation="landing-masonry">
-                  <canvas class="visual-canvas" id="project-jestei-landing-masonry"></canvas>
-                </section>
-                <section class="text-block">
-                  <h5 class="title title--lg">анимационная система лендингов</h5>
-                  <ul class="text-list">
-                    <li>описание задачи</li>
-                    <li>описание сценария</li>
-                    <li>описание поведения</li>
-                    <li>описание визуального принципа</li>
-                    <li>описание результата</li>
-                  </ul>
-                </section>
-                <aside aria-label="club landing screenshots" class="media-grid media-grid--quad">
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-landing-showcase/club-01.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="club dj landing screenshot 1"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-landing-showcase/club-01.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-landing-showcase/club-02.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="club dj landing screenshot 2"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-landing-showcase/club-02.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-landing-showcase/club-03.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="club dj landing screenshot 3"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-landing-showcase/club-03.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-landing-showcase/club-04.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="club dj landing screenshot 4"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-landing-showcase/club-04.webp"
-                  /></a>
-                </aside>
-                <section class="text-block">
-                  <h5 class="title title--lg">лендинг для клубных диджеев</h5>
-                  <ul class="text-list">
-                    <li>спроектировал дизайн лендинга</li>
-                    <li>спроектировал сценарии интерактивности</li>
-                    <li>произвёл редактуру текстов</li>
-                  </ul>
-                </section>
-                <aside aria-label="event landing screenshots" class="media-grid media-grid--quad">
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-landing-showcase/event-01.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="event landing screenshot 1"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-landing-showcase/event-01.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-landing-showcase/event-02.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="event landing screenshot 2"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-landing-showcase/event-02.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-landing-showcase/event-03.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="event landing screenshot 3"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-landing-showcase/event-03.webp"
-                  /></a>
-                  <a
-                    class="media-card"
-                    href="/assets/jestei/galleries/jestei-landing-showcase/event-04.webp"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    ><img
-                      alt="event landing screenshot 4"
-                      decoding="async"
-                      loading="lazy"
-                      src="/assets/jestei/galleries/jestei-landing-showcase/event-04.webp"
-                  /></a>
-                </aside>
-                <section class="text-block">
-                  <h5 class="title title--lg">лендинг ивента</h5>
-                  <ul class="text-list">
-                    <li>спроектировал дизайн лендинга</li>
-                    <li>спроектировал сценарии интерактивности</li>
-                    <li>произвёл редактуру текстов</li>
-                  </ul>
-                </section>
-              </section>
-              <section class="block">
+                <template hidden="" id="jestei-color-before-hidden">
+                  <aside aria-label="jestei color before banner" class="media-strip">
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-02/01.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/01.webp" />
+                    </a>
+                  </aside>
+                  <aside aria-label="jestei color before grid" class="media-quad media-horizontal">
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/02.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/02.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/03.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/03.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/04.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/04.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/05.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/05.webp" />
+                    </a>
+                  </aside>
+                </template>
                 <header class="block__header">
-                  <h4 class="title title--xl">продуктовый дизайн</h4>
-                  <ul class="chips chips--skill">
-                    <li class="chip">Figma</li>
-                    <li class="chip">CJM</li>
-                    <li class="chip">Product Design</li>
-                    <li class="chip">Design System</li>
-                  </ul>
+                  <!--
+<h4 class="title title--xl">как стало</h4>
+-->
+                </header>
+                <header class="block__header component-caption">
+                  <!-- <h5 class="title title--xl">от акцента к навигации</h5> -->
                   <p>
-                    проектировал подписки, сценарии доступа, прогрессивную фильтрацию и навигацию для разных групп
-                    пользователей. помогал упростить поиск музыки и работу с каталогом.
+                    цвет работал скорее как декоративный акцент, а не как полноценный инструмент навигации и разделения.
                   </p>
                 </header>
-                <section class="media media--wide" data-animation="horizontal">
+                <!--
+                <section class="media" data-animation="horizontal">
                   <canvas
                     class="visual-canvas"
-                    data-animation-scene="jesteiProductCanvas"
-                    id="project-jestei-product-canvas"
+                    data-animation-scene="jesteiColorCanvas"
+                    id="project-jestei-color-canvas"
                   ></canvas>
                 </section>
+                -->
                 <div class="media-row">
                   <section class="text-block">
-                    <h5 class="title title--lg">подписки, аудитории и каталог</h5>
-                    <ul class="text-list">
-                      <li>цветовое разделение продуктов и аудиторий</li>
-                      <li>разделил цветовую систему сайта на три группы по количеству подписок</li>
-                      <li>сценарии для трёх аудиторий сервиса</li>
-                      <li>инструменты для разных типов пользователей</li>
-                      <li>фильтрация музыкального каталога</li>
-                      <li>отдельная фильтрация для премиальных подписчиков</li>
-                    </ul>
+                    <h5 class="title title--lg">цвет как навигация</h5>
+                    <p>
+                      при мне цветовая система стала шире: кроме оранжевого у бренда появились ещё три опорных цвета, а
+                      внутри интерфейса возникло разделение по аудиториям, продуктам, состояниям и сценариям.
+                    </p>
                   </section>
-                  <aside aria-label="подписки, аудитории и каталог gallery" class="media-grid media-grid--three">
+                  <aside aria-label="jestei color text and media gallery" class="media-quad media-horizontal">
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-design-grid/01.webp"
+                      class="media-item media-contain bg-black no-stroke"
+                      href="/assets/media/jesteipool/section-02/25.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei design grid image 1"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-design-grid/01.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/25.webp" />
+                    </a>
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-design-grid/02.webp"
+                      class="media-item media-contain bg-black no-stroke"
+                      href="/assets/media/jesteipool/section-02/23.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei design grid image 2"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-design-grid/02.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/23.webp" />
+                    </a>
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-design-grid/03.webp"
+                      class="media-item media-contain bg-black no-stroke"
+                      href="/assets/media/jesteipool/section-02/24.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei design grid image 3"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-design-grid/03.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/24.webp" />
+                    </a>
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-design-grid/04.webp"
+                      class="media-item media-contain bg-black no-stroke"
+                      href="/assets/media/jesteipool/section-02/25.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei design grid image 4"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-design-grid/04.webp"
-                    /></a>
-                    <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-design-grid/05.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                      ><img
-                        alt="jestei design grid image 5"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-design-grid/05.webp"
-                    /></a>
-                    <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-design-grid/06.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                      ><img
-                        alt="jestei design grid image 6"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-design-grid/06.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/25.webp" />
+                    </a>
                   </aside>
                 </div>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">как стало</h5>
+-->
+                    <!--
+<p>
+                      цвет стал навигационным инструментом: он разделяет аудитории, продукты, состояния и акценты, а не
+                      просто украшает интерфейс.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">цвет в сценариях сервиса</h5>
+                    <p>цвет начал помогать считывать структуру сервиса.</p>
+                  </header>
+                  <aside aria-label="jestei color static orbit gallery" class="media-static-orbit">
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/06.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/06.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/07.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/07.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/08.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/08.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/09.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/09.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/10.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/10.webp" />
+                    </a>
+                  </aside>
+                </section>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">что изменилось в системе</h5>
+-->
+                    <!--
+<p>
+                      цвет стал частью сценариев, акценты стали повторяемыми, система стала масштабироваться на новые
+                      разделы, а продукты стало проще различать визуально.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">цвет разделил несовместимые аудитории</h5>
+                    <p>
+                      jestei pool работает для двух аудиторий, между которыми есть устойчивое напряжение:
+                      ивент-диджеев и клубных диджеев. цветом мы развели инструменты и сценарии: у каждой группы
+                      появилась своя экосистема — раздел для ивентов и раздел для клубных диджеев.
+                    </p>
+                  </header>
+                  <aside aria-label="jestei color mixed layout gallery" class="media-eight-mixed">
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/11.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/11.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/12.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/12.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/13.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/13.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/14.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/14.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/15.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/15.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/16.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/16.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/17.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/17.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/18.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/18.webp" />
+                    </a>
+                  </aside>
+                </section>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">цветовая система</h5>
+-->
+                    <!--
+<p>
+                      цветовая система стала работать в интерфейсе, промо и карточках: акценты, состояния и продуктовые
+                      группы получили повторяемую визуальную логику.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">цвет подсказывает, о чем речь</h5>
+                    <p>
+                      теперь цвет работает не только в интерфейсе, но и в промо, карточках, баннерах, подписках и
+                      анимационных блоках.
+                    </p>
+                  </header>
+                  <aside aria-label="jestei color strip system gallery 1" class="media-six media-strip">
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/19.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/19.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/20.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/20.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/21.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/21.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/22.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/22.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/23.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/23.webp" />
+                    </a>
+                    <a
+                      class="media-item media-contain bg-black"
+                      href="/assets/media/jesteipool/section-02/24.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-02/24.webp" />
+                    </a>
+                  </aside>
+                  <section class="block">
+                    <header class="block__header">
+                      <!--
+<h5 class="title title--xl">до / после цвета</h5>
+-->
+                      <!--
+<p>интерактивное сравнение старой и новой цветовой системы.</p>
+-->
+                    </header>
+                    <header class="block__header component-caption">
+                      <h5 class="title title--xl">цвет заботится о пользователе и ведет с первого шага</h5>
+                      <p>
+                        изображения показывают, как новая цветовая логика проходит через разные носители и делает бренд
+                        заметнее, гибче и понятнее.
+                      </p>
+                    </header>
+                    <section class="media" data-animation="before-after">
+                      <canvas
+                        class="visual-canvas"
+                        data-after-label="после"
+                        data-animation-scene="jesteiColorBeforeAfter"
+                        data-before-label="до"
+                        data-center-label="нажми меня"
+                        id="project-jestei-color-before-after"
+                      ></canvas>
+                    </section>
+                  </section>
+                </section>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">движение как поток</h5>
+-->
+                    <!--
+<p>
+                      горизонтальная лента показывает, как цветовая система работает на разных носителях, карточках и
+                      интерфейсных состояниях.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">цвет в движении</h5>
+                    <p>
+                      в анимации цвет собирает разные экраны в один ритм: пользователь быстрее понимает, где продукт,
+                      где аудитория, где состояние, а где важный акцент.
+                    </p>
+                  </header>
+                  <section class="media no-stroke" data-animation="photo-loop">
+                    <canvas
+                      class="visual-canvas"
+                      data-animation-scene="jesteiColorPhotoLoop"
+                      id="project-jestei-color-photo-loop"
+                    ></canvas>
+                  </section>
+                </section>
+              </section>
+              <section class="block">
+                <header class="block__header">
+                  <!-- section: форма -->
+                  <!--
+<h4 class="title title--xl">Форма</h4>
+-->
+                </header>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">как было</h5>
+-->
+                    <!--
+<p>
+                      формы были случайными, элементы не поддерживали друг друга, карточки, кнопки и блоки выглядели как
+                      разные системы. не было общего пластического языка.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">новая геометрия бренда</h5>
+                    <p>форма перестала быть случайным декором и стала узнаваемой частью характера сервиса.</p>
+                  </header>
+                  <aside aria-label="jestei form mask decoration" class="media-banner media-mask-soft">
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/01.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/01.webp" />
+                    </a>
+                  </aside>
+                </section>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">как стало</h5>
+-->
+                    <!--
+<p>
+                      появилась единая геометрия: карточки стали частью общей системы, обложки, баннеры и интерфейс
+                      начали говорить одним языком, а форма стала поддерживать характер сервиса.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">новые пластические решения</h5>
+                    <p>
+                      карточки, обложки, баннеры, кнопки и интерфейсные блоки начали работать в одном пластическом
+                      языке.
+                    </p>
+                  </header>
+                  <aside aria-label="jestei form overlap gallery" class="media-overlap-three">
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/02.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/02.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/03.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/03.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/04.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/04.webp" />
+                    </a>
+                  </aside>
+                </section>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">что изменилось в системе</h5>
+-->
+                    <!--
+<p>
+                      форма стала повторяемой, компоненты стало проще масштабировать, визуальный язык стал собраннее, а
+                      система получила базу для новых разделов.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">геометрия и навигация</h5>
+                    <p>
+                      геометрия стала повторяемой, компоненты — более узнаваемыми, а визуальная система получила основу
+                      для масштабирования на новые разделы, продукты и сценарии.
+                    </p>
+                  </header>
+                  <aside aria-label="jestei form system grid" class="media-eight media-square">
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/06.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/06.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/07.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/07.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/08.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/08.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/09.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/09.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/10.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/10.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/11.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/11.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/12.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/12.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/13.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/13.webp" />
+                    </a>
+                  </aside>
+                </section>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">детали формы</h5>
+-->
+                    <!--
+<p>
+                      новая геометрия работает на карточках, интерфейсных состояниях, обложках и баннерах без распада на
+                      разные визуальные языки.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">форма и метафоры</h5>
+                    <p>
+                      одна геометрическая логика связала карточки, обложки, промо и интерфейсные состояния без ощущения
+                      разрозненных решений.
+                    </p>
+                  </header>
+                  <aside aria-label="jestei form details grid" class="media-quad media-square">
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/14.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/14.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/15.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/15.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/16.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/16.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-03/17.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-03/17.webp" />
+                    </a>
+                  </aside>
+                </section>
+              </section>
+              <section class="block">
+                <header class="block__header">
+                  <!--
+<h5 class="title title--xl">форма по диагонали</h5>
+-->
+                  <!--
+<p>
+                    диагональная анимация собирает форму в движение: карточки появляются из края, фиксируются в центре и
+                    уходят дальше как часть общей визуальной системы.
+                  </p>
+-->
+                </header>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">движение</h5>
+                  <p>
+                    при мне появилась общая логика формы: она проходит через интерфейс, промо, карточки, обложки и
+                    графические материалы без распада на разные визуальные языки. изображения показывают, как одна и та
+                    же геометрическая система связывает продукт, коммуникацию и бренд.
+                  </p>
+                </header>
+                <section class="media" data-animation="diagonal">
+                  <canvas
+                    class="visual-canvas"
+                    data-animation-scene="jesteiFormDiagonal"
+                    id="project-jestei-form-diagonal"
+                  ></canvas>
+                </section>
+              </section>
+              <section class="block">
+                <header class="block__header">
+                  <!-- section: глубина -->
+                  <!--
+<h4 class="title title--xl">Глубина</h4>
+-->
+                </header>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">глубина в движении</h5>
+-->
+                    <!--
+<p>
+                      диагональная лента показывает движение по структуре: от плоского входа к фокусу в центре и дальше
+                      к следующему уровню системы.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">прогрессивные параметры</h5>
+                    <p>
+                      реализовали прогрессивное разделение инструментов по уровню сложности: с музыкой можно работать
+                      через продвинутые версии или быстрые упрощенные сценарии. ивент-диджеи используют свою систему
+                      фильтрации и поиска, клубные — свою.
+                    </p>
+                  </header>
+                  <section class="media no-stroke" data-animation="diagonal-loop">
+                    <canvas
+                      class="visual-canvas"
+                      data-animation-scene="jesteiDepthDiagonalLoop"
+                      id="project-jestei-depth-diagonal-loop"
+                    ></canvas>
+                  </section>
+                </section>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">порядок вместо лишней вложенности</h5>
+                  <p>
+                    сложные разделы получили понятную иерархию: вложенность осталась там, где помогает ориентироваться,
+                    а лишние переходы и поиск ушли на второй план.
+                  </p>
+                </header>
+                <aside aria-label="jestei depth before banner" class="media-banner">
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-04/01.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/01.webp" />
+                  </a>
+                </aside>
+                <header class="block__header">
+                  <!--
+<h4 class="title title--xl">как стало</h4>
+-->
+                </header>
+                <!--
+<section class="lead-display lead-display--paragraph">
+                  <p>каждому уровню стало назначено своё место</p>
+                </section>
+-->
                 <div class="media-row">
                   <section class="text-block">
-                    <h5 class="title title--lg">лендинги и event-раздел</h5>
-                    <ul class="text-list">
-                      <li>структура главного лендинга</li>
-                      <li>дизайн главного лендинга</li>
-                      <li>структура event-раздела</li>
-                      <li>дизайн лендинга event-раздела</li>
-                      <li>дизайн страницы трека</li>
-                      <li>переработка навигации event-раздела</li>
-                      <li>концепция «день для event, ночь для клуба»</li>
-                      <li>тексты и описания для плейлистов</li>
-                      <li>группировка плейлистов по сценариям</li>
-                      <li>упрощение структуры разделов</li>
-                    </ul>
+                    <h5 class="title title--lg">разобрали запутанные структуры плейлистов и упростили их</h5>
+                    <p>
+                      фильтры стали прогрессивными, главное и вторичное разделились, а сложные разделы начали собираться
+                      из простых и понятных блоков.
+                    </p>
                   </section>
-                  <aside aria-label="лендинги и event-раздел gallery" class="media-grid media-grid--three">
+                  <aside aria-label="jestei depth structure grid" class="media-quad media-landscape">
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-landing-grid/01.webp"
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-04/02.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei landing grid image 1"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-landing-grid/01.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/02.webp" />
+                    </a>
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-landing-grid/02.webp"
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-04/03.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei landing grid image 2"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-landing-grid/02.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/03.webp" />
+                    </a>
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-landing-grid/03.webp"
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-04/04.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei landing grid image 3"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-landing-grid/03.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/04.webp" />
+                    </a>
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-landing-grid/04.webp"
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-04/05.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei landing grid image 4"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-landing-grid/04.webp"
-                    /></a>
-                    <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-landing-grid/05.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                      ><img
-                        alt="jestei landing grid image 5"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-landing-grid/05.webp"
-                    /></a>
-                    <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-landing-grid/06.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                      ><img
-                        alt="jestei landing grid image 6"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-landing-grid/06.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/05.webp" />
+                    </a>
                   </aside>
                 </div>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">глубина в интерфейсе</h5>
+                  <p>
+                    глубина стала управляемой частью интерфейса. пользовательский маршрут стало проще читать, сценарии
+                    стали короче, а структура разделов — логичнее.
+                  </p>
+                </header>
+                <aside aria-label="jestei depth examples grid" class="media-eight media-landscape">
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-04/06.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/06.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-04/07.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/07.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-04/08.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/08.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-04/09.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/09.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-04/10.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/10.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-04/11.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/11.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-04/12.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/12.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-04/13.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-04/13.webp" />
+                  </a>
+                </aside>
+                <section class="lead-display lead-display--paragraph">
+                  <p>
+                    визуальные материалы показывают, как сервис перестал быть плоским набором экранов и стал системой
+                    уровней, маршрутов и акцентов.
+                  </p>
+                </section>
+              </section>
+              <section class="block">
+                <header class="block__header">
+                  <!-- section: движение -->
+                  <!--
+<h4 class="title title--xl">Движение</h4>
+-->
+                </header>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">движение по дуге</h5>
+-->
+                    <!--
+<p>
+                      arc-анимация переносит в раздел движения уже существующую механику проекта: карточки идут по дуге,
+                      усиливая ощущение потока, ритма и музыкальной навигации.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">коммуникационная платформа</h5>
+                    <p>
+                      превратили лендинговые страницы в масштабируемую систему: посадочные страницы для разных аудиторий
+                      и интерактивные компоненты для первого знакомства с сервисом.
+                    </p>
+                  </header>
+                  <section class="media" data-animation="landing-arc">
+                    <canvas class="visual-canvas" id="project-jestei-motion-arc"></canvas>
+                  </section>
+                </section>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">дизайн-система и рассылки</h5>
+                  <p>анимации начали показывать состояния, переходы и сценарии, а не просто украшать интерфейс.</p>
+                </header>
+                <aside aria-label="jestei motion before banner" class="media-banner">
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-05/01.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/01.webp" />
+                  </a>
+                </aside>
                 <div class="media-row">
                   <section class="text-block">
-                    <h5 class="title title--lg">доступ, апгрейд и маршруты</h5>
-                    <ul class="text-list">
-                      <li>система ограничений доступа</li>
-                      <li>paywall-сценарии для разных тарифов</li>
-                      <li>уведомления о новых возможностях сервиса</li>
-                      <li>модальные окна «что нового»</li>
-                      <li>сценарии апгрейда подписки</li>
-                      <li>виджеты и cta для апгрейда</li>
-                      <li>дизайн тарифов</li>
-                      <li>пользовательские маршруты</li>
-                      <li>структура плейлистов</li>
-                      <li>динамические плейлисты</li>
-                    </ul>
+                    <h5 class="title title--lg">страницы превью для треков</h5>
+                    <p>
+                      появился общий темп, ощущение живого продукта и связь между брендом, карточками, навигацией и
+                      интерфейсными состояниями.
+                    </p>
                   </section>
-                  <aside aria-label="доступ, апгрейд и маршруты gallery" class="media-grid media-grid--three">
+                  <aside aria-label="jestei motion before grid" class="media-quad media-landscape">
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-filter-grid/01.webp"
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-05/02.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei filter grid image 1"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-filter-grid/01.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/02.webp" />
+                    </a>
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-filter-grid/02.webp"
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-05/03.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei filter grid image 2"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-filter-grid/02.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/03.webp" />
+                    </a>
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-filter-grid/03.webp"
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-05/04.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei filter grid image 3"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-filter-grid/03.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/04.webp" />
+                    </a>
                     <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-filter-grid/04.webp"
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-05/05.webp"
                       rel="noopener noreferrer"
                       target="_blank"
-                      ><img
-                        alt="jestei filter grid image 4"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-filter-grid/04.webp"
-                    /></a>
-                    <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-filter-grid/05.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                      ><img
-                        alt="jestei filter grid image 5"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-filter-grid/05.webp"
-                    /></a>
-                    <a
-                      class="media-card"
-                      href="/assets/jestei/galleries/jestei-filter-grid/06.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                      ><img
-                        alt="jestei filter grid image 6"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/jestei/galleries/jestei-filter-grid/06.webp"
-                    /></a>
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/05.webp" />
+                    </a>
                   </aside>
                 </div>
+                <header class="block__header">
+                  <!--
+<h4 class="title title--xl">как стало</h4>
+-->
+                </header>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">виджеты и привлечение к апгрейду подписки</h5>
+                  <p>
+                    анимационные блоки показывают, как сервис может двигаться: по дуге, по диагонали, горизонтальным
+                    потоком, через карточки и смену состояний.
+                  </p>
+                </header>
+                <aside aria-label="jestei motion storyboard grid" class="media-eight media-landscape">
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-05/06.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/06.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-05/07.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/07.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-05/08.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/08.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-05/09.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/09.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-05/10.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/10.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-05/11.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/11.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-05/12.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/12.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-05/13.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/13.webp" />
+                  </a>
+                </aside>
+                <div class="media-row">
+                  <section class="text-block">
+                    <h5 class="title title--lg">реклама</h5>
+                    <p>
+                      движение стало повторяемым приёмом презентации продукта и усилило ощущение музыкального ритма
+                      внутри интерфейса.
+                    </p>
+                  </section>
+                  <aside aria-label="jestei motion details grid" class="media-quad media-horizontal">
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-05/14.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/14.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-05/15.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/15.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-05/16.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/16.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-05/17.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-05/17.webp" />
+                    </a>
+                  </aside>
+                </div>
+                <section class="block">
+                  <header class="block__header">
+                    <!--
+<h5 class="title title--xl">движение как поток</h5>
+-->
+                    <!--
+<p>
+                      горизонтальная лента показывает, как цветовая система работает на разных носителях, карточках и
+                      интерфейсных состояниях.
+                    </p>
+-->
+                  </header>
+                  <header class="block__header component-caption">
+                    <h5 class="title title--xl">новый язык оформления для плейлистов</h5>
+                    <p>
+                      горизонтальная лента показывает, как карточки, состояния и промо складываются в непрерывный
+                      музыкальный ритм. движение ведет внимание по продукту и не спорит с интерфейсом.
+                    </p>
+                  </header>
+                  <section class="media" data-animation="photo-loop">
+                    <canvas
+                      class="visual-canvas"
+                      data-animation-scene="jesteiMotionPhotoLoop"
+                      id="project-jestei-motion-photo-loop"
+                    ></canvas>
+                  </section>
+                </section>
+              </section>
+              <section class="block">
+                <header class="block__header">
+                  <!-- section: язык -->
+                  <!--
+<h4 class="title title--xl">Язык</h4>
+-->
+                </header>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">редполитика и tone of voice</h5>
+                  <p>
+                    я собрал названия, описания и подсказки в один тон: тексты стали короче и точнее, термины начали
+                    использоваться последовательно, а разделы стало проще объяснять пользователям, редакторам и команде.
+                  </p>
+                </header>
+                <aside aria-label="jestei language before banner" class="media-banner">
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-06/06.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-06/06.webp" />
+                  </a>
+                </aside>
+                <header class="block__header">
+                  <!--
+<h4 class="title title--xl">как стало</h4>
+-->
+                </header>
+                <!--
+<section class="lead-display lead-display--long">
+                  <p>язык стал частью продуктовой системы</p>
+                </section>
+-->
+                <div class="media-row">
+                  <section class="text-block">
+                    <h5 class="title title--lg">заботливые тексты</h5>
+                    <p>
+                      текст в интерфейсе стал поддерживать визуальную систему. он не перетягивает внимание на себя, а
+                      помогает быстрее понять назначение разделов, фильтров, карточек и сценариев. язык стал спокойнее,
+                      точнее и функциональнее: он объясняет продукт без лишнего шума.
+                    </p>
+                  </section>
+                  <aside aria-label="jestei language examples grid" class="media-quad media-landscape">
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-06/02.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-06/02.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-06/03.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-06/03.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-06/04.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-06/04.webp" />
+                    </a>
+                    <a
+                      class="media-item bg-black"
+                      href="/assets/media/jesteipool/section-06/05.webp"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-06/05.webp" />
+                    </a>
+                  </aside>
+                </div>
+                <aside aria-label="jestei tone of voice vertical examples" class="media-three media-portrait">
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-07/01.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-07/01.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-07/02.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-07/02.webp" />
+                  </a>
+                  <a
+                    class="media-item bg-black"
+                    href="/assets/media/jesteipool/section-07/03.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/jesteipool/section-07/03.webp" />
+                  </a>
+                </aside>
               </section>
             </article>
-            <article class="project stack" id="project-styx-jewels">
+            <!-- case: styx -->
+            <article class="project stack" id="project-styx">
               <section class="project__header">
                 <div aria-hidden="true"></div>
                 <div class="project__head">
                   <figure class="project__logo">
-                    <img alt="" decoding="async" loading="lazy" src="/assets/styx/branding/styx-logo.svg" />
+                    <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/styx/00/01.svg" />
                   </figure>
                   <div>
-                    <div>
-                      <h3 class="title title--display">styx jewels</h3>
-                    </div>
+                    <h3 class="title title--display">styx jewels</h3>
                     <ul class="chips chips--role">
-                      <li class="chip"><span>дизайнер</span></li>
-                      <li class="chip"><span>продюсер</span></li>
-                      <li class="chip"><span>фотограф</span></li>
+                      <li class="chip">дизайнер</li>
+                      <li class="chip">продюсер</li>
+                      <li class="chip">фотограф</li>
                     </ul>
-                    <div>
-                      <p>
-                        нишевый московский бренд украшений, аксессуаров и одежды, вдохновленный готической романтикой и
-                        Лавкрафтовским ужасом.
-                      </p>
-                    </div>
+                    <p>
+                      нишевый московский бренд украшений, аксессуаров и одежды, вдохновленный готической романтикой и
+                      Лавкрафтовским ужасом.
+                    </p>
                   </div>
                   <time class="meta">2021–2025</time>
                 </div>
               </section>
+              <section class="lead-display lead-display--paragraph">
+                <p>
+                  styx требовал не просто красивых носителей, а цельного мира: знак, упаковка, фото и реклама должны
+                  были говорить одним голосом.
+                </p>
+              </section>
               <section class="block">
                 <header class="block__header">
-                  <h4 class="title title--xl">графический дизайн</h4>
-                  <ul aria-label="технологии блока" class="chips chips--skill">
+                  <!--
+<h4 class="title title--xl">графический дизайн</h4>
+-->
+                  <!--
+<ul aria-label="технологии блока" class="chips chips--skill">
                     <li class="chip">Figma</li>
                     <li class="chip">Photoshop</li>
                     <li class="chip">Illustrator</li>
@@ -709,12 +1418,22 @@
                     <li class="chip">Blender</li>
                     <li class="chip">CorelDraw</li>
                   </ul>
+-->
+                  <!--
+<p>
+                    разработал визуальный язык бренда и фирменный стиль: логотипы, упаковку, печатные носители, рекламу,
+                    баннеры и другие элементы визуальной идентичности
+                  </p>
+-->
+                </header>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">графический дизайн</h5>
                   <p>
                     разработал визуальный язык бренда и фирменный стиль: логотипы, упаковку, печатные носители, рекламу,
-                    баннеры и другие элементы визуальной идентичностиы
+                    баннеры и другие элементы визуальной идентичности.
                   </p>
                 </header>
-                <section class="media media--wide" data-animation="diagonal">
+                <section class="media" data-animation="diagonal">
                   <canvas
                     class="visual-canvas"
                     data-animation-scene="styxGraphicDiagonal"
@@ -724,18 +1443,15 @@
                 <div class="media-row">
                   <section class="text-block">
                     <h5 class="title title--lg">бренд и упаковка</h5>
-                    <ul class="text-list">
-                      <li>логотип и фирменный стиль</li>
-                      <li>Визуальная подача бренда</li>
-                      <li>Дизайн подарочной упаковки</li>
-                      <li>Дизайн визиток</li>
-                      <li>Дизайн буклетов</li>
-                    </ul>
+                    <p>
+                      логотип и фирменный стиль. визуальная подача бренда. дизайн подарочной упаковки. дизайн визиток.
+                      дизайн буклетов.
+                    </p>
                   </section>
-                  <aside aria-label="styx brand and packaging gallery" class="media-grid media-grid--quad">
+                  <aside aria-label="styx brand and packaging gallery" class="media-quad media-square">
                     <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-graphic-design/01.webp"
+                      class="media-item"
+                      href="/assets/media/cases/styx/01/01.webp"
                       rel="noopener noreferrer"
                       target="_blank"
                     >
@@ -743,12 +1459,12 @@
                         alt="styx brand and packaging image 1"
                         decoding="async"
                         loading="lazy"
-                        src="/assets/styx/galleries/styx-graphic-design/01.webp"
+                        src="/assets/media/cases/styx/01/01.webp"
                       />
                     </a>
                     <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-graphic-design/02.webp"
+                      class="media-item"
+                      href="/assets/media/cases/styx/01/02.webp"
                       rel="noopener noreferrer"
                       target="_blank"
                     >
@@ -756,12 +1472,12 @@
                         alt="styx brand and packaging image 2"
                         decoding="async"
                         loading="lazy"
-                        src="/assets/styx/galleries/styx-graphic-design/02.webp"
+                        src="/assets/media/cases/styx/01/02.webp"
                       />
                     </a>
                     <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-graphic-design/03.webp"
+                      class="media-item"
+                      href="/assets/media/cases/styx/01/03.webp"
                       rel="noopener noreferrer"
                       target="_blank"
                     >
@@ -769,23 +1485,24 @@
                         alt="styx brand and packaging image 3"
                         decoding="async"
                         loading="lazy"
-                        src="/assets/styx/galleries/styx-graphic-design/03.webp"
+                        src="/assets/media/cases/styx/01/03.webp"
                       />
                     </a>
                     <a
                       aria-label="open styx brand and packaging video"
-                      class="media-card media-card--video"
-                      href="/assets/styx/video/styx-graphic-design/04.mp4"
+                      class="media-item media-video media-item--square"
+                      href="/assets/media/cases/styx/01/04.mp4"
                       rel="noopener noreferrer"
                       target="_blank"
                     >
                       <video
-                        autoplay
-                        loop
-                        muted
-                        playsinline
+                        autoplay=""
+                        loop=""
+                        muted=""
+                        playsinline=""
+                        poster="/assets/media/cases/styx/01/04-poster.webp"
                         preload="metadata"
-                        src="/assets/styx/video/styx-graphic-design/04.mp4"
+                        src="/assets/media/cases/styx/01/04.mp4"
                       ></video>
                     </a>
                   </aside>
@@ -793,17 +1510,12 @@
                 <div class="media-row">
                   <section class="text-block">
                     <h5 class="title title--lg">коммуникации и реклама</h5>
-                    <ul class="text-list">
-                      <li>Дизайн сертификатов</li>
-                      <li>визуалы для соцсетей</li>
-                      <li>Рекламные публикации</li>
-                      <li>Баннеры для Сплита и Долями</li>
-                    </ul>
+                    <p>дизайн сертификатов. визуалы для соцсетей. рекламные публикации. баннеры для Сплита и Долями.</p>
                   </section>
-                  <aside aria-label="styx communications gallery" class="media-grid media-grid--quad">
+                  <aside aria-label="styx communications gallery" class="media-quad media-square">
                     <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-communications/01.webp"
+                      class="media-item"
+                      href="/assets/media/cases/styx/01/05.webp"
                       rel="noopener noreferrer"
                       target="_blank"
                     >
@@ -811,12 +1523,12 @@
                         alt="styx communications image 1"
                         decoding="async"
                         loading="lazy"
-                        src="/assets/styx/galleries/styx-communications/01.webp"
+                        src="/assets/media/cases/styx/01/05.webp"
                       />
                     </a>
                     <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-communications/02.webp"
+                      class="media-item"
+                      href="/assets/media/cases/styx/01/06.webp"
                       rel="noopener noreferrer"
                       target="_blank"
                     >
@@ -824,12 +1536,12 @@
                         alt="styx communications image 2"
                         decoding="async"
                         loading="lazy"
-                        src="/assets/styx/galleries/styx-communications/02.webp"
+                        src="/assets/media/cases/styx/01/06.webp"
                       />
                     </a>
                     <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-communications/03.webp"
+                      class="media-item"
+                      href="/assets/media/cases/styx/01/07.webp"
                       rel="noopener noreferrer"
                       target="_blank"
                     >
@@ -837,12 +1549,12 @@
                         alt="styx communications image 3"
                         decoding="async"
                         loading="lazy"
-                        src="/assets/styx/galleries/styx-communications/03.webp"
+                        src="/assets/media/cases/styx/01/07.webp"
                       />
                     </a>
                     <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-communications/4.webp"
+                      class="media-item"
+                      href="/assets/media/cases/styx/01/08.webp"
                       rel="noopener noreferrer"
                       target="_blank"
                     >
@@ -850,28 +1562,144 @@
                         alt="styx communications image 4"
                         decoding="async"
                         loading="lazy"
-                        src="/assets/styx/galleries/styx-communications/4.webp"
+                        src="/assets/media/cases/styx/01/08.webp"
                       />
                     </a>
                   </aside>
                 </div>
               </section>
+              <section class="lead-display lead-display--paragraph">
+                <p>
+                  сначала я собрал язык бренда: строгий знак, черная база, готическая пластика и носители, которые
+                  выглядят частью одной коллекции.
+                </p>
+              </section>
               <section class="block">
                 <header class="block__header">
-                  <h4 class="title title--xl">Дизайн печатной продукции</h4>
-                  <p>
+                  <!--
+<h4 class="title title--xl">Логотип</h4>
+-->
+                </header>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">Логотип</h5>
+                  <p>логотип и фирменный стиль.</p>
+                </header>
+                <aside aria-label="styx logo gallery" class="media-six media-square">
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/01/01.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx logo image 1"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/01/01.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/01/02.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx logo image 2"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/01/02.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/01/03.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx logo image 3"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/01/03.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/01/05.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx logo image 4"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/01/05.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/01/06.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx logo image 5"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/01/06.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/01/07.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx logo image 6"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/01/07.webp"
+                    />
+                  </a>
+                </aside>
+              </section>
+              <section class="lead-display lead-display--paragraph">
+                <p>
+                  айдентика должна была жить не только на экране: упаковка, сертификаты и печать стали продолжением
+                  продукта, а не отдельными макетами.
+                </p>
+              </section>
+              <section class="block">
+                <header class="block__header">
+                  <!--
+<h4 class="title title--xl">Дизайн печатной продукции</h4>
+-->
+                  <!--
+<p>
                     Разработал визуальный язык и дизайн печатных материалов бренда,подарочной упаковки и рекламных
                     материалов.
                   </p>
+-->
                 </header>
-                <section class="media media--wide" data-animation="horizontal">
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">Дизайн печатной продукции</h5>
+                  <p>
+                    разработал визуальный язык и дизайн печатных материалов бренда, подарочной упаковки и рекламных
+                    материалов. фирменные печатные материалы и упаковка: брендовая упаковка, подарочные сертификаты,
+                    рекламные буклеты, визитки и стикеры.
+                  </p>
+                </header>
+                <section class="media" data-animation="horizontal">
                   <canvas
                     class="visual-canvas"
                     data-animation-scene="styxBrandIdentity"
                     id="project-styx-brand-identity-horizontal"
                   ></canvas>
                 </section>
-                <section class="text-block">
+                <!--
+<section class="text-block">
                   <h5 class="title title--lg">Фирменные печатные материалы и упаковка</h5>
                   <ul class="text-list">
                     <li>Брендовой упаковки</li>
@@ -881,333 +1709,632 @@
                     <li>Визитки и стикеры</li>
                   </ul>
                 </section>
+-->
+              </section>
+              <section class="lead-display lead-display--paragraph">
+                <p>
+                  после носителей бренд получил собственную визуальную сцену: съемки, лукбуки и каталоги начали
+                  продавать не вещь, а состояние.
+                </p>
               </section>
               <section class="block">
                 <header class="block__header">
-                  <h4 class="title title--xl">фото и продакшен</h4>
+                  <!--
+<h4 class="title title--xl">фото и продакшен</h4>
+-->
+                  <!--
+<p>
+                    снимал украшения, кампейны, лукбуки и каталоги бренда. собирал мини-студию, создавал арты для
+                    печати, рекламы и соцсетей.
+                  </p>
+-->
+                </header>
+                <!--
+<section class="text-block">
+                  <h5 class="title title--lg">Съемки</h5>
+                  <ul class="text-list">
+                    <li>Продюсирование съёмок бренда</li>
+                    <li>Фотосъёмки кампейнов и лукбуков бренда</li>
+                    <li>спроектировал мини-студию бренда для каталожных съёмок и помог закупить оборудование</li>
+                    <li>арт-обработка кадров</li>
+                  </ul>
+                </section>
+-->
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">фото и продакшен</h5>
                   <p>
                     снимал украшения, кампейны, лукбуки и каталоги бренда. собирал мини-студию, создавал арты для
                     печати, рекламы и соцсетей.
                   </p>
                 </header>
-                <div class="media-row">
-                  <section class="text-block">
-                    <h5 class="title title--lg">Съемки</h5>
-                    <ul class="text-list">
-                      <li>Продюсирование съёмок бренда</li>
-                      <li>Фотосъёмки кампейнов и лукбуков бренда</li>
-                      <li>спроектировал мини-студию бренда для каталожных схемок и помог закупить оборудование</li>
-                      <li>арт-обработка кадров</li>
-                    </ul>
-                  </section>
-                  <aside aria-label="styx photo production image" class="media-grid media-grid--one">
-                    <figure class="media-card">
-                      <img
-                        alt="styx photo production image"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-photo-production/placeholder.png"
-                      />
-                    </figure>
-                  </aside>
-                </div>
-                <div aria-label="styx photo production gallery" class="media-grid media-grid--double-quad">
-                  <aside aria-label="styx photo production gallery 1" class="media-grid media-grid--quad">
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-photo-production/1.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="styx photo production image 1"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-photo-production/1.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-photo-production/2.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="styx photo production image 2"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-photo-production/2.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-photo-production/3.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="styx photo production image 3"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-photo-production/3.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-photo-production/4.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="styx photo production image 4"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-photo-production/4.webp"
-                      />
-                    </a>
-                  </aside>
-                  <aside aria-label="styx photo production gallery 2" class="media-grid media-grid--quad">
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-photo-production/5.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="styx photo production image 1"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-photo-production/5.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-photo-production/6.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="styx photo production image 2"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-photo-production/6.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-photo-production/7.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="styx photo production image 3"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-photo-production/7.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-photo-production/8.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="styx photo production image 4"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-photo-production/8.webp"
-                      />
-                    </a>
-                  </aside>
-                </div>
+                <aside aria-label="styx photo production banner" class="media-banner">
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/03/01.png"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx photo production banner"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/03/01.png"
+                    />
+                  </a>
+                </aside>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">Съемки</h5>
+                  <p>
+                    продюсирование съёмок бренда. фотосъёмки кампейнов и лукбуков бренда. спроектировал мини-студию
+                    бренда для каталожных съёмок и помог закупить оборудование. арт-обработка кадров.
+                  </p>
+                </header>
+                <aside aria-label="styx photo production gallery" class="media-eight media-square">
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/03/02.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx photo production image 1"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/03/02.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/03/03.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx photo production image 2"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/03/03.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/03/04.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx photo production image 3"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/03/04.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/03/05.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx photo production image 4"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/03/05.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/03/06.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx photo production image 5"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/03/06.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/03/07.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx photo production image 6"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/03/07.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/03/08.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx photo production image 7"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/03/08.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/03/09.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx photo production image 8"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/03/09.webp"
+                    />
+                  </a>
+                </aside>
+              </section>
+              <section class="lead-display lead-display--paragraph">
+                <p>
+                  сканография добавила бренду нерв: предметы и лица стали выглядеть как найденные артефакты, а не как
+                  обычный контент для соцсетей.
+                </p>
               </section>
               <section class="block">
                 <header class="block__header">
-                  <h4 class="title title--xl">экспериментальная сканография</h4>
-                  <ul aria-label="технологии блока" class="chips chips--skill">
+                  <!--
+<h4 class="title title--xl">экспериментальная сканография</h4>
+-->
+                  <!--
+<ul aria-label="технологии блока" class="chips chips--skill">
                     <li class="chip">сканография</li>
                     <li class="chip">экспериментальная фотография</li>
                     <li class="chip">моушен дизайн</li>
                   </ul>
+-->
+                  <!--
+<p>
+                    использовал экспериментальный авторский подход к созданию анимации при помощи сканографии:
+                    сканировал объекты по кадрово при помощи разных сканеров и создавал короткие анимации для кампейнов
+                    бренда и соцсетей.
+                  </p>
+-->
+                </header>
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">экспериментальная сканография</h5>
                   <p>
                     использовал экспериментальный авторский подход к созданию анимации при помощи сканографии:
                     сканировал объекты по кадрово при помощи разных сканеров и создавал короткие анимации для кампейнов
                     бренда и соцсетей.
                   </p>
                 </header>
-                <div class="media-grid media-grid--two">
+                <div class="media-two">
                   <a
                     aria-label="open styx scanography visual system video"
-                    class="media-card media-card--video"
-                    href="/assets/styx/video/styx-scanography-loops/styx-visual-system-loop-zwCa4H7L.mp4"
+                    class="media-item media-video media-item--vertical"
+                    href="/assets/media/cases/styx/04/01.mp4"
                     rel="noopener noreferrer"
                     target="_blank"
                   >
                     <video
-                      autoplay
-                      loop
-                      muted
-                      playsinline
+                      autoplay=""
+                      loop=""
+                      muted=""
+                      playsinline=""
+                      poster="/assets/media/cases/styx/04/01-poster.webp"
                       preload="metadata"
-                      src="/assets/styx/video/styx-scanography-loops/styx-visual-system-loop-zwCa4H7L.mp4"
+                      src="/assets/media/cases/styx/04/01.mp4"
                     ></video>
                   </a>
                   <a
                     aria-label="open styx scanography basement video"
-                    class="media-card media-card--video"
-                    href="/assets/styx/video/styx-scanography-loops/basement-16x9-Ci2Jjxc4.mp4"
+                    class="media-item media-video media-item--vertical"
+                    href="/assets/media/cases/styx/04/02.mp4"
                     rel="noopener noreferrer"
                     target="_blank"
                   >
                     <video
-                      autoplay
-                      loop
-                      muted
-                      playsinline
+                      autoplay=""
+                      loop=""
+                      muted=""
+                      playsinline=""
+                      poster="/assets/media/cases/styx/04/02-poster.webp"
                       preload="metadata"
-                      src="/assets/styx/video/styx-scanography-loops/basement-16x9-Ci2Jjxc4.mp4"
+                      src="/assets/media/cases/styx/04/02.mp4"
                     ></video>
                   </a>
                 </div>
-                <div class="media-row">
-                  <section class="text-block">
-                    <h5 class="title title--lg">портретная сканография</h5>
-                    <p>
-                      Вместе со съемками лукбуков я экспериментировал с техникой сканографии для создания портретов
-                      моделей и предметных композиций. Эти кадры стали частью визуальной системы бренда и использовались
-                      в соцсетях и промо-материалах.
-                    </p>
-                  </section>
-                  <aside aria-label="scanography extra material" class="media-grid media-grid--quad">
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-scanography-extra/01.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="scanography extra material image 1"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-scanography-extra/01.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-scanography-extra/02.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="scanography extra material image 2"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-scanography-extra/02.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-scanography-extra/03.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="scanography extra material image 3"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-scanography-extra/03.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-scanography-extra/04.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="scanography extra material image 4"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-scanography-extra/04.webp"
-                      />
-                    </a>
-                  </aside>
-                </div>
-                <div class="media-row">
-                  <section class="text-block">
-                    <h5 class="title title--lg">предметная сканография</h5>
-                    <p>
-                      Сканография ювелирки позволяет получить с одной стороны очень детальтные снимки с высокой
-                      резкостью и очень точной детализацией, а с другой стороны — получать неожиданные экспрессивные
-                      искаженные кадры, которые сложно получить традиционной фототехникой. Я экспериментировал с разными
-                      сканерами, режимами съемки и предметами для создания уникальных визуальных материалов для бренда.
-                    </p>
-                  </section>
-                  <aside aria-label="scanography material" class="media-grid media-grid--quad">
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-scanography-gallery/01.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="scanography material image 1"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-scanography-gallery/01.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-scanography-gallery/02.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="scanography material image 2"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-scanography-gallery/02.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-scanography-gallery/03.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="scanography material image 3"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-scanography-gallery/03.webp"
-                      />
-                    </a>
-                    <a
-                      class="media-card"
-                      href="/assets/styx/galleries/styx-scanography-gallery/04.webp"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <img
-                        alt="scanography material image 4"
-                        decoding="async"
-                        loading="lazy"
-                        src="/assets/styx/galleries/styx-scanography-gallery/04.webp"
-                      />
-                    </a>
-                  </aside>
-                </div>
+                <!--
+<section class="text-block">
+                  <h5 class="title title--lg">предметная и портретная сканография</h5>
+                  <p>
+                    вместе со съёмками и предметными сетами я экспериментировал со сканографией для создания портретов
+                    моделей, предметных композиций и экспрессивных искажённых кадров. эти изображения стали частью
+                    визуальной системы бренда, использовались в соцсетях, промо-материалах и кампаниях.
+                  </p>
+                </section>
+-->
+                <header class="block__header component-caption">
+                  <h5 class="title title--xl">предметная и портретная сканография</h5>
+                  <p>
+                    вместе со съёмками и предметными сетами я экспериментировал со сканографией для создания портретов
+                    моделей, предметных композиций и экспрессивных искажённых кадров. эти изображения стали частью
+                    визуальной системы бренда, использовались в соцсетях, промо-материалах и кампаниях.
+                  </p>
+                </header>
+                <aside aria-label="styx combined scanography gallery" class="media-eight media-square">
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/04/03.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx scanography image 1"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/04/03.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/04/04.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx scanography image 2"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/04/04.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/04/05.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx scanography image 3"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/04/05.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/04/06.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx scanography image 4"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/04/06.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/04/07.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx scanography image 5"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/04/07.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/04/08.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx scanography image 6"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/04/08.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/04/09.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx scanography image 7"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/04/09.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item"
+                    href="/assets/media/cases/styx/04/10.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt="styx scanography image 8"
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/styx/04/10.webp"
+                    />
+                  </a>
+                </aside>
+              </section>
+            </article>
+            <section class="lead-display lead-display--paragraph">
+              <p>
+                после styx начинается отдельная история про съемки: здесь важны свет, пластика кадра и умение быстро
+                собрать визуальный мир вокруг человека или предмета.
+              </p>
+            </section>
+            <!-- case: shootings -->
+            <article class="project stack" id="project-shootings">
+              <section class="block">
+                <aside aria-label="shootings placeholder banner gallery" class="media-banner">
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                </aside>
+              </section>
+              <section class="block">
+                <aside aria-label="shootings placeholder landscape gallery" class="media-three media-landscape">
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                </aside>
+              </section>
+              <section class="block">
+                <aside aria-label="shootings placeholder portrait gallery" class="media-six media-portrait">
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                </aside>
+              </section>
+              <section class="block">
+                <aside aria-label="shootings placeholder square gallery" class="media-eight media-square">
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                  <a
+                    class="media-item bg-black no-stroke"
+                    href="/assets/media/cases/shootings/placeholder.webp"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <img
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      src="/assets/media/cases/shootings/placeholder.webp"
+                    />
+                  </a>
+                </aside>
               </section>
             </article>
           </div>
         </section>
       </section>
       <section aria-labelledby="resume-title" class="section resume" id="resume">
-        <div>
-          <h2 class="title title--xl" id="resume-title">Еще раньше</h2>
-        </div>
         <section class="section__screen">
           <div class="stack">
             <article class="resume-item" id="resume-jesteipool">
@@ -1228,7 +2355,7 @@
                 </p>
               </div>
             </article>
-            <article class="resume-item" id="resume-styx-jewels">
+            <article class="resume-item" id="resume-styx">
               <div><time class="meta">2021–2025</time></div>
               <div>
                 <header class="resume-item__header">
@@ -1339,17 +2466,6 @@
           </div>
         </section>
       </section>
-      <!--
- <section id="pets" aria-labelledby="pets-title">
- <div>
- <p>pets</p>
- <h2 id="pets-title">пет-проекты</h2>
- <p>
- HOT, Moves-Awful, Berserk Timer и Awful-cases позже будут распакованы как отдельная часть showcase.
- </p>
- </div>
- </section>
- -->
     </main>
     <footer aria-label="подвал сайта" class="site-footer">
       <small>© 2026 иван крушинский. все права защищены.</small>

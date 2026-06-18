@@ -8,24 +8,24 @@ const STYLE_ID = "logo-inspector-3d-styles";
 const DEFAULT_VARIANTS = [
   {
     id: "club",
-    theme: "Клуб",
-    token: "Gold Drop",
+    theme: "",
+    token: "клубные диджеи",
     hex: "#E18200",
     color: "#E18200",
     palette: ["#FFE3B1", "#FFBE4A", "#E18200", "#B76600", "#7A4200", "#2A1600"],
   },
   {
     id: "event",
-    theme: "Ивент",
-    token: "Pear",
+    theme: "",
+    token: "ивент диджеи",
     hex: "#D1E231",
     color: "#D1E231",
     palette: ["#F4FFB8", "#EAF85A", "#D1E231", "#A1B314", "#5E6A08", "#1A2000"],
   },
   {
     id: "pro",
-    theme: "Про",
-    token: "Dodger Blue",
+    theme: "",
+    token: "Эксклюзивы",
     hex: "#157AFF",
     color: "#157AFF",
     palette: ["#D8ECFF", "#74B8FF", "#157AFF", "#0D55C8", "#082F78", "#050C22"],
@@ -409,8 +409,6 @@ function createVariantLogo(sourceRoot, variant, index) {
   return group;
 }
 
-
-
 function createSimpleOverlay(variants) {
   const overlay = document.createElement("div");
   overlay.className = "logo-inspector-3d__overlay";
@@ -633,11 +631,7 @@ export function createLogoInspector3D(target, options = {}) {
     lastPointerY = event.clientY;
 
     draggedLogo.rotation.y += dx * DRAG_ROTATE_SPEED;
-    draggedLogo.rotation.x = clamp(
-      draggedLogo.rotation.x + dy * DRAG_ROTATE_SPEED,
-      -Math.PI * 0.62,
-      Math.PI * 0.62,
-    );
+    draggedLogo.rotation.x = clamp(draggedLogo.rotation.x + dy * DRAG_ROTATE_SPEED, -Math.PI * 0.62, Math.PI * 0.62);
   };
 
   const handlePointerUp = (event) => {

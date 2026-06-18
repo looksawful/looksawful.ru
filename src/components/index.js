@@ -29,7 +29,6 @@ function runWhenIdle(callback) {
 
 async function initContentEnhancements() {
   try {
-
   } catch (error) {
     console.error("[components] initContentEnhancements failed", error);
   }
@@ -44,8 +43,22 @@ async function initVisualEnhancements() {
 
     runComponentStep("initShowcaseVisuals", () => initShowcaseVisuals(document));
     runComponentStep("initCvInlineVideos", () => initCvInlineVideos());
+    const { initShowcasePhotoLoop } = await import("../visuals/canvas/photo-loop/index.js");
+    runComponentStep("initShowcasePhotoLoop", () => initShowcasePhotoLoop(document));
+} catch (error) {
+    console.error("[components] base visual enhancements failed", error);
+  }
+
+  try {
+    const { initShowcaseBeforeAfter } = await import("../visuals/canvas/before-after/index.js");
+    runComponentStep("initShowcaseBeforeAfter", () => initShowcaseBeforeAfter(document));
   } catch (error) {
-    console.error("[components] initVisualEnhancements failed", error);
+    console.error("[components] initShowcaseBeforeAfter import failed", error);
+  }
+
+  try {
+} catch (error) {
+    console.error("[components] initShowcasePhotoLoop import failed", error);
   }
 }
 
@@ -76,3 +89,8 @@ export function initComponents() {
       });
   });
 }
+
+
+
+
+

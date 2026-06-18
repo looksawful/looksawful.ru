@@ -10,6 +10,18 @@
   height: 100%;
 }
 
+[data-animation="photo-loop"],
+[data-animation="before-after"] {
+  min-height: clamp(18rem, 42vw, 42rem);
+  background: #fff;
+}
+
+[data-animation="photo-loop"] canvas,
+[data-animation="before-after"] canvas {
+  min-height: clamp(18rem, 42vw, 42rem);
+  background: #fff;
+}
+
 [data-animation].is-canvas-loading::after,
 .embedded-demo.is-canvas-loading::after {
   content: "";
