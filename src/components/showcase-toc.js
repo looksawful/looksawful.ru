@@ -27,7 +27,7 @@ const ensureHeadingId = (project, heading, index) => {
   return heading.id;
 };
 
-const createToc = () => {
+const createToc = (parent) => {
   const nav = document.createElement("nav");
   nav.className = "showcase-toc";
   nav.setAttribute("aria-label", "навигация по проекту");
@@ -36,7 +36,7 @@ const createToc = () => {
   list.className = "showcase-toc__list";
   nav.append(list);
 
-  document.body.append(nav);
+  parent.append(nav);
 
   return { nav, list };
 };
@@ -69,7 +69,7 @@ export function initShowcaseToc(root = document) {
     return;
   }
 
-  const { nav, list } = createToc();
+  const { nav, list } = createToc(showcase);
   let currentProject = null;
   let ticking = false;
 
