@@ -4,6 +4,20 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const STYLE_ID = "logo-inspector-3d-styles";
+const SLIDE_COUNT = 3;
+const CAMERA_DISTANCE = 8;
+const IDLE_SPIN_SPEED = 0.42;
+const DRAG_ROTATE_SPEED = 0.008;
+const RETURN_EASE = 0.08;
+const WHITE_BACKGROUND = "#ffffff";
+
+const DEFAULT_ASSETS = {
+  model: "./logo.glb",
+  oldLogo: "./assets/logo-primary.svg",
+  newLogo: "./assets/logo-secondary.svg",
+  contrastUnion: "./Union.svg",
+  contrastVector: "./Vector.svg",
+};
 
 const DEFAULT_VARIANTS = [
   {
@@ -32,11 +46,79 @@ const DEFAULT_VARIANTS = [
   },
 ];
 
-const CAMERA_DISTANCE = 8;
-const IDLE_SPIN_SPEED = 0.42;
-const DRAG_ROTATE_SPEED = 0.008;
-const RETURN_EASE = 0.08;
-const CANVAS_BACKGROUND = "#ffffff";
+const CONTRAST_CONFIG = {
+  durationMs: 10400,
+  background: "#000000",
+  dividerColor: "rgba(255,255,255,0.22)",
+  borderColor: "rgba(255,255,255,0.22)",
+  titleColor: "#ffffff",
+  figureSizeRatio: 0.46,
+  blur: {
+    maxPxRatio: 0.13,
+    opacityAtMax: 0.22,
+  },
+  scale: {
+    min: 0.01,
+    max: 1,
+  },
+  titles: {
+    blur: "Контрастность",
+    scale: "Читаемость",
+  },
+  qualityIndex: {
+    label: "LQI",
+    decimals: 0,
+    fontScale: 0.055,
+    captionFontScale: 0.026,
+    textColor: "#ffffff",
+    mutedColor: "rgba(255,255,255,0.58)",
+    values: {
+      1: { from: 96, to: 18 },
+      2: { from: 98, to: 54 },
+      3: { from: 6, to: 78 },
+      4: { from: 14, to: 94 },
+    },
+  },
+  badges: {
+    1: [
+      { from: 0, state: "good" },
+      { from: 0.14, state: "normal" },
+      { from: 0.28, state: "bad" },
+      { from: 0.72, state: "bad" },
+      { from: 0.86, state: "normal" },
+      { from: 0.96, state: "good" },
+    ],
+    2: [
+      { from: 0, state: "good" },
+      { from: 0.28, state: "normal" },
+      { from: 0.58, state: "bad" },
+      { from: 0.72, state: "bad" },
+      { from: 0.86, state: "normal" },
+      { from: 0.96, state: "good" },
+    ],
+    3: [
+      { from: 0, state: "bad" },
+      { from: 0.18, state: "normal" },
+      { from: 0.36, state: "good" },
+      { from: 0.64, state: "good" },
+      { from: 0.82, state: "normal" },
+      { from: 0.96, state: "bad" },
+    ],
+    4: [
+      { from: 0, state: "bad" },
+      { from: 0.08, state: "normal" },
+      { from: 0.18, state: "good" },
+      { from: 0.82, state: "good" },
+      { from: 0.92, state: "normal" },
+      { from: 0.98, state: "bad" },
+    ],
+  },
+  badgeStates: {
+    good: { text: "хорошо", fill: "#2dd36f", textColor: "#001b0b" },
+    normal: { text: "нормально", fill: "#8d8d8d", textColor: "#050505" },
+    bad: { text: "плохо", fill: "#ff3b30", textColor: "#250000" },
+  },
+};
 
 function injectStyles() {
   if (document.getElementById(STYLE_ID)) return;
@@ -59,14 +141,30 @@ function injectStyles() {
       border-radius: 8px;
       color: #111111;
       background: #ffffff;
-      font-family:
-        "Rubik",
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
+      font-family: "Rubik", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       text-rendering: geometricPrecision;
+    }
+
+    .logo-inspector-3d__slides {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .logo-inspector-3d__slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .logo-inspector-3d__slide.is-active {
+      display: block;
     }
 
     .logo-inspector-3d__canvas {
@@ -115,10 +213,6 @@ function injectStyles() {
 
     .logo-inspector-3d__column {
       --accent: #111111;
-      --gradient-start: #ffffff;
-      --gradient-mid: #ffffff;
-      --gradient-end: #ffffff;
-
       position: relative;
       display: grid;
       grid-template-rows: auto 1fr auto;
@@ -150,9 +244,7 @@ function injectStyles() {
       border-radius: 999px;
       color: #111111;
       background: rgba(255, 255, 255, 0.92);
-      box-shadow:
-        0 8px 22px rgba(0, 0, 0, 0.08),
-        inset 0 -2px 0 color-mix(in srgb, var(--accent) 38%, transparent);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08), inset 0 -2px 0 color-mix(in srgb, var(--accent) 38%, transparent);
       font-size: clamp(1.02rem, 1.58vw, 1.5rem);
       font-weight: 650;
       line-height: 1;
@@ -199,22 +291,18 @@ function injectStyles() {
       border-radius: 999px;
       color: #111111;
       background: rgba(255, 255, 255, 0.94);
-      box-shadow:
-        0 7px 18px rgba(0, 0, 0, 0.08),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+      box-shadow: 0 7px 18px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(12px);
     }
 
-    .logo-inspector-3d__dot {
+    .logo-inspector-3d__token-dot {
       width: clamp(0.56rem, 0.72vw, 0.72rem);
       aspect-ratio: 1;
       flex: 0 0 auto;
       border: 1px solid rgba(0, 0, 0, 0.34);
       border-radius: 999px;
       background: var(--dot);
-      box-shadow:
-        0 0 0 2px rgba(255, 255, 255, 0.92),
-        0 1px 4px rgba(0, 0, 0, 0.18);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92), 0 1px 4px rgba(0, 0, 0, 0.18);
     }
 
     .logo-inspector-3d__hex {
@@ -226,10 +314,221 @@ function injectStyles() {
       white-space: nowrap;
     }
 
+    .logo-inspector-3d__compare {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: clamp(1.2rem, 4vw, 4rem);
+      padding: clamp(3.2rem, 6vw, 5rem) clamp(4.2rem, 8vw, 8rem) clamp(4rem, 7vw, 6rem);
+      background: #ffffff;
+      color: #111111;
+    }
+
+    .logo-inspector-3d__compare-item {
+      display: grid;
+      justify-items: center;
+      align-content: center;
+      gap: clamp(0.9rem, 1.8vw, 1.4rem);
+      min-width: 0;
+    }
+
+    .logo-inspector-3d__compare-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.34rem 0.62rem 0.37rem;
+      border: 1px solid rgba(0, 0, 0, 0.22);
+      border-radius: 999px;
+      color: rgba(17, 17, 17, 0.74);
+      background: rgba(255, 255, 255, 0.9);
+      font-size: clamp(0.62rem, 0.76vw, 0.78rem);
+      font-weight: 650;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .logo-inspector-3d__compare-logo {
+      display: block;
+      width: min(58%, 15rem);
+      height: auto;
+      max-height: min(42vh, 16rem);
+      object-fit: contain;
+      object-position: center;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .logo-inspector-3d__compare-logo--new {
+      width: min(68%, 17.5rem);
+      transform: scale(1.08);
+      transform-origin: center;
+    }
+
+    .logo-inspector-3d__compare-arrow {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: clamp(3.2rem, 5vw, 5rem);
+      height: clamp(3.2rem, 5vw, 5rem);
+      border: 1px solid rgba(0, 0, 0, 0.18);
+      border-radius: 999px;
+      color: #111111;
+      background: #ffffff;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+    }
+
+    .logo-inspector-3d__compare-arrow::before {
+      content: "";
+      width: 42%;
+      height: 1.5px;
+      background: currentColor;
+      transform: translateX(-10%);
+    }
+
+    .logo-inspector-3d__compare-arrow::after {
+      content: "";
+      position: absolute;
+      width: 0.62rem;
+      height: 0.62rem;
+      border-block-start: 1.5px solid currentColor;
+      border-inline-end: 1.5px solid currentColor;
+      transform: translateX(0.48rem) rotate(45deg);
+    }
+
+    .logo-inspector-3d__contrast,
+    .logo-inspector-3d__contrast-canvas {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+    }
+
+    .logo-inspector-3d__nav {
+      position: absolute;
+      z-index: 6;
+      top: 50%;
+      display: grid;
+      place-items: center;
+      width: clamp(2rem, 3vw, 2.8rem);
+      height: clamp(4rem, 8vw, 6.5rem);
+      padding: 0;
+      border: 1px solid rgba(0, 0, 0, 0.18);
+      border-radius: 999px;
+      color: #111111;
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      pointer-events: auto;
+      transform: translateY(-50%);
+      backdrop-filter: blur(14px);
+    }
+
+    .logo-inspector-3d__nav:hover {
+      background: rgba(255, 255, 255, 0.96);
+    }
+
+    .logo-inspector-3d__nav:focus-visible {
+      outline: 2px solid #111111;
+      outline-offset: 3px;
+    }
+
+    .logo-inspector-3d__nav--prev {
+      inset-inline-start: clamp(0.55rem, 1.4vw, 1rem);
+    }
+
+    .logo-inspector-3d__nav--next {
+      inset-inline-end: clamp(0.55rem, 1.4vw, 1rem);
+    }
+
+    .logo-inspector-3d__nav-icon {
+      position: relative;
+      display: block;
+      width: 0.78rem;
+      height: 0.78rem;
+      border-block-start: 1.8px solid currentColor;
+      border-inline-start: 1.8px solid currentColor;
+    }
+
+    .logo-inspector-3d__nav--prev .logo-inspector-3d__nav-icon {
+      transform: translateX(0.16rem) rotate(-45deg);
+    }
+
+    .logo-inspector-3d__nav--next .logo-inspector-3d__nav-icon {
+      transform: translateX(-0.16rem) rotate(135deg);
+    }
+
+    .logo-inspector-3d__dots {
+      position: absolute;
+      z-index: 6;
+      inset-inline: 0;
+      inset-block-end: clamp(0.9rem, 2vw, 1.45rem);
+      display: flex;
+      justify-content: center;
+      gap: 0.42rem;
+      pointer-events: none;
+    }
+
+    .logo-inspector-3d__dot-button {
+      width: 0.44rem;
+      height: 0.44rem;
+      padding: 0;
+      border: 1px solid rgba(0, 0, 0, 0.42);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      opacity: 0.55;
+      pointer-events: auto;
+    }
+
+    .logo-inspector-3d__dot-button.is-active {
+      width: 1.35rem;
+      background: #111111;
+      opacity: 1;
+    }
+
+    .logo-inspector-3d__dot-button:focus-visible {
+      outline: 2px solid #111111;
+      outline-offset: 3px;
+    }
+
+    .logo-inspector-3d__counter {
+      position: absolute;
+      z-index: 6;
+      inset-block-start: clamp(0.9rem, 1.8vw, 1.25rem);
+      inset-inline-end: clamp(0.9rem, 1.8vw, 1.25rem);
+      display: grid;
+      justify-items: end;
+      gap: 0.18rem;
+      min-width: 2.4rem;
+      color: #111111;
+      pointer-events: none;
+    }
+
+    .logo-inspector-3d__counter-current {
+      font-size: clamp(0.76rem, 0.92vw, 0.92rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .logo-inspector-3d__counter-total {
+      color: rgba(17, 17, 17, 0.42);
+      font-size: clamp(0.52rem, 0.64vw, 0.64rem);
+      font-weight: 650;
+      line-height: 1;
+      letter-spacing: 0.08em;
+    }
+
     .logo-inspector-3d__status {
       position: absolute;
-      z-index: 4;
-      inset-block-start: 16px;
+      z-index: 7;
+      inset-block-start: 3.2rem;
       inset-inline-end: 16px;
       max-width: min(22rem, calc(100% - 32px));
       padding: 0.4rem 0.58rem 0.45rem;
@@ -247,6 +546,34 @@ function injectStyles() {
 
     .logo-inspector-3d__status[hidden] {
       display: none;
+    }
+
+    .logo-inspector-3d[data-active-slide="2"] .logo-inspector-3d__counter {
+      color: #ffffff;
+    }
+
+    .logo-inspector-3d[data-active-slide="2"] .logo-inspector-3d__counter-total {
+      color: rgba(255, 255, 255, 0.52);
+    }
+
+    .logo-inspector-3d[data-active-slide="2"] .logo-inspector-3d__nav {
+      border-color: rgba(255, 255, 255, 0.28);
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.52);
+      box-shadow: none;
+    }
+
+    .logo-inspector-3d[data-active-slide="2"] .logo-inspector-3d__nav:hover {
+      background: rgba(0, 0, 0, 0.74);
+    }
+
+    .logo-inspector-3d[data-active-slide="2"] .logo-inspector-3d__dot-button {
+      border-color: rgba(255, 255, 255, 0.48);
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .logo-inspector-3d[data-active-slide="2"] .logo-inspector-3d__dot-button.is-active {
+      background: #ffffff;
     }
 
     @media (max-width: 56rem) {
@@ -283,12 +610,39 @@ function injectStyles() {
         padding: 0.26rem 0.42rem 0.28rem 0.34rem;
       }
 
-      .logo-inspector-3d__dot {
+      .logo-inspector-3d__token-dot {
         width: clamp(0.48rem, 1.5vw, 0.62rem);
       }
 
       .logo-inspector-3d__hex {
         font-size: clamp(0.42rem, 1.2vw, 0.52rem);
+      }
+
+      .logo-inspector-3d__compare {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+        gap: clamp(1.1rem, 4vw, 2rem);
+        padding: clamp(4rem, 12vw, 5rem) clamp(3rem, 12vw, 4rem) clamp(4rem, 12vw, 5.2rem);
+      }
+
+      .logo-inspector-3d__compare-logo {
+        width: min(46vw, 12rem);
+        max-height: 26vh;
+      }
+
+      .logo-inspector-3d__compare-logo--new {
+        width: min(54vw, 13.4rem);
+      }
+
+      .logo-inspector-3d__compare-arrow {
+        width: clamp(2.8rem, 12vw, 3.8rem);
+        height: clamp(2.8rem, 12vw, 3.8rem);
+        transform: rotate(90deg);
+      }
+
+      .logo-inspector-3d__nav {
+        width: 2rem;
+        height: 4.4rem;
       }
     }
   `;
@@ -298,6 +652,41 @@ function injectStyles() {
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function lerp(from, to, progress) {
+  return from + (to - from) * progress;
+}
+
+function pingPong(progress) {
+  return 1 - Math.abs(1 - progress * 2);
+}
+
+function getRomanSlide(index) {
+  return ["i", "ii", "iii"][index] || String(index + 1);
+}
+
+function createImage(src) {
+  const image = new Image();
+  image.decoding = "async";
+  image.src = src;
+  return image;
+}
+
+function roundedRect(context, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+
+  context.beginPath();
+  context.moveTo(x + r, y);
+  context.lineTo(x + width - r, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + r);
+  context.lineTo(x + width, y + height - r);
+  context.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  context.lineTo(x + r, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - r);
+  context.lineTo(x, y + r);
+  context.quadraticCurveTo(x, y, x + r, y);
+  context.closePath();
 }
 
 function createFallbackMesh() {
@@ -426,9 +815,6 @@ function createSimpleOverlay(variants) {
     const column = document.createElement("div");
     column.className = "logo-inspector-3d__column";
     column.style.setProperty("--accent", variant.color);
-    column.style.setProperty("--gradient-start", variant.palette[0]);
-    column.style.setProperty("--gradient-mid", variant.palette[2]);
-    column.style.setProperty("--gradient-end", variant.palette[5]);
 
     const header = document.createElement("div");
     header.className = "logo-inspector-3d__header";
@@ -451,7 +837,7 @@ function createSimpleOverlay(variants) {
       token.className = "logo-inspector-3d__token-item";
 
       const dot = document.createElement("span");
-      dot.className = "logo-inspector-3d__dot";
+      dot.className = "logo-inspector-3d__token-dot";
       dot.style.setProperty("--dot", color);
 
       const hex = document.createElement("span");
@@ -468,6 +854,321 @@ function createSimpleOverlay(variants) {
 
   overlay.appendChild(columns);
   return overlay;
+}
+
+function createCompareSlide(assetUrls) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "logo-inspector-3d__compare";
+
+  const oldItem = document.createElement("div");
+  oldItem.className = "logo-inspector-3d__compare-item";
+
+  const oldLogo = document.createElement("img");
+  oldLogo.className = "logo-inspector-3d__compare-logo logo-inspector-3d__compare-logo--old";
+  oldLogo.alt = "Старый логотип";
+  oldLogo.decoding = "async";
+  oldLogo.draggable = false;
+  oldLogo.src = assetUrls.oldLogo;
+
+  const oldLabel = document.createElement("span");
+  oldLabel.className = "logo-inspector-3d__compare-label";
+  oldLabel.textContent = "old";
+
+  oldItem.append(oldLogo, oldLabel);
+
+  const arrow = document.createElement("div");
+  arrow.className = "logo-inspector-3d__compare-arrow";
+  arrow.setAttribute("aria-hidden", "true");
+
+  const newItem = document.createElement("div");
+  newItem.className = "logo-inspector-3d__compare-item";
+
+  const newLogo = document.createElement("img");
+  newLogo.className = "logo-inspector-3d__compare-logo logo-inspector-3d__compare-logo--new";
+  newLogo.alt = "Новый логотип";
+  newLogo.decoding = "async";
+  newLogo.draggable = false;
+  newLogo.src = assetUrls.newLogo;
+
+  const newLabel = document.createElement("span");
+  newLabel.className = "logo-inspector-3d__compare-label";
+  newLabel.textContent = "new";
+
+  newItem.append(newLogo, newLabel);
+  wrapper.append(oldItem, arrow, newItem);
+
+  return wrapper;
+}
+
+function createContrastCanvasRenderer(canvas, assetUrls) {
+  const ctx = canvas.getContext("2d");
+  const images = {
+    union: createImage(assetUrls.contrastUnion),
+    vector: createImage(assetUrls.contrastVector),
+  };
+
+  const state = {
+    width: 0,
+    height: 0,
+    dpr: 1,
+  };
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+    const width = Math.max(1, Math.round(rect.width));
+    const height = Math.max(1, Math.round(rect.height));
+
+    if (width === state.width && height === state.height && dpr === state.dpr) return;
+
+    state.width = width;
+    state.height = height;
+    state.dpr = dpr;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function getQualityValue(quadrantIndex, progress) {
+    const item = CONTRAST_CONFIG.qualityIndex.values[quadrantIndex];
+    return lerp(item.from, item.to, progress);
+  }
+
+  function getBadgeState(steps, progress) {
+    let stateName = steps[0].state;
+
+    for (let i = 0; i < steps.length; i += 1) {
+      if (progress >= steps[i].from) stateName = steps[i].state;
+    }
+
+    return CONTRAST_CONFIG.badgeStates[stateName];
+  }
+
+  function drawBackground() {
+    ctx.fillStyle = CONTRAST_CONFIG.background;
+    ctx.fillRect(0, 0, state.width, state.height);
+
+    ctx.strokeStyle = CONTRAST_CONFIG.dividerColor;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(state.width / 2, 0);
+    ctx.lineTo(state.width / 2, state.height);
+    ctx.moveTo(0, state.height / 2);
+    ctx.lineTo(state.width, state.height / 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = CONTRAST_CONFIG.borderColor;
+    ctx.strokeRect(0.5, 0.5, state.width - 1, state.height - 1);
+  }
+
+  function drawTitle(text, value, y) {
+    const fontSize = Math.max(15, Math.min(state.width, state.height) * 0.03);
+    const label = `${text} ${value}`;
+
+    ctx.save();
+    ctx.font = `700 ${fontSize}px Rubik, Arial, Helvetica, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const metrics = ctx.measureText(label);
+    const bgWidth = metrics.width + fontSize * 1.3;
+    const bgHeight = fontSize * 1.7;
+
+    ctx.fillStyle = CONTRAST_CONFIG.background;
+    ctx.fillRect(state.width / 2 - bgWidth / 2, y - bgHeight / 2, bgWidth, bgHeight);
+
+    ctx.fillStyle = CONTRAST_CONFIG.titleColor;
+    ctx.fillText(label, state.width / 2, y);
+    ctx.restore();
+  }
+
+  function drawTitles(blurValue, scaleValue) {
+    const fontSize = Math.max(15, Math.min(state.width, state.height) * 0.03);
+    drawTitle(CONTRAST_CONFIG.titles.blur, blurValue.toFixed(2), Math.max(fontSize * 1.25, state.height * 0.05));
+    drawTitle(CONTRAST_CONFIG.titles.scale, `${Math.round(scaleValue * 100)}%`, state.height / 2);
+  }
+
+  function drawBadge(quadrant, badgeState) {
+    const padding = Math.max(12, Math.min(quadrant.width, quadrant.height) * 0.045);
+    const fontSize = Math.max(11, Math.min(quadrant.width, quadrant.height) * 0.04);
+    const horizontalPadding = fontSize * 0.86;
+    const badgeHeight = fontSize * 2.1;
+
+    ctx.font = `700 ${fontSize}px Rubik, Arial, Helvetica, sans-serif`;
+
+    const textWidth = ctx.measureText(badgeState.text).width;
+    const badgeWidth = textWidth + horizontalPadding * 2;
+    const isRightQuadrant = quadrant.index === 2 || quadrant.index === 3;
+    const x = isRightQuadrant ? quadrant.x + quadrant.width - padding - badgeWidth : quadrant.x + padding;
+    const y = quadrant.y + padding;
+
+    ctx.save();
+    roundedRect(ctx, x, y, badgeWidth, badgeHeight, badgeHeight / 2);
+    ctx.fillStyle = badgeState.fill;
+    ctx.fill();
+    ctx.fillStyle = badgeState.textColor;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(badgeState.text, x + badgeWidth / 2, y + badgeHeight / 2 + fontSize * 0.03);
+    ctx.restore();
+  }
+
+  function drawQualityIndex(quadrant, progress) {
+    const value = getQualityValue(quadrant.index, progress);
+    const valueText = value.toFixed(CONTRAST_CONFIG.qualityIndex.decimals);
+    const minSide = Math.min(quadrant.width, quadrant.height);
+    const padding = Math.max(12, minSide * 0.045);
+    const captionSize = Math.max(9, minSide * CONTRAST_CONFIG.qualityIndex.captionFontScale);
+    const valueSize = Math.max(18, minSide * CONTRAST_CONFIG.qualityIndex.fontScale);
+    const isRightQuadrant = quadrant.index === 2 || quadrant.index === 3;
+    const x = isRightQuadrant ? quadrant.x + quadrant.width - padding : quadrant.x + padding;
+    const y = quadrant.y + quadrant.height - padding;
+
+    ctx.save();
+    ctx.textAlign = isRightQuadrant ? "right" : "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.font = `700 ${valueSize}px Rubik, Arial, Helvetica, sans-serif`;
+    ctx.fillStyle = CONTRAST_CONFIG.qualityIndex.textColor;
+    ctx.fillText(valueText, x, y);
+    ctx.font = `700 ${captionSize}px Rubik, Arial, Helvetica, sans-serif`;
+    ctx.fillStyle = CONTRAST_CONFIG.qualityIndex.mutedColor;
+    ctx.fillText(CONTRAST_CONFIG.qualityIndex.label, x, y - valueSize * 1.05);
+    ctx.restore();
+  }
+
+  function drawFallbackMark(cx, cy, size, variant) {
+    ctx.save();
+    ctx.strokeStyle = "#ffffff";
+    ctx.fillStyle = "#ffffff";
+    ctx.lineWidth = size * 0.07;
+
+    if (variant === "union") {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - size * 0.46);
+      ctx.lineTo(cx + size * 0.12, cy - size * 0.12);
+      ctx.lineTo(cx + size * 0.48, cy - size * 0.12);
+      ctx.lineTo(cx + size * 0.18, cy + size * 0.08);
+      ctx.lineTo(cx + size * 0.3, cy + size * 0.45);
+      ctx.lineTo(cx, cy + size * 0.22);
+      ctx.lineTo(cx - size * 0.3, cy + size * 0.45);
+      ctx.lineTo(cx - size * 0.18, cy + size * 0.08);
+      ctx.lineTo(cx - size * 0.48, cy - size * 0.12);
+      ctx.lineTo(cx - size * 0.12, cy - size * 0.12);
+      ctx.closePath();
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.36, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.16, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  function drawMark(quadrant, options) {
+    const image = quadrant.image;
+    const minSide = Math.min(quadrant.width, quadrant.height);
+    const cx = quadrant.x + quadrant.width / 2;
+    const cy = quadrant.y + quadrant.height / 2;
+    const size = minSide * CONTRAST_CONFIG.figureSizeRatio;
+    const blurPx = options.blurNorm * minSide * CONTRAST_CONFIG.blur.maxPxRatio;
+    const alpha = quadrant.effect === "blur" ? 1 - options.blurNorm * (1 - CONTRAST_CONFIG.blur.opacityAtMax) : 1;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(options.scaleValue, options.scaleValue);
+    ctx.translate(-cx, -cy);
+    ctx.filter = quadrant.effect === "blur" ? `blur(${blurPx}px)` : "none";
+    ctx.globalAlpha = alpha;
+
+    if (image.complete && image.naturalWidth > 0) {
+      ctx.drawImage(image, cx - size / 2, cy - size / 2, size, size);
+    } else {
+      drawFallbackMark(cx, cy, size, quadrant.variant);
+    }
+
+    ctx.restore();
+  }
+
+  function getQuadrants() {
+    const halfWidth = state.width / 2;
+    const halfHeight = state.height / 2;
+
+    return {
+      1: {
+        index: 1,
+        x: 0,
+        y: 0,
+        width: halfWidth,
+        height: halfHeight,
+        image: images.union,
+        variant: "union",
+        effect: "blur",
+      },
+      2: {
+        index: 2,
+        x: halfWidth,
+        y: 0,
+        width: halfWidth,
+        height: halfHeight,
+        image: images.vector,
+        variant: "vector",
+        effect: "blur",
+      },
+      3: {
+        index: 3,
+        x: halfWidth,
+        y: halfHeight,
+        width: halfWidth,
+        height: halfHeight,
+        image: images.union,
+        variant: "union",
+        effect: "scale",
+      },
+      4: {
+        index: 4,
+        x: 0,
+        y: halfHeight,
+        width: halfWidth,
+        height: halfHeight,
+        image: images.vector,
+        variant: "vector",
+        effect: "scale",
+      },
+    };
+  }
+
+  function draw(timestamp) {
+    resize();
+
+    const timelineProgress = (timestamp % CONTRAST_CONFIG.durationMs) / CONTRAST_CONFIG.durationMs;
+    const effectProgress = pingPong(timelineProgress);
+    const blurNorm = effectProgress;
+    const scaleValue = lerp(CONTRAST_CONFIG.scale.min, CONTRAST_CONFIG.scale.max, effectProgress);
+    const quadrants = getQuadrants();
+
+    drawBackground();
+    drawTitles(blurNorm, scaleValue);
+
+    Object.keys(quadrants).forEach((key) => {
+      const quadrant = quadrants[key];
+      const badgeState = getBadgeState(CONTRAST_CONFIG.badges[key], timelineProgress);
+
+      drawMark(quadrant, {
+        blurNorm,
+        scaleValue: quadrant.effect === "scale" ? scaleValue : 1,
+      });
+
+      drawBadge(quadrant, badgeState);
+      drawQualityIndex(quadrant, effectProgress);
+    });
+  }
+
+  return { resize, draw };
 }
 
 async function loadModel(modelUrl) {
@@ -497,14 +1198,26 @@ export function createLogoInspector3D(target, options = {}) {
     throw new Error("createLogoInspector3D: target not found");
   }
 
-  const { modelUrl = "./logo.glb", variants = DEFAULT_VARIANTS } = options;
-  const background = CANVAS_BACKGROUND;
+  const { modelUrl = DEFAULT_ASSETS.model, variants = DEFAULT_VARIANTS, assets = {} } = options;
+
+  const assetUrls = {
+    ...DEFAULT_ASSETS,
+    ...assets,
+    model: assets.model || modelUrl || DEFAULT_ASSETS.model,
+  };
 
   host.textContent = "";
 
   const root = document.createElement("section");
   root.className = "logo-inspector-3d";
-  root.style.background = background;
+  root.style.background = WHITE_BACKGROUND;
+  root.dataset.activeSlide = "0";
+
+  const slides = document.createElement("div");
+  slides.className = "logo-inspector-3d__slides";
+
+  const modelSlide = document.createElement("div");
+  modelSlide.className = "logo-inspector-3d__slide logo-inspector-3d__slide--models is-active";
 
   const canvasHost = document.createElement("div");
   canvasHost.className = "logo-inspector-3d__canvas";
@@ -515,11 +1228,71 @@ export function createLogoInspector3D(target, options = {}) {
   status.className = "logo-inspector-3d__status";
   status.hidden = true;
 
-  root.append(canvasHost, overlay, status);
+  modelSlide.append(canvasHost, overlay, status);
+
+  const compareSlide = document.createElement("div");
+  compareSlide.className = "logo-inspector-3d__slide logo-inspector-3d__slide--compare";
+  compareSlide.appendChild(createCompareSlide(assetUrls));
+
+  const contrastSlide = document.createElement("div");
+  contrastSlide.className = "logo-inspector-3d__slide logo-inspector-3d__slide--contrast";
+
+  const contrast = document.createElement("div");
+  contrast.className = "logo-inspector-3d__contrast";
+
+  const contrastCanvas = document.createElement("canvas");
+  contrastCanvas.className = "logo-inspector-3d__contrast-canvas";
+
+  contrast.appendChild(contrastCanvas);
+  contrastSlide.appendChild(contrast);
+  slides.append(modelSlide, compareSlide, contrastSlide);
+
+  const navPrev = document.createElement("button");
+  navPrev.className = "logo-inspector-3d__nav logo-inspector-3d__nav--prev";
+  navPrev.type = "button";
+  navPrev.setAttribute("aria-label", "Предыдущий слайд");
+  navPrev.innerHTML = '<span class="logo-inspector-3d__nav-icon" aria-hidden="true"></span>';
+
+  const navNext = document.createElement("button");
+  navNext.className = "logo-inspector-3d__nav logo-inspector-3d__nav--next";
+  navNext.type = "button";
+  navNext.setAttribute("aria-label", "Следующий слайд");
+  navNext.innerHTML = '<span class="logo-inspector-3d__nav-icon" aria-hidden="true"></span>';
+
+  const dots = document.createElement("div");
+  dots.className = "logo-inspector-3d__dots";
+
+  const dotHandlers = [];
+  const dotButtons = Array.from({ length: SLIDE_COUNT }, (_, index) => {
+    const button = document.createElement("button");
+    button.className = "logo-inspector-3d__dot-button";
+    button.type = "button";
+    button.setAttribute("aria-label", `Показать слайд ${index + 1}`);
+    if (index === 0) button.classList.add("is-active");
+    dots.appendChild(button);
+    return button;
+  });
+
+  const counter = document.createElement("div");
+  counter.className = "logo-inspector-3d__counter";
+
+  const counterCurrent = document.createElement("span");
+  counterCurrent.className = "logo-inspector-3d__counter-current";
+  counterCurrent.textContent = "i";
+
+  const counterTotal = document.createElement("span");
+  counterTotal.className = "logo-inspector-3d__counter-total";
+  counterTotal.textContent = "iii";
+
+  counter.append(counterCurrent, counterTotal);
+  root.append(slides, navPrev, navNext, dots, counter);
   host.appendChild(root);
 
+  const slideElements = [modelSlide, compareSlide, contrastSlide];
+  const contrastRenderer = createContrastCanvasRenderer(contrastCanvas, assetUrls);
+
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(background);
+  scene.background = new THREE.Color(WHITE_BACKGROUND);
 
   const camera = new THREE.OrthographicCamera(-3.3, 3.3, 1.9, -1.9, 0.1, 100);
   camera.position.set(0, 0, CAMERA_DISTANCE);
@@ -561,6 +1334,7 @@ export function createLogoInspector3D(target, options = {}) {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
 
+  let activeSlide = 0;
   let sourceRoot = null;
   let hoveredLogo = null;
   let draggedLogo = null;
@@ -588,11 +1362,11 @@ export function createLogoInspector3D(target, options = {}) {
   };
 
   const pickLogo = (event) => {
+    if (activeSlide !== 0) return null;
+
     const rect = renderer.domElement.getBoundingClientRect();
 
-    if (!rect.width || !rect.height) {
-      return null;
-    }
+    if (!rect.width || !rect.height) return null;
 
     pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -619,9 +1393,7 @@ export function createLogoInspector3D(target, options = {}) {
   const handlePointerDown = (event) => {
     const logo = pickLogo(event);
 
-    if (!logo) {
-      return;
-    }
+    if (!logo) return;
 
     event.preventDefault();
 
@@ -654,9 +1426,7 @@ export function createLogoInspector3D(target, options = {}) {
   };
 
   const handlePointerUp = (event) => {
-    if (!draggedLogo) {
-      return;
-    }
+    if (!draggedLogo) return;
 
     renderer.domElement.releasePointerCapture?.(event.pointerId);
     draggedLogo = null;
@@ -695,10 +1465,41 @@ export function createLogoInspector3D(target, options = {}) {
 
     renderer.setSize(width, height, false);
     layoutLogos();
+    contrastRenderer.resize();
   };
 
+  const setActiveSlide = (nextSlide) => {
+    activeSlide = ((nextSlide % SLIDE_COUNT) + SLIDE_COUNT) % SLIDE_COUNT;
+    root.dataset.activeSlide = String(activeSlide);
+
+    slideElements.forEach((slide, index) => {
+      slide.classList.toggle("is-active", index === activeSlide);
+    });
+
+    dotButtons.forEach((button, index) => {
+      const isActive = index === activeSlide;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-current", isActive ? "true" : "false");
+    });
+
+    counterCurrent.textContent = getRomanSlide(activeSlide);
+
+    if (activeSlide !== 0) {
+      clearHover();
+      draggedLogo = null;
+      canvasHost.classList.remove("is-dragging");
+    }
+
+    requestAnimationFrame(resize);
+  };
+
+  const showPreviousSlide = () => setActiveSlide(activeSlide - 1);
+  const showNextSlide = () => setActiveSlide(activeSlide + 1);
+
   const resizeObserver = new ResizeObserver(resize);
+  resizeObserver.observe(root);
   resizeObserver.observe(canvasHost);
+  resizeObserver.observe(contrastCanvas);
 
   renderer.domElement.addEventListener("pointerdown", handlePointerDown);
   renderer.domElement.addEventListener("pointermove", handlePointerMove);
@@ -706,30 +1507,46 @@ export function createLogoInspector3D(target, options = {}) {
   renderer.domElement.addEventListener("pointercancel", handlePointerUp);
   renderer.domElement.addEventListener("pointerleave", clearHover);
 
+  navPrev.addEventListener("click", showPreviousSlide);
+  navNext.addEventListener("click", showNextSlide);
+
+  dotButtons.forEach((button, index) => {
+    const handler = () => setActiveSlide(index);
+    dotHandlers.push([button, handler]);
+    button.addEventListener("click", handler);
+  });
+
   const renderLoop = (time) => {
     if (destroyed) return;
 
     const delta = clamp((time - lastTime) / 1000, 0, 0.05);
     lastTime = time;
 
-    stage.children.forEach((logo) => {
-      const isPausedByUser = logo === hoveredLogo || logo === draggedLogo;
+    if (activeSlide === 0) {
+      stage.children.forEach((logo) => {
+        const isPausedByUser = logo === hoveredLogo || logo === draggedLogo;
 
-      if (!isPausedByUser) {
-        logo.rotation.y += delta * IDLE_SPIN_SPEED;
-      }
+        if (!isPausedByUser) {
+          logo.rotation.y += delta * IDLE_SPIN_SPEED;
+        }
 
-      if (!logo.userData.hasManualRotation && !isPausedByUser) {
-        logo.rotation.x += (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
-        logo.rotation.z += (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
-      }
-    });
+        if (!logo.userData.hasManualRotation && !isPausedByUser) {
+          logo.rotation.x += (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
+          logo.rotation.z += (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
+        }
+      });
 
-    renderer.render(scene, camera);
+      renderer.render(scene, camera);
+    }
+
+    if (activeSlide === 2) {
+      contrastRenderer.draw(time);
+    }
+
     raf = requestAnimationFrame(renderLoop);
   };
 
-  loadModel(modelUrl)
+  loadModel(assetUrls.model)
     .then((loadedRoot) => {
       if (destroyed) {
         disposeObjectResources(loadedRoot);
@@ -766,6 +1583,15 @@ export function createLogoInspector3D(target, options = {}) {
 
   return {
     element: root,
+    setSlide(index) {
+      setActiveSlide(index);
+    },
+    nextSlide() {
+      showNextSlide();
+    },
+    previousSlide() {
+      showPreviousSlide();
+    },
     dispose() {
       if (destroyed) return;
 
@@ -778,6 +1604,13 @@ export function createLogoInspector3D(target, options = {}) {
       renderer.domElement.removeEventListener("pointerup", handlePointerUp);
       renderer.domElement.removeEventListener("pointercancel", handlePointerUp);
       renderer.domElement.removeEventListener("pointerleave", clearHover);
+
+      navPrev.removeEventListener("click", showPreviousSlide);
+      navNext.removeEventListener("click", showNextSlide);
+
+      dotHandlers.forEach(([button, handler]) => {
+        button.removeEventListener("click", handler);
+      });
 
       const cache = {};
       disposeObjectResources(stage, cache);
