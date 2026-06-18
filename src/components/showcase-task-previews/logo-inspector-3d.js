@@ -36,6 +36,7 @@ const CAMERA_DISTANCE = 8;
 const IDLE_SPIN_SPEED = 0.42;
 const DRAG_ROTATE_SPEED = 0.008;
 const RETURN_EASE = 0.08;
+const CANVAS_BACKGROUND = "#ffffff";
 
 function injectStyles() {
   if (document.getElementById(STYLE_ID)) return;
@@ -54,9 +55,18 @@ function injectStyles() {
       overflow: hidden;
       contain: layout paint;
       isolation: isolate;
+      border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 8px;
-      color: #f4f4f0;
-      background: #050505;
+      color: #111111;
+      background: #ffffff;
+      font-family:
+        "Rubik",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      text-rendering: geometricPrecision;
     }
 
     .logo-inspector-3d__canvas {
@@ -85,8 +95,6 @@ function injectStyles() {
       max-height: 100%;
     }
 
-
-
     .logo-inspector-3d__overlay {
       position: absolute;
       z-index: 2;
@@ -106,10 +114,10 @@ function injectStyles() {
     }
 
     .logo-inspector-3d__column {
-      --accent: #fff;
-      --gradient-start: #fff;
-      --gradient-mid: #fff;
-      --gradient-end: #000;
+      --accent: #111111;
+      --gradient-start: #ffffff;
+      --gradient-mid: #ffffff;
+      --gradient-end: #ffffff;
 
       position: relative;
       display: grid;
@@ -120,16 +128,12 @@ function injectStyles() {
       border-radius: 18px;
     }
 
-
-
-
-
     .logo-inspector-3d__header {
       position: relative;
       z-index: 2;
       display: grid;
       justify-items: center;
-      gap: 0.18rem;
+      gap: 0.3rem;
       align-self: start;
       min-width: 0;
       padding-block-start: clamp(0.35rem, 0.9vw, 0.75rem);
@@ -137,24 +141,39 @@ function injectStyles() {
     }
 
     .logo-inspector-3d__color-name {
-      color: var(--accent);
-      font-size: clamp(1.15rem, 1.8vw, 1.75rem);
-      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 100%;
+      padding: 0.38rem 0.72rem 0.42rem;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 999px;
+      color: #111111;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow:
+        0 8px 22px rgba(0, 0, 0, 0.08),
+        inset 0 -2px 0 color-mix(in srgb, var(--accent) 38%, transparent);
+      font-size: clamp(1.02rem, 1.58vw, 1.5rem);
+      font-weight: 650;
       line-height: 1;
-      letter-spacing: 0.025em;
+      letter-spacing: 0.035em;
       text-transform: uppercase;
-      text-shadow: 0 0 22px color-mix(in srgb, var(--accent) 22%, transparent);
       white-space: nowrap;
+      backdrop-filter: blur(12px);
     }
 
     .logo-inspector-3d__theme {
-      color: rgba(255, 255, 255, 0.72);
+      color: rgba(17, 17, 17, 0.72);
       font-size: clamp(0.66rem, 0.8vw, 0.82rem);
-      font-weight: 500;
+      font-weight: 600;
       line-height: 1;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       white-space: nowrap;
+    }
+
+    .logo-inspector-3d__theme:empty {
+      display: none;
     }
 
     .logo-inspector-3d__token-list {
@@ -176,45 +195,78 @@ function injectStyles() {
       gap: 0.38rem;
       min-width: 0;
       padding: 0.38rem 0.6rem 0.4rem 0.46rem;
-      border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+      border: 1px solid rgba(0, 0, 0, 0.24);
       border-radius: 999px;
-      color: rgba(255, 255, 255, 0.76);
-      background: rgba(255, 255, 255, 0.045);
+      color: #111111;
+      background: rgba(255, 255, 255, 0.94);
       box-shadow:
-        0 0 18px color-mix(in srgb, var(--accent) 8%, transparent),
-        inset 0 0 0 1px rgba(255,255,255,0.02);
-      backdrop-filter: blur(10px);
+        0 7px 18px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
     }
 
     .logo-inspector-3d__dot {
       width: clamp(0.56rem, 0.72vw, 0.72rem);
       aspect-ratio: 1;
       flex: 0 0 auto;
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(0, 0, 0, 0.34);
       border-radius: 999px;
       background: var(--dot);
-      box-shadow: 0 0 12px color-mix(in srgb, var(--dot) 32%, transparent);
+      box-shadow:
+        0 0 0 2px rgba(255, 255, 255, 0.92),
+        0 1px 4px rgba(0, 0, 0, 0.18);
     }
 
     .logo-inspector-3d__hex {
+      color: #111111;
       font-size: clamp(0.52rem, 0.62vw, 0.66rem);
-      font-weight: 500;
+      font-weight: 650;
       line-height: 1;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.03em;
       white-space: nowrap;
     }
 
+    .logo-inspector-3d__status {
+      position: absolute;
+      z-index: 4;
+      inset-block-start: 16px;
+      inset-inline-end: 16px;
+      max-width: min(22rem, calc(100% - 32px));
+      padding: 0.4rem 0.58rem 0.45rem;
+      border: 1px solid rgba(150, 0, 0, 0.32);
+      border-radius: 999px;
+      color: #7a1111;
+      background: rgba(255, 244, 244, 0.94);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+      font-size: 0.7rem;
+      font-weight: 650;
+      line-height: 1;
+      pointer-events: none;
+      backdrop-filter: blur(14px);
+    }
+
+    .logo-inspector-3d__status[hidden] {
+      display: none;
+    }
+
     @media (max-width: 56rem) {
+      .logo-inspector-3d {
+        height: clamp(34rem, 104vw, 48rem);
+        max-height: none;
+      }
+
+      .logo-inspector-3d__overlay {
+        padding: clamp(0.8rem, 3vw, 1.2rem);
+      }
+
       .logo-inspector-3d__columns {
         gap: 0.5rem;
       }
 
-      .logo-inspector-3d__column::before {
-        inset: 12% 1% 16%;
-        }
-
       .logo-inspector-3d__color-name {
-        font-size: clamp(0.8rem, 2.35vw, 1.05rem);
+        padding: 0.3rem 0.52rem 0.34rem;
+        font-size: clamp(0.72rem, 2.15vw, 1rem);
+        letter-spacing: 0.025em;
       }
 
       .logo-inspector-3d__theme {
@@ -231,58 +283,12 @@ function injectStyles() {
         padding: 0.26rem 0.42rem 0.28rem 0.34rem;
       }
 
+      .logo-inspector-3d__dot {
+        width: clamp(0.48rem, 1.5vw, 0.62rem);
+      }
+
       .logo-inspector-3d__hex {
         font-size: clamp(0.42rem, 1.2vw, 0.52rem);
-      }
-    }
-
-    .logo-inspector-3d__status {
-      position: absolute;
-      z-index: 4;
-      inset-block-start: 16px;
-      inset-inline-end: 16px;
-      max-width: min(22rem, calc(100% - 32px));
-      padding: 0.4rem 0.58rem 0.45rem;
-      border: 1px solid rgba(255, 115, 115, 0.38);
-      border-radius: 999px;
-      color: #ffd2d2;
-      background: rgba(130, 0, 0, 0.22);
-      font-size: 0.7rem;
-      font-weight: 600;
-      line-height: 1;
-      pointer-events: none;
-      backdrop-filter: blur(14px);
-    }
-
-    .logo-inspector-3d__status[hidden] {
-      display: none;
-    }
-
-    @media (max-width: 56rem) {
-      .logo-inspector-3d {
-        height: clamp(34rem, 104vw, 48rem);
-        max-height: none;
-      }
-
-      .logo-inspector-3d__labels {
-        margin-block-end: clamp(4.4rem, 12vw, 6rem);
-      }
-
-      .logo-inspector-3d__theme {
-        font-size: clamp(0.66rem, 2.2vw, 0.86rem);
-      }
-
-      .logo-inspector-3d__token {
-        font-size: clamp(0.48rem, 1.7vw, 0.62rem);
-      }
-
-      .logo-inspector-3d__swatches {
-        gap: 0.5rem;
-      }
-
-      .logo-inspector-3d__swatch-group {
-        gap: 0.22rem;
-        padding: 0.28rem 0.34rem;
       }
     }
   `;
@@ -426,10 +432,16 @@ function createSimpleOverlay(variants) {
 
     const header = document.createElement("div");
     header.className = "logo-inspector-3d__header";
-    header.innerHTML = `
-      <span class="logo-inspector-3d__color-name">${variant.token}</span>
-      <span class="logo-inspector-3d__theme">${variant.theme}</span>
-    `;
+
+    const colorName = document.createElement("span");
+    colorName.className = "logo-inspector-3d__color-name";
+    colorName.textContent = variant.token;
+
+    const theme = document.createElement("span");
+    theme.className = "logo-inspector-3d__theme";
+    theme.textContent = variant.theme;
+
+    header.append(colorName, theme);
 
     const tokenList = document.createElement("div");
     tokenList.className = "logo-inspector-3d__token-list";
@@ -437,10 +449,16 @@ function createSimpleOverlay(variants) {
     variant.palette.forEach((color) => {
       const token = document.createElement("span");
       token.className = "logo-inspector-3d__token-item";
-      token.innerHTML = `
-        <span class="logo-inspector-3d__dot" style="--dot: ${color}"></span>
-        <span class="logo-inspector-3d__hex">${color}</span>
-      `;
+
+      const dot = document.createElement("span");
+      dot.className = "logo-inspector-3d__dot";
+      dot.style.setProperty("--dot", color);
+
+      const hex = document.createElement("span");
+      hex.className = "logo-inspector-3d__hex";
+      hex.textContent = color;
+
+      token.append(dot, hex);
       tokenList.appendChild(token);
     });
 
@@ -479,7 +497,8 @@ export function createLogoInspector3D(target, options = {}) {
     throw new Error("createLogoInspector3D: target not found");
   }
 
-  const { modelUrl = "./logo.glb", variants = DEFAULT_VARIANTS, background = "#050505" } = options;
+  const { modelUrl = "./logo.glb", variants = DEFAULT_VARIANTS } = options;
+  const background = CANVAS_BACKGROUND;
 
   host.textContent = "";
 
@@ -528,11 +547,11 @@ export function createLogoInspector3D(target, options = {}) {
   stage.rotation.z = -0.04;
   scene.add(stage);
 
-  scene.add(new THREE.AmbientLight("#ffffff", 0.34));
+  scene.add(new THREE.AmbientLight("#ffffff", 0.44));
 
-  const key = new THREE.DirectionalLight("#ffffff", 2.4);
-  const fill = new THREE.DirectionalLight("#dbe9ff", 0.72);
-  const rim = new THREE.DirectionalLight("#fff2d2", 1.2);
+  const key = new THREE.DirectionalLight("#ffffff", 2.35);
+  const fill = new THREE.DirectionalLight("#e7eef8", 0.84);
+  const rim = new THREE.DirectionalLight("#fff5df", 1.16);
 
   key.position.set(4.8, 4.4, 5);
   fill.position.set(-4, 1.8, 3.4);
