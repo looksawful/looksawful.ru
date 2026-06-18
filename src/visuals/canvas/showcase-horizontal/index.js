@@ -12,6 +12,7 @@ import {
   drawCanvasLoadingState,
   getCanvasMountOptions,
   limitAnimationItems,
+  markCanvasState,
 } from "../../shared/canvas-animation.js";
 import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
 
@@ -551,11 +552,7 @@ export const mountShowcaseHorizontal = async (canvasId = "showcase-horizontal-co
       itemLoadVersion += 1;
     },
     onLoadingChange: ({ hasLoaded, isComplete }) => {
-      if (hasLoaded) {
-        canvas.closest?.("[data-animation], .media-preview")?.classList.add("is-canvas-ready");
-      } else if (!isComplete) {
-        canvas.closest?.("[data-animation], .media-preview")?.classList.add("is-canvas-loading");
-      }
+      markCanvasState(canvas, hasLoaded || isComplete ? "ready" : "loading");
     },
   });
 
