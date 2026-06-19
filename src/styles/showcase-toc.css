@@ -72,27 +72,50 @@
 @media (max-width: 64rem) {
   .showcase-toc {
     top: auto;
-    right: 10px;
-    bottom: 10px;
-    left: 10px;
+    right: clamp(10px, 3vw, 20px);
+    bottom: max(10px, env(safe-area-inset-bottom));
+    left: clamp(10px, 3vw, 20px);
+    display: block;
     transform: none;
+    overflow: hidden;
   }
 
   .showcase-toc__list {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.45rem;
+    max-width: 100%;
     overflow-x: auto;
     padding-block: 0.25rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .showcase-toc__list::-webkit-scrollbar {
+    display: none;
   }
 
   .showcase-toc__link,
   .showcase-toc:hover .showcase-toc__link,
   .showcase-toc:focus-within .showcase-toc__link {
+    flex: 0 0 auto;
     width: auto;
+    max-width: min(12rem, 72vw);
+    min-height: 1.6rem;
     padding: 0.3rem 0;
   }
 
   .showcase-toc__text {
+    width: 0;
+    max-width: 0;
+    overflow: hidden;
     opacity: 1;
+  }
+
+  .showcase-toc__link.is-active .showcase-toc__text,
+  .showcase-toc__link:focus-visible .showcase-toc__text,
+  .showcase-toc:hover .showcase-toc__text,
+  .showcase-toc:focus-within .showcase-toc__text {
+    width: auto;
+    max-width: min(10rem, 58vw);
   }
 }

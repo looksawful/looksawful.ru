@@ -11,6 +11,7 @@
   margin: 0;
   overflow: hidden;
   isolation: isolate;
+  touch-action: pan-y;
 }
 
 .media-marquee__track {
@@ -43,13 +44,16 @@
 
 @media (max-width: 48rem) {
   .media-marquee {
-    --media-marquee-card: clamp(18rem, 82vw, 34rem);
+    --media-marquee-gap: clamp(0.75rem, 3vw, 1.25rem);
+    --media-marquee-card: clamp(16rem, 78vw, 32rem);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .media-marquee {
     overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .media-marquee__track {

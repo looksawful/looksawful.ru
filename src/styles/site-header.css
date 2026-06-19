@@ -18,6 +18,9 @@
 }
 
 .site-header__nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -29,10 +32,21 @@
 @media (max-width: 48rem) {
   .site-header {
     width: min(100% - 20px, 80rem);
+    padding-block: clamp(0.8rem, 3vw, 1.2rem);
+    overflow: hidden;
   }
 
   .site-header__nav {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding-block-end: 0.15rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .site-header__nav::-webkit-scrollbar {
+    display: none;
   }
 }
