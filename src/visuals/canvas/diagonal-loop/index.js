@@ -16,7 +16,7 @@ const CONFIG = {
     cardIntervalSec: 3.4,
     centerPauseSec: 1.45,
     direction: 1,
-    minSlots: 8,
+    minSlots: 5,
     visibleSlotSpan: 0.74,
     startPhase: 0,
     easeMotion: true,
@@ -33,13 +33,13 @@ const CONFIG = {
   },
 
   card: {
-    maxSizeRatio: 0.52,
+    maxSizeRatio: 0.9,
     maxSizePx: 620,
     minSizePx: 12,
     minScale: 0.045,
     centerHold: 0.08,
     scaleCurve: 1.15,
-    imageFit: "cover",
+    imageFit: "contain",
   },
 
   perspective: {
@@ -114,6 +114,11 @@ const ensureCanvasId = (canvas) => {
 };
 
 const getMedia = (item) => item?.imageElement || item?.mediaElement || null;
+
+const getMediaSize = (media) => ({
+  width: Math.max(1, media?.videoWidth || media?.naturalWidth || media?.width || 1),
+  height: Math.max(1, media?.videoHeight || media?.naturalHeight || media?.height || 1),
+});
 
 const getSceneItems = (canvas, options, maxItems) => {
   const sceneId = options.scene || canvas.dataset.animationScene || DEFAULT_SCENE;
@@ -206,12 +211,15 @@ class DiagonalLoopCanvas {
       const point = this.projectPoint(this.trackPoint(progress, width, height), lens, width, height);
       const centerWeight = 1 - Math.min(1, Math.abs(local) / visibleSpan);
       const image = this.state.images[slot % this.state.images.length];
+      const frame = this.cardFrame(image, size);
 
       cards.push({
         image,
         x: point.x,
         y: point.y,
-        size,
+        width: frame.width,
+        height: frame.height,
+        size: Math.max(frame.width, frame.height),
         z: centerWeight,
       });
     }
@@ -232,7 +240,11 @@ class DiagonalLoopCanvas {
   }
 
   localToProgress(local, visibleSpan) {
-    const pauseSlots = clamp(this.config.motion.centerPauseSec / this.config.motion.cardIntervalSec, 0, visibleSpan * 1.4);
+    const pauseSlots = clamp(
+      this.config.motion.centerPauseSec / this.config.motion.cardIntervalSec,
+      0,
+      visibleSpan * 1.4,
+    );
     const pauseHalf = pauseSlots * 0.5;
     const moveSpan = Math.max(0.0001, visibleSpan - pauseHalf);
 
@@ -348,24 +360,42 @@ class DiagonalLoopCanvas {
   }
 
   drawCard(card) {
-    const x = card.x - card.size * 0.5;
-    const y = card.y - card.size * 0.5;
+    const x = card.x - card.width * 0.5;
+    const y = card.y - card.height * 0.5;
 
     const ctx = this.ctx;
 
     ctx.save();
     ctx.globalAlpha = 1;
     ctx.beginPath();
-    roundedRect(ctx, x, y, card.size, card.size, Math.min(this.cardRadius, card.size * 0.5));
+    roundedRect(ctx, x, y, card.width, card.height, Math.min(this.cardRadius, card.width * 0.5, card.height * 0.5));
     ctx.closePath();
     ctx.clip();
-    this.drawImageCover(card.image, x, y, card.size, card.size);
+    this.drawImageCover(card.image, x, y, card.width, card.height);
     ctx.restore();
   }
 
+  cardFrame(image, maxSide) {
+    const source = getMediaSize(image);
+    const ratio = source.width / source.height;
+
+    if (ratio >= 1) {
+      return {
+        width: maxSide,
+        height: maxSide / ratio,
+      };
+    }
+
+    return {
+      width: maxSide * ratio,
+      height: maxSide,
+    };
+  }
+
   drawImageCover(image, x, y, w, h) {
-    const iw = image.videoWidth || image.naturalWidth || image.width;
-    const ih = image.videoHeight || image.naturalHeight || image.height;
+    const source = getMediaSize(image);
+    const iw = source.width;
+    const ih = source.height;
 
     const scale = this.config.card.imageFit === "contain" ? Math.min(w / iw, h / ih) : Math.max(w / iw, h / ih);
     const sw = iw * scale;

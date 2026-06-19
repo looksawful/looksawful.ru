@@ -17,6 +17,12 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.project-responsibilities + .block,
+.project-responsibilities + .lead-display + .block {
+  padding-block-start: 0;
+  border-top: 0;
+}
+
 .responsibility-card {
   display: grid;
   align-content: start;

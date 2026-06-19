@@ -376,14 +376,15 @@
   --orbit-card: clamp(8rem, 16vw, 14rem);
   --orbit-radius-x: clamp(9rem, 28vw, 26rem);
   --orbit-radius-z: clamp(2rem, 8vw, 8rem);
+  transform: rotateZ(12deg);
 
   position: relative;
   display: block;
-  min-height: clamp(25rem, 52vw, 44rem);
+  min-height: clamp(18rem, 38vw, 32rem);
   margin: 0;
   padding: 0;
   overflow: clip;
-  perspective: 1100px;
+  perspective: 700px;
   transform-style: preserve-3d;
   isolation: isolate;
 }
@@ -570,7 +571,7 @@
     --orbit-card: clamp(5.5rem, 24vw, 9rem);
     --orbit-radius-x: clamp(6rem, 33vw, 14rem);
 
-    min-height: clamp(17rem, 72vw, 29rem);
+    min-height: clamp(15rem, 62vw, 24rem);
   }
 
   .media-eight-mixed {

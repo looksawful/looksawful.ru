@@ -44,7 +44,7 @@ const SCENE_DEFAULT_MAX_ITEMS = {
   lyveInterfaceStrip: 8,
   jesteiLogoCanvas: 12,
   jesteiColorCanvas: 20,
-  jesteiColorPhotoLoop: 24,
+  jesteiColorPhotoLoop: 136,
   jesteiColorBeforeAfter: 2,
   jesteiFormCanvas: 18,
   jesteiDepthCanvas: 18,
@@ -241,5 +241,4 @@ export const getAnimationSceneSummaries = () =>
     fileCount: Object.keys(scene.modules).length,
     defaultMaxItems: scene.defaultMaxItems,
   }));
-
 

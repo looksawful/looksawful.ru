@@ -1,11 +1,32 @@
-const LIGHTBOX_SELECTOR = "[data-lightbox]";
+const DISABLED_SELECTOR = ':not([data-lightbox="off"]):not([data-lightbox="false"])';
+const LIGHTBOX_SELECTOR = [`[data-lightbox]${DISABLED_SELECTOR}`, `a.media-item[href]${DISABLED_SELECTOR}`].join(", ");
+const VIDEO_EXTENSION_PATTERN = /\.(mp4|webm|mov)(\?.*)?(#.*)?$/i;
+const EXPLICIT_LIGHTBOX_TYPES = new Set(["image", "video"]);
+
+let lightboxInstance = null;
+const mountedRoots = new WeakSet();
+let activeTrigger = null;
+
+const getMediaType = (src = "", explicitType = "") => {
+  if (explicitType) {
+    return explicitType;
+  }
+
+  return VIDEO_EXTENSION_PATTERN.test(src) ? "video" : "image";
+};
 
 const getMediaData = (trigger) => {
   const explicitSrc = trigger.dataset.lightboxSrc;
-  const explicitType = trigger.dataset.lightboxType;
+  const explicitType =
+    trigger.dataset.lightboxType ||
+    (EXPLICIT_LIGHTBOX_TYPES.has(trigger.dataset.lightbox) ? trigger.dataset.lightbox : "");
 
   if (explicitSrc) {
-    return { src: explicitSrc, type: explicitType || "image" };
+    return { src: explicitSrc, type: getMediaType(explicitSrc, explicitType) };
+  }
+
+  if (trigger instanceof HTMLAnchorElement && trigger.href) {
+    return { src: trigger.href, type: getMediaType(trigger.href, explicitType) };
   }
 
   const video = trigger.matches("video") ? trigger : trigger.querySelector("video");
@@ -20,20 +41,24 @@ const getMediaData = (trigger) => {
 
   const canvas = trigger.matches("canvas") ? trigger : trigger.querySelector("canvas");
   if (canvas instanceof HTMLCanvasElement) {
-    return { src: canvas.toDataURL("image/png"), type: "image" };
-  }
-
-  if (trigger instanceof HTMLAnchorElement && trigger.href) {
-    const type = /\.(mp4|webm|mov)$/i.test(trigger.href) ? "video" : "image";
-    return { src: trigger.href, type };
+    try {
+      return { src: canvas.toDataURL("image/png"), type: "image" };
+    } catch {
+      return null;
+    }
   }
 
   return null;
 };
 
 const createLightbox = () => {
+  if (lightboxInstance) {
+    return lightboxInstance;
+  }
+
   const root = document.createElement("div");
   root.className = "lightbox";
+  root.setAttribute("aria-hidden", "true");
   root.innerHTML = `
     <div class="lightbox__dialog" role="dialog" aria-modal="true" aria-label="просмотр медиа">
       <div class="lightbox__toolbar">
@@ -45,14 +70,23 @@ const createLightbox = () => {
 
   document.body.append(root);
 
-  return {
+  lightboxInstance = {
     root,
     body: root.querySelector(".lightbox__body"),
     close: root.querySelector(".lightbox__close"),
+    isBound: false,
   };
+
+  return lightboxInstance;
 };
 
 export function initLightbox(root = document) {
+  if (mountedRoots.has(root)) {
+    return;
+  }
+
+  mountedRoots.add(root);
+
   const lightbox = createLightbox();
 
   if (!(lightbox.body instanceof HTMLElement) || !(lightbox.close instanceof HTMLButtonElement)) {
@@ -60,14 +94,27 @@ export function initLightbox(root = document) {
   }
 
   const close = () => {
+    if (!lightbox.root.classList.contains("is-open")) {
+      return;
+    }
+
     lightbox.root.classList.remove("is-open");
+    lightbox.root.setAttribute("aria-hidden", "true");
     lightbox.body.replaceChildren();
+    document.documentElement.classList.remove("has-lightbox");
+
+    if (activeTrigger?.isConnected) {
+      activeTrigger.focus?.({ preventScroll: true });
+    }
+
+    activeTrigger = null;
   };
 
-  const open = ({ src, type }) => {
+  const open = ({ src, type }, trigger) => {
     const media = type === "video" ? document.createElement("video") : document.createElement("img");
 
     media.src = src;
+    activeTrigger = trigger;
 
     if (media instanceof HTMLVideoElement) {
       media.controls = true;
@@ -80,12 +127,12 @@ export function initLightbox(root = document) {
 
     lightbox.body.replaceChildren(media);
     lightbox.root.classList.add("is-open");
+    lightbox.root.setAttribute("aria-hidden", "false");
+    document.documentElement.classList.add("has-lightbox");
     lightbox.close.focus();
   };
 
-  root.addEventListener("click", (event) => {
-    const trigger = event.target instanceof Element ? event.target.closest(LIGHTBOX_SELECTOR) : null;
-
+  const activate = (event, trigger) => {
     if (!(trigger instanceof HTMLElement)) {
       return;
     }
@@ -97,18 +144,41 @@ export function initLightbox(root = document) {
     }
 
     event.preventDefault();
-    open(media);
+    open(media, trigger);
+  };
+
+  root.addEventListener("click", (event) => {
+    const trigger = event.target instanceof Element ? event.target.closest(LIGHTBOX_SELECTOR) : null;
+    activate(event, trigger);
   });
 
-  lightbox.close.addEventListener("click", close);
-  lightbox.root.addEventListener("click", (event) => {
-    if (event.target === lightbox.root) {
-      close();
+  root.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
     }
-  });
-  window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && lightbox.root.classList.contains("is-open")) {
-      close();
+
+    const trigger = event.target instanceof Element ? event.target.closest(LIGHTBOX_SELECTOR) : null;
+
+    if (!trigger) {
+      return;
     }
+
+    event.preventDefault();
+    activate(event, trigger);
   });
+
+  if (!lightbox.isBound) {
+    lightbox.close.addEventListener("click", close);
+    lightbox.root.addEventListener("click", (event) => {
+      if (event.target === lightbox.root) {
+        close();
+      }
+    });
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        close();
+      }
+    });
+    lightbox.isBound = true;
+  }
 }

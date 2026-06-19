@@ -1,0 +1,59 @@
+/* media marquee */
+
+.media-marquee {
+  --media-marquee-gap: clamp(1rem, 2.4vw, 2.625rem);
+  --media-marquee-card: clamp(22rem, 34vw, 45rem);
+  --media-marquee-ratio: 4 / 1;
+
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.media-marquee__track {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: var(--media-marquee-gap);
+  width: max-content;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.media-marquee .media-item {
+  flex: 0 0 var(--media-marquee-card);
+  aspect-ratio: var(--media-marquee-ratio);
+}
+
+.media-marquee .media-item img,
+.media-marquee .media-item video,
+.media-marquee .media-item canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.media-marquee:hover .media-marquee__track,
+.media-marquee:focus-within .media-marquee__track {
+  will-change: auto;
+}
+
+@media (max-width: 48rem) {
+  .media-marquee {
+    --media-marquee-card: clamp(18rem, 82vw, 34rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-marquee {
+    overflow-x: auto;
+  }
+
+  .media-marquee__track {
+    transform: none !important;
+    will-change: auto;
+  }
+}

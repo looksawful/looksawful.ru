@@ -1,4 +1,8 @@
 /* lightbox */
+.has-lightbox {
+  overflow: hidden;
+}
+
 .lightbox {
   position: fixed;
   inset: 0;
@@ -39,6 +43,11 @@
   line-height: 1;
   text-transform: lowercase;
   cursor: pointer;
+}
+
+.lightbox__close:hover,
+.lightbox__close:focus-visible {
+  color: var(--black);
 }
 
 .lightbox__body {

@@ -6,6 +6,7 @@
 @import "./orbit.css";
 @import "./media-grid.css";
 @import "./media-caption.css";
+@import "./marquee.css";
 @import "./media-effects.css";
 @import "./skeleton.css";
 @import "./site-header.css";
@@ -25,6 +26,7 @@
   --gap: clamp(1rem, 2vw, 2rem);
   --gap-lg: clamp(2.4rem, 5vw, 5.6rem);
   --text: 44rem;
+  --heading: 72rem;
   --xs: clamp(0.7rem, 0.72vw, 0.82rem);
   --sm: clamp(0.84rem, 0.86vw, 1rem);
   --md: clamp(1rem, 1.1vw, 1.22rem);
@@ -424,4 +426,42 @@ ul {
 
 .no-stroke {
   border-color: transparent;
+}
+
+.full-bleed {
+  width: 100vw;
+  max-width: none;
+  margin-inline: calc(50% - 50vw);
+}
+
+@supports (width: 100dvw) {
+  .full-bleed {
+    width: 100dvw;
+    margin-inline: calc(50% - 50dvw);
+  }
+}
+
+.bleed-x {
+  margin-inline: calc(50% - 50vw);
+  padding-inline: calc(50vw - 50%);
+}
+
+@supports (width: 100dvw) {
+  .bleed-x {
+    margin-inline: calc(50% - 50dvw);
+    padding-inline: calc(50dvw - 50%);
+  }
+}
+
+.full-bleed-x {
+  inline-size: 100vw;
+  max-inline-size: none;
+  margin-inline: calc(50% - 50vw);
+}
+
+@supports (width: 100dvw) {
+  .full-bleed-x {
+    inline-size: 100dvw;
+    margin-inline: calc(50% - 50dvw);
+  }
 }

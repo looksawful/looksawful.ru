@@ -29,7 +29,7 @@ p {
 .resume-item__header {
   display: grid;
   gap: 0.7rem;
-  max-width: 56rem;
+  max-width: var(--heading);
 }
 
 .project__head > div {

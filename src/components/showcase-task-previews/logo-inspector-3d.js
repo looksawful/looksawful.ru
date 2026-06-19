@@ -499,7 +499,7 @@ function injectStyles() {
     .logo-inspector-3d__counter {
       position: absolute;
       z-index: 6;
-      inset-block-start: clamp(0.9rem, 1.8vw, 1.25rem);
+      inset-block-start: clamp(3.9rem, 1.8vw, 1.25rem);
       inset-inline-end: clamp(0.9rem, 1.8vw, 1.25rem);
       display: grid;
       justify-items: end;
@@ -1282,7 +1282,7 @@ export function createLogoInspector3D(target, options = {}) {
 
   const counterTotal = document.createElement("span");
   counterTotal.className = "logo-inspector-3d__counter-total";
-  counterTotal.textContent = "iii";
+  // counterTotal.textContent = "iii";
 
   counter.append(counterCurrent, counterTotal);
   root.append(slides, navPrev, navNext, dots, counter);
