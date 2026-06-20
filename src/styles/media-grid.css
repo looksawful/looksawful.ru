@@ -119,33 +119,46 @@
   object-fit: contain;
 }
 
+.media-item.media-contain > img,
+.media-item.media-contain > video,
+.media-item.media-contain > canvas {
+  object-fit: contain;
+}
+
 .media-banner > .media-item,
 .media-landscape > .media-item,
+.media-banner > .media-slider__track > .media-item,
+.media-landscape > .media-slider__track > .media-item,
 .media-item.media-landscape {
   aspect-ratio: 16 / 9;
 }
 
 .media-strip > .media-item,
+.media-strip > .media-slider__track > .media-item,
 .media-item.media-strip {
   aspect-ratio: 4 / 1;
 }
 
 .media-wide > .media-item,
+.media-wide > .media-slider__track > .media-item,
 .media-item.media-wide {
   aspect-ratio: 2 / 1;
 }
 
 .media-portrait > .media-item,
+.media-portrait > .media-slider__track > .media-item,
 .media-item.media-portrait {
   aspect-ratio: 9 / 16;
 }
 
 .media-vertical > .media-item,
+.media-vertical > .media-slider__track > .media-item,
 .media-item.media-vertical {
   aspect-ratio: 4 / 5;
 }
 
 .media-horizontal > .media-item,
+.media-horizontal > .media-slider__track > .media-item,
 .media-item.media-horizontal {
   aspect-ratio: 5 / 4;
 }
