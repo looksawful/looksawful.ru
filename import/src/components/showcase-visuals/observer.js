@@ -1,8 +1,9 @@
-const DEFAULT_OBSERVER_OPTIONS = {
-  root: null,
-  rootMargin: "240px 0px",
-  threshold: 0.01,
-};
+function createObserverCleanup(observer) {
+  const cleanup = () => observer.disconnect();
+  cleanup.disconnect = () => observer.disconnect();
+  cleanup.observer = observer;
+  return cleanup;
+}
 
 export function observeOnceVisible(targets, callback, options = {}) {
   const elements = [...targets].filter((target) => target instanceof Element);
@@ -12,7 +13,7 @@ export function observeOnceVisible(targets, callback, options = {}) {
   }
 
   if (!("IntersectionObserver" in window)) {
-    elements.forEach((element) => callback(element));
+    elements.forEach(callback);
     return () => {};
   }
 
@@ -23,14 +24,10 @@ export function observeOnceVisible(targets, callback, options = {}) {
       }
 
       observer.unobserve(entry.target);
-      callback(entry.target);
+      callback(entry.target, observer);
     });
-  }, {
-    ...DEFAULT_OBSERVER_OPTIONS,
-    ...options,
-  });
+  }, options);
 
   elements.forEach((element) => observer.observe(element));
-
-  return () => observer.disconnect();
+  return createObserverCleanup(observer);
 }

@@ -371,39 +371,6 @@
   background: var(--good-bg);
 }
 
-.policy-book__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.1rem;
-  padding: 0 0.72rem;
-  border: var(--line);
-  border-radius: 999px;
-  background: var(--white);
-  color: var(--black);
-  font-size: var(--xs);
-  line-height: 1;
-  text-transform: lowercase;
-  cursor: pointer;
-  transition: background-color 160ms var(--ease), color 160ms var(--ease), opacity 160ms var(--ease);
-}
-
-.policy-book__button:hover,
-.policy-book__button:focus-visible {
-  background: var(--black);
-  color: var(--white);
-  outline: 0;
-}
-
-.policy-book__button:disabled {
-  opacity: 0.32;
-  cursor: default;
-}
-
-.policy-book__button:disabled:hover {
-  background: var(--white);
-  color: var(--black);
-}
 
 .policy-book__counter {
   color: rgba(0, 0, 0, 0.62);
@@ -467,10 +434,6 @@
     max-width: 68%;
   }
 
-  .policy-book__button {
-    min-height: 1.9rem;
-    padding-inline: 0.58rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

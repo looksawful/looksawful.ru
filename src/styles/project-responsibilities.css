@@ -17,13 +17,6 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.project-responsibilities + .block,
-.project-responsibilities + .lead-display + .block,
-.project-skill-cloud + .block,
-.project-skill-cloud + .lead-display + .block {
-  padding-block-start: 0;
-  border-top: 0;
-}
 
 .responsibility-card {
   display: grid;
@@ -164,22 +157,80 @@
   font-weight: 400;
   line-height: 1.28;
 }
+/* Semantic responsibility variant */
 
-/* Shared project skill cloud */
-
-.project-skill-cloud {
-  display: grid;
-  padding-top: 0;
-  border-top: 0;
+.project-responsibilities--semantic .responsibility-card {
+  gap: 1rem;
 }
 
-.project-skill-cloud__list {
-  max-width: 62rem;
+.project-responsibilities--semantic .responsibility-card__title {
+  font-size: var(--md);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
 }
 
-.project-skill-cloud .chips--skill .chip {
-  background: transparent;
-  color: var(--black);
+.project-responsibilities--semantic .responsibility-card__list {
+  gap: 0.42rem;
+}
+
+.project-responsibilities--semantic .responsibility-card__list > li {
+  position: relative;
+  padding-left: 0.68rem;
+  font-size: var(--sm);
+  line-height: 1.22;
+}
+
+.project-responsibilities--semantic .responsibility-card__list > li::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: 0;
+  width: 0.16rem;
+  height: 0.16rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.project-responsibilities--semantic .responsibility-card__list > .responsibility-card__divider {
+  display: block;
+  width: 100%;
+  height: 0;
+  margin-block: 0.58rem;
+  padding: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.14);
+}
+
+.project-responsibilities--semantic .responsibility-card__list > .responsibility-card__divider::before {
+  display: none;
+}
+
+@media (max-width: 48rem) {
+  .project-responsibilities--mobile-scroll.project-responsibilities--three {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(17rem, min(78vw, 24rem));
+    grid-template-columns: none;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding-bottom: 0.25rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .project-responsibilities--mobile-scroll.project-responsibilities--three::-webkit-scrollbar {
+    display: none;
+  }
+
+  .project-responsibilities--mobile-scroll.project-responsibilities--three > .responsibility-card {
+    width: 100%;
+    min-width: 17rem;
+    max-width: 24rem;
+    grid-column: auto;
+    scroll-snap-align: start;
+  }
 }
 
 @media (max-width: 48rem) {

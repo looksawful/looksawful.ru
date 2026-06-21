@@ -23,19 +23,6 @@ p {
   font-size: var(--lg);
 }
 
-.block__header,
-.project__head > div,
-.text-block,
-.resume-item__header {
-  display: grid;
-  gap: 0.7rem;
-  max-width: var(--heading);
-}
-
-.project__head > div {
-  gap: var(--gap);
-}
-
 .meta {
   font-size: var(--sm);
   line-height: 1.15;

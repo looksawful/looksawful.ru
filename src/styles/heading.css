@@ -1,1 +1,29 @@
 /* all the section heading styles and its's states to be put here */
+
+/* section headings */
+.section-head,
+.block__header,
+.text-block {
+  display: grid;
+  gap: 0.7rem;
+  max-width: var(--heading);
+  min-width: 0;
+}
+
+.section-head--compact {
+  max-width: var(--text);
+}
+
+.section-head__eyebrow {
+  max-width: none;
+  color: rgba(0, 0, 0, 0.52);
+  font-size: var(--xs);
+  line-height: 1.15;
+  text-transform: lowercase;
+}
+
+.section-head > p,
+.block__header > p,
+.text-block > p {
+  max-width: var(--text);
+}

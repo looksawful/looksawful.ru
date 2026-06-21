@@ -1,1 +1,15 @@
 /* all the pointers styles and its's states to be put here */
+
+/* pointer utilities */
+.pointer-none {
+  pointer-events: none;
+}
+
+.pointer-auto {
+  pointer-events: auto;
+}
+
+.is-clickable,
+[data-clickable] {
+  cursor: pointer;
+}

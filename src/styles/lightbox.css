@@ -33,22 +33,6 @@
   justify-content: flex-end;
 }
 
-.lightbox__close {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: rgba(0, 0, 0, 0.55);
-  font: inherit;
-  font-size: var(--xs);
-  line-height: 1;
-  text-transform: lowercase;
-  cursor: pointer;
-}
-
-.lightbox__close:hover,
-.lightbox__close:focus-visible {
-  color: var(--black);
-}
 
 .lightbox__body {
   display: grid;
