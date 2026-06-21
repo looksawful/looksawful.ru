@@ -3,7 +3,11 @@ const TRACK_ATTRIBUTE = "data-showcase-auto-slider-track";
 const CLONE_ATTRIBUTE = "data-showcase-auto-slider-clone";
 const READY_ATTRIBUTE = "showcaseAutoSliderReady";
 const DEFAULT_DELAY = 2600;
-const DEFAULT_DURATION = 720;
+const DEFAULT_SPEED_SOURCE = 720;
+const MIN_PIXELS_PER_SECOND = 24;
+const MAX_PIXELS_PER_SECOND = 96;
+const CONTINUOUS_MODE = "continuous";
+const STEP_MODE = "step";
 
 function readPositiveNumber(value, fallback) {
   const number = Number(value);
@@ -15,21 +19,34 @@ function readPositiveNumber(value, fallback) {
   return number;
 }
 
+function getMode(root) {
+  return root.dataset.showcaseAutoSliderMode === STEP_MODE ? STEP_MODE : CONTINUOUS_MODE;
+}
+
 function getDelay(root) {
   return readPositiveNumber(root.dataset.showcaseAutoSliderDelay, DEFAULT_DELAY);
 }
 
-function getDuration(root) {
+function getStepDuration(root) {
   return readPositiveNumber(
-    root.dataset.showcaseAutoSliderSpeed || root.dataset.showcaseAutoSliderDuration,
-    DEFAULT_DURATION,
+    root.dataset.showcaseAutoSliderDuration || root.dataset.showcaseAutoSliderSpeed,
+    DEFAULT_SPEED_SOURCE,
   );
 }
 
-function removeIds(element) {
-  element.querySelectorAll("[id]").forEach((child) => {
-    child.removeAttribute("id");
-  });
+function getPixelsPerSecond(root) {
+  const explicitSpeed = readPositiveNumber(root.dataset.showcaseAutoSliderPixelsPerSecond, 0);
+
+  if (explicitSpeed > 0) {
+    return explicitSpeed;
+  }
+
+  const speedSource = readPositiveNumber(
+    root.dataset.showcaseAutoSliderSpeed || root.dataset.showcaseAutoSliderDuration,
+    DEFAULT_SPEED_SOURCE,
+  );
+
+  return Math.min(MAX_PIXELS_PER_SECOND, Math.max(MIN_PIXELS_PER_SECOND, speedSource / 10));
 }
 
 function disableCloneFocus(element) {
@@ -42,12 +59,29 @@ function disableCloneFocus(element) {
   });
 }
 
-function createSlideClone(slide) {
+function updateCloneIds(source, clone, cloneIndex) {
+  const sourceElements = [source, ...source.querySelectorAll("[id]")];
+  const cloneElements = [clone, ...clone.querySelectorAll("[id]")];
+
+  cloneElements.forEach((element, index) => {
+    const sourceElement = sourceElements[index];
+    const sourceId = sourceElement?.id || element.id;
+
+    if (element instanceof HTMLCanvasElement && sourceId) {
+      element.id = sourceId + "-slider-clone-" + cloneIndex;
+      return;
+    }
+
+    element.removeAttribute("id");
+  });
+}
+
+function createSlideClone(slide, cloneIndex) {
   const clone = slide.cloneNode(true);
 
   clone.setAttribute(CLONE_ATTRIBUTE, "true");
   clone.setAttribute("aria-hidden", "true");
-  removeIds(clone);
+  updateCloneIds(slide, clone, cloneIndex);
   disableCloneFocus(clone);
 
   return clone;
@@ -79,25 +113,50 @@ function getSlides(track) {
   return [...track.children].filter((child) => child instanceof HTMLElement && !child.hasAttribute(CLONE_ATTRIBUTE));
 }
 
-function setTrackTransition(track, duration) {
-  track.style.setProperty("--media-slider-duration", duration + "ms");
+function getTrackItems(track) {
+  return [...track.children].filter((child) => child instanceof HTMLElement);
 }
 
-function setTrackOffset(track, slide, animated = true) {
-  if (!(slide instanceof HTMLElement)) {
-    return;
+function removeClones(track) {
+  track.querySelectorAll("[" + CLONE_ATTRIBUTE + "]").forEach((clone) => {
+    clone.remove();
+  });
+}
+
+function getCycleWidth(track, slides) {
+  const firstClone = track.querySelector("[" + CLONE_ATTRIBUTE + "]");
+
+  if (firstClone instanceof HTMLElement && slides[0] instanceof HTMLElement) {
+    return firstClone.offsetLeft - slides[0].offsetLeft;
   }
 
-  if (!animated) {
-    track.style.transition = "none";
+  const firstSlide = slides[0];
+  const lastSlide = slides[slides.length - 1];
+
+  if (!(firstSlide instanceof HTMLElement) || !(lastSlide instanceof HTMLElement)) {
+    return 0;
   }
 
-  track.style.transform = "translate3d(" + -slide.offsetLeft + "px, 0, 0)";
+  const styles = getComputedStyle(track);
+  const gap = Number.parseFloat(styles.columnGap || styles.gap || "0") || 0;
 
-  if (!animated) {
-    track.offsetHeight;
-    track.style.transition = "";
+  return lastSlide.offsetLeft + lastSlide.offsetWidth - firstSlide.offsetLeft + gap;
+}
+
+function normalizeOffset(offset, cycleWidth) {
+  if (cycleWidth <= 0) {
+    return 0;
   }
+
+  return ((offset % cycleWidth) + cycleWidth) % cycleWidth;
+}
+
+function easeStep(progress) {
+  return 1 - Math.pow(1 - progress, 3);
+}
+
+function applyOffset(track, offset) {
+  track.style.transform = "translate3d(" + -offset + "px, 0, 0)";
 }
 
 function initAutoSlider(root) {
@@ -117,83 +176,238 @@ function initAutoSlider(root) {
   root.classList.add("media-slider");
   root.setAttribute("aria-live", "off");
 
+  const mode = getMode(root);
   const delay = getDelay(root);
-  const duration = getDuration(root);
-  const firstClone = createSlideClone(slides[0]);
-  const sequence = [...slides, firstClone];
+  const stepDuration = getStepDuration(root);
+  const pixelsPerSecond = getPixelsPerSecond(root);
 
-  track.appendChild(firstClone);
-  setTrackTransition(track, duration);
+  root.dataset.showcaseAutoSliderMode = mode;
 
-  let index = 0;
-  let timer = 0;
+  let cycleWidth = 0;
+  let offset = 0;
+  let stepIndex = 0;
+  let animationFrame = 0;
+  let rebuildFrame = 0;
+  let startTimer = 0;
+  let stepTimer = 0;
+  let lastTimestamp = 0;
   let isPaused = false;
-  let isResetting = false;
+  let cloneIndex = 0;
+  let hasStarted = false;
 
-  function clearTimer() {
-    window.clearTimeout(timer);
-    timer = 0;
+  function clearAnimation() {
+    window.cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    lastTimestamp = 0;
   }
 
-  function scheduleNext(customDelay = delay) {
-    clearTimer();
-
-    if (reduceMotion.matches || document.hidden || isPaused) {
-      return;
-    }
-
-    timer = window.setTimeout(goNext, customDelay);
+  function clearTimers() {
+    window.clearTimeout(startTimer);
+    window.clearTimeout(stepTimer);
+    startTimer = 0;
+    stepTimer = 0;
   }
 
-  function goNext() {
-    if (reduceMotion.matches || document.hidden || isPaused || isResetting) {
-      scheduleNext();
-      return;
-    }
-
-    index += 1;
-    setTrackOffset(track, sequence[index], true);
-
-    if (index >= slides.length) {
-      return;
-    }
-
-    scheduleNext(delay + duration);
+  function clearMotion() {
+    clearAnimation();
+    clearTimers();
   }
 
-  function resetToStart(event) {
-    if (event && (event.target !== track || event.propertyName !== "transform")) {
+  function appendCloneCycle() {
+    slides.forEach((slide) => {
+      cloneIndex += 1;
+      track.appendChild(createSlideClone(slide, cloneIndex));
+    });
+  }
+
+  function setOffset(nextOffset) {
+    offset = nextOffset;
+    applyOffset(track, offset);
+  }
+
+  function buildLoop() {
+    clearMotion();
+    removeClones(track);
+    cloneIndex = 0;
+
+    if (reduceMotion.matches) {
+      cycleWidth = 0;
+      stepIndex = 0;
+      setOffset(0);
       return;
     }
 
-    if (index < slides.length) {
+    appendCloneCycle();
+    cycleWidth = getCycleWidth(track, slides);
+
+    if (cycleWidth <= 0) {
+      removeClones(track);
       return;
     }
 
-    isResetting = true;
-    index = 0;
-    setTrackOffset(track, sequence[index], false);
-    isResetting = false;
-    scheduleNext();
+    const requiredWidth = root.clientWidth + cycleWidth * 2;
+
+    while (track.scrollWidth < requiredWidth) {
+      appendCloneCycle();
+    }
+
+    if (mode === STEP_MODE) {
+      stepIndex = 0;
+      setOffset(0);
+      return;
+    }
+
+    setOffset(normalizeOffset(offset, cycleWidth));
+  }
+
+  function canMove() {
+    return !reduceMotion.matches && !document.hidden && !isPaused && cycleWidth > 0;
+  }
+
+  function tick(timestamp) {
+    if (!canMove()) {
+      clearAnimation();
+      return;
+    }
+
+    if (!lastTimestamp) {
+      lastTimestamp = timestamp;
+    }
+
+    const delta = Math.min(timestamp - lastTimestamp, 80);
+    lastTimestamp = timestamp;
+    setOffset(normalizeOffset(offset + (pixelsPerSecond * delta) / 1000, cycleWidth));
+    animationFrame = window.requestAnimationFrame(tick);
+  }
+
+  function startContinuous(customDelay = 0) {
+    const run = () => {
+      if (!canMove()) {
+        return;
+      }
+
+      animationFrame = window.requestAnimationFrame(tick);
+    };
+
+    if (customDelay > 0) {
+      startTimer = window.setTimeout(run, customDelay);
+      return;
+    }
+
+    run();
+  }
+
+  function scheduleStep(customDelay = delay) {
+    if (!canMove()) {
+      return;
+    }
+
+    stepTimer = window.setTimeout(() => {
+      if (!canMove()) {
+        return;
+      }
+
+      const sequence = getTrackItems(track);
+      let nextIndex = stepIndex + 1;
+
+      if (!sequence[nextIndex]) {
+        nextIndex = slides.length;
+      }
+
+      const target = sequence[nextIndex];
+
+      if (!(target instanceof HTMLElement)) {
+        stepIndex = 0;
+        setOffset(0);
+        scheduleStep(delay);
+        return;
+      }
+
+      animateStepTo(target.offsetLeft, () => {
+        stepIndex = nextIndex;
+
+        if (stepIndex >= slides.length) {
+          stepIndex = 0;
+          setOffset(0);
+        }
+
+        scheduleStep(delay);
+      });
+    }, customDelay);
+  }
+
+  function animateStepTo(targetOffset, onComplete) {
+    const startOffset = offset;
+    const distance = targetOffset - startOffset;
+    let startTimestamp = 0;
+
+    clearAnimation();
+
+    const frame = (timestamp) => {
+      if (!canMove()) {
+        clearAnimation();
+        return;
+      }
+
+      if (!startTimestamp) {
+        startTimestamp = timestamp;
+      }
+
+      const progress = Math.min((timestamp - startTimestamp) / stepDuration, 1);
+      setOffset(startOffset + distance * easeStep(progress));
+
+      if (progress < 1) {
+        animationFrame = window.requestAnimationFrame(frame);
+        return;
+      }
+
+      setOffset(targetOffset);
+      animationFrame = 0;
+      onComplete();
+    };
+
+    animationFrame = window.requestAnimationFrame(frame);
+  }
+
+  function start(customDelay = 0) {
+    clearMotion();
+
+    if (!canMove()) {
+      return;
+    }
+
+    if (mode === STEP_MODE) {
+      scheduleStep(customDelay > 0 ? customDelay : delay);
+      return;
+    }
+
+    startContinuous(customDelay);
+  }
+
+  function rebuild() {
+    window.cancelAnimationFrame(rebuildFrame);
+    rebuildFrame = 0;
+    buildLoop();
+    start(hasStarted && mode === CONTINUOUS_MODE ? 0 : delay);
+    hasStarted = true;
+  }
+
+  function scheduleRebuild() {
+    window.cancelAnimationFrame(rebuildFrame);
+    rebuildFrame = window.requestAnimationFrame(rebuild);
   }
 
   function pause() {
     isPaused = true;
     root.classList.add("is-paused");
-    clearTimer();
+    clearMotion();
   }
 
   function resume() {
     isPaused = false;
     root.classList.remove("is-paused");
-    scheduleNext();
+    start(mode === STEP_MODE ? delay : 0);
   }
-
-  function syncPosition() {
-    setTrackOffset(track, sequence[index], false);
-  }
-
-  track.addEventListener("transitionend", resetToStart);
 
   root.addEventListener("mouseenter", pause);
   root.addEventListener("mouseleave", resume);
@@ -204,16 +418,15 @@ function initAutoSlider(root) {
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
-      clearTimer();
+      clearMotion();
       return;
     }
 
-    scheduleNext();
+    start(mode === STEP_MODE ? delay : 0);
   });
 
   const handleMotionChange = () => {
-    syncPosition();
-    scheduleNext();
+    scheduleRebuild();
   };
 
   if ("addEventListener" in reduceMotion) {
@@ -222,12 +435,20 @@ function initAutoSlider(root) {
     reduceMotion.addListener(handleMotionChange);
   }
 
-  const resizeObserver = new ResizeObserver(syncPosition);
+  const resizeObserver = new ResizeObserver(scheduleRebuild);
   resizeObserver.observe(root);
 
-  window.addEventListener("load", syncPosition, { once: true });
-  syncPosition();
-  scheduleNext();
+  track.querySelectorAll("img").forEach((image) => {
+    if (image.complete) {
+      return;
+    }
+
+    image.addEventListener("load", scheduleRebuild, { once: true });
+    image.addEventListener("error", scheduleRebuild, { once: true });
+  });
+
+  window.addEventListener("load", scheduleRebuild, { once: true });
+  scheduleRebuild();
 }
 
 export function initMediaSliders(scope = document) {

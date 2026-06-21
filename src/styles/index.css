@@ -444,9 +444,16 @@ ul {
   background: var(--black);
   color: var(--white);
 }
-
+.bg-white {
+  background: var(--white);
+  color: var(--black);
+}
 .no-stroke {
   border-color: transparent;
+}
+.stroke {
+  border: var(--line);
+  border-radius: var(--r);
 }
 
 .full-bleed {
