@@ -8,6 +8,7 @@ const MIN_PIXELS_PER_SECOND = 24;
 const MAX_PIXELS_PER_SECOND = 96;
 const CONTINUOUS_MODE = "continuous";
 const STEP_MODE = "step";
+const DISABLED_VALUES = new Set(["0", "false", "off", "none", "no"]);
 
 function readPositiveNumber(value, fallback) {
   const number = Number(value);
@@ -47,6 +48,64 @@ function getPixelsPerSecond(root) {
   );
 
   return Math.min(MAX_PIXELS_PER_SECOND, Math.max(MIN_PIXELS_PER_SECOND, speedSource / 10));
+}
+
+function isDisabledValue(value) {
+  return DISABLED_VALUES.has(String(value || "").trim().toLowerCase());
+}
+
+function isControlEnabled(root, name) {
+  if (isDisabledValue(root.dataset.showcaseAutoSliderControls)) {
+    return false;
+  }
+
+  return !isDisabledValue(root.dataset[name]);
+}
+
+function createButton(className, label, text) {
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.className = className;
+  button.setAttribute("aria-label", label);
+  button.textContent = text;
+
+  return button;
+}
+
+function createControls(root, slides) {
+  const controls = {
+    previous: null,
+    next: null,
+    dots: [],
+  };
+
+  const sliderLabel = root.getAttribute("aria-label") || "слайдер";
+  const arrowsEnabled = isControlEnabled(root, "showcaseAutoSliderArrows");
+  const dotsEnabled = isControlEnabled(root, "showcaseAutoSliderDots");
+
+  if (arrowsEnabled) {
+    controls.previous = createButton("media-slider__arrow media-slider__arrow--prev", `${sliderLabel}: назад`, "‹");
+    controls.next = createButton("media-slider__arrow media-slider__arrow--next", `${sliderLabel}: вперед`, "›");
+    root.append(controls.previous, controls.next);
+  }
+
+  if (dotsEnabled) {
+    const dots = document.createElement("div");
+    dots.className = "media-slider__dots";
+    dots.setAttribute("aria-label", `${sliderLabel}: навигация по слайдам`);
+
+    controls.dots = slides.map((_, index) => {
+      const dot = createButton("media-slider__dot", `${sliderLabel}: слайд ${index + 1}`, "");
+      dot.dataset.showcaseAutoSliderDot = String(index);
+      dots.appendChild(dot);
+      return dot;
+    });
+
+    root.appendChild(dots);
+  }
+
+  return controls;
 }
 
 function disableCloneFocus(element) {
@@ -180,6 +239,7 @@ function initAutoSlider(root) {
   const delay = getDelay(root);
   const stepDuration = getStepDuration(root);
   const pixelsPerSecond = getPixelsPerSecond(root);
+  const controls = createControls(root, slides);
 
   root.dataset.showcaseAutoSliderMode = mode;
 
@@ -194,6 +254,7 @@ function initAutoSlider(root) {
   let isPaused = false;
   let cloneIndex = 0;
   let hasStarted = false;
+  let activeIndex = -1;
 
   function clearAnimation() {
     window.cancelAnimationFrame(animationFrame);
@@ -223,6 +284,51 @@ function initAutoSlider(root) {
   function setOffset(nextOffset) {
     offset = nextOffset;
     applyOffset(track, offset);
+    updateActiveDot();
+  }
+
+  function getActiveIndex() {
+    if (cycleWidth <= 0) {
+      return 0;
+    }
+
+    const currentOffset = normalizeOffset(offset, cycleWidth);
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+
+    slides.forEach((slide, index) => {
+      const slideOffset = slide.offsetLeft;
+      const directDistance = Math.abs(currentOffset - slideOffset);
+      const loopDistance = Math.min(directDistance, cycleWidth - directDistance);
+
+      if (loopDistance < closestDistance) {
+        closestDistance = loopDistance;
+        closestIndex = index;
+      }
+    });
+
+    return closestIndex;
+  }
+
+  function updateActiveDot() {
+    if (!controls.dots.length) {
+      return;
+    }
+
+    const nextActiveIndex = getActiveIndex();
+
+    if (activeIndex === nextActiveIndex) {
+      return;
+    }
+
+    activeIndex = nextActiveIndex;
+
+    controls.dots.forEach((dot, index) => {
+      const isActive = index === activeIndex;
+
+      dot.classList.toggle("is-active", isActive);
+      dot.setAttribute("aria-current", isActive ? "true" : "false");
+    });
   }
 
   function buildLoop() {
@@ -369,6 +475,41 @@ function initAutoSlider(root) {
     animationFrame = window.requestAnimationFrame(frame);
   }
 
+  function goToSlide(index, direction = 1) {
+    if (cycleWidth <= 0) {
+      return;
+    }
+
+    const normalizedIndex = ((index % slides.length) + slides.length) % slides.length;
+    let targetOffset = slides[normalizedIndex].offsetLeft;
+
+    clearMotion();
+    isPaused = false;
+    root.classList.remove("is-paused");
+
+    if (direction > 0 && normalizedIndex === 0 && getActiveIndex() === slides.length - 1) {
+      targetOffset = cycleWidth;
+    }
+
+    if (direction < 0 && normalizedIndex === slides.length - 1 && getActiveIndex() === 0) {
+      setOffset(cycleWidth);
+    }
+
+    animateStepTo(targetOffset, () => {
+      stepIndex = normalizedIndex;
+      setOffset(normalizeOffset(targetOffset, cycleWidth));
+      start(mode === STEP_MODE ? delay : 0);
+    });
+  }
+
+  function goToNextSlide() {
+    goToSlide(getActiveIndex() + 1, 1);
+  }
+
+  function goToPreviousSlide() {
+    goToSlide(getActiveIndex() - 1, -1);
+  }
+
   function start(customDelay = 0) {
     clearMotion();
 
@@ -415,6 +556,14 @@ function initAutoSlider(root) {
   root.addEventListener("focusout", resume);
   root.addEventListener("touchstart", pause, { passive: true });
   root.addEventListener("touchend", resume, { passive: true });
+
+  controls.previous?.addEventListener("click", goToPreviousSlide);
+  controls.next?.addEventListener("click", goToNextSlide);
+  controls.dots.forEach((dot, index) => {
+    dot.addEventListener("click", () => {
+      goToSlide(index, index >= getActiveIndex() ? 1 : -1);
+    });
+  });
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
