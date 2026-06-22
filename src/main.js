@@ -1,7 +1,10 @@
 import "./components/showcase-sync-side-card-height.js";
 import "./components/showcase-sync-graphic-side-layouts.js";
 import "./components/showcase-gallery-aspect-fit.js";
-import "./styles/index.css";
+import "./visuals/dom/media-marquee.js";
+import "./visuals/dom/media-slider.js";
+import "./visuals/dom/policy-book.js";
+import "./visuals/dom/list-scroll.js";
 import { initComponents } from "./components/index.js";
 
 let appInitialized = false;
@@ -10,7 +13,7 @@ async function runInitStep(label, callback) {
   try {
     return await callback();
   } catch (error) {
-    console.error(`[init] ${label} failed`, error);
+    console.error("[init] " + label + " failed", error);
     return null;
   }
 }
@@ -29,7 +32,7 @@ async function initApp() {
 
   appInitialized = true;
 
-  await runInitStep("initComponents", () => initComponents());
+  await runInitStep("initComponents", () => initComponents(document));
 }
 
 if (document.readyState === "loading") {

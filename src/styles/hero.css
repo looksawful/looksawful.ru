@@ -1,0 +1,150 @@
+/* hero */
+.hero__screen {
+  min-height: 100vh;
+  min-height: 100svh;
+  align-content: center;
+  row-gap: 4rem;
+  padding-block: 6rem;
+}
+
+.hero__screen--cover,
+.hero__headline-wrap {
+  position: relative;
+}
+
+.hero__screen--cover {
+  isolation: isolate;
+}
+
+.hero__headline-wrap {
+  justify-self: center;
+  width: min(100%, 78rem);
+  min-width: 0;
+  overflow: visible;
+}
+
+.hero__title {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+  font-size: var(--hero-main);
+  line-height: 0.86;
+  letter-spacing: 0;
+}
+
+.hero__title-name,
+.hero__title-role {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+  font-weight: 800;
+}
+
+.hero__title-role {
+  font-size: var(--hero-sub);
+  font-weight: 600;
+}
+
+.hero-title-word {
+  display: block;
+  width: fit-content;
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.hero__title-name .hero-title-word {
+  margin-inline: 0 auto;
+}
+
+.hero__title-role .hero-title-word {
+  margin-inline: auto 0;
+}
+
+.hero-title-letter {
+  display: inline-block;
+  transform-origin: 50% 58%;
+}
+
+.hero__note,
+.contact-links {
+  position: relative;
+  z-index: 3;
+  align-self: end;
+  max-width: 24rem;
+  font-size: var(--hero-text);
+  line-height: 1.1;
+}
+
+.hero__note {
+  justify-self: start;
+}
+
+.contact-links {
+  display: grid;
+  justify-self: end;
+  gap: 0.35rem;
+  font-style: normal;
+  text-align: right;
+}
+
+.contact-links a {
+  width: fit-content;
+  justify-self: end;
+  text-decoration: none;
+}
+
+@media (max-width: 48rem) {
+  .hero__screen {
+    align-content: center;
+  }
+
+  .hero__headline-wrap {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .hero__title {
+    font-size: clamp(2.3rem, 10.6vw, 4.4rem);
+    line-height: 0.94;
+  }
+
+  .hero__title-role {
+    font-size: clamp(1.7rem, 8.8vw, 3.2rem);
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+  }
+
+  .hero__title-role .hero-title-word {
+    margin-inline: 0 auto;
+  }
+
+  .hero__note,
+  .contact-links {
+    max-width: min(100%, 24rem);
+  }
+
+  .contact-links {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .contact-links a {
+    justify-self: start;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 23rem) {
+  .hero__title {
+    font-size: clamp(2rem, 10.8vw, 2.7rem);
+  }
+
+  .hero__title-role {
+    font-size: clamp(1.5rem, 8.6vw, 2.1rem);
+  }
+}

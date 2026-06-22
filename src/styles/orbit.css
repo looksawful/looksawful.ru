@@ -33,7 +33,7 @@
   height: var(--orbit-card);
   overflow: hidden;
   border: 1px solid #fff;
-  border-radius: 0;
+  border-radius: var(--r);
   background: #000;
   box-shadow: 0 0 0 1px #000;
   transform: translate(-50%, -50%) rotate(var(--orbit-angle, 0deg)) translateY(calc(-1 * var(--orbit-radius)))

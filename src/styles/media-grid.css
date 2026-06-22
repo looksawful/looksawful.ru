@@ -119,33 +119,46 @@
   object-fit: contain;
 }
 
+.media-item.media-contain > img,
+.media-item.media-contain > video,
+.media-item.media-contain > canvas {
+  object-fit: contain;
+}
+
 .media-banner > .media-item,
 .media-landscape > .media-item,
+.media-banner > .media-slider__track > .media-item,
+.media-landscape > .media-slider__track > .media-item,
 .media-item.media-landscape {
   aspect-ratio: 16 / 9;
 }
 
 .media-strip > .media-item,
+.media-strip > .media-slider__track > .media-item,
 .media-item.media-strip {
   aspect-ratio: 4 / 1;
 }
 
 .media-wide > .media-item,
+.media-wide > .media-slider__track > .media-item,
 .media-item.media-wide {
   aspect-ratio: 2 / 1;
 }
 
 .media-portrait > .media-item,
+.media-portrait > .media-slider__track > .media-item,
 .media-item.media-portrait {
   aspect-ratio: 9 / 16;
 }
 
 .media-vertical > .media-item,
+.media-vertical > .media-slider__track > .media-item,
 .media-item.media-vertical {
   aspect-ratio: 4 / 5;
 }
 
 .media-horizontal > .media-item,
+.media-horizontal > .media-slider__track > .media-item,
 .media-item.media-horizontal {
   aspect-ratio: 5 / 4;
 }
@@ -376,14 +389,15 @@
   --orbit-card: clamp(8rem, 16vw, 14rem);
   --orbit-radius-x: clamp(9rem, 28vw, 26rem);
   --orbit-radius-z: clamp(2rem, 8vw, 8rem);
+  transform: rotateZ(12deg);
 
   position: relative;
   display: block;
-  min-height: clamp(25rem, 52vw, 44rem);
+  min-height: clamp(18rem, 38vw, 32rem);
   margin: 0;
   padding: 0;
   overflow: clip;
-  perspective: 1100px;
+  perspective: 700px;
   transform-style: preserve-3d;
   isolation: isolate;
 }
@@ -515,7 +529,11 @@
 }
 
 @media (max-width: 48rem) {
-  .media-row,
+  .media-row {
+    grid-template-columns: 1fr;
+    gap: clamp(1rem, 4vw, 1.5rem);
+  }
+
   .media-two,
   .media-three,
   .media-quad,
@@ -523,7 +541,30 @@
   .media-eight,
   .media-vertical-three,
   .media-centered-quad {
-    grid-template-columns: 1fr;
+    gap: clamp(0.75rem, 3vw, 1.25rem);
+  }
+
+  .media-two,
+  .media-three,
+  .media-quad,
+  .media-six,
+  .media-eight,
+  .media-centered-quad {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .media-three > .media-item:nth-child(3):last-child {
+    grid-column: 1 / -1;
+  }
+
+  .media-three.media-portrait,
+  .media-vertical-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .media-three.media-portrait > .media-item:nth-child(3):last-child,
+  .media-vertical-three > .media-item:nth-child(3):last-child {
+    grid-column: auto;
   }
 
   .media-overlap {
@@ -539,12 +580,18 @@
   }
 
   .media-masonry {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .media-masonry > .media-item {
     grid-column: auto;
     grid-row: auto;
+    min-height: clamp(8rem, 42vw, 14rem);
+  }
+
+  .media-masonry > .media-item:nth-child(6n + 1),
+  .media-masonry > .media-item:nth-child(6n + 6) {
+    grid-column: span 2;
   }
 
   .media-ribbon {
@@ -570,13 +617,28 @@
     --orbit-card: clamp(5.5rem, 24vw, 9rem);
     --orbit-radius-x: clamp(6rem, 33vw, 14rem);
 
-    min-height: clamp(17rem, 72vw, 29rem);
+    min-height: clamp(15rem, 62vw, 24rem);
   }
 
   .media-eight-mixed {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-auto-rows: clamp(3.2rem, 15vw, 5.2rem);
     gap: clamp(0.35rem, 2vw, 0.75rem);
+  }
+}
+
+@media (max-width: 30rem) {
+  .media-two.media-strip,
+  .media-three.media-strip,
+  .media-quad.media-strip,
+  .media-six.media-strip,
+  .media-eight.media-strip,
+  .media-two.media-wide,
+  .media-three.media-wide,
+  .media-quad.media-wide,
+  .media-six.media-wide,
+  .media-eight.media-wide {
+    grid-template-columns: 1fr;
   }
 }
 .media-overlap-three {

@@ -13,6 +13,7 @@ import {
 import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
 
 const CV_CAROUSEL_KEY_PREFIX = "showcase-carousel:";
+const CANVAS_BACKGROUND_COLOR = "#fff";
 
 const CV_CAROUSEL_TITLES = {
   1: "Art Direction",
@@ -82,6 +83,31 @@ const createDisposeHandle = (dispose = noop) => {
   const handle = () => dispose();
   handle.dispose = handle;
   return handle;
+};
+
+const prepareCanvasBackground = (canvas) => {
+  if (!canvas?.style) {
+    return;
+  }
+
+  canvas.style.background = CANVAS_BACKGROUND_COLOR;
+  canvas.style.backgroundColor = CANVAS_BACKGROUND_COLOR;
+};
+
+const clearCanvasBackground = (ctx, width, height) => {
+  const safeWidth = width || 0;
+  const safeHeight = height || 0;
+
+  ctx.clearRect(0, 0, safeWidth, safeHeight);
+
+  if (!safeWidth || !safeHeight) {
+    return;
+  }
+
+  ctx.save();
+  ctx.fillStyle = CANVAS_BACKGROUND_COLOR;
+  ctx.fillRect(0, 0, safeWidth, safeHeight);
+  ctx.restore();
 };
 
 const loadImages = async (items) =>
@@ -278,7 +304,7 @@ const renderCvCarousel = ({ ctx, items, titleStyle, time, width, height, reduced
     return;
   }
 
-  ctx.clearRect(0, 0, width, height);
+  clearCanvasBackground(ctx, width, height);
 
   const cards = getCards({ items, time, width, height, reducedMotion });
 
@@ -342,6 +368,7 @@ export const mountShowcaseCarousel = async (canvasId = "showcase-carousel-contai
   const mountToken = beginMount(key);
   const titleStyle = getTitleStyle(canvas);
 
+  prepareCanvasBackground(canvas);
   await loadTitleFont(titleStyle);
 
   const items = await loadImages(cvCarouselItems);
@@ -364,7 +391,7 @@ export const mountShowcaseCarousel = async (canvasId = "showcase-carousel-contai
       }
 
       if (!width || !height || !items.length) {
-        ctx.clearRect(0, 0, width || 0, height || 0);
+        clearCanvasBackground(ctx, width, height);
         return;
       }
 

@@ -224,6 +224,7 @@ export const createCanvasAnimation = ({
   let resizeInfo = null;
   let resizeRequested = true;
   let activeState = null;
+  let renderedOnce = false;
 
   const doc = globalThis.document;
   const win = globalThis.window;
@@ -294,6 +295,11 @@ export const createCanvasAnimation = ({
         reducedMotion,
         inViewport,
       });
+
+      if (!renderedOnce) {
+        renderedOnce = true;
+        emitState("ready");
+      }
     } catch (error) {
       console.error(`[canvas-animation] render failed for ${key}`, error);
       emitState("error");
