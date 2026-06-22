@@ -406,15 +406,16 @@ export const mountShowcasePhotoLoop = (canvasOrId, options = {}) => {
   const key = createAnimationKey(KEY_PREFIX, canvasId);
   const token = beginMount(key);
 
+  const sceneId = options.scene || canvas.dataset.animationScene || DEFAULT_SCENE;
+  const scene = ANIMATION_SCENES[sceneId];
   const tuning = getCanvasMountOptions(canvas, options, {
-    maxItems: options.maxItems || 24,
+    maxItems: options.maxItems || scene?.defaultMaxItems || 24,
     initialCount: options.initialCount || 8,
     batchSize: options.batchSize || 4,
     fps: options.fps || 60,
     speedScale: options.speedScale || 1,
   });
 
-  const sceneId = options.scene || canvas.dataset.animationScene || DEFAULT_SCENE;
   const sourceItems = getSceneItems(canvas, options, tuning.maxItems);
 
   const loader = createMediaLoader(sourceItems, {
@@ -468,4 +469,3 @@ export const initShowcasePhotoLoop = (root = document) => {
 
   return mounted;
 };
-

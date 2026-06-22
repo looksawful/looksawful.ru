@@ -1,0 +1,61 @@
+/* typography */
+p {
+  max-width: var(--text);
+  font-size: var(--md);
+  line-height: 1.25;
+  text-wrap: pretty;
+}
+
+.title {
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  text-wrap: balance;
+}
+
+.title--display,
+.title--xl {
+  font-size: var(--xl);
+}
+
+.title--lg {
+  font-size: var(--lg);
+}
+
+.meta {
+  font-size: var(--sm);
+  line-height: 1.15;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.chip {
+  padding: 0.26rem 0.5rem 0.3rem;
+  border: var(--line);
+  border-radius: 999px;
+  font-size: var(--sm);
+  line-height: 1.15;
+}
+
+.chips--skill .chip {
+  background: var(--black);
+  color: var(--white);
+}
+
+.text-list {
+  display: grid;
+  gap: 0.35rem;
+  max-width: var(--text);
+  padding: 0;
+  list-style: none;
+}
+
+.text-list li {
+  font-size: var(--md);
+  line-height: 1.25;
+}

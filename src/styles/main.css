@@ -1,0 +1,87 @@
+/* main foundation */
+:root {
+  --font: "Rubik", system-ui, sans-serif;
+  --black: #000;
+  --white: #fff;
+  --line: 1px solid var(--black);
+  --muted: rgba(0, 0, 0, 0.55);
+  --soft: rgba(0, 0, 0, 0.04);
+  --r: 0.75rem;
+  --r-lg: 1.25rem;
+  --page: min(100% - clamp(20px, 6vw, 96px), 1280px);
+  --gap: clamp(1rem, 2vw, 2rem);
+  --gap-lg: clamp(2.4rem, 5vw, 5.6rem);
+  --section-gap: clamp(3.2rem, 7vw, 7rem);
+  --project-gap: clamp(2.4rem, 5vw, 5.6rem);
+  --component-gap: clamp(1.1rem, 2.4vw, 2.4rem);
+  --text: 44rem;
+  --heading: 72rem;
+  --xs: clamp(0.7rem, 0.72vw, 0.82rem);
+  --sm: clamp(0.84rem, 0.86vw, 1rem);
+  --md: clamp(1rem, 1.1vw, 1.22rem);
+  --lg: clamp(1.45rem, 2.4vw, 2.7rem);
+  --xl: clamp(2.2rem, 5vw, 5.4rem);
+  --hero-main: clamp(3rem, 10vw, 9rem);
+  --hero-sub: clamp(3rem, 9vw, 8rem);
+  --hero-text: clamp(1.05rem, 1.6vw, 1.25rem);
+  --motion-fast: 160ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--white);
+  color: var(--black);
+  font: 400 16px/1.35 var(--font);
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--black);
+}
+
+img,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+ul,
+ol {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+}
+
+ul {
+  list-style: none;
+}
+
+[hidden] {
+  display: none !important;
+}

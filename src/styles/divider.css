@@ -1,0 +1,16 @@
+/* all the dividers' styles and its's states to be put here */
+
+/* dividers */
+.section-divider,
+.divider {
+  width: 100%;
+  border-top: var(--line);
+}
+
+.divider--soft {
+  border-top-color: rgba(0, 0, 0, 0.14);
+}
+
+.no-divider {
+  border-top: 0 !important;
+}

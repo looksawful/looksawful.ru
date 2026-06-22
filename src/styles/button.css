@@ -1,0 +1,121 @@
+/* all the button styles and its's states to be put here */
+
+/*
+ссылка
+скачать
+следующий
+предыдущий
+иконбаттон
+стики баттон наверх
+представление
+фуллскрин
+гамбургер
+
+*/
+
+/* buttons */
+.button,
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2rem;
+  padding: 0.38rem 0.7rem 0.42rem;
+  border: var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  font-size: var(--xs);
+  line-height: 1;
+  text-decoration: none;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    opacity var(--motion-fast) var(--ease-standard);
+}
+
+.button:hover,
+.button:focus-visible,
+.icon-button:hover,
+.icon-button:focus-visible {
+  background: var(--black);
+  color: var(--white);
+  outline: 0;
+}
+
+.button:disabled,
+.icon-button:disabled,
+.button[aria-disabled="true"],
+.icon-button[aria-disabled="true"] {
+  opacity: 0.36;
+  pointer-events: none;
+}
+
+.icon-button {
+  width: 2rem;
+  padding-inline: 0;
+}
+
+/* policy reader buttons */
+.policy-book__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.1rem;
+  padding: 0 0.72rem;
+  border: var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--black);
+  font-size: var(--xs);
+  line-height: 1;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition: background-color 160ms var(--ease), color 160ms var(--ease), opacity 160ms var(--ease);
+}
+
+.policy-book__button:hover,
+.policy-book__button:focus-visible {
+  background: var(--black);
+  color: var(--white);
+  outline: 0;
+}
+
+.policy-book__button:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.policy-book__button:disabled:hover {
+  background: var(--white);
+  color: var(--black);
+}
+
+/* lightbox close button */
+.lightbox__close {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.55);
+  font: inherit;
+  font-size: var(--xs);
+  line-height: 1;
+  text-transform: lowercase;
+  cursor: pointer;
+}
+
+.lightbox__close:hover,
+.lightbox__close:focus-visible {
+  color: var(--black);
+}
+
+@media (max-width: 30rem) {
+  .policy-book__button {
+    min-height: 1.9rem;
+    padding-inline: 0.58rem;
+  }
+}

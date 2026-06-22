@@ -1,0 +1,121 @@
+/* showcase table of contents */
+.showcase-toc {
+  position: fixed;
+  top: 50%;
+  left: clamp(0.7rem, 1.4vw, 1.2rem);
+  z-index: 20;
+  display: grid;
+  gap: 0.5rem;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+
+.showcase-toc.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.showcase-toc__list {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.showcase-toc__link {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 1rem;
+  min-height: 1rem;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.48);
+  font-size: var(--xs);
+  line-height: 1.15;
+  text-decoration: none;
+  text-transform: lowercase;
+  white-space: nowrap;
+  transition:
+    width var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
+}
+
+.showcase-toc__link::before {
+  content: "";
+  flex: 0 0 1rem;
+  width: 1rem;
+  border-top: 1px solid currentColor;
+}
+
+.showcase-toc__text {
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+
+.showcase-toc:hover .showcase-toc__link,
+.showcase-toc:focus-within .showcase-toc__link {
+  width: min(16rem, 34vw);
+}
+
+.showcase-toc:hover .showcase-toc__text,
+.showcase-toc:focus-within .showcase-toc__text {
+  opacity: 1;
+}
+
+.showcase-toc__link.is-active {
+  color: var(--black);
+}
+
+@media (max-width: 64rem) {
+  .showcase-toc {
+    top: auto;
+    right: clamp(10px, 3vw, 20px);
+    bottom: max(10px, env(safe-area-inset-bottom));
+    left: clamp(10px, 3vw, 20px);
+    display: block;
+    transform: none;
+    overflow: hidden;
+  }
+
+  .showcase-toc__list {
+    display: flex;
+    gap: 0.45rem;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-block: 0.25rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .showcase-toc__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .showcase-toc__link,
+  .showcase-toc:hover .showcase-toc__link,
+  .showcase-toc:focus-within .showcase-toc__link {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: min(12rem, 72vw);
+    min-height: 1.6rem;
+    padding: 0.3rem 0;
+  }
+
+  .showcase-toc__text {
+    width: 0;
+    max-width: 0;
+    overflow: hidden;
+    opacity: 1;
+  }
+
+  .showcase-toc__link.is-active .showcase-toc__text,
+  .showcase-toc__link:focus-visible .showcase-toc__text,
+  .showcase-toc:hover .showcase-toc__text,
+  .showcase-toc:focus-within .showcase-toc__text {
+    width: auto;
+    max-width: min(10rem, 58vw);
+  }
+}

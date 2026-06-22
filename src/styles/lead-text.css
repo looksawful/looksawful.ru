@@ -78,40 +78,37 @@
 
 .lead-display {
   display: grid;
-  place-items: center;
+  justify-items: stretch;
   width: 100%;
-  text-align: center;
+  text-align: left;
 }
 
 .lead-display p {
-  max-width: min(100%, 14ch);
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
   font-size: clamp(6rem, 21vw, 24rem);
   font-weight: 600;
   line-height: 0.78;
   letter-spacing: -0.09em;
   text-transform: lowercase;
-  text-wrap: balance;
+  text-wrap: pretty;
 }
 
 .lead-display--short p {
-  max-width: 8ch;
   font-size: clamp(8rem, 28vw, 32rem);
 }
 
 .lead-display--medium p {
-  max-width: 12ch;
   font-size: clamp(6rem, 20vw, 22rem);
 }
 
 .lead-display--long p {
-  max-width: 18ch;
   font-size: clamp(4rem, 12vw, 13rem);
   line-height: 0.84;
 }
 
 .lead-display--paragraph p {
-  max-width: 27ch;
   font-size: clamp(3rem, 4vw, 4.5rem);
   line-height: 1.1;
   letter-spacing: -0.0275em;
@@ -124,7 +121,6 @@
 }
 
 .lead-display--multi p {
-  max-width: 28ch;
   font-size: clamp(2.8rem, 7vw, 7rem);
   line-height: 0.95;
 }

@@ -1,4 +1,15 @@
 /* media-effects */
+.media-item {
+  --media-hover-card-scale: 1.018;
+  --media-hover-cover-scale: 1.045;
+  --media-hover-duration: 260ms;
+}
+
+.media-hover-none {
+  --media-hover-card-scale: 1;
+  --media-hover-cover-scale: 1;
+}
+
 .media-before-after {
   --split: 52%;
   --split-line: 1px;
@@ -95,4 +106,89 @@
 .media-mask-rounded img,
 .media-mask-rounded video {
   border-radius: clamp(2rem, 10vw, 8rem);
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 48.001rem) {
+  :where(
+      .media-one,
+      .media-two,
+      .media-three,
+      .media-quad,
+      .media-six,
+      .media-eight,
+      .media-banner,
+      .media-strip,
+      .media-stack,
+      .media-masonry,
+      .media-centered-quad,
+      .media-eight-mixed
+    )
+    > .media-item:not(.media-hover-cover, .media-hover-none) {
+    transition: transform var(--media-hover-duration) var(--ease-standard);
+  }
+
+  :where(
+      .media-one,
+      .media-two,
+      .media-three,
+      .media-quad,
+      .media-six,
+      .media-eight,
+      .media-banner,
+      .media-strip,
+      .media-stack,
+      .media-masonry,
+      .media-centered-quad,
+      .media-eight-mixed
+    )
+    > .media-item:not(.media-hover-cover, .media-hover-none):is(:hover, :focus-visible) {
+    z-index: 2;
+    transform: scale(var(--media-hover-card-scale));
+  }
+
+  :where(
+      .media-slider,
+      .media-marquee,
+      .media-ribbon,
+      .media-diagonal-masonry,
+      .media-overlap,
+      .media-overlap-three,
+      .media-static-orbit,
+      .media-orbit-static,
+      .media-mask-soft,
+      .media-mask-blob,
+      .media-mask-rounded
+    )
+    .media-item:not(.media-hover-none)
+    > :where(img, video),
+  .media-hover-cover:not(.media-hover-none) > :where(img, video) {
+    transition: transform var(--media-hover-duration) var(--ease-standard);
+    transform-origin: 50% 50%;
+  }
+
+  :where(
+      .media-slider,
+      .media-marquee,
+      .media-ribbon,
+      .media-diagonal-masonry,
+      .media-overlap,
+      .media-overlap-three,
+      .media-static-orbit,
+      .media-orbit-static,
+      .media-mask-soft,
+      .media-mask-blob,
+      .media-mask-rounded
+    )
+    .media-item:not(.media-hover-none):is(:hover, :focus-visible)
+    > :where(img, video),
+  .media-hover-cover:not(.media-hover-none):is(:hover, :focus-visible) > :where(img, video) {
+    transform: scale(var(--media-hover-cover-scale));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-item,
+  .media-item > :where(img, video) {
+    transition: none !important;
+  }
 }

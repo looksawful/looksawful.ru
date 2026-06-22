@@ -3,7 +3,7 @@ const pendingMounts = new Map();
 const activeAnimations = new Map();
 const imageCache = new Map();
 
-const CANVAS_BACKGROUND_COLOR = "#000";
+const CANVAS_BACKGROUND_COLOR = "#fff";
 
 const prepareCanvasBackground = (canvas) => {
   canvas.style.backgroundColor = CANVAS_BACKGROUND_COLOR;
@@ -584,7 +584,7 @@ const injectStyles = (() => {
     style.textContent = `:root {
   --arc-title-font-family: "Inter Variable", "Inter", sans-serif;
   --arc-title-font-weight: 500;
-  --arc-title-color: rgba(255, 255, 255, 1);
+  --arc-title-color: rgba(0, 0, 0, 0.92);
 }`;
     document.head.appendChild(style);
   };
