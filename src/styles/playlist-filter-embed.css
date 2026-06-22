@@ -1,7 +1,6 @@
 .playlist-filter-embed {
   position: relative;
-  width: 100vw;
-  margin-inline: calc(50% - 50vw);
+  width: 100%;
   background: #000000;
   color: #ffffff;
   overflow: hidden;
@@ -10,7 +9,7 @@
 
 .playlist-filter-embed__viewport {
   position: relative;
-  width: 100vw;
+  width: 100%;
   min-width: 0;
   min-height: 260px;
   background: #000000;
