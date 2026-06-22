@@ -12,16 +12,61 @@
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link href="/src/styles/index.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Flip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
     <script src="/src/main.js" type="module"></script>
   </head>
   <body>
-    <header aria-label="навигация по странице" class="site-header">
-      <nav aria-label="разделы портфолио" class="site-header__nav">
-        <a href="#resume">резюме</a>
-        <a href="#project-jesteipool">джести пул</a>
-        <a href="#project-styx">стикс</a>
-        <a href="#project-shootings">съемки</a>
-      </nav>
+    <header aria-label="навигация по странице" class="site-header" data-site-header>
+      <div class="site-header__island is-expanded" data-nav-island>
+        <nav aria-label="разделы портфолио" class="site-header__chips" data-nav-chips>
+          <span class="site-header__chip-slot">
+            <a class="site-header__chip" data-nav-chip data-nav-state="default" href="#resume">резюме</a>
+          </span>
+          <span class="site-header__chip-slot">
+            <a class="site-header__chip is-active" data-nav-chip data-nav-state="active" href="#project-jesteipool"
+              >джести пул</a
+            >
+          </span>
+          <span class="site-header__chip-slot">
+            <a class="site-header__chip" data-nav-chip data-nav-state="default" href="#project-styx">стикс</a>
+          </span>
+          <span class="site-header__chip-slot">
+            <a class="site-header__chip" data-nav-chip data-nav-state="default" href="#project-shootings">съемки</a>
+          </span>
+        </nav>
+
+        <button
+          aria-controls="site-header-menu"
+          aria-expanded="false"
+          aria-label="меню"
+          class="site-header__trigger"
+          data-nav-trigger
+          type="button"
+        >
+          <span
+            aria-hidden="true"
+            class="awfulface-container awfulface-container--trigger"
+            id="site-header-awfulface"
+          ></span>
+        </button>
+
+        <nav
+          aria-hidden="true"
+          aria-label="меню разделов"
+          class="site-header__menu"
+          data-nav-menu
+          id="site-header-menu"
+        >
+          <a class="site-header__menu-link" data-nav-menu-link href="#resume" tabindex="-1">резюме</a>
+          <a class="site-header__menu-link is-active" data-nav-menu-link href="#project-jesteipool" tabindex="-1"
+            >джести пул</a
+          >
+          <a class="site-header__menu-link" data-nav-menu-link href="#project-styx" tabindex="-1">стикс</a>
+          <a class="site-header__menu-link" data-nav-menu-link href="#project-shootings" tabindex="-1">съемки</a>
+        </nav>
+      </div>
     </header>
     <main id="main">
       <section class="hero section" id="hero">

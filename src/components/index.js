@@ -40,6 +40,11 @@ function runWhenIdle(callback) {
 async function initContentEnhancements(root = document) {
   await Promise.allSettled([
     runComponentImportStep(
+      "initSiteHeader",
+      () => import("./site-header/site-header.js"),
+      (module) => module.initSiteHeader(root),
+    ),
+    runComponentImportStep(
       "initShowcaseToc",
       () => import("./showcase-toc.js"),
       (module) => module.initShowcaseToc(root),
