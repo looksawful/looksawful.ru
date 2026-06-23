@@ -54,6 +54,13 @@ async function initContentEnhancements(root = document) {
       () => import("./lightbox.js"),
       (module) => module.initLightbox(root),
     ),
+    // Heading + gallery reveal — must run early so gsap.set() hides elements
+    // before they paint, preventing flash
+    runComponentImportStep(
+      "initHeadingAnimations",
+      () => import("./heading-animations.js"),
+      (module) => module.initHeadingAnimations(root),
+    ),
   ]);
 }
 
@@ -100,11 +107,6 @@ async function initDecorations(root = document) {
       (module) => module.initSystemMotion(root),
     ),
     runComponentImportStep(
-      "initHeadingAnimations",
-      () => import("./heading-animations.js"),
-      (module) => module.initHeadingAnimations(root),
-    ),
-    runComponentImportStep(
       "initFilterFullscreen",
       () => import("./filter-fullscreen.js"),
       (module) => module.initFilterFullscreen(root),
@@ -113,6 +115,14 @@ async function initDecorations(root = document) {
 }
 
 export function initComponents(root = document) {
+  // Run heading+gallery reveal IMMEDIATELY (before first paint) so gsap.set()
+  // hides elements before the browser renders them — avoids visible flash.
+  runComponentImportStep(
+    "initHeadingAnimations",
+    () => import("./heading-animations.js"),
+    (module) => module.initHeadingAnimations(root),
+  );
+
   runAfterFirstPaint(() => {
     void initContentEnhancements(root)
       .then(() => initVisualEnhancements(root))
