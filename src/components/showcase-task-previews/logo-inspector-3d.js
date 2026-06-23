@@ -11,6 +11,12 @@ const DRAG_ROTATE_SPEED = 0.008;
 const RETURN_EASE = 0.08;
 const WHITE_BACKGROUND = "#ffffff";
 
+const SHOW_COLOR_TOKEN_CHIPS = false;
+const SHOW_SLIDER_NAV_BUTTONS = false;
+const SHOW_SLIDER_DOTS = false;
+const SHOW_SLIDER_COUNTER = false;
+const SHOW_AUDIENCE_LABELS = false;
+
 const DEFAULT_ASSETS = {
   model: "./logo.glb",
   oldLogo: "./assets/logo-primary.svg",
@@ -215,10 +221,10 @@ function injectStyles() {
       --accent: #111111;
       position: relative;
       display: grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: minmax(0, 1.22fr) auto auto minmax(0, 0.56fr);
       min-width: 0;
       min-height: 0;
-      overflow: hidden;
+      overflow: visible;
       border-radius: 18px;
     }
 
@@ -226,11 +232,12 @@ function injectStyles() {
       position: relative;
       z-index: 2;
       display: grid;
+      grid-row: 2;
       justify-items: center;
       gap: 0.3rem;
-      align-self: start;
+      align-self: center;
       min-width: 0;
-      padding-block-start: clamp(0.35rem, 0.9vw, 0.75rem);
+      padding-block-start: 0;
       text-align: center;
     }
 
@@ -239,13 +246,13 @@ function injectStyles() {
       align-items: center;
       justify-content: center;
       max-width: 100%;
-      padding: 0.38rem 0.72rem 0.42rem;
+      padding: 0.58rem 1.05rem 0.62rem;
       border: 1px solid rgba(0, 0, 0, 0.2);
       border-radius: 999px;
       color: #111111;
       background: rgba(255, 255, 255, 0.92);
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08), inset 0 -2px 0 color-mix(in srgb, var(--accent) 38%, transparent);
-      font-size: clamp(1.02rem, 1.58vw, 1.5rem);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+      font-size: clamp(0.74rem, 1.02vw, 0.98rem);
       font-weight: 650;
       line-height: 1;
       letter-spacing: 0.035em;
@@ -271,6 +278,7 @@ function injectStyles() {
     .logo-inspector-3d__token-list {
       position: relative;
       z-index: 2;
+      grid-row: 3;
       align-self: end;
       display: flex;
       flex-wrap: wrap;
@@ -548,6 +556,26 @@ function injectStyles() {
       display: none;
     }
 
+    .logo-inspector-3d.is-color-token-chips-disabled .logo-inspector-3d__token-list {
+      display: none;
+    }
+
+    .logo-inspector-3d.is-slider-nav-disabled .logo-inspector-3d__nav {
+      display: none;
+    }
+
+    .logo-inspector-3d.is-slider-dots-disabled .logo-inspector-3d__dots {
+      display: none;
+    }
+
+    .logo-inspector-3d.is-slider-counter-disabled .logo-inspector-3d__counter {
+      display: none;
+    }
+
+    .logo-inspector-3d.is-audience-labels-disabled .logo-inspector-3d__header {
+      display: none;
+    }
+
     .logo-inspector-3d[data-active-slide="2"] .logo-inspector-3d__counter {
       color: #ffffff;
     }
@@ -591,8 +619,8 @@ function injectStyles() {
       }
 
       .logo-inspector-3d__color-name {
-        padding: 0.3rem 0.52rem 0.34rem;
-        font-size: clamp(0.72rem, 2.15vw, 1rem);
+        padding: 0.46rem 0.72rem 0.5rem;
+        font-size: clamp(0.54rem, 1.62vw, 0.74rem);
         letter-spacing: 0.025em;
       }
 
@@ -1213,6 +1241,12 @@ export function createLogoInspector3D(target, options = {}) {
   root.style.background = WHITE_BACKGROUND;
   root.dataset.activeSlide = "0";
 
+  if (!SHOW_COLOR_TOKEN_CHIPS) root.classList.add("is-color-token-chips-disabled");
+  if (!SHOW_SLIDER_NAV_BUTTONS) root.classList.add("is-slider-nav-disabled");
+  if (!SHOW_SLIDER_DOTS) root.classList.add("is-slider-dots-disabled");
+  if (!SHOW_SLIDER_COUNTER) root.classList.add("is-slider-counter-disabled");
+  if (!SHOW_AUDIENCE_LABELS) root.classList.add("is-audience-labels-disabled");
+
   const slides = document.createElement("div");
   slides.className = "logo-inspector-3d__slides";
 
@@ -1259,8 +1293,18 @@ export function createLogoInspector3D(target, options = {}) {
   navNext.setAttribute("aria-label", "Следующий слайд");
   navNext.innerHTML = '<span class="logo-inspector-3d__nav-icon" aria-hidden="true"></span>';
 
+  if (!SHOW_SLIDER_NAV_BUTTONS) {
+    navPrev.disabled = true;
+    navNext.disabled = true;
+    navPrev.setAttribute("aria-hidden", "true");
+    navNext.setAttribute("aria-hidden", "true");
+    navPrev.tabIndex = -1;
+    navNext.tabIndex = -1;
+  }
+
   const dots = document.createElement("div");
   dots.className = "logo-inspector-3d__dots";
+  if (!SHOW_SLIDER_DOTS) dots.setAttribute("aria-hidden", "true");
 
   const dotHandlers = [];
   const dotButtons = Array.from({ length: SLIDE_COUNT }, (_, index) => {
@@ -1269,6 +1313,12 @@ export function createLogoInspector3D(target, options = {}) {
     button.type = "button";
     button.setAttribute("aria-label", `Показать слайд ${index + 1}`);
     if (index === 0) button.classList.add("is-active");
+
+    if (!SHOW_SLIDER_DOTS) {
+      button.disabled = true;
+      button.tabIndex = -1;
+    }
+
     dots.appendChild(button);
     return button;
   });
@@ -1507,13 +1557,18 @@ export function createLogoInspector3D(target, options = {}) {
   renderer.domElement.addEventListener("pointercancel", handlePointerUp);
   renderer.domElement.addEventListener("pointerleave", clearHover);
 
-  navPrev.addEventListener("click", showPreviousSlide);
-  navNext.addEventListener("click", showNextSlide);
+  if (SHOW_SLIDER_NAV_BUTTONS) {
+    navPrev.addEventListener("click", showPreviousSlide);
+    navNext.addEventListener("click", showNextSlide);
+  }
 
   dotButtons.forEach((button, index) => {
     const handler = () => setActiveSlide(index);
     dotHandlers.push([button, handler]);
-    button.addEventListener("click", handler);
+
+    if (SHOW_SLIDER_DOTS) {
+      button.addEventListener("click", handler);
+    }
   });
 
   const renderLoop = (time) => {
@@ -1605,12 +1660,16 @@ export function createLogoInspector3D(target, options = {}) {
       renderer.domElement.removeEventListener("pointercancel", handlePointerUp);
       renderer.domElement.removeEventListener("pointerleave", clearHover);
 
-      navPrev.removeEventListener("click", showPreviousSlide);
-      navNext.removeEventListener("click", showNextSlide);
+      if (SHOW_SLIDER_NAV_BUTTONS) {
+        navPrev.removeEventListener("click", showPreviousSlide);
+        navNext.removeEventListener("click", showNextSlide);
+      }
 
-      dotHandlers.forEach(([button, handler]) => {
-        button.removeEventListener("click", handler);
-      });
+      if (SHOW_SLIDER_DOTS) {
+        dotHandlers.forEach(([button, handler]) => {
+          button.removeEventListener("click", handler);
+        });
+      }
 
       const cache = {};
       disposeObjectResources(stage, cache);

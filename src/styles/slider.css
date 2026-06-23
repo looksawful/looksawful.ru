@@ -37,7 +37,8 @@
   will-change: transform;
 }
 
-.media-slider .media-item {
+.media-slider > .media-item,
+.media-slider__track > .media-item {
   flex: 0 0 var(--media-slider-card-basis);
   width: var(--media-slider-card-basis);
 }
