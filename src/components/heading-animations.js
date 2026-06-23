@@ -42,7 +42,7 @@ function observe(el, callback, options = {}) {
       obs.unobserve(el);
       callback(el);
     },
-    { threshold: 0.08, rootMargin: "0px 0px -24px 0px", ...options },
+    { threshold: 0.05, rootMargin: "0px 0px -8px 0px", ...options },
   );
   obs.observe(el);
 }
@@ -64,16 +64,14 @@ export function initHeadingAnimations(root = document) {
     el.setAttribute("data-reveal", "heading");
 
     observe(el, (target) => {
-      // fromTo starting from barely visible so there is no "pop-in" if
-      // the element is already partially in view when the page loads.
       gsap.fromTo(
         target,
-        { opacity: 0.001, y: 10 },
+        { opacity: 0.001, y: 4 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.6,
-          ease: "power3.out",
+          duration: 0.35,
+          ease: "power2.out",
           clearProps: "transform,opacity",
         },
       );
@@ -96,13 +94,13 @@ export function initHeadingAnimations(root = document) {
 
         gsap.fromTo(
           items,
-          { opacity: 0.001, y: 18 },
+          { opacity: 0.001, y: 6 },
           {
             opacity: 1,
             y: 0,
-            duration: 0.55,
+            duration: 0.3,
             ease: "power2.out",
-            stagger: { amount: 0.45, from: "start" },
+            stagger: { amount: 0.22, from: "start" },
             clearProps: "transform,opacity",
           },
         );
