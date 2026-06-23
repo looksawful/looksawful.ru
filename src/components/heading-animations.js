@@ -1,21 +1,29 @@
 /**
- * GSAP scroll-reveal for section headings + galleries.
+ * GSAP scroll-reveal for section headings + image galleries.
  * Uses IntersectionObserver (no ScrollTrigger dependency).
- * window.gsap must be loaded via CDN before this module runs.
+ *
+ * SAFETY RULES:
+ *  - Never call gsap.set() to hide anything upfront. Only animate when
+ *    element enters viewport. This prevents canvas/video/slider breakage.
+ *  - Gallery animation only targets <a> and <img> children, never canvas.
+ *  - All animations start from visible (opacity ≥ 0.001) so elements
+ *    never stay invisible if the observer fails to fire.
  */
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-// Only true section-opener headings; not inline text-block titles
 const HEADING_SELECTOR = ".component-caption > .title, .block__header > .title";
 
+// Only multi-item image grids — no sliders, no media-banner (single item)
 const GALLERY_SELECTOR = [
-  ".media-quad",
-  ".media-six",
-  ".media-eight",
-  ".media-three:not(.playlist-filter-embed__gallery)",
-  ".media-masonry",
+  ".media-quad:not([data-showcase-auto-slider])",
+  ".media-six:not([data-showcase-auto-slider])",
+  ".media-eight:not([data-showcase-auto-slider])",
+  ".media-three:not(.playlist-filter-embed__gallery):not([data-showcase-auto-slider])",
 ].join(", ");
+
+// Items safe to animate inside a gallery (never canvas, video, section)
+const SAFE_ITEM_SELECTOR = "a.media-item";
 
 function canAnimate() {
   return (
@@ -26,16 +34,17 @@ function canAnimate() {
   );
 }
 
-function makeObserver(callback, options = {}) {
-  return new IntersectionObserver(
-    (entries) =>
-      entries.forEach((e) => {
-        if (!e.isIntersecting) return;
-        callback(e.target);
-        e.target._revealObserver?.unobserve(e.target);
-      }),
-    { threshold: 0.12, rootMargin: "0px 0px -40px 0px", ...options },
+function observe(el, callback, options = {}) {
+  const obs = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0];
+      if (!entry.isIntersecting) return;
+      obs.unobserve(el);
+      callback(el);
+    },
+    { threshold: 0.08, rootMargin: "0px 0px -24px 0px", ...options },
   );
+  obs.observe(el);
 }
 
 export function initHeadingAnimations(root = document) {
@@ -43,7 +52,7 @@ export function initHeadingAnimations(root = document) {
 
   const gsap = window.gsap;
 
-  /* ── Headings ──────────────────────────────────────── */
+  /* ── Headings: fade-up on enter, CSS initial state handles pre-enter ── */
   const headings = [...root.querySelectorAll(HEADING_SELECTOR)].filter(
     (el) =>
       !el.closest("[hidden]") &&
@@ -51,51 +60,54 @@ export function initHeadingAnimations(root = document) {
       !el.hasAttribute("data-reveal"),
   );
 
-  if (headings.length) {
-    // Pre-hide so there's no flash before observer fires
-    gsap.set(headings, { opacity: 0, y: 16 });
+  headings.forEach((el) => {
+    el.setAttribute("data-reveal", "heading");
 
-    const hObs = makeObserver((el) => {
-      gsap.to(el, { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" });
+    observe(el, (target) => {
+      // fromTo starting from barely visible so there is no "pop-in" if
+      // the element is already partially in view when the page loads.
+      gsap.fromTo(
+        target,
+        { opacity: 0.001, y: 10 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          clearProps: "transform,opacity",
+        },
+      );
     });
+  });
 
-    headings.forEach((el) => {
-      el.setAttribute("data-reveal", "heading");
-      el._revealObserver = hObs;
-      hObs.observe(el);
-    });
-  }
-
-  /* ── Galleries ─────────────────────────────────────── */
+  /* ── Galleries: staggered fade-in of <a> items only ── */
   const galleries = [...root.querySelectorAll(GALLERY_SELECTOR)].filter(
     (el) => !el.closest("[hidden]") && !el.hasAttribute("data-reveal"),
   );
 
-  if (galleries.length) {
-    const gObs = makeObserver(
-      (gallery) => {
-        const items = [...gallery.querySelectorAll(".media-item")];
+  galleries.forEach((gallery) => {
+    gallery.setAttribute("data-reveal", "gallery");
+
+    observe(
+      gallery,
+      (target) => {
+        const items = [...target.querySelectorAll(SAFE_ITEM_SELECTOR)];
         if (!items.length) return;
+
         gsap.fromTo(
           items,
-          { opacity: 0, y: 24, scale: 0.96 },
+          { opacity: 0.001, y: 18 },
           {
             opacity: 1,
             y: 0,
-            scale: 1,
-            duration: 0.5,
+            duration: 0.55,
             ease: "power2.out",
-            stagger: { amount: 0.36, from: "start" },
+            stagger: { amount: 0.45, from: "start" },
+            clearProps: "transform,opacity",
           },
         );
       },
-      { threshold: 0.08, rootMargin: "0px 0px -30px 0px" },
+      { threshold: 0.05 },
     );
-
-    galleries.forEach((el) => {
-      el.setAttribute("data-reveal", "gallery");
-      el._revealObserver = gObs;
-      gObs.observe(el);
-    });
-  }
+  });
 }

@@ -54,8 +54,7 @@ async function initContentEnhancements(root = document) {
       () => import("./lightbox.js"),
       (module) => module.initLightbox(root),
     ),
-    // Heading + gallery reveal — must run early so gsap.set() hides elements
-    // before they paint, preventing flash
+    // Heading + gallery scroll-reveal (IntersectionObserver, no pre-hide)
     runComponentImportStep(
       "initHeadingAnimations",
       () => import("./heading-animations.js"),
