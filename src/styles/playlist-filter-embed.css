@@ -11,6 +11,74 @@
   will-change: transform, box-shadow;
 }
 
+/* ── Fullscreen wrapper ─────────────────────────────────────── */
+.filter-fullscreen-wrapper {
+  position: relative;
+}
+
+.filter-fullscreen-btn {
+  position: absolute;
+  z-index: 30;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.55);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.filter-fullscreen-btn:hover,
+.filter-fullscreen-btn:focus-visible {
+  background: rgba(0, 0, 0, 0.82);
+  color: #fff;
+  outline: none;
+}
+
+.filter-fullscreen-btn svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* Fullscreen state */
+.filter-fullscreen-wrapper:fullscreen,
+.filter-fullscreen-wrapper:-webkit-full-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  padding: 0;
+}
+
+.filter-fullscreen-wrapper:fullscreen .playlist-filter-embed,
+.filter-fullscreen-wrapper:-webkit-full-screen .playlist-filter-embed {
+  width: 100%;
+  border-radius: 0;
+}
+
+/* Mobile: make fullscreen button bigger and more visible */
+@media (max-width: 48rem) {
+  .filter-fullscreen-btn {
+    width: 2.4rem;
+    height: 2.4rem;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .filter-fullscreen-btn svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+}
+
 .playlist-filter-embed .animation-stage {
   width: 100%;
 }

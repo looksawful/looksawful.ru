@@ -3516,7 +3516,18 @@
                         дали возможность выбора.
                       </p>
                     </header>
-                    <aside class="media-banner no-stroke" aria-label="интерактивный фильтр треков jestei pool">
+                    <aside class="media-banner no-stroke filter-fullscreen-wrapper" aria-label="интерактивный фильтр треков jestei pool">
+                      <button
+                        class="filter-fullscreen-btn"
+                        type="button"
+                        aria-label="фильтр на весь экран"
+                        aria-pressed="false"
+                        data-filter-fullscreen
+                      >
+                        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
                       <div class="playlist-filter-embed" data-playlist-filter-embed>
                         <main
                           class="animation-stage is-animation"
@@ -3736,9 +3747,11 @@
                         aria-label="материалы системы лендинговых страниц jestei pool"
                         class="media-eight media-portrait"
                       >
-                        <figure class="media-item media-contain bg-white no-stroke">
+                        <figure class="media-item media-video media-item--portrait media-contain no-stroke">
                           <video
-                            controls
+                            autoplay
+                            loop
+                            muted
                             playsinline
                             preload="metadata"
                             src="/assets/media/cases/jesteipool/05-motion/01/00.MP4"

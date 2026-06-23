@@ -1,4 +1,4 @@
-const HEADING_SELECTOR = ".component-caption > .title, .text-block > .title, .project__head .title";
+const HEADING_SELECTOR = ".component-caption > .title, .project__head .title";
 
 const normalizeId = (text, index) => {
   const slug = text

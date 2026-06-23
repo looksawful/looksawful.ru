@@ -27,3 +27,15 @@
 .text-block > p {
   max-width: var(--text);
 }
+
+/* h3/h4 section headings inside block headers get a short decorative accent line */
+.block__header > h3.title::before,
+.block__header > h4.title::before {
+  content: "";
+  display: block;
+  width: 1.75rem;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.38;
+  margin-bottom: 0.5rem;
+}

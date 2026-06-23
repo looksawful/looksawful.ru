@@ -10,6 +10,11 @@
   border-top: 0;
 }
 
+/* First block inside each project chapter acts as a chapter opener — stronger border */
+.project-chapter > .block:first-child {
+  border-top-width: 2px;
+}
+
 .project__header {
   display: grid;
   gap: var(--gap);

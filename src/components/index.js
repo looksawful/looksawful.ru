@@ -99,6 +99,16 @@ async function initDecorations(root = document) {
       () => import("./system-motion/system-motion.js"),
       (module) => module.initSystemMotion(root),
     ),
+    runComponentImportStep(
+      "initHeadingAnimations",
+      () => import("./heading-animations.js"),
+      (module) => module.initHeadingAnimations(root),
+    ),
+    runComponentImportStep(
+      "initFilterFullscreen",
+      () => import("./filter-fullscreen.js"),
+      (module) => module.initFilterFullscreen(root),
+    ),
   ]);
 }
 
