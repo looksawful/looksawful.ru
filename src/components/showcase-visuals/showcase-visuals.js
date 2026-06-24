@@ -67,6 +67,9 @@ async function mountLogoInspector(target) {
     minHeight: target.dataset.cvMinHeight ? Number(target.dataset.cvMinHeight) : 560,
     initialVariantId: target.dataset.cvVariant || "brand-orange",
     autoSpin: target.dataset.cvAutoSpin !== "false",
+    assets: {
+      poster: target.dataset.cvPoster || undefined,
+    },
   });
 
   return normalizeDispose(controller);
@@ -240,7 +243,9 @@ export async function initShowcaseVisuals(root = document) {
         void mountAnimationPreview(preview);
       },
       {
-        rootMargin: globalThis.window?.matchMedia?.("(pointer: coarse), (max-width: 760px)")?.matches ? "35% 0px" : "70% 0px",
+        rootMargin: globalThis.window?.matchMedia?.("(pointer: coarse), (max-width: 760px)")?.matches
+          ? "35% 0px"
+          : "70% 0px",
         threshold: 0,
       },
     ) || noop;
@@ -252,7 +257,9 @@ export async function initShowcaseVisuals(root = document) {
         void safeMountVisualDemo(target);
       },
       {
-        rootMargin: globalThis.window?.matchMedia?.("(pointer: coarse), (max-width: 760px)")?.matches ? "30% 0px" : "60% 0px",
+        rootMargin: globalThis.window?.matchMedia?.("(pointer: coarse), (max-width: 760px)")?.matches
+          ? "30% 0px"
+          : "60% 0px",
         threshold: 0,
       },
     ) || noop;

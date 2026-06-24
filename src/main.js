@@ -5,7 +5,7 @@ import "./visuals/dom/media-marquee.js";
 import "./visuals/dom/media-slider.js";
 import "./visuals/dom/policy-book.js";
 import "./visuals/dom/list-scroll.js";
-import "./components/media-slider-dots-proximity.js";
+import "./components/proximity-components.js";
 import { initPlaylistFilterEmbed } from "./visuals/dom/playlist-filter-embed.js";
 import { initComponents } from "./components/index.js";
 

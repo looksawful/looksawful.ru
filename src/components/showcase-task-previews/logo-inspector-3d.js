@@ -32,6 +32,7 @@ const SHOW_AUDIENCE_LABELS = false;
 
 const DEFAULT_ASSETS = {
   model: "./logo.glb",
+  poster: "/assets/media/cases/jesteipool/01-logo/01/01.webp",
   oldLogo: "./assets/logo-primary.svg",
   newLogo: "./assets/logo-secondary.svg",
   contrastUnion: "./Union.svg",
@@ -164,6 +165,34 @@ function injectStyles() {
       background: #ffffff;
       font-family: "Rubik", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       text-rendering: geometricPrecision;
+    }
+
+    .logo-inspector-3d__poster {
+      position: absolute;
+      z-index: 20;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #ffffff;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: none;
+      user-select: none;
+      transition:
+        opacity 240ms ease,
+        visibility 240ms ease;
+    }
+
+    .logo-inspector-3d.is-3d-ready .logo-inspector-3d__poster {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .logo-inspector-3d.is-3d-fallback .logo-inspector-3d__poster {
+      opacity: 1;
+      visibility: visible;
     }
 
     .logo-inspector-3d__slides {
@@ -721,6 +750,32 @@ function createImage(src) {
   return image;
 }
 
+function createPosterImage(src) {
+  if (!src) return null;
+
+  const image = document.createElement("img");
+  image.className = "logo-inspector-3d__poster";
+  image.alt = "";
+  image.decoding = "async";
+  image.loading = "lazy";
+  image.draggable = false;
+  image.src = src;
+
+  return image;
+}
+
+function setLogoInspectorReady(root) {
+  root.classList.remove("is-3d-fallback");
+  root.classList.add("is-3d-ready");
+  delete root.dataset.fallbackReason;
+}
+
+function setLogoInspectorFallback(root, reason = "fallback") {
+  root.classList.remove("is-3d-ready");
+  root.classList.add("is-3d-fallback");
+  root.dataset.fallbackReason = reason;
+}
+
 function roundedRect(context, x, y, width, height, radius) {
   const r = Math.min(radius, width / 2, height / 2);
 
@@ -735,18 +790,6 @@ function roundedRect(context, x, y, width, height, radius) {
   context.lineTo(x, y + r);
   context.quadraticCurveTo(x, y, x + r, y);
   context.closePath();
-}
-
-function createFallbackMesh() {
-  const group = new THREE.Group();
-  const outer = new THREE.Mesh(new THREE.TorusGeometry(1.25, 0.3, 72, 180));
-  const inner = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.2, 56, 140));
-  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.4, 2.6, 0.18));
-
-  plate.position.set(1.45, -0.18, 0);
-  group.add(outer, inner, plate);
-
-  return group;
 }
 
 function traverseMeshes(object, callback) {
@@ -1135,8 +1178,6 @@ function createContrastCanvasRenderer(canvas, assetUrls) {
 
     if (image.complete && image.naturalWidth > 0) {
       ctx.drawImage(image, cx - size / 2, cy - size / 2, size, size);
-    } else {
-      drawFallbackMark(cx, cy, size, quadrant.variant);
     }
 
     ctx.restore();
@@ -1220,7 +1261,9 @@ function createContrastCanvasRenderer(canvas, assetUrls) {
 }
 
 async function loadModel(modelUrl) {
-  if (!modelUrl) return createFallbackMesh();
+  if (!modelUrl) {
+    throw new Error("logo inspector model url is missing");
+  }
 
   const loader = new GLTFLoader();
   const dracoLoader = new DRACOLoader();
@@ -1268,6 +1311,8 @@ export function createLogoInspector3D(target, options = {}) {
   if (!SHOW_SLIDER_DOTS) root.classList.add("is-slider-dots-disabled");
   if (!SHOW_SLIDER_COUNTER) root.classList.add("is-slider-counter-disabled");
   if (!SHOW_AUDIENCE_LABELS) root.classList.add("is-audience-labels-disabled");
+
+  const poster = createPosterImage(assetUrls.poster);
 
   const slides = document.createElement("div");
   slides.className = "logo-inspector-3d__slides";
@@ -1358,6 +1403,11 @@ export function createLogoInspector3D(target, options = {}) {
 
   counter.append(counterCurrent, counterTotal);
   root.append(slides, navPrev, navNext, dots, counter);
+
+  if (poster) {
+    root.appendChild(poster);
+  }
+
   host.appendChild(root);
 
   const slideElements = [modelSlide, compareSlide, contrastSlide];
@@ -1732,28 +1782,15 @@ export function createLogoInspector3D(target, options = {}) {
 
       logoIntroStartTime = performance.now();
       logoIntroComplete = false;
+      setLogoInspectorReady(root);
     })
     .catch((error) => {
-      console.error(error);
+      console.error("[logo inspector] model failed, showing poster fallback", error);
 
       if (destroyed) return;
 
-      sourceRoot = createFallbackMesh();
-      centerAndScaleObject(sourceRoot, 2.35);
-
-      orderedVariants.slice(0, 3).forEach((variant, index) => {
-        stage.add(createVariantLogo(sourceRoot, variant, index));
-      });
-
-      layoutLogos();
-
-      stage.children.forEach((logo) => {
-        logo.visible = false;
-      });
-
-      logoIntroStartTime = performance.now();
-      logoIntroComplete = false;
-      setStatus("модель не загрузилась, показываю fallback");
+      setStatus("");
+      setLogoInspectorFallback(root, "model-load-error");
     });
 
   resize();

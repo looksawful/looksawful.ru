@@ -1,0 +1,215 @@
+/* proximity */
+
+.proximity-control {
+  position: absolute;
+  z-index: 4;
+
+  display: inline-grid;
+  place-items: center;
+
+  width: clamp(2rem, 3vw, 2.5rem);
+  aspect-ratio: 1;
+  padding: 0;
+
+  border: var(--stroke, 1px) solid currentColor;
+  border-radius: 999px;
+
+  background: var(--color-surface, var(--white, #fff));
+  color: var(--black, #000);
+
+  font: inherit;
+  line-height: 1;
+  text-decoration: none;
+
+  opacity: 0;
+  visibility: visible;
+  transform: translateY(0.5rem) scaleX(0.94) scaleY(0.94);
+  transform-origin: center;
+
+  pointer-events: none;
+  cursor: pointer;
+  will-change: opacity, transform;
+}
+
+.proximity-control svg {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  color: currentColor;
+}
+
+.proximity-control:hover,
+.proximity-control:focus-visible {
+  background: var(--black, #000);
+  color: var(--white, #fff);
+  outline: 0;
+}
+
+.proximity-control:focus-visible {
+  box-shadow: 0 0 0 0.18rem rgba(0, 0, 0, 0.18);
+}
+
+.proximity-control.is-proximity-interactive {
+  pointer-events: auto;
+}
+
+.proximity-control.is-copied {
+  background: var(--black, #000);
+  color: var(--white, #fff);
+}
+
+.proximity-control--top-right {
+  top: var(--gap);
+  right: var(--gap);
+}
+
+.proximity-control--bottom-right {
+  right: var(--gap);
+  bottom: var(--gap);
+}
+
+.proximity-control--bottom-left {
+  bottom: var(--gap);
+  left: var(--gap);
+}
+
+.has-proximity-control {
+  position: relative;
+}
+
+.media-item,
+.media,
+.media-figure,
+.embedded-demo,
+[data-animation],
+[data-visual-demo],
+pre,
+.code-block,
+.code-inspector {
+  position: relative;
+}
+
+.media-slider__dots {
+  opacity: 0;
+  visibility: visible;
+  transform: translateY(0.5rem) scaleX(0.94) scaleY(0.94);
+  transform-origin: bottom center;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.media-slider__dots.is-proximity-interactive,
+.media-slider:focus-within .media-slider__dots {
+  pointer-events: auto;
+}
+
+.media-slider__arrow--proximity {
+  opacity: 0;
+  visibility: visible;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.media-slider__arrow--proximity.is-proximity-interactive,
+.media-slider:focus-within .media-slider__arrow--proximity {
+  pointer-events: auto;
+}
+
+.media-caption--proximity {
+  opacity: 0;
+  visibility: visible;
+  transform: translateY(0.375rem);
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.media-caption--proximity.is-proximity-interactive {
+  pointer-events: auto;
+}
+
+.showcase-toc {
+  --showcase-toc-link-width: 1rem;
+  --showcase-toc-text-opacity: 0;
+}
+
+.showcase-toc .showcase-toc__link,
+.showcase-toc:hover .showcase-toc__link,
+.showcase-toc:focus-within .showcase-toc__link {
+  width: var(--showcase-toc-link-width);
+}
+
+.showcase-toc .showcase-toc__text,
+.showcase-toc:hover .showcase-toc__text,
+.showcase-toc:focus-within .showcase-toc__text {
+  opacity: var(--showcase-toc-text-opacity);
+}
+
+.showcase-toc.is-proximity-interactive {
+  pointer-events: auto;
+}
+
+.lightbox__close--proximity {
+  opacity: 0;
+  visibility: visible;
+  transform: translateY(0.375rem) scaleX(0.94) scaleY(0.94);
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.lightbox__close--proximity.is-proximity-interactive,
+.lightbox:focus-within .lightbox__close--proximity {
+  pointer-events: auto;
+}
+
+@media (max-width: 48rem) {
+  .proximity-control--top-right {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .proximity-control--bottom-right {
+    right: 0.75rem;
+    bottom: 0.75rem;
+  }
+
+  .proximity-control--bottom-left {
+    bottom: 0.75rem;
+    left: 0.75rem;
+  }
+}
+
+@media (hover: none) {
+  .proximity-control,
+  .media-slider__dots,
+  .media-slider__arrow--proximity,
+  .media-caption--proximity,
+  .lightbox__close--proximity {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleX(1) scaleY(1);
+    pointer-events: auto;
+  }
+
+  .showcase-toc {
+    --showcase-toc-link-width: auto;
+    --showcase-toc-text-opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proximity-control,
+  .media-slider__dots,
+  .media-slider__arrow--proximity,
+  .media-caption--proximity,
+  .lightbox__close--proximity {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleX(1) scaleY(1);
+    pointer-events: auto;
+  }
+
+  .showcase-toc {
+    --showcase-toc-link-width: auto;
+    --showcase-toc-text-opacity: 1;
+  }
+}

@@ -67,6 +67,8 @@
 .hero-title-letter {
   display: inline-block;
   transform-origin: 50% 58%;
+  will-change: transform;
+  backface-visibility: visible;
 }
 
 .hero__note,
@@ -119,7 +121,7 @@
   }
 
   .hero__title-role .hero-title-word {
-    margin-inline: 0 auto;
+    margin-inline: auto 0;
   }
 
   .hero__note,
