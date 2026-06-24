@@ -9,6 +9,16 @@ const CAMERA_DISTANCE = 8;
 const IDLE_SPIN_SPEED = 0.42;
 const DRAG_ROTATE_SPEED = 0.008;
 const RETURN_EASE = 0.08;
+const LOGO_INTRO_HOLD_MS = 1200;
+const LOGO_INTRO_SPREAD_MS = 2200;
+const LOGO_INTRO_OVERLAP_X = 0;
+const LOGO_INTRO_FRONT_Z = 0.28;
+const LOGO_INTRO_Z_STEP = 0.14;
+const LOGO_INTRO_ROTATION = {
+  x: 0.18,
+  y: -0.2,
+  z: -0.08,
+};
 const WHITE_BACKGROUND = "#ffffff";
 
 const SHOW_COLOR_TOKEN_CHIPS = false;
@@ -686,6 +696,11 @@ function lerp(from, to, progress) {
   return from + (to - from) * progress;
 }
 
+function easeOutCubic(progress) {
+  const p = clamp(progress, 0, 1);
+  return 1 - Math.pow(1 - p, 3);
+}
+
 function pingPong(progress) {
   return 1 - Math.abs(1 - progress * 2);
 }
@@ -827,7 +842,7 @@ function createVariantLogo(sourceRoot, variant, index) {
   applyVariantColor(root, variant.color, group);
 
   group.add(root);
-  group.rotation.set(group.userData.baseRotationX, group.userData.baseRotationY, group.userData.baseRotationZ);
+  group.rotation.set(LOGO_INTRO_ROTATION.x, LOGO_INTRO_ROTATION.y, LOGO_INTRO_ROTATION.z);
 
   return group;
 }
@@ -1393,6 +1408,8 @@ export function createLogoInspector3D(target, options = {}) {
   let raf = 0;
   let destroyed = false;
   let lastTime = performance.now();
+  let logoIntroStartTime = 0;
+  let logoIntroComplete = false;
 
   const setStatus = (text) => {
     status.textContent = text;
@@ -1412,7 +1429,7 @@ export function createLogoInspector3D(target, options = {}) {
   };
 
   const pickLogo = (event) => {
-    if (activeSlide !== 0) return null;
+    if (activeSlide !== 0 || (!logoIntroComplete && logoIntroStartTime > 0)) return null;
 
     const rect = renderer.domElement.getBoundingClientRect();
 
@@ -1503,9 +1520,67 @@ export function createLogoInspector3D(target, options = {}) {
     const y = compact ? 0.08 : 0.12;
 
     stage.children.forEach((logo, index) => {
-      logo.position.set((index - 1) * spacing, y, 0);
-      logo.scale.setScalar(scale);
+      const introPosition = new THREE.Vector3(
+        (index - 1) * LOGO_INTRO_OVERLAP_X,
+        y,
+        LOGO_INTRO_FRONT_Z - index * LOGO_INTRO_Z_STEP,
+      );
+
+      const targetPosition = new THREE.Vector3((index - 1) * spacing, y, 0);
+
+      logo.userData.introPosition = introPosition;
+      logo.userData.targetPosition = targetPosition;
+      logo.userData.targetScale = scale;
+
+      if (!logo.userData.layoutReady) {
+        logo.position.copy(introPosition);
+        logo.scale.setScalar(scale);
+        logo.userData.layoutReady = true;
+        return;
+      }
+
+      if (logoIntroComplete) {
+        logo.position.copy(targetPosition);
+        logo.scale.setScalar(scale);
+      }
     });
+  };
+
+  const updateLogoIntro = (time) => {
+    if (!logoIntroStartTime || logoIntroComplete) return 1;
+
+    const elapsed = time - logoIntroStartTime;
+    const rawProgress = (elapsed - LOGO_INTRO_HOLD_MS) / LOGO_INTRO_SPREAD_MS;
+    const progress = clamp(rawProgress, 0, 1);
+    const eased = easeOutCubic(progress);
+
+    stage.children.forEach((logo) => {
+      const introPosition = logo.userData.introPosition;
+      const targetPosition = logo.userData.targetPosition;
+
+      if (!introPosition || !targetPosition) return;
+
+      logo.position.lerpVectors(introPosition, targetPosition, eased);
+      logo.scale.setScalar(logo.userData.targetScale || 1);
+
+      if (!logo.userData.hasManualRotation) {
+        logo.rotation.x = lerp(LOGO_INTRO_ROTATION.x, logo.userData.baseRotationX, eased);
+        logo.rotation.y = lerp(LOGO_INTRO_ROTATION.y, logo.userData.baseRotationY, eased);
+        logo.rotation.z = lerp(LOGO_INTRO_ROTATION.z, logo.userData.baseRotationZ, eased);
+      }
+    });
+
+    if (progress >= 1) {
+      logoIntroComplete = true;
+
+      stage.children.forEach((logo) => {
+        if (logo.userData.targetPosition) {
+          logo.position.copy(logo.userData.targetPosition);
+        }
+      });
+    }
+
+    return progress;
   };
 
   const resize = () => {
@@ -1578,14 +1653,17 @@ export function createLogoInspector3D(target, options = {}) {
     lastTime = time;
 
     if (activeSlide === 0) {
+      const introProgress = updateLogoIntro(time);
+      const isIntroRunning = introProgress < 1;
+
       stage.children.forEach((logo) => {
         const isPausedByUser = logo === hoveredLogo || logo === draggedLogo;
 
-        if (!isPausedByUser) {
+        if (!isPausedByUser && !isIntroRunning) {
           logo.rotation.y += delta * IDLE_SPIN_SPEED;
         }
 
-        if (!logo.userData.hasManualRotation && !isPausedByUser) {
+        if (!logo.userData.hasManualRotation && !isPausedByUser && !isIntroRunning) {
           logo.rotation.x += (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
           logo.rotation.z += (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
         }
@@ -1616,6 +1694,8 @@ export function createLogoInspector3D(target, options = {}) {
       });
 
       layoutLogos();
+      logoIntroStartTime = performance.now();
+      logoIntroComplete = false;
     })
     .catch((error) => {
       console.error(error);
@@ -1630,6 +1710,8 @@ export function createLogoInspector3D(target, options = {}) {
       });
 
       layoutLogos();
+      logoIntroStartTime = performance.now();
+      logoIntroComplete = false;
       setStatus("модель не загрузилась, показываю fallback");
     });
 
