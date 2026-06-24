@@ -4,8 +4,8 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const STYLE_ID = "logo-inspector-3d-styles";
-const SLIDE_COUNT = 3;
-const CAMERA_DISTANCE = 8;
+const SLIDE_COUNT = 1;
+const CAMERA_DISTANCE = 7.4;
 const IDLE_SPIN_SPEED = 0.42;
 const DRAG_ROTATE_SPEED = 0.008;
 const RETURN_EASE = 0.08;
