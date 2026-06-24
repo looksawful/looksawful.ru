@@ -31,7 +31,7 @@ export const getCanvasQualityProfile = () => {
   const coarsePointer = Boolean(win?.matchMedia?.("(pointer: coarse)")?.matches);
 
   if (reducedMotion) return "reduced";
-  if (memory <= 4 || cores <= 4 || coarsePointer) return "low";
+  if (memory <= 4 || cores <= 4) return "low";
   return "normal";
 };
 
@@ -442,14 +442,7 @@ export const setMediaItemsPlayback = (items, enabled) => {
 
 export const createMediaLoader = (
   sourceItems,
-  {
-    maxItems = 36,
-    initialCount = 12,
-    batchSize = 6,
-    onItemLoad = noop,
-    onLoadingChange = noop,
-    sceneId = "",
-  } = {},
+  { maxItems = 36, initialCount = 12, batchSize = 6, onItemLoad = noop, onLoadingChange = noop, sceneId = "" } = {},
 ) => {
   let cancelled = false;
   let playbackEnabled = true;
@@ -566,7 +559,6 @@ export const createMediaLoader = (
     },
   };
 };
-
 
 export const loadImage = (imageUrl) => {
   if (!imageUrl) {
