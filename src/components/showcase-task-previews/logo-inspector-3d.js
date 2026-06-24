@@ -9,11 +9,14 @@ const CAMERA_DISTANCE = 8;
 const IDLE_SPIN_SPEED = 0.42;
 const DRAG_ROTATE_SPEED = 0.008;
 const RETURN_EASE = 0.08;
-const LOGO_INTRO_HOLD_MS = 1200;
-const LOGO_INTRO_SPREAD_MS = 2200;
-const LOGO_INTRO_OVERLAP_X = 0;
-const LOGO_INTRO_FRONT_Z = 0.28;
-const LOGO_INTRO_Z_STEP = 0.14;
+const LOGO_INTRO_HOLD_MS = 0;
+const LOGO_INTRO_FLY_MS = 3600;
+const LOGO_FLY_START_Z = -140;
+const LOGO_FLY_TARGET_Z = 1.35;
+const LOGO_FLY_START_Y = 0;
+const LOGO_FLY_VISIBLE_PROGRESS = 0.08;
+const LOGO_FLY_SPREAD_START = 0;
+const LOGO_FLY_ROTATE_RESOLVE_START = 0;
 const LOGO_INTRO_ROTATION = {
   x: 0.18,
   y: -0.2,
@@ -61,6 +64,8 @@ const DEFAULT_VARIANTS = [
     palette: ["#D8ECFF", "#74B8FF", "#157AFF", "#0D55C8", "#082F78", "#050C22"],
   },
 ];
+
+const DISPLAY_VARIANT_IDS = ["pro", "club", "event"];
 
 const CONTRAST_CONFIG = {
   durationMs: 10400,
@@ -1249,6 +1254,8 @@ export function createLogoInspector3D(target, options = {}) {
     model: assets.model || modelUrl || DEFAULT_ASSETS.model,
   };
 
+  const orderedVariants = DISPLAY_VARIANT_IDS.map((id) => variants.find((item) => item.id === id)).filter(Boolean);
+
   host.textContent = "";
 
   const root = document.createElement("section");
@@ -1271,7 +1278,7 @@ export function createLogoInspector3D(target, options = {}) {
   const canvasHost = document.createElement("div");
   canvasHost.className = "logo-inspector-3d__canvas";
 
-  const overlay = createSimpleOverlay(variants);
+  const overlay = createSimpleOverlay(orderedVariants);
 
   const status = document.createElement("div");
   status.className = "logo-inspector-3d__status";
@@ -1359,8 +1366,8 @@ export function createLogoInspector3D(target, options = {}) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(WHITE_BACKGROUND);
 
-  const camera = new THREE.OrthographicCamera(-3.3, 3.3, 1.9, -1.9, 0.1, 100);
-  camera.position.set(0, 0, CAMERA_DISTANCE);
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 220);
+  camera.position.set(0, 0.2, CAMERA_DISTANCE);
   camera.lookAt(0, 0, 0);
 
   const renderer = new THREE.WebGLRenderer({
@@ -1506,27 +1513,21 @@ export function createLogoInspector3D(target, options = {}) {
     const height = Math.max(canvasHost.clientHeight || root.clientHeight || 1, 1);
     const aspect = width / height;
     const compact = width < 760;
-    const viewWidth = compact ? 5.8 : 6.8;
-    const viewHeight = viewWidth / Math.max(aspect, 0.48);
 
-    camera.left = -viewWidth * 0.5;
-    camera.right = viewWidth * 0.5;
-    camera.top = viewHeight * 0.5;
-    camera.bottom = -viewHeight * 0.5;
+    camera.aspect = aspect;
+    camera.fov = compact ? 36 : 32;
     camera.updateProjectionMatrix();
 
-    const spacing = compact ? 1.78 : 2.16;
+    const spacing = compact ? 1.9 : 2.35;
     const scale = compact ? 0.68 : 0.84;
-    const y = compact ? 0.08 : 0.12;
+    const targetY = compact ? 0.06 : 0.1;
 
     stage.children.forEach((logo, index) => {
-      const introPosition = new THREE.Vector3(
-        (index - 1) * LOGO_INTRO_OVERLAP_X,
-        y,
-        LOGO_INTRO_FRONT_Z - index * LOGO_INTRO_Z_STEP,
-      );
+      const side = index - 1;
 
-      const targetPosition = new THREE.Vector3((index - 1) * spacing, y, 0);
+      const introPosition = new THREE.Vector3(0, LOGO_FLY_START_Y, LOGO_FLY_START_Z);
+
+      const targetPosition = new THREE.Vector3(side * spacing, targetY, LOGO_FLY_TARGET_Z);
 
       logo.userData.introPosition = introPosition;
       logo.userData.targetPosition = targetPosition;
@@ -1550,23 +1551,43 @@ export function createLogoInspector3D(target, options = {}) {
     if (!logoIntroStartTime || logoIntroComplete) return 1;
 
     const elapsed = time - logoIntroStartTime;
-    const rawProgress = (elapsed - LOGO_INTRO_HOLD_MS) / LOGO_INTRO_SPREAD_MS;
+    const rawProgress = (elapsed - LOGO_INTRO_HOLD_MS) / LOGO_INTRO_FLY_MS;
     const progress = clamp(rawProgress, 0, 1);
-    const eased = easeOutCubic(progress);
 
-    stage.children.forEach((logo) => {
+    const depthProgress = progress * progress * (3 - 2 * progress);
+    const spreadProgress = easeOutCubic(clamp((progress - LOGO_FLY_SPREAD_START) / (1 - LOGO_FLY_SPREAD_START), 0, 1));
+    const rotateProgress = easeOutCubic(
+      clamp((progress - LOGO_FLY_ROTATE_RESOLVE_START) / (1 - LOGO_FLY_ROTATE_RESOLVE_START), 0, 1),
+    );
+
+    stage.children.forEach((logo, index) => {
       const introPosition = logo.userData.introPosition;
       const targetPosition = logo.userData.targetPosition;
 
       if (!introPosition || !targetPosition) return;
 
-      logo.position.lerpVectors(introPosition, targetPosition, eased);
+      const side = index - 1;
+      const arcLift = Math.sin(depthProgress * Math.PI) * 0.2;
+      const sideDrift = Math.sin(spreadProgress * Math.PI) * side * 0.1;
+
+      logo.visible = progress >= LOGO_FLY_VISIBLE_PROGRESS;
+
+      logo.position.set(
+        lerp(introPosition.x, targetPosition.x, spreadProgress) + sideDrift,
+        lerp(introPosition.y, targetPosition.y, spreadProgress) + arcLift,
+        lerp(introPosition.z, targetPosition.z, depthProgress),
+      );
+
       logo.scale.setScalar(logo.userData.targetScale || 1);
 
       if (!logo.userData.hasManualRotation) {
-        logo.rotation.x = lerp(LOGO_INTRO_ROTATION.x, logo.userData.baseRotationX, eased);
-        logo.rotation.y = lerp(LOGO_INTRO_ROTATION.y, logo.userData.baseRotationY, eased);
-        logo.rotation.z = lerp(LOGO_INTRO_ROTATION.z, logo.userData.baseRotationZ, eased);
+        const startRotX = 0.26;
+        const startRotY = side * 0.62;
+        const startRotZ = side * 0.18;
+
+        logo.rotation.x = lerp(startRotX, logo.userData.baseRotationX, rotateProgress);
+        logo.rotation.y = lerp(startRotY, logo.userData.baseRotationY, rotateProgress);
+        logo.rotation.z = lerp(startRotZ, logo.userData.baseRotationZ, rotateProgress);
       }
     });
 
@@ -1574,8 +1595,14 @@ export function createLogoInspector3D(target, options = {}) {
       logoIntroComplete = true;
 
       stage.children.forEach((logo) => {
+        logo.visible = true;
+
         if (logo.userData.targetPosition) {
           logo.position.copy(logo.userData.targetPosition);
+        }
+
+        if (!logo.userData.hasManualRotation) {
+          logo.rotation.set(logo.userData.baseRotationX, logo.userData.baseRotationY, logo.userData.baseRotationZ);
         }
       });
     }
@@ -1589,6 +1616,10 @@ export function createLogoInspector3D(target, options = {}) {
     const height = Math.max(Math.floor(bounds.height || canvasHost.clientHeight || 1), 1);
 
     renderer.setSize(width, height, false);
+
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+
     layoutLogos();
     contrastRenderer.resize();
   };
@@ -1689,11 +1720,16 @@ export function createLogoInspector3D(target, options = {}) {
       sourceRoot = loadedRoot;
       centerAndScaleObject(sourceRoot, 2.35);
 
-      variants.slice(0, 3).forEach((variant, index) => {
+      orderedVariants.slice(0, 3).forEach((variant, index) => {
         stage.add(createVariantLogo(sourceRoot, variant, index));
       });
 
       layoutLogos();
+
+      stage.children.forEach((logo) => {
+        logo.visible = false;
+      });
+
       logoIntroStartTime = performance.now();
       logoIntroComplete = false;
     })
@@ -1705,11 +1741,16 @@ export function createLogoInspector3D(target, options = {}) {
       sourceRoot = createFallbackMesh();
       centerAndScaleObject(sourceRoot, 2.35);
 
-      variants.slice(0, 3).forEach((variant, index) => {
+      orderedVariants.slice(0, 3).forEach((variant, index) => {
         stage.add(createVariantLogo(sourceRoot, variant, index));
       });
 
       layoutLogos();
+
+      stage.children.forEach((logo) => {
+        logo.visible = false;
+      });
+
       logoIntroStartTime = performance.now();
       logoIntroComplete = false;
       setStatus("модель не загрузилась, показываю fallback");

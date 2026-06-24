@@ -3,8 +3,7 @@ const activeAnimations = new Map();
 const imageCache = new Map();
 const mediaCache = new Map();
 
-const MP4_PATTERN = /\.mp4(?:$|[?#])/i;
-
+const VIDEO_PATTERN = /\.(mp4|webm)(?:$|[?#])/i;
 export const noop = () => {};
 
 export const getDefaultCanvasMaxDpr = () => {
@@ -17,7 +16,7 @@ export const getDefaultCanvasMaxDpr = () => {
   const reducedMotion = Boolean(win?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);
 
   if (reducedMotion) return 1;
-  if (memory <= 4 || cores <= 4 || coarsePointer) return 1.35;
+  if (memory <= 4 || cores <= 4) return 1.35;
   return 1.75;
 };
 
@@ -529,17 +528,15 @@ export const createMediaLoader = (
   const cancel = () => {
     cancelled = true;
     playbackEnabled = false;
+
     items.forEach((item) => {
       const media = item.mediaElement || item.imageElement;
 
       if (media?.tagName === "VIDEO") {
         setMediaElementPlayback(media, false);
-        media.removeAttribute?.("src");
-        media.load?.();
       }
     });
   };
-
   const setPlaybackEnabled = (enabled) => {
     playbackEnabled = Boolean(enabled);
     setMediaItemsPlayback(items, playbackEnabled);
@@ -600,7 +597,7 @@ export const loadImage = (imageUrl) => {
   return request;
 };
 
-export const isVideoUrl = (url) => MP4_PATTERN.test(String(url || ""));
+export const isVideoUrl = (url) => VIDEO_PATTERN.test(String(url || ""));
 
 export const loadVideo = (videoUrl) => {
   if (!videoUrl) {
