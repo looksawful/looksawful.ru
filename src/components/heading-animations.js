@@ -1,35 +1,57 @@
 /**
- * Soft GSAP reveal engine for section headings + image galleries.
- * Uses IntersectionObserver only. No ScrollTrigger dependency.
+ * Heading letter idle engine and soft static media reveal.
+ * Headings do not fly in, rise from below, fade, scale, or turn.
+ * They stay in place; only selected letters get hero-like idle motion.
  *
- * SAFETY RULES:
- *  - Never call gsap.set() to hide anything upfront.
- *  - Never animate canvas, video, section, or raw img directly.
- *  - Gallery animation only targets a.media-item wrappers.
- *  - No blur.
- *  - No fade / opacity animation.
- *  - No clip-path / masks.
- *  - No bottom-up text reveal.
- *  - No overshoot scale above 1.
- *  - Elements must stay visible if JS, GSAP, or observer fails.
- *
- * Optional heading controls:
- *  - data-reveal-style="text-left"
- *  - data-reveal-style="text-turn"
- *  - data-reveal-style="text-scale"
- *  - data-reveal-style="letters"
- *  - data-letter-repel="true"
- *
- * Optional gallery controls:
- *  - data-reveal-style="gallery-scale"
- *  - data-reveal-style="gallery-flow"
- *  - data-reveal-style="gallery-turn"
+ * List headings are intentionally excluded.
  */
+
+import { createLetterIdleMotion, splitTextIntoGraphemes } from "./letter-motion.js";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const COARSE_POINTER_QUERY = "(pointer: coarse)";
 
-const HEADING_SELECTOR = ".component-caption > .title, .block__header > .title";
+const HEADING_SELECTOR = [
+  ".project__head .title",
+  ".component-caption > .title",
+  ".block__header > .title",
+  ".section-head > .title",
+  ".text-block > .title",
+  ".project :is(h2, h3, h4, h5, h6)",
+  ".cv :is(h2, h3, h4, h5, h6)",
+  ".resume :is(h2, h3, h4, h5, h6)",
+  "main :is(h2, h3, h4, h5, h6)",
+].join(", ");
+
+const EXCLUDED_HEADING_SELECTOR = [
+  ".hero",
+  ".site-header",
+  ".showcase-toc",
+  ".contact-links",
+  ".chips",
+  ".list-cards",
+  ".list-card",
+  ".list-card__title",
+  ".project-responsibilities",
+  ".responsibility-card",
+  ".responsibility-card__title",
+  ".responsibility-card__item-title",
+  ".responsibility-card__list",
+  ".token-list",
+  ".cv-role-chips",
+  ".cv-task-list",
+  ".cv-task-list-group",
+  ".media",
+  ".media-item",
+  ".media-slider",
+  ".media-marquee",
+  ".playlist-filter-embed",
+  "[data-visual-demo]",
+  "[data-animation]",
+  "ul",
+  "ol",
+  "li",
+].join(", ");
 
 const GALLERY_SELECTOR = [
   ".media-quad:not([data-showcase-auto-slider])",
@@ -46,34 +68,24 @@ const LETTER_REPEL_ATTR = "data-letter-repel";
 const LETTER_READY_ATTR = "data-letter-ready";
 const LETTER_REPEL_BOUND_ATTR = "data-letter-repel-bound";
 
-const HEADING_STYLES = ["text-left", "text-turn", "text-scale"];
+const HEADING_STYLES = ["text-left", "text-turn", "text-scale", "letters"];
 const GALLERY_STYLES = ["gallery-scale", "gallery-flow", "gallery-turn"];
 
-const MOTION = {
-  headingX: -16,
-  headingSmallX: -8,
-  headingScale: 0.992,
-  headingLetterScale: 0.965,
-  headingDuration: 0.82,
-  headingLetterDuration: 0.68,
-
-  galleryX: 6,
-  galleryScale: 0.996,
-  galleryDuration: 0.78,
-
-  staggerMin: 0.06,
-  staggerMax: 0.14,
-  letterStagger: 0.012,
-
+const GALLERY_MOTION = {
+  y: 4,
+  scale: 0.999,
+  duration: 0.58,
+  staggerMin: 0.035,
+  staggerMax: 0.08,
   ease: "power2.out",
   softEase: "sine.out",
 };
 
 const REPEL = {
-  radius: 86,
-  x: 14,
-  y: 7,
-  rotate: 5,
+  radius: 78,
+  x: 8,
+  y: 4,
+  rotate: 2.4,
   duration: 0.24,
   resetDuration: 0.42,
 };
@@ -87,11 +99,39 @@ function canAnimate() {
   );
 }
 
-function isSafeTarget(el) {
+function isListHeading(el) {
+  return Boolean(
+    el.closest(".list-cards") ||
+      el.closest(".list-card") ||
+      el.closest(".project-responsibilities") ||
+      el.closest(".responsibility-card") ||
+      el.closest(".token-list") ||
+      el.closest(".cv-role-chips") ||
+      el.closest(".cv-task-list") ||
+      el.closest(".cv-task-list-group") ||
+      el.closest("ul") ||
+      el.closest("ol") ||
+      el.closest("li"),
+  );
+}
+
+function isSafeHeading(el) {
+  return (
+    el &&
+    !isListHeading(el) &&
+    !el.closest("[hidden]") &&
+    !el.closest(EXCLUDED_HEADING_SELECTOR) &&
+    !el.closest('[data-reveal-bound="skip"]') &&
+    !el.hasAttribute(BOUND_ATTR) &&
+    Boolean(el.textContent?.trim())
+  );
+}
+
+function isSafeGallery(el) {
   return (
     el &&
     !el.closest("[hidden]") &&
-    !el.closest(".hero") &&
+    !el.closest(".playlist-filter-embed") &&
     !el.closest('[data-reveal-bound="skip"]') &&
     !el.hasAttribute(BOUND_ATTR)
   );
@@ -102,7 +142,9 @@ function observeOnce(el, callback, options = {}) {
     (entries) => {
       const entry = entries[0];
 
-      if (!entry || !entry.isIntersecting) return;
+      if (!entry || !entry.isIntersecting) {
+        return;
+      }
 
       observer.unobserve(el);
       callback(el);
@@ -119,43 +161,42 @@ function observeOnce(el, callback, options = {}) {
   return () => observer.disconnect();
 }
 
-function getPreset(el, presets, index) {
+function getPreset(el, presets, fallback) {
   const customPreset = el.getAttribute(STYLE_ATTR);
 
   if (customPreset && presets.includes(customPreset)) {
     return customPreset;
   }
 
-  if (customPreset === "letters") {
-    return customPreset;
-  }
-
-  return presets[index % presets.length];
+  return fallback;
 }
 
 function getGalleryItems(gallery) {
   return [...gallery.querySelectorAll(SAFE_ITEM_SELECTOR)].filter((item) => {
-    return !item.closest("canvas") && !item.closest("video") && !item.closest("[hidden]");
+    return (
+      !item.closest("canvas") &&
+      !item.closest("video") &&
+      !item.closest("[hidden]") &&
+      !item.closest(".media-slider") &&
+      !item.closest(".media-marquee") &&
+      !item.closest(".playlist-filter-embed") &&
+      !item.closest("[data-visual-demo]") &&
+      !item.closest("[data-animation]")
+    );
   });
 }
 
-function getStaggerAmount(items) {
-  return Math.min(MOTION.staggerMax, Math.max(MOTION.staggerMin, items.length * 0.016));
+function getGalleryStaggerAmount(items) {
+  return Math.min(
+    GALLERY_MOTION.staggerMax,
+    Math.max(GALLERY_MOTION.staggerMin, items.length * 0.01),
+  );
 }
 
 function hasComplexChildren(el) {
   return [...el.childNodes].some((node) => {
     return node.nodeType === Node.ELEMENT_NODE && !node.hasAttribute("data-reveal-char");
   });
-}
-
-function splitTextIntoGraphemes(text) {
-  if (typeof Intl !== "undefined" && typeof Intl.Segmenter !== "undefined") {
-    const segmenter = new Intl.Segmenter("ru", { granularity: "grapheme" });
-    return [...segmenter.segment(text)].map((segment) => segment.segment);
-  }
-
-  return [...text];
 }
 
 function prepareLetterSpans(target) {
@@ -202,12 +243,19 @@ function prepareLetterSpans(target) {
 }
 
 function initLetterRepel(target, gsap) {
-  if (target.hasAttribute(LETTER_REPEL_BOUND_ATTR)) return;
-  if (window.matchMedia(COARSE_POINTER_QUERY).matches) return;
+  if (target.hasAttribute(LETTER_REPEL_BOUND_ATTR)) {
+    return;
+  }
+
+  if (window.matchMedia(COARSE_POINTER_QUERY).matches) {
+    return;
+  }
 
   const chars = prepareLetterSpans(target);
 
-  if (!chars.length) return;
+  if (!chars.length) {
+    return;
+  }
 
   let frame = null;
   let lastEvent = null;
@@ -219,7 +267,7 @@ function initLetterRepel(target, gsap) {
       rotateZ: 0,
       scale: 1,
       duration: REPEL.resetDuration,
-      ease: MOTION.ease,
+      ease: "power2.out",
       overwrite: "auto",
     });
   }
@@ -227,7 +275,9 @@ function initLetterRepel(target, gsap) {
   function updateChars() {
     frame = null;
 
-    if (!lastEvent) return;
+    if (!lastEvent) {
+      return;
+    }
 
     const pointerX = lastEvent.clientX;
     const pointerY = lastEvent.clientY;
@@ -248,7 +298,7 @@ function initLetterRepel(target, gsap) {
           rotateZ: 0,
           scale: 1,
           duration: REPEL.resetDuration,
-          ease: MOTION.ease,
+          ease: "power2.out",
           overwrite: "auto",
         });
         return;
@@ -262,7 +312,7 @@ function initLetterRepel(target, gsap) {
         x: directionX * REPEL.x * force,
         y: directionY * REPEL.y * force,
         rotateZ: directionX * REPEL.rotate * force,
-        scale: 1 + force * 0.018,
+        scale: 1 + force * 0.012,
         duration: REPEL.duration,
         ease: "power3.out",
         overwrite: "auto",
@@ -273,7 +323,9 @@ function initLetterRepel(target, gsap) {
   target.addEventListener("pointermove", (event) => {
     lastEvent = event;
 
-    if (frame) return;
+    if (frame) {
+      return;
+    }
 
     frame = window.requestAnimationFrame(updateChars);
   });
@@ -292,137 +344,49 @@ function initLetterRepel(target, gsap) {
   target.setAttribute(LETTER_REPEL_BOUND_ATTR, "true");
 }
 
-function animateHeadingLeft(target, gsap) {
-  gsap.fromTo(
-    target,
-    {
-      x: MOTION.headingX,
-      scale: MOTION.headingScale,
-      rotateZ: -0.2,
-      transformOrigin: "0% 50%",
-    },
-    {
-      x: 0,
-      scale: 1,
-      rotateZ: 0,
-      duration: MOTION.headingDuration,
-      ease: MOTION.ease,
-      overwrite: "auto",
-      clearProps: "transform,transformOrigin",
-    },
-  );
+function getHeadingIdleProfile(target) {
+  if (target.classList.contains("title--display") || target.classList.contains("title--xl")) {
+    return "display";
+  }
+
+  if (target.matches("h4, h5, h6")) {
+    return "subheading";
+  }
+
+  return "heading";
 }
 
-function animateHeadingTurn(target, gsap) {
-  gsap.fromTo(
-    target,
-    {
-      x: MOTION.headingSmallX,
-      scale: MOTION.headingScale,
-      rotateY: -5,
-      transformPerspective: 700,
-      transformOrigin: "0% 50%",
-    },
-    {
-      x: 0,
-      scale: 1,
-      rotateY: 0,
-      duration: MOTION.headingDuration,
-      ease: MOTION.ease,
-      overwrite: "auto",
-      clearProps: "transform,transformOrigin,transformPerspective",
-    },
-  );
-}
-
-function animateHeadingScale(target, gsap) {
-  gsap.fromTo(
-    target,
-    {
-      x: MOTION.headingSmallX,
-      scale: 0.986,
-      transformOrigin: "0% 50%",
-    },
-    {
-      x: 0,
-      scale: 1,
-      duration: MOTION.headingDuration,
-      ease: MOTION.ease,
-      overwrite: "auto",
-      clearProps: "transform,transformOrigin",
-    },
-  );
-}
-
-function animateHeadingLetters(target, gsap) {
+function startHeadingLetterMotion(target) {
   const chars = prepareLetterSpans(target);
 
   if (!chars.length) {
-    animateHeadingLeft(target, gsap);
     return;
   }
 
-  gsap.fromTo(
-    chars,
-    {
-      x: -7,
-      scale: MOTION.headingLetterScale,
-      rotateY: -10,
-      rotateZ: -1.4,
-      transformOrigin: "50% 60%",
-    },
-    {
-      x: 0,
-      scale: 1,
-      rotateY: 0,
-      rotateZ: 0,
-      duration: MOTION.headingLetterDuration,
-      ease: MOTION.ease,
-      stagger: {
-        each: MOTION.letterStagger,
-        from: "start",
-      },
-      overwrite: "auto",
-      clearProps: "transform",
-    },
-  );
+  createLetterIdleMotion(target, {
+    letters: chars,
+    profile: getHeadingIdleProfile(target),
+  });
 }
 
-function animateHeading(target, preset, gsap) {
-  if (preset === "letters") {
-    animateHeadingLetters(target, gsap);
-    return;
-  }
-
-  if (preset === "text-turn") {
-    animateHeadingTurn(target, gsap);
-    return;
-  }
-
-  if (preset === "text-scale") {
-    animateHeadingScale(target, gsap);
-    return;
-  }
-
-  animateHeadingLeft(target, gsap);
-}
-
-function animateGalleryScale(items, gsap) {
+function animateGallerySoft(items, gsap) {
   gsap.fromTo(
     items,
     {
-      scale: MOTION.galleryScale,
+      y: GALLERY_MOTION.y,
+      scale: GALLERY_MOTION.scale,
       transformOrigin: "50% 50%",
     },
     {
+      y: 0,
       scale: 1,
-      duration: MOTION.galleryDuration,
-      ease: MOTION.ease,
+      duration: GALLERY_MOTION.duration,
+      ease: GALLERY_MOTION.ease,
       stagger: {
-        amount: getStaggerAmount(items),
+        amount: getGalleryStaggerAmount(items),
         from: "center",
         grid: "auto",
-        ease: MOTION.softEase,
+        ease: GALLERY_MOTION.softEase,
       },
       overwrite: "auto",
       clearProps: "transform,transformOrigin",
@@ -430,89 +394,27 @@ function animateGalleryScale(items, gsap) {
   );
 }
 
-function animateGalleryFlow(items, gsap) {
-  gsap.fromTo(
-    items,
-    {
-      x: (index) => (index % 2 === 0 ? -MOTION.galleryX : MOTION.galleryX),
-      scale: MOTION.galleryScale,
-      transformOrigin: "50% 50%",
-    },
-    {
-      x: 0,
-      scale: 1,
-      duration: MOTION.galleryDuration,
-      ease: MOTION.ease,
-      stagger: {
-        amount: getStaggerAmount(items),
-        from: "start",
-        grid: "auto",
-        ease: MOTION.softEase,
-      },
-      overwrite: "auto",
-      clearProps: "transform,transformOrigin",
-    },
-  );
-}
-
-function animateGalleryTurn(items, gsap) {
-  gsap.fromTo(
-    items,
-    {
-      x: (index) => (index % 2 === 0 ? -4 : 4),
-      scale: MOTION.galleryScale,
-      rotateZ: (index) => (index % 2 === 0 ? -0.35 : 0.35),
-      transformOrigin: "50% 50%",
-    },
-    {
-      x: 0,
-      scale: 1,
-      rotateZ: 0,
-      duration: MOTION.galleryDuration,
-      ease: MOTION.ease,
-      stagger: {
-        amount: getStaggerAmount(items),
-        from: "start",
-        grid: "auto",
-        ease: MOTION.softEase,
-      },
-      overwrite: "auto",
-      clearProps: "transform,transformOrigin",
-    },
-  );
-}
-
-function animateGallery(gallery, preset, gsap) {
+function animateGallery(gallery, gsap) {
   const items = getGalleryItems(gallery);
 
-  if (!items.length) return;
-
-  if (preset === "gallery-flow") {
-    animateGalleryFlow(items, gsap);
+  if (!items.length) {
     return;
   }
 
-  if (preset === "gallery-turn") {
-    animateGalleryTurn(items, gsap);
-    return;
-  }
-
-  animateGalleryScale(items, gsap);
+  animateGallerySoft(items, gsap);
 }
 
 export function initHeadingAnimations(root = document) {
-  if (!canAnimate()) return;
+  if (!canAnimate()) {
+    return;
+  }
 
   const gsap = window.gsap;
+  const headings = [...root.querySelectorAll(HEADING_SELECTOR)].filter(isSafeHeading);
 
-  const headings = [...root.querySelectorAll(HEADING_SELECTOR)].filter(isSafeTarget);
-
-  headings.forEach((heading, index) => {
-    const preset = getPreset(heading, HEADING_STYLES, index);
-
-    if (preset === "letters" || heading.getAttribute(LETTER_REPEL_ATTR) === "true") {
-      prepareLetterSpans(heading);
-    }
+  headings.forEach((heading) => {
+    getPreset(heading, HEADING_STYLES, "letters");
+    prepareLetterSpans(heading);
 
     if (heading.getAttribute(LETTER_REPEL_ATTR) === "true") {
       initLetterRepel(heading, gsap);
@@ -523,7 +425,7 @@ export function initHeadingAnimations(root = document) {
     observeOnce(
       heading,
       (target) => {
-        animateHeading(target, preset, gsap);
+        startHeadingLetterMotion(target);
       },
       {
         rootMargin: "0px 0px -10% 0px",
@@ -531,17 +433,16 @@ export function initHeadingAnimations(root = document) {
     );
   });
 
-  const galleries = [...root.querySelectorAll(GALLERY_SELECTOR)].filter(isSafeTarget);
+  const galleries = [...root.querySelectorAll(GALLERY_SELECTOR)].filter(isSafeGallery);
 
-  galleries.forEach((gallery, index) => {
-    const preset = getPreset(gallery, GALLERY_STYLES, index);
-
+  galleries.forEach((gallery) => {
+    getPreset(gallery, GALLERY_STYLES, "gallery-scale");
     gallery.setAttribute(BOUND_ATTR, "gallery");
 
     observeOnce(
       gallery,
       (target) => {
-        animateGallery(target, preset, gsap);
+        animateGallery(target, gsap);
       },
       {
         rootMargin: "0px 0px -8% 0px",
