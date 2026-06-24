@@ -10,19 +10,19 @@ const IDLE_SPIN_SPEED = 0.42;
 const DRAG_ROTATE_SPEED = 0.008;
 const RETURN_EASE = 0.08;
 const LOGO_INTRO_HOLD_MS = 0;
-const LOGO_INTRO_FLY_MS = 3600;
-const LOGO_FLY_START_Z = -140;
-const LOGO_FLY_TARGET_Z = 1.35;
-const LOGO_FLY_START_Y = 0;
-const LOGO_FLY_VISIBLE_PROGRESS = 0.08;
-const LOGO_FLY_SPREAD_START = 0;
-const LOGO_FLY_ROTATE_RESOLVE_START = 0;
+const LOGO_INTRO_SCALE_MS = 820;
+const LOGO_INTRO_START_SCALE = 0.84;
+const LOGO_INTRO_OVERSHOOT_SCALE = 1.045;
+const LOGO_INTRO_TARGET_Z = 0.95;
+const LOGO_INTRO_ROTATION_DRIFT = 0.035;
+const LOGO_INTRO_STAGGER_MS = 90;
+const LOGO_INTRO_IDLE_DELAY_MS = 240;
 const LOGO_INTRO_ROTATION = {
   x: 0.18,
   y: -0.2,
   z: -0.08,
 };
-const WHITE_BACKGROUND = "#ffffff";
+const WHITE_BACKGROUND = "#000000";
 
 const SHOW_COLOR_TOKEN_CHIPS = false;
 const SHOW_SLIDER_NAV_BUTTONS = false;
@@ -159,10 +159,10 @@ function injectStyles() {
       overflow: hidden;
       contain: layout paint;
       isolation: isolate;
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 8px;
-      color: #111111;
-      background: #ffffff;
+      color: #ffffff;
+      background: #000000;
       font-family: "Rubik", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       text-rendering: geometricPrecision;
     }
@@ -175,7 +175,7 @@ function injectStyles() {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      background: #ffffff;
+      background: #000000;
       opacity: 1;
       visibility: visible;
       pointer-events: none;
@@ -200,7 +200,7 @@ function injectStyles() {
       z-index: 1;
       inset: 0;
       overflow: hidden;
-      background: #ffffff;
+      background: #000000;
     }
 
     .logo-inspector-3d__slide {
@@ -210,7 +210,7 @@ function injectStyles() {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #ffffff;
+      background: #000000;
     }
 
     .logo-inspector-3d__slide.is-active {
@@ -374,7 +374,7 @@ function injectStyles() {
       align-items: center;
       gap: clamp(1.2rem, 4vw, 4rem);
       padding: clamp(3.2rem, 6vw, 5rem) clamp(4.2rem, 8vw, 8rem) clamp(4rem, 7vw, 6rem);
-      background: #ffffff;
+      background: #000000;
       color: #111111;
     }
 
@@ -427,8 +427,8 @@ function injectStyles() {
       height: clamp(3.2rem, 5vw, 5rem);
       border: 1px solid rgba(0, 0, 0, 0.18);
       border-radius: 999px;
-      color: #111111;
-      background: #ffffff;
+      color: #ffffff;
+      background: #000000;
       box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
     }
 
@@ -645,7 +645,7 @@ function injectStyles() {
     }
 
     .logo-inspector-3d[data-active-slide="2"] .logo-inspector-3d__dot-button.is-active {
-      background: #ffffff;
+      background: #000000;
     }
 
     @media (max-width: 56rem) {
@@ -1417,7 +1417,7 @@ export function createLogoInspector3D(target, options = {}) {
   scene.background = new THREE.Color(WHITE_BACKGROUND);
 
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 220);
-  camera.position.set(0, 0.2, CAMERA_DISTANCE);
+  camera.position.set(0, 0, CAMERA_DISTANCE);
   camera.lookAt(0, 0, 0);
 
   const renderer = new THREE.WebGLRenderer({
@@ -1438,8 +1438,8 @@ export function createLogoInspector3D(target, options = {}) {
   canvasHost.appendChild(renderer.domElement);
 
   const stage = new THREE.Group();
-  stage.rotation.x = 0.24;
-  stage.rotation.z = -0.04;
+  stage.rotation.x = 0;
+  stage.rotation.z = 0;
   scene.add(stage);
 
   scene.add(new THREE.AmbientLight("#ffffff", 0.44));
@@ -1570,28 +1570,28 @@ export function createLogoInspector3D(target, options = {}) {
 
     const spacing = compact ? 1.9 : 2.35;
     const scale = compact ? 0.68 : 0.84;
-    const targetY = compact ? 0.06 : 0.1;
+    const targetY = 0;
 
     stage.children.forEach((logo, index) => {
       const side = index - 1;
 
-      const introPosition = new THREE.Vector3(0, LOGO_FLY_START_Y, LOGO_FLY_START_Z);
+      const targetPosition = new THREE.Vector3(side * spacing, targetY, LOGO_INTRO_TARGET_Z);
 
-      const targetPosition = new THREE.Vector3(side * spacing, targetY, LOGO_FLY_TARGET_Z);
-
-      logo.userData.introPosition = introPosition;
+      logo.userData.introPosition = targetPosition.clone();
       logo.userData.targetPosition = targetPosition;
       logo.userData.targetScale = scale;
 
       if (!logo.userData.layoutReady) {
-        logo.position.copy(introPosition);
-        logo.scale.setScalar(scale);
+        logo.position.copy(targetPosition);
+        logo.scale.setScalar(scale * LOGO_INTRO_START_SCALE);
+        logo.visible = true;
         logo.userData.layoutReady = true;
         return;
       }
 
+      logo.position.copy(targetPosition);
+
       if (logoIntroComplete) {
-        logo.position.copy(targetPosition);
         logo.scale.setScalar(scale);
       }
     });
@@ -1601,43 +1601,32 @@ export function createLogoInspector3D(target, options = {}) {
     if (!logoIntroStartTime || logoIntroComplete) return 1;
 
     const elapsed = time - logoIntroStartTime;
-    const rawProgress = (elapsed - LOGO_INTRO_HOLD_MS) / LOGO_INTRO_FLY_MS;
-    const progress = clamp(rawProgress, 0, 1);
-
-    const depthProgress = progress * progress * (3 - 2 * progress);
-    const spreadProgress = easeOutCubic(clamp((progress - LOGO_FLY_SPREAD_START) / (1 - LOGO_FLY_SPREAD_START), 0, 1));
-    const rotateProgress = easeOutCubic(
-      clamp((progress - LOGO_FLY_ROTATE_RESOLVE_START) / (1 - LOGO_FLY_ROTATE_RESOLVE_START), 0, 1),
-    );
+    const progress = clamp(elapsed / LOGO_INTRO_SCALE_MS, 0, 1);
+    const eased = easeOutCubic(progress);
 
     stage.children.forEach((logo, index) => {
-      const introPosition = logo.userData.introPosition;
       const targetPosition = logo.userData.targetPosition;
 
-      if (!introPosition || !targetPosition) return;
+      if (!targetPosition) return;
 
+      const localElapsed = Math.max(0, elapsed - index * LOGO_INTRO_STAGGER_MS);
+      const localProgress = clamp(localElapsed / LOGO_INTRO_SCALE_MS, 0, 1);
+      const localEased = easeOutCubic(localProgress);
+      const overshoot = Math.sin(localEased * Math.PI) * (LOGO_INTRO_OVERSHOOT_SCALE - 1);
+      const currentScale = lerp(LOGO_INTRO_START_SCALE, 1, localEased) + overshoot;
+      const targetScale = logo.userData.targetScale || 1;
       const side = index - 1;
-      const arcLift = Math.sin(depthProgress * Math.PI) * 0.2;
-      const sideDrift = Math.sin(spreadProgress * Math.PI) * side * 0.1;
 
-      logo.visible = progress >= LOGO_FLY_VISIBLE_PROGRESS;
-
-      logo.position.set(
-        lerp(introPosition.x, targetPosition.x, spreadProgress) + sideDrift,
-        lerp(introPosition.y, targetPosition.y, spreadProgress) + arcLift,
-        lerp(introPosition.z, targetPosition.z, depthProgress),
-      );
-
-      logo.scale.setScalar(logo.userData.targetScale || 1);
+      logo.visible = true;
+      logo.position.copy(targetPosition);
+      logo.scale.setScalar(targetScale * currentScale);
 
       if (!logo.userData.hasManualRotation) {
-        const startRotX = 0.26;
-        const startRotY = side * 0.62;
-        const startRotZ = side * 0.18;
-
-        logo.rotation.x = lerp(startRotX, logo.userData.baseRotationX, rotateProgress);
-        logo.rotation.y = lerp(startRotY, logo.userData.baseRotationY, rotateProgress);
-        logo.rotation.z = lerp(startRotZ, logo.userData.baseRotationZ, rotateProgress);
+        logo.rotation.x =
+          logo.userData.baseRotationX + Math.sin((1 - localEased) * Math.PI) * LOGO_INTRO_ROTATION_DRIFT;
+        logo.rotation.y =
+          logo.userData.baseRotationY + side * Math.sin((1 - localEased) * Math.PI) * LOGO_INTRO_ROTATION_DRIFT;
+        logo.rotation.z = logo.userData.baseRotationZ;
       }
     });
 
@@ -1649,6 +1638,10 @@ export function createLogoInspector3D(target, options = {}) {
 
         if (logo.userData.targetPosition) {
           logo.position.copy(logo.userData.targetPosition);
+        }
+
+        if (logo.userData.targetScale) {
+          logo.scale.setScalar(logo.userData.targetScale);
         }
 
         if (!logo.userData.hasManualRotation) {
@@ -1777,7 +1770,7 @@ export function createLogoInspector3D(target, options = {}) {
       layoutLogos();
 
       stage.children.forEach((logo) => {
-        logo.visible = false;
+        logo.visible = true;
       });
 
       logoIntroStartTime = performance.now();

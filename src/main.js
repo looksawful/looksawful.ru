@@ -1,3 +1,4 @@
+import "./vendor/gsap-globals.js";
 import "./components/showcase-sync-side-card-height.js";
 import "./components/showcase-sync-graphic-side-layouts.js";
 import "./components/showcase-gallery-aspect-fit.js";
@@ -7,6 +8,7 @@ import "./visuals/dom/policy-book.js";
 import "./visuals/dom/list-scroll.js";
 import "./components/proximity-components.js";
 import { initPlaylistFilterEmbed } from "./visuals/dom/playlist-filter-embed.js";
+import { initRandomGalleries } from "./visuals/dom/random-gallery.js";
 import { initComponents } from "./components/index.js";
 
 let appInitialized = false;
@@ -36,6 +38,7 @@ async function initApp() {
 
   await runInitStep("initComponents", () => initComponents(document));
   await runInitStep("initPlaylistFilterEmbed", () => initPlaylistFilterEmbed(document));
+  await runInitStep("initRandomGalleries", () => initRandomGalleries(document));
 }
 
 if (document.readyState === "loading") {
@@ -43,3 +46,4 @@ if (document.readyState === "loading") {
 } else {
   void initApp();
 }
+

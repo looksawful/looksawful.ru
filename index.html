@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 
 <html lang="ru">
 
@@ -13,9 +13,6 @@
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link href="/src/styles/index.css" rel="stylesheet" />
     <link href="/src/styles/playlist-filter-embed.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Flip.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
     <script src="/src/main.js" type="module"></script>
   </head>
 
@@ -3688,54 +3685,38 @@
                       <canvas class="visual-canvas" id="project-jestei-motion-arc"></canvas>
                     </section>
                   </section> -->
-                    <aside class="media-three media-square" aria-label="jestei graphic placeholders gallery 01"
-                      style="grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap)">
-                      <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/01/01.webp"
-                        rel="noopener noreferrer" target="_blank">
-                        <img alt="" decoding="async" loading="lazy"
-                          src="/assets/media/cases/jesteipool/06-graphic/01/01.webp" />
-                      </a>
-                      <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/01/02.webp"
-                        rel="noopener noreferrer" target="_blank">
-                        <img alt="" decoding="async" loading="lazy"
-                          src="/assets/media/cases/jesteipool/06-graphic/01/02.webp" />
-                      </a>
-                      <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/01/03.webp"
-                        rel="noopener noreferrer" target="_blank">
-                        <img alt="" decoding="async" loading="lazy"
-                          src="/assets/media/cases/jesteipool/06-graphic/01/03.webp" />
-                      </a>
-                      <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/01/04.webp"
-                        rel="noopener noreferrer" target="_blank">
-                        <img alt="" decoding="async" loading="lazy"
-                          src="/assets/media/cases/jesteipool/06-graphic/01/04.webp" />
-                      </a>
-                      <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/01/05.webp"
-                        rel="noopener noreferrer" target="_blank">
-                        <img alt="" decoding="async" loading="lazy"
-                          src="/assets/media/cases/jesteipool/06-graphic/01/05.webp" />
-                      </a>
-                      <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/01/06.webp"
-                        rel="noopener noreferrer" target="_blank">
-                        <img alt="" decoding="async" loading="lazy"
-                          src="/assets/media/cases/jesteipool/06-graphic/01/06.webp" />
-                      </a>
-                      <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/01/07.webp"
-                        rel="noopener noreferrer" target="_blank">
-                        <img alt="" decoding="async" loading="lazy"
-                          src="/assets/media/cases/jesteipool/06-graphic/01/07.webp" />
-                      </a>
-                      <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/01/08.webp"
-                        rel="noopener noreferrer" target="_blank">
-                        <img alt="" decoding="async" loading="lazy"
-                          src="/assets/media/cases/jesteipool/06-graphic/01/08.webp" />
-                      </a>
-                      <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/01/09.webp"
-                        rel="noopener noreferrer" target="_blank">
-                        <img alt="" decoding="async" loading="lazy"
-                          src="/assets/media/cases/jesteipool/06-graphic/01/09.webp" />
-                      </a>
-                    </aside>
+                    <section
+                      class="random-gallery"
+                      aria-label="jestei graphic design rotating gallery"
+                      data-random-gallery
+                      data-random-gallery-id="jestei-graphic-gallery-01"
+                      data-random-gallery-path="/assets/media/cases/jesteipool/06-graphic/01"
+                      data-random-gallery-count="53"
+                      data-random-gallery-rows="3"
+                      data-random-gallery-min-width="138"
+                      data-random-gallery-delay="2600"
+                      data-random-gallery-batch="1"
+                    >
+                      <div class="random-gallery__bar">
+                        <p class="random-gallery__caption">графическая система / 53 изображения</p>
+                        <button
+                          class="random-gallery__shuffle"
+                          type="button"
+                          data-random-gallery-action="shuffle"
+                          data-random-gallery-target="jestei-graphic-gallery-01"
+                          aria-label="перемешать галерею"
+                        >
+                          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M2 4h2.2c1.2 0 2 .5 2.8 1.7l2 3c.7 1.1 1.5 1.3 2.8 1.3H14" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" />
+                            <path d="M11.5 7.5 14 10l-2.5 2.5" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M2 12h2.2c1.2 0 2-.5 2.8-1.7l.4-.6M8.6 6.3l.4-.6C9.7 4.6 10.5 4 11.8 4H14" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" />
+                            <path d="M11.5 1.5 14 4l-2.5 2.5" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                          <span>перемешать</span>
+                        </button>
+                      </div>
+                      <div class="random-gallery__grid" data-random-gallery-grid></div>
+                    </section>
                   <section class="block no-divider">
                     <header class="block__header component-caption section-head">
                       <h5 class="title title--lg">графический дизайн и микс медиа</h5>
@@ -3925,54 +3906,38 @@
                     </section> -->
 
                   </section>
-                                      <aside class="media-three media-square" aria-label="jestei graphic placeholders gallery 02"
-                                        style="grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap)">
-                                        <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/02/01.webp"
-                                          rel="noopener noreferrer" target="_blank">
-                                          <img alt="" decoding="async" loading="lazy"
-                                            src="/assets/media/cases/jesteipool/06-graphic/02/01.webp" />
-                                        </a>
-                                        <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/02/02.webp"
-                                          rel="noopener noreferrer" target="_blank">
-                                          <img alt="" decoding="async" loading="lazy"
-                                            src="/assets/media/cases/jesteipool/06-graphic/02/02.webp" />
-                                        </a>
-                                        <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/02/03.webp"
-                                          rel="noopener noreferrer" target="_blank">
-                                          <img alt="" decoding="async" loading="lazy"
-                                            src="/assets/media/cases/jesteipool/06-graphic/02/03.webp" />
-                                        </a>
-                                        <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/02/04.webp"
-                                          rel="noopener noreferrer" target="_blank">
-                                          <img alt="" decoding="async" loading="lazy"
-                                            src="/assets/media/cases/jesteipool/06-graphic/02/04.webp" />
-                                        </a>
-                                        <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/02/05.webp"
-                                          rel="noopener noreferrer" target="_blank">
-                                          <img alt="" decoding="async" loading="lazy"
-                                            src="/assets/media/cases/jesteipool/06-graphic/02/05.webp" />
-                                        </a>
-                                        <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/02/06.webp"
-                                          rel="noopener noreferrer" target="_blank">
-                                          <img alt="" decoding="async" loading="lazy"
-                                            src="/assets/media/cases/jesteipool/06-graphic/02/06.webp" />
-                                        </a>
-                                        <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/02/07.webp"
-                                          rel="noopener noreferrer" target="_blank">
-                                          <img alt="" decoding="async" loading="lazy"
-                                            src="/assets/media/cases/jesteipool/06-graphic/02/07.webp" />
-                                        </a>
-                                        <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/02/08.webp"
-                                          rel="noopener noreferrer" target="_blank">
-                                          <img alt="" decoding="async" loading="lazy"
-                                            src="/assets/media/cases/jesteipool/06-graphic/02/08.webp" />
-                                        </a>
-                                        <a class="media-item no-stroke" href="/assets/media/cases/jesteipool/06-graphic/02/09.webp"
-                                          rel="noopener noreferrer" target="_blank">
-                                          <img alt="" decoding="async" loading="lazy"
-                                            src="/assets/media/cases/jesteipool/06-graphic/02/09.webp" />
-                                        </a>
-                                      </aside>
+                                      <section
+                                        class="random-gallery"
+                                        aria-label="jestei editorial and interface rotating gallery"
+                                        data-random-gallery
+                                        data-random-gallery-id="jestei-graphic-gallery-02"
+                                        data-random-gallery-path="/assets/media/cases/jesteipool/06-graphic/02"
+                                        data-random-gallery-count="53"
+                                        data-random-gallery-rows="3"
+                                        data-random-gallery-min-width="138"
+                                        data-random-gallery-delay="3400"
+                                        data-random-gallery-batch="1"
+                                      >
+                                        <div class="random-gallery__bar">
+                                          <p class="random-gallery__caption">редакционные и интерфейсные материалы / 53 изображения</p>
+                                          <button
+                                            class="random-gallery__shuffle"
+                                            type="button"
+                                            data-random-gallery-action="shuffle"
+                                            data-random-gallery-target="jestei-graphic-gallery-02"
+                                            aria-label="перемешать галерею"
+                                          >
+                                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                              <path d="M2 4h2.2c1.2 0 2 .5 2.8 1.7l2 3c.7 1.1 1.5 1.3 2.8 1.3H14" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" />
+                                              <path d="M11.5 7.5 14 10l-2.5 2.5" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" />
+                                              <path d="M2 12h2.2c1.2 0 2-.5 2.8-1.7l.4-.6M8.6 6.3l.4-.6C9.7 4.6 10.5 4 11.8 4H14" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" />
+                                              <path d="M11.5 1.5 14 4l-2.5 2.5" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                            <span>перемешать</span>
+                                          </button>
+                                        </div>
+                                        <div class="random-gallery__grid" data-random-gallery-grid></div>
+                                      </section>
                 </section>
               </section>
             </article>
@@ -4715,3 +4680,4 @@
   </body>
 
 </html>
+
