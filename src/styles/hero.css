@@ -52,6 +52,7 @@
 .hero-title-word {
   display: block;
   width: fit-content;
+  max-width: 100%;
   overflow: visible;
   white-space: nowrap;
 }
@@ -101,7 +102,12 @@
 
 @media (max-width: 48rem) {
   .hero__screen {
-    align-content: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    align-content: start;
+    row-gap: clamp(1.6rem, 7vw, 2.6rem);
+    padding-block-start: calc(6.6rem + env(safe-area-inset-top));
+    padding-block-end: clamp(3.2rem, 13vw, 4.8rem);
   }
 
   .hero__headline-wrap {
@@ -110,14 +116,28 @@
   }
 
   .hero__title {
-    font-size: clamp(2.3rem, 10.6vw, 4.4rem);
-    line-height: 0.94;
+    font-size: var(--hero-main);
+    line-height: 0.92;
+    letter-spacing: -0.055em;
+  }
+
+  .hero__title-name,
+  .hero__title-role {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    hyphens: none;
   }
 
   .hero__title-role {
-    font-size: clamp(1.7rem, 8.8vw, 3.2rem);
-    line-height: 0.96;
-    letter-spacing: -0.02em;
+    font-size: var(--hero-sub);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+  }
+
+  .hero-title-word {
+    max-width: 100%;
+    white-space: normal;
   }
 
   .hero__title-role .hero-title-word {
@@ -126,11 +146,19 @@
 
   .hero__note,
   .contact-links {
-    max-width: min(100%, 24rem);
+    justify-self: start;
+    width: min(100%, 30rem);
+    max-width: min(100%, 30rem);
+  }
+
+  .hero__note {
+    line-height: 1.12;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
   }
 
   .contact-links {
-    justify-self: start;
     text-align: left;
   }
 
@@ -143,10 +171,11 @@
 
 @media (max-width: 23rem) {
   .hero__title {
-    font-size: clamp(2rem, 10.8vw, 2.7rem);
+    font-size: clamp(2.45rem, 13.8vw, 3.2rem);
   }
 
   .hero__title-role {
-    font-size: clamp(1.5rem, 8.6vw, 2.1rem);
+    font-size: clamp(1.45rem, 8.2vw, 2rem);
   }
 }
+

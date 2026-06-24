@@ -271,7 +271,7 @@ function bindShuffleButtons(scope) {
 }
 
 export function initRandomGalleries(root = document) {
-  const scope = root instanceof ParentNode ? root : document;
+  const scope = root && typeof root.querySelectorAll === "function" ? root : document;
 
   scope.querySelectorAll(ROOT_SELECTOR).forEach((element) => {
     if (!(element instanceof HTMLElement) || mountedRoots.has(element)) {

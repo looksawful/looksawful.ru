@@ -124,8 +124,67 @@
 }
 
 @media (max-width: 48rem) {
+  .project {
+    gap: var(--project-gap);
+    padding-block: var(--project-gap);
+  }
+
+  .project__header {
+    gap: var(--component-gap);
+  }
+
   .project__head,
   .project__head--text-only {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--component-gap);
+  }
+
+  .project__head > .meta {
+    justify-self: center;
+    text-align: center;
+  }
+
+  .project__intro,
+  .project__head > div {
+    width: 100%;
+    max-width: 100%;
+    justify-items: center;
+  }
+
+  .project__intro > .title,
+  .project__head > div > .title {
+    max-width: min(100%, 13ch);
+    text-align: center;
+  }
+
+  .project__intro > p,
+  .project__head > div > p {
+    justify-self: start;
+    max-width: var(--text);
+    text-align: left;
+  }
+
+  .project__logo {
+    justify-self: center;
+  }
+
+  .project__logo img,
+  .project__logo canvas {
+    width: min(42vw, 10rem);
+  }
+
+  .project-section,
+  .block {
+    gap: var(--component-gap);
+    padding-block: var(--project-gap);
+  }
+
+  .project-section .project-section {
+    padding-block: var(--component-gap);
+  }
+
+  .project-skill-cloud__list {
+    max-width: 100%;
   }
 }
+

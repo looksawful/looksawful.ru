@@ -1,4 +1,5 @@
 import "./vendor/gsap-globals.js";
+import { initHeadingAnimations } from "./components/heading-animations.js";
 import "./components/showcase-sync-side-card-height.js";
 import "./components/showcase-sync-graphic-side-layouts.js";
 import "./components/showcase-gallery-aspect-fit.js";
@@ -37,6 +38,7 @@ async function initApp() {
   appInitialized = true;
 
   await runInitStep("initComponents", () => initComponents(document));
+  await runInitStep("initHeadingAnimations", () => initHeadingAnimations(document));
   await runInitStep("initPlaylistFilterEmbed", () => initPlaylistFilterEmbed(document));
   await runInitStep("initRandomGalleries", () => initRandomGalleries(document));
 }
@@ -46,4 +48,3 @@ if (document.readyState === "loading") {
 } else {
   void initApp();
 }
-

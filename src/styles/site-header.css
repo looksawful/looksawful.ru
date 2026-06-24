@@ -192,23 +192,39 @@
     --site-header-chip-gap: clamp(0.48rem, 2.4vw, 0.74rem);
     --site-header-chip-font: clamp(0.82rem, 3.4svw, 1.02rem);
 
-    justify-content: flex-end;
+    justify-content: stretch;
     padding-block-start: max(0.72rem, env(safe-area-inset-top));
     padding-block-end: 0.62rem;
+    padding-inline: 0;
   }
 
   .site-header__island {
-    justify-items: end;
-    inline-size: fit-content;
-    max-inline-size: calc(100svw - var(--site-header-page-x) - var(--site-header-page-x-right));
-    margin-inline-start: auto;
-    margin-inline-end: 0;
+    justify-items: stretch;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    margin: 0;
     transform-origin: top right;
   }
 
   .site-header__chips {
-    justify-content: flex-end;
-    max-inline-size: calc(100svw - var(--site-header-page-x) - var(--site-header-page-x-right));
+    justify-self: stretch;
+    justify-content: flex-start;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-inline: contain;
+    padding-inline-start: var(--site-header-page-x);
+    padding-inline-end: var(--site-header-page-x-right);
+    padding-block: 0.2rem;
+    scroll-padding-inline: var(--site-header-page-x);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .site-header__chips::-webkit-scrollbar {
+    display: none;
   }
 
   .site-header__chip {
@@ -224,8 +240,13 @@
     inline-size: 4.12rem;
     block-size: 4.12rem;
     min-block-size: 4.12rem;
+    margin-inline-end: var(--site-header-page-x-right);
     padding: 0.36rem;
     touch-action: manipulation;
+  }
+
+  .site-header__island.is-collapsed {
+    justify-items: end;
   }
 
   .site-header__island.is-collapsed .site-header__trigger {
@@ -249,7 +270,7 @@
 
   .site-header__menu {
     inset-block-start: calc(100% + clamp(0.54rem, 2.8svw, 0.82rem));
-    inset-inline-end: 0;
+    inset-inline-end: var(--site-header-page-x-right);
     inset-inline-start: auto;
     justify-items: end;
     gap: clamp(0.5rem, 2.6svw, 0.74rem);
@@ -267,3 +288,4 @@
   }
 }
 /* component site-header:end */
+

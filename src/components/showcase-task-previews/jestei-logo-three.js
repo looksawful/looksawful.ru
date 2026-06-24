@@ -44,12 +44,65 @@ function prepareMesh(child, renderer, materials) {
   });
 }
 
+function createThreeCanvasPoster(canvas) {
+  const posterUrl = canvas.dataset.threePoster || canvas.dataset.poster || "";
+  const parent = canvas.parentElement;
+
+  if (!posterUrl || !parent) {
+    return null;
+  }
+
+  const computed = globalThis.getComputedStyle ? globalThis.getComputedStyle(parent) : null;
+
+  if (computed && computed.position === "static") {
+    parent.style.position = "relative";
+  }
+
+  const poster = document.createElement("img");
+  poster.className = "visual-canvas__poster";
+  poster.alt = "";
+  poster.decoding = "async";
+  poster.loading = "lazy";
+  poster.draggable = false;
+  poster.src = posterUrl;
+  poster.style.position = "absolute";
+  poster.style.inset = "0";
+  poster.style.width = "100%";
+  poster.style.height = "100%";
+  poster.style.objectFit = "contain";
+  poster.style.objectPosition = "center";
+  poster.style.zIndex = "2";
+  poster.style.pointerEvents = "none";
+  poster.style.opacity = "1";
+  poster.style.transition = "opacity 220ms ease";
+
+  if (!canvas.style.position) {
+    canvas.style.position = "relative";
+  }
+
+  if (!canvas.style.zIndex) {
+    canvas.style.zIndex = "1";
+  }
+
+  parent.appendChild(poster);
+  return poster;
+}
+
+function setThreeCanvasPosterVisible(poster, visible) {
+  if (!poster) return;
+  poster.style.opacity = visible ? "1" : "0";
+  poster.setAttribute("aria-hidden", visible ? "false" : "true");
+}
+
 export function mountJesteiLogoThree(canvas) {
   if (!(canvas instanceof HTMLCanvasElement) || canvas.dataset.threeMounted === "true") {
     return () => {};
   }
 
   canvas.dataset.threeMounted = "true";
+
+  const poster = createThreeCanvasPoster(canvas);
+  setThreeCanvasPosterVisible(poster, true);
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
@@ -127,10 +180,15 @@ export function mountJesteiLogoThree(canvas) {
       model.position.set(0, 0, 0);
       model.scale.setScalar(1);
       scene.add(model);
+      canvas.dataset.threeReady = "true";
+      delete canvas.dataset.threeFallback;
+      setThreeCanvasPosterVisible(poster, false);
     },
     undefined,
     (error) => {
       console.error("Failed to load Jestei Pool 3D logo:", error);
+      canvas.dataset.threeFallback = "model-load-error";
+      setThreeCanvasPosterVisible(poster, true);
     },
   );
 
@@ -155,6 +213,9 @@ export function mountJesteiLogoThree(canvas) {
     pmremGenerator.dispose();
     dracoLoader.dispose();
     renderer.dispose();
+    poster?.remove();
     delete canvas.dataset.threeMounted;
+    delete canvas.dataset.threeReady;
+    delete canvas.dataset.threeFallback;
   };
 }

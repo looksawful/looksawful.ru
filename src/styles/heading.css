@@ -27,3 +27,41 @@
 .text-block > p {
   max-width: var(--text);
 }
+
+@media (max-width: 48rem) {
+  .section-head,
+  .block__header,
+  .text-block {
+    width: 100%;
+    max-width: 100%;
+    gap: clamp(0.7rem, 3.5vw, 1rem);
+  }
+
+  .section-head > .title--xl,
+  .block__header > .title--xl {
+    justify-self: center;
+    max-width: min(100%, 14ch);
+    text-align: center;
+  }
+
+  .section-head > .title--lg,
+  .block__header > .title--lg,
+  .text-block > .title--lg,
+  .text-block > h1,
+  .text-block > h2,
+  .text-block > h3,
+  .text-block > h4,
+  .text-block > h5,
+  .text-block > h6 {
+    justify-self: start;
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .section-head > p,
+  .block__header > p,
+  .text-block > p {
+    max-width: var(--text);
+  }
+}
+

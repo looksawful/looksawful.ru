@@ -14,7 +14,9 @@
   letter-spacing: -0.06em;
   text-transform: lowercase;
   text-wrap: balance;
+  overflow-wrap: anywhere;
 }
+
 
 .lead-center__text[data-words="short"] {
   font-size: clamp(4rem, 18vw, 15rem);
@@ -93,6 +95,7 @@
   letter-spacing: -0.09em;
   text-transform: lowercase;
   text-wrap: pretty;
+  overflow-wrap: anywhere;
 }
 
 .lead-display--short p {
@@ -147,3 +150,4 @@
     font-size: clamp(2rem, 8vw, 4rem);
   }
 }
+

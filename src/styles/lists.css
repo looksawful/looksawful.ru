@@ -169,6 +169,10 @@
 }
 
 @media (max-width: 48rem) {
+  .list-cards {
+    max-width: 100%;
+  }
+
   .list-cards--three {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -180,6 +184,16 @@
 
   .list-cards--scroll {
     grid-auto-columns: minmax(min(82vw, 21.5rem), 1fr);
+  }
+
+  .list-card {
+    border-radius: var(--r-lg);
+    background: var(--white);
+    box-shadow: var(--surface-elevation-1);
+  }
+
+  .list-card__title {
+    max-width: 100%;
   }
 }
 
@@ -302,3 +316,4 @@
     order: -1;
   }
 }
+

@@ -1,29 +1,25 @@
 /**
- * Heading letter idle engine and soft static media reveal.
- * Headings do not fly in, rise from below, fade, scale, or turn.
- * They stay in place; only selected letters get hero-like idle motion.
- *
- * List headings are intentionally excluded.
+ * heading idle motion
+ * hero-like letter motion for regular headings only.
+ * no fly-in, no bottom reveal, no full heading rotation.
  */
 
 import { createLetterIdleMotion, splitTextIntoGraphemes } from "./letter-motion.js";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-const COARSE_POINTER_QUERY = "(pointer: coarse)";
 
 const HEADING_SELECTOR = [
-  ".project__head .title",
-  ".component-caption > .title",
-  ".block__header > .title",
-  ".section-head > .title",
-  ".text-block > .title",
-  ".project :is(h2, h3, h4, h5, h6)",
-  ".cv :is(h2, h3, h4, h5, h6)",
-  ".resume :is(h2, h3, h4, h5, h6)",
   "main :is(h2, h3, h4, h5, h6)",
+  "main .title",
+  ".project__head .title",
+  ".section-head > .title",
+  ".block__header > .title",
+  ".text-block > .title",
+  ".component-caption > .title",
+  ".component-caption > :is(h2, h3, h4, h5, h6)"
 ].join(", ");
 
-const EXCLUDED_HEADING_SELECTOR = [
+const EXCLUDED_SELECTOR = [
   ".hero",
   ".site-header",
   ".showcase-toc",
@@ -46,49 +42,20 @@ const EXCLUDED_HEADING_SELECTOR = [
   ".media-slider",
   ".media-marquee",
   ".playlist-filter-embed",
+  ".lightbox",
   "[data-visual-demo]",
   "[data-animation]",
+  "canvas",
+  "video",
+  "svg",
   "ul",
   "ol",
-  "li",
+  "li"
 ].join(", ");
-
-const GALLERY_SELECTOR = [
-  ".media-quad:not([data-showcase-auto-slider])",
-  ".media-six:not([data-showcase-auto-slider])",
-  ".media-eight:not([data-showcase-auto-slider])",
-  ".media-three:not(.playlist-filter-embed__gallery):not([data-showcase-auto-slider])",
-].join(", ");
-
-const SAFE_ITEM_SELECTOR = "a.media-item";
 
 const BOUND_ATTR = "data-reveal-bound";
-const STYLE_ATTR = "data-reveal-style";
-const LETTER_REPEL_ATTR = "data-letter-repel";
-const LETTER_READY_ATTR = "data-letter-ready";
-const LETTER_REPEL_BOUND_ATTR = "data-letter-repel-bound";
-
-const HEADING_STYLES = ["text-left", "text-turn", "text-scale", "letters"];
-const GALLERY_STYLES = ["gallery-scale", "gallery-flow", "gallery-turn"];
-
-const GALLERY_MOTION = {
-  y: 4,
-  scale: 0.999,
-  duration: 0.58,
-  staggerMin: 0.035,
-  staggerMax: 0.08,
-  ease: "power2.out",
-  softEase: "sine.out",
-};
-
-const REPEL = {
-  radius: 78,
-  x: 8,
-  y: 4,
-  rotate: 2.4,
-  duration: 0.24,
-  resetDuration: 0.42,
-};
+const READY_ATTR = "data-letter-ready";
+const CHAR_ATTR = "data-reveal-char";
 
 function canAnimate() {
   return (
@@ -102,42 +69,111 @@ function canAnimate() {
 function isListHeading(el) {
   return Boolean(
     el.closest(".list-cards") ||
-      el.closest(".list-card") ||
-      el.closest(".project-responsibilities") ||
-      el.closest(".responsibility-card") ||
-      el.closest(".token-list") ||
-      el.closest(".cv-role-chips") ||
-      el.closest(".cv-task-list") ||
-      el.closest(".cv-task-list-group") ||
-      el.closest("ul") ||
-      el.closest("ol") ||
-      el.closest("li"),
+    el.closest(".list-card") ||
+    el.closest(".project-responsibilities") ||
+    el.closest(".responsibility-card") ||
+    el.closest(".token-list") ||
+    el.closest(".cv-role-chips") ||
+    el.closest(".cv-task-list") ||
+    el.closest(".cv-task-list-group") ||
+    el.closest("ul") ||
+    el.closest("ol") ||
+    el.closest("li")
   );
 }
 
 function isSafeHeading(el) {
   return (
     el &&
-    !isListHeading(el) &&
-    !el.closest("[hidden]") &&
-    !el.closest(EXCLUDED_HEADING_SELECTOR) &&
-    !el.closest('[data-reveal-bound="skip"]') &&
     !el.hasAttribute(BOUND_ATTR) &&
-    Boolean(el.textContent?.trim())
-  );
-}
-
-function isSafeGallery(el) {
-  return (
-    el &&
     !el.closest("[hidden]") &&
-    !el.closest(".playlist-filter-embed") &&
     !el.closest('[data-reveal-bound="skip"]') &&
-    !el.hasAttribute(BOUND_ATTR)
+    !el.closest(EXCLUDED_SELECTOR) &&
+    !isListHeading(el) &&
+    Boolean(el.textContent && el.textContent.trim())
   );
 }
 
-function observeOnce(el, callback, options = {}) {
+function isTextNode(node) {
+  return node && node.nodeType === Node.TEXT_NODE;
+}
+
+function isElementNode(node) {
+  return node && node.nodeType === Node.ELEMENT_NODE;
+}
+
+function canSplitInside(element) {
+  if (!element || !element.tagName) {
+    return false;
+  }
+
+  return !["SCRIPT", "STYLE", "SVG", "IMG", "VIDEO", "CANVAS", "PICTURE", "SOURCE", "BR", "INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(element.tagName);
+}
+
+function createChar(char) {
+  const span = document.createElement("span");
+
+  span.textContent = char;
+  span.setAttribute("aria-hidden", "true");
+  span.setAttribute(CHAR_ATTR, "true");
+
+  span.style.display = "inline-block";
+  span.style.transformOrigin = "50% 60%";
+  span.style.willChange = "transform";
+  span.style.backfaceVisibility = "visible";
+
+  return span;
+}
+
+function splitTextNode(node) {
+  const fragment = document.createDocumentFragment();
+  const parts = splitTextIntoGraphemes(node.nodeValue || "");
+
+  parts.forEach((char) => {
+    if (/\s/.test(char)) {
+      fragment.appendChild(document.createTextNode(char));
+      return;
+    }
+
+    fragment.appendChild(createChar(char));
+  });
+
+  node.replaceWith(fragment);
+}
+
+function splitElementTree(element) {
+  [...element.childNodes].forEach((node) => {
+    if (isTextNode(node)) {
+      splitTextNode(node);
+      return;
+    }
+
+    if (isElementNode(node) && canSplitInside(node) && !node.hasAttribute(CHAR_ATTR)) {
+      splitElementTree(node);
+    }
+  });
+}
+
+function prepareLetters(target) {
+  if (target.hasAttribute(READY_ATTR)) {
+    return [...target.querySelectorAll("[" + CHAR_ATTR + "]")];
+  }
+
+  const label = target.textContent ? target.textContent.trim() : "";
+
+  if (!label) {
+    return [];
+  }
+
+  target.setAttribute("aria-label", label);
+  target.setAttribute(READY_ATTR, "true");
+
+  splitElementTree(target);
+
+  return [...target.querySelectorAll("[" + CHAR_ATTR + "]")];
+}
+
+function observeOnce(el, callback) {
   const observer = new IntersectionObserver(
     (entries) => {
       const entry = entries[0];
@@ -151,201 +187,15 @@ function observeOnce(el, callback, options = {}) {
     },
     {
       threshold: 0,
-      rootMargin: "0px 0px -12% 0px",
-      ...options,
-    },
+      rootMargin: "20% 0px 20% 0px"
+    }
   );
 
   observer.observe(el);
-
-  return () => observer.disconnect();
 }
 
-function getPreset(el, presets, fallback) {
-  const customPreset = el.getAttribute(STYLE_ATTR);
-
-  if (customPreset && presets.includes(customPreset)) {
-    return customPreset;
-  }
-
-  return fallback;
-}
-
-function getGalleryItems(gallery) {
-  return [...gallery.querySelectorAll(SAFE_ITEM_SELECTOR)].filter((item) => {
-    return (
-      !item.closest("canvas") &&
-      !item.closest("video") &&
-      !item.closest("[hidden]") &&
-      !item.closest(".media-slider") &&
-      !item.closest(".media-marquee") &&
-      !item.closest(".playlist-filter-embed") &&
-      !item.closest("[data-visual-demo]") &&
-      !item.closest("[data-animation]")
-    );
-  });
-}
-
-function getGalleryStaggerAmount(items) {
-  return Math.min(
-    GALLERY_MOTION.staggerMax,
-    Math.max(GALLERY_MOTION.staggerMin, items.length * 0.01),
-  );
-}
-
-function hasComplexChildren(el) {
-  return [...el.childNodes].some((node) => {
-    return node.nodeType === Node.ELEMENT_NODE && !node.hasAttribute("data-reveal-char");
-  });
-}
-
-function prepareLetterSpans(target) {
-  if (target.hasAttribute(LETTER_READY_ATTR)) {
-    return [...target.querySelectorAll("[data-reveal-char]")];
-  }
-
-  if (hasComplexChildren(target)) {
-    return [];
-  }
-
-  const text = target.textContent;
-
-  if (!text || !text.trim()) {
-    return [];
-  }
-
-  const chars = splitTextIntoGraphemes(text);
-
-  target.textContent = "";
-  target.setAttribute("aria-label", text);
-  target.setAttribute(LETTER_READY_ATTR, "true");
-
-  chars.forEach((char) => {
-    if (/\s/.test(char)) {
-      target.appendChild(document.createTextNode(char));
-      return;
-    }
-
-    const span = document.createElement("span");
-
-    span.textContent = char;
-    span.setAttribute("aria-hidden", "true");
-    span.setAttribute("data-reveal-char", "true");
-
-    span.style.display = "inline-block";
-    span.style.transformOrigin = "50% 60%";
-    span.style.willChange = "transform";
-
-    target.appendChild(span);
-  });
-
-  return [...target.querySelectorAll("[data-reveal-char]")];
-}
-
-function initLetterRepel(target, gsap) {
-  if (target.hasAttribute(LETTER_REPEL_BOUND_ATTR)) {
-    return;
-  }
-
-  if (window.matchMedia(COARSE_POINTER_QUERY).matches) {
-    return;
-  }
-
-  const chars = prepareLetterSpans(target);
-
-  if (!chars.length) {
-    return;
-  }
-
-  let frame = null;
-  let lastEvent = null;
-
-  function resetChars() {
-    gsap.to(chars, {
-      x: 0,
-      y: 0,
-      rotateZ: 0,
-      scale: 1,
-      duration: REPEL.resetDuration,
-      ease: "power2.out",
-      overwrite: "auto",
-    });
-  }
-
-  function updateChars() {
-    frame = null;
-
-    if (!lastEvent) {
-      return;
-    }
-
-    const pointerX = lastEvent.clientX;
-    const pointerY = lastEvent.clientY;
-
-    chars.forEach((char) => {
-      const rect = char.getBoundingClientRect();
-      const charX = rect.left + rect.width / 2;
-      const charY = rect.top + rect.height / 2;
-
-      const dx = charX - pointerX;
-      const dy = charY - pointerY;
-      const distance = Math.hypot(dx, dy);
-
-      if (distance > REPEL.radius || distance === 0) {
-        gsap.to(char, {
-          x: 0,
-          y: 0,
-          rotateZ: 0,
-          scale: 1,
-          duration: REPEL.resetDuration,
-          ease: "power2.out",
-          overwrite: "auto",
-        });
-        return;
-      }
-
-      const force = 1 - distance / REPEL.radius;
-      const directionX = dx / distance;
-      const directionY = dy / distance;
-
-      gsap.to(char, {
-        x: directionX * REPEL.x * force,
-        y: directionY * REPEL.y * force,
-        rotateZ: directionX * REPEL.rotate * force,
-        scale: 1 + force * 0.012,
-        duration: REPEL.duration,
-        ease: "power3.out",
-        overwrite: "auto",
-      });
-    });
-  }
-
-  target.addEventListener("pointermove", (event) => {
-    lastEvent = event;
-
-    if (frame) {
-      return;
-    }
-
-    frame = window.requestAnimationFrame(updateChars);
-  });
-
-  target.addEventListener("pointerleave", () => {
-    lastEvent = null;
-
-    if (frame) {
-      window.cancelAnimationFrame(frame);
-      frame = null;
-    }
-
-    resetChars();
-  });
-
-  target.setAttribute(LETTER_REPEL_BOUND_ATTR, "true");
-}
-
-function getHeadingIdleProfile(target) {
-  if (target.classList.contains("title--display") || target.classList.contains("title--xl")) {
+function getProfile(target) {
+  if (target.classList.contains("title--display") || target.classList.contains("title--xl") || target.matches("h2")) {
     return "display";
   }
 
@@ -356,52 +206,17 @@ function getHeadingIdleProfile(target) {
   return "heading";
 }
 
-function startHeadingLetterMotion(target) {
-  const chars = prepareLetterSpans(target);
+function startHeading(target) {
+  const letters = prepareLetters(target);
 
-  if (!chars.length) {
+  if (!letters.length) {
     return;
   }
 
   createLetterIdleMotion(target, {
-    letters: chars,
-    profile: getHeadingIdleProfile(target),
+    letters,
+    profile: getProfile(target)
   });
-}
-
-function animateGallerySoft(items, gsap) {
-  gsap.fromTo(
-    items,
-    {
-      y: GALLERY_MOTION.y,
-      scale: GALLERY_MOTION.scale,
-      transformOrigin: "50% 50%",
-    },
-    {
-      y: 0,
-      scale: 1,
-      duration: GALLERY_MOTION.duration,
-      ease: GALLERY_MOTION.ease,
-      stagger: {
-        amount: getGalleryStaggerAmount(items),
-        from: "center",
-        grid: "auto",
-        ease: GALLERY_MOTION.softEase,
-      },
-      overwrite: "auto",
-      clearProps: "transform,transformOrigin",
-    },
-  );
-}
-
-function animateGallery(gallery, gsap) {
-  const items = getGalleryItems(gallery);
-
-  if (!items.length) {
-    return;
-  }
-
-  animateGallerySoft(items, gsap);
 }
 
 export function initHeadingAnimations(root = document) {
@@ -409,44 +224,14 @@ export function initHeadingAnimations(root = document) {
     return;
   }
 
-  const gsap = window.gsap;
   const headings = [...root.querySelectorAll(HEADING_SELECTOR)].filter(isSafeHeading);
 
   headings.forEach((heading) => {
-    getPreset(heading, HEADING_STYLES, "letters");
-    prepareLetterSpans(heading);
-
-    if (heading.getAttribute(LETTER_REPEL_ATTR) === "true") {
-      initLetterRepel(heading, gsap);
-    }
-
+    prepareLetters(heading);
     heading.setAttribute(BOUND_ATTR, "heading");
 
-    observeOnce(
-      heading,
-      (target) => {
-        startHeadingLetterMotion(target);
-      },
-      {
-        rootMargin: "0px 0px -10% 0px",
-      },
-    );
-  });
-
-  const galleries = [...root.querySelectorAll(GALLERY_SELECTOR)].filter(isSafeGallery);
-
-  galleries.forEach((gallery) => {
-    getPreset(gallery, GALLERY_STYLES, "gallery-scale");
-    gallery.setAttribute(BOUND_ATTR, "gallery");
-
-    observeOnce(
-      gallery,
-      (target) => {
-        animateGallery(target, gsap);
-      },
-      {
-        rootMargin: "0px 0px -8% 0px",
-      },
-    );
+    observeOnce(heading, (target) => {
+      startHeading(target);
+    });
   });
 }

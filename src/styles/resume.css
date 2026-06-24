@@ -28,10 +28,27 @@
   display: grid;
   gap: 0.7rem;
   max-width: var(--heading);
+  min-width: 0;
 }
 
 @media (max-width: 48rem) {
+  .resume-head {
+    text-align: center;
+  }
+
+  .resume-head > .title {
+    justify-self: center;
+    max-width: min(100%, 12ch);
+  }
+
   .resume-item {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+    padding-block: var(--gap-lg);
+  }
+
+  .resume-item__header {
+    max-width: 100%;
   }
 }
+

@@ -1,13 +1,17 @@
 /* proximity */
 
 .proximity-control {
+  --proximity-control-size: clamp(1.75rem, 2.1vw, 2.2rem);
+  --proximity-control-icon: 0.92rem;
+  --proximity-control-inset: clamp(0.5rem, 1.2vw, 0.85rem);
+
   position: absolute;
-  z-index: 4;
+  z-index: 8;
 
   display: inline-grid;
   place-items: center;
 
-  width: clamp(2rem, 3vw, 2.5rem);
+  width: var(--proximity-control-size);
   aspect-ratio: 1;
   padding: 0;
 
@@ -29,12 +33,13 @@
   pointer-events: none;
   cursor: pointer;
   will-change: opacity, transform;
+  box-shadow: 0 0.35rem 1.2rem rgba(0, 0, 0, 0.08);
 }
 
 .proximity-control svg {
   display: block;
-  width: 1rem;
-  height: 1rem;
+  width: var(--proximity-control-icon);
+  height: var(--proximity-control-icon);
   color: currentColor;
 }
 
@@ -46,7 +51,9 @@
 }
 
 .proximity-control:focus-visible {
-  box-shadow: 0 0 0 0.18rem rgba(0, 0, 0, 0.18);
+  box-shadow:
+    0 0 0 0.18rem rgba(0, 0, 0, 0.18),
+    0 0.35rem 1.2rem rgba(0, 0, 0, 0.08);
 }
 
 .proximity-control.is-proximity-interactive {
@@ -59,18 +66,32 @@
 }
 
 .proximity-control--top-right {
-  top: var(--gap);
-  right: var(--gap);
+  top: var(--proximity-control-inset);
+  right: var(--proximity-control-inset);
 }
 
 .proximity-control--bottom-right {
-  right: var(--gap);
-  bottom: var(--gap);
+  right: var(--proximity-control-inset);
+  bottom: var(--proximity-control-inset);
 }
 
 .proximity-control--bottom-left {
-  bottom: var(--gap);
-  left: var(--gap);
+  bottom: var(--proximity-control-inset);
+  left: var(--proximity-control-inset);
+}
+
+.proximity-control--video,
+.proximity-control--video-link {
+  background: var(--black, #000);
+  color: var(--white, #fff);
+}
+
+.proximity-control--video:hover,
+.proximity-control--video:focus-visible,
+.proximity-control--video-link:hover,
+.proximity-control--video-link:focus-visible {
+  background: var(--white, #fff);
+  color: var(--black, #000);
 }
 
 .has-proximity-control {
@@ -83,10 +104,23 @@
 .embedded-demo,
 [data-animation],
 [data-visual-demo],
+[data-showcase-inline-video],
 pre,
 .code-block,
 .code-inspector {
   position: relative;
+}
+
+.media-item > .proximity-control,
+.media > .proximity-control,
+.embedded-demo > .proximity-control,
+[data-animation] > .proximity-control,
+[data-visual-demo] > .proximity-control,
+[data-showcase-inline-video] > .proximity-control,
+pre > .proximity-control,
+.code-block > .proximity-control,
+.code-inspector > .proximity-control {
+  position: absolute;
 }
 
 .media-slider__dots {
@@ -162,23 +196,63 @@ pre,
 }
 
 @media (max-width: 48rem) {
-  .proximity-control--top-right {
-    top: 0.75rem;
-    right: 0.75rem;
-  }
-
-  .proximity-control--bottom-right {
-    right: 0.75rem;
-    bottom: 0.75rem;
-  }
-
-  .proximity-control--bottom-left {
-    bottom: 0.75rem;
-    left: 0.75rem;
+  .proximity-control {
+    --proximity-control-size: 1.8rem;
+    --proximity-control-icon: 0.82rem;
+    --proximity-control-inset: 0.55rem;
   }
 }
 
 @media (hover: none) {
+  .proximity-control--open,
+  .proximity-control--fullscreen,
+  .proximity-control--video,
+  .proximity-control--video-link {
+    display: none;
+  }
+
+  .media-slider__arrow--proximity {
+    display: none;
+  }
+
+  .media-slider__dots {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleX(1) scaleY(1);
+    pointer-events: auto;
+  }
+
+  .media-caption--proximity {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleX(1) scaleY(1);
+    pointer-events: auto;
+  }
+
+  .lightbox__close--proximity {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleX(1) scaleY(1);
+    pointer-events: auto;
+  }
+
+  .proximity-control--copy {
+    --proximity-control-size: 1.8rem;
+    --proximity-control-icon: 0.82rem;
+
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleX(1) scaleY(1);
+    pointer-events: auto;
+  }
+
+  .showcase-toc {
+    --showcase-toc-link-width: auto;
+    --showcase-toc-text-opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (hover: hover) and (pointer: fine) {
   .proximity-control,
   .media-slider__dots,
   .media-slider__arrow--proximity,
@@ -196,20 +270,3 @@ pre,
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .proximity-control,
-  .media-slider__dots,
-  .media-slider__arrow--proximity,
-  .media-caption--proximity,
-  .lightbox__close--proximity {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0) scaleX(1) scaleY(1);
-    pointer-events: auto;
-  }
-
-  .showcase-toc {
-    --showcase-toc-link-width: auto;
-    --showcase-toc-text-opacity: 1;
-  }
-}

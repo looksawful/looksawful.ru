@@ -140,7 +140,7 @@
 .random-gallery.is-enhanced.is-visible .random-gallery__item:nth-child(9) { transition-delay: 280ms; }
 .random-gallery.is-enhanced.is-visible .random-gallery__item:nth-child(n + 10) { transition-delay: 315ms; }
 
-@media (max-width: 760px) {
+@media (max-width: 48rem) {
   .random-gallery__bar {
     align-items: flex-start;
     flex-direction: column;
@@ -148,6 +148,11 @@
 
   .random-gallery__shuffle {
     width: 100%;
+  }
+
+  .random-gallery__item {
+    border-radius: var(--r-lg);
+    box-shadow: var(--surface-elevation-1);
   }
 }
 
@@ -164,3 +169,4 @@
     transform: none;
   }
 }
+

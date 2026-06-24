@@ -14,7 +14,11 @@ export const getDistanceToElement = (event, element) => {
   return Math.hypot(distanceX, distanceY);
 };
 
-export const getProximityProgress = ({ distance, showStart = 220, showEnd = 24 }) => {
+export const getProximityProgress = ({
+  distance,
+  showStart = 220,
+  showEnd = 24
+}) => {
   if (showStart === showEnd) {
     return distance <= showEnd ? 1 : 0;
   }
@@ -55,7 +59,7 @@ export const createProximityMotion = ({
   hideOnRootLeave = listenRoot !== document,
 
   onProgress = null,
-  onReady = null,
+  onReady = null
 }) => {
   if (!root || !target || !distanceTarget || !listenRoot) {
     return null;
@@ -75,7 +79,7 @@ export const createProximityMotion = ({
       y,
       scaleX,
       scaleY,
-      transformOrigin,
+      transformOrigin
     });
 
     if (activeClassTarget?.classList) {
@@ -96,14 +100,14 @@ export const createProximityMotion = ({
   };
 
   if (!canUsePointerProximity()) {
-    show();
+    hide();
 
     if (onReady) {
       onReady();
     }
 
     return {
-      destroy: () => {},
+      destroy: () => {}
     };
   }
 
@@ -114,10 +118,22 @@ export const createProximityMotion = ({
     const progress = getProximityProgress({
       distance,
       showStart,
-      showEnd,
+      showEnd
     });
 
     setProgress(progress);
+  };
+
+  const hideOnViewportLeave = (event) => {
+    if (!event.relatedTarget) {
+      hide();
+    }
+  };
+
+  const hideOnVisibilityChange = () => {
+    if (document.hidden) {
+      hide();
+    }
   };
 
   listenRoot.addEventListener("pointermove", update);
@@ -127,7 +143,9 @@ export const createProximityMotion = ({
   }
 
   window.addEventListener("blur", hide);
-  document.addEventListener("visibilitychange", hide);
+  window.addEventListener("pointerout", hideOnViewportLeave);
+  window.addEventListener("scroll", hide, { passive: true });
+  document.addEventListener("visibilitychange", hideOnVisibilityChange);
 
   target.addEventListener("focusin", show);
   target.addEventListener("focusout", hide);
@@ -145,11 +163,13 @@ export const createProximityMotion = ({
       }
 
       window.removeEventListener("blur", hide);
-      document.removeEventListener("visibilitychange", hide);
+      window.removeEventListener("pointerout", hideOnViewportLeave);
+      window.removeEventListener("scroll", hide);
+      document.removeEventListener("visibilitychange", hideOnVisibilityChange);
 
       target.removeEventListener("focusin", show);
       target.removeEventListener("focusout", hide);
-    },
+    }
   };
 };
 
@@ -169,26 +189,26 @@ export const createObservedInitializer = (init) => {
 
     observer.observe(document.documentElement, {
       childList: true,
-      subtree: true,
+      subtree: true
     });
 
     return {
       destroy: () => {
         observer?.disconnect();
         observer = null;
-      },
+      }
     };
   };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", start, {
-      once: true,
+      once: true
     });
 
     return {
       destroy: () => {
         document.removeEventListener("DOMContentLoaded", start);
-      },
+      }
     };
   }
 

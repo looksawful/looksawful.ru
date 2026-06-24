@@ -15,6 +15,7 @@
 .section__screen > *,
 .hero__screen > * {
   grid-column: 2;
+  min-width: 0;
 }
 
 .stack,
@@ -45,20 +46,18 @@
   .section__screen,
   .hero__screen {
     grid-template-columns: minmax(0, 1fr);
-    row-gap: clamp(2.1rem, 10vw, 3.6rem);
-    padding-block: clamp(3.4rem, 14vw, 5.4rem);
-    padding-inline: 10px;
+    row-gap: var(--section-gap);
+    padding-block: var(--section-gap);
+    padding-inline: var(--page-x);
   }
 
   .section__screen > *,
   .hero__screen > * {
     grid-column: 1;
   }
-}
 
-@media (max-width: 23rem) {
-  .section__screen,
-  .hero__screen {
-    padding-inline: 8px;
+  .showcase-stack {
+    gap: var(--project-gap);
   }
 }
+

@@ -205,14 +205,22 @@
 }
 
 @media (max-width: 48rem) {
+  .project-responsibilities,
+  .project-responsibilities--two,
+  .project-responsibilities--three {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--gap);
+  }
+
   .project-responsibilities--mobile-scroll.project-responsibilities--three {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(17rem, min(78vw, 24rem));
+    grid-auto-columns: minmax(min(78vw, 17rem), min(82vw, 23rem));
     grid-template-columns: none;
     width: 100%;
     max-width: 100%;
     overflow-x: auto;
+    overflow-y: visible;
     overscroll-behavior-inline: contain;
     padding-bottom: 0.25rem;
     scroll-snap-type: x mandatory;
@@ -226,23 +234,41 @@
 
   .project-responsibilities--mobile-scroll.project-responsibilities--three > .responsibility-card {
     width: 100%;
-    min-width: 17rem;
-    max-width: 24rem;
+    min-width: 0;
+    max-width: none;
     grid-column: auto;
     scroll-snap-align: start;
   }
-}
-
-@media (max-width: 48rem) {
-  .project-responsibilities,
-  .project-responsibilities--two,
-  .project-responsibilities--three {
-    grid-template-columns: minmax(0, 1fr);
-  }
 
   .project-responsibilities--contained-lists {
-    --responsibility-card-min-height: min(34rem, 78vh);
-    --responsibility-list-max-height: min(26rem, 58vh);
-    --responsibility-list-bottom-space: 4rem;
+    --responsibility-card-min-height: auto;
+    --responsibility-list-max-height: none;
+    --responsibility-list-bottom-space: 0;
+  }
+
+  .project-responsibilities--contained-lists .responsibility-card {
+    grid-template-rows: auto;
+    min-height: 0;
+  }
+
+  .project-responsibilities--contained-lists .responsibility-card__list {
+    max-height: none;
+    padding-right: 0;
+    padding-bottom: 0;
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+
+  .responsibility-card {
+    padding: clamp(1rem, 5vw, 1.35rem);
+    border-radius: var(--r-lg);
+    background: var(--white);
+    box-shadow: var(--surface-elevation-1);
+  }
+
+  .responsibility-card__title,
+  .project-responsibilities--semantic .responsibility-card__title {
+    font-size: var(--md);
   }
 }
+

@@ -1,4 +1,48 @@
+function initPlainShowcaseVideos(root = document) {
+  const videos = [...root.querySelectorAll("video")];
+  const canObserve = "IntersectionObserver" in window;
+
+  videos.forEach((video) => {
+    if (!(video instanceof HTMLVideoElement) || video.dataset.showcasePlainVideoReady === "true") {
+      return;
+    }
+
+    video.dataset.showcasePlainVideoReady = "true";
+    video.preload = video.getAttribute("preload") || "metadata";
+    video.muted = video.muted || video.hasAttribute("muted");
+    video.defaultMuted = video.defaultMuted || video.muted;
+    video.playsInline = true;
+
+    const shouldAutoplay = video.hasAttribute("autoplay") || video.autoplay;
+
+    if (!canObserve || !shouldAutoplay) {
+      return;
+    }
+
+    const play = () => {
+      const request = video.play();
+      if (request && typeof request.catch === "function") {
+        request.catch(() => {});
+      }
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+
+      if (entry.isIntersecting) {
+        play();
+      } else {
+        video.pause();
+      }
+    }, { rootMargin: "160px 0px", threshold: 0.08 });
+
+    observer.observe(video);
+  });
+}
+
 export function initCvInlineVideos(root = document) {
+  initPlainShowcaseVideos(root);
   const players = [...root.querySelectorAll("[data-showcase-inline-video]")];
 
   players.forEach((player) => {
