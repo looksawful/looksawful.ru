@@ -5443,9 +5443,21 @@ pre > .proximity-control,
 
 /* no active code inspector markup in the current page */
 
+/* Source: cleanup stage 03 - Jestei chapter system */
 
+#project-jesteipool > .project__header,
+#project-styx > .project__header {
+  overflow: hidden;
+  padding: var(--gap);
+  border: var(--line);
+  border-radius: var(--r-lg);
+  background: var(--white);
+}
 
-/* Source: jestei chapter frames */
+#project-jesteipool > .project__header .project__head,
+#project-styx > .project__header .project__head {
+  min-inline-size: 0;
+}
 
 .jestei-chapter-frame {
   display: grid;
@@ -5483,6 +5495,7 @@ pre > .proximity-control,
 }
 
 .jestei-chapter-hero__title-accent {
+  display: inline-block;
   color: #444;
   font-style: italic;
   font-weight: inherit;
@@ -5512,6 +5525,12 @@ pre > .proximity-control,
   animation: jestei-chapter-marquee 32s linear infinite;
 }
 
+.jestei-chapter-hero__marquee .chip {
+  flex: 0 0 auto;
+  background: var(--white);
+  color: var(--black);
+}
+
 @keyframes jestei-chapter-marquee {
   from {
     transform: translate3d(0, 0, 0);
@@ -5522,10 +5541,91 @@ pre > .proximity-control,
   }
 }
 
-.jestei-chapter-hero__marquee .chip {
-  flex: 0 0 auto;
+.jestei-chapter-hero__media {
+  justify-self: stretch;
+  inline-size: 100%;
+  max-inline-size: none;
+  min-inline-size: 0;
+  margin: 0;
   background: var(--white);
-  color: var(--black);
+}
+
+.jestei-chapter-hero__media.media,
+.jestei-chapter-hero__media.media-banner,
+.jestei-chapter-hero__media.media-figure {
+  display: grid;
+  min-block-size: clamp(15rem, 30vw, 26rem);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--r);
+  background: var(--white);
+}
+
+.jestei-chapter-hero__media--logo > [data-visual-demo] {
+  min-block-size: clamp(15rem, 30vw, 26rem);
+  background: var(--white);
+}
+
+.jestei-chapter-hero__media--arc {
+  aspect-ratio: 16 / 9;
+}
+
+.jestei-chapter-hero__media--arc > canvas,
+.jestei-chapter-hero__media--arc > .visual-canvas,
+.jestei-chapter-hero__media--project-logo > .visual-canvas,
+.jestei-chapter-hero__media--logo > [data-visual-demo] {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.jestei-chapter-hero__media :where(.media-item, a, figure, picture, img, canvas, [data-visual-demo]) {
+  inline-size: 100%;
+  max-inline-size: none;
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
+.jestei-chapter-hero__media :where(.media-item, a, figure) {
+  border-radius: 0;
+}
+
+.jestei-chapter-hero__media :where(img, canvas) {
+  display: block;
+}
+
+.jestei-chapter-hero__media--banner .media-item {
+  min-block-size: 100%;
+}
+
+.jestei-chapter-hero__media--banner .media-item,
+.jestei-chapter-hero__media--banner img {
+  inline-size: 100%;
+}
+
+.jestei-chapter-hero__media--banner img {
+  block-size: 100%;
+  object-fit: cover;
+}
+
+[data-jestei-chapter-title="добавил цвет"] > .jestei-chapter-hero {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-jestei-chapter-title="добавил цвет"] > .jestei-chapter-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  block-size: clamp(7rem, 16vw, 12rem);
+  background: linear-gradient(180deg, #f18200 0%, rgba(241, 130, 0, 0.42) 24%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+
+[data-jestei-chapter-title="добавил цвет"] > .jestei-chapter-hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .jestei-chapter-frame__body-wrap {
@@ -5587,12 +5687,15 @@ pre > .proximity-control,
 .jestei-chapter-frame__control {
   display: flex;
   justify-content: center;
+  inline-size: 100%;
   min-inline-size: 0;
   padding: 0 var(--gap) var(--gap);
 }
 
 .jestei-chapter-frame__toggle {
-  min-inline-size: min(100%, 18rem);
+  display: flex;
+  inline-size: 100%;
+  max-inline-size: none;
 }
 
 .jestei-responsibilities-end {
@@ -5604,182 +5707,6 @@ pre > .proximity-control,
   border-block-start: var(--line);
 }
 
-@media (max-width: 48rem) {
-  .jestei-chapter-frame {
-    border-radius: var(--r);
-  }
-
-  .jestei-chapter-frame + .jestei-chapter-frame {
-    margin-block-start: var(--gap);
-  }
-
-  .jestei-chapter-hero {
-    padding: var(--component-gap) 0 var(--component-gap);
-  }
-
-  .jestei-chapter-hero__title {
-    white-space: normal;
-  }
-
-  .jestei-chapter-hero__subtitle {
-    max-inline-size: min(100%, 32rem);
-    font-size: clamp(1.45rem, 7.2vw, 2.4rem);
-    line-height: 1.16;
-    text-align: center;
-  }
-
-  .jestei-chapter-frame__body {
-    padding: var(--component-gap);
-  }
-
-  .jestei-chapter-panel {
-    padding: var(--component-gap);
-  }
-
-  .jestei-chapter-frame__control {
-    padding: 0 var(--component-gap) var(--component-gap);
-  }
-
-  .jestei-chapter-frame__toggle {
-    inline-size: 100%;
-  }
-
-  .jestei-responsibilities-end {
-    margin-block-start: var(--gap);
-    padding-block-start: var(--gap);
-  }
-}
-
-/* Source: project header frames */
-#project-jesteipool > .project__header,
-#project-styx > .project__header {
-  overflow: hidden;
-  padding: var(--gap);
-  border: var(--line);
-  border-radius: var(--r-lg);
-  background: var(--white);
-}
-
-#project-jesteipool > .project__header .project__head,
-#project-styx > .project__header .project__head {
-  min-inline-size: 0;
-}
-
-@media (max-width: 48rem) {
-  #project-jesteipool > .project__header,
-  #project-styx > .project__header {
-    padding: var(--component-gap);
-    border-radius: var(--r);
-  }
-}
-
-/* Source: jestei split chapter headings */
-.jestei-chapter-hero__title-accent {
-  display: inline-block;
-}
-
-/* Source: jestei chapter header media */
-.jestei-chapter-hero__media {
-  inline-size: min(100%, 52rem);
-  min-inline-size: 0;
-  margin: 0;
-  background: var(--white);
-}
-
-.jestei-chapter-hero__media.media,
-.jestei-chapter-hero__media.media-banner,
-.jestei-chapter-hero__media.media-figure {
-  display: grid;
-  min-block-size: clamp(15rem, 30vw, 26rem);
-  overflow: hidden;
-  border: var(--line);
-  border-radius: var(--r);
-  background: var(--white);
-}
-
-.jestei-chapter-hero__media--logo > [data-visual-demo] {
-  min-block-size: clamp(15rem, 30vw, 26rem);
-  background: var(--white);
-}
-
-.jestei-chapter-hero__media--arc {
-  aspect-ratio: 16 / 9;
-}
-
-.jestei-chapter-hero__media--arc > canvas,
-.jestei-chapter-hero__media--arc > .visual-canvas {
-  display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  background: var(--white);
-}
-
-.jestei-chapter-hero__media--banner .media-item {
-  min-block-size: 100%;
-}
-
-.jestei-chapter-hero__media--banner img {
-  display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: cover;
-}
-
-@media (max-width: 48rem) {
-  .jestei-chapter-hero__media {
-    inline-size: min(100%, 32rem);
-  }
-
-  .jestei-chapter-hero__media.media,
-  .jestei-chapter-hero__media.media-banner,
-  .jestei-chapter-hero__media.media-figure,
-  .jestei-chapter-hero__media--logo > [data-visual-demo] {
-    min-block-size: clamp(12rem, 64vw, 22rem);
-  }
-}
-
-/* Source: remove jestei chapter header media borders */
-.jestei-chapter-hero__media.media,
-.jestei-chapter-hero__media.media-banner,
-.jestei-chapter-hero__media.media-figure {
-  border: 0;
-}
-
-/* Source: jestei color header gradient */
-[data-jestei-chapter-title="добавил цвет"] > .jestei-chapter-hero {
-  position: relative;
-  isolation: isolate;
-}
-
-[data-jestei-chapter-title="добавил цвет"] > .jestei-chapter-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  block-size: clamp(7rem, 16vw, 12rem);
-  background: linear-gradient(180deg, #F18200 0%, rgba(241, 130, 0, 0.42) 24%, rgba(255, 255, 255, 0) 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-[data-jestei-chapter-title="добавил цвет"] > .jestei-chapter-hero > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Source: remove nested borders from jestei chapter header media */
-.jestei-chapter-hero__media :where(.media-item, a, figure, picture, img, canvas, [data-visual-demo]) {
-  border: 0;
-  outline: 0;
-  box-shadow: none;
-}
-
-.jestei-chapter-hero__media :where(.media-item, a, figure) {
-  border-radius: 0;
-}
-
-
-
-/* Source: jestei rebranding action rail */
 .jestei-action-rail {
   position: relative;
   display: grid;
@@ -5843,8 +5770,8 @@ pre > .proximity-control,
 .jestei-action-card__title {
   margin: 0;
   font-size: var(--sm);
-  line-height: 1.05;
   font-weight: 700;
+  line-height: 1.05;
   text-transform: lowercase;
 }
 
@@ -5878,11 +5805,64 @@ pre > .proximity-control,
   right: 0;
 }
 
-.jestei-action-rail__arrow[hidden] {
+.jestei-action-rail__arrow[hidden],
+.jestei-action-rail:not([data-rail-ready="true"]) [data-jestei-action-rail-prev] {
   display: none;
 }
 
 @media (max-width: 48rem) {
+  #project-jesteipool > .project__header,
+  #project-styx > .project__header {
+    padding: var(--component-gap);
+    border-radius: var(--r);
+  }
+
+  .jestei-chapter-frame {
+    border-radius: var(--r);
+  }
+
+  .jestei-chapter-frame + .jestei-chapter-frame {
+    margin-block-start: var(--gap);
+  }
+
+  .jestei-chapter-hero {
+    padding: var(--component-gap) 0 var(--component-gap);
+  }
+
+  .jestei-chapter-hero__title {
+    padding-inline: var(--component-gap);
+    white-space: normal;
+  }
+
+  .jestei-chapter-hero__subtitle {
+    max-inline-size: min(100%, 32rem);
+    padding-inline: var(--component-gap);
+    font-size: clamp(1.45rem, 7.2vw, 2.4rem);
+    line-height: 1.16;
+    text-align: center;
+  }
+
+  .jestei-chapter-hero__media.media,
+  .jestei-chapter-hero__media.media-banner,
+  .jestei-chapter-hero__media.media-figure,
+  .jestei-chapter-hero__media--logo > [data-visual-demo] {
+    min-block-size: clamp(12rem, 64vw, 22rem);
+  }
+
+  .jestei-chapter-frame__body,
+  .jestei-chapter-panel {
+    padding: var(--component-gap);
+  }
+
+  .jestei-chapter-frame__control {
+    padding: 0 var(--component-gap) var(--component-gap);
+  }
+
+  .jestei-responsibilities-end {
+    margin-block-start: var(--gap);
+    padding-block-start: var(--gap);
+  }
+
   .jestei-action-rail {
     inline-size: 100%;
   }
@@ -5896,49 +5876,3 @@ pre > .proximity-control,
     max-inline-size: 72vw;
   }
 }
-
-/* Source: prevent initial left arrow flash */
-.jestei-action-rail:not([data-rail-ready="true"]) [data-jestei-action-rail-prev] {
-  display: none;
-}
-
-/* Source: full-width media in Jestei chapter covers */
-.jestei-chapter-hero > .jestei-chapter-hero__media {
-  justify-self: stretch;
-  inline-size: 100%;
-  max-inline-size: none;
-}
-
-.jestei-chapter-hero__media :where(.media-item, a, figure, picture, img, canvas, [data-visual-demo]) {
-  inline-size: 100%;
-  max-inline-size: none;
-}
-
-.jestei-chapter-hero__media :where(img, canvas) {
-  display: block;
-}
-
-.jestei-chapter-hero__media--logo > [data-visual-demo],
-.jestei-chapter-hero__media--arc > canvas,
-.jestei-chapter-hero__media--arc > .visual-canvas,
-.jestei-chapter-hero__media--project-logo > .visual-canvas {
-  inline-size: 100%;
-  block-size: 100%;
-}
-
-.jestei-chapter-hero__media--banner .media-item,
-.jestei-chapter-hero__media--banner img {
-  inline-size: 100%;
-}
-
-/* Source: cleanup stage 01 - chapter toggle full width */
-.jestei-chapter-frame__control {
-  inline-size: 100%;
-}
-
-.jestei-chapter-frame__toggle {
-  display: flex;
-  inline-size: 100%;
-  max-inline-size: none;
-}
-
