@@ -3109,7 +3109,7 @@ p {
 .media-item > .proximity-control,
 .media > .proximity-control,
 [data-animation] > .proximity-control,
-[data-visual-demo] > .proximity-control > .proximity-control {
+[data-visual-demo] > .proximity-control {
   position: absolute;
 }
 
@@ -3192,7 +3192,6 @@ p {
   .proximity-control,
   .media-slider__dots,
   .media-slider__arrow--proximity,
-  .media-caption--proximity,
   .lightbox__close--proximity {
     opacity: 1;
     visibility: visible;
