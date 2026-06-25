@@ -22,7 +22,7 @@ const LOGO_INTRO_ROTATION = {
   y: -0.2,
   z: -0.08,
 };
-const WHITE_BACKGROUND = "#000000";
+const WHITE_BACKGROUND = "#ffffff";
 
 const SHOW_COLOR_TOKEN_CHIPS = false;
 const SHOW_SLIDER_NAV_BUTTONS = false;
@@ -70,7 +70,7 @@ const DISPLAY_VARIANT_IDS = ["pro", "club", "event"];
 
 const CONTRAST_CONFIG = {
   durationMs: 10400,
-  background: "#000000",
+  background: "#ffffff",
   dividerColor: "rgba(255,255,255,0.22)",
   borderColor: "rgba(255,255,255,0.22)",
   titleColor: "#ffffff",
