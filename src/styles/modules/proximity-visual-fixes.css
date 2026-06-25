@@ -1,0 +1,56 @@
+/* Proximity visual fixes */
+
+.proximity-control {
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.proximity-control svg {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.proximity-control--open svg {
+  display: none;
+}
+
+.proximity-control--open::before,
+.proximity-control--open::after {
+  content: "";
+  display: block;
+  position: absolute;
+  pointer-events: none;
+}
+
+.proximity-control--open::before {
+  width: 0.62rem;
+  height: 0.62rem;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  transform: translate(-0.08rem, -0.08rem);
+}
+
+.proximity-control--open::after {
+  width: 0.38rem;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translate(0.34rem, 0.34rem) rotate(45deg);
+  transform-origin: center;
+}
+
+.case-photo-orbit > .media-item,
+.case-photo-orbit > .media-item img {
+  overflow: hidden;
+}
+
+.case-photo-orbit .proximity-control {
+  --proximity-control-size: clamp(1.65rem, 2vw, 2.05rem);
+  --proximity-control-inset: clamp(0.48rem, 1vw, 0.72rem);
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.12);
+}
+
+.case-photo-orbit .proximity-control--open {
+  top: var(--proximity-control-inset);
+  right: var(--proximity-control-inset);
+}
