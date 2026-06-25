@@ -67,50 +67,44 @@ const masonryItems = [
   { imageUrl: new URL("./assets/masonry/masonry-image (44).webp", import.meta.url).href },
 ];
 
-const DEFAULT_EXTERNAL_MASONRY_COUNT = 24;
-const DEFAULT_EXTERNAL_MASONRY_EXTENSION = "webp";
-
-const normalizeAssetPath = (path) => String(path || "").trim().replace(/\/$/, "");
-
-const padMasonryNumber = (value) => String(value).padStart(2, "0");
-
-const readPositiveInteger = (value, fallback) => {
-  const number = Number.parseInt(value, 10);
-  return Number.isFinite(number) && number > 0 ? number : fallback;
+const EXTERNAL_MASONRY_DEFAULTS = {
+  count: 24,
+  extension: "webp"
 };
 
-const getMasonryDataElement = (canvas) =>
+const cleanMasonryPath = (path) => String(path || "").trim().replace(/\/$/, "");
+
+const cleanMasonryExtension = (extension) =>
+  (String(extension || EXTERNAL_MASONRY_DEFAULTS.extension).trim().replace(/^\./, "") || EXTERNAL_MASONRY_DEFAULTS.extension);
+
+const readMasonryCount = (value) => {
+  const count = Number.parseInt(value, 10);
+  return Number.isFinite(count) && count > 0 ? count : EXTERNAL_MASONRY_DEFAULTS.count;
+};
+
+const getMasonrySourceElement = (canvas) =>
   canvas?.closest?.("[data-masonry-image-path]") || canvas;
 
-const buildExternalMasonryItems = ({ path, count, extension }) => {
-  const cleanPath = normalizeAssetPath(path);
+const createMasonryItemUrl = ({ path, index, extension }) =>
+  `${path}/${String(index + 1).padStart(2, "0")}.${extension}`;
 
-  if (!cleanPath) {
+const getExternalMasonryItems = (canvas) => {
+  const source = getMasonrySourceElement(canvas);
+  const path = cleanMasonryPath(source?.dataset?.masonryImagePath);
+
+  if (!path) {
     return null;
   }
 
-  const cleanExtension = String(extension || DEFAULT_EXTERNAL_MASONRY_EXTENSION)
-    .trim()
-    .replace(/^\./, "") || DEFAULT_EXTERNAL_MASONRY_EXTENSION;
+  const count = readMasonryCount(source.dataset.masonryImageCount);
+  const extension = cleanMasonryExtension(source.dataset.masonryImageExtension);
 
   return Array.from({ length: count }, (_, index) => ({
-    imageUrl: cleanPath + "/" + padMasonryNumber(index + 1) + "." + cleanExtension,
+    imageUrl: createMasonryItemUrl({ path, index, extension })
   }));
 };
 
-const resolveMasonryItems = (canvas) => {
-  const source = getMasonryDataElement(canvas);
-  const path = source?.dataset?.masonryImagePath;
-
-  if (!path) {
-    return masonryItems;
-  }
-
-  const count = readPositiveInteger(source.dataset.masonryImageCount, DEFAULT_EXTERNAL_MASONRY_COUNT);
-  const extension = source.dataset.masonryImageExtension || DEFAULT_EXTERNAL_MASONRY_EXTENSION;
-
-  return buildExternalMasonryItems({ path, count, extension }) || masonryItems;
-};
+const resolveMasonryItems = (canvas) => getExternalMasonryItems(canvas) || masonryItems;
 
 const config = {
   columnCount: "auto",

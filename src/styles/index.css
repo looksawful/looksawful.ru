@@ -5608,12 +5608,12 @@ pre > .proximity-control,
   object-fit: cover;
 }
 
-[data-jestei-chapter-title="добавил цвет"] > .jestei-chapter-hero {
+.jestei-chapter-frame--color > .jestei-chapter-hero {
   position: relative;
   isolation: isolate;
 }
 
-[data-jestei-chapter-title="добавил цвет"] > .jestei-chapter-hero::before {
+.jestei-chapter-frame--color > .jestei-chapter-hero::before {
   content: "";
   position: absolute;
   inset: 0 0 auto;
@@ -5623,7 +5623,7 @@ pre > .proximity-control,
   pointer-events: none;
 }
 
-[data-jestei-chapter-title="добавил цвет"] > .jestei-chapter-hero > * {
+.jestei-chapter-frame--color > .jestei-chapter-hero > * {
   position: relative;
   z-index: 1;
 }
