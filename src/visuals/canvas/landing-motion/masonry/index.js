@@ -67,6 +67,51 @@ const masonryItems = [
   { imageUrl: new URL("./assets/masonry/masonry-image (44).webp", import.meta.url).href },
 ];
 
+const DEFAULT_EXTERNAL_MASONRY_COUNT = 24;
+const DEFAULT_EXTERNAL_MASONRY_EXTENSION = "webp";
+
+const normalizeAssetPath = (path) => String(path || "").trim().replace(/\/$/, "");
+
+const padMasonryNumber = (value) => String(value).padStart(2, "0");
+
+const readPositiveInteger = (value, fallback) => {
+  const number = Number.parseInt(value, 10);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
+};
+
+const getMasonryDataElement = (canvas) =>
+  canvas?.closest?.("[data-masonry-image-path]") || canvas;
+
+const buildExternalMasonryItems = ({ path, count, extension }) => {
+  const cleanPath = normalizeAssetPath(path);
+
+  if (!cleanPath) {
+    return null;
+  }
+
+  const cleanExtension = String(extension || DEFAULT_EXTERNAL_MASONRY_EXTENSION)
+    .trim()
+    .replace(/^\./, "") || DEFAULT_EXTERNAL_MASONRY_EXTENSION;
+
+  return Array.from({ length: count }, (_, index) => ({
+    imageUrl: cleanPath + "/" + padMasonryNumber(index + 1) + "." + cleanExtension,
+  }));
+};
+
+const resolveMasonryItems = (canvas) => {
+  const source = getMasonryDataElement(canvas);
+  const path = source?.dataset?.masonryImagePath;
+
+  if (!path) {
+    return masonryItems;
+  }
+
+  const count = readPositiveInteger(source.dataset.masonryImageCount, DEFAULT_EXTERNAL_MASONRY_COUNT);
+  const extension = source.dataset.masonryImageExtension || DEFAULT_EXTERNAL_MASONRY_EXTENSION;
+
+  return buildExternalMasonryItems({ path, count, extension }) || masonryItems;
+};
+
 const config = {
   columnCount: "auto",
   preferredColumnWidth: 165,
@@ -942,7 +987,7 @@ export const mountMasonry = async (canvasId = "masonry-container") => {
 
   const key = getAnimationKey(canvasId);
   const mountToken = beginMount(key);
-  const items = await loadImages(masonryItems);
+  const items = await loadImages(resolveMasonryItems(canvas));
 
   if (!isCurrentMount(key, mountToken)) {
     return createDisposeHandle();
