@@ -4,7 +4,7 @@ const pendingMounts = new Map();
 const activeAnimations = new Map();
 const imageCache = new Map();
 
-const CANVAS_BACKGROUND_COLOR = "#000";
+const CANVAS_BACKGROUND_COLOR = "#fff";
 
 const prepareCanvasBackground = (canvas) => {
   canvas.style.backgroundColor = CANVAS_BACKGROUND_COLOR;
@@ -396,7 +396,7 @@ const drawImagePlaceholder = (ctx, x, y, width, height, radius) => {
   ctx.beginPath();
   roundedRect(ctx, x, y, width, height, radius);
   ctx.closePath();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.065)";
   ctx.fill();
   ctx.restore();
 };
