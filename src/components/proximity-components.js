@@ -8,10 +8,7 @@ const initializedArrows = new WeakSet();
 const initializedOpenControls = new WeakSet();
 const initializedFullscreenControls = new WeakSet();
 const initializedVideoControls = new WeakSet();
-const initializedCaptions = new WeakSet();
-const initializedToc = new WeakSet();
 const initializedLightboxClose = new WeakSet();
-const initializedCopyControls = new WeakSet();
 
 const fullscreenIcon = [
   '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
@@ -41,12 +38,6 @@ const playIcon = [
 const pauseIcon = [
   '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
   '<path d="M5.5 4v8M10.5 4v8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>',
-  '</svg>'
-].join("");
-
-const copyIcon = [
-  '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
-  '<path d="M5 5V3h8v8h-2M3 5h8v8H3V5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path>',
   '</svg>'
 ].join("");
 
@@ -367,69 +358,6 @@ export const initMediaVideoProximity = () => {
   });
 };
 
-export const initMediaCaptionProximity = () => {
-  document.querySelectorAll(".media-figure").forEach((figure) => {
-    const caption = figure.querySelector(":scope > .media-caption");
-
-    if (!caption || initializedCaptions.has(caption)) {
-      return;
-    }
-
-    initializedCaptions.add(caption);
-    caption.classList.add("media-caption--proximity");
-
-    createProximityMotion({
-      root: figure,
-      target: caption,
-      distanceTarget: caption,
-      showStart: 180,
-      showEnd: 18,
-      yFrom: 6,
-      yTo: 0,
-      scaleXFrom: 1,
-      scaleXTo: 1,
-      scaleYFrom: 1,
-      scaleYTo: 1,
-      transformOrigin: "top left",
-      activeClassTarget: caption
-    });
-  });
-};
-
-export const initShowcaseTocProximity = () => {
-  document.querySelectorAll(".showcase-toc").forEach((toc) => {
-    if (initializedToc.has(toc)) {
-      return;
-    }
-
-    initializedToc.add(toc);
-
-    createProximityMotion({
-      root: document,
-      listenRoot: document,
-      target: toc,
-      distanceTarget: toc,
-      showStart: 220,
-      showEnd: 24,
-      yFrom: 0,
-      yTo: 0,
-      scaleXFrom: 1,
-      scaleXTo: 1,
-      scaleYFrom: 1,
-      scaleYTo: 1,
-      transformOrigin: "left center",
-      activeClassTarget: toc,
-      onProgress: (progress) => {
-        const linkWidth = 1 + progress * 15;
-        const textOpacity = progress;
-
-        toc.style.setProperty("--showcase-toc-link-width", `${linkWidth}rem`);
-        toc.style.setProperty("--showcase-toc-text-opacity", textOpacity.toFixed(3));
-      }
-    });
-  });
-};
-
 export const initLightboxCloseProximity = () => {
   document.querySelectorAll(".lightbox").forEach((lightbox) => {
     const close = lightbox.querySelector(".lightbox__close");
@@ -469,80 +397,13 @@ const getCopyText = (block) => {
   return block.innerText;
 };
 
-export const initCodeCopyProximity = () => {
-  const selector = [
-    "pre",
-    ".code-block",
-    ".code-inspector"
-  ].join(",");
-
-  document.querySelectorAll(selector).forEach((block) => {
-    if (initializedCopyControls.has(block)) {
-      return;
-    }
-
-    if (block.querySelector(".proximity-control--copy")) {
-      initializedCopyControls.add(block);
-      return;
-    }
-
-    initializedCopyControls.add(block);
-    block.classList.add("has-proximity-control");
-
-    const control = createProximityControl({
-      label: "copy code",
-      icon: copyIcon,
-      className: "proximity-control--top-right proximity-control--copy"
-    });
-
-    block.append(control);
-
-    control.addEventListener("click", async (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      const text = getCopyText(block);
-
-      try {
-        await navigator.clipboard.writeText(text);
-        control.classList.add("is-copied");
-
-        window.setTimeout(() => {
-          control.classList.remove("is-copied");
-        }, 900);
-      } catch {
-        control.classList.remove("is-copied");
-      }
-    });
-
-    createProximityMotion({
-      root: block,
-      target: control,
-      distanceTarget: control,
-      showStart: 180,
-      showEnd: 18,
-      yFrom: 6,
-      yTo: 0,
-      scaleXFrom: 0.94,
-      scaleXTo: 1,
-      scaleYFrom: 0.94,
-      scaleYTo: 1,
-      transformOrigin: "center",
-      activeClassTarget: control
-    });
-  });
-};
-
 export const initProximityComponents = () => {
   initMediaSliderDotsProximity();
   initMediaSliderArrowProximity();
   initMediaItemOpenProximity();
   initMediaFullscreenProximity();
   initMediaVideoProximity();
-  initMediaCaptionProximity();
-  initShowcaseTocProximity();
   initLightboxCloseProximity();
-  initCodeCopyProximity();
 };
 
 createObservedInitializer(initProximityComponents);
