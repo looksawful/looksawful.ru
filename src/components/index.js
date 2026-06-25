@@ -45,21 +45,10 @@ async function initContentEnhancements(root = document) {
       (module) => module.initSiteHeader(root),
     ),
     runComponentImportStep(
-      "initShowcaseToc",
-      () => import("./showcase-toc.js"),
-      (module) => module.initShowcaseToc(root),
-    ),
-    runComponentImportStep(
       "initLightbox",
       () => import("./lightbox.js"),
       (module) => module.initLightbox(root),
-    ),
-    // Heading + gallery scroll-reveal (IntersectionObserver, no pre-hide)
-    runComponentImportStep(
-      "initHeadingAnimations",
-      () => import("./heading-animations.js"),
-      (module) => module.initHeadingAnimations(root),
-    ),
+    )
   ]);
 }
 
