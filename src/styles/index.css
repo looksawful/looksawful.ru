@@ -5931,3 +5931,14 @@ pre > .proximity-control,
   inline-size: 100%;
 }
 
+/* Source: cleanup stage 01 - chapter toggle full width */
+.jestei-chapter-frame__control {
+  inline-size: 100%;
+}
+
+.jestei-chapter-frame__toggle {
+  display: flex;
+  inline-size: 100%;
+  max-inline-size: none;
+}
+
