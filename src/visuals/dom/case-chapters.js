@@ -28,8 +28,7 @@ function preserveScroll(target, callback) {
 function getFrameParts(frame) {
   return {
     wrap: frame.querySelector(".jestei-chapter-frame__body-wrap"),
-    body: frame.querySelector(".jestei-chapter-frame__body"),
-    button: frame.querySelector("[data-jestei-chapter-collapse]")
+    body: frame.querySelector(".jestei-chapter-frame__body")
   };
 }
 
@@ -90,56 +89,6 @@ function expandJesteiFrame(frame) {
   });
 }
 
-function scrollToNextFrame(frame) {
-  const frames = Array.from(document.querySelectorAll("[data-jestei-chapter-frame]"));
-  const index = frames.indexOf(frame);
-  const nextFrame = frames[index + 1];
-
-  if (nextFrame instanceof HTMLElement) {
-    nextFrame.scrollIntoView({ behavior: "smooth", block: "start" });
-    return;
-  }
-
-  const nextProject = document.querySelector("#project-styx, #project-shootings");
-
-  if (nextProject instanceof HTMLElement) {
-    nextProject.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-}
-
-function collapseJesteiFrame(frame, shouldScrollNext) {
-  const parts = getFrameParts(frame);
-
-  if (!(parts.wrap instanceof HTMLElement)) {
-    return;
-  }
-
-  if (frame.dataset.expanded !== "true" || frame.dataset.animating === "true") {
-    if (shouldScrollNext) {
-      scrollToNextFrame(frame);
-    }
-    return;
-  }
-
-  frame.dataset.expanded = "false";
-  frame.dataset.animating = "true";
-
-  const currentHeight = parts.wrap.offsetHeight;
-
-  animateHeight(parts.wrap, currentHeight, 0, {
-    duration: 0.75,
-    ease: "power3.inOut",
-    onComplete: () => {
-      parts.wrap.setAttribute("aria-hidden", "true");
-      frame.dataset.animating = "false";
-
-      if (shouldScrollNext) {
-        scrollToNextFrame(frame);
-      }
-    }
-  });
-}
-
 function initJesteiChapterFrames(root) {
   const frames = Array.from(root.querySelectorAll("[data-jestei-chapter-frame]"));
 
@@ -155,19 +104,6 @@ function initJesteiChapterFrames(root) {
     mountedJesteiFrames.add(frame);
     frame.dataset.expanded = "false";
     frame.dataset.animating = "false";
-
-    const parts = getFrameParts(frame);
-
-    if (parts.button instanceof HTMLButtonElement) {
-      parts.button.addEventListener("click", () => {
-        if (frame.dataset.expanded === "true") {
-          collapseJesteiFrame(frame, true);
-          return;
-        }
-
-        expandJesteiFrame(frame);
-      });
-    }
   }
 
   if ("IntersectionObserver" in window) {

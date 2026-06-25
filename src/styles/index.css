@@ -5451,7 +5451,7 @@ pre > .proximity-control,
   display: grid;
   gap: 0;
   min-inline-size: 0;
-  overflow: visible;
+  overflow: hidden;
   border: var(--line);
   border-radius: var(--r-lg);
   background: var(--white);
@@ -5544,74 +5544,48 @@ pre > .proximity-control,
   padding: var(--gap);
 }
 
-.jestei-chapter-frame__body > :where(.case-chapter, .project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
-.jestei-chapter-frame__body .case-chapter__details > :where(.project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
-.jestei-chapter-frame__body .project-chapter > :where(.block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block) {
+.jestei-chapter-panel {
+  display: grid;
+  gap: var(--gap);
+  min-inline-size: 0;
   overflow: hidden;
+  padding: var(--gap);
   border: var(--line);
   border-radius: var(--r);
   background: var(--white);
 }
 
-.jestei-chapter-frame__body > :where(.case-chapter, .project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
-.jestei-chapter-frame__body .case-chapter__details > :where(.project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
-.jestei-chapter-frame__body .project-chapter > :where(.block, .text-block) {
-  padding: var(--gap);
+.jestei-chapter-panel :where(.case-chapter, .case-chapter__details, .project-chapter, .block, .text-block) {
+  border-block-start: 0;
 }
 
-.jestei-chapter-frame__body .case-chapter,
-.jestei-chapter-frame__body .case-chapter__details,
-.jestei-chapter-frame__body .project-chapter,
-.jestei-chapter-frame__body .block,
-.jestei-chapter-frame__body .media-row,
-.jestei-chapter-frame__body .media,
-.jestei-chapter-frame__body .media-figure,
-.jestei-chapter-frame__body .media-banner,
-.jestei-chapter-frame__body .list-cards,
-.jestei-chapter-frame__body .text-block {
-  border-block-start-width: 1px;
+.jestei-chapter-panel :where(.project-chapter, .block) {
+  padding-block: 0;
 }
 
-.jestei-chapter-frame__body .block.no-divider,
-.jestei-chapter-frame__body .project-chapter > .block:first-child {
-  border-block-start: var(--line);
+.jestei-chapter-panel > :where(.project-chapter, .block, .text-block, .media-row, .media, .media-figure, .media-banner, .list-cards, .policy-shell) {
+  margin: 0;
 }
 
-.jestei-chapter-frame__body > :where(.section-divider, .divider) {
+.jestei-chapter-panel :where(.case-chapter__details, .project-chapter, .block) {
+  gap: var(--gap);
+}
+
+.jestei-chapter-panel :where(.block.no-divider, .project-chapter > .block:first-child) {
+  border-block-start: 0;
+}
+
+.jestei-chapter-panel > :where(.section-divider, .divider),
+.jestei-chapter-panel :where(.section-divider, .divider) {
   display: none;
 }
 
+.jestei-chapter-panel :where(.case-chapter__details) {
+  display: contents;
+}
+
 .jestei-chapter-frame__collapse {
-  position: sticky;
-  bottom: var(--gap);
-  z-index: 20;
-  display: flex;
-  justify-content: flex-end;
-  min-inline-size: 0;
-  padding: 0 var(--gap) var(--gap);
-  margin-block-start: calc(-1 * var(--gap));
-  pointer-events: none;
-}
-
-.jestei-chapter-frame__collapse-button {
-  pointer-events: auto;
-  box-shadow: 0 0.35rem 1.4rem rgba(0, 0, 0, 0.08);
-}
-
-.jestei-chapter-frame[data-expanded="true"] .jestei-chapter-frame__collapse-button::before {
-  content: "свернуть и перейти дальше";
-}
-
-.jestei-chapter-frame:not([data-expanded="true"]) .jestei-chapter-frame__collapse-button::before {
-  content: "развернуть";
-}
-
-.jestei-chapter-frame__collapse-button {
-  font-size: 0;
-}
-
-.jestei-chapter-frame__collapse-button::before {
-  font-size: var(--xs);
+  display: none;
 }
 
 @media (max-width: 48rem) {
@@ -5642,26 +5616,7 @@ pre > .proximity-control,
     padding: var(--component-gap);
   }
 
-  .jestei-chapter-frame__body > :where(.case-chapter, .project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
-  .jestei-chapter-frame__body .case-chapter__details > :where(.project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
-  .jestei-chapter-frame__body .project-chapter > :where(.block, .text-block) {
+  .jestei-chapter-panel {
     padding: var(--component-gap);
   }
-
-  .jestei-chapter-frame__collapse {
-    bottom: var(--component-gap);
-    justify-content: stretch;
-    padding: 0 var(--component-gap) var(--component-gap);
-    margin-block-start: calc(-1 * var(--component-gap));
-  }
-
-  .jestei-chapter-frame__collapse-button {
-    inline-size: 100%;
-  }
 }
-
-/* Source: hide jestei chapter controls */
-.jestei-chapter-frame__collapse {
-  display: none;
-}
-
