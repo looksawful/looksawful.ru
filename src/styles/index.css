@@ -1254,13 +1254,11 @@ p {
   height: 100%;
 }
 
-[data-animation="photo-loop"],
 [data-animation="before-after"] {
   min-height: clamp(18rem, 42vw, 42rem);
   background: #fff;
 }
 
-[data-animation="photo-loop"] canvas,
 [data-animation="before-after"] canvas {
   min-height: clamp(18rem, 42vw, 42rem);
   background: #fff;
@@ -1334,14 +1332,12 @@ p {
   background: transparent;
 }
 
-[data-animation="photo-loop"],
 [data-animation="before-after"],
 [data-animation="diagonal"],
 [data-animation="landing-arc"] {
   background: transparent;
 }
 
-[data-animation="photo-loop"] canvas,
 [data-animation="before-after"] canvas,
 [data-animation="diagonal"] canvas,
 [data-animation="landing-arc"] canvas {

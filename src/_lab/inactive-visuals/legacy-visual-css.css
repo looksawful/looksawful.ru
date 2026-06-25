@@ -1,0 +1,30 @@
+/* Legacy inactive visual CSS snippets preserved for the lab branch/work. */
+/* These rules must not be imported by production. */
+
+[data-animation="photo-loop"],
+[data-animation="before-after"] {
+  min-height: clamp(18rem, 42vw, 42rem);
+  background: #fff;
+}
+
+[data-animation="photo-loop"] canvas,
+[data-animation="before-after"] canvas {
+  min-height: clamp(18rem, 42vw, 42rem);
+  background: #fff;
+}
+
+[data-media-scene] {
+  --orbit-size: min(100%, clamp(22rem, 64vw, 46rem));
+  --orbit-card: clamp(6.5rem, 14vw, 11.5rem);
+  --orbit-radius: calc((var(--orbit-size) - var(--orbit-card)) / 2);
+  --orbit-speed: var(--media-speed, 72s);
+
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: calc(var(--orbit-size) + clamp(2rem, 5vw, 5rem));
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+  color: #fff;
+}
