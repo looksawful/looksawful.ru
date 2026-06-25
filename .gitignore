@@ -12,9 +12,7 @@ dist/
 dist-ssr/
 build/
 out/
-.next/
 .tmp/
-.vercel/
 
 *.local
 
@@ -57,7 +55,6 @@ coverage/
 *.txt
 
 
-.vercel
 .env*
 .audit/
 audit-*.cjs
@@ -75,3 +72,6 @@ audit-*.cjs
 /src/visuals/canvas/showcase-carousel/
 /src/visuals/canvas/diagonal-loop/
 /src/visuals/canvas/masonry/
+
+# tools and scripts
+tools/
