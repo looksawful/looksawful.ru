@@ -1865,12 +1865,11 @@ p {
 
 /* Source: slider.css */
 
-/* media slider */
+/* active media slider */
 
 .media-slider {
   --media-slider-gap: var(--gap);
   --media-slider-card-basis: 100%;
-
   position: relative;
   width: 100%;
   max-width: 100%;
@@ -1900,7 +1899,6 @@ p {
   min-width: max-content;
   max-width: none;
   transform: translate3d(0, 0, 0);
-  transition: none;
   will-change: transform;
 }
 
@@ -1910,8 +1908,7 @@ p {
   width: var(--media-slider-card-basis);
 }
 
-.media-slider.media-square,
-.media-slider.media-portrait {
+.media-slider.media-square {
   --media-slider-card-basis: calc((100% - (var(--media-slider-gap) * 2)) / 3);
 }
 
@@ -1957,32 +1954,26 @@ p {
   right: var(--gap);
   bottom: var(--gap);
   left: var(--gap);
-
   display: flex;
-  justify-content: flex-start;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.375rem;
-
   width: max-content;
   max-width: min(18rem, calc(100% - (var(--gap) * 2)));
   margin-inline: auto;
   padding: 0.34rem 0.48rem;
-
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-inline: contain;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-
   border: var(--stroke, 1px) solid currentColor;
   border-radius: 999px;
   background: var(--color-surface, #fff);
-
   opacity: 0;
   visibility: visible;
   transform: translateY(0.5rem) scaleX(0.94) scaleY(0.94);
   transform-origin: bottom center;
-
   pointer-events: none;
   will-change: opacity, transform;
 }
@@ -2001,17 +1992,14 @@ p {
   width: clamp(0.4rem, 1vw, 0.55rem);
   aspect-ratio: 1;
   padding: 0;
-
   border-radius: 999px;
   background: transparent;
   opacity: 0.45;
-
   pointer-events: auto;
-
   transition:
-    width var(--motion-fast, 160ms) var(--ease-standard, cubic-bezier(0.2, 0, 0, 1)),
-    background-color var(--motion-fast, 160ms) var(--ease-standard, cubic-bezier(0.2, 0, 0, 1)),
-    opacity var(--motion-fast, 160ms) var(--ease-standard, cubic-bezier(0.2, 0, 0, 1));
+    width var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    opacity var(--motion-fast) var(--ease-standard);
 }
 
 .media-slider__dot.is-active {
@@ -2031,8 +2019,7 @@ p {
     --media-slider-card-basis: 100cqw;
   }
 
-  .media-slider.media-square,
-  .media-slider.media-portrait {
+  .media-slider.media-square {
     --media-slider-card-basis: calc((100cqw - (var(--media-slider-gap) * 2)) / 3);
   }
 }
@@ -2046,17 +2033,9 @@ p {
     --media-slider-card-basis: calc((100% - var(--media-slider-gap)) / 2);
   }
 
-  .media-slider.media-portrait {
-    --media-slider-card-basis: calc((100% - (var(--media-slider-gap) * 2)) / 3);
-  }
-
   @supports (width: 100cqw) {
     .media-slider.media-square {
       --media-slider-card-basis: calc((100cqw - var(--media-slider-gap)) / 2);
-    }
-
-    .media-slider.media-portrait {
-      --media-slider-card-basis: calc((100cqw - (var(--media-slider-gap) * 2)) / 3);
     }
   }
 
@@ -2082,7 +2061,6 @@ p {
 @media (hover: none) {
   .media-slider__dots {
     opacity: 1;
-    visibility: visible;
     transform: translateY(0) scaleX(1) scaleY(1);
     pointer-events: auto;
   }
@@ -2098,22 +2076,14 @@ p {
 
   .media-slider__track {
     transform: none !important;
-    transition: none;
     will-change: auto;
   }
 
-  .media-slider .media-item {
+  .media-slider > .media-item,
+  .media-slider__track > .media-item {
     scroll-snap-align: start;
   }
-
-  .media-slider__dots {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0) scaleX(1) scaleY(1);
-    pointer-events: auto;
-  }
 }
-
 
 /* Source: skeleton.css */
 
