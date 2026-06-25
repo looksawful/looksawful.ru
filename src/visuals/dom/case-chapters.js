@@ -1,11 +1,11 @@
-const mountedJesteiFrames = new WeakSet();
+const mountedChapterFrames = new WeakSet();
 const mountedJesteiRails = new WeakSet();
 
 function getFrameParts(frame) {
   return {
-    wrap: frame.querySelector(".jestei-chapter-frame__body-wrap"),
-    body: frame.querySelector(".jestei-chapter-frame__body"),
-    toggle: frame.querySelector("[data-jestei-chapter-toggle]")
+    wrap: frame.querySelector(".jestei-chapter-frame__body-wrap, .case-chapter-frame__body-wrap"),
+    body: frame.querySelector(".jestei-chapter-frame__body, .case-chapter-frame__body"),
+    toggle: frame.querySelector("[data-jestei-chapter-toggle], [data-case-chapter-toggle]")
   };
 }
 
@@ -35,7 +35,7 @@ function animateHeight(element, from, to, options) {
   );
 }
 
-function syncJesteiFrame(frame) {
+function syncChapterFrame(frame) {
   const { toggle } = getFrameParts(frame);
   const isExpanded = frame.dataset.expanded === "true";
 
@@ -47,7 +47,7 @@ function syncJesteiFrame(frame) {
   }
 }
 
-function setJesteiFrameExpanded(frame, nextExpanded) {
+function setChapterFrameExpanded(frame, nextExpanded) {
   if (frame.dataset.animating === "true" || frame.dataset.expanded === String(nextExpanded)) {
     return;
   }
@@ -63,7 +63,7 @@ function setJesteiFrameExpanded(frame, nextExpanded) {
 
   frame.dataset.expanded = String(nextExpanded);
   frame.dataset.animating = "true";
-  syncJesteiFrame(frame);
+  syncChapterFrame(frame);
 
   if (nextExpanded) {
     wrap.setAttribute("aria-hidden", "false");
@@ -80,22 +80,22 @@ function setJesteiFrameExpanded(frame, nextExpanded) {
   });
 }
 
-function initJesteiChapterFrames(root) {
-  root.querySelectorAll("[data-jestei-chapter-frame]").forEach((frame) => {
-    if (!(frame instanceof HTMLElement) || mountedJesteiFrames.has(frame)) {
+function initChapterFrames(root) {
+  root.querySelectorAll("[data-jestei-chapter-frame], [data-case-chapter-frame]").forEach((frame) => {
+    if (!(frame instanceof HTMLElement) || mountedChapterFrames.has(frame)) {
       return;
     }
 
-    mountedJesteiFrames.add(frame);
+    mountedChapterFrames.add(frame);
     frame.dataset.expanded = "false";
     frame.dataset.animating = "false";
-    syncJesteiFrame(frame);
+    syncChapterFrame(frame);
 
     const { toggle } = getFrameParts(frame);
 
     if (toggle instanceof HTMLButtonElement) {
       toggle.addEventListener("click", () => {
-        setJesteiFrameExpanded(frame, frame.dataset.expanded !== "true");
+        setChapterFrameExpanded(frame, frame.dataset.expanded !== "true");
       });
     }
   });
@@ -134,7 +134,6 @@ function initJesteiActionRail(rail) {
   prev.hidden = true;
 
   let dragState = null;
-
   const update = () => updateRailControls(rail, viewport, prev, next);
 
   const scrollByPage = (direction) => {
@@ -200,6 +199,6 @@ function initJesteiActionRails(root) {
 }
 
 export function initCaseChapters(root = document) {
-  initJesteiChapterFrames(root);
+  initChapterFrames(root);
   initJesteiActionRails(root);
 }
