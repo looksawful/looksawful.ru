@@ -19,7 +19,7 @@
 [data-animation],
 .embedded-demo {
   background: transparent;
-  /* color: var(--black); */
+  /* ?color: var(--black); */
 }
 
 [data-animation] canvas,

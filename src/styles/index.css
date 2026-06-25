@@ -5442,3 +5442,226 @@ pre > .proximity-control,
 /* all the code inspector styles and its's states to be put here */
 
 /* no active code inspector markup in the current page */
+
+
+
+/* Source: jestei chapter frames */
+
+.jestei-chapter-frame {
+  display: grid;
+  gap: 0;
+  min-inline-size: 0;
+  overflow: visible;
+  border: var(--line);
+  border-radius: var(--r-lg);
+  background: var(--white);
+}
+
+.jestei-chapter-frame + .jestei-chapter-frame {
+  margin-block-start: var(--gap-lg);
+}
+
+.jestei-chapter-hero {
+  display: grid;
+  justify-items: center;
+  gap: var(--gap);
+  min-inline-size: 0;
+  overflow: hidden;
+  padding: var(--gap-lg) var(--gap) var(--gap);
+  background: var(--white);
+}
+
+.jestei-chapter-hero__title {
+  max-inline-size: 100%;
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.jestei-chapter-hero__title-main {
+  color: var(--black);
+}
+
+.jestei-chapter-hero__title-accent {
+  color: #444;
+  font-style: italic;
+  font-weight: inherit;
+}
+
+.jestei-chapter-hero__subtitle {
+  max-inline-size: min(100%, 74rem);
+  margin: 0 auto;
+  color: rgba(0, 0, 0, 0.68);
+  font-size: clamp(2rem, 2.56vw, 2.44rem);
+  line-height: 1.18;
+  text-align: left;
+}
+
+.jestei-chapter-hero__marquee {
+  inline-size: min(100%, 74rem);
+  min-inline-size: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.jestei-chapter-hero__marquee-track {
+  display: flex;
+  inline-size: max-content;
+  gap: 0.45rem;
+  animation: jestei-chapter-marquee 32s linear infinite;
+}
+
+@keyframes jestei-chapter-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.jestei-chapter-hero__marquee .chip {
+  flex: 0 0 auto;
+  background: var(--white);
+  color: var(--black);
+}
+
+.jestei-chapter-frame__body-wrap {
+  block-size: 0;
+  min-inline-size: 0;
+  overflow: hidden;
+  border-block-start: var(--line);
+  background: var(--white);
+  will-change: height;
+}
+
+.jestei-chapter-frame__body {
+  display: grid;
+  gap: var(--gap);
+  min-inline-size: 0;
+  padding: var(--gap);
+}
+
+.jestei-chapter-frame__body > :where(.case-chapter, .project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
+.jestei-chapter-frame__body .case-chapter__details > :where(.project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
+.jestei-chapter-frame__body .project-chapter > :where(.block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block) {
+  overflow: hidden;
+  border: var(--line);
+  border-radius: var(--r);
+  background: var(--white);
+}
+
+.jestei-chapter-frame__body > :where(.case-chapter, .project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
+.jestei-chapter-frame__body .case-chapter__details > :where(.project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
+.jestei-chapter-frame__body .project-chapter > :where(.block, .text-block) {
+  padding: var(--gap);
+}
+
+.jestei-chapter-frame__body .case-chapter,
+.jestei-chapter-frame__body .case-chapter__details,
+.jestei-chapter-frame__body .project-chapter,
+.jestei-chapter-frame__body .block,
+.jestei-chapter-frame__body .media-row,
+.jestei-chapter-frame__body .media,
+.jestei-chapter-frame__body .media-figure,
+.jestei-chapter-frame__body .media-banner,
+.jestei-chapter-frame__body .list-cards,
+.jestei-chapter-frame__body .text-block {
+  border-block-start-width: 1px;
+}
+
+.jestei-chapter-frame__body .block.no-divider,
+.jestei-chapter-frame__body .project-chapter > .block:first-child {
+  border-block-start: var(--line);
+}
+
+.jestei-chapter-frame__body > :where(.section-divider, .divider) {
+  display: none;
+}
+
+.jestei-chapter-frame__collapse {
+  position: sticky;
+  bottom: var(--gap);
+  z-index: 20;
+  display: flex;
+  justify-content: flex-end;
+  min-inline-size: 0;
+  padding: 0 var(--gap) var(--gap);
+  margin-block-start: calc(-1 * var(--gap));
+  pointer-events: none;
+}
+
+.jestei-chapter-frame__collapse-button {
+  pointer-events: auto;
+  box-shadow: 0 0.35rem 1.4rem rgba(0, 0, 0, 0.08);
+}
+
+.jestei-chapter-frame[data-expanded="true"] .jestei-chapter-frame__collapse-button::before {
+  content: "свернуть и перейти дальше";
+}
+
+.jestei-chapter-frame:not([data-expanded="true"]) .jestei-chapter-frame__collapse-button::before {
+  content: "развернуть";
+}
+
+.jestei-chapter-frame__collapse-button {
+  font-size: 0;
+}
+
+.jestei-chapter-frame__collapse-button::before {
+  font-size: var(--xs);
+}
+
+@media (max-width: 48rem) {
+  .jestei-chapter-frame {
+    border-radius: var(--r);
+  }
+
+  .jestei-chapter-frame + .jestei-chapter-frame {
+    margin-block-start: var(--gap);
+  }
+
+  .jestei-chapter-hero {
+    padding: var(--component-gap) 0 var(--component-gap);
+  }
+
+  .jestei-chapter-hero__title {
+    white-space: normal;
+  }
+
+  .jestei-chapter-hero__subtitle {
+    max-inline-size: min(100%, 32rem);
+    font-size: clamp(1.45rem, 7.2vw, 2.4rem);
+    line-height: 1.16;
+    text-align: center;
+  }
+
+  .jestei-chapter-frame__body {
+    padding: var(--component-gap);
+  }
+
+  .jestei-chapter-frame__body > :where(.case-chapter, .project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
+  .jestei-chapter-frame__body .case-chapter__details > :where(.project-chapter, .block, .media, .media-row, .media-figure, .media-banner, .list-cards, .policy-shell, .text-block),
+  .jestei-chapter-frame__body .project-chapter > :where(.block, .text-block) {
+    padding: var(--component-gap);
+  }
+
+  .jestei-chapter-frame__collapse {
+    bottom: var(--component-gap);
+    justify-content: stretch;
+    padding: 0 var(--component-gap) var(--component-gap);
+    margin-block-start: calc(-1 * var(--component-gap));
+  }
+
+  .jestei-chapter-frame__collapse-button {
+    inline-size: 100%;
+  }
+}
+
+/* Source: hide jestei chapter controls */
+.jestei-chapter-frame__collapse {
+  display: none;
+}
+
