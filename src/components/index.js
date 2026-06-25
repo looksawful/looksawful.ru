@@ -65,11 +65,6 @@ async function initVisualEnhancements(root = document) {
       (module) => module.initCvInlineVideos(root),
     ),
     runComponentImportStep(
-      "initShowcasePhotoLoop",
-      () => import("../visuals/canvas/photo-loop/index.js"),
-      (module) => module.initShowcasePhotoLoop(root),
-    ),
-    runComponentImportStep(
       "initShowcaseBeforeAfter",
       () => import("../visuals/canvas/before-after/index.js"),
       (module) => module.initShowcaseBeforeAfter(root),
