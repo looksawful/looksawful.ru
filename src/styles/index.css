@@ -1246,7 +1246,7 @@ p {
   position: relative;
 }
 
-[data-animation] canvas canvas {
+[data-animation] canvas {
   display: block;
   width: 100%;
   height: 100%;
@@ -1262,7 +1262,7 @@ p {
   background: #fff;
 }
 
-[data-animation].is-canvas-loading::after.is-canvas-loading::after {
+[data-animation].is-canvas-loading::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -1272,7 +1272,7 @@ p {
   animation: canvas-loading-sweep 1.4s linear infinite;
 }
 
-[data-animation].is-canvas-error::after.is-canvas-error::after {
+[data-animation].is-canvas-error::after {
   content: "canvas error";
   position: absolute;
   inset: auto 0.8rem 0.8rem auto;
@@ -1322,7 +1322,7 @@ p {
   /* color: var(--black); */
 }
 
-[data-animation] canvas canvas {
+[data-animation] canvas {
   background: transparent;
 }
 
@@ -3157,21 +3157,15 @@ p {
 .media-figure,
 [data-animation],
 [data-visual-demo],
-[data-showcase-inline-video],
-pre,
-.code-block,
-.code-inspector {
+[data-showcase-inline-video] {
   position: relative;
 }
 
 .media-item > .proximity-control,
-.media > .proximity-control > .proximity-control,
+.media > .proximity-control,
 [data-animation] > .proximity-control,
 [data-visual-demo] > .proximity-control,
-[data-showcase-inline-video] > .proximity-control,
-pre > .proximity-control,
-.code-block > .proximity-control,
-.code-inspector > .proximity-control {
+[data-showcase-inline-video] > .proximity-control {
   position: absolute;
 }
 
@@ -3242,33 +3236,11 @@ pre > .proximity-control,
     pointer-events: auto;
   }
 
-  .media-caption--proximity {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0) scaleX(1) scaleY(1);
-    pointer-events: auto;
-  }
-
   .lightbox__close--proximity {
     opacity: 1;
     visibility: visible;
     transform: translateY(0) scaleX(1) scaleY(1);
     pointer-events: auto;
-  }
-
-  .proximity-control--copy {
-    --proximity-control-size: 1.8rem;
-    --proximity-control-icon: 0.82rem;
-
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0) scaleX(1) scaleY(1);
-    pointer-events: auto;
-  }
-
-  .showcase-toc {
-    --showcase-toc-link-width: auto;
-    --showcase-toc-text-opacity: 1;
   }
 }
 
@@ -3276,17 +3248,11 @@ pre > .proximity-control,
   .proximity-control,
   .media-slider__dots,
   .media-slider__arrow--proximity,
-  .media-caption--proximity,
   .lightbox__close--proximity {
     opacity: 1;
     visibility: visible;
     transform: translateY(0) scaleX(1) scaleY(1);
     pointer-events: auto;
-  }
-
-  .showcase-toc {
-    --showcase-toc-link-width: auto;
-    --showcase-toc-text-opacity: 1;
   }
 }
 
