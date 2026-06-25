@@ -10,7 +10,10 @@
       rel="icon" />
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="/src/styles/index.css" rel="preload" as="style" />
     <link href="/src/styles/index.css" rel="stylesheet" />
+    <link href="/src/styles/playlist-filter-embed.css" rel="preload" as="style" />
     <link href="/src/styles/playlist-filter-embed.css" rel="stylesheet" />
     <script src="/src/main.js" type="module"></script>
   </head>
@@ -70,11 +73,12 @@
           <address class="contact-links" id="contact-links">
             <a href="https://t.me/looksawful">tg: @looksawful</a>
             <a href="mailto:i@lookawful.ru">email: i@lookawful.ru</a>
+            <!-- ЭТО НЕ ОПЕЧАТКА, БУКВЫ S НЕТ -->
             <a href="https://github.com/looksawful">github: @looksawful</a>
           </address>
-          <section class="project-skill-cloud" aria-label="технологии в jestei pool">
-            <ul class="chips chips--skill project-skill-cloud__list"
-              style="display: flex; flex-wrap: wrap; flex-direction: row; justify-content: space-between">
+          <section class="project-skill-cloud project-skill-cloud--hero" aria-label="технологии в jestei pool" data-hero-skill-marquee>
+            <div class="project-skill-cloud__viewport" aria-hidden="true">
+              <ul class="chips chips--skill project-skill-cloud__list project-skill-cloud__track">
               <li class="chip">figma</li>
               <li class="chip">adobe photoshop</li>
               <li class="chip">adobe illustrator</li>
@@ -106,10 +110,71 @@
               <li class="chip">carbon</li>
               <li class="chip">tailwind</li>
               <li class="chip">mermaid</li>
-            </ul>
+            
+              </ul>
+              <ul class="chips chips--skill project-skill-cloud__list project-skill-cloud__track">
+              <li class="chip">figma</li>
+              <li class="chip">adobe photoshop</li>
+              <li class="chip">adobe illustrator</li>
+              <li class="chip">adobe after effects</li>
+              <li class="chip">blender</li>
+              <li class="chip">adobe substance 3d: designer</li>
+              <li class="chip">comfyui</li>
+              <li class="chip">a1111</li>
+              <li class="chip">swarmui</li>
+              <li class="chip">ollama</li>
+              <li class="chip">z-image</li>
+              <li class="chip">flux</li>
+              <li class="chip">wan</li>
+              <li class="chip">supir</li>
+              <li class="chip">topaz</li>
+              <li class="chip">html</li>
+              <li class="chip">css</li>
+              <li class="chip">javascript</li>
+              <li class="chip">typescript</li>
+              <li class="chip">react</li>
+              <li class="chip">next.js</li>
+              <li class="chip">python</li>
+              <li class="chip">canvas</li>
+              <li class="chip">webgl</li>
+              <li class="chip">glsl</li>
+              <li class="chip">gsap</li>
+              <li class="chip">three.js</li>
+              <li class="chip">material design</li>
+              <li class="chip">carbon</li>
+              <li class="chip">tailwind</li>
+              <li class="chip">mermaid</li>
+            
+              </ul>
+            </div>
           </section>
         </div>
       </section>
+      <section class="services-bento" aria-label="что я могу сделать">
+        <div class="services-bento__grid">
+          <article class="services-bento__card services-bento__card--wide">
+            <h2 class="services-bento__title">цифровой продукт</h2>
+            <p class="services-bento__text">интерфейсы, сценарии, адаптивы и логика для сервисов со сложной структурой.</p>
+          </article>
+          <article class="services-bento__card services-bento__card--mid">
+            <h2 class="services-bento__title">дизайн-система</h2>
+            <p class="services-bento__text">компоненты, правила, состояния и передача решений команде.</p>
+          </article>
+          <article class="services-bento__card services-bento__card--small">
+            <h2 class="services-bento__title">визуальный язык</h2>
+            <p class="services-bento__text">айдентика, графика, промо, 3d и ai-пайплайны.</p>
+          </article>
+          <article class="services-bento__card services-bento__card--mid services-bento__card--dark">
+            <h2 class="services-bento__title">интерактив</h2>
+            <p class="services-bento__text">html/css/js, canvas, webgl, gsap и прототипы, которые можно трогать.</p>
+          </article>
+          <article class="services-bento__card services-bento__card--wide">
+            <h2 class="services-bento__title">дизайн-лидство</h2>
+            <p class="services-bento__text">ревью, постановка задач, обучение, документация и контроль качества.</p>
+          </article>
+        </div>
+      </section>
+      <h2 id="showcase-title" class="visually-hidden">кейсы</h2>
       <section aria-labelledby="showcase-title" class="section work" id="showcase">
         <section class="section__screen section__screen--showcase">
           <div class="stack showcase-stack">
@@ -338,7 +403,9 @@
                     style="display: block; width: 100%; height: auto" />
                 </figure>
               </header>
-              <section class="project-chapter stack" aria-labelledby="jestei-logo-chapter">
+              <section class="case-chapter case-chapter--branding is-open" id="jestei-branding" data-case-chapter data-toc-label="ребрендинг">
+  <div class="case-chapter__details">
+<section class="project-chapter stack" aria-labelledby="jestei-logo-chapter">
                 <section class="block">
                   <header class="block__header component-caption section-head">
                     <h5 class="title title--lg">новый логотип</h5>
@@ -446,7 +513,11 @@
                   </section>
                 </section>
               </section>
-              <section class="project-chapter stack" aria-labelledby="jestei-color-chapter">
+  </div>
+</section>
+              <section class="case-chapter case-chapter--color is-open" id="jestei-color" data-case-chapter data-toc-label="цветовая система">
+  <div class="case-chapter__details">
+<section class="project-chapter stack" aria-labelledby="jestei-color-chapter">
                 <section class="block no-divider">
                   <div class="media-row media-row--tokens">
                     <section class="text-block">
@@ -710,7 +781,11 @@
                   </section>
                 </section>
               </section>
-              <section class="project-chapter stack" aria-labelledby="jestei-communications-chapter">
+  </div>
+</section>
+              <section class="case-chapter case-chapter--communications is-open" id="jestei-communications" data-case-chapter data-toc-label="редполитика">
+  <div class="case-chapter__details">
+<section class="project-chapter stack" aria-labelledby="jestei-communications-chapter">
                 <section class="block no-divider">
                   <header class="block__header component-caption section-head">
                     <h5 class="title title--lg">Редакционная политика сервиса</h5>
@@ -719,7 +794,10 @@
                     </p>
                   </header>
                   <figure class="media-figure" aria-label="policy reader">
-                    <div class="policy-shell">
+                    <div class="artifact-stage__actions">
+                      <button class="artifact-reader__open" type="button" data-artifact-reader-open="jestei-policy">читать крупно</button>
+                    </div>
+                    <div class="policy-shell" data-artifact-source="jestei-policy">
                       <article aria-label="редполитика jestei pool" class="policy-book" data-policy-book=""
                         tabindex="0">
                         <header class="policy-book__bar">
@@ -3012,6 +3090,8 @@
                   <section class="media-row" aria-labelledby="jestei-editorial-interface-title"></section>
                 </section>
               </section>
+  </div>
+</section>
 
               <header class="block__header component-caption section-head">
                 <h1 class="title title--xl">Пользовательский опыт</h1>
@@ -3121,7 +3201,9 @@
                   </a>
                 </aside>
               </section>
-              <section class="project-chapter stack" aria-labelledby="jestei-interface-chapter">
+              <section class="case-chapter case-chapter--interface is-open" id="jestei-interface" data-case-chapter data-toc-label="интерфейс и фильтры">
+  <div class="case-chapter__details">
+<section class="project-chapter stack" aria-labelledby="jestei-interface-chapter">
                 <section class="block">
                   <section class="block no-divider">
                     <header class="block__header component-caption section-head">
@@ -3300,7 +3382,11 @@
                   </section>
                 </section>
               </section>
-              <section class="project-chapter stack" aria-labelledby="jestei-marketing-chapter">
+  </div>
+</section>
+              <section class="case-chapter case-chapter--marketing is-open" id="jestei-marketing" data-case-chapter data-toc-label="лендинги и продажи">
+  <div class="case-chapter__details">
+<section class="project-chapter stack" aria-labelledby="jestei-marketing-chapter">
                 <section class="block no-divider">
                   <section class="block no-divider">
                     <section class="block no-divider">
@@ -3513,12 +3599,16 @@
                   </template>
                 </section>
               </section>
+  </div>
+</section>
               <header class="block__header component-caption section-head">
                 <h1 class="title title--xl">Графический дизайн</h1>
                 <p></p>
               </header>
 
-              <section class="project-chapter stack" aria-labelledby="jestei-graphic-chapter">
+              <section class="case-chapter case-chapter--graphic is-open" id="jestei-graphic" data-case-chapter data-toc-label="графический дизайн">
+  <div class="case-chapter__details">
+<section class="project-chapter stack" aria-labelledby="jestei-graphic-chapter">
                 <section class="block no-divider">
                   <section class="block no-divider">
                     <header class="block__header component-caption section-head">
@@ -3940,6 +4030,8 @@
                                       </section>
                 </section>
               </section>
+  </div>
+</section>
             </article>
 
             <article class="project stack no-divider" id="project-styx">
@@ -4677,10 +4769,15 @@
     </footer>
 
     <template hidden id="html-comment-archive"> </template>
+    <dialog class="artifact-reader" data-artifact-reader="jestei-policy">
+      <div class="artifact-reader__panel">
+        <header class="artifact-reader__header">
+          <h2 class="artifact-reader__title">редполитика</h2>
+          <button class="artifact-reader__close" type="button" data-artifact-reader-close>закрыть</button>
+        </header>
+        <div class="artifact-reader__body" data-artifact-reader-body></div>
+      </div>
+    </dialog>
   </body>
 
 </html>
-
-
-
-

@@ -1,0 +1,68 @@
+.project-skill-cloud--hero {
+  position: relative;
+  z-index: 3;
+  align-self: end;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  overflow: hidden;
+  padding-block: 0.4rem;
+}
+
+.project-skill-cloud__viewport {
+  display: flex;
+  inline-size: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.project-skill-cloud__track {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.4rem;
+  min-inline-size: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  animation: hero-skill-marquee 36s linear infinite;
+}
+
+.project-skill-cloud__track + .project-skill-cloud__track {
+  margin-inline-start: 0.4rem;
+}
+
+.project-skill-cloud--hero .chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@keyframes hero-skill-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-100% - 0.4rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-skill-cloud__track {
+    animation: none;
+  }
+}
+
+@media (max-width: 48rem) {
+  .project-skill-cloud--hero {
+    padding-block: 0.25rem;
+  }
+
+  .project-skill-cloud__viewport {
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  }
+
+  .project-skill-cloud__track {
+    animation-duration: 42s;
+  }
+}

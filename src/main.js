@@ -10,6 +10,9 @@ import "./visuals/dom/list-scroll.js";
 import "./components/proximity-components.js";
 import { initPlaylistFilterEmbed } from "./visuals/dom/playlist-filter-embed.js";
 import { initRandomGalleries } from "./visuals/dom/random-gallery.js";
+import { initCaseChapters } from "./visuals/dom/case-chapters.js";
+import { initDemoShells } from "./visuals/dom/demo-shell.js";
+import { initArtifactReaders } from "./visuals/dom/artifact-reader.js";
 import { initComponents } from "./components/index.js";
 
 let appInitialized = false;
@@ -41,6 +44,9 @@ async function initApp() {
   await runInitStep("initHeadingAnimations", () => initHeadingAnimations(document));
   await runInitStep("initPlaylistFilterEmbed", () => initPlaylistFilterEmbed(document));
   await runInitStep("initRandomGalleries", () => initRandomGalleries(document));
+  await runInitStep("initCaseChapters", () => initCaseChapters(document));
+  await runInitStep("initDemoShells", () => initDemoShells(document));
+  await runInitStep("initArtifactReaders", () => initArtifactReaders(document));
 }
 
 if (document.readyState === "loading") {
