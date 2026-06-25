@@ -85,11 +85,6 @@ async function initDecorations(root = document) {
       (module) => module.mountawfulface("awfulface-hero"),
     ),
     runComponentImportStep(
-      "initSystemMotion",
-      () => import("./system-motion/system-motion.js"),
-      (module) => module.initSystemMotion(root),
-    ),
-    runComponentImportStep(
       "initFilterFullscreen",
       () => import("./filter-fullscreen.js"),
       (module) => module.initFilterFullscreen(root),
