@@ -1,0 +1,119 @@
+/* Styx and shootings chapter frame corrections */
+
+#project-styx > .project__body,
+#project-shootings > .project__body {
+  gap: var(--gap-lg);
+}
+
+#project-styx .case-chapter-frame,
+#project-shootings .case-chapter-frame {
+  border: var(--line);
+  border-radius: var(--r-lg);
+  background: var(--white);
+  overflow: hidden;
+}
+
+#project-styx .case-chapter-hero,
+#project-shootings .case-chapter-hero {
+  border-block-end: var(--line);
+}
+
+#project-styx .case-chapter-frame__body-wrap,
+#project-shootings .case-chapter-frame__body-wrap {
+  border-block-start: 0;
+}
+
+#project-styx .case-chapter-hero__media,
+#project-shootings .case-chapter-hero__media {
+  border: var(--line);
+  border-radius: var(--r);
+  background: var(--white);
+  overflow: hidden;
+}
+
+#project-styx .case-chapter-hero__media :where(.media-item, a, figure),
+#project-shootings .case-chapter-hero__media :where(.media-item, a, figure) {
+  border-radius: 0;
+}
+
+#project-styx .case-chapter-panel,
+#project-shootings .case-chapter-panel {
+  border: var(--line);
+  border-radius: var(--r);
+  background: var(--white);
+}
+
+#project-styx .case-photo-orbit,
+#project-shootings .case-photo-orbit {
+  border: var(--line);
+  border-radius: var(--r);
+  background: var(--white);
+}
+
+#project-styx .case-photo-orbit > .media-item,
+#project-shootings .case-photo-orbit > .media-item {
+  border: var(--line);
+  border-radius: var(--r);
+  background: var(--white);
+  color: var(--black);
+}
+
+#project-styx .case-chapter-hero__media--styx-graphic {
+  block-size: clamp(28rem, 56vw, 48rem);
+  min-block-size: clamp(28rem, 56vw, 48rem);
+}
+
+#project-styx .case-chapter-hero__media--styx-graphic > canvas,
+#project-styx .case-chapter-hero__media--styx-graphic > .visual-canvas {
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: inherit;
+}
+
+#project-styx .case-chapter-hero__media--scanography-videos {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+#project-styx .case-chapter-hero__media--scanography-videos > .media-item {
+  border: var(--line);
+  border-radius: var(--r);
+}
+
+@media (max-width: 48rem) {
+  #project-styx > .project__body,
+  #project-shootings > .project__body {
+    gap: var(--gap);
+  }
+
+  #project-styx .case-chapter-frame,
+  #project-shootings .case-chapter-frame {
+    border-radius: var(--r);
+  }
+
+  #project-styx .case-chapter-hero,
+  #project-shootings .case-chapter-hero {
+    padding: var(--component-gap);
+  }
+
+  #project-styx .case-chapter-hero__title,
+  #project-shootings .case-chapter-hero__title {
+    padding-inline: 0;
+    text-align: center;
+    white-space: normal;
+  }
+
+  #project-styx .case-chapter-hero__subtitle,
+  #project-shootings .case-chapter-hero__subtitle {
+    max-inline-size: 100%;
+    padding-inline: 0;
+    font-size: clamp(1.18rem, 5.6vw, 1.62rem);
+    text-align: left;
+  }
+
+  #project-styx .case-chapter-hero__media--styx-graphic {
+    block-size: clamp(24rem, 112vw, 38rem);
+    min-block-size: clamp(24rem, 112vw, 38rem);
+  }
+}
