@@ -93,7 +93,7 @@ const requestElementFullscreen = (element) => {
 };
 
 const getVideoContainer = (video) => {
-  return video.closest("[data-showcase-inline-video], .media-item, .media, [data-animation], [data-visual-demo]");
+  return video.closest(".media-item, .media, [data-animation], [data-visual-demo]");
 };
 
 const updateVideoControlIcon = (control, video) => {
@@ -216,7 +216,6 @@ export const initMediaFullscreenProximity = () => {
     ".media",
     "[data-animation]",
     "[data-visual-demo]",
-    "[data-showcase-inline-video]"
   ].join(",");
 
   document.querySelectorAll(selector).forEach((element) => {

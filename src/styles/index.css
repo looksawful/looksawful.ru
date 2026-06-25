@@ -3112,16 +3112,14 @@ p {
 .media,
 .media-figure,
 [data-animation],
-[data-visual-demo],
-[data-showcase-inline-video] {
+[data-visual-demo] {
   position: relative;
 }
 
 .media-item > .proximity-control,
 .media > .proximity-control,
 [data-animation] > .proximity-control,
-[data-visual-demo] > .proximity-control,
-[data-showcase-inline-video] > .proximity-control {
+[data-visual-demo] > .proximity-control > .proximity-control {
   position: absolute;
 }
 
