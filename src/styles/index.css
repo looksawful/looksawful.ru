@@ -1242,13 +1242,11 @@ p {
 
 /* Source: canvas.css */
 
-[data-animation],
-.embedded-demo {
+[data-animation] {
   position: relative;
 }
 
-[data-animation] canvas,
-.embedded-demo canvas {
+[data-animation] canvas canvas {
   display: block;
   width: 100%;
   height: 100%;
@@ -1264,8 +1262,7 @@ p {
   background: #fff;
 }
 
-[data-animation].is-canvas-loading::after,
-.embedded-demo.is-canvas-loading::after {
+[data-animation].is-canvas-loading::after.is-canvas-loading::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -1275,8 +1272,7 @@ p {
   animation: canvas-loading-sweep 1.4s linear infinite;
 }
 
-[data-animation].is-canvas-error::after,
-.embedded-demo.is-canvas-error::after {
+[data-animation].is-canvas-error::after.is-canvas-error::after {
   content: "canvas error";
   position: absolute;
   inset: auto 0.8rem 0.8rem auto;
@@ -1321,14 +1317,12 @@ p {
 }
 
 .media-item,
-[data-animation],
-.embedded-demo {
+[data-animation] {
   background: transparent;
   /* color: var(--black); */
 }
 
-[data-animation] canvas,
-.embedded-demo canvas {
+[data-animation] canvas canvas {
   background: transparent;
 }
 
@@ -1573,190 +1567,36 @@ p {
 
 /* Source: media-effects.css */
 
-/* media-effects */
+/* active media hover effects */
+
 .media-item {
   --media-hover-card-scale: 1.018;
   --media-hover-cover-scale: 1.045;
   --media-hover-duration: 260ms;
 }
 
-.media-hover-none {
-  --media-hover-card-scale: 1;
-  --media-hover-cover-scale: 1;
-}
-
-.media-before-after {
-  --split: 52%;
-  --split-line: 1px;
-  position: relative;
-  display: block;
-  overflow: hidden;
-  border: var(--line);
-  border-radius: var(--r);
-  background: var(--black);
-  aspect-ratio: 16 / 9;
-}
-
-.media-before-after > img,
-.media-before-after > video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.media-before-after > :first-child {
-  z-index: 1;
-}
-
-.media-before-after > :nth-child(2) {
-  z-index: 2;
-  clip-path: polygon(0 0, var(--split) 0, calc(var(--split) - 18%) 100%, 0 100%);
-}
-
-.media-before-after::after {
-  content: "";
-  position: absolute;
-  z-index: 3;
-  inset: -10% auto -10% var(--split);
-  width: var(--split-line);
-  background: var(--white);
-  transform: rotate(13deg);
-  transform-origin: 50% 50%;
-  animation: before-after-sweep 4.5s var(--ease-standard) infinite alternate;
-}
-
-@keyframes before-after-sweep {
-  from {
-    left: 28%;
-  }
-  to {
-    left: 72%;
-  }
-}
-
-.media-mask-soft {
-  overflow: hidden;
-  border-radius: 42% 58% 55% 45% / 48% 38% 62% 52%;
-}
-
-.media-mask-blob {
-  overflow: hidden;
-  clip-path: path(
-    "M0.08,0.42 C0.02,0.18 0.22,0.02 0.48,0.04 C0.76,0.06 0.98,0.2 0.94,0.48 C0.9,0.78 0.72,0.98 0.42,0.94 C0.16,0.91 0.02,0.68 0.08,0.42 Z"
-  );
-}
-
-.media-mask-rounded {
-  overflow: hidden;
-  border-radius: clamp(2rem, 9vw, 7rem);
-}
-
-@supports not (clip-path: path("M0,0 L1,1")) {
-  .media-mask-blob {
-    clip-path: none;
-    border-radius: 42% 58% 55% 45% / 48% 38% 62% 52%;
-  }
-}
-.media-mask-soft,
-.media-mask-blob,
-.media-mask-rounded {
-  overflow: hidden;
-}
-
-.media-mask-soft > .media-item,
-.media-mask-soft img,
-.media-mask-soft video {
-  clip-path: ellipse(46% 42% at 50% 50%);
-}
-
-.media-mask-blob > .media-item,
-.media-mask-blob img,
-.media-mask-blob video {
-  border-radius: 38% 62% 58% 42% / 52% 42% 58% 48%;
-}
-
-.media-mask-rounded > .media-item,
-.media-mask-rounded img,
-.media-mask-rounded video {
-  border-radius: clamp(2rem, 10vw, 8rem);
-}
-
 @media (hover: hover) and (pointer: fine) and (min-width: 48.001rem) {
-  :where(
-      .media-one,
-      .media-two,
-      .media-three,
-      .media-quad,
-      .media-six,
-      .media-eight,
-      .media-banner,
-      .media-strip,
-      .media-stack,
-      .media-masonry,
-      .media-centered-quad,
-      .media-eight-mixed
-    )
-    > .media-item:not(.media-hover-cover, .media-hover-none) {
+  :where(.media-two, .media-three, .media-quad, .media-six, .media-eight, .media-banner)
+    > .media-item {
     transition: transform var(--media-hover-duration) var(--ease-standard);
   }
 
-  :where(
-      .media-one,
-      .media-two,
-      .media-three,
-      .media-quad,
-      .media-six,
-      .media-eight,
-      .media-banner,
-      .media-strip,
-      .media-stack,
-      .media-masonry,
-      .media-centered-quad,
-      .media-eight-mixed
-    )
-    > .media-item:not(.media-hover-cover, .media-hover-none):is(:hover, :focus-visible) {
+  :where(.media-two, .media-three, .media-quad, .media-six, .media-eight, .media-banner)
+    > .media-item:is(:hover, :focus-visible) {
     z-index: 2;
     transform: scale(var(--media-hover-card-scale));
   }
 
-  :where(
-      .media-slider,
-      .media-marquee,
-      .media-ribbon,
-      .media-diagonal-masonry,
-      .media-overlap,
-      .media-overlap-three,
-      .media-static-orbit,
-      .media-orbit-static,
-      .media-mask-soft,
-      .media-mask-blob,
-      .media-mask-rounded
-    )
-    .media-item:not(.media-hover-none)
-    > :where(img, video),
-  .media-hover-cover:not(.media-hover-none) > :where(img, video) {
+  :where(.media-slider, .media-marquee)
+    .media-item
+    > :where(img, video) {
     transition: transform var(--media-hover-duration) var(--ease-standard);
     transform-origin: 50% 50%;
   }
 
-  :where(
-      .media-slider,
-      .media-marquee,
-      .media-ribbon,
-      .media-diagonal-masonry,
-      .media-overlap,
-      .media-overlap-three,
-      .media-static-orbit,
-      .media-orbit-static,
-      .media-mask-soft,
-      .media-mask-blob,
-      .media-mask-rounded
-    )
-    .media-item:not(.media-hover-none):is(:hover, :focus-visible)
-    > :where(img, video),
-  .media-hover-cover:not(.media-hover-none):is(:hover, :focus-visible) > :where(img, video) {
+  :where(.media-slider, .media-marquee)
+    .media-item:is(:hover, :focus-visible)
+    > :where(img, video) {
     transform: scale(var(--media-hover-cover-scale));
   }
 }
@@ -1767,7 +1607,6 @@ p {
     transition: none !important;
   }
 }
-
 
 /* Source: random-gallery.css */
 
@@ -3316,7 +3155,6 @@ p {
 .media-item,
 .media,
 .media-figure,
-.embedded-demo,
 [data-animation],
 [data-visual-demo],
 [data-showcase-inline-video],
@@ -3327,8 +3165,7 @@ pre,
 }
 
 .media-item > .proximity-control,
-.media > .proximity-control,
-.embedded-demo > .proximity-control,
+.media > .proximity-control > .proximity-control,
 [data-animation] > .proximity-control,
 [data-visual-demo] > .proximity-control,
 [data-showcase-inline-video] > .proximity-control,
