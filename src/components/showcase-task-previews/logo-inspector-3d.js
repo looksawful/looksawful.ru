@@ -32,7 +32,7 @@ const SHOW_AUDIENCE_LABELS = false;
 
 const DEFAULT_ASSETS = {
   model: "./logo.glb",
-  poster: "/assets/media/cases/jesteipool/01-logo/01/01.webp",
+  poster: "/assets/media/cases/jesteipool/01-logo/01/02.webp",
   oldLogo: "./assets/logo-primary.svg",
   newLogo: "./assets/logo-secondary.svg",
   contrastUnion: "./Union.svg",
