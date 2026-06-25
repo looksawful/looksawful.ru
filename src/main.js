@@ -1,7 +1,4 @@
 import "./vendor/gsap-globals.js";
-import "./components/showcase-sync-side-card-height.js";
-import "./components/showcase-sync-graphic-side-layouts.js";
-import "./components/showcase-gallery-aspect-fit.js";
 import "./visuals/dom/media-marquee.js";
 import "./visuals/dom/media-slider.js";
 import "./visuals/dom/policy-book.js";
