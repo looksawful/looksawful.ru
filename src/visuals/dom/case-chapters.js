@@ -1,30 +1,5 @@
-const mountedChapters = new WeakSet();
 const mountedJesteiFrames = new WeakSet();
 const mountedJesteiRails = new WeakSet();
-
-function syncChapter(chapter) {
-  const isOpen = chapter.classList.contains("is-open");
-  const toggle = chapter.querySelector("[data-case-chapter-toggle]");
-
-  chapter.classList.toggle("is-compact", !isOpen);
-
-  if (!toggle) {
-    return;
-  }
-
-  const openLabel = toggle.getAttribute("data-open-label") || "раскрыть детали";
-  const closeLabel = toggle.getAttribute("data-close-label") || "свернуть детали";
-
-  toggle.setAttribute("aria-expanded", String(isOpen));
-  toggle.textContent = isOpen ? closeLabel : openLabel;
-}
-
-function preserveScroll(target, callback) {
-  const before = target.getBoundingClientRect().top;
-  callback();
-  const after = target.getBoundingClientRect().top;
-  window.scrollBy(0, after - before);
-}
 
 function getFrameParts(frame) {
   return {
@@ -35,121 +10,80 @@ function getFrameParts(frame) {
 }
 
 function getFrameHeight(body) {
-  if (!(body instanceof HTMLElement)) {
-    return 0;
-  }
-
-  return body.offsetHeight;
+  return body instanceof HTMLElement ? body.offsetHeight : 0;
 }
 
 function animateHeight(element, from, to, options) {
   const gsap = window.gsap;
 
-  if (gsap) {
-    gsap.killTweensOf(element);
-    gsap.fromTo(
-      element,
-      { height: from },
-      {
-        height: to,
-        duration: options.duration,
-        ease: options.ease,
-        onComplete: options.onComplete
-      }
-    );
+  if (!gsap) {
+    element.style.height = String(to) + "px";
+    window.setTimeout(options.onComplete, options.duration * 1000);
     return;
   }
 
-  element.style.height = String(to) + "px";
-  window.setTimeout(options.onComplete, options.duration * 1000);
+  gsap.killTweensOf(element);
+  gsap.fromTo(
+    element,
+    { height: from },
+    {
+      height: to,
+      duration: options.duration,
+      ease: options.ease,
+      onComplete: options.onComplete
+    }
+  );
 }
 
 function syncJesteiFrame(frame) {
-  const parts = getFrameParts(frame);
+  const { toggle } = getFrameParts(frame);
   const isExpanded = frame.dataset.expanded === "true";
 
-  if (parts.toggle instanceof HTMLButtonElement) {
-    parts.toggle.setAttribute("aria-expanded", String(isExpanded));
-    parts.toggle.textContent = isExpanded ? "свернуть" : "развернуть";
-  }
-
   frame.classList.toggle("is-open", isExpanded);
+
+  if (toggle instanceof HTMLButtonElement) {
+    toggle.setAttribute("aria-expanded", String(isExpanded));
+    toggle.textContent = isExpanded ? "свернуть" : "развернуть";
+  }
 }
 
-function expandJesteiFrame(frame) {
-  if (frame.dataset.expanded === "true" || frame.dataset.animating === "true") {
+function setJesteiFrameExpanded(frame, nextExpanded) {
+  if (frame.dataset.animating === "true" || frame.dataset.expanded === String(nextExpanded)) {
     return;
   }
 
-  const parts = getFrameParts(frame);
+  const { wrap, body } = getFrameParts(frame);
 
-  if (!(parts.wrap instanceof HTMLElement) || !(parts.body instanceof HTMLElement)) {
+  if (!(wrap instanceof HTMLElement) || !(body instanceof HTMLElement)) {
     return;
   }
 
-  frame.dataset.expanded = "true";
-  frame.dataset.animating = "true";
-  syncJesteiFrame(frame);
-  parts.wrap.setAttribute("aria-hidden", "false");
+  const from = nextExpanded ? 0 : wrap.offsetHeight;
+  const to = nextExpanded ? getFrameHeight(body) : 0;
 
-  const targetHeight = getFrameHeight(parts.body);
-
-  animateHeight(parts.wrap, 0, targetHeight, {
-    duration: 0.7,
-    ease: "power3.inOut",
-    onComplete: () => {
-      parts.wrap.style.height = "auto";
-      frame.dataset.animating = "false";
-    }
-  });
-}
-
-function collapseJesteiFrame(frame) {
-  if (frame.dataset.expanded !== "true" || frame.dataset.animating === "true") {
-    return;
-  }
-
-  const parts = getFrameParts(frame);
-
-  if (!(parts.wrap instanceof HTMLElement)) {
-    return;
-  }
-
-  frame.dataset.expanded = "false";
+  frame.dataset.expanded = String(nextExpanded);
   frame.dataset.animating = "true";
   syncJesteiFrame(frame);
 
-  const currentHeight = parts.wrap.offsetHeight;
+  if (nextExpanded) {
+    wrap.setAttribute("aria-hidden", "false");
+  }
 
-  animateHeight(parts.wrap, currentHeight, 0, {
-    duration: 0.6,
+  animateHeight(wrap, from, to, {
+    duration: nextExpanded ? 0.7 : 0.6,
     ease: "power3.inOut",
     onComplete: () => {
-      parts.wrap.setAttribute("aria-hidden", "true");
+      wrap.style.height = nextExpanded ? "auto" : "0px";
+      wrap.setAttribute("aria-hidden", String(!nextExpanded));
       frame.dataset.animating = "false";
     }
   });
-}
-
-function toggleJesteiFrame(frame) {
-  if (frame.dataset.expanded === "true") {
-    collapseJesteiFrame(frame);
-    return;
-  }
-
-  expandJesteiFrame(frame);
 }
 
 function initJesteiChapterFrames(root) {
-  const frames = Array.from(root.querySelectorAll("[data-jestei-chapter-frame]"));
-
-  if (frames.length === 0) {
-    return;
-  }
-
-  for (const frame of frames) {
+  root.querySelectorAll("[data-jestei-chapter-frame]").forEach((frame) => {
     if (!(frame instanceof HTMLElement) || mountedJesteiFrames.has(frame)) {
-      continue;
+      return;
     }
 
     mountedJesteiFrames.add(frame);
@@ -157,16 +91,15 @@ function initJesteiChapterFrames(root) {
     frame.dataset.animating = "false";
     syncJesteiFrame(frame);
 
-    const parts = getFrameParts(frame);
+    const { toggle } = getFrameParts(frame);
 
-    if (parts.toggle instanceof HTMLButtonElement) {
-      parts.toggle.addEventListener("click", () => {
-        toggleJesteiFrame(frame);
+    if (toggle instanceof HTMLButtonElement) {
+      toggle.addEventListener("click", () => {
+        setJesteiFrameExpanded(frame, frame.dataset.expanded !== "true");
       });
     }
-  }
+  });
 }
-
 
 function getRailParts(rail) {
   return {
@@ -176,12 +109,8 @@ function getRailParts(rail) {
   };
 }
 
-function getRailMaxScroll(viewport) {
-  return Math.max(0, viewport.scrollWidth - viewport.clientWidth);
-}
-
 function updateRailControls(rail, viewport, prev, next) {
-  const maxScroll = getRailMaxScroll(viewport);
+  const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
   const currentScroll = viewport.scrollLeft;
 
   prev.hidden = currentScroll <= 1;
@@ -206,9 +135,7 @@ function initJesteiActionRail(rail) {
 
   let dragState = null;
 
-  const update = () => {
-    updateRailControls(rail, viewport, prev, next);
-  };
+  const update = () => updateRailControls(rail, viewport, prev, next);
 
   const scrollByPage = (direction) => {
     viewport.scrollBy({
@@ -272,32 +199,7 @@ function initJesteiActionRails(root) {
   root.querySelectorAll("[data-jestei-action-rail]").forEach(initJesteiActionRail);
 }
 
-
 export function initCaseChapters(root = document) {
-  root.querySelectorAll("[data-case-chapter]").forEach((chapter) => {
-    if (!(chapter instanceof HTMLElement) || mountedChapters.has(chapter)) {
-      return;
-    }
-
-    mountedChapters.add(chapter);
-    syncChapter(chapter);
-
-    const toggle = chapter.querySelector("[data-case-chapter-toggle]");
-
-    if (!(toggle instanceof HTMLButtonElement)) {
-      return;
-    }
-
-    toggle.addEventListener("click", () => {
-      preserveScroll(chapter, () => {
-        const nextOpen = !chapter.classList.contains("is-open");
-        chapter.classList.toggle("is-open", nextOpen);
-        chapter.classList.toggle("is-compact", !nextOpen);
-        syncChapter(chapter);
-      });
-    });
-  });
-
   initJesteiChapterFrames(root);
   initJesteiActionRails(root);
 }
