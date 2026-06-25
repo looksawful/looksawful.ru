@@ -69,3 +69,9 @@ audit-*.cjs
 **/_raw/
 **/_tmp/
 
+
+# inactive local visual labs; tracked copies live in src/_lab
+/src/visuals/canvas/photo-loop/
+/src/visuals/canvas/showcase-carousel/
+/src/visuals/canvas/diagonal-loop/
+/src/visuals/canvas/masonry/

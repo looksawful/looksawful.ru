@@ -67,6 +67,45 @@ const masonryItems = [
   { imageUrl: new URL("./assets/masonry/masonry-image (44).webp", import.meta.url).href },
 ];
 
+const EXTERNAL_MASONRY_DEFAULTS = {
+  count: 24,
+  extension: "webp"
+};
+
+const cleanMasonryPath = (path) => String(path || "").trim().replace(/\/$/, "");
+
+const cleanMasonryExtension = (extension) =>
+  (String(extension || EXTERNAL_MASONRY_DEFAULTS.extension).trim().replace(/^\./, "") || EXTERNAL_MASONRY_DEFAULTS.extension);
+
+const readMasonryCount = (value) => {
+  const count = Number.parseInt(value, 10);
+  return Number.isFinite(count) && count > 0 ? count : EXTERNAL_MASONRY_DEFAULTS.count;
+};
+
+const getMasonrySourceElement = (canvas) =>
+  canvas?.closest?.("[data-masonry-image-path]") || canvas;
+
+const createMasonryItemUrl = ({ path, index, extension }) =>
+  `${path}/${String(index + 1).padStart(2, "0")}.${extension}`;
+
+const getExternalMasonryItems = (canvas) => {
+  const source = getMasonrySourceElement(canvas);
+  const path = cleanMasonryPath(source?.dataset?.masonryImagePath);
+
+  if (!path) {
+    return null;
+  }
+
+  const count = readMasonryCount(source.dataset.masonryImageCount);
+  const extension = cleanMasonryExtension(source.dataset.masonryImageExtension);
+
+  return Array.from({ length: count }, (_, index) => ({
+    imageUrl: createMasonryItemUrl({ path, index, extension })
+  }));
+};
+
+const resolveMasonryItems = (canvas) => getExternalMasonryItems(canvas) || masonryItems;
+
 const config = {
   columnCount: "auto",
   preferredColumnWidth: 165,
@@ -942,7 +981,7 @@ export const mountMasonry = async (canvasId = "masonry-container") => {
 
   const key = getAnimationKey(canvasId);
   const mountToken = beginMount(key);
-  const items = await loadImages(masonryItems);
+  const items = await loadImages(resolveMasonryItems(canvas));
 
   if (!isCurrentMount(key, mountToken)) {
     return createDisposeHandle();

@@ -1,8 +1,4 @@
 import "./vendor/gsap-globals.js";
-import { initHeadingAnimations } from "./components/heading-animations.js";
-import "./components/showcase-sync-side-card-height.js";
-import "./components/showcase-sync-graphic-side-layouts.js";
-import "./components/showcase-gallery-aspect-fit.js";
 import "./visuals/dom/media-marquee.js";
 import "./visuals/dom/media-slider.js";
 import "./visuals/dom/policy-book.js";
@@ -10,6 +6,8 @@ import "./visuals/dom/list-scroll.js";
 import "./components/proximity-components.js";
 import { initPlaylistFilterEmbed } from "./visuals/dom/playlist-filter-embed.js";
 import { initRandomGalleries } from "./visuals/dom/random-gallery.js";
+import { initCaseChapters } from "./visuals/dom/case-chapters.js";
+import { initArtifactReaders } from "./visuals/dom/artifact-reader.js";
 import { initComponents } from "./components/index.js";
 
 let appInitialized = false;
@@ -38,9 +36,10 @@ async function initApp() {
   appInitialized = true;
 
   await runInitStep("initComponents", () => initComponents(document));
-  await runInitStep("initHeadingAnimations", () => initHeadingAnimations(document));
   await runInitStep("initPlaylistFilterEmbed", () => initPlaylistFilterEmbed(document));
   await runInitStep("initRandomGalleries", () => initRandomGalleries(document));
+  await runInitStep("initCaseChapters", () => initCaseChapters(document));
+  await runInitStep("initArtifactReaders", () => initArtifactReaders(document));
 }
 
 if (document.readyState === "loading") {

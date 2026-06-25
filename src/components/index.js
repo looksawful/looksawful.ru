@@ -45,21 +45,10 @@ async function initContentEnhancements(root = document) {
       (module) => module.initSiteHeader(root),
     ),
     runComponentImportStep(
-      "initShowcaseToc",
-      () => import("./showcase-toc.js"),
-      (module) => module.initShowcaseToc(root),
-    ),
-    runComponentImportStep(
       "initLightbox",
       () => import("./lightbox.js"),
       (module) => module.initLightbox(root),
-    ),
-    // Heading + gallery scroll-reveal (IntersectionObserver, no pre-hide)
-    runComponentImportStep(
-      "initHeadingAnimations",
-      () => import("./heading-animations.js"),
-      (module) => module.initHeadingAnimations(root),
-    ),
+    )
   ]);
 }
 
@@ -74,11 +63,6 @@ async function initVisualEnhancements(root = document) {
       "initCvInlineVideos",
       () => import("./showcase-inline-video/showcase-inline-video.js"),
       (module) => module.initCvInlineVideos(root),
-    ),
-    runComponentImportStep(
-      "initShowcasePhotoLoop",
-      () => import("../visuals/canvas/photo-loop/index.js"),
-      (module) => module.initShowcasePhotoLoop(root),
     ),
     runComponentImportStep(
       "initShowcaseBeforeAfter",
@@ -99,11 +83,6 @@ async function initDecorations(root = document) {
       "mountawfulface",
       () => import("./awfulface/awfulface.js"),
       (module) => module.mountawfulface("awfulface-hero"),
-    ),
-    runComponentImportStep(
-      "initSystemMotion",
-      () => import("./system-motion/system-motion.js"),
-      (module) => module.initSystemMotion(root),
     ),
     runComponentImportStep(
       "initFilterFullscreen",
