@@ -1252,11 +1252,7 @@ p {
   height: 100%;
 }
 
-[data-animation="before-after"] {
-  min-height: clamp(18rem, 42vw, 42rem);
-  background: #fff;
-}
-
+[data-animation="before-after"],
 [data-animation="before-after"] canvas {
   min-height: clamp(18rem, 42vw, 42rem);
   background: #fff;
@@ -1279,23 +1275,17 @@ p {
   padding: 0.34rem 0.48rem 0.38rem;
   border: 1px solid #000;
   border-radius: 999px;
-  color: #000;
   background: #fff;
+  color: #000;
   font-size: 0.64rem;
   font-weight: 700;
   line-height: 1;
 }
 
 @keyframes canvas-loading-sweep {
-  from {
-    background-position: 220% 0;
-  }
-
-  to {
-    background-position: -220% 0;
-  }
+  from { background-position: 220% 0; }
+  to { background-position: -220% 0; }
 }
-
 
 /* Source: media.css */
 
