@@ -2,27 +2,26 @@
 @import "./modules/layout.css";
 @import "./modules/typography.css";
 @import "./modules/media.css";
+@import "./modules/awfulface.css";
 @import "./modules/hero-skill-marquee.css";
+@import "./modules/site-header.css";
+@import "./modules/hero.css";
+@import "./modules/footer.css";
+
 @import "./modules/project.css";
 @import "./modules/project-responsibilities.css";
 @import "./modules/resume.css";
-@import "./modules/footer.css";
-@import "./modules/awfulface.css";
+
 @import "./modules/cases-jestei.css";
 @import "./modules/jestei-responsibilities-header.css";
 @import "./modules/cases-generic.css";
+@import "./modules/chapter-frames.css";
+
 @import "./modules/policy-book.css";
 @import "./modules/artifact-reader.css";
 @import "./modules/jestei-policy-marquee.css";
+
 @import "./modules/unassigned.css";
 @import "./modules/jestei-token-colors.css";
 @import "./modules/mobile-fixes.css";
-@import "./modules/chapter-frames.css";
-@import "./modules/site-header.css";
-@import "./modules/hero.css";
-
-
-
-
-
 
