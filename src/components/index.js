@@ -1,12 +1,3 @@
-function has(selector, root = document) {
-  try {
-    return Boolean(root?.querySelector?.(selector));
-  } catch (error) {
-    console.error("[components] invalid selector: " + selector, error);
-    return false;
-  }
-}
-
 function runComponentStep(label, callback) {
   try {
     return callback();
@@ -19,11 +10,24 @@ function runComponentStep(label, callback) {
 async function runComponentImportStep(label, importer, callback) {
   try {
     const module = await importer();
+
     return runComponentStep(label, () => callback(module));
   } catch (error) {
     console.error("[components] " + label + " failed", error);
     return null;
   }
+}
+
+function has(selector, root = document) {
+  return Boolean(root?.querySelector?.(selector));
+}
+
+function pushGuardedImport(tasks, root, selector, label, importer, callback) {
+  if (!has(selector, root)) {
+    return;
+  }
+
+  tasks.push(runComponentImportStep(label, importer, callback));
 }
 
 function runAfterFirstPaint(callback) {
@@ -44,14 +48,6 @@ function runWhenIdle(callback) {
   }
 
   window.setTimeout(callback, 120);
-}
-
-function pushGuardedImport(tasks, root, selector, label, importer, callback) {
-  if (!has(selector, root)) {
-    return;
-  }
-
-  tasks.push(runComponentImportStep(label, importer, callback));
 }
 
 async function initContentEnhancements(root = document) {
@@ -117,24 +113,26 @@ async function initDecorations(root = document) {
   pushGuardedImport(
     tasks,
     root,
-    ".hero-title, [data-hero-title], .hero-title-line, .hero__headline-wrap",
+    ".hero-title, [data-hero-title], .hero-title-line, .hero__headline-wrap, #hero-title",
     "initHeroTitleAnimation",
     () => import("./hero-title/hero-title.js"),
     (module) => module.initHeroTitleAnimation(root),
   );
 
   if (document.getElementById("awfulface-hero")) {
-    tasks.push(runComponentImportStep(
-      "mountawfulface",
-      () => import("./awfulface/awfulface.js"),
-      (module) => module.mountawfulface("awfulface-hero"),
-    ));
+    tasks.push(
+      runComponentImportStep(
+        "mountawfulface",
+        () => import("./awfulface/awfulface.js"),
+        (module) => module.mountawfulface("awfulface-hero"),
+      ),
+    );
   }
 
   pushGuardedImport(
     tasks,
     root,
-    "[data-filter-fullscreen], .filter-fullscreen-wrapper",
+    "[data-filter-fullscreen], [data-filter-fullscreen-root], .filter-fullscreen-wrapper, .filter-fullscreen-button, .playlist-filter-embed",
     "initFilterFullscreen",
     () => import("./filter-fullscreen.js"),
     (module) => module.initFilterFullscreen(root),
@@ -144,7 +142,12 @@ async function initDecorations(root = document) {
 }
 
 export function initComponents(root = document) {
-  if (has("main .title, .project__head .title, .section-head > .title, .block__header > .title, .text-block > .title, .component-caption > .title, [data-reveal-char]", root)) {
+  if (
+    has(
+      "main .title, .project__head .title, .section-head > .title, .block__header > .title, .text-block > .title, .component-caption > .title, [data-reveal-char]",
+      root,
+    )
+  ) {
     runComponentImportStep(
       "initHeadingAnimations",
       () => import("./heading-animations.js"),
@@ -164,6 +167,6 @@ export function initComponents(root = document) {
     });
 
   runWhenIdle(() => {
+    // reserved for non-critical components
   });
 }
-
