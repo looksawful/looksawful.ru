@@ -1,25 +1,19 @@
+# dependencies
 node_modules/
 
-# Оригиналы медиа до сжатия (большие файлы, вне git)
-_media-originals/
-_media-originals/**
-_backup_large_images/
-_backup_large_images/**
-sandbox/
-sandbox/**
-
+# builds
 dist/
 dist-ssr/
 build/
 out/
-.tmp/
 
-*.local
-
+# local env
 .env
 .env.local
 .env.*.local
+*.local
 
+# logs
 logs/
 *.log
 npm-debug.log*
@@ -27,13 +21,14 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+# os / editors
 .DS_Store
 .DS_Store?
 ._*
 Thumbs.db
 ehthumbs.db
 Desktop.ini
-
 .idea/
 *.suo
 *.ntvs*
@@ -44,38 +39,53 @@ Desktop.ini
 .vscode/*
 !.vscode/extensions.json
 
+# cache / temp
+.tmp/
+tmp/
+temp/
+.cache/
+.vite/
 *.tsbuildinfo
-
 coverage/
 
-*.blend1
-
-*.psd
-*.pdf
-*.txt
-
-
-.env*
+# local audits / reports / archives
 .audit/
 audit-*.cjs
 *.audit.md
+_archive/
+_reports/
+
+# local-only working area
+_local/*
+!_local/comments/
+_local/comments/*
+!_local/comments/.gitkeep
+!_local/reports/
+_local/reports/*
+!_local/reports/.gitkeep
+!_local/media-backup/
+_local/media-backup/*
+!_local/media-backup/.gitkeep
+!_local/tmp/
+_local/tmp/*
+!_local/tmp/.gitkeep
+
 # local media sources / generated normalization folders
-*.7z
+_media-originals/
+_media-originals/**
+_backup_large_images/
+_backup_large_images/**
 **/_normalized_300dpi/
 **/_source/
 **/_raw/
 **/_tmp/
 
-
-# inactive local visual labs; tracked copies live in src/_lab
-/src/visuals/canvas/photo-loop/
-/src/visuals/canvas/showcase-carousel/
-/src/visuals/canvas/diagonal-loop/
-/src/visuals/canvas/masonry/
-
-# tools and scripts
-tools/
-_reports/
+# heavy source formats
+*.psd
+*.psb
+*.blend1
 
 # archives
-/src/_lab
+*.7z
+*.zip
+*.rar
