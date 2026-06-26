@@ -60,3 +60,46 @@
     padding-inline: 1.25rem;
   }
 }
+
+
+/* Jestei disclosure tab parity with generic case cards */
+
+.jestei-chapter-frame > .jestei-chapter-frame__control {
+  display: flex;
+  justify-content: center;
+  inline-size: 100%;
+  min-inline-size: 0;
+  margin-block-start: -1px;
+  padding: 0 var(--gap) var(--gap);
+}
+
+.jestei-chapter-frame > .jestei-chapter-frame__control > .button.jestei-chapter-frame__toggle {
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: center;
+  inline-size: auto;
+  width: auto;
+  min-inline-size: min(100%, 18rem);
+  max-inline-size: min(100%, 22rem);
+  min-block-size: 2.75rem;
+  padding-inline: clamp(1.2rem, 3vw, 2rem);
+  border-block-start: 0;
+  border-radius: 0 0 var(--r) var(--r);
+  text-align: center;
+  transform-origin: top center;
+}
+
+@media (max-width: 48rem), (hover: none) and (pointer: coarse) {
+  .jestei-chapter-frame > .jestei-chapter-frame__control {
+    padding-inline: var(--component-gap);
+    padding-block-start: 0;
+    padding-block-end: var(--component-gap);
+  }
+
+  .jestei-chapter-frame > .jestei-chapter-frame__control > .button.jestei-chapter-frame__toggle {
+    min-block-size: 3rem;
+    min-inline-size: min(100%, 20rem);
+    padding-inline: 1.25rem;
+  }
+}

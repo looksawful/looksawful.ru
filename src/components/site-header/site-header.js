@@ -252,8 +252,33 @@ export function initSiteHeader(root = document) {
   let flipTween = null;
   let scrollTicking = false;
 
-  const collapseStart = () => Math.round(window.innerHeight * 0.68);
-  const expandBack = () => Math.round(window.innerHeight * 0.36);
+  const getHeroBottom = () => {
+    const hero = root.querySelector("#hero");
+
+    if (!(hero instanceof HTMLElement)) {
+      return window.innerHeight;
+    }
+
+    const rect = hero.getBoundingClientRect();
+
+    return Math.round(window.scrollY + rect.bottom);
+  };
+
+  const collapseStart = () => {
+    if (forcedMobile) {
+      return getHeroBottom();
+    }
+
+    return Math.round(window.innerHeight * 0.68);
+  };
+
+  const expandBack = () => {
+    if (forcedMobile) {
+      return Math.max(0, getHeroBottom() - Math.round(window.innerHeight * 0.18));
+    }
+
+    return Math.round(window.innerHeight * 0.36);
+  };
 
   const chipStates = {
     default: {
@@ -554,11 +579,6 @@ export function initSiteHeader(root = document) {
   };
 
   const syncCollapsedToScroll = (instant = false) => {
-    if (forcedMobile) {
-      morphNav(true, instant);
-      return;
-    }
-
     if (!collapsed && window.scrollY > collapseStart()) {
       morphNav(true, instant);
       return;
@@ -683,24 +703,12 @@ export function initSiteHeader(root = document) {
 
   media.add("(max-width: 48rem)", () => {
     forcedMobile = true;
-    morphNav(true, true);
-
-    gsap.set(trigger, {
-      autoAlpha: 1,
-      scale: 1,
-      pointerEvents: "auto",
-    });
-
-    gsap.set(chipsNav, {
-      autoAlpha: 0,
-      pointerEvents: "none",
-    });
+    setMenuProgress(0);
+    syncCollapsedToScroll(true);
 
     return () => {
       forcedMobile = false;
       setMenuProgress(0);
-      gsap.set(trigger, { clearProps: "pointerEvents" });
-      gsap.set(chipsNav, { clearProps: "pointerEvents" });
       syncCollapsedToScroll(true);
     };
   });

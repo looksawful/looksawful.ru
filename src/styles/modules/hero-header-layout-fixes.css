@@ -1,0 +1,46 @@
+/* Hero vertical alignment and mobile header timing */
+
+.hero__screen {
+  min-block-size: 100vh;
+  min-block-size: 100svh;
+  align-content: center;
+}
+
+.hero__screen--cover {
+  min-block-size: 100vh;
+  min-block-size: 100svh;
+  align-content: center;
+}
+
+@media (min-width: 48.001rem) {
+  .hero__screen {
+    padding-block: clamp(5rem, 8svh, 7rem);
+  }
+}
+
+@media (max-width: 48rem) {
+  .site-header__island.is-expanded .site-header__trigger {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .site-header__island.is-expanded .site-header__chips {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .hero__screen {
+    min-block-size: 100svh;
+    align-content: center;
+    row-gap: clamp(1.35rem, 4.8svh, 3rem);
+    padding-block-start: max(5.6rem, calc(env(safe-area-inset-top) + 4.8rem));
+    padding-block-end: clamp(2.4rem, 7svh, 4rem);
+  }
+
+  .hero__screen--cover {
+    min-block-size: 100svh;
+    align-content: center;
+  }
+}
