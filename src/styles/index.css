@@ -67,4 +67,60 @@ body .hero-content {
   }
 }
 /* hero header clearance: end */
+/* safe interface polish: start */
+:root {
+  --focus-ring-offset: 4px;
+  --tap-target-min: 40px;
+}
 
+:where(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: var(--focus-ring-offset);
+}
+
+:where(
+  .button,
+  .project-link,
+  .jestei-action-rail__arrow,
+  .jestei-chapter-frame__toggle,
+  .filter-fullscreen-button,
+  .lightbox__close
+) {
+  min-height: var(--tap-target-min);
+}
+
+:where(
+  .list-card,
+  .responsibility-card,
+  .jestei-action-card,
+  .project__head,
+  .block__header,
+  .text-block,
+  .hero__note
+) {
+  overflow-wrap: break-word;
+}
+
+:where(img, video, canvas, svg) {
+  max-width: 100%;
+}
+
+:where(.media-item, .project__logo, .visual-canvas) {
+  min-width: 0;
+}
+
+:where(.jestei-action-rail__arrow, .jestei-chapter-frame__toggle, .filter-fullscreen-button) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --focus-ring-offset: 3px;
+    --tap-target-min: 38px;
+  }
+
+  :where(.hero__note, .contact-links) {
+    max-width: 100%;
+  }
+}
+/* safe interface polish: end */
