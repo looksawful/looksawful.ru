@@ -3,6 +3,10 @@
 @import "./modules/typography.css";
 @import "./modules/media.css";
 @import "./modules/components.css";
+@import "./modules/hero-skill-marquee.css";
+@import "./modules/project.css";
+@import "./modules/project-responsibilities.css";
+@import "./modules/resume.css";
 @import "./modules/footer.css";
 @import "./modules/awfulface.css";
 @import "./modules/cases-jestei.css";
