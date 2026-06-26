@@ -1,0 +1,62 @@
+/* CSS-only docked disclosure tabs for Jestei, Styx and Shootings */
+
+.jestei-chapter-frame,
+.case-chapter-frame {
+  position: relative;
+}
+
+.jestei-chapter-frame__control,
+.case-chapter-frame__control,
+#project-styx .case-chapter-frame__control,
+#project-shootings .case-chapter-frame__control {
+  display: flex;
+  justify-content: center;
+  inline-size: 100%;
+  min-inline-size: 0;
+  margin-block-start: -1px;
+  padding: 0 var(--gap) var(--gap);
+}
+
+.jestei-chapter-frame__toggle,
+.case-chapter-frame__toggle,
+#project-styx .case-chapter-frame__toggle,
+#project-shootings .case-chapter-frame__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: auto;
+  min-inline-size: min(100%, 18rem);
+  max-inline-size: min(100%, 22rem);
+  min-block-size: 2.75rem;
+  padding-inline: clamp(1.2rem, 3vw, 2rem);
+  border-block-start: 0;
+  border-radius: 0 0 var(--r) var(--r);
+  text-align: center;
+  transform-origin: top center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .jestei-chapter-frame__toggle:hover,
+  .case-chapter-frame__toggle:hover {
+    transform: translateY(1px);
+  }
+}
+
+@media (max-width: 48rem), (hover: none) and (pointer: coarse) {
+  .jestei-chapter-frame__control,
+  .case-chapter-frame__control,
+  #project-styx .case-chapter-frame__control,
+  #project-shootings .case-chapter-frame__control {
+    padding-inline: var(--component-gap);
+    padding-block-end: var(--component-gap);
+  }
+
+  .jestei-chapter-frame__toggle,
+  .case-chapter-frame__toggle,
+  #project-styx .case-chapter-frame__toggle,
+  #project-shootings .case-chapter-frame__toggle {
+    min-block-size: 3rem;
+    min-inline-size: min(100%, 20rem);
+    padding-inline: 1.25rem;
+  }
+}
