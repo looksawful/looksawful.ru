@@ -3,10 +3,12 @@
 @import "./modules/typography.css";
 @import "./modules/media.css";
 @import "./modules/components.css";
+@import "./modules/footer.css";
 @import "./modules/cases-jestei.css";
 @import "./modules/jestei-responsibilities-header.css";
 @import "./modules/cases-generic.css";
 @import "./modules/policy-book.css";
+@import "./modules/artifact-reader.css";
 @import "./modules/jestei-policy-marquee.css";
 @import "./modules/unassigned.css";
 @import "./modules/jestei-token-colors.css";
@@ -21,5 +23,3 @@
 @import "./modules/chapter-disclosure-tabs.css";
 @import "./modules/site-header-mobile-timing.css";
 @import "./modules/hero-header-layout-fixes.css";
-
-
