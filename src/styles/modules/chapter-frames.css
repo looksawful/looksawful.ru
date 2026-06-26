@@ -1,0 +1,146 @@
+/* Source: chapter-frames.css */
+
+/* folded from mobile-chapter-hero-fixes.css:start */
+/* Mobile chapter hero sizing fixes */
+
+@media (max-width: 48rem) {
+  .jestei-chapter-hero {
+    gap: clamp(1rem, 4vw, 1.35rem);
+    padding: var(--component-gap);
+  }
+
+  .jestei-chapter-hero__title {
+    padding-inline: 0;
+    max-inline-size: 100%;
+    white-space: normal;
+  }
+
+  .jestei-chapter-hero__subtitle {
+    max-inline-size: 100%;
+    padding-inline: 0;
+    font-size: clamp(1.12rem, 4.85vw, 1.55rem);
+    line-height: 1.16;
+    text-align: left;
+  }
+
+  .jestei-chapter-hero__marquee {
+    inline-size: 100%;
+  }
+
+  .jestei-chapter-hero__media.media,
+  .jestei-chapter-hero__media.media-banner,
+  .jestei-chapter-hero__media.media-figure {
+    min-block-size: clamp(12rem, 58vw, 22rem);
+  }
+
+  .jestei-chapter-hero__media--logo,
+  .jestei-chapter-hero__media--logo > [data-visual-demo],
+  .jestei-chapter-hero__media--project-logo,
+  .jestei-chapter-hero__media--project-logo > .visual-canvas {
+    min-block-size: clamp(19rem, 82vw, 31rem);
+  }
+
+  .jestei-chapter-hero__media--logo > [data-visual-demo],
+  .jestei-chapter-hero__media--project-logo > .visual-canvas,
+  .jestei-chapter-hero__media--logo canvas {
+    block-size: 100%;
+  }
+
+  .jestei-chapter-frame__control,
+  .case-chapter-frame__control {
+    padding-block-start: clamp(0.75rem, 3vw, 1rem);
+  }
+
+  .jestei-chapter-frame__toggle,
+  .case-chapter-frame__toggle {
+    justify-content: center;
+    min-block-size: 2.25rem;
+    text-align: center;
+  }
+
+  .jestei-chapter-frame--graphics .jestei-chapter-hero__subtitle,
+  .case-chapter-frame .case-chapter-hero__subtitle {
+    font-size: clamp(1.12rem, 4.85vw, 1.55rem);
+    line-height: 1.16;
+    text-align: left;
+  }
+}
+/* folded from mobile-chapter-hero-fixes.css:end */
+
+/* folded from chapter-disclosure-tabs.css:start */
+/* CSS-only docked disclosure tabs for Jestei, Styx and Shootings */
+
+.jestei-chapter-frame,
+.case-chapter-frame {
+  position: relative;
+}
+
+.jestei-chapter-frame > .jestei-chapter-hero,
+.case-chapter-frame > .case-chapter-hero {
+  border-block-end: var(--line);
+}
+
+.jestei-chapter-frame__control,
+.case-chapter-frame__control {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  inline-size: 100%;
+  min-inline-size: 0;
+  margin-block-start: -1px;
+  margin-block-end: var(--gap);
+  padding-block: 0;
+  padding-inline: var(--gap);
+}
+
+.jestei-chapter-frame__toggle,
+.case-chapter-frame__toggle {
+  position: relative;
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: center;
+  inline-size: auto;
+  width: auto;
+  min-inline-size: min(100%, 18rem);
+  max-inline-size: min(100%, 22rem);
+  min-block-size: 2.75rem;
+  padding-block: 0.72rem 0.82rem;
+  padding-inline: clamp(1.2rem, 3vw, 2rem);
+  border: var(--line);
+  border-block-start: 0;
+  border-start-start-radius: 0;
+  border-start-end-radius: 0;
+  border-end-start-radius: var(--r);
+  border-end-end-radius: var(--r);
+  background: var(--white);
+  color: var(--black);
+  text-align: center;
+  transform-origin: top center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .jestei-chapter-frame__toggle:hover,
+  .case-chapter-frame__toggle:hover {
+    transform: translateY(1px);
+  }
+}
+
+@media (max-width: 48rem) {
+  .jestei-chapter-frame__control,
+  .case-chapter-frame__control {
+    margin-block-end: var(--component-gap);
+    padding-inline: var(--component-gap);
+  }
+
+  .jestei-chapter-frame__toggle,
+  .case-chapter-frame__toggle {
+    min-inline-size: min(100%, 16rem);
+    max-inline-size: 100%;
+    min-block-size: 2.6rem;
+    padding-inline: 1.1rem;
+  }
+}
+/* folded from chapter-disclosure-tabs.css:end */
+
