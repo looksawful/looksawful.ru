@@ -73,3 +73,21 @@
     min-block-size: clamp(14rem, 72vw, 21rem);
   }
 }
+
+/* folded from mobile-jestei-polish.css:toc:start */
+@media (max-width: 64rem) {
+  [data-showcase-toc],
+  .showcase-toc,
+  .case-toc,
+  .project-toc,
+  .chapter-toc,
+  .case-outline,
+  .project-outline,
+  .showcase-outline,
+  .case-chapter__toc,
+  .project-chapter__toc {
+    display: none;
+  }
+}
+/* folded from mobile-jestei-polish.css:toc:end */
+

@@ -319,3 +319,27 @@
   }
 }
 
+/* folded from inline-cleanup.css:start */
+/* Small classes extracted from legacy inline attributes */
+
+.u-justify-end-narrow {
+  justify-self: end;
+  width: min(100%, 38rem);
+}
+
+.media-transparent {
+  background: transparent;
+  border-color: transparent;
+}
+
+.media-transparent > img,
+img.media-transparent {
+  background: transparent;
+  border-color: transparent;
+}
+
+.media-object-fill {
+  object-fit: fill;
+}
+/* folded from inline-cleanup.css:end */
+

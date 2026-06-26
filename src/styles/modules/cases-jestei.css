@@ -418,3 +418,25 @@
     max-inline-size: 72vw;
   }
 }
+
+/* folded from mobile-jestei-polish.css:action-rail:start */
+@media (max-width: 48rem) {
+  .jestei-action-rail__controls {
+    display: none;
+  }
+
+  .jestei-action-rail__viewport {
+    scroll-snap-type: x proximity;
+  }
+
+  .jestei-action-rail__track {
+    grid-auto-columns: minmax(76vw, 76vw);
+  }
+
+  .jestei-action-card {
+    min-inline-size: 76vw;
+    max-inline-size: 76vw;
+  }
+}
+/* folded from mobile-jestei-polish.css:action-rail:end */
+
