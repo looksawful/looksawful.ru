@@ -253,29 +253,4 @@
   top: var(--proximity-control-inset);
   right: var(--proximity-control-inset);
 }
-.proximity-surface {
-  transform-origin: center;
-  will-change: transform;
-  backface-visibility: hidden;
-}
 
-.proximity-surface.is-proximity-interactive {
-  position: relative;
-  z-index: 2;
-}
-
-@media (hover: none), (pointer: coarse) {
-  .proximity-surface,
-  .proximity-surface.is-proximity-interactive {
-    transform: none;
-    will-change: auto;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .proximity-surface,
-  .proximity-surface.is-proximity-interactive {
-    transform: none;
-    will-change: auto;
-  }
-}
