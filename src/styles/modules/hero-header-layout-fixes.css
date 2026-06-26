@@ -1,11 +1,13 @@
-/* Hero vertical alignment and mobile header timing */
+/* Hero vertical alignment and mobile header timing.
+   Container-only: no grid-template rows, no child grid-row changes. */
 
-.hero__screen {
+#hero,
+.hero.section {
   min-block-size: 100vh;
   min-block-size: 100svh;
-  align-content: center;
 }
 
+.hero__screen,
 .hero__screen--cover {
   min-block-size: 100vh;
   min-block-size: 100svh;
@@ -13,8 +15,10 @@
 }
 
 @media (min-width: 48.001rem) {
-  .hero__screen {
-    padding-block: clamp(5rem, 8svh, 7rem);
+  .hero__screen,
+  .hero__screen--cover {
+    padding-block-start: clamp(5rem, 8svh, 7rem);
+    padding-block-end: clamp(5rem, 8svh, 7rem);
   }
 }
 
@@ -31,16 +35,11 @@
     pointer-events: auto;
   }
 
-  .hero__screen {
-    min-block-size: 100svh;
-    align-content: center;
-    row-gap: clamp(1.35rem, 4.8svh, 3rem);
-    padding-block-start: max(5.6rem, calc(env(safe-area-inset-top) + 4.8rem));
-    padding-block-end: clamp(2.4rem, 7svh, 4rem);
-  }
-
+  .hero__screen,
   .hero__screen--cover {
     min-block-size: 100svh;
     align-content: center;
+    padding-block-start: max(5.8rem, calc(env(safe-area-inset-top) + 5rem));
+    padding-block-end: clamp(2.8rem, 8svh, 4.2rem);
   }
 }
