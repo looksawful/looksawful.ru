@@ -7,7 +7,7 @@ dist-ssr/
 build/
 out/
 
-# local env
+# environment
 .env
 .env.local
 .env.*.local
@@ -39,7 +39,7 @@ Desktop.ini
 .vscode/*
 !.vscode/extensions.json
 
-# cache / temp
+# cache / temporary
 .tmp/
 tmp/
 temp/
@@ -50,10 +50,12 @@ coverage/
 
 # local audits / reports / archives
 .audit/
+audit/
 audit-*.cjs
 *.audit.md
 _archive/
 _reports/
+_rollback-audit/
 
 # local-only working area
 _local/*
@@ -82,6 +84,8 @@ _backup_large_images/**
 **/_source/
 **/_raw/
 **/_tmp/
+*.tmp.*
+*.__opt*
 
 # heavy source formats
 *.psd
