@@ -1,7 +1,17 @@
 @import "./modules/core.css";
 @import "./modules/layout.css";
 @import "./modules/typography.css";
+@import "./modules/canvas.css";
 @import "./modules/media.css";
+@import "./modules/media-grid.css";
+@import "./modules/media-caption.css";
+@import "./modules/media-effects.css";
+@import "./modules/random-gallery.css";
+@import "./modules/media-marquee.css";
+@import "./modules/media-slider.css";
+@import "./modules/media-skeleton.css";
+@import "./modules/lightbox.css";
+@import "./modules/proximity.css";
 @import "./modules/awfulface.css";
 @import "./modules/hero-skill-marquee.css";
 @import "./modules/site-header.css";
@@ -24,4 +34,5 @@
 @import "./modules/unassigned.css";
 @import "./modules/jestei-token-colors.css";
 @import "./modules/mobile-fixes.css";
+
 

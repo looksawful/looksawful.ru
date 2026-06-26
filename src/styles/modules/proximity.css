@@ -1,0 +1,263 @@
+/* Source: proximity.css */
+
+/* proximity */
+
+.proximity-control {
+  --proximity-control-size: clamp(1.75rem, 2.1vw, 2.2rem);
+  --proximity-control-icon: 0.92rem;
+  --proximity-control-inset: clamp(0.5rem, 1.2vw, 0.85rem);
+
+  position: absolute;
+  z-index: 8;
+
+  display: inline-grid;
+  place-items: center;
+
+  width: var(--proximity-control-size);
+  aspect-ratio: 1;
+  padding: 0;
+
+  border: var(--stroke, 1px) solid currentColor;
+  border-radius: 999px;
+
+  background: var(--color-surface, var(--white, #fff));
+  color: var(--black, #000);
+
+  font: inherit;
+  line-height: 1;
+  text-decoration: none;
+
+  opacity: 0;
+  visibility: visible;
+  transform: translateY(0.5rem) scaleX(0.94) scaleY(0.94);
+  transform-origin: center;
+
+  pointer-events: none;
+  cursor: pointer;
+  will-change: opacity, transform;
+  box-shadow: 0 0.35rem 1.2rem rgba(0, 0, 0, 0.08);
+}
+
+.proximity-control svg {
+  display: block;
+  width: var(--proximity-control-icon);
+  height: var(--proximity-control-icon);
+  color: currentColor;
+}
+
+.proximity-control:hover,
+.proximity-control:focus-visible {
+  background: var(--black, #000);
+  color: var(--white, #fff);
+  outline: 0;
+}
+
+.proximity-control:focus-visible {
+  box-shadow:
+    0 0 0 0.18rem rgba(0, 0, 0, 0.18),
+    0 0.35rem 1.2rem rgba(0, 0, 0, 0.08);
+}
+
+.proximity-control.is-proximity-interactive {
+  pointer-events: auto;
+}
+
+.proximity-control.is-copied {
+  background: var(--black, #000);
+  color: var(--white, #fff);
+}
+
+.proximity-control--top-right {
+  top: var(--proximity-control-inset);
+  right: var(--proximity-control-inset);
+}
+
+.proximity-control--bottom-right {
+  right: var(--proximity-control-inset);
+  bottom: var(--proximity-control-inset);
+}
+
+.proximity-control--bottom-left {
+  bottom: var(--proximity-control-inset);
+  left: var(--proximity-control-inset);
+}
+
+.proximity-control--video,
+.proximity-control--video-link {
+  background: var(--black, #000);
+  color: var(--white, #fff);
+}
+
+.proximity-control--video:hover,
+.proximity-control--video:focus-visible,
+.proximity-control--video-link:hover,
+.proximity-control--video-link:focus-visible {
+  background: var(--white, #fff);
+  color: var(--black, #000);
+}
+
+.has-proximity-control {
+  position: relative;
+}
+
+.media-item,
+.media,
+.media-figure,
+[data-animation],
+[data-visual-demo] {
+  position: relative;
+}
+
+.media-item > .proximity-control,
+.media > .proximity-control,
+[data-animation] > .proximity-control,
+[data-visual-demo] > .proximity-control {
+  position: absolute;
+}
+
+.media-slider__dots {
+  opacity: 0;
+  visibility: visible;
+  transform: translateY(0.5rem) scaleX(0.94) scaleY(0.94);
+  transform-origin: bottom center;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.media-slider__dots.is-proximity-interactive,
+.media-slider:focus-within .media-slider__dots {
+  pointer-events: auto;
+}
+
+.media-slider__arrow--proximity {
+  opacity: 0;
+  visibility: visible;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.media-slider__arrow--proximity.is-proximity-interactive,
+.media-slider:focus-within .media-slider__arrow--proximity {
+  pointer-events: auto;
+}
+
+
+.lightbox__close--proximity {
+  opacity: 0;
+  visibility: visible;
+  transform: translateY(0.375rem) scaleX(0.94) scaleY(0.94);
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.lightbox__close--proximity.is-proximity-interactive,
+.lightbox:focus-within .lightbox__close--proximity {
+  pointer-events: auto;
+}
+
+@media (max-width: 48rem) {
+  .proximity-control {
+    --proximity-control-size: 1.8rem;
+    --proximity-control-icon: 0.82rem;
+    --proximity-control-inset: 0.55rem;
+  }
+}
+
+@media (hover: none) {
+  .proximity-control--open,
+  .proximity-control--fullscreen,
+  .proximity-control--video,
+  .proximity-control--video-link {
+    display: none;
+  }
+
+  .media-slider__arrow--proximity {
+    display: none;
+  }
+
+  .media-slider__dots {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleX(1) scaleY(1);
+    pointer-events: auto;
+  }
+
+  .lightbox__close--proximity {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleX(1) scaleY(1);
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (hover: hover) and (pointer: fine) {
+  .proximity-control,
+  .media-slider__dots,
+  .media-slider__arrow--proximity,
+  .lightbox__close--proximity {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleX(1) scaleY(1);
+    pointer-events: auto;
+  }
+}
+
+/* folded from proximity-visual-fixes.css:start */
+/* Proximity visual fixes */
+
+.proximity-control {
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.proximity-control svg {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.proximity-control--open svg {
+  display: none;
+}
+
+.proximity-control--open::before,
+.proximity-control--open::after {
+  content: "";
+  display: block;
+  position: absolute;
+  pointer-events: none;
+}
+
+.proximity-control--open::before {
+  width: 0.62rem;
+  height: 0.62rem;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  transform: translate(-0.08rem, -0.08rem);
+}
+
+.proximity-control--open::after {
+  width: 0.38rem;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translate(0.34rem, 0.34rem) rotate(45deg);
+  transform-origin: center;
+}
+
+.case-photo-orbit > .media-item,
+.case-photo-orbit > .media-item img {
+  overflow: hidden;
+}
+
+.case-photo-orbit .proximity-control {
+  --proximity-control-size: clamp(1.65rem, 2vw, 2.05rem);
+  --proximity-control-inset: clamp(0.48rem, 1vw, 0.72rem);
+  box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.12);
+}
+
+.case-photo-orbit .proximity-control--open {
+  top: var(--proximity-control-inset);
+  right: var(--proximity-control-inset);
+}
+/* folded from proximity-visual-fixes.css:end */
+
