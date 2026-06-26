@@ -1,8 +1,8 @@
 let appInitialized = false;
 
-function has(selector, root = document) {
+const has = (selector, root = document) => {
   return Boolean(root?.querySelector?.(selector));
-}
+};
 
 async function runInitStep(label, callback) {
   try {
@@ -18,23 +18,27 @@ async function importSideEffects(root) {
     import("./vendor/gsap-globals.js"),
   ];
 
-  if (has('[data-media-marquee], [data-marquee], .media-marquee, .jestei-policy-marquee', root)) {
+  if (has("[data-media-marquee], [data-marquee], .media-marquee, .jestei-policy-marquee", root)) {
     imports.push(import("./visuals/dom/media-marquee.js"));
   }
 
-  if (has('[data-media-slider], [data-showcase-auto-slider], [data-slider], .media-slider', root)) {
+  if (has("[data-media-slider], [data-showcase-auto-slider], [data-slider], .media-slider", root)) {
     imports.push(import("./visuals/dom/media-slider.js"));
   }
 
-  if (has('[data-policy-book], .policy-book', root)) {
+  if (has("[data-policy-book], .policy-book", root)) {
     imports.push(import("./visuals/dom/policy-book.js"));
   }
 
-  if (has('[data-list-scroll], [data-horizontal-scroll], .project-responsibilities--mobile-scroll, .jestei-action-rail__viewport', root)) {
+  if (has("[data-list-scroll], [data-horizontal-scroll], .project-responsibilities--mobile-scroll, .jestei-action-rail__viewport", root)) {
     imports.push(import("./visuals/dom/list-scroll.js"));
   }
 
-  if (has('[data-proximity], [data-proximity-target], [data-proximity-root], .proximity-button, .proximity-card', root)) {
+  /*
+    proximity intentionally stays opt-in here.
+    header has its own pointer/menu logic, and global proximity will be rebuilt at the end.
+  */
+  if (has("[data-proximity], [data-proximity-target], [data-proximity-root], .proximity-button, .proximity-card", root)) {
     imports.push(import("./components/proximity-components.js"));
   }
 
@@ -44,7 +48,7 @@ async function importSideEffects(root) {
 async function initNamedModules(root) {
   const tasks = [];
 
-  if (has('[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter', root)) {
+  if (has("[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter", root)) {
     tasks.push(runInitStep("initPlaylistFilterEmbed", async () => {
       const module = await import("./visuals/dom/playlist-filter-embed.js");
       return module.initPlaylistFilterEmbed(root);
@@ -104,4 +108,3 @@ if (document.readyState === "loading") {
 } else {
   void initApp();
 }
-
