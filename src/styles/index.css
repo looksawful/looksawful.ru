@@ -2,8 +2,6 @@
 @import "./modules/layout.css";
 @import "./modules/typography.css";
 @import "./modules/media.css";
-@import "./modules/site-header.css";
-@import "./modules/hero.css";
 @import "./modules/hero-skill-marquee.css";
 @import "./modules/project.css";
 @import "./modules/project-responsibilities.css";
@@ -27,6 +25,6 @@
 @import "./modules/mobile-jestei-polish.css";
 @import "./modules/mobile-chapter-hero-fixes.css";
 @import "./modules/chapter-disclosure-tabs.css";
-@import "./modules/site-header-mobile-timing.css";
-@import "./modules/hero-header-layout-fixes.css";
+@import "./modules/site-header.css";
+@import "./modules/hero.css";
 
