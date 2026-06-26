@@ -1,4 +1,4 @@
-/* Hero vertical alignment and mobile header timing.
+/* Hero vertical alignment.
    Container-only: no grid-template rows, no child grid-row changes. */
 
 #hero,
@@ -23,18 +23,6 @@
 }
 
 @media (max-width: 48rem) {
-  .site-header__island.is-expanded .site-header__trigger {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
-
-  .site-header__island.is-expanded .site-header__chips {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
-
   .hero__screen,
   .hero__screen--cover {
     min-block-size: 100svh;

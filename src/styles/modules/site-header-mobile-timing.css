@@ -1,0 +1,16 @@
+/* Mobile header timing.
+   Keeps top chips visible in the expanded hero state and keeps the awfulface trigger hidden until collapse. */
+
+@media (max-width: 48rem) {
+  .site-header__island.is-expanded .site-header__trigger {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .site-header__island.is-expanded .site-header__chips {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
