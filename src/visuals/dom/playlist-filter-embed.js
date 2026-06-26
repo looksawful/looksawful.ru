@@ -2497,3 +2497,4 @@ export const initPlaylistFilterEmbed = (scope = document) => {
 
   roots.forEach((root) => initPlaylistFilterRoot(root));
 };
+

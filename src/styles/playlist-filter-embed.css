@@ -1,4 +1,4 @@
-/* playlist filter embed */
+
 .playlist-filter-embed {
   position: relative;
   width: 100%;
@@ -10,8 +10,6 @@
   transform-origin: 50% 50%;
   will-change: transform, box-shadow;
 }
-
-/* ── Fullscreen wrapper ─────────────────────────────────────── */
 .filter-fullscreen-wrapper {
   position: relative;
 }
@@ -47,8 +45,6 @@
   height: 1rem;
   flex-shrink: 0;
 }
-
-/* Fullscreen state */
 .filter-fullscreen-wrapper:fullscreen,
 .filter-fullscreen-wrapper:-webkit-full-screen {
   display: flex;
@@ -63,8 +59,6 @@
   width: 100%;
   border-radius: 0;
 }
-
-/* Mobile: make fullscreen button bigger and more visible */
 @media (max-width: 48rem) {
   .filter-fullscreen-btn {
     width: 2.4rem;
@@ -2479,11 +2473,9 @@
 
 .playlist-filter-embed {
   margin: 0;
-  /* min-height: 100vh; */
-  overflow-x: hidden;
-  /* background: #ffffff; */
-  /* padding: clamp(16px, 4vw, 56px); */
-  box-sizing: border-box;
+overflow-x: hidden;
+
+box-sizing: border-box;
   font-family: Rubik, Inter, Arial, Helvetica, sans-serif;
   color-scheme: light;
 }
@@ -2791,3 +2783,4 @@
 .media--hidden-canvas[hidden] {
   display: none;
 }
+

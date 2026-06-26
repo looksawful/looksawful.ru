@@ -1,0 +1,185 @@
+
+
+.project {
+  display: grid;
+  gap: var(--project-gap);
+  padding-block: var(--section-gap);
+  border-top: var(--line);
+}
+
+.project:first-child {
+  border-top: 0;
+}
+.project-chapter > .block:first-child {
+  border-top-width: 2px;
+}
+
+.project__header {
+  display: grid;
+  gap: var(--gap);
+  min-width: 0;
+}
+
+.project__head {
+  display: grid;
+  grid-template-columns: clamp(7rem, 12vw, 12rem) minmax(0, 1fr) max-content;
+  gap: var(--gap);
+  align-items: start;
+  min-width: 0;
+}
+
+.project__head--text-only {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.project__intro,
+.project__head > div {
+  display: grid;
+  gap: var(--gap);
+  max-width: var(--heading);
+  min-width: 0;
+}
+
+.project__logo img,
+.project__logo canvas {
+  width: clamp(7rem, 12vw, 12rem);
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.project__body {
+  gap: var(--project-gap);
+}
+
+.project-section {
+  display: grid;
+  gap: var(--gap);
+  min-width: 0;
+  padding-block: clamp(1.6rem, 3.2vw, 3.6rem);
+  border-top: 1px solid rgba(0, 0, 0, 0.14);
+}
+
+.project__body > .project-section:first-child {
+  padding-block-start: 0;
+  border-top: 0;
+}
+
+.project-section .project-section {
+  padding-block: clamp(1.4rem, 2.8vw, 3rem);
+}
+
+.project-section__body,
+.section-body {
+  display: grid;
+  gap: var(--gap);
+  min-width: 0;
+}
+
+.project-section__body > :where(.project-section, .block):first-child,
+.section-body > :where(.project-section, .block):first-child {
+  padding-block-start: 0;
+}
+.block {
+  display: grid;
+  gap: var(--gap);
+  min-width: 0;
+  padding-block: var(--gap-lg);
+  border-top: var(--line);
+}
+
+.block.no-divider {
+  border-top: 0;
+}
+
+.block > .block:first-of-type {
+  padding-block-start: 0;
+  border-top: 0;
+}
+
+.project__body > .block:first-child,
+.project__body > .project-section:first-child {
+  padding-block-start: 0;
+  border-top: 0;
+}
+
+.project-skill-cloud {
+  display: grid;
+  min-width: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.project-skill-cloud__list {
+  max-width: 62rem;
+}
+
+.project-skill-cloud .chips--skill .chip {
+  background: transparent;
+  color: var(--black);
+}
+
+@media (max-width: 48rem) {
+  .project {
+    gap: var(--project-gap);
+    padding-block: var(--project-gap);
+  }
+
+  .project__header {
+    gap: var(--component-gap);
+  }
+
+  .project__head,
+  .project__head--text-only {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--component-gap);
+  }
+
+  .project__head > .meta {
+    justify-self: center;
+    text-align: center;
+  }
+
+  .project__intro,
+  .project__head > div {
+    width: 100%;
+    max-width: 100%;
+    justify-items: center;
+  }
+
+  .project__intro > .title,
+  .project__head > div > .title {
+    max-width: min(100%, 13ch);
+    text-align: center;
+  }
+
+  .project__intro > p,
+  .project__head > div > p {
+    justify-self: start;
+    max-width: var(--text);
+    text-align: left;
+  }
+
+  .project__logo {
+    justify-self: center;
+  }
+
+  .project__logo img,
+  .project__logo canvas {
+    width: min(42vw, 10rem);
+  }
+
+  .project-section,
+  .block {
+    gap: var(--component-gap);
+    padding-block: var(--project-gap);
+  }
+
+  .project-section .project-section {
+    padding-block: var(--component-gap);
+  }
+
+  .project-skill-cloud__list {
+    max-width: 100%;
+  }
+}
+

@@ -366,7 +366,6 @@ const loadImage = (imageUrl) => {
       try {
         await image.decode?.();
       } catch {
-        // Some browsers reject decode() after onload for animated or cached images.
       }
 
       resolve(image);
@@ -637,3 +636,4 @@ export const mountArc = async (canvasId = "arc-container") => {
 
   return completeMount(key, mountToken, dispose);
 };
+

@@ -700,16 +700,7 @@ export const loadImageItems = async (items) =>
     }),
   );
 
-/**
- * Progressive media loader.
- * Returns a mutable `items` array immediately (all with imageElement=null as placeholders).
- * Loads first `initialCount` items synchronously (awaited), then loads the rest in background
- * batches of `batchSize`. Updates the shared array in-place so the animation always sees fresh data.
- *
- * Usage:
- *   const items = await loadMediaProgressively(rawItems, { initialCount: 24 });
- *   // animation starts with first 24 loaded, rest arrive silently
- */
+
 export const loadMediaProgressively = async (sourceItems, { initialCount = 24, batchSize = 8 } = {}) => {
   const items = sourceItems.map((item) => ({
     ...item,
@@ -729,17 +720,12 @@ export const loadMediaProgressively = async (sourceItems, { initialCount = 24, b
       items[index] = { ...item, imageElement: null, mediaElement: null, imageLoadError: error };
     }
   };
-
-  // Load initial batch first — animation waits for these
   const firstBatch = Math.min(initialCount, items.length);
   await Promise.all(Array.from({ length: firstBatch }, (_, i) => loadOne(i)));
-
-  // Load the rest in background, in small batches to avoid flooding the network
   if (items.length > firstBatch) {
     const loadBackground = async () => {
       for (let i = firstBatch; i < items.length; i += batchSize) {
         await Promise.all(Array.from({ length: Math.min(batchSize, items.length - i) }, (_, j) => loadOne(i + j)));
-        // Yield control back to browser between batches
         await new Promise((resolve) => setTimeout(resolve, 0));
       }
     };
@@ -816,3 +802,4 @@ export const drawRoundedCover = (ctx, image, x, y, size, radius = size * 0.1) =>
   ctx.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, x, y, size, size);
   ctx.restore();
 };
+

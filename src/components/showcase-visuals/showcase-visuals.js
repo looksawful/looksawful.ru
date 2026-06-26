@@ -163,3 +163,4 @@ export async function initShowcaseVisuals(root = document) {
     });
   };
 }
+

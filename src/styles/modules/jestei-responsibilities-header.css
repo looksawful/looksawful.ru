@@ -1,0 +1,107 @@
+
+.jestei-responsibilities-header {
+  display: block;
+  grid-column: 1 / -1;
+  gap: var(--gap);
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  margin-block-start: var(--gap-lg);
+  padding-block-start: var(--gap);
+  border-block-start: var(--line);
+}
+
+#project-jesteipool .jestei-responsibilities-header .project-responsibilities {
+  inline-size: 100%;
+  max-inline-size: 100%;
+}
+
+#project-jesteipool .jestei-responsibilities-header .responsibility-card,
+#project-jesteipool .jestei-responsibilities-header .responsibility-card__list,
+#project-jesteipool .jestei-responsibilities-header .responsibility-card__item,
+#project-jesteipool .jestei-responsibilities-header .responsibility-card__item-title,
+#project-jesteipool .jestei-responsibilities-header .responsibility-card__item-text {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+#project-jesteipool .jestei-responsibilities-header .responsibility-card__item-title,
+#project-jesteipool .jestei-responsibilities-header .responsibility-card__item-text {
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+}
+
+@media (max-width: 64rem) {
+  #project-jesteipool .jestei-responsibilities-header {
+  display: block;
+  grid-column: 1 / -1;
+  gap: var(--gap);
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  margin-block-start: var(--gap-lg);
+  padding-block-start: var(--gap);
+  border-block-start: var(--line);
+}
+
+  #project-jesteipool .jestei-responsibilities-header .project-responsibilities--contained-lists {
+    --responsibility-card-min-height: auto;
+    --responsibility-list-max-height: none;
+    --responsibility-list-bottom-space: 0;
+  }
+
+  #project-jesteipool .jestei-responsibilities-header .project-responsibilities--contained-lists .responsibility-card {
+    grid-template-rows: auto;
+    min-block-size: 0;
+    max-block-size: none;
+  }
+
+  #project-jesteipool
+    .jestei-responsibilities-header
+    .project-responsibilities--contained-lists
+    .responsibility-card__list {
+    max-block-size: none;
+    max-height: none;
+    padding-right: 0;
+    padding-bottom: 0;
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+
+  #project-jesteipool
+    .jestei-responsibilities-header
+    .project-responsibilities--mobile-scroll.project-responsibilities--three {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    grid-auto-columns: minmax(min(88vw, 22rem), min(88vw, 27rem));
+    gap: var(--gap);
+    inline-size: 100%;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-inline: contain;
+    padding-block-end: 0.25rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #project-jesteipool
+    .jestei-responsibilities-header
+    .project-responsibilities--mobile-scroll.project-responsibilities--three::-webkit-scrollbar {
+    display: none;
+  }
+
+  #project-jesteipool
+    .jestei-responsibilities-header
+    .project-responsibilities--mobile-scroll.project-responsibilities--three
+    > .responsibility-card {
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: none;
+    scroll-snap-align: start;
+  }
+}
+

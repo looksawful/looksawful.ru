@@ -152,3 +152,4 @@ if (document.readyState === "loading") {
 } else {
   initPolicyBooks();
 }
+

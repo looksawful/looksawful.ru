@@ -9,3 +9,4 @@ window.Flip = Flip;
 window.ScrollTrigger = ScrollTrigger;
 
 export { gsap, Flip, ScrollTrigger };
+

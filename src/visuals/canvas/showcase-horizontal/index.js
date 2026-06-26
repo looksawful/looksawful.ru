@@ -17,7 +17,7 @@ import {
 import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
 
 const CV_HORIZONTAL_KEY_PREFIX = "showcase-horizontal:";
-const DEFAULT_HORIZONTAL_SCENE = "jesteiProductCanvas";
+const DEFAULT_HORIZONTAL_SCENE = "styxBrandIdentity";
 const config = {
   rowCount: 3,
   minRowHeight: 72,
@@ -65,8 +65,6 @@ const createDisposeHandle = (dispose = noop) => {
   handle.dispose = handle;
   return handle;
 };
-
-// Прогрессивная загрузка с батчингом: сначала грузим первые N, потом порциями в фоне
 const loadImages = (
   items,
   {
@@ -632,3 +630,4 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(CV_HORIZONTAL_KEY_PREFIX);
   });
 }
+

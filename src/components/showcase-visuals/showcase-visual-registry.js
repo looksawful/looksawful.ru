@@ -6,6 +6,8 @@ export const ANIMATION_MOUNTERS = {
     import("../../visuals/canvas/showcase-diagonal/index.js").then((module) => module.mountShowcaseDiagonal),
   horizontal: () =>
     import("../../visuals/canvas/showcase-horizontal/index.js").then((module) => module.mountShowcaseHorizontal),
+  "before-after": () =>
+    import("../../visuals/canvas/before-after/index.js").then((module) => module.mountShowcaseBeforeAfter),
 };
 
 export const THREE_DEMO_MOUNTERS = {
@@ -17,3 +19,4 @@ export const LOGO_INSPECTOR_MODEL_URL = new URL("../../assets/jestei/models/logo
 export const loadAnimationMount = (type) => ANIMATION_MOUNTERS[type]?.();
 
 export const loadThreeDemoMount = (scene) => THREE_DEMO_MOUNTERS[scene]?.();
+

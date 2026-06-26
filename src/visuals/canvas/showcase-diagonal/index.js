@@ -69,8 +69,6 @@ const createDisposeHandle = (dispose = noop) => {
 	handle.dispose = handle;
 	return handle;
 };
-
-// Прогрессивная загрузка с батчингом: сначала грузим первые N, потом порциями в фоне
 const loadImages = (items, { initialCount = 30, batchSize = 10, onItemLoad = noop } = {}) => {
   let playbackEnabled = true;
 	const loaded = items.map((item, sourceIndex) => ({
@@ -671,3 +669,4 @@ if (import.meta.hot) {
 		disposeCanvasAnimationsByPrefix(CV_DIAGONAL_KEY_PREFIX);
 	});
 }
+

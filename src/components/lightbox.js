@@ -182,3 +182,4 @@ export function initLightbox(root = document) {
     lightbox.isBound = true;
   }
 }
+

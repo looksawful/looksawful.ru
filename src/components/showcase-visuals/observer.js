@@ -34,3 +34,4 @@ export function observeOnceVisible(targets, callback, options = {}) {
 
   return () => observer.disconnect();
 }
+
