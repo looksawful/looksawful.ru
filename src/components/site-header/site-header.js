@@ -238,6 +238,12 @@ export function initSiteHeader(root = document) {
     return;
   }
 
+  if (island.dataset.siteHeaderMounted === "true") {
+    return;
+  }
+
+  island.dataset.siteHeaderMounted = "true";
+
   const media = gsap.matchMedia();
 
   let activeHref = "#project-jesteipool";
@@ -705,11 +711,13 @@ export function initSiteHeader(root = document) {
     forcedMobile = true;
     setMenuProgress(0);
     syncCollapsedToScroll(true);
+    ScrollTrigger.refresh();
 
     return () => {
       forcedMobile = false;
       setMenuProgress(0);
       syncCollapsedToScroll(true);
+      ScrollTrigger.refresh();
     };
   });
 
