@@ -1,10 +1,4 @@
-/**
- * Fullscreen toggle for the interactive playlist filter embed.
- *
- * Adds keyboard + pointer toggle for fullscreen.
- * On mobile, attempts to lock screen orientation to landscape inside fullscreen.
- * iOS does not support orientation.lock(), failure is silent.
- */
+
 
 function tryLockLandscape() {
   try {
@@ -12,7 +6,6 @@ function tryLockLandscape() {
       screen.orientation.lock("landscape").catch(() => {});
     }
   } catch (_) {
-    // iOS / unsupported — silent
   }
 }
 
@@ -34,8 +27,6 @@ export function initFilterFullscreen(root = document) {
   buttons.forEach((btn) => {
     const wrapper = btn.closest(".filter-fullscreen-wrapper");
     if (!(wrapper instanceof HTMLElement)) return;
-
-    // Toggle fullscreen on click
     btn.addEventListener("click", async () => {
       try {
         if (!document.fullscreenElement) {
@@ -48,11 +39,8 @@ export function initFilterFullscreen(root = document) {
           await document.exitFullscreen();
         }
       } catch (_) {
-        // Fullscreen not supported or denied — silently ignore
       }
     });
-
-    // Update button label and wrapper class on change
     const onFullscreenChange = () => {
       const isFs = document.fullscreenElement === wrapper;
       btn.setAttribute("aria-label", isFs ? "свернуть фильтр" : "фильтр на весь экран");
@@ -67,3 +55,4 @@ export function initFilterFullscreen(root = document) {
     document.addEventListener("webkitfullscreenchange", onFullscreenChange);
   });
 }
+

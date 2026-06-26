@@ -1,4 +1,3 @@
-/* Source: cases-generic.css */
 
 #project-shootings > .project__header {
   overflow: hidden;
@@ -255,8 +254,6 @@
     min-block-size: clamp(15rem, 62vw, 24rem);
   }
 }
-/* Styx and shootings chapter frame corrections */
-
 #project-styx > .project__body,
 #project-shootings > .project__body {
   gap: var(--gap-lg);

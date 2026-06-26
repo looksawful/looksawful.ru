@@ -163,3 +163,4 @@ export function createLetterIdleMotion(target, options = {}) {
   motionStore.set(target, record);
   return record;
 }
+

@@ -1,6 +1,5 @@
-/* Source: project.css */
 
-/* projects and case sections */
+
 .project {
   display: grid;
   gap: var(--project-gap);
@@ -11,8 +10,6 @@
 .project:first-child {
   border-top: 0;
 }
-
-/* First block inside each project chapter acts as a chapter opener — stronger border */
 .project-chapter > .block:first-child {
   border-top-width: 2px;
 }
@@ -82,10 +79,6 @@
 .section-body > :where(.project-section, .block):first-child {
   padding-block-start: 0;
 }
-
-/* Legacy compatibility while the markup is being cleaned.
-   The current HTML still uses .block as a real case section, so it must keep
-   the old spacing and divider behavior. Do not reduce it to a plain wrapper. */
 .block {
   display: grid;
   gap: var(--gap);

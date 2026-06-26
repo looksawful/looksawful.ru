@@ -1,8 +1,5 @@
-/* Source: lists.css */
 
-/* lists */
 
-/* Generic card lists */
 
 .list-cards {
   display: grid;
@@ -113,9 +110,6 @@
 .list-cards--plain .list-card__list > li::before {
   display: none;
 }
-
-/* Horizontal scroll lists */
-
 .list-cards--scroll {
   grid-auto-flow: column;
   grid-auto-columns: minmax(min(82vw, 21.5rem), 1fr);
@@ -137,9 +131,6 @@
   min-height: 10.5rem;
   scroll-snap-align: start;
 }
-
-/* Shared drag-scroll behavior */
-
 .list-scroll-x {
   cursor: grab;
   touch-action: pan-y;
@@ -156,9 +147,6 @@
 .list-scroll-x > * {
   user-select: none;
 }
-
-/* No-hole behavior for non-scroll card grids */
-
 @media (max-width: 64rem) and (min-width: 48.001rem) {
   .list-cards--three {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -198,9 +186,6 @@
     max-width: 100%;
   }
 }
-
-/* Color token lists */
-
 .token-list {
   display: grid;
   max-width: var(--heading);
@@ -298,9 +283,6 @@
     font-size: calc(var(--xs) * 0.98);
   }
 }
-
-/* Token media row behavior */
-
 @media (max-width: 48rem) {
   .media-row--tokens > .media-figure,
   .media-row--tokens > .media,
@@ -318,8 +300,6 @@
     order: -1;
   }
 }
-/* Small classes extracted from legacy inline attributes */
-
 .u-justify-end-narrow {
   justify-self: end;
   width: min(100%, 38rem);

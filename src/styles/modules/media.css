@@ -1,6 +1,5 @@
-/* Source: media.css */
 
-/* media surfaces and utilities */
+
 .media {
   min-height: clamp(18rem, 42vw, 42rem);
   margin: 0;
@@ -8,7 +7,6 @@
   border: var(--line);
   border-radius: var(--r);
   background: transparent;
-  /* color: var(--black); */
 }
 
 .media canvas {
@@ -20,7 +18,6 @@
 .media-item,
 [data-animation] {
   background: transparent;
-  /* color: var(--black); */
 }
 
 [data-animation] canvas {

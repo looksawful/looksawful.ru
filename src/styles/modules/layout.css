@@ -1,6 +1,5 @@
-/* Source: layout.css */
 
-/* layout */
+
 .section {
   min-width: 0;
 }
@@ -63,11 +62,7 @@
   }
 }
 
-/* Source: divider.css */
 
-/* all the dividers' styles and its's states to be put here */
-
-/* dividers */
 .section-divider,
 .divider {
   width: 100%;

@@ -1,6 +1,5 @@
-/* Source: site-header.css */
 
-/* component site-header:start */
+
 .site-header {
   --site-header-page-x: clamp(1rem, 4vw, 3.2rem);
   --site-header-page-x-right: var(--site-header-page-x);
@@ -289,9 +288,6 @@
     text-overflow: ellipsis;
   }
 }
-/* component site-header:end */
-/* Mobile header timing.
-   Keeps top chips visible in the expanded hero state and keeps the awfulface trigger hidden until collapse. */
 
 @media (max-width: 48rem) {
   .site-header__island.is-expanded .site-header__trigger {

@@ -728,3 +728,4 @@ export function initSiteHeader(root = document) {
   renderChips(true);
   syncCollapsedToScroll(true);
 }
+

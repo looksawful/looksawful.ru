@@ -53,3 +53,4 @@ export function initCvInlineVideos(root = document) {
     observeAutoplay(video);
   });
 }
+

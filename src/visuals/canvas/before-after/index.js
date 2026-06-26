@@ -320,3 +320,4 @@ export const initShowcaseBeforeAfter = (root = document) => {
 
   return mounted;
 };
+

@@ -335,7 +335,6 @@ const loadImage = (imageUrl) => {
       try {
         await image.decode?.();
       } catch {
-        // Some browsers reject decode() after onload for animated or cached images.
       }
 
       resolve(image);
@@ -1035,3 +1034,4 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(MASONRY_KEY_PREFIX);
   });
 }
+

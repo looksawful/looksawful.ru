@@ -1,8 +1,4 @@
-/**
- * heading idle motion
- * hero-like letter motion for regular headings only.
- * no fly-in, no bottom reveal, no full heading rotation.
- */
+
 
 import { createLetterIdleMotion, splitTextIntoGraphemes } from "./letter-motion.js";
 
@@ -235,3 +231,4 @@ export function initHeadingAnimations(root = document) {
     });
   });
 }
+

@@ -1,6 +1,5 @@
-/* Source: hero.css */
 
-/* hero */
+
 .hero__screen {
   min-height: 100vh;
   min-height: 100svh;
@@ -180,9 +179,6 @@
     font-size: clamp(1.45rem, 8.2vw, 2rem);
   }
 }
-/* Hero vertical alignment.
-   Container-only: no grid-template rows, no child grid-row changes. */
-
 #hero,
 .hero.section {
   min-block-size: 100vh;

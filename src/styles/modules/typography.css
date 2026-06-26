@@ -1,6 +1,5 @@
-/* Source: typography.css */
 
-/* typography */
+
 p {
   max-width: var(--text);
   font-size: var(--md);
@@ -96,11 +95,7 @@ p {
   }
 }
 
-/* Source: heading.css */
 
-/* all the section heading styles and its's states to be put here */
-
-/* section headings */
 .section-head,
 .block__header,
 .text-block {
@@ -165,24 +160,8 @@ p {
   }
 }
 
-/* Source: button.css */
 
-/* all the button styles and its's states to be put here */
 
-/*
-ссылка
-скачать
-следующий
-предыдущий
-иконбаттон
-стики баттон наверх
-представление
-фуллскрин
-гамбургер
-
-*/
-
-/* buttons */
 .button,
 .icon-button {
   display: inline-flex;
@@ -228,8 +207,6 @@ p {
   width: 2rem;
   padding-inline: 0;
 }
-
-/* policy reader buttons */
 .policy-book__button {
   display: inline-flex;
   align-items: center;
@@ -263,8 +240,6 @@ p {
   background: var(--white);
   color: var(--black);
 }
-
-/* lightbox close button */
 .lightbox__close {
   padding: 0;
   border: 0;

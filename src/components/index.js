@@ -164,6 +164,6 @@ export function initComponents(root = document) {
     });
 
   runWhenIdle(() => {
-    // reserved for non-critical components
   });
 }
+

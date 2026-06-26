@@ -140,3 +140,4 @@ export function initHeroTitleAnimation(root = document) {
 
   return title;
 }
+

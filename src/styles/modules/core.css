@@ -1,4 +1,4 @@
-/* Source: core.css */
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -16,13 +16,8 @@
   pointer-events: none;
 }
 
-/* Bundled stylesheet generated from src/styles/index.css imports. */
 
-/* Google Fonts are loaded from index.html to avoid blocking local CSS through @import. */
 
-/* Source: main.css */
-
-/* main foundation */
 :root {
   --font: "Rubik", system-ui, sans-serif;
   --black: #000;

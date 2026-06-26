@@ -202,3 +202,4 @@ export function initCaseChapters(root = document) {
   initChapterFrames(root);
   initJesteiActionRails(root);
 }
+

@@ -219,3 +219,4 @@ export function mountJesteiLogoThree(canvas) {
     delete canvas.dataset.threeFallback;
   };
 }
+

@@ -1,5 +1,3 @@
-/* Jestei token color classes.
-   Replaces inline --token-color styles in index.html. */
 
 .token-pill.token-pill--orange-1 {
   --token-color: #f18200;

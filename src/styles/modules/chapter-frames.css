@@ -1,5 +1,4 @@
-/* Source: chapter-frames.css */
-/* Mobile chapter hero sizing fixes */
+
 
 @media (max-width: 48rem) {
   .jestei-chapter-hero {
@@ -63,8 +62,6 @@
     text-align: left;
   }
 }
-/* CSS-only docked disclosure tabs for Jestei, Styx and Shootings */
-
 .jestei-chapter-frame,
 .case-chapter-frame {
   position: relative;

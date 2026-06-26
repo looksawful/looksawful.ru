@@ -1,6 +1,4 @@
-/* Source: proximity.css */
 
-/* proximity */
 
 .proximity-control {
   --proximity-control-size: clamp(1.75rem, 2.1vw, 2.2rem);
@@ -201,8 +199,6 @@
     pointer-events: auto;
   }
 }
-/* Proximity visual fixes */
-
 .proximity-control {
   overflow: hidden;
   contain: layout paint;

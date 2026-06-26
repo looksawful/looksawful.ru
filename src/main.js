@@ -104,3 +104,4 @@ if (document.readyState === "loading") {
 } else {
   void initApp();
 }
+

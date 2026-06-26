@@ -96,3 +96,4 @@ export function initArtifactReaders(root = document) {
     });
   });
 }
+

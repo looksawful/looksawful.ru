@@ -19,3 +19,4 @@ export const LOGO_INSPECTOR_MODEL_URL = new URL("../../assets/jestei/models/logo
 export const loadAnimationMount = (type) => ANIMATION_MOUNTERS[type]?.();
 
 export const loadThreeDemoMount = (scene) => THREE_DEMO_MOUNTERS[scene]?.();
+
