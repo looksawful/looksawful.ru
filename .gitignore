@@ -75,3 +75,7 @@ audit-*.cjs
 
 # tools and scripts
 tools/
+_reports/
+
+# archives
+/src/_lab
