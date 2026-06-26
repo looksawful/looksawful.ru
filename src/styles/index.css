@@ -2,6 +2,7 @@
 @import "./modules/layout.css";
 @import "./modules/typography.css";
 @import "./modules/media.css";
+@import "./modules/site-header.css";
 @import "./modules/components.css";
 @import "./modules/hero.css";
 @import "./modules/hero-skill-marquee.css";
