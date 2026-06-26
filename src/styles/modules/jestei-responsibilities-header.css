@@ -3,9 +3,13 @@
 .jestei-responsibilities-header {
   display: block;
   grid-column: 1 / -1;
+  gap: var(--gap);
   inline-size: 100%;
   max-inline-size: 100%;
+  min-inline-size: 0;
   margin-block-start: var(--gap-lg);
+  padding-block-start: var(--gap);
+  border-block-start: var(--line);
 }
 
 #project-jesteipool .jestei-responsibilities-header .project-responsibilities {
@@ -31,8 +35,16 @@
 
 @media (max-width: 64rem) {
   #project-jesteipool .jestei-responsibilities-header {
-    margin-block-start: var(--gap);
-  }
+  display: block;
+  grid-column: 1 / -1;
+  gap: var(--gap);
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  margin-block-start: var(--gap-lg);
+  padding-block-start: var(--gap);
+  border-block-start: var(--line);
+}
 
   #project-jesteipool .jestei-responsibilities-header .project-responsibilities--contained-lists {
     --responsibility-card-min-height: auto;
@@ -93,3 +105,4 @@
     scroll-snap-align: start;
   }
 }
+
