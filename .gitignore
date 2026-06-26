@@ -70,6 +70,9 @@ _local/media-backup/*
 _local/tmp/*
 !_local/tmp/.gitkeep
 
+# temporary local patch scripts
+tools/apply-stage*.ps1
+
 # local media sources / generated normalization folders
 _media-originals/
 _media-originals/**
