@@ -10,6 +10,7 @@
 @import "./modules/jestei-policy-marquee.css";
 @import "./modules/unassigned.css";
 @import "./modules/jestei-token-colors.css";
+@import "./modules/inline-cleanup.css";
 
 @import "./modules/mobile-fixes.css";
 @import "./modules/cases-styx-shootings.css";
