@@ -1,6 +1,4 @@
 /* Source: chapter-frames.css */
-
-/* folded from mobile-chapter-hero-fixes.css:start */
 /* Mobile chapter hero sizing fixes */
 
 @media (max-width: 48rem) {
@@ -65,9 +63,6 @@
     text-align: left;
   }
 }
-/* folded from mobile-chapter-hero-fixes.css:end */
-
-/* folded from chapter-disclosure-tabs.css:start */
 /* CSS-only docked disclosure tabs for Jestei, Styx and Shootings */
 
 .jestei-chapter-frame,
@@ -142,5 +137,4 @@
     padding-inline: 1.1rem;
   }
 }
-/* folded from chapter-disclosure-tabs.css:end */
 

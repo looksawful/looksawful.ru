@@ -201,8 +201,6 @@
     pointer-events: auto;
   }
 }
-
-/* folded from proximity-visual-fixes.css:start */
 /* Proximity visual fixes */
 
 .proximity-control {
@@ -259,5 +257,4 @@
   top: var(--proximity-control-inset);
   right: var(--proximity-control-inset);
 }
-/* folded from proximity-visual-fixes.css:end */
 

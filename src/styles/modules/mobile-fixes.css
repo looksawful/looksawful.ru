@@ -73,8 +73,6 @@
     min-block-size: clamp(14rem, 72vw, 21rem);
   }
 }
-
-/* folded from mobile-jestei-polish.css:toc:start */
 @media (max-width: 64rem) {
   [data-showcase-toc],
   .showcase-toc,
@@ -89,5 +87,4 @@
     display: none;
   }
 }
-/* folded from mobile-jestei-polish.css:toc:end */
 

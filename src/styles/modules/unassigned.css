@@ -318,8 +318,6 @@
     order: -1;
   }
 }
-
-/* folded from inline-cleanup.css:start */
 /* Small classes extracted from legacy inline attributes */
 
 .u-justify-end-narrow {
@@ -341,5 +339,4 @@ img.media-transparent {
 .media-object-fill {
   object-fit: fill;
 }
-/* folded from inline-cleanup.css:end */
 

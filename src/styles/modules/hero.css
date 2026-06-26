@@ -180,8 +180,6 @@
     font-size: clamp(1.45rem, 8.2vw, 2rem);
   }
 }
-
-/* folded from hero-header-layout-fixes.css:start */
 /* Hero vertical alignment.
    Container-only: no grid-template rows, no child grid-row changes. */
 
@@ -215,5 +213,4 @@
     padding-block-end: clamp(2.8rem, 8svh, 4.2rem);
   }
 }
-/* folded from hero-header-layout-fixes.css:end */
 

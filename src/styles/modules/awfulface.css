@@ -1,6 +1,4 @@
 /* Source: awfulface.css */
-
-/* component awfulface:start */
 .awfulface-container {
   display: block;
   overflow: visible;
@@ -89,5 +87,4 @@
     --awfulface-opacity: 0.42;
   }
 }
-/* component awfulface:end */
 

@@ -127,8 +127,6 @@
     block-size: 100%;
   }
 }
-
-/* artifact-reader scroll geometry:start */
 .artifact-reader {
   block-size: min(100svh - 2rem, 56rem);
   max-block-size: min(100svh - 2rem, 56rem);
@@ -171,9 +169,6 @@
   overflow: visible;
   touch-action: auto;
 }
-/* artifact-reader scroll geometry:end */
-
-/* artifact-reader hide inner policy header:start */
 .artifact-reader .policy-book__bar {
   display: none;
 }
@@ -181,4 +176,4 @@
 .artifact-reader .policy-book {
   grid-template-rows: minmax(0, 1fr) auto;
 }
-/* artifact-reader hide inner policy header:end */
+

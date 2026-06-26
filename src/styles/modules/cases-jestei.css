@@ -1,4 +1,4 @@
-/* Source: cleanup stage 03 - Jestei chapter system */
+/* Source: cases-jestei.css */
 
 #project-jesteipool > .project__header,
 #project-styx > .project__header {
@@ -418,8 +418,6 @@
     max-inline-size: 72vw;
   }
 }
-
-/* folded from mobile-jestei-polish.css:action-rail:start */
 @media (max-width: 48rem) {
   .jestei-action-rail__controls {
     display: none;
@@ -438,5 +436,4 @@
     max-inline-size: 76vw;
   }
 }
-/* folded from mobile-jestei-polish.css:action-rail:end */
 

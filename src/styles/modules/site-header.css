@@ -290,8 +290,6 @@
   }
 }
 /* component site-header:end */
-
-/* folded from site-header-mobile-timing.css:start */
 /* Mobile header timing.
    Keeps top chips visible in the expanded hero state and keeps the awfulface trigger hidden until collapse. */
 
@@ -308,5 +306,4 @@
     pointer-events: auto;
   }
 }
-/* folded from site-header-mobile-timing.css:end */
 
