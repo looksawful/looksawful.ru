@@ -34,4 +34,37 @@
 @import "./modules/unassigned.css";
 @import "./modules/jestei-token-colors.css";
 @import "./modules/mobile-fixes.css";
+/* hero header clearance: start */
+:root {
+  --hero-header-clearance: clamp(92px, 11vh, 144px);
+  --hero-header-clearance-mobile: clamp(84px, 10vh, 120px);
+}
+
+body .hero,
+body .site-hero,
+body .home-hero,
+body .cv-hero,
+body .hero-section,
+body #hero {
+  padding-block-start: var(--hero-header-clearance);
+}
+
+body .hero__inner,
+body .hero-inner,
+body .hero__content,
+body .hero-content {
+  margin-block-start: 0;
+}
+
+@media (max-width: 760px) {
+  body .hero,
+  body .site-hero,
+  body .home-hero,
+  body .cv-hero,
+  body .hero-section,
+  body #hero {
+    padding-block-start: var(--hero-header-clearance-mobile);
+  }
+}
+/* hero header clearance: end */
 
