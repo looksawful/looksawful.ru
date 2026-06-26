@@ -1,15 +1,3 @@
-import "./vendor/gsap-globals.js";
-import "./visuals/dom/media-marquee.js";
-import "./visuals/dom/media-slider.js";
-import "./visuals/dom/policy-book.js";
-import "./visuals/dom/list-scroll.js";
-import "./components/proximity-components.js";
-import { initPlaylistFilterEmbed } from "./visuals/dom/playlist-filter-embed.js";
-import { initRandomGalleries } from "./visuals/dom/random-gallery.js";
-import { initCaseChapters } from "./visuals/dom/case-chapters.js";
-import { initArtifactReaders } from "./visuals/dom/artifact-reader.js";
-import { initComponents } from "./components/index.js";
-
 let appInitialized = false;
 
 async function runInitStep(label, callback) {
@@ -19,6 +7,39 @@ async function runInitStep(label, callback) {
     console.error("[init] " + label + " failed", error);
     return null;
   }
+}
+
+async function importSideEffects() {
+  await Promise.allSettled([
+    import("./vendor/gsap-globals.js"),
+    import("./visuals/dom/media-marquee.js"),
+    import("./visuals/dom/media-slider.js"),
+    import("./visuals/dom/policy-book.js"),
+    import("./visuals/dom/list-scroll.js"),
+    import("./components/proximity-components.js"),
+  ]);
+}
+
+async function initNamedModules(root) {
+  await runInitStep("initPlaylistFilterEmbed", async () => {
+    const module = await import("./visuals/dom/playlist-filter-embed.js");
+    return module.initPlaylistFilterEmbed(root);
+  });
+
+  await runInitStep("initRandomGalleries", async () => {
+    const module = await import("./visuals/dom/random-gallery.js");
+    return module.initRandomGalleries(root);
+  });
+
+  await runInitStep("initCaseChapters", async () => {
+    const module = await import("./visuals/dom/case-chapters.js");
+    return module.initCaseChapters(root);
+  });
+
+  await runInitStep("initArtifactReaders", async () => {
+    const module = await import("./visuals/dom/artifact-reader.js");
+    return module.initArtifactReaders(root);
+  });
 }
 
 async function initApp() {
@@ -35,11 +56,14 @@ async function initApp() {
 
   appInitialized = true;
 
-  await runInitStep("initComponents", () => initComponents(document));
-  await runInitStep("initPlaylistFilterEmbed", () => initPlaylistFilterEmbed(document));
-  await runInitStep("initRandomGalleries", () => initRandomGalleries(document));
-  await runInitStep("initCaseChapters", () => initCaseChapters(document));
-  await runInitStep("initArtifactReaders", () => initArtifactReaders(document));
+  await runInitStep("importSideEffects", importSideEffects);
+
+  await runInitStep("initComponents", async () => {
+    const module = await import("./components/index.js");
+    return module.initComponents(document);
+  });
+
+  await initNamedModules(document);
 }
 
 if (document.readyState === "loading") {
