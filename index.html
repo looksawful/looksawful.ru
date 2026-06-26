@@ -20,71 +20,6 @@
     <link as="style" href="/src/styles/playlist-filter-embed.css" rel="preload" />
     <link href="/src/styles/playlist-filter-embed.css" rel="stylesheet" />
     <script src="/src/main.js" type="module"></script>
-    <style id="jestei-policy-marquee-header-patch">
-      .jestei-policy-marquee {
-        inline-size: 100%;
-        max-inline-size: none;
-        min-inline-size: 0;
-        overflow: hidden;
-        border-block: 1px solid rgba(0, 0, 0, 0.18);
-        padding-block: 0.7rem;
-        background: transparent;
-      }
-
-      .jestei-policy-marquee__viewport {
-        inline-size: 100%;
-        min-inline-size: 0;
-        overflow: hidden;
-      }
-
-      .jestei-policy-marquee__track {
-        display: flex;
-        width: max-content;
-        will-change: transform;
-        animation: jesteiPolicyMarquee 1800s linear infinite;
-      }
-
-      .jestei-policy-marquee__text {
-        flex: 0 0 auto;
-        min-inline-size: max-content;
-        margin: 0;
-        padding-inline-end: 3rem;
-        color: rgba(0, 0, 0, 0.58);
-        font-family: inherit;
-        font-size: clamp(0.82rem, 1.02vw, 1rem);
-        font-style: normal;
-        font-weight: 400;
-        line-height: 1;
-        letter-spacing: 0;
-        text-transform: none;
-        white-space: nowrap;
-      }
-
-      .jestei-policy-marquee:hover .jestei-policy-marquee__track {
-        animation-play-state: paused;
-      }
-
-      @keyframes jesteiPolicyMarquee {
-        from {
-          transform: translate3d(0, 0, 0);
-        }
-        to {
-          transform: translate3d(-50%, 0, 0);
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .jestei-policy-marquee__track {
-          animation: none;
-          transform: none;
-        }
-
-        .jestei-policy-marquee__viewport {
-          overflow-x: auto;
-          scrollbar-width: thin;
-        }
-      }
-    </style>
   </head>
   <body>
     <header aria-label="навигация по странице" class="site-header" data-site-header="">
@@ -264,6 +199,206 @@
                   </div>
                   <time class="meta">с 2024</time>
                 </div>
+              <section aria-label="обязанности в jestei pool" class="jestei-responsibilities-header">
+                              <section
+                                aria-label="обязанности в jestei pool"
+                                class="project-responsibilities project-responsibilities--three project-responsibilities--semantic project-responsibilities--mobile-scroll list-scroll-x project-responsibilities--contained-lists project-responsibilities--split-items"
+                              >
+                                <article class="responsibility-card">
+                                  <h4 class="responsibility-card__title">артдирекшн сервиса</h4>
+                                  <span aria-hidden="true" class="responsibility-card__title-divider"></span>
+                                  <ul class="responsibility-card__list">
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">анализ конкурентов, дизайн-систем и трендов</span>
+                                      <span class="responsibility-card__item-text"
+                                        >изучение лучших практик, внедрение избранных решений в дизайн-систему сервиса и адаптация их
+                                        под контекст и аудиторию.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">разделение аудитории</span>
+                                      <span class="responsibility-card__item-text"
+                                        >клубные и ивент-диджеи получили отдельную сепарацию визуального языка.</span
+                                      >
+                                    </li>
+                                    <li aria-hidden="true" class="responsibility-card__divider"></li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">ребрендинг</span>
+                                      <span class="responsibility-card__item-text"
+                                        >логотип, цветовая палитра, визуальная система, коммуникация с разными аудиториями.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">цветовая система</span>
+                                      <span class="responsibility-card__item-text"
+                                        >тарифы, аудитории и сценарии получили акценты, контрасты и навигационную логику.</span
+                                      >
+                                    </li>
+                                    <li aria-hidden="true" class="responsibility-card__divider"></li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">новый визуальный язык</span>
+                                      <span class="responsibility-card__item-text"
+                                        >ии-арты, иллюстрации, 3d-леттеринг, метафоры, ирония, фотореалистичные изображения диджеев,
+                                        разнообразие форм, текстур и подходов к созданию контента, а также различные цвета для разных
+                                        продуктов.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">иконки и графические метафоры</span>
+                                      <span class="responsibility-card__item-text"
+                                        >формы, текстуры, коллажи, баннеры и правила оформления материалов.</span
+                                      >
+                                    </li>
+                                    <li aria-hidden="true" class="responsibility-card__divider"></li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">редполитика и коммуникационная платформа</span>
+                                      <span class="responsibility-card__item-text"
+                                        >tone of voice, рассылки, подсказки и оповещения.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">легализация шрифтовой политики бренда</span>
+                                      <span class="responsibility-card__item-text"
+                                        >подбор, покупка и внедрение лицензированных шрифтов.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">внедрение нейросетевых инструментов</span>
+                                      <span class="responsibility-card__item-text"
+                                        >легализация подхода к созданию изображений для плейлистов и промо материалов.</span
+                                      >
+                                    </li>
+                                  </ul>
+                                </article>
+                                <article class="responsibility-card">
+                                  <h4 class="responsibility-card__title">разработка ui/ux-стратегии сервиса</h4>
+                                  <span aria-hidden="true" class="responsibility-card__title-divider"></span>
+                                  <ul class="responsibility-card__list">
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">редизайн раздела event</span>
+                                      <span class="responsibility-card__item-text"
+                                        >упрощение навигации, реструктуризация плейлистов, создание отдельной ленты треков для
+                                        раздела, проектирование и дизайн отдельных поисковых инструментов.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">упрощение архитектуры</span>
+                                      <span class="responsibility-card__item-text"
+                                        >меньше вложенности, бесполезных кликов и тупиковых маршрутов.</span
+                                      >
+                                    </li>
+                                    <li aria-hidden="true" class="responsibility-card__divider"></li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">редизайн системы фильтрации и поиска</span>
+                                      <span class="responsibility-card__item-text"
+                                        >прогрессивная трёхуровневая фильтрация для каждого из продуктов.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">прогрессивные фильтры</span>
+                                      <span class="responsibility-card__item-text"
+                                        >отдельные сценарии фильтрации для разделов event и record pool.</span
+                                      >
+                                    </li>
+                                    <li aria-hidden="true" class="responsibility-card__divider"></li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">адаптивная логика</span>
+                                      <span class="responsibility-card__item-text"
+                                        >проектирование, внедрение горизонтального скролла и разных типов модульных сеток.</span
+                                      >
+                                    </li>
+                                    <li aria-hidden="true" class="responsibility-card__divider"></li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">инструменты продаж</span>
+                                      <span class="responsibility-card__item-text"
+                                        >рассылки для реанимации клиента, виджеты и поп-апы с предложением апгрейда подписки,
+                                        дополнительные пейволы, посадочные страницы и модульная система лендингов.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">экосистема лендинговых страниц</span>
+                                      <span class="responsibility-card__item-text"
+                                        >редизайн и масштабирование страниц для разных аудиторий.</span
+                                      >
+                                    </li>
+                                    <li aria-hidden="true" class="responsibility-card__divider"></li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">проектная документация</span>
+                                      <span class="responsibility-card__item-text"
+                                        >внутренние брифинги, карты сценариев, документация и справочная информация для команды.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">взаимодействие с командой разработки</span>
+                                      <span class="responsibility-card__item-text"
+                                        >консультирование, брифинги, ревью, контроль соответствия макетам и написание кода для
+                                        анимированных организмов и лендинговых страниц.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">дизайн-система проекта</span>
+                                      <span class="responsibility-card__item-text"
+                                        >проработка, чистка и внедрение современных решений.</span
+                                      >
+                                    </li>
+                                  </ul>
+                                </article>
+                                <article class="responsibility-card">
+                                  <h4 class="responsibility-card__title">дизайн-лид</h4>
+                                  <span aria-hidden="true" class="responsibility-card__title-divider"></span>
+                                  <ul class="responsibility-card__list">
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">архитектура дизайн-системы сервиса</span>
+                                      <span class="responsibility-card__item-text"
+                                        >проработка масштабируемости и преемственности внутри команды сайта, креативного отдела,
+                                        графических дизайнеров, копирайтеров, редакторов, разработчиков и кураторов продуктовых
+                                        направлений сервиса.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">прототипы и новые инструменты</span>
+                                      <span class="responsibility-card__item-text"
+                                        >поиск и внедрение новых инструментов, технологий и подходов для создания дизайна и графики, а
+                                        также обучение команды работе с ними.</span
+                                      >
+                                    </li>
+                                    <li aria-hidden="true" class="responsibility-card__divider"></li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">дизайн-сущности и прототипы</span>
+                                      <span class="responsibility-card__item-text"
+                                        >обложки, баннеры, иконки, иллюстрации, коллажи, 3d-графика, рекламные материалы, оформление
+                                        плейлистов, css и canvas-анимации, видеогенерации, монтаж, субтитры и другие материалы с
+                                        дальнейшей передачей.</span
+                                      >
+                                    </li>
+                                    <li aria-hidden="true" class="responsibility-card__divider"></li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">постановка задач для дизайнеров</span>
+                                      <span class="responsibility-card__item-text"
+                                        >разъяснение контекста, объяснение устройства сервиса и аудитории, бизнес-задач креативов,
+                                        ограничений и ожидаемого результата.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">обучение дизайнеров</span>
+                                      <span class="responsibility-card__item-text">визуальная система, логика и язык бренда.</span>
+                                    </li>
+                                    <li aria-hidden="true" class="responsibility-card__divider"></li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">ревью и анализ проблем</span>
+                                      <span class="responsibility-card__item-text"
+                                        >ревью ux-решений, проверка выразительности, соответствия дизайн-системе, графического дизайна
+                                        и интерфейса сервиса.</span
+                                      >
+                                    </li>
+                                    <li class="responsibility-card__item">
+                                      <span class="responsibility-card__item-title">контроль качества макетов</span>
+                                      <span class="responsibility-card__item-text">проверка перед передачей в продакшн.</span>
+                                    </li>
+                                  </ul>
+                                </article>
+                              </section>
+                            </section>
               </section>
               <section
                 class="jestei-chapter-frame jestei-chapter-frame--rebranding"
@@ -6042,206 +6177,7 @@
                   </div>
                 </div>
               </section>
-              <section aria-label="обязанности в jestei pool" class="jestei-responsibilities-end">
-                <section
-                  aria-label="обязанности в jestei pool"
-                  class="project-responsibilities project-responsibilities--three project-responsibilities--semantic project-responsibilities--mobile-scroll list-scroll-x project-responsibilities--contained-lists project-responsibilities--split-items"
-                >
-                  <article class="responsibility-card">
-                    <h4 class="responsibility-card__title">артдирекшн сервиса</h4>
-                    <span aria-hidden="true" class="responsibility-card__title-divider"></span>
-                    <ul class="responsibility-card__list">
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">анализ конкурентов, дизайн-систем и трендов</span>
-                        <span class="responsibility-card__item-text"
-                          >изучение лучших практик, внедрение избранных решений в дизайн-систему сервиса и адаптация их
-                          под контекст и аудиторию.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">разделение аудитории</span>
-                        <span class="responsibility-card__item-text"
-                          >клубные и ивент-диджеи получили отдельную сепарацию визуального языка.</span
-                        >
-                      </li>
-                      <li aria-hidden="true" class="responsibility-card__divider"></li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">ребрендинг</span>
-                        <span class="responsibility-card__item-text"
-                          >логотип, цветовая палитра, визуальная система, коммуникация с разными аудиториями.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">цветовая система</span>
-                        <span class="responsibility-card__item-text"
-                          >тарифы, аудитории и сценарии получили акценты, контрасты и навигационную логику.</span
-                        >
-                      </li>
-                      <li aria-hidden="true" class="responsibility-card__divider"></li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">новый визуальный язык</span>
-                        <span class="responsibility-card__item-text"
-                          >ии-арты, иллюстрации, 3d-леттеринг, метафоры, ирония, фотореалистичные изображения диджеев,
-                          разнообразие форм, текстур и подходов к созданию контента, а также различные цвета для разных
-                          продуктов.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">иконки и графические метафоры</span>
-                        <span class="responsibility-card__item-text"
-                          >формы, текстуры, коллажи, баннеры и правила оформления материалов.</span
-                        >
-                      </li>
-                      <li aria-hidden="true" class="responsibility-card__divider"></li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">редполитика и коммуникационная платформа</span>
-                        <span class="responsibility-card__item-text"
-                          >tone of voice, рассылки, подсказки и оповещения.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">легализация шрифтовой политики бренда</span>
-                        <span class="responsibility-card__item-text"
-                          >подбор, покупка и внедрение лицензированных шрифтов.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">внедрение нейросетевых инструментов</span>
-                        <span class="responsibility-card__item-text"
-                          >легализация подхода к созданию изображений для плейлистов и промо материалов.</span
-                        >
-                      </li>
-                    </ul>
-                  </article>
-                  <article class="responsibility-card">
-                    <h4 class="responsibility-card__title">разработка ui/ux-стратегии сервиса</h4>
-                    <span aria-hidden="true" class="responsibility-card__title-divider"></span>
-                    <ul class="responsibility-card__list">
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">редизайн раздела event</span>
-                        <span class="responsibility-card__item-text"
-                          >упрощение навигации, реструктуризация плейлистов, создание отдельной ленты треков для
-                          раздела, проектирование и дизайн отдельных поисковых инструментов.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">упрощение архитектуры</span>
-                        <span class="responsibility-card__item-text"
-                          >меньше вложенности, бесполезных кликов и тупиковых маршрутов.</span
-                        >
-                      </li>
-                      <li aria-hidden="true" class="responsibility-card__divider"></li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">редизайн системы фильтрации и поиска</span>
-                        <span class="responsibility-card__item-text"
-                          >прогрессивная трёхуровневая фильтрация для каждого из продуктов.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">прогрессивные фильтры</span>
-                        <span class="responsibility-card__item-text"
-                          >отдельные сценарии фильтрации для разделов event и record pool.</span
-                        >
-                      </li>
-                      <li aria-hidden="true" class="responsibility-card__divider"></li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">адаптивная логика</span>
-                        <span class="responsibility-card__item-text"
-                          >проектирование, внедрение горизонтального скролла и разных типов модульных сеток.</span
-                        >
-                      </li>
-                      <li aria-hidden="true" class="responsibility-card__divider"></li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">инструменты продаж</span>
-                        <span class="responsibility-card__item-text"
-                          >рассылки для реанимации клиента, виджеты и поп-апы с предложением апгрейда подписки,
-                          дополнительные пейволы, посадочные страницы и модульная система лендингов.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">экосистема лендинговых страниц</span>
-                        <span class="responsibility-card__item-text"
-                          >редизайн и масштабирование страниц для разных аудиторий.</span
-                        >
-                      </li>
-                      <li aria-hidden="true" class="responsibility-card__divider"></li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">проектная документация</span>
-                        <span class="responsibility-card__item-text"
-                          >внутренние брифинги, карты сценариев, документация и справочная информация для команды.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">взаимодействие с командой разработки</span>
-                        <span class="responsibility-card__item-text"
-                          >консультирование, брифинги, ревью, контроль соответствия макетам и написание кода для
-                          анимированных организмов и лендинговых страниц.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">дизайн-система проекта</span>
-                        <span class="responsibility-card__item-text"
-                          >проработка, чистка и внедрение современных решений.</span
-                        >
-                      </li>
-                    </ul>
-                  </article>
-                  <article class="responsibility-card">
-                    <h4 class="responsibility-card__title">дизайн-лид</h4>
-                    <span aria-hidden="true" class="responsibility-card__title-divider"></span>
-                    <ul class="responsibility-card__list">
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">архитектура дизайн-системы сервиса</span>
-                        <span class="responsibility-card__item-text"
-                          >проработка масштабируемости и преемственности внутри команды сайта, креативного отдела,
-                          графических дизайнеров, копирайтеров, редакторов, разработчиков и кураторов продуктовых
-                          направлений сервиса.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">прототипы и новые инструменты</span>
-                        <span class="responsibility-card__item-text"
-                          >поиск и внедрение новых инструментов, технологий и подходов для создания дизайна и графики, а
-                          также обучение команды работе с ними.</span
-                        >
-                      </li>
-                      <li aria-hidden="true" class="responsibility-card__divider"></li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">дизайн-сущности и прототипы</span>
-                        <span class="responsibility-card__item-text"
-                          >обложки, баннеры, иконки, иллюстрации, коллажи, 3d-графика, рекламные материалы, оформление
-                          плейлистов, css и canvas-анимации, видеогенерации, монтаж, субтитры и другие материалы с
-                          дальнейшей передачей.</span
-                        >
-                      </li>
-                      <li aria-hidden="true" class="responsibility-card__divider"></li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">постановка задач для дизайнеров</span>
-                        <span class="responsibility-card__item-text"
-                          >разъяснение контекста, объяснение устройства сервиса и аудитории, бизнес-задач креативов,
-                          ограничений и ожидаемого результата.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">обучение дизайнеров</span>
-                        <span class="responsibility-card__item-text">визуальная система, логика и язык бренда.</span>
-                      </li>
-                      <li aria-hidden="true" class="responsibility-card__divider"></li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">ревью и анализ проблем</span>
-                        <span class="responsibility-card__item-text"
-                          >ревью ux-решений, проверка выразительности, соответствия дизайн-системе, графического дизайна
-                          и интерфейса сервиса.</span
-                        >
-                      </li>
-                      <li class="responsibility-card__item">
-                        <span class="responsibility-card__item-title">контроль качества макетов</span>
-                        <span class="responsibility-card__item-text">проверка перед передачей в продакшн.</span>
-                      </li>
-                    </ul>
-                  </article>
-                </section>
-              </section>
+              
             </article>
             <article class="project stack no-divider" id="project-styx">
               <section class="project__header">
@@ -6299,6 +6235,16 @@
                     баннеры и другие элементы визуальной идентичности.
                   </p>
                 </header>
+<div class="case-chapter-frame__control">
+                  <button
+                    aria-expanded="false"
+                    class="button case-chapter-frame__toggle"
+                    data-case-chapter-toggle=""
+                    type="button"
+                  >
+                    развернуть
+                  </button>
+                </div>
                 <div aria-hidden="true" class="case-chapter-frame__body-wrap">
                   <div class="case-chapter-frame__body">
                     <div class="case-chapter-panel">
@@ -6435,16 +6381,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="case-chapter-frame__control">
-                  <button
-                    aria-expanded="false"
-                    class="button case-chapter-frame__toggle"
-                    data-case-chapter-toggle=""
-                    type="button"
-                  >
-                    развернуть
-                  </button>
-                </div>
+                
               </section>
               <section
                 class="case-chapter-frame case-chapter-frame--styx case-chapter-frame--print"
@@ -6478,6 +6415,16 @@
                     рекламные буклеты, визитки и стикеры.
                   </p>
                 </header>
+<div class="case-chapter-frame__control">
+                  <button
+                    aria-expanded="false"
+                    class="button case-chapter-frame__toggle"
+                    data-case-chapter-toggle=""
+                    type="button"
+                  >
+                    развернуть
+                  </button>
+                </div>
                 <div aria-hidden="true" class="case-chapter-frame__body-wrap">
                   <div class="case-chapter-frame__body">
                     <div class="case-chapter-panel">
@@ -6491,16 +6438,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="case-chapter-frame__control">
-                  <button
-                    aria-expanded="false"
-                    class="button case-chapter-frame__toggle"
-                    data-case-chapter-toggle=""
-                    type="button"
-                  >
-                    развернуть
-                  </button>
-                </div>
+                
               </section>
               <section
                 class="case-chapter-frame case-chapter-frame--styx case-chapter-frame--photo"
@@ -6551,6 +6489,16 @@
                     печати, рекламы и соцсетей.
                   </p>
                 </header>
+<div class="case-chapter-frame__control">
+                  <button
+                    aria-expanded="false"
+                    class="button case-chapter-frame__toggle"
+                    data-case-chapter-toggle=""
+                    type="button"
+                  >
+                    развернуть
+                  </button>
+                </div>
                 <div aria-hidden="true" class="case-chapter-frame__body-wrap">
                   <div class="case-chapter-frame__body">
                     <div class="case-chapter-panel">
@@ -6678,16 +6626,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="case-chapter-frame__control">
-                  <button
-                    aria-expanded="false"
-                    class="button case-chapter-frame__toggle"
-                    data-case-chapter-toggle=""
-                    type="button"
-                  >
-                    развернуть
-                  </button>
-                </div>
+                
               </section>
               <section
                 class="case-chapter-frame case-chapter-frame--styx case-chapter-frame--scanography"
@@ -6742,6 +6681,16 @@
                     бренда и соцсетей.
                   </p>
                 </header>
+<div class="case-chapter-frame__control">
+                  <button
+                    aria-expanded="false"
+                    class="button case-chapter-frame__toggle"
+                    data-case-chapter-toggle=""
+                    type="button"
+                  >
+                    развернуть
+                  </button>
+                </div>
                 <div aria-hidden="true" class="case-chapter-frame__body-wrap">
                   <div class="case-chapter-frame__body">
                     <div class="case-chapter-panel">
@@ -6863,16 +6812,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="case-chapter-frame__control">
-                  <button
-                    aria-expanded="false"
-                    class="button case-chapter-frame__toggle"
-                    data-case-chapter-toggle=""
-                    type="button"
-                  >
-                    развернуть
-                  </button>
-                </div>
+                
               </section>
             </article>
             <article class="project stack" id="project-shootings">
@@ -6935,6 +6875,16 @@
                     съёмки, продакшен и ретушь. внутри — серии фотографий и визуальные материалы.
                   </p>
                 </header>
+<div class="case-chapter-frame__control">
+                  <button
+                    aria-expanded="false"
+                    class="button case-chapter-frame__toggle"
+                    data-case-chapter-toggle=""
+                    type="button"
+                  >
+                    развернуть
+                  </button>
+                </div>
                 <div aria-hidden="true" class="case-chapter-frame__body-wrap">
                   <div class="case-chapter-frame__body">
                     <div class="case-chapter-panel">
@@ -7233,16 +7183,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="case-chapter-frame__control">
-                  <button
-                    aria-expanded="false"
-                    class="button case-chapter-frame__toggle"
-                    data-case-chapter-toggle=""
-                    type="button"
-                  >
-                    развернуть
-                  </button>
-                </div>
+                
               </section>
             </article>
           </div>
@@ -7405,5 +7346,3 @@
     </dialog>
   </body>
 </html>
-
-

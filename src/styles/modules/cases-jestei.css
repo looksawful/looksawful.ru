@@ -253,12 +253,13 @@
   max-inline-size: none;
 }
 
-.jestei-responsibilities-end {
+.jestei-responsibilities-header {
   display: grid;
   gap: var(--gap);
+  inline-size: 100%;
   min-inline-size: 0;
-  margin-block-start: var(--gap-lg);
-  padding-block-start: var(--gap-lg);
+  margin-block-start: var(--gap);
+  padding-block-start: var(--gap);
   border-block-start: var(--line);
 }
 
@@ -413,7 +414,7 @@
     padding: 0 var(--component-gap) var(--component-gap);
   }
 
-  .jestei-responsibilities-end {
+  .jestei-responsibilities-header {
     margin-block-start: var(--gap);
     padding-block-start: var(--gap);
   }
@@ -431,4 +432,3 @@
     max-inline-size: 72vw;
   }
 }
-
