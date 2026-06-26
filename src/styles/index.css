@@ -3,7 +3,6 @@
 @import "./modules/typography.css";
 @import "./modules/media.css";
 @import "./modules/site-header.css";
-@import "./modules/components.css";
 @import "./modules/hero.css";
 @import "./modules/hero-skill-marquee.css";
 @import "./modules/project.css";
@@ -30,3 +29,4 @@
 @import "./modules/chapter-disclosure-tabs.css";
 @import "./modules/site-header-mobile-timing.css";
 @import "./modules/hero-header-layout-fixes.css";
+
