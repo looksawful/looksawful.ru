@@ -124,3 +124,118 @@ body .hero-content {
   }
 }
 /* safe interface polish: end */
+/* layout media polish: start */
+:root {
+  --anchor-safe-top: clamp(92px, 11vh, 148px);
+  --tap-safe-size: 40px;
+}
+
+html {
+  scroll-padding-top: var(--anchor-safe-top);
+}
+
+:where(
+  section[id],
+  article[id],
+  [id^="project-"],
+  [id^="jestei-frame-"],
+  #resume,
+  #showcase,
+  #hero
+) {
+  scroll-margin-top: var(--anchor-safe-top);
+}
+
+:where(
+  .section,
+  .section__screen,
+  .project,
+  .project__head,
+  .block,
+  .block__header,
+  .text-block,
+  .media-row,
+  .list-card,
+  .responsibility-card,
+  .jestei-action-card,
+  .jestei-chapter-frame,
+  .jestei-chapter-frame__body,
+  .jestei-chapter-panel,
+  .hero__headline-wrap,
+  .hero__note,
+  .contact-links
+) {
+  min-width: 0;
+}
+
+:where(
+  .hero__note,
+  .project p,
+  .text-block,
+  .list-card,
+  .responsibility-card,
+  .jestei-action-card,
+  .jestei-chapter-hero__subtitle
+) {
+  overflow-wrap: break-word;
+}
+
+:where(img, video, canvas, svg) {
+  max-width: 100%;
+}
+
+:where(.media-item img, .media-item video, .media-item canvas) {
+  display: block;
+}
+
+:where(.media-item, .project__logo, .visual-canvas) {
+  min-width: 0;
+  isolation: isolate;
+}
+
+:where(
+  .project-skill-cloud,
+  .media-marquee,
+  .jestei-policy-marquee,
+  .hero__screen,
+  .section__screen
+) {
+  overflow-x: clip;
+}
+
+:where(
+  .list-scroll-x,
+  .jestei-action-rail__viewport,
+  .media-slider__viewport,
+  .project-responsibilities--mobile-scroll
+) {
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+:where(
+  .button,
+  .jestei-action-rail__arrow,
+  .jestei-chapter-frame__toggle,
+  .filter-fullscreen-button,
+  .lightbox__close
+) {
+  min-height: var(--tap-safe-size);
+}
+
+:where(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --anchor-safe-top: clamp(84px, 12vh, 128px);
+    --tap-safe-size: 38px;
+  }
+
+  :where(.hero__note, .contact-links, .jestei-chapter-hero__subtitle) {
+    max-width: 100%;
+  }
+}
+/* layout media polish: end */
