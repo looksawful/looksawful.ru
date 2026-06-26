@@ -1,0 +1,67 @@
+/* Jestei token color classes.
+   Replaces inline --token-color styles in index.html. */
+
+.token-pill.token-pill--orange-1 {
+  --token-color: #f18200;
+}
+
+.token-pill.token-pill--orange-2 {
+  --token-color: #ffddb4;
+}
+
+.token-pill.token-pill--orange-3 {
+  --token-color: #ffb45a;
+}
+
+.token-pill.token-pill--orange-4 {
+  --token-color: #b65b00;
+}
+
+.token-pill.token-pill--blue-1 {
+  --token-color: #157aff;
+}
+
+.token-pill.token-pill--blue-2 {
+  --token-color: #bbd8ff;
+}
+
+.token-pill.token-pill--blue-3 {
+  --token-color: #62a6ff;
+}
+
+.token-pill.token-pill--blue-4 {
+  --token-color: #0d4c9f;
+}
+
+.token-pill.token-pill--pear-1 {
+  --token-color: #d1e231;
+}
+
+.token-pill.token-pill--pear-2 {
+  --token-color: #f1f8b8;
+}
+
+.token-pill.token-pill--pear-3 {
+  --token-color: #e3ef68;
+}
+
+.token-pill.token-pill--pear-4 {
+  --token-color: #899519;
+}
+
+.token-pill.token-pill--biloba-1 {
+  --token-color: #b2a1ea;
+}
+
+.token-pill.token-pill--biloba-2 {
+  --token-color: #e2daff;
+}
+
+.token-pill.token-pill--biloba-3 {
+  --token-color: #c8bcf4;
+}
+
+.token-pill.token-pill--biloba-4 {
+  --token-color: #74649f;
+}
+
