@@ -1,118 +1,98 @@
-import { initRestructureStage03 } from './visuals/dom/restructure-stage-03.js';
-import { initRestructureStage02 } from './visuals/dom/restructure-stage-02.js';
-let appInitialized = false;
+let initialized = false;
 
-const has = (selector, root = document) => {
-  return Boolean(root?.querySelector?.(selector));
-};
+const has = (selector, root = document) => Boolean(root?.querySelector?.(selector));
 
-async function runInitStep(label, callback) {
+async function safe(label, task) {
   try {
-    return await callback();
+    return await task();
   } catch (error) {
-    console.error("[init] " + label + " failed", error);
+    console.error(`[init] ${label} failed`, error);
     return null;
   }
 }
 
-async function importSideEffects(root) {
-  const imports = [
-    import("./vendor/gsap-globals.js"),
-  ];
-
-  if (has("[data-media-marquee], [data-marquee], .media-marquee, .jestei-policy-marquee", root)) {
-    imports.push(import("./visuals/dom/media-marquee.js"));
-  }
-
-  if (has("[data-media-slider], [data-showcase-auto-slider], [data-slider], .media-slider", root)) {
-    imports.push(import("./visuals/dom/media-slider.js"));
-  }
-
-  if (has("[data-policy-book], .policy-book", root)) {
-    imports.push(import("./visuals/dom/policy-book.js"));
-  }
-
-  if (has("[data-list-scroll], [data-horizontal-scroll], .project-responsibilities--mobile-scroll, .jestei-action-rail__viewport", root)) {
-    imports.push(import("./visuals/dom/list-scroll.js"));
-  }
-
-  /*
-    proximity intentionally stays opt-in here.
-    header has its own pointer/menu logic, and global proximity will be rebuilt at the end.
-  */
-  if (has("[data-proximity], [data-proximity-target], [data-proximity-root], .proximity-button, .proximity-card", root)) {
-    imports.push(import("./components/proximity-components.js"));
-  }
-
-  await Promise.allSettled(imports);
-}
-
-async function initNamedModules(root) {
-  const tasks = [];
-
-  if (has("[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter", root)) {
-    tasks.push(runInitStep("initPlaylistFilterEmbed", async () => {
-      const module = await import("./visuals/dom/playlist-filter-embed.js");
-      return module.initPlaylistFilterEmbed(root);
-    }));
-  }
-
-  if (has("[data-random-gallery]", root)) {
-    tasks.push(runInitStep("initRandomGalleries", async () => {
-      const module = await import("./visuals/dom/random-gallery.js");
-      return module.initRandomGalleries(root);
-    }));
-  }
-
-  if (has("[data-jestei-chapter-frame], [data-case-chapter-frame], [data-jestei-action-rail]", root)) {
-    tasks.push(runInitStep("initCaseChapters", async () => {
-      const module = await import("./visuals/dom/case-chapters.js");
-      return module.initCaseChapters(root);
-    }));
-  }
-
-  if (has("[data-artifact-reader], [data-artifact-reader-open], .artifact-reader, .artifact-stage", root)) {
-    tasks.push(runInitStep("initArtifactReaders", async () => {
-      const module = await import("./visuals/dom/artifact-reader.js");
-      return module.initArtifactReaders(root);
-    }));
-  }
-
-  await Promise.allSettled(tasks);
-}
-
 async function initApp() {
-  if (appInitialized) {
-    return;
-  }
-
+  if (initialized) return;
   const main = document.getElementById("main");
+  if (!(main instanceof HTMLElement)) return;
 
-  if (!(main instanceof HTMLElement)) {
-    console.error("[init] main container not found");
-    return;
-  }
+  initialized = true;
 
-  appInitialized = true;
+  await safe("gsap", () => import("./vendor/gsap-globals.js"));
 
-
-  await runInitStep("initRestructureStage01", async () => {
-    if (!has("[data-jestei-chapter-frame], [data-case-chapter-frame], #showcase", document)) {
-      return null;
-    }
-
-    const module = await import("./visuals/dom/restructure-stage-01.js");
-    return module.initRestructureStage01(document);
-  });
-
-  await runInitStep("importSideEffects", () => importSideEffects(document));
-
-  await runInitStep("initComponents", async () => {
+  await safe("components", async () => {
     const module = await import("./components/index.js");
     return module.initComponents(document);
   });
 
-  await initNamedModules(document);
+  const tasks = [];
+
+  if (has("[data-media-marquee], .media-marquee, .jestei-policy-marquee")) {
+    tasks.push(safe("mediaMarquee", () => import("./visuals/dom/media-marquee.js")));
+  }
+
+  if (has("[data-showcase-auto-slider], .media-slider")) {
+    tasks.push(safe("mediaSlider", () => import("./visuals/dom/media-slider.js")));
+  }
+
+  if (has("[data-policy-book], .policy-book")) {
+    tasks.push(safe("policyBook", () => import("./visuals/dom/policy-book.js")));
+  }
+
+  if (has(".list-scroll-x, .jestei-action-rail__viewport")) {
+    tasks.push(safe("listScroll", () => import("./visuals/dom/list-scroll.js")));
+  }
+
+  if (has("[data-random-gallery]")) {
+    tasks.push(
+      safe("randomGallery", async () => {
+        const module = await import("./visuals/dom/random-gallery.js");
+        return module.initRandomGalleries(document);
+      }),
+    );
+  }
+
+  if (has("[data-portfolio-toc]")) {
+    tasks.push(
+      safe("portfolioToc", async () => {
+        const module = await import("./visuals/dom/showcase-toc.js");
+        return module.initShowcaseToc(document);
+      }),
+    );
+  }
+
+  if (has("[data-jestei-action-rail]")) {
+    tasks.push(
+      safe("caseChapters", async () => {
+        const module = await import("./visuals/dom/case-chapters.js");
+        return module.initCaseChapters(document);
+      }),
+    );
+  }
+
+  if (has("[data-artifact-reader], [data-artifact-reader-open], .artifact-reader, .artifact-stage")) {
+    tasks.push(
+      safe("artifactReader", async () => {
+        const module = await import("./visuals/dom/artifact-reader.js");
+        return module.initArtifactReaders(document);
+      }),
+    );
+  }
+
+  if (has("[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter")) {
+    tasks.push(
+      safe("playlistFilter", async () => {
+        const module = await import("./visuals/dom/playlist-filter-embed.js");
+        return module.initPlaylistFilterEmbed(document);
+      }),
+    );
+  }
+
+  if (has("[data-proximity], [data-proximity-target], [data-proximity-root], .proximity-button, .proximity-card")) {
+    tasks.push(safe("proximity", () => import("./components/proximity-components.js")));
+  }
+
+  await Promise.allSettled(tasks);
 }
 
 if (document.readyState === "loading") {
@@ -120,7 +100,3 @@ if (document.readyState === "loading") {
 } else {
   void initApp();
 }
-initRestructureStage02();
-  initRestructureStage03();
-
-

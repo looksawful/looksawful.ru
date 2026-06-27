@@ -1,0 +1,107 @@
+.showcase-toc {
+  display: contents;
+}
+
+.showcase-toc__trigger {
+  position: fixed;
+  z-index: 80;
+  right: clamp(1rem, 4vw, 1.5rem);
+  bottom: clamp(1rem, 4vw, 1.5rem);
+  display: none;
+  min-block-size: 2.75rem;
+  padding: 0 1rem;
+  border: var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  cursor: pointer;
+}
+
+.showcase-toc__panel {
+  display: grid;
+  gap: 0.32rem;
+  min-inline-size: 0;
+}
+
+.showcase-toc__link {
+  display: block;
+  padding: 0.34rem 0;
+  color: currentColor;
+  font-size: 0.82rem;
+  line-height: 1.18;
+  text-decoration: none;
+  opacity: 0.58;
+}
+
+.showcase-toc__link--project {
+  margin-block-start: 0.65rem;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.showcase-toc__link.is-active {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+@media (min-width: 88rem) {
+  .section__screen--showcase {
+    display: grid;
+    grid-template-columns: clamp(10rem, 13vw, 15rem) minmax(0, 80rem) minmax(clamp(2rem, 8vw, 9rem), 1fr);
+    column-gap: clamp(2rem, 3.8vw, 4.5rem);
+    align-items: start;
+  }
+
+  .section__screen--showcase > .showcase-toc {
+    display: block;
+    position: sticky;
+    top: var(--case-anchor-offset, 8rem);
+    grid-column: 1;
+    max-block-size: calc(100vh - var(--case-anchor-offset, 8rem) - 2rem);
+    overflow: auto;
+  }
+
+  .section__screen--showcase > .showcase-stack {
+    grid-column: 2;
+    min-inline-size: 0;
+  }
+}
+
+@media (max-width: 87.999rem) {
+  .showcase-toc {
+    display: block;
+  }
+
+  .showcase-toc__trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .showcase-toc__panel {
+    position: fixed;
+    z-index: 79;
+    right: clamp(1rem, 4vw, 1.5rem);
+    bottom: calc(clamp(1rem, 4vw, 1.5rem) + 3.25rem);
+    inline-size: min(22rem, calc(100vw - 2rem));
+    max-block-size: min(60vh, 32rem);
+    padding: 1rem;
+    overflow: auto;
+    border: var(--line);
+    border-radius: var(--r);
+    background: var(--white);
+    color: var(--black);
+    box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.14);
+    transform: translateY(0.5rem);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .showcase-toc__panel[data-open="true"] {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
