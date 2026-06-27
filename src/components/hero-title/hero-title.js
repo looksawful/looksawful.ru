@@ -2,55 +2,30 @@ import { createLetterIdleMotion, splitTextIntoGraphemes } from "../letter-motion
 
 const TITLE_SELECTOR = "#hero-title";
 const LINE_SELECTOR = ".hero__title-name, .hero__title-role";
-const NAME_LETTER_SELECTOR = ".hero__title-name .hero-title-letter";
-const ROLE_LINE_SELECTOR = '.hero__title-role[data-hero-role-line="true"]';
 const FIT_SAFE_GAP = 2;
 const FIT_MIN_FONT_SIZE = 20;
-const ROLE_FIT_MIN_FONT_SIZE = 14;
-
-function createLetterElement(letter, index) {
-  const letterElement = document.createElement("span");
-  const isSpace = /\s/.test(letter);
-
-  letterElement.className = isSpace ? "hero-title-letter is-space" : "hero-title-letter";
-  letterElement.dataset.heroLetter = String(index);
-  letterElement.textContent = isSpace ? "\u00a0" : letter;
-
-  return letterElement;
-}
-
-function createWordElement(text, startIndex, isSingleLine = false) {
-  const wordElement = document.createElement("span");
-  let letterIndex = startIndex;
-
-  wordElement.className = isSingleLine ? "hero-title-word hero-title-word--line" : "hero-title-word";
-
-  splitTextIntoGraphemes(text).forEach((letter) => {
-    wordElement.appendChild(createLetterElement(letter, letterIndex));
-    letterIndex += 1;
-  });
-
-  return {
-    element: wordElement,
-    nextIndex: letterIndex,
-  };
-}
 
 function wrapLineLetters(line, startIndex = 0) {
-  const isRoleLine = line.matches(ROLE_LINE_SELECTOR);
-  const label = line.textContent.trim().replace(/\s+/g, " ");
+  const words = line.textContent.trim().split(/\s+/);
   const fragment = document.createDocumentFragment();
-  const parts = isRoleLine ? [label] : label.split(/\s+/);
   let letterIndex = startIndex;
 
-  line.dataset.heroTitleText = label;
-  line.setAttribute("aria-label", label);
+  words.forEach((word) => {
+    const wordElement = document.createElement("span");
+    wordElement.className = "hero-title-word";
 
-  parts.forEach((part) => {
-    const word = createWordElement(part, letterIndex, isRoleLine);
+    splitTextIntoGraphemes(word).forEach((letter) => {
+      const letterElement = document.createElement("span");
 
-    fragment.appendChild(word.element);
-    letterIndex = word.nextIndex;
+      letterElement.className = "hero-title-letter";
+      letterElement.dataset.heroLetter = String(letterIndex);
+      letterElement.textContent = letter;
+
+      wordElement.appendChild(letterElement);
+      letterIndex += 1;
+    });
+
+    fragment.appendChild(wordElement);
   });
 
   line.textContent = "";
@@ -59,16 +34,7 @@ function wrapLineLetters(line, startIndex = 0) {
   return letterIndex;
 }
 
-function getAvailableWidth(title, line) {
-  if (line?.matches?.(ROLE_LINE_SELECTOR)) {
-    const roleRect = line.getBoundingClientRect();
-    const roleWidth = roleRect.width || line.clientWidth || 0;
-
-    if (roleWidth > 0) {
-      return Math.max(0, Math.floor(roleWidth - FIT_SAFE_GAP));
-    }
-  }
-
+function getAvailableWidth(title) {
   const wrap = title.closest(".hero__headline-wrap") || title;
   const rect = wrap.getBoundingClientRect();
   const width = rect.width || wrap.clientWidth || window.innerWidth;
@@ -76,25 +42,9 @@ function getAvailableWidth(title, line) {
   return Math.max(0, Math.floor(width - FIT_SAFE_GAP));
 }
 
-function getLineMeasure(line) {
-  const words = [...line.querySelectorAll(".hero-title-word")];
-
-  if (!words.length) {
-    return 0;
-  }
-
-  return words.reduce((max, word) => Math.max(max, Math.ceil(word.scrollWidth)), 0);
-}
-
-function fitLine(title, line) {
+function fitLine(line, availableWidth) {
   line.style.fontSize = "";
   line.classList.remove("is-hero-title-fitted");
-
-  const availableWidth = getAvailableWidth(title, line);
-
-  if (!availableWidth) {
-    return;
-  }
 
   const style = window.getComputedStyle(line);
   const baseFontSize = Number.parseFloat(style.fontSize);
@@ -103,85 +53,91 @@ function fitLine(title, line) {
     return;
   }
 
-  const contentWidth = getLineMeasure(line);
+  const widestWord = [...line.querySelectorAll(".hero-title-word")].reduce(
+    (max, word) => Math.max(max, Math.ceil(word.scrollWidth)),
+    0,
+  );
 
-  if (!contentWidth || contentWidth <= availableWidth) {
+  if (!widestWord || widestWord <= availableWidth) {
     return;
   }
 
-  const minFontSize = line.matches(ROLE_LINE_SELECTOR) ? ROLE_FIT_MIN_FONT_SIZE : FIT_MIN_FONT_SIZE;
-  const scale = availableWidth / contentWidth;
-  const nextFontSize = Math.max(minFontSize, Math.floor(baseFontSize * scale * 1000) / 1000);
+  const scale = availableWidth / widestWord;
+  const nextFontSize = Math.max(FIT_MIN_FONT_SIZE, Math.floor(baseFontSize * scale * 1000) / 1000);
 
   line.style.fontSize = String(nextFontSize) + "px";
   line.classList.add("is-hero-title-fitted");
 }
 
 function fitHeroTitle(title, lines) {
-  lines.forEach((line) => fitLine(title, line));
+  const availableWidth = getAvailableWidth(title);
+
+  if (!availableWidth) {
+    return;
+  }
+
+  lines.forEach((line) => fitLine(line, availableWidth));
 }
 
 function bindHeroTitleFit(title, lines) {
   let frame = 0;
+  const wrap = title.closest(".hero__headline-wrap") || title;
 
   const scheduleFit = () => {
-    cancelAnimationFrame(frame);
-    frame = window.requestAnimationFrame(() => fitHeroTitle(title, lines));
+    if (frame) {
+      return;
+    }
+
+    frame = window.requestAnimationFrame(() => {
+      frame = 0;
+      fitHeroTitle(title, lines);
+    });
   };
 
   scheduleFit();
 
-  window.addEventListener("resize", scheduleFit, { passive: true });
-  window.addEventListener("orientationchange", scheduleFit, { passive: true });
-
   document.fonts?.ready?.then(scheduleFit).catch(() => {});
 
-  const wrap = title.closest(".hero__headline-wrap") || title;
-  const observer =
-    typeof ResizeObserver === "undefined"
-      ? null
-      : new ResizeObserver(() => {
-          scheduleFit();
-        });
+  if (window.ResizeObserver) {
+    const observer = new ResizeObserver(scheduleFit);
+    observer.observe(wrap);
+  }
 
-  observer?.observe(wrap);
-  lines.forEach((line) => observer?.observe(line));
-
-  return () => {
-    cancelAnimationFrame(frame);
-    window.removeEventListener("resize", scheduleFit);
-    window.removeEventListener("orientationchange", scheduleFit);
-    observer?.disconnect();
-  };
+  window.addEventListener("resize", scheduleFit, { passive: true });
+  window.addEventListener("orientationchange", scheduleFit, { passive: true });
 }
 
 export function initHeroTitleAnimation(root = document) {
   const title = root.querySelector(TITLE_SELECTOR);
 
-  if (!title || title.dataset.heroTitleReady === "true") {
-    return title;
+  if (!title || title.dataset.heroTitleMounted === "true") {
+    return null;
   }
 
   const lines = [...title.querySelectorAll(LINE_SELECTOR)];
 
   if (!lines.length) {
-    return title;
+    return null;
   }
 
   let letterIndex = 0;
 
+  title.dataset.heroTitleMounted = "true";
+  title.setAttribute("aria-label", lines.map((line) => line.textContent.trim()).join(" "));
+
   lines.forEach((line) => {
+    line.setAttribute("aria-hidden", "true");
     letterIndex = wrapLineLetters(line, letterIndex);
   });
 
   bindHeroTitleFit(title, lines);
   title.classList.add("is-hero-title-ready");
-  title.dataset.heroTitleReady = "true";
 
   createLetterIdleMotion(title, {
-    selector: NAME_LETTER_SELECTOR,
+    selector: ".hero-title-letter",
     profile: "hero",
   });
 
   return title;
 }
+
