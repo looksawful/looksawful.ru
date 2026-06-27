@@ -1,15 +1,20 @@
-function createOverlay() {
-  const overlay = document.createElement("div");
-  overlay.className = "portfolio-lightbox";
-  overlay.setAttribute("data-portfolio-lightbox", "");
-  overlay.setAttribute("aria-hidden", "true");
-  overlay.innerHTML = `
-    <button class="portfolio-lightbox__close" type="button" aria-label="закрыть">×</button>
-    <figure class="portfolio-lightbox__figure" data-portfolio-lightbox-content></figure>
-  `;
-  document.body.append(overlay);
-  return overlay;
-}
+const VIEWER_MIN_ITEMS = 20;
+const TILE_RAIL_MIN_ITEMS = 8;
+const SNAP_MIN_ITEMS = 2;
+const SNAP_MAX_ITEMS = 4;
+
+const ENHANCED_GROUP_SELECTOR = "#showcase .case-chapter__body .media-group";
+const GROUP_MEDIA_SELECTOR = ":scope > .media-item, :scope > .media-group__track > .media-item";
+const DIRECT_MEDIA_SELECTOR = ":scope > .media-item";
+
+const mountedRoots = new WeakSet();
+
+const icons = {
+  prev: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.7 2.2 4.9 8l5.8 5.8-1.4 1.4L2.1 8 9.3.8l1.4 1.4Z"/></svg>',
+  next: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5.3 13.8 5.8-5.8-5.8-5.8L6.7.8 13.9 8l-7.2 7.2-1.4-1.4Z"/></svg>',
+  grid: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 1.5h5v5h-5v-5Zm8 0h5v5h-5v-5Zm-8 8h5v5h-5v-5Zm8 0h5v5h-5v-5Z"/></svg>',
+  view: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2h12v9H2V2Zm0 11h5v1.5H2V13Zm7 0h5v1.5H9V13Z"/></svg>',
+};
 
 function readableCaption(link) {
   const explicit = link.getAttribute("data-caption");
@@ -32,6 +37,7 @@ function markOrientation(link) {
     const width = img.naturalWidth;
     const height = img.naturalHeight;
     if (!width || !height) return;
+
     const ratio = width / height;
     const orientation = ratio > 1.18 ? "landscape" : ratio < 0.86 ? "portrait" : "square";
     link.setAttribute("data-orientation", orientation);
@@ -41,29 +47,336 @@ function markOrientation(link) {
   else img.addEventListener("load", apply, { once: true });
 }
 
-function sourceFromLink(link) {
-  const href = link.getAttribute("href");
-  const img = link.querySelector("img");
-  const video = link.querySelector("video");
-  return {
-    href,
-    poster: video?.getAttribute("poster") || img?.currentSrc || img?.getAttribute("src") || "",
-    caption: readableCaption(link),
-    isVideo: link.hasAttribute("data-lightbox-video") || /\.(mp4|webm|mov)$/i.test(href || ""),
-  };
+function createButton(className, label, icon) {
+  const button = document.createElement("button");
+  button.className = className;
+  button.type = "button";
+  button.setAttribute("aria-label", label);
+  button.innerHTML = icon;
+  return button;
 }
 
-function setOpen(overlay, open) {
-  overlay.setAttribute("aria-hidden", String(!open));
-  document.documentElement.classList.toggle("is-portfolio-lightbox-open", open);
+function createDots(items) {
+  const dots = document.createElement("div");
+  dots.className = "media-group__dots";
+  dots.setAttribute("aria-label", "навигация по изображениям");
+
+  const buttons = items.map((_, index) => {
+    const dot = document.createElement("button");
+    dot.className = "media-group__dot";
+    dot.type = "button";
+    dot.setAttribute("aria-label", `изображение ${index + 1}`);
+    dots.append(dot);
+    return dot;
+  });
+
+  return { dots, buttons };
+}
+
+function createControls({ includeToggle }) {
+  const controls = document.createElement("div");
+  controls.className = "media-group__controls";
+
+  const prev = createButton(
+    "media-group__button media-group__button--prev",
+    "предыдущее изображение",
+    icons.prev,
+  );
+  const counter = document.createElement("span");
+  counter.className = "media-group__counter";
+  counter.setAttribute("aria-live", "polite");
+
+  const next = createButton(
+    "media-group__button media-group__button--next",
+    "следующее изображение",
+    icons.next,
+  );
+
+  controls.append(prev, counter, next);
+
+  let toggle = null;
+  if (includeToggle) {
+    toggle = createButton(
+      "media-group__button media-group__button--toggle",
+      "переключить режим просмотра",
+      icons.view,
+    );
+    toggle.setAttribute("aria-pressed", "false");
+    controls.append(toggle);
+  }
+
+  return { controls, prev, counter, next, toggle };
+}
+
+function getGroupItems(group) {
+  return Array.from(group.querySelectorAll(GROUP_MEDIA_SELECTOR));
+}
+
+function getDeclaredCount(group, items) {
+  const declaredCount = Number.parseInt(group.dataset.mediaCount || "", 10);
+  return Number.isFinite(declaredCount) && declaredCount > 0 ? declaredCount : items.length;
+}
+
+function getKnownOrientations(items) {
+  return items.map((item) => item.getAttribute("data-orientation")).filter(Boolean);
+}
+
+function shouldUseSnap(group, items, count) {
+  if (count < SNAP_MIN_ITEMS || count > SNAP_MAX_ITEMS) return false;
+  if (count < SNAP_MAX_ITEMS) return true;
+  if (group.classList.contains("media-group--landscape")) return true;
+  if (group.classList.contains("media-group--portrait")) return true;
+  if (!group.classList.contains("media-group--square")) return true;
+
+  const orientations = getKnownOrientations(items);
+  if (orientations.length < items.length) return false;
+
+  const nonSquareCount = orientations.filter((orientation) => orientation !== "square").length;
+  return nonSquareCount >= Math.ceil(items.length * 0.75);
+}
+
+function resolveGalleryMode(group, items, count) {
+  if (count >= TILE_RAIL_MIN_ITEMS) return "rail";
+  if (shouldUseSnap(group, items, count)) return "snap";
+  return "";
+}
+
+function ensureTrack(group, items) {
+  const existingTrack = group.querySelector(":scope > .media-group__track");
+  if (existingTrack) return existingTrack;
+
+  const directItems = Array.from(group.querySelectorAll(DIRECT_MEDIA_SELECTOR));
+  if (!directItems.length) return null;
+
+  const track = document.createElement("div");
+  track.className = "media-group__track";
+  directItems[0].before(track);
+  track.append(...directItems);
+
+  return track;
+}
+
+function insertAfterIntro(group, node) {
+  const title = group.querySelector(":scope > .media-group__title");
+  if (title) title.after(node);
+  else group.prepend(node);
+}
+
+function nearestItemIndex(track, items) {
+  const trackLeft = track.getBoundingClientRect().left;
+  let nearest = 0;
+  let nearestDistance = Number.POSITIVE_INFINITY;
+
+  for (const [index, item] of items.entries()) {
+    const distance = Math.abs(item.getBoundingClientRect().left - trackLeft);
+    if (distance < nearestDistance) {
+      nearest = index;
+      nearestDistance = distance;
+    }
+  }
+
+  return nearest;
+}
+
+function enhanceScrollableGroup(group) {
+  if (group.dataset.galleryEnhanced === "true") return;
+
+  const items = getGroupItems(group);
+  const count = getDeclaredCount(group, items);
+  const mode = resolveGalleryMode(group, items, count);
+
+  if (!mode || !items.length) return;
+
+  const track = ensureTrack(group, items);
+  if (!track) return;
+
+  const includeToggle = count >= VIEWER_MIN_ITEMS;
+  const controls = createControls({ includeToggle });
+  const dots = mode === "snap" ? createDots(items) : null;
+
+  group.dataset.galleryEnhanced = "true";
+  group.dataset.galleryMode = mode;
+  group.classList.add("media-group--scrollable", `media-group--${mode === "rail" ? "tile-rail" : "snap"}`);
+  if (includeToggle) group.classList.add("media-group--viewer-ready");
+
+  insertAfterIntro(group, controls.controls);
+  if (dots) group.append(dots.dots);
+
+  let index = 0;
+  let scrollTimer = 0;
+  let pointerDown = false;
+  let pointerStartX = 0;
+  let pointerStartLeft = 0;
+  let pointerDragged = false;
+  let suppressClick = false;
+
+  const isViewer = () => group.classList.contains("is-viewer");
+
+  const syncEdges = () => {
+    if (isViewer()) {
+      group.classList.toggle("has-scroll-overflow", false);
+      const disabled = items.length < 2;
+      controls.prev.disabled = disabled;
+      controls.next.disabled = disabled;
+      return;
+    }
+
+    const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+    group.classList.toggle("has-scroll-overflow", maxScroll > 1);
+    controls.prev.disabled = track.scrollLeft <= 1;
+    controls.next.disabled = maxScroll <= 1 || track.scrollLeft >= maxScroll - 1;
+  };
+
+  const syncIndex = (nextIndex) => {
+    index = Math.max(0, Math.min(items.length - 1, nextIndex));
+
+    for (const [itemIndex, item] of items.entries()) {
+      item.classList.toggle("is-active", itemIndex === index);
+    }
+
+    if (dots) {
+      for (const [dotIndex, dot] of dots.buttons.entries()) {
+        dot.classList.toggle("is-active", dotIndex === index);
+        dot.setAttribute("aria-current", dotIndex === index ? "true" : "false");
+      }
+    }
+
+    controls.counter.textContent = `${index + 1}/${items.length}`;
+    syncEdges();
+  };
+
+  const scrollToIndex = (nextIndex, behavior = "smooth") => {
+    syncIndex(nextIndex);
+    items[index].scrollIntoView({ behavior, block: "nearest", inline: "start" });
+  };
+
+  const updateFromScroll = () => {
+    if (isViewer()) return;
+    syncIndex(nearestItemIndex(track, items));
+  };
+
+  const snapToNearest = () => {
+    scrollToIndex(nearestItemIndex(track, items));
+  };
+
+  const setViewer = (enabled) => {
+    if (!controls.toggle) return;
+
+    if (enabled) {
+      syncIndex(nearestItemIndex(track, items));
+    }
+
+    group.classList.toggle("is-viewer", enabled);
+    controls.toggle.setAttribute("aria-pressed", String(enabled));
+    controls.toggle.innerHTML = enabled ? icons.grid : icons.view;
+    syncIndex(index);
+
+    if (!enabled) {
+      requestAnimationFrame(() => scrollToIndex(index, "auto"));
+    }
+  };
+
+  controls.prev.addEventListener("click", () => {
+    if (isViewer() || mode === "snap") {
+      scrollToIndex(index - 1);
+      return;
+    }
+
+    track.scrollBy({ left: -Math.max(1, track.clientWidth * 0.86), behavior: "smooth" });
+  });
+
+  controls.next.addEventListener("click", () => {
+    if (isViewer() || mode === "snap") {
+      scrollToIndex(index + 1);
+      return;
+    }
+
+    track.scrollBy({ left: Math.max(1, track.clientWidth * 0.86), behavior: "smooth" });
+  });
+
+  controls.toggle?.addEventListener("click", () => setViewer(!isViewer()));
+
+  dots?.buttons.forEach((dot, dotIndex) => {
+    dot.addEventListener("click", () => scrollToIndex(dotIndex));
+  });
+
+  track.addEventListener("pointerdown", (event) => {
+    if (isViewer() || event.button !== 0) return;
+
+    pointerDown = true;
+    pointerDragged = false;
+    pointerStartX = event.clientX;
+    pointerStartLeft = track.scrollLeft;
+    track.classList.add("is-dragging");
+  });
+
+  track.addEventListener("pointermove", (event) => {
+    if (!pointerDown) return;
+
+    const delta = event.clientX - pointerStartX;
+    if (Math.abs(delta) > 4 && !pointerDragged) {
+      pointerDragged = true;
+      track.setPointerCapture?.(event.pointerId);
+    }
+    track.scrollLeft = pointerStartLeft - delta;
+  });
+
+  track.addEventListener("pointerup", (event) => {
+    if (!pointerDown) return;
+
+    pointerDown = false;
+    track.classList.remove("is-dragging");
+    track.releasePointerCapture?.(event.pointerId);
+
+    if (pointerDragged) {
+      suppressClick = true;
+      window.setTimeout(() => {
+        suppressClick = false;
+      }, 0);
+    }
+
+    if (mode === "snap") snapToNearest();
+    else updateFromScroll();
+  });
+
+  track.addEventListener("pointercancel", () => {
+    pointerDown = false;
+    pointerDragged = false;
+    track.classList.remove("is-dragging");
+  });
+
+  track.addEventListener(
+    "click",
+    (event) => {
+      if (!suppressClick) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    true,
+  );
+
+  track.addEventListener("scroll", () => {
+    window.clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(updateFromScroll, 80);
+  });
+
+  if ("ResizeObserver" in window) {
+    const resizeObserver = new ResizeObserver(() => updateFromScroll());
+    resizeObserver.observe(track);
+  } else {
+    window.addEventListener("resize", updateFromScroll);
+  }
+
+  syncIndex(0);
+  requestAnimationFrame(updateFromScroll);
 }
 
 export function initPortfolioGallery(root = document) {
-  if (root.documentElement?.dataset.portfolioGalleryReady === "true") return null;
-  root.documentElement.dataset.portfolioGalleryReady = "true";
+  if (mountedRoots.has(root)) return null;
+  mountedRoots.add(root);
 
   const items = Array.from(root.querySelectorAll("#showcase [data-lightbox-item], #showcase [data-lightbox-video]"));
-  if (!items.length) return null;
 
   for (const item of items) {
     const caption = readableCaption(item);
@@ -71,61 +384,10 @@ export function initPortfolioGallery(root = document) {
     markOrientation(item);
   }
 
-  const overlay = root.querySelector("[data-portfolio-lightbox]") || createOverlay();
-  const content = overlay.querySelector("[data-portfolio-lightbox-content]");
-  const close = overlay.querySelector(".portfolio-lightbox__close");
+  const groups = Array.from(root.querySelectorAll(ENHANCED_GROUP_SELECTOR));
+  for (const group of groups) {
+    enhanceScrollableGroup(group);
+  }
 
-  const closeOverlay = () => {
-    setOpen(overlay, false);
-    content.replaceChildren();
-  };
-
-  const openOverlay = (link) => {
-    const source = sourceFromLink(link);
-    if (!source.href) return;
-
-    content.replaceChildren();
-
-    if (source.isVideo) {
-      const video = document.createElement("video");
-      video.src = source.href;
-      video.poster = source.poster;
-      video.controls = true;
-      video.autoplay = true;
-      video.playsInline = true;
-      content.append(video);
-    } else {
-      const image = document.createElement("img");
-      image.src = source.href;
-      image.alt = source.caption;
-      image.decoding = "async";
-      content.append(image);
-    }
-
-    if (source.caption) {
-      const caption = document.createElement("figcaption");
-      caption.textContent = source.caption;
-      content.append(caption);
-    }
-
-    setOpen(overlay, true);
-    close?.focus?.();
-  };
-
-  root.addEventListener("click", (event) => {
-    const link = event.target.closest?.("#showcase [data-lightbox-item], #showcase [data-lightbox-video]");
-    if (!link) return;
-    event.preventDefault();
-    openOverlay(link);
-  });
-
-  close?.addEventListener("click", closeOverlay);
-  overlay.addEventListener("click", (event) => {
-    if (event.target === overlay) closeOverlay();
-  });
-  root.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && overlay.getAttribute("aria-hidden") === "false") closeOverlay();
-  });
-
-  return { items: items.length };
+  return { items: items.length, groups: groups.length };
 }

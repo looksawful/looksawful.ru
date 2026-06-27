@@ -98,6 +98,15 @@ async function initVisualEnhancements(root = document) {
   pushGuardedImport(
     tasks,
     root,
+    "#showcase video",
+    "initShowcaseVideoControls",
+    () => import("./showcase-video-controls.js"),
+    (module) => module.initShowcaseVideoControls(root),
+  );
+
+  pushGuardedImport(
+    tasks,
+    root,
     '[data-animation="before-after"] canvas, [data-before-after] canvas',
     "initShowcaseBeforeAfter",
     () => import("../visuals/canvas/before-after/index.js"),
