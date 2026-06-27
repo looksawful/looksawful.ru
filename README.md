@@ -1,6 +1,14 @@
-stage 09b side-media repair
+# stage 10 — portfolio nesting normalize
 
-Repairs failed stage 09 dirty state:
-- rewrites portfolio-gallery.css with valid CSS
-- keeps/creates portfolio-content-sections.css
-- removes old side-by-side media-row mechanics from index.html
+Normalizes showcase project nesting to:
+
+case
+- header
+-- header content
+- chapter
+-- chapter header
+--- chapter header content
+-- chapter body
+--- chapter body content
+
+Protected: hero, resume, site-header, proximity, canvas, gsap, filter, policy, artifact reader.
