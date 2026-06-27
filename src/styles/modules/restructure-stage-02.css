@@ -1,0 +1,95 @@
+/*
+  Stage 02: readable text sections inside case chapters.
+  This layer intentionally does not touch hero, resume, site-header, proximity,
+  canvas internals, playlist filter internals, policy book internals or logo inspector internals.
+*/
+
+:where(.stage-02-readable-flow) {
+  overflow: visible;
+}
+
+:where(.stage-02-text-sections) {
+  display: grid;
+  gap: clamp(1.75rem, 3vw, 3rem);
+  margin-block: clamp(1.75rem, 4vw, 4rem);
+}
+
+:where(.stage-02-text-section) {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:where(.stage-02-text-section__title) {
+  max-width: 44rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+:where(.stage-02-text-section__paragraph) {
+  max-width: 52rem;
+  margin: 0;
+  padding: 0;
+}
+
+:where(.stage-02-text-subsection) {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 52rem;
+}
+
+:where(.stage-02-text-subsection__title) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.2;
+  color: inherit;
+}
+
+:where(.stage-02-text-subsection__title + .stage-02-text-section__paragraph) {
+  margin-block-start: 0;
+}
+
+:where(.stage-02-text-section__paragraph span) {
+  display: inline;
+}
+
+:where(.stage-02-text-section__paragraph .responsibility-card__item-title, .stage-02-text-section__paragraph .list-card__item-title) {
+  font-weight: 700;
+}
+
+:where(.stage-02-text-section__paragraph .responsibility-card__item-text, .stage-02-text-section__paragraph .list-card__item-text) {
+  display: inline;
+}
+
+:where(.stage-02-text-sections + .media-banner, .stage-02-text-sections + .media-row, .stage-02-text-sections + aside, .stage-02-text-section + .media-banner, .stage-02-text-section + .media-row) {
+  margin-block-start: clamp(1.5rem, 3vw, 3rem);
+}
+
+@media (max-width: 48rem) {
+  :where(.stage-02-text-sections) {
+    gap: 1.75rem;
+    margin-block: 2rem;
+  }
+
+  :where(.stage-02-text-section) {
+    gap: 0.7rem;
+  }
+
+  :where(.stage-02-text-section__title, .stage-02-text-section__paragraph, .stage-02-text-subsection) {
+    max-width: none;
+  }
+}

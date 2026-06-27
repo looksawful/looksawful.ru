@@ -1,3 +1,4 @@
+import { initRestructureStage02 } from './visuals/dom/restructure-stage-02.js';
 let appInitialized = false;
 
 const has = (selector, root = document) => {
@@ -118,3 +119,5 @@ if (document.readyState === "loading") {
 } else {
   void initApp();
 }
+initRestructureStage02();
+
