@@ -239,3 +239,21 @@ html {
   }
 }
 /* layout media polish: end */
+/* 3d visual fallback polish: start */
+.visual-poster-fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.has-visual-poster-fallback {
+  display: grid;
+  place-items: center;
+}
+
+.has-visual-poster-fallback .visual-poster-fallback {
+  grid-area: 1 / 1;
+}
+/* 3d visual fallback polish: end */

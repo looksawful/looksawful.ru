@@ -22,11 +22,79 @@ function normalizeDispose(dispose) {
   return noop;
 }
 
+
+function canUseHeavy3DVisuals() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const nav = window.navigator || {};
+  const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
+
+  if (connection?.saveData) {
+    return false;
+  }
+
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) {
+    return false;
+  }
+
+  if (window.matchMedia?.("(hover: none), (pointer: coarse)")?.matches) {
+    return false;
+  }
+
+  if (window.innerWidth < 900) {
+    return false;
+  }
+
+  const memory = Number(nav.deviceMemory || 0);
+
+  if (memory > 0 && memory < 4) {
+    return false;
+  }
+
+  return true;
+}
+
+function mountVisualPosterFallback(target) {
+  const poster =
+    target.dataset.cvPoster ||
+    target.dataset.threePoster ||
+    target.querySelector?.("canvas")?.dataset.threePoster;
+
+  if (!poster || target.querySelector?.(".visual-poster-fallback")) {
+    return noop;
+  }
+
+  const fallback = document.createElement("img");
+  fallback.className = "visual-poster-fallback";
+  fallback.src = poster;
+  fallback.alt = "";
+  fallback.decoding = "async";
+  fallback.loading = "lazy";
+  fallback.setAttribute("aria-hidden", "true");
+
+  const canvas = target instanceof HTMLCanvasElement ? target : target.querySelector?.("canvas");
+
+  if (canvas instanceof HTMLCanvasElement) {
+    canvas.replaceWith(fallback);
+  } else {
+    target.append(fallback);
+  }
+
+  target.classList?.add("has-visual-poster-fallback");
+
+  return noop;
+}
 function getDemoParts(target) {
   return target.dataset.visualDemo?.split(":") ?? [];
 }
 
 async function mountThreeDemo(canvas) {
+  if (!canUseHeavy3DVisuals()) {
+    return mountVisualPosterFallback(canvas);
+  }
+
   const [, sceneName] = getDemoParts(canvas);
   const loadMount = loadThreeDemoMount(sceneName);
 
@@ -43,6 +111,10 @@ async function mountThreeDemo(canvas) {
 }
 
 async function mountLogoInspector(target) {
+  if (!canUseHeavy3DVisuals()) {
+    return mountVisualPosterFallback(target);
+  }
+
   const { createLogoInspector3D } = await import("../showcase-task-previews/logo-inspector-3d.js");
   const controller = createLogoInspector3D(target, {
     modelUrl: LOGO_INSPECTOR_MODEL_URL,
