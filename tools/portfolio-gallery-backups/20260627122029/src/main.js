@@ -31,6 +31,10 @@ async function initApp() {
     tasks.push(safe("mediaMarquee", () => import("./visuals/dom/media-marquee.js")));
   }
 
+  if (has("[data-showcase-auto-slider], .media-slider")) {
+    tasks.push(safe("mediaSlider", () => import("./visuals/dom/media-slider.js")));
+  }
+
   if (has("[data-policy-book], .policy-book")) {
     tasks.push(safe("policyBook", () => import("./visuals/dom/policy-book.js")));
   }
@@ -39,11 +43,11 @@ async function initApp() {
     tasks.push(safe("listScroll", () => import("./visuals/dom/list-scroll.js")));
   }
 
-  if (has("[data-lightbox-item], [data-lightbox-video]")) {
+  if (has("[data-random-gallery]")) {
     tasks.push(
-      safe("portfolioGallery", async () => {
-        const module = await import("./visuals/dom/portfolio-gallery.js");
-        return module.initPortfolioGallery(document);
+      safe("randomGallery", async () => {
+        const module = await import("./visuals/dom/random-gallery.js");
+        return module.initRandomGalleries(document);
       }),
     );
   }
