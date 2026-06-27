@@ -1,14 +1,5 @@
-# stage 10 — portfolio nesting normalize
+# stage 11 — showcase reading typography
 
-Normalizes showcase project nesting to:
+Scope: text typography inside `#showcase .case-chapter__body` only.
 
-case
-- header
--- header content
-- chapter
--- chapter header
---- chapter header content
--- chapter body
---- chapter body content
-
-Protected: hero, resume, site-header, proximity, canvas, gsap, filter, policy, artifact reader.
+Protected: hero, resume, site-header, menu, proximity, project headers, chapter headers, responsibilities, buttons, chips, canvas, gsap, playlist filter, policy book, artifact reader, redpolicy, media paths and content.
