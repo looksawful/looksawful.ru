@@ -2,10 +2,23 @@ const DISABLED_SELECTOR = ':not([data-lightbox="off"]):not([data-lightbox="false
 const LIGHTBOX_SELECTOR = [`[data-lightbox]${DISABLED_SELECTOR}`, `a.media-item[href]${DISABLED_SELECTOR}`].join(", ");
 const VIDEO_EXTENSION_PATTERN = /\.(mp4|webm|mov)(\?.*)?(#.*)?$/i;
 const EXPLICIT_LIGHTBOX_TYPES = new Set(["image", "video"]);
+const SWIPE_THRESHOLD = 42;
 
 let lightboxInstance = null;
 const mountedRoots = new WeakSet();
-let activeTrigger = null;
+
+const state = {
+  activeTrigger: null,
+  items: [],
+  index: 0,
+  pointerStartX: 0,
+  pointerActive: false,
+};
+
+const icons = {
+  prev: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.7 2.2 4.9 8l5.8 5.8-1.4 1.4L2.1 8 9.3.8l1.4 1.4Z"/></svg>',
+  next: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5.3 13.8 5.8-5.8-5.8-5.8L6.7.8 13.9 8l-7.2 7.2-1.4-1.4Z"/></svg>',
+};
 
 const getMediaType = (src = "", explicitType = "") => {
   if (explicitType) {
@@ -51,6 +64,14 @@ const getMediaData = (trigger) => {
   return null;
 };
 
+const getGalleryItems = (trigger) => {
+  const group = trigger.closest?.("#showcase .media-group");
+  if (!group) return [trigger];
+
+  const items = Array.from(group.querySelectorAll(LIGHTBOX_SELECTOR)).filter((item) => getMediaData(item)?.src);
+  return items.length ? items : [trigger];
+};
+
 const createLightbox = () => {
   if (lightboxInstance) {
     return lightboxInstance;
@@ -64,7 +85,10 @@ const createLightbox = () => {
       <div class="lightbox__toolbar">
         <button class="lightbox__close" type="button">закрыть</button>
       </div>
+      <button class="lightbox__nav lightbox__nav--prev" type="button" aria-label="предыдущее изображение">${icons.prev}</button>
       <div class="lightbox__body"></div>
+      <button class="lightbox__nav lightbox__nav--next" type="button" aria-label="следующее изображение">${icons.next}</button>
+      <div class="lightbox__counter" aria-live="polite"></div>
     </div>
   `;
 
@@ -74,10 +98,53 @@ const createLightbox = () => {
     root,
     body: root.querySelector(".lightbox__body"),
     close: root.querySelector(".lightbox__close"),
+    prev: root.querySelector(".lightbox__nav--prev"),
+    next: root.querySelector(".lightbox__nav--next"),
+    counter: root.querySelector(".lightbox__counter"),
     isBound: false,
   };
 
   return lightboxInstance;
+};
+
+const syncControls = (lightbox) => {
+  const hasMultiple = state.items.length > 1;
+
+  lightbox.prev.disabled = !hasMultiple;
+  lightbox.next.disabled = !hasMultiple;
+  lightbox.counter.textContent = hasMultiple ? `${state.index + 1}/${state.items.length}` : "";
+};
+
+const renderActiveItem = (lightbox) => {
+  const trigger = state.items[state.index];
+  const mediaData = trigger ? getMediaData(trigger) : null;
+
+  if (!mediaData?.src) return;
+
+  const media = mediaData.type === "video" ? document.createElement("video") : document.createElement("img");
+  media.src = mediaData.src;
+  state.activeTrigger = trigger;
+
+  if (media instanceof HTMLVideoElement) {
+    media.controls = true;
+    media.autoplay = false;
+    media.playsInline = true;
+    media.preload = "metadata";
+    media.poster = trigger.querySelector("video")?.poster || trigger.querySelector("img")?.currentSrc || "";
+  } else {
+    media.alt = trigger.querySelector("img")?.alt || "";
+    media.decoding = "async";
+  }
+
+  lightbox.body.replaceChildren(media);
+  syncControls(lightbox);
+};
+
+const step = (direction) => {
+  if (!lightboxInstance || state.items.length < 2) return;
+
+  state.index = (state.index + direction + state.items.length) % state.items.length;
+  renderActiveItem(lightboxInstance);
 };
 
 export function initLightbox(root = document) {
@@ -89,7 +156,13 @@ export function initLightbox(root = document) {
 
   const lightbox = createLightbox();
 
-  if (!(lightbox.body instanceof HTMLElement) || !(lightbox.close instanceof HTMLButtonElement)) {
+  if (
+    !(lightbox.body instanceof HTMLElement) ||
+    !(lightbox.close instanceof HTMLButtonElement) ||
+    !(lightbox.prev instanceof HTMLButtonElement) ||
+    !(lightbox.next instanceof HTMLButtonElement) ||
+    !(lightbox.counter instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -103,29 +176,22 @@ export function initLightbox(root = document) {
     lightbox.body.replaceChildren();
     document.documentElement.classList.remove("has-lightbox");
 
-    if (activeTrigger?.isConnected) {
-      activeTrigger.focus?.({ preventScroll: true });
+    if (state.activeTrigger?.isConnected) {
+      state.activeTrigger.focus?.({ preventScroll: true });
     }
 
-    activeTrigger = null;
+    state.activeTrigger = null;
+    state.items = [];
+    state.index = 0;
+    state.pointerActive = false;
   };
 
-  const open = ({ src, type }, trigger) => {
-    const media = type === "video" ? document.createElement("video") : document.createElement("img");
+  const open = (trigger) => {
+    state.items = getGalleryItems(trigger);
+    state.index = Math.max(0, state.items.indexOf(trigger));
 
-    media.src = src;
-    activeTrigger = trigger;
+    renderActiveItem(lightbox);
 
-    if (media instanceof HTMLVideoElement) {
-      media.controls = true;
-      media.autoplay = true;
-      media.playsInline = true;
-    } else {
-      media.alt = "";
-      media.decoding = "async";
-    }
-
-    lightbox.body.replaceChildren(media);
     lightbox.root.classList.add("is-open");
     lightbox.root.setAttribute("aria-hidden", "false");
     document.documentElement.classList.add("has-lightbox");
@@ -133,18 +199,12 @@ export function initLightbox(root = document) {
   };
 
   const activate = (event, trigger) => {
-    if (!(trigger instanceof HTMLElement)) {
-      return;
-    }
-
-    const media = getMediaData(trigger);
-
-    if (!media?.src) {
+    if (!(trigger instanceof HTMLElement) || !getMediaData(trigger)?.src) {
       return;
     }
 
     event.preventDefault();
-    open(media, trigger);
+    open(trigger);
   };
 
   root.addEventListener("click", (event) => {
@@ -169,17 +229,45 @@ export function initLightbox(root = document) {
 
   if (!lightbox.isBound) {
     lightbox.close.addEventListener("click", close);
+    lightbox.prev.addEventListener("click", () => step(-1));
+    lightbox.next.addEventListener("click", () => step(1));
+
     lightbox.root.addEventListener("click", (event) => {
       if (event.target === lightbox.root) {
         close();
       }
     });
-    window.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        close();
-      }
+
+    lightbox.root.addEventListener("pointerdown", (event) => {
+      if (!(event.target instanceof Element) || event.target.closest("button")) return;
+
+      state.pointerActive = true;
+      state.pointerStartX = event.clientX;
+      lightbox.root.setPointerCapture?.(event.pointerId);
     });
+
+    lightbox.root.addEventListener("pointerup", (event) => {
+      if (!state.pointerActive) return;
+
+      state.pointerActive = false;
+      const delta = event.clientX - state.pointerStartX;
+      if (Math.abs(delta) < SWIPE_THRESHOLD) return;
+
+      step(delta < 0 ? 1 : -1);
+    });
+
+    lightbox.root.addEventListener("pointercancel", () => {
+      state.pointerActive = false;
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (!lightbox.root.classList.contains("is-open")) return;
+
+      if (event.key === "Escape") close();
+      if (event.key === "ArrowLeft") step(-1);
+      if (event.key === "ArrowRight") step(1);
+    });
+
     lightbox.isBound = true;
   }
 }
-

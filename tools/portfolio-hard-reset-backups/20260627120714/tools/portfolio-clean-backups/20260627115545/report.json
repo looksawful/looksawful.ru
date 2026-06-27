@@ -1,0 +1,39 @@
+{
+  "backupRoot": "A:\\Users\\awful\\Documents\\CODE\\www.looksawful.ru\\vanilla-prototype\\tools\\portfolio-clean-backups\\20260627115545",
+  "counts": {
+    "img": 131,
+    "video": 4,
+    "canvas": 7,
+    "assetHref": 133,
+    "assetSrc": 135
+  },
+  "removedFiles": [
+    "src\\visuals\\dom\\restructure-stage-01.js",
+    "src\\visuals\\dom\\restructure-stage-02.js",
+    "src\\visuals\\dom\\restructure-stage-03.js",
+    "src\\styles\\modules\\restructure-stage-01.css",
+    "src\\styles\\modules\\restructure-stage-02.css",
+    "src\\styles\\modules\\restructure-stage-03.css"
+  ],
+  "generatedFiles": [
+    "src\\visuals\\dom\\showcase-toc.js",
+    "src\\styles\\modules\\portfolio-clean.css",
+    "src\\styles\\modules\\portfolio-media.css",
+    "src\\styles\\modules\\showcase-toc.css"
+  ],
+  "protectedFiles": [
+    "src\\components\\site-header\\site-header.js",
+    "src\\styles\\modules\\site-header.css",
+    "src\\styles\\modules\\hero.css",
+    "src\\components\\hero-title\\hero-title.js",
+    "src\\components\\proximity-core.js",
+    "src\\components\\proximity-components.js",
+    "src\\styles\\modules\\proximity.css",
+    "src\\visuals\\dom\\playlist-filter-embed.js",
+    "src\\styles\\playlist-filter-embed.css",
+    "src\\visuals\\dom\\policy-book.js",
+    "src\\styles\\modules\\policy-book.css",
+    "src\\visuals\\dom\\artifact-reader.js",
+    "src\\styles\\modules\\artifact-reader.css"
+  ]
+}

@@ -1,0 +1,149 @@
+.pets {
+  background: var(--white);
+}
+
+.pets-stack {
+  display: grid;
+  gap: clamp(24px, 4vw, 44px);
+}
+
+.pet-project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 22px);
+}
+
+.pet-project-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-inline-size: 0;
+  overflow: hidden;
+  border: var(--line);
+  border-radius: var(--r);
+  background: var(--white);
+}
+
+.pet-project-card__cover {
+  position: relative;
+  display: block;
+  min-block-size: clamp(11rem, 24vw, 18rem);
+  border-block-end: var(--line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.72)),
+    var(--pet-cover) center / cover no-repeat,
+    var(--white);
+  color: var(--black);
+  text-decoration: none;
+}
+
+.pet-project-card__cover--berserk {
+  --pet-cover: url("/assets/media/pets/berserk-timer.png");
+}
+
+.pet-project-card__cover--awful-cases {
+  --pet-cover: url("/assets/media/pets/awful-cases.png");
+}
+
+.pet-project-card__cover--awful-audit {
+  --pet-cover: url("/assets/media/pets/awful-audit.png");
+}
+
+.pet-project-card__cover--generated {
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.08), transparent 45%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.04) 0 1px, transparent 1px 9px),
+    var(--white);
+}
+
+.pet-project-card__logo {
+  position: absolute;
+  inset-block-start: 0.75rem;
+  inset-inline-start: 0.75rem;
+  max-inline-size: calc(100% - 1.5rem);
+  padding: 0.45rem 0.58rem 0.5rem;
+  border: var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--black);
+  font-size: var(--xs);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pet-project-card__body {
+  display: grid;
+  align-content: space-between;
+  gap: 1rem;
+  padding: clamp(14px, 2.2vw, 20px);
+}
+
+.pet-project-card__title {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.3vw, 2rem);
+  font-weight: 800;
+  line-height: 0.98;
+}
+
+.pet-project-card__body p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--sm);
+  line-height: 1.42;
+}
+
+.pet-project-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pet-project-card__icon-action,
+.pet-project-card__text-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 2.25rem;
+  border: var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--black);
+  text-decoration: none;
+}
+
+.pet-project-card__icon-action {
+  inline-size: 2.25rem;
+  padding: 0;
+}
+
+.pet-project-card__icon-action svg {
+  inline-size: 1rem;
+  block-size: 1rem;
+  fill: currentColor;
+}
+
+.pet-project-card__text-action {
+  padding: 0.45rem 0.75rem 0.5rem;
+  font-size: var(--xs);
+  line-height: 1;
+}
+
+.pet-project-card__icon-action:hover,
+.pet-project-card__icon-action:focus-visible,
+.pet-project-card__text-action:hover,
+.pet-project-card__text-action:focus-visible {
+  background: var(--black);
+  color: var(--white);
+  outline: 0;
+}
+
+@media (max-width: 760px) {
+  .pet-project-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pet-project-card__cover {
+    min-block-size: 13rem;
+  }
+}

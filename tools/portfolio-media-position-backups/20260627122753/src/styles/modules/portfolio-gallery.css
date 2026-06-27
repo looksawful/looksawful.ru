@@ -1,0 +1,260 @@
+:root {
+  --portfolio-media-gap: clamp(0.6rem, 1.3vw, 1.15rem);
+  --portfolio-media-radius: clamp(0.9rem, 1.8vw, 1.45rem);
+  --portfolio-media-caption: clamp(0.68rem, 0.72vw, 0.82rem);
+}
+
+#showcase :where(.media-group, .media-gallery) {
+  display: grid;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: clamp(1.25rem, 3vw, 2.75rem) auto;
+  gap: var(--portfolio-media-gap);
+  overflow: visible;
+  background: transparent;
+}
+
+#showcase :where(.media-group, .media-gallery) :where(.media-marquee__track, .media-slider__track) {
+  display: contents;
+  width: auto;
+  transform: none;
+  animation: none;
+}
+
+#showcase :where(.media-group, .media-gallery) :where(.media-slider__arrow, .media-slider__dots, .media-marquee__controls) {
+  display: none;
+}
+
+#showcase .project-chapter :where(.media-group, .media-gallery),
+#showcase .case-section-clean :where(.media-group, .media-gallery) {
+  justify-self: center;
+}
+
+#showcase :where(.media-group[data-media-group="single"], .media-group--single) {
+  grid-template-columns: minmax(0, 1fr);
+  width: 100vw;
+  max-width: 100vw;
+  margin-inline: calc(50% - 50vw);
+}
+
+#showcase :where(.media-row, .media-system--row) > :where(.media-group[data-media-group="single"], .media-group--single) {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+#showcase :where(.media-group[data-media-group="pair"], .media-group--pair) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#showcase :where(.media-group[data-media-group="trio"], .media-group--trio) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#showcase :where(.media-group[data-media-group="quad"], .media-group--quad) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#showcase :where(.media-group[data-media-group="grid"], .media-group--grid) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+
+#showcase :where(.media-group[data-media-group="stack"], .media-group--stack) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+#showcase :where(.media-group[data-media-count="2"]) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#showcase :where(.media-group[data-media-count="3"]) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#showcase :where(.media-group[data-media-count="4"]) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#showcase .media-item {
+  display: grid;
+  gap: 0.42rem;
+  align-content: start;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  background: transparent;
+}
+
+#showcase .media-item :where(img, video, picture) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  min-height: 0;
+  object-fit: cover;
+  background: transparent;
+}
+
+#showcase .media-item > :where(img, video),
+#showcase .media-item > picture > img {
+  border-radius: var(--portfolio-media-radius);
+}
+
+#showcase .media-item > video {
+  aspect-ratio: 16 / 9;
+}
+
+#showcase .media-item[data-orientation="landscape"] > img,
+#showcase .media-item[data-orientation="landscape"] > picture > img {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+#showcase .media-item[data-orientation="portrait"] > img,
+#showcase .media-item[data-orientation="portrait"] > picture > img {
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+#showcase .media-item[data-orientation="square"] > img,
+#showcase .media-item[data-orientation="square"] > picture > img {
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+#showcase :where(.media-group[data-media-group="single"], .media-group--single) .media-item > :where(img, video),
+#showcase :where(.media-group[data-media-group="single"], .media-group--single) .media-item > picture > img {
+  width: 100vw;
+  max-width: 100vw;
+  border-radius: 0;
+}
+
+#showcase :where(.media-row, .media-system--row) > :where(.media-group[data-media-group="single"], .media-group--single) .media-item > :where(img, video),
+#showcase :where(.media-row, .media-system--row) > :where(.media-group[data-media-group="single"], .media-group--single) .media-item > picture > img {
+  width: 100%;
+  max-width: 100%;
+  border-radius: var(--portfolio-media-radius);
+}
+
+#showcase .media-item::after {
+  content: attr(data-caption);
+  display: block;
+  min-height: 1lh;
+  padding-inline: 0.08rem;
+  color: currentColor;
+  font-size: var(--portfolio-media-caption);
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  opacity: 0.46;
+}
+
+#showcase .media-item:not([data-caption])::after,
+#showcase .media-item[data-caption=""]::after {
+  content: " ";
+}
+
+#showcase .media-item:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 0.25rem;
+  border-radius: calc(var(--portfolio-media-radius) + 0.25rem);
+}
+
+#showcase .media-item:hover::after {
+  opacity: 0.76;
+}
+
+#showcase :where(.media-contain, .media-transparent, .bg-white, .no-stroke) {
+  background: transparent;
+}
+
+#showcase :where(.media-row, .media-system--row) {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: var(--gap);
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+}
+
+.portfolio-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+  background: rgba(0, 0, 0, 0.82);
+}
+
+.portfolio-lightbox[aria-hidden="true"] {
+  display: none;
+}
+
+.portfolio-lightbox__figure {
+  display: grid;
+  gap: 0.75rem;
+  width: min(100%, 94rem);
+  max-height: 92dvh;
+  margin: 0;
+}
+
+.portfolio-lightbox__figure > :is(img, video) {
+  display: block;
+  width: 100%;
+  max-height: 86dvh;
+  object-fit: contain;
+  border-radius: clamp(0.75rem, 1.4vw, 1.25rem);
+  background: transparent;
+}
+
+.portfolio-lightbox__figure > figcaption {
+  color: white;
+  font-size: var(--portfolio-media-caption);
+  line-height: 1.35;
+  opacity: 0.72;
+}
+
+.portfolio-lightbox__close {
+  position: fixed;
+  inset-block-start: max(1rem, env(safe-area-inset-top));
+  inset-inline-end: max(1rem, env(safe-area-inset-right));
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 999px;
+  color: white;
+  background: rgba(255, 255, 255, 0.14);
+  font: inherit;
+  cursor: pointer;
+}
+
+.is-portfolio-lightbox-open {
+  overflow: hidden;
+}
+
+@media (max-width: 64rem) {
+  #showcase :where(.media-group[data-media-group="trio"], .media-group--trio),
+  #showcase :where(.media-group[data-media-group="grid"], .media-group--grid),
+  #showcase :where(.media-group[data-media-count="3"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
+  #showcase :where(.media-group, .media-gallery),
+  #showcase :where(.media-group[data-media-group="pair"], .media-group--pair),
+  #showcase :where(.media-group[data-media-group="trio"], .media-group--trio),
+  #showcase :where(.media-group[data-media-group="quad"], .media-group--quad),
+  #showcase :where(.media-group[data-media-group="grid"], .media-group--grid),
+  #showcase :where(.media-group[data-media-count="2"], .media-group[data-media-count="3"], .media-group[data-media-count="4"]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #showcase :where(.media-row, .media-system--row) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

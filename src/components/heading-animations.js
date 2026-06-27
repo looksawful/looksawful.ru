@@ -1,43 +1,30 @@
-
-
 import { createLetterIdleMotion, splitTextIntoGraphemes } from "./letter-motion.js";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-const HEADING_SELECTOR = [
-  "main :is(h2, h3, h4, h5, h6)",
-  "main .title",
-  ".project__head .title",
-  ".section-head > .title",
-  ".block__header > .title",
-  ".text-block > .title",
-  ".component-caption > .title",
-  ".component-caption > :is(h2, h3, h4, h5, h6)"
-].join(", ");
+const HEADING_SELECTOR = "#showcase :is(.jestei-chapter-section, .case-section-clean, [data-jestei-chapter-title], [data-case-chapter-title]) > .jestei-chapter-hero > .jestei-chapter-hero__title";
 
 const EXCLUDED_SELECTOR = [
-  ".hero",
   ".site-header",
-  ".showcase-toc",
+  ".portfolio-toc",
   ".contact-links",
   ".chips",
-  ".list-cards",
-  ".list-card",
-  ".list-card__title",
+  ".project__header",
+  ".project__head",
+  ".project__logo",
+  ".jestei-responsibilities-header",
   ".project-responsibilities",
   ".responsibility-card",
-  ".responsibility-card__title",
-  ".responsibility-card__item-title",
-  ".responsibility-card__list",
+  ".text-sections",
+  ".text-section",
   ".token-list",
-  ".cv-role-chips",
-  ".cv-task-list",
-  ".cv-task-list-group",
+  ".media-group",
   ".media",
   ".media-item",
-  ".media-slider",
-  ".media-marquee",
   ".playlist-filter-embed",
+  ".jestei-policy-marquee",
+  ".policy-book",
+  ".artifact-reader",
   ".lightbox",
   "[data-visual-demo]",
   "[data-animation]",
@@ -46,7 +33,7 @@ const EXCLUDED_SELECTOR = [
   "svg",
   "ul",
   "ol",
-  "li"
+  "li",
 ].join(", ");
 
 const BOUND_ATTR = "data-reveal-bound";
@@ -62,30 +49,14 @@ function canAnimate() {
   );
 }
 
-function isListHeading(el) {
-  return Boolean(
-    el.closest(".list-cards") ||
-    el.closest(".list-card") ||
-    el.closest(".project-responsibilities") ||
-    el.closest(".responsibility-card") ||
-    el.closest(".token-list") ||
-    el.closest(".cv-role-chips") ||
-    el.closest(".cv-task-list") ||
-    el.closest(".cv-task-list-group") ||
-    el.closest("ul") ||
-    el.closest("ol") ||
-    el.closest("li")
-  );
-}
-
 function isSafeHeading(el) {
   return (
     el &&
+    el.matches(HEADING_SELECTOR) &&
     !el.hasAttribute(BOUND_ATTR) &&
     !el.closest("[hidden]") &&
     !el.closest('[data-reveal-bound="skip"]') &&
     !el.closest(EXCLUDED_SELECTOR) &&
-    !isListHeading(el) &&
     Boolean(el.textContent && el.textContent.trim())
   );
 }
@@ -99,11 +70,23 @@ function isElementNode(node) {
 }
 
 function canSplitInside(element) {
-  if (!element || !element.tagName) {
-    return false;
-  }
+  if (!element || !element.tagName) return false;
 
-  return !["SCRIPT", "STYLE", "SVG", "IMG", "VIDEO", "CANVAS", "PICTURE", "SOURCE", "BR", "INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(element.tagName);
+  return ![
+    "SCRIPT",
+    "STYLE",
+    "SVG",
+    "IMG",
+    "VIDEO",
+    "CANVAS",
+    "PICTURE",
+    "SOURCE",
+    "BR",
+    "INPUT",
+    "TEXTAREA",
+    "SELECT",
+    "BUTTON",
+  ].includes(element.tagName);
 }
 
 function createChar(char) {
@@ -112,7 +95,6 @@ function createChar(char) {
   span.textContent = char;
   span.setAttribute("aria-hidden", "true");
   span.setAttribute(CHAR_ATTR, "true");
-
   span.style.display = "inline-block";
   span.style.transformOrigin = "50% 60%";
   span.style.willChange = "transform";
@@ -126,7 +108,7 @@ function splitTextNode(node) {
   const parts = splitTextIntoGraphemes(node.nodeValue || "");
 
   parts.forEach((char) => {
-    if (/\s/.test(char)) {
+    if (/s/.test(char)) {
       fragment.appendChild(document.createTextNode(char));
       return;
     }
@@ -157,13 +139,10 @@ function prepareLetters(target) {
 
   const label = target.textContent ? target.textContent.trim() : "";
 
-  if (!label) {
-    return [];
-  }
+  if (!label) return [];
 
   target.setAttribute("aria-label", label);
   target.setAttribute(READY_ATTR, "true");
-
   splitElementTree(target);
 
   return [...target.querySelectorAll("[" + CHAR_ATTR + "]")];
@@ -173,52 +152,32 @@ function observeOnce(el, callback) {
   const observer = new IntersectionObserver(
     (entries) => {
       const entry = entries[0];
-
-      if (!entry || !entry.isIntersecting) {
-        return;
-      }
+      if (!entry || !entry.isIntersecting) return;
 
       observer.unobserve(el);
       callback(el);
     },
     {
       threshold: 0,
-      rootMargin: "20% 0px 20% 0px"
-    }
+      rootMargin: "20% 0px 20% 0px",
+    },
   );
 
   observer.observe(el);
 }
 
-function getProfile(target) {
-  if (target.classList.contains("title--display") || target.classList.contains("title--xl") || target.matches("h2")) {
-    return "display";
-  }
-
-  if (target.matches("h4, h5, h6")) {
-    return "subheading";
-  }
-
-  return "heading";
-}
-
 function startHeading(target) {
   const letters = prepareLetters(target);
-
-  if (!letters.length) {
-    return;
-  }
+  if (!letters.length) return;
 
   createLetterIdleMotion(target, {
     letters,
-    profile: getProfile(target)
+    profile: "display",
   });
 }
 
 export function initHeadingAnimations(root = document) {
-  if (!canAnimate()) {
-    return;
-  }
+  if (!canAnimate()) return;
 
   const headings = [...root.querySelectorAll(HEADING_SELECTOR)].filter(isSafeHeading);
 
@@ -231,4 +190,3 @@ export function initHeadingAnimations(root = document) {
     });
   });
 }
-
