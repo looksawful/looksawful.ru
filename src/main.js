@@ -93,6 +93,16 @@ async function initApp() {
 
   appInitialized = true;
 
+
+  await runInitStep("initRestructureStage01", async () => {
+    if (!has("[data-jestei-chapter-frame], [data-case-chapter-frame], #showcase", document)) {
+      return null;
+    }
+
+    const module = await import("./visuals/dom/restructure-stage-01.js");
+    return module.initRestructureStage01(document);
+  });
+
   await runInitStep("importSideEffects", () => importSideEffects(document));
 
   await runInitStep("initComponents", async () => {

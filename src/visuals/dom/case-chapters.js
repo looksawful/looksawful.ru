@@ -87,6 +87,14 @@ function initChapterFrames(root) {
     }
 
     mountedChapterFrames.add(frame);
+
+    if (frame.dataset.stage01Unpacked === "true") {
+      frame.dataset.expanded = "true";
+      frame.dataset.animating = "false";
+      frame.classList.add("is-open");
+      return;
+    }
+
     frame.dataset.expanded = "false";
     frame.dataset.animating = "false";
     syncChapterFrame(frame);
@@ -202,4 +210,3 @@ export function initCaseChapters(root = document) {
   initChapterFrames(root);
   initJesteiActionRails(root);
 }
-
