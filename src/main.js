@@ -1,3 +1,4 @@
+import { initRestructureStage03 } from './visuals/dom/restructure-stage-03.js';
 import { initRestructureStage02 } from './visuals/dom/restructure-stage-02.js';
 let appInitialized = false;
 
@@ -120,4 +121,6 @@ if (document.readyState === "loading") {
   void initApp();
 }
 initRestructureStage02();
+  initRestructureStage03();
+
 

@@ -1,0 +1,192 @@
+/* stage 03: media gallery system only. does not target hero, resume, site-header, or proximity. */
+
+:where(.stage-03-gallery-system-ready) {
+  overflow-x: clip;
+}
+
+:where(.stage-03-gallery) {
+  --stage-03-gallery-gap: clamp(12px, 2vw, 24px);
+  --stage-03-gallery-radius: var(--r-lg, 28px);
+  --stage-03-carousel-card: minmax(28rem, 72vw);
+  --stage-03-mobile-card: minmax(18rem, 86vw);
+  position: relative;
+  max-inline-size: 100%;
+}
+
+:where(.stage-03-gallery) :where(img, video, picture) {
+  max-inline-size: 100%;
+}
+
+:where(.stage-03-gallery) :where(img, video) {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+:where(.stage-03-gallery) :where([data-stage-03-gallery-item], .media-item) {
+  min-inline-size: 0;
+  overflow: hidden;
+  border-color: transparent;
+}
+
+:where(.stage-03-gallery) :where([data-stage-03-gallery-item], .media-item):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+:where(.stage-03-gallery--banner) {
+  display: block;
+}
+
+:where(.stage-03-gallery--banner) :where(.media-item, [data-stage-03-gallery-item]) {
+  display: block;
+  inline-size: 100%;
+}
+
+:where(.stage-03-gallery--banner) :where(img, video) {
+  object-fit: cover;
+  aspect-ratio: 16 / 9;
+}
+
+:where(.stage-03-gallery--banner) :where(.media-contain img, .media-contain video, .bg-white img) {
+  object-fit: contain;
+}
+
+:where(.stage-03-gallery--tiles) {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr)) !important;
+  gap: var(--stage-03-gallery-gap) !important;
+  align-items: stretch;
+}
+
+:where(.stage-03-gallery--tiles) :where([data-stage-03-gallery-item], .media-item) {
+  display: block;
+  inline-size: 100%;
+}
+
+:where(.stage-03-gallery--tiles) :where(img, video) {
+  object-fit: cover;
+  aspect-ratio: 4 / 3;
+}
+
+:where(.stage-03-gallery--tiles) :where(.media-contain img, .media-contain video, .bg-white img) {
+  object-fit: contain;
+}
+
+:where(.stage-03-gallery--carousel, .stage-03-gallery--scroll) {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--stage-03-gallery-gap);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+:where(.stage-03-gallery--carousel) :where(.media-slider__track, [data-stage-03-gallery-track]) {
+  display: grid !important;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--stage-03-carousel-card);
+  gap: var(--stage-03-gallery-gap);
+  transform: none !important;
+  transition: none !important;
+}
+
+:where(.stage-03-gallery--carousel) :where([data-stage-03-gallery-item], .media-item) {
+  scroll-snap-align: start;
+  inline-size: 100%;
+}
+
+:where(.stage-03-gallery--carousel) :where(img, video) {
+  object-fit: cover;
+  aspect-ratio: 16 / 10;
+}
+
+:where(.stage-03-gallery--carousel) :where(.media-contain img, .media-contain video, .bg-white img) {
+  object-fit: contain;
+}
+
+:where(.stage-03-gallery--scroll) :where(.media-marquee__track, [data-stage-03-gallery-track]) {
+  display: flex !important;
+  gap: var(--stage-03-gallery-gap);
+  align-items: stretch;
+}
+
+:where(.stage-03-gallery--scroll) :where([data-stage-03-gallery-item], .media-item) {
+  flex: 0 0 clamp(18rem, 42vw, 34rem);
+  scroll-snap-align: start;
+}
+
+:where(.stage-03-gallery--scroll) :where(img, video) {
+  object-fit: cover;
+  aspect-ratio: 4 / 3;
+}
+
+:where(.stage-03-gallery--scroll) :where(.media-contain img, .media-contain video, .bg-white img) {
+  object-fit: contain;
+}
+
+@media (max-width: 64rem) {
+  :where(.stage-03-gallery) {
+    --stage-03-gallery-gap: clamp(10px, 4vw, 18px);
+  }
+
+  :where(.stage-03-gallery--tiles) {
+    grid-template-columns: 1fr !important;
+  }
+
+  :where(.stage-03-gallery--tiles[data-stage-03-count='2']) {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 48rem) {
+  :where(.stage-03-gallery) {
+    margin-inline: 0;
+    inline-size: 100%;
+  }
+
+  :where(.stage-03-gallery--banner) :where(img, video) {
+    aspect-ratio: 4 / 3;
+  }
+
+  :where(.stage-03-gallery--carousel) {
+    margin-inline: calc(var(--page-pad, 20px) * -1);
+    padding-inline: var(--page-pad, 20px);
+  }
+
+  :where(.stage-03-gallery--carousel) :where(.media-slider__track, [data-stage-03-gallery-track]) {
+    grid-auto-columns: var(--stage-03-mobile-card);
+  }
+
+  :where(.stage-03-gallery--carousel) :where(img, video) {
+    aspect-ratio: 4 / 3;
+  }
+
+  :where(.stage-03-gallery--carousel) :where(.media-slider__arrow, .media-slider__dots, [data-media-slider-prev], [data-media-slider-next]) {
+    display: none !important;
+  }
+
+  :where(.stage-03-gallery--scroll) {
+    margin-inline: calc(var(--page-pad, 20px) * -1);
+    padding-inline: var(--page-pad, 20px);
+  }
+
+  :where(.stage-03-gallery--scroll) :where([data-stage-03-gallery-item], .media-item) {
+    flex-basis: min(86vw, 24rem);
+  }
+
+  :where(.stage-03-gallery--tiles) :where(img, video) {
+    aspect-ratio: 4 / 3;
+  }
+
+  :where(.stage-03-gallery--tiles) :where(.media-contain img, .media-contain video, .bg-white img) {
+    min-block-size: min(72vw, 24rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.stage-03-gallery--scroll) :where(.media-marquee__track, [data-media-marquee-track]) {
+    animation-play-state: paused !important;
+  }
+}
