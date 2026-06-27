@@ -1,5 +1,4 @@
-# stage 11 — showcase reading typography
+# stage 12 — reading lists
 
-Scope: text typography inside `#showcase .case-chapter__body` only.
-
-Protected: hero, resume, site-header, menu, proximity, project headers, chapter headers, responsibilities, buttons, chips, canvas, gsap, playlist filter, policy book, artifact reader, redpolicy, media paths and content.
+Normalizes large text/list blocks inside case bodies into readable documentation-like vertical structures.
+Protected areas are left untouched: hero, resume, menus, project headers, chapter headers, responsibilities, chips, buttons, canvas, GSAP, filter, policy and artifacts.
