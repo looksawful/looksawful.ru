@@ -144,7 +144,7 @@ async function initDecorations(root = document) {
 export function initComponents(root = document) {
   if (
     has(
-      "#showcase :is(.jestei-chapter-section, .case-section-clean, [data-jestei-chapter-title], [data-case-chapter-title]) > .jestei-chapter-hero > .jestei-chapter-hero__title",
+      "main .title, .project__head .title, .section-head > .title, .block__header > .title, .text-block > .title, .component-caption > .title, [data-reveal-char]",
       root,
     )
   ) {

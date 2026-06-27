@@ -1,5 +1,15 @@
-# looksawful stage 07 media position fix
+# stage 08 — heading animation scope fix
 
-Fixes showcase centering and replaces the gallery positioning logic with one centered, adaptive media system.
+Точечно ограничивает GSAP/letter idle animation.
 
-Protected zones stay untouched: hero, resume, site-header, proximity, project headers, chapter headers, canvas/visual demos, playlist filter, policy book, artifact reader, editorial policy.
+Меняется только:
+
+- `src/components/heading-animations.js`
+- `src/components/hero-title/hero-title.js`
+- `src/components/index.js`
+
+Логика:
+
+- hero animation действует только на `.hero__title-name`
+- showcase heading animation действует только на заголовки глав `.jestei-chapter-hero__title`
+- brand titles, project headers, subtitles, section headers, card headers, text sections не анимируются

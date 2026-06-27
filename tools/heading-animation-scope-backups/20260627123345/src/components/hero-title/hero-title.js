@@ -2,7 +2,6 @@ import { createLetterIdleMotion, splitTextIntoGraphemes } from "../letter-motion
 
 const TITLE_SELECTOR = "#hero-title";
 const LINE_SELECTOR = ".hero__title-name, .hero__title-role";
-const NAME_LETTER_SELECTOR = ".hero__title-name .hero-title-letter";
 const ROLE_LINE_SELECTOR = '.hero__title-role[data-hero-role-line="true"]';
 const FIT_SAFE_GAP = 2;
 const FIT_MIN_FONT_SIZE = 20;
@@ -179,7 +178,7 @@ export function initHeroTitleAnimation(root = document) {
   title.dataset.heroTitleReady = "true";
 
   createLetterIdleMotion(title, {
-    selector: NAME_LETTER_SELECTOR,
+    selector: ".hero-title-letter",
     profile: "hero",
   });
 

@@ -1,8 +1,48 @@
-import { createLetterIdleMotion, splitTextIntoGraphemes } from "./letter-motion.js";
+import fs from 'node:fs';
+import path from 'node:path';
+
+const root = process.cwd();
+const stamp = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
+const backupRoot = path.join(root, 'tools', 'heading-animation-scope-backups', stamp);
+
+const files = {
+  heading: 'src/components/heading-animations.js',
+  hero: 'src/components/hero-title/hero-title.js',
+  index: 'src/components/index.js',
+};
+
+function read(rel) {
+  return fs.readFileSync(path.join(root, rel), 'utf8');
+}
+
+function write(rel, value) {
+  fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
+  fs.writeFileSync(path.join(root, rel), value, 'utf8');
+}
+
+function backup(rel) {
+  const from = path.join(root, rel);
+  if (!fs.existsSync(from)) throw new Error(`file not found: ${rel}`);
+  const to = path.join(backupRoot, rel);
+  fs.mkdirSync(path.dirname(to), { recursive: true });
+  fs.copyFileSync(from, to);
+}
+
+function assertIncludes(value, needle, file) {
+  if (!value.includes(needle)) {
+    throw new Error(`expected pattern not found in ${file}: ${needle}`);
+  }
+}
+
+for (const rel of Object.values(files)) backup(rel);
+
+const chapterHeadingSelector = '#showcase :is(.jestei-chapter-section, .case-section-clean, [data-jestei-chapter-title], [data-case-chapter-title]) > .jestei-chapter-hero > .jestei-chapter-hero__title';
+
+const headingAnimations = `import { createLetterIdleMotion, splitTextIntoGraphemes } from "./letter-motion.js";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-const HEADING_SELECTOR = "#showcase :is(.jestei-chapter-section, .case-section-clean, [data-jestei-chapter-title], [data-case-chapter-title]) > .jestei-chapter-hero > .jestei-chapter-hero__title";
+const HEADING_SELECTOR = ${JSON.stringify(chapterHeadingSelector)};
 
 const EXCLUDED_SELECTOR = [
   ".site-header",
@@ -108,7 +148,7 @@ function splitTextNode(node) {
   const parts = splitTextIntoGraphemes(node.nodeValue || "");
 
   parts.forEach((char) => {
-    if (/s/.test(char)) {
+    if (/\s/.test(char)) {
       fragment.appendChild(document.createTextNode(char));
       return;
     }
@@ -190,3 +230,38 @@ export function initHeadingAnimations(root = document) {
     });
   });
 }
+`;
+
+write(files.heading, headingAnimations);
+
+let hero = read(files.hero);
+assertIncludes(hero, 'const LINE_SELECTOR = ".hero__title-name, .hero__title-role";', files.hero);
+if (!hero.includes('const NAME_LETTER_SELECTOR = ".hero__title-name .hero-title-letter";')) {
+  hero = hero.replace(
+    'const LINE_SELECTOR = ".hero__title-name, .hero__title-role";',
+    'const LINE_SELECTOR = ".hero__title-name, .hero__title-role";\nconst NAME_LETTER_SELECTOR = ".hero__title-name .hero-title-letter";',
+  );
+}
+assertIncludes(hero, 'selector: ".hero-title-letter",', files.hero);
+hero = hero.replace('selector: ".hero-title-letter",', 'selector: NAME_LETTER_SELECTOR,');
+write(files.hero, hero);
+
+let index = read(files.index);
+const broadGuard = 'main .title, .project__head .title, .section-head > .title, .block__header > .title, .text-block > .title, .component-caption > .title, [data-reveal-char]';
+assertIncludes(index, broadGuard, files.index);
+index = index.replace(broadGuard, chapterHeadingSelector);
+write(files.index, index);
+
+const checkHeading = read(files.heading);
+if (/main :is\(h2, h3, h4, h5, h6\)|main \.title|project__head|section-head|block__header|text-block|component-caption/.test(checkHeading)) {
+  throw new Error('heading animation selector is still too broad');
+}
+
+const checkHero = read(files.hero);
+if (!checkHero.includes('selector: NAME_LETTER_SELECTOR,')) {
+  throw new Error('hero title motion selector was not restricted to the name line');
+}
+
+console.log('heading animation scope fixed');
+console.log(`backup: ${backupRoot}`);
+console.log(`chapter heading selector: ${chapterHeadingSelector}`);
