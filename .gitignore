@@ -74,6 +74,7 @@ _local/tmp/*
 
 # temporary local patch scripts
 tools/apply-stage*.ps1
+tools/
 
 # local media sources / generated normalization folders
 _media-originals/
