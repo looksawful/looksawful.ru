@@ -46,8 +46,16 @@
 }
 
 .hero__title-role {
-  font-size: var(--hero-sub);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  justify-self: end;
+  gap: 0.04em 0.24em;
+  max-inline-size: min(100%, 68rem);
+  font-size: clamp(2.15rem, 5.2vw, 5.05rem);
   font-weight: 600;
+  line-height: 0.86;
+  text-align: right;
 }
 
 .hero-title-word {
@@ -64,6 +72,12 @@
 
 .hero__title-role .hero-title-word {
   margin-inline: auto 0;
+}
+
+.hero__title-role .hero-title-word {
+  display: inline-block;
+  width: auto;
+  margin-inline: 0;
 }
 
 .hero-title-letter {
@@ -131,9 +145,12 @@
   }
 
   .hero__title-role {
-    font-size: var(--hero-sub);
-    line-height: 0.98;
-    letter-spacing: -0.025em;
+    justify-content: flex-end;
+    max-inline-size: min(100%, 28rem);
+    margin-inline-start: auto;
+    font-size: clamp(1.45rem, 6.8vw, 2.35rem);
+    line-height: 0.92;
+    letter-spacing: 0;
   }
 
   .hero-title-word {
@@ -142,7 +159,7 @@
   }
 
   .hero__title-role .hero-title-word {
-    margin-inline: auto 0;
+    margin-inline: 0;
   }
 
   .hero__note,
@@ -176,7 +193,7 @@
   }
 
   .hero__title-role {
-    font-size: clamp(1.45rem, 8.2vw, 2rem);
+    font-size: clamp(1.28rem, 7.2vw, 1.8rem);
   }
 }
 #hero,
@@ -209,4 +226,3 @@
     padding-block-end: clamp(2.8rem, 8svh, 4.2rem);
   }
 }
-

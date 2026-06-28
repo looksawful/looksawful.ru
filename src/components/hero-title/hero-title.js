@@ -2,10 +2,11 @@ import { createLetterIdleMotion, splitTextIntoGraphemes } from "../letter-motion
 
 const TITLE_SELECTOR = "#hero-title";
 const LINE_SELECTOR = ".hero__title-name, .hero__title-role";
+const ANIMATED_LINE_SELECTOR = ".hero__title-name";
 const FIT_SAFE_GAP = 2;
 const FIT_MIN_FONT_SIZE = 20;
 
-function wrapLineLetters(line, startIndex = 0) {
+function wrapLine(line, startIndex = 0, { animateLetters = true } = {}) {
   const words = line.textContent.trim().split(/\s+/);
   const fragment = document.createDocumentFragment();
   let letterIndex = startIndex;
@@ -13,6 +14,12 @@ function wrapLineLetters(line, startIndex = 0) {
   words.forEach((word) => {
     const wordElement = document.createElement("span");
     wordElement.className = "hero-title-word";
+
+    if (!animateLetters) {
+      wordElement.textContent = word;
+      fragment.appendChild(wordElement);
+      return;
+    }
 
     splitTextIntoGraphemes(word).forEach((letter) => {
       const letterElement = document.createElement("span");
@@ -127,17 +134,18 @@ export function initHeroTitleAnimation(root = document) {
 
   lines.forEach((line) => {
     line.setAttribute("aria-hidden", "true");
-    letterIndex = wrapLineLetters(line, letterIndex);
+    letterIndex = wrapLine(line, letterIndex, {
+      animateLetters: line.matches(ANIMATED_LINE_SELECTOR),
+    });
   });
 
   bindHeroTitleFit(title, lines);
   title.classList.add("is-hero-title-ready");
 
   createLetterIdleMotion(title, {
-    selector: ".hero-title-letter",
+    selector: ".hero__title-name .hero-title-letter",
     profile: "hero",
   });
 
   return title;
 }
-
