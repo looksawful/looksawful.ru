@@ -386,7 +386,18 @@ function enhanceScrollableGroup(group) {
 
   const scrollToIndex = (nextIndex, behavior = "smooth") => {
     syncIndex(nextIndex);
-    items[index].scrollIntoView({ behavior, block: "nearest", inline: "start" });
+
+    if (isViewer()) {
+      return;
+    }
+
+    const item = items[index];
+    const left = Math.max(0, item.offsetLeft - track.offsetLeft);
+
+    track.scrollTo({
+      left,
+      behavior,
+    });
   };
 
   const getNextAutoplayIndex = () => {
@@ -400,10 +411,16 @@ function enhanceScrollableGroup(group) {
     autoplayTimer = 0;
   };
 
+  const isAutoplayEnabled = () => group.dataset.galleryAutoplay === "true";
+
   const startAutoplay = () => {
     stopAutoplay();
 
-    if (items.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (
+      !isAutoplayEnabled() ||
+      items.length < 2 ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       return;
     }
 
@@ -544,7 +561,6 @@ function enhanceScrollableGroup(group) {
 
   syncIndex(0);
   requestAnimationFrame(updateFromScroll);
-  startAutoplay();
 }
 
 export function initPortfolioGallery(root = document) {

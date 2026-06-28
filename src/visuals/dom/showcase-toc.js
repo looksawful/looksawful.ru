@@ -1,11 +1,16 @@
 const CHAPTER_SELECTOR =
   ":scope .case-chapter[data-jestei-chapter-title], :scope .case-chapter[data-case-chapter-title]";
 const ACTIVE_MARKER = 0.38;
+const COMPACT_TOC_QUERY = "(max-width: 87.999rem)";
 
 const getGsap = () => window.gsap || null;
 
 const shouldReduceMotion = () => {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+};
+
+const isCompactToc = () => {
+  return window.matchMedia(COMPACT_TOC_QUERY).matches;
 };
 
 const getHashId = (link) => {
@@ -214,7 +219,11 @@ export function initShowcaseToc(root = document) {
       item.projectLink.toggleAttribute("aria-current", isActive && !activeChapterLink);
 
       if (projectChanged || instant) {
-        setChapterListOpen(item, isActive, { instant });
+        const shouldOpen = isActive && !isCompactToc();
+
+        setChapterListOpen(item, shouldOpen, {
+          instant: instant || isCompactToc(),
+        });
       }
     });
   };
@@ -287,6 +296,14 @@ export function initShowcaseToc(root = document) {
   window.addEventListener("scroll", requestActiveUpdate, { passive: true });
   window.addEventListener("resize", requestActiveUpdate, { passive: true });
   window.addEventListener("hashchange", requestActiveUpdate);
+
+  window.matchMedia(COMPACT_TOC_QUERY).addEventListener?.("change", () => {
+    groups.forEach((item) => {
+      setChapterListOpen(item, false, { instant: true });
+    });
+
+    requestActiveUpdate();
+  });
 
   requestActiveUpdate();
 }
