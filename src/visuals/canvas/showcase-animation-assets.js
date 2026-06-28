@@ -1,14 +1,14 @@
 const LOCAL_SCENE_MODULES = {
   jesteiColorBeforeAfter: import.meta.glob(
-    "./before-after/assets/jestei-color-before-after*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    "./before-after/assets/jestei-color-before-after/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
     { eager: true, query: "?url", import: "default" },
   ),
   styxGraphicDiagonal: import.meta.glob(
-    "./showcase-diagonal/assets/styx-graphic-diagonal*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    "./showcase-diagonal/assets/styx-graphic-diagonal/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
     { eager: true, query: "?url", import: "default" },
   ),
   styxBrandIdentity: import.meta.glob(
-    "./showcase-horizontal/assets/styx-brand-identity*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    "./showcase-horizontal/assets/styx-brand-identity/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
     { eager: true, query: "?url", import: "default" },
   ),
 };
@@ -103,4 +103,3 @@ export const getAnimationSceneSummaries = () =>
     fileCount: Object.keys(scene.modules).length,
     defaultMaxItems: scene.defaultMaxItems,
   }));
-

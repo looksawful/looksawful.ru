@@ -47,6 +47,25 @@ for (const viewport of viewports) {
     const response = await page.goto(`${baseUrl}${route}`, { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.waitForTimeout(1400);
 
+    if (route === "/") {
+      for (const progress of [0.25, 0.5, 0.75, 0.95]) {
+        await page.evaluate((scrollProgress) => {
+          const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+          window.scrollTo({ top: maxScroll * scrollProgress, behavior: "instant" });
+        }, progress);
+        await page.waitForTimeout(900);
+      }
+
+      const animationCount = await page.locator("[data-animation]").count();
+      for (let index = 0; index < animationCount; index += 1) {
+        await page.locator("[data-animation]").nth(index).scrollIntoViewIfNeeded();
+        await page.waitForTimeout(900);
+      }
+
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+      await page.waitForTimeout(300);
+    }
+
     const metrics = await page.evaluate(() => ({
       readyState: document.readyState,
       docWidth: document.documentElement.scrollWidth,
