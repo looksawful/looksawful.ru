@@ -1,5 +1,237 @@
 <!doctype html>
 <html lang="ru">
-  <head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><title>резюме — иван крушинский</title><meta content="будущая отдельная страница резюме" name="description" /><style>html{font-family:Rubik,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#fff;color:#000}body{margin:0;min-width:320px}.page{width:min(100% - 40px,760px);margin:0 auto;padding:clamp(48px,8vw,84px) 0;display:grid;gap:20px}a{color:inherit;text-underline-offset:.18em}.pill{display:inline-flex;width:max-content;min-height:32px;align-items:center;padding:6px 10px 7px;border:1px solid #000;border-radius:999px;text-decoration:none;font-size:13px}h1{font-size:clamp(42px,7vw,68px);line-height:.99;letter-spacing:-.052em;margin:0}p{max-width:620px;font-size:18px;line-height:1.5;color:rgba(0,0,0,.58);margin:0}</style></head>
-  <body><main class="page"><a class="pill" href="/">главная</a><h1>резюме</h1><p>пустая будущая страница резюме. основной блок резюме на главной странице не изменён.</p></main></body>
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>резюме — иван крушинский</title>
+    <meta
+      content="артдиректор цифровых продуктов, senior product/interface designer, design systems, бренд и frontend-прототипирование"
+      name="description"
+    />
+    <style>
+      :root {
+        --page: min(100% - 40px, 980px);
+        --black: #050505;
+        --muted: rgba(5, 5, 5, 0.62);
+        --soft: rgba(5, 5, 5, 0.1);
+        --font: Rubik, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-width: 320px;
+        background: #fff;
+        color: var(--black);
+        font-family: var(--font);
+        text-size-adjust: 100%;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+      }
+
+      a {
+        color: inherit;
+        text-underline-offset: 0.18em;
+      }
+
+      p,
+      h1,
+      h2,
+      ul {
+        margin: 0;
+      }
+
+      ul {
+        padding: 0;
+        list-style: none;
+      }
+
+      .resume-page {
+        width: var(--page);
+        min-height: 100svh;
+        margin: 0 auto;
+        padding: clamp(22px, 4vw, 42px) 0;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: clamp(34px, 7vw, 72px);
+      }
+
+      .resume-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .resume-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 6px 10px 7px;
+        border: 1px solid var(--black);
+        border-radius: 999px;
+        color: var(--black);
+        font-size: 13px;
+        line-height: 1;
+        text-decoration: none;
+      }
+
+      .resume-main {
+        align-self: center;
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(18rem, 1.1fr);
+        gap: clamp(32px, 6vw, 80px);
+      }
+
+      .resume-hero {
+        display: grid;
+        align-content: start;
+        gap: 16px;
+      }
+
+      .resume-kicker {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.2;
+      }
+
+      h1 {
+        max-width: 9ch;
+        font-size: clamp(42px, 7vw, 78px);
+        font-weight: 800;
+        line-height: 0.94;
+        letter-spacing: -0.035em;
+      }
+
+      .resume-role {
+        max-width: 23rem;
+        color: var(--muted);
+        font-size: clamp(16px, 1.5vw, 20px);
+        line-height: 1.35;
+      }
+
+      .resume-content {
+        display: grid;
+        gap: clamp(18px, 3vw, 28px);
+        align-content: start;
+      }
+
+      .resume-block {
+        display: grid;
+        gap: 10px;
+        padding-block-start: 12px;
+        border-block-start: 1px solid var(--soft);
+      }
+
+      h2 {
+        color: var(--black);
+        font-size: 14px;
+        font-weight: 750;
+        line-height: 1.2;
+        letter-spacing: 0;
+      }
+
+      .resume-block p,
+      .resume-block li {
+        color: var(--muted);
+        font-size: clamp(14px, 1.08vw, 16px);
+        line-height: 1.52;
+      }
+
+      .resume-list {
+        display: grid;
+        gap: 7px;
+      }
+
+      .resume-contacts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+      }
+
+      .resume-contacts a {
+        font-size: 14px;
+      }
+
+      @media (max-width: 760px) {
+        :root {
+          --page: min(100% - 28px, 980px);
+        }
+
+        .resume-page {
+          gap: 42px;
+          padding-block: 18px 34px;
+        }
+
+        .resume-main {
+          align-self: start;
+          grid-template-columns: minmax(0, 1fr);
+          gap: 30px;
+        }
+
+        h1 {
+          max-width: 10ch;
+          font-size: clamp(40px, 15vw, 58px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="resume-page">
+      <nav class="resume-nav" aria-label="навигация резюме">
+        <a class="resume-pill" href="/">главная</a>
+        <a class="resume-pill" href="mailto:i@lookawful.ru">i@lookawful.ru</a>
+      </nav>
+
+      <section class="resume-main" aria-label="резюме">
+        <header class="resume-hero">
+          <p class="resume-kicker">иван крушинский</p>
+          <h1>артдиректор цифровых продуктов</h1>
+          <p class="resume-role">
+            senior product/interface designer с опытом дизайна, разработки, брендинга и системной подачи информации.
+          </p>
+        </header>
+
+        <div class="resume-content">
+          <section class="resume-block">
+            <h2>профиль</h2>
+            <p>
+              12 лет в визуальной и продуктовой работе: от газетной верстки и графического дизайна до артдирекшна цифровых продуктов, дизайн-систем и frontend-прототипирования.
+            </p>
+          </section>
+
+          <section class="resume-block">
+            <h2>jestei pool</h2>
+            <ul class="resume-list">
+              <li>руководил дизайнерами, редактором и копирайтером, участвовал в найме и развитии команды.</li>
+              <li>пересобирал экосистему из 4 продуктов и 2 лендингов: навигацию, фильтры, тарифы, аудитории и промо-механики.</li>
+              <li>вел ребрендинг, дизайн-систему, документацию, редакционную политику и production-ready прототипы на TSX.</li>
+            </ul>
+          </section>
+
+          <section class="resume-block">
+            <h2>фокус</h2>
+            <p>
+              интерфейсы, дизайн-системы, продуктовые сценарии, артдирекшн, визуальный язык, canvas/webgl-эксперименты, AI-процессы для дизайн-команд.
+            </p>
+          </section>
+
+          <section class="resume-block">
+            <h2>контакты</h2>
+            <p class="resume-contacts">
+              <a href="mailto:i@lookawful.ru">i@lookawful.ru</a>
+              <a href="https://github.com/looksawful" rel="noopener noreferrer">github</a>
+              <a href="/">looksawful.ru</a>
+            </p>
+          </section>
+        </div>
+      </section>
+    </main>
+  </body>
 </html>
