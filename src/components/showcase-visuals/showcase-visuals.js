@@ -214,8 +214,8 @@ export async function initShowcaseVisuals(root = document) {
       },
       {
         rootMargin: globalThis.window?.matchMedia?.("(pointer: coarse), (max-width: 760px)")?.matches
-          ? "30% 0px"
-          : "60% 0px",
+          ? "8% 0px"
+          : "12% 0px",
         threshold: 0,
       },
     ) || noop;
@@ -235,4 +235,3 @@ export async function initShowcaseVisuals(root = document) {
     });
   };
 }
-

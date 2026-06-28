@@ -3,9 +3,11 @@ const LIGHTBOX_SELECTOR = [`[data-lightbox]${DISABLED_SELECTOR}`, `a.media-item[
 const VIDEO_EXTENSION_PATTERN = /\.(mp4|webm|mov)(\?.*)?(#.*)?$/i;
 const EXPLICIT_LIGHTBOX_TYPES = new Set(["image", "video"]);
 const SWIPE_THRESHOLD = 42;
+const PREFETCH_RADIUS = 1;
 
 let lightboxInstance = null;
 const mountedRoots = new WeakSet();
+const prefetchedImages = new Set();
 
 const state = {
   activeTrigger: null,
@@ -72,6 +74,49 @@ const getGalleryItems = (trigger) => {
   return items.length ? items : [trigger];
 };
 
+const prepareLightboxImage = (image) => {
+  image.decoding = "async";
+  image.loading = "eager";
+
+  if ("fetchPriority" in image) {
+    image.fetchPriority = "high";
+  }
+};
+
+const prefetchImage = (src) => {
+  if (!src || prefetchedImages.has(src)) {
+    return;
+  }
+
+  prefetchedImages.add(src);
+
+  const image = new Image();
+  image.decoding = "async";
+
+  if ("fetchPriority" in image) {
+    image.fetchPriority = "low";
+  }
+
+  image.src = src;
+};
+
+const prefetchAdjacentItems = () => {
+  if (state.items.length < 2) {
+    return;
+  }
+
+  for (let offset = -PREFETCH_RADIUS; offset <= PREFETCH_RADIUS; offset += 1) {
+    if (offset === 0) continue;
+
+    const nextIndex = (state.index + offset + state.items.length) % state.items.length;
+    const mediaData = getMediaData(state.items[nextIndex]);
+
+    if (mediaData?.type === "image") {
+      prefetchImage(mediaData.src);
+    }
+  }
+};
+
 const createLightbox = () => {
   if (lightboxInstance) {
     return lightboxInstance;
@@ -133,11 +178,12 @@ const renderActiveItem = (lightbox) => {
     media.poster = trigger.querySelector("video")?.poster || trigger.querySelector("img")?.currentSrc || "";
   } else {
     media.alt = trigger.querySelector("img")?.alt || "";
-    media.decoding = "async";
+    prepareLightboxImage(media);
   }
 
   lightbox.body.replaceChildren(media);
   syncControls(lightbox);
+  prefetchAdjacentItems();
 };
 
 const step = (direction) => {

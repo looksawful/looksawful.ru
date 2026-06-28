@@ -2,6 +2,11 @@ const VIEWER_MIN_ITEMS = 20;
 const TILE_RAIL_MIN_ITEMS = 8;
 const SNAP_MIN_ITEMS = 2;
 const SNAP_MAX_ITEMS = 4;
+const WARMUP_ROOT_MARGIN = "900px 0px";
+const WARMUP_INITIAL_COUNT = 6;
+const WARMUP_BATCH_SIZE = 4;
+const WARMUP_AROUND_BEFORE = 2;
+const WARMUP_AROUND_AFTER = 5;
 
 const ENHANCED_GROUP_SELECTOR = "#showcase .case-chapter__body .media-group";
 const GROUP_MEDIA_SELECTOR = ":scope > .media-item, :scope > .media-group__track > .media-item";
@@ -15,6 +20,135 @@ const icons = {
   grid: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 1.5h5v5h-5v-5Zm8 0h5v5h-5v-5Zm-8 8h5v5h-5v-5Zm8 0h5v5h-5v-5Z"/></svg>',
   view: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2h12v9H2V2Zm0 11h5v1.5H2V13Zm7 0h5v1.5H9V13Z"/></svg>',
 };
+
+const noop = () => {};
+
+function canUseBackgroundWarmup() {
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+  if (connection?.saveData) return false;
+  if (/2g/i.test(connection?.effectiveType || "")) return false;
+
+  return true;
+}
+
+function runWhenIdle(callback, timeout = 900) {
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(callback, { timeout });
+    return;
+  }
+
+  window.setTimeout(callback, 120);
+}
+
+function getItemMedia(item) {
+  return item.querySelector("img, video");
+}
+
+function warmMediaItem(item, priority = "low") {
+  const media = getItemMedia(item);
+
+  if (media instanceof HTMLImageElement) {
+    media.decoding = "async";
+    media.loading = "eager";
+
+    if ("fetchPriority" in media) {
+      media.fetchPriority = priority;
+    }
+  }
+
+  if (media instanceof HTMLVideoElement) {
+    media.preload = media.getAttribute("preload") || "metadata";
+  }
+}
+
+function observeGroupWarmup(group, start) {
+  if (!("IntersectionObserver" in window)) {
+    runWhenIdle(start);
+    return noop;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+
+      observer.disconnect();
+      start();
+    },
+    { rootMargin: WARMUP_ROOT_MARGIN, threshold: 0 },
+  );
+
+  observer.observe(group);
+  return () => observer.disconnect();
+}
+
+function setupMediaWarmup(group, items, mode) {
+  const warmed = new WeakSet();
+  const allowBackground = canUseBackgroundWarmup();
+  let nextSequentialIndex = 0;
+  let scheduled = false;
+  let started = false;
+
+  const warmAt = (index, priority = "low") => {
+    const item = items[index];
+    if (!item || warmed.has(item)) return;
+
+    warmed.add(item);
+    warmMediaItem(item, priority);
+  };
+
+  const warmRange = (start, end, priority = "low") => {
+    const from = Math.max(0, start);
+    const to = Math.min(items.length, end);
+
+    for (let index = from; index < to; index += 1) {
+      warmAt(index, priority);
+    }
+
+    nextSequentialIndex = Math.max(nextSequentialIndex, to);
+  };
+
+  const warmNextBatch = () => {
+    scheduled = false;
+
+    if (!allowBackground || nextSequentialIndex >= items.length) {
+      return;
+    }
+
+    warmRange(nextSequentialIndex, nextSequentialIndex + WARMUP_BATCH_SIZE);
+
+    if (nextSequentialIndex < items.length) {
+      scheduleNextBatch();
+    }
+  };
+
+  function scheduleNextBatch() {
+    if (scheduled || !allowBackground) return;
+
+    scheduled = true;
+    runWhenIdle(warmNextBatch, 1400);
+  }
+
+  const start = () => {
+    started = true;
+
+    const initialCount = mode === "snap" ? items.length : Math.min(items.length, WARMUP_INITIAL_COUNT);
+
+    warmRange(0, initialCount);
+    scheduleNextBatch();
+  };
+
+  const stop = observeGroupWarmup(group, start);
+
+  return {
+    stop,
+    warmAround(index) {
+      if (!started) return;
+
+      warmRange(index - WARMUP_AROUND_BEFORE, index + WARMUP_AROUND_AFTER);
+    },
+  };
+}
 
 function readableCaption(link) {
   const explicit = link.getAttribute("data-caption");
@@ -209,6 +343,7 @@ function enhanceScrollableGroup(group) {
   let pointerStartLeft = 0;
   let pointerDragged = false;
   let suppressClick = false;
+  const warmup = setupMediaWarmup(group, items, mode);
 
   const isViewer = () => group.classList.contains("is-viewer");
 
@@ -229,6 +364,7 @@ function enhanceScrollableGroup(group) {
 
   const syncIndex = (nextIndex) => {
     index = Math.max(0, Math.min(items.length - 1, nextIndex));
+    warmup.warmAround(index);
 
     for (const [itemIndex, item] of items.entries()) {
       item.classList.toggle("is-active", itemIndex === index);

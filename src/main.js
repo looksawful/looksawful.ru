@@ -11,6 +11,50 @@ async function safe(label, task) {
   }
 }
 
+function runWhenNear(selector, label, task, { rootMargin = "900px 0px", threshold = 0 } = {}) {
+  const targets = [...document.querySelectorAll(selector)].filter((target) => target instanceof Element);
+
+  if (!targets.length) {
+    return;
+  }
+
+  let started = false;
+  let observer = null;
+
+  const start = () => {
+    if (started) return;
+
+    started = true;
+    observer?.disconnect();
+    void safe(label, task);
+  };
+
+  if (!("IntersectionObserver" in window)) {
+    runWhenIdle(start);
+    return;
+  }
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        start();
+      }
+    },
+    { rootMargin, threshold },
+  );
+
+  targets.forEach((target) => observer.observe(target));
+}
+
+function runWhenIdle(callback) {
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(callback, { timeout: 1600 });
+    return;
+  }
+
+  window.setTimeout(callback, 200);
+}
+
 async function initApp() {
   if (initialized) return;
   const main = document.getElementById("main");
@@ -28,7 +72,11 @@ async function initApp() {
   const tasks = [];
 
   if (has("[data-media-marquee], .media-marquee, .jestei-policy-marquee")) {
-    tasks.push(safe("mediaMarquee", () => import("./visuals/dom/media-marquee.js")));
+    runWhenNear(
+      "[data-media-marquee], .media-marquee, .jestei-policy-marquee",
+      "mediaMarquee",
+      () => import("./visuals/dom/media-marquee.js"),
+    );
   }
 
   if (has("[data-policy-book], .policy-book")) {
@@ -76,11 +124,14 @@ async function initApp() {
   }
 
   if (has("[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter")) {
-    tasks.push(
-      safe("playlistFilter", async () => {
+    runWhenNear(
+      "[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter",
+      "playlistFilter",
+      async () => {
         const module = await import("./visuals/dom/playlist-filter-embed.js");
         return module.initPlaylistFilterEmbed(document);
-      }),
+      },
+      { rootMargin: "1200px 0px" },
     );
   }
 

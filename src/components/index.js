@@ -89,7 +89,7 @@ async function initVisualEnhancements(root = document) {
   pushGuardedImport(
     tasks,
     root,
-    "video[data-inline-video], [data-inline-video], .showcase-inline-video",
+    "#showcase video, video[data-inline-video], [data-inline-video], .showcase-inline-video",
     "initCvInlineVideos",
     () => import("./showcase-inline-video/showcase-inline-video.js"),
     (module) => module.initCvInlineVideos(root),

@@ -10,9 +10,20 @@ function safePlay(video) {
   }
 }
 
+function activateVideo(video) {
+  if (video.dataset.showcaseVideoActivated === "true") {
+    return;
+  }
+
+  video.dataset.showcaseVideoActivated = "true";
+  video.preload = video.dataset.showcaseRequestedPreload || "metadata";
+  video.load?.();
+}
+
 function prepareVideo(video) {
   video.dataset.showcasePlainVideoReady = "true";
-  video.preload = video.getAttribute("preload") || "metadata";
+  video.dataset.showcaseRequestedPreload = video.getAttribute("preload") || "metadata";
+  video.preload = isAutoplayVideo(video) ? "none" : video.dataset.showcaseRequestedPreload;
   video.muted = video.muted || video.hasAttribute("muted");
   video.defaultMuted = video.defaultMuted || video.muted;
   video.playsInline = true;
@@ -32,6 +43,7 @@ function observeAutoplay(video) {
       }
 
       if (entry.isIntersecting) {
+        activateVideo(video);
         safePlay(video);
       } else {
         video.pause();
@@ -53,4 +65,3 @@ export function initCvInlineVideos(root = document) {
     observeAutoplay(video);
   });
 }
-
