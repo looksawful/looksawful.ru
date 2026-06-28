@@ -9,23 +9,16 @@
       name="description"
     />
     <style>
-      :root {
-        --page: min(100% - 40px, 980px);
-        --black: #050505;
-        --muted: rgba(5, 5, 5, 0.62);
-        --soft: rgba(5, 5, 5, 0.1);
-        --font: Rubik, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      }
-
       * {
         box-sizing: border-box;
       }
 
       html {
         min-width: 320px;
-        background: #fff;
-        color: var(--black);
-        font-family: var(--font);
+        background: #f7f7f4;
+        color: #111;
+        font-family: Inter, Arial, Helvetica, sans-serif;
+        font-size: 14px;
         text-size-adjust: 100%;
       }
 
@@ -36,12 +29,14 @@
 
       a {
         color: inherit;
+        text-decoration-thickness: 1px;
         text-underline-offset: 0.18em;
       }
 
       p,
       h1,
       h2,
+      h3,
       ul {
         margin: 0;
       }
@@ -51,187 +46,272 @@
         list-style: none;
       }
 
-      .resume-page {
-        width: var(--page);
-        min-height: 100svh;
+      .page {
+        width: min(100% - 32px, 920px);
         margin: 0 auto;
-        padding: clamp(22px, 4vw, 42px) 0;
-        display: grid;
-        grid-template-rows: auto minmax(0, 1fr);
-        gap: clamp(34px, 7vw, 72px);
+        padding: 18px 0 36px;
       }
 
-      .resume-nav {
+      .nav {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: center;
         justify-content: space-between;
-      }
-
-      .resume-pill {
-        display: inline-flex;
-        align-items: center;
-        min-height: 32px;
-        padding: 6px 10px 7px;
-        border: 1px solid var(--black);
-        border-radius: 999px;
-        color: var(--black);
-        font-size: 13px;
-        line-height: 1;
-        text-decoration: none;
-      }
-
-      .resume-main {
-        align-self: center;
-        display: grid;
-        grid-template-columns: minmax(0, 0.9fr) minmax(18rem, 1.1fr);
-        gap: clamp(32px, 6vw, 80px);
-      }
-
-      .resume-hero {
-        display: grid;
-        align-content: start;
         gap: 16px;
+        margin-bottom: 20px;
+        color: #555;
+        font-size: 12px;
+        line-height: 1.2;
       }
 
-      .resume-kicker {
-        color: var(--muted);
-        font-size: 13px;
-        line-height: 1.2;
+      .sheet {
+        min-height: min(1120px, calc(100svh - 74px));
+        padding: clamp(28px, 5vw, 54px);
+        background: #fff;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 92px;
+        gap: 28px;
+        align-items: start;
+        padding-bottom: 22px;
+        border-bottom: 1px solid #d8d8d2;
       }
 
       h1 {
-        max-width: 9ch;
-        font-size: clamp(42px, 7vw, 78px);
-        font-weight: 800;
-        line-height: 0.94;
-        letter-spacing: -0.035em;
-      }
-
-      .resume-role {
-        max-width: 23rem;
-        color: var(--muted);
-        font-size: clamp(16px, 1.5vw, 20px);
-        line-height: 1.35;
-      }
-
-      .resume-content {
-        display: grid;
-        gap: clamp(18px, 3vw, 28px);
-        align-content: start;
-      }
-
-      .resume-block {
-        display: grid;
-        gap: 10px;
-        padding-block-start: 12px;
-        border-block-start: 1px solid var(--soft);
-      }
-
-      h2 {
-        color: var(--black);
-        font-size: 14px;
-        font-weight: 750;
-        line-height: 1.2;
+        max-width: 34rem;
+        font-size: clamp(25px, 3.4vw, 34px);
+        font-weight: 700;
+        line-height: 1.04;
         letter-spacing: 0;
       }
 
-      .resume-block p,
-      .resume-block li {
-        color: var(--muted);
-        font-size: clamp(14px, 1.08vw, 16px);
-        line-height: 1.52;
+      .role {
+        max-width: 34rem;
+        margin-top: 9px;
+        color: #333;
+        font-size: 14px;
+        line-height: 1.45;
       }
 
-      .resume-list {
-        display: grid;
-        gap: 7px;
-      }
-
-      .resume-contacts {
+      .meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px 14px;
+        gap: 6px 14px;
+        margin-top: 16px;
+        color: #555;
+        font-size: 12px;
+        line-height: 1.35;
       }
 
-      .resume-contacts a {
-        font-size: 14px;
+      .face {
+        width: 92px;
+        height: 92px;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
+        gap: clamp(28px, 5vw, 56px);
+        padding-top: 24px;
+      }
+
+      .column {
+        display: grid;
+        gap: 22px;
+        align-content: start;
+      }
+
+      section {
+        display: grid;
+        gap: 9px;
+      }
+
+      h2 {
+        color: #111;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h3 {
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.25;
+      }
+
+      p,
+      li {
+        color: #333;
+        font-size: 13px;
+        line-height: 1.48;
+      }
+
+      .item {
+        display: grid;
+        gap: 4px;
+        padding-top: 10px;
+        border-top: 1px solid #e3e3dd;
+      }
+
+      .item:first-of-type {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      .small {
+        color: #666;
+        font-size: 12px;
+        line-height: 1.38;
+      }
+
+      .list {
+        display: grid;
+        gap: 5px;
+      }
+
+      .list li {
+        padding-left: 12px;
+        text-indent: -12px;
+      }
+
+      .list li::before {
+        content: "- ";
       }
 
       @media (max-width: 760px) {
-        :root {
-          --page: min(100% - 28px, 980px);
+        .page {
+          width: min(100% - 24px, 920px);
+          padding-top: 12px;
         }
 
-        .resume-page {
-          gap: 42px;
-          padding-block: 18px 34px;
+        .sheet {
+          min-height: 0;
+          padding: 24px;
         }
 
-        .resume-main {
-          align-self: start;
+        .header,
+        .content {
           grid-template-columns: minmax(0, 1fr);
-          gap: 30px;
         }
 
-        h1 {
-          max-width: 10ch;
-          font-size: clamp(40px, 15vw, 58px);
+        .face {
+          grid-row: 1;
+          width: 72px;
+          height: 72px;
+        }
+      }
+
+      @media print {
+        html,
+        body {
+          background: #fff;
+        }
+
+        .page {
+          width: 100%;
+          padding: 0;
+        }
+
+        .nav {
+          display: none;
+        }
+
+        .sheet {
+          min-height: 0;
+          padding: 0;
+          box-shadow: none;
         }
       }
     </style>
   </head>
   <body>
-    <main class="resume-page">
-      <nav class="resume-nav" aria-label="навигация резюме">
-        <a class="resume-pill" href="/">главная</a>
-        <a class="resume-pill" href="mailto:i@lookawful.ru">i@lookawful.ru</a>
+    <main class="page">
+      <nav class="nav" aria-label="навигация резюме">
+        <a href="/">looksawful.ru</a>
+        <a href="mailto:i@lookawful.ru">i@lookawful.ru</a>
       </nav>
 
-      <section class="resume-main" aria-label="резюме">
-        <header class="resume-hero">
-          <p class="resume-kicker">иван крушинский</p>
-          <h1>артдиректор цифровых продуктов</h1>
-          <p class="resume-role">
-            senior product/interface designer с опытом дизайна, разработки, брендинга и системной подачи информации.
-          </p>
-        </header>
-
-        <div class="resume-content">
-          <section class="resume-block">
-            <h2>профиль</h2>
-            <p>
-              12 лет в визуальной и продуктовой работе: от газетной верстки и графического дизайна до артдирекшна цифровых продуктов, дизайн-систем и frontend-прототипирования.
-            </p>
-          </section>
-
-          <section class="resume-block">
-            <h2>jestei pool</h2>
-            <ul class="resume-list">
-              <li>руководил дизайнерами, редактором и копирайтером, участвовал в найме и развитии команды.</li>
-              <li>пересобирал экосистему из 4 продуктов и 2 лендингов: навигацию, фильтры, тарифы, аудитории и промо-механики.</li>
-              <li>вел ребрендинг, дизайн-систему, документацию, редакционную политику и production-ready прототипы на TSX.</li>
-            </ul>
-          </section>
-
-          <section class="resume-block">
-            <h2>фокус</h2>
-            <p>
-              интерфейсы, дизайн-системы, продуктовые сценарии, артдирекшн, визуальный язык, canvas/webgl-эксперименты, AI-процессы для дизайн-команд.
-            </p>
-          </section>
-
-          <section class="resume-block">
-            <h2>контакты</h2>
-            <p class="resume-contacts">
+      <article class="sheet" aria-label="резюме ивана крушинского">
+        <header class="header">
+          <div>
+            <h1>Иван Крушинский</h1>
+            <p class="role">артдиректор цифровых продуктов / senior product & interface designer</p>
+            <p class="meta">
+              <span>Москва</span>
               <a href="mailto:i@lookawful.ru">i@lookawful.ru</a>
-              <a href="https://github.com/looksawful" rel="noopener noreferrer">github</a>
+              <a href="https://github.com/looksawful" rel="noopener noreferrer">github.com/looksawful</a>
               <a href="/">looksawful.ru</a>
             </p>
-          </section>
+          </div>
+
+          <svg class="face" viewBox="0 0 96 96" role="img" aria-label="awfulface">
+            <rect width="96" height="96" fill="#111" />
+            <rect x="16" y="20" width="64" height="56" fill="#fff" />
+            <rect x="28" y="34" width="10" height="10" fill="#111" />
+            <rect x="58" y="34" width="10" height="10" fill="#111" />
+            <rect x="36" y="58" width="24" height="6" fill="#111" />
+          </svg>
+        </header>
+
+        <div class="content">
+          <div class="column">
+            <section>
+              <h2>профиль</h2>
+              <p>
+                Артдиректор цифровых продуктов с опытом senior product/interface designer, разработки, брендинга и системной подачи информации.
+              </p>
+            </section>
+
+            <section>
+              <h2>фокус</h2>
+              <ul class="list">
+                <li>интерфейсы и продуктовые сценарии;</li>
+                <li>дизайн-системы и визуальный язык;</li>
+                <li>артдирекшн, редакционная логика, коммуникации;</li>
+                <li>frontend-прототипирование, canvas/webgl, AI-процессы.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2>инструменты</h2>
+              <p>Figma, HTML, CSS, JavaScript, TypeScript, React, Vite, GSAP, Three.js, GitHub, AI-инструменты для дизайна и контента.</p>
+            </section>
+          </div>
+
+          <div class="column">
+            <section>
+              <h2>опыт</h2>
+              <div class="item">
+                <h3>Jestei Pool</h3>
+                <p class="small">артдирекшн, продуктовый дизайн, дизайн-система, бренд, редакционная политика</p>
+                <ul class="list">
+                  <li>пересобирал экосистему из 4 продуктов и 2 лендингов: навигацию, фильтры, тарифы, аудитории и промо-механики;</li>
+                  <li>руководил дизайнерами, редактором и копирайтером, участвовал в найме и развитии команды;</li>
+                  <li>вел ребрендинг, документацию, production-ready прототипы и контроль качества интерфейсов.</li>
+                </ul>
+              </div>
+              <div class="item">
+                <h3>Styx Jewels</h3>
+                <p class="small">графический дизайн, коммуникации, печатная продукция, фото и арты</p>
+                <ul class="list">
+                  <li>создавал визуалы для соцсетей, рекламных публикаций и бренд-коммуникаций;</li>
+                  <li>работал с печатными материалами, сертификатами, карточками и презентационной графикой.</li>
+                </ul>
+              </div>
+              <div class="item">
+                <h3>Пет-проекты</h3>
+                <p class="small">Berserk Timer, Awful Cases, Awful Audit, Awful Describer</p>
+                <ul class="list">
+                  <li>проектирую небольшие инструменты, где дизайн, код и документация собираются в один продуктовый прототип.</li>
+                </ul>
+              </div>
+            </section>
+          </div>
         </div>
-      </section>
+      </article>
     </main>
   </body>
 </html>

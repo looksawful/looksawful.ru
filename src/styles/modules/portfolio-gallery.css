@@ -5,6 +5,8 @@
   --media-outer: min(100%, 76rem);
   --snap-outer: min(100%, 62rem);
   --rail-tile: clamp(12rem, 19vw, 18rem);
+  --rail-cell: clamp(7.2rem, 10vw, 10rem);
+  --rail-row-height: clamp(11rem, 22vw, 18rem);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--media-min), 1fr));
   gap: var(--media-gap);
@@ -321,6 +323,7 @@
   --media-outer: min(100%, 82rem);
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
+  overflow: hidden;
 }
 
 #showcase .case-chapter__body .media-group--scrollable .media-group__track {
@@ -352,12 +355,12 @@
 
 #showcase .case-chapter__body .media-group--landscape.media-group--snap {
   --media-ratio: 4 / 3;
-  --snap-outer: min(100%, 54rem);
+  --snap-outer: min(100%, 66rem);
 }
 
 #showcase .case-chapter__body .media-group--portrait.media-group--snap,
 #showcase .case-chapter__body .media-group--square.media-group--snap {
-  --snap-outer: min(100%, 34rem);
+  --snap-outer: min(100%, 48rem);
 }
 
 #showcase .case-chapter__body .media-group--snap .media-group__track {
@@ -376,6 +379,16 @@
   scroll-snap-stop: always;
 }
 
+#showcase .case-chapter__body :where(.media-group--portrait, .media-group--square).media-group--snap .media-group__track > .media-item {
+  flex-basis: calc((100% - var(--media-gap)) / 2);
+}
+
+#showcase .case-chapter__body .media-group--snap .media-group__track > .media-item :where(img, video) {
+  block-size: min(70vh, clamp(24rem, 42vw, 36rem));
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
 #showcase .case-chapter__body .media-group--tile-rail {
   --media-outer: min(100%, 86rem);
 }
@@ -383,8 +396,8 @@
 #showcase .case-chapter__body .media-group--tile-rail .media-group__track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: var(--rail-tile);
-  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: var(--rail-cell);
+  grid-template-rows: repeat(2, var(--rail-row-height));
   gap: var(--media-gap);
   padding-block-end: 0.35rem;
   cursor: grab;
@@ -393,12 +406,22 @@
 }
 
 #showcase .case-chapter__body .media-group--tile-rail .media-group__track > .media-item {
-  inline-size: var(--rail-tile);
+  inline-size: auto;
+  block-size: var(--rail-row-height);
+  grid-column: span var(--media-span, 1);
   scroll-snap-align: start;
 }
 
+#showcase .case-chapter__body .media-group--tile-rail .media-group__track > .media-item :where(img, video) {
+  inline-size: 100%;
+  block-size: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
 #showcase .case-chapter__body .media-group--tile-rail.media-group--square {
-  --rail-tile: clamp(11.5rem, 18vw, 16.5rem);
+  --rail-cell: clamp(7rem, 9vw, 9.5rem);
+  --rail-row-height: clamp(10rem, 19vw, 16rem);
 }
 
 #showcase .case-chapter__body .media-group--tile-rail:not(.has-scroll-overflow):not(.media-group--viewer-ready) .media-group__controls {
@@ -450,6 +473,11 @@
 #showcase .case-chapter__body .media-group--pair.media-group--square .media-item :where(img, video) {
   aspect-ratio: 1;
   object-fit: cover;
+}
+
+#showcase .case-chapter__body :where(.media-group--quad, .media-group--pair).media-group--square .media-item[data-orientation="landscape"] :where(img, video) {
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
 }
 
 #showcase .case-chapter__body :where(.media-banner, .media-figure, .media-two, .media-three, .media-quad, .media-six, .media-eight, .media-gallery--tiles) {
@@ -657,6 +685,8 @@
   #showcase .case-chapter__body .media-group[data-media-group] {
     --media-gap: clamp(8px, 2.8vw, 12px);
     --rail-tile: clamp(8.7rem, 43vw, 11rem);
+    --rail-cell: clamp(5.8rem, 18vw, 7.2rem);
+    --rail-row-height: clamp(8rem, 34vw, 12rem);
     inline-size: 100%;
     max-inline-size: none;
     margin-inline: 0;
@@ -676,7 +706,15 @@
   }
 
   #showcase .case-chapter__body .media-group--tile-rail .media-group__track {
-    grid-template-rows: repeat(2, auto);
+    grid-template-rows: repeat(2, var(--rail-row-height));
+  }
+
+  #showcase .case-chapter__body .media-group--snap .media-group__track > .media-item :where(img, video) {
+    block-size: min(58vh, clamp(15rem, 72vw, 23rem));
+  }
+
+  #showcase .case-chapter__body :where(.media-group--portrait, .media-group--square).media-group--snap .media-group__track > .media-item {
+    flex-basis: calc((100% - var(--media-gap)) / 2);
   }
 
   #showcase .case-chapter__body .media-group__controls {

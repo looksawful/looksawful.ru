@@ -125,8 +125,7 @@ th{background:var(--face);font-weight:700}
   .titlebar{font-size:12px}
   .dos-body pre{font-size:11px;padding:10px 11px 12px}
 }
-
-.pet-shell-nav,.pet-shell-footer{width:var(--page,min(100% - 40px,1040px));margin-inline:auto;font-family:inherit}.pet-shell-nav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:16px 0 0}.pet-shell-crumbs,.pet-shell-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.pet-shell-pill{display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:6px 10px 7px;border:1px solid currentColor;border-radius:999px;color:inherit;background:transparent;font-size:13px;line-height:1;text-decoration:none;opacity:.82}.pet-shell-pill:hover,.pet-shell-pill:focus-visible{opacity:1;outline:0}.pet-shell-muted{opacity:.52}.pet-shell-footer{display:flex;justify-content:space-between;gap:12px;padding:0 0 28px;color:inherit;font-size:12px;opacity:.72}@media(max-width:560px){.pet-shell-nav{padding-top:12px}.pet-shell-footer{display:grid}}
+.pet-shell-nav,.pet-shell-footer{width:var(--page,min(100% - 40px,1040px));margin-inline:auto;font-family:inherit}.pet-shell-nav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:16px 0 0}.pet-shell-crumbs,.pet-shell-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.pet-shell-pill{display:inline-flex;align-items:center;gap:7px;min-height:26px;padding:5px 9px 6px;background:var(--face);color:var(--black);text-decoration:none;white-space:nowrap;font:700 12px/1 var(--sys);border:2px solid;border-color:var(--light) var(--dark) var(--dark) var(--light)}.pet-shell-pill:active{border-color:var(--dark) var(--light) var(--light) var(--dark);padding:5px 7px 4px 9px}.pet-shell-muted{opacity:.68}.pet-shell-footer{display:flex;justify-content:space-between;gap:12px;padding:0 0 28px;color:var(--light);font-size:12px;text-shadow:1px 1px 0 rgba(0,0,0,.35)}@media(max-width:560px){.pet-shell-nav{padding-top:12px}.pet-shell-footer{display:grid}}
 </style>
 </head>
 <body>
@@ -221,8 +220,6 @@ th{background:var(--face);font-weight:700}
     </div>
   </section>
 
-
-
   <section class="window window--sm window--text window--right" aria-labelledby="requirements-title">
     <div class="titlebar">
       <span class="titlebar__text" id="requirements-title">Requirements</span>
@@ -279,10 +276,10 @@ document.querySelectorAll('[data-copy-target]').forEach((button)=>{
     const text=target.textContent.replace(/^C:\\\\>\s?/gm,'').replace(/^C:\\\\awful-cases>\s?/gm,'').replace(/^REM\s?/gm,'# ').trim();
     try{
       await navigator.clipboard.writeText(text);
-      const old=button.textContent;
-      button.textContent='Copied';
+      const old=button.innerHTML;
+      button.innerHTML='<span class="btn-u">C</span>opied';
       button.classList.add('is-copied');
-      setTimeout(()=>{button.textContent=old;button.classList.remove('is-copied')},1000);
+      setTimeout(()=>{button.innerHTML=old;button.classList.remove('is-copied')},1000);
     }catch{
       const range=document.createRange();
       range.selectNodeContents(target);

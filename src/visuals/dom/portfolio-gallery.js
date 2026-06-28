@@ -1,4 +1,3 @@
-const VIEWER_MIN_ITEMS = 20;
 const TILE_RAIL_MIN_ITEMS = 8;
 const SNAP_MIN_ITEMS = 2;
 const SNAP_MAX_ITEMS = 4;
@@ -7,6 +6,7 @@ const WARMUP_INITIAL_COUNT = 6;
 const WARMUP_BATCH_SIZE = 4;
 const WARMUP_AROUND_BEFORE = 2;
 const WARMUP_AROUND_AFTER = 5;
+const AUTOPLAY_DELAY = 5000;
 
 const ENHANCED_GROUP_SELECTOR = "#showcase .case-chapter__body .media-group";
 const GROUP_MEDIA_SELECTOR = ":scope > .media-item, :scope > .media-group__track > .media-item";
@@ -175,6 +175,7 @@ function markOrientation(link) {
     const ratio = width / height;
     const orientation = ratio > 1.18 ? "landscape" : ratio < 0.86 ? "portrait" : "square";
     link.setAttribute("data-orientation", orientation);
+    link.style.setProperty("--media-span", ratio > 2.15 ? "3" : ratio > 1.18 ? "2" : "1");
   };
 
   if (img.complete) apply();
@@ -324,7 +325,7 @@ function enhanceScrollableGroup(group) {
   const track = ensureTrack(group, items);
   if (!track) return;
 
-  const includeToggle = count >= VIEWER_MIN_ITEMS;
+  const includeToggle = count >= SNAP_MIN_ITEMS;
   const controls = createControls({ includeToggle });
   const dots = mode === "snap" ? createDots(items) : null;
 
@@ -343,6 +344,8 @@ function enhanceScrollableGroup(group) {
   let pointerStartLeft = 0;
   let pointerDragged = false;
   let suppressClick = false;
+  let autoplayTimer = 0;
+  let autoplayDirection = 1;
   const warmup = setupMediaWarmup(group, items, mode);
 
   const isViewer = () => group.classList.contains("is-viewer");
@@ -386,6 +389,33 @@ function enhanceScrollableGroup(group) {
     items[index].scrollIntoView({ behavior, block: "nearest", inline: "start" });
   };
 
+  const getNextAutoplayIndex = () => {
+    if (index >= items.length - 1) autoplayDirection = -1;
+    if (index <= 0) autoplayDirection = 1;
+    return index + autoplayDirection;
+  };
+
+  const stopAutoplay = () => {
+    window.clearInterval(autoplayTimer);
+    autoplayTimer = 0;
+  };
+
+  const startAutoplay = () => {
+    stopAutoplay();
+
+    if (items.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    autoplayTimer = window.setInterval(() => {
+      if (document.hidden) {
+        return;
+      }
+
+      scrollToIndex(getNextAutoplayIndex());
+    }, AUTOPLAY_DELAY);
+  };
+
   const updateFromScroll = () => {
     if (isViewer()) return;
     syncIndex(nearestItemIndex(track, items));
@@ -415,25 +445,32 @@ function enhanceScrollableGroup(group) {
   controls.prev.addEventListener("click", () => {
     if (isViewer() || mode === "snap") {
       scrollToIndex(index - 1);
+      startAutoplay();
       return;
     }
 
     track.scrollBy({ left: -Math.max(1, track.clientWidth * 0.86), behavior: "smooth" });
+    startAutoplay();
   });
 
   controls.next.addEventListener("click", () => {
     if (isViewer() || mode === "snap") {
       scrollToIndex(index + 1);
+      startAutoplay();
       return;
     }
 
     track.scrollBy({ left: Math.max(1, track.clientWidth * 0.86), behavior: "smooth" });
+    startAutoplay();
   });
 
   controls.toggle?.addEventListener("click", () => setViewer(!isViewer()));
 
   dots?.buttons.forEach((dot, dotIndex) => {
-    dot.addEventListener("click", () => scrollToIndex(dotIndex));
+    dot.addEventListener("click", () => {
+      scrollToIndex(dotIndex);
+      startAutoplay();
+    });
   });
 
   track.addEventListener("pointerdown", (event) => {
@@ -473,6 +510,7 @@ function enhanceScrollableGroup(group) {
 
     if (mode === "snap") snapToNearest();
     else updateFromScroll();
+    startAutoplay();
   });
 
   track.addEventListener("pointercancel", () => {
@@ -506,6 +544,7 @@ function enhanceScrollableGroup(group) {
 
   syncIndex(0);
   requestAnimationFrame(updateFromScroll);
+  startAutoplay();
 }
 
 export function initPortfolioGallery(root = document) {

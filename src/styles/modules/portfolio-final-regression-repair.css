@@ -21,28 +21,15 @@
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  border-radius: clamp(28px, 5vw, 64px);
-  padding: clamp(32px, 6vw, 84px);
-  background:
-    radial-gradient(circle at 16% 14%, color-mix(in srgb, #f18200 34%, transparent) 0 18%, transparent 42%),
-    radial-gradient(circle at 82% 18%, color-mix(in srgb, #d1e231 44%, transparent) 0 16%, transparent 40%),
-    radial-gradient(circle at 18% 86%, color-mix(in srgb, #157aff 30%, transparent) 0 18%, transparent 42%),
-    radial-gradient(circle at 82% 82%, color-mix(in srgb, #b2a1ea 34%, transparent) 0 18%, transparent 44%),
-    linear-gradient(135deg, color-mix(in srgb, #f18200 13%, var(--white)) 0%, var(--white) 38%, color-mix(in srgb, #d1e231 18%, var(--white)) 100%);
+  border: 1px solid color-mix(in srgb, var(--black) 12%, transparent);
+  border-radius: clamp(22px, 3vw, 38px);
+  padding: clamp(1.15rem, 3vw, 2.4rem);
+  background: transparent;
 }
 
 #showcase #jestei-frame-добавили-цвет > .case-chapter__header::before,
 #showcase .jestei-chapter-section--color > .case-chapter__header::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: -24%;
-  background:
-    linear-gradient(110deg, transparent 0 16%, color-mix(in srgb, #f18200 32%, transparent) 24%, transparent 36% 48%, color-mix(in srgb, #157aff 24%, transparent) 58%, transparent 70% 100%),
-    linear-gradient(24deg, transparent 0 42%, color-mix(in srgb, #d1e231 30%, transparent) 52%, transparent 64% 100%);
-  filter: blur(22px);
-  opacity: 0.86;
-  transform: rotate(-7deg);
+  content: none;
 }
 
 #showcase #jestei-frame-добавили-цвет > .case-chapter__header :where(.jestei-chapter-hero__subtitle, .media-gallery, .media-banner) {
@@ -137,7 +124,7 @@
 @media (max-width: 560px) {
   #showcase #jestei-frame-добавили-цвет > .case-chapter__header,
   #showcase .jestei-chapter-section--color > .case-chapter__header {
-    padding: clamp(24px, 7vw, 40px);
+    padding: clamp(1rem, 5vw, 1.5rem);
     border-radius: clamp(22px, 7vw, 36px);
   }
 
