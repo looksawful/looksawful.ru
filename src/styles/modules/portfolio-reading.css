@@ -470,3 +470,127 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+#showcase .case-chapter__body :where(.block__header > .title, .section-head > .title, .text-block > .title, .block > h3, .block > h4, .block > h5):not(:where(
+  .case-chapter__header *,
+  .case__header *,
+  .project__header *,
+  .jestei-responsibilities-header *,
+  .project-responsibilities *,
+  .responsibility-card *,
+  .jestei-policy-marquee *,
+  .policy-book *,
+  [data-policy-book] *,
+  .artifact-reader *,
+  [data-artifact-reader] *,
+  .playlist-filter-embed *,
+  [data-playlist-filter] *,
+  [data-visual-demo] *,
+  .jestei-action-rail *
+)) {
+  letter-spacing: 0;
+}
+
+#showcase .case-chapter__body :where(.block__header > p, .section-head > p, .text-block > p):not(:where(
+  .case-chapter__header *,
+  .case__header *,
+  .project__header *,
+  .jestei-responsibilities-header *,
+  .project-responsibilities *,
+  .responsibility-card *,
+  .jestei-policy-marquee *,
+  .policy-book *,
+  [data-policy-book] *,
+  .artifact-reader *,
+  [data-artifact-reader] *,
+  .playlist-filter-embed *,
+  [data-playlist-filter] *,
+  [data-visual-demo] *,
+  .jestei-action-rail *
+)) {
+  color: color-mix(in srgb, var(--black) 68%, transparent);
+  font-size: 1.25rem;
+  line-height: 1.42;
+  letter-spacing: 0;
+}
+
+#showcase .case-chapter__body :where(p, li):not(:where(
+  .case-chapter__header *,
+  .case__header *,
+  .project__header *,
+  .jestei-responsibilities-header *,
+  .project-responsibilities *,
+  .responsibility-card *,
+  .jestei-policy-marquee *,
+  .policy-book *,
+  [data-policy-book] *,
+  .artifact-reader *,
+  [data-artifact-reader] *,
+  .playlist-filter-embed *,
+  [data-playlist-filter] *,
+  [data-visual-demo] *,
+  .jestei-action-rail *,
+  .token-list *,
+  .token-group *,
+  .token-pill *,
+  .chips *,
+  .chip *,
+  .media-group *,
+  .media-item *
+)) {
+  color: color-mix(in srgb, var(--black) 72%, transparent);
+  font-size: 1.0625rem;
+  line-height: 1.64;
+  letter-spacing: 0;
+}
+
+@media (max-width: 760px) {
+  #showcase .case-chapter__body :where(.block__header > p, .section-head > p, .text-block > p):not(:where(
+    .case-chapter__header *,
+    .case__header *,
+    .project__header *,
+    .jestei-responsibilities-header *,
+    .project-responsibilities *,
+    .responsibility-card *,
+    .jestei-policy-marquee *,
+    .policy-book *,
+    [data-policy-book] *,
+    .artifact-reader *,
+    [data-artifact-reader] *,
+    .playlist-filter-embed *,
+    [data-playlist-filter] *,
+    [data-visual-demo] *,
+    .jestei-action-rail *
+  )) {
+    font-size: 1.0625rem;
+    line-height: 1.48;
+  }
+
+  #showcase .case-chapter__body :where(p, li):not(:where(
+    .case-chapter__header *,
+    .case__header *,
+    .project__header *,
+    .jestei-responsibilities-header *,
+    .project-responsibilities *,
+    .responsibility-card *,
+    .jestei-policy-marquee *,
+    .policy-book *,
+    [data-policy-book] *,
+    .artifact-reader *,
+    [data-artifact-reader] *,
+    .playlist-filter-embed *,
+    [data-playlist-filter] *,
+    [data-visual-demo] *,
+    .jestei-action-rail *,
+    .token-list *,
+    .token-group *,
+    .token-pill *,
+    .chips *,
+    .chip *,
+    .media-group *,
+    .media-item *
+  )) {
+    font-size: 1rem;
+    line-height: 1.58;
+  }
+}

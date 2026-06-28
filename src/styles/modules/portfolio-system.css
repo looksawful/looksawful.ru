@@ -409,3 +409,94 @@ html {
     grid-template-columns: 1fr;
   }
 }
+
+#showcase .project-responsibilities {
+  align-items: start;
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+#showcase .responsibility-card {
+  gap: 1rem;
+  padding-block-start: 0.95rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--black) 18%, transparent);
+}
+
+#showcase .responsibility-card__title {
+  max-inline-size: 24rem;
+  margin: 0;
+  color: var(--black);
+  font-size: 1.125rem;
+  font-weight: 750;
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+#showcase .responsibility-card__list {
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#showcase .responsibility-card__item {
+  gap: 0.38rem;
+  min-inline-size: 0;
+  padding-block-start: 0.72rem;
+  border-block-start: 1px solid color-mix(in srgb, var(--black) 10%, transparent);
+}
+
+#showcase .responsibility-card__item-title {
+  color: var(--black);
+  font-size: 0.96875rem;
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+#showcase .responsibility-card__item-text {
+  max-inline-size: 34rem;
+  color: color-mix(in srgb, var(--black) 64%, transparent);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+
+@media (max-width: 48rem) {
+  #showcase .project-responsibilities {
+    gap: 1rem;
+    padding-block-end: 0.25rem;
+    scroll-padding-inline: clamp(28px, 8vw, 48px);
+  }
+
+  #showcase .responsibility-card {
+    flex-basis: min(21.5rem, 88vw);
+    gap: 0.9rem;
+    padding-block-start: 0.85rem;
+  }
+
+  #showcase .responsibility-card__title {
+    font-size: 1.0625rem;
+    line-height: 1.14;
+  }
+
+  #showcase .responsibility-card__list {
+    gap: 0.7rem;
+  }
+
+  #showcase .responsibility-card__item {
+    padding-block-start: 0.65rem;
+  }
+
+  #showcase .responsibility-card__item-title {
+    font-size: 0.9375rem;
+    line-height: 1.24;
+  }
+
+  #showcase .responsibility-card__item-text {
+    font-size: 0.90625rem;
+    line-height: 1.48;
+  }
+}

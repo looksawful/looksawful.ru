@@ -250,3 +250,222 @@
     padding-block-start: 1rem;
   }
 }
+
+#showcase .case-chapter__body :where(.reading-sections, .text-sections):not(:where(
+  .case-chapter__header *,
+  .case__header *,
+  .project__header *,
+  .jestei-responsibilities-header *,
+  .project-responsibilities *,
+  .responsibility-card *,
+  .jestei-policy-marquee *,
+  .policy-book *,
+  [data-policy-book] *,
+  .artifact-reader *,
+  [data-artifact-reader] *,
+  .playlist-filter-embed *,
+  [data-playlist-filter] *,
+  [data-visual-demo] *,
+  .jestei-action-rail *,
+  .chips *,
+  .token-list *
+)) {
+  gap: clamp(1rem, 1.8vw, 1.6rem);
+  inline-size: min(100%, 66rem);
+  max-inline-size: min(100%, 66rem);
+}
+
+#showcase .case-chapter__body :where(.reading-entry, .text-section, .list-card):not(:where(
+  .case-chapter__header *,
+  .case__header *,
+  .project__header *,
+  .jestei-responsibilities-header *,
+  .project-responsibilities *,
+  .responsibility-card *,
+  .jestei-policy-marquee *,
+  .policy-book *,
+  [data-policy-book] *,
+  .artifact-reader *,
+  [data-artifact-reader] *,
+  .playlist-filter-embed *,
+  [data-playlist-filter] *,
+  [data-visual-demo] *,
+  .jestei-action-rail *,
+  .chips *,
+  .token-list *
+)) {
+  gap: clamp(0.75rem, 1.2vw, 1.05rem);
+  padding-block: 1.1rem 0.15rem;
+  border-block-start-color: color-mix(in srgb, var(--black) 16%, transparent);
+}
+
+#showcase .case-chapter__body :where(.reading-entry__title, .text-section__title, .list-card__title):not(:where(
+  .case-chapter__header *,
+  .case__header *,
+  .project__header *,
+  .jestei-responsibilities-header *,
+  .project-responsibilities *,
+  .responsibility-card *,
+  .jestei-policy-marquee *,
+  .policy-book *,
+  [data-policy-book] *,
+  .artifact-reader *,
+  [data-artifact-reader] *,
+  .playlist-filter-embed *,
+  [data-playlist-filter] *,
+  [data-visual-demo] *,
+  .jestei-action-rail *
+)) {
+  max-inline-size: 28ch;
+  color: var(--black);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: 0;
+}
+
+#showcase .case-chapter__body :where(.reading-entry p, .reading-entry li, .text-section p, .text-section li, .list-card p, .list-card li):not(:where(
+  .case-chapter__header *,
+  .case__header *,
+  .project__header *,
+  .jestei-responsibilities-header *,
+  .project-responsibilities *,
+  .responsibility-card *,
+  .jestei-policy-marquee *,
+  .policy-book *,
+  [data-policy-book] *,
+  .artifact-reader *,
+  [data-artifact-reader] *,
+  .playlist-filter-embed *,
+  [data-playlist-filter] *,
+  [data-visual-demo] *,
+  .jestei-action-rail *,
+  .token-list *,
+  .chips *
+)) {
+  color: color-mix(in srgb, var(--black) 74%, transparent);
+  font-size: 1.0625rem;
+  line-height: 1.58;
+  letter-spacing: 0;
+}
+
+#showcase .case-chapter__body :where(.reading-entry p + p, .text-section p + p, .list-card p + p) {
+  margin-block-start: 0.35rem;
+}
+
+@media (min-width: 980px) {
+  #showcase .case-chapter__body :where(.reading-entry, .text-section, .list-card):not(:where(
+    .case-chapter__header *,
+    .case__header *,
+    .project__header *,
+    .jestei-responsibilities-header *,
+    .project-responsibilities *,
+    .responsibility-card *,
+    .jestei-policy-marquee *,
+    .policy-book *,
+    [data-policy-book] *,
+    .artifact-reader *,
+    [data-artifact-reader] *,
+    .playlist-filter-embed *,
+    [data-playlist-filter] *,
+    [data-visual-demo] *,
+    .jestei-action-rail *,
+    .chips *,
+    .token-list *
+  )) {
+    grid-template-columns: minmax(10.5rem, 0.34fr) minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 3vw, 3.25rem);
+  }
+}
+
+@media (max-width: 760px) {
+  #showcase .case-chapter__body :where(.reading-sections, .text-sections):not(:where(
+    .case-chapter__header *,
+    .case__header *,
+    .project__header *,
+    .jestei-responsibilities-header *,
+    .project-responsibilities *,
+    .responsibility-card *,
+    .jestei-policy-marquee *,
+    .policy-book *,
+    [data-policy-book] *,
+    .artifact-reader *,
+    [data-artifact-reader] *,
+    .playlist-filter-embed *,
+    [data-playlist-filter] *,
+    [data-visual-demo] *,
+    .jestei-action-rail *,
+    .chips *,
+    .token-list *
+  )) {
+    gap: 1.15rem;
+  }
+
+  #showcase .case-chapter__body :where(.reading-entry, .text-section, .list-card):not(:where(
+    .case-chapter__header *,
+    .case__header *,
+    .project__header *,
+    .jestei-responsibilities-header *,
+    .project-responsibilities *,
+    .responsibility-card *,
+    .jestei-policy-marquee *,
+    .policy-book *,
+    [data-policy-book] *,
+    .artifact-reader *,
+    [data-artifact-reader] *,
+    .playlist-filter-embed *,
+    [data-playlist-filter] *,
+    [data-visual-demo] *,
+    .jestei-action-rail *,
+    .chips *,
+    .token-list *
+  )) {
+    gap: 0.7rem;
+    padding-block-start: 1rem;
+  }
+
+  #showcase .case-chapter__body :where(.reading-entry__title, .text-section__title, .list-card__title):not(:where(
+    .case-chapter__header *,
+    .case__header *,
+    .project__header *,
+    .jestei-responsibilities-header *,
+    .project-responsibilities *,
+    .responsibility-card *,
+    .jestei-policy-marquee *,
+    .policy-book *,
+    [data-policy-book] *,
+    .artifact-reader *,
+    [data-artifact-reader] *,
+    .playlist-filter-embed *,
+    [data-playlist-filter] *,
+    [data-visual-demo] *,
+    .jestei-action-rail *
+  )) {
+    max-inline-size: 100%;
+    font-size: 1.0625rem;
+    line-height: 1.18;
+  }
+
+  #showcase .case-chapter__body :where(.reading-entry p, .reading-entry li, .text-section p, .text-section li, .list-card p, .list-card li):not(:where(
+    .case-chapter__header *,
+    .case__header *,
+    .project__header *,
+    .jestei-responsibilities-header *,
+    .project-responsibilities *,
+    .responsibility-card *,
+    .jestei-policy-marquee *,
+    .policy-book *,
+    [data-policy-book] *,
+    .artifact-reader *,
+    [data-artifact-reader] *,
+    .playlist-filter-embed *,
+    [data-playlist-filter] *,
+    [data-visual-demo] *,
+    .jestei-action-rail *,
+    .token-list *,
+    .chips *
+  )) {
+    font-size: 1rem;
+    line-height: 1.56;
+  }
+}
