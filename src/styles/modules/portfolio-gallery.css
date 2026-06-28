@@ -59,6 +59,23 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+#showcase .case-chapter__body .media-group--chapter-intro {
+  --media-outer: min(100%, 70rem);
+  margin-block: clamp(18px, 3vw, 40px);
+}
+
+#showcase .case-chapter__body .media-group--chapter-intro[data-media-group="grid"] {
+  --media-min: min(100%, 13.5rem);
+}
+
+#showcase .case-chapter__body .media-group--chapter-intro[data-media-group="single"] {
+  --media-outer: min(100%, 58rem);
+}
+
+#showcase .case-chapter__body .media-group--chapter-intro[data-media-group="single"] > .media-item :where(img, video) {
+  block-size: min(58vh, clamp(18rem, 40vw, 34rem));
+}
+
 #showcase .case-chapter__body .content-section--text-media .media-group[data-media-group="single"],
 #showcase .case-chapter__body .content-section--text-media .media-group[data-media-count="1"],
 #showcase .case-chapter__body .content-section--text-media .media-group--single {
@@ -415,6 +432,97 @@
   object-fit: contain;
 }
 
+#showcase .case-chapter__body .media-group[data-media-group="single"] > .media-item :where(img, video),
+#showcase .case-chapter__body .media-group[data-media-count="1"] > .media-item :where(img, video),
+#showcase .case-chapter__body .media-group--single > .media-item :where(img, video) {
+  block-size: auto;
+  max-block-size: clamp(24rem, 48vw, 36rem);
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+#showcase .case-chapter__body .media-group[data-media-group="grid"] {
+  --media-min: min(100%, 12.5rem);
+}
+
+#showcase .case-chapter__body .media-group--grid.media-group--square .media-item :where(img, video),
+#showcase .case-chapter__body .media-group--quad.media-group--square .media-item :where(img, video),
+#showcase .case-chapter__body .media-group--pair.media-group--square .media-item :where(img, video) {
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+#showcase .case-chapter__body :where(.media-banner, .media-figure, .media-two, .media-three, .media-quad, .media-six, .media-eight, .media-gallery--tiles) {
+  display: grid;
+  gap: clamp(10px, 1.5vw, 20px);
+  inline-size: min(100%, 76rem);
+  margin-block: clamp(24px, 4vw, 56px);
+  margin-inline: auto;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+#showcase .case-chapter__body .media-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#showcase .case-chapter__body .media-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#showcase .case-chapter__body .media-quad {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+#showcase .case-chapter__body :where(.media-six, .media-eight, .media-gallery--tiles:not(.media-two):not(.media-three):not(.media-quad)) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+}
+
+#showcase .case-chapter__body :where(.media-banner, .media-figure) {
+  grid-template-columns: minmax(0, 1fr);
+  inline-size: min(100%, 64rem);
+}
+
+#showcase .case-chapter__body :where(.media-banner, .media-figure, .media-two, .media-three, .media-quad, .media-six, .media-eight, .media-gallery--tiles) > .media-item,
+#showcase .case-chapter__body :where(.media-banner, .media-figure, .media-two, .media-three, .media-quad, .media-six, .media-eight, .media-gallery--tiles) > a,
+#showcase .case-chapter__body :where(.media-banner, .media-figure, .media-two, .media-three, .media-quad, .media-six, .media-eight, .media-gallery--tiles) > div[aria-hidden="true"] {
+  display: block;
+  min-inline-size: 0;
+  overflow: hidden;
+  border-radius: var(--r);
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
+}
+
+#showcase .case-chapter__body :where(.media-banner, .media-figure) > :where(.media-item, a) :where(img, video),
+#showcase .case-chapter__body :where(.media-banner, .media-figure) > :where(img, video) {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: var(--r);
+}
+
+#showcase .case-chapter__body :where(.media-two, .media-three, .media-quad, .media-six, .media-eight, .media-gallery--tiles) > :where(.media-item, a, div) :where(img, video),
+#showcase .case-chapter__body :where(.media-two, .media-three, .media-quad, .media-six, .media-eight, .media-gallery--tiles) > :where(img, video) {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--r);
+}
+
+#showcase .case-chapter__body .media-group--single > .media-item[data-orientation="portrait"] :where(img, video),
+#showcase .case-chapter__body .media-group[data-media-group="single"] > .media-item[data-orientation="portrait"] :where(img, video),
+#showcase .case-chapter__body .media-group[data-media-count="1"] > .media-item[data-orientation="portrait"] :where(img, video) {
+  inline-size: min(100%, 30rem);
+  aspect-ratio: 4 / 5;
+}
+
 #showcase :where(.media-marquee, .media-marquee__track, .media-slider, .random-gallery) {
   overflow: visible;
   animation: none;
@@ -533,6 +641,16 @@
   }
 }
 
+@media (max-width: 900px) {
+  #showcase .case-chapter__body .media-three,
+  #showcase .case-chapter__body .media-quad,
+  #showcase .case-chapter__body .media-six,
+  #showcase .case-chapter__body .media-eight,
+  #showcase .case-chapter__body .media-gallery--tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 760px) {
   #showcase .case-chapter__body .media-group,
   #showcase .case-chapter__body .media-group[data-media-count],
@@ -573,10 +691,20 @@
   #showcase .case-chapter__body .media-group[data-media-count="1"] > .media-item :where(img, video),
   #showcase .case-chapter__body .media-group--single > .media-item :where(img, video) {
     block-size: min(50vh, 24rem);
+    max-block-size: 24rem;
   }
 
   #showcase .case-chapter__body .media-group.is-viewer .media-group__track > .media-item :where(img, video) {
     max-block-size: 66vh;
+  }
+
+  #showcase .case-chapter__body .media-two,
+  #showcase .case-chapter__body .media-three,
+  #showcase .case-chapter__body .media-quad,
+  #showcase .case-chapter__body .media-six,
+  #showcase .case-chapter__body .media-eight,
+  #showcase .case-chapter__body .media-gallery--tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .lightbox {
