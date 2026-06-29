@@ -20,6 +20,7 @@ _reports/
 _rollback-audit/
 
 # local-only working areas and drafts
+.vercel/
 _local/
 temp/
 tmp/
