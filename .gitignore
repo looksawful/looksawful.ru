@@ -101,3 +101,5 @@ public/assets/media/cases/jesteipool/**/placeholders/
 *.zip
 *.rar
 
+
+.vercel
