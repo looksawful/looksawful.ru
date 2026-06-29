@@ -26,7 +26,15 @@
 }
 
 #showcase .case-chapter__body > :where(.case-chapter-panel, .project-chapter, .block, .content-section, .text-sections, .media-group) {
+  display: grid;
+  inline-size: 100%;
   min-inline-size: 0;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+#showcase .case-chapter__body > .case-chapter-panel {
+  gap: var(--gap-lg);
 }
 
 #showcase .case__header > .project-skill-cloud {

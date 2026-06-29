@@ -48,6 +48,10 @@
   --pet-cover: url("/assets/media/pets/awful-audit.png");
 }
 
+.pet-project-card__cover--awful-describer {
+  --pet-cover: url("/assets/media/pets/awful-describer.png");
+}
+
 .pet-project-card__cover--generated {
   background:
     linear-gradient(135deg, rgba(0, 0, 0, 0.08), transparent 45%),

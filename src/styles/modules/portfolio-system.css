@@ -1,7 +1,7 @@
 :root {
   --portfolio-anchor-offset: clamp(92px, 11vh, 148px);
   --portfolio-content: min(100% - clamp(40px, 9vw, 160px), 1280px);
-  --portfolio-text: min(100%, 48rem);
+  --portfolio-text: min(100%, 64rem);
   --portfolio-wide: min(100%, 80rem);
 }
 
@@ -26,7 +26,7 @@ html {
 }
 
 .portfolio-lead p {
-  max-width: 58rem;
+  max-width: 66rem;
   margin: 0;
   color: var(--black);
   font-size: clamp(1.18rem, 1.9vw, 2rem);
@@ -38,15 +38,14 @@ html {
 .portfolio-lead__facts,
 #showcase .project-facts {
   display: grid;
-  gap: 0.85rem;
+  gap: clamp(0.75rem, 1.4vw, 1.1rem);
   min-width: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.portfolio-lead__facts li,
-#showcase .project-facts li {
+.portfolio-lead__facts li {
   display: grid;
   gap: 0.28rem;
   min-width: 0;
@@ -54,21 +53,52 @@ html {
   border-block-start: 1px solid color-mix(in srgb, var(--black) 10%, transparent);
 }
 
+#showcase .project-facts li {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: clamp(0.55rem, 1vw, 0.9rem);
+  align-content: start;
+  min-width: 0;
+  min-block-size: clamp(8rem, 12vw, 11.5rem);
+  padding: clamp(1rem, 1.8vw, 1.45rem);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--black) 13%, transparent);
+  border-radius: clamp(18px, 2.2vw, 30px);
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+}
+
+#showcase .project-facts li::before {
+  content: "";
+  inline-size: clamp(2rem, 4vw, 4.8rem);
+  block-size: 0.18rem;
+  align-self: start;
+  border-radius: 999px;
+  background: currentcolor;
+  opacity: 0.22;
+}
+
 .portfolio-lead__facts strong,
 #showcase .project-facts strong {
   color: var(--black);
-  font-size: clamp(1.35rem, 2.3vw, 2.35rem);
-  font-weight: 800;
-  line-height: 0.95;
+  font-size: clamp(2rem, 3.65vw, 4.6rem);
+  font-weight: 850;
+  line-height: 0.88;
   letter-spacing: 0;
+  max-inline-size: 100%;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  text-wrap: balance;
 }
 
 .portfolio-lead__facts span,
 #showcase .project-facts span {
   color: color-mix(in srgb, var(--black) 62%, transparent);
-  font-size: 0.9375rem;
-  line-height: 1.34;
+  font-size: clamp(0.875rem, 0.98vw, 1rem);
+  line-height: 1.42;
   letter-spacing: 0;
+  text-wrap: pretty;
 }
 
 #showcase,
@@ -125,7 +155,7 @@ html {
 
 .project__header {
   padding: clamp(1rem, 2.4vw, 1.8rem);
-  border: 1px solid color-mix(in srgb, var(--black) 12%, transparent);
+  border: 0;
   border-radius: clamp(22px, 3vw, 38px);
 }
 
@@ -134,6 +164,13 @@ html {
   grid-template-columns: minmax(8rem, 16rem) minmax(0, 1fr) auto;
   gap: var(--gap);
   align-items: end;
+}
+
+.project__head > div {
+  display: grid;
+  gap: 1rem;
+  align-content: end;
+  min-width: 0;
 }
 
 .project__logo {
@@ -154,19 +191,37 @@ html {
 
 #showcase .case-chapter__body .project-facts--chapter {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  width: min(100%, 76rem);
+  width: 100%;
   margin-block: clamp(1rem, 2.6vw, 1.75rem);
-  margin-inline: 0 auto;
+  margin-inline: 0;
+}
+
+#showcase .jestei-chapter-hero > .project-facts--hero,
+#showcase .case-chapter-hero > .project-facts--hero {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  justify-self: stretch;
+  width: 100%;
+  margin-block: clamp(0.35rem, 1vw, 0.8rem) 0;
+}
+
+#showcase .case-chapter__body :where(.block__header, .section-head) > .project-facts--chapter {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  max-width: 100%;
+}
+
+#showcase .jestei-chapter-hero > .project-facts--hero strong,
+#showcase .case-chapter-hero > .project-facts--hero strong {
+  font-size: clamp(2.15rem, 3.9vw, 5rem);
 }
 
 #showcase .case-chapter__body .project-facts--chapter strong {
-  font-size: clamp(1.2rem, 1.75vw, 1.8rem);
+  font-size: clamp(1.8rem, 3vw, 3.9rem);
 }
 
 #showcase .case-chapter__body .project-facts--chapter span {
-  max-width: 18rem;
-  font-size: 0.875rem;
-  line-height: 1.4;
+  max-width: none;
+  font-size: clamp(0.86rem, 0.94vw, 0.98rem);
+  line-height: 1.44;
 }
 
 .jestei-responsibilities-header,
@@ -178,6 +233,11 @@ html {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gap);
+}
+
+.project-responsibilities--single {
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(0.9rem, 1.8vw, 1.35rem);
 }
 
 .responsibility-card,
@@ -230,19 +290,31 @@ html {
   min-width: 0;
   padding: clamp(1.15rem, 3vw, 2.4rem);
   overflow: visible;
-  border: 1px solid color-mix(in srgb, var(--black) 12%, transparent);
+  border: 0;
   border-radius: clamp(22px, 3vw, 38px);
   background: transparent;
 }
 
 .jestei-chapter-hero__title,
 .case-chapter-hero__title {
+  display: flex;
+  flex-wrap: nowrap;
+  column-gap: 0.24em;
+  row-gap: 0.08em;
   justify-self: start;
   width: 100%;
   max-width: none;
   text-align: left;
+  line-height: 0.98;
+  letter-spacing: 0;
   text-wrap: normal;
   overflow-wrap: normal;
+  word-break: normal;
+}
+
+.jestei-chapter-hero__title > *,
+.case-chapter-hero__title > * {
+  white-space: nowrap;
 }
 
 .jestei-chapter-hero__subtitle,
@@ -272,36 +344,44 @@ html {
   padding-inline: 0;
 }
 
+#showcase .case-chapter__body > :where(section, article, div) {
+  padding-inline: 0;
+}
+
 #showcase .case-chapter__body :where(.text-block > .title--lg, .text-block > h3, .text-block > h4, .text-block > h5, .text-block > h6) {
   justify-self: start;
   width: 100%;
-  max-width: min(100%, 52rem);
+  max-width: 100%;
   text-align: left;
+  text-wrap: normal;
+  overflow-wrap: normal;
 }
 
 #showcase .case-chapter-hero__media--scanography-videos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(10px, 1.6vw, 18px);
-  justify-self: center;
-  width: min(100%, 44rem);
-  max-width: 44rem;
+  justify-self: stretch;
+  width: 100%;
+  max-width: none;
   margin-inline: auto;
 }
 
 #showcase .case-chapter-hero__media--scanography-videos > :where(.media-item, a) {
-  display: block;
+  display: grid;
+  place-items: center;
   min-width: 0;
   overflow: hidden;
+  aspect-ratio: 1;
   border-radius: var(--r);
 }
 
 #showcase .case-chapter-hero__media--scanography-videos :where(video, img) {
   display: block;
   width: 100%;
-  block-size: clamp(18rem, 34vw, 30rem);
-  aspect-ratio: 9 / 16;
-  object-fit: cover;
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
   border-radius: var(--r);
 }
 
@@ -316,7 +396,7 @@ html {
 .block__header,
 .section-head,
 .text-block {
-  width: var(--portfolio-text);
+  width: 100%;
   max-width: 100%;
   justify-self: start;
 }
@@ -325,7 +405,7 @@ html {
 .section-head > p,
 .text-block > p,
 .text-section > p {
-  max-width: var(--text);
+  max-width: min(100%, 66rem);
 }
 
 .text-sections {
@@ -343,6 +423,56 @@ html {
 
 .text-section > p {
   margin: 0;
+}
+
+.jestei-logo-palette {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(0.5rem, 1.2vw, 0.9rem);
+  align-items: center;
+  width: min(100%, 28rem);
+  margin-block: 0.2rem 0.4rem;
+}
+
+.jestei-logo-palette__mark {
+  display: block;
+  aspect-ratio: 1;
+  inline-size: 100%;
+  min-inline-size: 2.4rem;
+  background: var(--jestei-logo-color, var(--black));
+  mask: url("/assets/jestei/branding/jestei-logo-mark.svg") center / contain no-repeat;
+}
+
+.jestei-logo-palette__mark--orange {
+  --jestei-logo-color: #f18200;
+}
+
+.jestei-logo-palette__mark--black {
+  --jestei-logo-color: #151718;
+}
+
+.jestei-logo-palette__mark--biloba {
+  --jestei-logo-color: #b2a1ea;
+}
+
+.jestei-logo-palette__mark--blue {
+  --jestei-logo-color: #157aff;
+}
+
+.jestei-logo-palette__mark--pear {
+  --jestei-logo-color: #d1e231;
+}
+
+.jestei-wordmark-sample {
+  display: block;
+  width: min(100%, 34rem);
+  margin: 0.15rem 0 0.45rem;
+}
+
+.jestei-wordmark-sample img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .jestei-action-rail {
@@ -482,7 +612,7 @@ html {
   font-weight: 700;
 }
 
-@media (min-width: 88rem) {
+@media (min-width: 100rem) {
   .section__screen--showcase {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1280px) minmax(10rem, 1fr);
     column-gap: clamp(2rem, 3.8vw, 4.5rem);
@@ -518,7 +648,7 @@ html {
   }
 }
 
-@media (max-width: 87.999rem) {
+@media (max-width: 99.999rem) {
   .portfolio-toc {
     position: static;
     top: auto;
@@ -613,7 +743,9 @@ html {
 
   .jestei-chapter-hero__title,
   .case-chapter-hero__title {
+    flex-wrap: wrap;
     justify-self: center;
+    justify-content: center;
     text-align: center;
     text-wrap: balance;
     overflow-wrap: normal;
@@ -628,12 +760,12 @@ html {
   }
 
   #showcase .case-chapter-hero__media--scanography-videos {
-    width: min(100%, 28rem);
+    width: 100%;
     gap: clamp(8px, 2.8vw, 12px);
   }
 
   #showcase .case-chapter-hero__media--scanography-videos :where(video, img) {
-    block-size: min(54vh, 22rem);
+    height: 100%;
   }
 
   .jestei-chapter-hero__subtitle,
@@ -708,6 +840,34 @@ html {
   text-wrap: pretty;
 }
 
+#showcase .responsibility-card--paragraph {
+  gap: 0.85rem;
+}
+
+#showcase .responsibility-card__paragraph {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  color: color-mix(in srgb, var(--black) 68%, transparent);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+
+#showcase .responsibility-card__sentence {
+  display: block;
+  min-inline-size: 0;
+}
+
+#showcase .responsibility-card__paragraph .responsibility-card__item-title {
+  margin-inline-end: 0.28rem;
+}
+
+#showcase .responsibility-card__paragraph .responsibility-card__item-text {
+  color: inherit;
+}
+
 @media (max-width: 48rem) {
   .portfolio-lead {
     grid-template-columns: minmax(0, 1fr);
@@ -727,13 +887,13 @@ html {
   }
 
   #showcase .case-chapter__body .project-facts--chapter {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-inline: auto;
+    grid-template-columns: minmax(0, 1fr);
+    margin-inline: 0;
   }
 
   .portfolio-lead__facts strong,
   #showcase .project-facts strong {
-    font-size: clamp(1.25rem, 7vw, 1.8rem);
+    font-size: clamp(1.85rem, 10vw, 3.15rem);
   }
 
   #showcase .project-responsibilities {

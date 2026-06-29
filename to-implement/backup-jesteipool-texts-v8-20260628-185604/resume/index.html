@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>резюме — иван крушинский</title>
+    <meta
+      content="артдиректор цифровых продуктов, senior product/interface designer, design systems, бренд и frontend-прототипирование"
+      name="description"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-width: 320px;
+        background: #f7f7f4;
+        color: #111;
+        font-family: Inter, Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        text-size-adjust: 100%;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+      }
+
+      a {
+        color: inherit;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 0.18em;
+      }
+
+      p,
+      h1,
+      h2,
+      h3,
+      ul {
+        margin: 0;
+      }
+
+      ul {
+        padding: 0;
+        list-style: none;
+      }
+
+      .page {
+        width: min(100% - 32px, 920px);
+        margin: 0 auto;
+        padding: 18px 0 36px;
+      }
+
+      .nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+        color: #555;
+        font-size: 12px;
+        line-height: 1.2;
+      }
+
+      .sheet {
+        min-height: min(1120px, calc(100svh - 74px));
+        padding: clamp(28px, 5vw, 54px);
+        background: #fff;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 92px;
+        gap: 28px;
+        align-items: start;
+        padding-bottom: 22px;
+        border-bottom: 1px solid #d8d8d2;
+      }
+
+      h1 {
+        max-width: 34rem;
+        font-size: clamp(25px, 3.4vw, 34px);
+        font-weight: 700;
+        line-height: 1.04;
+        letter-spacing: 0;
+      }
+
+      .role {
+        max-width: 34rem;
+        margin-top: 9px;
+        color: #333;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 14px;
+        margin-top: 16px;
+        color: #555;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .face {
+        width: 92px;
+        height: 92px;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
+        gap: clamp(28px, 5vw, 56px);
+        padding-top: 24px;
+      }
+
+      .column {
+        display: grid;
+        gap: 22px;
+        align-content: start;
+      }
+
+      section {
+        display: grid;
+        gap: 9px;
+      }
+
+      h2 {
+        color: #111;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h3 {
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.25;
+      }
+
+      p,
+      li {
+        color: #333;
+        font-size: 13px;
+        line-height: 1.48;
+      }
+
+      .item {
+        display: grid;
+        gap: 4px;
+        padding-top: 10px;
+        border-top: 1px solid #e3e3dd;
+      }
+
+      .item:first-of-type {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      .small {
+        color: #666;
+        font-size: 12px;
+        line-height: 1.38;
+      }
+
+      .list {
+        display: grid;
+        gap: 5px;
+      }
+
+      .list li {
+        padding-left: 12px;
+        text-indent: -12px;
+      }
+
+      .list li::before {
+        content: "- ";
+      }
+
+      .skills-grid {
+        display: grid;
+        gap: 8px;
+      }
+
+      .skills-grid p {
+        color: #333;
+      }
+
+      .skills-grid strong {
+        color: #111;
+        font-weight: 700;
+      }
+
+      @media (max-width: 760px) {
+        .page {
+          width: min(100% - 24px, 920px);
+          padding-top: 12px;
+        }
+
+        .sheet {
+          min-height: 0;
+          padding: 24px;
+        }
+
+        .header,
+        .content {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .face {
+          grid-row: 1;
+          width: 72px;
+          height: 72px;
+        }
+      }
+
+      @media print {
+        html,
+        body {
+          background: #fff;
+        }
+
+        .page {
+          width: 100%;
+          padding: 0;
+        }
+
+        .nav {
+          display: none;
+        }
+
+        .sheet {
+          min-height: 0;
+          padding: 0;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <nav class="nav" aria-label="навигация резюме">
+        <a href="/">looksawful.ru</a>
+        <a href="mailto:i@lookawful.ru">i@lookawful.ru</a>
+      </nav>
+
+      <article class="sheet" aria-label="резюме ивана крушинского">
+        <header class="header">
+          <div>
+            <h1>Иван Крушинский</h1>
+            <p class="role">артдиректор цифровых продуктов / senior product & interface designer</p>
+            <p class="meta">
+              <span>Москва</span>
+              <a href="mailto:i@lookawful.ru">i@lookawful.ru</a>
+              <a href="https://github.com/looksawful" rel="noopener noreferrer">github.com/looksawful</a>
+              <a href="/">looksawful.ru</a>
+            </p>
+          </div>
+
+          <svg class="face" viewBox="0 0 96 96" role="img" aria-label="awfulface">
+            <rect width="96" height="96" fill="#111" />
+            <rect x="16" y="20" width="64" height="56" fill="#fff" />
+            <rect x="28" y="34" width="10" height="10" fill="#111" />
+            <rect x="58" y="34" width="10" height="10" fill="#111" />
+            <rect x="36" y="58" width="24" height="6" fill="#111" />
+          </svg>
+        </header>
+
+        <div class="content">
+          <div class="column">
+            <section>
+              <h2>профиль</h2>
+              <p>
+                Артдиректор цифровых продуктов с опытом senior product/interface designer, разработки, брендинга и системной подачи информации.
+              </p>
+            </section>
+
+            <section>
+              <h2>фокус</h2>
+              <ul class="list">
+                <li>интерфейсы и продуктовые сценарии;</li>
+                <li>дизайн-системы и визуальный язык;</li>
+                <li>артдирекшн, редакционная логика, коммуникации;</li>
+                <li>frontend-прототипирование, canvas/webgl, AI-процессы.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2>инструменты</h2>
+              <p>Figma, HTML, CSS, JavaScript, TypeScript, React, Vite, GSAP, Three.js, GitHub, AI-инструменты для дизайна и контента.</p>
+            </section>
+
+            <section>
+              <h2>навыки и стек</h2>
+              <div class="skills-grid">
+                <p><strong>дизайн:</strong> figma make, figma prototypes, figma devmode, figma components, figma variables, figma slides, figjam, material design, carbon, atomic design, создание и поддержка ui kit.</p>
+                <p><strong>графика и видео:</strong> adobe photoshop, adobe xd, adobe illustrator, adobe after effects, adobe substance 3d: designer, gimp, krita, imagemagick, ffmpeg, svgo, blender, topaz.</p>
+                <p><strong>ai-инструменты:</strong> comfyui, a1111, swarmui, ollama, z-image, midjourney, flux, google nano banana, kohya_ss, wan, i2v/i2i/t2i/t2v/t2t/v2v, supir, codex, github copilot, claude.</p>
+                <p><strong>frontend:</strong> html, css, javascript, typescript, git, react, next.js, python, canvas, webgl, glsl, gsap, three.js, r3f, tailwind, mermaid.</p>
+                <p><strong>исследования и процессы:</strong> cjm, глубинные интервью, юзабилити-тестирование, agile/scrum, accessibility (wcag 2.1), a/b-тестирование.</p>
+              </div>
+            </section>
+          </div>
+
+          <div class="column">
+            <section>
+              <h2>опыт</h2>
+              <div class="item">
+                <h3>Jestei Pool</h3>
+                <p class="small">артдирекшн, продуктовый дизайн, дизайн-система, бренд, редакционная политика</p>
+                <ul class="list">
+                  <li>пересобирал экосистему из 4 продуктов и 2 лендингов: навигацию, фильтры, тарифы, аудитории и промо-механики;</li>
+                  <li>руководил дизайнерами, редактором и копирайтером, участвовал в найме и развитии команды;</li>
+                  <li>вел ребрендинг, документацию, production-ready прототипы и контроль качества интерфейсов.</li>
+                </ul>
+              </div>
+              <div class="item">
+                <h3>Styx Jewels</h3>
+                <p class="small">графический дизайн, коммуникации, печатная продукция, фото и арты</p>
+                <ul class="list">
+                  <li>создавал визуалы для соцсетей, рекламных публикаций и бренд-коммуникаций;</li>
+                  <li>работал с печатными материалами, сертификатами, карточками и презентационной графикой.</li>
+                </ul>
+              </div>
+              <div class="item">
+                <h3>Пет-проекты</h3>
+                <p class="small">Berserk Timer, Awful Cases, Awful Audit, Awful Describer</p>
+                <ul class="list">
+                  <li>проектирую небольшие инструменты, где дизайн, код и документация собираются в один продуктовый прототип.</li>
+                </ul>
+              </div>
+            </section>
+          </div>
+        </div>
+      </article>
+    </main>
+  </body>
+</html>

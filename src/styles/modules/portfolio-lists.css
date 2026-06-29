@@ -1,6 +1,6 @@
 :root {
-  --list-width: min(100%, 56rem);
-  --list-wide: min(100%, 72rem);
+  --list-width: min(100%, 64rem);
+  --list-wide: 100%;
   --list-rule: rgba(0, 0, 0, 0.14);
   --list-muted: rgba(0, 0, 0, 0.58);
   --list-soft: rgba(0, 0, 0, 0.04);
@@ -28,9 +28,9 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(1.1rem, 2vw, 1.8rem);
-  inline-size: var(--list-width);
-  max-inline-size: var(--list-width);
-  margin-inline: auto;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  margin-inline: 0;
 }
 
 #showcase .case-chapter__body :where(.reading-entry, .text-section, .list-card):not(:where(
@@ -84,7 +84,7 @@
   line-height: 1.12;
   font-weight: 650;
   letter-spacing: -0.035em;
-  text-wrap: balance;
+  text-wrap: normal;
 }
 
 #showcase .case-chapter__body :where(.reading-entry p, .reading-entry li, .text-section p, .text-section li, .list-card p, .list-card li):not(:where(
@@ -220,13 +220,13 @@
 
 @media (min-width: 980px) {
   #showcase .case-chapter__body :where(.reading-sections, .text-sections) {
-    inline-size: min(100%, 64rem);
-    max-inline-size: min(100%, 64rem);
+    inline-size: 100%;
+    max-inline-size: 100%;
   }
 
   #showcase .case-chapter__body :where(.reading-entry, .text-section, .list-card) {
-    grid-template-columns: minmax(12rem, 0.42fr) minmax(0, 1fr);
-    column-gap: clamp(1.5rem, 3vw, 3.5rem);
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 0;
     align-items: start;
   }
 
@@ -235,7 +235,7 @@
   }
 
   #showcase .case-chapter__body :where(.reading-entry p, .reading-entry ul, .reading-entry ol, .text-section p, .text-section ul, .text-section ol, .list-card p, .list-card ul, .list-card ol) {
-    grid-column: 2;
+    grid-column: 1;
   }
 }
 
@@ -271,8 +271,9 @@
   .token-list *
 )) {
   gap: clamp(1rem, 1.8vw, 1.6rem);
-  inline-size: min(100%, 66rem);
-  max-inline-size: min(100%, 66rem);
+  inline-size: 100%;
+  max-inline-size: 100%;
+  margin-inline: 0;
 }
 
 #showcase .case-chapter__body :where(.reading-entry, .text-section, .list-card):not(:where(
@@ -316,7 +317,7 @@
   [data-visual-demo] *,
   .jestei-action-rail *
 )) {
-  max-inline-size: 28ch;
+  max-inline-size: 100%;
   color: var(--black);
   font-size: 1.1875rem;
   font-weight: 700;
@@ -373,8 +374,8 @@
     .chips *,
     .token-list *
   )) {
-    grid-template-columns: minmax(10.5rem, 0.34fr) minmax(0, 1fr);
-    column-gap: clamp(1.5rem, 3vw, 3.25rem);
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 0;
   }
 }
 

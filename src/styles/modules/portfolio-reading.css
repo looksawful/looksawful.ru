@@ -23,8 +23,8 @@
 }
 
 #showcase .case-chapter__body > :where(.project-chapter, .block, .content-section, .text-sections, .media-group) {
-  inline-size: min(100%, 76rem);
-  margin-inline: auto;
+  inline-size: 100%;
+  margin-inline: 0;
 }
 
 #showcase .case-chapter__body :where(.project-chapter, .block, .text-block, .content-section) {
@@ -50,8 +50,8 @@
   .media-group *,
   .media-item *
 )) {
-  inline-size: var(--reading-width);
-  max-inline-size: var(--reading-width);
+  inline-size: 100%;
+  max-inline-size: 100%;
   justify-self: start;
   gap: clamp(0.75rem, 1.6vw, 1.25rem);
 }
@@ -73,12 +73,12 @@
   [data-visual-demo] *,
   .jestei-action-rail *
 )) {
-  max-inline-size: min(100%, 18ch);
+  max-inline-size: 100%;
   margin: 0;
   font-size: var(--reading-heading);
   line-height: 0.98;
   letter-spacing: -0.045em;
-  text-wrap: balance;
+  text-wrap: normal;
 }
 
 #showcase .case-chapter__body :where(h6, .text-section__title):not(:where(
@@ -123,7 +123,7 @@
   [data-visual-demo] *,
   .jestei-action-rail *
 )) {
-  max-inline-size: var(--reading-width);
+  max-inline-size: min(100%, 66rem);
   margin: 0;
   color: var(--reading-muted);
   font-size: var(--reading-lead);
@@ -156,7 +156,7 @@
   .media-group *,
   .media-item *
 )) {
-  max-inline-size: var(--reading-width);
+  max-inline-size: min(100%, 66rem);
   font-size: var(--reading-body);
   line-height: var(--reading-line);
   letter-spacing: -0.006em;
@@ -266,8 +266,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
   gap: clamp(1.1rem, 2.4vw, 2rem);
-  inline-size: min(100%, 76rem);
-  margin-inline: auto;
+  inline-size: 100%;
+  margin-inline: 0;
 }
 
 #showcase .case-chapter__body .text-section:not(:where(
@@ -432,7 +432,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
   gap: clamp(1rem, 2vw, 1.5rem);
-  inline-size: min(100%, 76rem);
+  inline-size: 100%;
 }
 
 #showcase .case-chapter__body :where(.stat, [data-stat]) {
@@ -463,7 +463,8 @@
   }
 
   #showcase .case-chapter__body :where(.block__header > .title, .section-head > .title, .text-block > .title, .block > h3, .block > h4, .block > h5) {
-    max-inline-size: min(100%, 16ch);
+    max-inline-size: 100%;
+    text-wrap: normal;
   }
 
   #showcase .case-chapter__body .text-sections {

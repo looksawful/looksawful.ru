@@ -56,6 +56,31 @@ function canUseHeavy3DVisuals() {
   return true;
 }
 
+
+function canUseLogo3DVisuals() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const nav = window.navigator || {};
+  const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
+
+  if (connection?.saveData) {
+    return false;
+  }
+
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) {
+    return false;
+  }
+
+  try {
+    const probe = document.createElement("canvas");
+    return Boolean(probe.getContext("webgl2") || probe.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
 function mountVisualPosterFallback(target) {
   const poster =
     target.dataset.cvPoster ||
@@ -91,11 +116,14 @@ function getDemoParts(target) {
 }
 
 async function mountThreeDemo(canvas) {
-  if (!canUseHeavy3DVisuals()) {
+  const [, sceneName] = getDemoParts(canvas);
+  const canMount =
+    sceneName === "logo" ? canUseLogo3DVisuals() : canUseHeavy3DVisuals();
+
+  if (!canMount) {
     return mountVisualPosterFallback(canvas);
   }
 
-  const [, sceneName] = getDemoParts(canvas);
   const loadMount = loadThreeDemoMount(sceneName);
 
   if (!loadMount) {
@@ -235,3 +263,4 @@ export async function initShowcaseVisuals(root = document) {
     });
   };
 }
+

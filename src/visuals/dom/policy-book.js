@@ -7,7 +7,7 @@ function initPolicyBook(book) {
   }
 
   const track = book.querySelector("[data-policy-track]");
-  const pages = [...book.querySelectorAll("[data-policy-page]")];
+  const pages = [...book.querySelectorAll("[data-policy-page]:not([hidden]):not([data-policy-hidden='true'])")];
   const prevButton = book.querySelector("[data-policy-prev]");
   const nextButton = book.querySelector("[data-policy-next]");
   const currentCounters = [...book.querySelectorAll("[data-policy-current]")];
@@ -152,4 +152,3 @@ if (document.readyState === "loading") {
 } else {
   initPolicyBooks();
 }
-

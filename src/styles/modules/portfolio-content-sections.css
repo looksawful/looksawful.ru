@@ -1,6 +1,6 @@
 #showcase .content-section {
-  inline-size: min(100%, 76rem);
-  margin-inline: auto;
+  inline-size: 100%;
+  margin-inline: 0;
   margin-block: clamp(36px, 7vw, 96px);
 }
 
@@ -13,7 +13,8 @@
 
 #showcase .content-section--text-media > :where(.text-block, header, section:not(.media-group), article:not(.media-group)) {
   order: 1;
-  max-inline-size: 50rem;
+  inline-size: 100%;
+  max-inline-size: 100%;
 }
 
 #showcase .content-section--text-media > .media-group,
@@ -35,14 +36,15 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(16px, 3vw, 36px);
-  inline-size: min(100%, 76rem);
-  margin-inline: auto;
+  inline-size: 100%;
+  margin-inline: 0;
   align-items: start;
 }
 
 #showcase :where(.media-row, .media-system--row) > :where(.text-block, header, section:not(.media-group), article:not(.media-group)) {
   order: 1;
-  max-inline-size: 50rem;
+  inline-size: 100%;
+  max-inline-size: 100%;
 }
 
 #showcase :where(.media-row, .media-system--row) > :where(.media-group, aside:has(.media-item), figure:has(.media-item)) {

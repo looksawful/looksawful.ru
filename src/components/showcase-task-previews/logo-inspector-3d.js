@@ -4,7 +4,7 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const STYLE_ID = "logo-inspector-3d-styles";
-const CAMERA_DISTANCE = 7.4;
+const CAMERA_DISTANCE = 7.8;
 const IDLE_SPIN_SPEED = 0.42;
 const DRAG_ROTATE_SPEED = 0.008;
 const RETURN_EASE = 0.08;
@@ -235,7 +235,9 @@ function disposeObjectResources(object, cache = {}) {
     }
 
     if (Array.isArray(mesh.material)) {
-      mesh.material.forEach((material) => disposeMaterial(material, textures, materials));
+      mesh.material.forEach((material) =>
+        disposeMaterial(material, textures, materials),
+      );
     } else {
       disposeMaterial(mesh.material, textures, materials);
     }
@@ -341,21 +343,26 @@ function createRenderer() {
 }
 
 function getOrderedVariants(variants) {
-  return DISPLAY_VARIANT_IDS
-    .map((id) => variants.find((item) => item.id === id))
-    .filter(Boolean);
+  return DISPLAY_VARIANT_IDS.map((id) =>
+    variants.find((item) => item.id === id),
+  ).filter(Boolean);
 }
 
 export function createLogoInspector3D(target, options = {}) {
   injectStyles();
 
-  const host = typeof target === "string" ? document.querySelector(target) : target;
+  const host =
+    typeof target === "string" ? document.querySelector(target) : target;
 
   if (!host) {
     throw new Error("createLogoInspector3D: target not found");
   }
 
-  const { modelUrl = DEFAULT_ASSETS.model, variants = DEFAULT_VARIANTS, assets = {} } = options;
+  const {
+    modelUrl = DEFAULT_ASSETS.model,
+    variants = DEFAULT_VARIANTS,
+    assets = {},
+  } = options;
   const assetUrls = {
     ...DEFAULT_ASSETS,
     ...assets,
@@ -391,7 +398,10 @@ export function createLogoInspector3D(target, options = {}) {
   try {
     renderer = createRenderer();
   } catch (error) {
-    console.error("[logo inspector] WebGL renderer failed, showing poster fallback", error);
+    console.error(
+      "[logo inspector] WebGL renderer failed, showing poster fallback",
+      error,
+    );
     setLogoInspectorFallback(root, "renderer-error");
 
     return {
@@ -412,7 +422,10 @@ export function createLogoInspector3D(target, options = {}) {
   camera.lookAt(0, 0, 0);
 
   const pmremGenerator = new THREE.PMREMGenerator(renderer);
-  const environmentTexture = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+  const environmentTexture = pmremGenerator.fromScene(
+    new RoomEnvironment(),
+    0.04,
+  ).texture;
   scene.environment = environmentTexture;
   scene.add(new THREE.AmbientLight("#ffffff", 0.44));
 
@@ -481,7 +494,9 @@ export function createLogoInspector3D(target, options = {}) {
     raycaster.setFromCamera(pointer, camera);
 
     const intersections = raycaster.intersectObjects(stage.children, true);
-    return intersections.length ? getLogoFromObject(intersections[0].object) : null;
+    return intersections.length
+      ? getLogoFromObject(intersections[0].object)
+      : null;
   };
 
   const updateHover = (event) => {
@@ -536,7 +551,11 @@ export function createLogoInspector3D(target, options = {}) {
     lastPointerY = event.clientY;
 
     draggedLogo.rotation.y += dx * DRAG_ROTATE_SPEED;
-    draggedLogo.rotation.x = clamp(draggedLogo.rotation.x + dy * DRAG_ROTATE_SPEED, -Math.PI * 0.62, Math.PI * 0.62);
+    draggedLogo.rotation.x = clamp(
+      draggedLogo.rotation.x + dy * DRAG_ROTATE_SPEED,
+      -Math.PI * 0.62,
+      Math.PI * 0.62,
+    );
   };
 
   const handlePointerUp = (event) => {
@@ -552,7 +571,10 @@ export function createLogoInspector3D(target, options = {}) {
 
   const layoutLogos = () => {
     const width = Math.max(canvasHost.clientWidth || root.clientWidth || 1, 1);
-    const height = Math.max(canvasHost.clientHeight || root.clientHeight || 1, 1);
+    const height = Math.max(
+      canvasHost.clientHeight || root.clientHeight || 1,
+      1,
+    );
     const compact = width < 760;
     const spacing = compact ? 1.9 : 2.35;
     const scale = compact ? 0.68 : 0.84;
@@ -563,7 +585,11 @@ export function createLogoInspector3D(target, options = {}) {
 
     stage.children.forEach((logo, index) => {
       const side = index - 1;
-      const targetPosition = new THREE.Vector3(side * spacing, 0, INTRO_TARGET_Z);
+      const targetPosition = new THREE.Vector3(
+        side * spacing,
+        0,
+        INTRO_TARGET_Z,
+      );
 
       logo.userData.targetPosition = targetPosition;
       logo.userData.targetScale = scale;
@@ -602,7 +628,8 @@ export function createLogoInspector3D(target, options = {}) {
       const localElapsed = Math.max(0, elapsed - index * INTRO_STAGGER_MS);
       const localProgress = clamp(localElapsed / INTRO_SCALE_MS, 0, 1);
       const localEased = easeOutCubic(localProgress);
-      const overshoot = Math.sin(localEased * Math.PI) * (INTRO_OVERSHOOT_SCALE - 1);
+      const overshoot =
+        Math.sin(localEased * Math.PI) * (INTRO_OVERSHOOT_SCALE - 1);
       const currentScale = lerp(INTRO_START_SCALE, 1, localEased) + overshoot;
       const targetScale = logo.userData.targetScale || 1;
       const side = index - 1;
@@ -612,8 +639,12 @@ export function createLogoInspector3D(target, options = {}) {
       logo.scale.setScalar(targetScale * currentScale);
 
       if (!logo.userData.hasManualRotation) {
-        logo.rotation.x = logo.userData.baseRotationX + Math.sin((1 - localEased) * Math.PI) * INTRO_ROTATION_DRIFT;
-        logo.rotation.y = logo.userData.baseRotationY + side * Math.sin((1 - localEased) * Math.PI) * INTRO_ROTATION_DRIFT;
+        logo.rotation.x =
+          logo.userData.baseRotationX +
+          Math.sin((1 - localEased) * Math.PI) * INTRO_ROTATION_DRIFT;
+        logo.rotation.y =
+          logo.userData.baseRotationY +
+          side * Math.sin((1 - localEased) * Math.PI) * INTRO_ROTATION_DRIFT;
         logo.rotation.z = logo.userData.baseRotationZ;
       }
     });
@@ -633,7 +664,11 @@ export function createLogoInspector3D(target, options = {}) {
         }
 
         if (!logo.userData.hasManualRotation) {
-          logo.rotation.set(logo.userData.baseRotationX, logo.userData.baseRotationY, logo.userData.baseRotationZ);
+          logo.rotation.set(
+            logo.userData.baseRotationX,
+            logo.userData.baseRotationY,
+            logo.userData.baseRotationZ,
+          );
         }
       });
     }
@@ -643,8 +678,14 @@ export function createLogoInspector3D(target, options = {}) {
 
   const resize = () => {
     const bounds = canvasHost.getBoundingClientRect();
-    const width = Math.max(Math.floor(bounds.width || canvasHost.clientWidth || 1), 1);
-    const height = Math.max(Math.floor(bounds.height || canvasHost.clientHeight || 1), 1);
+    const width = Math.max(
+      Math.floor(bounds.width || canvasHost.clientWidth || 1),
+      1,
+    );
+    const height = Math.max(
+      Math.floor(bounds.height || canvasHost.clientHeight || 1),
+      1,
+    );
 
     renderer.setSize(width, height, false);
     layoutLogos();
@@ -668,9 +709,15 @@ export function createLogoInspector3D(target, options = {}) {
         logo.rotation.y += delta * IDLE_SPIN_SPEED;
       }
 
-      if (!logo.userData.hasManualRotation && !isPausedByUser && !isIntroRunning) {
-        logo.rotation.x += (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
-        logo.rotation.z += (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
+      if (
+        !logo.userData.hasManualRotation &&
+        !isPausedByUser &&
+        !isIntroRunning
+      ) {
+        logo.rotation.x +=
+          (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
+        logo.rotation.z +=
+          (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
       }
     });
 
@@ -713,7 +760,10 @@ export function createLogoInspector3D(target, options = {}) {
       setLogoInspectorReady(root);
     })
     .catch((error) => {
-      console.error("[logo inspector] model failed, showing poster fallback", error);
+      console.error(
+        "[logo inspector] model failed, showing poster fallback",
+        error,
+      );
 
       if (destroyed) {
         return;
@@ -757,4 +807,3 @@ export function createLogoInspector3D(target, options = {}) {
     },
   };
 }
-

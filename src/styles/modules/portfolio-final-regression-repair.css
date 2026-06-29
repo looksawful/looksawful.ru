@@ -21,7 +21,7 @@
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  border: 1px solid color-mix(in srgb, var(--black) 12%, transparent);
+  border: 0;
   border-radius: clamp(22px, 3vw, 38px);
   padding: clamp(1.15rem, 3vw, 2.4rem);
   background: transparent;
@@ -38,20 +38,70 @@
 }
 
 #showcase #jestei-frame-добавили-цвет .content-section--tokens {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(12rem, 0.9fr);
   gap: clamp(20px, 3vw, 36px);
+  align-items: stretch;
+  inline-size: min(100%, 86rem);
+  margin-inline: auto;
 }
 
 #showcase #jestei-frame-добавили-цвет .token-list {
-  inline-size: min(100%, 76rem);
-  margin-block: clamp(24px, 4vw, 48px);
-  margin-inline: auto;
+  inline-size: 100%;
+  margin-block: 0;
+  margin-inline: 0;
 }
 
 #showcase #jestei-frame-добавили-цвет .token-list__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(10px, 1.4vw, 18px);
   align-items: stretch;
+  block-size: 100%;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .text-block {
+  display: contents;
+  width: 100%;
+  max-width: none;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .text-block > :where(header, p) {
+  grid-column: 1 / -1;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .text-block > .token-list {
+  grid-column: 1;
+  align-self: stretch;
+  block-size: 100%;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group {
+  grid-column: 2;
+  align-self: stretch;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group > .media-item {
+  position: relative;
+  block-size: 100%;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group .media-item,
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group img {
+  block-size: 100%;
+  height: 100%;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
+  object-position: center;
 }
 
 #showcase #jestei-frame-добавили-цвет .token-group {
@@ -98,13 +148,11 @@
 
 #showcase #jestei-frame-добавили-цвет .token-pill__name {
   min-inline-size: 0;
-  overflow: hidden;
   font-size: clamp(0.74rem, 0.78vw, 0.86rem);
   font-weight: 600;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.12;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 #showcase #jestei-frame-добавили-цвет .token-pill__value {
@@ -116,8 +164,9 @@
 }
 
 @media (max-width: 900px) {
-  #showcase #jestei-frame-добавили-цвет .token-list__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens {
+    grid-template-columns: minmax(0, 1fr) minmax(9rem, 0.82fr);
+    gap: clamp(10px, 3vw, 18px);
   }
 }
 
@@ -128,8 +177,65 @@
     border-radius: clamp(22px, 7vw, 36px);
   }
 
-  #showcase #jestei-frame-добавили-цвет .token-list__grid {
-    grid-template-columns: minmax(0, 1fr);
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens {
+    grid-template-columns: minmax(0, 1fr) minmax(7rem, 0.72fr);
   }
 
+  #showcase #jestei-frame-добавили-цвет .token-list__grid {
+    gap: 0.45rem;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .token-group {
+    padding: 0.55rem;
+    border-radius: 1rem;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .token-pill {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.42rem;
+    padding: 0.46rem 0.5rem;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .token-pill__value {
+    grid-column: 2;
+  }
+
+}
+
+@media (max-width: 560px) {
+  #showcase #jestei-frame-провели-ребрендинг > .case-chapter__header {
+    gap: clamp(0.8rem, 3.4vw, 1.2rem);
+  }
+
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo {
+    display: grid;
+    place-items: center;
+    block-size: clamp(20rem, 86vw, 25.5rem);
+    min-block-size: 0;
+    margin-block: clamp(0.7rem, 4vw, 1.1rem) 0;
+    overflow: hidden;
+  }
+
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo > [data-visual-demo],
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo .logo-inspector-3d {
+    inline-size: 100%;
+    block-size: 100%;
+    min-block-size: 0;
+    max-block-size: none;
+  }
+
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo .logo-inspector-3d__canvas,
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo .logo-inspector-3d__poster {
+    inset-inline: -32%;
+    inline-size: 164%;
+  }
+
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo .logo-inspector-3d__canvas {
+    transform: translateY(7%) scale(1.08);
+    transform-origin: center;
+  }
+
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__subtitle {
+    margin-block-start: 0;
+  }
 }

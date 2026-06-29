@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run build:asset-gallery && vite build",
+    "build:asset-gallery": "node scripts/build-asset-gallery.mjs",
     "preview": "vite preview",
     "check:portfolio": "node scripts/portfolio-regression-check.mjs",
     "compress-media": "node scripts/compress-media.js",

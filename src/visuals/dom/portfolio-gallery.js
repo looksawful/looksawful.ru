@@ -175,6 +175,7 @@ function markOrientation(link) {
     const ratio = width / height;
     const orientation = ratio > 1.18 ? "landscape" : ratio < 0.86 ? "portrait" : "square";
     link.setAttribute("data-orientation", orientation);
+    link.style.setProperty("--media-actual-ratio", ratio.toFixed(4));
     link.style.setProperty("--media-span", ratio > 2.15 ? "3" : ratio > 1.18 ? "2" : "1");
   };
 
@@ -272,8 +273,16 @@ function shouldUseSnap(group, items, count) {
 
 function resolveGalleryMode(group, items, count) {
   if (count >= TILE_RAIL_MIN_ITEMS) return "rail";
+  if (group.dataset.mediaGroup === "grid" || count > SNAP_MAX_ITEMS) return "grid";
   if (shouldUseSnap(group, items, count)) return "snap";
   return "";
+}
+
+function resolveDefaultView(group, mode, count) {
+  const explicit = group.dataset.galleryDefault;
+  if (explicit === "slider" || explicit === "grid") return explicit;
+  if (mode === "snap" || (mode === "grid" && count <= SNAP_MAX_ITEMS)) return "slider";
+  return "grid";
 }
 
 function ensureTrack(group, items) {
@@ -327,15 +336,19 @@ function enhanceScrollableGroup(group) {
 
   const includeToggle = count >= SNAP_MIN_ITEMS;
   const controls = createControls({ includeToggle });
-  const dots = mode === "snap" ? createDots(items) : null;
+  const dots = createDots(items);
 
   group.dataset.galleryEnhanced = "true";
   group.dataset.galleryMode = mode;
-  group.classList.add("media-group--scrollable", `media-group--${mode === "rail" ? "tile-rail" : "snap"}`);
+  group.dataset.galleryAutoplay = "true";
+  group.classList.add(
+    "media-group--scrollable",
+    `media-group--${mode === "rail" ? "tile-rail" : mode === "grid" ? "gallery-grid" : "snap"}`,
+  );
   if (includeToggle) group.classList.add("media-group--viewer-ready");
 
   insertAfterIntro(group, controls.controls);
-  if (dots) group.append(dots.dots);
+  group.append(dots.dots);
 
   let index = 0;
   let scrollTimer = 0;
@@ -353,9 +366,8 @@ function enhanceScrollableGroup(group) {
   const syncEdges = () => {
     if (isViewer()) {
       group.classList.toggle("has-scroll-overflow", false);
-      const disabled = items.length < 2;
-      controls.prev.disabled = disabled;
-      controls.next.disabled = disabled;
+      controls.prev.disabled = items.length < 2 || index <= 0;
+      controls.next.disabled = items.length < 2 || index >= items.length - 1;
       return;
     }
 
@@ -450,6 +462,7 @@ function enhanceScrollableGroup(group) {
     }
 
     group.classList.toggle("is-viewer", enabled);
+    group.dataset.galleryView = enabled ? "slider" : "grid";
     controls.toggle.setAttribute("aria-pressed", String(enabled));
     controls.toggle.innerHTML = enabled ? icons.grid : icons.view;
     syncIndex(index);
@@ -457,6 +470,8 @@ function enhanceScrollableGroup(group) {
     if (!enabled) {
       requestAnimationFrame(() => scrollToIndex(index, "auto"));
     }
+
+    startAutoplay();
   };
 
   controls.prev.addEventListener("click", () => {
@@ -491,13 +506,15 @@ function enhanceScrollableGroup(group) {
   });
 
   track.addEventListener("pointerdown", (event) => {
-    if (isViewer() || event.button !== 0) return;
+    if (event.button !== 0) return;
 
     pointerDown = true;
     pointerDragged = false;
     pointerStartX = event.clientX;
     pointerStartLeft = track.scrollLeft;
     track.classList.add("is-dragging");
+    track.setPointerCapture?.(event.pointerId);
+    stopAutoplay();
   });
 
   track.addEventListener("pointermove", (event) => {
@@ -506,9 +523,22 @@ function enhanceScrollableGroup(group) {
     const delta = event.clientX - pointerStartX;
     if (Math.abs(delta) > 4 && !pointerDragged) {
       pointerDragged = true;
-      track.setPointerCapture?.(event.pointerId);
     }
+
+    if (isViewer()) {
+      return;
+    }
+
+    if (pointerDragged) {
+      event.preventDefault();
+    }
+
     track.scrollLeft = pointerStartLeft - delta;
+  });
+
+  track.addEventListener("dragstart", (event) => {
+    if (!pointerDown) return;
+    event.preventDefault();
   });
 
   track.addEventListener("pointerup", (event) => {
@@ -525,8 +555,16 @@ function enhanceScrollableGroup(group) {
       }, 0);
     }
 
-    if (mode === "snap") snapToNearest();
-    else updateFromScroll();
+    if (isViewer()) {
+      const delta = event.clientX - pointerStartX;
+      if (pointerDragged && Math.abs(delta) > 36) {
+        scrollToIndex(index + (delta < 0 ? 1 : -1));
+      }
+    } else if (mode === "snap") {
+      snapToNearest();
+    } else {
+      updateFromScroll();
+    }
     startAutoplay();
   });
 
@@ -559,7 +597,14 @@ function enhanceScrollableGroup(group) {
     window.addEventListener("resize", updateFromScroll);
   }
 
+  const defaultView = resolveDefaultView(group, mode, count);
   syncIndex(0);
+  if (defaultView === "slider") {
+    setViewer(true);
+  } else {
+    group.dataset.galleryView = "grid";
+    startAutoplay();
+  }
   requestAnimationFrame(updateFromScroll);
 }
 

@@ -1,0 +1,34 @@
+{
+  "exclusive": {
+    "width": 22,
+    "height": 22
+  },
+  "home": {
+    "width": 22,
+    "height": 22
+  },
+  "feed": {
+    "width": 22,
+    "height": 22
+  },
+  "playlists": {
+    "width": 22,
+    "height": 22
+  },
+  "mix": {
+    "width": 23,
+    "height": 23
+  },
+  "Subtract": {
+    "width": 22,
+    "height": 23
+  },
+  "libruary": {
+    "width": 22,
+    "height": 20
+  },
+  "Vector": {
+    "width": 22,
+    "height": 22
+  }
+}
