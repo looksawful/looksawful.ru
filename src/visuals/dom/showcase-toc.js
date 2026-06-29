@@ -1,7 +1,7 @@
 const CHAPTER_SELECTOR =
   ":scope .case-chapter[data-jestei-chapter-title], :scope .case-chapter[data-case-chapter-title]";
 const ACTIVE_MARKER = 0.38;
-const COMPACT_TOC_QUERY = "(max-width: 87.999rem)";
+const COMPACT_TOC_QUERY = "(max-width: 99.999rem)";
 
 const getGsap = () => window.gsap || null;
 

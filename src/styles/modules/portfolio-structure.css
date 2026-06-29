@@ -1,32 +1,79 @@
-#showcase .case {
+#showcase .case,
+#showcase .project {
   display: grid;
-  gap: var(--gap-lg);
-  min-inline-size: 0;
-}
-
-#showcase .case__header,
-#showcase .project__header {
+  gap: clamp(4rem, 9vw, 8rem);
   min-inline-size: 0;
 }
 
 #showcase .case-chapter {
   display: grid;
-  gap: var(--gap-lg);
+  gap: clamp(1.6rem, 3.4vw, 3rem);
   min-inline-size: 0;
 }
 
-#showcase .case-chapter__header {
+#showcase :where(.case__header, .project__header, .case-chapter__header) {
   min-inline-size: 0;
 }
 
 #showcase .case-chapter__body {
   display: grid;
-  gap: var(--gap-lg);
+  gap: clamp(2.4rem, 5vw, 5rem);
   min-inline-size: 0;
 }
 
-#showcase .case-chapter__body > :where(.case-chapter-panel, .project-chapter, .block, .content-section, .text-sections, .media-group) {
+#showcase .case-chapter__body > :where(
+  .case-chapter-panel,
+  .project-chapter,
+  .block,
+  .content-section,
+  .text-block,
+  .text-sections,
+  .reading-sections,
+  .list-section,
+  .media-group,
+  .media-figure,
+  .project-facts,
+  .token-list
+) {
+  display: grid;
+  inline-size: 100%;
+  max-inline-size: 100%;
   min-inline-size: 0;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+#showcase .case-chapter__body :where(
+  .project-chapter,
+  .block,
+  .content-section,
+  .text-block,
+  .text-sections,
+  .reading-sections,
+  .list-section,
+  .media-group,
+  .media-figure,
+  .project-facts,
+  .token-list
+):not(:where(
+  .policy-book,
+  .policy-book *,
+  [data-policy-book],
+  [data-policy-book] *,
+  .artifact-reader,
+  .artifact-reader *,
+  [data-artifact-reader],
+  [data-artifact-reader] *,
+  .playlist-filter-embed,
+  .playlist-filter-embed *,
+  [data-playlist-filter],
+  [data-playlist-filter] *,
+  [data-visual-demo],
+  [data-visual-demo] *
+)) {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 #showcase .case__header > .project-skill-cloud {
@@ -35,8 +82,124 @@
 
 @media (max-width: 48rem) {
   #showcase .case,
+  #showcase .project,
   #showcase .case-chapter,
   #showcase .case-chapter__body {
-    gap: var(--gap);
+    gap: clamp(1.8rem, 8vw, 3rem);
   }
 }
+
+/* awful-showcase-chapter-header-contract-v15:start */
+#showcase :is(.project__header, .case__header) {
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  margin: 0;
+  padding: var(--showcase-header-pad, clamp(1.4rem, 3vw, 2.4rem));
+  border: var(--showcase-header-border, 1px solid var(--showcase-rule, color-mix(in srgb, currentColor 14%, transparent)));
+  border-radius: var(--showcase-header-radius, clamp(18px, 2.4vw, 32px));
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero)::before,
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero)::after {
+  content: none;
+  display: none;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) > :first-child {
+  margin-block-start: 0;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) > :last-child {
+  margin-block-end: 0;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) > :where(
+  .case-chapter-heading,
+  .jestei-chapter-hero__title,
+  .case-chapter-hero__title,
+  .jestei-chapter-hero__subtitle,
+  .case-chapter-hero__subtitle,
+  .case-note,
+  .jestei-chapter-hero__media,
+  .case-chapter-hero__media,
+  .jestei-chapter-hero__marquee,
+  .case-chapter-hero__marquee,
+  .media,
+  .media-group,
+  .media-figure,
+  [data-visual-demo]
+) {
+  margin-inline: 0;
+}
+/* awful-showcase-chapter-header-contract-v15:end */
+
+/* awful-showcase-chapter-header-contract-v14:start */
+/* Project headers keep a frame. Chapter headers are flat content blocks. */
+#showcase {
+  --showcase-chapter-header-gap: clamp(0.85rem, 2vw, 1.4rem);
+}
+
+#showcase :is(.project__header, .case__header) {
+  box-sizing: border-box;
+  display: grid;
+  gap: clamp(1.2rem, 2.2vw, 1.9rem);
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  margin: 0;
+  margin-inline: 0;
+  padding: var(--showcase-header-pad, var(--showcase-header-padding, clamp(1rem, 2.2vw, 2rem)));
+  border: var(--showcase-header-border, 1px solid color-mix(in srgb, currentColor 16%, transparent));
+  border-radius: var(--showcase-header-radius, 1.25rem);
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) {
+  box-sizing: border-box;
+  display: grid;
+  gap: var(--showcase-chapter-header-gap);
+  align-items: start;
+  justify-items: start;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  margin: 0;
+  margin-inline: 0;
+  padding: 0;
+  padding-inline: 0;
+  padding-block: 0;
+  border: 0;
+  border-block: 0;
+  border-inline: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: 0;
+  overflow: visible;
+  text-align: left;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero)::before,
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero)::after {
+  content: none;
+  display: none;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) > :first-child {
+  margin-block-start: 0;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) > :last-child {
+  margin-block-end: 0;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) :is(.case-chapter-heading, .jestei-chapter-hero__title, .case-chapter-hero__title) {
+  margin-block: 0;
+}
+/* awful-showcase-chapter-header-contract-v14:end */

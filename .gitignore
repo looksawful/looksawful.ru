@@ -81,6 +81,9 @@ _media-originals/
 _media-originals/**
 _backup_large_images/
 _backup_large_images/**
+temp-images/
+to-implement/*.svg
+public/assets/media/cases/jesteipool/**/placeholders/
 **/_normalized_300dpi/
 **/_source/
 **/_raw/
@@ -97,3 +100,6 @@ _backup_large_images/**
 *.7z
 *.zip
 *.rar
+
+
+.vercel

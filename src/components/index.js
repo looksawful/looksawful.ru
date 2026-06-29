@@ -153,7 +153,7 @@ async function initDecorations(root = document) {
 export function initComponents(root = document) {
   if (
     has(
-      "#showcase :is(.jestei-chapter-section, .case-section-clean, [data-jestei-chapter-title], [data-case-chapter-title]) > .jestei-chapter-hero > .jestei-chapter-hero__title",
+      "#showcase .case-chapter__header .case-chapter-heading, #showcase :is(.jestei-chapter-section, .case-section-clean, [data-jestei-chapter-title], [data-case-chapter-title]) > :is(.jestei-chapter-hero, .case-chapter-hero, .case-chapter__header) > :is(.jestei-chapter-hero__title, .case-chapter-hero__title)",
       root,
     )
   ) {

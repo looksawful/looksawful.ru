@@ -1,4 +1,3 @@
-
 .token-pill.token-pill--orange-1 {
   --token-color: #f18200;
 }
@@ -62,4 +61,161 @@
 .token-pill.token-pill--biloba-4 {
   --token-color: #74649f;
 }
+#showcase #jestei-frame-добавили-цвет .content-section--tokens {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(12rem, 0.9fr);
+  gap: clamp(20px, 3vw, 36px);
+  align-items: stretch;
+  inline-size: min(100%, 86rem);
+  margin-inline: auto;
+}
 
+#showcase #jestei-frame-добавили-цвет .token-list {
+  inline-size: 100%;
+  margin-block: 0;
+  margin-inline: 0;
+}
+
+#showcase #jestei-frame-добавили-цвет .token-list__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 1.4vw, 18px);
+  align-items: stretch;
+  block-size: 100%;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .text-block {
+  display: contents;
+  width: 100%;
+  max-width: none;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .text-block > :where(header, p) {
+  grid-column: 1 / -1;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .text-block > .token-list {
+  grid-column: 1;
+  align-self: stretch;
+  block-size: 100%;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group {
+  grid-column: 2;
+  align-self: stretch;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group > .media-item {
+  position: relative;
+  block-size: 100%;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group .media-item,
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group img {
+  block-size: 100%;
+  height: 100%;
+}
+
+#showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
+  object-position: center;
+}
+
+#showcase #jestei-frame-добавили-цвет .token-group {
+  display: grid;
+  min-inline-size: 0;
+  padding: clamp(12px, 1.6vw, 20px);
+  border: 1px solid color-mix(in srgb, var(--black) 12%, transparent);
+  border-radius: clamp(18px, 2.2vw, 28px);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--white) 92%, transparent), color-mix(in srgb, var(--white) 74%, transparent)),
+    radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--token-color, #000) 18%, transparent), transparent 42%);
+  box-shadow: 0 18px 50px color-mix(in srgb, var(--black) 7%, transparent);
+}
+
+#showcase #jestei-frame-добавили-цвет .token-group__list {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#showcase #jestei-frame-добавили-цвет .token-pill {
+  --token-swatch: var(--token-color, currentColor);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  align-items: center;
+  min-inline-size: 0;
+  padding: 0.62rem 0.72rem;
+  border: 1px solid color-mix(in srgb, var(--token-swatch) 26%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--token-swatch) 8%, var(--white));
+  color: var(--black);
+}
+
+#showcase #jestei-frame-добавили-цвет .token-pill__dot {
+  inline-size: 0.86rem;
+  block-size: 0.86rem;
+  border-radius: 999px;
+  background: var(--token-swatch);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--token-swatch) 16%, transparent);
+}
+
+#showcase #jestei-frame-добавили-цвет .token-pill__name {
+  min-inline-size: 0;
+  font-size: clamp(0.74rem, 0.78vw, 0.86rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+#showcase #jestei-frame-добавили-цвет .token-pill__value {
+  color: color-mix(in srgb, var(--black) 56%, transparent);
+  font-size: clamp(0.68rem, 0.72vw, 0.78rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
+@media (max-width: 900px) {
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens {
+    grid-template-columns: minmax(0, 1fr) minmax(9rem, 0.82fr);
+    gap: clamp(10px, 3vw, 18px);
+  }
+}
+
+@media (max-width: 560px) {
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens {
+    grid-template-columns: minmax(0, 1fr) minmax(7rem, 0.72fr);
+  }
+
+  #showcase #jestei-frame-добавили-цвет .token-list__grid {
+    gap: 0.45rem;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .token-group {
+    padding: 0.55rem;
+    border-radius: 1rem;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .token-pill {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.42rem;
+    padding: 0.46rem 0.5rem;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .token-pill__value {
+    grid-column: 2;
+  }
+
+}

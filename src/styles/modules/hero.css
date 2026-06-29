@@ -215,6 +215,10 @@
     padding-block-start: clamp(5rem, 8svh, 7rem);
     padding-block-end: clamp(5rem, 8svh, 7rem);
   }
+
+  .hero__headline-wrap {
+    transform: translateY(clamp(2.8rem, 6svh, 4.4rem));
+  }
 }
 
 @media (max-width: 48rem) {

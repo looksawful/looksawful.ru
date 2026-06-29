@@ -4,7 +4,7 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const STYLE_ID = "logo-inspector-3d-styles";
-const CAMERA_DISTANCE = 7.4;
+const CAMERA_DISTANCE = 7.8;
 const IDLE_SPIN_SPEED = 0.42;
 const DRAG_ROTATE_SPEED = 0.008;
 const RETURN_EASE = 0.08;
@@ -76,7 +76,7 @@ function injectStyles() {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      background: #000000;
+      background: #ffffff;
       opacity: 1;
       visibility: visible;
       pointer-events: none;
@@ -154,9 +154,62 @@ function injectStyles() {
     }
   `;
 
+
+  style.textContent += `\n    /* logo-inspector-fit-v4 */
+    .jestei-chapter-hero__media--logo,
+    .jestei-chapter-hero__media--logo.media,
+    .jestei-chapter-hero__media--logo [data-visual-demo^="logo-inspector"],
+    .jestei-chapter-hero__media--logo [data-visual-demo*="logo-inspector"] {
+      overflow: visible;
+      min-width: 0;
+      max-width: none;
+    }
+
+    .logo-inspector-3d {
+      height: clamp(24rem, 48vw, 40rem);
+      min-height: clamp(24rem, 62svh, 34rem);
+      max-height: min(42rem, 82svh);
+      overflow: hidden;
+      contain: layout;
+      border: 0;
+      border-radius: 0;
+      background: #ffffff;
+    }
+
+    .logo-inspector-3d__canvas {
+      position: absolute;
+      inset-block: 0;
+      inset-inline: 0;
+      width: auto;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .logo-inspector-3d__canvas canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    @media (min-width: 721px) and (max-width: 1180px) {
+      .logo-inspector-3d__canvas {
+        inset-inline: calc(clamp(2rem, 8vw, 6rem) * -1);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .logo-inspector-3d {
+        height: clamp(25rem, 78svh, 40rem);
+        min-height: clamp(24rem, 70svh, 34rem);
+      }
+
+      .logo-inspector-3d__canvas {
+        inset-inline: 0;
+      }
+    }
+  `;
   document.head.appendChild(style);
 }
-
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
@@ -235,7 +288,9 @@ function disposeObjectResources(object, cache = {}) {
     }
 
     if (Array.isArray(mesh.material)) {
-      mesh.material.forEach((material) => disposeMaterial(material, textures, materials));
+      mesh.material.forEach((material) =>
+        disposeMaterial(material, textures, materials),
+      );
     } else {
       disposeMaterial(mesh.material, textures, materials);
     }
@@ -341,21 +396,26 @@ function createRenderer() {
 }
 
 function getOrderedVariants(variants) {
-  return DISPLAY_VARIANT_IDS
-    .map((id) => variants.find((item) => item.id === id))
-    .filter(Boolean);
+  return DISPLAY_VARIANT_IDS.map((id) =>
+    variants.find((item) => item.id === id),
+  ).filter(Boolean);
 }
 
 export function createLogoInspector3D(target, options = {}) {
   injectStyles();
 
-  const host = typeof target === "string" ? document.querySelector(target) : target;
+  const host =
+    typeof target === "string" ? document.querySelector(target) : target;
 
   if (!host) {
     throw new Error("createLogoInspector3D: target not found");
   }
 
-  const { modelUrl = DEFAULT_ASSETS.model, variants = DEFAULT_VARIANTS, assets = {} } = options;
+  const {
+    modelUrl = DEFAULT_ASSETS.model,
+    variants = DEFAULT_VARIANTS,
+    assets = {},
+  } = options;
   const assetUrls = {
     ...DEFAULT_ASSETS,
     ...assets,
@@ -391,7 +451,10 @@ export function createLogoInspector3D(target, options = {}) {
   try {
     renderer = createRenderer();
   } catch (error) {
-    console.error("[logo inspector] WebGL renderer failed, showing poster fallback", error);
+    console.error(
+      "[logo inspector] WebGL renderer failed, showing poster fallback",
+      error,
+    );
     setLogoInspectorFallback(root, "renderer-error");
 
     return {
@@ -412,7 +475,10 @@ export function createLogoInspector3D(target, options = {}) {
   camera.lookAt(0, 0, 0);
 
   const pmremGenerator = new THREE.PMREMGenerator(renderer);
-  const environmentTexture = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+  const environmentTexture = pmremGenerator.fromScene(
+    new RoomEnvironment(),
+    0.04,
+  ).texture;
   scene.environment = environmentTexture;
   scene.add(new THREE.AmbientLight("#ffffff", 0.44));
 
@@ -481,7 +547,9 @@ export function createLogoInspector3D(target, options = {}) {
     raycaster.setFromCamera(pointer, camera);
 
     const intersections = raycaster.intersectObjects(stage.children, true);
-    return intersections.length ? getLogoFromObject(intersections[0].object) : null;
+    return intersections.length
+      ? getLogoFromObject(intersections[0].object)
+      : null;
   };
 
   const updateHover = (event) => {
@@ -536,7 +604,11 @@ export function createLogoInspector3D(target, options = {}) {
     lastPointerY = event.clientY;
 
     draggedLogo.rotation.y += dx * DRAG_ROTATE_SPEED;
-    draggedLogo.rotation.x = clamp(draggedLogo.rotation.x + dy * DRAG_ROTATE_SPEED, -Math.PI * 0.62, Math.PI * 0.62);
+    draggedLogo.rotation.x = clamp(
+      draggedLogo.rotation.x + dy * DRAG_ROTATE_SPEED,
+      -Math.PI * 0.62,
+      Math.PI * 0.62,
+    );
   };
 
   const handlePointerUp = (event) => {
@@ -552,18 +624,55 @@ export function createLogoInspector3D(target, options = {}) {
 
   const layoutLogos = () => {
     const width = Math.max(canvasHost.clientWidth || root.clientWidth || 1, 1);
-    const height = Math.max(canvasHost.clientHeight || root.clientHeight || 1, 1);
-    const compact = width < 760;
-    const spacing = compact ? 1.9 : 2.35;
-    const scale = compact ? 0.68 : 0.84;
+    const height = Math.max(
+      canvasHost.clientHeight || root.clientHeight || 1,
+      1,
+    );
+    const aspect = width / height;
+    const tight = aspect < 1.35;
+    const compact = width < 860 || aspect < 1.62;
+    const roomy = width >= 1100 && aspect >= 1.82;
 
-    camera.aspect = width / height;
-    camera.fov = compact ? 36 : 32;
+    const fov = clamp(tight ? 39 : compact ? 36 : 32, 30, 40);
+    const cameraZ = clamp(
+      CAMERA_DISTANCE + (tight ? 0.7 : compact ? 0.36 : 0),
+      CAMERA_DISTANCE,
+      8.7,
+    );
+
+    const preferredScale = roomy ? 0.9 : compact ? 0.82 : 0.86;
+    const visibleWidth =
+      2 *
+      Math.tan(THREE.MathUtils.degToRad(fov * 0.5)) *
+      Math.max(cameraZ - INTRO_TARGET_Z, 1) *
+      aspect;
+    const estimatedLogoWidth = 1.48;
+    const targetGap = tight ? 0.3 : compact ? 0.4 : 0.56;
+    const fitScale =
+      (visibleWidth * 0.9 - targetGap * 2) / (estimatedLogoWidth * 3);
+    const scale = clamp(
+      Math.min(preferredScale, fitScale),
+      tight ? 0.66 : 0.72,
+      roomy ? 0.92 : 0.86,
+    );
+    const spacing = clamp(
+      estimatedLogoWidth * scale + targetGap,
+      tight ? 1.46 : 1.62,
+      roomy ? 2.58 : 2.28,
+    );
+
+    camera.aspect = aspect;
+    camera.fov = fov;
+    camera.position.z = cameraZ;
     camera.updateProjectionMatrix();
 
     stage.children.forEach((logo, index) => {
       const side = index - 1;
-      const targetPosition = new THREE.Vector3(side * spacing, 0, INTRO_TARGET_Z);
+      const targetPosition = new THREE.Vector3(
+        side * spacing,
+        0,
+        INTRO_TARGET_Z,
+      );
 
       logo.userData.targetPosition = targetPosition;
       logo.userData.targetScale = scale;
@@ -602,7 +711,8 @@ export function createLogoInspector3D(target, options = {}) {
       const localElapsed = Math.max(0, elapsed - index * INTRO_STAGGER_MS);
       const localProgress = clamp(localElapsed / INTRO_SCALE_MS, 0, 1);
       const localEased = easeOutCubic(localProgress);
-      const overshoot = Math.sin(localEased * Math.PI) * (INTRO_OVERSHOOT_SCALE - 1);
+      const overshoot =
+        Math.sin(localEased * Math.PI) * (INTRO_OVERSHOOT_SCALE - 1);
       const currentScale = lerp(INTRO_START_SCALE, 1, localEased) + overshoot;
       const targetScale = logo.userData.targetScale || 1;
       const side = index - 1;
@@ -612,8 +722,12 @@ export function createLogoInspector3D(target, options = {}) {
       logo.scale.setScalar(targetScale * currentScale);
 
       if (!logo.userData.hasManualRotation) {
-        logo.rotation.x = logo.userData.baseRotationX + Math.sin((1 - localEased) * Math.PI) * INTRO_ROTATION_DRIFT;
-        logo.rotation.y = logo.userData.baseRotationY + side * Math.sin((1 - localEased) * Math.PI) * INTRO_ROTATION_DRIFT;
+        logo.rotation.x =
+          logo.userData.baseRotationX +
+          Math.sin((1 - localEased) * Math.PI) * INTRO_ROTATION_DRIFT;
+        logo.rotation.y =
+          logo.userData.baseRotationY +
+          side * Math.sin((1 - localEased) * Math.PI) * INTRO_ROTATION_DRIFT;
         logo.rotation.z = logo.userData.baseRotationZ;
       }
     });
@@ -633,7 +747,11 @@ export function createLogoInspector3D(target, options = {}) {
         }
 
         if (!logo.userData.hasManualRotation) {
-          logo.rotation.set(logo.userData.baseRotationX, logo.userData.baseRotationY, logo.userData.baseRotationZ);
+          logo.rotation.set(
+            logo.userData.baseRotationX,
+            logo.userData.baseRotationY,
+            logo.userData.baseRotationZ,
+          );
         }
       });
     }
@@ -643,8 +761,14 @@ export function createLogoInspector3D(target, options = {}) {
 
   const resize = () => {
     const bounds = canvasHost.getBoundingClientRect();
-    const width = Math.max(Math.floor(bounds.width || canvasHost.clientWidth || 1), 1);
-    const height = Math.max(Math.floor(bounds.height || canvasHost.clientHeight || 1), 1);
+    const width = Math.max(
+      Math.floor(bounds.width || canvasHost.clientWidth || 1),
+      1,
+    );
+    const height = Math.max(
+      Math.floor(bounds.height || canvasHost.clientHeight || 1),
+      1,
+    );
 
     renderer.setSize(width, height, false);
     layoutLogos();
@@ -668,9 +792,15 @@ export function createLogoInspector3D(target, options = {}) {
         logo.rotation.y += delta * IDLE_SPIN_SPEED;
       }
 
-      if (!logo.userData.hasManualRotation && !isPausedByUser && !isIntroRunning) {
-        logo.rotation.x += (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
-        logo.rotation.z += (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
+      if (
+        !logo.userData.hasManualRotation &&
+        !isPausedByUser &&
+        !isIntroRunning
+      ) {
+        logo.rotation.x +=
+          (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
+        logo.rotation.z +=
+          (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
       }
     });
 
@@ -713,7 +843,10 @@ export function createLogoInspector3D(target, options = {}) {
       setLogoInspectorReady(root);
     })
     .catch((error) => {
-      console.error("[logo inspector] model failed, showing poster fallback", error);
+      console.error(
+        "[logo inspector] model failed, showing poster fallback",
+        error,
+      );
 
       if (destroyed) {
         return;
@@ -757,4 +890,3 @@ export function createLogoInspector3D(target, options = {}) {
     },
   };
 }
-
