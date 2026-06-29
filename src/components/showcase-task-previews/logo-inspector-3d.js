@@ -76,7 +76,7 @@ function injectStyles() {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      background: #000000;
+      background: #ffffff;
       opacity: 1;
       visibility: visible;
       pointer-events: none;
@@ -154,9 +154,62 @@ function injectStyles() {
     }
   `;
 
+
+  style.textContent += `\n    /* logo-inspector-fit-v4 */
+    .jestei-chapter-hero__media--logo,
+    .jestei-chapter-hero__media--logo.media,
+    .jestei-chapter-hero__media--logo [data-visual-demo^="logo-inspector"],
+    .jestei-chapter-hero__media--logo [data-visual-demo*="logo-inspector"] {
+      overflow: visible;
+      min-width: 0;
+      max-width: none;
+    }
+
+    .logo-inspector-3d {
+      height: clamp(24rem, 48vw, 40rem);
+      min-height: clamp(24rem, 62svh, 34rem);
+      max-height: min(42rem, 82svh);
+      overflow: hidden;
+      contain: layout;
+      border: 0;
+      border-radius: 0;
+      background: #ffffff;
+    }
+
+    .logo-inspector-3d__canvas {
+      position: absolute;
+      inset-block: 0;
+      inset-inline: 0;
+      width: auto;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .logo-inspector-3d__canvas canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    @media (min-width: 721px) and (max-width: 1180px) {
+      .logo-inspector-3d__canvas {
+        inset-inline: calc(clamp(2rem, 8vw, 6rem) * -1);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .logo-inspector-3d {
+        height: clamp(25rem, 78svh, 40rem);
+        min-height: clamp(24rem, 70svh, 34rem);
+      }
+
+      .logo-inspector-3d__canvas {
+        inset-inline: 0;
+      }
+    }
+  `;
   document.head.appendChild(style);
 }
-
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
@@ -575,12 +628,42 @@ export function createLogoInspector3D(target, options = {}) {
       canvasHost.clientHeight || root.clientHeight || 1,
       1,
     );
-    const compact = width < 760;
-    const spacing = compact ? 1.9 : 2.35;
-    const scale = compact ? 0.68 : 0.84;
+    const aspect = width / height;
+    const tight = aspect < 1.35;
+    const compact = width < 860 || aspect < 1.62;
+    const roomy = width >= 1100 && aspect >= 1.82;
 
-    camera.aspect = width / height;
-    camera.fov = compact ? 36 : 32;
+    const fov = clamp(tight ? 39 : compact ? 36 : 32, 30, 40);
+    const cameraZ = clamp(
+      CAMERA_DISTANCE + (tight ? 0.7 : compact ? 0.36 : 0),
+      CAMERA_DISTANCE,
+      8.7,
+    );
+
+    const preferredScale = roomy ? 0.9 : compact ? 0.82 : 0.86;
+    const visibleWidth =
+      2 *
+      Math.tan(THREE.MathUtils.degToRad(fov * 0.5)) *
+      Math.max(cameraZ - INTRO_TARGET_Z, 1) *
+      aspect;
+    const estimatedLogoWidth = 1.48;
+    const targetGap = tight ? 0.3 : compact ? 0.4 : 0.56;
+    const fitScale =
+      (visibleWidth * 0.9 - targetGap * 2) / (estimatedLogoWidth * 3);
+    const scale = clamp(
+      Math.min(preferredScale, fitScale),
+      tight ? 0.66 : 0.72,
+      roomy ? 0.92 : 0.86,
+    );
+    const spacing = clamp(
+      estimatedLogoWidth * scale + targetGap,
+      tight ? 1.46 : 1.62,
+      roomy ? 2.58 : 2.28,
+    );
+
+    camera.aspect = aspect;
+    camera.fov = fov;
+    camera.position.z = cameraZ;
     camera.updateProjectionMatrix();
 
     stage.children.forEach((logo, index) => {

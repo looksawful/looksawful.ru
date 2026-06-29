@@ -139,7 +139,8 @@ async function mountThreeDemo(canvas) {
 }
 
 async function mountLogoInspector(target) {
-  if (!canUseHeavy3DVisuals()) {
+  if (!canUseLogo3DVisuals()) {
+    target.dataset.cvPoster ||= "/assets/media/cases/jesteipool/01-logo/01/02.webp";
     return mountVisualPosterFallback(target);
   }
 

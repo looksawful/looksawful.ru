@@ -931,3 +931,231 @@ html {
     line-height: 1.48;
   }
 }
+@media (max-width: 560px) {
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo {
+    display: grid;
+    place-items: center;
+    block-size: clamp(20rem, 86vw, 25.5rem);
+    min-block-size: 0;
+    margin-block: clamp(0.7rem, 4vw, 1.1rem) 0;
+    overflow: hidden;
+  }
+
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo > [data-visual-demo],
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo .logo-inspector-3d {
+    inline-size: 100%;
+    block-size: 100%;
+    min-block-size: 0;
+    max-block-size: none;
+  }
+
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo .logo-inspector-3d__canvas,
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo .logo-inspector-3d__poster {
+    inset-inline: 0;
+    inline-size: 100%;
+  }
+
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__media--logo .logo-inspector-3d__canvas {
+    transform: none;
+    transform-origin: center;
+  }
+
+  #showcase #jestei-frame-провели-ребрендинг .jestei-chapter-hero__subtitle {
+    margin-block-start: 0;
+  }
+}
+
+
+/* awful-showcase-chapter-header-contract-v15:start */
+#showcase :is(.project__header, .case__header) {
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  margin: 0;
+  padding: var(--showcase-header-pad, clamp(1.4rem, 3vw, 2.4rem));
+  border: var(--showcase-header-border, 1px solid var(--showcase-rule, color-mix(in srgb, currentColor 14%, transparent)));
+  border-radius: var(--showcase-header-radius, clamp(18px, 2.4vw, 32px));
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero)::before,
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero)::after {
+  content: none;
+  display: none;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) > :first-child {
+  margin-block-start: 0;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) > :last-child {
+  margin-block-end: 0;
+}
+
+#showcase :is(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) > :where(
+  .case-chapter-heading,
+  .jestei-chapter-hero__title,
+  .case-chapter-hero__title,
+  .jestei-chapter-hero__subtitle,
+  .case-chapter-hero__subtitle,
+  .case-note,
+  .jestei-chapter-hero__media,
+  .case-chapter-hero__media,
+  .jestei-chapter-hero__marquee,
+  .case-chapter-hero__marquee,
+  .media,
+  .media-group,
+  .media-figure,
+  [data-visual-demo]
+) {
+  margin-inline: 0;
+}
+/* awful-showcase-chapter-header-contract-v15:end */
+
+/* showcase-heading-motion-v22:start */
+#showcase .case-chapter__header .case-chapter-heading {
+  display: block;
+  inline-size: min(100%, var(--showcase-heading-width, 86rem));
+  max-inline-size: 100%;
+  margin: 0;
+  color: inherit;
+  line-height: 0.86;
+  letter-spacing: -0.072em;
+  text-wrap: balance;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  transform-origin: 0 70%;
+}
+
+#showcase .case-chapter__header .case-chapter-heading__main,
+#showcase .case-chapter__header .case-chapter-heading__accent {
+  display: inline-block;
+  max-inline-size: 100%;
+  vertical-align: baseline;
+  transform-origin: 0 80%;
+}
+
+#showcase .case-chapter__header .case-chapter-heading__accent {
+  margin-inline-start: clamp(0.12em, 0.8vw, 0.24em);
+  color: color-mix(in srgb, var(--black) 48%, transparent);
+  font-style: italic;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  transform: skewX(-9deg) translateY(0.03em);
+}
+
+#showcase .case-chapter__header .case-chapter-heading :where([data-reveal-char], [data-heading-char]) {
+  display: inline-block;
+  transform-origin: 50% 60%;
+  will-change: transform;
+  backface-visibility: visible;
+}
+
+@media (max-width: 64rem) {
+  #showcase .case-chapter__header .case-chapter-heading {
+    inline-size: 100%;
+    line-height: 0.88;
+    letter-spacing: -0.066em;
+  }
+
+  #showcase .case-chapter__header .case-chapter-heading__accent {
+    margin-inline-start: clamp(0.1em, 1.8vw, 0.2em);
+  }
+}
+
+@media (max-width: 48rem) {
+  #showcase .case-chapter__header .case-chapter-heading {
+    display: grid;
+    gap: 0.04em;
+    font-size: 3rem;
+    line-height: 0.96;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+    word-break: normal;
+  }
+
+  #showcase .case-chapter__header .case-chapter-heading__main,
+  #showcase .case-chapter__header .case-chapter-heading__accent {
+    display: block;
+    max-inline-size: 100%;
+  }
+
+  #showcase .case-chapter__header .case-chapter-heading__accent {
+    margin-inline-start: 0;
+    transform: skewX(-7deg);
+  }
+
+  #showcase .case-chapter__body :where(.title, .title--lg, .title--xl, h2, h3, h4, h5, h6) {
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+    word-break: normal;
+  }
+
+  #showcase .case-chapter__body :where(
+    .block__header,
+    .section-head,
+    .text-block,
+    .content-section__text
+  ):not(:where(
+    .policy-book,
+    .policy-book *,
+    [data-policy-book],
+    [data-policy-book] *,
+    .artifact-reader,
+    .artifact-reader *,
+    [data-artifact-reader],
+    [data-artifact-reader] *,
+    .playlist-filter-embed,
+    .playlist-filter-embed *,
+    [data-playlist-filter],
+    [data-playlist-filter] *,
+    [data-visual-demo],
+    [data-visual-demo] *
+  )) {
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  #showcase .case-chapter__body :where(.text-block > .title--lg, .text-block > h3, .text-block > h4, .text-block > h5, .text-block > h6) {
+    justify-self: start;
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    text-align: left;
+  }
+
+  #showcase .case-chapter__body :where(
+    .block__header > .title--lg,
+    .block__header > h3,
+    .block__header > h4,
+    .block__header > h5,
+    .block__header > h6,
+    .section-head > .title--lg,
+    .section-head > h3,
+    .section-head > h4,
+    .section-head > h5,
+    .section-head > h6
+  ) {
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+}
+
+@media (max-width: 30rem) {
+  #showcase .case-chapter__header .case-chapter-heading {
+    font-size: 2.45rem;
+    line-height: 0.98;
+    letter-spacing: 0;
+  }
+
+  #showcase .case-chapter__header .case-chapter-heading__accent {
+    margin-inline-start: 0;
+  }
+}
+/* showcase-heading-motion-v22:end */
