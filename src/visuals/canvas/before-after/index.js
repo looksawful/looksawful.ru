@@ -14,6 +14,8 @@ import { ANIMATION_SCENES, createAnimationItems } from "../showcase-animation-as
 const KEY_PREFIX = "showcase-before-after:";
 const DEFAULT_SCENE = "jesteiColorBeforeAfter";
 
+const POINTER_HIT_SLOP = 22;
+
 const CONFIG = {
   maxItems: 2,
   initialCount: 2,
@@ -193,7 +195,9 @@ export const mountShowcaseBeforeAfter = (canvasOrId, options = {}) => {
   const handlePointerDown = (event) => {
     event.preventDefault();
     state.dragging = true;
+    state.hovering = true;
     state.divider = getPointerRatio(event);
+    canvas.style.cursor = "grabbing";
     canvas.setPointerCapture?.(event.pointerId);
   };
 
@@ -208,6 +212,7 @@ export const mountShowcaseBeforeAfter = (canvasOrId, options = {}) => {
 
   const handlePointerUp = (event) => {
     state.dragging = false;
+    canvas.style.cursor = "";
     canvas.releasePointerCapture?.(event.pointerId);
   };
 
@@ -215,8 +220,8 @@ export const mountShowcaseBeforeAfter = (canvasOrId, options = {}) => {
     state.hovering = false;
   };
 
-  canvas.addEventListener("pointerdown", handlePointerDown);
-  canvas.addEventListener("pointermove", handlePointerMove);
+  canvas.addEventListener("pointerdown", handlePointerDown, { passive: false });
+  canvas.addEventListener("pointermove", handlePointerMove, { passive: false });
   canvas.addEventListener("pointerup", handlePointerUp);
   canvas.addEventListener("pointercancel", handlePointerUp);
   canvas.addEventListener("pointerleave", handlePointerLeave);

@@ -270,7 +270,7 @@
     link.className = "asset-card__link";
     link.href = asset.src;
     link.dataset.assetLightboxTrigger = "";
-    link.setAttribute("aria-label", asset.title || "открыть ассет");
+    link.setAttribute("aria-label", "открыть ассет");
 
     const mediaFrame = document.createElement("span");
     mediaFrame.className = "asset-card__media";
@@ -373,7 +373,7 @@
     }
 
     lightboxMediaHost.append(media);
-    if (lightboxTitle) lightboxTitle.textContent = title;
+    if (lightboxTitle) lightboxTitle.textContent = "";
     if (lightboxCounter) lightboxCounter.textContent = `${activeLightboxIndex + 1}/${visible.length}`;
   }
 

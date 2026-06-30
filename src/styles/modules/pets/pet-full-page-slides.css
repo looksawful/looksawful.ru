@@ -179,3 +179,30 @@
     transform: scale(0.7);
   }
 }
+
+/* awful-mobile-polish-final:start */
+#pets .pet-page-slides {
+  gap: clamp(3rem, 8vw, 7rem);
+}
+
+#pets .pet-page-slide {
+  display: grid;
+  gap: clamp(1rem, 3vw, 2rem);
+}
+
+#pets .pet-page-slide__header {
+  min-block-size: auto;
+  padding-block: 0;
+}
+
+#pets .pet-page-slide__title {
+  font-size: var(--type-chapter, clamp(3rem, 10vw, 9rem));
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+#pets .pet-page-slide__frame {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.055);
+}
+/* awful-mobile-polish-final:end */

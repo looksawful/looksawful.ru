@@ -22,6 +22,13 @@ const state = {
   pointerActive: false,
 };
 
+function syncLightboxViewport() {
+  if (!lightboxInstance?.root) return;
+  lightboxInstance.root.style.setProperty("--lightbox-real-vh", window.innerHeight + "px");
+  lightboxInstance.root.style.setProperty("--lightbox-real-vw", window.innerWidth + "px");
+}
+
+
 const icons = {
   prev: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.7 2.2 4.9 8l5.8 5.8-1.4 1.4L2.1 8 9.3.8l1.4 1.4Z"/></svg>',
   next: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5.3 13.8 5.8-5.8-5.8-5.8L6.7.8 13.9 8l-7.2 7.2-1.4-1.4Z"/></svg>',
@@ -187,6 +194,17 @@ const renderActiveItem = (lightbox) => {
   }
 
   lightbox.body.replaceChildren(media);
+
+  const syncOrientation = () => {
+    const width = media instanceof HTMLVideoElement ? media.videoWidth : media.naturalWidth;
+    const height = media instanceof HTMLVideoElement ? media.videoHeight : media.naturalHeight;
+    if (width && height) {
+      lightbox.root.dataset.mediaOrientation = width >= height ? "landscape" : "portrait";
+    }
+  };
+
+  media.addEventListener(media instanceof HTMLVideoElement ? "loadedmetadata" : "load", syncOrientation, { once: true });
+  syncOrientation();
   syncControls(lightbox);
   prefetchAdjacentItems();
 };
@@ -238,6 +256,7 @@ export function initLightbox(root = document) {
   };
 
   const open = (trigger) => {
+    syncLightboxViewport();
     state.items = getGalleryItems(trigger);
     state.index = Math.max(0, state.items.indexOf(trigger));
 
@@ -318,6 +337,9 @@ export function initLightbox(root = document) {
       if (event.key === "ArrowLeft") step(-1);
       if (event.key === "ArrowRight") step(1);
     });
+
+    window.addEventListener("resize", syncLightboxViewport, { passive: true });
+    window.addEventListener("orientationchange", syncLightboxViewport, { passive: true });
 
     lightbox.isBound = true;
   }

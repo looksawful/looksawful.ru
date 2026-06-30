@@ -50,3 +50,11 @@
   from { background-position: 220% 0; }
   to { background-position: -220% 0; }
 }
+
+/* awful-mobile-polish-final:start */
+[data-animation="before-after"],
+[data-animation="before-after"] canvas {
+  touch-action: none;
+  cursor: ew-resize;
+}
+/* awful-mobile-polish-final:end */

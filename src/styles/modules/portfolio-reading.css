@@ -522,3 +522,70 @@
     letter-spacing: -0.03em;
   }
 }
+
+/* awful-mobile-polish-final:start */
+#showcase {
+  --case-text: min(100%, 62rem);
+  --case-screen-copy-measure: min(100%, 66rem);
+  --heading-measure: min(100%, 100%);
+}
+
+#showcase .case-chapter__header .case-chapter-heading,
+#showcase .case-chapter__body :where(.block__header, .section-head) > :is(h3, h4, h5, h6, .title--lg),
+#showcase .case-chapter__body :where(.interface-section__title) {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  color: var(--black, #070707);
+  font-family: var(--font, inherit);
+  font-size: var(--type-chapter);
+  font-weight: 760;
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  text-align: left;
+  white-space: nowrap;
+  text-wrap: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  font-style: normal;
+}
+
+#showcase .case-chapter-heading__main,
+#showcase .case-chapter-heading__accent {
+  display: inline;
+  white-space: nowrap;
+  font-style: normal;
+}
+
+#showcase #jestei-frame-провели-ребрендинг .case-chapter-heading__accent {
+  font-style: italic;
+}
+
+#showcase .case-chapter__body :where(.text-block, .content-section__text, .interface-section__copy, .block) > p:not(:where(.policy-book *, .artifact-reader *, .playlist-filter-embed *, .token-list *, .media-group *, .case-note)),
+#showcase .case-chapter__header :where(.jestei-chapter-hero__subtitle, .case-chapter-hero__subtitle),
+#showcase .project__header p {
+  max-inline-size: var(--case-text);
+}
+
+@media (max-width: 48rem) {
+  #showcase .case-chapter__header .case-chapter-heading,
+  #showcase .case-chapter__body :where(.block__header, .section-head) > :is(h3, h4, h5, h6, .title--lg),
+  #showcase .case-chapter__body :where(.interface-section__title) {
+    justify-content: center;
+    text-align: center;
+    margin-inline: auto;
+  }
+
+  #showcase .case-chapter__body :where(.text-block, .content-section__text, .interface-section__copy, .block) > p:not(:where(.policy-book *, .artifact-reader *, .playlist-filter-embed *, .token-list *, .media-group *, .case-note)),
+  #showcase .case-chapter__header :where(.jestei-chapter-hero__subtitle, .case-chapter-hero__subtitle),
+  #showcase .project__header p,
+  .resume p,
+  .asset-page p {
+    margin-block-start: clamp(1rem, 5vw, 1.45rem);
+    margin-block-end: clamp(1.15rem, 5.5vw, 1.7rem);
+    line-height: 1.46;
+  }
+}
+/* awful-mobile-polish-final:end */

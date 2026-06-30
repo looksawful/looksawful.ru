@@ -102,7 +102,7 @@ function initPolicyBook(book) {
       const dx = event.clientX - pointerStartX;
       const dy = event.clientY - pointerStartY;
 
-      if (Math.abs(dx) > 24 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+      if (Math.abs(dx) > 16 && Math.abs(dx) > Math.abs(dy) * 1.08) {
         didDrag = true;
         event.preventDefault();
       }
@@ -119,7 +119,7 @@ function initPolicyBook(book) {
       const dx = event.clientX - pointerStartX;
       const dy = event.clientY - pointerStartY;
 
-      if (didDrag && Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+      if (didDrag && Math.abs(dx) > 34 && Math.abs(dx) > Math.abs(dy) * 1.08) {
         goToPage(currentIndex + (dx < 0 ? 1 : -1));
       }
     });

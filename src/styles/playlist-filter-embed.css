@@ -2853,3 +2853,36 @@ box-sizing: border-box;
     min-block-size: calc(var(--filter-design-height) * 1px);
   }
 }
+
+/* awful-mobile-polish-final:start */
+@media (max-width: 48rem) {
+  #showcase .interface-section__filter {
+    overflow: hidden;
+  }
+
+  #showcase .interface-section__filter .filter-fullscreen-wrapper {
+    --filter-design-width: 1540;
+    --filter-design-height: 760;
+    block-size: clamp(12rem, calc(var(--filter-design-height) * 1px * var(--filter-fit-scale)), 22rem);
+    overflow: hidden;
+    margin-block-end: clamp(0.6rem, 3vw, 1rem);
+  }
+
+  #showcase .interface-section__filter .playlist-filter-embed {
+    block-size: calc(var(--filter-design-height) * 1px);
+    overflow: hidden;
+  }
+
+  #showcase .interface-section__filter .playlist-filter-embed .animation-stage {
+    min-block-size: calc(var(--filter-design-height) * 1px);
+  }
+
+  .filter-fullscreen-btn {
+    z-index: 80;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.74);
+  }
+}
+/* awful-mobile-polish-final:end */

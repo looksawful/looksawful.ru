@@ -702,3 +702,91 @@
     max-inline-size: none;
   }
 }
+
+/* awful-mobile-polish-final:start */
+.lightbox {
+  --lightbox-pad: clamp(0.5rem, 2.2vw, 1.4rem);
+  position: fixed;
+  inset: 0;
+  place-items: center;
+  inline-size: 100vw;
+  inline-size: 100dvw;
+  block-size: var(--lightbox-real-vh, 100vh);
+  block-size: 100dvh;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.lightbox.is-open {
+  display: grid;
+}
+
+.lightbox__dialog {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 100vw;
+  inline-size: 100dvw;
+  block-size: var(--lightbox-real-vh, 100vh);
+  block-size: 100dvh;
+  max-inline-size: none;
+  max-block-size: none;
+  padding: var(--lightbox-pad);
+  overflow: hidden;
+}
+
+.lightbox__body {
+  inline-size: 100%;
+  block-size: 100%;
+  place-items: center;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.lightbox__body :where(img, video) {
+  inline-size: auto;
+  block-size: auto;
+  width: auto;
+  height: auto;
+  max-inline-size: calc(100dvw - (var(--lightbox-pad) * 2));
+  max-block-size: calc(100dvh - (var(--lightbox-pad) * 2));
+  object-fit: contain;
+}
+
+.lightbox[data-media-orientation="landscape"] .lightbox__body :where(img, video) {
+  inline-size: min(100%, calc(100dvw - (var(--lightbox-pad) * 2)));
+  block-size: auto;
+}
+
+.lightbox[data-media-orientation="portrait"] .lightbox__body :where(img, video) {
+  inline-size: auto;
+  block-size: min(100%, calc(100dvh - (var(--lightbox-pad) * 2)));
+}
+
+.showcase-video-controls {
+  display: none;
+}
+
+#showcase video::-webkit-media-controls-panel,
+#showcase video::-webkit-media-controls,
+#showcase video::-webkit-media-controls-enclosure {
+  display: none;
+}
+
+#showcase .case-chapter__body :where(.media-item, .media-group, .media-figure, .media-gallery, .media-banner),
+#pets :where(.pet-page-slide__frame, iframe) {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.055);
+}
+
+@media (max-width: 48rem) {
+  .lightbox {
+    --lightbox-pad: 0.5rem;
+  }
+
+  .lightbox__toolbar {
+    inset-block-start: calc(var(--lightbox-pad) + env(safe-area-inset-top));
+    inset-inline-end: calc(var(--lightbox-pad) + env(safe-area-inset-right));
+  }
+}
+/* awful-mobile-polish-final:end */

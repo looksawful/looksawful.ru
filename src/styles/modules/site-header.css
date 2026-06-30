@@ -329,3 +329,21 @@
     pointer-events: auto;
   }
 }
+
+/* awful-mobile-polish-final:start */
+.site-header .awfulface-container--trigger::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 4%;
+  border-radius: 50%;
+  border: 0;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.site-header .awfulface-container--trigger svg {
+  position: relative;
+  z-index: 1;
+}
+/* awful-mobile-polish-final:end */

@@ -272,3 +272,38 @@
     font-size: clamp(0.55rem, 2vw, 0.64rem);
   }
 }
+
+/* awful-mobile-polish-final:start */
+@media (max-width: 560px) {
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens {
+    display: flex;
+    align-items: stretch;
+    inline-size: auto;
+    max-inline-size: none;
+    margin-inline: calc(var(--page-gutter, 24px) * -0.5);
+    padding-inline: calc(var(--page-gutter, 24px) * 0.5);
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens > .text-block,
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group {
+    flex: 0 0 min(88vw, 25rem);
+    min-inline-size: min(88vw, 25rem);
+    scroll-snap-align: start;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .token-list__grid {
+    grid-template-columns: repeat(2, minmax(8.5rem, 1fr));
+  }
+
+  #showcase #jestei-frame-добавили-цвет .token-pill__name,
+  #showcase #jestei-frame-добавили-цвет .token-pill__value {
+    font-size: clamp(0.56rem, 2vw, 0.66rem);
+  }
+}
+/* awful-mobile-polish-final:end */

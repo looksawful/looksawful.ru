@@ -443,3 +443,15 @@
   }
 }
 
+/* awful-mobile-polish-final:start */
+@media (max-width: 48rem) {
+  .policy-book__viewport {
+    touch-action: pan-y pinch-zoom;
+    cursor: grab;
+  }
+
+  .policy-book__viewport:active {
+    cursor: grabbing;
+  }
+}
+/* awful-mobile-polish-final:end */

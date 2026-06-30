@@ -877,3 +877,32 @@
           scroll-behavior: auto !important;
         }
       }
+
+/* awful-mobile-polish-final:start */
+.asset-controls,
+.asset-status,
+.asset-card__pill,
+.asset-card__meta,
+.asset-lightbox__title {
+  display: none;
+}
+
+.asset-grid {
+  align-items: start;
+}
+
+.asset-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.asset-lightbox {
+  place-items: center;
+}
+
+.asset-lightbox__asset {
+  max-inline-size: calc(100dvw - 1rem);
+  max-block-size: calc(100dvh - 1rem);
+  object-fit: contain;
+}
+/* awful-mobile-polish-final:end */
