@@ -132,7 +132,7 @@ async function initDecorations(root = document) {
   pushGuardedImport(
     tasks,
     root,
-    "#showcase .case-chapter-heading, #showcase .case-chapter__body :is(h3, h4, h5, h6, .title--lg, .interface-section__title)",
+    "#showcase .case-chapter-heading, #showcase .case-chapter__body :is(h2, h3, h4, h5, h6, .title, .title--lg, .interface-section__title, .editorial-rail__title)",
     "initFitShowcaseHeadings",
     () => import("./fit-showcase-headings.js"),
     (module) => module.initFitShowcaseHeadings(root),
