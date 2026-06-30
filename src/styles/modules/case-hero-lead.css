@@ -1,0 +1,51 @@
+.case-hero-lead {
+  width: 100%;
+  margin-inline: auto;
+  padding-block: clamp(2.75rem, 6vw, 5.75rem) clamp(3.25rem, 7vw, 6.5rem);
+  padding-inline: 0;
+  display: grid;
+  place-items: center;
+}
+
+.case-hero-lead p {
+  width: min(100%, 58ch);
+  max-width: none;
+  margin: 0 auto;
+  color: var(--black, #111111);
+  text-align: justify;
+  text-align-last: center;
+  text-wrap: pretty;
+  hyphens: auto;
+  font-size: clamp(1.2rem, 1.85vw, 2.35rem);
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+@media (max-width: 64rem) {
+  .case-hero-lead {
+    padding-block: clamp(2.5rem, 8vw, 4.75rem) clamp(3rem, 9vw, 5.5rem);
+  }
+
+  .case-hero-lead p {
+    width: min(100%, 52ch);
+    font-size: clamp(1.2rem, 3.25vw, 2rem);
+    line-height: 1.22;
+    letter-spacing: -0.032em;
+  }
+}
+
+@media (max-width: 36rem) {
+  .case-hero-lead {
+    padding-block: 2.25rem 3.25rem;
+  }
+
+  .case-hero-lead p {
+    width: 100%;
+    font-size: clamp(1.12rem, 5.4vw, 1.55rem);
+    line-height: 1.27;
+    letter-spacing: -0.026em;
+    text-align: justify;
+    text-align-last: left;
+  }
+}
