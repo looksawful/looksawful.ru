@@ -2448,17 +2448,29 @@ const initPlaylistFilterRoot = (embedRoot) => {
 
     let presentationStarted = false;
 
+    const showStaticInteractiveFilter = () => {
+      resetFilterState();
+      state.open = true;
+      state.advanced = true;
+      state.keyPopup = false;
+      state.keyVariant = "camelot";
+      render();
+      setInteractiveMode();
+      all(".animation-focus").forEach((element) => element.classList.remove("animation-focus"));
+      gsap.set(presentationApp, { clearProps: MOTION_PROPS });
+      gsap.set(tip, { autoAlpha: 0, x: 0, y: 0 });
+      gsap.set(black, { autoAlpha: 0 });
+      activeTip = null;
+      resizeStage();
+    };
+
     const startPresentation = () => {
       if (presentationStarted) {
         return;
       }
 
       presentationStarted = true;
-
-      runPresentation().catch((error) => {
-        console.error("Filter presentation failed:", error);
-        finishInteractive();
-      });
+      showStaticInteractiveFilter();
     };
 
     const startPresentationWhenVisible = () => {
@@ -2497,4 +2509,3 @@ export const initPlaylistFilterEmbed = (scope = document) => {
 
   roots.forEach((root) => initPlaylistFilterRoot(root));
 };
-

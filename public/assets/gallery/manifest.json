@@ -133,7 +133,7 @@
     },
     {
       "id": "asset-010",
-      "src": "/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages/01.webp",
+      "src": "/assets/media/cases/jesteipool/05-motion/03/01.webp",
       "type": "image",
       "project": "jesteipool",
       "category": "banner",
@@ -142,14 +142,14 @@
         "landing"
       ],
       "title": "01",
-      "width": 900,
-      "height": 1600,
-      "ratio": 0.5625,
-      "variant": "tall"
+      "width": 1600,
+      "height": 900,
+      "ratio": 1.7778,
+      "variant": "wide"
     },
     {
       "id": "asset-011",
-      "src": "/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages/02.webp",
+      "src": "/assets/media/cases/jesteipool/05-motion/03/02.webp",
       "type": "image",
       "project": "jesteipool",
       "category": "banner",
@@ -158,10 +158,10 @@
         "landing"
       ],
       "title": "02",
-      "width": 900,
-      "height": 1600,
-      "ratio": 0.5625,
-      "variant": "tall"
+      "width": 1600,
+      "height": 900,
+      "ratio": 1.7778,
+      "variant": "wide"
     },
     {
       "id": "asset-012",
@@ -213,22 +213,6 @@
     },
     {
       "id": "asset-015",
-      "src": "/assets/media/cases/jesteipool/05-motion/03/06.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "banner",
-      "tags": [
-        "motion",
-        "landing"
-      ],
-      "title": "06",
-      "width": 1600,
-      "height": 900,
-      "ratio": 1.7778,
-      "variant": "wide"
-    },
-    {
-      "id": "asset-016",
       "src": "/assets/media/cases/jesteipool/06-graphic/01/51.webp",
       "type": "image",
       "project": "jesteipool",
@@ -244,7 +228,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-017",
+      "id": "asset-016",
       "src": "/assets/media/cases/jesteipool/06-graphic/02/43.webp",
       "type": "image",
       "project": "jesteipool",
@@ -260,7 +244,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-018",
+      "id": "asset-017",
       "src": "/assets/media/cases/jesteipool/03-form/02/02.webp",
       "type": "image",
       "project": "jesteipool",
@@ -275,7 +259,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-019",
+      "id": "asset-018",
       "src": "/assets/media/cases/jesteipool/03-form/05/02.webp",
       "type": "image",
       "project": "jesteipool",
@@ -290,7 +274,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-020",
+      "id": "asset-019",
       "src": "/assets/media/cases/jesteipool/03-form/07/15.webp",
       "type": "image",
       "project": "jesteipool",
@@ -305,7 +289,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-021",
+      "id": "asset-020",
       "src": "/assets/media/cases/jesteipool/03-form/07/16.webp",
       "type": "image",
       "project": "jesteipool",
@@ -320,7 +304,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-022",
+      "id": "asset-021",
       "src": "/assets/media/cases/jesteipool/03-form/07/08.webp",
       "type": "image",
       "project": "jesteipool",
@@ -335,623 +319,23 @@
       "variant": "wide"
     },
     {
+      "id": "asset-022",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/34.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "34",
+      "width": 1600,
+      "height": 1280,
+      "ratio": 1.25,
+      "variant": "wide"
+    },
+    {
       "id": "asset-023",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/01.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "01",
-      "width": 1024,
-      "height": 1024,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-024",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/04.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "04",
-      "width": 1024,
-      "height": 1024,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-025",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/13.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "13",
-      "width": 1600,
-      "height": 1600,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-026",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/15.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "15",
-      "width": 800,
-      "height": 800,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-027",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/16.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "16",
-      "width": 1200,
-      "height": 1200,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-028",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/17.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "17",
-      "width": 1200,
-      "height": 1200,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-029",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/21.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "21",
-      "width": 1200,
-      "height": 1200,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-030",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/22.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "22",
-      "width": 1200,
-      "height": 1200,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-031",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/23.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "23",
-      "width": 1200,
-      "height": 1200,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-032",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/24.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "24",
-      "width": 1200,
-      "height": 1200,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-033",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/29.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "29",
-      "width": 1200,
-      "height": 1200,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-034",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/32.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "32",
-      "width": 1200,
-      "height": 1200,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-035",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/33.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "33",
-      "width": 688,
-      "height": 688,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-036",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/44.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "44",
-      "width": 1024,
-      "height": 1024,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-037",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/45.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "45",
-      "width": 298,
-      "height": 298,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-038",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/49.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "49",
-      "width": 1114,
-      "height": 1114,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-039",
-      "src": "/assets/media/cases/jesteipool/03-form/07/11.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "banner",
-      "tags": [
-        "landing"
-      ],
-      "title": "11",
-      "width": 1600,
-      "height": 1600,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-040",
-      "src": "/assets/media/cases/jesteipool/03-form/06/03.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "banner",
-      "tags": [
-        "landing"
-      ],
-      "title": "03",
-      "width": 1600,
-      "height": 1600,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-041",
-      "src": "/assets/media/cases/jesteipool/03-form/06/06.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "banner",
-      "tags": [
-        "landing"
-      ],
-      "title": "06",
-      "width": 1821,
-      "height": 1820,
-      "ratio": 1.0005,
-      "variant": "square"
-    },
-    {
-      "id": "asset-042",
-      "src": "/assets/media/cases/jesteipool/03-form/06/08.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "banner",
-      "tags": [
-        "landing"
-      ],
-      "title": "08",
-      "width": 2048,
-      "height": 2048,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-043",
-      "src": "/assets/media/cases/jesteipool/03-form/06/12.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "banner",
-      "tags": [
-        "landing"
-      ],
-      "title": "12",
-      "width": 1821,
-      "height": 1820,
-      "ratio": 1.0005,
-      "variant": "square"
-    },
-    {
-      "id": "asset-044",
-      "src": "/assets/media/cases/jesteipool/03-form/06/15.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "banner",
-      "tags": [
-        "landing"
-      ],
-      "title": "15",
-      "width": 1600,
-      "height": 1600,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-045",
-      "src": "/assets/media/cases/jesteipool/03-form/02/01.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "banner",
-      "tags": [
-        "landing"
-      ],
-      "title": "01",
-      "width": 1024,
-      "height": 1019,
-      "ratio": 1.0049,
-      "variant": "square"
-    },
-    {
-      "id": "asset-046",
-      "src": "/assets/media/cases/jesteipool/03-form/02/03.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "banner",
-      "tags": [
-        "landing"
-      ],
-      "title": "03",
-      "width": 1600,
-      "height": 1600,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-047",
-      "src": "/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-01.mp4",
-      "type": "video",
-      "project": "jesteipool",
-      "category": "ad",
-      "tags": [
-        "motion",
-        "landing"
-      ],
-      "title": "collage video placeholder 01",
-      "width": 0,
-      "height": 0,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-048",
-      "src": "/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-02.mp4",
-      "type": "video",
-      "project": "jesteipool",
-      "category": "ad",
-      "tags": [
-        "motion",
-        "landing"
-      ],
-      "title": "collage video placeholder 02",
-      "width": 0,
-      "height": 0,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-049",
-      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-01.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "banner design 01",
-      "width": 1600,
-      "height": 900,
-      "ratio": 1.7778,
-      "variant": "wide"
-    },
-    {
-      "id": "asset-050",
-      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-02.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "banner design 02",
-      "width": 1600,
-      "height": 900,
-      "ratio": 1.7778,
-      "variant": "wide"
-    },
-    {
-      "id": "asset-051",
-      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-03.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "banner design 03",
-      "width": 1600,
-      "height": 900,
-      "ratio": 1.7778,
-      "variant": "wide"
-    },
-    {
-      "id": "asset-052",
-      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-04.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "banner design 04",
-      "width": 1600,
-      "height": 900,
-      "ratio": 1.7778,
-      "variant": "wide"
-    },
-    {
-      "id": "asset-053",
-      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-05.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "banner design 05",
-      "width": 1600,
-      "height": 420,
-      "ratio": 3.8095,
-      "variant": "banner"
-    },
-    {
-      "id": "asset-054",
-      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-06.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "banner design 06",
-      "width": 1234,
-      "height": 900,
-      "ratio": 1.3711,
-      "variant": "wide"
-    },
-    {
-      "id": "asset-055",
-      "src": "/assets/media/cases/jesteipool/06-graphic/02/10.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "10",
-      "width": 1289,
-      "height": 1230,
-      "ratio": 1.048,
-      "variant": "square"
-    },
-    {
-      "id": "asset-056",
-      "src": "/assets/media/cases/jesteipool/06-graphic/01/07.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "07",
-      "width": 1024,
-      "height": 1024,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-057",
-      "src": "/assets/media/cases/jesteipool/06-graphic/01/16.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "16",
-      "width": 1024,
-      "height": 1024,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-058",
-      "src": "/assets/media/cases/jesteipool/06-graphic/01/24.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "24",
-      "width": 1024,
-      "height": 1024,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-059",
-      "src": "/assets/media/cases/jesteipool/06-graphic/01/26.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "26",
-      "width": 1024,
-      "height": 1024,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-060",
-      "src": "/assets/media/cases/jesteipool/06-graphic/01/33.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "33",
-      "width": 1024,
-      "height": 1024,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-061",
-      "src": "/assets/media/cases/jesteipool/06-graphic/01/36.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "36",
-      "width": 1024,
-      "height": 1024,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-062",
       "src": "/assets/media/cases/jesteipool/06-graphic/01/39.webp",
       "type": "image",
       "project": "jesteipool",
@@ -967,23 +351,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-063",
-      "src": "/assets/media/cases/jesteipool/06-graphic/01/40.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "social",
-      "tags": [
-        "editorial",
-        "ai"
-      ],
-      "title": "40",
-      "width": 1024,
-      "height": 1024,
-      "ratio": 1,
-      "variant": "square"
-    },
-    {
-      "id": "asset-064",
+      "id": "asset-024",
       "src": "/assets/media/cases/jesteipool/06-graphic/01/45.webp",
       "type": "image",
       "project": "jesteipool",
@@ -999,8 +367,8 @@
       "variant": "square"
     },
     {
-      "id": "asset-065",
-      "src": "/assets/media/cases/jesteipool/06-graphic/01/46.webp",
+      "id": "asset-025",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/49.webp",
       "type": "image",
       "project": "jesteipool",
       "category": "social",
@@ -1008,14 +376,30 @@
         "editorial",
         "ai"
       ],
-      "title": "46",
-      "width": 1024,
-      "height": 1024,
+      "title": "49",
+      "width": 1114,
+      "height": 1114,
       "ratio": 1,
       "variant": "square"
     },
     {
-      "id": "asset-066",
+      "id": "asset-026",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/51.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "51",
+      "width": 550,
+      "height": 412,
+      "ratio": 1.335,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-027",
       "src": "/assets/media/cases/styx/00/01.svg",
       "type": "image",
       "project": "styx",
@@ -1030,7 +414,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-067",
+      "id": "asset-028",
       "src": "/assets/media/cases/styx/01/01/01.webp",
       "type": "image",
       "project": "styx",
@@ -1045,7 +429,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-068",
+      "id": "asset-029",
       "src": "/assets/media/cases/styx/01/01/02.webp",
       "type": "image",
       "project": "styx",
@@ -1060,7 +444,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-069",
+      "id": "asset-030",
       "src": "/assets/media/cases/styx/01/01/03.webp",
       "type": "image",
       "project": "styx",
@@ -1075,7 +459,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-070",
+      "id": "asset-031",
       "src": "/assets/media/cases/styx/01/01/04.mp4",
       "type": "video",
       "project": "styx",
@@ -1092,7 +476,7 @@
       "poster": "/assets/media/cases/styx/01/01/04-poster.webp"
     },
     {
-      "id": "asset-071",
+      "id": "asset-032",
       "src": "/assets/media/cases/styx/01/02/01.webp",
       "type": "image",
       "project": "styx",
@@ -1107,7 +491,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-072",
+      "id": "asset-033",
       "src": "/assets/media/cases/styx/01/02/02.webp",
       "type": "image",
       "project": "styx",
@@ -1122,7 +506,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-073",
+      "id": "asset-034",
       "src": "/assets/media/cases/styx/01/02/03.webp",
       "type": "image",
       "project": "styx",
@@ -1137,7 +521,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-074",
+      "id": "asset-035",
       "src": "/assets/media/cases/styx/01/02/04.webp",
       "type": "image",
       "project": "styx",
@@ -1152,7 +536,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-075",
+      "id": "asset-036",
       "src": "/assets/media/cases/styx/03/01/01.png",
       "type": "image",
       "project": "styx",
@@ -1167,7 +551,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-076",
+      "id": "asset-037",
       "src": "/assets/media/cases/styx/03/02/01.webp",
       "type": "image",
       "project": "styx",
@@ -1182,7 +566,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-077",
+      "id": "asset-038",
       "src": "/assets/media/cases/styx/03/02/02.webp",
       "type": "image",
       "project": "styx",
@@ -1197,7 +581,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-078",
+      "id": "asset-039",
       "src": "/assets/media/cases/styx/03/02/03.webp",
       "type": "image",
       "project": "styx",
@@ -1212,7 +596,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-079",
+      "id": "asset-040",
       "src": "/assets/media/cases/styx/03/02/04.webp",
       "type": "image",
       "project": "styx",
@@ -1227,7 +611,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-080",
+      "id": "asset-041",
       "src": "/assets/media/cases/styx/03/02/05.webp",
       "type": "image",
       "project": "styx",
@@ -1242,7 +626,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-081",
+      "id": "asset-042",
       "src": "/assets/media/cases/styx/03/02/06.webp",
       "type": "image",
       "project": "styx",
@@ -1257,7 +641,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-082",
+      "id": "asset-043",
       "src": "/assets/media/cases/styx/03/02/07.webp",
       "type": "image",
       "project": "styx",
@@ -1272,7 +656,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-083",
+      "id": "asset-044",
       "src": "/assets/media/cases/styx/03/02/08.webp",
       "type": "image",
       "project": "styx",
@@ -1287,7 +671,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-084",
+      "id": "asset-045",
       "src": "/assets/media/cases/styx/04/01/01.mp4",
       "type": "video",
       "project": "styx",
@@ -1304,7 +688,7 @@
       "poster": "/assets/media/cases/styx/04/01/01-poster.webp"
     },
     {
-      "id": "asset-085",
+      "id": "asset-046",
       "src": "/assets/media/cases/styx/04/01/02.mp4",
       "type": "video",
       "project": "styx",
@@ -1321,7 +705,7 @@
       "poster": "/assets/media/cases/styx/04/01/02-poster.webp"
     },
     {
-      "id": "asset-086",
+      "id": "asset-047",
       "src": "/assets/media/cases/styx/04/02/01.webp",
       "type": "image",
       "project": "styx",
@@ -1336,7 +720,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-087",
+      "id": "asset-048",
       "src": "/assets/media/cases/styx/04/02/02.webp",
       "type": "image",
       "project": "styx",
@@ -1351,7 +735,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-088",
+      "id": "asset-049",
       "src": "/assets/media/cases/styx/04/02/03.webp",
       "type": "image",
       "project": "styx",
@@ -1366,7 +750,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-089",
+      "id": "asset-050",
       "src": "/assets/media/cases/styx/04/02/04.webp",
       "type": "image",
       "project": "styx",
@@ -1381,7 +765,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-090",
+      "id": "asset-051",
       "src": "/assets/media/cases/styx/04/02/05.webp",
       "type": "image",
       "project": "styx",
@@ -1396,7 +780,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-091",
+      "id": "asset-052",
       "src": "/assets/media/cases/styx/04/02/06.webp",
       "type": "image",
       "project": "styx",
@@ -1411,7 +795,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-092",
+      "id": "asset-053",
       "src": "/assets/media/cases/styx/04/02/07.webp",
       "type": "image",
       "project": "styx",
@@ -1426,7 +810,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-093",
+      "id": "asset-054",
       "src": "/assets/media/cases/styx/04/02/08.webp",
       "type": "image",
       "project": "styx",
@@ -1441,7 +825,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-094",
+      "id": "asset-055",
       "src": "/assets/media/cases/shootings/05/01.webp",
       "type": "image",
       "project": "shootings",
@@ -1456,7 +840,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-095",
+      "id": "asset-056",
       "src": "/assets/media/cases/shootings/06/01.webp",
       "type": "image",
       "project": "shootings",
@@ -1471,7 +855,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-096",
+      "id": "asset-057",
       "src": "/assets/media/cases/shootings/06/02.webp",
       "type": "image",
       "project": "shootings",
@@ -1486,7 +870,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-097",
+      "id": "asset-058",
       "src": "/assets/media/cases/shootings/06/03.webp",
       "type": "image",
       "project": "shootings",
@@ -1501,7 +885,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-098",
+      "id": "asset-059",
       "src": "/assets/media/cases/shootings/07/01.webp",
       "type": "image",
       "project": "shootings",
@@ -1516,7 +900,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-099",
+      "id": "asset-060",
       "src": "/assets/media/cases/shootings/07/02.webp",
       "type": "image",
       "project": "shootings",
@@ -1531,7 +915,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-100",
+      "id": "asset-061",
       "src": "/assets/media/cases/shootings/07/03.webp",
       "type": "image",
       "project": "shootings",
@@ -1546,7 +930,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-101",
+      "id": "asset-062",
       "src": "/assets/media/cases/shootings/07/04.webp",
       "type": "image",
       "project": "shootings",
@@ -1561,7 +945,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-102",
+      "id": "asset-063",
       "src": "/assets/media/cases/shootings/07/05.webp",
       "type": "image",
       "project": "shootings",
@@ -1576,7 +960,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-103",
+      "id": "asset-064",
       "src": "/assets/media/cases/shootings/07/06.webp",
       "type": "image",
       "project": "shootings",
@@ -1591,7 +975,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-104",
+      "id": "asset-065",
       "src": "/assets/media/cases/shootings/08/01.webp",
       "type": "image",
       "project": "shootings",
@@ -1606,7 +990,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-105",
+      "id": "asset-066",
       "src": "/assets/media/cases/shootings/08/02.webp",
       "type": "image",
       "project": "shootings",
@@ -1621,7 +1005,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-106",
+      "id": "asset-067",
       "src": "/assets/media/cases/shootings/08/03.webp",
       "type": "image",
       "project": "shootings",
@@ -1636,7 +1020,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-107",
+      "id": "asset-068",
       "src": "/assets/media/cases/shootings/08/04.webp",
       "type": "image",
       "project": "shootings",
@@ -1651,7 +1035,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-108",
+      "id": "asset-069",
       "src": "/assets/media/cases/shootings/08/05.webp",
       "type": "image",
       "project": "shootings",
@@ -1666,7 +1050,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-109",
+      "id": "asset-070",
       "src": "/assets/media/cases/shootings/08/06.webp",
       "type": "image",
       "project": "shootings",
@@ -1681,7 +1065,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-110",
+      "id": "asset-071",
       "src": "/assets/media/cases/shootings/08/07.webp",
       "type": "image",
       "project": "shootings",
@@ -1696,7 +1080,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-111",
+      "id": "asset-072",
       "src": "/assets/media/cases/shootings/08/08.webp",
       "type": "image",
       "project": "shootings",
@@ -1711,7 +1095,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-112",
+      "id": "asset-073",
       "src": "/assets/media/cases/shootings/08/09.webp",
       "type": "image",
       "project": "shootings",
@@ -1726,7 +1110,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-113",
+      "id": "asset-074",
       "src": "/assets/media/cases/shootings/08/10.webp",
       "type": "image",
       "project": "shootings",
