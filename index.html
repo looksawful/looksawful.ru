@@ -235,7 +235,7 @@
 </figure>
 <div>
 <h3 class="title title--display">jestei pool</h3>
-<ul class="chips chips--role">
+<ul class="chips">
 <li class="chip">арт-директор</li>
 <li class="chip">ui/ux-лид</li>
 <li class="chip">дизайн-лид</li>
@@ -276,8 +276,8 @@ hidden-draft:jesteipool-header-responsibilities:end -->
 <div class="case-chapter__body">
 <section aria-labelledby="jestei-logo-chapter" class="project-chapter stack">
 <section class="block">
-<header class="block__header component-caption section-head">
-<h5 class="title title--lg">новый логотип</h5>
+<header class="block__header section-head">
+<h4 class="title title--lg" id="jestei-logo-chapter">новый логотип</h4>
 
 </header><p>логотип стал частью визуальной системы, а не отдельной картинкой в шапке. он работает в интерфейсе, промо, обложках, печати и motion-материалах; плоская svg-версия, 3d-модель и анимации собраны в одну систему.</p>
 
@@ -317,8 +317,8 @@ hidden-draft:jesteipool-header-responsibilities:end -->
 <section class="block">
 <div class="content-section content-section--text-media content-section--tokens" data-content-section="text-media">
 <section class="text-block content-section__text">
-<header class="block__header component-caption section-head">
-<h5 class="title title--lg">цвет</h5>
+<header class="block__header section-head">
+<h4 class="title title--lg" id="jestei-color-chapter">цвет</h4>
 
 </header><p>раньше сервис держался на серо-оранжевой палитре. новая система добавила 4 продуктовые темы: оранжевую для club, грушевую для event, синюю для эксклюзивов и лавандовую для экспериментальных инструментов. record pool, event, Pro и экспериментальные инструменты разделены цветом. оранжевая тема сохраняет связь с основным record pool. грушевая тема отделяет сценарии мероприятий от клубной ленты. синяя тема выделяет эксклюзивы и профессиональные инструменты.</p>
 
@@ -443,8 +443,8 @@ hidden-draft:jesteipool-header-responsibilities:end -->
 <div class="case-chapter__body">
 <section aria-labelledby="jestei-communications-chapter" class="project-chapter stack">
 <section class="block">
-<header class="block__header component-caption section-head">
-<h5 class="title title--lg">редполитика</h5>
+<header class="block__header section-head">
+<h4 class="title title--lg" id="jestei-communications-chapter">редполитика</h4>
 
 
 <p class="case-note">редполитика фиксирует язык сервиса: термины, ограничения интерфейсных текстов, правила жанров, подсказки и продуктовые описания.</p></header>
@@ -3943,145 +3943,99 @@ hidden-draft:jesteipool-words-supporting-image:end -->
 <p class="jestei-chapter-hero__subtitle">пересобрали навигацию, фильтры, ленты, лендинги и тарифные сценарии так, чтобы пользователь быстрее находил музыку, понимал доступ и не застревал в лишней вложенности.</p>
 </header>
 <div class="case-chapter__body">
-<section class="text-block content-section__text">
-<h5 class="title title--lg">упростили навигацию event</h5><p>разобрали скрытую вложенность: вместо цепочек из папок и подпапок пользователь видит один уровень структуры и доходит до нужного event-плейлиста за 1–2 перехода.</p>
-
-
+<section class="project-chapter stack interface-sections" aria-label="интерфейсные секции jestei pool">
+<section class="block interface-section interface-section--filter" aria-labelledby="interface-filter-title">
+      <header class="block__header section-head interface-section__header">
+        <p class="interface-section__kicker">секция 01</p>
+        <h4 class="title title--lg" id="interface-filter-title">создали системы фильтрации</h4>
+      </header>
+      <div class="interface-section__filter">
+                <aside aria-label="интерактивный фильтр треков jestei pool" class="media-banner no-stroke filter-fullscreen-wrapper media-gallery media-gallery--banner" data-media-gallery="banner">
+                            <button aria-label="фильтр на весь экран" aria-pressed="false" class="filter-fullscreen-btn" data-filter-fullscreen="" type="button">
+                              <svg aria-hidden="true" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+                              </svg>
+                            </button>
+                            <div class="playlist-filter-embed" data-playlist-filter-embed="">
+                              <main aria-label="демонстрация фильтра плейлиста" class="animation-stage is-animation" data-animation-stage="">
+                                <div class="animation-scale" data-animation-scale="">
+                                  <section class="jp-filter" data-playlist-filter-app=""></section>
+                                </div>
+                                <div aria-hidden="true" class="animation-black" data-animation-black=""></div>
+                                <div aria-live="polite" class="animation-tip" data-animation-tip="" role="status"></div>
+                              </main>
+                              <div aria-hidden="true" class="hover-tooltip" data-hover-tooltip-layer="" role="tooltip"></div>
+                            </div>
+                          </aside>
+              </div>
+      <div class="interface-section__copy content-section__text">
+        <p>вместо перегруженной модалки появился фильтр в контексте ленты. record pool и event получили две разные поисковые логики и три состояния интерфейса: скрытое, минимизированное и продвинутое.</p>
+                  <p class="case-note">жанры, метки, bpm, тональность, рейтинг, тип трека, часть ночи и исключения собраны в рабочий инструмент для быстрого поиска музыки.</p>
+      </div>
+    </section>
+<section class="block interface-section interface-section--structure" aria-labelledby="interface-structure-title">
+      <header class="block__header section-head interface-section__header">
+        <p class="interface-section__kicker">секция 02</p>
+        <h4 class="title title--lg" id="interface-structure-title">упростили навигацию event</h4>
+      </header>
+      <aside aria-label="экраны навигации event" class="media-group media-group--three media-group--landscape media-group--fit-contain media-group--interface-grid interface-section__media interface-section__screens media-group--mobile-rail" data-mobile-layout="rail">
+                <a class="media-item" data-caption="01" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/04-depth/01/01.webp" rel="noopener noreferrer" target="_blank">
+                  <img alt="" class="media-transparent" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/04-depth/01/01.webp" />
+                </a>
+                <a class="media-item" data-caption="02" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/04-depth/01/02.webp" rel="noopener noreferrer" target="_blank">
+                  <img alt="" class="media-transparent" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/04-depth/01/02.webp" />
+                </a>
+                <a class="media-item" data-caption="03" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/04-depth/01/03.webp" rel="noopener noreferrer" target="_blank">
+                  <img alt="" class="media-transparent" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/04-depth/01/03.webp" />
+                </a>
+              </aside>
+      <div class="interface-section__copy content-section__text">
+        <p>разобрали скрытую вложенность: вместо цепочек из папок и подпапок пользователь видит один уровень структуры и доходит до нужного event-плейлиста за 1–2 перехода.</p>
+                  <p class="case-note">главные плейлисты вынесены выше, редкие подборки остались в папках и коллекциях. папки, коллекции, плейлисты и подборки получили разные роли и визуальные формы.</p>
+      </div>
+    </section>
+<section class="block interface-section interface-section--promo" aria-labelledby="interface-promo-title">
+      <header class="block__header section-head interface-section__header">
+        <p class="interface-section__kicker">секция 03</p>
+        <h4 class="title title--lg" id="interface-promo-title">промо-организмы</h4>
+      </header>
+      <section aria-label="промо-организмы" class="media interface-section__media interface-section__media--diagonal no-stroke" data-animation="diagonal">
+  <canvas class="visual-canvas" data-animation-scene="jesteiPromoDiagonal" id="project-jestei-promo-diagonal"></canvas>
 </section>
-<aside aria-label="jestei depth before gallery" class="media-group media-group--trio media-group--portrait media-group--fit-contain media-group--interface-viewer" data-media-count="3" data-media-group="trio">
-<a class="media-item" data-caption="01" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/04-depth/01/01.webp" rel="noopener noreferrer" target="_blank">
-<img alt="" class="media-transparent" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/04-depth/01/01.webp"/>
-</a>
-<a class="media-item" data-caption="02" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/04-depth/01/02.webp" rel="noopener noreferrer" target="_blank">
-<img alt="" class="media-transparent" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/04-depth/01/02.webp"/>
-</a>
-<a class="media-item" data-caption="03" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/04-depth/01/03.webp" rel="noopener noreferrer" target="_blank">
-<img alt="" class="media-transparent" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/04-depth/01/03.webp"/>
-</a>
+      <div class="interface-section__copy content-section__text">
+        <p>промо-организмы связывают рекламу, рассылки и сайт: пользователь может открыть конкретный трек, понять доступ, увидеть превью и перейти к регистрации или подписке.</p>
+                  <p class="case-note">превью трека стало отдельной точкой входа в продукт и ведёт пользователя к конкретному действию, а не на общий экран.</p>
+      </div>
+    </section>
+<section class="block interface-section interface-section--landing" aria-labelledby="interface-landing-title">
+      <header class="block__header section-head interface-section__header">
+        <p class="interface-section__kicker">секция 04</p>
+        <h4 class="title title--lg" id="interface-landing-title">лендинговая экосистема</h4>
+      </header>
+      <aside aria-label="лендинговая экосистема" class="media-group media-group--pair media-group--portrait media-group--fit-contain media-group--mobile-rail interface-section__media interface-section__media--landing-pair" data-media-count="2" data-media-group="pair">
+  <a class="media-item" data-caption="01" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages/01.webp" rel="noopener noreferrer" target="_blank">
+    <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages/01.webp" />
+  </a>
+  <a class="media-item" data-caption="02" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages/02.webp" rel="noopener noreferrer" target="_blank">
+    <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages/02.webp" />
+  </a>
 </aside>
-<p>распаковали вложенность: главные плейлисты вынесли выше, редкие подборки оставили в папках и коллекциях. структура стала понятнее без удаления полезной группировки. разделили типы сущностей: папки, коллекции, плейлисты и подборки получили разные роли и визуальные формы. пользователь быстрее понимает, куда он попал и что находится внутри. собрали карточки по ролям: авторские, жанровые, динамические и тематические плейлисты получили разные формы карточек, чтобы сетка не превращалась в одинаковую ленту.</p>
-<section class="block">
-<header class="block__header component-caption section-head">
-<h5 class="title title--lg">создали системы фильтрации</h5>
-<p>вместо перегруженной модалки появился фильтр в контексте ленты. record pool и event получили две разные поисковые логики и три состояния интерфейса: скрытое, минимизированное и продвинутое. параметры поиска перенесены в текст: жанры, метки, bpm, тональность, рейтинг, тип трека, часть ночи и исключения. жанры собраны в 7 групп, метки — в 8 профессиональных признаков</p>
-</header>
-<aside
-                      aria-label="интерактивный фильтр треков jestei pool"
-                      class="media-banner no-stroke filter-fullscreen-wrapper media-gallery media-gallery--banner"
-                      data-media-gallery="banner"
-                    >
-                      <button
-                        aria-label="фильтр на весь экран"
-                        aria-pressed="false"
-                        class="filter-fullscreen-btn"
-                        data-filter-fullscreen=""
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          fill="none"
-                          viewbox="0 0 16 16"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="1.5"
-                          ></path>
-                        </svg>
-                      </button>
-                      <div
-                        class="playlist-filter-embed"
-                        data-playlist-filter-embed=""
-                      >
-                        <main
-                          aria-label="демонстрация фильтра плейлиста"
-                          class="animation-stage is-animation"
-                          data-animation-stage=""
-                        >
-                          <div class="animation-scale" data-animation-scale="">
-                            <section
-                              class="jp-filter"
-                              data-playlist-filter-app=""
-                            ></section>
-                          </div>
-                          <div
-                            aria-hidden="true"
-                            class="animation-black"
-                            data-animation-black=""
-                          ></div>
-                          <div
-                            aria-live="polite"
-                            class="animation-tip"
-                            data-animation-tip=""
-                            role="status"
-                          ></div>
-                        </main>
-                        <div
-                          aria-hidden="true"
-                          class="hover-tooltip"
-                          data-hover-tooltip-layer=""
-                          role="tooltip"
-                        ></div>
-                      </div>
-                    </aside>
+      <div class="interface-section__copy content-section__text">
+        <p>собрали модульные лендинги для club и event: разные аудитории получили разные входы, аргументы, визуальную подачу и сценарии подписки.</p>
+                  <p class="case-note">кампании можно запускать под отдельный сценарий, не смешивая мотивацию, оффер и маршрут пользователя в одной посадочной странице.</p>
+      </div>
+    </section>
 </section>
 
-
-<!-- hidden-draft:jesteipool-promo-organisms:start
 <section class="text-block content-section__text">
-<h5 class="title title--lg">промо-организмы</h5><p>промо-организмы связывают рекламу, рассылки и сайт: пользователь может открыть конкретный трек, понять доступ, увидеть превью и перейти к регистрации или подписке без лишнего маршрута. превью трека стало отдельной точкой входа в продукт.</p>
-
-
-</section>
-<aside aria-label="промо-организмы placeholder" class="media-group media-group--single media-group--landscape" data-media-count="1" data-media-group="single">
-<a class="media-item" data-caption="01" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/05-motion/placeholders/promo-organisms-placeholder.webp" rel="noopener noreferrer" target="_blank">
-<img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/placeholders/promo-organisms-placeholder.webp"/>
-</a>
-</aside>
-hidden-draft:jesteipool-promo-organisms:end -->
-
-
-<!-- hidden-draft:jesteipool-landing-pages:start
-<section class="block">
-<section class="block">
-<header class="block__header component-caption section-head">
-<h5 class="title title--lg">
-                          система лендинговых страниц
-                        </h5>
-
-
-<p>собрали модульные лендинги для club и event: разные аудитории получили разные входы, аргументы, визуальную подачу и сценарии подписки. 2 раздельных входа в продукт помогают запускать кампании под клубный и event-сценарий, не смешивая мотивацию, оффер и маршрут пользователя.</p></header>
-
-
-<aside aria-label="материалы системы лендинговых страниц jestei pool" class="media-group media-group--quad media-group--portrait media-contain" data-media-count="3" data-media-group="quad">
-<figure class="media-item" data-caption="01" data-media-item="">
-<video autoplay="" loop="" muted="" playsinline="" poster="/assets/media/cases/jesteipool/05-motion/01/01.webp" preload="metadata" src="/assets/media/cases/jesteipool/05-motion/01/00.mp4"></video>
-</figure>
-<a class="media-item" data-caption="02" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages-vertical-placeholder.webp" rel="noopener noreferrer" target="_blank">
-<img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages-vertical-placeholder.webp"/>
-</a>
-<a class="media-item" data-caption="03" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages-extra-placeholder.webp" rel="noopener noreferrer" target="_blank">
-<img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages-extra-placeholder.webp"/>
-</a>
-
-
-</aside>
-<p>удобство: кампании можно запускать на отдельные сценарии, не смешивая club и event в одной посадочной странице. гибкость: модули лендинга собираются под рекламную задачу: сезон, аудиторию, тариф, подборку или конкретный продуктовый вход. точность: пользователь попадает не на общий рассказ о сервисе, а в сценарий, который соответствует его задаче.</p>
-</section>
-</section>
-hidden-draft:jesteipool-landing-pages:end -->
-<section class="text-block content-section__text">
-<h5 class="title title--lg">пересобрали тарифные сценарии</h5><p>тарифы стали частью пользовательского пути: апгрейд, даунгрейд, автопродление, отключение, смена тарифа, смена платёжной системы и привязка почты были описаны как отдельные сценарии. 7 сценариев подписки и оплаты, 2 платёжные системы и повышение стоимости подписки собраны в единую логику тарифов, коммуникаций и интерфейсных состояний.</p>
+<h4 class="title title--lg">пересобрали тарифные сценарии</h4><p>тарифы стали частью пользовательского пути: апгрейд, даунгрейд, автопродление, отключение, смена тарифа, смена платёжной системы и привязка почты были описаны как отдельные сценарии. 7 сценариев подписки и оплаты, 2 платёжные системы и повышение стоимости подписки собраны в единую логику тарифов, коммуникаций и интерфейсных состояний.</p>
 
 
 </section>
 <section aria-label="jestei tariffs before after" class="media no-stroke" data-animation="before-after">
 <canvas class="visual-canvas" data-after-label="стало" data-animation-scene="jesteiColorBeforeAfter" data-before-label="было" data-center-label="" id="project-jestei-color-before-after"></canvas>
 </section>
-<aside aria-label="jestei tariffs gallery" class="media-group media-group--quad media-group--landscape media-group--fit-contain media-group--interface-grid" data-media-count="3" data-media-group="quad">
+<aside aria-label="jestei tariffs gallery" class="media-group media-group--three media-group--landscape media-group--fit-contain media-group--interface-grid media-group--three media-group--mobile-rail" data-mobile-layout="rail" data-media-count="3" data-media-group="three">
 <a class="media-item" data-caption="06" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/05-motion/02/06.webp" rel="noopener noreferrer" target="_blank">
 <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/02/06.webp"/>
 </a>
@@ -4096,7 +4050,7 @@ hidden-draft:jesteipool-landing-pages:end -->
 <p>структура тарифов: тарифы разделены по уровню доступа, аудитории и сценарию выбора. продажи и коммуникации: апгрейды, пейволлы, подсказки и промо-модалки связаны с тарифной логикой. адаптивная подача: сравнение тарифов и ключевые различия сохраняются на мобильных экранах.</p>
 <!-- hidden-draft:jesteipool-overlay:start
 <section class="text-block content-section__text">
-<h5 class="title title--lg">overlay-система</h5><p>модалки перестали быть разрозненными окнами. регистрация, апгрейд, промо, «что нового» и системные сообщения получили общую логику. 4 группы сценариев — регистрация, апгрейд, информирование и системные сообщения — стали одной системой поведения.</p>
+<h4 class="title title--lg">overlay-система</h4><p>модалки перестали быть разрозненными окнами. регистрация, апгрейд, промо, «что нового» и системные сообщения получили общую логику. 4 группы сценариев — регистрация, апгрейд, информирование и системные сообщения — стали одной системой поведения.</p>
 
 
 </section>
@@ -4117,12 +4071,12 @@ hidden-draft:jesteipool-overlay:end -->
 </header>
 <div class="case-chapter__body">
 <section class="block">
-<header class="block__header component-caption section-head">
-<h5 class="title title--lg">графический дизайн и микс-медиа</h5>
+<header class="block__header section-head">
+<h4 class="title title--lg">графический дизайн и микс-медиа</h4>
 
 
 <p>графика стала production-системой: карточки, обложки, промо, рубрики, рассылки и рекламные материалы собираются в одном визуальном языке. WebP, ImageMagick, ffmpeg, upscale и inpaint стали частью подготовки ассетов для сайта, промо и сезонных материалов.</p><ul aria-label="факты графической системы" class="project-facts project-facts--chapter"><li><strong>10+ / 11+</strong><span>10+ регулярных рубрик и 11+ баннерных цепочек сделали коммуникацию повторяемой: обновления, подборки, конкурсы, коллаборации и сезонные материалы получили узнаваемые форматы.</span></li><li><strong>10 → 2</strong><span>типовой баннерный сценарий сократился с 10 форматов до 2, а 6 типов материалов перешли в шаблонный Figma-процесс: баннеры, посты, обложки, рассылки, промо и виджеты.</span></li><li><strong>4 / 7</strong><span>AI использовался в 4 направлениях — фото, иллюстрации, видео и 3d — и закрывал 7 типов задач: обложки, баннеры, персонажи, inpaint, upscale, видеофоны и промо-графику.</span></li></ul></header>
-<aside aria-label="графический дизайн и микс-медиа" class="media-group media-group--grid media-group--square" data-media-count="7" data-media-group="grid">
+<aside aria-label="графический дизайн и микс-медиа" class="media-group media-group--grid media-group--square media-group--mobile-rail" data-mobile-layout="rail" data-media-count="7" data-media-group="grid">
 
 <a class="media-item" data-caption="51" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/06-graphic/01/51.webp" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/06-graphic/01/51.webp"/></a>
 <a class="media-item" data-caption="43" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/06-graphic/02/43.webp" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/06-graphic/02/43.webp"/></a>
@@ -4181,12 +4135,12 @@ hidden-draft:jesteipool-overlay:end -->
 
 </section>
 <section class="block">
-<header class="block__header component-caption section-head">
-<h5 class="title title--lg">3d и коллажи</h5>
+<header class="block__header section-head">
+<h4 class="title title--lg">3d и коллажи</h4>
 
 
 <p>3d, коллажи и геометрические формы стали основой визуального языка. карточки, обложки, баннеры и интерфейсные блоки начали работать как одна система, а не как отдельные креативы.</p></header>
-<aside aria-label="jestei form system slider" class="media-group media-group--grid media-group--square" data-media-count="10" data-media-group="grid">
+<aside aria-label="jestei form system slider" class="media-group media-group--grid media-group--square media-group--mobile-rail" data-mobile-layout="rail" data-media-count="10" data-media-group="grid">
 
 
 <a class="media-item" data-caption="11" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/03-form/07/11.webp" rel="noopener noreferrer" target="_blank">
@@ -4234,10 +4188,10 @@ hidden-draft:jesteipool-overlay:end -->
 <p>объём: логотип, буквы и карточки получили физичность: 3d добавил глубину для промо, обложек и интерфейсных акцентов. вариативность: одна пластическая логика адаптируется под разные продукты, аудитории и сезоны без смены визуального языка. пайплайн: генерация, ретушь, 3d и видео стали частью регулярного production, а не отдельными экспериментами.</p>
 </section>
 <section class="block">
-<header class="block__header component-caption section-head">
-<h5 class="title title--lg">дизайн баннеров</h5>
+<header class="block__header section-head">
+<h4 class="title title--lg">дизайн баннеров</h4>
 <p>баннерная система собирает промо, подборки и сезонные сообщения в повторяемые форматы: один визуальный принцип держит ритм кампаний, помогает быстро менять содержание и оставляет место для ручной доработки ассетов.</p></header>
-<aside aria-label="jestei banner design placeholders" class="media-group media-group--grid media-group--landscape media-group--banner-grid" data-media-count="6" data-media-group="grid">
+<aside aria-label="jestei banner design placeholders" class="media-group media-group--grid media-group--landscape media-group--banner-grid media-group--mobile-rail" data-mobile-layout="rail" data-media-count="6" data-media-group="grid">
 <a class="media-item" data-caption="01" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-01.webp" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-01.webp"/></a>
 <a class="media-item" data-caption="02" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-02.webp" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-02.webp"/></a>
 <a class="media-item" data-caption="03" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-03.webp" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-03.webp"/></a>
@@ -4246,7 +4200,7 @@ hidden-draft:jesteipool-overlay:end -->
 <a class="media-item" data-caption="06" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-06.webp" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-06.webp"/></a>
 </aside>
 </section>
-<section aria-label="jestei graphic design rotating gallery" class="media-group media-group--grid" data-media-count="11" data-media-group="grid">
+<section aria-label="jestei graphic design rotating gallery" class="media-group media-group--grid media-group--mobile-rail" data-mobile-layout="rail" data-media-count="11" data-media-group="grid">
 
 <a class="media-item" data-caption="10" data-lightbox-item="" data-media-item="" href="/assets/media/cases/jesteipool/06-graphic/02/10.webp" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/06-graphic/02/10.webp"/></a>
 
@@ -4293,7 +4247,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                   </figure>
                   <div>
                     <h3 class="title title--display">styx jewels</h3>
-                    <ul class="chips chips--role">
+                    <ul class="chips">
                       <li class="chip">дизайнер</li>
                       <li class="chip">продюсер</li>
                       <li class="chip">фотограф</li>
@@ -4350,7 +4304,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                       data-content-section="text-media"
                     >
                       <section class="text-block content-section__text">
-                        <h5 class="title title--lg">бренд и упаковка</h5>
+                        <h4 class="title title--lg">бренд и упаковка</h4>
                         <p>
                           логотип и фирменный стиль. визуальная подача бренда.
                           дизайн подарочной упаковки. дизайн визиток. дизайн
@@ -4437,7 +4391,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                       data-content-section="text-media"
                     >
                       <section class="text-block content-section__text">
-                        <h5 class="title title--lg">коммуникации и реклама</h5>
+                        <h4 class="title title--lg">коммуникации и реклама</h4>
                         <p>
                           дизайн сертификатов. визуалы для соцсетей. рекламные
                           публикации. баннеры для сплита и долями.
@@ -4583,7 +4537,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                     </aside>
                     <aside
                       aria-label="styx photo production gallery"
-                      class="media-group media-group--grid media-group--square"
+                      class="media-group media-group--grid media-group--square media-group--mobile-rail" data-mobile-layout="rail"
                       data-media-count="8"
                       data-media-group="grid"
                     >
@@ -4776,7 +4730,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                 <div class="case-chapter__body">
 
                     <header
-                      class="block__header component-caption section-head"
+                      class="block__header section-head"
                     >
                       <h5 class="title title--xl">
                         предметная и портретная сканография
@@ -4792,7 +4746,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                     </header>
                     <aside
                       aria-label="styx combined scanography gallery"
-                      class="media-group media-group--grid media-group--square"
+                      class="media-group media-group--grid media-group--square media-group--mobile-rail" data-mobile-layout="rail"
                       data-media-count="8"
                       data-media-group="grid"
                     >
@@ -4937,7 +4891,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
               <section class="section__screen">
                 <div class="stack pets-stack">
                   <header
-                    class="block__header component-caption section-head"
+                    class="block__header section-head"
                     id="pets-title"
                   >
                     <h1 class="title title--xl">пет-проекты</h1>
@@ -4946,165 +4900,59 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                       выкладываю на github.
                     </p>
                   </header>
-                  <div
-                    aria-label="список pet-проектов"
-                    class="pet-project-grid"
-                  >
-                    <article class="pet-project-card">
-                      <a
-                        aria-label="открыть страницу Berserk Timer"
-                        class="pet-project-card__cover pet-project-card__cover--berserk"
-                        href="/pets/berserk-timer/"
-                      >
-                        <span class="pet-project-card__logo"
-                          >Berserk Timer</span
-                        >
-                      </a>
-                      <div class="pet-project-card__body">
-                        <h2 class="pet-project-card__title">Berserk Timer</h2>
-                        <p>
-                          CLI-таймер с witness-режимом и гибкой настройкой
-                          длительности.
-                        </p>
-                        <div class="pet-project-card__actions">
-                          <a
-                            aria-label="Berserk Timer на GitHub"
-                            class="pet-project-card__icon-action"
-                            href="https://github.com/looksawful/berserk-timer"
-                            rel="noreferrer"
-                            target="_blank"
-                          >
-                            <svg aria-hidden="true" viewbox="0 0 20 20">
-                              <path
-                                d="M10 .9a9.1 9.1 0 0 0-2.9 17.7c.45.08.62-.2.62-.43v-1.6c-2.5.55-3.03-1.06-3.03-1.06-.41-1.03-1-1.3-1-1.3-.82-.56.06-.55.06-.55.9.06 1.38.93 1.38.93.8 1.38 2.11.98 2.63.75.08-.58.31-.98.57-1.2-2-.23-4.1-1-4.1-4.46 0-.99.35-1.8.93-2.43-.1-.23-.4-1.15.08-2.4 0 0 .76-.25 2.5.92A8.7 8.7 0 0 1 10 5.48c.77 0 1.54.1 2.26.3 1.73-1.17 2.49-.92 2.49-.92.49 1.25.18 2.17.09 2.4.58.63.93 1.44.93 2.43 0 3.47-2.1 4.23-4.11 4.45.32.28.61.83.61 1.68v2.35c0 .24.16.52.62.43A9.1 9.1 0 0 0 10 .9Z"
-                              ></path>
-                            </svg>
-                          </a>
-                          <a
-                            class="pet-project-card__text-action"
-                            href="/pets/berserk-timer/"
-                            >страница проекта</a
-                          >
-                        </div>
-                      </div>
-                    </article>
-                    <article class="pet-project-card">
-                      <a
-                        aria-label="открыть страницу Awful Cases"
-                        class="pet-project-card__cover pet-project-card__cover--awful-cases"
-                        href="/pets/awful-cases/"
-                      >
-                        <span class="pet-project-card__logo">Awful Cases</span>
-                      </a>
-                      <div class="pet-project-card__body">
-                        <h2 class="pet-project-card__title">Awful Cases</h2>
-                        <p>
-                          Windows tray-утилита для смены регистра и чистки
-                          типографики выделенного текста.
-                        </p>
-                        <div class="pet-project-card__actions">
-                          <a
-                            aria-label="Awful Cases на GitHub"
-                            class="pet-project-card__icon-action"
-                            href="https://github.com/looksawful/awful-cases"
-                            rel="noreferrer"
-                            target="_blank"
-                          >
-                            <svg aria-hidden="true" viewbox="0 0 20 20">
-                              <path
-                                d="M10 .9a9.1 9.1 0 0 0-2.9 17.7c.45.08.62-.2.62-.43v-1.6c-2.5.55-3.03-1.06-3.03-1.06-.41-1.03-1-1.3-1-1.3-.82-.56.06-.55.06-.55.9.06 1.38.93 1.38.93.8 1.38 2.11.98 2.63.75.08-.58.31-.98.57-1.2-2-.23-4.1-1-4.1-4.46 0-.99.35-1.8.93-2.43-.1-.23-.4-1.15.08-2.4 0 0 .76-.25 2.5.92A8.7 8.7 0 0 1 10 5.48c.77 0 1.54.1 2.26.3 1.73-1.17 2.49-.92 2.49-.92.49 1.25.18 2.17.09 2.4.58.63.93 1.44.93 2.43 0 3.47-2.1 4.23-4.11 4.45.32.28.61.83.61 1.68v2.35c0 .24.16.52.62.43A9.1 9.1 0 0 0 10 .9Z"
-                              ></path>
-                            </svg>
-                          </a>
-                          <a
-                            class="pet-project-card__text-action"
-                            href="/pets/awful-cases/"
-                            >страница проекта</a
-                          >
-                        </div>
-                      </div>
-                    </article>
-                    <article class="pet-project-card">
-                      <a
-                        aria-label="открыть страницу Awful Audit"
-                        class="pet-project-card__cover pet-project-card__cover--awful-audit"
-                        href="/pets/awful-audit/"
-                      >
-                        <span class="pet-project-card__logo">Awful Audit</span>
-                      </a>
-                      <div class="pet-project-card__body">
-                        <h2 class="pet-project-card__title">Awful Audit</h2>
-                        <p>
-                          Небольшой audit-инструмент для статических
-                          frontend-проектов.
-                        </p>
-                        <div class="pet-project-card__actions">
-                          <a
-                            aria-label="Awful Audit на GitHub"
-                            class="pet-project-card__icon-action"
-                            href="https://github.com/looksawful/awful-audit"
-                            rel="noreferrer"
-                            target="_blank"
-                          >
-                            <svg aria-hidden="true" viewbox="0 0 20 20">
-                              <path
-                                d="M10 .9a9.1 9.1 0 0 0-2.9 17.7c.45.08.62-.2.62-.43v-1.6c-2.5.55-3.03-1.06-3.03-1.06-.41-1.03-1-1.3-1-1.3-.82-.56.06-.55.06-.55.9.06 1.38.93 1.38.93.8 1.38 2.11.98 2.63.75.08-.58.31-.98.57-1.2-2-.23-4.1-1-4.1-4.46 0-.99.35-1.8.93-2.43-.1-.23-.4-1.15.08-2.4 0 0 .76-.25 2.5.92A8.7 8.7 0 0 1 10 5.48c.77 0 1.54.1 2.26.3 1.73-1.17 2.49-.92 2.49-.92.49 1.25.18 2.17.09 2.4.58.63.93 1.44.93 2.43 0 3.47-2.1 4.23-4.11 4.45.32.28.61.83.61 1.68v2.35c0 .24.16.52.62.43A9.1 9.1 0 0 0 10 .9Z"
-                              ></path>
-                            </svg>
-                          </a>
-                          <a
-                            class="pet-project-card__text-action"
-                            href="/pets/awful-audit/"
-                            >страница проекта</a
-                          >
-                        </div>
-                      </div>
-                    </article>
-                    <article class="pet-project-card">
-                      <a
-                        aria-label="открыть страницу Awful Describer"
-                        class="pet-project-card__cover pet-project-card__cover--awful-describer"
-                        href="/pets/awful-describer/"
-                      >
-                        <span class="pet-project-card__logo"
-                          >Awful Describer</span
-                        >
-                      </a>
-                      <div class="pet-project-card__body">
-                        <h2 class="pet-project-card__title">Awful Describer</h2>
-                        <p>
-                          Локальный интерфейс для Ollama Vision Model на
-                          Electron, React и TypeScript.
-                        </p>
-                        <div class="pet-project-card__actions">
-                          <a
-                            aria-label="Awful Describer на GitHub"
-                            class="pet-project-card__icon-action"
-                            href="https://github.com/looksawful/awful-describer"
-                            rel="noreferrer"
-                            target="_blank"
-                          >
-                            <svg aria-hidden="true" viewbox="0 0 20 20">
-                              <path
-                                d="M10 .9a9.1 9.1 0 0 0-2.9 17.7c.45.08.62-.2.62-.43v-1.6c-2.5.55-3.03-1.06-3.03-1.06-.41-1.03-1-1.3-1-1.3-.82-.56.06-.55.06-.55.9.06 1.38.93 1.38.93.8 1.38 2.11.98 2.63.75.08-.58.31-.98.57-1.2-2-.23-4.1-1-4.1-4.46 0-.99.35-1.8.93-2.43-.1-.23-.4-1.15.08-2.4 0 0 .76-.25 2.5.92A8.7 8.7 0 0 1 10 5.48c.77 0 1.54.1 2.26.3 1.73-1.17 2.49-.92 2.49-.92.49 1.25.18 2.17.09 2.4.58.63.93 1.44.93 2.43 0 3.47-2.1 4.23-4.11 4.45.32.28.61.83.61 1.68v2.35c0 .24.16.52.62.43A9.1 9.1 0 0 0 10 .9Z"
-                              ></path>
-                            </svg>
-                          </a>
-                          <a
-                            class="pet-project-card__text-action"
-                            href="/pets/awful-describer/"
-                            >страница проекта</a
-                          >
-                        </div>
-                      </div>
-                    </article>
-                  </div>
+                  <section aria-label="полноценные превью pet-проектов" class="pet-page-slides">
+  <article class="pet-page-slide" id="pet-slide-berserk-timer">
+    <header class="pet-page-slide__header">
+      <p class="pet-page-slide__kicker">pet-проект 01</p>
+      <h2 class="pet-page-slide__title">Berserk Timer</h2>
+      <a class="pet-page-slide__link" href="/pets/berserk-timer/">открыть страницу</a>
+    </header>
+    <div class="pet-page-slide__frame" data-pet-page-frame="">
+      <iframe loading="lazy" src="/pets/berserk-timer/" title="Berserk Timer — полноценная страница проекта"></iframe>
+    </div>
+  </article>
+
+  <article class="pet-page-slide" id="pet-slide-awful-cases">
+    <header class="pet-page-slide__header">
+      <p class="pet-page-slide__kicker">pet-проект 02</p>
+      <h2 class="pet-page-slide__title">Awful Cases</h2>
+      <a class="pet-page-slide__link" href="/pets/awful-cases/">открыть страницу</a>
+    </header>
+    <div class="pet-page-slide__frame" data-pet-page-frame="">
+      <iframe loading="lazy" src="/pets/awful-cases/#trainer" title="Awful Cases — игра-тренажер на странице проекта"></iframe>
+    </div>
+  </article>
+
+  <article class="pet-page-slide" id="pet-slide-awful-audit">
+    <header class="pet-page-slide__header">
+      <p class="pet-page-slide__kicker">pet-проект 03</p>
+      <h2 class="pet-page-slide__title">Awful Audit</h2>
+      <a class="pet-page-slide__link" href="/pets/awful-audit/">открыть страницу</a>
+    </header>
+    <div class="pet-page-slide__frame" data-pet-page-frame="">
+      <iframe loading="lazy" src="/pets/awful-audit/" title="Awful Audit — полноценная страница проекта"></iframe>
+    </div>
+  </article>
+
+  <article class="pet-page-slide" id="pet-slide-awful-describer">
+    <header class="pet-page-slide__header">
+      <p class="pet-page-slide__kicker">pet-проект 04</p>
+      <h2 class="pet-page-slide__title">Awful Describer</h2>
+      <a class="pet-page-slide__link" href="/pets/awful-describer/">открыть страницу</a>
+    </header>
+    <div class="pet-page-slide__frame" data-pet-page-frame="">
+      <iframe loading="lazy" src="/pets/awful-describer/" title="Awful Describer — полноценная страница проекта"></iframe>
+    </div>
+  </article>
+</section>
+
+
                 </div>
               </section>
             </section>
             <article class="project stack case" id="project-shootings">
               <section class="project__header case__header">
-                <header class="block__header component-caption section-head">
+                <header class="block__header section-head">
                   <h3 class="title title--display">съёмки</h3>
                 </header>
                 <section
@@ -5126,9 +4974,9 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                 <div class="case-chapter__body">
                     <section class="block">
                       <header
-                        class="block__header component-caption section-head"
+                        class="block__header section-head"
                       >
-                        <h5 class="title title--lg">музыкальные обложки</h5>
+                        <h4 class="title title--lg">музыкальные обложки</h4>
                       </header>
                       <aside
                         aria-label="shootings extended landscape gallery"
@@ -5138,7 +4986,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                       >
                         <a
                           class="media-item"
-                          data-caption="01"
+                          data-caption="музыкальная обложка"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/05/01.webp"
@@ -5154,7 +5002,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="01"
+                          data-caption="портрет артиста"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/06/01.webp"
@@ -5170,7 +5018,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="02"
+                          data-caption="групповой кадр"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/06/02.webp"
@@ -5186,7 +5034,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="03"
+                          data-caption="обложка"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/06/03.webp"
@@ -5204,20 +5052,20 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                     </section>
                     <section class="block">
                       <header
-                        class="block__header component-caption section-head"
+                        class="block__header section-head"
                       >
-                        <h5 class="title title--lg">эдиториал-фотография</h5>
+                        <h4 class="title title--lg">эдиториал-фотография</h4>
                         <p>творческие съёмки</p>
                       </header>
                       <aside
                         aria-label="shootings extended vertical gallery"
-                        class="media-group media-group--grid media-group--square"
+                        class="media-group media-group--grid media-group--square media-group--mobile-rail" data-mobile-layout="rail"
                         data-media-count="6"
                         data-media-group="grid"
                       >
                         <a
                           class="media-item"
-                          data-caption="01"
+                          data-caption="эдиториал"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/07/01.webp"
@@ -5233,7 +5081,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="02"
+                          data-caption="портрет"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/07/02.webp"
@@ -5249,7 +5097,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="03"
+                          data-caption="коллаж"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/07/03.webp"
@@ -5265,7 +5113,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="04"
+                          data-caption="образ"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/07/04.webp"
@@ -5281,7 +5129,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="05"
+                          data-caption="обложка"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/07/05.webp"
@@ -5297,7 +5145,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="06"
+                          data-caption="портрет"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/07/06.webp"
@@ -5315,19 +5163,19 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                     </section>
                     <section class="block">
                       <header
-                        class="block__header component-caption section-head"
+                        class="block__header section-head"
                       >
-                        <h5 class="title title--lg">микс-медиа арт</h5>
+                        <h4 class="title title--lg">микс-медиа арт</h4>
                       </header>
                       <aside
                         aria-label="shootings extended square gallery 1"
-                        class="media-group media-group--grid media-group--square"
+                        class="media-group media-group--grid media-group--square media-group--mobile-rail" data-mobile-layout="rail"
                         data-media-count="8"
                         data-media-group="grid"
                       >
                         <a
                           class="media-item"
-                          data-caption="01"
+                          data-caption="световой кадр"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/08/01.webp"
@@ -5343,7 +5191,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="02"
+                          data-caption="эксперимент"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/08/02.webp"
@@ -5359,7 +5207,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="03"
+                          data-caption="фешн-образ"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/08/03.webp"
@@ -5375,7 +5223,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="04"
+                          data-caption="натурная съёмка"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/08/04.webp"
@@ -5391,7 +5239,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="05"
+                          data-caption="проекция"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/08/05.webp"
@@ -5407,7 +5255,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="06"
+                          data-caption="натурный портрет"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/08/06.webp"
@@ -5423,7 +5271,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="07"
+                          data-caption="ночной кадр"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/08/07.webp"
@@ -5439,7 +5287,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="08"
+                          data-caption="студийный образ"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/08/08.webp"
@@ -5457,9 +5305,9 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                     </section>
                     <section class="block">
                       <header
-                        class="block__header component-caption section-head"
+                        class="block__header section-head"
                       >
-                        <h5 class="title title--lg">микс-медиа продолжение</h5>
+                        <h4 class="title title--lg">микс-медиа продолжение</h4>
                         <p>дополнительная серия изображений.</p>
                       </header>
                       <aside
@@ -5470,7 +5318,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                       >
                         <a
                           class="media-item"
-                          data-caption="09"
+                          data-caption="портрет артиста"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/08/09.webp"
@@ -5486,7 +5334,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                         </a>
                         <a
                           class="media-item"
-                          data-caption="10"
+                          data-caption="групповой кадр"
                           data-lightbox-item=""
                           data-media-item=""
                           href="/assets/media/cases/shootings/08/10.webp"
@@ -5517,7 +5365,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
         <section class="section__screen">
           <div class="stack resume-stack">
             <header
-              class="block__header component-caption section-head"
+              class="block__header section-head"
               id="resume-title"
             >
               <h1 class="title title--xl">резюме</h1>
@@ -5528,7 +5376,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
               <div>
                 <header class="resume-item__header">
                   <h3 class="title title--lg">jestei pool</h3>
-                  <ul class="chips chips--role">
+                  <ul class="chips">
                     <li class="chip"><span>арт-директор</span></li>
                     <li class="chip"><span>ui/ux-лид</span></li>
                     <li class="chip"><span>дизайн-лид</span></li>
@@ -5547,7 +5395,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
               <div>
                 <header class="resume-item__header">
                   <h3 class="title title--lg">styx jewels</h3>
-                  <ul class="chips chips--role">
+                  <ul class="chips">
                     <li class="chip"><span>дизайнер</span></li>
                     <li class="chip"><span>продюсер</span></li>
                     <li class="chip"><span>фотограф</span></li>
@@ -5565,7 +5413,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
               <div>
                 <header class="resume-item__header">
                   <h3 class="title title--lg">lyve moscow</h3>
-                  <ul class="chips chips--role">
+                  <ul class="chips">
                     <li class="chip"><span>дизайнер</span></li>
                     <li class="chip"><span>иллюстратор</span></li>
                   </ul>
@@ -5582,7 +5430,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
               <div>
                 <header class="resume-item__header">
                   <h3 class="title title--lg">sensetique photostudio</h3>
-                  <ul class="chips chips--role">
+                  <ul class="chips">
                     <li class="chip"><span>директор фотостудии</span></li>
                     <li class="chip"><span>генеральный продюсер</span></li>
                   </ul>
@@ -5599,7 +5447,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
               <div>
                 <header class="resume-item__header">
                   <h3 class="title title--lg">mad cow films</h3>
-                  <ul class="chips chips--role">
+                  <ul class="chips">
                     <li class="chip"><span>ассистент продюсера</span></li>
                   </ul>
                 </header>
@@ -5615,7 +5463,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
               <div>
                 <header class="resume-item__header">
                   <h3 class="title title--lg">li-ne agency</h3>
-                  <ul class="chips chips--role">
+                  <ul class="chips">
                     <li class="chip"><span>ассистент продюсера</span></li>
                     <li class="chip"><span>jr-продюсер</span></li>
                     <li class="chip"><span>линейный продюсер</span></li>
@@ -5633,7 +5481,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
               <div>
                 <header class="resume-item__header">
                   <h3 class="title title--lg">издательство прогресс</h3>
-                  <ul class="chips chips--role">
+                  <ul class="chips">
                     <li class="chip"><span>книжный дизайнер</span></li>
                   </ul>
                 </header>
@@ -5651,7 +5499,7 @@ hidden-draft:jesteipool-extra-graphic-galleries:end -->
                   <h3 class="title title--lg">
                     риа новости / московские новости
                   </h3>
-                  <ul class="chips chips--role">
+                  <ul class="chips">
                     <li class="chip"><span>jr-верстальщик</span></li>
                   </ul>
                 </header>

@@ -122,8 +122,7 @@ async function initApp() {
       }),
     );
   }
-
-  if (has("[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter")) {
+if (has("[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter")) {
     runWhenNear(
       "[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter",
       "playlistFilter",

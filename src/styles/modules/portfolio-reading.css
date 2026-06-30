@@ -1,10 +1,7 @@
 :root {
-  --reading-width: min(100%, 64rem);
-  --reading-wide: min(100%, 80rem);
-  --reading-body: clamp(1rem, 0.38vw + 0.92rem, 1.14rem);
-  --reading-small: clamp(0.82rem, 0.25vw + 0.78rem, 0.94rem);
-  --reading-line: 1.58;
-  --reading-muted: color-mix(in srgb, var(--black) 62%, transparent);
+  --reading-width: min(100%, var(--text-measure));
+  --reading-wide: min(100%, var(--lead-measure));
+  --reading-muted: color-mix(in srgb, var(--black) 64%, transparent);
 }
 
 #showcase .case-chapter__body {
@@ -12,31 +9,19 @@
   text-rendering: optimizeLegibility;
 }
 
-#showcase .case-chapter__body :where(
-  .block__header,
-  .section-head,
-  .text-block,
-  .content-section__text
-):not(:where(
-  .policy-book,
-  .policy-book *,
-  [data-policy-book],
-  [data-policy-book] *,
-  .artifact-reader,
-  .artifact-reader *,
-  [data-artifact-reader],
-  [data-artifact-reader] *,
-  .playlist-filter-embed,
-  .playlist-filter-embed *,
-  [data-playlist-filter],
-  [data-playlist-filter] *,
-  [data-visual-demo],
-  [data-visual-demo] *
+#showcase .case-chapter__body :where(.block__header, .section-head, .text-block, .content-section__text):not(:where(
+  .policy-book, .policy-book *,
+  [data-policy-book], [data-policy-book] *,
+  .artifact-reader, .artifact-reader *,
+  [data-artifact-reader], [data-artifact-reader] *,
+  .playlist-filter-embed, .playlist-filter-embed *,
+  [data-playlist-filter], [data-playlist-filter] *,
+  [data-visual-demo], [data-visual-demo] *
 )) {
   display: grid;
-  gap: clamp(0.75rem, 1.5vw, 1.15rem);
-  inline-size: min(100%, 64rem);
-  max-inline-size: min(100%, 64rem);
+  gap: var(--text-gap);
+  inline-size: var(--reading-wide);
+  max-inline-size: var(--reading-wide);
   margin: 0;
   padding: 0;
   justify-self: start;
@@ -45,92 +30,103 @@
   box-shadow: none;
 }
 
-#showcase .case-chapter__body :where(h4, h5, h6, .title--lg):not(:where(
-  .policy-book *,
-  [data-policy-book] *,
-  .artifact-reader *,
-  [data-artifact-reader] *,
-  .playlist-filter-embed *,
-  [data-playlist-filter] *,
+#showcase .case-chapter__body :where(h3, h4, h5, h6, .title--lg):not(:where(
+  .policy-book *, [data-policy-book] *,
+  .artifact-reader *, [data-artifact-reader] *,
+  .playlist-filter-embed *, [data-playlist-filter] *,
   [data-visual-demo] *
 )) {
-  max-inline-size: min(100%, 64rem);
+  max-inline-size: min(100%, 34ch);
   margin: 0;
   color: var(--black);
+  font-size: var(--type-block);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
   text-align: left;
-  letter-spacing: 0;
   text-wrap: balance;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 #showcase .case-chapter__body :where(p, li):not(:where(
-  .policy-book *,
-  [data-policy-book] *,
-  .artifact-reader *,
-  [data-artifact-reader] *,
-  .playlist-filter-embed *,
-  [data-playlist-filter] *,
+  .policy-book *, [data-policy-book] *,
+  .artifact-reader *, [data-artifact-reader] *,
+  .playlist-filter-embed *, [data-playlist-filter] *,
   [data-visual-demo] *,
-  .token-list *,
-  .token-group *,
-  .token-pill *,
-  .chips *,
-  .chip *,
-  .media-group *,
-  .media-item *
+  .token-list *, .token-group *, .token-pill *,
+  .chips *, .chip *,
+  .media-group *, .media-item *
 )) {
-  max-inline-size: min(100%, 64rem);
+  max-inline-size: var(--reading-width);
   margin-inline: 0;
   color: var(--reading-muted);
-  font-size: var(--reading-body);
-  line-height: var(--reading-line);
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
   letter-spacing: 0;
   text-align: left;
   text-wrap: pretty;
 }
 
-#showcase .case-chapter__body :where(.case-note, .lead, .lead-text):not(:where(
-  .policy-book *,
-  [data-policy-book] *,
-  .artifact-reader *,
-  [data-artifact-reader] *,
-  .playlist-filter-embed *,
-  [data-playlist-filter] *,
+#showcase .case-chapter__body :where(ul, ol):not(:where(
+  .policy-book *, [data-policy-book] *,
+  .artifact-reader *, [data-artifact-reader] *,
+  .playlist-filter-embed *, [data-playlist-filter] *,
+  [data-visual-demo] *,
+  .token-list, .token-list *,
+  .chips, .chips *,
+  .media-group, .media-group *
+)) {
+  max-inline-size: var(--reading-width);
+  margin: 0;
+  padding-inline-start: 1.25em;
+  list-style-position: outside;
+}
+
+#showcase .case-chapter__body ul:not(:where(.policy-book *, [data-policy-book] *, .artifact-reader *, [data-artifact-reader] *, .playlist-filter-embed *, [data-playlist-filter] *, [data-visual-demo] *, .token-list, .token-list *, .chips, .chips *, .media-group, .media-group *)) {
+  list-style: disc;
+}
+
+#showcase .case-chapter__body ol:not(:where(.policy-book *, [data-policy-book] *, .artifact-reader *, [data-artifact-reader] *, .playlist-filter-embed *, [data-playlist-filter] *, [data-visual-demo] *, .media-group, .media-group *)) {
+  list-style: decimal;
+}
+
+#showcase .case-chapter__body p + p:not(:where(
+  .policy-book *, [data-policy-book] *,
+  .artifact-reader *, [data-artifact-reader] *,
+  .playlist-filter-embed *, [data-playlist-filter] *,
   [data-visual-demo] *
 )) {
-  inline-size: min(100%, 64rem);
-  max-inline-size: min(100%, 64rem);
+  margin-block-start: 0.35em;
+}
+
+#showcase .case-chapter__body :where(.case-note, .lead, .lead-text):not(:where(
+  .policy-book *, [data-policy-book] *,
+  .artifact-reader *, [data-artifact-reader] *,
+  .playlist-filter-embed *, [data-playlist-filter] *,
+  [data-visual-demo] *
+)) {
+  inline-size: var(--reading-wide);
+  max-inline-size: var(--reading-wide);
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
   color: var(--black);
+  font-size: clamp(1.05rem, 0.85vw + 0.92rem, 1.45rem);
+  line-height: 1.34;
 }
 
-/* awful-showcase-header-uniform-v5:header-typography */
-#showcase .case-chapter__header :is(.jestei-chapter-hero__title, .case-chapter-hero__title) {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  justify-self: start;
-  align-items: baseline;
-  inline-size: 100%;
-  max-inline-size: none;
-  margin: 0;
-  column-gap: 0.24em;
-  row-gap: 0.06em;
-  text-align: left;
-  line-height: 0.98;
-  letter-spacing: 0;
-  text-wrap: balance;
-  overflow-wrap: normal;
-  word-break: normal;
-}
 #showcase .case-chapter__header :is(.jestei-chapter-hero__subtitle, .case-chapter-hero__subtitle, .case-note, .project-facts--hero) {
   justify-self: start;
-  inline-size: min(100%, 74rem);
-  max-inline-size: min(100%, 74rem);
+  inline-size: min(100%, var(--lead-measure));
+  max-inline-size: min(100%, var(--lead-measure));
   margin: 0;
   text-align: left;
+}
+
+#showcase .case-chapter__header :is(.jestei-chapter-hero__subtitle, .case-chapter-hero__subtitle) {
+  font-size: var(--type-lead);
+  line-height: 1.28;
 }
 
 #showcase .case-chapter__header :is(.media, .media-group, .media-figure, .media-gallery, .media-banner, .media-two, .media-three, .media-quad, .media-six, .media-eight, .jestei-chapter-hero__media, .case-chapter-hero__media) {
@@ -145,41 +141,23 @@
   overflow: visible;
 }
 
-#showcase .case-chapter__header .no-stroke :is(.media-item, [data-media-item], .media-gallery__item) {
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-/* end awful-showcase-header-uniform-v5:header-typography */
-
-
-/* awful-showcase-header-uniform-v5:body-rhythm */
-#showcase .case-chapter__body :is(.reading-entry, .text-section, .list-card, .responsibility-card, .responsibility-card__item, .project-facts, .facts-grid, .thesis-grid, .content-section, .text-block, .block):not(:where(.policy-book, .policy-book *, .artifact-reader, .artifact-reader *, [data-visual-demo], [data-visual-demo] *)) {
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-#showcase .case-chapter__body :is(.reading-entry, .text-section, .list-card):not(:where(.policy-book, .policy-book *, .artifact-reader, .artifact-reader *, [data-visual-demo], [data-visual-demo] *)) {
-  padding: 0;
-}
-/* end awful-showcase-header-uniform-v5:body-rhythm */
-
-/* awful-showcase-chapter-title-uniform-v6:typography */
-#showcase .case-chapter-heading {
-  display: block;
-  inline-size: 100%;
+#showcase .case-chapter__header .case-chapter-heading {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.18em;
+  row-gap: 0.03em;
+  align-items: baseline;
+  inline-size: min(100%, var(--heading-measure));
   max-inline-size: 100%;
   margin: 0;
   color: currentColor;
-  font: inherit;
   font-family: var(--font, inherit);
-  font-size: clamp(2.4rem, 6.4vw, 5.8rem);
-  font-weight: 700;
-  line-height: 0.96;
-  letter-spacing: -0.055em;
+  font-size: var(--type-chapter);
+  font-weight: 760;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
   text-align: left;
-  text-wrap: normal;
+  text-wrap: balance;
   white-space: normal;
   overflow-wrap: normal;
   word-break: normal;
@@ -195,69 +173,194 @@
   transform: none;
 }
 
-@media (min-width: 48.001rem) {
-  #showcase .case-chapter-heading {
-    white-space: nowrap;
-  }
+#showcase .case-chapter-heading__accent {
+  color: color-mix(in srgb, var(--black) 56%, transparent);
+  font-style: italic;
+}
+
+#showcase .case-chapter-heading :where([data-reveal-char], [data-heading-char]) {
+  display: inline-block;
+  transform-origin: 50% 60%;
+  backface-visibility: visible;
+  will-change: transform;
+}
+
+#showcase .case-chapter__body :is(.reading-entry, .text-section, .list-card, .responsibility-card, .responsibility-card__item, .project-facts, .facts-grid, .thesis-grid, .content-section, .text-block, .block):not(:where(.policy-book, .policy-book *, .artifact-reader, .artifact-reader *, [data-visual-demo], [data-visual-demo] *)) {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 @media (max-width: 48rem) {
   #showcase .case-chapter-heading {
-    font-size: clamp(2rem, 9.2vw, 3rem);
+    inline-size: 100%;
+    max-inline-size: 100%;
     line-height: 0.98;
-    letter-spacing: -0.05em;
-    text-align: left;
-  }
-
-  #showcase .case-chapter__body :where(
-    .block__header,
-    .section-head,
-    .text-block,
-    .content-section__text
-  ):not(:where(
-    .policy-book,
-    .policy-book *,
-    [data-policy-book],
-    [data-policy-book] *,
-    .artifact-reader,
-    .artifact-reader *,
-    [data-artifact-reader],
-    [data-artifact-reader] *,
-    .playlist-filter-embed,
-    .playlist-filter-embed *,
-    [data-playlist-filter],
-    [data-playlist-filter] *,
-    [data-visual-demo],
-    [data-visual-demo] *
-  )) {
-    inline-size: min(100%, calc(100svw - (var(--page-x) * 2)));
-    min-inline-size: 0;
-    max-inline-size: min(100%, calc(100svw - (var(--page-x) * 2)));
-  }
-
-  #showcase .case-chapter__body :where(
-    .block__header > .title--lg,
-    .block__header > h3,
-    .block__header > h4,
-    .block__header > h5,
-    .block__header > h6,
-    .section-head > .title--lg,
-    .section-head > h3,
-    .section-head > h4,
-    .section-head > h5,
-    .section-head > h6,
-    .text-block > .title--lg,
-    .text-block > h3,
-    .text-block > h4,
-    .text-block > h5,
-    .text-block > h6
-  ) {
-    inline-size: min(100%, calc(100svw - (var(--page-x) * 2)));
-    min-inline-size: 0;
-    max-inline-size: min(100%, calc(100svw - (var(--page-x) * 2)));
+    letter-spacing: -0.025em;
     overflow-wrap: anywhere;
     text-wrap: balance;
-    word-break: normal;
+  }
+
+  #showcase .case-chapter__body :where(.block__header, .section-head, .text-block, .content-section__text):not(:where(
+    .policy-book, .policy-book *,
+    [data-policy-book], [data-policy-book] *,
+    .artifact-reader, .artifact-reader *,
+    [data-artifact-reader], [data-artifact-reader] *,
+    .playlist-filter-embed, .playlist-filter-embed *,
+    [data-playlist-filter], [data-playlist-filter] *,
+    [data-visual-demo], [data-visual-demo] *
+  )) {
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: 100%;
   }
 }
-/* end awful-showcase-chapter-title-uniform-v6:typography */
+
+/* portfolio-reading-screen-contract-v6:start */
+#showcase .case-chapter__header .case-chapter-heading {
+  column-gap: 0.2em;
+  row-gap: 0.04em;
+  font-size: var(--type-chapter);
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+}
+
+#showcase .case-chapter-heading__accent {
+  color: color-mix(in srgb, var(--black) 54%, transparent);
+}
+
+#showcase .case-chapter__header :where(.jestei-chapter-hero__subtitle, .case-chapter-hero__subtitle) {
+  max-inline-size: var(--case-screen-copy-measure);
+  color: color-mix(in srgb, var(--black) 62%, transparent);
+  font-size: clamp(1.28rem, 1.35vw + 0.96rem, 2.35rem);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+}
+
+#showcase .case-chapter__header > .case-note {
+  display: none;
+}
+
+#showcase .case-chapter__body :where(.block__header, .section-head, .text-block, .content-section__text, .interface-section__copy):not(:where(
+  .policy-book, .policy-book *,
+  [data-policy-book], [data-policy-book] *,
+  .artifact-reader, .artifact-reader *,
+  [data-artifact-reader], [data-artifact-reader] *,
+  .playlist-filter-embed, .playlist-filter-embed *,
+  [data-playlist-filter], [data-playlist-filter] *,
+  [data-visual-demo], [data-visual-demo] *
+)) {
+  gap: clamp(0.8rem, 1.4vw, 1.15rem);
+  inline-size: var(--case-screen-copy-measure);
+  max-inline-size: var(--case-screen-copy-measure);
+}
+
+#showcase .case-chapter__body :where(h3, h4, h5, h6, .title--lg, .interface-section__title):not(:where(
+  .policy-book *, [data-policy-book] *,
+  .artifact-reader *, [data-artifact-reader] *,
+  .playlist-filter-embed *, [data-playlist-filter] *,
+  [data-visual-demo] *
+)) {
+  max-inline-size: min(100%, 36ch);
+  font-size: var(--case-screen-title);
+  font-weight: 820;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-transform: none;
+}
+
+#showcase .case-chapter__body :where(p, .case-note, .lead, .lead-text, .interface-section__copy > p):not(:where(
+  .policy-book *, [data-policy-book] *,
+  .artifact-reader *, [data-artifact-reader] *,
+  .playlist-filter-embed *, [data-playlist-filter] *,
+  [data-visual-demo] *,
+  .token-list *, .token-group *, .token-pill *,
+  .chips *, .chip *,
+  .media-group *, .media-item *
+)) {
+  max-inline-size: var(--case-screen-copy-measure);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--black) 62%, transparent);
+  font-size: var(--case-screen-copy);
+  font-weight: 400;
+  line-height: 1.42;
+  letter-spacing: -0.004em;
+}
+
+#showcase .case-chapter__body :where(.block__header, .section-head, .text-block, .content-section__text, .interface-section__copy):not(:where(
+  .policy-book, .policy-book *,
+  [data-policy-book], [data-policy-book] *,
+  .artifact-reader, .artifact-reader *,
+  [data-artifact-reader], [data-artifact-reader] *,
+  .playlist-filter-embed, .playlist-filter-embed *,
+  [data-playlist-filter], [data-playlist-filter] *,
+  [data-visual-demo], [data-visual-demo] *
+)) > p:not(:first-of-type) {
+  display: none;
+}
+
+#showcase .case-chapter__body :where(.reading-sections, [data-reading-sections]) {
+  display: none;
+}
+
+#showcase .case-chapter__body :where(.project-facts, .facts-grid):not(:where(.policy-book *, [data-policy-book] *, .playlist-filter-embed *, [data-playlist-filter] *)) {
+  margin-block-start: clamp(0.95rem, 2vw, 1.4rem);
+}
+
+#showcase .case-chapter__body .project-facts li {
+  min-block-size: 0;
+  padding: clamp(0.95rem, 1.45vw, 1.25rem);
+  border-radius: clamp(14px, 1.6vw, 22px);
+}
+
+#showcase .case-chapter__body .project-facts li::before {
+  inline-size: clamp(2rem, 3.2vw, 4rem);
+  block-size: 0.12rem;
+}
+
+#showcase .case-chapter__body .project-facts strong {
+  font-size: clamp(2.05rem, 3.2vw, 3.8rem);
+  line-height: 0.92;
+}
+
+#showcase .case-chapter__body .project-facts span {
+  font-size: clamp(0.84rem, 0.22vw + 0.8rem, 0.98rem);
+  line-height: 1.34;
+}
+
+@media (max-width: 48rem) {
+  #showcase .case-chapter__header .case-chapter-heading {
+    font-size: clamp(3.2rem, 16vw, 5.7rem);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+  }
+
+  #showcase .case-chapter__body :where(h3, h4, h5, h6, .title--lg, .interface-section__title):not(:where(
+    .policy-book *, [data-policy-book] *,
+    .artifact-reader *, [data-artifact-reader] *,
+    .playlist-filter-embed *, [data-playlist-filter] *,
+    [data-visual-demo] *
+  )) {
+    font-size: clamp(2rem, 9.5vw, 3.7rem);
+    line-height: 1;
+    letter-spacing: -0.035em;
+  }
+
+  #showcase .case-chapter__body :where(p, .case-note, .lead, .lead-text, .interface-section__copy > p):not(:where(
+    .policy-book *, [data-policy-book] *,
+    .artifact-reader *, [data-artifact-reader] *,
+    .playlist-filter-embed *, [data-playlist-filter] *,
+    [data-visual-demo] *,
+    .token-list *, .token-group *, .token-pill *,
+    .chips *, .chip *,
+    .media-group *, .media-item *
+  )) {
+    font-size: clamp(1.02rem, 3.6vw, 1.3rem);
+    line-height: 1.42;
+  }
+}
+/* portfolio-reading-screen-contract-v6:end */

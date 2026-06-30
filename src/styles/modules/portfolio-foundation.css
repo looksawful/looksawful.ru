@@ -1,0 +1,42 @@
+#showcase {
+  --portfolio-anchor-offset: clamp(92px, 11vh, 148px);
+  --portfolio-content: min(100% - clamp(40px, 9vw, 160px), var(--page-max));
+  --portfolio-text: min(100%, var(--text-measure));
+  --portfolio-wide: min(100%, var(--lead-measure));
+  --portfolio-rule: color-mix(in srgb, var(--black) 14%, transparent);
+  --portfolio-muted: color-mix(in srgb, var(--black) 62%, transparent);
+}
+
+#showcase,
+#showcase * {
+  box-sizing: border-box;
+}
+
+#showcase :where(.project, .project-chapter, .case-chapter-section, .jestei-chapter-section, .block, .text-block, .text-sections) {
+  min-inline-size: 0;
+}
+
+#showcase :where(.case-chapter__body, .project-chapter, .block) {
+  display: grid;
+  gap: var(--block-gap);
+}
+
+#showcase :where(.case-chapter__header, .jestei-chapter-hero, .case-chapter-hero) {
+  display: grid;
+  gap: var(--component-gap);
+  padding: clamp(var(--space-5), 3vw, var(--space-7));
+}
+
+#showcase :where(.media, .media-group, .media-gallery, .media-figure, .media-banner) {
+  min-inline-size: 0;
+}
+
+#showcase :where(.policy-book, .artifact-reader, .playlist-filter-embed, [data-visual-demo]) {
+  --text: initial;
+}
+
+@media (max-width: 48rem) {
+  #showcase {
+    --portfolio-content: min(100%, calc(100svw - (var(--page-x) * 2)));
+  }
+}

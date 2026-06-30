@@ -1,4 +1,16 @@
+#hero {
+  --hero-main: clamp(3rem, 10vw, 9rem);
+  --hero-sub: clamp(3rem, 9vw, 8rem);
+  --hero-text: clamp(1.05rem, 1.6vw, 1.25rem);
+}
 
+@media (max-width: 48rem) {
+  #hero {
+    --hero-main: clamp(2.9rem, 14.5vw, 5.25rem);
+    --hero-sub: clamp(1.65rem, 8.4vw, 2.8rem);
+    --hero-text: clamp(1.05rem, 4.8vw, 1.34rem);
+  }
+}
 
 .hero__screen {
   min-height: 100vh;

@@ -1,5 +1,10 @@
 const DISABLED_SELECTOR = ':not([data-lightbox="off"]):not([data-lightbox="false"])';
-const LIGHTBOX_SELECTOR = [`[data-lightbox]${DISABLED_SELECTOR}`, `a.media-item[href]${DISABLED_SELECTOR}`].join(", ");
+const LIGHTBOX_SELECTOR = [
+  `[data-lightbox]${DISABLED_SELECTOR}`,
+  `[data-lightbox-item]${DISABLED_SELECTOR}`,
+  `[data-lightbox-video]${DISABLED_SELECTOR}`,
+  `a.media-item[href]${DISABLED_SELECTOR}`
+].join(", ");
 const VIDEO_EXTENSION_PATTERN = /\.(mp4|webm|mov)(\?.*)?(#.*)?$/i;
 const EXPLICIT_LIGHTBOX_TYPES = new Set(["image", "video"]);
 const SWIPE_THRESHOLD = 42;

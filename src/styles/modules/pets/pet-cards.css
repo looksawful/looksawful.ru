@@ -169,3 +169,11 @@
     font-size: var(--sm);
   }
 }
+
+/* SQUARE IMAGE MEDIA POLICY START */
+.pet-project-card :where(img, picture, video),
+.pet-project-card :where(.pet-project-card__cover):has(:where(img, picture, video)) {
+  border-radius: 0;
+  overflow: visible;
+}
+/* SQUARE IMAGE MEDIA POLICY END */
