@@ -206,6 +206,46 @@
 }
 
 @media (max-width: 560px) {
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens {
+    display: flex;
+    gap: 0.8rem;
+    align-items: stretch;
+    margin-inline: calc(var(--page-gutter, 24px) * -0.5);
+    padding-inline: calc(var(--page-gutter, 24px) * 0.5);
+    padding-block-end: 0.25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: calc(var(--page-gutter, 24px) * 0.5);
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens::-webkit-scrollbar {
+    display: none;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens > .text-block {
+    display: grid;
+    flex: 0 0 min(86vw, 24rem);
+    gap: clamp(0.8rem, 4vw, 1.15rem);
+    scroll-snap-align: start;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens > .text-block > :where(header, p, .token-list) {
+    grid-column: auto;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group {
+    flex: 0 0 min(82vw, 24rem);
+    scroll-snap-align: start;
+  }
+
+  #showcase #jestei-frame-добавили-цвет .content-section--tokens > .media-group > .media-item {
+    min-block-size: clamp(18rem, 76vw, 30rem);
+  }
+
   #showcase #jestei-frame-добавили-цвет .token-list__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;

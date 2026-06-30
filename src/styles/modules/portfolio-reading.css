@@ -175,6 +175,10 @@
 
 #showcase .case-chapter-heading__accent {
   color: color-mix(in srgb, var(--black) 56%, transparent);
+  font-style: normal;
+}
+
+#showcase #jestei-frame-провели-ребрендинг .case-chapter-heading__accent {
   font-style: italic;
 }
 
@@ -334,9 +338,20 @@
 
 @media (max-width: 48rem) {
   #showcase .case-chapter__header .case-chapter-heading {
-    font-size: clamp(3.2rem, 16vw, 5.7rem);
-    line-height: 0.96;
-    letter-spacing: -0.03em;
+    justify-content: center;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    font-size: clamp(1.55rem, 7.8vw, 4.2rem);
+    line-height: 0.98;
+    letter-spacing: -0.026em;
+    text-align: center;
+    text-wrap: nowrap;
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+
+  #showcase .case-chapter__header .case-chapter-heading > * {
+    white-space: nowrap;
   }
 
   #showcase .case-chapter__body :where(h3, h4, h5, h6, .title--lg, .interface-section__title):not(:where(
@@ -348,6 +363,10 @@
     font-size: clamp(2rem, 9.5vw, 3.7rem);
     line-height: 1;
     letter-spacing: -0.035em;
+    justify-self: center;
+    max-inline-size: 100%;
+    text-align: center;
+    white-space: nowrap;
   }
 
   #showcase .case-chapter__body :where(p, .case-note, .lead, .lead-text, .interface-section__copy > p):not(:where(
@@ -360,7 +379,28 @@
     .media-group *, .media-item *
   )) {
     font-size: clamp(1.02rem, 3.6vw, 1.3rem);
-    line-height: 1.42;
+    line-height: 1.52;
+  }
+
+  #showcase .case-chapter__body p + p:not(:where(
+    .policy-book *, [data-policy-book] *,
+    .artifact-reader *, [data-artifact-reader] *,
+    .playlist-filter-embed *, [data-playlist-filter] *,
+    [data-visual-demo] *
+  )) {
+    margin-block-start: 0.78em;
+  }
+
+  #showcase .case-chapter__body :where(.block__header, .section-head, .text-block, .content-section__text, .interface-section__copy):not(:where(
+    .policy-book, .policy-book *,
+    [data-policy-book], [data-policy-book] *,
+    .artifact-reader, .artifact-reader *,
+    [data-artifact-reader], [data-artifact-reader] *,
+    .playlist-filter-embed, .playlist-filter-embed *,
+    [data-playlist-filter], [data-playlist-filter] *,
+    [data-visual-demo], [data-visual-demo] *
+  )) {
+    gap: clamp(1.05rem, 5vw, 1.7rem);
   }
 }
 
@@ -473,8 +513,9 @@
 
 @media (max-width: 24rem) {
   #showcase .case-chapter-heading {
-    max-inline-size: 10ch;
-    letter-spacing: -0.038em;
+    max-inline-size: 100%;
+    font-size: clamp(1.32rem, 7.2vw, 2.3rem);
+    letter-spacing: -0.024em;
   }
 
   #showcase .case-chapter__body :where(h4.title--lg, h5.title--lg, .title--lg) {

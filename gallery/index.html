@@ -16,6 +16,7 @@
   <script src="/src/visuals/dom/asset-gallery.js" type="module"></script>
 </head>
 <body>
+<a class="mobile-back-button" href="/">назад</a>
 <header aria-label="навигация по странице" class="site-header" data-site-header="">
   <div class="site-header__island is-expanded" data-nav-island="">
     <nav aria-label="разделы сайта" class="site-header__chips" data-nav-chips="">
@@ -28,7 +29,7 @@
 <main class="asset-page" id="gallery">
 <div class="asset-page__inner">
 <nav aria-label="хлебные крошки" class="asset-crumbs"><a href="/">главная</a><span>галерея</span></nav>
-<div class="asset-controls"><section aria-label="фильтр ассетов" class="asset-filter" data-asset-filter="" id="filter">
+<div aria-hidden="true" class="asset-controls" hidden><section aria-label="фильтр ассетов" class="asset-filter" data-asset-filter="" id="filter">
 <div class="asset-filter__groups">
 <div class="asset-filter__group" data-filter-row="">
 <h3 class="asset-filter__label">проект</h3>
@@ -60,33 +61,12 @@
 <button aria-pressed="false" class="asset-filter__chip" data-filter-group="category" data-filter-value="social" type="button">пост</button>
 </div>
 </div>
-<div class="asset-filter__group" data-filter-row="">
-<h3 class="asset-filter__label">теги</h3>
-<div aria-label="теги" class="asset-filter__chips" role="group">
-<button aria-pressed="true" class="asset-filter__chip" data-filter-group="tags" data-filter-value="*" type="button">все</button>
-<button aria-pressed="false" class="asset-filter__chip" data-filter-group="tags" data-filter-value="ai" type="button">нейросети</button>
-<button aria-pressed="false" class="asset-filter__chip" data-filter-group="tags" data-filter-value="3d" type="button">3d-графика</button>
-<button aria-pressed="false" class="asset-filter__chip" data-filter-group="tags" data-filter-value="motion" type="button">анимация</button>
-<button aria-pressed="false" class="asset-filter__chip" data-filter-group="tags" data-filter-value="color" type="button">цвет</button>
-<button aria-pressed="false" class="asset-filter__chip" data-filter-group="tags" data-filter-value="landing" type="button">лендинг</button>
-<button aria-pressed="false" class="asset-filter__chip" data-filter-group="tags" data-filter-value="editorial" type="button">редактура</button>
-<button aria-pressed="false" class="asset-filter__chip" data-filter-group="tags" data-filter-value="event" type="button">мероприятие</button>
-</div>
-</div>
-<div class="asset-filter__group" data-filter-row="">
-<h3 class="asset-filter__label">порядок</h3>
-<div aria-label="порядок" class="asset-filter__chips" role="group">
-<button aria-pressed="true" class="asset-filter__chip" data-sort-value="default" type="button">по умолчанию</button>
-<button aria-pressed="false" class="asset-filter__chip" data-sort-value="video" type="button">сначала видео</button>
-<button aria-pressed="false" class="asset-filter__chip" data-sort-value="tall" type="button">сначала вертикали</button>
-</div>
-</div>
 </div>
 </section><div class="asset-filter-actions"><button class="button asset-filter__reset" data-filter-reset="" type="button">сбросить</button></div><section aria-label="состояние галереи" class="asset-status"><p class="asset-status__text" data-filter-summary=""></p><div aria-hidden="true" class="asset-status__tags" data-filter-tags=""></div></section></div>
 
 <section aria-label="галерея" id="assets">
 <div class="asset-grid" data-asset-grid="" data-asset-manifest="/assets/gallery/manifest.json"></div>
-<p class="empty-state" data-empty-state="">под выбранные параметры ничего не найдено. сбрось часть чипов.</p>
+<p class="empty-state" data-empty-state="">Под выбранные параметры ничего не найдено. сбрось часть чипов.</p>
 </section>
 </div>
 </main>

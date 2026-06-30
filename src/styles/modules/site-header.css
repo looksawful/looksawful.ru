@@ -180,10 +180,25 @@
 }
 
 .site-header .awfulface-container--trigger {
+  position: relative;
   inline-size: 100%;
   block-size: 100%;
   padding: 0;
   transform: scale(1.08);
+}
+
+.site-header .awfulface-container--trigger::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 8%;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.site-header .awfulface-container--trigger svg {
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 48rem) {

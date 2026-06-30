@@ -147,12 +147,16 @@
 }
 
 .lightbox {
+  --lightbox-pad: clamp(0.75rem, 3vw, 2rem);
   position: fixed;
   z-index: 400;
   inset: 0;
   display: none;
   place-items: center;
-  padding: clamp(0.75rem, 3vw, 2rem);
+  inline-size: 100dvw;
+  block-size: 100dvh;
+  padding: var(--lightbox-pad);
+  overflow: hidden;
   background: rgba(255, 255, 255, 0.94);
   color: var(--black);
 }
@@ -168,13 +172,17 @@
 .lightbox__dialog {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 0.75rem;
-  inline-size: min(100%, 96rem);
-  block-size: min(100%, 88vh);
+  place-items: center;
+  inline-size: min(calc(100dvw - (var(--lightbox-pad) * 2)), 96rem);
+  block-size: calc(100dvh - (var(--lightbox-pad) * 2));
+  max-block-size: calc(100dvh - (var(--lightbox-pad) * 2));
 }
 
 .lightbox__toolbar {
+  position: absolute;
+  z-index: 4;
+  inset-block-start: 0;
+  inset-inline-end: 0;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -184,17 +192,20 @@
 .lightbox__body {
   display: grid;
   place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
   min-inline-size: 0;
   min-block-size: 0;
-  touch-action: pan-y;
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
 }
 
 .lightbox__body :where(img, video) {
   display: block;
-  max-inline-size: 100%;
-  max-block-size: 100%;
-  inline-size: auto;
-  block-size: auto;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: calc(100dvw - (var(--lightbox-pad) * 2));
+  max-block-size: calc(100dvh - (var(--lightbox-pad) * 2));
   object-fit: contain;
   border-radius: 0;
 }
@@ -320,11 +331,14 @@
   }
 
   .lightbox {
+    --lightbox-pad: 0.75rem;
     padding: 0.75rem;
   }
 
   .lightbox__dialog {
-    block-size: min(100%, 86vh);
+    inline-size: calc(100dvw - 1.5rem);
+    block-size: calc(100dvh - 1.5rem);
+    max-block-size: calc(100dvh - 1.5rem);
   }
 
   .lightbox__nav {
@@ -573,6 +587,13 @@
   background: transparent;
   border: 0;
   box-shadow: none;
+}
+
+#showcase .media-item:has(:where(img, picture, video)),
+#showcase [data-media-item]:has(:where(img, picture, video)),
+#showcase [data-animation],
+#showcase canvas.visual-canvas {
+  filter: drop-shadow(0 1rem 1.8rem rgba(0, 0, 0, 0.045));
 }
 
 #showcase .media-item :where(img, video),

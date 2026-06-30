@@ -11,6 +11,13 @@
 
 [data-animation="before-after"],
 [data-animation="before-after"] canvas {
+  cursor: ew-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+[data-animation="before-after"],
+[data-animation="before-after"] canvas {
   min-height: clamp(18rem, 42vw, 42rem);
   background: #fff;
 }
@@ -43,4 +50,3 @@
   from { background-position: 220% 0; }
   to { background-position: -220% 0; }
 }
-

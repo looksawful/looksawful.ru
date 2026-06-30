@@ -210,6 +210,7 @@ export function initShowcaseToc(root = document) {
     const projectChanged = activeProjectId !== nextProjectId;
 
     activeProjectId = nextProjectId;
+    toc.dataset.active = String(Boolean(activeProjectId));
 
     groups.forEach((item) => {
       const isActive = item.projectId === activeProjectId;

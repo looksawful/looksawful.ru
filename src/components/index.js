@@ -98,15 +98,6 @@ async function initVisualEnhancements(root = document) {
   pushGuardedImport(
     tasks,
     root,
-    "#showcase video",
-    "initShowcaseVideoControls",
-    () => import("./showcase-video-controls.js"),
-    (module) => module.initShowcaseVideoControls(root),
-  );
-
-  pushGuardedImport(
-    tasks,
-    root,
     '[data-animation="before-after"] canvas, [data-before-after] canvas',
     "initShowcaseBeforeAfter",
     () => import("../visuals/canvas/before-after/index.js"),
@@ -137,6 +128,15 @@ async function initDecorations(root = document) {
       ),
     );
   }
+
+  pushGuardedImport(
+    tasks,
+    root,
+    "#showcase .case-chapter-heading, #showcase .case-chapter__body :is(h3, h4, h5, h6, .title--lg, .interface-section__title)",
+    "initFitShowcaseHeadings",
+    () => import("./fit-showcase-headings.js"),
+    (module) => module.initFitShowcaseHeadings(root),
+  );
 
   pushGuardedImport(
     tasks,

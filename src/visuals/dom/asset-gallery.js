@@ -19,32 +19,6 @@
     tags: "тег",
   };
 
-  const projectLabels = {
-    jesteipool: "джести пул",
-    styx: "стикс",
-    shootings: "съёмки",
-    pets: "пет-проекты",
-  };
-
-  const categoryLabels = {
-    photo: "фотография",
-    illustration: "иллюстрация",
-    ad: "реклама",
-    banner: "баннер",
-    poster: "плакат",
-    social: "пост",
-  };
-
-  const tagLabels = {
-    ai: "нейросети",
-    "3d": "3d-графика",
-    motion: "анимация",
-    color: "цвет",
-    landing: "лендинг",
-    editorial: "редактура",
-    event: "мероприятие",
-  };
-
   const readable = new Map(
     [...filterButtons, ...sortButtons].map((button) => [
       button.dataset.filterValue || button.dataset.sortValue,
@@ -253,16 +227,6 @@
     applyFilters();
   }
 
-  function appendPill(host, value, dictionary) {
-    const text = dictionary[value] || readable.get(value) || value;
-    if (!text) return;
-
-    const pill = document.createElement("span");
-    pill.className = "asset-card__pill";
-    pill.textContent = text;
-    host.append(pill);
-  }
-
   function createMedia(asset) {
     const media = document.createElement(asset.type === "video" ? "video" : "img");
     media.className = "asset-card__asset";
@@ -330,17 +294,7 @@
 
     link.append(mediaFrame);
 
-    const body = document.createElement("div");
-    body.className = "asset-card__body";
-
-    const meta = document.createElement("div");
-    meta.className = "asset-card__meta";
-    appendPill(meta, asset.project, projectLabels);
-    appendPill(meta, asset.category, categoryLabels);
-    tags.slice(0, 2).forEach((tag) => appendPill(meta, tag, tagLabels));
-
-    body.append(meta);
-    article.append(link, body);
+    article.append(link);
 
     return article;
   }

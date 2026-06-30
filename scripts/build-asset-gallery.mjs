@@ -1,10 +1,27 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import sharp from "sharp";
 
 const rootDir = process.cwd();
 const publicDir = path.join(rootDir, "public");
-const indexPath = path.join(rootDir, "index.html");
+const htmlSkipDirs = new Set([
+  ".git",
+  ".vite",
+  "_archive",
+  "_lab",
+  "_local",
+  "_reports",
+  "audit",
+  "build",
+  "dist",
+  "dist-ssr",
+  "node_modules",
+  "out",
+  "src",
+  "temp",
+  "tmp",
+  "to-implement",
+]);
+const databaseDir = path.join(publicDir, "assets", "gallery", "database");
 const customDir = path.join(publicDir, "assets", "gallery", "custom");
 const manifestPath = path.join(publicDir, "assets", "gallery", "manifest.json");
 const mediaPattern = /\.(webp|png|jpe?g|gif|svg|mp4|webm)$/i;
@@ -16,6 +33,20 @@ const toPublicPath = (absolutePath) => `/${path.relative(publicDir, absolutePath
 const fromPublicPath = (publicPath) => path.join(publicDir, publicPath.replace(/^\//, ""));
 
 const normalizePublicPath = (value) => value.replaceAll("\\", "/").replace(/^public\//, "/");
+
+let sharpLoader;
+
+async function getSharp() {
+  if (sharpLoader !== undefined) return sharpLoader;
+
+  try {
+    sharpLoader = (await import("sharp")).default;
+  } catch {
+    sharpLoader = null;
+  }
+
+  return sharpLoader;
+}
 
 function naturalCompare(a, b) {
   return a.localeCompare(b, "ru", { numeric: true, sensitivity: "base" });
@@ -42,11 +73,34 @@ async function listMediaFiles(dir) {
   }
 }
 
-async function readIndexAssetPaths() {
-  const html = await fs.readFile(indexPath, "utf8");
+async function listHtmlFiles(dir) {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const result = [];
+
+  for (const entry of entries) {
+    if (entry.name.startsWith(".") && entry.name !== ".well-known") continue;
+    if (htmlSkipDirs.has(entry.name)) continue;
+
+    const absolute = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      result.push(...(await listHtmlFiles(absolute)));
+      continue;
+    }
+
+    if (entry.isFile() && entry.name.toLowerCase().endsWith(".html")) {
+      result.push(absolute);
+    }
+  }
+
+  return result.sort(naturalCompare);
+}
+
+async function readHtmlAssetPaths(htmlPath) {
+  const html = await fs.readFile(htmlPath, "utf8");
   const paths = [];
   const seen = new Set();
-  const attrPattern = /\b(?:href|src)="(\/assets\/[^"]+\.(?:webp|png|jpe?g|gif|svg|mp4|webm))"/gi;
+  const attrPattern = /\b(?:href|src)="(\/assets\/[^"]+\.(?:webp|png|jpe?g|gif|svg))"/gi;
   let match = attrPattern.exec(html);
 
   while (match) {
@@ -58,6 +112,21 @@ async function readIndexAssetPaths() {
     }
 
     match = attrPattern.exec(html);
+  }
+
+  return paths;
+}
+
+async function readSiteAssetPaths() {
+  const paths = [];
+  const seen = new Set();
+
+  for (const htmlPath of await listHtmlFiles(rootDir)) {
+    for (const assetPath of await readHtmlAssetPaths(htmlPath)) {
+      if (seen.has(assetPath)) continue;
+      seen.add(assetPath);
+      paths.push(assetPath);
+    }
   }
 
   return paths;
@@ -81,6 +150,9 @@ async function resolveVideoPoster(publicPath) {
 async function readDimensions(publicPath, type) {
   const sourcePath = type === "video" ? await resolveVideoPoster(publicPath) : publicPath;
   if (!sourcePath) return { width: 0, height: 0, ratio: 1 };
+
+  const sharp = await getSharp();
+  if (!sharp) return { width: 0, height: 0, ratio: 1 };
 
   try {
     const meta = await sharp(fromPublicPath(sourcePath)).metadata();
@@ -174,6 +246,7 @@ async function createItem(publicPath, index) {
 }
 
 async function main() {
+  await fs.mkdir(databaseDir, { recursive: true });
   await fs.mkdir(customDir, { recursive: true });
   await fs.mkdir(path.dirname(manifestPath), { recursive: true });
 
@@ -181,7 +254,7 @@ async function main() {
   const seen = new Set();
   const addPath = async (assetPath) => {
     if (!mediaPattern.test(assetPath)) return;
-    if (!imagePattern.test(assetPath) && !videoPattern.test(assetPath)) return;
+    if (!imagePattern.test(assetPath)) return;
     if (seen.has(assetPath)) return;
     if (!(await fileExists(assetPath))) return;
 
@@ -189,7 +262,11 @@ async function main() {
     paths.push(assetPath);
   };
 
-  for (const assetPath of await readIndexAssetPaths()) {
+  for (const assetPath of await readSiteAssetPaths()) {
+    await addPath(assetPath);
+  }
+
+  for (const assetPath of await listMediaFiles(databaseDir)) {
     await addPath(assetPath);
   }
 
@@ -203,7 +280,7 @@ async function main() {
   }
 
   const manifest = {
-    sources: ["index.html", "/assets/gallery/custom"],
+    sources: ["site html", "/assets/gallery/database", "/assets/gallery/custom"],
     items,
   };
 

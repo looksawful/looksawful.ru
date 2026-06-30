@@ -191,6 +191,7 @@ export const mountShowcaseBeforeAfter = (canvasOrId, options = {}) => {
   };
 
   const handlePointerDown = (event) => {
+    event.preventDefault();
     state.dragging = true;
     state.divider = getPointerRatio(event);
     canvas.setPointerCapture?.(event.pointerId);
@@ -200,6 +201,7 @@ export const mountShowcaseBeforeAfter = (canvasOrId, options = {}) => {
     state.hovering = true;
 
     if (state.dragging) {
+      event.preventDefault();
       state.divider = getPointerRatio(event);
     }
   };
@@ -320,4 +322,3 @@ export const initShowcaseBeforeAfter = (root = document) => {
 
   return mounted;
 };
-

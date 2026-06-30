@@ -482,15 +482,16 @@ pre {
     display: grid;
   }
 }
-</style>
+.mobile-back-button{display:none}@media(max-width:560px){.mobile-back-button{position:fixed;z-index:180;left:12px;bottom:12px;display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 11px 8px;border:1px solid rgba(0,0,0,.18);border-radius:999px;background:rgba(255,255,255,.92);color:#000;font:700 12px/1 system-ui,sans-serif;text-decoration:none;box-shadow:0 12px 28px rgba(0,0,0,.08);backdrop-filter:blur(10px)}}</style>
 </head>
 <body>
+<a class="mobile-back-button" href="/#pets">назад</a>
 <nav class="pet-shell-nav" aria-label="навигация pet-проекта"><div class="pet-shell-crumbs"><a class="pet-shell-pill" href="/">главная</a><span class="pet-shell-pill pet-shell-muted">Awful Audit</span></div><div class="pet-shell-actions"><a class="pet-shell-pill" href="https://github.com/looksawful/awful-audit" rel="noreferrer" target="_blank">github</a></div></nav>
 <main class="page">
   <div class="screen">
     <div class="layout">
       <header class="titlebar">
-        <h1>Awful Audit</h1>
+        <h1>Awful&nbsp;Audit</h1>
       </header>
 
       <section class="top-panels" aria-label="Awful Audit preview">

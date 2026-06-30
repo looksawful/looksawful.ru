@@ -91,6 +91,7 @@ function initPolicyBook(book) {
       didDrag = false;
       pointerStartX = event.clientX;
       pointerStartY = event.clientY;
+      viewport.setPointerCapture?.(event.pointerId);
     });
 
     viewport.addEventListener("pointermove", (event) => {
@@ -103,8 +104,9 @@ function initPolicyBook(book) {
 
       if (Math.abs(dx) > 24 && Math.abs(dx) > Math.abs(dy) * 1.25) {
         didDrag = true;
+        event.preventDefault();
       }
-    });
+    }, { passive: false });
 
     viewport.addEventListener("pointerup", (event) => {
       if (!isPointerDown) {
@@ -112,6 +114,7 @@ function initPolicyBook(book) {
       }
 
       isPointerDown = false;
+      viewport.releasePointerCapture?.(event.pointerId);
 
       const dx = event.clientX - pointerStartX;
       const dy = event.clientY - pointerStartY;

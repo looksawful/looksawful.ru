@@ -2840,6 +2840,16 @@ box-sizing: border-box;
 
 @media (max-width: 48rem) {
   #showcase .interface-section__filter .filter-fullscreen-wrapper {
+    --filter-design-height: 960;
     border-radius: clamp(12px, 4vw, 20px);
+    block-size: clamp(14.5rem, calc(var(--filter-design-height) * 1px * var(--filter-fit-scale)), 28rem);
+  }
+
+  #showcase .interface-section__filter .playlist-filter-embed {
+    block-size: calc(var(--filter-design-height) * 1px);
+  }
+
+  #showcase .interface-section__filter .playlist-filter-embed .animation-stage {
+    min-block-size: calc(var(--filter-design-height) * 1px);
   }
 }
