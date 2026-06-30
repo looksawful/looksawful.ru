@@ -1,51 +1,50 @@
 .case-hero-lead {
   width: 100%;
+  max-width: none;
   margin-inline: auto;
-  padding-block: clamp(2.75rem, 6vw, 5.75rem) clamp(3.25rem, 7vw, 6.5rem);
+  padding-block: clamp(3rem, 7vw, 6.5rem) clamp(3.5rem, 8vw, 7rem);
   padding-inline: 0;
-  display: grid;
-  place-items: center;
+  display: block;
 }
 
 .case-hero-lead p {
-  width: min(100%, 58ch);
+  width: 100%;
   max-width: none;
-  margin: 0 auto;
-  color: var(--black, #111111);
-  text-align: justify;
-  text-align-last: center;
-  text-wrap: pretty;
-  hyphens: auto;
-  font-size: clamp(1.2rem, 1.85vw, 2.35rem);
-  line-height: 1.2;
+  margin: 0;
+  color: var(--black, #000);
+  font-size: clamp(1.12rem, 1.55vw, 1.95rem);
+  line-height: 1.28;
   font-weight: 500;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.032em;
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 @media (max-width: 64rem) {
   .case-hero-lead {
-    padding-block: clamp(2.5rem, 8vw, 4.75rem) clamp(3rem, 9vw, 5.5rem);
+    padding-block: clamp(2.75rem, 8vw, 5rem) clamp(3rem, 9vw, 5.5rem);
   }
 
   .case-hero-lead p {
-    width: min(100%, 52ch);
-    font-size: clamp(1.2rem, 3.25vw, 2rem);
-    line-height: 1.22;
-    letter-spacing: -0.032em;
+    font-size: clamp(1.08rem, 3.5vw, 1.6rem);
+    line-height: 1.3;
+    letter-spacing: -0.028em;
   }
 }
 
 @media (max-width: 36rem) {
   .case-hero-lead {
-    padding-block: 2.25rem 3.25rem;
+    padding-block: 2.5rem 3.25rem;
   }
 
   .case-hero-lead p {
-    width: 100%;
-    font-size: clamp(1.12rem, 5.4vw, 1.55rem);
-    line-height: 1.27;
-    letter-spacing: -0.026em;
-    text-align: justify;
-    text-align-last: left;
+    font-size: clamp(1.03rem, 4.4vw, 1.32rem);
+    line-height: 1.34;
+    letter-spacing: -0.024em;
+    text-align: left;
+    text-align-last: auto;
   }
 }
