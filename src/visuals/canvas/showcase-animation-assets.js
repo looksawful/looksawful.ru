@@ -1,31 +1,38 @@
 const LOCAL_SCENE_MODULES = {
+  jesteiPromoDiagonal: import.meta.glob(
+    "./showcase-diagonal/assets/jestei-promo-diagonal/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    { eager: true, query: "?url", import: "default" },
+  ),
   jesteiColorBeforeAfter: import.meta.glob(
-    "./before-after/assets/jestei-color-before-after*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    "./before-after/assets/jestei-color-before-after/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
     { eager: true, query: "?url", import: "default" },
   ),
   styxGraphicDiagonal: import.meta.glob(
-    "./showcase-diagonal/assets/styx-graphic-diagonal*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    "./showcase-diagonal/assets/styx-graphic-diagonal/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
     { eager: true, query: "?url", import: "default" },
   ),
   styxBrandIdentity: import.meta.glob(
-    "./showcase-horizontal/assets/styx-brand-identity*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    "./showcase-horizontal/assets/styx-brand-identity/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
     { eager: true, query: "?url", import: "default" },
   ),
 };
 
 const LOCAL_SCENE_DIRECTORIES = {
+  jesteiPromoDiagonal: "src/visuals/canvas/showcase-diagonal/assets/jestei-promo-diagonal",
   jesteiColorBeforeAfter: "src/visuals/canvas/before-after/assets/jestei-color-before-after",
   styxGraphicDiagonal: "src/visuals/canvas/showcase-diagonal/assets/styx-graphic-diagonal",
   styxBrandIdentity: "src/visuals/canvas/showcase-horizontal/assets/styx-brand-identity",
 };
 
 const SCENE_LABELS = {
+  jesteiPromoDiagonal: "Jestei Pool / promo organisms / diagonal",
   jesteiColorBeforeAfter: "Jestei Pool / color / before-after",
   styxGraphicDiagonal: "Styx Jewels / graphic / diagonal",
   styxBrandIdentity: "Styx Jewels / brand identity / horizontal",
 };
 
 const SCENE_DEFAULT_MAX_ITEMS = {
+  jesteiPromoDiagonal: 24,
   jesteiColorBeforeAfter: 2,
   styxGraphicDiagonal: 36,
   styxBrandIdentity: 14,
@@ -103,4 +110,3 @@ export const getAnimationSceneSummaries = () =>
     fileCount: Object.keys(scene.modules).length,
     defaultMaxItems: scene.defaultMaxItems,
   }));
-

@@ -12,6 +12,7 @@ export default defineConfig({
         "pets/awful-audit": resolve(__dirname, "pets/awful-audit/index.html"),
         "pets/awful-describer": resolve(__dirname, "pets/awful-describer/index.html"),
         resume: resolve(__dirname, "resume/index.html"),
+        gallery: resolve(__dirname, "gallery/index.html"),
       },
     },
   },

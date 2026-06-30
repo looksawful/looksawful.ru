@@ -197,6 +197,8 @@
     padding-block-start: max(0.72rem, env(safe-area-inset-top));
     padding-block-end: 0.62rem;
     padding-inline: 0;
+    overflow-x: clip;
+    overflow-y: visible;
   }
 
   .site-header__island {
@@ -257,7 +259,11 @@
   }
 
   .site-header__island.is-collapsed .site-header__chips {
+    inline-size: 0;
+    max-inline-size: 0;
+    padding-inline: 0;
     opacity: 0;
+    overflow: hidden;
     visibility: hidden;
     pointer-events: none;
   }
@@ -297,9 +303,14 @@
   }
 
   .site-header__island.is-expanded .site-header__chips {
+    inline-size: 100%;
+    max-inline-size: 100%;
+    padding-inline-start: var(--site-header-page-x);
+    padding-inline-end: var(--site-header-page-x-right);
     opacity: 1;
+    overflow-x: auto;
+    overflow-y: visible;
     visibility: visible;
     pointer-events: auto;
   }
 }
-

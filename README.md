@@ -1,4 +1,28 @@
-# stage 12 — reading lists
+# looksawful stage 14 — final regression repair
 
-Normalizes large text/list blocks inside case bodies into readable documentation-like vertical structures.
-Protected areas are left untouched: hero, resume, menus, project headers, chapter headers, responsibilities, chips, buttons, canvas, GSAP, filter, policy and artifacts.
+Fixes the current final-audit state without relying on the earlier wrong audit.
+
+Scope:
+- move `#pets` out of Jestei header and place it after `#project-styx` and before `#project-shootings`
+- restore accent styling for chapter title accent words
+- restore gradient fill for the color chapter header
+- restore token cards styling for the color section
+- repair legacy/media gallery layout so images do not become huge vertical stacks
+
+Protected:
+- hero
+- resume
+- site-header/menu/proximity
+- mailto and the typo comment
+- playlist filter
+- policy-book / redpolicy
+- artifact-reader
+- canvas / gsap globals
+- texts and asset paths
+
+Run from project root:
+
+```powershell
+node .\tools\portfolio-final-regression-repair.mjs
+npm run build
+```

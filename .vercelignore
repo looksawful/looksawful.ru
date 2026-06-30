@@ -1,0 +1,42 @@
+# dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+build/
+out/
+
+# local environment
+.env
+.env.local
+.env.*.local
+*.local
+
+# logs and reports
+logs/
+*.log
+.audit/
+audit/
+_reports/
+_rollback-audit/
+
+# local-only working areas and drafts
+.vercel/
+_local/
+temp/
+tmp/
+temp-images/
+to-implement/
+tools/
+
+# generated or temporary media placeholders
+**/_normalized_300dpi/
+**/_source/
+**/_raw/
+**/_tmp/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/

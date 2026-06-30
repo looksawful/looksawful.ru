@@ -11,7 +11,7 @@ import {
 	roundedRect,
   setMediaItemsPlayback,
 } from "../../shared/canvas-animation.js";
-import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
+import { createAnimationItems, getAnimationScene } from "../showcase-animation-assets.js";
 
 const CV_DIAGONAL_KEY_PREFIX = "showcase-diagonal:";
 const DEFAULT_DIAGONAL_SCENE = "styxGraphicDiagonal";
@@ -56,9 +56,14 @@ sides: { top: false, right: false, bottom: false, left: false },
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const getDiagonalItems = (sceneId = DEFAULT_DIAGONAL_SCENE) => {
-	const scene = ANIMATION_SCENES[sceneId] ?? ANIMATION_SCENES[DEFAULT_DIAGONAL_SCENE];
+	const scene = getAnimationScene(sceneId, DEFAULT_DIAGONAL_SCENE);
+
+	if (!scene) {
+		return [];
+	}
+
 	return limitAnimationItems(
-    createAnimationItems(scene.modules),
+    createAnimationItems(scene.modules || {}),
     sceneId,
     { defaultMaxItems: scene.defaultMaxItems || 30 },
   );
@@ -669,4 +674,3 @@ if (import.meta.hot) {
 		disposeCanvasAnimationsByPrefix(CV_DIAGONAL_KEY_PREFIX);
 	});
 }
-

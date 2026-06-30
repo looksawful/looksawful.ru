@@ -2,7 +2,7 @@ import { createLetterIdleMotion, splitTextIntoGraphemes } from "./letter-motion.
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-const HEADING_SELECTOR = "#showcase :is(.jestei-chapter-section, .case-section-clean, [data-jestei-chapter-title], [data-case-chapter-title]) > .jestei-chapter-hero > .jestei-chapter-hero__title";
+const HEADING_SELECTOR = "#showcase .case-chapter__header .case-chapter-heading, #showcase :is(.jestei-chapter-section, .case-section-clean, [data-jestei-chapter-title], [data-case-chapter-title]) > :is(.jestei-chapter-hero, .case-chapter-hero, .case-chapter__header) > :is(.jestei-chapter-hero__title, .case-chapter-hero__title)";
 
 const EXCLUDED_SELECTOR = [
   ".site-header",
@@ -108,7 +108,7 @@ function splitTextNode(node) {
   const parts = splitTextIntoGraphemes(node.nodeValue || "");
 
   parts.forEach((char) => {
-    if (/s/.test(char)) {
+    if (/\s/u.test(char)) {
       fragment.appendChild(document.createTextNode(char));
       return;
     }

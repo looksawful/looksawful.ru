@@ -14,7 +14,7 @@ import {
   limitAnimationItems,
   markCanvasState,
 } from "../../shared/canvas-animation.js";
-import { createAnimationItems, ANIMATION_SCENES } from "../showcase-animation-assets.js";
+import { createAnimationItems, getAnimationScene } from "../showcase-animation-assets.js";
 
 const CV_HORIZONTAL_KEY_PREFIX = "showcase-horizontal:";
 const DEFAULT_HORIZONTAL_SCENE = "styxBrandIdentity";
@@ -56,8 +56,13 @@ const config = {
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const getHorizontalItems = (sceneId = DEFAULT_HORIZONTAL_SCENE) => {
-  const scene = ANIMATION_SCENES[sceneId] ?? ANIMATION_SCENES[DEFAULT_HORIZONTAL_SCENE];
-  return limitAnimationItems(createAnimationItems(scene.modules), sceneId, { defaultMaxItems: scene.defaultMaxItems || 20 });
+  const scene = getAnimationScene(sceneId, DEFAULT_HORIZONTAL_SCENE);
+
+  if (!scene) {
+    return [];
+  }
+
+  return limitAnimationItems(createAnimationItems(scene.modules || {}), sceneId, { defaultMaxItems: scene.defaultMaxItems || 20 });
 };
 
 const createDisposeHandle = (dispose = noop) => {
@@ -630,4 +635,3 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(CV_HORIZONTAL_KEY_PREFIX);
   });
 }
-

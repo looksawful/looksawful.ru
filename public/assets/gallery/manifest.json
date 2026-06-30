@@ -1,0 +1,1744 @@
+{
+  "sources": [
+    "index.html",
+    "/assets/gallery/custom"
+  ],
+  "items": [
+    {
+      "id": "asset-001",
+      "src": "/assets/media/cases/jesteipool/01-logo/01/01.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [],
+      "title": "01",
+      "width": 2400,
+      "height": 1350,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-002",
+      "src": "/assets/media/cases/jesteipool/01-logo/02/01.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [],
+      "title": "01",
+      "width": 2104,
+      "height": 1184,
+      "ratio": 1.777,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-003",
+      "src": "/assets/media/cases/jesteipool/01-logo/02/02.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [],
+      "title": "02",
+      "width": 1584,
+      "height": 891,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-004",
+      "src": "/assets/media/cases/jesteipool/01-logo/02/03.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [],
+      "title": "03",
+      "width": 1584,
+      "height": 891,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-005",
+      "src": "/assets/media/cases/jesteipool/02-color/04/00.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [
+        "color"
+      ],
+      "title": "00",
+      "width": 2880,
+      "height": 1620,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-006",
+      "src": "/assets/media/cases/jesteipool/02-color/02/00.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [
+        "color"
+      ],
+      "title": "00",
+      "width": 1542,
+      "height": 1841,
+      "ratio": 0.8376,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-007",
+      "src": "/assets/media/cases/jesteipool/04-depth/01/01.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "01",
+      "width": 2282,
+      "height": 2880,
+      "ratio": 0.7924,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-008",
+      "src": "/assets/media/cases/jesteipool/04-depth/01/02.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "02",
+      "width": 1821,
+      "height": 2880,
+      "ratio": 0.6323,
+      "variant": "tall"
+    },
+    {
+      "id": "asset-009",
+      "src": "/assets/media/cases/jesteipool/04-depth/01/03.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "03",
+      "width": 2371,
+      "height": 2880,
+      "ratio": 0.8233,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-010",
+      "src": "/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages/01.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "motion",
+        "landing"
+      ],
+      "title": "01",
+      "width": 900,
+      "height": 1600,
+      "ratio": 0.5625,
+      "variant": "tall"
+    },
+    {
+      "id": "asset-011",
+      "src": "/assets/media/cases/jesteipool/05-motion/placeholders/landing-pages/02.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "motion",
+        "landing"
+      ],
+      "title": "02",
+      "width": 900,
+      "height": 1600,
+      "ratio": 0.5625,
+      "variant": "tall"
+    },
+    {
+      "id": "asset-012",
+      "src": "/assets/media/cases/jesteipool/05-motion/02/06.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "motion",
+        "landing"
+      ],
+      "title": "06",
+      "width": 1600,
+      "height": 900,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-013",
+      "src": "/assets/media/cases/jesteipool/05-motion/02/07.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "motion",
+        "landing"
+      ],
+      "title": "07",
+      "width": 1600,
+      "height": 900,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-014",
+      "src": "/assets/media/cases/jesteipool/05-motion/02/08.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "motion",
+        "landing"
+      ],
+      "title": "08",
+      "width": 1600,
+      "height": 900,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-015",
+      "src": "/assets/media/cases/jesteipool/05-motion/03/06.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "motion",
+        "landing"
+      ],
+      "title": "06",
+      "width": 1600,
+      "height": 900,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-016",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/51.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "51",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-017",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/43.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "43",
+      "width": 1216,
+      "height": 1664,
+      "ratio": 0.7308,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-018",
+      "src": "/assets/media/cases/jesteipool/03-form/02/02.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "02",
+      "width": 1600,
+      "height": 1600,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-019",
+      "src": "/assets/media/cases/jesteipool/03-form/05/02.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "02",
+      "width": 1600,
+      "height": 1600,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-020",
+      "src": "/assets/media/cases/jesteipool/03-form/07/15.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "15",
+      "width": 2048,
+      "height": 2048,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-021",
+      "src": "/assets/media/cases/jesteipool/03-form/07/16.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "16",
+      "width": 1289,
+      "height": 1230,
+      "ratio": 1.048,
+      "variant": "square"
+    },
+    {
+      "id": "asset-022",
+      "src": "/assets/media/cases/jesteipool/03-form/07/08.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "08",
+      "width": 2276,
+      "height": 1400,
+      "ratio": 1.6257,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-023",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/01.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "01",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-024",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/04.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "04",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-025",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/13.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "13",
+      "width": 1600,
+      "height": 1600,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-026",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/15.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "15",
+      "width": 800,
+      "height": 800,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-027",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/16.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "16",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-028",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/17.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "17",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-029",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/21.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "21",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-030",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/22.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "22",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-031",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/23.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "23",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-032",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/24.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "24",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-033",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/29.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "29",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-034",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/32.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "32",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-035",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/33.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "33",
+      "width": 688,
+      "height": 688,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-036",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/44.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "44",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-037",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/45.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "45",
+      "width": 298,
+      "height": 298,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-038",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/49.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "49",
+      "width": 1114,
+      "height": 1114,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-039",
+      "src": "/assets/media/cases/jesteipool/03-form/07/11.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "11",
+      "width": 1600,
+      "height": 1600,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-040",
+      "src": "/assets/media/cases/jesteipool/03-form/06/03.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "03",
+      "width": 1600,
+      "height": 1600,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-041",
+      "src": "/assets/media/cases/jesteipool/03-form/06/06.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "06",
+      "width": 1821,
+      "height": 1820,
+      "ratio": 1.0005,
+      "variant": "square"
+    },
+    {
+      "id": "asset-042",
+      "src": "/assets/media/cases/jesteipool/03-form/06/08.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "08",
+      "width": 2048,
+      "height": 2048,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-043",
+      "src": "/assets/media/cases/jesteipool/03-form/06/12.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "12",
+      "width": 1821,
+      "height": 1820,
+      "ratio": 1.0005,
+      "variant": "square"
+    },
+    {
+      "id": "asset-044",
+      "src": "/assets/media/cases/jesteipool/03-form/06/15.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "15",
+      "width": 1600,
+      "height": 1600,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-045",
+      "src": "/assets/media/cases/jesteipool/03-form/02/01.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "01",
+      "width": 1024,
+      "height": 1019,
+      "ratio": 1.0049,
+      "variant": "square"
+    },
+    {
+      "id": "asset-046",
+      "src": "/assets/media/cases/jesteipool/03-form/02/03.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "banner",
+      "tags": [
+        "landing"
+      ],
+      "title": "03",
+      "width": 1600,
+      "height": 1600,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-047",
+      "src": "/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-01.mp4",
+      "type": "video",
+      "project": "jesteipool",
+      "category": "ad",
+      "tags": [
+        "motion",
+        "landing"
+      ],
+      "title": "collage video placeholder 01",
+      "width": 0,
+      "height": 0,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-048",
+      "src": "/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-02.mp4",
+      "type": "video",
+      "project": "jesteipool",
+      "category": "ad",
+      "tags": [
+        "motion",
+        "landing"
+      ],
+      "title": "collage video placeholder 02",
+      "width": 0,
+      "height": 0,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-049",
+      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-01.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "banner design 01",
+      "width": 1600,
+      "height": 900,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-050",
+      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-02.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "banner design 02",
+      "width": 1600,
+      "height": 900,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-051",
+      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-03.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "banner design 03",
+      "width": 1600,
+      "height": 900,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-052",
+      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-04.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "banner design 04",
+      "width": 1600,
+      "height": 900,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-053",
+      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-05.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "banner design 05",
+      "width": 1600,
+      "height": 420,
+      "ratio": 3.8095,
+      "variant": "banner"
+    },
+    {
+      "id": "asset-054",
+      "src": "/assets/media/cases/jesteipool/06-graphic/placeholders/banner-design-06.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "banner design 06",
+      "width": 1234,
+      "height": 900,
+      "ratio": 1.3711,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-055",
+      "src": "/assets/media/cases/jesteipool/06-graphic/02/10.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "10",
+      "width": 1289,
+      "height": 1230,
+      "ratio": 1.048,
+      "variant": "square"
+    },
+    {
+      "id": "asset-056",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/07.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "07",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-057",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/16.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "16",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-058",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/24.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "24",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-059",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/26.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "26",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-060",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/33.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "33",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-061",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/36.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "36",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-062",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/39.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "39",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-063",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/40.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "40",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-064",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/45.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "45",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-065",
+      "src": "/assets/media/cases/jesteipool/06-graphic/01/46.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "social",
+      "tags": [
+        "editorial",
+        "ai"
+      ],
+      "title": "46",
+      "width": 1024,
+      "height": 1024,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-066",
+      "src": "/assets/media/cases/styx/00/01.svg",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "01",
+      "width": 384,
+      "height": 384,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-067",
+      "src": "/assets/media/cases/styx/01/01/01.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "01",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-068",
+      "src": "/assets/media/cases/styx/01/01/02.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "02",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-069",
+      "src": "/assets/media/cases/styx/01/01/03.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "03",
+      "width": 512,
+      "height": 640,
+      "ratio": 0.8,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-070",
+      "src": "/assets/media/cases/styx/01/01/04.mp4",
+      "type": "video",
+      "project": "styx",
+      "category": "ad",
+      "tags": [
+        "motion",
+        "3d"
+      ],
+      "title": "04",
+      "width": 675,
+      "height": 1200,
+      "ratio": 0.5625,
+      "variant": "story",
+      "poster": "/assets/media/cases/styx/01/01/04-poster.webp"
+    },
+    {
+      "id": "asset-071",
+      "src": "/assets/media/cases/styx/01/02/01.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "01",
+      "width": 791,
+      "height": 800,
+      "ratio": 0.9888,
+      "variant": "square"
+    },
+    {
+      "id": "asset-072",
+      "src": "/assets/media/cases/styx/01/02/02.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "02",
+      "width": 800,
+      "height": 800,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-073",
+      "src": "/assets/media/cases/styx/01/02/03.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "03",
+      "width": 960,
+      "height": 1200,
+      "ratio": 0.8,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-074",
+      "src": "/assets/media/cases/styx/01/02/04.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "04",
+      "width": 1200,
+      "height": 1199,
+      "ratio": 1.0008,
+      "variant": "square"
+    },
+    {
+      "id": "asset-075",
+      "src": "/assets/media/cases/styx/03/01/01.png",
+      "type": "image",
+      "project": "styx",
+      "category": "photo",
+      "tags": [
+        "3d"
+      ],
+      "title": "01",
+      "width": 960,
+      "height": 640,
+      "ratio": 1.5,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-076",
+      "src": "/assets/media/cases/styx/03/02/01.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "photo",
+      "tags": [
+        "3d"
+      ],
+      "title": "01",
+      "width": 960,
+      "height": 1200,
+      "ratio": 0.8,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-077",
+      "src": "/assets/media/cases/styx/03/02/02.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "photo",
+      "tags": [
+        "3d"
+      ],
+      "title": "02",
+      "width": 960,
+      "height": 1200,
+      "ratio": 0.8,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-078",
+      "src": "/assets/media/cases/styx/03/02/03.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "photo",
+      "tags": [
+        "3d"
+      ],
+      "title": "03",
+      "width": 960,
+      "height": 1200,
+      "ratio": 0.8,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-079",
+      "src": "/assets/media/cases/styx/03/02/04.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "photo",
+      "tags": [
+        "3d"
+      ],
+      "title": "04",
+      "width": 959,
+      "height": 1200,
+      "ratio": 0.7992,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-080",
+      "src": "/assets/media/cases/styx/03/02/05.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "photo",
+      "tags": [
+        "3d"
+      ],
+      "title": "05",
+      "width": 800,
+      "height": 1200,
+      "ratio": 0.6667,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-081",
+      "src": "/assets/media/cases/styx/03/02/06.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "photo",
+      "tags": [
+        "3d"
+      ],
+      "title": "06",
+      "width": 1200,
+      "height": 801,
+      "ratio": 1.4981,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-082",
+      "src": "/assets/media/cases/styx/03/02/07.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "photo",
+      "tags": [
+        "3d"
+      ],
+      "title": "07",
+      "width": 848,
+      "height": 1060,
+      "ratio": 0.8,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-083",
+      "src": "/assets/media/cases/styx/03/02/08.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "photo",
+      "tags": [
+        "3d"
+      ],
+      "title": "08",
+      "width": 1197,
+      "height": 1123,
+      "ratio": 1.0659,
+      "variant": "square"
+    },
+    {
+      "id": "asset-084",
+      "src": "/assets/media/cases/styx/04/01/01.mp4",
+      "type": "video",
+      "project": "styx",
+      "category": "ad",
+      "tags": [
+        "motion",
+        "3d"
+      ],
+      "title": "01",
+      "width": 675,
+      "height": 1200,
+      "ratio": 0.5625,
+      "variant": "story",
+      "poster": "/assets/media/cases/styx/04/01/01-poster.webp"
+    },
+    {
+      "id": "asset-085",
+      "src": "/assets/media/cases/styx/04/01/02.mp4",
+      "type": "video",
+      "project": "styx",
+      "category": "ad",
+      "tags": [
+        "motion",
+        "3d"
+      ],
+      "title": "02",
+      "width": 675,
+      "height": 1200,
+      "ratio": 0.5625,
+      "variant": "story",
+      "poster": "/assets/media/cases/styx/04/01/02-poster.webp"
+    },
+    {
+      "id": "asset-086",
+      "src": "/assets/media/cases/styx/04/02/01.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "01",
+      "width": 640,
+      "height": 800,
+      "ratio": 0.8,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-087",
+      "src": "/assets/media/cases/styx/04/02/02.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "02",
+      "width": 639,
+      "height": 800,
+      "ratio": 0.7987,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-088",
+      "src": "/assets/media/cases/styx/04/02/03.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "03",
+      "width": 863,
+      "height": 1080,
+      "ratio": 0.7991,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-089",
+      "src": "/assets/media/cases/styx/04/02/04.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "04",
+      "width": 553,
+      "height": 643,
+      "ratio": 0.86,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-090",
+      "src": "/assets/media/cases/styx/04/02/05.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "05",
+      "width": 786,
+      "height": 800,
+      "ratio": 0.9825,
+      "variant": "square"
+    },
+    {
+      "id": "asset-091",
+      "src": "/assets/media/cases/styx/04/02/06.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "06",
+      "width": 1179,
+      "height": 1200,
+      "ratio": 0.9825,
+      "variant": "square"
+    },
+    {
+      "id": "asset-092",
+      "src": "/assets/media/cases/styx/04/02/07.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "07",
+      "width": 1200,
+      "height": 1200,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-093",
+      "src": "/assets/media/cases/styx/04/02/08.webp",
+      "type": "image",
+      "project": "styx",
+      "category": "illustration",
+      "tags": [
+        "3d"
+      ],
+      "title": "08",
+      "width": 1179,
+      "height": 1200,
+      "ratio": 0.9825,
+      "variant": "square"
+    },
+    {
+      "id": "asset-094",
+      "src": "/assets/media/cases/shootings/05/01.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "01",
+      "width": 1216,
+      "height": 1382,
+      "ratio": 0.8799,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-095",
+      "src": "/assets/media/cases/shootings/06/01.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "01",
+      "width": 898,
+      "height": 902,
+      "ratio": 0.9956,
+      "variant": "square"
+    },
+    {
+      "id": "asset-096",
+      "src": "/assets/media/cases/shootings/06/02.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "02",
+      "width": 1210,
+      "height": 1250,
+      "ratio": 0.968,
+      "variant": "square"
+    },
+    {
+      "id": "asset-097",
+      "src": "/assets/media/cases/shootings/06/03.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "03",
+      "width": 913,
+      "height": 1280,
+      "ratio": 0.7133,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-098",
+      "src": "/assets/media/cases/shootings/07/01.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "01",
+      "width": 1024,
+      "height": 1280,
+      "ratio": 0.8,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-099",
+      "src": "/assets/media/cases/shootings/07/02.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "02",
+      "width": 1024,
+      "height": 1280,
+      "ratio": 0.8,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-100",
+      "src": "/assets/media/cases/shootings/07/03.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "03",
+      "width": 928,
+      "height": 1280,
+      "ratio": 0.725,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-101",
+      "src": "/assets/media/cases/shootings/07/04.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "04",
+      "width": 1023,
+      "height": 1280,
+      "ratio": 0.7992,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-102",
+      "src": "/assets/media/cases/shootings/07/05.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "05",
+      "width": 1129,
+      "height": 1280,
+      "ratio": 0.882,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-103",
+      "src": "/assets/media/cases/shootings/07/06.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "06",
+      "width": 1280,
+      "height": 1280,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-104",
+      "src": "/assets/media/cases/shootings/08/01.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "01",
+      "width": 853,
+      "height": 1280,
+      "ratio": 0.6664,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-105",
+      "src": "/assets/media/cases/shootings/08/02.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "02",
+      "width": 1280,
+      "height": 1024,
+      "ratio": 1.25,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-106",
+      "src": "/assets/media/cases/shootings/08/03.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "03",
+      "width": 914,
+      "height": 1280,
+      "ratio": 0.7141,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-107",
+      "src": "/assets/media/cases/shootings/08/04.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "04",
+      "width": 794,
+      "height": 1092,
+      "ratio": 0.7271,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-108",
+      "src": "/assets/media/cases/shootings/08/05.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "05",
+      "width": 950,
+      "height": 950,
+      "ratio": 1,
+      "variant": "square"
+    },
+    {
+      "id": "asset-109",
+      "src": "/assets/media/cases/shootings/08/06.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "06",
+      "width": 475,
+      "height": 646,
+      "ratio": 0.7353,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-110",
+      "src": "/assets/media/cases/shootings/08/07.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "07",
+      "width": 931,
+      "height": 1280,
+      "ratio": 0.7273,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-111",
+      "src": "/assets/media/cases/shootings/08/08.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "08",
+      "width": 1024,
+      "height": 1280,
+      "ratio": 0.8,
+      "variant": "portrait"
+    },
+    {
+      "id": "asset-112",
+      "src": "/assets/media/cases/shootings/08/09.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "09",
+      "width": 898,
+      "height": 902,
+      "ratio": 0.9956,
+      "variant": "square"
+    },
+    {
+      "id": "asset-113",
+      "src": "/assets/media/cases/shootings/08/10.webp",
+      "type": "image",
+      "project": "shootings",
+      "category": "photo",
+      "tags": [
+        "event"
+      ],
+      "title": "10",
+      "width": 1210,
+      "height": 1250,
+      "ratio": 0.968,
+      "variant": "square"
+    }
+  ]
+}
