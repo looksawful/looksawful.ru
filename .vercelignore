@@ -29,7 +29,6 @@ to-implement/
 tools/
 
 # generated or temporary media placeholders
-public/assets/media/cases/jesteipool/**/placeholders/
 **/_normalized_300dpi/
 **/_source/
 **/_raw/
