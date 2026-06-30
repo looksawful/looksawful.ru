@@ -338,7 +338,7 @@
   }
 }
 
-/* portfolio-gallery-screen-contract-v6:start */
+
 #showcase .case-chapter__body :where(.media-group, .media-figure, .media-gallery, .media-banner) {
   margin-block-start: clamp(0.8rem, 2vw, 1.4rem);
 }
@@ -473,9 +473,9 @@
     grid-template-columns: auto minmax(0, 1fr) auto;
   }
 }
-/* portfolio-gallery-screen-contract-v6:end */
 
-/* awful-promo-event-landing-v7-fixed:gallery:start */
+
+
 #showcase .case-chapter__body .media-group--pair {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -521,4 +521,163 @@
     --media-rail-item: min(84vw, 24rem);
   }
 }
-/* awful-promo-event-landing-v7-fixed:gallery:end */
+
+
+
+#showcase .media-group {
+  --media-gap: var(--case-media-gap, clamp(10px, 1.4vw, 22px));
+  --media-ratio: auto;
+  display: grid;
+  gap: var(--media-gap);
+  inline-size: 100%;
+  max-inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#showcase .media-group--single,
+#showcase .media-group[data-media-count="1"],
+#showcase .media-group[data-media-group="single"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+#showcase .media-group--pair,
+#showcase .media-group[data-media-count="2"],
+#showcase .media-group[data-media-group="pair"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#showcase .media-group--three,
+#showcase .media-group[data-media-count="3"],
+#showcase .media-group[data-media-group="three"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#showcase .media-group--quad,
+#showcase .media-group[data-media-count="4"],
+#showcase .media-group[data-media-group="quad"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#showcase .media-item,
+#showcase [data-media-item] {
+  display: grid;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+#showcase .media-item :where(img, video),
+#showcase [data-media-item] :where(img, video) {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  block-size: auto;
+  border: 0;
+  border-radius: 0;
+}
+
+#showcase :where(.media-group--interface, .media-group--fit-contain, .media-contain, [data-fit="contain"]) :where(img, video),
+#showcase :where(img.media-transparent, .media-transparent) {
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+#showcase :where(.media-group--photo, .media-group--cover) :where(img, video) {
+  aspect-ratio: var(--media-ratio, 4 / 5);
+  object-fit: cover;
+}
+
+#showcase [aria-label="экраны навигации event"].media-group {
+  --case-rail-item: min(86vw, 24rem);
+  --media-gap: clamp(16px, 2vw, 28px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  justify-items: center;
+}
+
+#showcase [aria-label="экраны навигации event"].media-group > :where(.media-item, [data-media-item]) {
+  inline-size: 100%;
+  max-inline-size: min(100%, 18rem);
+  align-self: end;
+}
+
+#showcase [aria-label="экраны навигации event"] :where(img, video) {
+  inline-size: 100%;
+  block-size: auto;
+  max-block-size: min(40rem, 78vh);
+  aspect-ratio: auto;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+#showcase [aria-label="jestei tariffs gallery"].media-group {
+  --case-rail-item: min(84vw, 24rem);
+  --media-gap: clamp(18px, 2.4vw, 34px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+
+#showcase [aria-label="jestei tariffs gallery"] :where(img, video) {
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+#showcase [aria-label="лендинговая экосистема"].media-group {
+  --case-rail-item: min(80vw, 28rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+#showcase [aria-label="лендинговая экосистема"] :where(img, video) {
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 48rem) {
+  #showcase .media-group:not(.media-group--mobile-rail):not([data-mobile-layout="rail"]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #showcase .media-group--quad:not(.media-group--mobile-rail):not([data-mobile-layout="rail"]),
+  #showcase .media-group[data-media-count="4"]:not(.media-group--mobile-rail):not([data-mobile-layout="rail"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #showcase .media-group:is(.media-group--mobile-rail, [data-mobile-layout="rail"]):not([data-media-count="1"]):not([data-media-group="single"]):not(.media-group--single) {
+    display: flex;
+    grid-template-columns: none;
+    align-items: stretch;
+    gap: var(--media-gap, clamp(8px, 3vw, 14px));
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: max(20px, 6vw);
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #showcase .media-group:is(.media-group--mobile-rail, [data-mobile-layout="rail"]):not([data-media-count="1"]):not([data-media-group="single"]):not(.media-group--single)::-webkit-scrollbar {
+    display: none;
+  }
+
+  #showcase .media-group:is(.media-group--mobile-rail, [data-mobile-layout="rail"]):not([data-media-count="1"]):not([data-media-group="single"]):not(.media-group--single) > :where(.media-item, [data-media-item]) {
+    flex: 0 0 var(--case-rail-item, min(82vw, 24rem));
+    max-inline-size: none;
+    min-inline-size: 0;
+    scroll-snap-align: start;
+  }
+
+  #showcase [aria-label="экраны навигации event"].media-group > :where(.media-item, [data-media-item]) {
+    max-inline-size: none;
+  }
+}

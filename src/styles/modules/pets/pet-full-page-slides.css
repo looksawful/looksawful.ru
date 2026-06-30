@@ -108,7 +108,6 @@
   }
 }
 
-/* pet-slide-screen-contract-v6:start */
 #pets .section-head {
   max-inline-size: min(100%, 52rem);
 }
@@ -180,4 +179,3 @@
     transform: scale(0.7);
   }
 }
-/* pet-slide-screen-contract-v6:end */

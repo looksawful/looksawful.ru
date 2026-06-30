@@ -141,7 +141,6 @@
   line-height: 1.22;
 }
 
-/* flatten-chapter-headers-v16:start */
 #showcase :is(.project__header, .case__header) {
   box-sizing: border-box;
 }
@@ -225,4 +224,3 @@
 )::after {
   content: none;
 }
-/* flatten-chapter-headers-v16:end */

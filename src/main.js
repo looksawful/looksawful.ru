@@ -122,7 +122,26 @@ async function initApp() {
       }),
     );
   }
-if (has("[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter")) {
+
+  if (has('[data-color-headline="jestei"], [data-chapter-signature="interface"], [data-interface-signature="layout-inspector"]')) {
+    tasks.push(
+      safe("showcaseSignatures", async () => {
+        const module = await import("./components/showcase-signatures.js");
+        return module.mountShowcaseSignatures(document);
+      }),
+    );
+  }
+
+  if (has("#showcase .policy-shell, #showcase [data-policy-book], #pets iframe, #showcase iframe[src*='/pets/']")) {
+    tasks.push(
+      safe("artifactFullscreen", async () => {
+        const module = await import("./components/artifact-fullscreen.js");
+        return module.mountArtifactFullscreen(document);
+      }),
+    );
+  }
+
+  if (has("[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter")) {
     runWhenNear(
       "[data-playlist-filter-embed], [data-playlist-filter], .playlist-filter-embed, .playlist-filter",
       "playlistFilter",
