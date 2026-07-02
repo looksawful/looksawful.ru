@@ -11,14 +11,7 @@
     "check:portfolio": "node scripts/portfolio-regression-check.mjs",
     "compress-media": "node scripts/compress-media.js",
     "compress-media:dry": "node scripts/compress-media.js --dry-run",
-    "compress-media:force": "node scripts/compress-media.js --force",
-    "audit:refactor:final": "node scripts/audit-refactor-final.mjs",
-    "inventory:refactor": "node scripts/refactor-inventory.mjs",
-    "audit:refactor": "node scripts/audit-refactor-step4-html-partials.mjs",
-    "audit:refactor:step1": "node scripts/audit-refactor-step1-inventory.mjs",
-    "audit:refactor:step2": "node scripts/audit-refactor-step2-runtime.mjs",
-    "audit:refactor:step3": "node scripts/audit-refactor-step3-playlist.mjs",
-    "build:html": "node scripts/build-html.mjs --check"
+    "compress-media:force": "node scripts/compress-media.js --force"
   },
   "devDependencies": {
     "playwright": "^1.61.1",

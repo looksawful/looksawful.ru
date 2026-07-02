@@ -347,3 +347,147 @@
   z-index: 1;
 }
 /* awful-mobile-polish-final:end */
+
+/* consolidated source block 0b6345057b23 */
+:root {
+  --stroke-strong-color: rgba(0, 0, 0, 0.82);
+  --stroke-base-color: rgba(0, 0, 0, 0.18);
+  --stroke-soft-color: rgba(0, 0, 0, 0.12);
+  --stroke-faint-color: rgba(0, 0, 0, 0.07);
+  --stroke-strong: 1.25px solid var(--stroke-strong-color);
+  --stroke-base: 1px solid var(--stroke-base-color);
+  --stroke-soft: 1px solid var(--stroke-soft-color);
+  --stroke-hairline: 1px solid var(--stroke-faint-color);
+  --stroke-divider: 1px solid var(--stroke-soft-color);
+  --surface-page: #ffffff;
+  --surface-clear: transparent;
+  --surface-soft: rgba(0, 0, 0, 0.035);
+  --surface-card: color-mix(in srgb, var(--white, #fff) 88%, transparent);
+  --surface-glass: rgba(255, 255, 255, 0.88);
+  --surface-invert: #000000;
+  --shadow-none: none;
+  --shadow-card-soft: 0 1rem 3rem rgba(0, 0, 0, 0.055);
+  --shadow-card-medium: 0 1.25rem 4rem rgba(0, 0, 0, 0.08);
+  --shadow-popover: 0 1.5rem 5rem rgba(0, 0, 0, 0.16);
+  --shadow-focus-ring: 0 0 0 0.18rem rgba(0, 0, 0, 0.18);
+  --gap-media-compact: clamp(0.5rem, 1.8vw, 0.75rem);
+}
+
+.surface-none { border: 0; background: transparent; box-shadow: none; }
+.surface-line { border: var(--stroke-soft); background: transparent; box-shadow: none; }
+.surface-card { border: var(--stroke-soft); background: var(--surface-card); box-shadow: var(--shadow-card-soft); }
+.surface-inverted { border: 0; background: var(--surface-invert); color: var(--white, #fff); }
+
+.interface-skeleton {
+  display: grid;
+  gap: clamp(0.45rem, 1.8vw, 0.75rem);
+  inline-size: 100%;
+  padding: clamp(0.75rem, 3vw, 1.25rem);
+  border: var(--stroke-hairline);
+  background: var(--surface-soft);
+}
+
+.interface-skeleton__bar,
+.interface-skeleton__line,
+.interface-skeleton__card {
+  display: block;
+  background: rgba(0, 0, 0, 0.09);
+}
+
+.interface-skeleton__bar { block-size: 0.78rem; inline-size: min(100%, 12rem); }
+.interface-skeleton__line { block-size: 0.5rem; inline-size: 100%; }
+.interface-skeleton__line:nth-child(odd) { inline-size: 72%; }
+.interface-skeleton__card { block-size: clamp(4.5rem, 22vw, 8rem); }
+
+@media (max-width: 48rem) {
+  .site-header {
+    justify-content: flex-end;
+    padding-block: clamp(0.55rem, 2.6vw, 0.95rem);
+    padding-inline: var(--page-x, clamp(1rem, 5vw, 1.4rem));
+  }
+
+  .site-header__chips {
+    display: none;
+  }
+
+  .site-header__trigger {
+    inline-size: clamp(3.6rem, 15vw, 4.35rem);
+    block-size: clamp(3.6rem, 15vw, 4.35rem);
+    min-inline-size: 3.6rem;
+    min-block-size: 3.6rem;
+    padding: 0.48rem;
+    border: var(--stroke-strong);
+    background: var(--white, #fff);
+  }
+
+  .site-header__trigger .awfulface-container,
+  .site-header__trigger svg {
+    inline-size: clamp(2.22rem, 9.8vw, 2.78rem);
+    block-size: clamp(2.22rem, 9.8vw, 2.78rem);
+    transform: translate(0.02rem, -0.03rem);
+  }
+
+  .site-header__menu {
+    min-inline-size: min(18rem, calc(100vw - 2rem));
+  }
+
+  [data-portfolio-toc],
+  .portfolio-toc,
+  [data-jestei-action-rail],
+  .jestei-action-rail {
+    display: none;
+  }
+
+  .media-group--mobile-rail,
+  [data-mobile-layout="rail"],
+  [data-media-mobile="rail"] {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(8.5rem, 54vw);
+    gap: var(--gap-media-compact);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    padding-inline: 0;
+  }
+
+  .media-group--mobile-rail::-webkit-scrollbar,
+  [data-mobile-layout="rail"]::-webkit-scrollbar,
+  [data-media-mobile="rail"]::-webkit-scrollbar {
+    display: none;
+  }
+
+  .media-group--mobile-rail > *,
+  [data-mobile-layout="rail"] > *,
+  [data-media-mobile="rail"] > * {
+    scroll-snap-align: start;
+  }
+
+  [data-media-size="compact"] {
+    grid-auto-columns: minmax(7.75rem, 46vw);
+    gap: 0.5rem;
+  }
+
+  .project-facts,
+  .portfolio-lead__facts {
+    gap: clamp(0.55rem, 2.4vw, 0.85rem);
+  }
+
+  .project-facts__item,
+  .portfolio-lead__fact {
+    min-block-size: 0;
+    padding: clamp(0.68rem, 3.2vw, 0.95rem);
+    border-color: var(--stroke-faint-color);
+  }
+}
+
+.pet-preview {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.6rem);
+  inline-size: 100%;
+}
+
+.pet-preview__inner {
+  min-inline-size: 0;
+}

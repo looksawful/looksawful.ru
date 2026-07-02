@@ -53,7 +53,6 @@ coverage/
 audit/
 audit-*.cjs
 *.audit.md
-_archive/
 _reports/
 _rollback-audit/
 
@@ -101,5 +100,6 @@ public/assets/media/cases/jesteipool/**/placeholders/
 *.zip
 *.rar
 
-
 .vercel
+
+# local refactor archives and inactive backup sources

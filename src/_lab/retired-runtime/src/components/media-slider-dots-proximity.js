@@ -1,1 +1,0 @@
-export { initMediaSliderDotsProximity } from "./proximity-components.js";

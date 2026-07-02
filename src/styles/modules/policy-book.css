@@ -455,3 +455,64 @@
   }
 }
 /* awful-mobile-polish-final:end */
+
+/* consolidated source block 9bf2a367a7ee */
+:root {
+
+}
+
+:where(.playlist-filter-embed, [data-playlist-filter]) {
+  --pf-surface: var(--surface-card, #fff);
+  --pf-surface-muted: var(--surface-soft, rgba(0, 0, 0, 0.035));
+  --pf-line: var(--stroke-soft, rgba(0, 0, 0, 0.12));
+  --pf-line-strong: var(--stroke-strong, rgba(0, 0, 0, 0.24));
+  --pf-text: currentColor;
+  --pf-radius: var(--r, 1rem);
+  --pf-radius-sm: calc(var(--r, 1rem) * 0.55);
+  --pf-gap: var(--gap, 1rem);
+  --pf-shadow: none;
+  color: var(--pf-text);
+  isolation: isolate;
+}
+
+:where(.playlist-filter-embed, [data-playlist-filter]) :where(button, input, select, textarea) {
+  font: inherit;
+}
+
+:where(.playlist-filter-embed, [data-playlist-filter]) :where(button, a, input, select, textarea) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(.policy-book, [data-policy-book]) {
+  --policy-surface: var(--surface-card, #fff);
+  --policy-line: var(--stroke-soft, rgba(0, 0, 0, 0.12));
+  --policy-radius: var(--r-lg, 1.5rem);
+  isolation: isolate;
+}
+
+:where(.policy-book, [data-policy-book]) :where(img, svg, canvas, video) {
+  max-width: 100%;
+}
+
+:where(.media-group[data-media-mobile="rail"]) {
+  scroll-padding-inline: var(--page-edge, clamp(1rem, 4vw, 3rem));
+}
+
+:where(.media-group[data-media-layout][data-media-ratio]) :where(img, video) {
+  background: transparent;
+}
+
+:where(.pet-preview, .playlist-filter-embed, .policy-book) :where(.title, h1, h2, h3, h4, h5, h6) {
+  text-wrap: balance;
+}
+
+@media (max-width: 760px) {
+  :where(.playlist-filter-embed, [data-playlist-filter]) {
+    --pf-gap: 0.75rem;
+    --pf-radius: 0.875rem;
+  }
+
+  :where(.policy-book, [data-policy-book]) {
+    --policy-radius: 1rem;
+  }
+}
