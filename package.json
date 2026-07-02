@@ -12,8 +12,9 @@
     "compress-media": "node scripts/compress-media.js",
     "compress-media:dry": "node scripts/compress-media.js --dry-run",
     "compress-media:force": "node scripts/compress-media.js --force",
-    "audit:refactor": "node scripts/audit-refactor-final.mjs",
-    "audit:refactor:final": "node scripts/audit-refactor-final.mjs"
+    "audit:refactor:final": "node scripts/audit-refactor-final.mjs",
+    "inventory:refactor": "node scripts/refactor-inventory.mjs",
+    "audit:refactor": "node scripts/audit-refactor-step1-inventory.mjs"
   },
   "devDependencies": {
     "playwright": "^1.61.1",
