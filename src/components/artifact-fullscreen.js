@@ -1,7 +1,7 @@
 const TARGETS = [
-  { selector: "#showcase .policy-shell", title: "редполитика" },
-  { selector: "#pets .pet-page-slide__frame", title: "pet preview" },
-  { selector: "#showcase .pet-page-slide__frame", title: "pet preview" },
+  { selector: "[data-showcase] [data-artifact-source='jestei-policy']", title: "редполитика" },
+  { selector: "[data-showcase] [data-pet-preview]", title: "pet preview" },
+  { selector: "[data-showcase] .pet-page-slide__frame", title: "pet preview" },
 ];
 
 const getTargetTitle = (target, fallback) => {
@@ -32,7 +32,7 @@ const createDialog = (root = document) => {
     const sourceId = dialog.dataset.sourceId;
     const source = sourceId ? document.querySelector(`[data-artifact-fullscreen-source="${sourceId}"]`) : null;
     const node = body?.firstElementChild;
-    const opener = dialog.dataset.openerId ? root.getElementById(dialog.dataset.openerId) : null;
+    const opener = dialog.dataset.openerId ? document.getElementById(dialog.dataset.openerId) : null;
 
     if (source && node) source.after(node);
     dialog.dataset.sourceId = "";
@@ -96,3 +96,5 @@ export const mountArtifactFullscreen = (root = document) => {
     });
   });
 };
+
+export const initArtifactFullscreen = mountArtifactFullscreen;

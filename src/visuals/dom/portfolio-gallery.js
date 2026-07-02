@@ -56,24 +56,16 @@ function stripRuntimeGalleryUi(group) {
   group.dataset.galleryView = "grid";
   delete group.dataset.galleryAutoplay;
 
-  group.classList.remove(
-    "media-group--scrollable",
-    "media-group--snap",
-    "media-group--tile-rail",
-    "media-group--gallery-grid",
-    "media-group--viewer-ready",
-    "is-viewer",
-    "has-scroll-overflow",
-  );
+  group.classList.remove("is-viewer", "has-scroll-overflow");
 
-  group.querySelectorAll(":scope > .media-group__controls, :scope > .media-group__dots").forEach((node) => node.remove());
+  group.querySelectorAll(":scope > .section-media-cluster__controls, :scope > .section-media-cluster__dots").forEach((node) => node.remove());
 }
 
 export function initPortfolioGallery(root = document) {
   if (mountedRoots.has(root)) return null;
   mountedRoots.add(root);
 
-  const items = Array.from(root.querySelectorAll("#showcase [data-lightbox-item], #showcase [data-lightbox-video]"));
+  const items = Array.from(root.querySelectorAll("[data-showcase] [data-lightbox-item], [data-showcase] [data-lightbox-video]"));
 
   for (const [index, item] of items.entries()) {
     const caption = readableCaption(item);
@@ -82,7 +74,7 @@ export function initPortfolioGallery(root = document) {
     prepareMedia(item, index);
   }
 
-  const groups = Array.from(root.querySelectorAll("#showcase .case-chapter__body .media-group"));
+  const groups = Array.from(root.querySelectorAll("[data-showcase] [data-section-body] [data-media-cluster], [data-showcase] [data-media-cluster]"));
   for (const group of groups) {
     stripRuntimeGalleryUi(group);
   }

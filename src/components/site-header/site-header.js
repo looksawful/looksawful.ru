@@ -246,7 +246,7 @@ export function initSiteHeader(root = document) {
 
   const media = gsap.matchMedia();
 
-  let activeHref = "#project-jesteipool";
+  let activeHref = "#jestei-cover";
   let activeChip = chips.find((chip) => chip.getAttribute("href") === activeHref) || chips[0];
   let hoverChip = null;
   let collapsed = false;
@@ -690,7 +690,7 @@ export function initSiteHeader(root = document) {
     },
   });
 
-  ["#resume", "#project-jesteipool", "#project-styx", "#project-shootings"].forEach((selector) => {
+  ["#jestei-cover", "#styx-cover", "#shootings", "#berserk-timer", "#resume"].forEach((selector) => {
     const section = root.querySelector(selector);
     const chip = chips.find((item) => item.getAttribute("href") === selector);
 
@@ -728,4 +728,3 @@ export function initSiteHeader(root = document) {
   renderChips(true);
   syncCollapsedToScroll(true);
 }
-

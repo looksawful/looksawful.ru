@@ -157,7 +157,7 @@ function injectStyles() {
 
   style.textContent += `\n    /* logo-inspector-fit-v4 */
     .jestei-chapter-hero__media--logo,
-    .jestei-chapter-hero__media--logo.media,
+    .jestei-chapter-hero__media--logo.section-media,
     .jestei-chapter-hero__media--logo [data-visual-demo^="logo-inspector"],
     .jestei-chapter-hero__media--logo [data-visual-demo*="logo-inspector"] {
       overflow: visible;

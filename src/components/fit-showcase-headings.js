@@ -1,9 +1,7 @@
 const FIT_SELECTOR = [
-  "#showcase .project__title",
-  "#showcase .case__title",
-  "#showcase .case-chapter-heading",
-  "#showcase .case-chapter-hero__title",
-  "#showcase .jestei-chapter-hero__title",
+  "[data-showcase] [data-cover-title]",
+  "[data-showcase] [data-section-title]",
+  "[data-showcase] [data-content-title]",
 ].join(", ");
 
 const MIN_SCALE = 0.78;

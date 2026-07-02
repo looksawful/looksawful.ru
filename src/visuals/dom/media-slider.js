@@ -157,7 +157,7 @@ function getOrCreateTrack(root) {
   track.className = "media-slider__track";
   track.setAttribute(TRACK_ATTRIBUTE, "true");
 
-  const slides = [...root.children].filter((child) => child.classList?.contains("media-item"));
+  const slides = [...root.children].filter((child) => child instanceof HTMLElement && child.hasAttribute("data-section-media-item"));
 
   slides.forEach((slide) => {
     track.appendChild(slide);
@@ -603,4 +603,3 @@ function initAutoSlider(root) {
 export function initMediaSliders(scope = document) {
   scope.querySelectorAll(SLIDER_SELECTOR).forEach(initAutoSlider);
 }
-

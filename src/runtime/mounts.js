@@ -1,10 +1,10 @@
 export const MOUNTS = [
   {
-    id: "petPreviews",
+    id: "petProjectFrames",
     phase: "content",
-    selector: "[data-pets-preview-list], [data-pet-preview]",
-    load: () => import("../visuals/dom/pet-previews.js"),
-    mount: (module, root) => module.initPetPreviews(root),
+    selector: "[data-pet-project-frame]",
+    load: () => import("../visuals/dom/pet-project-frames.js"),
+    mount: (module, root) => module.initPetProjectFrames(root),
   },
   {
     id: "gsap",
@@ -13,7 +13,7 @@ export const MOUNTS = [
   },
   {
     id: "components",
-    phase: "critical",
+    phase: "content",
     selector: "#main",
     load: () => import("../components/index.js"),
     mount: (module, root) => module.initComponents(root),
@@ -21,7 +21,7 @@ export const MOUNTS = [
   {
     id: "mediaMarquee",
     phase: "near",
-    selector: "[data-media-marquee], .media-marquee, .jestei-policy-marquee",
+    selector: "[data-media-marquee], .section-media-marquee, .jestei-policy-marquee",
     load: () => import("../visuals/dom/media-marquee.js"),
   },
   {
@@ -44,18 +44,18 @@ export const MOUNTS = [
     mount: (module, root) => module.initPortfolioGallery(root),
   },
   {
-    id: "portfolioToc",
+    id: "showcaseToc",
     phase: "content",
-    selector: "[data-portfolio-toc]",
+    selector: "[data-showcase-toc]",
     load: () => import("../visuals/dom/showcase-toc.js"),
     mount: (module, root) => module.initShowcaseToc(root),
   },
   {
-    id: "caseChapters",
+    id: "jesteiActionRail",
     phase: "content",
     selector: "[data-jestei-action-rail]",
-    load: () => import("../visuals/dom/case-chapters.js"),
-    mount: (module, root) => module.initCaseChapters(root),
+    load: () => import("../visuals/dom/jestei-action-rail.js"),
+    mount: (module, root) => module.initJesteiActionRail(root),
   },
   {
     id: "artifactReader",
@@ -67,14 +67,14 @@ export const MOUNTS = [
   {
     id: "showcaseSignatures",
     phase: "content",
-    selector: "[data-showcase-signature], .showcase-signature",
+    selector: "[data-color-headline], [data-showcase-signature], .showcase-signature",
     load: () => import("../components/showcase-signatures.js"),
     mount: (module, root) => module.initShowcaseSignatures(root),
   },
   {
     id: "artifactFullscreen",
     phase: "content",
-    selector: "[data-artifact-fullscreen], [data-artifact-fullscreen-open]",
+    selector: "[data-policy-book], [data-artifact-fullscreen], [data-artifact-fullscreen-open]",
     load: () => import("../components/artifact-fullscreen.js"),
     mount: (module, root) => module.initArtifactFullscreen(root),
   },

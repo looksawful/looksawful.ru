@@ -3,7 +3,7 @@ const LIGHTBOX_SELECTOR = [
   `[data-lightbox]${DISABLED_SELECTOR}`,
   `[data-lightbox-item]${DISABLED_SELECTOR}`,
   `[data-lightbox-video]${DISABLED_SELECTOR}`,
-  `a.media-item[href]${DISABLED_SELECTOR}`
+  `a[data-section-media-item][href]${DISABLED_SELECTOR}`
 ].join(", ");
 const VIDEO_EXTENSION_PATTERN = /\.(mp4|webm|mov)(\?.*)?(#.*)?$/i;
 const EXPLICIT_LIGHTBOX_TYPES = new Set(["image", "video"]);
@@ -79,7 +79,7 @@ const getMediaData = (trigger) => {
 };
 
 const getGalleryItems = (trigger) => {
-  const group = trigger.closest?.("#showcase .media-group");
+  const group = trigger.closest?.("[data-showcase] [data-media-cluster]");
   if (!group) return [trigger];
 
   const items = Array.from(group.querySelectorAll(LIGHTBOX_SELECTOR)).filter((item) => getMediaData(item)?.src);

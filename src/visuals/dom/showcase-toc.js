@@ -1,5 +1,4 @@
-const CHAPTER_SELECTOR =
-  ":scope .case-chapter[data-jestei-chapter-title], :scope .case-chapter[data-case-chapter-title]";
+const CHAPTER_SELECTOR = "[data-section-component][data-section-chapter][data-section-family]";
 const ACTIVE_MARKER = 0.38;
 const COMPACT_TOC_QUERY = "(max-width: 99.999rem)";
 
@@ -29,6 +28,14 @@ const getHashId = (link) => {
   }
 };
 
+const escapeSelectorValue = (value) => {
+  if (window.CSS?.escape) {
+    return window.CSS.escape(value);
+  }
+
+  return String(value).replace(/["\\]/g, "\\$&");
+};
+
 const ensureElementId = (element, baseId) => {
   if (element.id) {
     return element.id;
@@ -48,9 +55,9 @@ const ensureElementId = (element, baseId) => {
 
 const getChapterTitle = (chapter, index) => {
   return (
-    chapter.dataset.jesteiChapterTitle ||
-    chapter.dataset.caseChapterTitle ||
-    chapter.querySelector(":scope > .case-chapter__header :is(h2, h3, h4, h5)")?.textContent?.trim() ||
+    chapter.dataset.chapterTitle ||
+    chapter.querySelector(":scope [data-chapter-head] :is(h2, h3, h4, h5)")?.textContent?.trim() ||
+    chapter.querySelector(":scope [data-section-title], :scope [data-content-title]")?.textContent?.trim() ||
     `глава ${index + 1}`
   );
 };
@@ -59,45 +66,49 @@ const createChapterLink = ({ chapter, index, projectId }) => {
   const chapterId = ensureElementId(chapter, `${projectId}-chapter-${index + 1}`);
   const link = document.createElement("a");
 
-  link.className = "portfolio-toc__link portfolio-toc__link--chapter";
+  link.className = "showcase-toc__link showcase-toc__link--chapter";
   link.href = `#${chapterId}`;
   link.textContent = getChapterTitle(chapter, index);
-  link.dataset.portfolioTocLink = "";
-  link.dataset.portfolioTocChapterLink = "";
+  link.dataset.showcaseTocLink = "";
+  link.dataset.showcaseTocChapterLink = "";
   link.dataset.projectId = projectId;
 
   return { link, target: chapter, projectId };
 };
 
 const buildProjectGroups = (panel) => {
-  const projectLinks = [...panel.querySelectorAll(".portfolio-toc__link--project[data-portfolio-toc-link]")];
+  const projectLinks = [...panel.querySelectorAll(".showcase-toc__link--showcase-item[data-showcase-toc-link]")];
 
   return projectLinks
     .map((projectLink) => {
       const projectId = getHashId(projectLink);
-      const project = projectId ? document.getElementById(projectId) : null;
+      const sectionTarget = projectId ? document.getElementById(projectId) : null;
+      const projectKey = projectLink.dataset.projectKey || project?.dataset.portfolioProject || "";
 
-      if (!(project instanceof HTMLElement)) {
+      if (!(showcase-item instanceof HTMLElement)) {
         return null;
       }
 
       const group = document.createElement("div");
       const chapterList = document.createElement("div");
-      const chapters = [...project.querySelectorAll(CHAPTER_SELECTOR)].map((chapter, index) =>
-        createChapterLink({ chapter, index, projectId: project.id }),
+      const chapterSelector = projectKey
+        ? `${CHAPTER_SELECTOR}[data-section-family="${escapeSelectorValue(projectKey)}"]`
+        : CHAPTER_SELECTOR;
+      const chapters = [...document.querySelectorAll(chapterSelector)].map((chapter, index) =>
+        createChapterLink({ chapter, index, projectId: sectionTarget.id }),
       );
 
-      group.className = "portfolio-toc__group";
-      group.dataset.portfolioTocGroup = "";
-      group.dataset.projectId = project.id;
+      group.className = "showcase-toc__group";
+      group.dataset.showcaseTocGroup = "";
+      group.dataset.projectId = sectionTarget.id;
 
-      chapterList.className = "portfolio-toc__chapters";
-      chapterList.id = `${project.id}-toc-chapters`;
-      chapterList.dataset.portfolioTocChapters = "";
+      chapterList.className = "showcase-toc__chapters";
+      chapterList.id = `${sectionTarget.id}-toc-chapters`;
+      chapterList.dataset.showcaseTocChapters = "";
       chapterList.dataset.open = "false";
 
-      projectLink.dataset.portfolioTocProjectLink = "";
-      projectLink.dataset.projectId = project.id;
+      projectLink.dataset.showcaseTocProjectLink = "";
+      projectLink.dataset.projectId = sectionTarget.id;
       projectLink.setAttribute("aria-expanded", "false");
       projectLink.setAttribute("aria-controls", chapterList.id);
 
@@ -108,7 +119,7 @@ const buildProjectGroups = (panel) => {
       return {
         group,
         project,
-        projectId: project.id,
+        projectId: sectionTarget.id,
         projectLink,
         chapterList,
         chapters,
@@ -118,14 +129,14 @@ const buildProjectGroups = (panel) => {
 };
 
 export function initShowcaseToc(root = document) {
-  const toc = root.querySelector("[data-portfolio-toc]");
+  const toc = root.querySelector("[data-showcase-toc]");
 
   if (!(toc instanceof HTMLElement) || toc.dataset.ready === "true") {
     return;
   }
 
-  const trigger = toc.querySelector("[data-portfolio-toc-trigger]");
-  const panel = toc.querySelector("[data-portfolio-toc-panel]");
+  const trigger = toc.querySelector("[data-showcase-toc-trigger]");
+  const panel = toc.querySelector("[data-showcase-toc-panel]");
 
   if (!(panel instanceof HTMLElement)) {
     return;
@@ -242,7 +253,7 @@ export function initShowcaseToc(root = document) {
     let active = null;
 
     chapterEntries.forEach((entry) => {
-      if (entry.projectId !== projectId) {
+      if (projectId && entry.projectId !== projectId) {
         return;
       }
 
@@ -260,11 +271,15 @@ export function initShowcaseToc(root = document) {
     scrollFrame = 0;
 
     const marker = window.innerHeight * ACTIVE_MARKER;
-    const project = findEntryAtMarker(projectEntries, marker);
-    const chapter = project
-      ? findEntryAtMarker(chapterEntries.filter((entry) => entry.projectId === project.projectId), marker) ||
-        findStartedChapter(project.projectId, marker)
-      : null;
+    let sectionTarget = findEntryAtMarker(projectEntries, marker);
+    const candidateChapters = sectionTarget
+      ? chapterEntries.filter((entry) => entry.projectId === sectionTarget.projectId)
+      : chapterEntries;
+    const chapter = findEntryAtMarker(candidateChapters, marker) || findStartedChapter(project?.projectId || "", marker);
+
+    if (!sectionTarget && chapter) {
+      sectionTarget = projectEntries.find((entry) => entry.projectId === chapter.projectId) || null;
+    }
 
     setActiveChapter(chapter?.link || null);
     setActiveProject(project?.projectId || chapter?.projectId || "", { instant: shouldReduceMotion() });

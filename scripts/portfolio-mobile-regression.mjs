@@ -60,10 +60,10 @@ const warmLazySections = async (page) => {
   }
 
   for (const selector of [
-    "#showcase .filter-fullscreen-wrapper",
+    "[data-showcase] .filter-fullscreen-wrapper",
     "#project-jestei-promo-diagonal",
-    "[aria-label='лендинговая экосистема']",
-    "#pets .pet-page-slide__frame",
+    "#jestei-landings",
+    "[data-pet-preview]",
   ]) {
     const target = page.locator(selector).first();
     if (await target.count()) {
@@ -100,14 +100,16 @@ for (const width of widths) {
     bodyScrollWidth: document.body.scrollWidth,
     hero: Boolean(document.querySelector("#hero")),
     topNav: Boolean(document.querySelector(".site-header, [data-site-header]")),
-    showcase: Boolean(document.querySelector("#showcase")),
+    showcase: Boolean(document.querySelector("[data-showcase]")),
     showcaseToc: Boolean(document.querySelector("[data-portfolio-toc], .portfolio-toc")),
-    filter: Boolean(document.querySelector("#showcase .filter-fullscreen-wrapper .jp-filter")),
-    policyOpen: document.querySelectorAll("#showcase [data-artifact-fullscreen-open]").length,
-    petFrames: document.querySelectorAll("#pets iframe").length,
-    petOpen: document.querySelectorAll("#pets [data-artifact-fullscreen-open]").length,
-    filterButtons: document.querySelectorAll("#showcase .filter-fullscreen-btn").length,
-    artifactFilterButtons: document.querySelectorAll("#showcase .filter-fullscreen-wrapper ~ [data-artifact-fullscreen-open], #showcase .filter-fullscreen-wrapper + [data-artifact-fullscreen-open]").length,
+    filter: Boolean(document.querySelector("[data-showcase] .filter-fullscreen-wrapper .jp-filter")),
+    policyOpen: document.querySelectorAll("[data-showcase] [data-artifact-fullscreen-open]").length,
+    petPreviews: document.querySelectorAll("[data-showcase] [data-pet-preview]").length,
+    petOpen: [...document.querySelectorAll("[data-showcase] [data-pet-preview]")].filter((preview) =>
+      preview.previousElementSibling?.matches("[data-artifact-fullscreen-open]"),
+    ).length,
+    filterButtons: document.querySelectorAll("[data-showcase] .filter-fullscreen-btn").length,
+    artifactFilterButtons: document.querySelectorAll("[data-showcase] .filter-fullscreen-wrapper ~ [data-artifact-fullscreen-open], [data-showcase] .filter-fullscreen-wrapper + [data-artifact-fullscreen-open]").length,
     brokenImages: [...document.images]
       .filter((image) => image.complete && image.naturalWidth === 0)
       .map((image) => image.currentSrc || image.src),
@@ -122,7 +124,7 @@ for (const width of widths) {
   if (!metrics.filter) failures.push(`width ${width}: filter artifact missing`);
   if (metrics.filterButtons !== 1) failures.push(`width ${width}: expected one filter fullscreen button, got ${metrics.filterButtons}`);
   if (metrics.artifactFilterButtons > 0) failures.push(`width ${width}: duplicate artifact fullscreen button near filter`);
-  if (metrics.petFrames && metrics.petOpen < metrics.petFrames) failures.push(`width ${width}: pet fullscreen buttons missing`);
+  if (metrics.petPreviews && metrics.petOpen < metrics.petPreviews) failures.push(`width ${width}: pet fullscreen buttons missing`);
 
   const visibleSectionKickers = await getVisibleTextCount(page, "секция 01");
   if (visibleSectionKickers > 0) failures.push(`width ${width}: visible section kicker text`);

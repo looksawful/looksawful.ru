@@ -93,7 +93,7 @@ const requestElementFullscreen = (element) => {
 };
 
 const getVideoContainer = (video) => {
-  return video.closest(".media-item, .media, [data-animation], [data-visual-demo]");
+  return video.closest("[data-section-media-item], .section-media, [data-animation], [data-visual-demo]");
 };
 
 const updateVideoControlIcon = (control, video) => {
@@ -102,8 +102,8 @@ const updateVideoControlIcon = (control, video) => {
 };
 
 export const initMediaSliderDotsProximity = () => {
-  document.querySelectorAll(".media-slider").forEach((slider) => {
-    const dots = slider.querySelector(".media-slider__dots");
+  document.querySelectorAll(".section-media-slider").forEach((slider) => {
+    const dots = slider.querySelector(".section-media-slider__dots");
 
     if (!dots || initializedDots.has(dots)) {
       return;
@@ -130,8 +130,8 @@ export const initMediaSliderDotsProximity = () => {
 };
 
 export const initMediaSliderArrowProximity = () => {
-  document.querySelectorAll(".media-slider").forEach((slider) => {
-    const arrows = slider.querySelectorAll(".media-slider__arrow");
+  document.querySelectorAll(".section-media-slider").forEach((slider) => {
+    const arrows = slider.querySelectorAll(".section-media-slider__arrow");
 
     arrows.forEach((arrow) => {
       if (initializedArrows.has(arrow)) {
@@ -162,7 +162,7 @@ export const initMediaSliderArrowProximity = () => {
 };
 
 export const initMediaItemOpenProximity = () => {
-  document.querySelectorAll("a.media-item[href]").forEach((item) => {
+  document.querySelectorAll("a[data-section-media-item][href]").forEach((item) => {
     if (initializedOpenControls.has(item)) {
       return;
     }
@@ -213,7 +213,7 @@ export const initMediaItemOpenProximity = () => {
 
 export const initMediaFullscreenProximity = () => {
   const selector = [
-    ".media",
+    ".section-media",
     "[data-animation]",
     "[data-visual-demo]",
   ].join(",");
@@ -223,21 +223,21 @@ export const initMediaFullscreenProximity = () => {
       return;
     }
 
-    const mediaParent = element.closest(".media");
+    const mediaParent = element.closest(".section-media");
 
     if (mediaParent && mediaParent !== element) {
       return;
     }
 
-    if (element.closest(".media-slider")) {
+    if (element.closest(".section-media-slider")) {
       return;
     }
 
-    if (element.closest(".media-item")) {
+    if (element.closest("[data-section-media-item]")) {
       return;
     }
 
-    if (element.querySelector(":scope > a.media-item")) {
+    if (element.querySelector(":scope > a[data-section-media-item]")) {
       return;
     }
 
@@ -295,7 +295,7 @@ export const initMediaVideoProximity = () => {
       return;
     }
 
-    if (container.matches("a.media-item[href]")) {
+    if (container.matches("a[data-section-media-item][href]")) {
       initializedVideoControls.add(container);
       return;
     }
@@ -405,4 +405,3 @@ export const initProximityComponents = () => {
 };
 
 createObservedInitializer(initProximityComponents);
-

@@ -8,7 +8,6 @@ const routes = [
   "/pets/berserk-timer/",
   "/pets/awful-cases/",
   "/pets/awful-audit/",
-  "/pets/awful-describer/",
 ];
 
 const viewports = [

@@ -1,4 +1,4 @@
-const VIDEO_SELECTOR = "#showcase video";
+const VIDEO_SELECTOR = "[data-showcase] video";
 const ENHANCED_ATTR = "data-video-controls-enhanced";
 
 const icons = {
@@ -28,7 +28,7 @@ function setButtonIcon(button, icon) {
 }
 
 function getShell(video) {
-  const mediaItem = video.closest(".media-item, figure");
+  const mediaItem = video.closest("[data-section-media-item], figure");
   return mediaItem instanceof HTMLElement ? mediaItem : video.parentElement;
 }
 
@@ -51,7 +51,7 @@ function enhanceVideo(video) {
 
   video.setAttribute(ENHANCED_ATTR, "true");
   shell.classList.add("showcase-video-frame");
-  if (video.videoHeight > video.videoWidth || shell.classList.contains("media-item--vertical")) {
+  if (video.videoHeight > video.videoWidth || shell.dataset.mediaOrientation === "vertical") {
     shell.classList.add("showcase-video-frame--vertical");
   }
 

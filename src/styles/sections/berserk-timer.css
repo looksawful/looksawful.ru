@@ -1,0 +1,76 @@
+.berserk-timer.pet-project-inline { background: #070707; }
+
+.pet-project-inline {
+  min-block-size: 100svh;
+  inline-size: 100%;
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  margin: 0;
+  overflow: clip;
+  background: #050505;
+}
+
+.pet-project-inline__screen {
+  inline-size: 100%;
+  min-block-size: 100svh;
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+.pet-project-inline__frame {
+  display: block;
+  inline-size: 100%;
+  block-size: var(--pet-project-frame-height, 100svh);
+  min-block-size: 100svh;
+  max-block-size: 100svh;
+  border: 0;
+  overflow: auto;
+  background: #ffffff;
+}
+
+@media (max-width: 720px) {
+  .pet-project-inline,
+  .pet-project-inline__screen,
+  .pet-project-inline__frame {
+    min-block-size: 100dvh;
+  }
+
+  .pet-project-inline__frame {
+    block-size: var(--pet-project-frame-height, 100dvh);
+    max-block-size: 100dvh;
+  }
+}
+
+/* final guard: inline pet project frames */
+.pet-project-inline {
+  min-block-size: 100svh;
+  padding: 0;
+  background: #000;
+  color: #fff;
+  overflow: clip;
+}
+
+.pet-project-inline__screen {
+  min-block-size: 100svh;
+  inline-size: 100%;
+  display: grid;
+}
+
+.pet-project-inline__frame {
+  display: block;
+  inline-size: 100%;
+  block-size: 100svh;
+  max-block-size: 100svh;
+  min-block-size: 100svh;
+  border: 0;
+  background: #000;
+}
+
+#awful-audit .pet-project-inline__frame,
+#awful-audit .awful-audit__frame {
+  block-size: 100svh;
+  max-block-size: 100svh;
+  overflow: hidden;
+}

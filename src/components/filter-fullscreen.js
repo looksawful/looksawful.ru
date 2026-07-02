@@ -27,7 +27,7 @@ export function initFilterFullscreen(root = document) {
   buttons.forEach((btn) => {
     if (btn.dataset.filterFullscreenReady === "true") return;
 
-    const wrapper = btn.closest(".filter-fullscreen-wrapper");
+    const wrapper = btn.closest("[data-filter-fullscreen-root], .filter-fullscreen-wrapper");
     if (!(wrapper instanceof HTMLElement)) return;
 
     btn.dataset.filterFullscreenReady = "true";

@@ -1,0 +1,340 @@
+.shootings {
+  --section-accent: var(--black);
+}
+
+.shootings [data-section-screen] {
+  row-gap: clamp(2.5rem, 8vw, 6rem);
+}
+
+.shootings [data-content-head] > p {
+  white-space: nowrap;
+}
+
+
+
+/* heading and reading polish */
+:where(.shootings) {
+  --section-heading-main: var(--black, #000);
+  --section-heading-accent: rgba(0, 0, 0, 0.42);
+  --section-copy: rgba(0, 0, 0, 0.78);
+  --section-copy-strong: #000;
+  --section-copy-width: min(100%, 66rem);
+  --section-paragraph-width: min(100%, 58rem);
+  --section-chip-border: rgba(0, 0, 0, 0.2);
+  --section-chip-bg: rgba(255, 255, 255, 0.72);
+  min-block-size: 100svh;
+  scroll-margin-block-start: clamp(4.5rem, 8vw, 7rem);
+}
+
+.shootings :where(.shootings__screen, [data-section-screen]) {
+  min-block-size: 100svh;
+  display: grid;
+  align-content: center;
+  gap: clamp(1.4rem, 3vw, 3.4rem);
+  padding-block: clamp(5.2rem, 8vw, 9rem);
+}
+
+.shootings :where([data-section-title], [data-content-title], [data-cover-title]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.06em 0.18em;
+  max-inline-size: min(100%, 74rem);
+  margin: 0;
+  color: var(--section-heading-main);
+  font-size: clamp(2.25rem, 5.6vw, 6.4rem);
+  font-weight: 800;
+  line-height: 0.86;
+  letter-spacing: -0.066em;
+  text-transform: lowercase;
+  text-wrap: balance;
+}
+
+.shootings [data-section-title-main] {
+  color: var(--section-heading-main);
+  font-style: normal;
+}
+
+.shootings [data-section-title-accent] {
+  display: inline-block;
+  color: var(--section-heading-accent);
+  font-style: italic;
+  font-weight: 760;
+  transform: skewX(-6deg);
+  transform-origin: left bottom;
+}
+
+.shootings :where([data-section-lead], .section-lead, .lead, .section-note) {
+  max-inline-size: var(--section-copy-width);
+  color: var(--section-copy);
+  font-size: clamp(1.2rem, 0.9vw + 1rem, 1.72rem);
+  font-weight: 500;
+  line-height: 1.26;
+  letter-spacing: -0.026em;
+  text-wrap: pretty;
+}
+
+.shootings :where(p):not(:where(.policy-book *, [data-policy-book] *, .artifact-reader *, .playlist-filter-embed *, [data-pet-project-frame] *)) {
+  max-inline-size: var(--section-paragraph-width);
+  color: var(--section-copy);
+  font-size: clamp(1.06rem, 0.44vw + 0.98rem, 1.34rem);
+  line-height: 1.5;
+  letter-spacing: -0.012em;
+  text-wrap: pretty;
+}
+
+.shootings :where(.section-fact, strong, b):not(:where(.policy-book *, [data-policy-book] *, .artifact-reader *, .playlist-filter-embed *)) {
+  color: var(--section-copy-strong);
+  font-weight: 760;
+}
+
+.shootings :where(.chips, [data-chip-list]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(0.34rem, 0.8vw, 0.68rem);
+  max-inline-size: min(100%, 58rem);
+}
+
+.shootings :where(.chip, [data-chip], .meta, time) {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.9rem;
+  padding: 0.38rem 0.66rem 0.42rem;
+  border: 1px solid var(--section-chip-border);
+  border-radius: 999px;
+  background: var(--section-chip-bg);
+  color: rgba(0, 0, 0, 0.72);
+  font-size: clamp(0.74rem, 0.22vw + 0.7rem, 0.9rem);
+  font-weight: 560;
+  line-height: 1;
+  letter-spacing: -0.008em;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+@media (max-width: 48rem) {
+  .shootings,
+  .shootings :where(.shootings__screen, [data-section-screen]) {
+    min-block-size: 100svh;
+  }
+
+  .shootings :where(.shootings__screen, [data-section-screen]) {
+    align-content: start;
+    gap: clamp(1rem, 5vw, 1.8rem);
+    padding-block: clamp(5rem, 15vw, 6.5rem) clamp(3rem, 10vw, 4.6rem);
+  }
+
+  .shootings :where([data-section-title], [data-content-title], [data-cover-title]) {
+    font-size: clamp(2rem, 12vw, 4rem);
+    line-height: 0.9;
+    letter-spacing: -0.058em;
+  }
+
+  .shootings :where([data-section-lead], .section-lead, .lead, .section-note) {
+    font-size: clamp(1.12rem, 4.5vw, 1.38rem);
+    line-height: 1.3;
+  }
+
+  .shootings :where(p):not(:where(.policy-book *, [data-policy-book] *, .artifact-reader *, .playlist-filter-embed *, [data-pet-project-frame] *)) {
+    font-size: clamp(1.02rem, 3.9vw, 1.18rem);
+    line-height: 1.5;
+  }
+}
+/* end heading and reading polish */
+
+/* step2: local section typography and media rules */
+.shootings {
+  --section-local-inline: min(100% - clamp(1.25rem, 5vw, 6rem), 88rem);
+  --section-local-text: min(100%, 68rem);
+  --section-local-lead: min(100%, 76rem);
+  --section-local-gap: clamp(1.15rem, 2.8vw, 3rem);
+  --section-local-title: clamp(2.8rem, 7vw, 7rem);
+  --section-local-copy: clamp(1rem, 0.32vw + 0.92rem, 1.18rem);
+  --section-local-lead-size: clamp(1.18rem, 0.9vw + 1rem, 1.9rem);
+  --section-local-media-ratio: 4 / 5;
+  --section-local-media-fit: cover;
+  display: block;
+  padding-block: clamp(4.5rem, 9vw, 9rem);
+  color: var(--black);
+}
+
+.shootings__screen,
+.shootings [data-section-screen] {
+  display: grid;
+  gap: var(--section-local-gap);
+  inline-size: var(--section-local-inline);
+  max-inline-size: var(--section-local-inline);
+  margin-inline: auto;
+}
+
+.shootings :where([data-section-title], [data-content-title], [data-cover-title], .title) {
+  max-inline-size: min(100%, 76rem);
+  font-size: var(--section-local-title);
+  line-height: 0.88;
+  letter-spacing: -0.058em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.shootings :where([data-section-lead], .section-lead, .lead, .jestei-cover__lead) {
+  max-inline-size: var(--section-local-lead);
+  font-size: var(--section-local-lead-size);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  text-wrap: pretty;
+}
+
+.shootings :where(p, li) {
+  max-inline-size: var(--section-local-text);
+  font-size: var(--section-local-copy);
+  line-height: 1.54;
+  text-wrap: pretty;
+}
+
+.shootings :where([data-section-media], .section-media, .section-media-cluster, .section-media-item, figure) {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.shootings :where([data-section-media], .section-media, figure) {
+  overflow: hidden;
+}
+
+.shootings :where(img, video, canvas) {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+}
+
+.shootings :where([data-section-media] img, [data-section-media] video, .section-media img, .section-media video, .section-media-item img, .section-media-item video) {
+  aspect-ratio: var(--section-local-media-ratio);
+  block-size: auto;
+  object-fit: var(--section-local-media-fit);
+  object-position: center;
+}
+
+.shootings :where(.section-media-cluster, [data-media-layout], [data-gallery]) {
+  display: grid;
+  gap: clamp(0.75rem, 1.6vw, 1.4rem);
+  min-inline-size: 0;
+}
+
+@media (max-width: 48rem) {
+  .shootings {
+    --section-local-inline: min(100% - 20px, 100%);
+    --section-local-gap: clamp(1rem, 5vw, 1.75rem);
+    --section-local-title: clamp(2.15rem, 13vw, 4.35rem);
+    --section-local-copy: clamp(0.96rem, 3.5vw, 1.08rem);
+    --section-local-lead-size: clamp(1.06rem, 4.8vw, 1.42rem);
+    padding-block: clamp(3.8rem, 13vw, 6rem);
+  }
+
+  .shootings :where([data-section-title], [data-content-title], [data-cover-title], .title) {
+    line-height: 0.92;
+    letter-spacing: -0.052em;
+  }
+
+  .shootings :where(.section-media-cluster, [data-media-layout], [data-gallery]) {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(min(82vw, 22rem), 1fr);
+    grid-template-columns: none;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .shootings :where(.section-media-cluster, [data-media-layout], [data-gallery])::-webkit-scrollbar {
+    display: none;
+  }
+
+  .shootings :where(.section-media-item, [data-section-media], .section-media, figure) {
+    scroll-snap-align: start;
+  }
+
+  .shootings :where([data-section-media] img, [data-section-media] video, .section-media img, .section-media video, .section-media-item img, .section-media-item video) {
+    min-block-size: clamp(14rem, 64vw, 28rem);
+  }
+}
+/* end step2 */
+
+/* media-presentation-step3:start */
+.shootings {
+  --local-section-pad-block: clamp(4.5rem, 9vw, 8rem);
+  --local-section-pad-inline: clamp(1.25rem, 5.5vw, 6rem);
+  --local-section-flow: clamp(1.3rem, 2.7vw, 3.25rem);
+  --local-section-media-max: min(100%, 1180px);
+}
+
+.shootings [data-section-screen] {
+  min-block-size: 100svh;
+  display: grid;
+  align-content: center;
+  row-gap: var(--local-section-flow);
+  padding-block: var(--local-section-pad-block);
+  padding-inline: var(--local-section-pad-inline);
+}
+
+.shootings :where([data-chapter-head], [data-content-head], [data-section-body], [data-section-group], [data-section-block], [data-content-panel]) {
+  max-inline-size: min(100%, 1180px);
+}
+
+.shootings :where([data-chapter-head], [data-content-head]) {
+  display: grid;
+  row-gap: clamp(0.75rem, 1.5vw, 1.35rem);
+}
+
+.shootings :where([data-section-body], [data-section-group], [data-section-block], [data-content-panel]) {
+  display: grid;
+  row-gap: var(--local-section-flow);
+}
+
+.shootings :where([data-media-layout], [data-section-media], .section-media) {
+  max-inline-size: var(--local-section-media-max);
+  justify-self: center;
+}
+
+.shootings :where([data-media-layout="single"], [data-section-media]) {
+  max-inline-size: min(100%, 1080px);
+}
+
+.shootings :where([data-media-layout="banner"], [data-media-layout="strip"], [data-media-layout="ribbon"]) {
+  max-inline-size: min(100%, 1240px);
+}
+
+.shootings :where(.visual-canvas) {
+  min-block-size: clamp(340px, 58svh, 760px);
+}
+
+@media (min-width: 1024px) {
+  .shootings :where([data-content-layout="text-media"], [data-content-panel="text-media"]) {
+    grid-template-columns: minmax(18rem, 0.82fr) minmax(0, 1.18fr);
+    align-items: center;
+    column-gap: clamp(2rem, 5vw, 6rem);
+  }
+}
+
+@media (max-width: 720px) {
+  .shootings {
+    --local-section-pad-block: clamp(4.75rem, 17vw, 7rem);
+    --local-section-pad-inline: clamp(1.1rem, 5vw, 1.5rem);
+    --local-section-flow: clamp(1.15rem, 5vw, 2rem);
+  }
+
+  .shootings [data-section-screen] {
+    align-content: start;
+    padding-block: var(--local-section-pad-block);
+  }
+
+  .shootings :where([data-chapter-head], [data-content-head], [data-section-body], [data-section-group], [data-section-block], [data-content-panel]) {
+    inline-size: 100%;
+  }
+
+  .shootings :where(.visual-canvas) {
+    min-block-size: clamp(300px, 62svh, 560px);
+  }
+}
+/* media-presentation-step3:end */

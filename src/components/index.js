@@ -65,7 +65,7 @@ async function initContentEnhancements(root = document) {
   pushGuardedImport(
     tasks,
     root,
-    'a[href$=".jpg"], a[href$=".jpeg"], a[href$=".png"], a[href$=".webp"], a[href$=".gif"], a[href$=".mp4"], [data-lightbox], .media-item[href]',
+    'a[href$=".jpg"], a[href$=".jpeg"], a[href$=".png"], a[href$=".webp"], a[href$=".gif"], a[href$=".mp4"], [data-lightbox], [data-section-media-item][href]',
     "initLightbox",
     () => import("./lightbox.js"),
     (module) => module.initLightbox(root),
@@ -89,7 +89,7 @@ async function initVisualEnhancements(root = document) {
   pushGuardedImport(
     tasks,
     root,
-    "#showcase video, video[data-inline-video], [data-inline-video], .showcase-inline-video",
+    "[data-showcase] video, video[data-inline-video], [data-inline-video], .showcase-inline-video",
     "initCvInlineVideos",
     () => import("./showcase-inline-video/showcase-inline-video.js"),
     (module) => module.initCvInlineVideos(root),
@@ -123,7 +123,7 @@ async function initDecorations(root = document) {
   pushGuardedImport(
     tasks,
     root,
-    "#showcase .case-chapter-heading, #showcase .case-chapter__body :is(h2, h3, h4, h5, h6, .title, .title--lg, .interface-section__title, .editorial-rail__title)",
+    "[data-showcase] :is([data-cover-title], [data-section-title], [data-content-title], .interface-section__title, .editorial-rail__title)",
     "initFitShowcaseHeadings",
     () => import("./fit-showcase-headings.js"),
     (module) => module.initFitShowcaseHeadings(root),
@@ -144,7 +144,7 @@ async function initDecorations(root = document) {
 export function initComponents(root = document) {
   if (
     has(
-      "#showcase .case-chapter__header .case-chapter-heading, #showcase :is(.jestei-chapter-section, .case-section-clean, [data-jestei-chapter-title], [data-case-chapter-title]) > :is(.jestei-chapter-hero, .case-chapter-hero, .case-chapter__header) > :is(.jestei-chapter-hero__title, .case-chapter-hero__title)",
+      "[data-showcase] [data-chapter-head] [data-section-title]",
       root,
     )
   ) {
@@ -167,6 +167,5 @@ export function initComponents(root = document) {
     });
 
   runWhenIdle(() => {
-    // reserved for non-critical components
   });
 }

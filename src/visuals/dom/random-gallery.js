@@ -51,11 +51,12 @@ function isPagePaused() {
 function createMediaItem(gallery, index) {
   const href = buildImagePath(gallery.path, index);
   const item = document.createElement("a");
-  item.className = "media-item no-stroke random-gallery__item is-loading";
+  item.className = "no-stroke random-gallery__item is-loading";
   item.href = href;
   item.target = "_blank";
   item.rel = "noopener noreferrer";
   item.dataset.lightbox = "image";
+  item.dataset.mediaItem = "";
 
   const image = document.createElement("img");
   image.alt = "";
@@ -297,4 +298,3 @@ if (document.readyState === "loading") {
 } else {
   autoInit();
 }
-

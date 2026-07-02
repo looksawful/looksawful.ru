@@ -1,0 +1,141 @@
+.lightbox {
+  --lightbox-pad: clamp(0.75rem, 3vw, 2rem);
+  --lightbox-vw: var(--lightbox-real-vw, 100dvw);
+  --lightbox-vh: var(--lightbox-real-vh, 100dvh);
+  position: fixed;
+  z-index: 400;
+  inset: 0;
+  display: none;
+  place-items: center;
+  inline-size: var(--lightbox-vw);
+  block-size: var(--lightbox-vh);
+  padding: var(--lightbox-pad);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--black);
+}
+
+.lightbox.is-open {
+  display: grid;
+}
+
+.has-lightbox body {
+  overflow: hidden;
+}
+
+.lightbox__dialog {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: min(calc(var(--lightbox-vw) - (var(--lightbox-pad) * 2)), 96rem);
+  block-size: calc(var(--lightbox-vh) - (var(--lightbox-pad) * 2));
+  max-block-size: calc(var(--lightbox-vh) - (var(--lightbox-pad) * 2));
+  margin: auto;
+}
+
+.lightbox__toolbar {
+  position: absolute;
+  z-index: 4;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.lightbox__body {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+}
+
+.lightbox__body :where(img, video) {
+  display: block;
+  inline-size: auto;
+  block-size: auto;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  width: auto;
+  height: auto;
+  max-width: min(100%, calc(var(--lightbox-vw) - (var(--lightbox-pad) * 2)));
+  max-height: calc(var(--lightbox-vh) - (var(--lightbox-pad) * 2));
+  object-fit: contain;
+  object-position: center;
+  border-radius: 0;
+}
+
+.lightbox__nav {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  padding: 0;
+  border: var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--black);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.lightbox__nav:hover,
+.lightbox__nav:focus-visible {
+  background: var(--black);
+  color: var(--white);
+  outline: 0;
+}
+
+.lightbox__nav:disabled {
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.lightbox__nav svg {
+  inline-size: 1.05rem;
+  block-size: 1.05rem;
+  fill: currentColor;
+}
+
+.lightbox__nav--prev {
+  left: 0;
+}
+
+.lightbox__nav--next {
+  right: 0;
+}
+
+.lightbox__counter {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  color: var(--muted);
+  font-size: var(--xs);
+  line-height: 1;
+  text-align: center;
+  pointer-events: none;
+}
+
+@media (max-width: 48rem) {
+  .lightbox {
+    --lightbox-pad: 0.75rem;
+  }
+
+  .lightbox__dialog {
+    inline-size: calc(var(--lightbox-vw) - 1.5rem);
+    block-size: calc(var(--lightbox-vh) - 1.5rem);
+    max-block-size: calc(var(--lightbox-vh) - 1.5rem);
+  }
+
+  .lightbox__nav {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+  }
+}

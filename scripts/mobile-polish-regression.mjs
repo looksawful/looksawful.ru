@@ -46,7 +46,7 @@ async function checkShowcase(page) {
   await page.goto(`${BASE_URL}/`);
   await waitForApp(page);
 
-  const firstMedia = page.locator("#showcase a.media-item[data-lightbox-item][href]").first();
+  const firstMedia = page.locator("[data-showcase] a[data-media-item][data-lightbox-item][href]").first();
   await firstMedia.scrollIntoViewIfNeeded();
   await firstMedia.click({ force: true });
   await page.waitForSelector(".lightbox.is-open");
@@ -72,7 +72,7 @@ async function checkShowcase(page) {
   await page.keyboard.press("Escape");
   await page.setViewportSize(MOBILE);
 
-  const heading = page.locator("#showcase .case-chapter-heading").first();
+  const heading = page.locator("[data-showcase] [data-section-title]").first();
   await heading.scrollIntoViewIfNeeded();
   const headingMetrics = await heading.evaluate((node) => {
     const style = getComputedStyle(node);
@@ -90,14 +90,14 @@ async function checkShowcase(page) {
   assert(headingMetrics.left >= -1 && headingMetrics.right <= MOBILE.width + 1, "mobile chapter heading overflows viewport");
 
   const nonLogoItalicCount = await page.$$eval(
-    "#showcase .case-chapter-heading__accent",
+    "[data-showcase] [data-section-title-accent]",
     (nodes) =>
-      nodes.filter((node) => !node.closest("#jestei-frame-провели-ребрендинг") && getComputedStyle(node).fontStyle !== "normal")
+      nodes.filter((node) => !node.closest("#jestei-logo") && getComputedStyle(node).fontStyle !== "normal")
         .length,
   );
   assert(nonLogoItalicCount === 0, "heading italics must be limited to the logo chapter");
 
-  const facts = page.locator("#showcase .project-facts").first();
+  const facts = page.locator("[data-showcase] .fact-grid, [data-showcase] .facts-grid").first();
   await facts.scrollIntoViewIfNeeded();
   const factsMetrics = await facts.evaluate((node) => ({
     clientWidth: node.clientWidth,
@@ -123,7 +123,7 @@ async function checkShowcase(page) {
   assert(tocMetrics.right >= 0 && tocMetrics.right < 24, "mobile TOC is not placed on the side");
   assert(tocMetrics.pointerEvents !== "none", "mobile TOC is not clickable");
 
-  const filter = page.locator("#showcase .interface-section__filter .filter-fullscreen-wrapper").first();
+  const filter = page.locator("[data-showcase] .interface-section__filter .filter-fullscreen-wrapper").first();
   await filter.scrollIntoViewIfNeeded();
   const filterMetrics = await filter.evaluate((node) => {
     const rect = node.getBoundingClientRect();
@@ -133,14 +133,15 @@ async function checkShowcase(page) {
   assert(filterMetrics.height >= 220 && filterMetrics.height <= 520, "mobile filter wrapper height is cropped or leaves too much empty space");
 
   const tokenMetrics = await page
-    .locator("#jestei-frame-добавили-цвет .content-section--tokens")
+    .locator("#jestei-color .token-list")
     .evaluate((node) => ({ clientWidth: node.clientWidth, scrollWidth: node.scrollWidth, overflowX: getComputedStyle(node).overflowX }));
   assert(tokenMetrics.scrollWidth > tokenMetrics.clientWidth + 8, "mobile color token section is not scrollable");
   assert(tokenMetrics.overflowX === "auto" || tokenMetrics.overflowX === "scroll", "mobile color token section overflow-x is not scrollable");
 
-  assert(!(await isVisible(page, "#pet-slide-awful-describer")), "Awful Describer preview is still visible");
-  assert(!(await isVisible(page, "#project-shootings .project-skill-cloud")), "shootings chips are still visible");
-  assert((await page.locator("#showcase .showcase-video-controls").count()) === 0, "custom video control artifacts are still mounted");
+  const removedPetSlug = "awful-" + "describer";
+  assert(!(await isVisible(page, `[href*='${removedPetSlug}'], [id*='${removedPetSlug}']`)), "removed pet preview is still visible");
+  assert(!(await isVisible(page, "#shootings .project-skill-cloud")), "shootings chips are still visible");
+  assert((await page.locator("[data-showcase] .showcase-video-controls").count()) === 0, "custom video control artifacts are still mounted");
 
   const policyBook = page.locator("[data-policy-book]").first();
   await policyBook.scrollIntoViewIfNeeded();

@@ -2,25 +2,26 @@ import { createLetterIdleMotion, splitTextIntoGraphemes } from "./letter-motion.
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-const HEADING_SELECTOR = "#showcase .case-chapter__header .case-chapter-heading, #showcase :is(.jestei-chapter-section, .case-section-clean, [data-jestei-chapter-title], [data-case-chapter-title]) > :is(.jestei-chapter-hero, .case-chapter-hero, .case-chapter__header) > :is(.jestei-chapter-hero__title, .case-chapter-hero__title)";
+const HEADING_SELECTOR =
+  "[data-showcase] [data-chapter-head] [data-section-title], [data-showcase] [data-section-component][data-section-chapter] > [data-section-screen] > [data-chapter-head] [data-section-title]";
 
 const EXCLUDED_SELECTOR = [
   ".site-header",
-  ".portfolio-toc",
+  ".showcase-toc",
   ".contact-links",
   ".chips",
-  ".project__header",
-  ".project__head",
-  ".project__logo",
+  "[data-cover-head]",
+  "[data-cover-grid]",
+  "[data-cover-logo]",
   ".jestei-responsibilities-header",
-  ".project-responsibilities",
-  ".responsibility-card",
+  ".section-responsibilities",
+  ".section-responsibility-card",
   ".text-sections",
   ".text-section",
   ".token-list",
-  ".media-group",
-  ".media",
-  ".media-item",
+  "[data-media-cluster]",
+  ".section-media",
+  "[data-section-media-item]",
   ".playlist-filter-embed",
   ".jestei-policy-marquee",
   ".policy-book",
