@@ -4704,53 +4704,107 @@
                 </div>
               </section>
             </article>
-            <section
-              aria-label="pet-проекты"
-              class="section pets"
-              id="pets"
-            >
-              <section class="section__screen">
-                <div class="stack pets-stack">
-                  <section aria-label="pet-проекты" class="pet-page-slides pet-page-slides--project-headers">
-  <article class="pet-page-slide" id="pet-slide-berserk-timer">
-    <header class="pet-page-slide__header">
-      <p class="pet-page-slide__kicker">Проект&nbsp;01</p>
-      <h2 class="pet-page-slide__title">berserk&nbsp;timer</h2>
-      <a class="pet-page-slide__link" href="/pets/berserk-timer/">открыть страницу</a>
-    </header>
-    <div class="pet-page-slide__frame" data-pet-page-frame="">
-      <iframe loading="lazy" src="/pets/berserk-timer/" title="Berserk Timer — полноценная страница проекта"></iframe>
-    </div>
-  </article>
+            <section aria-label="pet-проекты" class="section pets pets--preview" id="pets">
+  <section class="section__screen">
+    <div class="pets-preview-stack" data-pets-preview-list>
+      <article class="pet-preview pet-preview--berserk" data-pet-preview="berserk-timer">
+        <div class="pet-preview__inner">
+          <div class="pet-preview__copy">
+            <p class="pet-preview__eyebrow">pet project</p>
+            <h2 class="pet-preview__title">berserk timer</h2>
+            <p class="pet-preview__text">таймер и аудио-интерактив для жёсткой фокусировки: крупный заголовок, управление интенсивностью, внутренний слайдер состояний и быстрый переход к полной странице.</p>
+          </div>
+          <div class="berserk-widget" data-berserk-widget>
+            <div class="berserk-widget__panel">
+              <button class="berserk-widget__play" type="button" data-berserk-play aria-pressed="false">play</button>
+              <label class="berserk-widget__range">
+                <span>intensity</span>
+                <input data-berserk-intensity type="range" min="0" max="100" value="62" />
+              </label>
+            </div>
+            <div class="berserk-widget__meter" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="berserk-slider" data-berserk-slider>
+              <button class="berserk-slide is-active" type="button" data-berserk-slide="0">
+                <span class="berserk-slide__index">01</span>
+                <span class="berserk-slide__title">focus</span>
+                <span class="berserk-slide__text">собрать внимание в один короткий цикл</span>
+              </button>
+              <button class="berserk-slide" type="button" data-berserk-slide="1">
+                <span class="berserk-slide__index">02</span>
+                <span class="berserk-slide__title">pressure</span>
+                <span class="berserk-slide__text">поднять темп без лишней интерфейсной обвязки</span>
+              </button>
+              <button class="berserk-slide" type="button" data-berserk-slide="2">
+                <span class="berserk-slide__index">03</span>
+                <span class="berserk-slide__title">finish</span>
+                <span class="berserk-slide__text">довести сессию до конца и не потерять ритм</span>
+              </button>
+            </div>
+          </div>
+          <a class="pet-preview__link" href="/pets/berserk-timer/">открыть полностью</a>
+        </div>
+      </article>
 
-  <article class="pet-page-slide" id="pet-slide-awful-cases">
-    <header class="pet-page-slide__header">
-      <p class="pet-page-slide__kicker">Проект&nbsp;02</p>
-      <h2 class="pet-page-slide__title">awful&nbsp;cases</h2>
-      <a class="pet-page-slide__link" href="/pets/awful-cases/">открыть страницу</a>
-    </header>
-    <div class="pet-page-slide__frame" data-pet-page-frame="">
-      <iframe loading="lazy" src="/pets/awful-cases/#trainer" title="Awful Cases — игра-тренажер на странице проекта"></iframe>
-    </div>
-  </article>
+      <article class="pet-preview pet-preview--cases" data-pet-preview="awful-cases">
+        <div class="pet-preview__inner">
+          <div class="pet-preview__copy">
+            <p class="pet-preview__eyebrow">pet project</p>
+            <h2 class="pet-preview__title">awful cases</h2>
+            <p class="pet-preview__text">игровой тренажёр английских кейсов с быстрым вводом, визуальной реакцией на ошибки и компактной аркадной механикой внутри страницы.</p>
+          </div>
+          <div class="cases-mini-game" aria-label="awful cases preview">
+            <div class="cases-mini-game__hud">
+              <span>case run</span>
+              <span>score 087</span>
+            </div>
+            <div class="cases-mini-game__road">
+              <div class="cases-mini-game__knight" aria-hidden="true">
+                <span class="cases-mini-game__horse"></span>
+                <span class="cases-mini-game__rider"></span>
+              </div>
+              <div class="cases-mini-game__letters" aria-hidden="true">
+                <span class="is-good">a</span>
+                <span>the</span>
+                <span class="is-bad">of</span>
+                <span>to</span>
+              </div>
+            </div>
+          </div>
+          <a class="pet-preview__link" href="/pets/awful-cases/">открыть полностью</a>
+        </div>
+      </article>
 
-  <article class="pet-page-slide" id="pet-slide-awful-audit">
-    <header class="pet-page-slide__header">
-      <p class="pet-page-slide__kicker">Проект&nbsp;03</p>
-      <h2 class="pet-page-slide__title">awful&nbsp;audit</h2>
-      <a class="pet-page-slide__link" href="/pets/awful-audit/">открыть страницу</a>
-    </header>
-    <div class="pet-page-slide__frame" data-pet-page-frame="">
-      <iframe loading="lazy" src="/pets/awful-audit/" title="Awful Audit — полноценная страница проекта"></iframe>
+      <article class="pet-preview pet-preview--audit" data-pet-preview="awful-audit">
+        <div class="pet-preview__inner">
+          <div class="pet-preview__copy">
+            <p class="pet-preview__eyebrow">pet project</p>
+            <h2 class="pet-preview__title">awful audit</h2>
+            <p class="pet-preview__text">локальный аудит проекта: быстро собирает карту html, css, js, dist и ассетов, чтобы видеть вес, импорты, классы, дубли и проблемные зоны перед правками.</p>
+          </div>
+          <div class="audit-terminal" aria-label="awful audit preview">
+            <div class="audit-terminal__bar"><span></span><span></span><span></span></div>
+            <pre><code>au dist
+indexed files: 586
+html: checked
+css: mapped
+js: imports scanned
+assets: weighted</code></pre>
+          </div>
+          <div class="audit-metrics" aria-label="audit sections">
+            <span>html</span>
+            <span>css</span>
+            <span>js</span>
+            <span>dist</span>
+          </div>
+          <a class="pet-preview__link" href="/pets/awful-audit/">открыть полностью</a>
+        </div>
+      </article>
     </div>
-  </article>
-
+  </section>
 </section>
 
-
-                </div>
-              </section>
-            </section>
             <article class="project stack case" id="project-shootings">
               <section
                 class="case-chapter-section case-chapter-section--shootings case-chapter-section--photo case-section-clean case-chapter project-like-chapter"

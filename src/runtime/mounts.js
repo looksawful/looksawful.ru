@@ -1,5 +1,12 @@
 export const MOUNTS = [
   {
+    id: "petPreviews",
+    phase: "content",
+    selector: "[data-pets-preview-list], [data-pet-preview]",
+    load: () => import("../visuals/dom/pet-previews.js"),
+    mount: (module, root) => module.initPetPreviews(root),
+  },
+  {
     id: "gsap",
     phase: "critical",
     load: () => import("../vendor/gsap-globals.js"),
