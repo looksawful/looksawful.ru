@@ -95,16 +95,7 @@ async function initVisualEnhancements(root = document) {
     (module) => module.initCvInlineVideos(root),
   );
 
-  pushGuardedImport(
-    tasks,
-    root,
-    '[data-animation="before-after"] canvas, [data-before-after] canvas',
-    "initShowcaseBeforeAfter",
-    () => import("../visuals/canvas/before-after/index.js"),
-    (module) => module.initShowcaseBeforeAfter(root),
-  );
-
-  await Promise.allSettled(tasks);
+await Promise.allSettled(tasks);
 }
 
 async function initDecorations(root = document) {

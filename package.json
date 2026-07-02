@@ -11,7 +11,8 @@
     "check:portfolio": "node scripts/portfolio-regression-check.mjs",
     "compress-media": "node scripts/compress-media.js",
     "compress-media:dry": "node scripts/compress-media.js --dry-run",
-    "compress-media:force": "node scripts/compress-media.js --force"
+    "compress-media:force": "node scripts/compress-media.js --force",
+    "audit:refactor": "node scripts/audit-refactor-round1.mjs"
   },
   "devDependencies": {
     "playwright": "^1.61.1",

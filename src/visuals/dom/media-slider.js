@@ -604,11 +604,3 @@ export function initMediaSliders(scope = document) {
   scope.querySelectorAll(SLIDER_SELECTOR).forEach(initAutoSlider);
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    initMediaSliders();
-  });
-} else {
-  initMediaSliders();
-}
-
