@@ -1,106 +1,72 @@
 const FIT_SELECTOR = [
-  "#showcase .case-chapter__header .case-chapter-heading",
-  "#showcase .case-chapter__body :is(h2, h3, h4, h5, h6, .title, .title--lg, .interface-section__title, .editorial-rail__title)",
+  "#showcase .project__title",
+  "#showcase .case__title",
+  "#showcase .case-chapter-heading",
+  "#showcase .case-chapter-hero__title",
+  "#showcase .jestei-chapter-hero__title",
 ].join(", ");
 
-const EXCLUDED_SELECTOR = [
-  ".site-header",
-  ".portfolio-toc",
-  ".contact-links",
-  ".chips",
-  ".project__header",
-  ".project__head",
-  ".project__logo",
-  ".jestei-responsibilities-header",
-  ".project-responsibilities",
-  ".responsibility-card",
-  ".token-list",
-  ".media-group",
-  ".media-item",
-  ".asset-gallery",
-  ".asset-grid",
-  ".asset-card",
-  ".policy-book",
-  "[data-policy-book]",
-  ".artifact-reader",
-  "[data-artifact-reader]",
-  ".playlist-filter-embed",
-  "[data-playlist-filter]",
-  "[data-visual-demo]",
-  "[data-animation]",
-  "canvas",
-  "video",
-  "svg",
-].join(", ");
+const MIN_SCALE = 0.78;
+const RESIZE_DEBOUNCE = 160;
 
-const FIT_SAFE_GAP = 6;
-const MIN_FONT_SIZE = 13;
-
-function isSafeHeading(heading) {
-  return (
-    heading instanceof HTMLElement &&
-    !heading.closest(EXCLUDED_SELECTOR) &&
-    Boolean(heading.textContent && heading.textContent.trim())
-  );
+export function round3FitAllowed(element) {
+  return Boolean(element?.matches?.(FIT_SELECTOR));
 }
 
-function getTextWidth(node) {
+function measureTextWidth(element) {
+  if (!(element instanceof Element)) return 0;
   const range = document.createRange();
-  range.selectNodeContents(node);
+  range.selectNodeContents(element);
   const rect = range.getBoundingClientRect();
-  range.detach();
-  return Math.ceil(rect.width);
+  range.detach?.();
+  return rect.width;
 }
 
-function getAvailableWidth(heading) {
-  const container =
-    heading.closest(".case-chapter__header, .case-chapter__body, .block__header, .section-head, .component-caption, .text-block, .content-section__text, .interface-section__copy, .interface-section__header, .editorial-rail__header") ||
-    heading.parentElement ||
-    heading;
-  const rect = container.getBoundingClientRect();
-  const viewportWidth = Math.max(0, window.innerWidth - FIT_SAFE_GAP * 2);
-  const containerWidth = rect.width || container.clientWidth || viewportWidth;
+function fitHeading(element) {
+  if (!round3FitAllowed(element)) return;
+  element.style.removeProperty("font-size");
+  element.removeAttribute("data-fit-showcase-heading");
 
-  return Math.max(0, Math.floor(Math.min(containerWidth, viewportWidth) - FIT_SAFE_GAP));
-}
+  const box = element.getBoundingClientRect();
+  if (!box.width) return;
 
-function fitHeading(heading) {
-  heading.style.fontSize = "";
-  heading.classList.remove("is-showcase-heading-fitted");
+  const textWidth = measureTextWidth(element);
+  if (!textWidth || textWidth <= box.width * 1.015) return;
 
-  const availableWidth = getAvailableWidth(heading);
-  if (!availableWidth) return;
+  const computed = window.getComputedStyle(element);
+  const fontSize = Number.parseFloat(computed.fontSize);
+  if (!Number.isFinite(fontSize) || fontSize <= 0) return;
 
-  const baseFontSize = Number.parseFloat(window.getComputedStyle(heading).fontSize);
-  const textWidth = getTextWidth(heading);
-
-  if (!Number.isFinite(baseFontSize) || baseFontSize <= 0 || !textWidth || textWidth <= availableWidth) {
-    return;
-  }
-
-  const nextFontSize = Math.max(MIN_FONT_SIZE, Math.floor(baseFontSize * (availableWidth / textWidth) * 1000) / 1000);
-  heading.style.fontSize = String(nextFontSize) + "px";
-  heading.classList.add("is-showcase-heading-fitted");
+  const ratio = Math.max(MIN_SCALE, Math.min(1, box.width / textWidth));
+  element.style.fontSize = `${Math.floor(fontSize * ratio * 100) / 100}px`;
+  element.dataset.fitShowcaseHeading = "round3";
 }
 
 export function initFitShowcaseHeadings(root = document) {
-  const headings = [...root.querySelectorAll(FIT_SELECTOR)].filter(isSafeHeading);
-  if (!headings.length) return;
+  const scope = root instanceof Element || root instanceof Document ? root : document;
+  const headings = [...scope.querySelectorAll(FIT_SELECTOR)].filter(round3FitAllowed);
+  if (!headings.length) return null;
 
-  let frame = 0;
-
+  let timer = 0;
   const fitAll = () => {
-    frame = 0;
-    headings.forEach(fitHeading);
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      headings.forEach(fitHeading);
+    }, RESIZE_DEBOUNCE);
   };
 
-  const scheduleFit = () => {
-    if (frame) return;
-    frame = window.requestAnimationFrame(fitAll);
-  };
+  window.requestAnimationFrame(() => headings.forEach(fitHeading));
+  window.addEventListener("resize", fitAll, { passive: true });
+  document.fonts?.ready?.then?.(() => headings.forEach(fitHeading)).catch?.(() => {});
 
-  scheduleFit();
-  document.fonts?.ready?.then(scheduleFit).catch(() => {});
-  window.addEventListener("resize", scheduleFit, { passive: true });
-  window.addEventListener("orientationchange", scheduleFit, { passive: true });
+  return {
+    destroy() {
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", fitAll);
+      headings.forEach((heading) => {
+        heading.style.removeProperty("font-size");
+        heading.removeAttribute("data-fit-showcase-heading");
+      });
+    },
+  };
 }
