@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-07-02T10:31:00.821Z",
+  "source": "index.html",
+  "mode": "safe snapshot plus extracted partials; live index.html is not rewritten in this step",
+  "files": {
+    "indexSnapshot": {
+      "path": "src/html/pages/index.snapshot.html",
+      "bytes": 344492
+    },
+    "policyBook": {
+      "path": "src/html/partials/policy/policy-book.html",
+      "bytes": 240564,
+      "extracted": true
+    },
+    "petsSection": {
+      "path": "src/html/partials/pets/pets-preview-section.html",
+      "bytes": 5583,
+      "extracted": true
+    },
+    "petPreviews": [
+      {
+        "key": "berserk-timer",
+        "path": "src/html/partials/pets/berserk-timer.html",
+        "extracted": true
+      },
+      {
+        "key": "awful-cases",
+        "path": "src/html/partials/pets/awful-cases.html",
+        "extracted": true
+      },
+      {
+        "key": "awful-audit",
+        "path": "src/html/partials/pets/awful-audit.html",
+        "extracted": true
+      }
+    ]
+  },
+  "counts": {
+    "policyBookRefs": 1,
+    "petsSectionRefs": 1,
+    "petPreviewRefs": 3,
+    "mediaLayoutAttrs": 16,
+    "mediaRatioAttrs": 16
+  }
+}
