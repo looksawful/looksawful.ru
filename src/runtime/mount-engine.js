@@ -1,4 +1,6 @@
-import { has, runAfterFirstPaint, runWhenIdle, runWhenNear, safe } from "./dom.js";
+import { has, safe } from "./dom.js";
+import { runAfterFirstPaint, runWhenIdle } from "./schedule.js";
+import { runWhenNear } from "./visibility.js";
 
 const PHASE_ORDER = ["critical", "content", "visual", "afterPaint", "idle", "near"];
 
