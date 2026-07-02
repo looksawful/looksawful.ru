@@ -107,7 +107,7 @@ const buildProjectGroups = (panel) => {
       chapterList.dataset.showcaseTocChapters = "";
       chapterList.dataset.open = "false";
 
-      projectLink.dataset.showcaseTocProjectLink = "";
+      projectLink.dataset.showcaseTocFamilyLink = "";
       projectLink.dataset.projectId = sectionTarget.id;
       projectLink.setAttribute("aria-expanded", "false");
       projectLink.setAttribute("aria-controls", chapterList.id);

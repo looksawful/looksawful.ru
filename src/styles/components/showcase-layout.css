@@ -1886,7 +1886,7 @@ html {
 }
 
 .showcase-toc__link.is-active,
-.showcase-toc__group.is-active > .showcase-toc__link--project,
+.showcase-toc__group.is-active > .showcase-toc__link--family,
 .showcase-toc__link--chapter.is-active {
   color: var(--black);
   opacity: 1;

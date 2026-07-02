@@ -1,0 +1,32 @@
+/* shared pet project inline component */
+.pet-project-inline {
+  --pet-project-inline-block: 100svh;
+  --pet-project-inline-radius: 0;
+  --pet-project-inline-background: #000;
+  background: var(--pet-project-inline-background);
+  color: #fff;
+  overflow: clip;
+}
+
+.pet-project-inline__screen {
+  min-block-size: var(--pet-project-inline-block);
+  display: grid;
+  align-items: stretch;
+  padding: 0;
+}
+
+.pet-project-inline__frame {
+  display: block;
+  inline-size: 100%;
+  block-size: var(--pet-project-inline-block);
+  min-block-size: var(--pet-project-inline-block);
+  max-block-size: var(--pet-project-inline-block);
+  border: 0;
+  border-radius: var(--pet-project-inline-radius);
+  background: var(--pet-project-inline-background);
+  overflow: hidden;
+}
+
+#awful-audit.pet-project-inline {
+  --pet-project-inline-block: 100svh;
+}

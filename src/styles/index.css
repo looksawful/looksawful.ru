@@ -10,6 +10,8 @@
 @import "./components/footer.css";
 @import "./components/showcase-layout.css";
 @import "./components/media-presentation.css";
+@import "./components/section-local-contract.css";
+@import "./components/pet-project-inline.css";
 @import "./sections/hero.css";
 @import "./sections/jestei-cover.css";
 @import "./sections/jestei-logo.css";
