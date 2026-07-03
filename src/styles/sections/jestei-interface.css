@@ -63,9 +63,8 @@
     display: none;
   }
 }
-/* section-local-contract variables */
 #jestei-interface {
-  --section-accent: #157aff;
+  --section-accent: var(--black);
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
   --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
   --section-local-text: min(100%, 62rem);
@@ -73,4 +72,3 @@
   --section-local-media-ratio: 16 / 9;
   --section-local-media-fit: cover;
 }
-

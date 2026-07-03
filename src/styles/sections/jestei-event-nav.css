@@ -3,16 +3,15 @@
 }
 
 .jestei-event-nav [data-section-screen] {
-  row-gap: clamp(2.5rem, 8vw, 6rem);
+  row-gap: clamp(1.1rem, 2.5vw, 2.2rem);
 }
 
 .jestei-event-nav [aria-label="экраны навигации event"] {
   --case-rail-item: min(86vw, 24rem);
   align-items: end;
 }
-/* section-local-contract variables */
 #jestei-event-nav {
-  --section-accent: #d1e231;
+  --section-accent: var(--black);
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
   --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
   --section-local-text: min(100%, 58rem);
@@ -20,4 +19,3 @@
   --section-local-media-ratio: 16 / 10;
   --section-local-media-fit: cover;
 }
-

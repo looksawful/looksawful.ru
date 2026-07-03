@@ -3,15 +3,14 @@
 }
 
 .jestei-landings [data-section-screen] {
-  row-gap: clamp(2.5rem, 8vw, 6rem);
+  row-gap: clamp(1.1rem, 2.5vw, 2.2rem);
 }
 
 .jestei-landings [data-media-cluster] {
   --case-rail-item: min(76vw, 20rem);
 }
-/* section-local-contract variables */
 #jestei-landings {
-  --section-accent: #e18200;
+  --section-accent: var(--black);
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
   --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
   --section-local-text: min(100%, 58rem);
@@ -20,3 +19,78 @@
   --section-local-media-fit: cover;
 }
 
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) {
+  margin-block: clamp(1.4rem, 3vw, 3rem);
+}
+
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) [data-section-screen] {
+  padding-block: clamp(1.35rem, 3.2vw, 3.2rem);
+}
+
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section {
+  grid-template-columns: minmax(20rem, 0.54fr) minmax(26rem, 0.92fr) minmax(15rem, 0.46fr);
+  gap: clamp(1rem, 2vw, 2.5rem);
+  align-items: center;
+}
+
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__header,
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__copy {
+  align-self: center;
+}
+
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-content-title] {
+  max-inline-size: min(100%, 18ch);
+  font-size: clamp(1.95rem, 2.85vw, 3.65rem);
+  line-height: 0.92;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-section-title-main],
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-section-title-accent] {
+  display: block;
+}
+
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-section-title-main] + [data-section-title-accent]::before {
+  content: none;
+}
+
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__copy > p {
+  max-inline-size: min(100%, 22rem);
+}
+
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__copy > p:first-child {
+  font-size: clamp(1rem, 0.5vw + 0.92rem, 1.2rem);
+  line-height: 1.26;
+}
+
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__media,
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__filter {
+  align-self: center;
+}
+
+main[data-showcase] #jestei-filter .filter-fullscreen-btn {
+  inline-size: clamp(2rem, 3vw, 2.8rem);
+  block-size: clamp(2rem, 3vw, 2.8rem);
+}
+
+@media (max-width: 72rem) {
+  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "head"
+      "media"
+      "copy";
+  }
+
+  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-content-title],
+  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__copy > p {
+    max-inline-size: min(100%, 42rem);
+  }
+}
+
+@media (max-width: 48rem) {
+  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-content-title] {
+    font-size: clamp(1.7rem, 8.2vw, 3rem);
+  }
+}

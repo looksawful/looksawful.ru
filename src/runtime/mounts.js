@@ -4,7 +4,7 @@ export const MOUNTS = [
     phase: "content",
     selector: "[data-pet-project-frame]",
     load: () => import("../visuals/dom/pet-project-frames.js"),
-    mount: (module, root) => module.initPetProjectFrames(root),
+    mount: (module, root) => module.mountPetProjectFrames(root),
   },
   {
     id: "gsap",
@@ -42,13 +42,6 @@ export const MOUNTS = [
     selector: "[data-lightbox-item], [data-lightbox-video]",
     load: () => import("../visuals/dom/portfolio-gallery.js"),
     mount: (module, root) => module.initPortfolioGallery(root),
-  },
-  {
-    id: "showcaseToc",
-    phase: "content",
-    selector: "[data-showcase-toc]",
-    load: () => import("../visuals/dom/showcase-toc.js"),
-    mount: (module, root) => module.initShowcaseToc(root),
   },
   {
     id: "jesteiActionRail",

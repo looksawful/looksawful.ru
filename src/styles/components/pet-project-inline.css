@@ -1,10 +1,10 @@
 /* shared pet project inline component */
 .pet-project-inline {
-  --pet-project-inline-block: 100svh;
+  --pet-project-inline-block: clamp(34rem, 82svh, 58rem);
   --pet-project-inline-radius: 0;
-  --pet-project-inline-background: #000;
+  --pet-project-inline-background: transparent;
   background: var(--pet-project-inline-background);
-  color: #fff;
+  color: inherit;
   overflow: clip;
 }
 
@@ -23,10 +23,10 @@
   max-block-size: var(--pet-project-inline-block);
   border: 0;
   border-radius: var(--pet-project-inline-radius);
-  background: var(--pet-project-inline-background);
+  background: transparent;
   overflow: hidden;
 }
 
 #awful-audit.pet-project-inline {
-  --pet-project-inline-block: 100svh;
+  --pet-project-inline-block: clamp(34rem, 82svh, 58rem);
 }

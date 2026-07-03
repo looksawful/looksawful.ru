@@ -36,9 +36,8 @@
   border-block: 1px solid currentColor;
   border-inline: 1px solid currentColor;
 }
-/* section-local-contract variables */
 #jestei-logo {
-  --section-accent: #e18200;
+  --section-accent: var(--black);
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
   --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
   --section-local-text: min(100%, 58rem);
@@ -46,4 +45,3 @@
   --section-local-media-ratio: 16 / 10;
   --section-local-media-fit: cover;
 }
-

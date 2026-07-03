@@ -1,6 +1,3 @@
-/* media-presentation.css
-   shared media primitives only. section-specific sizing is appended inside each section css file. */
-
 :where(main[data-showcase]) {
   --media-radius: clamp(14px, 1.6vw, 28px);
   --media-gap: clamp(0.8rem, 1.8vw, 1.4rem);
@@ -12,11 +9,11 @@
 }
 
 :where(main[data-showcase] .section-component:not(.hero):not(.resume):not(.pet-project-inline)) {
-  min-block-size: 100svh;
+  min-block-size: auto;
 }
 
 :where(main[data-showcase] .section-component:not(.hero):not(.resume):not(.pet-project-inline)) :where([data-section-screen]) {
-  min-block-size: 100svh;
+  min-block-size: auto;
 }
 
 :where(main[data-showcase] .section-component:not(.hero):not(.resume):not(.pet-project-inline)) :where(p) {

@@ -3,11 +3,47 @@
 }
 
 .jestei-words [data-section-screen] {
-  row-gap: clamp(2.5rem, 8vw, 6rem);
+  row-gap: clamp(1.4rem, 3vw, 2.6rem);
 }
-/* section-local-contract variables */
+
+main[data-showcase] #jestei-words {
+  margin-block: clamp(1.4rem, 3.2vw, 3.25rem);
+}
+
+main[data-showcase] #jestei-words [data-section-screen] {
+  padding-block: clamp(2rem, 4.2vw, 4rem);
+}
+
+main[data-showcase] #jestei-words [data-chapter-head] {
+  align-items: end;
+}
+
+main[data-showcase] #jestei-words [data-section-title] {
+  max-inline-size: min(100%, 13ch);
+  font-size: clamp(2.55rem, 5.2vw, 5.6rem);
+  line-height: 0.9;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+main[data-showcase] #jestei-words [data-section-lead] {
+  max-inline-size: min(100%, 53rem);
+  font-size: clamp(1.05rem, 0.74vw + 0.95rem, 1.35rem);
+  line-height: 1.2;
+}
+
+main[data-showcase] #jestei-words [data-section-body] {
+  gap: clamp(1.4rem, 3vw, 2.8rem);
+}
+
+@media (max-width: 48rem) {
+  main[data-showcase] #jestei-words [data-section-title] {
+    font-size: clamp(2.05rem, 9.4vw, 3.35rem);
+  }
+}
 #jestei-words {
-  --section-accent: #a990ff;
+  --section-accent: var(--black);
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
   --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
   --section-local-text: min(100%, 58rem);
@@ -15,4 +51,3 @@
   --section-local-media-ratio: 16 / 10;
   --section-local-media-fit: cover;
 }
-

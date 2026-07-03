@@ -7,7 +7,6 @@ const HEADING_SELECTOR =
 
 const EXCLUDED_SELECTOR = [
   ".site-header",
-  ".showcase-toc",
   ".contact-links",
   ".chips",
   "[data-cover-head]",

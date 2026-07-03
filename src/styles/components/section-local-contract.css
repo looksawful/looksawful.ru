@@ -1,15 +1,14 @@
-/* shared section local contract */
 main[data-showcase] .section-component {
-  min-block-size: var(--section-local-min-block, 100svh);
+  min-block-size: var(--section-local-min-block, auto);
   scroll-margin-block-start: var(--section-scroll-offset, 0px);
 }
 
 main[data-showcase] .section-component [data-section-screen],
 main[data-showcase] .section-component .section-screen {
-  min-block-size: var(--section-local-screen-min-block, 100svh);
+  min-block-size: var(--section-local-screen-min-block, auto);
   inline-size: min(100%, var(--section-local-inline, var(--page, 1280px)));
   margin-inline: auto;
-  padding-block: var(--section-local-padding-block, clamp(4rem, 8vw, 8rem));
+  padding-block: var(--section-local-padding-block, clamp(3.25rem, 7vw, 6.5rem));
   padding-inline: var(--section-local-padding-inline, 0);
 }
 
@@ -17,7 +16,7 @@ main[data-showcase] .section-component :where([data-section-title], .title) {
   max-inline-size: var(--section-local-title-width, 13ch);
   font-size: var(--section-local-title-size, clamp(2.75rem, 8vw, 7.5rem));
   line-height: var(--section-local-title-line, 0.88);
-  letter-spacing: var(--section-local-title-tracking, -0.07em);
+  letter-spacing: var(--section-local-title-tracking, 0);
 }
 
 main[data-showcase] .section-component :where(p, .section-text, .section-note) {
@@ -43,7 +42,7 @@ main[data-showcase] .section-component :where(figcaption, .meta, .chip, .chips) 
   main[data-showcase] .section-component {
     --section-local-title-size: clamp(2.2rem, 14vw, 4.75rem);
     --section-local-copy-size: clamp(1rem, 4.4vw, 1.2rem);
-    --section-local-padding-block: clamp(3.5rem, 16vw, 6rem);
+    --section-local-padding-block: clamp(3rem, 13vw, 5rem);
   }
 
   main[data-showcase] .section-component :where([data-media-layout], .section-media) {

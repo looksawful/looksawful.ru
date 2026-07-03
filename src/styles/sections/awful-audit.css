@@ -2,23 +2,23 @@
 
 /* pet-section local contract */
 #awful-audit {
-  --pet-project-inline-background: #000;
-  --pet-project-inline-frame-block-size: 100svh;
-  --pet-project-inline-frame-max-block-size: 100svh;
+  --pet-project-inline-background: transparent;
+  --pet-project-inline-frame-block-size: clamp(34rem, 82svh, 58rem);
+  --pet-project-inline-frame-max-block-size: clamp(34rem, 82svh, 58rem);
 }
 
 #awful-audit .awful-audit__frame {
   overflow: hidden;
-  background: #000;
+  background: transparent;
 }
 
 @supports (height: 100dvh) {
   #awful-audit {
-    --pet-project-inline-frame-block-size: 100dvh;
-    --pet-project-inline-frame-max-block-size: 100dvh;
+    --pet-project-inline-frame-block-size: clamp(34rem, 82dvh, 58rem);
+    --pet-project-inline-frame-max-block-size: clamp(34rem, 82dvh, 58rem);
   }
 }
 
 #awful-audit.pet-project-inline {
-  --pet-project-inline-background: #000;
+  --pet-project-inline-background: transparent;
 }

@@ -1,13 +1,15 @@
 .jestei-color {
-  --section-accent: var(--black);
+  --section-accent: var(--jp-orange-500);
+  --section-muted: color-mix(in srgb, currentColor 58%, transparent);
+  --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
+  --section-local-text: min(100%, 58rem);
+  --section-local-lead: min(100%, 66rem);
+  --section-local-media-ratio: 16 / 10;
+  --section-local-media-fit: cover;
 }
 
 .jestei-color [data-section-screen] {
-  row-gap: clamp(2.5rem, 8vw, 6rem);
-}
-
-.jestei-color {
-  --section-accent: var(--jp-orange-500);
+  row-gap: clamp(1.35rem, 3vw, 2.8rem);
 }
 
 .jestei-color [data-color-headline] [data-heading-char] {
@@ -18,54 +20,237 @@
   align-items: center;
 }
 
-.jestei-color .token-list {
+main[data-showcase] #jestei-color .token-list {
+  display: block;
   inline-size: 100%;
   max-inline-size: 100%;
+  min-inline-size: 0;
+  letter-spacing: 0;
 }
 
-.jestei-color .token-list__grid {
+main[data-showcase] #jestei-color .token-list__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(0.65rem, 1.2vw, 0.95rem);
+  grid-template-columns: repeat(2, minmax(min(100%, 13.5rem), 1fr));
+  gap: clamp(0.7rem, 1.25vw, 1rem);
 }
 
-.jestei-color .token-group__list {
+main[data-showcase] #jestei-color .token-group {
   display: grid;
-  gap: 0.45rem;
+  min-inline-size: 0;
+  padding: clamp(0.65rem, 1.1vw, 0.95rem);
+  border: 1px solid color-mix(in srgb, var(--black) 12%, transparent);
+  border-radius: clamp(0.7rem, 1vw, 1rem);
+  background: color-mix(in srgb, var(--black) 4%, transparent);
 }
 
-.jestei-color .token-pill {
+main[data-showcase] #jestei-color .token-group__list {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(0.48rem, 0.8vw, 0.68rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+main[data-showcase] #jestei-color .token-pill {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.48rem;
-  min-block-size: 2.35rem;
-  padding: 0.42rem 0.6rem;
-  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
-  border-radius: 0.5rem;
-  background: color-mix(in srgb, currentColor 5%, transparent);
-}
-
-.jestei-color .token-pill__dot {
-  inline-size: 0.66rem;
-  block-size: 0.66rem;
-  border-radius: 999px;
-  background: currentColor;
-}
-
-.jestei-color .token-pill__name {
+  gap: clamp(0.48rem, 0.78vw, 0.72rem);
+  min-inline-size: 0;
+  min-block-size: clamp(3rem, 4vw, 4.15rem);
+  padding: clamp(0.58rem, 0.9vw, 0.8rem) clamp(0.68rem, 1vw, 0.95rem);
+  border: 1px solid color-mix(in srgb, var(--token-color, var(--black)) 22%, transparent);
+  border-radius: clamp(0.5rem, 0.75vw, 0.72rem);
+  background: var(--white);
   color: var(--black);
-  font-size: clamp(0.72rem, 0.18vw + 0.68rem, 0.82rem);
-  font-weight: 700;
-  line-height: 1.05;
-  overflow-wrap: normal;
+  letter-spacing: 0;
+}
+
+main[data-showcase] #jestei-color .token-pill__dot {
+  inline-size: clamp(0.62rem, 0.85vw, 0.8rem);
+  block-size: clamp(0.62rem, 0.85vw, 0.8rem);
+  border-radius: 999px;
+  background: var(--token-color, currentColor);
+}
+
+main[data-showcase] #jestei-color .token-pill__name {
+  min-inline-size: 0;
+  color: var(--black);
+  font-family: var(--font, system-ui, sans-serif);
+  font-size: clamp(0.76rem, 0.3vw + 0.72rem, 0.92rem);
+  font-weight: 620;
+  letter-spacing: 0;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
   word-break: normal;
+  white-space: normal;
+}
+
+main[data-showcase] #jestei-color .token-pill__value {
+  display: block;
+  inline-size: auto;
+  width: auto;
+  min-inline-size: 3ch;
+  max-inline-size: none;
+  overflow: visible;
+  justify-self: end;
+  color: color-mix(in srgb, var(--black) 58%, transparent);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: clamp(0.74rem, 0.24vw + 0.7rem, 0.88rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 680;
+  letter-spacing: 0;
+  line-height: 1;
+  text-align: right;
   white-space: nowrap;
 }
 
-@media (max-width: 64rem) {
-  .jestei-color .token-list__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__value {
+  inline-size: auto;
+  width: auto;
+  min-inline-size: 3ch;
+  max-inline-size: none;
+  overflow: visible;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: clamp(0.74rem, 0.24vw + 0.7rem, 0.88rem);
+  letter-spacing: 0;
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__name {
+  font-family: var(--font, system-ui, sans-serif);
+  font-weight: 620;
+  letter-spacing: 0;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+@media (max-width: 72rem) {
+  main[data-showcase] #jestei-color .token-list__grid {
+    grid-template-columns: repeat(2, minmax(min(100%, 14rem), 1fr));
+  }
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] {
+  grid-template-columns: minmax(20rem, 0.74fr) minmax(20rem, 1fr);
+  gap: clamp(1rem, 2.2vw, 2.35rem);
+  align-items: end;
+  inline-size: min(100%, 92rem);
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] > .section-text {
+  gap: clamp(0.8rem, 1.45vw, 1.2rem);
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] .token-list {
+  display: block;
+  margin-block-start: clamp(0.2rem, 0.8vw, 0.55rem);
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] .token-list__grid {
+  grid-template-columns: repeat(2, minmax(9.25rem, 1fr));
+  gap: clamp(0.5rem, 0.8vw, 0.75rem);
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] .token-group {
+  gap: clamp(0.35rem, 0.65vw, 0.55rem);
+  padding: clamp(0.42rem, 0.72vw, 0.62rem);
+  border-color: color-mix(in srgb, var(--black) 10%, transparent);
+  border-radius: clamp(0.55rem, 0.8vw, 0.78rem);
+  background: var(--white);
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] .token-group__list {
+  gap: clamp(0.36rem, 0.62vw, 0.5rem);
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill {
+  grid-template-columns: auto minmax(0, 1fr) max-content;
+  gap: clamp(0.38rem, 0.62vw, 0.55rem);
+  min-block-size: clamp(2.35rem, 3.25vw, 3.15rem);
+  padding: clamp(0.42rem, 0.68vw, 0.58rem) clamp(0.5rem, 0.82vw, 0.72rem);
+  border-radius: clamp(0.45rem, 0.65vw, 0.62rem);
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__dot {
+  inline-size: clamp(0.52rem, 0.68vw, 0.68rem);
+  block-size: clamp(0.52rem, 0.68vw, 0.68rem);
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__name {
+  overflow: hidden;
+  color: color-mix(in srgb, var(--black) 84%, var(--white));
+  font-size: clamp(0.72rem, 0.2vw + 0.68rem, 0.84rem);
+  font-weight: 650;
+  line-height: 1.04;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__value {
+  max-inline-size: none;
+  color: color-mix(in srgb, var(--black) 64%, var(--white));
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: clamp(0.76rem, 0.2vw + 0.72rem, 0.88rem);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-overflow: clip;
+  text-transform: none;
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] > [data-media-cluster] > [data-section-section-media-item] {
+  aspect-ratio: 5 / 4;
+}
+
+main[data-showcase] #jestei-color [data-color-tokens-layout] > [data-media-cluster] img {
+  max-block-size: min(48svh, 34rem);
+}
+
+@media (max-width: 72rem) {
+  main[data-showcase] #jestei-color [data-color-tokens-layout] {
+    grid-template-columns: minmax(0, 1fr);
+    inline-size: min(100%, 58rem);
+  }
+}
+
+@media (max-width: 48rem) {
+  main[data-showcase] #jestei-color [data-color-tokens-layout] {
+    gap: clamp(0.95rem, 4vw, 1.45rem);
+  }
+
+  main[data-showcase] #jestei-color [data-color-tokens-layout] .token-list {
+    margin-inline: calc(var(--page-x) * -1);
+    padding-inline: var(--page-x);
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  main[data-showcase] #jestei-color [data-color-tokens-layout] .token-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  main[data-showcase] #jestei-color [data-color-tokens-layout] .token-list__grid {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(12rem, 68vw);
+    grid-template-columns: none;
+    inline-size: max-content;
+    padding-block-end: 0.35rem;
+  }
+
+  main[data-showcase] #jestei-color [data-color-tokens-layout] .token-group {
+    inline-size: min(68vw, 18rem);
+    scroll-snap-align: start;
+  }
+
+  main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill {
+    min-block-size: clamp(2.55rem, 11vw, 3.25rem);
+  }
+
+  main[data-showcase] #jestei-color [data-color-tokens-layout] > [data-media-cluster] img {
+    max-block-size: 58svh;
   }
 }
 
@@ -75,65 +260,35 @@
     gap: clamp(1rem, 5vw, 1.5rem);
   }
 
-  .jestei-color .token-list {
+  main[data-showcase] #jestei-color .token-list {
     margin-inline: calc(var(--page-x) * -1);
     padding-inline: var(--page-x);
     overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .jestei-color .token-list::-webkit-scrollbar {
+  main[data-showcase] #jestei-color .token-list::-webkit-scrollbar {
     display: none;
   }
 
-  .jestei-color .token-list__grid {
+  main[data-showcase] #jestei-color .token-list__grid {
     grid-auto-flow: column;
-    grid-auto-columns: minmax(13.5rem, 72vw);
+    grid-auto-columns: minmax(14.5rem, 76vw);
     grid-template-columns: none;
     inline-size: max-content;
-    padding-block-end: 0.25rem;
+    padding-block-end: 0.35rem;
   }
 
-  .jestei-color .token-pill {
-    min-inline-size: 12.5rem;
-    justify-content: start;
+  main[data-showcase] #jestei-color .token-group {
+    inline-size: min(76vw, 20rem);
+    scroll-snap-align: start;
   }
 
-  .jestei-color .token-pill__name {
-    justify-self: start;
-    text-align: left;
-  }
-
-  [data-showcase] #jestei-color [data-color-tokens-layout] .token-list__grid {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(13.5rem, 72vw);
-    grid-template-columns: none;
-  }
-
-  [data-showcase] #jestei-color [data-color-tokens-layout] .token-group {
-    inline-size: min(72vw, 18rem);
-  }
-
-  [data-showcase] #jestei-color [data-color-tokens-layout] .token-pill {
-    grid-template-columns: auto minmax(0, 1fr);
-    min-inline-size: 12.5rem;
-    justify-content: start;
-  }
-
-  [data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__name {
-    overflow: visible;
-    font-size: clamp(0.84rem, 3.8vw, 0.98rem);
-    text-overflow: clip;
+  main[data-showcase] #jestei-color .token-pill {
+    min-block-size: clamp(3.1rem, 13vw, 3.8rem);
   }
 }
-/* section-local-contract variables */
-#jestei-color {
-  --section-accent: #e18200;
-  --section-muted: color-mix(in srgb, currentColor 58%, transparent);
-  --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
-  --section-local-text: min(100%, 58rem);
-  --section-local-lead: min(100%, 66rem);
-  --section-local-media-ratio: 16 / 10;
-  --section-local-media-fit: cover;
-}
-

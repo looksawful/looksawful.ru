@@ -176,7 +176,7 @@
   max-width: var(--heading);
   margin: 0;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   line-height: 0.98;
   text-wrap: balance;
 }
@@ -186,7 +186,7 @@
   margin-bottom: clamp(1.5rem, 4vw, 3.2rem);
   font-size: clamp(2.8rem, 9vw, 8.2rem);
   line-height: 0.88;
-  letter-spacing: -0.055em;
+  letter-spacing: 0;
 }
 
 .policy-page h2 {
@@ -206,7 +206,7 @@
   margin-bottom: 0.55rem;
   font-size: clamp(1.05rem, 1.4vw, 1.45rem);
   line-height: 1.08;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .policy-page p,

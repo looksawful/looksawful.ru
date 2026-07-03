@@ -63,7 +63,7 @@
   margin: 0;
   font-size: clamp(1.4rem, 3vw, 3rem);
   line-height: 0.95;
-  letter-spacing: -0.055em;
+  letter-spacing: 0;
 }
 
 .artifact-reader__body {

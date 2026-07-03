@@ -411,8 +411,6 @@
     min-inline-size: min(18rem, calc(100vw - 2rem));
   }
 
-  [data-showcase-toc],
-  .showcase-toc,
   [data-jestei-action-rail],
   .jestei-action-rail {
     display: none;

@@ -4,7 +4,7 @@ const FIT_SELECTOR = [
   "[data-showcase] [data-content-title]",
 ].join(", ");
 
-const MIN_SCALE = 0.78;
+const MIN_SCALE = 0.56;
 const RESIZE_DEBOUNCE = 160;
 
 export function round3FitAllowed(element) {
