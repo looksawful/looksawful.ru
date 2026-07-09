@@ -25,7 +25,29 @@
     <link href="/src/styles/playlist-filter-embed.css" rel="stylesheet" />
     <script src="/src/main.js" type="module"></script>
     <link href="/src/styles/hero-only-mode.css" rel="stylesheet" data-hero-only-mode />
-  </head>
+  <style id="hero-only-inline-mode">
+/* temporary emergency mode: show only the current deployed hero */
+body > :not(main):not(#main):not(script):not(style):not(link):not(noscript) {
+  display: none !important;
+}
+
+main > :not(#hero),
+#main > :not(#hero) {
+  display: none !important;
+}
+
+#hero {
+  display: block !important;
+  min-height: 100svh !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#hero[hidden] {
+  display: block !important;
+}
+</style>
+</head>
   <body>
     <header
       aria-label="навигация по странице"
@@ -5282,4 +5304,5 @@
     </footer>
   </body>
 </html>
+
 
