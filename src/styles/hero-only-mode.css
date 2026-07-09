@@ -1,0 +1,42 @@
+/*
+  temporary hero-only mode
+  hides all current deployed content except the existing #hero section
+  nothing is deleted
+*/
+
+html,
+body {
+  min-height: 100%;
+}
+
+body > .site-header,
+body > .site-footer,
+body > footer,
+body > [data-lightbox],
+body > [data-modal],
+body > .lightbox,
+body > .modal,
+body > .project-modal,
+body > .artifact-fullscreen,
+body > .fullscreen-shell {
+  display: none !important;
+}
+
+#main {
+  min-height: 100svh;
+}
+
+#main > :not(#hero) {
+  display: none !important;
+}
+
+#hero {
+  display: block !important;
+  min-height: 100svh;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#hero[hidden] {
+  display: block !important;
+}
