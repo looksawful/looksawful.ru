@@ -75,6 +75,13 @@ const JESTEI_BENTO = `
               <h3 class="jestei-bento__title">провели ребрендинг</h3>
               <p>сменили логотип, проработали типографику, сегментировали аудиторию при помощи 4 цветовых профилей и разработали tone of voice</p>
             </div>
+            <div
+              class="jestei-bento__logo-inspector"
+              data-visual-demo="logo-inspector:compact"
+              data-cv-poster="/assets/media/cases/jesteipool/01-logo/01/02.webp"
+              data-logo-inspector-passive="true"
+              aria-hidden="true"
+            ></div>
           </article>
 
           <article class="jestei-bento__card jestei-bento__card--products" data-bento-card="products">
@@ -95,6 +102,9 @@ const JESTEI_BENTO = `
             <div class="jestei-bento__content" data-bento-content="">
               <h3 class="jestei-bento__title">запуск в сша</h3>
               <p>адаптировали продукт и коммуникации к выходу на американский рынок</p>
+            </div>
+            <div class="jestei-bento__globe" aria-hidden="true">
+              <svg id="jestei-usa-globe" role="img" aria-label="Америка на ортографической проекции глобуса"></svg>
             </div>
           </article>
         </div>
