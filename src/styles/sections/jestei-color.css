@@ -1,294 +1,455 @@
 .jestei-color {
   --section-accent: var(--jp-orange-500);
-  --section-muted: color-mix(in srgb, currentColor 58%, transparent);
-  --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
-  --section-local-text: min(100%, 58rem);
-  --section-local-lead: min(100%, 66rem);
-  --section-local-media-ratio: 16 / 10;
-  --section-local-media-fit: cover;
+  --jestei-color-page-x: clamp(0.5rem, 2.2cqi, 2rem);
+  --jestei-color-gap: clamp(0.5rem, 1.35cqi, 1.25rem);
+  --jestei-color-pad: clamp(0.85rem, 1.8cqi, 1.65rem);
+  --jestei-color-radius: clamp(0.9rem, 1.8cqi, 2rem);
+  container-type: inline-size;
+  margin-block: 0;
+  color: var(--black);
+  background: var(--white);
 }
 
-.jestei-color [data-section-screen] {
-  row-gap: clamp(1.35rem, 3vw, 2.8rem);
+.jestei-color::before {
+  content: none;
 }
 
-.jestei-color [data-color-headline] [data-heading-char] {
-  color: var(--jp-orange-500);
-}
-
-.jestei-color [data-color-tokens-layout] {
-  align-items: center;
-}
-
-main[data-showcase] #jestei-color .token-list {
+main[data-showcase] .jestei-color [data-section-screen] {
   display: block;
   inline-size: 100%;
+  max-inline-size: none;
+  padding-block: clamp(1rem, 4cqi, 3rem);
+  padding-inline: 0;
+  overflow: visible;
+}
+
+.jestei-color-bento {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-areas:
+    "head head visual-main visual-main"
+    "head head visual-main visual-main"
+    "zones zones system system"
+    "orange blue visual-secondary visual-secondary"
+    "pear biloba visual-secondary visual-secondary";
+  grid-template-rows:
+    minmax(clamp(9rem, 13cqi, 12rem), auto)
+    minmax(clamp(9rem, 13cqi, 12rem), auto)
+    minmax(clamp(10rem, 15cqi, 13rem), auto)
+    minmax(clamp(10rem, 14cqi, 12rem), auto)
+    minmax(clamp(10rem, 14cqi, 12rem), auto);
+  gap: var(--jestei-color-gap);
+  inline-size: min(calc(100% - var(--space-7)), var(--case-wide));
+  min-inline-size: 0;
+  margin-inline: auto;
+}
+
+.jestei-color-bento__panel {
+  display: contents;
+}
+
+.jestei-color-bento__card {
+  display: grid;
+  min-inline-size: 0;
+  min-block-size: 0;
+  padding: var(--jestei-color-pad);
+  overflow: hidden;
+  border: var(--line);
+  border-radius: var(--jestei-color-radius);
+  background: var(--white);
+  container-type: inline-size;
+}
+
+.jestei-color-bento__card--head {
+  grid-area: head;
+  align-content: space-between;
+  gap: clamp(1.25rem, 3cqi, 2.5rem);
+}
+
+.jestei-color-bento__title {
+  display: grid;
+  align-content: start;
+  gap: 0;
   max-inline-size: 100%;
-  min-inline-size: 0;
+  margin: 0;
+  color: var(--black);
+  font-size: clamp(3.1rem, 13cqi, 6.6rem);
+  font-weight: 800;
+  line-height: 0.82;
+  letter-spacing: -0.07em;
+  text-wrap: balance;
+}
+
+.jestei-color-bento__title > span {
+  display: block;
+}
+
+.jestei-color-bento__title [data-section-title-accent] {
+  letter-spacing: 0.035em;
+}
+
+.jestei-color-bento__lead,
+main[data-showcase] .jestei-color .jestei-color-bento__lead {
+  max-inline-size: 38rem;
+  margin: 0;
+  color: var(--black);
+  font-size: clamp(1rem, 2.65cqi, 1.35rem);
+  font-weight: 400;
+  line-height: 1.28;
   letter-spacing: 0;
+  text-wrap: pretty;
 }
 
-main[data-showcase] #jestei-color .token-list__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(min(100%, 13.5rem), 1fr));
-  gap: clamp(0.7rem, 1.25vw, 1rem);
+.jestei-color-bento__visual {
+  padding: 0;
+  text-decoration: none;
 }
 
-main[data-showcase] #jestei-color .token-group {
+.jestei-color-bento__visual--main {
+  grid-area: visual-main;
+}
+
+.jestei-color-bento__visual--secondary {
+  grid-area: visual-secondary;
+}
+
+.jestei-color-bento__visual img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 100%;
+  max-block-size: none;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 0;
+  background: var(--white);
+}
+
+.jestei-color-bento__card--zones,
+.jestei-color-bento__card--system {
+  align-content: space-between;
+  gap: clamp(0.85rem, 2.4cqi, 1.5rem);
+}
+
+.jestei-color-bento__card--zones {
+  grid-area: zones;
+}
+
+.jestei-color-bento__card--system {
+  grid-area: system;
+}
+
+.jestei-color-bento__card--zones h3,
+.jestei-color-bento__card--system h3 {
+  max-inline-size: 12ch;
+  margin: 0;
+  color: var(--black);
+  font-size: clamp(1.65rem, 5.5cqi, 2.75rem);
+  font-weight: 750;
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.jestei-color-bento__card--zones p,
+.jestei-color-bento__card--system p,
+main[data-showcase] .jestei-color .jestei-color-bento__card--zones p,
+main[data-showcase] .jestei-color .jestei-color-bento__card--system p {
+  max-inline-size: 48rem;
+  margin: 0;
+  color: var(--black);
+  font-size: clamp(0.88rem, 2.35cqi, 1.08rem);
+  font-weight: 400;
+  line-height: 1.34;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+
+.jestei-color-bento__theme {
+  --theme: var(--jp-orange-500);
+  --theme-soft: color-mix(in srgb, var(--theme) 18%, var(--white));
+  --theme-mid: color-mix(in srgb, var(--theme) 62%, var(--white));
+  --theme-dark: color-mix(in srgb, var(--theme) 76%, var(--black));
+  align-content: space-between;
+  gap: clamp(0.8rem, 3cqi, 1.4rem);
+  background: var(--theme-soft);
+}
+
+.jestei-color-bento__theme--orange {
+  grid-area: orange;
+  --theme: var(--jp-orange-500);
+}
+
+.jestei-color-bento__theme--blue {
+  grid-area: blue;
+  --theme: var(--jp-blue-500);
+}
+
+.jestei-color-bento__theme--pear {
+  grid-area: pear;
+  --theme: var(--jp-pear-500);
+}
+
+.jestei-color-bento__theme--biloba {
+  grid-area: biloba;
+  --theme: var(--jp-biloba-500);
+}
+
+.jestei-color-bento__theme-head {
   display: grid;
+  gap: clamp(0.22rem, 1cqi, 0.45rem);
   min-inline-size: 0;
-  padding: clamp(0.65rem, 1.1vw, 0.95rem);
-  border: 1px solid color-mix(in srgb, var(--black) 12%, transparent);
-  border-radius: clamp(0.7rem, 1vw, 1rem);
-  background: color-mix(in srgb, var(--black) 4%, transparent);
 }
 
-main[data-showcase] #jestei-color .token-group__list {
+.jestei-color-bento__theme-head > span {
+  color: color-mix(in srgb, var(--black) 64%, transparent);
+  font-size: clamp(0.72rem, 2.2cqi, 0.9rem);
+  font-weight: 600;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
+.jestei-color-bento__theme h3 {
+  max-inline-size: 100%;
+  margin: 0;
+  color: var(--black);
+  font-size: clamp(1.25rem, 5.5cqi, 2rem);
+  font-weight: 750;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+  overflow-wrap: anywhere;
+}
+
+.jestei-color-bento__tokens {
   display: grid;
-  gap: clamp(0.48rem, 0.8vw, 0.68rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.35rem, 1.6cqi, 0.6rem);
+  min-inline-size: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-main[data-showcase] #jestei-color .token-pill {
+.jestei-color-bento__tokens li {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: clamp(0.48rem, 0.78vw, 0.72rem);
+  gap: clamp(0.35rem, 1.5cqi, 0.55rem);
   min-inline-size: 0;
-  min-block-size: clamp(3rem, 4vw, 4.15rem);
-  padding: clamp(0.58rem, 0.9vw, 0.8rem) clamp(0.68rem, 1vw, 0.95rem);
-  border: 1px solid color-mix(in srgb, var(--token-color, var(--black)) 22%, transparent);
-  border-radius: clamp(0.5rem, 0.75vw, 0.72rem);
-  background: var(--white);
-  color: var(--black);
-  letter-spacing: 0;
-}
-
-main[data-showcase] #jestei-color .token-pill__dot {
-  inline-size: clamp(0.62rem, 0.85vw, 0.8rem);
-  block-size: clamp(0.62rem, 0.85vw, 0.8rem);
-  border-radius: 999px;
-  background: var(--token-color, currentColor);
-}
-
-main[data-showcase] #jestei-color .token-pill__name {
-  min-inline-size: 0;
-  color: var(--black);
-  font-family: var(--font, system-ui, sans-serif);
-  font-size: clamp(0.76rem, 0.3vw + 0.72rem, 0.92rem);
-  font-weight: 620;
-  letter-spacing: 0;
-  line-height: 1.08;
-  overflow-wrap: anywhere;
-  word-break: normal;
-  white-space: normal;
-}
-
-main[data-showcase] #jestei-color .token-pill__value {
-  display: block;
-  inline-size: auto;
-  width: auto;
-  min-inline-size: 3ch;
-  max-inline-size: none;
-  overflow: visible;
-  justify-self: end;
-  color: color-mix(in srgb, var(--black) 58%, transparent);
-  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-  font-size: clamp(0.74rem, 0.24vw + 0.7rem, 0.88rem);
+  padding: clamp(0.34rem, 1.5cqi, 0.55rem);
+  border: 1px solid color-mix(in srgb, var(--black) 15%, transparent);
+  border-radius: clamp(0.45rem, 1.8cqi, 0.7rem);
+  background: color-mix(in srgb, var(--white) 78%, transparent);
+  font-size: clamp(0.7rem, 2.4cqi, 0.88rem);
   font-variant-numeric: tabular-nums;
-  font-weight: 680;
-  letter-spacing: 0;
-  line-height: 1;
-  text-align: right;
-  white-space: nowrap;
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__value {
-  inline-size: auto;
-  width: auto;
-  min-inline-size: 3ch;
-  max-inline-size: none;
-  overflow: visible;
-  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-  font-size: clamp(0.74rem, 0.24vw + 0.7rem, 0.88rem);
-  letter-spacing: 0;
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__name {
-  font-family: var(--font, system-ui, sans-serif);
-  font-weight: 620;
-  letter-spacing: 0;
-  overflow: visible;
-  text-overflow: clip;
-}
-
-@media (max-width: 72rem) {
-  main[data-showcase] #jestei-color .token-list__grid {
-    grid-template-columns: repeat(2, minmax(min(100%, 14rem), 1fr));
-  }
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] {
-  grid-template-columns: minmax(20rem, 0.74fr) minmax(20rem, 1fr);
-  gap: clamp(1rem, 2.2vw, 2.35rem);
-  align-items: end;
-  inline-size: min(100%, 92rem);
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] > .section-text {
-  gap: clamp(0.8rem, 1.45vw, 1.2rem);
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] .token-list {
-  display: block;
-  margin-block-start: clamp(0.2rem, 0.8vw, 0.55rem);
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] .token-list__grid {
-  grid-template-columns: repeat(2, minmax(9.25rem, 1fr));
-  gap: clamp(0.5rem, 0.8vw, 0.75rem);
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] .token-group {
-  gap: clamp(0.35rem, 0.65vw, 0.55rem);
-  padding: clamp(0.42rem, 0.72vw, 0.62rem);
-  border-color: color-mix(in srgb, var(--black) 10%, transparent);
-  border-radius: clamp(0.55rem, 0.8vw, 0.78rem);
-  background: var(--white);
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] .token-group__list {
-  gap: clamp(0.36rem, 0.62vw, 0.5rem);
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill {
-  grid-template-columns: auto minmax(0, 1fr) max-content;
-  gap: clamp(0.38rem, 0.62vw, 0.55rem);
-  min-block-size: clamp(2.35rem, 3.25vw, 3.15rem);
-  padding: clamp(0.42rem, 0.68vw, 0.58rem) clamp(0.5rem, 0.82vw, 0.72rem);
-  border-radius: clamp(0.45rem, 0.65vw, 0.62rem);
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__dot {
-  inline-size: clamp(0.52rem, 0.68vw, 0.68rem);
-  block-size: clamp(0.52rem, 0.68vw, 0.68rem);
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__name {
-  overflow: hidden;
-  color: color-mix(in srgb, var(--black) 84%, var(--white));
-  font-size: clamp(0.72rem, 0.2vw + 0.68rem, 0.84rem);
-  font-weight: 650;
-  line-height: 1.04;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill__value {
-  max-inline-size: none;
-  color: color-mix(in srgb, var(--black) 64%, var(--white));
-  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-  font-size: clamp(0.76rem, 0.2vw + 0.72rem, 0.88rem);
   font-weight: 700;
-  letter-spacing: 0;
-  text-overflow: clip;
-  text-transform: none;
+  line-height: 1;
 }
 
-main[data-showcase] #jestei-color [data-color-tokens-layout] > [data-media-cluster] > [data-section-section-media-item] {
-  aspect-ratio: 5 / 4;
+.jestei-color-bento__swatch {
+  display: block;
+  inline-size: clamp(0.72rem, 2.7cqi, 1rem);
+  block-size: clamp(0.72rem, 2.7cqi, 1rem);
+  border: 1px solid color-mix(in srgb, var(--black) 12%, transparent);
+  border-radius: 999px;
+  background: var(--theme);
 }
 
-main[data-showcase] #jestei-color [data-color-tokens-layout] > [data-media-cluster] img {
-  max-block-size: min(48svh, 34rem);
+.jestei-color-bento__swatch--100 {
+  background: color-mix(in srgb, var(--theme) 18%, var(--white));
 }
 
-@media (max-width: 72rem) {
-  main[data-showcase] #jestei-color [data-color-tokens-layout] {
-    grid-template-columns: minmax(0, 1fr);
-    inline-size: min(100%, 58rem);
+.jestei-color-bento__swatch--300 {
+  background: var(--theme-mid);
+}
+
+.jestei-color-bento__swatch--500 {
+  background: var(--theme);
+}
+
+.jestei-color-bento__swatch--700 {
+  background: var(--theme-dark);
+}
+
+@media (max-width: 72rem) and (min-width: 43.001rem) {
+  .jestei-color {
+    --jestei-color-page-x: clamp(0.7rem, 2cqi, 1.4rem);
+    --jestei-color-gap: clamp(0.5rem, 1.25cqi, 0.95rem);
+    --jestei-color-pad: clamp(0.78rem, 1.55cqi, 1.2rem);
+    --jestei-color-radius: clamp(0.9rem, 1.65cqi, 1.45rem);
+  }
+
+  .jestei-color-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "head visual-main"
+      "head visual-main"
+      "zones system"
+      "orange blue"
+      "pear biloba"
+      "visual-secondary visual-secondary";
+    grid-template-rows:
+      minmax(clamp(10rem, 18cqi, 14rem), auto)
+      minmax(clamp(10rem, 18cqi, 14rem), auto)
+      minmax(clamp(12rem, 21cqi, 16rem), auto)
+      minmax(clamp(10rem, 18cqi, 13rem), auto)
+      minmax(clamp(10rem, 18cqi, 13rem), auto)
+      minmax(clamp(20rem, 42cqi, 32rem), auto);
+    inline-size: min(calc(100% - var(--space-6)), var(--case-wide));
+  }
+
+  .jestei-color-bento__title {
+    font-size: clamp(2.8rem, 12cqi, 5.25rem);
+  }
+
+  .jestei-color-bento__lead,
+  main[data-showcase] .jestei-color .jestei-color-bento__lead {
+    font-size: clamp(0.98rem, 2.55cqi, 1.18rem);
   }
 }
 
-@media (max-width: 48rem) {
-  main[data-showcase] #jestei-color [data-color-tokens-layout] {
-    gap: clamp(0.95rem, 4vw, 1.45rem);
+@media (max-width: 43rem) {
+  .jestei-color {
+    --jestei-color-page-x: clamp(0.45rem, 2.4cqi, 0.85rem);
+    --jestei-color-gap: clamp(0.35rem, 1.8cqi, 0.68rem);
+    --jestei-color-pad: clamp(0.7rem, 3.2cqi, 1rem);
+    --jestei-color-radius: clamp(0.75rem, 3.6cqi, 1.2rem);
   }
 
-  main[data-showcase] #jestei-color [data-color-tokens-layout] .token-list {
-    margin-inline: calc(var(--page-x) * -1);
-    padding-inline: var(--page-x);
+  main[data-showcase] .jestei-color [data-section-screen] {
+    display: block;
     overflow-x: auto;
     overflow-y: hidden;
+    padding-block: clamp(0.95rem, 5cqi, 1.75rem);
+    padding-inline: 0;
+    scroll-padding-inline: var(--jestei-color-page-x);
+    scroll-snap-type: inline mandatory;
     overscroll-behavior-inline: contain;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
-  main[data-showcase] #jestei-color [data-color-tokens-layout] .token-list::-webkit-scrollbar {
+  main[data-showcase] .jestei-color [data-section-screen]::-webkit-scrollbar {
     display: none;
   }
 
-  main[data-showcase] #jestei-color [data-color-tokens-layout] .token-list__grid {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(12rem, 68vw);
-    grid-template-columns: none;
-    inline-size: max-content;
-    padding-block-end: 0.35rem;
-  }
-
-  main[data-showcase] #jestei-color [data-color-tokens-layout] .token-group {
-    inline-size: min(68vw, 18rem);
-    scroll-snap-align: start;
-  }
-
-  main[data-showcase] #jestei-color [data-color-tokens-layout] .token-pill {
-    min-block-size: clamp(2.55rem, 11vw, 3.25rem);
-  }
-
-  main[data-showcase] #jestei-color [data-color-tokens-layout] > [data-media-cluster] img {
-    max-block-size: 58svh;
-  }
-}
-
-@media (max-width: 48rem) {
-  .jestei-color [data-color-tokens-layout] {
+  .jestei-color-bento {
     display: grid;
-    gap: clamp(1rem, 5vw, 1.5rem);
-  }
-
-  main[data-showcase] #jestei-color .token-list {
-    margin-inline: calc(var(--page-x) * -1);
-    padding-inline: var(--page-x);
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  main[data-showcase] #jestei-color .token-list::-webkit-scrollbar {
-    display: none;
-  }
-
-  main[data-showcase] #jestei-color .token-list__grid {
     grid-auto-flow: column;
-    grid-auto-columns: minmax(14.5rem, 76vw);
+    grid-auto-columns: calc(100cqi - (2 * var(--jestei-color-page-x)));
     grid-template-columns: none;
+    grid-template-areas: none;
+    grid-template-rows: none;
+    align-items: stretch;
     inline-size: max-content;
-    padding-block-end: 0.35rem;
+    min-inline-size: 100%;
+    margin-inline: 0;
+    padding-inline: var(--jestei-color-page-x);
   }
 
-  main[data-showcase] #jestei-color .token-group {
-    inline-size: min(76vw, 20rem);
+  .jestei-color-bento__panel {
+    display: grid;
+    gap: var(--jestei-color-gap);
+    min-inline-size: 0;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 
-  main[data-showcase] #jestei-color .token-pill {
-    min-block-size: clamp(3.1rem, 13vw, 3.8rem);
+  .jestei-color-bento__panel--intro {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "head head"
+      "visual-main visual-main";
+    grid-template-rows:
+      minmax(clamp(15rem, 62cqi, 20rem), auto)
+      minmax(clamp(15rem, 62cqi, 20rem), auto);
+  }
+
+  .jestei-color-bento__panel--system {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "zones system"
+      "visual-secondary visual-secondary";
+    grid-template-rows:
+      minmax(clamp(18rem, 76cqi, 24rem), auto)
+      minmax(clamp(16rem, 66cqi, 21rem), auto);
+  }
+
+  .jestei-color-bento__panel--palette {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "orange blue"
+      "pear biloba";
+    grid-template-rows: repeat(2, minmax(clamp(13rem, 54cqi, 17rem), auto));
+  }
+
+  .jestei-color-bento__title {
+    font-size: clamp(3rem, 16cqi, 4.6rem);
+    line-height: 0.84;
+  }
+
+  .jestei-color-bento__lead,
+  main[data-showcase] .jestei-color .jestei-color-bento__lead {
+    font-size: clamp(0.96rem, 4cqi, 1.08rem);
+    line-height: 1.3;
+  }
+
+  .jestei-color-bento__card--zones h3,
+  .jestei-color-bento__card--system h3 {
+    max-inline-size: 100%;
+    font-size: clamp(1.25rem, 6.6cqi, 1.7rem);
+  }
+
+  .jestei-color-bento__card--zones p,
+  .jestei-color-bento__card--system p,
+  main[data-showcase] .jestei-color .jestei-color-bento__card--zones p,
+  main[data-showcase] .jestei-color .jestei-color-bento__card--system p {
+    font-size: clamp(0.82rem, 3.55cqi, 0.96rem);
+    line-height: 1.32;
+  }
+
+  .jestei-color-bento__theme h3 {
+    font-size: clamp(1.1rem, 5.7cqi, 1.45rem);
+  }
+
+  .jestei-color-bento__theme-head > span {
+    font-size: clamp(0.68rem, 3cqi, 0.82rem);
+  }
+
+  .jestei-color-bento__tokens {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .jestei-color-bento__tokens li {
+    font-size: clamp(0.68rem, 3cqi, 0.8rem);
+  }
+}
+
+@media (max-width: 25rem) {
+  .jestei-color {
+    --jestei-color-page-x: 0.4rem;
+    --jestei-color-gap: 0.32rem;
+    --jestei-color-pad: 0.62rem;
+  }
+
+  .jestei-color-bento__panel--system {
+    grid-template-rows:
+      minmax(19rem, auto)
+      minmax(15rem, auto);
+  }
+
+  .jestei-color-bento__panel--palette {
+    grid-template-rows: repeat(2, minmax(14rem, auto));
+  }
+
+  .jestei-color-bento__title {
+    font-size: clamp(2.65rem, 15cqi, 3.8rem);
+  }
+
+  .jestei-color-bento__card--zones p,
+  .jestei-color-bento__card--system p,
+  main[data-showcase] .jestei-color .jestei-color-bento__card--zones p,
+  main[data-showcase] .jestei-color .jestei-color-bento__card--system p {
+    font-size: clamp(0.79rem, 3.45cqi, 0.9rem);
   }
 }
