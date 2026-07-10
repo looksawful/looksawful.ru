@@ -43,10 +43,10 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
 
 .jestei-cover [data-cover-grid] {
   display: grid;
-  grid-template-columns: minmax(10rem, 0.64fr) minmax(0, 1.9fr);
+  grid-template-columns: minmax(11rem, 20cqi) minmax(0, 33rem) minmax(0, 1fr);
   grid-template-areas:
-    "logo meta"
-    "logo summary";
+    "logo meta ."
+    "logo summary .";
   column-gap: var(--jestei-cover-gap);
   row-gap: var(--jestei-cover-content-gap);
   align-items: start;
