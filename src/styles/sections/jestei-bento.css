@@ -107,6 +107,22 @@ main[data-showcase] .jestei-bento [data-section-screen] > * {
   text-wrap: balance;
 }
 
+.jestei-bento__card--steps .jestei-bento__title {
+  font-size: clamp(1.45rem, 7.2cqi, 2.5rem);
+  line-height: 0.94;
+}
+
+.jestei-bento__card--steps .jestei-bento__title strong {
+  font-size: 1.08em;
+  line-height: 0.9;
+  white-space: nowrap;
+}
+
+.jestei-bento__card--steps .jestei-bento__title span {
+  font-size: 0.72em;
+  line-height: 1;
+}
+
 .jestei-bento__title--regular {
   font-weight: 500;
 }
@@ -177,6 +193,10 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     font-size: clamp(1.05rem, 5.2cqi, 1.55rem);
   }
 
+  .jestei-bento__card--steps .jestei-bento__title {
+    font-size: clamp(1.3rem, 6.8cqi, 2rem);
+  }
+
   .jestei-bento__content > p,
   main[data-showcase] .jestei-bento .jestei-bento__content > p,
   .jestei-bento__card--audience .jestei-bento__content > p,
@@ -229,6 +249,11 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     line-height: 1.02;
   }
 
+  .jestei-bento__card--steps .jestei-bento__title {
+    font-size: clamp(1.3rem, 7.4cqi, 1.82rem);
+    line-height: 0.94;
+  }
+
   .jestei-bento__content > p,
   main[data-showcase] .jestei-bento .jestei-bento__content > p,
   .jestei-bento__card--audience .jestei-bento__content > p,
@@ -278,6 +303,10 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
   .jestei-bento__card--audience .jestei-bento__title--regular,
   .jestei-bento__card--products .jestei-bento__title--regular {
     font-size: clamp(1rem, 5.6cqi, 1.24rem);
+  }
+
+  .jestei-bento__card--steps .jestei-bento__title {
+    font-size: clamp(1.2rem, 6.8cqi, 1.55rem);
   }
 
   .jestei-bento__content > p,
