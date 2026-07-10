@@ -1,0 +1,147 @@
+.jestei-bento {
+  --section-accent: var(--black);
+  --section-local-padding-block: clamp(var(--space-6), 4vw, var(--space-7));
+  --jestei-bento-inline: min(calc(100% - var(--space-7)), var(--case-wide));
+  --jestei-bento-gap: clamp(0.9rem, 1.4vw, 1.4rem);
+  --jestei-bento-card-pad: clamp(1.25rem, 1.8vw, 1.75rem);
+  --jestei-bento-radius: clamp(1.25rem, 1.8vw, 2rem);
+  container-type: inline-size;
+  margin-block: 0;
+  color: var(--black);
+  background: var(--white);
+}
+
+.jestei-bento::before {
+  content: none;
+}
+
+main[data-showcase] .jestei-bento [data-section-screen] {
+  grid-template-columns: minmax(0, 1fr);
+  inline-size: 100%;
+  max-inline-size: none;
+  padding-block: var(--section-local-padding-block);
+  padding-inline: 0;
+}
+
+main[data-showcase] .jestei-bento [data-section-screen] > * {
+  grid-column: 1;
+}
+
+.jestei-bento__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(12rem, auto);
+  gap: var(--jestei-bento-gap);
+  inline-size: var(--jestei-bento-inline);
+  margin-inline: auto;
+}
+
+.jestei-bento__card {
+  display: grid;
+  min-inline-size: 0;
+  min-block-size: 0;
+  padding: var(--jestei-bento-card-pad);
+  overflow: hidden;
+  border: var(--line);
+  border-radius: var(--jestei-bento-radius);
+  background: var(--white);
+  container-type: inline-size;
+}
+
+.jestei-bento__content {
+  display: grid;
+  align-content: start;
+  gap: clamp(0.7rem, 2cqi, 1rem);
+  min-inline-size: 0;
+}
+
+.jestei-bento__title,
+.jestei-bento__title--metric,
+.jestei-bento__title--price,
+.jestei-bento__title--mixed,
+.jestei-bento__card--audience .jestei-bento__title--regular,
+.jestei-bento__card--products .jestei-bento__title--regular {
+  display: grid;
+  gap: 0.08em;
+  max-inline-size: 100%;
+  margin: 0;
+  color: var(--black);
+  font-size: clamp(1.35rem, 5.4cqi, 1.9rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.jestei-bento__title--regular {
+  font-weight: 500;
+}
+
+.jestei-bento__title strong,
+.jestei-bento__title span {
+  display: block;
+  font: inherit;
+}
+
+.jestei-bento__title strong {
+  font-weight: 800;
+}
+
+.jestei-bento__title span {
+  font-weight: 400;
+}
+
+.jestei-bento__content > p,
+main[data-showcase] .jestei-bento .jestei-bento__content > p,
+.jestei-bento__card--audience .jestei-bento__content > p,
+main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__content > p {
+  max-inline-size: 38rem;
+  margin: 0;
+  color: var(--black);
+  font-size: clamp(0.96rem, 3.4cqi, 1.15rem);
+  font-weight: 400;
+  line-height: 1.28;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+
+.jestei-bento__card--steps .jestei-bento__content {
+  grid-template-columns: minmax(0, 0.8fr) minmax(8rem, 1.2fr);
+  align-items: start;
+}
+
+.jestei-bento__side-copy {
+  max-inline-size: 14em;
+}
+
+@media (max-width: 72rem) {
+  .jestei-bento {
+    --jestei-bento-inline: var(--page);
+  }
+
+  .jestei-bento__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
+  .jestei-bento {
+    --section-local-padding-block: clamp(var(--space-5), 8vw, var(--space-7));
+    --jestei-bento-inline: min(calc(100% - var(--space-5)), var(--page-max));
+    --jestei-bento-card-pad: clamp(1.1rem, 5vw, 1.45rem);
+    --jestei-bento-radius: clamp(1.15rem, 7vw, 1.75rem);
+  }
+
+  .jestei-bento__grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+  }
+
+  .jestei-bento__card--steps .jestei-bento__content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .jestei-bento__side-copy {
+    max-inline-size: min(100%, 22rem);
+  }
+}
