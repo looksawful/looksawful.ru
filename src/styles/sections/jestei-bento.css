@@ -44,12 +44,12 @@ main[data-showcase] .jestei-bento [data-section-screen] > * {
 
 .jestei-bento__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   grid-template-areas:
-    "steps price rebrand"
-    "manual products rebrand"
-    "manual audience usa";
-  grid-auto-rows: minmax(clamp(7.5rem, 13cqi, 12rem), auto);
+    "steps price rebrand rebrand"
+    "manual manual products audience"
+    "manual manual usa usa";
+  grid-auto-rows: minmax(clamp(8rem, 12cqi, 12rem), auto);
   gap: var(--jestei-bento-gap);
   inline-size: 100%;
   min-inline-size: 0;
@@ -199,12 +199,12 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
   }
 
   .jestei-bento__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-template-areas:
-      "steps price rebrand"
-      "manual products rebrand"
-      "manual audience usa";
-    grid-auto-rows: minmax(clamp(7rem, 12.5cqi, 9.5rem), auto);
+      "steps price rebrand rebrand"
+      "manual manual products audience"
+      "manual manual usa usa";
+    grid-auto-rows: minmax(clamp(7.5rem, 11.5cqi, 10rem), auto);
   }
 
   .jestei-bento__title,
@@ -300,8 +300,12 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
       "rebrand products"
-      "audience usa";
-    grid-template-rows: repeat(2, minmax(clamp(14rem, 55cqi, 20rem), auto));
+      "audience audience"
+      "usa usa";
+    grid-template-rows:
+      minmax(clamp(14rem, 55cqi, 20rem), auto)
+      minmax(clamp(12rem, 46cqi, 17rem), auto)
+      minmax(clamp(22rem, 82cqi, 30rem), auto);
   }
 
   .jestei-bento__card {
@@ -381,7 +385,10 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
   }
 
   .jestei-bento__panel--secondary {
-    grid-template-rows: repeat(2, minmax(15rem, auto));
+    grid-template-rows:
+      minmax(16rem, auto)
+      minmax(13rem, auto)
+      minmax(24rem, auto);
   }
 
   .jestei-bento__title,
