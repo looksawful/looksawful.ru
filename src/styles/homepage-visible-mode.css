@@ -1,0 +1,137 @@
+/*
+  Main-page publication allowlist.
+  Only the sections explicitly approved for the current homepage are shown.
+  All other case chapters remain in the document but stay hidden.
+*/
+
+html,
+body {
+  min-height: 100%;
+}
+
+body > .site-header {
+  display: block;
+}
+
+body > .site-footer,
+body > footer {
+  display: none;
+}
+
+#main {
+  min-height: 100svh;
+}
+
+#main > .section {
+  display: none;
+}
+
+#main > :is(
+  #hero,
+  #jestei-cover,
+  #jestei-results,
+  #jestei-color,
+  #jestei-words,
+  #jestei-filter,
+  #jestei-event-nav,
+  #jestei-promo,
+  #jestei-landings,
+  #jestei-tariffs,
+  #styx-cover,
+  #styx-packaging,
+  #styx-communications,
+  #styx-print,
+  #styx-photo-art,
+  #styx-scanography,
+  #berserk-timer,
+  #awful-cases,
+  #awful-audit,
+  #resume
+) {
+  display: block;
+  visibility: visible;
+  opacity: 1;
+}
+
+#main > :is(
+  #hero,
+  #jestei-cover,
+  #jestei-results,
+  #jestei-color,
+  #jestei-words,
+  #jestei-filter,
+  #jestei-event-nav,
+  #jestei-promo,
+  #jestei-landings,
+  #jestei-tariffs,
+  #styx-cover,
+  #styx-packaging,
+  #styx-communications,
+  #styx-print,
+  #styx-photo-art,
+  #styx-scanography,
+  #berserk-timer,
+  #awful-cases,
+  #awful-audit,
+  #resume
+)[hidden] {
+  display: block;
+}
+
+.site-header :is(a[href="#shootings"], a[href="#jestei-logo"], a[href="#styx-graphics"]) {
+  display: none;
+}
+
+main[data-showcase] :is(
+  #jestei-color,
+  #jestei-words,
+  #jestei-filter,
+  #jestei-event-nav,
+  #jestei-promo,
+  #jestei-landings,
+  #jestei-tariffs,
+  #styx-packaging,
+  #styx-communications,
+  #styx-print,
+  #styx-photo-art,
+  #styx-scanography,
+  #resume
+) :where([data-section-title], [data-content-title], [data-cover-title], .title) {
+  max-inline-size: 16ch;
+  font-size: clamp(2rem, 4.1vw, 4rem);
+  line-height: 0.94;
+  text-wrap: balance;
+}
+
+main[data-showcase] :is(
+  #styx-packaging,
+  #styx-communications,
+  #styx-print,
+  #styx-photo-art,
+  #styx-scanography
+) :where(video, [data-section-media-item]:has(video), .section-media:has(video)) {
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (max-width: 48rem) {
+  main[data-showcase] :is(
+    #jestei-color,
+    #jestei-words,
+    #jestei-filter,
+    #jestei-event-nav,
+    #jestei-promo,
+    #jestei-landings,
+    #jestei-tariffs,
+    #styx-packaging,
+    #styx-communications,
+    #styx-print,
+    #styx-photo-art,
+    #styx-scanography,
+    #resume
+  ) :where([data-section-title], [data-content-title], [data-cover-title], .title) {
+    max-inline-size: 100%;
+    font-size: clamp(1.8rem, 9vw, 2.75rem);
+    line-height: 0.98;
+  }
+}
