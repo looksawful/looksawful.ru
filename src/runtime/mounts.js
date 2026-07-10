@@ -19,6 +19,13 @@ export const MOUNTS = [
     mount: (module, root) => module.initComponents(root),
   },
   {
+    id: "jesteiProcessScene",
+    phase: "visual",
+    selector: "#jestei-results .jestei-bento__card--manual",
+    load: () => import("../visuals/dom/jestei-process-scene.js"),
+    mount: (module, root) => module.mountJesteiProcessScene(root),
+  },
+  {
     id: "mediaMarquee",
     phase: "near",
     selector: "[data-media-marquee], .section-media-marquee, .jestei-policy-marquee",
