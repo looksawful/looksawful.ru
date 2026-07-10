@@ -1,0 +1,245 @@
+.jestei-bento__card--rebrand,
+.jestei-bento__card--usa {
+  position: relative;
+  padding: 0;
+  align-items: stretch;
+}
+
+.jestei-bento__card--rebrand {
+  grid-template-columns: minmax(12rem, 0.86fr) minmax(13rem, 1.14fr);
+  gap: clamp(0.6rem, 1.7cqi, 1.3rem);
+  min-block-size: clamp(13rem, 19cqi, 18rem);
+}
+
+.jestei-bento__card--rebrand .jestei-bento__content {
+  position: relative;
+  z-index: 2;
+  align-content: start;
+  padding: var(--jestei-bento-card-pad) 0 var(--jestei-bento-card-pad) var(--jestei-bento-card-pad);
+}
+
+.jestei-bento__logo-inspector {
+  position: relative;
+  z-index: 1;
+  min-inline-size: 0;
+  min-block-size: clamp(9rem, 17cqi, 15rem);
+  overflow: hidden;
+  background: var(--white);
+  contain: layout paint;
+  pointer-events: none;
+  touch-action: pan-x;
+  user-select: none;
+}
+
+.jestei-bento__logo-inspector::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  background: linear-gradient(90deg, var(--white) 0%, rgba(255, 255, 255, 0.74) 8%, rgba(255, 255, 255, 0) 30%);
+  pointer-events: none;
+}
+
+.jestei-bento__logo-inspector > .logo-inspector-3d {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  max-block-size: none;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--white);
+  pointer-events: none;
+}
+
+.jestei-bento__logo-inspector .logo-inspector-3d__canvas {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  cursor: default;
+  touch-action: pan-x;
+}
+
+.jestei-bento__logo-inspector .logo-inspector-3d__canvas canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  pointer-events: none;
+}
+
+.jestei-bento__logo-inspector .logo-inspector-3d__poster,
+.jestei-bento__logo-inspector > .visual-poster-fallback {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  object-position: center;
+  background: var(--white);
+  pointer-events: none;
+}
+
+.jestei-bento__card--usa {
+  grid-template-columns: minmax(12rem, 0.72fr) minmax(18rem, 1.28fr);
+  gap: clamp(0.75rem, 2cqi, 1.5rem);
+  min-block-size: clamp(17rem, 25cqi, 25rem);
+}
+
+.jestei-bento__card--usa .jestei-bento__content {
+  position: relative;
+  z-index: 2;
+  align-content: start;
+  padding: var(--jestei-bento-card-pad) 0 var(--jestei-bento-card-pad) var(--jestei-bento-card-pad);
+}
+
+.jestei-bento__card--usa .jestei-bento__content > p,
+main[data-showcase] .jestei-bento .jestei-bento__card--usa .jestei-bento__content > p {
+  max-inline-size: 24rem;
+}
+
+.jestei-bento__globe {
+  position: relative;
+  min-inline-size: 0;
+  min-block-size: 100%;
+  overflow: hidden;
+  background: var(--white);
+  pointer-events: none;
+  contain: layout paint;
+}
+
+.jestei-bento__globe::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--white) 0%, rgba(255, 255, 255, 0.82) 9%, rgba(255, 255, 255, 0) 32%);
+  pointer-events: none;
+}
+
+.jestei-bento__globe svg {
+  position: absolute;
+  inset-block-start: -5%;
+  inset-inline-end: -19%;
+  display: block;
+  inline-size: 128%;
+  block-size: 128%;
+  overflow: visible;
+  background: transparent;
+  will-change: transform;
+}
+
+.jestei-bento__globe .sphere {
+  fill: none;
+  stroke: #050505;
+  stroke-width: 1.15;
+  vector-effect: non-scaling-stroke;
+}
+
+.jestei-bento__globe .graticule {
+  fill: none;
+  stroke: #d9d9d9;
+  stroke-width: 0.65;
+  opacity: 0.82;
+  vector-effect: non-scaling-stroke;
+}
+
+.jestei-bento__globe .country {
+  fill: var(--white);
+  stroke: #050505;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+.jestei-bento__globe .usa {
+  fill: #050505;
+  stroke: #050505;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 72rem) and (min-width: 43.001rem) {
+  .jestei-bento__card--rebrand {
+    grid-template-columns: minmax(10rem, 0.9fr) minmax(11rem, 1.1fr);
+    min-block-size: clamp(12rem, 21cqi, 17rem);
+  }
+
+  .jestei-bento__logo-inspector {
+    min-block-size: clamp(8rem, 18cqi, 13rem);
+  }
+
+  .jestei-bento__card--usa {
+    grid-template-columns: minmax(10rem, 0.78fr) minmax(14rem, 1.22fr);
+    min-block-size: clamp(16rem, 28cqi, 22rem);
+  }
+}
+
+@media (max-width: 43rem) {
+  .jestei-bento__card--rebrand {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(clamp(6.5rem, 28cqi, 9rem), 1fr);
+    gap: 0;
+    min-block-size: clamp(18rem, 72cqi, 24rem);
+  }
+
+  .jestei-bento__card--rebrand .jestei-bento__content {
+    padding: var(--jestei-bento-card-pad) var(--jestei-bento-card-pad) 0;
+  }
+
+  .jestei-bento__logo-inspector {
+    min-block-size: clamp(6.5rem, 28cqi, 9rem);
+  }
+
+  .jestei-bento__logo-inspector::after {
+    background: linear-gradient(180deg, var(--white) 0%, rgba(255, 255, 255, 0.64) 12%, rgba(255, 255, 255, 0) 34%);
+  }
+
+  .jestei-bento__card--usa {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(15rem, 1fr);
+    gap: 0;
+    min-block-size: clamp(22rem, 82cqi, 30rem);
+  }
+
+  .jestei-bento__card--usa .jestei-bento__content {
+    padding: var(--jestei-bento-card-pad) var(--jestei-bento-card-pad) 0;
+  }
+
+  .jestei-bento__globe {
+    min-block-size: clamp(15rem, 56cqi, 21rem);
+  }
+
+  .jestei-bento__globe::after {
+    background: linear-gradient(180deg, var(--white) 0%, rgba(255, 255, 255, 0.72) 9%, rgba(255, 255, 255, 0) 27%);
+  }
+
+  .jestei-bento__globe svg {
+    inset-block-start: -4%;
+    inset-inline-end: -13%;
+    inline-size: 126%;
+    block-size: 126%;
+  }
+}
+
+@media (max-width: 25rem) {
+  .jestei-bento__card--rebrand {
+    min-block-size: 19rem;
+  }
+
+  .jestei-bento__logo-inspector {
+    min-block-size: 7rem;
+  }
+
+  .jestei-bento__card--usa {
+    min-block-size: 24rem;
+  }
+
+  .jestei-bento__globe {
+    min-block-size: 16rem;
+  }
+}
