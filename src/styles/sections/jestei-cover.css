@@ -177,56 +177,64 @@ main[data-showcase] .jestei-cover .jestei-cover__summary {
   .jestei-cover {
     --section-local-padding-block: var(--space-4);
     --jestei-cover-inline: min(calc(100% - var(--space-5)), var(--page-max));
-    --jestei-cover-gap: clamp(0.45rem, 2.4cqi, 0.8rem);
-    --jestei-cover-content-gap: clamp(0.4rem, 1.8cqi, 0.7rem);
-    --jestei-cover-logo-size: clamp(4.25rem, 21cqi, 6.25rem);
+    --jestei-cover-gap: clamp(0.9rem, 4.5cqi, 1.4rem);
+    --jestei-cover-content-gap: clamp(0.65rem, 3cqi, 1rem);
+    --jestei-cover-logo-size: clamp(9.5rem, 46cqi, 13rem);
     --jestei-cover-content: 100%;
     --jestei-cover-summary: 100%;
   }
 
   .jestei-cover [data-cover-head] {
-    --showcase-header-pad: clamp(0.65rem, 3.5cqi, 1rem);
+    --showcase-header-pad: clamp(0.85rem, 4.5cqi, 1.25rem);
   }
 
   .jestei-cover [data-cover-grid] {
-    grid-template-columns: var(--jestei-cover-logo-size) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      "logo meta"
-      "summary summary";
+      "logo"
+      "meta"
+      "summary";
+    row-gap: var(--jestei-cover-gap);
+  }
+
+  .jestei-cover [data-cover-logo] {
+    inline-size: var(--jestei-cover-logo-size);
+    justify-self: center;
+    align-self: center;
   }
 
   .jestei-cover__meta {
     inline-size: 100%;
-    gap: clamp(0.28rem, 1.5cqi, 0.55rem);
+    gap: var(--jestei-cover-content-gap);
   }
 
   .jestei-cover__dates {
-    gap: clamp(0.3rem, 1.2cqi, 0.65rem);
-    font-size: clamp(0.72rem, 2.8cqi, 0.9rem);
+    gap: var(--space-4);
+    font-size: clamp(0.9rem, 3.6cqi, 1rem);
   }
 
   .jestei-cover__roles {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(0.15rem, 0.8cqi, 0.35rem);
+    gap: clamp(0.3rem, 1.6cqi, 0.55rem);
   }
 
   .jestei-cover__roles li {
     min-inline-size: 0;
-    min-block-size: calc(1em + 0.25rem);
-    padding: 0.12em clamp(0.15em, 0.8cqi, 0.42em) 0.18em;
+    min-block-size: calc(1em + 0.4rem);
+    padding: 0.14em clamp(0.35em, 1.8cqi, 0.65em) 0.2em;
     overflow: hidden;
     border-radius: 999px;
-    font-size: clamp(0.625rem, 2.55cqi, 0.78rem);
-    letter-spacing: -0.02em;
+    font-size: clamp(0.72rem, 3.1cqi, 0.9rem);
+    letter-spacing: -0.015em;
   }
 
   .jestei-cover__summary,
   main[data-showcase] .jestei-cover .jestei-cover__summary {
     inline-size: 100%;
     max-inline-size: 100%;
-    margin-block-start: clamp(0.25rem, 1.2cqi, 0.5rem);
-    font-size: clamp(0.92rem, 3.7cqi, 1rem);
-    line-height: 1.28;
+    margin: 0;
+    font-size: clamp(0.95rem, 3.8cqi, 1.05rem);
+    line-height: 1.3;
   }
 }
