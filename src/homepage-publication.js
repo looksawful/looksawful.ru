@@ -39,6 +39,10 @@ const JESTEI_COVER = `
 
 const JESTEI_BENTO = `
   <section class="section section-component jestei-bento" id="jestei-results" aria-label="результаты проекта Jestei Pool" data-section-component="" data-section-family="jestei" data-section-root="">
+    <div class="jestei-masonry" data-animation="landing-masonry" aria-label="визуальная система Jestei Pool">
+      <canvas class="visual-canvas jestei-masonry__canvas" id="jestei-masonry-canvas"></canvas>
+    </div>
+
     <h2 class="jestei-bento__heading">чего мы добились</h2>
     <div class="jestei-bento__screen" data-section-screen="">
       <div class="jestei-bento__grid" data-jestei-bento="">
