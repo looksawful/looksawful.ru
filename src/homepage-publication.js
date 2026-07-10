@@ -103,6 +103,84 @@ const JESTEI_BENTO = `
   </section>
 `;
 
+const JESTEI_COLOR = `
+  <div class="jestei-color__screen" data-section-screen="">
+    <div class="jestei-color-bento" data-color-bento="">
+      <div class="jestei-color-bento__panel jestei-color-bento__panel--intro" data-color-panel="intro">
+        <header class="jestei-color-bento__card jestei-color-bento__card--head">
+          <h2 class="jestei-color-bento__title" data-color-headline="jestei">
+            <span data-section-title-main="">добавили</span>
+            <span data-section-title-accent="">ц в е т</span>
+          </h2>
+          <p class="jestei-color-bento__lead">Сегментировали конфликтующие аудитории при помощи 4 цветовых профилей. Теперь цвет направляет пользователя к нужным продуктам.</p>
+        </header>
+
+        <a class="jestei-color-bento__card jestei-color-bento__visual jestei-color-bento__visual--main" data-lightbox-item="" href="/assets/media/cases/jesteipool/02-color/04/00.webp" rel="noopener noreferrer" target="_blank">
+          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/02-color/04/00.webp" />
+        </a>
+      </div>
+
+      <div class="jestei-color-bento__panel jestei-color-bento__panel--system" data-color-panel="system">
+        <article class="jestei-color-bento__card jestei-color-bento__card--zones">
+          <h3>визуальные зоны</h3>
+          <p>Создали отдельные визуальные зоны для ивент диджеев, клубных диджеев и саунд-продюсеров. Цветовые профили связали продукты и подписки, разделили конфликтующие аудитории и снизили количество конфликтов между ними.</p>
+        </article>
+
+        <article class="jestei-color-bento__card jestei-color-bento__card--system">
+          <h3>4 продуктовые темы</h3>
+          <p>Раньше сервис держался на серо-оранжевой палитре. Тепреь в системе 4 продуктовые темы: оранжевая для клуба, грушевая для ивента, синяя для эксклюзивов и лавандовая для экспериментальных инструментов.</p>
+        </article>
+
+        <a class="jestei-color-bento__card jestei-color-bento__visual jestei-color-bento__visual--secondary" data-lightbox-item="" href="/assets/media/cases/jesteipool/02-color/02/00.webp" rel="noopener noreferrer" target="_blank">
+          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/02-color/02/00.webp" />
+        </a>
+      </div>
+
+      <div class="jestei-color-bento__panel jestei-color-bento__panel--palette" data-color-panel="palette">
+        <article class="jestei-color-bento__card jestei-color-bento__theme jestei-color-bento__theme--orange">
+          <div class="jestei-color-bento__theme-head"><span>клуб</span><h3>gold-drop</h3></div>
+          <ul class="jestei-color-bento__tokens" aria-label="gold drop">
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--500"></span><span>500</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--100"></span><span>100</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--300"></span><span>300</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--700"></span><span>700</span></li>
+          </ul>
+        </article>
+
+        <article class="jestei-color-bento__card jestei-color-bento__theme jestei-color-bento__theme--blue">
+          <div class="jestei-color-bento__theme-head"><span>эксклюзивы</span><h3>dodger-blue</h3></div>
+          <ul class="jestei-color-bento__tokens" aria-label="dodger blue">
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--500"></span><span>500</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--100"></span><span>100</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--300"></span><span>300</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--700"></span><span>700</span></li>
+          </ul>
+        </article>
+
+        <article class="jestei-color-bento__card jestei-color-bento__theme jestei-color-bento__theme--pear">
+          <div class="jestei-color-bento__theme-head"><span>ивент</span><h3>pear</h3></div>
+          <ul class="jestei-color-bento__tokens" aria-label="pear">
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--500"></span><span>500</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--100"></span><span>100</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--300"></span><span>300</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--700"></span><span>700</span></li>
+          </ul>
+        </article>
+
+        <article class="jestei-color-bento__card jestei-color-bento__theme jestei-color-bento__theme--biloba">
+          <div class="jestei-color-bento__theme-head"><span>эксперименты</span><h3>biloba-flower</h3></div>
+          <ul class="jestei-color-bento__tokens" aria-label="biloba flower">
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--500"></span><span>500</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--100"></span><span>100</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--300"></span><span>300</span></li>
+            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--700"></span><span>700</span></li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </div>
+`;
+
 const STYX_COVER = `
   <div class="styx-cover__screen" data-section-screen="">
     <section data-cover-head="">
@@ -144,6 +222,11 @@ export function prepareHomepagePublication(root = document) {
 
   if (!root.querySelector("#jestei-results") && jesteiCover) {
     jesteiCover.insertAdjacentHTML("afterend", JESTEI_BENTO);
+  }
+
+  const jesteiColor = root.querySelector("#jestei-color");
+  if (jesteiColor) {
+    jesteiColor.innerHTML = JESTEI_COLOR;
   }
 
   const styxCover = root.querySelector("#styx-cover");
