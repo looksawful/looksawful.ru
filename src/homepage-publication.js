@@ -41,54 +41,58 @@ const JESTEI_BENTO = `
   <section class="section section-component jestei-bento" id="jestei-results" aria-label="результаты проекта Jestei Pool" data-section-component="" data-section-family="jestei" data-section-root="">
     <div class="jestei-bento__screen" data-section-screen="">
       <div class="jestei-bento__grid" data-jestei-bento="">
-        <article class="jestei-bento__card jestei-bento__card--steps" data-bento-card="steps">
-          <div class="jestei-bento__content" data-bento-content="">
-            <h3 class="jestei-bento__title jestei-bento__title--metric"><strong>2 шага</strong><span>вместо 6</span></h3>
-            <p class="jestei-bento__side-copy">сократили пользовательский путь к трекам</p>
-          </div>
-        </article>
+        <div class="jestei-bento__panel jestei-bento__panel--primary" data-bento-panel="primary">
+          <article class="jestei-bento__card jestei-bento__card--steps" data-bento-card="steps">
+            <div class="jestei-bento__content" data-bento-content="">
+              <h3 class="jestei-bento__title jestei-bento__title--metric"><strong>2 шага</strong><span>вместо 6</span></h3>
+              <p class="jestei-bento__side-copy">сократили пользовательский путь к трекам</p>
+            </div>
+          </article>
 
-        <article class="jestei-bento__card jestei-bento__card--price" data-bento-card="price">
-          <div class="jestei-bento__content" data-bento-content="">
-            <h3 class="jestei-bento__title jestei-bento__title--price"><strong>+15%</strong><span>к цене продуктов</span></h3>
-            <p>подняли цены без оттока клиентов и запустили сценарии возврата и апгрейда</p>
-          </div>
-        </article>
+          <article class="jestei-bento__card jestei-bento__card--price" data-bento-card="price">
+            <div class="jestei-bento__content" data-bento-content="">
+              <h3 class="jestei-bento__title jestei-bento__title--price"><strong>+15%</strong><span>к цене продуктов</span></h3>
+              <p>подняли цены без оттока клиентов и запустили сценарии возврата и апгрейда</p>
+            </div>
+          </article>
 
-        <article class="jestei-bento__card jestei-bento__card--rebrand" data-bento-card="rebrand">
-          <div class="jestei-bento__content" data-bento-content="">
-            <h3 class="jestei-bento__title">провели ребрендинг</h3>
-            <p>сменили логотип, проработали типографику, сегментировали аудиторию при помощи 4 цветовых профилей и разработали tone of voice</p>
-          </div>
-        </article>
+          <article class="jestei-bento__card jestei-bento__card--manual" data-bento-card="manual">
+            <div class="jestei-bento__content" data-bento-content="">
+              <h3 class="jestei-bento__title jestei-bento__title--mixed"><strong>в 2,5 раза</strong><span>сократили объем ручной работы</span></h3>
+              <p>внедрили ai-пайплайны для генерации креативов, видео и прототипов в работу графических и ux/ui-дизайнеров, провели рефакторинг дизайн систему и внедрили современные подходы с переменными, дев-модом, цветовыми темами и плагинами</p>
+            </div>
+          </article>
+        </div>
 
-        <article class="jestei-bento__card jestei-bento__card--manual" data-bento-card="manual">
-          <div class="jestei-bento__content" data-bento-content="">
-            <h3 class="jestei-bento__title jestei-bento__title--mixed"><strong>в 2,5 раза</strong><span>сократили объем ручной работы</span></h3>
-            <p>внедрили ai-пайплайны для генерации креативов, видео и прототипов в работу графических и ux/ui-дизайнеров, провели рефакторинг дизайн систему и внедрили современные подходы с переменными, дев-модом, цветовыми темами и плагинами</p>
-          </div>
-        </article>
+        <div class="jestei-bento__panel jestei-bento__panel--secondary" data-bento-panel="secondary">
+          <article class="jestei-bento__card jestei-bento__card--rebrand" data-bento-card="rebrand">
+            <div class="jestei-bento__content" data-bento-content="">
+              <h3 class="jestei-bento__title">провели ребрендинг</h3>
+              <p>сменили логотип, проработали типографику, сегментировали аудиторию при помощи 4 цветовых профилей и разработали tone of voice</p>
+            </div>
+          </article>
 
-        <article class="jestei-bento__card jestei-bento__card--products" data-bento-card="products">
-          <div class="jestei-bento__content" data-bento-content="">
-            <h3 class="jestei-bento__title jestei-bento__title--regular">расширили продуктовую линейку 4 классам диджеев</h3>
-            <p>ии-треки, видео-паки, алгоритмические плейлисты, прогрессивный фильтр треков для в двух аудиториях</p>
-          </div>
-        </article>
+          <article class="jestei-bento__card jestei-bento__card--products" data-bento-card="products">
+            <div class="jestei-bento__content" data-bento-content="">
+              <h3 class="jestei-bento__title jestei-bento__title--regular">расширили продуктовую линейку 4 классам диджеев</h3>
+              <p>ии-треки, видео-паки, алгоритмические плейлисты, прогрессивный фильтр треков для в двух аудиториях</p>
+            </div>
+          </article>
 
-        <article class="jestei-bento__card jestei-bento__card--audience" data-bento-card="audience">
-          <div class="jestei-bento__content" data-bento-content="">
-            <h3 class="jestei-bento__title jestei-bento__title--regular">новая аудитория</h3>
-            <p>освоили новую премиальную аудиторию ивент-диджеев, создали раздел и разработали собственную линейку инструментов для них</p>
-          </div>
-        </article>
+          <article class="jestei-bento__card jestei-bento__card--audience" data-bento-card="audience">
+            <div class="jestei-bento__content" data-bento-content="">
+              <h3 class="jestei-bento__title jestei-bento__title--regular">новая аудитория</h3>
+              <p>освоили новую премиальную аудиторию ивент-диджеев, создали раздел и разработали собственную линейку инструментов для них</p>
+            </div>
+          </article>
 
-        <article class="jestei-bento__card jestei-bento__card--usa" data-bento-card="usa">
-          <div class="jestei-bento__content" data-bento-content="">
-            <h3 class="jestei-bento__title">запуск в сша</h3>
-            <p>адаптировали продукт и коммуникации к выходу на американский рынок</p>
-          </div>
-        </article>
+          <article class="jestei-bento__card jestei-bento__card--usa" data-bento-card="usa">
+            <div class="jestei-bento__content" data-bento-content="">
+              <h3 class="jestei-bento__title">запуск в сша</h3>
+              <p>адаптировали продукт и коммуникации к выходу на американский рынок</p>
+            </div>
+          </article>
+        </div>
       </div>
     </div>
   </section>
