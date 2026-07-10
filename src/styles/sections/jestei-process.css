@@ -1,0 +1,131 @@
+/* Animated process map inside the 2.5× design-process card */
+.jestei-bento__card--manual {
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: stretch;
+  isolation: isolate;
+}
+
+.jestei-bento__card--manual .jestei-bento__content {
+  position: relative;
+  z-index: 2;
+  grid-template-columns: minmax(7.5rem, 0.72fr) minmax(0, 1.28fr);
+  column-gap: clamp(0.8rem, 3.2cqi, 1.7rem);
+  align-items: start;
+}
+
+.jestei-bento__process-visual {
+  position: relative;
+  z-index: 1;
+  align-self: end;
+  inline-size: calc(100% + var(--jestei-bento-card-pad) + var(--jestei-bento-card-pad));
+  min-inline-size: 0;
+  min-block-size: clamp(13.5rem, 52cqi, 22rem);
+  margin-block-start: clamp(0.8rem, 3cqi, 1.75rem);
+  margin-block-end: calc(0px - var(--jestei-bento-card-pad));
+  margin-inline: calc(0px - var(--jestei-bento-card-pad));
+  overflow: hidden;
+  background: var(--white);
+  contain: layout paint;
+}
+
+.jestei-bento__process-svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: inherit;
+  overflow: visible;
+  background: var(--white);
+  shape-rendering: geometricPrecision;
+}
+
+.jestei-bento__process-svg .jestei-process__stroke {
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.jestei-bento__process-svg .jestei-process__black {
+  stroke: #050505;
+}
+
+.jestei-bento__process-svg .jestei-process__purple {
+  stroke: #5a38ff;
+}
+
+.jestei-bento__process-svg .jestei-process__dashed {
+  stroke-dasharray: 6 6;
+}
+
+.jestei-bento__process-svg .jestei-process__port {
+  fill: #fff;
+  stroke: #050505;
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.jestei-bento__process-svg .jestei-process__dot {
+  stroke: #fff;
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+}
+
+.jestei-bento__process-svg .jestei-process__black-dot {
+  fill: #050505;
+}
+
+.jestei-bento__process-svg .jestei-process__purple-dot {
+  fill: #5a38ff;
+}
+
+@media (max-width: 72rem) and (min-width: 43.001rem) {
+  .jestei-bento__card--manual .jestei-bento__content {
+    grid-template-columns: minmax(7rem, 0.72fr) minmax(0, 1.28fr);
+  }
+
+  .jestei-bento__process-visual {
+    min-block-size: clamp(12.5rem, 55cqi, 19rem);
+  }
+}
+
+@media (max-width: 43rem) {
+  .jestei-bento__panel--primary {
+    grid-template-rows:
+      minmax(clamp(10rem, 37cqi, 13rem), auto)
+      minmax(clamp(28rem, 106cqi, 36rem), auto);
+  }
+
+  .jestei-bento__card--manual .jestei-bento__content {
+    grid-template-columns: minmax(8.5rem, 0.72fr) minmax(0, 1.28fr);
+    column-gap: clamp(0.8rem, 4cqi, 1.5rem);
+  }
+
+  .jestei-bento__process-visual {
+    min-block-size: clamp(14.5rem, 63cqi, 20rem);
+    margin-block-start: clamp(1rem, 4cqi, 1.5rem);
+  }
+}
+
+@media (max-width: 25rem) {
+  .jestei-bento__panel--primary {
+    grid-template-rows:
+      minmax(9.5rem, auto)
+      minmax(31rem, auto);
+  }
+
+  .jestei-bento__card--manual .jestei-bento__content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .jestei-bento__process-visual {
+    min-block-size: 15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jestei-bento__process-svg .jestei-process__dot {
+    display: none;
+  }
+}
