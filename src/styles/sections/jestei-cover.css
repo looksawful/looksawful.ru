@@ -3,11 +3,11 @@
   --section-local-inline: 100%;
   --section-local-padding-block: clamp(0.75rem, 2.2cqi, 2.5rem);
   --jestei-cover-page-x: clamp(0.5rem, 2.2cqi, 2rem);
-  --jestei-cover-inner-pad: clamp(0.6rem, 2.5cqi, 2.25rem);
-  --jestei-cover-gap: clamp(0.5rem, 4cqi, 5rem);
-  --jestei-cover-logo-col: clamp(4.5rem, 21cqi, 15rem);
+  --jestei-cover-inner-pad: clamp(0.65rem, 2.5cqi, 2.25rem);
+  --jestei-cover-gap: clamp(0.75rem, 4cqi, 5rem);
+  --jestei-cover-logo-col: clamp(8rem, 21cqi, 15rem);
   --jestei-cover-content-max: 38rem;
-  --jestei-cover-content-gap: clamp(0.55rem, 1.45cqi, 1.2rem);
+  --jestei-cover-content-gap: clamp(0.65rem, 1.45cqi, 1.2rem);
   container-type: inline-size;
   margin-block: 0;
   color: var(--black);
@@ -43,14 +43,20 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
 }
 
 .jestei-cover [data-cover-grid] {
+  display: grid;
   grid-template-columns: var(--jestei-cover-logo-col) minmax(0, 1fr);
+  grid-template-areas:
+    "logo meta"
+    "logo summary";
+  column-gap: var(--jestei-cover-gap);
+  row-gap: var(--jestei-cover-content-gap);
   align-items: start;
-  gap: var(--jestei-cover-gap);
   inline-size: 100%;
   min-inline-size: 0;
 }
 
 .jestei-cover [data-cover-logo] {
+  grid-area: logo;
   position: relative;
   display: grid;
   place-items: center;
@@ -84,13 +90,15 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
   filter: none;
 }
 
-.jestei-cover__content {
+.jestei-cover__meta {
+  grid-area: meta;
   display: grid;
   align-content: start;
   gap: var(--jestei-cover-content-gap);
   inline-size: min(100%, var(--jestei-cover-content-max));
   max-inline-size: 100%;
   min-inline-size: 0;
+  container-type: inline-size;
 }
 
 .jestei-cover__dates {
@@ -100,7 +108,7 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
   gap: clamp(0.4rem, 1.2cqi, 1rem);
   inline-size: 100%;
   margin: 0;
-  font-size: clamp(0.7rem, 1.35cqi, 1.22rem);
+  font-size: clamp(0.72rem, 4.4cqi, 1.22rem);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0;
@@ -114,6 +122,7 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
   inline-size: 100%;
   max-inline-size: 100%;
   margin: 0;
+  line-height: 0;
 }
 
 .jestei-cover__wordmark img {
@@ -123,11 +132,10 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
 }
 
 .jestei-cover__roles {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
-  gap: clamp(0.2rem, 1cqi, 0.8rem);
+  gap: clamp(0.18rem, 1cqi, 0.8rem);
   inline-size: 100%;
   min-inline-size: 0;
   margin: 0;
@@ -136,92 +144,76 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
 }
 
 .jestei-cover__roles li {
-  display: inline-flex;
-  flex: 0 1 auto;
+  display: flex;
   align-items: center;
   justify-content: center;
   min-inline-size: 0;
-  min-block-size: calc(1em + clamp(0.25rem, 0.65cqi, 0.55rem));
-  padding: 0.12em clamp(0.32em, 0.75cqi, 0.85em) 0.18em;
+  min-block-size: calc(1em + clamp(0.22rem, 1.8cqi, 0.55rem));
+  padding: 0.12em clamp(0.16em, 1.15cqi, 0.85em) 0.18em;
+  overflow: hidden;
   border: var(--line);
   border-radius: 999px;
-  font-size: clamp(0.66rem, 1.25cqi, 1.15rem);
+  font-size: clamp(0.5rem, 4.25cqi, 1.15rem);
   font-weight: 400;
   line-height: 1;
-  letter-spacing: 0;
+  letter-spacing: -0.025em;
   white-space: nowrap;
 }
 
 .jestei-cover__summary {
-  inline-size: 100%;
+  grid-area: summary;
+  inline-size: min(100%, var(--jestei-cover-content-max));
   max-inline-size: 100%;
   margin: 0;
-  font-size: clamp(0.68rem, 1.1cqi, 1rem);
+  font-size: clamp(0.9rem, 1.1cqi, 1rem);
   font-weight: 400;
-  line-height: 1.2;
+  line-height: 1.24;
   letter-spacing: 0;
 }
 
 main[data-showcase] .jestei-cover .jestei-cover__summary {
   max-inline-size: 100%;
-  font-size: clamp(0.68rem, 1.1cqi, 1rem);
-  line-height: 1.2;
+  font-size: clamp(0.9rem, 1.1cqi, 1rem);
+  line-height: 1.24;
 }
 
 @media (max-width: 48rem) {
   .jestei-cover {
-    --jestei-cover-logo-col: clamp(5rem, 28cqi, 8rem);
-    --jestei-cover-gap: clamp(0.55rem, 3cqi, 1rem);
-    --jestei-cover-content-gap: clamp(0.35rem, 1.8cqi, 0.7rem);
+    --jestei-cover-logo-col: clamp(4.25rem, 24cqi, 6.5rem);
+    --jestei-cover-gap: clamp(0.45rem, 2.4cqi, 0.8rem);
+    --jestei-cover-content-gap: clamp(0.28rem, 1.4cqi, 0.55rem);
   }
 
   .jestei-cover [data-cover-grid] {
     grid-template-columns: var(--jestei-cover-logo-col) minmax(0, 1fr);
     grid-template-areas:
-      "logo dates"
-      "logo wordmark"
-      "logo roles"
+      "logo meta"
       "summary summary";
-    column-gap: var(--jestei-cover-gap);
-    row-gap: var(--jestei-cover-content-gap);
   }
 
-  .jestei-cover [data-cover-logo] {
-    grid-area: logo;
-  }
-
-  .jestei-cover__content {
-    display: contents;
+  .jestei-cover__meta {
+    inline-size: 100%;
   }
 
   .jestei-cover__dates {
-    grid-area: dates;
-    align-self: end;
-    font-size: clamp(0.72rem, 2.7cqi, 0.92rem);
-  }
-
-  .jestei-cover__wordmark {
-    grid-area: wordmark;
-    align-self: center;
+    font-size: clamp(0.7rem, 4.6cqi, 0.9rem);
   }
 
   .jestei-cover__roles {
-    grid-area: roles;
-    align-self: start;
+    gap: clamp(0.12rem, 0.8cqi, 0.35rem);
   }
 
   .jestei-cover__roles li {
-    font-size: clamp(0.66rem, 2.35cqi, 0.82rem);
-    padding-inline: clamp(0.28em, 1.2cqi, 0.58em);
+    font-size: clamp(0.5rem, 4.1cqi, 0.78rem);
+    padding-inline: clamp(0.12em, 0.75cqi, 0.42em);
   }
 
   .jestei-cover__summary,
   main[data-showcase] .jestei-cover .jestei-cover__summary {
-    grid-area: summary;
     inline-size: 100%;
     max-inline-size: 100%;
-    margin-block-start: clamp(0.35rem, 1.8cqi, 0.75rem);
-    font-size: clamp(0.9rem, 3.4cqi, 1rem);
-    line-height: 1.25;
+    margin-block-start: clamp(0.25rem, 1.2cqi, 0.5rem);
+    font-size: clamp(0.92rem, 3.7cqi, 1rem);
+    line-height: 1.28;
   }
 }
