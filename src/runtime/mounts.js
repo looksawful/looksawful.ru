@@ -26,6 +26,13 @@ export const MOUNTS = [
     mount: (module, root) => module.mountJesteiProcessScene(root),
   },
   {
+    id: "jesteiUsaGlobe",
+    phase: "visual",
+    selector: "#jestei-usa-globe",
+    load: () => import("../visuals/dom/jestei-usa-globe.js"),
+    mount: (module, root) => module.mountJesteiUsaGlobe(root),
+  },
+  {
     id: "mediaMarquee",
     phase: "near",
     selector: "[data-media-marquee], .section-media-marquee, .jestei-policy-marquee",
