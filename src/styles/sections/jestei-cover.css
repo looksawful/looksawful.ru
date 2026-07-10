@@ -1,13 +1,13 @@
 .jestei-cover {
   --section-accent: var(--black);
   --section-local-inline: 100%;
-  --section-local-padding-block: clamp(0.75rem, 2.2cqi, 2.5rem);
-  --jestei-cover-page-x: clamp(0.5rem, 2.2cqi, 2rem);
-  --jestei-cover-inner-pad: clamp(0.65rem, 2.5cqi, 2.25rem);
-  --jestei-cover-gap: clamp(0.75rem, 4cqi, 5rem);
-  --jestei-cover-logo-col: clamp(8rem, 21cqi, 15rem);
-  --jestei-cover-content-max: 38rem;
-  --jestei-cover-content-gap: clamp(0.65rem, 1.45cqi, 1.2rem);
+  --section-local-padding-block: clamp(var(--space-4), 2.4vw, var(--space-6));
+  --jestei-cover-inline: min(calc(100% - var(--space-7)), var(--case-wide));
+  --jestei-cover-gap: clamp(var(--space-6), 6cqi, var(--space-10));
+  --jestei-cover-logo-size: clamp(11rem, 20cqi, 14rem);
+  --jestei-cover-content: min(100%, 33rem);
+  --jestei-cover-content-gap: clamp(0.85rem, 1.5cqi, 1.2rem);
+  --jestei-cover-summary: min(100%, 33rem);
   container-type: inline-size;
   margin-block: 0;
   color: var(--black);
@@ -25,7 +25,7 @@ main[data-showcase] .jestei-cover [data-section-screen] {
   inline-size: 100%;
   max-inline-size: none;
   padding-block: var(--section-local-padding-block);
-  padding-inline: var(--jestei-cover-page-x);
+  padding-inline: 0;
 }
 
 main[data-showcase] .jestei-cover [data-section-screen] > * {
@@ -33,18 +33,17 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
 }
 
 .jestei-cover [data-cover-head] {
-  --showcase-header-pad: var(--jestei-cover-inner-pad);
+  --showcase-header-pad: clamp(var(--space-5), 2.7cqi, var(--space-7));
   --showcase-header-border: var(--line);
-  --showcase-header-radius: clamp(0.75rem, 2.4cqi, 2rem);
-  inline-size: 100%;
-  max-inline-size: none;
-  margin-inline: 0;
+  --showcase-header-radius: clamp(18px, 2.4vw, 32px);
+  inline-size: var(--jestei-cover-inline);
+  margin-inline: auto;
   background: var(--white);
 }
 
 .jestei-cover [data-cover-grid] {
   display: grid;
-  grid-template-columns: var(--jestei-cover-logo-col) minmax(0, 1fr);
+  grid-template-columns: minmax(10rem, 0.64fr) minmax(0, 1.9fr);
   grid-template-areas:
     "logo meta"
     "logo summary";
@@ -60,12 +59,11 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
   position: relative;
   display: grid;
   place-items: center;
-  inline-size: 100%;
+  inline-size: min(100%, var(--jestei-cover-logo-size));
   aspect-ratio: 1;
-  justify-self: stretch;
+  justify-self: center;
   align-self: start;
   margin: 0;
-  overflow: visible;
   background: transparent;
 }
 
@@ -95,20 +93,19 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
   display: grid;
   align-content: start;
   gap: var(--jestei-cover-content-gap);
-  inline-size: min(100%, var(--jestei-cover-content-max));
+  inline-size: var(--jestei-cover-content);
   max-inline-size: 100%;
   min-inline-size: 0;
-  container-type: inline-size;
 }
 
 .jestei-cover__dates {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: clamp(0.4rem, 1.2cqi, 1rem);
+  gap: var(--gap);
   inline-size: 100%;
   margin: 0;
-  font-size: clamp(0.72rem, 4.4cqi, 1.22rem);
+  font-size: clamp(1rem, 1.35cqi, 1.22rem);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0;
@@ -132,10 +129,11 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
 }
 
 .jestei-cover__roles {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
   align-items: center;
-  gap: clamp(0.18rem, 1cqi, 0.8rem);
+  gap: clamp(var(--space-3), 2cqi, var(--space-5));
   inline-size: 100%;
   min-inline-size: 0;
   margin: 0;
@@ -144,48 +142,54 @@ main[data-showcase] .jestei-cover [data-section-screen] > * {
 }
 
 .jestei-cover__roles li {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-inline-size: 0;
-  min-block-size: calc(1em + clamp(0.22rem, 1.8cqi, 0.55rem));
-  padding: 0.12em clamp(0.16em, 1.15cqi, 0.85em) 0.18em;
-  overflow: hidden;
+  min-block-size: calc(1em + var(--space-3));
+  padding: 0.12em 0.85em 0.18em;
   border: var(--line);
-  border-radius: 999px;
-  font-size: clamp(0.5rem, 4.25cqi, 1.15rem);
+  border-radius: var(--radius-m);
+  font-size: clamp(0.95rem, 1.3cqi, 1.12rem);
   font-weight: 400;
   line-height: 1;
-  letter-spacing: -0.025em;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 
 .jestei-cover__summary {
   grid-area: summary;
-  inline-size: min(100%, var(--jestei-cover-content-max));
+  inline-size: var(--jestei-cover-summary);
   max-inline-size: 100%;
   margin: 0;
-  font-size: clamp(0.9rem, 1.1cqi, 1rem);
+  font-size: clamp(0.95rem, 1.14cqi, 1rem);
   font-weight: 400;
-  line-height: 1.24;
+  line-height: 1.2;
   letter-spacing: 0;
 }
 
 main[data-showcase] .jestei-cover .jestei-cover__summary {
   max-inline-size: 100%;
-  font-size: clamp(0.9rem, 1.1cqi, 1rem);
-  line-height: 1.24;
+  font-size: clamp(0.95rem, 1.14cqi, 1rem);
+  line-height: 1.2;
 }
 
-@media (max-width: 48rem) {
+@media (max-width: 43rem) {
   .jestei-cover {
-    --jestei-cover-logo-col: clamp(4.25rem, 24cqi, 6.5rem);
+    --section-local-padding-block: var(--space-4);
+    --jestei-cover-inline: min(calc(100% - var(--space-5)), var(--page-max));
     --jestei-cover-gap: clamp(0.45rem, 2.4cqi, 0.8rem);
-    --jestei-cover-content-gap: clamp(0.28rem, 1.4cqi, 0.55rem);
+    --jestei-cover-content-gap: clamp(0.4rem, 1.8cqi, 0.7rem);
+    --jestei-cover-logo-size: clamp(4.25rem, 21cqi, 6.25rem);
+    --jestei-cover-content: 100%;
+    --jestei-cover-summary: 100%;
+  }
+
+  .jestei-cover [data-cover-head] {
+    --showcase-header-pad: clamp(0.65rem, 3.5cqi, 1rem);
   }
 
   .jestei-cover [data-cover-grid] {
-    grid-template-columns: var(--jestei-cover-logo-col) minmax(0, 1fr);
+    grid-template-columns: var(--jestei-cover-logo-size) minmax(0, 1fr);
     grid-template-areas:
       "logo meta"
       "summary summary";
@@ -193,19 +197,28 @@ main[data-showcase] .jestei-cover .jestei-cover__summary {
 
   .jestei-cover__meta {
     inline-size: 100%;
+    gap: clamp(0.28rem, 1.5cqi, 0.55rem);
   }
 
   .jestei-cover__dates {
-    font-size: clamp(0.7rem, 4.6cqi, 0.9rem);
+    gap: clamp(0.3rem, 1.2cqi, 0.65rem);
+    font-size: clamp(0.72rem, 2.8cqi, 0.9rem);
   }
 
   .jestei-cover__roles {
-    gap: clamp(0.12rem, 0.8cqi, 0.35rem);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.15rem, 0.8cqi, 0.35rem);
   }
 
   .jestei-cover__roles li {
-    font-size: clamp(0.5rem, 4.1cqi, 0.78rem);
-    padding-inline: clamp(0.12em, 0.75cqi, 0.42em);
+    min-inline-size: 0;
+    min-block-size: calc(1em + 0.25rem);
+    padding: 0.12em clamp(0.15em, 0.8cqi, 0.42em) 0.18em;
+    overflow: hidden;
+    border-radius: 999px;
+    font-size: clamp(0.625rem, 2.55cqi, 0.78rem);
+    letter-spacing: -0.02em;
   }
 
   .jestei-cover__summary,
