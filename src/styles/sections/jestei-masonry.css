@@ -1,0 +1,45 @@
+.jestei-bento {
+  gap: 0;
+}
+
+.jestei-masonry {
+  inline-size: min(calc(100% - var(--space-7)), var(--case-wide));
+  max-inline-size: 100%;
+  margin-block-start: var(--section-local-padding-block);
+  margin-inline: auto;
+  padding: 0;
+  overflow: hidden;
+  border: var(--line);
+  border-radius: clamp(18px, 2.4vw, 32px);
+  background: var(--white);
+}
+
+.jestei-masonry > canvas.visual-canvas {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: none;
+  block-size: clamp(24rem, 52vw, 46rem);
+  min-block-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--white);
+}
+
+@media (max-width: 72rem) {
+  .jestei-masonry > canvas.visual-canvas {
+    block-size: clamp(24rem, 68vw, 40rem);
+  }
+}
+
+@media (max-width: 43rem) {
+  .jestei-masonry {
+    inline-size: min(calc(100% - var(--space-5)), var(--page-max));
+    border-radius: clamp(18px, 5vw, 26px);
+  }
+
+  .jestei-masonry > canvas.visual-canvas {
+    block-size: clamp(26rem, 118vw, 40rem);
+  }
+}
