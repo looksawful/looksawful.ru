@@ -14,6 +14,7 @@
 @import "./components/pet-project-inline.css";
 @import "./sections/hero.css";
 @import "./sections/jestei-cover.css";
+@import "./sections/jestei-bento.css";
 @import "./sections/jestei-logo.css";
 @import "./sections/jestei-type.css";
 @import "./sections/jestei-color.css";
@@ -38,3 +39,4 @@
 @import "./sections/awful-audit.css";
 @import "./sections/shootings.css";
 @import "./sections/resume.css";
+@import "./homepage-visible-mode.css";
