@@ -1,554 +1,198 @@
 .jestei-cover {
   --section-accent: var(--black);
   --section-local-inline: 100%;
-  --section-local-padding-block: 0;
-  --section-local-padding-inline: 0;
-  --section-local-title-size: clamp(42px, 3.08vw, 64px);
-  --showcase-header-border: 0;
-  --showcase-header-pad: 0;
-  --showcase-header-radius: 0;
-  --jestei-cover-page-x: clamp(18px, 1.2vw, 26px);
-  --jestei-cover-page-y: clamp(22px, 3.8vh, 42px);
-  --jestei-cover-title-size: clamp(46px, 3.35vw, 72px);
-  --jestei-cover-number-size: clamp(42px, 3.08vw, 64px);
-  --jestei-cover-body-size: clamp(15px, 0.88vw, 18px);
-  --jestei-cover-small-title-size: clamp(15px, 0.9vw, 18px);
-  --jestei-cover-center-size: clamp(17px, 1.5vw, 30px);
-  --jestei-cover-center-width: min(72vw, 1280px);
-  --jestei-cover-center-shift-y: clamp(-72px, -5.8vh, -38px);
-  --jestei-cover-logo-size: clamp(192px, 15vw, 300px);
-  --jestei-cover-header-gap: clamp(24px, 4vw, 88px);
-  --jestei-cover-brand-gap: clamp(9px, 1.25vh, 16px);
-  --jestei-cover-visible-offset: var(--portfolio-anchor-offset, var(--anchor-offset, 0px));
-  --jestei-cover-line-title: 0.8;
-  --jestei-cover-line-text: 1;
-  --jestei-cover-line-detail: 1.03;
-  --jestei-cover-line-center: 0.88;
-  --jestei-cover-weight-text: 400;
-  --jestei-cover-weight-accent: 600;
-  --jestei-cover-weight-title: 700;
-  --jestei-cover-muted: color-mix(in srgb, var(--black) 42%, var(--white));
-  --jestei-cover-soft: color-mix(in srgb, var(--black) 82%, var(--white));
-  min-block-size: 100vh;
-  min-block-size: 100svh;
+  --section-local-padding-block: clamp(var(--space-4), 2.4vw, var(--space-6));
+  --jestei-cover-inline: min(calc(100% - var(--space-7)), var(--case-wide));
+  --jestei-cover-gap: clamp(var(--space-6), 6cqi, var(--space-10));
+  --jestei-cover-logo-size: clamp(11rem, 20cqi, 14rem);
+  --jestei-cover-content: min(100%, 33rem);
+  --jestei-cover-content-gap: clamp(0.85rem, 1.5cqi, 1.2rem);
+  --jestei-cover-summary: min(100%, 33rem);
+  container-type: inline-size;
   margin-block: 0;
-  color: var(--jestei-cover-soft);
+  color: var(--black);
   background: var(--white);
   scroll-margin-block-start: 0;
   scroll-margin-top: 0;
 }
 
+.jestei-cover::before {
+  content: none;
+}
+
 main[data-showcase] .jestei-cover [data-section-screen] {
-  inline-size: 100%;
-  min-block-size: 100vh;
-  min-block-size: 100svh;
   grid-template-columns: minmax(0, 1fr);
-  padding: var(--jestei-cover-page-y) var(--jestei-cover-page-x);
+  inline-size: 100%;
+  max-inline-size: none;
+  padding-block: var(--section-local-padding-block);
+  padding-inline: 0;
 }
 
 main[data-showcase] .jestei-cover [data-section-screen] > * {
   grid-column: 1;
 }
 
-main[data-showcase] .jestei-cover [data-cover-head] {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.88fr);
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
-  grid-template-areas:
-    "header header"
-    "center center"
-    "metric-left metric-right"
-    "details segments";
-  column-gap: clamp(40px, 6vw, 120px);
-  row-gap: clamp(26px, 4.6vh, 58px);
-  align-items: stretch;
-  inline-size: 100%;
-  block-size: calc(100svh - var(--jestei-cover-visible-offset) - (var(--jestei-cover-page-y) * 2));
-  min-block-size: min(620px, calc(100svh - var(--jestei-cover-visible-offset) - (var(--jestei-cover-page-y) * 2)));
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
+.jestei-cover [data-cover-head] {
+  --showcase-header-pad: clamp(var(--space-5), 2.7cqi, var(--space-7));
+  --showcase-header-border: var(--line);
+  --showcase-header-radius: clamp(18px, 2.4vw, 32px);
+  inline-size: var(--jestei-cover-inline);
+  margin-inline: auto;
+  background: var(--white);
 }
 
-.jestei-cover__header {
-  grid-area: header;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--jestei-cover-logo-size);
-  gap: var(--jestei-cover-header-gap);
+.jestei-cover [data-cover-grid] {
+  grid-template-columns: minmax(10rem, 0.64fr) minmax(0, 1.9fr);
   align-items: start;
-  inline-size: 100%;
-}
-
-.jestei-cover__brand {
-  display: grid;
-  align-content: start;
-  gap: var(--jestei-cover-brand-gap);
-  max-inline-size: min(56vw, 760px);
-}
-
-.jestei-cover [data-cover-title] {
-  inline-size: max-content;
-  max-inline-size: 100%;
-  margin: 0;
-  color: var(--jestei-cover-soft);
-  font-size: var(--jestei-cover-title-size);
-  font-weight: var(--jestei-cover-weight-title);
-  line-height: var(--jestei-cover-line-title);
-  letter-spacing: 0;
-  text-transform: lowercase;
-  white-space: nowrap;
-}
-
-.jestei-cover [data-cover-title] > * {
-  display: inline;
-}
-
-.jestei-cover [data-section-title-main] + [data-section-title-accent]::before {
-  content: "\00a0";
-}
-
-.jestei-cover [data-section-title-accent] {
-  color: var(--jestei-cover-soft);
-  font-style: normal;
-}
-
-.jestei-cover__role,
-.jestei-cover__summary {
-  margin: 0;
-  color: color-mix(in srgb, var(--black) 74%, var(--white));
-  font-size: var(--jestei-cover-body-size);
-  font-weight: var(--jestei-cover-weight-text);
-  line-height: var(--jestei-cover-line-text);
-  letter-spacing: 0;
-  text-align: start;
-  text-transform: lowercase;
-}
-
-.jestei-cover__role {
-  max-inline-size: 34em;
-}
-
-.jestei-cover__summary {
-  max-inline-size: 46em;
+  gap: var(--jestei-cover-gap);
 }
 
 .jestei-cover [data-cover-logo] {
   position: relative;
-  isolation: isolate;
   display: grid;
   place-items: center;
-  justify-self: end;
-  align-self: start;
-  inline-size: var(--jestei-cover-logo-size);
-  block-size: var(--jestei-cover-logo-size);
-  max-inline-size: 100%;
-  margin: 0;
+  inline-size: min(100%, var(--jestei-cover-logo-size));
   aspect-ratio: 1;
-  overflow: visible;
-}
-
-.jestei-cover [data-cover-logo]::before,
-.jestei-cover [data-cover-logo]::after {
-  content: "";
-  position: absolute;
-  pointer-events: none;
+  justify-self: center;
+  align-self: start;
+  margin: 0;
 }
 
 .jestei-cover [data-cover-logo]::before {
-  inset: 5%;
-  z-index: -2;
-  border-radius: 999px;
-  background: var(--white);
-}
-
-.jestei-cover [data-cover-logo]::after {
-  inset: 9%;
-  z-index: -1;
-  opacity: 0.045;
+  content: "";
+  position: absolute;
+  inset: 0;
   background-image:
-    linear-gradient(currentColor 1px, transparent 1px),
-    linear-gradient(90deg, currentColor 1px, transparent 1px);
-  background-size: 20px 20px;
+    linear-gradient(to right, color-mix(in srgb, var(--black) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--black) 6%, transparent) 1px, transparent 1px);
+  background-size: clamp(var(--space-4), 2.15cqi, var(--space-6)) clamp(var(--space-4), 2.15cqi, var(--space-6));
 }
 
-.jestei-cover [data-cover-logo] > :where(canvas, img, svg),
-.jestei-cover [data-cover-logo] .visual-canvas__poster,
-.jestei-cover [data-cover-logo] .visual-poster-fallback,
-.jestei-cover #project-jestei-logo-canvas {
+.jestei-cover [data-cover-logo] :where(canvas, img, .visual-canvas__poster, .visual-poster-fallback) {
+  position: relative;
+  z-index: 1;
   display: block;
   inline-size: 100%;
   block-size: 100%;
   min-block-size: 0;
-  max-inline-size: 100%;
-  max-block-size: 100%;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 1;
   object-fit: contain;
-  object-position: center;
-  background: transparent;
   border-radius: 0;
+  filter: none;
 }
 
-.jestei-cover__lead {
-  grid-area: center;
-  align-self: center;
-  justify-self: center;
+.jestei-cover__content {
   display: grid;
-  place-items: center;
-  inline-size: 100%;
-  min-block-size: 0;
-  overflow: visible;
-}
-
-main[data-showcase] .jestei-cover .jestei-cover__statement {
-  inline-size: var(--jestei-cover-center-width);
-  max-inline-size: none;
-  margin: 0 auto;
-  padding-block: 0.18em;
-  color: var(--jestei-cover-soft);
-  font-size: var(--jestei-cover-center-size);
-  font-weight: var(--jestei-cover-weight-text);
-  line-height: var(--jestei-cover-line-center);
-  letter-spacing: 0;
-  word-spacing: -0.07em;
-  text-align: justify;
-  text-align-last: left;
-  text-transform: none;
-  hyphens: auto;
-  transform: translateY(var(--jestei-cover-center-shift-y));
-}
-
-.jestei-cover__statement::after {
-  content: "";
-  display: inline-block;
-  inline-size: 100%;
-}
-
-.jestei-cover__muted {
-  color: var(--jestei-cover-muted);
-  font-weight: var(--jestei-cover-weight-text);
-}
-
-.jestei-cover__metric {
-  display: grid;
-  gap: 0.45em;
-  align-self: start;
-  margin: 0;
-}
-
-.jestei-cover__metric--left {
-  grid-area: metric-left;
-  justify-self: start;
-  max-inline-size: 48em;
-  text-align: left;
-}
-
-.jestei-cover__metric--right {
-  grid-area: metric-right;
-  justify-self: end;
-  max-inline-size: 54em;
-  text-align: right;
-}
-
-.jestei-cover__metric-label,
-.jestei-cover__metric-value,
-.jestei-cover__metric-text,
-.jestei-cover__segments-title,
-.jestei-cover__segments-text,
-.jestei-cover__segments-note {
-  margin: 0;
-}
-
-.jestei-cover__metric-label {
-  color: var(--jestei-cover-muted);
-  font-size: clamp(11px, 0.68vw, 14px);
-  font-weight: var(--jestei-cover-weight-text);
-  line-height: var(--jestei-cover-line-text);
-  letter-spacing: 0;
-  text-transform: lowercase;
-}
-
-.jestei-cover__metric-value,
-.jestei-cover__segments-title {
-  color: var(--jestei-cover-soft);
-  font-size: var(--jestei-cover-number-size);
-  font-weight: var(--jestei-cover-weight-title);
-  line-height: 0.82;
-  letter-spacing: 0;
-  text-transform: lowercase;
-  white-space: nowrap;
-}
-
-.jestei-cover__metric-text,
-.jestei-cover__segments-text,
-.jestei-cover__segments-note {
-  color: color-mix(in srgb, var(--black) 76%, var(--white));
-  font-size: var(--jestei-cover-body-size);
-  font-weight: var(--jestei-cover-weight-text);
-  line-height: var(--jestei-cover-line-text);
-  letter-spacing: 0;
-  text-transform: lowercase;
-}
-
-.jestei-cover__details {
-  grid-area: details;
-  align-self: end;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(24px, 3vw, 64px);
-  inline-size: 100%;
-  max-inline-size: 68vw;
-}
-
-.jestei-cover__detail {
-  margin: 0;
-  color: color-mix(in srgb, var(--black) 78%, var(--white));
-  font-size: clamp(13px, 0.74vw, 15px);
-  font-weight: var(--jestei-cover-weight-text);
-  line-height: var(--jestei-cover-line-detail);
-  letter-spacing: 0;
-  text-transform: lowercase;
-}
-
-.jestei-cover__detail strong {
-  display: block;
-  margin-block-end: 0.42em;
-  font-size: var(--jestei-cover-small-title-size);
-  font-weight: var(--jestei-cover-weight-accent);
-  line-height: 0.95;
-  letter-spacing: 0;
-  white-space: nowrap;
-}
-
-.jestei-cover__segments {
-  grid-area: segments;
-  justify-self: end;
-  align-self: end;
-  display: grid;
-  gap: 0.45em;
-  max-inline-size: 54em;
-  text-align: right;
-}
-
-.jestei-cover__segments-note {
-  color: var(--jestei-cover-muted);
-}
-
-.jestei-cover__segments-note strong {
-  color: var(--jestei-cover-soft);
-  font-weight: var(--jestei-cover-weight-accent);
-}
-
-main[data-showcase] #jestei-cover [data-cover-head] [data-cover-title] {
+  align-content: start;
+  gap: var(--jestei-cover-content-gap);
+  inline-size: var(--jestei-cover-content);
   max-inline-size: 100%;
-  color: var(--jestei-cover-soft);
-  font-size: var(--jestei-cover-title-size);
-  font-weight: var(--jestei-cover-weight-title);
-  line-height: var(--jestei-cover-line-title);
+  min-inline-size: 0;
+}
+
+.jestei-cover__dates {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--gap);
+  inline-size: 100%;
+  font-size: clamp(1rem, 1.35cqi, 1.22rem);
+  font-weight: 500;
+  line-height: 1;
   letter-spacing: 0;
 }
 
-main[data-showcase] #jestei-cover :where(
-  .jestei-cover__role,
-  .jestei-cover__summary,
-  .jestei-cover__metric-label,
-  .jestei-cover__metric-value,
-  .jestei-cover__metric-text,
-  .jestei-cover__detail,
-  .jestei-cover__segments-title,
-  .jestei-cover__segments-text,
-  .jestei-cover__segments-note
-) {
-  max-inline-size: none;
+.jestei-cover__dates time {
+  white-space: nowrap;
+}
+
+.jestei-cover__wordmark {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  margin: 0;
+}
+
+.jestei-cover__wordmark img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.jestei-cover__roles {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: clamp(var(--space-3), 2cqi, var(--space-5));
+  inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jestei-cover__roles li {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: calc(1em + var(--space-3));
+  padding: 0.12em 0.85em 0.18em;
+  border: var(--line);
+  border-radius: var(--radius-m);
+  font-size: clamp(0.95rem, 1.3cqi, 1.12rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.jestei-cover__summary {
+  inline-size: var(--jestei-cover-summary);
+  max-inline-size: 100%;
+  margin: 0;
+  font-size: clamp(0.95rem, 1.14cqi, 1rem);
+  font-weight: 400;
+  line-height: 1.2;
   letter-spacing: 0;
 }
 
-main[data-showcase] #jestei-cover :where(.jestei-cover__role, .jestei-cover__summary) {
-  font-size: var(--jestei-cover-body-size);
-  font-weight: var(--jestei-cover-weight-text);
-  line-height: var(--jestei-cover-line-text);
+main[data-showcase] .jestei-cover .jestei-cover__summary {
+  max-inline-size: 100%;
+  font-size: clamp(0.95rem, 1.14cqi, 1rem);
+  line-height: 1.2;
 }
 
-main[data-showcase] #jestei-cover .jestei-cover__metric-label {
-  font-size: clamp(11px, 0.68vw, 14px);
-  line-height: var(--jestei-cover-line-text);
-}
-
-main[data-showcase] #jestei-cover :where(.jestei-cover__metric-value, .jestei-cover__segments-title) {
-  font-size: var(--jestei-cover-number-size);
-  font-weight: var(--jestei-cover-weight-title);
-  line-height: 0.82;
-}
-
-main[data-showcase] #jestei-cover :where(.jestei-cover__metric-text, .jestei-cover__segments-text, .jestei-cover__segments-note) {
-  font-size: var(--jestei-cover-body-size);
-  font-weight: var(--jestei-cover-weight-text);
-  line-height: var(--jestei-cover-line-text);
-}
-
-main[data-showcase] #jestei-cover .jestei-cover__detail {
-  font-size: clamp(13px, 0.74vw, 15px);
-  font-weight: var(--jestei-cover-weight-text);
-  line-height: var(--jestei-cover-line-detail);
-}
-
-main[data-showcase] #jestei-cover .jestei-cover__detail strong {
-  font-size: var(--jestei-cover-small-title-size);
-  font-weight: var(--jestei-cover-weight-accent);
-  line-height: 0.95;
-}
-
-@media (max-width: 1260px) {
+@media (max-width: 48rem) {
   .jestei-cover {
-    --jestei-cover-center-width: min(78vw, 1180px);
-    --jestei-cover-center-size: clamp(16px, 1.48vw, 26px);
-    --jestei-cover-center-shift-y: clamp(-64px, -5vh, -32px);
-  }
-}
-
-@media (max-width: 1100px) {
-  .jestei-cover {
-    --jestei-cover-logo-size: clamp(150px, 24vw, 280px);
-    --jestei-cover-header-gap: clamp(20px, 3.6vw, 56px);
-    --jestei-cover-center-width: min(80vw, 1040px);
-    --jestei-cover-center-size: clamp(15px, 1.62vw, 24px);
-    --jestei-cover-center-shift-y: clamp(-56px, -4.5vh, -28px);
+    --jestei-cover-inline: var(--page);
+    --jestei-cover-logo-size: clamp(11rem, 38cqi, 14rem);
+    --jestei-cover-content: 100%;
   }
 
-  .jestei-cover__brand {
-    max-inline-size: none;
-  }
-}
-
-@media (max-height: 760px) and (min-width: 901px) {
-  .jestei-cover {
-    --jestei-cover-page-y: clamp(16px, 3vh, 30px);
-    --jestei-cover-logo-size: clamp(164px, 16vw, 260px);
-    --jestei-cover-center-width: min(76vw, 1040px);
-    --jestei-cover-center-size: clamp(13px, 1.22vw, 20px);
-    --jestei-cover-center-shift-y: clamp(-44px, -3.8vh, -24px);
-  }
-
-  main[data-showcase] .jestei-cover [data-cover-head] {
-    row-gap: clamp(18px, 3vh, 32px);
-  }
-
-  .jestei-cover__detail {
-    font-size: clamp(11px, 0.68vw, 14px);
-  }
-}
-
-@media (max-width: 900px) {
-  .jestei-cover {
-    --jestei-cover-page-x: clamp(18px, 5vw, 30px);
-    --jestei-cover-page-y: clamp(20px, 5vw, 34px);
-    --jestei-cover-title-size: clamp(32px, 10vw, 56px);
-    --jestei-cover-number-size: clamp(34px, 10vw, 58px);
-    --jestei-cover-body-size: clamp(14px, 3.75vw, 18px);
-    --jestei-cover-small-title-size: clamp(15px, 4vw, 19px);
-    --jestei-cover-center-width: min(100%, 760px);
-    --jestei-cover-center-size: clamp(19px, 5.4vw, 34px);
-    --jestei-cover-center-shift-y: 0px;
-    --jestei-cover-logo-size: min(58vw, 300px);
-    --jestei-cover-header-gap: clamp(20px, 6vw, 36px);
-    --jestei-cover-brand-gap: clamp(10px, 2.4vw, 16px);
-    min-block-size: 100svh;
-  }
-
-  main[data-showcase] .jestei-cover [data-section-screen] {
-    min-block-size: 100svh;
-  }
-
-  main[data-showcase] .jestei-cover [data-cover-head] {
+  .jestei-cover [data-cover-grid] {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto auto auto;
-    grid-template-areas:
-      "header"
-      "center"
-      "metric-left"
-      "metric-right"
-      "details"
-      "segments";
-    block-size: auto;
-    min-block-size: 100svh;
-    row-gap: clamp(30px, 8vw, 56px);
-    overflow: visible;
-  }
-
-  .jestei-cover__header {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    gap: var(--jestei-cover-header-gap);
-  }
-
-  .jestei-cover__brand {
-    max-inline-size: none;
-  }
-
-  .jestei-cover [data-cover-logo] {
-    justify-self: center;
-    align-self: center;
-    transform: none;
-  }
-
-  .jestei-cover__lead {
-    align-items: start;
-    min-block-size: auto;
-  }
-
-  main[data-showcase] .jestei-cover .jestei-cover__statement {
-    inline-size: var(--jestei-cover-center-width);
-    padding-block: 0;
-    line-height: 0.86;
-    word-spacing: -0.08em;
-    transform: none;
-  }
-
-  .jestei-cover__metric--right,
-  .jestei-cover__segments {
-    justify-self: start;
-    text-align: left;
-  }
-
-  .jestei-cover__details {
-    max-inline-size: none;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
-  }
-
-  .jestei-cover__detail strong {
-    white-space: normal;
   }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 43rem) {
   .jestei-cover {
-    --jestei-cover-title-size: clamp(26px, 8vw, 38px);
-    --jestei-cover-number-size: clamp(30px, 9vw, 42px);
-    --jestei-cover-logo-size: min(56vw, 240px);
-    --jestei-cover-header-gap: clamp(18px, 6vw, 32px);
-    --jestei-cover-center-size: clamp(19px, 5.75vw, 31px);
-  }
-}
-
-@media (max-width: 430px) {
-  .jestei-cover {
-    --jestei-cover-title-size: clamp(23px, 7.4vw, 30px);
-    --jestei-cover-logo-size: min(54vw, 200px);
-    --jestei-cover-center-size: clamp(20px, 6vw, 28px);
+    --section-local-padding-block: var(--space-4);
+    --jestei-cover-inline: min(calc(100% - var(--space-5)), var(--page-max));
   }
 
-  .jestei-cover__header {
-    gap: clamp(22px, 8vw, 36px);
+  .jestei-cover [data-cover-head] {
+    --showcase-header-pad: clamp(var(--space-5), 7vw, var(--space-6));
   }
-}
 
-@media (max-width: 360px) {
-  .jestei-cover {
-    --jestei-cover-title-size: clamp(21px, 7vw, 26px);
-    --jestei-cover-logo-size: min(52vw, 176px);
-    --jestei-cover-center-size: clamp(18px, 5.8vw, 24px);
+  .jestei-cover__dates,
+  .jestei-cover__roles {
+    gap: var(--space-4);
+  }
+
+  .jestei-cover__roles {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .jestei-cover__roles li {
+    min-inline-size: min(100%, 14em);
   }
 }
