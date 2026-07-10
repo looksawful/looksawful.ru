@@ -41,6 +41,10 @@ main[data-showcase] .jestei-bento [data-section-screen] > * {
   margin-inline: 0;
 }
 
+.jestei-bento__panel {
+  display: contents;
+}
+
 .jestei-bento__card {
   display: grid;
   min-inline-size: 0;
@@ -165,7 +169,6 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
   max-inline-size: 14em;
 }
 
-/* Tablet: preserve the desktop bento topology, but compress its scale. */
 @media (max-width: 72rem) and (min-width: 43.001rem) {
   .jestei-bento {
     --section-local-padding-block: clamp(1.15rem, 3.2cqi, 2.25rem);
@@ -210,7 +213,6 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
   }
 }
 
-/* Mobile: keep two columns, but give the long manual-work card the full row. */
 @media (max-width: 43rem) {
   .jestei-bento {
     --section-local-padding-block: clamp(0.95rem, 5cqi, 1.75rem);
@@ -220,22 +222,62 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     --jestei-bento-radius: clamp(0.75rem, 3.6cqi, 1.2rem);
   }
 
+  main[data-showcase] .jestei-bento [data-section-screen] {
+    display: block;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-inline: 0;
+    scroll-padding-inline: var(--jestei-bento-page-x);
+    scroll-snap-type: inline mandatory;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  main[data-showcase] .jestei-bento [data-section-screen]::-webkit-scrollbar {
+    display: none;
+  }
+
   .jestei-bento__grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc(100cqi - (2 * var(--jestei-bento-page-x)));
+    grid-template-columns: none;
+    grid-template-areas: none;
+    grid-auto-rows: auto;
+    align-items: stretch;
+    inline-size: max-content;
+    min-inline-size: 100%;
+    padding-inline: var(--jestei-bento-page-x);
+  }
+
+  .jestei-bento__panel {
+    display: grid;
+    gap: var(--jestei-bento-gap);
+    min-inline-size: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .jestei-bento__panel--primary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
       "steps price"
-      "manual manual"
+      "manual manual";
+    grid-template-rows:
+      minmax(clamp(10rem, 37cqi, 13rem), auto)
+      minmax(clamp(19rem, 72cqi, 25rem), auto);
+  }
+
+  .jestei-bento__panel--secondary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
       "rebrand products"
       "audience usa";
-    grid-auto-rows: auto;
-    align-items: stretch;
+    grid-template-rows: repeat(2, minmax(clamp(14rem, 55cqi, 20rem), auto));
   }
 
   .jestei-bento__card {
-    min-block-size: clamp(7.25rem, 27cqi, 9.25rem);
-  }
-
-  .jestei-bento__card--manual {
     min-block-size: 0;
   }
 
@@ -298,12 +340,21 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
   }
 }
 
-/* Very narrow phones: preserve the two-column grid and avoid internal collisions. */
 @media (max-width: 25rem) {
   .jestei-bento {
     --jestei-bento-page-x: 0.4rem;
     --jestei-bento-gap: 0.32rem;
     --jestei-bento-card-pad: 0.62rem;
+  }
+
+  .jestei-bento__panel--primary {
+    grid-template-rows:
+      minmax(9.5rem, auto)
+      minmax(20rem, auto);
+  }
+
+  .jestei-bento__panel--secondary {
+    grid-template-rows: repeat(2, minmax(15rem, auto));
   }
 
   .jestei-bento__title,
