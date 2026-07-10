@@ -167,3 +167,61 @@ main[data-showcase] .jestei-cover .jestei-cover__summary {
   font-size: clamp(0.68rem, 1.1cqi, 1rem);
   line-height: 1.2;
 }
+
+@media (max-width: 48rem) {
+  .jestei-cover {
+    --jestei-cover-logo-col: clamp(5rem, 28cqi, 8rem);
+    --jestei-cover-gap: clamp(0.55rem, 3cqi, 1rem);
+    --jestei-cover-content-gap: clamp(0.35rem, 1.8cqi, 0.7rem);
+  }
+
+  .jestei-cover [data-cover-grid] {
+    grid-template-columns: var(--jestei-cover-logo-col) minmax(0, 1fr);
+    grid-template-areas:
+      "logo dates"
+      "logo wordmark"
+      "logo roles"
+      "summary summary";
+    column-gap: var(--jestei-cover-gap);
+    row-gap: var(--jestei-cover-content-gap);
+  }
+
+  .jestei-cover [data-cover-logo] {
+    grid-area: logo;
+  }
+
+  .jestei-cover__content {
+    display: contents;
+  }
+
+  .jestei-cover__dates {
+    grid-area: dates;
+    align-self: end;
+    font-size: clamp(0.72rem, 2.7cqi, 0.92rem);
+  }
+
+  .jestei-cover__wordmark {
+    grid-area: wordmark;
+    align-self: center;
+  }
+
+  .jestei-cover__roles {
+    grid-area: roles;
+    align-self: start;
+  }
+
+  .jestei-cover__roles li {
+    font-size: clamp(0.66rem, 2.35cqi, 0.82rem);
+    padding-inline: clamp(0.28em, 1.2cqi, 0.58em);
+  }
+
+  .jestei-cover__summary,
+  main[data-showcase] .jestei-cover .jestei-cover__summary {
+    grid-area: summary;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    margin-block-start: clamp(0.35rem, 1.8cqi, 0.75rem);
+    font-size: clamp(0.9rem, 3.4cqi, 1rem);
+    line-height: 1.25;
+  }
+}
