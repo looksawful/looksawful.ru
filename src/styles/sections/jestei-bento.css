@@ -15,11 +15,26 @@
   content: none;
 }
 
+.jestei-bento__heading {
+  inline-size: 100%;
+  margin: 0;
+  padding-block-start: var(--section-local-padding-block);
+  padding-block-end: clamp(0.8rem, 2.2cqi, 1.75rem);
+  padding-inline: var(--jestei-bento-page-x);
+  color: var(--black);
+  font-size: clamp(2.25rem, 5.5cqi, 5rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-align: left;
+  text-wrap: balance;
+}
+
 main[data-showcase] .jestei-bento [data-section-screen] {
   grid-template-columns: minmax(0, 1fr);
   inline-size: 100%;
   max-inline-size: none;
-  padding-block: var(--section-local-padding-block);
+  padding-block: 0 var(--section-local-padding-block);
   padding-inline: var(--jestei-bento-page-x);
 }
 
@@ -178,6 +193,11 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     --jestei-bento-radius: clamp(0.9rem, 1.65cqi, 1.45rem);
   }
 
+  .jestei-bento__heading {
+    font-size: clamp(2.1rem, 6cqi, 3.5rem);
+    text-align: center;
+  }
+
   .jestei-bento__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-areas:
@@ -222,10 +242,17 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     --jestei-bento-radius: clamp(0.75rem, 3.6cqi, 1.2rem);
   }
 
+  .jestei-bento__heading {
+    padding-block-end: clamp(0.75rem, 3.5cqi, 1.1rem);
+    font-size: clamp(2rem, 10cqi, 3rem);
+    text-align: center;
+  }
+
   main[data-showcase] .jestei-bento [data-section-screen] {
     display: block;
     overflow-x: auto;
     overflow-y: hidden;
+    padding-block: 0 var(--section-local-padding-block);
     padding-inline: 0;
     scroll-padding-inline: var(--jestei-bento-page-x);
     scroll-snap-type: inline mandatory;
