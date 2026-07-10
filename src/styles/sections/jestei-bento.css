@@ -250,8 +250,18 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
   }
 
   .jestei-bento__card--steps .jestei-bento__title {
-    font-size: clamp(1.3rem, 7.4cqi, 1.82rem);
-    line-height: 0.94;
+    font-size: clamp(1.8rem, 20cqi, 2.5rem);
+    line-height: 0.88;
+  }
+
+  .jestei-bento__card--steps .jestei-bento__title strong {
+    font-size: 1em;
+    line-height: 0.88;
+  }
+
+  .jestei-bento__card--steps .jestei-bento__title span {
+    font-size: 0.58em;
+    line-height: 1.05;
   }
 
   .jestei-bento__content > p,
@@ -306,7 +316,7 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
   }
 
   .jestei-bento__card--steps .jestei-bento__title {
-    font-size: clamp(1.2rem, 6.8cqi, 1.55rem);
+    font-size: clamp(1.65rem, 18cqi, 2.1rem);
   }
 
   .jestei-bento__content > p,
