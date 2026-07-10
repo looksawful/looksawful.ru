@@ -149,37 +149,109 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
   max-inline-size: 14em;
 }
 
-@media (max-width: 72rem) {
+/* Tablet: preserve the desktop bento topology, but compress its scale. */
+@media (max-width: 72rem) and (min-width: 43.001rem) {
+  .jestei-bento {
+    --section-local-padding-block: clamp(1.15rem, 3.2cqi, 2.25rem);
+    --jestei-bento-page-x: clamp(0.7rem, 2cqi, 1.4rem);
+    --jestei-bento-gap: clamp(0.5rem, 1.25cqi, 0.95rem);
+    --jestei-bento-card-pad: clamp(0.78rem, 1.55cqi, 1.2rem);
+    --jestei-bento-radius: clamp(0.9rem, 1.65cqi, 1.45rem);
+  }
+
   .jestei-bento__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-areas:
-      "steps price"
-      "manual rebrand"
-      "manual products"
-      "audience products"
-      "audience usa";
-    grid-auto-rows: minmax(clamp(6.5rem, 17cqi, 10rem), auto);
+      "steps price rebrand"
+      "manual products rebrand"
+      "manual audience usa";
+    grid-auto-rows: minmax(clamp(7rem, 12.5cqi, 9.5rem), auto);
+  }
+
+  .jestei-bento__title,
+  .jestei-bento__title--metric,
+  .jestei-bento__title--price,
+  .jestei-bento__title--mixed,
+  .jestei-bento__card--audience .jestei-bento__title--regular,
+  .jestei-bento__card--products .jestei-bento__title--regular {
+    font-size: clamp(1.05rem, 5.2cqi, 1.55rem);
+  }
+
+  .jestei-bento__content > p,
+  main[data-showcase] .jestei-bento .jestei-bento__content > p,
+  .jestei-bento__card--audience .jestei-bento__content > p,
+  main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__content > p {
+    font-size: clamp(0.86rem, 3.3cqi, 1rem);
+    line-height: 1.3;
+  }
+
+  .jestei-bento__card--steps .jestei-bento__content {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   }
 }
 
-@media (max-width: 48rem) {
+/* Mobile: keep two columns, but give the long manual-work card the full row. */
+@media (max-width: 43rem) {
   .jestei-bento {
-    --section-local-padding-block: clamp(0.9rem, 6cqi, 2rem);
-    --jestei-bento-page-x: clamp(0.45rem, 2.4cqi, 0.9rem);
-    --jestei-bento-gap: clamp(0.35rem, 1.8cqi, 0.7rem);
-    --jestei-bento-card-pad: clamp(0.62rem, 3cqi, 1rem);
-    --jestei-bento-radius: clamp(0.72rem, 3.8cqi, 1.25rem);
+    --section-local-padding-block: clamp(0.95rem, 5cqi, 1.75rem);
+    --jestei-bento-page-x: clamp(0.45rem, 2.4cqi, 0.85rem);
+    --jestei-bento-gap: clamp(0.35rem, 1.8cqi, 0.68rem);
+    --jestei-bento-card-pad: clamp(0.68rem, 3cqi, 0.95rem);
+    --jestei-bento-radius: clamp(0.75rem, 3.6cqi, 1.2rem);
   }
 
   .jestei-bento__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
       "steps price"
-      "manual rebrand"
-      "manual products"
-      "audience products"
+      "manual manual"
+      "rebrand products"
       "audience usa";
-    grid-auto-rows: minmax(clamp(6rem, 22cqi, 8.5rem), auto);
+    grid-auto-rows: auto;
+    align-items: stretch;
+  }
+
+  .jestei-bento__card {
+    min-block-size: clamp(7.25rem, 27cqi, 9.25rem);
+  }
+
+  .jestei-bento__card--manual {
+    min-block-size: 0;
+  }
+
+  .jestei-bento__title,
+  .jestei-bento__title--metric,
+  .jestei-bento__title--price,
+  .jestei-bento__title--mixed,
+  .jestei-bento__card--audience .jestei-bento__title--regular,
+  .jestei-bento__card--products .jestei-bento__title--regular {
+    font-size: clamp(1.05rem, 5.8cqi, 1.42rem);
+    line-height: 1.02;
+  }
+
+  .jestei-bento__content > p,
+  main[data-showcase] .jestei-bento .jestei-bento__content > p,
+  .jestei-bento__card--audience .jestei-bento__content > p,
+  main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__content > p {
+    font-size: clamp(0.86rem, 3.9cqi, 1rem);
+    line-height: 1.32;
+  }
+
+  .jestei-bento__card--manual .jestei-bento__content {
+    grid-template-columns: minmax(8.5rem, 0.72fr) minmax(0, 1.28fr);
+    column-gap: clamp(0.8rem, 4cqi, 1.5rem);
+    align-items: start;
+  }
+
+  .jestei-bento__card--manual .jestei-bento__title {
+    font-size: clamp(1.2rem, 5.8cqi, 1.65rem);
+  }
+
+  .jestei-bento__card--manual .jestei-bento__content > p,
+  main[data-showcase] .jestei-bento .jestei-bento__card--manual .jestei-bento__content > p {
+    max-inline-size: 42rem;
+    font-size: clamp(0.92rem, 3.8cqi, 1.05rem);
+    line-height: 1.34;
   }
 
   .jestei-bento__card--steps .jestei-bento__content {
@@ -188,5 +260,39 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
 
   .jestei-bento__side-copy {
     max-inline-size: 100%;
+  }
+}
+
+/* Very narrow phones: preserve the two-column grid and avoid internal collisions. */
+@media (max-width: 25rem) {
+  .jestei-bento {
+    --jestei-bento-page-x: 0.4rem;
+    --jestei-bento-gap: 0.32rem;
+    --jestei-bento-card-pad: 0.62rem;
+  }
+
+  .jestei-bento__title,
+  .jestei-bento__title--metric,
+  .jestei-bento__title--price,
+  .jestei-bento__title--mixed,
+  .jestei-bento__card--audience .jestei-bento__title--regular,
+  .jestei-bento__card--products .jestei-bento__title--regular {
+    font-size: clamp(1rem, 5.6cqi, 1.24rem);
+  }
+
+  .jestei-bento__content > p,
+  main[data-showcase] .jestei-bento .jestei-bento__content > p,
+  .jestei-bento__card--audience .jestei-bento__content > p,
+  main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__content > p {
+    font-size: clamp(0.82rem, 3.9cqi, 0.92rem);
+  }
+
+  .jestei-bento__card--manual .jestei-bento__content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .jestei-bento__card--manual .jestei-bento__content > p,
+  main[data-showcase] .jestei-bento .jestei-bento__card--manual .jestei-bento__content > p {
+    font-size: clamp(0.9rem, 4cqi, 1rem);
   }
 }
