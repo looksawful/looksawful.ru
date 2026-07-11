@@ -358,7 +358,7 @@ main[data-showcase] #jestei-color .jestei-color-bento__tokens li > span:last-chi
   .jestei-color-bento__visual {
     align-self: auto;
     min-block-size: 0;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 19 / 10;
   }
 }
 
@@ -388,6 +388,7 @@ main[data-showcase] #jestei-color .jestei-color-bento__tokens li > span:last-chi
 
   .jestei-color-bento__visual {
     --jestei-color-visual-inset: clamp(0.5rem, 2.5cqi, 0.75rem);
+    aspect-ratio: 4 / 3;
   }
 }
 
