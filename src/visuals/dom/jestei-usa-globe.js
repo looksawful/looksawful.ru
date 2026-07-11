@@ -51,12 +51,14 @@ const AMERICAS = new Set([
   "Falkland Is.",
 ]);
 
-const FINAL_ROTATION = [84, -10, 0];
-const START_ROTATION = [104, -3, -5];
-const FINAL_SCALE = 0.49;
-const START_SCALE = 0.455;
-const FINAL_Y = 0.5;
-const START_Y = 0.535;
+const FINAL_ROTATION = [91, -13, 0];
+const START_ROTATION = [108, -5, -5];
+const FINAL_SCALE = 0.455;
+const START_SCALE = 0.425;
+const FINAL_X = 0.435;
+const START_X = 0.485;
+const FINAL_Y = 0.585;
+const START_Y = 0.545;
 const DURATION = 1450;
 
 let librariesPromise;
@@ -72,15 +74,17 @@ function loadLibraries() {
 
 function loadTopology(signal) {
   if (!topologyPromise) {
-    topologyPromise = fetch(GEO_DATA_URL, { signal }).then((response) => {
-      if (!response.ok) {
-        throw new Error(`Jestei globe geodata request failed: ${response.status}`);
-      }
-      return response.json();
-    }).catch((error) => {
-      topologyPromise = undefined;
-      throw error;
-    });
+    topologyPromise = fetch(GEO_DATA_URL, { signal })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Jestei globe geodata request failed: ${response.status}`);
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        topologyPromise = undefined;
+        throw error;
+      });
   }
   return topologyPromise;
 }
@@ -122,17 +126,19 @@ async function mountGlobe(svgNode) {
     let hasAnimated = false;
     let currentRotation = staticMode ? FINAL_ROTATION : START_ROTATION;
     let currentScale = staticMode ? FINAL_SCALE : START_SCALE;
+    let currentX = staticMode ? FINAL_X : START_X;
     let currentY = staticMode ? FINAL_Y : START_Y;
 
-    function renderState(rotation, scaleFactor, yFactor) {
+    function renderState(rotation, scaleFactor, xFactor, yFactor) {
       if (!projection || !path || disposed) return;
 
       currentRotation = rotation;
       currentScale = scaleFactor;
+      currentX = xFactor;
       currentY = yFactor;
 
       projection
-        .translate([width * 0.5, height * yFactor])
+        .translate([width * xFactor, height * yFactor])
         .scale(Math.min(width, height) * scaleFactor)
         .rotate(rotation);
 
@@ -147,33 +153,28 @@ async function mountGlobe(svgNode) {
       height = Math.max(260, rect.height);
       svg.attr("viewBox", `0 0 ${width} ${height}`);
 
-      projection = d3.geoOrthographic()
-        .clipAngle(90)
-        .precision(0.12);
+      projection = d3.geoOrthographic().clipAngle(90).precision(0.12);
       path = d3.geoPath(projection);
 
       svg.selectAll("*").remove();
-      svg.append("path")
-        .datum(d3.geoGraticule10())
-        .attr("class", "graticule");
+      svg.append("path").datum(d3.geoGraticule10()).attr("class", "graticule");
 
-      svg.append("g")
+      svg
+        .append("g")
         .attr("class", "countries")
         .selectAll("path")
         .data(features)
         .join("path")
-        .attr("class", (feature) => String(feature.id) === "840" ? "usa" : "country");
+        .attr("class", (feature) => (String(feature.id) === "840" ? "usa" : "country"));
 
-      svg.append("path")
-        .datum({ type: "Sphere" })
-        .attr("class", "sphere");
+      svg.append("path").datum({ type: "Sphere" }).attr("class", "sphere");
 
-      renderState(currentRotation, currentScale, currentY);
+      renderState(currentRotation, currentScale, currentX, currentY);
     }
 
     function renderFinal() {
       win.cancelAnimationFrame(animationFrame);
-      renderState(FINAL_ROTATION, FINAL_SCALE, FINAL_Y);
+      renderState(FINAL_ROTATION, FINAL_SCALE, FINAL_X, FINAL_Y);
     }
 
     function animateIn() {
@@ -193,9 +194,10 @@ async function mountGlobe(svgNode) {
         const eased = d3.easeCubicOut(raw);
         const rotation = interpolateRotation(eased);
         const scale = START_SCALE + (FINAL_SCALE - START_SCALE) * eased;
+        const x = START_X + (FINAL_X - START_X) * eased;
         const y = START_Y + (FINAL_Y - START_Y) * eased;
 
-        renderState(rotation, scale, y);
+        renderState(rotation, scale, x, y);
 
         if (raw < 1) {
           animationFrame = win.requestAnimationFrame(frame);
@@ -212,12 +214,15 @@ async function mountGlobe(svgNode) {
     if (staticMode) {
       renderFinal();
     } else if ("IntersectionObserver" in win) {
-      intersectionObserver = new win.IntersectionObserver((entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          animateIn();
-          intersectionObserver?.disconnect();
-        }
-      }, { threshold: 0.28, rootMargin: "0px 0px -6% 0px" });
+      intersectionObserver = new win.IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            animateIn();
+            intersectionObserver?.disconnect();
+          }
+        },
+        { threshold: 0.28, rootMargin: "0px 0px -6% 0px" },
+      );
       intersectionObserver.observe(card || svgNode);
     } else {
       animateIn();
