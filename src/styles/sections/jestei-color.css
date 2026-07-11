@@ -6,9 +6,9 @@
   --jestei-color-title-size: clamp(1.55rem, 9.2cqi, 4.2rem);
   --jestei-color-copy-size: clamp(0.95rem, 1.05cqi, 1.18rem);
   --jestei-color-theme-title-size: clamp(1.35rem, 5.8cqi, 2rem);
-  --jestei-color-theme-label-size: clamp(0.8rem, 1.18cqi, 0.9rem);
-  --jestei-color-token-size: clamp(0.875rem, 1.4cqi, 0.98rem);
-  --jestei-color-swatch-size: clamp(0.92rem, 1.65cqi, 1.12rem);
+  --jestei-color-theme-label-size: clamp(0.875rem, 1.2cqi, 1rem);
+  --jestei-color-token-size: clamp(0.875rem, 1.35cqi, 1rem);
+  --jestei-color-swatch-size: clamp(0.95rem, 1.6cqi, 1.12rem);
   container-type: inline-size;
   margin-block: 0;
   color: var(--black);
@@ -40,7 +40,6 @@ main[data-showcase] .jestei-color [data-section-screen] {
 
 .jestei-color-bento__content {
   display: grid;
-  grid-template-rows: none;
   gap: var(--jestei-color-gap);
   align-content: start;
   min-inline-size: 0;
@@ -146,11 +145,10 @@ main[data-showcase] .jestei-color .jestei-color-bento__lead {
 .jestei-color-bento__palette {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: max-content;
   gap: var(--jestei-color-gap);
   min-inline-size: 0;
   align-content: start;
-  align-items: start;
+  align-items: stretch;
 }
 
 .jestei-color-bento__card {
@@ -165,9 +163,10 @@ main[data-showcase] .jestei-color .jestei-color-bento__lead {
   --theme-mid: color-mix(in srgb, var(--theme) 62%, var(--white));
   --theme-dark: color-mix(in srgb, var(--theme) 76%, var(--black));
   grid-template-rows: auto auto;
-  gap: clamp(0.95rem, 4.8cqi, 1.4rem);
+  gap: clamp(1rem, 4cqi, 1.4rem);
   align-content: start;
-  min-block-size: clamp(9.25rem, 26cqi, 11.5rem);
+  min-block-size: 0;
+  container-name: color-theme;
 }
 
 .jestei-color-bento__theme--orange {
@@ -188,17 +187,30 @@ main[data-showcase] .jestei-color .jestei-color-bento__lead {
 
 .jestei-color-bento__theme-head {
   display: grid;
-  gap: clamp(0.4rem, 1.8cqi, 0.65rem);
+  gap: clamp(0.38rem, 1.4cqi, 0.6rem);
   min-inline-size: 0;
 }
 
 .jestei-color-bento__theme-head > span {
+  display: block;
+  inline-size: max-content;
+  max-inline-size: 100%;
   min-inline-size: 0;
-  color: color-mix(in srgb, var(--black) 66%, transparent);
+  color: color-mix(in srgb, var(--black) 68%, transparent);
   font-size: var(--jestei-color-theme-label-size);
-  font-weight: 650;
-  line-height: 1.15;
+  font-weight: 600;
+  font-stretch: normal;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
   text-transform: lowercase;
+  white-space: nowrap;
+  transform: none;
+  translate: none;
+  rotate: none;
+  scale: none;
+  animation: none;
+  transition: none;
+  will-change: auto;
 }
 
 .jestei-color-bento__theme h3,
@@ -210,7 +222,7 @@ main[data-showcase] #jestei-color .jestei-color-bento__theme h3 {
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.035em;
-  overflow-wrap: normal;
+  overflow-wrap: anywhere;
   text-wrap: balance;
   word-break: normal;
   hyphens: manual;
@@ -219,7 +231,7 @@ main[data-showcase] #jestei-color .jestei-color-bento__theme h3 {
 .jestei-color-bento__tokens {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(0.36rem, 1.55cqi, 0.58rem);
+  gap: clamp(0.4rem, 1.5cqi, 0.62rem);
   min-inline-size: 0;
   margin: 0;
   padding: 0;
@@ -228,20 +240,40 @@ main[data-showcase] #jestei-color .jestei-color-bento__theme h3 {
 
 .jestei-color-bento__tokens li {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(3ch, 1fr);
   align-items: center;
-  gap: clamp(0.35rem, 1.4cqi, 0.55rem);
+  gap: clamp(0.4rem, 1.35cqi, 0.58rem);
   min-inline-size: 0;
-  min-block-size: clamp(1.9rem, 7cqi, 2.35rem);
-  padding: clamp(0.34rem, 1.45cqi, 0.55rem);
+  min-block-size: clamp(2.1rem, 7cqi, 2.55rem);
+  padding: clamp(0.38rem, 1.4cqi, 0.58rem);
   border: 1px solid color-mix(in srgb, var(--black) 18%, transparent);
-  border-radius: clamp(0.45rem, 1.8cqi, 0.72rem);
+  border-radius: clamp(0.48rem, 1.8cqi, 0.75rem);
   background: var(--white);
   color: var(--black);
   font-size: var(--jestei-color-token-size);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   line-height: 1;
+}
+
+.jestei-color-bento__tokens li > span:last-child {
+  display: block;
+  inline-size: auto;
+  min-inline-size: 3ch;
+  max-inline-size: 100%;
+  color: var(--black);
+  font: inherit;
+  font-stretch: normal;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  transform: none;
+  translate: none;
+  rotate: none;
+  scale: none;
+  animation: none;
+  transition: none;
+  will-change: auto;
 }
 
 .jestei-color-bento__swatch {
@@ -251,6 +283,7 @@ main[data-showcase] #jestei-color .jestei-color-bento__theme h3 {
   border: 1px solid color-mix(in srgb, var(--black) 18%, transparent);
   border-radius: 999px;
   background: var(--theme);
+  transform: none;
 }
 
 .jestei-color-bento__swatch--100 {
@@ -270,72 +303,62 @@ main[data-showcase] #jestei-color .jestei-color-bento__theme h3 {
 }
 
 .jestei-color-bento__visual {
-  display: grid;
+  --jestei-color-visual-inset: clamp(0.65rem, 1.25cqi, 1.25rem);
+  position: relative;
+  display: block;
   align-self: stretch;
-  min-block-size: clamp(28rem, 55cqi, 52rem);
+  min-block-size: 0;
   padding: 0;
   overflow: hidden;
   text-decoration: none;
   background: var(--black);
+  isolation: isolate;
 }
 
 .jestei-color-bento__visual img {
+  position: absolute;
+  inset: var(--jestei-color-visual-inset);
   display: block;
-  inline-size: 100%;
-  block-size: 100%;
+  inline-size: calc(100% - 2 * var(--jestei-color-visual-inset));
+  block-size: calc(100% - 2 * var(--jestei-color-visual-inset));
+  max-inline-size: none;
+  max-block-size: none;
   object-fit: contain;
   object-position: center;
-  background: var(--black);
+  background: transparent;
 }
 
-@media (max-width: 72rem) {
+@media (max-width: 76rem) {
   .jestei-color {
-    --jestei-color-gap: clamp(0.5rem, 1.8cqi, 0.9rem);
-    --jestei-color-pad: clamp(0.78rem, 2.1cqi, 1.08rem);
-    --jestei-color-title-size: clamp(1.5rem, 8.5cqi, 3.1rem);
-    --jestei-color-copy-size: clamp(0.9rem, 1.55cqi, 1.02rem);
-    --jestei-color-theme-title-size: clamp(1.25rem, 5.6cqi, 1.55rem);
+    --jestei-color-gap: clamp(0.55rem, 1.8cqi, 0.9rem);
+    --jestei-color-pad: clamp(0.82rem, 2.1cqi, 1.12rem);
+    --jestei-color-title-size: clamp(1.5rem, 8.5cqi, 3.4rem);
+    --jestei-color-copy-size: clamp(0.92rem, 1.55cqi, 1.04rem);
+    --jestei-color-theme-title-size: clamp(1.28rem, 5.6cqi, 1.7rem);
   }
 
   .jestei-color-bento {
-    grid-template-columns: minmax(0, 1fr) minmax(min(24rem, 100%), 0.9fr);
+    grid-template-columns: minmax(0, 1fr);
     inline-size: min(calc(100% - var(--space-6)), var(--case-wide));
   }
 
-  .jestei-color-bento__theme {
-    min-block-size: clamp(8.85rem, 25cqi, 10.75rem);
-  }
-
   .jestei-color-bento__visual {
-    min-block-size: clamp(25rem, 58cqi, 42rem);
-  }
-}
-
-@media (max-width: 64rem) {
-  .jestei-color-bento {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .jestei-color-bento__content {
-    grid-template-rows: none;
-  }
-
-  .jestei-color-bento__visual {
+    align-self: auto;
     min-block-size: 0;
-    aspect-ratio: 1542 / 1841;
+    aspect-ratio: 4 / 3;
   }
 }
 
-@media (max-width: 34rem) {
+@media (max-width: 42rem) {
   .jestei-color {
-    --jestei-color-gap: clamp(0.42rem, 2.5cqi, 0.66rem);
-    --jestei-color-pad: clamp(0.66rem, 3cqi, 0.9rem);
-    --jestei-color-title-size: clamp(1.35rem, 8.4cqi, 2.15rem);
-    --jestei-color-copy-size: clamp(0.82rem, 3.5cqi, 0.94rem);
-    --jestei-color-theme-title-size: clamp(1.04rem, 6.8cqi, 1.28rem);
-    --jestei-color-theme-label-size: clamp(0.78rem, 3.4cqi, 0.86rem);
-    --jestei-color-token-size: clamp(0.82rem, 3.7cqi, 0.9rem);
-    --jestei-color-swatch-size: clamp(0.82rem, 4cqi, 0.96rem);
+    --jestei-color-gap: clamp(0.48rem, 2.2cqi, 0.72rem);
+    --jestei-color-pad: clamp(0.72rem, 3cqi, 0.96rem);
+    --jestei-color-title-size: clamp(1.4rem, 8.4cqi, 2.4rem);
+    --jestei-color-copy-size: clamp(0.875rem, 3.5cqi, 0.98rem);
+    --jestei-color-theme-title-size: clamp(1.18rem, 6.2cqi, 1.45rem);
+    --jestei-color-theme-label-size: clamp(0.84rem, 3.4cqi, 0.94rem);
+    --jestei-color-token-size: clamp(0.875rem, 3.7cqi, 0.96rem);
+    --jestei-color-swatch-size: clamp(0.88rem, 4cqi, 1rem);
   }
 
   main[data-showcase] .jestei-color [data-section-screen] {
@@ -347,20 +370,16 @@ main[data-showcase] #jestei-color .jestei-color-bento__theme h3 {
   }
 
   .jestei-color-bento__palette {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .jestei-color-bento__theme {
-    min-block-size: clamp(8.5rem, 43cqi, 10rem);
-  }
-
-  .jestei-color-bento__tokens {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .jestei-color-bento__visual {
+    --jestei-color-visual-inset: clamp(0.5rem, 2.5cqi, 0.75rem);
   }
 }
 
-@media (max-width: 30rem) {
-  .jestei-color-bento__palette {
+@media (max-width: 22rem) {
+  .jestei-color-bento__tokens {
     grid-template-columns: minmax(0, 1fr);
   }
 }
