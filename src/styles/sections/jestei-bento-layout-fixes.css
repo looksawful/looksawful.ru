@@ -1,4 +1,4 @@
-/* Targeted layout corrections for the Jestei achievements bento. */
+/* Final override layer for targeted Jestei achievements bento corrections. */
 
 /* Keep the USA globe fully visible without a white gradient mask. */
 #jestei-results .jestei-bento__globe::after {
