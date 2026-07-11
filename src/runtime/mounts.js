@@ -12,6 +12,13 @@ export const MOUNTS = [
     load: () => import("../vendor/gsap-globals.js"),
   },
   {
+    id: "jesteiBentoBrandLogo",
+    phase: "critical",
+    selector: "#jestei-results .jestei-bento__logo-inspector",
+    load: () => import("../visuals/dom/jestei-bento-brand-logo.js"),
+    mount: (module, root) => module.mountJesteiBentoBrandLogo(root),
+  },
+  {
     id: "components",
     phase: "content",
     selector: "#main",
