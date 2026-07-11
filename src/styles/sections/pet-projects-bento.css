@@ -1,10 +1,7 @@
 .pet-projects-bento {
   --pet-bento-gap: clamp(0.75rem, 1.55vw, 1.35rem);
-  --pet-bento-pad: clamp(1rem, 2vw, 1.6rem);
   --pet-bento-radius: clamp(1rem, 1.75vw, 1.65rem);
   --pet-bento-title: clamp(2.4rem, 6vw, 5.4rem);
-  --pet-bento-card-title: clamp(1.55rem, 3.2vw, 3rem);
-  --pet-bento-copy: clamp(0.95rem, 0.72vw + 0.82rem, 1.14rem);
   container-type: inline-size;
   margin-block: clamp(1.5rem, 4vw, 4.5rem);
   color: var(--black);
@@ -37,49 +34,40 @@ main[data-showcase] #pet-projects [data-section-screen] {
 
 .pet-projects-bento__grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--pet-bento-gap);
   align-items: stretch;
   min-inline-size: 0;
 }
 
-.pet-projects-bento__card {
-  display: grid;
-  grid-template-rows: minmax(14rem, 1fr) auto;
-  gap: clamp(0.8rem, 1.6vw, 1.2rem);
+.pet-projects-bento__card,
+.pet-projects-bento__card--berserk,
+.pet-projects-bento__card--awful-cases,
+.pet-projects-bento__card--awful-audit {
+  position: relative;
+  display: block;
+  grid-column: auto;
   min-inline-size: 0;
-  min-block-size: clamp(25rem, 43vw, 38rem);
+  min-block-size: 0;
+  aspect-ratio: 3 / 4;
   border: var(--line);
   border-radius: var(--pet-bento-radius);
-  padding: var(--pet-bento-pad);
+  padding: 0;
   background: var(--white);
   color: var(--black);
   overflow: hidden;
 }
 
-.pet-projects-bento__card--berserk {
-  grid-column: span 2;
-}
-
-.pet-projects-bento__card--awful-cases {
-  grid-column: span 4;
-}
-
-.pet-projects-bento__card--awful-audit {
-  grid-column: span 6;
-  grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
-  grid-template-rows: minmax(18rem, 1fr);
-  align-items: stretch;
-}
-
 .pet-projects-bento__media {
-  --pet-preview-scale: 0.32;
-  position: relative;
+  position: absolute;
+  inset: 0;
   display: block;
+  inline-size: 100%;
+  block-size: 100%;
   min-inline-size: 0;
   min-block-size: 0;
-  border: var(--line);
-  border-radius: calc(var(--pet-bento-radius) * 0.62);
+  border: 0;
+  border-radius: 0;
   background: var(--white);
   color: inherit;
   overflow: hidden;
@@ -92,91 +80,198 @@ main[data-showcase] #pet-projects [data-section-screen] {
   block-size: 100%;
   min-block-size: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: top center;
 }
 
 .pet-projects-bento__frame {
   position: absolute;
   inset: 0 auto auto 0;
   display: block;
-  inline-size: calc(100% / var(--pet-preview-scale));
-  block-size: calc(100% / var(--pet-preview-scale));
   border: 0;
   background: var(--white);
-  transform: scale(var(--pet-preview-scale));
   transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.pet-projects-bento__open {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  border: 0;
+  border-radius: inherit;
+  padding: 0;
+  background: transparent;
+  color: var(--black);
+  cursor: zoom-in;
+}
+
+.pet-projects-bento__open::after {
+  content: "↗";
+  position: absolute;
+  inset-block-start: clamp(0.65rem, 1.3vw, 0.95rem);
+  inset-inline-end: clamp(0.65rem, 1.3vw, 0.95rem);
+  display: grid;
+  place-items: center;
+  inline-size: clamp(2.55rem, 3.3vw, 3.2rem);
+  block-size: clamp(2.55rem, 3.3vw, 3.2rem);
+  border: var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--white) 92%, transparent);
+  color: var(--black);
+  font-size: clamp(1.15rem, 1.7vw, 1.55rem);
+  line-height: 1;
+  box-shadow: 0 0.45rem 1.4rem rgba(0, 0, 0, 0.12);
+  transition: transform 160ms var(--ease-standard), background-color 160ms var(--ease-standard), color 160ms var(--ease-standard);
+}
+
+.pet-projects-bento__open:hover::after,
+.pet-projects-bento__open:focus-visible::after {
+  background: var(--black);
+  color: var(--white);
+  transform: scale(1.06);
+}
+
+.pet-projects-bento__open:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: -3px;
 }
 
 .pet-projects-bento__body {
-  display: grid;
-  align-content: end;
-  gap: clamp(0.45rem, 1.1vw, 0.75rem);
-  min-inline-size: 0;
+  display: none;
 }
 
-.pet-projects-bento__body h3 {
-  margin: 0;
+.pet-project-modal {
+  inline-size: min(calc(100vw - 2rem), 96rem);
+  block-size: min(calc(100dvh - 2rem), 60rem);
+  max-inline-size: none;
+  max-block-size: none;
+  margin: auto;
+  border: var(--line);
+  border-radius: clamp(0.85rem, 1.6vw, 1.5rem);
+  padding: 0;
+  background: var(--white);
   color: var(--black);
-  font-size: var(--pet-bento-card-title);
-  font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: -0.025em;
-  overflow-wrap: normal;
-  word-break: normal;
-  hyphens: none;
+  overflow: hidden;
+  box-shadow: 0 1.5rem 5rem rgba(0, 0, 0, 0.28);
 }
 
-.pet-projects-bento__body a {
-  color: inherit;
-  text-decoration: none;
+.pet-project-modal::backdrop {
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(0.3rem);
 }
 
-.pet-projects-bento__body a:hover,
-.pet-projects-bento__body a:focus-visible {
-  text-decoration: underline;
-  text-decoration-thickness: 0.08em;
-  text-underline-offset: 0.12em;
+.pet-project-modal__shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  background: var(--white);
+}
+
+.pet-project-modal__bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-block-size: 3.75rem;
+  border-block-end: var(--line);
+  padding: 0.55rem 0.65rem 0.55rem clamp(1rem, 2vw, 1.5rem);
+  background: var(--white);
+}
+
+.pet-project-modal__title {
+  min-inline-size: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--black);
+  font-size: clamp(0.92rem, 1.1vw, 1.08rem);
+  font-weight: 700;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pet-project-modal__close {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  inline-size: 2.7rem;
+  block-size: 2.7rem;
+  border: var(--line);
+  border-radius: 999px;
+  padding: 0 0 0.16rem;
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  font-size: 1.7rem;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pet-project-modal__close:hover,
+.pet-project-modal__close:focus-visible {
+  background: var(--black);
+  color: var(--white);
   outline: 0;
 }
 
-.pet-projects-bento__body p {
-  max-inline-size: 32rem;
-  margin: 0;
-  color: var(--black);
-  font-size: var(--pet-bento-copy);
-  line-height: 1.28;
-  letter-spacing: 0;
-  text-wrap: pretty;
+.pet-project-modal__body {
+  min-inline-size: 0;
+  min-block-size: 0;
+  background: var(--white);
+  overflow: hidden;
 }
 
-@media (min-width: 72.001rem) {
-  .pet-projects-bento__card--awful-cases .pet-projects-bento__media,
-  .pet-projects-bento__card--awful-audit .pet-projects-bento__media {
-    --pet-preview-scale: 0.5;
-  }
+.pet-project-modal__frame {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  border: 0;
+  background: var(--white);
 }
 
-@media (max-width: 72rem) {
+html.pet-project-modal-open,
+html.pet-project-modal-open body {
+  overflow: hidden;
+}
+
+@media (max-width: 58rem) {
   .pet-projects-bento__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    gap: var(--pet-bento-gap);
+    align-items: stretch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 
+  .pet-projects-bento__grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pet-projects-bento__card,
   .pet-projects-bento__card--berserk,
   .pet-projects-bento__card--awful-cases,
   .pet-projects-bento__card--awful-audit {
-    grid-column: span 1;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(13rem, 1fr) auto;
+    flex: 0 0 min(82vw, 25rem);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 }
 
 @media (max-width: 44rem) {
   .pet-projects-bento {
-    --pet-bento-gap: clamp(0.55rem, 3vw, 0.85rem);
-    --pet-bento-pad: clamp(0.82rem, 4vw, 1.08rem);
+    --pet-bento-gap: clamp(0.65rem, 3vw, 0.9rem);
     --pet-bento-title: clamp(2rem, 12vw, 3.25rem);
-    --pet-bento-card-title: clamp(1.35rem, 8vw, 2.05rem);
-    --pet-bento-copy: clamp(0.88rem, 3.7vw, 1rem);
   }
 
   main[data-showcase] #pet-projects [data-section-screen] {
@@ -184,11 +279,35 @@ main[data-showcase] #pet-projects [data-section-screen] {
     padding-block: clamp(1rem, 6vw, 2.3rem);
   }
 
-  .pet-projects-bento__grid {
-    grid-template-columns: minmax(0, 1fr);
+  .pet-projects-bento__card,
+  .pet-projects-bento__card--berserk,
+  .pet-projects-bento__card--awful-cases,
+  .pet-projects-bento__card--awful-audit {
+    flex-basis: min(84vw, 23rem);
   }
 
-  .pet-projects-bento__card {
-    min-block-size: clamp(22rem, 88vw, 30rem);
+  .pet-project-modal {
+    inline-size: 100vw;
+    block-size: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .pet-project-modal__bar {
+    min-block-size: calc(3.7rem + env(safe-area-inset-top));
+    padding-block-start: max(0.55rem, env(safe-area-inset-top));
+    padding-inline-start: max(1rem, env(safe-area-inset-left));
+    padding-inline-end: max(0.65rem, env(safe-area-inset-right));
+  }
+
+  .pet-project-modal__close {
+    inline-size: 2.9rem;
+    block-size: 2.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-projects-bento__open::after {
+    transition: none;
   }
 }
