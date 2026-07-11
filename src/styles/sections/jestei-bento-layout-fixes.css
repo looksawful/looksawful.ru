@@ -69,6 +69,33 @@
 }
 
 @media (max-width: 43rem) {
+  #jestei-results .jestei-bento__card--price .jestei-bento__title--price {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(0.18rem, 0.8cqi, 0.42rem);
+    align-items: start;
+    white-space: normal;
+  }
+
+  #jestei-results .jestei-bento__card--price .jestei-bento__title--price strong,
+  #jestei-results .jestei-bento__card--price .jestei-bento__title--price span {
+    display: block;
+    justify-self: start;
+  }
+
+  #jestei-results .jestei-bento__card--price .jestei-bento__title--price strong {
+    font-size: clamp(4.4rem, 21vw, 6.2rem);
+    line-height: 0.86;
+    letter-spacing: -0.06em;
+  }
+
+  #jestei-results .jestei-bento__card--price .jestei-bento__title--price span {
+    font-size: clamp(1.45rem, 6.2vw, 2rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    white-space: normal;
+  }
+
   #jestei-results .jestei-bento__steps-visual {
     inset-inline: 14%;
     inline-size: 72%;
