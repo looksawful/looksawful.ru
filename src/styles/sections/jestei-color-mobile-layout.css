@@ -1,0 +1,37 @@
+/* Mobile color section: keep the four theme cards in a 2 × 2 grid and place the visual in the next horizontal snap. */
+@media (max-width: 42rem) {
+  .jestei-color-bento {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    align-items: stretch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: inline mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .jestei-color-bento::-webkit-scrollbar {
+    display: none;
+  }
+
+  .jestei-color-bento__content,
+  .jestei-color-bento__visual {
+    min-inline-size: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .jestei-color-bento__palette {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .jestei-color-bento__visual {
+    align-self: stretch;
+    min-block-size: 100%;
+    aspect-ratio: auto;
+  }
+}
