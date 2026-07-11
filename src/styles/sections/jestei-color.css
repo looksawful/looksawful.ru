@@ -6,8 +6,8 @@
   --jestei-color-title-size: clamp(1.55rem, 9.2cqi, 4.2rem);
   --jestei-color-copy-size: clamp(0.95rem, 1.05cqi, 1.18rem);
   --jestei-color-theme-title-size: clamp(1.35rem, 5.8cqi, 2rem);
-  --jestei-color-theme-label-size: clamp(0.72rem, 1.18cqi, 0.84rem);
-  --jestei-color-token-size: clamp(0.82rem, 1.4cqi, 0.96rem);
+  --jestei-color-theme-label-size: clamp(0.8rem, 1.18cqi, 0.9rem);
+  --jestei-color-token-size: clamp(0.875rem, 1.4cqi, 0.98rem);
   --jestei-color-swatch-size: clamp(0.92rem, 1.65cqi, 1.12rem);
   container-type: inline-size;
   margin-block: 0;
@@ -188,7 +188,7 @@ main[data-showcase] .jestei-color .jestei-color-bento__lead {
 
 .jestei-color-bento__theme-head {
   display: grid;
-  gap: clamp(0.22rem, 1.4cqi, 0.45rem);
+  gap: clamp(0.4rem, 1.8cqi, 0.65rem);
   min-inline-size: 0;
 }
 
@@ -197,7 +197,7 @@ main[data-showcase] .jestei-color .jestei-color-bento__lead {
   color: color-mix(in srgb, var(--black) 66%, transparent);
   font-size: var(--jestei-color-theme-label-size);
   font-weight: 650;
-  line-height: 1;
+  line-height: 1.15;
   text-transform: lowercase;
 }
 
@@ -294,7 +294,7 @@ main[data-showcase] #jestei-color .jestei-color-bento__theme h3 {
     --jestei-color-pad: clamp(0.78rem, 2.1cqi, 1.08rem);
     --jestei-color-title-size: clamp(1.5rem, 8.5cqi, 3.1rem);
     --jestei-color-copy-size: clamp(0.9rem, 1.55cqi, 1.02rem);
-    --jestei-color-theme-title-size: clamp(1.18rem, 5.6cqi, 1.55rem);
+    --jestei-color-theme-title-size: clamp(1.25rem, 5.6cqi, 1.55rem);
   }
 
   .jestei-color-bento {
@@ -311,7 +311,7 @@ main[data-showcase] #jestei-color .jestei-color-bento__theme h3 {
   }
 }
 
-@media (max-width: 54rem) {
+@media (max-width: 64rem) {
   .jestei-color-bento {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -333,8 +333,8 @@ main[data-showcase] #jestei-color .jestei-color-bento__theme h3 {
     --jestei-color-title-size: clamp(1.35rem, 8.4cqi, 2.15rem);
     --jestei-color-copy-size: clamp(0.82rem, 3.5cqi, 0.94rem);
     --jestei-color-theme-title-size: clamp(1.04rem, 6.8cqi, 1.28rem);
-    --jestei-color-theme-label-size: clamp(0.68rem, 3.4cqi, 0.78rem);
-    --jestei-color-token-size: clamp(0.72rem, 3.7cqi, 0.84rem);
+    --jestei-color-theme-label-size: clamp(0.78rem, 3.4cqi, 0.86rem);
+    --jestei-color-token-size: clamp(0.82rem, 3.7cqi, 0.9rem);
     --jestei-color-swatch-size: clamp(0.82rem, 4cqi, 0.96rem);
   }
 
@@ -359,7 +359,7 @@ main[data-showcase] #jestei-color .jestei-color-bento__theme h3 {
   }
 }
 
-@media (max-width: 24rem) {
+@media (max-width: 30rem) {
   .jestei-color-bento__palette {
     grid-template-columns: minmax(0, 1fr);
   }
