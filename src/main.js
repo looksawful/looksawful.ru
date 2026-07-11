@@ -80,6 +80,73 @@ function mountLivePetProjectPreviews(root = document) {
   });
 }
 
+function setupStyxSliderLayout(root = document) {
+  const slider = root.querySelector("#styx-work-slider");
+  const track = slider?.querySelector("[data-horizontal-slider-track]");
+
+  if (!slider || !track) {
+    return;
+  }
+
+  track.querySelectorAll('img[loading="lazy"]').forEach((image) => {
+    image.removeAttribute("loading");
+  });
+
+  const slides = Array.from(track.querySelectorAll(".styx-work-slider__slide"));
+  if (!slides.length) {
+    return;
+  }
+
+  if (slider.dataset.styxSliderLayoutReady === "true") {
+    slider.styxSliderSyncHeight?.();
+    return;
+  }
+
+  const getActiveSlide = () => {
+    const trackCenter = track.scrollLeft + track.clientWidth / 2;
+
+    return slides.reduce((closest, slide) => {
+      const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
+      const closestCenter = closest.offsetLeft + closest.offsetWidth / 2;
+      return Math.abs(slideCenter - trackCenter) < Math.abs(closestCenter - trackCenter) ? slide : closest;
+    }, slides[0]);
+  };
+
+  const syncHeight = () => {
+    const activeSlide = getActiveSlide();
+    const activeHeight = Math.ceil(activeSlide.getBoundingClientRect().height);
+
+    if (activeHeight > 0) {
+      track.style.setProperty("--styx-slider-active-height", `${activeHeight}px`);
+    }
+  };
+
+  let frameId = 0;
+  const scheduleSyncHeight = () => {
+    cancelAnimationFrame(frameId);
+    frameId = requestAnimationFrame(syncHeight);
+  };
+
+  slider.dataset.styxSliderLayoutReady = "true";
+  slider.styxSliderSyncHeight = scheduleSyncHeight;
+
+  track.addEventListener("scroll", scheduleSyncHeight, { passive: true });
+  window.addEventListener("resize", scheduleSyncHeight, { passive: true });
+
+  track.querySelectorAll("img, video").forEach((media) => {
+    const eventName = media.tagName === "IMG" ? "load" : "loadedmetadata";
+    media.addEventListener(eventName, scheduleSyncHeight, { once: true });
+  });
+
+  if ("ResizeObserver" in window) {
+    const resizeObserver = new ResizeObserver(scheduleSyncHeight);
+    slides.forEach((slide) => resizeObserver.observe(slide));
+    slider.styxSliderResizeObserver = resizeObserver;
+  }
+
+  scheduleSyncHeight();
+}
+
 async function start() {
   removeHeroOnlyConstraints(document);
 
@@ -87,6 +154,7 @@ async function start() {
     const { prepareHomepagePublication } = await import("./homepage-publication.js");
     prepareHomepagePublication(document);
     mountLivePetProjectPreviews(document);
+    setupStyxSliderLayout(document);
   } finally {
     placeTariffsAfterColor(document);
     removeHeroOnlyConstraints(document);
@@ -94,6 +162,7 @@ async function start() {
 
   const { initRuntime } = await import("./runtime/init-runtime.js");
   await initRuntime(document);
+  setupStyxSliderLayout(document);
   removeHeroOnlyConstraints(document);
 }
 
