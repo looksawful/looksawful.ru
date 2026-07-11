@@ -38,6 +38,50 @@ This creates four distinct roles without forcing equal card heights:
 
 Do not assign one universal `min-height` to all cards. Grid tracks must be content-controlled and media modules must have explicit maximum heights.
 
+## Horizontal fields and section width
+
+The interface bento must use exactly the same horizontal field contract already used by the first Jestei bento. Do not invent a separate desktop width system for this section.
+
+Desktop contract:
+
+```css
+.jestei-interface-bento {
+  --jestei-interface-bento-page-x: clamp(0.5rem, 2.2cqi, 2rem);
+}
+
+main[data-showcase] .jestei-interface-bento [data-section-screen] {
+  grid-template-columns: minmax(0, 1fr);
+  inline-size: 100%;
+  max-inline-size: none;
+  padding-inline: var(--jestei-interface-bento-page-x);
+}
+
+.jestei-interface-bento__grid {
+  inline-size: 100%;
+  min-inline-size: 0;
+  margin-inline: 0;
+}
+```
+
+These values and rules mirror the existing first Jestei bento contract. The left and right edges of both bento grids must align exactly at the same desktop viewport width.
+
+Do not add:
+
+- a second centered wrapper;
+- `max-inline-size: var(--page-max)` on the inner bento grid;
+- `inline-size: var(--page)` or `var(--case-wide)` for this grid;
+- extra inline margins around the grid;
+- additional card-grid padding inside the section-screen padding.
+
+Responsive field values must follow the first Jestei bento values:
+
+- desktop above `72rem`: `clamp(0.5rem, 2.2cqi, 2rem)`;
+- tablet through `72rem`: `clamp(0.7rem, 2cqi, 1.4rem)`;
+- mobile: `clamp(0.45rem, 2.4cqi, 0.85rem)`;
+- below `25rem`: `0.4rem`.
+
+The layout breakpoint may differ where required by the four-card composition, but horizontal fields must not drift from the first Jestei bento.
+
 ## Compactness rules
 
 Use section-local tokens under `.jestei-interface-bento`:
@@ -110,7 +154,7 @@ Keep the existing semantic order:
 
 ### Above 72rem
 
-Use the three-track asymmetric desktop composition. Constrain the whole grid to the same site fields as the first Jestei bento. Each card uses independent media height limits.
+Use the three-track asymmetric desktop composition. Use the exact same horizontal fields as the first Jestei bento. Each card uses independent media height limits.
 
 ### 48rem through 72rem
 
@@ -123,7 +167,7 @@ grid-template-areas:
   "promo landings";
 ```
 
-Reduce gap, padding, title sizes, and media maxima. Preserve the tall `event`, large `promo`, and compact `filter` and `landings` roles.
+Reduce gap, padding, title sizes, and media maxima. Preserve the tall `event`, large `promo`, and compact `filter` and `landings` roles. Keep the tablet horizontal field value synchronized with the first Jestei bento.
 
 ### Below 48rem
 
@@ -180,6 +224,8 @@ Check at representative widths:
 At each width verify:
 
 - no text content changed;
+- the interface bento and the first Jestei bento share identical left and right fields;
+- no nested wrapper narrows the interface bento independently;
 - no card is taller than required by its content and bounded media;
 - no card contains a large unused blank region;
 - headings do not collide, clip, or produce awkward orphaned lines;
@@ -189,5 +235,4 @@ At each width verify:
 - event screens remain readable;
 - landing screens behave as one coordinated pair;
 - captions remain distinct from main copy and close to their media;
-- the grid remains aligned to the first Jestei bento and site fields;
 - no unrelated section changes visually or functionally.
