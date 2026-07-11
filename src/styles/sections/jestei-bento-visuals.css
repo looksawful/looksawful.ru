@@ -15,7 +15,7 @@
   position: relative;
   z-index: 2;
   align-content: start;
-  padding: var(--jestei-bento-card-pad) 0 var(--jestei-bento-card-pad) var(--jestei-bento-card-pad);
+  padding: var(--jestei-bento-card-pad);
 }
 
 .jestei-bento__logo-inspector {
@@ -94,7 +94,7 @@
   position: relative;
   z-index: 2;
   align-content: start;
-  padding: var(--jestei-bento-card-pad) 0 var(--jestei-bento-card-pad) var(--jestei-bento-card-pad);
+  padding: var(--jestei-bento-card-pad);
 }
 
 .jestei-bento__card--usa .jestei-bento__content > p,
