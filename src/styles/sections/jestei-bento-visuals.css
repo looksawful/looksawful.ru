@@ -241,3 +241,19 @@ main[data-showcase] .jestei-bento .jestei-bento__card--usa .jestei-bento__conten
     min-block-size: 16rem;
   }
 }
+
+@media (min-width: 72.001rem) {
+  main[data-showcase] .jestei-bento [data-section-screen] {
+    padding-inline: 0;
+  }
+
+  .jestei-bento__heading,
+  .jestei-bento__grid {
+    inline-size: min(calc(100% - var(--space-7)), var(--case-wide));
+    margin-inline: auto;
+  }
+
+  .jestei-bento__heading {
+    padding-inline: 0;
+  }
+}
