@@ -58,6 +58,10 @@
   stroke-dasharray: 6 6;
 }
 
+.jestei-bento__process-svg mask path {
+  stroke-linecap: butt;
+}
+
 .jestei-bento__process-svg .jestei-process__port,
 .jestei-bento__process-svg .jestei-process__dot {
   display: none;
