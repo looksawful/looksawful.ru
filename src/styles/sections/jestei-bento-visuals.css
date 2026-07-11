@@ -107,26 +107,24 @@ main[data-showcase] .jestei-bento .jestei-bento__card--usa .jestei-bento__conten
   min-inline-size: 0;
   min-block-size: 100%;
   overflow: hidden;
-  background: var(--white);
   pointer-events: none;
-  contain: layout paint;
 }
 
 .jestei-bento__globe::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, var(--white) 0%, rgba(255, 255, 255, 0.82) 9%, rgba(255, 255, 255, 0) 32%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.38) 7%, rgba(255, 255, 255, 0) 22%);
   pointer-events: none;
 }
 
 .jestei-bento__globe svg {
   position: absolute;
-  inset-block-start: -5%;
-  inset-inline-end: -19%;
+  inset-block-start: 8%;
+  inset-inline-end: -4%;
   display: block;
-  inline-size: 128%;
-  block-size: 128%;
+  inline-size: 122%;
+  block-size: 122%;
   overflow: visible;
   background: transparent;
   will-change: transform;
@@ -219,10 +217,10 @@ main[data-showcase] .jestei-bento .jestei-bento__card--usa .jestei-bento__conten
   }
 
   .jestei-bento__globe svg {
-    inset-block-start: -4%;
-    inset-inline-end: -13%;
-    inline-size: 126%;
-    block-size: 126%;
+    inset-block-start: 7%;
+    inset-inline-end: -2%;
+    inline-size: 120%;
+    block-size: 120%;
   }
 }
 
