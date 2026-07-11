@@ -17,8 +17,6 @@ const TIMING = {
   beforeDissolve: 1150,
   dissolveStagger: 125,
   dissolveDuration: 1900,
-  finalHold: 2600,
-  fadeOut: 900,
 };
 const PAKO_MODULE_URL = "https://cdn.jsdelivr.net/npm/pako@2.1.0/+esm";
 
@@ -103,15 +101,15 @@ function mountStepsCard(card, sourceGroups) {
     dissolveAt +
     (fadingOrder.length - 1) * TIMING.dissolveStagger +
     TIMING.dissolveDuration;
-  const fadeOutAt = dissolveEnd + TIMING.finalHold;
-  const cycleDuration = fadeOutAt + TIMING.fadeOut;
 
   let cssWidth = 1;
   let cssHeight = 1;
   let dpr = 1;
-  let startedAt = win.performance.now();
+  let runStartedAt = 0;
+  let elapsedTime = 0;
   let animationFrame = 0;
   let active = false;
+  let completed = staticMode;
   let disposed = false;
   let resizeObserver;
   let intersectionObserver;
@@ -138,6 +136,11 @@ function mountStepsCard(card, sourceGroups) {
     return easeInOutSine((time - start) / TIMING.dissolveDuration);
   }
 
+  function currentTime(now = win.performance.now()) {
+    if (!active) return elapsedTime;
+    return Math.min(dissolveEnd, elapsedTime + Math.max(0, now - runStartedAt));
+  }
+
   function resize() {
     if (disposed) return;
 
@@ -153,7 +156,7 @@ function mountStepsCard(card, sourceGroups) {
     if (canvas.height !== nextHeight) canvas.height = nextHeight;
   }
 
-  function drawFoot(index, time, globalAlpha) {
+  function drawFoot(index, time) {
     const visible = appearance(index, time);
     if (visible <= 0) return;
 
@@ -167,7 +170,7 @@ function mountStepsCard(card, sourceGroups) {
     const strokeAlpha = 0.92 + (1 - white) * 0.08;
 
     context.save();
-    context.globalAlpha = (0.1 + visible * 0.9) * globalAlpha;
+    context.globalAlpha = 0.1 + visible * 0.9;
     context.translate(centerX, centerY + offsetY);
     context.scale(scale, scale);
     context.translate(-centerX, -centerY);
@@ -185,7 +188,7 @@ function mountStepsCard(card, sourceGroups) {
     context.restore();
   }
 
-  function renderTime(time, globalAlpha = 1) {
+  function renderTime(time) {
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.fillStyle = "#fff";
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -210,34 +213,49 @@ function mountStepsCard(card, sourceGroups) {
     );
 
     for (let index = 0; index < paths.length; index += 1) {
-      drawFoot(index, time, globalAlpha);
+      drawFoot(index, time);
     }
   }
 
+  function finish() {
+    elapsedTime = dissolveEnd;
+    completed = true;
+    active = false;
+    win.cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    renderTime(dissolveEnd);
+    intersectionObserver?.disconnect();
+  }
+
   function frame(now) {
-    if (!active || disposed) return;
+    if (!active || disposed || completed) return;
 
-    const time = (now - startedAt) % cycleDuration;
-    let globalAlpha = 1;
+    const time = currentTime(now);
+    renderTime(time);
 
-    if (time >= fadeOutAt) {
-      globalAlpha = 1 - easeInOutSine((time - fadeOutAt) / TIMING.fadeOut);
+    if (time >= dissolveEnd) {
+      finish();
+      return;
     }
 
-    renderTime(time, globalAlpha);
     animationFrame = win.requestAnimationFrame(frame);
   }
 
   function setActive(nextActive) {
-    if (staticMode || disposed || active === nextActive) return;
+    if (staticMode || disposed || completed || active === nextActive) return;
 
-    active = nextActive;
-    win.cancelAnimationFrame(animationFrame);
-
-    if (active) {
-      startedAt = win.performance.now();
+    if (nextActive) {
+      active = true;
+      runStartedAt = win.performance.now();
+      win.cancelAnimationFrame(animationFrame);
       animationFrame = win.requestAnimationFrame(frame);
+      return;
     }
+
+    elapsedTime = currentTime();
+    active = false;
+    win.cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
   }
 
   function renderStatic() {
@@ -268,7 +286,7 @@ function mountStepsCard(card, sourceGroups) {
   if ("ResizeObserver" in win) {
     resizeObserver = new win.ResizeObserver(() => {
       resize();
-      if (staticMode) renderTime(dissolveEnd);
+      renderTime(completed || staticMode ? dissolveEnd : currentTime());
     });
     resizeObserver.observe(canvas);
   } else {
@@ -276,7 +294,7 @@ function mountStepsCard(card, sourceGroups) {
   }
 
   function handleVisibilityChange() {
-    if (staticMode) return;
+    if (staticMode || completed) return;
 
     if (card.ownerDocument.hidden) {
       setActive(false);
