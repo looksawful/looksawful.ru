@@ -1,15 +1,12 @@
-import part0 from "./jestei-steps-data-0.js";
-import part1 from "./jestei-steps-data-1.js";
-import part2 from "./jestei-steps-data-2.js";
-import part3 from "./jestei-steps-data-3.js";
-import part4 from "./jestei-steps-data-4.js";
-import part5 from "./jestei-steps-data-5.js";
+import dataA from "./jestei-steps-data-a.js";
+import dataB from "./jestei-steps-data-b.js";
+import dataC from "./jestei-steps-data-c.js";
 
 const CARD_SELECTOR = "#jestei-results .jestei-bento__card--steps";
 const VISUAL_CLASS = "jestei-bento__steps-visual";
 const CANVAS_CLASS = "jestei-bento__steps-canvas";
 const VIEWBOX = { width: 1515, height: 1567 };
-const SOURCE_GROUPS = [...part0, ...part1, ...part2, ...part3, ...part4, ...part5];
+const COMPRESSED_SOURCE = dataA + dataB + dataC;
 const CENTERS = [[89.997,1313.37],[232.565,966.562],[184.252,523.236],[465.674,476.337],[837.997,159.432],[609.913,106.868],[1204.795,128.195],[1206.425,1042.527],[625.48,1394.175],[1342.345,409.718],[1404.39,855.269],[833.081,1508.31]];
 const STEP_ORDER = [0, 1, 2, 3, 5, 4, 6, 9, 10, 7, 11, 8];
 const BLACK_FINAL = new Set([0, 1, 2, 3]);
@@ -23,6 +20,39 @@ const TIMING = {
   finalHold: 2600,
   fadeOut: 900,
 };
+const PAKO_MODULE_URL = "https://cdn.jsdelivr.net/npm/pako@2.1.0/+esm";
+
+let sourceGroupsPromise;
+
+function decodeBase64(win, value) {
+  const binary = win.atob(value);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes;
+}
+
+function loadSourceGroups(win) {
+  sourceGroupsPromise ||= (async () => {
+    const compressed = decodeBase64(win, COMPRESSED_SOURCE);
+    let jsonText;
+
+    if ("DecompressionStream" in win) {
+      const stream = new Blob([compressed])
+        .stream()
+        .pipeThrough(new win.DecompressionStream("gzip"));
+      jsonText = await new Response(stream).text();
+    } else {
+      const module = await import(/* @vite-ignore */ PAKO_MODULE_URL);
+      jsonText = module.ungzip(compressed, { to: "string" });
+    }
+
+    return JSON.parse(jsonText);
+  })();
+
+  return sourceGroupsPromise;
+}
 
 function createCanvas(card) {
   const doc = card.ownerDocument;
@@ -46,7 +76,7 @@ function createCanvas(card) {
   return canvas;
 }
 
-function mountStepsCard(card) {
+function mountStepsCard(card, sourceGroups) {
   if (!(card instanceof HTMLElement) || card.dataset.stepsSceneMounted === "true") {
     return () => {};
   }
@@ -60,7 +90,7 @@ function mountStepsCard(card) {
 
   card.dataset.stepsSceneMounted = "true";
 
-  const paths = SOURCE_GROUPS.map((group) => group.map((data) => new win.Path2D(data)));
+  const paths = sourceGroups.map((group) => group.map((data) => new win.Path2D(data)));
   const rank = new Map(STEP_ORDER.map((index, position) => [index, position]));
   const fadingOrder = STEP_ORDER.filter((index) => !BLACK_FINAL.has(index));
   const reducedMotion = win.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
@@ -274,7 +304,11 @@ function mountStepsCard(card) {
 
 export async function mountJesteiStepsScene(root = document) {
   const cards = [...root.querySelectorAll(CARD_SELECTOR)];
-  const disposers = cards.map((card) => mountStepsCard(card));
+  if (!cards.length) return () => {};
+
+  const win = cards[0].ownerDocument.defaultView || window;
+  const sourceGroups = await loadSourceGroups(win);
+  const disposers = cards.map((card) => mountStepsCard(card, sourceGroups));
 
   return () => {
     disposers.forEach((dispose) => dispose?.());
