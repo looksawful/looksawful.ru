@@ -30,6 +30,8 @@ body > footer {
   #hero,
   #jestei-cover,
   #jestei-results,
+  #jestei-logo,
+  #jestei-type,
   #jestei-interface-bento,
   #jestei-color,
   #jestei-words,
@@ -39,7 +41,11 @@ body > footer {
   #jestei-landings,
   #jestei-tariffs,
   #styx-cover,
-  #styx-work-slider,
+  #styx-packaging,
+  #styx-communications,
+  #styx-print,
+  #styx-photo-art,
+  #styx-scanography,
   #pet-projects,
   #resume
 ) {
@@ -52,6 +58,8 @@ body > footer {
   #hero,
   #jestei-cover,
   #jestei-results,
+  #jestei-logo,
+  #jestei-type,
   #jestei-interface-bento,
   #jestei-color,
   #jestei-words,
@@ -61,14 +69,18 @@ body > footer {
   #jestei-landings,
   #jestei-tariffs,
   #styx-cover,
-  #styx-work-slider,
+  #styx-packaging,
+  #styx-communications,
+  #styx-print,
+  #styx-photo-art,
+  #styx-scanography,
   #pet-projects,
   #resume
 )[hidden] {
   display: block;
 }
 
-.site-header :is(a[href="#shootings"], a[href="#jestei-logo"], a[href="#styx-graphics"]) {
+.site-header :is(a[href="#shootings"], a[href="#styx-graphics"]) {
   display: none;
 }
 
@@ -88,7 +100,11 @@ main[data-showcase] > :is(
 }
 
 main[data-showcase] > :is(
-  #styx-work-slider
+  #styx-packaging,
+  #styx-communications,
+  #styx-print,
+  #styx-photo-art,
+  #styx-scanography
 ) :where(video, [data-section-media-item]:has(video), .section-media:has(video)) {
   background: transparent;
   box-shadow: none;
