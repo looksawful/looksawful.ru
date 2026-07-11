@@ -41,6 +41,17 @@ function removeHeroOnlyConstraints(root = document) {
     .forEach((link) => link.style.setProperty("display", "none", "important"));
 }
 
+function placeTariffsAfterColor(root = document) {
+  const colorSection = root.querySelector("#jestei-color");
+  const tariffsSection = root.querySelector("#jestei-tariffs");
+
+  if (!colorSection || !tariffsSection || colorSection.nextElementSibling === tariffsSection) {
+    return;
+  }
+
+  colorSection.insertAdjacentElement("afterend", tariffsSection);
+}
+
 async function start() {
   removeHeroOnlyConstraints(document);
 
@@ -48,6 +59,7 @@ async function start() {
     const { prepareHomepagePublication } = await import("./homepage-publication.js");
     prepareHomepagePublication(document);
   } finally {
+    placeTariffsAfterColor(document);
     removeHeroOnlyConstraints(document);
   }
 
