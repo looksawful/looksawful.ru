@@ -5,6 +5,24 @@
   content: none;
 }
 
+/* Use one centered 3D logo in the rebrand card, without inspector masks. */
+#jestei-results .jestei-bento__logo-inspector::after {
+  content: none;
+}
+
+#jestei-results .jestei-bento__single-logo-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  max-inline-size: none;
+  max-block-size: none;
+  background: transparent;
+}
+
 /* Keep the footsteps compact and inside the lower part of the card. */
 #jestei-results .jestei-bento__steps-visual {
   inset-inline: 10%;
