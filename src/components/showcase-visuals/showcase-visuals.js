@@ -144,8 +144,12 @@ async function mountLogoInspector(target) {
     return mountVisualPosterFallback(target);
   }
 
-  const { createLogoInspector3D } = await import("../showcase-task-previews/logo-inspector-3d.js");
-  const controller = createLogoInspector3D(target, {
+  const [, inspectorMode] = getDemoParts(target);
+  const module =
+    inspectorMode === "jestei"
+      ? await import("../showcase-task-previews/logo-inspector-grid-3d.js")
+      : await import("../showcase-task-previews/logo-inspector-3d.js");
+  const controller = module.createLogoInspector3D(target, {
     modelUrl: LOGO_INSPECTOR_MODEL_URL,
     minHeight: target.dataset.cvMinHeight ? Number(target.dataset.cvMinHeight) : 560,
     initialVariantId: target.dataset.cvVariant || "brand-orange",
@@ -264,4 +268,3 @@ export async function initShowcaseVisuals(root = document) {
     });
   };
 }
-
