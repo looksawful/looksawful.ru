@@ -1,8 +1,8 @@
-// Reuses the same passive Jestei 3D logo scene as the project cover inside the rebrand card.
+// Reuses the same Jestei logo asset as the project cover without a WebGL shader.
 const TARGET_SELECTOR = "#jestei-results .jestei-bento__logo-inspector";
-const POSTER_URL = "/assets/jestei/branding/jestei-logo.svg";
+const LOGO_URL = "/assets/jestei/branding/jestei-logo.svg";
 
-function replaceInspector(target, index) {
+function replaceInspector(target) {
   if (!(target instanceof HTMLElement) || target.dataset.bentoBrandLogoMounted === "true") {
     return () => {};
   }
@@ -23,14 +23,15 @@ function replaceInspector(target, index) {
   target.removeAttribute("data-logo-inspector-passive");
   target.replaceChildren();
 
-  const canvas = target.ownerDocument.createElement("canvas");
-  canvas.className = "visual-canvas jestei-bento__brand-logo";
-  canvas.id = `jestei-bento-brand-logo-${index + 1}`;
-  canvas.dataset.threePoster = POSTER_URL;
-  canvas.dataset.threeScene = "logo";
-  canvas.dataset.visualDemo = "three:logo";
-  canvas.setAttribute("aria-hidden", "true");
-  target.append(canvas);
+  const logo = target.ownerDocument.createElement("img");
+  logo.className = "jestei-bento__brand-logo";
+  logo.src = LOGO_URL;
+  logo.alt = "";
+  logo.decoding = "async";
+  logo.loading = "eager";
+  logo.draggable = false;
+  logo.setAttribute("aria-hidden", "true");
+  target.append(logo);
 
   const reveal = () => {
     target.classList.add("is-visible");
@@ -44,7 +45,7 @@ function replaceInspector(target, index) {
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) reveal();
       },
-      { threshold: 0.28, rootMargin: "0px 0px -6% 0px" },
+      { threshold: 0.24, rootMargin: "0px 0px -5% 0px" },
     );
     intersectionObserver.observe(card || target);
   }
@@ -69,8 +70,8 @@ function replaceInspector(target, index) {
 }
 
 export function mountJesteiBentoBrandLogo(root = document) {
-  const disposers = [...root.querySelectorAll(TARGET_SELECTOR)].map((target, index) =>
-    replaceInspector(target, index),
+  const disposers = [...root.querySelectorAll(TARGET_SELECTOR)].map((target) =>
+    replaceInspector(target),
   );
 
   return () => {
