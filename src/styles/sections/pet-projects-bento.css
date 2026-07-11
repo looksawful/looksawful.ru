@@ -73,6 +73,8 @@ main[data-showcase] #pet-projects [data-section-screen] {
 }
 
 .pet-projects-bento__media {
+  --pet-preview-scale: 0.32;
+  position: relative;
   display: block;
   min-inline-size: 0;
   min-block-size: 0;
@@ -91,6 +93,18 @@ main[data-showcase] #pet-projects [data-section-screen] {
   min-block-size: 100%;
   object-fit: cover;
   object-position: center;
+}
+
+.pet-projects-bento__frame {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
+  inline-size: calc(100% / var(--pet-preview-scale));
+  block-size: calc(100% / var(--pet-preview-scale));
+  border: 0;
+  background: var(--white);
+  transform: scale(var(--pet-preview-scale));
+  transform-origin: 0 0;
 }
 
 .pet-projects-bento__body {
@@ -133,6 +147,13 @@ main[data-showcase] #pet-projects [data-section-screen] {
   line-height: 1.28;
   letter-spacing: 0;
   text-wrap: pretty;
+}
+
+@media (min-width: 72.001rem) {
+  .pet-projects-bento__card--awful-cases .pet-projects-bento__media,
+  .pet-projects-bento__card--awful-audit .pet-projects-bento__media {
+    --pet-preview-scale: 0.5;
+  }
 }
 
 @media (max-width: 72rem) {
