@@ -19,7 +19,7 @@
   display: flex;
   flex-wrap: nowrap;
   align-items: baseline;
-  gap: clamp(0.35rem, 1.35cqi, 0.7rem);
+  gap: clamp(0.3rem, 1.1cqi, 0.55rem);
   max-inline-size: 100%;
   font-size: clamp(1.55rem, 8.5cqi, 2.5rem);
   line-height: 0.94;
@@ -39,9 +39,10 @@
 }
 
 .jestei-bento__card--steps .jestei-bento__title--metric span {
-  font-size: clamp(0.85rem, 4.2cqi, 1.25rem);
-  line-height: 1.02;
-  letter-spacing: -0.015em;
+  font-size: clamp(0.95rem, 5.2cqi, 1.45rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.018em;
 }
 
 .jestei-bento__card--steps .jestei-bento__side-copy,
@@ -83,7 +84,7 @@ main[data-showcase] .jestei-bento .jestei-bento__card--steps .jestei-bento__side
   }
 
   .jestei-bento__card--steps .jestei-bento__title--metric span {
-    font-size: clamp(0.82rem, 4cqi, 1.05rem);
+    font-size: clamp(0.9rem, 4.6cqi, 1.2rem);
   }
 
   .jestei-bento__steps-visual {
@@ -98,12 +99,12 @@ main[data-showcase] .jestei-bento .jestei-bento__card--steps .jestei-bento__side
   }
 
   .jestei-bento__card--steps .jestei-bento__title--metric {
-    gap: clamp(0.22rem, 2.1cqi, 0.4rem);
+    gap: clamp(0.18rem, 1.7cqi, 0.32rem);
     font-size: clamp(1.12rem, 10.5cqi, 1.5rem);
   }
 
   .jestei-bento__card--steps .jestei-bento__title--metric span {
-    font-size: clamp(0.72rem, 6.2cqi, 0.9rem);
+    font-size: clamp(0.82rem, 6.8cqi, 1rem);
   }
 
   .jestei-bento__card--steps .jestei-bento__side-copy,
@@ -121,12 +122,12 @@ main[data-showcase] .jestei-bento .jestei-bento__card--steps .jestei-bento__side
 
 @media (max-width: 25rem) {
   .jestei-bento__card--steps .jestei-bento__title--metric {
-    gap: 0.2rem;
+    gap: 0.16rem;
     font-size: clamp(1.02rem, 10.2cqi, 1.2rem);
   }
 
   .jestei-bento__card--steps .jestei-bento__title--metric span {
-    font-size: clamp(0.68rem, 6cqi, 0.78rem);
+    font-size: clamp(0.78rem, 6.4cqi, 0.88rem);
   }
 
   .jestei-bento__card--steps .jestei-bento__side-copy,
