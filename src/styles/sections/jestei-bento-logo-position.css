@@ -1,0 +1,94 @@
+/* Keep the rebrand logo centered inside its own visual zone. */
+#jestei-results .jestei-bento__card--rebrand {
+  overflow: hidden;
+}
+
+#jestei-results .jestei-bento__brand-logo-shell {
+  position: absolute;
+  z-index: 3;
+  inset-inline-start: 74%;
+  inset-inline-end: auto;
+  inset-block-start: 50%;
+  inset-block-end: auto;
+  inline-size: clamp(10rem, 30%, 14rem);
+  block-size: auto;
+  aspect-ratio: 1;
+  min-inline-size: 0;
+  min-block-size: 0;
+  max-inline-size: calc(100% - var(--jestei-bento-card-pad) * 2);
+  max-block-size: calc(100% - var(--jestei-bento-card-pad) * 2);
+  overflow: hidden;
+  contain: layout paint;
+  background: transparent;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.94);
+  transform-origin: center;
+  transition:
+    opacity 420ms ease,
+    transform 680ms cubic-bezier(0.2, 0.76, 0.24, 1);
+  pointer-events: none;
+  touch-action: auto;
+}
+
+#jestei-results .jestei-bento__brand-logo-shell.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+#jestei-results .jestei-bento__brand-logo-shell::after {
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.84) 0%,
+    rgba(255, 255, 255, 0.42) 12%,
+    rgba(255, 255, 255, 0) 34%
+  );
+}
+
+#jestei-results .jestei-bento__brand-logo,
+#jestei-results .jestei-bento__brand-logo-shell > .visual-poster-fallback,
+#jestei-results .jestei-bento__brand-logo-shell > .visual-canvas__poster {
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+@media (max-width: 72rem) and (min-width: 43.001rem) {
+  #jestei-results .jestei-bento__brand-logo-shell {
+    inset-inline-start: 74%;
+    inset-block-start: 50%;
+    inline-size: clamp(8.75rem, 31%, 12.5rem);
+    max-block-size: calc(100% - var(--jestei-bento-card-pad) * 2);
+  }
+}
+
+@media (max-width: 43rem) {
+  #jestei-results .jestei-bento__card--rebrand .jestei-bento__content {
+    max-inline-size: 57%;
+  }
+
+  #jestei-results .jestei-bento__brand-logo-shell {
+    inset-inline-start: 75%;
+    inset-block-start: 58%;
+    inline-size: clamp(7rem, 35%, 9.5rem);
+    max-block-size: calc(100% - var(--jestei-bento-card-pad) * 2);
+  }
+}
+
+@media (max-width: 25rem) {
+  #jestei-results .jestei-bento__brand-logo-shell {
+    inset-inline-start: 76%;
+    inset-block-start: 60%;
+    inline-size: clamp(6.5rem, 34%, 8rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #jestei-results .jestei-bento__brand-logo-shell {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    transition: none;
+  }
+}
