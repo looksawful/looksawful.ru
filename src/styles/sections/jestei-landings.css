@@ -9,6 +9,7 @@
 .jestei-landings [data-media-cluster] {
   --case-rail-item: min(76vw, 20rem);
 }
+
 #jestei-landings {
   --section-accent: var(--black);
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
@@ -97,29 +98,34 @@ main[data-showcase] #jestei-filter .filter-fullscreen-btn {
 
 .jestei-interface-bento {
   --section-accent: var(--black);
-  --jestei-interface-bento-page-x: clamp(0.5rem, 2.2cqi, 2rem);
-  --jestei-interface-bento-gap: clamp(0.45rem, 1.35cqi, 1.35rem);
-  --jestei-interface-bento-pad: clamp(0.85rem, 1.75cqi, 1.7rem);
-  --jestei-interface-bento-radius: clamp(0.8rem, 1.8cqi, 2rem);
-  --jestei-interface-bento-title: clamp(1.75rem, 2.4vw, 3rem);
-  --jestei-interface-bento-copy: clamp(0.95rem, 0.42vw + 0.86rem, 1.12rem);
-  --jestei-interface-bento-caption: clamp(0.78rem, 0.24vw + 0.72rem, 0.92rem);
+  --jestei-interface-bento-gap: clamp(0.45rem, 1cqi, 0.9rem);
+  --jestei-interface-bento-pad: clamp(0.78rem, 1.2cqi, 1.25rem);
+  --jestei-interface-bento-radius: clamp(0.8rem, 1.4cqi, 1.5rem);
+  --jestei-interface-bento-title: clamp(0.86rem, 4.15cqi, 2.45rem);
+  --jestei-interface-bento-copy: clamp(0.86rem, 0.34vw + 0.8rem, 1rem);
+  --jestei-interface-bento-caption: clamp(0.72rem, 0.2vw + 0.68rem, 0.84rem);
   container-type: inline-size;
   color: var(--black);
   background: var(--white);
 }
 
 main[data-showcase] .section-component.jestei-interface-bento {
-  margin-block: clamp(0.9rem, 3cqi, 2.6rem);
+  margin-block: clamp(1rem, 3cqi, 2.5rem);
   overflow: visible;
 }
 
 main[data-showcase] .jestei-interface-bento [data-section-screen] {
-  display: block;
-  inline-size: 100%;
-  max-inline-size: none;
-  padding-block: 0 clamp(1rem, 4cqi, 3rem);
-  padding-inline: var(--jestei-interface-bento-page-x);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  inline-size: var(--case-page);
+  max-inline-size: 1280px;
+  margin-inline: auto;
+  padding-block: 0 clamp(1rem, 3cqi, 2.5rem);
+  padding-inline: 0;
+}
+
+main[data-showcase] .jestei-interface-bento [data-section-screen] > * {
+  grid-column: 1;
 }
 
 .jestei-interface-bento__grid {
@@ -127,10 +133,13 @@ main[data-showcase] .jestei-interface-bento [data-section-screen] {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-areas:
     "filter filter filter filter filter filter filter event event event event event"
+    "promo promo promo promo promo promo promo event event event event event"
     "promo promo promo promo promo promo promo landings landings landings landings landings";
   gap: var(--jestei-interface-bento-gap);
   inline-size: 100%;
   min-inline-size: 0;
+  margin-inline: 0;
+  align-items: stretch;
 }
 
 .jestei-interface-bento #jestei-filter {
@@ -173,9 +182,11 @@ main[data-showcase] .jestei-interface-bento .interface-section {
     "copy"
     "media"
     "caption";
+  grid-template-rows: auto auto auto auto;
   align-content: start;
-  gap: clamp(0.7rem, 1.5cqi, 1.15rem);
-  min-block-size: 100%;
+  gap: clamp(0.42rem, 0.8cqi, 0.72rem);
+  min-block-size: 0;
+  block-size: auto;
   padding: var(--jestei-interface-bento-pad);
 }
 
@@ -185,6 +196,7 @@ main[data-showcase] .jestei-interface-bento .interface-section__header {
   align-content: start;
   gap: 0;
   max-inline-size: 100%;
+  min-inline-size: 0;
   text-align: left;
 }
 
@@ -193,13 +205,20 @@ main[data-showcase] .jestei-interface-bento .interface-section__kicker {
 }
 
 main[data-showcase] .jestei-interface-bento .interface-section [data-content-title] {
-  max-inline-size: min(100%, 12ch);
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 0.24em;
+  inline-size: max-content;
+  max-inline-size: 100%;
+  min-inline-size: 0;
   margin: 0;
   font-size: var(--jestei-interface-bento-title);
-  line-height: 0.92;
-  letter-spacing: 0;
+  line-height: 0.94;
+  letter-spacing: -0.015em;
   text-align: left;
-  text-wrap: balance;
+  text-wrap: nowrap;
+  white-space: nowrap;
   overflow-wrap: normal;
   word-break: normal;
   hyphens: none;
@@ -207,7 +226,9 @@ main[data-showcase] .jestei-interface-bento .interface-section [data-content-tit
 
 main[data-showcase] .jestei-interface-bento .interface-section [data-section-title-main],
 main[data-showcase] .jestei-interface-bento .interface-section [data-section-title-accent] {
-  display: block;
+  display: inline;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 main[data-showcase] .jestei-interface-bento .interface-section [data-section-title-main] + [data-section-title-accent]::before {
@@ -217,16 +238,16 @@ main[data-showcase] .jestei-interface-bento .interface-section [data-section-tit
 main[data-showcase] .jestei-interface-bento .interface-section__copy {
   grid-area: copy;
   display: block;
-  max-inline-size: min(100%, 36rem);
+  max-inline-size: min(100%, 34rem);
   text-align: left;
 }
 
 main[data-showcase] .jestei-interface-bento .interface-section__copy > p {
-  max-inline-size: min(100%, 36rem);
+  max-inline-size: min(100%, 34rem);
   margin: 0;
   color: var(--black);
   font-size: var(--jestei-interface-bento-copy);
-  line-height: 1.25;
+  line-height: 1.24;
   text-align: left;
   text-wrap: pretty;
 }
@@ -235,7 +256,8 @@ main[data-showcase] .jestei-interface-bento :where(.interface-section__filter, .
   grid-area: media;
   inline-size: 100%;
   max-inline-size: 100%;
-  margin: clamp(0.25rem, 0.9cqi, 0.7rem) 0 0;
+  min-block-size: 0;
+  margin: clamp(0.1rem, 0.35cqi, 0.3rem) 0 0;
   align-self: start;
 }
 
@@ -245,7 +267,7 @@ main[data-showcase] .jestei-interface-bento .interface-section__caption {
   margin: 0;
   color: color-mix(in srgb, var(--black) 64%, var(--white));
   font-size: var(--jestei-interface-bento-caption);
-  line-height: 1.26;
+  line-height: 1.24;
   text-align: left;
   text-wrap: pretty;
 }
@@ -257,19 +279,25 @@ main[data-showcase] .jestei-interface-bento .interface-section__filter {
 main[data-showcase] .jestei-interface-bento .filter-fullscreen-wrapper,
 main[data-showcase] .jestei-interface-bento .interface-section__media--diagonal,
 main[data-showcase] .jestei-interface-bento .interface-section__media--diagonal .visual-canvas {
-  border-radius: clamp(0.65rem, 1.3cqi, 1.1rem);
+  border-radius: clamp(0.6rem, 1cqi, 0.9rem);
+}
+
+main[data-showcase] .jestei-interface-bento #jestei-filter .filter-fullscreen-wrapper {
+  max-block-size: clamp(12rem, 22cqi, 18rem);
+  overflow: hidden;
 }
 
 main[data-showcase] .jestei-interface-bento .interface-section__media--diagonal,
 main[data-showcase] .jestei-interface-bento .interface-section__media--diagonal .visual-canvas {
-  min-block-size: clamp(13rem, 32cqi, 26rem);
-  block-size: clamp(13rem, 32cqi, 26rem);
+  min-block-size: clamp(11rem, 24cqi, 17rem);
+  block-size: clamp(11rem, 24cqi, 17rem);
+  max-block-size: 17rem;
 }
 
 main[data-showcase] .jestei-interface-bento [data-media-cluster] {
   display: grid;
-  gap: clamp(0.45rem, 1.15cqi, 0.9rem);
-  margin: clamp(0.25rem, 0.9cqi, 0.7rem) 0 0;
+  gap: clamp(0.35rem, 0.8cqi, 0.7rem);
+  margin: clamp(0.1rem, 0.35cqi, 0.3rem) 0 0;
   padding: 0;
   overflow: visible;
   scroll-snap-type: none;
@@ -281,9 +309,14 @@ main[data-showcase] .jestei-interface-bento [aria-label="экраны навиг
   justify-items: center;
 }
 
+main[data-showcase] .jestei-interface-bento [aria-label="экраны навигации event"][data-media-cluster] > :nth-child(2) {
+  transform: translateY(-0.35rem) scale(1.035);
+  transform-origin: center bottom;
+}
+
 main[data-showcase] .jestei-interface-bento [aria-label="лендинговая экосистема"][data-media-cluster] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
+  align-items: end;
 }
 
 main[data-showcase] .jestei-interface-bento [data-media-cluster] > :where(a, figure, [data-section-media-item]) {
@@ -298,45 +331,58 @@ main[data-showcase] .jestei-interface-bento [data-media-cluster] :where(img, vid
   max-inline-size: 100%;
   block-size: auto;
   object-fit: contain;
-  border-radius: clamp(0.45rem, 1cqi, 0.85rem);
+  border-radius: clamp(0.4rem, 0.8cqi, 0.7rem);
 }
 
 main[data-showcase] .jestei-interface-bento .interface-section-screens :where(img, video) {
-  max-block-size: clamp(13rem, 36cqi, 24rem);
+  max-block-size: clamp(10rem, 25cqi, 16rem);
   object-position: center bottom;
 }
 
 main[data-showcase] .jestei-interface-bento .interface-section__media--landing-pair :where(img, video) {
-  max-block-size: clamp(8rem, 23cqi, 15rem);
+  max-block-size: clamp(7rem, 18cqi, 10.5rem);
 }
 
-@media (max-width: 72rem) {
+@media (max-width: 72rem) and (min-width: 48.001rem) {
   .jestei-interface-bento {
-    --jestei-interface-bento-title: clamp(1.55rem, 3.2vw, 2.35rem);
-    --jestei-interface-bento-copy: clamp(0.92rem, 0.72vw + 0.82rem, 1.05rem);
+    --jestei-interface-bento-gap: clamp(0.45rem, 1.15cqi, 0.8rem);
+    --jestei-interface-bento-pad: clamp(0.72rem, 1.35cqi, 1rem);
+    --jestei-interface-bento-title: clamp(0.82rem, 4.05cqi, 1.8rem);
+    --jestei-interface-bento-copy: clamp(0.84rem, 0.6vw + 0.72rem, 0.96rem);
   }
 
   .jestei-interface-bento__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
       "filter event"
+      "promo event"
       "promo landings";
+  }
+
+  main[data-showcase] .jestei-interface-bento .interface-section__media--diagonal,
+  main[data-showcase] .jestei-interface-bento .interface-section__media--diagonal .visual-canvas {
+    min-block-size: clamp(10rem, 29cqi, 15rem);
+    block-size: clamp(10rem, 29cqi, 15rem);
   }
 }
 
 @media (max-width: 48rem) {
   .jestei-interface-bento {
-    --jestei-interface-bento-page-x: clamp(0.45rem, 2.4cqi, 0.85rem);
-    --jestei-interface-bento-gap: clamp(0.45rem, 2cqi, 0.75rem);
-    --jestei-interface-bento-pad: clamp(0.75rem, 3.2cqi, 1rem);
-    --jestei-interface-bento-radius: clamp(0.75rem, 3.6cqi, 1.2rem);
-    --jestei-interface-bento-title: clamp(1.42rem, 7.2vw, 2.05rem);
-    --jestei-interface-bento-copy: clamp(0.92rem, 4vw, 1.02rem);
-    --jestei-interface-bento-caption: clamp(0.78rem, 3.4vw, 0.9rem);
+    --jestei-interface-bento-gap: clamp(0.4rem, 2cqi, 0.68rem);
+    --jestei-interface-bento-pad: clamp(0.68rem, 3cqi, 0.92rem);
+    --jestei-interface-bento-radius: clamp(0.75rem, 3.6cqi, 1.1rem);
+    --jestei-interface-bento-title: clamp(0.78rem, 4.15cqi, 1.25rem);
+    --jestei-interface-bento-copy: clamp(0.84rem, 3.65vw, 0.96rem);
+    --jestei-interface-bento-caption: clamp(0.72rem, 3vw, 0.84rem);
   }
 
   main[data-showcase] .section-component.jestei-interface-bento {
-    margin-block: clamp(0.8rem, 5cqi, 1.6rem);
+    margin-block: clamp(0.8rem, 5cqi, 1.5rem);
+  }
+
+  main[data-showcase] .jestei-interface-bento [data-section-screen] {
+    inline-size: var(--case-page);
+    padding-block-end: clamp(0.9rem, 5cqi, 1.5rem);
   }
 
   .jestei-interface-bento__grid {
@@ -348,11 +394,18 @@ main[data-showcase] .jestei-interface-bento .interface-section__media--landing-p
       "landings";
   }
 
+  main[data-showcase] .jestei-interface-bento .interface-section [data-content-title] {
+    inline-size: max-content;
+    max-inline-size: 100%;
+    font-size: var(--jestei-interface-bento-title);
+    text-wrap: nowrap;
+    white-space: nowrap;
+  }
+
   main[data-showcase] .jestei-interface-bento .interface-section [data-content-title],
   main[data-showcase] .jestei-interface-bento .interface-section__copy > p,
   main[data-showcase] .jestei-interface-bento .interface-section__caption {
-    max-inline-size: 100%;
-    justify-self: stretch;
+    justify-self: start;
     text-align: left;
   }
 
@@ -366,20 +419,26 @@ main[data-showcase] .jestei-interface-bento .interface-section__media--landing-p
 
   main[data-showcase] .jestei-interface-bento .interface-section__media--diagonal,
   main[data-showcase] .jestei-interface-bento .interface-section__media--diagonal .visual-canvas {
-    min-block-size: clamp(12rem, 56cqi, 20rem);
-    block-size: clamp(12rem, 56cqi, 20rem);
+    min-block-size: clamp(10rem, 48cqi, 17rem);
+    block-size: clamp(10rem, 48cqi, 17rem);
+    max-block-size: 17rem;
   }
 
   main[data-showcase] .jestei-interface-bento .interface-section-screens :where(img, video) {
-    max-block-size: clamp(10rem, 54cqi, 17rem);
+    max-block-size: clamp(9rem, 43cqi, 14rem);
+  }
+
+  main[data-showcase] .jestei-interface-bento .interface-section__media--landing-pair :where(img, video) {
+    max-block-size: clamp(7rem, 34cqi, 11rem);
   }
 }
 
 @media (max-width: 25rem) {
   .jestei-interface-bento {
-    --jestei-interface-bento-page-x: 0.4rem;
-    --jestei-interface-bento-gap: 0.36rem;
-    --jestei-interface-bento-pad: 0.68rem;
-    --jestei-interface-bento-title: clamp(1.26rem, 7vw, 1.75rem);
+    --jestei-interface-bento-gap: 0.35rem;
+    --jestei-interface-bento-pad: 0.62rem;
+    --jestei-interface-bento-title: clamp(0.72rem, 4cqi, 0.95rem);
+    --jestei-interface-bento-copy: clamp(0.8rem, 3.6vw, 0.9rem);
+    --jestei-interface-bento-caption: clamp(0.68rem, 3vw, 0.78rem);
   }
 }
