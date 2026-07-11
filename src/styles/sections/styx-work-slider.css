@@ -18,9 +18,7 @@ main[data-showcase] #styx-work-slider [data-section-screen] {
 }
 
 .styx-work-slider__head {
-  display: flex;
-  justify-content: flex-end;
-  min-inline-size: 0;
+  display: none;
 }
 
 .styx-work-slider__controls {
@@ -59,9 +57,10 @@ main[data-showcase] #styx-work-slider [data-section-screen] {
   padding-inline: calc(var(--styx-slider-gap) * 0.5);
   overflow-x: auto;
   overflow-y: hidden;
-  overscroll-behavior-x: contain;
+  overscroll-behavior-inline: contain;
   scroll-padding-inline: calc(var(--styx-slider-gap) * 0.5);
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: inline mandatory;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   cursor: grab;
 }
