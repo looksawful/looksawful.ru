@@ -16,6 +16,12 @@ const APPROVED_SECTION_IDS = new Set([
   "resume",
 ]);
 
+const PET_PROJECT_PREVIEW_WIDTHS = [
+  ["berserk-timer", 520],
+  ["awful-cases", 760],
+  ["awful-audit", 700],
+];
+
 function removeHeroOnlyConstraints(root = document) {
   root
     .querySelectorAll("[data-hero-only-mode], #hero-only-inline-mode")
@@ -52,6 +58,134 @@ function placeTariffsAfterColor(root = document) {
   colorSection.insertAdjacentElement("afterend", tariffsSection);
 }
 
+function getPetProjectPreviewWidth(source) {
+  const match = PET_PROJECT_PREVIEW_WIDTHS.find(([slug]) => source.includes(slug));
+  return match?.[1] ?? 680;
+}
+
+function ensurePetProjectModal(root = document) {
+  const existing = root.querySelector("#pet-project-modal");
+  if (existing) {
+    return existing;
+  }
+
+  const dialog = document.createElement("dialog");
+  dialog.id = "pet-project-modal";
+  dialog.className = "pet-project-modal";
+  dialog.setAttribute("aria-labelledby", "pet-project-modal-title");
+
+  const shell = document.createElement("div");
+  shell.className = "pet-project-modal__shell";
+
+  const bar = document.createElement("div");
+  bar.className = "pet-project-modal__bar";
+
+  const title = document.createElement("p");
+  title.id = "pet-project-modal-title";
+  title.className = "pet-project-modal__title";
+
+  const closeButton = document.createElement("button");
+  closeButton.className = "pet-project-modal__close";
+  closeButton.type = "button";
+  closeButton.setAttribute("aria-label", "закрыть");
+  closeButton.textContent = "×";
+
+  const body = document.createElement("div");
+  body.className = "pet-project-modal__body";
+
+  const frame = document.createElement("iframe");
+  frame.className = "pet-project-modal__frame";
+  frame.setAttribute("allow", "fullscreen; autoplay");
+
+  bar.append(title, closeButton);
+  body.append(frame);
+  shell.append(bar, body);
+  dialog.append(shell);
+  document.body.append(dialog);
+
+  const closeModal = () => {
+    if (dialog.open && typeof dialog.close === "function") {
+      dialog.close();
+      return;
+    }
+
+    dialog.removeAttribute("open");
+    document.documentElement.classList.remove("pet-project-modal-open");
+    frame.src = "about:blank";
+    dialog.petProjectReturnFocus?.focus?.({ preventScroll: true });
+  };
+
+  closeButton.addEventListener("click", closeModal);
+
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) {
+      closeModal();
+    }
+  });
+
+  dialog.addEventListener("close", () => {
+    document.documentElement.classList.remove("pet-project-modal-open");
+    frame.src = "about:blank";
+
+    const returnFocus = dialog.petProjectReturnFocus;
+    dialog.petProjectReturnFocus = null;
+    if (returnFocus?.isConnected) {
+      requestAnimationFrame(() => returnFocus.focus({ preventScroll: true }));
+    }
+  });
+
+  dialog.petProjectTitle = title;
+  dialog.petProjectFrame = frame;
+  dialog.petProjectClose = closeButton;
+
+  return dialog;
+}
+
+function openPetProjectModal(source, title, opener, root = document) {
+  const dialog = ensurePetProjectModal(root);
+  dialog.petProjectReturnFocus = opener;
+  dialog.petProjectTitle.textContent = title;
+  dialog.petProjectFrame.title = `${title} — полноэкранная страница проекта`;
+  dialog.petProjectFrame.src = source;
+  document.documentElement.classList.add("pet-project-modal-open");
+
+  if (typeof dialog.showModal === "function") {
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+  } else {
+    dialog.setAttribute("open", "");
+  }
+
+  requestAnimationFrame(() => dialog.petProjectClose.focus({ preventScroll: true }));
+}
+
+function sizePetProjectPreview(media, frame, viewportWidth) {
+  const sync = () => {
+    const mediaWidth = media.clientWidth;
+    const mediaHeight = media.clientHeight;
+    if (!mediaWidth || !mediaHeight) {
+      return;
+    }
+
+    const scale = mediaWidth / viewportWidth;
+    frame.style.inlineSize = `${viewportWidth}px`;
+    frame.style.blockSize = `${Math.ceil(mediaHeight / scale)}px`;
+    frame.style.transform = `scale(${scale})`;
+  };
+
+  frame.addEventListener("load", sync, { passive: true });
+  window.addEventListener("resize", sync, { passive: true });
+
+  if ("ResizeObserver" in window) {
+    const resizeObserver = new ResizeObserver(sync);
+    resizeObserver.observe(media);
+    media.petProjectResizeObserver = resizeObserver;
+  }
+
+  sync();
+}
+
 function mountLivePetProjectPreviews(root = document) {
   root.querySelectorAll("#pet-projects .pet-projects-bento__card").forEach((card) => {
     const media = card.querySelector(".pet-projects-bento__media");
@@ -74,9 +208,21 @@ function mountLivePetProjectPreviews(root = document) {
     frame.loading = "lazy";
     frame.src = source;
     frame.title = `${title} — страница проекта`;
+    frame.tabIndex = -1;
+    frame.setAttribute("aria-hidden", "true");
+    frame.setAttribute("scrolling", "no");
 
-    preview.append(frame);
+    const openButton = document.createElement("button");
+    openButton.className = "pet-projects-bento__open";
+    openButton.type = "button";
+    openButton.setAttribute("aria-label", `открыть ${title}`);
+    openButton.addEventListener("click", () => {
+      openPetProjectModal(source, title, openButton, root);
+    });
+
+    preview.append(frame, openButton);
     media.replaceWith(preview);
+    sizePetProjectPreview(preview, frame, getPetProjectPreviewWidth(source));
   });
 }
 
