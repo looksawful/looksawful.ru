@@ -52,12 +52,41 @@ function placeTariffsAfterColor(root = document) {
   colorSection.insertAdjacentElement("afterend", tariffsSection);
 }
 
+function mountLivePetProjectPreviews(root = document) {
+  root.querySelectorAll("#pet-projects .pet-projects-bento__card").forEach((card) => {
+    const media = card.querySelector(".pet-projects-bento__media");
+    if (!media || media.querySelector("iframe")) {
+      return;
+    }
+
+    const projectLink = card.querySelector(".pet-projects-bento__body a[href]");
+    const source = projectLink?.getAttribute("href");
+    if (!source) {
+      return;
+    }
+
+    const title = projectLink.textContent.trim() || "пет-проект";
+    const preview = document.createElement("div");
+    preview.className = media.className;
+
+    const frame = document.createElement("iframe");
+    frame.className = "pet-projects-bento__frame";
+    frame.loading = "lazy";
+    frame.src = source;
+    frame.title = `${title} — страница проекта`;
+
+    preview.append(frame);
+    media.replaceWith(preview);
+  });
+}
+
 async function start() {
   removeHeroOnlyConstraints(document);
 
   try {
     const { prepareHomepagePublication } = await import("./homepage-publication.js");
     prepareHomepagePublication(document);
+    mountLivePetProjectPreviews(document);
   } finally {
     placeTariffsAfterColor(document);
     removeHeroOnlyConstraints(document);
