@@ -431,26 +431,68 @@ export function createLogoInspector3D(target, options = {}) {
     const width = Math.max(canvasHost.clientWidth || root.clientWidth || 1, 1);
     const height = Math.max(canvasHost.clientHeight || root.clientHeight || 1, 1);
     const aspect = width / height;
-    const compact = width < 760 || aspect < 1.2;
-    const fov = compact ? 39 : 34;
-    const cameraZ = compact ? 8.65 : CAMERA_DISTANCE;
-    const distance = Math.max(cameraZ - TARGET_Z, 1);
-    const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(fov * 0.5)) * distance;
+    const profile =
+      width < 600
+        ? {
+            fov: 42,
+            cameraZ: 9.35,
+            outerX: 0.18,
+            outerY: 0.13,
+            gapX: 0.72,
+            gapY: 0.84,
+            preferredScale: 0.66,
+            maxScale: 0.7,
+          }
+        : width < 960
+          ? {
+              fov: 37.5,
+              cameraZ: 8.75,
+              outerX: 0.14,
+              outerY: 0.12,
+              gapX: 0.72,
+              gapY: 0.74,
+              preferredScale: 0.82,
+              maxScale: 0.86,
+            }
+          : {
+              fov: 34,
+              cameraZ: CAMERA_DISTANCE,
+              outerX: 0.1,
+              outerY: 0.1,
+              gapX: 0.84,
+              gapY: 0.78,
+              preferredScale: 0.94,
+              maxScale: 0.96,
+            };
+    const distance = Math.max(profile.cameraZ - TARGET_Z, 1);
+    const visibleHeight =
+      2 * Math.tan(THREE.MathUtils.degToRad(profile.fov * 0.5)) * distance;
     const visibleWidth = visibleHeight * aspect;
     const estimatedWidth = 1.52;
     const estimatedHeight = 1.46;
-    const gapX = compact ? 0.24 : 0.48;
-    const gapY = compact ? 0.28 : 0.5;
-    const fitScaleX = (visibleWidth * 0.86 - gapX) / (estimatedWidth * 2);
-    const fitScaleY = (visibleHeight * 0.82 - gapY) / (estimatedHeight * 2);
-    const preferredScale = compact ? 0.72 : 0.9;
-    const scale = clamp(Math.min(preferredScale, fitScaleX, fitScaleY), compact ? 0.5 : 0.62, 0.94);
-    const spacingX = estimatedWidth * scale + gapX;
-    const spacingY = estimatedHeight * scale + gapY;
+    const usableWidth = Math.max(
+      0.1,
+      visibleWidth * (1 - profile.outerX * 2),
+    );
+    const usableHeight = Math.max(
+      0.1,
+      visibleHeight * (1 - profile.outerY * 2),
+    );
+    const cellWidth = Math.max(0.1, (usableWidth - profile.gapX) * 0.5);
+    const cellHeight = Math.max(0.1, (usableHeight - profile.gapY) * 0.5);
+    const fitScale =
+      Math.min(cellWidth / estimatedWidth, cellHeight / estimatedHeight) * 0.9;
+    const scale = clamp(
+      Math.min(profile.preferredScale, profile.maxScale, fitScale),
+      0.34,
+      profile.maxScale,
+    );
+    const spacingX = estimatedWidth * scale + profile.gapX;
+    const spacingY = estimatedHeight * scale + profile.gapY;
 
     camera.aspect = aspect;
-    camera.fov = fov;
-    camera.position.z = cameraZ;
+    camera.fov = profile.fov;
+    camera.position.z = profile.cameraZ;
     camera.updateProjectionMatrix();
 
     stage.children.forEach((logo, index) => {
