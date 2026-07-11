@@ -1,4 +1,4 @@
-// Reuses the same passive Jestei 3D logo scene as the project cover.
+// Reuses the same passive Jestei 3D logo scene as the project cover inside the rebrand card.
 const TARGET_SELECTOR = "#jestei-results .jestei-bento__logo-inspector";
 const POSTER_URL = "/assets/jestei/branding/jestei-logo.svg";
 
