@@ -19,7 +19,7 @@
   content: none;
 }
 
-main[data-showcase] .styx-cover [data-section-screen] {
+main[data-showcase] #styx-cover [data-section-screen] {
   grid-template-columns: minmax(0, 1fr);
   inline-size: 100%;
   max-inline-size: none;
@@ -28,21 +28,27 @@ main[data-showcase] .styx-cover [data-section-screen] {
   row-gap: 0;
 }
 
-main[data-showcase] .styx-cover [data-section-screen] > * {
+main[data-showcase] #styx-cover [data-section-screen] > * {
   grid-column: 1;
 }
 
-.styx-cover [data-cover-head] {
+#styx-cover [data-cover-head] {
+  --showcase-header-pad: clamp(var(--space-5), 2.7cqi, var(--space-7));
+  --showcase-header-border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+  --showcase-header-radius: clamp(18px, 2.4vw, 32px);
+  box-sizing: border-box;
   display: grid;
   inline-size: var(--styx-cover-inline);
+  width: var(--styx-cover-inline);
+  max-inline-size: var(--styx-cover-inline);
   margin-inline: auto;
-  padding: clamp(var(--space-5), 2.7cqi, var(--space-7));
-  border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
-  border-radius: clamp(18px, 2.4vw, 32px);
+  padding: var(--showcase-header-pad);
+  border: var(--showcase-header-border);
+  border-radius: var(--showcase-header-radius);
   background: var(--white);
 }
 
-.styx-cover [data-cover-grid] {
+#styx-cover [data-cover-grid] {
   display: grid;
   grid-template-columns: minmax(9.5rem, 18cqi) minmax(0, 33rem) minmax(4.5rem, 1fr);
   grid-template-areas: "logo content dates";
@@ -53,7 +59,7 @@ main[data-showcase] .styx-cover [data-section-screen] > * {
   min-inline-size: 0;
 }
 
-.styx-cover [data-cover-logo] {
+#styx-cover [data-cover-logo] {
   grid-area: logo;
   display: grid;
   place-items: center;
@@ -64,7 +70,7 @@ main[data-showcase] .styx-cover [data-section-screen] > * {
   margin: 0;
 }
 
-.styx-cover [data-cover-logo] img {
+#styx-cover [data-cover-logo] img {
   display: block;
   inline-size: 100%;
   block-size: 100%;
@@ -74,7 +80,7 @@ main[data-showcase] .styx-cover [data-section-screen] > * {
   object-position: center;
 }
 
-.styx-cover [data-cover-grid] > div {
+#styx-cover [data-cover-grid] > div {
   grid-area: content;
   display: grid;
   align-content: end;
@@ -84,7 +90,7 @@ main[data-showcase] .styx-cover [data-section-screen] > * {
   min-inline-size: 0;
 }
 
-main[data-showcase] .styx-cover [data-cover-title] {
+main[data-showcase] #styx-cover [data-cover-title] {
   max-inline-size: 100%;
   margin: 0;
   font-size: clamp(2.65rem, 5.3cqi, 4rem);
@@ -93,7 +99,7 @@ main[data-showcase] .styx-cover [data-cover-title] {
   white-space: nowrap;
 }
 
-.styx-cover [data-cover-grid] > div > .chips {
+#styx-cover [data-cover-grid] > div > .chips {
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
@@ -106,7 +112,7 @@ main[data-showcase] .styx-cover [data-cover-title] {
   list-style: none;
 }
 
-.styx-cover [data-cover-grid] > div > .chips .chip {
+#styx-cover [data-cover-grid] > div > .chips .chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -123,7 +129,7 @@ main[data-showcase] .styx-cover [data-cover-title] {
   white-space: nowrap;
 }
 
-main[data-showcase] .styx-cover [data-cover-grid] > div > p {
+main[data-showcase] #styx-cover [data-cover-grid] > div > p {
   inline-size: 100%;
   max-inline-size: 33rem;
   margin: 0;
@@ -133,7 +139,7 @@ main[data-showcase] .styx-cover [data-cover-grid] > div > p {
   letter-spacing: 0;
 }
 
-.styx-cover [data-cover-grid] > .meta {
+#styx-cover [data-cover-grid] > .meta {
   grid-area: dates;
   justify-self: end;
   align-self: end;
@@ -141,7 +147,7 @@ main[data-showcase] .styx-cover [data-cover-grid] > div > p {
   white-space: nowrap;
 }
 
-.styx-cover .skill-cloud {
+#styx-cover .skill-cloud {
   display: none;
 }
 
@@ -155,11 +161,12 @@ main[data-showcase] .styx-cover [data-cover-grid] > div > p {
     --styx-cover-content-gap: clamp(0.65rem, 3cqi, 1rem);
   }
 
-  .styx-cover [data-cover-head] {
-    padding: clamp(0.85rem, 4.5cqi, 1.25rem);
+  #styx-cover [data-cover-head] {
+    --showcase-header-pad: clamp(0.85rem, 4.5cqi, 1.25rem);
+    padding: var(--showcase-header-pad);
   }
 
-  .styx-cover [data-cover-grid] {
+  #styx-cover [data-cover-grid] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "logo"
@@ -169,29 +176,29 @@ main[data-showcase] .styx-cover [data-cover-grid] > div > p {
     align-items: start;
   }
 
-  .styx-cover [data-cover-logo] {
+  #styx-cover [data-cover-logo] {
     inline-size: var(--styx-cover-logo-size);
     justify-self: center;
     align-self: center;
   }
 
-  .styx-cover [data-cover-grid] > div {
+  #styx-cover [data-cover-grid] > div {
     inline-size: 100%;
     gap: var(--styx-cover-content-gap);
   }
 
-  main[data-showcase] .styx-cover [data-cover-title] {
+  main[data-showcase] #styx-cover [data-cover-title] {
     inline-size: 100%;
     font-size: clamp(2.55rem, 12.5cqi, 4rem);
   }
 
-  .styx-cover [data-cover-grid] > div > .chips {
+  #styx-cover [data-cover-grid] > div > .chips {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: clamp(0.3rem, 1.6cqi, 0.55rem);
   }
 
-  .styx-cover [data-cover-grid] > div > .chips .chip {
+  #styx-cover [data-cover-grid] > div > .chips .chip {
     min-inline-size: 0;
     min-block-size: calc(1em + 0.4rem);
     padding: 0.14em clamp(0.35em, 1.8cqi, 0.65em) 0.2em;
@@ -201,14 +208,14 @@ main[data-showcase] .styx-cover [data-cover-grid] > div > p {
     letter-spacing: -0.015em;
   }
 
-  main[data-showcase] .styx-cover [data-cover-grid] > div > p {
+  main[data-showcase] #styx-cover [data-cover-grid] > div > p {
     inline-size: 100%;
     max-inline-size: 100%;
     font-size: clamp(0.95rem, 3.8cqi, 1.05rem);
     line-height: 1.3;
   }
 
-  .styx-cover [data-cover-grid] > .meta {
+  #styx-cover [data-cover-grid] > .meta {
     inline-size: 100%;
     justify-self: stretch;
     text-align: right;
