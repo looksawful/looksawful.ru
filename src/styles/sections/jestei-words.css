@@ -430,3 +430,31 @@ main[data-showcase] #jestei-words .jestei-words-bento__title {
     block-size: clamp(23rem, 66svh, 30rem);
   }
 }
+
+/* Keep long policy lists in normal document flow in Firefox and Chromium. */
+.jestei-words-bento__policy-slot .policy-page ul,
+.jestei-words-bento__policy-slot .policy-page ol {
+  display: block;
+  max-inline-size: var(--text);
+  margin-block: 0 1.05rem;
+  padding-inline-start: 1.35rem;
+}
+
+.jestei-words-bento__policy-slot .policy-page li {
+  display: list-item;
+  position: static;
+  block-size: auto;
+  min-block-size: 0;
+  margin-block: 0 0.5rem;
+  padding-inline-start: 0.15rem;
+  line-height: 1.45;
+  white-space: normal;
+  text-wrap: wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  transform: none;
+}
+
+.jestei-words-bento__policy-slot .policy-page li:last-child {
+  margin-block-end: 0;
+}
