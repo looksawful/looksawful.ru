@@ -58,26 +58,9 @@
   stroke-dasharray: 6 6;
 }
 
-.jestei-bento__process-svg .jestei-process__port {
-  fill: #fff;
-  stroke: #050505;
-  stroke-width: 1.6;
-  vector-effect: non-scaling-stroke;
-}
-
+.jestei-bento__process-svg .jestei-process__port,
 .jestei-bento__process-svg .jestei-process__dot {
-  stroke: #fff;
-  stroke-width: 1.1;
-  vector-effect: non-scaling-stroke;
-  opacity: 0;
-}
-
-.jestei-bento__process-svg .jestei-process__black-dot {
-  fill: #050505;
-}
-
-.jestei-bento__process-svg .jestei-process__purple-dot {
-  fill: #5a38ff;
+  display: none;
 }
 
 @media (max-width: 72rem) and (min-width: 43.001rem) {
@@ -121,11 +104,5 @@
 
   .jestei-bento__process-visual {
     min-block-size: 15rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .jestei-bento__process-svg .jestei-process__dot {
-    display: none;
   }
 }
