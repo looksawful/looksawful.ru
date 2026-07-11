@@ -101,6 +101,7 @@ export function mountJesteiLogoThree(canvas) {
 
   canvas.dataset.threeMounted = "true";
 
+  const isRebrandCardLogo = canvas.classList.contains("jestei-bento__single-logo-canvas");
   const poster = createThreeCanvasPoster(canvas);
   setThreeCanvasPosterVisible(poster, true);
 
@@ -131,7 +132,7 @@ export function mountJesteiLogoThree(canvas) {
   scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.2));
   scene.children[0].position.set(3, 4, 5);
 
-  camera.position.set(0, 0, 2.5);
+  camera.position.set(0, 0, isRebrandCardLogo ? 3.15 : 2.5);
 
   const resize = () => {
     resizePerspectiveRenderer(renderer, camera, canvas, resizeState, {
@@ -178,7 +179,7 @@ export function mountJesteiLogoThree(canvas) {
       model = gltf.scene;
       model.traverse((child) => prepareMesh(child, renderer, logoMaterials));
       model.position.set(0, 0, 0);
-      model.scale.setScalar(1);
+      model.scale.setScalar(isRebrandCardLogo ? 0.92 : 1);
       scene.add(model);
       canvas.dataset.threeReady = "true";
       delete canvas.dataset.threeFallback;
@@ -219,4 +220,3 @@ export function mountJesteiLogoThree(canvas) {
     delete canvas.dataset.threeFallback;
   };
 }
-
