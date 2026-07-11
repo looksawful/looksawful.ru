@@ -30,6 +30,7 @@ body > footer {
   #hero,
   #jestei-cover,
   #jestei-results,
+  #jestei-interface-bento,
   #jestei-color,
   #jestei-words,
   #jestei-filter,
@@ -38,14 +39,8 @@ body > footer {
   #jestei-landings,
   #jestei-tariffs,
   #styx-cover,
-  #styx-packaging,
-  #styx-communications,
-  #styx-print,
-  #styx-photo-art,
-  #styx-scanography,
-  #berserk-timer,
-  #awful-cases,
-  #awful-audit,
+  #styx-work-slider,
+  #pet-projects,
   #resume
 ) {
   display: block;
@@ -57,6 +52,7 @@ body > footer {
   #hero,
   #jestei-cover,
   #jestei-results,
+  #jestei-interface-bento,
   #jestei-color,
   #jestei-words,
   #jestei-filter,
@@ -65,14 +61,8 @@ body > footer {
   #jestei-landings,
   #jestei-tariffs,
   #styx-cover,
-  #styx-packaging,
-  #styx-communications,
-  #styx-print,
-  #styx-photo-art,
-  #styx-scanography,
-  #berserk-timer,
-  #awful-cases,
-  #awful-audit,
+  #styx-work-slider,
+  #pet-projects,
   #resume
 )[hidden] {
   display: block;
@@ -82,19 +72,13 @@ body > footer {
   display: none;
 }
 
-main[data-showcase] :is(
+main[data-showcase] > :is(
   #jestei-color,
-  #jestei-words,
   #jestei-filter,
   #jestei-event-nav,
   #jestei-promo,
   #jestei-landings,
   #jestei-tariffs,
-  #styx-packaging,
-  #styx-communications,
-  #styx-print,
-  #styx-photo-art,
-  #styx-scanography,
   #resume
 ) :where([data-section-title], [data-content-title], [data-cover-title], .title) {
   max-inline-size: 16ch;
@@ -103,31 +87,21 @@ main[data-showcase] :is(
   text-wrap: balance;
 }
 
-main[data-showcase] :is(
-  #styx-packaging,
-  #styx-communications,
-  #styx-print,
-  #styx-photo-art,
-  #styx-scanography
+main[data-showcase] > :is(
+  #styx-work-slider
 ) :where(video, [data-section-media-item]:has(video), .section-media:has(video)) {
   background: transparent;
   box-shadow: none;
 }
 
 @media (max-width: 48rem) {
-  main[data-showcase] :is(
+  main[data-showcase] > :is(
     #jestei-color,
-    #jestei-words,
     #jestei-filter,
     #jestei-event-nav,
     #jestei-promo,
     #jestei-landings,
     #jestei-tariffs,
-    #styx-packaging,
-    #styx-communications,
-    #styx-print,
-    #styx-photo-art,
-    #styx-scanography,
     #resume
   ) :where([data-section-title], [data-content-title], [data-cover-title], .title) {
     max-inline-size: 100%;

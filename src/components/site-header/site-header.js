@@ -690,7 +690,7 @@ export function initSiteHeader(root = document) {
     },
   });
 
-  ["#jestei-cover", "#styx-cover", "#shootings", "#berserk-timer", "#resume"].forEach((selector) => {
+  ["#jestei-cover", "#styx-cover", "#shootings", "#pet-projects", "#resume"].forEach((selector) => {
     const section = root.querySelector(selector);
     const chip = chips.find((item) => item.getAttribute("href") === selector);
 

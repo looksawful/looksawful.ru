@@ -5,6 +5,10 @@
   --jestei-bento-gap: clamp(0.45rem, 1.4cqi, 1.4rem);
   --jestei-bento-card-pad: clamp(0.7rem, 1.8cqi, 1.75rem);
   --jestei-bento-radius: clamp(0.8rem, 1.8cqi, 2rem);
+  --jestei-bento-title-hero: clamp(2.05rem, 2.75vw, 3rem);
+  --jestei-bento-title-hero-compact: clamp(1.55rem, 2vw, 2.25rem);
+  --jestei-bento-title-strong: clamp(1.45rem, 1.75vw, 2.15rem);
+  --jestei-bento-title-regular: clamp(1.05rem, 1.05vw, 1.25rem);
   container-type: inline-size;
   margin-block: 0;
   color: var(--black);
@@ -115,31 +119,63 @@ main[data-showcase] .jestei-bento [data-section-screen] > * {
 .jestei-bento__card--products .jestei-bento__title--regular {
   display: grid;
   gap: 0.08em;
-  max-inline-size: 100%;
+  max-inline-size: var(--jestei-bento-title-measure, 100%);
   margin: 0;
   color: var(--black);
-  font-size: clamp(1rem, 5.4cqi, 1.9rem);
+  font-size: var(--jestei-bento-title-strong);
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   text-wrap: balance;
+  word-break: normal;
+  hyphens: none;
 }
 
-.jestei-bento__card--steps .jestei-bento__title {
-  font-size: clamp(1.45rem, 7.2cqi, 2.5rem);
-  line-height: 0.94;
+.jestei-bento__card--steps .jestei-bento__title--metric,
+.jestei-bento__card--price .jestei-bento__title--price {
+  font-size: var(--jestei-bento-title-hero-compact);
+  line-height: 0.92;
 }
 
-.jestei-bento__card--steps .jestei-bento__title strong {
-  font-size: 1.08em;
+.jestei-bento__card--steps .jestei-bento__title--metric {
+  --jestei-bento-title-measure: 8em;
+}
+
+.jestei-bento__card--steps .jestei-bento__title strong,
+.jestei-bento__card--price .jestei-bento__title strong {
+  font-size: 1em;
   line-height: 0.9;
   white-space: nowrap;
 }
 
-.jestei-bento__card--steps .jestei-bento__title span {
-  font-size: 0.72em;
+.jestei-bento__card--steps .jestei-bento__title span,
+.jestei-bento__card--price .jestei-bento__title span {
+  font-size: 0.62em;
   line-height: 1;
+}
+
+.jestei-bento__card--manual .jestei-bento__title--mixed {
+  --jestei-bento-title-measure: 10em;
+  font-size: var(--jestei-bento-title-hero);
+  line-height: 0.95;
+}
+
+.jestei-bento__card--manual .jestei-bento__title--mixed span {
+  font-size: 0.86em;
+  line-height: 1;
+}
+
+.jestei-bento__card--rebrand .jestei-bento__title,
+.jestei-bento__card--usa .jestei-bento__title {
+  font-size: var(--jestei-bento-title-strong);
+  line-height: 0.96;
+}
+
+.jestei-bento__card--products .jestei-bento__title--regular,
+.jestei-bento__card--audience .jestei-bento__title--regular {
+  font-size: var(--jestei-bento-title-regular);
+  line-height: 1.02;
 }
 
 .jestei-bento__title--regular {
@@ -191,6 +227,10 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     --jestei-bento-gap: clamp(0.5rem, 1.25cqi, 0.95rem);
     --jestei-bento-card-pad: clamp(0.78rem, 1.55cqi, 1.2rem);
     --jestei-bento-radius: clamp(0.9rem, 1.65cqi, 1.45rem);
+    --jestei-bento-title-hero: clamp(1.75rem, 3.4vw, 2.5rem);
+    --jestei-bento-title-hero-compact: clamp(1.42rem, 2.7vw, 2rem);
+    --jestei-bento-title-strong: clamp(1.28rem, 2.45vw, 1.75rem);
+    --jestei-bento-title-regular: clamp(1rem, 1.8vw, 1.18rem);
   }
 
   .jestei-bento__heading {
@@ -205,19 +245,6 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
       "manual manual products audience"
       "manual manual usa usa";
     grid-auto-rows: minmax(clamp(7.5rem, 11.5cqi, 10rem), auto);
-  }
-
-  .jestei-bento__title,
-  .jestei-bento__title--metric,
-  .jestei-bento__title--price,
-  .jestei-bento__title--mixed,
-  .jestei-bento__card--audience .jestei-bento__title--regular,
-  .jestei-bento__card--products .jestei-bento__title--regular {
-    font-size: clamp(1.05rem, 5.2cqi, 1.55rem);
-  }
-
-  .jestei-bento__card--steps .jestei-bento__title {
-    font-size: clamp(1.3rem, 6.8cqi, 2rem);
   }
 
   .jestei-bento__content > p,
@@ -240,6 +267,10 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     --jestei-bento-gap: clamp(0.35rem, 1.8cqi, 0.68rem);
     --jestei-bento-card-pad: clamp(0.68rem, 3cqi, 0.95rem);
     --jestei-bento-radius: clamp(0.75rem, 3.6cqi, 1.2rem);
+    --jestei-bento-title-hero: clamp(1.35rem, 5.2vw, 1.85rem);
+    --jestei-bento-title-hero-compact: clamp(1.18rem, 4.9vw, 1.65rem);
+    --jestei-bento-title-strong: clamp(1.08rem, 4.5vw, 1.45rem);
+    --jestei-bento-title-regular: clamp(0.95rem, 3.7vw, 1.12rem);
   }
 
   .jestei-bento__heading {
@@ -312,21 +343,6 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     min-block-size: 0;
   }
 
-  .jestei-bento__title,
-  .jestei-bento__title--metric,
-  .jestei-bento__title--price,
-  .jestei-bento__title--mixed,
-  .jestei-bento__card--audience .jestei-bento__title--regular,
-  .jestei-bento__card--products .jestei-bento__title--regular {
-    font-size: clamp(1.05rem, 5.8cqi, 1.42rem);
-    line-height: 1.02;
-  }
-
-  .jestei-bento__card--steps .jestei-bento__title {
-    font-size: clamp(1.8rem, 20cqi, 2.5rem);
-    line-height: 0.88;
-  }
-
   .jestei-bento__card--steps .jestei-bento__title strong {
     font-size: 1em;
     line-height: 0.88;
@@ -351,10 +367,6 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     align-items: start;
   }
 
-  .jestei-bento__card--manual .jestei-bento__title {
-    font-size: clamp(1.2rem, 5.8cqi, 1.65rem);
-  }
-
   .jestei-bento__card--manual .jestei-bento__content > p,
   main[data-showcase] .jestei-bento .jestei-bento__card--manual .jestei-bento__content > p {
     max-inline-size: 42rem;
@@ -376,6 +388,10 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
     --jestei-bento-page-x: 0.4rem;
     --jestei-bento-gap: 0.32rem;
     --jestei-bento-card-pad: 0.62rem;
+    --jestei-bento-title-hero: clamp(1.22rem, 5.1vw, 1.62rem);
+    --jestei-bento-title-hero-compact: clamp(1.08rem, 4.8vw, 1.45rem);
+    --jestei-bento-title-strong: clamp(1rem, 4.35vw, 1.25rem);
+    --jestei-bento-title-regular: clamp(0.92rem, 3.65vw, 1.05rem);
   }
 
   .jestei-bento__panel--primary {
@@ -389,19 +405,6 @@ main[data-showcase] .jestei-bento .jestei-bento__card--audience .jestei-bento__c
       minmax(16rem, auto)
       minmax(13rem, auto)
       minmax(24rem, auto);
-  }
-
-  .jestei-bento__title,
-  .jestei-bento__title--metric,
-  .jestei-bento__title--price,
-  .jestei-bento__title--mixed,
-  .jestei-bento__card--audience .jestei-bento__title--regular,
-  .jestei-bento__card--products .jestei-bento__title--regular {
-    font-size: clamp(1rem, 5.6cqi, 1.24rem);
-  }
-
-  .jestei-bento__card--steps .jestei-bento__title {
-    font-size: clamp(1.65rem, 18cqi, 2.1rem);
   }
 
   .jestei-bento__content > p,

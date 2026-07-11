@@ -116,37 +116,13 @@ const JESTEI_BENTO = `
 const JESTEI_COLOR = `
   <div class="jestei-color__screen" data-section-screen="">
     <div class="jestei-color-bento" data-color-bento="">
-      <div class="jestei-color-bento__panel jestei-color-bento__panel--intro" data-color-panel="intro">
-        <header class="jestei-color-bento__card jestei-color-bento__card--head">
-          <h2 class="jestei-color-bento__title" data-color-headline="jestei">
-            <span data-section-title-main="">добавили</span>
-            <span data-section-title-accent="">ц в е т</span>
-          </h2>
-          <p class="jestei-color-bento__lead">Сегментировали конфликтующие аудитории при помощи 4 цветовых профилей. Теперь цвет направляет пользователя к нужным продуктам.</p>
+      <div class="jestei-color-bento__content">
+        <header class="jestei-color-bento__head">
+          <h2 class="jestei-color-bento__title"><span data-section-title-main="">добавили</span> <span class="jestei-color-bento__accent" data-section-title-accent="" aria-label="цвет"><span data-color-letter="orange">ц</span><span data-color-letter="blue">в</span><span data-color-letter="pear">е</span><span data-color-letter="biloba">т</span></span></h2>
+          <p class="jestei-color-bento__lead">Сегментировали конфликтующие аудитории при помощи 4 цветовых профилей. Теперь цвет направляет пользователя к нужным продуктам. Создали отдельные визуальные зоны для ивент диджеев, клубных диджеев и саунд-продюсеров. Цветовые профили связали продукты и подписки, разделили конфликтующие аудитории и снизили количество конфликтов между ними. Раньше сервис держался на серо-оранжевой палитре. Теперь в системе 4 продуктовые темы: оранжевая для клуба, грушевая для ивента, синяя для эксклюзивов и лавандовая для экспериментальных инструментов.</p>
         </header>
 
-        <a class="jestei-color-bento__card jestei-color-bento__visual jestei-color-bento__visual--main" data-lightbox-item="" href="/assets/media/cases/jesteipool/02-color/04/00.webp" rel="noopener noreferrer" target="_blank">
-          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/02-color/04/00.webp" />
-        </a>
-      </div>
-
-      <div class="jestei-color-bento__panel jestei-color-bento__panel--system" data-color-panel="system">
-        <article class="jestei-color-bento__card jestei-color-bento__card--zones">
-          <h3>визуальные зоны</h3>
-          <p>Создали отдельные визуальные зоны для ивент диджеев, клубных диджеев и саунд-продюсеров. Цветовые профили связали продукты и подписки, разделили конфликтующие аудитории и снизили количество конфликтов между ними.</p>
-        </article>
-
-        <article class="jestei-color-bento__card jestei-color-bento__card--system">
-          <h3>4 продуктовые темы</h3>
-          <p>Раньше сервис держался на серо-оранжевой палитре. Тепреь в системе 4 продуктовые темы: оранжевая для клуба, грушевая для ивента, синяя для эксклюзивов и лавандовая для экспериментальных инструментов.</p>
-        </article>
-
-        <a class="jestei-color-bento__card jestei-color-bento__visual jestei-color-bento__visual--secondary" data-lightbox-item="" href="/assets/media/cases/jesteipool/02-color/02/00.webp" rel="noopener noreferrer" target="_blank">
-          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/02-color/02/00.webp" />
-        </a>
-      </div>
-
-      <div class="jestei-color-bento__panel jestei-color-bento__panel--palette" data-color-panel="palette">
+        <div class="jestei-color-bento__palette" data-color-panel="palette">
         <article class="jestei-color-bento__card jestei-color-bento__theme jestei-color-bento__theme--orange">
           <div class="jestei-color-bento__theme-head"><span>клуб</span><h3>gold-drop</h3></div>
           <ul class="jestei-color-bento__tokens" aria-label="gold drop">
@@ -186,7 +162,12 @@ const JESTEI_COLOR = `
             <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--700"></span><span>700</span></li>
           </ul>
         </article>
+        </div>
       </div>
+
+      <a class="jestei-color-bento__card jestei-color-bento__visual" data-lightbox-item="" href="/assets/media/cases/jesteipool/02-color/02/00.webp" rel="noopener noreferrer" target="_blank">
+        <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/02-color/02/00.webp" />
+      </a>
     </div>
   </div>
 `;
@@ -223,7 +204,312 @@ const STYX_COVER = `
   </div>
 `;
 
+const STYX_SLIDER_SECTION_IDS = [
+  "styx-packaging",
+  "styx-communications",
+  "styx-print",
+  "styx-photo-art",
+  "styx-scanography",
+];
+
+const PET_PROJECTS = [
+  {
+    id: "berserk-timer",
+    title: "berserk timer",
+    description: "пет-проект с таймером и интерактивной визуальной оболочкой.",
+    image: "/assets/media/pets/berserk-timer.png",
+    modifier: "berserk",
+  },
+  {
+    id: "awful-cases",
+    title: "awful cases",
+    description: "витрина кейсов с отдельным интерфейсом просмотра проектов.",
+    image: "/assets/media/pets/awful-cases.png",
+    modifier: "awful-cases",
+  },
+  {
+    id: "awful-audit",
+    title: "awful audit",
+    description: "инструмент для разбора интерфейсов и фиксации аудиторских наблюдений.",
+    image: "/assets/media/pets/awful-audit.png",
+    modifier: "awful-audit",
+  },
+];
+
+const normalizeText = (value) => String(value || "").replace(/\s+/g, " ").trim();
+
+const clearPublicationVisibility = (element) => {
+  element.hidden = false;
+  element.style.removeProperty("display");
+  element.style.removeProperty("visibility");
+  element.style.removeProperty("opacity");
+};
+
+const getSectionTitle = (section) =>
+  normalizeText(section?.querySelector("[data-section-title]")?.textContent || section?.getAttribute("aria-label"));
+
+const setupHorizontalSlider = (slider) => {
+  const track = slider.querySelector("[data-horizontal-slider-track]");
+  const buttons = slider.querySelectorAll("[data-horizontal-slider-direction]");
+
+  if (!track || slider.dataset.horizontalSliderReady === "true") {
+    return;
+  }
+
+  slider.dataset.horizontalSliderReady = "true";
+
+  const getStep = () => Math.max(track.clientWidth * 0.84, 1);
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const direction = Number(button.dataset.horizontalSliderDirection || 1);
+      track.scrollBy({ left: direction * getStep(), behavior: "smooth" });
+    });
+  });
+
+  track.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+      return;
+    }
+
+    event.preventDefault();
+    track.scrollBy({
+      left: (event.key === "ArrowRight" ? 1 : -1) * getStep(),
+      behavior: "smooth",
+    });
+  });
+
+  let startX = 0;
+  let startScroll = 0;
+  let isDragging = false;
+  let didDrag = false;
+
+  track.addEventListener("pointerdown", (event) => {
+    if (event.pointerType !== "mouse" || event.button !== 0) {
+      return;
+    }
+
+    isDragging = true;
+    didDrag = false;
+    startX = event.clientX;
+    startScroll = track.scrollLeft;
+    track.classList.add("is-dragging");
+    track.setPointerCapture?.(event.pointerId);
+  });
+
+  track.addEventListener("pointermove", (event) => {
+    if (!isDragging) {
+      return;
+    }
+
+    const delta = event.clientX - startX;
+    if (Math.abs(delta) > 4) {
+      didDrag = true;
+    }
+    track.scrollLeft = startScroll - delta;
+  });
+
+  const stopDrag = (event) => {
+    if (!isDragging) {
+      return;
+    }
+
+    isDragging = false;
+    track.classList.remove("is-dragging");
+    track.releasePointerCapture?.(event.pointerId);
+  };
+
+  track.addEventListener("pointerup", stopDrag);
+  track.addEventListener("pointercancel", stopDrag);
+  track.addEventListener(
+    "click",
+    (event) => {
+      if (!didDrag) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      didDrag = false;
+    },
+    true,
+  );
+};
+
+const buildStyxWorkSlider = (root) => {
+  if (root.querySelector("#styx-work-slider")) {
+    setupHorizontalSlider(root.querySelector("#styx-work-slider"));
+    return;
+  }
+
+  const sections = STYX_SLIDER_SECTION_IDS.map((id) => root.querySelector(`#${id}`)).filter(Boolean);
+  if (!sections.length) {
+    return;
+  }
+
+  const slider = document.createElement("section");
+  slider.className = "section section-component styx-work-slider";
+  slider.id = "styx-work-slider";
+  slider.setAttribute("aria-label", "работы Styx Jewels");
+  slider.setAttribute("data-section-component", "");
+  slider.setAttribute("data-section-family", "styx");
+
+  slider.innerHTML = `
+    <div class="styx-work-slider__screen" data-section-screen="">
+      <header class="styx-work-slider__head">
+        <h2 class="visually-hidden">работы Styx Jewels</h2>
+        <div class="styx-work-slider__controls" aria-label="управление слайдером Styx Jewels">
+          <button class="styx-work-slider__button" type="button" data-horizontal-slider-direction="-1" aria-label="показать предыдущую секцию"><span aria-hidden="true">←</span></button>
+          <button class="styx-work-slider__button" type="button" data-horizontal-slider-direction="1" aria-label="показать следующую секцию"><span aria-hidden="true">→</span></button>
+        </div>
+      </header>
+      <div class="styx-work-slider__track" data-horizontal-slider-track="" tabindex="0" aria-label="горизонтальный слайдер работ Styx Jewels"></div>
+    </div>
+  `;
+
+  sections[0].insertAdjacentElement("beforebegin", slider);
+  const track = slider.querySelector("[data-horizontal-slider-track]");
+
+  sections.forEach((section, index) => {
+    clearPublicationVisibility(section);
+    section.setAttribute("data-styx-slider-source", "");
+
+    const slide = document.createElement("article");
+    slide.className = "styx-work-slider__slide";
+    slide.setAttribute("aria-label", getSectionTitle(section) || `секция Styx ${index + 1}`);
+    slide.append(section);
+    track.append(slide);
+  });
+
+  setupHorizontalSlider(slider);
+};
+
+const buildPetProjectsBento = (root) => {
+  if (root.querySelector("#pet-projects")) {
+    return;
+  }
+
+  const entries = PET_PROJECTS.map((project) => {
+    const section = root.querySelector(`#${project.id}`);
+    const frame = section?.querySelector("[data-pet-project-frame]");
+    return {
+      ...project,
+      section,
+      href: frame?.getAttribute("src") || `/pets/${project.id}/`,
+    };
+  }).filter((project) => project.section);
+
+  if (!entries.length) {
+    return;
+  }
+
+  const section = document.createElement("section");
+  section.className = "section section-component pet-projects-bento";
+  section.id = "pet-projects";
+  section.setAttribute("aria-label", "пет-проекты");
+  section.setAttribute("data-section-component", "");
+  section.setAttribute("data-section-family", "pets");
+
+  section.innerHTML = `
+    <div class="pet-projects-bento__screen" data-section-screen="">
+      <header class="pet-projects-bento__head">
+        <h2 class="pet-projects-bento__title">пет-проекты</h2>
+      </header>
+      <div class="pet-projects-bento__grid" data-pet-projects-bento=""></div>
+    </div>
+  `;
+
+  const grid = section.querySelector("[data-pet-projects-bento]");
+  entries.forEach((project) => {
+    const card = document.createElement("article");
+    card.className = `pet-projects-bento__card pet-projects-bento__card--${project.modifier}`;
+    card.innerHTML = `
+      <a class="pet-projects-bento__media" href="${project.href}" aria-label="открыть ${project.title}">
+        <img alt="" decoding="async" loading="lazy" src="${project.image}" />
+      </a>
+      <div class="pet-projects-bento__body">
+        <h3><a href="${project.href}">${project.title}</a></h3>
+        <p>${project.description}</p>
+      </div>
+    `;
+    grid.append(card);
+  });
+
+  entries[0].section.insertAdjacentElement("beforebegin", section);
+  entries.forEach((project) => project.section.remove());
+};
+
+const buildJesteiWordsBento = (root) => {
+  const section = root.querySelector("#jestei-words");
+  if (!section || section.querySelector("[data-jestei-words-bento]")) {
+    return;
+  }
+
+  const leadText = normalizeText(section.querySelector("[data-section-lead]")?.textContent);
+  const note = section.querySelector(".section-note")?.cloneNode(true);
+  const policyShell = section.querySelector(".policy-shell");
+
+  const screen = document.createElement("div");
+  screen.className = "jestei-words__screen";
+  screen.setAttribute("data-section-screen", "");
+  screen.innerHTML = `
+    <div class="jestei-words-bento" data-jestei-words-bento="">
+      <article class="jestei-words-bento__card jestei-words-bento__card--intro">
+        <h2 class="jestei-words-bento__title" data-section-title="" data-content-title=""><span data-section-title-main="">нашли</span><span data-section-title-accent="">слова</span></h2>
+        <p class="jestei-words-bento__lead" data-section-lead=""></p>
+      </article>
+
+      <article class="jestei-words-bento__card jestei-words-bento__card--fact" data-words-note-slot=""></article>
+
+      <article class="jestei-words-bento__card jestei-words-bento__card--scope">
+        <h3>8 разделов</h3>
+        <p>подсказки, описания, пояснительные тексты, FAQ и системные сообщения стали частью единой коммуникационной системы.</p>
+      </article>
+
+      <article class="jestei-words-bento__card jestei-words-bento__card--voice">
+        <h3>tone of voice</h3>
+        <p>редполитика, правила статей и постов, жанровые описания и продуктовые формулировки собраны в общий язык сервиса.</p>
+      </article>
+
+      <article class="jestei-words-bento__card jestei-words-bento__card--policy">
+        <header>
+          <h3>редполитика</h3>
+          <p>интерактивная книга остается внутри секции, но теперь работает как главный media-элемент bento.</p>
+        </header>
+        <div class="jestei-words-bento__policy-slot" data-words-policy-slot=""></div>
+      </article>
+    </div>
+  `;
+
+  screen.querySelector(".jestei-words-bento__lead").textContent =
+    leadText || "Сформировали коммуникационную платформу сервиса: tone of voice, редакционную политику и правила интерфейсного текста.";
+
+  const noteSlot = screen.querySelector("[data-words-note-slot]");
+  if (note) {
+    note.classList.add("jestei-words-bento__note");
+    noteSlot.append(note);
+  } else {
+    noteSlot.innerHTML = "<p><strong>200+</strong> описаний плейлистов и event-подборок, <strong>50+</strong> жанров, FAQ и тултипы.</p>";
+  }
+
+  const policySlot = screen.querySelector("[data-words-policy-slot]");
+  if (policyShell) {
+    policySlot.append(policyShell);
+  }
+
+  section.innerHTML = "";
+  section.append(screen);
+};
+
+const retargetPetLinks = (root) => {
+  root.querySelectorAll('a[href="#berserk-timer"]').forEach((link) => {
+    link.setAttribute("href", "#pet-projects");
+  });
+};
+
 export function prepareHomepagePublication(root = document) {
+  retargetPetLinks(root);
+
   const jesteiCover = root.querySelector("#jestei-cover");
   if (jesteiCover) {
     jesteiCover.setAttribute("aria-label", "шапка проекта jestei pool");
@@ -239,8 +525,13 @@ export function prepareHomepagePublication(root = document) {
     jesteiColor.innerHTML = JESTEI_COLOR;
   }
 
+  buildJesteiWordsBento(root);
+
   const styxCover = root.querySelector("#styx-cover");
   if (styxCover) {
     styxCover.innerHTML = STYX_COVER;
   }
+
+  buildStyxWorkSlider(root);
+  buildPetProjectsBento(root);
 }

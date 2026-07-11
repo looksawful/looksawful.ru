@@ -37,9 +37,11 @@
 @import "./sections/styx-photo-art.css";
 @import "./sections/styx-scanography.css";
 @import "./sections/styx-flow.css";
+@import "./sections/styx-work-slider.css";
 @import "./sections/berserk-timer.css";
 @import "./sections/awful-cases.css";
 @import "./sections/awful-audit.css";
+@import "./sections/pet-projects-bento.css";
 @import "./sections/shootings.css";
 @import "./sections/resume.css";
 @import "./homepage-visible-mode.css";

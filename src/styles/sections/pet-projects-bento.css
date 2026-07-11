@@ -1,0 +1,173 @@
+.pet-projects-bento {
+  --pet-bento-gap: clamp(0.75rem, 1.55vw, 1.35rem);
+  --pet-bento-pad: clamp(1rem, 2vw, 1.6rem);
+  --pet-bento-radius: clamp(1rem, 1.75vw, 1.65rem);
+  --pet-bento-title: clamp(2.4rem, 6vw, 5.4rem);
+  --pet-bento-card-title: clamp(1.55rem, 3.2vw, 3rem);
+  --pet-bento-copy: clamp(0.95rem, 0.72vw + 0.82rem, 1.14rem);
+  container-type: inline-size;
+  margin-block: clamp(1.5rem, 4vw, 4.5rem);
+  color: var(--black);
+  background: var(--white);
+}
+
+main[data-showcase] #pet-projects [data-section-screen] {
+  display: grid;
+  gap: var(--pet-bento-gap);
+  inline-size: min(calc(100% - var(--space-7)), var(--case-wide));
+  max-inline-size: none;
+  margin-inline: auto;
+  padding-block: clamp(1.25rem, 3.8vw, 3.8rem);
+}
+
+.pet-projects-bento__head {
+  min-inline-size: 0;
+}
+
+.pet-projects-bento__title {
+  max-inline-size: 100%;
+  margin: 0;
+  color: var(--black);
+  font-size: var(--pet-bento-title);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.pet-projects-bento__grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--pet-bento-gap);
+  align-items: stretch;
+  min-inline-size: 0;
+}
+
+.pet-projects-bento__card {
+  display: grid;
+  grid-template-rows: minmax(14rem, 1fr) auto;
+  gap: clamp(0.8rem, 1.6vw, 1.2rem);
+  min-inline-size: 0;
+  min-block-size: clamp(25rem, 43vw, 38rem);
+  border: var(--line);
+  border-radius: var(--pet-bento-radius);
+  padding: var(--pet-bento-pad);
+  background: var(--white);
+  color: var(--black);
+  overflow: hidden;
+}
+
+.pet-projects-bento__card--berserk {
+  grid-column: span 2;
+}
+
+.pet-projects-bento__card--awful-cases {
+  grid-column: span 4;
+}
+
+.pet-projects-bento__card--awful-audit {
+  grid-column: span 6;
+  grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
+  grid-template-rows: minmax(18rem, 1fr);
+  align-items: stretch;
+}
+
+.pet-projects-bento__media {
+  display: block;
+  min-inline-size: 0;
+  min-block-size: 0;
+  border: var(--line);
+  border-radius: calc(var(--pet-bento-radius) * 0.62);
+  background: var(--white);
+  color: inherit;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.pet-projects-bento__media img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.pet-projects-bento__body {
+  display: grid;
+  align-content: end;
+  gap: clamp(0.45rem, 1.1vw, 0.75rem);
+  min-inline-size: 0;
+}
+
+.pet-projects-bento__body h3 {
+  margin: 0;
+  color: var(--black);
+  font-size: var(--pet-bento-card-title);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.pet-projects-bento__body a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pet-projects-bento__body a:hover,
+.pet-projects-bento__body a:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.12em;
+  outline: 0;
+}
+
+.pet-projects-bento__body p {
+  max-inline-size: 32rem;
+  margin: 0;
+  color: var(--black);
+  font-size: var(--pet-bento-copy);
+  line-height: 1.28;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+
+@media (max-width: 72rem) {
+  .pet-projects-bento__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pet-projects-bento__card--berserk,
+  .pet-projects-bento__card--awful-cases,
+  .pet-projects-bento__card--awful-audit {
+    grid-column: span 1;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(13rem, 1fr) auto;
+  }
+}
+
+@media (max-width: 44rem) {
+  .pet-projects-bento {
+    --pet-bento-gap: clamp(0.55rem, 3vw, 0.85rem);
+    --pet-bento-pad: clamp(0.82rem, 4vw, 1.08rem);
+    --pet-bento-title: clamp(2rem, 12vw, 3.25rem);
+    --pet-bento-card-title: clamp(1.35rem, 8vw, 2.05rem);
+    --pet-bento-copy: clamp(0.88rem, 3.7vw, 1rem);
+  }
+
+  main[data-showcase] #pet-projects [data-section-screen] {
+    inline-size: min(calc(100% - var(--space-4)), var(--case-wide));
+    padding-block: clamp(1rem, 6vw, 2.3rem);
+  }
+
+  .pet-projects-bento__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pet-projects-bento__card {
+    min-block-size: clamp(22rem, 88vw, 30rem);
+  }
+}

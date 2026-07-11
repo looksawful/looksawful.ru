@@ -1,53 +1,198 @@
 .jestei-words {
   --section-accent: var(--black);
-}
-
-.jestei-words [data-section-screen] {
-  row-gap: clamp(1.4rem, 3vw, 2.6rem);
-}
-
-main[data-showcase] #jestei-words {
-  margin-block: clamp(1.4rem, 3.2vw, 3.25rem);
+  --jestei-words-gap: clamp(0.8rem, 1.6vw, 1.4rem);
+  --jestei-words-pad: clamp(1rem, 2vw, 1.65rem);
+  --jestei-words-radius: clamp(1rem, 1.7vw, 1.65rem);
+  --jestei-words-title: clamp(2.4rem, 6.2vw, 5.8rem);
+  --jestei-words-card-title: clamp(1.45rem, 2.6vw, 2.45rem);
+  --jestei-words-copy: clamp(0.95rem, 0.78vw + 0.78rem, 1.2rem);
+  container-type: inline-size;
+  margin-block: clamp(1.5rem, 3.5vw, 4rem);
+  color: var(--black);
+  background: var(--white);
 }
 
 main[data-showcase] #jestei-words [data-section-screen] {
-  padding-block: clamp(2rem, 4.2vw, 4rem);
+  display: block;
+  inline-size: min(calc(100% - var(--space-7)), var(--case-wide));
+  max-inline-size: none;
+  margin-inline: auto;
+  padding-block: clamp(1.5rem, 4vw, 4rem);
 }
 
-main[data-showcase] #jestei-words [data-chapter-head] {
-  align-items: end;
+.jestei-words-bento {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 0.78fr) minmax(28rem, 1.4fr);
+  grid-template-areas:
+    "intro intro policy"
+    "fact scope policy"
+    "voice voice policy";
+  gap: var(--jestei-words-gap);
+  align-items: stretch;
+  min-inline-size: 0;
 }
 
-main[data-showcase] #jestei-words [data-section-title] {
-  max-inline-size: min(100%, 13ch);
-  font-size: clamp(2.55rem, 5.2vw, 5.6rem);
+.jestei-words-bento__card {
+  display: grid;
+  align-content: start;
+  gap: clamp(0.75rem, 1.55vw, 1.25rem);
+  min-inline-size: 0;
+  border: var(--line);
+  border-radius: var(--jestei-words-radius);
+  padding: var(--jestei-words-pad);
+  background: var(--white);
+  color: var(--black);
+  overflow: hidden;
+}
+
+.jestei-words-bento__card--intro {
+  grid-area: intro;
+}
+
+.jestei-words-bento__card--fact {
+  grid-area: fact;
+}
+
+.jestei-words-bento__card--scope {
+  grid-area: scope;
+}
+
+.jestei-words-bento__card--voice {
+  grid-area: voice;
+}
+
+.jestei-words-bento__card--policy {
+  grid-area: policy;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.jestei-words-bento__title,
+main[data-showcase] #jestei-words .jestei-words-bento__title {
+  max-inline-size: 100%;
+  margin: 0;
+  color: var(--black);
+  font-size: var(--jestei-words-title);
+  font-weight: 800;
   line-height: 0.9;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
   overflow-wrap: normal;
   word-break: normal;
   hyphens: none;
 }
 
-main[data-showcase] #jestei-words [data-section-lead] {
-  max-inline-size: min(100%, 53rem);
-  font-size: clamp(1.05rem, 0.74vw + 0.95rem, 1.35rem);
-  line-height: 1.2;
+.jestei-words-bento__title [data-section-title-main] + [data-section-title-accent]::before {
+  content: " ";
 }
 
-main[data-showcase] #jestei-words [data-section-body] {
-  gap: clamp(1.4rem, 3vw, 2.8rem);
+.jestei-words-bento__lead,
+.jestei-words-bento__card p,
+.jestei-words-bento__note {
+  margin: 0;
+  color: var(--black);
+  font-size: var(--jestei-words-copy);
+  font-weight: 400;
+  line-height: 1.28;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+
+.jestei-words-bento__card h3 {
+  max-inline-size: 100%;
+  margin: 0;
+  color: var(--black);
+  font-size: var(--jestei-words-card-title);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.jestei-words-bento__note strong {
+  display: block;
+  margin-block-end: 0.12em;
+  color: var(--black);
+  font-size: clamp(2rem, 4.8vw, 4.9rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+}
+
+.jestei-words-bento__policy-slot {
+  display: grid;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.jestei-words-bento__policy-slot .policy-shell {
+  inline-size: 100%;
+  min-inline-size: 0;
+  block-size: clamp(30rem, 72svh, 52rem);
+  min-block-size: 0;
+}
+
+.jestei-words-bento__policy-slot .policy-book {
+  --heading: min(100%, 18ch);
+  --text: min(100%, 34rem);
+  --md: clamp(0.92rem, 0.62vw + 0.78rem, 1.08rem);
+  block-size: 100%;
+  min-block-size: 0;
+}
+
+.jestei-words-bento__policy-slot .policy-page__content,
+.jestei-words-bento__policy-slot .policy-page__content--wide {
+  inline-size: min(100% - clamp(1rem, 4cqi, 2.2rem), 100%);
+}
+
+.jestei-words-bento__policy-slot .policy-page h1,
+.jestei-words-bento__policy-slot .policy-page h2,
+.jestei-words-bento__policy-slot .policy-page h3,
+.jestei-words-bento__policy-slot .policy-page h4 {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 78rem) {
+  .jestei-words-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "intro intro"
+      "fact scope"
+      "voice voice"
+      "policy policy";
+  }
+
+  .jestei-words-bento__policy-slot .policy-shell {
+    block-size: clamp(28rem, 68svh, 48rem);
+  }
 }
 
 @media (max-width: 48rem) {
-  main[data-showcase] #jestei-words [data-section-title] {
-    font-size: clamp(2.05rem, 9.4vw, 3.35rem);
+  .jestei-words {
+    --jestei-words-gap: clamp(0.6rem, 3vw, 0.9rem);
+    --jestei-words-pad: clamp(0.82rem, 4vw, 1.1rem);
+    --jestei-words-title: clamp(2rem, 13vw, 3.35rem);
+    --jestei-words-card-title: clamp(1.25rem, 8vw, 1.9rem);
+    --jestei-words-copy: clamp(0.88rem, 3.8vw, 1rem);
   }
-}
-#jestei-words {
-  --section-accent: var(--black);
-  --section-muted: color-mix(in srgb, currentColor 58%, transparent);
-  --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
-  --section-local-text: min(100%, 58rem);
-  --section-local-lead: min(100%, 66rem);
-  --section-local-media-ratio: 16 / 10;
-  --section-local-media-fit: cover;
+
+  main[data-showcase] #jestei-words [data-section-screen] {
+    inline-size: min(calc(100% - var(--space-4)), var(--case-wide));
+    padding-block: clamp(1.1rem, 6vw, 2.4rem);
+  }
+
+  .jestei-words-bento {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "intro"
+      "fact"
+      "scope"
+      "voice"
+      "policy";
+  }
+
+  .jestei-words-bento__policy-slot .policy-shell {
+    block-size: clamp(26rem, 76svh, 40rem);
+  }
 }
