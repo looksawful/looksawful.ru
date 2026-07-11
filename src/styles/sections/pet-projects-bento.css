@@ -311,3 +311,153 @@ html.pet-project-modal-open body {
     transition: none;
   }
 }
+
+/* Compact preview affordance and framed modal surface. */
+.pet-projects-bento__open::after {
+  inset-block-start: clamp(0.45rem, 0.8vw, 0.65rem);
+  inset-inline-end: clamp(0.45rem, 0.8vw, 0.65rem);
+  inline-size: clamp(2rem, 2.15vw, 2.25rem);
+  block-size: clamp(2rem, 2.15vw, 2.25rem);
+  border: 1px solid color-mix(in srgb, var(--black) 22%, transparent);
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  -webkit-backdrop-filter: blur(0.55rem);
+  backdrop-filter: blur(0.55rem);
+  font-size: clamp(0.84rem, 0.9vw, 0.98rem);
+  opacity: 0.82;
+  transform: translateY(-0.12rem) scale(0.96);
+  box-shadow: 0 0.3rem 0.9rem rgba(0, 0, 0, 0.11);
+  transition: opacity 160ms var(--ease-standard), transform 160ms var(--ease-standard), background-color 160ms var(--ease-standard), color 160ms var(--ease-standard);
+}
+
+.pet-projects-bento__open:hover::after,
+.pet-projects-bento__open:focus-visible::after {
+  opacity: 1;
+  background: var(--black);
+  color: var(--white);
+  transform: translateY(0) scale(1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pet-projects-bento__open::after {
+    opacity: 0;
+  }
+
+  .pet-projects-bento__card:hover .pet-projects-bento__open::after,
+  .pet-projects-bento__open:focus-visible::after {
+    opacity: 1;
+  }
+}
+
+.pet-project-modal {
+  inline-size: min(calc(100vw - 2.5rem), 92rem);
+  block-size: min(calc(100dvh - 2.5rem), 58rem);
+  border: 1px solid color-mix(in srgb, var(--black) 18%, transparent);
+  border-radius: clamp(1rem, 1.6vw, 1.5rem);
+  background: color-mix(in srgb, var(--white) 96%, transparent);
+  box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.25);
+}
+
+.pet-project-modal[open] {
+  animation: pet-project-modal-enter 220ms var(--ease-standard) both;
+}
+
+.pet-project-modal::backdrop {
+  background: rgba(8, 8, 8, 0.56);
+  -webkit-backdrop-filter: blur(0.75rem) saturate(0.82);
+  backdrop-filter: blur(0.75rem) saturate(0.82);
+  animation: pet-project-backdrop-enter 220ms ease-out both;
+}
+
+.pet-project-modal__shell {
+  gap: 0.45rem;
+  padding: 0.45rem;
+  background: color-mix(in srgb, var(--white) 97%, transparent);
+}
+
+.pet-project-modal__bar {
+  min-block-size: 2.85rem;
+  border: 0;
+  padding: 0.2rem 0.2rem 0.2rem 0.7rem;
+  background: transparent;
+}
+
+.pet-project-modal__title {
+  font-size: clamp(0.82rem, 0.78vw, 0.94rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.pet-project-modal__close {
+  inline-size: 2.2rem;
+  block-size: 2.2rem;
+  border: 1px solid color-mix(in srgb, var(--black) 20%, transparent);
+  padding: 0 0 0.1rem;
+  font-size: 1.22rem;
+  box-shadow: 0 0.25rem 0.8rem rgba(0, 0, 0, 0.08);
+}
+
+.pet-project-modal__body {
+  border: 1px solid color-mix(in srgb, var(--black) 14%, transparent);
+  border-radius: clamp(0.72rem, 1.2vw, 1.1rem);
+  background: color-mix(in srgb, var(--black) 2.5%, var(--white));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--white) 70%, transparent);
+}
+
+.pet-project-modal__frame {
+  color-scheme: light;
+}
+
+@keyframes pet-project-modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.8rem) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pet-project-backdrop-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 44rem) {
+  .pet-project-modal {
+    inline-size: 100vw;
+    block-size: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .pet-project-modal__shell {
+    gap: 0.35rem;
+    padding: max(0.35rem, env(safe-area-inset-top)) max(0.35rem, env(safe-area-inset-right)) max(0.35rem, env(safe-area-inset-bottom)) max(0.35rem, env(safe-area-inset-left));
+  }
+
+  .pet-project-modal__bar {
+    min-block-size: 2.75rem;
+    padding: 0.15rem 0.15rem 0.15rem 0.65rem;
+  }
+
+  .pet-project-modal__close {
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+  }
+
+  .pet-project-modal__body {
+    border-radius: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-project-modal[open],
+  .pet-project-modal::backdrop {
+    animation: none;
+  }
+}
