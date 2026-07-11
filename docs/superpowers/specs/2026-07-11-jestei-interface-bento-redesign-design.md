@@ -8,23 +8,60 @@ Preserve all existing copy, card order, IDs, aria attributes, media assets, canv
 
 ## Goal
 
-Make the interface bento follow the visual logic of the first Jestei bento more closely: stronger hierarchy, asymmetric card proportions, tighter internal rhythm, better media scale, clearer title levels, and fewer accidental empty areas.
+Make the interface bento substantially more compact, precise, and compositionally controlled. Follow the logic of the first Jestei bento: asymmetric card roles, limited card heights, bounded media areas, tighter typography, and no oversized empty zones inside cards.
+
+The section must contain visible breathing room, but no card may use large blank areas merely to match a neighboring card.
 
 ## Desktop layout
 
-Keep the current 12-column grid and use an asymmetric 7/5 split:
+Keep the 12-column grid but replace the current two equal rows with a three-track asymmetric composition:
 
-- row 1: `filter` spans 7 columns, `event` spans 5 columns;
-- row 2: `promo` spans 7 columns, `landings` spans 5 columns.
+- row 1: `filter` spans 7 columns; `event` spans 5 columns;
+- row 2: `promo` spans 7 columns; `event` continues across the right side;
+- row 3: `promo` continues across the left side; `landings` spans 5 columns.
 
-The upper row is slightly taller than the lower row. The cards must not feel like four equal boxes.
+Grid areas:
 
-Card roles:
+```css
+grid-template-areas:
+  "filter filter filter filter filter filter filter event event event event event"
+  "promo promo promo promo promo promo promo event event event event event"
+  "promo promo promo promo promo promo promo landings landings landings landings landings";
+```
 
-- `filter` is the primary card and receives the strongest title and largest interface visual;
-- `event` is a taller, more vertical card with a compact text block and a curated three-screen composition;
-- `promo` is a wide lower card where the diagonal canvas is the dominant visual;
-- `landings` is the most compact card and presents the two landing screens as one coordinated pair.
+This creates four distinct roles without forcing equal card heights:
+
+- `filter` is the leading compact card;
+- `event` is the tall right card;
+- `promo` is the large lower-left media card;
+- `landings` is the compact lower-right card.
+
+Do not assign one universal `min-height` to all cards. Grid tracks must be content-controlled and media modules must have explicit maximum heights.
+
+## Compactness rules
+
+Use section-local tokens under `.jestei-interface-bento`:
+
+- grid gap: approximately `0.45rem` to `1rem` depending on viewport;
+- card padding: approximately `0.75rem` to `1.3rem`;
+- title-to-copy gap: approximately `0.35rem` to `0.65rem`;
+- copy-to-media gap: approximately `0.55rem` to `0.9rem`;
+- media-to-caption gap: approximately `0.4rem` to `0.7rem`.
+
+Remove inherited or local minimum heights that make cards taller than their content. Avoid `align-content: stretch` where it distributes unused vertical space. Internal card layout should use `align-content: start` and bounded media dimensions.
+
+Card borders, corner radii, and spacing must stay visually consistent with the first Jestei bento.
+
+## Typography
+
+- `filter` receives the largest title, but it must stay compact and avoid dominating the whole row;
+- `event` and `promo` use a strong secondary title level;
+- `landings` uses the smallest title level in the section;
+- main paragraphs remain readable but do not exceed a controlled line measure;
+- captions remain visibly quieter and closer to their media;
+- no title, paragraph, or caption receives extra vertical margins outside the section spacing system.
+
+Prefer compact `clamp()` ranges instead of oversized desktop maxima. Do not change visible text.
 
 ## Internal card structure
 
@@ -35,47 +72,58 @@ Keep the existing semantic order:
 3. media or interactive module;
 4. caption.
 
-Use shared spacing tokens for title-to-copy, copy-to-media, and media-to-caption gaps. Captions remain visually quieter than main paragraphs.
-
 ### Filter
 
-- Use the largest card title in this section.
-- Limit paragraph measure so the copy does not become a wide text band.
-- Give the embedded filter the largest media allocation.
-- Preserve the fullscreen control and current filter interaction.
-- Keep the media inset from the card edges rather than visually glued to the border.
+- Keep the card compact despite its leading role.
+- Use the largest title in the section with a controlled maximum size.
+- Limit paragraph measure so it does not become a wide text band.
+- Give the embedded filter enough width to remain useful, but cap its desktop height.
+- Preserve the fullscreen control and all filter interaction.
+- Remove any large blank area below or around the embedded filter.
 
 ### Event navigation
 
-- Keep heading and paragraph compact at the top.
-- Present the three screens as a deliberate showcase rather than three identical loose columns.
+- Use the available tall card shape for the three screens rather than adding blank space.
+- Keep heading and paragraph as a compact block at the top.
+- Present the three screens as one deliberate composition.
 - Let the central screen dominate slightly while side screens remain subordinate.
-- Keep all three images fully visible with `object-fit: contain`.
-- Keep the caption at the bottom without excessive separation from the screens.
+- Keep images fully visible with `object-fit: contain`.
+- Keep the caption close to the screen group.
 
 ### Promo
 
-- Use a strong but secondary title level.
-- Let the diagonal canvas occupy most of the card width and visual height.
-- Use a controlled aspect ratio so the canvas does not create an excessively tall card.
-- Preserve all current canvas runtime behavior.
+- Use the wide lower-left area as the dominant media card.
+- Keep heading and paragraph compact above the canvas.
+- Let the diagonal canvas occupy the remaining useful area, but cap its height and preserve its aspect ratio.
+- Remove unnecessary top and bottom margins around the canvas.
+- Preserve current canvas initialization, resizing, and animation behavior.
 
 ### Landings
 
-- Keep the text block compact.
-- Present both landing screens as one pair with consistent dimensions and bottom alignment.
-- Avoid oversized empty space beneath the media.
-- Stack the pair vertically only when the available width is no longer readable.
+- Keep this card clearly smaller and denser than the other three.
+- Keep heading and paragraph compact.
+- Present both landing screens as one coordinated pair with consistent dimensions and bottom alignment.
+- Cap image height so the card does not grow from the natural image dimensions.
+- Keep the caption directly below the pair without a large empty zone.
 
 ## Responsive behavior
 
 ### Above 72rem
 
-Use the asymmetric 7/5 two-row layout. Tune each card independently rather than assigning one universal media height.
+Use the three-track asymmetric desktop composition. Constrain the whole grid to the same site fields as the first Jestei bento. Each card uses independent media height limits.
 
 ### 48rem through 72rem
 
-Keep a two-column layout with the same card order. Titles, padding, and media sizes reduce proportionally. Cards may have different intrinsic heights; do not force equal-height content modules when that creates empty space.
+Use a compact two-column composition:
+
+```css
+grid-template-areas:
+  "filter event"
+  "promo event"
+  "promo landings";
+```
+
+Reduce gap, padding, title sizes, and media maxima. Preserve the tall `event`, large `promo`, and compact `filter` and `landings` roles.
 
 ### Below 48rem
 
@@ -88,9 +136,11 @@ Use one column in this order:
 
 Do not add a section-level horizontal slider.
 
-Within `event`, keep three screens in one row while readable; on narrow widths allow a contained horizontal media rail or another bounded layout that does not overflow the card.
+All mobile cards must be intrinsic-height and compact. Remove desktop minimum heights. Media receives card-specific maximum heights instead of a shared tall size.
 
-Within `landings`, keep the pair side by side while readable, then stack vertically on compact widths.
+Within `event`, keep three screens in one row while readable. On narrow widths, use a contained horizontal media rail or another bounded layout that does not overflow the card.
+
+Within `landings`, keep the pair side by side while readable, then stack vertically only on compact widths.
 
 Keep the promo canvas on a controlled responsive aspect ratio.
 
@@ -100,7 +150,7 @@ Primary implementation file:
 
 - `src/styles/sections/jestei-landings.css`
 
-The existing markup already exposes separate `head`, `copy`, `media`, and `caption` areas. Do not edit `src/homepage-publication.js` or page markup unless CSS alone cannot preserve the required media behavior.
+The existing markup already exposes separate `head`, `copy`, `media`, and `caption` areas. Do not edit `src/homepage-publication.js` or page markup unless CSS alone cannot preserve required media behavior.
 
 Do not introduce unrelated refactoring, new breakpoint families, global typography changes, or changes to shared section components.
 
@@ -130,12 +180,14 @@ Check at representative widths:
 At each width verify:
 
 - no text content changed;
+- no card is taller than required by its content and bounded media;
+- no card contains a large unused blank region;
 - headings do not collide, clip, or produce awkward orphaned lines;
 - media remains fully contained;
 - fullscreen filter behavior still works;
-- canvases still initialize and resize correctly;
+- canvases initialize and resize correctly;
 - event screens remain readable;
-- landing screens behave as a coordinated pair;
-- captions remain distinct from main copy;
-- there is no disproportionate empty space;
+- landing screens behave as one coordinated pair;
+- captions remain distinct from main copy and close to their media;
+- the grid remains aligned to the first Jestei bento and site fields;
 - no unrelated section changes visually or functionally.
