@@ -117,8 +117,8 @@ main[data-showcase] .section-component.jestei-interface-bento {
 main[data-showcase] .jestei-interface-bento [data-section-screen] {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  inline-size: var(--case-page);
-  max-inline-size: 1280px;
+  inline-size: min(calc(100% - var(--space-7)), var(--case-wide));
+  max-inline-size: none;
   margin-inline: auto;
   padding-block: 0 clamp(1rem, 3cqi, 2.5rem);
   padding-inline: 0;
