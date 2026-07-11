@@ -166,6 +166,14 @@
   }
 }
 
+@media (min-width: 48.0625rem) and (max-width: 80rem) {
+  #hero .hero__title-role {
+    max-inline-size: min(100%, 42rem);
+    margin-inline-start: auto;
+    margin-block-start: -0.02em;
+  }
+}
+
 @media (max-width: 48rem) {
   #hero {
     --hero-name-size: 4.35rem;
