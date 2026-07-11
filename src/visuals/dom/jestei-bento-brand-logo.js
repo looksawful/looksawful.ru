@@ -11,6 +11,10 @@ function replaceInspector(target, index) {
   const originalVisualDemo = target.getAttribute("data-visual-demo");
   const originalPoster = target.getAttribute("data-cv-poster");
   const originalPassive = target.getAttribute("data-logo-inspector-passive");
+  const win = target.ownerDocument.defaultView || window;
+  const card = target.closest(".jestei-bento__card--rebrand");
+  const reducedMotion = win.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+  let intersectionObserver;
 
   target.dataset.bentoBrandLogoMounted = "true";
   target.classList.add("jestei-bento__brand-logo-shell");
@@ -28,7 +32,26 @@ function replaceInspector(target, index) {
   canvas.setAttribute("aria-hidden", "true");
   target.append(canvas);
 
+  const reveal = () => {
+    target.classList.add("is-visible");
+    intersectionObserver?.disconnect();
+  };
+
+  if (reducedMotion || !("IntersectionObserver" in win)) {
+    reveal();
+  } else {
+    intersectionObserver = new win.IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) reveal();
+      },
+      { threshold: 0.28, rootMargin: "0px 0px -6% 0px" },
+    );
+    intersectionObserver.observe(card || target);
+  }
+
   return () => {
+    intersectionObserver?.disconnect();
+    target.classList.remove("is-visible");
     target.replaceChildren();
     target.innerHTML = originalHtml;
     target.classList.remove("jestei-bento__brand-logo-shell");
