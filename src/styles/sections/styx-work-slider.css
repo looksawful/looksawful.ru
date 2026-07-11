@@ -51,8 +51,10 @@ main[data-showcase] #styx-work-slider [data-section-screen] {
 
 .styx-work-slider__track {
   display: flex;
+  align-items: flex-start;
   gap: var(--styx-slider-gap);
   min-inline-size: 0;
+  block-size: var(--styx-slider-active-height, auto);
   margin-inline: calc(var(--styx-slider-gap) * -0.5);
   padding-inline: calc(var(--styx-slider-gap) * 0.5);
   overflow-x: auto;
@@ -63,6 +65,7 @@ main[data-showcase] #styx-work-slider [data-section-screen] {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   cursor: grab;
+  transition: block-size 220ms ease;
 }
 
 .styx-work-slider__track::-webkit-scrollbar {
@@ -76,6 +79,7 @@ main[data-showcase] #styx-work-slider [data-section-screen] {
 
 .styx-work-slider__slide {
   flex: 0 0 var(--styx-slider-slide);
+  align-self: flex-start;
   min-inline-size: 0;
   scroll-snap-align: start;
   scroll-snap-stop: always;
@@ -83,13 +87,13 @@ main[data-showcase] #styx-work-slider [data-section-screen] {
 
 main[data-showcase] #styx-work-slider .styx-work-slider__slide > .section {
   display: block;
-  block-size: 100%;
+  block-size: auto;
   margin: 0;
   border: var(--line);
   border-radius: var(--styx-slider-radius);
   background: var(--white);
   color: var(--black);
-  overflow: clip;
+  overflow: visible;
 }
 
 main[data-showcase] #styx-work-slider .styx-work-slider__slide > .section [data-section-screen] {
@@ -112,6 +116,12 @@ main[data-showcase] #styx-work-slider [data-media-cluster] {
 
 main[data-showcase] #styx-work-slider :where(img, video, canvas.visual-canvas) {
   max-inline-size: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .styx-work-slider__track {
+    transition: none;
+  }
 }
 
 @media (max-width: 54rem) {
