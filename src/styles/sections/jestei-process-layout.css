@@ -1,0 +1,120 @@
+/* Adaptive desktop layout for the 2.5x process card. */
+#jestei-results .jestei-bento__card--manual {
+  --jestei-manual-gap: clamp(0.8rem, 1.4cqi, 1.25rem);
+  display: grid;
+  gap: var(--jestei-manual-gap);
+  align-items: stretch;
+  overflow: hidden;
+}
+
+#jestei-results .jestei-bento__card--manual .jestei-bento__content {
+  position: relative;
+  z-index: 2;
+  min-inline-size: 0;
+  padding: 0;
+  align-content: start;
+}
+
+#jestei-results .jestei-bento__card--manual .jestei-bento__content > p {
+  max-inline-size: 100%;
+}
+
+#jestei-results .jestei-bento__card--manual .jestei-bento__process-visual {
+  position: relative;
+  z-index: 1;
+  inset: auto;
+  align-self: stretch;
+  justify-self: stretch;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  max-inline-size: none;
+  max-block-size: none;
+  margin: 0;
+  overflow: hidden;
+  container-type: size;
+  background: var(--white);
+}
+
+#jestei-results .jestei-bento__card--manual .jestei-bento__process-svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  max-inline-size: none;
+  max-block-size: none;
+  transform-origin: center;
+  transition: transform 260ms ease;
+}
+
+#jestei-results .jestei-bento__card--manual.is-manual-stack {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+#jestei-results .jestei-bento__card--manual.is-manual-stack .jestei-bento__process-svg {
+  transform: none;
+}
+
+@media (min-width: 72.001rem) {
+  #jestei-results .jestei-bento__card--manual.is-manual-side {
+    grid-template-columns: minmax(17rem, 1.08fr) minmax(15rem, 0.92fr);
+    grid-template-rows: minmax(0, 1fr);
+    column-gap: clamp(1rem, 2.2cqi, 1.8rem);
+  }
+
+  #jestei-results .jestei-bento__card--manual.is-manual-side .jestei-bento__content {
+    align-self: start;
+    padding-inline-end: clamp(0.25rem, 0.8cqi, 0.75rem);
+  }
+
+  #jestei-results .jestei-bento__card--manual.is-manual-side .jestei-bento__title--mixed {
+    gap: clamp(0.32rem, 0.8cqi, 0.58rem);
+  }
+
+  #jestei-results .jestei-bento__card--manual.is-manual-side .jestei-bento__title--mixed strong {
+    font-size: clamp(2rem, 5.2cqi, 3.15rem);
+  }
+
+  #jestei-results .jestei-bento__card--manual.is-manual-side .jestei-bento__title--mixed span {
+    font-size: clamp(1rem, 2.2cqi, 1.28rem);
+    white-space: nowrap;
+  }
+
+  #jestei-results .jestei-bento__card--manual.is-manual-side .jestei-bento__process-visual {
+    min-block-size: 100%;
+  }
+
+  #jestei-results .jestei-bento__card--manual.is-manual-side .jestei-bento__process-svg {
+    inset: 50% auto auto 50%;
+    inline-size: min(100cqb, 154cqi);
+    block-size: auto;
+    aspect-ratio: 848 / 550;
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+}
+
+@media (max-width: 72rem) {
+  #jestei-results .jestei-bento__card--manual {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(13rem, 1fr);
+  }
+
+  #jestei-results .jestei-bento__card--manual .jestei-bento__process-visual {
+    min-block-size: clamp(13rem, 48cqi, 18rem);
+  }
+
+  #jestei-results .jestei-bento__card--manual .jestei-bento__process-svg {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #jestei-results .jestei-bento__card--manual .jestei-bento__process-svg {
+    transition: none;
+  }
+}
