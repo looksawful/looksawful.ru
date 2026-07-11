@@ -2,23 +2,30 @@
   gap: 0;
 }
 
-.jestei-masonry {
-  inline-size: min(calc(100% - var(--space-7)), var(--case-wide));
-  max-inline-size: 100%;
-  margin-block-start: var(--section-local-padding-block);
-  margin-inline: auto;
+.jestei-motion-break {
+  inline-size: 100%;
+  max-inline-size: none;
+  margin: 0;
   padding: 0;
   overflow: hidden;
-  border: var(--line);
-  border-radius: clamp(18px, 2.4vw, 32px);
   background: var(--white);
 }
 
-.jestei-masonry > canvas.visual-canvas {
+.jestei-motion-break__surface {
+  position: relative;
+  isolation: isolate;
+  inline-size: 100%;
+  max-inline-size: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--white);
+}
+
+.jestei-motion-break__canvas.visual-canvas {
   display: block;
   inline-size: 100%;
   max-inline-size: none;
-  block-size: clamp(24rem, 52vw, 46rem);
   min-block-size: 0;
   margin: 0;
   padding: 0;
@@ -27,19 +34,30 @@
   background: var(--white);
 }
 
+.jestei-motion-break--arc .jestei-motion-break__canvas {
+  block-size: clamp(26rem, 54vw, 48rem);
+}
+
+.jestei-motion-break--masonry .jestei-motion-break__canvas {
+  block-size: clamp(28rem, 58vw, 52rem);
+}
+
 @media (max-width: 72rem) {
-  .jestei-masonry > canvas.visual-canvas {
-    block-size: clamp(24rem, 68vw, 40rem);
+  .jestei-motion-break--arc .jestei-motion-break__canvas {
+    block-size: clamp(26rem, 72vw, 44rem);
+  }
+
+  .jestei-motion-break--masonry .jestei-motion-break__canvas {
+    block-size: clamp(28rem, 78vw, 46rem);
   }
 }
 
 @media (max-width: 43rem) {
-  .jestei-masonry {
-    inline-size: min(calc(100% - var(--space-5)), var(--page-max));
-    border-radius: clamp(18px, 5vw, 26px);
+  .jestei-motion-break--arc .jestei-motion-break__canvas {
+    block-size: clamp(26rem, 118vw, 38rem);
   }
 
-  .jestei-masonry > canvas.visual-canvas {
-    block-size: clamp(26rem, 118vw, 40rem);
+  .jestei-motion-break--masonry .jestei-motion-break__canvas {
+    block-size: clamp(30rem, 128vw, 44rem);
   }
 }
