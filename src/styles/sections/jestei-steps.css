@@ -1,0 +1,60 @@
+.jestei-bento__card--steps {
+  position: relative;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: stretch;
+  padding: 0;
+  isolation: isolate;
+}
+
+.jestei-bento__card--steps .jestei-bento__content {
+  position: relative;
+  z-index: 2;
+  padding: var(--jestei-bento-card-pad) var(--jestei-bento-card-pad) 0;
+}
+
+.jestei-bento__steps-visual {
+  position: relative;
+  z-index: 1;
+  align-self: stretch;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: clamp(7rem, 13cqi, 11rem);
+  margin-block-start: clamp(0.2rem, 1.1cqi, 0.65rem);
+  overflow: hidden;
+  background: var(--white);
+  contain: layout paint;
+  pointer-events: none;
+  user-select: none;
+}
+
+.jestei-bento__steps-canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: inherit;
+  background: var(--white);
+  pointer-events: none;
+}
+
+@media (max-width: 72rem) and (min-width: 43.001rem) {
+  .jestei-bento__steps-visual {
+    min-block-size: clamp(6.5rem, 14cqi, 9.5rem);
+  }
+}
+
+@media (max-width: 43rem) {
+  .jestei-bento__card--steps .jestei-bento__content {
+    padding: var(--jestei-bento-card-pad) var(--jestei-bento-card-pad) 0;
+  }
+
+  .jestei-bento__steps-visual {
+    min-block-size: clamp(5rem, 23cqi, 7.5rem);
+    margin-block-start: clamp(0.15rem, 1.6cqi, 0.45rem);
+  }
+}
+
+@media (max-width: 25rem) {
+  .jestei-bento__steps-visual {
+    min-block-size: 5.25rem;
+  }
+}
