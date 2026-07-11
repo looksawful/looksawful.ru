@@ -17,9 +17,9 @@ const APPROVED_SECTION_IDS = new Set([
 ]);
 
 const PET_PROJECT_PREVIEW_WIDTHS = [
-  ["berserk-timer", 520],
-  ["awful-cases", 760],
-  ["awful-audit", 700],
+  ["berserk-timer", 480],
+  ["awful-cases", 420],
+  ["awful-audit", 420],
 ];
 
 function removeHeroOnlyConstraints(root = document) {
@@ -60,7 +60,7 @@ function placeTariffsAfterColor(root = document) {
 
 function getPetProjectPreviewWidth(source) {
   const match = PET_PROJECT_PREVIEW_WIDTHS.find(([slug]) => source.includes(slug));
-  return match?.[1] ?? 680;
+  return match?.[1] ?? 420;
 }
 
 function ensurePetProjectModal(root = document) {
