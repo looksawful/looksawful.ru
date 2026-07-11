@@ -1,13 +1,14 @@
 .jestei-words {
   --section-accent: var(--black);
-  --jestei-words-gap: clamp(0.45rem, 1.4cqi, 1.4rem);
-  --jestei-words-pad: clamp(0.7rem, 1.8cqi, 1.75rem);
-  --jestei-words-radius: clamp(0.8rem, 1.8cqi, 2rem);
-  --jestei-words-title: clamp(2.4rem, 6.2vw, 5.8rem);
-  --jestei-words-card-title: clamp(1.35rem, 2.2vw, 2.2rem);
-  --jestei-words-copy: clamp(0.92rem, 0.72vw + 0.76rem, 1.14rem);
+  --jestei-words-page-x: clamp(0.5rem, 2.2cqi, 2rem);
+  --jestei-words-gap: clamp(0.45rem, 1cqi, 0.85rem);
+  --jestei-words-pad: clamp(0.7rem, 1.35cqi, 1.2rem);
+  --jestei-words-radius: clamp(0.8rem, 1.5cqi, 1.5rem);
+  --jestei-words-title: clamp(2.4rem, 5.2vw, 5.1rem);
+  --jestei-words-card-title: clamp(1.15rem, 1.55vw, 1.75rem);
+  --jestei-words-copy: clamp(0.86rem, 0.34vw + 0.8rem, 1rem);
   container-type: inline-size;
-  margin-block: clamp(1.5rem, 3.5vw, 4rem);
+  margin-block: clamp(0.75rem, 1.8vw, 1.8rem);
   color: var(--black);
   background: var(--white);
 }
@@ -17,25 +18,34 @@ main[data-showcase] #jestei-words [data-section-screen] {
   inline-size: min(calc(100% - var(--space-7)), var(--case-wide));
   max-inline-size: none;
   margin-inline: auto;
-  padding-block: clamp(1.5rem, 4vw, 4rem);
+  padding-block: clamp(0.8rem, 1.8vw, 1.8rem);
 }
 
 .jestei-words-bento {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-areas:
-    "intro intro policy policy"
-    "fact scope policy policy"
-    "voice voice policy policy";
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: max-content max-content;
   gap: var(--jestei-words-gap);
   align-items: stretch;
   min-inline-size: 0;
+  isolation: isolate;
+}
+
+.jestei-words-bento::before {
+  content: "";
+  grid-column: 2;
+  grid-row: 1;
+  z-index: -1;
+  min-inline-size: 0;
+  border: var(--line);
+  border-radius: var(--jestei-words-radius);
+  background: var(--white);
 }
 
 .jestei-words-bento__card {
   display: grid;
   align-content: start;
-  gap: clamp(0.55rem, 1.4cqi, 1.1rem);
+  gap: clamp(0.4rem, 0.9cqi, 0.72rem);
   min-inline-size: 0;
   min-block-size: 0;
   padding: var(--jestei-words-pad);
@@ -48,23 +58,41 @@ main[data-showcase] #jestei-words [data-section-screen] {
 }
 
 .jestei-words-bento__card--intro {
-  grid-area: intro;
+  grid-column: 1;
+  grid-row: 1;
+  align-self: stretch;
+}
+
+.jestei-words-bento__card--fact,
+.jestei-words-bento__card--scope {
+  grid-column: 2;
+  grid-row: 1;
+  z-index: 1;
+  align-self: stretch;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .jestei-words-bento__card--fact {
-  grid-area: fact;
+  justify-self: start;
+  inline-size: 43%;
+  padding-inline-end: clamp(0.55rem, 1.2cqi, 1rem);
 }
 
 .jestei-words-bento__card--scope {
-  grid-area: scope;
+  justify-self: end;
+  inline-size: 57%;
+  padding-inline-start: clamp(0.55rem, 1.2cqi, 1rem);
 }
 
 .jestei-words-bento__card--voice {
-  grid-area: voice;
+  display: none;
 }
 
 .jestei-words-bento__card--policy {
-  grid-area: policy;
+  grid-column: 1 / -1;
+  grid-row: 2;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto minmax(0, 1fr);
   align-content: stretch;
@@ -118,18 +146,24 @@ main[data-showcase] #jestei-words .jestei-words-bento__title {
   hyphens: none;
 }
 
-.jestei-words-bento__note strong {
-  display: block;
-  margin-block-end: 0.12em;
-  color: var(--black);
-  font-size: clamp(2rem, 4.8cqi, 4.3rem);
-  font-weight: 800;
+.jestei-words-bento__card--scope > h3 {
+  font-size: clamp(1.75rem, 4.4cqi, 3.25rem);
   line-height: 0.9;
   letter-spacing: -0.035em;
 }
 
+.jestei-words-bento__note strong {
+  display: block;
+  margin-block-end: 0.08em;
+  color: var(--black);
+  font-size: clamp(1.65rem, 4cqi, 3.2rem);
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.035em;
+}
+
 .jestei-words-bento__note strong:not(:first-child) {
-  margin-block-start: clamp(0.35rem, 1.8cqi, 0.65rem);
+  margin-block-start: clamp(0.18rem, 0.9cqi, 0.4rem);
 }
 
 .jestei-words-bento__card--policy > header {
@@ -138,6 +172,7 @@ main[data-showcase] #jestei-words .jestei-words-bento__title {
   align-self: center;
   min-inline-size: 0;
   padding: var(--jestei-words-pad);
+  padding-block: clamp(0.6rem, 1.15cqi, 1rem);
 }
 
 .jestei-words-bento__card--policy > header > p {
@@ -153,9 +188,9 @@ main[data-showcase] #jestei-words .jestei-words-bento__title {
   grid-row: 1;
   align-self: center;
   justify-self: end;
-  min-block-size: 2.35rem;
-  margin: var(--jestei-words-pad) var(--jestei-words-pad) var(--jestei-words-pad) 0;
-  padding-inline: clamp(0.65rem, 2.4cqi, 0.85rem);
+  min-block-size: 2rem;
+  margin: clamp(0.55rem, 1.1cqi, 0.9rem) var(--jestei-words-pad) clamp(0.55rem, 1.1cqi, 0.9rem) 0;
+  padding-inline: clamp(0.6rem, 1.8cqi, 0.78rem);
   border-color: color-mix(in srgb, var(--black) 18%, transparent);
   box-shadow: none;
   font-size: clamp(0.66rem, 2.15cqi, 0.78rem);
@@ -173,7 +208,7 @@ main[data-showcase] #jestei-words .jestei-words-bento__title {
   grid-row: 2;
   inline-size: 100%;
   min-inline-size: 0;
-  block-size: clamp(28rem, 58svh, 40rem);
+  block-size: clamp(22rem, 48svh, 30rem);
   min-block-size: 0;
   padding: 0;
   overflow: hidden;
@@ -189,14 +224,14 @@ main[data-showcase] #jestei-words .jestei-words-bento__title {
 
 .jestei-words-bento__policy-slot .policy-book__bar,
 .jestei-words-bento__policy-slot .policy-book__controls {
-  padding: clamp(0.58rem, 2.6cqi, 0.85rem);
+  padding: clamp(0.48rem, 1.5cqi, 0.7rem);
 }
 
 .jestei-words-bento__policy-slot .policy-page__content,
 .jestei-words-bento__policy-slot .policy-page__content--wide {
   inline-size: 100%;
   max-inline-size: none;
-  padding: clamp(1.15rem, 4.5cqi, 2rem);
+  padding: clamp(0.9rem, 2.8cqi, 1.45rem);
 }
 
 .jestei-words-bento__policy-slot .policy-page h1,
@@ -258,49 +293,119 @@ main[data-showcase] #jestei-words .jestei-words-bento__title {
 
 @media (max-width: 72rem) and (min-width: 43.001rem) {
   .jestei-words {
-    --jestei-words-gap: clamp(0.5rem, 1.25cqi, 0.95rem);
-    --jestei-words-pad: clamp(0.78rem, 1.55cqi, 1.2rem);
-    --jestei-words-radius: clamp(0.9rem, 1.65cqi, 1.45rem);
-    --jestei-words-title: clamp(2.25rem, 6.4vw, 4.6rem);
-    --jestei-words-card-title: clamp(1.25rem, 2.25vw, 1.8rem);
-    --jestei-words-copy: clamp(0.88rem, 1.35vw, 1rem);
+    --jestei-words-gap: clamp(0.42rem, 1.05cqi, 0.72rem);
+    --jestei-words-pad: clamp(0.62rem, 1.25cqi, 0.92rem);
+    --jestei-words-title: clamp(2rem, 5.1vw, 4rem);
+    --jestei-words-card-title: clamp(1.1rem, 1.8vw, 1.4rem);
+    --jestei-words-copy: clamp(0.84rem, 0.72vw + 0.72rem, 0.96rem);
+  }
+
+  .jestei-words-bento__card--fact {
+    inline-size: 45%;
+  }
+
+  .jestei-words-bento__card--scope {
+    inline-size: 55%;
   }
 
   .jestei-words-bento__policy-slot .policy-shell {
-    block-size: clamp(27rem, 58svh, 37rem);
+    block-size: clamp(21rem, 46svh, 27rem);
   }
 }
 
 @media (max-width: 43rem) {
   .jestei-words {
-    --jestei-words-gap: clamp(0.6rem, 3vw, 0.9rem);
-    --jestei-words-pad: clamp(0.82rem, 4vw, 1.1rem);
-    --jestei-words-title: clamp(2rem, 13vw, 3.35rem);
-    --jestei-words-card-title: clamp(1.25rem, 8vw, 1.9rem);
-    --jestei-words-copy: clamp(0.88rem, 3.8vw, 1rem);
+    --jestei-words-page-x: clamp(0.45rem, 2.4cqi, 0.85rem);
+    --jestei-words-gap: clamp(0.35rem, 1.8cqi, 0.68rem);
+    --jestei-words-pad: clamp(0.68rem, 3cqi, 0.95rem);
+    --jestei-words-radius: clamp(0.75rem, 3.6cqi, 1.2rem);
+    --jestei-words-title: clamp(2rem, 10cqi, 3rem);
+    --jestei-words-card-title: clamp(1.12rem, 5.8cqi, 1.55rem);
+    --jestei-words-copy: clamp(0.86rem, 3.4cqi, 0.98rem);
+    margin-block: clamp(0.6rem, 3vw, 1.2rem);
   }
 
   main[data-showcase] #jestei-words [data-section-screen] {
-    inline-size: min(calc(100% - var(--space-4)), var(--case-wide));
-    padding-block: clamp(1.1rem, 6vw, 2.4rem);
+    inline-size: 100%;
+    padding-block: clamp(0.7rem, 4vw, 1.35rem);
   }
 
   .jestei-words-bento {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "intro"
-      "fact"
-      "scope"
-      "voice"
-      "policy";
+    grid-template-columns: repeat(2, calc(100% - (2 * var(--jestei-words-page-x))));
+    grid-template-rows: max-content max-content;
+    column-gap: var(--jestei-words-gap);
+    row-gap: var(--jestei-words-gap);
+    inline-size: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-inline: var(--jestei-words-page-x);
+    scroll-padding-inline: var(--jestei-words-page-x);
+    scroll-snap-type: inline mandatory;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .jestei-words-bento::-webkit-scrollbar {
+    display: none;
+  }
+
+  .jestei-words-bento::before {
+    grid-column: 2;
+    grid-row: 1;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .jestei-words-bento__card--intro {
+    grid-column: 1;
+    grid-row: 1;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .jestei-words-bento__card--fact,
+  .jestei-words-bento__card--scope {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .jestei-words-bento__card--fact {
+    inline-size: 44%;
+  }
+
+  .jestei-words-bento__card--scope {
+    inline-size: 56%;
+  }
+
+  .jestei-words-bento__card--policy {
+    grid-column: 1;
+    grid-row: 2;
+    position: sticky;
+    inset-inline-start: var(--jestei-words-page-x);
+    inline-size: 100%;
+    z-index: 3;
   }
 
   .jestei-words-bento__policy-slot .policy-shell {
-    block-size: clamp(30rem, 72svh, 42rem);
+    block-size: clamp(24rem, 62svh, 32rem);
   }
 }
 
 @media (max-width: 25rem) {
+  .jestei-words-bento__card--fact,
+  .jestei-words-bento__card--scope {
+    padding-inline: 0.62rem;
+  }
+
+  .jestei-words-bento__card--fact {
+    inline-size: 42%;
+  }
+
+  .jestei-words-bento__card--scope {
+    inline-size: 58%;
+  }
+
   .jestei-words-bento__card--policy {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto minmax(0, 1fr);
@@ -322,146 +427,6 @@ main[data-showcase] #jestei-words .jestei-words-bento__title {
   .jestei-words-bento__policy-slot .policy-shell {
     grid-column: 1;
     grid-row: 3;
-    block-size: clamp(28rem, 76svh, 38rem);
-  }
-
-  .jestei-words-bento__policy-slot .policy-page__content,
-  .jestei-words-bento__policy-slot .policy-page__content--wide {
-    padding: clamp(0.95rem, 5cqi, 1.25rem);
-  }
-}
-
-/* Compact text bento: content-driven cards and a bounded reader. */
-.jestei-words {
-  --jestei-words-gap: clamp(0.4rem, 1cqi, 0.85rem);
-  --jestei-words-pad: clamp(0.62rem, 1.2cqi, 1.1rem);
-  --jestei-words-card-title: clamp(1.15rem, 1.45vw, 1.6rem);
-  --jestei-words-copy: clamp(0.86rem, 0.32vw + 0.81rem, 1rem);
-  margin-block: clamp(0.75rem, 1.8vw, 1.8rem);
-}
-
-main[data-showcase] #jestei-words [data-section-screen] {
-  padding-block: clamp(0.8rem, 1.8vw, 1.8rem);
-}
-
-.jestei-words-bento {
-  grid-template-areas:
-    "intro intro intro intro"
-    "fact fact scope scope"
-    "voice voice scope scope"
-    "policy policy policy policy";
-  grid-template-rows: repeat(4, max-content);
-  align-items: start;
-}
-
-.jestei-words-bento__card:not(.jestei-words-bento__card--policy) {
-  align-self: start;
-  block-size: fit-content;
-  min-block-size: 0;
-  max-block-size: max-content;
-  gap: clamp(0.4rem, 0.9cqi, 0.72rem);
-}
-
-.jestei-words-bento__card--intro {
-  max-block-size: 22rem;
-}
-
-.jestei-words-bento__card--fact {
-  max-block-size: 16rem;
-}
-
-.jestei-words-bento__card--scope {
-  max-block-size: 22rem;
-}
-
-.jestei-words-bento__card--voice {
-  max-block-size: 14rem;
-}
-
-.jestei-words-bento__note strong {
-  font-size: clamp(1.65rem, 4cqi, 3.2rem);
-  line-height: 0.88;
-}
-
-.jestei-words-bento__note strong:not(:first-child) {
-  margin-block-start: clamp(0.18rem, 0.9cqi, 0.4rem);
-}
-
-.jestei-words-bento__card--policy {
-  align-self: start;
-  block-size: auto;
-  max-block-size: none;
-}
-
-.jestei-words-bento__card--policy > header {
-  padding-block: clamp(0.6rem, 1.15cqi, 1rem);
-}
-
-.jestei-words-bento__card--policy .artifact-fullscreen-open {
-  min-block-size: 2rem;
-  margin-block: clamp(0.55rem, 1.1cqi, 0.9rem);
-  margin-inline-end: var(--jestei-words-pad);
-  padding-inline: clamp(0.6rem, 1.8cqi, 0.78rem);
-}
-
-.jestei-words-bento__policy-slot .policy-shell {
-  block-size: clamp(22rem, 48svh, 30rem);
-}
-
-.jestei-words-bento__policy-slot .policy-book__bar,
-.jestei-words-bento__policy-slot .policy-book__controls {
-  padding: clamp(0.48rem, 1.5cqi, 0.7rem);
-}
-
-.jestei-words-bento__policy-slot .policy-page__content,
-.jestei-words-bento__policy-slot .policy-page__content--wide {
-  padding: clamp(0.9rem, 2.8cqi, 1.45rem);
-}
-
-@media (max-width: 72rem) and (min-width: 43.001rem) {
-  .jestei-words {
-    --jestei-words-gap: clamp(0.42rem, 1.05cqi, 0.72rem);
-    --jestei-words-pad: clamp(0.62rem, 1.25cqi, 0.92rem);
-    --jestei-words-card-title: clamp(1.1rem, 1.8vw, 1.4rem);
-    --jestei-words-copy: clamp(0.84rem, 0.72vw + 0.72rem, 0.96rem);
-  }
-
-  .jestei-words-bento__policy-slot .policy-shell {
-    block-size: clamp(21rem, 46svh, 27rem);
-  }
-}
-
-@media (max-width: 43rem) {
-  .jestei-words {
-    --jestei-words-gap: clamp(0.45rem, 2.4vw, 0.7rem);
-    --jestei-words-pad: clamp(0.68rem, 3.2vw, 0.95rem);
-    --jestei-words-card-title: clamp(1.12rem, 5.8vw, 1.55rem);
-    --jestei-words-copy: clamp(0.86rem, 3.4vw, 0.98rem);
-    margin-block: clamp(0.6rem, 3vw, 1.2rem);
-  }
-
-  main[data-showcase] #jestei-words [data-section-screen] {
-    padding-block: clamp(0.7rem, 4vw, 1.35rem);
-  }
-
-  .jestei-words-bento {
-    grid-template-rows: none;
-  }
-
-  .jestei-words-bento__card--intro,
-  .jestei-words-bento__card--fact,
-  .jestei-words-bento__card--scope,
-  .jestei-words-bento__card--voice {
-    max-block-size: none;
-  }
-
-  .jestei-words-bento__policy-slot .policy-shell {
-    block-size: clamp(24rem, 62svh, 32rem);
-  }
-}
-
-@media (max-width: 25rem) {
-  .jestei-words-bento__policy-slot .policy-shell {
     block-size: clamp(23rem, 66svh, 30rem);
   }
 }
