@@ -12,7 +12,9 @@ const APPROVED_SECTION_IDS = new Set([
   "jestei-results",
   "jestei-logo",
   "jestei-type",
+  "jestei-arc",
   "jestei-interface-bento",
+  "jestei-masonry",
   "jestei-color",
   "jestei-words",
   "jestei-filter",
@@ -30,6 +32,25 @@ const PET_PROJECT_PREVIEW_WIDTHS = [
   ["berserk-timer", 480],
   ["awful-cases", 420],
   ["awful-audit", 420],
+];
+
+const JESTEI_MOTION_BREAKS = [
+  {
+    id: "jestei-arc",
+    modifier: "arc",
+    animation: "landing-arc",
+    canvasId: "jestei-arc-canvas",
+    anchorId: "jestei-type",
+    position: "afterend",
+  },
+  {
+    id: "jestei-masonry",
+    modifier: "masonry",
+    animation: "landing-masonry",
+    canvasId: "jestei-masonry-canvas",
+    anchorId: "jestei-interface-bento",
+    position: "beforebegin",
+  },
 ];
 
 function removeHeroOnlyConstraints(root = document) {
@@ -66,6 +87,41 @@ function placeTariffsAfterColor(root = document) {
   }
 
   colorSection.insertAdjacentElement("afterend", tariffsSection);
+}
+
+function createJesteiMotionBreak({ id, modifier, animation, canvasId }, root = document) {
+  const section = root.createElement("section");
+  section.className = `section jestei-motion-break jestei-motion-break--${modifier}`;
+  section.id = id;
+  section.setAttribute("data-section-family", "jestei");
+  section.setAttribute("aria-hidden", "true");
+  section.innerHTML = `
+    <div class="jestei-motion-break__surface" data-animation="${animation}">
+      <canvas class="visual-canvas jestei-motion-break__canvas" id="${canvasId}"></canvas>
+    </div>
+  `;
+  return section;
+}
+
+function placeJesteiMotionBreaks(root = document) {
+  root.querySelector("#jestei-results > .jestei-masonry")?.remove();
+
+  JESTEI_MOTION_BREAKS.forEach((config) => {
+    const anchor = root.querySelector(`#${config.anchorId}`);
+    if (!anchor) {
+      return;
+    }
+
+    const section = root.querySelector(`#${config.id}`) || createJesteiMotionBreak(config, root);
+    const isAlreadyPlaced =
+      config.position === "afterend"
+        ? anchor.nextElementSibling === section
+        : anchor.previousElementSibling === section;
+
+    if (!isAlreadyPlaced) {
+      anchor.insertAdjacentElement(config.position, section);
+    }
+  });
 }
 
 function getPetProjectPreviewWidth(source) {
@@ -299,12 +355,14 @@ async function start() {
     mountLivePetProjectPreviews(document);
   } finally {
     placeTariffsAfterColor(document);
+    placeJesteiMotionBreaks(document);
     removeHeroOnlyConstraints(document);
   }
 
   const { initRuntime } = await import("./runtime/init-runtime.js");
   await initRuntime(document);
   restoreStyxSections(document);
+  placeJesteiMotionBreaks(document);
   removeHeroOnlyConstraints(document);
 }
 
