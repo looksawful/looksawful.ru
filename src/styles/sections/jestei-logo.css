@@ -1,44 +1,208 @@
 .jestei-logo {
   --section-accent: var(--black);
+  --jestei-logo-inline: clamp(1rem, 3vw, 3rem);
+  --jestei-logo-gap: clamp(1rem, 2.2vw, 2rem);
+  --jestei-logo-large-gap: clamp(2rem, 5vw, 5rem);
+  container-type: inline-size;
+  overflow: visible;
 }
 
-.jestei-logo [data-section-screen] {
-  row-gap: clamp(2.5rem, 8vw, 6rem);
+main[data-showcase] .jestei-logo [data-section-screen] {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: none;
+  padding-block: clamp(2.5rem, 7vw, 7rem);
+  padding-inline: 0;
+  overflow: visible;
+}
+
+.jestei-logo__composition {
+  display: grid;
+  gap: var(--jestei-logo-large-gap);
+  inline-size: min(
+    calc(100% - 2 * var(--jestei-logo-inline)),
+    var(--case-wide, 90rem)
+  );
+  min-inline-size: 0;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.jestei-logo__top {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.7fr) minmax(32rem, 1.3fr);
+  grid-template-areas:
+    "title variants"
+    "lead variants";
+  column-gap: clamp(2rem, 5vw, 6rem);
+  row-gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+  min-inline-size: 0;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__title {
+  grid-area: title;
+  align-self: end;
+  max-inline-size: 8ch;
+  margin: 0;
+}
+
+main[data-showcase] #jestei-logo [data-section-lead] {
+  grid-area: lead;
+  align-self: start;
+  max-inline-size: 24rem;
+  margin: 0;
+  color: color-mix(in srgb, var(--black) 62%, transparent);
+  font-size: clamp(1rem, 1.15vw, 1.35rem);
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.jestei-logo__variants {
+  grid-area: variants;
+  display: grid;
+  gap: clamp(0.45rem, 0.85vw, 0.8rem);
+  justify-self: end;
+  inline-size: min(100%, 48rem);
+  min-inline-size: 0;
+}
+
+.jestei-logo__variant {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transform: translateY(0.45rem);
+  transition:
+    clip-path 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 260ms ease;
+  transition-delay: calc(var(--variant-index) * 95ms);
+}
+
+.jestei-logo__composition.is-visible .jestei-logo__variant {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transform: translateY(0);
+}
+
+.jestei-logo__variant-svg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 362 / 32;
+  background: #050505;
 }
 
 .jestei-logo [data-logo-inspector-shell] {
   position: relative;
+  display: block;
   isolation: isolate;
-  overflow: hidden;
+  inline-size: 100%;
+  max-inline-size: none;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  aspect-ratio: auto;
+  background: var(--white);
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition:
+    opacity 520ms ease 420ms,
+    transform 760ms cubic-bezier(0.22, 1, 0.36, 1) 420ms;
 }
 
-.jestei-logo [data-logo-inspector-shell]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.07;
-  background-image:
-    linear-gradient(currentColor 1px, transparent 1px),
-    linear-gradient(90deg, currentColor 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(circle at 50% 50%, #000 0 55%, transparent 78%);
+.jestei-logo__composition.is-visible [data-logo-inspector-shell] {
+  opacity: 1;
+  transform: translateY(0);
 }
 
+.jestei-logo [data-logo-inspector-shell]::before,
 .jestei-logo [data-logo-inspector-shell]::after {
-  content: "";
-  position: absolute;
-  inset: 10% 12%;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.08;
-  border-block: 1px solid currentColor;
-  border-inline: 1px solid currentColor;
+  content: none;
 }
 
-.jestei-logo__gallery {
-  margin-block-start: clamp(1.5rem, 4vw, 3rem);
+.jestei-logo__slider {
+  inline-size: calc(100vw - ((100vw - 100%) / 2));
+  max-inline-size: none;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: inline mandatory;
+  scroll-padding-inline: 0;
+  scrollbar-width: none;
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition:
+    opacity 520ms ease 560ms,
+    transform 760ms cubic-bezier(0.22, 1, 0.36, 1) 560ms;
+}
+
+.jestei-logo__slider::-webkit-scrollbar {
+  display: none;
+}
+
+.jestei-logo__composition.is-visible .jestei-logo__slider {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.jestei-logo__slider:focus-visible {
+  outline: 1px solid var(--black);
+  outline-offset: 0.35rem;
+}
+
+.jestei-logo__slider-track {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(0.75rem, 1.4vw, 1.25rem);
+  inline-size: max-content;
+  min-inline-size: 100%;
+  padding-inline-end: var(--jestei-logo-inline);
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__slide {
+  position: relative;
+  display: block;
+  flex: 0 0 clamp(30rem, 56vw, 48rem);
+  inline-size: clamp(30rem, 56vw, 48rem);
+  min-inline-size: 0;
+  aspect-ratio: 16 / 10;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--black);
+  border-radius: 0;
+  background: #050505;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+  text-decoration: none;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__slide img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  max-block-size: none;
+  margin: 0;
+  object-fit: contain;
+  object-position: center;
+  background: #050505;
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  main[data-showcase] #jestei-logo .jestei-logo__slide:hover img {
+    transform: scale(1.012);
+  }
 }
 
 #jestei-logo {
@@ -47,6 +211,98 @@
   --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
   --section-local-text: min(100%, 58rem);
   --section-local-lead: min(100%, 66rem);
-  --section-local-media-ratio: 16 / 10;
-  --section-local-media-fit: cover;
+  --section-local-media-ratio: auto;
+  --section-local-media-fit: contain;
+}
+
+@media (max-width: 70rem) {
+  .jestei-logo {
+    --jestei-logo-inline: clamp(1rem, 3.2vw, 2rem);
+    --jestei-logo-large-gap: clamp(1.75rem, 5vw, 3.5rem);
+  }
+
+  .jestei-logo__top {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "title"
+      "variants"
+      "lead";
+    gap: clamp(1.5rem, 4vw, 2.75rem);
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__title {
+    align-self: auto;
+    max-inline-size: 100%;
+  }
+
+  main[data-showcase] #jestei-logo [data-section-lead] {
+    max-inline-size: 36rem;
+  }
+
+  .jestei-logo__variants {
+    justify-self: stretch;
+    inline-size: 100%;
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__slide {
+    flex-basis: clamp(26rem, 78vw, 42rem);
+    inline-size: clamp(26rem, 78vw, 42rem);
+  }
+}
+
+@media (max-width: 43rem) {
+  .jestei-logo {
+    --jestei-logo-inline: clamp(1rem, 4.5vw, 1.25rem);
+    --jestei-logo-large-gap: clamp(1.5rem, 8vw, 2.75rem);
+  }
+
+  main[data-showcase] .jestei-logo [data-section-screen] {
+    padding-block: clamp(2rem, 10vw, 4rem);
+  }
+
+  .jestei-logo__top {
+    gap: clamp(1.25rem, 6vw, 2rem);
+  }
+
+  .jestei-logo__variants {
+    gap: clamp(0.38rem, 2vw, 0.62rem);
+  }
+
+  main[data-showcase] #jestei-logo [data-section-lead] {
+    max-inline-size: 24rem;
+    font-size: clamp(1rem, 4.2vw, 1.15rem);
+  }
+
+  .jestei-logo__slider-track {
+    gap: clamp(0.6rem, 2.8vw, 0.85rem);
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__slide {
+    flex-basis: calc(100vw - 3.5rem);
+    inline-size: calc(100vw - 3.5rem);
+    min-inline-size: 17rem;
+  }
+}
+
+@media (max-width: 22rem) {
+  .jestei-logo {
+    --jestei-logo-inline: 0.75rem;
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__slide {
+    flex-basis: calc(100vw - 2.75rem);
+    inline-size: calc(100vw - 2.75rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jestei-logo__variant,
+  .jestei-logo [data-logo-inspector-shell],
+  .jestei-logo__slider,
+  main[data-showcase] #jestei-logo .jestei-logo__slide img {
+    opacity: 1;
+    clip-path: none;
+    transform: none;
+    transition: none;
+  }
 }
