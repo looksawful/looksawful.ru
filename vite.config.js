@@ -63,38 +63,8 @@ const cleanPetProjectPages = {
   },
 };
 
-const injectPetPreviewCleanup = {
-  name: "inject-pet-preview-cleanup",
-  transformIndexHtml: {
-    order: "post",
-    handler(html, context) {
-      const pagePath = (context?.filename || context?.path || "").replace(/\\/g, "/");
-      const isNestedPage = /\/(?:pets|resume|gallery)\//i.test(pagePath);
-      const isRootIndex = context?.path === "/" || (pagePath.endsWith("/index.html") && !isNestedPage);
-
-      if (!isRootIndex) {
-        return html;
-      }
-
-      return {
-        html,
-        tags: [
-          {
-            tag: "script",
-            attrs: {
-              type: "module",
-              src: "/src/pet-project-preview-cleanup.js",
-            },
-            injectTo: "body",
-          },
-        ],
-      };
-    },
-  },
-};
-
 export default defineConfig({
-  plugins: [cleanPetProjectPages, injectPetPreviewCleanup],
+  plugins: [cleanPetProjectPages],
   build: {
     assetsInlineLimit: 0,
     rollupOptions: {

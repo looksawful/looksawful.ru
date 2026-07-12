@@ -320,6 +320,14 @@ function mountLivePetProjectPreviews(root = document) {
   });
 }
 
+async function loadPetProjectPreviewCleanup(root = document) {
+  if (!root.querySelector("#pet-projects")) {
+    return;
+  }
+
+  await import("./pet-project-preview-cleanup.js");
+}
+
 function activateStyxVideos(section) {
   section.querySelectorAll("video").forEach((video) => {
     video.autoplay = true;
@@ -381,6 +389,7 @@ async function start() {
     prepareHomepagePublication(document);
     restoreStyxSections(document);
     mountLivePetProjectPreviews(document);
+    await loadPetProjectPreviewCleanup(document);
   } finally {
     placeTariffsAfterColor(document);
     placeJesteiMotionBreaks(document);
