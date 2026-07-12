@@ -88,6 +88,10 @@ body > footer {
   display: none;
 }
 
+#jestei-results > .jestei-bento__heading {
+  display: none;
+}
+
 main[data-showcase] > :is(
   #jestei-color,
   #jestei-filter,
