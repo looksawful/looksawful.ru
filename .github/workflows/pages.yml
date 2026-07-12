@@ -1,4 +1,4 @@
-﻿name: Deploy GitHub Pages
+name: Deploy GitHub Pages
 
 # GitHub Pages is the only production deployment target.
 on:
@@ -11,6 +11,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  statuses: write
 
 concurrency:
   group: pages
@@ -20,8 +21,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Mark deployment pending
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: "pending",
+              context: "github-pages/production",
+              description: "Building GitHub Pages production deployment",
+              target_url: "https://www.looksawful.ru/"
+            });
+
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -33,6 +49,11 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Stamp deployment
+        run: |
+          printf 'commit=%s\n' "$GITHUB_SHA" > dist/deploy-version.txt
+          printf 'deployed-from=prod\n' >> dist/deploy-version.txt
 
       - name: Add nojekyll
         run: touch dist/.nojekyll
@@ -52,3 +73,57 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify production commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="commit=${GITHUB_SHA}"
+          base_url="https://www.looksawful.ru/deploy-version.txt?sha=${GITHUB_SHA}"
+
+          for attempt in $(seq 1 30); do
+            body="$(curl --fail --silent --show-error --location --max-time 20 \
+              -H 'Cache-Control: no-cache' \
+              "${base_url}&attempt=${attempt}" || true)"
+
+            if grep -Fxq "$expected" <<<"$body"; then
+              printf '%s\n' "$body"
+              exit 0
+            fi
+
+            sleep 10
+          done
+
+          echo "Production did not expose ${expected}" >&2
+          exit 1
+
+  report:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - deploy
+    if: always()
+    steps:
+      - name: Report deployment status
+        uses: actions/github-script@v7
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+        with:
+          script: |
+            const success = process.env.BUILD_RESULT === "success" && process.env.DEPLOY_RESULT === "success";
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: success ? "success" : "failure",
+              context: "github-pages/production",
+              description: success
+                ? "Published and verified on www.looksawful.ru"
+                : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`,
+              target_url: "https://www.looksawful.ru/"
+            });
+
+            if (!success) {
+              core.setFailed(`GitHub Pages deployment failed. Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`);
+            }
