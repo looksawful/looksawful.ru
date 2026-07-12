@@ -3,6 +3,7 @@ import { MOUNTS } from "./mounts.js";
 import { removeObsoleteCopy } from "./remove-obsolete-copy.js";
 import { reorganizeJesteiLogoMedia } from "./reorganize-jestei-logo-media.js";
 import { mergeJesteiTypeIntoLogo } from "./merge-jestei-type-into-logo.js";
+import { mountJesteiLogoAnimation } from "./mount-jestei-logo-animation.js";
 
 let initialized = false;
 
@@ -15,5 +16,6 @@ export async function initRuntime(root = document) {
   removeObsoleteCopy(root);
   reorganizeJesteiLogoMedia(root);
   mergeJesteiTypeIntoLogo(root);
+  mountJesteiLogoAnimation(root);
   await mountAll(root, MOUNTS);
 }
