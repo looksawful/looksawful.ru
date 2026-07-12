@@ -36,6 +36,11 @@
   border-block: 1px solid currentColor;
   border-inline: 1px solid currentColor;
 }
+
+.jestei-logo__gallery {
+  margin-block-start: clamp(1.5rem, 4vw, 3rem);
+}
+
 #jestei-logo {
   --section-accent: var(--black);
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
