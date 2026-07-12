@@ -1,0 +1,15 @@
+#jestei-words .jestei-words-bento__lead {
+  font-size: 0;
+  line-height: 0;
+}
+
+#jestei-words .jestei-words-bento__lead::before {
+  content: "Сформировали твердую коммуникационную платформу сервиса: tone of voice, редакционную политику и правила написания статей и постов, оформили подсказки, описания и пояснительные тексты";
+  display: block;
+  color: var(--black);
+  font-size: var(--jestei-words-copy);
+  font-weight: 400;
+  line-height: 1.32;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
