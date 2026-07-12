@@ -147,7 +147,7 @@ async function mountLogoInspector(target) {
   const [, inspectorMode] = getDemoParts(target);
   const module =
     inspectorMode === "jestei"
-      ? await import("../showcase-task-previews/logo-inspector-grid-3d.js")
+      ? await import("../showcase-task-previews/logo-inspector-fit-3d.js")
       : await import("../showcase-task-previews/logo-inspector-3d.js");
   const controller = module.createLogoInspector3D(target, {
     modelUrl: LOGO_INSPECTOR_MODEL_URL,
