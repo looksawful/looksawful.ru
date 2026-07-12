@@ -1,0 +1,6 @@
+/* Keep the desktop policy mockup at the approved taller screen proportion. */
+@media (min-width: 43.001rem) {
+  #jestei-words {
+    --policy-screen-ratio: 16 / 9.2;
+  }
+}
