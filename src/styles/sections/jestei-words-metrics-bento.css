@@ -1,5 +1,5 @@
 .jestei-words-bento {
-  grid-template-rows: auto auto minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, auto);
 }
 
 .jestei-words-bento__card--intro {
@@ -25,6 +25,8 @@
 .jestei-words-bento__card--fact {
   grid-column: 1;
   grid-row: 3;
+  align-self: start;
+  block-size: calc(50% - (var(--jestei-words-gap) / 2));
   padding: 0;
   overflow: visible;
   border: 0;
@@ -43,6 +45,7 @@
   column-gap: calc(var(--jestei-words-gap) + (2 * var(--jestei-words-pad)));
   row-gap: clamp(0.2rem, 0.55cqi, 0.45rem);
   min-block-size: 100%;
+  block-size: 100%;
   padding: var(--jestei-words-pad);
   color: var(--black);
 }
@@ -77,17 +80,19 @@
 
 .jestei-words-bento__card--scope {
   grid-column: 1;
-  grid-row: 4;
+  grid-row: 3;
+  align-self: end;
+  block-size: calc(50% - (var(--jestei-words-gap) / 2));
 }
 
 .jestei-words-bento__card--policy {
   grid-column: 2;
-  grid-row: 3 / 5;
+  grid-row: 3;
 }
 
 @media (max-width: 43rem) {
   .jestei-words-bento {
-    grid-template-rows: auto auto minmax(0, auto) minmax(0, auto);
+    grid-template-rows: auto auto minmax(0, auto);
   }
 
   .jestei-words-bento__card--intro .jestei-words-bento__title,
@@ -120,6 +125,6 @@
 
   .jestei-words-bento__card--policy {
     grid-column: 2;
-    grid-row: 3 / 5;
+    grid-row: 3;
   }
 }
