@@ -1,6 +1,10 @@
 /* Keep the desktop policy mockup at the approved taller screen proportion. */
 @media (min-width: 43.001rem) {
   #jestei-words {
-    --policy-screen-ratio: 16 / 9.2;
+    --policy-screen-ratio: 16 / 10.4;
+  }
+
+  #jestei-words .jestei-words-bento__policy-slot {
+    inline-size: 100%;
   }
 }
