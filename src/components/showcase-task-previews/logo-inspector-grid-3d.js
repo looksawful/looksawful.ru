@@ -7,6 +7,7 @@ const STYLE_ID = "logo-inspector-grid-3d-styles";
 const BACKGROUND = "#ffffff";
 const CAMERA_DISTANCE = 8.2;
 const TARGET_Z = 0.72;
+const ROW_BREAKPOINT = 900;
 const REVEAL_DURATION_MS = 760;
 const REVEAL_STAGGER_MS = 560;
 const REVEAL_START_SCALE = 0.42;
@@ -37,8 +38,9 @@ function injectStyles() {
       display: block;
       inline-size: 100%;
       min-inline-size: 0;
-      block-size: clamp(34rem, 58vw, 48rem);
-      min-block-size: 34rem;
+      block-size: auto;
+      min-block-size: 0;
+      aspect-ratio: 16 / 5;
       overflow: hidden;
       contain: layout paint;
       isolation: isolate;
@@ -97,16 +99,15 @@ function injectStyles() {
       visibility: visible;
     }
 
-    @media (max-width: 56rem) {
+    @media (max-width: 56.249rem) {
       .logo-inspector-grid-3d {
-        block-size: clamp(34rem, 86vw, 44rem);
+        aspect-ratio: 4 / 3;
       }
     }
 
     @media (max-width: 43rem) {
       .logo-inspector-grid-3d {
-        block-size: clamp(34rem, 126vw, 46rem);
-        min-block-size: 34rem;
+        aspect-ratio: 1 / 1;
       }
     }
   `;
@@ -180,6 +181,11 @@ function centerAndScaleObject(object, targetSize = 2.35) {
   object.position.sub(center);
   object.scale.multiplyScalar(targetSize / maxDimension);
   object.updateWorldMatrix(true, true);
+
+  const sphere = new THREE.Box3()
+    .setFromObject(object)
+    .getBoundingSphere(new THREE.Sphere());
+  return Math.max(sphere.radius * 2, 0.001);
 }
 
 function applyVariantMaterial(root, variant, logoGroup) {
@@ -214,6 +220,8 @@ function createVariantLogo(sourceRoot, variant, index) {
   group.userData.baseRotationZ = index % 2 === 0 ? -0.055 : 0.055;
   group.userData.hasManualRotation = false;
   group.userData.layoutReady = false;
+  group.userData.targetPosition = new THREE.Vector3();
+  group.userData.targetScale = 1;
 
   applyVariantMaterial(model, variant, group);
   group.add(model);
@@ -268,6 +276,42 @@ function createRenderer() {
   renderer.toneMappingExposure = 1.04;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   return renderer;
+}
+
+function getLayoutProfile(width, isRow) {
+  if (isRow) {
+    return {
+      columns: 4,
+      rows: 1,
+      fov: 34,
+      cameraZ: CAMERA_DISTANCE,
+      edgePx: clamp(width * 0.035, 28, 58),
+      gapPx: clamp(width * 0.025, 20, 44),
+      maxLogoPx: clamp(width * 0.205, 170, 300),
+    };
+  }
+
+  if (width < 600) {
+    return {
+      columns: 2,
+      rows: 2,
+      fov: 42,
+      cameraZ: 9.35,
+      edgePx: clamp(width * 0.06, 18, 32),
+      gapPx: clamp(width * 0.07, 20, 38),
+      maxLogoPx: clamp(width * 0.36, 96, 170),
+    };
+  }
+
+  return {
+    columns: 2,
+    rows: 2,
+    fov: 38,
+    cameraZ: 8.8,
+    edgePx: clamp(width * 0.05, 26, 48),
+    gapPx: clamp(width * 0.055, 28, 54),
+    maxLogoPx: clamp(width * 0.31, 150, 240),
+  };
 }
 
 export function createLogoInspector3D(target, options = {}) {
@@ -342,6 +386,7 @@ export function createLogoInspector3D(target, options = {}) {
   const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
   let sourceRoot = null;
+  let modelDiameter = 2.35;
   let hoveredLogo = null;
   let draggedLogo = null;
   let lastPointerX = 0;
@@ -430,81 +475,55 @@ export function createLogoInspector3D(target, options = {}) {
   const layoutLogos = () => {
     const width = Math.max(canvasHost.clientWidth || root.clientWidth || 1, 1);
     const height = Math.max(canvasHost.clientHeight || root.clientHeight || 1, 1);
+    const isRow = width >= ROW_BREAKPOINT;
+    const profile = getLayoutProfile(width, isRow);
     const aspect = width / height;
-    const profile =
-      width < 600
-        ? {
-            fov: 42,
-            cameraZ: 9.35,
-            outerX: 0.18,
-            outerY: 0.13,
-            gapX: 0.72,
-            gapY: 0.84,
-            preferredScale: 0.66,
-            maxScale: 0.7,
-          }
-        : width < 960
-          ? {
-              fov: 37.5,
-              cameraZ: 8.75,
-              outerX: 0.14,
-              outerY: 0.12,
-              gapX: 0.72,
-              gapY: 0.74,
-              preferredScale: 0.82,
-              maxScale: 0.86,
-            }
-          : {
-              fov: 34,
-              cameraZ: CAMERA_DISTANCE,
-              outerX: 0.1,
-              outerY: 0.1,
-              gapX: 0.84,
-              gapY: 0.78,
-              preferredScale: 0.94,
-              maxScale: 0.96,
-            };
     const distance = Math.max(profile.cameraZ - TARGET_Z, 1);
     const visibleHeight =
       2 * Math.tan(THREE.MathUtils.degToRad(profile.fov * 0.5)) * distance;
     const visibleWidth = visibleHeight * aspect;
-    const estimatedWidth = 1.52;
-    const estimatedHeight = 1.46;
-    const usableWidth = Math.max(
-      0.1,
-      visibleWidth * (1 - profile.outerX * 2),
+    const worldPerPixelX = visibleWidth / width;
+    const worldPerPixelY = visibleHeight / height;
+    const edgeX = profile.edgePx * worldPerPixelX;
+    const edgeY = profile.edgePx * worldPerPixelY;
+    const gapX = profile.gapPx * worldPerPixelX;
+    const gapY = profile.gapPx * worldPerPixelY;
+    const maxDiameterWorld = Math.min(
+      profile.maxLogoPx * worldPerPixelX,
+      profile.maxLogoPx * worldPerPixelY,
     );
-    const usableHeight = Math.max(
-      0.1,
-      visibleHeight * (1 - profile.outerY * 2),
+    const cellWidth = Math.max(
+      (visibleWidth - edgeX * 2 - gapX * (profile.columns - 1)) / profile.columns,
+      0.01,
     );
-    const cellWidth = Math.max(0.1, (usableWidth - profile.gapX) * 0.5);
-    const cellHeight = Math.max(0.1, (usableHeight - profile.gapY) * 0.5);
-    const fitScale =
-      Math.min(cellWidth / estimatedWidth, cellHeight / estimatedHeight) * 0.9;
-    const scale = clamp(
-      Math.min(profile.preferredScale, profile.maxScale, fitScale),
-      0.34,
-      profile.maxScale,
+    const cellHeight = Math.max(
+      (visibleHeight - edgeY * 2 - gapY * (profile.rows - 1)) / profile.rows,
+      0.01,
     );
-    const spacingX = estimatedWidth * scale + profile.gapX;
-    const spacingY = estimatedHeight * scale + profile.gapY;
+    const fittedDiameter = Math.max(
+      Math.min(cellWidth, cellHeight, maxDiameterWorld) * 0.9,
+      0.01,
+    );
+    const scale = fittedDiameter / modelDiameter;
+    const spacingX = fittedDiameter + gapX;
+    const spacingY = fittedDiameter + gapY;
 
+    root.dataset.logoLayout = isRow ? "row" : "grid";
     camera.aspect = aspect;
     camera.fov = profile.fov;
     camera.position.z = profile.cameraZ;
     camera.updateProjectionMatrix();
 
     stage.children.forEach((logo, index) => {
-      const column = index % 2;
-      const row = Math.floor(index / 2);
+      const column = index % profile.columns;
+      const row = Math.floor(index / profile.columns);
       const targetPosition = new THREE.Vector3(
-        (column === 0 ? -0.5 : 0.5) * spacingX,
-        (row === 0 ? 0.5 : -0.5) * spacingY,
+        (column - (profile.columns - 1) * 0.5) * spacingX,
+        ((profile.rows - 1) * 0.5 - row) * spacingY,
         TARGET_Z,
       );
 
-      logo.userData.targetPosition = targetPosition;
+      logo.userData.targetPosition.copy(targetPosition);
       logo.userData.targetScale = scale;
 
       if (!logo.userData.layoutReady) {
@@ -546,7 +565,8 @@ export function createLogoInspector3D(target, options = {}) {
     }
 
     const elapsed = time - introStartTime;
-    const totalDuration = REVEAL_DURATION_MS + Math.max(0, stage.children.length - 1) * REVEAL_STAGGER_MS;
+    const totalDuration =
+      REVEAL_DURATION_MS + Math.max(0, stage.children.length - 1) * REVEAL_STAGGER_MS;
 
     stage.children.forEach((logo, index) => {
       const localElapsed = elapsed - index * REVEAL_STAGGER_MS;
@@ -572,7 +592,8 @@ export function createLogoInspector3D(target, options = {}) {
       );
 
       if (!logo.userData.hasManualRotation) {
-        const rotationDrift = (1 - moveProgress) * (index % 2 === 0 ? -0.22 : 0.22);
+        const rotationDrift =
+          (1 - moveProgress) * (index % 2 === 0 ? -0.22 : 0.22);
         logo.rotation.x = logo.userData.baseRotationX + (1 - moveProgress) * 0.08;
         logo.rotation.y = logo.userData.baseRotationY + rotationDrift;
         logo.rotation.z = logo.userData.baseRotationZ;
@@ -606,8 +627,10 @@ export function createLogoInspector3D(target, options = {}) {
       }
 
       if (!logo.userData.hasManualRotation && !paused && !introRunning) {
-        logo.rotation.x += (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
-        logo.rotation.z += (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
+        logo.rotation.x +=
+          (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
+        logo.rotation.z +=
+          (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
       }
     });
 
@@ -633,7 +656,7 @@ export function createLogoInspector3D(target, options = {}) {
       }
 
       sourceRoot = loadedRoot;
-      centerAndScaleObject(sourceRoot, 2.35);
+      modelDiameter = centerAndScaleObject(sourceRoot, 2.35);
       orderedVariants.slice(0, 4).forEach((variant, index) => {
         stage.add(createVariantLogo(sourceRoot, variant, index));
       });
