@@ -32,7 +32,6 @@
 @import "./sections/jestei-words.css";
 @import "./sections/jestei-words-metrics-bento.css";
 @import "./sections/jestei-words-mockup-height-fix.css";
-@import "./sections/jestei-words-lead-trim.css";
 @import "./sections/jestei-interface.css";
 @import "./sections/jestei-filter.css";
 @import "./sections/jestei-event-nav.css";
@@ -63,3 +62,4 @@
 @import "./sections/jestei-logo-wide-slider.css";
 @import "./sections/jestei-brand-bento.css";
 @import "./sections/jestei-rebrand-equation.css";
+@import "./sections/jestei-words-lead-trim.css";
