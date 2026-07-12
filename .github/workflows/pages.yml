@@ -1,5 +1,6 @@
 ﻿name: Deploy GitHub Pages
 
+# GitHub Pages is the only production deployment target.
 on:
   push:
     branches:
