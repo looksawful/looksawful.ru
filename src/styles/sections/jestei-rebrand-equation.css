@@ -1,0 +1,40 @@
+main[data-showcase] .jestei-bento__rebrand-equation {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: clamp(1rem, 3.4cqi, 2.75rem);
+  overflow: hidden;
+  background: var(--white);
+  contain: layout paint;
+}
+
+main[data-showcase] .jestei-bento__rebrand-equation::after {
+  content: none;
+}
+
+main[data-showcase] .jestei-bento__rebrand-equation-image {
+  display: block;
+  inline-size: min(100%, 42rem);
+  block-size: auto;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  margin: 0;
+  object-fit: contain;
+  object-position: center;
+}
+
+@media (max-width: 72rem) and (min-width: 43.001rem) {
+  main[data-showcase] .jestei-bento__rebrand-equation {
+    padding: clamp(0.8rem, 2.8cqi, 1.8rem);
+  }
+}
+
+@media (max-width: 43rem) {
+  main[data-showcase] .jestei-bento__rebrand-equation {
+    padding: clamp(0.8rem, 4.5cqi, 1.4rem);
+  }
+
+  main[data-showcase] .jestei-bento__rebrand-equation-image {
+    inline-size: min(94%, 36rem);
+  }
+}
