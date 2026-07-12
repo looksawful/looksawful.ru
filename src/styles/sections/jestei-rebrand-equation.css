@@ -1,5 +1,4 @@
-main[data-showcase] #jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector {
-  position: relative;
+main[data-showcase] .jestei-bento__rebrand-equation {
   display: grid;
   place-items: center;
   box-sizing: border-box;
@@ -9,42 +8,33 @@ main[data-showcase] #jestei-results [data-bento-card="rebrand"] .jestei-bento__l
   contain: layout paint;
 }
 
-main[data-showcase] #jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector::before {
-  content: "";
-  position: absolute;
-  inset: clamp(1rem, 3.4cqi, 2.75rem);
-  background: url("/assets/jestei/branding/jestei-rebrand-equation.svg") center / contain no-repeat;
-  pointer-events: none;
-}
-
-main[data-showcase] #jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector::after {
+main[data-showcase] .jestei-bento__rebrand-equation::after {
   content: none;
 }
 
-main[data-showcase] #jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector > * {
-  display: none;
-}
-
 main[data-showcase] .jestei-bento__rebrand-equation-image {
-  display: none;
+  display: block;
+  inline-size: min(100%, 42rem);
+  block-size: auto;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  margin: 0;
+  object-fit: contain;
+  object-position: center;
 }
 
 @media (max-width: 72rem) and (min-width: 43.001rem) {
-  main[data-showcase] #jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector {
+  main[data-showcase] .jestei-bento__rebrand-equation {
     padding: clamp(0.8rem, 2.8cqi, 1.8rem);
-  }
-
-  main[data-showcase] #jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector::before {
-    inset: clamp(0.8rem, 2.8cqi, 1.8rem);
   }
 }
 
 @media (max-width: 43rem) {
-  main[data-showcase] #jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector {
+  main[data-showcase] .jestei-bento__rebrand-equation {
     padding: clamp(0.8rem, 4.5cqi, 1.4rem);
   }
 
-  main[data-showcase] #jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector::before {
-    inset: clamp(0.8rem, 4.5cqi, 1.4rem);
+  main[data-showcase] .jestei-bento__rebrand-equation-image {
+    inline-size: min(94%, 36rem);
   }
 }
