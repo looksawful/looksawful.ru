@@ -13,6 +13,9 @@ const removeElementByClass = (html, tagName, className) =>
     "",
   );
 
+const injectBeforeHeadEnd = (html, content) =>
+  html.includes("</head>") ? html.replace("</head>", `${content}\n</head>`) : `${content}\n${html}`;
+
 const cleanPetProjectPages = {
   name: "clean-pet-project-pages",
   enforce: "pre",
@@ -24,10 +27,29 @@ const cleanPetProjectPages = {
         return html;
       }
 
+      const normalizedPath = pagePath.replace(/\\/g, "/");
+      const isAwfulCases = normalizedPath.includes("/pets/awful-cases/");
+      const isAwfulAudit = normalizedPath.includes("/pets/awful-audit/");
+
       let output = html;
       output = removeElementByClass(output, "a", "mobile-back-button");
       output = removeElementByClass(output, "nav", "pet-shell-nav");
       output = removeElementByClass(output, "footer", "pet-shell-footer");
+      output = removeElementByClass(output, "footer", "fkeys");
+
+      if (isAwfulCases) {
+        output = removeElementByClass(output, "div", "command-row");
+      }
+
+      const cleanupRules = [
+        ".mobile-back-button,.pet-shell-nav,.pet-shell-footer,.fkeys{display:none!important}",
+        isAwfulCases ? '.command-row[aria-label="Project links"]{display:none!important}' : "",
+        isAwfulAudit ? ".page{padding-bottom:var(--page-pad)!important}" : "",
+      ]
+        .filter(Boolean)
+        .join("");
+
+      output = injectBeforeHeadEnd(output, `<style data-pet-page-cleanup>${cleanupRules}</style>`);
 
       const cyrillic = [...new Set(output.match(CYRILLIC_TEXT) || [])];
       if (cyrillic.length) {
@@ -41,8 +63,38 @@ const cleanPetProjectPages = {
   },
 };
 
+const injectPetPreviewCleanup = {
+  name: "inject-pet-preview-cleanup",
+  transformIndexHtml: {
+    order: "post",
+    handler(html, context) {
+      const pagePath = (context?.filename || context?.path || "").replace(/\\/g, "/");
+      const isNestedPage = /\/(?:pets|resume|gallery)\//i.test(pagePath);
+      const isRootIndex = context?.path === "/" || (pagePath.endsWith("/index.html") && !isNestedPage);
+
+      if (!isRootIndex) {
+        return html;
+      }
+
+      return {
+        html,
+        tags: [
+          {
+            tag: "script",
+            attrs: {
+              type: "module",
+              src: "/src/pet-project-preview-cleanup.js",
+            },
+            injectTo: "body",
+          },
+        ],
+      };
+    },
+  },
+};
+
 export default defineConfig({
-  plugins: [cleanPetProjectPages],
+  plugins: [cleanPetProjectPages, injectPetPreviewCleanup],
   build: {
     assetsInlineLimit: 0,
     rollupOptions: {
