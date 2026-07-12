@@ -11,9 +11,10 @@ const ROW_BREAKPOINT = 900;
 const REVEAL_DURATION_MS = 760;
 const REVEAL_STAGGER_MS = 560;
 const REVEAL_START_SCALE = 0.42;
-const IDLE_SPIN_SPEED = 0.38;
+const IDLE_SWAY_SPEED = 0.00042;
+const IDLE_SWAY_AMPLITUDE = 0.045;
 const DRAG_ROTATE_SPEED = 0.008;
-const RETURN_EASE = 0.08;
+const RETURN_EASE = 0.09;
 
 const DEFAULT_ASSETS = {
   model: "./logo.glb",
@@ -150,11 +151,14 @@ function disposeMaterial(material, caches) {
   material.dispose();
 }
 
-function disposeObjectResources(object, caches = {
-  geometries: new Set(),
-  materials: new Set(),
-  textures: new Set(),
-}) {
+function disposeObjectResources(
+  object,
+  caches = {
+    geometries: new Set(),
+    materials: new Set(),
+    textures: new Set(),
+  },
+) {
   traverseMeshes(object, (mesh) => {
     if (mesh.geometry && !caches.geometries.has(mesh.geometry)) {
       caches.geometries.add(mesh.geometry);
@@ -211,13 +215,15 @@ function applyVariantMaterial(root, variant, logoGroup) {
 function createVariantLogo(sourceRoot, variant, index) {
   const group = new THREE.Group();
   const model = sourceRoot.clone(true);
+  const baseRotationY = (index - 1.5) * 0.035;
 
   group.name = `logo-${variant.id}`;
   group.userData.variant = variant;
   group.userData.index = index;
-  group.userData.baseRotationX = 0.16;
-  group.userData.baseRotationY = -0.28 + index * 0.18;
-  group.userData.baseRotationZ = index % 2 === 0 ? -0.055 : 0.055;
+  group.userData.baseRotationX = 0.1;
+  group.userData.baseRotationY = baseRotationY;
+  group.userData.baseRotationZ = 0;
+  group.userData.idlePhase = index * Math.PI * 0.5;
   group.userData.hasManualRotation = false;
   group.userData.layoutReady = false;
   group.userData.targetPosition = new THREE.Vector3();
@@ -330,8 +336,8 @@ export function createLogoInspector3D(target, options = {}) {
     ...assets,
     model: assets.model || modelUrl || DEFAULT_ASSETS.model,
   };
-  const orderedVariants = DEFAULT_VARIANTS.map((fallback) =>
-    variants.find((variant) => variant.id === fallback.id) || fallback,
+  const orderedVariants = DEFAULT_VARIANTS.map(
+    (fallback) => variants.find((variant) => variant.id === fallback.id) || fallback,
   );
 
   host.textContent = "";
@@ -393,7 +399,6 @@ export function createLogoInspector3D(target, options = {}) {
   let lastPointerY = 0;
   let raf = 0;
   let destroyed = false;
-  let lastTime = performance.now();
   let introStartTime = 0;
   let introComplete = false;
 
@@ -467,6 +472,7 @@ export function createLogoInspector3D(target, options = {}) {
   const handlePointerUp = (event) => {
     if (!draggedLogo) return;
     renderer.domElement.releasePointerCapture?.(event.pointerId);
+    draggedLogo.userData.hasManualRotation = false;
     draggedLogo = null;
     canvasHost.classList.remove("is-dragging");
     updateHover(event);
@@ -593,8 +599,8 @@ export function createLogoInspector3D(target, options = {}) {
 
       if (!logo.userData.hasManualRotation) {
         const rotationDrift =
-          (1 - moveProgress) * (index % 2 === 0 ? -0.22 : 0.22);
-        logo.rotation.x = logo.userData.baseRotationX + (1 - moveProgress) * 0.08;
+          (1 - moveProgress) * (index % 2 === 0 ? -0.06 : 0.06);
+        logo.rotation.x = logo.userData.baseRotationX + (1 - moveProgress) * 0.035;
         logo.rotation.y = logo.userData.baseRotationY + rotationDrift;
         logo.rotation.z = logo.userData.baseRotationZ;
       }
@@ -615,23 +621,23 @@ export function createLogoInspector3D(target, options = {}) {
   const renderLoop = (time) => {
     if (destroyed) return;
 
-    const delta = clamp((time - lastTime) / 1000, 0, 0.05);
-    lastTime = time;
     const introProgress = updateIntro(time);
     const introRunning = introProgress < 1;
 
     stage.children.forEach((logo) => {
       const paused = logo === hoveredLogo || logo === draggedLogo;
-      if (!paused && !introRunning && logo.visible) {
-        logo.rotation.y += delta * IDLE_SPIN_SPEED;
-      }
+      if (logo.userData.hasManualRotation || paused || introRunning) return;
 
-      if (!logo.userData.hasManualRotation && !paused && !introRunning) {
-        logo.rotation.x +=
-          (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
-        logo.rotation.z +=
-          (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
-      }
+      const sway = reducedMotion
+        ? 0
+        : Math.sin(time * IDLE_SWAY_SPEED + logo.userData.idlePhase) *
+          IDLE_SWAY_AMPLITUDE;
+      logo.rotation.x +=
+        (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
+      logo.rotation.y +=
+        (logo.userData.baseRotationY + sway - logo.rotation.y) * RETURN_EASE;
+      logo.rotation.z +=
+        (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
     });
 
     renderer.render(scene, camera);
