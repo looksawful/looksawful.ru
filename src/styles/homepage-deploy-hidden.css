@@ -1,0 +1,17 @@
+/*
+  Sections kept in source for editing, but hidden from the public homepage.
+  JS applies data-homepage-hidden too; this final CSS rule protects against
+  later section-specific styles that may otherwise make a kept node visible.
+*/
+
+main[data-showcase] :is(
+  #jestei-type,
+  #jestei-arc,
+  #jestei-masonry,
+  [data-homepage-hidden]
+) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

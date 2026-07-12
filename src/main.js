@@ -11,10 +11,7 @@ const APPROVED_SECTION_IDS = new Set([
   "jestei-cover",
   "jestei-results",
   "jestei-logo",
-  "jestei-type",
-  "jestei-arc",
   "jestei-interface-bento",
-  "jestei-masonry",
   "jestei-color",
   "jestei-words",
   "jestei-filter",
@@ -28,11 +25,30 @@ const APPROVED_SECTION_IDS = new Set([
   "resume",
 ]);
 
+const HOMEPAGE_HIDDEN_SECTION_IDS = new Set([
+  "jestei-type",
+  "jestei-arc",
+  "jestei-masonry",
+]);
+
 const PET_PROJECT_PREVIEW_WIDTHS = [
   ["berserk-timer", 480],
   ["awful-cases", 420],
   ["awful-audit", 420],
 ];
+
+function hideHomepageOnlyElement(element) {
+  if (!element) {
+    return;
+  }
+
+  element.hidden = true;
+  element.setAttribute("aria-hidden", "true");
+  element.setAttribute("data-homepage-hidden", "");
+  element.style.setProperty("display", "none", "important");
+  element.style.setProperty("visibility", "hidden", "important");
+  element.style.setProperty("opacity", "0", "important");
+}
 
 const JESTEI_MOTION_BREAKS = [
   {
@@ -66,8 +82,15 @@ function removeHeroOnlyConstraints(root = document) {
   }
 
   root.querySelectorAll("#main > .section").forEach((section) => {
-    const isApproved = APPROVED_SECTION_IDS.has(section.id);
-    section.hidden = false;
+    const isHiddenFromHomepage = HOMEPAGE_HIDDEN_SECTION_IDS.has(section.id);
+    const isApproved = APPROVED_SECTION_IDS.has(section.id) && !isHiddenFromHomepage;
+    section.hidden = isHiddenFromHomepage;
+    section.toggleAttribute("data-homepage-hidden", isHiddenFromHomepage);
+
+    if (isHiddenFromHomepage) {
+      section.setAttribute("aria-hidden", "true");
+    }
+
     section.style.setProperty("display", isApproved ? "block" : "none", "important");
     section.style.setProperty("visibility", isApproved ? "visible" : "hidden", "important");
     section.style.setProperty("opacity", isApproved ? "1" : "0", "important");
@@ -104,9 +127,14 @@ function createJesteiMotionBreak({ id, modifier, animation, canvasId }, root = d
 }
 
 function placeJesteiMotionBreaks(root = document) {
-  root.querySelector("#jestei-results > .jestei-masonry")?.remove();
+  hideHomepageOnlyElement(root.querySelector("#jestei-results > .jestei-masonry"));
 
   JESTEI_MOTION_BREAKS.forEach((config) => {
+    if (HOMEPAGE_HIDDEN_SECTION_IDS.has(config.id)) {
+      hideHomepageOnlyElement(root.querySelector(`#${config.id}`));
+      return;
+    }
+
     const anchor = root.querySelector(`#${config.anchorId}`);
     if (!anchor) {
       return;
