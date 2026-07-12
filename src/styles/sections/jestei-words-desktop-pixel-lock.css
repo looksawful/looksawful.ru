@@ -1,0 +1,180 @@
+@media (min-width: 76.001rem) {
+  main[data-showcase] #jestei-words [data-section-screen] {
+    inline-size: min(calc(100% - 4rem), 116rem);
+    max-inline-size: 116rem;
+    margin-inline: auto;
+    padding-block: 1.25rem 2rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    grid-template-rows: 15.25rem 7.9rem 13.5rem;
+    gap: 1rem;
+    align-items: stretch;
+    min-inline-size: 0;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--intro {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1;
+    align-content: start;
+    gap: 1.55rem;
+    min-inline-size: 0;
+    padding: 0.55rem 0 0 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__title {
+    max-inline-size: none;
+    margin: 0;
+    padding: 0;
+    font-size: clamp(5.2rem, 5.35vw, 6.7rem);
+    font-weight: 800;
+    line-height: 0.86;
+    letter-spacing: -0.047em;
+    white-space: nowrap;
+    text-wrap: nowrap;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__lead {
+    max-inline-size: 49rem;
+    margin: 0;
+    padding: 0;
+    font-size: 1.22rem;
+    font-weight: 400;
+    line-height: 1.36;
+    letter-spacing: 0;
+    text-wrap: pretty;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact {
+    grid-column: 1;
+    grid-row: 2;
+    min-block-size: 0;
+    block-size: 100%;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact .jestei-words-bento__note,
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact > p {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    grid-auto-flow: column;
+    align-items: center;
+    column-gap: 0.8rem;
+    min-block-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    padding: 0 1.25rem;
+    color: var(--black);
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact .jestei-words-bento__note::before,
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact .jestei-words-bento__note::after,
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact > p::before,
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact > p::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    z-index: -1;
+    border: var(--line);
+    border-radius: 1rem;
+    background: var(--white);
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact .jestei-words-bento__note::before,
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact > p::before {
+    inset-inline: 0 calc(50% + 0.5rem);
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact .jestei-words-bento__note::after,
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact > p::after {
+    inset-inline: calc(50% + 0.5rem) 0;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact strong {
+    display: block;
+    align-self: center;
+    margin: 0;
+    color: var(--black);
+    font-size: clamp(2.8rem, 3.35vw, 4.35rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.045em;
+    white-space: nowrap;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope {
+    grid-column: 1;
+    grid-row: 3;
+    min-block-size: 0;
+    block-size: 100%;
+    align-content: start;
+    gap: 1.2rem;
+    padding: 1.65rem 1.6rem;
+    overflow: hidden;
+    border: var(--line);
+    border-radius: 1.65rem;
+    background: var(--white);
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope > h3 {
+    margin: 0;
+    font-size: clamp(3.1rem, 4vw, 5.1rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.042em;
+    white-space: nowrap;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope > p {
+    max-inline-size: 44rem;
+    margin: 0;
+    font-size: 1.08rem;
+    line-height: 1.42;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--policy {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    align-self: stretch;
+    min-block-size: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot,
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-shell {
+    inline-size: 100%;
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-shell {
+    aspect-ratio: auto;
+    padding: 0.8rem;
+    border-radius: 1.55rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-book {
+    border-radius: 1rem;
+    clip-path: inset(0 round 1rem);
+  }
+}
