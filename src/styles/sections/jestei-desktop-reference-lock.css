@@ -1,0 +1,246 @@
+/* Desktop-only geometry lock for the approved Jestei reference layouts. */
+@media (min-width: 76.001rem) {
+  main[data-showcase] :is(
+    .jestei-bento [data-section-screen],
+    #jestei-logo [data-section-screen],
+    #jestei-color [data-section-screen],
+    #jestei-words [data-section-screen]
+  ) {
+    inline-size: min(calc(100% - 4rem), 116rem);
+    max-inline-size: 116rem;
+    margin-inline: auto;
+  }
+
+  /* Results bento below the Jestei cover. */
+  main[data-showcase] .jestei-bento [data-section-screen] {
+    padding-inline: 0;
+  }
+
+  main[data-showcase] .jestei-bento .jestei-bento__grid {
+    grid-template-columns: 1fr 1fr 0.82fr 0.82fr;
+    grid-template-areas:
+      "steps price rebrand rebrand"
+      "manual manual products audience"
+      "manual manual usa usa";
+    grid-template-rows: 18.5rem 13rem 18rem;
+    grid-auto-rows: unset;
+    gap: 1.15rem;
+  }
+
+  main[data-showcase] .jestei-bento .jestei-bento__card {
+    padding: 1.65rem;
+    border-radius: 2rem;
+  }
+
+  main[data-showcase] .jestei-bento .jestei-bento__card--steps,
+  main[data-showcase] .jestei-bento .jestei-bento__card--price {
+    place-items: center;
+    text-align: center;
+  }
+
+  main[data-showcase] .jestei-bento .jestei-bento__card--steps .jestei-bento__content,
+  main[data-showcase] .jestei-bento .jestei-bento__card--price .jestei-bento__content {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 1.1rem;
+    inline-size: 100%;
+  }
+
+  main[data-showcase] .jestei-bento .jestei-bento__card--steps .jestei-bento__title--metric,
+  main[data-showcase] .jestei-bento .jestei-bento__card--price .jestei-bento__title--price {
+    font-size: clamp(3.4rem, 4.6vw, 5.6rem);
+    line-height: 0.9;
+    text-align: center;
+  }
+
+  main[data-showcase] .jestei-bento .jestei-bento__card--manual {
+    grid-template-columns: minmax(0, 0.92fr) minmax(16rem, 0.78fr);
+    align-items: start;
+  }
+
+  main[data-showcase] .jestei-bento .jestei-bento__card--manual .jestei-bento__content {
+    max-inline-size: 29rem;
+  }
+
+  main[data-showcase] .jestei-bento .jestei-bento__card--rebrand,
+  main[data-showcase] .jestei-bento .jestei-bento__card--usa {
+    position: relative;
+  }
+
+  /* Editorial policy section. */
+  main[data-showcase] #jestei-words [data-section-screen] {
+    padding-block: 2rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    grid-template-rows: 7.6rem 6.2rem 12.8rem;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--intro {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1;
+    align-content: start;
+    gap: 1rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    background: transparent;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__title {
+    padding: 0;
+    font-size: clamp(4rem, 5.3vw, 6.7rem);
+    line-height: 0.88;
+    white-space: nowrap;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__lead {
+    max-inline-size: 48rem;
+    padding: 0;
+    font-size: 1.22rem;
+    line-height: 1.38;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact {
+    grid-column: 1;
+    grid-row: 2;
+    min-block-size: 0;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact .jestei-words-bento__note,
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact > p {
+    block-size: 100%;
+    min-block-size: 0;
+    padding: 1.15rem;
+    column-gap: 3rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact strong {
+    font-size: clamp(2.45rem, 3.2vw, 4.2rem);
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact,
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope {
+    font-size: 1.05rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope {
+    grid-column: 1;
+    grid-row: 3;
+    min-block-size: 0;
+    block-size: 100%;
+    padding: 1.55rem;
+    border-radius: 1.65rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope > h3 {
+    font-size: clamp(3rem, 4vw, 5.1rem);
+    line-height: 0.92;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--policy {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    align-self: stretch;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot,
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-shell {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-shell {
+    aspect-ratio: auto;
+  }
+
+  /* New sign / identity section. */
+  main[data-showcase] #jestei-logo [data-section-screen] {
+    padding-block: 2rem;
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__intro,
+  main[data-showcase] #jestei-logo .jestei-logo__hero,
+  main[data-showcase] #jestei-logo .jestei-logo__variant {
+    border-radius: 1.75rem;
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__type-group {
+    grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr);
+    gap: 1.15rem;
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__type-title {
+    font-size: clamp(3.3rem, 4.5vw, 5.5rem);
+    line-height: 0.9;
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__type-copy > p {
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+
+  main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
+    min-block-size: 25rem;
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__type-media {
+    aspect-ratio: 1.75 / 1;
+  }
+
+  /* Added color section. */
+  main[data-showcase] #jestei-color [data-section-screen] {
+    padding-block: 2rem;
+  }
+
+  main[data-showcase] #jestei-color .jestei-color-bento {
+    grid-template-columns: minmax(0, 1fr) minmax(31rem, 0.92fr);
+    gap: 1.15rem;
+    inline-size: 100%;
+  }
+
+  main[data-showcase] #jestei-color .jestei-color-bento__content {
+    gap: 1.15rem;
+  }
+
+  main[data-showcase] #jestei-color .jestei-color-bento__head,
+  main[data-showcase] #jestei-color .jestei-color-bento__card {
+    border-radius: 1.75rem;
+  }
+
+  main[data-showcase] #jestei-color .jestei-color-bento__head {
+    min-block-size: 9.6rem;
+    padding: 1.55rem;
+  }
+
+  main[data-showcase] #jestei-color .jestei-color-bento__title {
+    font-size: clamp(3.2rem, 4.4vw, 5.5rem);
+    line-height: 0.9;
+  }
+
+  main[data-showcase] #jestei-color .jestei-color-bento__lead {
+    font-size: 1.1rem;
+    line-height: 1.34;
+  }
+
+  main[data-showcase] #jestei-color .jestei-color-bento__palette {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.15rem;
+  }
+
+  main[data-showcase] #jestei-color .jestei-color-bento__theme {
+    min-block-size: 10.1rem;
+    padding: 1.35rem;
+  }
+
+  main[data-showcase] #jestei-color .jestei-color-bento__visual {
+    min-block-size: 34rem;
+    border-radius: 1.75rem;
+  }
+}
