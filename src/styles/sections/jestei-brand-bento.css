@@ -22,6 +22,10 @@ main[data-showcase] #jestei-logo .jestei-logo__variant {
   background: #050505;
 }
 
+main[data-showcase] #jestei-logo .jestei-logo__variant-svg {
+  transform: translateY(-6.25%);
+}
+
 main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
   isolation: isolate;
   border: 1px solid #050505;
