@@ -1,5 +1,5 @@
 .jestei-words-bento {
-  grid-template-rows: auto auto minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto repeat(2, minmax(0, 1fr));
 }
 
 .jestei-words-bento__card--intro {
@@ -88,21 +88,25 @@
 .jestei-words-bento__card--policy {
   grid-column: 2;
   grid-row: 3 / 5;
-  align-self: stretch;
+  align-self: start;
 }
 
+/*
+  The mockup keeps its own aspect ratio. Do not force 100% height here:
+  that creates a circular grid-size dependency and stretches the section.
+*/
 .jestei-words-bento__policy-slot,
 .jestei-words-bento__policy-slot .policy-shell {
-  block-size: 100%;
+  block-size: auto;
 }
 
 .jestei-words-bento__policy-slot .policy-shell {
-  aspect-ratio: auto;
+  aspect-ratio: var(--policy-screen-ratio);
 }
 
 @media (max-width: 43rem) {
   .jestei-words-bento {
-    grid-template-rows: auto auto minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto repeat(2, minmax(0, 1fr));
   }
 
   .jestei-words-bento__card--intro .jestei-words-bento__title,
@@ -141,14 +145,15 @@
   .jestei-words-bento__card--policy {
     grid-column: 2;
     grid-row: 3 / 5;
+    align-self: start;
   }
 
   .jestei-words-bento__policy-slot,
   .jestei-words-bento__policy-slot .policy-shell {
-    block-size: 100%;
+    block-size: auto;
   }
 
   .jestei-words-bento__policy-slot .policy-shell {
-    aspect-ratio: auto;
+    aspect-ratio: var(--policy-phone-ratio);
   }
 }
