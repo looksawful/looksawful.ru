@@ -14,7 +14,7 @@ export const MOUNTS = [
   {
     id: "jesteiBentoBrandLogo",
     phase: "critical",
-    selector: "#jestei-results .jestei-bento__logo-inspector",
+    selector: "#jestei-results .jestei-bento__logo-inspector:not(.jestei-bento__rebrand-equation)",
     load: () => import("../visuals/dom/jestei-bento-brand-logo.js"),
     mount: (module, root) => module.mountJesteiBentoBrandLogo(root),
   },
