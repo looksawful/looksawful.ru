@@ -1,0 +1,166 @@
+#jestei-logo {
+  --jestei-brand-gap: clamp(0.45rem, 1.4cqi, 1.4rem);
+  --jestei-brand-radius: clamp(0.8rem, 1.8cqi, 2rem);
+}
+
+#jestei-logo .jestei-brand-bento {
+  container-type: inline-size;
+}
+
+main[data-showcase] #jestei-logo :is(
+  .jestei-logo__variant,
+  [data-logo-inspector-shell],
+  .jestei-logo__slide,
+  .jestei-logo__type-media
+) {
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: var(--jestei-brand-radius);
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__variant {
+  background: #050505;
+}
+
+main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
+  isolation: isolate;
+  border: 1px solid #050505;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__type-media {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  aspect-ratio: 16 / 10;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #050505;
+  background: #050505;
+}
+
+main[data-showcase] #jestei-logo :is(
+  .jestei-logo__variant-svg,
+  [data-logo-inspector-shell] > *,
+  [data-logo-inspector-shell] canvas,
+  [data-logo-inspector-shell] .logo-inspector-grid-3d,
+  [data-logo-inspector-shell] .logo-inspector-grid-3d__canvas,
+  [data-logo-inspector-shell] .logo-inspector-grid-3d__poster,
+  [data-logo-inspector-shell] .logo-inspector-fit-3d,
+  [data-logo-inspector-shell] .logo-inspector-fit-3d__canvas,
+  [data-logo-inspector-shell] .logo-inspector-fit-3d__poster,
+  .jestei-logo__slide img,
+  .jestei-logo__type-media > *,
+  .jestei-logo__type-media a,
+  .jestei-logo__type-media img
+) {
+  border-radius: 0;
+}
+
+main[data-showcase] #jestei-logo [data-logo-inspector-shell] :is(
+  .logo-inspector-grid-3d,
+  .logo-inspector-fit-3d
+) {
+  border: 0;
+}
+
+main[data-showcase] #jestei-logo #jestei-type {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: none;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  scroll-margin-block-start: clamp(1rem, 5vw, 5rem);
+}
+
+main[data-showcase] #jestei-logo #jestei-type::before,
+main[data-showcase] #jestei-logo #jestei-type::after {
+  content: none;
+}
+
+main[data-showcase] #jestei-logo #jestei-type [data-section-screen] {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: none;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  row-gap: 0;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__type-group {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.72fr) minmax(0, 1.28fr);
+  gap: var(--jestei-brand-gap);
+  align-items: stretch;
+  inline-size: 100%;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__type-copy {
+  display: grid;
+  align-content: start;
+  gap: clamp(1rem, 2vw, 2rem);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__type-title,
+main[data-showcase] #jestei-logo .jestei-logo__type-copy > p {
+  margin: 0;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__type-copy > p {
+  max-inline-size: 32rem;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__type-media > a {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__type-media img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  max-block-size: none;
+  margin: 0;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 72rem) and (min-width: 43.001rem) {
+  #jestei-logo {
+    --jestei-brand-radius: clamp(0.9rem, 1.65cqi, 1.45rem);
+  }
+}
+
+@media (max-width: 70rem) {
+  main[data-showcase] #jestei-logo .jestei-logo__type-group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__type-copy > p {
+    max-inline-size: 36rem;
+  }
+}
+
+@media (max-width: 43rem) {
+  #jestei-logo {
+    --jestei-brand-gap: clamp(0.35rem, 1.8cqi, 0.68rem);
+    --jestei-brand-radius: clamp(0.75rem, 3.6cqi, 1.2rem);
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__type-copy {
+    gap: clamp(0.8rem, 4vw, 1.4rem);
+  }
+}
