@@ -108,6 +108,10 @@ const JESTEI_BENTO = `
             </div>
           </article>
         </div>
+
+        <figure class="jestei-bento__audience-avatar" aria-hidden="true">
+          <img src="/assets/jestei/branding/jestei-audience-star.png" alt="" decoding="async" loading="lazy" />
+        </figure>
       </div>
     </div>
   </section>
@@ -119,55 +123,63 @@ const JESTEI_COLOR = `
       <div class="jestei-color-bento__content">
         <header class="jestei-color-bento__head">
           <h2 class="jestei-color-bento__title"><span data-section-title-main="">добавили</span> <span class="jestei-color-bento__accent" data-section-title-accent="" aria-label="цвет"><span data-color-letter="orange">ц</span><span data-color-letter="blue">в</span><span data-color-letter="pear">е</span><span data-color-letter="biloba">т</span></span></h2>
-          <p class="jestei-color-bento__lead">Сегментировали конфликтующие аудитории при помощи 4 цветовых профилей. Теперь цвет направляет пользователя к нужным продуктам. Создали отдельные визуальные зоны для ивент диджеев, клубных диджеев и саунд-продюсеров. Цветовые профили связали продукты и подписки, разделили конфликтующие аудитории и снизили количество конфликтов между ними. Раньше сервис держался на серо-оранжевой палитре. Теперь в системе 4 продуктовые темы: оранжевая для клуба, грушевая для ивента, синяя для эксклюзивов и лавандовая для экспериментальных инструментов.</p>
+          <p class="jestei-color-bento__lead">Сегментировали конфликтующие аудитории при помощи 4 цветовых профилей. Теперь цвет направляет пользователя к нужным продуктам.</p>
         </header>
 
-        <div class="jestei-color-bento__palette" data-color-panel="palette">
-        <article class="jestei-color-bento__card jestei-color-bento__theme jestei-color-bento__theme--orange">
-          <div class="jestei-color-bento__theme-head"><span>клуб</span><h3>gold-drop</h3></div>
-          <ul class="jestei-color-bento__tokens" aria-label="gold drop">
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--500"></span><span>500</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--100"></span><span>100</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--300"></span><span>300</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--700"></span><span>700</span></li>
-          </ul>
-        </article>
+        <article class="jestei-color-bento__card jestei-color-bento__palette-card" data-color-panel="palette">
+          <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--feature">
+            <h3>Feature</h3>
+            <ul class="jestei-color-bento__swatch-list" aria-label="feature palette">
+              <li><span>Biloba-50</span><b>#EDE5F9</b><i style="--swatch:#EDE5F9"></i></li>
+              <li><span>Biloba-100</span><b>#D8C9F7</b><i style="--swatch:#D8C9F7"></i></li>
+              <li><span>Biloba-400</span><b>#B2A1EA</b><i style="--swatch:#B2A1EA"></i></li>
+              <li><span>Biloba-500</span><b>#8673B8</b><i style="--swatch:#8673B8"></i></li>
+            </ul>
+          </section>
 
-        <article class="jestei-color-bento__card jestei-color-bento__theme jestei-color-bento__theme--blue">
-          <div class="jestei-color-bento__theme-head"><span>эксклюзивы</span><h3>dodger-blue</h3></div>
-          <ul class="jestei-color-bento__tokens" aria-label="dodger blue">
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--500"></span><span>500</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--100"></span><span>100</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--300"></span><span>300</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--700"></span><span>700</span></li>
-          </ul>
-        </article>
+          <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--basic">
+            <h3>Basic</h3>
+            <ul class="jestei-color-bento__swatch-list" aria-label="basic palette">
+              <li><span>Gold-50</span><b>#FFCB99</b><i style="--swatch:#FFCB99"></i></li>
+              <li><span>Gold-100</span><b>#FFB267</b><i style="--swatch:#FFB267"></i></li>
+              <li><span>Gold-400</span><b>#F18200</b><i style="--swatch:#F18200"></i></li>
+              <li><span>Gold-500</span><b>#B25017</b><i style="--swatch:#B25017"></i></li>
+            </ul>
+          </section>
 
-        <article class="jestei-color-bento__card jestei-color-bento__theme jestei-color-bento__theme--pear">
-          <div class="jestei-color-bento__theme-head"><span>ивент</span><h3>pear</h3></div>
-          <ul class="jestei-color-bento__tokens" aria-label="pear">
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--500"></span><span>500</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--100"></span><span>100</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--300"></span><span>300</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--700"></span><span>700</span></li>
-          </ul>
-        </article>
+          <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--event">
+            <h3>Event</h3>
+            <ul class="jestei-color-bento__swatch-list" aria-label="event palette">
+              <li><span>Pear-50</span><b>#F5FACF</b><i style="--swatch:#F5FACF"></i></li>
+              <li><span>Pear-100</span><b>#D7E737</b><i style="--swatch:#D7E737"></i></li>
+              <li><span>Pear-400</span><b>#D1E231</b><i style="--swatch:#D1E231"></i></li>
+              <li><span>Pear-500</span><b>#95AB34</b><i style="--swatch:#95AB34"></i></li>
+            </ul>
+          </section>
 
-        <article class="jestei-color-bento__card jestei-color-bento__theme jestei-color-bento__theme--biloba">
-          <div class="jestei-color-bento__theme-head"><span>эксперименты</span><h3>biloba-flower</h3></div>
-          <ul class="jestei-color-bento__tokens" aria-label="biloba flower">
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--500"></span><span>500</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--100"></span><span>100</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--300"></span><span>300</span></li>
-            <li><span class="jestei-color-bento__swatch jestei-color-bento__swatch--700"></span><span>700</span></li>
-          </ul>
+          <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--pro">
+            <h3>PRO</h3>
+            <ul class="jestei-color-bento__swatch-list" aria-label="pro palette">
+              <li><span>Blue-50</span><b>#E6F3FF</b><i style="--swatch:#E6F3FF"></i></li>
+              <li><span>Blue-100</span><b>#9CCCFF</b><i style="--swatch:#9CCCFF"></i></li>
+              <li><span>Blue-400</span><b>#3D80D8</b><i style="--swatch:#3D80D8"></i></li>
+              <li><span>Blue-500</span><b>#1751B7</b><i style="--swatch:#1751B7"></i></li>
+            </ul>
+          </section>
         </article>
-        </div>
       </div>
 
       <a class="jestei-color-bento__card jestei-color-bento__visual" data-lightbox-item="" href="/assets/media/cases/jesteipool/02-color/02/00.webp" rel="noopener noreferrer" target="_blank">
         <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/02-color/02/00.webp" />
       </a>
+
+      <div class="jestei-color-bento__brand-strip" aria-label="цветовые роли Jestei Pool">
+        <span style="--strip-color:#F18200"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Basic <b>#F18200</b></span>
+        <span style="--strip-color:#D1E231"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Event <b>#D1E231</b></span>
+        <span style="--strip-color:#151718"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Exclusive <b>#151718</b></span>
+        <span style="--strip-color:#B2A1EA"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Special <b>#B2A1EA</b></span>
+        <span style="--strip-color:#FAFAFA"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Dark <b>#FAFAFA</b></span>
+      </div>
     </div>
   </div>
 `;
@@ -237,6 +249,48 @@ const PET_PROJECTS = [
 ];
 
 const normalizeText = (value) => String(value || "").replace(/\s+/g, " ").trim();
+
+const scrollPolicyBookToRecordPool = (policySlot) => {
+  const viewport = policySlot.querySelector(".policy-book__viewport");
+  if (!(viewport instanceof HTMLElement)) return;
+
+  const findTarget = () => {
+    const candidates = [
+      ...policySlot.querySelectorAll(".policy-page h1, .policy-page h2, .policy-page h3, .policy-page h4, .policy-page td, .policy-page p, .policy-page li"),
+    ];
+
+    return candidates.find((node) => {
+      const text = normalizeText(node.textContent).toLowerCase();
+      return text.includes("лента треков") && text.includes("record pool");
+    });
+  };
+
+  const setScroll = () => {
+    const target = findTarget();
+    if (!(target instanceof HTMLElement)) return;
+
+    const targetTop =
+      target.getBoundingClientRect().top -
+      viewport.getBoundingClientRect().top +
+      viewport.scrollTop;
+
+    viewport.scrollTop = Math.max(0, targetTop - viewport.clientHeight * 0.18);
+  };
+
+  viewport.dataset.initialScrollTarget = "record-pool";
+  requestAnimationFrame(() => {
+    setScroll();
+    requestAnimationFrame(setScroll);
+  });
+};
+
+const placeJesteiWordsAfterResults = (root) => {
+  const results = root.querySelector("#jestei-results");
+  const words = root.querySelector("#jestei-words");
+  if (!results || !words || results.nextElementSibling === words) return;
+
+  results.insertAdjacentElement("afterend", words);
+};
 
 const clearPublicationVisibility = (element) => {
   element.hidden = false;
@@ -445,8 +499,6 @@ const buildJesteiWordsBento = (root) => {
     return;
   }
 
-  const leadText = normalizeText(section.querySelector("[data-section-lead]")?.textContent);
-  const note = section.querySelector(".section-note")?.cloneNode(true);
   const policyShell = section.querySelector(".policy-shell");
 
   const screen = document.createElement("div");
@@ -459,7 +511,10 @@ const buildJesteiWordsBento = (root) => {
         <p class="jestei-words-bento__lead" data-section-lead=""></p>
       </article>
 
-      <article class="jestei-words-bento__card jestei-words-bento__card--fact" data-words-note-slot=""></article>
+      <article class="jestei-words-bento__card jestei-words-bento__card--fact" data-words-note-slot="">
+        <div class="jestei-words-bento__metric"><strong>200+</strong> <span>плейлистов</span></div>
+        <div class="jestei-words-bento__metric"><strong>50+</strong> <span>Жанров</span></div>
+      </article>
 
       <article class="jestei-words-bento__card jestei-words-bento__card--scope">
         <h3>8 разделов</h3>
@@ -482,19 +537,12 @@ const buildJesteiWordsBento = (root) => {
   `;
 
   screen.querySelector(".jestei-words-bento__lead").textContent =
-    leadText || "Сформировали коммуникационную платформу сервиса: tone of voice, редакционную политику и правила интерфейсного текста.";
-
-  const noteSlot = screen.querySelector("[data-words-note-slot]");
-  if (note) {
-    note.classList.add("jestei-words-bento__note");
-    noteSlot.append(note);
-  } else {
-    noteSlot.innerHTML = "<p><strong>200+</strong> описаний плейлистов и event-подборок, <strong>50+</strong> жанров, FAQ и тултипы.</p>";
-  }
+    "Сформировали твердую коммуникационную платформу сервиса: tone of voice, редакционную политику и правила написания статей и постов, оформили подсказки, описания и пояснительные тексты";
 
   const policySlot = screen.querySelector("[data-words-policy-slot]");
   if (policyShell) {
     policySlot.append(policyShell);
+    scrollPolicyBookToRecordPool(policySlot);
   }
 
   section.innerHTML = "";
@@ -526,6 +574,7 @@ export function prepareHomepagePublication(root = document) {
   }
 
   buildJesteiWordsBento(root);
+  placeJesteiWordsAfterResults(root);
 
   const styxCover = root.querySelector("#styx-cover");
   if (styxCover) {

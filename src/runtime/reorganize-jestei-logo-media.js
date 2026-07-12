@@ -36,22 +36,18 @@ const MEDIA_ITEMS = [
   {
     href: "/assets/media/cases/jesteipool/01-logo/01/01.webp",
     label: "Шрифт, логотип и его варианты в дизайн-системе Jestei Pool",
-    section: "logo",
-  },
-  {
-    href: "/assets/media/cases/jesteipool/01-logo/02/01.webp",
-    label: "Устройство и построение логотипа Jestei Pool в деталях",
-    section: "logo",
-  },
-  {
-    href: "/assets/media/cases/jesteipool/01-logo/02/02.webp",
-    label: "Шрифт Druk Wide Bold, цвета и стили текста Jestei Pool",
-    section: "type",
   },
   {
     href: "/assets/media/cases/jesteipool/01-logo/02/03.webp",
     label: "Текстовый логотип Jestei Pool, его структура и элементы",
-    section: "logo",
+  },
+  {
+    href: "/assets/media/cases/jesteipool/01-logo/02/02.webp",
+    label: "Шрифт Druk Wide Bold, цвета и стили текста Jestei Pool",
+  },
+  {
+    href: "/assets/media/cases/jesteipool/01-logo/02/01.webp",
+    label: "Устройство и построение логотипа Jestei Pool в деталях",
   },
 ];
 
@@ -195,26 +191,8 @@ function collectMediaAnchors(root, typeGallery, logoSection) {
 }
 
 function mountReveal(composition) {
-  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-
-  if (reducedMotion || !("IntersectionObserver" in window)) {
-    composition.classList.add("is-visible");
-    return;
-  }
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      composition.classList.add("is-visible");
-      observer.disconnect();
-    },
-    {
-      rootMargin: "0px 0px -12%",
-      threshold: 0.08,
-    },
-  );
-
-  observer.observe(composition);
+  // The desktop reference layout must be stable in full-page screenshots before scroll.
+  composition.classList.add("is-visible");
 }
 
 export function reorganizeJesteiLogoMedia(root = document) {
@@ -265,17 +243,29 @@ export function reorganizeJesteiLogoMedia(root = document) {
   top.append(title, variants, lead);
 
   const { slider, track } = createLogoSlider(documentRef);
+  const depthReference = documentRef.createElement("figure");
+  depthReference.className = "jestei-logo__depth-reference";
+  depthReference.setAttribute("aria-label", "Объемные цветовые версии знака Jestei Pool");
 
-  MEDIA_ITEMS.forEach(({ href, section }) => {
+  const depthImage = documentRef.createElement("img");
+  depthImage.src = "/assets/jestei/branding/jestei-logo-depth-reference.png";
+  depthImage.alt = "";
+  depthImage.decoding = "async";
+  depthImage.loading = "eager";
+  depthImage.draggable = false;
+  depthReference.append(depthImage);
+
+  MEDIA_ITEMS.forEach(({ href }) => {
     const anchor = itemByPath.get(href);
     if (!anchor) return;
 
-    if (section === "logo") {
-      anchor.classList.add("jestei-logo__slide");
-      track.append(anchor);
-    } else {
-      typeGallery.append(anchor);
+    anchor.classList.add("jestei-logo__slide");
+    const image = anchor.querySelector("img");
+    if (image) {
+      image.loading = "eager";
+      image.decoding = "async";
     }
+    track.append(anchor);
   });
 
   typeGallery.setAttribute("aria-label", "типографическая система Jestei Pool");
@@ -283,7 +273,7 @@ export function reorganizeJesteiLogoMedia(root = document) {
   typeGallery.setAttribute("data-media-ratio", "landscape");
 
   logoSection.querySelector("[data-jestei-logo-gallery]")?.remove();
-  composition.append(top, inspector, slider);
+  composition.append(top, depthReference, inspector, slider);
   currentHead.replaceWith(composition);
   mountReveal(composition);
 }

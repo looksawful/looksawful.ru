@@ -1,7 +1,7 @@
 @media (min-width: 58.001rem) {
   main[data-showcase] #jestei-words [data-section-screen] {
-    inline-size: min(calc(100% - 4rem), 116rem);
-    max-inline-size: 116rem;
+    inline-size: min(calc(100% - 4rem), 82rem);
+    max-inline-size: 82rem;
     margin-inline: auto;
     padding-block: 1.25rem 2rem;
   }
@@ -193,5 +193,134 @@
   main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-book {
     border-radius: 1rem;
     clip-path: inset(0 round 1rem);
+  }
+
+  /* Screenshot lock: explicit words metrics and policy mockup. */
+  main[data-showcase] #jestei-words .jestei-words-bento {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    grid-template-rows: 14.85rem 6.85rem 9.9rem;
+    gap: 1rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--intro {
+    gap: 1.35rem;
+    padding-block-start: 0;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__title {
+    font-size: clamp(5.2rem, 5.45vw, 6.65rem);
+    font-weight: 800;
+    line-height: 0.86;
+    letter-spacing: 0;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__title [data-section-title-main] + [data-section-title-accent]::before {
+    content: " ";
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__title [data-section-title-accent] {
+    color: color-mix(in srgb, var(--black) 48%, var(--white));
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__lead {
+    max-inline-size: 38rem;
+    font-size: 1.09rem;
+    line-height: 1.36;
+    letter-spacing: 0;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.62rem;
+    align-items: stretch;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__metric {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    min-inline-size: 0;
+    padding: 1.15rem 1.25rem;
+    overflow: hidden;
+    border: var(--line);
+    border-radius: 0.85rem;
+    background: var(--white);
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__metric strong {
+    display: block;
+    color: var(--black);
+    font-size: clamp(3rem, 3.05vw, 3.65rem);
+    font-weight: 800;
+    line-height: 0.86;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__metric span {
+    display: block;
+    min-inline-size: 0;
+    color: color-mix(in srgb, var(--black) 45%, var(--white));
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact .jestei-words-bento__note,
+  main[data-showcase] #jestei-words .jestei-words-bento__card--fact > p {
+    display: none;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope {
+    gap: 1rem;
+    padding: 1.35rem 1.25rem;
+    border-radius: 1.2rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope > h3 {
+    font-size: clamp(3.4rem, 3.6vw, 4.4rem);
+    line-height: 0.88;
+    letter-spacing: 0;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope > p {
+    max-inline-size: 37rem;
+    font-size: 1.03rem;
+    line-height: 1.36;
+    letter-spacing: 0;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-shell {
+    padding: 0.72rem;
+    border-radius: 1.55rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-page {
+    padding-block-start: 2.2rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-page__content,
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-page__content--wide {
+    padding: 2.2rem 2.65rem 3rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-page h3 {
+    font-size: 0.92rem;
+    line-height: 1.05;
+    letter-spacing: 0;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-page p,
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-page li,
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-page td,
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-page th,
+  main[data-showcase] #jestei-words .jestei-words-bento__policy-slot .policy-page a {
+    font-size: 1.12rem;
+    line-height: 1.55;
+    letter-spacing: 0;
   }
 }
