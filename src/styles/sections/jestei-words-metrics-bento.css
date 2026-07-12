@@ -104,6 +104,80 @@
   aspect-ratio: var(--policy-screen-ratio);
 }
 
+@media (min-width: 43.001rem) {
+  .jestei-words-bento {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    grid-template-rows: auto auto minmax(clamp(7.6rem, 8.8cqi, 9.8rem), 1fr) minmax(clamp(12.4rem, 14.8cqi, 16.8rem), 1.65fr);
+    align-items: stretch;
+  }
+
+  .jestei-words-bento__card--intro .jestei-words-bento__title {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+    padding-inline: var(--jestei-words-pad) 0;
+    padding-block-start: clamp(0.2rem, 0.55cqi, 0.5rem);
+  }
+
+  .jestei-words-bento__card--intro .jestei-words-bento__lead {
+    grid-column: 1;
+    grid-row: 2;
+    max-inline-size: 46rem;
+    padding-inline: var(--jestei-words-pad) 0;
+    padding-block-end: clamp(1rem, 2.2cqi, 2rem);
+  }
+
+  .jestei-words-bento__card--fact {
+    grid-column: 1;
+    grid-row: 3;
+    block-size: 100%;
+  }
+
+  .jestei-words-bento__card--scope {
+    grid-column: 1;
+    grid-row: 4;
+    block-size: 100%;
+  }
+
+  .jestei-words-bento__card--policy {
+    grid-column: 2;
+    grid-row: 1 / 5;
+    align-self: start;
+    padding-block-start: 0;
+  }
+
+  .jestei-words-bento__policy-slot {
+    inline-size: 100%;
+  }
+
+  .jestei-words-bento__card--fact .jestei-words-bento__note,
+  .jestei-words-bento__card--fact > p {
+    align-content: start;
+    padding: clamp(0.72rem, 1.05cqi, 1rem);
+    column-gap: calc(var(--jestei-words-gap) + (2 * clamp(0.72rem, 1.05cqi, 1rem)));
+  }
+
+  .jestei-words-bento__card--fact strong {
+    font-size: clamp(1.35rem, 2.15cqi, 2rem);
+    line-height: 0.92;
+  }
+
+  .jestei-words-bento__card--fact .jestei-words-bento__note,
+  .jestei-words-bento__card--fact > p,
+  .jestei-words-bento__card--scope > p {
+    font-size: clamp(0.78rem, 0.88cqi, 0.98rem);
+    line-height: 1.32;
+  }
+
+  .jestei-words-bento__card--scope {
+    padding: clamp(1rem, 1.55cqi, 1.45rem);
+  }
+
+  .jestei-words-bento__card--scope > h3 {
+    font-size: clamp(2.25rem, 4.2cqi, 4rem);
+  }
+}
+
 @media (max-width: 43rem) {
   .jestei-words-bento {
     grid-template-rows: auto auto repeat(2, minmax(0, 1fr));
