@@ -1,6 +1,7 @@
 import { mountAll } from "./mount-engine.js";
 import { MOUNTS } from "./mounts.js";
 import { removeObsoleteCopy } from "./remove-obsolete-copy.js";
+import { reorganizeJesteiLogoMedia } from "./reorganize-jestei-logo-media.js";
 
 let initialized = false;
 
@@ -11,5 +12,6 @@ export async function initRuntime(root = document) {
 
   initialized = true;
   removeObsoleteCopy(root);
+  reorganizeJesteiLogoMedia(root);
   await mountAll(root, MOUNTS);
 }
