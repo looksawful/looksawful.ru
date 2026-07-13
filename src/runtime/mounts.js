@@ -29,7 +29,7 @@ export const MOUNTS = [
     id: "jesteiProcessScene",
     phase: "visual",
     selector: "#jestei-results .jestei-bento__card--manual",
-    load: () => import("../visuals/dom/jestei-process-scene.js"),
+    load: () => import("../visuals/dom/jestei-process-scene-live.js"),
     mount: (module, root) => module.mountJesteiProcessScene(root),
   },
   {
