@@ -1,5 +1,22 @@
 const SECTION_SELECTOR = "#styx-scanography";
 const VIDEO_SELECTOR = `${SECTION_SELECTOR} [data-scanography-videos] video`;
+const observedVideos = new WeakSet();
+
+let playbackObserver = null;
+let listenersInstalled = false;
+let scheduled = false;
+
+function setTextIfChanged(element, value) {
+  if (element && element.textContent !== value) {
+    element.textContent = value;
+  }
+}
+
+function setAttributeIfChanged(element, name, value) {
+  if (element && element.getAttribute(name) !== value) {
+    element.setAttribute(name, value);
+  }
+}
 
 function normalizeScanographyTitle(root = document) {
   const section = root.querySelector(SECTION_SELECTOR);
@@ -10,13 +27,13 @@ function normalizeScanographyTitle(root = document) {
   if (!title || !main) return;
 
   if (!title.hasAttribute("data-letter-ready")) {
-    main.textContent = "сканография";
-    if (accent) accent.textContent = "";
+    setTextIfChanged(main, "сканография");
+    setTextIfChanged(accent, "");
   }
 
-  title.setAttribute("aria-label", "сканография");
-  section.setAttribute("aria-label", "сканография");
-  section.setAttribute("data-chapter-title", "сканография");
+  setAttributeIfChanged(title, "aria-label", "сканография");
+  setAttributeIfChanged(section, "aria-label", "сканография");
+  setAttributeIfChanged(section, "data-chapter-title", "сканография");
 }
 
 function configureMutedVideo(video) {
@@ -52,11 +69,12 @@ function prepareScanographyVideos(root = document) {
   videos.forEach((video) => {
     configureMutedVideo(video);
 
-    if (video.dataset.scanographyPlaybackReady === "true") {
+    if (observedVideos.has(video)) {
       tryPlay(video);
       return;
     }
 
+    observedVideos.add(video);
     video.dataset.scanographyPlaybackReady = "true";
     video.addEventListener("loadeddata", () => tryPlay(video), { passive: true });
     video.addEventListener("canplay", () => tryPlay(video), { passive: true });
@@ -70,7 +88,7 @@ function prepareScanographyVideos(root = document) {
   });
 
   if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
+    playbackObserver ||= new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target;
@@ -86,17 +104,21 @@ function prepareScanographyVideos(root = document) {
       { rootMargin: "200px 0px", threshold: 0.01 },
     );
 
-    videos.forEach((video) => observer.observe(video));
+    videos.forEach((video) => playbackObserver.observe(video));
   } else {
     videos.forEach(tryPlay);
   }
 
   const retryPlayback = () => videos.forEach(tryPlay);
-  document.addEventListener("pointerdown", retryPlayback, { once: true, passive: true });
-  document.addEventListener("touchstart", retryPlayback, { once: true, passive: true });
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) retryPlayback();
-  });
+
+  if (!listenersInstalled) {
+    listenersInstalled = true;
+    document.addEventListener("pointerdown", retryPlayback, { once: true, passive: true });
+    document.addEventListener("touchstart", retryPlayback, { once: true, passive: true });
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) retryPlayback();
+    });
+  }
 
   requestAnimationFrame(retryPlayback);
   window.setTimeout(retryPlayback, 250);
@@ -104,8 +126,15 @@ function prepareScanographyVideos(root = document) {
 }
 
 function initialize() {
+  scheduled = false;
   normalizeScanographyTitle(document);
   prepareScanographyVideos(document);
+}
+
+function scheduleInitialize() {
+  if (scheduled) return;
+  scheduled = true;
+  requestAnimationFrame(initialize);
 }
 
 if (document.readyState === "loading") {
@@ -115,8 +144,7 @@ if (document.readyState === "loading") {
 }
 
 const observer = new MutationObserver(() => {
-  normalizeScanographyTitle(document);
-  prepareScanographyVideos(document);
+  scheduleInitialize();
 });
 
 observer.observe(document.documentElement, { childList: true, subtree: true });
