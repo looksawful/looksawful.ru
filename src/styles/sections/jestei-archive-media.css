@@ -72,12 +72,104 @@ main[data-showcase] .jestei-archive-media__canvas.visual-canvas {
 }
 
 main[data-showcase] #jestei-interface-archive {
-  margin-block: -0.25rem;
+  margin-block: -0.6rem;
+  overflow: visible;
 }
 
 main[data-showcase] .jestei-archive-media--interface .jestei-archive-media__surface {
+  --jestei-depth-y: 0px;
+  --jestei-depth-scale: 1;
+  --jestei-depth-space-x: 0px;
+  --jestei-depth-space-y: 0px;
   aspect-ratio: auto;
-  block-size: clamp(8.75rem, 13vw, 12.5rem);
+  block-size: clamp(10.5rem, 15vw, 15rem);
+}
+
+main[data-showcase]
+  .jestei-archive-media--interface
+  .jestei-archive-media__surface.is-scroll-depth-active {
+  transform: translate3d(0, var(--jestei-depth-y), 0);
+  will-change: transform;
+}
+
+main[data-showcase] .jestei-archive-media__source-canvas {
+  opacity: 0;
+  pointer-events: none;
+}
+
+main[data-showcase] .jestei-archive-media__depth-canvas {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: 100%;
+  border: 0;
+  background: var(--white);
+  pointer-events: none;
+  transform: scale(var(--jestei-depth-scale));
+  transform-origin: center;
+  will-change: transform;
+}
+
+main[data-showcase]
+  .jestei-archive-media--interface
+  .jestei-archive-media__surface.is-scroll-depth-active::before,
+main[data-showcase]
+  .jestei-archive-media--interface
+  .jestei-archive-media__surface.is-scroll-depth-active::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: -10%;
+  pointer-events: none;
+}
+
+main[data-showcase]
+  .jestei-archive-media--interface
+  .jestei-archive-media__surface.is-scroll-depth-active::before {
+  background:
+    radial-gradient(
+      circle at calc(28% + var(--jestei-depth-space-x)) calc(66% + var(--jestei-depth-space-y)),
+      rgba(178, 161, 234, 0.095) 0%,
+      rgba(178, 161, 234, 0) 48%
+    ),
+    radial-gradient(
+      circle at calc(76% - var(--jestei-depth-space-x)) calc(34% - var(--jestei-depth-space-y)),
+      rgba(21, 122, 255, 0.05) 0%,
+      rgba(21, 122, 255, 0) 44%
+    );
+  opacity: 0.52;
+  mix-blend-mode: multiply;
+  filter: blur(10px);
+  transform: translate3d(
+    calc(var(--jestei-depth-space-x) * -0.45),
+    calc(var(--jestei-depth-space-y) * -0.45),
+    0
+  );
+  will-change: transform;
+}
+
+main[data-showcase]
+  .jestei-archive-media--interface
+  .jestei-archive-media__surface.is-scroll-depth-active::after {
+  background:
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, 0.035) 100%),
+    linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0.36) 0%,
+      rgba(255, 255, 255, 0) 34%,
+      rgba(255, 255, 255, 0.18) 68%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  opacity: 0.58;
+  transform: translate3d(
+    calc(var(--jestei-depth-space-x) * 0.32),
+    calc(var(--jestei-depth-space-y) * 0.32),
+    0
+  );
+  will-change: transform;
 }
 
 main[data-showcase] #jestei-interface-archive::before,
@@ -94,13 +186,13 @@ main[data-showcase] #jestei-interface-archive::after {
 
 main[data-showcase] #jestei-interface-archive::before {
   inset-block-start: 0;
-  block-size: clamp(1rem, 2.3vw, 2rem);
+  block-size: clamp(1.4rem, 2.8vw, 2.6rem);
   background: linear-gradient(to bottom, var(--white) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
 main[data-showcase] #jestei-interface-archive::after {
   inset-block-end: 0;
-  block-size: clamp(1.25rem, 2.8vw, 2.35rem);
+  block-size: clamp(1.65rem, 3.3vw, 3rem);
   background: linear-gradient(to top, var(--white) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
@@ -217,7 +309,7 @@ main[data-showcase] #jestei-product-archive + #jestei-graphics {
 
 @media (max-width: 76rem) {
   main[data-showcase] .jestei-archive-media--interface .jestei-archive-media__surface {
-    block-size: clamp(7.75rem, 17vw, 10.25rem);
+    block-size: clamp(8.75rem, 19vw, 11.75rem);
   }
 
   main[data-showcase] .jestei-archive-media--product .jestei-archive-media__surface {
@@ -232,19 +324,19 @@ main[data-showcase] #jestei-product-archive + #jestei-graphics {
   }
 
   main[data-showcase] #jestei-interface-archive {
-    margin-block: -0.15rem;
+    margin-block: -0.35rem;
   }
 
   main[data-showcase] .jestei-archive-media--interface .jestei-archive-media__surface {
-    block-size: clamp(6.25rem, 24vw, 8.25rem);
+    block-size: clamp(7rem, 27vw, 9.25rem);
   }
 
   main[data-showcase] #jestei-interface-archive::before {
-    block-size: clamp(0.75rem, 4vw, 1.25rem);
+    block-size: clamp(0.9rem, 4.5vw, 1.4rem);
   }
 
   main[data-showcase] #jestei-interface-archive::after {
-    block-size: clamp(0.9rem, 5vw, 1.5rem);
+    block-size: clamp(1.05rem, 5.5vw, 1.65rem);
   }
 
   main[data-showcase] #jestei-results [data-section-screen] {
@@ -277,5 +369,20 @@ main[data-showcase] #jestei-product-archive + #jestei-graphics {
   main[data-showcase] .jestei-archive-media--product .jestei-archive-media__surface {
     aspect-ratio: auto;
     block-size: clamp(30rem, 128vw, 44rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-showcase]
+    .jestei-archive-media--interface
+    .jestei-archive-media__surface.is-scroll-depth-active,
+  main[data-showcase] .jestei-archive-media__depth-canvas,
+  main[data-showcase]
+    .jestei-archive-media--interface
+    .jestei-archive-media__surface.is-scroll-depth-active::before,
+  main[data-showcase]
+    .jestei-archive-media--interface
+    .jestei-archive-media__surface.is-scroll-depth-active::after {
+    transform: none;
   }
 }
