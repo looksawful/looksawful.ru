@@ -19,7 +19,8 @@ main[data-showcase] #jestei-graphics .jestei-graphics__head {
   overflow: visible;
 }
 
-main[data-showcase] #jestei-graphics .jestei-graphics__head > p {
+main[data-showcase] #jestei-graphics .jestei-graphics__head > p,
+main[data-showcase] #jestei-graphics .jestei-graphics__head::after {
   display: none;
 }
 
@@ -62,29 +63,97 @@ main[data-showcase] #jestei-graphics .jestei-graphics__title::after {
   white-space: nowrap;
 }
 
-main[data-showcase] #jestei-graphics .jestei-graphics__head::after {
+main[data-showcase] #jestei-graphics .jestei-graphics__body {
+  display: grid;
+  align-content: start;
+  min-block-size: 0;
+  padding-block: 0;
+}
+
+main[data-showcase] #jestei-graphics .jestei-graphics__body > [data-section-block] {
+  display: grid;
+  gap: clamp(1.35rem, 2.8vw, 2.5rem);
+  align-content: start;
+  min-block-size: 0;
+  padding-block: 0;
+}
+
+main[data-showcase] #jestei-graphics [data-section-body] [data-content-head] {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.7fr) minmax(0, 1.55fr);
+  gap: clamp(1rem, 2vw, 1.75rem);
+  align-items: stretch;
+  inline-size: 100%;
+  max-inline-size: none;
+  margin: 0;
+}
+
+main[data-showcase] #jestei-graphics [data-section-body] [data-content-head] > p {
+  display: none;
+}
+
+main[data-showcase] #jestei-graphics [data-section-body] [data-content-head]::before {
   content: "Оживили графический дизайн и креативы бренда: добавили иллюстрации, коллажи, градиенты и геометрические паттерны.";
   display: block;
-  max-inline-size: 58rem;
+  align-self: start;
+  max-inline-size: 30rem;
   margin: 0;
   color: color-mix(in srgb, var(--black) 72%, transparent);
-  font-size: clamp(1.04rem, 1.2vw, 1.28rem);
+  font-size: clamp(0.98rem, 1vw, 1.16rem);
   font-weight: 400;
   line-height: 1.38;
   letter-spacing: 0;
   text-wrap: pretty;
 }
 
-main[data-showcase] #jestei-graphics .jestei-graphics__body,
-main[data-showcase] #jestei-graphics .jestei-graphics__body > [data-section-block] {
+main[data-showcase] #jestei-graphics [data-section-body] .fact-grid--chapter {
   display: grid;
-  gap: 0;
-  align-content: start;
-  min-block-size: 0;
-  padding-block: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.55rem, 0.8vw, 0.75rem);
+  align-items: stretch;
+  inline-size: 100%;
+  max-inline-size: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-main[data-showcase] #jestei-graphics [data-section-body] [data-content-head],
+main[data-showcase] #jestei-graphics [data-section-body] .fact-grid--chapter li {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: clamp(0.45rem, 0.65vw, 0.65rem);
+  align-content: start;
+  min-inline-size: 0;
+  min-block-size: clamp(8.25rem, 10vw, 10.75rem);
+  margin: 0;
+  padding: clamp(0.7rem, 0.9vw, 0.9rem);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--black) 11%, transparent);
+  border-radius: clamp(12px, 1vw, 16px);
+  background: var(--white);
+}
+
+main[data-showcase] #jestei-graphics [data-section-body] .fact-grid--chapter li::before {
+  content: none;
+}
+
+main[data-showcase] #jestei-graphics [data-section-body] .fact-grid--chapter strong {
+  color: color-mix(in srgb, var(--black) 94%, var(--white));
+  font-size: clamp(1.65rem, 2.25vw, 2.65rem);
+  font-weight: 820;
+  line-height: 0.9;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+}
+
+main[data-showcase] #jestei-graphics [data-section-body] .fact-grid--chapter span {
+  max-inline-size: 24rem;
+  color: color-mix(in srgb, var(--black) 66%, var(--white));
+  font-size: clamp(0.72rem, 0.18vw + 0.69rem, 0.86rem);
+  line-height: 1.24;
+  text-wrap: pretty;
+}
+
 main[data-showcase] #jestei-graphics [data-section-body] [data-section-block] > p {
   display: none;
 }
@@ -133,6 +202,16 @@ main[data-showcase] #jestei-graphics [data-section-body]
   object-position: center;
 }
 
+@media (max-width: 58rem) {
+  main[data-showcase] #jestei-graphics [data-section-body] [data-content-head] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main[data-showcase] #jestei-graphics [data-section-body] [data-content-head]::before {
+    max-inline-size: 42rem;
+  }
+}
+
 @media (max-width: 72rem) {
   main[data-showcase] #jestei-graphics [data-section-body]
     [data-media-cluster][data-media-layout="grid"] {
@@ -152,10 +231,22 @@ main[data-showcase] #jestei-graphics [data-section-body]
     letter-spacing: -0.04em;
   }
 
-  main[data-showcase] #jestei-graphics .jestei-graphics__head::after {
-    max-inline-size: 36rem;
+  main[data-showcase] #jestei-graphics [data-section-body] [data-content-head] {
+    gap: clamp(0.9rem, 4vw, 1.25rem);
+  }
+
+  main[data-showcase] #jestei-graphics [data-section-body] [data-content-head]::before {
     font-size: clamp(0.98rem, 4.2vw, 1.12rem);
     line-height: 1.42;
+  }
+
+  main[data-showcase] #jestei-graphics [data-section-body] .fact-grid--chapter {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(0.55rem, 2.5vw, 0.75rem);
+  }
+
+  main[data-showcase] #jestei-graphics [data-section-body] .fact-grid--chapter li {
+    min-block-size: 0;
   }
 
   main[data-showcase] #jestei-graphics [data-section-body]
