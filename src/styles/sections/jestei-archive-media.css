@@ -1,7 +1,37 @@
+main[data-showcase] {
+  --jestei-stack-gutter: clamp(0.75rem, 2.4vw, 1.5rem);
+  --jestei-stack-max: 90rem;
+  --jestei-stack-width: min(
+    calc(100% - var(--jestei-stack-gutter) - var(--jestei-stack-gutter)),
+    var(--jestei-stack-max)
+  );
+}
+
+main[data-showcase] #jestei-cover,
+main[data-showcase] #jestei-results {
+  position: relative;
+  z-index: 2;
+}
+
+main[data-showcase] #jestei-cover {
+  margin-block-end: 0;
+}
+
+main[data-showcase] #jestei-cover [data-section-screen] {
+  padding-block-end: 0;
+}
+
+main[data-showcase] #jestei-cover [data-cover-head] {
+  inline-size: var(--jestei-stack-width);
+  max-inline-size: var(--jestei-stack-max);
+}
+
 main[data-showcase] .jestei-archive-media {
+  position: relative;
+  z-index: 1;
   inline-size: 100%;
   max-inline-size: none;
-  margin-block: clamp(0.5rem, 1.2vw, 1rem);
+  margin: 0;
   padding: 0;
   overflow: clip;
   background: var(--white);
@@ -11,9 +41,8 @@ main[data-showcase] .jestei-archive-media__surface {
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
-  inline-size: min(var(--page), 100%);
-  max-inline-size: min(var(--page-max), 100%);
-  aspect-ratio: 2 / 1;
+  inline-size: var(--jestei-stack-width);
+  max-inline-size: var(--jestei-stack-max);
   min-block-size: 0;
   margin-inline: auto;
   padding: 0;
@@ -42,9 +71,54 @@ main[data-showcase] .jestei-archive-media__canvas.visual-canvas {
   background: var(--white);
 }
 
+main[data-showcase] #jestei-interface-archive {
+  margin-block: -0.25rem;
+}
+
+main[data-showcase] .jestei-archive-media--interface .jestei-archive-media__surface {
+  aspect-ratio: auto;
+  block-size: clamp(8.75rem, 13vw, 12.5rem);
+}
+
+main[data-showcase] #jestei-interface-archive::before,
+main[data-showcase] #jestei-interface-archive::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset-inline-start: 50%;
+  inline-size: var(--jestei-stack-width);
+  max-inline-size: var(--jestei-stack-max);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+main[data-showcase] #jestei-interface-archive::before {
+  inset-block-start: 0;
+  block-size: clamp(1rem, 2.3vw, 2rem);
+  background: linear-gradient(to bottom, var(--white) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+main[data-showcase] #jestei-interface-archive::after {
+  inset-block-end: 0;
+  block-size: clamp(1.25rem, 2.8vw, 2.35rem);
+  background: linear-gradient(to top, var(--white) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+main[data-showcase] #jestei-results {
+  margin-block-start: 0;
+}
+
+main[data-showcase] #jestei-results [data-section-screen] {
+  inline-size: var(--jestei-stack-width);
+  max-inline-size: var(--jestei-stack-max);
+  margin-inline: auto;
+  padding-block-start: 0;
+  padding-inline: 0;
+}
+
 main[data-showcase] .jestei-archive-media--product .jestei-archive-media__surface {
-  inline-size: min(var(--page), 100%);
-  max-inline-size: min(var(--page-max), 100%);
+  inline-size: var(--jestei-stack-width);
+  max-inline-size: var(--jestei-stack-max);
   aspect-ratio: auto;
   block-size: clamp(28rem, 58vw, 52rem);
 }
@@ -54,14 +128,96 @@ main[data-showcase] #jestei-promo:has(+ #jestei-product-archive) {
   margin-block-end: 0;
 }
 
-main[data-showcase] #jestei-interface-archive + .section-component,
+main[data-showcase] #jestei-interface-archive + #jestei-results,
 main[data-showcase] #jestei-product-archive + #jestei-graphics {
-  margin-block-start: clamp(0.75rem, 1.6vw, 1.5rem);
+  margin-block-start: 0;
 }
 
-@media (max-width: 72rem) {
-  main[data-showcase] .jestei-archive-media__surface {
-    aspect-ratio: 16 / 9;
+@media (min-width: 76.001rem) {
+  main[data-showcase] #jestei-results {
+    --jestei-bento-gap: 1.2rem;
+    --jestei-bento-card-pad: 1.28rem;
+    --jestei-bento-radius: 1.48rem;
+    --jestei-results-top-row: 18.35rem;
+    --jestei-results-mid-row: 12.95rem;
+    --jestei-results-bottom-row: 17.8rem;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card {
+    padding: var(--jestei-bento-card-pad);
+    border-radius: var(--jestei-bento-radius);
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric strong,
+  main[data-showcase] #jestei-results .jestei-bento__card--price .jestei-bento__title--price strong {
+    font-size: clamp(4.5rem, 4.2vw, 5.1rem);
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric span {
+    font-size: clamp(3.05rem, 3vw, 3.6rem);
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--price .jestei-bento__title--price span {
+    font-size: clamp(1.15rem, 1.2vw, 1.35rem);
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--steps .jestei-bento__side-copy,
+  main[data-showcase] #jestei-results .jestei-bento__card--price p {
+    font-size: 1.02rem;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--manual {
+    padding: 1.5rem 1.42rem;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--manual .jestei-bento__title--mixed {
+    font-size: clamp(2.5rem, 2.9vw, 3.2rem);
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--manual .jestei-bento__title--mixed span {
+    font-size: 0.9rem;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--manual .jestei-bento__content > p {
+    font-size: 1.03rem;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--manual .jestei-bento__process-visual {
+    inset-block: 1.2rem 1rem;
+    inset-inline-end: 1rem;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--rebrand {
+    padding: 1.28rem 1.45rem 1.12rem;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--products,
+  main[data-showcase] #jestei-results .jestei-bento__card--audience {
+    padding: 1.18rem 1.32rem;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--rebrand .jestei-bento__title,
+  main[data-showcase] #jestei-results .jestei-bento__card--usa .jestei-bento__title {
+    font-size: clamp(2.2rem, 2.3vw, 2.7rem);
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--rebrand p {
+    font-size: 1.06rem;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__card--products .jestei-bento__title--regular,
+  main[data-showcase] #jestei-results .jestei-bento__card--audience .jestei-bento__title--regular {
+    font-size: 1.2rem;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__audience-avatar {
+    inline-size: clamp(5.2rem, 7.2vw, 8.6rem) !important;
+  }
+}
+
+@media (max-width: 76rem) {
+  main[data-showcase] .jestei-archive-media--interface .jestei-archive-media__surface {
+    block-size: clamp(7.75rem, 17vw, 10.25rem);
   }
 
   main[data-showcase] .jestei-archive-media--product .jestei-archive-media__surface {
@@ -70,24 +226,56 @@ main[data-showcase] #jestei-product-archive + #jestei-graphics {
   }
 }
 
-@media (max-width: 48rem) {
-  main[data-showcase] .jestei-archive-media {
-    margin-block: clamp(0.35rem, 2.4vw, 0.75rem);
+@media (max-width: 43rem) {
+  main[data-showcase] {
+    --jestei-stack-gutter: clamp(0.75rem, 3.8vw, 1rem);
   }
 
-  main[data-showcase] .jestei-archive-media__surface {
-    inline-size: min(var(--page), 100%);
-    max-inline-size: 100%;
-    aspect-ratio: 16 / 9;
+  main[data-showcase] #jestei-interface-archive {
+    margin-block: -0.15rem;
+  }
+
+  main[data-showcase] .jestei-archive-media--interface .jestei-archive-media__surface {
+    block-size: clamp(6.25rem, 24vw, 8.25rem);
+  }
+
+  main[data-showcase] #jestei-interface-archive::before {
+    block-size: clamp(0.75rem, 4vw, 1.25rem);
+  }
+
+  main[data-showcase] #jestei-interface-archive::after {
+    block-size: clamp(0.9rem, 5vw, 1.5rem);
+  }
+
+  main[data-showcase] #jestei-results [data-section-screen] {
+    display: block;
+    inline-size: var(--jestei-stack-width);
+    max-inline-size: var(--jestei-stack-max);
+    margin-inline: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-inline: 0;
+    scroll-padding-inline: var(--jestei-bento-page-x);
+    scroll-snap-type: inline mandatory;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  main[data-showcase] #jestei-results [data-section-screen]::-webkit-scrollbar {
+    display: none;
+  }
+
+  main[data-showcase] #jestei-results .jestei-bento__grid {
+    grid-auto-columns: calc(
+      100vw - var(--jestei-stack-gutter) - var(--jestei-stack-gutter) -
+        var(--jestei-bento-page-x) - var(--jestei-bento-page-x)
+    );
+    transform: none;
   }
 
   main[data-showcase] .jestei-archive-media--product .jestei-archive-media__surface {
     aspect-ratio: auto;
     block-size: clamp(30rem, 128vw, 44rem);
-  }
-
-  main[data-showcase] #jestei-interface-archive + .section-component,
-  main[data-showcase] #jestei-product-archive + #jestei-graphics {
-    margin-block-start: clamp(0.6rem, 3vw, 1rem);
   }
 }
