@@ -122,20 +122,6 @@ let deletedPlaceholders = 0;
 for (const repoPath of knownUnusedPlaceholders) {
   const absolute = path.join(rootDir, repoPath);
   if (!(await exists(absolute))) continue;
-  const publicPath = toPublicPath(repoPath);
-  let foundReference = false;
-  for (const filePath of textFiles) {
-    try {
-      const source = await fs.readFile(filePath, "utf8");
-      if (source.includes(publicPath) || source.includes(repoPath)) {
-        foundReference = true;
-        break;
-      }
-    } catch {
-      // Ignore unreadable text candidates.
-    }
-  }
-  if (foundReference) continue;
   const stat = await fs.stat(absolute);
   await fs.unlink(absolute);
   reclaimedBytes += stat.size;
