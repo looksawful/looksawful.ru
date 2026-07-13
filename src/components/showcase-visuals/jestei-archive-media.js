@@ -109,8 +109,8 @@ export const mountJesteiArchiveHorizontal = async (...args) => {
   prepareSurface(surface, "product");
   prepareProductMasonry(surface, canvas);
 
-  const { mountMasonry } = await import("../../visuals/canvas/landing-motion/masonry/index.js");
-  const dispose = await mountMasonry(...args);
+  const { mountJesteiProductGrid } = await import("../../visuals/canvas/product-grid/index.js");
+  const dispose = await mountJesteiProductGrid(...args);
   schedulePlacement();
   return dispose;
 };
