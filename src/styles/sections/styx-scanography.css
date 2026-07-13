@@ -7,7 +7,9 @@
 }
 
 .styx-scanography [data-section-title] {
+  inline-size: 100%;
   max-inline-size: 100%;
+  margin: 0;
   text-align: start;
   white-space: nowrap;
   overflow-wrap: normal;
@@ -16,13 +18,7 @@
 }
 
 .styx-scanography [data-section-title-main] {
-  font-size: 0;
-  white-space: nowrap;
-}
-
-.styx-scanography [data-section-title-main]::before {
-  content: "сканография";
-  font-size: clamp(2.45rem, 4.7vw, 5.15rem);
+  display: inline-block;
   white-space: nowrap;
 }
 
@@ -42,6 +38,8 @@
   display: block;
   inline-size: 100%;
   aspect-ratio: 1;
+  min-inline-size: 0;
+  background: var(--black);
   overflow: hidden;
 }
 
@@ -51,12 +49,11 @@
   display: block;
   inline-size: 100%;
   block-size: 100%;
-  aspect-ratio: 1;
   object-fit: contain;
   object-position: center;
+  pointer-events: none;
 }
 
-/* section-local-contract variables */
 #styx-scanography {
   --section-accent: #111111;
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
@@ -80,31 +77,28 @@
     inline-size: 100%;
     max-inline-size: 100%;
     margin: 0;
-    font-size: clamp(2.2rem, 12.6vw, 4.2rem);
-    line-height: 0.92;
-    letter-spacing: -0.035em;
+    font-size: clamp(2rem, 10.5vw, 3.45rem);
+    line-height: 0.94;
+    letter-spacing: -0.04em;
     white-space: nowrap;
     text-align: start;
   }
 
   .styx-scanography [data-section-title-main],
-  .styx-scanography [data-section-title-main]::before {
+  .styx-scanography [data-section-title-main] [data-reveal-char] {
     white-space: nowrap;
-  }
-
-  .styx-scanography [data-section-title-main]::before {
-    font-size: clamp(2.2rem, 12.6vw, 4.2rem);
   }
 
   .styx-scanography [data-scanography-videos] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(0.5rem, 2.4vw, 0.75rem);
+    gap: clamp(0.45rem, 2vw, 0.7rem);
     inline-size: 100%;
     max-inline-size: none;
     justify-self: stretch;
   }
 
   .styx-scanography [data-scanography-videos] > [data-section-media-item] {
+    inline-size: 100%;
     aspect-ratio: 1;
     min-inline-size: 0;
   }
@@ -114,6 +108,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: clamp(0.55rem, 2.5vw, 0.85rem);
     inline-size: 100%;
+    max-inline-size: 100%;
     margin-inline: 0;
     padding-inline: 0;
     overflow: visible;
