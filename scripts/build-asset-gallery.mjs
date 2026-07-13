@@ -27,27 +27,24 @@ const caseMediaDir = path.join(publicDir, "assets", "media", "cases");
 const manifestPath = path.join(publicDir, "assets", "gallery", "manifest.json");
 const mediaPattern = /\.(webp|png|jpe?g|gif|svg|mp4|webm)$/i;
 const videoPattern = /\.(mp4|webm)$/i;
-const imagePattern = /\.(webp|png|jpe?g|gif|svg)$/i;
 const ignoredCaseMediaPattern =
   /\/assets\/media\/cases\/jesteipool\/05-motion\/placeholders\/[^/]+-placeholder\.webp$/i;
+const ignoredGalleryServicePattern =
+  /\/assets\/gallery\/database\/vanila-draft\/(?:00-site|01-resume)\//i;
 
 const toPublicPath = (absolutePath) => `/${path.relative(publicDir, absolutePath).replaceAll(path.sep, "/")}`;
-
 const fromPublicPath = (publicPath) => path.join(publicDir, publicPath.replace(/^\//, ""));
-
 const normalizePublicPath = (value) => value.replaceAll("\\", "/").replace(/^public\//, "/");
 
 let sharpLoader;
 
 async function getSharp() {
   if (sharpLoader !== undefined) return sharpLoader;
-
   try {
     sharpLoader = (await import("sharp")).default;
   } catch {
     sharpLoader = null;
   }
-
   return sharpLoader;
 }
 
@@ -59,16 +56,11 @@ async function listMediaFiles(dir) {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     const result = [];
-
     for (const entry of entries) {
       const absolute = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        result.push(...(await listMediaFiles(absolute)));
-      } else if (mediaPattern.test(entry.name)) {
-        result.push(toPublicPath(absolute));
-      }
+      if (entry.isDirectory()) result.push(...(await listMediaFiles(absolute)));
+      else if (mediaPattern.test(entry.name)) result.push(toPublicPath(absolute));
     }
-
     return result.sort(naturalCompare);
   } catch (error) {
     if (error.code === "ENOENT") return [];
@@ -79,23 +71,16 @@ async function listMediaFiles(dir) {
 async function listHtmlFiles(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const result = [];
-
   for (const entry of entries) {
     if (entry.name.startsWith(".") && entry.name !== ".well-known") continue;
     if (htmlSkipDirs.has(entry.name)) continue;
-
     const absolute = path.join(dir, entry.name);
-
     if (entry.isDirectory()) {
       result.push(...(await listHtmlFiles(absolute)));
       continue;
     }
-
-    if (entry.isFile() && entry.name.toLowerCase().endsWith(".html")) {
-      result.push(absolute);
-    }
+    if (entry.isFile() && entry.name.toLowerCase().endsWith(".html")) result.push(absolute);
   }
-
   return result.sort(naturalCompare);
 }
 
@@ -103,27 +88,22 @@ async function readHtmlAssetPaths(htmlPath) {
   const html = await fs.readFile(htmlPath, "utf8");
   const paths = [];
   const seen = new Set();
-  const attrPattern = /\b(?:href|src)="(\/assets\/[^"]+\.(?:webp|png|jpe?g|gif|svg))"/gi;
+  const attrPattern = /\b(?:href|src)="(\/assets\/[^"]+\.(?:webp|png|jpe?g|gif|svg|mp4|webm))"/gi;
   let match = attrPattern.exec(html);
-
   while (match) {
     const assetPath = normalizePublicPath(match[1]);
-
     if (!seen.has(assetPath)) {
       seen.add(assetPath);
       paths.push(assetPath);
     }
-
     match = attrPattern.exec(html);
   }
-
   return paths;
 }
 
 async function readSiteAssetPaths() {
   const paths = [];
   const seen = new Set();
-
   for (const htmlPath of await listHtmlFiles(rootDir)) {
     for (const assetPath of await readHtmlAssetPaths(htmlPath)) {
       if (seen.has(assetPath)) continue;
@@ -131,7 +111,6 @@ async function readSiteAssetPaths() {
       paths.push(assetPath);
     }
   }
-
   return paths;
 }
 
@@ -153,19 +132,13 @@ async function resolveVideoPoster(publicPath) {
 async function readDimensions(publicPath, type) {
   const sourcePath = type === "video" ? await resolveVideoPoster(publicPath) : publicPath;
   if (!sourcePath) return { width: 0, height: 0, ratio: 1 };
-
   const sharp = await getSharp();
   if (!sharp) return { width: 0, height: 0, ratio: 1 };
-
   try {
     const meta = await sharp(fromPublicPath(sourcePath)).metadata();
     const width = Number(meta.width || 0);
     const height = Number(meta.height || 0);
-    return {
-      width,
-      height,
-      ratio: width && height ? width / height : 1,
-    };
+    return { width, height, ratio: width && height ? width / height : 1 };
   } catch {
     return { width: 0, height: 0, ratio: 1 };
   }
@@ -173,17 +146,23 @@ async function readDimensions(publicPath, type) {
 
 function inferProject(publicPath) {
   const normalized = publicPath.toLowerCase();
-
   if (normalized.includes("/jesteipool/") || normalized.includes("/jestei/") || normalized.includes("jestei-pool")) return "jesteipool";
   if (normalized.includes("/styx/") || normalized.includes("styx-jewel")) return "styx";
-  if (normalized.includes("/shootings/") || normalized.includes("/shoots/") || normalized.includes("photography")) return "shootings";
-  if (publicPath.includes("/pets/")) return "pets";
+  if (
+    normalized.includes("/shootings/") ||
+    normalized.includes("/shoots/") ||
+    normalized.includes("photography") ||
+    normalized.includes("model shootings") ||
+    normalized.includes("/berry-agency/") ||
+    normalized.includes("/s-and-s/") ||
+    normalized.includes("/sensetique/")
+  ) return "shootings";
+  if (normalized.includes("/03-pet-projects/") || normalized.includes("/pets/")) return "pets";
   return "pets";
 }
 
 function inferCategory(publicPath, project, type) {
   const normalized = publicPath.toLowerCase();
-
   if (project === "shootings") return "photo";
   if (type === "video") return "ad";
   if (normalized.includes("photo") || normalized.includes("shoot")) return "photo";
@@ -205,10 +184,33 @@ function inferCategory(publicPath, project, type) {
   return "illustration";
 }
 
+function slugToken(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function getDraftMeta(publicPath) {
+  const marker = "/assets/gallery/database/vanila-draft/";
+  const index = publicPath.indexOf(marker);
+  if (index < 0) return null;
+  const relativePath = publicPath.slice(index + marker.length);
+  const parts = relativePath.split("/").filter(Boolean);
+  const collection = parts[0] || "";
+  const group = parts.length > 2 ? parts[1] : "";
+  const folder = parts.length > 1 ? parts.slice(0, -1).join("/") : "";
+  const parsed = path.posix.parse(relativePath);
+  const originalNameMatch = parsed.name.match(/^(.*)--([a-z0-9]+)$/i);
+  const originalFile = originalNameMatch ? `${originalNameMatch[1]}.${originalNameMatch[2]}` : path.posix.basename(relativePath);
+  const sourcePath = path.posix.join("media", parsed.dir, originalFile);
+  return { source: "vanila-draft", sourceRoot: "media", sourcePath, databasePath: relativePath, collection, group, folder };
+}
+
 function inferTags(publicPath, project, type) {
   const tags = new Set();
   const draftMeta = getDraftMeta(publicPath);
-
   if (type === "video" || publicPath.includes("motion")) tags.add("motion");
   if (publicPath.includes("color") || publicPath.includes("branding")) tags.add("color");
   if (publicPath.includes("form") || publicPath.includes("landing") || publicPath.includes("motion")) tags.add("landing");
@@ -221,7 +223,6 @@ function inferTags(publicPath, project, type) {
     if (draftMeta.collection) tags.add(slugToken(draftMeta.collection));
     if (draftMeta.group) tags.add(slugToken(draftMeta.group));
   }
-
   return [...tags];
 }
 
@@ -239,42 +240,6 @@ function makeTitle(publicPath) {
   return file.replace(/[-_]+/g, " ");
 }
 
-function slugToken(value) {
-  return String(value || "")
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function getDraftMeta(publicPath) {
-  const marker = "/assets/gallery/database/vanila-draft/";
-  const index = publicPath.indexOf(marker);
-  if (index < 0) return null;
-
-  const relativePath = publicPath.slice(index + marker.length);
-  const parts = relativePath.split("/").filter(Boolean);
-  const collection = parts[0] || "";
-  const group = parts.length > 2 ? parts[1] : "";
-  const folder = parts.length > 1 ? parts.slice(0, -1).join("/") : "";
-  const parsed = path.posix.parse(relativePath);
-  const originalNameMatch = parsed.name.match(/^(.*)--([a-z0-9]+)$/i);
-  const originalFile = originalNameMatch
-    ? `${originalNameMatch[1]}.${originalNameMatch[2]}`
-    : path.posix.basename(relativePath);
-  const sourcePath = path.posix.join("media", parsed.dir, originalFile);
-
-  return {
-    source: "vanila-draft",
-    sourceRoot: "media",
-    sourcePath,
-    databasePath: relativePath,
-    collection,
-    group,
-    folder,
-  };
-}
-
 async function createItem(publicPath, index) {
   const type = videoPattern.test(publicPath) ? "video" : "image";
   const project = inferProject(publicPath);
@@ -283,7 +248,6 @@ async function createItem(publicPath, index) {
   const dimensions = await readDimensions(publicPath, type);
   const poster = type === "video" ? await resolveVideoPoster(publicPath) : "";
   const draftMeta = getDraftMeta(publicPath);
-
   return {
     id: `asset-${String(index + 1).padStart(3, "0")}`,
     src: publicPath,
@@ -305,46 +269,24 @@ async function main() {
   await fs.mkdir(databaseDir, { recursive: true });
   await fs.mkdir(customDir, { recursive: true });
   await fs.mkdir(path.dirname(manifestPath), { recursive: true });
-
   const paths = [];
   const seen = new Set();
   const addPath = async (assetPath) => {
     if (!mediaPattern.test(assetPath)) return;
-    if (!imagePattern.test(assetPath)) return;
     if (ignoredCaseMediaPattern.test(assetPath)) return;
+    if (ignoredGalleryServicePattern.test(assetPath)) return;
     if (seen.has(assetPath)) return;
     if (!(await fileExists(assetPath))) return;
-
     seen.add(assetPath);
     paths.push(assetPath);
   };
-
-  for (const assetPath of await readSiteAssetPaths()) {
-    await addPath(assetPath);
-  }
-
-  for (const assetPath of await listMediaFiles(caseMediaDir)) {
-    await addPath(assetPath);
-  }
-
-  for (const assetPath of await listMediaFiles(databaseDir)) {
-    await addPath(assetPath);
-  }
-
-  for (const assetPath of await listMediaFiles(customDir)) {
-    await addPath(assetPath);
-  }
-
+  for (const assetPath of await readSiteAssetPaths()) await addPath(assetPath);
+  for (const assetPath of await listMediaFiles(caseMediaDir)) await addPath(assetPath);
+  for (const assetPath of await listMediaFiles(databaseDir)) await addPath(assetPath);
+  for (const assetPath of await listMediaFiles(customDir)) await addPath(assetPath);
   const items = [];
-  for (const [index, assetPath] of paths.entries()) {
-    items.push(await createItem(assetPath, index));
-  }
-
-  const manifest = {
-    sources: ["site html", "/assets/media/cases", "/assets/gallery/database", "/assets/gallery/custom"],
-    items,
-  };
-
+  for (const [index, assetPath] of paths.entries()) items.push(await createItem(assetPath, index));
+  const manifest = { sources: ["site html", "/assets/media/cases", "/assets/gallery/database", "/assets/gallery/custom"], items };
   await fs.writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   console.log(`asset gallery: ${items.length} files -> ${path.relative(rootDir, manifestPath)}`);
 }
