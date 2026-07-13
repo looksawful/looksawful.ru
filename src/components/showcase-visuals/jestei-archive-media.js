@@ -2,6 +2,7 @@ const INTERFACE_CANVAS_ID = "archive-jestei-interface-masonry";
 const PRODUCT_CANVAS_ID = "archive-jestei-product-horizontal";
 const INTERFACE_SECTION_ID = "jestei-interface-archive";
 const PRODUCT_SECTION_ID = "jestei-product-archive";
+const JESTEI_COVER_ID = "jestei-cover";
 const PRODUCT_MASONRY_SCENE = "jesteiProductDesignMasonry";
 
 const setVisible = (element) => {
@@ -46,6 +47,7 @@ const prepareProductMasonry = (surface, canvas) => {
 };
 
 export const placeJesteiArchiveCanvases = (root = document) => {
+  const cover = root.querySelector(`#${JESTEI_COVER_ID}`);
   const results = root.querySelector("#jestei-results");
   const graphics = root.querySelector("#jestei-graphics");
   const archive = root.querySelector(`#${INTERFACE_SECTION_ID}`);
@@ -70,7 +72,12 @@ export const placeJesteiArchiveCanvases = (root = document) => {
   archive.removeAttribute("data-chapter-title");
   archive.replaceChildren(interfaceSurface);
   setVisible(archive);
-  results.insertAdjacentElement("afterend", archive);
+
+  if (cover) {
+    cover.insertAdjacentElement("afterend", archive);
+  } else {
+    results.insertAdjacentElement("beforebegin", archive);
+  }
 
   let productSection = root.querySelector(`#${PRODUCT_SECTION_ID}`);
   if (!productSection) {
