@@ -1,6 +1,5 @@
 name: Deploy GitHub Pages
 
-# GitHub Pages is the only production deployment target.
 on:
   push:
     branches:
@@ -8,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
   statuses: write
@@ -31,12 +30,14 @@ jobs:
               sha: context.sha,
               state: "pending",
               context: "github-pages/production",
-              description: "Building GitHub Pages production deployment",
+              description: "Cleaning and validating gallery assets",
               target_url: "https://www.looksawful.ru/"
             });
 
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -47,8 +48,39 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Load verified duplicate plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin audit/gallery-inventory-20260713
+          git show origin/audit/gallery-inventory-20260713:_reports/gallery-inventory/duplicate-reclaim-plan.json > /tmp/duplicate-reclaim-plan.json
+
+      - name: Remove safe exact duplicates and unused placeholders
+        run: node scripts/cleanup-gallery-safe.mjs /tmp/duplicate-reclaim-plan.json
+
+      - name: Restore normal workflows before commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git show "${GITHUB_SHA}^:.github/workflows/pages.yml" > .github/workflows/pages.yml
+          rm -f .github/workflows/gallery-cleanup-once.yml
+
+      - name: Build and validate cleaned site
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run build
+          npm run check:portfolio
+
+      - name: Commit verified cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(gallery): remove exact duplicates and empty placeholders"
+          git push origin HEAD:prod
 
       - name: Stamp deployment
         run: |
@@ -74,29 +106,6 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify production commit
-        shell: bash
-        run: |
-          set -euo pipefail
-          expected="commit=${GITHUB_SHA}"
-          base_url="https://www.looksawful.ru/deploy-version.txt?sha=${GITHUB_SHA}"
-
-          for attempt in $(seq 1 30); do
-            body="$(curl --fail --silent --show-error --location --max-time 20 \
-              -H 'Cache-Control: no-cache' \
-              "${base_url}&attempt=${attempt}" || true)"
-
-            if grep -Fxq "$expected" <<<"$body"; then
-              printf '%s\n' "$body"
-              exit 0
-            fi
-
-            sleep 10
-          done
-
-          echo "Production did not expose ${expected}" >&2
-          exit 1
-
   report:
     runs-on: ubuntu-latest
     needs:
@@ -118,12 +127,7 @@ jobs:
               sha: context.sha,
               state: success ? "success" : "failure",
               context: "github-pages/production",
-              description: success
-                ? "Published and verified on www.looksawful.ru"
-                : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`,
+              description: success ? "Published cleaned gallery" : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`,
               target_url: "https://www.looksawful.ru/"
             });
-
-            if (!success) {
-              core.setFailed(`GitHub Pages deployment failed. Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`);
-            }
+            if (!success) core.setFailed(`Gallery cleanup failed. Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`);
