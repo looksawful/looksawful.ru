@@ -48,7 +48,7 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Run cleanup and validation with diagnostics
+      - name: Run cleanup and deterministic validation
         id: cleanup
         continue-on-error: true
         shell: bash
@@ -61,18 +61,7 @@ jobs:
             git show 7764a131d7b1bc2728b2323ae94f7cdc73c4032a:.github/workflows/pages.yml > .github/workflows/pages.yml
             rm -f .github/workflows/gallery-cleanup-once.yml
             npm run build
-            npx playwright install --with-deps chromium
-            npm run preview -- --host 127.0.0.1 > /tmp/gallery-preview.log 2>&1 &
-            PREVIEW_PID=$!
-            trap 'kill ${PREVIEW_PID} 2>/dev/null || true' EXIT
-            for attempt in $(seq 1 30); do
-              if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
-                break
-              fi
-              sleep 1
-            done
-            curl --fail --silent http://127.0.0.1:4173/ > /dev/null
-            npm run check:portfolio
+            node scripts/validate-gallery-cleanup.mjs /tmp/duplicate-reclaim-plan.json
           } 2>&1 | tee /tmp/gallery-cleanup.log
 
       - name: Publish cleanup diagnostics
