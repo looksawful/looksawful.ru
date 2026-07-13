@@ -1,0 +1,38 @@
+/* Final bento safety layer: keep the avatar anchored and remove the old step-trace animation. */
+main[data-showcase] #jestei-results .jestei-bento__grid {
+  position: relative;
+}
+
+main[data-showcase] #jestei-results .jestei-bento__audience-avatar {
+  position: absolute !important;
+  z-index: 20;
+  inset-block-start: 63% !important;
+  inset-inline-start: 75% !important;
+  inline-size: clamp(5.8rem, 8vw, 9.6rem) !important;
+  block-size: auto !important;
+  aspect-ratio: 0.96;
+  margin: 0 !important;
+  transform: translate(-50%, -50%) !important;
+  pointer-events: none;
+  user-select: none;
+}
+
+main[data-showcase] #jestei-results .jestei-bento__audience-avatar img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  object-fit: contain;
+}
+
+main[data-showcase] #jestei-results .jestei-bento__steps-visual {
+  display: none !important;
+}
+
+@media (max-width: 43rem) {
+  main[data-showcase] #jestei-results .jestei-bento__audience-avatar {
+    inset-block-start: 62% !important;
+    inset-inline-start: 75% !important;
+    inline-size: clamp(5rem, 28cqi, 7.25rem) !important;
+  }
+}

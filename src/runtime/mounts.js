@@ -26,13 +26,6 @@ export const MOUNTS = [
     mount: (module, root) => module.initComponents(root),
   },
   {
-    id: "jesteiStepsScene",
-    phase: "visual",
-    selector: "#jestei-results .jestei-bento__card--steps",
-    load: () => import("../visuals/dom/jestei-steps-scene.js"),
-    mount: (module, root) => module.mountJesteiStepsScene(root),
-  },
-  {
     id: "jesteiProcessScene",
     phase: "visual",
     selector: "#jestei-results .jestei-bento__card--manual",
