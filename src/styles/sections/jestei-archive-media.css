@@ -18,6 +18,8 @@ main[data-showcase] .jestei-archive-media__surface {
   overflow: hidden;
   border: 0;
   border-radius: 0;
+  outline: 0;
+  box-shadow: none;
   background: var(--white);
 }
 
@@ -30,7 +32,16 @@ main[data-showcase] .jestei-archive-media__canvas.visual-canvas {
   padding: 0;
   border: 0;
   border-radius: 0;
+  outline: 0;
+  box-shadow: none;
   background: var(--white);
+}
+
+main[data-showcase] .jestei-archive-media--product .jestei-archive-media__surface {
+  inline-size: 100%;
+  max-inline-size: none;
+  aspect-ratio: auto;
+  block-size: clamp(28rem, 58vw, 52rem);
 }
 
 main[data-showcase] #jestei-results:has(+ #jestei-interface-archive),
@@ -47,6 +58,11 @@ main[data-showcase] #jestei-product-archive + #jestei-graphics {
   main[data-showcase] .jestei-archive-media__surface {
     aspect-ratio: 16 / 9;
   }
+
+  main[data-showcase] .jestei-archive-media--product .jestei-archive-media__surface {
+    aspect-ratio: auto;
+    block-size: clamp(28rem, 78vw, 46rem);
+  }
 }
 
 @media (max-width: 48rem) {
@@ -56,6 +72,11 @@ main[data-showcase] #jestei-product-archive + #jestei-graphics {
 
   main[data-showcase] .jestei-archive-media__surface {
     aspect-ratio: 16 / 9;
+  }
+
+  main[data-showcase] .jestei-archive-media--product .jestei-archive-media__surface {
+    aspect-ratio: auto;
+    block-size: clamp(30rem, 128vw, 44rem);
   }
 
   main[data-showcase] #jestei-interface-archive + .section-component,
