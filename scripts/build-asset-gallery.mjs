@@ -28,6 +28,8 @@ const manifestPath = path.join(publicDir, "assets", "gallery", "manifest.json");
 const mediaPattern = /\.(webp|png|jpe?g|gif|svg|mp4|webm)$/i;
 const videoPattern = /\.(mp4|webm)$/i;
 const imagePattern = /\.(webp|png|jpe?g|gif|svg)$/i;
+const ignoredCaseMediaPattern =
+  /\/assets\/media\/cases\/jesteipool\/05-motion\/placeholders\/[^/]+-placeholder\.webp$/i;
 
 const toPublicPath = (absolutePath) => `/${path.relative(publicDir, absolutePath).replaceAll(path.sep, "/")}`;
 
@@ -309,6 +311,7 @@ async function main() {
   const addPath = async (assetPath) => {
     if (!mediaPattern.test(assetPath)) return;
     if (!imagePattern.test(assetPath)) return;
+    if (ignoredCaseMediaPattern.test(assetPath)) return;
     if (seen.has(assetPath)) return;
     if (!(await fileExists(assetPath))) return;
 
