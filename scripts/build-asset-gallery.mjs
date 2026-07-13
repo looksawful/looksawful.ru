@@ -23,6 +23,7 @@ const htmlSkipDirs = new Set([
 ]);
 const databaseDir = path.join(publicDir, "assets", "gallery", "database");
 const customDir = path.join(publicDir, "assets", "gallery", "custom");
+const caseMediaDir = path.join(publicDir, "assets", "media", "cases");
 const manifestPath = path.join(publicDir, "assets", "gallery", "manifest.json");
 const mediaPattern = /\.(webp|png|jpe?g|gif|svg|mp4|webm)$/i;
 const videoPattern = /\.(mp4|webm)$/i;
@@ -319,6 +320,10 @@ async function main() {
     await addPath(assetPath);
   }
 
+  for (const assetPath of await listMediaFiles(caseMediaDir)) {
+    await addPath(assetPath);
+  }
+
   for (const assetPath of await listMediaFiles(databaseDir)) {
     await addPath(assetPath);
   }
@@ -333,7 +338,7 @@ async function main() {
   }
 
   const manifest = {
-    sources: ["site html", "/assets/gallery/database", "/assets/gallery/custom"],
+    sources: ["site html", "/assets/media/cases", "/assets/gallery/database", "/assets/gallery/custom"],
     items,
   };
 
