@@ -7,19 +7,55 @@
 }
 
 .styx-scanography [data-section-title] {
-  max-inline-size: min(100%, 15ch);
+  max-inline-size: 100%;
+  text-align: start;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: none;
+}
+
+.styx-scanography [data-section-title-main] {
+  font-size: 0;
+  white-space: nowrap;
+}
+
+.styx-scanography [data-section-title-main]::before {
+  content: "сканография";
+  font-size: clamp(2.45rem, 4.7vw, 5.15rem);
+  white-space: nowrap;
+}
+
+.styx-scanography [data-section-title-accent] {
+  display: none;
 }
 
 .styx-scanography [data-scanography-videos] {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(10px, 1.6vw, 18px);
+  inline-size: 100%;
+}
+
+.styx-scanography [data-scanography-videos] > [data-section-media-item] {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
 }
 
 .styx-scanography [data-scanography-videos] :where(video, img) {
+  position: absolute;
+  inset: 0;
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
   aspect-ratio: 1;
   object-fit: contain;
+  object-position: center;
 }
+
 /* section-local-contract variables */
 #styx-scanography {
   --section-accent: #111111;
@@ -31,3 +67,73 @@
   --section-local-media-fit: cover;
 }
 
+@media (max-width: 48rem) {
+  .styx-scanography [data-section-screen] {
+    row-gap: clamp(1.4rem, 5vw, 2.4rem);
+  }
+
+  .styx-scanography [data-chapter-head] {
+    gap: clamp(1rem, 4vw, 1.6rem);
+  }
+
+  .styx-scanography [data-section-title] {
+    inline-size: 100%;
+    max-inline-size: 100%;
+    margin: 0;
+    font-size: clamp(2.2rem, 12.6vw, 4.2rem);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    white-space: nowrap;
+    text-align: start;
+  }
+
+  .styx-scanography [data-section-title-main],
+  .styx-scanography [data-section-title-main]::before {
+    white-space: nowrap;
+  }
+
+  .styx-scanography [data-section-title-main]::before {
+    font-size: clamp(2.2rem, 12.6vw, 4.2rem);
+  }
+
+  .styx-scanography [data-scanography-videos] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.5rem, 2.4vw, 0.75rem);
+    inline-size: 100%;
+    max-inline-size: none;
+    justify-self: stretch;
+  }
+
+  .styx-scanography [data-scanography-videos] > [data-section-media-item] {
+    aspect-ratio: 1;
+    min-inline-size: 0;
+  }
+
+  .styx-scanography [aria-label="styx combined scanography gallery"] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.55rem, 2.5vw, 0.85rem);
+    inline-size: 100%;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .styx-scanography [aria-label="styx combined scanography gallery"] > [data-section-media-item] {
+    display: block;
+    min-inline-size: 0;
+    inline-size: 100%;
+    aspect-ratio: 1;
+    scroll-snap-align: none;
+    overflow: hidden;
+  }
+
+  .styx-scanography [aria-label="styx combined scanography gallery"] img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+}
