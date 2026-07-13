@@ -1,3 +1,4 @@
+import "../styx-scanography-fixes.js";
 import { mountAll } from "./mount-engine.js";
 import { MOUNTS } from "./mounts.js";
 import { removeObsoleteCopy } from "./remove-obsolete-copy.js";
