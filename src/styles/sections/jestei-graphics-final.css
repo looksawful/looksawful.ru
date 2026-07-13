@@ -226,3 +226,5 @@ main[data-showcase] #jestei-graphics [data-media-cluster][data-media-layout="gri
     gap: clamp(0.45rem, 2vw, 0.65rem);
   }
 }
+
+/* Source HTML is authoritative; no runtime cleanup is used for this section. */
