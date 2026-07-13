@@ -3,8 +3,6 @@
 }
 
 .jestei-motion-break {
-  display: grid;
-  grid-template-columns: minmax(var(--page-x), 1fr) minmax(0, var(--page-max)) minmax(var(--page-x), 1fr);
   inline-size: 100%;
   max-inline-size: none;
   margin-block: clamp(0.75rem, 1.8vw, 1.75rem);
@@ -16,12 +14,11 @@
 .jestei-motion-break__surface {
   position: relative;
   isolation: isolate;
-  grid-column: 2;
-  inline-size: 100%;
-  max-inline-size: none;
+  inline-size: var(--page);
+  max-inline-size: var(--page-max);
   aspect-ratio: 2 / 1;
   min-block-size: 0;
-  margin: 0;
+  margin-inline: auto;
   padding: 0;
   overflow: hidden;
   border: 0;
@@ -50,13 +47,6 @@
 
 @media (max-width: 48rem) {
   .jestei-motion-break {
-    grid-template-columns: minmax(0, 1fr);
     margin-block: clamp(0.5rem, 3vw, 1rem);
-    padding-inline: var(--page-x);
-  }
-
-  .jestei-motion-break__surface {
-    grid-column: 1;
-    aspect-ratio: 16 / 9;
   }
 }
