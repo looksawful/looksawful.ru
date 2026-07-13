@@ -18,6 +18,8 @@ const TEXT_CORRECTIONS = [
   [/next\.js/giu, "Next.js"],
   [/ui\/ux/giu, "UI/UX"],
   [/ux\/ui/giu, "UX/UI"],
+  [/UI\/UX lead/gu, "UI/UX-лид"],
+  [/UX\/UI lead/gu, "UX/UI-лид"],
   [/\bux\b/gu, "UX"],
   [/\bui\b/gu, "UI"],
   [/\bcjm\b/giu, "CJM"],
