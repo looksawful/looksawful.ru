@@ -50,6 +50,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify Jestei process animation
+        run: npm run check:jestei-process
+
       - name: Stamp deployment
         run: |
           printf 'commit=%s\n' "$GITHUB_SHA" > dist/deploy-version.txt
