@@ -44,10 +44,11 @@
 #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric strong,
 #jestei-results .jestei-bento__card--price .jestei-bento__title--price strong {
   display: inline;
-  font-size: clamp(2.55rem, 13cqi, 4.45rem);
-  font-weight: 800;
+  font-size: clamp(2.42rem, 12.2cqi, 4.18rem);
+  font-weight: 700;
+  color: #171717;
   line-height: 0.88;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 
@@ -93,6 +94,13 @@
 
 #jestei-results .jestei-bento__card--manual .jestei-bento__title--mixed {
   gap: clamp(0.36rem, 1.05cqi, 0.72rem);
+}
+
+#jestei-results .jestei-bento__card--manual .jestei-bento__title--mixed strong {
+  font-size: 0.94em;
+  font-weight: 700;
+  color: #171717;
+  letter-spacing: 0;
 }
 
 #jestei-results .jestei-bento__card--manual .jestei-bento__title--mixed span {
@@ -254,7 +262,7 @@
 @media (max-width: 43rem) {
   #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric strong,
   #jestei-results .jestei-bento__card--price .jestei-bento__title--price strong {
-    font-size: clamp(1.45rem, 12cqi, 2.15rem);
+    font-size: clamp(1.38rem, 11.4cqi, 2.02rem);
   }
 
   #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric span,
@@ -332,7 +340,7 @@
 @media (max-width: 25rem) {
   #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric strong,
   #jestei-results .jestei-bento__card--price .jestei-bento__title--price strong {
-    font-size: clamp(1.35rem, 11.5cqi, 1.75rem);
+    font-size: clamp(1.28rem, 10.9cqi, 1.64rem);
   }
 
   #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric span,

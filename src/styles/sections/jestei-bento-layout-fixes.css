@@ -219,9 +219,9 @@ main[data-showcase] #jestei-results .jestei-bento__card--usa .jestei-bento__cont
   }
 
   #jestei-results .jestei-bento__card--price .jestei-bento__title--price strong {
-    font-size: clamp(2.45rem, 15cqi, 3.25rem);
+    font-size: clamp(2.32rem, 14.2cqi, 3.05rem);
     line-height: 0.88;
-    letter-spacing: -0.05em;
+    letter-spacing: 0;
   }
 
   #jestei-results .jestei-bento__card--price .jestei-bento__title--price span {
@@ -280,7 +280,7 @@ main[data-showcase] #jestei-results .jestei-bento__card--usa .jestei-bento__cont
   }
 
   #jestei-results .jestei-bento__card--price .jestei-bento__title--price strong {
-    font-size: clamp(2.25rem, 14cqi, 2.8rem);
+    font-size: clamp(2.12rem, 13.4cqi, 2.62rem);
   }
 
   #jestei-results .jestei-bento__card--rebrand .jestei-bento__content {

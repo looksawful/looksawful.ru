@@ -47,6 +47,7 @@ function initializeScene(svg) {
   const ERASE = 7600;
   const CYCLE = DRAW + HOLD + ERASE;
   const SPEED = 1.012;
+  const START_OFFSET = 2600;
   const items = [];
   const ports = [];
 
@@ -267,10 +268,11 @@ function initializeScene(svg) {
   let startTime = null;
   let raf = 0;
   let active = false;
+  let viewportSyncRaf = 0;
 
   function frame(now) {
     if (!active) return;
-    if (startTime == null) startTime = now;
+    if (startTime == null) startTime = now - START_OFFSET / SPEED;
     const time = ((now - startTime) * SPEED) % CYCLE;
 
     if (time < DRAW) {
@@ -286,10 +288,27 @@ function initializeScene(svg) {
     raf = win.requestAnimationFrame(frame);
   }
 
+  function isSceneInViewport() {
+    const rect = svg.getBoundingClientRect();
+    const margin = Math.max(80, win.innerHeight * 0.18);
+    return rect.bottom > -margin && rect.top < win.innerHeight + margin && rect.width > 0 && rect.height > 0;
+  }
+
+  function syncActiveFromViewport() {
+    viewportSyncRaf = 0;
+    setActive(isSceneInViewport());
+  }
+
+  function queueViewportSync() {
+    if (viewportSyncRaf) return;
+    viewportSyncRaf = win.requestAnimationFrame(syncActiveFromViewport);
+  }
+
   function setActive(nextActive) {
     if (active === nextActive) return;
     active = nextActive;
     if (active) {
+      startTime = null;
       win.cancelAnimationFrame(raf);
       raf = win.requestAnimationFrame(frame);
     } else {
@@ -302,17 +321,21 @@ function initializeScene(svg) {
       setActive(entries.some((entry) => entry.isIntersecting));
     }, { rootMargin: "15% 0px", threshold: 0.01 });
     observer.observe(svg);
+    queueViewportSync();
   } else {
     setActive(true);
   }
+
+  win.addEventListener("pageshow", queueViewportSync, { passive: true });
+  win.addEventListener("resize", queueViewportSync, { passive: true });
+  win.addEventListener("scroll", queueViewportSync, { passive: true });
 
   doc.addEventListener("visibilitychange", () => {
     if (doc.hidden) {
       setActive(false);
       return;
     }
-    const rect = svg.getBoundingClientRect();
-    if (rect.bottom > 0 && rect.top < win.innerHeight) setActive(true);
+    queueViewportSync();
   });
 }
 
