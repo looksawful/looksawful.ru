@@ -59,21 +59,6 @@
     },
     {
       "id": "asset-005",
-      "src": "/assets/media/cases/jesteipool/02-color/04/00.webp",
-      "type": "image",
-      "project": "jesteipool",
-      "category": "illustration",
-      "tags": [
-        "color"
-      ],
-      "title": "00",
-      "width": 2880,
-      "height": 1620,
-      "ratio": 1.7778,
-      "variant": "wide"
-    },
-    {
-      "id": "asset-006",
       "src": "/assets/media/cases/jesteipool/02-color/02/00.webp",
       "type": "image",
       "project": "jesteipool",
@@ -86,6 +71,21 @@
       "height": 1841,
       "ratio": 0.8376,
       "variant": "portrait"
+    },
+    {
+      "id": "asset-006",
+      "src": "/assets/jestei/branding/jestei-logo-mark.svg",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [
+        "color"
+      ],
+      "title": "jestei logo mark",
+      "width": 24,
+      "height": 24,
+      "ratio": 1,
+      "variant": "square"
     },
     {
       "id": "asset-007",
