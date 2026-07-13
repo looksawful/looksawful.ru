@@ -1,3 +1,25 @@
+const JESTEI_PRODUCT_DESIGN_MEDIA = {
+  "public/jesteipool/01-logo/01/01.webp": "/assets/media/cases/jesteipool/01-logo/01/01.webp",
+  "public/jesteipool/01-logo/02/01.webp": "/assets/media/cases/jesteipool/01-logo/02/01.webp",
+  "public/jesteipool/01-logo/02/02.webp": "/assets/media/cases/jesteipool/01-logo/02/02.webp",
+  "public/jesteipool/01-logo/02/03.webp": "/assets/media/cases/jesteipool/01-logo/02/03.webp",
+  "public/jesteipool/02-color/02/00.webp": "/assets/media/cases/jesteipool/02-color/02/00.webp",
+  "public/jesteipool/03-form/02/02.webp": "/assets/media/cases/jesteipool/03-form/02/02.webp",
+  "public/jesteipool/03-form/05/02.webp": "/assets/media/cases/jesteipool/03-form/05/02.webp",
+  "public/jesteipool/03-form/07/15.webp": "/assets/media/cases/jesteipool/03-form/07/15.webp",
+  "public/jesteipool/03-form/07/16.webp": "/assets/media/cases/jesteipool/03-form/07/16.webp",
+  "public/jesteipool/04-depth/01/01.webp": "/assets/media/cases/jesteipool/04-depth/01/01.webp",
+  "public/jesteipool/04-depth/01/02.webp": "/assets/media/cases/jesteipool/04-depth/01/02.webp",
+  "public/jesteipool/04-depth/01/03.webp": "/assets/media/cases/jesteipool/04-depth/01/03.webp",
+  "public/jesteipool/05-motion/02/06.webp": "/assets/media/cases/jesteipool/05-motion/02/06.webp",
+  "public/jesteipool/05-motion/02/07.webp": "/assets/media/cases/jesteipool/05-motion/02/07.webp",
+  "public/jesteipool/05-motion/02/08.webp": "/assets/media/cases/jesteipool/05-motion/02/08.webp",
+  "public/jesteipool/05-motion/03/01.webp": "/assets/media/cases/jesteipool/05-motion/03/01.webp",
+  "public/jesteipool/05-motion/03/02.webp": "/assets/media/cases/jesteipool/05-motion/03/02.webp",
+  "public/jesteipool/06-graphic/01/51.webp": "/assets/media/cases/jesteipool/06-graphic/01/51.webp",
+  "public/jesteipool/06-graphic/02/43.webp": "/assets/media/cases/jesteipool/06-graphic/02/43.webp",
+};
+
 const LOCAL_SCENE_MODULES = {
   jesteiInterfaceMasonry: import.meta.glob(
     "../../assets/cv/animations/jestei-interface-masonry/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
@@ -7,6 +29,21 @@ const LOCAL_SCENE_MODULES = {
     "./showcase-horizontal/assets/jestei-product-canvas/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
     { eager: true, query: "?url", import: "default" },
   ),
+  jesteiProductDesignMasonry: {
+    ...import.meta.glob(
+      "./showcase-horizontal/assets/jestei-product-canvas/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+      { eager: true, query: "?url", import: "default" },
+    ),
+    ...import.meta.glob(
+      "./landing-motion/masonry/assets/masonry/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+      { eager: true, query: "?url", import: "default" },
+    ),
+    ...import.meta.glob(
+      "./showcase-diagonal/assets/jestei-promo-diagonal/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+      { eager: true, query: "?url", import: "default" },
+    ),
+    ...JESTEI_PRODUCT_DESIGN_MEDIA,
+  },
   jesteiPromoDiagonal: import.meta.glob(
     "./showcase-diagonal/assets/jestei-promo-diagonal/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
     { eager: true, query: "?url", import: "default" },
@@ -32,6 +69,7 @@ const LOCAL_SCENE_MODULES = {
 const LOCAL_SCENE_DIRECTORIES = {
   jesteiInterfaceMasonry: "src/assets/cv/animations/jestei-interface-masonry",
   jesteiProductHorizontal: "src/visuals/canvas/showcase-horizontal/assets/jestei-product-canvas",
+  jesteiProductDesignMasonry: "mixed Jestei Pool product, promo, old masonry and graphic design media",
   jesteiPromoDiagonal: "src/visuals/canvas/showcase-diagonal/assets/jestei-promo-diagonal",
   jesteiColorBeforeAfter: "src/visuals/canvas/before-after/assets/jestei-color-before-after",
   styxGraphicDiagonal: "src/visuals/canvas/showcase-diagonal/assets/styx-graphic-diagonal",
@@ -42,6 +80,7 @@ const LOCAL_SCENE_DIRECTORIES = {
 const SCENE_LABELS = {
   jesteiInterfaceMasonry: "Jestei Pool / ux-ui / masonry archive",
   jesteiProductHorizontal: "Jestei Pool / product / horizontal archive",
+  jesteiProductDesignMasonry: "Jestei Pool / covers, posts and graphic design / masonry",
   jesteiPromoDiagonal: "Jestei Pool / promo organisms / diagonal",
   jesteiColorBeforeAfter: "Jestei Pool / color / before-after",
   styxGraphicDiagonal: "Styx Jewels / graphic / diagonal",
@@ -52,6 +91,7 @@ const SCENE_LABELS = {
 const SCENE_DEFAULT_MAX_ITEMS = {
   jesteiInterfaceMasonry: 36,
   jesteiProductHorizontal: 42,
+  jesteiProductDesignMasonry: 96,
   jesteiPromoDiagonal: 24,
   jesteiColorBeforeAfter: 2,
   styxGraphicDiagonal: 36,
