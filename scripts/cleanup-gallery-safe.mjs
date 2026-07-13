@@ -14,6 +14,7 @@ const skipDirs = new Set([
   "dist",
   "node_modules",
   "_reports",
+  "docs",
 ]);
 const textExtensions = new Set([
   ".html",
@@ -25,8 +26,6 @@ const textExtensions = new Set([
   ".tsx",
   ".jsx",
   ".json",
-  ".md",
-  ".txt",
   ".yml",
   ".yaml",
 ]);
@@ -55,6 +54,7 @@ async function walk(dir) {
   const files = [];
   for (const entry of entries) {
     if (entry.isDirectory() && skipDirs.has(entry.name)) continue;
+    if (entry.isFile() && entry.name === "audits.txt") continue;
     const absolute = path.join(dir, entry.name);
     if (entry.isDirectory()) files.push(...(await walk(absolute)));
     else if (textExtensions.has(path.extname(entry.name).toLowerCase())) files.push(absolute);
@@ -123,10 +123,8 @@ for (const repoPath of knownUnusedPlaceholders) {
   const absolute = path.join(rootDir, repoPath);
   if (!(await exists(absolute))) continue;
   const publicPath = toPublicPath(repoPath);
-  const isStillReferenced = textFiles.some(() => false);
   let foundReference = false;
   for (const filePath of textFiles) {
-    if (filePath === absolute) continue;
     try {
       const source = await fs.readFile(filePath, "utf8");
       if (source.includes(publicPath) || source.includes(repoPath)) {
@@ -137,7 +135,7 @@ for (const repoPath of knownUnusedPlaceholders) {
       // Ignore unreadable text candidates.
     }
   }
-  if (isStillReferenced || foundReference) continue;
+  if (foundReference) continue;
   const stat = await fs.stat(absolute);
   await fs.unlink(absolute);
   reclaimedBytes += stat.size;
