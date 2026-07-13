@@ -89,6 +89,21 @@
     },
     {
       "id": "asset-007",
+      "src": "/assets/media/cases/jesteipool/02-color/04/00.webp",
+      "type": "image",
+      "project": "jesteipool",
+      "category": "illustration",
+      "tags": [
+        "color"
+      ],
+      "title": "00",
+      "width": 2880,
+      "height": 1620,
+      "ratio": 1.7778,
+      "variant": "wide"
+    },
+    {
+      "id": "asset-008",
       "src": "/assets/media/cases/jesteipool/04-depth/01/01.webp",
       "type": "image",
       "project": "jesteipool",
@@ -103,7 +118,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-008",
+      "id": "asset-009",
       "src": "/assets/media/cases/jesteipool/04-depth/01/02.webp",
       "type": "image",
       "project": "jesteipool",
@@ -118,7 +133,7 @@
       "variant": "tall"
     },
     {
-      "id": "asset-009",
+      "id": "asset-010",
       "src": "/assets/media/cases/jesteipool/04-depth/01/03.webp",
       "type": "image",
       "project": "jesteipool",
@@ -133,7 +148,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-010",
+      "id": "asset-011",
       "src": "/assets/media/cases/jesteipool/05-motion/03/01.webp",
       "type": "image",
       "project": "jesteipool",
@@ -149,7 +164,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-011",
+      "id": "asset-012",
       "src": "/assets/media/cases/jesteipool/05-motion/03/02.webp",
       "type": "image",
       "project": "jesteipool",
@@ -165,7 +180,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-012",
+      "id": "asset-013",
       "src": "/assets/jestei/promo-organisms/01-world-music.png",
       "type": "image",
       "project": "jesteipool",
@@ -178,7 +193,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-013",
+      "id": "asset-014",
       "src": "/assets/jestei/promo-organisms/02-event-playlists.png",
       "type": "image",
       "project": "jesteipool",
@@ -191,7 +206,7 @@
       "variant": "banner"
     },
     {
-      "id": "asset-014",
+      "id": "asset-015",
       "src": "/assets/jestei/promo-organisms/03-kids-holidays.png",
       "type": "image",
       "project": "jesteipool",
@@ -204,7 +219,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-015",
+      "id": "asset-016",
       "src": "/assets/jestei/promo-organisms/04-ceremony.png",
       "type": "image",
       "project": "jesteipool",
@@ -217,7 +232,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-016",
+      "id": "asset-017",
       "src": "/assets/jestei/promo-organisms/05-sport.png",
       "type": "image",
       "project": "jesteipool",
@@ -230,7 +245,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-017",
+      "id": "asset-018",
       "src": "/assets/jestei/promo-organisms/06-dj-service.png",
       "type": "image",
       "project": "jesteipool",
@@ -243,7 +258,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-018",
+      "id": "asset-019",
       "src": "/assets/jestei/promo-organisms/07-tariff-previews-a.png",
       "type": "image",
       "project": "jesteipool",
@@ -256,7 +271,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-019",
+      "id": "asset-020",
       "src": "/assets/jestei/promo-organisms/08-tariff-previews-b.png",
       "type": "image",
       "project": "jesteipool",
@@ -269,7 +284,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-020",
+      "id": "asset-021",
       "src": "/assets/jestei/promo-organisms/09-product-feed.png",
       "type": "image",
       "project": "jesteipool",
@@ -282,7 +297,7 @@
       "variant": "banner"
     },
     {
-      "id": "asset-021",
+      "id": "asset-022",
       "src": "/assets/jestei/promo-organisms/10-track-player.png",
       "type": "image",
       "project": "jesteipool",
@@ -295,7 +310,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-022",
+      "id": "asset-023",
       "src": "/assets/media/cases/jesteipool/05-motion/02/06.webp",
       "type": "image",
       "project": "jesteipool",
@@ -311,7 +326,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-023",
+      "id": "asset-024",
       "src": "/assets/media/cases/jesteipool/05-motion/02/07.webp",
       "type": "image",
       "project": "jesteipool",
@@ -327,7 +342,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-024",
+      "id": "asset-025",
       "src": "/assets/media/cases/jesteipool/05-motion/02/08.webp",
       "type": "image",
       "project": "jesteipool",
@@ -343,7 +358,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-025",
+      "id": "asset-026",
       "src": "/assets/media/cases/jesteipool/06-graphic/01/51.webp",
       "type": "image",
       "project": "jesteipool",
@@ -359,7 +374,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-026",
+      "id": "asset-027",
       "src": "/assets/media/cases/jesteipool/06-graphic/02/43.webp",
       "type": "image",
       "project": "jesteipool",
@@ -375,7 +390,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-027",
+      "id": "asset-028",
       "src": "/assets/media/cases/jesteipool/03-form/02/02.webp",
       "type": "image",
       "project": "jesteipool",
@@ -390,7 +405,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-028",
+      "id": "asset-029",
       "src": "/assets/media/cases/jesteipool/03-form/05/02.webp",
       "type": "image",
       "project": "jesteipool",
@@ -405,7 +420,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-029",
+      "id": "asset-030",
       "src": "/assets/media/cases/jesteipool/03-form/07/15.webp",
       "type": "image",
       "project": "jesteipool",
@@ -420,7 +435,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-030",
+      "id": "asset-031",
       "src": "/assets/media/cases/jesteipool/03-form/07/16.webp",
       "type": "image",
       "project": "jesteipool",
@@ -435,7 +450,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-031",
+      "id": "asset-032",
       "src": "/assets/media/cases/jesteipool/03-form/07/08.webp",
       "type": "image",
       "project": "jesteipool",
@@ -450,7 +465,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-032",
+      "id": "asset-033",
       "src": "/assets/media/cases/jesteipool/06-graphic/01/34.webp",
       "type": "image",
       "project": "jesteipool",
@@ -466,7 +481,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-033",
+      "id": "asset-034",
       "src": "/assets/media/cases/jesteipool/06-graphic/01/39.webp",
       "type": "image",
       "project": "jesteipool",
@@ -482,7 +497,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-034",
+      "id": "asset-035",
       "src": "/assets/media/cases/jesteipool/06-graphic/01/45.webp",
       "type": "image",
       "project": "jesteipool",
@@ -498,7 +513,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-035",
+      "id": "asset-036",
       "src": "/assets/media/cases/jesteipool/06-graphic/02/49.webp",
       "type": "image",
       "project": "jesteipool",
@@ -514,7 +529,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-036",
+      "id": "asset-037",
       "src": "/assets/media/cases/jesteipool/06-graphic/02/51.webp",
       "type": "image",
       "project": "jesteipool",
@@ -530,7 +545,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-037",
+      "id": "asset-038",
       "src": "/assets/media/cases/styx/00/01.svg",
       "type": "image",
       "project": "styx",
@@ -545,7 +560,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-038",
+      "id": "asset-039",
       "src": "/assets/media/cases/styx/01/01/01.webp",
       "type": "image",
       "project": "styx",
@@ -560,7 +575,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-039",
+      "id": "asset-040",
       "src": "/assets/media/cases/styx/01/01/02.webp",
       "type": "image",
       "project": "styx",
@@ -575,7 +590,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-040",
+      "id": "asset-041",
       "src": "/assets/media/cases/styx/01/01/03.webp",
       "type": "image",
       "project": "styx",
@@ -590,7 +605,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-041",
+      "id": "asset-042",
       "src": "/assets/media/cases/styx/01/02/01.webp",
       "type": "image",
       "project": "styx",
@@ -605,7 +620,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-042",
+      "id": "asset-043",
       "src": "/assets/media/cases/styx/01/02/02.webp",
       "type": "image",
       "project": "styx",
@@ -620,7 +635,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-043",
+      "id": "asset-044",
       "src": "/assets/media/cases/styx/01/02/03.webp",
       "type": "image",
       "project": "styx",
@@ -635,7 +650,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-044",
+      "id": "asset-045",
       "src": "/assets/media/cases/styx/01/02/04.webp",
       "type": "image",
       "project": "styx",
@@ -650,7 +665,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-045",
+      "id": "asset-046",
       "src": "/assets/media/cases/styx/03/01/01.png",
       "type": "image",
       "project": "styx",
@@ -665,7 +680,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-046",
+      "id": "asset-047",
       "src": "/assets/media/cases/styx/03/02/01.webp",
       "type": "image",
       "project": "styx",
@@ -680,7 +695,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-047",
+      "id": "asset-048",
       "src": "/assets/media/cases/styx/03/02/02.webp",
       "type": "image",
       "project": "styx",
@@ -695,7 +710,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-048",
+      "id": "asset-049",
       "src": "/assets/media/cases/styx/03/02/03.webp",
       "type": "image",
       "project": "styx",
@@ -710,7 +725,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-049",
+      "id": "asset-050",
       "src": "/assets/media/cases/styx/03/02/04.webp",
       "type": "image",
       "project": "styx",
@@ -725,7 +740,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-050",
+      "id": "asset-051",
       "src": "/assets/media/cases/styx/03/02/05.webp",
       "type": "image",
       "project": "styx",
@@ -740,7 +755,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-051",
+      "id": "asset-052",
       "src": "/assets/media/cases/styx/03/02/06.webp",
       "type": "image",
       "project": "styx",
@@ -755,7 +770,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-052",
+      "id": "asset-053",
       "src": "/assets/media/cases/styx/03/02/07.webp",
       "type": "image",
       "project": "styx",
@@ -770,7 +785,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-053",
+      "id": "asset-054",
       "src": "/assets/media/cases/styx/03/02/08.webp",
       "type": "image",
       "project": "styx",
@@ -785,7 +800,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-054",
+      "id": "asset-055",
       "src": "/assets/media/cases/styx/04/02/01.webp",
       "type": "image",
       "project": "styx",
@@ -800,7 +815,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-055",
+      "id": "asset-056",
       "src": "/assets/media/cases/styx/04/02/02.webp",
       "type": "image",
       "project": "styx",
@@ -815,7 +830,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-056",
+      "id": "asset-057",
       "src": "/assets/media/cases/styx/04/02/03.webp",
       "type": "image",
       "project": "styx",
@@ -830,7 +845,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-057",
+      "id": "asset-058",
       "src": "/assets/media/cases/styx/04/02/04.webp",
       "type": "image",
       "project": "styx",
@@ -845,7 +860,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-058",
+      "id": "asset-059",
       "src": "/assets/media/cases/styx/04/02/05.webp",
       "type": "image",
       "project": "styx",
@@ -860,7 +875,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-059",
+      "id": "asset-060",
       "src": "/assets/media/cases/styx/04/02/06.webp",
       "type": "image",
       "project": "styx",
@@ -875,7 +890,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-060",
+      "id": "asset-061",
       "src": "/assets/media/cases/styx/04/02/07.webp",
       "type": "image",
       "project": "styx",
@@ -890,7 +905,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-061",
+      "id": "asset-062",
       "src": "/assets/media/cases/styx/04/02/08.webp",
       "type": "image",
       "project": "styx",
@@ -905,7 +920,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-062",
+      "id": "asset-063",
       "src": "/assets/media/cases/shootings/05/01.webp",
       "type": "image",
       "project": "shootings",
@@ -920,7 +935,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-063",
+      "id": "asset-064",
       "src": "/assets/media/cases/shootings/06/01.webp",
       "type": "image",
       "project": "shootings",
@@ -935,7 +950,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-064",
+      "id": "asset-065",
       "src": "/assets/media/cases/shootings/06/02.webp",
       "type": "image",
       "project": "shootings",
@@ -950,7 +965,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-065",
+      "id": "asset-066",
       "src": "/assets/media/cases/shootings/06/03.webp",
       "type": "image",
       "project": "shootings",
@@ -965,7 +980,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-066",
+      "id": "asset-067",
       "src": "/assets/media/cases/shootings/07/01.webp",
       "type": "image",
       "project": "shootings",
@@ -980,7 +995,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-067",
+      "id": "asset-068",
       "src": "/assets/media/cases/shootings/07/02.webp",
       "type": "image",
       "project": "shootings",
@@ -995,7 +1010,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-068",
+      "id": "asset-069",
       "src": "/assets/media/cases/shootings/07/03.webp",
       "type": "image",
       "project": "shootings",
@@ -1010,7 +1025,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-069",
+      "id": "asset-070",
       "src": "/assets/media/cases/shootings/07/04.webp",
       "type": "image",
       "project": "shootings",
@@ -1025,7 +1040,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-070",
+      "id": "asset-071",
       "src": "/assets/media/cases/shootings/07/05.webp",
       "type": "image",
       "project": "shootings",
@@ -1040,7 +1055,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-071",
+      "id": "asset-072",
       "src": "/assets/media/cases/shootings/07/06.webp",
       "type": "image",
       "project": "shootings",
@@ -1055,7 +1070,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-072",
+      "id": "asset-073",
       "src": "/assets/media/cases/shootings/08/01.webp",
       "type": "image",
       "project": "shootings",
@@ -1070,7 +1085,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-073",
+      "id": "asset-074",
       "src": "/assets/media/cases/shootings/08/02.webp",
       "type": "image",
       "project": "shootings",
@@ -1085,7 +1100,7 @@
       "variant": "wide"
     },
     {
-      "id": "asset-074",
+      "id": "asset-075",
       "src": "/assets/media/cases/shootings/08/03.webp",
       "type": "image",
       "project": "shootings",
@@ -1100,7 +1115,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-075",
+      "id": "asset-076",
       "src": "/assets/media/cases/shootings/08/04.webp",
       "type": "image",
       "project": "shootings",
@@ -1115,7 +1130,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-076",
+      "id": "asset-077",
       "src": "/assets/media/cases/shootings/08/05.webp",
       "type": "image",
       "project": "shootings",
@@ -1130,7 +1145,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-077",
+      "id": "asset-078",
       "src": "/assets/media/cases/shootings/08/06.webp",
       "type": "image",
       "project": "shootings",
@@ -1145,7 +1160,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-078",
+      "id": "asset-079",
       "src": "/assets/media/cases/shootings/08/07.webp",
       "type": "image",
       "project": "shootings",
@@ -1160,7 +1175,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-079",
+      "id": "asset-080",
       "src": "/assets/media/cases/shootings/08/08.webp",
       "type": "image",
       "project": "shootings",
@@ -1175,7 +1190,7 @@
       "variant": "portrait"
     },
     {
-      "id": "asset-080",
+      "id": "asset-081",
       "src": "/assets/media/cases/shootings/08/09.webp",
       "type": "image",
       "project": "shootings",
@@ -1190,7 +1205,7 @@
       "variant": "square"
     },
     {
-      "id": "asset-081",
+      "id": "asset-082",
       "src": "/assets/media/cases/shootings/08/10.webp",
       "type": "image",
       "project": "shootings",

@@ -13,6 +13,7 @@ const APPROVED_SECTION_IDS = new Set([
   "jestei-logo",
   "jestei-interface-bento",
   "jestei-color",
+  "jestei-audience-map",
   "jestei-words",
   "jestei-interface",
   "jestei-interface-archive",
@@ -108,13 +109,22 @@ function removeHeroOnlyConstraints(root = document) {
 
 function placeTariffsAfterColor(root = document) {
   const colorSection = root.querySelector("#jestei-color");
+  const audienceSection = root.querySelector("#jestei-audience-map");
   const tariffsSection = root.querySelector("#jestei-tariffs");
 
-  if (!colorSection || !tariffsSection || colorSection.nextElementSibling === tariffsSection) {
+  if (!colorSection || !tariffsSection) {
     return;
   }
 
-  colorSection.insertAdjacentElement("afterend", tariffsSection);
+  if (audienceSection && colorSection.nextElementSibling !== audienceSection) {
+    colorSection.insertAdjacentElement("afterend", audienceSection);
+  }
+
+  const tariffsAnchor = audienceSection || colorSection;
+
+  if (tariffsAnchor.nextElementSibling !== tariffsSection) {
+    tariffsAnchor.insertAdjacentElement("afterend", tariffsSection);
+  }
 }
 
 function createJesteiMotionBreak({ id, modifier, animation, canvasId }, root = document) {
