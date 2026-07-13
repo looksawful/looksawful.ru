@@ -104,7 +104,11 @@ const drawEmptyState = (ctx, width, height, divider) => {
   ctx.restore();
 };
 
-const drawChip = (ctx, text, x, y, fontSize = 12) => {
+const drawChip = (ctx, text, x, y, fontSize = 12, bounds = {}) => {
+  if (!text) {
+    return null;
+  }
+
   const paddingX = Math.round(fontSize * 0.95);
   const paddingY = Math.round(fontSize * 0.55);
 
@@ -113,9 +117,17 @@ const drawChip = (ctx, text, x, y, fontSize = 12) => {
 
   const chipWidth = Math.ceil(ctx.measureText(text).width + paddingX * 2);
   const chipHeight = Math.ceil(fontSize + paddingY * 2);
+  const minX = (bounds.minX ?? 0) + chipWidth * 0.5;
+  const maxX = (bounds.maxX ?? Number.POSITIVE_INFINITY) - chipWidth * 0.5;
+  const safeX = clamp(x, minX, Math.max(minX, maxX));
+  const safeY = clamp(
+    y,
+    (bounds.minY ?? 0) + chipHeight * 0.5,
+    Math.max((bounds.minY ?? 0) + chipHeight * 0.5, (bounds.maxY ?? Number.POSITIVE_INFINITY) - chipHeight * 0.5),
+  );
 
   ctx.beginPath();
-  roundedRect(ctx, x - chipWidth * 0.5, y - chipHeight * 0.5, chipWidth, chipHeight, 999);
+  roundedRect(ctx, safeX - chipWidth * 0.5, safeY - chipHeight * 0.5, chipWidth, chipHeight, 999);
   ctx.closePath();
 
   ctx.fillStyle = "#fff";
@@ -128,9 +140,16 @@ const drawChip = (ctx, text, x, y, fontSize = 12) => {
   ctx.fillStyle = "#000";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(text, x, y + 0.5);
+  ctx.fillText(text, safeX, safeY + 0.5);
 
   ctx.restore();
+
+  return {
+    x: safeX - chipWidth * 0.5,
+    y: safeY - chipHeight * 0.5,
+    width: chipWidth,
+    height: chipHeight,
+  };
 };
 
 const getSceneItems = (canvas, options, maxItems) => {
@@ -291,9 +310,19 @@ export const mountShowcaseBeforeAfter = (canvasOrId, options = {}) => {
 
       ctx.restore();
 
-      drawChip(ctx, canvas.dataset.beforeLabel || "до", 36, 28, 11);
-      drawChip(ctx, canvas.dataset.afterLabel || "после", width - 48, 28, 11);
-      drawChip(ctx, canvas.dataset.centerLabel || "нажми меня", splitX, height * 0.5, 13);
+      const edgePadding = clamp(width * 0.028, 24, 52);
+      const labelFontSize = clamp(width * 0.012, 11, 14);
+      const handleFontSize = clamp(width * 0.014, 12, 16);
+      const chipBounds = {
+        minX: edgePadding,
+        maxX: width - edgePadding,
+        minY: edgePadding * 0.55,
+        maxY: height - edgePadding * 0.55,
+      };
+
+      drawChip(ctx, canvas.dataset.beforeLabel || "до", edgePadding, edgePadding * 0.72, labelFontSize, chipBounds);
+      drawChip(ctx, canvas.dataset.afterLabel || "после", width - edgePadding, edgePadding * 0.72, labelFontSize, chipBounds);
+      drawChip(ctx, canvas.dataset.centerLabel, splitX, height * 0.5, handleFontSize, chipBounds);
     },
   });
 

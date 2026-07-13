@@ -1,3 +1,5 @@
+import { ANIMATION_SCENES, createAnimationItems } from "../../showcase-animation-assets.js";
+
 const MASONRY_KEY_PREFIX = "masonry:";
 
 const pendingMounts = new Map();
@@ -104,7 +106,24 @@ const getExternalMasonryItems = (canvas) => {
   }));
 };
 
-const resolveMasonryItems = (canvas) => getExternalMasonryItems(canvas) || masonryItems;
+const getSceneMasonryItems = (canvas, options = {}) => {
+  const sceneId = options.scene || canvas?.dataset?.animationScene || canvas?.dataset?.masonryScene;
+
+  if (!sceneId) {
+    return null;
+  }
+
+  const scene = ANIMATION_SCENES[sceneId];
+
+  if (!scene) {
+    return null;
+  }
+
+  return createAnimationItems(scene.modules || {}).slice(0, scene.defaultMaxItems || EXTERNAL_MASONRY_DEFAULTS.count);
+};
+
+const resolveMasonryItems = (canvas, options = {}) =>
+  getExternalMasonryItems(canvas) || getSceneMasonryItems(canvas, options) || masonryItems;
 
 const config = {
   columnCount: "auto",
@@ -350,26 +369,28 @@ const loadImage = (imageUrl) => {
   return request;
 };
 
-const loadImages = async (items) =>
-  Promise.all(
-    items.map(async (item, sourceIndex) => {
-      try {
-        return {
-          ...item,
-          sourceIndex,
-          imageElement: await loadImage(item.imageUrl),
-          imageLoadError: null,
-        };
-      } catch (error) {
-        return {
-          ...item,
-          sourceIndex,
-          imageElement: null,
-          imageLoadError: error,
-        };
-      }
-    }),
-  );
+const loadImages = (items, { onItemChange = noop } = {}) =>
+  items.map((item, sourceIndex) => {
+    const loadedItem = {
+      ...item,
+      sourceIndex,
+      imageElement: null,
+      imageLoadError: null,
+    };
+
+    void loadImage(item.imageUrl)
+      .then((imageElement) => {
+        loadedItem.imageElement = imageElement;
+        loadedItem.imageLoadError = null;
+        onItemChange();
+      })
+      .catch((error) => {
+        loadedItem.imageLoadError = error;
+        onItemChange();
+      });
+
+    return loadedItem;
+  });
 
 const roundedRect = (ctx, x, y, width, height, radius) => {
   if (ctx.roundRect) {
@@ -962,7 +983,7 @@ const createDisposeHandle = (dispose = noop) => {
   return handle;
 };
 
-export const mountMasonry = async (canvasId = "masonry-container") => {
+export const mountMasonry = async (canvasId = "masonry-container", options = {}) => {
   const canvas = globalThis.document?.getElementById?.(canvasId);
 
   if (!canvas) {
@@ -980,7 +1001,12 @@ export const mountMasonry = async (canvasId = "masonry-container") => {
 
   const key = getAnimationKey(canvasId);
   const mountToken = beginMount(key);
-  const items = await loadImages(resolveMasonryItems(canvas));
+  let itemLoadVersion = 0;
+  const items = loadImages(resolveMasonryItems(canvas, options), {
+    onItemChange: () => {
+      itemLoadVersion += 1;
+    },
+  });
 
   if (!isCurrentMount(key, mountToken)) {
     return createDisposeHandle();
@@ -988,6 +1014,7 @@ export const mountMasonry = async (canvasId = "masonry-container") => {
 
   const state = {
     layout: null,
+    layoutVersion: -1,
     lastTime: null,
     disposed: false,
   };
@@ -1006,10 +1033,15 @@ export const mountMasonry = async (canvasId = "masonry-container") => {
         return;
       }
 
-      const shouldRebuild = !state.layout || state.layout.width !== width || state.layout.height !== height;
+      const shouldRebuild =
+        !state.layout ||
+        state.layout.width !== width ||
+        state.layout.height !== height ||
+        state.layoutVersion !== itemLoadVersion;
 
       if (shouldRebuild) {
         state.layout = buildLayout({ width, height, items });
+        state.layoutVersion = itemLoadVersion;
       }
 
       const dt = state.lastTime === null ? 16.6667 : clamp(time - state.lastTime, 0, 50);
@@ -1034,4 +1066,3 @@ if (import.meta.hot) {
     disposeCanvasAnimationsByPrefix(MASONRY_KEY_PREFIX);
   });
 }
-

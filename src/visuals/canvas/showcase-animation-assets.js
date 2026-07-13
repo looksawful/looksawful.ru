@@ -1,4 +1,12 @@
 const LOCAL_SCENE_MODULES = {
+  jesteiInterfaceMasonry: import.meta.glob(
+    "../../assets/cv/animations/jestei-interface-masonry/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    { eager: true, query: "?url", import: "default" },
+  ),
+  jesteiProductHorizontal: import.meta.glob(
+    "./showcase-horizontal/assets/jestei-product-canvas/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    { eager: true, query: "?url", import: "default" },
+  ),
   jesteiPromoDiagonal: import.meta.glob(
     "./showcase-diagonal/assets/jestei-promo-diagonal/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
     { eager: true, query: "?url", import: "default" },
@@ -15,27 +23,40 @@ const LOCAL_SCENE_MODULES = {
     "./showcase-horizontal/assets/styx-brand-identity/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
     { eager: true, query: "?url", import: "default" },
   ),
+  styxPhotoProduction: import.meta.glob(
+    "./showcase-diagonal/assets/styx-graphic-diagonal/**/*.{webp,png,jpg,jpeg,avif,gif,mp4,webm}",
+    { eager: true, query: "?url", import: "default" },
+  ),
 };
 
 const LOCAL_SCENE_DIRECTORIES = {
+  jesteiInterfaceMasonry: "src/assets/cv/animations/jestei-interface-masonry",
+  jesteiProductHorizontal: "src/visuals/canvas/showcase-horizontal/assets/jestei-product-canvas",
   jesteiPromoDiagonal: "src/visuals/canvas/showcase-diagonal/assets/jestei-promo-diagonal",
   jesteiColorBeforeAfter: "src/visuals/canvas/before-after/assets/jestei-color-before-after",
   styxGraphicDiagonal: "src/visuals/canvas/showcase-diagonal/assets/styx-graphic-diagonal",
   styxBrandIdentity: "src/visuals/canvas/showcase-horizontal/assets/styx-brand-identity",
+  styxPhotoProduction: "src/visuals/canvas/showcase-diagonal/assets/styx-graphic-diagonal",
 };
 
 const SCENE_LABELS = {
+  jesteiInterfaceMasonry: "Jestei Pool / ux-ui / masonry archive",
+  jesteiProductHorizontal: "Jestei Pool / product / horizontal archive",
   jesteiPromoDiagonal: "Jestei Pool / promo organisms / diagonal",
   jesteiColorBeforeAfter: "Jestei Pool / color / before-after",
   styxGraphicDiagonal: "Styx Jewels / graphic / diagonal",
   styxBrandIdentity: "Styx Jewels / brand identity / horizontal",
+  styxPhotoProduction: "Styx Jewels / photo production / orbit archive",
 };
 
 const SCENE_DEFAULT_MAX_ITEMS = {
+  jesteiInterfaceMasonry: 36,
+  jesteiProductHorizontal: 42,
   jesteiPromoDiagonal: 24,
   jesteiColorBeforeAfter: 2,
   styxGraphicDiagonal: 36,
   styxBrandIdentity: 14,
+  styxPhotoProduction: 24,
 };
 
 const getModuleUrl = (moduleValue) =>

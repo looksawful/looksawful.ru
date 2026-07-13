@@ -60,6 +60,14 @@ export const MOUNTS = [
     load: () => import("../visuals/dom/media-marquee.js"),
   },
   {
+    id: "archiveMediaScenes",
+    phase: "near",
+    selector: "[data-archive-media-scene]",
+    rootMargin: "1000px 0px",
+    load: () => import("../visuals/dom/archive-media-scenes.js"),
+    mount: (module, root) => module.initArchiveMediaScenes(root),
+  },
+  {
     id: "policyBook",
     phase: "content",
     selector: "[data-policy-book], .policy-book",

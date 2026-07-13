@@ -1,0 +1,183 @@
+main[data-showcase] .archive-restored {
+  --archive-width: min(100% - clamp(1.5rem, 5vw, 6rem), 80rem);
+  --archive-gap: clamp(1rem, 2.2vw, 2.25rem);
+  margin-block: clamp(2rem, 4.6vw, 5rem);
+}
+
+main[data-showcase] .archive-restored [data-section-screen] {
+  inline-size: var(--archive-width);
+  max-inline-size: var(--archive-width);
+  padding-block: clamp(2.2rem, 5vw, 5rem);
+  row-gap: var(--archive-gap);
+}
+
+.archive-restored__head {
+  gap: clamp(0.65rem, 1.2vw, 1rem);
+}
+
+.archive-restored__head [data-section-title] {
+  max-inline-size: min(100%, 15ch);
+  font-size: clamp(2.35rem, 5vw, 5.4rem);
+  line-height: 0.92;
+}
+
+.archive-restored__head [data-section-lead] {
+  max-inline-size: min(100%, 42rem);
+}
+
+.archive-restored__media-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--archive-gap);
+}
+
+.archive-restored__media-grid--interface {
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 0.42fr);
+  align-items: stretch;
+}
+
+.archive-restored [data-animation],
+.archive-media-group {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #111;
+  border-radius: clamp(1rem, 1.8vw, 1.6rem);
+  background: #fff;
+}
+
+.archive-restored [data-animation] canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.archive-restored__canvas--masonry {
+  min-block-size: clamp(24rem, 52vw, 44rem);
+}
+
+.archive-restored__canvas--horizontal {
+  min-block-size: clamp(18rem, 32vw, 30rem);
+}
+
+.archive-media-group {
+  min-inline-size: 0;
+}
+
+.archive-media-group__track {
+  min-inline-size: 0;
+}
+
+.archive-media-card {
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.archive-media-card img,
+.archive-media-card video {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.archive-media-group--orbit {
+  --orbit-card-width: clamp(11rem, 15vw, 18rem);
+  --orbit-gap: clamp(1.15rem, 1.4vw, 1.8rem);
+  --orbit-min-radius: 16rem;
+  --orbit-max-radius: 86rem;
+  --orbit-height: clamp(24rem, 46vw, 38rem);
+  --orbit-perspective: clamp(920px, 88vw, 1320px);
+  --orbit-track-tilt: -1.5deg;
+  --orbit-radius: clamp(
+    var(--orbit-min-radius),
+    calc((var(--media-count) * (var(--orbit-card-width) + var(--orbit-gap))) / 6.28318),
+    var(--orbit-max-radius)
+  );
+
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 7;
+  min-block-size: var(--orbit-height);
+  perspective: var(--orbit-perspective);
+  perspective-origin: 50% 47%;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.08), transparent 52%),
+    radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.035), transparent 60%),
+    #050505;
+}
+
+.archive-media-group--orbit .archive-media-group__track {
+  position: absolute;
+  inset: 0;
+  display: block;
+  padding: 0;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  animation: archiveMediaOrbit var(--media-speed, 72s) linear infinite;
+  will-change: transform;
+}
+
+.archive-media-group--orbit .archive-media-card {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: var(--orbit-card-width);
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #101010;
+  backface-visibility: hidden;
+  transform:
+    translate(-50%, -50%)
+    rotateY(calc((360deg / var(--media-count)) * var(--media-index)))
+    translateZ(var(--orbit-radius));
+  box-shadow: 0 1.25rem 3.2rem rgba(0, 0, 0, 0.42);
+}
+
+@keyframes archiveMediaOrbit {
+  from {
+    transform:
+      translateZ(calc(var(--orbit-radius) * -1))
+      rotateX(var(--orbit-track-tilt))
+      rotateY(0deg);
+  }
+
+  to {
+    transform:
+      translateZ(calc(var(--orbit-radius) * -1))
+      rotateX(var(--orbit-track-tilt))
+      rotateY(-360deg);
+  }
+}
+
+@media (max-width: 72rem) {
+  .archive-restored__media-grid--interface {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 48rem) {
+  main[data-showcase] .archive-restored {
+    margin-block: clamp(1.6rem, 8vw, 3.2rem);
+  }
+
+  .archive-restored__head [data-section-title] {
+    font-size: clamp(2rem, 9.5vw, 3.55rem);
+  }
+
+  .archive-media-group--orbit {
+    --orbit-card-width: clamp(8rem, 32vw, 11rem);
+    --orbit-gap: clamp(0.8rem, 2vw, 1.2rem);
+    --orbit-min-radius: 10rem;
+    --orbit-max-radius: 42rem;
+    --orbit-height: clamp(22rem, 92vw, 30rem);
+    --orbit-perspective: clamp(800px, 128vw, 1100px);
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-media-group--orbit .archive-media-group__track {
+    animation-play-state: paused;
+  }
+}

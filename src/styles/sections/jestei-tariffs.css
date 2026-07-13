@@ -9,6 +9,35 @@
 .jestei-tariffs [data-media-cluster] {
   --case-rail-item: min(84vw, 24rem);
 }
+
+.jestei-tariffs [data-animation="before-after"] {
+  inline-size: min(100%, 72rem);
+  justify-self: center;
+  aspect-ratio: 16 / 9;
+  min-block-size: 0;
+  block-size: auto;
+  overflow: hidden;
+}
+
+.jestei-tariffs [data-animation="before-after"] canvas {
+  aspect-ratio: 16 / 9;
+  min-block-size: 0;
+  block-size: auto;
+}
+
+@media (max-width: 48rem) {
+  .jestei-tariffs [data-animation="before-after"] {
+    inline-size: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .jestei-tariffs [data-animation="before-after"] canvas {
+    inline-size: max(100%, 56rem);
+    max-inline-size: none;
+  }
+}
+
 #jestei-tariffs {
   --section-accent: var(--black);
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
