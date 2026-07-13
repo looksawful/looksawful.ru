@@ -3,28 +3,36 @@
 }
 
 .jestei-motion-break {
+  display: grid;
+  grid-template-columns: minmax(var(--page-x), 1fr) minmax(0, var(--page-max)) minmax(var(--page-x), 1fr);
   inline-size: 100%;
   max-inline-size: none;
-  margin: 0;
+  margin-block: clamp(0.75rem, 1.8vw, 1.75rem);
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
   background: var(--white);
 }
 
 .jestei-motion-break__surface {
   position: relative;
   isolation: isolate;
+  grid-column: 2;
   inline-size: 100%;
   max-inline-size: none;
+  aspect-ratio: 2 / 1;
+  min-block-size: 0;
   margin: 0;
   padding: 0;
   overflow: hidden;
+  border: 0;
+  border-radius: 0;
   background: var(--white);
 }
 
 .jestei-motion-break__canvas.visual-canvas {
   display: block;
   inline-size: 100%;
+  block-size: 100%;
   max-inline-size: none;
   min-block-size: 0;
   margin: 0;
@@ -34,30 +42,21 @@
   background: var(--white);
 }
 
-.jestei-motion-break--arc .jestei-motion-break__canvas {
-  block-size: clamp(26rem, 54vw, 48rem);
-}
-
-.jestei-motion-break--masonry .jestei-motion-break__canvas {
-  block-size: clamp(28rem, 58vw, 52rem);
-}
-
 @media (max-width: 72rem) {
-  .jestei-motion-break--arc .jestei-motion-break__canvas {
-    block-size: clamp(26rem, 72vw, 44rem);
-  }
-
-  .jestei-motion-break--masonry .jestei-motion-break__canvas {
-    block-size: clamp(28rem, 78vw, 46rem);
+  .jestei-motion-break__surface {
+    aspect-ratio: 16 / 9;
   }
 }
 
-@media (max-width: 43rem) {
-  .jestei-motion-break--arc .jestei-motion-break__canvas {
-    block-size: clamp(26rem, 118vw, 38rem);
+@media (max-width: 48rem) {
+  .jestei-motion-break {
+    grid-template-columns: minmax(0, 1fr);
+    margin-block: clamp(0.5rem, 3vw, 1rem);
+    padding-inline: var(--page-x);
   }
 
-  .jestei-motion-break--masonry .jestei-motion-break__canvas {
-    block-size: clamp(30rem, 128vw, 44rem);
+  .jestei-motion-break__surface {
+    grid-column: 1;
+    aspect-ratio: 16 / 9;
   }
 }
