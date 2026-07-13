@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:asset-gallery && vite build",
+    "build": "npm run build:asset-gallery && npm run audit:gallery-once && vite build",
     "build:asset-gallery": "node scripts/build-asset-gallery.mjs",
+    "audit:gallery-once": "node scripts/gallery-audit-once.mjs",
     "import:draft-gallery": "node scripts/import-draft-gallery.mjs",
     "preview": "vite preview",
     "check:portfolio": "node scripts/portfolio-regression-check.mjs",
