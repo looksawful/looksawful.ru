@@ -1,0 +1,56 @@
+main[data-showcase] #jestei-logo .jestei-logo__depth-reference {
+  display: none !important;
+}
+
+main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
+  display: block !important;
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: clamp(18rem, 31.25vw, 25.5rem);
+  aspect-ratio: 16 / 5;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: var(--line);
+  border-radius: 1.45rem;
+  background: var(--white);
+}
+
+main[data-showcase] #jestei-logo [data-logo-inspector-shell] > [data-visual-demo] {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: inherit;
+}
+
+main[data-showcase] #jestei-logo [data-logo-inspector-shell] :is(
+  .logo-inspector-grid-3d,
+  .logo-inspector-grid-3d__canvas,
+  .logo-inspector-grid-3d__poster
+) {
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+main[data-showcase] #jestei-logo [data-logo-inspector-shell] .logo-inspector-grid-3d {
+  aspect-ratio: inherit;
+}
+
+@media (max-width: 76rem) {
+  main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
+    min-block-size: clamp(20rem, 50vw, 30rem);
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 43rem) {
+  main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
+    min-block-size: min(100vw - 2rem, 26rem);
+    aspect-ratio: 1 / 1;
+    border-radius: 1rem;
+  }
+}

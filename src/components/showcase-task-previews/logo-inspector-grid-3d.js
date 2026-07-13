@@ -11,8 +11,7 @@ const ROW_BREAKPOINT = 900;
 const REVEAL_DURATION_MS = 760;
 const REVEAL_STAGGER_MS = 560;
 const REVEAL_START_SCALE = 0.42;
-const IDLE_SWAY_SPEED = 0.00042;
-const IDLE_SWAY_AMPLITUDE = 0.045;
+const IDLE_SPIN_SPEED = 0.38;
 const DRAG_ROTATE_SPEED = 0.008;
 const RETURN_EASE = 0.09;
 
@@ -223,7 +222,6 @@ function createVariantLogo(sourceRoot, variant, index) {
   group.userData.baseRotationX = 0.1;
   group.userData.baseRotationY = baseRotationY;
   group.userData.baseRotationZ = 0;
-  group.userData.idlePhase = index * Math.PI * 0.5;
   group.userData.hasManualRotation = false;
   group.userData.layoutReady = false;
   group.userData.targetPosition = new THREE.Vector3();
@@ -399,6 +397,7 @@ export function createLogoInspector3D(target, options = {}) {
   let lastPointerY = 0;
   let raf = 0;
   let destroyed = false;
+  let lastTime = performance.now();
   let introStartTime = 0;
   let introComplete = false;
 
@@ -621,21 +620,21 @@ export function createLogoInspector3D(target, options = {}) {
   const renderLoop = (time) => {
     if (destroyed) return;
 
+    const delta = clamp((time - lastTime) / 1000, 0, 0.05);
+    lastTime = time;
     const introProgress = updateIntro(time);
     const introRunning = introProgress < 1;
 
     stage.children.forEach((logo) => {
       const paused = logo === hoveredLogo || logo === draggedLogo;
+      if (!paused && !introRunning && logo.visible && !reducedMotion) {
+        logo.rotation.y += delta * IDLE_SPIN_SPEED;
+      }
+
       if (logo.userData.hasManualRotation || paused || introRunning) return;
 
-      const sway = reducedMotion
-        ? 0
-        : Math.sin(time * IDLE_SWAY_SPEED + logo.userData.idlePhase) *
-          IDLE_SWAY_AMPLITUDE;
       logo.rotation.x +=
         (logo.userData.baseRotationX - logo.rotation.x) * RETURN_EASE;
-      logo.rotation.y +=
-        (logo.userData.baseRotationY + sway - logo.rotation.y) * RETURN_EASE;
       logo.rotation.z +=
         (logo.userData.baseRotationZ - logo.rotation.z) * RETURN_EASE;
     });
