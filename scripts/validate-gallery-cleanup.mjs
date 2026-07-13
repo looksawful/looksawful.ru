@@ -19,6 +19,12 @@ async function exists(filePath) {
   }
 }
 
+const removedPlaceholders = new Set([
+  "public/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-01.mp4",
+  "public/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-02.mp4",
+  "public/assets/media/pets/awful-describer.png",
+]);
+
 const manifest = JSON.parse(await fs.readFile(manifestPath, "utf8"));
 const plan = JSON.parse(await fs.readFile(planPath, "utf8"));
 const items = Array.isArray(manifest.items) ? manifest.items : [];
@@ -45,18 +51,15 @@ for (const item of items) {
 
 for (const group of plan) {
   if (group.scope === "cross-project") continue;
+  if (removedPlaceholders.has(group.canonical)) continue;
   const canonical = path.join(rootDir, group.canonical);
   if (!(await exists(canonical))) errors.push(`canonical file missing: ${group.canonical}`);
   for (const redundant of group.redundant || []) {
+    if (removedPlaceholders.has(redundant)) continue;
     if (await exists(path.join(rootDir, redundant))) errors.push(`redundant file still exists: ${redundant}`);
   }
 }
 
-const removedPlaceholders = [
-  "public/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-01.mp4",
-  "public/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-02.mp4",
-  "public/assets/media/pets/awful-describer.png",
-];
 for (const repoPath of removedPlaceholders) {
   if (await exists(path.join(rootDir, repoPath))) errors.push(`unused placeholder still exists: ${repoPath}`);
 }
@@ -73,6 +76,6 @@ console.log(JSON.stringify({
   uniqueIds: ids.size,
   uniqueSrcs: srcs.size,
   videos,
-  checkedDuplicateGroups: plan.filter((group) => group.scope !== "cross-project").length,
+  checkedDuplicateGroups: plan.filter((group) => group.scope !== "cross-project" && !removedPlaceholders.has(group.canonical)).length,
   status: "ok",
 }, null, 2));
