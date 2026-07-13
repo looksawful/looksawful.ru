@@ -1,6 +1,6 @@
 // Mount one rotating 3D Jestei logo inside the rebrand card.
 const TARGET_SELECTOR = "#jestei-results .jestei-bento__logo-inspector";
-const POSTER_URL = "/assets/jestei/branding/jestei-logo.svg";
+const POSTER_URL = "/assets/jestei/branding/jestei-logo-mark.svg";
 
 function mountSingleLogo(target) {
   if (!(target instanceof HTMLElement) || target.dataset.bentoSingleLogoMounted === "true") {

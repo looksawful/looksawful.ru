@@ -5,7 +5,7 @@ const JESTEI_COVER = `
         <figure class="jestei-cover__logo" aria-label="Jestei Pool 3D logo" data-cover-logo="">
           <canvas
             class="visual-canvas"
-            data-three-poster="/assets/jestei/branding/jestei-logo.svg"
+            data-three-poster="/assets/jestei/branding/jestei-logo-mark.svg"
             data-three-scene="logo"
             data-visual-demo="three:logo"
             id="project-jestei-cover-logo-canvas"

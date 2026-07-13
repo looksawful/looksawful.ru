@@ -1,5 +1,6 @@
 name: Deploy GitHub Pages
 
+# GitHub Pages is the only production deployment target.
 on:
   push:
     branches:
@@ -7,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
   statuses: write
@@ -30,14 +31,12 @@ jobs:
               sha: context.sha,
               state: "pending",
               context: "github-pages/production",
-              description: "Cleaning and validating gallery assets",
+              description: "Building GitHub Pages production deployment",
               target_url: "https://www.looksawful.ru/"
             });
 
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -48,61 +47,8 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Run cleanup and deterministic validation
-        id: cleanup
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          {
-            git fetch origin audit/gallery-inventory-20260713
-            git show origin/audit/gallery-inventory-20260713:_reports/gallery-inventory/duplicate-reclaim-plan.json > /tmp/duplicate-reclaim-plan.json
-            node scripts/cleanup-gallery-safe.mjs /tmp/duplicate-reclaim-plan.json
-            git show 7764a131d7b1bc2728b2323ae94f7cdc73c4032a:.github/workflows/pages.yml > .github/workflows/pages.yml
-            rm -f .github/workflows/gallery-cleanup-once.yml
-            npm run build
-            node scripts/validate-gallery-cleanup.mjs /tmp/duplicate-reclaim-plan.json
-          } 2>&1 | tee /tmp/gallery-cleanup.log
-
-      - name: Publish cleanup diagnostics
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const branch = 'audit/gallery-inventory-20260713';
-            const target = '_reports/gallery-inventory/gallery-cleanup.log';
-            const content = fs.readFileSync('/tmp/gallery-cleanup.log').toString('base64');
-            let sha;
-            try {
-              const existing = await github.rest.repos.getContent({ owner: context.repo.owner, repo: context.repo.repo, path: target, ref: branch });
-              if (!Array.isArray(existing.data)) sha = existing.data.sha;
-            } catch (error) {
-              if (error.status !== 404) throw error;
-            }
-            await github.rest.repos.createOrUpdateFileContents({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              path: target,
-              branch,
-              message: 'audit: capture gallery cleanup diagnostics [skip ci]',
-              content,
-              ...(sha ? { sha } : {})
-            });
-
-      - name: Stop when cleanup failed
-        if: steps.cleanup.outcome != 'success'
-        run: exit 1
-
-      - name: Commit verified cleanup
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "chore(gallery): remove exact duplicates and empty placeholders"
-          git push origin HEAD:prod
+      - name: Build
+        run: npm run build
 
       - name: Stamp deployment
         run: |
@@ -128,6 +74,29 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Verify production commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="commit=${GITHUB_SHA}"
+          base_url="https://www.looksawful.ru/deploy-version.txt?sha=${GITHUB_SHA}"
+
+          for attempt in $(seq 1 30); do
+            body="$(curl --fail --silent --show-error --location --max-time 20 \
+              -H 'Cache-Control: no-cache' \
+              "${base_url}&attempt=${attempt}" || true)"
+
+            if grep -Fxq "$expected" <<<"$body"; then
+              printf '%s\n' "$body"
+              exit 0
+            fi
+
+            sleep 10
+          done
+
+          echo "Production did not expose ${expected}" >&2
+          exit 1
+
   report:
     runs-on: ubuntu-latest
     needs:
@@ -149,7 +118,12 @@ jobs:
               sha: context.sha,
               state: success ? "success" : "failure",
               context: "github-pages/production",
-              description: success ? "Published cleaned gallery" : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`,
+              description: success
+                ? "Published and verified on www.looksawful.ru"
+                : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`,
               target_url: "https://www.looksawful.ru/"
             });
-            if (!success) core.setFailed(`Gallery cleanup failed. Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`);
+
+            if (!success) {
+              core.setFailed(`GitHub Pages deployment failed. Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`);
+            }

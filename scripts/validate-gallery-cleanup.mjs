@@ -21,7 +21,7 @@ async function exists(filePath) {
 
 const removedPlaceholders = new Set([
   "public/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-01.mp4",
-  "public/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-02.mp4",
+  "public/assets/media/cases/jesteipool/03-form/placeholders/collage-video-placeholder-01.mp4",
   "public/assets/media/pets/awful-describer.png",
 ]);
 
