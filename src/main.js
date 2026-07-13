@@ -10,7 +10,6 @@ const APPROVED_SECTION_IDS = new Set([
   "hero",
   "jestei-cover",
   "jestei-results",
-  "jestei-arc",
   "jestei-logo",
   "jestei-interface-bento",
   "jestei-color",
@@ -22,7 +21,6 @@ const APPROVED_SECTION_IDS = new Set([
   "jestei-promo",
   "jestei-landings",
   "jestei-tariffs",
-  "jestei-masonry",
   "jestei-graphics",
   "styx-cover",
   "styx-graphics",
@@ -34,6 +32,8 @@ const APPROVED_SECTION_IDS = new Set([
 
 const HOMEPAGE_HIDDEN_SECTION_IDS = new Set([
   "jestei-type",
+  "jestei-arc",
+  "jestei-masonry",
 ]);
 
 const PET_PROJECT_PREVIEW_WIDTHS = [
@@ -61,7 +61,7 @@ const JESTEI_MOTION_BREAKS = [
     modifier: "arc",
     animation: "landing-arc",
     canvasId: "jestei-arc-canvas",
-    anchorId: "jestei-results",
+    anchorId: "jestei-type",
     position: "afterend",
   },
   {
@@ -69,7 +69,7 @@ const JESTEI_MOTION_BREAKS = [
     modifier: "masonry",
     animation: "landing-masonry",
     canvasId: "jestei-masonry-canvas",
-    anchorId: "jestei-graphics",
+    anchorId: "jestei-interface-bento",
     position: "beforebegin",
   },
 ];
@@ -94,8 +94,6 @@ function removeHeroOnlyConstraints(root = document) {
 
     if (isHiddenFromHomepage) {
       section.setAttribute("aria-hidden", "true");
-    } else if (isApproved) {
-      section.removeAttribute("aria-hidden");
     }
 
     section.style.setProperty("display", isApproved ? "block" : "none", "important");
@@ -124,6 +122,7 @@ function createJesteiMotionBreak({ id, modifier, animation, canvasId }, root = d
   section.className = `section jestei-motion-break jestei-motion-break--${modifier}`;
   section.id = id;
   section.setAttribute("data-section-family", "jestei");
+  section.setAttribute("aria-hidden", "true");
   section.innerHTML = `
     <div class="jestei-motion-break__surface" data-animation="${animation}">
       <canvas class="visual-canvas jestei-motion-break__canvas" id="${canvasId}"></canvas>
@@ -133,20 +132,20 @@ function createJesteiMotionBreak({ id, modifier, animation, canvasId }, root = d
 }
 
 function placeJesteiMotionBreaks(root = document) {
-  root.querySelector("#jestei-results > .jestei-masonry")?.remove();
-  root.querySelector("#jestei-results > .jestei-bento__heading")?.remove();
+  hideHomepageOnlyElement(root.querySelector("#jestei-results > .jestei-masonry"));
 
   JESTEI_MOTION_BREAKS.forEach((config) => {
+    if (HOMEPAGE_HIDDEN_SECTION_IDS.has(config.id)) {
+      hideHomepageOnlyElement(root.querySelector(`#${config.id}`));
+      return;
+    }
+
     const anchor = root.querySelector(`#${config.anchorId}`);
     if (!anchor) {
       return;
     }
 
     const section = root.querySelector(`#${config.id}`) || createJesteiMotionBreak(config, root);
-    section.hidden = false;
-    section.removeAttribute("aria-hidden");
-    section.removeAttribute("data-homepage-hidden");
-
     const isAlreadyPlaced =
       config.position === "afterend"
         ? anchor.nextElementSibling === section

@@ -1,11 +1,11 @@
 export const ANIMATION_MOUNTERS = {
   "landing-arc": () => import("../../visuals/canvas/landing-motion/arc/index.js").then((module) => module.mountArc),
   "landing-masonry": () =>
-    import("../../visuals/canvas/landing-motion/masonry/index.js").then((module) => module.mountMasonry),
+    import("./jestei-archive-media.js").then((module) => module.mountJesteiArchiveMasonry),
   diagonal: () =>
     import("../../visuals/canvas/showcase-diagonal/index.js").then((module) => module.mountShowcaseDiagonal),
   horizontal: () =>
-    import("../../visuals/canvas/showcase-horizontal/index.js").then((module) => module.mountShowcaseHorizontal),
+    import("./jestei-archive-media.js").then((module) => module.mountJesteiArchiveHorizontal),
   "before-after": () =>
     import("../../visuals/canvas/before-after/index.js").then((module) => module.mountShowcaseBeforeAfter),
 };
@@ -19,4 +19,3 @@ export const LOGO_INSPECTOR_MODEL_URL = new URL("../../assets/jestei/models/logo
 export const loadAnimationMount = (type) => ANIMATION_MOUNTERS[type]?.();
 
 export const loadThreeDemoMount = (scene) => THREE_DEMO_MOUNTERS[scene]?.();
-

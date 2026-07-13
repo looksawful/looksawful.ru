@@ -6,6 +6,8 @@
 
 main[data-showcase] :is(
   #jestei-type,
+  #jestei-arc,
+  #jestei-masonry,
   [data-homepage-hidden]
 ) {
   display: none !important;
