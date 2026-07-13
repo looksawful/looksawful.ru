@@ -2,15 +2,166 @@
   --section-accent: var(--black);
 }
 
-.jestei-promo [data-section-screen] {
-  row-gap: clamp(1.1rem, 2.5vw, 2.2rem);
-}
 #jestei-promo {
   --section-accent: var(--black);
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
-  --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
-  --section-local-text: min(100%, 58rem);
-  --section-local-lead: min(100%, 66rem);
-  --section-local-media-ratio: 16 / 10;
-  --section-local-media-fit: cover;
+  --jestei-promo-width: min(calc(100% - clamp(3rem, 9vw, 10rem)), 92rem);
+  --jestei-promo-radius: clamp(1.35rem, 2.5vw, 2.6rem);
+  --jestei-promo-slide-width: clamp(24rem, 39vw, 43.5rem);
+  --jestei-promo-slide-height: clamp(12.2rem, 19vw, 19rem);
+  --jestei-promo-fade: clamp(3.5rem, 7vw, 7.25rem);
+}
+
+.jestei-promo__screen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: clamp(4rem, 5.2vw, 5rem);
+  justify-items: center;
+  inline-size: 100%;
+  max-inline-size: none;
+  padding-block: clamp(1.35rem, 3vw, 2.25rem) clamp(2.4rem, 4.8vw, 4rem);
+}
+
+main[data-showcase] #jestei-promo [data-section-screen] > * {
+  grid-column: 1;
+}
+
+.jestei-promo__head-card {
+  display: grid;
+  align-content: center;
+  inline-size: var(--jestei-promo-width);
+  min-block-size: clamp(9.8rem, 12.6vw, 13.5rem);
+  padding: clamp(1.35rem, 2.65vw, 2.2rem);
+  border: var(--line);
+  border-radius: var(--jestei-promo-radius);
+  background: var(--white);
+}
+
+.jestei-promo__title {
+  margin: 0;
+  color: var(--black);
+  font-size: clamp(3.2rem, 6.1vw, 6.25rem);
+  font-weight: 900;
+  line-height: 0.86;
+  letter-spacing: 0;
+}
+
+.jestei-promo__title [data-section-title-accent] {
+  color: color-mix(in srgb, var(--black) 48%, var(--white));
+}
+
+.jestei-promo__head-card p {
+  max-inline-size: 40rem !important;
+  margin: clamp(0.8rem, 1.25vw, 1.05rem) 0 0;
+  color: var(--black);
+  font-size: clamp(0.98rem, 1.08vw, 1.08rem) !important;
+  font-weight: 400 !important;
+  line-height: 1.14 !important;
+  letter-spacing: 0;
+}
+
+.jestei-promo__slider {
+  position: relative;
+  inline-size: var(--jestei-promo-width);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.jestei-promo__slider::before,
+.jestei-promo__slider::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  z-index: 2;
+  inline-size: var(--jestei-promo-fade);
+  pointer-events: none;
+}
+
+.jestei-promo__slider::before {
+  inset-inline-start: 0;
+  background: linear-gradient(90deg, var(--white) 0%, color-mix(in srgb, var(--white) 88%, transparent) 38%, transparent 100%);
+}
+
+.jestei-promo__slider::after {
+  inset-inline-end: 0;
+  background: linear-gradient(270deg, var(--white) 0%, color-mix(in srgb, var(--white) 88%, transparent) 38%, transparent 100%);
+}
+
+.jestei-promo__rail {
+  display: flex;
+  gap: clamp(0.55rem, 0.85vw, 0.85rem);
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.15rem 0.65rem;
+  padding-inline: calc(var(--jestei-promo-fade) * 0.48);
+  scroll-snap-type: inline mandatory;
+  scroll-padding-inline: calc(var(--jestei-promo-fade) * 0.48);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.jestei-promo__rail::-webkit-scrollbar {
+  display: none;
+}
+
+.jestei-promo__slide {
+  flex: 0 0 var(--jestei-promo-slide-width);
+  display: block;
+  block-size: var(--jestei-promo-slide-height);
+  overflow: hidden;
+  border: var(--line);
+  border-radius: 0.5rem;
+  background: var(--black);
+  scroll-snap-align: center;
+  text-decoration: none;
+}
+
+.jestei-promo__slide img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 64rem) {
+  #jestei-promo {
+    --jestei-promo-slide-width: clamp(21rem, 64vw, 36rem);
+    --jestei-promo-slide-height: clamp(10.8rem, 32vw, 18rem);
+    --jestei-promo-fade: clamp(2.5rem, 7vw, 4.75rem);
+  }
+
+  .jestei-promo__title {
+    font-size: clamp(2.7rem, 8.2vw, 4.8rem);
+  }
+}
+
+@media (max-width: 42rem) {
+  #jestei-promo {
+    --jestei-promo-width: calc(100% - 1rem);
+    --jestei-promo-radius: 1.1rem;
+    --jestei-promo-slide-width: min(84vw, 23rem);
+    --jestei-promo-slide-height: min(43vw, 11.8rem);
+    --jestei-promo-fade: 2rem;
+  }
+
+  .jestei-promo__screen {
+    gap: 2rem;
+    padding-block: 1.6rem 2.2rem;
+  }
+
+  .jestei-promo__head-card {
+    min-block-size: 0;
+    padding: 1rem;
+  }
+
+  .jestei-promo__title {
+    font-size: clamp(2rem, 11vw, 2.8rem);
+  }
+
+  .jestei-promo__head-card p {
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
 }

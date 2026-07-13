@@ -20,26 +20,26 @@
   --section-local-media-fit: cover;
 }
 
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) {
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) {
   margin-block: clamp(1.4rem, 3vw, 3rem);
 }
 
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) [data-section-screen] {
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) [data-section-screen] {
   padding-block: clamp(1.35rem, 3.2vw, 3.2rem);
 }
 
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section {
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section {
   grid-template-columns: minmax(20rem, 0.54fr) minmax(26rem, 0.92fr) minmax(15rem, 0.46fr);
   gap: clamp(1rem, 2vw, 2.5rem);
   align-items: center;
 }
 
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__header,
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__copy {
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section__header,
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section__copy {
   align-self: center;
 }
 
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-content-title] {
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section [data-content-title] {
   max-inline-size: min(100%, 18ch);
   font-size: clamp(1.95rem, 2.85vw, 3.65rem);
   line-height: 0.92;
@@ -47,26 +47,26 @@ main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #je
   word-break: normal;
 }
 
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-section-title-main],
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-section-title-accent] {
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section [data-section-title-main],
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section [data-section-title-accent] {
   display: block;
 }
 
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-section-title-main] + [data-section-title-accent]::before {
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section [data-section-title-main] + [data-section-title-accent]::before {
   content: none;
 }
 
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__copy > p {
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section__copy > p {
   max-inline-size: min(100%, 22rem);
 }
 
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__copy > p:first-child {
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section__copy > p:first-child {
   font-size: clamp(1rem, 0.5vw + 0.92rem, 1.2rem);
   line-height: 1.26;
 }
 
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__media,
-main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__filter {
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section__media,
+main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section__filter {
   align-self: center;
 }
 
@@ -76,7 +76,7 @@ main[data-showcase] #jestei-filter .filter-fullscreen-btn {
 }
 
 @media (max-width: 72rem) {
-  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section {
+  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "head"
@@ -84,14 +84,14 @@ main[data-showcase] #jestei-filter .filter-fullscreen-btn {
       "copy";
   }
 
-  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-content-title],
-  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section__copy > p {
+  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section [data-content-title],
+  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section__copy > p {
     max-inline-size: min(100%, 42rem);
   }
 }
 
 @media (max-width: 48rem) {
-  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) .interface-section [data-content-title] {
+  main[data-showcase] :where(#jestei-filter, #jestei-event-nav, #jestei-landings) .interface-section [data-content-title] {
     font-size: clamp(1.7rem, 8.2vw, 3rem);
   }
 }
@@ -133,8 +133,7 @@ main[data-showcase] .jestei-interface-bento [data-section-screen] > * {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-areas:
     "filter filter filter filter filter filter filter event event event event event"
-    "promo promo promo promo promo promo promo event event event event event"
-    "promo promo promo promo promo promo promo landings landings landings landings landings";
+    "landings landings landings landings landings landings landings event event event event event";
   gap: var(--jestei-interface-bento-gap);
   inline-size: 100%;
   min-inline-size: 0;
@@ -150,15 +149,11 @@ main[data-showcase] .jestei-interface-bento [data-section-screen] > * {
   grid-area: event;
 }
 
-.jestei-interface-bento #jestei-promo {
-  grid-area: promo;
-}
-
 .jestei-interface-bento #jestei-landings {
   grid-area: landings;
 }
 
-main[data-showcase] .jestei-interface-bento :where(#jestei-filter, #jestei-event-nav, #jestei-promo, #jestei-landings) {
+main[data-showcase] .jestei-interface-bento :where(#jestei-filter, #jestei-event-nav, #jestei-landings) {
   margin: 0;
   scroll-margin-block-start: var(--section-scroll-offset, 0px);
 }
