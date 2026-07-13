@@ -31,8 +31,9 @@ main[data-showcase] #jestei-results .jestei-bento__steps-visual {
 
 @media (max-width: 43rem) {
   main[data-showcase] #jestei-results .jestei-bento__audience-avatar {
-    inset-block-start: 62% !important;
-    inset-inline-start: 75% !important;
-    inline-size: clamp(5rem, 28cqi, 7.25rem) !important;
+    inset-block-start: 38% !important;
+    inset-inline-start: calc(100% - var(--jestei-bento-page-x)) !important;
+    inline-size: clamp(4.75rem, 24cqi, 6.5rem) !important;
+    transform: translate(-50%, -50%) !important;
   }
 }
