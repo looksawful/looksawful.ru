@@ -169,16 +169,25 @@ async function readDimensions(publicPath, type) {
 }
 
 function inferProject(publicPath) {
-  if (publicPath.includes("/jesteipool/") || publicPath.includes("/jestei/")) return "jesteipool";
-  if (publicPath.includes("/styx/")) return "styx";
-  if (publicPath.includes("/shootings/")) return "shootings";
+  const normalized = publicPath.toLowerCase();
+
+  if (normalized.includes("/jesteipool/") || normalized.includes("/jestei/") || normalized.includes("jestei-pool")) return "jesteipool";
+  if (normalized.includes("/styx/") || normalized.includes("styx-jewel")) return "styx";
+  if (normalized.includes("/shootings/") || normalized.includes("/shoots/") || normalized.includes("photography")) return "shootings";
   if (publicPath.includes("/pets/")) return "pets";
   return "pets";
 }
 
 function inferCategory(publicPath, project, type) {
+  const normalized = publicPath.toLowerCase();
+
   if (project === "shootings") return "photo";
   if (type === "video") return "ad";
+  if (normalized.includes("photo") || normalized.includes("shoot")) return "photo";
+  if (normalized.includes("logo") || normalized.includes("brand")) return "illustration";
+  if (normalized.includes("campaign") || normalized.includes("social")) return "social";
+  if (normalized.includes("print") || normalized.includes("poster")) return "poster";
+  if (normalized.includes("site") || normalized.includes("page") || normalized.includes("landing")) return "banner";
   if (publicPath.includes("/01-logo/") || publicPath.includes("/branding/")) return "illustration";
   if (publicPath.includes("/02-color/")) return "illustration";
   if (publicPath.includes("/03-form/")) return "banner";
@@ -195,6 +204,7 @@ function inferCategory(publicPath, project, type) {
 
 function inferTags(publicPath, project, type) {
   const tags = new Set();
+  const draftMeta = getDraftMeta(publicPath);
 
   if (type === "video" || publicPath.includes("motion")) tags.add("motion");
   if (publicPath.includes("color") || publicPath.includes("branding")) tags.add("color");
@@ -203,6 +213,11 @@ function inferTags(publicPath, project, type) {
   if (publicPath.includes("depth") || project === "styx") tags.add("3d");
   if (project === "shootings") tags.add("event");
   if (publicPath.includes("graphic")) tags.add("ai");
+  if (draftMeta) {
+    tags.add("draft");
+    if (draftMeta.collection) tags.add(slugToken(draftMeta.collection));
+    if (draftMeta.group) tags.add(slugToken(draftMeta.group));
+  }
 
   return [...tags];
 }
@@ -221,6 +236,42 @@ function makeTitle(publicPath) {
   return file.replace(/[-_]+/g, " ");
 }
 
+function slugToken(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function getDraftMeta(publicPath) {
+  const marker = "/assets/gallery/database/vanila-draft/";
+  const index = publicPath.indexOf(marker);
+  if (index < 0) return null;
+
+  const relativePath = publicPath.slice(index + marker.length);
+  const parts = relativePath.split("/").filter(Boolean);
+  const collection = parts[0] || "";
+  const group = parts.length > 2 ? parts[1] : "";
+  const folder = parts.length > 1 ? parts.slice(0, -1).join("/") : "";
+  const parsed = path.posix.parse(relativePath);
+  const originalNameMatch = parsed.name.match(/^(.*)--([a-z0-9]+)$/i);
+  const originalFile = originalNameMatch
+    ? `${originalNameMatch[1]}.${originalNameMatch[2]}`
+    : path.posix.basename(relativePath);
+  const sourcePath = path.posix.join("media", parsed.dir, originalFile);
+
+  return {
+    source: "vanila-draft",
+    sourceRoot: "media",
+    sourcePath,
+    databasePath: relativePath,
+    collection,
+    group,
+    folder,
+  };
+}
+
 async function createItem(publicPath, index) {
   const type = videoPattern.test(publicPath) ? "video" : "image";
   const project = inferProject(publicPath);
@@ -228,6 +279,7 @@ async function createItem(publicPath, index) {
   const tags = inferTags(publicPath, project, type);
   const dimensions = await readDimensions(publicPath, type);
   const poster = type === "video" ? await resolveVideoPoster(publicPath) : "";
+  const draftMeta = getDraftMeta(publicPath);
 
   return {
     id: `asset-${String(index + 1).padStart(3, "0")}`,
@@ -242,6 +294,7 @@ async function createItem(publicPath, index) {
     ratio: Number(dimensions.ratio.toFixed(4)),
     variant: inferVariant(dimensions.ratio, type),
     ...(poster ? { poster } : {}),
+    ...(draftMeta ? { draft: draftMeta } : {}),
   };
 }
 

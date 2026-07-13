@@ -13,7 +13,7 @@
   if (!root || !grid) return;
 
   const labels = {
-    "showcase-family-item": "проект",
+    project: "проект",
     type: "тип",
     category: "категория",
     tags: "тег",
@@ -256,6 +256,7 @@
     article.className = `asset-card asset-card--${variant}`;
     article.dataset.assetCard = "";
     article.dataset.showcaseItem = asset.showcaseItem || "";
+    article.dataset.project = asset.project || "";
     article.dataset.type = asset.type || "image";
     article.dataset.category = asset.category || "";
     article.dataset.tags = tags.join(" ");
