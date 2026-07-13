@@ -50,7 +50,7 @@ const JESTEI_BENTO = `
           <article class="jestei-bento__card jestei-bento__card--steps" data-bento-card="steps">
             <div class="jestei-bento__content" data-bento-content="">
               <h3 class="jestei-bento__title jestei-bento__title--metric"><strong>2 шага</strong><span>вместо 6</span></h3>
-              <p class="jestei-bento__side-copy">сократили пользовательский путь к трекам</p>
+              <p class="jestei-bento__side-copy">сократили пользовательский путь к трекам и плейлистам</p>
             </div>
           </article>
 
