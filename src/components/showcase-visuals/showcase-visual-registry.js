@@ -1,3 +1,9 @@
+import { placeJesteiArchiveCanvases } from "./jestei-archive-media.js";
+
+if (typeof document !== "undefined") {
+  placeJesteiArchiveCanvases(document);
+}
+
 export const ANIMATION_MOUNTERS = {
   "landing-arc": () => import("../../visuals/canvas/landing-motion/arc/index.js").then((module) => module.mountArc),
   "landing-masonry": () =>
