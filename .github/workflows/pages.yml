@@ -55,7 +55,7 @@ jobs:
           set -o pipefail
           npm run build 2>&1 | tee /tmp/gallery-audit-build.log
 
-      - name: Publish one-time gallery inventory diagnostics through GitHub API
+      - name: Publish complete one-time gallery inventory through GitHub API
         if: always()
         uses: actions/github-script@v7
         with:
@@ -63,21 +63,32 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             const branch = 'audit/gallery-inventory-20260713';
-            const entries = [
-              ['/tmp/gallery-audit-build.log', '_reports/gallery-inventory/build.log'],
-              ['public/_audit-gallery-inventory/summary.json', '_reports/gallery-inventory/summary.json'],
-              ['public/_audit-gallery-inventory/index.json', '_reports/gallery-inventory/index.json'],
-              ['public/_audit-gallery-inventory/exact-duplicates.json', '_reports/gallery-inventory/exact-duplicates.json'],
-              ['public/_audit-gallery-inventory/pixel-duplicates.json', '_reports/gallery-inventory/pixel-duplicates.json'],
-              ['public/_audit-gallery-inventory/perceptual-candidates.json', '_reports/gallery-inventory/perceptual-candidates.json'],
-              ['public/_audit-gallery-inventory/filename-candidates.json', '_reports/gallery-inventory/filename-candidates.json'],
-              ['public/_audit-gallery-inventory/missing-references.json', '_reports/gallery-inventory/missing-references.json'],
-              ['public/_audit-gallery-inventory/manifest-audit.json', '_reports/gallery-inventory/manifest-audit.json'],
-              ['public/_audit-gallery-inventory/metadata-errors.json', '_reports/gallery-inventory/metadata-errors.json']
-            ];
+            const reportRoot = 'public/_audit-gallery-inventory';
+
+            function walk(dir) {
+              if (!fs.existsSync(dir)) return [];
+              return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+                const absolute = path.join(dir, entry.name);
+                return entry.isDirectory() ? walk(absolute) : [absolute];
+              });
+            }
+
+            const entries = [];
+            if (fs.existsSync('/tmp/gallery-audit-build.log')) {
+              entries.push(['/tmp/gallery-audit-build.log', '_reports/gallery-inventory/build.log']);
+            }
+            for (const source of walk(reportRoot)) {
+              const relative = path.relative(reportRoot, source).split(path.sep).join('/');
+              if (relative === 'site-assets-inventory.json') continue;
+              entries.push([source, `_reports/gallery-inventory/${relative}`]);
+            }
 
             for (const [source, target] of entries) {
-              if (!fs.existsSync(source)) continue;
+              const size = fs.statSync(source).size;
+              if (size > 25 * 1024 * 1024) {
+                core.warning(`Skipping oversized report ${source}: ${size} bytes`);
+                continue;
+              }
               const content = fs.readFileSync(source).toString('base64');
               let sha;
               try {
