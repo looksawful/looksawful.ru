@@ -1,4 +1,4 @@
-/* Final isolated contract for the Jestei graphic-design chapter. */
+/* Final source-driven contract for the Jestei graphic-design chapter. */
 main[data-showcase] #jestei-graphics [data-section-screen] {
   row-gap: 0;
 }
@@ -11,10 +11,6 @@ main[data-showcase] #jestei-graphics .jestei-graphics__head {
   max-inline-size: 100%;
   padding-block: clamp(2.75rem, 6vw, 5.5rem) clamp(1.5rem, 3vw, 2.75rem);
   overflow: visible;
-}
-
-main[data-showcase] #jestei-graphics p {
-  display: none !important;
 }
 
 main[data-showcase] #jestei-graphics .jestei-graphics__title {
@@ -38,22 +34,25 @@ main[data-showcase] #jestei-graphics .jestei-graphics__title {
 }
 
 main[data-showcase] #jestei-graphics .jestei-graphics__title > * {
-  display: none !important;
-}
-
-main[data-showcase] #jestei-graphics .jestei-graphics__title::before {
-  content: "графический";
+  display: inline !important;
   flex: 0 0 auto;
-  color: var(--black);
   white-space: nowrap;
 }
 
-main[data-showcase] #jestei-graphics .jestei-graphics__title::after {
-  content: "дизайн";
-  flex: 0 0 auto;
+main[data-showcase] #jestei-graphics .jestei-graphics__title [data-section-title-main] {
+  color: var(--black);
+}
+
+main[data-showcase] #jestei-graphics .jestei-graphics__title [data-section-title-accent] {
   color: color-mix(in srgb, var(--black) 52%, transparent);
   letter-spacing: 0;
-  white-space: nowrap;
+}
+
+main[data-showcase] #jestei-graphics .jestei-graphics__title::before,
+main[data-showcase] #jestei-graphics .jestei-graphics__title::after,
+main[data-showcase] #jestei-graphics [data-content-head]::before {
+  content: none !important;
+  display: none !important;
 }
 
 main[data-showcase] #jestei-graphics .jestei-graphics__body,
@@ -78,8 +77,7 @@ main[data-showcase] #jestei-graphics [data-content-head] {
   margin: 0;
 }
 
-main[data-showcase] #jestei-graphics [data-content-head]::before {
-  content: "Оживили графический дизайн и креативы бренда: добавили иллюстрации, коллажи, градиенты и геометрические паттерны.";
+main[data-showcase] #jestei-graphics .jestei-graphics__lead {
   display: block !important;
   align-self: start;
   max-inline-size: 30rem;
@@ -155,7 +153,7 @@ main[data-showcase] #jestei-graphics [data-media-cluster][data-media-layout="gri
 
 main[data-showcase] #jestei-graphics [data-media-cluster][data-media-layout="grid"] > [data-section-media-item] {
   position: relative;
-  display: block;
+  display: block !important;
   grid-column: auto;
   grid-row: auto;
   inline-size: 100%;
@@ -166,10 +164,6 @@ main[data-showcase] #jestei-graphics [data-media-cluster][data-media-layout="gri
   border: 0;
   border-radius: 0;
   background: color-mix(in srgb, var(--black) 4%, var(--white));
-}
-
-main[data-showcase] #jestei-graphics [data-media-cluster][data-media-layout="grid"] > [data-section-media-item]:nth-last-child(5) {
-  display: none !important;
 }
 
 main[data-showcase] #jestei-graphics [data-media-cluster][data-media-layout="grid"] > [data-section-media-item] > :is(img, video) {
@@ -192,7 +186,7 @@ main[data-showcase] #jestei-graphics [data-media-cluster][data-media-layout="gri
     grid-template-columns: minmax(0, 1fr);
   }
 
-  main[data-showcase] #jestei-graphics [data-content-head]::before {
+  main[data-showcase] #jestei-graphics .jestei-graphics__lead {
     max-inline-size: 42rem;
   }
 }
@@ -213,7 +207,7 @@ main[data-showcase] #jestei-graphics [data-media-cluster][data-media-layout="gri
     gap: clamp(0.9rem, 4vw, 1.25rem);
   }
 
-  main[data-showcase] #jestei-graphics [data-content-head]::before {
+  main[data-showcase] #jestei-graphics .jestei-graphics__lead {
     font-size: clamp(0.98rem, 4.2vw, 1.12rem);
     line-height: 1.42;
   }
