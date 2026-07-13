@@ -13,6 +13,7 @@ const REMOVED_COPY = [
 const REMOVED_SCANOGRAPHY_COPY =
   "Вместе со съёмками и предметными сетапами я экспериментировал со сканографией для создания портретов моделей, предметных композиций и экспрессивных искажённых кадров. Эти изображения стали частью визуальной системы бренда, использовались в соцсетях, промо-материалах и кампаниях.";
 
+const noop = () => {};
 const normalizeText = (value) => String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
 
 const removeDeprecatedShowcaseContent = (root = document) => {
@@ -64,12 +65,22 @@ const setVisible = (element) => {
 const prepareSurface = (surface, modifier) => {
   if (!surface) return;
 
+  const preserveDepthActive =
+    modifier === "interface" && surface.classList.contains("is-scroll-depth-active");
+
   surface.className = `jestei-archive-media__surface jestei-archive-media__surface--${modifier}`;
+  surface.classList.toggle("is-scroll-depth-active", preserveDepthActive);
+  surface.toggleAttribute("data-scroll-depth", modifier === "interface");
   surface.removeAttribute("aria-hidden");
   setVisible(surface);
 
   const canvas = surface.querySelector("canvas");
   canvas?.classList.add("jestei-archive-media__canvas");
+
+  if (canvas) {
+    canvas.dataset.scrollDepth = modifier === "interface" ? "true" : "false";
+  }
+
   setVisible(canvas);
 };
 
@@ -88,6 +99,31 @@ const prepareProductMasonry = (surface, canvas) => {
   canvas.dataset.masonryScene = PRODUCT_MASONRY_SCENE;
   setVisible(surface);
   setVisible(canvas);
+};
+
+const disposeMount = (mount) => {
+  if (typeof mount === "function") {
+    mount();
+    return;
+  }
+
+  mount?.dispose?.();
+};
+
+const combineMounts = (...mounts) => {
+  let disposed = false;
+
+  const dispose = () => {
+    if (disposed) {
+      return;
+    }
+
+    disposed = true;
+    mounts.forEach(disposeMount);
+  };
+
+  dispose.dispose = dispose;
+  return dispose;
 };
 
 export const placeJesteiArchiveCanvases = (root = document) => {
@@ -149,10 +185,25 @@ const schedulePlacement = () => {
 
 export const mountJesteiArchiveMasonry = async (...args) => {
   schedulePlacement();
+
+  const canvas = resolveCanvas(args[0]);
+  const surface = canvas?.closest?.("[data-animation]");
+  prepareSurface(surface, "interface");
+
   const { mountMasonry } = await import("../../visuals/canvas/landing-motion/masonry/index.js");
-  const dispose = await mountMasonry(...args);
+  const masonryMount = await mountMasonry(...args);
   schedulePlacement();
-  return dispose;
+
+  let depthMount = noop;
+
+  try {
+    const { mountJesteiScrollDepth } = await import("./jestei-scroll-depth.js");
+    depthMount = mountJesteiScrollDepth(canvas);
+  } catch (error) {
+    console.error("[jestei-scroll-depth] failed to mount", error);
+  }
+
+  return combineMounts(depthMount, masonryMount);
 };
 
 export const mountJesteiArchiveHorizontal = async (...args) => {
