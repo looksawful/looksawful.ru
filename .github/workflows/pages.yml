@@ -48,13 +48,18 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build
+        id: site-build
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee /tmp/gallery-audit-build.log
 
-      - name: Publish one-time gallery inventory to audit branch
+      - name: Publish one-time gallery inventory diagnostics to audit branch
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
-          test -f public/_audit-gallery-inventory/summary.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin audit/gallery-inventory-20260713
@@ -62,15 +67,26 @@ jobs:
           git worktree add /tmp/gallery-inventory-report origin/audit/gallery-inventory-20260713
           rm -rf /tmp/gallery-inventory-report/_reports/gallery-inventory
           mkdir -p /tmp/gallery-inventory-report/_reports/gallery-inventory
-          cp -R public/_audit-gallery-inventory/. /tmp/gallery-inventory-report/_reports/gallery-inventory/
+          cp /tmp/gallery-audit-build.log /tmp/gallery-inventory-report/_reports/gallery-inventory/build.log
+          if [ -d public/_audit-gallery-inventory ]; then
+            for name in summary.json index.json exact-duplicates.json pixel-duplicates.json perceptual-candidates.json filename-candidates.json missing-references.json manifest-audit.json metadata-errors.json; do
+              if [ -f "public/_audit-gallery-inventory/${name}" ]; then
+                cp "public/_audit-gallery-inventory/${name}" "/tmp/gallery-inventory-report/_reports/gallery-inventory/${name}"
+              fi
+            done
+          fi
           cd /tmp/gallery-inventory-report
           git add _reports/gallery-inventory
           if git diff --cached --quiet; then
-            echo "Gallery inventory report unchanged"
+            echo "Gallery inventory diagnostics unchanged"
           else
-            git commit -m "audit: publish complete gallery inventory [skip ci]"
+            git commit -m "audit: publish gallery inventory diagnostics [skip ci]"
             git push origin HEAD:audit/gallery-inventory-20260713
           fi
+
+      - name: Stop when build failed
+        if: steps.site-build.outcome != 'success'
+        run: exit 1
 
       - name: Stamp deployment
         run: |
