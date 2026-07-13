@@ -21,9 +21,17 @@ const prepareSurface = (surface, modifier) => {
 
   surface.className = `jestei-archive-media__surface jestei-archive-media__surface--${modifier}`;
   surface.removeAttribute("aria-hidden");
+  setVisible(surface);
 
   const canvas = surface.querySelector("canvas");
   canvas?.classList.add("jestei-archive-media__canvas");
+  setVisible(canvas);
+};
+
+const resolveCanvas = (canvasOrId, root = document) => {
+  if (canvasOrId instanceof HTMLCanvasElement) return canvasOrId;
+  if (typeof canvasOrId === "string") return root.getElementById(canvasOrId);
+  return null;
 };
 
 const prepareProductMasonry = (surface, canvas) => {
@@ -33,6 +41,8 @@ const prepareProductMasonry = (surface, canvas) => {
   surface.dataset.masonryScene = PRODUCT_MASONRY_SCENE;
   canvas.dataset.animationScene = PRODUCT_MASONRY_SCENE;
   canvas.dataset.masonryScene = PRODUCT_MASONRY_SCENE;
+  setVisible(surface);
+  setVisible(canvas);
 };
 
 export const placeJesteiArchiveCanvases = (root = document) => {
@@ -93,8 +103,10 @@ export const mountJesteiArchiveMasonry = async (...args) => {
 
 export const mountJesteiArchiveHorizontal = async (...args) => {
   schedulePlacement();
-  const canvas = args[0];
+
+  const canvas = resolveCanvas(args[0]);
   const surface = canvas?.closest?.("[data-animation]");
+  prepareSurface(surface, "product");
   prepareProductMasonry(surface, canvas);
 
   const { mountMasonry } = await import("../../visuals/canvas/landing-motion/masonry/index.js");
