@@ -2,6 +2,7 @@ const INTERFACE_CANVAS_ID = "archive-jestei-interface-masonry";
 const PRODUCT_CANVAS_ID = "archive-jestei-product-horizontal";
 const INTERFACE_SECTION_ID = "jestei-interface-archive";
 const PRODUCT_SECTION_ID = "jestei-product-archive";
+const PRODUCT_MASONRY_SCENE = "jesteiProductDesignMasonry";
 
 const setVisible = (element) => {
   if (!element) return;
@@ -25,6 +26,15 @@ const prepareSurface = (surface, modifier) => {
   canvas?.classList.add("jestei-archive-media__canvas");
 };
 
+const prepareProductMasonry = (surface, canvas) => {
+  if (!surface || !canvas) return;
+
+  surface.dataset.animationScene = PRODUCT_MASONRY_SCENE;
+  surface.dataset.masonryScene = PRODUCT_MASONRY_SCENE;
+  canvas.dataset.animationScene = PRODUCT_MASONRY_SCENE;
+  canvas.dataset.masonryScene = PRODUCT_MASONRY_SCENE;
+};
+
 export const placeJesteiArchiveCanvases = (root = document) => {
   const results = root.querySelector("#jestei-results");
   const graphics = root.querySelector("#jestei-graphics");
@@ -40,6 +50,7 @@ export const placeJesteiArchiveCanvases = (root = document) => {
 
   prepareSurface(interfaceSurface, "interface");
   prepareSurface(productSurface, "product");
+  prepareProductMasonry(productSurface, productCanvas);
 
   archive.className = "section jestei-archive-media jestei-archive-media--interface";
   archive.setAttribute("aria-label", "обзор ux ui решений jestei pool");
@@ -59,7 +70,7 @@ export const placeJesteiArchiveCanvases = (root = document) => {
   }
 
   productSection.className = "jestei-archive-media jestei-archive-media--product";
-  productSection.setAttribute("aria-label", "обзор продуктовой графики jestei pool");
+  productSection.setAttribute("aria-label", "обложки, посты и графический дизайн jestei pool");
   productSection.replaceChildren(productSurface);
   setVisible(productSection);
   graphics.insertAdjacentElement("beforebegin", productSection);
@@ -82,8 +93,12 @@ export const mountJesteiArchiveMasonry = async (...args) => {
 
 export const mountJesteiArchiveHorizontal = async (...args) => {
   schedulePlacement();
-  const { mountShowcaseHorizontal } = await import("../../visuals/canvas/showcase-horizontal/index.js");
-  const dispose = await mountShowcaseHorizontal(...args);
+  const canvas = args[0];
+  const surface = canvas?.closest?.("[data-animation]");
+  prepareProductMasonry(surface, canvas);
+
+  const { mountMasonry } = await import("../../visuals/canvas/landing-motion/masonry/index.js");
+  const dispose = await mountMasonry(...args);
   schedulePlacement();
   return dispose;
 };
