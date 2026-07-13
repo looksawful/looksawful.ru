@@ -112,6 +112,26 @@ function applyTextCorrections(root = document) {
   });
 }
 
+function ensureDesktopResumeLink(root = document) {
+  const desktopNav = root.querySelector(".site-header__chips[data-nav-chips]");
+  if (!desktopNav || desktopNav.querySelector('a[href="/resume/"]')) {
+    return;
+  }
+
+  const slot = root.createElement("span");
+  slot.className = "site-header__chip-slot";
+
+  const link = root.createElement("a");
+  link.className = "site-header__chip";
+  link.href = "/resume/";
+  link.dataset.navChip = "";
+  link.dataset.navState = "default";
+  link.textContent = "резюме";
+
+  slot.append(link);
+  desktopNav.append(slot);
+}
+
 function ensurePreviewStyles() {
   if (document.getElementById(PREVIEW_STYLE_ID)) {
     return;
@@ -208,6 +228,7 @@ function scanFrames(root = document) {
 }
 
 ensurePreviewStyles();
+ensureDesktopResumeLink(document);
 applyTextCorrections(document);
 scanFrames();
 
