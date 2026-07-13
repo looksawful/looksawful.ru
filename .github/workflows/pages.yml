@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
   statuses: write
@@ -49,6 +49,28 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Publish one-time gallery inventory to audit branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f public/_audit-gallery-inventory/summary.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin audit/gallery-inventory-20260713
+          rm -rf /tmp/gallery-inventory-report
+          git worktree add /tmp/gallery-inventory-report origin/audit/gallery-inventory-20260713
+          rm -rf /tmp/gallery-inventory-report/_reports/gallery-inventory
+          mkdir -p /tmp/gallery-inventory-report/_reports/gallery-inventory
+          cp -R public/_audit-gallery-inventory/. /tmp/gallery-inventory-report/_reports/gallery-inventory/
+          cd /tmp/gallery-inventory-report
+          git add _reports/gallery-inventory
+          if git diff --cached --quiet; then
+            echo "Gallery inventory report unchanged"
+          else
+            git commit -m "audit: publish complete gallery inventory [skip ci]"
+            git push origin HEAD:audit/gallery-inventory-20260713
+          fi
 
       - name: Stamp deployment
         run: |
