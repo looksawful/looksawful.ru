@@ -103,16 +103,27 @@ async function runCase(browser, testCase) {
     }, cardSelector);
 
     await page.waitForFunction(
+      (selector) => {
+        const scene = document.querySelector(selector);
+        const rect = scene?.getBoundingClientRect();
+        return Boolean(scene && rect && rect.width > 1 && rect.height > 1);
+      },
+      sceneSelector,
+      { timeout: 30000 },
+    );
+
+    await page.evaluate((selector) => {
+      document.querySelector(selector)?.scrollIntoView({ block: "center", inline: "nearest" });
+    }, cardSelector);
+
+    await page.waitForFunction(
       ({ selector, staticMode }) => {
         const scene = document.querySelector(selector);
         if (!scene) return false;
         const rect = scene.getBoundingClientRect();
         const state = scene.dataset.processState || "";
-        return (
-          rect.width > 1 &&
-          rect.height > 1 &&
-          (staticMode ? state === "static" : state === "running")
-        );
+        const visible = rect.width > 1 && rect.height > 1;
+        return visible && (staticMode ? state === "static" : state === "running");
       },
       { selector: sceneSelector, staticMode: testCase.reducedMotion === "reduce" },
       { timeout: 30000 },
