@@ -88,14 +88,6 @@ function setStyleProperty(element, property, value, priority = "") {
   element.style.setProperty(property, value, priority);
 }
 
-function removeStyleProperty(element, property) {
-  if (!element?.style.getPropertyValue(property)) {
-    return;
-  }
-
-  element.style.removeProperty(property);
-}
-
 function hideHomepageElement(element) {
   if (!element) {
     return;
@@ -129,9 +121,16 @@ function showHomepageElement(element) {
 
   element.removeAttribute("aria-hidden");
   element.removeAttribute("data-homepage-hidden");
-  removeStyleProperty(element, "display");
-  removeStyleProperty(element, "visibility");
-  removeStyleProperty(element, "opacity");
+
+  const isTopLevelSection = element.matches?.("#main > .section");
+  setStyleProperty(
+    element,
+    "display",
+    isTopLevelSection ? "block" : "inline-flex",
+    "important",
+  );
+  setStyleProperty(element, "visibility", "visible", "important");
+  setStyleProperty(element, "opacity", "1", "important");
 }
 
 function setNavigationLinkVisibility(root, sectionId, visible) {
