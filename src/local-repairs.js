@@ -1,3 +1,4 @@
+import "./styles/safe-visible-repairs.css";
 import { initShowcaseBeforeAfter } from "./visuals/canvas/before-after/index.js";
 
 const DELAYS = [0, 120, 600, 1600, 3600, 6500];
