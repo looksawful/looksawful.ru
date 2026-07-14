@@ -87,6 +87,9 @@ jobs:
       - name: Verify architecture budget
         run: npm run check:architecture
 
+      - name: Prepare DOM baseline
+        run: node scripts/capture-dev-baseline.mjs --no-screenshots
+
       - name: Verify DOM regression
         run: node scripts/dom-regression.mjs
 
