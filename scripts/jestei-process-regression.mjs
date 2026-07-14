@@ -75,6 +75,7 @@ async function sampleScene(page) {
     const scene = document.querySelector("#jestei-process-scene");
     const reveals = [...(scene?.querySelectorAll("[data-process-reveal]") || [])];
     return {
+      state: scene?.dataset.processState || "",
       frame: Number(scene?.dataset.processFrame || 0),
       revealCount: reveals.length,
       signature: reveals
@@ -91,6 +92,7 @@ async function runCase(browser, testCase) {
   });
   const page = await context.newPage();
   const consoleErrors = [];
+  const expectsStatic = testCase.reducedMotion === "reduce";
 
   page.on("console", (message) => {
     if (message.type() === "error" && !isAllowedConsoleError(message.text())) {
@@ -110,10 +112,12 @@ async function runCase(browser, testCase) {
 
     const svg = page.locator("#jestei-process-scene");
     await svg.waitFor({ state: "visible", timeout: 30_000 });
-    await page.waitForFunction(() => {
+    await page.waitForFunction((staticMode) => {
       const scene = document.querySelector("#jestei-process-scene");
-      return scene?.dataset.processState === "running";
-    }, null, { timeout: 10_000 });
+      return staticMode
+        ? scene?.dataset.processState === "static"
+        : scene?.dataset.processState === "running";
+    }, expectsStatic, { timeout: 10_000 });
 
     const hiddenDecorations = await page.evaluate(() => {
       const isHidden = (element) => {
@@ -141,17 +145,28 @@ async function runCase(browser, testCase) {
     await page.waitForTimeout(900);
     const secondSample = await sampleScene(page);
 
-    const masksChanged = firstSample.signature !== secondSample.signature;
-    const frameAdvanced = secondSample.frame > firstSample.frame;
-
     if (!firstSample.revealCount || !secondSample.revealCount) {
       throw new Error(`${testCase.name}: process scene has no normalized reveal masks`);
     }
 
-    if (!masksChanged || !frameAdvanced) {
-      throw new Error(
-        `${testCase.name}: process scene is static. first=${JSON.stringify(firstSample)} second=${JSON.stringify(secondSample)}`,
-      );
+    if (expectsStatic) {
+      const masksStable = firstSample.signature === secondSample.signature;
+      const frameStable = secondSample.frame === firstSample.frame;
+
+      if (!masksStable || !frameStable || secondSample.state !== "static") {
+        throw new Error(
+          `${testCase.name}: reduced-motion scene is not static. first=${JSON.stringify(firstSample)} second=${JSON.stringify(secondSample)}`,
+        );
+      }
+    } else {
+      const masksChanged = firstSample.signature !== secondSample.signature;
+      const frameAdvanced = secondSample.frame > firstSample.frame;
+
+      if (!masksChanged || !frameAdvanced) {
+        throw new Error(
+          `${testCase.name}: process scene is static. first=${JSON.stringify(firstSample)} second=${JSON.stringify(secondSample)}`,
+        );
+      }
     }
 
     if (consoleErrors.length) {
@@ -159,6 +174,7 @@ async function runCase(browser, testCase) {
     }
 
     console.log(`${testCase.name}: passed`, {
+      state: secondSample.state,
       firstFrame: firstSample.frame,
       secondFrame: secondSample.frame,
       revealCount: secondSample.revealCount,
