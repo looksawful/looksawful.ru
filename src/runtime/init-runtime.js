@@ -8,6 +8,7 @@ import { mountJesteiLogoAnimation } from "./mount-jestei-logo-animation.js";
 import { replaceJesteiRebrandVisual } from "./replace-jestei-rebrand-visual.js";
 import { mountJesteiAudienceMapInColor } from "./mount-jestei-audience-map-in-color.js";
 import { placeJesteiWordsAfterColor } from "./place-jestei-words-after-color.js";
+import { hideJesteiTemporaryDecorations } from "./hide-jestei-temporary-decorations.js";
 
 let initialized = false;
 
@@ -24,5 +25,7 @@ export async function initRuntime(root = document) {
   replaceJesteiRebrandVisual(root);
   mountJesteiAudienceMapInColor(root);
   placeJesteiWordsAfterColor(root);
+  hideJesteiTemporaryDecorations(root);
   await mountAll(root, MOUNTS);
+  hideJesteiTemporaryDecorations(root);
 }
