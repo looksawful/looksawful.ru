@@ -93,24 +93,29 @@ async function runCase(browser, testCase) {
     });
 
     await page.waitForFunction(
-      ({ selector, staticMode }) => {
+      (selector) => {
         const scene = document.querySelector(selector);
-        if (!scene) return false;
-        const rect = scene.getBoundingClientRect();
-        const state = scene.dataset.processState || "";
-        return (
-          rect.width > 1 &&
-          rect.height > 1 &&
-          (staticMode ? state === "static" : state === "running")
-        );
+        const rect = scene?.getBoundingClientRect();
+        return Boolean(scene && rect && rect.width > 1 && rect.height > 1);
       },
-      { selector: sceneSelector, staticMode: testCase.reducedMotion === "reduce" },
+      sceneSelector,
       { timeout: 30000 },
     );
 
     await page.evaluate((selector) => {
       document.querySelector(selector)?.scrollIntoView({ block: "center", inline: "nearest" });
     }, cardSelector);
+
+    await page.waitForFunction(
+      ({ selector, staticMode }) => {
+        const scene = document.querySelector(selector);
+        if (!scene) return false;
+        const state = scene.dataset.processState || "";
+        return staticMode ? state === "static" : state === "running";
+      },
+      { selector: sceneSelector, staticMode: testCase.reducedMotion === "reduce" },
+      { timeout: 30000 },
+    );
 
     const first = await sample(page);
     await page.waitForTimeout(1000);
