@@ -197,7 +197,9 @@ main[data-showcase] #jestei-interface-archive::after {
 }
 
 main[data-showcase] #jestei-results {
+  box-sizing: border-box;
   margin-block-start: 0;
+  padding-block-start: clamp(2.5rem, 5vw, 5rem);
 }
 
 main[data-showcase] #jestei-results [data-section-screen] {
@@ -315,6 +317,13 @@ main[data-showcase] #jestei-product-archive + #jestei-graphics {
   main[data-showcase] .jestei-archive-media--product .jestei-archive-media__surface {
     aspect-ratio: auto;
     block-size: clamp(28rem, 78vw, 46rem);
+  }
+}
+
+@media (max-width: 52rem) {
+  main[data-showcase] #jestei-results {
+    margin-block-start: 0;
+    padding-block-start: clamp(1.5rem, 7vw, 2.5rem);
   }
 }
 
