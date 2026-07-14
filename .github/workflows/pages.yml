@@ -69,6 +69,21 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: Verify visible repairs
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/visible-repairs-regression.mjs 2>&1 | tee visible-repairs-regression.log
+
+      - name: Upload visible repairs diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visible-repairs-regression-log
+          path: visible-repairs-regression.log
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Stamp deployment
         run: |
           printf 'commit=%s\n' "$GITHUB_SHA" > dist/deploy-version.txt
