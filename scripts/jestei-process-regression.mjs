@@ -127,10 +127,13 @@ async function runCase(browser, testCase) {
         rebrandEquation: isHidden(
           document.querySelector('#jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector'),
         ),
+        audienceAvatar: isHidden(
+          document.querySelector("#jestei-results .jestei-bento__audience-avatar"),
+        ),
       };
     });
 
-    if (!hiddenDecorations.interfaceArchive || !hiddenDecorations.rebrandEquation) {
+    if (Object.values(hiddenDecorations).some((hidden) => !hidden)) {
       throw new Error(`${testCase.name}: temporary decorations are visible: ${JSON.stringify(hiddenDecorations)}`);
     }
 
