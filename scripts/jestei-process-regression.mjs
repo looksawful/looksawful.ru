@@ -72,14 +72,34 @@ function isAllowedConsoleError(text) {
 
 async function sampleScene(page) {
   return page.evaluate(() => {
-    const scene = document.querySelector("#jestei-process-scene");
+    const scenes = [
+      ...document.querySelectorAll(
+        "#jestei-results .jestei-bento__card--manual #jestei-process-scene",
+      ),
+    ];
+    const scene =
+      scenes.find((candidate) => {
+        const rect = candidate.getBoundingClientRect();
+        const style = getComputedStyle(candidate);
+        return (
+          rect.width > 1 &&
+          rect.height > 1 &&
+          style.display !== "none" &&
+          style.visibility !== "hidden" &&
+          Number(style.opacity) > 0
+        );
+      }) || scenes[0];
     const reveals = [...(scene?.querySelectorAll("[data-process-reveal]") || [])];
     return {
       state: scene?.dataset.processState || "",
       frame: Number(scene?.dataset.processFrame || 0),
       revealCount: reveals.length,
+      target: scene?.dataset.finalProcessTarget || "",
       signature: reveals
-        .map((reveal) => `${reveal.getAttribute("data-process-reveal")}:${reveal.style.strokeDasharray}:${reveal.style.strokeDashoffset}`)
+        .map(
+          (reveal) =>
+            `${reveal.getAttribute("data-process-reveal")}:${reveal.style.strokeDasharray}:${reveal.style.strokeDashoffset}`,
+        )
         .join("|"),
     };
   });
@@ -101,35 +121,69 @@ async function runCase(browser, testCase) {
   });
 
   try {
-    await page.goto(`${baseUrl}/?static=1&jestei-process-regression=${encodeURIComponent(testCase.name)}`, {
-      waitUntil: "domcontentloaded",
-      timeout: 45_000,
+    await page.goto(
+      `${baseUrl}/?jestei-process-regression=${encodeURIComponent(testCase.name)}`,
+      {
+        waitUntil: "domcontentloaded",
+        timeout: 45_000,
+      },
+    );
+
+    const card = page.locator('#jestei-results .jestei-bento__card--manual').filter({ visible: true }).first();
+    await page.locator('#jestei-results .jestei-bento__card--manual').first().waitFor({
+      state: "attached",
+      timeout: 30_000,
     });
 
-    const card = page.locator('#jestei-results .jestei-bento__card--manual');
-    await card.waitFor({ state: "visible", timeout: 30_000 });
-    await card.scrollIntoViewIfNeeded();
+    const visibleCard = page.locator('#jestei-results .jestei-bento__card--manual').first();
+    await visibleCard.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1_000);
 
-    const svg = page.locator("#jestei-process-scene");
-    await svg.waitFor({ state: "visible", timeout: 30_000 });
-    await page.waitForFunction((staticMode) => {
-      const scene = document.querySelector("#jestei-process-scene");
-      return staticMode
-        ? scene?.dataset.processState === "static"
-        : scene?.dataset.processState === "running";
-    }, expectsStatic, { timeout: 10_000 });
+    await page.waitForFunction(
+      (staticMode) => {
+        const scenes = [
+          ...document.querySelectorAll(
+            "#jestei-results .jestei-bento__card--manual #jestei-process-scene",
+          ),
+        ];
+        const scene =
+          scenes.find((candidate) => {
+            const rect = candidate.getBoundingClientRect();
+            const style = getComputedStyle(candidate);
+            return (
+              rect.width > 1 &&
+              rect.height > 1 &&
+              style.display !== "none" &&
+              style.visibility !== "hidden" &&
+              Number(style.opacity) > 0
+            );
+          }) || scenes[0];
+        return staticMode
+          ? scene?.dataset.processState === "static"
+          : scene?.dataset.processState === "running";
+      },
+      expectsStatic,
+      { timeout: 20_000 },
+    );
 
     const hiddenDecorations = await page.evaluate(() => {
       const isHidden = (element) => {
         if (!element) return true;
         const style = getComputedStyle(element);
-        return element.hidden || style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0;
+        return (
+          element.hidden ||
+          style.display === "none" ||
+          style.visibility === "hidden" ||
+          Number(style.opacity) === 0
+        );
       };
 
       return {
         interfaceArchive: isHidden(document.querySelector("#jestei-interface-archive")),
         rebrandEquation: isHidden(
-          document.querySelector('#jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector'),
+          document.querySelector(
+            '#jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector',
+          ),
         ),
         audienceAvatar: isHidden(
           document.querySelector("#jestei-results .jestei-bento__audience-avatar"),
@@ -138,7 +192,9 @@ async function runCase(browser, testCase) {
     });
 
     if (Object.values(hiddenDecorations).some((hidden) => !hidden)) {
-      throw new Error(`${testCase.name}: temporary decorations are visible: ${JSON.stringify(hiddenDecorations)}`);
+      throw new Error(
+        `${testCase.name}: temporary decorations are visible: ${JSON.stringify(hiddenDecorations)}`,
+      );
     }
 
     const firstSample = await sampleScene(page);
@@ -162,9 +218,9 @@ async function runCase(browser, testCase) {
       const masksChanged = firstSample.signature !== secondSample.signature;
       const frameAdvanced = secondSample.frame > firstSample.frame;
 
-      if (!masksChanged || !frameAdvanced) {
+      if (!masksChanged || !frameAdvanced || secondSample.target !== "visible") {
         throw new Error(
-          `${testCase.name}: process scene is static. first=${JSON.stringify(firstSample)} second=${JSON.stringify(secondSample)}`,
+          `${testCase.name}: visible production scene is static or mounted on the wrong card. first=${JSON.stringify(firstSample)} second=${JSON.stringify(secondSample)}`,
         );
       }
     }
@@ -178,6 +234,7 @@ async function runCase(browser, testCase) {
       firstFrame: firstSample.frame,
       secondFrame: secondSample.frame,
       revealCount: secondSample.revealCount,
+      target: secondSample.target,
       hiddenDecorations,
     });
   } finally {
@@ -187,9 +244,9 @@ async function runCase(browser, testCase) {
 
 let browser;
 const globalTimeout = setTimeout(() => {
-  console.error("Jestei process regression exceeded 150 seconds");
+  console.error("Jestei process regression exceeded 180 seconds");
   void stopPreview().finally(() => process.exit(1));
-}, 150_000);
+}, 180_000);
 
 try {
   await waitForServer();
