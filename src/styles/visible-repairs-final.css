@@ -8,3 +8,9 @@ main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
   box-shadow: none;
   overflow: hidden;
 }
+
+main[data-showcase] #jestei-color .jestei-color-bento {
+  inline-size: 100%;
+  max-inline-size: none;
+  margin-inline: 0;
+}
