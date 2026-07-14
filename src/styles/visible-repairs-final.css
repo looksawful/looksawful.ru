@@ -1,0 +1,9 @@
+/* Final section-scoped repairs verified against the current runtime DOM. */
+
+main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
+  box-sizing: border-box;
+  border: 0;
+  outline: 0;
+  box-shadow: inset 0 0 0 1px #050505;
+  overflow: hidden;
+}
