@@ -1,6 +1,7 @@
 const TEMPORARY_DECORATION_SELECTORS = [
   "#jestei-interface-archive",
   '#jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector',
+  "#jestei-results .jestei-bento__audience-avatar",
 ];
 
 function hideDecoration(element) {
