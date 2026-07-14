@@ -1,4 +1,5 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import { once } from "node:events";
 import process from "node:process";
 import { chromium } from "playwright";
 
@@ -6,11 +7,16 @@ const host = "127.0.0.1";
 const port = 4173;
 const baseUrl = `http://${host}:${port}`;
 const allowedConsoleFragments = ["WebGL", "THREE.WebGLRenderer", "GL_INVALID", "GPU stall"];
+const isWindows = process.platform === "win32";
 
 const preview = spawn(
-  process.platform === "win32" ? "npm.cmd" : "npm",
+  isWindows ? "npm.cmd" : "npm",
   ["run", "preview", "--", "--host", host, "--port", String(port)],
-  { stdio: ["ignore", "pipe", "pipe"], env: process.env },
+  {
+    stdio: ["ignore", "pipe", "pipe"],
+    env: process.env,
+    detached: !isWindows,
+  },
 );
 
 let previewOutput = "";
@@ -20,6 +26,31 @@ preview.stdout.on("data", (chunk) => {
 preview.stderr.on("data", (chunk) => {
   previewOutput += chunk.toString();
 });
+
+async function stopPreview() {
+  if (preview.exitCode != null || preview.signalCode != null) return;
+
+  if (isWindows) {
+    spawnSync("taskkill", ["/pid", String(preview.pid), "/t", "/f"], {
+      stdio: "ignore",
+      windowsHide: true,
+    });
+  } else {
+    try {
+      process.kill(-preview.pid, "SIGTERM");
+    } catch {
+      preview.kill("SIGTERM");
+    }
+  }
+
+  await Promise.race([
+    once(preview, "exit").catch(() => {}),
+    new Promise((resolve) => setTimeout(resolve, 3_000)),
+  ]);
+
+  preview.stdout.destroy();
+  preview.stderr.destroy();
+}
 
 async function waitForServer() {
   const deadline = Date.now() + 30_000;
@@ -53,83 +84,91 @@ async function runCase(browser, testCase) {
     }
   });
 
-  await page.goto(`${baseUrl}/?static=1&jestei-process-regression=${encodeURIComponent(testCase.name)}`, {
-    waitUntil: "domcontentloaded",
-    timeout: 45_000,
-  });
+  try {
+    await page.goto(`${baseUrl}/?static=1&jestei-process-regression=${encodeURIComponent(testCase.name)}`, {
+      waitUntil: "domcontentloaded",
+      timeout: 45_000,
+    });
 
-  const card = page.locator('#jestei-results .jestei-bento__card--manual');
-  await card.waitFor({ state: "visible", timeout: 30_000 });
-  await card.scrollIntoViewIfNeeded();
+    const card = page.locator('#jestei-results .jestei-bento__card--manual');
+    await card.waitFor({ state: "visible", timeout: 30_000 });
+    await card.scrollIntoViewIfNeeded();
 
-  const svg = page.locator("#jestei-process-scene");
-  await svg.waitFor({ state: "visible", timeout: 30_000 });
-  await page.waitForFunction(() => {
-    const scene = document.querySelector("#jestei-process-scene");
-    return scene?.dataset.processState === "running";
-  }, null, { timeout: 10_000 });
+    const svg = page.locator("#jestei-process-scene");
+    await svg.waitFor({ state: "visible", timeout: 30_000 });
+    await page.waitForFunction(() => {
+      const scene = document.querySelector("#jestei-process-scene");
+      return scene?.dataset.processState === "running";
+    }, null, { timeout: 10_000 });
 
-  const hiddenDecorations = await page.evaluate(() => {
-    const isHidden = (element) => {
-      if (!element) return true;
-      const style = getComputedStyle(element);
-      return element.hidden || style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0;
-    };
+    const hiddenDecorations = await page.evaluate(() => {
+      const isHidden = (element) => {
+        if (!element) return true;
+        const style = getComputedStyle(element);
+        return element.hidden || style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0;
+      };
 
-    return {
-      interfaceArchive: isHidden(document.querySelector("#jestei-interface-archive")),
-      rebrandEquation: isHidden(
-        document.querySelector('#jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector'),
-      ),
-    };
-  });
+      return {
+        interfaceArchive: isHidden(document.querySelector("#jestei-interface-archive")),
+        rebrandEquation: isHidden(
+          document.querySelector('#jestei-results [data-bento-card="rebrand"] .jestei-bento__logo-inspector'),
+        ),
+      };
+    });
 
-  if (!hiddenDecorations.interfaceArchive || !hiddenDecorations.rebrandEquation) {
-    throw new Error(`${testCase.name}: temporary decorations are visible: ${JSON.stringify(hiddenDecorations)}`);
+    if (!hiddenDecorations.interfaceArchive || !hiddenDecorations.rebrandEquation) {
+      throw new Error(`${testCase.name}: temporary decorations are visible: ${JSON.stringify(hiddenDecorations)}`);
+    }
+
+    const firstSample = await page.evaluate(() => {
+      const scene = document.querySelector("#jestei-process-scene");
+      const reveal = scene?.querySelector("[data-process-reveal]");
+      return {
+        frame: Number(scene?.dataset.processFrame || 0),
+        dasharray: reveal?.style.strokeDasharray || "",
+        dashoffset: reveal?.style.strokeDashoffset || "",
+      };
+    });
+
+    await page.waitForTimeout(900);
+
+    const secondSample = await page.evaluate(() => {
+      const scene = document.querySelector("#jestei-process-scene");
+      const reveal = scene?.querySelector("[data-process-reveal]");
+      return {
+        frame: Number(scene?.dataset.processFrame || 0),
+        dasharray: reveal?.style.strokeDasharray || "",
+        dashoffset: reveal?.style.strokeDashoffset || "",
+      };
+    });
+
+    const maskChanged =
+      firstSample.dasharray !== secondSample.dasharray ||
+      firstSample.dashoffset !== secondSample.dashoffset;
+    const frameAdvanced = secondSample.frame > firstSample.frame;
+
+    if (!maskChanged || !frameAdvanced) {
+      throw new Error(
+        `${testCase.name}: process scene is static. first=${JSON.stringify(firstSample)} second=${JSON.stringify(secondSample)}`,
+      );
+    }
+
+    if (consoleErrors.length) {
+      throw new Error(`${testCase.name}: console errors:\n${consoleErrors.join("\n")}`);
+    }
+
+    console.log(`${testCase.name}: passed`, { firstSample, secondSample, hiddenDecorations });
+  } finally {
+    await context.close();
   }
-
-  const firstSample = await page.evaluate(() => {
-    const scene = document.querySelector("#jestei-process-scene");
-    const reveal = scene?.querySelector("[data-process-reveal], #jestei-process-defs mask path");
-    return {
-      frame: Number(scene?.dataset.processFrame || 0),
-      dasharray: reveal?.style.strokeDasharray || "",
-      dashoffset: reveal?.style.strokeDashoffset || "",
-    };
-  });
-
-  await page.waitForTimeout(900);
-
-  const secondSample = await page.evaluate(() => {
-    const scene = document.querySelector("#jestei-process-scene");
-    const reveal = scene?.querySelector("[data-process-reveal], #jestei-process-defs mask path");
-    return {
-      frame: Number(scene?.dataset.processFrame || 0),
-      dasharray: reveal?.style.strokeDasharray || "",
-      dashoffset: reveal?.style.strokeDashoffset || "",
-    };
-  });
-
-  const maskChanged =
-    firstSample.dasharray !== secondSample.dasharray ||
-    firstSample.dashoffset !== secondSample.dashoffset;
-  const frameAdvanced = secondSample.frame > firstSample.frame;
-
-  if (!maskChanged && !frameAdvanced) {
-    throw new Error(
-      `${testCase.name}: process scene is static. first=${JSON.stringify(firstSample)} second=${JSON.stringify(secondSample)}`,
-    );
-  }
-
-  if (consoleErrors.length) {
-    throw new Error(`${testCase.name}: console errors:\n${consoleErrors.join("\n")}`);
-  }
-
-  await context.close();
-  console.log(`${testCase.name}: passed`, { firstSample, secondSample, hiddenDecorations });
 }
 
 let browser;
+const globalTimeout = setTimeout(() => {
+  console.error("Jestei process regression exceeded 150 seconds");
+  void stopPreview().finally(() => process.exit(1));
+}, 150_000);
+
 try {
   await waitForServer();
   browser = await chromium.launch({ headless: true });
@@ -156,6 +195,7 @@ try {
     await runCase(browser, testCase);
   }
 } finally {
+  clearTimeout(globalTimeout);
   await browser?.close();
-  preview.kill("SIGTERM");
+  await stopPreview();
 }
