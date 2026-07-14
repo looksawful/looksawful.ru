@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="awfulface">
-  <rect width="64" height="64" rx="10" fill="#ffffff"/>
-  <path d="M5 31C5 14 17 4 34 4c16 0 26 11 25 29-1 17-12 27-29 26C14 58 5 48 5 31Z" fill="#ffffff" stroke="#111111" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M14 16c6-4 13-3 18 1" fill="none" stroke="#111111" stroke-width="4" stroke-linecap="round"/>
-  <path d="M37 14 49 9" fill="none" stroke="#111111" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="22" cy="27" r="3.8" fill="#111111"/>
-  <circle cx="43" cy="23" r="3.8" fill="#111111"/>
-  <path d="M15 45c6-10 14-9 18-2 4 7 9-8 16-4 4 2 6 6 5 10" fill="none" stroke="#111111" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="64" height="64" rx="9" fill="#fff"/>
+  <path d="M2.5 31.5C2.5 12.2 15.3 1.8 34.8 2.1 53 2.4 62 14.7 61.2 34.2 60.5 52.2 49.4 62 29.9 61.2 11.8 60.5 2.5 49.7 2.5 31.5Z" fill="#fff" stroke="#0b0b0b" stroke-width="4.2" stroke-linejoin="round"/>
+  <path d="M9.5 14.2c7.3-4.6 15.9-4.1 22.1 1.2" fill="none" stroke="#0b0b0b" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M37.5 12.8 53 6.3" fill="none" stroke="#0b0b0b" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="20.2" cy="27" r="4.5" fill="#0b0b0b"/>
+  <circle cx="44.2" cy="23.5" r="4.5" fill="#0b0b0b"/>
+  <path d="M8.8 47.6c7.2-12.3 17.2-11.3 22.4-2.7 4.9 8.1 10.7-9.5 19.2-4.7 4.8 2.7 7.2 7.5 5.8 12.2" fill="none" stroke="#0b0b0b" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
