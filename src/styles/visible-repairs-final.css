@@ -162,8 +162,8 @@
   background: #000;
 }
 
-#jestei-results .jestei-bento__card--manual .jestei-bento__process-visual,
-#jestei-results .jestei-bento__card--manual #jestei-process-scene {
+#jestei-results [data-bento-card="manual"] .jestei-bento__process-visual,
+#jestei-results [data-bento-card="manual"] #jestei-process-scene {
   display: block;
   inline-size: 100%;
   block-size: 100%;
