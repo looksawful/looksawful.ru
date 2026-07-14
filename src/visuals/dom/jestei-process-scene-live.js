@@ -10,7 +10,6 @@ const HOLD = 250;
 const ERASE = 7600;
 const CYCLE = DRAW + HOLD + ERASE;
 const SPEED = 1.012;
-const START_OFFSET = 900;
 
 const TIMELINE = [
   ["lead", 0, 420],
@@ -60,6 +59,19 @@ const TIMELINE = [
   ["pw5", 6900, 7300],
 ];
 
+const PORT_TIMES = [
+  980, 980, 980,
+  1570, 1570, 2220,
+  1570, 2220,
+  1680, 2300,
+  2900, 2900, 2900,
+  3700, 3700, 3700, 3300,
+  4260, 4900, 4260, 4860,
+  4350, 4990, 3750,
+  5580, 5580, 6250, 6250, 5580,
+  6670, 6670,
+];
+
 const controllers = new WeakMap();
 
 function svgElement(doc, name, attributes = {}) {
@@ -71,19 +83,19 @@ function svgElement(doc, name, attributes = {}) {
 }
 
 function mountStaticGeometry(root, doc, win) {
-  const location = win.location;
-  const history = win.history;
+  const { location, history } = win;
   const originalUrl = `${location.pathname}${location.search}${location.hash}`;
   const staticUrl = new URL(location.href);
   staticUrl.searchParams.set("static", "1");
 
   try {
-    history.replaceState(history.state, "", `${staticUrl.pathname}${staticUrl.search}${staticUrl.hash}`);
+    history.replaceState(
+      history.state,
+      "",
+      `${staticUrl.pathname}${staticUrl.search}${staticUrl.hash}`,
+    );
     mountGeometry(root);
   } catch (error) {
-    // The original renderer can fail in Safari when getTotalLength() is called
-    // before SVG layout. Its geometry is already in the DOM, so the normalized
-    // renderer below can safely take over.
     console.warn("[jestei-process] recovered from geometry initialization", error);
   } finally {
     history.replaceState(history.state, "", originalUrl);
@@ -101,8 +113,13 @@ function createNormalizedMasks(svg) {
   const defs = svg.querySelector("#jestei-process-defs");
   if (!defs) return [];
 
-  defs.querySelectorAll('[data-process-mask="normalized"]').forEach((mask) => mask.remove());
-  svg.querySelectorAll(".jestei-process__stroke").forEach((path) => path.removeAttribute("mask"));
+  defs
+    .querySelectorAll('[data-process-mask="normalized"]')
+    .forEach((mask) => mask.remove());
+
+  svg
+    .querySelectorAll(".jestei-process__stroke")
+    .forEach((path) => path.removeAttribute("mask"));
 
   const items = [];
 
@@ -120,7 +137,16 @@ function createNormalizedMasks(svg) {
       maskUnits: "userSpaceOnUse",
       "data-process-mask": "normalized",
     });
-    mask.append(svgElement(doc, "rect", { x: 0, y: 0, width: 880, height: 720, fill: "#000" }));
+
+    mask.append(
+      svgElement(doc, "rect", {
+        x: 0,
+        y: 0,
+        width: 880,
+        height: 720,
+        fill: "#000",
+      }),
+    );
 
     const reveal = svgElement(doc, "path", {
       d: path.getAttribute("d") || "",
@@ -132,35 +158,68 @@ function createNormalizedMasks(svg) {
       pathLength: 1,
       "data-process-reveal": id,
     });
+
     reveal.style.strokeDasharray = "0 1";
     reveal.style.strokeDashoffset = "0";
     mask.append(reveal);
     defs.append(mask);
 
     path.setAttribute("mask", `url(#${maskId})`);
-    items.push({ id, path, reveal, start, end });
+    items.push({
+      id,
+      path,
+      reveal,
+      len: path.getTotalLength(),
+      type: path.classList.contains("jestei-process__purple") ? "purple" : "black",
+      start,
+      end,
+    });
   }
 
   return items;
 }
 
-function setDraw(item, value) {
+function setVisiblePrefix(item, value) {
   const visible = Math.max(0, Math.min(1, value));
   item.reveal.style.strokeDasharray = `${visible.toFixed(5)} 1`;
   item.reveal.style.strokeDashoffset = "0";
 }
 
-function setErase(item, value) {
-  const hidden = Math.max(0, Math.min(1, value));
-  const visible = 1 - hidden;
-  item.reveal.style.strokeDasharray = `${visible.toFixed(5)} 1`;
-  item.reveal.style.strokeDashoffset = `${(-hidden).toFixed(5)}`;
+function pointOn(item, value) {
+  return item.path.getPointAtLength(
+    item.len * Math.max(0, Math.min(1, value)),
+  );
+}
+
+function positionDots(activeItems, dots) {
+  for (let index = 0; index < dots.length; index += 1) {
+    const activeItem = activeItems[index];
+    const dot = dots[index];
+
+    if (!activeItem) {
+      dot.style.opacity = "0";
+      continue;
+    }
+
+    const point = pointOn(activeItem.item, activeItem.value);
+    dot.setAttribute("cx", point.x);
+    dot.setAttribute("cy", point.y);
+    dot.style.opacity = "1";
+  }
 }
 
 function createController(svg) {
   const doc = svg.ownerDocument;
   const win = doc.defaultView || window;
   const items = createNormalizedMasks(svg);
+  const ports = [...svg.querySelectorAll(".jestei-process__port")].map(
+    (node, index) => ({
+      node,
+      at: PORT_TIMES[index] ?? DRAW,
+    }),
+  );
+  const blackDots = [...svg.querySelectorAll(".jestei-process__black-dot")];
+  const purpleDots = [...svg.querySelectorAll(".jestei-process__purple-dot")];
 
   if (!items.length) {
     svg.dataset.processState = "error";
@@ -178,25 +237,49 @@ function createController(svg) {
   svg.dataset.processState = "ready";
   svg.dataset.processFrame = "0";
 
-  function renderDraw(time) {
-    items.forEach((item) => setDraw(item, progress(time, item.start, item.end)));
+  function render(time) {
+    const activeBlack = [];
+    const activePurple = [];
+
+    for (const item of items) {
+      const value = progress(time, item.start, item.end);
+      setVisiblePrefix(item, value);
+
+      if (value > 0 && value < 1) {
+        (item.type === "black" ? activeBlack : activePurple).push({
+          item,
+          value,
+        });
+      }
+    }
+
+    positionDots(activeBlack, blackDots);
+    positionDots(activePurple, purpleDots);
+
+    ports.forEach(({ node, at }) => {
+      node.style.opacity = time >= at ? "1" : "0";
+    });
   }
 
-  function renderErase(time) {
-    items.forEach((item) => setErase(item, progress(time, item.start, item.end)));
+  function hideDots() {
+    [...blackDots, ...purpleDots].forEach((dot) => {
+      dot.style.opacity = "0";
+    });
   }
 
   function frame(now) {
     if (!active || disposed) return;
-    if (startTime == null) startTime = now - START_OFFSET / SPEED;
+    if (startTime == null) startTime = now;
 
     const time = ((now - startTime) * SPEED) % CYCLE;
+
     if (time < DRAW) {
-      renderDraw(time);
+      render(time);
     } else if (time < DRAW + HOLD) {
-      renderDraw(DRAW);
+      render(DRAW);
+      hideDots();
     } else {
-      renderErase(time - DRAW - HOLD);
+      render(DRAW - (time - DRAW - HOLD));
     }
 
     frameCount += 1;
@@ -206,6 +289,7 @@ function createController(svg) {
 
   function setActive(nextActive) {
     if (disposed || active === nextActive) return;
+
     active = nextActive;
     win.cancelAnimationFrame(animationFrame);
 
@@ -221,7 +305,13 @@ function createController(svg) {
   function isInViewport() {
     const rect = svg.getBoundingClientRect();
     const margin = Math.max(96, win.innerHeight * 0.22);
-    return rect.width > 0 && rect.height > 0 && rect.bottom > -margin && rect.top < win.innerHeight + margin;
+
+    return (
+      rect.width > 0 &&
+      rect.height > 0 &&
+      rect.bottom > -margin &&
+      rect.top < win.innerHeight + margin
+    );
   }
 
   function syncViewport() {
@@ -234,19 +324,28 @@ function createController(svg) {
     viewportFrame = win.requestAnimationFrame(syncViewport);
   }
 
-  if ("IntersectionObserver" in win) {
-    observer = new win.IntersectionObserver(
-      (entries) => setActive(!doc.hidden && entries.some((entry) => entry.isIntersecting)),
-      { rootMargin: "22% 0px", threshold: 0.01 },
-    );
-    observer.observe(svg);
-  }
+  if (win.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) {
+    render(DRAW);
+    hideDots();
+    svg.dataset.processState = "static";
+  } else {
+    if ("IntersectionObserver" in win) {
+      observer = new win.IntersectionObserver(
+        (entries) =>
+          setActive(
+            !doc.hidden && entries.some((entry) => entry.isIntersecting),
+          ),
+        { rootMargin: "22% 0px", threshold: 0.01 },
+      );
+      observer.observe(svg);
+    }
 
-  win.addEventListener("pageshow", queueViewportSync, { passive: true });
-  win.addEventListener("resize", queueViewportSync, { passive: true });
-  win.addEventListener("scroll", queueViewportSync, { passive: true });
-  doc.addEventListener("visibilitychange", queueViewportSync);
-  queueViewportSync();
+    win.addEventListener("pageshow", queueViewportSync, { passive: true });
+    win.addEventListener("resize", queueViewportSync, { passive: true });
+    win.addEventListener("scroll", queueViewportSync, { passive: true });
+    doc.addEventListener("visibilitychange", queueViewportSync);
+    queueViewportSync();
+  }
 
   return () => {
     disposed = true;
@@ -269,9 +368,9 @@ export function mountJesteiProcessScene(root = document) {
 
   root.querySelectorAll(CARD_SELECTOR).forEach((card) => {
     const oldSvg = card.querySelector(SCENE_SELECTOR);
-    controllers.get(oldSvg)?.();
-    card.querySelector(VISUAL_SELECTOR)?.remove();
+    if (oldSvg) controllers.get(oldSvg)?.();
 
+    card.querySelector(VISUAL_SELECTOR)?.remove();
     mountStaticGeometry(root, doc, win);
 
     const svg = card.querySelector(SCENE_SELECTOR);
