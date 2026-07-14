@@ -55,9 +55,63 @@
   line-height: 1.28;
 }
 
+/* Preserve a clear chapter break between the Jestei cover and the results bento. */
+#jestei-results {
+  margin-block-start: clamp(2rem, 4vw, 4.75rem);
+}
+
+/* Restore the moving nodes and staged ports from the original process animation. */
+#jestei-results .jestei-bento__process-svg :is(
+  .jestei-process__port,
+  .jestei-process__dot
+) {
+  display: block;
+}
+
+#jestei-results .jestei-bento__process-svg .jestei-process__port {
+  fill: #ffffff;
+  stroke: #050505;
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+}
+
+#jestei-results .jestei-bento__process-svg .jestei-process__dot {
+  stroke: #ffffff;
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+}
+
+#jestei-results .jestei-bento__process-svg .jestei-process__black-dot {
+  fill: #050505;
+}
+
+#jestei-results .jestei-bento__process-svg .jestei-process__purple-dot {
+  fill: #5a38ff;
+}
+
 /* The words chapter now follows the sign and color chapters with deliberate space. */
 #jestei-words {
   margin-block-start: clamp(2.5rem, 5vw, 5.5rem);
+}
+
+/* Smaller values keep 200+, 50+ and 8 sections clear of their captions. */
+#jestei-words .jestei-words-bento__note strong {
+  margin-block-end: 0.16em;
+  font-size: clamp(1.2rem, 2.7cqi, 2.15rem);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+}
+
+/* Give the color chapter the same usable width as the results bento. */
+main[data-showcase] #jestei-color [data-section-screen] {
+  padding-inline: clamp(0.5rem, 2.2cqi, 2rem);
+}
+
+#jestei-color .jestei-color-bento {
+  inline-size: 100%;
+  max-inline-size: none;
 }
 
 /* Styx titles and paragraphs stay in one text column instead of drifting sideways. */
@@ -116,6 +170,10 @@
 }
 
 @media (max-width: 48rem) {
+  #jestei-results {
+    margin-block-start: clamp(1.35rem, 6vw, 2.5rem);
+  }
+
   #jestei-results :is(
     .jestei-bento__title--metric,
     .jestei-bento__title--price,
@@ -131,6 +189,14 @@
   ) span {
     max-inline-size: 16ch;
     font-size: clamp(0.72rem, 3.2vw, 0.9rem);
+  }
+
+  #jestei-words .jestei-words-bento__note strong {
+    font-size: clamp(1.08rem, 5cqi, 1.65rem);
+  }
+
+  main[data-showcase] #jestei-color [data-section-screen] {
+    padding-inline: clamp(0.45rem, 2.4cqi, 0.85rem);
   }
 
   #pet-projects :is(.pet-projects-bento__visit, .pet-projects-bento__github) {
