@@ -6,6 +6,8 @@ import { chromium } from "playwright";
 const host = "127.0.0.1";
 const port = 4173;
 const baseUrl = `http://${host}:${port}`;
+const manualCardSelector = '#jestei-results [data-bento-card="manual"]';
+const sceneSelector = `${manualCardSelector} #jestei-process-scene`;
 const allowedConsoleFragments = ["WebGL", "THREE.WebGLRenderer", "GL_INVALID", "GPU stall"];
 const isWindows = process.platform === "win32";
 
@@ -71,12 +73,8 @@ function isAllowedConsoleError(text) {
 }
 
 async function sampleScene(page) {
-  return page.evaluate(() => {
-    const scenes = [
-      ...document.querySelectorAll(
-        "#jestei-results .jestei-bento__card--manual #jestei-process-scene",
-      ),
-    ];
+  return page.evaluate((selector) => {
+    const scenes = [...document.querySelectorAll(selector)];
     const scene =
       scenes.find((candidate) => {
         const rect = candidate.getBoundingClientRect();
@@ -102,7 +100,20 @@ async function sampleScene(page) {
         )
         .join("|"),
     };
-  });
+  }, sceneSelector);
+}
+
+async function pageDiagnostics(page) {
+  return page.evaluate(() => ({
+    readyState: document.readyState,
+    mainExists: Boolean(document.querySelector("#main")),
+    coverExists: Boolean(document.querySelector("#jestei-cover")),
+    resultsExists: Boolean(document.querySelector("#jestei-results")),
+    finalRepairs: document.documentElement.dataset.finalSiteRepairs || "",
+    sectionIds: [...document.querySelectorAll("#main > section, #main > [id]")]
+      .map((element) => element.id)
+      .filter(Boolean),
+  }));
 }
 
 async function runCase(browser, testCase) {
@@ -129,23 +140,22 @@ async function runCase(browser, testCase) {
       },
     );
 
-    const card = page.locator('#jestei-results .jestei-bento__card--manual').filter({ visible: true }).first();
-    await page.locator('#jestei-results .jestei-bento__card--manual').first().waitFor({
-      state: "attached",
-      timeout: 30_000,
-    });
+    const visibleCard = page.locator(manualCardSelector).first();
+    try {
+      await visibleCard.waitFor({ state: "attached", timeout: 30_000 });
+    } catch (error) {
+      const diagnostics = await pageDiagnostics(page);
+      throw new Error(
+        `${testCase.name}: manual card was not published. diagnostics=${JSON.stringify(diagnostics)} console=${JSON.stringify(consoleErrors)} original=${error.message}`,
+      );
+    }
 
-    const visibleCard = page.locator('#jestei-results .jestei-bento__card--manual').first();
     await visibleCard.scrollIntoViewIfNeeded();
     await page.waitForTimeout(1_000);
 
     await page.waitForFunction(
-      (staticMode) => {
-        const scenes = [
-          ...document.querySelectorAll(
-            "#jestei-results .jestei-bento__card--manual #jestei-process-scene",
-          ),
-        ];
+      ({ staticMode, selector }) => {
+        const scenes = [...document.querySelectorAll(selector)];
         const scene =
           scenes.find((candidate) => {
             const rect = candidate.getBoundingClientRect();
@@ -162,7 +172,7 @@ async function runCase(browser, testCase) {
           ? scene?.dataset.processState === "static"
           : scene?.dataset.processState === "running";
       },
-      expectsStatic,
+      { staticMode: expectsStatic, selector: sceneSelector },
       { timeout: 20_000 },
     );
 
