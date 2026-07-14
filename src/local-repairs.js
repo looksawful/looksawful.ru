@@ -1,11 +1,8 @@
 import { initShowcaseBeforeAfter } from "./visuals/canvas/before-after/index.js";
-import { mountJesteiProcessScene } from "./visuals/dom/jestei-process-scene-live.js";
-import { mountJesteiProcessLayout } from "./visuals/dom/jestei-process-layout.js";
 
 const DELAYS = [0, 120, 600, 1600, 3600, 6500];
 const STYX_IDS = ["styx-graphics", "styx-print", "styx-photo-art", "styx-scanography"];
-let processRemounted = false;
-let queued = false;
+let tariffsMounted = false;
 
 const normalize = (value) =>
   String(value || "").replace(/\s+/gu, " ").trim().toLocaleLowerCase("ru");
@@ -47,7 +44,8 @@ function repairTariffs(root = document) {
   }
 
   applyCanvasQuality(section);
-  if (section.querySelector('[data-animation="before-after"] canvas')) {
+  if (!tariffsMounted && section.querySelector('[data-animation="before-after"] canvas')) {
+    tariffsMounted = true;
     initShowcaseBeforeAfter(section);
   }
 }
@@ -102,19 +100,6 @@ function repairStyx(root = document) {
   });
 }
 
-function remountProcess(root = document) {
-  if (processRemounted) return;
-  const card = root.querySelector("#jestei-results .jestei-bento__card--manual");
-  if (!card) return;
-  processRemounted = true;
-  delete card.dataset.processLayoutMounted;
-  mountJesteiProcessScene(root);
-  requestAnimationFrame(() => {
-    delete card.dataset.processLayoutMounted;
-    mountJesteiProcessLayout(root);
-  });
-}
-
 function apply(root = document) {
   applyCanvasQuality(root);
   repairTariffs(root);
@@ -122,37 +107,13 @@ function apply(root = document) {
   repairStyx(root);
 }
 
-function queueApply() {
-  if (queued) return;
-  queued = true;
-  queueMicrotask(() => {
-    queued = false;
-    apply(document);
-  });
-}
-
 function start() {
-  DELAYS.forEach((delay) =>
-    window.setTimeout(() => {
-      apply(document);
-      if (delay >= 1600) remountProcess(document);
-    }, delay),
-  );
-  window.addEventListener("load", queueApply, { once: true });
-  window.addEventListener("pageshow", queueApply);
+  DELAYS.forEach((delay) => window.setTimeout(() => apply(document), delay));
+  window.addEventListener("load", () => apply(document), { once: true });
+  window.addEventListener("pageshow", () => apply(document));
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) repairStyx(document);
   });
-
-  const main = document.getElementById("main");
-  if (!main) return;
-  const observer = new MutationObserver(queueApply);
-  observer.observe(main, { childList: true, subtree: true });
-  window.setTimeout(() => {
-    observer.disconnect();
-    apply(document);
-    remountProcess(document);
-  }, 8000);
 }
 
 if (document.readyState === "loading") {
