@@ -10,7 +10,7 @@
     "import:draft-gallery": "node scripts/import-draft-gallery.mjs",
     "preview": "vite preview",
     "check:portfolio": "node scripts/portfolio-regression-check.mjs",
-    "check:jestei-process": "node scripts/jestei-process-regression.mjs",
+    "check:jestei-process": "node scripts/jestei-process-regression-v2.mjs",
     "compress-media": "node scripts/compress-media.js",
     "compress-media:dry": "node scripts/compress-media.js --dry-run",
     "compress-media:force": "node scripts/compress-media.js --force"
