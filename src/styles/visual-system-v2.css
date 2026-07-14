@@ -1,0 +1,479 @@
+:root {
+  --layout-standard-max: 80rem;
+  --layout-wide-max: 90rem;
+  --layout-gutter: clamp(1rem, 5vw, 6rem);
+  --layout-grid-gap: clamp(0.75rem, 1.5vw, 1.5rem);
+  --case-space-s: 1rem;
+  --case-space-m: 1.5rem;
+  --case-space-l: 2.5rem;
+  --case-space-xl: 4rem;
+  --case-space-2xl: 6.5rem;
+  --case-space-3xl: 9rem;
+  --case-radius-m: 1rem;
+  --case-radius-l: 1.5rem;
+}
+
+main[data-showcase] > .section[data-visual-system="v2"] {
+  box-sizing: border-box;
+  scroll-margin-top: 5rem;
+}
+
+main[data-showcase] > .section[data-visual-system="v2"] > [data-section-screen] {
+  inline-size: min(
+    calc(100% - (2 * var(--layout-gutter))),
+    var(--layout-standard-max)
+  );
+  max-inline-size: none;
+  margin-inline: auto;
+}
+
+main[data-showcase] > #jestei-results[data-visual-system="v2"] > [data-section-screen],
+main[data-showcase] > #jestei-interface-bento[data-visual-system="v2"] > [data-section-screen],
+main[data-showcase] > #jestei-interface[data-visual-system="v2"] > [data-section-screen],
+main[data-showcase] > #jestei-graphics[data-visual-system="v2"] > [data-section-screen],
+main[data-showcase] > [data-section-family="styx"][data-visual-system="v2"] > [data-section-screen],
+main[data-showcase] > #shootings[data-visual-system="v2"] > [data-section-screen],
+main[data-showcase] > #pet-projects[data-visual-system="v2"] > [data-section-screen] {
+  inline-size: min(
+    calc(100% - (2 * var(--layout-gutter))),
+    var(--layout-wide-max)
+  );
+}
+
+main[data-showcase] > .section[data-visual-system="v2"] p,
+main[data-showcase] > .section[data-visual-system="v2"] li {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: auto;
+}
+
+main[data-showcase] > .section[data-visual-system="v2"] h1,
+main[data-showcase] > .section[data-visual-system="v2"] h2,
+main[data-showcase] > .section[data-visual-system="v2"] h3 {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
+}
+
+/* Jestei results: preserve the approved card art direction and normalize geometry. */
+#jestei-results[data-visual-system="v2"] .jestei-bento__screen {
+  inline-size: min(
+    calc(100% - (2 * var(--layout-gutter))),
+    var(--layout-wide-max)
+  );
+  margin-inline: auto;
+}
+
+#jestei-results[data-visual-system="v2"] .jestei-bento__grid,
+#jestei-results[data-visual-system="v2"] .jestei-bento__panel {
+  gap: clamp(0.5rem, 1vw, 1rem);
+  min-inline-size: 0;
+}
+
+#jestei-results[data-visual-system="v2"] .jestei-bento__card {
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+#jestei-results[data-visual-system="v2"] .jestei-bento__content {
+  gap: clamp(0.75rem, 1.2vw, 1.25rem);
+}
+
+#jestei-results[data-visual-system="v2"] .jestei-bento__content > p {
+  max-inline-size: 52ch;
+  line-height: 1.42;
+}
+
+/* Words: editorial 4/8 composition with one large policy-book media area. */
+main[data-showcase] #jestei-words[data-visual-system="v2"] [data-section-screen] {
+  inline-size: min(
+    calc(100% - (2 * var(--layout-gutter))),
+    var(--layout-standard-max)
+  );
+  padding-block: var(--case-space-xl);
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento {
+  display: grid;
+  grid-template-columns: minmax(17rem, 4fr) minmax(0, 8fr);
+  grid-template-rows: auto auto auto;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  align-items: start;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__card--intro,
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__card--fact,
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__card--scope {
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__card--intro {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__card--fact {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__card--scope {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__card--policy {
+  grid-column: 2;
+  grid-row: 1 / 4;
+  align-self: start;
+  inline-size: 100%;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__title {
+  font-size: clamp(3.5rem, 4.75vw, 4.75rem);
+  font-weight: 700;
+  line-height: 0.96;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__lead,
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__card > p,
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__note {
+  max-inline-size: 46ch;
+  font-size: clamp(1.0625rem, 1.15vw, 1.1875rem);
+  line-height: 1.55;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__card > h3 {
+  font-size: clamp(1.875rem, 2.5vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.04;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__note strong {
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 700;
+  line-height: 0.95;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__policy-slot {
+  inline-size: 100%;
+  max-inline-size: none;
+}
+
+#jestei-words[data-visual-system="v2"] .jestei-words-bento__policy-slot .policy-shell {
+  inline-size: 100%;
+  max-block-size: 47.5rem;
+  aspect-ratio: 16 / 9;
+}
+
+#jestei-words[data-visual-system="v2"] .policy-page li,
+#jestei-words[data-visual-system="v2"] .policy-page td,
+#jestei-words[data-visual-system="v2"] .policy-page th {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+/* Color: align the composition and keep the visual fully visible. */
+#jestei-color[data-visual-system="v2"] .jestei-color-bento {
+  grid-template-columns: minmax(0, 7fr) minmax(20rem, 5fr);
+  gap: var(--layout-grid-gap);
+  inline-size: min(
+    calc(100% - (2 * var(--layout-gutter))),
+    var(--layout-standard-max)
+  );
+}
+
+#jestei-color[data-visual-system="v2"] .jestei-color-bento__head,
+#jestei-color[data-visual-system="v2"] .jestei-color-bento__card {
+  border-radius: var(--case-radius-l);
+}
+
+#jestei-color[data-visual-system="v2"] .jestei-color-bento__palette-card {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--layout-grid-gap);
+}
+
+#jestei-color[data-visual-system="v2"] .jestei-color-bento__visual {
+  min-block-size: 0;
+}
+
+#jestei-color[data-visual-system="v2"] .jestei-color-bento__visual img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+#jestei-color[data-visual-system="v2"] .jestei-color-bento__brand-strip {
+  grid-column: 1 / -1;
+}
+
+/* Tariffs: remove the 56rem mobile canvas overflow. */
+#jestei-tariffs[data-visual-system="v2"] [data-animation="before-after"],
+#jestei-tariffs[data-visual-system="v2"] [data-animation="before-after"] canvas {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+/* Styx: keep independent vertical editorial chapters. */
+main[data-showcase] [data-section-family="styx"][data-visual-system="v2"][data-section-chapter] {
+  --styx-flow-width: min(
+    calc(100% - (2 * var(--layout-gutter))),
+    var(--layout-wide-max)
+  );
+  margin-block: var(--case-space-2xl);
+}
+
+main[data-showcase] [data-section-family="styx"][data-visual-system="v2"][data-section-chapter] [data-section-screen] {
+  inline-size: var(--styx-flow-width);
+  max-inline-size: none;
+  padding-block: var(--case-space-xl);
+}
+
+main[data-showcase] [data-section-family="styx"][data-visual-system="v2"] [data-section-body] {
+  row-gap: var(--case-space-xl);
+}
+
+/* Shootings: readable editorial heading and wide media field. */
+#shootings[data-visual-system="v2"] [data-content-head] > p {
+  max-inline-size: 58ch;
+  white-space: normal;
+  line-height: 1.55;
+}
+
+#shootings[data-visual-system="v2"] [data-section-screen] {
+  row-gap: var(--case-space-xl);
+  padding-block: var(--case-space-xl);
+}
+
+/* Useful: stable cards with preview and visible project copy. */
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--layout-grid-gap);
+  align-items: stretch;
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__card {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-block-size: clamp(36rem, 48vw, 47rem);
+  aspect-ratio: auto;
+  border-radius: var(--case-radius-l);
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__media {
+  position: relative;
+  inset: auto;
+  min-block-size: 0;
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__body {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-block-start: 1px solid rgba(0, 0, 0, 0.12);
+  background: var(--white);
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__body h3,
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__body p {
+  margin: 0;
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__body h3,
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__body a:first-of-type {
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__body p {
+  font-size: clamp(1rem, 1vw, 1.125rem);
+  line-height: 1.5;
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__body a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+@media (max-width: 64rem) {
+  #jestei-words[data-visual-system="v2"] .jestei-words-bento {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+  }
+
+  #jestei-words[data-visual-system="v2"] .jestei-words-bento__card--intro,
+  #jestei-words[data-visual-system="v2"] .jestei-words-bento__card--fact,
+  #jestei-words[data-visual-system="v2"] .jestei-words-bento__card--scope,
+  #jestei-words[data-visual-system="v2"] .jestei-words-bento__card--policy {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  #jestei-color[data-visual-system="v2"] .jestei-color-bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #jestei-color[data-visual-system="v2"] .jestei-color-bento__visual {
+    min-block-size: clamp(22rem, 58vw, 38rem);
+  }
+}
+
+@media (max-width: 58rem) {
+  #pet-projects[data-visual-system="v2"] .pet-projects-bento__grid {
+    display: flex;
+    inline-size: calc(100% + (2 * var(--layout-gutter)));
+    margin-inline: calc(-1 * var(--layout-gutter));
+    padding-inline: var(--layout-gutter);
+    overflow-x: auto;
+    scroll-padding-inline: var(--layout-gutter);
+  }
+
+  #pet-projects[data-visual-system="v2"] .pet-projects-bento__card {
+    flex: 0 0 min(86vw, 25rem);
+    min-block-size: 38rem;
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 48rem) {
+  :root {
+    --layout-gutter: clamp(1rem, 5vw, 1.25rem);
+    --case-space-xl: 3.5rem;
+    --case-space-2xl: 5rem;
+    --case-space-3xl: 6.5rem;
+  }
+
+  main[data-showcase] > .section[data-visual-system="v2"] > [data-section-screen],
+  main[data-showcase] > #jestei-results[data-visual-system="v2"] > [data-section-screen],
+  main[data-showcase] > #jestei-interface-bento[data-visual-system="v2"] > [data-section-screen],
+  main[data-showcase] > #jestei-interface[data-visual-system="v2"] > [data-section-screen],
+  main[data-showcase] > #jestei-graphics[data-visual-system="v2"] > [data-section-screen],
+  main[data-showcase] > [data-section-family="styx"][data-visual-system="v2"] > [data-section-screen],
+  main[data-showcase] > #shootings[data-visual-system="v2"] > [data-section-screen],
+  main[data-showcase] > #pet-projects[data-visual-system="v2"] > [data-section-screen] {
+    inline-size: calc(100% - (2 * var(--layout-gutter)));
+  }
+
+  #jestei-words[data-visual-system="v2"] .jestei-words-bento__title {
+    font-size: clamp(2.375rem, 11vw, 3.25rem);
+  }
+
+  #jestei-words[data-visual-system="v2"] .jestei-words-bento__policy-slot .policy-shell {
+    block-size: min(74svh, 42rem);
+    max-block-size: none;
+    aspect-ratio: auto;
+    border-radius: 1.5rem;
+  }
+
+  #jestei-words[data-visual-system="v2"] .policy-page__content,
+  #jestei-words[data-visual-system="v2"] .policy-page__content--wide {
+    padding: 1.25rem 1rem 2rem;
+  }
+
+  #jestei-words[data-visual-system="v2"] .policy-page h1,
+  #jestei-words[data-visual-system="v2"] .policy-page h2 {
+    font-size: clamp(1.4rem, 7vw, 2.25rem);
+    white-space: normal;
+    text-wrap: balance;
+  }
+
+  #jestei-words[data-visual-system="v2"] .policy-page h3 {
+    font-size: clamp(1rem, 5vw, 1.4rem);
+    white-space: normal;
+  }
+
+  #jestei-words[data-visual-system="v2"] .policy-page p,
+  #jestei-words[data-visual-system="v2"] .policy-page li,
+  #jestei-words[data-visual-system="v2"] .policy-page td,
+  #jestei-words[data-visual-system="v2"] .policy-page th,
+  #jestei-words[data-visual-system="v2"] .policy-page a {
+    font-size: clamp(0.9375rem, 4vw, 1rem);
+    line-height: 1.55;
+  }
+
+  #jestei-words[data-visual-system="v2"] .policy-page table {
+    display: block;
+    inline-size: 100%;
+    overflow-x: auto;
+    table-layout: auto;
+  }
+
+  #jestei-color[data-visual-system="v2"] .jestei-color-bento {
+    inline-size: calc(100% - (2 * var(--layout-gutter)));
+  }
+
+  #jestei-color[data-visual-system="v2"] .jestei-color-bento__palette-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #jestei-color[data-visual-system="v2"] .jestei-color-bento__brand-strip {
+    display: flex;
+    inline-size: calc(100% + (2 * var(--layout-gutter)));
+    margin-inline: calc(-1 * var(--layout-gutter));
+    padding-inline: var(--layout-gutter);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--layout-gutter);
+  }
+
+  #jestei-color[data-visual-system="v2"] .jestei-color-bento__brand-strip > * {
+    flex: 0 0 min(82vw, 20rem);
+    scroll-snap-align: start;
+  }
+
+  #jestei-tariffs[data-visual-system="v2"] [data-animation="before-after"] {
+    inline-size: 100%;
+    overflow: hidden;
+  }
+
+  #jestei-tariffs[data-visual-system="v2"] [data-animation="before-after"] canvas {
+    inline-size: 100%;
+    max-inline-size: 100%;
+  }
+
+  #jestei-filter[data-visual-system="v2"] {
+    display: none;
+  }
+
+  main[data-showcase] [data-section-family="styx"][data-visual-system="v2"][data-section-chapter] {
+    margin-block: var(--case-space-2xl);
+  }
+
+  main[data-showcase] [data-section-family="styx"][data-visual-system="v2"][data-section-chapter] [data-section-screen] {
+    padding-block: var(--case-space-l);
+  }
+
+  #shootings[data-visual-system="v2"] [data-section-screen] {
+    row-gap: var(--case-space-l);
+  }
+
+  #pet-projects[data-visual-system="v2"] .pet-projects-bento__card {
+    flex-basis: min(86vw, 23rem);
+    min-block-size: 35rem;
+  }
+
+  #pet-projects[data-visual-system="v2"] .pet-projects-bento__body {
+    padding: 1rem 1.125rem 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-showcase] > .section[data-visual-system="v2"] *,
+  main[data-showcase] > .section[data-visual-system="v2"] *::before,
+  main[data-showcase] > .section[data-visual-system="v2"] *::after {
+    scroll-behavior: auto;
+  }
+}
