@@ -1,10 +1,13 @@
 import "./styles/safe-visible-repairs.css";
 import { initShowcaseBeforeAfter } from "./visuals/canvas/before-after/index.js";
+import { mountJesteiProcessScene } from "./visuals/dom/jestei-process-scene-live.js";
 
 const DELAYS = [0, 120, 600, 1600, 3600, 6500];
 const STYX_IDS = ["styx-graphics", "styx-print", "styx-photo-art", "styx-scanography"];
 const FAVICON_HREF = "/awfulface-favicon.svg";
 let tariffsMounted = false;
+let processCard = null;
+let disposeProcessScene = null;
 
 const normalize = (value) =>
   String(value || "").replace(/\s+/gu, " ").trim().toLocaleLowerCase("ru");
@@ -59,6 +62,36 @@ function placeJesteiWordsAfterBranding(root = document) {
   if (!words || !anchor || anchor.nextElementSibling === words) return;
 
   anchor.insertAdjacentElement("afterend", words);
+}
+
+function repairJesteiProcess(root = document) {
+  const card = root.querySelector('#jestei-results [data-bento-card="manual"]');
+  if (!card) return;
+
+  const scene = card.querySelector("#jestei-process-scene");
+  const isHealthy =
+    scene &&
+    scene.dataset.processState !== "error" &&
+    Number(scene.dataset.processFrame || 0) > 1;
+
+  if (card === processCard && isHealthy) return;
+
+  disposeProcessScene?.();
+  disposeProcessScene = null;
+  processCard = card;
+
+  try {
+    const disposers = mountJesteiProcessScene(root);
+    if (Array.isArray(disposers)) {
+      disposeProcessScene = () => disposers.forEach((dispose) => dispose?.());
+    } else if (typeof disposers === "function") {
+      disposeProcessScene = disposers;
+    }
+    card.dataset.processRepairMounted = "true";
+  } catch (error) {
+    card.dataset.processRepairMounted = "error";
+    console.warn("[local-repairs] failed to remount Jestei process animation", error);
+  }
 }
 
 function repairTariffs(root = document) {
@@ -143,6 +176,7 @@ function apply(root = document) {
   applyCanvasQuality(root);
   repairJesteiProductTitle(root);
   placeJesteiWordsAfterBranding(root);
+  repairJesteiProcess(root);
   repairTariffs(root);
   removeShootingsHeading(root);
   repairStyx(root);
@@ -153,7 +187,10 @@ function start() {
   window.addEventListener("load", () => apply(document), { once: true });
   window.addEventListener("pageshow", () => apply(document));
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) repairStyx(document);
+    if (!document.hidden) {
+      repairJesteiProcess(document);
+      repairStyx(document);
+    }
   });
 }
 
