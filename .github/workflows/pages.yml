@@ -25,14 +25,15 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               sha: context.sha,
               state: "pending",
               context: "github-pages/production",
-              description: "Building GitHub Pages production deployment",
-              target_url: "https://www.looksawful.ru/"
+              description: "Building and testing GitHub Pages deployment",
+              target_url: runUrl
             });
 
       - name: Checkout
@@ -118,6 +119,7 @@ jobs:
         with:
           script: |
             const success = process.env.BUILD_RESULT === "success" && process.env.DEPLOY_RESULT === "success";
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -127,7 +129,7 @@ jobs:
               description: success
                 ? "Published and verified on www.looksawful.ru"
                 : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`,
-              target_url: "https://www.looksawful.ru/"
+              target_url: runUrl
             });
 
             if (!success) {
