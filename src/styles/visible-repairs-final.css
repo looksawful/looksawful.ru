@@ -9,6 +9,14 @@ main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
   overflow: hidden;
 }
 
+main[data-showcase] #jestei-color [data-section-screen] {
+  box-sizing: border-box;
+  inline-size: calc(100vw - (2 * clamp(1rem, 2.2vw, 2rem)));
+  max-inline-size: none;
+  margin-inline: calc(50% - 50vw + clamp(1rem, 2.2vw, 2rem));
+  padding-inline: clamp(0.5rem, 1.1vw, 1rem);
+}
+
 main[data-showcase] #jestei-color .jestei-color-bento {
   inline-size: 100%;
   max-inline-size: none;
