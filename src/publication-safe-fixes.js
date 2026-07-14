@@ -5,6 +5,65 @@ const TECHNICAL_WORDS_COPY =
   /интерактивная книга оста(?:е|ё)тся внутри секции, но теперь работает как главный media-элемент bento\.?/iu;
 
 const APPLY_DELAYS = [0, 50, 250, 1000, 3000, 6000];
+const MOBILE_FILTER_QUERY = "(max-width: 48rem)";
+
+const HOMEPAGE_HIDDEN_SECTION_IDS = new Set([
+  "jestei-type",
+  "jestei-interface-archive",
+  "jestei-promo",
+  "jestei-landings",
+  "jestei-arc",
+  "jestei-masonry",
+  "styx-orbit-archive",
+]);
+
+const PUBLIC_SECTION_ORDER = [
+  "hero",
+  "jestei-cover",
+  "jestei-results",
+  "jestei-interface-bento",
+  "jestei-words",
+  "jestei-logo",
+  "jestei-color",
+  "jestei-audience-map",
+  "jestei-tariffs",
+  "jestei-filter",
+  "jestei-event-nav",
+  "jestei-interface",
+  "jestei-graphics",
+  "styx-cover",
+  "styx-graphics",
+  "styx-packaging",
+  "styx-communications",
+  "styx-print",
+  "styx-photo-art",
+  "styx-scanography",
+  "shootings",
+  "pet-projects",
+  "resume",
+];
+
+const VISUAL_SYSTEM_SECTION_IDS = new Set([
+  "jestei-results",
+  "jestei-interface-bento",
+  "jestei-words",
+  "jestei-color",
+  "jestei-tariffs",
+  "jestei-filter",
+  "jestei-event-nav",
+  "jestei-interface",
+  "jestei-graphics",
+  "styx-cover",
+  "styx-graphics",
+  "styx-packaging",
+  "styx-communications",
+  "styx-print",
+  "styx-photo-art",
+  "styx-scanography",
+  "shootings",
+  "pet-projects",
+  "resume",
+]);
 
 function setExactText(element, text) {
   if (!element || element.textContent.trim() === text) {
@@ -14,39 +73,137 @@ function setExactText(element, text) {
   element.textContent = text;
 }
 
-function restoreShootings(root = document) {
-  const section = root.getElementById?.("shootings");
-
-  if (section) {
-    if (section.hidden) {
-      section.hidden = false;
-    }
-
-    section.removeAttribute("aria-hidden");
-    section.removeAttribute("data-homepage-hidden");
-
-    if (section.style.getPropertyValue("display") !== "block") {
-      section.style.setProperty("display", "block", "important");
-    }
-
-    if (section.style.getPropertyValue("visibility") !== "visible") {
-      section.style.setProperty("visibility", "visible", "important");
-    }
-
-    if (section.style.getPropertyValue("opacity") !== "1") {
-      section.style.setProperty("opacity", "1", "important");
-    }
+function setStyleProperty(element, property, value, priority = "") {
+  if (!element) {
+    return;
   }
 
+  if (
+    element.style.getPropertyValue(property) === value &&
+    element.style.getPropertyPriority(property) === priority
+  ) {
+    return;
+  }
+
+  element.style.setProperty(property, value, priority);
+}
+
+function removeStyleProperty(element, property) {
+  if (!element?.style.getPropertyValue(property)) {
+    return;
+  }
+
+  element.style.removeProperty(property);
+}
+
+function hideHomepageElement(element) {
+  if (!element) {
+    return;
+  }
+
+  if (!element.hidden) {
+    element.hidden = true;
+  }
+
+  if (element.getAttribute("aria-hidden") !== "true") {
+    element.setAttribute("aria-hidden", "true");
+  }
+
+  if (!element.hasAttribute("data-homepage-hidden")) {
+    element.setAttribute("data-homepage-hidden", "");
+  }
+
+  setStyleProperty(element, "display", "none", "important");
+  setStyleProperty(element, "visibility", "hidden", "important");
+  setStyleProperty(element, "opacity", "0", "important");
+}
+
+function showHomepageElement(element) {
+  if (!element) {
+    return;
+  }
+
+  if (element.hidden) {
+    element.hidden = false;
+  }
+
+  element.removeAttribute("aria-hidden");
+  element.removeAttribute("data-homepage-hidden");
+  removeStyleProperty(element, "display");
+  removeStyleProperty(element, "visibility");
+  removeStyleProperty(element, "opacity");
+}
+
+function setNavigationLinkVisibility(root, sectionId, visible) {
   root
-    .querySelectorAll?.('.site-header a[href="#shootings"]')
+    .querySelectorAll?.(`a[href="#${sectionId}"]`)
     .forEach((link) => {
-      link.hidden = false;
-      link.removeAttribute("aria-hidden");
-      link.style.removeProperty("display");
-      link.style.removeProperty("visibility");
-      link.style.removeProperty("opacity");
+      if (visible) {
+        showHomepageElement(link);
+      } else {
+        hideHomepageElement(link);
+      }
     });
+}
+
+function applySectionVisibility(root = document) {
+  const mobileFilterDisabled = window.matchMedia(MOBILE_FILTER_QUERY).matches;
+
+  HOMEPAGE_HIDDEN_SECTION_IDS.forEach((sectionId) => {
+    hideHomepageElement(root.getElementById?.(sectionId));
+    setNavigationLinkVisibility(root, sectionId, false);
+  });
+
+  PUBLIC_SECTION_ORDER.forEach((sectionId) => {
+    if (HOMEPAGE_HIDDEN_SECTION_IDS.has(sectionId)) {
+      return;
+    }
+
+    if (sectionId === "jestei-filter" && mobileFilterDisabled) {
+      hideHomepageElement(root.getElementById?.(sectionId));
+      setNavigationLinkVisibility(root, sectionId, false);
+      return;
+    }
+
+    showHomepageElement(root.getElementById?.(sectionId));
+    setNavigationLinkVisibility(root, sectionId, true);
+  });
+}
+
+function applyPublicSectionOrder(root = document) {
+  const main = root.getElementById?.("main") || root.querySelector?.("#main");
+  if (!main) {
+    return;
+  }
+
+  const orderedSections = PUBLIC_SECTION_ORDER
+    .map((sectionId) => root.getElementById?.(sectionId))
+    .filter((section) => section?.parentElement === main);
+
+  if (orderedSections.length < 2) {
+    return;
+  }
+
+  let anchor = orderedSections[0];
+
+  for (const section of orderedSections.slice(1)) {
+    if (anchor.nextElementSibling !== section) {
+      anchor.insertAdjacentElement("afterend", section);
+    }
+
+    anchor = section;
+  }
+}
+
+function applyVisualSystemMarkers(root = document) {
+  VISUAL_SYSTEM_SECTION_IDS.forEach((sectionId) => {
+    const section = root.getElementById?.(sectionId);
+    if (!section || section.getAttribute("data-visual-system") === "v2") {
+      return;
+    }
+
+    section.setAttribute("data-visual-system", "v2");
+  });
 }
 
 function applyHeroCopy(root = document) {
@@ -117,8 +274,19 @@ export function applyPublicationSafeFixes(root = document) {
   applyResultsCopy(root);
   applyUsefulLabel(root);
   removeTechnicalWordsCopy(root);
-  restoreShootings(root);
-  root.documentElement?.setAttribute("data-publication-safe-fixes", "applied");
+  applySectionVisibility(root);
+  applyPublicSectionOrder(root);
+  applyVisualSystemMarkers(root);
+
+  if (
+    root.documentElement?.getAttribute("data-publication-safe-fixes") !==
+    "applied-v2"
+  ) {
+    root.documentElement?.setAttribute(
+      "data-publication-safe-fixes",
+      "applied-v2",
+    );
+  }
 }
 
 function startPublicationSafeFixes() {
@@ -141,6 +309,9 @@ function startPublicationSafeFixes() {
   });
 
   window.addEventListener("load", queueApply, { once: true });
+
+  const mobileFilterMedia = window.matchMedia(MOBILE_FILTER_QUERY);
+  mobileFilterMedia.addEventListener?.("change", queueApply);
 
   requestAnimationFrame(() => {
     requestAnimationFrame(queueApply);
