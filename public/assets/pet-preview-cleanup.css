@@ -1,0 +1,73 @@
+.mobile-back-button,
+.pet-shell-nav,
+.pet-shell-footer,
+.fkeys,
+.command-row[aria-label="Project links"] {
+  display: none;
+}
+
+html.is-pet-preview-frame {
+  --page: 100%;
+}
+
+html.is-pet-preview-frame,
+html.is-pet-preview-frame body {
+  inline-size: 100%;
+  min-inline-size: 0;
+  overflow-x: hidden;
+}
+
+html.is-pet-preview-frame .page,
+html.is-pet-preview-frame .desktop {
+  inline-size: 100%;
+  max-inline-size: none;
+  margin-inline: 0;
+}
+
+html.is-awful-audit-frame .page {
+  padding-bottom: var(--page-pad);
+}
+
+html.is-pet-preview-frame.is-awful-cases-frame,
+html.is-pet-preview-frame.is-awful-cases-frame body {
+  block-size: 100%;
+  min-block-size: 100%;
+  overflow: hidden;
+  background: #007a7a;
+}
+
+html.is-pet-preview-frame.is-awful-cases-frame .desktop {
+  display: block;
+  block-size: 100%;
+  min-block-size: 100%;
+  padding: 0;
+}
+
+html.is-pet-preview-frame.is-awful-cases-frame .desktop > :not(.window--runner) {
+  display: none;
+}
+
+html.is-pet-preview-frame.is-awful-cases-frame .window--runner {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: none;
+  block-size: 100%;
+  border: 0;
+  box-shadow: none;
+}
+
+html.is-pet-preview-frame.is-awful-cases-frame .window--runner > .titlebar,
+html.is-pet-preview-frame.is-awful-cases-frame .window--runner > .menubar {
+  display: none;
+}
+
+html.is-pet-preview-frame.is-awful-cases-frame .window--runner > .client,
+html.is-pet-preview-frame.is-awful-cases-frame .runner-shell,
+html.is-pet-preview-frame.is-awful-cases-frame .runner-frame {
+  inline-size: 100%;
+  block-size: 100%;
+  height: 100%;
+  min-block-size: 100%;
+  padding: 0;
+  border: 0;
+}

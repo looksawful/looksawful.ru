@@ -182,13 +182,15 @@ main[data-showcase] #jestei-words[data-visual-system="v2"] [data-section-screen]
 }
 
 /* Color: align the composition and keep the visual fully visible. */
-#jestei-color[data-visual-system="v2"] .jestei-color-bento {
+main[data-showcase] #jestei-color[data-visual-system="v2"] [data-section-screen] {
+  display: block;
+}
+
+main[data-showcase] #jestei-color[data-visual-system="v2"] .jestei-color-bento {
   grid-template-columns: minmax(0, 7fr) minmax(20rem, 5fr);
   gap: var(--layout-grid-gap);
-  inline-size: min(
-    calc(100% - (2 * var(--layout-gutter))),
-    var(--layout-standard-max)
-  );
+  inline-size: 100%;
+  max-inline-size: none;
 }
 
 #jestei-color[data-visual-system="v2"] .jestei-color-bento__head,
@@ -216,11 +218,83 @@ main[data-showcase] #jestei-words[data-visual-system="v2"] [data-section-screen]
   grid-column: 1 / -1;
 }
 
+@media (max-width: 64rem) {
+  main[data-showcase] #jestei-color[data-visual-system="v2"] .jestei-color-bento__swatch-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem 0.65rem;
+  }
+
+  main[data-showcase] #jestei-color[data-visual-system="v2"] .jestei-color-bento__swatch-list span,
+  main[data-showcase] #jestei-color[data-visual-system="v2"] .jestei-color-bento__swatch-list b {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 42rem) {
+  main[data-showcase] #jestei-color[data-visual-system="v2"] .jestei-color-bento {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "content"
+      "visual"
+      "strip";
+    inline-size: 100%;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  main[data-showcase] #jestei-color[data-visual-system="v2"] .jestei-color-bento__content {
+    grid-area: content;
+  }
+
+  main[data-showcase] #jestei-color[data-visual-system="v2"] .jestei-color-bento__visual {
+    grid-area: visual;
+    min-block-size: 19rem;
+  }
+
+  main[data-showcase] #jestei-color[data-visual-system="v2"] .jestei-color-bento__brand-strip {
+    grid-area: strip;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem 1rem;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 22rem) {
+  main[data-showcase] #jestei-color[data-visual-system="v2"] .jestei-color-bento__title {
+    display: block;
+    max-inline-size: 8.8ch;
+    font-size: clamp(1.85rem, 9vw, 2rem);
+    line-height: 0.9;
+    white-space: normal;
+    text-wrap: balance;
+  }
+
+  main[data-showcase] #jestei-color[data-visual-system="v2"] .jestei-color-bento__title > span {
+    min-inline-size: 0;
+  }
+}
+
 /* Tariffs: remove the 56rem mobile canvas overflow. */
 #jestei-tariffs[data-visual-system="v2"] [data-animation="before-after"],
 #jestei-tariffs[data-visual-system="v2"] [data-animation="before-after"] canvas {
   max-inline-size: 100%;
   min-inline-size: 0;
+}
+
+#jestei-tariffs[data-visual-system="v2"] [data-animation="before-after"] {
+  border: var(--line);
+  border-radius: var(--case-radius-l);
+  cursor: ew-resize;
+  background: var(--black);
+}
+
+#jestei-tariffs[data-visual-system="v2"] [data-animation="before-after"] canvas {
+  display: block;
+  cursor: inherit;
+  touch-action: none;
 }
 
 /* Styx: keep independent vertical editorial chapters. */
@@ -244,9 +318,7 @@ main[data-showcase] [data-section-family="styx"][data-visual-system="v2"] [data-
 
 /* Shootings: readable editorial heading and wide media field. */
 #shootings[data-visual-system="v2"] [data-content-head] > p {
-  max-inline-size: 58ch;
-  white-space: normal;
-  line-height: 1.55;
+  display: none;
 }
 
 #shootings[data-visual-system="v2"] [data-section-screen] {
@@ -291,7 +363,7 @@ main[data-showcase] [data-section-family="styx"][data-visual-system="v2"] [data-
 }
 
 #pet-projects[data-visual-system="v2"] .pet-projects-bento__body h3,
-#pet-projects[data-visual-system="v2"] .pet-projects-bento__body a:first-of-type {
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__body h3 > a {
   font-size: clamp(1.5rem, 2vw, 2rem);
   font-weight: 700;
   line-height: 1.05;
@@ -306,6 +378,29 @@ main[data-showcase] [data-section-family="styx"][data-visual-system="v2"] [data-
   color: inherit;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18em;
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__actions {
+  min-inline-size: 0;
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__visit,
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__github {
+  min-inline-size: 0;
+  font-size: clamp(0.72rem, 0.7vw, 0.82rem);
+  font-weight: 650;
+  line-height: 1;
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__github {
+  flex: 1 1 auto;
+  max-inline-size: 12rem;
+}
+
+#pet-projects[data-visual-system="v2"] .pet-projects-bento__github-label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 64rem) {
@@ -412,7 +507,7 @@ main[data-showcase] [data-section-family="styx"][data-visual-system="v2"] [data-
   }
 
   #jestei-color[data-visual-system="v2"] .jestei-color-bento {
-    inline-size: calc(100% - (2 * var(--layout-gutter)));
+    inline-size: 100%;
   }
 
   #jestei-color[data-visual-system="v2"] .jestei-color-bento__palette-card {
@@ -445,7 +540,7 @@ main[data-showcase] [data-section-family="styx"][data-visual-system="v2"] [data-
   }
 
   #jestei-filter[data-visual-system="v2"] {
-    display: none;
+    display: block;
   }
 
   main[data-showcase] [data-section-family="styx"][data-visual-system="v2"][data-section-chapter] {

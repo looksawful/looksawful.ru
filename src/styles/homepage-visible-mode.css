@@ -31,22 +31,25 @@ body > footer {
   #jestei-cover,
   #jestei-results,
   #jestei-logo,
-  #jestei-interface-bento,
   #jestei-color,
+  #jestei-audience-map,
   #jestei-words,
+  #jestei-tariffs,
   #jestei-filter,
   #jestei-event-nav,
-  #jestei-promo,
-  #jestei-landings,
-  #jestei-tariffs,
+  #jestei-interface,
+  #jestei-graphics,
   #styx-cover,
+  #styx-graphics,
   #styx-packaging,
   #styx-communications,
   #styx-print,
   #styx-photo-art,
   #styx-scanography,
+  #shootings,
   #pet-projects,
-  #resume
+  #resume,
+  #contacts
 ) {
   display: block;
   visibility: visible;
@@ -58,28 +61,27 @@ body > footer {
   #jestei-cover,
   #jestei-results,
   #jestei-logo,
-  #jestei-interface-bento,
   #jestei-color,
+  #jestei-audience-map,
   #jestei-words,
+  #jestei-tariffs,
   #jestei-filter,
   #jestei-event-nav,
-  #jestei-promo,
-  #jestei-landings,
-  #jestei-tariffs,
+  #jestei-interface,
+  #jestei-graphics,
   #styx-cover,
+  #styx-graphics,
   #styx-packaging,
   #styx-communications,
   #styx-print,
   #styx-photo-art,
   #styx-scanography,
+  #shootings,
   #pet-projects,
-  #resume
+  #resume,
+  #contacts
 )[hidden] {
   display: block;
-}
-
-.site-header :is(a[href="#shootings"], a[href="#styx-graphics"]) {
-  display: none;
 }
 
 #jestei-results > .jestei-bento__heading {
@@ -88,11 +90,12 @@ body > footer {
 
 main[data-showcase] > :is(
   #jestei-color,
+  #jestei-audience-map,
+  #jestei-tariffs,
   #jestei-filter,
   #jestei-event-nav,
-  #jestei-promo,
-  #jestei-landings,
-  #jestei-tariffs,
+  #jestei-interface,
+  #jestei-graphics,
   #resume
 ) :where([data-section-title], [data-content-title], [data-cover-title], .title) {
   max-inline-size: 16ch;
@@ -115,11 +118,12 @@ main[data-showcase] > :is(
 @media (max-width: 48rem) {
   main[data-showcase] > :is(
     #jestei-color,
+    #jestei-audience-map,
+    #jestei-tariffs,
     #jestei-filter,
     #jestei-event-nav,
-    #jestei-promo,
-    #jestei-landings,
-    #jestei-tariffs,
+    #jestei-interface,
+    #jestei-graphics,
     #resume
   ) :where([data-section-title], [data-content-title], [data-cover-title], .title) {
     max-inline-size: 100%;

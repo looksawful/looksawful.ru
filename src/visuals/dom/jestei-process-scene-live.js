@@ -5,9 +5,9 @@ const VISUAL_SELECTOR = ".jestei-bento__process-visual";
 const SCENE_SELECTOR = "#jestei-process-scene";
 const NS = "http://www.w3.org/2000/svg";
 
-const DRAW = 7600;
-const HOLD = 250;
-const ERASE = 7600;
+const DRAW = 2800;
+const HOLD = 2200;
+const ERASE = 2800;
 const CYCLE = DRAW + HOLD + ERASE;
 const SPEED = 1.012;
 
@@ -164,7 +164,6 @@ function createNormalizedMasks(svg) {
     mask.append(reveal);
     defs.append(mask);
 
-    path.setAttribute("mask", `url(#${maskId})`);
     items.push({
       id,
       path,
@@ -269,7 +268,7 @@ function createController(svg) {
 
   function frame(now) {
     if (!active || disposed) return;
-    if (startTime == null) startTime = now;
+    if (startTime == null) startTime = now - DRAW / SPEED;
 
     const time = ((now - startTime) * SPEED) % CYCLE;
 
@@ -378,6 +377,7 @@ export function mountJesteiProcessScene(root = document) {
       throw new Error("Jestei process scene was not created");
     }
 
+    svg.dataset.finalProcessTarget = "visible";
     const dispose = createController(svg);
     controllers.set(svg, dispose);
     disposers.push(dispose);

@@ -51,12 +51,12 @@ main[data-showcase] #jestei-promo [data-section-screen] > * {
 }
 
 .jestei-promo__head-card p {
-  max-inline-size: 40rem !important;
+  max-inline-size: 40rem;
   margin: clamp(0.8rem, 1.25vw, 1.05rem) 0 0;
   color: var(--black);
-  font-size: clamp(0.98rem, 1.08vw, 1.08rem) !important;
-  font-weight: 400 !important;
-  line-height: 1.14 !important;
+  font-size: clamp(0.98rem, 1.08vw, 1.08rem);
+  font-weight: 400;
+  line-height: 1.14;
   letter-spacing: 0;
 }
 

@@ -574,20 +574,7 @@ const renderArc = ({ ctx, items, titleStyle, time, width, height, reducedMotion 
 
   ctx.globalAlpha = 1;
 };
-const injectStyles = (() => {
-  let injected = false;
-  return () => {
-    if (injected || typeof document === "undefined") return;
-    injected = true;
-    const style = document.createElement("style");
-    style.textContent = `:root {
-  --arc-title-font-family: "Inter Variable", "Inter", sans-serif;
-  --arc-title-font-weight: 500;
-  --arc-title-color: rgba(0, 0, 0, 0.92);
-}`;
-    document.head.appendChild(style);
-  };
-})();
+const injectStyles = () => {};
 
 export const mountArc = async (canvasId = "arc-container") => {
   injectStyles();

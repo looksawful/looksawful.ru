@@ -41,9 +41,32 @@
 #jestei-tariffs {
   --section-accent: var(--black);
   --section-muted: color-mix(in srgb, currentColor 58%, transparent);
-  --section-local-title: clamp(2.4rem, 6.6vw, 7rem);
+  --section-local-title: clamp(2.15rem, 4.5vw, 4.9rem);
+  --section-local-title-line: 0.98;
   --section-local-text: min(100%, 58rem);
   --section-local-lead: min(100%, 66rem);
   --section-local-media-ratio: 16 / 10;
   --section-local-media-fit: cover;
+}
+
+#jestei-tariffs [data-content-text] {
+  max-inline-size: min(100%, 64rem);
+}
+
+#jestei-tariffs [data-content-title] {
+  display: grid;
+  gap: 0.08em;
+  max-inline-size: min(100%, 16ch);
+  margin: 0;
+  line-height: var(--section-local-title-line);
+  text-wrap: balance;
+}
+
+#jestei-tariffs [data-content-title] [data-section-title-main],
+#jestei-tariffs [data-content-title] [data-section-title-accent] {
+  display: block;
+}
+
+#jestei-tariffs [data-content-title] [data-section-title-accent] {
+  color: color-mix(in srgb, var(--black) 72%, var(--white));
 }

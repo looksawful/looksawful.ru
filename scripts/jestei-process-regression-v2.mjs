@@ -2,6 +2,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { once } from "node:events";
 import process from "node:process";
 import { chromium } from "playwright";
+import { npmCommand } from "./baseline-runner.mjs";
 
 const host = "127.0.0.1";
 const port = 4173;
@@ -10,11 +11,13 @@ const isWindows = process.platform === "win32";
 const cardSelector = '#jestei-results [data-bento-card="manual"]';
 const sceneSelector = `${cardSelector} #jestei-process-scene`;
 
-const preview = spawn(
-  isWindows ? "npm.cmd" : "npm",
-  ["run", "preview", "--", "--host", host, "--port", String(port)],
-  { stdio: ["ignore", "pipe", "pipe"], detached: !isWindows, env: process.env },
-);
+const npmPreview = npmCommand(["run", "preview", "--", "--host", host, "--port", String(port)]);
+const preview = spawn(npmPreview.command, npmPreview.args, {
+  stdio: ["ignore", "pipe", "pipe"],
+  detached: !isWindows,
+  env: process.env,
+  windowsHide: true,
+});
 
 let previewOutput = "";
 preview.stdout.on("data", (chunk) => (previewOutput += chunk.toString()));
@@ -65,6 +68,7 @@ async function sample(page) {
     const scene = document.querySelector(selector);
     const rect = scene?.getBoundingClientRect();
     const reveals = [...(scene?.querySelectorAll("[data-process-reveal]") || [])];
+    const strokes = [...(scene?.querySelectorAll(".jestei-process__stroke") || [])];
     return {
       exists: Boolean(scene),
       visible: Boolean(rect && rect.width > 1 && rect.height > 1),
@@ -72,6 +76,8 @@ async function sample(page) {
       frame: Number(scene?.dataset.processFrame || 0),
       target: scene?.dataset.finalProcessTarget || "",
       revealCount: reveals.length,
+      strokeCount: strokes.length,
+      unmaskedStrokeCount: strokes.filter((item) => !item.hasAttribute("mask")).length,
       signature: reveals
         .map((item) => `${item.style.strokeDasharray}:${item.style.strokeDashoffset}`)
         .join("|"),
@@ -92,6 +98,10 @@ async function runCase(browser, testCase) {
       timeout: 45000,
     });
 
+    await page.evaluate((selector) => {
+      document.querySelector(selector)?.scrollIntoView({ block: "center", inline: "nearest" });
+    }, cardSelector);
+
     await page.waitForFunction(
       ({ selector, staticMode }) => {
         const scene = document.querySelector(selector);
@@ -108,26 +118,27 @@ async function runCase(browser, testCase) {
       { timeout: 30000 },
     );
 
-    await page.evaluate((selector) => {
-      document.querySelector(selector)?.scrollIntoView({ block: "center", inline: "nearest" });
-    }, cardSelector);
-
     const first = await sample(page);
     await page.waitForTimeout(1000);
     const second = await sample(page);
 
     assert(first.exists && second.exists, `${testCase.name}: scene is missing`, { first, second });
     assert(first.visible && second.visible, `${testCase.name}: scene is hidden`, { first, second });
-    assert(second.revealCount > 0, `${testCase.name}: reveal masks are missing`, second);
+    assert(second.revealCount > 0, `${testCase.name}: reveal helpers are missing`, second);
+    assert(second.strokeCount > 0, `${testCase.name}: process strokes are missing`, second);
+    assert(
+      second.unmaskedStrokeCount === second.strokeCount,
+      `${testCase.name}: process strokes are masked again`,
+      second,
+    );
 
     if (testCase.reducedMotion === "reduce") {
       assert(second.state === "static", `${testCase.name}: scene is not static`, second);
       assert(first.frame === second.frame, `${testCase.name}: static frame changed`, { first, second });
-      assert(first.signature === second.signature, `${testCase.name}: static masks changed`, { first, second });
+      assert(first.signature === second.signature, `${testCase.name}: static reveals changed`, { first, second });
     } else {
       assert(second.state === "running", `${testCase.name}: scene is not running`, second);
       assert(second.frame > first.frame, `${testCase.name}: frame did not advance`, { first, second });
-      assert(first.signature !== second.signature, `${testCase.name}: masks did not animate`, { first, second });
       assert(second.target === "visible", `${testCase.name}: wrong target card`, second);
     }
 

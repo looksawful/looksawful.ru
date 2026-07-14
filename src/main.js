@@ -1,216 +1,22 @@
-const STYX_SECTION_IDS = [
-  "styx-packaging",
-  "styx-communications",
-  "styx-print",
-  "styx-photo-art",
-  "styx-scanography",
-];
-
-const APPROVED_SECTION_IDS = new Set([
-  "hero",
-  "jestei-cover",
-  "jestei-results",
-  "jestei-logo",
-  "jestei-interface-bento",
-  "jestei-color",
-  "jestei-audience-map",
-  "jestei-words",
-  "jestei-interface",
-  "jestei-interface-archive",
-  "jestei-filter",
-  "jestei-event-nav",
-  "jestei-promo",
-  "jestei-landings",
-  "jestei-tariffs",
-  "jestei-graphics",
-  "styx-cover",
-  "styx-graphics",
-  "styx-orbit-archive",
-  ...STYX_SECTION_IDS,
-  "pet-projects",
-  "resume",
-]);
-
-const HOMEPAGE_HIDDEN_SECTION_IDS = new Set([
-  "jestei-type",
-  "jestei-arc",
-  "jestei-masonry",
-]);
-
 const PET_PROJECT_PREVIEW_WIDTHS = [
   ["berserk-timer", 480],
   ["awful-cases", 420],
   ["awful-audit", 420],
 ];
 
-function hideHomepageOnlyElement(element) {
-  if (!element) {
-    return;
-  }
-
-  element.hidden = true;
-  element.setAttribute("aria-hidden", "true");
-  element.setAttribute("data-homepage-hidden", "");
-  element.style.setProperty("display", "none", "important");
-  element.style.setProperty("visibility", "hidden", "important");
-  element.style.setProperty("opacity", "0", "important");
-}
-
-const JESTEI_MOTION_BREAKS = [
-  {
-    id: "jestei-arc",
-    modifier: "arc",
-    animation: "landing-arc",
-    canvasId: "jestei-arc-canvas",
-    anchorId: "jestei-type",
-    position: "afterend",
-  },
-  {
-    id: "jestei-masonry",
-    modifier: "masonry",
-    animation: "landing-masonry",
-    canvasId: "jestei-masonry-canvas",
-    anchorId: "jestei-interface-bento",
-    position: "beforebegin",
-  },
-];
-
-function removeHeroOnlyConstraints(root = document) {
-  root
-    .querySelectorAll("[data-hero-only-mode], #hero-only-inline-mode")
-    .forEach((node) => node.remove());
-
-  const header = root.querySelector("body > .site-header");
-  if (header) {
-    header.style.setProperty("display", "block", "important");
-    header.style.setProperty("visibility", "visible", "important");
-    header.style.setProperty("opacity", "1", "important");
-  }
-
-  root.querySelectorAll("#main > .section").forEach((section) => {
-    const isHiddenFromHomepage = HOMEPAGE_HIDDEN_SECTION_IDS.has(section.id);
-    const isApproved = APPROVED_SECTION_IDS.has(section.id) && !isHiddenFromHomepage;
-    section.hidden = isHiddenFromHomepage;
-    section.toggleAttribute("data-homepage-hidden", isHiddenFromHomepage);
-
-    if (isHiddenFromHomepage) {
-      section.setAttribute("aria-hidden", "true");
-    }
-
-    section.style.setProperty("display", isApproved ? "block" : "none", "important");
-    section.style.setProperty("visibility", isApproved ? "visible" : "hidden", "important");
-    section.style.setProperty("opacity", isApproved ? "1" : "0", "important");
-  });
-
-  root
-    .querySelectorAll('.site-header a[href="#shootings"], .site-header a[href="#styx-graphics"]')
-    .forEach((link) => link.style.setProperty("display", "none", "important"));
-}
-
-function placeTariffsAfterColor(root = document) {
-  const colorSection = root.querySelector("#jestei-color");
-  const audienceSection = root.querySelector("#jestei-audience-map");
-  const tariffsSection = root.querySelector("#jestei-tariffs");
-
-  if (!colorSection || !tariffsSection) {
-    return;
-  }
-
-  if (audienceSection && colorSection.nextElementSibling !== audienceSection) {
-    colorSection.insertAdjacentElement("afterend", audienceSection);
-  }
-
-  const tariffsAnchor = audienceSection || colorSection;
-
-  if (tariffsAnchor.nextElementSibling !== tariffsSection) {
-    tariffsAnchor.insertAdjacentElement("afterend", tariffsSection);
-  }
-}
-
-function createJesteiMotionBreak({ id, modifier, animation, canvasId }, root = document) {
-  const section = root.createElement("section");
-  section.className = `section jestei-motion-break jestei-motion-break--${modifier}`;
-  section.id = id;
-  section.setAttribute("data-section-family", "jestei");
-  section.setAttribute("aria-hidden", "true");
-  section.innerHTML = `
-    <div class="jestei-motion-break__surface" data-animation="${animation}">
-      <canvas class="visual-canvas jestei-motion-break__canvas" id="${canvasId}"></canvas>
-    </div>
-  `;
-  return section;
-}
-
-function placeJesteiMotionBreaks(root = document) {
-  hideHomepageOnlyElement(root.querySelector("#jestei-results > .jestei-masonry"));
-
-  JESTEI_MOTION_BREAKS.forEach((config) => {
-    if (HOMEPAGE_HIDDEN_SECTION_IDS.has(config.id)) {
-      hideHomepageOnlyElement(root.querySelector(`#${config.id}`));
-      return;
-    }
-
-    const anchor = root.querySelector(`#${config.anchorId}`);
-    if (!anchor) {
-      return;
-    }
-
-    const section = root.querySelector(`#${config.id}`) || createJesteiMotionBreak(config, root);
-    const isAlreadyPlaced =
-      config.position === "afterend"
-        ? anchor.nextElementSibling === section
-        : anchor.previousElementSibling === section;
-
-    if (!isAlreadyPlaced) {
-      anchor.insertAdjacentElement(config.position, section);
-    }
-  });
-}
-
 function getPetProjectPreviewWidth(source) {
   const match = PET_PROJECT_PREVIEW_WIDTHS.find(([slug]) => source.includes(slug));
   return match?.[1] ?? 420;
 }
 
-function ensurePetProjectModal(root = document) {
-  const existing = root.querySelector("#pet-project-modal");
-  if (existing) {
-    return existing;
+function initializePetProjectModal(dialog) {
+  const title = dialog.querySelector("#pet-project-modal-title");
+  const closeButton = dialog.querySelector(".pet-project-modal__close");
+  const frame = dialog.querySelector(".pet-project-modal__frame");
+
+  if (!title || !closeButton || !frame) {
+    return dialog;
   }
-
-  const dialog = document.createElement("dialog");
-  dialog.id = "pet-project-modal";
-  dialog.className = "pet-project-modal";
-  dialog.setAttribute("aria-labelledby", "pet-project-modal-title");
-
-  const shell = document.createElement("div");
-  shell.className = "pet-project-modal__shell";
-
-  const bar = document.createElement("div");
-  bar.className = "pet-project-modal__bar";
-
-  const title = document.createElement("p");
-  title.id = "pet-project-modal-title";
-  title.className = "pet-project-modal__title";
-
-  const closeButton = document.createElement("button");
-  closeButton.className = "pet-project-modal__close";
-  closeButton.type = "button";
-  closeButton.setAttribute("aria-label", "закрыть");
-  closeButton.textContent = "×";
-
-  const body = document.createElement("div");
-  body.className = "pet-project-modal__body";
-
-  const frame = document.createElement("iframe");
-  frame.className = "pet-project-modal__frame";
-  frame.setAttribute("allow", "fullscreen; autoplay");
-
-  bar.append(title, closeButton);
-  body.append(frame);
-  shell.append(bar, body);
-  dialog.append(shell);
-  document.body.append(dialog);
 
   const closeModal = () => {
     if (dialog.open && typeof dialog.close === "function") {
@@ -224,24 +30,28 @@ function ensurePetProjectModal(root = document) {
     dialog.petProjectReturnFocus?.focus?.({ preventScroll: true });
   };
 
-  closeButton.addEventListener("click", closeModal);
+  if (dialog.dataset.petProjectModalReady !== "true") {
+    dialog.dataset.petProjectModalReady = "true";
 
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) {
-      closeModal();
-    }
-  });
+    closeButton.addEventListener("click", closeModal);
 
-  dialog.addEventListener("close", () => {
-    document.documentElement.classList.remove("pet-project-modal-open");
-    frame.src = "about:blank";
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) {
+        closeModal();
+      }
+    });
 
-    const returnFocus = dialog.petProjectReturnFocus;
-    dialog.petProjectReturnFocus = null;
-    if (returnFocus?.isConnected) {
-      requestAnimationFrame(() => returnFocus.focus({ preventScroll: true }));
-    }
-  });
+    dialog.addEventListener("close", () => {
+      document.documentElement.classList.remove("pet-project-modal-open");
+      frame.src = "about:blank";
+
+      const returnFocus = dialog.petProjectReturnFocus;
+      dialog.petProjectReturnFocus = null;
+      if (returnFocus?.isConnected) {
+        requestAnimationFrame(() => returnFocus.focus({ preventScroll: true }));
+      }
+    });
+  }
 
   dialog.petProjectTitle = title;
   dialog.petProjectFrame = frame;
@@ -250,12 +60,59 @@ function ensurePetProjectModal(root = document) {
   return dialog;
 }
 
+function createPetProjectModal(root = document) {
+  const dialog = document.createElement("dialog");
+  dialog.id = "pet-project-modal";
+  dialog.className = "pet-project-modal";
+  dialog.setAttribute("aria-labelledby", "pet-project-modal-title");
+
+  const shell = root.createElement("div");
+  shell.className = "pet-project-modal__shell";
+
+  const bar = root.createElement("div");
+  bar.className = "pet-project-modal__bar";
+
+  const title = root.createElement("p");
+  title.id = "pet-project-modal-title";
+  title.className = "pet-project-modal__title";
+
+  const closeButton = root.createElement("button");
+  closeButton.className = "pet-project-modal__close";
+  closeButton.type = "button";
+  closeButton.setAttribute("aria-label", "закрыть");
+  closeButton.textContent = "×";
+
+  const body = root.createElement("div");
+  body.className = "pet-project-modal__body";
+
+  const frame = root.createElement("iframe");
+  frame.className = "pet-project-modal__frame";
+  frame.setAttribute("allow", "fullscreen; autoplay");
+  frame.title = "";
+
+  bar.append(title, closeButton);
+  body.append(frame);
+  shell.append(bar, body);
+  dialog.append(shell);
+  root.body?.append(dialog);
+  return dialog;
+}
+
+function ensurePetProjectModal(root = document) {
+  return initializePetProjectModal(
+    root.querySelector("#pet-project-modal") || createPetProjectModal(root),
+  );
+}
+
 function openPetProjectModal(source, title, opener, root = document) {
   const dialog = ensurePetProjectModal(root);
   dialog.petProjectReturnFocus = opener;
   dialog.petProjectTitle.textContent = title;
   dialog.petProjectFrame.title = `${title} — полноэкранная страница проекта`;
   dialog.petProjectFrame.src = source;
+  dialog.petProjectFrame.dispatchEvent(
+    new CustomEvent("portfolio:pet-preview-added", { bubbles: true }),
+  );
   document.documentElement.classList.add("pet-project-modal-open");
 
   if (typeof dialog.showModal === "function") {
@@ -274,6 +131,13 @@ function sizePetProjectPreview(media, frame, viewportWidth) {
     const mediaWidth = media.clientWidth;
     const mediaHeight = media.clientHeight;
     if (!mediaWidth || !mediaHeight) {
+      return;
+    }
+
+    if (media.closest?.("#pet-projects")) {
+      frame.style.inlineSize = "100%";
+      frame.style.blockSize = "100%";
+      frame.style.transform = "none";
       return;
     }
 
@@ -332,6 +196,7 @@ function mountLivePetProjectPreviews(root = document) {
     preview.append(frame, openButton);
     media.replaceWith(preview);
     sizePetProjectPreview(preview, frame, getPetProjectPreviewWidth(source));
+    frame.dispatchEvent(new CustomEvent("portfolio:pet-preview-added", { bubbles: true }));
   });
 }
 
@@ -343,79 +208,12 @@ async function loadPetProjectPreviewCleanup(root = document) {
   await import("./pet-project-preview-cleanup.js");
 }
 
-function activateStyxVideos(section) {
-  section.querySelectorAll("video").forEach((video) => {
-    video.autoplay = true;
-    video.loop = true;
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
-    video.preload = "metadata";
-    video.setAttribute("autoplay", "");
-    video.setAttribute("loop", "");
-    video.setAttribute("muted", "");
-    video.setAttribute("playsinline", "");
-
-    const startPlayback = () => {
-      const playback = video.play();
-      playback?.catch?.(() => {});
-    };
-
-    if (video.readyState >= 2) {
-      startPlayback();
-    } else {
-      video.addEventListener("loadeddata", startPlayback, { once: true });
-      video.load();
-    }
-  });
-}
-
-function restoreStyxSections(root = document) {
-  const slider = root.querySelector("#styx-work-slider");
-  const sections = STYX_SECTION_IDS.map(
-    (id) => slider?.querySelector(`#${id}`) || root.querySelector(`#${id}`),
-  ).filter(Boolean);
-
-  if (slider) {
-    sections.forEach((section) => {
-      slider.insertAdjacentElement("beforebegin", section);
-    });
-    slider.remove();
-  }
-
-  sections.forEach((section) => {
-    section.hidden = false;
-    section.removeAttribute("data-styx-slider-source");
-    section.style.removeProperty("display");
-    section.style.removeProperty("visibility");
-    section.style.removeProperty("opacity");
-    section.querySelectorAll('img[loading="lazy"]').forEach((image) => {
-      image.removeAttribute("loading");
-    });
-    activateStyxVideos(section);
-  });
-}
-
 async function start() {
-  removeHeroOnlyConstraints(document);
-
-  try {
-    const { prepareHomepagePublication } = await import("./homepage-publication.js");
-    prepareHomepagePublication(document);
-    restoreStyxSections(document);
-    mountLivePetProjectPreviews(document);
-    await loadPetProjectPreviewCleanup(document);
-  } finally {
-    placeTariffsAfterColor(document);
-    placeJesteiMotionBreaks(document);
-    removeHeroOnlyConstraints(document);
-  }
+  mountLivePetProjectPreviews(document);
+  await loadPetProjectPreviewCleanup(document);
 
   const { initRuntime } = await import("./runtime/init-runtime.js");
   await initRuntime(document);
-  restoreStyxSections(document);
-  placeJesteiMotionBreaks(document);
-  removeHeroOnlyConstraints(document);
 }
 
 if (document.readyState === "loading") {

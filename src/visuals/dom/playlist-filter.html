@@ -295,9 +295,9 @@
     .tag-chip { height: 34px; border-radius: 50px; padding: 0 18px; background: var(--color-fill-quarternary); outline: 1px solid var(--color-fill-quarternary); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
     .tag-chip span { font-size: 12px; line-height: 12px; letter-spacing: .3px; font-weight: 500; }
     .tag-chip.active { outline-color: transparent; }
-    .tag-chip.active span { color: #151718 !important; }
+    .tag-chip.active span { color: #151718; }
     .tag-chip.excluded { outline-color: #eb5757; background: var(--color-fill-quarternary); }
-    .tag-chip.excluded span { color: #eb5757 !important; }
+    .tag-chip.excluded span { color: #eb5757; }
     .bpm { width: 621px; height: 64px; padding: 11px 12px; gap: 20px; overflow: hidden; align-items: center; }
     .bpm-inputs { gap: 10px; }
     .bpm-input { width: 58px; gap: 4px; }
@@ -360,7 +360,7 @@
     .key-modal__button.secondary { background: var(--color-fill-secondary); color: var(--color-text-primary); }
     .key-modal__button.primary { background: var(--colors-biloba-biloba-normal); color: #151718; }
 
-    .hidden { display: none !important; }
+    .hidden { display: none; }
 
     /* fixed advanced genre layout: TSX logic uses large_container rows, not one horizontal strip */
     .advanced-genres {
@@ -1195,26 +1195,26 @@
   
     html,
     body {
-      width: 1540px !important;
-      min-width: 1540px !important;
-      max-width: 1540px !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      overflow: hidden !important;
-      background: #000000 !important;
+      width: 1540px;
+      min-width: 1540px;
+      max-width: 1540px;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000000;
     }
 
     body {
-      min-height: auto !important;
-      background: #000000 !important;
+      min-height: auto;
+      background: #000000;
     }
 
     .preview-copy {
-      display: none !important;
+      display: none;
     }
 
     #app.jp-filter {
-      margin: 0 !important;
+      margin: 0;
     }
 
 
@@ -1624,10 +1624,14 @@
     function selectedKeys() { return Array.from(state.keys.entries()).filter(function (item) { return item[1] === true; }).map(function (item) { return item[0]; }); }
     function excludedKeys() { return Array.from(state.keys.entries()).filter(function (item) { return item[1] === false; }).map(function (item) { return item[0]; }); }
 
+    function createHtmlFragment(html, doc) {
+      return doc.createRange().createContextualFragment(html);
+    }
+
     function render() {
       const app = root();
       app.className = 'jp-filter' + (state.open ? ' is-open' : '') + (state.advanced ? ' is-advanced' : '');
-      app.innerHTML = renderTop() + renderBody() + renderContains() + renderKeyModal();
+      app.replaceChildren(createHtmlFragment(renderTop() + renderBody() + renderContains() + renderKeyModal(), app.ownerDocument));
       bind();
       applyKeyActiveState();
       updateSliderCss();

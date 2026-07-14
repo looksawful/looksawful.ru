@@ -9,6 +9,7 @@ const VIDEO_EXTENSION_PATTERN = /\.(mp4|webm|mov)(\?.*)?(#.*)?$/i;
 const EXPLICIT_LIGHTBOX_TYPES = new Set(["image", "video"]);
 const SWIPE_THRESHOLD = 42;
 const PREFETCH_RADIUS = 1;
+const SVG_NS = "http://www.w3.org/2000/svg";
 
 let lightboxInstance = null;
 const mountedRoots = new WeakSet();
@@ -30,9 +31,21 @@ function syncLightboxViewport() {
 
 
 const icons = {
-  prev: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.7 2.2 4.9 8l5.8 5.8-1.4 1.4L2.1 8 9.3.8l1.4 1.4Z"/></svg>',
-  next: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5.3 13.8 5.8-5.8-5.8-5.8L6.7.8 13.9 8l-7.2 7.2-1.4-1.4Z"/></svg>',
+  prev: "M10.7 2.2 4.9 8l5.8 5.8-1.4 1.4L2.1 8 9.3.8l1.4 1.4Z",
+  next: "m5.3 13.8 5.8-5.8-5.8-5.8L6.7.8 13.9 8l-7.2 7.2-1.4-1.4Z",
 };
+
+function createIcon(pathData) {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  svg.setAttribute("aria-hidden", "true");
+
+  const path = document.createElementNS(SVG_NS, "path");
+  path.setAttribute("d", pathData);
+  svg.append(path);
+
+  return svg;
+}
 
 const getMediaType = (src = "", explicitType = "") => {
   if (explicitType) {
@@ -137,17 +150,43 @@ const createLightbox = () => {
   const root = document.createElement("div");
   root.className = "lightbox";
   root.setAttribute("aria-hidden", "true");
-  root.innerHTML = `
-    <div class="lightbox__dialog" role="dialog" aria-modal="true" aria-label="просмотр медиа">
-      <div class="lightbox__toolbar">
-        <button class="lightbox__close" type="button">закрыть</button>
-      </div>
-      <button class="lightbox__nav lightbox__nav--prev" type="button" aria-label="предыдущее изображение">${icons.prev}</button>
-      <div class="lightbox__body"></div>
-      <button class="lightbox__nav lightbox__nav--next" type="button" aria-label="следующее изображение">${icons.next}</button>
-      <div class="lightbox__counter" aria-live="polite"></div>
-    </div>
-  `;
+
+  const dialog = document.createElement("div");
+  dialog.className = "lightbox__dialog";
+  dialog.setAttribute("role", "dialog");
+  dialog.setAttribute("aria-modal", "true");
+  dialog.setAttribute("aria-label", "просмотр медиа");
+
+  const toolbar = document.createElement("div");
+  toolbar.className = "lightbox__toolbar";
+
+  const close = document.createElement("button");
+  close.className = "lightbox__close";
+  close.type = "button";
+  close.textContent = "закрыть";
+  toolbar.append(close);
+
+  const prev = document.createElement("button");
+  prev.className = "lightbox__nav lightbox__nav--prev";
+  prev.type = "button";
+  prev.setAttribute("aria-label", "предыдущее изображение");
+  prev.append(createIcon(icons.prev));
+
+  const body = document.createElement("div");
+  body.className = "lightbox__body";
+
+  const next = document.createElement("button");
+  next.className = "lightbox__nav lightbox__nav--next";
+  next.type = "button";
+  next.setAttribute("aria-label", "следующее изображение");
+  next.append(createIcon(icons.next));
+
+  const counter = document.createElement("div");
+  counter.className = "lightbox__counter";
+  counter.setAttribute("aria-live", "polite");
+
+  dialog.append(toolbar, prev, body, next, counter);
+  root.append(dialog);
 
   document.body.append(root);
 

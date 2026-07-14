@@ -405,7 +405,7 @@ main[data-showcase] #jestei-logo .jestei-logo__depth-reference {
   }
 
   main[data-showcase] .jestei-bento .jestei-bento__steps-visual {
-    display: none !important;
+    display: none;
   }
 
   main[data-showcase] .jestei-bento .jestei-bento__card--manual {
@@ -547,9 +547,9 @@ main[data-showcase] #jestei-logo .jestei-logo__depth-reference {
   main[data-showcase] #jestei-logo .jestei-logo__composition .jestei-logo__variant,
   main[data-showcase] #jestei-logo .jestei-logo__composition [data-logo-inspector-shell],
   main[data-showcase] #jestei-logo .jestei-logo__composition .jestei-logo__slider {
-    opacity: 1 !important;
-    clip-path: inset(0 0 0 0) !important;
-    transform: none !important;
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: none;
   }
 
   main[data-showcase] #jestei-logo .jestei-logo__top {
@@ -618,11 +618,11 @@ main[data-showcase] #jestei-logo .jestei-logo__depth-reference {
   }
 
   main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
-    display: none !important;
+    display: none;
   }
 
   main[data-showcase] #jestei-logo .jestei-logo__animation-card {
-    display: none !important;
+    display: none;
   }
 
   main[data-showcase] #jestei-logo .jestei-logo__slider {
@@ -831,22 +831,22 @@ main[data-showcase] #jestei-logo .jestei-logo__depth-reference {
   /* Higher-specificity pass over older bento tuning files. */
   main[data-showcase] #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric,
   main[data-showcase] #jestei-results .jestei-bento__card--price .jestei-bento__title--price {
-    display: grid !important;
+    display: grid;
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: 0.18rem;
     text-align: center;
-    white-space: normal !important;
+    white-space: normal;
   }
 
   main[data-showcase] #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric strong,
   main[data-showcase] #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric span,
   main[data-showcase] #jestei-results .jestei-bento__card--price .jestei-bento__title--price strong,
   main[data-showcase] #jestei-results .jestei-bento__card--price .jestei-bento__title--price span {
-    display: block !important;
-    inline-size: auto !important;
+    display: block;
+    inline-size: auto;
     max-inline-size: 100%;
-    white-space: nowrap !important;
+    white-space: nowrap;
   }
 
   main[data-showcase] #jestei-results .jestei-bento__card--steps .jestei-bento__title--metric strong,
@@ -870,7 +870,7 @@ main[data-showcase] #jestei-logo .jestei-logo__depth-reference {
 
   main[data-showcase] #jestei-results .jestei-bento__card--rebrand .jestei-bento__content {
     inline-size: 100%;
-    max-inline-size: none !important;
+    max-inline-size: none;
   }
 
   main[data-showcase] #jestei-results .jestei-bento__card--products .jestei-bento__title--regular,
@@ -886,34 +886,33 @@ main[data-showcase] #jestei-logo .jestei-logo__depth-reference {
   }
 
   main[data-showcase] #jestei-results .jestei-bento__card--manual .jestei-bento__process-visual {
-    position: absolute !important;
+    position: relative;
     z-index: 1;
-    inset-block: 3.15rem 2.1rem !important;
-    inset-inline: auto 1.65rem !important;
-    inline-size: 40% !important;
-    block-size: auto !important;
-    min-inline-size: 0 !important;
-    min-block-size: 0 !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    background: transparent !important;
+    inset: auto;
+    inline-size: 100%;
+    block-size: 100%;
+    min-inline-size: 0;
+    min-block-size: clamp(13rem, 22vw, 20rem);
+    margin: 0;
+    overflow: hidden;
+    background: var(--white);
     container-type: size;
   }
 
   main[data-showcase] #jestei-results .jestei-bento__card--manual .jestei-bento__process-svg {
-    position: absolute !important;
-    inset: 50% auto auto 50% !important;
-    inline-size: min(100cqb, 154cqi) !important;
-    block-size: auto !important;
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
     aspect-ratio: 848 / 550;
-    transform: translate(-50%, -50%) rotate(90deg) !important;
+    transform: none;
     transform-origin: center;
   }
 
   main[data-showcase] #jestei-results .jestei-bento__process-svg .jestei-process__stroke {
-    mask: none !important;
-    stroke-dasharray: none !important;
-    stroke-dashoffset: 0 !important;
+    mask: none;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
   }
 
   main[data-showcase] #jestei-results .jestei-bento__rebrand-equation {

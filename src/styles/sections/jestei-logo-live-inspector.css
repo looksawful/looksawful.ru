@@ -1,19 +1,77 @@
 main[data-showcase] #jestei-logo .jestei-logo__depth-reference {
-  display: none !important;
+  display: none;
+}
+
+main[data-showcase] #jestei-logo [data-section-screen] {
+  inline-size: min(calc(100% - clamp(2rem, 8vw, 8rem)), var(--case-wide, 90rem));
+  max-inline-size: none;
+  margin-inline: auto;
+  padding-block: clamp(2.5rem, 5.5vw, 5.5rem);
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__head {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.5fr) minmax(18rem, 0.5fr);
+  grid-template-areas:
+    "title lead"
+    "media media";
+  gap: clamp(1rem, 2.2vw, 2rem) clamp(2rem, 4vw, 4.5rem);
+  align-items: end;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__title {
+  grid-area: title;
+  max-inline-size: min(100%, 9ch);
+  margin: 0;
+  color: var(--black);
+  font-size: clamp(2.4rem, 5vw, 4.75rem);
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: 0;
+  text-wrap: balance;
+  white-space: normal;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__title [data-section-title-main],
+main[data-showcase] #jestei-logo .jestei-logo__title [data-section-title-accent] {
+  display: inline;
+}
+
+main[data-showcase] #jestei-logo .jestei-logo__title [data-section-title-main] + [data-section-title-accent]::before {
+  content: " ";
+}
+
+main[data-showcase] #jestei-logo [data-section-lead] {
+  grid-area: lead;
+  justify-self: end;
+  max-inline-size: 30rem;
+  margin: 0;
+  color: color-mix(in srgb, var(--black) 64%, transparent);
+  font-size: clamp(1rem, 1.2vw, 1.24rem);
+  line-height: 1.38;
+  letter-spacing: 0;
+  text-wrap: pretty;
 }
 
 main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
-  display: block !important;
+  grid-area: media;
+  display: block;
   box-sizing: border-box;
   inline-size: 100%;
   min-inline-size: 0;
-  min-block-size: clamp(18rem, 31.25vw, 25.5rem);
+  min-block-size: clamp(22rem, 31.25vw, 28.5rem);
   aspect-ratio: 16 / 5;
   margin: 0;
   padding: 0;
   overflow: hidden;
   border: var(--line);
   border-radius: 1.45rem;
+  opacity: 1;
+  transform: none;
   background: var(--white);
 }
 
@@ -41,6 +99,24 @@ main[data-showcase] #jestei-logo [data-logo-inspector-shell] .logo-inspector-gri
 }
 
 @media (max-width: 76rem) {
+  main[data-showcase] #jestei-logo [data-section-screen] {
+    inline-size: min(calc(100% - 2rem), var(--case-wide, 90rem));
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__head {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "title"
+      "lead"
+      "media";
+    align-items: start;
+  }
+
+  main[data-showcase] #jestei-logo [data-section-lead] {
+    justify-self: start;
+    max-inline-size: 34rem;
+  }
+
   main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
     min-block-size: clamp(20rem, 50vw, 30rem);
     aspect-ratio: 4 / 3;
@@ -52,5 +128,9 @@ main[data-showcase] #jestei-logo [data-logo-inspector-shell] .logo-inspector-gri
     min-block-size: min(100vw - 2rem, 26rem);
     aspect-ratio: 1 / 1;
     border-radius: 1rem;
+  }
+
+  main[data-showcase] #jestei-logo .jestei-logo__title {
+    font-size: clamp(2.1rem, 10vw, 3rem);
   }
 }

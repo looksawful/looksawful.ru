@@ -26,13 +26,6 @@ export const MOUNTS = [
     mount: (module, root) => module.initComponents(root),
   },
   {
-    id: "hideJesteiLandings",
-    phase: "content",
-    selector: "#jestei-landings",
-    load: () => import("./hide-jestei-landings.js"),
-    mount: (module, root) => module.mountHiddenJesteiLandings(root),
-  },
-  {
     id: "jesteiProcessScene",
     phase: "visual",
     selector: "#jestei-results .jestei-bento__card--manual",

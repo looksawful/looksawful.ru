@@ -409,6 +409,8 @@ const drawLayout = ({ ctx, width, height, layout }) => {
   }
 
   ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = "#050505";
+  ctx.fillRect(0, 0, width, height);
 
   getVisibleTiles({ layout }).forEach(({ tile, x, y }) => {
     if (
@@ -592,7 +594,9 @@ export const mountShowcaseHorizontal = async (canvasId = "showcase-horizontal-co
       const loadedItemCount = getLoadedItemCount(items);
 
       if (!loadedItemCount) {
-        drawCanvasLoadingState(ctx, width, height);
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#050505";
+        ctx.fillRect(0, 0, width, height);
         return;
       }
 

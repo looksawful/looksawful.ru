@@ -2,21 +2,20 @@ import { spawn, spawnSync } from "node:child_process";
 import { once } from "node:events";
 import process from "node:process";
 import { chromium } from "playwright";
+import { npmCommand } from "./baseline-runner.mjs";
 
 const host = "127.0.0.1";
 const port = 4174;
 const baseUrl = `http://${host}:${port}`;
 const isWindows = process.platform === "win32";
 
-const preview = spawn(
-  isWindows ? "npm.cmd" : "npm",
-  ["run", "preview", "--", "--host", host, "--port", String(port)],
-  {
-    stdio: ["ignore", "pipe", "pipe"],
-    env: process.env,
-    detached: !isWindows,
-  },
-);
+const npmPreview = npmCommand(["run", "preview", "--", "--host", host, "--port", String(port)]);
+const preview = spawn(npmPreview.command, npmPreview.args, {
+  stdio: ["ignore", "pipe", "pipe"],
+  env: process.env,
+  detached: !isWindows,
+  windowsHide: true,
+});
 
 let previewOutput = "";
 preview.stdout.on("data", (chunk) => {

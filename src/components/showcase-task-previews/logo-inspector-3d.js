@@ -3,7 +3,6 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-const STYLE_ID = "logo-inspector-3d-styles";
 const CAMERA_DISTANCE = 7.8;
 const IDLE_SPIN_SPEED = 0.42;
 const DRAG_ROTATE_SPEED = 0.008;
@@ -18,7 +17,7 @@ const WHITE_BACKGROUND = "#ffffff";
 
 const DEFAULT_ASSETS = {
   model: "./logo.glb",
-  poster: "/assets/media/cases/jesteipool/01-logo/01/02.webp",
+  poster: "/assets/jestei/branding/jestei-logo-mark.svg",
 };
 
 const DEFAULT_VARIANTS = [
@@ -41,175 +40,8 @@ const DEFAULT_VARIANTS = [
 
 const DISPLAY_VARIANT_IDS = ["pro", "club", "event"];
 
-function injectStyles() {
-  if (document.getElementById(STYLE_ID)) {
-    return;
-  }
+function injectStyles() {}
 
-  const style = document.createElement("style");
-  style.id = STYLE_ID;
-  style.textContent = `
-    .logo-inspector-3d {
-      position: relative;
-      display: block;
-      width: 100%;
-      min-width: 0;
-      height: clamp(20rem, 44vw, 38rem);
-      min-height: min(22rem, 72vh);
-      max-height: min(38rem, 76vh);
-      overflow: hidden;
-      contain: layout paint;
-      isolation: isolate;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 8px;
-      background: #ffffff;
-      color: #111111;
-      font-family: "Rubik", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      text-rendering: geometricPrecision;
-    }
-
-    .logo-inspector-3d__poster {
-      position: absolute;
-      z-index: 20;
-      inset: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      background: #ffffff;
-      opacity: 1;
-      visibility: visible;
-      pointer-events: none;
-      user-select: none;
-      transition:
-        opacity 240ms ease,
-        visibility 240ms ease;
-    }
-
-    .logo-inspector-3d.is-3d-ready .logo-inspector-3d__poster {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .logo-inspector-3d.is-3d-fallback .logo-inspector-3d__poster {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .logo-inspector-3d__canvas {
-      position: absolute;
-      z-index: 1;
-      inset: 0;
-      min-width: 0;
-      background: #ffffff;
-      cursor: default;
-      touch-action: none;
-      user-select: none;
-    }
-
-    .logo-inspector-3d__canvas.is-hovering {
-      cursor: grab;
-    }
-
-    .logo-inspector-3d__canvas.is-dragging {
-      cursor: grabbing;
-    }
-
-    .logo-inspector-3d__canvas canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      max-width: 100%;
-      max-height: 100%;
-    }
-
-    .logo-inspector-3d__status {
-      position: absolute;
-      z-index: 7;
-      inset-block-start: 1rem;
-      inset-inline-end: 1rem;
-      max-width: min(22rem, calc(100% - 2rem));
-      padding: 0.4rem 0.58rem 0.45rem;
-      border: 1px solid rgba(150, 0, 0, 0.32);
-      border-radius: 999px;
-      color: #7a1111;
-      background: rgba(255, 244, 244, 0.94);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-      font-size: 0.7rem;
-      font-weight: 650;
-      line-height: 1;
-      pointer-events: none;
-      backdrop-filter: blur(14px);
-    }
-
-    .logo-inspector-3d__status[hidden] {
-      display: none;
-    }
-
-    @media (max-width: 56rem) {
-      .logo-inspector-3d {
-        height: clamp(34rem, 104vw, 48rem);
-        max-height: none;
-      }
-    }
-  `;
-
-
-  style.textContent += `\n    /* logo-inspector-fit-v4 */
-    .jestei-chapter-hero__media--logo,
-    .jestei-chapter-hero__media--logo.section-media,
-    .jestei-chapter-hero__media--logo [data-visual-demo^="logo-inspector"],
-    .jestei-chapter-hero__media--logo [data-visual-demo*="logo-inspector"] {
-      overflow: visible;
-      min-width: 0;
-      max-width: none;
-    }
-
-    .logo-inspector-3d {
-      height: clamp(24rem, 48vw, 40rem);
-      min-height: clamp(24rem, 62svh, 34rem);
-      max-height: min(42rem, 82svh);
-      overflow: hidden;
-      contain: layout;
-      border: 0;
-      border-radius: 0;
-      background: #ffffff;
-    }
-
-    .logo-inspector-3d__canvas {
-      position: absolute;
-      inset-block: 0;
-      inset-inline: 0;
-      width: auto;
-      height: 100%;
-      overflow: visible;
-    }
-
-    .logo-inspector-3d__canvas canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    @media (min-width: 721px) and (max-width: 1180px) {
-      .logo-inspector-3d__canvas {
-        inset-inline: calc(clamp(2rem, 8vw, 6rem) * -1);
-      }
-    }
-
-    @media (max-width: 720px) {
-      .logo-inspector-3d {
-        height: clamp(25rem, 78svh, 40rem);
-        min-height: clamp(24rem, 70svh, 34rem);
-      }
-
-      .logo-inspector-3d__canvas {
-        inset-inline: 0;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-}
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }

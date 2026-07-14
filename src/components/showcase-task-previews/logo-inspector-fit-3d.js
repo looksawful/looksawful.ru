@@ -3,7 +3,6 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-const STYLE_ID = "logo-inspector-fit-3d-styles";
 const BACKGROUND = "#ffffff";
 const TARGET_Z = 0.7;
 const REVEAL_DURATION = 760;
@@ -18,69 +17,7 @@ const DEFAULT_VARIANTS = [
   { id: "experimental", color: "#B2A1EA" },
 ];
 
-function injectStyles() {
-  if (document.getElementById(STYLE_ID)) return;
-  const style = document.createElement("style");
-  style.id = STYLE_ID;
-  style.textContent = `
-    .logo-inspector-fit-3d {
-      position: relative;
-      display: block;
-      inline-size: 100%;
-      min-inline-size: 0;
-      block-size: auto;
-      min-block-size: 0;
-      aspect-ratio: 16 / 10;
-      overflow: hidden;
-      contain: layout paint;
-      isolation: isolate;
-      background: ${BACKGROUND};
-    }
-
-    .logo-inspector-fit-3d__canvas,
-    .logo-inspector-fit-3d__poster {
-      position: absolute;
-      inset: 0;
-      inline-size: 100%;
-      block-size: 100%;
-    }
-
-    .logo-inspector-fit-3d__canvas {
-      overflow: hidden;
-      background: ${BACKGROUND};
-      touch-action: none;
-      user-select: none;
-    }
-
-    .logo-inspector-fit-3d__canvas canvas {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-    }
-
-    .logo-inspector-fit-3d__poster {
-      z-index: 2;
-      object-fit: contain;
-      background: ${BACKGROUND};
-      pointer-events: none;
-      transition: opacity 220ms ease, visibility 220ms ease;
-    }
-
-    .logo-inspector-fit-3d.is-ready .logo-inspector-fit-3d__poster {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    @media (max-width: 59.999rem) {
-      .logo-inspector-fit-3d { aspect-ratio: 4 / 3; }
-    }
-
-    @media (max-width: 37.499rem) {
-      .logo-inspector-fit-3d { aspect-ratio: 1 / 1.08; }
-    }
-  `;
-  document.head.append(style);
-}
+function injectStyles() {}
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -220,7 +157,7 @@ export function createLogoInspector3D(target, options = {}) {
   if (!host) throw new Error("createLogoInspector3D: target not found");
 
   const modelUrl = options.modelUrl || options.assets?.model || "./logo.glb";
-  const posterUrl = options.assets?.poster || "/assets/media/cases/jesteipool/01-logo/01/02.webp";
+  const posterUrl = options.assets?.poster || "/assets/jestei/branding/jestei-logo-mark.svg";
   const variants = DEFAULT_VARIANTS.map((fallback) =>
     options.variants?.find((variant) => variant.id === fallback.id) || fallback,
   );

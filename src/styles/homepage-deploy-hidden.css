@@ -10,8 +10,8 @@ main[data-showcase] :is(
   #jestei-masonry,
   [data-homepage-hidden]
 ) {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }

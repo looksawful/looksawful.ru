@@ -140,11 +140,14 @@ async function mountThreeDemo(canvas) {
 
 async function mountLogoInspector(target) {
   if (!canUseLogo3DVisuals()) {
-    target.dataset.cvPoster ||= "/assets/media/cases/jesteipool/01-logo/01/02.webp";
+    target.dataset.cvPoster ||= "/assets/jestei/branding/jestei-logo-mark.svg";
     return mountVisualPosterFallback(target);
   }
 
   const [, inspectorMode] = getDemoParts(target);
+  const assets = target.dataset.cvPoster
+    ? { poster: target.dataset.cvPoster }
+    : undefined;
   const module =
     inspectorMode === "jestei"
       ? await import("../showcase-task-previews/logo-inspector-grid-3d.js")
@@ -154,9 +157,7 @@ async function mountLogoInspector(target) {
     minHeight: target.dataset.cvMinHeight ? Number(target.dataset.cvMinHeight) : 560,
     initialVariantId: target.dataset.cvVariant || "brand-orange",
     autoSpin: target.dataset.cvAutoSpin !== "false",
-    assets: {
-      poster: target.dataset.cvPoster || undefined,
-    },
+    assets,
   });
 
   return normalizeDispose(controller);

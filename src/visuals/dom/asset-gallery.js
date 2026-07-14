@@ -152,7 +152,7 @@
 
     statusNode?.classList.toggle("is-visible", hasActiveFilters);
     if (summaryNode) summaryNode.textContent = "";
-    if (tagNode) tagNode.innerHTML = "";
+    tagNode?.replaceChildren();
 
     if (hasActiveFilters && tagNode) {
       for (const label of active) {
@@ -312,18 +312,43 @@
     lightboxNode.setAttribute("aria-hidden", "true");
     lightboxNode.setAttribute("aria-label", "просмотр ассета");
     lightboxNode.setAttribute("role", "dialog");
-    lightboxNode.innerHTML = `
-      <div class="asset-lightbox__dialog">
-        <div class="asset-lightbox__toolbar">
-          <span class="asset-lightbox__title"></span>
-          <span class="asset-lightbox__counter"></span>
-          <button class="asset-lightbox__button asset-lightbox__button--close" type="button" aria-label="закрыть">×</button>
-        </div>
-        <button class="asset-lightbox__nav asset-lightbox__nav--prev" type="button" aria-label="предыдущий ассет">‹</button>
-        <div class="asset-lightbox__media"></div>
-        <button class="asset-lightbox__nav asset-lightbox__nav--next" type="button" aria-label="следующий ассет">›</button>
-      </div>
-    `;
+
+    const dialog = document.createElement("div");
+    dialog.className = "asset-lightbox__dialog";
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "asset-lightbox__toolbar";
+
+    const title = document.createElement("span");
+    title.className = "asset-lightbox__title";
+
+    const counter = document.createElement("span");
+    counter.className = "asset-lightbox__counter";
+
+    const close = document.createElement("button");
+    close.className = "asset-lightbox__button asset-lightbox__button--close";
+    close.type = "button";
+    close.setAttribute("aria-label", "закрыть");
+    close.textContent = "×";
+
+    const prev = document.createElement("button");
+    prev.className = "asset-lightbox__nav asset-lightbox__nav--prev";
+    prev.type = "button";
+    prev.setAttribute("aria-label", "предыдущий ассет");
+    prev.textContent = "‹";
+
+    const media = document.createElement("div");
+    media.className = "asset-lightbox__media";
+
+    const next = document.createElement("button");
+    next.className = "asset-lightbox__nav asset-lightbox__nav--next";
+    next.type = "button";
+    next.setAttribute("aria-label", "следующий ассет");
+    next.textContent = "›";
+
+    toolbar.append(title, counter, close);
+    dialog.append(toolbar, prev, media, next);
+    lightboxNode.append(dialog);
 
     lightboxMediaHost = lightboxNode.querySelector(".asset-lightbox__media");
     lightboxCounter = lightboxNode.querySelector(".asset-lightbox__counter");

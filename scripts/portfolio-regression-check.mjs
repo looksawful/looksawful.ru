@@ -55,8 +55,25 @@ for (const viewport of viewports) {
         await page.waitForTimeout(900);
       }
 
-      const animationCount = await page.locator("[data-animation]").count();
-      for (let index = 0; index < animationCount; index += 1) {
+      const visibleAnimationIndexes = await page.locator("[data-animation]").evaluateAll((elements) =>
+        elements
+          .map((element, index) => {
+            const rect = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            return {
+              index,
+              visible:
+                rect.width > 1 &&
+                rect.height > 1 &&
+                style.display !== "none" &&
+                style.visibility !== "hidden" &&
+                Number(style.opacity) > 0,
+            };
+          })
+          .filter((item) => item.visible)
+          .map((item) => item.index),
+      );
+      for (const index of visibleAnimationIndexes) {
         await page.locator("[data-animation]").nth(index).scrollIntoViewIfNeeded();
         await page.waitForTimeout(900);
       }

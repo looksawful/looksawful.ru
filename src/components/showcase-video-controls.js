@@ -1,18 +1,26 @@
 const VIDEO_SELECTOR = "[data-showcase] video";
 const ENHANCED_ATTR = "data-video-controls-enhanced";
+const SVG_NS = "http://www.w3.org/2000/svg";
 
 const icons = {
-  pause:
-    '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4h3v12H6V4Zm5 0h3v12h-3V4Z"/></svg>',
-  play:
-    '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4.8c0-.75.82-1.22 1.48-.84l8.1 4.7c.65.38.65 1.31 0 1.68l-8.1 4.7A.99.99 0 0 1 6 14.2V4.8Z"/></svg>',
-  mute:
-    '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7h3.2L10 3.6v12.8L6.2 13H3V7Zm10.1-.7 1.1-1.1L17 8l2.8-2.8 1.1 1.1L18.1 9l2.8 2.8-1.1 1.1L17 10.1l-2.8 2.8-1.1-1.1L15.9 9l-2.8-2.7Z"/></svg>',
-  sound:
-    '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7h3.2L10 3.6v12.8L6.2 13H3V7Zm10.7-1.2c1 .8 1.7 1.9 1.7 3.2s-.6 2.4-1.7 3.2l-.9-1.2c.7-.5 1.1-1.2 1.1-2s-.4-1.5-1.1-2l.9-1.2Zm2.1-2.4A7 7 0 0 1 18.3 9a7 7 0 0 1-2.5 5.4l-.9-1.2A5.5 5.5 0 0 0 16.8 9c0-1.7-.7-3.1-1.9-4.2l.9-1.4Z"/></svg>',
-  fullscreen:
-    '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 3h5v2H5v3H3V3Zm9 0h5v5h-2V5h-3V3ZM5 12v3h3v2H3v-5h2Zm12 0v5h-5v-2h3v-3h2Z"/></svg>',
+  pause: "M6 4h3v12H6V4Zm5 0h3v12h-3V4Z",
+  play: "M6 4.8c0-.75.82-1.22 1.48-.84l8.1 4.7c.65.38.65 1.31 0 1.68l-8.1 4.7A.99.99 0 0 1 6 14.2V4.8Z",
+  mute: "M3 7h3.2L10 3.6v12.8L6.2 13H3V7Zm10.1-.7 1.1-1.1L17 8l2.8-2.8 1.1 1.1L18.1 9l2.8 2.8-1.1 1.1L17 10.1l-2.8 2.8-1.1-1.1L15.9 9l-2.8-2.7Z",
+  sound: "M3 7h3.2L10 3.6v12.8L6.2 13H3V7Zm10.7-1.2c1 .8 1.7 1.9 1.7 3.2s-.6 2.4-1.7 3.2l-.9-1.2c.7-.5 1.1-1.2 1.1-2s-.4-1.5-1.1-2l.9-1.2Zm2.1-2.4A7 7 0 0 1 18.3 9a7 7 0 0 1-2.5 5.4l-.9-1.2A5.5 5.5 0 0 0 16.8 9c0-1.7-.7-3.1-1.9-4.2l.9-1.4Z",
+  fullscreen: "M3 3h5v2H5v3H3V3Zm9 0h5v5h-2V5h-3V3ZM5 12v3h3v2H3v-5h2Zm12 0v5h-5v-2h3v-3h2Z",
 };
+
+function createIcon(pathData) {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 20 20");
+  svg.setAttribute("aria-hidden", "true");
+
+  const path = document.createElementNS(SVG_NS, "path");
+  path.setAttribute("d", pathData);
+  svg.append(path);
+
+  return svg;
+}
 
 function createButton(action, label) {
   const button = document.createElement("button");
@@ -24,7 +32,7 @@ function createButton(action, label) {
 }
 
 function setButtonIcon(button, icon) {
-  button.innerHTML = icon;
+  button.replaceChildren(createIcon(icon));
 }
 
 function getShell(video) {

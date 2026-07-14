@@ -324,3 +324,46 @@
     letter-spacing: 0;
   }
 }
+
+@media (min-width: 58.001rem) and (max-width: 72rem) {
+  main[data-showcase] #jestei-words .jestei-words-bento {
+    grid-template-rows: 14.85rem 6.85rem 11.15rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__lead {
+    font-size: 1.02rem;
+    line-height: 1.34;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__metric {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.18rem;
+    padding: 0.82rem 1rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__metric strong {
+    font-size: clamp(2.35rem, 4.55vw, 3rem);
+    line-height: 0.88;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__metric span {
+    font-size: 0.9rem;
+    line-height: 1.05;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope {
+    gap: 0.7rem;
+    padding: 1rem;
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope > h3 {
+    font-size: clamp(2.65rem, 4.55vw, 3.3rem);
+  }
+
+  main[data-showcase] #jestei-words .jestei-words-bento__card--scope > p {
+    font-size: 0.95rem;
+    line-height: 1.32;
+  }
+}

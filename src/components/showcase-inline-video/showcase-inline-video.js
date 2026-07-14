@@ -10,14 +10,36 @@ function safePlay(video) {
   }
 }
 
+function isVisibleEnough(video) {
+  const rect = video.getBoundingClientRect();
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+
+  return (
+    rect.width > 0 &&
+    rect.height > 0 &&
+    rect.right > 0 &&
+    rect.left < viewportWidth &&
+    rect.bottom > -160 &&
+    rect.top < viewportHeight + 160
+  );
+}
+
 function activateVideo(video) {
   if (video.dataset.showcaseVideoActivated === "true") {
+    if (isAutoplayVideo(video) && video.paused && isVisibleEnough(video)) {
+      safePlay(video);
+    }
     return;
   }
 
   video.dataset.showcaseVideoActivated = "true";
   video.preload = video.dataset.showcaseRequestedPreload || "metadata";
   video.load?.();
+
+  if (isAutoplayVideo(video) && isVisibleEnough(video)) {
+    safePlay(video);
+  }
 }
 
 function prepareVideo(video) {
@@ -27,6 +49,11 @@ function prepareVideo(video) {
   video.muted = video.muted || video.hasAttribute("muted");
   video.defaultMuted = video.defaultMuted || video.muted;
   video.playsInline = true;
+
+  if (isAutoplayVideo(video)) {
+    video.addEventListener("loadeddata", () => activateVideo(video), { once: true });
+    video.addEventListener("canplay", () => activateVideo(video), { once: true });
+  }
 }
 
 function observeAutoplay(video) {

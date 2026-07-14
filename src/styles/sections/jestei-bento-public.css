@@ -4,15 +4,15 @@ main[data-showcase] #jestei-results .jestei-bento__grid {
 }
 
 main[data-showcase] #jestei-results .jestei-bento__audience-avatar {
-  position: absolute !important;
+  position: absolute;
   z-index: 20;
-  inset-block-start: 63% !important;
-  inset-inline-start: 75% !important;
-  inline-size: clamp(5.8rem, 8vw, 9.6rem) !important;
-  block-size: auto !important;
+  inset-block-start: 63%;
+  inset-inline-start: 75%;
+  inline-size: clamp(5.8rem, 8vw, 9.6rem);
+  block-size: auto;
   aspect-ratio: 0.96;
-  margin: 0 !important;
-  transform: translate(-50%, -50%) !important;
+  margin: 0;
+  transform: translate(-50%, -50%);
   pointer-events: none;
   user-select: none;
 }
@@ -26,14 +26,14 @@ main[data-showcase] #jestei-results .jestei-bento__audience-avatar img {
 }
 
 main[data-showcase] #jestei-results .jestei-bento__steps-visual {
-  display: none !important;
+  display: none;
 }
 
 @media (max-width: 43rem) {
   main[data-showcase] #jestei-results .jestei-bento__audience-avatar {
-    inset-block-start: 38% !important;
-    inset-inline-start: calc(100% - var(--jestei-bento-page-x)) !important;
-    inline-size: clamp(4.75rem, 24cqi, 6.5rem) !important;
-    transform: translate(-50%, -50%) !important;
+    inset-block-start: 38%;
+    inset-inline-start: calc(100% - var(--jestei-bento-page-x));
+    inline-size: clamp(4.75rem, 24cqi, 6.5rem);
+    transform: translate(-50%, -50%);
   }
 }

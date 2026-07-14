@@ -9,37 +9,74 @@ const initializedOpenControls = new WeakSet();
 const initializedFullscreenControls = new WeakSet();
 const initializedVideoControls = new WeakSet();
 const initializedLightboxClose = new WeakSet();
+const SVG_NS = "http://www.w3.org/2000/svg";
 
 const fullscreenIcon = [
-  '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
-  '<path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>',
-  '</svg>'
-].join("");
+  ["path", {
+    d: "M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4",
+    stroke: "currentColor",
+    "stroke-width": "1.5",
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round",
+  }],
+];
 
 const lightboxIcon = [
-  '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
-  '<circle cx="7" cy="7" r="3.25" stroke="currentColor" stroke-width="1.5"></circle>',
-  '<path d="M9.5 9.5 13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>',
-  '</svg>'
-].join("");
+  ["circle", {
+    cx: "7",
+    cy: "7",
+    r: "3.25",
+    stroke: "currentColor",
+    "stroke-width": "1.5",
+  }],
+  ["path", {
+    d: "M9.5 9.5 13 13",
+    stroke: "currentColor",
+    "stroke-width": "1.5",
+    "stroke-linecap": "round",
+  }],
+];
 
 const externalIcon = [
-  '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
-  '<path d="M6 3H3v10h10v-3M9 3h4v4M13 3 7 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>',
-  '</svg>'
-].join("");
+  ["path", {
+    d: "M6 3H3v10h10v-3M9 3h4v4M13 3 7 9",
+    stroke: "currentColor",
+    "stroke-width": "1.5",
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round",
+  }],
+];
 
 const playIcon = [
-  '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
-  '<path d="M5.2 3.6 12.2 8l-7 4.4V3.6Z" fill="currentColor"></path>',
-  '</svg>'
-].join("");
+  ["path", {
+    d: "M5.2 3.6 12.2 8l-7 4.4V3.6Z",
+    fill: "currentColor",
+  }],
+];
 
 const pauseIcon = [
-  '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">',
-  '<path d="M5.5 4v8M10.5 4v8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>',
-  '</svg>'
-].join("");
+  ["path", {
+    d: "M5.5 4v8M10.5 4v8",
+    stroke: "currentColor",
+    "stroke-width": "1.7",
+    "stroke-linecap": "round",
+  }],
+];
+
+const createSvgIcon = (shapes) => {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("aria-hidden", "true");
+
+  shapes.forEach(([name, attrs]) => {
+    const node = document.createElementNS(SVG_NS, name);
+    Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+    svg.append(node);
+  });
+
+  return svg;
+};
 
 const createProximityControl = ({
   tag = "button",
@@ -50,7 +87,7 @@ const createProximityControl = ({
   const control = document.createElement(tag);
 
   control.className = `proximity-control ${className}`.trim();
-  control.innerHTML = icon;
+  control.replaceChildren(createSvgIcon(icon));
   control.dataset.proximityControl = "true";
 
   if (label) {
@@ -97,7 +134,7 @@ const getVideoContainer = (video) => {
 };
 
 const updateVideoControlIcon = (control, video) => {
-  control.innerHTML = video.paused ? playIcon : pauseIcon;
+  control.replaceChildren(createSvgIcon(video.paused ? playIcon : pauseIcon));
   control.setAttribute("aria-label", video.paused ? "play video" : "pause video");
 };
 

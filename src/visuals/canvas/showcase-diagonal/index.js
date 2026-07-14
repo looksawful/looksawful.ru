@@ -468,6 +468,8 @@ const drawLayout = ({ ctx, width, height, layout }) => {
 	}
 
 	ctx.clearRect(0, 0, width, height);
+	ctx.fillStyle = "#050505";
+	ctx.fillRect(0, 0, width, height);
 
 	ctx.save();
 	const centerX = width * 0.5;

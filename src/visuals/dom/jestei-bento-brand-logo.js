@@ -7,7 +7,7 @@ function mountSingleLogo(target) {
     return () => {};
   }
 
-  const originalHtml = target.innerHTML;
+  const originalNodes = [...target.childNodes];
   const originalVisualDemo = target.getAttribute("data-visual-demo");
   const originalPoster = target.getAttribute("data-cv-poster");
   const originalPassive = target.getAttribute("data-logo-inspector-passive");
@@ -29,8 +29,7 @@ function mountSingleLogo(target) {
   target.append(canvas);
 
   return () => {
-    target.replaceChildren();
-    target.innerHTML = originalHtml;
+    target.replaceChildren(...originalNodes);
     delete target.dataset.bentoSingleLogoMounted;
 
     if (originalVisualDemo == null) target.removeAttribute("data-visual-demo");

@@ -24,29 +24,6 @@
     />
     <link href="/src/styles/playlist-filter-embed.css" rel="stylesheet" />
     <script src="/src/main.js" type="module"></script>
-    <link href="/src/styles/hero-only-mode.css" rel="stylesheet" data-hero-only-mode />
-  <style id="hero-only-inline-mode">
-/* temporary emergency mode: show only the current deployed hero */
-body > :not(main):not(#main):not(script):not(style):not(link):not(noscript) {
-  display: none !important;
-}
-
-main > :not(#hero),
-#main > :not(#hero) {
-  display: none !important;
-}
-
-#hero {
-  display: block !important;
-  min-height: 100svh !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-#hero[hidden] {
-  display: block !important;
-}
-</style>
 </head>
   <body>
     <header
@@ -92,7 +69,7 @@ main > :not(#hero),
               data-nav-chip=""
               data-nav-state="default"
               href="#pet-projects"
-              >петы</a
+              >полезное</a
             >
           </span>
           <span class="site-header__chip-slot">
@@ -152,7 +129,7 @@ main > :not(#hero),
             data-nav-menu-link=""
             href="#pet-projects"
             tabindex="-1"
-            >петы</a
+            >полезное</a
           >
           <a
             class="site-header__menu-link"
@@ -166,7 +143,9 @@ main > :not(#hero),
     </header>
     
 <main id="main" data-showcase="">
-      <section class="hero section" data-section-family="hero" id="hero">
+
+
+<section class="hero section" data-section-family="hero" id="hero">
               <div class="hero__screen hero__screen--cover section-screen">
                 <div class="hero__headline-wrap">
                   <div
@@ -180,8 +159,7 @@ main > :not(#hero),
                   </h1>
                 </div>
                 <p class="hero__note">
-                  Проектирую выразительные визуальные системы и интерфейс. Разрабатываю айдентику
-                  и язык бренда, руковожу дизайнерами и помогаю им расти. Владею css, canvas, glsl, threejs, пишу на js, ts и react, работаю в blender, figma, adobe, comfyui с 2д и 3д графикой, иллюстрацией и моушеном.
+                  Проектирую выразительные визуальные системы и интерфейсы. Разрабатываю айдентику и язык бренда, руковожу дизайнерами и помогаю им расти.
                 </p>
                 <address class="contact-links" id="contact-links">
                   <a href="https://t.me/looksawful">tg: @looksawful</a>
@@ -192,187 +170,148 @@ main > :not(#hero),
               </div>
             </section>
 
-      <h2 class="visually-hidden" id="showcase-title">кейсы</h2>
-
-      <section class="section section-component jestei-cover" id="jestei-cover" data-section-component="" data-section-family="jestei" data-section-root="">
+<section aria-label="шапка проекта jestei pool" class="section section-component jestei-cover" id="jestei-cover" data-section-component="" data-section-family="jestei" data-section-root="">
         <div class="jestei-cover__screen" data-section-screen="">
-          <section class="jestei-cover__layout" data-cover-head="">
-            <header class="jestei-cover__header">
-            <div class="jestei-cover__brand">
-              <h3 class="title jestei-cover__title" data-cover-title="" data-section-title=""><span data-section-title-main="">jestei</span><span data-section-title-accent="">pool</span></h3>
-              <p class="jestei-cover__role">арт-директор / ui/ux-лид / дизайн-лид<br><time datetime="2024">с 2024 года</time></p>
-              <p class="jestei-cover__summary">музыкальный сервис на next.js для диджеев, саунд-продюсеров и артистов. сервис помогает искать музыку и готовиться к выступлениям.</p>
-            </div>
-            <figure class="jestei-cover__logo" data-cover-logo="">
-              <canvas class="visual-canvas" data-three-poster="/assets/jestei/branding/jestei-logo-mark.svg" data-three-scene="logo" data-visual-demo="three:logo" id="project-jestei-logo-canvas"></canvas>
-            </figure>
-            </header>
-            <section class="jestei-cover__lead" aria-label="главное о работе над jestei pool">
-              <p class="jestei-cover__statement">
-              Я создал <span class="jestei-cover__muted">брендбук</span> и сформировал визуальный язык проекта, разработал <span class="jestei-cover__muted">ux</span>, <span class="jestei-cover__muted">ui</span> и коммуникационную стратегию core-продуктов на основе конкурентного анализа и исследований аудиторий и руководил всей командой дизайнеров проекта в течение двух с половиной лет.
-               За это время мы проработали реорганизовали <span class="jestei-cover__muted">дизайн систему</span> и ускорили процесс разработки макетов и прототипов, создали документацию и <span class="jestei-cover__muted">cjm</span> для ключевых пользовательских сценариев для <span class="jestei-cover__muted">4 сегментов</span> аудитории, сократили количество шагов для получения доступа к контенту с <span class="jestei-cover__muted">6</span> до <span class="jestei-cover__muted">2</span>, создали прогрессивную систему фильтрации и поиска треков, разработали триггеры апгрейда и реанимации клиентов, промо организмы и леднгиовые страницы, запустили таргетированную рекламу в вк и яндексе, освоили новую премиальную аудиторию и проработали инструменты для нее. Ве это позволило подняли стоимость подписки без деградации клиентской базы и подготвоиться к выходу продукта на американский рынок.
+          <section class="jestei-cover__head" data-cover-head="">
+            <div class="jestei-cover__grid" data-cover-grid="">
+              <figure class="jestei-cover__logo" aria-label="Jestei Pool 3D logo" data-cover-logo="">
+                <canvas
+                  class="visual-canvas"
+                  data-three-poster="/assets/jestei/branding/jestei-logo-mark.svg"
+                  data-three-scene="logo"
+                  data-visual-demo="three:logo"
+                  id="project-jestei-cover-logo-canvas"
+                ></canvas>
+              </figure>
+
+              <div class="jestei-cover__meta">
+                <div class="jestei-cover__dates" aria-label="период работы">
+                  <time datetime="2024">с 2024</time>
+                  <time datetime="2026">до 2026</time>
+                </div>
+
+                <h3 class="jestei-cover__wordmark">
+                  <img src="/assets/jestei/branding/jesteipool-wordmark-druk.svg" alt="Jestei Pool" decoding="async" loading="lazy" />
+                </h3>
+
+                <ul class="jestei-cover__roles" aria-label="моя позиция в Jestei Pool">
+                  <li>арт-директор</li>
+                  <li>ui/ux-лид</li>
+                  <li>дизайн-лид</li>
+                </ul>
+              </div>
+
+              <p class="jestei-cover__summary">
+                музыкальный сервис на next.js для диджеев, саунд-продюсеров и артистов. сервис помогает находить музыку и готовиться к выступлениям. я сформировал новый визуальный язык проекта, разработал ux/ui стратегию для core-продуктов и руководил всей командой дизайнеров проекта в течение двух с половиной лет.
               </p>
-            </section>
-            <article class="jestei-cover__metric jestei-cover__metric--left">
-              <p class="jestei-cover__metric-label">доступ к контенту</p>
-              <p class="jestei-cover__metric-value">6 → 2</p>
-              <p class="jestei-cover__metric-text">сократили количество шагов для получения доступа к контенту и собрали сценарии подписки в понятную продуктовую логику.</p>
-            </article>
-            <article class="jestei-cover__metric jestei-cover__metric--right">
-              <p class="jestei-cover__metric-label">аудитории</p>
-              <p class="jestei-cover__metric-value">4 сегмента</p>
-              <p class="jestei-cover__metric-text">описали пользовательские сценарии для клубных диджеев, ивент-диджеев, саунд-продюсеров и премиальной аудитории.</p>
-            </article>
-            <section class="jestei-cover__details" aria-label="детали работы над jestei pool">
-              <p class="jestei-cover__detail"><strong>брендбук</strong>сформировал визуальный язык проекта, правила айдентики, графики, интерфейса и коммуникации.</p>
-              <p class="jestei-cover__detail"><strong>продукт</strong>разработал ux, ui и коммуникационную стратегию core-продуктов на основе конкурентного анализа и исследований аудиторий.</p>
-              <p class="jestei-cover__detail"><strong>команда</strong>руководил командой дизайнеров, выстроил процесс работы с макетами, прототипами, документацией и production-графикой.</p>
-              <p class="jestei-cover__detail"><strong>маркетинг</strong>связал рекламу, рассылки, промо-организмы и лендинговые страницы с продуктовой логикой и сценариями подписки.</p>
-            </section>
-            <article class="jestei-cover__segments" aria-label="рынок">
-              <p class="jestei-cover__segments-title">рынок</p>
-              <p class="jestei-cover__segments-text">американский.</p>
-              <p class="jestei-cover__segments-note">описали пользовательские сценарии для клубных диджеев, ивент-диджеев, саунд-продюсеров и премиальной аудитории.</p>
-            </article>
+            </div>
           </section>
         </div>
       </section>
 
-      <section aria-label="новый знак" class="section section-component jestei-logo" id="jestei-logo" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="новый знак">
-        <div class="jestei-logo__screen" data-section-screen="">
-          <header data-chapter-head="" class="jestei-logo__head">
-          <h2 class="title jestei-logo__title" data-section-title="" data-content-title=""><span data-section-title-main="">новый</span><span data-section-title-accent="">знак</span></h2>
-          <p data-section-lead="">Плотный, выразительный и заметный в любом размере.</p>
-          <section aria-label="jestei logo inspector" class="section-media no-stroke" data-section-media="" data-logo-inspector-shell="">
-          <div data-cv-min-height="360" data-visual-demo="logo-inspector:jestei"></div>
-          </section>
-      
-          </header>
+<section class="section section-component jestei-bento" id="jestei-results" aria-label="результаты проекта Jestei Pool" data-section-component="" data-section-family="jestei" data-section-root="">
+        <div class="jestei-masonry" data-animation="landing-masonry" aria-label="визуальная система Jestei Pool" hidden aria-hidden="true" data-homepage-hidden="">
+          <canvas class="visual-canvas jestei-masonry__canvas" id="jestei-masonry-canvas"></canvas>
         </div>
-      </section>
 
-      <section aria-label="новый шрифт" class="section section-component jestei-type" id="jestei-type" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="новый шрифт">
-        <div class="jestei-type__screen" data-section-screen="">
-          <section data-section-block="">
-          <header data-content-head="">
-          <h4 class="title" id="jestei-logo-chapter" data-content-title="" data-section-title=""><span data-section-title-main="">новый</span><span data-section-title-accent="">шрифт</span></h4>
-      
-          </header><p> Широкий насыщенный гротекст <span style="font-weight: 800;">DRUK</span> Передает музыкальную экспрессию и задает ритм.</p>
-      
-          <aside aria-label="jestei logo system supporting images" data-media-layout="quad" data-media-ratio="landscape" data-media-cluster="">
-          <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/01-logo/01/01.webp" rel="noopener noreferrer" target="_blank">
-          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/01-logo/01/01.webp"/>
-          </a>
-          <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/01-logo/02/01.webp" rel="noopener noreferrer" target="_blank">
-          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/01-logo/02/01.webp"/>
-          </a>
-          <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/01-logo/02/02.webp" rel="noopener noreferrer" target="_blank">
-          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/01-logo/02/02.webp"/>
-          </a>
-          <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/01-logo/02/03.webp" rel="noopener noreferrer" target="_blank">
-          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/01-logo/02/03.webp"/>
-          </a>
-      
-          </aside>
-          </section>
-        </div>
-      </section>
+        <h2 class="jestei-bento__heading">чего мы добились</h2>
+        <div class="jestei-bento__screen" data-section-screen="">
+          <div class="jestei-bento__grid" data-jestei-bento="">
+            <div class="jestei-bento__panel jestei-bento__panel--primary" data-bento-panel="primary">
+              <article class="jestei-bento__card jestei-bento__card--steps" data-bento-card="steps">
+                <div class="jestei-bento__content" data-bento-content="">
+                  <h3 class="jestei-bento__title jestei-bento__title--metric"><strong>2 шага</strong><span>вместо 6</span></h3>
+                  <p class="jestei-bento__side-copy">сократили пользовательский путь к трекам и плейлистам</p>
+                </div>
+              </article>
 
-      <section aria-label="добавили цвет" class="section section-component jestei-color" id="jestei-color" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="добавили цвет" data-color-section="">
-        <div class="jestei-color__screen" data-section-screen="">
-          <div class="jestei-color-bento" data-color-bento="">
-            <div class="jestei-color-bento__content">
-              <header class="jestei-color-bento__head">
-                <h2 class="jestei-color-bento__title"><span data-section-title-main="">добавили</span> <span class="jestei-color-bento__accent" data-section-title-accent="" aria-label="цвет"><span data-color-letter="orange">ц</span><span data-color-letter="blue">в</span><span data-color-letter="pear">е</span><span data-color-letter="biloba">т</span></span></h2>
-                <p class="jestei-color-bento__lead">Сегментировали конфликтующие аудитории при помощи 4 цветовых профилей. Теперь цвет направляет пользователя к нужным продуктам.</p>
-              </header>
+              <article class="jestei-bento__card jestei-bento__card--price" data-bento-card="price">
+                <div class="jestei-bento__content" data-bento-content="">
+                  <h3 class="jestei-bento__title jestei-bento__title--price"><strong>+15%</strong><span>к цене продуктов</span></h3>
+                  <p>подняли цены без оттока клиентов и запустили сценарии возврата и апгрейда</p>
+                </div>
+              </article>
 
-              <article class="jestei-color-bento__card jestei-color-bento__palette-card" data-color-panel="palette">
-                <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--feature">
-                  <h3>Feature</h3>
-                  <ul class="jestei-color-bento__swatch-list" aria-label="feature palette">
-                    <li><span>Biloba-50</span><b>#EDE5F9</b><i style="--swatch:#EDE5F9"></i></li>
-                    <li><span>Biloba-100</span><b>#D8C9F7</b><i style="--swatch:#D8C9F7"></i></li>
-                    <li><span>Biloba-400</span><b>#B2A1EA</b><i style="--swatch:#B2A1EA"></i></li>
-                    <li><span>Biloba-500</span><b>#8673B8</b><i style="--swatch:#8673B8"></i></li>
-                  </ul>
-                </section>
-
-                <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--basic">
-                  <h3>Basic</h3>
-                  <ul class="jestei-color-bento__swatch-list" aria-label="basic palette">
-                    <li><span>Gold-50</span><b>#FFCB99</b><i style="--swatch:#FFCB99"></i></li>
-                    <li><span>Gold-100</span><b>#FFB267</b><i style="--swatch:#FFB267"></i></li>
-                    <li><span>Gold-400</span><b>#F18200</b><i style="--swatch:#F18200"></i></li>
-                    <li><span>Gold-500</span><b>#B25017</b><i style="--swatch:#B25017"></i></li>
-                  </ul>
-                </section>
-
-                <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--event">
-                  <h3>Event</h3>
-                  <ul class="jestei-color-bento__swatch-list" aria-label="event palette">
-                    <li><span>Pear-50</span><b>#F5FACF</b><i style="--swatch:#F5FACF"></i></li>
-                    <li><span>Pear-100</span><b>#D7E737</b><i style="--swatch:#D7E737"></i></li>
-                    <li><span>Pear-400</span><b>#D1E231</b><i style="--swatch:#D1E231"></i></li>
-                    <li><span>Pear-500</span><b>#95AB34</b><i style="--swatch:#95AB34"></i></li>
-                  </ul>
-                </section>
-
-                <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--pro">
-                  <h3>PRO</h3>
-                  <ul class="jestei-color-bento__swatch-list" aria-label="pro palette">
-                    <li><span>Blue-50</span><b>#E6F3FF</b><i style="--swatch:#E6F3FF"></i></li>
-                    <li><span>Blue-100</span><b>#9CCCFF</b><i style="--swatch:#9CCCFF"></i></li>
-                    <li><span>Blue-400</span><b>#3D80D8</b><i style="--swatch:#3D80D8"></i></li>
-                    <li><span>Blue-500</span><b>#1751B7</b><i style="--swatch:#1751B7"></i></li>
-                  </ul>
-                </section>
+              <article class="jestei-bento__card jestei-bento__card--manual" data-bento-card="manual">
+                <div class="jestei-bento__content" data-bento-content="">
+                  <h3 class="jestei-bento__title jestei-bento__title--mixed"><strong>в 2,5 раза</strong><span>сократили объем ручной работы</span></h3>
+                  <p>внедрили ai-пайплайны для генерации креативов, видео и прототипов в работу графических и ux/ui-дизайнеров, провели рефакторинг дизайн систему и внедрили современные подходы с переменными, дев-модом, цветовыми темами и плагинами</p>
+                </div>
               </article>
             </div>
 
-            <a class="jestei-color-bento__card jestei-color-bento__visual" data-lightbox-item="" href="/assets/media/cases/jesteipool/02-color/02/00.webp" rel="noopener noreferrer" target="_blank">
-              <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/02-color/02/00.webp" />
-            </a>
+            <div class="jestei-bento__panel jestei-bento__panel--secondary" data-bento-panel="secondary">
+              <article class="jestei-bento__card jestei-bento__card--rebrand" data-bento-card="rebrand">
+                <div class="jestei-bento__content" data-bento-content="">
+                  <h3 class="jestei-bento__title">провели ребрендинг</h3>
+                  <p>сменили логотип, проработали типографику, сегментировали аудиторию при помощи 4 цветовых профилей и разработали tone of voice</p>
+                </div>
+                <div class="jestei-bento__logo-inspector jestei-bento__rebrand-equation" data-rebrand-equation-ready="true" aria-hidden="true">
+                  <img class="jestei-bento__rebrand-equation-image" src="/assets/jestei/branding/jestei-rebrand-equation.svg" alt="" decoding="async" loading="eager" draggable="false" />
+                </div>
+              </article>
 
-            <div class="jestei-color-bento__brand-strip" aria-label="цветовые роли Jestei Pool">
-              <span style="--strip-color:#F18200"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Basic <b>#F18200</b></span>
-              <span style="--strip-color:#D1E231"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Event <b>#D1E231</b></span>
-              <span style="--strip-color:#151718"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Exclusive <b>#151718</b></span>
-              <span style="--strip-color:#B2A1EA"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Special <b>#B2A1EA</b></span>
-              <span style="--strip-color:#FAFAFA"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Dark <b>#FAFAFA</b></span>
+              <article class="jestei-bento__card jestei-bento__card--products" data-bento-card="products">
+                <div class="jestei-bento__content" data-bento-content="">
+                  <h3 class="jestei-bento__title jestei-bento__title--regular">расширили продуктовую линейку 4 классам диджеев</h3>
+                  <p>ии-треки, видео-паки, алгоритмические плейлисты, прогрессивный фильтр треков для в двух аудиториях</p>
+                </div>
+              </article>
+
+              <article class="jestei-bento__card jestei-bento__card--audience" data-bento-card="audience">
+                <div class="jestei-bento__content" data-bento-content="">
+                  <h3 class="jestei-bento__title jestei-bento__title--regular">новая аудитория</h3>
+                  <p>освоили новую премиальную аудиторию ивент-диджеев, создали раздел и разработали собственную линейку инструментов для них</p>
+                </div>
+              </article>
+
+              <article class="jestei-bento__card jestei-bento__card--usa" data-bento-card="usa">
+                <div class="jestei-bento__content" data-bento-content="">
+                  <h3 class="jestei-bento__title">запуск в сша</h3>
+                  <p>адаптировали продукт и коммуникации к выходу на американский рынок</p>
+                </div>
+                <div class="jestei-bento__globe" aria-hidden="true">
+                  <svg id="jestei-usa-globe" role="img" aria-label="Америка на ортографической проекции глобуса"></svg>
+                </div>
+              </article>
             </div>
+
+            <figure class="jestei-bento__audience-avatar" aria-hidden="true">
+              <img src="/assets/jestei/branding/jestei-audience-star.png" alt="" decoding="async" loading="lazy" />
+            </figure>
           </div>
         </div>
       </section>
 
-      <section aria-label="три аудитории Jestei Pool" class="section section-component jestei-audience-map" id="jestei-audience-map" data-section-component="" data-section-family="jestei">
-        <div class="jestei-audience-map__screen" data-section-screen="">
-          <figure class="jestei-audience-map__figure">
-            <a data-lightbox-item="" href="/assets/media/cases/jesteipool/02-color/04/00.webp" rel="noopener noreferrer" target="_blank">
-              <img alt="Схема трех аудиторий Jestei Pool: Basic, PRO и Event" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/02-color/04/00.webp" />
-            </a>
-          </figure>
-        </div>
-      </section>
-
-      <section aria-label="нашли слова" class="section section-component jestei-words" id="jestei-words" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="нашли слова">
+<section aria-label="нашли слова" class="section section-component jestei-words" id="jestei-words" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="нашли слова" data-visual-system="v2">
         <div class="jestei-words__screen" data-section-screen="">
-          <header data-chapter-head="" class="jestei-words__head">
-          <h2 class="title jestei-words__title" data-section-title="" data-content-title=""><span data-section-title-main="">нашли</span><span data-section-title-accent="">слова</span></h2>
-          <p data-section-lead="">Сформировали твердую коммуникационную платформу сервиса: tone of voice, редакционную политику и правила написания статей и постов, оформили подсказки, описания и пояснительные тексты для 8 разделов, FAQ и системные сообщения, 200+ описаний плейлистов и коллекций треков, описали больше 50 музыкальных жанров, наняли редактора, работали с музыкальными журналистами, перешли на информационный стиль речь, прорпбоатли оповещения "Что нового" о мажорных изменениях в сервисе.</p>
-          <p class="section-note"><strong>200+</strong> Описаний плейлистов и event-подборок, <strong>50+</strong> Жанров, FAQ и тултипы объясняют пользователю фильтры, тарифы, разделы и продуктовые сущности.</p>
-      
-          </header>
-          <div data-section-body="" class="jestei-words__body">
-          <section aria-labelledby="jestei-communications-chapter" data-section-group="">
-          <section data-section-block="">
-          <header data-content-head="">
-      
-      
-      
-          <!-- <p class="section-note">Редполитика фиксирует язык сервиса: термины, ограничения интерфейсных текстов, правила жанров, подсказки и продуктовые описания.</p></header> -->
-          <!-- <figure aria-label="policy reader" class="section-media-figure media-gallery media-gallery--banner" data-media-gallery="banner"> -->
-          <div class="policy-shell" data-artifact-source="jestei-policy">
+          <div class="jestei-words-bento" data-jestei-words-bento="">
+            <article class="jestei-words-bento__card jestei-words-bento__card--intro">
+              <h2 class="jestei-words-bento__title" data-section-title="" data-content-title=""><span data-section-title-main="">нашли</span><span data-section-title-accent="">слова</span></h2>
+              <p class="jestei-words-bento__lead" data-section-lead="">Сформировали твердую коммуникационную платформу сервиса: tone of voice, редакционную политику и правила написания статей и постов, оформили подсказки, описания и пояснительные тексты</p>
+            </article>
+
+            <article class="jestei-words-bento__card jestei-words-bento__card--fact" data-words-note-slot="">
+              <div class="jestei-words-bento__metric"><strong>200+</strong> <span>плейлистов</span></div>
+              <div class="jestei-words-bento__metric"><strong>50+</strong> <span>Жанров</span></div>
+            </article>
+
+            <article class="jestei-words-bento__card jestei-words-bento__card--scope">
+              <h3>8 разделов</h3>
+              <p>подсказки, описания, пояснительные тексты, FAQ и системные сообщения стали частью единой коммуникационной системы.</p>
+            </article>
+
+            <article class="jestei-words-bento__card jestei-words-bento__card--voice">
+              <h3>tone of voice</h3>
+              <p>редполитика, правила статей и постов, жанровые описания и продуктовые формулировки собраны в общий язык сервиса.</p>
+            </article>
+
+            <article class="jestei-words-bento__card jestei-words-bento__card--policy">
+              <header>
+                <h3>редполитика</h3>
+              </header>
+              <div class="jestei-words-bento__policy-slot" data-words-policy-slot="">
+                <div class="policy-shell" data-artifact-source="jestei-policy">
           <article
                                       aria-label="редполитика jestei pool"
                                       class="policy-book"
@@ -3830,46 +3769,130 @@ main > :not(#hero),
                                         </button>
                                       </footer>
                                     </article>
-          </div>
-          </section>
-          </section>
+                </div>
+              </div>
+            </article>
           </div>
         </div>
       </section>
 
-      <section aria-label="улучшили интерфейс" class="section section-component jestei-interface" id="jestei-interface" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="улучшили интерфейс" data-interface-signature="layout-inspector">
-        <div class="jestei-interface__screen" data-section-screen="">
-          <div class="layout-inspector" aria-hidden="true" data-chapter-signature="interface">
-            <span class="layout-inspector__badge layout-inspector__badge--columns">колонки 12</span>
-            <span class="layout-inspector__badge layout-inspector__badge--type">рубик / 18 / 1.28</span>
-            <span class="layout-inspector__badge layout-inspector__badge--cursor">x 428 · y 116</span>
-            <span class="layout-inspector__badge layout-inspector__badge--space">отступ 32</span>
-          </div>
-          <header data-chapter-head="" class="jestei-interface__head">
-          <h2 class="title jestei-interface__title" data-section-title="" data-content-title=""><span data-section-title-main="">улучшили</span>&nbsp;<span data-section-title-accent="">интерфейс</span></h2>
+<section aria-label="новый знак" class="section section-component jestei-logo" id="jestei-logo" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="новый знак">
+        <div class="jestei-logo__screen" data-section-screen="">
+          <header data-chapter-head="" class="jestei-logo__head">
+          <h2 class="title jestei-logo__title" data-section-title="" data-content-title=""><span data-section-title-main="">новый</span><span data-section-title-accent="">знак</span></h2>
+          <p data-section-lead="">Плотный, выразительный и заметный в любом размере.</p>
+          <section aria-label="jestei logo inspector" class="section-media no-stroke" data-section-media="" data-logo-inspector-shell="">
+          <div data-cv-min-height="360" data-visual-demo="logo-inspector:jestei"></div>
+          </section>
       
-          <p data-section-lead="">Пересобрали навигацию, фильтры, ленты, лендинги и тарифные сценарии так, чтобы пользователь быстрее находил музыку, понимал доступ и не застревал в лишней вложенности.</p>
           </header>
         </div>
       </section>
 
-      <section aria-label="архив ux ui lead" class="section section-component archive-restored archive-restored--jestei-interface" id="jestei-interface-archive" data-section-component="" data-section-family="jestei" data-section-chapter="" data-restored-preview="" data-chapter-title="архив ux/ui lead">
-        <div class="archive-restored__screen" data-section-screen="">
-          <header class="archive-restored__head" data-chapter-head="">
-            <h2 class="title" data-section-title="" data-content-title=""><span data-section-title-main="">ux/ui</span><span data-section-title-accent="">lead</span></h2>
-          </header>
-          <div class="archive-restored__media-grid archive-restored__media-grid--interface" data-section-body="">
-            <section aria-label="jestei ux ui archive masonry canvas" class="section-media no-stroke archive-restored__canvas archive-restored__canvas--masonry" data-animation="landing-masonry">
-              <canvas class="visual-canvas" data-animation-scene="jesteiInterfaceMasonry" id="archive-jestei-interface-masonry"></canvas>
-            </section>
-            <section aria-label="jestei product archive horizontal canvas" class="section-media no-stroke archive-restored__canvas archive-restored__canvas--horizontal" data-animation="horizontal">
-              <canvas class="visual-canvas" data-animation-scene="jesteiProductHorizontal" id="archive-jestei-product-horizontal"></canvas>
-            </section>
+<section aria-label="добавили цвет" class="section section-component jestei-color" id="jestei-color" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="добавили цвет" data-color-section="" data-visual-system="v2">
+        <div class="jestei-color__screen" data-section-screen="">
+          <div class="jestei-color-bento" data-color-bento="">
+            <div class="jestei-color-bento__content">
+              <header class="jestei-color-bento__head">
+                <h2 class="jestei-color-bento__title"><span data-section-title-main="">добавили</span> <span class="jestei-color-bento__accent" data-section-title-accent="" aria-label="цвет"><span data-color-letter="orange">ц</span><span data-color-letter="blue">в</span><span data-color-letter="pear">е</span><span data-color-letter="biloba">т</span></span></h2>
+                <p class="jestei-color-bento__lead">Сегментировали конфликтующие аудитории при помощи 4 цветовых профилей. Теперь цвет направляет пользователя к нужным продуктам.</p>
+              </header>
+
+              <article class="jestei-color-bento__card jestei-color-bento__palette-card" data-color-panel="palette">
+                <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--feature">
+                  <h3>Feature</h3>
+                  <ul class="jestei-color-bento__swatch-list" aria-label="feature palette">
+                    <li><span>Biloba-50</span><b>#EDE5F9</b><i style="--swatch:#EDE5F9"></i></li>
+                    <li><span>Biloba-100</span><b>#D8C9F7</b><i style="--swatch:#D8C9F7"></i></li>
+                    <li><span>Biloba-400</span><b>#B2A1EA</b><i style="--swatch:#B2A1EA"></i></li>
+                    <li><span>Biloba-500</span><b>#8673B8</b><i style="--swatch:#8673B8"></i></li>
+                  </ul>
+                </section>
+
+                <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--basic">
+                  <h3>Basic</h3>
+                  <ul class="jestei-color-bento__swatch-list" aria-label="basic palette">
+                    <li><span>Gold-50</span><b>#FFCB99</b><i style="--swatch:#FFCB99"></i></li>
+                    <li><span>Gold-100</span><b>#FFB267</b><i style="--swatch:#FFB267"></i></li>
+                    <li><span>Gold-400</span><b>#F18200</b><i style="--swatch:#F18200"></i></li>
+                    <li><span>Gold-500</span><b>#B25017</b><i style="--swatch:#B25017"></i></li>
+                  </ul>
+                </section>
+
+                <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--event">
+                  <h3>Event</h3>
+                  <ul class="jestei-color-bento__swatch-list" aria-label="event palette">
+                    <li><span>Pear-50</span><b>#F5FACF</b><i style="--swatch:#F5FACF"></i></li>
+                    <li><span>Pear-100</span><b>#D7E737</b><i style="--swatch:#D7E737"></i></li>
+                    <li><span>Pear-400</span><b>#D1E231</b><i style="--swatch:#D1E231"></i></li>
+                    <li><span>Pear-500</span><b>#95AB34</b><i style="--swatch:#95AB34"></i></li>
+                  </ul>
+                </section>
+
+                <section class="jestei-color-bento__palette-group jestei-color-bento__palette-group--pro">
+                  <h3>PRO</h3>
+                  <ul class="jestei-color-bento__swatch-list" aria-label="pro palette">
+                    <li><span>Blue-50</span><b>#E6F3FF</b><i style="--swatch:#E6F3FF"></i></li>
+                    <li><span>Blue-100</span><b>#9CCCFF</b><i style="--swatch:#9CCCFF"></i></li>
+                    <li><span>Blue-400</span><b>#3D80D8</b><i style="--swatch:#3D80D8"></i></li>
+                    <li><span>Blue-500</span><b>#1751B7</b><i style="--swatch:#1751B7"></i></li>
+                  </ul>
+                </section>
+              </article>
+            </div>
+
+            <a class="jestei-color-bento__card jestei-color-bento__visual" data-lightbox-item="" href="/assets/media/cases/jesteipool/02-color/02/00.webp" rel="noopener noreferrer" target="_blank">
+              <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/02-color/02/00.webp" />
+            </a>
+
+            <div class="jestei-color-bento__brand-strip" aria-label="цветовые роли Jestei Pool">
+              <span style="--strip-color:#F18200"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Basic <b>#F18200</b></span>
+              <span style="--strip-color:#D1E231"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Event <b>#D1E231</b></span>
+              <span style="--strip-color:#151718"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Exclusive <b>#151718</b></span>
+              <span style="--strip-color:#B2A1EA"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Special <b>#B2A1EA</b></span>
+              <span style="--strip-color:#FAFAFA"><img src="/assets/jestei/branding/jestei-logo-mark.svg" alt="" decoding="async" loading="lazy" />Dark <b>#FAFAFA</b></span>
+            </div>
           </div>
         </div>
       </section>
 
-      <section aria-label="создали системы фильтрации" class="section section-component jestei-interface-feature jestei-filter" id="jestei-filter" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="создали системы фильтрации">
+<section aria-label="три аудитории Jestei Pool" class="section section-component jestei-audience-map" id="jestei-audience-map" data-section-component="" data-section-family="jestei">
+        <div class="jestei-audience-map__screen" data-section-screen="">
+          <figure class="jestei-audience-map__figure">
+            <a data-lightbox-item="" href="/assets/media/cases/jesteipool/02-color/04/00.webp" rel="noopener noreferrer" target="_blank">
+              <img alt="Схема трех аудиторий Jestei Pool: Basic, PRO и Event" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/02-color/04/00.webp" />
+            </a>
+          </figure>
+        </div>
+      </section>
+
+<section aria-label="пересобрали тарифные сценарии" class="section section-component jestei-tariffs" id="jestei-tariffs" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="пересобрали тарифные сценарии" data-visual-system="v2">
+        <div class="jestei-tariffs__screen" data-section-screen="">
+          <section class="section-text" data-content-text="" data-section-block="">
+          <h4 class="title" data-content-title="" data-section-title=""><span data-section-title-main="">пересобрали</span><span data-section-title-accent="">тарифные сценарии</span></h4><p>Тарифы стали частью пользовательского пути: апгрейд, даунгрейд, автопродление, отключение, смена тарифа, смена платёжной системы и привязка почты были описаны как отдельные сценарии. 7 сценариев подписки и оплаты, 2 платёжные системы и повышение стоимости подписки собраны в единую логику тарифов, коммуникаций и интерфейсных состояний.</p>
+
+
+          </section>
+          <section aria-label="jestei tariffs before after" class="section-media no-stroke" data-animation="before-after">
+          <canvas class="visual-canvas" data-after-label="стало" data-animation-scene="jesteiColorBeforeAfter" data-before-label="было" data-center-label="" id="project-jestei-color-before-after"></canvas>
+          </section>
+          <aside aria-label="jestei tariffs gallery" data-media-layout="three" data-media-ratio="contain" data-media-mobile="rail" data-media-size="compact" data-media-cluster="">
+          <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/05-motion/02/06.webp" rel="noopener noreferrer" target="_blank">
+          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/02/06.webp"/>
+          </a>
+          <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/05-motion/02/07.webp" rel="noopener noreferrer" target="_blank">
+          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/02/07.webp"/>
+          </a>
+          <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/05-motion/02/08.webp" rel="noopener noreferrer" target="_blank">
+          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/02/08.webp"/>
+          </a>
+
+          </aside>
+          <p>Структура тарифов: тарифы разделены по уровню доступа, аудитории и сценарию выбора. Продажи и коммуникации: апгрейды, пейволлы, подсказки и промо-модалки связаны с тарифной логикой. Адаптивная подача: сравнение тарифов и ключевые различия сохраняются на мобильных экранах.</p>
+        </div>
+      </section>
+
+<section aria-label="создали системы фильтрации" class="section section-component jestei-interface-feature jestei-filter" id="jestei-filter" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="создали системы фильтрации" data-visual-system="v2">
         <div class="jestei-interface-feature__screen" data-section-screen="">
           <section class="interface-section interface-section--filter" aria-labelledby="interface-filter-title" data-section-block="">
             <header class="interface-section__header" data-content-head="">
@@ -3903,7 +3926,7 @@ main > :not(#hero),
         </div>
       </section>
 
-      <section aria-label="упростили навигацию event" class="section section-component jestei-interface-feature jestei-event-nav" id="jestei-event-nav" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="упростили навигацию event">
+<section aria-label="упростили навигацию event" class="section section-component jestei-interface-feature jestei-event-nav" id="jestei-event-nav" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="упростили навигацию event" data-visual-system="v2">
         <div class="jestei-interface-feature__screen" data-section-screen="">
           <section class="interface-section interface-section--structure" aria-labelledby="interface-structure-title" data-section-block="">
             <header class="interface-section__header" data-content-head="">
@@ -3929,79 +3952,23 @@ main > :not(#hero),
         </div>
       </section>
 
-      <section aria-label="лендинговая экосистема" class="section section-component jestei-interface-feature jestei-landings" id="jestei-landings" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="лендинговая экосистема">
-        <div class="jestei-interface-feature__screen" data-section-screen="">
-          <section class="interface-section interface-section--landing" aria-labelledby="interface-landing-title" data-section-block="">
-            <header class="interface-section__header" data-content-head="">
-              <p class="interface-section__kicker">Секция <strong class="section-fact">04</strong></p>
-              <h4 class="title" id="interface-landing-title" data-content-title="" data-section-title=""><span data-section-title-main="">лендинговая</span><span data-section-title-accent="">экосистема</span></h4>
-            </header>
-            <div class="interface-section__copy" data-content-text="">
-              <p>Собрали модульные лендинги для club и event: разные аудитории получили разные входы, аргументы, визуальную подачу и сценарии подписки.</p>
-            </div>
-            <aside aria-label="лендинговая экосистема" class="interface-section__media interface-section__media--landing-pair" data-media-layout="pair" data-media-ratio="contain" data-media-mobile="rail" data-media-size="compact" data-media-cluster="">
-              <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/05-motion/03/01.webp" rel="noopener noreferrer" target="_blank">
-                <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/03/01.webp" />
-              </a>
-              <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/05-motion/03/02.webp" rel="noopener noreferrer" target="_blank">
-                <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/03/02.webp" />
-              </a>
-            </aside>
-            <p class="section-note interface-section__caption">Кампании можно запускать под отдельный сценарий, не смешивая мотивацию, оффер и маршрут пользователя в одной посадочной странице.</p>
-          </section>
-        </div>
-      </section>
+<section aria-label="улучшили интерфейс" class="section section-component jestei-interface" id="jestei-interface" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="улучшили интерфейс" data-interface-signature="layout-inspector" data-visual-system="v2">
+        <div class="jestei-interface__screen" data-section-screen="">
+          <div class="layout-inspector" aria-hidden="true" data-chapter-signature="interface">
+            <span class="layout-inspector__badge layout-inspector__badge--columns">колонки 12</span>
+            <span class="layout-inspector__badge layout-inspector__badge--type">рубик / 18 / 1.28</span>
+            <span class="layout-inspector__badge layout-inspector__badge--cursor">x 428 · y 116</span>
+            <span class="layout-inspector__badge layout-inspector__badge--space">отступ 32</span>
+          </div>
+          <header data-chapter-head="" class="jestei-interface__head">
+          <h2 class="title jestei-interface__title" data-section-title="" data-content-title=""><span data-section-title-main="">улучшили</span>&nbsp;<span data-section-title-accent="">интерфейс</span></h2>
 
-      <section aria-label="промо организмы" class="section section-component jestei-promo" id="jestei-promo" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="промо организмы">
-        <div class="jestei-promo__screen" data-section-screen="">
-          <header class="jestei-promo__head-card">
-            <h2 class="jestei-promo__title" data-content-title="" data-section-title=""><span data-section-title-main="">промо</span><span data-section-title-accent="">организмы</span></h2>
-            <p>Промо-организмы связывают рекламу, рассылки и сайт: пользователь может открыть конкретный трек, понять доступ, увидеть превью и перейти к регистрации или подписке.</p>
+          <p data-section-lead="">Пересобрали навигацию, фильтры, ленты, лендинги и тарифные сценарии так, чтобы пользователь быстрее находил музыку, понимал доступ и не застревал в лишней вложенности.</p>
           </header>
-
-          <section aria-label="промо-организмы" class="jestei-promo__slider">
-            <div class="jestei-promo__rail" tabindex="0" aria-label="горизонтальная галерея промо-организмов">
-              <a class="jestei-promo__slide" data-lightbox-item="" href="/assets/jestei/promo-organisms/01-world-music.png" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/jestei/promo-organisms/01-world-music.png" /></a>
-              <a class="jestei-promo__slide" data-lightbox-item="" href="/assets/jestei/promo-organisms/02-event-playlists.png" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/jestei/promo-organisms/02-event-playlists.png" /></a>
-              <a class="jestei-promo__slide" data-lightbox-item="" href="/assets/jestei/promo-organisms/03-kids-holidays.png" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/jestei/promo-organisms/03-kids-holidays.png" /></a>
-              <a class="jestei-promo__slide" data-lightbox-item="" href="/assets/jestei/promo-organisms/04-ceremony.png" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/jestei/promo-organisms/04-ceremony.png" /></a>
-              <a class="jestei-promo__slide" data-lightbox-item="" href="/assets/jestei/promo-organisms/05-sport.png" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/jestei/promo-organisms/05-sport.png" /></a>
-              <a class="jestei-promo__slide" data-lightbox-item="" href="/assets/jestei/promo-organisms/06-dj-service.png" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/jestei/promo-organisms/06-dj-service.png" /></a>
-              <a class="jestei-promo__slide" data-lightbox-item="" href="/assets/jestei/promo-organisms/07-tariff-previews-a.png" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/jestei/promo-organisms/07-tariff-previews-a.png" /></a>
-              <a class="jestei-promo__slide" data-lightbox-item="" href="/assets/jestei/promo-organisms/07-tariff-previews-a.png" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/jestei/promo-organisms/07-tariff-previews-a.png" /></a>
-              <a class="jestei-promo__slide" data-lightbox-item="" href="/assets/jestei/promo-organisms/09-product-feed.png" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/jestei/promo-organisms/09-product-feed.png" /></a>
-              <a class="jestei-promo__slide" data-lightbox-item="" href="/assets/jestei/promo-organisms/10-track-player.png" rel="noopener noreferrer" target="_blank"><img alt="" decoding="async" loading="lazy" src="/assets/jestei/promo-organisms/10-track-player.png" /></a>
-            </div>
-          </section>
         </div>
       </section>
 
-      <section aria-label="пересобрали тарифные сценарии" class="section section-component jestei-tariffs" id="jestei-tariffs" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="пересобрали тарифные сценарии">
-        <div class="jestei-tariffs__screen" data-section-screen="">
-          <section class="section-text" data-content-text="" data-section-block="">
-          <h4 class="title" data-content-title="" data-section-title=""><span data-section-title-main="">пересобрали</span><span data-section-title-accent="">тарифные сценарии</span></h4><p>Тарифы стали частью пользовательского пути: апгрейд, даунгрейд, автопродление, отключение, смена тарифа, смена платёжной системы и привязка почты были описаны как отдельные сценарии. 7 сценариев подписки и оплаты, 2 платёжные системы и повышение стоимости подписки собраны в единую логику тарифов, коммуникаций и интерфейсных состояний.</p>
-      
-      
-          </section>
-          <section aria-label="jestei tariffs before after" class="section-media no-stroke" data-animation="before-after">
-          <canvas class="visual-canvas" data-after-label="стало" data-animation-scene="jesteiColorBeforeAfter" data-before-label="было" data-center-label="" id="project-jestei-color-before-after"></canvas>
-          </section>
-          <aside aria-label="jestei tariffs gallery" data-media-layout="three" data-media-ratio="contain" data-media-mobile="rail" data-media-size="compact" data-media-cluster="">
-          <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/05-motion/02/06.webp" rel="noopener noreferrer" target="_blank">
-          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/02/06.webp"/>
-          </a>
-          <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/05-motion/02/07.webp" rel="noopener noreferrer" target="_blank">
-          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/02/07.webp"/>
-          </a>
-          <a data-lightbox-item="" data-section-media-item="" href="/assets/media/cases/jesteipool/05-motion/02/08.webp" rel="noopener noreferrer" target="_blank">
-          <img alt="" decoding="async" loading="lazy" src="/assets/media/cases/jesteipool/05-motion/02/08.webp"/>
-          </a>
-      
-          </aside>
-          <p>Структура тарифов: тарифы разделены по уровню доступа, аудитории и сценарию выбора. Продажи и коммуникации: апгрейды, пейволлы, подсказки и промо-модалки связаны с тарифной логикой. Адаптивная подача: сравнение тарифов и ключевые различия сохраняются на мобильных экранах.</p>
-        </div>
-      </section>
-      <section aria-label="графический дизайн" class="section section-component jestei-graphics" id="jestei-graphics" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="графический дизайн">
+<section aria-label="графический дизайн" class="section section-component jestei-graphics" id="jestei-graphics" data-section-component="" data-section-family="jestei" data-section-chapter="" data-chapter-title="графический дизайн" data-visual-system="v2">
   <div class="jestei-graphics__screen" data-section-screen="">
     <header data-chapter-head="" class="jestei-graphics__head">
       <h2 class="title jestei-graphics__title" data-section-title="" data-content-title=""><span data-section-title-main="">графический</span><span data-section-title-accent="">дизайн</span></h2>
@@ -4034,9 +4001,7 @@ main > :not(#hero),
   </div>
 </section>
 
-
-
-      <section class="section section-component styx-cover" id="styx-cover" data-section-component="" data-section-family="styx" data-section-root="">
+<section class="section section-component styx-cover" id="styx-cover" data-section-component="" data-section-family="styx" data-section-root="" data-visual-system="v2">
         <div class="styx-cover__screen" data-section-screen="">
           <section data-cover-head="">
                           <div data-cover-grid="">
@@ -4080,7 +4045,7 @@ main > :not(#hero),
         </div>
       </section>
 
-      <section aria-label="графический дизайн" class="section section-component styx-graphics" id="styx-graphics" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="графический дизайн">
+<section aria-label="графический дизайн" class="section section-component styx-graphics" id="styx-graphics" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="графический дизайн" data-visual-system="v2">
         <div class="styx-graphics__screen" data-section-screen="">
           <header data-chapter-head="" class="styx-graphics__head">
                             <h2 class="title styx-graphics__title" data-section-title="" data-content-title=""><span data-section-title-main="">графический</span><span data-section-title-accent="">дизайн</span></h2>
@@ -4103,18 +4068,7 @@ main > :not(#hero),
         </div>
       </section>
 
-      <section aria-label="архив styx photo production orbit" class="section section-component archive-restored archive-restored--styx-orbit" id="styx-orbit-archive" data-section-component="" data-section-family="styx" data-section-chapter="" data-restored-preview="" data-chapter-title="архив фото и продакшен">
-        <div class="archive-restored__screen" data-section-screen="">
-          <header class="archive-restored__head" data-chapter-head="">
-            <h2 class="title" data-section-title="" data-content-title=""><span data-section-title-main="">архив</span><span data-section-title-accent="">orbit</span></h2>
-          </header>
-          <section aria-label="styx photo production orbit archive" class="archive-media-group archive-media-group--orbit" data-archive-media-scene="styxPhotoProduction" data-archive-media-limit="24" style="--media-speed: 72s">
-            <div class="archive-media-group__track" data-archive-media-track=""></div>
-          </section>
-        </div>
-      </section>
-
-      <section aria-label="бренд и упаковка" class="section section-component styx-packaging" id="styx-packaging" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="бренд и упаковка">
+<section aria-label="бренд и упаковка" class="section section-component styx-packaging" id="styx-packaging" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="бренд и упаковка" data-visual-system="v2">
         <div class="styx-packaging__screen" data-section-screen="">
           <div
                                
@@ -4204,7 +4158,7 @@ main > :not(#hero),
         </div>
       </section>
 
-      <section aria-label="коммуникации и реклама" class="section section-component styx-communications" id="styx-communications" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="коммуникации и реклама">
+<section aria-label="коммуникации и реклама" class="section section-component styx-communications" id="styx-communications" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="коммуникации и реклама" data-visual-system="v2">
         <div class="styx-communications__screen" data-section-screen="">
           <div
                                
@@ -4290,7 +4244,7 @@ main > :not(#hero),
         </div>
       </section>
 
-      <section aria-label="печатная продукция" class="section section-component styx-print" id="styx-print" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="печатная продукция">
+<section aria-label="печатная продукция" class="section section-component styx-print" id="styx-print" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="печатная продукция" data-visual-system="v2">
         <div class="styx-print__screen" data-section-screen="">
           <header data-chapter-head="" class="styx-print__head">
                             <h2 class="title styx-print__title" data-section-title="" data-content-title=""><span data-section-title-main="">печатная</span><span data-section-title-accent="">продукция</span></h2>
@@ -4315,7 +4269,7 @@ main > :not(#hero),
         </div>
       </section>
 
-      <section aria-label="фото и арты" class="section section-component styx-photo-art" id="styx-photo-art" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="фото и арты">
+<section aria-label="фото и арты" class="section section-component styx-photo-art" id="styx-photo-art" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="фото и арты" data-visual-system="v2">
         <div class="styx-photo-art__screen" data-section-screen="">
           <header data-chapter-head="" class="styx-photo-art__head">
                             <h2 class="title styx-photo-art__title" data-section-title="" data-content-title=""><span data-section-title-main="">фото</span><span data-section-title-accent="">и арты</span></h2>
@@ -4485,7 +4439,7 @@ main > :not(#hero),
         </div>
       </section>
 
-      <section aria-label="экспериментальная сканография" class="section section-component styx-scanography" id="styx-scanography" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="экспериментальная сканография">
+<section aria-label="экспериментальная сканография" class="section section-component styx-scanography" id="styx-scanography" data-section-component="" data-section-family="styx" data-section-chapter="" data-chapter-title="экспериментальная сканография" data-visual-system="v2">
         <div class="styx-scanography__screen" data-section-screen="">
           <header data-chapter-head="" class="styx-scanography__head">
                             <h2 class="title styx-scanography__title" data-section-title="" data-content-title=""><span data-section-title-main="">экспериментальная</span><span data-section-title-accent="">сканография</span></h2>
@@ -4684,34 +4638,7 @@ main > :not(#hero),
         </div>
       </section>
 
-            
-      
-      
-      <section aria-label="berserk timer" class="section section-component pet-project-inline berserk-timer" id="berserk-timer" data-section-component="" data-section-family="pets" data-pet-inline="berserk-timer">
-        <div class="berserk-timer__screen pet-project-inline__screen" data-section-screen="">
-          <iframe class="berserk-timer__frame pet-project-inline__frame" data-pet-project-frame="berserk-timer" loading="lazy" src="/pets/berserk-timer/" title="berserk timer"></iframe>
-        </div>
-      </section>
-
-            
-      
-      
-      <section aria-label="awful cases" class="section section-component pet-project-inline awful-cases" id="awful-cases" data-section-component="" data-section-family="pets" data-pet-inline="awful-cases">
-        <div class="awful-cases__screen pet-project-inline__screen" data-section-screen="">
-          <iframe class="awful-cases__frame pet-project-inline__frame" data-pet-project-frame="awful-cases" loading="lazy" src="/pets/awful-cases/" title="awful cases"></iframe>
-        </div>
-      </section>
-
-            
-      
-      
-      <section aria-label="awful audit" class="section section-component pet-project-inline awful-audit" id="awful-audit" data-section-component="" data-section-family="pets" data-pet-inline="awful-audit">
-        <div class="awful-audit__screen pet-project-inline__screen" data-section-screen="">
-          <iframe class="awful-audit__frame pet-project-inline__frame" data-pet-project-frame="awful-audit" loading="lazy" src="/pets/awful-audit/" title="awful audit"></iframe>
-        </div>
-      </section>
-
-      <section aria-label="фотография" class="section section-component shootings" id="shootings" data-section-component="" data-section-family="shootings" data-section-chapter="" data-chapter-title="фотография" data-section-root="">
+<section aria-label="фотография" class="section section-component shootings" id="shootings" data-section-component="" data-section-family="shootings" data-section-chapter="" data-chapter-title="фотография" data-section-root="" data-visual-system="v2">
         <div class="shootings__screen" data-section-screen="">
           <div data-section-body="" class="shootings__body">
                               <section data-section-block="">
@@ -5084,7 +5011,45 @@ main > :not(#hero),
         </div>
       </section>
 
-      <section aria-label="резюме" class="section section-component resume" id="resume" data-section-component="" data-section-family="resume" data-section-chapter="" data-chapter-title="резюме" data-section-root="">
+      <section aria-label="полезное" class="section section-component pet-projects-bento" id="pet-projects" data-section-component="" data-section-family="pets" data-visual-system="v2">
+        <div class="pet-projects-bento__screen" data-section-screen="">
+          <header class="pet-projects-bento__head">
+            <h2 class="pet-projects-bento__title">полезное</h2>
+            <p class="pet-projects-bento__lead">Полезные инструменты, которые я создаю на досуге</p>
+          </header>
+          <div class="pet-projects-bento__grid" data-pet-projects-bento="">
+            <article class="pet-projects-bento__card pet-projects-bento__card--berserk" data-useful-project="berserk-timer">
+              <a class="pet-projects-bento__media" href="/pets/berserk-timer/" aria-label="открыть berserk timer">
+                <img alt="" decoding="async" loading="lazy" src="/assets/media/pets/berserk-timer.png" />
+              </a>
+              <div class="pet-projects-bento__body">
+                <h3><a href="/pets/berserk-timer/">berserk timer</a></h3>
+                <p>Консольный таймер, который задаёт контролирующие вопросы о том, что ты делал.</p>
+              </div>
+            </article>
+            <article class="pet-projects-bento__card pet-projects-bento__card--awful-cases" data-useful-project="awful-cases">
+              <a class="pet-projects-bento__media" href="/pets/awful-cases/" aria-label="открыть awful cases">
+                <img alt="" decoding="async" loading="lazy" src="/assets/media/pets/awful-cases.png" />
+              </a>
+              <div class="pet-projects-bento__body">
+                <h3><a href="/pets/awful-cases/">awful cases</a></h3>
+                <p>Windows-утилита для смены регистра выделенного текста горячими клавишами.</p>
+              </div>
+            </article>
+            <article class="pet-projects-bento__card pet-projects-bento__card--awful-audit" data-useful-project="awful-audit">
+              <a class="pet-projects-bento__media" href="/pets/awful-audit/" aria-label="открыть awful audit">
+                <img alt="" decoding="async" loading="lazy" src="/assets/media/pets/awful-audit.png" />
+              </a>
+              <div class="pet-projects-bento__body">
+                <h3><a href="/pets/awful-audit/">awful audit</a></h3>
+                <p>CLI-утилита, которая собирает аудит кода проекта и копирует результат в буфер, архив или документ.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+<section aria-label="резюме" class="section section-component resume" id="resume" data-section-component="" data-section-family="resume" data-section-chapter="" data-chapter-title="резюме" data-section-root="" data-visual-system="v2">
         <div class="resume__screen" data-section-screen="">
           <div class="resume-stack">
                       <header
@@ -5235,7 +5200,33 @@ main > :not(#hero),
                     </div>
         </div>
       </section>
+
+      <section id="contacts" class="section site-contacts" data-visual-system="v2" aria-labelledby="contacts-title">
+        <div class="site-contacts__screen">
+          <h2 class="site-contacts__title" id="contacts-title">контакты</h2>
+          <div class="site-contacts__layout">
+            <nav class="site-contacts__links" aria-label="контакты">
+              <a href="https://t.me/looksawful" target="_blank" rel="noreferrer">tg: @looksawful</a>
+              <a href="mailto:i@lookawful.ru">email: i@lookawful.ru</a>
+              <a href="https://github.com/looksawful" target="_blank" rel="noreferrer">github: @looksawful</a>
+            </nav>
+            <a class="site-contacts__top" href="#hero">↑ наверх</a>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <dialog class="pet-project-modal" id="pet-project-modal" aria-labelledby="pet-project-modal-title">
+      <div class="pet-project-modal__shell">
+        <div class="pet-project-modal__bar">
+          <p class="pet-project-modal__title" id="pet-project-modal-title"></p>
+          <button class="pet-project-modal__close" type="button" aria-label="закрыть">×</button>
+        </div>
+        <div class="pet-project-modal__body">
+          <iframe class="pet-project-modal__frame" allow="fullscreen; autoplay" title=""></iframe>
+        </div>
+      </div>
+    </dialog>
 
     <footer aria-label="подвал сайта" class="site-footer">
       <small>© 2026 иван крушинский. все права защищены.</small>

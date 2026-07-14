@@ -5,50 +5,7 @@ const PRODUCT_SECTION_ID = "jestei-product-archive";
 const JESTEI_COVER_ID = "jestei-cover";
 const PRODUCT_MASONRY_SCENE = "jesteiProductDesignMasonry";
 
-const REMOVED_SECTION_TITLE = "улучшили интерфейс";
-const REMOVED_COPY = [
-  "Жанры, метки, bpm, тональность, рейтинг, тип трека, часть ночи и исключения собраны в рабочий инструмент для быстрого поиска музыки.",
-  "Главные плейлисты вынесены выше, редкие подборки остались в папках и коллекциях. Папки, коллекции, плейлисты и подборки получили разные роли и визуальные формы.",
-];
-const REMOVED_SCANOGRAPHY_COPY =
-  "Вместе со съёмками и предметными сетапами я экспериментировал со сканографией для создания портретов моделей, предметных композиций и экспрессивных искажённых кадров. Эти изображения стали частью визуальной системы бренда, использовались в соцсетях, промо-материалах и кампаниях.";
-
 const noop = () => {};
-const normalizeText = (value) => String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
-
-const removeDeprecatedShowcaseContent = (root = document) => {
-  const removedTitle = normalizeText(REMOVED_SECTION_TITLE);
-  const removedCopy = REMOVED_COPY.map(normalizeText);
-  const removedScanographyCopy = normalizeText(REMOVED_SCANOGRAPHY_COPY);
-
-  root.querySelectorAll("section").forEach((section) => {
-    const title = section.querySelector("h1, h2, h3, [data-section-title]");
-    if (normalizeText(title?.textContent) === removedTitle) {
-      section.remove();
-    }
-  });
-
-  root.querySelectorAll("p").forEach((paragraph) => {
-    const text = normalizeText(paragraph.textContent);
-
-    if (text === removedScanographyCopy) {
-      paragraph.remove();
-      return;
-    }
-
-    if (!removedCopy.includes(text)) {
-      return;
-    }
-
-    const card = paragraph.closest("article, [data-card], .card, .section-card");
-    if (card) {
-      card.remove();
-      return;
-    }
-
-    paragraph.remove();
-  });
-};
 
 const setVisible = (element) => {
   if (!element) return;
@@ -57,9 +14,9 @@ const setVisible = (element) => {
   element.removeAttribute("hidden");
   element.removeAttribute("aria-hidden");
   element.removeAttribute("data-homepage-hidden");
-  element.style.setProperty("display", "block", "important");
-  element.style.setProperty("visibility", "visible", "important");
-  element.style.setProperty("opacity", "1", "important");
+  element.style.removeProperty("display");
+  element.style.removeProperty("visibility");
+  element.style.removeProperty("opacity");
 };
 
 const prepareSurface = (surface, modifier) => {
@@ -127,8 +84,6 @@ const combineMounts = (...mounts) => {
 };
 
 export const placeJesteiArchiveCanvases = (root = document) => {
-  removeDeprecatedShowcaseContent(root);
-
   const cover = root.querySelector(`#${JESTEI_COVER_ID}`);
   const results = root.querySelector("#jestei-results");
   const graphics = root.querySelector("#jestei-graphics");
@@ -176,7 +131,6 @@ export const placeJesteiArchiveCanvases = (root = document) => {
 };
 
 const schedulePlacement = () => {
-  removeDeprecatedShowcaseContent(document);
   placeJesteiArchiveCanvases(document);
   queueMicrotask?.(() => placeJesteiArchiveCanvases(document));
   requestAnimationFrame?.(() => placeJesteiArchiveCanvases(document));

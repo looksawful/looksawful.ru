@@ -23,10 +23,10 @@ main[data-showcase] #jestei-color .jestei-audience-map--inside-color {
 }
 
 main[data-showcase] #jestei-color .jestei-audience-map--inside-color .jestei-audience-map__screen {
-  inline-size: 100% !important;
-  width: 100% !important;
-  max-inline-size: none !important;
-  max-width: none !important;
+  inline-size: 100%;
+  width: 100%;
+  max-inline-size: none;
+  max-width: none;
   margin: 0;
   padding: 0;
 }
@@ -41,10 +41,10 @@ main[data-showcase] #jestei-color .jestei-audience-map--inside-color .jestei-aud
 main[data-showcase] #jestei-color .jestei-audience-map--inside-color .jestei-audience-map__figure > a,
 main[data-showcase] #jestei-color .jestei-audience-map--inside-color .jestei-audience-map__figure img {
   display: block;
-  inline-size: 100% !important;
-  width: 100% !important;
-  max-inline-size: none !important;
-  max-width: none !important;
+  inline-size: 100%;
+  width: 100%;
+  max-inline-size: none;
+  max-width: none;
 }
 
 main[data-showcase] #jestei-color .jestei-audience-map--inside-color .jestei-audience-map__figure img {
@@ -108,8 +108,8 @@ main[data-showcase] #jestei-color .jestei-color-bento__brand-strip span:last-chi
   }
 
   main[data-showcase] #jestei-color .jestei-audience-map--inside-color .jestei-audience-map__figure > a {
-    inline-size: 100% !important;
-    width: 100% !important;
+    inline-size: 100%;
+    width: 100%;
   }
 
   main[data-showcase] #jestei-color .jestei-color-bento__brand-strip {

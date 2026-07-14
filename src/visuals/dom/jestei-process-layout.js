@@ -40,27 +40,7 @@ function mountCard(card) {
   function update() {
     frame = 0;
 
-    if (!desktopQuery.matches) {
-      applyMode("stack");
-      return;
-    }
-
-    const cardStyle = win.getComputedStyle(card);
-    const paddingInline = number(cardStyle.paddingLeft) + number(cardStyle.paddingRight);
-    const paddingBlock = number(cardStyle.paddingTop) + number(cardStyle.paddingBottom);
-    const gap = Math.max(number(cardStyle.rowGap), number(cardStyle.gap), 12);
-    const innerWidth = Math.max(0, card.clientWidth - paddingInline);
-    const innerHeight = Math.max(0, card.clientHeight - paddingBlock);
-    const contentHeight = Math.ceil(content.getBoundingClientRect().height);
-    const availableStackHeight = Math.max(0, innerHeight - contentHeight - gap);
-    const requiredStackHeight = innerWidth / SVG_ASPECT;
-
-    const threshold = currentMode === "side" ? 1.08 : 0.96;
-    const canStack =
-      availableStackHeight >= 220 &&
-      availableStackHeight >= requiredStackHeight * threshold;
-
-    applyMode(canStack ? "stack" : "side");
+    applyMode("stack");
   }
 
   function scheduleUpdate() {

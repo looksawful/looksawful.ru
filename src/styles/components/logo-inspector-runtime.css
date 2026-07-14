@@ -1,0 +1,300 @@
+.logo-inspector-3d {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: clamp(24rem, 48vw, 40rem);
+  min-height: clamp(24rem, 62svh, 34rem);
+  max-height: min(42rem, 82svh);
+  overflow: hidden;
+  contain: layout;
+  isolation: isolate;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #111;
+  font-family: "Rubik", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-rendering: geometricPrecision;
+}
+
+.logo-inspector-3d__poster {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #fff;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  user-select: none;
+  transition:
+    opacity 240ms ease,
+    visibility 240ms ease;
+}
+
+.logo-inspector-3d.is-3d-ready .logo-inspector-3d__poster {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.logo-inspector-3d.is-3d-fallback .logo-inspector-3d__poster {
+  opacity: 1;
+  visibility: visible;
+}
+
+.logo-inspector-3d__canvas {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 0;
+  width: auto;
+  height: 100%;
+  min-width: 0;
+  overflow: visible;
+  background: #fff;
+  cursor: default;
+  touch-action: none;
+  user-select: none;
+}
+
+.logo-inspector-3d__canvas.is-hovering {
+  cursor: grab;
+}
+
+.logo-inspector-3d__canvas.is-dragging {
+  cursor: grabbing;
+}
+
+.logo-inspector-3d__canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.logo-inspector-3d__status {
+  position: absolute;
+  z-index: 7;
+  inset-block-start: 1rem;
+  inset-inline-end: 1rem;
+  max-width: min(22rem, calc(100% - 2rem));
+  padding: 0.4rem 0.58rem 0.45rem;
+  border: 1px solid rgba(150, 0, 0, 0.32);
+  border-radius: 999px;
+  color: #7a1111;
+  background: rgba(255, 244, 244, 0.94);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  font-size: 0.7rem;
+  font-weight: 650;
+  line-height: 1;
+  pointer-events: none;
+  backdrop-filter: blur(14px);
+}
+
+.logo-inspector-3d__status[hidden] {
+  display: none;
+}
+
+.jestei-chapter-hero__media--logo,
+.jestei-chapter-hero__media--logo.section-media,
+.jestei-chapter-hero__media--logo [data-visual-demo^="logo-inspector"],
+.jestei-chapter-hero__media--logo [data-visual-demo*="logo-inspector"] {
+  overflow: visible;
+  min-width: 0;
+  max-width: none;
+}
+
+.logo-inspector-fit-3d,
+.logo-inspector-grid-3d {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  block-size: auto;
+  min-block-size: 0;
+  overflow: hidden;
+  contain: layout paint;
+  isolation: isolate;
+  background: #fff;
+}
+
+.logo-inspector-fit-3d {
+  aspect-ratio: 16 / 10;
+}
+
+.logo-inspector-grid-3d {
+  aspect-ratio: 16 / 5;
+  border: 0;
+}
+
+.logo-inspector-fit-3d__canvas,
+.logo-inspector-fit-3d__poster,
+.logo-inspector-grid-3d__canvas,
+.logo-inspector-grid-3d__poster {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.logo-inspector-fit-3d__canvas,
+.logo-inspector-grid-3d__canvas {
+  overflow: hidden;
+  cursor: default;
+  touch-action: none;
+  user-select: none;
+}
+
+.logo-inspector-grid-3d__canvas {
+  z-index: 2;
+  background: transparent;
+}
+
+.logo-inspector-grid-3d__canvas.is-hovering {
+  cursor: grab;
+}
+
+.logo-inspector-grid-3d__canvas.is-dragging {
+  cursor: grabbing;
+}
+
+.logo-inspector-fit-3d__canvas canvas,
+.logo-inspector-grid-3d__canvas canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+}
+
+.logo-inspector-grid-3d__fallback {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: clamp(1rem, 3vw, 2.75rem);
+  padding: clamp(1.5rem, 4vw, 3.25rem);
+  opacity: 0.72;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.logo-inspector-grid-3d__fallback-item {
+  position: relative;
+  display: block;
+  inline-size: clamp(6.5rem, 12vw, 12.5rem);
+  aspect-ratio: 1;
+  overflow: visible;
+  border-radius: 50%;
+  background: var(--logo-inspector-fallback-color, #151718);
+  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.1);
+}
+
+.logo-inspector-grid-3d__fallback-item::before,
+.logo-inspector-grid-3d__fallback-item::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+}
+
+.logo-inspector-grid-3d__fallback-item::before {
+  inset: 23%;
+  background: #fff;
+}
+
+.logo-inspector-grid-3d__fallback-item::after {
+  inset: 40%;
+  background: var(--logo-inspector-fallback-color, #151718);
+}
+
+.logo-inspector-grid-3d.is-3d-ready .logo-inspector-grid-3d__fallback {
+  opacity: 0.38;
+}
+
+.logo-inspector-grid-3d.is-3d-fallback .logo-inspector-grid-3d__fallback {
+  opacity: 0.92;
+}
+
+.logo-inspector-fit-3d__poster,
+.logo-inspector-grid-3d__poster {
+  z-index: 4;
+  object-fit: contain;
+  background: #fff;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  transition:
+    opacity 220ms ease,
+    visibility 220ms ease;
+}
+
+.logo-inspector-fit-3d.is-ready .logo-inspector-fit-3d__poster,
+.logo-inspector-grid-3d.is-3d-ready .logo-inspector-grid-3d__poster {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.logo-inspector-grid-3d.is-3d-fallback .logo-inspector-grid-3d__poster {
+  opacity: 1;
+  visibility: visible;
+}
+
+:root {
+  --arc-title-font-family: "Inter Variable", "Inter", sans-serif;
+  --arc-title-font-weight: 500;
+  --arc-title-color: rgba(0, 0, 0, 0.92);
+}
+
+@media (min-width: 721px) and (max-width: 1180px) {
+  .logo-inspector-3d__canvas {
+    inset-inline: calc(clamp(2rem, 8vw, 6rem) * -1);
+  }
+}
+
+@media (max-width: 59.999rem) {
+  .logo-inspector-fit-3d {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 56.249rem) {
+  .logo-inspector-grid-3d {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 56rem) {
+  .logo-inspector-3d {
+    height: clamp(34rem, 104vw, 48rem);
+    max-height: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .logo-inspector-3d {
+    height: clamp(25rem, 78svh, 40rem);
+    min-height: clamp(24rem, 70svh, 34rem);
+  }
+
+  .logo-inspector-3d__canvas {
+    inset-inline: 0;
+  }
+}
+
+@media (max-width: 43rem) {
+  .logo-inspector-grid-3d {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (max-width: 37.499rem) {
+  .logo-inspector-fit-3d {
+    aspect-ratio: 1 / 1.08;
+  }
+}

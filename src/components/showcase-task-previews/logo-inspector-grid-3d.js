@@ -3,7 +3,6 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-const STYLE_ID = "logo-inspector-grid-3d-styles";
 const BACKGROUND = "#ffffff";
 const CAMERA_DISTANCE = 8.2;
 const TARGET_Z = 0.72;
@@ -17,7 +16,7 @@ const RETURN_EASE = 0.09;
 
 const DEFAULT_ASSETS = {
   model: "./logo.glb",
-  poster: "/assets/media/cases/jesteipool/01-logo/01/02.webp",
+  poster: "/assets/jestei/branding/jestei-logo-mark.svg",
 };
 
 const DEFAULT_VARIANTS = [
@@ -27,92 +26,7 @@ const DEFAULT_VARIANTS = [
   { id: "experimental", token: "экспериментальные инструменты", color: "#B2A1EA" },
 ];
 
-function injectStyles() {
-  if (document.getElementById(STYLE_ID)) return;
-
-  const style = document.createElement("style");
-  style.id = STYLE_ID;
-  style.textContent = `
-    .logo-inspector-grid-3d {
-      position: relative;
-      display: block;
-      inline-size: 100%;
-      min-inline-size: 0;
-      block-size: auto;
-      min-block-size: 0;
-      aspect-ratio: 16 / 5;
-      overflow: hidden;
-      contain: layout paint;
-      isolation: isolate;
-      border: 0;
-      background: ${BACKGROUND};
-    }
-
-    .logo-inspector-grid-3d__canvas {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      background: ${BACKGROUND};
-      cursor: default;
-      touch-action: none;
-      user-select: none;
-    }
-
-    .logo-inspector-grid-3d__canvas.is-hovering {
-      cursor: grab;
-    }
-
-    .logo-inspector-grid-3d__canvas.is-dragging {
-      cursor: grabbing;
-    }
-
-    .logo-inspector-grid-3d__canvas canvas {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      max-inline-size: 100%;
-      max-block-size: 100%;
-    }
-
-    .logo-inspector-grid-3d__poster {
-      position: absolute;
-      z-index: 2;
-      inset: 0;
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      object-fit: contain;
-      background: ${BACKGROUND};
-      opacity: 1;
-      visibility: visible;
-      pointer-events: none;
-      transition: opacity 220ms ease, visibility 220ms ease;
-    }
-
-    .logo-inspector-grid-3d.is-3d-ready .logo-inspector-grid-3d__poster {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .logo-inspector-grid-3d.is-3d-fallback .logo-inspector-grid-3d__poster {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    @media (max-width: 56.249rem) {
-      .logo-inspector-grid-3d {
-        aspect-ratio: 4 / 3;
-      }
-    }
-
-    @media (max-width: 43rem) {
-      .logo-inspector-grid-3d {
-        aspect-ratio: 1 / 1;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-}
+function injectStyles() {}
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -206,7 +120,7 @@ function applyVariantMaterial(root, variant, logoGroup) {
       clearcoat: 0.42,
       clearcoatRoughness: 0.36,
       envMapIntensity: 1.24,
-      side: THREE.FrontSide,
+      side: THREE.DoubleSide,
     });
   });
 }
@@ -269,17 +183,71 @@ function createPoster(src) {
   return image;
 }
 
+function createStaticFallback(variants) {
+  const fallback = document.createElement("div");
+  fallback.className = "logo-inspector-grid-3d__fallback";
+  fallback.setAttribute("aria-hidden", "true");
+
+  variants.slice(0, 4).forEach((variant) => {
+    const item = document.createElement("span");
+    item.className = "logo-inspector-grid-3d__fallback-item";
+    item.style.setProperty("--logo-inspector-fallback-color", variant.color);
+    fallback.append(item);
+  });
+
+  return fallback;
+}
+
 function createRenderer() {
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
-    alpha: false,
+    alpha: true,
     powerPreference: "high-performance",
+    preserveDrawingBuffer: true,
   });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.04;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.setClearColor(0xffffff, 0);
   return renderer;
+}
+
+function hasVisibleCanvasContent(renderer) {
+  const context = renderer.getContext();
+  const width = context.drawingBufferWidth || 0;
+  const height = context.drawingBufferHeight || 0;
+
+  if (!width || !height) return false;
+
+  const sample = new Uint8Array(4);
+  const sampleColumns = [0.18, 0.28, 0.38, 0.5, 0.62, 0.72, 0.82];
+  const sampleRows = [0.38, 0.46, 0.54, 0.62];
+
+  for (const column of sampleColumns) {
+    for (const row of sampleRows) {
+      context.readPixels(
+        Math.floor(width * column),
+        Math.floor(height * row),
+        1,
+        1,
+        context.RGBA,
+        context.UNSIGNED_BYTE,
+        sample,
+      );
+
+      const whiteDistance =
+        Math.abs(255 - sample[0]) +
+        Math.abs(255 - sample[1]) +
+        Math.abs(255 - sample[2]);
+
+      if (sample[3] > 16 && whiteDistance > 34) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function getLayoutProfile(width, isRow) {
@@ -346,8 +314,10 @@ export function createLogoInspector3D(target, options = {}) {
   const canvasHost = document.createElement("div");
   canvasHost.className = "logo-inspector-grid-3d__canvas";
 
+  const staticFallback = createStaticFallback(orderedVariants);
   const poster = createPoster(assetUrls.poster);
   root.append(canvasHost);
+  root.append(staticFallback);
   if (poster) root.append(poster);
   host.append(root);
 
@@ -363,7 +333,7 @@ export function createLogoInspector3D(target, options = {}) {
   canvasHost.append(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(BACKGROUND);
+  scene.background = null;
 
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 220);
   camera.position.set(0, 0, CAMERA_DISTANCE);
@@ -396,6 +366,7 @@ export function createLogoInspector3D(target, options = {}) {
   let lastPointerX = 0;
   let lastPointerY = 0;
   let raf = 0;
+  let revealRaf = 0;
   let destroyed = false;
   let lastTime = performance.now();
   let introStartTime = 0;
@@ -617,6 +588,25 @@ export function createLogoInspector3D(target, options = {}) {
     layoutLogos();
   };
 
+  const revealWhenRenderable = (startedAt = performance.now()) => {
+    if (destroyed) return;
+
+    renderer.render(scene, camera);
+
+    if (hasVisibleCanvasContent(renderer)) {
+      root.classList.remove("is-3d-fallback");
+      root.classList.add("is-3d-ready");
+      return;
+    }
+
+    if (performance.now() - startedAt > 2600) {
+      root.classList.add("is-3d-fallback");
+      return;
+    }
+
+    revealRaf = requestAnimationFrame(() => revealWhenRenderable(startedAt));
+  };
+
   const renderLoop = (time) => {
     if (destroyed) return;
 
@@ -671,7 +661,7 @@ export function createLogoInspector3D(target, options = {}) {
       introComplete = false;
       updateIntro(introStartTime + 1);
       renderer.render(scene, camera);
-      root.classList.add("is-3d-ready");
+      revealWhenRenderable();
     })
     .catch((error) => {
       console.error("[logo inspector grid] model failed", error);
@@ -687,6 +677,7 @@ export function createLogoInspector3D(target, options = {}) {
       if (destroyed) return;
       destroyed = true;
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(revealRaf);
       resizeObserver.disconnect();
       renderer.domElement.removeEventListener("pointerdown", handlePointerDown);
       renderer.domElement.removeEventListener("pointermove", handlePointerMove);

@@ -45,12 +45,12 @@ main[data-showcase] .jestei-interface-feature .interface-section__kicker {
 }
 
 main[data-showcase] .jestei-interface-feature .interface-section [data-content-title] {
-  max-inline-size: 12ch;
+  max-inline-size: 15ch;
   margin: 0;
   color: var(--black);
-  font-size: clamp(2.25rem, 4.1vw, 4.6rem);
+  font-size: clamp(2rem, 3.35vw, 3.65rem);
   font-weight: 900;
-  line-height: 0.88;
+  line-height: 0.96;
   letter-spacing: 0;
   text-wrap: balance;
   overflow-wrap: normal;
@@ -63,7 +63,7 @@ main[data-showcase] .jestei-interface-feature .interface-section [data-section-t
 }
 
 main[data-showcase] .jestei-interface-feature .interface-section [data-section-title-accent] {
-  color: color-mix(in srgb, var(--black) 48%, var(--white));
+  color: color-mix(in srgb, var(--black) 68%, var(--white));
 }
 
 main[data-showcase] .jestei-interface-feature .interface-section [data-section-title-main] + [data-section-title-accent]::before {
@@ -79,9 +79,9 @@ main[data-showcase] .jestei-interface-feature .interface-section__copy > p {
   max-inline-size: 25rem;
   margin: 0;
   color: var(--black);
-  font-size: clamp(0.98rem, 1.05vw, 1.12rem) !important;
-  font-weight: 400 !important;
-  line-height: 1.24 !important;
+  font-size: clamp(0.98rem, 1.05vw, 1.12rem);
+  font-weight: 400;
+  line-height: 1.24;
   letter-spacing: 0;
 }
 
@@ -238,37 +238,37 @@ main[data-showcase] .jestei-interface-feature [data-media-cluster] :where(img, v
 }
 
 main[data-showcase] :is(#jestei-filter, #jestei-event-nav, #jestei-landings).jestei-interface-feature .interface-section {
-  grid-template-columns: minmax(18rem, 0.44fr) minmax(0, 1.56fr) !important;
+  grid-template-columns: minmax(21rem, 0.56fr) minmax(0, 1.44fr);
   grid-template-areas:
     "head media"
     "copy media"
-    "caption media" !important;
-  align-items: center !important;
+    "caption media";
+  align-items: center;
 }
 
 main[data-showcase] :is(#jestei-filter, #jestei-event-nav, #jestei-landings).jestei-interface-feature .interface-section__header {
-  grid-area: head !important;
+  grid-area: head;
 }
 
 main[data-showcase] :is(#jestei-filter, #jestei-event-nav, #jestei-landings).jestei-interface-feature .interface-section__copy {
-  grid-area: copy !important;
+  grid-area: copy;
 }
 
 main[data-showcase] :is(#jestei-filter, #jestei-event-nav, #jestei-landings).jestei-interface-feature :where(.interface-section__filter, .interface-section__media) {
-  grid-area: media !important;
+  grid-area: media;
 }
 
 main[data-showcase] :is(#jestei-filter, #jestei-event-nav, #jestei-landings).jestei-interface-feature .interface-section__caption {
-  grid-area: caption !important;
+  grid-area: caption;
 }
 
 @media (max-width: 72rem) {
   main[data-showcase] :is(#jestei-filter, #jestei-event-nav, #jestei-landings).jestei-interface-feature .interface-section {
-    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "head"
       "copy"
       "media"
-      "caption" !important;
+      "caption";
   }
 }

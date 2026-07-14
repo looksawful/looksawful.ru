@@ -6,11 +6,11 @@ main[data-showcase] .jestei-audience-map {
 }
 
 main[data-showcase] .jestei-audience-map__screen {
-  display: block !important;
-  inline-size: min(calc(100vw - clamp(1rem, 3vw, 3rem)), 112rem) !important;
-  width: min(calc(100vw - clamp(1rem, 3vw, 3rem)), 112rem) !important;
-  max-inline-size: none !important;
-  max-width: none !important;
+  display: block;
+  inline-size: min(calc(100vw - clamp(1rem, 3vw, 3rem)), 112rem);
+  width: min(calc(100vw - clamp(1rem, 3vw, 3rem)), 112rem);
+  max-inline-size: none;
+  max-width: none;
   margin-inline: auto;
   padding-block: clamp(1rem, 2.5vw, 2.5rem);
 }
@@ -19,6 +19,7 @@ main[data-showcase] .jestei-audience-map__figure {
   inline-size: 100%;
   margin: 0;
   overflow: hidden;
+  border: var(--line);
   border-radius: clamp(0.75rem, 1vw, 1.25rem);
   background: var(--white);
 }
@@ -27,8 +28,8 @@ main[data-showcase] .jestei-audience-map__figure > a {
   display: block;
   inline-size: 100%;
   width: 100%;
-  max-inline-size: none !important;
-  max-width: none !important;
+  max-inline-size: none;
+  max-width: none;
   color: inherit;
   text-decoration: none;
 }
@@ -45,14 +46,15 @@ main[data-showcase] .jestei-audience-map__figure img {
 
 @media (max-width: 48rem) {
   main[data-showcase] .jestei-audience-map__screen {
-    inline-size: 100% !important;
-    width: 100% !important;
+    inline-size: 100%;
+    width: 100%;
     padding-block: 1rem;
   }
 
   main[data-showcase] .jestei-audience-map__figure {
     overflow-x: auto;
     overflow-y: hidden;
+    border-inline: 0;
     border-radius: 0;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;

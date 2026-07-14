@@ -1,29 +1,65 @@
 const SCENE_SELECTOR = "#jestei-process-scene";
 const CARD_SELECTOR = "#jestei-results .jestei-bento__card--manual";
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+function createSvgNode(doc, name, attrs = {}) {
+  const node = doc.createElementNS(SVG_NS, name);
+  Object.entries(attrs).forEach(([key, value]) => {
+    if (value != null) node.setAttribute(key, value);
+  });
+  return node;
+}
+
+function createShadowFilter(doc, id, color, opacity) {
+  const filter = createSvgNode(doc, "filter", {
+    id,
+    x: "-30%",
+    y: "-30%",
+    width: "160%",
+    height: "180%",
+  });
+  const shadow = createSvgNode(doc, "feDropShadow", {
+    dx: "0",
+    dy: "3",
+    stdDeviation: "4",
+    "flood-color": color,
+    "flood-opacity": opacity,
+  });
+  filter.append(shadow);
+  return filter;
+}
 
 function createProcessVisual(card) {
   const doc = card.ownerDocument;
   const visual = doc.createElement("div");
   visual.className = "jestei-bento__process-visual";
   visual.setAttribute("aria-hidden", "true");
-  visual.innerHTML = `
-    <svg class="jestei-bento__process-svg" id="jestei-process-scene" viewBox="18 140 848 550" preserveAspectRatio="xMidYMid meet" focusable="false">
-      <defs id="jestei-process-defs">
-        <filter id="jestei-process-shadow-black" x="-30%" y="-30%" width="160%" height="180%">
-          <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity=".10"></feDropShadow>
-        </filter>
-        <filter id="jestei-process-shadow-purple" x="-30%" y="-30%" width="160%" height="180%">
-          <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#5031ff" flood-opacity=".08"></feDropShadow>
-        </filter>
-      </defs>
-      <g id="jestei-process-wire-layer"></g>
-      <g id="jestei-process-shape-layer"></g>
-      <g id="jestei-process-port-layer"></g>
-      <g id="jestei-process-dot-layer"></g>
-    </svg>
-  `;
+
+  const svg = createSvgNode(doc, "svg", {
+    class: "jestei-bento__process-svg",
+    id: "jestei-process-scene",
+    viewBox: "18 140 848 550",
+    preserveAspectRatio: "xMidYMid meet",
+    focusable: "false",
+  });
+
+  const defs = createSvgNode(doc, "defs", { id: "jestei-process-defs" });
+  defs.append(
+    createShadowFilter(doc, "jestei-process-shadow-black", "#000", ".10"),
+    createShadowFilter(doc, "jestei-process-shadow-purple", "#5031ff", ".08"),
+  );
+
+  svg.append(
+    defs,
+    createSvgNode(doc, "g", { id: "jestei-process-wire-layer" }),
+    createSvgNode(doc, "g", { id: "jestei-process-shape-layer" }),
+    createSvgNode(doc, "g", { id: "jestei-process-port-layer" }),
+    createSvgNode(doc, "g", { id: "jestei-process-dot-layer" }),
+  );
+
+  visual.append(svg);
   card.append(visual);
-  return visual.querySelector(SCENE_SELECTOR);
+  return svg;
 }
 
 function initializeScene(svg) {
@@ -32,7 +68,6 @@ function initializeScene(svg) {
 
   const doc = svg.ownerDocument;
   const win = doc.defaultView || window;
-  const NS = "http://www.w3.org/2000/svg";
   const defs = svg.querySelector("#jestei-process-defs");
   const wireLayer = svg.querySelector("#jestei-process-wire-layer");
   const shapeLayer = svg.querySelector("#jestei-process-shape-layer");
@@ -52,7 +87,7 @@ function initializeScene(svg) {
   const ports = [];
 
   function el(name, attrs, parent) {
-    const node = doc.createElementNS(NS, name);
+    const node = doc.createElementNS(SVG_NS, name);
     if (attrs) {
       for (const [key, value] of Object.entries(attrs)) {
         if (value != null) node.setAttribute(key, value);

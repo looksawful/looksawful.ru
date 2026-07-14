@@ -174,8 +174,6 @@ export const createProximityMotion = ({
 };
 
 export const createObservedInitializer = (init) => {
-  let observer = null;
-
   const run = () => {
     init();
   };
@@ -183,20 +181,8 @@ export const createObservedInitializer = (init) => {
   const start = () => {
     run();
 
-    observer = new MutationObserver(() => {
-      run();
-    });
-
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true
-    });
-
     return {
-      destroy: () => {
-        observer?.disconnect();
-        observer = null;
-      }
+      destroy: () => {}
     };
   };
 
@@ -214,4 +200,3 @@ export const createObservedInitializer = (init) => {
 
   return start();
 };
-

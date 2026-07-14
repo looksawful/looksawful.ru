@@ -16,13 +16,27 @@ const createDialog = (root = document) => {
   dialog = document.createElement("dialog");
   dialog.className = "artifact-fullscreen";
   dialog.dataset.artifactFullscreenDialog = "";
-  dialog.innerHTML = `
-    <div class="artifact-fullscreen__bar">
-      <p class="artifact-fullscreen__title" data-artifact-fullscreen-title></p>
-      <button class="artifact-fullscreen__close" type="button" data-artifact-fullscreen-close aria-label="закрыть полноэкранный просмотр">закрыть</button>
-    </div>
-    <div class="artifact-fullscreen__body" data-artifact-fullscreen-body></div>
-  `;
+
+  const bar = document.createElement("div");
+  bar.className = "artifact-fullscreen__bar";
+
+  const title = document.createElement("p");
+  title.className = "artifact-fullscreen__title";
+  title.dataset.artifactFullscreenTitle = "";
+
+  const close = document.createElement("button");
+  close.className = "artifact-fullscreen__close";
+  close.type = "button";
+  close.dataset.artifactFullscreenClose = "";
+  close.setAttribute("aria-label", "закрыть полноэкранный просмотр");
+  close.textContent = "закрыть";
+
+  const body = document.createElement("div");
+  body.className = "artifact-fullscreen__body";
+  body.dataset.artifactFullscreenBody = "";
+
+  bar.append(title, close);
+  dialog.append(bar, body);
   document.body.append(dialog);
 
   dialog.querySelector("[data-artifact-fullscreen-close]")?.addEventListener("click", () => dialog.close());

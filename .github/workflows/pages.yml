@@ -69,20 +69,26 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Verify visible repairs
+      - name: Verify HTML contract
         shell: bash
         run: |
           set -o pipefail
-          node scripts/visible-repairs-regression.mjs 2>&1 | tee visible-repairs-regression.log
+          npm run check:html 2>&1 | tee html-contract.log
 
-      - name: Upload visible repairs diagnostics
+      - name: Upload HTML contract diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: visible-repairs-regression-log
-          path: visible-repairs-regression.log
+          name: html-contract-log
+          path: html-contract.log
           if-no-files-found: error
           retention-days: 7
+
+      - name: Verify architecture budget
+        run: npm run check:architecture
+
+      - name: Verify DOM regression
+        run: node scripts/dom-regression.mjs
 
       - name: Stamp deployment
         run: |

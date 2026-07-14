@@ -8,8 +8,8 @@ const FORBIDDEN_PET_UI_SELECTOR = [
   ".fkeys",
 ].join(",");
 
-const PREVIEW_STYLE_ID = "portfolio-pet-preview-cleanup";
-const FRAME_STYLE_ID = "portfolio-pet-frame-cleanup";
+const FRAME_STYLESHEET_ID = "portfolio-pet-frame-cleanup";
+const FRAME_STYLESHEET_HREF = "/assets/pet-preview-cleanup.css";
 
 const USEFUL_PROJECTS = [
   {
@@ -38,11 +38,22 @@ const USEFUL_PROJECTS = [
   },
 ];
 
-const GITHUB_ICON = `
-  <svg aria-hidden="true" viewBox="0 0 24 24">
-    <path fill="currentColor" d="M12 .7a11.3 11.3 0 0 0-3.6 22c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.4-1.3-5.4-5.6 0-1.2.4-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.7.8 1.2 1.9 1.2 3.1 0 4.3-2.8 5.3-5.4 5.6.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.3 11.3 0 0 0 12 .7Z"/>
-  </svg>
-`;
+const SVG_NS = "http://www.w3.org/2000/svg";
+const GITHUB_ICON_PATH =
+  "M12 .7a11.3 11.3 0 0 0-3.6 22c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.4-1.3-5.4-5.6 0-1.2.4-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.7.8 1.2 1.9 1.2 3.1 0 4.3-2.8 5.3-5.4 5.6.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.3 11.3 0 0 0 12 .7Z";
+
+function createGithubIcon(root = document) {
+  const svg = root.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("viewBox", "0 0 24 24");
+
+  const path = root.createElementNS(SVG_NS, "path");
+  path.setAttribute("fill", "currentColor");
+  path.setAttribute("d", GITHUB_ICON_PATH);
+  svg.append(path);
+
+  return svg;
+}
 
 const TEXT_CORRECTIONS = [
   [/пет-проекты/giu, "полезное"],
@@ -202,8 +213,25 @@ function createGithubLink(project, root = document) {
   link.target = "_blank";
   link.rel = "noopener noreferrer";
   link.setAttribute("aria-label", `перейти на GitHub: ${project.title}`);
-  link.innerHTML = `${GITHUB_ICON}<span class="pet-projects-bento__github-label">перейти на github</span>`;
+
+  const label = root.createElement("span");
+  label.className = "pet-projects-bento__github-label";
+  label.textContent = "перейти на github";
+
+  link.append(createGithubIcon(root), label);
   return link;
+}
+
+function ensureFrameStylesheet(frameDocument) {
+  if (frameDocument.getElementById(FRAME_STYLESHEET_ID)) {
+    return;
+  }
+
+  const link = frameDocument.createElement("link");
+  link.id = FRAME_STYLESHEET_ID;
+  link.rel = "stylesheet";
+  link.href = FRAME_STYLESHEET_HREF;
+  frameDocument.head?.append(link);
 }
 
 function upgradeUsefulSection(root = document) {
@@ -291,251 +319,6 @@ function upgradeUsefulSection(root = document) {
   });
 }
 
-function ensurePreviewStyles() {
-  let style = document.getElementById(PREVIEW_STYLE_ID);
-  if (!style) {
-    style = document.createElement("style");
-    style.id = PREVIEW_STYLE_ID;
-    document.head.append(style);
-  }
-
-  style.textContent = `
-    #pet-projects .pet-projects-bento__head {
-      display: grid;
-      gap: clamp(0.55rem, 1.2vw, 0.9rem);
-    }
-
-    #pet-projects .pet-projects-bento__lead {
-      max-inline-size: 42rem;
-      margin: 0;
-      color: color-mix(in srgb, var(--black) 72%, transparent);
-      font-size: clamp(0.95rem, 1.25vw, 1.18rem);
-      line-height: 1.35;
-    }
-
-    #pet-projects .pet-projects-bento__card {
-      display: grid;
-      grid-template-rows: minmax(0, 1fr) auto;
-      aspect-ratio: 3 / 4;
-      background: color-mix(in srgb, var(--white) 96%, var(--black));
-    }
-
-    #pet-projects .pet-projects-bento__media {
-      position: relative;
-      inset: auto;
-      min-block-size: 0;
-      border-radius: 0;
-      overflow: hidden;
-    }
-
-    #pet-projects .pet-projects-bento__frame {
-      inline-size: 100% !important;
-      block-size: 100% !important;
-      transform: none !important;
-      pointer-events: none;
-    }
-
-    #pet-projects [data-interactive-preview] .pet-projects-bento__frame {
-      pointer-events: auto;
-    }
-
-    #pet-projects .pet-projects-bento__body {
-      position: relative;
-      z-index: 5;
-      display: grid;
-      gap: 0.45rem;
-      min-block-size: clamp(7.8rem, 10vw, 9.4rem);
-      border-block-start: 1px solid color-mix(in srgb, var(--black) 16%, transparent);
-      padding: clamp(0.85rem, 1.5vw, 1.15rem);
-      background: color-mix(in srgb, var(--white) 96%, var(--black));
-    }
-
-    #pet-projects .pet-projects-bento__body h3 {
-      margin: 0;
-      font-size: clamp(0.92rem, 1.1vw, 1.08rem);
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: -0.015em;
-    }
-
-    #pet-projects .pet-projects-bento__body h3 a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    #pet-projects .pet-projects-bento__body p {
-      margin: 0;
-      color: color-mix(in srgb, var(--black) 70%, transparent);
-      font-size: clamp(0.76rem, 0.88vw, 0.88rem);
-      line-height: 1.35;
-    }
-
-    #pet-projects .pet-projects-bento__actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.55rem;
-      margin-block-start: auto;
-      padding-block-start: 0.25rem;
-    }
-
-    #pet-projects .pet-projects-bento__visit,
-    #pet-projects .pet-projects-bento__github {
-      position: static;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.42rem;
-      min-block-size: 2.2rem;
-      border: 1px solid color-mix(in srgb, var(--black) 20%, transparent);
-      border-radius: 999px;
-      padding: 0.48rem 0.75rem;
-      background: var(--white);
-      color: var(--black);
-      font: inherit;
-      font-size: 0.74rem;
-      font-weight: 650;
-      line-height: 1;
-      text-decoration: none;
-      white-space: nowrap;
-      cursor: pointer;
-      box-shadow: none;
-      transition: background-color 160ms var(--ease-standard), color 160ms var(--ease-standard), transform 160ms var(--ease-standard);
-    }
-
-    #pet-projects .pet-projects-bento__visit::after {
-      content: "↗";
-      position: static;
-      display: inline;
-      inline-size: auto;
-      block-size: auto;
-      border: 0;
-      background: transparent;
-      color: currentColor;
-      font-size: 0.9rem;
-      opacity: 1;
-      transform: none;
-      box-shadow: none;
-    }
-
-    #pet-projects .pet-projects-bento__visit:hover,
-    #pet-projects .pet-projects-bento__visit:focus-visible,
-    #pet-projects .pet-projects-bento__github:hover,
-    #pet-projects .pet-projects-bento__github:focus-visible {
-      background: var(--black);
-      color: var(--white);
-      outline: 0;
-      transform: translateY(-1px);
-    }
-
-    #pet-projects .pet-projects-bento__github svg {
-      inline-size: 1rem;
-      block-size: 1rem;
-      flex: 0 0 auto;
-    }
-
-    #pet-projects .pet-projects-bento__media-open {
-      position: absolute;
-      z-index: 3;
-      inset: 0;
-      inline-size: 100%;
-      block-size: 100%;
-      border: 0;
-      padding: 0;
-      background: transparent;
-      color: var(--black);
-      cursor: zoom-in;
-    }
-
-    #pet-projects .pet-projects-bento__media-open::after {
-      content: "↗";
-      position: absolute;
-      inset-block-start: 0.65rem;
-      inset-inline-end: 0.65rem;
-      display: grid;
-      place-items: center;
-      inline-size: 2.25rem;
-      block-size: 2.25rem;
-      border: 1px solid color-mix(in srgb, var(--black) 20%, transparent);
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--white) 90%, transparent);
-      color: var(--black);
-      font-size: 0.95rem;
-      box-shadow: 0 0.3rem 0.9rem rgba(0, 0, 0, 0.1);
-      -webkit-backdrop-filter: blur(0.5rem);
-      backdrop-filter: blur(0.5rem);
-      transition: background-color 160ms var(--ease-standard), color 160ms var(--ease-standard), transform 160ms var(--ease-standard);
-    }
-
-    #pet-projects .pet-projects-bento__media-open:hover::after,
-    #pet-projects .pet-projects-bento__media-open:focus-visible::after {
-      background: var(--black);
-      color: var(--white);
-      transform: scale(1.04);
-    }
-
-    #pet-projects .pet-projects-bento__media-open:focus-visible {
-      outline: 3px solid var(--black);
-      outline-offset: -3px;
-    }
-
-    #pet-projects .pet-projects-bento__game-hint {
-      position: absolute;
-      z-index: 2;
-      inset-inline-start: 0.65rem;
-      inset-block-end: 0.65rem;
-      display: inline-flex;
-      align-items: center;
-      min-block-size: 2rem;
-      border: 1px solid color-mix(in srgb, var(--black) 20%, transparent);
-      border-radius: 999px;
-      padding: 0.4rem 0.65rem;
-      background: color-mix(in srgb, var(--white) 90%, transparent);
-      color: var(--black);
-      font-size: 0.7rem;
-      font-weight: 650;
-      line-height: 1;
-      pointer-events: none;
-      -webkit-backdrop-filter: blur(0.5rem);
-      backdrop-filter: blur(0.5rem);
-    }
-
-    @media (max-width: 44rem) {
-      #pet-projects .pet-projects-bento__card {
-        aspect-ratio: auto;
-        block-size: clamp(38rem, 82svh, 46rem);
-      }
-
-      #pet-projects .pet-projects-bento__body {
-        min-block-size: 9.5rem;
-        padding: 0.85rem;
-      }
-
-      #pet-projects .pet-projects-bento__github {
-        inline-size: 2.35rem;
-        padding-inline: 0;
-      }
-
-      #pet-projects .pet-projects-bento__github-label {
-        position: absolute;
-        inline-size: 1px;
-        block-size: 1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-        white-space: nowrap;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      #pet-projects .pet-projects-bento__visit,
-      #pet-projects .pet-projects-bento__github,
-      #pet-projects .pet-projects-bento__media-open::after {
-        transition: none;
-      }
-    }
-  `;
-}
-
 function cleanFrameDocument(frame) {
   let frameDocument;
 
@@ -554,105 +337,18 @@ function cleanFrameDocument(frame) {
 
   const isPreview = frame.classList.contains("pet-projects-bento__frame");
   const isAwfulCases = frame.src.includes("/pets/awful-cases/");
+  const isAwfulAudit = frame.src.includes("/pets/awful-audit/");
+
+  frameDocument.documentElement.classList.toggle("is-pet-preview-frame", isPreview);
+  frameDocument.documentElement.classList.toggle("is-awful-cases-frame", isAwfulCases);
+  frameDocument.documentElement.classList.toggle("is-awful-audit-frame", isAwfulAudit);
+  ensureFrameStylesheet(frameDocument);
 
   if (isAwfulCases) {
     frameDocument
       .querySelectorAll('.command-row[aria-label="Project links"]')
       .forEach((node) => node.remove());
   }
-
-  let style = frameDocument.getElementById(FRAME_STYLE_ID);
-  if (!style) {
-    style = frameDocument.createElement("style");
-    style.id = FRAME_STYLE_ID;
-    frameDocument.head?.append(style);
-  }
-
-  const previewRules = isPreview
-    ? `
-      :root {
-        --page: 100% !important;
-      }
-
-      html,
-      body {
-        inline-size: 100% !important;
-        min-inline-size: 0 !important;
-        overflow-x: hidden !important;
-      }
-
-      .page,
-      .desktop {
-        inline-size: 100% !important;
-        max-inline-size: none !important;
-        margin-inline: 0 !important;
-      }
-    `
-    : "";
-
-  const awfulCasesPreviewRules = isPreview && isAwfulCases
-    ? `
-      html,
-      body {
-        block-size: 100% !important;
-        min-block-size: 100% !important;
-        overflow: hidden !important;
-        background: #007a7a !important;
-      }
-
-      .desktop {
-        display: block !important;
-        block-size: 100% !important;
-        min-block-size: 100% !important;
-        padding: 0 !important;
-      }
-
-      .desktop > :not(.window--runner) {
-        display: none !important;
-      }
-
-      .window--runner {
-        display: block !important;
-        inline-size: 100% !important;
-        max-inline-size: none !important;
-        block-size: 100% !important;
-        border: 0 !important;
-        box-shadow: none !important;
-      }
-
-      .window--runner > .titlebar,
-      .window--runner > .menubar {
-        display: none !important;
-      }
-
-      .window--runner > .client {
-        inline-size: 100% !important;
-        block-size: 100% !important;
-        min-block-size: 100% !important;
-        padding: 0 !important;
-      }
-
-      .runner-shell,
-      .runner-frame {
-        inline-size: 100% !important;
-        block-size: 100% !important;
-        height: 100% !important;
-        min-block-size: 100% !important;
-        border: 0 !important;
-      }
-    `
-    : "";
-
-  style.textContent = `
-    ${FORBIDDEN_PET_UI_SELECTOR},
-    .command-row[aria-label="Project links"] {
-      display: none !important;
-    }
-
-    ${frame.src.includes("/pets/awful-audit/") ? ".page { padding-bottom: var(--page-pad) !important; }" : ""}
-    ${previewRules}
-    ${awfulCasesPreviewRules}
-  `;
 
   if (isPreview && isAwfulCases) {
     const runnerFrame = frameDocument.querySelector(".runner-frame");
@@ -679,34 +375,14 @@ function scanFrames(root = document) {
   root.querySelectorAll?.(PREVIEW_FRAME_SELECTOR).forEach(prepareFrame);
 }
 
-ensurePreviewStyles();
 ensureDesktopResumeLink(document);
 retargetUsefulLinks(document);
 applyTextCorrections(document);
 upgradeUsefulSection(document);
 scanFrames();
 
-const observer = new MutationObserver((mutations) => {
-  for (const mutation of mutations) {
-    for (const node of mutation.addedNodes) {
-      if (!(node instanceof Element)) {
-        continue;
-      }
-
-      applyTextCorrections(node);
-      retargetUsefulLinks(document);
-      upgradeUsefulSection(document);
-
-      if (node.matches(PREVIEW_FRAME_SELECTOR)) {
-        prepareFrame(node);
-      }
-
-      scanFrames(node);
-    }
+document.addEventListener("portfolio:pet-preview-added", (event) => {
+  if (event.target instanceof Element && event.target.matches(PREVIEW_FRAME_SELECTOR)) {
+    prepareFrame(event.target);
   }
-});
-
-observer.observe(document.documentElement, {
-  childList: true,
-  subtree: true,
 });

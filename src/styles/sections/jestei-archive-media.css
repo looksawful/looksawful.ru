@@ -303,7 +303,7 @@ main[data-showcase] #jestei-product-archive + #jestei-graphics {
   }
 
   main[data-showcase] #jestei-results .jestei-bento__audience-avatar {
-    inline-size: clamp(5.2rem, 7.2vw, 8.6rem) !important;
+    inline-size: clamp(5.2rem, 7.2vw, 8.6rem);
   }
 }
 

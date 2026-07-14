@@ -1,5 +1,8 @@
 const PLAYLIST_FILTER_READY_ATTR = "playlistFilterReady";
 
+const createHtmlFragment = (html, doc = document) =>
+  doc.createRange().createContextualFragment(html);
+
 const initPlaylistFilterRoot = (embedRoot) => {
   if (!(embedRoot instanceof HTMLElement) || embedRoot.dataset[PLAYLIST_FILTER_READY_ATTR] === "true") {
     return;
@@ -812,7 +815,7 @@ const initPlaylistFilterRoot = (embedRoot) => {
   function render() {
     const app = root();
     app.className = "jp-filter" + (state.open ? " is-open" : "") + (state.advanced ? " is-advanced" : "");
-    app.innerHTML = renderTop() + renderBody() + renderContains() + renderKeyModal();
+    app.replaceChildren(createHtmlFragment(renderTop() + renderBody() + renderContains() + renderKeyModal(), app.ownerDocument));
     bind();
     applyKeyActiveState();
     updateSliderCss();
@@ -1774,7 +1777,7 @@ const initPlaylistFilterRoot = (embedRoot) => {
     const resizeStage = () => {
       const width = stage.clientWidth;
       const pad = width < 540 ? 14 : width < 900 ? 20 : 28;
-      const available = Math.max(280, width - pad * 2);
+      const available = Math.max(1, width - pad * 2);
       const scale = Math.min(1, available / FILTER_WIDTH);
       const scaledHeight = presentationNaturalHeight * scale;
       const minimumHeight = Math.max(280, Math.min(560, width * 0.36));

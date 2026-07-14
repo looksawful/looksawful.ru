@@ -23,7 +23,8 @@
 }
 
 .styx-scanography [data-section-title-accent] {
-  display: none;
+  display: inline;
+  color: color-mix(in srgb, var(--black) 62%, var(--white));
 }
 
 .styx-scanography [data-scanography-videos] {
@@ -31,14 +32,17 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(10px, 1.6vw, 18px);
   inline-size: 100%;
+  align-items: stretch;
 }
 
 .styx-scanography [data-scanography-videos] > [data-section-media-item] {
   position: relative;
   display: block;
   inline-size: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 5;
   min-inline-size: 0;
+  border: var(--line);
+  border-radius: clamp(0.85rem, 1.25vw, 1.25rem);
   background: var(--black);
   overflow: hidden;
 }
@@ -49,7 +53,7 @@
   display: block;
   inline-size: 100%;
   block-size: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   pointer-events: none;
 }
@@ -99,7 +103,7 @@
 
   .styx-scanography [data-scanography-videos] > [data-section-media-item] {
     inline-size: 100%;
-    aspect-ratio: 1;
+    aspect-ratio: 4 / 5;
     min-inline-size: 0;
   }
 

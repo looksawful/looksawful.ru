@@ -76,36 +76,54 @@ main[data-showcase] [data-section-family="styx"][data-section-chapter] [data-med
 main[data-showcase] #styx-graphics [data-chapter-head],
 main[data-showcase] #styx-print [data-chapter-head],
 main[data-showcase] #styx-photo-art [data-chapter-head] {
-  grid-template-columns: minmax(0, 0.72fr) minmax(20rem, 0.62fr);
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(1rem, 2vw, 1.8rem);
 }
 
 main[data-showcase] #styx-graphics [data-section-title],
 main[data-showcase] #styx-print [data-section-title],
 main[data-showcase] #styx-photo-art [data-section-title] {
-  grid-column: 1 / 2;
-  max-inline-size: min(100%, 11ch);
+  grid-column: 1;
+  max-inline-size: min(100%, 16ch);
+  line-height: 0.98;
+  letter-spacing: 0;
 }
 
 main[data-showcase] #styx-graphics [data-section-title] {
-  max-inline-size: min(100%, 17ch);
-  font-size: clamp(2.65rem, 4.75vw, 5.35rem);
+  max-inline-size: min(100%, 16ch);
+  font-size: clamp(2.45rem, 4.4vw, 4.75rem);
   overflow-wrap: normal;
   word-break: normal;
 }
 
 main[data-showcase] #styx-graphics [data-section-media] {
-  grid-column: 1 / -1;
-  justify-self: center;
-  inline-size: min(100%, 64rem);
+  grid-column: 1;
+  justify-self: stretch;
+  inline-size: min(100%, 68rem);
+  min-block-size: clamp(22rem, 42vw, 36rem);
+  overflow: hidden;
+  border: var(--line);
+  border-radius: var(--case-radius-l, 1.5rem);
+  background: var(--black);
+}
+
+main[data-showcase] #styx-graphics [data-section-media] canvas,
+main[data-showcase] #styx-print [data-animation="horizontal"] canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: inherit;
+  background: var(--black);
 }
 
 main[data-showcase] #styx-graphics [data-section-lead],
 main[data-showcase] #styx-print [data-section-lead],
 main[data-showcase] #styx-photo-art [data-section-lead] {
-  grid-column: 2 / 3;
+  grid-column: 1;
   align-self: end;
-  justify-self: end;
+  justify-self: start;
+  max-inline-size: min(100%, 44rem);
 }
 
 main[data-showcase] #styx-print [data-section-body],
@@ -114,13 +132,18 @@ main[data-showcase] #styx-photo-art [data-section-body] {
 }
 
 main[data-showcase] #styx-print [data-animation="horizontal"] {
-  inline-size: min(100%, 58rem);
+  inline-size: min(100%, 68rem);
+  min-block-size: clamp(18rem, 32vw, 28rem);
+  overflow: hidden;
+  border: var(--line);
+  border-radius: var(--case-radius-l, 1.5rem);
+  background: var(--black);
 }
 
 main[data-showcase] #styx-photo-art [aria-label="styx photo production banner"] {
-  justify-self: start;
-  inline-size: min(100%, 46rem);
-  margin-inline-start: clamp(0rem, 4vw, 4rem);
+  justify-self: center;
+  inline-size: min(100%, 58rem);
+  margin-inline-start: 0;
 }
 
 main[data-showcase] #styx-photo-art [aria-label="styx photo production gallery"] {
@@ -129,14 +152,16 @@ main[data-showcase] #styx-photo-art [aria-label="styx photo production gallery"]
 }
 
 main[data-showcase] #styx-scanography [data-chapter-head] {
-  grid-template-columns: minmax(0, 0.95fr) minmax(24rem, 0.78fr);
-  align-items: end;
+  grid-template-columns: minmax(22rem, 0.9fr) minmax(28rem, 1.1fr);
+  align-items: start;
+  gap: clamp(1.25rem, 3vw, 3rem);
 }
 
 main[data-showcase] #styx-scanography [data-section-title] {
   grid-column: 1 / 2;
-  max-inline-size: min(100%, 20ch);
-  font-size: clamp(2.45rem, 4.7vw, 5.15rem);
+  max-inline-size: min(100%, 18ch);
+  font-size: clamp(2.2rem, 4.2vw, 4.6rem);
+  line-height: 1;
 }
 
 main[data-showcase] #styx-scanography [data-section-title-main] {
@@ -145,18 +170,19 @@ main[data-showcase] #styx-scanography [data-section-title-main] {
 
 main[data-showcase] #styx-scanography [data-section-lead] {
   grid-column: 1 / 2;
-  max-inline-size: min(100%, 45rem);
+  max-inline-size: min(100%, 38rem);
 }
 
 main[data-showcase] #styx-scanography [data-scanography-videos] {
   grid-column: 2 / 3;
   grid-row: 1 / span 2;
-  align-self: end;
+  align-self: stretch;
+  justify-self: stretch;
 }
 
 main[data-showcase] #styx-scanography .styx-scanography__body {
-  grid-template-columns: minmax(20rem, 0.44fr) minmax(0, 0.56fr);
-  gap: clamp(2rem, 4vw, 4.5rem);
+  grid-template-columns: minmax(22rem, 0.42fr) minmax(0, 0.58fr);
+  gap: clamp(1.5rem, 3.4vw, 3.8rem);
   align-items: start;
 }
 
