@@ -69,10 +69,10 @@ function repairJesteiProcess(root = document) {
   if (!card) return;
 
   const scene = card.querySelector("#jestei-process-scene");
-  const isHealthy =
-    scene &&
-    scene.dataset.processState !== "error" &&
-    Number(scene.dataset.processFrame || 0) > 1;
+  const state = scene?.dataset.processState || "";
+  const isHealthy = Boolean(
+    scene && ["ready", "running", "paused", "static"].includes(state),
+  );
 
   if (card === processCard && isHealthy) return;
 
