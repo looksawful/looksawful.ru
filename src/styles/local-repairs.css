@@ -1,0 +1,308 @@
+/* Scoped repairs for currently published sections only. No global layout rules. */
+
+/* Keep the logo inspector frame fully visible without changing its dimensions. */
+main[data-showcase] #jestei-logo :is(.logo-inspector-grid-3d, .logo-inspector-fit-3d) {
+  box-sizing: border-box;
+  border: 0;
+  outline: 1px solid #050505;
+  outline-offset: -1px;
+}
+
+/* Match the color chapter to the standard case-study guides. */
+main[data-showcase] #jestei-color .jestei-color-bento {
+  box-sizing: border-box;
+  inline-size: min(
+    calc(
+      100% - var(--page-x, 1.5rem) - var(--page-x, 1.5rem)
+    ),
+    var(--case-wide, 90rem)
+  );
+  margin-inline: auto;
+}
+
+/* The audience scheme is a standalone framed media object. */
+#jestei-audience-map .jestei-audience-map__figure {
+  box-sizing: border-box;
+  border: var(--line, 1px solid #111);
+}
+
+/* Restore breathing room between the Jestei cover and the results bento. */
+#jestei-results .jestei-bento__heading {
+  padding-block-start: clamp(3.5rem, 7vw, 7rem);
+}
+
+/* Local heading scales: keep long chapter names readable instead of forcing 7rem text. */
+#jestei-tariffs {
+  --section-local-title: clamp(2.75rem, 5vw, 5.5rem);
+}
+
+#jestei-filter {
+  --section-local-title: clamp(2.6rem, 4.7vw, 5.1rem);
+}
+
+#jestei-event-nav {
+  --section-local-title: clamp(2.5rem, 4.5vw, 4.9rem);
+}
+
+:is(#jestei-tariffs, #jestei-filter, #jestei-event-nav)
+  [data-chapter-head]
+  > [data-section-title] {
+  inline-size: min(100%, 15ch);
+  max-inline-size: 15ch;
+  margin: 0;
+  font-size: var(--section-local-title);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  white-space: normal;
+  text-wrap: balance;
+}
+
+/* Make the existing tariff comparison canvas usable at every width. */
+#jestei-tariffs [data-animation="before-after"] {
+  inline-size: min(100%, 72rem);
+  max-inline-size: 100%;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+#jestei-tariffs [data-animation="before-after"] canvas {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  block-size: auto;
+  aspect-ratio: 16 / 9;
+  cursor: ew-resize;
+}
+
+/* Jestei graphic design: readable paragraph measure and a title that may wrap. */
+#jestei-graphics .jestei-graphics__title {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 13ch;
+  white-space: normal;
+  text-wrap: balance;
+}
+
+#jestei-graphics [data-content-head] {
+  grid-template-columns: minmax(15rem, 0.9fr) minmax(22rem, 1.1fr);
+  column-gap: clamp(2rem, 5vw, 6rem);
+  align-items: start;
+}
+
+#jestei-graphics .jestei-graphics__lead,
+#jestei-graphics [data-content-head] > p {
+  max-inline-size: 46rem;
+  font-size: clamp(1.0625rem, 1.2vw, 1.25rem);
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+
+/* Styx chapter heads: title and copy share one left guide. */
+:is(#styx-graphics, #styx-print, #styx-photo-art) [data-chapter-head] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.25rem, 2.5vw, 2.5rem);
+  align-items: start;
+}
+
+:is(#styx-graphics, #styx-print, #styx-photo-art)
+  [data-chapter-head]
+  > :is([data-section-title], [data-section-lead]) {
+  grid-column: 1;
+  justify-self: start;
+  inline-size: min(100%, 58rem);
+  max-inline-size: 58rem;
+  margin-inline: 0;
+}
+
+:is(#styx-graphics, #styx-print, #styx-photo-art, #styx-scanography)
+  [data-chapter-head]
+  > [data-section-title] {
+  font-size: clamp(2.75rem, 4.8vw, 5.25rem);
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  text-wrap: balance;
+}
+
+:is(#styx-graphics, #styx-print, #styx-photo-art)
+  [data-chapter-head]
+  > [data-section-lead] {
+  font-size: clamp(1.0625rem, 1.15vw, 1.25rem);
+  line-height: 1.55;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+
+/* Undo only stale slider visibility on the four affected Styx chapters. */
+:is(#styx-graphics, #styx-print, #styx-photo-art, #styx-scanography)
+  > [data-section-screen],
+:is(#styx-graphics, #styx-print, #styx-photo-art, #styx-scanography)
+  [data-section-body] {
+  visibility: visible;
+  opacity: 1;
+}
+
+#styx-graphics [data-section-body],
+#styx-print [data-section-body],
+#styx-photo-art [data-section-body] {
+  display: grid;
+  min-inline-size: 0;
+}
+
+#styx-graphics [data-section-media],
+#styx-graphics [data-media-gallery],
+#styx-print [data-animation="horizontal"] {
+  display: block;
+  inline-size: min(100%, 64rem);
+  max-inline-size: 100%;
+  margin-inline: auto;
+  visibility: visible;
+  opacity: 1;
+}
+
+#styx-print [data-animation="horizontal"] {
+  min-block-size: clamp(22rem, 48vw, 42rem);
+}
+
+#styx-print [data-animation="horizontal"] canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: inherit;
+}
+
+/* Styx photo/art: banner and gallery use one width and one center line. */
+#styx-photo-art :is(
+  [data-styx-photo-banner],
+  [data-styx-photo-gallery],
+  [aria-label="styx photo production banner"],
+  [aria-label="styx photo production gallery"]
+) {
+  inline-size: min(100%, 58rem);
+  max-inline-size: 100%;
+  margin-inline: auto;
+}
+
+#styx-photo-art :is(
+  [data-styx-photo-banner],
+  [aria-label="styx photo production banner"]
+) {
+  justify-self: center;
+}
+
+/* Scanography: videos belong below the title, not in a narrow side column. */
+#styx-scanography [data-chapter-head] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+}
+
+#styx-scanography [data-chapter-head] > :is([data-section-title], [data-section-lead]) {
+  grid-column: 1;
+  grid-row: auto;
+  justify-self: start;
+  inline-size: min(100%, 58rem);
+  max-inline-size: 58rem;
+  margin: 0;
+}
+
+#styx-scanography [data-section-title],
+#styx-scanography [data-section-title-main] {
+  white-space: normal;
+}
+
+#styx-scanography [data-scanography-videos] {
+  grid-column: 1;
+  grid-row: auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  inline-size: min(100%, 72rem);
+  max-inline-size: 100%;
+  margin-inline: auto;
+  justify-self: center;
+}
+
+#styx-scanography [data-scanography-videos] > [data-section-media-item] {
+  min-inline-size: 0;
+  aspect-ratio: 1;
+}
+
+#styx-scanography [data-scanography-videos] video {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+#styx-scanography [data-section-body] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  min-inline-size: 0;
+}
+
+#styx-scanography [data-section-body] > * {
+  grid-column: 1;
+  min-inline-size: 0;
+}
+
+@media (max-width: 64rem) {
+  #jestei-graphics [data-content-head] {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+
+  #jestei-graphics .jestei-graphics__lead,
+  #jestei-graphics [data-content-head] > p {
+    max-inline-size: 42rem;
+  }
+}
+
+@media (max-width: 48rem) {
+  main[data-showcase] #jestei-color .jestei-color-bento {
+    inline-size: calc(
+      100% - var(--page-x, 1rem) - var(--page-x, 1rem)
+    );
+  }
+
+  #jestei-results .jestei-bento__heading {
+    padding-block-start: clamp(2.25rem, 9vw, 3.75rem);
+  }
+
+  :is(#jestei-tariffs, #jestei-filter, #jestei-event-nav)
+    [data-chapter-head]
+    > [data-section-title] {
+    inline-size: 100%;
+    max-inline-size: 12ch;
+    font-size: clamp(2.15rem, 10vw, 3.35rem);
+  }
+
+  #jestei-tariffs [data-animation="before-after"],
+  #jestei-tariffs [data-animation="before-after"] canvas {
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow: hidden;
+  }
+
+  :is(#styx-graphics, #styx-print, #styx-photo-art, #styx-scanography)
+    [data-chapter-head]
+    > [data-section-title] {
+    font-size: clamp(2.2rem, 10vw, 3.5rem);
+    letter-spacing: -0.035em;
+  }
+
+  #styx-scanography [data-scanography-videos] {
+    gap: clamp(0.5rem, 2vw, 0.75rem);
+  }
+}

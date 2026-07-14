@@ -11,7 +11,7 @@ import {
 
 const LOGO_MODEL_URL = logoModelUrl;
 const MIN_RENDER_SIZE = 64;
-const MAX_RENDER_SIZE = 320;
+const MAX_RENDER_SIZE = 768;
 
 function prepareMesh(child, renderer, materials) {
   if (!child.isMesh) {
@@ -142,7 +142,7 @@ export function mountJesteiLogoThree(canvas) {
       maxHeight: MAX_RENDER_SIZE,
       fallbackWidth: MIN_RENDER_SIZE,
       fallbackHeight: MIN_RENDER_SIZE,
-      maxPixelRatio: 2,
+      maxPixelRatio: 2.25,
     });
   };
 

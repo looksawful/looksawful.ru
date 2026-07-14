@@ -1,0 +1,162 @@
+import { initShowcaseBeforeAfter } from "./visuals/canvas/before-after/index.js";
+import { mountJesteiProcessScene } from "./visuals/dom/jestei-process-scene-live.js";
+import { mountJesteiProcessLayout } from "./visuals/dom/jestei-process-layout.js";
+
+const DELAYS = [0, 120, 600, 1600, 3600, 6500];
+const STYX_IDS = ["styx-graphics", "styx-print", "styx-photo-art", "styx-scanography"];
+let processRemounted = false;
+let queued = false;
+
+const normalize = (value) =>
+  String(value || "").replace(/\s+/gu, " ").trim().toLocaleLowerCase("ru");
+
+function preferredDpr() {
+  const memory = Number(navigator.deviceMemory) || 8;
+  const cores = Number(navigator.hardwareConcurrency) || 8;
+  const cap = memory >= 8 && cores >= 8 ? 2.25 : memory >= 4 && cores >= 4 ? 2 : 1.5;
+  return Math.max(1, Math.min(Number(window.devicePixelRatio) || 1, cap));
+}
+
+function applyCanvasQuality(root = document) {
+  const dpr = preferredDpr();
+  root.querySelectorAll("[data-animation] canvas").forEach((canvas) => {
+    if ((Number(canvas.dataset.animationDpr) || 0) < dpr) {
+      canvas.dataset.animationDpr = String(dpr);
+    }
+  });
+}
+
+function repairTariffs(root = document) {
+  const section = root.getElementById("jestei-tariffs");
+  if (!section) return;
+
+  const title =
+    section.querySelector("[data-chapter-head] [data-section-title]") ||
+    section.querySelector("[data-section-title]");
+
+  if (title) {
+    const main = title.querySelector("[data-section-title-main]");
+    const accent = title.querySelector("[data-section-title-accent]");
+    if (main && accent) {
+      main.textContent = "пересобрали";
+      accent.textContent = "тарифные сценарии";
+    } else if (normalize(title.textContent) !== "пересобрали тарифные сценарии") {
+      title.textContent = "пересобрали тарифные сценарии";
+    }
+    title.setAttribute("aria-label", "пересобрали тарифные сценарии");
+  }
+
+  applyCanvasQuality(section);
+  if (section.querySelector('[data-animation="before-after"] canvas')) {
+    initShowcaseBeforeAfter(section);
+  }
+}
+
+function removeShootingsHeading(root = document) {
+  const section = root.getElementById("shootings");
+  if (!section) return;
+  section.querySelectorAll("h1, h2, h3, [data-section-title]").forEach((heading) => {
+    const text = normalize(heading.textContent);
+    if (text === "творческие съёмки" || text === "творческие съемки") heading.remove();
+  });
+}
+
+function reveal(element) {
+  if (!element) return;
+  element.hidden = false;
+  element.removeAttribute("aria-hidden");
+  element.removeAttribute("data-homepage-hidden");
+  if (element.style.display === "none") element.style.removeProperty("display");
+  if (element.style.visibility === "hidden") element.style.removeProperty("visibility");
+  if (element.style.opacity === "0") element.style.removeProperty("opacity");
+}
+
+function repairStyx(root = document) {
+  STYX_IDS.forEach((id) => {
+    const section = root.getElementById(id);
+    if (!section) return;
+    reveal(section);
+    section
+      .querySelectorAll(
+        "[data-section-screen], [data-chapter-head], [data-section-body], [data-section-media], [data-media-gallery], [data-animation], [data-scanography-videos]",
+      )
+      .forEach(reveal);
+  });
+
+  root.querySelectorAll("#styx-scanography [data-scanography-videos] video").forEach((video) => {
+    Object.assign(video, {
+      autoplay: true,
+      loop: true,
+      muted: true,
+      defaultMuted: true,
+      volume: 0,
+      playsInline: true,
+      preload: "auto",
+    });
+    ["autoplay", "loop", "muted", "playsinline", "webkit-playsinline"].forEach((name) =>
+      video.setAttribute(name, ""),
+    );
+    video.setAttribute("preload", "auto");
+    if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
+    video.play()?.catch?.(() => {});
+  });
+}
+
+function remountProcess(root = document) {
+  if (processRemounted) return;
+  const card = root.querySelector("#jestei-results .jestei-bento__card--manual");
+  if (!card) return;
+  processRemounted = true;
+  delete card.dataset.processLayoutMounted;
+  mountJesteiProcessScene(root);
+  requestAnimationFrame(() => {
+    delete card.dataset.processLayoutMounted;
+    mountJesteiProcessLayout(root);
+  });
+}
+
+function apply(root = document) {
+  applyCanvasQuality(root);
+  repairTariffs(root);
+  removeShootingsHeading(root);
+  repairStyx(root);
+}
+
+function queueApply() {
+  if (queued) return;
+  queued = true;
+  queueMicrotask(() => {
+    queued = false;
+    apply(document);
+  });
+}
+
+function start() {
+  DELAYS.forEach((delay) =>
+    window.setTimeout(() => {
+      apply(document);
+      if (delay >= 1600) remountProcess(document);
+    }, delay),
+  );
+  window.addEventListener("load", queueApply, { once: true });
+  window.addEventListener("pageshow", queueApply);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) repairStyx(document);
+  });
+
+  const main = document.getElementById("main");
+  if (!main) return;
+  const observer = new MutationObserver(queueApply);
+  observer.observe(main, { childList: true, subtree: true });
+  window.setTimeout(() => {
+    observer.disconnect();
+    apply(document);
+    remountProcess(document);
+  }, 8000);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", start, { once: true });
+} else {
+  start();
+}
