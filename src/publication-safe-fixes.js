@@ -44,7 +44,6 @@ const PUBLIC_SECTION_ORDER = [
 ];
 
 const VISUAL_SYSTEM_SECTION_IDS = new Set([
-  "jestei-results",
   "jestei-interface-bento",
   "jestei-words",
   "jestei-color",
@@ -64,6 +63,8 @@ const VISUAL_SYSTEM_SECTION_IDS = new Set([
   "pet-projects",
   "resume",
 ]);
+
+const VISUAL_SYSTEM_EXCLUDED_SECTION_IDS = new Set(["jestei-results"]);
 
 function setExactText(element, text) {
   if (!element || element.textContent.trim() === text) {
@@ -195,6 +196,10 @@ function applyPublicSectionOrder(root = document) {
 }
 
 function applyVisualSystemMarkers(root = document) {
+  VISUAL_SYSTEM_EXCLUDED_SECTION_IDS.forEach((sectionId) => {
+    root.getElementById?.(sectionId)?.removeAttribute("data-visual-system");
+  });
+
   VISUAL_SYSTEM_SECTION_IDS.forEach((sectionId) => {
     const section = root.getElementById?.(sectionId);
     if (!section || section.getAttribute("data-visual-system") === "v2") {
@@ -326,6 +331,7 @@ function startPublicationSafeFixes() {
       "hidden",
       "aria-hidden",
       "data-homepage-hidden",
+      "data-visual-system",
     ],
   });
 
