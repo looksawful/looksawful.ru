@@ -2,6 +2,7 @@ import { initShowcaseBeforeAfter } from "./visuals/canvas/before-after/index.js"
 
 const DELAYS = [0, 120, 600, 1600, 3600, 6500];
 const STYX_IDS = ["styx-graphics", "styx-print", "styx-photo-art", "styx-scanography"];
+const FAVICON_HREF = "/awfulface-favicon.svg";
 let tariffsMounted = false;
 
 const normalize = (value) =>
@@ -21,6 +22,42 @@ function applyCanvasQuality(root = document) {
       canvas.dataset.animationDpr = String(dpr);
     }
   });
+}
+
+function ensureAwfulfaceFavicon(root = document) {
+  const doc = root.nodeType === 9 ? root : root.ownerDocument || document;
+  let icon = doc.head?.querySelector('link[rel~="icon"]');
+
+  if (!icon) {
+    icon = doc.createElement("link");
+    icon.rel = "icon";
+    doc.head?.append(icon);
+  }
+
+  if (icon.getAttribute("href") !== FAVICON_HREF) {
+    icon.setAttribute("href", FAVICON_HREF);
+  }
+  icon.setAttribute("type", "image/svg+xml");
+}
+
+function repairJesteiProductTitle(root = document) {
+  const title = root.querySelector(
+    '#jestei-results [data-bento-card="products"] .jestei-bento__title',
+  );
+  if (!title) return;
+
+  const expected = "расширили продуктовую линейку";
+  if (normalize(title.textContent) !== expected) {
+    title.textContent = expected;
+  }
+}
+
+function placeJesteiWordsAfterBranding(root = document) {
+  const words = root.getElementById?.("jestei-words");
+  const anchor = root.getElementById?.("jestei-color") || root.getElementById?.("jestei-logo");
+  if (!words || !anchor || anchor.nextElementSibling === words) return;
+
+  anchor.insertAdjacentElement("afterend", words);
 }
 
 function repairTariffs(root = document) {
@@ -101,7 +138,10 @@ function repairStyx(root = document) {
 }
 
 function apply(root = document) {
+  ensureAwfulfaceFavicon(root);
   applyCanvasQuality(root);
+  repairJesteiProductTitle(root);
+  placeJesteiWordsAfterBranding(root);
   repairTariffs(root);
   removeShootingsHeading(root);
   repairStyx(root);
