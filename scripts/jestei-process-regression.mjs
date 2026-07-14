@@ -70,6 +70,20 @@ function isAllowedConsoleError(text) {
   return allowedConsoleFragments.some((fragment) => text.includes(fragment));
 }
 
+async function sampleScene(page) {
+  return page.evaluate(() => {
+    const scene = document.querySelector("#jestei-process-scene");
+    const reveals = [...(scene?.querySelectorAll("[data-process-reveal]") || [])];
+    return {
+      frame: Number(scene?.dataset.processFrame || 0),
+      revealCount: reveals.length,
+      signature: reveals
+        .map((reveal) => `${reveal.getAttribute("data-process-reveal")}:${reveal.style.strokeDasharray}:${reveal.style.strokeDashoffset}`)
+        .join("|"),
+    };
+  });
+}
+
 async function runCase(browser, testCase) {
   const context = await browser.newContext({
     viewport: testCase.viewport,
@@ -120,34 +134,18 @@ async function runCase(browser, testCase) {
       throw new Error(`${testCase.name}: temporary decorations are visible: ${JSON.stringify(hiddenDecorations)}`);
     }
 
-    const firstSample = await page.evaluate(() => {
-      const scene = document.querySelector("#jestei-process-scene");
-      const reveal = scene?.querySelector("[data-process-reveal]");
-      return {
-        frame: Number(scene?.dataset.processFrame || 0),
-        dasharray: reveal?.style.strokeDasharray || "",
-        dashoffset: reveal?.style.strokeDashoffset || "",
-      };
-    });
-
+    const firstSample = await sampleScene(page);
     await page.waitForTimeout(900);
+    const secondSample = await sampleScene(page);
 
-    const secondSample = await page.evaluate(() => {
-      const scene = document.querySelector("#jestei-process-scene");
-      const reveal = scene?.querySelector("[data-process-reveal]");
-      return {
-        frame: Number(scene?.dataset.processFrame || 0),
-        dasharray: reveal?.style.strokeDasharray || "",
-        dashoffset: reveal?.style.strokeDashoffset || "",
-      };
-    });
-
-    const maskChanged =
-      firstSample.dasharray !== secondSample.dasharray ||
-      firstSample.dashoffset !== secondSample.dashoffset;
+    const masksChanged = firstSample.signature !== secondSample.signature;
     const frameAdvanced = secondSample.frame > firstSample.frame;
 
-    if (!maskChanged || !frameAdvanced) {
+    if (!firstSample.revealCount || !secondSample.revealCount) {
+      throw new Error(`${testCase.name}: process scene has no normalized reveal masks`);
+    }
+
+    if (!masksChanged || !frameAdvanced) {
       throw new Error(
         `${testCase.name}: process scene is static. first=${JSON.stringify(firstSample)} second=${JSON.stringify(secondSample)}`,
       );
@@ -157,7 +155,12 @@ async function runCase(browser, testCase) {
       throw new Error(`${testCase.name}: console errors:\n${consoleErrors.join("\n")}`);
     }
 
-    console.log(`${testCase.name}: passed`, { firstSample, secondSample, hiddenDecorations });
+    console.log(`${testCase.name}: passed`, {
+      firstFrame: firstSample.frame,
+      secondFrame: secondSample.frame,
+      revealCount: secondSample.revealCount,
+      hiddenDecorations,
+    });
   } finally {
     await context.close();
   }
