@@ -55,7 +55,19 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Verify Jestei process animation
-        run: npm run check:jestei-process
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run check:jestei-process 2>&1 | tee jestei-process-regression.log
+
+      - name: Upload Jestei regression diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jestei-process-regression-log
+          path: jestei-process-regression.log
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Stamp deployment
         run: |
