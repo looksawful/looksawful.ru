@@ -9,11 +9,20 @@ main[data-showcase] #jestei-logo [data-logo-inspector-shell] {
   overflow: hidden;
 }
 
+main[data-showcase] #jestei-color {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  inline-size: 100vw;
+  max-inline-size: none;
+  margin-inline: -50vw;
+}
+
 main[data-showcase] #jestei-color [data-section-screen] {
   box-sizing: border-box;
-  inline-size: calc(100vw - (2 * clamp(1rem, 2.2vw, 2rem)));
+  inline-size: calc(100% - (2 * clamp(1rem, 2.2vw, 2rem)));
   max-inline-size: none;
-  margin-inline: calc(50% - 50vw + clamp(1rem, 2.2vw, 2rem));
+  margin-inline: auto;
   padding-inline: clamp(0.5rem, 1.1vw, 1rem);
 }
 
