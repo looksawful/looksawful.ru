@@ -5,7 +5,9 @@
 }
 
 #jestei-results {
-  margin-block-start: clamp(2.5rem, 5vw, 5rem);
+  box-sizing: border-box;
+  margin-block-start: 0;
+  padding-block-start: clamp(2.5rem, 5vw, 5rem);
 }
 
 #jestei-logo [data-logo-inspector-shell] {
@@ -174,7 +176,8 @@
 
 @media (max-width: 52rem) {
   #jestei-results {
-    margin-block-start: clamp(1.5rem, 7vw, 2.5rem);
+    margin-block-start: 0;
+    padding-block-start: clamp(1.5rem, 7vw, 2.5rem);
   }
 
   #jestei-color .jestei-color-bento,
