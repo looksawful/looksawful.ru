@@ -2,7 +2,7 @@ import { initShowcaseBeforeAfter } from "./visuals/canvas/before-after/index.js"
 import { mountJesteiProcessScene } from "./visuals/dom/jestei-process-scene-live.js";
 
 const APPLY_DELAYS = [0, 80, 240, 700, 1600, 3200, 6000, 10000];
-const PROCESS_CARD_SELECTOR = "#jestei-results .jestei-bento__card--manual";
+const PROCESS_CARD_SELECTOR = '#jestei-results [data-bento-card="manual"]';
 const PROCESS_SCENE_SELECTOR = "#jestei-process-scene";
 const FAVICON_HREF = "/awfulface-favicon.svg?v=3";
 const STYX_IDS = ["styx-graphics", "styx-print", "styx-photo-art", "styx-scanography"];
