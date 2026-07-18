@@ -5,24 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:asset-gallery && vite build",
-    "build:asset-gallery": "node scripts/build-asset-gallery.mjs",
-    "import:draft-gallery": "node scripts/import-draft-gallery.mjs",
-    "preview": "vite preview",
-    "baseline:capture": "npm run build && node scripts/capture-dev-baseline.mjs",
-    "baseline:capture:fast": "npm run build && node scripts/capture-dev-baseline.mjs --no-screenshots",
-    "baseline:dom": "npm run build && node scripts/dom-regression.mjs",
-    "baseline:visual": "npm run build && node scripts/visual-regression.mjs",
-    "inventory:dom": "node scripts/dom-inventory.mjs",
-    "inventory:assets": "node scripts/asset-inventory.mjs",
-    "check:portfolio": "node scripts/portfolio-regression-check.mjs",
-    "check:jestei-process": "node scripts/jestei-process-regression-v2.mjs",
-    "check:html": "node scripts/html-contract.mjs",
-    "check:architecture": "node scripts/css-contract.mjs",
-    "check:architecture:update": "node scripts/css-contract.mjs --write-budget",
-    "compress-media": "node scripts/compress-media.js",
-    "compress-media:dry": "node scripts/compress-media.js --dry-run",
-    "compress-media:force": "node scripts/compress-media.js --force"
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "playwright": "^1.61.1",

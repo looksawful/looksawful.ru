@@ -51,48 +51,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Verify Jestei process animation
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run check:jestei-process 2>&1 | tee jestei-process-regression.log
-
-      - name: Upload Jestei regression diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: jestei-process-regression-log
-          path: jestei-process-regression.log
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Verify HTML contract
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run check:html 2>&1 | tee html-contract.log
-
-      - name: Upload HTML contract diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: html-contract-log
-          path: html-contract.log
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Verify architecture budget
-        run: npm run check:architecture
-
-      - name: Prepare DOM baseline
-        run: node scripts/capture-dev-baseline.mjs --no-screenshots
-
-      - name: Verify DOM regression
-        run: node scripts/dom-regression.mjs
-
       - name: Stamp deployment
         run: |
           printf 'commit=%s\n' "$GITHUB_SHA" > dist/deploy-version.txt

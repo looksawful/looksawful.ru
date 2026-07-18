@@ -1,0 +1,275 @@
+:root {
+  --font-primary: "Rubik", system-ui, sans-serif;
+
+  --white: hsl(0 0% 100%);
+  --black: hsl(0 0% 3%);
+
+  --page-max: 80rem;
+  --page-x: clamp(1.125rem, 5vw, 6rem);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-inline-size: 20rem;
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-primary);
+  text-size-adjust: 100%;
+}
+
+body,
+h1,
+p,
+address {
+  margin: 0;
+}
+
+body {
+  min-block-size: 100vh;
+  background: var(--white);
+}
+
+canvas {
+  display: block;
+  max-inline-size: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+/*
+  Компонент mobile-first.
+  Вся композиция задаётся CSS: flex, align-self и absolute для canvas.
+  JS не позиционирует ни один блок.
+*/
+.hero {
+  --hero-name-size: clamp(3rem, 1.55rem + 7.5vw, 8.75rem);
+  --hero-role-size: clamp(1.42rem, 0.72rem + 3.5vw, 4.25rem);
+  --hero-copy-size: clamp(0.96rem, 0.88rem + 0.32vw, 1.22rem);
+
+  --hero-gap: clamp(1rem, 2.2svh, 1.75rem);
+  --hero-copy-width: 35rem;
+
+  --hero-canvas-size: clamp(7rem, 32vw, 10rem);
+  --hero-canvas-left: 0;
+  --hero-canvas-top: calc(var(--hero-canvas-size) * -0.68);
+  --hero-canvas-opacity: 0.86;
+
+  position: relative;
+  isolation: isolate;
+
+  min-block-size: 100vh;
+  min-block-size: 100svh;
+  display: flex;
+  overflow: clip;
+  background: var(--white);
+  color: var(--black);
+}
+
+.hero__fluid {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+.hero__screen {
+  position: relative;
+  z-index: 1;
+  inline-size: min(calc(100% - (var(--page-x) * 2)), var(--page-max));
+  min-inline-size: 0;
+  margin: auto;
+  padding-block: clamp(1rem, 3.2svh, 2.75rem);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--hero-gap);
+}
+
+.hero__headline {
+  position: relative;
+  isolation: isolate;
+  inline-size: min(100%, 78rem);
+  min-inline-size: 0;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.hero__visual {
+  position: absolute;
+  z-index: 1;
+  inset-inline-start: var(--hero-canvas-left);
+  inset-block-start: var(--hero-canvas-top);
+  inline-size: var(--hero-canvas-size);
+  aspect-ratio: 1;
+  opacity: var(--hero-canvas-opacity);
+  pointer-events: none;
+}
+
+.hero__canvas {
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+}
+
+.hero__title {
+  position: relative;
+  z-index: 2;
+  min-inline-size: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  font-size: 0;
+  line-height: 0;
+  letter-spacing: 0;
+}
+
+.hero__title-name,
+.hero__title-role {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  color: var(--black);
+  letter-spacing: 0;
+}
+
+.hero__title-name {
+  align-self: flex-start;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.18em;
+
+  font-size: var(--hero-name-size);
+  font-weight: 800;
+  line-height: 0.86;
+  white-space: nowrap;
+}
+
+.hero__title-role {
+  align-self: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.01em 0.22em;
+
+  max-inline-size: min(100%, 68rem);
+  margin-block-start: -0.06em;
+
+  font-size: var(--hero-role-size);
+  font-weight: 600;
+  line-height: 0.9;
+  text-align: end;
+}
+
+.hero-title-word,
+.hero-title-letter {
+  display: inline-block;
+  line-height: inherit;
+}
+
+.hero-title-word {
+  white-space: nowrap;
+}
+
+.hero-title-letter {
+  transform-origin: 50% 58%;
+  will-change: transform;
+}
+
+.hero__note,
+.hero__contacts {
+  position: relative;
+  z-index: 2;
+  max-inline-size: min(100%, var(--hero-copy-width));
+
+  font-size: var(--hero-copy-size);
+  line-height: 1.22;
+  text-wrap: pretty;
+}
+
+.hero__note {
+  align-self: flex-start;
+}
+
+.hero__contacts {
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-style: normal;
+  text-align: start;
+}
+
+.hero__contacts a {
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.hero__contacts a:hover,
+.hero__contacts a:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+@media (min-width: 48rem) {
+  .hero {
+    --hero-canvas-size: clamp(8.2rem, 12.5vw, 14rem);
+    --hero-canvas-left: clamp(-5.5rem, -7vw, -3rem);
+    --hero-canvas-top: calc(
+      -1 * var(--hero-canvas-size) + clamp(2.1rem, 3.2vw, 3.8rem)
+    );
+    --hero-canvas-opacity: 1;
+  }
+
+  .hero__contacts {
+    align-self: flex-end;
+    text-align: end;
+  }
+
+  .hero__contacts a {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 30rem) {
+  .hero__title-name,
+  .hero__title-role {
+    line-height: 0.92;
+  }
+}
+
+@media (max-width: 23rem) {
+  .hero {
+    --hero-canvas-size: clamp(6.8rem, 34vw, 8.4rem);
+    --hero-canvas-opacity: 0.76;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__fluid {
+    display: none;
+  }
+
+  .hero-title-letter {
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .hero__visual {
+    opacity: 0.58;
+  }
+}

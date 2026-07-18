@@ -1,5 +1,0 @@
-main[data-showcase] :is(.logo-inspector-grid-3d, .logo-inspector-fit-3d) {
-  box-sizing: border-box;
-  border: 1px solid #050505;
-  border-radius: 0;
-}
