@@ -2,7 +2,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Хиро-секция Ивана Крушинского" />
     <title>иван крушинский</title>
 
@@ -14,57 +14,70 @@
     />
 
     <link rel="stylesheet" href="./styles.css" />
-    <script type="module" src="./main.js"></script>
   </head>
-
   <body>
     <main>
-      <section class="hero" id="hero" data-hero>
+      <section
+        class="fluid-cursor-area hero"
+        id="hero"
+        data-fluid-cursor-area
+        data-hero
+      >
         <canvas
-          class="hero__fluid"
-          data-hero-fluid
+          class="fluid-cursor"
+          data-fluid-cursor-canvas
           aria-hidden="true"
+          hidden
         ></canvas>
-        <div class="hero__screen">
-          <div class="hero__headline">
-            <div class="hero__visual" aria-hidden="true">
-              <canvas
-                class="hero__canvas"
-                id="awfulhead"
-                data-awfulhead
-                width="400"
-                height="400"
-              ></canvas>
+
+        <div class="hero__page">
+          <header class="hero__headline">
+            <div class="hero__face" aria-hidden="true">
+              <canvas width="400" height="400"></canvas>
             </div>
 
             <h1
               class="hero__title"
-              id="hero-title"
               data-hero-title
-              aria-label="иван крушинский артдиректор цифровых продуктов"
+              aria-label="иван крушинский, артдиректор цифровых продуктов"
             >
-              <span class="hero__title-name" data-hero-title-line="name">
-                иван крушинский
+              <span class="hero__name" aria-hidden="true">
+                <span class="hero__word"><span data-hero-letter="0">и</span><span data-hero-letter="1">в</span><span data-hero-letter="2">а</span><span data-hero-letter="3">н</span></span>
+                <span class="hero__word"><span data-hero-letter="4">к</span><span data-hero-letter="5">р</span><span data-hero-letter="6">у</span><span data-hero-letter="7">ш</span><span data-hero-letter="8">и</span><span data-hero-letter="9">н</span><span data-hero-letter="10">с</span><span data-hero-letter="11">к</span><span data-hero-letter="12">и</span><span data-hero-letter="13">й</span></span>
               </span>
 
-              <span class="hero__title-role" data-hero-title-line="role">
-                артдиректор цифровых продуктов
+              <span class="hero__role" aria-hidden="true">
+                <span class="hero__role-line">
+                  <span class="hero__word"><span data-hero-letter="14">а</span><span data-hero-letter="15">р</span><span data-hero-letter="16">т</span><span data-hero-letter="17">д</span><span data-hero-letter="18">и</span><span data-hero-letter="19">р</span><span data-hero-letter="20">е</span><span data-hero-letter="21">к</span><span data-hero-letter="22">т</span><span data-hero-letter="23">о</span><span data-hero-letter="24">р</span></span>
+                  <span class="hero__word"><span data-hero-letter="25">ц</span><span data-hero-letter="26">и</span><span data-hero-letter="27">ф</span><span data-hero-letter="28">р</span><span data-hero-letter="29">о</span><span data-hero-letter="30">в</span><span data-hero-letter="31">ы</span><span data-hero-letter="32">х</span></span>
+                </span>
+
+                <span class="hero__role-line">
+                  <span class="hero__word"><span data-hero-letter="33">п</span><span data-hero-letter="34">р</span><span data-hero-letter="35">о</span><span data-hero-letter="36">д</span><span data-hero-letter="37">у</span><span data-hero-letter="38">к</span><span data-hero-letter="39">т</span><span data-hero-letter="40">о</span><span data-hero-letter="41">в</span></span>
+                </span>
               </span>
             </h1>
-          </div>
+          </header>
 
-          <p class="hero__note">
-            Проектирую выразительные визуальные системы и интерфейсы. Разрабатываю айдентику и язык бренда, руковожу дизайнерами и помогаю им расти.
-          </p>
+          <footer class="hero__meta">
+            <p>
+              Проектирую выразительные визуальные системы и&nbsp;интерфейсы.
+              Разрабатываю айдентику и&nbsp;язык бренда, руковожу дизайнерами
+              и&nbsp;помогаю им&nbsp;расти.
+            </p>
 
-          <address class="hero__contacts" id="contact-links">
-            <a href="https://t.me/looksawful">tg: @looksawful</a>
-            <a href="mailto:i@lookawful.ru">email: i@lookawful.ru</a>
-            <!-- ЭТО НЕ ОПЕЧАТКА, БУКВЫ S НЕТ -->
-            <a href="https://github.com/looksawful">github: @looksawful</a>
-          </address>
+            <address id="contact-links">
+              <span class="hero__contacts-label">Контакты</span>
+              <a href="https://t.me/looksawful">tg: @looksawful</a>
+              <a href="mailto:i@lookawful.ru">Email: i@lookawful.ru</a>
+              <!-- Это не опечатка: буквы s в домене нет. -->
+              <a href="https://github.com/looksawful">github: @looksawful</a>
+            </address>
+          </footer>
         </div>
       </section>
     </main>
+
+    <script type="module" src="./main.js"></script>
   </body>
 </html>
