@@ -1,33 +1,24 @@
-import { createAwfulheadMotion, createHeroTitleMotion } from "./motions.js";
-
-import { createHeroFluid } from "./fluid-cursor.js";
+import { createFluidCursorController } from "./fluid-cursor-controller.js";
+import { createAwfulHeadMotion } from "./awful-head.js";
+import { createHeroTitleMotion } from "./hero-motion.js";
 
 const HERO_DESTROY = Symbol.for("looksawful.hero.destroy");
 
-function initHero(root = document) {
+export function initHero(root = document) {
   const hero = root.querySelector("[data-hero]");
 
   if (!(hero instanceof HTMLElement)) {
     return null;
   }
 
-  /*
-   * Удаляем прежний экземпляр,
-   * даже если этот модуль был
-   * загружен повторно.
-   */
   const previousDestroy = hero[HERO_DESTROY];
 
   if (typeof previousDestroy === "function") {
     previousDestroy();
   }
 
-  const title = hero.querySelector("[data-hero-title]");
-
-  const awfulheadCanvas = hero.querySelector("[data-awfulhead]");
-
-  const fluidCanvas = hero.querySelector("[data-hero-fluid]");
-
+  const fluidCanvas = hero.querySelector("[data-fluid-cursor-canvas]");
+  const faceCanvas = hero.querySelector(".hero__face canvas");
   const cleanups = [];
 
   const registerCleanup = (cleanup) => {
@@ -37,34 +28,32 @@ function initHero(root = document) {
   };
 
   try {
-    registerCleanup(
-      createHeroTitleMotion({
-        title,
-      }),
-    );
+    if (fluidCanvas instanceof HTMLCanvasElement) {
+      registerCleanup(
+        createFluidCursorController({
+          root: hero,
+          canvas: fluidCanvas,
+        }),
+      );
+    }
 
-    registerCleanup(
-      createAwfulheadMotion({
-        root: hero,
-        canvas: awfulheadCanvas,
-      }),
-    );
+    if (faceCanvas instanceof HTMLCanvasElement) {
+      registerCleanup(
+        createAwfulHeadMotion({
+          root: hero,
+          canvas: faceCanvas,
+        }),
+      );
+    }
 
-    registerCleanup(
-      createHeroFluid({
-        root: hero,
-        canvas: fluidCanvas,
-      }),
-    );
+    registerCleanup(createHeroTitleMotion(hero));
   } catch (error) {
     for (let index = cleanups.length - 1; index >= 0; index -= 1) {
       cleanups[index]();
     }
 
     delete hero.dataset.heroMounted;
-
     delete hero[HERO_DESTROY];
-
     throw error;
   }
 
@@ -79,16 +68,11 @@ function initHero(root = document) {
 
     destroyed = true;
 
-    /*
-     * Удаляем в обратном порядке:
-     * fluid → face → title.
-     */
     for (let index = cleanups.length - 1; index >= 0; index -= 1) {
       cleanups[index]();
     }
 
     cleanups.length = 0;
-
     delete hero.dataset.heroMounted;
 
     if (hero[HERO_DESTROY] === destroyHero) {
@@ -97,7 +81,6 @@ function initHero(root = document) {
   };
 
   hero[HERO_DESTROY] = destroyHero;
-
   return destroyHero;
 }
 
@@ -110,21 +93,11 @@ function unmount() {
 }
 
 function mount() {
-  /*
-   * Защита от повторного вызова
-   * mount в одном модуле.
-   */
   unmount();
-
   destroyHero = initHero(document);
 }
 
 function handlePageShow(event) {
-  /*
-   * После возврата страницы из
-   * back-forward cache WebGL нужно
-   * создать заново.
-   */
   if (event.persisted) {
     mount();
   }
@@ -144,25 +117,17 @@ if (document.readyState === "loading") {
 }
 
 window.addEventListener("pagehide", unmount);
-
 window.addEventListener("pageshow", handlePageShow);
 
-/*
- * Vite вызывает этот блок перед
- * заменой модуля при HMR.
- */
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
     if (domReadyHandler) {
       document.removeEventListener("DOMContentLoaded", domReadyHandler);
-
       domReadyHandler = null;
     }
 
     window.removeEventListener("pagehide", unmount);
-
     window.removeEventListener("pageshow", handlePageShow);
-
     unmount();
   });
 }
