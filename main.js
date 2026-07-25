@@ -1,6 +1,7 @@
 import { createFluidCursorController } from "./fluid-cursor-controller.js";
 import { createAwfulHeadMotion } from "./awful-head.js";
 import { createHeroTitleMotion } from "./hero-motion.js";
+import { createCvAccordion } from "./cv-accordion.js";
 
 const HERO_DESTROY = Symbol.for("looksawful.hero.destroy");
 
@@ -85,9 +86,13 @@ export function initHero(root = document) {
 }
 
 let destroyHero = null;
+let destroyCvAccordion = null;
 let domReadyHandler = null;
 
 function unmount() {
+  destroyCvAccordion?.();
+  destroyCvAccordion = null;
+
   destroyHero?.();
   destroyHero = null;
 }
@@ -95,6 +100,7 @@ function unmount() {
 function mount() {
   unmount();
   destroyHero = initHero(document);
+  destroyCvAccordion = createCvAccordion(document);
 }
 
 function handlePageShow(event) {
