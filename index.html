@@ -14,6 +14,7 @@
     />
 
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./cv-accordion.css" />
   </head>
   <body>
     <main>
@@ -74,6 +75,172 @@
               <a href="https://github.com/looksawful">github: @looksawful</a>
             </address>
           </footer>
+        </div>
+      </section>
+
+      <section
+        class="cv-scroll-scene"
+        id="cv"
+        data-cv-accordion-scene
+        aria-label="Опыт работы"
+      >
+        <div class="cv-accordion" data-cv-accordion>
+          <div class="cv-accordion__list" data-cv-accordion-list>
+            <article class="cv-item">
+              <button class="cv-item__header" id="cv-trigger-01" type="button" aria-expanded="false" aria-controls="cv-panel-01">
+                <span class="cv-item__project">jestei pool</span>
+                <span class="cv-item__roles" aria-label="роли">
+                  <span class="cv-item__role">арт-директор</span>
+                  <span class="cv-item__role">ui/ux лид</span>
+                  <span class="cv-item__role">дизайн-лид</span>
+                </span>
+                <span class="cv-item__period">2024 – 2026</span>
+              </button>
+              <div class="cv-item__body" id="cv-panel-01" role="region" aria-labelledby="cv-trigger-01">
+                <div class="cv-item__content">
+                  <h2 class="cv-item__title">jestei pool</h2>
+                  <p class="cv-item__copy">Музыкальный сервис для диджеев, музыкальных редакторов и продюсеров. Главный российский диджейский пул для подготовки к выступлениям.</p>
+                  <ul class="cv-item__meta" hidden></ul>
+                  <p class="cv-item__number">01</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="cv-item">
+              <button class="cv-item__header" id="cv-trigger-02" type="button" aria-expanded="false" aria-controls="cv-panel-02">
+                <span class="cv-item__project">styx jewels</span>
+                <span class="cv-item__roles" aria-label="роли">
+                  <span class="cv-item__role">дизайнер</span>
+                  <span class="cv-item__role">художник</span>
+                  <span class="cv-item__role">продюсер</span>
+                  <span class="cv-item__role">фотограф</span>
+                </span>
+                <span class="cv-item__period">2021–2025</span>
+              </button>
+              <div class="cv-item__body" id="cv-panel-02" role="region" aria-labelledby="cv-trigger-02">
+                <div class="cv-item__content">
+                  <h2 class="cv-item__title">styx jewels</h2>
+                  <p class="cv-item__copy">Нишевый бренд украшений, аксессуаров и одежды, вдохновлённый готической романтикой.</p>
+                  <ul class="cv-item__meta" hidden></ul>
+                  <p class="cv-item__number">02</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="cv-item">
+              <button class="cv-item__header" id="cv-trigger-03" type="button" aria-expanded="false" aria-controls="cv-panel-03">
+                <span class="cv-item__project">Lyve Moscow</span>
+                <span class="cv-item__roles" aria-label="роли">
+                  <span class="cv-item__role">дизайнер бренда</span>
+                  <span class="cv-item__role">иллюстратор</span>
+                </span>
+                <span class="cv-item__period">2025</span>
+              </button>
+              <div class="cv-item__body" id="cv-panel-03" role="region" aria-labelledby="cv-trigger-03">
+                <div class="cv-item__content">
+                  <h2 class="cv-item__title">Lyve Moscow</h2>
+                  <p class="cv-item__copy">Студия озеленения и ландшафтного дизайна с живым и художественным характером.</p>
+                  <ul class="cv-item__meta" hidden></ul>
+                  <p class="cv-item__number">03</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="cv-item">
+              <button class="cv-item__header" id="cv-trigger-04" type="button" aria-expanded="false" aria-controls="cv-panel-04">
+                <span class="cv-item__project">Sensetique</span>
+                <span class="cv-item__roles" aria-label="роли">
+                  <span class="cv-item__role">директор фотостудии</span>
+                  <span class="cv-item__role">генеральный продюсер</span>
+                </span>
+                <span class="cv-item__period">2017–2018</span>
+              </button>
+              <div class="cv-item__body" id="cv-panel-04" role="region" aria-labelledby="cv-trigger-04">
+                <div class="cv-item__content">
+                  <h2 class="cv-item__title">Sensetique</h2>
+                  <p class="cv-item__copy">Московская фотостудия и продакшн для моды, рекламы и визуального контента.</p>
+                  <ul class="cv-item__meta" hidden></ul>
+                  <p class="cv-item__number">04</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="cv-item">
+              <button class="cv-item__header" id="cv-trigger-05" type="button" aria-expanded="false" aria-controls="cv-panel-05">
+                <span class="cv-item__project">Mad Cow Films</span>
+                <span class="cv-item__roles" aria-label="роли">
+                  <span class="cv-item__role">ассистент продюсера</span>
+                </span>
+                <span class="cv-item__period">2019</span>
+              </button>
+              <div class="cv-item__body" id="cv-panel-05" role="region" aria-labelledby="cv-trigger-05">
+                <div class="cv-item__content">
+                  <h2 class="cv-item__title">Mad Cow Films</h2>
+                  <p class="cv-item__copy">Международный рекламный продакшн с офисами в Лондоне и Москве.</p>
+                  <ul class="cv-item__meta" hidden></ul>
+                  <p class="cv-item__number">05</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="cv-item">
+              <button class="cv-item__header" id="cv-trigger-06" type="button" aria-expanded="false" aria-controls="cv-panel-06">
+                <span class="cv-item__project">LI-NE Agency</span>
+                <span class="cv-item__roles" aria-label="роли">
+                  <span class="cv-item__role">ассистент продюсера</span>
+                  <span class="cv-item__role">jr-продюсер</span>
+                  <span class="cv-item__role">линейный продюсер</span>
+                </span>
+                <span class="cv-item__period">2017</span>
+              </button>
+              <div class="cv-item__body" id="cv-panel-06" role="region" aria-labelledby="cv-trigger-06">
+                <div class="cv-item__content">
+                  <h2 class="cv-item__title">LI-NE Agency</h2>
+                  <p class="cv-item__copy">Продакшн-агентство в сфере моды, рекламы и медиа.</p>
+                  <ul class="cv-item__meta" hidden></ul>
+                  <p class="cv-item__number">06</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="cv-item">
+              <button class="cv-item__header" id="cv-trigger-07" type="button" aria-expanded="false" aria-controls="cv-panel-07">
+                <span class="cv-item__project">Издательство Прогресс</span>
+                <span class="cv-item__roles" aria-label="роли">
+                  <span class="cv-item__role">книжный дизайнер</span>
+                </span>
+                <span class="cv-item__period">2013–2015</span>
+              </button>
+              <div class="cv-item__body" id="cv-panel-07" role="region" aria-labelledby="cv-trigger-07">
+                <div class="cv-item__content">
+                  <h2 class="cv-item__title">Издательство Прогресс</h2>
+                  <p class="cv-item__copy">Российское издательство переводной, гуманитарной, художественной и образовательной литературы.</p>
+                  <ul class="cv-item__meta" hidden></ul>
+                  <p class="cv-item__number">07</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="cv-item">
+              <button class="cv-item__header" id="cv-trigger-08" type="button" aria-expanded="false" aria-controls="cv-panel-08">
+                <span class="cv-item__project">РИА Новости / Московские новости</span>
+                <span class="cv-item__roles" aria-label="роли">
+                  <span class="cv-item__role">jr-верстальщик</span>
+                </span>
+                <span class="cv-item__period">2012</span>
+              </button>
+              <div class="cv-item__body" id="cv-panel-08" role="region" aria-labelledby="cv-trigger-08">
+                <div class="cv-item__content">
+                  <h2 class="cv-item__title">РИА Новости / Московские новости</h2>
+                  <p class="cv-item__copy">Ежедневная городская общественно-политическая газета о Москве.</p>
+                  <ul class="cv-item__meta" hidden></ul>
+                  <p class="cv-item__number">08</p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="cv-accordion__progress" aria-hidden="true"></div>
         </div>
       </section>
     </main>
