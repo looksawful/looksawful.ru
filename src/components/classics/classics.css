@@ -1,0 +1,115 @@
+@layer components {
+  .classics {
+    --classics-background: var(--classics-offwhite);
+
+    --classics-foreground: var(--classics-black);
+
+    container: classics / inline-size;
+
+    inline-size: 100%;
+
+    color: var(--classics-foreground);
+
+    background: var(--classics-background);
+
+    font-family: var(--font-primary);
+
+    &[data-theme="dark"] {
+      --classics-background: var(--classics-black);
+
+      --classics-foreground: var(--classics-offwhite);
+    }
+
+    .classics__grid {
+      display: grid;
+
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      gap: var(--classics-line-width);
+
+      padding: var(--classics-line-width);
+
+      background: var(--classics-foreground);
+    }
+
+    .classics__item {
+      min-inline-size: 0;
+
+      min-block-size: clamp(12rem, 47cqi, 30rem);
+
+      padding-inline: var(--classics-padding-inline);
+
+      padding-block-start: var(--classics-padding-block-start);
+
+      padding-block-end: var(--classics-padding-block-end);
+
+      color: var(--classics-foreground);
+
+      background: var(--classics-background);
+    }
+
+    .classics__item:nth-child(3),
+    .classics__item:nth-child(4) {
+      min-block-size: clamp(15rem, 50cqi, 32rem);
+    }
+
+    .classics__item:nth-child(5),
+    .classics__item:nth-child(6) {
+      min-block-size: clamp(13.5rem, 44cqi, 27rem);
+    }
+
+    .classics__text {
+      max-inline-size: 21ch;
+
+      font-size: var(--classics-font-size-mobile);
+
+      font-weight: var(--font-weight-light);
+
+      line-height: 1.04;
+      letter-spacing: -0.038em;
+
+      text-wrap: pretty;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+
+    .classics__mark {
+      position: relative;
+
+      inset-block-start: 0.08em;
+
+      display: inline-block;
+
+      margin-inline-start: 0.08em;
+
+      font-size: 0.42em;
+      line-height: 1;
+      vertical-align: top;
+    }
+  }
+
+  @container classics (width >= 44rem) {
+    .classics__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .classics__item,
+    .classics__item:nth-child(3),
+    .classics__item:nth-child(4),
+    .classics__item:nth-child(5),
+    .classics__item:nth-child(6) {
+      min-block-size: clamp(17rem, 26cqi, 28rem);
+    }
+
+    .classics__item:nth-child(2),
+    .classics__item:nth-child(5) {
+      min-block-size: clamp(18rem, 28cqi, 30rem);
+    }
+
+    .classics__text {
+      max-inline-size: 20ch;
+
+      font-size: var(--classics-font-size-wide);
+    }
+  }
+}

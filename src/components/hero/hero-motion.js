@@ -1,7 +1,5 @@
 import { gsap } from "gsap";
 
-const MOTION_QUERY = "(prefers-reduced-motion: no-preference)";
-
 const LETTER_EVENTS = [
   {
     type: "jump",
@@ -75,11 +73,14 @@ function appendFlip(timeline, letter) {
       },
       "+=0.12",
     )
-    .set(letter, { rotationX: 0 });
+    .set(letter, {
+      rotationX: 0,
+    });
 }
 
 function appendWobble(timeline, letter, event) {
   const rotation = event.rotation ?? 5;
+
   const y = event.y ?? -2;
 
   timeline
@@ -91,12 +92,14 @@ function appendWobble(timeline, letter, event) {
     })
     .to(letter, {
       rotation: rotation * 0.84,
+
       y: 1,
       duration: 0.28,
       ease: "power1.inOut",
     })
     .to(letter, {
       rotation: -rotation * 0.34,
+
       y: 0,
       duration: 0.24,
       ease: "power1.inOut",
@@ -113,7 +116,9 @@ function appendStretch(timeline, letter, event) {
   timeline
     .to(letter, {
       scaleX: event.scaleX ?? 1.08,
+
       scaleY: event.scaleY ?? 0.95,
+
       duration: 0.28,
       ease: "power2.out",
     })
@@ -131,9 +136,12 @@ function appendStretch(timeline, letter, event) {
 
 function createLetterTimeline(letters, event) {
   const letter = letters[Math.abs(Math.trunc(event.index)) % letters.length];
+
   const timeline = gsap.timeline({
     repeat: -1,
+
     repeatDelay: event.repeatDelay,
+
     delay: event.delay,
     paused: true,
   });
@@ -142,12 +150,15 @@ function createLetterTimeline(letters, event) {
     case "flip":
       appendFlip(timeline, letter);
       break;
+
     case "wobble":
       appendWobble(timeline, letter, event);
       break;
+
     case "stretch":
       appendStretch(timeline, letter, event);
       break;
+
     default:
       appendJump(timeline, letter, event);
   }
@@ -155,67 +166,97 @@ function createLetterTimeline(letters, event) {
   return timeline;
 }
 
-export function createHeroTitleMotion(root) {
-  const media = gsap.matchMedia();
+function createAnimation(root) {
+  const letters = Array.from(root.querySelectorAll("[data-hero-letter]"));
+
+  if (!letters.length) {
+    return null;
+  }
+
+  const animatedLetters = LETTER_EVENTS.map(
+    ({ index }) => letters[Math.abs(Math.trunc(index)) % letters.length],
+  );
+
+  const timelines = [];
+
+  let observer = null;
+
   const context = gsap.context(() => {
-    media.add(MOTION_QUERY, () => {
-      const letters = Array.from(root.querySelectorAll("[data-hero-letter]"));
+    gsap.set(animatedLetters, {
+      transformOrigin: "50% 58%",
 
-      if (!letters.length) {
-        return undefined;
-      }
+      transformPerspective: 900,
 
-      const animatedLetters = LETTER_EVENTS.map(
-        ({ index }) => letters[Math.abs(Math.trunc(index)) % letters.length],
-      );
+      force3D: true,
 
-      gsap.set(animatedLetters, {
-        transformOrigin: "50% 58%",
-        transformPerspective: 900,
-        force3D: true,
-        willChange: "transform",
-      });
-
-      const timelines = LETTER_EVENTS.map((event) =>
-        createLetterTimeline(letters, event),
-      );
-
-      let observer = null;
-
-      if ("IntersectionObserver" in window) {
-        observer = new IntersectionObserver(
-          ([entry]) => {
-            timelines.forEach((timeline) => {
-              if (entry?.isIntersecting) {
-                timeline.play();
-              } else {
-                timeline.pause();
-              }
-            });
-          },
-          {
-            rootMargin: "18% 0px",
-            threshold: 0,
-          },
-        );
-
-        observer.observe(root);
-      } else {
-        timelines.forEach((timeline) => timeline.play());
-      }
-
-      return () => {
-        observer?.disconnect();
-        timelines.forEach((timeline) => timeline.kill());
-        gsap.set(animatedLetters, {
-          clearProps: "transform,willChange",
-        });
-      };
+      willChange: "transform",
     });
+
+    for (const event of LETTER_EVENTS) {
+      timelines.push(createLetterTimeline(letters, event));
+    }
   }, root);
 
+  const setPlayback = (active) => {
+    for (const timeline of timelines) {
+      if (active) {
+        timeline.play();
+      } else {
+        timeline.pause();
+      }
+    }
+  };
+
+  if ("IntersectionObserver" in window) {
+    observer = new IntersectionObserver(
+      ([entry]) => {
+        setPlayback(Boolean(entry?.isIntersecting));
+      },
+      {
+        rootMargin: "18% 0px",
+        threshold: 0,
+      },
+    );
+
+    observer.observe(root);
+  } else {
+    setPlayback(true);
+  }
+
   return () => {
-    media.revert();
+    observer?.disconnect();
+
+    for (const timeline of timelines) {
+      timeline.kill();
+    }
+
     context.revert();
+  };
+}
+
+export function createHeroTitleMotion({ root, motion } = {}) {
+  if (!(root instanceof HTMLElement)) {
+    return null;
+  }
+
+  let destroyAnimation = null;
+
+  const syncMotion = ({ allowed }) => {
+    destroyAnimation?.();
+    destroyAnimation = null;
+
+    if (allowed) {
+      destroyAnimation = createAnimation(root);
+    }
+  };
+
+  const unsubscribeMotion =
+    typeof motion?.subscribe === "function" ? motion.subscribe(syncMotion) : () => {};
+
+  return () => {
+    unsubscribeMotion();
+
+    destroyAnimation?.();
+    destroyAnimation = null;
   };
 }

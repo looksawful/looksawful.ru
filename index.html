@@ -3,38 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Хиро-секция Ивана Крушинского" />
-    <title>иван крушинский</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-
-    <link rel="stylesheet" href="./styles.css" />
-    <link rel="stylesheet" href="./cv-accordion.css" />
+    <title>Иван Крушинский</title>
   </head>
+
   <body>
     <main>
-      <section
-        class="fluid-cursor-area hero"
-        id="hero"
-        data-fluid-cursor-area
-        data-hero
-      >
-        <canvas
-          class="fluid-cursor"
-          data-fluid-cursor-canvas
-          aria-hidden="true"
-          hidden
-        ></canvas>
+      <section class="fluid-cursor-area hero" id="hero" data-fluid-cursor-area data-hero>
+        <canvas class="fluid-cursor" data-fluid-cursor-canvas aria-hidden="true" hidden></canvas>
 
         <div class="hero__page">
           <header class="hero__headline">
-            <div class="hero__face" aria-hidden="true">
-              <canvas width="400" height="400"></canvas>
+            <div class="hero__awfulface" aria-hidden="true">
+              <div class="awfulface" data-awfulface>
+                <span class="awfulface__static"></span>
+
+                <canvas
+                  class="awfulface__canvas"
+                  width="400"
+                  height="400"
+                  data-awfulface-canvas
+                ></canvas>
+              </div>
             </div>
 
             <h1
@@ -43,18 +32,45 @@
               aria-label="иван крушинский, артдиректор цифровых продуктов"
             >
               <span class="hero__name" aria-hidden="true">
-                <span class="hero__word"><span data-hero-letter="0">и</span><span data-hero-letter="1">в</span><span data-hero-letter="2">а</span><span data-hero-letter="3">н</span></span>
-                <span class="hero__word"><span data-hero-letter="4">к</span><span data-hero-letter="5">р</span><span data-hero-letter="6">у</span><span data-hero-letter="7">ш</span><span data-hero-letter="8">и</span><span data-hero-letter="9">н</span><span data-hero-letter="10">с</span><span data-hero-letter="11">к</span><span data-hero-letter="12">и</span><span data-hero-letter="13">й</span></span>
+                <span class="hero__word"
+                  ><span data-hero-letter="0">и</span><span data-hero-letter="1">в</span
+                  ><span data-hero-letter="2">а</span><span data-hero-letter="3">н</span></span
+                >
+                <span class="hero__word"
+                  ><span data-hero-letter="4">к</span><span data-hero-letter="5">р</span
+                  ><span data-hero-letter="6">у</span><span data-hero-letter="7">ш</span
+                  ><span data-hero-letter="8">и</span><span data-hero-letter="9">н</span
+                  ><span data-hero-letter="10">с</span><span data-hero-letter="11">к</span
+                  ><span data-hero-letter="12">и</span><span data-hero-letter="13">й</span></span
+                >
               </span>
 
               <span class="hero__role" aria-hidden="true">
                 <span class="hero__role-line">
-                  <span class="hero__word"><span data-hero-letter="14">а</span><span data-hero-letter="15">р</span><span data-hero-letter="16">т</span><span data-hero-letter="17">д</span><span data-hero-letter="18">и</span><span data-hero-letter="19">р</span><span data-hero-letter="20">е</span><span data-hero-letter="21">к</span><span data-hero-letter="22">т</span><span data-hero-letter="23">о</span><span data-hero-letter="24">р</span></span>
-                  <span class="hero__word"><span data-hero-letter="25">ц</span><span data-hero-letter="26">и</span><span data-hero-letter="27">ф</span><span data-hero-letter="28">р</span><span data-hero-letter="29">о</span><span data-hero-letter="30">в</span><span data-hero-letter="31">ы</span><span data-hero-letter="32">х</span></span>
+                  <span class="hero__word"
+                    ><span data-hero-letter="14">а</span><span data-hero-letter="15">р</span
+                    ><span data-hero-letter="16">т</span><span data-hero-letter="17">д</span
+                    ><span data-hero-letter="18">и</span><span data-hero-letter="19">р</span
+                    ><span data-hero-letter="20">е</span><span data-hero-letter="21">к</span
+                    ><span data-hero-letter="22">т</span><span data-hero-letter="23">о</span
+                    ><span data-hero-letter="24">р</span></span
+                  >
+                  <span class="hero__word"
+                    ><span data-hero-letter="25">ц</span><span data-hero-letter="26">и</span
+                    ><span data-hero-letter="27">ф</span><span data-hero-letter="28">р</span
+                    ><span data-hero-letter="29">о</span><span data-hero-letter="30">в</span
+                    ><span data-hero-letter="31">ы</span><span data-hero-letter="32">х</span></span
+                  >
                 </span>
 
                 <span class="hero__role-line">
-                  <span class="hero__word"><span data-hero-letter="33">п</span><span data-hero-letter="34">р</span><span data-hero-letter="35">о</span><span data-hero-letter="36">д</span><span data-hero-letter="37">у</span><span data-hero-letter="38">к</span><span data-hero-letter="39">т</span><span data-hero-letter="40">о</span><span data-hero-letter="41">в</span></span>
+                  <span class="hero__word"
+                    ><span data-hero-letter="33">п</span><span data-hero-letter="34">р</span
+                    ><span data-hero-letter="35">о</span><span data-hero-letter="36">д</span
+                    ><span data-hero-letter="37">у</span><span data-hero-letter="38">к</span
+                    ><span data-hero-letter="39">т</span><span data-hero-letter="40">о</span
+                    ><span data-hero-letter="41">в</span></span
+                  >
                 </span>
               </span>
             </h1>
@@ -62,44 +78,57 @@
 
           <footer class="hero__meta">
             <p>
-              Проектирую выразительные визуальные системы и&nbsp;интерфейсы.
-              Разрабатываю айдентику и&nbsp;язык бренда, руковожу дизайнерами
-              и&nbsp;помогаю им&nbsp;расти.
+              Проектирую выразительные визуальные системы и&nbsp;интерфейсы. Разрабатываю айдентику
+              и&nbsp;язык бренда, руковожу дизайнерами и&nbsp;помогаю им&nbsp;расти.
             </p>
 
             <address id="contact-links">
-              <span class="hero__contacts-label">Контакты</span>
+              <span class="hero__contacts-label visually-hidden">Контакты</span>
               <a href="https://t.me/looksawful">tg: @looksawful</a>
-              <a href="mailto:i@lookawful.ru">Email: i@lookawful.ru</a>
-              <!-- Это не опечатка: буквы s в домене нет. -->
+              <a href="mailto:i@lookawful.ru">email: i@lookawful.ru</a>
+              <!-- Это не опечатка: буквы s в адресе почты нет. -->
               <a href="https://github.com/looksawful">github: @looksawful</a>
             </address>
           </footer>
         </div>
       </section>
 
-      <section
-        class="cv-scroll-scene"
-        id="cv"
-        data-cv-accordion-scene
-        aria-label="Опыт работы"
-      >
+      <section class="cv-scroll-scene" id="cv" data-cv-accordion-scene aria-label="Опыт работы">
         <div class="cv-accordion" data-cv-accordion>
           <div class="cv-accordion__list" data-cv-accordion-list>
             <article class="cv-item">
-              <button class="cv-item__header" id="cv-trigger-01" type="button" aria-expanded="false" aria-controls="cv-panel-01">
+              <button
+                class="cv-item__header"
+                id="cv-trigger-01"
+                type="button"
+                aria-expanded="false"
+                aria-controls="cv-panel-01"
+              >
                 <span class="cv-item__project">jestei pool</span>
+
                 <span class="cv-item__roles" aria-label="роли">
                   <span class="cv-item__role">арт-директор</span>
                   <span class="cv-item__role">ui/ux лид</span>
                   <span class="cv-item__role">дизайн-лид</span>
                 </span>
+
                 <span class="cv-item__period">2024 – 2026</span>
               </button>
-              <div class="cv-item__body" id="cv-panel-01" role="region" aria-labelledby="cv-trigger-01">
+
+              <div
+                class="cv-item__body"
+                id="cv-panel-01"
+                role="region"
+                aria-labelledby="cv-trigger-01"
+              >
                 <div class="cv-item__content">
                   <h2 class="cv-item__title">jestei pool</h2>
-                  <p class="cv-item__copy">Музыкальный сервис для диджеев, музыкальных редакторов и продюсеров. Главный российский диджейский пул для подготовки к выступлениям.</p>
+
+                  <p class="cv-item__copy">
+                    Музыкальный сервис для диджеев, музыкальных редакторов и продюсеров. Главный
+                    российский диджейский пул для подготовки к выступлениям.
+                  </p>
+
                   <ul class="cv-item__meta" hidden></ul>
                   <p class="cv-item__number">01</p>
                 </div>
@@ -107,20 +136,39 @@
             </article>
 
             <article class="cv-item">
-              <button class="cv-item__header" id="cv-trigger-02" type="button" aria-expanded="false" aria-controls="cv-panel-02">
+              <button
+                class="cv-item__header"
+                id="cv-trigger-02"
+                type="button"
+                aria-expanded="false"
+                aria-controls="cv-panel-02"
+              >
                 <span class="cv-item__project">styx jewels</span>
+
                 <span class="cv-item__roles" aria-label="роли">
                   <span class="cv-item__role">дизайнер</span>
                   <span class="cv-item__role">художник</span>
                   <span class="cv-item__role">продюсер</span>
                   <span class="cv-item__role">фотограф</span>
                 </span>
+
                 <span class="cv-item__period">2021–2025</span>
               </button>
-              <div class="cv-item__body" id="cv-panel-02" role="region" aria-labelledby="cv-trigger-02">
+
+              <div
+                class="cv-item__body"
+                id="cv-panel-02"
+                role="region"
+                aria-labelledby="cv-trigger-02"
+              >
                 <div class="cv-item__content">
                   <h2 class="cv-item__title">styx jewels</h2>
-                  <p class="cv-item__copy">Нишевый бренд украшений, аксессуаров и одежды, вдохновлённый готической романтикой.</p>
+
+                  <p class="cv-item__copy">
+                    Нишевый бренд украшений, аксессуаров и одежды, вдохновлённый готической
+                    романтикой.
+                  </p>
+
                   <ul class="cv-item__meta" hidden></ul>
                   <p class="cv-item__number">02</p>
                 </div>
@@ -128,18 +176,36 @@
             </article>
 
             <article class="cv-item">
-              <button class="cv-item__header" id="cv-trigger-03" type="button" aria-expanded="false" aria-controls="cv-panel-03">
+              <button
+                class="cv-item__header"
+                id="cv-trigger-03"
+                type="button"
+                aria-expanded="false"
+                aria-controls="cv-panel-03"
+              >
                 <span class="cv-item__project">Lyve Moscow</span>
+
                 <span class="cv-item__roles" aria-label="роли">
                   <span class="cv-item__role">дизайнер бренда</span>
                   <span class="cv-item__role">иллюстратор</span>
                 </span>
+
                 <span class="cv-item__period">2025</span>
               </button>
-              <div class="cv-item__body" id="cv-panel-03" role="region" aria-labelledby="cv-trigger-03">
+
+              <div
+                class="cv-item__body"
+                id="cv-panel-03"
+                role="region"
+                aria-labelledby="cv-trigger-03"
+              >
                 <div class="cv-item__content">
                   <h2 class="cv-item__title">Lyve Moscow</h2>
-                  <p class="cv-item__copy">Студия озеленения и ландшафтного дизайна с живым и художественным характером.</p>
+
+                  <p class="cv-item__copy">
+                    Студия озеленения и ландшафтного дизайна с живым и художественным характером.
+                  </p>
+
                   <ul class="cv-item__meta" hidden></ul>
                   <p class="cv-item__number">03</p>
                 </div>
@@ -147,18 +213,36 @@
             </article>
 
             <article class="cv-item">
-              <button class="cv-item__header" id="cv-trigger-04" type="button" aria-expanded="false" aria-controls="cv-panel-04">
+              <button
+                class="cv-item__header"
+                id="cv-trigger-04"
+                type="button"
+                aria-expanded="false"
+                aria-controls="cv-panel-04"
+              >
                 <span class="cv-item__project">Sensetique</span>
+
                 <span class="cv-item__roles" aria-label="роли">
                   <span class="cv-item__role">директор фотостудии</span>
                   <span class="cv-item__role">генеральный продюсер</span>
                 </span>
+
                 <span class="cv-item__period">2017–2018</span>
               </button>
-              <div class="cv-item__body" id="cv-panel-04" role="region" aria-labelledby="cv-trigger-04">
+
+              <div
+                class="cv-item__body"
+                id="cv-panel-04"
+                role="region"
+                aria-labelledby="cv-trigger-04"
+              >
                 <div class="cv-item__content">
                   <h2 class="cv-item__title">Sensetique</h2>
-                  <p class="cv-item__copy">Московская фотостудия и продакшн для моды, рекламы и визуального контента.</p>
+
+                  <p class="cv-item__copy">
+                    Московская фотостудия и продакшн для моды, рекламы и визуального контента.
+                  </p>
+
                   <ul class="cv-item__meta" hidden></ul>
                   <p class="cv-item__number">04</p>
                 </div>
@@ -166,17 +250,35 @@
             </article>
 
             <article class="cv-item">
-              <button class="cv-item__header" id="cv-trigger-05" type="button" aria-expanded="false" aria-controls="cv-panel-05">
+              <button
+                class="cv-item__header"
+                id="cv-trigger-05"
+                type="button"
+                aria-expanded="false"
+                aria-controls="cv-panel-05"
+              >
                 <span class="cv-item__project">Mad Cow Films</span>
+
                 <span class="cv-item__roles" aria-label="роли">
                   <span class="cv-item__role">ассистент продюсера</span>
                 </span>
+
                 <span class="cv-item__period">2019</span>
               </button>
-              <div class="cv-item__body" id="cv-panel-05" role="region" aria-labelledby="cv-trigger-05">
+
+              <div
+                class="cv-item__body"
+                id="cv-panel-05"
+                role="region"
+                aria-labelledby="cv-trigger-05"
+              >
                 <div class="cv-item__content">
                   <h2 class="cv-item__title">Mad Cow Films</h2>
-                  <p class="cv-item__copy">Международный рекламный продакшн с офисами в Лондоне и Москве.</p>
+
+                  <p class="cv-item__copy">
+                    Международный рекламный продакшн с офисами в Лондоне и Москве.
+                  </p>
+
                   <ul class="cv-item__meta" hidden></ul>
                   <p class="cv-item__number">05</p>
                 </div>
@@ -184,19 +286,35 @@
             </article>
 
             <article class="cv-item">
-              <button class="cv-item__header" id="cv-trigger-06" type="button" aria-expanded="false" aria-controls="cv-panel-06">
+              <button
+                class="cv-item__header"
+                id="cv-trigger-06"
+                type="button"
+                aria-expanded="false"
+                aria-controls="cv-panel-06"
+              >
                 <span class="cv-item__project">LI-NE Agency</span>
+
                 <span class="cv-item__roles" aria-label="роли">
                   <span class="cv-item__role">ассистент продюсера</span>
                   <span class="cv-item__role">jr-продюсер</span>
                   <span class="cv-item__role">линейный продюсер</span>
                 </span>
+
                 <span class="cv-item__period">2017</span>
               </button>
-              <div class="cv-item__body" id="cv-panel-06" role="region" aria-labelledby="cv-trigger-06">
+
+              <div
+                class="cv-item__body"
+                id="cv-panel-06"
+                role="region"
+                aria-labelledby="cv-trigger-06"
+              >
                 <div class="cv-item__content">
                   <h2 class="cv-item__title">LI-NE Agency</h2>
+
                   <p class="cv-item__copy">Продакшн-агентство в сфере моды, рекламы и медиа.</p>
+
                   <ul class="cv-item__meta" hidden></ul>
                   <p class="cv-item__number">06</p>
                 </div>
@@ -204,17 +322,36 @@
             </article>
 
             <article class="cv-item">
-              <button class="cv-item__header" id="cv-trigger-07" type="button" aria-expanded="false" aria-controls="cv-panel-07">
+              <button
+                class="cv-item__header"
+                id="cv-trigger-07"
+                type="button"
+                aria-expanded="false"
+                aria-controls="cv-panel-07"
+              >
                 <span class="cv-item__project">Издательство Прогресс</span>
+
                 <span class="cv-item__roles" aria-label="роли">
                   <span class="cv-item__role">книжный дизайнер</span>
                 </span>
+
                 <span class="cv-item__period">2013–2015</span>
               </button>
-              <div class="cv-item__body" id="cv-panel-07" role="region" aria-labelledby="cv-trigger-07">
+
+              <div
+                class="cv-item__body"
+                id="cv-panel-07"
+                role="region"
+                aria-labelledby="cv-trigger-07"
+              >
                 <div class="cv-item__content">
                   <h2 class="cv-item__title">Издательство Прогресс</h2>
-                  <p class="cv-item__copy">Российское издательство переводной, гуманитарной, художественной и образовательной литературы.</p>
+
+                  <p class="cv-item__copy">
+                    Российское издательство переводной, гуманитарной, художественной и
+                    образовательной литературы.
+                  </p>
+
                   <ul class="cv-item__meta" hidden></ul>
                   <p class="cv-item__number">07</p>
                 </div>
@@ -222,17 +359,35 @@
             </article>
 
             <article class="cv-item">
-              <button class="cv-item__header" id="cv-trigger-08" type="button" aria-expanded="false" aria-controls="cv-panel-08">
-                <span class="cv-item__project">РИА Новости / Московские новости</span>
+              <button
+                class="cv-item__header"
+                id="cv-trigger-08"
+                type="button"
+                aria-expanded="false"
+                aria-controls="cv-panel-08"
+              >
+                <span class="cv-item__project"> РИА Новости / Московские новости </span>
+
                 <span class="cv-item__roles" aria-label="роли">
                   <span class="cv-item__role">jr-верстальщик</span>
                 </span>
+
                 <span class="cv-item__period">2012</span>
               </button>
-              <div class="cv-item__body" id="cv-panel-08" role="region" aria-labelledby="cv-trigger-08">
+
+              <div
+                class="cv-item__body"
+                id="cv-panel-08"
+                role="region"
+                aria-labelledby="cv-trigger-08"
+              >
                 <div class="cv-item__content">
                   <h2 class="cv-item__title">РИА Новости / Московские новости</h2>
-                  <p class="cv-item__copy">Ежедневная городская общественно-политическая газета о Москве.</p>
+
+                  <p class="cv-item__copy">
+                    Ежедневная городская общественно-политическая газета о Москве.
+                  </p>
+
                   <ul class="cv-item__meta" hidden></ul>
                   <p class="cv-item__number">08</p>
                 </div>
@@ -243,8 +398,9 @@
           <div class="cv-accordion__progress" aria-hidden="true"></div>
         </div>
       </section>
+
     </main>
 
-    <script type="module" src="./main.js"></script>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>

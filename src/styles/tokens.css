@@ -1,0 +1,181 @@
+:root {
+  /* Color primitives */
+
+  --clr-white: hsl(0 0% 100%);
+  --clr-black: hsl(0 0% 7%);
+  --clr-offwhite: hsl(45 24% 87%);
+  --clr-awfulface-ink: var(--clr-black, hsl(0 0% 7%));
+  --awfulface-ink: var(--clr-black, #000);
+
+  --clr-cv-pink: rgb(241 168 195);
+  --clr-cv-red: rgb(244 79 55);
+  --clr-cv-blue: rgb(40 16 154);
+  --clr-cv-lavender: rgb(186 195 216);
+  --clr-cv-brown: rgb(63 40 43);
+  --clr-cv-purple: rgb(109 56 151);
+  --clr-cv-lime: rgb(189 255 74);
+  --clr-cv-warm-gray: rgb(222 216 207);
+  --clr-cv-ink: rgb(13 13 13);
+
+  /* Semantic colors */
+
+  --white: var(--clr-white, #fff);
+  --black: var(--clr-black, #000);
+
+  --text-main: var(--black, #000);
+  --surface-page: var(--white, #fff);
+  --awfulface-ink: var(--clr-black, #000);
+
+  /* Typography */
+
+  --font-primary: "Rubik Variable", system-ui, sans-serif;
+
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Fluid cursor */
+
+  --fluid-cursor-layer: 10;
+  --fluid-cursor-blend-mode: difference;
+
+  /* Hero */
+
+  --hero-page-max: 80rem;
+
+  --hero-page-gutter: clamp(1.5rem, 5vw, 4rem);
+
+  --hero-page-padding-block: clamp(2rem, 6svh, 8rem);
+
+  --hero-section-gap: clamp(2.5rem, 8svh, 5rem);
+
+  --hero-name-size-compact: clamp(2rem, 11.2cqi, 9rem);
+
+  --hero-name-size-wide: clamp(7.5rem, 11.25cqi, 9rem);
+
+  --hero-name-leading: 0.9;
+  --hero-name-tracking: -0.032em;
+
+  --hero-name-weight: var(--font-weight-bold);
+
+  --hero-role-size-compact: clamp(1.25rem, 6.5cqi, 2.8rem);
+
+  --hero-role-size-wide: clamp(3.6rem, 5.6cqi, 4.5rem);
+
+  --hero-role-leading: 0.94;
+  --hero-role-tracking: -0.025em;
+
+  --hero-role-weight: var(--font-weight-semibold);
+
+  --hero-title-gap-compact: clamp(0.8rem, 2.2cqi, 2rem);
+
+  --hero-title-gap-medium: clamp(1.25rem, 2.8cqi, 2.4rem);
+
+  --hero-title-gap-wide: clamp(2rem, 3.2cqi, 2.75rem);
+
+  --hero-awfulface-size-compact: clamp(6rem, 24cqi, 7rem);
+
+  --hero-awfulface-size-medium: clamp(7rem, 18cqi, 9rem);
+
+  --hero-awfulface-size-wide: clamp(10rem, 15cqi, 12rem);
+
+  --hero-copy-size-compact: clamp(1rem, 3.25cqi, 1.5rem);
+
+  --hero-copy-size-medium: clamp(1.25rem, 2.8cqi, 1.75rem);
+
+  --hero-copy-size-wide: clamp(1.5rem, 2.1cqi, 2rem);
+
+  --hero-contact-size-compact: clamp(0.875rem, 2.9cqi, 1.35rem);
+
+  --hero-contact-size-medium: clamp(1.1rem, 2.2cqi, 1.5rem);
+
+  --hero-contact-size-wide: clamp(1.25rem, 1.65cqi, 1.5rem);
+
+  /* CV accordion */
+
+  --cv-page-padding-inline: 0rem;
+  --cv-page-padding-block: 0rem;
+
+  --cv-content-padding-inline: clamp(1rem, 2.1vw, 2.625rem);
+
+  --cv-content-padding-inline-narrow: 0.75rem;
+
+  --cv-header-font-size: clamp(0.6875rem, 0.76vw, 0.9375rem);
+
+  --cv-header-font-size-compact: 0.6875rem;
+
+  --cv-title-size: clamp(2.5rem, 5.8vw, 6.75rem);
+
+  --cv-title-size-compact: clamp(2.1rem, 11vw, 4rem);
+
+  --cv-copy-size: clamp(1rem, 1.3vw, 1.5rem);
+
+  --cv-copy-size-compact: clamp(0.875rem, 3.9vw, 1rem);
+
+  --cv-number-size: clamp(4.5rem, 7vw, 8rem);
+
+  --cv-number-size-compact: clamp(3.75rem, 18vw, 4.5rem);
+
+  --cv-scene-size: 860svh;
+  --cv-scene-size-compact: 760svh;
+
+  --cv-head-size: 6.25rem;
+
+  --cv-item-default-background: var(--clr-white);
+
+  --cv-item-default-foreground: rgb(17 17 17);
+
+  --cv-item-01-background: var(--clr-cv-pink);
+
+  --cv-item-01-foreground: var(--clr-cv-red);
+
+  --cv-item-02-background: var(--clr-cv-red);
+
+  --cv-item-02-foreground: var(--clr-cv-pink);
+
+  --cv-item-03-background: var(--clr-cv-blue);
+
+  --cv-item-03-foreground: var(--clr-cv-pink);
+
+  --cv-item-04-background: var(--clr-cv-lavender);
+
+  --cv-item-04-foreground: var(--clr-cv-brown);
+
+  --cv-item-05-background: var(--clr-cv-purple);
+
+  --cv-item-05-foreground: var(--clr-cv-lime);
+
+  --cv-item-06-background: var(--clr-cv-warm-gray);
+
+  --cv-item-06-foreground: var(--clr-cv-red);
+
+  --cv-item-07-background: var(--clr-white);
+
+  --cv-item-07-foreground: var(--clr-cv-ink);
+
+  --cv-item-08-background: var(--clr-cv-lime);
+
+  --cv-item-08-foreground: var(--clr-cv-ink);
+
+  /* Classics */
+
+  --classics-black: hsl(0 0% 10%);
+
+  --classics-offwhite: var(--clr-offwhite);
+
+  --classics-line-width: clamp(0.1875rem, 0.42cqi, 0.3125rem);
+
+  --classics-padding-inline: clamp(0.75rem, 2.5cqi, 1.35rem);
+
+  --classics-padding-block-start: clamp(0.55rem, 1.8cqi, 1rem);
+
+  --classics-padding-block-end: clamp(0.7rem, 2.2cqi, 1.2rem);
+
+  --classics-font-size-mobile: clamp(1.2rem, 4.75cqi, 3rem);
+
+  --classics-font-size-wide: clamp(1.65rem, 3cqi, 3.6rem);
+}

@@ -101,3 +101,6 @@ public/assets/media/cases/jesteipool/**/placeholders/
 *.rar
 
 # local refactor archives and inactive backup sources
+_awful-audit/
+for-any-agents.txt
+Agents/
