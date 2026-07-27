@@ -349,7 +349,7 @@
     block-size: 100%;
     min-block-size: 0;
 
-    opacity: clamp(0, calc((var(--open-progress) - 0.1) * 1.25), 1);
+    /*opacity: clamp(0, calc((var(--open-progress) - 0.1) * 1.25), 1);*/
 
     transform: translateY(calc((1 - var(--open-progress)) * 2.125rem));
 

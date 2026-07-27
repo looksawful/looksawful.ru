@@ -108,8 +108,7 @@
 
   --cv-header-font-size-compact: 0.6875rem;
 
-  --cv-title-size: clamp(2.5rem, 5.8vw, 6.75rem);
-
+  --cv-title-size: clamp(2.5rem, 5vw, 4.75rem);
   --cv-title-size-compact: clamp(2.1rem, 11vw, 4rem);
 
   --cv-copy-size: clamp(1rem, 1.3vw, 1.5rem);
@@ -178,4 +177,25 @@
   --classics-font-size-mobile: clamp(1.2rem, 4.75cqi, 3rem);
 
   --classics-font-size-wide: clamp(1.65rem, 3cqi, 3.6rem);
+
+  /* Lattice */
+
+  --lattice-black: var(--clr-black);
+  --lattice-offwhite: var(--clr-offwhite);
+  --lattice-overlay: hsl(0 0% 0% / 0.26);
+
+  --lattice-max-inline-size: 112rem;
+  --lattice-min-block-size: 100svh;
+  --lattice-outer-padding: clamp(0.75rem, 2vw, 1.75rem);
+  --lattice-line-width: clamp(0.1875rem, 0.42cqi, 0.3125rem);
+
+  --lattice-cell-padding-inline: clamp(0.75rem, 2.5cqi, 1.35rem);
+  --lattice-cell-padding-block-start: clamp(0.55rem, 1.8cqi, 1rem);
+  --lattice-cell-padding-block-end: clamp(0.7rem, 2.2cqi, 1.2rem);
+
+  --lattice-cell-font-size: clamp(1.2rem, 4.75cqi, 3rem);
+  --lattice-font-weight: var(--font-weight-light);
+
+  --lattice-swap-duration: 260ms;
+  --lattice-swap-easing: cubic-bezier(0.2, 0.75, 0.2, 1);
 }
