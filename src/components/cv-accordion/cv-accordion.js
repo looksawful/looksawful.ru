@@ -1,64 +1,66 @@
+import { createCvAccordionScroll } from "./cv-accordion-scroll.js";
+
 const ACCORDION_DESTROY = Symbol.for("looksawful.cvAccordion.destroy");
 
-const MOBILE_QUERY = "(width <= 50rem)";
-const INTRO_END = 0.075;
+const VALID_MODES = new Set(["scroll", "click", "static"]);
+const VALID_REDUCED_MODES = new Set(["click", "static"]);
 
 const noop = () => {};
 
-export function clamp(value, min = 0, max = 1) {
-  return Math.min(max, Math.max(min, value));
+function normalizeMode(value, fallback = "scroll") {
+  return VALID_MODES.has(value) ? value : fallback;
 }
 
-function interpolate(from, to, amount) {
-  return from + (to - from) * amount;
+function normalizeReducedMode(value, fallback = "click") {
+  return VALID_REDUCED_MODES.has(value) ? value : fallback;
 }
 
-function smoothstep(value) {
-  return value * value * (3 - 2 * value);
+function readInitialIndexes(value, count, multiple) {
+  if (!value || value === "none") {
+    return [];
+  }
+
+  if (value === "first") {
+    return count > 0 ? [0] : [];
+  }
+
+  const indexes = String(value)
+    .split(",")
+    .map((part) => Number.parseInt(part.trim(), 10))
+    .filter((index) => Number.isInteger(index) && index >= 0 && index < count);
+
+  return multiple ? [...new Set(indexes)] : indexes.slice(0, 1);
 }
 
-export function computeAccordionFrame({
-  progress,
-  itemCount,
-  initialHeaderSize,
-  compactHeaderSize,
-  availablePanelSize,
-  introEnd = INTRO_END,
-}) {
-  const safeCount = Math.max(1, Math.trunc(itemCount));
-
-  const normalizedProgress = clamp(progress);
-
-  const introProgress = smoothstep(clamp(normalizedProgress / introEnd));
-
-  const headerSize = interpolate(initialHeaderSize, compactHeaderSize, introProgress);
-
-  const cursor = clamp((normalizedProgress - introEnd) / (1 - introEnd)) * (safeCount - 1);
-
-  const previousIndex = Math.floor(cursor);
-
-  const nextIndex = Math.min(safeCount - 1, previousIndex + 1);
-
-  const transition = smoothstep(cursor - previousIndex);
-
-  const activities = Array.from(
-    {
-      length: safeCount,
-    },
-    () => 0,
+function directElementChildren(element) {
+  return Array.from(element.children).filter(
+    (child) => child instanceof HTMLElement,
   );
+}
 
-  activities[previousIndex] += (1 - transition) * introProgress;
+function createRecord(item, index) {
+  const header = item.firstElementChild;
+  const panel = header?.nextElementSibling ?? null;
 
-  activities[nextIndex] += transition * introProgress;
+  if (!(header instanceof HTMLElement)) {
+    return null;
+  }
+
+  if (panel && !(panel instanceof HTMLElement)) {
+    return null;
+  }
+
+  if (panel && !(header instanceof HTMLButtonElement)) {
+    return null;
+  }
 
   return {
-    progress: normalizedProgress,
-    headerSize,
-
-    availablePanelSize: Math.max(0, availablePanelSize),
-
-    activities,
+    index,
+    item,
+    header,
+    panel,
+    content: panel?.firstElementChild ?? panel,
+    expandable: panel instanceof HTMLElement && header instanceof HTMLButtonElement,
   };
 }
 
@@ -73,336 +75,309 @@ export function createCvAccordion({ root = document, motion } = {}) {
     return null;
   }
 
-  const previousDestroy = scene[ACCORDION_DESTROY];
-
-  if (typeof previousDestroy === "function") {
-    previousDestroy();
-  }
+  scene[ACCORDION_DESTROY]?.();
 
   const component = scene.querySelector("[data-cv-accordion]");
+  const list = component?.querySelector("[data-cv-accordion-list]");
 
-  const list = scene.querySelector("[data-cv-accordion-list]");
-
-  const items = Array.from(scene.querySelectorAll(".cv-item"));
-
-  const headers = items.map((item) => item.querySelector(".cv-item__header"));
-
-  const panels = items.map((item) => item.querySelector(".cv-item__body"));
-
-  if (
-    !(component instanceof HTMLElement) ||
-    !(list instanceof HTMLElement) ||
-    items.length === 0 ||
-    headers.some((header) => !(header instanceof HTMLButtonElement)) ||
-    panels.some((panel) => !(panel instanceof HTMLElement))
-  ) {
+  if (!(component instanceof HTMLElement) || !(list instanceof HTMLElement)) {
     return null;
   }
 
-  const mobileLayout = window.matchMedia(MOBILE_QUERY);
+  const records = directElementChildren(list).map(createRecord);
 
-  const itemCount = items.length;
+  if (records.length === 0 || records.some((record) => record === null)) {
+    return null;
+  }
 
-  const clickHandlers = [];
+  const requestedMode = normalizeMode(scene.dataset.mode, "scroll");
+  const reducedMode = normalizeReducedMode(scene.dataset.reducedMode, "click");
+  const multiple = scene.hasAttribute("data-multiple");
+  const initialIndexes = readInitialIndexes(
+    scene.dataset.initial,
+    records.length,
+    multiple,
+  );
+  const clickCleanups = [];
+  const openIndexes = new Set();
 
-  const resizeObserver = new ResizeObserver(() => {
-    rebuild();
-  });
-
-  let animationFrame = 0;
-  let geometry = null;
   let destroyed = false;
+  let resolvedMode = null;
+  let scrollActiveIndex = -1;
+  let motionAllowed =
+    typeof motion?.allowsMotion === "function" ? motion.allowsMotion() : false;
 
-  /*
-   * Без разрешённого motion компонент
-   * работает как обычный аккордеон.
-   */
-  let mode = "click";
-  let openIndex = -1;
+  function clearRuntimeStyles() {
+    component.style.removeProperty("--cv-progress");
 
-  function cancelRender() {
-    if (!animationFrame) {
+    records.forEach(({ item, header }) => {
+      item.style.removeProperty("--cv-header-height");
+      item.style.removeProperty("--cv-header-presence");
+      item.style.removeProperty("--cv-panel-height");
+      item.style.removeProperty("--cv-panel-viewport-height");
+      item.style.removeProperty("--cv-open-progress");
+      item.style.removeProperty("--cv-content-offset");
+      item.removeAttribute("data-cv-header-visible");
+      header.inert = false;
+    });
+  }
+
+  function setExpanded(record, expanded, { hidePanel } = {}) {
+    if (!record.expandable) {
       return;
     }
 
-    window.cancelAnimationFrame(animationFrame);
+    record.item.toggleAttribute("data-open", expanded);
+    record.header.setAttribute("aria-expanded", String(expanded));
+    record.panel.inert = !expanded;
 
-    animationFrame = 0;
+    if (typeof hidePanel === "boolean") {
+      record.panel.hidden = hidePanel && !expanded;
+    }
   }
 
-  function clearItemStyles() {
-    items.forEach((item) => {
-      item.style.removeProperty("--head-size");
-
-      item.style.removeProperty("--body-size");
-
-      item.style.removeProperty("--open-progress");
-    });
-
-    component.style.removeProperty("--progress");
+  function closeClickRecord(record) {
+    openIndexes.delete(record.index);
+    setExpanded(record, false, { hidePanel: true });
   }
 
-  function setOpenItem(nextIndex = -1) {
-    openIndex = nextIndex;
+  function openClickRecord(record) {
+    if (!multiple) {
+      records.forEach((candidate) => {
+        if (candidate !== record && candidate.expandable) {
+          closeClickRecord(candidate);
+        }
+      });
+    }
 
-    items.forEach((item, index) => {
-      const isOpen = index === openIndex;
-
-      item.toggleAttribute("data-open", isOpen);
-
-      headers[index].setAttribute("aria-expanded", String(isOpen));
-
-      panels[index].hidden = !isOpen;
-    });
+    openIndexes.add(record.index);
+    setExpanded(record, true, { hidePanel: true });
   }
 
-  function setClickMode() {
-    mode = "click";
-    geometry = null;
-
-    cancelRender();
-    clearItemStyles();
-
-    scene.dataset.cvAccordionMode = "click";
-
-    scene.removeAttribute("data-cv-accordion-mounted");
-
-    headers.forEach((header) => {
-      header.disabled = false;
-    });
-
-    /*
-     * Все пункты закрыты
-     * по умолчанию.
-     */
-    setOpenItem(-1);
+  function toggleClickRecord(record) {
+    if (openIndexes.has(record.index)) {
+      closeClickRecord(record);
+    } else {
+      openClickRecord(record);
+    }
   }
 
-  function setScrollMode() {
-    mode = "scroll";
-    openIndex = -1;
-    geometry = null;
-
-    items.forEach((item, index) => {
-      item.removeAttribute("data-open");
-
-      /*
-       * В scroll-режиме панели
-       * регулируются через CSS-высоту,
-       * поэтому hidden нужно убрать.
-       */
-      panels[index].hidden = false;
-
-      headers[index].disabled = false;
-
-      headers[index].setAttribute("aria-expanded", "false");
-    });
-
-    scene.dataset.cvAccordionMode = "scroll";
-
-    scene.dataset.cvAccordionMounted = "true";
-
-    measure();
-    render();
-  }
-
-  function measure() {
-    const listSize = Math.max(1, list.clientHeight);
-
-    const componentSize = Math.max(1, component.getBoundingClientRect().height);
-
-    const initialHeaderSize = listSize / itemCount;
-
-    const isMobile = mobileLayout.matches;
-
-    const desiredCompactSize = clamp(
-      listSize * (isMobile ? 0.085 : 0.068),
-
-      isMobile ? 54 : 46,
-
-      isMobile ? 68 : 62,
-    );
-
-    const minimumPanelSize = clamp(
-      listSize * (isMobile ? 0.24 : 0.34),
-
-      isMobile ? 140 : 220,
-
-      isMobile ? 220 : 420,
-    );
-
-    const maximumCompactSize = Math.max(
-      42,
-
-      (listSize - minimumPanelSize) / itemCount,
-    );
-
-    const compactHeaderSize = Math.min(initialHeaderSize, desiredCompactSize, maximumCompactSize);
-
-    const sceneRect = scene.getBoundingClientRect();
-
-    geometry = {
-      initialHeaderSize,
-      compactHeaderSize,
-
-      availablePanelSize: Math.max(
-        0,
-
-        listSize - compactHeaderSize * itemCount,
-      ),
-
-      sceneStart: sceneRect.top + window.scrollY,
-
-      scrollRange: Math.max(
-        1,
-
-        scene.offsetHeight - componentSize,
-      ),
-    };
-  }
-
-  function render() {
-    animationFrame = 0;
-
-    if (destroyed || mode !== "scroll") {
+  function setScrollActiveIndex(index) {
+    if (scrollActiveIndex === index) {
       return;
     }
 
-    if (!geometry) {
-      measure();
-    }
+    scrollActiveIndex = index;
 
-    const progress = (window.scrollY - geometry.sceneStart) / geometry.scrollRange;
-
-    const frame = computeAccordionFrame({
-      progress,
-      itemCount,
-
-      initialHeaderSize: geometry.initialHeaderSize,
-
-      compactHeaderSize: geometry.compactHeaderSize,
-
-      availablePanelSize: geometry.availablePanelSize,
+    records.forEach((record) => {
+      if (record.expandable) {
+        setExpanded(record, record.index === scrollActiveIndex, {
+          hidePanel: false,
+        });
+      }
     });
+  }
 
-    items.forEach((item, index) => {
-      const activity = frame.activities[index];
+  function renderScrollFrame(frame) {
+    component.style.setProperty("--cv-progress", frame.progress.toFixed(4));
 
-      item.style.setProperty("--head-size", `${frame.headerSize}px`);
+    records.forEach(({ item, header }, index) => {
+      const activity = frame.activities[index] ?? 0;
+      const contentOffset = frame.contentOffsets[index] ?? 0;
+      const headerPresence = frame.headerPresences[index] ?? 0;
+      const headerVisible = headerPresence > 0.01;
 
       item.style.setProperty(
-        "--body-size",
-
-        `${frame.availablePanelSize * activity}px`,
+        "--cv-header-height",
+        `${frame.headerSizes[index] ?? 0}px`,
       );
-
-      item.style.setProperty("--open-progress", activity.toFixed(4));
-
-      headers[index].setAttribute(
-        "aria-expanded",
-
-        activity > 0.5 ? "true" : "false",
+      item.style.setProperty(
+        "--cv-header-presence",
+        headerPresence.toFixed(4),
       );
+      item.style.setProperty(
+        "--cv-panel-height",
+        `${frame.panelHeights[index] ?? 0}px`,
+      );
+      item.style.setProperty(
+        "--cv-panel-viewport-height",
+        `${frame.panelViewportSizes[index] ?? 0}px`,
+      );
+      item.style.setProperty("--cv-open-progress", activity.toFixed(4));
+      item.style.setProperty("--cv-content-offset", `${contentOffset}px`);
+      item.dataset.cvHeaderVisible = String(headerVisible);
+      header.inert = !headerVisible;
     });
 
-    component.style.setProperty("--progress", frame.progress.toFixed(4));
+    component.dispatchEvent(
+      new CustomEvent("cvaccordionframe", {
+        detail: { frame },
+      }),
+    );
   }
 
-  function requestRender() {
-    if (animationFrame || destroyed || mode !== "scroll") {
-      return;
-    }
+  const scroll = createCvAccordionScroll({
+    scene,
+    component,
+    list,
+    records,
+    onFrame: renderScrollFrame,
+    onActiveIndexChange: setScrollActiveIndex,
+  });
 
-    animationFrame = window.requestAnimationFrame(render);
+  if (!scroll) {
+    return null;
   }
 
-  function rebuild() {
-    if (destroyed || mode !== "scroll") {
-      return;
-    }
+  function applyClickMode() {
+    scroll.deactivate();
+    clearRuntimeStyles();
 
-    geometry = null;
+    openIndexes.clear();
+    scrollActiveIndex = -1;
 
-    measure();
-    render();
-  }
+    scene.dataset.resolvedMode = "click";
+    scene.removeAttribute("data-mounted");
 
-  function syncMotionPreference({ allowed } = {}) {
-    if (allowed) {
-      setScrollMode();
-    } else {
-      setClickMode();
-    }
-  }
+    records.forEach((record) => {
+      record.item.removeAttribute("data-open");
+      record.item.removeAttribute("data-cv-header-visible");
+      record.header.inert = false;
 
-  headers.forEach((header, index) => {
-    const handleClick = () => {
-      /*
-       * Reduced-motion режим:
-       * обычный аккордеон.
-       */
-      if (mode === "click") {
-        setOpenItem(openIndex === index ? -1 : index);
-
+      if (!record.expandable) {
         return;
       }
 
-      /*
-       * Scroll-driven режим:
-       * повторный клик по раскрытому
-       * пункту возвращает сцену
-       * в закрытое начальное состояние.
-       */
-      if (!geometry) {
-        measure();
-      }
+      record.header.disabled = false;
+      setExpanded(record, false, { hidePanel: true });
+    });
 
-      const isOpen = header.getAttribute("aria-expanded") === "true";
+    initialIndexes.forEach((index) => {
+      const record = records[index];
 
-      const itemProgress = itemCount === 1 ? 0 : index / (itemCount - 1);
-
-      const progress = isOpen ? 0 : INTRO_END + itemProgress * (1 - INTRO_END);
-
-      const target = geometry.sceneStart + progress * geometry.scrollRange;
-
-      window.scrollTo({
-        top: target,
-        behavior: "smooth",
-      });
-    };
-
-    clickHandlers.push(handleClick);
-
-    header.addEventListener("click", handleClick);
-  });
-
-  window.addEventListener("scroll", requestRender, {
-    passive: true,
-  });
-
-  window.addEventListener("resize", rebuild);
-
-  window.visualViewport?.addEventListener("resize", rebuild);
-
-  mobileLayout.addEventListener("change", rebuild);
-
-  resizeObserver.observe(component);
-
-  const unsubscribeMotion =
-    typeof motion?.subscribe === "function"
-      ? motion.subscribe(syncMotionPreference)
-      : (() => {
-          setClickMode();
-          return noop;
-        })();
-
-  if (document.fonts?.ready) {
-    void document.fonts.ready.then(() => {
-      if (!destroyed) {
-        rebuild();
+      if (record?.expandable) {
+        openClickRecord(record);
       }
     });
   }
+
+  function applyStaticMode() {
+    scroll.deactivate();
+    clearRuntimeStyles();
+
+    openIndexes.clear();
+    scrollActiveIndex = -1;
+
+    scene.dataset.resolvedMode = "static";
+    scene.removeAttribute("data-mounted");
+
+    records.forEach((record) => {
+      if (!record.expandable) {
+        return;
+      }
+
+      record.header.disabled = true;
+      record.panel.hidden = false;
+      setExpanded(record, true, { hidePanel: false });
+    });
+  }
+
+  function applyScrollMode() {
+    clearRuntimeStyles();
+
+    openIndexes.clear();
+    scrollActiveIndex = -1;
+
+    scene.dataset.resolvedMode = "scroll";
+    scene.dataset.mounted = "true";
+
+    records.forEach((record) => {
+      record.item.removeAttribute("data-open");
+      record.item.removeAttribute("data-cv-header-visible");
+      record.header.inert = false;
+
+      if (!record.expandable) {
+        return;
+      }
+
+      record.header.disabled = false;
+      record.header.inert = false;
+      record.header.setAttribute("aria-expanded", "false");
+      record.panel.hidden = false;
+      record.panel.inert = true;
+    });
+
+    scroll.activate();
+  }
+
+  function resolveMode() {
+    if (requestedMode === "static") {
+      return "static";
+    }
+
+    if (requestedMode === "scroll" && !motionAllowed) {
+      return reducedMode;
+    }
+
+    return requestedMode;
+  }
+
+  function applyResolvedMode() {
+    const nextMode = resolveMode();
+
+    if (nextMode === resolvedMode) {
+      return;
+    }
+
+    resolvedMode = nextMode;
+
+    if (resolvedMode === "scroll") {
+      applyScrollMode();
+    } else if (resolvedMode === "click") {
+      applyClickMode();
+    } else {
+      applyStaticMode();
+    }
+  }
+
+  records.forEach((record) => {
+    if (!record.expandable) {
+      return;
+    }
+
+    const handleClick = () => {
+      if (resolvedMode === "click") {
+        toggleClickRecord(record);
+        return;
+      }
+
+      if (resolvedMode === "scroll") {
+        const behavior = motionAllowed ? "smooth" : "auto";
+
+        if (scrollActiveIndex === record.index) {
+          scroll.scrollToStart({ behavior });
+        } else {
+          scroll.scrollToIndex(record.index, { behavior });
+        }
+      }
+    };
+
+    record.header.addEventListener("click", handleClick);
+    clickCleanups.push(() => record.header.removeEventListener("click", handleClick));
+  });
+
+  const unsubscribeMotion =
+    typeof motion?.subscribe === "function"
+      ? motion.subscribe(
+          ({ allowed } = {}) => {
+            motionAllowed = allowed === true;
+            applyResolvedMode();
+          },
+          { immediate: false },
+        )
+      : noop;
+
+  applyResolvedMode();
 
   const destroyCvAccordion = () => {
     if (destroyed) {
@@ -412,41 +387,33 @@ export function createCvAccordion({ root = document, motion } = {}) {
     destroyed = true;
 
     unsubscribeMotion();
-    cancelRender();
+    scroll.destroy();
 
-    resizeObserver.disconnect();
+    while (clickCleanups.length) {
+      clickCleanups.pop()?.();
+    }
 
-    window.removeEventListener("scroll", requestRender);
+    records.forEach((record) => {
+      record.item.removeAttribute("data-open");
+      record.item.removeAttribute("data-cv-header-visible");
+      record.header.inert = false;
 
-    window.removeEventListener("resize", rebuild);
+      if (!record.expandable) {
+        return;
+      }
 
-    window.visualViewport?.removeEventListener("resize", rebuild);
-
-    mobileLayout.removeEventListener("change", rebuild);
-
-    headers.forEach((header, index) => {
-      header.removeEventListener("click", clickHandlers[index]);
-
-      header.setAttribute("aria-expanded", "false");
-
-      header.disabled = false;
-
-      /*
-       * После уничтожения JS
-       * возвращаем доступный HTML.
-       */
-      panels[index].hidden = false;
+      record.header.disabled = false;
+      record.header.inert = false;
+      record.header.setAttribute("aria-expanded", "false");
+      record.panel.hidden = false;
+      record.panel.inert = false;
     });
 
-    items.forEach((item) => {
-      item.removeAttribute("data-open");
-    });
+    scene.removeAttribute("data-resolved-mode");
+    scene.removeAttribute("data-mounted");
+    scene.style.removeProperty("--cv-scroll-runtime-size");
 
-    scene.removeAttribute("data-cv-accordion-mode");
-
-    scene.removeAttribute("data-cv-accordion-mounted");
-
-    clearItemStyles();
+    clearRuntimeStyles();
 
     if (scene[ACCORDION_DESTROY] === destroyCvAccordion) {
       delete scene[ACCORDION_DESTROY];

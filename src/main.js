@@ -12,19 +12,46 @@ import "./components/awfulface/awfulface.css";
 import "./components/cursor-trail/cursor-trail.css";
 import "./components/hero/hero.css";
 import "./components/cv-accordion/cv-accordion.css";
-import "./components/classics/classics.css";
-import "./components/lattice/lattice.css";
+import "./components/media-slider/media-slider.css";
+import "./components/before-after/before-after.css";
+import "./components/app-promo/app-promo.css";
+import "./components/browser-promo/browser-promo.css";
+import "./components/digital-scroll-gallery/digital-scroll-gallery.css";
+import "./components/awful-tools-preview/awful-tools-preview.css";
+import "./components/moves-awful/moves-awful.css";
+import "./components/animated-canvas-gallery/animated-canvas-gallery.css";
+import "./components/animated-canvas-gallery/animated-canvas-gallery-preview.css";
+import "./components/repository-link/repository-link.css";
 
 /*
  * JavaScript компонентов.
  */
+import "./components/playlist-filter-workflow/playlist-filter-workflow.js";
+import "./components/awful-tools-preview/awful-tools-preview.js";
+
+import { createDigitalScrollGalleries } from "./components/digital-scroll-gallery/digital-scroll-gallery.js";
+
 import { createCvAccordion } from "./components/cv-accordion/cv-accordion.js";
 
 import { createHero } from "./components/hero/hero.js";
 
-import { createLattice } from "./components/lattice/lattice.js";
+import { createMediaSliders } from "./components/media-slider/media-slider.js";
+
+import { createBeforeAfters } from "./components/before-after/before-after.js";
 
 import { createMotionPreference } from "./motion-preference.js";
+
+import {
+  createAnimatedCanvasGalleries,
+} from "./components/animated-canvas-gallery/animated-canvas-gallery.js";
+
+import {
+  createAnimatedCanvasGalleryPreviews,
+} from "./components/animated-canvas-gallery/animated-canvas-gallery-preview.js";
+
+import {
+  ANIMATED_CANVAS_GALLERY_SOURCES,
+} from "./content/animated-canvas-gallery-sources.js";
 
 /*
  * Общий сервис motion preference.
@@ -35,8 +62,12 @@ let motionPreference = null;
  * Функции уничтожения компонентов.
  */
 let destroyHero = null;
+let destroyMediaSliders = null;
+let destroyBeforeAfters = null;
+let destroyDigitalScrollGalleries = null;
 let destroyCvAccordion = null;
-let destroyLattice = null;
+let destroyAnimatedCanvasGalleryPreviews = null;
+let destroyAnimatedCanvasGalleries = null;
 
 /*
  * Временный обработчик DOMContentLoaded.
@@ -48,11 +79,23 @@ let domReadyHandler = null;
  * в обратном порядке mount.
  */
 function unmount() {
-  destroyLattice?.();
-  destroyLattice = null;
+  destroyAnimatedCanvasGalleries?.();
+  destroyAnimatedCanvasGalleries = null;
+
+  destroyAnimatedCanvasGalleryPreviews?.();
+  destroyAnimatedCanvasGalleryPreviews = null;
 
   destroyCvAccordion?.();
   destroyCvAccordion = null;
+
+  destroyDigitalScrollGalleries?.();
+  destroyDigitalScrollGalleries = null;
+
+  destroyBeforeAfters?.();
+  destroyBeforeAfters = null;
+
+  destroyMediaSliders?.();
+  destroyMediaSliders = null;
 
   destroyHero?.();
   destroyHero = null;
@@ -77,14 +120,32 @@ function mount() {
     motion: motionPreference,
   });
 
+  destroyMediaSliders = createMediaSliders({
+    root: document,
+    motion: motionPreference,
+  });
+
+  destroyBeforeAfters = createBeforeAfters({
+    root: document,
+    motion: motionPreference,
+  });
+
+  destroyDigitalScrollGalleries = createDigitalScrollGalleries({
+    root: document,
+  });
+
   destroyCvAccordion = createCvAccordion({
     root: document,
     motion: motionPreference,
   });
 
-  destroyLattice = createLattice({
+  destroyAnimatedCanvasGalleryPreviews = createAnimatedCanvasGalleryPreviews({
     root: document,
-    motion: motionPreference,
+  });
+
+  destroyAnimatedCanvasGalleries = createAnimatedCanvasGalleries({
+    root: document,
+    sources: ANIMATED_CANVAS_GALLERY_SOURCES,
   });
 }
 

@@ -72,7 +72,6 @@ _local/tmp/*
 !_local/tmp/.gitkeep
 
 # temporary local patch scripts
-tools/apply-stage*.ps1
 tools/
 
 # local media sources / generated normalization folders
@@ -104,3 +103,8 @@ public/assets/media/cases/jesteipool/**/placeholders/
 _awful-audit/
 for-any-agents.txt
 Agents/
+real-media-temp/
+_local/media-backup/
+MEDIA-TEMP/
+index.before-media-migration.html
+public/assets/media/cases/

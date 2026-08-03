@@ -13,6 +13,9 @@
   }
 
   .hero__page {
+    position: relative;
+    z-index: 1;
+
     container: hero / inline-size;
 
     display: grid;

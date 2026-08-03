@@ -1,0 +1,15 @@
+@layer components {
+  .awful-tools-stack {
+    display: grid;
+    gap: clamp(4rem, 11vw, 9rem);
+    inline-size: min(100%, 96rem);
+    margin-inline: auto;
+    padding-inline: var(--cv-panel-padding-inline);
+  }
+
+  awful-tool-preview {
+    display: block;
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+}

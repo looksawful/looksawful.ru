@@ -38,9 +38,19 @@
   --font-weight-extrabold: 800;
   --font-weight-black: 900;
 
+  /* Spacing */
+
+  --space-3xs: clamp(0.25rem, 0.5vw, 0.5rem);
+  --space-2xs: clamp(0.5rem, 0.75vw, 0.75rem);
+  --space-xs: clamp(0.75rem, 1.6vw, 2rem);
+  --space-s: clamp(1rem, 2vw, 2rem);
+  --space-m: clamp(1.5rem, 4vw, 3.375rem);
+  --space-l: clamp(2rem, 4vw, 4rem);
+  --space-xl: clamp(2.5rem, 6vw, 6rem);
+
   /* Fluid cursor */
 
-  --fluid-cursor-layer: 10;
+  --fluid-cursor-layer: 0;
   --fluid-cursor-blend-mode: difference;
 
   /* Hero */
@@ -159,6 +169,26 @@
   --cv-item-08-background: var(--clr-cv-lime);
 
   --cv-item-08-foreground: var(--clr-cv-ink);
+
+  /* Additional CV scene themes */
+
+  --cv-illumihand-background: rgb(232 255 98);
+  --cv-illumihand-foreground: rgb(58 30 120);
+
+  --cv-berry-background: rgb(213 52 104);
+  --cv-berry-foreground: rgb(255 211 227);
+
+  --cv-ss-background: rgb(217 243 228);
+  --cv-ss-foreground: rgb(22 59 47);
+
+  --cv-digital-arts-background: rgb(42 67 255);
+  --cv-digital-arts-foreground: rgb(243 245 255);
+
+  --cv-awful-tools-background: rgb(18 18 18);
+  --cv-awful-tools-foreground: rgb(200 255 61);
+
+  --cv-moves-awful-background: rgb(255 90 47);
+  --cv-moves-awful-foreground: rgb(255 240 216);
 
   /* Classics */
 

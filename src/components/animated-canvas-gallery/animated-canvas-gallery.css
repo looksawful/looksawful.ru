@@ -1,0 +1,128 @@
+@layer components {
+  .animated-canvas-gallery {
+    --animated-canvas-gallery-aspect-ratio: 16 / 9;
+    --animated-canvas-gallery-background: transparent;
+    --animated-canvas-gallery-radius: 0;
+    --arc-title-font-family:
+      var(--font-primary, "Rubik Variable", system-ui, sans-serif);
+    --arc-title-font-weight:
+      var(--font-weight-medium, 500);
+    --arc-title-color: currentColor;
+
+    position: relative;
+    display: block;
+    inline-size: 100%;
+    min-inline-size: 0;
+    aspect-ratio:
+      var(--animated-canvas-gallery-aspect-ratio);
+    overflow: clip;
+    border-radius:
+      var(--animated-canvas-gallery-radius);
+    background:
+      var(--animated-canvas-gallery-background);
+    contain: layout paint;
+    isolation: isolate;
+  }
+
+  .animated-canvas-gallery > canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    touch-action: pan-y;
+    visibility: hidden;
+  }
+
+  .animated-canvas-gallery[data-gallery-state="ready"] > canvas {
+    visibility: visible;
+  }
+
+  .animated-canvas-gallery[data-gallery-state="ready"]
+    > [data-gallery-fallback] {
+    display: none;
+  }
+
+  .cv-story--canvas > .animated-canvas-gallery {
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  .animated-canvas-gallery[data-gallery-state="empty"]::after,
+  .animated-canvas-gallery[data-gallery-state="error"]::after {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    color: currentColor;
+    font: inherit;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .animated-canvas-gallery[data-gallery-state="empty"]::after {
+    content: "no media";
+    opacity: 0.45;
+  }
+
+  .animated-canvas-gallery[data-gallery-state="error"]::after {
+    content: "gallery error";
+  }
+
+  .animated-canvas-gallery-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+    background: rgb(0 0 0 / 0.82);
+  }
+
+  .animated-canvas-gallery-lightbox__figure {
+    max-inline-size: min(88vw, 60rem);
+    max-block-size: 86vh;
+    margin: 0;
+  }
+
+  .animated-canvas-gallery-lightbox__image {
+    display: block;
+    max-inline-size: 100%;
+    max-block-size: 86vh;
+    margin: auto;
+    object-fit: contain;
+  }
+
+  .animated-canvas-gallery-lightbox__caption {
+    display: none;
+  }
+
+  .animated-canvas-gallery-lightbox__close {
+    position: fixed;
+    inset-block-start: 1rem;
+    inset-inline-end: 1rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    font: 400 1.75rem/1 system-ui, sans-serif;
+  }
+
+  .animated-canvas-gallery-lightbox__close:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 0.25rem;
+  }
+}
+
+@media (width > 50rem) {
+  .cv-story--canvas > .animated-canvas-gallery {
+    grid-column: 5 / 13;
+    grid-row: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-canvas-gallery {
+    scroll-behavior: auto;
+  }
+}
