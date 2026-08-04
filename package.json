@@ -4,13 +4,25 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node tools/media/dev-media.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "media:test": "node --test tools/media/tests/media-core.test.mjs",
     "media:audit": "node tools/media/migrate-media.mjs",
     "media:migrate": "node tools/media/migrate-media.mjs --apply",
-    "media:verify": "node tools/media/verify-media.mjs"
+    "media:verify": "node tools/media/verify-media-system.mjs --mode build",
+    "dev:site": "vite",
+    "build:site": "vite build",
+    "media:legacy:verify": "node tools/media/verify-media.mjs",
+    "media:bootstrap:check": "node tools/media/bootstrap-media-sources.mjs",
+    "media:bootstrap": "node tools/media/bootstrap-media-sources.mjs --apply",
+    "media:prepare": "node tools/media/prepare-media.mjs",
+    "media:watch": "node tools/media/watch-media.mjs",
+    "media:annotate:check": "node tools/media/annotate-media-items.mjs",
+    "media:annotate": "node tools/media/annotate-media-items.mjs --apply",
+    "media:verify:strict": "node tools/media/verify-media-system.mjs --mode strict",
+    "media:system:test": "node --test tools/media/tests/media-system-core.test.mjs",
+    "media:install": "node tools/media/install-media-system.mjs --apply"
   },
   "devDependencies": {
     "playwright": "^1.61.1",

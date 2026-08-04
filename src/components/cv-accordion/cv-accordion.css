@@ -85,80 +85,69 @@
   }
 
   /*
-   * Тема принадлежит Scene и не зависит от её позиции в Accordion.
-   * Удаление, добавление или перестановка сцен больше не сдвигает цвета.
+   * Обычные Scene получают исходные цветовые пары автоматически по кругу.
+   * data-cv-theme="default" остаётся единственным фиксированным исключением
+   * и не участвует в подсчёте последовательности.
+   * Остальные legacy-значения data-cv-theme могут оставаться в HTML:
+   * они больше не управляют цветом и не требуют ручного обслуживания.
    */
-  .cv-item[data-cv-theme="item-01"] {
-    --item-bg: var(--cv-item-01-background);
-    --item-ink: var(--cv-item-01-foreground);
-  }
-
-  .cv-item[data-cv-theme="item-02"] {
-    --item-bg: var(--cv-item-02-background);
-    --item-ink: var(--cv-item-02-foreground);
-  }
-
   .cv-item[data-cv-theme="default"] {
     --item-bg: var(--cv-item-default-background);
     --item-ink: var(--cv-item-default-foreground);
   }
 
-  .cv-item[data-cv-theme="illumihand"] {
-    --item-bg: var(--cv-illumihand-background);
-    --item-ink: var(--cv-illumihand-foreground);
+  .cv-item:nth-child(
+    8n + 1 of .cv-item:not([data-cv-theme="default"])
+  ) {
+    --item-bg: var(--cv-item-01-background);
+    --item-ink: var(--cv-item-01-foreground);
   }
 
-  .cv-item[data-cv-theme="berry"] {
-    --item-bg: var(--cv-berry-background);
-    --item-ink: var(--cv-berry-foreground);
+  .cv-item:nth-child(
+    8n + 2 of .cv-item:not([data-cv-theme="default"])
+  ) {
+    --item-bg: var(--cv-item-02-background);
+    --item-ink: var(--cv-item-02-foreground);
   }
 
-  .cv-item[data-cv-theme="ss"] {
-    --item-bg: var(--cv-ss-background);
-    --item-ink: var(--cv-ss-foreground);
-  }
-
-  .cv-item[data-cv-theme="digital-arts"] {
-    --item-bg: var(--cv-digital-arts-background);
-    --item-ink: var(--cv-digital-arts-foreground);
-  }
-
-  .cv-item[data-cv-theme="awful-tools"] {
-    --item-bg: var(--cv-awful-tools-background);
-    --item-ink: var(--cv-awful-tools-foreground);
-  }
-
-  .cv-item[data-cv-theme="moves-awful"] {
-    --item-bg: var(--cv-moves-awful-background);
-    --item-ink: var(--cv-moves-awful-foreground);
-  }
-
-  .cv-item[data-cv-theme="item-03"] {
+  .cv-item:nth-child(
+    8n + 3 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-03-background);
     --item-ink: var(--cv-item-03-foreground);
   }
 
-  .cv-item[data-cv-theme="item-04"] {
+  .cv-item:nth-child(
+    8n + 4 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-04-background);
     --item-ink: var(--cv-item-04-foreground);
   }
 
-  .cv-item[data-cv-theme="item-05"] {
+  .cv-item:nth-child(
+    8n + 5 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-05-background);
     --item-ink: var(--cv-item-05-foreground);
   }
 
-  .cv-item[data-cv-theme="item-06"] {
+  .cv-item:nth-child(
+    8n + 6 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-06-background);
     --item-ink: var(--cv-item-06-foreground);
   }
 
-  .cv-item[data-cv-theme="item-07"] {
+  .cv-item:nth-child(
+    8n + 7 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-07-background);
     --item-ink: var(--cv-item-07-foreground);
   }
 
-  .cv-item[data-cv-theme="item-08"] {
+  .cv-item:nth-child(
+    8n + 8 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-08-background);
     --item-ink: var(--cv-item-08-foreground);
   }

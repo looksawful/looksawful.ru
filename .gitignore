@@ -108,3 +108,10 @@ _local/media-backup/
 MEDIA-TEMP/
 index.before-media-migration.html
 public/assets/media/cases/
+
+# Media System generated files
+.cache/media/
+media/.compression-backup/
+public/media/generated/
+src/generated/media-manifest.json
+src/generated/media-manifest.js
