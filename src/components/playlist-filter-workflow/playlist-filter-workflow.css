@@ -923,6 +923,14 @@
 }
 
 @layer utilities {
+    .stable-slot {
+        block-size: var(--stable-slot-block-size, auto);
+        min-block-size: var(--stable-slot-min-block-size, 0);
+        max-block-size: var(--stable-slot-max-block-size, none);
+        overflow: var(--stable-slot-overflow, clip);
+        contain: layout paint;
+    }
+
     .visually-hidden {
         position: absolute;
         inline-size: 1px;
@@ -4191,6 +4199,8 @@
 .workflow-preview {
     inline-size: 100%;
     justify-items: center;
+    --stable-slot-block-size: min(48rem, 78svh);
+    --stable-slot-overflow: clip;
 }
 
 @media (width > 64rem) {
@@ -4200,5 +4210,33 @@
 
     .workflow-preview {
         justify-items: center;
+        --stable-slot-block-size: min(68rem, 86svh);
     }
+}
+
+.workflow-preview.stable-slot
+    > device-mockup[data-workflow-choreography="true"] {
+    block-size: 100%;
+    max-block-size: 100%;
+}
+
+.workflow-preview.stable-slot
+    > device-mockup[data-workflow-choreography="true"]
+    > main {
+    overflow: hidden;
+}
+
+.workflow-preview.stable-slot
+    > device-mockup[data-workflow-choreography="true"]
+    > main
+    > .filter-shell.stable-slot {
+    --stable-slot-block-size: 100%;
+    --stable-slot-overflow: auto;
+    block-size: var(--stable-slot-block-size);
+    min-block-size: 0;
+    max-block-size: 100%;
+    overflow: var(--stable-slot-overflow);
+    contain: layout paint;
+    scrollbar-gutter: stable;
+    overscroll-behavior: contain;
 }

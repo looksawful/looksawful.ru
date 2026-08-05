@@ -1,3 +1,5 @@
+import { getPetPreviewOverride } from "./awful-tools-preview-pets.js";
+
 const TAG_NAME = "awful-tool-preview";
 
 const PROJECTS = Object.freeze({
@@ -82,7 +84,21 @@ function resolveCandidateUrl(path) {
 }
 
 function getProjectConfig(project) {
-  return PROJECTS[project] ?? PROJECTS["awful-cases"];
+  const baseConfig = PROJECTS[project] ?? PROJECTS["awful-cases"];
+  const petOverride = getPetPreviewOverride(project);
+
+  if (!petOverride) {
+    return baseConfig;
+  }
+
+  return {
+    ...baseConfig,
+    ...petOverride,
+    localPaths: petOverride.localPaths ?? baseConfig.localPaths,
+    remotePaths: petOverride.remotePaths ?? baseConfig.remotePaths,
+    bridgeStyle: petOverride.bridgeStyle ?? "",
+    useInlineSource: petOverride.useInlineSource ?? true,
+  };
 }
 
 function getSourceCandidates(config) {
@@ -290,7 +306,11 @@ function prepareInlineDocuments(parsedDocument, sourceUrl) {
   return inlineDocuments;
 }
 
-function getInlineSource(host) {
+function getInlineSource(host, config) {
+  if (config.useInlineSource === false) {
+    return null;
+  }
+
   const template = host.querySelector("template[data-awful-tool-source]");
 
   if (!template) {
@@ -428,9 +448,10 @@ function createRuntime({ shadowRoot, sourceHtml, sourceHead, sourceBody, host })
     removeEventListener: window.removeEventListener.bind(window),
     dispatchEvent: window.dispatchEvent.bind(window),
     requestAnimationFrame(callback) {
+      const scheduledAt = window.performance.now();
       const id = window.requestAnimationFrame((time) => {
         animationFrameIds.delete(id);
-        callback(time);
+        callback(Math.max(time, scheduledAt));
       });
       animationFrameIds.add(id);
       return id;
@@ -573,6 +594,7 @@ async function mountSourceDocument({
   host,
   signal,
   embedded = false,
+  bridgeStyle = "",
 }) {
   const parsedDocument = new DOMParser().parseFromString(source, "text/html");
   absolutizeDocument(parsedDocument, sourceUrl);
@@ -595,6 +617,8 @@ async function mountSourceDocument({
 
   sourceHtml.dataset.sourceHtml = "";
   sourceHtml.dataset.sourceUrl = sourceUrl;
+  sourceHead.dataset.sourceHead = "";
+  sourceBody.dataset.sourceBody = "";
   sourceBody.append(...[...parsedDocument.body.childNodes].map((node) => node.cloneNode(true)));
 
   const title = parsedDocument.querySelector("title")?.cloneNode(true);
@@ -629,7 +653,7 @@ async function mountSourceDocument({
 
   const bridge = document.createElement("style");
   const rootDeclarations = extractRootDeclarations(styleTexts);
-  bridge.textContent = `${HOST_STYLE}\n:host { ${rootDeclarations} }`;
+  bridge.textContent = `${HOST_STYLE}\n:host { ${rootDeclarations} }\n${bridgeStyle}`;
   sourceHead.prepend(bridge);
 
   sourceHtml.append(sourceHead, sourceBody);
@@ -722,7 +746,7 @@ class AwfulToolPreview extends HTMLElement {
 
     try {
       const { source, url } =
-        getInlineSource(this) ??
+        getInlineSource(this, config) ??
         (await fetchSource(config, controller.signal));
 
       if (controller.signal.aborted) {
@@ -735,6 +759,7 @@ class AwfulToolPreview extends HTMLElement {
         mountRoot: this.shadowRoot,
         host: this,
         signal: controller.signal,
+        bridgeStyle: config.bridgeStyle,
       });
 
       this.dataset.source = url;
