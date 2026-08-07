@@ -1,0 +1,186 @@
+/*
+ * Reusable layout patterns.
+ *
+ * Existing public contracts are preserved for backward compatibility.
+ * New patterns use opt-in classes and local custom properties.
+ */
+
+@keyframes rise-scroller {
+  0%,
+  100% {
+    opacity: 0.25;
+    scale: 0.5;
+  }
+
+  35%,
+  65% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-space, 1.5rem);
+}
+
+.prose > * + * {
+  margin-block-start: var(--prose-space, var(--prose-flow, 2em));
+}
+
+.pile {
+  display: grid;
+  grid-template-areas: "pile";
+  place-items: var(--pile-place-items, center);
+}
+
+.pile > * {
+  grid-area: pile;
+}
+
+.overflow-scroller {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--overflow-scroller-item-size, 300px);
+  gap: var(--overflow-scroller-space, 1rem);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.overflow-scroller > * {
+  scroll-snap-align: center;
+  animation: rise-scroller linear both;
+  animation-timeline: view(x);
+}
+
+.auto-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(
+      min(var(--auto-grid-min, var(--min-col-size, 400px)), 100%),
+      1fr
+    )
+  );
+  gap:
+    var(--auto-grid-row-gap, var(--auto-grid-space, 1rem))
+    var(--auto-grid-column-gap, var(--auto-grid-space, 1rem));
+}
+
+.sidebar-section {
+  container-type: inline-size;
+}
+
+.promo-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.promo-list > li {
+  border-color: white;
+  border-radius: 8px;
+  corner-shape: scoop;
+}
+
+.container {
+  width: min(
+    var(--content-max-width, 1160px),
+    calc(100% - var(--padding-inline, 2rem) * 2)
+  );
+  margin-inline: auto;
+}
+
+.wrapper {
+  inline-size: min(
+    calc(100% - (var(--wrapper-gutter, var(--space-s, 1rem)) * 2)),
+    var(--wrapper-max-width, 80rem)
+  );
+  margin-inline: auto;
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: var(--cluster-wrap, wrap);
+  align-items: var(--cluster-align, center);
+  justify-content: var(--cluster-justify, normal);
+  gap:
+    var(--cluster-row-gap, var(--cluster-space, var(--space-2xs, 0.5rem)))
+    var(--cluster-column-gap, var(--cluster-space, var(--space-2xs, 0.5rem)));
+}
+
+.equal-columns {
+  display: grid;
+  gap: var(--equal-columns-space, var(--space-s, 1rem));
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: var(--split-align, start);
+  gap: var(--split-space, var(--space-m, 2rem));
+}
+
+.sidebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: var(--sidebar-align, flex-start);
+  gap: var(--sidebar-space, var(--space-m, 2rem));
+}
+
+.sidebar > :first-child {
+  flex-basis: var(--sidebar-size, 18rem);
+  flex-grow: 1;
+}
+
+.sidebar > :last-child {
+  flex-basis: 0;
+  flex-grow: 999;
+  min-inline-size: min(100%, var(--sidebar-content-min, 50%));
+}
+
+.switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--switcher-space, var(--space-s, 1rem));
+}
+
+.switcher > * {
+  flex-grow: 1;
+  flex-basis: calc((var(--switcher-threshold, 40rem) - 100%) * 999);
+}
+
+.reel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--reel-item-size, min(80vw, 20rem));
+  gap: var(--reel-space, var(--space-s, 1rem));
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: inline mandatory;
+  scrollbar-gutter: stable;
+}
+
+.reel > * {
+  scroll-snap-align: var(--reel-snap-align, start);
+}
+
+@container (width > 500px) {
+  .promo-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (width > 48rem) {
+  .equal-columns {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .split {
+    grid-template-columns: var(
+      --split-columns,
+      minmax(0, 1fr) minmax(0, 1fr)
+    );
+  }
+}

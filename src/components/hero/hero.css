@@ -13,6 +13,9 @@
   }
 
   .hero__page {
+    --wrapper-max-width: var(--hero-page-max);
+    --wrapper-gutter: var(--hero-page-gutter);
+
     position: relative;
     z-index: 1;
 
@@ -22,10 +25,7 @@
     grid-template-rows: auto 1fr;
     gap: var(--hero-section-gap);
 
-    inline-size: min(calc(100% - 2 * var(--hero-page-gutter)), var(--hero-page-max));
-
     min-block-size: inherit;
-    margin-inline: auto;
     padding-block: var(--hero-page-padding-block);
   }
 

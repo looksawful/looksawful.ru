@@ -12,7 +12,7 @@
      * На широких экранах весь внутренний поток ограничивается
      * одним общим контейнером.
      */
-    --cv-content-wide-max: 1280px;
+    --cv-content-wide-max: 60rem;
     --cv-media-wide-max: 100%;
     --cv-media-grid-max: 100%;
     --cv-media-compact-max: 100%;
@@ -96,42 +96,58 @@
     --item-ink: var(--cv-item-default-foreground);
   }
 
-  .cv-item:nth-child(8n + 1 of .cv-item:not([data-cv-theme="default"])) {
+  .cv-item:nth-child(
+    8n + 1 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-01-background);
     --item-ink: var(--cv-item-01-foreground);
   }
 
-  .cv-item:nth-child(8n + 2 of .cv-item:not([data-cv-theme="default"])) {
+  .cv-item:nth-child(
+    8n + 2 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-02-background);
     --item-ink: var(--cv-item-02-foreground);
   }
 
-  .cv-item:nth-child(8n + 3 of .cv-item:not([data-cv-theme="default"])) {
+  .cv-item:nth-child(
+    8n + 3 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-03-background);
     --item-ink: var(--cv-item-03-foreground);
   }
 
-  .cv-item:nth-child(8n + 4 of .cv-item:not([data-cv-theme="default"])) {
+  .cv-item:nth-child(
+    8n + 4 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-04-background);
     --item-ink: var(--cv-item-04-foreground);
   }
 
-  .cv-item:nth-child(8n + 5 of .cv-item:not([data-cv-theme="default"])) {
+  .cv-item:nth-child(
+    8n + 5 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-05-background);
     --item-ink: var(--cv-item-05-foreground);
   }
 
-  .cv-item:nth-child(8n + 6 of .cv-item:not([data-cv-theme="default"])) {
+  .cv-item:nth-child(
+    8n + 6 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-06-background);
     --item-ink: var(--cv-item-06-foreground);
   }
 
-  .cv-item:nth-child(8n + 7 of .cv-item:not([data-cv-theme="default"])) {
+  .cv-item:nth-child(
+    8n + 7 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-07-background);
     --item-ink: var(--cv-item-07-foreground);
   }
 
-  .cv-item:nth-child(8n + 8 of .cv-item:not([data-cv-theme="default"])) {
+  .cv-item:nth-child(
+    8n + 8 of .cv-item:not([data-cv-theme="default"])
+  ) {
     --item-bg: var(--cv-item-08-background);
     --item-ink: var(--cv-item-08-foreground);
   }
@@ -199,11 +215,10 @@
   }
 
   .cv-item__roles {
+    --cluster-row-gap: 0.25rem;
+    --cluster-column-gap: 0.55rem;
+
     grid-area: roles;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem 0.55rem;
   }
 
   .cv-item__role {
@@ -236,10 +251,12 @@
   }
 
   .cv-item__content {
+    --wrapper-max-width: 100%;
+    --wrapper-gutter: 0rem;
+
     display: grid;
     align-content: start;
     gap: clamp(3rem, 8vw, 8rem);
-    inline-size: 100%;
     padding-block: var(--cv-panel-padding-block) clamp(4rem, 9vw, 8rem);
   }
 
@@ -325,6 +342,7 @@
     text-wrap: pretty;
   }
 
+
   .cv-story--compact-quad {
     max-inline-size: var(--cv-media-compact-max);
     margin-inline: auto;
@@ -338,6 +356,7 @@
     --media-gallery-gap: clamp(0.5rem, 1.2vw, 1rem);
   }
 
+
   /*
    * Sheet ограничивает только внешнюю ширину.
    * Внутреннюю раскладку полностью задаёт независимый Media Gallery.
@@ -346,6 +365,7 @@
     max-inline-size: var(--cv-media-grid-max);
     margin-inline: auto;
   }
+
 
   /* Универсальное свойство Sheet, а не частное правило фильтра. */
   .cv-story--full-bleed {
@@ -360,6 +380,7 @@
     inline-size: 100%;
     min-inline-size: 0;
   }
+
 
   .cv-story--compositions {
     gap: clamp(4rem, 10vw, 8rem);
@@ -511,8 +532,9 @@
     }
 
     .cv-item__roles {
+      --cluster-wrap: nowrap;
+
       justify-self: center;
-      flex-wrap: nowrap;
     }
 
     .cv-item__period {
@@ -640,8 +662,7 @@
      * заголовка, текста, слайдеров, изображений и галерей.
      */
     .cv-item__content {
-      inline-size: min(100%, var(--cv-content-wide-max));
-      margin-inline: auto;
+      --wrapper-max-width: var(--cv-content-wide-max);
     }
 
     .cv-item__content > .cv-item__intro,
@@ -676,6 +697,7 @@
       inline-size: 100%;
     }
 
+
     .cv-story--adaptive {
       grid-template-columns: repeat(12, minmax(0, 1fr));
       padding-inline: clamp(2rem, 5vw, 6rem);
@@ -688,6 +710,7 @@
     .cv-adaptive-slot:empty {
       min-block-size: clamp(24rem, 42vw, 42rem);
     }
+
   }
 }
 

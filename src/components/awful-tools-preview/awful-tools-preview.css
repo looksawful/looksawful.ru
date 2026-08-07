@@ -1,9 +1,10 @@
 @layer components {
   .awful-tools-stack {
+    --wrapper-max-width: 96rem;
+    --wrapper-gutter: 0rem;
+
     display: grid;
     gap: clamp(4rem, 11vw, 9rem);
-    inline-size: min(100%, 96rem);
-    margin-inline: auto;
     padding-inline: var(--cv-panel-padding-inline);
   }
 
