@@ -22,6 +22,8 @@ import "./components/moves-awful/moves-awful.css";
 import "./components/animated-canvas-gallery/animated-canvas-gallery.css";
 import "./components/animated-canvas-gallery/animated-canvas-gallery-preview.css";
 import "./components/repository-link/repository-link.css";
+import "./components/media-marquee/media-marquee.css";
+import "./components/brief/brief.css";
 
 /*
  * JavaScript компонентов.
@@ -39,19 +41,15 @@ import { createMediaSliders } from "./components/media-slider/media-slider.js";
 
 import { createBeforeAfters } from "./components/before-after/before-after.js";
 
+import { createMediaMarquees } from "./components/media-marquee/media-marquee.js";
+
 import { createMotionPreference } from "./motion-preference.js";
 
-import {
-  createAnimatedCanvasGalleries,
-} from "./components/animated-canvas-gallery/animated-canvas-gallery.js";
+import { createAnimatedCanvasGalleries } from "./components/animated-canvas-gallery/animated-canvas-gallery.js";
 
-import {
-  createAnimatedCanvasGalleryPreviews,
-} from "./components/animated-canvas-gallery/animated-canvas-gallery-preview.js";
+import { createAnimatedCanvasGalleryPreviews } from "./components/animated-canvas-gallery/animated-canvas-gallery-preview.js";
 
-import {
-  ANIMATED_CANVAS_GALLERY_SOURCES,
-} from "./content/animated-canvas-gallery-sources.js";
+import { ANIMATED_CANVAS_GALLERY_SOURCES } from "./content/animated-canvas-gallery-sources.js";
 
 /*
  * Общий сервис motion preference.
@@ -64,6 +62,7 @@ let motionPreference = null;
 let destroyHero = null;
 let destroyMediaSliders = null;
 let destroyBeforeAfters = null;
+let destroyMediaMarquees = null;
 let destroyDigitalScrollGalleries = null;
 let destroyCvAccordion = null;
 let destroyAnimatedCanvasGalleryPreviews = null;
@@ -90,6 +89,9 @@ function unmount() {
 
   destroyDigitalScrollGalleries?.();
   destroyDigitalScrollGalleries = null;
+
+  destroyMediaMarquees?.();
+  destroyMediaMarquees = null;
 
   destroyBeforeAfters?.();
   destroyBeforeAfters = null;
@@ -126,6 +128,11 @@ function mount() {
   });
 
   destroyBeforeAfters = createBeforeAfters({
+    root: document,
+    motion: motionPreference,
+  });
+
+  destroyMediaMarquees = createMediaMarquees({
     root: document,
     motion: motionPreference,
   });
@@ -194,7 +201,6 @@ if (import.meta.hot) {
     }
 
     window.removeEventListener("pagehide", unmount);
-
     window.removeEventListener("pageshow", handlePageShow);
 
     unmount();

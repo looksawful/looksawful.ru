@@ -1,10 +1,6 @@
 @layer components {
   [data-media-item] {
-    --media-item-background: color-mix(
-      in srgb,
-      currentColor,
-      transparent 92%
-    );
+    --media-item-background: color-mix(in srgb, currentColor, transparent 92%);
     --media-item-fit: cover;
     --media-item-position: 50% 50%;
     --media-item-caption-gap: 0.5rem;
@@ -30,13 +26,11 @@
     background: var(--media-item-background);
   }
 
-  [data-media-item][data-media-frame-ratio]
-    > [data-media-surface] {
+  [data-media-item][data-media-frame-ratio] > [data-media-surface] {
     aspect-ratio: var(--media-item-frame-ratio);
   }
 
-  [data-media-surface]
-    > :is(img, video)[data-media-asset] {
+  [data-media-surface] > :is(img, video)[data-media-asset] {
     display: block;
     inline-size: 100%;
     block-size: 100%;
@@ -68,10 +62,8 @@
     --media-item-position: 100% 50%;
   }
 
-  [data-media-gallery-item][data-media-item]
-    > [data-media-surface],
-  .media-strip-slider__slide[data-media-item]
-    > [data-media-surface] {
+  [data-media-gallery-item][data-media-item] > [data-media-surface],
+  .media-strip-slider__slide[data-media-item] > [data-media-surface] {
     aspect-ratio: inherit;
   }
 
@@ -79,8 +71,7 @@
     display: block;
   }
 
-  .media-strip-slider__slide[data-media-item]
-    > [data-media-surface] {
+  .media-strip-slider__slide[data-media-item] > [data-media-surface] {
     position: absolute;
     inset: 0;
   }
@@ -103,28 +94,69 @@
     transition: opacity 180ms ease;
   }
 
-  [data-media-item][data-media-state="ready"]
-    [data-media-skeleton],
-  [data-media-item][data-media-state="error"]
-    [data-media-skeleton],
-  [data-media-item][data-media-state="empty"]
-    [data-media-skeleton] {
+  [data-media-item][data-media-state="ready"] [data-media-skeleton],
+  [data-media-item][data-media-state="error"] [data-media-skeleton],
+  [data-media-item][data-media-state="empty"] [data-media-skeleton] {
     opacity: 0;
     visibility: hidden;
   }
 
   [data-media-caption] {
+    --media-caption-size: clamp(0.6875rem, 0.8cqi + 0.5rem, 0.875rem);
+    --media-caption-padding: var(--space-3xs) var(--space-2xs);
+    --media-caption-overlay-bg: color-mix(
+      in srgb,
+      currentColor,
+      transparent 80%
+    );
+
     min-inline-size: 0;
     margin: 0;
+    padding: 0;
+
+    font-family: var(--font-primary);
+    font-size: var(--media-caption-size);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.4;
+    color: currentColor;
   }
 
+  /* Default: caption always hidden regardless of content */
   [data-media-caption][hidden],
   [data-media-caption]:empty,
-  [data-media-item][data-media-state="empty"]
-    [data-media-caption],
-  [data-media-item][data-media-state="error"]
-    [data-media-caption] {
+  [data-media-item]:not([data-media-caption-mode]) [data-media-caption],
+  [data-media-item][data-media-state="empty"] [data-media-caption],
+  [data-media-item][data-media-state="error"] [data-media-caption] {
     display: none;
+  }
+
+  /* Static mode: always visible below the media */
+  [data-media-item][data-media-caption-mode="static"]
+    [data-media-caption]:not(:empty) {
+    display: block;
+    padding: var(--media-caption-padding);
+  }
+
+  /* Overlay mode: visible on hover, positioned over the media */
+  figure[data-media-item][data-media-caption-mode="overlay"] {
+    position: relative;
+  }
+
+  [data-media-item][data-media-caption-mode="overlay"]
+    [data-media-caption]:not(:empty) {
+    display: block;
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 0;
+    padding: var(--media-caption-padding);
+    background: var(--media-caption-overlay-bg);
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  [data-media-item][data-media-caption-mode="overlay"]:hover
+    [data-media-caption]:not(:empty) {
+    opacity: 1;
   }
 
   :is(img, video)[data-media-item] {

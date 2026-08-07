@@ -1,6 +1,4 @@
-import {
-  MEDIA_MANIFEST,
-} from "../../generated/media-manifest.js";
+import { MEDIA_MANIFEST } from "../../generated/media-manifest.js";
 
 const MEDIA_ITEM_INSTANCE = Symbol("media-item-instance");
 
@@ -14,10 +12,7 @@ function dispatch(root, name, detail) {
 }
 
 function assetFromRoot(root) {
-  if (
-    root instanceof HTMLImageElement ||
-    root instanceof HTMLVideoElement
-  ) {
+  if (root instanceof HTMLImageElement || root instanceof HTMLVideoElement) {
     return root;
   }
 
@@ -27,10 +22,7 @@ function assetFromRoot(root) {
 }
 
 function ensureSurface(root, asset) {
-  if (
-    root instanceof HTMLImageElement ||
-    root instanceof HTMLVideoElement
-  ) {
+  if (root instanceof HTMLImageElement || root instanceof HTMLVideoElement) {
     return null;
   }
 
@@ -108,15 +100,16 @@ function applyFrameRatio(root) {
   const height = Number(match[2]);
 
   if (width > 0 && height > 0) {
-    root.style.setProperty(
-      "--media-item-frame-ratio",
-      `${width} / ${height}`,
-    );
+    root.style.setProperty("--media-item-frame-ratio", `${width} / ${height}`);
   }
 }
 
 function applyCaption(caption, entry) {
   if (!caption) return;
+
+  // If the caption was placed manually in HTML (no generated marker),
+  // leave its content alone — the author controls it via HTML.
+  if (caption.dataset.mediaItemGenerated === undefined) return;
 
   const value = String(entry?.content?.caption ?? "").trim();
 
@@ -185,8 +178,7 @@ function setExactImageSize(image, root, entry) {
   }
 
   const target =
-    root instanceof HTMLImageElement ||
-    root instanceof HTMLVideoElement
+    root instanceof HTMLImageElement || root instanceof HTMLVideoElement
       ? root.parentElement
       : root;
 
@@ -226,10 +218,7 @@ function setExactImageSize(image, root, entry) {
   };
 }
 
-export function createMediaItem({
-  root,
-  manifest = MEDIA_MANIFEST,
-} = {}) {
+export function createMediaItem({ root, manifest = MEDIA_MANIFEST } = {}) {
   if (!(root instanceof HTMLElement)) return null;
 
   if (root[MEDIA_ITEM_INSTANCE]) {
@@ -416,7 +405,7 @@ export function createMediaItems({
       candidates.push(scope);
     }
 
-    candidates.push(...scope.querySelectorAll?.("[data-media-item]") ?? []);
+    candidates.push(...(scope.querySelectorAll?.("[data-media-item]") ?? []));
 
     for (const candidate of candidates) {
       if (instances.has(candidate)) continue;
@@ -432,34 +421,32 @@ export function createMediaItems({
 
   mountWithin(root);
 
-  const observer = typeof MutationObserver === "function"
-    ? new MutationObserver((records) => {
-        for (const record of records) {
-          for (const node of record.addedNodes) {
-            if (node instanceof HTMLElement) mountWithin(node);
-          }
+  const observer =
+    typeof MutationObserver === "function"
+      ? new MutationObserver((records) => {
+          for (const record of records) {
+            for (const node of record.addedNodes) {
+              if (node instanceof HTMLElement) mountWithin(node);
+            }
 
-          for (const node of record.removedNodes) {
-            if (!(node instanceof HTMLElement)) continue;
+            for (const node of record.removedNodes) {
+              if (!(node instanceof HTMLElement)) continue;
 
-            for (const [element, instance] of instances) {
-              if (element === node || node.contains(element)) {
-                instance.destroy();
-                instances.delete(element);
+              for (const [element, instance] of instances) {
+                if (element === node || node.contains(element)) {
+                  instance.destroy();
+                  instances.delete(element);
+                }
               }
             }
           }
-        }
-      })
-    : null;
+        })
+      : null;
 
-  observer?.observe(
-    root === document ? document.documentElement : root,
-    {
-      childList: true,
-      subtree: true,
-    },
-  );
+  observer?.observe(root === document ? document.documentElement : root, {
+    childList: true,
+    subtree: true,
+  });
 
   return () => {
     observer?.disconnect();
