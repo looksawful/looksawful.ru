@@ -1,174 +1,201 @@
-const PLACEHOLDER_PATTERN = /^(?:заголовок:?|короткий текст-заполнитель\.?|текст-заполнитель\.?|нумерованный список)$/i;
+const PLACEHOLDER_PATTERN =
+  /^(?:заголовок:?|короткий текст-заполнитель\.?|текст-заполнитель\.?|нумерованный список)$/i;
 
-const PROJECT_PATCHES = {
+const PROJECT_CONTENT = {
   "Styx Jewels": {
     description:
-      "Нишевый московский бренд украшений, аксессуаров и одежды, вдохновлённый готической романтикой и лавкрафтовским ужасом. Бренд продаётся офлайн в Москве и крупных городах России и отправляет изделия с доставкой по всему миру.",
+      "Нишевый московский бренд украшений, аксессуаров и одежды, вдохновлённый готической романтикой и лавкрафтовским ужасом. Бренд продаётся оффлайн в Москве и Санкт-Петербурге и отправляет изделия с доставкой по всему миру.",
+    intro:
+      "Возглавил комплексную работу над визуальной системой, сформировал ДНК бренда: разработал логотип, собрал фирменный стиль, разработал дизайн упаковки, печатных материалов, соцсетей, рекламных публикаций, баннеров, продюсировал и снимал кампейны кампейнов, лукбуки и каталоги,занимался технической,художественной и экспериментальнйо обработкой фотогарфий и создавал сканогарфические перекладные анимации и арты.",
     briefs: [
       {
-        title: "арт-дирекшн",
-        items: ["Формирование визуального языка", "Контроль целостности коммуникаций"],
+        title: "графический дизайн",
+        items: [
+          "ДНК бренда: логотип и фирменный стиль",
+          "Визуальная подача бренда",
+          "Дизайн подарочной упаковки",
+          "Дизайн визиток",
+          "Дизайн буклетов",
+          "Дизайн сертификатов",
+          "Дизайн соцсетей",
+          "Рекламные публикации",
+          "Баннеры для Сплита и Долями",
+        ],
       },
       {
         title: "фирменный стиль",
-        items: ["Логотип", "Упаковка", "Печатные материалы", "Сертификаты"],
-      },
-      {
-        title: "графический дизайн",
-        items: ["Соцсети", "Рекламные публикации", "Баннеры", "Буклеты"],
+        items: [
+          "Брендовая упаковка",
+          "Дизайн печатной продукции",
+          "Дизайн сертификатов",
+          "Дизайн рекламы",
+          "Дизайн буклетов",
+        ],
       },
       {
         title: "фото и продакшен",
-        items: ["Продюсирование кампейнов", "Каталоги", "Лукбуки", "Мини-студия"],
+        items: [
+          "Продюсирование съёмок",
+          "Фотосъёмка кампейнов",
+          "Организация мини-студии для каталога",
+          "Ретушь и стилизация кадров",
+          "Обработка коллабораций и каталожных съёмок",
+        ],
       },
       {
-        title: "постобработка",
-        items: ["Ретушь", "Художественная обработка", "Стилизация кадров"],
-      },
-      {
-        title: "сканографика и анимация",
-        items: ["Сканографические арты", "Перекладная анимация", "Видеолупы"],
+        title: "сканографические анимации для бренда",
+        items: [
+          "Сканографические анимации для бренда",
+          "Подготовка видеоанимаций для коммуникаций",
+          "Два видеолупа с ручным включением звука",
+        ],
       },
     ],
-    sectionNotes: {
-      "styx-01-": {
-        title: "фирменная упаковка",
-        text: "Подарочная упаковка, карточки, стикеры и 3D-презентация собраны в одну систему, которая сохраняет характер бренда в физическом и цифровом контакте.",
-      },
-      "styx-02-": {
-        title: "сканографические анимации",
-        text: "Сканография стала отдельным выразительным инструментом бренда: предметы и фактуры переводятся в ручную покадровую пластику для социальных сетей и продуктовых запусков.",
-      },
-      "styx-05-": {
-        title: "кампейны и коллаборации",
-        text: "Фотографии, коллаборации и экспериментальная обработка объединены общей пластикой, чтобы кампейны оставались узнаваемыми при разном составе команды и материала.",
-      },
-      "styx-07-": {
-        title: "экспериментальная обработка",
-        text: "Сканографические портреты и смешанные техники расширяют каталог за пределы обычной предметной съёмки и формируют художественный слой бренда.",
-      },
-      "styx-10-": {
-        title: "графика для соцсетей",
-        text: "Инструкции и сервисные публикации оформлены в том же визуальном языке, что и кампейны: функциональный контент не выпадает из общей системы бренда.",
-      },
-    },
   },
   Shootings: {
+    description:
+      "Делаю дизайн обложек для российских музыкантов, продюсирую и снимаю контент-съемки для музыкальных лейблов и для брендов одежды и публикую творческие работы в российских и европейский fashion и арт изданиях с 2017 года.",
     intro:
-      "Продюсировал и снимал коммерческие и авторские проекты для музыкантов, брендов и медиа: от визуальной идеи и подготовки команды до съёмки, отбора материала и финальной обработки.",
+      "Кадры ниже — мои собственные фотографии, съемки которые я продюсировал, экспериментальные микс-медиа, которые я делал из собственных и чужих фотографий на заказ и дизайн, который делал я и который делали другие люди с моими фотографиями.",
     briefs: [
-      { title: "концепция", items: ["Визуальная идея", "Референсы", "Мудборд", "Сценарий серии"] },
-      { title: "подготовка", items: ["Команда", "Локация", "Свет", "Реквизит", "Съёмочный план"] },
-      { title: "продюсирование", items: ["Координация участников", "График", "Организация площадки"] },
-      { title: "фотосъёмка", items: ["Портрет", "Fashion", "Обложки", "Контент-съёмка"] },
-      { title: "постобработка", items: ["Отбор", "Цветокоррекция", "Ретушь", "Композитинг"] },
-      { title: "mixed-media", items: ["Коллажи", "Арт-обработка", "Графика для музыкальных релизов"] },
+      {
+        title: "Музыкальная фотография",
+        items: [
+          "Съемка для обложки",
+          "Контент-съемка",
+          "Дизайн обложек",
+          "Экспериментальная обработка",
+        ],
+      },
+      {
+        title: "Экспериментальная фотография",
+        items: [
+          "Предметная сканография",
+          "Портретная сканография",
+          "Коллажирование",
+          "Микс-медиа арт",
+        ],
+      },
+      {
+        title: "Коммерческая фотография",
+        items: ["Лукбук", "Кампейн", "Каталожная съемка"],
+      },
+      {
+        title: "Съемки для изданий",
+        items: ["Спецпроекты", "Эдиториал", "Адверториал", "Фешн-стори"],
+      },
     ],
-    firstSectionNote: {
-      title: "от идеи до финального кадра",
-      text: "Каждая серия строилась вокруг задачи артиста или проекта. Я собирал визуальную концепцию, команду и технический план, а затем контролировал единый результат на съёмке и постобработке.",
-    },
-    sectionNotes: {
-      "shootings-05-": {
-        title: "обложка сингла",
-        text: "Съёмка и постобработка собраны вокруг одного ключевого кадра, который работает как обложка релиза и основа для последующих промоматериалов.",
-      },
-      "shootings-12-": {
-        title: "музыкальные обложки",
-        text: "Для музыкальных релизов фотография становится частью графической системы: кадр, типографика и обработка должны одинаково работать в квадрате, вертикали и промоформатах.",
-      },
-      "shootings-14-": {
-        title: "экспериментальный постпродакшен",
-        text: "Смешанная обработка соединяет фотографию, световые эффекты и графические слои, превращая исходный портрет в самостоятельный арт.",
-      },
-      "shootings-19-": {
-        title: "сценические проекты",
-        text: "В театральных и перформативных проектах серия фиксирует не только персонажа, но и свет, пластику сцены и атмосферу постановки.",
-      },
-    },
+  },
+  Illumihand: {
+    aliases: ["Иллюмихенд"],
+    description: "Российский бренд одежды,родом с Камчатки.",
+    hideIntro: true,
+    hideBriefs: true,
   },
   "Berry Agency": {
-    briefs: [
-      { title: "контент-стратегия", items: ["Рубрики", "Ритм публикаций", "Задачи контента для площадок"] },
-      { title: "визуальные концепции", items: ["Серии публикаций для кампаний, кастингов и постоянных рубрик"] },
-      { title: "система шаблонов", items: ["Модульные макеты для быстрого выпуска постов и сторис"] },
-      { title: "анимация и форматы", items: ["Короткая анимация", "Сторис", "Ролики", "Рекламные размеры"] },
-      { title: "фотосъёмка", items: ["Модельные тесты", "Коммерческие и editorial-съёмки"] },
-      { title: "студия и производство", items: ["Комплектация студии", "Организация съёмочного процесса"] },
-    ],
+    description:
+      "Московское модельное агентство, которое занимается подбором моделей, организацией кастингов, созданием модельных портфолио, а также проведением фото- и видеосъёмок.",
+    intro:
+      "Работал фотографом и SMM агенства, составлял контент план, дизайн постов,укомплектовал студию агенства оборудованием, снимал модельные тесты, коммерческие и эдиториал фотосъемки.",
+    hideBriefs: true,
   },
   "S&S": {
-    principle: {
-      title: "запуск бренда",
-      text: "Собрал визуальную коммуникацию для запуска: оформил соцсети, разработал контент-план, организовал съёмки и подготовил материалы для первых продаж и партнёрств.",
-    },
-    briefs: [
-      { title: "smm-стратегия", items: ["Позиционирование в соцсетях", "План запуска", "Рубрики"] },
-      { title: "контент-план", items: ["Темы", "График публикаций", "Сценарии постов и сторис"] },
-      { title: "дизайн соцсетей", items: ["Оформление профилей", "Шаблоны", "Публикации"] },
-      { title: "продюсирование", items: ["Команда", "Локации", "Каталоги", "Лукбуки", "Кампейны"] },
-      { title: "фотография", items: ["Съёмка продукта и моделей", "Отбор", "Постобработка"] },
-      { title: "продвижение", items: ["Рекламные материалы", "Настройка рекламы", "Партнёрства"] },
-    ],
+    description:
+      "Бренд стильных боди и нижнего белья с акцентом на выразительный силуэт, женственность и современную подачу.",
+    intro:
+      "Оформил инстграм создал и оформил соцсети, разработал контент-план, продюсировал фото- и видеосъёмки, снимал каталоги, лукбуки и кампейны, оформлял посты и сторис, настраивал рекламу на этапе запуска. В результате у бренда появились полноценные материалы для продвижения, первые продажи и сотрудничества со стилистами и фотографами.",
+    hidePrinciple: true,
+    hideBriefs: true,
+  },
+  "Digital Arts": {
+    hideDescription: true,
+    hideIntro: true,
+    hidePrinciple: true,
+    hideBriefs: true,
   },
   "Awful Tools": {
-    description:
-      "Awful Tools — серия небольших прикладных инструментов. В неё входят Awful Cases — Windows-утилита для изменения регистра и типографической обработки выделенного текста, Berserk Timer — консольный таймер с гибкой настройкой длительности и фиксацией выполненной работы после сессии, а также Awful Audit — инструмент для анализа статических фронтенд-проектов, исходного кода, ассетов, импортов, сборки и состояния Git.",
-    intro:
-      "Разрабатываю небольшие утилиты для повторяющихся задач дизайнера: обработка текста, аудит фронтенда и управление рабочими сессиями.",
-    firstSectionNote: {
-      title: "инструменты под реальные процессы",
-      text: "Каждый инструмент начинается с конкретной рабочей проблемы и остаётся небольшим самостоятельным продуктом с собственным интерфейсом, документацией и сценарием использования.",
-    },
+    hideDescription: true,
+    hideIntro: true,
+    hidePrinciple: true,
+    hideBriefs: true,
   },
   "Moves Awful": {
+    description: "Библиотека анимированных галерей для лендингов.",
+    hideIntro: true,
+    hidePrinciple: true,
+    hideBriefs: true,
+  },
+  "Lyve Moscow": {
+    aliases: ["Lyvé Moscow"],
+    description: "Студия озеленения и ландшафтного дизайна с живым и художественным характером.",
     intro:
-      "Разработал библиотеку Canvas-галерей с настраиваемыми траекториями, скоростью, композицией и режимами управления для разных типов лендингов.",
+      "Ясоздал визуальный язык и дизайн систему: логотип,шрифт, макеты для лендинга,нарисовал маскота бренда",
+    briefs: [
+      {
+        title: null,
+        items: [
+          "ДНК бренда на основе авторских иллюстраций",
+          "Логотип для бренда",
+          "Маскот бренда",
+          "Иллюстрации для визуальной системы",
+          "Дизайн руководства по уходу за растениями",
+        ],
+      },
+      {
+        title: null,
+        items: ["Минималистичная дизайн-система сайта", "Игривый визуальный язык интерфейса"],
+      },
+    ],
+    hidePrinciple: true,
+  },
+  Sensetique: {
+    description: "Московская фотостудия и продакшн для моды, рекламы и визуального контента.",
+    intro: "Занимался запуском, управлением, продюсированием съёмок и организацией команды.",
+    hidePrinciple: true,
+    hideBriefs: true,
   },
   "Mad Cow Films": {
-    intro:
-      "Участвовал в подготовке рекламных съёмок: собирал материалы для тендеров, координировал сметы, кастинги и производственные задачи.",
+    description: "Международный рекламный продакшн с офисами в Лондоне и Москве.",
+    hideIntro: true,
+    hidePrinciple: true,
+    hideBriefs: true,
   },
   "LI-NE Agency": {
-    intro:
-      "Координировал подготовку fashion- и рекламных съёмок: документы, команды, локации, графики и работу площадки.",
+    description: "Продакшн-агентство в сфере моды, рекламы и медиа.",
+    hideIntro: true,
+    hidePrinciple: true,
+    hideBriefs: true,
   },
   "Издательство Прогресс-Традиция": {
     aliases: ["Издательство «Прогресс»", "Издательство Прогресс", "Издательство “Прогресс”"],
     title: "Издательство Прогресс-Традиция",
     description:
       "Российское издательство переводной, гуманитарной, художественной и образовательной литературы. Компания выпускает книги и работает с полным издательским циклом: текстом, структурой, редакционной подготовкой, иллюстрациями, вёрсткой и подготовкой материалов к печати.",
-    intro:
-      "Разрабатывал макеты книг, готовил иллюстрации, верстал издания и сопровождал материалы до печати.",
+    hideIntro: true,
+    hidePrinciple: true,
+    briefs: [
+      {
+        title: "книжный дизайн",
+        items: [
+          "Концепции и макеты книг",
+          "Предпечатная подготовка иллюстраций",
+          "Вёрстка и контроль процесса",
+          "Подготовка книги к типографии",
+        ],
+      },
+      {
+        title: "клиентская работа",
+        items: ["Переговоры с клиентами", "Анализ требований к изданию"],
+      },
+    ],
   },
   "Московские новости": {
     aliases: ["РИА Новости / Московские новости"],
-    intro: "Верстал ежедневные выпуски газеты и готовил графические материалы для публикации.",
+    description: "Ежедневная городская общественно-политическая газета о Москве.",
+    hideIntro: true,
+    hidePrinciple: true,
+    hideBriefs: true,
   },
-};
-
-const JESTEI_SECTION_NOTES = {
-  "jestei-03-": {
-    title: "ux/ui-стратегия",
-    text: "Собрали интерфейс вокруг основных сценариев диджея: поиск нового материала, подготовка к сету, работа с плейлистами и быстрый доступ к скачиванию. Навигацию и компоненты объединили в единую систему, чтобы новые разделы можно было запускать без пересборки продукта.",
-  },
-  "jestei-04-": {
-    title: "добавили цвет",
-    text: "Расширили монохромную основу функциональными цветовыми темами. Палитры помогают различать режимы и разделы, поддерживают контраст интерфейса и дают продукту эмоциональный диапазон без потери узнаваемости.",
-  },
-  "jestei-05-": {
-    title: "добавили графический дизайн",
-    text: "Разработали графическую систему для продуктовых запусков и коммуникаций: обложки, баннеры, 3D-сцены, генеративные композиции и адаптивные шаблоны. Один визуальный язык работает в интерфейсе, соцсетях и рекламных форматах.",
-  },
-};
-
-const JESTEI_DETAILS = {
-  "detail-jestei-logo":
-    "Логотип построен как компактный цифровой знак и словесное написание. Он одинаково работает в интерфейсе, на обложках, в анимации и в малых форматах.",
-  "detail-jestei-palette":
-    "Основу палитры составляют нейтральные интерфейсные цвета и набор акцентных тем. Акцент помогает различать контекст, не конкурируя с музыкальными обложками и данными.",
-  "detail-jestei-type":
-    "Типографическая система разделяет навигацию, данные и редакционный текст. Размеры и начертания объединены в токены, поэтому иерархия сохраняется на всех экранах.",
 };
 
 function normalizeText(value) {
@@ -177,13 +204,19 @@ function normalizeText(value) {
     .trim();
 }
 
-function isPlaceholder(node) {
-  const text = normalizeText(node?.textContent);
+function isPlaceholderText(value) {
+  const text = normalizeText(value);
   return !text || PLACEHOLDER_PATTERN.test(text);
 }
 
-function findScene(root, canonicalTitle, patch) {
-  const acceptedTitles = new Set([canonicalTitle, ...(patch.aliases ?? [])].map(normalizeText));
+function isPlaceholder(node) {
+  return isPlaceholderText(node?.textContent);
+}
+
+function findScene(root, canonicalTitle, content) {
+  const acceptedTitles = new Set(
+    [canonicalTitle, ...(content.aliases ?? [])].map(normalizeText),
+  );
 
   return [...root.querySelectorAll(".cv-item")].find((scene) => {
     const project = normalizeText(scene.querySelector(".cv-item__project")?.textContent);
@@ -192,148 +225,155 @@ function findScene(root, canonicalTitle, patch) {
   });
 }
 
-function replaceText(node, value, { placeholderOnly = false } = {}) {
-  if (!node || !value || (placeholderOnly && !isPlaceholder(node))) return false;
+function show(node) {
+  if (!node) return;
+  node.hidden = false;
+}
+
+function hide(node) {
+  if (!node) return;
+  node.hidden = true;
+}
+
+function setText(node, value) {
+  if (!node || value == null) return false;
   node.textContent = value;
+  show(node);
   return true;
 }
 
-function applyBriefs(scene, briefs) {
-  if (!briefs?.length) return;
+function getIntroCopy(scene) {
+  const copies = [...scene.querySelectorAll(".cv-item__content > .cv-story .cv-story__copy")];
+  return copies.find(
+    (copy) =>
+      !copy.classList.contains("cv-story__copy--section-note") &&
+      !copy.closest(".principle") &&
+      copy.querySelector("p"),
+  );
+}
 
-  const cards = [...scene.querySelectorAll(".brief__card")];
+function applyDescription(scene, content) {
+  const description = scene.querySelector(".cv-item__copy");
+  if (content.hideDescription || !content.description) {
+    hide(description);
+    return;
+  }
+
+  setText(description, content.description);
+}
+
+function applyIntro(scene, content) {
+  const copy = getIntroCopy(scene);
+  if (!copy) return;
+
+  if (content.hideIntro || !content.intro) {
+    hide(copy);
+    return;
+  }
+
+  setText(copy.querySelector("p"), content.intro);
+  show(copy);
+}
+
+function applyPrinciple(scene, content) {
+  const principle = scene.querySelector(".principle");
+  if (!principle) return;
+
+  if (content.hidePrinciple || !content.principle) {
+    hide(principle);
+    return;
+  }
+
+  setText(principle.querySelector("h3, h4"), content.principle.title);
+  setText(principle.querySelector("p"), content.principle.text);
+  show(principle);
+}
+
+function writeList(list, items) {
+  if (!list) return;
+
+  const existingItems = [...list.children];
+  items.forEach((item, index) => {
+    const listItem = existingItems[index] ?? document.createElement("li");
+    listItem.textContent = item;
+    listItem.hidden = false;
+    if (!listItem.parentElement) list.append(listItem);
+  });
+
+  existingItems.slice(items.length).forEach(hide);
+}
+
+function applyBriefs(scene, content) {
+  const section = scene.querySelector(".brief");
+  if (!section) return;
+
+  const briefs = content.briefs ?? [];
+  if (content.hideBriefs || briefs.length === 0) {
+    hide(section);
+    return;
+  }
+
+  const cards = [...section.querySelectorAll(".brief__card")];
   briefs.forEach((brief, index) => {
     const card = cards[index];
     if (!card) return;
 
-    replaceText(card.querySelector("h3, h4"), brief.title);
+    const heading = card.querySelector("h3, h4");
+    if (brief.title) setText(heading, brief.title);
+    else hide(heading);
 
-    const list = card.querySelector("ul, ol");
-    if (!list) return;
+    writeList(card.querySelector("ul, ol"), brief.items ?? []);
+    show(card);
+  });
 
-    list.replaceChildren(
-      ...brief.items.map((item) => {
-        const listItem = document.createElement("li");
-        listItem.textContent = item;
-        return listItem;
-      }),
-    );
+  cards.slice(briefs.length).forEach(hide);
+  show(section);
+}
+
+function hidePlaceholderCopies(root) {
+  root.querySelectorAll(".cv-story__copy--section-note").forEach((copy) => {
+    const heading = copy.querySelector("h3, h4");
+    const paragraph = copy.querySelector("p");
+    if (isPlaceholder(heading) || isPlaceholder(paragraph)) hide(copy);
+  });
+
+  root.querySelectorAll(".category-browser__copy, [data-media-caption]").forEach((node) => {
+    if (isPlaceholder(node)) hide(node);
+  });
+
+  root.querySelectorAll(".counter-list").forEach((list) => {
+    const values = [...list.querySelectorAll("h3, h4, p, li")].map((node) => node.textContent);
+    if (values.some(isPlaceholderText)) hide(list.closest(".cv-story__copy") ?? list);
+  });
+
+  root.querySelectorAll("template").forEach((template) => {
+    template.content
+      ?.querySelectorAll("h3, h4, p, figcaption")
+      .forEach((node) => {
+        if (isPlaceholder(node)) hide(node);
+      });
   });
 }
 
-function applySectionNote(section, note) {
-  if (!section || !note) return;
-  const copy = section.querySelector(".cv-story__copy--section-note, .cv-story__copy");
-  if (!copy) return;
-
-  const heading = copy.querySelector("h3, h4");
-  const paragraph = copy.querySelector("p");
-  if (!isPlaceholder(heading) && !isPlaceholder(paragraph)) return;
-
-  replaceText(heading, note.title);
-  replaceText(paragraph, note.text);
-}
-
-function applyMediaSectionNotes(scene, sectionNotes) {
-  Object.entries(sectionNotes ?? {}).forEach(([mediaPrefix, note]) => {
-    const media = scene.querySelector(`[data-media-id^="${mediaPrefix}"]`);
-    applySectionNote(media?.closest("section"), note);
-  });
-}
-
-function applyFirstSectionNote(scene, note) {
-  if (!note) return;
-
-  const candidates = [...scene.querySelectorAll(".cv-story__copy--section-note")];
-  const copy = candidates.find((candidate) => {
-    const heading = candidate.querySelector("h3, h4");
-    const paragraph = candidate.querySelector("p");
-    return isPlaceholder(heading) || isPlaceholder(paragraph);
-  });
-
-  applySectionNote(copy?.closest("section"), note);
-}
-
-function applyIntro(scene, text) {
-  if (!text) return;
-
-  const paragraphs = [...scene.querySelectorAll(".cv-item__content > .cv-story .cv-story__copy p")];
-  const paragraph = paragraphs.find(isPlaceholder);
-  replaceText(paragraph, text, { placeholderOnly: true });
-}
-
-function applyPrinciple(scene, principle) {
-  if (!principle) return;
-  const block = scene.querySelector(".principle");
-  if (!block) return;
-
-  replaceText(block.querySelector("h3, h4"), principle.title, { placeholderOnly: true });
-  replaceText(block.querySelector("p"), principle.text, { placeholderOnly: true });
-}
-
-function applyProjectPatch(root, canonicalTitle, patch) {
-  const scene = findScene(root, canonicalTitle, patch);
+function applyProjectContent(root, canonicalTitle, content) {
+  const scene = findScene(root, canonicalTitle, content);
   if (!scene) return;
 
-  if (patch.title) {
-    replaceText(scene.querySelector(".cv-item__project"), patch.title);
-    replaceText(scene.querySelector(".cv-item__title"), patch.title);
+  if (content.title) {
+    setText(scene.querySelector(".cv-item__project"), content.title);
+    setText(scene.querySelector(".cv-item__title"), content.title);
   }
 
-  replaceText(scene.querySelector(".cv-item__copy"), patch.description);
-  applyIntro(scene, patch.intro);
-  applyPrinciple(scene, patch.principle);
-  applyBriefs(scene, patch.briefs);
-  applyFirstSectionNote(scene, patch.firstSectionNote);
-  applyMediaSectionNotes(scene, patch.sectionNotes);
-}
-
-function applyJesteiCounterList(root) {
-  const heading = root.querySelector("#jestei-filter-steps-title");
-  const story = heading?.closest(".cv-story");
-  if (!story) return;
-
-  replaceText(heading, "как устроили сложный фильтр", { placeholderOnly: true });
-
-  const steps = [
-    {
-      title: "базовый режим",
-      text: "Оставили самые частые параметры: жанр, BPM, тональность, рейтинг и тип трека.",
-    },
-    {
-      title: "продвинутые условия",
-      text: "Добавили группы условий с логикой «И» и «ИЛИ» для сложных музыкальных запросов.",
-    },
-    {
-      title: "прозрачное состояние",
-      text: "Пользователь видит активные параметры и может сбросить отдельное условие или весь набор.",
-    },
-  ];
-
-  [...story.querySelectorAll(".counter-list > li")].forEach((item, index) => {
-    const step = steps[index];
-    if (!step) return;
-    replaceText(item.querySelector("h4, h3"), step.title, { placeholderOnly: true });
-    replaceText(item.querySelector("p"), step.text, { placeholderOnly: true });
-  });
-}
-
-function applyJesteiDetails(root) {
-  Object.entries(JESTEI_DETAILS).forEach(([id, text]) => {
-    const template = root.getElementById(id);
-    const paragraph = template?.content?.querySelector("p") ?? template?.querySelector("p");
-    replaceText(paragraph, text, { placeholderOnly: true });
-  });
+  applyDescription(scene, content);
+  applyIntro(scene, content);
+  applyPrinciple(scene, content);
+  applyBriefs(scene, content);
 }
 
 export function applyAccordionContent(root = document) {
-  Object.entries(PROJECT_PATCHES).forEach(([title, patch]) => {
-    applyProjectPatch(root, title, patch);
+  Object.entries(PROJECT_CONTENT).forEach(([title, content]) => {
+    applyProjectContent(root, title, content);
   });
 
-  const jestei = findScene(root, "Jestei Pool", {});
-  if (jestei) applyMediaSectionNotes(jestei, JESTEI_SECTION_NOTES);
-
-  applyJesteiCounterList(root);
-  applyJesteiDetails(root);
+  hidePlaceholderCopies(root);
 }
