@@ -1,36 +1,13 @@
-const DEMO_IMAGES = Object.freeze([
-  "/media/projects/shootings/01/source/01-32x45.webp",
-  "/media/projects/shootings/01/source/02-2x3.webp",
-  "/media/projects/shootings/01/source/03-4x5.webp",
-  "/media/projects/shootings/02/source/01-4x5.webp",
-  "/media/projects/shootings/02/source/02-4x5.webp",
-  "/media/projects/shootings/02/source/03-4x5.webp",
-  "/media/projects/shootings/02/source/04-4x5.webp",
-  "/media/projects/shootings/03/source/01-4x5.webp",
-  "/media/projects/shootings/03/source/02-29x40.webp",
-  "/media/projects/shootings/03/source/03-1129x1280.webp",
-  "/media/projects/shootings/04/source/01-4x5.webp",
-  "/media/projects/shootings/04/source/02-4x5.webp",
-  "/media/projects/shootings/04/source/03-4x5.webp",
-  "/media/projects/shootings/04/source/04-125x172.webp",
-  "/media/projects/shootings/04/source/05-4x5.webp",
-  "/media/projects/shootings/05/source/01-1x1.webp",
-  "/media/projects/shootings/06/source/01-2x3.webp",
-  "/media/projects/shootings/06/source/02-2x3.webp",
-  "/media/projects/shootings/06/source/03-4x5.webp",
-  "/media/projects/shootings/07/source/01-4x5.webp",
-  "/media/projects/shootings/07/source/02-121x125.webp",
-  "/media/projects/shootings/07/source/03-4x5.webp",
-  "/media/projects/shootings/08/source/01-99x140.webp",
-  "/media/projects/shootings/08/source/02-4x5.webp",
-]);
+const BLACK_CARD_SOURCE = `data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200"><rect width="900" height="1200" fill="#050505"/></svg>',
+)}`;
 
 const createStockItems = (name, count = 24) =>
   Array.from({ length: count }, (_, index) => {
     const number = index + 1;
 
     return {
-      src: DEMO_IMAGES[index % DEMO_IMAGES.length],
+      src: BLACK_CARD_SOURCE,
       title: `${name} ${String(number).padStart(2, "0")}`,
     };
   });

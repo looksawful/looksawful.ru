@@ -13,4 +13,9 @@
     inline-size: 100%;
     min-inline-size: 0;
   }
+
+  awful-tool-preview,
+  awful-tool-preview [data-awful-tool-body] {
+    background: transparent !important;
+  }
 }

@@ -2,6 +2,7 @@
   .moves-awful-showcase {
     --wrapper-max-width: 96rem;
     --wrapper-gutter: 0rem;
+    --moves-awful-preview-min: clamp(22rem, 52vw, 38rem);
 
     min-inline-size: 0;
     padding-inline:
@@ -12,5 +13,52 @@
   .moves-awful-showcase
     :is([data-animated-canvas-gallery-controls], .animated-canvas-gallery-controls) {
     display: none;
+  }
+
+  .moves-awful-showcase .animated-canvas-gallery-preview-list {
+    gap: clamp(2rem, 6vw, 4rem);
+  }
+
+  .moves-awful-showcase .animated-canvas-gallery-preview {
+    display: grid;
+    grid-template-rows: auto minmax(var(--moves-awful-preview-min), 1fr);
+    gap: clamp(1rem, 2vw, 1.5rem);
+    min-block-size: clamp(28rem, 64vw, 48rem);
+  }
+
+  .moves-awful-showcase .animated-canvas-gallery-preview__header {
+    display: grid;
+    align-items: start;
+    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+    gap: clamp(1rem, 3vw, 2rem);
+  }
+
+  .moves-awful-showcase .animated-canvas-gallery-preview__description {
+    max-inline-size: 28rem;
+  }
+
+  .moves-awful-showcase .animated-canvas-gallery {
+    display: grid;
+    min-block-size: var(--moves-awful-preview-min);
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .moves-awful-showcase .animated-canvas-gallery > canvas {
+    display: block;
+  }
+
+  .moves-awful-showcase .repository-link {
+    display: none;
+  }
+
+  @media (width <= 50rem) {
+    .moves-awful-showcase .animated-canvas-gallery-preview {
+      min-block-size: auto;
+    }
+
+    .moves-awful-showcase .animated-canvas-gallery-preview__header {
+      grid-template-columns: 1fr;
+    }
   }
 }

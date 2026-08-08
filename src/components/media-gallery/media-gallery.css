@@ -45,6 +45,9 @@
   [data-media-gallery-item][data-media-fit="contain"]
     > :is(img, video),
   [data-media-gallery][data-media-fit="contain"]
+    > :is(img, video),
+  [data-media-gallery][data-media-fit="contain"]
+    [data-media-gallery-item]
     > :is(img, video) {
     object-fit: contain;
   }
@@ -83,6 +86,10 @@
 
   [data-media-ratio="banner"] {
     aspect-ratio: 16 / 5;
+  }
+
+  [data-media-ratio="logo-wide"] {
+    aspect-ratio: 1400 / 559;
   }
 
   [data-media-ratio="vertical"],
@@ -149,8 +156,7 @@
   [data-media-gallery-layout="masonry"]
     > [data-media-gallery-item]
     > :is(img, video) {
-    block-size: auto;
-    object-fit: contain;
+    object-fit: var(--media-gallery-object-fit);
   }
 
   [data-media-gallery-layout="two-squares-horizontal"] {

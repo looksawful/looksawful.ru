@@ -7,6 +7,7 @@ const DEFAULT_INTERVAL = 5200;
 const MIN_INTERVAL = 600;
 const AUTOPLAY_VISIBILITY_MARGIN = "200px 0px";
 const USER_CONTROLS_ENABLED_VALUE = "on";
+const FORCE_STATIC_MEDIA_SLIDERS = true;
 
 const noop = () => {};
 
@@ -152,7 +153,8 @@ export function createMediaSlider({ root, motion } = {}) {
   root[MEDIA_SLIDER_INSTANCE]?.destroy();
 
   const slides = getDirectSlides(root);
-  const mode = normalizeMediaSliderMode(root.dataset.mediaSliderMode);
+  const requestedMode = normalizeMediaSliderMode(root.dataset.mediaSliderMode);
+  const mode = FORCE_STATIC_MEDIA_SLIDERS ? "off" : requestedMode;
   const enabled = resolveMediaSliderEnabled({ mode, count: slides.length });
   const userControlsEnabled = enabled && resolveMediaSliderUserControls({ root });
   const autoplay = enabled && (
@@ -471,7 +473,7 @@ export function createMediaSlider({ root, motion } = {}) {
     slide.setAttribute("data-media-slide", "");
   });
 
-  root.dataset.mediaSliderMode = mode;
+  root.dataset.mediaSliderMode = requestedMode;
   root.dataset.mediaSliderState = enabled ? "enabled" : "disabled";
   root.dataset.mediaSliderUserControls = userControlsEnabled ? "on" : "off";
   root.toggleAttribute("data-media-slider-autoplaying", autoplay);

@@ -16,7 +16,7 @@
       data-side="end"
     >
       <main class="detail-layout__main" data-detail-main="">
-      <section class="fluid-cursor-area hero" data-fluid-cursor-area="" data-hero="" id="hero">
+                  <section class="fluid-cursor-area hero" data-fluid-cursor-area="" data-hero="" id="hero">
         <canvas
           aria-hidden="true"
           class="fluid-cursor"
@@ -94,7 +94,7 @@
           </footer>
         </div>
       </section>
-      <section class="skills-strip wrapper" aria-label="Навыки и инструменты">
+                  <section class="skills-strip wrapper" aria-label="Навыки и инструменты">
         <div
           data-direction="left"
           data-infinite-reel=""
@@ -135,7 +135,7 @@
           </div>
         </div>
       </section>
-      <section
+                  <section
         class="cv-scroll-scene"
         data-cv-accordion-scene=""
         data-initial="none"
@@ -143,6 +143,7 @@
         data-reduced-mode="click"
         id="cv"
       >
+
         <div class="cv-accordion" data-cv-accordion="">
           <div class="cv-accordion__list" data-cv-accordion-list="">
             <article class="cv-item" data-cv-scene="" data-cv-theme="item-01">
@@ -176,20 +177,14 @@
                     <p class="cv-item__number">Арт-директор</p>
                   </header>
                   <section class="cv-story cv-story--media-only cv-story--media-captioned" data-cv-sheet="">
-                    <div class="media-slider-frame" style="--media-captioned-slider-ratio: 823 / 419">
-                      <figure
-                        class="media-gallery media-gallery__item"
-                        data-media-fit="contain"
-                        data-media-gallery=""
-                        data-media-gallery-item=""
-                        data-media-gallery-layout="single"
-                        data-media-slider=""
-                        data-media-slider-autoplay=""
-                        data-media-slider-interval="5200"
-                        data-media-slider-mode="adaptive"
-                      >
+                    <figure
+                      class="media-gallery media-gallery__item"
+                      data-media-fit="contain"
+                      data-media-gallery=""
+                      data-media-gallery-item=""
+                      data-media-gallery-layout="single"
+                    >
                         <img alt=""
-                          data-media-slide=""
                           decoding="async"
                           loading="lazy"
                           src="./media/projects/jestei/01/source/01-823x419.webp"
@@ -197,26 +192,8 @@
                           width="823"
                           height="419"
                         />
-                        <img alt=""
-                          data-media-slide=""
-                          decoding="async"
-                          loading="lazy"
-                          src="./media/projects/jestei/01/source/02-55x28.webp"
-                          data-media-id="jestei-01-02"
-                          width="2970"
-                          height="1512"
-                        />
-                        <figcaption
-                          class="media-item__caption"
-                          data-media-caption=""
-                          data-media-caption-for="jestei-01-02"
-                          data-media-caption-mode=""
-                        >
-                          Секция лендинга для клубных диджеев
-                        </figcaption>
-                      </figure>
-                    </div>
-                    <div class="cv-story__copy cv-story__copy--under-media">
+                    </figure>
+                    <div class="cv-story__copy cv-story__copy--under-media prose">
                       <h3>Мой фокус в проекте</h3>
                       <p>Я сформировал новый визуальный язык проекта, разработал UX/UI-стратегию для core-продуктов и руководил всей командой дизайнеров проекта в течение двух с половиной лет.</p>
                     </div>
@@ -338,7 +315,6 @@
                       </div>
                     </div>
                   </section>
-                  
                   <section
                     aria-label="Цветовые темы Jestei Pool"
                     class="cv-story cv-story--theme-organism"
@@ -346,7 +322,7 @@
                   >
                     <div class="jestei-theme-organism-shell">
                       <header class="jestei-theme-organism-shell__header">
-                        <div class="cv-story__copy">
+                        <div class="cv-story__copy prose">
                           <h3>Цветовые темы Jestei Pool</h3>
                           <p>Пять продуктовых тем объединяют интерфейс, айдентику и сценарии сервиса.</p>
                         </div>
@@ -358,7 +334,7 @@
                           data-detail-open="detail-jestei-theme"
                           type="button"
                         >
-                          Открыть в панели
+                          Подробнее
                         </button>
                       </header>
                       <div
@@ -375,6 +351,7 @@
                     <h3 class="category-browser__title" id="jestei-category-title">
                       Система проекта
                     </h3>
+                    <p class="category-browser__copy">Короткий текст-заполнитель.</p>
                     <ul class="category-grid auto-grid" role="list">
                       <li class="category-card">
                         <button
@@ -386,20 +363,16 @@
                           type="button"
                         >
                           <span class="category-card__title">Логотип</span>
-                          <span class="category-card__media" aria-hidden="true"></span>
-                        </button>
-                      </li>
-                      <li class="category-card">
-                        <button
-                          aria-controls="detail-panel"
-                          aria-expanded="false"
-                          class="category-card__link"
-                          data-detail-history="push"
-                          data-detail-open="detail-jestei-palette"
-                          type="button"
-                        >
-                          <span class="category-card__title">Цветовая палитра</span>
-                          <span class="category-card__media" aria-hidden="true"></span>
+                          <span class="category-card__media">
+                            <img
+                              alt="Основная версия логотипа бренда"
+                              decoding="async"
+                              loading="lazy"
+                              src="./media/projects/jestei/system/logo/source/logo-anatomy-slide.png"
+                              width="1440"
+                              height="891"
+                            />
+                          </span>
                         </button>
                       </li>
                       <li class="category-card">
@@ -412,7 +385,16 @@
                           type="button"
                         >
                           <span class="category-card__title">Шрифт</span>
-                          <span class="category-card__media" aria-hidden="true"></span>
+                          <span class="category-card__media">
+                            <img
+                              alt="Основная версия логотипа бренда"
+                              decoding="async"
+                              loading="lazy"
+                              src="./media/projects/jestei/system/type/source/logo-druk-slide.png"
+                              width="1440"
+                              height="891"
+                            />
+                          </span>
                         </button>
                       </li>
                       <li class="category-card">
@@ -425,17 +407,30 @@
                           type="button"
                         >
                           <span class="category-card__title">Редакционная политика</span>
-                          <span class="category-card__media" aria-hidden="true"></span>
+                          <span class="category-card__media">
+                            <img
+                              alt="Основная версия логотипа бренда"
+                              decoding="async"
+                              loading="lazy"
+                              src="./media/projects/jestei/system/editorial/source/jestei-product-canvas-161.png"
+                              width="1600"
+                              height="1000"
+                            />
+                          </span>
                         </button>
                       </li>
                     </ul>
                   </section>
-                  
                   <section
                     class="cv-story cv-story--gallery cv-story--feature-four"
                     data-cv-sheet=""
                     data-sheet-layout="feature-four"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>ux-ix стратегия</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
+
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -532,10 +527,7 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>ux-ix стратегия</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                   <section
                     class="cv-story cv-story--gallery cv-story--landscape-four"
@@ -642,6 +634,10 @@
                     data-cv-sheet=""
                     data-sheet-layout="media-marquee"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>добавили цвет</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-marquee"
                       data-media-marquee=""
@@ -814,12 +810,8 @@
                         </div>
                       </div>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>добавили цвет</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
-                  </section>
 
+                  </section>
                   <section
                     aria-labelledby="jestei-filter-steps-title"
                     class="cv-story cv-story--workflow-pile"
@@ -851,6 +843,10 @@
                     data-cv-sheet=""
                     data-sheet-layout="landscape-nine-landscape"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>добавили графический дизайн</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -1107,13 +1103,10 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>добавили графический дизайн</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                   <template data-disabled-section="before-after">
-                    <section class="cv-story cv-story--media-only" data-cv-sheet="">
+                  <section class="cv-story cv-story--media-only" data-cv-sheet="">
                       <figure
                         class="before-after before-after--media"
                         data-autoplay="true"
@@ -1203,42 +1196,38 @@
                     <ul class="cv-item__meta" hidden=""></ul>
                     <p class="cv-item__number">Digital artist</p>
                   </header>
-                  <section
-                    aria-labelledby="styx-principle-title"
-                    class="cv-story cv-story--split principle"
-                    data-cv-sheet=""
-                  >
-                    <figure class="principle__media" aria-hidden="true"></figure>
-                    <div class="principle__copy stack">
-                      <h3 id="styx-principle-title">Заголовок</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
-                  </section>
-                  
                   <section class="cv-story cv-story--media-captioned" data-cv-sheet="">
                     <figure
-                      aria-label="Текстовый баннер"
-                      class="media-gallery media-gallery__item media-banner-placeholder"
+                      class="media-gallery media-gallery__item"
+                      data-media-fit="contain"
                       data-media-gallery=""
                       data-media-gallery-item=""
                       data-media-gallery-layout="single"
-                    ></figure>
-                    <div class="cv-story__copy cv-story__copy--under-media">
-                      <p>Короткий текст-заполнитель.</p>
+                      data-media-ratio="logo-wide"
+                    >
+                      <img
+                        alt=""
+                        decoding="async"
+                        loading="lazy"
+                        src="./media/projects/styx/logo/source/styx-logo-volume.webp"
+                        data-media-id="styx-logo-volume"
+                        width="1400"
+                        height="559"
+                      />
+                      <figcaption
+                        class="media-item__caption"
+                        data-media-caption=""
+                        data-media-caption-for="styx-logo-volume"
+                        data-media-caption-mode="static"
+                      >
+                        Основная версия логотипа бренда
+                      </figcaption>
+                    </figure>
+                    <div class="cv-story__copy cv-story__copy--under-media prose">
+                      <p>Возглавил комплексную работу над визуальной системой, сформировал ДНК бренда: разработал логотип, собрал фирменный стиль, разработал дизайн упаковки, печатных материалов, соцсетей, рекламных публикаций, баннеров, продюсировал и снимал кампейны, лукбуки и каталоги, занимался технической, художественной и экспериментальной обработкой фотографий и создавал сканографические перекладные анимации и арты.</p>
                     </div>
                   </section>
-                  <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
-                      <p>
-                        Возглавил комплексную работу над визуальной системой, сформировал ДНК
-                        бренда: разработал логотип, собрал фирменный стиль, разработал дизайн
-                        упаковки, печатных материалов, соцсетей, рекламных публикаций, баннеров,
-                        продюсировал и снимал кампейны, лукбуки и каталоги, занимался технической,
-                        художественной и экспериментальной обработкой фотографий и создавал
-                        сканографические перекладные анимации и арты.
-                      </p>
-                    </div>
-                  </section>
+
                   <section class="brief" data-cv-sheet="" aria-label="Зоны ответственности">
                     <div
                       class="brief__viewport"
@@ -1291,6 +1280,10 @@
                     data-media-gallery-block="quad-a"
                     data-sheet-layout="quad"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>Заголовок</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -1391,10 +1384,7 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>Заголовок</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                   <section
                     class="cv-story cv-story--gallery cv-story--media-only"
@@ -1402,6 +1392,10 @@
                     data-media-gallery-block="quad-b"
                     data-sheet-layout="quad"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>Заголовок</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -1508,10 +1502,7 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>Заголовок</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                   <section
                     class="cv-story cv-story--gallery cv-story--media-only"
@@ -1598,6 +1589,10 @@
                     data-media-gallery-block="wide-single"
                     data-sheet-layout="single"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>Заголовок</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -2214,10 +2209,7 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>Заголовок</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                   <section
                     class="cv-story cv-story--gallery cv-story--media-only"
@@ -2352,6 +2344,10 @@
                     data-media-gallery-block="square-portrait-square"
                     data-sheet-layout="square-portrait-square"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>Заголовок</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -2496,10 +2492,7 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>Заголовок</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                   <section
                     class="cv-story cv-story--gallery cv-story--media-only"
@@ -2804,6 +2797,10 @@
                     data-media-gallery-block="styx-vertical-four-10"
                     data-sheet-layout="four-up"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>Заголовок</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -2902,10 +2899,7 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>Заголовок</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                 </div>
               </div>
@@ -2939,11 +2933,8 @@
                     <ul class="cv-item__meta" hidden=""></ul>
                     <p class="cv-item__number">Фотограф</p>
                   </header>
-                  <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
-                      <p></p>
-                    </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
+                  <section class="cv-story cv-story--text" data-cv-sheet="">
+                    <div class="cv-story__copy prose">
                       <h3>Заголовок</h3>
                       <p>Короткий текст-заполнитель.</p>
                     </div>
@@ -3386,6 +3377,10 @@
                     data-media-gallery-block="shootings-05"
                     data-sheet-layout="single"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>Заголовок</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -3415,10 +3410,7 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>Заголовок</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                   <section
                     class="cv-story cv-story--gallery cv-story--media-only"
@@ -3634,16 +3626,6 @@
                           height="1400"
                         />
                       </figure>
-                      <figure
-                        class="media-gallery__item"
-                        data-media-gallery-item=""
-                        data-media-ratio="portrait"
-                      ></figure>
-                      <figure
-                        class="media-gallery__item"
-                        data-media-gallery-item=""
-                        data-media-ratio="portrait"
-                      ></figure>
                     </div>
                   </section>
                   <section
@@ -3924,6 +3906,10 @@
                     data-media-gallery-block="shootings-12"
                     data-sheet-layout="single"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>Заголовок</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -3953,10 +3939,7 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>Заголовок</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                   <section
                     class="cv-story cv-story--gallery cv-story--media-only"
@@ -3964,6 +3947,10 @@
                     data-media-gallery-block="shootings-14"
                     data-sheet-layout="single"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>Заголовок</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -3993,10 +3980,7 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>Заголовок</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                   <section
                     class="cv-story cv-story--gallery cv-story--media-only"
@@ -4179,36 +4163,13 @@
                   <section
                     class="cv-story cv-story--gallery cv-story--media-only"
                     data-cv-sheet=""
-                    data-media-gallery-block="shootings-18"
-                    data-sheet-layout="single"
-                  >
-                    <div
-                      class="media-gallery"
-                      data-media-gallery=""
-                      data-media-gallery-layout="single"
-                    >
-                      <figure
-                        class="media-gallery__item"
-                        data-media-gallery-item=""
-                        data-media-ratio="wide"
-                      >
-                        <img alt=""
-                          decoding="async"
-                          loading="lazy"
-                          src="./media/projects/shootings/18/source/01-5x4.webp"
-                          data-media-id="shootings-18-01"
-                          width="1280"
-                          height="1024"
-                        />
-                      </figure>
-                    </div>
-                  </section>
-                  <section
-                    class="cv-story cv-story--gallery cv-story--media-only"
-                    data-cv-sheet=""
                     data-media-gallery-block="shootings-19"
                     data-sheet-layout="eight-up"
                   >
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>Заголовок</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
                     <div
                       class="media-gallery"
                       data-media-gallery=""
@@ -4395,10 +4356,7 @@
                         </figcaption>
                       </figure>
                     </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
-                      <h3>Заголовок</h3>
-                      <p>Короткий текст-заполнитель.</p>
-                    </div>
+
                   </section>
                 </div>
               </div>
@@ -4437,7 +4395,7 @@
                     <p class="cv-item__number">Дизайнер</p>
                   </header>
                   <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
+                    <div class="cv-story__copy prose">
                       <p></p>
                     </div>
                   </section>
@@ -4624,7 +4582,7 @@
                     <p class="cv-item__number">СММ</p>
                   </header>
                   <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
+                    <div class="cv-story__copy prose">
                       <p>
                         В агентстве я работал SMM-специалистом и фотографом, составлял контент
                         планы, создавал дизайн постов, укомплектовал студию агентства оборудованием,
@@ -4979,7 +4937,7 @@
                     </div>
                   </section>
                   <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
+                    <div class="cv-story__copy prose">
                       <p>
                         На этапе запуска работал как SMM-специалист, фотограф и дизайнер: создал и
                         оформил соцсети, разработал контент-план, продюсировал фото- и видеосъёмки,
@@ -5314,18 +5272,12 @@
                     <ul class="cv-item__meta" hidden=""></ul>
                     <p class="cv-item__number">Разработчик</p>
                   </header>
-                  <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
-                      <p></p>
-                    </div>
-                    <div class="cv-story__copy cv-story__copy--section-note">
+                                    <section class="cv-story cv-story--tool-preview" data-cv-sheet="">
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
                       <h3>Заголовок</h3>
                       <p>Короткий текст-заполнитель.</p>
                     </div>
-                  </section>
-                  <section class="cv-story" data-cv-sheet="">
-                    <div class="awful-tools-stack wrapper">
-                      <awful-tool-preview project="awful-cases" data-awful-tool="awful-cases">
+                    <awful-tool-preview project="awful-cases" data-awful-tool="awful-cases">
                         <style data-awful-tool-style>
 awful-tool-preview[project="awful-cases"] { display: block; position: relative; z-index: 4; inline-size: 100%; min-inline-size: 0; overflow: clip; contain: layout paint; isolation: isolate; }
 .cv-item:has(awful-tool-preview[project="awful-cases"]) { position: relative; z-index: 12; }
@@ -5464,7 +5416,7 @@ awful-tool-preview[project="awful-cases"] .runner-frame{display:block;width:100%
                         </style>
                         <div data-awful-tool-body>
 <main class="desktop">
-  <section class="window window--hero" aria-labelledby="project-title">
+                  <section class="window window--hero" aria-labelledby="project-title">
     <div class="titlebar">
       <span class="titlebar__text">Awful Cases</span>
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
@@ -5484,8 +5436,7 @@ awful-tool-preview[project="awful-cases"] .runner-frame{display:block;width:100%
       </div>
     </div>
   </section>
-
-  <section class="window window--runner" aria-labelledby="runner-title">
+                  <section class="window window--runner" aria-labelledby="runner-title">
     <div class="titlebar">
       <span class="titlebar__text" id="runner-title">Awful Cases trainer</span>
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
@@ -5496,8 +5447,7 @@ awful-tool-preview[project="awful-cases"] .runner-frame{display:block;width:100%
       </div>
     </div>
   </section>
-
-  <section class="window window--md window--field" aria-labelledby="features-title">
+                  <section class="window window--md window--field" aria-labelledby="features-title">
     <div class="titlebar">
       <span class="titlebar__text" id="features-title">Operations</span>
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
@@ -5518,8 +5468,7 @@ awful-tool-preview[project="awful-cases"] .runner-frame{display:block;width:100%
       </div>
     </div>
   </section>
-
-  <section class="window window--md window--field window--right" aria-labelledby="shortcuts-title">
+                  <section class="window window--md window--field window--right" aria-labelledby="shortcuts-title">
     <div class="titlebar">
       <span class="titlebar__text" id="shortcuts-title">Default shortcuts</span>
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
@@ -5542,8 +5491,7 @@ awful-tool-preview[project="awful-cases"] .runner-frame{display:block;width:100%
       </div>
     </div>
   </section>
-
-  <section class="window window--md window--field" aria-labelledby="typography-title">
+                  <section class="window window--md window--field" aria-labelledby="typography-title">
     <div class="titlebar">
       <span class="titlebar__text" id="typography-title">Typography cleanup</span>
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
@@ -5564,8 +5512,7 @@ awful-tool-preview[project="awful-cases"] .runner-frame{display:block;width:100%
       </div>
     </div>
   </section>
-
-  <section class="window window--sm window--text window--right" aria-labelledby="requirements-title">
+                  <section class="window window--sm window--text window--right" aria-labelledby="requirements-title">
     <div class="titlebar">
       <span class="titlebar__text" id="requirements-title">Requirements</span>
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
@@ -5575,8 +5522,7 @@ awful-tool-preview[project="awful-cases"] .runner-frame{display:block;width:100%
       <p>AutoHotkey v2 is required only when running the <code>.ahk</code> source file directly.</p>
     </div>
   </section>
-
-  <section class="window window--md window--text" aria-labelledby="license-title">
+                  <section class="window window--md window--text" aria-labelledby="license-title">
     <div class="titlebar">
       <span class="titlebar__text" id="license-title">License and rights</span>
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
@@ -5587,8 +5533,7 @@ awful-tool-preview[project="awful-cases"] .runner-frame{display:block;width:100%
       <p>Author: Ivan Krushinski / looksawful. <a href="https://looksawful.ru">https://looksawful.ru</a></p>
     </div>
   </section>
-
-  <section class="window window--md window--right window--console" aria-labelledby="install-title">
+                  <section class="window window--md window--right window--console" aria-labelledby="install-title">
     <div class="titlebar titlebar--dos">
       <span class="titlebar__text" id="install-title">MS-DOS Prompt - install</span>
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
@@ -5599,8 +5544,7 @@ awful-tool-preview[project="awful-cases"] .runner-frame{display:block;width:100%
 <span class="prompt">C:\&gt;</span> cd <span class="path">awful-cases</span></code></pre>
     </div>
   </section>
-
-  <section class="window window--md window--console" aria-labelledby="run-title">
+                  <section class="window window--md window--console" aria-labelledby="run-title">
     <div class="titlebar titlebar--dos">
       <span class="titlebar__text" id="run-title">MS-DOS Prompt - run</span>
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
@@ -5615,7 +5559,13 @@ awful-tool-preview[project="awful-cases"] .runner-frame{display:block;width:100%
 </main>
                         </div>
                       </awful-tool-preview>
-                      <awful-tool-preview project="berserk-timer" data-awful-tool="berserk-timer">
+                  </section>
+                  <section class="cv-story cv-story--tool-preview" data-cv-sheet="">
+                    <div class="cv-story__copy cv-story__copy--section-note prose">
+                      <h3>Заголовок</h3>
+                      <p>Короткий текст-заполнитель.</p>
+                    </div>
+                    <awful-tool-preview project="berserk-timer" data-awful-tool="berserk-timer">
                         <style data-awful-tool-style>
 awful-tool-preview[project="berserk-timer"] { display: block; position: relative; z-index: 4; inline-size: 100%; min-inline-size: 0; overflow: clip; contain: layout paint; isolation: isolate; }
 .cv-item:has(awful-tool-preview[project="berserk-timer"]) { position: relative; z-index: 12; }
@@ -5662,7 +5612,6 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
 </div></article></main>
                         </div>
                       </awful-tool-preview>
-                    </div>
                   </section>
                 </div>
               </div>
@@ -5693,7 +5642,7 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                     <p class="cv-item__number">Разработчик</p>
                   </header>
                   <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
+                    <div class="cv-story__copy prose">
                       <p></p>
                     </div>
                   </section>
@@ -5716,24 +5665,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
 
                         <figure
                           class="animated-canvas-gallery"
-                          data-animated-canvas-gallery
+                          data-animated-canvas-gallery=""
                           data-gallery-variant="arc"
                           data-gallery-preset="project-showcase"
                           data-gallery-source="moves-arc"
                         >
                           <canvas data-animated-canvas-gallery-canvas data-moves-canvas></canvas>
                         </figure>
-
-                        <a
-                          class="repository-link"
-                          href="https://github.com/looksawful/moves-awful"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <span class="repository-link__label">github</span>
-                          <span class="repository-link__title">looksawful/moves-awful · arc</span>
-                          <span class="repository-link__arrow" aria-hidden="true">↗</span>
-                        </a>
                       </article>
                       <article
                         class="animated-canvas-gallery-preview"
@@ -5752,26 +5690,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
 
                         <figure
                           class="animated-canvas-gallery"
-                          data-animated-canvas-gallery
+                          data-animated-canvas-gallery=""
                           data-gallery-variant="spiral"
                           data-gallery-preset="project-showcase"
                           data-gallery-source="moves-spiral"
                         >
                           <canvas data-animated-canvas-gallery-canvas data-moves-canvas></canvas>
                         </figure>
-
-                        <a
-                          class="repository-link"
-                          href="https://github.com/looksawful/moves-awful"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <span class="repository-link__label">github</span>
-                          <span class="repository-link__title"
-                            >looksawful/moves-awful · spiral</span
-                          >
-                          <span class="repository-link__arrow" aria-hidden="true">↗</span>
-                        </a>
                       </article>
                       <article
                         class="animated-canvas-gallery-preview"
@@ -5790,26 +5715,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
 
                         <figure
                           class="animated-canvas-gallery"
-                          data-animated-canvas-gallery
+                          data-animated-canvas-gallery=""
                           data-gallery-variant="horizontal"
                           data-gallery-preset="project-showcase"
                           data-gallery-source="moves-horizontal"
                         >
                           <canvas data-animated-canvas-gallery-canvas data-moves-canvas></canvas>
                         </figure>
-
-                        <a
-                          class="repository-link"
-                          href="https://github.com/looksawful/moves-awful"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <span class="repository-link__label">github</span>
-                          <span class="repository-link__title"
-                            >looksawful/moves-awful · horizontal</span
-                          >
-                          <span class="repository-link__arrow" aria-hidden="true">↗</span>
-                        </a>
                       </article>
                       <article
                         class="animated-canvas-gallery-preview"
@@ -5828,26 +5740,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
 
                         <figure
                           class="animated-canvas-gallery"
-                          data-animated-canvas-gallery
+                          data-animated-canvas-gallery=""
                           data-gallery-variant="diagonal"
                           data-gallery-preset="project-showcase"
                           data-gallery-source="moves-diagonal"
                         >
                           <canvas data-animated-canvas-gallery-canvas data-moves-canvas></canvas>
                         </figure>
-
-                        <a
-                          class="repository-link"
-                          href="https://github.com/looksawful/moves-awful"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <span class="repository-link__label">github</span>
-                          <span class="repository-link__title"
-                            >looksawful/moves-awful · diagonal</span
-                          >
-                          <span class="repository-link__arrow" aria-hidden="true">↗</span>
-                        </a>
                       </article>
                       <article
                         class="animated-canvas-gallery-preview"
@@ -5868,26 +5767,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
 
                         <figure
                           class="animated-canvas-gallery"
-                          data-animated-canvas-gallery
+                          data-animated-canvas-gallery=""
                           data-gallery-variant="showcase-diagonal"
                           data-gallery-preset="project-showcase"
                           data-gallery-source="moves-showcase-diagonal"
                         >
                           <canvas data-animated-canvas-gallery-canvas data-moves-canvas></canvas>
                         </figure>
-
-                        <a
-                          class="repository-link"
-                          href="https://github.com/looksawful/moves-awful"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <span class="repository-link__label">github</span>
-                          <span class="repository-link__title"
-                            >looksawful/moves-awful · showcase-diagonal</span
-                          >
-                          <span class="repository-link__arrow" aria-hidden="true">↗</span>
-                        </a>
                       </article>
                       <article
                         class="animated-canvas-gallery-preview"
@@ -5906,26 +5792,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
 
                         <figure
                           class="animated-canvas-gallery"
-                          data-animated-canvas-gallery
+                          data-animated-canvas-gallery=""
                           data-gallery-variant="masonry"
                           data-gallery-preset="project-showcase"
                           data-gallery-source="moves-masonry"
                         >
                           <canvas data-animated-canvas-gallery-canvas data-moves-canvas></canvas>
                         </figure>
-
-                        <a
-                          class="repository-link"
-                          href="https://github.com/looksawful/moves-awful"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <span class="repository-link__label">github</span>
-                          <span class="repository-link__title"
-                            >looksawful/moves-awful · masonry</span
-                          >
-                          <span class="repository-link__arrow" aria-hidden="true">↗</span>
-                        </a>
                       </article>
                     </div>
                   </section>
@@ -5974,7 +5847,7 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                     </div>
                   </section>
                   <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
+                    <div class="cv-story__copy prose">
                       <p>
                         Ясоздал визуальный язык и дизайн систему: логотип,шрифт,
                         макеты для лендинга,нарисовал маскота бренда
@@ -6166,7 +6039,7 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                     <p class="cv-item__number">Основатель</p>
                   </header>
                   <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
+                    <div class="cv-story__copy prose">
                       <p>
                         Занимался запуском, управлением, продюсированием съёмок и организацией
                         команды.
@@ -6233,28 +6106,92 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                         data-media-gallery-item=""
                         data-media-ratio="landscape"
                       >
-                        <span class="media-gallery__placeholder" aria-hidden="true"></span>
+                        <img
+                          alt=""
+                          decoding="async"
+                          loading="lazy"
+                          src="./media/projects/sensetique/07/source/03-3x4.webp"
+                          data-media-id="sensetique-process-01"
+                          width="960"
+                          height="1280"
+                        />
+                        <figcaption
+                          class="media-item__caption"
+                          data-media-caption=""
+                          data-media-caption-for="sensetique-process-01"
+                          data-media-caption-mode="static"
+                        >
+                          Короткий текст-заполнитель.
+                        </figcaption>
                       </figure>
                       <figure
                         class="media-gallery__item"
                         data-media-gallery-item=""
                         data-media-ratio="portrait"
                       >
-                        <span class="media-gallery__placeholder" aria-hidden="true"></span>
+                        <img
+                          alt=""
+                          decoding="async"
+                          loading="lazy"
+                          src="./media/projects/sensetique/07/source/04-4x5.webp"
+                          data-media-id="sensetique-process-02"
+                          width="1121"
+                          height="1400"
+                        />
+                        <figcaption
+                          class="media-item__caption"
+                          data-media-caption=""
+                          data-media-caption-for="sensetique-process-02"
+                          data-media-caption-mode="static"
+                        >
+                          Короткий текст-заполнитель.
+                        </figcaption>
                       </figure>
                       <figure
                         class="media-gallery__item"
                         data-media-gallery-item=""
                         data-media-ratio="square"
                       >
-                        <span class="media-gallery__placeholder" aria-hidden="true"></span>
+                        <img
+                          alt=""
+                          decoding="async"
+                          loading="lazy"
+                          src="./media/projects/sensetique/04/source/02-2x3.webp"
+                          data-media-id="sensetique-process-03"
+                          width="853"
+                          height="1280"
+                        />
+                        <figcaption
+                          class="media-item__caption"
+                          data-media-caption=""
+                          data-media-caption-for="sensetique-process-03"
+                          data-media-caption-mode="static"
+                        >
+                          Короткий текст-заполнитель.
+                        </figcaption>
                       </figure>
                       <figure
                         class="media-gallery__item"
                         data-media-gallery-item=""
-                        data-media-ratio="landscape"
+                        data-media-ratio="portrait"
                       >
-                        <span class="media-gallery__placeholder" aria-hidden="true"></span>
+                        <img
+                          alt=""
+                          decoding="async"
+                          loading="lazy"
+                          src="./media/projects/sensetique/04/source/08-2x3.webp"
+                          data-media-id="sensetique-process-04"
+                          width="852"
+                          height="1280"
+                        />
+                        <figcaption
+                          class="media-item__caption"
+                          data-media-caption=""
+                          data-media-caption-for="sensetique-process-04"
+                          data-media-caption-mode="static"
+                        >
+                          Короткий текст-заполнитель.
+                        </figcaption>
                       </figure>
                     </div>
                   </section>
@@ -6341,42 +6278,15 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                       <figure
                         class="media-gallery__item"
                         data-media-gallery-item=""
-                        data-media-ratio="landscape"
-                        data-media-slider=""
-                        data-media-slider-mode="hover"
+                        data-media-ratio="portrait"
                       >
                         <img alt=""
-                          data-media-slide=""
                           decoding="async"
                           loading="lazy"
                           src="./media/projects/sensetique/03/source/01-2x3.webp"
                           data-media-id="sensetique-03-01"
                           width="933"
                           height="1400"
-                        /><img alt=""
-                          data-media-slide=""
-                          decoding="async"
-                          loading="lazy"
-                          src="./media/projects/sensetique/03/source/02-3x4.webp"
-                          data-media-id="sensetique-03-02"
-                          width="960"
-                          height="1280"
-                        /><img alt=""
-                          data-media-slide=""
-                          decoding="async"
-                          loading="lazy"
-                          src="./media/projects/sensetique/03/source/03-4x5.webp"
-                          data-media-id="sensetique-03-03"
-                          width="1022"
-                          height="1280"
-                        /><img alt=""
-                          data-media-slide=""
-                          decoding="async"
-                          loading="lazy"
-                          src="./media/projects/sensetique/03/source/04-3x4.webp"
-                          data-media-id="sensetique-03-04"
-                          width="960"
-                          height="1280"
                         />
                       </figure>
                     </div>
@@ -6384,47 +6294,21 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                   <section
                     class="cv-story cv-story--gallery cv-story--media-only"
                     data-cv-sheet=""
-                    data-media-strip-slider-block="sensetique-media-strip-slider-02"
+                    data-media-gallery-block="sensetique-static-04-a"
+                    data-sheet-layout="three-up"
                   >
-                    <media-strip-slider class="media-strip-slider" data-media-strip-slider=""
-                      ><div class="media-strip-slider__stage" data-media-strip-slider-stage="">
-                        <div class="media-strip-slider__slides" data-media-strip-slider-slides="">
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
+                    <div
+                      class="media-gallery"
+                      data-media-gallery=""
+                      data-media-gallery-layout="three-up"
+                    >
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="landscape"
+                      >
+                        <img
                               alt=""
-                              data-media-strip-slide-media=""
-                              decoding="async"
-                              loading="lazy"
-                              src="./media/projects/sensetique/04/source/01-16x9.webp"
-                              data-media-id="sensetique-04-01"
-                              width="1280"
-                              height="719"
-                            />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
-                              decoding="async"
-                              loading="lazy"
-                              src="./media/projects/sensetique/04/source/02-2x3.webp"
-                              data-media-id="sensetique-04-02"
-                              width="853"
-                              height="1280"
-                            />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
-                              alt=""
-                              data-media-strip-slide-media=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/03-3x2.webp"
@@ -6432,13 +6316,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="1280"
                               height="850"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
+                      </figure>
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img alt=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/04-2x3.webp"
@@ -6446,14 +6330,27 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="933"
                               height="1400"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
+                      </figure>
+                    </div>
+                  </section>
+                  <section
+                    class="cv-story cv-story--gallery cv-story--media-only"
+                    data-cv-sheet=""
+                    data-media-gallery-block="sensetique-static-04-b"
+                    data-sheet-layout="four-up"
+                  >
+                    <div
+                      class="media-gallery"
+                      data-media-gallery=""
+                      data-media-gallery-layout="four-up"
+                    >
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img
                               alt=""
-                              data-media-strip-slide-media=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/05-3x4.webp"
@@ -6461,14 +6358,14 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="960"
                               height="1280"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
+                      </figure>
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img
                               alt=""
-                              data-media-strip-slide-media=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/06-3x4.webp"
@@ -6476,14 +6373,14 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="960"
                               height="1280"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
+                      </figure>
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img
                               alt=""
-                              data-media-strip-slide-media=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/07-2x3.webp"
@@ -6491,28 +6388,26 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="933"
                               height="1400"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
-                              alt=""
-                              data-media-strip-slide-media=""
-                              decoding="async"
-                              loading="lazy"
-                              src="./media/projects/sensetique/04/source/08-2x3.webp"
-                              data-media-id="sensetique-04-08"
-                              width="852"
-                              height="1280"
-                            />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
+                      </figure>
+                    </div>
+                  </section>
+                  <section
+                    class="cv-story cv-story--gallery cv-story--media-only"
+                    data-cv-sheet=""
+                    data-media-gallery-block="sensetique-static-04-c"
+                    data-sheet-layout="four-up"
+                  >
+                    <div
+                      class="media-gallery"
+                      data-media-gallery=""
+                      data-media-gallery-layout="four-up"
+                    >
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img alt=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/09-2x3.webp"
@@ -6520,13 +6415,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="933"
                               height="1400"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
+                      </figure>
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img alt=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/10-4x5.webp"
@@ -6534,13 +6429,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="960"
                               height="1200"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
+                      </figure>
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img alt=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/11-2x3.webp"
@@ -6548,14 +6443,14 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="933"
                               height="1400"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
+                      </figure>
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img
                               alt=""
-                              data-media-strip-slide-media=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/12-544x763.webp"
@@ -6563,14 +6458,27 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="544"
                               height="763"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
+                      </figure>
+                    </div>
+                  </section>
+                  <section
+                    class="cv-story cv-story--gallery cv-story--media-only"
+                    data-cv-sheet=""
+                    data-media-gallery-block="sensetique-static-04-d"
+                    data-sheet-layout="four-up"
+                  >
+                    <div
+                      class="media-gallery"
+                      data-media-gallery=""
+                      data-media-gallery-layout="four-up"
+                    >
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img
                               alt=""
-                              data-media-strip-slide-media=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/13-4x5.webp"
@@ -6578,14 +6486,14 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="405"
                               height="506"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
+                      </figure>
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img
                               alt=""
-                              data-media-strip-slide-media=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/14-4x5.webp"
@@ -6593,13 +6501,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="1024"
                               height="1280"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
+                      </figure>
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img alt=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/15-3x4.webp"
@@ -6607,13 +6515,13 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="960"
                               height="1280"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
+                      </figure>
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img alt=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/16-4x5.webp"
@@ -6621,13 +6529,26 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="960"
                               height="1200"
                             />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
+                      </figure>
+                    </div>
+                  </section>
+                  <section
+                    class="cv-story cv-story--gallery cv-story--media-only"
+                    data-cv-sheet=""
+                    data-media-gallery-block="sensetique-static-04-e"
+                    data-sheet-layout="single"
+                  >
+                    <div
+                      class="media-gallery"
+                      data-media-gallery=""
+                      data-media-gallery-layout="single"
+                    >
+                      <figure
+                        class="media-gallery__item"
+                        data-media-gallery-item=""
+                        data-media-ratio="portrait"
+                      >
+                        <img alt=""
                               decoding="async"
                               loading="lazy"
                               src="./media/projects/sensetique/04/source/17-247x320.webp"
@@ -6635,14 +6556,8 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                               width="988"
                               height="1280"
                             />
-                          </figure>
-                        </div>
-                      </div>
-                      <div
-                        class="media-strip-slider__thumbnails"
-                        data-media-strip-slider-thumbnails=""
-                      ></div
-                    ></media-strip-slider>
+                      </figure>
+                    </div>
                   </section>
                   <section
                     class="cv-story cv-story--gallery cv-story--media-only"
@@ -6715,122 +6630,6 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                       </figure>
                     </div>
                   </section>
-                  <section
-                    class="cv-story cv-story--gallery cv-story--media-only"
-                    data-cv-sheet=""
-                    data-media-gallery-block="sensetique-landscape-single-02"
-                    data-sheet-layout="single"
-                  >
-                    <div
-                      class="media-gallery"
-                      data-media-gallery=""
-                      data-media-gallery-layout="single"
-                    >
-                      <figure
-                        class="media-gallery__item"
-                        data-media-gallery-item=""
-                        data-media-ratio="landscape"
-                      >
-                        <img
-                          alt=""
-                          decoding="async"
-                          loading="lazy"
-                          src="./media/projects/sensetique/06/source/01-16x9.webp"
-                          data-media-id="sensetique-06-01"
-                          width="1280"
-                          height="719"
-                        />
-                      </figure>
-                    </div>
-                  </section>
-                  <section
-                    class="cv-story cv-story--gallery cv-story--media-only"
-                    data-cv-sheet=""
-                    data-media-strip-slider-block="sensetique-media-strip-slider-03"
-                  >
-                    <media-strip-slider class="media-strip-slider" data-media-strip-slider=""
-                      ><div class="media-strip-slider__stage" data-media-strip-slider-stage="">
-                        <div class="media-strip-slider__slides" data-media-strip-slider-slides="">
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
-                              alt=""
-                              data-media-strip-slide-media=""
-                              decoding="async"
-                              loading="lazy"
-                              src="./media/projects/sensetique/07/source/01-1197x631.webp"
-                              data-media-id="sensetique-07-01"
-                              width="1197"
-                              height="631"
-                            />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
-                              decoding="async"
-                              loading="lazy"
-                              src="./media/projects/sensetique/07/source/02-185x256.webp"
-                              data-media-id="sensetique-07-02"
-                              width="925"
-                              height="1280"
-                            />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img
-                              alt=""
-                              data-media-strip-slide-media=""
-                              decoding="async"
-                              loading="lazy"
-                              src="./media/projects/sensetique/07/source/03-3x4.webp"
-                              data-media-id="sensetique-07-03"
-                              width="960"
-                              height="1280"
-                            />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
-                              decoding="async"
-                              loading="lazy"
-                              src="./media/projects/sensetique/07/source/04-4x5.webp"
-                              data-media-id="sensetique-07-04"
-                              width="1121"
-                              height="1400"
-                            />
-                          </figure>
-                          <figure
-                            class="media-strip-slider__slide"
-                            data-media-strip-slider-slide=""
-                          >
-                            <img alt=""
-                              data-media-strip-slide-media=""
-                              decoding="async"
-                              loading="lazy"
-                              src="./media/projects/sensetique/07/source/05-681x1400.webp"
-                              data-media-id="sensetique-07-05"
-                              width="681"
-                              height="1400"
-                            />
-                          </figure>
-                        </div>
-                      </div>
-                      <div
-                        class="media-strip-slider__thumbnails"
-                        data-media-strip-slider-thumbnails=""
-                      ></div
-                    ></media-strip-slider>
-                  </section>
                   <!-- <section
                     class="cv-story cv-story--gallery cv-story--media-only"
                     data-cv-sheet=""
@@ -6842,26 +6641,6 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                       data-media-gallery=""
                       data-media-gallery-layout="four-up"
                     >
-                      <figure
-                        class="media-gallery__item"
-                        data-media-gallery-item=""
-                        data-media-ratio="portrait"
-                      ></figure>
-                      <figure
-                        class="media-gallery__item"
-                        data-media-gallery-item=""
-                        data-media-ratio="portrait"
-                      ></figure>
-                      <figure
-                        class="media-gallery__item"
-                        data-media-gallery-item=""
-                        data-media-ratio="portrait"
-                      ></figure>
-                      <figure
-                        class="media-gallery__item"
-                        data-media-gallery-item=""
-                        data-media-ratio="portrait"
-                      ></figure>
                     </div>
                   </section> -->
                 </div>
@@ -6897,7 +6676,7 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                     <p class="cv-item__number">Ассистент продюсера</p>
                   </header>
                   <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
+                    <div class="cv-story__copy prose">
                       <p></p>
                     </div>
                   </section>
@@ -6932,7 +6711,7 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                     <p class="cv-item__number">JR продюсер</p>
                   </header>
                   <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
+                    <div class="cv-story__copy prose">
                       <p></p>
                     </div>
                   </section>
@@ -6970,7 +6749,7 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                     <p class="cv-item__number">Книжный дизайнер</p>
                   </header>
                   <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
+                    <div class="cv-story__copy prose">
                       <p></p>
                     </div>
                   </section>
@@ -7007,7 +6786,7 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
                     <p class="cv-item__number">Дизайнер-верстальщик</p>
                   </header>
                   <section class="cv-story" data-cv-sheet="">
-                    <div class="cv-story__copy">
+                    <div class="cv-story__copy prose">
                       <p></p>
                     </div>
                   </section>
@@ -7034,7 +6813,7 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
       data-presentation="sheet"
       data-state="closed"
     >
-      <section
+                  <section
         class="detail-panel"
         data-content-state="idle"
         data-detail-surface=""
@@ -7092,12 +6871,164 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
     <template
       data-detail-context="Jestei Pool"
       data-detail-kind="article"
-      data-detail-size="reading"
+      data-detail-size="media"
       data-detail-title="Логотип"
       id="detail-jestei-logo"
     >
-      <article class="prose detail-copy">
-        <p>Короткий текст-заполнитель.</p>
+      <article class="detail-copy stack">
+        <div class="prose">
+          <h3>Логотип Jestei Pool</h3>
+          <p>
+            Я разработал логотип как заметный знак для визуальной системы Jestei Pool:
+            он должен сохранять характер бренда в интерфейсе, презентациях и на
+            прикладных носителях.
+          </p>
+        </div>
+        <div
+          class="media-gallery"
+          data-media-gallery=""
+          data-media-gallery-layout="masonry"
+          data-media-fit="contain"
+        >
+          <figure
+            class="media-gallery__item"
+            data-media-gallery-item=""
+            data-media-ratio="landscape"
+          >
+            <img
+              alt=""
+              decoding="async"
+              loading="lazy"
+              src="./media/projects/jestei/system/logo/source/logo-anatomy-slide.png"
+              data-media-id="jestei-logo-anatomy"
+              width="1440"
+              height="891"
+            />
+            <figcaption
+              class="media-item__caption"
+              data-media-caption=""
+              data-media-caption-for="jestei-logo-anatomy"
+              data-media-caption-mode="static"
+            >
+              Короткий текст-заполнитель.
+            </figcaption>
+          </figure>
+          <figure
+            class="media-gallery__item"
+            data-media-gallery-item=""
+            data-media-ratio="landscape"
+          >
+            <img
+              alt=""
+              decoding="async"
+              loading="lazy"
+              src="./media/projects/jestei/system/logo/source/logo-color-slide.png"
+              data-media-id="jestei-logo-color"
+              width="814"
+              height="498"
+            />
+            <figcaption
+              class="media-item__caption"
+              data-media-caption=""
+              data-media-caption-for="jestei-logo-color"
+              data-media-caption-mode="static"
+            >
+              Короткий текст-заполнитель.
+            </figcaption>
+          </figure>
+          <figure
+            class="media-gallery__item"
+            data-media-gallery-item=""
+            data-media-ratio="wide"
+          >
+            <img
+              alt=""
+              decoding="async"
+              loading="lazy"
+              src="./media/projects/jestei/system/logo/source/logo-wordmark-stack.png"
+              data-media-id="jestei-logo-wordmark-stack"
+              width="614"
+              height="247"
+            />
+            <figcaption
+              class="media-item__caption"
+              data-media-caption=""
+              data-media-caption-for="jestei-logo-wordmark-stack"
+              data-media-caption-mode="static"
+            >
+              Короткий текст-заполнитель.
+            </figcaption>
+          </figure>
+          <figure
+            class="media-gallery__item"
+            data-media-gallery-item=""
+            data-media-ratio="landscape"
+          >
+            <img
+              alt=""
+              decoding="async"
+              loading="lazy"
+              src="./media/projects/jestei/system/logo/source/logo-type-slide.png"
+              data-media-id="jestei-logo-type"
+              width="1440"
+              height="891"
+            />
+            <figcaption
+              class="media-item__caption"
+              data-media-caption=""
+              data-media-caption-for="jestei-logo-type"
+              data-media-caption-mode="static"
+            >
+              Короткий текст-заполнитель.
+            </figcaption>
+          </figure>
+          <figure
+            class="media-gallery__item"
+            data-media-gallery-item=""
+            data-media-ratio="square"
+          >
+            <img
+              alt=""
+              decoding="async"
+              loading="lazy"
+              src="./media/projects/jestei/system/logo/source/logo-shirt.png"
+              data-media-id="jestei-logo-shirt"
+              width="286"
+              height="271"
+            />
+            <figcaption
+              class="media-item__caption"
+              data-media-caption=""
+              data-media-caption-for="jestei-logo-shirt"
+              data-media-caption-mode="static"
+            >
+              Короткий текст-заполнитель.
+            </figcaption>
+          </figure>
+          <figure
+            class="media-gallery__item"
+            data-media-gallery-item=""
+            data-media-ratio="landscape"
+          >
+            <img
+              alt=""
+              decoding="async"
+              loading="lazy"
+              src="./media/projects/jestei/system/logo/source/logo-system-01.webp"
+              data-media-id="jestei-logo-system-01"
+              width="1400"
+              height="788"
+            />
+            <figcaption
+              class="media-item__caption"
+              data-media-caption=""
+              data-media-caption-for="jestei-logo-system-01"
+              data-media-caption-mode="static"
+            >
+              Короткий текст-заполнитель.
+            </figcaption>
+          </figure>
+        </div>
       </article>
     </template>
     <template
@@ -7114,12 +7045,49 @@ awful-tool-preview[project="berserk-timer"]{color-scheme:dark;--bg:#050505;--pan
     <template
       data-detail-context="Jestei Pool"
       data-detail-kind="article"
-      data-detail-size="reading"
+      data-detail-size="media"
       data-detail-title="Шрифт"
       id="detail-jestei-type"
     >
-      <article class="prose detail-copy">
-        <p>Короткий текст-заполнитель.</p>
+      <article class="detail-copy stack">
+        <div class="prose">
+          <h3>Druk Wide</h3>
+          <p>
+            Шрифтовой блок показывает, как Druk Wide работает внутри визуального
+            языка Jestei Pool: как акцентная типографика для крупных сообщений,
+            промо-носителей и элементов фирменной системы.
+          </p>
+        </div>
+        <div
+          class="media-gallery"
+          data-media-gallery=""
+          data-media-gallery-layout="single"
+          data-media-fit="contain"
+        >
+          <figure
+            class="media-gallery__item"
+            data-media-gallery-item=""
+            data-media-ratio="landscape"
+          >
+            <img
+              alt=""
+              decoding="async"
+              loading="lazy"
+              src="./media/projects/jestei/system/type/source/logo-druk-slide.png"
+              data-media-id="jestei-type-druk"
+              width="1440"
+              height="891"
+            />
+            <figcaption
+              class="media-item__caption"
+              data-media-caption=""
+              data-media-caption-for="jestei-type-druk"
+              data-media-caption-mode="static"
+            >
+              Короткий текст-заполнитель.
+            </figcaption>
+          </figure>
+        </div>
       </article>
     </template>
 <template data-detail-context="Jestei Pool" data-detail-kind="editorial-policy" data-detail-size="document" data-detail-title="Редакционная политика" id="detail-jestei-editorial-policy"><article aria-labelledby="editorial-policy-title" class="editorial-policy-document"><header class="editorial-policy-document__header">

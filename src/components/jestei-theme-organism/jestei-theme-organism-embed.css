@@ -23,6 +23,14 @@
     margin: 0;
   }
 
+  .jestei-theme-organism-shell__header .cv-story__copy h3 {
+    font-size: clamp(1.35rem, 2.2vw, 2.25rem);
+  }
+
+  .jestei-theme-organism-shell__header .cv-story__copy p {
+    font-size: clamp(0.95rem, 1.25vw, 1.15rem);
+  }
+
   .jestei-theme-organism-shell__action {
     --btn-color: currentColor;
     --btn-bg: transparent;
