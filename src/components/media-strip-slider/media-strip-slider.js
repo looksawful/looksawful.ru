@@ -1,6 +1,7 @@
 const COMPONENT_NAME = "media-strip-slider";
 const FALLBACK_RATIO = 1;
 const MIN_VALID_RATIO = 0.05;
+const USER_CONTROLS_ENABLED_VALUE = "on";
 
 function clampIndex(index, length) {
   return Math.min(Math.max(index, 0), Math.max(0, length - 1));
@@ -91,6 +92,10 @@ class MediaStripSliderElement extends HTMLElement {
   #mounted = false;
   #renderQueued = false;
 
+  #userControlsEnabled() {
+    return this.dataset.mediaStripSliderUserControls === USER_CONTROLS_ENABLED_VALUE;
+  }
+
   connectedCallback() {
     if (this.#mounted) return;
 
@@ -107,6 +112,9 @@ class MediaStripSliderElement extends HTMLElement {
       return;
     }
 
+    this.dataset.mediaStripSliderUserControls = this.#userControlsEnabled()
+      ? "on"
+      : "off";
     this.addEventListener("keydown", this.#handleKeydown);
 
     this.#observer = new MutationObserver(this.#queueRender);
@@ -212,6 +220,10 @@ class MediaStripSliderElement extends HTMLElement {
       button.dataset.mediaStripSliderThumbnail = "";
       button.dataset.mediaStripSliderIndex = String(index);
       button.setAttribute("aria-label", `Слайд ${index + 1}`);
+      button.setAttribute(
+        "aria-disabled",
+        String(!this.#userControlsEnabled()),
+      );
 
       const thumbnailMedia = cloneThumbnailMedia(slide);
 
@@ -232,7 +244,10 @@ class MediaStripSliderElement extends HTMLElement {
         );
       }
 
-      button.addEventListener("click", this.#handleThumbnailClick);
+      if (this.#userControlsEnabled()) {
+        button.addEventListener("click", this.#handleThumbnailClick);
+      }
+
       this.#thumbnailTrack.append(button);
       this.#thumbnailButtons.push(button);
     });
@@ -257,7 +272,7 @@ class MediaStripSliderElement extends HTMLElement {
     this.#thumbnailButtons.forEach((button, buttonIndex) => {
       const active = buttonIndex === this.#activeIndex;
       button.setAttribute("aria-current", String(active));
-      button.tabIndex = active ? 0 : -1;
+      button.tabIndex = active && this.#userControlsEnabled() ? 0 : -1;
     });
 
     if (scrollThumbnail) {
@@ -284,6 +299,10 @@ class MediaStripSliderElement extends HTMLElement {
   }
 
   #handleThumbnailClick = (event) => {
+    if (!this.#userControlsEnabled()) {
+      return;
+    }
+
     const button = event.currentTarget;
     const index = Number.parseInt(
       button.dataset.mediaStripSliderIndex ?? "0",
@@ -294,6 +313,10 @@ class MediaStripSliderElement extends HTMLElement {
   };
 
   #handleKeydown = (event) => {
+    if (!this.#userControlsEnabled()) {
+      return;
+    }
+
     if (this.#slides.length < 2) return;
 
     let nextIndex = this.#activeIndex;

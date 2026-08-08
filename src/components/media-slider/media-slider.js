@@ -5,6 +5,8 @@ const VALID_MODES = new Set(["adaptive", "hover", "click", "auto", "off"]);
 const DEFAULT_MODE = "adaptive";
 const DEFAULT_INTERVAL = 5200;
 const MIN_INTERVAL = 600;
+const AUTOPLAY_VISIBILITY_MARGIN = "200px 0px";
+const USER_CONTROLS_ENABLED_VALUE = "on";
 
 const noop = () => {};
 
@@ -34,12 +36,14 @@ export function resolveMediaSliderProgressRunning({
   motionAllowed,
   paused,
   documentVisible,
+  inViewport = true,
 } = {}) {
   return (
     autoplay === true &&
     motionAllowed === true &&
     paused !== true &&
-    documentVisible === true
+    documentVisible === true &&
+    inViewport === true
   );
 }
 
@@ -82,18 +86,49 @@ function getDirectSlides(root) {
   );
 }
 
-function createProgress(root, enabled) {
+export function resolveMediaSliderUserControls({ root } = {}) {
+  return root?.dataset.mediaSliderUserControls === USER_CONTROLS_ENABLED_VALUE;
+}
+
+function createIndex(root, enabled, count) {
   if (!resolveMediaSliderProgressVisible({ enabled })) {
     return null;
   }
 
-  const progress = document.createElement("span");
-  progress.setAttribute("data-media-slider-progress", "");
-  progress.setAttribute("data-media-slider-generated", "");
-  progress.setAttribute("aria-hidden", "true");
-  root.append(progress);
+  const index = document.createElement("span");
+  const track = document.createElement("span");
+  const items = [];
 
-  return progress;
+  index.setAttribute("data-media-slider-index", "");
+  index.setAttribute("data-media-slider-generated", "");
+  index.setAttribute("aria-hidden", "true");
+
+  track.setAttribute("data-media-slider-index-track", "");
+
+  for (let slideIndex = 0; slideIndex < count; slideIndex += 1) {
+    const item = document.createElement("span");
+    const visual = document.createElement("span");
+    const progress = document.createElement("span");
+
+    item.setAttribute("data-media-slider-index-item", "");
+    item.dataset.mediaSliderIndexItem = String(slideIndex);
+
+    visual.setAttribute("data-media-slider-index-visual", "");
+    progress.setAttribute("data-media-slider-index-progress", "");
+
+    visual.append(progress);
+    item.append(visual);
+    track.append(item);
+    items.push(item);
+  }
+
+  index.append(track);
+  root.append(index);
+
+  return {
+    root: index,
+    items,
+  };
 }
 
 function readInterval(root) {
@@ -119,24 +154,27 @@ export function createMediaSlider({ root, motion } = {}) {
   const slides = getDirectSlides(root);
   const mode = normalizeMediaSliderMode(root.dataset.mediaSliderMode);
   const enabled = resolveMediaSliderEnabled({ mode, count: slides.length });
+  const userControlsEnabled = enabled && resolveMediaSliderUserControls({ root });
   const autoplay = enabled && (
     mode === "auto" || root.hasAttribute("data-media-slider-autoplay")
   );
   const interval = readInterval(root);
   const precisePointer = window.matchMedia(PRECISE_POINTER_QUERY);
   const cleanup = [];
-  const progress = createProgress(root, enabled);
+  const index = createIndex(root, enabled, slides.length);
 
   const originalAttributes = {
     role: root.getAttribute("role"),
     tabindex: root.getAttribute("tabindex"),
     ariaLabel: root.getAttribute("aria-label"),
+    userControls: root.getAttribute("data-media-slider-user-controls"),
   };
 
   let destroyed = false;
   let activeIndex = -1;
   let autoTimer = 0;
   let autoPaused = false;
+  let autoVisible = !autoplay || !("IntersectionObserver" in window);
   let motionAllowed = readMotionAllowed(motion);
   let interaction = "none";
 
@@ -168,19 +206,84 @@ export function createMediaSlider({ root, motion } = {}) {
         }),
       );
     }
+
+    updateIndexItems();
+  }
+
+  function getDotSize(distance) {
+    if (distance === 1) return 14;
+    if (distance === 2) return 12;
+    if (distance === 3) return 10;
+    if (distance === 4) return 8;
+    return 7;
+  }
+
+  function getDotOpacity(distance) {
+    return Math.max(0.5, 1 - distance * 0.12);
+  }
+
+  function updateIndexItems() {
+    if (!index?.items) {
+      return;
+    }
+
+    index.items.forEach((item, itemIndex) => {
+      const active = itemIndex === activeIndex;
+      const distance = Math.abs(itemIndex - activeIndex);
+      const visual = item.querySelector("[data-media-slider-index-visual]");
+
+      item.setAttribute("aria-current", String(active));
+
+      if (!(visual instanceof HTMLElement)) {
+        return;
+      }
+
+      if (active) {
+        item.style.setProperty(
+          "--media-slider-index-item-size",
+          "var(--media-slider-index-pill-size)",
+        );
+        visual.style.setProperty(
+          "--media-slider-index-visual-inline-size",
+          "var(--media-slider-index-pill-size)",
+        );
+        visual.style.setProperty(
+          "--media-slider-index-visual-block-size",
+          "var(--media-slider-index-pill-block-size)",
+        );
+        visual.style.setProperty("--media-slider-index-visual-opacity", "1");
+        return;
+      }
+
+      const size = getDotSize(distance);
+
+      item.style.setProperty("--media-slider-index-item-size", `${size}px`);
+      visual.style.setProperty(
+        "--media-slider-index-visual-inline-size",
+        `${size}px`,
+      );
+      visual.style.setProperty(
+        "--media-slider-index-visual-block-size",
+        `${size}px`,
+      );
+      visual.style.setProperty(
+        "--media-slider-index-visual-opacity",
+        String(getDotOpacity(distance)),
+      );
+    });
   }
 
   function resetProgress() {
-    if (!(progress instanceof HTMLElement)) {
+    if (!index?.root) {
       return;
     }
 
     root.style.setProperty(
-      "--media-slider-progress-duration",
+      "--media-slider-index-progress-duration",
       `${interval}ms`,
     );
 
-    root.removeAttribute("data-media-slider-progress-running");
+    root.removeAttribute("data-media-slider-index-progress-running");
 
     if (
       !resolveMediaSliderProgressRunning({
@@ -188,17 +291,25 @@ export function createMediaSlider({ root, motion } = {}) {
         motionAllowed,
         paused: autoPaused,
         documentVisible: document.visibilityState !== "hidden",
+        inViewport: autoVisible,
       })
     ) {
       return;
     }
 
-    void progress.offsetWidth;
-    root.setAttribute("data-media-slider-progress-running", "");
+    const activeProgress = index.items[activeIndex]?.querySelector(
+      "[data-media-slider-index-progress]",
+    );
+
+    if (activeProgress instanceof HTMLElement) {
+      void activeProgress.offsetWidth;
+    }
+
+    root.setAttribute("data-media-slider-index-progress-running", "");
   }
 
   function stopProgress() {
-    root.removeAttribute("data-media-slider-progress-running");
+    root.removeAttribute("data-media-slider-index-progress-running");
   }
 
   function stopAuto() {
@@ -213,6 +324,7 @@ export function createMediaSlider({ root, motion } = {}) {
   function canRunAuto() {
     return (
       autoplay &&
+      autoVisible &&
       motionAllowed &&
       !autoPaused &&
       document.visibilityState !== "hidden"
@@ -250,7 +362,7 @@ export function createMediaSlider({ root, motion } = {}) {
   }
 
   function updateInteraction() {
-    interaction = enabled
+    interaction = enabled && userControlsEnabled
       ? resolveMediaSliderInteraction({
           mode,
           precisePointer: precisePointer.matches,
@@ -341,6 +453,16 @@ export function createMediaSlider({ root, motion } = {}) {
     scheduleAuto();
   }
 
+  function setAutoVisible(visible) {
+    if (autoVisible === visible) {
+      return;
+    }
+
+    autoVisible = visible;
+    root.toggleAttribute("data-media-slider-in-view", visible);
+    scheduleAuto();
+  }
+
   function handlePointerQueryChange() {
     updateInteraction();
   }
@@ -351,15 +473,16 @@ export function createMediaSlider({ root, motion } = {}) {
 
   root.dataset.mediaSliderMode = mode;
   root.dataset.mediaSliderState = enabled ? "enabled" : "disabled";
+  root.dataset.mediaSliderUserControls = userControlsEnabled ? "on" : "off";
   root.toggleAttribute("data-media-slider-autoplaying", autoplay);
-  root.toggleAttribute("data-media-slider-has-progress", progress instanceof HTMLElement);
+  root.toggleAttribute("data-media-slider-has-index", Boolean(index?.root));
   root.setAttribute("data-media-slider-ready", "");
 
   setActiveIndex(0, { emit: false });
   updateInteraction();
   resetProgress();
 
-  if (enabled) {
+  if (enabled && userControlsEnabled) {
     root.addEventListener("pointermove", handlePointerMove);
     root.addEventListener("pointerenter", handlePointerEnter);
     root.addEventListener("pointerleave", handlePointerLeave);
@@ -378,6 +501,21 @@ export function createMediaSlider({ root, motion } = {}) {
   if (autoplay) {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     cleanup.push(() => document.removeEventListener("visibilitychange", handleVisibilityChange));
+
+    if ("IntersectionObserver" in window) {
+      const autoplayObserver = new IntersectionObserver(
+        ([entry]) => setAutoVisible(Boolean(entry?.isIntersecting)),
+        {
+          rootMargin: AUTOPLAY_VISIBILITY_MARGIN,
+        },
+      );
+
+      autoplayObserver.observe(root);
+      cleanup.push(() => autoplayObserver.disconnect());
+    } else {
+      root.setAttribute("data-media-slider-in-view", "");
+    }
+
     scheduleAuto();
   }
 
@@ -417,12 +555,13 @@ export function createMediaSlider({ root, motion } = {}) {
     root.removeAttribute("data-media-slider-index");
     root.removeAttribute("data-media-slider-interaction");
     root.removeAttribute("data-media-slider-autoplaying");
-    root.removeAttribute("data-media-slider-has-progress");
-    root.removeAttribute("data-media-slider-progress-running");
-    root.style.removeProperty("--media-slider-progress-duration");
+    root.removeAttribute("data-media-slider-has-index");
+    root.removeAttribute("data-media-slider-in-view");
+    root.removeAttribute("data-media-slider-index-progress-running");
+    root.style.removeProperty("--media-slider-index-progress-duration");
 
-    if (progress?.hasAttribute("data-media-slider-generated")) {
-      progress.remove();
+    if (index?.root?.hasAttribute("data-media-slider-generated")) {
+      index.root.remove();
     }
 
     if (originalAttributes.role === null) {
@@ -441,6 +580,15 @@ export function createMediaSlider({ root, motion } = {}) {
       root.removeAttribute("aria-label");
     } else {
       root.setAttribute("aria-label", originalAttributes.ariaLabel);
+    }
+
+    if (originalAttributes.userControls === null) {
+      root.removeAttribute("data-media-slider-user-controls");
+    } else {
+      root.setAttribute(
+        "data-media-slider-user-controls",
+        originalAttributes.userControls,
+      );
     }
 
     if (root[MEDIA_SLIDER_INSTANCE]?.destroy === destroy) {

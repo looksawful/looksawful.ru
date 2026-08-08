@@ -76,61 +76,113 @@
 }
 
 @layer components {
-  [data-media-slider][data-media-slider-has-progress] {
-    --media-slider-progress-gap: 0.375rem;
-    --media-slider-progress-size: 1px;
+  [data-media-slider][data-media-slider-has-index] {
+    --media-slider-index-gap: 0.5rem;
+    --media-slider-index-pill-size: 3.75rem;
+    --media-slider-index-pill-block-size: 1.25rem;
+    --media-slider-index-dot-color: rgb(255 255 255 / 58%);
+    --media-slider-index-track-color: rgb(255 255 255 / 42%);
+    --media-slider-index-progress-color: #ffffff;
 
-    overflow: visible;
-    margin-block-end: calc(
-      var(--media-slider-progress-gap) +
-      var(--media-slider-progress-size)
-    );
+    overflow: hidden;
   }
 
-  [data-media-slider-progress] {
+  [data-media-slider-index] {
     position: absolute;
     z-index: 4;
-    inset-inline: 0;
-    inset-block-end: calc(
-      -1 *
-      (
-        var(--media-slider-progress-gap) +
-        var(--media-slider-progress-size)
-      )
-    );
+    inset-inline-start: 50%;
+    inset-block-end: clamp(0.65rem, 2vw, 1.15rem);
 
-    display: block;
-    block-size: var(--media-slider-progress-size);
-    background: currentColor;
+    display: grid;
+    place-items: center;
+    inline-size: min(18rem, calc(100% - 2rem));
+    block-size: 2.75rem;
     pointer-events: none;
-    transform: scaleX(1);
-    transform-origin: right center;
+    transform: translateX(-50%);
+  }
+
+  [data-media-slider-index-track] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--media-slider-index-gap);
+    inline-size: max-content;
+    max-inline-size: 100%;
+  }
+
+  [data-media-slider-index-item] {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    inline-size: var(--media-slider-index-item-size, 0.75rem);
+    block-size: 100%;
+  }
+
+  [data-media-slider-index-visual] {
+    position: relative;
+    display: block;
+    inline-size: var(--media-slider-index-visual-inline-size, 0.75rem);
+    block-size: var(--media-slider-index-visual-block-size, 0.75rem);
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--media-slider-index-dot-color);
+    opacity: var(--media-slider-index-visual-opacity, 1);
+  }
+
+  [data-media-slider-index-item][aria-current="true"]
+    [data-media-slider-index-visual] {
+    background: var(--media-slider-index-track-color);
+  }
+
+  [data-media-slider-index-progress] {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--media-slider-index-progress-color);
+    transform: scaleX(0);
+    transform-origin: left center;
   }
 }
 
 @layer motion {
-  [data-media-slider][data-media-slider-progress-running]
-    > [data-media-slider-progress] {
-    animation: media-slider-progress-countdown
-      var(--media-slider-progress-duration, 5200ms)
+  [data-media-slider][data-media-slider-index-progress-running]
+    [data-media-slider-index-item][aria-current="true"]
+    [data-media-slider-index-progress] {
+    animation: media-slider-index-progress
+      var(--media-slider-index-progress-duration, 5200ms)
       linear
       forwards;
   }
 
-  @keyframes media-slider-progress-countdown {
+  [data-media-slider-index-item],
+  [data-media-slider-index-visual] {
+    transition:
+      inline-size 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      block-size 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 180ms ease,
+      background-color 180ms ease;
+  }
+
+  @keyframes media-slider-index-progress {
     from {
-      transform: scaleX(1);
+      transform: scaleX(0);
     }
 
     to {
-      transform: scaleX(0);
+      transform: scaleX(1);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    [data-media-slider-progress] {
+    [data-media-slider-index-item],
+    [data-media-slider-index-visual],
+    [data-media-slider-index-progress] {
       animation: none !important;
-      transform: scaleX(1) !important;
+      transition: none !important;
+    }
+
+    [data-media-slider-index-progress] {
+      transform: scaleX(0) !important;
     }
   }
 }

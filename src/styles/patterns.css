@@ -50,8 +50,6 @@
 
 .overflow-scroller > * {
   scroll-snap-align: center;
-  animation: rise-scroller linear both;
-  animation-timeline: view(x);
 }
 
 .auto-grid {
@@ -97,6 +95,19 @@
     var(--wrapper-max-width, 80rem)
   );
   margin-inline: auto;
+}
+
+.grid-flow {
+  display: grid;
+  grid-template-columns: var(--grid-flow-columns, none);
+  grid-auto-flow: var(--grid-flow-auto-flow, row);
+  align-content: var(--grid-flow-align-content, start);
+  align-items: var(--grid-flow-align-items, normal);
+  justify-content: var(--grid-flow-justify-content, normal);
+  justify-items: var(--grid-flow-justify-items, normal);
+  gap:
+    var(--grid-flow-row-gap, var(--grid-flow-space, 1rem))
+    var(--grid-flow-column-gap, var(--grid-flow-space, 1rem));
 }
 
 .cluster {
@@ -163,6 +174,13 @@
 
 .reel > * {
   scroll-snap-align: var(--reel-snap-align, start);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .overflow-scroller[data-animated="true"] > * {
+    animation: rise-scroller linear both;
+    animation-timeline: view(x);
+  }
 }
 
 @container (width > 500px) {

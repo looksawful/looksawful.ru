@@ -12,7 +12,7 @@
      * На широких экранах весь внутренний поток ограничивается
      * одним общим контейнером.
      */
-    --cv-content-wide-max: 60rem;
+    --cv-content-wide-max: 90rem;
     --cv-media-wide-max: 100%;
     --cv-media-grid-max: 100%;
     --cv-media-compact-max: 100%;
@@ -96,58 +96,42 @@
     --item-ink: var(--cv-item-default-foreground);
   }
 
-  .cv-item:nth-child(
-    8n + 1 of .cv-item:not([data-cv-theme="default"])
-  ) {
+  .cv-item:nth-child(8n + 1 of .cv-item:not([data-cv-theme="default"])) {
     --item-bg: var(--cv-item-01-background);
     --item-ink: var(--cv-item-01-foreground);
   }
 
-  .cv-item:nth-child(
-    8n + 2 of .cv-item:not([data-cv-theme="default"])
-  ) {
+  .cv-item:nth-child(8n + 2 of .cv-item:not([data-cv-theme="default"])) {
     --item-bg: var(--cv-item-02-background);
     --item-ink: var(--cv-item-02-foreground);
   }
 
-  .cv-item:nth-child(
-    8n + 3 of .cv-item:not([data-cv-theme="default"])
-  ) {
+  .cv-item:nth-child(8n + 3 of .cv-item:not([data-cv-theme="default"])) {
     --item-bg: var(--cv-item-03-background);
     --item-ink: var(--cv-item-03-foreground);
   }
 
-  .cv-item:nth-child(
-    8n + 4 of .cv-item:not([data-cv-theme="default"])
-  ) {
+  .cv-item:nth-child(8n + 4 of .cv-item:not([data-cv-theme="default"])) {
     --item-bg: var(--cv-item-04-background);
     --item-ink: var(--cv-item-04-foreground);
   }
 
-  .cv-item:nth-child(
-    8n + 5 of .cv-item:not([data-cv-theme="default"])
-  ) {
+  .cv-item:nth-child(8n + 5 of .cv-item:not([data-cv-theme="default"])) {
     --item-bg: var(--cv-item-05-background);
     --item-ink: var(--cv-item-05-foreground);
   }
 
-  .cv-item:nth-child(
-    8n + 6 of .cv-item:not([data-cv-theme="default"])
-  ) {
+  .cv-item:nth-child(8n + 6 of .cv-item:not([data-cv-theme="default"])) {
     --item-bg: var(--cv-item-06-background);
     --item-ink: var(--cv-item-06-foreground);
   }
 
-  .cv-item:nth-child(
-    8n + 7 of .cv-item:not([data-cv-theme="default"])
-  ) {
+  .cv-item:nth-child(8n + 7 of .cv-item:not([data-cv-theme="default"])) {
     --item-bg: var(--cv-item-07-background);
     --item-ink: var(--cv-item-07-foreground);
   }
 
-  .cv-item:nth-child(
-    8n + 8 of .cv-item:not([data-cv-theme="default"])
-  ) {
+  .cv-item:nth-child(8n + 8 of .cv-item:not([data-cv-theme="default"])) {
     --item-bg: var(--cv-item-08-background);
     --item-ink: var(--cv-item-08-foreground);
   }
@@ -342,7 +326,6 @@
     text-wrap: pretty;
   }
 
-
   .cv-story--compact-quad {
     max-inline-size: var(--cv-media-compact-max);
     margin-inline: auto;
@@ -356,7 +339,6 @@
     --media-gallery-gap: clamp(0.5rem, 1.2vw, 1rem);
   }
 
-
   /*
    * Sheet ограничивает только внешнюю ширину.
    * Внутреннюю раскладку полностью задаёт независимый Media Gallery.
@@ -365,7 +347,6 @@
     max-inline-size: var(--cv-media-grid-max);
     margin-inline: auto;
   }
-
 
   /* Универсальное свойство Sheet, а не частное правило фильтра. */
   .cv-story--full-bleed {
@@ -380,7 +361,6 @@
     inline-size: 100%;
     min-inline-size: 0;
   }
-
 
   .cv-story--compositions {
     gap: clamp(4rem, 10vw, 8rem);
@@ -697,7 +677,6 @@
       inline-size: 100%;
     }
 
-
     .cv-story--adaptive {
       grid-template-columns: repeat(12, minmax(0, 1fr));
       padding-inline: clamp(2rem, 5vw, 6rem);
@@ -710,7 +689,6 @@
     .cv-adaptive-slot:empty {
       min-block-size: clamp(24rem, 42vw, 42rem);
     }
-
   }
 }
 

@@ -8,4 +8,9 @@
       var(--cv-panel-padding-inline, clamp(1rem, 4vw, 4rem));
     padding-block-end: clamp(3rem, 8vw, 8rem);
   }
+
+  .moves-awful-showcase
+    :is([data-animated-canvas-gallery-controls], .animated-canvas-gallery-controls) {
+    display: none;
+  }
 }

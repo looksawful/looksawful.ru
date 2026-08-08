@@ -18,6 +18,8 @@ export function createFluidCursorController({
   let requestId = 0;
   let observer = null;
   let destroyFluid = null;
+  let pointerActivated = false;
+  let pointerArmed = false;
 
   const motionIsAllowed = () => typeof motion?.allowsMotion === "function" && motion.allowsMotion();
 
@@ -31,6 +33,17 @@ export function createFluidCursorController({
     destroyFluid = null;
 
     canvas.hidden = true;
+  };
+
+  const disarmPointerActivation = () => {
+    if (!pointerArmed) {
+      return;
+    }
+
+    pointerArmed = false;
+    root.removeEventListener("pointerenter", handlePointerActivation);
+    root.removeEventListener("pointermove", handlePointerActivation);
+    root.removeEventListener("pointerdown", handlePointerActivation);
   };
 
   const mountFluid = async (currentRequest) => {
@@ -88,14 +101,52 @@ export function createFluidCursorController({
     observer.observe(root);
   };
 
-  const syncAvailability = () => {
-    unmountFluid();
+  function handlePointerActivation() {
+    if (pointerActivated) {
+      return;
+    }
+
+    pointerActivated = true;
+    disarmPointerActivation();
 
     if (!motionIsAllowed() || !precisePointer.matches) {
       return;
     }
 
     armFluid();
+  }
+
+  const armPointerActivation = () => {
+    if (pointerArmed || pointerActivated) {
+      return;
+    }
+
+    pointerArmed = true;
+    root.addEventListener("pointerenter", handlePointerActivation, {
+      passive: true,
+    });
+    root.addEventListener("pointermove", handlePointerActivation, {
+      passive: true,
+    });
+    root.addEventListener("pointerdown", handlePointerActivation, {
+      passive: true,
+    });
+  };
+
+  const syncAvailability = () => {
+    unmountFluid();
+
+    if (!motionIsAllowed() || !precisePointer.matches) {
+      disarmPointerActivation();
+      return;
+    }
+
+    if (pointerActivated) {
+      armFluid();
+      return;
+    }
+
+    armPointerActivation();
   };
 
   precisePointer.addEventListener("change", syncAvailability);
@@ -114,6 +165,7 @@ export function createFluidCursorController({
 
     unsubscribeMotion();
     unmountFluid();
+    disarmPointerActivation();
 
     precisePointer.removeEventListener("change", syncAvailability);
   };

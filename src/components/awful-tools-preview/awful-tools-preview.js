@@ -1,777 +1,715 @@
-import { getPetPreviewOverride } from "./awful-tools-preview-pets.js";
-
 const TAG_NAME = "awful-tool-preview";
+const INSTANCE = Symbol.for("looksawful.awfulToolPreview.instance");
 
-const PROJECTS = Object.freeze({
-  "awful-cases": {
-    label: "Awful Cases",
-    marker: /Awful\s*Cases/i,
-    localPaths: [
-      "pets/awful-cases/index.html",
-      "/pets/awful-cases/index.html",
-    ],
-    remotePaths: [
-      "https://raw.githubusercontent.com/looksawful/awful-cases/main/docs/index.html",
-    ],
-  },
-  "berserk-timer": {
-    label: "Berserk Timer",
-    marker: /Berserk\s*Timer/i,
-    localPaths: [
-      "pets/berserk-timer/index.html",
-      "/pets/berserk-timer/index.html",
-    ],
-    remotePaths: [
-      "https://raw.githubusercontent.com/looksawful/berserk-timer/dev/docs/index.html",
-      "https://raw.githubusercontent.com/looksawful/berserk-timer/main/docs/index.html",
-    ],
-  },
-  "awful-audit": {
-    label: "Awful Audit",
-    marker: /Awful\s*Audit/i,
-    localPaths: [
-      "pets/awful-audit/index.html",
-      "/pets/awful-audit/index.html",
-    ],
-    remotePaths: [
-      "https://raw.githubusercontent.com/looksawful/awful-audit/main/docs/index.html",
-    ],
-  },
+const noop = () => {};
+
+const emptyRuntime = Object.freeze({
+  setActive: noop,
+  destroy: noop,
 });
 
-const HOST_STYLE = `
-  :host {
-    display: block;
-    inline-size: 100%;
-    min-inline-size: 0;
-    overflow: clip;
-    contain: layout paint style;
-    isolation: isolate;
-  }
-
-  :host([hidden]) {
-    display: none;
-  }
-
-  [data-source-html] {
-    display: block;
-    inline-size: 100%;
-    min-inline-size: 0;
-  }
-
-  [data-inline-document] {
-    display: block;
-    inline-size: 100%;
-    block-size: 100%;
-    min-inline-size: 0;
-    min-block-size: 0;
-    overflow: hidden;
-    contain: layout paint style;
-    transform: translateZ(0);
-  }
-`;
-
-function unique(values) {
-  return [...new Set(values.filter(Boolean))];
-}
-
-function resolveCandidateUrl(path) {
-  try {
-    return new URL(path, document.baseURI).href;
-  } catch {
-    return null;
-  }
-}
-
-function getProjectConfig(project) {
-  const baseConfig = PROJECTS[project] ?? PROJECTS["awful-cases"];
-  const petOverride = getPetPreviewOverride(project);
-
-  if (!petOverride) {
-    return baseConfig;
-  }
-
-  return {
-    ...baseConfig,
-    ...petOverride,
-    localPaths: petOverride.localPaths ?? baseConfig.localPaths,
-    remotePaths: petOverride.remotePaths ?? baseConfig.remotePaths,
-    bridgeStyle: petOverride.bridgeStyle ?? "",
-    useInlineSource: petOverride.useInlineSource ?? true,
-  };
-}
-
-function getSourceCandidates(config) {
-  return unique([
-    ...config.localPaths.map(resolveCandidateUrl),
-    ...config.remotePaths,
-  ]);
-}
-
-async function fetchSource(config, signal) {
-  const failures = [];
-
-  for (const url of getSourceCandidates(config)) {
-    try {
-      const response = await fetch(url, {
-        cache: "no-cache",
-        credentials: "same-origin",
-        signal,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const source = await response.text();
-
-      if (!config.marker.test(source)) {
-        throw new Error("unexpected source document");
-      }
-
-      return { source, url };
-    } catch (error) {
-      if (signal.aborted) {
-        throw error;
-      }
-
-      failures.push(`${url}: ${error.message}`);
-    }
-  }
-
-  throw new Error(
-    `Не удалось загрузить ${config.label}. ${failures.join(" | ")}`,
-  );
-}
-
-function absolutizeUrl(value, baseUrl) {
-  if (!value || /^(?:[a-z]+:|#|\/\/)/i.test(value)) {
-    return value;
-  }
-
-  try {
-    return new URL(value, baseUrl).href;
-  } catch {
-    return value;
-  }
-}
-
-function absolutizeSrcset(value, baseUrl) {
-  return value
-    .split(",")
-    .map((candidate) => {
-      const [url, ...descriptor] = candidate.trim().split(/\s+/);
-      return [absolutizeUrl(url, baseUrl), ...descriptor].join(" ");
-    })
-    .join(", ");
-}
-
-function absolutizeCss(cssText, baseUrl) {
-  return cssText
-    .replace(
-      /url\(\s*(["']?)(?!data:|blob:|https?:|\/\/|#)([^"')]+)\1\s*\)/gi,
-      (_match, quote, value) =>
-        `url(${quote}${absolutizeUrl(value.trim(), baseUrl)}${quote})`,
-    )
-    .replace(
-      /@import\s+(["'])(?!data:|https?:|\/\/)([^"']+)\1/gi,
-      (_match, quote, value) =>
-        `@import ${quote}${absolutizeUrl(value.trim(), baseUrl)}${quote}`,
-    );
-}
-
-function absolutizeDocument(documentNode, baseUrl) {
-  const urlAttributes = ["src", "href", "poster", "action"];
-
-  documentNode.querySelectorAll("*").forEach((element) => {
-    urlAttributes.forEach((attribute) => {
-      if (!element.hasAttribute(attribute)) {
-        return;
-      }
-
-      element.setAttribute(
-        attribute,
-        absolutizeUrl(element.getAttribute(attribute), baseUrl),
-      );
-    });
-
-    if (element.hasAttribute("srcset")) {
-      element.setAttribute(
-        "srcset",
-        absolutizeSrcset(element.getAttribute("srcset"), baseUrl),
-      );
-    }
-
-    if (element.hasAttribute("style")) {
-      element.setAttribute(
-        "style",
-        absolutizeCss(element.getAttribute("style"), baseUrl),
-      );
-    }
-  });
-
-  documentNode.querySelectorAll("style").forEach((style) => {
-    style.textContent = absolutizeCss(style.textContent, baseUrl);
-  });
-}
-
-function extractRootDeclarations(styleTexts) {
-  const declarations = [];
-
-  styleTexts.forEach((cssText) => {
-    const expression = /:root\s*\{([^{}]*)\}/gi;
-    let match = expression.exec(cssText);
-
-    while (match) {
-      declarations.push(match[1].trim());
-      match = expression.exec(cssText);
-    }
-  });
-
-  return declarations.join("\n");
-}
-
-function decodeDataHtml(value) {
-  const separator = value.indexOf(",");
-
-  if (separator < 0) {
-    return "";
-  }
-
-  const metadata = value.slice(0, separator);
-  const payload = value.slice(separator + 1);
-
-  if (/;base64/i.test(metadata)) {
-    const binary = atob(payload);
-    const bytes = Uint8Array.from(binary, (character) =>
-      character.charCodeAt(0),
-    );
-
-    return new TextDecoder().decode(bytes);
-  }
-
-  return decodeURIComponent(payload);
-}
-
-function prepareInlineDocuments(parsedDocument, sourceUrl) {
-  const inlineDocuments = [];
-
-  parsedDocument
-    .querySelectorAll("template[data-inline-document-source]")
-    .forEach((template, index) => {
-      const key =
-        template.getAttribute("data-inline-document-source") ||
-        `inline-document-${index}`;
-
-      inlineDocuments.push({
-        key,
-        source: template.content.textContent.trim(),
-        url: sourceUrl,
-      });
-
-      template.remove();
-    });
-
-  parsedDocument.querySelectorAll("iframe").forEach((frame, index) => {
-    const source = frame.getAttribute("src") ?? "";
-    let inlineSource = "";
-
-    if (/^data:text\/html/i.test(source)) {
-      inlineSource = decodeDataHtml(source);
-    }
-
-    const replacement = parsedDocument.createElement("div");
-    const key = `inline-document-${index}`;
-
-    [...frame.attributes].forEach(({ name, value }) => {
-      if (name !== "src" && name !== "allow" && name !== "allowfullscreen") {
-        replacement.setAttribute(name, value);
-      }
-    });
-
-    replacement.setAttribute("data-inline-document", key);
-    replacement.setAttribute("role", "group");
-
-    frame.replaceWith(replacement);
-
-    if (inlineSource) {
-      inlineDocuments.push({
-        key,
-        source: inlineSource,
-        url: sourceUrl,
-      });
-    }
-  });
-
-  return inlineDocuments;
-}
-
-function getInlineSource(host, config) {
-  if (config.useInlineSource === false) {
-    return null;
-  }
-
-  const template = host.querySelector("template[data-awful-tool-source]");
-
-  if (!template) {
-    return null;
-  }
-
-  return {
-    source: template.content.textContent.trim(),
-    url: document.baseURI,
-  };
-}
-
-function createRuntime({ shadowRoot, sourceHtml, sourceHead, sourceBody, host }) {
-  const cleanupCallbacks = [];
-  const timeoutIds = new Set();
-  const intervalIds = new Set();
-  const animationFrameIds = new Set();
-  const localWindowState = Object.create(null);
-
-  const querySelector = (selector) => {
-    if (selector === ":root") {
-      return sourceHtml;
-    }
-
-    return shadowRoot.querySelector(selector);
-  };
-
-  const querySelectorAll = (selector) => shadowRoot.querySelectorAll(selector);
-
-  const addDocumentListener = (type, listener, options) => {
-    if (type === "DOMContentLoaded") {
-      queueMicrotask(() => listener.call(scopedDocument, new Event(type)));
-      return;
-    }
-
-    const globalDocumentEvents = new Set([
-      "visibilitychange",
-      "fullscreenchange",
-      "pointerlockchange",
-    ]);
-    const target = globalDocumentEvents.has(type) ? document : shadowRoot;
-
-    target.addEventListener(type, listener, options);
-    cleanupCallbacks.push(() =>
-      target.removeEventListener(type, listener, options),
-    );
-  };
-
-  const addWindowListener = (type, listener, options) => {
-    if (type === "load") {
-      queueMicrotask(() => listener.call(scopedWindow, new Event(type)));
-      return;
-    }
-
-    window.addEventListener(type, listener, options);
-    cleanupCallbacks.push(() =>
-      window.removeEventListener(type, listener, options),
-    );
-  };
-
-  const scopedDocumentTarget = {
-    body: sourceBody,
-    head: sourceHead,
-    documentElement: sourceHtml,
-    defaultView: null,
-    readyState: "complete",
-    URL: sourceHtml.dataset.sourceUrl,
-    baseURI: sourceHtml.dataset.sourceUrl,
-    title: sourceHead.querySelector("title")?.textContent ?? "",
-    querySelector,
-    querySelectorAll,
-    getElementById: (id) =>
-      shadowRoot.querySelector(`#${CSS.escape(String(id))}`),
-    getElementsByClassName: (className) =>
-      shadowRoot.querySelectorAll(`.${CSS.escape(String(className))}`),
-    getElementsByTagName: (tagName) =>
-      shadowRoot.querySelectorAll(String(tagName)),
-    getElementsByName: (name) =>
-      shadowRoot.querySelectorAll(`[name="${CSS.escape(String(name))}"]`),
-    createElement: document.createElement.bind(document),
-    createElementNS: document.createElementNS.bind(document),
-    createTextNode: document.createTextNode.bind(document),
-    createDocumentFragment: document.createDocumentFragment.bind(document),
-    importNode: document.importNode.bind(document),
-    addEventListener: addDocumentListener,
-    removeEventListener: shadowRoot.removeEventListener.bind(shadowRoot),
-    dispatchEvent: shadowRoot.dispatchEvent.bind(shadowRoot),
-    getSelection: document.getSelection.bind(document),
-    hasFocus: document.hasFocus.bind(document),
-    fonts: document.fonts,
-    visibilityState: document.visibilityState,
-  };
-
-  const scopedDocument = new Proxy(scopedDocumentTarget, {
-    get(target, property) {
-      if (property === "activeElement") {
-        return shadowRoot.activeElement;
-      }
-
-      if (property in target) {
-        return target[property];
-      }
-
-      const value = document[property];
-      return typeof value === "function" ? value.bind(document) : value;
-    },
-    set(target, property, value) {
-      target[property] = value;
-      return true;
-    },
-    has(target, property) {
-      return property in target || property in document;
-    },
-  });
-
-  const scopedWindowTarget = {
-    document: scopedDocument,
-    self: null,
-    top: null,
-    parent: null,
-    frames: null,
-    get innerWidth() {
-      return Math.max(1, Math.round(host.getBoundingClientRect().width));
-    },
-    get innerHeight() {
-      return Math.max(1, Math.round(host.getBoundingClientRect().height));
-    },
-    get scrollX() {
-      return 0;
-    },
-    get scrollY() {
-      return 0;
-    },
-    addEventListener: addWindowListener,
-    removeEventListener: window.removeEventListener.bind(window),
-    dispatchEvent: window.dispatchEvent.bind(window),
-    requestAnimationFrame(callback) {
-      const scheduledAt = window.performance.now();
-      const id = window.requestAnimationFrame((time) => {
-        animationFrameIds.delete(id);
-        callback(Math.max(time, scheduledAt));
-      });
-      animationFrameIds.add(id);
-      return id;
-    },
-    cancelAnimationFrame(id) {
-      animationFrameIds.delete(id);
-      window.cancelAnimationFrame(id);
-    },
-    setTimeout(callback, delay, ...argumentsList) {
-      const id = window.setTimeout(() => {
-        timeoutIds.delete(id);
-        callback(...argumentsList);
-      }, delay);
-      timeoutIds.add(id);
-      return id;
-    },
-    clearTimeout(id) {
-      timeoutIds.delete(id);
-      window.clearTimeout(id);
-    },
-    setInterval(callback, delay, ...argumentsList) {
-      const id = window.setInterval(callback, delay, ...argumentsList);
-      intervalIds.add(id);
-      return id;
-    },
-    clearInterval(id) {
-      intervalIds.delete(id);
-      window.clearInterval(id);
-    },
-    scrollTo() {},
-    scrollBy() {},
-  };
-
-  const scopedWindow = new Proxy(scopedWindowTarget, {
-    get(target, property) {
-      if (property === "self" || property === "top" || property === "parent") {
-        return scopedWindow;
-      }
-
-      if (property === "frames") {
-        return scopedWindow;
-      }
-
-      if (property === Symbol.unscopables) {
-        return undefined;
-      }
-
-      if (property in localWindowState) {
-        return localWindowState[property];
-      }
-
-      if (property in target) {
-        return target[property];
-      }
-
-      const value = window[property];
-      if (typeof value !== "function") {
-        return value;
-      }
-
-      return /^[A-Z]/.test(String(property)) ? value : value.bind(window);
-    },
-    set(_target, property, value) {
-      localWindowState[property] = value;
-      return true;
-    },
-    has(target, property) {
-      return (
-        property in localWindowState ||
-        property in target ||
-        property in window
-      );
-    },
-  });
-
-  scopedDocumentTarget.defaultView = scopedWindow;
-
-  return {
-    document: scopedDocument,
-    window: scopedWindow,
-    destroy() {
-      cleanupCallbacks.splice(0).reverse().forEach((cleanup) => cleanup());
-      timeoutIds.forEach((id) => window.clearTimeout(id));
-      intervalIds.forEach((id) => window.clearInterval(id));
-      animationFrameIds.forEach((id) => window.cancelAnimationFrame(id));
-      timeoutIds.clear();
-      intervalIds.clear();
-      animationFrameIds.clear();
-    },
-  };
-}
-
-async function getScriptSource(script, baseUrl, signal) {
-  const source = script.getAttribute("src");
-
-  if (!source) {
-    return script.textContent;
-  }
-
-  const url = absolutizeUrl(source, baseUrl);
-  const response = await fetch(url, {
-    cache: "no-cache",
-    credentials: "same-origin",
-    signal,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Не удалось загрузить script: ${url}`);
-  }
-
-  return response.text();
-}
-
-function executeScript(source, runtime, sourceLabel) {
-  if (!source.trim()) {
+function setButtonLabel(button, label) {
+  const lead = button.querySelector(".btn-u");
+
+  if (!lead) {
+    button.textContent = label;
     return;
   }
 
-  const runner = new Function(
-    "document",
-    "window",
-    "self",
-    "globalThis",
-    `with (window) {\n${source}\n}\n//# sourceURL=${sourceLabel}`,
-  );
-
-  runner.call(
-    runtime.window,
-    runtime.document,
-    runtime.window,
-    runtime.window,
-    runtime.window,
-  );
+  lead.textContent = label.slice(0, 1);
+  button.replaceChildren(lead, document.createTextNode(label.slice(1)));
 }
 
-async function mountSourceDocument({
-  source,
-  sourceUrl,
-  mountRoot,
-  host,
-  signal,
-  embedded = false,
-  bridgeStyle = "",
-}) {
-  const parsedDocument = new DOMParser().parseFromString(source, "text/html");
-  absolutizeDocument(parsedDocument, sourceUrl);
+function readCopyText(target, project) {
+  const text = target.textContent.trim();
 
-  const inlineDocuments = prepareInlineDocuments(parsedDocument, sourceUrl);
-  const scripts = [...parsedDocument.querySelectorAll("script")];
-  scripts.forEach((script) => script.remove());
-
-  const sourceHtml = document.createElement("html");
-  const sourceHead = document.createElement("head");
-  const sourceBody = document.createElement("body");
-
-  [...parsedDocument.documentElement.attributes].forEach(({ name, value }) => {
-    sourceHtml.setAttribute(name, value);
-  });
-
-  [...parsedDocument.body.attributes].forEach(({ name, value }) => {
-    sourceBody.setAttribute(name, value);
-  });
-
-  sourceHtml.dataset.sourceHtml = "";
-  sourceHtml.dataset.sourceUrl = sourceUrl;
-  sourceHead.dataset.sourceHead = "";
-  sourceBody.dataset.sourceBody = "";
-  sourceBody.append(...[...parsedDocument.body.childNodes].map((node) => node.cloneNode(true)));
-
-  const title = parsedDocument.querySelector("title")?.cloneNode(true);
-  if (title) {
-    sourceHead.append(title);
+  if (project !== "awful-cases") {
+    return text;
   }
 
-  const styleTexts = [];
-
-  parsedDocument.head
-    .querySelectorAll('style, link[rel="stylesheet"]')
-    .forEach((node) => {
-      const clone = node.cloneNode(true);
-
-      if (clone.tagName === "STYLE") {
-        let cssText = clone.textContent;
-
-        if (embedded) {
-          cssText = cssText
-            .replace(/100d?vw\b/gi, "100%")
-            .replace(/100s?vw\b/gi, "100%")
-            .replace(/100d?vh\b/gi, "100%")
-            .replace(/100s?vh\b/gi, "100%");
-          clone.textContent = cssText;
-        }
-
-        styleTexts.push(cssText);
-      }
-
-      sourceHead.append(clone);
-    });
-
-  const bridge = document.createElement("style");
-  const rootDeclarations = extractRootDeclarations(styleTexts);
-  bridge.textContent = `${HOST_STYLE}\n:host { ${rootDeclarations} }\n${bridgeStyle}`;
-  sourceHead.prepend(bridge);
-
-  sourceHtml.append(sourceHead, sourceBody);
-  mountRoot.append(sourceHtml);
-
-  const runtime = createRuntime({
-    shadowRoot: mountRoot,
-    sourceHtml,
-    sourceHead,
-    sourceBody,
-    host,
-  });
-
-  for (const script of scripts) {
-    if (script.type && !/^(?:text\/javascript|application\/javascript|module)$/i.test(script.type)) {
-      continue;
-    }
-
-    const scriptSource = await getScriptSource(script, sourceUrl, signal);
-    executeScript(
-      scriptSource,
-      runtime,
-      `${sourceUrl}#script-${scripts.indexOf(script) + 1}`,
-    );
-  }
-
-  for (const inlineDocument of inlineDocuments) {
-    const target = mountRoot.querySelector(
-      `[data-inline-document="${CSS.escape(inlineDocument.key)}"]`,
-    );
-
-    if (!target) {
-      continue;
-    }
-
-    const nestedRoot = target.attachShadow({ mode: "open" });
-    const nestedRuntime = await mountSourceDocument({
-      source: inlineDocument.source,
-      sourceUrl: inlineDocument.url,
-      mountRoot: nestedRoot,
-      host: target,
-      signal,
-      embedded: true,
-    });
-
-    runtime.window.setTimeout(() => {
-      target.dispatchEvent(new Event("resize"));
-    }, 0);
-
-    const parentDestroy = runtime.destroy.bind(runtime);
-    runtime.destroy = () => {
-      nestedRuntime.destroy();
-      parentDestroy();
-    };
-  }
-
-  return runtime;
+  return text
+    .replace(/^C:\\>\s?/gm, "")
+    .replace(/^C:\\awful-cases>\s?/gm, "")
+    .replace(/^REM\s?/gm, "# ")
+    .trim();
 }
 
-class AwfulToolPreview extends HTMLElement {
-  #abortController = null;
-  #runtime = null;
+function enhanceCopyButtons(root, project) {
+  const cleanups = [];
 
-  connectedCallback() {
-    if (!this.shadowRoot) {
-      this.attachShadow({ mode: "open" });
+  root.querySelectorAll("[data-copy-target]").forEach((button) => {
+    if (!(button instanceof HTMLButtonElement)) {
+      return;
     }
 
-    this.load();
-  }
+    const originalLabel = button.textContent.trim() || "copy";
 
-  disconnectedCallback() {
-    this.#abortController?.abort();
-    this.#abortController = null;
-    this.#runtime?.destroy();
-    this.#runtime = null;
-  }
+    const handleClick = async () => {
+      const targetId = button.dataset.copyTarget;
+      const target = targetId
+        ? root.querySelector(`#${CSS.escape(targetId)}`)
+        : null;
 
-  async load() {
-    this.#abortController?.abort();
-    this.#runtime?.destroy();
-    this.#runtime = null;
-
-    const project = this.getAttribute("project") || "awful-cases";
-    const config = getProjectConfig(project);
-    const controller = new AbortController();
-    this.#abortController = controller;
-    this.setAttribute("aria-busy", "true");
-    this.shadowRoot.replaceChildren();
-
-    try {
-      const { source, url } =
-        getInlineSource(this, config) ??
-        (await fetchSource(config, controller.signal));
-
-      if (controller.signal.aborted) {
+      if (!target) {
         return;
       }
 
-      this.#runtime = await mountSourceDocument({
-        source,
-        sourceUrl: url,
-        mountRoot: this.shadowRoot,
-        host: this,
-        signal: controller.signal,
-        bridgeStyle: config.bridgeStyle,
-      });
+      try {
+        await navigator.clipboard.writeText(readCopyText(target, project));
+        button.classList.add("is-copied");
+        setButtonLabel(button, project === "awful-cases" ? "Copied" : "copied");
 
-      this.dataset.source = url;
-    } catch (error) {
-      if (!controller.signal.aborted) {
-        console.error(`[${TAG_NAME}]`, error);
+        window.setTimeout(() => {
+          button.classList.remove("is-copied");
+          setButtonLabel(button, originalLabel);
+        }, 1000);
+      } catch {
+        const range = document.createRange();
+        range.selectNodeContents(target);
+
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
       }
-    } finally {
-      if (!controller.signal.aborted) {
-        this.removeAttribute("aria-busy");
-      }
+    };
+
+    button.addEventListener("click", handleClick);
+    cleanups.push(() => button.removeEventListener("click", handleClick));
+  });
+
+  return () => cleanups.splice(0).reverse().forEach((cleanup) => cleanup());
+}
+
+function isAccordionItemOpen(root) {
+  const item = root.closest(".cv-item");
+  const header = item?.querySelector(".cv-item__header");
+
+  return (
+    !(header instanceof HTMLElement) ||
+    header.getAttribute("aria-expanded") === "true"
+  );
+}
+
+function createPreviewActivation(root, onChange) {
+  const item = root.closest(".cv-item");
+  const header = item?.querySelector(".cv-item__header");
+  const mutationObserver =
+    header instanceof HTMLElement ? new MutationObserver(reconcile) : null;
+  const intersectionObserver =
+    "IntersectionObserver" in window
+      ? new IntersectionObserver(
+          (entries) => {
+            visible = entries.some(
+              (entry) => entry.target === root && entry.isIntersecting,
+            );
+            reconcile();
+          },
+          { rootMargin: "120px 0px", threshold: 0.01 },
+        )
+      : null;
+
+  let visible = !intersectionObserver;
+  let active = null;
+
+  function reconcile() {
+    const nextActive =
+      visible &&
+      isAccordionItemOpen(root) &&
+      document.visibilityState !== "hidden" &&
+      root.isConnected;
+
+    if (nextActive === active) {
+      return;
     }
+
+    active = nextActive;
+    onChange(active);
+  }
+
+  mutationObserver?.observe(header, {
+    attributes: true,
+    attributeFilter: ["aria-expanded"],
+  });
+  intersectionObserver?.observe(root);
+  document.addEventListener("visibilitychange", reconcile);
+  reconcile();
+
+  return () => {
+    mutationObserver?.disconnect();
+    intersectionObserver?.disconnect();
+    document.removeEventListener("visibilitychange", reconcile);
+    onChange(false);
+  };
+}
+
+function enhanceLazyFrames(root) {
+  const frames = [...root.querySelectorAll("[data-awful-frame-src]")].filter(
+    (frame) => frame instanceof HTMLIFrameElement,
+  );
+
+  if (frames.length === 0) {
+    return emptyRuntime;
+  }
+
+  return {
+    setActive(active) {
+      if (!active) {
+        return;
+      }
+
+      frames.forEach((frame) => {
+        if (frame.src || !frame.dataset.awfulFrameSrc) {
+          return;
+        }
+
+        frame.src = frame.dataset.awfulFrameSrc;
+      });
+    },
+    destroy: noop,
+  };
+}
+
+function fitBerserkScreens(gallery) {
+  const isGrid = gallery.classList.contains("is-grid");
+
+  gallery.querySelectorAll(".screen-body").forEach((body) => {
+    const fit = body.querySelector(".fit");
+
+    if (!(fit instanceof HTMLElement)) {
+      return;
+    }
+
+    fit.style.setProperty("--fit-scale", 1);
+    body.style.setProperty("--fit-height", "auto");
+
+    const width = Math.max(1, body.clientWidth);
+    const maxHeight = isGrid ? 360 : 620;
+    const scale = Math.min(1, width / fit.scrollWidth, maxHeight / fit.scrollHeight);
+
+    fit.style.setProperty("--fit-scale", scale);
+    body.style.setProperty("--fit-height", `${Math.ceil(fit.scrollHeight * scale)}px`);
+  });
+}
+
+function enhanceBerserkGallery(gallery) {
+  const viewport = gallery.querySelector(".viewport");
+  const track = gallery.querySelector("[data-track]");
+  const gridButton = gallery.querySelector("[data-toggle-grid]");
+  const previousButton = gallery.querySelector("[data-prev]");
+  const nextButton = gallery.querySelector("[data-next]");
+  const dotsHost = gallery.querySelector("[data-slide-dots]");
+  const slides = [...gallery.querySelectorAll(".slide")];
+
+  if (
+    !(viewport instanceof HTMLElement) ||
+    !(track instanceof HTMLElement) ||
+    !(dotsHost instanceof HTMLElement) ||
+    slides.length === 0
+  ) {
+    return emptyRuntime;
+  }
+
+  const cleanups = [];
+  const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+  let slideIndex = 0;
+  let slideDirection = 1;
+  let autoTimer = 0;
+  let active = false;
+  let dragging = false;
+  let startX = 0;
+  let startLeft = 0;
+
+  const isGrid = () => gallery.classList.contains("is-grid");
+  const getStep = () => Math.max(1, viewport.clientWidth);
+
+  function stopAuto() {
+    if (!autoTimer) {
+      return;
+    }
+
+    window.clearInterval(autoTimer);
+    autoTimer = 0;
+  }
+
+  function updateDots() {
+    dotsHost
+      .querySelectorAll(".slide-dot")
+      .forEach((dot, index) => dot.classList.toggle("is-active", index === slideIndex));
+  }
+
+  function pulse(button) {
+    if (!(button instanceof HTMLElement)) {
+      return;
+    }
+
+    button.classList.add("is-pulse");
+    window.setTimeout(() => button.classList.remove("is-pulse"), 700);
+  }
+
+  function goTo(index, button) {
+    if (isGrid()) {
+      return;
+    }
+
+    slideIndex = Math.max(0, Math.min(slides.length - 1, index));
+    track.scrollTo({
+      left: slideIndex * getStep(),
+      behavior: prefersReducedMotion?.matches ? "auto" : "smooth",
+    });
+    updateDots();
+    pulse(button);
+  }
+
+  function autoMove() {
+    if (isGrid()) {
+      return;
+    }
+
+    if (slideIndex >= slides.length - 1) {
+      slideDirection = -1;
+    }
+
+    if (slideIndex <= 0) {
+      slideDirection = 1;
+    }
+
+    goTo(slideIndex + slideDirection, slideDirection > 0 ? nextButton : previousButton);
+  }
+
+  function startAuto() {
+    stopAuto();
+
+    if (!active || prefersReducedMotion?.matches) {
+      return;
+    }
+
+    autoTimer = window.setInterval(autoMove, 10000);
+  }
+
+  function restartAuto() {
+    startAuto();
+  }
+
+  function buildDots() {
+    dotsHost.replaceChildren();
+
+    slides.forEach((_, index) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "slide-dot";
+      dot.setAttribute("aria-label", `slide ${index + 1}`);
+
+      const handleClick = () => {
+        goTo(index, dot);
+        restartAuto();
+      };
+
+      dot.addEventListener("click", handleClick);
+      cleanups.push(() => dot.removeEventListener("click", handleClick));
+      dotsHost.append(dot);
+    });
+
+    updateDots();
+  }
+
+  const refit = () => {
+    window.requestAnimationFrame(() => {
+      fitBerserkScreens(gallery);
+
+      if (!isGrid()) {
+        track.scrollLeft = slideIndex * getStep();
+      }
+    });
+  };
+
+  const handleGridClick = () => {
+    gallery.classList.toggle("is-grid");
+    gridButton?.classList.toggle("is-active", isGrid());
+    gridButton?.setAttribute("aria-pressed", String(isGrid()));
+    stopAuto();
+    refit();
+
+    if (!isGrid()) {
+      startAuto();
+    }
+  };
+
+  const handlePreviousClick = () => {
+    goTo(slideIndex - 1, previousButton);
+    restartAuto();
+  };
+
+  const handleNextClick = () => {
+    goTo(slideIndex + 1, nextButton);
+    restartAuto();
+  };
+
+  const handlePointerDown = (event) => {
+    if (isGrid()) {
+      return;
+    }
+
+    dragging = true;
+    startX = event.clientX;
+    startLeft = track.scrollLeft;
+    track.classList.add("is-dragging");
+    track.setPointerCapture?.(event.pointerId);
+    stopAuto();
+  };
+
+  const handlePointerMove = (event) => {
+    if (!dragging) {
+      return;
+    }
+
+    track.scrollLeft = startLeft - (event.clientX - startX);
+  };
+
+  const handlePointerUp = () => {
+    if (!dragging) {
+      return;
+    }
+
+    dragging = false;
+    track.classList.remove("is-dragging");
+    slideIndex = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / getStep())));
+    goTo(slideIndex);
+    restartAuto();
+  };
+
+  const handleScroll = () => {
+    if (isGrid()) {
+      return;
+    }
+
+    window.clearTimeout(track._awfulBerserkScrollTimer);
+    track._awfulBerserkScrollTimer = window.setTimeout(() => {
+      slideIndex = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / getStep())));
+      updateDots();
+    }, 80);
+  };
+
+  gridButton?.addEventListener("click", handleGridClick);
+  previousButton?.addEventListener("click", handlePreviousClick);
+  nextButton?.addEventListener("click", handleNextClick);
+  track.addEventListener("pointerdown", handlePointerDown);
+  track.addEventListener("pointermove", handlePointerMove);
+  track.addEventListener("pointerup", handlePointerUp);
+  track.addEventListener("pointercancel", handlePointerUp);
+  track.addEventListener("scroll", handleScroll);
+  window.addEventListener("resize", refit);
+
+  cleanups.push(() => gridButton?.removeEventListener("click", handleGridClick));
+  cleanups.push(() => previousButton?.removeEventListener("click", handlePreviousClick));
+  cleanups.push(() => nextButton?.removeEventListener("click", handleNextClick));
+  cleanups.push(() => track.removeEventListener("pointerdown", handlePointerDown));
+  cleanups.push(() => track.removeEventListener("pointermove", handlePointerMove));
+  cleanups.push(() => track.removeEventListener("pointerup", handlePointerUp));
+  cleanups.push(() => track.removeEventListener("pointercancel", handlePointerUp));
+  cleanups.push(() => track.removeEventListener("scroll", handleScroll));
+  cleanups.push(() => window.removeEventListener("resize", refit));
+  cleanups.push(stopAuto);
+
+  const resizeObserver =
+    "ResizeObserver" in window
+      ? new ResizeObserver(refit)
+      : null;
+
+  resizeObserver?.observe(gallery);
+  cleanups.push(() => resizeObserver?.disconnect());
+
+  buildDots();
+  refit();
+
+  return {
+    setActive(nextActive) {
+      active = nextActive;
+
+      if (!active) {
+        stopAuto();
+        return;
+      }
+
+      refit();
+
+      if (!isGrid()) {
+        startAuto();
+      }
+    },
+    destroy() {
+      cleanups.splice(0).reverse().forEach((cleanup) => cleanup());
+    },
+  };
+}
+
+function enhanceBerserkMusicPlayer(player) {
+  const audio = player.querySelector("[data-music-audio]");
+  const playButton = player.querySelector("[data-music-play]");
+  const progress = player.querySelector("[data-music-progress]");
+  const progressFill = progress?.querySelector("span");
+  const current = player.querySelector("[data-music-current]");
+  const duration = player.querySelector("[data-music-duration]");
+  const volume = player.querySelector("[data-music-volume]");
+  const volumeFill = volume?.querySelector("span");
+  const volumeText = player.querySelector("[data-music-volume-text]");
+  const status = player.querySelector("[data-music-status]");
+  const soundButtons = [...player.querySelectorAll("[data-sound]")];
+
+  if (!(audio instanceof HTMLAudioElement) || !(playButton instanceof HTMLButtonElement)) {
+    return emptyRuntime;
+  }
+
+  const cleanups = [];
+  const base = "https://cdn.jsdelivr.net/gh/looksawful/berserk-timer@dev/assets/";
+  const fallbackBase = "https://raw.githubusercontent.com/looksawful/berserk-timer/dev/assets/";
+  let volumeValue = 0.5;
+  let currentSound = "alert1.wav";
+  let usingFallback = false;
+
+  const formatTime = (value) => {
+    if (!Number.isFinite(value)) {
+      return "00:00";
+    }
+
+    const seconds = Math.max(0, Math.floor(value));
+    return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+  };
+
+  function setPlayIcon(isPlaying) {
+    playButton.classList.toggle("is-active", isPlaying);
+    playButton.innerHTML = isPlaying
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7V5Zm6 0h4v14h-4V5Z"/></svg>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.8c0-.9 1-1.43 1.74-.94l9.2 6.13c.67.45.67 1.43 0 1.88l-9.2 6.13C9 19.49 8 18.96 8 18.06V5.8Z"/></svg>';
+  }
+
+  function syncProgress() {
+    if (progressFill instanceof HTMLElement) {
+      progressFill.style.width = `${audio.duration ? (audio.currentTime / audio.duration) * 100 : 0}%`;
+    }
+
+    if (current) {
+      current.textContent = formatTime(audio.currentTime);
+    }
+
+    if (duration) {
+      duration.textContent = formatTime(audio.duration);
+    }
+  }
+
+  function syncVolume() {
+    audio.volume = volumeValue;
+
+    if (volumeFill instanceof HTMLElement) {
+      volumeFill.style.width = `${volumeValue * 100}%`;
+    }
+
+    if (volumeText) {
+      volumeText.textContent = `${Math.round(volumeValue * 10)}/10`;
+    }
+  }
+
+  function setStatus(value) {
+    if (status) {
+      status.textContent = value;
+    }
+  }
+
+  function unloadSound() {
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+    setPlayIcon(false);
+    syncProgress();
+  }
+
+  function selectSound(name) {
+    usingFallback = false;
+    currentSound = name || currentSound;
+    soundButtons.forEach((button) => button.classList.toggle("is-active", button.dataset.sound === name));
+    unloadSound();
+    setStatus("ready");
+  }
+
+  function loadSelectedSound() {
+    if (audio.src) {
+      return;
+    }
+
+    usingFallback = false;
+    audio.src = `${base}${currentSound}`;
+    audio.load();
+    setStatus("loading");
+    syncProgress();
+  }
+
+  const handlePlay = async () => {
+    if (audio.paused) {
+      try {
+        loadSelectedSound();
+        await audio.play();
+        setPlayIcon(true);
+        setStatus("playing");
+      } catch {
+        setStatus("click again");
+      }
+
+      return;
+    }
+
+    audio.pause();
+    setPlayIcon(false);
+    setStatus("paused");
+  };
+
+  const handleProgressClick = (event) => {
+    if (!audio.duration || !(progress instanceof HTMLElement)) {
+      return;
+    }
+
+    const rect = progress.getBoundingClientRect();
+    audio.currentTime = ((event.clientX - rect.left) / rect.width) * audio.duration;
+  };
+
+  const handleVolumeClick = (event) => {
+    if (!(volume instanceof HTMLElement)) {
+      return;
+    }
+
+    const rect = volume.getBoundingClientRect();
+    volumeValue = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    syncVolume();
+  };
+
+  const handleAudioReady = () => {
+    setStatus("ready");
+    syncProgress();
+  };
+
+  const handleAudioEnded = () => {
+    setPlayIcon(false);
+    setStatus("ended");
+    syncProgress();
+  };
+
+  const handleAudioError = () => {
+    if (!usingFallback) {
+      usingFallback = true;
+      audio.src = `${fallbackBase}${currentSound}`;
+      audio.load();
+      setStatus("fallback");
+      return;
+    }
+
+    setStatus("file not loaded");
+  };
+
+  playButton.addEventListener("click", handlePlay);
+  progress?.addEventListener("click", handleProgressClick);
+  volume?.addEventListener("click", handleVolumeClick);
+  audio.addEventListener("loadedmetadata", handleAudioReady);
+  audio.addEventListener("timeupdate", syncProgress);
+  audio.addEventListener("ended", handleAudioEnded);
+  audio.addEventListener("error", handleAudioError);
+
+  cleanups.push(() => playButton.removeEventListener("click", handlePlay));
+  cleanups.push(() => progress?.removeEventListener("click", handleProgressClick));
+  cleanups.push(() => volume?.removeEventListener("click", handleVolumeClick));
+  cleanups.push(() => audio.removeEventListener("loadedmetadata", handleAudioReady));
+  cleanups.push(() => audio.removeEventListener("timeupdate", syncProgress));
+  cleanups.push(() => audio.removeEventListener("ended", handleAudioEnded));
+  cleanups.push(() => audio.removeEventListener("error", handleAudioError));
+
+  soundButtons.forEach((button) => {
+    const handleSoundClick = () => {
+      const wasPlaying = !audio.paused;
+      selectSound(button.dataset.sound);
+
+      if (wasPlaying) {
+        void handlePlay();
+      }
+    };
+    button.addEventListener("click", handleSoundClick);
+    cleanups.push(() => button.removeEventListener("click", handleSoundClick));
+  });
+
+  audio.preload = "none";
+  selectSound(currentSound);
+  syncVolume();
+
+  return {
+    setActive(active) {
+      if (!active && !audio.paused) {
+        audio.pause();
+        setPlayIcon(false);
+        setStatus("paused");
+      }
+    },
+    destroy() {
+      unloadSound();
+      cleanups.splice(0).reverse().forEach((cleanup) => cleanup());
+    },
+  };
+}
+
+function enhanceBerserkTimer(root) {
+  const runtimes = [
+    ...[...root.querySelectorAll("[data-gallery]")].map(enhanceBerserkGallery),
+    ...[...root.querySelectorAll("[data-music-player]")].map(enhanceBerserkMusicPlayer),
+  ];
+
+  return {
+    setActive(active) {
+      runtimes.forEach((runtime) => runtime.setActive(active));
+    },
+    destroy() {
+      runtimes.splice(0).reverse().forEach((runtime) => runtime.destroy());
+    },
+  };
+}
+
+function enhanceAwfulToolPreview(root) {
+  const project = root.getAttribute("project") || root.dataset.awfulTool || "";
+  const cleanups = [enhanceCopyButtons(root, project)];
+  const activeRuntimes = [];
+
+  if (project === "awful-cases") {
+    activeRuntimes.push(enhanceLazyFrames(root));
+  }
+
+  if (project === "berserk-timer") {
+    activeRuntimes.push(enhanceBerserkTimer(root));
+  }
+
+  if (activeRuntimes.length > 0) {
+    cleanups.push(
+      createPreviewActivation(root, (active) => {
+        activeRuntimes.forEach((runtime) => runtime.setActive(active));
+      }),
+    );
+    cleanups.push(() => {
+      activeRuntimes.splice(0).reverse().forEach((runtime) => runtime.destroy());
+    });
+  }
+
+  root.dataset.awfulToolReady = "";
+
+  return {
+    destroy() {
+      root.removeAttribute("data-awful-tool-ready");
+      cleanups.splice(0).reverse().forEach((cleanup) => cleanup());
+    },
+  };
+}
+
+class AwfulToolPreview extends HTMLElement {
+  connectedCallback() {
+    this[INSTANCE]?.destroy();
+    this[INSTANCE] = enhanceAwfulToolPreview(this);
+  }
+
+  disconnectedCallback() {
+    this[INSTANCE]?.destroy();
+    delete this[INSTANCE];
   }
 }
 

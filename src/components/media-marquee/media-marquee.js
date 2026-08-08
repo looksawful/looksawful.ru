@@ -81,6 +81,7 @@ export function createMediaMarquee(element, { motion } = {}) {
     removeClones();
 
     element.removeAttribute("data-animated");
+    element.removeAttribute("data-measuring");
 
     element.style.removeProperty("--media-marquee-distance");
 
@@ -98,11 +99,15 @@ export function createMediaMarquee(element, { motion } = {}) {
       return;
     }
 
+    element.dataset.measuring = "true";
+
     const viewportWidth = element.getBoundingClientRect().width;
 
     const sourceWidth = source.getBoundingClientRect().width;
 
     const gap = readGap(track);
+
+    element.removeAttribute("data-measuring");
 
     if (viewportWidth <= 0 || sourceWidth <= 0) {
       return;

@@ -1,0 +1,32 @@
+@layer components {
+  .cv-story--theme-organism {
+    inline-size: 100%;
+    max-inline-size: none;
+  }
+
+  .jestei-theme-organism-shell {
+    display: grid;
+    gap: var(--jestei-theme-embed-space, clamp(1rem, 3vw, 2rem));
+    min-inline-size: 0;
+  }
+
+  .jestei-theme-organism-shell__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    min-inline-size: 0;
+  }
+
+  .jestei-theme-organism-shell__header .cv-story__copy {
+    margin: 0;
+  }
+
+  .jestei-theme-organism-shell__action {
+    --btn-color: currentColor;
+    --btn-bg: transparent;
+
+    flex: 0 0 auto;
+  }
+}

@@ -2849,18 +2849,14 @@
 
   device-mockup[data-scroll="true"] > main {
     overflow-y: auto;
-    scrollbar-gutter: stable;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
   device-mockup[data-scroll="true"] > main::-webkit-scrollbar {
-    inline-size: 0.625rem;
-  }
-
-  device-mockup[data-scroll="true"] > main::-webkit-scrollbar-thumb {
-    border: 0.1875rem solid transparent;
-    border-radius: 100vmax;
-    background: hsl(0 0% 50% / 0.32);
-    background-clip: padding-box;
+    display: none;
+    inline-size: 0;
+    block-size: 0;
   }
 
   device-mockup[data-expand-allowed="true"] > header {
@@ -3000,7 +2996,14 @@
 
         overflow-x: hidden;
         overflow-y: auto;
-        scrollbar-gutter: stable;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    device-mockup[data-content="playlist-filter"] > main::-webkit-scrollbar {
+        display: none;
+        inline-size: 0;
+        block-size: 0;
     }
 
     device-mockup[data-content="playlist-filter"] > main > .filter-shell {
@@ -3973,8 +3976,19 @@
         ][data-scroll="true"]
         > main {
         overflow-y: auto;
-        scrollbar-gutter: stable;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
         overscroll-behavior: contain;
+    }
+
+    .workflow-preview
+        > device-mockup[data-workflow-choreography="true"][
+            data-device-type="mobile"
+        ][data-scroll="true"]
+        > main::-webkit-scrollbar {
+        display: none;
+        inline-size: 0;
+        block-size: 0;
     }
 
     .workflow-preview
@@ -4224,6 +4238,16 @@
     > device-mockup[data-workflow-choreography="true"]
     > main {
     overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.workflow-preview.stable-slot
+    > device-mockup[data-workflow-choreography="true"]
+    > main::-webkit-scrollbar {
+    display: none;
+    inline-size: 0;
+    block-size: 0;
 }
 
 .workflow-preview.stable-slot
@@ -4237,6 +4261,16 @@
     max-block-size: 100%;
     overflow: var(--stable-slot-overflow);
     contain: layout paint;
-    scrollbar-gutter: stable;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     overscroll-behavior: contain;
+}
+
+.workflow-preview.stable-slot
+    > device-mockup[data-workflow-choreography="true"]
+    > main
+    > .filter-shell.stable-slot::-webkit-scrollbar {
+    display: none;
+    inline-size: 0;
+    block-size: 0;
 }

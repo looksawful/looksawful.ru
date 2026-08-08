@@ -494,4 +494,140 @@
       align-items: stretch;
     }
   }
+
+  [data-media-caption] {
+    display: none;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    color: color-mix(in srgb, currentColor, transparent 28%);
+    font-family: var(--font-primary);
+    font-size: var(--media-caption-font-size, 0.875rem);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.35;
+  }
+
+  [data-media-captions] {
+    display: none;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  [data-media-gallery-item]:has(> [data-media-caption-mode="static"]),
+  [data-media-gallery-item]:has(
+    > [data-media-captions] [data-media-caption-mode="static"]
+  ) {
+    display: grid;
+    align-content: start;
+    gap: var(--media-gallery-caption-gap, 0.5rem);
+    aspect-ratio: auto;
+    overflow: visible;
+    background: transparent;
+  }
+
+  [data-media-gallery-item]:has(> [data-media-caption-mode="static"])
+    > :is(img, video),
+  [data-media-gallery-item]:has(
+    > [data-media-captions] [data-media-caption-mode="static"]
+  )
+    > :is(img, video) {
+    inline-size: 100%;
+    block-size: auto;
+    aspect-ratio: var(--media-gallery-static-ratio, auto);
+    background: var(--media-gallery-item-background);
+  }
+
+  [data-media-gallery-item][data-media-ratio="single"]:has(
+    [data-media-caption-mode="static"]
+  ) {
+    --media-gallery-static-ratio: 4 / 3;
+  }
+
+  [data-media-gallery-item][data-media-ratio="landscape"]:has(
+    [data-media-caption-mode="static"]
+  ) {
+    --media-gallery-static-ratio: 3 / 2;
+  }
+
+  [data-media-gallery-item][data-media-ratio="wide"]:has(
+    [data-media-caption-mode="static"]
+  ) {
+    --media-gallery-static-ratio: 16 / 10;
+  }
+
+  [data-media-gallery-item][data-media-ratio="banner"]:has(
+    [data-media-caption-mode="static"]
+  ) {
+    --media-gallery-static-ratio: 16 / 5;
+  }
+
+  [data-media-gallery-item][data-media-ratio="vertical"]:has(
+    [data-media-caption-mode="static"]
+  ),
+  [data-media-gallery-item][data-media-ratio="vertical-slider"]:has(
+    [data-media-caption-mode="static"]
+  ) {
+    --media-gallery-static-ratio: 9 / 16;
+  }
+
+  [data-media-gallery-item][data-media-ratio="tall"]:has(
+    [data-media-caption-mode="static"]
+  ) {
+    --media-gallery-static-ratio: 2 / 3;
+  }
+
+  [data-media-gallery-item][data-media-ratio="portrait"]:has(
+    [data-media-caption-mode="static"]
+  ) {
+    --media-gallery-static-ratio: 4 / 5;
+  }
+
+  [data-media-gallery-item][data-media-ratio="square"]:has(
+    [data-media-caption-mode="static"]
+  ) {
+    --media-gallery-static-ratio: 1;
+  }
+
+  [data-media-gallery-item][data-media-ratio="video"]:has(
+    [data-media-caption-mode="static"]
+  ) {
+    --media-gallery-static-ratio: 4 / 5;
+  }
+
+  [data-media-gallery-item][data-media-ratio="video-wide"]:has(
+    [data-media-caption-mode="static"]
+  ) {
+    --media-gallery-static-ratio: 16 / 9;
+  }
+
+  [data-media-gallery-layout="feature-four"]
+    > [data-media-gallery-item]:has([data-media-caption-mode="static"]) {
+    --media-gallery-static-ratio: var(--media-gallery-feature-ratio, 8 / 5);
+  }
+
+  [data-media-gallery-layout="trio"]
+    > :first-child:has([data-media-caption-mode="static"]) {
+    --media-gallery-static-ratio: 16 / 9;
+  }
+
+  [data-media-gallery-layout="trio"]
+    > :not(:first-child):has([data-media-caption-mode="static"]) {
+    --media-gallery-static-ratio: 1;
+  }
+
+  [data-media-gallery-item] > [data-media-caption-mode="static"],
+  [data-media-captions]:has(> [data-media-caption-mode="static"]) {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  [data-media-captions] > [data-media-caption-mode="static"] {
+    display: block;
+  }
+
+  :is([data-media-slider], [data-media-marquee], [data-media-strip-slider])
+    [data-media-caption] {
+    display: none;
+  }
 }

@@ -95,6 +95,10 @@
     cursor: pointer;
   }
 
+  .media-strip-slider__thumb[aria-disabled="true"] {
+    cursor: default;
+  }
+
   .media-strip-slider__thumb > :is(img, video) {
     display: block;
     inline-size: 100%;

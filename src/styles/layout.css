@@ -4,6 +4,11 @@
  * knowing the page's outer geometry.
  */
 
+
+.detail-layout {
+  --detail-panel-main-min: 90rem;
+}
+
 .content-grid {
   --content-grid-max: 68rem;
   --content-grid-breakout-max: 86rem;

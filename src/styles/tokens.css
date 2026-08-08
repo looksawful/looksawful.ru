@@ -24,6 +24,19 @@
 
   --text-main: var(--black, #000);
   --surface-page: var(--white, #fff);
+  --surface-overlay: var(--surface-page);
+  --surface-raised: color-mix(in srgb, var(--surface-page), var(--text-main) 4%);
+  --text-muted: color-mix(in srgb, var(--text-main), transparent 38%);
+  --line-subtle: color-mix(in srgb, var(--text-main), transparent 78%);
+  --focus-ring: currentColor;
+  --scrim-background: rgb(0 0 0 / 0.46);
+  --panel-shadow: 0 1.5rem 4rem rgb(0 0 0 / 0.2);
+  --panel-radius: 1.25rem;
+  --panel-sheet-size: 92dvb;
+  --panel-drawer-size: 42rem;
+  --panel-inline-padding: clamp(1rem, 4cqi, 2rem);
+  --panel-block-padding: clamp(0.875rem, 3cqi, 1.5rem);
+
   --awfulface-ink: var(--clr-black, #000);
 
   /* Typography */
