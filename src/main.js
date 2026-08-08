@@ -40,6 +40,7 @@ import { createAnimatedCanvasGalleries } from "./components/animated-canvas-gall
 import { createAnimatedCanvasGalleryPreviews } from "./components/animated-canvas-gallery/animated-canvas-gallery-preview.js";
 import { ANIMATED_CANVAS_GALLERY_SOURCES } from "./content/animated-canvas-gallery-sources.js";
 import { applyAccordionContent } from "./content/accordion-content.js";
+import { applyProjectContent } from "./content/project-content.js";
 import { createDetailPanel } from "./components/detail-panel/detail-panel.js";
 import { createJesteiThemeOrganisms } from "./components/jestei-theme-organism/jestei-theme-organism.js";
 import { createJesteiThemeOrganismDetailRenderer } from "./components/jestei-theme-organism/jestei-theme-organism-detail-renderer.js";
@@ -100,6 +101,7 @@ function mount() {
   unmount();
 
   applyAccordionContent(document);
+  applyProjectContent(document);
   motionPreference = createMotionPreference();
 
   destroyHero = createHero({ root: document, motion: motionPreference });
