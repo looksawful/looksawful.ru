@@ -165,6 +165,95 @@ function inferredAspectRatio(figure, asset) {
   return width > 0 && height > 0 ? `${width} / ${height}` : "";
 }
 
+function ensureCaption(figure) {
+  let caption = figure.querySelector(":scope > figcaption");
+
+  if (!(caption instanceof HTMLElement)) {
+    caption = document.createElement("figcaption");
+    figure.append(caption);
+  }
+
+  caption.classList.remove("media-item__captions");
+  caption.classList.add("media-item__caption");
+  caption.removeAttribute("data-media-captions");
+  caption.dataset.mediaCaption = "";
+  caption.dataset.mediaCaptionMode = "static";
+  show(caption);
+  return caption;
+}
+
+function setCaption(figure, asset) {
+  const mediaId = asset?.dataset.mediaId;
+  const captionText = MEDIA_CAPTIONS[mediaId];
+
+  if (!captionText) return false;
+
+  const caption = ensureCaption(figure);
+  caption.dataset.mediaCaptionFor = mediaId;
+  caption.textContent = captionText;
+  return true;
+}
+
+function moveSliderAttributes(figure, surface) {
+  [...figure.attributes]
+    .filter(({ name }) => name.startsWith("data-media-slider"))
+    .forEach(({ name, value }) => {
+      surface.setAttribute(name, value);
+      figure.removeAttribute(name);
+    });
+}
+
+function ensureSliderSurface(figure, assets) {
+  const existing = figure.querySelector(
+    ":scope > [data-media-caption-surface][data-media-slider]",
+  );
+
+  if (existing instanceof HTMLElement) return existing;
+
+  const surface = document.createElement("div");
+  surface.className = "media-item__surface";
+  surface.dataset.mediaCaptionSurface = "";
+
+  const ratio = inferredAspectRatio(figure, assets[0]);
+  if (ratio) surface.style.aspectRatio = ratio;
+
+  moveSliderAttributes(figure, surface);
+  assets[0].before(surface);
+  assets.forEach((asset) => surface.append(mediaUnitFor(asset)));
+  return surface;
+}
+
+function updateSliderCaption(figure, surface, preferredAsset = null) {
+  const asset =
+    preferredAsset ??
+    surface.querySelector(":scope > [data-active][data-media-id]") ??
+    surface.querySelector(":scope > [data-media-id]");
+
+  if (!(asset instanceof HTMLElement)) return;
+  setCaption(figure, asset);
+}
+
+function prepareSliderFigure(figure, assets, signal, observedSliders) {
+  const surface = ensureSliderSurface(figure, assets);
+  figure.dataset.mediaCaptioned = "";
+  figure.dataset.mediaCaptionMode = "static";
+  updateSliderCaption(figure, surface);
+
+  if (!observedSliders.has(surface)) {
+    observedSliders.add(surface);
+    surface.addEventListener(
+      "media-slider:change",
+      (event) => {
+        const slide = event.detail?.slide;
+        if (slide instanceof HTMLElement) {
+          updateSliderCaption(figure, surface, slide);
+        }
+      },
+      { signal },
+    );
+  }
+}
+
 function ensureMediaSurface(figure, asset) {
   const unit = mediaUnitFor(asset);
   const directChild = directFigureChild(figure, unit);
@@ -184,7 +273,6 @@ function ensureMediaSurface(figure, asset) {
   const surface = document.createElement("div");
   surface.className = "media-item__surface";
   surface.dataset.mediaCaptionSurface = "";
-
   if (ratio) surface.style.aspectRatio = ratio;
 
   directChild.replaceWith(surface);
@@ -192,63 +280,63 @@ function ensureMediaSurface(figure, asset) {
   return surface;
 }
 
-function ensureCaption(figure, mediaId) {
-  let caption = figure.querySelector(":scope > figcaption");
-
-  if (!(caption instanceof HTMLElement)) {
-    caption = document.createElement("figcaption");
-    caption.className = "media-item__caption";
-    figure.append(caption);
-  }
-
-  caption.classList.add("media-item__caption");
-  caption.dataset.mediaCaption = "";
-  caption.dataset.mediaCaptionFor = mediaId;
-  caption.dataset.mediaCaptionMode = "static";
-  return caption;
-}
-
-function applyCaptionToAsset(asset) {
-  const mediaId = asset.dataset.mediaId;
-  const captionText = MEDIA_CAPTIONS[mediaId];
-
-  if (!captionText) return;
-
-  const figure = asset.closest("figure");
-  if (!(figure instanceof HTMLElement) || !figure.closest(".cv-item")) return;
-
+function prepareSingleMediaFigure(figure, asset) {
   const surface = ensureMediaSurface(figure, asset);
   if (!(surface instanceof HTMLElement)) return;
 
   figure.dataset.mediaCaptioned = "";
   figure.dataset.mediaCaptionMode = "static";
+  setCaption(figure, asset);
 
-  const caption = ensureCaption(figure, mediaId);
-  caption.textContent = captionText;
-  show(caption);
-
-  if (caption.previousElementSibling !== surface) {
+  const caption = figure.querySelector(":scope > figcaption[data-media-caption]");
+  if (caption instanceof HTMLElement && caption.previousElementSibling !== surface) {
     surface.after(caption);
   }
 }
 
-function applyMediaCaptions(scope) {
-  if (!(scope instanceof Document || scope instanceof HTMLElement)) return;
+function mappedAssetsInFigure(figure) {
+  return [...figure.querySelectorAll(":is(img, video)[data-media-id]")].filter(
+    (asset) => Boolean(MEDIA_CAPTIONS[asset.dataset.mediaId]),
+  );
+}
 
-  const assets = [];
+function prepareMediaFigure(figure, signal, observedSliders) {
+  const assets = mappedAssetsInFigure(figure);
+  if (assets.length === 0) return;
 
-  if (
-    scope instanceof HTMLElement &&
-    scope.matches(".cv-item :is(img, video)[data-media-id]")
-  ) {
-    assets.push(scope);
+  const slider =
+    figure.hasAttribute("data-media-slider") ||
+    figure.querySelector(":scope > [data-media-slider]");
+
+  if (slider && assets.length > 1) {
+    prepareSliderFigure(figure, assets, signal, observedSliders);
+    return;
   }
 
-  assets.push(
-    ...scope.querySelectorAll(".cv-item :is(img, video)[data-media-id]"),
-  );
+  prepareSingleMediaFigure(figure, assets[0]);
+}
 
-  assets.forEach(applyCaptionToAsset);
+function applyMediaCaptions(scope, signal, observedSliders) {
+  if (!(scope instanceof Document || scope instanceof HTMLElement)) return;
+
+  const figures = new Set();
+
+  if (scope instanceof HTMLElement) {
+    const ownFigure = scope.closest(".cv-item figure");
+    if (ownFigure instanceof HTMLElement) figures.add(ownFigure);
+  }
+
+  scope
+    .querySelectorAll(".cv-item :is(img, video)[data-media-id]")
+    .forEach((asset) => {
+      if (!MEDIA_CAPTIONS[asset.dataset.mediaId]) return;
+      const figure = asset.closest("figure");
+      if (figure instanceof HTMLElement) figures.add(figure);
+    });
+
+  figures.forEach((figure) =>
+    prepareMediaFigure(figure, signal, observedSliders),
+  );
 }
 
 function prepareScene(scene) {
@@ -259,16 +347,22 @@ function prepareScene(scene) {
 }
 
 export function applyAccordionPresentation(root = document) {
+  const abortController = new AbortController();
+  const { signal } = abortController;
+  const observedSliders = new WeakSet();
+
   root.querySelectorAll(".cv-item[data-cv-scene]").forEach(prepareScene);
   hideDetailPanel(root);
-  applyMediaCaptions(root);
+  applyMediaCaptions(root, signal, observedSliders);
 
   const observer =
     typeof MutationObserver === "function"
       ? new MutationObserver((records) => {
           records.forEach((record) => {
             record.addedNodes.forEach((node) => {
-              if (node instanceof HTMLElement) applyMediaCaptions(node);
+              if (node instanceof HTMLElement) {
+                applyMediaCaptions(node, signal, observedSliders);
+              }
             });
           });
         })
@@ -279,5 +373,8 @@ export function applyAccordionPresentation(root = document) {
     subtree: true,
   });
 
-  return () => observer?.disconnect();
+  return () => {
+    observer?.disconnect();
+    abortController.abort();
+  };
 }
