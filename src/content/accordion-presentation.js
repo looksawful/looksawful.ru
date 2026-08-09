@@ -171,8 +171,13 @@ function ensureMediaSurface(figure, asset) {
 
   if (!(directChild instanceof HTMLElement)) return null;
 
+  const ratio = inferredAspectRatio(figure, asset);
+
   if (directChild !== unit) {
     directChild.dataset.mediaCaptionSurface = "";
+    if (ratio && getComputedStyle(directChild).aspectRatio === "auto") {
+      directChild.style.aspectRatio = ratio;
+    }
     return directChild;
   }
 
@@ -180,7 +185,6 @@ function ensureMediaSurface(figure, asset) {
   surface.className = "media-item__surface";
   surface.dataset.mediaCaptionSurface = "";
 
-  const ratio = inferredAspectRatio(figure, asset);
   if (ratio) surface.style.aspectRatio = ratio;
 
   directChild.replaceWith(surface);
