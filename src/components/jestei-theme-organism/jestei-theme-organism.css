@@ -18,9 +18,9 @@
     color: rgb(var(--jestei-theme-ink));
     background-color: transparent;
     font-family: var(--font-primary);
+    color-scheme: light;
     container-name: jestei-theme-organism;
     container-type: inline-size;
-    color-scheme: light;
   }
 
   .jestei-theme-organism,
@@ -50,13 +50,6 @@
     font-weight: var(--font-weight-bold);
   }
 
-  .jestei-theme-organism[data-motion-preference="allow"]:not(
-      [data-motion-fallback="true"]
-    )
-    .jestei-theme-organism__stage:not([data-motion-state="animated"]) {
-    visibility: hidden;
-  }
-
   .jestei-theme-organism__wrapper {
     inline-size: min(
       calc(100% - (var(--jestei-theme-wrapper-gutter, 0.5rem) * 2)),
@@ -66,6 +59,10 @@
     margin-inline: auto;
   }
 
+  .jestei-theme-organism__stage {
+    position: relative;
+  }
+
   .jestei-theme-organism__stage,
   .jestei-theme-organism__layout,
   .jestei-theme-organism__copy,
@@ -73,6 +70,37 @@
     min-inline-size: 0;
   }
 
+  /*
+   * Loading is a distinct presentation. It never reuses the simplified cards.
+   * The loader is placed over the final animated layout, which stays in flow
+   * with visibility:hidden and therefore gives the accordion stable geometry.
+   */
+  .jestei-theme-organism__loading {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: none;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .jestei-theme-organism__loading-surface {
+    inline-size: 100%;
+    block-size: 100%;
+    background:
+      linear-gradient(
+        100deg,
+        transparent 20%,
+        color-mix(in srgb, currentColor, transparent 92%) 50%,
+        transparent 80%
+      ),
+      color-mix(in srgb, currentColor, transparent 96%);
+    background-position: 220% 0;
+    background-size: 220% 100%;
+    animation: jestei-theme-loading 1.2s linear infinite;
+  }
+
+  /* Base presentation: reduced motion or final error fallback. */
   .jestei-theme-organism__canvas-shell {
     display: none;
   }
@@ -185,8 +213,10 @@
     border-color: rgb(var(--jestei-card-color));
   }
 
-  .jestei-theme-organism__card[data-theme="event"] .jestei-theme-organism__card-chip,
-  .jestei-theme-organism__card[data-theme="feature"] .jestei-theme-organism__card-chip {
+  .jestei-theme-organism__card[data-theme="event"]
+    .jestei-theme-organism__card-chip,
+  .jestei-theme-organism__card[data-theme="feature"]
+    .jestei-theme-organism__card-chip {
     color: #000;
   }
 
@@ -240,7 +270,7 @@
 
   .jestei-theme-organism__token-swatch {
     grid-row: 1 / 3;
-    background: var(--jestei-token-color);
+    background: rgb(var(--jestei-token-color));
   }
 
   .jestei-theme-organism__token-name,
@@ -337,11 +367,20 @@
     white-space: nowrap;
   }
 
+  @keyframes jestei-theme-loading {
+    to {
+      background-position: -220% 0;
+    }
+  }
 }
 
 @layer motion {
   @media (prefers-reduced-motion: no-preference) {
-    .jestei-theme-organism[data-motion-state="animated"] {
+    /* Loading and animated states share one geometry. */
+    .jestei-theme-organism:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      ) {
       place-items: center;
       overflow: hidden;
       padding-block: 0;
@@ -358,16 +397,38 @@
         );
     }
 
-    .jestei-theme-organism[data-motion-state="animated"] .jestei-theme-organism__wrapper {
+    .jestei-theme-organism:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__wrapper {
       --jestei-theme-wrapper-gutter: 0.25rem;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__layout {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__layout {
       display: grid;
       gap: 1rem;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__canvas-shell {
+    .jestei-theme-organism__stage[data-motion-state="loading"]
+      .jestei-theme-organism__layout {
+      visibility: hidden;
+    }
+
+    .jestei-theme-organism__stage[data-motion-state="loading"]
+      .jestei-theme-organism__loading {
+      display: grid;
+    }
+
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__canvas-shell {
       display: grid;
       grid-template-areas: "canvas";
       aspect-ratio: 1;
@@ -375,21 +436,36 @@
       background: transparent;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__canvas-shell > * {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__canvas-shell
+      > * {
       grid-area: canvas;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__copy {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__copy {
       display: grid;
       grid-template-areas: "copy";
       min-block-size: clamp(7rem, 28cqi, 10rem);
       overflow: visible;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__track-viewport {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__track-viewport {
       --jestei-track-fade: clamp(2rem, 10cqi, 4.5rem);
       --jestei-track-visible-fade: clamp(0.75rem, 3cqi, 1.25rem);
-      --jestei-track-fade-outset: calc(var(--jestei-track-fade) - var(--jestei-track-visible-fade));
+      --jestei-track-fade-outset: calc(
+        var(--jestei-track-fade) - var(--jestei-track-visible-fade)
+      );
 
       grid-area: copy;
       align-self: stretch;
@@ -408,7 +484,11 @@
       mask-size: 100% 100%;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__track {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__track {
       --jestei-track-gap: clamp(3rem, 10cqi, 7rem);
 
       flex-wrap: nowrap;
@@ -419,11 +499,15 @@
       will-change: transform;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__card {
       display: grid;
       order: 0;
-      flex: 0 0 var(--jestei-slide-width, 1px);
-      inline-size: var(--jestei-slide-width, 1px);
+      flex: 0 0 var(--jestei-slide-width, 100%);
+      inline-size: var(--jestei-slide-width, 100%);
       max-inline-size: none;
       block-size: 100%;
       padding: 0;
@@ -432,47 +516,90 @@
       border: 0;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card::before {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__card::before {
       display: none;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card[data-theme="neutral"] {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__card[data-theme="neutral"] {
       order: 0;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card[data-theme="basic"] {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__card[data-theme="basic"] {
       order: 1;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card[data-theme="event"] {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__card[data-theme="event"] {
       order: 2;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card[data-theme="pro"] {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__card[data-theme="pro"] {
       order: 3;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card[data-theme="feature"] {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__card[data-theme="feature"] {
       order: 4;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card[data-loop-clone] {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__card[data-loop-clone] {
       display: grid;
       order: 5;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card-content {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__card-content {
       display: grid;
       align-items: end;
       gap: 0;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card-chip,
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card-palette {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      :is(
+        .jestei-theme-organism__card-chip,
+        .jestei-theme-organism__card-palette
+      ) {
       display: none;
     }
 
-    .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card-copy h2 {
+    .jestei-theme-organism__stage:is(
+        [data-motion-state="loading"],
+        [data-motion-state="animated"]
+      )
+      .jestei-theme-organism__card-copy
+      h2 {
       color: rgb(var(--jestei-theme-ink));
     }
 
@@ -510,13 +637,21 @@
         --jestei-theme-wrapper-gutter: 1rem;
       }
 
-      .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__layout {
+      .jestei-theme-organism__stage:is(
+          [data-motion-state="loading"],
+          [data-motion-state="animated"]
+        )
+        .jestei-theme-organism__layout {
         grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.42fr);
         align-items: stretch;
         gap: 1.5rem;
       }
 
-      .jestei-theme-organism__stage[data-motion-state="animated"] .jestei-theme-organism__card-content {
+      .jestei-theme-organism__stage:is(
+          [data-motion-state="loading"],
+          [data-motion-state="animated"]
+        )
+        .jestei-theme-organism__card-content {
         align-items: center;
       }
 
@@ -551,6 +686,12 @@
         font-size: 0.75rem;
         line-height: 1.15;
       }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .jestei-theme-organism__loading-surface {
+      animation: none;
     }
   }
 }

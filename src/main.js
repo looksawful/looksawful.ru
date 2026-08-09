@@ -60,17 +60,19 @@ function unmount() {
   destroyAccordionPresentation?.();
   destroyAccordionPresentation = null;
 
-  destroyJesteiThemeOrganisms?.destroy?.();
-  destroyJesteiThemeOrganisms = null;
-
   destroyAnimatedCanvasGalleries?.();
   destroyAnimatedCanvasGalleries = null;
 
   destroyAnimatedCanvasGalleryPreviews?.();
   destroyAnimatedCanvasGalleryPreviews = null;
 
+  // Destroy the accordion before the organism. The accordion stops mutating
+  // aria-expanded first; then the organism can disconnect its own observers.
   destroyCvAccordion?.();
   destroyCvAccordion = null;
+
+  destroyJesteiThemeOrganisms?.destroy?.();
+  destroyJesteiThemeOrganisms = null;
 
   destroyDigitalScrollGalleries?.();
   destroyDigitalScrollGalleries = null;
@@ -102,20 +104,46 @@ function mount() {
   motionPreference = createMotionPreference();
 
   destroyHero = createHero({ root: document, motion: motionPreference });
-  destroyMediaSliders = createMediaSliders({ root: document, motion: motionPreference });
-  destroyBeforeAfters = createBeforeAfters({ root: document, motion: motionPreference });
-  destroyMediaMarquees = createMediaMarquees({ root: document, motion: motionPreference });
-  destroyInfiniteReels = createInfiniteReels({ root: document, motion: motionPreference });
-  destroyDigitalScrollGalleries = createDigitalScrollGalleries({ root: document });
-  destroyCvAccordion = createCvAccordion({ root: document, motion: motionPreference });
-  destroyAnimatedCanvasGalleryPreviews = createAnimatedCanvasGalleryPreviews({ root: document });
-  destroyAnimatedCanvasGalleries = createAnimatedCanvasGalleries({
+  destroyMediaSliders = createMediaSliders({
     root: document,
-    sources: ANIMATED_CANVAS_GALLERY_SOURCES,
+    motion: motionPreference,
   });
+  destroyBeforeAfters = createBeforeAfters({
+    root: document,
+    motion: motionPreference,
+  });
+  destroyMediaMarquees = createMediaMarquees({
+    root: document,
+    motion: motionPreference,
+  });
+  destroyInfiniteReels = createInfiniteReels({
+    root: document,
+    motion: motionPreference,
+  });
+  destroyDigitalScrollGalleries = createDigitalScrollGalleries({
+    root: document,
+  });
+
+  /*
+   * The organism must inject its final loading geometry before the accordion
+   * performs its first synchronous measurement. Previously the accordion was
+   * mounted first and measured an empty data-jestei-theme-organism container.
+   */
   destroyJesteiThemeOrganisms = createJesteiThemeOrganisms({
     root: document,
     motion: motionPreference,
+  });
+
+  destroyCvAccordion = createCvAccordion({
+    root: document,
+    motion: motionPreference,
+  });
+
+  destroyAnimatedCanvasGalleryPreviews =
+    createAnimatedCanvasGalleryPreviews({ root: document });
+  destroyAnimatedCanvasGalleries = createAnimatedCanvasGalleries({
+    root: document,
+    sources: ANIMATED_CANVAS_GALLERY_SOURCES,
   });
 }
 
@@ -129,7 +157,9 @@ if (document.readyState === "loading") {
     mount();
   };
 
-  document.addEventListener("DOMContentLoaded", domReadyHandler, { once: true });
+  document.addEventListener("DOMContentLoaded", domReadyHandler, {
+    once: true,
+  });
 } else {
   mount();
 }

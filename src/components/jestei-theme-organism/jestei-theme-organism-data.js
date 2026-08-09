@@ -106,6 +106,8 @@ export const JESTEI_THEME_MODEL_URL =
   "./media/projects/jestei/theme-organism/jestei-theme-organism.glb";
 export const JESTEI_THEME_DRACO_PATH = "./vendor/draco/gltf/";
 
+const VALID_INITIAL_STATES = new Set(["loading", "static", "error"]);
+
 function tokenMarkup(token) {
   return `
     <div class="jestei-theme-organism__token">
@@ -150,22 +152,41 @@ function paletteItemMarkup(token, index) {
     </div>`;
 }
 
-export function createJesteiThemeOrganismMarkup() {
+/**
+ * The loading state is real markup, not the simplified fallback.
+ * The final animated layout remains in document flow underneath it so the
+ * accordion measures the same geometry before and after WebGL becomes ready.
+ */
+export function createJesteiThemeOrganismMarkup({
+  initialState = "static",
+} = {}) {
   const neutral = JESTEI_THEME_DEFINITIONS[0];
+  const normalizedState = VALID_INITIAL_STATES.has(initialState)
+    ? initialState
+    : "static";
+  const busy = normalizedState === "loading";
 
   return `
     <div class="jestei-theme-organism__wrapper">
       <section
+        aria-busy="${busy}"
         aria-label="Цветовые темы Jestei Pool"
         class="jestei-theme-organism__stage"
-        data-motion-state="static"
+        data-motion-state="${normalizedState}"
       >
+        <div
+          aria-live="polite"
+          class="jestei-theme-organism__loading"
+          data-jestei-theme-loading
+          role="status"
+        >
+          <span aria-hidden="true" class="jestei-theme-organism__loading-surface"></span>
+          <span class="visually-hidden">Загружается интерактивная цветовая система Jestei Pool</span>
+        </div>
+
         <div class="jestei-theme-organism__layout">
-          <div aria-hidden="true" class="jestei-theme-organism__canvas-shell">
-            <canvas
-              aria-label="Сетка Jestei Pool с черным стартом, заполнением ячеек до сплошной 3D-модели и физичными разворотами"
-              data-jestei-theme-canvas
-            ></canvas>
+          <div class="jestei-theme-organism__canvas-shell">
+            <canvas aria-hidden="true" data-jestei-theme-canvas></canvas>
             <div class="jestei-theme-organism__canvas-overlay">
               <div class="jestei-theme-organism__chips">
                 ${JESTEI_THEME_DEFINITIONS.map(
