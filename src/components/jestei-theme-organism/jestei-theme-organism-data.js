@@ -2,6 +2,7 @@ export const JESTEI_THEME_DEFINITIONS = Object.freeze([
   Object.freeze({
     name: "neutral",
     label: "Neutral",
+    description: "\u00A0",
     color: "#000000",
     rgb: "0 0 0",
     tokens: Object.freeze([
@@ -14,6 +15,8 @@ export const JESTEI_THEME_DEFINITIONS = Object.freeze([
   Object.freeze({
     name: "basic",
     label: "Basic",
+    description:
+      "Для клубных диджеев. Основной цвет ленты треков и клубного контента.",
     color: "#F08000",
     rgb: "240 128 0",
     tokens: Object.freeze([
@@ -26,6 +29,8 @@ export const JESTEI_THEME_DEFINITIONS = Object.freeze([
   Object.freeze({
     name: "event",
     label: "Event",
+    description:
+      "Для ивент-диджеев. Отмечает подборки и инструменты для свадеб, корпоративов и частных мероприятий.",
     color: "#D0E232",
     rgb: "208 226 50",
     tokens: Object.freeze([
@@ -38,6 +43,8 @@ export const JESTEI_THEME_DEFINITIONS = Object.freeze([
   Object.freeze({
     name: "pro",
     label: "Pro",
+    description:
+      "Для диджеев с расширенным доступом. Отмечает эксклюзивные эдиты, миксы и специальные продукты.",
     color: "#147AFF",
     rgb: "20 122 255",
     tokens: Object.freeze([
@@ -50,6 +57,8 @@ export const JESTEI_THEME_DEFINITIONS = Object.freeze([
   Object.freeze({
     name: "feature",
     label: "Feauture",
+    description:
+      "Для всех пользователей. Отмечает новые и экспериментальные функции, не привязанные к одному разделу.",
     color: "#B19FE9",
     rgb: "177 159 233",
     tokens: Object.freeze([
@@ -118,7 +127,7 @@ function themeCardMarkup(theme) {
         <span class="jestei-theme-organism__card-chip">${theme.label}</span>
         <div class="jestei-theme-organism__card-copy">
           <h2>${theme.label}</h2>
-          <p>Текст-рыба для краткого описания цветовой темы и ситуаций её применения.</p>
+          <p>${theme.description}</p>
         </div>
         <dl class="jestei-theme-organism__card-palette">
           ${theme.tokens.map(tokenMarkup).join("")}
