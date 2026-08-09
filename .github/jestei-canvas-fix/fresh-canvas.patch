@@ -1,0 +1,120 @@
+--- a/src/components/jestei-theme-organism/jestei-theme-organism.js
++++ b/src/components/jestei-theme-organism/jestei-theme-organism.js
+@@ -122,6 +122,20 @@
+   };
+ }
+ 
++/**
++ * A WebGL canvas whose context was force-lost must not be reused. Replacing
++ * only the canvas keeps the component geometry and generated content intact
++ * while guaranteeing that a retry receives a fresh rendering context.
++ */
++function replaceCanvasElement(elements) {
++  const previousCanvas = elements.canvas;
++  const nextCanvas = previousCanvas.cloneNode(false);
++
++  previousCanvas.replaceWith(nextCanvas);
++  elements.canvas = nextCanvas;
++  return nextCanvas;
++}
++
+ function createTrackController(elements) {
+   const {
+     themeTrack,
+@@ -866,9 +880,10 @@
+   root.dataset.motionPreference = motionAllowed ? "allow" : "reduce";
+   root.dataset.motionState = initialState;
+ 
+-  if (!root.querySelector(".jestei-theme-organism__stage")) {
+-    root.innerHTML = createJesteiThemeOrganismMarkup({ initialState });
+-  }
++  // Generated markup is replaced on every mount. An older asynchronous mount
++  // may still finish after destroy(); keeping its canvas would let two WebGL
++  // lifecycles contend for the same context during BFCache or HMR remounts.
++  root.innerHTML = createJesteiThemeOrganismMarkup({ initialState });
+ 
+   const elements = readElements(root);
+   const track = createTrackController(elements);
+@@ -883,6 +898,7 @@
+   let prepareAttempts = 0;
+   let retryTimer = 0;
+   let failureLocked = false;
++  let canvasNeedsReset = false;
+   let destroyed = false;
+   let externallyPaused = false;
+   let visible = !("IntersectionObserver" in window);
+@@ -934,9 +950,25 @@
+     retryTimer = 0;
+   }
+ 
+-  function disposeActiveExperience() {
+-    activeExperience?.dispose();
++  function markCanvasForReset() {
++    canvasNeedsReset = true;
++  }
++
++  function ensureFreshCanvas() {
++    if (!canvasNeedsReset) return;
++
++    replaceCanvasElement(elements);
++    canvasNeedsReset = false;
++  }
++
++  function disposeActiveExperience({ resetCanvas = false } = {}) {
++    const experience = activeExperience;
+     activeExperience = null;
++    experience?.dispose();
++
++    if (resetCanvas && experience) {
++      markCanvasForReset();
++    }
+   }
+ 
+   function lockFallback(error) {
+@@ -962,7 +994,8 @@
+     if (destroyed || !motionAllowed) return;
+ 
+     generation += 1;
+-    disposeActiveExperience();
++    disposeActiveExperience({ resetCanvas: true });
++    markCanvasForReset();
+     prepareAttempts += 1;
+ 
+     if (prepareAttempts < MAX_PREPARE_ATTEMPTS) {
+@@ -983,6 +1016,8 @@
+       return;
+     }
+ 
++    ensureFreshCanvas();
++
+     const currentGeneration = generation;
+     const promise = createAnimatedExperience(root, elements, track, {
+       onFatalError(error) {
+@@ -998,6 +1033,7 @@
+ 
+       if (destroyed || currentGeneration !== generation || !motionAllowed) {
+         nextExperience.dispose();
++        markCanvasForReset();
+         return;
+       }
+ 
+@@ -1009,6 +1045,10 @@
+       if (shouldRun()) activeExperience.resume();
+       else activeExperience.pause();
+     } catch (error) {
++      if (!destroyed) {
++        markCanvasForReset();
++      }
++
+       if (destroyed || currentGeneration !== generation) return;
+ 
+       prepareAttempts += 1;
+@@ -1039,7 +1079,7 @@
+       cancelRetry();
+       prepareAttempts = 0;
+       failureLocked = false;
+-      disposeActiveExperience();
++      disposeActiveExperience({ resetCanvas: true });
+       setPresentationState("static");
+       return;
+     }
