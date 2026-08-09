@@ -1,4 +1,96 @@
 @layer components {
+  /*
+   * Accordion scenes keep their existing accent pair:
+   * --item-bg controls the scene surface;
+   * --item-ink controls headers, borders and decoration.
+   *
+   * Body copy gets a separate contrast-driven role calculated from the
+   * actual open-panel surface. The fallback preserves the current palette
+   * in browsers without contrast-color().
+   */
+  .cv-item {
+    --item-body-bg: color-mix(in srgb, var(--item-bg) 93%, white 7%);
+    --item-text: var(--item-ink);
+  }
+
+  @supports (color: contrast-color(red)) {
+    .cv-item {
+      --item-text: contrast-color(var(--item-body-bg));
+    }
+  }
+
+  .cv-item__body {
+    background: var(--item-body-bg);
+  }
+
+  /* Only text inside the open panel uses the contrast-driven role. */
+  .cv-item__intro {
+    color: var(--item-text);
+  }
+
+  .cv-item :where(
+    .cv-story__copy,
+    .lead-text,
+    .process-copy__title,
+    .process-copy__lead,
+    .counter-list h3,
+    .counter-list h4,
+    .counter-list p,
+    .timeline__title,
+    .timeline__text,
+    .principle__copy h3,
+    .principle__copy p,
+    .category-browser__title,
+    .category-browser__copy,
+    .category-card__title,
+    .digital-arts__index,
+    .animated-canvas-gallery-preview__title,
+    .animated-canvas-gallery-preview__description,
+    .animated-canvas-gallery-controls__heading,
+    .animated-canvas-gallery-controls__label,
+    .animated-canvas-gallery-controls__output,
+    .animated-canvas-gallery-controls__group > summary,
+    .animated-canvas-gallery-controls__copy,
+    .repository-link__label,
+    .repository-link__title,
+    .repository-link__arrow,
+    .media-item__caption,
+    [data-media-caption]
+  ) {
+    color: var(--item-text);
+  }
+
+  /* Text and decoration use separate roles in mixed-purpose components. */
+  .cv-item .counter-list > li::before,
+  .cv-item .timeline__marker {
+    color: var(--item-text);
+    border-color: var(--item-ink);
+  }
+
+  .cv-item .timeline::before {
+    background: var(--item-ink);
+  }
+
+  .cv-item .brief {
+    --brief-background: color-mix(in srgb, var(--item-ink) 11%, transparent);
+    --brief-card-border: 1.5px solid var(--item-ink);
+  }
+
+  .cv-item .brief__card {
+    color: var(--item-text);
+  }
+
+  .cv-item .category-card__action {
+    color: var(--item-text);
+    border-color: var(--item-ink);
+  }
+
+  .cv-item .animated-canvas-gallery-controls input:not([type="checkbox"]),
+  .cv-item .animated-canvas-gallery-controls select {
+    color: var(--item-text);
+    border-color: var(--item-ink);
+  }
+
   .cv-item .brief,
   .cv-item .principle,
   .cv-item .cv-story__copy,
@@ -81,6 +173,6 @@
     font-size: clamp(0.75rem, 0.8cqi + 0.5rem, 0.9375rem);
     font-weight: var(--font-weight-regular);
     line-height: 1.4;
-    color: currentColor;
+    color: var(--item-text);
   }
 }
