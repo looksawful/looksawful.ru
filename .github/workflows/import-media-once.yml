@@ -1,0 +1,58 @@
+name: Import staged media once
+
+on:
+  push:
+    branches:
+      - prod
+    paths:
+      - .github/workflows/import-media-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout prod
+        uses: actions/checkout@v4
+        with:
+          ref: prod
+          fetch-depth: 0
+
+      - name: Download and validate archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --output /tmp/media.zip "https://at.adobe.com/b8pcccP8i5YRRmv4"
+          rm -rf /tmp/media-import
+          mkdir -p /tmp/media-import
+          unzip -q /tmp/media.zip -d /tmp/media-import
+          test "$(find /tmp/media-import/public/media/projects/sensetique/08/source -type f | wc -l)" -eq 9
+          test "$(find /tmp/media-import/public/media/projects/sensetique/09/source -type f | wc -l)" -eq 53
+          test "$(find /tmp/media-import/public/media/projects/sensetique/10/source -type f | wc -l)" -eq 24
+          test "$(find /tmp/media-import/public/media/projects/jestei/08/source -type f | wc -l)" -eq 11
+
+      - name: Copy media only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e public/media/projects/sensetique/08
+          test ! -e public/media/projects/sensetique/09
+          test ! -e public/media/projects/sensetique/10
+          test ! -e public/media/projects/jestei/08
+          cp -a /tmp/media-import/public/media/projects/sensetique/08 public/media/projects/sensetique/
+          cp -a /tmp/media-import/public/media/projects/sensetique/09 public/media/projects/sensetique/
+          cp -a /tmp/media-import/public/media/projects/sensetique/10 public/media/projects/sensetique/
+          cp -a /tmp/media-import/public/media/projects/jestei/08 public/media/projects/jestei/
+          rm .github/workflows/import-media-once.yml
+
+      - name: Commit imported media
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/media/projects/sensetique/08 public/media/projects/sensetique/09 public/media/projects/sensetique/10 public/media/projects/jestei/08 .github/workflows/import-media-once.yml
+          git commit -m "Add staged Sensetique and Jestei media"
+          git push origin HEAD:prod
