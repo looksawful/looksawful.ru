@@ -1,10 +1,17 @@
 @layer components {
-  .cv-item [hidden],
-  [data-detail-host][hidden] {
+  .cv-item .brief,
+  .cv-item .principle,
+  .cv-item .cv-story__copy,
+  .cv-item .category-browser,
+  .cv-item .jestei-theme-organism-shell__header,
+  [data-detail-open],
+  [data-detail-host],
+  .cv-item [hidden] {
     display: none !important;
   }
 
   .cv-item__intro > [data-accordion-primary-copy] {
+    display: block !important;
     margin-block-start: var(--space-2xs, 0.75rem);
   }
 
