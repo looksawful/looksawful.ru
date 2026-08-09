@@ -1,0 +1,72 @@
+name: Apply Jestei theme fix
+
+on:
+  push:
+    branches:
+      - prod
+    paths:
+      - ".github/jestei-theme-fix/**"
+      - ".github/workflows/apply-jestei-theme-fix.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-jestei-theme-fix
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current production branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Assemble tested source files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat .github/jestei-theme-fix/package.part-* > /tmp/jestei-theme-fix.zip
+          rm -rf /tmp/jestei-theme-fix
+          unzip -q /tmp/jestei-theme-fix.zip -d /tmp/jestei-theme-fix
+
+          proposal="/tmp/jestei-theme-fix/jestei-theme-fix-proposal"
+          target="src/components/jestei-theme-organism"
+
+          cp "$proposal/$target/jestei-theme-organism.js" "$target/jestei-theme-organism.js"
+          cp "$proposal/$target/jestei-theme-organism-data.js" "$target/jestei-theme-organism-data.js"
+          cp "$proposal/$target/jestei-theme-organism.css" "$target/jestei-theme-organism.css"
+          cp "$proposal/src/main.js" src/main.js
+
+          node --check "$target/jestei-theme-organism.js"
+          node --check "$target/jestei-theme-organism-data.js"
+          node --check src/main.js
+
+          npm ci
+          npm run build
+
+      - name: Commit verified production sources
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -- \
+            src/components/jestei-theme-organism/jestei-theme-organism.js \
+            src/components/jestei-theme-organism/jestei-theme-organism-data.js \
+            src/components/jestei-theme-organism/jestei-theme-organism.css \
+            src/main.js
+
+          if git diff --cached --quiet; then
+            echo "The verified source files are already current."
+            exit 0
+          fi
+
+          git commit -m "fix: stabilize Jestei component lifecycle"
+          git pull --rebase origin prod
+          git push origin HEAD:prod
