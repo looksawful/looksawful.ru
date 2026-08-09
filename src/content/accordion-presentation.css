@@ -1,0 +1,79 @@
+@layer components {
+  .cv-item [hidden],
+  [data-detail-host][hidden] {
+    display: none !important;
+  }
+
+  .cv-item__intro > [data-accordion-primary-copy] {
+    margin-block-start: var(--space-2xs, 0.75rem);
+  }
+
+  .cv-item__intro > [data-accordion-primary-copy] > p {
+    margin: 0;
+  }
+
+  .cv-item [data-media-captioned] {
+    display: grid;
+    grid-template-rows: auto auto;
+    align-content: start;
+    gap: var(--media-item-caption-gap, 0.5rem);
+    aspect-ratio: auto !important;
+    overflow: visible;
+    background: transparent;
+  }
+
+  .cv-item [data-media-caption-surface] {
+    min-inline-size: 0;
+    min-block-size: 0;
+    inline-size: 100%;
+    overflow: hidden;
+    background: var(
+      --media-gallery-item-background,
+      color-mix(in srgb, currentColor, transparent 92%)
+    );
+  }
+
+  .cv-item [data-media-caption-surface] > :is(img, video, picture),
+  .cv-item [data-media-caption-surface] > picture > img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .cv-item [data-media-caption-surface] > :is(img, video),
+  .cv-item [data-media-caption-surface] > picture > img {
+    object-fit: var(--media-gallery-object-fit, cover);
+    object-position: var(--media-gallery-object-position, 50% 50%);
+  }
+
+  .cv-item
+    [data-media-captioned][data-media-fit="contain"]
+    [data-media-caption-surface]
+    > :is(img, video),
+  .cv-item
+    [data-media-captioned][data-media-fit="contain"]
+    [data-media-caption-surface]
+    > picture
+    > img {
+    object-fit: contain;
+  }
+
+  .cv-item
+    [data-media-captioned]
+    > figcaption[data-media-caption] {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    font-family: var(--font-primary);
+    font-size: clamp(0.75rem, 0.8cqi + 0.5rem, 0.9375rem);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.4;
+    color: currentColor;
+  }
+}
