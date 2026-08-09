@@ -18,18 +18,17 @@ import "./components/animated-canvas-gallery/animated-canvas-gallery-preview.css
 import "./components/repository-link/repository-link.css";
 import "./components/media-marquee/media-marquee.css";
 import "./components/brief/brief.css";
-import "./components/detail-panel/detail-panel.css";
 import "./components/jestei-theme-organism/jestei-theme-organism.css";
 import "./components/jestei-theme-organism/jestei-theme-organism-embed.css";
 import "./components/infinite-reel/infinite-reel.css";
 import "./components/content-blocks/content-blocks.css";
+import "./content/accordion-presentation.css";
 
 import "./components/playlist-filter-workflow/playlist-filter-workflow.js";
 import "./components/awful-tools-preview/awful-tools-preview.js";
 
 import { createDigitalScrollGalleries } from "./components/digital-scroll-gallery/digital-scroll-gallery.js";
 import { createCvAccordion } from "./components/cv-accordion/cv-accordion.js";
-import { resolveCvDetailPanelTheme } from "./components/cv-accordion/cv-detail-panel-theme.js";
 import { createHero } from "./components/hero/hero.js";
 import { createMediaSliders } from "./components/media-slider/media-slider.js";
 import { createBeforeAfters } from "./components/before-after/before-after.js";
@@ -40,9 +39,8 @@ import { createAnimatedCanvasGalleries } from "./components/animated-canvas-gall
 import { createAnimatedCanvasGalleryPreviews } from "./components/animated-canvas-gallery/animated-canvas-gallery-preview.js";
 import { ANIMATED_CANVAS_GALLERY_SOURCES } from "./content/animated-canvas-gallery-sources.js";
 import { applyAccordionContent } from "./content/accordion-content.js";
-import { createDetailPanel } from "./components/detail-panel/detail-panel.js";
+import { applyAccordionPresentation } from "./content/accordion-presentation.js";
 import { createJesteiThemeOrganisms } from "./components/jestei-theme-organism/jestei-theme-organism.js";
-import { createJesteiThemeOrganismDetailRenderer } from "./components/jestei-theme-organism/jestei-theme-organism-detail-renderer.js";
 
 let motionPreference = null;
 let destroyHero = null;
@@ -55,12 +53,12 @@ let destroyCvAccordion = null;
 let destroyAnimatedCanvasGalleryPreviews = null;
 let destroyAnimatedCanvasGalleries = null;
 let destroyJesteiThemeOrganisms = null;
-let destroyDetailPanel = null;
+let destroyAccordionPresentation = null;
 let domReadyHandler = null;
 
 function unmount() {
-  destroyDetailPanel?.();
-  destroyDetailPanel = null;
+  destroyAccordionPresentation?.();
+  destroyAccordionPresentation = null;
 
   destroyJesteiThemeOrganisms?.destroy?.();
   destroyJesteiThemeOrganisms = null;
@@ -100,6 +98,7 @@ function mount() {
   unmount();
 
   applyAccordionContent(document);
+  destroyAccordionPresentation = applyAccordionPresentation(document);
   motionPreference = createMotionPreference();
 
   destroyHero = createHero({ root: document, motion: motionPreference });
@@ -117,22 +116,6 @@ function mount() {
   destroyJesteiThemeOrganisms = createJesteiThemeOrganisms({
     root: document,
     motion: motionPreference,
-  });
-  destroyDetailPanel = createDetailPanel({
-    root: document,
-    motion: motionPreference,
-    resolveTheme: resolveCvDetailPanelTheme,
-    renderers: {
-      "editorial-policy": {
-        minInlineSize: "42rem",
-        preferredInlineSize: "64rem",
-        maxInlineSize: "72rem",
-      },
-      "jestei-theme-organism": createJesteiThemeOrganismDetailRenderer({
-        motion: motionPreference,
-        inlineRuntime: destroyJesteiThemeOrganisms,
-      }),
-    },
   });
 }
 
