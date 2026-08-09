@@ -1,0 +1,143 @@
+name: Import Sensetique videos once
+
+on:
+  push:
+    branches:
+      - prod
+    paths:
+      - .github/workflows/import-sensetique-videos-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current prod
+        uses: actions/checkout@v4
+        with:
+          ref: prod
+          fetch-depth: 0
+
+      - name: Download carrier images
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sensetique-video-import/carriers"
+          cd "$RUNNER_TEMP/sensetique-video-import/carriers"
+          curl --fail --silent --show-error --location -o 54-01.png 'https://at.adobe.com/3Avbf22dCfhs13I8'
+          curl --fail --silent --show-error --location -o 54-02.png 'https://at.adobe.com/TgVJLzMGg7uNc8m1'
+          curl --fail --silent --show-error --location -o 55-01.png 'https://at.adobe.com/k63Oycr9XZfP1PF8'
+          curl --fail --silent --show-error --location -o 55-02.png 'https://at.adobe.com/Yci7WoeXjm0wN4xc'
+          curl --fail --silent --show-error --location -o 55-03.png 'https://at.adobe.com/W2KTZAmGQr5irUlb'
+          curl --fail --silent --show-error --location -o 55-04.png 'https://at.adobe.com/vlHp2EOzkMyTP46p'
+          curl --fail --silent --show-error --location -o 55-05.png 'https://at.adobe.com/NnsQZvGmw0rtZVBA'
+          curl --fail --silent --show-error --location -o 56-01.png 'https://at.adobe.com/1waA2CG6WxhvrOAW'
+          curl --fail --silent --show-error --location -o 56-02.png 'https://at.adobe.com/nWEexRUE6SPuPpnr'
+          curl --fail --silent --show-error --location -o 56-03.png 'https://at.adobe.com/jNHIidGO23RfklQY'
+          curl --fail --silent --show-error --location -o 56-04.png 'https://at.adobe.com/kQfatptVlCnCmDz4'
+
+      - name: Decode carrier images and reconstruct archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/sensetique-video-import"
+          python3 - "$WORK/carriers" "$WORK" <<'PY'
+          from pathlib import Path
+          import struct
+          import sys
+          import zlib
+
+          source = Path(sys.argv[1])
+          output = Path(sys.argv[2])
+
+          def decode_png_carrier(path: Path, destination: Path) -> None:
+              data = path.read_bytes()
+              if data[:8] != b"\x89PNG\r\n\x1a\n":
+                  raise ValueError(f"Not a PNG carrier: {path}")
+
+              offset = 8
+              width = height = None
+              compressed = bytearray()
+
+              while offset < len(data):
+                  length = struct.unpack(">I", data[offset:offset + 4])[0]
+                  kind = data[offset + 4:offset + 8]
+                  chunk = data[offset + 8:offset + 8 + length]
+                  offset += 12 + length
+
+                  if kind == b"IHDR":
+                      width, height, bit_depth, color_type, compression, filtering, interlace = struct.unpack(">IIBBBBB", chunk)
+                      if (bit_depth, color_type, compression, filtering, interlace) != (8, 6, 0, 0, 0):
+                          raise ValueError(f"Unsupported carrier format: {path}")
+                  elif kind == b"IDAT":
+                      compressed.extend(chunk)
+                  elif kind == b"IEND":
+                      break
+
+              if width is None or height is None:
+                  raise ValueError(f"Missing IHDR: {path}")
+
+              raw = zlib.decompress(bytes(compressed))
+              stride = width * 4
+              payload = bytearray()
+              cursor = 0
+              for _ in range(height):
+                  filter_type = raw[cursor]
+                  cursor += 1
+                  if filter_type != 0:
+                      raise ValueError(f"Unexpected PNG filter {filter_type}: {path}")
+                  payload.extend(raw[cursor:cursor + stride])
+                  cursor += stride
+
+              payload_length = struct.unpack(">Q", payload[:8])[0]
+              body = bytes(payload[8:8 + payload_length])
+              if len(body) != payload_length:
+                  raise ValueError(f"Truncated carrier payload: {path}")
+              destination.write_bytes(body)
+
+          for carrier in sorted(source.glob("*.png")):
+              decode_png_carrier(carrier, output / f"{carrier.stem}.part")
+          PY
+
+          cat "$WORK/54-01.part" "$WORK/54-02.part" > "$WORK/54.zip"
+          cat "$WORK/55-01.part" "$WORK/55-02.part" "$WORK/55-03.part" "$WORK/55-04.part" "$WORK/55-05.part" > "$WORK/55.zip"
+          cat "$WORK/56-01.part" "$WORK/56-02.part" "$WORK/56-03.part" "$WORK/56-04.part" > "$WORK/56.zip"
+
+          unzip -q "$WORK/54.zip" -d .
+          unzip -q "$WORK/55.zip" -d .
+          unzip -q "$WORK/56.zip" -d .
+
+      - name: Validate imported media
+        shell: bash
+        run: |
+          set -euo pipefail
+          for position in 54 55 56; do
+            video="public/media/projects/sensetique/09/source/${position}-16x9.mp4"
+            poster="public/media/projects/sensetique/09/poster/${position}-16x9.webp"
+            test -s "$video"
+            test -s "$poster"
+            size="$(stat -c%s "$video")"
+            if [ "$size" -ge 100000000 ]; then
+              echo "$video exceeds GitHub's per-file limit" >&2
+              exit 1
+            fi
+          done
+
+      - name: Commit videos and posters
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            public/media/projects/sensetique/09/source/54-16x9.mp4 \
+            public/media/projects/sensetique/09/source/55-16x9.mp4 \
+            public/media/projects/sensetique/09/source/56-16x9.mp4 \
+            public/media/projects/sensetique/09/poster/54-16x9.webp \
+            public/media/projects/sensetique/09/poster/55-16x9.webp \
+            public/media/projects/sensetique/09/poster/56-16x9.webp
+          git rm .github/workflows/import-sensetique-videos-once.yml
+          git commit -m "Add Sensetique production videos and posters"
+          git push origin HEAD:prod
