@@ -67,8 +67,7 @@ function unmount() {
   destroyAnimatedCanvasGalleryPreviews?.();
   destroyAnimatedCanvasGalleryPreviews = null;
 
-  // Destroy the accordion before the organism. The accordion stops mutating
-  // aria-expanded first; then the organism can disconnect its own observers.
+  // Stop the shared scene runtime before destroying its direct consumers.
   cvAccordion?.destroy?.();
   cvAccordion = null;
 
@@ -154,14 +153,21 @@ function mount() {
     accordionRuntime,
   });
 
-  // Network warm-up starts only after the first painted frame. The renderer is
-  // prepared while the user is still above Jestei, then remains paused until
-  // the scene runtime marks Jestei active.
+  // Warm Three.js and the model only after the first painted frame. Renderer
+  // preparation is requested through the same scene runtime that later owns
+  // Jestei activity, so there is no second lifecycle channel.
+  const inlineJesteiRoot = document.querySelector(
+    '[data-jestei-theme-organism][data-jestei-theme-instance="inline"]',
+  );
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      void destroyJesteiThemeOrganisms?.preload?.().then(() =>
-        destroyJesteiThemeOrganisms?.prepare?.(),
-      );
+      void destroyJesteiThemeOrganisms?.preload?.().then(() => {
+        if (inlineJesteiRoot instanceof HTMLElement && accordionRuntime) {
+          accordionRuntime.requestPrepare(inlineJesteiRoot);
+        } else {
+          destroyJesteiThemeOrganisms?.prepare?.();
+        }
+      });
     });
   });
 }

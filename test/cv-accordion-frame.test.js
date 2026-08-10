@@ -1,28 +1,4 @@
-from pathlib import Path
-import json, re
-
-ROOT = Path('.')
-
-def write(path, text):
-    p = ROOT / path
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(text, encoding='utf-8')
-
-
-def replace_once(text, old, new, label):
-    count = text.count(old)
-    if count != 1:
-        raise RuntimeError(f'{label}: expected exactly 1 occurrence, found {count}')
-    return text.replace(old, new, 1)
-
-# 1. package.json: permanent node:test command.
-package_path = ROOT / 'package.json'
-package = json.loads(package_path.read_text(encoding='utf-8'))
-package.setdefault('scripts', {})['test'] = 'node --test'
-package_path.write_text(json.dumps(package, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
-# 2. Frame/runtime tests.
-write('test/cv-accordion-frame.test.js', r'''import test from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
@@ -87,37 +63,3 @@ test("scroll map keeps O(1) content segment references by scene", () => {
   assert.equal(map.contentSegments[2], null);
   assert.equal(map.contentSegments[3]?.index, 3);
 });
-''')
-
-write('test/cv-accordion-runtime.test.js', r'''import test from "node:test";
-import assert from "node:assert/strict";
-
-class FakeElement {
-  closest() { return this; }
-}
-class FakeHTMLElement extends FakeElement {}
-
-globalThis.Element = FakeElement;
-globalThis.HTMLElement = FakeHTMLElement;
-
-const listeners = new Map();
-globalThis.document = {
-  visibilityState: "visible",
-  addEventListener(type, listener) {
-    listeners.set(type, listener);
-  },
-  removeEventListener(type, listener) {
-    if (listeners.get(type) === listener) listeners.delete(type);
-  },
-};
-
-const { createCvAccordionRuntime } = await import(
-  "../src/components/cv-accordion/cv-accordion-runtime.js"
-);
-
-function makeRuntime(count = 3) {
-  const records = Array.from({ length: count }, () => ({
-    item: new FakeHTMLElement(),
-  }));
-  return { records, runtime: createCvAccordionRuntime({ records }) };
-}

@@ -4,6 +4,7 @@ import { createCvAccordionRuntime } from "./cv-accordion-runtime.js";
 const ACCORDION_DESTROY = Symbol.for("looksawful.cvAccordion.destroy");
 const VALID_MODES = new Set(["scroll", "click", "static"]);
 const VALID_REDUCED_MODES = new Set(["click", "static"]);
+const VISIBLE_HEADER_COUNT = 3;
 const noop = () => {};
 
 function normalizeMode(value, fallback = "scroll") {
@@ -73,10 +74,12 @@ export function createCvAccordion({ root = document, motion } = {}) {
   let activeIndex = -1;
   let motionAllowed = typeof motion?.allowsMotion === "function" ? motion.allowsMotion() : false;
   let progressCache = "";
+  let lastFrameTargets = new Set();
 
   function clearRuntimeStyles() {
     component.style.removeProperty("--cv-progress");
     progressCache = "";
+    lastFrameTargets = new Set();
     records.forEach((record) => {
       ["--cv-header-height", "--cv-header-presence", "--cv-panel-height", "--cv-panel-viewport-height", "--cv-open-progress", "--cv-content-offset"]
         .forEach((property) => record.item.style.removeProperty(property));
@@ -97,6 +100,18 @@ export function createCvAccordion({ root = document, motion } = {}) {
     if (hidePanel) record.panel.hidden = !expanded;
   }
 
+  function syncHeaderInteractivity() {
+    if (resolvedMode !== "scroll" || activeIndex < 0) {
+      records.forEach((record) => { record.header.inert = false; });
+      return;
+    }
+
+    const end = Math.min(records.length, activeIndex + VISIBLE_HEADER_COUNT);
+    records.forEach((record) => {
+      record.header.inert = record.index < activeIndex || record.index >= end;
+    });
+  }
+
   function commitActiveIndex(nextIndex, { hidePanel = false } = {}) {
     const normalized = Number.isInteger(nextIndex) && nextIndex >= 0 && nextIndex < records.length ? nextIndex : -1;
     if (normalized === activeIndex) return;
@@ -104,7 +119,33 @@ export function createCvAccordion({ root = document, motion } = {}) {
     activeIndex = normalized;
     if (previous >= 0) setExpanded(records[previous], false, { hidePanel });
     if (activeIndex >= 0) setExpanded(records[activeIndex], true, { hidePanel });
+    syncHeaderInteractivity();
     runtime.setActiveIndex(activeIndex);
+  }
+
+  function collectFrameTargets(frame) {
+    const current = new Set();
+    const introActive =
+      frame.previousIndex === 0 &&
+      frame.transition === 0 &&
+      (frame.activities[0] ?? 0) < 0.9999;
+
+    if (introActive) {
+      records.forEach((_, index) => current.add(index));
+    } else {
+      for (const base of [frame.previousIndex, frame.nextIndex]) {
+        if (!Number.isInteger(base) || base < 0) continue;
+        for (let offset = 0; offset < VISIBLE_HEADER_COUNT; offset += 1) {
+          const index = base + offset;
+          if (index >= 0 && index < records.length) current.add(index);
+        }
+      }
+      if (activeIndex >= 0) current.add(activeIndex);
+    }
+
+    const dirty = new Set([...lastFrameTargets, ...current]);
+    lastFrameTargets = current;
+    return dirty;
   }
 
   function renderScrollFrame(frame) {
@@ -114,8 +155,10 @@ export function createCvAccordion({ root = document, motion } = {}) {
       component.style.setProperty("--cv-progress", nextProgress);
     }
 
-    const frameTargets = new Set([frame.previousIndex, frame.nextIndex, activeIndex]);
-    records.forEach((record, index) => {
+    const frameTargets = collectFrameTargets(frame);
+    for (const index of frameTargets) {
+      const record = records[index];
+      if (!record) continue;
       const activity = frame.activities[index] ?? 0;
       const headerPresence = frame.headerPresences[index] ?? 0;
       const headerVisible = headerPresence > 0.01;
@@ -127,17 +170,13 @@ export function createCvAccordion({ root = document, motion } = {}) {
         ["--cv-open-progress", activity.toFixed(4)],
         ["--cv-content-offset", `${frame.contentOffsets[index] ?? 0}px`],
       ];
-      let changed = false;
-      for (const [property, value] of values) changed = setCachedStyle(record, property, value) || changed;
+      for (const [property, value] of values) setCachedStyle(record, property, value);
       if (record.headerVisible !== headerVisible) {
         record.headerVisible = headerVisible;
         record.item.dataset.cvHeaderVisible = String(headerVisible);
-        record.header.inert = !headerVisible;
-        changed = true;
       }
-      if (changed) frameTargets.add(index);
-    });
-    runtime.publishFrame(frame, [...frameTargets].filter((index) => index >= 0));
+    }
+    runtime.publishFrame(frame, [...frameTargets]);
   }
 
   const scroll = createCvAccordionScroll({

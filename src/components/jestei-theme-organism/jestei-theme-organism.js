@@ -140,30 +140,18 @@ function createTrackController(elements) {
   );
   const lastThemeIndex = Math.max(0, sourceThemeCards.length - 1);
 
-  let loopClone = null;
+  const loopClone = themeTrack.querySelector(
+    ".jestei-theme-organism__card[data-loop-clone]",
+  );
   let slideWidth = 0;
   let trackGap = 0;
   let trackPosition = 0;
   let appliedTransform = "";
 
   function ensureLoopClone() {
-    if (loopClone) return;
-
-    const neutralCard = sourceThemeCards.find(
-      (card) => card.dataset.theme === "neutral",
-    );
-
-    if (!(neutralCard instanceof HTMLElement)) return;
-
-    loopClone = neutralCard.cloneNode(true);
-    loopClone.dataset.loopClone = "true";
-    loopClone.setAttribute("aria-hidden", "true");
-    themeTrack.append(loopClone);
-  }
-
-  function removeLoopClone() {
-    loopClone?.remove();
-    loopClone = null;
+    if (!(loopClone instanceof HTMLElement)) {
+      throw new Error("Jestei theme organism loop clone is missing from HTML.");
+    }
   }
 
   function applyTrackPosition() {
@@ -216,7 +204,6 @@ function createTrackController(elements) {
     slideWidth = 0;
     trackGap = 0;
     appliedTransform = "";
-    removeLoopClone();
   }
 
   return {
@@ -402,7 +389,6 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
   let environment = null;
   let material = null;
   let resizeObserver = null;
-  let trackResizeObserver = null;
   let contextLostHandler = null;
   let animationFrameId = 0;
   let running = false;
@@ -663,7 +649,6 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
       track.ensureLoopClone();
       renderCurrentFrame();
       resizeObserver?.observe(elements.canvas);
-      trackResizeObserver?.observe(track.viewport);
       running = true;
       previousTime = 0;
       animationFrameId = requestAnimationFrame(render);
@@ -677,7 +662,6 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
       animationFrameId = 0;
       previousTime = 0;
       resizeObserver?.disconnect();
-      trackResizeObserver?.disconnect();
     }
 
     function refresh() {
@@ -693,7 +677,6 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
       cancelAnimationFrame(animationFrameId);
       animationFrameId = 0;
       resizeObserver?.disconnect();
-      trackResizeObserver?.disconnect();
 
       if (contextLostHandler) {
         elements.canvas.removeEventListener(
@@ -721,11 +704,6 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
       typeof ResizeObserver === "function"
         ? new ResizeObserver(refresh)
         : null;
-    trackResizeObserver =
-      typeof ResizeObserver === "function"
-        ? new ResizeObserver(track.resize)
-        : null;
-
     track.ensureLoopClone();
     themeController.update(0, 0, 1);
     resize();
@@ -736,7 +714,6 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
     return Object.freeze({ resume, pause, refresh, dispose });
   } catch (error) {
     resizeObserver?.disconnect();
-    trackResizeObserver?.disconnect();
 
     if (contextLostHandler) {
       elements.canvas.removeEventListener(
