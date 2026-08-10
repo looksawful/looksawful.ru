@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git show HEAD^:.github/workflows/pages.yml > /tmp/pages.yml
+          git show 4b5de215248dd22c7949853c7e08f6550b3f2989:.github/workflows/pages.yml > /tmp/pages.yml
           python - <<'PY'
           from pathlib import Path
           p = Path('/tmp/pages.yml')
