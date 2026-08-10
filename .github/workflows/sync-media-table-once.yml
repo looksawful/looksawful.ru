@@ -1,1 +1,234 @@
-<ACTUAL_WORKFLOW_CONTENT>
+name: Sync media table once
+on:
+  push:
+    branches: [prod]
+    paths: [.github/workflows/sync-media-table-once.yml]
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prod
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+
+      - name: Read sheet and sync source
+        run: |
+          curl -fsSL 'https://docs.google.com/spreadsheets/d/1SV-YemgMxQ9HuDLAEFFyLSY0TZ7WuuUQYgXBvXR3-i4/export?format=csv&gid=427961252' -o /tmp/sens.csv
+          curl -fsSL 'https://docs.google.com/spreadsheets/d/1SV-YemgMxQ9HuDLAEFFyLSY0TZ7WuuUQYgXBvXR3-i4/export?format=csv&gid=127838854' -o /tmp/jestei.csv
+          python3 - <<'PY'
+          import csv, json, re
+          from pathlib import Path
+
+          MARK = {"Убрать", "Повторное использование существующего файла в процессной секции"}
+
+          def rows(path):
+              with open(path, encoding="utf-8-sig", newline="") as f:
+                  return list(csv.DictReader(f))
+
+          sens = rows("/tmp/sens.csv")
+          jest = rows("/tmp/jestei.csv")
+          marked = [r for r in sens if r.get("Задачи по медиа") in MARK]
+          marked_ids = {r["data-media-id"] for r in marked if r.get("data-media-id")}
+
+          sens_caps = {
+              r["data-media-id"]: r["Подпись"]
+              for r in sens
+              if r.get("data-media-id")
+              and r.get("Подпись")
+              and r.get("Компонент / раскладка") != "media-pool"
+              and r.get("Состояние на сайте") == "active"
+              and r.get("Задачи по медиа") not in MARK
+          }
+          jest_caps = {
+              r["data-media-id"]: r["Подпись"]
+              for r in jest
+              if r.get("data-media-id")
+              and r.get("Подпись")
+              and r.get("Компонент / раскладка") != "media-pool"
+              and r.get("Состояние на сайте") == "active"
+          }
+          captions = {**jest_caps, **sens_caps}
+
+          candidates = []
+          for r in marked:
+              mid = r.get("data-media-id", "")
+              if mid.startswith("sensetique-process-"):
+                  continue
+              if r.get("Тип") != "image":
+                  continue
+              p = r.get("Путь в репозитории", "").strip()
+              if p:
+                  candidates.append("public/" + p.lstrip("/"))
+
+          Path("/tmp/candidates.json").write_text(
+              json.dumps(sorted(set(candidates)), ensure_ascii=False), encoding="utf-8"
+          )
+
+          cp = Path("src/content/media-captions.js")
+          text = cp.read_text(encoding="utf-8")
+          def ep(mid):
+              return re.compile(rf'(?m)^\s*"{re.escape(mid)}"\s*:\s*"(?:\\.|[^"\\])*",\s*\n?')
+
+          for mid in sorted(marked_ids):
+              text = ep(mid).sub("", text)
+
+          inserted = []
+          for mid, caption in captions.items():
+              line = f'  {json.dumps(mid, ensure_ascii=False)}: {json.dumps(caption, ensure_ascii=False)},\n'
+              pat = ep(mid)
+              if pat.search(text):
+                  text = pat.sub(line, text, count=1)
+              else:
+                  at = text.rfind("});")
+                  if at < 0:
+                      raise RuntimeError("MEDIA_CAPTIONS closing token not found")
+                  text = text[:at] + line + text[at:]
+                  inserted.append(mid)
+          cp.write_text(text, encoding="utf-8")
+
+          ip = Path("index.html")
+          html = ip.read_text(encoding="utf-8")
+          before = {mid: html.count(mid) for mid in marked_ids if html.count(mid)}
+
+          def strip(block, mid):
+              q = re.escape(mid)
+              block = re.sub(
+                  rf'<picture\b[^>]*>(?:(?!</picture>)[\s\S])*?data-media-id=["\']{q}["\'](?:(?!</picture>)[\s\S])*?</picture>',
+                  "", block, flags=re.I)
+              block = re.sub(
+                  rf'<video\b(?=[^>]*data-media-id=["\']{q}["\'])[^>]*>[\s\S]*?</video>',
+                  "", block, flags=re.I)
+              block = re.sub(
+                  rf'<img\b(?=[^>]*data-media-id=["\']{q}["\'])[^>]*>',
+                  "", block, flags=re.I)
+              block = re.sub(
+                  rf'<figcaption\b(?=[^>]*data-media-caption-for=["\']{q}["\'])[^>]*>[\s\S]*?</figcaption>',
+                  "", block, flags=re.I)
+              return block
+
+          fig = re.compile(r'<figure\b[^>]*>[\s\S]*?</figure>', re.I)
+          def fix_figure(m):
+              block = m.group(0)
+              hits = [mid for mid in marked_ids if mid in block]
+              if not hits:
+                  return block
+              for mid in hits:
+                  block = strip(block, mid)
+              return block if re.search(r'<(?:img|video)\b', block, re.I) else ""
+
+          html = fig.sub(fix_figure, html)
+          for mid in marked_ids:
+              html = strip(html, mid)
+
+          for mid, caption in captions.items():
+              q = re.escape(mid)
+              pat = re.compile(
+                  rf'(<figcaption\b(?=[^>]*data-media-caption-for=["\']{q}["\'])[^>]*>)([\s\S]*?)(</figcaption>)',
+                  re.I)
+              if pat.search(html):
+                  esc = caption.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+                  html = pat.sub(lambda m: m.group(1) + esc + m.group(3), html)
+
+          remain = {mid: html.count(mid) for mid in marked_ids if html.count(mid)}
+          if remain:
+              raise RuntimeError(f"Marked ids remain in index: {remain}")
+          ip.write_text(html, encoding="utf-8")
+
+          mp = Path("public/media/media-manifest.json")
+          manifest = json.loads(mp.read_text(encoding="utf-8"))
+          old = len(manifest.get("entries", []))
+          manifest["entries"] = [e for e in manifest.get("entries", []) if e.get("id") not in marked_ids]
+          mp.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+          report = {
+              "sens_rows": len(sens),
+              "jestei_rows": len(jest),
+              "marked_rows": len(marked),
+              "captions_sensetique_active": len(sens_caps),
+              "captions_jestei_active": len(jest_caps),
+              "caption_keys_inserted": inserted,
+              "site_occurrences_before": before,
+              "manifest_removed": old - len(manifest["entries"]),
+              "delete_candidates": len(set(candidates)),
+          }
+          Path("/tmp/text-report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Delete duplicate physical copies but preserve one exemplar
+        run: |
+          cat >/tmp/dedupe.mjs <<'JS'
+          import fs from "node:fs";
+          import path from "node:path";
+          import crypto from "node:crypto";
+          import sharp from "sharp";
+
+          const candidates = new Set(JSON.parse(fs.readFileSync("/tmp/candidates.json", "utf8")));
+          const root = "public/media/projects/sensetique";
+          const exts = new Set([".webp",".png",".jpg",".jpeg"]);
+          const walk = d => fs.readdirSync(d,{withFileTypes:true}).flatMap(e => {
+            const p=path.join(d,e.name);
+            return e.isDirectory()?walk(p):(exts.has(path.extname(e.name).toLowerCase())?[p.replaceAll("\\","/")]:[]);
+          });
+          async function h(file) {
+            const {data,info}=await sharp(file).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+            const x=crypto.createHash("sha256");
+            x.update(`${info.width}x${info.height}x${info.channels}:`);
+            x.update(data);
+            return x.digest("hex");
+          }
+
+          const files=walk(root), by=new Map(), hf=new Map();
+          for (const f of files) {
+            const x=await h(f); hf.set(f,x);
+            if(!by.has(x)) by.set(x,[]);
+            by.get(x).push(f);
+          }
+
+          const groups=new Map(), missing=[];
+          for (const f of candidates) {
+            if(!fs.existsSync(f)){missing.push(f);continue;}
+            const x=hf.get(f);
+            if(!groups.has(x)) groups.set(x,[]);
+            groups.get(x).push(f);
+          }
+
+          const deleted=[], keptSole=[], keptRepresentative=[];
+          for (const [x, cs] of groups) {
+            const peers=[...(by.get(x)||[])].sort();
+            const outside=peers.filter(p=>!candidates.has(p));
+            let keep;
+            if(outside.length) keep=outside[0];
+            else if(peers.length>1){keep=peers[0];keptRepresentative.push(keep);}
+            else{keep=peers[0]||cs[0];keptSole.push(keep);}
+            for(const f of cs) if(f!==keep && fs.existsSync(f)){fs.unlinkSync(f);deleted.push(f);}
+          }
+          const report={candidates:candidates.size,deleted_count:deleted.length,deleted,
+            retained_sole_count:keptSole.length,retained_sole:keptSole,
+            retained_representative_count:keptRepresentative.length,retained_representative:keptRepresentative,
+            missing};
+          console.log(JSON.stringify(report,null,2));
+          JS
+          node /tmp/dedupe.mjs
+
+      - name: Verify
+        run: npm run build
+
+      - name: Commit
+        run: |
+          rm -f .github/workflows/sync-media-table-once.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'Sync approved media removals and captions'
+          git push origin HEAD:prod
