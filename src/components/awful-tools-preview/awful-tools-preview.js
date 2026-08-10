@@ -156,7 +156,7 @@ function enhanceAwfulCasesPreview(root) {
 
   async function ensureRuntime() {
     if (destroyed || pending) return pending;
-    pending = import("/pets/awful-cases/awful-cases.js")
+    pending = import(/* @vite-ignore */ "/pets/awful-cases/awful-cases.js")
       .then(({ enhanceAwfulCases }) => {
         if (destroyed) return;
         runtime = enhanceAwfulCases(gameRoot);
