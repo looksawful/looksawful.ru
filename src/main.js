@@ -40,6 +40,7 @@ import { createAnimatedCanvasGalleryPreviews } from "./components/animated-canva
 import { ANIMATED_CANVAS_GALLERY_SOURCES } from "./content/animated-canvas-gallery-sources.js";
 import { applyAccordionContent } from "./content/accordion-content.js";
 import { applyAccordionPresentation } from "./content/accordion-presentation.js";
+import { createImageSkeletons } from "./content/image-skeletons.js";
 import { createJesteiThemeOrganisms } from "./components/jestei-theme-organism/jestei-theme-organism.js";
 
 let motionPreference = null;
@@ -53,11 +54,16 @@ let cvAccordion = null;
 let destroyAnimatedCanvasGalleryPreviews = null;
 let destroyAnimatedCanvasGalleries = null;
 let destroyJesteiThemeOrganisms = null;
+let destroyImageSkeletons = null;
 let destroyAccordionPresentation = null;
 let domReadyHandler = null;
 
 function unmount() {
   setAwfulToolsAccordionRuntime(null, document);
+
+  destroyImageSkeletons?.();
+  destroyImageSkeletons = null;
+
   destroyAccordionPresentation?.();
   destroyAccordionPresentation = null;
 
@@ -101,6 +107,7 @@ function mount() {
 
   applyAccordionContent(document);
   destroyAccordionPresentation = applyAccordionPresentation(document);
+  destroyImageSkeletons = createImageSkeletons({ root: document });
   motionPreference = createMotionPreference();
 
   destroyHero = createHero({ root: document, motion: motionPreference });
