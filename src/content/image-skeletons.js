@@ -4,6 +4,7 @@ const IMAGE_SELECTOR = ".cv-item img";
 const SURFACE_SELECTOR = [
   "[data-media-caption-surface]",
   "[data-media-gallery-item]",
+  "[data-media-marquee-surface]",
   ".category-card__media",
 ].join(",");
 const SKELETON_DELAY = 140;
