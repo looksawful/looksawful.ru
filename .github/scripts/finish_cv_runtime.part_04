@@ -20,11 +20,11 @@ def matching_tag_end(source, open_start, tag):
         depth += 1
     raise RuntimeError(f'unclosed <{tag}> at {open_start}')
 
-track_pattern = re.compile(r'<div\b(?=[^>]*\bdata-theme-track(?:="")?)[^>]*>', re.I)
-starts = [m.start() for m in track_pattern.finditer(html)]
+track_pattern = re.compile(r'<(?P<tag>div|ul)\b(?=[^>]*\bdata-theme-track(?:="")?)[^>]*>', re.I)
+starts = [(m.start(), m.group('tag').lower()) for m in track_pattern.finditer(html)]
 insertions = []
-for start_pos in starts:
-    close_start, _ = matching_tag_end(html, start_pos, 'div')
+for start_pos, track_tag in starts:
+    close_start, _ = matching_tag_end(html, start_pos, track_tag)
     block = html[start_pos:close_start]
     if 'data-loop-clone' in block:
         continue
