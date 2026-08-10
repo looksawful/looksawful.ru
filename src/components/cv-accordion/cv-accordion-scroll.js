@@ -47,7 +47,7 @@ export function createCvAccordionScroll({
 
   const resizeObserver = new ResizeObserver(() => schedule(true));
   const frameBuffer = createAccordionFrameBuffer(records.length);
-  let observedRecordIndex = -1;
+  let observedRecordIndex = null;
   let active = false;
   let destroyed = false;
   let frameId = 0;
@@ -129,12 +129,12 @@ export function createCvAccordionScroll({
       frame: frameBuffer,
     });
 
-    onFrame?.(frame);
     if (frame.activeIndex !== activeIndex) {
       activeIndex = frame.activeIndex;
       observeActiveRecord(activeIndex);
       onActiveIndexChange?.(activeIndex);
     }
+    onFrame?.(frame);
   }
 
   function schedule(remeasure = false) {
@@ -171,7 +171,7 @@ export function createCvAccordionScroll({
     if (!active) return;
     active = false;
     activeIndex = -1;
-    observedRecordIndex = -1;
+    observedRecordIndex = null;
     geometry = null;
     needsMeasure = true;
     if (frameId) window.cancelAnimationFrame(frameId);
