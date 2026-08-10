@@ -35,6 +35,7 @@ import { createBeforeAfters } from "./components/before-after/before-after.js";
 import { createMediaMarquees } from "./components/media-marquee/media-marquee.js";
 import { createInfiniteReels } from "./components/infinite-reel/infinite-reel.js";
 import { createMotionPreference } from "./motion-preference.js";
+import { configureMovesAwful } from "./components/moves-awful/moves-awful.js";
 import { createAnimatedCanvasGalleries } from "./components/animated-canvas-gallery/animated-canvas-gallery.js";
 import { createAnimatedCanvasGalleryPreviews } from "./components/animated-canvas-gallery/animated-canvas-gallery-preview.js";
 import { ANIMATED_CANVAS_GALLERY_SOURCES } from "./content/animated-canvas-gallery-sources.js";
@@ -107,6 +108,7 @@ function mount() {
 
   applyAccordionContent(document);
   destroyAccordionPresentation = applyAccordionPresentation(document);
+  configureMovesAwful(document);
   destroyImageSkeletons = createImageSkeletons({ root: document });
   motionPreference = createMotionPreference();
 
