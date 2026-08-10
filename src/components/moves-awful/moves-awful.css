@@ -27,14 +27,22 @@
   }
 
   .moves-awful-showcase .animated-canvas-gallery-preview__header {
-    display: grid;
-    align-items: start;
-    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
-    gap: clamp(1rem, 3vw, 2rem);
+    display: none;
   }
 
-  .moves-awful-showcase .animated-canvas-gallery-preview__description {
-    max-inline-size: 28rem;
+  .moves-awful-showcase .moves-awful-caption {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-primary);
+    font-size: clamp(1rem, 0.9375rem + 0.2cqi, 1.0625rem);
+    font-weight: var(--font-weight-regular);
+    font-style: normal;
+    line-height: 1.45;
+    color: var(--item-text);
+  }
+
+  .moves-awful-showcase .moves-awful-caption:has(.media-caption__line:empty) {
+    display: none;
   }
 
   .moves-awful-showcase .animated-canvas-gallery {
@@ -55,10 +63,6 @@
   @media (width <= 50rem) {
     .moves-awful-showcase .animated-canvas-gallery-preview {
       min-block-size: auto;
-    }
-
-    .moves-awful-showcase .animated-canvas-gallery-preview__header {
-      grid-template-columns: 1fr;
     }
   }
 }
