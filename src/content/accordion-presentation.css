@@ -60,6 +60,32 @@
     color: var(--item-text);
   }
 
+  /*
+   * Keep the existing fluid typography model, but make the open-panel scale
+   * calmer and reduce the distance between compact and wide layouts.
+   */
+  .cv-item__title {
+    font-size: clamp(1.875rem, 1rem + 2.5vw, 4rem);
+    letter-spacing: -0.04em;
+  }
+
+  .cv-item__copy,
+  .cv-story__copy p {
+    max-inline-size: 68ch;
+    font-size: clamp(0.9375rem, 0.8125rem + 0.5vw, 1.125rem);
+    line-height: 1.25;
+  }
+
+  .cv-story__copy {
+    max-inline-size: 64rem;
+  }
+
+  .cv-story__copy h3 {
+    font-size: clamp(2rem, 1.5rem + 1.5vw, 3rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+
   /* Text and decoration use separate roles in mixed-purpose components. */
   .cv-item .counter-list > li::before,
   .cv-item .timeline__marker {
@@ -104,6 +130,7 @@
 
   .cv-item__intro > [data-accordion-primary-copy] {
     display: block !important;
+    max-inline-size: 64rem;
     margin-block-start: var(--space-2xs, 0.75rem);
   }
 
@@ -164,15 +191,16 @@
     position: static !important;
     inset: auto !important;
     min-inline-size: 0;
+    max-inline-size: 72ch;
     margin: 0;
     padding: 0;
     background: transparent !important;
     opacity: 1 !important;
     visibility: visible !important;
     font-family: var(--font-primary);
-    font-size: clamp(0.75rem, 0.8cqi + 0.5rem, 0.9375rem);
+    font-size: clamp(1rem, 0.9375rem + 0.2cqi, 1.0625rem);
     font-weight: var(--font-weight-regular);
-    line-height: 1.4;
+    line-height: 1.45;
     color: var(--item-text);
   }
 }
