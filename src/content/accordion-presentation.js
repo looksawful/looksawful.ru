@@ -108,9 +108,72 @@ function movePrimaryCopy(scene) {
   return copy;
 }
 
+function prepareJesteiFilterCopy(scene) {
+  if (getProjectName(scene) !== "Jestei Pool") return;
+
+  const section = scene.querySelector(".cv-story--workflow-pile");
+  const copy = section?.querySelector(":scope > .cv-story__copy");
+  const list = copy?.querySelector(":scope > .counter-list");
+
+  if (!(copy instanceof HTMLElement) || !(list instanceof HTMLElement)) return;
+
+  copy.dataset.accordionPersistentCopy = "";
+
+  const title = copy.querySelector(":scope > h3");
+  if (title instanceof HTMLElement) {
+    title.textContent = "Мы полностью переработали архитектуру фильтра треков.";
+    show(title);
+  }
+
+  let intro = copy.querySelector(":scope > [data-jestei-filter-intro]");
+  if (!(intro instanceof HTMLElement)) {
+    intro = document.createElement("p");
+    intro.dataset.jesteiFilterIntro = "";
+    list.before(intro);
+  }
+
+  intro.textContent =
+    "Мы провели исследование и переработали его по принципу прогрессивной вложенности: вместо одной модалки со всеми параметрами сразу мы создали в системе фильтрации два пользовательских режима:";
+  show(intro);
+
+  const items = [...list.children];
+  const modes = [
+    {
+      title: "Компактный фильтр",
+      text: "Предлагает основные параметры, которые диджеи используют при каждом поиске.",
+    },
+    {
+      title: "Продвинутый фильтр",
+      text: "Позволяет настроить поиск точнее, фильтруя все существующие в системе параметры. Такой фильтр подходит селекционерам, которые точно знают, что они ищут.",
+    },
+  ];
+
+  modes.forEach((mode, index) => {
+    const item = items[index];
+    if (!(item instanceof HTMLElement)) return;
+
+    const itemTitle = item.querySelector("h3, h4");
+    const itemText = item.querySelector("p");
+
+    if (itemTitle instanceof HTMLElement) itemTitle.textContent = mode.title;
+    if (itemText instanceof HTMLElement) itemText.textContent = mode.text;
+    show(item);
+  });
+
+  items.slice(modes.length).forEach(hide);
+  show(list);
+  show(copy);
+  show(section);
+}
+
 function hideSecondaryEditorialContent(scene, primaryCopy) {
   scene.querySelectorAll(EDITORIAL_COPY_SELECTOR).forEach((copy) => {
-    if (copy !== primaryCopy) hide(copy);
+    if (
+      copy !== primaryCopy &&
+      !copy.hasAttribute("data-accordion-persistent-copy")
+    ) {
+      hide(copy);
+    }
   });
 
   scene.querySelectorAll(".principle, .brief").forEach(hide);
@@ -342,6 +405,7 @@ function applyMediaCaptions(scope, signal, observedSliders) {
 function prepareScene(scene) {
   revealSceneIdentity(scene);
   const primaryCopy = movePrimaryCopy(scene);
+  prepareJesteiFilterCopy(scene);
   hideSecondaryEditorialContent(scene, primaryCopy);
   hideJesteiNavigation(scene);
 }
