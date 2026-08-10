@@ -25,46 +25,26 @@ function toFiniteNumber(value, fallback = 0) {
 }
 
 function isInHeaderWindow(index, activeIndex, count, visibleHeaderCount) {
-  if (activeIndex < 0 || activeIndex >= count) {
-    return false;
-  }
-
+  if (activeIndex < 0 || activeIndex >= count) return false;
   const end = Math.min(count, activeIndex + visibleHeaderCount);
   return index >= activeIndex && index < end;
 }
 
-function createCompactHeaderPresences({
-  count,
-  previousIndex,
-  nextIndex,
-  transition,
-  visibleHeaderCount,
-}) {
-  return Array.from({ length: count }, (_, index) => {
-    const previousPresence = isInHeaderWindow(
-      index,
-      previousIndex,
-      count,
-      visibleHeaderCount,
-    )
-      ? 1
-      : 0;
-
-    if (previousIndex === nextIndex) {
-      return previousPresence;
-    }
-
-    const nextPresence = isInHeaderWindow(
-      index,
-      nextIndex,
-      count,
-      visibleHeaderCount,
-    )
-      ? 1
-      : 0;
-
-    return lerp(previousPresence, nextPresence, transition);
-  });
+export function createAccordionFrameBuffer(count = 1) {
+  const safeCount = Math.max(1, Math.trunc(toFiniteNumber(count, 1)));
+  return {
+    progress: 0,
+    activeIndex: -1,
+    previousIndex: -1,
+    nextIndex: -1,
+    transition: 0,
+    headerPresences: new Float64Array(safeCount),
+    headerSizes: new Float64Array(safeCount),
+    panelHeights: new Float64Array(safeCount),
+    panelViewportSizes: new Float64Array(safeCount),
+    activities: new Float64Array(safeCount),
+    contentOffsets: new Float64Array(safeCount),
+  };
 }
 
 export function createScrollMap({
@@ -75,29 +55,22 @@ export function createScrollMap({
 } = {}) {
   const safeCount = Math.max(1, Math.trunc(toFiniteNumber(count, 1)));
   const safeBaseDistance = Math.max(1, toFiniteNumber(baseDistance, 1));
-  const safeIntroRatio = clamp(
-    toFiniteNumber(introRatio, DEFAULT_INTRO_RATIO),
-    0.001,
-    0.4,
-  );
+  const safeIntroRatio = clamp(toFiniteNumber(introRatio, DEFAULT_INTRO_RATIO), 0.001, 0.4);
   const travels = Array.from({ length: safeCount }, (_, index) =>
     Math.max(0, toFiniteNumber(contentTravels[index], 0)),
   );
-
   const milestones = Array.from({ length: safeCount }, (_, index) =>
     safeCount === 1
       ? safeIntroRatio
       : safeIntroRatio + (index / (safeCount - 1)) * (1 - safeIntroRatio),
   );
   const anchors = Array.from({ length: safeCount }, () => 0);
+  const contentSegments = Array.from({ length: safeCount }, () => null);
   const segments = [];
-
   const introDistance = safeBaseDistance * safeIntroRatio;
-  const transitionDistance =
-    safeCount > 1
-      ? (safeBaseDistance - introDistance) / (safeCount - 1)
-      : 0;
-
+  const transitionDistance = safeCount > 1
+    ? (safeBaseDistance - introDistance) / (safeCount - 1)
+    : 0;
   let cursor = 0;
 
   segments.push({
@@ -109,41 +82,23 @@ export function createScrollMap({
     start: cursor,
     end: cursor + introDistance,
   });
-
   cursor += introDistance;
   anchors[0] = cursor;
 
   if (safeCount === 1 && cursor < safeBaseDistance) {
-    segments.push({
-      type: "hold",
-      index: 0,
-      progress: milestones[0],
-      start: cursor,
-      end: safeBaseDistance,
-    });
-
+    segments.push({ type: "hold", index: 0, progress: milestones[0], start: cursor, end: safeBaseDistance });
     cursor = safeBaseDistance;
   }
 
   for (let index = 0; index < safeCount; index += 1) {
     const travel = travels[index];
-
     if (travel > 0) {
-      segments.push({
-        type: "content",
-        index,
-        progress: milestones[index],
-        start: cursor,
-        end: cursor + travel,
-      });
-
+      const segment = { type: "content", index, progress: milestones[index], start: cursor, end: cursor + travel };
+      segments.push(segment);
+      contentSegments[index] = segment;
       cursor += travel;
     }
-
-    if (index === safeCount - 1) {
-      continue;
-    }
-
+    if (index === safeCount - 1) continue;
     segments.push({
       type: "transition",
       fromIndex: index,
@@ -153,7 +108,6 @@ export function createScrollMap({
       start: cursor,
       end: cursor + transitionDistance,
     });
-
     cursor += transitionDistance;
     anchors[index + 1] = cursor;
   }
@@ -164,6 +118,7 @@ export function createScrollMap({
     milestones,
     anchors,
     segments,
+    contentSegments,
     contentTravels: travels,
     totalDistance: Math.max(1, cursor),
   };
@@ -177,120 +132,81 @@ export function computeAccordionFrame({
   compactHeaderSize,
   panelViewportSizes = [],
   visibleHeaderCount = DEFAULT_VISIBLE_HEADER_COUNT,
+  frame = null,
 } = {}) {
+  const count = Math.max(1, map?.count ?? 1);
+  const output = frame ?? createAccordionFrameBuffer(count);
   const totalDistance = Math.max(1, map?.totalDistance ?? 1);
   const safeOffset = clamp(toFiniteNumber(offset, 0), 0, totalDistance);
 
   let accordionProgress = 1;
-
   for (const segment of map?.segments ?? []) {
-    if (safeOffset > segment.end) {
-      continue;
-    }
-
+    if (safeOffset > segment.end) continue;
     const distance = Math.max(1, segment.end - segment.start);
     const localProgress = clamp((safeOffset - segment.start) / distance);
-
-    if (segment.type === "content" || segment.type === "hold") {
-      accordionProgress = segment.progress;
-    } else {
-      accordionProgress = lerp(
-        segment.fromProgress,
-        segment.toProgress,
-        localProgress,
-      );
-    }
-
+    accordionProgress = segment.type === "content" || segment.type === "hold"
+      ? segment.progress
+      : lerp(segment.fromProgress, segment.toProgress, localProgress);
     break;
   }
 
-  const count = Math.max(1, map?.count ?? 1);
   const safeListSize = Math.max(0, toFiniteNumber(listSize, 0));
-  const safeInitialHeaderSize = Math.max(
-    0,
-    toFiniteNumber(initialHeaderSize, 0),
-  );
-  const safeCompactHeaderSize = Math.max(
-    0,
-    toFiniteNumber(compactHeaderSize, 0),
-  );
-  const safeVisibleHeaderCount = Math.max(
-    1,
-    Math.trunc(
-      toFiniteNumber(visibleHeaderCount, DEFAULT_VISIBLE_HEADER_COUNT),
-    ),
-  );
+  const safeInitialHeaderSize = Math.max(0, toFiniteNumber(initialHeaderSize, 0));
+  const safeCompactHeaderSize = Math.max(0, toFiniteNumber(compactHeaderSize, 0));
+  const safeVisibleHeaderCount = Math.max(1, Math.trunc(toFiniteNumber(visibleHeaderCount, DEFAULT_VISIBLE_HEADER_COUNT)));
   const introRatio = Math.max(0.001, map?.introRatio ?? DEFAULT_INTRO_RATIO);
   const introProgress = smoothstep(accordionProgress / introRatio);
-  const cursor =
-    clamp((accordionProgress - introRatio) / Math.max(0.001, 1 - introRatio)) *
-    (count - 1);
+  const cursor = clamp((accordionProgress - introRatio) / Math.max(0.001, 1 - introRatio)) * (count - 1);
   const previousIndex = Math.floor(cursor);
   const nextIndex = Math.min(count - 1, previousIndex + 1);
   const transition = smootherstep(cursor - previousIndex);
-  const activities = Array.from({ length: count }, () => 0);
 
-  activities[previousIndex] += (1 - transition) * introProgress;
-  activities[nextIndex] += transition * introProgress;
+  output.activities.fill(0);
+  output.activities[previousIndex] += (1 - transition) * introProgress;
+  output.activities[nextIndex] += transition * introProgress;
 
-  const compactHeaderPresences = createCompactHeaderPresences({
-    count,
-    previousIndex,
-    nextIndex,
-    transition,
-    visibleHeaderCount: safeVisibleHeaderCount,
-  });
+  let occupiedHeaderSize = 0;
+  let strongestActivity = 0.001;
+  let activeIndex = -1;
 
-  const headerPresences = compactHeaderPresences.map((presence) =>
-    lerp(1, presence, introProgress),
-  );
-  const headerSizes = compactHeaderPresences.map((presence) =>
-    lerp(
-      safeInitialHeaderSize,
-      safeCompactHeaderSize * presence,
-      introProgress,
-    ),
-  );
+  for (let index = 0; index < count; index += 1) {
+    const previousPresence = isInHeaderWindow(index, previousIndex, count, safeVisibleHeaderCount) ? 1 : 0;
+    const nextPresence = isInHeaderWindow(index, nextIndex, count, safeVisibleHeaderCount) ? 1 : 0;
+    const compactPresence = previousIndex === nextIndex
+      ? previousPresence
+      : lerp(previousPresence, nextPresence, transition);
+    const headerPresence = lerp(1, compactPresence, introProgress);
+    const headerSize = lerp(safeInitialHeaderSize, safeCompactHeaderSize * compactPresence, introProgress);
+    output.headerPresences[index] = headerPresence;
+    output.headerSizes[index] = headerSize;
+    output.panelViewportSizes[index] = Math.max(0, toFiniteNumber(panelViewportSizes[index], 0));
+    occupiedHeaderSize += headerSize;
 
-  const occupiedHeaderSize = headerSizes.reduce(
-    (total, size) => total + size,
-    0,
-  );
-  const availablePanelSize = Math.max(0, safeListSize - occupiedHeaderSize);
-  const activityTotal = activities.reduce(
-    (total, activity) => total + activity,
-    0,
-  );
-  const panelHeights = activities.map((activity) =>
-    activityTotal > 0 ? availablePanelSize * (activity / activityTotal) : 0,
-  );
-
-  const normalizedPanelViewportSizes = Array.from(
-    { length: count },
-    (_, index) =>
-      Math.max(0, toFiniteNumber(panelViewportSizes[index], availablePanelSize)),
-  );
-
-  const contentOffsets = (map?.contentTravels ?? []).map((travel, index) => {
-    const segment = map.segments.find(
-      (candidate) => candidate.type === "content" && candidate.index === index,
-    );
-
-    if (!segment) {
-      return 0;
+    if (output.activities[index] > strongestActivity) {
+      strongestActivity = output.activities[index];
+      activeIndex = index;
     }
+  }
 
-    return clamp(safeOffset - segment.start, 0, travel);
-  });
+  const availablePanelSize = Math.max(0, safeListSize - occupiedHeaderSize);
+  const activityTotal = output.activities.reduce((total, activity) => total + activity, 0);
 
-  return {
-    progress: safeOffset / totalDistance,
-    activeIndex: activities.indexOf(Math.max(...activities)),
-    headerPresences,
-    headerSizes,
-    panelHeights,
-    panelViewportSizes: normalizedPanelViewportSizes,
-    activities,
-    contentOffsets,
-  };
+  for (let index = 0; index < count; index += 1) {
+    const activity = output.activities[index];
+    output.panelHeights[index] = activityTotal > 0
+      ? availablePanelSize * (activity / activityTotal)
+      : 0;
+    const travel = map?.contentTravels?.[index] ?? 0;
+    const segment = map?.contentSegments?.[index];
+    output.contentOffsets[index] = segment
+      ? clamp(safeOffset - segment.start, 0, travel)
+      : 0;
+  }
+
+  output.progress = safeOffset / totalDistance;
+  output.activeIndex = activeIndex;
+  output.previousIndex = previousIndex;
+  output.nextIndex = nextIndex;
+  output.transition = transition;
+  return output;
 }

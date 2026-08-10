@@ -76,7 +76,7 @@ function readMotionAllowed(motion) {
     : !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 }
 
-function createBeforeAfterInstance({ root, motion } = {}) {
+function createBeforeAfterInstance({ root, motion, accordionRuntime } = {}) {
   if (!(root instanceof HTMLElement)) {
     return null;
   }
@@ -107,7 +107,10 @@ function createBeforeAfterInstance({ root, motion } = {}) {
   let phase = "intro";
   let pointerIsDown = false;
   let inViewport = true;
-  let documentVisible = document.visibilityState !== "hidden";
+  let sceneActive = accordionRuntime ? false : true;
+  let documentVisible = accordionRuntime
+    ? accordionRuntime.documentVisible
+    : document.visibilityState !== "hidden";
   let motionAllowed = readMotionAllowed(motion);
 
   function canAnimate() {
@@ -115,6 +118,7 @@ function createBeforeAfterInstance({ root, motion } = {}) {
       options.autoplay &&
       motionAllowed &&
       inViewport &&
+      sceneActive &&
       documentVisible &&
       !pointerIsDown
     );
@@ -346,12 +350,8 @@ function createBeforeAfterInstance({ root, motion } = {}) {
 
   function handleVisibilityChange() {
     documentVisible = document.visibilityState !== "hidden";
-
-    if (documentVisible) {
-      start();
-    } else {
-      pause();
-    }
+    if (documentVisible && sceneActive) start();
+    else pause();
   }
 
   range.addEventListener("input", handleInput);
@@ -360,7 +360,7 @@ function createBeforeAfterInstance({ root, motion } = {}) {
   range.addEventListener("pointercancel", handlePointerUp);
   range.addEventListener("keydown", handleKeyDown);
   range.addEventListener("keyup", handleKeyUp);
-  document.addEventListener("visibilitychange", handleVisibilityChange);
+  if (!accordionRuntime) document.addEventListener("visibilitychange", handleVisibilityChange);
 
   cleanup.push(
     () => range.removeEventListener("input", handleInput),
@@ -369,7 +369,7 @@ function createBeforeAfterInstance({ root, motion } = {}) {
     () => range.removeEventListener("pointercancel", handlePointerUp),
     () => range.removeEventListener("keydown", handleKeyDown),
     () => range.removeEventListener("keyup", handleKeyUp),
-    () => document.removeEventListener("visibilitychange", handleVisibilityChange),
+    () => { if (!accordionRuntime) document.removeEventListener("visibilitychange", handleVisibilityChange); },
   );
 
   const intersectionObserver = "IntersectionObserver" in window
@@ -388,6 +388,13 @@ function createBeforeAfterInstance({ root, motion } = {}) {
     : null;
 
   intersectionObserver?.observe(root);
+
+  const unsubscribeScene = accordionRuntime?.subscribeScene?.(root, (state) => {
+    sceneActive = state.active;
+    documentVisible = state.documentVisible;
+    if (sceneActive && documentVisible) start();
+    else pause();
+  }) ?? noop;
 
   const unsubscribeMotion = typeof motion?.subscribe === "function"
     ? motion.subscribe(
@@ -428,6 +435,7 @@ function createBeforeAfterInstance({ root, motion } = {}) {
     destroyed = true;
     stop();
     unsubscribeMotion();
+    unsubscribeScene();
     intersectionObserver?.disconnect();
 
     while (cleanup.length) {
@@ -455,13 +463,13 @@ function createBeforeAfterInstance({ root, motion } = {}) {
   return api;
 }
 
-export function createBeforeAfters({ root = document, motion } = {}) {
+export function createBeforeAfters({ root = document, motion, accordionRuntime = null } = {}) {
   if (!root || typeof root.querySelectorAll !== "function") {
     return noop;
   }
 
   const instances = Array.from(root.querySelectorAll("[data-before-after]"))
-    .map((element) => createBeforeAfterInstance({ root: element, motion }))
+    .map((element) => createBeforeAfterInstance({ root: element, motion, accordionRuntime }))
     .filter(Boolean);
 
   return () => {

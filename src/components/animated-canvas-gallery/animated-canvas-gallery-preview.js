@@ -41,6 +41,7 @@ function isAccordionActive(element) {
 
 export function createAnimatedCanvasGalleryPreviews({
   root = document,
+  accordionRuntime = null,
 } = {}) {
   if (!root || typeof root.querySelectorAll !== "function") {
     return null;
@@ -92,10 +93,11 @@ export function createAnimatedCanvasGalleryPreviews({
       variant,
       accordionHeader,
       nearViewport: false,
+      sceneActive: accordionRuntime ? false : isAccordionActive(preview),
       loading: false,
       controls: null,
       visibilityObserver: null,
-      accordionObserver: null,
+      unsubscribeScene: null,
     };
 
     const ensureControls = async () => {
@@ -104,7 +106,7 @@ export function createAnimatedCanvasGalleryPreviews({
         record.loading ||
         record.controls ||
         !record.nearViewport ||
-        !isAccordionActive(preview)
+        !record.sceneActive
       ) {
         return;
       }
@@ -171,25 +173,14 @@ export function createAnimatedCanvasGalleryPreviews({
       record.nearViewport = true;
     }
 
-    record.accordionObserver =
-      accordionHeader &&
-      typeof MutationObserver === "function"
-        ? new MutationObserver(() => {
-            void ensureControls();
-          })
-        : null;
-
-    record.accordionObserver?.observe(
-      accordionHeader,
-      {
-        attributes: true,
-        attributeFilter: ["aria-expanded"],
-      },
-    );
+    record.unsubscribeScene = accordionRuntime?.subscribeScene?.(preview, ({ active }) => {
+      record.sceneActive = active;
+      void ensureControls();
+    }) ?? null;
 
     const destroy = () => {
       record.visibilityObserver?.disconnect();
-      record.accordionObserver?.disconnect();
+      record.unsubscribeScene?.();
       record.controls?.dispose();
       record.controls = null;
       controlsMount.replaceChildren();

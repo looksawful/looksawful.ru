@@ -1,27 +1,205 @@
 @layer components {
   .jestei-theme-organism {
-    --jestei-theme-bg-start: 255 255 255;
-    --jestei-theme-bg-end: 215 215 215;
-    --jestei-theme-glow: 245 245 245;
-    --jestei-theme-ink: 0 0 0;
-    --jestei-theme-border: 0 0 0;
-    --jestei-swatch-1: 0 0 0;
-    --jestei-swatch-2: 60 60 60;
-    --jestei-swatch-3: 150 150 150;
-    --jestei-swatch-4: 228 228 228;
+    --jestei-theme-progress-percent: 0%;
+    --jestei-neutral-rgb: 0 0 0;
+    --jestei-neutral-bg-start: rgb(247 247 247);
+    --jestei-neutral-bg-end: rgb(199 199 199);
+    --jestei-neutral-glow: rgb(254 254 254);
+    --jestei-neutral-ink: rgb(26 26 26);
+    --jestei-neutral-swatch-1: rgb(0 0 0);
+    --jestei-neutral-swatch-2: rgb(60 60 60);
+    --jestei-neutral-swatch-3: rgb(150 150 150);
+    --jestei-neutral-swatch-4: rgb(228 228 228);
+    --jestei-basic-rgb: 240 128 0;
+    --jestei-basic-bg-start: rgb(251 248 244);
+    --jestei-basic-bg-end: rgb(237 201 161);
+    --jestei-basic-glow: rgb(254 254 253);
+    --jestei-basic-ink: rgb(48 27 3);
+    --jestei-basic-swatch-1: rgb(240 128 0);
+    --jestei-basic-swatch-2: rgb(129 71 5);
+    --jestei-basic-swatch-3: rgb(234 165 86);
+    --jestei-basic-swatch-4: rgb(211 176 135);
+    --jestei-event-rgb: 208 226 50;
+    --jestei-event-bg-start: rgb(249 250 245);
+    --jestei-event-bg-end: rgb(222 228 170);
+    --jestei-event-glow: rgb(254 254 253);
+    --jestei-event-ink: rgb(39 42 9);
+    --jestei-event-swatch-1: rgb(208 226 50);
+    --jestei-event-swatch-2: rgb(120 131 24);
+    --jestei-event-swatch-3: rgb(215 224 135);
+    --jestei-event-swatch-4: rgb(205 210 162);
+    --jestei-pro-rgb: 20 122 255;
+    --jestei-pro-bg-start: rgb(244 247 251);
+    --jestei-pro-bg-end: rgb(161 194 237);
+    --jestei-pro-glow: rgb(253 254 254);
+    --jestei-pro-ink: rgb(3 23 48);
+    --jestei-pro-swatch-1: rgb(20 122 255);
+    --jestei-pro-swatch-2: rgb(6 68 148);
+    --jestei-pro-swatch-3: rgb(120 171 238);
+    --jestei-pro-swatch-4: rgb(154 181 218);
+    --jestei-feature-rgb: 177 159 233;
+    --jestei-feature-bg-start: rgb(246 245 249);
+    --jestei-feature-bg-end: rgb(187 175 223);
+    --jestei-feature-glow: rgb(254 253 254);
+    --jestei-feature-ink: rgb(29 18 63);
+    --jestei-feature-swatch-1: rgb(177 159 233);
+    --jestei-feature-swatch-2: rgb(77 46 173);
+    --jestei-feature-swatch-3: rgb(166 149 219);
+    --jestei-feature-swatch-4: rgb(224 220 236);
+    --jestei-theme-bg-start: color-mix(in srgb, var(--jestei-from-bg-start) calc(100% - var(--jestei-theme-progress-percent)), var(--jestei-to-bg-start) var(--jestei-theme-progress-percent));
+    --jestei-theme-bg-end: color-mix(in srgb, var(--jestei-from-bg-end) calc(100% - var(--jestei-theme-progress-percent)), var(--jestei-to-bg-end) var(--jestei-theme-progress-percent));
+    --jestei-theme-glow: color-mix(in srgb, var(--jestei-from-glow) calc(100% - var(--jestei-theme-progress-percent)), var(--jestei-to-glow) var(--jestei-theme-progress-percent));
+    --jestei-theme-ink: color-mix(in srgb, var(--jestei-from-ink) calc(100% - var(--jestei-theme-progress-percent)), var(--jestei-to-ink) var(--jestei-theme-progress-percent));
+    --jestei-theme-border: var(--jestei-theme-ink);
+    --jestei-swatch-1: color-mix(in srgb, var(--jestei-from-swatch-1) calc(100% - var(--jestei-theme-progress-percent)), var(--jestei-to-swatch-1) var(--jestei-theme-progress-percent));
+    --jestei-swatch-2: color-mix(in srgb, var(--jestei-from-swatch-2) calc(100% - var(--jestei-theme-progress-percent)), var(--jestei-to-swatch-2) var(--jestei-theme-progress-percent));
+    --jestei-swatch-3: color-mix(in srgb, var(--jestei-from-swatch-3) calc(100% - var(--jestei-theme-progress-percent)), var(--jestei-to-swatch-3) var(--jestei-theme-progress-percent));
+    --jestei-swatch-4: color-mix(in srgb, var(--jestei-from-swatch-4) calc(100% - var(--jestei-theme-progress-percent)), var(--jestei-to-swatch-4) var(--jestei-theme-progress-percent));
 
     display: grid;
     place-items: start center;
     inline-size: 100%;
     min-inline-size: 0;
     padding-block: var(--jestei-theme-organism-padding-block, 1rem);
-    color: rgb(var(--jestei-theme-ink));
+    color: var(--jestei-theme-ink);
     background-color: transparent;
     font-family: var(--font-primary);
     color-scheme: light;
     container-name: jestei-theme-organism;
     container-type: inline-size;
   }
+
+  .jestei-theme-organism[data-theme-from="neutral"] {
+    --jestei-from-bg-start: var(--jestei-neutral-bg-start);
+    --jestei-from-bg-end: var(--jestei-neutral-bg-end);
+    --jestei-from-glow: var(--jestei-neutral-glow);
+    --jestei-from-ink: var(--jestei-neutral-ink);
+    --jestei-from-swatch-1: var(--jestei-neutral-swatch-1);
+    --jestei-from-swatch-2: var(--jestei-neutral-swatch-2);
+    --jestei-from-swatch-3: var(--jestei-neutral-swatch-3);
+    --jestei-from-swatch-4: var(--jestei-neutral-swatch-4);
+  }
+
+  .jestei-theme-organism[data-theme-to="neutral"] {
+    --jestei-to-bg-start: var(--jestei-neutral-bg-start);
+    --jestei-to-bg-end: var(--jestei-neutral-bg-end);
+    --jestei-to-glow: var(--jestei-neutral-glow);
+    --jestei-to-ink: var(--jestei-neutral-ink);
+    --jestei-to-swatch-1: var(--jestei-neutral-swatch-1);
+    --jestei-to-swatch-2: var(--jestei-neutral-swatch-2);
+    --jestei-to-swatch-3: var(--jestei-neutral-swatch-3);
+    --jestei-to-swatch-4: var(--jestei-neutral-swatch-4);
+  }
+
+  .jestei-theme-organism[data-theme-active="neutral"] .jestei-theme-organism__badge[data-theme-chip="neutral"] { color: #fff; background: rgb(var(--jestei-neutral-rgb)); border-color: rgb(var(--jestei-neutral-rgb)); }
+
+  .jestei-theme-organism[data-theme-active="neutral"] .jestei-theme-organism__palette-set[data-theme-palette="neutral"] { display: contents; }
+
+  .jestei-theme-organism[data-theme-from="basic"] {
+    --jestei-from-bg-start: var(--jestei-basic-bg-start);
+    --jestei-from-bg-end: var(--jestei-basic-bg-end);
+    --jestei-from-glow: var(--jestei-basic-glow);
+    --jestei-from-ink: var(--jestei-basic-ink);
+    --jestei-from-swatch-1: var(--jestei-basic-swatch-1);
+    --jestei-from-swatch-2: var(--jestei-basic-swatch-2);
+    --jestei-from-swatch-3: var(--jestei-basic-swatch-3);
+    --jestei-from-swatch-4: var(--jestei-basic-swatch-4);
+  }
+
+  .jestei-theme-organism[data-theme-to="basic"] {
+    --jestei-to-bg-start: var(--jestei-basic-bg-start);
+    --jestei-to-bg-end: var(--jestei-basic-bg-end);
+    --jestei-to-glow: var(--jestei-basic-glow);
+    --jestei-to-ink: var(--jestei-basic-ink);
+    --jestei-to-swatch-1: var(--jestei-basic-swatch-1);
+    --jestei-to-swatch-2: var(--jestei-basic-swatch-2);
+    --jestei-to-swatch-3: var(--jestei-basic-swatch-3);
+    --jestei-to-swatch-4: var(--jestei-basic-swatch-4);
+  }
+
+  .jestei-theme-organism[data-theme-active="basic"] .jestei-theme-organism__badge[data-theme-chip="basic"] { color: #fff; background: rgb(var(--jestei-basic-rgb)); border-color: rgb(var(--jestei-basic-rgb)); }
+
+  .jestei-theme-organism[data-theme-active="basic"] .jestei-theme-organism__palette-set[data-theme-palette="basic"] { display: contents; }
+
+  .jestei-theme-organism[data-theme-from="event"] {
+    --jestei-from-bg-start: var(--jestei-event-bg-start);
+    --jestei-from-bg-end: var(--jestei-event-bg-end);
+    --jestei-from-glow: var(--jestei-event-glow);
+    --jestei-from-ink: var(--jestei-event-ink);
+    --jestei-from-swatch-1: var(--jestei-event-swatch-1);
+    --jestei-from-swatch-2: var(--jestei-event-swatch-2);
+    --jestei-from-swatch-3: var(--jestei-event-swatch-3);
+    --jestei-from-swatch-4: var(--jestei-event-swatch-4);
+  }
+
+  .jestei-theme-organism[data-theme-to="event"] {
+    --jestei-to-bg-start: var(--jestei-event-bg-start);
+    --jestei-to-bg-end: var(--jestei-event-bg-end);
+    --jestei-to-glow: var(--jestei-event-glow);
+    --jestei-to-ink: var(--jestei-event-ink);
+    --jestei-to-swatch-1: var(--jestei-event-swatch-1);
+    --jestei-to-swatch-2: var(--jestei-event-swatch-2);
+    --jestei-to-swatch-3: var(--jestei-event-swatch-3);
+    --jestei-to-swatch-4: var(--jestei-event-swatch-4);
+  }
+
+  .jestei-theme-organism[data-theme-active="event"] .jestei-theme-organism__badge[data-theme-chip="event"] { color: #000; background: rgb(var(--jestei-event-rgb)); border-color: rgb(var(--jestei-event-rgb)); }
+
+  .jestei-theme-organism[data-theme-active="event"] .jestei-theme-organism__palette-set[data-theme-palette="event"] { display: contents; }
+
+  .jestei-theme-organism[data-theme-from="pro"] {
+    --jestei-from-bg-start: var(--jestei-pro-bg-start);
+    --jestei-from-bg-end: var(--jestei-pro-bg-end);
+    --jestei-from-glow: var(--jestei-pro-glow);
+    --jestei-from-ink: var(--jestei-pro-ink);
+    --jestei-from-swatch-1: var(--jestei-pro-swatch-1);
+    --jestei-from-swatch-2: var(--jestei-pro-swatch-2);
+    --jestei-from-swatch-3: var(--jestei-pro-swatch-3);
+    --jestei-from-swatch-4: var(--jestei-pro-swatch-4);
+  }
+
+  .jestei-theme-organism[data-theme-to="pro"] {
+    --jestei-to-bg-start: var(--jestei-pro-bg-start);
+    --jestei-to-bg-end: var(--jestei-pro-bg-end);
+    --jestei-to-glow: var(--jestei-pro-glow);
+    --jestei-to-ink: var(--jestei-pro-ink);
+    --jestei-to-swatch-1: var(--jestei-pro-swatch-1);
+    --jestei-to-swatch-2: var(--jestei-pro-swatch-2);
+    --jestei-to-swatch-3: var(--jestei-pro-swatch-3);
+    --jestei-to-swatch-4: var(--jestei-pro-swatch-4);
+  }
+
+  .jestei-theme-organism[data-theme-active="pro"] .jestei-theme-organism__badge[data-theme-chip="pro"] { color: #fff; background: rgb(var(--jestei-pro-rgb)); border-color: rgb(var(--jestei-pro-rgb)); }
+
+  .jestei-theme-organism[data-theme-active="pro"] .jestei-theme-organism__palette-set[data-theme-palette="pro"] { display: contents; }
+
+  .jestei-theme-organism[data-theme-from="feature"] {
+    --jestei-from-bg-start: var(--jestei-feature-bg-start);
+    --jestei-from-bg-end: var(--jestei-feature-bg-end);
+    --jestei-from-glow: var(--jestei-feature-glow);
+    --jestei-from-ink: var(--jestei-feature-ink);
+    --jestei-from-swatch-1: var(--jestei-feature-swatch-1);
+    --jestei-from-swatch-2: var(--jestei-feature-swatch-2);
+    --jestei-from-swatch-3: var(--jestei-feature-swatch-3);
+    --jestei-from-swatch-4: var(--jestei-feature-swatch-4);
+  }
+
+  .jestei-theme-organism[data-theme-to="feature"] {
+    --jestei-to-bg-start: var(--jestei-feature-bg-start);
+    --jestei-to-bg-end: var(--jestei-feature-bg-end);
+    --jestei-to-glow: var(--jestei-feature-glow);
+    --jestei-to-ink: var(--jestei-feature-ink);
+    --jestei-to-swatch-1: var(--jestei-feature-swatch-1);
+    --jestei-to-swatch-2: var(--jestei-feature-swatch-2);
+    --jestei-to-swatch-3: var(--jestei-feature-swatch-3);
+    --jestei-to-swatch-4: var(--jestei-feature-swatch-4);
+  }
+
+  .jestei-theme-organism[data-theme-active="feature"] .jestei-theme-organism__badge[data-theme-chip="feature"] { color: #000; background: rgb(var(--jestei-feature-rgb)); border-color: rgb(var(--jestei-feature-rgb)); }
+
+  .jestei-theme-organism[data-theme-active="feature"] .jestei-theme-organism__palette-set[data-theme-palette="feature"] { display: contents; }
+
+  .jestei-theme-organism__palette-set { display: none; }
 
   .jestei-theme-organism,
   .jestei-theme-organism *,
@@ -198,12 +376,12 @@
     min-inline-size: 0;
     min-block-size: 1.625rem;
     padding-inline: 0.5rem;
-    color: rgb(var(--jestei-theme-ink));
+    color: var(--jestei-theme-ink);
     font-size: 0.6875rem;
     line-height: 1;
     white-space: nowrap;
     background: transparent;
-    border: 1px solid rgb(var(--jestei-theme-border));
+    border: 1px solid var(--jestei-theme-border);
     border-radius: 100vw;
   }
 
@@ -351,8 +529,8 @@
   }
 
   .jestei-theme-organism__palette-swatch {
-    background: rgb(var(--jestei-swatch));
-    border-color: rgb(var(--jestei-theme-border));
+    background: var(--jestei-swatch);
+    border-color: var(--jestei-theme-border);
   }
 
   .jestei-theme-organism__palette-copy {
@@ -387,13 +565,13 @@
       background-image:
         radial-gradient(
           circle at 20% 15%,
-          rgb(var(--jestei-theme-glow) / 0.18),
+          color-mix(in srgb, var(--jestei-theme-glow) 18%, transparent),
           transparent 42%
         ),
         linear-gradient(
           145deg,
-          rgb(var(--jestei-theme-bg-start) / 0),
-          rgb(var(--jestei-theme-bg-end) / 0.72)
+          transparent,
+          color-mix(in srgb, var(--jestei-theme-bg-end) 72%, transparent)
         );
     }
 
@@ -511,7 +689,7 @@
       max-inline-size: none;
       block-size: 100%;
       padding: 0;
-      color: rgb(var(--jestei-theme-ink));
+      color: var(--jestei-theme-ink);
       background: transparent;
       border: 0;
     }
@@ -600,7 +778,7 @@
       )
       .jestei-theme-organism__card-copy
       h2 {
-      color: rgb(var(--jestei-theme-ink));
+      color: var(--jestei-theme-ink);
     }
 
     @container jestei-theme-organism (inline-size >= 30rem) {

@@ -1,10 +1,9 @@
 import {
   JESTEI_THEME_CSS_PROPERTIES,
-  JESTEI_THEME_DEFINITIONS,
   JESTEI_THEME_DRACO_PATH,
   JESTEI_THEME_MODEL_URL,
+  JESTEI_THEME_NAMES,
   JESTEI_THEME_SETTINGS,
-  createJesteiThemeOrganismMarkup,
 } from "./jestei-theme-organism-data.js";
 import {
   FRAGMENT_SHADER,
@@ -101,7 +100,7 @@ function readElements(root) {
     ),
   );
 
-  if (sourceThemeCards.length !== JESTEI_THEME_DEFINITIONS.length) {
+  if (sourceThemeCards.length !== JESTEI_THEME_NAMES.length) {
     throw new Error("Jestei theme organism cards do not match theme data.");
   }
 
@@ -111,13 +110,6 @@ function readElements(root) {
     themeTrack,
     themeTrackViewport,
     themeCopyShell,
-    paletteNameNodes: Array.from(root.querySelectorAll("[data-color-name]")),
-    paletteHexNodes: Array.from(root.querySelectorAll("[data-color-hex]")),
-    themeChipNodes: Array.from(
-      root.querySelectorAll(
-        ".jestei-theme-organism__chips [data-theme-chip]",
-      ),
-    ),
     sourceThemeCards,
   };
 }
@@ -237,12 +229,18 @@ function createTrackController(elements) {
   };
 }
 
-function colorToRgbChannels(color) {
-  return [
-    Math.round(color.r * 255),
-    Math.round(color.g * 255),
-    Math.round(color.b * 255),
-  ].join(" ");
+function readThemeColors(root, THREE) {
+  const styles = getComputedStyle(root);
+  return Object.fromEntries(
+    JESTEI_THEME_NAMES.map((name) => {
+      const channels = styles.getPropertyValue(`--jestei-${name}-rgb`).trim();
+      const values = channels.split(/\s+/).map(Number);
+      const color = values.length === 3 && values.every(Number.isFinite)
+        ? new THREE.Color(values[0] / 255, values[1] / 255, values[2] / 255)
+        : new THREE.Color("#000000");
+      return [name, color];
+    }),
+  );
 }
 
 function smoothThemeProgress(progress, THREE) {
@@ -250,139 +248,52 @@ function smoothThemeProgress(progress, THREE) {
   return 1 - Math.pow(1 - accelerated, 3);
 }
 
-function createThemeController(root, elements, track, THREE) {
-  const themeColors = JESTEI_THEME_DEFINITIONS.map((theme) => ({
-    name: theme.name,
-    color: new THREE.Color(theme.color),
-  }));
-  const themeColor = new THREE.Color();
-  const themeFrom = new THREE.Color();
-  const themeTo = new THREE.Color();
-  const backgroundStart = new THREE.Color();
-  const backgroundEnd = new THREE.Color();
-  const glow = new THREE.Color();
-  const ink = new THREE.Color();
-  const paletteColors = [
-    new THREE.Color(),
-    new THREE.Color(),
-    new THREE.Color(),
-    new THREE.Color(),
-  ];
-  const hsl = { h: 0, s: 0, l: 0 };
-
+function createThemeController(root, track, THREE) {
   let activeName = "";
-
-  function createPalette(baseColor) {
-    baseColor.getHSL(hsl);
-
-    paletteColors[0].copy(baseColor);
-    paletteColors[1].setHSL(
-      hsl.h,
-      Math.min(1, hsl.s * 0.92),
-      Math.max(0.12, hsl.l * 0.56),
-    );
-    paletteColors[2].setHSL(
-      hsl.h,
-      Math.min(1, hsl.s * 0.78),
-      Math.min(0.72, hsl.l * 1.08 + 0.12),
-    );
-    paletteColors[3].setHSL(
-      hsl.h,
-      Math.min(1, hsl.s * 0.46),
-      Math.min(0.94, hsl.l * 0.72 + 0.34),
-    );
-
-    if (baseColor.getHex() === 0x000000) {
-      paletteColors[0].set("#000000");
-      paletteColors[1].set("#3C3C3C");
-      paletteColors[2].set("#969696");
-      paletteColors[3].set("#E4E4E4");
-    }
-  }
-
-  function updateActiveContent(nextActiveName) {
-    if (nextActiveName === activeName) return;
-    activeName = nextActiveName;
-
-    elements.themeChipNodes.forEach((chip) => {
-      chip.dataset.active = String(chip.dataset.themeChip === activeName);
-    });
-
-    const activeCard = track.themeCardsByName.get(activeName);
-    if (!(activeCard instanceof HTMLElement)) return;
-
-    const sourceTokenNames = activeCard.querySelectorAll(
-      ".jestei-theme-organism__token-name",
-    );
-    const sourceTokenValues = activeCard.querySelectorAll(
-      ".jestei-theme-organism__token-value",
-    );
-
-    elements.paletteNameNodes.forEach((node, index) => {
-      const name = sourceTokenNames[index]?.textContent;
-      const value = sourceTokenValues[index]?.textContent;
-
-      if (name) node.textContent = name;
-      if (value && elements.paletteHexNodes[index]) {
-        elements.paletteHexNodes[index].textContent = value;
-      }
-    });
-  }
+  let fromName = "";
+  let toName = "";
+  let appliedProgress = "";
 
   function update(fromIndex, toIndex, progress) {
     const easedProgress = smoothThemeProgress(progress, THREE);
-    themeFrom.copy(themeColors[fromIndex].color);
-    themeTo.copy(themeColors[toIndex].color);
-    themeColor.lerpColors(themeFrom, themeTo, easedProgress);
-    createPalette(themeColor);
-    themeColor.getHSL(hsl);
+    const nextFrom = JESTEI_THEME_NAMES[fromIndex];
+    const nextTo = JESTEI_THEME_NAMES[toIndex];
+    const nextActive = easedProgress < 0.5 ? nextFrom : nextTo;
+    const nextProgress = `${(easedProgress * 100).toFixed(3)}%`;
 
-    backgroundStart.setHSL(hsl.h, Math.min(1, hsl.s * 0.42), 0.97);
-    backgroundEnd.setHSL(hsl.h, Math.min(1, hsl.s * 0.68), 0.78);
-    glow.setHSL(hsl.h, Math.min(1, hsl.s * 0.34), 0.995);
-    ink.setHSL(
-      hsl.h,
-      Math.min(1, hsl.s * 0.88),
-      hsl.l > 0.56 ? 0.16 : 0.1,
-    );
+    if (fromName !== nextFrom) {
+      fromName = nextFrom;
+      root.dataset.themeFrom = nextFrom;
+    }
+    if (toName !== nextTo) {
+      toName = nextTo;
+      root.dataset.themeTo = nextTo;
+    }
+    if (activeName !== nextActive) {
+      activeName = nextActive;
+      root.dataset.themeActive = nextActive;
+    }
+    if (appliedProgress !== nextProgress) {
+      appliedProgress = nextProgress;
+      root.style.setProperty(JESTEI_THEME_CSS_PROPERTIES.progress, nextProgress);
+    }
 
-    root.style.setProperty(
-      JESTEI_THEME_CSS_PROPERTIES.backgroundStart,
-      colorToRgbChannels(backgroundStart),
-    );
-    root.style.setProperty(
-      JESTEI_THEME_CSS_PROPERTIES.backgroundEnd,
-      colorToRgbChannels(backgroundEnd),
-    );
-    root.style.setProperty(
-      JESTEI_THEME_CSS_PROPERTIES.glow,
-      colorToRgbChannels(glow),
-    );
-    root.style.setProperty(
-      JESTEI_THEME_CSS_PROPERTIES.ink,
-      colorToRgbChannels(ink),
-    );
-    root.style.setProperty(
-      JESTEI_THEME_CSS_PROPERTIES.border,
-      colorToRgbChannels(ink),
-    );
-
-    paletteColors.forEach((color, index) => {
-      root.style.setProperty(
-        JESTEI_THEME_CSS_PROPERTIES.swatches[index],
-        colorToRgbChannels(color),
-      );
-    });
-
-    updateActiveContent(
-      easedProgress < 0.5
-        ? themeColors[fromIndex].name
-        : themeColors[toIndex].name,
-    );
     track.update(fromIndex, toIndex, easedProgress, THREE);
   }
 
-  return { update };
+  function reset() {
+    activeName = "";
+    fromName = "";
+    toName = "";
+    appliedProgress = "";
+    root.dataset.themeFrom = "neutral";
+    root.dataset.themeTo = "neutral";
+    root.dataset.themeActive = "neutral";
+    root.style.setProperty(JESTEI_THEME_CSS_PROPERTIES.progress, "0%");
+  }
+
+  reset();
+  return { update, reset };
 }
 
 async function loadNormalizedModel({ THREE, GLTFLoader, DRACOLoader }) {
@@ -616,12 +527,7 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
       localBounds.max.y,
       localCenter.z,
     );
-    const colors = Object.fromEntries(
-      JESTEI_THEME_DEFINITIONS.map((theme) => [
-        theme.name,
-        new THREE.Color(theme.color),
-      ]),
-    );
+    const colors = readThemeColors(root, THREE);
     const uniforms = {
       uIntroMode: { value: 1 },
       uIntroRaw: { value: 0 },
@@ -668,7 +574,7 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
     });
     spinner.add(model);
 
-    const themeController = createThemeController(root, elements, track, THREE);
+    const themeController = createThemeController(root, track, THREE);
 
     function resize() {
       if (disposed) return false;
@@ -716,16 +622,16 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
       const colorCycleProgress =
         (loopElapsed % JESTEI_THEME_SETTINGS.passDuration) /
         JESTEI_THEME_SETTINGS.passDuration;
-      const themePhase = colorCycleIndex % JESTEI_THEME_DEFINITIONS.length;
+      const themePhase = colorCycleIndex % JESTEI_THEME_NAMES.length;
 
       themeController.update(
         themePhase,
-        (themePhase + 1) % JESTEI_THEME_DEFINITIONS.length,
+        (themePhase + 1) % JESTEI_THEME_NAMES.length,
         colorCycleProgress,
       );
       uniforms.uCycleTime.value =
         (colorCycleIndex + colorCycleProgress) %
-        JESTEI_THEME_DEFINITIONS.length;
+        JESTEI_THEME_NAMES.length;
       updateCycleRotation(colorCycleIndex, colorCycleProgress);
     }
 
@@ -756,6 +662,8 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
 
       track.ensureLoopClone();
       renderCurrentFrame();
+      resizeObserver?.observe(elements.canvas);
+      trackResizeObserver?.observe(track.viewport);
       running = true;
       previousTime = 0;
       animationFrameId = requestAnimationFrame(render);
@@ -768,6 +676,8 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
       cancelAnimationFrame(animationFrameId);
       animationFrameId = 0;
       previousTime = 0;
+      resizeObserver?.disconnect();
+      trackResizeObserver?.disconnect();
     }
 
     function refresh() {
@@ -823,9 +733,6 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
     renderer.compile(scene, camera);
     renderer.render(scene, camera);
 
-    resizeObserver?.observe(elements.canvas);
-    trackResizeObserver?.observe(track.viewport);
-
     return Object.freeze({ resume, pause, refresh, dispose });
   } catch (error) {
     resizeObserver?.disconnect();
@@ -850,12 +757,10 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
 
 function createFallbackMotionPreference() {
   const media = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-
   return {
     allowsMotion: () => (media ? !media.matches : false),
     subscribe(listener, { immediate = true } = {}) {
       if (!media || typeof listener !== "function") return noop;
-
       const handleChange = () => listener({ allowed: !media.matches });
       media.addEventListener("change", handleChange);
       if (immediate) handleChange();
@@ -864,33 +769,26 @@ function createFallbackMotionPreference() {
   };
 }
 
-export function createJesteiThemeOrganism({ root, motion } = {}) {
+export function createJesteiThemeOrganism({ root, motion, accordionRuntime = null } = {}) {
   if (!(root instanceof HTMLElement)) return null;
 
   root[ORGANISM_DESTROY]?.();
   root.classList.add("jestei-theme-organism");
+  root.dataset.themeFrom ||= "neutral";
+  root.dataset.themeTo ||= "neutral";
+  root.dataset.themeActive ||= "neutral";
+  root.style.setProperty(JESTEI_THEME_CSS_PROPERTIES.progress, "0%");
 
   const motionPreference = motion ?? createFallbackMotionPreference();
-  let motionAllowed =
-    typeof motionPreference.allowsMotion === "function"
-      ? motionPreference.allowsMotion()
-      : false;
-
-  const initialState = motionAllowed ? "loading" : "static";
-  root.dataset.motionPreference = motionAllowed ? "allow" : "reduce";
-  root.dataset.motionState = initialState;
-
-  // Generated markup is replaced on every mount. An older asynchronous mount
-  // may still finish after destroy(); keeping its canvas would let two WebGL
-  // lifecycles contend for the same context during BFCache or HMR remounts.
-  root.innerHTML = createJesteiThemeOrganismMarkup({ initialState });
+  let motionAllowed = typeof motionPreference.allowsMotion === "function"
+    ? motionPreference.allowsMotion()
+    : false;
 
   const elements = readElements(root);
   const track = createTrackController(elements);
-  const accordionItem = root.closest(".cv-item");
-  const accordionHeader = accordionItem?.querySelector(".cv-item__header");
   const abortController = new AbortController();
   const signal = abortController.signal;
+  const sceneIndex = accordionRuntime?.indexForElement?.(root) ?? -1;
 
   let activeExperience = null;
   let experiencePromise = null;
@@ -902,12 +800,17 @@ export function createJesteiThemeOrganism({ root, motion } = {}) {
   let destroyed = false;
   let externallyPaused = false;
   let visible = !("IntersectionObserver" in window);
+  let sceneActive = accordionRuntime ? false : true;
+  let documentVisible = accordionRuntime
+    ? accordionRuntime.documentVisible
+    : document.visibilityState !== "hidden";
+  let prepareRequested = false;
 
   function setPresentationState(state, errorCode = "") {
+    root.dataset.motionPreference = motionAllowed ? "allow" : "reduce";
     root.dataset.motionState = state;
     elements.organism.dataset.motionState = state;
     elements.organism.setAttribute("aria-busy", String(state === "loading"));
-
     if (state === "error") {
       root.dataset.motionFallback = "true";
       root.dataset.motionError = errorCode || "initialization-failed";
@@ -915,33 +818,16 @@ export function createJesteiThemeOrganism({ root, motion } = {}) {
       delete root.dataset.motionFallback;
       delete root.dataset.motionError;
     }
-
-    if (state === "static" || state === "error") {
-      track.reset();
-    }
-  }
-
-  function isAccordionItemOpen() {
-    return (
-      !(accordionHeader instanceof HTMLElement) ||
-      accordionHeader.getAttribute("aria-expanded") === "true"
-    );
+    if (state === "static" || state === "error") track.reset();
   }
 
   function shouldPrepare() {
-    return !destroyed && motionAllowed && root.isConnected;
+    return !destroyed && motionAllowed && root.isConnected && (prepareRequested || sceneActive);
   }
 
   function shouldRun() {
-    return (
-      !destroyed &&
-      motionAllowed &&
-      visible &&
-      isAccordionItemOpen() &&
-      !externallyPaused &&
-      document.visibilityState !== "hidden" &&
-      root.isConnected
-    );
+    return !destroyed && motionAllowed && visible && sceneActive && documentVisible &&
+      !externallyPaused && root.isConnected;
   }
 
   function cancelRetry() {
@@ -950,13 +836,9 @@ export function createJesteiThemeOrganism({ root, motion } = {}) {
     retryTimer = 0;
   }
 
-  function markCanvasForReset() {
-    canvasNeedsReset = true;
-  }
-
+  function markCanvasForReset() { canvasNeedsReset = true; }
   function ensureFreshCanvas() {
     if (!canvasNeedsReset) return;
-
     replaceCanvasElement(elements);
     canvasNeedsReset = false;
   }
@@ -965,10 +847,7 @@ export function createJesteiThemeOrganism({ root, motion } = {}) {
     const experience = activeExperience;
     activeExperience = null;
     experience?.dispose();
-
-    if (resetCanvas && experience) {
-      markCanvasForReset();
-    }
+    if (resetCanvas && experience) markCanvasForReset();
   }
 
   function lockFallback(error) {
@@ -981,99 +860,59 @@ export function createJesteiThemeOrganism({ root, motion } = {}) {
     console.warn("Animated theme organism will retry once.", error);
     setPresentationState("loading");
     cancelRetry();
-
     retryTimer = window.setTimeout(() => {
       retryTimer = 0;
-      if (!destroyed && motionAllowed && !failureLocked) {
-        void ensureExperience();
-      }
+      if (!destroyed && motionAllowed && !failureLocked) void ensureExperience();
     }, RETRY_DELAY_MS);
   }
 
   function handleExperienceFailure(error) {
     if (destroyed || !motionAllowed) return;
-
     generation += 1;
     disposeActiveExperience({ resetCanvas: true });
     markCanvasForReset();
     prepareAttempts += 1;
-
-    if (prepareAttempts < MAX_PREPARE_ATTEMPTS) {
-      scheduleRetry(error);
-    } else {
-      lockFallback(error);
-    }
+    if (prepareAttempts < MAX_PREPARE_ATTEMPTS) scheduleRetry(error);
+    else lockFallback(error);
   }
 
   async function ensureExperience() {
-    if (
-      activeExperience ||
-      experiencePromise ||
-      retryTimer ||
-      failureLocked ||
-      !shouldPrepare()
-    ) {
-      return;
-    }
-
+    if (activeExperience || experiencePromise || retryTimer || failureLocked || !shouldPrepare()) return;
     ensureFreshCanvas();
-
     const currentGeneration = generation;
     const promise = createAnimatedExperience(root, elements, track, {
-      onFatalError(error) {
-        queueMicrotask(() => handleExperienceFailure(error));
-      },
+      onFatalError(error) { queueMicrotask(() => handleExperienceFailure(error)); },
     });
-
     experiencePromise = promise;
     setPresentationState("loading");
-
     try {
       const nextExperience = await promise;
-
       if (destroyed || currentGeneration !== generation || !motionAllowed) {
         nextExperience.dispose();
         markCanvasForReset();
         return;
       }
-
       activeExperience = nextExperience;
       prepareAttempts = 0;
       failureLocked = false;
       setPresentationState("animated");
-
       if (shouldRun()) activeExperience.resume();
       else activeExperience.pause();
     } catch (error) {
-      if (!destroyed) {
-        markCanvasForReset();
-      }
-
+      if (!destroyed) markCanvasForReset();
       if (destroyed || currentGeneration !== generation) return;
-
       prepareAttempts += 1;
-
-      if (prepareAttempts < MAX_PREPARE_ATTEMPTS) {
-        scheduleRetry(error);
-      } else {
-        lockFallback(error);
-      }
+      if (prepareAttempts < MAX_PREPARE_ATTEMPTS) scheduleRetry(error);
+      else lockFallback(error);
     } finally {
-      if (experiencePromise === promise) {
-        experiencePromise = null;
-      }
-
-      if (!destroyed) {
-        queueMicrotask(reconcile);
-      }
+      if (experiencePromise === promise) experiencePromise = null;
+      if (!destroyed) queueMicrotask(reconcile);
     }
   }
 
   function reconcile() {
     if (destroyed) return;
-
     root.dataset.motionPreference = motionAllowed ? "allow" : "reduce";
-
     if (!motionAllowed) {
       generation += 1;
       cancelRetry();
@@ -1083,100 +922,84 @@ export function createJesteiThemeOrganism({ root, motion } = {}) {
       setPresentationState("static");
       return;
     }
-
-    // Warm imports and the model immediately. There is only one inline
-    // organism, so delaying preparation until visibility creates more UX cost
-    // than it saves. The loader preserves the final geometry while this runs.
-    void preloadJesteiThemeOrganismAssets().catch(noop);
-
     if (failureLocked) {
       disposeActiveExperience();
       setPresentationState("error", "webgl-initialization-failed");
       return;
     }
-
     if (activeExperience) {
       setPresentationState("animated");
-
       if (shouldRun()) activeExperience.resume();
       else activeExperience.pause();
-
       return;
     }
-
     setPresentationState("loading");
-
-    if (shouldPrepare()) {
-      void ensureExperience();
-    }
+    if (shouldPrepare()) void ensureExperience();
   }
 
-  const accordionObserver =
-    accordionHeader instanceof HTMLElement
-      ? new MutationObserver(reconcile)
-      : null;
-  const runObserver =
-    "IntersectionObserver" in window
-      ? new IntersectionObserver(
-          (entries) => {
-            visible = entries.some(
-              (entry) => entry.target === root && entry.isIntersecting,
-            );
-            reconcile();
-          },
-          { rootMargin: RUN_ROOT_MARGIN, threshold: 0.01 },
-        )
-      : null;
-
-  const unsubscribeMotion =
-    typeof motionPreference.subscribe === "function"
-      ? motionPreference.subscribe(
-          ({ allowed } = {}) => {
-            motionAllowed = allowed === true;
-            reconcile();
-          },
-          { immediate: false },
-        )
-      : noop;
-
-  document.addEventListener("visibilitychange", reconcile, { signal });
-  accordionObserver?.observe(accordionHeader, {
-    attributes: true,
-    attributeFilter: ["aria-expanded"],
-  });
+  const runObserver = "IntersectionObserver" in window
+    ? new IntersectionObserver((entries) => {
+        visible = entries.some((entry) => entry.target === root && entry.isIntersecting);
+        reconcile();
+      }, { rootMargin: RUN_ROOT_MARGIN, threshold: 0.01 })
+    : null;
   runObserver?.observe(root);
 
-  // Exactly one initial reconciliation. The old code also received an
-  // immediate motion callback and could start two concurrent WebGL mounts.
+  const unsubscribeScene = accordionRuntime?.subscribeScene?.(sceneIndex, (state) => {
+    sceneActive = state.active;
+    documentVisible = state.documentVisible;
+    if (sceneActive) prepareRequested = true;
+    reconcile();
+  }, { immediate: true }) ?? noop;
+
+  const unsubscribePrepare = accordionRuntime?.subscribePrepare?.(sceneIndex, () => {
+    prepareRequested = true;
+    reconcile();
+  }) ?? noop;
+
+  let fallbackVisibilityHandler = null;
+  if (!accordionRuntime) {
+    fallbackVisibilityHandler = () => {
+      documentVisible = document.visibilityState !== "hidden";
+      reconcile();
+    };
+    document.addEventListener("visibilitychange", fallbackVisibilityHandler, { signal });
+  }
+
+  const unsubscribeMotion = typeof motionPreference.subscribe === "function"
+    ? motionPreference.subscribe(({ allowed } = {}) => {
+        motionAllowed = allowed === true;
+        reconcile();
+      }, { immediate: false })
+    : noop;
+
+  setPresentationState(motionAllowed ? "loading" : "static");
   reconcile();
 
   const api = Object.freeze({
-    refresh() {
-      activeExperience?.refresh();
-    },
+    refresh() { activeExperience?.refresh(); },
     preload() {
-      if (motionAllowed && !failureLocked) {
-        void preloadJesteiThemeOrganismAssets().catch(noop);
-        reconcile();
-      }
+      if (!motionAllowed || failureLocked) return Promise.resolve();
+      return preloadJesteiThemeOrganismAssets().catch((error) => {
+        console.warn("Jestei preload failed.", error);
+      });
     },
-    pause() {
-      externallyPaused = true;
+    prepare() {
+      if (!motionAllowed || failureLocked) return;
+      prepareRequested = true;
       reconcile();
     },
-    resume() {
-      externallyPaused = false;
-      reconcile();
-    },
+    pause() { externallyPaused = true; reconcile(); },
+    resume() { externallyPaused = false; reconcile(); },
     destroy() {
       if (destroyed) return;
-
       destroyed = true;
       generation += 1;
       cancelRetry();
       abortController.abort();
       unsubscribeMotion();
-      accordionObserver?.disconnect();
+      unsubscribeScene();
+      unsubscribePrepare();
       runObserver?.disconnect();
       experiencePromise = null;
       disposeActiveExperience();
@@ -1191,32 +1014,24 @@ export function createJesteiThemeOrganism({ root, motion } = {}) {
   return api;
 }
 
-export function createJesteiThemeOrganisms({ root = document, motion } = {}) {
+export function createJesteiThemeOrganisms({
+  root = document,
+  motion,
+  accordionRuntime = null,
+} = {}) {
   if (!root || typeof root.querySelectorAll !== "function") return null;
-
   const instances = Array.from(
-    root.querySelectorAll(
-      '[data-jestei-theme-organism][data-jestei-theme-instance="inline"]',
-    ),
+    root.querySelectorAll('[data-jestei-theme-organism][data-jestei-theme-instance="inline"]'),
   )
-    .map((element) => createJesteiThemeOrganism({ root: element, motion }))
+    .map((element) => createJesteiThemeOrganism({ root: element, motion, accordionRuntime }))
     .filter(Boolean);
 
   return Object.freeze({
-    refresh() {
-      instances.forEach((instance) => instance.refresh());
-    },
-    preload() {
-      instances.forEach((instance) => instance.preload());
-    },
-    pause() {
-      instances.forEach((instance) => instance.pause());
-    },
-    resume() {
-      instances.forEach((instance) => instance.resume());
-    },
-    destroy() {
-      instances.splice(0).reverse().forEach((instance) => instance.destroy());
-    },
+    refresh() { instances.forEach((instance) => instance.refresh()); },
+    preload() { return Promise.all(instances.map((instance) => instance.preload())); },
+    prepare() { instances.forEach((instance) => instance.prepare()); },
+    pause() { instances.forEach((instance) => instance.pause()); },
+    resume() { instances.forEach((instance) => instance.resume()); },
+    destroy() { instances.splice(0).reverse().forEach((instance) => instance.destroy()); },
   });
 }

@@ -25,7 +25,7 @@ import "./components/content-blocks/content-blocks.css";
 import "./content/accordion-presentation.css";
 
 import "./components/playlist-filter-workflow/playlist-filter-workflow.js";
-import "./components/awful-tools-preview/awful-tools-preview.js";
+import { setAwfulToolsAccordionRuntime } from "./components/awful-tools-preview/awful-tools-preview.js";
 
 import { createDigitalScrollGalleries } from "./components/digital-scroll-gallery/digital-scroll-gallery.js";
 import { createCvAccordion } from "./components/cv-accordion/cv-accordion.js";
@@ -49,7 +49,7 @@ let destroyBeforeAfters = null;
 let destroyMediaMarquees = null;
 let destroyInfiniteReels = null;
 let destroyDigitalScrollGalleries = null;
-let destroyCvAccordion = null;
+let cvAccordion = null;
 let destroyAnimatedCanvasGalleryPreviews = null;
 let destroyAnimatedCanvasGalleries = null;
 let destroyJesteiThemeOrganisms = null;
@@ -57,6 +57,7 @@ let destroyAccordionPresentation = null;
 let domReadyHandler = null;
 
 function unmount() {
+  setAwfulToolsAccordionRuntime(null, document);
   destroyAccordionPresentation?.();
   destroyAccordionPresentation = null;
 
@@ -68,8 +69,8 @@ function unmount() {
 
   // Destroy the accordion before the organism. The accordion stops mutating
   // aria-expanded first; then the organism can disconnect its own observers.
-  destroyCvAccordion?.();
-  destroyCvAccordion = null;
+  cvAccordion?.destroy?.();
+  cvAccordion = null;
 
   destroyJesteiThemeOrganisms?.destroy?.();
   destroyJesteiThemeOrganisms = null;
@@ -108,10 +109,7 @@ function mount() {
     root: document,
     motion: motionPreference,
   });
-  destroyBeforeAfters = createBeforeAfters({
-    root: document,
-    motion: motionPreference,
-  });
+  destroyBeforeAfters = null;
   destroyMediaMarquees = createMediaMarquees({
     root: document,
     motion: motionPreference,
@@ -120,30 +118,51 @@ function mount() {
     root: document,
     motion: motionPreference,
   });
-  destroyDigitalScrollGalleries = createDigitalScrollGalleries({
+  // Mounted after the accordion so scroll-driven components subscribe directly.
+  destroyDigitalScrollGalleries = null;
+
+  cvAccordion = createCvAccordion({
     root: document,
+    motion: motionPreference,
+  });
+  const accordionRuntime = cvAccordion?.runtime ?? null;
+
+  setAwfulToolsAccordionRuntime(accordionRuntime, document);
+
+  destroyBeforeAfters = createBeforeAfters({
+    root: document,
+    motion: motionPreference,
+    accordionRuntime,
   });
 
-  /*
-   * The organism must inject its final loading geometry before the accordion
-   * performs its first synchronous measurement. Previously the accordion was
-   * mounted first and measured an empty data-jestei-theme-organism container.
-   */
+  destroyDigitalScrollGalleries = createDigitalScrollGalleries({
+    root: document,
+    accordionRuntime,
+  });
+
   destroyJesteiThemeOrganisms = createJesteiThemeOrganisms({
     root: document,
     motion: motionPreference,
-  });
-
-  destroyCvAccordion = createCvAccordion({
-    root: document,
-    motion: motionPreference,
+    accordionRuntime,
   });
 
   destroyAnimatedCanvasGalleryPreviews =
-    createAnimatedCanvasGalleryPreviews({ root: document });
+    createAnimatedCanvasGalleryPreviews({ root: document, accordionRuntime });
   destroyAnimatedCanvasGalleries = createAnimatedCanvasGalleries({
     root: document,
     sources: ANIMATED_CANVAS_GALLERY_SOURCES,
+    accordionRuntime,
+  });
+
+  // Network warm-up starts only after the first painted frame. The renderer is
+  // prepared while the user is still above Jestei, then remains paused until
+  // the scene runtime marks Jestei active.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      void destroyJesteiThemeOrganisms?.preload?.().then(() =>
+        destroyJesteiThemeOrganisms?.prepare?.(),
+      );
+    });
   });
 }
 

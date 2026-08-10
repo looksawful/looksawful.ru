@@ -2,6 +2,7 @@ const TAG_NAME = "awful-tool-preview";
 const INSTANCE = Symbol.for("looksawful.awfulToolPreview.instance");
 
 const noop = () => {};
+let accordionRuntime = null;
 
 const emptyRuntime = Object.freeze({
   setActive: noop,
@@ -90,54 +91,67 @@ function isAccordionItemOpen(root) {
   );
 }
 
-function createPreviewActivation(root, onChange) {
-  const item = root.closest(".cv-item");
-  const header = item?.querySelector(".cv-item__header");
-  const mutationObserver =
-    header instanceof HTMLElement ? new MutationObserver(reconcile) : null;
-  const intersectionObserver =
-    "IntersectionObserver" in window
-      ? new IntersectionObserver(
-          (entries) => {
-            visible = entries.some(
-              (entry) => entry.target === root && entry.isIntersecting,
-            );
-            reconcile();
-          },
-          { rootMargin: "120px 0px", threshold: 0.01 },
-        )
-      : null;
+function createPreviewActivation(root, onChange, runtime = accordionRuntime) {
+  const intersectionObserver = "IntersectionObserver" in window
+    ? new IntersectionObserver(
+        (entries) => {
+          visible = entries.some((entry) => entry.target === root && entry.isIntersecting);
+          reconcile();
+        },
+        { rootMargin: "120px 0px", threshold: 0.01 },
+      )
+    : null;
 
   let visible = !intersectionObserver;
+  let sceneActive = runtime ? false : isAccordionItemOpen(root);
+  let documentVisible = runtime
+    ? runtime.documentVisible
+    : document.visibilityState !== "hidden";
   let active = null;
 
   function reconcile() {
-    const nextActive =
-      visible &&
-      isAccordionItemOpen(root) &&
-      document.visibilityState !== "hidden" &&
-      root.isConnected;
-
-    if (nextActive === active) {
-      return;
-    }
-
+    const nextActive = visible && sceneActive && documentVisible && root.isConnected;
+    if (nextActive === active) return;
     active = nextActive;
     onChange(active);
   }
 
-  mutationObserver?.observe(header, {
-    attributes: true,
-    attributeFilter: ["aria-expanded"],
-  });
   intersectionObserver?.observe(root);
-  document.addEventListener("visibilitychange", reconcile);
+  const unsubscribeScene = runtime?.subscribeScene?.(root, (state) => {
+    sceneActive = state.active;
+    documentVisible = state.documentVisible;
+    reconcile();
+  }) ?? noop;
+
+  let mutationObserver = null;
+  let handleVisibilityChange = null;
+  if (!runtime) {
+    const item = root.closest(".cv-item");
+    const header = item?.querySelector(".cv-item__header");
+    mutationObserver = header instanceof HTMLElement ? new MutationObserver(() => {
+      sceneActive = isAccordionItemOpen(root);
+      reconcile();
+    }) : null;
+    mutationObserver?.observe(header, {
+      attributes: true,
+      attributeFilter: ["aria-expanded"],
+    });
+    handleVisibilityChange = () => {
+      documentVisible = document.visibilityState !== "hidden";
+      reconcile();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+  }
+
   reconcile();
 
   return () => {
     mutationObserver?.disconnect();
     intersectionObserver?.disconnect();
-    document.removeEventListener("visibilitychange", reconcile);
+    unsubscribeScene();
+    if (handleVisibilityChange) {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    }
     onChange(false);
   };
 }
@@ -686,7 +700,7 @@ function enhanceBerserkTimer(root) {
   };
 }
 
-function enhanceAwfulToolPreview(root) {
+function enhanceAwfulToolPreview(root, runtime = accordionRuntime) {
   const project = root.getAttribute("project") || root.dataset.awfulTool || "";
   const cleanups = [enhanceCopyButtons(root, project)];
   const activeRuntimes = [];
@@ -702,8 +716,8 @@ function enhanceAwfulToolPreview(root) {
   if (activeRuntimes.length > 0) {
     cleanups.push(
       createPreviewActivation(root, (active) => {
-        activeRuntimes.forEach((runtime) => runtime.setActive(active));
-      }),
+        activeRuntimes.forEach((itemRuntime) => itemRuntime.setActive(active));
+      }, runtime),
     );
     cleanups.push(() => {
       activeRuntimes.splice(0).reverse().forEach((runtime) => runtime.destroy());
@@ -723,7 +737,7 @@ function enhanceAwfulToolPreview(root) {
 class AwfulToolPreview extends HTMLElement {
   connectedCallback() {
     this[INSTANCE]?.destroy();
-    this[INSTANCE] = enhanceAwfulToolPreview(this);
+    this[INSTANCE] = enhanceAwfulToolPreview(this, accordionRuntime);
   }
 
   disconnectedCallback() {
@@ -734,6 +748,15 @@ class AwfulToolPreview extends HTMLElement {
 
 if (!customElements.get(TAG_NAME)) {
   customElements.define(TAG_NAME, AwfulToolPreview);
+}
+
+export function setAwfulToolsAccordionRuntime(runtime, root = document) {
+  accordionRuntime = runtime ?? null;
+  root.querySelectorAll?.("awful-tool-preview").forEach((element) => {
+    if (!(element instanceof AwfulToolPreview) || !element.isConnected) return;
+    element[INSTANCE]?.destroy();
+    element[INSTANCE] = enhanceAwfulToolPreview(element, accordionRuntime);
+  });
 }
 
 export { AwfulToolPreview };

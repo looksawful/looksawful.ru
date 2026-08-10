@@ -155,74 +155,58 @@ function isAccordionActive(element) {
   return header.getAttribute("aria-expanded") === "true";
 }
 
-function createActivityController(element, component) {
+function createActivityController(element, component, accordionRuntime) {
   let visible = false;
+  let sceneActive = accordionRuntime ? false : isAccordionActive(element);
+  let documentVisible = accordionRuntime
+    ? accordionRuntime.documentVisible
+    : document.visibilityState !== "hidden";
   let disposed = false;
 
-  const accordionHeader = getAccordionHeader(element);
-
   const sync = () => {
-    if (disposed) {
-      return;
-    }
-
-    const active =
-      visible &&
-      !document.hidden &&
-      isAccordionActive(element);
-
-    if (active) {
-      component.resume?.();
-    } else {
-      component.suspend?.();
-    }
-
+    if (disposed) return;
+    const active = visible && sceneActive && documentVisible;
+    if (active) component.resume?.();
+    else component.suspend?.();
     element.dataset.galleryActive = String(active);
   };
 
-  const visibilityObserver =
-    typeof IntersectionObserver === "function"
-      ? new IntersectionObserver(
-          ([entry]) => {
-            visible = Boolean(entry?.isIntersecting);
-            sync();
-          },
-          {
-            rootMargin: "20% 0px 20%",
-            threshold: 0.01,
-          },
-        )
-      : null;
-
-  const accordionObserver =
-    accordionHeader && typeof MutationObserver === "function"
-      ? new MutationObserver(sync)
-      : null;
+  const visibilityObserver = typeof IntersectionObserver === "function"
+    ? new IntersectionObserver(([entry]) => {
+        visible = Boolean(entry?.isIntersecting);
+        sync();
+      }, { rootMargin: "20% 0px 20%", threshold: 0.01 })
+    : null;
 
   visibilityObserver?.observe(element);
+  if (!visibilityObserver) visible = true;
 
-  if (!visibilityObserver) {
-    visible = true;
+  const unsubscribeScene = accordionRuntime?.subscribeScene?.(element, (state) => {
+    sceneActive = state.active;
+    documentVisible = state.documentVisible;
+    sync();
+  }) ?? (() => {});
+
+  let handleVisibilityChange = null;
+  if (!accordionRuntime) {
+    handleVisibilityChange = () => {
+      documentVisible = document.visibilityState !== "hidden";
+      sceneActive = isAccordionActive(element);
+      sync();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
   }
-
-  accordionObserver?.observe(accordionHeader, {
-    attributes: true,
-    attributeFilter: ["aria-expanded"],
-  });
-
-  document.addEventListener("visibilitychange", sync);
 
   sync();
 
   return () => {
-    if (disposed) {
-      return;
-    }
-
+    if (disposed) return;
     disposed = true;
     visibilityObserver?.disconnect();
-    accordionObserver?.disconnect();
-    document.removeEventListener("visibilitychange", sync);
+    unsubscribeScene();
+    if (handleVisibilityChange) {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    }
   };
 }
 
@@ -230,6 +214,7 @@ export async function mountAnimatedCanvasGallery(
   element,
   {
     sources = {},
+    accordionRuntime = null,
   } = {},
 ) {
   if (!(element instanceof HTMLElement)) {
@@ -310,6 +295,7 @@ export async function mountAnimatedCanvasGallery(
     destroyActivity = createActivityController(
       element,
       component,
+      accordionRuntime,
     );
 
     element.dataset.galleryState = "ready";
@@ -348,6 +334,7 @@ export async function mountAnimatedCanvasGallery(
 export function createAnimatedCanvasGalleries({
   root = document,
   sources = {},
+  accordionRuntime = null,
 } = {}) {
   if (!root || typeof root.querySelectorAll !== "function") {
     return null;
@@ -366,10 +353,11 @@ export function createAnimatedCanvasGalleries({
       element,
       accordionHeader,
       nearViewport: false,
+      sceneActive: accordionRuntime ? false : isAccordionActive(element),
       mounting: false,
       cleanup: null,
       visibilityObserver: null,
-      accordionObserver: null,
+      unsubscribeScene: null,
     };
 
     const tryMount = async () => {
@@ -378,7 +366,7 @@ export function createAnimatedCanvasGalleries({
         record.mounting ||
         record.cleanup ||
         !record.nearViewport ||
-        !isAccordionActive(element)
+        !record.sceneActive
       ) {
         return;
       }
@@ -390,6 +378,7 @@ export function createAnimatedCanvasGalleries({
           element,
           {
             sources,
+            accordionRuntime,
           },
         );
 
@@ -428,21 +417,10 @@ export function createAnimatedCanvasGalleries({
       record.nearViewport = true;
     }
 
-    record.accordionObserver =
-      accordionHeader &&
-      typeof MutationObserver === "function"
-        ? new MutationObserver(() => {
-            void tryMount();
-          })
-        : null;
-
-    record.accordionObserver?.observe(
-      accordionHeader,
-      {
-        attributes: true,
-        attributeFilter: ["aria-expanded"],
-      },
-    );
+    record.unsubscribeScene = accordionRuntime?.subscribeScene?.(element, ({ active }) => {
+      record.sceneActive = active;
+      void tryMount();
+    }) ?? null;
 
     void tryMount();
 
@@ -458,7 +436,7 @@ export function createAnimatedCanvasGalleries({
 
     for (const record of records) {
       record.visibilityObserver?.disconnect();
-      record.accordionObserver?.disconnect();
+      record.unsubscribeScene?.();
       record.cleanup?.();
       record.cleanup = null;
     }
