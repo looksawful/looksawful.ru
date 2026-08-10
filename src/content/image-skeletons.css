@@ -1,0 +1,89 @@
+@layer motion {
+  .cv-item {
+    --image-skeleton-background: color-mix(
+      in srgb,
+      var(--item-body-bg, var(--item-bg)) 94%,
+      var(--item-ink) 6%
+    );
+    --image-skeleton-layer: color-mix(
+      in srgb,
+      var(--item-body-bg, var(--item-bg)) 89%,
+      var(--item-ink) 11%
+    );
+  }
+
+  .cv-item [data-image-skeleton] {
+    position: relative;
+    overflow: hidden;
+    background: var(--image-skeleton-background);
+  }
+
+  .cv-item [data-image-skeleton]::before {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    background: var(--image-skeleton-layer);
+    pointer-events: none;
+    content: "";
+    animation: image-skeleton 3.6s ease-in-out infinite;
+    will-change: transform, transform-origin, opacity;
+  }
+
+  @keyframes image-skeleton {
+    0% {
+      opacity: 0.2;
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+
+    20% {
+      opacity: 0.75;
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    28% {
+      transform: scaleX(1);
+      transform-origin: right;
+    }
+
+    51% {
+      transform: scaleX(0);
+      transform-origin: right;
+    }
+
+    58% {
+      transform: scaleX(0);
+      transform-origin: right;
+    }
+
+    82% {
+      opacity: 0.75;
+      transform: scaleX(1);
+      transform-origin: right;
+    }
+
+    83% {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    96% {
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+
+    100% {
+      opacity: 0.2;
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cv-item [data-image-skeleton]::before {
+      display: none;
+      animation: none;
+    }
+  }
+}
