@@ -2943,21 +2943,6 @@
       "outputHash": "21bfe06de2c8976eb81e96c178b24f9642b71018af7965f7556f9a9c8b5921a8"
     },
     {
-      "id": "sensetique-02-02",
-      "project": "sensetique",
-      "container": "02",
-      "position": "02",
-      "type": "image",
-      "src": "./media/projects/sensetique/02/source/02-3x4.webp",
-      "width": 960,
-      "height": 1280,
-      "ratio": "3x4",
-      "sourceOriginal": "./MEDIA-TEMP/sensetique/studio/ (17).webp",
-      "sourcePath": "A:\\Users\\awful\\Documents\\CODE\\looksawful.ru\\MEDIA-TEMP\\sensetique\\studio\\ (17).webp",
-      "sourceHash": "170b81a3d555adbb42fb96a58b87328fa5f820675c67bca777c79fde29f9ef4d",
-      "outputHash": "3831e5ee73fda60df1cb374318499df8e210af1d04553cc73e55ba475c668352"
-    },
-    {
       "id": "sensetique-02-03",
       "project": "sensetique",
       "container": "02",
@@ -3046,21 +3031,6 @@
       "sourcePath": "A:\\Users\\awful\\Documents\\CODE\\looksawful.ru\\MEDIA-TEMP\\sensetique\\studio\\ (21).webp",
       "sourceHash": "c65097b65b5197c06d84a0fd5283ff0ba84154e4cae9defc87bc819451b0a375",
       "outputHash": "a98e0d4cdf102028ffea47d174a3541b9941e951228137ffb07dad01b6ba8c85"
-    },
-    {
-      "id": "sensetique-04-01",
-      "project": "sensetique",
-      "container": "04",
-      "position": "01",
-      "type": "image",
-      "src": "./media/projects/sensetique/04/source/01-16x9.webp",
-      "width": 1280,
-      "height": 719,
-      "ratio": "16x9",
-      "sourceOriginal": "./MEDIA-TEMP/sensetique/production/ (43).webp",
-      "sourcePath": "A:\\Users\\awful\\Documents\\CODE\\looksawful.ru\\MEDIA-TEMP\\sensetique\\production\\ (43).webp",
-      "sourceHash": "84195cc80e8d5cb925ec7d83f0a126cad6f78aa37d614babef22eb40854257af",
-      "outputHash": "3eb5f7169943cad63e742d9214cfa77a23fba8e1e55ad7a25bd2a8b60c0fdcb9"
     },
     {
       "id": "sensetique-04-02",
@@ -3361,21 +3331,6 @@
       "sourcePath": "A:\\Users\\awful\\Documents\\CODE\\looksawful.ru\\MEDIA-TEMP\\sensetique\\production\\ (30).webp",
       "sourceHash": "d418daf6f3b22f472a927c4a4e14d451a9de7fa5b567e209a4de04413f811839",
       "outputHash": "3301095a75e84d028bbc1089b28d11bc634d3dfea0a78c39157a18d3f7aa2bc4"
-    },
-    {
-      "id": "sensetique-06-01",
-      "project": "sensetique",
-      "container": "06",
-      "position": "01",
-      "type": "image",
-      "src": "./media/projects/sensetique/06/source/01-16x9.webp",
-      "width": 1280,
-      "height": 719,
-      "ratio": "16x9",
-      "sourceOriginal": "./MEDIA-TEMP/sensetique/production/ (43).webp",
-      "sourcePath": "A:\\Users\\awful\\Documents\\CODE\\looksawful.ru\\MEDIA-TEMP\\sensetique\\production\\ (43).webp",
-      "sourceHash": "84195cc80e8d5cb925ec7d83f0a126cad6f78aa37d614babef22eb40854257af",
-      "outputHash": "3eb5f7169943cad63e742d9214cfa77a23fba8e1e55ad7a25bd2a8b60c0fdcb9"
     },
     {
       "id": "sensetique-07-01",
