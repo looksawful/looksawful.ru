@@ -1,0 +1,60 @@
+observer_block = '''    trackResizeObserver =\n      typeof ResizeObserver === "function"\n        ? new ResizeObserver(track.resize)\n        : null;\n\n'''
+if observer_block not in text:
+    raise RuntimeError('jestei track observer block not found')
+text = text.replace(observer_block, '', 1)
+path.write_text(text, encoding='utf-8')
+
+# 6. Insert one static neutral clone in every Jestei theme track in index.html.
+path = ROOT / 'index.html'
+html = path.read_text(encoding='utf-8')
+
+def matching_tag_end(source, open_start, tag):
+    token = re.compile(rf'<{tag}\b[^>]*>|</{tag}>', re.I)
+    depth = 0
+    for match in token.finditer(source, open_start):
+      if match.group(0).lower().startswith(f'</{tag}'):
+        depth -= 1
+        if depth == 0:
+          return match.start(), match.end()
+      else:
+        depth += 1
+    raise RuntimeError(f'unclosed <{tag}> at {open_start}')
+
+track_pattern = re.compile(r'<div\b(?=[^>]*\bdata-theme-track(?:="")?)[^>]*>', re.I)
+starts = [m.start() for m in track_pattern.finditer(html)]
+insertions = []
+for start_pos in starts:
+    close_start, _ = matching_tag_end(html, start_pos, 'div')
+    block = html[start_pos:close_start]
+    if 'data-loop-clone' in block:
+        continue
+    card_match = re.search(
+        r'<(?P<tag>article|div)\b(?=[^>]*class="[^"]*jestei-theme-organism__card[^"]*")(?=[^>]*data-theme="neutral")[^>]*>',
+        block,
+        re.I,
+    )
+    if not card_match:
+        raise RuntimeError('neutral Jestei card not found in theme track')
+    card_start = start_pos + card_match.start()
+    tag = card_match.group('tag').lower()
+    _, card_end = matching_tag_end(html, card_start, tag)
+    card = html[card_start:card_end]
+    opening_end = card.find('>')
+    clone = card[:opening_end] + ' data-loop-clone="" aria-hidden="true"' + card[opening_end:]
+    insertions.append((close_start, clone))
+
+if not starts:
+    raise RuntimeError('no Jestei theme tracks found in index.html')
+if not insertions and 'data-loop-clone' not in html:
+    raise RuntimeError('no static loop clone inserted')
+for position, clone in sorted(insertions, reverse=True):
+    html = html[:position] + clone + html[position:]
+path.write_text(html, encoding='utf-8')
+
+# 7. Route first-paint preparation through accordion runtime rather than direct component call.
+path = ROOT / 'src/main.js'
+text = path.read_text(encoding='utf-8')
+text = text.replace(
+'''  // Destroy the accordion before the organism. The accordion stops mutating\n  // aria-expanded first; then the organism can disconnect its own observers.\n''',
+'''  // Stop the shared scene runtime before destroying its direct consumers.\n''')
+old = '''  // Network warm-up starts only after the first painted frame. The renderer is\n  // prepared while the user is still above Jestei, then remains paused until\n  // the scene runtime marks Jestei active.\n  requestAnimationFrame(() => {\n    requestAnimationFrame(() => {\n      void destroyJesteiThemeOrganisms?.preload?.().then(() =>\n        destroyJesteiThemeOrganisms?.prepare?.(),\n      );\n    });\n  });'''

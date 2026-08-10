@@ -1,0 +1,20 @@
+new_render = '''  function collectFrameTargets(frame) {\n    const current = new Set();\n    const introActive =\n      frame.previousIndex === 0 &&\n      frame.transition === 0 &&\n      (frame.activities[0] ?? 0) < 0.9999;\n\n    if (introActive) {\n      records.forEach((_, index) => current.add(index));\n    } else {\n      for (const base of [frame.previousIndex, frame.nextIndex]) {\n        if (!Number.isInteger(base) || base < 0) continue;\n        for (let offset = 0; offset < VISIBLE_HEADER_COUNT; offset += 1) {\n          const index = base + offset;\n          if (index >= 0 && index < records.length) current.add(index);\n        }\n      }\n      if (activeIndex >= 0) current.add(activeIndex);\n    }\n\n    const dirty = new Set([...lastFrameTargets, ...current]);\n    lastFrameTargets = current;\n    return dirty;\n  }\n\n  function renderScrollFrame(frame) {\n    const nextProgress = frame.progress.toFixed(4);\n    if (progressCache !== nextProgress) {\n      progressCache = nextProgress;\n      component.style.setProperty("--cv-progress", nextProgress);\n    }\n\n    const frameTargets = collectFrameTargets(frame);\n    for (const index of frameTargets) {\n      const record = records[index];\n      if (!record) continue;\n      const activity = frame.activities[index] ?? 0;\n      const headerPresence = frame.headerPresences[index] ?? 0;\n      const headerVisible = headerPresence > 0.01;\n      const values = [\n        ["--cv-header-height", `${frame.headerSizes[index] ?? 0}px`],\n        ["--cv-header-presence", headerPresence.toFixed(4)],\n        ["--cv-panel-height", `${frame.panelHeights[index] ?? 0}px`],\n        ["--cv-panel-viewport-height", `${frame.panelViewportSizes[index] ?? 0}px`],\n        ["--cv-open-progress", activity.toFixed(4)],\n        ["--cv-content-offset", `${frame.contentOffsets[index] ?? 0}px`],\n      ];\n      for (const [property, value] of values) setCachedStyle(record, property, value);\n      if (record.headerVisible !== headerVisible) {\n        record.headerVisible = headerVisible;\n        record.item.dataset.cvHeaderVisible = String(headerVisible);\n      }\n    }\n    runtime.publishFrame(frame, [...frameTargets]);\n  }\n'''
+text = text[:start] + new_render + text[end:]
+path.write_text(text, encoding='utf-8')
+
+# 5. Jestei: static clone contract and a single active ResizeObserver.
+path = ROOT / 'src/components/jestei-theme-organism/jestei-theme-organism.js'
+text = path.read_text(encoding='utf-8')
+text = replace_once(text,
+'''  let loopClone = null;\n  let slideWidth = 0;''',
+'''  const loopClone = themeTrack.querySelector(\n    ".jestei-theme-organism__card[data-loop-clone]",\n  );\n  let slideWidth = 0;''',
+'jestei static clone reference')
+start = text.index('  function ensureLoopClone() {')
+end = text.index('\n  function applyTrackPosition() {', start)
+replacement = '''  function ensureLoopClone() {\n    if (!(loopClone instanceof HTMLElement)) {\n      throw new Error("Jestei theme organism loop clone is missing from HTML.");\n    }\n  }\n'''
+text = text[:start] + replacement + text[end:]
+text = text.replace('    removeLoopClone();\n', '')
+text = text.replace('  let trackResizeObserver = null;\n', '')
+text = text.replace('      trackResizeObserver?.observe(track.viewport);\n', '')
+text = text.replace('      trackResizeObserver?.disconnect();\n', '')
+text = text.replace('    trackResizeObserver?.disconnect();\n', '')

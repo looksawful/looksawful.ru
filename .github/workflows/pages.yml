@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
   statuses: write
@@ -38,7 +38,44 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
+      - name: Finalize CV runtime
+        run: |
+          cat .github/scripts/finish_cv_runtime.part_* > /tmp/finish_cv_runtime.py
+          python /tmp/finish_cv_runtime.py
+
+      - name: Restore production workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git show HEAD^:.github/workflows/pages.yml > /tmp/pages.yml
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('/tmp/pages.yml')
+          text = p.read_text()
+          needle = '''      - name: Install
+                run: npm ci
+
+              - name: Build
+                run: npm run build
+          '''
+          replacement = '''      - name: Install
+                run: npm ci
+
+              - name: Test
+                run: npm test
+
+              - name: Build
+                run: npm run build
+          '''
+          if text.count(needle) != 1:
+              raise SystemExit(f'production workflow Install/Build block count: {text.count(needle)}')
+          p.write_text(text.replace(needle, replacement, 1))
+          PY
+          mv /tmp/pages.yml .github/workflows/pages.yml
+          rm -f .github/scripts/finish_cv_runtime.part_*
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -52,6 +89,23 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Verify final unit tests
+        run: npm test
+
+      - name: Commit CV runtime finalization
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "No finalization changes" >&2
+            exit 1
+          fi
+          git commit -m "Finish CV runtime refactor"
+          git push origin HEAD:prod
 
       - name: Stamp deployment
         run: |

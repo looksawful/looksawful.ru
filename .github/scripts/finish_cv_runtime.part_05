@@ -1,0 +1,23 @@
+new = '''  // Warm Three.js and the model only after the first painted frame. Renderer\n  // preparation is requested through the same scene runtime that later owns\n  // Jestei activity, so there is no second lifecycle channel.\n  const inlineJesteiRoot = document.querySelector(\n    '[data-jestei-theme-organism][data-jestei-theme-instance="inline"]',\n  );\n  requestAnimationFrame(() => {\n    requestAnimationFrame(() => {\n      void destroyJesteiThemeOrganisms?.preload?.().then(() => {\n        if (inlineJesteiRoot instanceof HTMLElement && accordionRuntime) {\n          accordionRuntime.requestPrepare(inlineJesteiRoot);\n        } else {\n          destroyJesteiThemeOrganisms?.prepare?.();\n        }\n      });\n    });\n  });'''
+text = replace_once(text, old, new, 'main Jestei scheduling')
+path.write_text(text, encoding='utf-8')
+
+# 8. Keep unit tests permanently in Pages CI.
+path = ROOT / '.github/workflows/pages.yml'
+workflow = path.read_text(encoding='utf-8')
+needle = '''      - name: Install\n        run: npm ci\n\n      - name: Build\n        run: npm run build\n'''
+replacement = '''      - name: Install\n        run: npm ci\n\n      - name: Test\n        run: npm test\n\n      - name: Build\n        run: npm run build\n'''
+workflow = replace_once(workflow, needle, replacement, 'pages test step')
+path.write_text(workflow, encoding='utf-8')
+
+# Final source invariants before the real test/build step.
+jestei = (ROOT / 'src/components/jestei-theme-organism/jestei-theme-organism.js').read_text(encoding='utf-8')
+accordion = (ROOT / 'src/components/cv-accordion/cv-accordion.js').read_text(encoding='utf-8')
+scroll = (ROOT / 'src/components/cv-accordion/cv-accordion-scroll.js').read_text(encoding='utf-8')
+assert 'trackResizeObserver' not in jestei
+assert 'new MutationObserver' not in jestei
+assert 'data-loop-clone' in (ROOT / 'index.html').read_text(encoding='utf-8')
+assert 'records.forEach((record, index) =>' not in accordion
+assert 'let observedRecordIndex = null;' in scroll
+assert 'cvaccordionframe' not in accordion
+print('CV runtime finalization patch applied')
