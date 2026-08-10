@@ -70,7 +70,7 @@
   }
 
   .cv-item__copy,
-  .cv-story__copy p {
+  .cv-story__copy > p {
     max-inline-size: 68ch;
     font-size: clamp(0.9375rem, 0.8125rem + 0.5vw, 1.125rem);
     line-height: 1.25;
@@ -80,7 +80,7 @@
     max-inline-size: 64rem;
   }
 
-  .cv-story__copy h3 {
+  .cv-story__copy > h3 {
     font-size: clamp(2rem, 1.5rem + 1.5vw, 3rem);
     line-height: 0.95;
     letter-spacing: -0.04em;
