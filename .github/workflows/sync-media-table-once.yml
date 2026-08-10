@@ -13,97 +13,24 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: prod
-          fetch-depth: 0
+          fetch-depth: 1
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
-
-      - name: Sync approved captions and removals
+      - name: Fetch current media tables
         run: |
           curl -fsSL 'https://docs.google.com/spreadsheets/d/1SV-YemgMxQ9HuDLAEFFyLSY0TZ7WuuUQYgXBvXR3-i4/export?format=csv&gid=427961252' -o /tmp/sens.csv
           curl -fsSL 'https://docs.google.com/spreadsheets/d/1SV-YemgMxQ9HuDLAEFFyLSY0TZ7WuuUQYgXBvXR3-i4/export?format=csv&gid=127838854' -o /tmp/jestei.csv
-          python3 - <<'PY'
-          import csv, json, re
-          from pathlib import Path
-
-          marked_ids = set(["sensetique-02-02","sensetique-04-01","sensetique-06-01","sensetique-process-01","sensetique-process-02","sensetique-process-03","sensetique-process-04","sensetique-08-02","sensetique-08-05","sensetique-08-06","sensetique-08-07","sensetique-08-08","sensetique-08-09","sensetique-09-01","sensetique-09-09","sensetique-09-10","sensetique-09-16","sensetique-09-21","sensetique-09-24","sensetique-09-30","sensetique-09-31","sensetique-09-32","sensetique-09-41","sensetique-09-42","sensetique-09-44","sensetique-09-48","sensetique-09-49","sensetique-09-51","sensetique-10-01","sensetique-10-03","sensetique-10-07","sensetique-10-13","sensetique-10-15","sensetique-10-17","sensetique-10-18","sensetique-10-19","sensetique-10-21","sensetique-10-22","sensetique-10-23","sensetique-10-24"])
-          candidates = ["public/media/projects/sensetique/02/source/02-3x4.webp","public/media/projects/sensetique/04/source/01-16x9.webp","public/media/projects/sensetique/06/source/01-16x9.webp","public/media/projects/sensetique/08/source/02-185x256.webp","public/media/projects/sensetique/08/source/05-4x5.webp","public/media/projects/sensetique/08/source/06-1197x631.webp","public/media/projects/sensetique/08/source/07-1400x677.webp","public/media/projects/sensetique/08/source/08-4x5.webp","public/media/projects/sensetique/08/source/09-681x1400.webp","public/media/projects/sensetique/09/source/01-2x3.webp","public/media/projects/sensetique/09/source/09-3x2.webp","public/media/projects/sensetique/09/source/10-2x3.webp","public/media/projects/sensetique/09/source/16-2x3.webp","public/media/projects/sensetique/09/source/21-375x538.webp","public/media/projects/sensetique/09/source/24-175x113.webp","public/media/projects/sensetique/09/source/30-2x3.webp","public/media/projects/sensetique/09/source/31-544x763.webp","public/media/projects/sensetique/09/source/32-4x5.webp","public/media/projects/sensetique/09/source/41-4x5.webp","public/media/projects/sensetique/09/source/42-16x9.webp","public/media/projects/sensetique/09/source/44-4x5.webp","public/media/projects/sensetique/09/source/48-175x113.webp","public/media/projects/sensetique/09/source/49-1400x911.webp","public/media/projects/sensetique/09/source/51-1400x911.webp","public/media/projects/sensetique/10/source/01-35x18.webp","public/media/projects/sensetique/10/source/03-523x548.webp","public/media/projects/sensetique/10/source/07-320x97.webp","public/media/projects/sensetique/10/source/13-2x3.webp","public/media/projects/sensetique/10/source/15-3x4.webp","public/media/projects/sensetique/10/source/17-3x4.webp","public/media/projects/sensetique/10/source/18-4x5.webp","public/media/projects/sensetique/10/source/19-3x2.webp","public/media/projects/sensetique/10/source/21-3x4.webp","public/media/projects/sensetique/10/source/22-3x2.webp","public/media/projects/sensetique/10/source/23-350x191.webp","public/media/projects/sensetique/10/source/24-35x18.webp"]
-          Path('/tmp/candidates.json').write_text(json.dumps(candidates), encoding='utf-8')
-
-          def rows(path):
-              with open(path, encoding='utf-8-sig', newline='') as f:
-                  return list(csv.DictReader(f))
-          sens, jest = rows('/tmp/sens.csv'), rows('/tmp/jestei.csv')
-          sens_caps = {r['data-media-id']:r['Подпись'] for r in sens if r.get('data-media-id') and r.get('Подпись') and r.get('Компонент / раскладка')!='media-pool' and r.get('Состояние на сайте')=='active'}
-          jest_caps = {r['data-media-id']:r['Подпись'] for r in jest if r.get('data-media-id') and r.get('Подпись') and r.get('Компонент / раскладка')!='media-pool' and r.get('Состояние на сайте')=='active'}
-          captions = {**jest_caps, **sens_caps}
-
-          cp=Path('src/content/media-captions.js'); text=cp.read_text(encoding='utf-8')
-          def ep(mid): return re.compile(rf'(?m)^\s*"{re.escape(mid)}"\s*:\s*"(?:\\.|[^"\\])*",\s*\n?')
-          for mid in sorted(marked_ids): text=ep(mid).sub('',text)
-          inserted=[]
-          for mid,cap in captions.items():
-              line=f'  {json.dumps(mid,ensure_ascii=False)}: {json.dumps(cap,ensure_ascii=False)},\n'; pat=ep(mid)
-              if pat.search(text): text=pat.sub(line,text,count=1)
-              else:
-                  at=text.rfind('});')
-                  if at<0: raise RuntimeError('MEDIA_CAPTIONS close not found')
-                  text=text[:at]+line+text[at:]; inserted.append(mid)
-          cp.write_text(text,encoding='utf-8')
-
-          ip=Path('index.html'); html=ip.read_text(encoding='utf-8')
-          before={mid:html.count(mid) for mid in marked_ids if html.count(mid)}
-          def strip(block,mid):
-              q=re.escape(mid)
-              block=re.sub(rf'<picture\b[^>]*>(?:(?!</picture>)[\s\S])*?data-media-id=["\']{q}["\'](?:(?!</picture>)[\s\S])*?</picture>','',block,flags=re.I)
-              block=re.sub(rf'<video\b(?=[^>]*data-media-id=["\']{q}["\'])[^>]*>[\s\S]*?</video>','',block,flags=re.I)
-              block=re.sub(rf'<img\b(?=[^>]*data-media-id=["\']{q}["\'])[^>]*>','',block,flags=re.I)
-              block=re.sub(rf'<figcaption\b(?=[^>]*data-media-caption-for=["\']{q}["\'])[^>]*>[\s\S]*?</figcaption>','',block,flags=re.I)
-              return block
-          fp=re.compile(r'<figure\b[^>]*>[\s\S]*?</figure>',re.I)
-          def fix(m):
-              block=m.group(0); hits=[x for x in marked_ids if x in block]
-              for x in hits: block=strip(block,x)
-              return block if not hits or re.search(r'<(?:img|video)\b',block,re.I) else ''
-          html=fp.sub(fix,html)
-          for mid in marked_ids: html=strip(html,mid)
-          for mid,cap in captions.items():
-              q=re.escape(mid); pat=re.compile(rf'(<figcaption\b(?=[^>]*data-media-caption-for=["\']{q}["\'])[^>]*>)([\s\S]*?)(</figcaption>)',re.I)
-              if pat.search(html):
-                  esc=cap.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
-                  html=pat.sub(lambda m:m.group(1)+esc+m.group(3),html)
-          remain={mid:html.count(mid) for mid in marked_ids if html.count(mid)}
-          if remain: raise RuntimeError(f'marked ids remain: {remain}')
-          ip.write_text(html,encoding='utf-8')
-
-          mp=Path('public/media/media-manifest.json'); manifest=json.loads(mp.read_text(encoding='utf-8')); old=len(manifest.get('entries',[]))
-          manifest['entries']=[e for e in manifest.get('entries',[]) if e.get('id') not in marked_ids]
-          mp.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          print(json.dumps({'marked_ids':len(marked_ids),'captions_sensetique':len(sens_caps),'captions_jestei':len(jest_caps),'inserted':inserted,'site_occurrences_before':before,'manifest_removed':old-len(manifest['entries']),'candidates':len(candidates)},ensure_ascii=False,indent=2))
-          PY
-
-      - name: Delete non-sole exact visual duplicates
-        run: |
-          cat >.sync-dedupe.mjs <<'JS'
-          import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import sharp from 'sharp';
-          const candidates=new Set(JSON.parse(fs.readFileSync('/tmp/candidates.json','utf8'))), root='public/media/projects/sensetique', exts=new Set(['.webp','.png','.jpg','.jpeg']);
-          const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>{const p=path.join(d,e.name);return e.isDirectory()?walk(p):(exts.has(path.extname(e.name).toLowerCase())?[p.replaceAll('\\','/')]:[])});
-          async function h(f){const {data,info}=await sharp(f).ensureAlpha().raw().toBuffer({resolveWithObject:true});const x=crypto.createHash('sha256');x.update(`${info.width}x${info.height}x${info.channels}:`);x.update(data);return x.digest('hex')}
-          const files=walk(root),by=new Map(),hf=new Map(); for(const f of files){const x=await h(f);hf.set(f,x);if(!by.has(x))by.set(x,[]);by.get(x).push(f)}
-          const groups=new Map(),missing=[];for(const f of candidates){if(!fs.existsSync(f)){missing.push(f);continue}const x=hf.get(f);if(!groups.has(x))groups.set(x,[]);groups.get(x).push(f)}
-          const deleted=[],sole=[],rep=[];for(const [x,cs] of groups){const peers=[...(by.get(x)||[])].sort(),outside=peers.filter(p=>!candidates.has(p));let keep;if(outside.length)keep=outside[0];else if(peers.length>1){keep=peers[0];rep.push(keep)}else{keep=peers[0]||cs[0];sole.push(keep)}for(const f of cs)if(f!==keep&&fs.existsSync(f)){fs.unlinkSync(f);deleted.push(f)}}
-          console.log(JSON.stringify({candidates:candidates.size,deleted_count:deleted.length,deleted,retained_sole_count:sole.length,retained_sole:sole,retained_representative_count:rep.length,retained_representative:rep,missing},null,2));
-          JS
-          node .sync-dedupe.mjs
-          rm -f .sync-dedupe.mjs
-
-      - name: Verify
+      - name: Apply approved removals and captions
+        run: python3 .github/scripts/sync-media-table-once.py
+      - name: Verify production build
         run: npm run build
-      - name: Commit
+      - name: Commit verified changes
         run: |
           rm -f .github/workflows/sync-media-table-once.yml
+          rm -f .github/scripts/sync-media-table-once.py
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
