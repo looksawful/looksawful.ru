@@ -14,3 +14,21 @@
   overflow: var(--stable-slot-overflow, clip);
   contain: layout paint;
 }
+
+
+/* Two-child source/visual order utility. Parent must already be grid or flex. */
+.swap-order > :first-child {
+  order: 2;
+}
+
+.swap-order > :last-child {
+  order: 1;
+}
+
+/* Opt-in split that uses the existing split columns from the mobile size up. */
+.split-always {
+  grid-template-columns: var(
+    --split-columns,
+    minmax(0, 1fr) minmax(0, 1fr)
+  );
+}

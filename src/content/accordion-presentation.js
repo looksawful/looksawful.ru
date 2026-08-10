@@ -1,5 +1,3 @@
-import { MEDIA_CAPTIONS } from "./media-captions.js";
-
 const PLACEHOLDER_PATTERN =
   /^(?:заголовок:?|короткий текст-заполнитель\.?|текст-заполнитель\.?|нумерованный список)$/i;
 
@@ -228,35 +226,6 @@ function inferredAspectRatio(figure, asset) {
   return width > 0 && height > 0 ? `${width} / ${height}` : "";
 }
 
-function ensureCaption(figure) {
-  let caption = figure.querySelector(":scope > figcaption");
-
-  if (!(caption instanceof HTMLElement)) {
-    caption = document.createElement("figcaption");
-    figure.append(caption);
-  }
-
-  caption.classList.remove("media-item__captions");
-  caption.classList.add("media-item__caption");
-  caption.removeAttribute("data-media-captions");
-  caption.dataset.mediaCaption = "";
-  caption.dataset.mediaCaptionMode = "static";
-  show(caption);
-  return caption;
-}
-
-function setCaption(figure, asset) {
-  const mediaId = asset?.dataset.mediaId;
-  const captionText = MEDIA_CAPTIONS[mediaId];
-
-  if (!captionText) return false;
-
-  const caption = ensureCaption(figure);
-  caption.dataset.mediaCaptionFor = mediaId;
-  caption.textContent = captionText;
-  return true;
-}
-
 function moveSliderAttributes(figure, surface) {
   [...figure.attributes]
     .filter(({ name }) => name.startsWith("data-media-slider"))
@@ -286,37 +255,6 @@ function ensureSliderSurface(figure, assets) {
   return surface;
 }
 
-function updateSliderCaption(figure, surface, preferredAsset = null) {
-  const asset =
-    preferredAsset ??
-    surface.querySelector(":scope > [data-active][data-media-id]") ??
-    surface.querySelector(":scope > [data-media-id]");
-
-  if (!(asset instanceof HTMLElement)) return;
-  setCaption(figure, asset);
-}
-
-function prepareSliderFigure(figure, assets, signal, observedSliders) {
-  const surface = ensureSliderSurface(figure, assets);
-  figure.dataset.mediaCaptioned = "";
-  figure.dataset.mediaCaptionMode = "static";
-  updateSliderCaption(figure, surface);
-
-  if (!observedSliders.has(surface)) {
-    observedSliders.add(surface);
-    surface.addEventListener(
-      "media-slider:change",
-      (event) => {
-        const slide = event.detail?.slide;
-        if (slide instanceof HTMLElement) {
-          updateSliderCaption(figure, surface, slide);
-        }
-      },
-      { signal },
-    );
-  }
-}
-
 function ensureMediaSurface(figure, asset) {
   const unit = mediaUnitFor(asset);
   const directChild = directFigureChild(figure, unit);
@@ -343,28 +281,36 @@ function ensureMediaSurface(figure, asset) {
   return surface;
 }
 
+function directStaticCaption(figure) {
+  return figure.querySelector(
+    ":scope > :is(figcaption[data-media-caption], figcaption[data-media-captions])",
+  );
+}
+
+function prepareSliderFigure(figure, assets) {
+  ensureSliderSurface(figure, assets);
+  figure.dataset.mediaCaptioned = "";
+}
+
 function prepareSingleMediaFigure(figure, asset) {
   const surface = ensureMediaSurface(figure, asset);
   if (!(surface instanceof HTMLElement)) return;
 
   figure.dataset.mediaCaptioned = "";
-  figure.dataset.mediaCaptionMode = "static";
-  setCaption(figure, asset);
-
-  const caption = figure.querySelector(":scope > figcaption[data-media-caption]");
+  const caption = directStaticCaption(figure);
   if (caption instanceof HTMLElement && caption.previousElementSibling !== surface) {
     surface.after(caption);
   }
 }
 
-function mappedAssetsInFigure(figure) {
-  return [...figure.querySelectorAll(":is(img, video)[data-media-id]")].filter(
-    (asset) => Boolean(MEDIA_CAPTIONS[asset.dataset.mediaId]),
-  );
+function assetsInFigure(figure) {
+  return [...figure.querySelectorAll(":is(img, video)[data-media-id]")];
 }
 
-function prepareMediaFigure(figure, signal, observedSliders) {
-  const assets = mappedAssetsInFigure(figure);
+function prepareMediaFigure(figure) {
+  if (!(directStaticCaption(figure) instanceof HTMLElement)) return;
+
+  const assets = assetsInFigure(figure);
   if (assets.length === 0) return;
 
   const slider =
@@ -372,34 +318,29 @@ function prepareMediaFigure(figure, signal, observedSliders) {
     figure.querySelector(":scope > [data-media-slider]");
 
   if (slider && assets.length > 1) {
-    prepareSliderFigure(figure, assets, signal, observedSliders);
+    prepareSliderFigure(figure, assets);
     return;
   }
 
   prepareSingleMediaFigure(figure, assets[0]);
 }
 
-function applyMediaCaptions(scope, signal, observedSliders) {
+function prepareStaticMediaLayout(scope) {
   if (!(scope instanceof Document || scope instanceof HTMLElement)) return;
 
   const figures = new Set();
-
   if (scope instanceof HTMLElement) {
     const ownFigure = scope.closest(".cv-item figure");
-    if (ownFigure instanceof HTMLElement) figures.add(ownFigure);
+    if (ownFigure instanceof HTMLElement && directStaticCaption(ownFigure)) {
+      figures.add(ownFigure);
+    }
   }
 
-  scope
-    .querySelectorAll(".cv-item :is(img, video)[data-media-id]")
-    .forEach((asset) => {
-      if (!MEDIA_CAPTIONS[asset.dataset.mediaId]) return;
-      const figure = asset.closest("figure");
-      if (figure instanceof HTMLElement) figures.add(figure);
-    });
+  scope.querySelectorAll(".cv-item figure").forEach((figure) => {
+    if (directStaticCaption(figure)) figures.add(figure);
+  });
 
-  figures.forEach((figure) =>
-    prepareMediaFigure(figure, signal, observedSliders),
-  );
+  figures.forEach(prepareMediaFigure);
 }
 
 function prepareScene(scene) {
@@ -411,22 +352,16 @@ function prepareScene(scene) {
 }
 
 export function applyAccordionPresentation(root = document) {
-  const abortController = new AbortController();
-  const { signal } = abortController;
-  const observedSliders = new WeakSet();
-
   root.querySelectorAll(".cv-item[data-cv-scene]").forEach(prepareScene);
   hideDetailPanel(root);
-  applyMediaCaptions(root, signal, observedSliders);
+  prepareStaticMediaLayout(root);
 
   const observer =
     typeof MutationObserver === "function"
       ? new MutationObserver((records) => {
           records.forEach((record) => {
             record.addedNodes.forEach((node) => {
-              if (node instanceof HTMLElement) {
-                applyMediaCaptions(node, signal, observedSliders);
-              }
+              if (node instanceof HTMLElement) prepareStaticMediaLayout(node);
             });
           });
         })
@@ -437,8 +372,5 @@ export function applyAccordionPresentation(root = document) {
     subtree: true,
   });
 
-  return () => {
-    observer?.disconnect();
-    abortController.abort();
-  };
+  return () => observer?.disconnect();
 }
