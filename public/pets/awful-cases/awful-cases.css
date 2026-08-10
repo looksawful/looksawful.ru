@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+.awful-cases {
+  position: relative;
+  container-type: size;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 260px;
+  min-block-size: 320px;
+  overflow: hidden;
+  background: #007a7a;
+  color: #000;
+  font-family: "Press Start 2P", monospace;
+  touch-action: none;
+  isolation: isolate;
+}
+.awful-cases, .awful-cases * { box-sizing: border-box; }
+.awful-cases__canvas { display:block; inline-size:100%; block-size:100%; background:#007a7a; image-rendering:pixelated; image-rendering:crisp-edges; outline:0; }
+.awful-cases .game-title { position:absolute; left:50%; top:clamp(6px,2cqh,16px); width:min(92cqw,760px); transform:translateX(-50%); z-index:2; color:#000; font:700 clamp(10px,2.25cqmin,24px)/1.2 "Press Start 2P",monospace; letter-spacing:0; text-align:center; pointer-events:none; text-shadow:1px 1px 0 rgba(255,255,255,.16); }
+.awful-cases .start { position:absolute; left:50%; bottom:clamp(18px,8cqh,92px); transform:translateX(-50%); z-index:4; display:grid; gap:clamp(8px,1.8cqh,16px); justify-items:center; text-align:center; color:#000; font-family:"Press Start 2P",monospace; pointer-events:none; }
+.awful-cases .start[hidden], .awful-cases .restart[hidden] { display:none; }
+.awful-cases .start__label { margin-bottom:clamp(4px,1cqh,10px); background:#fff; padding:6px 10px; border:2px solid #000; font:700 clamp(7px,1.55cqmin,12px)/1.2 "Press Start 2P",monospace; letter-spacing:.08em; text-transform:uppercase; animation:awful-cases-demo-pulse 1.05s steps(1,end) infinite; }
+.awful-cases .start__button { appearance:none; pointer-events:auto; border:2px solid #000; background:#fff; color:#000; padding:clamp(9px,2cqmin,12px) clamp(18px,4cqmin,28px); font:700 clamp(12px,2.45cqmin,28px)/1 "Press Start 2P",monospace; text-transform:uppercase; cursor:pointer; }
+.awful-cases .start__button:focus-visible, .awful-cases .restart__button:focus-visible { outline:3px solid #000; outline-offset:4px; }
+.awful-cases .start__button:active, .awful-cases .restart__button:active { background:#000; color:#fff; }
+@keyframes awful-cases-demo-pulse { 0%,49.999%{background:#fff;color:#000} 50%,100%{background:#000;color:#fff} }
+.awful-cases .restart { position:absolute; left:50%; top:50%; width:min(88cqw,480px); transform:translate(-50%,-50%); z-index:3; display:grid; gap:clamp(9px,2cqmin,14px); justify-items:center; padding:clamp(14px,3cqmin,22px) clamp(16px,4cqmin,24px); background:#fff; border:2px solid #000; color:#000; font:700 clamp(11px,2cqmin,16px)/1.35 "Press Start 2P",monospace; text-align:center; }
+.awful-cases .restart__title { font-size:clamp(14px,3cqmin,22px); line-height:1.1; text-transform:lowercase; }
+.awful-cases .restart__meta { font-weight:400; font-size:clamp(9px,1.8cqmin,14px); line-height:1.4; }
+.awful-cases .restart__button { appearance:none; border:2px solid #000; background:#fff; color:#000; padding:10px 18px; font:700 clamp(11px,2cqmin,16px)/1 "Press Start 2P",monospace; cursor:pointer; }
+@container (max-width:520px) {
+  .awful-cases { min-block-size:360px; }
+  .awful-cases .game-title { top:7px; font-size:10px; line-height:1.25; }
+  .awful-cases .start { bottom:22px; }
+  .awful-cases .start__label { font-size:7px; line-height:1.25; }
+}

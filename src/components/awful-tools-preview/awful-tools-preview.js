@@ -142,30 +142,49 @@ function createPreviewActivation(root, onChange) {
   };
 }
 
-function enhanceLazyFrames(root) {
-  const frames = [...root.querySelectorAll("[data-awful-frame-src]")].filter(
-    (frame) => frame instanceof HTMLIFrameElement,
-  );
+function enhanceAwfulCasesPreview(root) {
+  const gameRoot = root.querySelector("[data-awful-cases]");
 
-  if (frames.length === 0) {
+  if (!(gameRoot instanceof HTMLElement)) {
     return emptyRuntime;
   }
 
+  let runtime = emptyRuntime;
+  let pending = null;
+  let active = false;
+  let destroyed = false;
+
+  async function ensureRuntime() {
+    if (destroyed || pending) return pending;
+    pending = import("/pets/awful-cases/awful-cases.js")
+      .then(({ enhanceAwfulCases }) => {
+        if (destroyed) return;
+        runtime = enhanceAwfulCases(gameRoot);
+        runtime.setActive(active);
+      })
+      .catch((error) => {
+        pending = null;
+        console.error("Awful Cases failed to load", error);
+      });
+    return pending;
+  }
+
   return {
-    setActive(active) {
+    setActive(nextActive) {
+      active = nextActive;
       if (!active) {
+        runtime.setActive(false);
         return;
       }
-
-      frames.forEach((frame) => {
-        if (frame.src || !frame.dataset.awfulFrameSrc) {
-          return;
-        }
-
-        frame.src = frame.dataset.awfulFrameSrc;
-      });
+      void ensureRuntime();
     },
-    destroy: noop,
+    destroy() {
+      destroyed = true;
+      active = false;
+      runtime.destroy();
+      runtime = emptyRuntime;
+      pending = null;
+    },
   };
 }
 
@@ -673,7 +692,7 @@ function enhanceAwfulToolPreview(root) {
   const activeRuntimes = [];
 
   if (project === "awful-cases") {
-    activeRuntimes.push(enhanceLazyFrames(root));
+    activeRuntimes.push(enhanceAwfulCasesPreview(root));
   }
 
   if (project === "berserk-timer") {
