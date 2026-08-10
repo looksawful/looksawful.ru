@@ -819,7 +819,7 @@ export function enhanceAwfulCases(root) {
       game.raf = 0;
       return;
     }
-    const dt = Math.min(.034, (now - game.last) / 1000 || 0);
+    const dt = Math.max(0, Math.min(.034, (now - game.last) / 1000 || 0));
     game.last = now;
     updateView();
     update(dt);
