@@ -29,7 +29,7 @@ for start_pos, track_tag in starts:
     if 'data-loop-clone' in block:
         continue
     card_match = re.search(
-        r'<(?P<tag>article|div)\b(?=[^>]*class="[^"]*jestei-theme-organism__card[^"]*")(?=[^>]*data-theme="neutral")[^>]*>',
+        r'<(?P<tag>article|div|li)\b(?=[^>]*class="[^"]*jestei-theme-organism__card[^"]*")(?=[^>]*data-theme="neutral")[^>]*>',
         block,
         re.I,
     )
