@@ -138,6 +138,10 @@
     margin: 0;
   }
 
+  .cv-item .cv-story__copy[data-accordion-persistent-copy]:not([hidden]) {
+    display: grid !important;
+  }
+
   .cv-item [data-media-captioned] {
     display: grid;
     grid-template-rows: auto auto;
