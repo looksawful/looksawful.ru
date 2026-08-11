@@ -310,6 +310,11 @@ function assetsInFigure(figure) {
 function prepareMediaFigure(figure) {
   if (!(directStaticCaption(figure) instanceof HTMLElement)) return;
 
+  if (figure.hasAttribute("data-before-after")) {
+    figure.dataset.mediaCaptioned = "";
+    return;
+  }
+
   const assets = assetsInFigure(figure);
   if (assets.length === 0) return;
 

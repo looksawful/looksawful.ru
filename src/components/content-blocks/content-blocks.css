@@ -726,6 +726,10 @@
     margin-inline: auto;
   }
 
+  .cv-story--tariff-showcase .before-after {
+    --before-after-ratio: 16 / 9;
+  }
+
   .tariff-showcase__support {
     inline-size: min(100%, 28rem);
     margin-inline: auto;
