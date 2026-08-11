@@ -1,0 +1,3 @@
+# Media Contract
+
+Keep every original media file at its current source path and never replace or move it when adding responsive versions. Every live static image keeps its original `src`, `width`, `height`, `loading`, and `decoding`; the build generates smaller WebP variants at 480, 960, and 1600 px without upscaling and adds `srcset` and `sizes`. Media that is not connected to the live page, including archived, disabled, commented, or removal-marked media, is not part of the responsive build. Image loading uses the existing media container and themed skeleton. Video source files stay unchanged; video posters are generated from a representative frame and connected with `poster`.
