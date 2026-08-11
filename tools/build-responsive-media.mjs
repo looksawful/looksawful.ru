@@ -1,10 +1,10 @@
-import { access, mkdir, readFile, rm } from 'node:fs/promises';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, extname, parse, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const VARIANT_WIDTHS = [480, 960, 1600];
 const RASTER_EXTENSIONS = new Set(['.avif', '.jpeg', '.jpg', '.png', '.webp']);
-const TEMP_PUBLIC_DIR = 'public/media-responsive';
+const DIST_DIR = 'dist';
 
 function attributeValue(tag, name) {
   const match = tag.match(new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, 'i'));
@@ -64,9 +64,9 @@ export function getResponsiveUrl(src, width) {
   return `/media-responsive/${info.dir.replace(/^media\/?/, '')}/${info.name}-${width}.webp`;
 }
 
-function responsiveOutputPath(publicDir, src, width) {
+function responsiveOutputPath(outputRoot, src, width) {
   const url = getResponsiveUrl(src, width);
-  return resolve(publicDir, url.replace(/^\/media-responsive\//, ''));
+  return resolve(outputRoot, url.replace(/^\//, ''));
 }
 
 export function addResponsiveAttributes(tag, { srcset, sizes }) {
@@ -113,7 +113,7 @@ function sizesForTag(tag) {
     : '100vw';
 }
 
-async function prepareResponsiveMarkup({ repoRoot, sourceHtml, tempPublicDir, sharp }) {
+async function prepareResponsiveMarkup({ repoRoot, sourceHtml, outputRoot, sharp }) {
   const matches = activeImageMatches(sourceHtml);
   const generated = new Map();
   let variantCount = 0;
@@ -149,7 +149,7 @@ async function prepareResponsiveMarkup({ repoRoot, sourceHtml, tempPublicDir, sh
 
       const variants = [];
       for (const width of getVariantWidths(sourceWidth)) {
-        const outputPath = responsiveOutputPath(tempPublicDir, src, width);
+        const outputPath = responsiveOutputPath(outputRoot, src, width);
         await mkdir(dirname(outputPath), { recursive: true });
         await sharp(sourceFile)
           .resize({ width, withoutEnlargement: true })
@@ -179,61 +179,80 @@ async function prepareResponsiveMarkup({ repoRoot, sourceHtml, tempPublicDir, sh
   return { html: output, responsiveImageCount, variantCount, sourceCount: generated.size };
 }
 
-function responsiveMediaHtmlPlugin(indexPath, html) {
-  return {
-    name: 'looksawful-responsive-media-html',
-    enforce: 'pre',
-    transformIndexHtml(source, context) {
-      return context?.filename === indexPath ? html : source;
-    },
-  };
+export function assertBuiltHtml(html, htmlPath) {
+  if (!/href="\/assets\/[^"]+\.css"/.test(html)) {
+    throw new Error(`${htmlPath} does not reference a built CSS asset.`);
+  }
+
+  if (!/src="\/assets\/[^"]+\.js"/.test(html)) {
+    throw new Error(`${htmlPath} does not reference a built JS asset.`);
+  }
+
+  if (/\bsrc=["']\.\/src\/[^"']+["']/.test(html)) {
+    throw new Error(`${htmlPath} still references source JS.`);
+  }
+
+  if (/\bhref=["']\.\/src\/[^"']+\.css["']/.test(html)) {
+    throw new Error(`${htmlPath} still references source CSS.`);
+  }
 }
 
 export async function buildResponsiveMedia({ repoRoot = process.cwd() } = {}) {
   const indexPath = resolve(repoRoot, 'index.html');
   const aboutPath = resolve(repoRoot, 'about/index.html');
-  const tempPublicDir = resolve(repoRoot, TEMP_PUBLIC_DIR);
-  const sourceHtml = await readFile(indexPath, 'utf8');
-
-  if (await fileExists(tempPublicDir)) {
-    throw new Error(`${TEMP_PUBLIC_DIR} already exists; refusing to overwrite it.`);
-  }
+  const distDir = resolve(repoRoot, DIST_DIR);
+  const distIndexPath = resolve(distDir, 'index.html');
 
   const [{ default: sharp }, { build }] = await Promise.all([
     import('sharp'),
     import('vite'),
   ]);
 
-  let prepared;
-  try {
-    await mkdir(tempPublicDir, { recursive: true });
-    prepared = await prepareResponsiveMarkup({
+  const input = {
+    main: indexPath,
+  };
+
+  if (await fileExists(aboutPath)) {
+    input.about = aboutPath;
+  }
+
+  await build({
+    build: {
+      rollupOptions: {
+        input,
+      },
+    },
+  });
+
+  const sourceHtml = await readFile(distIndexPath, 'utf8');
+  let prepared = await prepareResponsiveMarkup({
+    repoRoot,
+    sourceHtml,
+    outputRoot: distDir,
+    sharp,
+  });
+
+  assertBuiltHtml(prepared.html, distIndexPath);
+  await writeFile(distIndexPath, prepared.html, 'utf8');
+
+  const distAboutPath = resolve(distDir, 'about/index.html');
+  if (await fileExists(distAboutPath)) {
+    const aboutHtml = await readFile(distAboutPath, 'utf8');
+    const aboutPrepared = await prepareResponsiveMarkup({
       repoRoot,
-      sourceHtml,
-      tempPublicDir,
+      sourceHtml: aboutHtml,
+      outputRoot: distDir,
       sharp,
     });
 
-    const input = {
-      main: indexPath,
+    await writeFile(distAboutPath, aboutPrepared.html, 'utf8');
+    prepared = {
+      html: prepared.html,
+      responsiveImageCount:
+        prepared.responsiveImageCount + aboutPrepared.responsiveImageCount,
+      variantCount: prepared.variantCount + aboutPrepared.variantCount,
+      sourceCount: prepared.sourceCount + aboutPrepared.sourceCount,
     };
-
-    if (await fileExists(aboutPath)) {
-      input.about = aboutPath;
-    }
-
-    await build({
-      build: {
-        rollupOptions: {
-          input,
-        },
-      },
-      plugins: [
-        responsiveMediaHtmlPlugin(indexPath, prepared.html),
-      ],
-    });
-  } finally {
-    await rm(tempPublicDir, { recursive: true, force: true });
   }
 
   console.log(

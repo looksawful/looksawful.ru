@@ -83,22 +83,34 @@ jobs:
         run: |
           set -euo pipefail
           expected="commit=${GITHUB_SHA}"
-          base_url="https://www.looksawful.ru/deploy-version.txt?sha=${GITHUB_SHA}"
+          version_url="https://www.looksawful.ru/deploy-version.txt?sha=${GITHUB_SHA}"
+          index_url="https://www.looksawful.ru/?sha=${GITHUB_SHA}"
 
-          for attempt in $(seq 1 30); do
+          for attempt in $(seq 1 60); do
             body="$(curl --fail --silent --show-error --location --max-time 20 \
               -H 'Cache-Control: no-cache' \
-              "${base_url}&attempt=${attempt}" || true)"
+              "${version_url}&attempt=${attempt}" || true)"
 
-            if grep -Fxq "$expected" <<<"$body"; then
+            index_file="$(mktemp)"
+            curl --fail --silent --show-error --location --max-time 20 \
+              -H 'Cache-Control: no-cache' \
+              "${index_url}&attempt=${attempt}" \
+              --output "${index_file}" || true
+
+            if grep -Fxq "$expected" <<<"$body" \
+              && grep -Eq 'href="/assets/[^"]+\.css"' "${index_file}" \
+              && grep -Eq 'src="/assets/[^"]+\.js"' "${index_file}" \
+              && ! grep -Eq '\./src/[^"]+\.(css|js)' "${index_file}"; then
               printf '%s\n' "$body"
+              rm -f "${index_file}"
               exit 0
             fi
 
+            rm -f "${index_file}"
             sleep 10
           done
 
-          echo "Production did not expose ${expected}" >&2
+          echo "Production did not expose ${expected} with built CSS/JS assets" >&2
           exit 1
 
   report:

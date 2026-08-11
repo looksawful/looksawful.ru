@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  assertBuiltHtml,
   getVariantWidths,
   isExcludedOffset,
   collectExcludedRanges,
@@ -47,5 +48,22 @@ test('responsive URL mirrors the existing media hierarchy', () => {
   assert.equal(
     getResponsiveUrl('./media/projects/jestei/01/source/01-823x419.webp', 480),
     '/media-responsive/projects/jestei/01/source/01-823x419-480.webp',
+  );
+});
+
+test('built HTML guard requires Vite assets and rejects source entrypoints', () => {
+  assert.doesNotThrow(() => {
+    assertBuiltHtml(
+      '<script type="module" src="/assets/main-abc.js"></script><link rel="stylesheet" href="/assets/main-def.css">',
+      'dist/index.html',
+    );
+  });
+
+  assert.throws(
+    () => assertBuiltHtml(
+      '<script type="module" src="./src/main.js"></script><link href="./src/styles/index.css" rel="stylesheet">',
+      'dist/index.html',
+    ),
+    /does not reference a built CSS asset|still references source/,
   );
 });
