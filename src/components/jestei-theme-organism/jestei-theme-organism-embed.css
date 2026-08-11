@@ -8,6 +8,7 @@
     display: grid;
     gap: var(--jestei-theme-embed-space, clamp(1rem, 3vw, 2rem));
     min-inline-size: 0;
+    margin: 0;
   }
 
   .jestei-theme-organism-shell__header {
@@ -36,5 +37,10 @@
     --btn-bg: transparent;
 
     flex: 0 0 auto;
+  }
+
+  .cv-item .jestei-theme-organism-shell__surface[data-media-caption-surface] {
+    overflow: visible;
+    background: transparent;
   }
 }

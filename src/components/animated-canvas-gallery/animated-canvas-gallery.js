@@ -405,7 +405,7 @@ export function createAnimatedCanvasGalleries({
               void tryMount();
             },
             {
-              rootMargin: "60% 0px 60%",
+              rootMargin: "15% 0px 15%",
               threshold: 0,
             },
           )

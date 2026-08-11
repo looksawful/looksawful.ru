@@ -399,7 +399,7 @@ async function createAnimatedExperience(root, elements, track, { onFatalError } 
   try {
     renderer = new THREE.WebGLRenderer({
       canvas: elements.canvas,
-      antialias: true,
+      antialias: false,
       alpha: true,
       powerPreference: "high-performance",
     });

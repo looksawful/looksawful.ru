@@ -12,7 +12,7 @@ export const SCROLL_MODES = Object.freeze({
 
 export const INTERACTION_DEFAULTS = Object.freeze({
   hover: true,
-  lightbox: true,
+  lightbox: false,
   hoverMaxScale: 1.06,
   hoverEase: 0.18,
   scrollMode: SCROLL_MODES.AUTOPLAY,
@@ -215,6 +215,11 @@ export function createCanvasInteractions({
 
   const onScroll = () => {
     const next = window.scrollY;
+    if (canvas.offsetParent === null || !isCanvasInView()) {
+      lastScrollY = next;
+      return;
+    }
+
     const delta = next - lastScrollY;
     lastScrollY = next;
     if (!delta) return;

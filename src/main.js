@@ -168,17 +168,23 @@ function mount() {
   const inlineJesteiRoot = document.querySelector(
     '[data-jestei-theme-organism][data-jestei-theme-instance="inline"]',
   );
-  requestAnimationFrame(() => {
+  const canWarmJesteiEarly = window.matchMedia?.(
+    "(hover: hover) and (pointer: fine)",
+  ).matches;
+
+  if (canWarmJesteiEarly) {
     requestAnimationFrame(() => {
-      void destroyJesteiThemeOrganisms?.preload?.().then(() => {
-        if (inlineJesteiRoot instanceof HTMLElement && accordionRuntime) {
-          accordionRuntime.requestPrepare(inlineJesteiRoot);
-        } else {
-          destroyJesteiThemeOrganisms?.prepare?.();
-        }
+      requestAnimationFrame(() => {
+        void destroyJesteiThemeOrganisms?.preload?.().then(() => {
+          if (inlineJesteiRoot instanceof HTMLElement && accordionRuntime) {
+            accordionRuntime.requestPrepare(inlineJesteiRoot);
+          } else {
+            destroyJesteiThemeOrganisms?.prepare?.();
+          }
+        });
       });
     });
-  });
+  }
 }
 
 function handlePageShow(event) {

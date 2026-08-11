@@ -1,5 +1,6 @@
 const TAG_NAME = "awful-tool-preview";
 const INSTANCE = Symbol.for("looksawful.awfulToolPreview.instance");
+const AWFUL_CASES_MODULE_URL = "/pets/awful-cases/awful-cases.js";
 
 const noop = () => {};
 let accordionRuntime = null;
@@ -8,6 +9,29 @@ const emptyRuntime = Object.freeze({
   setActive: noop,
   destroy: noop,
 });
+
+async function importPublicModule(url) {
+  if (!import.meta.env.DEV) {
+    return import(/* @vite-ignore */ url);
+  }
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to load ${url}: ${response.status}`);
+  }
+
+  const blobUrl = URL.createObjectURL(
+    new Blob([await response.text()], {
+      type: "text/javascript",
+    }),
+  );
+
+  try {
+    return await import(/* @vite-ignore */ blobUrl);
+  } finally {
+    URL.revokeObjectURL(blobUrl);
+  }
+}
 
 function setButtonLabel(button, label) {
   const lead = button.querySelector(".btn-u");
@@ -170,7 +194,7 @@ function enhanceAwfulCasesPreview(root) {
 
   async function ensureRuntime() {
     if (destroyed || pending) return pending;
-    pending = import(/* @vite-ignore */ "/pets/awful-cases/awful-cases.js")
+    pending = importPublicModule(AWFUL_CASES_MODULE_URL)
       .then(({ enhanceAwfulCases }) => {
         if (destroyed) return;
         runtime = enhanceAwfulCases(gameRoot);

@@ -4213,8 +4213,8 @@
 .workflow-preview {
     inline-size: 100%;
     justify-items: center;
-    --stable-slot-block-size: min(48rem, 78svh);
-    --stable-slot-overflow: clip;
+    --stable-slot-block-size: auto;
+    --stable-slot-overflow: visible;
 }
 
 @media (width > 64rem) {
@@ -4224,14 +4224,18 @@
 
     .workflow-preview {
         justify-items: center;
-        --stable-slot-block-size: min(68rem, 86svh);
+        --stable-slot-block-size: auto;
     }
 }
 
 .workflow-preview.stable-slot
     > device-mockup[data-workflow-choreography="true"] {
-    block-size: 100%;
-    max-block-size: 100%;
+    block-size: clamp(
+        var(--workflow-device-min-block-size),
+        var(--workflow-content-block-size),
+        var(--workflow-device-max-block-size)
+    );
+    max-block-size: var(--workflow-device-max-block-size);
 }
 
 .workflow-preview.stable-slot
@@ -4254,16 +4258,23 @@
     > device-mockup[data-workflow-choreography="true"]
     > main
     > .filter-shell.stable-slot {
-    --stable-slot-block-size: 100%;
-    --stable-slot-overflow: auto;
+    --stable-slot-block-size: var(--workflow-filter-visual-height, auto);
+    --stable-slot-overflow: clip;
     block-size: var(--stable-slot-block-size);
     min-block-size: 0;
-    max-block-size: 100%;
+    max-block-size: none;
     overflow: var(--stable-slot-overflow);
     contain: layout paint;
     scrollbar-width: none;
     -ms-overflow-style: none;
     overscroll-behavior: contain;
+}
+
+.workflow-preview.stable-slot
+    > device-mockup[data-workflow-choreography="true"]
+    .filter {
+    block-size: auto;
+    min-block-size: 0;
 }
 
 .workflow-preview.stable-slot

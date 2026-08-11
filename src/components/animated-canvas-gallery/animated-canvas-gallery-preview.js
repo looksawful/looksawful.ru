@@ -161,7 +161,7 @@ export function createAnimatedCanvasGalleryPreviews({
               void ensureControls();
             },
             {
-              rootMargin: "80% 0px 80%",
+              rootMargin: "20% 0px 20%",
               threshold: 0,
             },
           )

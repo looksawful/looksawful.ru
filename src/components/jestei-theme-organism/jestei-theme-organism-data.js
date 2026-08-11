@@ -22,7 +22,7 @@ export const JESTEI_THEME_SETTINGS = Object.freeze({
   gridCellSize: 0.062,
   gridLineWidth: 0.075,
   passDuration: 5,
-  pixelRatioLimit: 2,
+  pixelRatioLimit: 1,
   baseRotationX: -12,
   baseRotationY: 25,
   baseRotationZ: 1,

@@ -34,10 +34,10 @@ const createStockItems = (count = 24) =>
  */
 export const ANIMATED_CANVAS_GALLERY_SOURCES =
   Object.freeze({
-    "moves-arc": createStockItems(20),
-    "moves-spiral": createStockItems(20),
-    "moves-horizontal": createStockItems(20),
-    "moves-diagonal": createStockItems(20),
-    "moves-showcase-diagonal": createStockItems(20),
-    "moves-masonry": createStockItems(24),
+    "moves-arc": createStockItems(16),
+    "moves-spiral": createStockItems(16),
+    "moves-horizontal": createStockItems(16),
+    "moves-diagonal": createStockItems(16),
+    "moves-showcase-diagonal": createStockItems(16),
+    "moves-masonry": createStockItems(18),
   });

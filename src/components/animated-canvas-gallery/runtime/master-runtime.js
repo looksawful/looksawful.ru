@@ -129,7 +129,7 @@ export function createSharedFields({ presetOptions, defaultPreset = "autoplay", 
     field({
       name: "animationLightbox",
       attr: "data-animation-lightbox",
-      defaultValue: true,
+      defaultValue: false,
       parse: "boolean",
       group: "interaction",
       label: "lightbox",

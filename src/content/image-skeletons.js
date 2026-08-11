@@ -8,23 +8,42 @@ const SURFACE_SELECTOR = [
   ".category-card__media",
 ].join(",");
 const SKELETON_DELAY = 140;
+const SKELETON_VISIBILITY_MARGIN = "320px 0px";
 
 function imageSurface(image) {
   return image.closest(SURFACE_SELECTOR);
 }
 
-function trackedImage(image, surface) {
+function relevantSlider(image, surface) {
   const slider = image.closest("[data-media-slider]");
 
   if (!(slider instanceof HTMLElement) || !surface.contains(slider)) {
+    return null;
+  }
+
+  return slider;
+}
+
+function trackedImage(image, surface) {
+  const slider = relevantSlider(image, surface);
+
+  if (!(slider instanceof HTMLElement)) {
     return image;
   }
 
-  return slider.querySelector(":scope > img") ?? image;
+  return (
+    slider.querySelector(":scope > img[data-active]") ||
+    slider.querySelector(":scope > img") ||
+    image
+  );
 }
 
 function imageReady(image) {
   return image.complete && image.naturalWidth > 0;
+}
+
+function surfaceReady(image, surface) {
+  return imageReady(trackedImage(image, surface));
 }
 
 export function createImageSkeletons({ root = document } = {}) {
@@ -41,35 +60,96 @@ export function createImageSkeletons({ root = document } = {}) {
     const surface = imageSurface(candidate);
     if (!(surface instanceof HTMLElement) || surfaces.has(surface)) return;
 
-    const image = trackedImage(candidate, surface);
+    const image = candidate;
+    const slider = relevantSlider(image, surface);
     surfaces.add(surface);
 
-    if (imageReady(image)) return;
+    if (!(slider instanceof HTMLElement) && imageReady(image)) return;
 
-    let timer = window.setTimeout(() => {
-      if (!imageReady(image)) surface.dataset.imageSkeleton = "";
-    }, SKELETON_DELAY);
+    const trackedImages = new Set(
+      slider instanceof HTMLElement
+        ? slider.querySelectorAll(":scope > img")
+        : [image],
+    );
 
-    const ready = () => {
+    let nearViewport = !("IntersectionObserver" in window);
+    let timer = 0;
+    let visibilityObserver = null;
+
+    const clearTimer = () => {
+      if (!timer) return;
       window.clearTimeout(timer);
       timer = 0;
+    };
+
+    const hideSkeleton = () => {
+      clearTimer();
       surface.removeAttribute("data-image-skeleton");
+    };
+
+    const showSkeletonSoon = () => {
+      clearTimer();
+
+      timer = window.setTimeout(() => {
+        timer = 0;
+        if (nearViewport && !surfaceReady(image, surface)) {
+          surface.dataset.imageSkeleton = "";
+        }
+      }, SKELETON_DELAY);
+    };
+
+    const sync = () => {
+      if (surfaceReady(image, surface) || !nearViewport) {
+        hideSkeleton();
+        return;
+      }
+
+      showSkeletonSoon();
+    };
+
+    const ready = () => {
+      sync();
     };
 
     const failed = () => {
-      window.clearTimeout(timer);
-      timer = 0;
-      surface.dataset.imageSkeleton = "";
+      if (nearViewport && !surfaceReady(image, surface)) {
+        clearTimer();
+        surface.dataset.imageSkeleton = "";
+      }
     };
 
-    image.addEventListener("load", ready, { once: true });
-    image.addEventListener("error", failed, { once: true });
+    for (const tracked of trackedImages) {
+      tracked.addEventListener("load", ready);
+      tracked.addEventListener("error", failed);
+    }
+
+    surface.addEventListener("media-slider:change", sync);
+
+    if ("IntersectionObserver" in window) {
+      visibilityObserver = new IntersectionObserver(
+        ([entry]) => {
+          nearViewport = Boolean(entry?.isIntersecting);
+          sync();
+        },
+        {
+          rootMargin: SKELETON_VISIBILITY_MARGIN,
+          threshold: 0,
+        },
+      );
+      visibilityObserver.observe(surface);
+    }
+
+    requestAnimationFrame(sync);
 
     cleanups.push(() => {
-      if (timer) window.clearTimeout(timer);
-      image.removeEventListener("load", ready);
-      image.removeEventListener("error", failed);
-      surface.removeAttribute("data-image-skeleton");
+      hideSkeleton();
+      visibilityObserver?.disconnect();
+      surface.removeEventListener("media-slider:change", sync);
+
+      for (const tracked of trackedImages) {
+        tracked.removeEventListener("load", ready);
+        tracked.removeEventListener("error", failed);
+      }
     });
   });
 

@@ -1,4 +1,4 @@
-import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, rm } from 'node:fs/promises';
 import { dirname, extname, parse, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -179,8 +179,19 @@ async function prepareResponsiveMarkup({ repoRoot, sourceHtml, tempPublicDir, sh
   return { html: output, responsiveImageCount, variantCount, sourceCount: generated.size };
 }
 
+function responsiveMediaHtmlPlugin(indexPath, html) {
+  return {
+    name: 'looksawful-responsive-media-html',
+    enforce: 'pre',
+    transformIndexHtml(source, context) {
+      return context?.filename === indexPath ? html : source;
+    },
+  };
+}
+
 export async function buildResponsiveMedia({ repoRoot = process.cwd() } = {}) {
   const indexPath = resolve(repoRoot, 'index.html');
+  const aboutPath = resolve(repoRoot, 'about/index.html');
   const tempPublicDir = resolve(repoRoot, TEMP_PUBLIC_DIR);
   const sourceHtml = await readFile(indexPath, 'utf8');
 
@@ -202,10 +213,26 @@ export async function buildResponsiveMedia({ repoRoot = process.cwd() } = {}) {
       tempPublicDir,
       sharp,
     });
-    await writeFile(indexPath, prepared.html, 'utf8');
-    await build();
+
+    const input = {
+      main: indexPath,
+    };
+
+    if (await fileExists(aboutPath)) {
+      input.about = aboutPath;
+    }
+
+    await build({
+      build: {
+        rollupOptions: {
+          input,
+        },
+      },
+      plugins: [
+        responsiveMediaHtmlPlugin(indexPath, prepared.html),
+      ],
+    });
   } finally {
-    await writeFile(indexPath, sourceHtml, 'utf8');
     await rm(tempPublicDir, { recursive: true, force: true });
   }
 

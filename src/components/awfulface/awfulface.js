@@ -7,6 +7,8 @@ const EYE_TRACK_STRENGTH_X = 7.5;
 const EYE_TRACK_STRENGTH_Y = 6;
 
 const PRECISE_POINTER_QUERY = "(hover: hover) and (pointer: fine)";
+const MAX_CANVAS_DPR = 1.5;
+const MIN_RENDER_INTERVAL_MS = 1000 / 30;
 
 const EYES = {
   left: {
@@ -220,6 +222,11 @@ export function createAwfulface({ element, trackingRoot = element, motion } = {}
 
   const precisePointer = window.matchMedia(PRECISE_POINTER_QUERY);
 
+  if (!precisePointer.matches) {
+    element.removeAttribute("data-animated");
+    return () => {};
+  }
+
   const state = {
     pointerX: 0,
     pointerY: 0,
@@ -252,6 +259,8 @@ export function createAwfulface({ element, trackingRoot = element, motion } = {}
   let setPointerY = null;
   let setPointerActive = null;
   let setScroll = null;
+  let lastRenderTime = 0;
+  let scrollFrame = 0;
 
   const resizeCanvas = () => {
     const rect = canvas.getBoundingClientRect();
@@ -260,7 +269,7 @@ export function createAwfulface({ element, trackingRoot = element, motion } = {}
 
     const cssHeight = Math.max(1, rect.height);
 
-    const dpr = clamp(window.devicePixelRatio || 1, 1, 2);
+    const dpr = clamp(window.devicePixelRatio || 1, 1, MAX_CANVAS_DPR);
 
     const pixelWidth = Math.max(1, Math.round(cssWidth * dpr));
 
@@ -287,6 +296,13 @@ export function createAwfulface({ element, trackingRoot = element, motion } = {}
 
   const render = () => {
     if (active && visible) {
+      const now = performance.now();
+
+      if (now - lastRenderTime < MIN_RENDER_INTERVAL_MS) {
+        return;
+      }
+
+      lastRenderTime = now;
       drawFace(context, state, metrics);
     }
   };
@@ -332,6 +348,8 @@ export function createAwfulface({ element, trackingRoot = element, motion } = {}
   };
 
   const updateScroll = () => {
+    scrollFrame = 0;
+
     if (!active) {
       return;
     }
@@ -345,6 +363,14 @@ export function createAwfulface({ element, trackingRoot = element, motion } = {}
     const range = Math.max(window.innerHeight, rect.height) / 2;
 
     setScroll?.(clamp((viewportCenter - rootCenter) / range, -1, 1));
+  };
+
+  const scheduleScrollUpdate = () => {
+    if (scrollFrame || !active) {
+      return;
+    }
+
+    scrollFrame = requestAnimationFrame(updateScroll);
   };
 
   const stopAnimatedVersion = () => {
@@ -371,9 +397,12 @@ export function createAwfulface({ element, trackingRoot = element, motion } = {}
 
     resizeObserver?.disconnect();
     intersectionObserver?.disconnect();
+    cancelAnimationFrame(scrollFrame);
 
     resizeObserver = null;
     intersectionObserver = null;
+    scrollFrame = 0;
+    lastRenderTime = 0;
 
     document.removeEventListener("pointermove", updatePointer);
 
@@ -381,7 +410,7 @@ export function createAwfulface({ element, trackingRoot = element, motion } = {}
 
     window.removeEventListener("blur", resetPointer);
 
-    window.removeEventListener("scroll", updateScroll);
+    window.removeEventListener("scroll", scheduleScrollUpdate);
 
     precisePointer.removeEventListener("change", resetPointer);
 
@@ -477,7 +506,7 @@ export function createAwfulface({ element, trackingRoot = element, motion } = {}
 
       window.addEventListener("blur", resetPointer);
 
-      window.addEventListener("scroll", updateScroll, {
+      window.addEventListener("scroll", scheduleScrollUpdate, {
         passive: true,
       });
 

@@ -11,6 +11,10 @@
   .cv-item {
     --item-body-bg: color-mix(in srgb, var(--item-bg) 93%, white 7%);
     --item-text: var(--item-ink);
+    --accordion-media-caption-size: 1rem;
+    --accordion-media-caption-line-height: 1.45;
+    --accordion-media-hover-scale: 1.025;
+    --accordion-media-hover-duration: 260ms;
   }
 
   @supports (color: contrast-color(red)) {
@@ -203,10 +207,10 @@
     opacity: 1 !important;
     visibility: visible !important;
     font-family: var(--font-primary);
-    font-size: clamp(1rem, 0.9375rem + 0.2cqi, 1.0625rem);
+    font-size: var(--accordion-media-caption-size);
     font-weight: var(--font-weight-regular);
     font-style: normal;
-    line-height: 1.45;
+    line-height: var(--accordion-media-caption-line-height);
     color: var(--item-text);
   }
 
@@ -250,5 +254,76 @@
 
   .media-caption__title {
     font-weight: var(--font-weight-semibold);
+  }
+
+  @media (width <= 50rem) {
+    .cv-item {
+      --accordion-media-caption-size: 0.8125rem;
+      --accordion-media-caption-line-height: 1.38;
+      --media-item-caption-gap: 0.45rem;
+    }
+
+    .cv-item__content:not(.cv-item__content--digital-arts) {
+      gap: clamp(4rem, 18vw, 6.5rem);
+    }
+
+    .cv-item [data-media-gallery]:not([data-media-gallery-layout="single"]),
+    .cv-item [data-media-gallery-group] {
+      --media-gallery-gap: clamp(0.75rem, 4vw, 1.25rem);
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cv-item :where(
+      [data-media-caption-surface],
+      [data-media-gallery-item],
+      [data-media-marquee-surface],
+      .category-card__media,
+      .before-after__viewport
+    ) {
+      overflow: hidden;
+    }
+
+    .cv-item :where(
+      [data-media-caption-surface],
+      [data-media-gallery-item],
+      [data-media-marquee-surface],
+      .category-card__media
+    )
+      > :is(img, video, picture),
+    .cv-item :where(
+      [data-media-caption-surface],
+      [data-media-gallery-item],
+      [data-media-marquee-surface],
+      .category-card__media
+    )
+      > picture
+      > img,
+    .cv-item .before-after__image {
+      transform-origin: center;
+      transition: transform var(--accordion-media-hover-duration) ease;
+    }
+
+    .cv-item :where(
+      [data-media-caption-surface],
+      [data-media-gallery-item],
+      [data-media-marquee-surface],
+      .category-card__media
+    ):hover
+      > :is(img, video, picture),
+    .cv-item :where(
+      [data-media-caption-surface],
+      [data-media-gallery-item],
+      [data-media-marquee-surface],
+      .category-card__media
+    ):hover
+      > picture
+      > img {
+      transform: scale(var(--accordion-media-hover-scale));
+    }
+
+    .cv-item .before-after__viewport:hover .before-after__image {
+      transform: scale(1.018);
+    }
   }
 }

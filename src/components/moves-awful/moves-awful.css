@@ -16,14 +16,59 @@
   }
 
   .moves-awful-showcase .animated-canvas-gallery-preview-list {
+    position: relative;
     gap: clamp(2rem, 6vw, 4rem);
+  }
+
+  .moves-awful-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.8rem;
+    margin-block-end: clamp(1rem, 2vw, 1.5rem);
+    padding-block-end: 0.35rem;
+    border-block-end:
+      1px solid color-mix(
+        in srgb,
+        currentColor,
+        transparent 78%
+      );
+  }
+
+  .moves-awful-tabs__button {
+    min-block-size: 2rem;
+    padding: 0;
+    border: 0;
+    border-block-end: 1px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    font-size: clamp(0.9rem, 1.1vw, 1rem);
+    line-height: 1.2;
+    opacity: 0.48;
+    text-transform: lowercase;
+  }
+
+  .moves-awful-tabs__button[aria-selected="true"] {
+    border-block-end-color: currentColor;
+    opacity: 1;
+  }
+
+  .moves-awful-tabs__button:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 0.25rem;
   }
 
   .moves-awful-showcase .animated-canvas-gallery-preview {
     display: grid;
-    grid-template-rows: auto minmax(var(--moves-awful-preview-min), 1fr);
+    grid-template-rows: none;
     gap: clamp(1rem, 2vw, 1.5rem);
-    min-block-size: clamp(28rem, 64vw, 48rem);
+    min-block-size: 0;
+  }
+
+  .moves-awful-showcase .animated-canvas-gallery-preview[hidden] {
+    display: none;
   }
 
   .moves-awful-showcase .animated-canvas-gallery-preview__header {
@@ -58,6 +103,77 @@
 
   .moves-awful-showcase .repository-link {
     display: none;
+  }
+
+  .moves-awful-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    color: var(--item-text);
+    pointer-events: none;
+  }
+
+  .moves-awful-loader[hidden] {
+    display: none;
+  }
+
+  .moves-awful-loader__mark {
+    position: relative;
+    display: block;
+    inline-size: 3rem;
+    block-size: 3rem;
+    animation: moves-awful-loader-spin 1s linear infinite;
+  }
+
+  .moves-awful-loader__mark > span {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    inline-size: 0.42rem;
+    block-size: 0.42rem;
+    background: currentColor;
+    transform:
+      rotate(calc(var(--loader-index) * 60deg))
+      translateY(-1.18rem);
+    transform-origin: 0 0;
+  }
+
+  .moves-awful-loader__mark > span:nth-child(1) {
+    --loader-index: 0;
+    opacity: 1;
+  }
+
+  .moves-awful-loader__mark > span:nth-child(2) {
+    --loader-index: 1;
+    opacity: 0.82;
+  }
+
+  .moves-awful-loader__mark > span:nth-child(3) {
+    --loader-index: 2;
+    opacity: 0.68;
+  }
+
+  .moves-awful-loader__mark > span:nth-child(4) {
+    --loader-index: 3;
+    opacity: 0.54;
+  }
+
+  .moves-awful-loader__mark > span:nth-child(5) {
+    --loader-index: 4;
+    opacity: 0.4;
+  }
+
+  .moves-awful-loader__mark > span:nth-child(6) {
+    --loader-index: 5;
+    opacity: 0.26;
+  }
+
+  @keyframes moves-awful-loader-spin {
+    to {
+      transform: rotate(1turn);
+    }
   }
 
   @media (width <= 50rem) {

@@ -5,8 +5,8 @@ export const ANIMATED_CANVAS_GALLERY_PRESETS = Object.freeze({
     "data-animation-is-looping": "true",
     "data-autoplay": "true",
     "data-animation-hover": "true",
-    "data-animation-lightbox": "true",
-    "data-animation-max-dpr": "1.5",
+    "data-animation-lightbox": "false",
+    "data-animation-max-dpr": "1.25",
   }),
 
   "project-inline": Object.freeze({
@@ -15,9 +15,9 @@ export const ANIMATED_CANVAS_GALLERY_PRESETS = Object.freeze({
     "data-animation-is-looping": "true",
     "data-autoplay": "true",
     "data-animation-hover": "true",
-    "data-animation-lightbox": "true",
+    "data-animation-lightbox": "false",
     "data-animation-center-min-factor": "0.24",
-    "data-animation-max-dpr": "1.5",
+    "data-animation-max-dpr": "1.25",
   }),
 
   "project-wide": Object.freeze({
@@ -26,8 +26,8 @@ export const ANIMATED_CANVAS_GALLERY_PRESETS = Object.freeze({
     "data-animation-is-looping": "true",
     "data-autoplay": "true",
     "data-animation-hover": "true",
-    "data-animation-lightbox": "true",
-    "data-animation-max-dpr": "2",
+    "data-animation-lightbox": "false",
+    "data-animation-max-dpr": "1.5",
   }),
 
   "project-showcase": Object.freeze({
@@ -36,10 +36,10 @@ export const ANIMATED_CANVAS_GALLERY_PRESETS = Object.freeze({
     "data-animation-is-looping": "true",
     "data-autoplay": "true",
     "data-animation-hover": "true",
-    "data-animation-lightbox": "true",
+    "data-animation-lightbox": "false",
     "data-animation-scroll-idle-ms": "140",
     "data-animation-scroll-slow-factor": "0.22",
-    "data-animation-max-dpr": "2",
+    "data-animation-max-dpr": "1.25",
   }),
 
   static: Object.freeze({
@@ -48,8 +48,8 @@ export const ANIMATED_CANVAS_GALLERY_PRESETS = Object.freeze({
     "data-animation-is-looping": "false",
     "data-autoplay": "false",
     "data-animation-hover": "false",
-    "data-animation-lightbox": "true",
-    "data-animation-max-dpr": "1.5",
+    "data-animation-lightbox": "false",
+    "data-animation-max-dpr": "1.25",
   }),
 });
 

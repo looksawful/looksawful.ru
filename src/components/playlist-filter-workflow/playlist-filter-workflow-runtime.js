@@ -1799,12 +1799,6 @@ export function initializePlaylistFilterWorkflow(scope) {
 
       async function runFilterSequence(deviceType) {
           await settleFilter({
-              open: false,
-              advanced: false,
-              phase: `${deviceType}-closed`,
-          });
-
-          await settleFilter({
               open: true,
               advanced: false,
               phase: `${deviceType}-compact`,
@@ -1823,28 +1817,19 @@ export function initializePlaylistFilterWorkflow(scope) {
               advanced: false,
               phase: `${deviceType}-compact-return`,
           });
-
-          await settleFilter({
-              open: false,
-              advanced: false,
-              phase: `${deviceType}-closed-return`,
-          });
       }
 
       async function choreography() {
-          syncDeviceMode("mobile");
+          syncDeviceMode("widescreen");
           controller.setAdvanced(false);
-          controller.close();
+          controller.open();
 
           await nextFrame();
           measureMockupHeight();
           await sleep(FILTER_MOTION_MS);
 
           while (!stopped) {
-              await runFilterSequence("mobile");
-              await morphMockup("widescreen");
               await runFilterSequence("widescreen");
-              await morphMockup("mobile");
           }
       }
 
