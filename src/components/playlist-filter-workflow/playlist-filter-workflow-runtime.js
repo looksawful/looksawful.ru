@@ -1616,6 +1616,7 @@ export function initializePlaylistFilterWorkflow(scope) {
       const mockup = scope.querySelector(
           'device-mockup[data-workflow-choreography="true"]'
       );
+      const preview = mockup?.closest(".workflow-preview");
       const filterShell = mockup?.querySelector(".filter-shell");
       const filter = mockup?.querySelector(".filter");
       const viewport = mockup?.querySelector(":scope > main");
@@ -1641,6 +1642,13 @@ export function initializePlaylistFilterWorkflow(scope) {
 
       let stopped = false;
       let activeHeightFrame = 0;
+      let activeLayoutFrame = 0;
+
+      const lengthProbe = document.createElement("i");
+      lengthProbe.setAttribute("aria-hidden", "true");
+      lengthProbe.style.cssText =
+          "position:absolute;inline-size:0;block-size:0;visibility:hidden;pointer-events:none;";
+      mockup.append(lengthProbe);
 
       const sleep = (duration) =>
           new Promise((resolve) => {
@@ -1659,15 +1667,56 @@ export function initializePlaylistFilterWorkflow(scope) {
           return Number.isFinite(parsed) ? parsed : 0;
       }
 
-      function syncDeviceMode(deviceType) {
-          const isMobile = deviceType === "mobile";
+      function cssLength(name, fallback) {
+          lengthProbe.style.inlineSize = `var(${name})`;
 
-          mockup.dataset.deviceType = deviceType;
-          mockup.dataset.scroll = isMobile ? "true" : "false";
+          const value = lengthProbe.getBoundingClientRect().width;
 
-          if (!isMobile) {
-              viewport.scrollTop = 0;
+          lengthProbe.style.inlineSize = "0";
+
+          return value > 0 ? value : fallback;
+      }
+
+      function deviceSwitchWidth() {
+          return cssLength(
+              "--device-mockup-device-switch-inline-size",
+              576
+          );
+      }
+
+      function hasUserInlineSize() {
+          return Boolean(
+              mockup.style.getPropertyValue(
+                  "--device-mockup-user-inline-size"
+              )
+          );
+      }
+
+      function availableInlineSize() {
+          const target =
+              hasUserInlineSize() ||
+              mockup.dataset.resizing === "true"
+                  ? mockup
+                  : preview ?? mockup.parentElement ?? mockup;
+
+          return Math.max(0, target.getBoundingClientRect().width);
+      }
+
+      function deviceModeFromWidth() {
+          return availableInlineSize() >= deviceSwitchWidth()
+              ? "widescreen"
+              : "mobile";
+      }
+
+      function syncDeviceMode(deviceType = deviceModeFromWidth()) {
+          if (mockup.dataset.deviceType !== deviceType) {
+              mockup.dataset.deviceType = deviceType;
           }
+
+          mockup.dataset.scroll = "false";
+          viewport.scrollTop = 0;
+
+          return deviceType;
       }
 
       function measureMockupHeight() {
@@ -1679,7 +1728,17 @@ export function initializePlaylistFilterWorkflow(scope) {
               const viewportStyles = getComputedStyle(viewport);
               const mockupStyles = getComputedStyle(mockup);
 
-              const visualFilterHeight = Math.ceil(filterRect.height);
+              const filterScale =
+                  filter.offsetHeight > 0
+                      ? filterRect.height / filter.offsetHeight
+                      : 1;
+
+              const visualFilterHeight = Math.ceil(
+                  Math.max(
+                      filterRect.height,
+                      filter.scrollHeight * filterScale
+                  )
+              );
 
               filterShell.style.setProperty(
                   "--workflow-filter-visual-height",
@@ -1708,15 +1767,31 @@ export function initializePlaylistFilterWorkflow(scope) {
           });
       }
 
+      function syncLayout() {
+          syncDeviceMode();
+          measureMockupHeight();
+      }
+
+      function requestLayoutSync() {
+          cancelAnimationFrame(activeLayoutFrame);
+          activeLayoutFrame = requestAnimationFrame(syncLayout);
+      }
+
       const filterResizeObserver = new ResizeObserver(
-          measureMockupHeight
+          requestLayoutSync
       );
 
       filterResizeObserver.observe(filter);
 
+      const layoutResizeObserver = new ResizeObserver(
+          requestLayoutSync
+      );
+
+      layoutResizeObserver.observe(preview ?? mockup);
+
       window.addEventListener(
           "resize",
-          measureMockupHeight,
+          requestLayoutSync,
           { passive: true }
       );
 
@@ -1738,7 +1813,10 @@ export function initializePlaylistFilterWorkflow(scope) {
           await waitUntilManualResizeEnds();
           if (stopped) return;
 
-          mockup.dataset.workflowPhase = phase;
+          const deviceType = syncDeviceMode();
+
+          mockup.dataset.workflowPhase =
+              `${deviceType}-${phase}`;
 
           const currentOpen =
               filter.dataset.filterOpen === "true";
@@ -1797,30 +1875,30 @@ export function initializePlaylistFilterWorkflow(scope) {
           await sleep(HOLD_SHORT_MS);
       }
 
-      async function runFilterSequence(deviceType) {
+      async function runFilterSequence() {
           await settleFilter({
               open: true,
               advanced: false,
-              phase: `${deviceType}-compact`,
+              phase: "compact",
               hold: HOLD_LONG_MS,
           });
 
           await settleFilter({
               open: true,
               advanced: true,
-              phase: `${deviceType}-advanced`,
+              phase: "advanced",
               hold: HOLD_LONG_MS,
           });
 
           await settleFilter({
               open: true,
               advanced: false,
-              phase: `${deviceType}-compact-return`,
+              phase: "compact-return",
           });
       }
 
       async function choreography() {
-          syncDeviceMode("widescreen");
+          syncDeviceMode();
           controller.setAdvanced(false);
           controller.open();
 
@@ -1829,7 +1907,7 @@ export function initializePlaylistFilterWorkflow(scope) {
           await sleep(FILTER_MOTION_MS);
 
           while (!stopped) {
-              await runFilterSequence("widescreen");
+              await runFilterSequence();
           }
       }
 
@@ -1842,11 +1920,14 @@ export function initializePlaylistFilterWorkflow(scope) {
 
           stopped = true;
           filterResizeObserver.disconnect();
+          layoutResizeObserver.disconnect();
           cancelAnimationFrame(activeHeightFrame);
+          cancelAnimationFrame(activeLayoutFrame);
+          lengthProbe.remove();
 
           window.removeEventListener(
               "resize",
-              measureMockupHeight
+              requestLayoutSync
           );
           window.removeEventListener(
               "pagehide",

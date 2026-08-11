@@ -216,17 +216,18 @@
     }
 
     .tempo-shell {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 118px;
         gap: 12px;
         block-size: 62px;
     }
 
     .tempo-main {
-        flex: 0 0 228px;
+        min-inline-size: 0;
     }
 
     .tempo-fields {
-        flex: 0 0 118px;
+        min-inline-size: 0;
     }
 
     .rating-row {
@@ -568,7 +569,12 @@
 
     .range-copy__current {
         position: absolute;
-        inset-inline-start: 103px;
+        inset-inline-start:
+            clamp(
+                0px,
+                calc(var(--bpm-max-percent, 48%) - 10px),
+                calc(100% - 20px)
+            );
         inset-block-start: 0;
 
         inline-size: 20px;
@@ -582,15 +588,17 @@
 
     .range-control {
         position: relative;
+        inline-size: 100%;
+        min-inline-size: 0;
         block-size: 12px;
     }
 
     .range-control__rail {
         position: absolute;
-        inset-inline-start: 6px;
+        inset-inline: 6px;
         inset-block-start: 5px;
 
-        inline-size: 216px;
+        inline-size: auto;
         block-size: 2px;
         background: rgb(118 118 128 / 24%);
     }
@@ -3843,7 +3851,15 @@
 
     .workflow-preview
         > device-mockup[data-device-type="mobile"] {
-        --device-mockup-inline-size: min(22rem, 100%);
+        --device-mockup-inline-size:
+            min(
+                100%,
+                calc(
+                    var(--filter-inline-size) +
+                    (var(--device-mockup-content-padding) * 2) +
+                    2px
+                )
+            );
         --device-mockup-block-size: min(48rem, 78svh);
     }
 
@@ -3878,7 +3894,15 @@
 
         .workflow-preview
             > device-mockup[data-device-type="mobile"] {
-            --device-mockup-inline-size: min(23rem, 100%);
+            --device-mockup-inline-size:
+                min(
+                    100%,
+                    calc(
+                        var(--filter-inline-size) +
+                        (var(--device-mockup-content-padding) * 2) +
+                        2px
+                    )
+                );
             --device-mockup-block-size: min(50rem, 86svh);
         }
 
@@ -4230,12 +4254,14 @@
 
 .workflow-preview.stable-slot
     > device-mockup[data-workflow-choreography="true"] {
-    block-size: clamp(
+    block-size: max(
         var(--workflow-device-min-block-size),
-        var(--workflow-content-block-size),
-        var(--workflow-device-max-block-size)
+        var(
+            --workflow-content-block-size,
+            var(--workflow-device-min-block-size)
+        )
     );
-    max-block-size: var(--workflow-device-max-block-size);
+    max-block-size: none;
 }
 
 .workflow-preview.stable-slot
