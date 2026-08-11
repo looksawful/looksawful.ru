@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node tools/build-responsive-media.mjs",
     "preview": "vite preview",
     "test": "node --test"
   },
