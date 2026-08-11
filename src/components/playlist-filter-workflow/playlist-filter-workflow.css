@@ -931,14 +931,6 @@
 }
 
 @layer utilities {
-    .stable-slot {
-        block-size: var(--stable-slot-block-size, auto);
-        min-block-size: var(--stable-slot-min-block-size, 0);
-        max-block-size: var(--stable-slot-max-block-size, none);
-        overflow: var(--stable-slot-overflow, clip);
-        contain: layout paint;
-    }
-
     .visually-hidden {
         position: absolute;
         inline-size: 1px;
@@ -3020,11 +3012,22 @@
         margin-inline: auto;
     }
 
+    device-mockup[data-content="playlist-filter"][data-device-type="mobile"]
+        > main
+        > .filter-shell {
+        inline-size: var(--filter-inline-size);
+        max-inline-size: var(--filter-inline-size);
+    }
+
     device-mockup[data-content="playlist-filter"] .filter {
         margin-inline: auto;
 
         scale: var(--device-mockup-content-scale);
         transform-origin: top center;
+    }
+
+    device-mockup[data-content="playlist-filter"][data-device-type="mobile"] .filter {
+        inline-size: var(--filter-inline-size);
     }
 
     /* The resize zone remains easy to catch without adding visual chrome. */
@@ -3036,8 +3039,8 @@
 
     @container device-mockup (inline-size < 24rem) {
         device-mockup[data-content="playlist-filter"] {
-            --device-mockup-content-padding: 0.625rem;
-            --device-mockup-content-scale: 0.96;
+            --device-mockup-content-padding: 0.1875rem;
+            --device-mockup-content-scale: 0.94;
         }
     }
 
@@ -3865,7 +3868,7 @@
 
     .workflow-preview
         > device-mockup[data-device-type="widescreen"] {
-        --device-mockup-inline-size: min(100%, 50rem);
+        --device-mockup-inline-size: min(100%, 66.25rem);
         --device-mockup-block-size: min(44rem, 78svh);
     }
 
@@ -3908,7 +3911,7 @@
 
         .workflow-preview
             > device-mockup[data-device-type="widescreen"] {
-            --device-mockup-inline-size: min(100%, 52rem);
+            --device-mockup-inline-size: min(100%, 66.25rem);
             --device-mockup-block-size: min(46rem, 86svh);
         }
     }
@@ -3936,18 +3939,17 @@
             minmax(0, 1fr);
 
         min-block-size: var(--workflow-device-min-block-size);
-        max-block-size: var(--workflow-device-max-block-size);
-        block-size: clamp(
+        max-block-size: none;
+        block-size: max(
             var(--workflow-device-min-block-size),
-            var(--workflow-content-block-size),
-            var(--workflow-device-max-block-size)
+            var(
+                --workflow-content-block-size,
+                var(--workflow-device-min-block-size)
+            )
         );
 
         transition:
             inline-size 1400ms var(--device-mockup-ease-morph),
-            block-size 1400ms var(--device-mockup-ease-morph),
-            min-block-size 1400ms var(--device-mockup-ease-morph),
-            max-block-size 1400ms var(--device-mockup-ease-morph),
             min-inline-size 1400ms var(--device-mockup-ease-morph),
             max-inline-size 1400ms var(--device-mockup-ease-morph),
             border-radius 1400ms var(--device-mockup-ease-morph);
@@ -3992,6 +3994,7 @@
         min-block-size: 0;
         block-size: auto;
         overflow-x: hidden;
+        overflow-y: hidden;
     }
 
     .workflow-preview
@@ -4031,6 +4034,7 @@
         > .filter-shell {
         min-block-size: 0;
         block-size: var(--workflow-filter-visual-height, auto);
+        overflow: visible;
     }
 
     @media (width <= 34rem) {
@@ -4047,7 +4051,7 @@
 
 /* =========================================================
    SUBTLE PHYSICAL FILTER MOTION
-   Height carries the main motion; content only fades/slides.
+   The media slot stays stable; content only fades/slides.
    ========================================================= */
 
 @layer preview {
@@ -4055,12 +4059,7 @@
         > device-mockup[data-workflow-choreography="true"]
         > main
         > .filter-shell {
-        overflow: clip;
-        will-change: block-size;
-
-        transition:
-            block-size 1180ms
-                cubic-bezier(0.22, 1.06, 0.36, 1);
+        overflow: visible;
     }
 
     .workflow-preview
@@ -4068,12 +4067,6 @@
         transition:
             inline-size 1550ms
                 var(--device-mockup-ease-morph),
-            block-size 1180ms
-                cubic-bezier(0.22, 1.04, 0.36, 1),
-            min-block-size 1180ms
-                cubic-bezier(0.22, 1.04, 0.36, 1),
-            max-block-size 1180ms
-                cubic-bezier(0.22, 1.04, 0.36, 1),
             min-inline-size 1550ms
                 var(--device-mockup-ease-morph),
             max-inline-size 1550ms
@@ -4237,8 +4230,6 @@
 .workflow-preview {
     inline-size: 100%;
     justify-items: center;
-    --stable-slot-block-size: auto;
-    --stable-slot-overflow: visible;
 }
 
 @media (width > 64rem) {
@@ -4248,66 +4239,5 @@
 
     .workflow-preview {
         justify-items: center;
-        --stable-slot-block-size: auto;
     }
-}
-
-.workflow-preview.stable-slot
-    > device-mockup[data-workflow-choreography="true"] {
-    block-size: max(
-        var(--workflow-device-min-block-size),
-        var(
-            --workflow-content-block-size,
-            var(--workflow-device-min-block-size)
-        )
-    );
-    max-block-size: none;
-}
-
-.workflow-preview.stable-slot
-    > device-mockup[data-workflow-choreography="true"]
-    > main {
-    overflow: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.workflow-preview.stable-slot
-    > device-mockup[data-workflow-choreography="true"]
-    > main::-webkit-scrollbar {
-    display: none;
-    inline-size: 0;
-    block-size: 0;
-}
-
-.workflow-preview.stable-slot
-    > device-mockup[data-workflow-choreography="true"]
-    > main
-    > .filter-shell.stable-slot {
-    --stable-slot-block-size: var(--workflow-filter-visual-height, auto);
-    --stable-slot-overflow: clip;
-    block-size: var(--stable-slot-block-size);
-    min-block-size: 0;
-    max-block-size: none;
-    overflow: var(--stable-slot-overflow);
-    contain: layout paint;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    overscroll-behavior: contain;
-}
-
-.workflow-preview.stable-slot
-    > device-mockup[data-workflow-choreography="true"]
-    .filter {
-    block-size: auto;
-    min-block-size: 0;
-}
-
-.workflow-preview.stable-slot
-    > device-mockup[data-workflow-choreography="true"]
-    > main
-    > .filter-shell.stable-slot::-webkit-scrollbar {
-    display: none;
-    inline-size: 0;
-    block-size: 0;
 }

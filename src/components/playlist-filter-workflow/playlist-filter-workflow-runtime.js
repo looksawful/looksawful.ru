@@ -1643,6 +1643,8 @@ export function initializePlaylistFilterWorkflow(scope) {
       let stopped = false;
       let activeHeightFrame = 0;
       let activeLayoutFrame = 0;
+      const stableFilterHeights = new Map();
+      const stableContentHeights = new Map();
 
       const lengthProbe = document.createElement("i");
       lengthProbe.setAttribute("aria-hidden", "true");
@@ -1719,52 +1721,76 @@ export function initializePlaylistFilterWorkflow(scope) {
           return deviceType;
       }
 
+      function heightMemoryKey() {
+          const deviceType =
+              mockup.dataset.deviceType || deviceModeFromWidth();
+          const filterShellWidth = Math.round(
+              filterShell.getBoundingClientRect().width
+          );
+
+          return `${deviceType}:${filterShellWidth}`;
+      }
+
       function measureMockupHeight() {
           cancelAnimationFrame(activeHeightFrame);
+          activeHeightFrame = 0;
 
-          activeHeightFrame = requestAnimationFrame(() => {
-              const filterRect = filter.getBoundingClientRect();
-              const panelRect = panel.getBoundingClientRect();
-              const viewportStyles = getComputedStyle(viewport);
-              const mockupStyles = getComputedStyle(mockup);
+          const filterRect = filter.getBoundingClientRect();
+          const panelRect = panel.getBoundingClientRect();
+          const viewportStyles = getComputedStyle(viewport);
+          const mockupStyles = getComputedStyle(mockup);
 
-              const filterScale =
-                  filter.offsetHeight > 0
-                      ? filterRect.height / filter.offsetHeight
-                      : 1;
+          const filterScale =
+              filter.offsetHeight > 0
+                  ? filterRect.height / filter.offsetHeight
+                  : 1;
 
-              const visualFilterHeight = Math.ceil(
-                  Math.max(
-                      filterRect.height,
-                      filter.scrollHeight * filterScale
-                  )
-              );
+          const visualFilterHeight = Math.ceil(
+              Math.max(
+                  filterRect.height,
+                  filter.scrollHeight * filterScale
+              )
+          );
+          const key = heightMemoryKey();
+          const stableFilterHeight = Math.max(
+              visualFilterHeight,
+              stableFilterHeights.get(key) || 0
+          );
 
-              filterShell.style.setProperty(
-                  "--workflow-filter-visual-height",
-                  `${visualFilterHeight}px`
-              );
+          stableFilterHeights.set(key, stableFilterHeight);
 
-              const paddingBlock =
-                  parseLength(viewportStyles.paddingBlockStart) +
-                  parseLength(viewportStyles.paddingBlockEnd);
+          filterShell.style.setProperty(
+              "--workflow-filter-visual-height",
+              `${stableFilterHeight}px`
+          );
 
-              const borderBlock =
-                  parseLength(mockupStyles.borderBlockStartWidth) +
-                  parseLength(mockupStyles.borderBlockEndWidth);
+          const paddingBlock =
+              parseLength(viewportStyles.paddingBlockStart) +
+              parseLength(viewportStyles.paddingBlockEnd);
 
-              const contentHeight = Math.ceil(
-                  panelRect.height +
-                  paddingBlock +
-                  visualFilterHeight +
-                  borderBlock
-              );
+          const borderBlock =
+              parseLength(mockupStyles.borderBlockStartWidth) +
+              parseLength(mockupStyles.borderBlockEndWidth);
 
-              mockup.style.setProperty(
-                  "--workflow-content-block-size",
-                  `${contentHeight}px`
-              );
-          });
+          const contentHeight = Math.ceil(
+              panelRect.height +
+              paddingBlock +
+              stableFilterHeight +
+              borderBlock
+          );
+          const stableContentHeight = Math.max(
+              contentHeight,
+              stableContentHeights.get(key) || 0
+          );
+
+          stableContentHeights.set(key, stableContentHeight);
+
+          mockup.style.setProperty(
+              "--workflow-content-block-size",
+              `${stableContentHeight}px`
+          );
+
+          return Promise.resolve(stableContentHeight);
       }
 
       function syncLayout() {
@@ -1844,7 +1870,7 @@ export function initializePlaylistFilterWorkflow(scope) {
           }
 
           await nextFrame();
-          measureMockupHeight();
+          await measureMockupHeight();
 
           if (stateChanges && open) {
               void filter.offsetHeight;
@@ -1870,9 +1896,21 @@ export function initializePlaylistFilterWorkflow(scope) {
           syncDeviceMode(deviceType);
 
           await nextFrame();
-          measureMockupHeight();
+          await measureMockupHeight();
           await sleep(MOCKUP_MOTION_MS);
           await sleep(HOLD_SHORT_MS);
+      }
+
+      async function primeWorkflowHeight() {
+          await waitUntilManualResizeEnds();
+          if (stopped) return;
+
+          syncDeviceMode();
+          controller.open();
+          controller.setAdvanced(true);
+
+          await nextFrame();
+          await measureMockupHeight();
       }
 
       async function runFilterSequence() {
@@ -1899,11 +1937,12 @@ export function initializePlaylistFilterWorkflow(scope) {
 
       async function choreography() {
           syncDeviceMode();
+          await primeWorkflowHeight();
+
           controller.setAdvanced(false);
           controller.open();
-
           await nextFrame();
-          measureMockupHeight();
+          await measureMockupHeight();
           await sleep(FILTER_MOTION_MS);
 
           while (!stopped) {
@@ -1912,7 +1951,9 @@ export function initializePlaylistFilterWorkflow(scope) {
       }
 
       function handleMockupPointerEnd() {
-          requestAnimationFrame(measureMockupHeight);
+          requestAnimationFrame(() => {
+              void measureMockupHeight();
+          });
       }
 
       function destroyChoreography() {

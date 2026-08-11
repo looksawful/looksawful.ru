@@ -105,6 +105,14 @@
     aspect-ratio: 4 / 5;
   }
 
+  [data-media-ratio="near-square"] {
+    aspect-ratio: 407 / 425;
+  }
+
+  [data-media-ratio="portrait-ui"] {
+    aspect-ratio: 85 / 112;
+  }
+
   [data-media-ratio="square"] {
     aspect-ratio: 1;
   }

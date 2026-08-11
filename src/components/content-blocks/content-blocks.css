@@ -685,7 +685,7 @@
   }
 
   .cv-story--workflow-pile {
-    --workflow-pile-gap: clamp(1rem, 2.5vw, 1.75rem);
+    --workflow-pile-gap: clamp(1.25rem, 3vw, 2.5rem);
 
     display: grid;
     gap: var(--workflow-pile-gap);
@@ -713,19 +713,21 @@
   }
 
   .workflow-pile__support-gallery {
-    margin-block-start: clamp(0.25rem, 1vw, 0.75rem);
+    --media-gallery-context-gap: clamp(0.75rem, 1.6vw, 1.25rem);
+
+    margin-block-start: clamp(0.75rem, 2vw, 1.5rem);
   }
 
   .cv-story--tariff-showcase {
     display: grid;
-    gap: clamp(1rem, 2.5vw, 1.75rem);
+    gap: clamp(1.25rem, 3vw, 2.5rem);
     inline-size: min(100%, var(--cv-media-grid-max));
     max-inline-size: none;
     margin-inline: auto;
   }
 
   .tariff-showcase__support {
-    inline-size: min(100%, 34rem);
+    inline-size: min(100%, 28rem);
     margin-inline: auto;
   }
 
@@ -944,8 +946,18 @@
     }
 
     .workflow-pile__support-gallery {
-      inline-size: min(100%, 58rem);
+      inline-size: min(100%, 62rem);
       margin-inline: auto;
+    }
+
+    .cv-story--tariff-showcase {
+      grid-template-columns: minmax(0, 1.48fr) minmax(15rem, 0.62fr);
+      align-items: start;
+    }
+
+    .tariff-showcase__support {
+      inline-size: 100%;
+      margin-inline: 0;
     }
   }
 
