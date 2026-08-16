@@ -1,17 +1,9 @@
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const noop = () => {};
 
-export function createSensetiqueCrossfades(
-  scene,
-  { motion, sceneRuntime, signal } = {},
-) {
+export function createSensetiqueCrossfades(scene, { motion, signal } = {}) {
   const state = {
-    sceneActive: sceneRuntime
-      ? false
-      : scene.querySelector(".cv-item__header")?.getAttribute("aria-expanded") === "true",
-    documentVisible: sceneRuntime
-      ? sceneRuntime.documentVisible
-      : document.visibilityState !== "hidden",
+    documentVisible: document.visibilityState !== "hidden",
     motionAllowed:
       typeof motion?.allowsMotion === "function"
         ? motion.allowsMotion()
@@ -32,6 +24,7 @@ export function createSensetiqueCrossfades(
       const interval = Number.parseInt(slider.dataset.sliderInterval || "4200", 10);
       let index = Math.max(0, slides.findIndex((slide) => slide.hasAttribute("data-active")));
       let timer = 0;
+      let visible = false;
 
       const stop = () => {
         if (!timer) return;
@@ -74,8 +67,14 @@ export function createSensetiqueCrossfades(
 
       const sync = () => {
         stop();
-        if (!state.sceneActive || !state.documentVisible || !state.motionAllowed) return;
+        if (!visible || !state.documentVisible || !state.motionAllowed) return;
         timer = window.setInterval(() => move(1), interval);
+      };
+
+      const setVisible = (nextVisible) => {
+        if (visible === nextVisible) return;
+        visible = nextVisible;
+        sync();
       };
 
       prev?.addEventListener(
@@ -98,17 +97,29 @@ export function createSensetiqueCrossfades(
       owner.addEventListener("focusout", sync, { signal });
 
       render();
-      return { stop, sync };
+      return { owner, stop, sync, setVisible };
     })
     .filter(Boolean);
 
+  if (!records.length) return noop;
+
   const syncAll = () => records.forEach((record) => record.sync());
-  const unsubscribeScene =
-    sceneRuntime?.subscribeScene?.(scene, ({ active, documentVisible }) => {
-      state.sceneActive = active;
-      state.documentVisible = documentVisible;
-      syncAll();
-    }) ?? noop;
+  const recordByOwner = new Map(records.map((record) => [record.owner, record]));
+  const observer =
+    typeof IntersectionObserver === "function"
+      ? new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              recordByOwner.get(entry.target)?.setVisible(entry.isIntersecting);
+            });
+          },
+          { rootMargin: "20% 0px", threshold: 0.01 },
+        )
+      : null;
+
+  if (observer) records.forEach((record) => observer.observe(record.owner));
+  else records.forEach((record) => record.setVisible(true));
+
   const unsubscribeMotion =
     motion?.subscribe?.(
       ({ allowed }) => {
@@ -118,23 +129,17 @@ export function createSensetiqueCrossfades(
       { immediate: false },
     ) ?? noop;
 
-  if (!sceneRuntime) {
-    document.addEventListener(
-      "visibilitychange",
-      () => {
-        state.documentVisible = document.visibilityState !== "hidden";
-        state.sceneActive =
-          scene.querySelector(".cv-item__header")?.getAttribute("aria-expanded") === "true";
-        syncAll();
-      },
-      { signal },
-    );
-  }
-
-  syncAll();
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      state.documentVisible = document.visibilityState !== "hidden";
+      syncAll();
+    },
+    { signal },
+  );
 
   return () => {
-    unsubscribeScene();
+    observer?.disconnect();
     unsubscribeMotion();
     records.forEach((record) => record.stop());
   };
