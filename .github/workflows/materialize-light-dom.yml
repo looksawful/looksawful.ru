@@ -1,0 +1,56 @@
+name: Materialize light DOM
+
+on:
+  push:
+    branches:
+      - prod
+    paths:
+      - tools/materialize-light-dom.mjs
+      - .github/workflows/materialize-light-dom.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout prod
+        uses: actions/checkout@v4
+        with:
+          ref: prod
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Install one-time migration parser
+        run: npm install --no-save --package-lock=false linkedom@0.18.12 postcss@8.5.6
+
+      - name: Materialize source architecture
+        run: node tools/materialize-light-dom.mjs
+
+      - name: Test migrated source
+        run: npm test
+
+      - name: Build migrated source
+        run: npm run build
+
+      - name: Commit migration result
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No migration changes to commit"
+            exit 0
+          fi
+          git commit -m "Materialize light DOM and replace accordion runtime"
+          git push origin HEAD:prod
