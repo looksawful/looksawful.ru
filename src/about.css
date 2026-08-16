@@ -3,327 +3,385 @@
 
 @layer components {
   .about-page {
-    --about-gutter: 1rem;
-    --about-container-max: 86rem;
-    --about-section-space: 4rem;
-    --about-body-size: 1rem;
-    --about-body-leading: 1.42;
-    --about-lead-size: 1.65rem;
-    --about-lead-leading: 1.1;
-    --about-heading-size: 2.625rem;
-    --about-subheading-size: 1.1rem;
-    --about-display-size: 3.25rem;
-    --about-line: color-mix(in srgb, currentColor, transparent 78%);
+    --page: #fff;
+    --text: #111;
+    --muted: color-mix(in srgb, var(--text), transparent 44%);
+    --line: color-mix(in srgb, var(--text), transparent 84%);
+    --line-strong: color-mix(in srgb, var(--text), transparent 66%);
+    --gutter: clamp(.875rem, 4vw, 1.25rem);
+    --max: 86rem;
+    --gap: clamp(.7rem, 2.4vw, 1.25rem);
 
     min-inline-size: 20rem;
     margin: 0;
-    color: var(--text-main);
-    background: var(--surface-page);
+    color: var(--text);
+    background: var(--page);
     font-family: var(--font-primary);
-    font-size: var(--about-body-size);
-    line-height: var(--about-body-leading);
+    line-height: 1.3;
   }
 
   .about-page :focus-visible {
     outline: 2px solid currentColor;
-    outline-offset: 4px;
+    outline-offset: 3px;
   }
 
-  .about-container {
-    inline-size: min(
-      calc(100% - var(--about-gutter) * 2),
-      var(--about-container-max)
-    );
+  .about-page [hidden] {
+    display: none !important;
+  }
+
+  .about-page h1,
+  .about-page h2,
+  .about-page h3,
+  .about-page p,
+  .about-page ul,
+  .about-page figure {
+    margin: 0;
+  }
+
+  .about-page a {
+    color: inherit;
+  }
+
+  .about {
+    min-block-size: 100svh;
+    overflow-x: clip;
+    background: #fff;
+  }
+
+  .shell {
+    inline-size: min(calc(100% - var(--gutter) * 2), var(--max));
     margin-inline: auto;
   }
 
-  .about-section {
-    padding-block: var(--about-section-space);
+  .section {
+    border-block-start: 1px solid var(--line);
+    padding-block: .9rem 1.15rem;
   }
 
-  .about-section h2,
-  .about-outro__title {
-    font-weight: var(--font-weight-bold);
-    line-height: 0.96;
-    letter-spacing: 0;
-  }
-
-  .about-section h2 {
-    max-inline-size: 10ch;
-    font-size: var(--about-heading-size);
-  }
-
-  .about-intro {
-    display: flex;
-    align-items: flex-end;
-    min-block-size: 84svh;
-    padding-block: 2rem;
-    color: var(--clr-cv-red);
-    background: var(--clr-cv-pink);
-  }
-
-  .about-intro__layout {
+  .section-head {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    align-items: end;
-    gap: 2rem;
+    grid-template-columns: minmax(0, .38fr) minmax(0, 1.62fr);
+    gap: var(--gap);
+    align-items: baseline;
+    margin-block-end: .75rem;
   }
 
-  .about-intro__lead {
-    max-inline-size: 29ch;
-    font-size: var(--about-lead-size);
+  .section-head h2 {
+    font-size: clamp(1rem, 3.8vw, 1.28rem);
     font-weight: var(--font-weight-semibold);
-    line-height: var(--about-lead-leading);
-    letter-spacing: 0;
+    line-height: 1;
+    letter-spacing: -.035em;
   }
 
-  .about-intro__portrait[hidden] {
-    display: none;
-  }
-
-  .about-section--copy {
-    --prose-space: 1.35rem;
-
-    color: var(--clr-black);
-    background: var(--clr-white);
-  }
-
-  .about-section--copy p {
-    max-inline-size: 68ch;
-    font-size: var(--about-body-size);
-    line-height: var(--about-body-leading);
-    letter-spacing: 0;
-  }
-
-  .about-section--copy p:first-child {
-    max-inline-size: 45ch;
-    font-size: 1.35rem;
-    font-weight: var(--font-weight-medium);
-    line-height: 1.24;
-  }
-
-  .about-section--capabilities {
-    color: var(--clr-cv-ink);
-    background: var(--clr-cv-warm-gray);
-  }
-
-  .about-rule {
-    border: 0;
-    border-block-start: 1px solid var(--about-line);
-    margin: 1.5rem 0 0;
-  }
-
-  .about-capabilities-grid {
-    --auto-grid-min: 18rem;
-    --auto-grid-row-gap: 2rem;
-    --auto-grid-column-gap: 1rem;
-
-    margin-block-start: 2rem;
-  }
-
-  .about-capabilities-grid > article {
+  .intro {
     display: grid;
-    align-content: start;
-    gap: 0.65rem;
-    padding-block-start: 1rem;
-    border-block-start: 1px solid var(--about-line);
+    align-content: end;
+    min-block-size: 32svh;
+    padding-block: .9rem 1.1rem;
   }
 
-  .about-capabilities-grid h3 {
-    max-inline-size: 22ch;
-    font-size: var(--about-subheading-size);
-    font-weight: var(--font-weight-semibold);
-    line-height: 1.12;
-    letter-spacing: 0;
-  }
-
-  .about-capabilities-grid p {
-    max-inline-size: 38ch;
-    color: color-mix(in srgb, currentColor, transparent 28%);
-    font-size: 0.95rem;
-    line-height: 1.38;
-  }
-
-  .about-experience {
-    --experience-columns: minmax(10rem, 1fr) minmax(0, 2fr) auto;
-
-    border-block-start: 1px solid var(--about-line);
-  }
-
-  .about-experience summary {
+  .intro__topline {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-    padding-block: 1rem;
-    border-block-end: 1px solid var(--about-line);
-    font-weight: var(--font-weight-semibold);
-    cursor: pointer;
-    list-style: none;
+    margin-block-end: clamp(1.8rem, 7vw, 3.5rem);
+    border-block-start: 1px solid var(--line-strong);
+    padding-block-start: .45rem;
+    color: var(--muted);
+    font-size: .66rem;
+    line-height: 1.15;
   }
 
-  .about-experience summary::-webkit-details-marker {
-    display: none;
+  .intro__topline span:last-child {
+    max-inline-size: 38ch;
+    text-align: end;
   }
 
-  .about-experience summary::marker {
-    content: "";
-  }
-
-  .about-experience summary::after {
-    content: "+";
-    font-weight: var(--font-weight-regular);
-  }
-
-  .about-experience[open] summary::after {
-    content: "-";
-  }
-
-  .about-experience__head {
-    display: none;
-  }
-
-  .about-experience ul {
-    padding: 0;
-    list-style: none;
-  }
-
-  .about-experience li {
+  .intro__layout {
     display: grid;
-    gap: 0.4rem;
-    padding-block: 1rem;
-    border-block-end: 1px solid var(--about-line);
-    font-size: 0.95rem;
-    line-height: 1.32;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "title"
+      "lead";
+    gap: .6rem;
+    align-items: end;
   }
 
-  .about-experience li > :first-child {
+  .intro__title {
+    grid-area: title;
+    max-inline-size: 16ch;
+    font-size: clamp(1.75rem, 6.7vw, 3.35rem);
+    font-weight: var(--font-weight-semibold);
+    line-height: .98;
+    letter-spacing: -.05em;
+    text-wrap: balance;
+  }
+
+  .intro__lead {
+    grid-area: lead;
+    max-inline-size: 35ch;
+    font-size: clamp(.92rem, 3.6vw, 1.15rem);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.18;
+    letter-spacing: -.022em;
+    text-wrap: pretty;
+  }
+
+  .about-copy {
+    display: grid;
+    gap: .72rem;
+    max-inline-size: 46rem;
+  }
+
+  .about-copy p {
+    max-inline-size: 68ch;
+    font-size: .78rem;
+    line-height: 1.4;
+    letter-spacing: -.006em;
+    text-wrap: pretty;
+  }
+
+  .about-copy p:first-child {
+    max-inline-size: 48ch;
+    font-size: .92rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.28;
+    letter-spacing: -.016em;
+  }
+
+  .skills-index {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 .8rem;
+    border-block-start: 1px solid var(--line-strong);
+  }
+
+  .skill {
+    position: relative;
+    display: grid;
+    align-content: start;
+    grid-template-columns: 1.8rem minmax(0, 1fr);
+    gap: .18rem .45rem;
+    padding-block: .48rem .52rem;
+    border-block-end: 1px solid var(--line);
+  }
+
+  .skill::before {
+    content: attr(data-skill-index);
+    grid-row: 1 / 3;
+    color: var(--muted);
+    font-size: .56rem;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .skill h3 {
+    max-inline-size: 22ch;
+    font-size: .72rem;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.1;
+    letter-spacing: -.018em;
+  }
+
+  .skill p {
+    max-inline-size: 36ch;
+    color: var(--muted);
+    font-size: .62rem;
+    line-height: 1.3;
+    text-wrap: pretty;
+  }
+
+  .experience {
+    border-block-start: 1px solid var(--line-strong);
+  }
+
+  .experience__head,
+  .experience__row {
+    display: grid;
+    grid-template-columns: minmax(6.4rem, .9fr) minmax(0, 1.7fr) auto;
+    gap: .55rem;
+    align-items: baseline;
+  }
+
+  .experience__head {
+    padding-block: .4rem;
+    color: var(--muted);
+    font-size: .56rem;
+    line-height: 1;
+  }
+
+  .experience__row {
+    padding-block: .48rem;
+    border-block-start: 1px solid var(--line);
+    font-size: .62rem;
+    line-height: 1.18;
+  }
+
+  .experience__row strong {
     font-weight: var(--font-weight-semibold);
   }
 
-  .about-experience li > :not(:first-child) {
-    color: var(--text-muted);
+  .experience__row span:nth-child(2) {
+    color: var(--muted);
   }
 
-  .about-outro {
-    --stack-space: 3.5rem;
-
-    padding-block: 4rem 2rem;
-    color: var(--clr-white);
-    background: var(--clr-black);
+  .experience__row span:last-child,
+  .experience__head span:last-child {
+    text-align: end;
+    white-space: nowrap;
   }
 
-  .about-outro .btn {
-    --btn-font-size: 1rem;
-    --btn-padding-block: 0.72em;
-    --btn-padding-inline: 1.25em;
-
-    text-decoration: none;
+  .contact {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    border-block-start: 1px solid var(--line-strong);
+    padding-block: .75rem 1rem;
+    font-size: .7rem;
   }
 
-  .about-outro h2 {
-    margin-block-end: 0.75rem;
-    color: color-mix(in srgb, currentColor, transparent 38%);
-    font-size: 0.95rem;
-    font-weight: var(--font-weight-regular);
-    line-height: 1.1;
-    letter-spacing: 0;
+  .contact a {
+    font-weight: var(--font-weight-semibold);
+    text-underline-offset: .18em;
+    text-decoration-thickness: 1px;
   }
 
-  .about-outro p:not(.about-outro__title) {
-    max-inline-size: 42ch;
-    font-size: 1rem;
-    line-height: 1.35;
+  .contact__name {
+    color: var(--muted);
   }
 
-  .about-outro__title {
-    max-inline-size: none;
-    overflow-wrap: anywhere;
-    color: var(--clr-white);
-    font-size: var(--about-display-size);
-  }
-
-  @media (width >= 48rem) {
-    .about-page {
-      --about-gutter: 2rem;
-      --about-section-space: 5.5rem;
-      --about-body-size: 1.1rem;
-      --about-lead-size: 2.35rem;
-      --about-heading-size: 4rem;
-      --about-subheading-size: 1.35rem;
-      --about-display-size: 6.5rem;
+  @media (max-width: 43.999rem) {
+    .skills-index {
+      grid-template-columns: none;
+      grid-template-rows: repeat(4, minmax(4.35rem, auto));
+      grid-auto-flow: column;
+      grid-auto-columns: min(74vw, 20rem);
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-inline: contain;
+      scroll-snap-type: inline proximity;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
-    .about-intro {
-      min-block-size: 88svh;
-      padding-block: 3rem;
-    }
-
-    .about-intro__layout {
-      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.42fr);
-    }
-
-    .about-section--copy p:first-child {
-      font-size: 1.75rem;
-    }
-
-    .about-capabilities-grid {
-      --auto-grid-min: 24rem;
-      --auto-grid-row-gap: 2.5rem;
-      --auto-grid-column-gap: 1.5rem;
-    }
-
-    .about-experience summary {
+    .skills-index::-webkit-scrollbar {
       display: none;
     }
 
-    .about-experience__head,
-    .about-experience li {
-      display: grid;
-      grid-template-columns: var(--experience-columns);
-      align-items: baseline;
-      gap: 2rem;
-      padding-block: 1rem;
-      border-block-end: 1px solid var(--about-line);
-    }
-
-    .about-experience__head {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      line-height: 1.2;
-    }
-
-    .about-experience li > :last-child,
-    .about-experience__head > :last-child {
-      text-align: end;
-      white-space: nowrap;
-    }
-
-    .about-outro {
-      --stack-space: 4.5rem;
-
-      padding-block-start: 5rem;
+    .skill {
+      scroll-snap-align: start;
     }
   }
 
-  @media (width >= 72rem) {
+  @media (min-width: 44rem) {
     .about-page {
-      --about-gutter: 2.625rem;
-      --about-section-space: 7rem;
-      --about-body-size: 1.25rem;
-      --about-lead-size: 3.15rem;
-      --about-heading-size: 5.25rem;
-      --about-subheading-size: 1.5rem;
-      --about-display-size: 8rem;
+      --gutter: clamp(1.5rem, 3vw, 2.625rem);
     }
 
-    .about-section--copy p:first-child {
-      font-size: 2rem;
+    .intro {
+      min-block-size: 42svh;
+      padding-block: 1.25rem 1.45rem;
     }
 
-    .about-capabilities-grid {
-      --auto-grid-min: 28rem;
-      --auto-grid-row-gap: 3rem;
-      --auto-grid-column-gap: 2rem;
+    .intro__topline {
+      margin-block-end: clamp(2.5rem, 6vw, 5rem);
+      font-size: .72rem;
+    }
+
+    .intro__layout {
+      grid-template-columns: minmax(0, .72fr) minmax(22rem, 1.28fr);
+      grid-template-areas: "title lead";
+      gap: clamp(2rem, 7vw, 7rem);
+    }
+
+    .intro__title {
+      font-size: clamp(2.5rem, 4.8vw, 4.3rem);
+    }
+
+    .intro__lead {
+      font-size: clamp(1.05rem, 1.7vw, 1.42rem);
+    }
+
+    .section {
+      padding-block: 1.15rem 1.45rem;
+    }
+
+    .section-head {
+      grid-template-columns: minmax(10rem, .3fr) minmax(0, 1.7fr);
+      margin-block-end: .9rem;
+    }
+
+    .about-copy {
+      max-inline-size: 50rem;
+      gap: .8rem;
+    }
+
+    .about-copy p {
+      font-size: .84rem;
+    }
+
+    .about-copy p:first-child {
+      font-size: 1rem;
+    }
+
+    .skills-index {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: 1rem;
+    }
+
+    .skill h3 {
+      font-size: .78rem;
+    }
+
+    .skill p {
+      font-size: .66rem;
+    }
+
+    .experience__row {
+      grid-template-columns: minmax(10rem, .9fr) minmax(0, 1.8fr) auto;
+      gap: 1rem;
+      font-size: .7rem;
+    }
+
+    .contact {
+      font-size: .78rem;
+    }
+  }
+
+  @media (min-width: 72rem) {
+    .intro {
+      min-block-size: 46svh;
+    }
+
+    .about-copy p {
+      font-size: .88rem;
+    }
+
+    .about-copy p:first-child {
+      font-size: 1.05rem;
+    }
+
+    .skills-index {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .skill h3 {
+      font-size: .82rem;
+    }
+
+    .skill p {
+      font-size: .69rem;
+    }
+
+    .experience__row {
+      font-size: .75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skills-index {
+      scroll-behavior: auto;
     }
   }
 }
