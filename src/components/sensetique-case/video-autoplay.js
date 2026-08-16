@@ -1,14 +1,19 @@
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const noop = () => {};
 
-export function createViewportVideoPlayback(
-  scene,
-  { motion, sceneRuntime, signal } = {},
-) {
+export function createViewportVideoPlayback(scene, { motion, signal } = {}) {
   const videos = [...scene.querySelectorAll("video[data-sensetique-autoplay]")];
   if (!videos.length) return noop;
 
   const visible = new WeakMap();
+  const state = {
+    documentVisible: document.visibilityState !== "hidden",
+    motionAllowed:
+      typeof motion?.allowsMotion === "function"
+        ? motion.allowsMotion()
+        : !window.matchMedia?.(REDUCED_MOTION_QUERY).matches,
+  };
+
   videos.forEach((video) => {
     visible.set(video, false);
     video.muted = true;
@@ -19,23 +24,9 @@ export function createViewportVideoPlayback(
     video.pause();
   });
 
-  const state = {
-    sceneActive: sceneRuntime
-      ? false
-      : scene.querySelector(".cv-item__header")?.getAttribute("aria-expanded") === "true",
-    documentVisible: sceneRuntime
-      ? sceneRuntime.documentVisible
-      : document.visibilityState !== "hidden",
-    motionAllowed:
-      typeof motion?.allowsMotion === "function"
-        ? motion.allowsMotion()
-        : !window.matchMedia?.(REDUCED_MOTION_QUERY).matches,
-  };
-
   const syncVideo = (video) => {
     const shouldPlay =
       visible.get(video) === true &&
-      state.sceneActive &&
       state.documentVisible &&
       state.motionAllowed;
 
@@ -44,8 +35,7 @@ export function createViewportVideoPlayback(
       return;
     }
 
-    const playPromise = video.play();
-    playPromise?.catch?.(noop);
+    video.play()?.catch?.(noop);
   };
 
   const syncAll = () => videos.forEach(syncVideo);
@@ -55,14 +45,13 @@ export function createViewportVideoPlayback(
       ? new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
-              if (entry.target instanceof HTMLVideoElement) {
-                visible.set(
-                  entry.target,
-                  entry.isIntersecting && entry.intersectionRatio >= 0.15,
-                );
-              }
+              if (!(entry.target instanceof HTMLVideoElement)) return;
+              visible.set(
+                entry.target,
+                entry.isIntersecting && entry.intersectionRatio >= 0.15,
+              );
+              syncVideo(entry.target);
             });
-            syncAll();
           },
           { threshold: [0, 0.15, 0.5] },
         )
@@ -70,13 +59,6 @@ export function createViewportVideoPlayback(
 
   if (observer) videos.forEach((video) => observer.observe(video));
   else videos.forEach((video) => visible.set(video, true));
-
-  const unsubscribeScene =
-    sceneRuntime?.subscribeScene?.(scene, ({ active, documentVisible }) => {
-      state.sceneActive = active;
-      state.documentVisible = documentVisible;
-      syncAll();
-    }) ?? noop;
 
   const unsubscribeMotion =
     motion?.subscribe?.(
@@ -87,24 +69,19 @@ export function createViewportVideoPlayback(
       { immediate: false },
     ) ?? noop;
 
-  if (!sceneRuntime) {
-    document.addEventListener(
-      "visibilitychange",
-      () => {
-        state.documentVisible = document.visibilityState !== "hidden";
-        state.sceneActive =
-          scene.querySelector(".cv-item__header")?.getAttribute("aria-expanded") === "true";
-        syncAll();
-      },
-      { signal },
-    );
-  }
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      state.documentVisible = document.visibilityState !== "hidden";
+      syncAll();
+    },
+    { signal },
+  );
 
   syncAll();
 
   return () => {
     observer?.disconnect();
-    unsubscribeScene();
     unsubscribeMotion();
     videos.forEach((video) => video.pause());
   };
