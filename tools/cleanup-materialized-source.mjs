@@ -45,21 +45,6 @@ document.querySelectorAll(".cv-item__content > .cv-story[hidden]").forEach((sect
   }
 });
 
-// Headers and bodies are no longer disclosure controls. Remove stale linkage ids
-// only when nothing in the document still references them.
-for (const header of document.querySelectorAll("#cv .cv-item__header[id^='cv-trigger-']")) {
-  const id = header.id;
-  if (!document.querySelector(`[aria-labelledby="${id}"], [aria-controls="${id}"]`)) {
-    header.removeAttribute("id");
-  }
-}
-for (const body of document.querySelectorAll("#cv .cv-item__body[id^='cv-panel-']")) {
-  const id = body.id;
-  if (!document.querySelector(`[aria-labelledby="${id}"], [aria-controls="${id}"]`)) {
-    body.removeAttribute("id");
-  }
-}
-
 const projectsAfter = [...document.querySelectorAll("#cv .cv-item__project")].map((node) =>
   node.textContent.replace(/\s+/g, " ").trim(),
 );
