@@ -1,5 +1,14 @@
 /* Sensetique integration styles. Uses existing site accordion/theme/typography/media primitives. */
 
+
+.cv-item--sensetique {
+  --item-body-bg: var(--item-bg);
+}
+
+.cv-item--sensetique .cv-item__body {
+  background: var(--item-bg);
+}
+
 .cv-item--sensetique .cv-story--sensetique-section,
 .cv-item--sensetique .cv-story--sensetique-intro{
 inline-size:min(
@@ -694,35 +703,6 @@ display:flex;align-items:center;justify-content:center;gap:.45rem;
 display:grid;place-items:center;inline-size:2rem;block-size:2rem;padding:0;
   border:0;border-radius:999px;color:inherit;background:transparent;cursor:pointer
 }
-
-.cv-item--sensetique .studio-structured,
-.cv-item--sensetique .production-materials{
-position:relative;isolation:isolate
-}
-
-.cv-item--sensetique .studio-structured > :not(.sensetique-section-watermark),
-.cv-item--sensetique .production-materials > :not(.sensetique-section-watermark){
-position:relative;z-index:1
-}
-
-.cv-item--sensetique .sensetique-section-watermark{
-position:sticky;inset-block-start:24svh;z-index:0;block-size:0;
-  display:flex;justify-content:flex-end;padding-inline:var(--cv-panel-padding-inline);
-  pointer-events:none;overflow:visible
-}
-
-.cv-item--sensetique .sensetique-section-watermark img{
-inline-size:clamp(13rem,30vw,32rem);max-block-size:45svh;object-fit:contain;
-  opacity:.045;filter:grayscale(1);transform:translate3d(0,-10%,0)
-}
-
-
-
-
-
-
-
-
 
 .cv-item--sensetique .sensetique-olovo-booklet{
 margin-block-start:clamp(1.25rem,3vw,2.5rem)
