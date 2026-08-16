@@ -6,6 +6,7 @@ on:
       - prod
     paths:
       - tools/materialize-light-dom.mjs
+      - tools/materialize-light-dom-runner.mjs
       - .github/workflows/materialize-light-dom.yml
 
 permissions:
@@ -34,7 +35,7 @@ jobs:
         run: npm install --no-save --package-lock=false linkedom@0.18.12 postcss@8.5.6
 
       - name: Materialize source architecture
-        run: node tools/materialize-light-dom.mjs
+        run: node tools/materialize-light-dom-runner.mjs
 
       - name: Test migrated source
         run: npm test
