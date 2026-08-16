@@ -12,6 +12,7 @@ import "./components/app-promo/app-promo.css";
 import "./components/browser-promo/browser-promo.css";
 import "./components/digital-scroll-gallery/digital-scroll-gallery.css";
 import "./components/awful-tools-preview/awful-tools-preview.css";
+import "./components/berserk-timer-case/berserk-timer-case.css";
 import "./components/awful-cases-showcase/awful-cases-showcase.css";
 import "./components/moves-awful/moves-awful.css";
 import "./components/animated-canvas-gallery/animated-canvas-gallery.css";
@@ -29,6 +30,7 @@ import "./components/sands-showcase/sands-showcase.css";
 
 import "./components/playlist-filter-workflow/playlist-filter-workflow.js";
 import { setAwfulToolsAccordionRuntime } from "./components/awful-tools-preview/awful-tools-preview.js";
+import { createBerserkTimerCases } from "./components/berserk-timer-case/berserk-timer-case.js";
 
 import { createDigitalScrollGalleries } from "./components/digital-scroll-gallery/digital-scroll-gallery.js";
 import { createCvAccordion } from "./components/cv-accordion/cv-accordion.js";
@@ -61,6 +63,7 @@ let destroyJesteiThemeOrganisms = null;
 let destroyImageSkeletons = null;
 let destroyAccordionPresentation = null;
 let destroyMovesAwful = null;
+let destroyBerserkTimerCases = null;
 let domReadyHandler = null;
 
 function unmount() {
@@ -74,6 +77,9 @@ function unmount() {
 
   destroyMovesAwful?.();
   destroyMovesAwful = null;
+
+  destroyBerserkTimerCases?.();
+  destroyBerserkTimerCases = null;
 
   destroyAnimatedCanvasGalleries?.();
   destroyAnimatedCanvasGalleries = null;
@@ -144,6 +150,11 @@ function mount() {
   destroyMovesAwful = configureMovesAwful(document, { accordionRuntime });
 
   setAwfulToolsAccordionRuntime(accordionRuntime, document);
+
+  destroyBerserkTimerCases = createBerserkTimerCases({
+    root: document,
+    accordionRuntime,
+  });
 
   destroyBeforeAfters = createBeforeAfters({
     root: document,

@@ -119,6 +119,12 @@ const PROJECT_CONTENT = {
     hidePrinciple: true,
     hideBriefs: true,
   },
+  "Berserk Timer": {
+    hideDescription: true,
+    hideIntro: true,
+    hidePrinciple: true,
+    hideBriefs: true,
+  },
   "Moves Awful": {
     description: "Библиотека анимированных галерей для лендингов.",
     hideIntro: true,
