@@ -38,9 +38,6 @@
     inline-size: 100%;
     isolation: isolate;
   }
-
-  @media (width > 50rem) {
-  }
 }
 
 @layer components {
@@ -55,13 +52,7 @@
     background: var(--item-bg);
   }
 
-  /*
-   * Обычные Scene получают исходные цветовые пары автоматически по кругу.
-   * data-cv-theme="default" остаётся единственным фиксированным исключением
-   * и не участвует в подсчёте последовательности.
-   * Остальные legacy-значения data-cv-theme могут оставаться в HTML:
-   * они больше не управляют цветом и не требуют ручного обслуживания.
-   */
+  /* data-cv-theme — единственный источник цветовой пары конкретного листа. */
   .cv-item[data-cv-theme="default"] {
     --item-bg: var(--cv-item-default-background);
     --item-ink: var(--cv-item-default-foreground);
@@ -325,26 +316,6 @@
     inline-size: 100%;
   }
 
-  .cv-sheets-scene:is([data-resolved-mode="click"], [data-resolved-mode="static"]) .cv-item,
-  .cv-sheets-scene:is([data-resolved-mode="click"], [data-resolved-mode="static"]) .cv-item__header,
-  .cv-sheets-scene:is([data-resolved-mode="click"], [data-resolved-mode="static"]) .cv-item__body,
-  .cv-sheets-scene:is([data-resolved-mode="click"], [data-resolved-mode="static"])
-    .cv-item__content {
-    block-size: auto;
-  }
-
-  .cv-sheets-scene:is([data-resolved-mode="click"], [data-resolved-mode="static"])
-    .cv-item__content {
-    opacity: 1;
-    transform: none;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .cv-sheets-scene:not([data-resolved-mode="static"]) .cv-item__header:hover {
-      background: color-mix(in srgb, currentColor, transparent 95%);
-    }
-  }
-
   @media (width > 50rem) {
     .cv-item__header {
       grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) 1rem;
@@ -538,4 +509,18 @@
   .cv-item[data-cv-theme="item-06"] { --item-bg: var(--cv-item-06-background); --item-ink: var(--cv-item-06-foreground); }
   .cv-item[data-cv-theme="item-07"] { --item-bg: var(--cv-item-07-background); --item-ink: var(--cv-item-07-foreground); }
   .cv-item[data-cv-theme="item-08"] { --item-bg: var(--cv-item-08-background); --item-ink: var(--cv-item-08-foreground); }
+}
+
+@layer components {
+  .cv-item__header::after {
+    content: "";
+    grid-area: arrow;
+    justify-self: end;
+    inline-size: 0.55rem;
+    block-size: 0.55rem;
+    border-inline-end: 0.125rem solid currentColor;
+    border-block-end: 0.125rem solid currentColor;
+    transform: rotate(-135deg);
+    transform-origin: center;
+  }
 }
