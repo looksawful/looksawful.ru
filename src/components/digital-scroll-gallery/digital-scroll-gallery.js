@@ -10,15 +10,15 @@ function readScreenMultiplier(element) {
   return Number.isFinite(value) && value > 0 ? value : 4.5;
 }
 
-export function createDigitalScrollGallery(element, { accordionRuntime } = {}) {
+export function createDigitalScrollGallery(element, { sceneRuntime } = {}) {
   if (!(element instanceof HTMLElement)) return null;
   element[DIGITAL_GALLERY_DESTROY]?.();
 
   const track = element.querySelector("[data-gallery-track]");
-  const accordion = element.closest("[data-cv-accordion]");
+  const accordion = element.closest("[data-cv-sheets]");
   if (!(track instanceof HTMLElement) || !(accordion instanceof HTMLElement)) return null;
 
-  const itemIndex = accordionRuntime?.indexForElement?.(element) ?? -1;
+  const itemIndex = sceneRuntime?.indexForElement?.(element) ?? -1;
   if (itemIndex < 0) return null;
 
   const screenMultiplier = readScreenMultiplier(element);
@@ -57,7 +57,7 @@ export function createDigitalScrollGallery(element, { accordionRuntime } = {}) {
     element.toggleAttribute("data-active", progress > 0 && progress < 1);
   }
 
-  const unsubscribeScene = accordionRuntime.subscribeScene(itemIndex, ({ active }) => {
+  const unsubscribeScene = sceneRuntime.subscribeScene(itemIndex, ({ active }) => {
     if (sceneActive === active) return;
     sceneActive = active;
     lastProgress = -1;
@@ -72,7 +72,7 @@ export function createDigitalScrollGallery(element, { accordionRuntime } = {}) {
       element.removeAttribute("data-active");
     }
   });
-  const unsubscribeFrame = accordionRuntime.subscribeFrame(itemIndex, renderFrame);
+  const unsubscribeFrame = sceneRuntime.subscribeFrame(itemIndex, renderFrame);
 
   const destroy = () => {
     if (destroyed) return;
@@ -90,11 +90,11 @@ export function createDigitalScrollGallery(element, { accordionRuntime } = {}) {
   return destroy;
 }
 
-export function createDigitalScrollGalleries({ root = document, accordionRuntime } = {}) {
-  if (!root || typeof root.querySelectorAll !== "function" || !accordionRuntime) return () => {};
+export function createDigitalScrollGalleries({ root = document, sceneRuntime } = {}) {
+  if (!root || typeof root.querySelectorAll !== "function" || !sceneRuntime) return () => {};
   const destroys = Array.from(
     root.querySelectorAll("[data-digital-scroll-gallery]"),
-    (element) => createDigitalScrollGallery(element, { accordionRuntime }),
+    (element) => createDigitalScrollGallery(element, { sceneRuntime }),
   ).filter(Boolean);
   return () => {
     while (destroys.length) destroys.pop()?.();

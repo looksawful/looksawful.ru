@@ -76,7 +76,7 @@ function readMotionAllowed(motion) {
     : !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 }
 
-function createBeforeAfterInstance({ root, motion, accordionRuntime } = {}) {
+function createBeforeAfterInstance({ root, motion, sceneRuntime } = {}) {
   if (!(root instanceof HTMLElement)) {
     return null;
   }
@@ -107,9 +107,9 @@ function createBeforeAfterInstance({ root, motion, accordionRuntime } = {}) {
   let phase = "intro";
   let pointerIsDown = false;
   let inViewport = true;
-  let sceneActive = accordionRuntime ? false : true;
-  let documentVisible = accordionRuntime
-    ? accordionRuntime.documentVisible
+  let sceneActive = sceneRuntime ? false : true;
+  let documentVisible = sceneRuntime
+    ? sceneRuntime.documentVisible
     : document.visibilityState !== "hidden";
   let motionAllowed = readMotionAllowed(motion);
 
@@ -360,7 +360,7 @@ function createBeforeAfterInstance({ root, motion, accordionRuntime } = {}) {
   range.addEventListener("pointercancel", handlePointerUp);
   range.addEventListener("keydown", handleKeyDown);
   range.addEventListener("keyup", handleKeyUp);
-  if (!accordionRuntime) document.addEventListener("visibilitychange", handleVisibilityChange);
+  if (!sceneRuntime) document.addEventListener("visibilitychange", handleVisibilityChange);
 
   cleanup.push(
     () => range.removeEventListener("input", handleInput),
@@ -369,7 +369,7 @@ function createBeforeAfterInstance({ root, motion, accordionRuntime } = {}) {
     () => range.removeEventListener("pointercancel", handlePointerUp),
     () => range.removeEventListener("keydown", handleKeyDown),
     () => range.removeEventListener("keyup", handleKeyUp),
-    () => { if (!accordionRuntime) document.removeEventListener("visibilitychange", handleVisibilityChange); },
+    () => { if (!sceneRuntime) document.removeEventListener("visibilitychange", handleVisibilityChange); },
   );
 
   const intersectionObserver = "IntersectionObserver" in window
@@ -389,7 +389,7 @@ function createBeforeAfterInstance({ root, motion, accordionRuntime } = {}) {
 
   intersectionObserver?.observe(root);
 
-  const unsubscribeScene = accordionRuntime?.subscribeScene?.(root, (state) => {
+  const unsubscribeScene = sceneRuntime?.subscribeScene?.(root, (state) => {
     sceneActive = state.active;
     documentVisible = state.documentVisible;
     if (sceneActive && documentVisible) start();
@@ -463,13 +463,13 @@ function createBeforeAfterInstance({ root, motion, accordionRuntime } = {}) {
   return api;
 }
 
-export function createBeforeAfters({ root = document, motion, accordionRuntime = null } = {}) {
+export function createBeforeAfters({ root = document, motion, sceneRuntime = null } = {}) {
   if (!root || typeof root.querySelectorAll !== "function") {
     return noop;
   }
 
   const instances = Array.from(root.querySelectorAll("[data-before-after]"))
-    .map((element) => createBeforeAfterInstance({ root: element, motion, accordionRuntime }))
+    .map((element) => createBeforeAfterInstance({ root: element, motion, sceneRuntime }))
     .filter(Boolean);
 
   return () => {

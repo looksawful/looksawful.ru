@@ -40,7 +40,7 @@ function loadPageFlip() {
 
 export function createSensetiqueFlipbook(
   scene,
-  { accordionRuntime, signal } = {},
+  { sceneRuntime, signal } = {},
 ) {
   const section = scene.querySelector("[data-sensetique-flipbook-section]");
   if (!(section instanceof HTMLElement)) return noop;
@@ -119,13 +119,13 @@ export function createSensetiqueFlipbook(
   };
 
   const unsubscribePrepare =
-    accordionRuntime?.subscribePrepare?.(scene, () => void mount()) ?? noop;
+    sceneRuntime?.subscribePrepare?.(scene, () => void mount()) ?? noop;
   const unsubscribeScene =
-    accordionRuntime?.subscribeScene?.(scene, ({ active }) => {
+    sceneRuntime?.subscribeScene?.(scene, ({ active }) => {
       if (active) void mount();
     }) ?? noop;
 
-  if (!accordionRuntime) void mount();
+  if (!sceneRuntime) void mount();
 
   return () => {
     disposed = true;

@@ -746,7 +746,7 @@ function createFallbackMotionPreference() {
   };
 }
 
-export function createJesteiThemeOrganism({ root, motion, accordionRuntime = null } = {}) {
+export function createJesteiThemeOrganism({ root, motion, sceneRuntime = null } = {}) {
   if (!(root instanceof HTMLElement)) return null;
 
   root[ORGANISM_DESTROY]?.();
@@ -765,7 +765,7 @@ export function createJesteiThemeOrganism({ root, motion, accordionRuntime = nul
   const track = createTrackController(elements);
   const abortController = new AbortController();
   const signal = abortController.signal;
-  const sceneIndex = accordionRuntime?.indexForElement?.(root) ?? -1;
+  const sceneIndex = sceneRuntime?.indexForElement?.(root) ?? -1;
 
   let activeExperience = null;
   let experiencePromise = null;
@@ -777,9 +777,9 @@ export function createJesteiThemeOrganism({ root, motion, accordionRuntime = nul
   let destroyed = false;
   let externallyPaused = false;
   let visible = !("IntersectionObserver" in window);
-  let sceneActive = accordionRuntime ? false : true;
-  let documentVisible = accordionRuntime
-    ? accordionRuntime.documentVisible
+  let sceneActive = sceneRuntime ? false : true;
+  let documentVisible = sceneRuntime
+    ? sceneRuntime.documentVisible
     : document.visibilityState !== "hidden";
   let prepareRequested = false;
 
@@ -922,20 +922,20 @@ export function createJesteiThemeOrganism({ root, motion, accordionRuntime = nul
     : null;
   runObserver?.observe(root);
 
-  const unsubscribeScene = accordionRuntime?.subscribeScene?.(sceneIndex, (state) => {
+  const unsubscribeScene = sceneRuntime?.subscribeScene?.(sceneIndex, (state) => {
     sceneActive = state.active;
     documentVisible = state.documentVisible;
     if (sceneActive) prepareRequested = true;
     reconcile();
   }, { immediate: true }) ?? noop;
 
-  const unsubscribePrepare = accordionRuntime?.subscribePrepare?.(sceneIndex, () => {
+  const unsubscribePrepare = sceneRuntime?.subscribePrepare?.(sceneIndex, () => {
     prepareRequested = true;
     reconcile();
   }) ?? noop;
 
   let fallbackVisibilityHandler = null;
-  if (!accordionRuntime) {
+  if (!sceneRuntime) {
     fallbackVisibilityHandler = () => {
       documentVisible = document.visibilityState !== "hidden";
       reconcile();
@@ -994,13 +994,13 @@ export function createJesteiThemeOrganism({ root, motion, accordionRuntime = nul
 export function createJesteiThemeOrganisms({
   root = document,
   motion,
-  accordionRuntime = null,
+  sceneRuntime = null,
 } = {}) {
   if (!root || typeof root.querySelectorAll !== "function") return null;
   const instances = Array.from(
     root.querySelectorAll('[data-jestei-theme-organism][data-jestei-theme-instance="inline"]'),
   )
-    .map((element) => createJesteiThemeOrganism({ root: element, motion, accordionRuntime }))
+    .map((element) => createJesteiThemeOrganism({ root: element, motion, sceneRuntime }))
     .filter(Boolean);
 
   return Object.freeze({

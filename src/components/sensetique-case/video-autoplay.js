@@ -3,7 +3,7 @@ const noop = () => {};
 
 export function createViewportVideoPlayback(
   scene,
-  { motion, accordionRuntime, signal } = {},
+  { motion, sceneRuntime, signal } = {},
 ) {
   const videos = [...scene.querySelectorAll("video[data-sensetique-autoplay]")];
   if (!videos.length) return noop;
@@ -20,11 +20,11 @@ export function createViewportVideoPlayback(
   });
 
   const state = {
-    sceneActive: accordionRuntime
+    sceneActive: sceneRuntime
       ? false
       : scene.querySelector(".cv-item__header")?.getAttribute("aria-expanded") === "true",
-    documentVisible: accordionRuntime
-      ? accordionRuntime.documentVisible
+    documentVisible: sceneRuntime
+      ? sceneRuntime.documentVisible
       : document.visibilityState !== "hidden",
     motionAllowed:
       typeof motion?.allowsMotion === "function"
@@ -72,7 +72,7 @@ export function createViewportVideoPlayback(
   else videos.forEach((video) => visible.set(video, true));
 
   const unsubscribeScene =
-    accordionRuntime?.subscribeScene?.(scene, ({ active, documentVisible }) => {
+    sceneRuntime?.subscribeScene?.(scene, ({ active, documentVisible }) => {
       state.sceneActive = active;
       state.documentVisible = documentVisible;
       syncAll();
@@ -87,7 +87,7 @@ export function createViewportVideoPlayback(
       { immediate: false },
     ) ?? noop;
 
-  if (!accordionRuntime) {
+  if (!sceneRuntime) {
     document.addEventListener(
       "visibilitychange",
       () => {

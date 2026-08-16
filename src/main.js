@@ -5,7 +5,7 @@ import "./styles/index.css";
 import "./components/awfulface/awfulface.css";
 import "./components/cursor-trail/cursor-trail.css";
 import "./components/hero/hero.css";
-import "./components/cv-accordion/cv-accordion.css";
+import "./components/cv-sheets/cv-sheets.css";
 import "./components/media-slider/media-slider.css";
 import "./components/before-after/before-after.css";
 import "./components/app-promo/app-promo.css";
@@ -25,15 +25,13 @@ import "./components/jestei-theme-organism/jestei-theme-organism.css";
 import "./components/jestei-theme-organism/jestei-theme-organism-embed.css";
 import "./components/infinite-reel/infinite-reel.css";
 import "./components/content-blocks/content-blocks.css";
-import "./content/accordion-presentation.css";
+import "./content/cv-presentation.css";
 import "./components/sands-showcase/sands-showcase.css";
+import "./components/sensetique-case/sensetique-case.css";
 
 import "./components/playlist-filter-workflow/playlist-filter-workflow.js";
-import { setAwfulToolsAccordionRuntime } from "./components/awful-tools-preview/awful-tools-preview.js";
+import { setAwfulToolsSceneRuntime } from "./components/awful-tools-preview/awful-tools-preview.js";
 import { createBerserkTimerCases } from "./components/berserk-timer-case/berserk-timer-case.js";
-
-import { createDigitalScrollGalleries } from "./components/digital-scroll-gallery/digital-scroll-gallery.js";
-import { createCvAccordion } from "./components/cv-accordion/cv-accordion.js";
 import { createHero } from "./components/hero/hero.js";
 import { createMediaSliders } from "./components/media-slider/media-slider.js";
 import { createBeforeAfters } from "./components/before-after/before-after.js";
@@ -44,198 +42,82 @@ import { configureMovesAwful } from "./components/moves-awful/moves-awful.js";
 import { createAnimatedCanvasGalleries } from "./components/animated-canvas-gallery/animated-canvas-gallery.js";
 import { createAnimatedCanvasGalleryPreviews } from "./components/animated-canvas-gallery/animated-canvas-gallery-preview.js";
 import { ANIMATED_CANVAS_GALLERY_SOURCES } from "./content/animated-canvas-gallery-sources.js";
-import { applyAccordionContent } from "./content/accordion-content.js";
-import { applyAccordionPresentation } from "./content/accordion-presentation.js";
 import { createImageSkeletons } from "./content/image-skeletons.js";
 import { createJesteiThemeOrganisms } from "./components/jestei-theme-organism/jestei-theme-organism.js";
-import {
-  createSensetiqueCase,
-  prepareSensetiqueCase,
-} from "./components/sensetique-case/sensetique-case.js";
+import { createSensetiqueCase } from "./components/sensetique-case/sensetique-case.js";
+import { createSceneLifecycle } from "./runtime/scene-lifecycle.js";
 
 let motionPreference = null;
+let sceneLifecycle = null;
 let destroyHero = null;
 let destroyMediaSliders = null;
 let destroyBeforeAfters = null;
 let destroyMediaMarquees = null;
 let destroyInfiniteReels = null;
-let destroyDigitalScrollGalleries = null;
-let cvAccordion = null;
 let destroyAnimatedCanvasGalleryPreviews = null;
 let destroyAnimatedCanvasGalleries = null;
 let destroyJesteiThemeOrganisms = null;
 let destroyImageSkeletons = null;
-let destroyAccordionPresentation = null;
 let destroyMovesAwful = null;
 let destroyBerserkTimerCases = null;
 let destroySensetiqueCase = null;
 let domReadyHandler = null;
 
 function unmount() {
-  setAwfulToolsAccordionRuntime(null, document);
-
-  destroyImageSkeletons?.();
-  destroyImageSkeletons = null;
-
-  destroyAccordionPresentation?.();
-  destroyAccordionPresentation = null;
-
-  destroyMovesAwful?.();
-  destroyMovesAwful = null;
-
-  destroyBerserkTimerCases?.();
-  destroyBerserkTimerCases = null;
-
-  destroyAnimatedCanvasGalleries?.();
-  destroyAnimatedCanvasGalleries = null;
-
-  destroyAnimatedCanvasGalleryPreviews?.();
-  destroyAnimatedCanvasGalleryPreviews = null;
-
-  destroySensetiqueCase?.();
-  destroySensetiqueCase = null;
-
-  // Stop the shared scene runtime after destroying its direct consumers.
-  cvAccordion?.destroy?.();
-  cvAccordion = null;
-
-  destroyJesteiThemeOrganisms?.destroy?.();
-  destroyJesteiThemeOrganisms = null;
-
-  destroyDigitalScrollGalleries?.();
-  destroyDigitalScrollGalleries = null;
-
-  destroyMediaMarquees?.();
-  destroyMediaMarquees = null;
-
-  destroyInfiniteReels?.();
-  destroyInfiniteReels = null;
-
-  destroyBeforeAfters?.();
-  destroyBeforeAfters = null;
-
-  destroyMediaSliders?.();
-  destroyMediaSliders = null;
-
-  destroyHero?.();
-  destroyHero = null;
-
-  motionPreference?.destroy();
-  motionPreference = null;
+  setAwfulToolsSceneRuntime(null, document);
+  destroyImageSkeletons?.(); destroyImageSkeletons = null;
+  destroyMovesAwful?.(); destroyMovesAwful = null;
+  destroyBerserkTimerCases?.(); destroyBerserkTimerCases = null;
+  destroyAnimatedCanvasGalleries?.(); destroyAnimatedCanvasGalleries = null;
+  destroyAnimatedCanvasGalleryPreviews?.(); destroyAnimatedCanvasGalleryPreviews = null;
+  destroySensetiqueCase?.(); destroySensetiqueCase = null;
+  destroyJesteiThemeOrganisms?.destroy?.(); destroyJesteiThemeOrganisms = null;
+  sceneLifecycle?.destroy?.(); sceneLifecycle = null;
+  destroyMediaMarquees?.(); destroyMediaMarquees = null;
+  destroyInfiniteReels?.(); destroyInfiniteReels = null;
+  destroyBeforeAfters?.(); destroyBeforeAfters = null;
+  destroyMediaSliders?.(); destroyMediaSliders = null;
+  destroyHero?.(); destroyHero = null;
+  motionPreference?.destroy(); motionPreference = null;
 }
 
 function mount() {
   unmount();
-
-  // The case must be in final accordion order before content/presentation and
-  // the shared accordion runtime enumerate scene records.
-  prepareSensetiqueCase(document);
-  applyAccordionContent(document);
-  destroyAccordionPresentation = applyAccordionPresentation(document);
   destroyImageSkeletons = createImageSkeletons({ root: document });
   motionPreference = createMotionPreference();
+  sceneLifecycle = createSceneLifecycle({ root: document });
+  const sceneRuntime = sceneLifecycle;
 
   destroyHero = createHero({ root: document, motion: motionPreference });
-  destroyMediaSliders = createMediaSliders({
-    root: document,
-    motion: motionPreference,
-  });
-  destroyBeforeAfters = null;
-  destroyMediaMarquees = createMediaMarquees({
-    root: document,
-    motion: motionPreference,
-  });
-  destroyInfiniteReels = createInfiniteReels({
-    root: document,
-    motion: motionPreference,
-  });
-  // Mounted after the accordion so scroll-driven components subscribe directly.
-  destroyDigitalScrollGalleries = null;
+  destroyMediaSliders = createMediaSliders({ root: document, motion: motionPreference });
+  destroyMediaMarquees = createMediaMarquees({ root: document, motion: motionPreference });
+  destroyInfiniteReels = createInfiniteReels({ root: document, motion: motionPreference });
 
-  cvAccordion = createCvAccordion({
-    root: document,
-    motion: motionPreference,
-  });
-  const accordionRuntime = cvAccordion?.runtime ?? null;
+  destroySensetiqueCase = createSensetiqueCase({ root: document, motion: motionPreference, sceneRuntime });
+  destroyMovesAwful = configureMovesAwful(document, { sceneRuntime });
+  setAwfulToolsSceneRuntime(sceneRuntime, document);
+  destroyBerserkTimerCases = createBerserkTimerCases({ root: document, sceneRuntime });
+  destroyBeforeAfters = createBeforeAfters({ root: document, motion: motionPreference });
+  destroyJesteiThemeOrganisms = createJesteiThemeOrganisms({ root: document, motion: motionPreference, sceneRuntime });
+  destroyAnimatedCanvasGalleryPreviews = createAnimatedCanvasGalleryPreviews({ root: document });
+  destroyAnimatedCanvasGalleries = createAnimatedCanvasGalleries({ root: document, sources: ANIMATED_CANVAS_GALLERY_SOURCES });
 
-  destroySensetiqueCase = createSensetiqueCase({
-    root: document,
-    motion: motionPreference,
-    accordionRuntime,
-  });
-
-  destroyMovesAwful = configureMovesAwful(document, { accordionRuntime });
-
-  setAwfulToolsAccordionRuntime(accordionRuntime, document);
-
-  destroyBerserkTimerCases = createBerserkTimerCases({
-    root: document,
-    accordionRuntime,
-  });
-
-  destroyBeforeAfters = createBeforeAfters({
-    root: document,
-    motion: motionPreference,
-    accordionRuntime,
-  });
-
-  destroyDigitalScrollGalleries = createDigitalScrollGalleries({
-    root: document,
-    accordionRuntime,
-  });
-
-  destroyJesteiThemeOrganisms = createJesteiThemeOrganisms({
-    root: document,
-    motion: motionPreference,
-    accordionRuntime,
-  });
-
-  destroyAnimatedCanvasGalleryPreviews =
-    createAnimatedCanvasGalleryPreviews({ root: document, accordionRuntime });
-  destroyAnimatedCanvasGalleries = createAnimatedCanvasGalleries({
-    root: document,
-    sources: ANIMATED_CANVAS_GALLERY_SOURCES,
-    accordionRuntime,
-  });
-
-  // Warm Three.js and the model only after the first painted frame. Renderer
-  // preparation is requested through the same scene runtime that later owns
-  // Jestei activity, so there is no second lifecycle channel.
-  const inlineJesteiRoot = document.querySelector(
-    '[data-jestei-theme-organism][data-jestei-theme-instance="inline"]',
-  );
-  const canWarmJesteiEarly = window.matchMedia?.(
-    "(hover: hover) and (pointer: fine)",
-  ).matches;
-
+  const inlineJesteiRoot = document.querySelector('[data-jestei-theme-organism][data-jestei-theme-instance="inline"]');
+  const canWarmJesteiEarly = window.matchMedia?.("(hover: hover) and (pointer: fine)").matches;
   if (canWarmJesteiEarly) {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        void destroyJesteiThemeOrganisms?.preload?.().then(() => {
-          if (inlineJesteiRoot instanceof HTMLElement && accordionRuntime) {
-            accordionRuntime.requestPrepare(inlineJesteiRoot);
-          } else {
-            destroyJesteiThemeOrganisms?.prepare?.();
-          }
-        });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      void destroyJesteiThemeOrganisms?.preload?.().then(() => {
+        if (inlineJesteiRoot instanceof HTMLElement) sceneRuntime.requestPrepare(inlineJesteiRoot);
       });
-    });
+    }));
   }
 }
 
-function handlePageShow(event) {
-  if (event.persisted) mount();
-}
+function handlePageShow(event) { if (event.persisted) mount(); }
 
 if (document.readyState === "loading") {
-  domReadyHandler = () => {
-    domReadyHandler = null;
-    mount();
-  };
-
-  document.addEventListener("DOMContentLoaded", domReadyHandler, {
-    once: true,
-  });
+  domReadyHandler = () => { domReadyHandler = null; mount(); };
+  document.addEventListener("DOMContentLoaded", domReadyHandler, { once: true });
 } else {
   mount();
 }
@@ -245,11 +127,7 @@ window.addEventListener("pageshow", handlePageShow);
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
-    if (domReadyHandler) {
-      document.removeEventListener("DOMContentLoaded", domReadyHandler);
-      domReadyHandler = null;
-    }
-
+    if (domReadyHandler) { document.removeEventListener("DOMContentLoaded", domReadyHandler); domReadyHandler = null; }
     window.removeEventListener("pagehide", unmount);
     window.removeEventListener("pageshow", handlePageShow);
     unmount();

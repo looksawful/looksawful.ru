@@ -3,14 +3,14 @@ const noop = () => {};
 
 export function createSensetiqueCrossfades(
   scene,
-  { motion, accordionRuntime, signal } = {},
+  { motion, sceneRuntime, signal } = {},
 ) {
   const state = {
-    sceneActive: accordionRuntime
+    sceneActive: sceneRuntime
       ? false
       : scene.querySelector(".cv-item__header")?.getAttribute("aria-expanded") === "true",
-    documentVisible: accordionRuntime
-      ? accordionRuntime.documentVisible
+    documentVisible: sceneRuntime
+      ? sceneRuntime.documentVisible
       : document.visibilityState !== "hidden",
     motionAllowed:
       typeof motion?.allowsMotion === "function"
@@ -104,7 +104,7 @@ export function createSensetiqueCrossfades(
 
   const syncAll = () => records.forEach((record) => record.sync());
   const unsubscribeScene =
-    accordionRuntime?.subscribeScene?.(scene, ({ active, documentVisible }) => {
+    sceneRuntime?.subscribeScene?.(scene, ({ active, documentVisible }) => {
       state.sceneActive = active;
       state.documentVisible = documentVisible;
       syncAll();
@@ -118,7 +118,7 @@ export function createSensetiqueCrossfades(
       { immediate: false },
     ) ?? noop;
 
-  if (!accordionRuntime) {
+  if (!sceneRuntime) {
     document.addEventListener(
       "visibilitychange",
       () => {

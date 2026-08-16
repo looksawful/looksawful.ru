@@ -133,7 +133,7 @@ function resolveItems(element, sources) {
   return normalizeItems(sources?.[sourceName] ?? []);
 }
 
-function getAccordionHeader(element) {
+function getSceneHeader(element) {
   const item = element.closest(".cv-item");
 
   if (!(item instanceof HTMLElement)) {
@@ -145,8 +145,8 @@ function getAccordionHeader(element) {
   return header instanceof HTMLButtonElement ? header : null;
 }
 
-function isAccordionActive(element) {
-  const header = getAccordionHeader(element);
+function isSceneActive(element) {
+  const header = getSceneHeader(element);
 
   if (!header) {
     return true;
@@ -155,11 +155,11 @@ function isAccordionActive(element) {
   return header.getAttribute("aria-expanded") === "true";
 }
 
-function createActivityController(element, component, accordionRuntime) {
+function createActivityController(element, component, sceneRuntime) {
   let visible = false;
-  let sceneActive = accordionRuntime ? false : isAccordionActive(element);
-  let documentVisible = accordionRuntime
-    ? accordionRuntime.documentVisible
+  let sceneActive = sceneRuntime ? false : isSceneActive(element);
+  let documentVisible = sceneRuntime
+    ? sceneRuntime.documentVisible
     : document.visibilityState !== "hidden";
   let disposed = false;
 
@@ -181,17 +181,17 @@ function createActivityController(element, component, accordionRuntime) {
   visibilityObserver?.observe(element);
   if (!visibilityObserver) visible = true;
 
-  const unsubscribeScene = accordionRuntime?.subscribeScene?.(element, (state) => {
+  const unsubscribeScene = sceneRuntime?.subscribeScene?.(element, (state) => {
     sceneActive = state.active;
     documentVisible = state.documentVisible;
     sync();
   }) ?? (() => {});
 
   let handleVisibilityChange = null;
-  if (!accordionRuntime) {
+  if (!sceneRuntime) {
     handleVisibilityChange = () => {
       documentVisible = document.visibilityState !== "hidden";
-      sceneActive = isAccordionActive(element);
+      sceneActive = isSceneActive(element);
       sync();
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -214,7 +214,7 @@ export async function mountAnimatedCanvasGallery(
   element,
   {
     sources = {},
-    accordionRuntime = null,
+    sceneRuntime = null,
   } = {},
 ) {
   if (!(element instanceof HTMLElement)) {
@@ -295,7 +295,7 @@ export async function mountAnimatedCanvasGallery(
     destroyActivity = createActivityController(
       element,
       component,
-      accordionRuntime,
+      sceneRuntime,
     );
 
     element.dataset.galleryState = "ready";
@@ -334,7 +334,7 @@ export async function mountAnimatedCanvasGallery(
 export function createAnimatedCanvasGalleries({
   root = document,
   sources = {},
-  accordionRuntime = null,
+  sceneRuntime = null,
 } = {}) {
   if (!root || typeof root.querySelectorAll !== "function") {
     return null;
@@ -347,13 +347,13 @@ export function createAnimatedCanvasGalleries({
   let disposed = false;
 
   const records = elements.map((element) => {
-    const accordionHeader = getAccordionHeader(element);
+    const sceneHeader = getSceneHeader(element);
 
     const record = {
       element,
-      accordionHeader,
+      sceneHeader,
       nearViewport: false,
-      sceneActive: accordionRuntime ? false : isAccordionActive(element),
+      sceneActive: sceneRuntime ? false : isSceneActive(element),
       mounting: false,
       cleanup: null,
       visibilityObserver: null,
@@ -378,7 +378,7 @@ export function createAnimatedCanvasGalleries({
           element,
           {
             sources,
-            accordionRuntime,
+            sceneRuntime,
           },
         );
 
@@ -417,7 +417,7 @@ export function createAnimatedCanvasGalleries({
       record.nearViewport = true;
     }
 
-    record.unsubscribeScene = accordionRuntime?.subscribeScene?.(element, ({ active }) => {
+    record.unsubscribeScene = sceneRuntime?.subscribeScene?.(element, ({ active }) => {
       record.sceneActive = active;
       void tryMount();
     }) ?? null;

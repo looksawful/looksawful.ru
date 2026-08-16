@@ -12,7 +12,7 @@ export { prepareSensetiqueCase };
 export function createSensetiqueCase({
   root = document,
   motion = null,
-  accordionRuntime = null,
+  sceneRuntime = null,
 } = {}) {
   const scene = root.querySelector(".cv-item--sensetique");
   if (!(scene instanceof HTMLElement)) return noop;
@@ -23,19 +23,19 @@ export function createSensetiqueCase({
 
   cleanups.push(createSensetiqueCaptions(scene, signal));
   cleanups.push(
-    createSensetiqueCrossfades(scene, { motion, accordionRuntime, signal }),
+    createSensetiqueCrossfades(scene, { motion, sceneRuntime, signal }),
   );
   cleanups.push(
-    createViewportVideoPlayback(scene, { motion, accordionRuntime, signal }),
+    createViewportVideoPlayback(scene, { motion, sceneRuntime, signal }),
   );
 
   const studioRows = createSensetiqueStudioRows(scene, {
-    accordionRuntime,
+    sceneRuntime,
     signal,
   });
   cleanups.push(studioRows);
   cleanups.push(
-    createSensetiqueFlipbook(scene, { accordionRuntime, signal }),
+    createSensetiqueFlipbook(scene, { sceneRuntime, signal }),
   );
 
   const destroy = () => {

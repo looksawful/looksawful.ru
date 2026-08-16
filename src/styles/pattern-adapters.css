@@ -173,7 +173,7 @@ figure[data-media-item] {
   --stack-space: 1.1rem;
 }
 
-.cv-scroll-scene:not([data-resolved-mode="scroll"])
+.cv-sheets-scene
   .cv-item__content--digital-arts {
   display: grid;
   gap: var(--stack-space, clamp(2rem, 6vw, 5rem));

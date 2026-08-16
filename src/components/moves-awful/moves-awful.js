@@ -99,7 +99,7 @@ function createStageScaler(showcase) {
   };
 }
 
-function createMovesAwfulInstance(showcase, instanceIndex, accordionRuntime) {
+function createMovesAwfulInstance(showcase, instanceIndex, sceneRuntime) {
   showcase[INSTANCE]?.destroy();
 
   const tabs = showcase.querySelector(TABS_SELECTOR);
@@ -127,9 +127,9 @@ function createMovesAwfulInstance(showcase, instanceIndex, accordionRuntime) {
   const panelStates = panels.map(capturePanelState);
   const listenerCleanups = [];
   let autoplayTimer = null;
-  let sceneActive = accordionRuntime ? false : true;
+  let sceneActive = sceneRuntime ? false : true;
   let sceneDocumentVisible =
-    accordionRuntime
+    sceneRuntime
       ? false
       : document.visibilityState !== "hidden";
 
@@ -256,7 +256,7 @@ function createMovesAwfulInstance(showcase, instanceIndex, accordionRuntime) {
   activate(activeIndex);
 
   const unsubscribeScene =
-    accordionRuntime?.subscribeScene?.(
+    sceneRuntime?.subscribeScene?.(
       scene instanceof HTMLElement ? scene : showcase,
       ({ active, documentVisible } = {}) => {
         sceneActive = active === true;
@@ -271,7 +271,7 @@ function createMovesAwfulInstance(showcase, instanceIndex, accordionRuntime) {
       },
     ) ?? noop;
 
-  if (!accordionRuntime) {
+  if (!sceneRuntime) {
     scheduleAutoplay();
   }
 
@@ -307,7 +307,7 @@ function createMovesAwfulInstance(showcase, instanceIndex, accordionRuntime) {
 
 export function configureMovesAwful(
   root = document,
-  { accordionRuntime = null } = {},
+  { sceneRuntime = null } = {},
 ) {
   if (!root || typeof root.querySelectorAll !== "function") {
     return noop;
@@ -319,7 +319,7 @@ export function configureMovesAwful(
       createMovesAwfulInstance(
         showcase,
         instanceIndex,
-        accordionRuntime,
+        sceneRuntime,
       ),
   ).filter(Boolean);
 

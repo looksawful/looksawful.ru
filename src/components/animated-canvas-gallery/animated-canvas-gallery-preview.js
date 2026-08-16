@@ -14,7 +14,7 @@ const PREVIEW_DESTROY = Symbol.for(
   "looksawful.animatedCanvasGalleryPreview.destroy",
 );
 
-function getAccordionHeader(element) {
+function getSceneHeader(element) {
   const item = element.closest(".cv-item");
 
   if (!(item instanceof HTMLElement)) {
@@ -30,8 +30,8 @@ function getAccordionHeader(element) {
     : null;
 }
 
-function isAccordionActive(element) {
-  const header = getAccordionHeader(element);
+function isSceneActive(element) {
+  const header = getSceneHeader(element);
 
   return (
     !header ||
@@ -41,7 +41,7 @@ function isAccordionActive(element) {
 
 export function createAnimatedCanvasGalleryPreviews({
   root = document,
-  accordionRuntime = null,
+  sceneRuntime = null,
 } = {}) {
   if (!root || typeof root.querySelectorAll !== "function") {
     return null;
@@ -83,17 +83,17 @@ export function createAnimatedCanvasGalleryPreviews({
       gallery.dataset.galleryVariant ||
       "horizontal";
 
-    const accordionHeader =
-      getAccordionHeader(preview);
+    const sceneHeader =
+      getSceneHeader(preview);
 
     const record = {
       preview,
       gallery,
       controlsMount,
       variant,
-      accordionHeader,
+      sceneHeader,
       nearViewport: false,
-      sceneActive: accordionRuntime ? false : isAccordionActive(preview),
+      sceneActive: sceneRuntime ? false : isSceneActive(preview),
       loading: false,
       controls: null,
       visibilityObserver: null,
@@ -173,7 +173,7 @@ export function createAnimatedCanvasGalleryPreviews({
       record.nearViewport = true;
     }
 
-    record.unsubscribeScene = accordionRuntime?.subscribeScene?.(preview, ({ active }) => {
+    record.unsubscribeScene = sceneRuntime?.subscribeScene?.(preview, ({ active }) => {
       record.sceneActive = active;
       void ensureControls();
     }) ?? null;

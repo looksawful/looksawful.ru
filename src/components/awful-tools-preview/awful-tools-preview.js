@@ -3,7 +3,7 @@ const INSTANCE = Symbol.for("looksawful.awfulToolPreview.instance");
 const AWFUL_CASES_MODULE_URL = "/pets/awful-cases/awful-cases.js";
 
 const noop = () => {};
-let accordionRuntime = null;
+let sceneRuntime = null;
 
 const emptyRuntime = Object.freeze({
   setActive: noop,
@@ -88,7 +88,7 @@ function enhanceCopyButtons(root) {
   };
 }
 
-function createPreviewActivation(root, onChange, runtime = accordionRuntime) {
+function createPreviewActivation(root, onChange, runtime = sceneRuntime) {
   if (!runtime?.subscribeScene) {
     onChange(false);
     return noop;
@@ -207,7 +207,7 @@ function enhanceAwfulCasesPreview(root) {
   };
 }
 
-function enhanceAwfulToolPreview(root, runtime = accordionRuntime) {
+function enhanceAwfulToolPreview(root, runtime = sceneRuntime) {
   const project = root.getAttribute("project") || root.dataset.awfulTool || "";
   const cleanups = [enhanceCopyButtons(root)];
   const activeRuntimes = [];
@@ -247,7 +247,7 @@ function enhanceAwfulToolPreview(root, runtime = accordionRuntime) {
 class AwfulToolPreview extends HTMLElement {
   connectedCallback() {
     this[INSTANCE]?.destroy();
-    this[INSTANCE] = enhanceAwfulToolPreview(this, accordionRuntime);
+    this[INSTANCE] = enhanceAwfulToolPreview(this, sceneRuntime);
   }
 
   disconnectedCallback() {
@@ -260,13 +260,13 @@ if (!customElements.get(TAG_NAME)) {
   customElements.define(TAG_NAME, AwfulToolPreview);
 }
 
-export function setAwfulToolsAccordionRuntime(runtime, root = document) {
-  accordionRuntime = runtime ?? null;
+export function setAwfulToolsSceneRuntime(runtime, root = document) {
+  sceneRuntime = runtime ?? null;
 
   root.querySelectorAll?.(TAG_NAME).forEach((element) => {
     if (!(element instanceof AwfulToolPreview) || !element.isConnected) return;
     element[INSTANCE]?.destroy();
-    element[INSTANCE] = enhanceAwfulToolPreview(element, accordionRuntime);
+    element[INSTANCE] = enhanceAwfulToolPreview(element, sceneRuntime);
   });
 }
 

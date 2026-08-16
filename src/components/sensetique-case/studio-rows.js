@@ -3,7 +3,7 @@ const noop = () => {};
 
 export function createSensetiqueStudioRows(
   scene,
-  { accordionRuntime, signal } = {},
+  { sceneRuntime, signal } = {},
 ) {
   const studio = scene.querySelector(".sensetique-studio-grid-composition");
   if (!(studio instanceof HTMLElement)) return noop;
@@ -93,9 +93,9 @@ export function createSensetiqueStudioRows(
   mobile?.addEventListener("change", schedule, { signal });
 
   const unsubscribePrepare =
-    accordionRuntime?.subscribePrepare?.(scene, schedule) ?? noop;
+    sceneRuntime?.subscribePrepare?.(scene, schedule) ?? noop;
   const unsubscribeScene =
-    accordionRuntime?.subscribeScene?.(scene, ({ active }) => {
+    sceneRuntime?.subscribeScene?.(scene, ({ active }) => {
       if (active) schedule();
     }) ?? noop;
 

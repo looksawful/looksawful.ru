@@ -9,7 +9,7 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
-function createActivation(root, onChange, accordionRuntime) {
+function createActivation(root, onChange, sceneRuntime) {
   let active = null;
 
   function commit(nextActive) {
@@ -19,8 +19,8 @@ function createActivation(root, onChange, accordionRuntime) {
     onChange(active);
   }
 
-  if (accordionRuntime?.subscribeScene) {
-    const unsubscribeScene = accordionRuntime.subscribeScene(root, (state) => {
+  if (sceneRuntime?.subscribeScene) {
+    const unsubscribeScene = sceneRuntime.subscribeScene(root, (state) => {
       commit(state.active && state.documentVisible);
     });
 
@@ -612,7 +612,7 @@ function enhancePlayer(caseRoot, player) {
 
 export function createBerserkTimerCase(
   root,
-  { accordionRuntime = null } = {},
+  { sceneRuntime = null } = {},
 ) {
   if (!(root instanceof HTMLElement)) return emptyRuntime;
 
@@ -636,7 +636,7 @@ export function createBerserkTimerCase(
       (active) => {
         activeRuntimes.forEach((runtime) => runtime.setActive(active));
       },
-      accordionRuntime,
+      sceneRuntime,
     ),
   );
 
@@ -655,12 +655,12 @@ export function createBerserkTimerCase(
 
 export function createBerserkTimerCases({
   root = document,
-  accordionRuntime = null,
+  sceneRuntime = null,
 } = {}) {
   if (!root || typeof root.querySelectorAll !== "function") return noop;
 
   const runtimes = [...root.querySelectorAll("[data-berserk-timer-case]")].map(
-    (caseRoot) => createBerserkTimerCase(caseRoot, { accordionRuntime }),
+    (caseRoot) => createBerserkTimerCase(caseRoot, { sceneRuntime }),
   );
 
   return () => {
