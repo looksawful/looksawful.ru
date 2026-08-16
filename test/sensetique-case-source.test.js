@@ -6,6 +6,7 @@ import { gunzipSync } from "node:zlib";
 
 const ROOT = process.cwd();
 const CASE_DIR = join(ROOT, "src/components/sensetique-case");
+const DATA_DIR = join(CASE_DIR, "data");
 const HTML_PATH = join(CASE_DIR, "sensetique-case.html");
 const JS_PATH = join(CASE_DIR, "sensetique-case.js");
 const SCENE_PATH = join(CASE_DIR, "scene.js");
@@ -14,15 +15,20 @@ const FLIPBOOK_PATH = join(CASE_DIR, "flipbook.js");
 const MAIN_PATH = join(ROOT, "src/main.js");
 const PLUGIN_PATH = join(ROOT, "tools/sensetique-index-plugin.mjs");
 const VITE_CONFIG_PATH = join(ROOT, "vite.config.js");
-const CONTENT_GZIP_PATH = join(ROOT, "public/case-data/sensetique-content.html.gz");
-const STYLE_GZIP_PATH = join(ROOT, "public/case-data/sensetique-style.css.gz");
+const CONTENT_PARTS = [1, 2, 3, 4, 5].map((index) =>
+  join(DATA_DIR, `content-${String(index).padStart(2, "0")}.b64part`),
+);
+const STYLE_PARTS = [1, 2, 3].map((index) =>
+  join(DATA_DIR, `style-${String(index).padStart(2, "0")}.b64part`),
+);
 
 function read(path) {
   return readFileSync(path, "utf8");
 }
 
-function gunzipText(path) {
-  return gunzipSync(readFileSync(path)).toString("utf8");
+function gunzipParts(paths) {
+  const encoded = paths.map(read).join("");
+  return gunzipSync(Buffer.from(encoded, "base64")).toString("utf8");
 }
 
 test("Sensetique is injected before the shared accordion runtime is prepared", () => {
@@ -34,8 +40,8 @@ test("Sensetique is injected before the shared accordion runtime is prepared", (
     FLIPBOOK_PATH,
     PLUGIN_PATH,
     VITE_CONFIG_PATH,
-    CONTENT_GZIP_PATH,
-    STYLE_GZIP_PATH,
+    ...CONTENT_PARTS,
+    ...STYLE_PARTS,
   ]) {
     assert.equal(existsSync(path), true, `${path} must exist`);
   }
@@ -59,8 +65,9 @@ test("build integration replaces Sensetique and places it immediately after Styx
   assert.match(html, /data-cv-theme="item-04"/);
   assert.match(scene, /findSceneByProject\(root, "Styx Jewels"\)/);
   assert.match(scene, /styx\.after\(sensetique\)/);
-  assert.match(plugin, /sensetique-content\.html\.gz/);
-  assert.match(plugin, /sensetique-style\.css\.gz/);
+  assert.match(plugin, /content-01\.b64part/);
+  assert.match(plugin, /style-01\.b64part/);
+  assert.match(plugin, /Buffer\.from\(parts\.join\(""\), "base64"\)/);
   assert.match(plugin, /replaceSensetiqueScene/);
   assert.match(plugin, /findTopLevelProjectArticle\(withoutCurrent, "Styx Jewels"\)/);
   assert.match(plugin, /data-sensetique-case-styles/);
@@ -68,7 +75,7 @@ test("build integration replaces Sensetique and places it immediately after Styx
 });
 
 test("Olovo transparent trio stays and the white-background catalogue is absent", () => {
-  const html = gunzipText(CONTENT_GZIP_PATH);
+  const html = gunzipParts(CONTENT_PARTS);
 
   for (const id of ["sensetique-11-98", "sensetique-11-99", "sensetique-11-100"]) {
     assert.equal(html.split(`data-media-id="${id}"`).length - 1, 1, `${id} must stay once`);
@@ -82,8 +89,8 @@ test("Olovo transparent trio stays and the white-background catalogue is absent"
 });
 
 test("temporary group labels cannot render", () => {
-  const html = gunzipText(CONTENT_GZIP_PATH);
-  const css = gunzipText(STYLE_GZIP_PATH);
+  const html = gunzipParts(CONTENT_PARTS);
+  const css = gunzipParts(STYLE_PARTS);
 
   assert.doesNotMatch(html, /data-temp-media-group/);
   assert.doesNotMatch(css, /data-temp-media-group/);
@@ -92,7 +99,7 @@ test("temporary group labels cannot render", () => {
 });
 
 test("Sensetique videos use one viewport-aware autoplay lifecycle", () => {
-  const html = gunzipText(CONTENT_GZIP_PATH);
+  const html = gunzipParts(CONTENT_PARTS);
   const video = read(VIDEO_PATH);
   const autoplayMarkers = html.match(/data-sensetique-autoplay/g) ?? [];
 
