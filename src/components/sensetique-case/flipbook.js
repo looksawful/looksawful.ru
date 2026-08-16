@@ -38,20 +38,21 @@ function loadPageFlip() {
   return pageFlipLoader;
 }
 
-export function createSensetiqueFlipbook(
-  scene,
-  { sceneRuntime, signal } = {},
-) {
+export function createSensetiqueFlipbook(scene, { signal } = {}) {
   const section = scene.querySelector("[data-sensetique-flipbook-section]");
   if (!(section instanceof HTMLElement)) return noop;
 
   let pageFlip = null;
   let disposed = false;
   let mounting = null;
+  let observer = null;
 
   const mount = () => {
     if (pageFlip || disposed) return mounting ?? Promise.resolve();
     if (mounting) return mounting;
+
+    observer?.disconnect();
+    observer = null;
 
     mounting = loadPageFlip()
       .then((PageFlip) => {
@@ -118,19 +119,22 @@ export function createSensetiqueFlipbook(
     return mounting;
   };
 
-  const unsubscribePrepare =
-    sceneRuntime?.subscribePrepare?.(scene, () => void mount()) ?? noop;
-  const unsubscribeScene =
-    sceneRuntime?.subscribeScene?.(scene, ({ active }) => {
-      if (active) void mount();
-    }) ?? noop;
-
-  if (!sceneRuntime) void mount();
+  if (typeof IntersectionObserver === "function") {
+    observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) void mount();
+      },
+      { rootMargin: "100% 0px", threshold: 0.01 },
+    );
+    observer.observe(section);
+  } else {
+    void mount();
+  }
 
   return () => {
     disposed = true;
-    unsubscribePrepare();
-    unsubscribeScene();
+    observer?.disconnect();
+    observer = null;
     pageFlip?.destroy?.();
     pageFlip = null;
   };
