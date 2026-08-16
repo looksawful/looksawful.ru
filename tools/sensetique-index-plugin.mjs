@@ -8,6 +8,19 @@ const PROJECT_SELECTOR = "cv-item__project";
 const CONTENT_MARKER =
   '<div class="cv-item__content wrapper" data-sensetique-content-root=""></div>';
 const STYLE_MARKER = "data-sensetique-case-styles";
+const CASE_DATA_ROOT = "src/components/sensetique-case/data";
+const CONTENT_PARTS = [
+  `${CASE_DATA_ROOT}/content-01.b64part`,
+  `${CASE_DATA_ROOT}/content-02.b64part`,
+  `${CASE_DATA_ROOT}/content-03.b64part`,
+  `${CASE_DATA_ROOT}/content-04.b64part`,
+  `${CASE_DATA_ROOT}/content-05.b64part`,
+];
+const STYLE_PARTS = [
+  `${CASE_DATA_ROOT}/style-01.b64part`,
+  `${CASE_DATA_ROOT}/style-02.b64part`,
+  `${CASE_DATA_ROOT}/style-03.b64part`,
+];
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -73,8 +86,11 @@ export function injectSensetiqueStyles(html, css) {
   );
 }
 
-async function readGunzipText(path) {
-  const compressed = await readFile(path);
+async function readBase64GunzipText(root, paths) {
+  const parts = await Promise.all(
+    paths.map((path) => readFile(resolve(root, path), "utf8")),
+  );
+  const compressed = Buffer.from(parts.join(""), "base64");
   return (await gunzipAsync(compressed)).toString("utf8");
 }
 
@@ -83,22 +99,14 @@ export function createSensetiqueIndexPlugin({ root = process.cwd() } = {}) {
     root,
     "src/components/sensetique-case/sensetique-case.html",
   );
-  const contentPath = resolve(
-    root,
-    "public/case-data/sensetique-content.html.gz",
-  );
-  const stylePath = resolve(
-    root,
-    "public/case-data/sensetique-style.css.gz",
-  );
 
   let payloadPromise = null;
 
   const loadPayload = () => {
     payloadPromise ??= Promise.all([
       readFile(shellPath, "utf8"),
-      readGunzipText(contentPath),
-      readGunzipText(stylePath),
+      readBase64GunzipText(root, CONTENT_PARTS),
+      readBase64GunzipText(root, STYLE_PARTS),
     ]).then(([shell, content, css]) => {
       if (!shell.includes(CONTENT_MARKER)) {
         throw new Error("Sensetique shell is missing its content marker.");
