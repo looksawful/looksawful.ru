@@ -48,6 +48,10 @@ import { applyAccordionContent } from "./content/accordion-content.js";
 import { applyAccordionPresentation } from "./content/accordion-presentation.js";
 import { createImageSkeletons } from "./content/image-skeletons.js";
 import { createJesteiThemeOrganisms } from "./components/jestei-theme-organism/jestei-theme-organism.js";
+import {
+  createSensetiqueCase,
+  prepareSensetiqueCase,
+} from "./components/sensetique-case/sensetique-case.js";
 
 let motionPreference = null;
 let destroyHero = null;
@@ -64,6 +68,7 @@ let destroyImageSkeletons = null;
 let destroyAccordionPresentation = null;
 let destroyMovesAwful = null;
 let destroyBerserkTimerCases = null;
+let destroySensetiqueCase = null;
 let domReadyHandler = null;
 
 function unmount() {
@@ -87,7 +92,10 @@ function unmount() {
   destroyAnimatedCanvasGalleryPreviews?.();
   destroyAnimatedCanvasGalleryPreviews = null;
 
-  // Stop the shared scene runtime before destroying its direct consumers.
+  destroySensetiqueCase?.();
+  destroySensetiqueCase = null;
+
+  // Stop the shared scene runtime after destroying its direct consumers.
   cvAccordion?.destroy?.();
   cvAccordion = null;
 
@@ -119,6 +127,9 @@ function unmount() {
 function mount() {
   unmount();
 
+  // The case must be in final accordion order before content/presentation and
+  // the shared accordion runtime enumerate scene records.
+  prepareSensetiqueCase(document);
   applyAccordionContent(document);
   destroyAccordionPresentation = applyAccordionPresentation(document);
   destroyImageSkeletons = createImageSkeletons({ root: document });
@@ -146,6 +157,12 @@ function mount() {
     motion: motionPreference,
   });
   const accordionRuntime = cvAccordion?.runtime ?? null;
+
+  destroySensetiqueCase = createSensetiqueCase({
+    root: document,
+    motion: motionPreference,
+    accordionRuntime,
+  });
 
   destroyMovesAwful = configureMovesAwful(document, { accordionRuntime });
 
