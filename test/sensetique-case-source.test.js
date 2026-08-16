@@ -2,46 +2,73 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
+import { gunzipSync } from "node:zlib";
 
 const ROOT = process.cwd();
 const CASE_DIR = join(ROOT, "src/components/sensetique-case");
 const HTML_PATH = join(CASE_DIR, "sensetique-case.html");
-const CSS_PATH = join(CASE_DIR, "sensetique-case.css");
 const JS_PATH = join(CASE_DIR, "sensetique-case.js");
+const SCENE_PATH = join(CASE_DIR, "scene.js");
+const VIDEO_PATH = join(CASE_DIR, "video-autoplay.js");
+const FLIPBOOK_PATH = join(CASE_DIR, "flipbook.js");
 const MAIN_PATH = join(ROOT, "src/main.js");
-const PACKAGE_PATH = join(ROOT, "package.json");
+const PLUGIN_PATH = join(ROOT, "tools/sensetique-index-plugin.mjs");
+const VITE_CONFIG_PATH = join(ROOT, "vite.config.js");
+const CONTENT_GZIP_PATH = join(ROOT, "public/case-data/sensetique-content.html.gz");
+const STYLE_GZIP_PATH = join(ROOT, "public/case-data/sensetique-style.css.gz");
 
 function read(path) {
   return readFileSync(path, "utf8");
 }
 
-test("Sensetique production component is present and prepared before accordion content", () => {
-  assert.equal(existsSync(HTML_PATH), true, "sensetique-case.html must exist");
-  assert.equal(existsSync(CSS_PATH), true, "sensetique-case.css must exist");
-  assert.equal(existsSync(JS_PATH), true, "sensetique-case.js must exist");
+function gunzipText(path) {
+  return gunzipSync(readFileSync(path)).toString("utf8");
+}
+
+test("Sensetique is injected before the shared accordion runtime is prepared", () => {
+  for (const path of [
+    HTML_PATH,
+    JS_PATH,
+    SCENE_PATH,
+    VIDEO_PATH,
+    FLIPBOOK_PATH,
+    PLUGIN_PATH,
+    VITE_CONFIG_PATH,
+    CONTENT_GZIP_PATH,
+    STYLE_GZIP_PATH,
+  ]) {
+    assert.equal(existsSync(path), true, `${path} must exist`);
+  }
 
   const main = read(MAIN_PATH);
   assert.match(main, /prepareSensetiqueCase/);
   assert.match(main, /createSensetiqueCase/);
-  assert.match(main, /sensetique-case\.css/);
 
   const prepareIndex = main.indexOf("prepareSensetiqueCase(document)");
   const contentIndex = main.indexOf("applyAccordionContent(document)");
   assert.ok(prepareIndex >= 0 && contentIndex >= 0 && prepareIndex < contentIndex);
 });
 
-test("Sensetique scene keeps the approved theme and becomes the third accordion scene", () => {
+test("build integration replaces Sensetique and places it immediately after Styx", () => {
   const html = read(HTML_PATH);
-  const js = read(JS_PATH);
+  const scene = read(SCENE_PATH);
+  const plugin = read(PLUGIN_PATH);
+  const vite = read(VITE_CONFIG_PATH);
 
   assert.match(html, /class="[^"]*cv-item--sensetique[^"]*"/);
   assert.match(html, /data-cv-theme="item-04"/);
-  assert.match(js, /findSceneByProject\(root, "Styx Jewels"\)/);
-  assert.match(js, /styx\.after\(replacement\)/);
+  assert.match(scene, /findSceneByProject\(root, "Styx Jewels"\)/);
+  assert.match(scene, /styx\.after\(sensetique\)/);
+  assert.match(plugin, /sensetique-content\.html\.gz/);
+  assert.match(plugin, /sensetique-style\.css\.gz/);
+  assert.match(plugin, /replaceSensetiqueScene/);
+  assert.match(plugin, /findTopLevelProjectArticle\(withoutCurrent, "Styx Jewels"\)/);
+  assert.match(plugin, /data-sensetique-case-styles/);
+  assert.match(vite, /createSensetiqueIndexPlugin/);
 });
 
-test("Olovo transparent trio stays and the white-background catalogue is absent from markup", () => {
-  const html = read(HTML_PATH);
+test("Olovo transparent trio stays and the white-background catalogue is absent", () => {
+  const html = gunzipText(CONTENT_GZIP_PATH);
 
   for (const id of ["sensetique-11-98", "sensetique-11-99", "sensetique-11-100"]) {
     assert.equal(html.split(`data-media-id="${id}"`).length - 1, 1, `${id} must stay once`);
@@ -55,8 +82,8 @@ test("Olovo transparent trio stays and the white-background catalogue is absent 
 });
 
 test("temporary group labels cannot render", () => {
-  const html = read(HTML_PATH);
-  const css = read(CSS_PATH);
+  const html = gunzipText(CONTENT_GZIP_PATH);
+  const css = gunzipText(STYLE_GZIP_PATH);
 
   assert.doesNotMatch(html, /data-temp-media-group/);
   assert.doesNotMatch(css, /data-temp-media-group/);
@@ -65,20 +92,24 @@ test("temporary group labels cannot render", () => {
 });
 
 test("Sensetique videos use one viewport-aware autoplay lifecycle", () => {
-  const html = read(HTML_PATH);
-  const js = read(JS_PATH);
+  const html = gunzipText(CONTENT_GZIP_PATH);
+  const video = read(VIDEO_PATH);
   const autoplayMarkers = html.match(/data-sensetique-autoplay/g) ?? [];
 
   assert.equal(autoplayMarkers.length, 3);
   assert.doesNotMatch(html, /<video[^>]*\sautoplay(?:="")?/);
-  assert.match(js, /function createViewportVideoPlayback/);
-  assert.match(js, /new IntersectionObserver/);
-  assert.match(js, /video\.play\(\)/);
-  assert.match(js, /video\.pause\(\)/);
-  assert.match(js, /accordionRuntime\?\.subscribeScene/);
+  assert.match(video, /function createViewportVideoPlayback/);
+  assert.match(video, /new IntersectionObserver/);
+  assert.match(video, /video\.play\(\)/);
+  assert.match(video, /video\.pause\(\)/);
+  assert.match(video, /accordionRuntime\?\.subscribeScene/);
 });
 
-test("PageFlip stays an explicit project dependency", () => {
-  const pkg = JSON.parse(read(PACKAGE_PATH));
-  assert.equal(pkg.dependencies?.["page-flip"], "2.0.7");
+test("PageFlip is pinned and loaded only by the Sensetique flipbook runtime", () => {
+  const flipbook = read(FLIPBOOK_PATH);
+  assert.match(
+    flipbook,
+    /https:\/\/unpkg\.com\/page-flip@2\.0\.7\/dist\/js\/page-flip\.browser\.js/,
+  );
+  assert.match(flipbook, /data-sensetique-page-flip/);
 });
