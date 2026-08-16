@@ -113,7 +113,7 @@ const PROJECT_CONTENT = {
     hidePrinciple: true,
     hideBriefs: true,
   },
-  "Awful Tools": {
+  "Awful Cases": {
     hideDescription: true,
     hideIntro: true,
     hidePrinciple: true,

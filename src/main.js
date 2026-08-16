@@ -12,6 +12,7 @@ import "./components/app-promo/app-promo.css";
 import "./components/browser-promo/browser-promo.css";
 import "./components/digital-scroll-gallery/digital-scroll-gallery.css";
 import "./components/awful-tools-preview/awful-tools-preview.css";
+import "./components/awful-cases-showcase/awful-cases-showcase.css";
 import "./components/moves-awful/moves-awful.css";
 import "./components/animated-canvas-gallery/animated-canvas-gallery.css";
 import "./components/animated-canvas-gallery/animated-canvas-gallery-preview.css";
