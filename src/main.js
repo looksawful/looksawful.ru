@@ -93,7 +93,7 @@ function mount() {
   destroyMediaMarquees = createMediaMarquees({ root: document, motion: motionPreference });
   destroyInfiniteReels = createInfiniteReels({ root: document, motion: motionPreference });
 
-  destroySensetiqueCase = createSensetiqueCase({ root: document, motion: motionPreference, sceneRuntime });
+  destroySensetiqueCase = createSensetiqueCase({ root: document, motion: motionPreference });
   destroyMovesAwful = configureMovesAwful(document, { sceneRuntime });
   setAwfulToolsSceneRuntime(sceneRuntime, document);
   destroyBerserkTimerCases = createBerserkTimerCases({ root: document, sceneRuntime });
