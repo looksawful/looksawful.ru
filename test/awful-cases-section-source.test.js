@@ -8,7 +8,10 @@ function awfulCasesScene(html) {
   const start = html.indexOf('<article class="cv-item" data-awful-cases-showcase-scene=""');
   assert.notEqual(start, -1, "Awful Cases scene marker is present");
 
-  const next = html.indexOf('<article class="cv-item"', start + 1);
+  const nextMatch = html
+    .slice(start + 1)
+    .match(/<article\s+class="[^"]*\bcv-item\b/);
+  const next = nextMatch ? start + 1 + nextMatch.index : -1;
   assert.notEqual(next, -1, "next CV scene follows Awful Cases");
 
   return html.slice(start, next);

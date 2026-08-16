@@ -58,6 +58,7 @@ let destroyAnimatedCanvasGalleries = null;
 let destroyJesteiThemeOrganisms = null;
 let destroyImageSkeletons = null;
 let destroyAccordionPresentation = null;
+let destroyMovesAwful = null;
 let domReadyHandler = null;
 
 function unmount() {
@@ -68,6 +69,9 @@ function unmount() {
 
   destroyAccordionPresentation?.();
   destroyAccordionPresentation = null;
+
+  destroyMovesAwful?.();
+  destroyMovesAwful = null;
 
   destroyAnimatedCanvasGalleries?.();
   destroyAnimatedCanvasGalleries = null;
@@ -109,7 +113,6 @@ function mount() {
 
   applyAccordionContent(document);
   destroyAccordionPresentation = applyAccordionPresentation(document);
-  configureMovesAwful(document);
   destroyImageSkeletons = createImageSkeletons({ root: document });
   motionPreference = createMotionPreference();
 
@@ -135,6 +138,8 @@ function mount() {
     motion: motionPreference,
   });
   const accordionRuntime = cvAccordion?.runtime ?? null;
+
+  destroyMovesAwful = configureMovesAwful(document, { accordionRuntime });
 
   setAwfulToolsAccordionRuntime(accordionRuntime, document);
 
