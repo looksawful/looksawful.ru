@@ -76,7 +76,7 @@
     font-size: clamp(1.4rem, 2.35vw, 2.15rem);
     font-weight: var(--font-weight-medium);
     line-height: 1.18;
-      letter-spacing: 0;
+    letter-spacing: 0;
     text-wrap: pretty;
   }
 
@@ -212,15 +212,63 @@
 
     .sands-showcase__story--launch {
       grid-template-columns:
-        minmax(7.25rem, 0.72fr)
-        minmax(0, 1.28fr);
+        clamp(8.75rem, 40vw, 13.5rem)
+        minmax(0, 1fr);
       align-items: center;
-      gap: clamp(0.75rem, 4vw, 1.25rem);
+      gap: clamp(0.75rem, 3vw, 1.25rem);
     }
 
     .sands-showcase__story--launch
       :is(.sands-showcase__phone-unit, .mobile-mockup) {
       inline-size: 100%;
+    }
+
+    .sands-showcase__story--launch .mobile-mockup {
+      container-type: inline-size;
+    }
+
+    .sands-showcase__story--launch .mobile-mockup__shell {
+      padding:
+        clamp(0.4rem, 4cqi, 0.65rem)
+        clamp(0.35rem, 3.5cqi, 0.55rem)
+        clamp(0.65rem, 5.5cqi, 0.9rem);
+      border-radius: clamp(1.35rem, 14cqi, 2.4rem);
+      box-shadow:
+        0 1px 0 color-mix(in srgb, white, transparent 20%) inset,
+        0 0 0 1px
+          color-mix(in srgb, var(--mobile-mockup-ink), transparent 88%) inset,
+        0 clamp(0.8rem, 8cqi, 1.5rem)
+          clamp(1.8rem, 24cqi, 3rem)
+          color-mix(in srgb, var(--mobile-mockup-ink), transparent 84%);
+    }
+
+    .sands-showcase__story--launch .mobile-mockup__hardware {
+      inset-block-start: clamp(0.35rem, 3.8cqi, 0.58rem);
+      gap: clamp(0.2rem, 2.2cqi, 0.35rem);
+    }
+
+    .sands-showcase__story--launch .mobile-mockup__speaker {
+      inline-size: 26%;
+      min-inline-size: 0;
+      max-inline-size: none;
+      block-size: clamp(0.28rem, 2.8cqi, 0.42rem);
+    }
+
+    .sands-showcase__story--launch .mobile-mockup__camera {
+      inline-size: clamp(0.28rem, 2.8cqi, 0.42rem);
+      block-size: clamp(0.28rem, 2.8cqi, 0.42rem);
+    }
+
+    .sands-showcase__story--launch .mobile-mockup__screen {
+      border-radius: clamp(1rem, 11cqi, 1.85rem);
+    }
+
+    .sands-showcase__story--launch .mobile-mockup__home-indicator {
+      inset-block-end: clamp(0.28rem, 2.5cqi, 0.42rem);
+      inline-size: 30%;
+      min-inline-size: 0;
+      max-inline-size: none;
+      block-size: clamp(0.16rem, 1.5cqi, 0.24rem);
     }
 
     .sands-showcase__story--launch .process-copy__lead {
