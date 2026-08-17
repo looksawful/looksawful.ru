@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Berry Agency — production architecture prototype</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+
+@layer reset, tokens, base, layout, components, motion, utilities;
+
+/* ==========================================================================
+   PROD CONTRACT SNAPSHOT
+   On the real site this entire block is replaced by existing imports:
+   tokens.css, patterns.css, cv-accordion.css, accordion-presentation.css,
+   media-item.css, media-gallery.css, media-slider.css,
+   app-promo.css, browser-promo.css.
+   ========================================================================== */
+
+@layer tokens {
+  :root {
+    --clr-white:hsl(0 0% 100%);
+    --clr-black:hsl(0 0% 7%);
+    --clr-cv-purple:rgb(109 56 151);
+    --clr-cv-lime:rgb(189 255 74);
+    --clr-cv-warm-gray:rgb(222 216 207);
+    --clr-cv-red:rgb(244 79 55);
+    --surface-page:var(--clr-white);
+    --text-main:var(--clr-black);
+    --font-primary:"Rubik","Rubik Variable",system-ui,sans-serif;
+    --font-weight-regular:400;
+    --font-weight-medium:500;
+    --font-weight-semibold:600;
+    --font-weight-bold:700;
+    --space-3xs:clamp(.25rem,.5vw,.5rem);
+    --space-2xs:clamp(.5rem,.75vw,.75rem);
+    --space-xs:clamp(.75rem,1.6vw,2rem);
+    --space-s:clamp(1rem,2vw,2rem);
+    --space-m:clamp(1.5rem,4vw,3.375rem);
+    --space-l:clamp(2rem,4vw,4rem);
+    --space-xl:clamp(2.5rem,6vw,6rem);
+    --cv-item-05-background:var(--clr-cv-purple);
+    --cv-item-05-foreground:var(--clr-cv-lime);
+    --cv-item-06-background:var(--clr-cv-warm-gray);
+    --cv-item-06-foreground:var(--clr-cv-red);
+  }
+}
+
+@layer reset {
+  *,*::before,*::after{box-sizing:border-box}
+  html{min-inline-size:20rem;color-scheme:light}
+  body,h1,h2,h3,h4,p,figure{margin:0}
+  button,input,textarea,select{font:inherit}
+  button{color:inherit}
+  img,svg,video{display:block;max-inline-size:100%}
+  [hidden]{display:none!important}
+}
+
+@layer base {
+  body{
+    min-block-size:100vh;
+    color:var(--text-main);
+    background:var(--surface-page);
+    font-family:var(--font-primary);
+    line-height:1.3;
+  }
+}
+
+/* patterns.css — current prod contracts */
+@layer layout {
+  .stack{display:flex;flex-direction:column;gap:var(--stack-space,1.5rem)}
+  .prose>*+*{margin-block-start:var(--prose-space,var(--prose-flow,2em))}
+  .pile{display:grid;grid-template-areas:"pile";place-items:var(--pile-place-items,center)}
+  .pile>*{grid-area:pile}
+  .overflow-scroller{display:grid;grid-auto-flow:column;grid-auto-columns:var(--overflow-scroller-item-size,300px);gap:var(--overflow-scroller-space,1rem);overflow-x:auto;scroll-snap-type:x mandatory}
+  .overflow-scroller>*{scroll-snap-align:center}
+  .auto-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(var(--auto-grid-min,var(--min-col-size,400px)),100%),1fr));gap:var(--auto-grid-row-gap,var(--auto-grid-space,1rem)) var(--auto-grid-column-gap,var(--auto-grid-space,1rem))}
+  .container{width:min(var(--content-max-width,1160px),calc(100% - var(--padding-inline,2rem)*2));margin-inline:auto}
+  .wrapper{inline-size:min(calc(100% - (var(--wrapper-gutter,var(--space-s,1rem))*2)),var(--wrapper-max-width,80rem));margin-inline:auto}
+  .grid-flow{display:grid;grid-template-columns:var(--grid-flow-columns,none);grid-auto-flow:var(--grid-flow-auto-flow,row);align-content:var(--grid-flow-align-content,start);align-items:var(--grid-flow-align-items,normal);justify-content:var(--grid-flow-justify-content,normal);justify-items:var(--grid-flow-justify-items,normal);gap:var(--grid-flow-row-gap,var(--grid-flow-space,1rem)) var(--grid-flow-column-gap,var(--grid-flow-space,1rem))}
+  .cluster{display:flex;flex-wrap:var(--cluster-wrap,wrap);align-items:var(--cluster-align,center);justify-content:var(--cluster-justify,normal);gap:var(--cluster-row-gap,var(--cluster-space,var(--space-2xs,.5rem))) var(--cluster-column-gap,var(--cluster-space,var(--space-2xs,.5rem)))}
+  .equal-columns{display:grid;gap:var(--equal-columns-space,var(--space-s,1rem))}
+  .split{display:grid;grid-template-columns:minmax(0,1fr);align-items:var(--split-align,start);gap:var(--split-space,var(--space-m,2rem))}
+  .sidebar{display:flex;flex-wrap:wrap;align-items:var(--sidebar-align,flex-start);gap:var(--sidebar-space,var(--space-m,2rem))}
+  .sidebar>:first-child{flex-basis:var(--sidebar-size,18rem);flex-grow:1}
+  .sidebar>:last-child{flex-basis:0;flex-grow:999;min-inline-size:min(100%,var(--sidebar-content-min,50%))}
+  .switcher{display:flex;flex-wrap:wrap;gap:var(--switcher-space,var(--space-s,1rem))}
+  .switcher>*{flex-grow:1;flex-basis:calc((var(--switcher-threshold,40rem) - 100%)*999)}
+  .reel{display:grid;grid-auto-flow:column;grid-auto-columns:var(--reel-item-size,min(80vw,20rem));gap:var(--reel-space,var(--space-s,1rem));overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:inline mandatory;scrollbar-gutter:stable}
+  .reel>*{scroll-snap-align:var(--reel-snap-align,start)}
+  @media(width>48rem){.equal-columns{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}.split{grid-template-columns:var(--split-columns,minmax(0,1fr) minmax(0,1fr))}}
+}
+
+/* pattern-adapters.css — relevant accordion contracts */
+@layer layout {
+  :where(.cv-item__content:not(.cv-item__content--digital-arts),.cv-story,figure[data-media-item]){display:grid;align-content:start;gap:var(--stack-space,var(--space-s,1rem));min-inline-size:0}
+  .cv-item__content:not(.cv-item__content--digital-arts){--stack-space:clamp(3rem,8vw,8rem)}
+  .cv-story{--stack-space:clamp(1.25rem,3vw,3rem)}
+  figure[data-media-item]{--stack-space:var(--media-item-caption-gap)}
+  :where(.cv-item__intro:not(.cv-item__intro--digital-arts),.cv-story__copy){display:grid;align-content:start;gap:0;min-inline-size:0}
+  :where(.cv-item__intro:not(.cv-item__intro--digital-arts),.cv-story__copy)>*+*{margin-block-start:var(--prose-space,1em)}
+  .cv-item__intro:not(.cv-item__intro--digital-arts),.cv-story__copy{--prose-space:.75rem}
+  :where(.cv-item__intro:not(.cv-item__intro--digital-arts),.cv-story__copy) :is(h1,h2,h3,h4,h5,h6){text-wrap:balance}
+  :where(.cv-item__intro:not(.cv-item__intro--digital-arts),.cv-story__copy) :is(p,li,blockquote){text-wrap:pretty}
+  :where(.cv-item__title,.cv-item__copy,.cv-item__number,.cv-story__copy,.cv-story__copy h3,.cv-story__copy p){max-inline-size:var(--measure,none)}
+  .cv-item__title,.cv-story__copy h3{--measure:13ch}
+  .cv-item__copy,.cv-story__copy p{--measure:38ch}
+  .cv-item__number{--measure:40ch}
+  .cv-story__copy{--measure:38rem}
+  :where(.cv-item__roles,.browser-mockup__controls){display:flex;flex-wrap:var(--cluster-wrap,wrap);align-items:var(--cluster-align,center);justify-content:var(--cluster-justify,flex-start);gap:var(--cluster-row-space,0) var(--cluster-column-space,0);min-inline-size:0}
+  .cv-item__roles{--cluster-row-space:.25rem;--cluster-column-space:.55rem}
+  .browser-mockup__controls{--cluster-wrap:nowrap;--cluster-column-space:clamp(.375rem,.65vw,.5625rem)}
+  :where([data-media-surface]){display:grid;grid-template-areas:"pile";min-inline-size:0}
+  :where([data-media-surface])>*{grid-area:pile}
+  [data-media-slider]{display:grid;grid-template-columns:minmax(0,1fr);min-inline-size:0}
+  [data-media-slider]>[data-media-slide]{grid-area:1/1}
+}
+
+/* cv-accordion.css + accordion-presentation.css */
+@layer components {
+  .cv-item{
+    --item-bg:var(--cv-item-05-background);
+    --item-ink:var(--cv-item-05-foreground);
+    --item-body-bg:color-mix(in srgb,var(--item-bg) 93%,white 7%);
+    --item-text:var(--item-ink);
+    --cv-panel-padding-inline:clamp(.75rem,2.2vw,2.5rem);
+    --cv-panel-padding-block:clamp(1rem,2.4vw,2.5rem);
+    --cv-section-gap:clamp(.75rem,1.6vw,1.5rem);
+    --cv-media-grid-max:100%;
+    --accordion-media-caption-size:1rem;
+    --accordion-media-caption-line-height:1.45;
+    --accordion-media-hover-scale:1.025;
+    --accordion-media-hover-duration:260ms;
+    position:relative;inline-size:100%;overflow:hidden;color:var(--item-ink);background:var(--item-bg)
+  }
+  @supports(color:contrast-color(red)){.cv-item{--item-text:contrast-color(var(--item-body-bg))}}
+  .cv-item--next{--item-bg:var(--cv-item-06-background);--item-ink:var(--cv-item-06-foreground)}
+  .cv-item+.cv-item{border-block-start:1px solid color-mix(in srgb,var(--item-ink),transparent 82%)}
+  .cv-item__header{
+    position:relative;z-index:3;display:grid;
+    grid-template-columns:minmax(0,1fr) max-content 1rem;
+    grid-template-areas:"project period arrow" "roles roles roles";
+    align-items:center;gap:.4rem .75rem;inline-size:100%;min-block-size:3rem;
+    padding:.65rem var(--cv-panel-padding-inline);overflow:hidden;border:0;
+    color:inherit;background:transparent;text-align:start;cursor:pointer
+  }
+  .cv-item__header::after{
+    content:"";grid-area:arrow;justify-self:end;inline-size:.55rem;block-size:.55rem;
+    border-inline-end:.125rem solid currentColor;border-block-end:.125rem solid currentColor;
+    transform:rotate(45deg)
+  }
+  .cv-item__header[aria-expanded="true"]::after{transform:rotate(-135deg)}
+  .cv-item__project,.cv-item__roles,.cv-item__period{
+    min-inline-size:0;font-size:clamp(.75rem,1.3vw,1.05rem);font-weight:700;line-height:1
+  }
+  .cv-item__project{grid-area:project;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cv-item__roles{grid-area:roles;--cluster-row-gap:.25rem;--cluster-column-gap:.55rem}
+  .cv-item__role{display:inline-flex;align-items:center;white-space:nowrap}
+  .cv-item__role+.cv-item__role::before{content:"·";margin-inline-end:.55rem}
+  .cv-item__period{grid-area:period;justify-self:end;white-space:nowrap}
+  .cv-item__body{
+    position:relative;z-index:1;overflow:hidden;border-block-start:1px solid color-mix(in srgb,var(--item-ink),transparent 78%);
+    color:var(--item-text);background:var(--item-body-bg)
+  }
+  .cv-item__content{
+    --wrapper-max-width:100%;--wrapper-gutter:0rem;
+    display:grid;align-content:start;gap:clamp(3rem,8vw,8rem);
+    padding-block:var(--cv-panel-padding-block) clamp(4rem,9vw,8rem)
+  }
+  .cv-item__intro{
+    display:grid;align-content:start;gap:.75rem;padding-inline:var(--cv-panel-padding-inline);color:var(--item-text)
+  }
+  .cv-item__title{max-inline-size:13ch;font-size:clamp(1.875rem,1rem + 2.5vw,4rem);font-weight:var(--font-weight-bold);line-height:.9;letter-spacing:-.04em;text-wrap:balance}
+  .cv-item__copy{max-inline-size:68ch;font-size:clamp(.9375rem,.8125rem + .5vw,1.125rem);font-weight:var(--font-weight-medium);line-height:1.3;text-wrap:pretty}
+  .cv-item__number{max-inline-size:40ch;font-size:clamp(.75rem,1.1vw,1rem);font-weight:var(--font-weight-bold);line-height:1.1;opacity:.75}
+  .cv-item__intro>[data-accordion-primary-copy]{
+    display:block!important;max-inline-size:64rem;margin-block-start:var(--space-2xs,.75rem)
+  }
+  .cv-item__intro>[data-accordion-primary-copy]>p{margin:0;max-inline-size:68ch;font-size:clamp(.9375rem,.8125rem + .5vw,1.125rem);font-weight:var(--font-weight-medium);line-height:1.3;text-wrap:pretty}
+  .cv-story{
+    display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(1.25rem,3vw,3rem);
+    inline-size:100%;min-inline-size:0;padding-inline:var(--cv-panel-padding-inline)
+  }
+  .cv-story__copy{display:grid!important;align-content:start;gap:0;max-inline-size:64rem;color:var(--item-text)}
+  .cv-story__copy>*+*{margin-block-start:var(--prose-space,.75rem)}
+  .cv-story__copy>h3{max-inline-size:13ch;font-size:clamp(2rem,1.5rem + 1.5vw,3rem);font-weight:var(--font-weight-bold);line-height:.95;letter-spacing:-.04em;text-wrap:balance}
+  .cv-story__copy>p{max-inline-size:68ch;font-size:clamp(.9375rem,.8125rem + .5vw,1.125rem);font-weight:var(--font-weight-medium);line-height:1.3;text-wrap:pretty}
+}
+
+/* media-item.css */
+@layer components {
+  [data-media-item]{--media-item-background:color-mix(in srgb,currentColor,transparent 92%);--media-item-fit:cover;--media-item-position:50% 50%;--media-item-caption-gap:.5rem;min-inline-size:0}
+  figure[data-media-item]{display:grid;gap:var(--media-item-caption-gap);margin:0;overflow:visible;background:transparent}
+  [data-media-surface],[data-media-caption-surface]{position:relative;min-inline-size:0;min-block-size:0;inline-size:100%;overflow:hidden;background:var(--media-item-background)}
+  [data-media-surface]>:is(img,video)[data-media-asset],[data-media-caption-surface]>:is(img,video)[data-media-asset]{
+    display:block;inline-size:100%;block-size:100%;max-inline-size:none;object-fit:var(--media-item-fit);object-position:var(--media-item-position)
+  }
+  [data-media-item][data-media-fit="contain"]{--media-item-fit:contain}
+  [data-media-caption]{min-inline-size:0;margin:0;padding:0;font-family:var(--font-primary);font-size:var(--accordion-media-caption-size);font-weight:400;line-height:var(--accordion-media-caption-line-height);color:var(--item-text)}
+  .media-caption,.media-caption-list{--prose-space:0}
+  .media-caption__line{margin:0}
+  .media-caption__index{margin-inline-end:.28em;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:400}
+  .media-caption__title{font-weight:600}
+  .media-caption__meta,.media-caption__text{font-weight:400}
+}
+
+/* media-gallery.css — relevant production variants */
+@layer components {
+  [data-media-gallery]{--media-gallery-gap:var(--cv-section-gap);min-inline-size:0;gap:var(--media-gallery-gap)}
+  [data-media-gallery]:not([data-media-gallery-layout="single"]){display:grid}
+  [data-media-gallery-item]{min-inline-size:0}
+  [data-media-gallery-layout="two-up"],[data-media-gallery-layout="three-up"]{grid-template-columns:minmax(0,1fr);gap:clamp(.5rem,1.2vw,1rem)}
+  [data-media-gallery-layout="four-up"]{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.5rem,1.2vw,1rem)}
+  @media(width>40rem){[data-media-gallery-layout="two-up"]{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(width>50rem){
+    [data-media-gallery-layout="three-up"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+    [data-media-gallery-layout="four-up"]{grid-template-columns:repeat(4,minmax(0,1fr))}
+  }
+}
+
+@layer components {
+  .phone-mockup {
+    --phone-mockup-size: min(100%, 18rem);
+    --phone-mockup-ratio: 0.498;
+    --phone-mockup-radius: 2rem;
+    --phone-mockup-screen-radius: 1.55rem;
+
+    inline-size: var(--phone-mockup-size);
+    aspect-ratio: var(--phone-mockup-ratio);
+    margin-inline: auto;
+  }
+
+  .phone-mockup[data-media-caption-surface] {
+    overflow: visible !important;
+    background: transparent !important;
+  }
+
+  .phone-mockup__surface {
+    position: relative;
+    inline-size: 100%;
+    block-size: 100%;
+    padding: 0.55rem;
+    border-radius: var(--phone-mockup-radius);
+    background:
+      linear-gradient(
+        180deg,
+        rgb(34 34 34) 0%,
+        rgb(18 18 18) 45%,
+        rgb(8 8 8) 100%
+      );
+    box-shadow:
+      0 0.2rem 0.5rem rgb(0 0 0 / 25%),
+      0 1rem 2.4rem rgb(0 0 0 / 18%),
+      inset 0 0 0 1px rgb(255 255 255 / 8%);
+  }
+
+  .phone-mockup__surface::before {
+    position: absolute;
+    inset: 0.22rem;
+    border: 1px solid rgb(255 255 255 / 5%);
+    border-radius: calc(var(--phone-mockup-radius) - 0.22rem);
+    pointer-events: none;
+    content: "";
+  }
+
+  .phone-mockup__screen {
+    position: relative;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: hidden;
+    border-radius: var(--phone-mockup-screen-radius);
+    background: #000;
+  }
+
+  .phone-mockup__screen > :is(img, video, picture),
+  .phone-mockup__screen > picture > img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    object-fit: var(--phone-mockup-fit, cover);
+    object-position: var(--phone-mockup-position, 50% 50%);
+  }
+
+  @media (width <= 50rem) {
+    .phone-mockup {
+      --phone-mockup-size: min(100%, 16rem);
+    }
+  }
+}
+
+@layer components {
+  [data-berry-case] {
+    --berry-case-group-space: clamp(2.5rem, 6vw, 5rem);
+    --berry-case-grid-gap: clamp(0.5rem, 1.2vw, 1rem);
+    --berry-case-divider-color:
+      color-mix(in srgb, var(--item-text), transparent 78%);
+    --berry-case-divider-offset: clamp(1.5rem, 4vw, 4rem);
+    --berry-case-phone-shadow-clearance: 3.5rem;
+  }
+
+  /*
+   * Primary copy is the only Berry-specific text scale.
+   * The title and description continue to use the global CV presentation.
+   */
+  .cv-item[data-cv-theme="berry"]
+    .cv-item__intro
+    > [data-accordion-primary-copy] {
+    max-inline-size: 42rem;
+  }
+
+  .cv-item[data-cv-theme="berry"]
+    .cv-item__intro
+    > [data-accordion-primary-copy]
+    > p {
+    max-inline-size: 32ch;
+    margin: 0;
+    font-size: clamp(1.4rem, 2.35vw, 2.15rem);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.18;
+    letter-spacing: -0.035em;
+    text-wrap: pretty;
+  }
+
+  /*
+   * Theme-aware editorial dividers. No Berry color is assigned here:
+   * the scene keeps the accordion's existing nth-child color system.
+   */
+  .cv-item[data-cv-theme="berry"]
+    [data-berry-case]
+    > .berry-case__section {
+    position: relative;
+  }
+
+  .cv-item[data-cv-theme="berry"]
+    [data-berry-case]
+    > .berry-case__section::before {
+    content: "";
+    position: absolute;
+    inset-inline: var(--cv-panel-padding-inline);
+    inset-block-start: calc(-1 * var(--berry-case-divider-offset));
+    border-block-start: 1px solid var(--berry-case-divider-color);
+    pointer-events: none;
+  }
+
+  .berry-case__section-flow {
+    --stack-space: var(--berry-case-group-space);
+  }
+
+  .berry-case__group {
+    --stack-space: clamp(0.75rem, 1.7vw, 1.25rem);
+    min-inline-size: 0;
+  }
+
+  .berry-case__grid {
+    --grid-flow-space: var(--berry-case-grid-gap);
+    min-inline-size: 0;
+  }
+
+  /*
+   * Small explanatory lines above the two approved media groups.
+   * These are not media captions.
+   */
+  .berry-case__group-note {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.28rem;
+    max-inline-size: 42rem;
+    margin-block-end: clamp(0.75rem, 1.4vw, 1.15rem);
+    color: var(--item-text);
+    font-size: clamp(0.75rem, 0.7rem + 0.18vw, 0.875rem);
+    line-height: 1.35;
+  }
+
+  .berry-case__group-note-copy {
+    max-inline-size: 42rem;
+    font-weight: var(--font-weight-regular);
+    opacity: 0.72;
+  }
+
+  .berry-case__media {
+    min-inline-size: 0;
+    margin: 0;
+    background: transparent;
+  }
+
+  /*
+   * The phone shell casts outside its figure. It must never inherit the
+   * generic media-gallery clipping used by ordinary photographs.
+   */
+  .cv-item[data-cv-theme="berry"]
+    [data-berry-case]
+    figure.berry-case__phone-card[data-media-captioned] {
+    overflow: visible !important;
+    background: transparent !important;
+  }
+
+  .berry-case__phone-card {
+    display: grid;
+    align-content: start;
+    justify-items: center;
+  }
+
+  /*
+   * Mobile: the site's existing .reel pattern remains the scrolling
+   * mechanism. Only sizing, hidden scrollbar and shadow-safe scrollport
+   * geometry are Berry-specific.
+   */
+  .berry-case__stories-reel {
+    --reel-item-size: min(72vw, 15rem);
+    --reel-space: var(--berry-case-grid-gap);
+    --reel-snap-align: start;
+
+    scrollbar-width: none;
+    scrollbar-gutter: auto;
+    -ms-overflow-style: none;
+  }
+
+  .berry-case__stories-reel::-webkit-scrollbar {
+    display: none;
+  }
+
+  .berry-case__grid--four-up {
+    --grid-flow-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /*
+   * Approved agency-photo group: equal 3:4 media boxes.
+   */
+  .berry-case__grid--five-columns-two-rows,
+  .berry-case__grid--equal-height {
+    --berry-case-equal-media-ratio: 3 / 4;
+  }
+
+  .berry-case__grid--equal-height
+    > .berry-case__media
+    > [data-media-caption-surface] {
+    aspect-ratio: var(--berry-case-equal-media-ratio) !important;
+  }
+
+  /*
+   * Captions are overlays only in Berry.
+   * Global caption typography is inherited unchanged.
+   */
+  .cv-item[data-cv-theme="berry"]
+    [data-berry-case]
+    figure[data-media-captioned] {
+    position: relative;
+    display: block;
+    overflow: hidden;
+  }
+
+  .cv-item[data-cv-theme="berry"]
+    [data-berry-case]
+    figure[data-media-captioned]
+    > [data-media-caption-surface] {
+    position: relative;
+    z-index: 0;
+    display: block;
+    inline-size: 100%;
+    outline: none;
+  }
+
+  .cv-item[data-cv-theme="berry"]
+    [data-berry-case]
+    figure[data-media-captioned]
+    > figcaption[data-media-caption] {
+    position: absolute !important;
+    z-index: 2;
+    inset-inline: -1px !important;
+    inset-block-end: -1px !important;
+    inline-size: calc(100% + 2px);
+    margin: 0 !important;
+    padding:
+      clamp(0.65rem, 1.25vw, 1rem)
+      clamp(0.7rem, 1.4vw, 1.1rem) !important;
+    color: var(--item-text) !important;
+    background:
+      linear-gradient(
+        to top,
+        color-mix(in srgb, var(--item-body-bg) 96%, transparent),
+        color-mix(in srgb, var(--item-body-bg) 82%, transparent) 68%,
+        transparent
+      ) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(0.45rem);
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease,
+      visibility 0s linear 180ms;
+    pointer-events: none;
+  }
+
+  /*
+   * Touch/pen state is explicit and controlled by berry-case.js.
+   * Desktop hover/focus remains CSS-only.
+   */
+  .cv-item[data-cv-theme="berry"]
+    [data-berry-case]
+    figure[data-media-captioned][data-caption-open]
+    > figcaption[data-media-caption] {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0);
+    transition-delay: 0s;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cv-item[data-cv-theme="berry"]
+      [data-berry-case]
+      figure[data-media-captioned]:is(:hover, :focus-within)
+      > figcaption[data-media-caption] {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: translateY(0);
+      transition-delay: 0s;
+    }
+  }
+
+  .cv-item[data-cv-theme="berry"]
+    [data-berry-case]
+    figure[data-media-captioned]
+    > [data-media-caption-surface]:focus-visible {
+    outline: 1px solid var(--item-text);
+    outline-offset: -1px;
+  }
+
+  /*
+   * Re-apply visible overflow after the generic figure rule above.
+   * This is required for the approved phone shadow.
+   */
+  .cv-item[data-cv-theme="berry"]
+    [data-berry-case]
+    figure.berry-case__phone-card[data-media-captioned] {
+    overflow: visible !important;
+  }
+
+  @media (width <= 50rem) {
+    .berry-case__stories-reel {
+      --grid-flow-columns: none;
+
+      display: grid;
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: var(--reel-item-size);
+      align-items: start;
+      justify-content: start;
+      gap: var(--reel-space);
+
+      /*
+       * Extend the scrollport through the section gutter while keeping the
+       * first card on the same alignment line. Bottom padding gives the
+       * phone box-shadow room inside the scrollport; the negative margin
+       * preserves the approved section rhythm.
+       */
+      inline-size:
+        calc(100% + (var(--cv-panel-padding-inline) * 2));
+      max-inline-size: none;
+      margin-inline:
+        calc(-1 * var(--cv-panel-padding-inline));
+      padding-inline: var(--cv-panel-padding-inline);
+      padding-block-end: var(--berry-case-phone-shadow-clearance);
+      margin-block-end:
+        calc(-1 * var(--berry-case-phone-shadow-clearance));
+
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-inline: contain;
+      scroll-snap-type: inline mandatory;
+      scroll-padding-inline: var(--cv-panel-padding-inline);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .berry-case__stories-reel > * {
+      min-inline-size: 0;
+      scroll-snap-align: var(--reel-snap-align);
+      scroll-snap-stop: normal;
+    }
+
+    .berry-case__stories-reel .phone-mockup {
+      --phone-mockup-size: 100%;
+    }
+
+    .berry-case__grid--five-columns-two-rows {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-flow: row;
+    }
+  }
+
+  @media (width > 50rem) {
+    .berry-case__stories-reel {
+      grid-auto-flow: row;
+      grid-auto-columns: auto;
+      overflow: visible;
+      scroll-snap-type: none;
+    }
+
+    .berry-case__stories-reel > * {
+      scroll-snap-align: none;
+    }
+
+    .berry-case__grid--four-up {
+      --grid-flow-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .berry-case__grid--five-columns-two-rows {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-rows: repeat(2, auto);
+      grid-auto-flow: column;
+      gap: var(--berry-case-grid-gap);
+      align-items: start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cv-item[data-cv-theme="berry"]
+      [data-berry-case]
+      figure[data-media-captioned]
+      > figcaption[data-media-caption] {
+      transition: none;
+      transform: none;
+    }
+  }
+}
+
+@layer motion {
+  /*
+   * The site has a global media zoom on fine pointers.
+   * Berry explicitly keeps the approved static photography.
+   */
+  @media (hover: hover) and (pointer: fine) {
+    .cv-item[data-cv-theme="berry"]
+      [data-berry-case]
+      [data-media-caption-surface]
+      > :is(img, video),
+    .cv-item[data-cv-theme="berry"]
+      [data-berry-case]
+      [data-media-caption-surface]:hover
+      > :is(img, video) {
+      transform: none;
+      transition-property: none;
+    }
+  }
+}
+
+
+/* Standalone bridge only; production uses the real site files. */
+.cv-item--berry-preview [data-berry-case] {
+  min-inline-size: 0;
+}
+
+</style>
+</head>
+<body>
+<main class="cv-accordion">
+<div class="cv-accordion__list">
+<article class="cv-item cv-item--berry-preview" data-cv-scene="" data-cv-theme="berry">
+<button aria-controls="cv-panel-05" aria-expanded="true" class="cv-item__header" id="cv-trigger-05" type="button">
+<span class="cv-item__project">Berry Agency</span>
+<span class="cv-item__roles cluster"><span class="cv-item__role">СММ</span></span>
+<span class="cv-item__period">2020</span>
+</button>
+<div aria-labelledby="cv-trigger-05" class="cv-item__body" id="cv-panel-05" role="region">
+<div class="cv-item__content wrapper" data-berry-case="">
+<header class="cv-item__intro">
+<h2 class="cv-item__title">Berry Agency</h2>
+<p class="cv-item__copy">
+          Московское модельное агентство, которое занимается подбором моделей, организацией
+          кастингов, созданием модельных портфолио, а также проведением фото- и видеосъёмок.
+        </p>
+<div class="cv-story__copy prose" data-accordion-primary-copy="">
+<p>
+            В агентстве я работал SMM-специалистом и фотографом, составлял контент-планы,
+            создавал дизайн постов, укомплектовал студию агентства оборудованием, занимался
+            съёмками модельных тестов и проводил коммерческие и editorial-фотосъёмки.
+          </p>
+</div>
+<p class="cv-item__number">СММ</p>
+</header>
+<section class="cv-story berry-case__section" data-cv-sheet="">
+<div class="berry-case__section-flow stack">
+<div class="berry-case__group stack">
+<div class="berry-case__group-note" data-berry-group-note="social"><span class="berry-case__group-note-copy">Посты и сторис для социальных сетей агентства.</span></div><div class="berry-case__grid berry-case__grid--four-up grid-flow berry-case__stories-reel reel" data-berry-stories-reel="" data-media-gallery="" data-media-gallery-layout="four-up" tabindex="0">
+<figure class="berry-case__media berry-case__phone-card" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="phone-mockup" data-media-caption-surface="" data-phone-mockup="" tabindex="0">
+<div class="phone-mockup__surface">
+<div class="phone-mockup__screen">
+<img alt="" data-media-asset="" data-media-id="berry-02-01" decoding="async" height="1400" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/02/source/01-9x16.webp" width="788"/>
+</div>
+</div>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-02-01">
+<p class="media-caption__line" data-media-caption-for="berry-02-01">
+<span class="media-caption__index">01</span>
+<span class="media-caption__title">Сторис с услугами в инстаграме</span>
+</p>
+</figcaption>
+</figure>
+<figure class="berry-case__media berry-case__phone-card" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="phone-mockup" data-media-caption-surface="" data-phone-mockup="" tabindex="0">
+<div class="phone-mockup__surface">
+<div class="phone-mockup__screen">
+<img alt="" data-media-asset="" data-media-id="berry-02-02" decoding="async" height="1400" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/02/source/02-9x16.webp" width="788"/>
+</div>
+</div>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-02-02">
+<p class="media-caption__line" data-media-caption-for="berry-02-02">
+<span class="media-caption__index">02</span>
+<span class="media-caption__title">Сторис с услугами в инстаграме</span>
+</p>
+</figcaption>
+</figure>
+<figure class="berry-case__media berry-case__phone-card" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="phone-mockup" data-media-caption-surface="" data-phone-mockup="" tabindex="0">
+<div class="phone-mockup__surface">
+<div class="phone-mockup__screen">
+<img alt="" data-media-asset="" data-media-id="berry-02-03" decoding="async" height="1400" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/02/source/03-9x16.webp" width="788"/>
+</div>
+</div>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-02-03">
+<p class="media-caption__line" data-media-caption-for="berry-02-03">
+<span class="media-caption__index">03</span>
+<span class="media-caption__title">Сторис с услугами в инстаграме</span>
+</p>
+</figcaption>
+</figure>
+<figure class="berry-case__media berry-case__phone-card" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="phone-mockup" data-media-caption-surface="" data-phone-mockup="" tabindex="0">
+<div class="phone-mockup__surface">
+<div class="phone-mockup__screen">
+<img alt="" data-media-asset="" data-media-id="berry-02-04" decoding="async" height="1400" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/02/source/04-9x16.webp" width="788"/>
+</div>
+</div>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-02-04">
+<p class="media-caption__line" data-media-caption-for="berry-02-04">
+<span class="media-caption__index">04</span>
+<span class="media-caption__title">Сторис с услугами в инстаграме</span>
+</p>
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section class="cv-story berry-case__section" data-cv-sheet="">
+<div class="berry-case__section-flow stack">
+<div class="berry-case__group stack">
+<div class="berry-case__group-note" data-berry-group-note="agency"><span class="berry-case__group-note-copy">Модельные тесты и съёмки для агентства.</span></div><div class="berry-case__grid grid-flow berry-case__grid--equal-height berry-case__grid--five-columns-two-rows" data-media-gallery="" data-media-gallery-layout="five-columns-two-rows">
+<figure class="berry-case__media" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="berry-case__media-surface" data-media-caption-surface="" style="aspect-ratio: 4912 / 7360" tabindex="0">
+<img alt="" data-media-asset="" data-media-id="berry-05-19" decoding="async" height="7360" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/05/source/19-4912x7360.webp" width="4912"/>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-05-19">
+<p class="media-caption__line" data-media-caption-for="berry-05-19">
+<span class="media-caption__index">12</span>
+<span class="media-caption__title">Эдиториал в студии агентсва</span>
+</p>
+</figcaption>
+</figure><figure class="berry-case__media" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="berry-case__media-surface" data-media-caption-surface="" style="aspect-ratio: 1050 / 1400" tabindex="0">
+<img alt="" data-media-asset="" data-media-id="berry-05-01" decoding="async" height="1400" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/05/source/01-1050x1400.webp" width="1050"/>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-05-01">
+<p class="media-caption__line" data-media-caption-for="berry-05-01">
+<span class="media-caption__index">13</span>
+<span class="media-caption__title">Модельные тесты для агентства</span>
+</p>
+</figcaption>
+</figure>
+<figure class="berry-case__media" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="berry-case__media-surface" data-media-caption-surface="" style="aspect-ratio: 933 / 1400" tabindex="0">
+<img alt="" data-media-asset="" data-media-id="berry-03-06" decoding="async" height="1400" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/03/source/06-2x3.webp" width="933"/>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-03-06">
+<p class="media-caption__line" data-media-caption-for="berry-03-06">
+<span class="media-caption__index">14</span>
+<span class="media-caption__title">Эдиториал съемка с моделью агентства</span>
+</p>
+</figcaption>
+</figure>
+<figure class="berry-case__media" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="berry-case__media-surface" data-media-caption-surface="" style="aspect-ratio: 1050 / 1400" tabindex="0">
+<img alt="" data-media-asset="" data-media-id="berry-03-08" decoding="async" height="1400" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/03/source/08-3x4.webp" width="1050"/>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-03-08">
+<p class="media-caption__line" data-media-caption-for="berry-03-08">
+<span class="media-caption__index">15</span>
+<span class="media-caption__title">Эдиториал съемка с моделью агентства</span>
+</p>
+</figcaption>
+</figure>
+<figure class="berry-case__media" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="berry-case__media-surface" data-media-caption-surface="" style="aspect-ratio: 854 / 1280" tabindex="0">
+<img alt="" data-media-asset="" data-media-id="berry-05-11" decoding="async" height="1280" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/05/source/11-854x1280.webp" width="854"/>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-05-11">
+<p class="media-caption__line" data-media-caption-for="berry-05-11">
+<span class="media-caption__index">16</span>
+<span class="media-caption__title">Модельные тесты для агентства</span>
+</p>
+</figcaption>
+</figure><figure class="berry-case__media" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="berry-case__media-surface" data-media-caption-surface="" style="aspect-ratio: 1312 / 1968" tabindex="0">
+<img alt="" data-media-asset="" data-media-id="berry-05-12" decoding="async" height="1968" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/05/source/12-1312x1968.webp" width="1312"/>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-05-12">
+<p class="media-caption__line" data-media-caption-for="berry-05-12">
+<span class="media-caption__index">17</span>
+<span class="media-caption__title">Модельные тесты для агентства</span>
+</p>
+</figcaption>
+</figure><figure class="berry-case__media" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="berry-case__media-surface" data-media-caption-surface="" style="aspect-ratio: 1312 / 1968" tabindex="0">
+<img alt="" data-media-asset="" data-media-id="berry-05-13" decoding="async" height="1968" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/05/source/13-1312x1968.webp" width="1312"/>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-05-13">
+<p class="media-caption__line" data-media-caption-for="berry-05-13">
+<span class="media-caption__index">18</span>
+<span class="media-caption__title">Модельные тесты для агентства</span>
+</p>
+</figcaption>
+</figure><figure class="berry-case__media" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="berry-case__media-surface" data-media-caption-surface="" style="aspect-ratio: 1417 / 1890" tabindex="0">
+<img alt="" data-media-asset="" data-media-id="berry-05-26" decoding="async" height="1890" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/05/source/26-1417x1890.webp" width="1417"/>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-05-26">
+<p class="media-caption__line" data-media-caption-for="berry-05-26">
+<span class="media-caption__index">20</span>
+<span class="media-caption__title">Эдиториал с моделью аентства</span>
+</p>
+</figcaption>
+</figure><figure class="berry-case__media" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="berry-case__media-surface" data-media-caption-surface="" style="aspect-ratio: 1417 / 1890" tabindex="0">
+<img alt="" data-media-asset="" data-media-id="berry-05-27" decoding="async" height="1890" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/05/source/27-1417x1890.webp" width="1417"/>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-05-27">
+<p class="media-caption__line" data-media-caption-for="berry-05-27">
+<span class="media-caption__index">21</span>
+<span class="media-caption__title">Эдиториал с моделью аентства</span>
+</p>
+</figcaption>
+</figure><figure class="berry-case__media" data-media-captioned="" data-media-gallery-item="" data-media-item="">
+<div class="berry-case__media-surface" data-media-caption-surface="" style="aspect-ratio: 2448 / 3060" tabindex="0">
+<img alt="" data-media-asset="" data-media-id="berry-05-10" decoding="async" height="3060" loading="lazy" src="https://www.looksawful.ru/media/projects/berry/05/source/10-2448x3060.webp" width="2448"/>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption="" data-media-caption-for="berry-05-10">
+<p class="media-caption__line" data-media-caption-for="berry-05-10">
+<span class="media-caption__index">22</span>
+<span class="media-caption__title">бекстейдж со съемки</span>
+</p>
+</figcaption>
+</figure></div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</article>
+<article class="cv-item cv-item--next">
+<button aria-expanded="false" class="cv-item__header" type="button">
+<span class="cv-item__project">S&amp;S</span>
+<span class="cv-item__roles cluster"><span class="cv-item__role">СММ</span></span>
+<span class="cv-item__period">2018–2019</span>
+</button>
+</article>
+</div>
+</main>
+<script>(() => {
+  const trigger = document.querySelector("#cv-trigger-05");
+  const panel = document.querySelector("#cv-panel-05");
+
+  trigger?.addEventListener("click", () => {
+    const expanded = trigger.getAttribute("aria-expanded") === "true";
+    trigger.setAttribute("aria-expanded", String(!expanded));
+    panel.hidden = expanded;
+  });
+})();
+
+const TAP_MAX_DISTANCE = 10;
+
+function isTouchLikePointer(event) {
+  return event.pointerType === "touch" || event.pointerType === "pen";
+}
+
+function mediaSurfaceFromTarget(target, berryRoot) {
+  if (!(target instanceof Element)) return null;
+
+  const surface = target.closest("[data-media-caption-surface]");
+  return surface instanceof HTMLElement && berryRoot.contains(surface)
+    ? surface
+    : null;
+}
+
+function figureForSurface(surface) {
+  const figure = surface?.closest("figure[data-media-captioned]");
+  return figure instanceof HTMLElement ? figure : null;
+}
+
+function closeCaption(figure) {
+  if (!(figure instanceof HTMLElement)) return;
+  figure.removeAttribute("data-caption-open");
+
+  const surface = figure.querySelector(":scope > [data-media-caption-surface]");
+  if (
+    surface instanceof HTMLElement &&
+    document.activeElement === surface
+  ) {
+    surface.blur();
+  }
+}
+
+function createBerryCase({ root = document } = {}) {
+  const berryRoot = root.querySelector("[data-berry-case]");
+  if (!(berryRoot instanceof HTMLElement)) return () => {};
+
+  const scene = berryRoot.closest(".cv-item") ?? berryRoot;
+  const figures = [
+    ...berryRoot.querySelectorAll("figure[data-media-captioned]"),
+  ].filter((figure) => figure instanceof HTMLElement);
+
+  let gesture = null;
+
+  function closeAll(except = null) {
+    figures.forEach((figure) => {
+      if (figure !== except) closeCaption(figure);
+    });
+  }
+
+  function onPointerDown(event) {
+    if (!isTouchLikePointer(event)) return;
+
+    const surface = mediaSurfaceFromTarget(event.target, berryRoot);
+
+    if (!(surface instanceof HTMLElement)) {
+      gesture = null;
+      closeAll();
+      return;
+    }
+
+    gesture = {
+      pointerId: event.pointerId,
+      surface,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
+    };
+  }
+
+  function onPointerMove(event) {
+    if (!gesture || event.pointerId !== gesture.pointerId) return;
+
+    const distance = Math.hypot(
+      event.clientX - gesture.startX,
+      event.clientY - gesture.startY,
+    );
+
+    if (distance > TAP_MAX_DISTANCE) gesture.moved = true;
+  }
+
+  function onPointerUp(event) {
+    if (!gesture || event.pointerId !== gesture.pointerId) return;
+
+    const { surface, moved } = gesture;
+    gesture = null;
+
+    if (moved) return;
+
+    const figure = figureForSurface(surface);
+    if (!(figure instanceof HTMLElement)) return;
+
+    const willOpen = !figure.hasAttribute("data-caption-open");
+    closeAll(willOpen ? figure : null);
+
+    if (willOpen) {
+      figure.setAttribute("data-caption-open", "");
+    } else {
+      closeCaption(figure);
+    }
+  }
+
+  function onPointerCancel(event) {
+    if (gesture?.pointerId === event.pointerId) gesture = null;
+  }
+
+  scene.addEventListener("pointerdown", onPointerDown);
+  scene.addEventListener("pointermove", onPointerMove);
+  scene.addEventListener("pointerup", onPointerUp);
+  scene.addEventListener("pointercancel", onPointerCancel);
+
+  return () => {
+    scene.removeEventListener("pointerdown", onPointerDown);
+    scene.removeEventListener("pointermove", onPointerMove);
+    scene.removeEventListener("pointerup", onPointerUp);
+    scene.removeEventListener("pointercancel", onPointerCancel);
+
+    gesture = null;
+    closeAll();
+  };
+}
+
+
+const destroyBerryCase = createBerryCase({ root: document });
+</script>
+</body>
+</html>

@@ -1,0 +1,1746 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>S&S — refactored accordion prototype</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap");
+
+  @layer reset, tokens, base, patterns, layout, components, motion;
+
+  @layer reset {
+    *, *::before, *::after { box-sizing: border-box; }
+    body, h1, h2, h3, p, figure { margin: 0; }
+    button { border: 0; padding: 0; color: inherit; background: transparent; font: inherit; }
+    img { display: block; max-inline-size: 100%; }
+  }
+
+  @layer tokens {
+    :root {
+      --font-primary: "Rubik", system-ui, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --space-s: clamp(1rem, 2vw, 2rem);
+      --cv-ss-background: rgb(217 243 228);
+      --cv-ss-foreground: rgb(22 59 47);
+      --cv-awful-tools-background: rgb(18 18 18);
+      --cv-awful-tools-foreground: rgb(200 255 61);
+    }
+  }
+
+  @layer base {
+    html {
+      min-inline-size: 20rem;
+      color: #111;
+      background: white;
+      font-family: var(--font-primary);
+      line-height: 1.3;
+    }
+  }
+
+  @layer patterns {
+    .wrapper {
+      inline-size: min(
+        calc(100% - (var(--wrapper-gutter, var(--space-s)) * 2)),
+        var(--wrapper-max-width, 80rem)
+      );
+      margin-inline: auto;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: var(--stack-space, 1.5rem);
+    }
+
+    .prose > * + * { margin-block-start: var(--prose-space, 1em); }
+
+    .cluster {
+      display: flex;
+      flex-wrap: var(--cluster-wrap, wrap);
+      align-items: var(--cluster-align, center);
+      gap: var(--cluster-space, 0.5rem);
+    }
+  }
+
+  @layer layout {
+    .cv-scroll-scene {
+      --cv-panel-padding-inline: clamp(0.75rem, 2.2vw, 2.5rem);
+      --cv-panel-padding-block: clamp(1rem, 2.4vw, 2.5rem);
+      --cv-content-wide-max: 90rem;
+      overflow: clip;
+    }
+
+    .cv-accordion,
+    .cv-accordion__list { inline-size: 100%; }
+  }
+
+  @layer components {
+    .cv-item {
+      --item-bg: white;
+      --item-ink: #111;
+      --item-body-bg: color-mix(in srgb, var(--item-bg) 93%, white 7%);
+      --item-text: var(--item-ink);
+      --accordion-media-caption-size: 1rem;
+      --accordion-media-caption-line-height: 1.45;
+      --media-item-caption-gap: 0.5rem;
+      --accordion-media-hover-scale: 1.025;
+      --accordion-media-hover-duration: 260ms;
+
+      inline-size: 100%;
+      overflow: hidden;
+      color: var(--item-ink);
+      background: var(--item-bg);
+    }
+
+    .cv-item + .cv-item {
+      border-block-start: 1px solid color-mix(in srgb, currentColor, transparent 82%);
+    }
+
+    .cv-item__header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) max-content 1rem;
+      grid-template-areas:
+        "project period arrow"
+        "roles roles roles";
+      align-items: center;
+      gap: 0.4rem 0.75rem;
+      inline-size: 100%;
+      min-block-size: 3rem;
+      padding: 0.65rem var(--cv-panel-padding-inline);
+      text-align: start;
+    }
+
+    .cv-item__header::after {
+      content: "";
+      grid-area: arrow;
+      justify-self: end;
+      inline-size: 0.55rem;
+      block-size: 0.55rem;
+      border-inline-end: 0.125rem solid currentColor;
+      border-block-end: 0.125rem solid currentColor;
+      rotate: 45deg;
+    }
+
+    .cv-item__header[aria-expanded="true"]::after { rotate: -135deg; }
+
+    .cv-item__project,
+    .cv-item__roles,
+    .cv-item__period {
+      font-size: clamp(0.75rem, 1.3vw, 1.05rem);
+      font-weight: var(--font-weight-bold);
+      line-height: 1;
+    }
+
+    .cv-item__project { grid-area: project; }
+    .cv-item__roles { grid-area: roles; }
+    .cv-item__period { grid-area: period; justify-self: end; }
+
+    .cv-item__body {
+      border-block-start: 1px solid color-mix(in srgb, currentColor, transparent 78%);
+      background: var(--item-body-bg);
+    }
+
+    .cv-item__content {
+      --wrapper-max-width: var(--cv-content-wide-max);
+      --wrapper-gutter: 0rem;
+      display: grid;
+      gap: clamp(3rem, 8vw, 8rem);
+      padding-block: var(--cv-panel-padding-block) clamp(4rem, 9vw, 8rem);
+    }
+
+    .cv-item__intro {
+      display: grid;
+      gap: 0.75rem;
+      padding-inline: var(--cv-panel-padding-inline);
+      color: var(--item-text);
+    }
+
+    .cv-item__title {
+      max-inline-size: 13ch;
+      font-size: clamp(1.875rem, 1rem + 2.5vw, 4rem);
+      font-weight: var(--font-weight-bold);
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+    }
+
+    .cv-item__copy {
+      max-inline-size: 68ch;
+      font-size: clamp(0.9375rem, 0.8125rem + 0.5vw, 1.125rem);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.3;
+    }
+
+    .cv-item__number {
+      font-size: clamp(0.75rem, 1.1vw, 1rem);
+      font-weight: var(--font-weight-bold);
+      line-height: 1.1;
+      opacity: 0.75;
+    }
+
+    .cv-story {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(1.25rem, 3vw, 3rem);
+      inline-size: 100%;
+      padding-inline: var(--cv-panel-padding-inline);
+    }
+
+    .cv-story--media-only {
+      max-inline-size: 100%;
+      margin-inline: auto;
+    }
+
+    .process-copy {
+      --stack-space: clamp(1.25rem, 3vw, 2rem);
+      color: var(--item-text);
+    }
+
+    .process-copy__title {
+      max-inline-size: 10ch;
+      font-size: clamp(1.8rem, 3.5vw, 3.5rem);
+      font-weight: var(--font-weight-bold);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+    }
+
+    .process-copy__lead {
+      max-inline-size: 38ch;
+      font-size: clamp(1rem, 1.5vw, 1.35rem);
+      font-weight: var(--font-weight-semibold);
+      line-height: 1.12;
+    }
+
+    .media-gallery { min-inline-size: 0; }
+    .media-gallery__item { min-inline-size: 0; }
+
+    [data-media-gallery-layout="single"] {
+      display: grid;
+    }
+
+    .media-gallery__item > img {
+      inline-size: 100%;
+    }
+
+    .cv-item [data-media-captioned] {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: var(--media-item-caption-gap);
+      overflow: visible;
+      background: transparent;
+    }
+
+    .cv-item [data-media-caption-surface] {
+      overflow: hidden;
+    }
+
+    .cv-item [data-media-captioned] > [data-media-caption],
+    .sands-showcase__phone-caption {
+      position: static;
+      inline-size: 100%;
+      margin: 0;
+      padding: 0;
+      color: var(--item-text);
+      background: transparent;
+      font-size: var(--accordion-media-caption-size);
+      font-weight: var(--font-weight-regular);
+      line-height: var(--accordion-media-caption-line-height);
+    }
+
+    .media-caption__index {
+      margin-inline-end: 0.28em;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .media-caption__title {
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .cv-item--awful-tools {
+      --item-bg: var(--cv-awful-tools-background);
+      --item-ink: var(--cv-awful-tools-foreground);
+    }
+
+    @media (width > 50rem) {
+      .cv-item__header {
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) 1rem;
+        grid-template-areas: "project roles period arrow";
+        gap: clamp(0.75rem, 1.5vw, 1.5rem);
+        min-block-size: 4.5rem;
+      }
+
+      .cv-item__roles { justify-self: center; }
+
+      .cv-story--split {
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+        align-items: start;
+        gap: clamp(2rem, 5vw, 6rem);
+      }
+
+      .cv-item__content > .cv-item__intro,
+      .cv-item__content > .cv-story {
+        inline-size: 100%;
+        padding-inline: var(--cv-panel-padding-inline);
+      }
+    }
+
+    @media (width <= 50rem) {
+      .cv-item {
+        --accordion-media-caption-size: 0.8125rem;
+        --accordion-media-caption-line-height: 1.38;
+        --media-item-caption-gap: 0.45rem;
+      }
+
+      .cv-item__content {
+        gap: clamp(4rem, 18vw, 6.5rem);
+      }
+    }
+  }
+
+  @layer motion {
+    @media (hover: hover) and (pointer: fine) {
+      .cv-item :where(
+        [data-media-caption-surface],
+        [data-media-marquee-surface]
+      ) > :is(img, video) {
+        transform-origin: center;
+        transition: transform var(--accordion-media-hover-duration) ease;
+      }
+
+      .cv-item :where(
+        [data-media-caption-surface],
+        [data-media-marquee-surface]
+      ):hover > :is(img, video) {
+        transform: scale(var(--accordion-media-hover-scale));
+      }
+    }
+  }
+
+      @layer components {
+    [data-media-marquee] {
+      --media-marquee-gap: clamp(0.75rem, 1.3vw, 1.25rem);
+      --media-marquee-item-size: clamp(10.5rem, 18vw, 20rem);
+      --media-marquee-item-height: var(--media-marquee-item-size);
+      --media-marquee-fade-size: clamp(2rem, 10vw, 12rem);
+      --media-marquee-padding-block: clamp(0.75rem, 2vw, 2rem);
+      --media-marquee-distance: 0px;
+      --media-marquee-duration: 30s;
+      --media-marquee-direction: normal;
+
+      inline-size: 100%;
+      min-inline-size: 0;
+      overflow: visible;
+    }
+
+    [data-media-marquee]::-webkit-scrollbar {
+      display: none;
+    }
+
+    [data-media-marquee][data-measuring="true"],
+    [data-media-marquee][data-animated="true"] {
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(
+        90deg,
+        transparent,
+        black var(--media-marquee-fade-size),
+        black calc(100% - var(--media-marquee-fade-size)),
+        transparent
+      );
+      mask-image: linear-gradient(
+        90deg,
+        transparent,
+        black var(--media-marquee-fade-size),
+        black calc(100% - var(--media-marquee-fade-size)),
+        transparent
+      );
+    }
+
+    [data-media-marquee][data-media-marquee-direction="right"] {
+      --media-marquee-direction: reverse;
+    }
+
+    [data-media-marquee-track],
+    [data-media-marquee-group] {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      justify-content: center;
+      gap: var(--media-marquee-gap);
+    }
+
+    [data-media-marquee-track] {
+      inline-size: 100%;
+      padding-block: var(--media-marquee-padding-block);
+    }
+
+    [data-media-marquee-group] {
+      flex: 0 1 auto;
+    }
+
+    [data-media-marquee][data-measuring="true"] [data-media-marquee-track],
+    [data-media-marquee][data-animated="true"] [data-media-marquee-track] {
+      inline-size: max-content;
+    }
+
+    [data-media-marquee][data-measuring="true"] [data-media-marquee-track],
+    [data-media-marquee][data-measuring="true"] [data-media-marquee-group],
+    [data-media-marquee][data-animated="true"] [data-media-marquee-track],
+    [data-media-marquee][data-animated="true"] [data-media-marquee-group] {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+    }
+
+    [data-media-marquee][data-measuring="true"] [data-media-marquee-group],
+    [data-media-marquee][data-animated="true"] [data-media-marquee-group] {
+      flex: none;
+    }
+
+    [data-media-marquee-item] {
+      --media-marquee-ratio: 9 / 16;
+
+      position: relative;
+      flex: 0 0 var(--media-marquee-item-size);
+      inline-size: var(--media-marquee-item-size);
+      min-inline-size: 0;
+      margin: 0;
+    }
+
+    [data-media-marquee-item][data-media-ratio="portrait"] {
+      --media-marquee-ratio: 4 / 5;
+    }
+
+    [data-media-marquee-item][data-media-ratio="square"] {
+      --media-marquee-ratio: 1;
+    }
+
+    [data-media-marquee-item][data-media-ratio="landscape"] {
+      --media-marquee-ratio: 16 / 9;
+    }
+
+    [data-media-marquee-item][data-media-ratio="tall"] {
+      --media-marquee-ratio: 2 / 3;
+    }
+
+    [data-media-marquee-item][data-media-ratio="vertical"] {
+      --media-marquee-ratio: 9 / 16;
+    }
+
+    [data-media-marquee-surface] {
+      inline-size: 100%;
+      aspect-ratio: var(--media-marquee-ratio);
+      overflow: hidden;
+      background: color-mix(in srgb, currentColor, transparent 92%);
+    }
+
+    [data-media-marquee-surface] > :is(img, video) {
+      display: block;
+      inline-size: 100%;
+      block-size: 100%;
+      object-fit: cover;
+    }
+
+    /*
+     * Opt-in intrinsic strip.
+     * JS writes --media-marquee-source-ratio from the existing width/height
+     * attributes before the source group is measured.
+     */
+    [data-media-marquee][data-media-marquee-sizing="equal-height"]
+      [data-media-marquee-item] {
+      flex-basis: calc(
+        var(--media-marquee-item-height) *
+        var(--media-marquee-source-ratio, 1)
+      );
+      inline-size: calc(
+        var(--media-marquee-item-height) *
+        var(--media-marquee-source-ratio, 1)
+      );
+    }
+
+    [data-media-marquee][data-media-marquee-sizing="equal-height"]
+      [data-media-marquee-surface] {
+      block-size: var(--media-marquee-item-height);
+      aspect-ratio: auto;
+    }
+
+    [data-media-marquee-item] > [data-media-caption] {
+      position: absolute;
+      z-index: 1;
+      inset-inline: 0;
+      inset-block-end: 0;
+
+      padding: clamp(0.75rem, 1.5vw, 1.25rem);
+      color: white;
+
+      background: linear-gradient(
+        to top,
+        rgb(0 0 0 / 78%),
+        rgb(0 0 0 / 38%) 58%,
+        transparent
+      );
+
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(0.5rem);
+    }
+
+    [data-media-marquee-item]:hover > [data-media-caption],
+    [data-media-marquee-item]:focus-within > [data-media-caption] {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @layer motion {
+    [data-media-marquee][data-animated="true"] [data-media-marquee-track] {
+      animation: media-marquee-scroll var(--media-marquee-duration) linear
+        var(--media-marquee-direction) infinite;
+
+      will-change: transform;
+    }
+
+    [data-media-marquee][data-media-marquee-pause-on-hover]:hover
+      [data-media-marquee-track],
+    [data-media-marquee][data-media-marquee-pause-on-hover]:focus-within
+      [data-media-marquee-track] {
+      animation-play-state: paused;
+    }
+
+    [data-media-marquee-item] > [data-media-caption] {
+      transition:
+        opacity 180ms ease,
+        transform 180ms ease;
+    }
+
+    @keyframes media-marquee-scroll {
+      to {
+        transform: translate3d(calc(-1 * var(--media-marquee-distance)), 0, 0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      [data-media-marquee-track] {
+        animation: none;
+        transform: none;
+        will-change: auto;
+      }
+
+      [data-media-marquee-item] > [data-media-caption] {
+        transition: none;
+      }
+    }
+  }
+
+      @layer components {
+    .mobile-mockup {
+      --mobile-mockup-inline-size: min(100%, 27.5rem);
+      --mobile-mockup-aspect-ratio: 430 / 844;
+      --mobile-mockup-ink: var(--item-ink, currentColor);
+      --mobile-mockup-surface: var(--item-bg, Canvas);
+
+      inline-size: var(--mobile-mockup-inline-size);
+      min-inline-size: 0;
+    }
+
+    .mobile-mockup__shell {
+      position: relative;
+      inline-size: 100%;
+      aspect-ratio: var(--mobile-mockup-aspect-ratio);
+      padding:
+        clamp(0.5rem, 1.2vw, 0.75rem)
+        clamp(0.45rem, 1vw, 0.65rem)
+        clamp(0.8rem, 1.7vw, 1rem);
+      border: 1.5px solid
+        color-mix(in srgb, var(--mobile-mockup-ink), transparent 22%);
+      border-radius: clamp(2rem, 4vw, 2.8rem);
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, white, var(--mobile-mockup-surface) 82%) 0%,
+          color-mix(in srgb, white, var(--mobile-mockup-surface) 90%) 100%
+        );
+      box-shadow:
+        0 1px 0 color-mix(in srgb, white, transparent 20%) inset,
+        0 0 0 1px
+          color-mix(in srgb, var(--mobile-mockup-ink), transparent 88%) inset,
+        0 24px 60px
+          color-mix(in srgb, var(--mobile-mockup-ink), transparent 84%);
+    }
+
+    .mobile-mockup__hardware {
+      position: absolute;
+      z-index: 2;
+      inset-block-start: clamp(0.45rem, 1vw, 0.65rem);
+      inset-inline: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      pointer-events: none;
+    }
+
+    .mobile-mockup__speaker {
+      inline-size: 26%;
+      min-inline-size: 3.6rem;
+      max-inline-size: 5.6rem;
+      block-size: 0.45rem;
+      border-radius: 999px;
+      background: color-mix(
+        in srgb,
+        var(--mobile-mockup-ink),
+        transparent 12%
+      );
+    }
+
+    .mobile-mockup__camera {
+      inline-size: 0.45rem;
+      block-size: 0.45rem;
+      border-radius: 50%;
+      background: color-mix(
+        in srgb,
+        var(--mobile-mockup-ink),
+        transparent 12%
+      );
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, white, transparent 25%) inset;
+    }
+
+    .mobile-mockup__screen {
+      inline-size: 100%;
+      block-size: 100%;
+      overflow: hidden;
+      border-radius: clamp(1.55rem, 3vw, 2.1rem);
+      background: white;
+    }
+
+    .mobile-mockup__screen > :is(img, video, picture),
+    .mobile-mockup__screen > picture > img {
+      display: block;
+      inline-size: 100%;
+      block-size: 100%;
+    }
+
+    .mobile-mockup__screen > :is(img, video),
+    .mobile-mockup__screen > picture > img {
+      object-fit: var(--mobile-mockup-media-fit, cover);
+      object-position: var(--mobile-mockup-media-position, 50% 50%);
+    }
+
+    .mobile-mockup__home-indicator {
+      position: absolute;
+      inset-block-end: 0.42rem;
+      inset-inline-start: 50%;
+      inline-size: 30%;
+      min-inline-size: 4rem;
+      max-inline-size: 6rem;
+      block-size: 0.24rem;
+      border-radius: 999px;
+      background: color-mix(
+        in srgb,
+        var(--mobile-mockup-ink),
+        transparent 36%
+      );
+      translate: -50% 0;
+    }
+  }
+
+      @layer components {
+  .cv-item--sands {
+    --item-bg: var(--cv-ss-background);
+    --item-ink: var(--cv-ss-foreground);
+  }
+
+  [data-sands-showcase] {
+    --sands-marquee-height: clamp(14rem, 24vw, 19rem);
+    --sands-media-radius: 0.55rem;
+    --sands-phone-size: min(100%, 27.5rem);
+  }
+
+  .sands-showcase__phone-unit {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    min-inline-size: 0;
+  }
+
+  .sands-showcase__phone-unit .mobile-mockup {
+    --mobile-mockup-inline-size: var(--sands-phone-size);
+  }
+
+  .sands-showcase__phone-slider {
+    position: relative;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: hidden;
+  }
+
+  .sands-showcase__phone-slide {
+    position: absolute;
+    inset: 0;
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    object-fit: var(--mobile-mockup-media-fit, cover);
+    object-position: var(--mobile-mockup-media-position, 50% 50%);
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .sands-showcase__phone-slide--first {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .sands-showcase__phone-slide--second {
+    transform: translate3d(100%, 0, 0);
+  }
+
+  .cv-item--sands .cv-item__intro {
+    gap: clamp(0.55rem, 1.1vw, 0.8rem);
+  }
+
+  .cv-item--sands .cv-item__copy {
+    max-inline-size: 46ch;
+    font-size: clamp(0.9375rem, 0.84rem + 0.4vw, 1.125rem);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.38;
+    letter-spacing: -0.012em;
+    text-wrap: pretty;
+  }
+
+  .cv-item--sands .cv-item__number {
+    margin-block-start: 0.1rem;
+    color: color-mix(in srgb, var(--item-text), transparent 38%);
+    font-size: clamp(0.75rem, 0.7rem + 0.18vw, 0.875rem);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.38;
+  }
+
+  .sands-showcase__story--launch .process-copy {
+    align-self: center;
+    min-inline-size: 0;
+    max-inline-size: 42rem;
+  }
+
+  .sands-showcase__story--launch .process-copy__lead {
+    max-inline-size: 32ch;
+    font-size: clamp(1.4rem, 2.35vw, 2.15rem);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.18;
+    letter-spacing: -0.035em;
+    text-wrap: pretty;
+  }
+
+  .sands-showcase__story--marquee {
+    padding-inline: 0;
+  }
+
+  [data-sands-showcase] [data-sands-marquee="lookbook"] {
+    --media-marquee-padding-block: 0rem;
+  }
+
+  [data-sands-showcase]
+    [data-sands-marquee="lookbook"]
+    [data-media-marquee-item] {
+    flex:
+      0 0
+      calc(var(--sands-marquee-height) * var(--sands-marquee-ratio));
+    inline-size:
+      calc(var(--sands-marquee-height) * var(--sands-marquee-ratio));
+    min-inline-size: 0;
+    overflow: hidden;
+    border-radius: var(--sands-media-radius);
+    background: transparent;
+  }
+
+  [data-sands-showcase]
+    [data-sands-marquee="lookbook"]
+    [data-media-marquee-surface] {
+    position: relative;
+    inline-size: 100%;
+    block-size: var(--sands-marquee-height);
+    aspect-ratio: auto;
+    overflow: hidden;
+    border: 0;
+    border-radius: var(--sands-media-radius);
+    background: transparent;
+    box-shadow: none;
+    outline: none;
+  }
+
+  [data-sands-showcase]
+    [data-sands-marquee="lookbook"]
+    [data-media-marquee-surface]
+    > img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    object-fit: cover;
+  }
+
+  .sands-showcase__media-caption {
+    position: absolute;
+    z-index: 2;
+    inset-inline: -1px;
+    inset-block-end: -1px;
+    display: grid;
+    gap: 0.16rem;
+    inline-size: calc(100% + 2px);
+    margin: 0;
+    padding:
+      clamp(0.65rem, 1.25vw, 1rem)
+      clamp(0.7rem, 1.4vw, 1.1rem);
+    color: var(--item-text);
+    background:
+      linear-gradient(
+        to top,
+        color-mix(in srgb, var(--item-body-bg) 96%, transparent),
+        color-mix(in srgb, var(--item-body-bg) 82%, transparent) 68%,
+        transparent
+      );
+    font-size: clamp(0.75rem, 0.7rem + 0.18vw, 0.875rem);
+    line-height: 1.35;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(0.45rem);
+    pointer-events: none;
+  }
+
+  .sands-showcase__media-caption-index {
+    display: block;
+    margin: 0;
+    font-weight: var(--font-weight-regular);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    opacity: 0.68;
+  }
+
+  .sands-showcase__media-caption-title {
+    display: block;
+    max-inline-size: 30ch;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.3;
+    text-wrap: pretty;
+  }
+
+  /*
+   * Tap/focus contract:
+   * on touch devices a tap focuses the surface and reveals its caption.
+   * Tapping elsewhere moves focus and closes it. No JS state is required.
+   */
+  [data-sands-showcase]
+    [data-sands-marquee="lookbook"]
+    [data-media-caption-surface]:is(:focus, :focus-within)
+    > .sands-showcase__media-caption {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  [data-sands-showcase]
+    [data-sands-marquee="lookbook"]
+    [data-media-caption-surface]:focus-visible {
+    outline: 1px solid var(--item-text);
+    outline-offset: -1px;
+  }
+
+  @media (width <= 50rem) {
+    [data-sands-showcase] {
+      --sands-marquee-height: clamp(11rem, 42vw, 15rem);
+      --sands-phone-size: 100%;
+    }
+
+    .cv-item--sands .cv-item__copy {
+      max-inline-size: 36ch;
+      font-size: clamp(0.875rem, 3.35vw, 1rem);
+      line-height: 1.4;
+    }
+
+    .cv-item--sands .cv-item__number {
+      font-size: 0.75rem;
+    }
+
+    .sands-showcase__story--launch {
+      grid-template-columns:
+        minmax(7.25rem, 0.72fr)
+        minmax(0, 1.28fr);
+      align-items: center;
+      gap: clamp(0.75rem, 4vw, 1.25rem);
+    }
+
+    .sands-showcase__story--launch
+      :is(.sands-showcase__phone-unit, .mobile-mockup) {
+      inline-size: 100%;
+    }
+
+    .sands-showcase__story--launch .process-copy__lead {
+      max-inline-size: 30ch;
+      font-size: clamp(0.78rem, 3vw, 1rem);
+      line-height: 1.28;
+      letter-spacing: -0.015em;
+    }
+
+    .sands-showcase__media-caption {
+      font-size: 0.75rem;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-sands-showcase]
+      [data-sands-marquee="lookbook"]
+      [data-media-caption-surface]:hover
+      > .sands-showcase__media-caption {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer motion {
+  .sands-showcase__phone-slide--first,
+  .sands-showcase__phone-slide--second {
+    animation-duration: 8.16s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-iteration-count: infinite;
+  }
+
+  .sands-showcase__phone-slide--first {
+    animation-name: sands-phone-swipe-first;
+  }
+
+  .sands-showcase__phone-slide--second {
+    animation-name: sands-phone-swipe-second;
+  }
+
+  .sands-showcase__media-caption {
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease,
+      visibility 0s linear 180ms;
+  }
+
+  [data-sands-showcase]
+    [data-sands-marquee="lookbook"]
+    [data-media-caption-surface]:is(:hover, :focus, :focus-within)
+    > .sands-showcase__media-caption {
+    transition-delay: 0s;
+  }
+
+  @keyframes sands-phone-swipe-first {
+    0%,
+    41.666% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    50%,
+    91.665% {
+      transform: translate3d(-100%, 0, 0);
+    }
+
+    91.666% {
+      transform: translate3d(100%, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes sands-phone-swipe-second {
+    0%,
+    41.666% {
+      transform: translate3d(100%, 0, 0);
+    }
+
+    50%,
+    91.666% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(-100%, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sands-showcase__phone-slide--first,
+    .sands-showcase__phone-slide--second {
+      animation: none;
+      will-change: auto;
+    }
+
+    .sands-showcase__phone-slide--first {
+      transform: translate3d(0, 0, 0);
+    }
+
+    .sands-showcase__phone-slide--second {
+      transform: translate3d(100%, 0, 0);
+    }
+
+    .sands-showcase__media-caption {
+      transition: none;
+      transform: none;
+    }
+  }
+}
+
+</style>
+  </head>
+  <body>
+    <main class="cv-scroll-scene">
+      <div class="cv-accordion">
+        <div class="cv-accordion__list">
+          <article
+  class="cv-item cv-item--sands"
+  data-cv-scene=""
+  data-cv-theme="ss"
+>
+  <button
+    aria-controls="cv-panel-06"
+    aria-expanded="true"
+    class="cv-item__header"
+    id="cv-trigger-06"
+    type="button"
+  >
+    <span class="cv-item__project">S&amp;S</span>
+    <span class="cv-item__roles cluster">
+      <span class="cv-item__role">СММ</span>
+    </span>
+    <span class="cv-item__period">2018–2019</span>
+  </button>
+
+  <div
+    aria-labelledby="cv-trigger-06"
+    class="cv-item__body"
+    id="cv-panel-06"
+    role="region"
+  >
+    <div class="cv-item__content wrapper" data-sands-showcase="">
+      <header class="cv-item__intro">
+        <h2 class="cv-item__title">S&amp;S</h2>
+        <p class="cv-item__copy">
+          Бренд стильных боди и нижнего белья с акцентом на выразительный силуэт, женственность и современную подачу.
+        </p>
+        <ul class="cv-item__meta" hidden=""></ul>
+        <p class="cv-item__number">СММ</p>
+      </header>
+
+      <section
+        class="cv-story cv-story--split sands-showcase__story sands-showcase__story--launch"
+        data-cv-sheet=""
+      >
+        <div class="sands-showcase__phone-unit">
+          <div class="mobile-mockup" data-mobile-mockup="">
+            <div class="mobile-mockup__shell">
+              <div class="mobile-mockup__hardware" aria-hidden="true">
+                <span class="mobile-mockup__speaker"></span>
+                <span class="mobile-mockup__camera"></span>
+              </div>
+
+              <div class="mobile-mockup__screen">
+                <div
+                  class="sands-showcase__phone-slider"
+                  data-sands-phone-slider=""
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    class="sands-showcase__phone-slide sands-showcase__phone-slide--first"
+                    data-media-id="sands-01-01"
+                    decoding="async"
+                    height="1400"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/01/source/01-4x5.webp"
+                    width="1120"
+                  />
+                  <img
+                    alt="Каталожная фотография S&amp;S"
+                    class="sands-showcase__phone-slide sands-showcase__phone-slide--second"
+                    data-media-id="sands-05-16"
+                    decoding="async"
+                    height="1920"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/05/source/16-1080x1920.webp"
+                    width="1080"
+                  />
+                </div>
+              </div>
+
+              <span
+                class="mobile-mockup__home-indicator"
+                aria-hidden="true"
+              ></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="process-copy stack">
+          <p class="process-copy__lead">
+            На этапе запуска работал как SMM-специалист, фотограф и дизайнер: создал и оформил соцсети, разработал контент-план, продюсировал фото- и видеосъёмки, снимал каталоги, лукбуки и кампейны, оформлял посты и сторис, настраивал рекламу.
+          </p>
+        </div>
+      </section>
+
+      <section
+        class="cv-story cv-story--media-only sands-showcase__story sands-showcase__story--marquee"
+        data-cv-sheet=""
+      >
+        <div
+          data-media-marquee=""
+          data-media-marquee-speed="72"
+          data-sands-marquee="lookbook"
+        >
+          <div data-media-marquee-track="">
+            <div data-media-marquee-group="">
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 1.00000000;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-01-02"
+                    decoding="async"
+                    height="1350"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/01/source/02-1x1.webp"
+                    width="1350"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">02</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 1.00000000;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-01-03"
+                    decoding="async"
+                    height="1080"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/01/source/03-1x1.webp"
+                    width="1080"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">03</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 1.00000000;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-01-04"
+                    decoding="async"
+                    height="1350"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/01/source/04-1x1.webp"
+                    width="1350"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">04</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 0.71373157;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-02-01"
+                    decoding="async"
+                    height="1289"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/02/source/01-920x1289.webp"
+                    width="920"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">05</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 0.66642857;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-02-02"
+                    decoding="async"
+                    height="1400"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/02/source/02-2x3.webp"
+                    width="933"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">06</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 0.66642857;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-02-03"
+                    decoding="async"
+                    height="1400"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/02/source/03-2x3.webp"
+                    width="933"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">07</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 0.66642857;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-04-01"
+                    decoding="async"
+                    height="1400"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/04/source/01-2x3.webp"
+                    width="933"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">09</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 0.56285714;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-04-02"
+                    decoding="async"
+                    height="1400"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/04/source/02-9x16.webp"
+                    width="788"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">10</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 0.71373157;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-04-03"
+                    decoding="async"
+                    height="1289"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/04/source/03-920x1289.webp"
+                    width="920"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">11</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 0.56285714;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-04-04"
+                    decoding="async"
+                    height="1400"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/04/source/04-9x16.webp"
+                    width="788"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">12</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+              <figure
+                data-media-marquee-item=""
+                style="--sands-marquee-ratio: 0.66642857;"
+              >
+                <div
+                  data-media-caption-surface=""
+                  data-media-marquee-surface=""
+                  tabindex="0"
+                >
+                  <img
+                    alt="Фотография для первого лукбука бренда."
+                    data-media-id="sands-04-05"
+                    decoding="async"
+                    height="1400"
+                    loading="lazy"
+                    src="https://www.looksawful.ru/media/projects/sands/04/source/05-2x3.webp"
+                    width="933"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="sands-showcase__media-caption"
+                    data-sands-media-caption=""
+                  >
+                    <span class="sands-showcase__media-caption-index">13</span>
+                    <span class="sands-showcase__media-caption-title">
+                      Фотография для первого лукбука бренда.
+                    </span>
+                  </div>
+                </div>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</article>
+
+
+
+          <article class="cv-item cv-item--awful-tools">
+            <button class="cv-item__header" type="button" aria-expanded="false">
+              <span class="cv-item__project">Awful Tools</span>
+              <span class="cv-item__roles cluster">
+                <span class="cv-item__role">Разработчик</span>
+              </span>
+              <span class="cv-item__period">2024–2026</span>
+            </button>
+          </article>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      const MEDIA_MARQUEE_DESTROY = Symbol.for("looksawful.mediaMarquee.destroy");
+
+  const DEFAULT_SPEED = 72;
+  const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+  const SOURCE_RATIO_PROPERTY = "--media-marquee-source-ratio";
+
+  const noop = () => {};
+
+  function createClone(source) {
+    const clone = source.cloneNode(true);
+
+    const elements = [clone, ...clone.querySelectorAll("*")];
+    clone.dataset.mediaMarqueeClone = "";
+    clone.inert = true;
+
+    for (const element of elements) {
+      element.removeAttribute("id");
+      element.removeAttribute("data-media-id");
+      element.removeAttribute("data-media-item");
+      element.removeAttribute("data-media-caption-for");
+      element.removeAttribute("data-ref");
+    }
+
+    clone.querySelectorAll("img").forEach((image) => {
+      image.alt = "";
+    });
+
+    return clone;
+  }
+
+  function readGap(element) {
+    const styles = window.getComputedStyle(element);
+    const value = Number.parseFloat(styles.columnGap || styles.gap);
+
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function readSpeed(element) {
+    const value = Number.parseFloat(element.dataset.mediaMarqueeSpeed);
+
+    return Number.isFinite(value) && value > 0 ? value : DEFAULT_SPEED;
+  }
+
+  function readSourceRatio(item) {
+    const asset = item.querySelector(
+      ":scope > [data-media-marquee-surface] > :is(img, video), " +
+        ":scope > :is(img, video)",
+    );
+
+    if (!(asset instanceof HTMLImageElement || asset instanceof HTMLVideoElement)) {
+      return null;
+    }
+
+    const width = Number(asset.getAttribute("width"));
+    const height = Number(asset.getAttribute("height"));
+
+    if (!(width > 0 && height > 0)) {
+      return null;
+    }
+
+    return width / height;
+  }
+
+  function createMediaMarquee(element, { motion } = {}) {
+    if (!(element instanceof HTMLElement)) {
+      return null;
+    }
+
+    element[MEDIA_MARQUEE_DESTROY]?.();
+
+    const track = element.querySelector(":scope > [data-media-marquee-track]");
+    const source = track?.querySelector(
+      [
+        ":scope > ",
+        "[data-media-marquee-group]",
+        ":not([data-media-marquee-clone])",
+      ].join(""),
+    );
+
+    if (!(track instanceof HTMLElement) || !(source instanceof HTMLElement)) {
+      return null;
+    }
+
+    const mediaQuery = window.matchMedia?.(REDUCED_MOTION_QUERY) ?? null;
+
+    let frame = 0;
+    let destroyed = false;
+    let motionAllowed = motion?.allowsMotion?.() ?? !mediaQuery?.matches;
+
+    const originalRatios = new Map();
+
+    const restoreSourceRatios = () => {
+      for (const [item, value] of originalRatios) {
+        if (value) {
+          item.style.setProperty(SOURCE_RATIO_PROPERTY, value);
+        } else {
+          item.style.removeProperty(SOURCE_RATIO_PROPERTY);
+        }
+      }
+
+      originalRatios.clear();
+    };
+
+    const syncSourceRatios = () => {
+      if (element.dataset.mediaMarqueeSizing !== "equal-height") {
+        restoreSourceRatios();
+        return;
+      }
+
+      source
+        .querySelectorAll(":scope > [data-media-marquee-item]")
+        .forEach((item) => {
+          if (!(item instanceof HTMLElement)) {
+            return;
+          }
+
+          if (!originalRatios.has(item)) {
+            originalRatios.set(
+              item,
+              item.style.getPropertyValue(SOURCE_RATIO_PROPERTY),
+            );
+          }
+
+          const ratio = readSourceRatio(item);
+
+          if (Number.isFinite(ratio) && ratio > 0) {
+            item.style.setProperty(SOURCE_RATIO_PROPERTY, String(ratio));
+          }
+        });
+    };
+
+    const removeClones = () => {
+      track.querySelectorAll("[data-media-marquee-clone]").forEach((clone) => {
+        clone.remove();
+      });
+    };
+
+    const reset = () => {
+      removeClones();
+
+      element.removeAttribute("data-animated");
+      element.removeAttribute("data-measuring");
+
+      element.style.removeProperty("--media-marquee-distance");
+      element.style.removeProperty("--media-marquee-duration");
+
+      element.scrollLeft = 0;
+    };
+
+    const refresh = () => {
+      frame = 0;
+
+      reset();
+      syncSourceRatios();
+
+      if (destroyed || !motionAllowed) {
+        return;
+      }
+
+      element.dataset.measuring = "true";
+
+      const viewportWidth = element.getBoundingClientRect().width;
+      const sourceWidth = source.getBoundingClientRect().width;
+      const gap = readGap(track);
+
+      element.removeAttribute("data-measuring");
+
+      if (viewportWidth <= 0 || sourceWidth <= 0) {
+        return;
+      }
+
+      const distance = sourceWidth + gap;
+
+      const groupCount = Math.max(
+        2,
+        Math.ceil((viewportWidth + distance + gap) / distance),
+      );
+
+      const fragment = document.createDocumentFragment();
+
+      for (let index = 1; index < groupCount; index += 1) {
+        fragment.append(createClone(source));
+      }
+
+      track.append(fragment);
+
+      element.style.setProperty("--media-marquee-distance", `${distance}px`);
+      element.style.setProperty(
+        "--media-marquee-duration",
+        `${distance / readSpeed(element)}s`,
+      );
+
+      element.dataset.animated = "true";
+    };
+
+    const scheduleRefresh = () => {
+      if (!destroyed && !frame) {
+        frame = window.requestAnimationFrame(refresh);
+      }
+    };
+
+    const resizeObserver =
+      typeof ResizeObserver === "function"
+        ? new ResizeObserver(scheduleRefresh)
+        : null;
+
+    resizeObserver?.observe(element);
+    resizeObserver?.observe(source);
+
+    if (!resizeObserver) {
+      window.addEventListener("resize", scheduleRefresh);
+    }
+
+    const unsubscribeMotion =
+      motion?.subscribe?.(({ allowed }) => {
+        motionAllowed = Boolean(allowed);
+        scheduleRefresh();
+      }) ?? noop;
+
+    const handleMotionChange = (event) => {
+      motionAllowed = !event.matches;
+      scheduleRefresh();
+    };
+
+    if (!motion?.subscribe) {
+      mediaQuery?.addEventListener("change", handleMotionChange);
+    }
+
+    const destroy = () => {
+      if (destroyed) {
+        return;
+      }
+
+      destroyed = true;
+
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
+
+      resizeObserver?.disconnect();
+      unsubscribeMotion();
+
+      if (!resizeObserver) {
+        window.removeEventListener("resize", scheduleRefresh);
+      }
+
+      if (!motion?.subscribe) {
+        mediaQuery?.removeEventListener("change", handleMotionChange);
+      }
+
+      reset();
+      restoreSourceRatios();
+
+      if (element[MEDIA_MARQUEE_DESTROY] === destroy) {
+        delete element[MEDIA_MARQUEE_DESTROY];
+      }
+    };
+
+    element[MEDIA_MARQUEE_DESTROY] = destroy;
+
+    scheduleRefresh();
+
+    return destroy;
+  }
+
+  function createMediaMarquees({ root = document, motion } = {}) {
+    if (!root || typeof root.querySelectorAll !== "function") {
+      return noop;
+    }
+
+    const destroys = Array.from(
+      root.querySelectorAll("[data-media-marquee]"),
+      (element) => createMediaMarquee(element, { motion }),
+    ).filter(Boolean);
+
+    return () => {
+      while (destroys.length > 0) {
+        destroys.pop()?.();
+      }
+    };
+  }
+
+  const previewMotion = {
+    allowsMotion() {
+      return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    },
+  };
+
+  createMediaMarquees({ root: document, motion: previewMotion });
+
+
+    </script>
+  </body>
+</html>

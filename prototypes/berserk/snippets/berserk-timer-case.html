@@ -1,0 +1,267 @@
+<div class="berserk-case wrapper stack" data-berserk-audio-base="https://cdn.jsdelivr.net/gh/looksawful/berserk-timer@v0.2.1-beta/assets/" data-berserk-audio-fallback-base="https://raw.githubusercontent.com/looksawful/berserk-timer/v0.2.1-beta/assets/" data-berserk-timer-case="" data-berserk-version="0.2.1-beta">
+<!-- Identity / current prod intro -->
+<header class="berserk-case__intro stack">
+<figure class="berserk-media berserk-media--identity" data-media-captioned=""><div class="berserk-media__surface berserk-media__surface--identity" data-media-caption-surface=""><div class="berserk-timer-identity">
+<div class="berserk-timer-identity__bar">
+<span aria-hidden="true" class="berserk-timer-identity__dots"><i></i><i></i><i></i></span>
+</div>
+<pre aria-label="Berserk Timer ASCII logo">███   ▄███▄   █▄▄▄▄   ▄▄▄▄▄   ▄███▄   █▄▄▄▄ █  █▀
+█  █  █▀   ▀  █  ▄▀  █     ▀▄ █▀   ▀  █  ▄▀ █▄█
+█ ▀ ▄ ██▄▄    █▀▀▌ ▄  ▀▀▀▀▄   ██▄▄    █▀▀▌  █▀▄
+█  ▄▀ █▄   ▄▀ █  █  ▀▄▄▄▄▀    █▄   ▄▀ █  █  █  █
+███   ▀███▀      █             ▀███▀     █     █
+                ▀                       ▀     ▀
+             █▄
+           ▄     █▀▄▀█
+       ▄▄▄▀▀ ▄█  █ █ █  ▄███▄   █▄▄▄▄
+    ▀▀▀ █    ██  █ ▀ █  █▀   ▀  █  ▄▀
+        █    ██  █   █  ██▄▄    █▀▀█▌
+       █     ▐█      █  █▄   ▄▀ █   █
+      ▀       ▐     ▀   ▀███▀      █</pre>
+</div></div><figcaption class="media-item__caption media-caption prose" data-media-caption=""><details class="berserk-caption" data-berserk-caption=""><summary class="media-caption__line berserk-caption__summary"><span class="media-caption__index">01</span> <span class="media-caption__title">CLI-таймер с режимом свидетеля и гибкой настройкой длительности.</span></summary><span class="media-caption__meta berserk-caption__meta"> Целью было сделать простой CLI-таймер для Windows, который после каждой сессии спрашивает: «Чем вы занимались?». Он сочетает гибкость, простоту и отсутствие рекламы.</span></details></figcaption></figure>
+</header>
+<!-- Core interaction: new presentation composition, site contracts -->
+<!-- Existing production gallery contract -->
+<section aria-label="Экраны Berserk Timer" class="berserk-case__section stack">
+<div class="berserk-timer-gallery" data-berserk-gallery="">
+<div class="berserk-timer-gallery__head">
+<div class="berserk-timer-gallery__controls">
+<button aria-label="Предыдущий экран" class="btn btn--icon btn--pill berserk-timer-gallery__icon-button" data-berserk-prev="" title="Предыдущий экран" type="button"><svg aria-hidden="true" class="berserk-case__button-icon" viewbox="0 0 16 16">
+<path d="M10 3.25 5.25 8 10 12.75"></path>
+</svg></button>
+<button aria-label="Следующий экран" class="btn btn--icon btn--pill berserk-timer-gallery__icon-button" data-berserk-next="" title="Следующий экран" type="button"><svg aria-hidden="true" class="berserk-case__button-icon" viewbox="0 0 16 16">
+<path d="m6 3.25 4.75 4.75L6 12.75"></path>
+</svg></button>
+<button aria-label="Показать экраны сеткой" aria-pressed="false" class="btn btn--icon btn--pill berserk-timer-gallery__icon-button" data-berserk-toggle-grid="" title="Показать экраны сеткой" type="button"><svg aria-hidden="true" class="berserk-case__button-icon berserk-case__button-icon--fill" viewbox="0 0 16 16">
+<path d="M1.5 1.5h5v5h-5v-5Zm8 0h5v5h-5v-5Zm-8 8h5v5h-5v-5Zm8 0h5v5h-5v-5Z"></path>
+</svg></button>
+</div>
+</div>
+<div class="berserk-timer-gallery__viewport" data-berserk-viewport="">
+<div class="berserk-timer-gallery__track" data-berserk-track=""><article class="berserk-timer-gallery__slide" data-berserk-slide=""><figure data-media-captioned="">
+<div data-media-caption-surface="">
+<div class="berserk-terminal-screen">
+<div class="berserk-terminal-screen__body" data-berserk-screen-body="">
+<div class="berserk-terminal-screen__fit" data-berserk-fit="">
+<pre><span class="berserk-token berserk-token--art">BERSERK TIMER</span>
+
+<span class="berserk-token berserk-token--key">version: 0.2.1-beta</span>
+
+<span class="berserk-token berserk-token--head">Enter timer duration in minutes [max 180]
+(or press Enter for 5 min default):</span>
+
+<span class="berserk-token berserk-token--head">What are you planning to do?
+(or press Enter to skip):</span>
+
+<span class="berserk-token berserk-token--cmd">&gt; write docs</span></pre>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption=""><details class="berserk-caption" data-berserk-caption=""><summary class="media-caption__line berserk-caption__summary"><span class="media-caption__index">02</span> <span class="media-caption__title">Запуск.</span></summary><span class="media-caption__meta berserk-caption__meta"> Длительность и цель сессии.</span></details></figcaption>
+</figure></article><article class="berserk-timer-gallery__slide" data-berserk-slide=""><figure data-media-captioned="">
+<div data-media-caption-surface="">
+<div class="berserk-terminal-screen">
+<div class="berserk-terminal-screen__body" data-berserk-screen-body="">
+<div class="berserk-terminal-screen__fit" data-berserk-fit="">
+<pre><span class="berserk-token berserk-token--art"> ▄▄▄▄▀ ▄█ █▀▄▀█ ▄███▄   █▄▄▄▄</span>
+<span class="berserk-token berserk-token--art">▀▀▀ █    █ █ █ █ █▀   ▀  █  ▄▀</span>
+<span class="berserk-token berserk-token--art">    █    █ █ ▄ █ ██▄▄    █▀▀▌</span>
+<span class="berserk-token berserk-token--art">   █     ▐█    █ █▄   ▄▀ █  █</span>
+<span class="berserk-token berserk-token--art">  ▀       ▐   ▀  ▀███▀     █</span>
+
+<span class="berserk-token berserk-token--text">TIMER FINISHED</span>
+
+<span class="berserk-token berserk-token--key">Completed at: 22:41:03</span>
+<span class="berserk-token berserk-token--key">Goal:         write docs</span>
+
+<span class="berserk-token berserk-token--head">What did you accomplish?
+(or press Enter to skip, 'skip' to cancel,
+'k' to stop alert):</span></pre>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="media-item__caption media-caption prose" data-media-caption=""><details class="berserk-caption" data-berserk-caption=""><summary class="media-caption__line berserk-caption__summary"><span class="media-caption__index">03</span> <span class="media-caption__title">Режим свидетеля.</span></summary><span class="media-caption__meta berserk-caption__meta"> Результат после завершения сессии.</span></details></figcaption>
+</figure></article><article class="berserk-timer-gallery__slide" data-berserk-slide="">
+<figure class="berserk-media berserk-media--screen" data-media-captioned=""><div class="berserk-media__surface" data-media-caption-surface=""><div class="berserk-terminal-screen">
+<div class="berserk-terminal-screen__body" data-berserk-screen-body=""><div class="berserk-terminal-screen__fit" data-berserk-fit="">
+<pre><span class="berserk-token berserk-token--art">BERSERK TIMER</span>
+<span class="berserk-token berserk-token--muted">made by ivan krushinski aka looksawful</span>
+<span class="berserk-token berserk-token--muted">© 2025</span>
+<span class="berserk-token berserk-token--key">version: 0.2.1-beta</span>
+
+<span class="berserk-token berserk-token--head">INSTRUCTIONS:</span>
+<span class="berserk-token berserk-token--text">  • Set timer duration in minutes</span>
+<span class="berserk-token berserk-token--text">  • Presets: -x / -s / -m / -l / -X / -t</span>
+<span class="berserk-token berserk-token--text">  • Maximum duration: 3 hours</span>
+<span class="berserk-token berserk-token--text">  • Set your goal for this session</span>
+<span class="berserk-token berserk-token--cmd">  • Choose sound: --sound alert1.wav</span>
+
+<span class="berserk-token berserk-token--head">During timer:</span>
+<span class="berserk-token berserk-token--cmd">  p - pause/resume</span>
+<span class="berserk-token berserk-token--cmd">  q - quit</span>
+<span class="berserk-token berserk-token--cmd">  r - restart</span>
+<span class="berserk-token berserk-token--cmd">  v - view today's log</span>
+<span class="berserk-token berserk-token--cmd">  g - set/change goal</span>
+<span class="berserk-token berserk-token--cmd">  m - silent mode</span>
+<span class="berserk-token berserk-token--cmd">  s - audio settings</span></pre>
+</div></div>
+</div></div><figcaption class="media-item__caption media-caption prose" data-media-caption=""><details class="berserk-caption" data-berserk-caption=""><summary class="media-caption__line berserk-caption__summary"><span class="media-caption__index">05</span> <span class="media-caption__title">Запуск.</span></summary><span class="media-caption__meta berserk-caption__meta"> Инструкции, пресеты и управление с клавиатуры.</span></details></figcaption></figure>
+</article><article class="berserk-timer-gallery__slide" data-berserk-slide="">
+<figure class="berserk-media berserk-media--screen" data-media-captioned=""><div class="berserk-media__surface" data-media-caption-surface=""><div class="berserk-terminal-screen">
+<div class="berserk-terminal-screen__head"><span>audio settings</span></div>
+<div class="berserk-terminal-screen__body" data-berserk-screen-body=""><div class="berserk-terminal-screen__fit" data-berserk-fit="">
+<pre><span class="berserk-token berserk-token--head">═══ AUDIO SETTINGS ═══</span>
+
+<span class="berserk-token berserk-token--key">Volume: [#####-----] 5/10</span>
+<span class="berserk-token berserk-token--key">Sound:  alert1.wav (1/4)</span>
+
+<span class="berserk-token berserk-token--head">Available sounds:</span>
+<span class="berserk-token berserk-token--cmd">  &gt; 1. alert1.wav</span>
+<span class="berserk-token berserk-token--value">    2. alert2.wav</span>
+<span class="berserk-token berserk-token--value">    3. alert3.wav</span>
+<span class="berserk-token berserk-token--value">    4. alert4.wav</span>
+
+<span class="berserk-token berserk-token--head">Commands:</span>
+<span class="berserk-token berserk-token--cmd">  0       = Toggle silent mode</span>
+<span class="berserk-token berserk-token--cmd">  1-10    = Set volume</span>
+<span class="berserk-token berserk-token--cmd">  +/-     = Volume up/down</span>
+<span class="berserk-token berserk-token--cmd">  t       = Test current settings</span>
+<span class="berserk-token berserk-token--prompt">  Enter   = Close menu</span></pre>
+</div></div>
+</div></div><figcaption class="media-item__caption media-caption prose" data-media-caption=""><details class="berserk-caption" data-berserk-caption=""><summary class="media-caption__line berserk-caption__summary"><span class="media-caption__index">06</span> <span class="media-caption__title">Настройки звука.</span></summary><span class="media-caption__meta berserk-caption__meta"> Выбор сигнала и управление громкостью.</span></details></figcaption></figure>
+</article><article class="berserk-timer-gallery__slide" data-berserk-slide="">
+<figure class="berserk-media berserk-media--screen" data-media-captioned=""><div class="berserk-media__surface" data-media-caption-surface=""><div class="berserk-terminal-screen">
+<div class="berserk-terminal-screen__head"><span>help</span></div>
+<div class="berserk-terminal-screen__body" data-berserk-screen-body=""><div class="berserk-terminal-screen__fit" data-berserk-fit="">
+<pre><span class="berserk-token berserk-token--head">TIMER COMMANDS:</span>
+
+<span class="berserk-token berserk-token--cmd">p - Pause/Resume timer</span>
+<span class="berserk-token berserk-token--cmd">q - Quit timer (with confirmation)</span>
+<span class="berserk-token berserk-token--cmd">x - Zero the timer</span>
+<span class="berserk-token berserk-token--cmd">r - Restart timer from beginning</span>
+<span class="berserk-token berserk-token--cmd">v - View today's witness log</span>
+<span class="berserk-token berserk-token--cmd">d - Delete today's witness log</span>
+<span class="berserk-token berserk-token--cmd">u - Update duration</span>
+<span class="berserk-token berserk-token--cmd">g - Set/change goal</span>
+<span class="berserk-token berserk-token--cmd">m - Toggle silent mode</span>
+<span class="berserk-token berserk-token--cmd">s - Open audio settings</span>
+<span class="berserk-token berserk-token--cmd">h - Show this help screen</span>
+<span class="berserk-token berserk-token--cmd">k - Stop currently playing sound</span>
+
+<span class="berserk-token berserk-token--prompt">Press Enter to return to timer...</span></pre>
+</div></div>
+</div></div><figcaption class="media-item__caption media-caption prose" data-media-caption=""><details class="berserk-caption" data-berserk-caption=""><summary class="media-caption__line berserk-caption__summary"><span class="media-caption__index">07</span> <span class="media-caption__title">Помощь.</span></summary><span class="media-caption__meta berserk-caption__meta"> Полный список команд таймера.</span></details></figcaption></figure>
+</article><article class="berserk-timer-gallery__slide" data-berserk-slide=""><figure class="berserk-media" data-media-captioned=""><div class="berserk-media__surface" data-media-caption-surface=""><div class="berserk-terminal berserk-terminal--code">
+<div class="berserk-terminal__bar">
+</div>
+<pre><code><span class="berserk-code-token--comment"># system log</span>
+<span class="berserk-code-token--path">logs/berserk.log</span>
+
+<span class="berserk-code-token--comment"># witness activity log</span>
+<span class="berserk-code-token--path">logs/witness_log_YYYY-MM-DD.txt</span></code></pre>
+</div></div><figcaption class="media-item__caption media-caption prose" data-media-caption=""><details class="berserk-caption" data-berserk-caption=""><summary class="media-caption__line berserk-caption__summary"><span class="media-caption__index">09</span> <span class="media-caption__title">логи</span></summary><span class="media-caption__meta berserk-caption__meta"> Системные события и ответы свидетеля сохраняются отдельно, поэтому завершённые сессии можно просматривать позже.</span></details></figcaption></figure></article></div>
+</div>
+<div aria-label="slide navigation" class="berserk-timer-gallery__dots" data-berserk-dots=""></div>
+</div>
+</section>
+<!-- Existing production music player contract -->
+<section aria-label="Звуковые сигналы Berserk Timer" class="berserk-case__section stack">
+<figure class="berserk-media" data-media-captioned=""><div class="berserk-media__surface" data-media-caption-surface=""><div class="berserk-player" data-berserk-player="">
+<div class="berserk-player__head">
+<span data-berserk-status="">ready</span>
+</div>
+<div class="berserk-player__body">
+<div class="berserk-player__main">
+<button aria-label="Воспроизвести или остановить сигнал" aria-pressed="false" class="btn btn--icon btn--pill berserk-player__play" data-berserk-play="" title="Воспроизвести или остановить сигнал" type="button">
+<svg aria-hidden="true" data-berserk-icon-play="" viewbox="0 0 24 24">
+<path d="M8 5.8c0-.9 1-1.43 1.74-.94l9.2 6.13c.67.45.67 1.43 0 1.88l-9.2 6.13C9 19.49 8 18.96 8 18.06V5.8Z"></path>
+</svg><svg aria-hidden="true" data-berserk-icon-pause="" hidden="" viewbox="0 0 24 24"><path d="M7 5h4v14H7V5Zm6 0h4v14h-4V5Z"></path></svg>
+</button>
+<div class="berserk-player__wavebox">
+<div aria-hidden="true" class="berserk-player__wave">
+                        ▁▂▃▆█▆▃▂▁▂▅▇▅▂▁▃▆█▇▃▂▁▁▂▃▆█▆▃▂▁▂▅▇▅▂▁
+                      </div>
+<div class="berserk-player__progress" data-berserk-progress=""><span data-berserk-progress-fill=""></span></div>
+<div class="berserk-player__meta">
+<span data-berserk-current="">00:00</span>
+<span data-berserk-duration="">00:00</span>
+</div>
+</div>
+</div>
+<div class="berserk-player__settings">
+<div class="berserk-player__line">
+<strong>Volume:</strong>
+<div class="berserk-player__volume" data-berserk-volume=""><span data-berserk-volume-fill=""></span></div>
+<em data-berserk-volume-text="">5/10</em>
+</div>
+<div class="berserk-player__line"><strong>Sound:</strong></div>
+<div class="berserk-player__sounds" data-berserk-sound-list="">
+<button aria-label="Выбрать сигнал alert1.wav" aria-pressed="true" class="btn btn--sm btn--pill berserk-player__sound is-active" data-berserk-sound="alert1.wav" type="button">alert1</button>
+<button aria-label="Выбрать сигнал alert2.wav" aria-pressed="false" class="btn btn--sm btn--pill berserk-player__sound" data-berserk-sound="alert2.wav" type="button">alert2</button>
+<button aria-label="Выбрать сигнал alert3.wav" aria-pressed="false" class="btn btn--sm btn--pill berserk-player__sound" data-berserk-sound="alert3.wav" type="button">alert3</button>
+<button aria-label="Выбрать сигнал alert4.wav" aria-pressed="false" class="btn btn--sm btn--pill berserk-player__sound" data-berserk-sound="alert4.wav" type="button">alert4</button>
+</div>
+</div>
+<audio data-berserk-audio="" preload="none"></audio>
+</div>
+</div></div><figcaption class="media-item__caption media-caption prose" data-media-caption=""><details class="berserk-caption" data-berserk-caption=""><summary class="media-caption__line berserk-caption__summary"><span class="media-caption__index">08</span> <span class="media-caption__title">Звуковые сигналы.</span></summary><span class="media-caption__meta berserk-caption__meta"> Выбор alert-файла, воспроизведение и настройка громкости.</span></details></figcaption></figure>
+</section>
+<!-- Reuses site equal-columns; cards keep current prod Berserk design -->
+<section aria-label="Установка и использование Berserk Timer" class="berserk-case__section stack">
+<div class="equal-columns berserk-case__code-grid">
+<figure class="berserk-media" data-media-captioned=""><div class="berserk-media__surface" data-media-caption-surface=""><div class="berserk-terminal berserk-terminal--code">
+<div class="berserk-terminal__bar">
+<button aria-label="Скопировать команду" class="btn btn--sm btn--pill berserk-terminal__copy" data-berserk-copy-target="install" title="Скопировать" type="button">copy</button>
+</div>
+<pre><code data-berserk-copy-source="install"><span class="berserk-code-token--command">git</span> <span class="berserk-code-token--argument">clone</span> <span class="berserk-code-token--url">https://github.com/looksawful/berserk-timer</span>
+<span class="berserk-code-token--command">cd</span> <span class="berserk-code-token--path">berserk-timer</span>
+<span class="berserk-code-token--command">pip</span> <span class="berserk-code-token--argument">install</span> <span class="berserk-code-token--switch">-r</span> <span class="berserk-code-token--path">requirements.txt</span></code></pre>
+</div></div><figcaption class="media-item__caption media-caption prose" data-media-caption=""><details class="berserk-caption" data-berserk-caption=""><summary class="media-caption__line berserk-caption__summary"><span class="media-caption__index">10</span> <span class="media-caption__title">Установка.</span></summary><span class="media-caption__meta berserk-caption__meta"> Клонирование репозитория и установка зависимостей.</span></details></figcaption></figure>
+<figure class="berserk-media" data-media-captioned=""><div class="berserk-media__surface" data-media-caption-surface=""><div class="berserk-terminal berserk-terminal--code">
+<div class="berserk-terminal__bar">
+<button aria-label="Скопировать команду" class="btn btn--sm btn--pill berserk-terminal__copy" data-berserk-copy-target="usage" title="Скопировать" type="button">copy</button>
+</div>
+<pre><code data-berserk-copy-source="usage"><span class="berserk-code-token--comment"># start a 10 minute timer</span>
+<span class="berserk-code-token--command">python</span> <span class="berserk-code-token--switch">-m</span> <span class="berserk-code-token--path">src.main</span> <span class="berserk-code-token--argument">10</span>
+
+<span class="berserk-code-token--comment"># start a 1.5 minute timer</span>
+<span class="berserk-code-token--command">python</span> <span class="berserk-code-token--switch">-m</span> <span class="berserk-code-token--path">src.main</span> <span class="berserk-code-token--argument">1.5</span>
+
+<span class="berserk-code-token--comment"># preset</span>
+<span class="berserk-code-token--command">python</span> <span class="berserk-code-token--switch">-m</span> <span class="berserk-code-token--path">src.main</span> <span class="berserk-code-token--argument">-s</span>
+
+<span class="berserk-code-token--comment"># start silently</span>
+<span class="berserk-code-token--command">python</span> <span class="berserk-code-token--switch">-m</span> <span class="berserk-code-token--path">src.main</span> <span class="berserk-code-token--argument">25</span> <span class="berserk-code-token--switch">--mute</span></code></pre>
+</div></div><figcaption class="media-item__caption media-caption prose" data-media-caption=""><details class="berserk-caption" data-berserk-caption=""><summary class="media-caption__line berserk-caption__summary"><span class="media-caption__index">11</span> <span class="media-caption__title">Запуск.</span></summary><span class="media-caption__meta berserk-caption__meta"> Примеры длительности, пресетов и silent mode.</span></details></figcaption></figure>
+</div>
+</section>
+<!-- No bespoke "facts" grid: standard site copy + repository-link -->
+<footer class="berserk-case__footer stack">
+<div aria-label="Ссылки проекта" class="berserk-case__actions cluster">
+<a aria-label="Скачать исходники Berserk Timer версии 0.2.1-beta в ZIP" class="btn btn--pill btn--lg berserk-case__download" download="berserk-timer-v0.2.1-beta.zip" href="https://github.com/looksawful/berserk-timer/archive/refs/tags/v0.2.1-beta.zip">
+<svg aria-hidden="true" class="berserk-case__button-icon" viewbox="0 0 16 16">
+<path d="M8 1.75v8.5m0 0 3-3m-3 3-3-3M2.25 11.25v2.5h11.5v-2.5"></path>
+</svg>
+<span>Скачать исходники</span>
+</a>
+<a aria-label="Открыть страницу релиза Berserk Timer версии 0.2.1-beta" class="btn btn--pill btn--lg berserk-case__release-link" href="https://github.com/looksawful/berserk-timer/releases/tag/v0.2.1-beta" rel="noreferrer" target="_blank">
+<span>Релиз v0.2.1-beta</span>
+<svg aria-hidden="true" class="berserk-case__button-icon" viewbox="0 0 16 16">
+<path d="M6.25 3.25H3.5a1 1 0 0 0-1 1v8.25a1 1 0 0 0 1 1h8.25a1 1 0 0 0 1-1V9.75"></path>
+<path d="M9 2.5h4.5V7M13.25 2.75 7.5 8.5"></path>
+</svg>
+</a>
+</div><a aria-label="Открыть репозиторий Berserk Timer на GitHub" class="repository-link" href="https://github.com/looksawful/berserk-timer" rel="noreferrer" target="_blank">
+<span class="repository-link__label berserk-case__repository-label"><svg aria-hidden="true" class="berserk-case__repository-mark" viewbox="0 0 24 24">
+<path d="M12 .9a11.2 11.2 0 0 0-3.54 21.83c.56.1.76-.24.76-.54v-2.1c-3.12.68-3.78-1.33-3.78-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.49-.28-5.1-1.25-5.1-5.54 0-1.23.44-2.23 1.16-3.01-.12-.29-.5-1.43.11-2.97 0 0 .94-.3 3.08 1.15A10.7 10.7 0 0 1 12 6.27c.95 0 1.9.13 2.79.38 2.14-1.45 3.08-1.15 3.08-1.15.61 1.54.23 2.68.11 2.97.72.78 1.16 1.78 1.16 3.01 0 4.3-2.62 5.25-5.11 5.53.4.35.76 1.03.76 2.07v3.11c0 .3.2.65.77.54A11.2 11.2 0 0 0 12 .9Z" fill="currentColor"></path>
+</svg></span>
+<span class="repository-link__title">looksawful / berserk-timer</span>
+<span aria-hidden="true" class="repository-link__arrow"><svg aria-hidden="true" class="berserk-case__button-icon" viewbox="0 0 16 16">
+<path d="M6.25 3.25H3.5a1 1 0 0 0-1 1v8.25a1 1 0 0 0 1 1h8.25a1 1 0 0 0 1-1V9.75"></path>
+<path d="M9 2.5h4.5V7M13.25 2.75 7.5 8.5"></path>
+</svg></span>
+</a>
+</footer>
+</div>

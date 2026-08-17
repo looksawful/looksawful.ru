@@ -1,0 +1,22 @@
+{
+  "project": "Berry Agency",
+  "target_repository": "looksawful/looksawful.ru",
+  "target_branch": "prod",
+  "runtime_js_added": true,
+  "package_changes": false,
+  "global_theme_changes": false,
+  "global_font_changes": false,
+  "visible_media_count": 14,
+  "visible_sections": 2,
+  "writes": [
+    "index.html (Berry article only)",
+    "src/main.js (2 CSS imports + Berry lifecycle import/mount/cleanup)",
+    "src/components/phone-mockup/phone-mockup.css",
+    "src/components/berry-case/berry-case.css",
+    "src/components/berry-case/berry-case.js"
+  ],
+  "runtime_js_scope": "Berry touch/pen caption tap only",
+  "observers_added": false,
+  "timers_added": false,
+  "animation_loop_added": false
+}

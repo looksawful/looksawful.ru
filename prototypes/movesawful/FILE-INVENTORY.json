@@ -1,0 +1,87 @@
+[
+  {
+    "path": "AGENT-INSTRUCTIONS.md",
+    "size": 2867,
+    "sha256": "9d3f3223ade72e67c07620b5016792b12507d10e396c9e1be1b8cc9d61aabae9"
+  },
+  {
+    "path": "ARCHITECTURE.md",
+    "size": 4130,
+    "sha256": "05741eba538ac0cb606cd3a04c24b1d9c62af59f445579cde0a49f5569256126"
+  },
+  {
+    "path": "BEHAVIOR-SPEC.md",
+    "size": 6546,
+    "sha256": "2e967de8d71d72d05548accf7821602aa2f9a3acdc792e9f53782d20d7de7c8c"
+  },
+  {
+    "path": "INTEGRATION.md",
+    "size": 4211,
+    "sha256": "f265727b7ce83c94aa9446b2e3e16a1b6179a79a63fc46e68282128328267d63"
+  },
+  {
+    "path": "README.md",
+    "size": 4115,
+    "sha256": "aa87cc29c15298789efedbe488ac31cad2eaff5f5a75e1e9de83fe661a86e82d"
+  },
+  {
+    "path": "VERIFICATION.md",
+    "size": 4210,
+    "sha256": "a1e18c011eec8c83be825550329915fae87404bc2aab90899210f30c35c93d92"
+  },
+  {
+    "path": "baseline.json",
+    "size": 493,
+    "sha256": "40a9eea6b48c20c4171f22bd828defe657f43d74035fd6d9b1c9739f946643b5"
+  },
+  {
+    "path": "fragments/index.moves-awful.article.html",
+    "size": 8913,
+    "sha256": "151956dc58c950b64e71ebaa4be40a3bada1956f9e240346f17823a40c7749b2"
+  },
+  {
+    "path": "manifest.json",
+    "size": 1492,
+    "sha256": "f87b4f8a051785d99a06f758f8f15de4c06f627b97e9d403f9a142d35f187e12"
+  },
+  {
+    "path": "prototype/moves_awful_production_refactor_prototype.html",
+    "size": 52775,
+    "sha256": "23bd959c2f3352bc35156561f9a20d3a397b2251a19512fab72e659fbc2febe9"
+  },
+  {
+    "path": "repo/src/components/media-lightbox/media-lightbox.css",
+    "size": 1089,
+    "sha256": "94fedd5015a337e238a006888cf1cf5641381181ecfedbf3750d2f82ca9e1050"
+  },
+  {
+    "path": "repo/src/components/media-lightbox/media-lightbox.js",
+    "size": 5339,
+    "sha256": "4ab3d60a9d5e6b55b05b10a22b4c40f7377497f9780fbda529f1fc2484bea752"
+  },
+  {
+    "path": "repo/src/components/moves-awful/moves-awful.css",
+    "size": 13900,
+    "sha256": "a3816ee0d54af1b5025004a6ad7d7b41844a9b9e4ffb33c1c8761c7d1f6c151e"
+  },
+  {
+    "path": "repo/src/components/moves-awful/moves-awful.js",
+    "size": 8228,
+    "sha256": "3aa25030822e29c65e57b8483001b8df4738d704fbc4d00a0fb171ffc5ca2ab2"
+  },
+  {
+    "path": "repo/src/content/animated-canvas-gallery-sources.js",
+    "size": 1561,
+    "sha256": "bf59e28e1bda9b21fe57b1a6d7529d959ffd8a6158876ff03801d70b9dc1ddd7"
+  },
+  {
+    "path": "test/moves-awful-patch.test.mjs",
+    "size": 13481,
+    "sha256": "25bc5a2ad82a89ca4be7abcbcdc21b55c070523c2f42008ef73595a0a410480f"
+  },
+  {
+    "path": "tools/apply-moves-awful-patch.mjs",
+    "size": 9731,
+    "sha256": "290fb7b28d0303db248ba222ebc41dc7e184ee66363bfcdb5075da64a54fb96c"
+  }
+]
