@@ -32,7 +32,6 @@ export function renderClientLogo(logo: ClientLogoData): string {
           alt="${escapeHtml(alt)}"
           decoding="async"
           height="496"
-          loading="lazy"
           src="${escapeHtml(src)}"
           width="1200"
         >
