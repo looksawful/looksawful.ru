@@ -1,5 +1,7 @@
 const pad = (value) => String(value).padStart(2, "0");
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const noop = () => {};
+const VIEWPORT_MARGIN = "50% 0px";
 
 function fitContent(root) {
   const grid = root.dataset.deckView === "grid";
@@ -23,9 +25,10 @@ function fitContent(root) {
 }
 
 export function createMediaDeck(root, { motion } = {}) {
-  if (!(root instanceof HTMLElement)) return () => {};
+  if (!(root instanceof HTMLElement)) return noop;
+
   const slides = [...root.querySelectorAll("[data-slide]")];
-  if (slides.length < 2) return () => {};
+  if (slides.length < 2) return noop;
 
   const captions = [...root.querySelectorAll("[data-slide-caption]")];
   const prev = root.querySelector("[data-deck-prev]");
@@ -40,6 +43,9 @@ export function createMediaDeck(root, { motion } = {}) {
   const autoplay = autoplayMode !== "off";
   const pingPong = autoplayMode === "ping-pong";
   const advanceOnEnded = root.hasAttribute("data-deck-advance-on-ended");
+  const deckVideos = slides.flatMap((slide) =>
+    [...slide.querySelectorAll("video")].filter((video) => video instanceof HTMLVideoElement),
+  );
 
   let index = Math.max(
     0,
@@ -47,18 +53,24 @@ export function createMediaDeck(root, { motion } = {}) {
   );
   let direction = 1;
   let timer = 0;
+  let updateFrame = 0;
   let pointerStart = null;
   let pointerScrollStart = 0;
   let dragging = false;
   let allowed = motion?.allowsMotion?.() ?? true;
-  let resizeObserver = null;
+  let nearViewport = typeof IntersectionObserver !== "function";
   let playbackIndex = -1;
 
   const isGrid = () => root.dataset.deckView === "grid";
+  const isActive = () => allowed && nearViewport && !document.hidden;
 
   const stopTimer = () => {
     window.clearTimeout(timer);
     timer = 0;
+  };
+
+  const pauseVideos = () => {
+    deckVideos.forEach((video) => video.pause());
   };
 
   const updateDots = () => {
@@ -75,6 +87,7 @@ export function createMediaDeck(root, { motion } = {}) {
       slide.toggleAttribute("data-active", active);
       slide.setAttribute("aria-hidden", String(!active));
     });
+
     captions.forEach((caption, captionIndex) => {
       const active = captionIndex === index;
       caption.toggleAttribute("data-active", active);
@@ -82,44 +95,68 @@ export function createMediaDeck(root, { motion } = {}) {
     });
   };
 
-  const deckVideos = advanceOnEnded
-    ? slides.flatMap((slide) => [...slide.querySelectorAll("video")])
-    : [];
+  const syncVideoPlayback = () => {
+    if (!isActive() || isGrid()) {
+      pauseVideos();
+      return;
+    }
 
-  const syncEndedPlayback = () => {
-    if (!advanceOnEnded || richTrack || isGrid() || document.hidden) return;
+    if (advanceOnEnded && !richTrack) {
+      slides.forEach((slide, slideIndex) => {
+        const videos = [...slide.querySelectorAll("video")];
 
-    slides.forEach((slide, slideIndex) => {
-      const videos = [...slide.querySelectorAll("video")];
+        videos.forEach((video) => {
+          if (!(video instanceof HTMLVideoElement)) return;
 
-      videos.forEach((video) => {
-        if (!(video instanceof HTMLVideoElement)) return;
+          video.muted = true;
+          video.playsInline = true;
 
-        video.muted = true;
-        video.playsInline = true;
+          if (slideIndex !== index) {
+            video.pause();
+            if (video.currentTime !== 0) video.currentTime = 0;
+            return;
+          }
 
-        if (slideIndex !== index) {
-          video.pause();
-          if (video.currentTime !== 0) video.currentTime = 0;
-          return;
-        }
+          if (playbackIndex !== index) {
+            video.currentTime = 0;
+            playbackIndex = index;
+          }
 
-        if (playbackIndex !== index) {
-          video.currentTime = 0;
-          playbackIndex = index;
-        }
-
-        video.play().catch(() => {});
+          video.play().catch(() => {});
+        });
       });
+
+      return;
+    }
+
+    deckVideos.forEach((video) => {
+      if (!video.hasAttribute("autoplay")) {
+        if (!video.paused) video.pause();
+        return;
+      }
+
+      const slide = video.closest("[data-slide]");
+      const shouldPlay =
+        richTrack ||
+        (slide instanceof HTMLElement && slides[index] === slide);
+
+      if (shouldPlay) {
+        if (video.paused) video.play().catch(() => {});
+      } else if (!video.paused) {
+        video.pause();
+      }
     });
   };
 
   const slideLeft = (slideIndex) => {
     if (!richTrack) return 0;
+
     const slide = slides[slideIndex];
     if (!(slide instanceof HTMLElement)) return 0;
+
     const trackRect = track.getBoundingClientRect();
     const slideRect = slide.getBoundingClientRect();
+
     return track.scrollLeft + slideRect.left - trackRect.left;
   };
 
@@ -128,33 +165,56 @@ export function createMediaDeck(root, { motion } = {}) {
     track.scrollTo({ left: slideLeft(index), behavior });
   };
 
+  const refreshLayout = ({ alignTrack = true } = {}) => {
+    if (!nearViewport) return;
+
+    fitContent(root);
+
+    if (alignTrack && richTrack && !isGrid()) {
+      scrollToIndex("auto");
+    }
+  };
+
+  const schedulePostUpdate = () => {
+    if (updateFrame) cancelAnimationFrame(updateFrame);
+
+    updateFrame = requestAnimationFrame(() => {
+      updateFrame = 0;
+
+      if (nearViewport) fitContent(root);
+      syncVideoPlayback();
+    });
+  };
+
   const update = ({ scroll = true } = {}) => {
     if (!richTrack) updateStack();
     if (count) count.textContent = `${pad(index + 1)} / ${pad(slides.length)}`;
+
     updateDots();
+
     if (scroll) scrollToIndex();
-    requestAnimationFrame(() => {
-      fitContent(root);
-      syncEndedPlayback();
-    });
+    schedulePostUpdate();
   };
 
   const nextIndex = (step = 1) => {
     if (pingPong) {
       if (index >= slides.length - 1) direction = -1;
       if (index <= 0) direction = 1;
+
       return clamp(index + direction, 0, slides.length - 1);
     }
+
     return (index + step + slides.length) % slides.length;
   };
+
+  const activeSlideHasVideo = () =>
+    advanceOnEnded && slides[index]?.querySelector("video") instanceof HTMLVideoElement;
 
   const schedule = () => {
     stopTimer();
 
-    if (!autoplay || !allowed || document.hidden || isGrid()) return;
+    if (!autoplay || !isActive() || isGrid()) return;
 
-    // Обычный слайд живёт по interval.
-    // Видео-слайд ждёт собственного события ended.
     if (activeSlideHasVideo()) return;
 
     timer = window.setTimeout(() => {
@@ -164,20 +224,33 @@ export function createMediaDeck(root, { motion } = {}) {
     }, interval);
   };
 
-  const activeSlideHasVideo = () =>
-    advanceOnEnded && slides[index]?.querySelector("video") instanceof HTMLVideoElement;
+  const syncActivity = ({ refresh = false } = {}) => {
+    if (!isActive()) {
+      stopTimer();
+      pauseVideos();
+      return;
+    }
+
+    if (refresh) refreshLayout();
+
+    syncVideoPlayback();
+    schedule();
+  };
 
   const goTo = (nextIndexValue, { restart = true } = {}) => {
     if (isGrid()) return;
+
     index = richTrack
       ? clamp(nextIndexValue, 0, slides.length - 1)
       : (nextIndexValue + slides.length) % slides.length;
+
     update();
+
     if (restart) schedule();
   };
 
   const handleVideoEnded = (event) => {
-    if (!advanceOnEnded || isGrid()) return;
+    if (!advanceOnEnded || isGrid() || !isActive()) return;
 
     const slideIndex = slides.findIndex((slide) => slide.contains(event.currentTarget));
     if (slideIndex !== index) return;
@@ -186,23 +259,29 @@ export function createMediaDeck(root, { motion } = {}) {
     goTo(index + 1);
   };
 
-  deckVideos.forEach((video) => {
-    video.removeAttribute("loop");
-    video.addEventListener("ended", handleVideoEnded);
-  });
+  if (advanceOnEnded) {
+    deckVideos.forEach((video) => {
+      video.removeAttribute("loop");
+      video.addEventListener("ended", handleVideoEnded);
+    });
+  }
 
   const closestTrackSlide = () => {
     if (!richTrack) return index;
+
     const left = track.getBoundingClientRect().left;
     let closest = index;
     let distance = Number.POSITIVE_INFINITY;
+
     slides.forEach((slide, slideIndex) => {
       const nextDistance = Math.abs(slide.getBoundingClientRect().left - left);
+
       if (nextDistance < distance) {
         distance = nextDistance;
         closest = slideIndex;
       }
     });
+
     return closest;
   };
 
@@ -211,13 +290,16 @@ export function createMediaDeck(root, { motion } = {}) {
 
   const handlePointerDown = (event) => {
     if (isGrid()) return;
+
     pointerStart = event.clientX;
+
     if (richTrack) {
       dragging = true;
       pointerScrollStart = track.scrollLeft;
       track.setPointerCapture?.(event.pointerId);
       root.toggleAttribute("data-deck-dragging", true);
     }
+
     stopTimer();
   };
 
@@ -228,6 +310,7 @@ export function createMediaDeck(root, { motion } = {}) {
 
   const handlePointerUp = (event) => {
     if (pointerStart === null) return;
+
     const delta = event.clientX - pointerStart;
     pointerStart = null;
 
@@ -235,81 +318,126 @@ export function createMediaDeck(root, { motion } = {}) {
       dragging = false;
       root.removeAttribute("data-deck-dragging");
       track.releasePointerCapture?.(event.pointerId);
+
       index = closestTrackSlide();
-      if (Math.abs(delta) > 36) index = clamp(index + (delta < 0 ? 1 : -1), 0, slides.length - 1);
+
+      if (Math.abs(delta) > 36) {
+        index = clamp(index + (delta < 0 ? 1 : -1), 0, slides.length - 1);
+      }
+
       update();
     } else if (Math.abs(delta) > 40) {
       goTo(index + (delta < 0 ? 1 : -1), { restart: false });
     }
+
     schedule();
   };
 
   const toggleGrid = () => {
     const grid = !isGrid();
+
     root.dataset.deckView = grid ? "grid" : "slider";
     gridButton?.setAttribute("aria-pressed", String(grid));
+
     stopTimer();
     update({ scroll: !grid });
-    if (!grid) schedule();
+    syncActivity({ refresh: true });
   };
 
   prev?.addEventListener("click", handlePrev);
   next?.addEventListener("click", handleNext);
   gridButton?.addEventListener("click", toggleGrid);
-  dots.forEach((dot, dotIndex) => dot.addEventListener("click", () => goTo(dotIndex)));
+
+  const dotHandlers = dots.map((dot, dotIndex) => {
+    const handler = () => goTo(dotIndex);
+    dot.addEventListener("click", handler);
+    return [dot, handler];
+  });
 
   const pointerHost = richTrack ? track : root;
+
   pointerHost.addEventListener("pointerdown", handlePointerDown);
   pointerHost.addEventListener("pointermove", handlePointerMove);
   pointerHost.addEventListener("pointerup", handlePointerUp);
   pointerHost.addEventListener("pointercancel", handlePointerUp);
 
-  const handleVisibility = () => {
-    if (document.hidden) {
-      stopTimer();
-      if (advanceOnEnded) deckVideos.forEach((video) => video.pause());
-      return;
-    }
+  const intersectionObserver =
+    typeof IntersectionObserver === "function"
+      ? new IntersectionObserver(
+          ([entry]) => {
+            const wasNearViewport = nearViewport;
+            nearViewport = Boolean(entry?.isIntersecting);
 
-    schedule();
-    syncEndedPlayback();
+            syncActivity({
+              refresh: nearViewport && !wasNearViewport,
+            });
+          },
+          {
+            rootMargin: VIEWPORT_MARGIN,
+            threshold: 0,
+          },
+        )
+      : null;
+
+  intersectionObserver?.observe(root);
+
+  const handleVisibility = () => {
+    syncActivity({ refresh: !document.hidden });
   };
+
   document.addEventListener("visibilitychange", handleVisibility);
 
   const unsubscribe =
     motion?.subscribe?.(({ allowed: nextAllowed }) => {
       allowed = Boolean(nextAllowed);
-      if (!allowed) stopTimer();
-      else schedule();
-    }) ?? (() => {});
+      syncActivity();
+    }) ?? noop;
 
-  if (typeof ResizeObserver === "function") {
-    resizeObserver = new ResizeObserver(() => {
-      fitContent(root);
-      if (richTrack && !isGrid()) scrollToIndex("auto");
-    });
-    resizeObserver.observe(root);
-  }
+  const resizeObserver =
+    typeof ResizeObserver === "function"
+      ? new ResizeObserver(() => {
+          if (!nearViewport) return;
+          refreshLayout();
+        })
+      : null;
+
+  resizeObserver?.observe(root);
 
   root.dataset.deckView ||= "slider";
   update({ scroll: false });
-  if (richTrack) requestAnimationFrame(() => scrollToIndex("auto"));
-  schedule();
+  syncActivity({ refresh: true });
 
   return () => {
     stopTimer();
+
+    if (updateFrame) {
+      cancelAnimationFrame(updateFrame);
+      updateFrame = 0;
+    }
+
     prev?.removeEventListener("click", handlePrev);
     next?.removeEventListener("click", handleNext);
     gridButton?.removeEventListener("click", toggleGrid);
+
+    dotHandlers.forEach(([dot, handler]) => {
+      dot.removeEventListener("click", handler);
+    });
+
     pointerHost.removeEventListener("pointerdown", handlePointerDown);
     pointerHost.removeEventListener("pointermove", handlePointerMove);
     pointerHost.removeEventListener("pointerup", handlePointerUp);
     pointerHost.removeEventListener("pointercancel", handlePointerUp);
+
     document.removeEventListener("visibilitychange", handleVisibility);
-    deckVideos.forEach((video) => {
-      video.removeEventListener("ended", handleVideoEnded);
-      video.pause();
-    });
+
+    if (advanceOnEnded) {
+      deckVideos.forEach((video) => {
+        video.removeEventListener("ended", handleVideoEnded);
+      });
+    }
+
+    pauseVideos();
+    intersectionObserver?.disconnect();
     resizeObserver?.disconnect();
     unsubscribe();
   };
@@ -319,6 +447,7 @@ export function createMediaDecks({ root = document, motion } = {}) {
   const destroys = [...root.querySelectorAll("[data-media-deck]")].map((deck) =>
     createMediaDeck(deck, { motion }),
   );
+
   return () =>
     destroys
       .splice(0)
