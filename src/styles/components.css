@@ -407,7 +407,7 @@
 
   position: sticky;
   z-index: 30;
-  inset-block-start: 100svh;
+  inset-block-start: 100dvh;
   translate: 0 -100%;
 
   inline-size: 100%;
@@ -1009,14 +1009,13 @@ figure.media[data-caption="overlay"] {
     position: absolute;
     z-index: 1;
     inset: 0;
-    background:
-      linear-gradient(
-        0deg,
-        rgb(0 0 0 / 0.96) 0%,
-        rgb(0 0 0 / 0.86) 34%,
-        rgb(0 0 0 / 0.56) 68%,
-        rgb(0 0 0 / 0.28) 100%
-      );
+    background: linear-gradient(
+      0deg,
+      rgb(0 0 0 / 0.96) 0%,
+      rgb(0 0 0 / 0.86) 34%,
+      rgb(0 0 0 / 0.56) 68%,
+      rgb(0 0 0 / 0.28) 100%
+    );
     opacity: var(--caption-fader-opacity);
     pointer-events: none;
     transition: opacity 160ms ease;

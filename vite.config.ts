@@ -1,26 +1,43 @@
 import { defineConfig, type Plugin } from "vite";
 
 import { projects } from "./src/data/projects.ts";
+import { clientLogos } from "./src/data/clients.ts";
+
 import { renderProjectCard } from "./src/templates/project-card.ts";
+import { renderClientLogo } from "./src/templates/client-logo.ts";
 
 const PROJECT_CARDS_SLOT = "<!-- PROJECT_CARDS -->";
 
-function projectCardsPlugin(): Plugin {
+const CLIENT_LOGOS_SLOT = "<!-- CLIENT_LOGOS -->";
+
+function replaceRequiredSlot(html: string, slot: string, content: string): string {
+  if (!html.includes(slot)) {
+    throw new Error(`Required HTML slot not found: ${slot}`);
+  }
+
+  return html.replace(slot, content);
+}
+
+function siteTemplatesPlugin(): Plugin {
   return {
-    name: "project-cards",
+    name: "site-templates",
 
     transformIndexHtml(html) {
-      if (!html.includes(PROJECT_CARDS_SLOT)) {
-        throw new Error(`Project cards slot not found: ${PROJECT_CARDS_SLOT}`);
-      }
-
       const projectCards = projects.map(renderProjectCard).join("\n");
 
-      return html.replace(PROJECT_CARDS_SLOT, projectCards);
+      const logos = clientLogos.map(renderClientLogo).join("\n");
+
+      let output = html;
+
+      output = replaceRequiredSlot(output, PROJECT_CARDS_SLOT, projectCards);
+
+      output = replaceRequiredSlot(output, CLIENT_LOGOS_SLOT, logos);
+
+      return output;
     },
   };
 }
 
 export default defineConfig({
-  plugins: [projectCardsPlugin()],
+  plugins: [siteTemplatesPlugin()],
 });
