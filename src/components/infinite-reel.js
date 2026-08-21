@@ -2,6 +2,7 @@ const noop = () => {};
 
 const SPEED_PROPERTY = "--infinite-reel-speed";
 const DURATION_PROPERTY = "--infinite-reel-duration";
+const VIEWPORT_MARGIN = "50% 0px";
 
 const animationMinInlineSize = () => {
   const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
@@ -14,9 +15,6 @@ function cloneItem(item) {
   clone.setAttribute("aria-hidden", "true");
 
   clone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
-  clone.querySelectorAll("img").forEach((image) => {
-    image.loading = "eager";
-  });
 
   return clone;
 }
@@ -46,8 +44,10 @@ export function createInfiniteReel(root, { motion } = {}) {
   const authoredDurationPriority = root.style.getPropertyPriority(DURATION_PROPERTY);
 
   let destroyed = false;
+  let mounted = false;
   let allowed = motion?.allowsMotion?.() ?? true;
-  let wideEnough = root.getBoundingClientRect().width > animationMinInlineSize();
+  let wideEnough = root.clientWidth > animationMinInlineSize();
+  let nearViewport = typeof IntersectionObserver !== "function";
 
   const restoreDuration = () => {
     if (authoredDuration) {
@@ -59,6 +59,8 @@ export function createInfiniteReel(root, { motion } = {}) {
   };
 
   const syncDuration = () => {
+    if (!mounted) return;
+
     const speed = readPositiveNumber(root, SPEED_PROPERTY);
 
     if (speed === null) {
@@ -77,62 +79,104 @@ export function createInfiniteReel(root, { motion } = {}) {
     root.style.setProperty(DURATION_PROPERTY, `${duration.toFixed(3)}s`);
   };
 
-  const removeClones = () => {
-    track.querySelectorAll("[data-infinite-reel-clone]").forEach((clone) => clone.remove());
-    root.removeAttribute("data-animated");
-    restoreDuration();
+  const syncPlayback = () => {
+    root.toggleAttribute(
+      "data-infinite-reel-active",
+      mounted && allowed && wideEnough && nearViewport,
+    );
   };
 
-  const refresh = () => {
-    removeClones();
-    if (destroyed || !allowed || !wideEnough) return;
+  const mount = () => {
+    if (mounted || destroyed || !allowed || !wideEnough || !nearViewport) return;
 
     const items = [...track.children].filter(
       (item) => item instanceof HTMLElement && !item.hasAttribute("data-infinite-reel-clone"),
     );
+
     if (!items.length) return;
 
     const fragment = document.createDocumentFragment();
     items.forEach((item) => fragment.append(cloneItem(item)));
     track.append(fragment);
+
+    mounted = true;
     root.setAttribute("data-animated", "true");
     syncDuration();
+    syncPlayback();
   };
 
-  const unsubscribe =
-    motion?.subscribe?.(({ allowed: nextAllowed }) => {
-      allowed = Boolean(nextAllowed);
-      refresh();
-    }) ?? noop;
+  const unmount = () => {
+    track.querySelectorAll("[data-infinite-reel-clone]").forEach((clone) => clone.remove());
+
+    mounted = false;
+    root.removeAttribute("data-animated");
+    root.removeAttribute("data-infinite-reel-active");
+    restoreDuration();
+  };
+
+  const reconcile = () => {
+    if (destroyed) return;
+
+    if (!allowed || !wideEnough) {
+      if (mounted) unmount();
+      return;
+    }
+
+    if (nearViewport) mount();
+    syncPlayback();
+  };
+
+  const intersectionObserver =
+    typeof IntersectionObserver === "function"
+      ? new IntersectionObserver(
+          ([entry]) => {
+            nearViewport = Boolean(entry?.isIntersecting);
+            reconcile();
+          },
+          {
+            rootMargin: VIEWPORT_MARGIN,
+            threshold: 0,
+          },
+        )
+      : null;
+
+  intersectionObserver?.observe(root);
 
   const resizeObserver =
     typeof ResizeObserver === "function"
-      ? new ResizeObserver(() => {
-          const nextWideEnough = root.getBoundingClientRect().width > animationMinInlineSize();
+      ? new ResizeObserver((entries) => {
+          const rootEntry = entries.find((entry) => entry.target === root);
 
-          if (nextWideEnough !== wideEnough) {
-            wideEnough = nextWideEnough;
-            refresh();
-            return;
+          if (rootEntry) {
+            const nextWideEnough = rootEntry.contentRect.width > animationMinInlineSize();
+
+            if (nextWideEnough !== wideEnough) {
+              wideEnough = nextWideEnough;
+              reconcile();
+            }
           }
 
-          if (allowed && wideEnough && root.getAttribute("data-animated") === "true") {
-            syncDuration();
-          }
+          if (mounted) syncDuration();
         })
       : null;
 
   resizeObserver?.observe(root);
   resizeObserver?.observe(track);
 
-  if (!motion?.subscribe) refresh();
-  else if (!allowed || !wideEnough) removeClones();
+  const unsubscribe =
+    motion?.subscribe?.(({ allowed: nextAllowed }) => {
+      allowed = Boolean(nextAllowed);
+      reconcile();
+    }) ?? noop;
+
+  if (!motion?.subscribe) reconcile();
 
   return () => {
     destroyed = true;
+    intersectionObserver?.disconnect();
     resizeObserver?.disconnect();
     unsubscribe();
-    removeClones();
+    unmount();
   };
 }
 

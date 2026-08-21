@@ -1,3 +1,16 @@
 [data-infinite-reel] {
   --infinite-reel-speed: var(--motion-speed-autoscroll);
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-infinite-reel][data-animated="true"] > [data-infinite-reel-track] {
+    animation-play-state: paused;
+    will-change: auto;
+  }
+
+  [data-infinite-reel][data-animated="true"][data-infinite-reel-active]
+    > [data-infinite-reel-track] {
+    animation-play-state: running;
+    will-change: transform;
+  }
+}
