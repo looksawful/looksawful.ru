@@ -225,119 +225,6 @@ function initMediaCaptionInteractions(root) {
   };
 }
 
-function initPortfolioNavigation(root, { motion } = {}) {
-  const navigation = root.querySelector("[data-projects-navigation]");
-
-  if (!(navigation instanceof HTMLElement)) return () => {};
-
-  const list = navigation.querySelector(".project-nav__list");
-  if (!(list instanceof HTMLElement)) return () => {};
-
-  const resolveTarget = (link) => {
-    if (!(link instanceof HTMLAnchorElement) || !link.hash) return null;
-    return document.getElementById(decodeURIComponent(link.hash.slice(1)));
-  };
-
-  const entries = [...navigation.querySelectorAll('a[href^="#"]')]
-    .map((link) => ({ link, target: resolveTarget(link) }))
-    .filter(({ target }) => target instanceof HTMLElement && !target.hidden);
-
-  if (!entries.length) return () => {};
-
-  const setCurrent = (id) => {
-    let activeLink = null;
-
-    for (const { link, target } of entries) {
-      const current = target.id === id;
-      if (current) {
-        link.setAttribute("aria-current", "location");
-        activeLink = link;
-      } else {
-        link.removeAttribute("aria-current");
-      }
-    }
-
-    return activeLink;
-  };
-
-  const centerActiveLink = (link) => {
-    if (!(link instanceof HTMLElement)) return;
-    if (list.scrollWidth <= list.clientWidth + 1) return;
-
-    const listRect = list.getBoundingClientRect();
-    const linkRect = link.getBoundingClientRect();
-    const left = Math.max(
-      0,
-      list.scrollLeft +
-        (linkRect.left - listRect.left) -
-        (list.clientWidth - linkRect.width) / 2,
-    );
-
-    list.scrollTo({
-      left,
-      behavior: motion?.allowsMotion?.() ? "smooth" : "auto",
-    });
-  };
-
-  const activationLine = () => Math.min(Math.max(window.innerHeight * 0.2, 72), 180);
-  let frame = 0;
-  let currentProjectId = null;
-
-  const render = () => {
-    frame = 0;
-    const line = activationLine();
-
-    let nextProjectId = null;
-    for (const { target } of entries) {
-      const rect = target.getBoundingClientRect();
-      if (rect.top <= line && rect.bottom > line) {
-        nextProjectId = target.id;
-        break;
-      }
-    }
-
-    const activeLink = setCurrent(nextProjectId);
-    if (currentProjectId !== nextProjectId) {
-      currentProjectId = nextProjectId;
-      centerActiveLink(activeLink);
-    }
-  };
-
-  const scheduleRender = () => {
-    if (frame) return;
-    frame = requestAnimationFrame(render);
-  };
-
-  const handleHashChange = () => {
-    const id = decodeURIComponent(window.location.hash.slice(1));
-    const entry = entries.find(({ target }) => target.id === id);
-
-    if (entry) {
-      currentProjectId = id;
-      setCurrent(id);
-      centerActiveLink(entry.link);
-    }
-
-    scheduleRender();
-  };
-
-  window.addEventListener("scroll", scheduleRender, { passive: true });
-  window.addEventListener("resize", scheduleRender, { passive: true });
-  window.addEventListener("hashchange", handleHashChange);
-  window.addEventListener("pageshow", scheduleRender);
-
-  handleHashChange();
-  render();
-
-  return () => {
-    if (frame) cancelAnimationFrame(frame);
-    window.removeEventListener("scroll", scheduleRender);
-    window.removeEventListener("resize", scheduleRender);
-    window.removeEventListener("hashchange", handleHashChange);
-    window.removeEventListener("pageshow", scheduleRender);
-  };
-}
-
 function initJesteiFilterFit(mockup) {
   if (!(mockup instanceof HTMLElement)) return () => {};
 
@@ -390,7 +277,6 @@ function initJesteiFilterFit(mockup) {
 
 export function initSiteInteractive({ root = document, motion } = {}) {
   const destroys = [];
-  destroys.push(initPortfolioNavigation(root, { motion }));
   destroys.push(initMediaCaptionInteractions(root));
   root.querySelectorAll("[data-hero-motion]").forEach((element) => {
     const destroy = initHeroLetterMotion(element, { motion });
