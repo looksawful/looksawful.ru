@@ -14,7 +14,16 @@ function escapeHtml(value: string): string {
 
 export function renderProjectCard(project: ProjectCardData): string {
   const href = `#project-${project.id}`;
-  const ariaLabel = `Перейти к проекту ${project.title}`;
+
+  const ariaLabel = project.ariaLabel ?? `Перейти к проекту ${project.title}`;
+
+  const role = project.role
+    ? `<span class="project-card__role">${escapeHtml(project.role)}</span>`
+    : "";
+
+  const period = project.period
+    ? `<span class="project-card__period">${escapeHtml(project.period)}</span>`
+    : "";
 
   return `
     <li>
@@ -37,8 +46,8 @@ export function renderProjectCard(project: ProjectCardData): string {
           <figcaption class="project-card__caption">
             <span class="project-card__name">${escapeHtml(project.title)}</span>
             <span class="project-card__focus">${escapeHtml(project.focus)}</span>
-            <span class="project-card__role">${escapeHtml(project.role)}</span>
-            <span class="project-card__period">${escapeHtml(project.period)}</span>
+            ${role}
+            ${period}
           </figcaption>
         </figure>
       </a>

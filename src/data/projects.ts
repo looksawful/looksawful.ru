@@ -2,8 +2,9 @@ export interface ProjectCardData {
   id: string;
   title: string;
   focus: string;
-  role: string;
-  period: string;
+  role?: string;
+  period?: string;
+  ariaLabel?: string;
 
   cover: {
     src: string;
@@ -13,7 +14,7 @@ export interface ProjectCardData {
   };
 }
 
-export const projects: readonly ProjectCardData[] = [
+export const projects = [
   {
     id: "jestei",
     title: "Jestei Pool",
@@ -70,4 +71,9 @@ export const projects: readonly ProjectCardData[] = [
       height: 1360,
     },
   },
-];
+] as const satisfies readonly ProjectCardData[];
+export type Project = (typeof projects)[number];
+
+export type ProjectId = Project["id"];
+
+export type ProjectRole = Project["role"];
