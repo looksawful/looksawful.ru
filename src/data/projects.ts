@@ -22,7 +22,7 @@ export const projects: readonly ProjectCardData[] = [
     period: "2024–2026",
     cover: {
       src: "/media/projects/index/jestei-pool-cover.webp",
-      alt: "Коллаж интерфейсов и промоматериалов Jestei Pool",
+      alt: "Коллаж с ноутбуками, планшетами и мобильными устройствами с интерфейсами сервиса Jestei Pool на экранах",
       width: 1580,
       height: 1360,
     },
@@ -31,12 +31,12 @@ export const projects: readonly ProjectCardData[] = [
   {
     id: "styx",
     title: "Styx Jewel",
-    focus: "Айдентика, арт-дирекшн и съёмки",
+    focus: "Готический бренд ювелирных изделий и одежды",
     role: "Digital artist",
     period: "2021–2025",
     cover: {
       src: "/media/projects/index/styx-jewel-cover.webp",
-      alt: "Мокап экранов Styx Jewel с объёмным логотипом",
+      alt: "Два мобильных устройства с логотипом Styx Jewel и интерфейсом интернет магазина бренда на экранах",
       width: 1580,
       height: 1360,
     },
@@ -45,12 +45,13 @@ export const projects: readonly ProjectCardData[] = [
   {
     id: "sensetique",
     title: "Sensetique",
-    focus: "Фотостудия и продакшн",
+    focus:
+      "Продакшен агентство полного цикла в индустрии моды и искусства и коммерческая фотостудия",
     role: "Основатель",
-    period: "2017–2018",
+    period: "2016–2018",
     cover: {
       src: "/media/projects/index/sensetique-cover.webp",
-      alt: "Коллаж фотографий Sensetique",
+      alt: "Коллаж с фотографиями продакшена Sensetique и интерьерами залов фотостудии",
       width: 1580,
       height: 1360,
     },
@@ -59,12 +60,12 @@ export const projects: readonly ProjectCardData[] = [
   {
     id: "shootings",
     title: "Shootings",
-    focus: "Фотография, обложки и микс-медиа",
+    focus: "Фотографии и микс-медиа арт для музыкантов, выставок и брендов",
     role: "Фотограф",
     period: "2016–2025",
     cover: {
       src: "/media/projects/index/shootings-cover.webp",
-      alt: "Фотография Evasha с печатным разворотом",
+      alt: "Печатный разворот с фотографией Evasha",
       width: 1580,
       height: 1360,
     },

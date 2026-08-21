@@ -14,7 +14,7 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const stage = gallery?.closest(".moves-awful-stage");
   const stageScale = stage?.querySelector(".moves-awful-stage__scale");
   const TAB_AUTOPLAY_MS = 5000;
-  let tabAutoplayTimer = null;
+  const VIEWPORT_MARGIN = "50% 0px";
 
   if (!(gallery instanceof HTMLElement) || !(canvas instanceof HTMLCanvasElement)) {
     return;
@@ -114,17 +114,20 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
   const state = {
     variant: "arc",
-    elapsed: 0,
-    lastTime: performance.now(),
     images: [],
     raf: 0,
+    startedAt: 0,
     disposed: false,
+    nearViewport: typeof IntersectionObserver !== "function",
+    width: 1,
+    height: 1,
     masonryLanes: null,
     layoutKey: "",
   };
 
-  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  let tabAutoplayTimer = null;
 
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const mod = (value, divisor) => ((value % divisor) + divisor) % divisor;
 
   function readItems() {
@@ -159,6 +162,7 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     }
 
     state.images = loaded;
+    state.startedAt = performance.now();
     gallery.dataset.galleryState = "ready";
   }
 
@@ -211,22 +215,21 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     ctx.restore();
   }
 
-  function syncStageScale() {
-    if (!(stage instanceof HTMLElement) || !(stageScale instanceof HTMLElement)) {
+  function syncStageScale(width = stage?.clientWidth || 0) {
+    if (!(stage instanceof HTMLElement) || !(stageScale instanceof HTMLElement) || width <= 0) {
       return;
     }
-
-    const width = stage.clientWidth;
-    if (width <= 0) return;
 
     stage.style.setProperty("--moves-awful-stage-scale", String(width / 1280));
   }
 
-  function resize() {
-    const rect = canvas.getBoundingClientRect();
+  function syncCanvasSize(width, height) {
+    state.width = Math.max(1, width || 1);
+    state.height = Math.max(1, height || 1);
+
     const dpr = Math.min(devicePixelRatio || 1, 1.5);
-    const pixelWidth = Math.max(1, Math.round(rect.width * dpr));
-    const pixelHeight = Math.max(1, Math.round(rect.height * dpr));
+    const pixelWidth = Math.max(1, Math.round(state.width * dpr));
+    const pixelHeight = Math.max(1, Math.round(state.height * dpr));
 
     if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
       canvas.width = pixelWidth;
@@ -235,18 +238,11 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     }
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    return {
-      width: Math.max(1, rect.width),
-      height: Math.max(1, rect.height),
-    };
   }
 
-  function motionTime(now) {
-    const dt = Math.min(64, Math.max(0, now - state.lastTime));
-    state.lastTime = now;
-    state.elapsed += dt * 0.65;
-    return state.elapsed;
+  function animationTime(now = performance.now()) {
+    if (!state.startedAt) return 0;
+    return Math.max(0, now - state.startedAt) * 0.65;
   }
 
   function renderArc(t, width, height) {
@@ -516,27 +512,85 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     }
   }
 
-  function render(now) {
-    if (state.disposed) return;
+  function drawFrame(now = performance.now()) {
+    const { width, height } = state;
 
-    const { width, height } = resize();
     ctx.clearRect(0, 0, width, height);
 
-    const t = motionTime(now);
+    if (!state.images.length) return;
 
-    if (state.images.length) {
-      if (state.variant === "arc") {
-        renderArc(t, width, height);
-      } else if (state.variant === "spiral") {
-        renderSpiral(t, width, height);
-      } else if (state.variant === "masonry") {
-        renderMasonry(t, width, height);
-      } else {
-        renderRows(state.variant, t, width, height);
-      }
+    const t = animationTime(now);
+
+    if (state.variant === "arc") {
+      renderArc(t, width, height);
+    } else if (state.variant === "spiral") {
+      renderSpiral(t, width, height);
+    } else if (state.variant === "masonry") {
+      renderMasonry(t, width, height);
+    } else {
+      renderRows(state.variant, t, width, height);
+    }
+  }
+
+  const canAnimate = () =>
+    !state.disposed &&
+    state.images.length > 0 &&
+    state.nearViewport &&
+    !document.hidden &&
+    !reduceMotion.matches;
+
+  function frame(now) {
+    if (!canAnimate()) {
+      state.raf = 0;
+      return;
     }
 
-    state.raf = requestAnimationFrame(render);
+    drawFrame(now);
+    state.raf = requestAnimationFrame(frame);
+  }
+
+  function clearTabAutoplay() {
+    if (tabAutoplayTimer !== null) {
+      clearTimeout(tabAutoplayTimer);
+      tabAutoplayTimer = null;
+    }
+  }
+
+  function scheduleTabAutoplay() {
+    clearTabAutoplay();
+    if (!canAnimate() || !tabs.length) return;
+
+    tabAutoplayTimer = setTimeout(() => {
+      const currentIndex = tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true");
+      const next = (Math.max(0, currentIndex) + 1) % tabs.length;
+      setVariant(tabs[next].dataset.variant, next);
+      scheduleTabAutoplay();
+    }, TAB_AUTOPLAY_MS);
+  }
+
+  function syncActivity() {
+    if (!canAnimate()) {
+      if (state.raf) {
+        cancelAnimationFrame(state.raf);
+        state.raf = 0;
+      }
+
+      clearTabAutoplay();
+
+      if (state.images.length) {
+        drawFrame();
+      }
+
+      return;
+    }
+
+    if (!state.raf) {
+      state.raf = requestAnimationFrame(frame);
+    }
+
+    if (tabAutoplayTimer === null) {
+      scheduleTabAutoplay();
+    }
   }
 
   function setVariant(variant, index) {
@@ -557,36 +611,19 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     if (overlayTitle) {
       overlayTitle.textContent = titles[variant] || variant;
     }
-  }
 
-  function clearTabAutoplay() {
-    if (tabAutoplayTimer !== null) {
-      clearTimeout(tabAutoplayTimer);
-      tabAutoplayTimer = null;
+    if (state.images.length && !state.raf) {
+      drawFrame();
     }
-  }
-
-  function scheduleTabAutoplay() {
-    clearTabAutoplay();
-    if (document.hidden || !tabs.length) return;
-
-    tabAutoplayTimer = setTimeout(() => {
-      const currentIndex = tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true");
-      const next = (Math.max(0, currentIndex) + 1) % tabs.length;
-      setVariant(tabs[next].dataset.variant, next);
-      scheduleTabAutoplay();
-    }, TAB_AUTOPLAY_MS);
   }
 
   function handleVisibilityChange() {
-    if (document.hidden) {
-      clearTabAutoplay();
-      return;
-    }
-    scheduleTabAutoplay();
+    syncActivity();
   }
 
-  document.addEventListener("visibilitychange", handleVisibilityChange);
+  function handleMotionChange() {
+    syncActivity();
+  }
 
   tabs.forEach((tab, index) => {
     tab.addEventListener("click", () => {
@@ -610,21 +647,53 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     });
   });
 
-  const observer = new ResizeObserver(() => {
-    state.layoutKey = "";
-    syncStageScale();
-  });
+  const viewportObserver =
+    typeof IntersectionObserver === "function"
+      ? new IntersectionObserver(
+          ([entry]) => {
+            state.nearViewport = Boolean(entry?.isIntersecting);
+            syncActivity();
+          },
+          {
+            rootMargin: VIEWPORT_MARGIN,
+            threshold: 0,
+          },
+        )
+      : null;
 
-  observer.observe(canvas);
-  if (stage instanceof HTMLElement) observer.observe(stage);
+  viewportObserver?.observe(gallery);
+
+  const resizeObserver =
+    typeof ResizeObserver === "function"
+      ? new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.target === canvas) {
+              syncCanvasSize(entry.contentRect.width, entry.contentRect.height);
+            } else if (entry.target === stage) {
+              syncStageScale(entry.contentRect.width);
+            }
+          }
+
+          if (state.images.length) {
+            drawFrame();
+          }
+        })
+      : null;
+
+  resizeObserver?.observe(canvas);
+  if (stage instanceof HTMLElement) resizeObserver?.observe(stage);
+
+  syncCanvasSize(canvas.clientWidth, canvas.clientHeight);
   syncStageScale();
   setVariant("arc", 0);
-  scheduleTabAutoplay();
+
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  reduceMotion.addEventListener?.("change", handleMotionChange);
 
   loadItems()
     .then(() => {
-      state.lastTime = performance.now();
-      state.raf = requestAnimationFrame(render);
+      drawFrame();
+      syncActivity();
     })
     .catch((error) => {
       console.error(error);
@@ -635,15 +704,21 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
     "beforeunload",
     () => {
       state.disposed = true;
-      cancelAnimationFrame(state.raf);
+
+      if (state.raf) {
+        cancelAnimationFrame(state.raf);
+        state.raf = 0;
+      }
+
       clearTabAutoplay();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      observer.disconnect();
+      reduceMotion.removeEventListener?.("change", handleMotionChange);
+      viewportObserver?.disconnect();
+      resizeObserver?.disconnect();
     },
     { once: true },
   );
 })();
-
 function initProductionMasonry(root) {
   if (!(root instanceof HTMLElement)) return;
 
@@ -1079,20 +1154,23 @@ function initProductionMasonry(root) {
   let layout = null;
   let frameId = 0;
   let lastTime = 0;
-  let lastWidth = 0;
-  let lastHeight = 0;
+  let width = Math.max(1, canvas.clientWidth || 1);
+  let height = Math.max(1, canvas.clientHeight || 1);
   let documentHidden = document.hidden;
-  let nearViewport = true;
+  let nearViewport = typeof IntersectionObserver !== "function";
 
   const motionQuery = matchMedia("(prefers-reduced-motion: reduce)");
 
-  const measure = () => {
-    const width = Math.max(1, canvas.clientWidth || 1);
-    const height = Math.max(1, canvas.clientHeight || 1);
+  const syncCanvasSize = (nextWidth, nextHeight) => {
+    const resolvedWidth = Math.max(1, nextWidth || 1);
+    const resolvedHeight = Math.max(1, nextHeight || 1);
     const dpr = Math.min(Math.max(1, window.devicePixelRatio || 1), options.maxDpr);
+    const pixelWidth = Math.round(resolvedWidth * dpr);
+    const pixelHeight = Math.round(resolvedHeight * dpr);
 
-    const pixelWidth = Math.round(width * dpr);
-    const pixelHeight = Math.round(height * dpr);
+    const sizeChanged = resolvedWidth !== width || resolvedHeight !== height;
+    width = resolvedWidth;
+    height = resolvedHeight;
 
     if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
       canvas.width = pixelWidth;
@@ -1101,17 +1179,12 @@ function initProductionMasonry(root) {
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    if (width !== lastWidth || height !== lastHeight) {
-      lastWidth = width;
-      lastHeight = height;
+    if (sizeChanged) {
       layout = items.length ? buildLayout({ width, height, items }) : null;
     }
-
-    return { width, height };
   };
 
   const render = (dt = 0) => {
-    const { width, height } = measure();
     updateLayout({
       layout,
       dt,
@@ -1148,8 +1221,10 @@ function initProductionMasonry(root) {
       cancelAnimationFrame(frameId);
       frameId = 0;
     }
+
     lastTime = 0;
     render(0);
+
     if (shouldAnimate()) {
       frameId = requestAnimationFrame(frame);
     }
@@ -1173,23 +1248,38 @@ function initProductionMasonry(root) {
 
   const resizeObserver =
     typeof ResizeObserver === "function"
-      ? new ResizeObserver(() => {
-          lastWidth = 0;
-          lastHeight = 0;
+      ? new ResizeObserver(([entry]) => {
+          if (!entry) return;
+
+          syncCanvasSize(entry.contentRect.width, entry.contentRect.height);
           sync();
         })
       : null;
 
   resizeObserver?.observe(canvas);
-  resizeObserver?.observe(root);
+
+  const handleFallbackResize = () => {
+    syncCanvasSize(canvas.clientWidth, canvas.clientHeight);
+    sync();
+  };
+
+  if (!resizeObserver) {
+    window.addEventListener("resize", handleFallbackResize, { passive: true });
+  }
 
   document.addEventListener("visibilitychange", () => {
     documentHidden = document.hidden;
     sync();
   });
 
-  window.addEventListener("pageshow", sync);
+  window.addEventListener("pageshow", () => {
+    syncCanvasSize(canvas.clientWidth, canvas.clientHeight);
+    sync();
+  });
+
   motionQuery.addEventListener?.("change", sync);
+
+  syncCanvasSize(width, height);
 
   Promise.all(sourceNodes.map((node, index) => loadImage(node, index))).then((loaded) => {
     items = loaded.filter(
@@ -1202,10 +1292,10 @@ function initProductionMasonry(root) {
     }
 
     root.dataset.galleryState = "ready";
-    lastWidth = 0;
-    lastHeight = 0;
+    layout = buildLayout({ width, height, items });
     sync();
   });
+
 }
 
 document
