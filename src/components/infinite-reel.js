@@ -49,6 +49,27 @@ export function createInfiniteReel(root, { motion } = {}) {
   let wideEnough = root.clientWidth > animationMinInlineSize();
   let nearViewport = typeof IntersectionObserver !== "function";
 
+  const isActive = () =>
+    mounted && allowed && wideEnough && nearViewport && !document.hidden;
+
+  const autoplayVideos = () =>
+    [...track.querySelectorAll("video[autoplay]")].filter(
+      (video) =>
+        video instanceof HTMLVideoElement &&
+        !video.closest("[data-media-deck]"),
+    );
+
+  const syncVideoPlayback = (active = isActive()) => {
+    autoplayVideos().forEach((video) => {
+      if (active) {
+        if (video.paused) video.play().catch(() => {});
+        return;
+      }
+
+      if (!video.paused) video.pause();
+    });
+  };
+
   const restoreDuration = () => {
     if (authoredDuration) {
       root.style.setProperty(DURATION_PROPERTY, authoredDuration, authoredDurationPriority);
@@ -80,10 +101,9 @@ export function createInfiniteReel(root, { motion } = {}) {
   };
 
   const syncPlayback = () => {
-    root.toggleAttribute(
-      "data-infinite-reel-active",
-      mounted && allowed && wideEnough && nearViewport,
-    );
+    const active = isActive();
+    root.toggleAttribute("data-infinite-reel-active", active);
+    syncVideoPlayback(active);
   };
 
   const mount = () => {
@@ -110,7 +130,7 @@ export function createInfiniteReel(root, { motion } = {}) {
 
     mounted = false;
     root.removeAttribute("data-animated");
-    root.removeAttribute("data-infinite-reel-active");
+    syncPlayback();
     restoreDuration();
   };
 
@@ -119,6 +139,7 @@ export function createInfiniteReel(root, { motion } = {}) {
 
     if (!allowed || !wideEnough) {
       if (mounted) unmount();
+      else syncPlayback();
       return;
     }
 
@@ -163,11 +184,19 @@ export function createInfiniteReel(root, { motion } = {}) {
   resizeObserver?.observe(root);
   resizeObserver?.observe(track);
 
+  const handleVisibilityChange = () => {
+    syncPlayback();
+  };
+
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+
   const unsubscribe =
     motion?.subscribe?.(({ allowed: nextAllowed }) => {
       allowed = Boolean(nextAllowed);
       reconcile();
     }) ?? noop;
+
+  syncPlayback();
 
   if (!motion?.subscribe) reconcile();
 
@@ -175,6 +204,7 @@ export function createInfiniteReel(root, { motion } = {}) {
     destroyed = true;
     intersectionObserver?.disconnect();
     resizeObserver?.disconnect();
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
     unsubscribe();
     unmount();
   };
