@@ -1,16 +1,5 @@
 import type { ClientLogoData } from "../data/clients.ts";
-
-const HTML_ENTITIES: Record<string, string> = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#039;",
-};
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) => HTML_ENTITIES[character]);
-}
+import { escapeHtml } from "../utils/html.ts";
 
 export function renderClientLogo(logo: ClientLogoData): string {
   const alt = logo.alt ?? logo.name;

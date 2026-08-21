@@ -1,0 +1,36 @@
+import type { ClientId } from "../data/catalog/clients.ts";
+import type { IndustryId } from "../data/taxonomy/industries.ts";
+import type { RoleId } from "../data/taxonomy/roles.ts";
+import type { ServiceId } from "../data/taxonomy/services.ts";
+import type { SkillId } from "../data/taxonomy/skills.ts";
+import type { SoftwareId } from "../data/taxonomy/software.ts";
+import type { TechnologyId } from "../data/taxonomy/technologies.ts";
+import type { WorkAreaId } from "../data/taxonomy/work-areas.ts";
+
+export type ProjectVisibility = "public" | "hidden";
+
+export type ProjectStatus = "active" | "completed" | "archived";
+
+export interface ProjectData {
+  id: string;
+  name: string;
+
+  visibility: ProjectVisibility;
+
+  status?: ProjectStatus;
+
+  description?: string;
+
+  date?: string;
+
+  clientIds?: readonly ClientId[];
+  industryIds?: readonly IndustryId[];
+
+  roleIds?: readonly RoleId[];
+  workAreaIds?: readonly WorkAreaId[];
+  serviceIds?: readonly ServiceId[];
+
+  skillIds?: readonly SkillId[];
+  technologyIds?: readonly TechnologyId[];
+  softwareIds?: readonly SoftwareId[];
+}

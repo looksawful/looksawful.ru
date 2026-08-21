@@ -1,16 +1,5 @@
 import type { ProjectCardData } from "../data/projects.ts";
-
-const HTML_ENTITIES: Record<string, string> = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#039;",
-};
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) => HTML_ENTITIES[character]);
-}
+import { escapeHtml } from "../utils/html.ts";
 
 export function renderProjectCard(project: ProjectCardData): string {
   const href = `#project-${project.id}`;
