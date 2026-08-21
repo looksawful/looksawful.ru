@@ -32,7 +32,7 @@ export const projects: readonly ProjectCardData[] = [
     id: "styx",
     title: "Styx Jewel",
     focus: "Готический бренд ювелирных изделий и одежды",
-    role: "Digital artist",
+    role: "Дизайнер",
     period: "2021–2025",
     cover: {
       src: "/media/projects/index/styx-jewel-cover.webp",
