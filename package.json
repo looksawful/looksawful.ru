@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node tools/build-responsive-media.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "npm run typecheck && node tools/build-responsive-media.mjs",
     "preview": "vite preview",
     "test": "node --test"
   },
   "devDependencies": {
     "playwright": "^1.61.1",
     "sharp": "^0.34.5",
+    "typescript": "^7.0.2",
     "vite": "^8.0.10"
   },
   "dependencies": {
