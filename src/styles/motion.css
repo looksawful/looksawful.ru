@@ -1,0 +1,3 @@
+[data-infinite-reel] {
+  --infinite-reel-speed: var(--motion-speed-autoscroll);
+}

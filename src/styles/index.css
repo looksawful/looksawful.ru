@@ -9,4 +9,5 @@
 @import "./base.css" layer(base);
 @import "./patterns.css" layer(patterns);
 @import "./components.css" layer(components);
+@import "./motion.css" layer(components);
 @import "./utilities.css" layer(utilities);

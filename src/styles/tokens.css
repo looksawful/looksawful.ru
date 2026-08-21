@@ -46,6 +46,12 @@
   --space-section: var(--size-700);
   --space-chapter: var(--size-800);
 
+  /* Continuous motion primitives are unitless CSS pixels per second. */
+  --motion-speed-100: 64;
+
+  /* Semantic motion aliases. */
+  --motion-speed-autoscroll: var(--motion-speed-100);
+
   --radius-100: 0.5rem;
   --radius-200: 1rem;
 
