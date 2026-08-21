@@ -1,244 +1,54 @@
 :root {
-  /* Color primitives */
-
-  --clr-white: hsl(0 0% 100%);
-  --clr-black: hsl(0 0% 7%);
-  --clr-offwhite: hsl(45 24% 87%);
-  --clr-awfulface-ink: var(--clr-black, hsl(0 0% 7%));
-  --awfulface-ink: var(--clr-black, #000);
-
-  --clr-cv-pink: rgb(241 168 195);
-  --clr-cv-red: rgb(244 79 55);
-  --clr-cv-blue: rgb(40 16 154);
-  --clr-cv-lavender: rgb(186 195 216);
-  --clr-cv-brown: rgb(63 40 43);
-  --clr-cv-purple: rgb(109 56 151);
-  --clr-cv-lime: rgb(189 255 74);
-  --clr-cv-warm-gray: rgb(222 216 207);
-  --clr-cv-ink: rgb(13 13 13);
-
-  /* Semantic colors */
-
-  --white: var(--clr-white, #fff);
-  --black: var(--clr-black, #000);
-
-  --text-main: var(--black, #000);
-  --surface-page: var(--white, #fff);
-  --surface-overlay: var(--surface-page);
-  --surface-raised: color-mix(in srgb, var(--surface-page), var(--text-main) 4%);
-  --text-muted: color-mix(in srgb, var(--text-main), transparent 38%);
-  --line-subtle: color-mix(in srgb, var(--text-main), transparent 78%);
-  --focus-ring: currentColor;
-  --scrim-background: rgb(0 0 0 / 0.46);
-  --panel-shadow: 0 1.5rem 4rem rgb(0 0 0 / 0.2);
-  --panel-radius: 1.25rem;
-  --panel-sheet-size: 92dvb;
-  --panel-drawer-size: 42rem;
-  --panel-inline-padding: clamp(1rem, 4cqi, 2rem);
-  --panel-block-padding: clamp(0.875rem, 3cqi, 1.5rem);
-
-  --awfulface-ink: var(--clr-black, #000);
-
-  /* Typography */
-
-  --font-primary: "Rubik Variable", system-ui, sans-serif;
-
-  --font-weight-light: 300;
-  --font-weight-regular: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  --font-weight-extrabold: 800;
-  --font-weight-black: 900;
-
-  /* Spacing */
-
-  --space-3xs: clamp(0.25rem, 0.5vw, 0.5rem);
-  --space-2xs: clamp(0.5rem, 0.75vw, 0.75rem);
-  --space-xs: clamp(0.75rem, 1.6vw, 2rem);
-  --space-s: clamp(1rem, 2vw, 2rem);
-  --space-m: clamp(1.5rem, 4vw, 3.375rem);
-  --space-l: clamp(2rem, 4vw, 4rem);
-  --space-xl: clamp(2.5rem, 6vw, 6rem);
-
-  /* Fluid cursor */
-
-  --fluid-cursor-layer: 0;
-  --fluid-cursor-blend-mode: difference;
-
-  /* Hero */
-
-  --hero-page-max: 80rem;
-
-  --hero-page-gutter: clamp(1.5rem, 5vw, 4rem);
-
-  --hero-page-padding-block: clamp(2rem, 6svh, 8rem);
-
-  --hero-section-gap: clamp(2.5rem, 8svh, 5rem);
-
-  --hero-name-size-compact: clamp(2rem, 11.2cqi, 9rem);
-
-  --hero-name-size-wide: clamp(7.5rem, 11.25cqi, 9rem);
-
-  --hero-name-leading: 0.9;
-  --hero-name-tracking: -0.032em;
-
-  --hero-name-weight: var(--font-weight-bold);
-
-  --hero-role-size-compact: clamp(1.25rem, 6.5cqi, 2.8rem);
-
-  --hero-role-size-wide: clamp(3.6rem, 5.6cqi, 4.5rem);
-
-  --hero-role-leading: 0.94;
-  --hero-role-tracking: -0.025em;
-
-  --hero-role-weight: var(--font-weight-semibold);
-
-  --hero-title-gap-compact: clamp(0.8rem, 2.2cqi, 2rem);
-
-  --hero-title-gap-medium: clamp(1.25rem, 2.8cqi, 2.4rem);
-
-  --hero-title-gap-wide: clamp(2rem, 3.2cqi, 2.75rem);
-
-  --hero-awfulface-size-compact: clamp(6rem, 24cqi, 7rem);
-
-  --hero-awfulface-size-medium: clamp(7rem, 18cqi, 9rem);
-
-  --hero-awfulface-size-wide: clamp(10rem, 15cqi, 12rem);
-
-  --hero-copy-size-compact: clamp(1rem, 3.25cqi, 1.5rem);
-
-  --hero-copy-size-medium: clamp(1.25rem, 2.8cqi, 1.75rem);
-
-  --hero-copy-size-wide: clamp(1.5rem, 2.1cqi, 2rem);
-
-  --hero-contact-size-compact: clamp(0.875rem, 2.9cqi, 1.35rem);
-
-  --hero-contact-size-medium: clamp(1.1rem, 2.2cqi, 1.5rem);
-
-  --hero-contact-size-wide: clamp(1.25rem, 1.65cqi, 1.5rem);
-
-  /* CV accordion */
-
-  --cv-page-padding-inline: 0rem;
-  --cv-page-padding-block: 0rem;
-
-  --cv-content-padding-inline: clamp(1rem, 2.1vw, 2.625rem);
-
-  --cv-content-padding-inline-narrow: 0.75rem;
-
-  --cv-header-font-size: clamp(0.6875rem, 0.76vw, 0.9375rem);
-
-  --cv-header-font-size-compact: 0.6875rem;
-
-  --cv-title-size: clamp(2.5rem, 5vw, 4.75rem);
-  --cv-title-size-compact: clamp(2.1rem, 11vw, 4rem);
-
-  --cv-copy-size: clamp(1rem, 1.3vw, 1.5rem);
-
-  --cv-copy-size-compact: clamp(0.875rem, 3.9vw, 1rem);
-
-  --cv-number-size: clamp(4.5rem, 7vw, 8rem);
-
-  --cv-number-size-compact: clamp(3.75rem, 18vw, 4.5rem);
-
-  --cv-scene-size: 860svh;
-  --cv-scene-size-compact: 760svh;
-
-  --cv-head-size: 6.25rem;
-
-  --cv-item-default-background: var(--clr-white);
-
-  --cv-item-default-foreground: rgb(17 17 17);
-
-  --cv-item-01-background: var(--clr-cv-pink);
-
-  --cv-item-01-foreground: var(--clr-cv-red);
-
-  --cv-item-02-background: var(--clr-cv-red);
-
-  --cv-item-02-foreground: var(--clr-cv-pink);
-
-  --cv-item-03-background: var(--clr-cv-blue);
-
-  --cv-item-03-foreground: var(--clr-cv-pink);
-
-  --cv-item-04-background: var(--clr-cv-lavender);
-
-  --cv-item-04-foreground: var(--clr-cv-brown);
-
-  --cv-item-05-background: var(--clr-cv-purple);
-
-  --cv-item-05-foreground: var(--clr-cv-lime);
-
-  --cv-item-06-background: var(--clr-cv-warm-gray);
-
-  --cv-item-06-foreground: var(--clr-cv-red);
-
-  --cv-item-07-background: var(--clr-white);
-
-  --cv-item-07-foreground: var(--clr-cv-ink);
-
-  --cv-item-08-background: var(--clr-cv-lime);
-
-  --cv-item-08-foreground: var(--clr-cv-ink);
-
-  /* Additional CV scene themes */
-
-  --cv-illumihand-background: rgb(232 255 98);
-  --cv-illumihand-foreground: rgb(58 30 120);
-
-  --cv-berry-background: rgb(213 52 104);
-  --cv-berry-foreground: rgb(255 211 227);
-
-  --cv-ss-background: rgb(217 243 228);
-  --cv-ss-foreground: rgb(22 59 47);
-
-  --cv-digital-arts-background: rgb(42 67 255);
-  --cv-digital-arts-foreground: rgb(243 245 255);
-
-  --cv-awful-tools-background: rgb(18 18 18);
-  --cv-awful-tools-foreground: rgb(200 255 61);
-
-  --cv-moves-awful-background: rgb(255 90 47);
-  --cv-moves-awful-foreground: rgb(255 240 216);
-
-  /* Classics */
-
-  --classics-black: hsl(0 0% 10%);
-
-  --classics-offwhite: var(--clr-offwhite);
-
-  --classics-line-width: clamp(0.1875rem, 0.42cqi, 0.3125rem);
-
-  --classics-padding-inline: clamp(0.75rem, 2.5cqi, 1.35rem);
-
-  --classics-padding-block-start: clamp(0.55rem, 1.8cqi, 1rem);
-
-  --classics-padding-block-end: clamp(0.7rem, 2.2cqi, 1.2rem);
-
-  --classics-font-size-mobile: clamp(1.2rem, 4.75cqi, 3rem);
-
-  --classics-font-size-wide: clamp(1.65rem, 3cqi, 3.6rem);
-
-  /* Lattice */
-
-  --lattice-black: var(--clr-black);
-  --lattice-offwhite: var(--clr-offwhite);
-  --lattice-overlay: hsl(0 0% 0% / 0.26);
-
-  --lattice-max-inline-size: 112rem;
-  --lattice-min-block-size: 100svh;
-  --lattice-outer-padding: clamp(0.75rem, 2vw, 1.75rem);
-  --lattice-line-width: clamp(0.1875rem, 0.42cqi, 0.3125rem);
-
-  --lattice-cell-padding-inline: clamp(0.75rem, 2.5cqi, 1.35rem);
-  --lattice-cell-padding-block-start: clamp(0.55rem, 1.8cqi, 1rem);
-  --lattice-cell-padding-block-end: clamp(0.7rem, 2.2cqi, 1.2rem);
-
-  --lattice-cell-font-size: clamp(1.2rem, 4.75cqi, 3rem);
-  --lattice-font-weight: var(--font-weight-light);
-
-  --lattice-swap-duration: 260ms;
-  --lattice-swap-easing: cubic-bezier(0.2, 0.75, 0.2, 1);
+  --ff-primary:
+    "Inter Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --ff-rubik:
+    "Rubik Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --ff-mono: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --fw-300: 300;
+  --fw-400: 400;
+  --fw-500: 500;
+  --fw-600: 600;
+  --fw-700: 700;
+  --fw-800: 800;
+  --fw-900: 900;
+
+  --fs-200: clamp(0.75rem, 0.72rem + 0.15vw, 0.875rem);
+  --fs-300: clamp(0.875rem, 0.84rem + 0.18vw, 1rem);
+  --fs-400: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+  --fs-500: clamp(1.125rem, 0.95rem + 0.8vw, 1.5rem);
+  --fs-600: clamp(1.4rem, 1.1rem + 1.3vw, 2.15rem);
+  --fs-700: clamp(1.875rem, 1.2rem + 2.5vw, 4rem);
+  --fs-800: clamp(2.5rem, 1.5rem + 4.5vw, 6rem);
+  --fs-900: clamp(3.25rem, 1.5rem + 8vw, 10rem);
+
+  --size-100: clamp(0.25rem, 0.4vw, 0.5rem);
+  --size-200: clamp(0.5rem, 0.7vw, 0.75rem);
+  --size-300: clamp(0.75rem, 1vw, 1rem);
+  --size-400: clamp(1rem, 2vw, 2rem);
+  --size-500: clamp(1.5rem, 3vw, 3rem);
+  --size-600: clamp(2rem, 5vw, 5rem);
+  --size-700: clamp(3rem, 8vw, 8rem);
+  --size-800: clamp(4rem, 12vw, 10rem);
+
+  --content-narrow-width: 42rem;
+  --content-max-width: 72rem;
+  --content-wide-width: 90rem;
+
+  --page-padding-inline: clamp(1rem, 2.2vw, 2.5rem);
+
+  /* Semantic spacing aliases. Components may refine these locally. */
+  --space-caption: var(--size-100);
+  --space-media: var(--size-300);
+  --space-group: var(--size-500);
+  --space-section: var(--size-700);
+  --space-chapter: var(--size-800);
+
+  --radius-100: 0.5rem;
+  --radius-200: 1rem;
+
+  --border-width-100: 1px;
+  --border-width-200: 2px;
 }

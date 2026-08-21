@@ -1,0 +1,3925 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>
+   Редполитика Jestei Pool
+  </title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+:root {
+  color-scheme: light;
+
+  /* Primitive palette */
+  --neutral-0: #ffffff;
+  --neutral-50: #f7f7f6;
+  --neutral-100: #ececed;
+  --neutral-200: #dedfe0;
+  --neutral-400: #979a9c;
+  --neutral-600: #6f7274;
+  --neutral-950: #151718;
+  --blue-700: #0b57d0;
+  --blue-800: #0842a0;
+
+  /* Semantic color tokens */
+  --color-text-primary: var(--neutral-950);
+  --color-text-secondary: var(--neutral-600);
+  --color-text-tertiary: var(--neutral-400);
+  --color-link: var(--blue-700);
+  --color-link-hover: var(--blue-800);
+  --color-border: var(--neutral-200);
+  --color-border-subtle: var(--neutral-100);
+  --color-surface-page: var(--neutral-0);
+  --color-surface-subtle: var(--neutral-50);
+  --color-surface-inverse: var(--neutral-950);
+  --color-focus: var(--blue-700);
+  --color-selection-bg: var(--neutral-950);
+  --color-selection-text: var(--neutral-0);
+  --color-scrollbar: var(--neutral-200);
+
+  /* Typography */
+  --font-sans: "Rubik", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-size-body: clamp(1rem, calc(.14vw + .97rem), 1.05rem);
+  --font-size-table: .95rem;
+  --leading-body: 1.52;
+  --leading-list: 1.48;
+  --leading-table: 1.42;
+  --measure: 62ch;
+  --measure-wide: 72ch;
+  --space-paragraph: .9rem;
+
+  /* Layout */
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --wrapper: 82rem;
+  --content: 49rem;
+  --sidebar: 12.5rem;
+  --space-section: clamp(4rem, 8vw, 7rem);
+  --sticky-h: 3.25rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-surface-page);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 100%;
+  line-height: var(--leading-body);
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-block-start: calc(var(--sticky-h) + 1.5rem);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background: var(--color-surface-page);
+}
+
+::selection {
+  background: var(--color-selection-bg);
+  color: var(--color-selection-text);
+}
+
+a {
+  color: var(--color-link);
+  text-decoration-thickness: .065em;
+  text-underline-offset: .18em;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+a:visited {
+  color: var(--color-link);
+}
+
+a:hover {
+  color: var(--color-link-hover);
+  text-decoration-color: currentColor;
+}
+
+:where(a, button):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.sticky-chrome {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 50;
+  min-block-size: var(--sticky-h);
+  border-block-end: 1px solid var(--color-border);
+  background: var(--color-surface-page);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sticky-chrome {
+    background: color-mix(in srgb, var(--color-surface-page) 92%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+}
+
+.sticky-chrome__inner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .85rem;
+  inline-size: min(calc(100% - (var(--gutter) * 2)), var(--wrapper));
+  min-block-size: var(--sticky-h);
+  margin-inline: auto;
+}
+
+.sticky-logo {
+  display: grid;
+  place-items: center;
+  inline-size: 1.35rem;
+  block-size: 1.35rem;
+  color: var(--color-text-primary);
+}
+
+.sticky-logo__image {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+}
+
+.sticky-topic {
+  min-inline-size: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: .77rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sticky-progress {
+  inline-size: clamp(3rem, 8vw, 5.25rem);
+  block-size: 1px;
+  overflow: hidden;
+  background: var(--color-border);
+}
+
+.sticky-progress > span {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  background: var(--color-text-primary);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+}
+
+.page-shell {
+  inline-size: min(calc(100% - (var(--gutter) * 2)), var(--wrapper));
+  margin-inline: auto;
+}
+
+.side-nav {
+  display: none;
+}
+
+main {
+  inline-size: min(100%, var(--content));
+  margin-inline: auto;
+  padding-block: clamp(2.5rem, 6vw, 5rem) clamp(6rem, 12vw, 10rem);
+}
+
+.document-hero {
+  padding-block-end: clamp(3rem, 8vw, 6rem);
+}
+
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  margin-block-end: clamp(2.75rem, 7vw, 5rem);
+}
+
+.brand-logo {
+  display: block;
+  inline-size: clamp(8.5rem, 18vw, 10.5rem);
+  line-height: 0;
+}
+
+.brand-logo__svg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  letter-spacing: -.02em;
+  scroll-margin-block-start: calc(var(--sticky-h) + 1.5rem);
+}
+
+h1 {
+  max-inline-size: 18ch;
+  font-size: clamp(2.25rem, calc(4vw + 1rem), 4rem);
+  line-height: .98;
+  letter-spacing: -.05em;
+  text-wrap: balance;
+}
+
+h2 {
+  max-inline-size: 30ch;
+  font-size: clamp(1.6rem, 2.6vw, 2.15rem);
+  line-height: 1.12;
+  letter-spacing: -.035em;
+}
+
+h3 {
+  max-inline-size: 34ch;
+  margin-block: 3.25rem 1rem;
+  font-size: clamp(1.28rem, 1.7vw, 1.62rem);
+  line-height: 1.18;
+  letter-spacing: -.028em;
+}
+
+h4 {
+  max-inline-size: 42ch;
+  margin-block: 2.25rem .72rem;
+  font-size: clamp(1.08rem, 1.15vw, 1.22rem);
+  line-height: 1.28;
+  letter-spacing: -.018em;
+}
+
+h5 {
+  max-inline-size: 48ch;
+  margin-block: 1.8rem .62rem;
+  font-size: 1rem;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+h6 {
+  max-inline-size: 52ch;
+  margin-block: 1.55rem .6rem;
+  font-size: .94rem;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+p,
+li {
+  font-size: var(--font-size-body);
+}
+
+p {
+  line-height: var(--leading-body);
+}
+
+li {
+  line-height: var(--leading-list);
+}
+
+td,
+th {
+  font-size: var(--font-size-table);
+  line-height: var(--leading-table);
+}
+
+@supports (text-wrap: pretty) {
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+}
+
+p {
+  max-inline-size: var(--measure);
+  margin: 0 0 var(--space-paragraph);
+}
+
+strong {
+  font-weight: 600;
+}
+
+em {
+  font-style: italic;
+}
+
+.document-toc {
+  margin-block-end: clamp(4rem, 8vw, 7rem);
+  padding-block: 1.5rem 1.65rem;
+  border-block: 1px solid var(--color-border);
+}
+
+.document-toc__title {
+  margin-block-end: 1.05rem;
+  color: var(--color-text-secondary);
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+.document-toc__list {
+  display: grid;
+  gap: .08rem;
+  max-inline-size: 38rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.document-toc__link {
+  display: block;
+  padding-block: .34rem;
+  color: var(--color-link);
+  font-size: clamp(.96rem, calc(.16vw + .93rem), 1.02rem);
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.document-toc__link:visited {
+  color: var(--color-link);
+}
+
+.document-toc__link:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+
+.chapter {
+  position: relative;
+  padding-block: var(--space-section);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.chapter:first-of-type {
+  border-block-start: 0;
+}
+
+.chapter > h2 {
+  margin-block-end: clamp(2.5rem, 5vw, 4rem);
+}
+
+.chapter > h2 + :is(h3, h4, h5, h6) {
+  margin-block-start: 0;
+}
+
+.chapter :where(ul, ol) {
+  display: grid;
+  gap: .28rem;
+  max-inline-size: var(--measure);
+  margin: 0 0 1.2rem;
+  padding-inline-start: 1.3rem;
+}
+
+.chapter li {
+  padding-inline-start: .16rem;
+}
+
+.chapter li::marker {
+  color: var(--color-text-secondary);
+}
+
+.note {
+  max-inline-size: var(--measure);
+  margin-block: 1.5rem;
+  padding-block: .85rem;
+  border-block: 1px solid var(--color-border);
+}
+
+.note :last-child {
+  margin-block-end: 0;
+}
+
+.note--success,
+.note--danger,
+.note--warning {
+  background: transparent;
+  border-color: var(--color-border);
+}
+
+.comparison-grid {
+  display: grid;
+  gap: 0;
+  inline-size: min(100%, 52rem);
+  margin-block: 2rem;
+}
+
+.comparison-grid > .note {
+  max-inline-size: none;
+  margin: 0;
+}
+
+.comparison-grid > .note + .note {
+  border-block-start: 0;
+}
+
+.table-scroll {
+  inline-size: 100%;
+  margin-block: 2rem 2.75rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar) transparent;
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+table {
+  inline-size: 100%;
+  min-inline-size: 38rem;
+  margin: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+thead {
+  border-block: 1px solid var(--color-border);
+  background: var(--color-surface-subtle);
+}
+
+th,
+td {
+  padding-block: .68rem;
+  padding-inline: .75rem 1rem;
+  border: 0;
+  border-block-end: 1px solid var(--color-border-subtle);
+  text-align: start;
+  vertical-align: top;
+}
+
+th {
+  color: var(--color-text-secondary);
+  font-size: .8rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: .01em;
+  vertical-align: bottom;
+}
+
+th:last-child,
+td:last-child {
+  padding-inline-end: .75rem;
+}
+
+tbody tr:last-child td {
+  border-block-end-color: var(--color-border);
+}
+
+@media (min-width: 38rem) {
+  .comparison-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+  }
+
+  .comparison-grid > .note + .note {
+    border-block-start: 1px solid var(--color-border);
+  }
+}
+
+@media (min-width: 68rem) {
+  .page-shell {
+    display: grid;
+    grid-template-columns: var(--sidebar) minmax(0, var(--content));
+    gap: clamp(3rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  main {
+    margin-inline: 0;
+  }
+
+  .side-nav {
+    display: block;
+    position: sticky;
+    inset-block-start: calc(var(--sticky-h) + 1.6rem);
+    max-block-size: calc(100svh - var(--sticky-h) - 3.2rem);
+    padding-block: .25rem 1rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-scrollbar) transparent;
+  }
+
+  .side-nav__list {
+    display: grid;
+    gap: .05rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .side-nav__link {
+    position: relative;
+    display: block;
+    padding-block: .36rem;
+    padding-inline-start: .85rem;
+    color: var(--color-text-secondary);
+    font-size: .78rem;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+
+  .side-nav__link:visited {
+    color: var(--color-text-secondary);
+  }
+
+  .side-nav__link::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block: .45rem;
+    inline-size: 1px;
+    background: transparent;
+  }
+
+  .side-nav__link:hover {
+    color: var(--color-text-primary);
+  }
+
+  .side-nav__link[aria-current="true"] {
+    color: var(--color-text-primary);
+    font-weight: 500;
+  }
+
+  .side-nav__link[aria-current="true"]::before {
+    background: var(--color-text-primary);
+  }
+}
+
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-secondary: var(--neutral-950);
+    --color-border: var(--neutral-600);
+    --color-border-subtle: var(--neutral-200);
+  }
+
+  a {
+    text-decoration-color: currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@media print {
+  .sticky-chrome,
+  .side-nav,
+  .document-toc {
+    display: none !important;
+  }
+
+  .page-shell {
+    display: block;
+    inline-size: 100%;
+  }
+
+  main {
+    inline-size: 100%;
+    max-inline-size: none;
+    padding: 0;
+  }
+
+  .chapter {
+    break-inside: auto;
+  }
+
+  a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+  }
+}
+</style>
+</head>
+<body>
+<div class="sticky-chrome" data-sticky-chrome="">
+<div class="sticky-chrome__inner">
+<a aria-label="Jestei Pool" class="sticky-logo" href="#top"><img alt="" class="sticky-logo__image" src="data:image/png;base64,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"/></a>
+<p class="sticky-topic" data-sticky-topic=""></p>
+<div aria-hidden="true" class="sticky-progress"><span data-sticky-progress=""></span></div>
+</div>
+</div>
+<div class="page-shell">
+<nav aria-label="Навигация по разделам" class="side-nav">
+<ol class="side-nav__list" data-side-nav=""></ol>
+</nav>
+<main id="top">
+<header class="document-hero">
+<div class="brand-lockup">
+<div aria-hidden="true" class="brand-logo"><svg aria-hidden="true" class="brand-logo__svg" fill="none" height="24" viewbox="0 0 138 24" width="138" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 0.144981V12.0945C24.0025 14.4709 23.2873 16.7934 21.9468 18.7628C20.6064 20.7321 18.702 22.2579 16.4793 23.1434C14.2566 24.0289 11.8175 24.2335 9.47644 23.7309C7.29583 23.2626 5.29347 22.2797 3.69195 20.7544C3.55736 20.6262 3.48453 20.4478 3.48453 20.2627C3.48453 20.1608 3.50683 20.0601 3.54991 19.9677L4.21678 18.5356L4.41556 18.5218C5.26483 19.5113 6.30281 20.3255 7.47046 20.9173C8.69355 21.5371 10.0326 21.8995 11.4035 21.9816C12.7744 22.0638 14.1476 21.864 15.437 21.3948C16.7265 20.9255 17.9042 20.197 18.8964 19.2548L19.4177 18.7206C20.6485 17.3624 21.4766 15.6929 21.8105 13.8967C22.1444 12.1005 21.9711 10.2477 21.3096 8.54325C20.6481 6.83877 19.5243 5.34902 18.0625 4.23879C16.6007 3.12859 14.8578 2.44115 13.0267 2.25255C11.1956 2.06395 9.34753 2.38153 7.68702 3.17016C6.02652 3.95878 4.61822 5.18772 3.61793 6.72104C2.61764 8.25439 2.06435 10.0323 2.01923 11.8583C1.97651 13.5872 2.15187 15.2152 2.95449 16.7247C3.04353 16.8921 3.09559 17.0773 3.09559 17.2666C3.09559 17.4134 3.06525 17.5587 3.00645 17.6935L2.35989 19.1753L0.285517 23.9049C0.242638 24.0027 0.112334 24.024 0.0401622 23.9449C0.0154936 23.918 0.00182798 23.8828 0.00182216 23.8464L8.60527e-07 12.0945C-0.000955249 9.58948 0.794843 7.14804 2.27406 5.1179C3.75329 3.08776 5.84047 1.57247 8.23836 0.787873C10.6362 0.00327134 13.2225 -0.0106349 15.6289 0.748133C17.1077 1.21445 18.4722 1.95799 19.6529 2.92941C20.6367 3.73883 22.2662 3.53056 22.76 2.36103L23.7191 0.0889832C23.7616 -0.0115574 23.8965 -0.0313913 23.9665 0.0526177C23.9882 0.0786029 24 0.111263 24 0.144981ZM12 20.3417C16.6025 20.3417 20.3336 16.6028 20.3336 11.9906C20.3336 7.37848 16.6025 3.6396 12 3.6396C7.39747 3.6396 3.66642 7.37848 3.66642 11.9906C3.66642 16.6028 7.39747 20.3417 12 20.3417ZM11.8591 15.6001C13.8473 15.6001 15.4591 13.9883 15.4591 12.0001C15.4591 10.0118 13.8473 8.40002 11.8591 8.40002C9.87085 8.40002 8.25908 10.0118 8.25908 12.0001C8.25908 13.9883 9.87085 15.6001 11.8591 15.6001Z" fill="#151718" fill-rule="evenodd"></path>
+<path d="M42.4598 17.1338H41.6302C40.7145 17.1338 39.9076 17.0296 39.2095 16.821C38.5114 16.6125 37.9629 16.3541 37.5639 16.0459C37.1741 15.7285 36.8522 15.3568 36.5984 14.9307C36.3536 14.4955 36.1904 14.0966 36.1088 13.7339C36.0363 13.3622 36 12.9769 36 12.578C36 12.4769 36.0834 12.3958 36.1844 12.3985L39.6185 12.4916C39.719 12.4943 39.8013 12.5717 39.8154 12.6713C39.9639 13.7152 40.4686 14.2371 42.0246 14.2371H42.1334C42.9131 14.2371 43.4797 14.0331 43.8333 13.6251C44.196 13.2172 44.3773 12.6641 44.3773 11.966V7.06618C44.3773 6.95572 44.4668 6.86618 44.5773 6.86618H48.0396C48.15 6.86618 48.2396 6.95572 48.2396 7.06618V12.0476C48.2396 12.3831 48.2214 12.7004 48.1852 12.9996C48.1489 13.2988 48.0764 13.6251 47.9676 13.9787C47.8588 14.3233 47.7183 14.6451 47.546 14.9443C47.3737 15.2344 47.138 15.52 46.8388 15.8011C46.5396 16.0731 46.1906 16.3042 45.7917 16.4946C45.4018 16.685 44.9213 16.8392 44.3501 16.957C43.7789 17.0749 43.1488 17.1338 42.4598 17.1338Z" fill="#151718"></path>
+<path d="M59.8992 14.0243C59.8992 14.9815 59.3122 16.6917 54.8325 16.6917H54.1561C49.9444 16.6917 49.051 14.7645 49.051 13.1565V12.9012C49.051 11.3059 49.8678 9.44254 54.1178 9.44254H54.8197C59.2994 9.44254 59.9248 11.5356 59.9248 13.182V13.5149C59.9248 13.5425 59.9024 13.5649 59.8748 13.5649H52.5175C52.4867 13.5649 52.4631 13.5925 52.4692 13.6228C52.6052 14.2974 53.1739 14.8284 54.539 14.8284H54.5517C55.7329 14.8284 56.198 14.4868 56.376 14.2324C56.4609 14.1111 56.5882 13.9988 56.7362 13.9988H59.8737C59.8878 13.9988 59.8992 14.0102 59.8992 14.0243ZM54.4751 11.1272C53.206 11.1272 52.6982 11.5198 52.5153 12.0982C52.5054 12.1296 52.5293 12.161 52.5623 12.161H56.3924C56.4239 12.161 56.4476 12.1321 56.44 12.1014C56.2904 11.4983 55.736 11.1272 54.4751 11.1272Z" fill="#151718"></path>
+<path d="M70.5177 14.3306C70.5177 15.5813 69.803 16.6917 65.7828 16.6917H65.0808C60.9457 16.6917 60.499 15.1474 60.499 14.254C60.499 14.2047 60.539 14.1647 60.5884 14.1647H63.9866C64.0133 14.1647 64.0351 14.1855 64.0374 14.2121C64.0621 14.4948 64.2216 15.007 65.4509 15.007H65.4765C66.7017 15.007 66.8931 14.7263 66.8931 14.4327V14.4072C66.8931 14.0754 66.7144 13.8712 65.5786 13.8456L64.1236 13.8073C61.2393 13.718 60.5756 12.6715 60.5756 11.6505V11.5739C60.5756 10.4508 61.2903 9.44254 65.0808 9.44254H65.7572C69.4456 9.44254 70.2624 10.4763 70.2624 11.5739V11.6132C70.2624 11.6408 70.2401 11.6632 70.2124 11.6632H66.791C66.7655 11.4335 66.6506 11.0251 65.4126 11.0251H65.3999C64.2768 11.0251 64.0598 11.191 64.0598 11.4973V11.5101C64.0598 11.7909 64.2768 11.9823 65.3361 12.0206L66.7782 12.0589C69.8796 12.1482 70.5177 12.8884 70.5177 14.2413V14.3306Z" fill="#151718"></path>
+<path d="M76.9496 16.5003H74.0143C72.8273 16.5003 72.1892 15.8494 72.1892 14.5476V11.7898C72.1892 11.7622 72.1668 11.7398 72.1392 11.7398H70.9247C70.897 11.7398 70.8746 11.7174 70.8746 11.6898V9.68397C70.8746 9.65636 70.897 9.63397 70.9247 9.63397H72.1392C72.1668 9.63397 72.1892 9.61159 72.1892 9.58397V7.68024C72.1892 7.65263 72.2116 7.63025 72.2392 7.63025H75.5851C75.6127 7.63025 75.6351 7.65263 75.6351 7.68024V9.58397C75.6351 9.61159 75.6575 9.63397 75.6851 9.63397H76.8997C76.9273 9.63397 76.9496 9.65636 76.9496 9.68397V11.7398H75.6851C75.6575 11.7398 75.6351 11.7622 75.6351 11.7898V13.7691C75.6351 14.1902 75.7117 14.3689 76.2094 14.3689H76.9496V16.5003Z" fill="#151718"></path>
+<path d="M88.4858 14.0243C88.4858 14.9815 87.8988 16.6917 83.4191 16.6917H82.7427C78.531 16.6917 77.6376 14.7645 77.6376 13.1565V12.9012C77.6376 11.3059 78.4544 9.44254 82.7044 9.44254H83.4063C87.886 9.44254 88.5114 11.5356 88.5114 13.182V13.5149C88.5114 13.5425 88.489 13.5649 88.4614 13.5649H81.1041C81.0733 13.5649 81.0497 13.5925 81.0558 13.6228C81.1918 14.2974 81.7605 14.8284 83.1255 14.8284H83.1383C84.3195 14.8284 84.7846 14.4868 84.9626 14.2324C85.0475 14.1111 85.1748 13.9988 85.3228 13.9988H88.4603C88.4744 13.9988 88.4858 14.0102 88.4858 14.0243ZM83.0617 11.1272C81.7926 11.1272 81.2848 11.5198 81.1019 12.0982C81.092 12.1296 81.1159 12.161 81.1489 12.161H84.979C85.0105 12.161 85.0342 12.1321 85.0266 12.1014C84.877 11.4983 84.3226 11.1272 83.0617 11.1272Z" fill="#151718"></path>
+<path d="M89.3136 7.11035C89.2866 7.11035 89.2645 7.13175 89.2636 7.15872L89.2032 9.00803C89.2023 9.03626 89.225 9.05966 89.2532 9.05966H92.623C92.6506 9.05966 92.673 9.03727 92.673 9.00966V7.16035C92.673 7.13273 92.6506 7.11035 92.623 7.11035H89.3136ZM92.623 9.63397C92.6506 9.63397 92.673 9.65636 92.673 9.68397V16.5003H89.2016V9.68397C89.2016 9.65636 89.2239 9.63397 89.2516 9.63397H92.623Z" fill="#151718"></path>
+<path d="M105.594 13.6806H101.355C101.328 13.6806 101.305 13.703 101.305 13.7306V16.4884H97.6809V7.22417C97.6809 7.11371 97.7705 7.02417 97.8809 7.02417H105.594C109.091 7.02417 110.099 8.55006 110.099 10.2985V10.5027C110.099 12.2257 109.065 13.6806 105.594 13.6806ZM101.355 9.53278C101.328 9.53278 101.305 9.55516 101.305 9.58278V11.2568C101.305 11.2844 101.328 11.3068 101.355 11.3068H105.16C105.989 11.3068 106.359 10.9622 106.359 10.4389V10.4006C106.359 9.86461 106.002 9.53278 105.16 9.53278H101.355Z" fill="#151718"></path>
+<path d="M116.494 16.8457C120.897 16.8457 121.701 14.7654 121.701 13.285V13.0808C121.701 11.6258 120.91 9.59659 116.506 9.59659H115.536C110.967 9.59659 110.355 11.6386 110.355 13.068V13.2977C110.355 14.7527 110.929 16.8457 115.549 16.8457H116.494ZM116.021 11.5365C117.732 11.5365 118.178 12.3916 118.178 13.1446V13.1956C118.178 13.9359 117.744 14.8931 116.021 14.8931H116.009C114.299 14.8931 113.865 13.9231 113.865 13.1956V13.1446C113.865 12.4044 114.311 11.5365 116.009 11.5365H116.021Z" fill="#151718"></path>
+<path d="M128.502 16.8457C132.905 16.8457 133.709 14.7654 133.709 13.285V13.0808C133.709 11.6258 132.918 9.59659 128.515 9.59659H127.545C122.976 9.59659 122.363 11.6386 122.363 13.068V13.2977C122.363 14.7527 122.938 16.8457 127.558 16.8457H128.502ZM128.03 11.5365C129.74 11.5365 130.187 12.3916 130.187 13.1446V13.1956C130.187 13.9359 129.753 14.8931 128.03 14.8931H128.017C126.307 14.8931 125.873 13.9231 125.873 13.1956V13.1446C125.873 12.4044 126.32 11.5365 128.017 11.5365H128.03Z" fill="#151718"></path>
+<path d="M137.886 6.91503C137.913 6.91503 137.936 6.93742 137.936 6.96503V16.6543H134.464V6.96503C134.464 6.93742 134.486 6.91503 134.514 6.91503H137.886Z" fill="#151718"></path>
+</svg>
+</div>
+</div>
+<h1>
+     Редполитика Jestei Pool
+    </h1>
+</header>
+<section aria-labelledby="contents-title" class="document-toc" id="contents">
+<h2 class="document-toc__title" id="contents-title">Содержание</h2>
+<ol class="document-toc__list" data-document-toc=""></ol>
+</section>
+<section class="chapter" id="chapter-1">
+<h2>
+     1. О нас
+    </h2>
+<p>
+<strong>
+      Jestei Pool [Джéсти пул]
+     </strong>
+     — музыкальный сервис для диджеев с доступом к трекам, ремиксам, плейлистам, рейтингам, чартам и авторским эдитам по подпискам.
+    </p>
+<h3 id="зачем-диджеям-подписка-на-пул">
+     Зачем диджеям подписка на пул?
+    </h3>
+<p>
+<strong>
+      Готовиться к сетам с подпиской быстрее и проще.
+     </strong>
+</p>
+<p>
+     Без нас диджей будет собирать треки сам: лазать по чартам и искать новые релизы, разбираться, что сейчас в тренде, скачивать треки из разных мест, не всегда в хорошем качестве, составлять плейлисты с нуля или нелегально использовать чужие. Мы собираем треки, ремиксы, плейлисты и рейтинги в одном месте, и диджею проще подготовиться к выступлению. А если диджей не подкован технически, у нас есть удобные подготовленные для сведения интро- и аутро-версии треков.
+    </p>
+</section>
+<section class="chapter" id="chapter-2">
+<h2>
+     2. Что у нас на сайте
+    </h2>
+<h3 id="лента-треков-бывш-record-pool">
+     Лента треков — бывш. Record Pool
+    </h3>
+<p>
+     Лента новинок обновляется каждый рабочий день. В ней появляются новые танцевальные релизы, ремиксы и эдиты. Для удобного и быстрого поиска в Ленте есть фильтр с двумя уровнями: базовым и продвинутым.
+    </p>
+<p>
+     Лента треков — ежедневный поток актуальных новинок и танцевального материала. Она не заменяет весь каталог сайта: часть треков доступна только внутри плейлистов, миксов, эксклюзивных эдитов или раздела «Ивент».
+    </p>
+<p>
+     В Ленту отбираем несколько основных типов материала: новинки электронной музыки, новинки поп-музыки, хип-хоп, ремиксы и эдиты, вирусные хиты из соцсетей и русскую музыку. Эти категории помогают редакции понимать, какой материал попадает в публикацию, но в интерфейсе пользователь чаще видит жанры, теги, лейблы и другие параметры поиска.
+    </p>
+<p>
+     В текстах про Ленту важно не обещать «всю музыку» или «все новинки». Лента — это не полный архив, а рабочий поток свежих и полезных треков для диджея. Если нужно объяснить ценность раздела, говорим о регулярности обновлений, селекции, удобном поиске, интро- и аутро-версиях, ремиксах, эдитах и возможности быстрее подготовиться к сету.
+    </p><div class="note source-addition"><ul><li><a href="https://jesteipool.ru/" rel="noreferrer" target="_blank">Лента треков на главной</a></li><li><a href="https://jesteipool.ru/images/new-landing/info-render.png" rel="noreferrer" target="_blank">Визуал интерфейса</a></li><li><a href="https://jesteipool.ru/home" rel="noreferrer" target="_blank">Главная авторизованного продукта</a></li><li><a href="https://jesteipool.ru/images/New_tracks.png" rel="noreferrer" target="_blank">Изображение блока</a></li></ul></div>
+<h3 id="леиблы-треков">
+     Лейблы треков
+    </h3>
+<p>
+     Лейбл трека показывает, к какому разделу относится материал и какой доступ нужен для прослушивания или скачивания. Лейбл помогает не путать тип контента, тариф и место трека внутри сервиса.
+    </p>
+<p>
+     На сайте используются следующие лейблы:
+    </p>
+<div aria-label="Таблица: Лейблы треков" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Лейбл
+       </th>
+<th scope="col">
+        Что означает
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Бесплатный
+       </td>
+<td>
+        Трек доступен после регистрации без платной подписки
+       </td>
+</tr>
+<tr>
+<td>
+        Jestei Pool
+       </td>
+<td>
+        Трек из Ленты, доступен на платных тарифах
+       </td>
+</tr>
+<tr>
+<td>
+        Эксклюзив
+       </td>
+<td>
+        Эксклюзивный материал, доступен на тарифах ПРО и Ивент
+       </td>
+</tr>
+<tr>
+<td>
+        Миксы
+       </td>
+<td>
+        Треки из раздела «Миксы», доступны начиная с ПРО
+       </td>
+</tr>
+<tr>
+<td>
+        Ивент
+       </td>
+<td>
+        Материал из раздела «Ивент», доступен на тарифе Ивент
+       </td>
+</tr>
+</tbody>
+</table></div>
+<p>
+     В интерфейсных текстах лейбл нужно объяснять коротко и буквально: что это за материал, где он находится и какой доступ нужен. Не нужно превращать подсказку к лейблу в рекламу тарифа.
+    </p>
+<h3 id="плеилисты-динамика-и-эксклюзивы">
+     Плейлисты, динамика и эксклюзивы
+    </h3>
+<h4 id="плеилисты">
+     Плейлисты
+    </h4>
+<p>
+     Подборки от гостевых модераторов и администраторов сайта. Основные типы плейлистов:
+    </p>
+<ul>
+<li>
+      динамические плейлисты — алгоритмические подборки с треками, которые пользователь ещё не прослушивал на сайте; обновляются автоматически и всегда предлагают свежий материал;
+     </li>
+<li>
+      по жанрам и направлениям: афро-хаус, драм-н-бейс;
+     </li>
+<li>
+      по чартам: топы соцсетей, топы стримингов, топ Jestei Pool за месяц;
+     </li>
+<li>
+      по эпохам: хиты 80-х;
+     </li>
+<li>
+      по географии: «Мировые новинки», «Русские новинки»;
+     </li>
+<li>
+      тематические и авторские плейлисты: «Музыка для летников», «РАШН СТАИЛ».
+     </li>
+</ul>
+<p>
+     Плейлисты — специальные подборки треков. На сайте есть редакционные, авторские и динамические плейлисты.
+    </p>
+<p>
+     Редакционные плейлисты составляет команда сайта. Они могут быть жанровыми, тематическими, календарными или связанными с актуальными релизами. Авторские плейлисты собирают приглашённые кураторы, редакторы, диджеи или инфлюенсеры. Динамические плейлисты формируются алгоритмически и показывают пользователю материал, который он ещё не слушал.
+    </p>
+<p>
+     В описаниях плейлистов не нужно писать общие фразы вроде «отличная подборка для любого случая». Описание должно объяснять, что внутри, для какого сценария подходит плейлист и как диджей может использовать его в работе.
+    </p><div class="note source-addition"><ul><li><a href="https://jesteipool.ru/" rel="noreferrer" target="_blank">Карточки продукта на главной</a></li><li><a href="https://jesteipool.ru/images/new-landing/info-render-cards.png" rel="noreferrer" target="_blank">Визуал карточек</a></li></ul></div>
+<h4 id="динамические-плеилисты">
+     Динамические плейлисты
+    </h4>
+<p>
+     Динамические плейлисты — автоматически формируемые подборки треков, которые пользователь ещё не слушал на платформе. Алгоритм собирает релевантный материал из Ленты и плейлистов, исключая уже прослушанные композиции.
+    </p>
+<p>
+     Каждый динамический плейлист содержит ограниченную подборку треков и обновляется по действию пользователя. Если пользователь генерирует новую версию, прежний набор может измениться. Поэтому в текстах про динамические плейлисты важно объяснять не только пользу, но и механику: это не статичный плейлист, а обновляемая подборка.
+    </p>
+<p>
+     Динамические плейлисты описываем как инструмент для быстрого поиска пропущенного материала. Не называем их «магической рекомендацией» и не обещаем идеальное попадание во вкус. Основная ценность — экономия времени и доступ к большому объёму треков без ручной прокрутки каталога.
+    </p><div class="note source-addition"><ul><li><a href="https://jesteipool.ru/playlists/dinamicheskie-pleylisty?tab=russkie-khity" rel="noreferrer" target="_blank">«Русские Хиты»</a></li><li><a href="https://jesteipool.ru/playlists/dinamicheskie-pleylisty?tab=remiksy" rel="noreferrer" target="_blank">«Ремиксы»</a></li></ul></div>
+<h4 id="эксклюзивные-эдиты-бывш-exclusive-edits">
+     Эксклюзивные эдиты — бывш. Exclusive Edits
+    </h4>
+<p>
+     Мы публикуем несколько типов уникального контента:
+    </p>
+<ul>
+<li>
+      треки и паки, которые внешние продюсеры делают специально для пула. В течение первых двух месяцев их не найти нигде, кроме Jestei Pool;
+     </li>
+<li>
+      Jestei Edits — эдиты от команды пула. Ими мы закрываем дыры в каталоге и реагируем на прямой запрос аудитории;
+     </li>
+<li>
+      интро и аутро, транзишны и расширенные версии треков — это треки, которые мы форматируем вручную каждую неделю. Такие треки уже готовы к сведению, то есть диджею не нужно проделывать дополнительную работу.
+     </li>
+</ul>
+<p>
+     Эксклюзивные эдиты — раздел с материалом, который ограниченное время доступен только на Jestei Pool. В разделе могут быть эксклюзивные паки эдиторов и одиночные гостевые треки.
+    </p>
+<p>
+     Когда пишем про эксклюзивы, важно уточнять не только уникальность, но и тип материала. Эксклюзивный пак, одиночный гест-трек и эдит Jestei Pool — разные сущности. Их нельзя смешивать в одном описании, если речь идёт о конкретном релизе.
+    </p>
+<p>
+     В текстах избегаем формулировок вроде «такого нет нигде в мире», если это не подтверждено условиями публикации. Пишем точнее: «материал доступен только на Jestei Pool в течение ограниченного срока» или «эдит подготовлен специально для каталога Jestei Pool».
+    </p>
+<h3 id="миксы-ивент-и-сервисные-разделы">
+     Миксы, Ивент и сервисные разделы
+    </h3>
+<h4 id="миксы">
+     Миксы
+    </h4>
+<p>
+     Гостевые миксы от админов и приглашённых эдиторов.
+    </p>
+<p>
+     Миксы — подборки в формате готового музыкального потока. Они могут быть гостевыми, базовыми или записанными известными артистами для платформы.
+    </p>
+<p>
+     Миксы не нужно описывать как полноценную замену плейлистам. Их задача другая: дать пользователю готовую музыкальную последовательность, которую можно включить перед выступлением, днём, в дороге или использовать как источник треков.
+    </p>
+<p>
+     Если у микса есть треклист, это нужно учитывать в описании: пользователь может слушать микс целиком или скачивать отдельные треки из него.
+    </p>
+<h4 id="ивент-бывш-event">
+     Ивент — бывш. Event
+    </h4>
+<p>
+     Плейлисты и подборки для работы на мероприятиях: свадьбах, корпоративах и частных праздниках.
+    </p>
+<p>
+     Ивент — раздел для ивент-диджеев. Он помогает быстро готовиться к мероприятиям: свадьбам, корпоративам, частным праздникам, спортивным событиям, выпускным, тематическим вечеринкам и календарным поводам.
+    </p>
+<p>
+     Контент в Ивенте организован не только по жанрам, а по сценариям и этапам мероприятия. Внутри раздела есть папки, подпапки, плейлисты и вкладки. Папка собирает музыку по типу события или теме, плейлист — по конкретному сценарию, вкладка — по этапу внутри плейлиста.
+    </p>
+<p>
+     В описаниях Ивента нельзя ограничиваться словами «подборка для мероприятия». Нужно объяснять сценарий: где это используется, на каком этапе, какую задачу решает для диджея. Например: встреча гостей, церемония, банкет, выход ведущего, фоновая музыка, отбивка, дискотека, завершение события.
+    </p>
+<p>
+     Ивент может включать музыку для свадеб, деловых мероприятий, дней рождения, новогодних мероприятий, спортивных событий, календарных праздников, вечеринок, видео, музыки народов мира и готовых сценариев под ключ. Если описываем конкретную папку, не пересказываем весь раздел. Говорим, для какого мероприятия она нужна и какую часть подготовки закрывает.
+    </p><div class="note source-addition"><ul><li><a href="https://jesteipool.ru/event_landing" rel="noreferrer" target="_blank">Лендинг Ивента</a></li></ul></div>
+<h4 id="артисты">
+     Артисты
+    </h4>
+<p>
+     Раздел «Артисты» помогает пользователю быстро находить музыку любимых исполнителей и следить за новыми релизами. Карточка артиста собирает треки исполнителя в одном месте и связывает раздел с таблицами треков, плейлистами и персональными обновлениями.
+    </p>
+<p>
+     Если пользователь подписывается на артиста, новые треки этого артиста попадают в «Мои новинки». Поэтому в текстах про артистов важно говорить не только о каталоге, но и о подписке как о способе следить за обновлениями.
+    </p><div class="note source-addition"><ul><li><a href="https://jesteipool.ru/artists/travis-scott" rel="noreferrer" target="_blank">Travis Scott</a></li></ul></div>
+<h4 id="библиотека">
+     Библиотека
+    </h4>
+<p>
+     Библиотека — личный раздел пользователя. В ней находятся избранные треки и история скачиваний.
+    </p>
+<p>
+     Избранные треки формируются из материалов, которые пользователь отметил сердцем. Они группируются по дате добавления в избранное, а не по дате публикации трека. История показывает, какие треки пользователь скачивал и откуда он их открыл.
+    </p>
+<p>
+     В текстах про Библиотеку нужно избегать абстрактного «сохраняйте любимое». Лучше писать предметно: «добавляйте треки в избранное», «возвращайтесь к скачанному», «собирайте материал по датам».
+    </p>
+<h4 id="персональные-блоки">
+     Персональные блоки
+    </h4>
+<p>
+     На главной странице могут появляться персональные блоки: «Мои новинки», «Недавно обновлено», «Артисты и подборки», «Эксклюзивные треки».
+    </p>
+<p>
+     «Мои новинки» показывают обновления от артистов и плейлистов, на которые подписан пользователь. «Недавно обновлено» показывает актуализированные плейлисты из каталога, независимо от подписок. «Артисты и подборки» помогает найти исполнителей, на которых пользователь ещё не подписан. «Эксклюзивные треки» показывает карточки эдиторов с недавно опубликованным эксклюзивным материалом.
+    </p>
+<p>
+     В интерфейсных текстах эти блоки нужно различать. «Мои новинки» — это персональная лента по подпискам. «Недавно обновлено» — общая витрина обновлённых плейлистов. «Эксклюзивные треки» — не просто новые треки, а отдельный тип материала с ограниченным доступом.
+    </p>
+<h4 id="поиск-и-фильтр">
+     Поиск и фильтр
+    </h4>
+<p>
+     Поиск помогает быстро находить артистов и треки. Фильтр помогает уточнять выдачу по параметрам: жанрам, тегам, BPM, тональности, рейтингу, типу трека и части ночи.
+    </p>
+<p>
+     Если пишем про фильтр, не нужно описывать его как «умный поиск всего». Фильтр — это инструмент для сужения ленты и каталога по заданным свойствам. Он помогает быстрее найти материал под сет, аудиторию, темп, жанр или момент вечера.
+    </p>
+<div class="note">
+<p>
+      Более подробно о содержании сайта.
+     </p>
+</div>
+</section>
+<section class="chapter" id="chapter-3">
+<h2>
+     3. Что у нас в соцсетях
+    </h2>
+<p>
+     В соцсетях мы рассказываем диджеям о ценности Jestei Pool, повышаем узнаваемость бренда и растим лояльность аудитории.
+    </p>
+<p>
+     Задача: убедить диджея оформить подписку через рассказ о ценности продукта. Для этого мы рассказываем, в чём польза пула для диджея и как пользоваться сервисом.
+    </p>
+<p>
+     Кроме продуктовой коммуникации мы создаём развлекательный контент: составляем полезные подборки и обзоры про диджеинг, делимся новостями, рассказываем о диджеях, даём советы новичкам и шутим.
+    </p>
+<h3 id="с-кем-мы-разговариваем">
+     С кем мы разговариваем
+    </h3>
+<p>
+     С коммерческими диджеями и теми, кому диджеинг интересен. Наш подписчик выступает или хочет выступать.
+    </p>
+<h4 id="клубныи-диджеи">
+     Клубный диджей
+    </h4>
+<p>
+     Он зарабатывает тем, что играет по несколько сетов на выходных, а может, гастролирует. В основном он работает в пятницу и выходные ночью. В будущем он хочет стать успешным электронным музыкантом, организатором вечеринок, арт-директором клуба или может учить других диджеингу.
+    </p>
+<p>
+     Он мог бы зайти в любой чарт, найти там самое популярное и скачать на стороннем ресурсе, но он выбирает нас из-за удобства сервиса, постоянных обновлений и готовых подборок.
+    </p>
+<h4 id="ивент-диджеи">
+     Ивент-диджей
+    </h4>
+<p>
+     Они играют на частных мероприятиях, свадьбах и корпоративах. Тщательно готовятся к каждому ивенту и плотно работают с заказчиком. К ивенту готовиться сложнее, поэтому мы нужны для того, чтобы они могли быстро получить материал, не погружаясь в контекст слишком глубоко.
+    </p>
+<p>
+     Такие диджеи особенно нуждаются в тематическом контенте — например, в национальной музыке или музыке для стилизованной вечеринки.
+    </p>
+<div class="note source-addition"><ul><li><a href="https://t.me/s/jesteipool?before=8609" rel="noreferrer" target="_blank">«ТОП 5 РУССКИХ ТРЕКОВ ОТ JESTEI POOL ЗА НЕДЕЛЮ»</a></li><li><a href="https://t.me/s/jesteipool" rel="noreferrer" target="_blank">Обновление «Свадьба 360»</a></li><li><a href="https://t.me/s/jesteipool" rel="noreferrer" target="_blank">«ТРЕКИ ЗА НЕДЕЛЮ НА КОТОРЫЕ СТОИТ ОБРАТИТЬ ВНИМАНИЕ»</a></li></ul></div></section>
+<section class="chapter" id="chapter-4">
+<h2>
+     4. Как мы пишем
+    </h2>
+<h3 id="честно">
+     Честно
+    </h3>
+<p>
+     Мы говорим честно. Мы не приукрашиваем, а показываем как есть.
+    </p>
+<p>
+     Мы не пишем тексты о том, в чём мы не разбираемся и чего не испытывали сами.
+    </p>
+<p>
+     Если автор текста не играл на свадьбах, он не пишет о свадьбах. Если автор даёт советы диджеям, то он сам им следует.
+    </p>
+<p>
+     Если текст с ответом на вопрос, то этот вопрос кто-то должен был задать.
+    </p>
+<p>
+     Если мы хотим рассказать о чём-то общеизвестном, мы обязательно добавляем в текст что-то интересное и новое.
+    </p>
+<p>
+     Мы прожили то, о чём пишем, поэтому можем об этом рассуждать.
+    </p>
+<p>
+     Мы не пытаемся казаться серьёзнее, чем мы есть.
+    </p>
+<p>
+     Мы не строим из себя умников, но дураками тоже не прикидываемся.
+    </p>
+<p>
+     Мы не говорим о простом как о сложном.
+    </p>
+<p>
+     И не говорим о сложном как о простом.
+    </p>
+<p>
+     Если мы делаем обзор, мы должны знать, о чём пишем. Когда мы описываем новый плейлист, мы прослушиваем этот плейлист и рассказываем, что внутри.
+    </p>
+<h3 id="понятно">
+     Понятно
+    </h3>
+<p>
+     Живым простым языком — как будто рассказываем что-то другу.
+    </p>
+<p>
+     Если не можем прочесть текст вслух, мы его сокращаем.
+    </p>
+<p>
+     Если не можем сократить текст, мы делим его на части.
+    </p>
+<p>
+     Если текст тяжело читать, мы упрощаем его. Если его нельзя упростить, мы его не используем.
+    </p>
+<p>
+     Если абзац можно сократить до одного предложения, мы пишем одно предложение.
+    </p>
+<p>
+     Если текст можно превратить в картинку, мы превращаем его в картинку.
+    </p>
+<p>
+     Если текст можно заменить на скриншот — выбираем скриншот.
+    </p>
+<p>
+     Если главная мысль помещается на обложке — она идёт на обложку.
+    </p>
+<p>
+     Если фотография не иллюстрирует текст, мы её убираем.
+    </p>
+<h3 id="адресно">
+     Адресно
+    </h3>
+<p>
+     Если мы рассказываем о чём-то, мы сразу говорим, для кого это.
+    </p>
+<h3 id="полезно-для-диджея-и-для-бренда">
+     Полезно — для диджея и для бренда
+    </h3>
+<p>
+     Каждый пост помогает диджею подготовиться к выступлению и почувствовать себя частью профессионального сообщества.
+    </p>
+<p>
+     То, что мы делаем, пропитано пользой. Любой наш текст ощутимо помогает читателю. Рассуждения ради рассуждений — это не про нас.
+    </p>
+<p>
+     Создавая пост, мы отвечаем на два вопроса: «Как это раскрывает ценность нашего продукта?» и «Как жизнь читателя улучшится после прочтения?». Если ответы не очевидны или есть противоречия, то посту не бывать.
+    </p>
+<p>
+     Если пост бесполезен, мы его отменяем.
+    </p>
+<h3 id="структура-уважение-и-продукт">
+     Структура, уважение и продукт
+    </h3>
+<h4 id="уважительно">
+     Уважительно
+    </h4>
+<p>
+     Мы уважаем читателя.
+    </p>
+<p>
+     Мы обращаемся к читателю невзначай и на равных, но без лишнего панибратства. Это значит, что мы можем обратиться к читателю и «на вы», и «на ты», но не напишем «Вы» с большой буквы.
+    </p>
+<p>
+     Мы пишем для тех, кого считаем равными себе — по уму, опыту, социальному статусу.
+    </p>
+<p>
+     Мы не пишем «для тупых».
+    </p>
+<p>
+     Мы не снисходим до читателей и не относимся к читателю с обожанием.
+    </p>
+<p>
+     Мы не шутим оскорбительно, грубо или жестоко. От мата лучше отказаться.
+    </p>
+<p>
+     Мы не насмехаемся над другими и не издеваемся над аудиторией.
+    </p>
+<p>
+     Мы не используем фотографии, на которые у нас нет прав. Вместо этого делаем рисунок или генерацию.
+    </p>
+<h4 id="структурно">
+     Структурно
+    </h4>
+<p>
+     Не публикуем поток мысли — это когда мысли идут в свободном порядке, перетекая друг в друга.
+    </p>
+<p>
+     Несколько мыслей группируем, даём заголовки и пишем по порядку.
+    </p>
+<p>
+     Одна мысль — один абзац, слайд или сторис.
+    </p>
+<div aria-label="Таблица: Структурно" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Поток мысли
+       </th>
+<th scope="col">
+        Структура
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Мысли идут подряд в том порядке, в котором пришли в голову
+       </td>
+<td>
+        Мысли сгруппированы по смыслу
+       </td>
+</tr>
+<tr>
+<td>
+        Один абзац пытается сказать всё сразу
+       </td>
+<td>
+        Один абзац раскрывает одну мысль
+       </td>
+</tr>
+<tr>
+<td>
+        Читатель сам ищет главную идею
+       </td>
+<td>
+        Главная идея видна сразу
+       </td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="о-продуктовых-ограничениях">
+     О продуктовых ограничениях
+    </h4>
+<p>
+     Когда пишем для интерфейса, учитываем не только смысл, но и место текста в продукте. Один и тот же текст может по-разному работать в описании раздела, карточке, тултипе, вкладке или шапке страницы.
+    </p>
+<p>
+     Заголовок должен быть коротким и узнаваемым. Описание должно объяснять задачу. Тултип должен раскрывать сокращённый текст, а не добавлять новый смысл. Полное описание внутри страницы должно давать контекст, но не превращаться в статью.
+    </p>
+<p>
+     Если текст не помещается в ограничение, его нужно не просто обрезать, а переписать. Обрезка допустима как техническое поведение интерфейса, но редакционный текст должен быть понятным в полном и сокращённом виде.
+    </p>
+<h4 id="о-сценариях">
+     О сценариях
+    </h4>
+<p>
+     Мы описываем не абстрактный контент, а сценарии работы диджея. В Ивенте особенно важно писать через задачу: не «музыка для свадьбы», а «музыка для церемонии», «фон для встречи гостей», «отбивки для ведущего», «дискотечный блок».
+    </p>
+<p>
+     В плейлистах пишем через состав и пользу: какие треки внутри, кто их собрал, как часто обновляется подборка, в каком сете или ситуации её использовать.
+    </p>
+</section>
+<section class="chapter" id="chapter-5">
+<h2>
+     5. Как мы не пишем
+    </h2>
+<ul>
+<li>
+      Банально.
+     </li>
+<li>
+      Высокомерно.
+     </li>
+<li>
+      Занудно.
+     </li>
+<li>
+      Нравоучительно.
+     </li>
+<li>
+      Назидательно.
+     </li>
+<li>
+      Заумно.
+     </li>
+<li>
+      Грубо.
+     </li>
+<li>
+      Никакой текст не может быть написан исходя из того, что читатель глупый, неопытный или ленивый.
+     </li>
+<li>
+      Если мы пишем о проблемах и пороках, мы исходим из того, что сами тоже не безгрешны и склонны совершать ошибки.
+     </li>
+<li>
+      Мы не берём интервью у неинтересных людей и не спрашиваем банальности. Мы берём интервью и мнения у колоритных и интересных персонажей.
+     </li>
+<li>
+      Мы не высасываем тексты из пальца — если сказать не о чем, лучше промолчать. А ещё лучше придумать интересную цепляющую тему и раскрыть её бодро и с пользой для читателя и бренда.
+     </li>
+<li>
+      Мы не используем тяжёлый чиновничий язык и не пытаемся казаться умнее и серьёзнее. См. «Стоп-слова».
+     </li>
+<li>
+      Не обещаем «всё», если раздел содержит только часть каталога.
+     </li>
+<li>
+      Не смешиваем лейбл, тариф и раздел сайта в одно понятие.
+     </li>
+<li>
+      Не называем динамический плейлист обычной подборкой без объяснения механики.
+     </li>
+<li>
+      Не пишем «для любого случая», если у материала есть конкретный сценарий.
+     </li>
+<li>
+      Не используем рекламные формулы вместо продуктового описания.
+     </li>
+<li>
+      Не скрываем ограничения интерфейса за красивыми словами.
+     </li>
+<li>
+      Не дублируем название группы в описании группы.
+     </li>
+<li>
+      Не пишем текст карточки так, будто пользователь уже знает контекст.
+     </li>
+</ul>
+</section>
+<section class="chapter" id="chapter-6">
+<h2>
+     6. Габариты текста
+    </h2>
+<h3 id="xl-перегруженныи-материал">
+     XL — перегруженный материал
+    </h3>
+<div class="note note--danger">
+<p>
+      Тексты, которые длиннее 7400 символов или в которых больше 10 фотографий или видео, для нас слишком длинные.
+     </p>
+<p>
+      Мы не публикуем такие материалы целиком, поэтому автору нужно разделить материал на части или сократить. После этого мы опубликуем его в разных соцсетях либо превратим в серию из нескольких постов. При этом важно не обрывать пост посередине с обещанием продолжения через месяц.
+     </p>
+</div>
+<h3 id="s-small">
+     S — Small
+    </h3>
+<div aria-label="Таблица: S — Small" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Требования
+       </th>
+<th scope="col">
+        Описание
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Длина текста
+       </td>
+<td>
+        до 250 символов
+       </td>
+</tr>
+<tr>
+<td>
+        Количество фото или видео
+       </td>
+<td>
+        не больше 1
+       </td>
+</tr>
+</tbody>
+</table></div>
+<div class="comparison-grid">
+<div class="note note--success">
+<p>
+<strong>
+        Подойдёт:
+       </strong>
+</p>
+<ul>
+<li>
+        сторис Telegram;
+       </li>
+<li>
+        сторис Instagram;
+       </li>
+<li>
+        Reels Instagram;
+       </li>
+<li>
+        истории VK;
+       </li>
+<li>
+        пост Instagram без карусели — вся информация будет в описании к посту либо на обложке поста;
+       </li>
+<li>
+        пост Telegram.
+       </li>
+</ul>
+</div>
+<div class="note note--danger">
+<p>
+<strong>
+        Не подойдёт:
+       </strong>
+</p>
+<ul>
+<li>
+        заметки VK;
+       </li>
+<li>
+        блог на сайте.
+       </li>
+</ul>
+</div>
+</div>
+<h3 id="m-medium">
+     M — Medium
+    </h3>
+<div class="note note--success">
+<p>
+<strong>
+       Подойдёт:
+      </strong>
+</p>
+<ul>
+<li>
+       пост Telegram;
+      </li>
+<li>
+       пост Instagram;
+      </li>
+<li>
+       пост VK.
+      </li>
+</ul>
+</div>
+<div aria-label="Таблица: M — Medium" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Требования
+       </th>
+<th scope="col">
+        Описание
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Длина текста
+       </td>
+<td>
+        до 2400 символов
+       </td>
+</tr>
+<tr>
+<td>
+        Подводка
+       </td>
+<td>
+        до 400 символов
+       </td>
+</tr>
+<tr>
+<td>
+        Количество фото или видео
+       </td>
+<td>
+        не больше 7
+       </td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="l-large">
+     L — Large
+    </h3>
+<div aria-label="Таблица: L — Large" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Требования
+       </th>
+<th scope="col">
+        Описание
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Длина текста
+       </td>
+<td>
+        до 7200 символов
+       </td>
+</tr>
+<tr>
+<td>
+        Подводка
+       </td>
+<td>
+        до 800 символов
+       </td>
+</tr>
+<tr>
+<td>
+        Количество фото или видео
+       </td>
+<td>
+        не больше 7
+       </td>
+</tr>
+</tbody>
+</table></div>
+<div class="comparison-grid">
+<div class="note note--success">
+<p>
+<strong>
+        Подойдёт:
+       </strong>
+</p>
+<ul>
+<li>
+        блог на сайте;
+       </li>
+<li>
+        заметка VK;
+       </li>
+<li>
+        пост VK;
+       </li>
+<li>
+        пост Telegram.
+       </li>
+</ul>
+<p>
+       А в остальных соцсетях — ссылки в сторис.
+      </p>
+</div>
+<div class="note note--danger">
+<p>
+<strong>
+        Не подойдёт:
+       </strong>
+</p>
+<ul>
+<li>
+        пост Instagram.
+       </li>
+</ul>
+</div>
+</div>
+<div class="note note--warning">
+<p>
+      Длину текста считаем вместе с пробелами.
+     </p>
+</div>
+</section>
+<section class="chapter" id="chapter-7">
+<h2>
+     7. Габариты интерфейсных текстов
+    </h2>
+<p>
+     Этот раздел фиксирует ограничения по длине текстов для страниц с плейлистами и Ивентом. Ограничения нужны для дизайна, вёрстки и контент-подготовки: один и тот же тип текста должен помещаться в заданный макет и не ломать сетку.
+    </p>
+<p>
+     Ограничение по символам — это не рекомендация писать максимально длинно. Это верхняя граница. Если мысль можно написать короче, пишем короче.
+    </p>
+<p>
+     Тексты интерфейса должны быть понятными без дополнительного контекста. Заголовок объясняет сущность, описание уточняет сценарий, тултип раскрывает сокращённый текст целиком.
+    </p>
+<h3 id="типы-интерфеисных-текстов">
+     Типы интерфейсных текстов
+    </h3>
+<ol>
+<li>
+      Название раздела в шапке.
+     </li>
+<li>
+      Описание раздела в шапке.
+     </li>
+<li>
+      Название группы плейлистов.
+     </li>
+<li>
+      Пояснение к группе плейлистов.
+     </li>
+<li>
+      Заголовок карточки плейлиста.
+     </li>
+<li>
+      Короткое описание в карточке плейлиста.
+     </li>
+<li>
+      Полное описание плейлиста внутри страницы.
+     </li>
+<li>
+      Название вкладки внутри плейлиста.
+     </li>
+<li>
+      Тултип для сокращённого заголовка или описания.
+     </li>
+</ol>
+<div class="note source-addition"><ul><li><a href="https://jesteipool.ru/event/playlist/vypusknoy" rel="noreferrer" target="_blank">«Выпускной»</a></li><li><a href="https://jesteipool.storage.yandexcloud.net/iblock/7c7/7c7575f7ff30d74e9bfe00242863dba9/69ffe3486776d26c09743d800367edbd.png" rel="noreferrer" target="_blank">Изображение</a></li><li><a href="https://jesteipool.ru/playlists/russian?tab=hity-v-intro-versiyah" rel="noreferrer" target="_blank">«Хиты»</a></li><li><a href="https://jesteipool.storage.yandexcloud.net/iblock/9dd/9dd9c9e92988200e9d43debc33f61d2a/3a183dc007543743d016677d51e4d9c1.png" rel="noreferrer" target="_blank">Изображение</a></li><li><a href="https://jesteipool.ru/event/playlist/ochag" rel="noreferrer" target="_blank">«Семейный очаг»</a></li><li><a href="https://jesteipool.ru/event/playlist/tort" rel="noreferrer" target="_blank">«Торт»</a></li></ul></div><h3 id="плеилисты-2">
+     Плейлисты
+    </h3>
+<p>
+     В разделе «Плейлисты» ограничения строже, потому что группы и карточки работают по одному макету. Различия между группами касаются содержания, а не размера текстов.
+    </p>
+<div aria-label="Таблица: Плейлисты" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Сущность
+       </th>
+<th scope="col">
+        Тип текста
+       </th>
+<th scope="col">
+        Максимальная длина
+       </th>
+<th scope="col">
+        Примечание
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Группа плейлистов
+       </td>
+<td>
+        Название группы
+       </td>
+<td>
+        20 символов
+       </td>
+<td>
+        Короткое название группы
+       </td>
+</tr>
+<tr>
+<td>
+        Группа плейлистов
+       </td>
+<td>
+        Описание группы
+       </td>
+<td>
+        85 символов
+       </td>
+<td>
+        Пояснение к группе
+       </td>
+</tr>
+<tr>
+<td>
+        Карточка плейлиста
+       </td>
+<td>
+        Заголовок
+       </td>
+<td>
+        21 символ
+       </td>
+<td>
+        После превышения обрезается
+       </td>
+</tr>
+<tr>
+<td>
+        Карточка плейлиста
+       </td>
+<td>
+        Короткое описание
+       </td>
+<td>
+        70 символов
+       </td>
+<td>
+        До трёх строк
+       </td>
+</tr>
+<tr>
+<td>
+        Карточка плейлиста
+       </td>
+<td>
+        Тултип
+       </td>
+<td>
+        Без ограничения
+       </td>
+<td>
+        Показывает сокращённый текст целиком
+       </td>
+</tr>
+<tr>
+<td>
+        Страница плейлиста
+       </td>
+<td>
+        Полное описание в шапке
+       </td>
+<td>
+        120 символов
+       </td>
+<td>
+        Отображается внутри страницы плейлиста
+       </td>
+</tr>
+</tbody>
+</table></div>
+<p>
+     Если заголовок или описание в карточке обрезается, полный текст должен быть доступен в тултипе. Тултип не заменяет нормальную редактуру: короткий текст всё равно должен быть понятным до наведения.
+    </p>
+<h3 id="ивент-бывш-event-2">
+     Ивент — бывш. Event
+    </h3>
+<p>
+     В Ивенте ограничения могут отличаться между группами, потому что внутри раздела используются разные типы карточек и сценарные макеты. При этом структура описания остаётся единой: группа объясняет категорию, карточка объясняет плейлист, внутренняя страница объясняет сценарий.
+    </p>
+<div aria-label="Таблица: Ивент — бывш. Event" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Область
+       </th>
+<th scope="col">
+        Тип текста
+       </th>
+<th scope="col">
+        Максимальная длина
+       </th>
+<th scope="col">
+        Примечание
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Разводящая страница Ивента
+       </td>
+<td>
+        Приветственный текст в шапке
+       </td>
+<td>
+        150 символов
+       </td>
+<td>
+        Общее описание раздела
+       </td>
+</tr>
+<tr>
+<td>
+        Группа плейлистов
+       </td>
+<td>
+        Название группы
+       </td>
+<td>
+        20 символов
+       </td>
+<td>
+        Для большинства групп
+       </td>
+</tr>
+<tr>
+<td>
+        Группа плейлистов
+       </td>
+<td>
+        Описание группы
+       </td>
+<td>
+        85 символов
+       </td>
+<td>
+        Пояснение к группе
+       </td>
+</tr>
+<tr>
+<td>
+        Карточка «Главное в Ивенте»
+       </td>
+<td>
+        Заголовок
+       </td>
+<td>
+        20 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Главное в Ивенте»
+       </td>
+<td>
+        Короткое описание
+       </td>
+<td>
+        85 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Тематические»
+       </td>
+<td>
+        Заголовок
+       </td>
+<td>
+        20 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Тематические»
+       </td>
+<td>
+        Короткое описание
+       </td>
+<td>
+        85 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Авторские»
+       </td>
+<td>
+        Заголовок
+       </td>
+<td>
+        20 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Авторские»
+       </td>
+<td>
+        Короткое описание
+       </td>
+<td>
+        25 символов
+       </td>
+<td>
+        Для отдельных макетов
+       </td>
+</tr>
+<tr>
+<td>
+        Карточка «Интерактивы»
+       </td>
+<td>
+        Заголовок
+       </td>
+<td>
+        20 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Интерактивы»
+       </td>
+<td>
+        Короткое описание
+       </td>
+<td>
+        85 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Готовимся заранее»
+       </td>
+<td>
+        Заголовок
+       </td>
+<td>
+        20 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Готовимся заранее»
+       </td>
+<td>
+        Короткое описание
+       </td>
+<td>
+        25 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Музыка для видео»
+       </td>
+<td>
+        Заголовок
+       </td>
+<td>
+        20 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Музыка для видео»
+       </td>
+<td>
+        Короткое описание
+       </td>
+<td>
+        25 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Группа «Под ключ»
+       </td>
+<td>
+        Название группы
+       </td>
+<td>
+        не задано
+       </td>
+<td>
+        Ограничение нужно проверить в макете
+       </td>
+</tr>
+<tr>
+<td>
+        Карточка «Под ключ»
+       </td>
+<td>
+        Заголовок
+       </td>
+<td>
+        не задано
+       </td>
+<td>
+        Ограничение нужно проверить в макете
+       </td>
+</tr>
+<tr>
+<td>
+        Карточка «Под ключ»
+       </td>
+<td>
+        Короткое описание
+       </td>
+<td>
+        25 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Под ключ»
+       </td>
+<td>
+        Пояснение
+       </td>
+<td>
+        не задано
+       </td>
+<td>
+        Дополнительный текст
+       </td>
+</tr>
+<tr>
+<td>
+        Карточка «Кино и шоу»
+       </td>
+<td>
+        Заголовок
+       </td>
+<td>
+        20 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Кино и шоу»
+       </td>
+<td>
+        Короткое описание
+       </td>
+<td>
+        40 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Карточка «Страны»
+       </td>
+<td>
+        Заголовок
+       </td>
+<td>
+        20 символов
+       </td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+        Внутренняя страница папки Ивента
+       </td>
+<td>
+        Описание папки
+       </td>
+<td>
+        150 символов
+       </td>
+<td>
+        Отображается в шапке
+       </td>
+</tr>
+<tr>
+<td>
+        Страница плейлиста Ивента
+       </td>
+<td>
+        Полное описание плейлиста
+       </td>
+<td>
+        150 символов
+       </td>
+<td>
+        Отображается в шапке
+       </td>
+</tr>
+<tr>
+<td>
+        Страница плейлиста Ивента
+       </td>
+<td>
+        Название вкладки
+       </td>
+<td>
+        30 символов
+       </td>
+<td>
+        Используется во вкладках
+       </td>
+</tr>
+</tbody>
+</table></div>
+<p>
+     Если ограничение не задано, текст нельзя писать произвольно длинным. Такой случай нужно проверить на макете и зафиксировать лимит после теста.
+    </p>
+<h4 id="как-писать-короткие-интерфеисные-тексты">
+     Как писать короткие интерфейсные тексты
+    </h4>
+<p>
+     Короткий интерфейсный текст не должен быть рекламным слоганом. Он должен объяснять сущность и сценарий.
+    </p>
+<p>
+     В названии группы не нужно пересказывать описание. В описании группы не нужно повторять название. В карточке плейлиста не нужно писать общие слова вроде «лучшие треки», «атмосферная подборка», «идеально подойдёт». Лучше указывать, что внутри и когда это использовать.
+    </p>
+<div aria-label="Таблица: Как писать короткие интерфейсные тексты" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Плохо
+       </th>
+<th scope="col">
+        Лучше
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Лучшие треки для свадьбы
+       </td>
+<td>
+        Музыка для церемонии
+       </td>
+</tr>
+<tr>
+<td>
+        Атмосферная подборка
+       </td>
+<td>
+        Фон для встречи гостей
+       </td>
+</tr>
+<tr>
+<td>
+        Всё для корпоратива
+       </td>
+<td>
+        Выходы, фанфары и фоны
+       </td>
+</tr>
+<tr>
+<td>
+        Подборка на любой случай
+       </td>
+<td>
+        Треки для первого танца
+       </td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section class="chapter" id="chapter-8">
+<h2>
+     8. Dos and Don’ts в наших текстах
+    </h2>
+<h3 id="источники-идеи">
+     Источники идей
+    </h3>
+<p>
+     Мы не высасываем темы из пальца и не повторяемся, потому что ведём живой диалог с подписчиками. Мы задаём вопросы и читаем ответы. Ответы диджеев рассказывают нам о диджеях, и благодаря этому мы пишем для диджеев, а не для себя.
+    </p>
+<h3 id="узкие-темы">
+     Узкие темы
+    </h3>
+<p>
+     Мы эксперты и знаем наш продукт лучше, чем кто бы то ни было. Мы выбираем узкие темы и рассказываем подробно о тонкостях, в которых разбираемся и в которые можем погрузиться глубоко.
+    </p>
+<p>
+     Мы не пишем общие тексты в стиле «Как искать музыку для сета», потому что это банально и поверхностно, а читатель не вынесет для себя ничего нового и не станет ближе к Jestei Pool.
+    </p>
+<p>
+     В посте лучше подробно рассказать про то, как работает фильтр на сайте, и преподнести его как продуманный, удобный и уникальный инструмент, чем попытаться рассказать сразу про все наши инструменты, но по верхам.
+    </p>
+<p>
+     Одна узконаправленная статья лучше, чем пять широких. Широкая тема = много воды, мало смысла и ценности.
+    </p>
+<h3 id="применимость-в-жизни">
+     Применимость в жизни
+    </h3>
+<p>
+     Тексты должны быть конкретными, применимыми в жизни. С конкретными деталями и случаями из жизни. Нужна практика и правда жизни, а не теория и размышления.
+    </p>
+<h3 id="как-пишем-о-банальном">
+     Как пишем о банальном
+    </h3>
+<p>
+     В советах не избежать банальных мыслей. Но каждую банальную тему можно интересно подать и исследовать её природу. Отвечаем на вопрос: почему мысль является банальной? Ищем противоречие и идём от обратного.
+    </p>
+<h3 id="продуктовая-точность">
+     Продуктовая точность
+    </h3>
+<p>
+     Редактор должен понимать, где находится текст и какую сущность он описывает. Лента, плейлист, микс, эксклюзивный эдит, артист, папка Ивента, вкладка Ивента и лейбл трека — разные сущности. Их нельзя называть одним словом ради удобства.
+    </p>
+<p>
+     Если текст описывает раздел, он объясняет назначение раздела. Если текст описывает группу, он объясняет принцип группировки. Если текст описывает карточку, он помогает понять конкретный материал. Если текст описывает лейбл, он объясняет доступ.
+    </p>
+<div aria-label="Таблица: Продуктовая точность" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Не делаем
+       </th>
+<th scope="col">
+        Делаем
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Называем все подборки плейлистами
+       </td>
+<td>
+        Различаем плейлисты, миксы, папки, вкладки и ленты
+       </td>
+</tr>
+<tr>
+<td>
+        Пишем «эксклюзив» без условий
+       </td>
+<td>
+        Уточняем, что именно эксклюзивно и где доступно
+       </td>
+</tr>
+<tr>
+<td>
+        Обещаем универсальность
+       </td>
+<td>
+        Указываем конкретный сценарий
+       </td>
+</tr>
+<tr>
+<td>
+        Пишем длинно и потом обрезаем
+       </td>
+<td>
+        Сразу пишем под размер интерфейса
+       </td>
+</tr>
+<tr>
+<td>
+        Смешиваем тариф и раздел
+       </td>
+<td>
+        Раздел описываем как продуктовую область, тариф — как уровень доступа
+       </td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="чего-мы-не-делаем-в-текстах">
+     Чего мы не делаем в текстах
+    </h3>
+<ul>
+<li>
+      Не сообщаем бесполезные факты.
+     </li>
+<li>
+      Не выдаём мнение за факт.
+     </li>
+<li>
+      Не задаём риторические вопросы.
+     </li>
+<li>
+      Не соглашаемся сами с собой.
+     </li>
+<li>
+      Не самоутверждаемся за счёт конкурентов или других людей.
+     </li>
+<li>
+      Не рекламируем другие бренды.
+     </li>
+</ul>
+</section>
+<section class="chapter" id="chapter-9">
+<h2>
+     9. Рубрики
+    </h2>
+<p>
+     Все наши тексты можно разделить на рубрики. Рубрики не ограничивают, а помогают работать с текстами быстро и структурно: мы не придумываем велосипед каждый раз, мы заранее знаем, как можно отредактировать и оформить новый материал.
+    </p>
+<p>
+     Список рубрик условный, его можно менять, отказываться от неэффективных и придумывать новые.
+    </p>
+<h3 id="1-интервью">
+     1. Интервью
+    </h3>
+<p>
+     Никаких проходных интервью. Спрашиваем только то, о чём ещё не спрашивали; у тех, у кого ещё не спрашивали и кому есть что сказать.
+    </p>
+<h3 id="2-мнение-эксперта">
+     2. Мнение эксперта
+    </h3>
+<div class="note note--warning">
+<p>
+      Отвечаем только на те вопросы, которые были заданы. Если вопросов нет — собираем реальные вопросы у реальных людей. Отвечать можно только тем, кто знает, о чём говорит.
+     </p>
+</div>
+<p>
+     Делимся мнениями людей, которые в теме.
+    </p>
+<ul>
+<li>
+      Комментарии.
+     </li>
+<li>
+      Истории из практики.
+     </li>
+<li>
+      Колонка автора.
+     </li>
+<li>
+      Цитата.
+     </li>
+<li>
+      Вопрос-ответ.
+     </li>
+</ul>
+<h3 id="3-учебник-jestei-pool">
+     3. Учебник Jestei Pool
+    </h3>
+<ul>
+<li>
+      Наглядные пособия
+     </li>
+<li>
+      Подсказки и лайфхаки
+     </li>
+<li>
+      Советы
+     </li>
+<li>
+      Обзоры
+     </li>
+</ul>
+<h3 id="4-новости">
+     4. Новости
+    </h3>
+<div class="note">
+<p>
+      Полезное действие рубрики «Новости» — взращивание комьюнити и информирование аудитории: чтобы диджеи были в курсе событий, которые могут повлиять на их работу.
+     </p>
+</div>
+<p>
+     Мы
+     <strong>
+      не
+     </strong>
+     пишем новости, которые:
+    </p>
+<ol>
+<li>
+      культивируют страх, панику или апатию;
+     </li>
+<li>
+      говорят о вещах, которые никак не влияют на профессиональную жизнь диджея;
+     </li>
+<li>
+      всеми силами пытаются заработать трафик.
+     </li>
+</ol>
+<p>
+     Можно потратить целый день на чтение таких новостей и никак не улучшить свою жизнь. Эти новости создают иллюзию информированности, но по сути просто засоряют эфир.
+    </p>
+<p>
+     Инфоповодом новости может быть событие, которое влияет на работу и поведение диджея прямо сейчас или в ближайшем будущем.
+    </p>
+<p>
+     Инфоповодами для новости <strong>не</strong> могут быть:
+    </p>
+<ul>
+<li>
+      кто-то выложил в соцсети заявление;
+     </li>
+<li>
+      вышел новый агрегат, за ним выстроились очереди;
+     </li>
+<li>
+      опубликована статистика. Это хорошая тема, но не для новости.
+     </li>
+</ul>
+<h3 id="рубрики-продолжение">
+     Рубрики / продолжение
+    </h3>
+<h4 id="5-находки">
+     5. Находки
+    </h4>
+<p>
+     Здесь те, кто попробовал что-то новое, рассказывают о своём опыте: что понравилось, что — нет, чем это может быть полезно или вредно.
+    </p>
+<h4 id="6-развлечения">
+     6. Развлечения
+    </h4>
+<p>
+     Развлекательный — не значит бесполезный. Каждая игра чему-то учит или к чему-то приводит, а каждая шутка не только веселит, но и повышает лояльность аудитории к бренду.
+    </p>
+<p>
+     Кроме мемов мы развлекаем людей так:
+    </p>
+<ul>
+<li>
+      тесты;
+     </li>
+<li>
+      викторины;
+     </li>
+<li>
+      опросы;
+     </li>
+<li>
+      сценки;
+     </li>
+<li>
+      комиксы;
+     </li>
+<li>
+      смешные истории в рилзах.
+     </li>
+</ul>
+<h4 id="7-рассказы-о-нас">
+     7. Рассказы о нас
+    </h4>
+<ul>
+<li>
+      О команде. EGC — employee-generated content — большой тренд последних нескольких лет. Людям интересны лица, стоящие за продуктом, который они покупают.
+     </li>
+<li>
+      История Jestei Pool.
+     </li>
+<li>
+      О наших ценностях.
+     </li>
+</ul>
+<h4 id="8-продуктовые-объяснения">
+     8. Продуктовые объяснения
+    </h4>
+<p>
+     Продуктовые объяснения — это тексты, которые объясняют устройство сервиса: разделы, фильтры, лейблы, тарифы, динамические плейлисты, Ивент, Библиотеку, «Мои новинки», подписки на артистов и другие функции.
+    </p>
+<p>
+     Такие тексты не продают напрямую. Они помогают пользователю понять, как устроен сервис и как быстрее найти нужный материал. Хорошее продуктовое объяснение отвечает на три вопроса: что это, где находится, как этим пользоваться.
+    </p>
+<p>
+     Формат может быть разным: пост, сторис, подсказка, экран онбординга, текст в интерфейсе, справка, короткий гайд. Но логика одна: сначала называем сущность, потом объясняем назначение, затем показываем сценарий.
+    </p>
+<div class="note source-addition"><ul><li><a href="https://t.me/s/jesteipool?before=8609" rel="noreferrer" target="_blank">Промокод WEDD26 на подписку Ивент</a></li><li><a href="https://t.me/s/jesteipool?before=8609" rel="noreferrer" target="_blank">Рубрика «Цензура»</a></li></ul></div></section>
+<section class="chapter" id="chapter-10">
+<h2>
+     10. Стоп-слова
+    </h2>
+<p>
+     Чтобы легко находить стоп-слова, можно настроить их список в текстовом редакторе, попросить нейросеть найти их в тексте или использовать
+     <a href="https://glvrd.ru/" rel="noreferrer" target="_blank">
+      glvrd.ru
+     </a>
+     .
+    </p>
+<div aria-label="Таблица: 10. Стоп-слова" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Категория
+       </th>
+<th scope="col">
+        Слова
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Вводные
+       </td>
+<td>
+        без сомнения, безусловно, бесспорно, вдобавок, видать, видимо, грешным делом, грубо говоря, действительно, должно быть, допустим, другими словами, хочется отметить, нужно сказать, не стоит забывать про
+       </td>
+</tr>
+<tr>
+<td>
+        Необъективные оценки
+       </td>
+<td>
+        абсолютный, бездарный, безупречный, бесконечный, бесполезный, блестящий, важный, великолепный, выдающийся
+       </td>
+</tr>
+<tr>
+<td>
+        Усилители
+       </td>
+<td>
+        абсолютно, весьма, всё-таки, значительно, исключительно, исключительно сильно, крайне, невероятно, необыкновенно, совершенно, максимально
+       </td>
+</tr>
+<tr>
+<td>
+        Обобщающие и неопределённые
+       </td>
+<td>
+        бесчисленные, в целом, в общем, некий, некоторые, по мнению людей, почти все, в большинстве случаев, неоднозначная ситуация
+       </td>
+</tr>
+<tr>
+<td>
+        Корпоративные штампы
+       </td>
+<td>
+        в рамках, задачи выполнены, массовая аудитория, методика, направленные на, находимся в процессе, завоевать доверие клиентов, решать задачи бизнеса и т. д.
+       </td>
+</tr>
+<tr>
+<td>
+        Паразиты времени
+       </td>
+<td>
+        в последнее время, всегда, в настоящее время, до сих пор, если когда-нибудь, на данный момент, на протяжении ряда лет, на сегодняшний день, в наши дни, в современной России и т. д.
+       </td>
+</tr>
+<tr>
+<td>
+        Газетные штампы
+       </td>
+<td>
+        как ранее сообщалось, на данном этапе, на самом деле, по информации, разумеется, соответственно, в лучших традициях, оборотная сторона медали, неоднозначная ситуация, семимильными шагами, финальный аккорд, в нужном русле и т. д.
+       </td>
+</tr>
+<tr>
+<td>
+        Канцеляризмы
+       </td>
+<td>
+        данный, имеется, претерпевать, существуют, осуществлять, в связи с этим, в свою очередь, имело место, непосредственная близость, осуществлять деятельность, ввиду того, приносим извинения за доставленные неудобства и т. д.
+       </td>
+</tr>
+<tr>
+<td>
+        Рекламные штампы
+       </td>
+<td>
+        в любой момент, для любого случая, подойдёт для всех, комплексный подход, на каждом этапе, завоевать доверие клиентов, расширить географию продаж и т. д.
+       </td>
+</tr>
+<tr>
+<td>
+        Модальность
+       </td>
+<td>
+        можете авторизоваться, должны завершить заказ, нужно пройти процедуру
+       </td>
+</tr>
+<tr>
+<td>
+        Лишнее сослагательное наклонение
+       </td>
+<td>
+        мне бы хотелось поговорить, было бы здорово созвониться
+       </td>
+</tr>
+<tr>
+<td>
+        Глаголы в страдательном залоге
+       </td>
+<td>
+        школа построена по заказу мэрии, леса вырубают
+       </td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section class="chapter" id="chapter-11">
+<h2>
+     11. Частые ошибки в Jestei Pool
+    </h2>
+<div aria-label="Таблица: 11. Частые ошибки в Jestei Pool" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        НЕТ
+       </th>
+<th scope="col">
+        ДА
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        портал, если речь о Jestei Pool
+       </td>
+<td>
+        музыкальный сервис, сервис для диджеев, платформа, диджейский пул
+       </td>
+</tr>
+<tr>
+<td>
+        диджей пул
+       </td>
+<td>
+        диджей-пул, диджейский пул
+       </td>
+</tr>
+<tr>
+<td>
+        сэт, плэйлист, тэг, лэйбл, скрэтч, сэмпл
+       </td>
+<td>
+        сет, плейлист, тег, лейбл, скретч, семпл. Но: мэшап, бэнгер
+       </td>
+</tr>
+<tr>
+<td>
+        эвент, евент
+       </td>
+<td>
+        ивент
+       </td>
+</tr>
+<tr>
+<td>
+        ивент диджей
+       </td>
+<td>
+        ивент-диджей
+       </td>
+</tr>
+<tr>
+<td>
+        транзишен
+       </td>
+<td>
+        транзишн
+       </td>
+</tr>
+<tr>
+<td>
+        DJ, если обращаемся к человеку или людям
+       </td>
+<td>
+        диджей, диджеи
+       </td>
+</tr>
+<tr>
+<td>
+        лайнап
+       </td>
+<td>
+        лайн-ап
+       </td>
+</tr>
+<tr>
+<td>
+        праймтайм
+       </td>
+<td>
+        прайм-тайм
+       </td>
+</tr>
+<tr>
+<td>
+        эмейл, емейл
+       </td>
+<td>
+        имейл
+       </td>
+</tr>
+<tr>
+<td>
+        дискоблок
+       </td>
+<td>
+        дискотека, танцы, дискотечный блок
+       </td>
+</tr>
+<tr>
+<td>
+        данный
+       </td>
+<td>
+        этот
+       </td>
+</tr>
+<tr>
+<td>
+        ознакомьтесь
+       </td>
+<td>
+        познакомьтесь, оцените, попробуйте
+       </td>
+</tr>
+<tr>
+<td>
+        является, есть, существует
+       </td>
+<td>
+        слабые пустые глаголы нужно менять на глаголы действия: не «Лента является важным разделом», а «В Ленте постим свежие танцевальные релизы»
+       </td>
+</tr>
+<tr>
+<td>
+        рекорд пул
+       </td>
+<td>
+        Лента треков
+       </td>
+</tr>
+<tr>
+<td>
+        Record Pool, если речь о новом названии раздела
+       </td>
+<td>
+        Лента треков, бывш. Record Pool
+       </td>
+</tr>
+<tr>
+<td>
+        Exclusive Edits без объяснения в русскоязычном тексте
+       </td>
+<td>
+        Эксклюзивные эдиты, бывш. Exclusive Edits
+       </td>
+</tr>
+<tr>
+<td>
+        просто эксклюзив, если речь о лейбле
+       </td>
+<td>
+        лейбл «Эксклюзив»
+       </td>
+</tr>
+<tr>
+<td>
+        Event без объяснения в русскоязычном тексте
+       </td>
+<td>
+        Ивент, бывш. Event
+       </td>
+</tr>
+<tr>
+<td>
+        ивент-плейлист, если речь о папке
+       </td>
+<td>
+        папка Ивента
+       </td>
+</tr>
+<tr>
+<td>
+        вкладка плейлиста как отдельный плейлист
+       </td>
+<td>
+        вкладка внутри плейлиста
+       </td>
+</tr>
+<tr>
+<td>
+        динамическая подборка
+       </td>
+<td>
+        динамический плейлист
+       </td>
+</tr>
+<tr>
+<td>
+        intro edit в обычном тексте
+       </td>
+<td>
+        интроэдит
+       </td>
+</tr>
+<tr>
+<td>
+        outro edit в обычном тексте
+       </td>
+<td>
+        аутроэдит
+       </td>
+</tr>
+<tr>
+<td>
+        tooltip
+       </td>
+<td>
+        тултип
+       </td>
+</tr>
+<tr>
+<td>
+        тултип с новым смыслом
+       </td>
+<td>
+        тултип с полным текстом сокращённого заголовка или описания
+       </td>
+</tr>
+<tr>
+<td>
+        карточка обрезалась
+       </td>
+<td>
+        заголовок или описание обрезается
+       </td>
+</tr>
+<tr>
+<td>
+        лимит символов примерный
+       </td>
+<td>
+        максимальная длина текста
+       </td>
+</tr>
+<tr>
+<td>
+        Free, если речь о тарифе в русском тексте
+       </td>
+<td>
+        Бесплатный тариф, бывш. Free
+       </td>
+</tr>
+<tr>
+<td>
+        PRO без контекста
+       </td>
+<td>
+        тариф ПРО
+       </td>
+</tr>
+<tr>
+<td>
+        Event, если речь о тарифе
+       </td>
+<td>
+        тариф Ивент, бывш. Event
+       </td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section class="chapter" id="chapter-12">
+<h2>
+     12. Иностранные слова
+    </h2>
+<p>
+     По новому закону о защите русского языка мы должны переводить на русский всё, что можно перевести на русский. Латиницу можно использовать только как дополнение к кириллице. Например, welcome теперь переводим как «сбор гостей».
+    </p>
+<div class="note">
+<p>
+      Если сомневаемся, можно ли использовать заимствование и как оно пишется, помогает Словарь иностранных слов.
+     </p>
+<p>
+      Если термина нет в словаре иностранных слов, желательно поискать синоним русского происхождения.
+     </p>
+</div>
+<p>
+     Не нужно переводить:
+    </p>
+<ul>
+<li>
+      зарегистрированные товарные знаки: Spotify, Billboard;
+     </li>
+<li>
+      профессиональные термины без аналогов на русском: эдит, скретч, тёрнтейблизм;
+     </li>
+<li>
+      творческие псевдонимы — они пишутся только так, как пишет сам артист. Не DJ smash, а DJ Smash. Не коля фанк, а Kolya Funk.
+     </li>
+</ul>
+<div class="note source-addition"><ul><li><a href="https://jesteipool.ru/playlists/top-charts?tab=reels-top" rel="noreferrer" target="_blank">Reels Top</a></li><li><a href="https://jesteipool.storage.yandexcloud.net/iblock/bc2/bc2fbd850522181ba3ba401c3427f6e2/5c8a30d98362a478febbb703683dcd9a.jpg" rel="noreferrer" target="_blank">Изображение</a></li><li><a href="https://jesteipool.ru/playlists/hity-chartov?tab=club-hits" rel="noreferrer" target="_blank">Club Hits</a></li><li><a href="https://jesteipool.storage.yandexcloud.net/iblock/a0b/a0b57f25be350e7b6dceef9a485677f2/b6bb2309b24bb2fc7e4507bb3fa9ba86.png" rel="noreferrer" target="_blank">Изображение</a></li><li><a href="https://jesteipool.ru/playlists/edm?tab=drum-bass" rel="noreferrer" target="_blank">Drum &amp; Bass</a></li><li><a href="https://jesteipool.storage.yandexcloud.net/iblock/7d6/7d6665b2e991030235712d89e844a6b2/6ca48df960208345019087d241341c78.png" rel="noreferrer" target="_blank">Изображение</a></li><li><a href="https://jesteipool.ru/event/playlist/onlayn-pod-klyuch" rel="noreferrer" target="_blank">«Онлайн-трансляция»</a></li></ul></div><h3 id="локализация-часто-используемых-англицизмов">
+     Локализация часто используемых англицизмов
+    </h3>
+<div aria-label="Таблица: Локализация часто используемых англицизмов" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Английский
+       </th>
+<th scope="col">
+        Русский
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Pro
+       </td>
+<td>
+        ПРО
+       </td>
+</tr>
+<tr>
+<td>
+        Event
+       </td>
+<td>
+        Ивент
+       </td>
+</tr>
+<tr>
+<td>
+        Top
+       </td>
+<td>
+        Топ
+       </td>
+</tr>
+<tr>
+<td>
+        Welcome
+       </td>
+<td>
+        Сбор гостей
+       </td>
+</tr>
+<tr>
+<td>
+        Free
+       </td>
+<td>
+        Бесплатный
+       </td>
+</tr>
+<tr>
+<td>
+        Background
+       </td>
+<td>
+        Фон
+       </td>
+</tr>
+<tr>
+<td>
+        Opening
+       </td>
+<td>
+        Открытие
+       </td>
+</tr>
+<tr>
+<td>
+        Prime time
+       </td>
+<td>
+        Прайм-тайм
+       </td>
+</tr>
+<tr>
+<td>
+        Closing
+       </td>
+<td>
+        Закрытие, окончание
+       </td>
+</tr>
+<tr>
+<td>
+        Preparty
+       </td>
+<td>
+        Разогрев
+       </td>
+</tr>
+<tr>
+<td>
+        Afterparty
+       </td>
+<td>
+        После вечеринки
+       </td>
+</tr>
+<tr>
+<td>
+        Easy Listening
+       </td>
+<td>
+        Лёгкая музыка
+       </td>
+</tr>
+<tr>
+<td>
+        Exclusive Edits
+       </td>
+<td>
+        Эксклюзивные эдиты
+       </td>
+</tr>
+<tr>
+<td>
+        Worldwide
+       </td>
+<td>
+        Со всего мира
+       </td>
+</tr>
+<tr>
+<td>
+        Same Day Edit
+       </td>
+<td>
+        Свадебные видео
+       </td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="интерфеисные-названия-и-продуктовые-сущности">
+     Интерфейсные названия и продуктовые сущности
+    </h3>
+<p>
+     Если английское слово является названием жанра, музыкального направления, артистического псевдонима или закреплённого значения в фильтре, его не переводим самовольно. Если английское слово обозначает страницу, тариф, инструмент, подсказку или интерфейсную сущность, в русском тексте используем русский вариант. При первом упоминании можно указать старое название через «бывш. …».
+    </p>
+<div aria-label="Таблица: Интерфейсные названия и продуктовые сущности" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Старое или интерфейсное название
+       </th>
+<th scope="col">
+        Как писать в русском тексте
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Free
+       </td>
+<td>
+        Бесплатный тариф, бывш. Free
+       </td>
+</tr>
+<tr>
+<td>
+        Record Pool
+       </td>
+<td>
+        Лента треков, бывш. Record Pool
+       </td>
+</tr>
+<tr>
+<td>
+        PRO
+       </td>
+<td>
+        ПРО, тариф ПРО
+       </td>
+</tr>
+<tr>
+<td>
+        Event
+       </td>
+<td>
+        Ивент, бывш. Event; тариф Ивент, если речь о доступе
+       </td>
+</tr>
+<tr>
+<td>
+        Exclusive Edits
+       </td>
+<td>
+        Эксклюзивные эдиты, бывш. Exclusive Edits
+       </td>
+</tr>
+<tr>
+<td>
+        Intro edit
+       </td>
+<td>
+        интроэдит
+       </td>
+</tr>
+<tr>
+<td>
+        Outro edit
+       </td>
+<td>
+        аутроэдит
+       </td>
+</tr>
+<tr>
+<td>
+        Tooltip
+       </td>
+<td>
+        тултип
+       </td>
+</tr>
+<tr>
+<td>
+        Welcome
+       </td>
+<td>
+        встреча гостей или сбор гостей, если речь о сценарии мероприятия
+       </td>
+</tr>
+<tr>
+<td>
+        Copyright Free
+       </td>
+<td>
+        материал без риска блокировки в трансляции, если это подтверждено условиями
+       </td>
+</tr>
+</tbody>
+</table></div>
+<p>
+     Если английское слово уже закреплено в интерфейсе как название раздела или тарифа, не меняем его внутри макета без согласования. В редакционном тексте можно использовать русский вариант и старое название в скобках: «Лента треков, бывш. Record Pool», «Ивент, бывш. Event», «Эксклюзивные эдиты, бывш. Exclusive Edits».
+    </p>
+<p>
+     Названия жанров и музыкальных направлений не переводим по этому правилу. Для жанров действует отдельный раздел редполитики про локализацию музыкальных жанров.
+    </p>
+<h3 id="как-переводить-музыкальные-жанры">
+     Как переводить музыкальные жанры
+    </h3>
+<p>
+     У многих жанров, особенно молодых, можно встретить разные варианты написания на русском. «Афро-хаус» и «афрохаус» встречаются одинаково часто. Простое правило: иноязычные названия, которые состоят из нескольких слов, пишутся через дефис.
+    </p>
+<p>
+     Ниже собрали написания основных жанров, встречающихся на Jestei Pool. Это наш стандарт, который нужно соблюдать на сайте, в соцсетях и других каналах коммуникации.
+    </p>
+<div class="note">
+<p>
+      В таблице точно будут не все жанры. Переводы других жанров на русский можно подсмотреть у Яндекс Музыки или других профессиональных музыкальных сервисов. Важно смотреть не на пользовательские плейлисты, а на классификацию и подборки самой платформы, например плейлисты от редакции.
+     </p>
+</div>
+<div aria-label="Таблица: Как переводить музыкальные жанры" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Английский
+       </th>
+<th scope="col">
+        Русский
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Baile Funk
+       </td>
+<td>
+        Байле-фанк
+       </td>
+</tr>
+<tr>
+<td>
+        Drum and bass
+       </td>
+<td>
+        Драм-н-бейс
+       </td>
+</tr>
+<tr>
+<td>
+        Afro House, Slap House, Bass House, Tech House, Lo-Fi House, Disco House
+       </td>
+<td>
+        Афро-хаус, слэп-хаус, бейс-хаус, тек-хаус, лоуфай-хаус, диско-хаус
+       </td>
+</tr>
+<tr>
+<td>
+        Moombahton
+       </td>
+<td>
+        Мумбатон
+       </td>
+</tr>
+<tr>
+<td>
+        Rave
+       </td>
+<td>
+        Рейв
+       </td>
+</tr>
+<tr>
+<td>
+        Indie Dance
+       </td>
+<td>
+        Инди-дэнс
+       </td>
+</tr>
+<tr>
+<td>
+        Organic &amp; Melodic House
+       </td>
+<td>
+        Мелодичный хаус
+       </td>
+</tr>
+<tr>
+<td>
+        UK Bass
+       </td>
+<td>
+        Британский бас
+       </td>
+</tr>
+<tr>
+<td>
+        Techno
+       </td>
+<td>
+        Техно
+       </td>
+</tr>
+<tr>
+<td>
+        Nu Disco
+       </td>
+<td>
+        Ню-диско
+       </td>
+</tr>
+<tr>
+<td>
+        New School
+       </td>
+<td>
+        Современный хип-хоп и рэп
+       </td>
+</tr>
+<tr>
+<td>
+        UK Garage
+       </td>
+<td>
+        Британский гэридж
+       </td>
+</tr>
+<tr>
+<td>
+        Amapiano
+       </td>
+<td>
+        Амапиано
+       </td>
+</tr>
+<tr>
+<td>
+        Hyper Pop
+       </td>
+<td>
+        Гиперпоп. Почему не через дефис: приставка «гипер» на русском пишется слитно
+       </td>
+</tr>
+<tr>
+<td>
+        Phonk
+       </td>
+<td>
+        Фонк
+       </td>
+</tr>
+<tr>
+<td>
+        Rock’n’roll
+       </td>
+<td>
+        Рок-н-ролл
+       </td>
+</tr>
+<tr>
+<td>
+        Hip Hop
+       </td>
+<td>
+        Хип-хоп
+       </td>
+</tr>
+<tr>
+<td>
+        R&amp;B
+       </td>
+<td>
+        Ритм-н-блюз
+       </td>
+</tr>
+<tr>
+<td>
+        Reggae
+       </td>
+<td>
+        Регги
+       </td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section class="chapter" id="chapter-13">
+<h2>
+     13. Буквы и символы
+    </h2>
+<h3 id="е-и-е">
+     Е и Ё
+    </h3>
+<p>
+     «Е» без точек пишется во всех случаях, где её использование не вызывает разночтений. Если случай вызывает разночтения, в нужных местах пишется «ё» с точками. Пример: все и всё.
+    </p>
+<h3 id="тире-или">
+     Тире — или –
+    </h3>
+<ul>
+<li>
+<strong>
+       Длинное тире (—)
+      </strong>
+      используется для выделения вставных конструкций, подведения итогов и при прямой речи. Пример: «Подробности — на сайте».
+     </li>
+<li>
+<strong>
+       Среднее тире (–)
+      </strong>
+      используется для соединения частей сложных слов и в числовых диапазонах. Пример: «страницы 10–15». Не отбивается пробелами, если используется для указания интервалов.
+     </li>
+</ul>
+<h3 id="дефис">
+     Дефис (-)
+    </h3>
+<ul>
+<li>
+<strong>
+       Слова с дефисом:
+      </strong>
+      обычно дефис используется для соединения частей сложных слов, например
+      <strong>
+       по-русски
+      </strong>
+      ,
+      <strong>
+       светло-зелёный
+      </strong>
+      , и в некоторых сложных наречиях, например
+      <strong>
+       по-моему
+      </strong>
+      .
+     </li>
+<li>
+<strong>
+       Внутренние дефисы:
+      </strong>
+      используются в сочетаниях типа
+      <strong>
+       рок-н-ролл
+      </strong>
+      ,
+      <strong>
+       хип-хоп
+      </strong>
+      .
+     </li>
+<li>
+<strong>
+       Наращения после цифр при помощи дефиса.
+      </strong>
+</li>
+</ul>
+<div aria-label="Таблица: Дефис (-)" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Неверно
+       </th>
+<th scope="col">
+        Верно
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        2-х симочный, 2-ухсимочный
+       </td>
+<td>
+        двухсимочный, 2-симочный
+       </td>
+</tr>
+<tr>
+<td>
+        150-тилетие, 150 летие, 150-ти летие
+       </td>
+<td>
+        стопятидесятилетие, 150-летие
+       </td>
+</tr>
+</tbody>
+</table></div>
+<p>
+     Наращение должно быть двубуквенным, если последней букве предшествует согласный:
+     <em>
+      5-го дня, к 25-му студенту, из 32-го издания, из 14-го ряда.
+     </em>
+</p>
+<p>
+     Если подряд следуют два порядковых числительных, разделённых запятой или соединённых союзом, падежное окончание наращивают у каждого из них:
+     <em>
+      1-й, 2-й вагоны; 80-е и 90-е годы.
+     </em>
+</p>
+<p>
+     Если подряд следуют более двух порядковых числительных, разделённых запятой, точкой с запятой или соединённых союзом, то падежное окончание наращивают только у последнего числительного:
+     <em>
+      1, 2 и 3-й вагоны; 70, 80, 90-е годы.
+     </em>
+</p>
+<h3 id="даты">
+     Даты
+    </h3>
+<div aria-label="Таблица: Даты" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        НЕТ
+       </th>
+<th scope="col">
+        ДА
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        летом 2015-го года
+       </td>
+<td>
+        летом 2015 года
+       </td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="не-путаите-тире-и-дефис">
+     Не путайте тире и дефис
+    </h3>
+<div aria-label="Таблица: Не путайте тире и дефис" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Знак
+       </th>
+<th scope="col">
+        Символ
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+        Длинное тире
+       </td>
+<td>
+        —
+       </td>
+</tr>
+<tr>
+<td>
+        Среднее тире
+       </td>
+<td>
+        –
+       </td>
+</tr>
+<tr>
+<td>
+        Дефис
+       </td>
+<td>
+        -
+       </td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="точка-кавычки-и-пробелы">
+     Точка, кавычки и пробелы
+    </h3>
+<h4 id="точка">
+     Точка
+    </h4>
+<p>
+     Точки не ставятся в конце названий, заголовков, подписей к иллюстрациям, табличных надписей. Даже если такие надписи состоят из нескольких предложений, предложения разделяются точками, но в конце точка не ставится. Если такие надписи заканчиваются вопросительным или восклицательным знаком, то их не убираем.
+    </p>
+<p>
+     Если непонятно, нужна точка или нет, пробуем классифицировать текст как надпись. Заголовки и подписи — это надписи, а не полноценный текст, поэтому в них нет точек. Надписи на стенах и заборах — без точек: «Здесь был Вася», «Продам гараж», «Библиотека имени Ленина».
+    </p>
+<h4 id="кавычки-и">
+     Кавычки: «…» и „…“
+    </h4>
+<ul>
+<li>
+      В русском языке используются кавычки-ёлочки «…».
+     </li>
+<li>
+      Кавычки-лапки „…“ используем в качестве внутренних кавычек, если внутри текста, уже выделенного «ёлочками», появляются другие названия или цитаты.
+     </li>
+<li>
+      Просто использовать кавычки-лапки „…“ — ошибка.
+     </li>
+</ul>
+<h4 id="неразрывныи-пробел">
+     Неразрывный пробел
+    </h4>
+<p>
+     Чтобы избежать разрыва строки между словами или символами в целях удобочитаемости, следует использовать специальный символ — неразрывный пробел.
+    </p>
+<p>
+     Самые частые случаи применения:
+    </p>
+<ul>
+<li>
+      инициалы: «Иванов И. И.»;
+     </li>
+<li>
+      сокращения с точками: «и т. д.»;
+     </li>
+<li>
+      числа с последующим словом или единицей измерения: «20 солдат», «10 м», «1999 год»;
+     </li>
+<li>
+      числа с пробелами: «11 000 руб»;
+     </li>
+<li>
+      предлоги, союзы и некоторые частицы с последующим словом: «на Солнце», «а затем», «не прыгает»;
+     </li>
+<li>
+      некоторые частицы с предыдущим словом: «крикнул бы»;
+     </li>
+<li>
+      тире с предыдущим словом, а иногда и с последующим: «конкурс „Soft-Парад — 2020“»;
+     </li>
+<li>
+      между двумя инициалами и между инициалами и фамилией используется узкий пробел: «А. С. Пушкин»;
+     </li>
+<li>
+      между сокращёнными обращениями и фамилией: «г-н Иванов», а также после географических сокращений: «г. Москва», «о-ва Кука»;
+     </li>
+<li>
+      внутри сокращений используется узкий пробел: «и т. д.», «т. е.», «н. э.»;
+     </li>
+<li>
+      между числами и относящимися к ним единицами измерения или счётными словами: «12 кг», «1981 г.», «гл. IV»;
+     </li>
+<li>
+      перед тире в середине предложения;
+     </li>
+<li>
+      между группами цифр в многозначных числах, по три цифры справа налево, начиная с четырёх- или пятизначных чисел: «2 132 128 байт»;
+     </li>
+<li>
+      перед номерами версий программных продуктов и частями их названий, состоящих из цифр или сокращений: «Ubuntu 20.04», «Windows XP»;
+     </li>
+<li>
+      после предлогов и союзов, особенно однобуквенных или начинающих предложение, прежде всего в заголовках: «Стремиться к совершенству»;
+     </li>
+<li>
+      после частицы «не», перед частицами «бы», «ли», «же».
+     </li>
+</ul>
+<p>
+     Проще всего автоматически расставить неразрывные пробелы можно при помощи Типографа или нейросети.
+    </p>
+</section>
+<section class="chapter" id="chapter-14">
+<h2>
+     14. Инструменты для редактора
+    </h2>
+<h3 id="типограф">
+     Типограф
+    </h3>
+<p>
+<a href="https://www.artlebedev.ru/typograf/" rel="noreferrer" target="_blank">
+      Типограф Студии Артемия Лебедева
+     </a>
+     автоматически расставляет в нужных местах неразрывные пробелы, кавычки-ёлочки, буквы «ё», тире и другие технические символы. Используем перед публикацией текстов на сайте, в соцсетях и в интерфейсе.
+    </p>
+<p>
+     Типограф не заменяет редактуру. Он исправляет техническую сторону текста: пробелы, кавычки, тире, переносы, повторяющиеся пробелы и часть типографских ошибок. Смысл, структуру и тон текста проверяет редактор.
+    </p>
+<h3 id="главред">
+     Главред
+    </h3>
+<p>
+<a href="https://glvrd.ru/" rel="noreferrer" target="_blank">
+      Главред
+     </a>
+     анализирует читаемость и содержательность текста, считает символы и находит стоп-слова. Используем как вспомогательный инструмент, а не как финального судью.
+    </p>
+<p>
+     Оценка Главреда не важнее смысла. Если слово нужно по контексту, его не нужно удалять только ради балла. Главред помогает увидеть мусор, канцелярит, слабые формулировки и лишнюю модальность, но финальное решение принимает редактор.
+    </p>
+<ul>
+<li>
+<a href="https://soviet.glvrd.ru/" rel="noreferrer" target="_blank">
+       Справочник Главреда
+      </a>
+</li>
+<li>
+<a href="https://maximilyahov.ru/blog/all/glvrd-grading/" rel="noreferrer" target="_blank">
+       Статья о шкале Главреда
+      </a>
+</li>
+</ul>
+<h3 id="подсчет-символов">
+     Подсчёт символов
+    </h3>
+<p>
+     Для проверки длины текстов используем счётчик символов. Он нужен для интерфейсных ограничений, карточек, описаний плейлистов, подводок, постов и сторис.
+    </p>
+<ul>
+<li>
+<a href="https://text.ru/seo" rel="noreferrer" target="_blank">
+       Text.ru — SEO-анализ и счётчик символов
+      </a>
+</li>
+<li>
+<a href="https://involta.ru/tools/length-chars/" rel="noreferrer" target="_blank">
+       Involta — подсчёт символов и слов
+      </a>
+</li>
+<li>
+<a href="https://advego.com/info/znakoschitalka-simvolov-online/" rel="noreferrer" target="_blank">
+       Advego — знакосчиталка
+      </a>
+</li>
+<li>
+<a href="https://www.charactercountonline.com/ru/" rel="noreferrer" target="_blank">
+       Character Count Online
+      </a>
+</li>
+</ul>
+<p>
+     Для редполитики важнее всего считать символы с пробелами, потому что ограничения в карточках, описаниях и подводках обычно завязаны на реальную длину строки.
+    </p>
+<h3 id="справочники-и-словари">
+     Справочники и словари
+    </h3>
+<h4 id="грамота-ру">
+     Грамота.ру
+    </h4>
+<p>
+<a href="https://gramota.ru/" rel="noreferrer" target="_blank">
+      Грамота.ру
+     </a>
+     — основной справочный портал по русскому языку. Используем для проверки орфографии, пунктуации, ударений, склонений, спорных форм и употребления слов.
+    </p>
+<ul>
+<li>
+<a href="https://gramota.ru/biblioteka/slovari" rel="noreferrer" target="_blank">
+       Словари Грамоты
+      </a>
+</li>
+<li>
+<a href="https://gramota.ru/biblioteka/slovari/russkij-orfograficheskij-slovar" rel="noreferrer" target="_blank">
+       Русский орфографический словарь
+      </a>
+</li>
+<li>
+<a href="https://gramota.ru/spravka" rel="noreferrer" target="_blank">
+       Справочная служба Грамоты
+      </a>
+</li>
+</ul>
+<p>
+     Если в тексте спорное написание, сначала проверяем Грамоту. Если ответа нет, смотрим несколько словарей и фиксируем единый вариант для редполитики.
+    </p>
+<h4 id="справочник-редактора">
+     Справочник редактора
+    </h4>
+<p>
+     Справочник редактора используем, когда нужно проверить правило, а не полагаться на память. Это касается пунктуации, кавычек, тире, дат, сокращений, чисел, названий, заимствований и спорных формулировок.
+    </p>
+<ul>
+<li>
+<a href="https://gramota.ru/" rel="noreferrer" target="_blank">
+       Грамота.ру
+      </a>
+</li>
+<li>
+<a href="https://gramota.ru/spravka" rel="noreferrer" target="_blank">
+       Справочная служба Грамоты
+      </a>
+</li>
+<li>
+<a href="https://gramota.ru/biblioteka/slovari" rel="noreferrer" target="_blank">
+       Словари Грамоты
+      </a>
+</li>
+<li>
+<a href="https://bureau.ru/soviet/tekst-redaktura-i-informatsionnyy-stil" rel="noreferrer" target="_blank">
+       Бюро Горбунова: текст, редактура и информационный стиль
+      </a>
+</li>
+<li>
+<a href="https://bureau.ru/soviet/20220109/" rel="noreferrer" target="_blank">
+       Бюро Горбунова: пример редактуры текста
+      </a>
+</li>
+</ul>
+<p>
+     Если источники противоречат друг другу, выбираем вариант, который лучше подходит для интерфейса, смысла и единообразия внутри Jestei Pool. Решение фиксируем в редполитике.
+    </p>
+<h4 id="словарь-иностранных-слов">
+     Словарь иностранных слов
+    </h4>
+<p>
+     Словарь иностранных слов используем, когда нужно понять, можно ли использовать заимствование, есть ли у него нормальное русское написание и нужен ли русский синоним.
+    </p>
+<ul>
+<li>
+<a href="https://gramota.ru/biblioteka/slovari" rel="noreferrer" target="_blank">
+       Грамота.ру — словари
+      </a>
+</li>
+<li>
+<a href="https://dictionary.cambridge.org/" rel="noreferrer" target="_blank">
+       Cambridge Dictionary
+      </a>
+</li>
+<li>
+<a href="https://www.merriam-webster.com/" rel="noreferrer" target="_blank">
+       Merriam-Webster
+      </a>
+</li>
+</ul>
+<p>
+     Если слово является названием жанра, музыкального направления, артистического псевдонима или закреплённого значения в фильтре, его не переводим самовольно. Если слово обозначает страницу, тариф, инструмент, подсказку или интерфейсную сущность, используем русский вариант и при первом упоминании можем указать старое название через «бывш. …».
+    </p>
+<h3 id="фигма-и-литература">
+     Фигма и литература
+    </h3>
+<h4 id="инструменты-для-фигмы">
+     Инструменты для Фигмы
+    </h4>
+<p>
+     Для проверки типографики в макетах используем типографические плагины для Фигмы. Они помогают исправлять текст прямо в дизайне: расставлять неразрывные пробелы, менять кавычки, исправлять тире, убирать двойные пробелы и висячие предлоги.
+    </p>
+<ul>
+<li>
+<a href="https://github.com/golmakov/figma-typograf-plugin" rel="noreferrer" target="_blank">
+       Typograf для Figma
+      </a>
+</li>
+<li>
+<a href="https://github.com/DanilovM/SBOLTypographFigma" rel="noreferrer" target="_blank">
+       SBOL Typograph для Figma
+      </a>
+</li>
+</ul>
+<p>
+     Плагины не запускаем вслепую по всему макету. Сначала проверяем, не сломает ли типографика названия треков, артистов, жанров, тарифов, фильтров и интерфейсных сущностей. Особенно осторожно работаем с английскими названиями, музыкальными жанрами и авторскими написаниями.
+    </p>
+<h4 id="полезная-литература">
+     Полезная литература
+    </h4>
+<h5 id="базовая-редактура-и-чистыи-русскии-язык">
+     Базовая редактура и чистый русский язык
+    </h5>
+<ul>
+<li>
+      Нора Галь — «Слово живое и мёртвое»
+     </li>
+<li>
+      Корней Чуковский — «Живой как жизнь»
+     </li>
+<li>
+      Лидия Чуковская — «В лаборатории редактора»
+     </li>
+</ul>
+<h5 id="информационныи-стиль-и-прикладная-редактура">
+     Информационный стиль и прикладная редактура
+    </h5>
+<ul>
+<li>
+      Максим Ильяхов, Людмила Сарычева — «Пиши, сокращай»
+     </li>
+<li>
+      Максим Ильяхов — «Ясно, понятно»
+     </li>
+<li>
+      Максим Ильяхов — «Новые правила деловой переписки»
+     </li>
+<li>
+<a href="https://soviet.glvrd.ru/" rel="noreferrer" target="_blank">
+       Справочник Главреда
+      </a>
+</li>
+</ul>
+<h5 id="редактура-интерфеисы-и-продуктовыи-текст">
+     Редактура, интерфейсы и продуктовый текст
+    </h5>
+<ul>
+<li>
+<a href="https://bureau.ru/soviet/tekst-redaktura-i-informatsionnyy-stil" rel="noreferrer" target="_blank">
+       Советы Бюро Горбунова о тексте и редактуре
+      </a>
+</li>
+<li>
+<a href="https://bureau.ru/soviet/20220109/" rel="noreferrer" target="_blank">
+       Пример редактуры текста от Бюро Горбунова
+      </a>
+</li>
+</ul>
+<p>
+     В работе с Jestei Pool важнее всего не литературность сама по себе, а точность, польза и сценарий. Текст должен помогать диджею понять продукт, найти нужную музыку и быстрее подготовиться к работе.
+    </p>
+<h3 id="таблица-инструментов">
+     Таблица инструментов
+    </h3>
+<div aria-label="Таблица: Таблица инструментов" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">
+        Инструмент
+       </th>
+<th scope="col">
+        Для чего нужен в редполитике
+       </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://www.artlebedev.ru/typograf/" rel="noreferrer" target="_blank">
+         Типограф
+        </a>
+</td>
+<td>
+        Техническая вычитка: пробелы, кавычки, тире, буква «ё» и типографика
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://glvrd.ru/" rel="noreferrer" target="_blank">
+         Главред
+        </a>
+</td>
+<td>
+        Проверка читаемости, содержательности, стоп-слов и длины текста
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://text.ru/seo" rel="noreferrer" target="_blank">
+         Text.ru
+        </a>
+</td>
+<td>
+        Быстрый подсчёт символов, слов и базовая проверка текста
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://involta.ru/tools/length-chars/" rel="noreferrer" target="_blank">
+         Involta
+        </a>
+</td>
+<td>
+        Подсчёт символов, слов, пробелов, кириллицы, латиницы и цифр
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://gramota.ru/" rel="noreferrer" target="_blank">
+         Грамота.ру
+        </a>
+</td>
+<td>
+        Проверка русского языка, словарей, ударений, пунктуации и спорных случаев
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://gramota.ru/biblioteka/slovari" rel="noreferrer" target="_blank">
+         Словари Грамоты
+        </a>
+</td>
+<td>
+        Проверка нормативного написания и значения слов
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://gramota.ru/biblioteka/slovari/russkij-orfograficheskij-slovar" rel="noreferrer" target="_blank">
+         Русский орфографический словарь
+        </a>
+</td>
+<td>
+        Проверка орфографии и нормативного написания
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://gramota.ru/spravka" rel="noreferrer" target="_blank">
+         Справочная служба Грамоты
+        </a>
+</td>
+<td>
+        Проверка сложных вопросов по русскому языку
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://dictionary.cambridge.org/" rel="noreferrer" target="_blank">
+         Cambridge Dictionary
+        </a>
+</td>
+<td>
+        Проверка английских слов, значений, произношения и употребления
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://www.merriam-webster.com/" rel="noreferrer" target="_blank">
+         Merriam-Webster
+        </a>
+</td>
+<td>
+        Проверка английских слов, американского употребления и новых значений
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/golmakov/figma-typograf-plugin" rel="noreferrer" target="_blank">
+         Typograf для Figma
+        </a>
+</td>
+<td>
+        Типографика прямо в макетах Фигмы
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/DanilovM/SBOLTypographFigma" rel="noreferrer" target="_blank">
+         SBOL Typograph для Figma
+        </a>
+</td>
+<td>
+        Типографика, неразрывные пробелы, кавычки, тире и ёфикация в макетах
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://soviet.glvrd.ru/" rel="noreferrer" target="_blank">
+         Справочник Главреда
+        </a>
+</td>
+<td>
+        Статьи про текст, редактуру, ясность, доверие и информационный стиль
+       </td>
+</tr>
+<tr>
+<td>
+<a href="https://bureau.ru/soviet/tekst-redaktura-i-informatsionnyy-stil" rel="noreferrer" target="_blank">
+         Советы Бюро Горбунова
+        </a>
+</td>
+<td>
+        Материалы по тексту, редактуре и информационному стилю
+       </td>
+</tr>
+</tbody>
+</table></div>
+</section>
+</main>
+</div>
+<script>
+(() => {
+  const chapters = [...document.querySelectorAll('.chapter')];
+  const toc = document.querySelector('[data-document-toc]');
+  const side = document.querySelector('[data-side-nav]');
+  const stickyTopic = document.querySelector('[data-sticky-topic]');
+  const progress = document.querySelector('[data-sticky-progress]');
+
+  const links = new Map();
+
+  chapters.forEach((chapter) => {
+    const heading = chapter.querySelector(':scope > h2');
+    if (!heading || !chapter.id) return;
+
+    const makeLink = (className) => {
+      const li = document.createElement('li');
+      li.className = className.replace('__link', '__item');
+      const a = document.createElement('a');
+      a.className = className;
+      a.href = `#${chapter.id}`;
+      a.textContent = heading.textContent.trim();
+      li.append(a);
+      return { li, a };
+    };
+
+    const tocItem = makeLink('document-toc__link');
+    toc.append(tocItem.li);
+
+    const sideItem = makeLink('side-nav__link');
+    side.append(sideItem.li);
+    links.set(chapter.id, sideItem.a);
+  });
+
+  const setActive = (chapter) => {
+    if (!chapter) return;
+    const title = chapter.querySelector(':scope > h2')?.textContent.trim() || '';
+    stickyTopic.textContent = title;
+    links.forEach((link, id) => {
+      if (id === chapter.id) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    });
+  };
+
+  if (chapters[0]) setActive(chapters[0]);
+
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter((entry) => entry.isIntersecting)
+      .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top));
+    if (visible[0]) setActive(visible[0].target);
+  }, {
+    rootMargin: '-18% 0px -68% 0px',
+    threshold: [0, 0.01]
+  });
+
+  chapters.forEach((chapter) => observer.observe(chapter));
+
+  const updateProgress = () => {
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - innerHeight;
+    const value = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    progress.style.setProperty('--progress', value.toFixed(4));
+  };
+
+  addEventListener('scroll', updateProgress, { passive: true });
+  addEventListener('resize', updateProgress, { passive: true });
+  updateProgress();
+})();
+</script>
+</body>
+</html>

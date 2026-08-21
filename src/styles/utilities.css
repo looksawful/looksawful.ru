@@ -1,34 +1,62 @@
+[hidden] {
+  display: none !important;
+}
+
 .visually-hidden {
   position: absolute;
   inline-size: 1px;
   block-size: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
   overflow: hidden;
+  clip: rect(0 0 0 0);
   clip-path: inset(50%);
   white-space: nowrap;
 }
 
-.stable-slot {
-  block-size: var(--stable-slot-block-size, auto);
-  min-block-size: var(--stable-slot-min-block-size, 0);
-  max-block-size: var(--stable-slot-max-block-size, none);
-  overflow: var(--stable-slot-overflow, clip);
-  contain: layout paint;
+.placeholder-surface {
+  display: grid;
+  place-items: center;
+  background: var(--placeholder-surface-bg, #050505);
+  color: var(--placeholder-surface-fg, rgb(255 255 255 / 0.44));
+  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-weight: var(--fw-500);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
-
-/* Two-child source/visual order utility. Parent must already be grid or flex. */
-.swap-order > :first-child {
-  order: 2;
+.placeholder-surface--logo > span {
+  inline-size: min(72%, 8rem);
+  block-size: 0.55rem;
+  border-radius: 999rem;
+  background: currentColor;
 }
 
-.swap-order > :last-child {
-  order: 1;
+.surface-muted {
+  --surface-bg: var(--clr-surface-muted);
 }
 
-/* Opt-in split that uses the existing split columns from the mobile size up. */
-.split-always {
-  grid-template-columns: var(
-    --split-columns,
-    minmax(0, 1fr) minmax(0, 1fr)
-  );
+.fit-contain {
+  --object-fit: contain;
+}
+
+.fit-cover {
+  --object-fit: cover;
+}
+
+.position-center {
+  --object-position: center;
+}
+
+.bg-black {
+  --surface-bg: #000;
+}
+
+.bg-white {
+  --surface-bg: #fff;
+}
+
+.bg-theme {
+  --surface-bg: var(--clr-bg);
 }

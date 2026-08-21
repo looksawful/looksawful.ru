@@ -1,9 +1,12 @@
-@layer reset, tokens, base, patterns, layout, components, motion, utilities;
+@layer reset, tokens, colors, base, patterns, components, utilities;
+
+@import "@fontsource-variable/rubik/wght.css";
+@import "@fontsource-variable/inter/wght.css";
 
 @import "./reset.css" layer(reset);
 @import "./tokens.css" layer(tokens);
+@import "./colors.css" layer(colors);
 @import "./base.css" layer(base);
 @import "./patterns.css" layer(patterns);
-@import "./layout.css" layer(layout);
-@import "./buttons.css" layer(components);
+@import "./components.css" layer(components);
 @import "./utilities.css" layer(utilities);

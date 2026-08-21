@@ -8,7 +8,6 @@ html {
   -moz-text-size-adjust: none;
   -webkit-text-size-adjust: none;
   text-size-adjust: none;
-  hanging-punctuation: first last;
 }
 
 body,
@@ -21,7 +20,6 @@ h6,
 p,
 figure,
 blockquote,
-address,
 dl,
 dd {
   margin: 0;
@@ -31,7 +29,6 @@ ul,
 ol {
   margin: 0;
   padding: 0;
-  list-style: none;
 }
 
 button,
@@ -39,35 +36,29 @@ input,
 textarea,
 select {
   font: inherit;
-}
-
-button {
-  border: 0;
-  padding: 0;
   color: inherit;
-  background: transparent;
 }
 
 img,
 picture,
 svg,
-video,
-canvas {
+video {
   display: block;
   max-inline-size: 100%;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  text-wrap: balance;
+pre {
+  margin: 0;
 }
 
-p,
-li,
-figcaption {
-  text-wrap: pretty;
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+fieldset {
+  min-inline-size: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
 }

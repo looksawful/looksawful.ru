@@ -1,32 +1,69 @@
-/*
- * Reusable layout patterns.
- *
- * Existing public contracts are preserved for backward compatibility.
- * New patterns use opt-in classes and local custom properties.
- */
+/* Reusable layout primitives.
+   Defaults are intrinsic and mobile-first. Components opt in and tune them
+   with local custom properties instead of re-implementing layout mechanics. */
 
-@keyframes rise-scroller {
-  0%,
-  100% {
-    opacity: 0.25;
-    scale: 0.5;
-  }
+/* Pattern configuration is local to each cluster instance. This prevents a
+   configured outer cluster from silently reconfiguring a nested cluster. */
+@property --cluster-wrap {
+  syntax: "*";
+  inherits: false;
+}
 
-  35%,
-  65% {
-    opacity: 1;
-    scale: 1;
-  }
+@property --cluster-align {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --cluster-justify {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --cluster-space {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --cluster-row-gap {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --cluster-column-gap {
+  syntax: "*";
+  inherits: false;
+}
+
+.wrapper {
+  inline-size: min(
+    calc(100% - (var(--wrapper-gutter, var(--page-padding-inline)) * 2)),
+    var(--wrapper-max-width, var(--content-max-width))
+  );
+  margin-inline: auto;
+}
+
+.flow > * + * {
+  margin-block-start: var(--flow-space, 1em);
+}
+
+.prose > * + * {
+  margin-block-start: var(--prose-space, var(--prose-flow, 1.5em));
 }
 
 .stack {
   display: flex;
   flex-direction: column;
-  gap: var(--stack-space, 1.5rem);
+  gap: var(--stack-space, var(--size-400));
 }
 
-.prose > * + * {
-  margin-block-start: var(--prose-space, var(--prose-flow, 2em));
+.cluster {
+  display: flex;
+  flex-wrap: var(--cluster-wrap, wrap);
+  align-items: var(--cluster-align, center);
+  justify-content: var(--cluster-justify, flex-start);
+  gap:
+    var(--cluster-row-gap, var(--cluster-space, var(--size-200)))
+    var(--cluster-column-gap, var(--cluster-space, var(--size-200)));
 }
 
 .pile {
@@ -39,166 +76,99 @@
   grid-area: pile;
 }
 
-.overflow-scroller {
+.grid {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: var(--overflow-scroller-item-size, 300px);
-  gap: var(--overflow-scroller-space, 1rem);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-}
-
-.overflow-scroller > * {
-  scroll-snap-align: center;
+  grid-template-columns: var(--grid-columns, minmax(0, 1fr));
+  align-items: var(--grid-align, start);
+  gap:
+    var(--grid-row-gap, var(--grid-gap, var(--size-400)))
+    var(--grid-column-gap, var(--grid-gap, var(--size-400)));
 }
 
 .auto-grid {
   display: grid;
   grid-template-columns: repeat(
     auto-fit,
-    minmax(
-      min(var(--auto-grid-min, var(--min-col-size, 400px)), 100%),
-      1fr
-    )
+    minmax(min(var(--auto-grid-min, 16rem), 100%), 1fr)
   );
   gap:
-    var(--auto-grid-row-gap, var(--auto-grid-space, 1rem))
-    var(--auto-grid-column-gap, var(--auto-grid-space, 1rem));
+    var(--auto-grid-row-gap, var(--auto-grid-gap, var(--size-400)))
+    var(--auto-grid-column-gap, var(--auto-grid-gap, var(--size-400)));
 }
 
-.sidebar-section {
-  container-type: inline-size;
-}
-
-.promo-list {
-  display: grid;
-  gap: 1rem;
-}
-
-.promo-list > li {
-  border-color: white;
-  border-radius: 8px;
-  corner-shape: scoop;
-}
-
-.container {
-  width: min(
-    var(--content-max-width, 1160px),
-    calc(100% - var(--padding-inline, 2rem) * 2)
-  );
-  margin-inline: auto;
-}
-
-.wrapper {
-  inline-size: min(
-    calc(100% - (var(--wrapper-gutter, var(--space-s, 1rem)) * 2)),
-    var(--wrapper-max-width, 80rem)
-  );
-  margin-inline: auto;
-}
-
-.grid-flow {
-  display: grid;
-  grid-template-columns: var(--grid-flow-columns, none);
-  grid-auto-flow: var(--grid-flow-auto-flow, row);
-  align-content: var(--grid-flow-align-content, start);
-  align-items: var(--grid-flow-align-items, normal);
-  justify-content: var(--grid-flow-justify-content, normal);
-  justify-items: var(--grid-flow-justify-items, normal);
-  gap:
-    var(--grid-flow-row-gap, var(--grid-flow-space, 1rem))
-    var(--grid-flow-column-gap, var(--grid-flow-space, 1rem));
-}
-
-.cluster {
-  display: flex;
-  flex-wrap: var(--cluster-wrap, wrap);
-  align-items: var(--cluster-align, center);
-  justify-content: var(--cluster-justify, normal);
-  gap:
-    var(--cluster-row-gap, var(--cluster-space, var(--space-2xs, 0.5rem)))
-    var(--cluster-column-gap, var(--cluster-space, var(--space-2xs, 0.5rem)));
-}
-
+/* Equal columns become as numerous as the available inline size allows. */
 .equal-columns {
   display: grid;
-  gap: var(--equal-columns-space, var(--space-s, 1rem));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(var(--equal-columns-min, 16rem), 100%), 1fr)
+  );
+  gap: var(--equal-columns-gap, var(--size-400));
 }
 
+/* Intrinsic split. --split-min is the content-driven point at which another
+   column can exist; no viewport breakpoint is involved. */
 .split {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(var(--split-min, 18rem), 100%), 1fr)
+  );
   align-items: var(--split-align, start);
-  gap: var(--split-space, var(--space-m, 2rem));
+  gap: var(--split-gap, var(--size-500));
 }
 
-.sidebar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: var(--sidebar-align, flex-start);
-  gap: var(--sidebar-space, var(--space-m, 2rem));
+/* Explicitly multi-column split for compositions that must remain divided on
+   narrow containers. The authored minimum is capped by the available half so
+   it cannot force horizontal overflow. */
+.split-always {
+  --split-column-min: min(
+    var(--split-min, 0rem),
+    calc((100% - var(--split-gap, var(--size-500))) / 2)
+  );
+
+  grid-template-columns: var(
+    --split-columns,
+    repeat(2, minmax(var(--split-column-min), 1fr))
+  );
 }
 
-.sidebar > :first-child {
-  flex-basis: var(--sidebar-size, 18rem);
-  flex-grow: 1;
-}
-
-.sidebar > :last-child {
-  flex-basis: 0;
-  flex-grow: 999;
-  min-inline-size: min(100%, var(--sidebar-content-min, 50%));
-}
-
-.switcher {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--switcher-space, var(--space-s, 1rem));
-}
-
-.switcher > * {
-  flex-grow: 1;
-  flex-basis: calc((var(--switcher-threshold, 40rem) - 100%) * 999);
-}
-
-.reel {
+/* Editorial composition. Components choose the column count and gaps without
+   taking ownership of the grid algorithm. */
+.editorial-grid {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: var(--reel-item-size, min(80vw, 20rem));
-  gap: var(--reel-space, var(--space-s, 1rem));
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
-  scroll-snap-type: inline mandatory;
-  scrollbar-gutter: stable;
+  grid-template-columns: repeat(var(--editorial-columns, 6), minmax(0, 1fr));
+  align-items: var(--editorial-align, start);
+  gap:
+    var(--editorial-row-gap, var(--size-400))
+    var(--editorial-column-gap, var(--size-200));
+}
+
+/* Generic horizontal overflow primitive. It can use flex or grid internally;
+   the consuming component owns only its geometry and responsive overrides. */
+.reel {
+  display: var(--reel-display, flex);
+  flex-wrap: var(--reel-wrap, nowrap);
+  align-items: var(--reel-align, flex-start);
+  justify-content: var(--reel-justify, normal);
+  gap: var(--reel-gap, var(--size-300));
+  min-inline-size: 0;
+  overflow-x: var(--reel-overflow-x, auto);
+  overflow-y: var(--reel-overflow-y, visible);
+  overscroll-behavior-inline: var(--reel-overscroll-inline, contain);
+  scroll-snap-type: var(--reel-snap-type, inline proximity);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.reel::-webkit-scrollbar {
+  display: none;
+  inline-size: 0;
+  block-size: 0;
 }
 
 .reel > * {
+  flex: 0 0 var(--reel-item-size, auto);
+  min-inline-size: 0;
   scroll-snap-align: var(--reel-snap-align, start);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .overflow-scroller[data-animated="true"] > * {
-    animation: rise-scroller linear both;
-    animation-timeline: view(x);
-  }
-}
-
-@container (width > 500px) {
-  .promo-list {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (width > 48rem) {
-  .equal-columns {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(0, 1fr);
-  }
-
-  .split {
-    grid-template-columns: var(
-      --split-columns,
-      minmax(0, 1fr) minmax(0, 1fr)
-    );
-  }
 }

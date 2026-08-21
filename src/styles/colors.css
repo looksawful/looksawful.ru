@@ -1,0 +1,196 @@
+/* Default site palette */
+
+:root {
+  --clr-surface: rgb(255 255 255);
+  --clr-foreground: rgb(17 17 17);
+  --clr-accent: rgb(47 91 255);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+/* Every theme owns surface, foreground and accent. */
+
+:where(:root, [data-theme]) {
+  --clr-bg: var(--clr-surface);
+  --clr-text: var(--clr-foreground);
+
+  --clr-surface-raised: color-mix(in srgb, var(--clr-surface), var(--clr-foreground) 4%);
+
+  --clr-surface-muted: color-mix(in srgb, var(--clr-surface), var(--clr-foreground) 8%);
+
+  --clr-text-muted: color-mix(in srgb, var(--clr-foreground), transparent 38%);
+
+  --clr-border: color-mix(in srgb, var(--clr-foreground), transparent 80%);
+
+  --clr-border-strong: color-mix(in srgb, var(--clr-foreground), transparent 55%);
+
+  --clr-selection-bg: var(--clr-foreground);
+  --clr-selection-text: var(--clr-surface);
+}
+
+/*[data-theme="neutral"] {
+  --clr-surface: rgb(255 255 255);
+  --clr-foreground: rgb(13 13 13);
+  --clr-accent: rgb(47 91 255);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="pink-red"] {
+  --clr-surface: rgb(241 168 195);
+  --clr-foreground: rgb(244 79 55);
+  --clr-accent: rgb(40 16 154);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="red-pink"] {
+  --clr-surface: rgb(244 79 55);
+  --clr-foreground: rgb(241 168 195);
+  --clr-accent: rgb(189 255 74);
+  --clr-on-accent: rgb(13 13 13);
+}
+
+[data-theme="blue-pink"] {
+  --clr-surface: rgb(40 16 154);
+  --clr-foreground: rgb(241 168 195);
+  --clr-accent: rgb(189 255 74);
+  --clr-on-accent: rgb(13 13 13);
+}
+
+[data-theme="lavender-brown"] {
+  --clr-surface: rgb(186 195 216);
+  --clr-foreground: rgb(63 40 43);
+  --clr-accent: rgb(244 79 55);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="purple-lime"] {
+  --clr-surface: rgb(109 56 151);
+  --clr-foreground: rgb(189 255 74);
+  --clr-accent: rgb(241 168 195);
+  --clr-on-accent: rgb(63 40 43);
+}
+
+[data-theme="warm-red"] {
+  --clr-surface: rgb(222 216 207);
+  --clr-foreground: rgb(244 79 55);
+  --clr-accent: rgb(40 16 154);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="lime-black"] {
+  --clr-surface: rgb(189 255 74);
+  --clr-foreground: rgb(13 13 13);
+  --clr-accent: rgb(109 56 151);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="acid-violet"] {
+  --clr-surface: rgb(232 255 98);
+  --clr-foreground: rgb(58 30 120);
+  --clr-accent: rgb(255 90 47);
+  --clr-on-accent: rgb(13 13 13);
+}
+
+[data-theme="berry-pink"] {
+  --clr-surface: rgb(213 52 104);
+  --clr-foreground: rgb(255 211 227);
+  --clr-accent: rgb(189 255 74);
+  --clr-on-accent: rgb(13 13 13);
+}
+
+[data-theme="mint-green"] {
+  --clr-surface: rgb(217 243 228);
+  --clr-foreground: rgb(22 59 47);
+  --clr-accent: rgb(42 67 255);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="electric-ice"] {
+  --clr-surface: rgb(42 67 255);
+  --clr-foreground: rgb(243 245 255);
+  --clr-accent: rgb(241 168 195);
+  --clr-on-accent: rgb(63 40 43);
+}
+
+[data-theme="black-acid"] {
+  --clr-surface: rgb(18 18 18);
+  --clr-foreground: rgb(200 255 61);
+  --clr-accent: rgb(255 90 47);
+  --clr-on-accent: rgb(13 13 13);
+}
+
+[data-theme="orange-cream"] {
+  --clr-surface: rgb(255 90 47);
+  --clr-foreground: rgb(255 240 216);
+  --clr-accent: rgb(13 13 13);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="black-white"] {
+  --clr-surface: rgb(13 13 13);
+  --clr-foreground: rgb(255 255 255);
+  --clr-accent: rgb(255 255 255);
+  --clr-on-accent: rgb(13 13 13);
+}
+
+[data-theme="black-green"] {
+  --clr-surface: rgb(10 13 11);
+  --clr-foreground: rgb(244 247 244);
+  --clr-accent: rgb(92 255 99);
+  --clr-on-accent: rgb(10 13 11);
+}
+
+[data-theme="soft-pink"] {
+  --clr-surface: rgb(247 220 231);
+  --clr-foreground: rgb(59 38 48);
+  --clr-accent: rgb(236 91 143);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="blue"] {
+  --clr-surface: rgb(40 85 217);
+  --clr-foreground: rgb(247 249 255);
+  --clr-accent: rgb(185 255 79);
+  --clr-on-accent: rgb(17 17 17);
+}
+
+[data-theme="lavender"] {
+  --clr-surface: rgb(216 209 240);
+  --clr-foreground: rgb(53 43 79);
+  --clr-accent: rgb(113 87 217);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="orange-black"] {
+  --clr-surface: rgb(255 122 47);
+  --clr-foreground: rgb(17 17 17);
+  --clr-accent: rgb(255 244 232);
+  --clr-on-accent: rgb(17 17 17);
+}
+
+[data-theme="white-red"] {
+  --clr-surface: rgb(255 255 255);
+  --clr-foreground: rgb(24 24 24);
+  --clr-accent: rgb(239 63 49);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="white-blue"] {
+  --clr-surface: rgb(255 255 255);
+  --clr-foreground: rgb(24 24 24);
+  --clr-accent: rgb(47 91 255);
+  --clr-on-accent: rgb(255 255 255);
+}
+
+[data-theme="black-red"] {
+  --clr-surface: rgb(13 13 13);
+  --clr-foreground: rgb(247 247 247);
+  --clr-accent: rgb(255 74 61);
+  --clr-on-accent: rgb(13 13 13);
+}
+
+[data-theme="black-orange"] {
+  --clr-surface: rgb(13 13 13);
+  --clr-foreground: rgb(247 247 247);
+  --clr-accent: rgb(255 122 47);
+  --clr-on-accent: rgb(13 13 13);
+}*/

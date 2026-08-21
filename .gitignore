@@ -104,6 +104,7 @@ _awful-audit/
 for-any-agents.txt
 Agents/
 real-media-temp/
+fixes/
 _local/media-backup/
 MEDIA-TEMP/
 index.before-media-migration.html
@@ -115,3 +116,5 @@ media/.compression-backup/
 public/media/generated/
 src/generated/media-manifest.json
 src/generated/media-manifest.js
+.prototypes/
+.editorconfig
