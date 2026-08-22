@@ -65,15 +65,6 @@ export const clients = [
     industryIds: ["fashion"],
   },
   {
-    id: "jestei-pool",
-    name: "Jestei Pool",
-    industryIds: ["music", "technology"],
-  },
-  {
-    id: "lyve-moscow",
-    name: "LYVÈ Moscow",
-  },
-  {
     id: "mad-cow-films",
     name: "Mad Cow Films",
     industryIds: ["advertising-production", "film", "advertising"],
@@ -152,11 +143,6 @@ export const clients = [
     industryIds: ["music"],
   },
   {
-    id: "styx-jewel",
-    name: "Styx Jewel",
-    industryIds: ["jewelry", "fashion", "ecommerce"],
-  },
-  {
     id: "affa-media",
     name: "AFFA MEDIA",
     industryIds: ["media"],
@@ -173,11 +159,6 @@ export const clients = [
   {
     id: "olovo-moscow",
     name: "Olovo Moscow",
-    industryIds: ["fashion"],
-  },
-  {
-    id: "illumihand",
-    name: "illumihand",
     industryIds: ["fashion"],
   },
   {
