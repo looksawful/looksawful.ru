@@ -35,19 +35,52 @@ async function waitForServer() {
   throw new Error("QA preview did not start");
 }
 
+async function freezeMotion(page) {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.addStyleTag({
+    content: `
+      *, *::before, *::after {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+        transition-duration: 0s !important;
+        scroll-behavior: auto !important;
+      }
+    `,
+  });
+}
+
+async function captureLocator(page, locator, path) {
+  const box = await locator.boundingBox();
+  if (!box || box.width <= 1 || box.height <= 1) return;
+
+  const viewport = page.viewportSize();
+  const x = Math.max(0, box.x);
+  const y = Math.max(0, box.y);
+  const width = Math.min(box.width, Math.max(1, viewport.width - x));
+  const height = Math.min(box.height, Math.max(1, viewport.height - y));
+
+  if (width <= 1 || height <= 1) return;
+  await page.screenshot({ path, clip: { x, y, width, height } });
+}
+
 async function captureDesktop(browser) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 1000 },
+    reducedMotion: "reduce",
+  });
+  const page = await context.newPage();
   await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
   await page.evaluate(() => document.fonts?.ready);
-  await page.waitForTimeout(800);
+  await freezeMotion(page);
+  await page.waitForTimeout(250);
 
   const summary = page
     .locator('figure.media[data-caption-view="summary"]:visible:has(> .media__caption)')
     .first();
   if (await summary.count()) {
     await summary.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(250);
-    await summary.screenshot({ path: `${OUTPUT}/desktop-summary.png` });
+    await page.waitForTimeout(80);
+    await captureLocator(page, summary, `${OUTPUT}/desktop-summary.png`);
   }
 
   const overlay = page
@@ -55,11 +88,11 @@ async function captureDesktop(browser) {
     .first();
   if (await overlay.count()) {
     await overlay.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(250);
-    await overlay.screenshot({ path: `${OUTPUT}/desktop-overlay-rest.png` });
+    await page.waitForTimeout(80);
+    await captureLocator(page, overlay, `${OUTPUT}/desktop-overlay-rest.png`);
     await overlay.hover({ force: true });
-    await page.waitForTimeout(220);
-    await overlay.screenshot({ path: `${OUTPUT}/desktop-overlay-active.png` });
+    await page.waitForTimeout(80);
+    await captureLocator(page, overlay, `${OUTPUT}/desktop-overlay-active.png`);
   }
 
   const source = page
@@ -67,36 +100,36 @@ async function captureDesktop(browser) {
     .first();
   if (await source.count()) {
     await source.click({ force: true });
-    await page.waitForTimeout(200);
-    const lightbox = page.locator("[data-media-lightbox]");
-    if (await lightbox.count()) {
-      await lightbox.screenshot({ path: `${OUTPUT}/desktop-lightbox.png` });
-    }
+    await page.waitForTimeout(100);
+    await page.screenshot({ path: `${OUTPUT}/desktop-lightbox.png` });
   }
 
-  await page.close();
+  await context.close();
 }
 
 async function captureMobile(browser) {
-  const page = await browser.newPage({
+  const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     isMobile: true,
     hasTouch: true,
+    reducedMotion: "reduce",
   });
+  const page = await context.newPage();
   await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
   await page.evaluate(() => document.fonts?.ready);
-  await page.waitForTimeout(800);
+  await freezeMotion(page);
+  await page.waitForTimeout(250);
 
   const overlay = page
     .locator('figure.media[data-caption-view="overlay"]:visible:has(> .media__caption)')
     .first();
   if (await overlay.count()) {
     await overlay.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(200);
-    await overlay.screenshot({ path: `${OUTPUT}/mobile-overlay-rest.png` });
+    await page.waitForTimeout(80);
+    await captureLocator(page, overlay, `${OUTPUT}/mobile-overlay-rest.png`);
     await overlay.tap({ force: true });
-    await page.waitForTimeout(220);
-    await overlay.screenshot({ path: `${OUTPUT}/mobile-overlay-active.png` });
+    await page.waitForTimeout(80);
+    await captureLocator(page, overlay, `${OUTPUT}/mobile-overlay-active.png`);
   }
 
   const summary = page
@@ -104,11 +137,11 @@ async function captureMobile(browser) {
     .first();
   if (await summary.count()) {
     await summary.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(200);
-    await summary.screenshot({ path: `${OUTPUT}/mobile-summary.png` });
+    await page.waitForTimeout(80);
+    await captureLocator(page, summary, `${OUTPUT}/mobile-summary.png`);
   }
 
-  await page.close();
+  await context.close();
 }
 
 let browser;
