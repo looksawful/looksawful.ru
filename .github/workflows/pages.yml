@@ -42,6 +42,14 @@ jobs:
         run: npm run build
       - name: Browser smoke
         run: node tools/smoke-site.mjs
+      - name: Capture caption visual QA
+        run: node tools/capture-caption-qa.mjs
+      - name: Upload caption visual QA
+        uses: actions/upload-artifact@v4
+        with:
+          name: caption-qa
+          path: artifacts/caption-qa
+          if-no-files-found: error
       - name: Stamp deployment
         run: |
           printf 'commit=%s\n' "$GITHUB_SHA" > dist/deploy-version.txt
