@@ -5,7 +5,6 @@ import { evashaMediaAssets } from "./evasha.ts";
 import { hypressionMediaAssets } from "./hypression.ts";
 import { igguanaMediaAssets } from "./igguana.ts";
 import { jesteiMediaAssets } from "./jestei.ts";
-import { movesAwfulMediaAssets } from "./moves-awful.ts";
 import { obladaetMediaAssets } from "./obladaet.ts";
 import { ofeliaMediaAssets } from "./ofelia.ts";
 import { sandsMediaAssets } from "./sands.ts";
@@ -21,7 +20,6 @@ export const mediaAssets = [
   ...hypressionMediaAssets,
   ...igguanaMediaAssets,
   ...jesteiMediaAssets,
-  ...movesAwfulMediaAssets,
   ...obladaetMediaAssets,
   ...ofeliaMediaAssets,
   ...sandsMediaAssets,

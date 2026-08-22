@@ -3,40 +3,46 @@ import type { LogoFamilyId } from "./families.ts";
 
 export const logoColorways = [
   {
-    id: "jestei-black",
+    id: "jestei-bright",
     familyId: "jestei-pool",
-    name: "Чёрный",
-    intendedBackground: "light",
+    name: "Bright",
+    intendedBackground: "dark",
+    description: "Белая контрастная версия; используется, когда цветовая сегментация не нужна.",
   },
   {
-    id: "jestei-white",
+    id: "jestei-dark",
     familyId: "jestei-pool",
-    name: "Белый",
-    intendedBackground: "dark",
+    name: "Dark",
+    intendedBackground: "light",
+    description: "Чёрная контрастная версия; используется, когда цветовая сегментация не нужна.",
+  },
+  {
+    id: "jestei-orange",
+    familyId: "jestei-pool",
+    name: "Orange",
+    intendedBackground: "any",
+    description: "Цветовая версия для Club.",
   },
   {
     id: "jestei-pear",
     familyId: "jestei-pool",
-    name: "Грушевый",
+    name: "Pear",
     intendedBackground: "any",
-  },
-  {
-    id: "jestei-gold",
-    familyId: "jestei-pool",
-    name: "Золотой",
-    intendedBackground: "any",
+    description: "Цветовая версия для Event.",
   },
   {
     id: "jestei-blue",
     familyId: "jestei-pool",
-    name: "Синий",
+    name: "Blue",
     intendedBackground: "any",
+    description: "Цветовая версия для PRO.",
   },
   {
-    id: "jestei-lavender",
+    id: "jestei-biloba",
     familyId: "jestei-pool",
-    name: "Лавандовый",
+    name: "Biloba",
     intendedBackground: "any",
+    description: "Цветовая версия для новых функций и feature-коммуникации.",
   },
 ] as const satisfies readonly LogoColorwayData<LogoFamilyId>[];
 

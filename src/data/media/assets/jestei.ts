@@ -1565,6 +1565,48 @@ export const jesteiMediaAssets = [
     width: 24,
     height: 24,
   },
+  {
+    id: "jestei-landings-moves-awful-poster-01-2044x1112",
+    type: "image",
+    src: "/media/projects/jestei/landings/moves-awful/poster/01-2044x1112.webp",
+    width: 2044,
+    height: 1112,
+  },
+  {
+    id: "jestei-landings-moves-awful-poster-02-2540x790",
+    type: "image",
+    src: "/media/projects/jestei/landings/moves-awful/poster/02-2540x790.webp",
+    width: 2540,
+    height: 790,
+  },
+  {
+    id: "jestei-landings-moves-awful-poster-03-1914x1208",
+    type: "image",
+    src: "/media/projects/jestei/landings/moves-awful/poster/03-1914x1208.webp",
+    width: 1914,
+    height: 1208,
+  },
+  {
+    id: "jestei-landings-moves-awful-source-01-2044x1112",
+    type: "video",
+    src: "/media/projects/jestei/landings/moves-awful/source/01-2044x1112.mp4",
+    width: 2044,
+    height: 1112,
+  },
+  {
+    id: "jestei-landings-moves-awful-source-02-2540x790",
+    type: "video",
+    src: "/media/projects/jestei/landings/moves-awful/source/02-2540x790.mp4",
+    width: 2540,
+    height: 790,
+  },
+  {
+    id: "jestei-landings-moves-awful-source-03-1914x1208",
+    type: "video",
+    src: "/media/projects/jestei/landings/moves-awful/source/03-1914x1208.mp4",
+    width: 1914,
+    height: 1208,
+  },
 ] as const satisfies readonly MediaAsset[];
 
 export type JesteiMediaAsset = (typeof jesteiMediaAssets)[number];

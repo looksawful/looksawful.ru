@@ -126,7 +126,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
+      title: "Дизайн шаблона для музыкальных постов в сторис.",
       index: 15,
     },
     purpose: "work",
@@ -137,7 +137,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
+      title: "Дизайн шаблона для музыкальных постов в сторис.",
       index: 16,
     },
     purpose: "work",
@@ -148,7 +148,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
+      title: "Дизайн шаблона для музыкальных постов в сторис.",
       index: 17,
     },
     purpose: "work",
@@ -159,7 +159,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
+      title: "Дизайн шаблона для музыкальных постов в сторис.",
       index: 18,
     },
     purpose: "work",
@@ -170,7 +170,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
+      title: "Дизайн шаблона для музыкальных постов в сторис.",
       index: 19,
     },
     purpose: "work",
@@ -181,7 +181,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
+      title: "Дизайн шаблона для музыкальных постов в сторис.",
       index: 20,
     },
     purpose: "work",
@@ -341,7 +341,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-subscription"],
     alt: "Изображение до изменений",
     caption: {
-      title: "Новый дизайн тарифов.",
+      title: "Старый дизайн карточек с тарифами при регистрации.",
       index: 23,
       text: "Мы полностью переделали сценарий покупки подписки, описали разницу между тарифами, разделили тарифы для разных сегментов при помощи цветовых профилей.",
     },
@@ -353,7 +353,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-subscription"],
     alt: "Изображение после изменений",
     caption: {
-      title: "Новый дизайн тарифов.",
+      title: "Новый дизайн виджетов с тарифами.",
       index: 23,
       text: "Мы полностью переделали сценарий покупки подписки, описали разницу между тарифами, разделили тарифы для разных сегментов при помощи цветовых профилей.",
     },
@@ -1821,8 +1821,9 @@ export const jesteiMediaEntries = [
   {
     id: "jestei-12-source-01-1080x1080-use-01",
     assetId: "jestei-12-source-01-1080x1080",
+    projectIds: ["jestei-promo-communication"],
     caption: {
-      title: "Кадр кампейна для Olovo.",
+      title: "Кадр кампейна для Jestei Pool.",
     },
     purpose: "work",
   },
@@ -1958,6 +1959,39 @@ export const jesteiMediaEntries = [
     id: "jestei-logo-source-logo-secondary-use-01",
     assetId: "jestei-logo-source-logo-secondary",
     projectIds: ["jestei-brand-system"],
+    purpose: "work",
+  },
+  {
+    id: "jestei-landings-moves-awful-source-01-use-jestei",
+    assetId: "jestei-landings-moves-awful-source-01-2044x1112",
+    projectIds: ["jestei-landings"],
+    posterAssetId: "jestei-landings-moves-awful-poster-01-2044x1112",
+    caption: {
+      title: "Анимированная секция лендинга для клубных диджеев.",
+      index: 35,
+    },
+    purpose: "work",
+  },
+  {
+    id: "jestei-landings-moves-awful-source-02-use-jestei",
+    assetId: "jestei-landings-moves-awful-source-02-2540x790",
+    projectIds: ["jestei-landings"],
+    posterAssetId: "jestei-landings-moves-awful-poster-02-2540x790",
+    caption: {
+      title: "Анимированная секция лендинга для клубных диджеев.",
+      index: 35,
+    },
+    purpose: "work",
+  },
+  {
+    id: "jestei-landings-moves-awful-source-03-use-jestei",
+    assetId: "jestei-landings-moves-awful-source-03-1914x1208",
+    projectIds: ["jestei-landings"],
+    posterAssetId: "jestei-landings-moves-awful-poster-03-1914x1208",
+    caption: {
+      title: "Анимированная секция лендинга для клубных диджеев.",
+      index: 35,
+    },
     purpose: "work",
   },
 ] as const satisfies readonly MediaEntryData<MediaAssetId, ProjectId, MediaCreditsId>[];

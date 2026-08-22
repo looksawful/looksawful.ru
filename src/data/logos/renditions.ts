@@ -4,15 +4,15 @@ import type { LogoVariantId } from "./variants.ts";
 
 export const logoRenditions = [
   {
-    id: "jestei-current-symbol-black",
+    id: "jestei-current-symbol-dark",
     variantId: "jestei-current-symbol",
-    colorwayId: "jestei-black",
+    colorwayId: "jestei-dark",
     treatment: "flat",
   },
   {
-    id: "jestei-current-symbol-white",
+    id: "jestei-current-symbol-bright",
     variantId: "jestei-current-symbol",
-    colorwayId: "jestei-white",
+    colorwayId: "jestei-bright",
     treatment: "flat",
   },
   {
@@ -22,9 +22,9 @@ export const logoRenditions = [
     treatment: "flat",
   },
   {
-    id: "jestei-current-symbol-gold",
+    id: "jestei-current-symbol-orange",
     variantId: "jestei-current-symbol",
-    colorwayId: "jestei-gold",
+    colorwayId: "jestei-orange",
     treatment: "flat",
   },
   {
@@ -34,21 +34,21 @@ export const logoRenditions = [
     treatment: "flat",
   },
   {
-    id: "jestei-current-symbol-lavender",
+    id: "jestei-current-symbol-biloba",
     variantId: "jestei-current-symbol",
-    colorwayId: "jestei-lavender",
+    colorwayId: "jestei-biloba",
     treatment: "flat",
   },
   {
-    id: "jestei-current-wordmark-black",
+    id: "jestei-current-wordmark-dark",
     variantId: "jestei-current-wordmark",
-    colorwayId: "jestei-black",
+    colorwayId: "jestei-dark",
     treatment: "flat",
   },
   {
-    id: "jestei-current-wordmark-white",
+    id: "jestei-current-wordmark-bright",
     variantId: "jestei-current-wordmark",
-    colorwayId: "jestei-white",
+    colorwayId: "jestei-bright",
     treatment: "flat",
   },
   {
@@ -58,9 +58,9 @@ export const logoRenditions = [
     treatment: "flat",
   },
   {
-    id: "jestei-current-wordmark-gold",
+    id: "jestei-current-wordmark-orange",
     variantId: "jestei-current-wordmark",
-    colorwayId: "jestei-gold",
+    colorwayId: "jestei-orange",
     treatment: "flat",
   },
   {
@@ -70,21 +70,21 @@ export const logoRenditions = [
     treatment: "flat",
   },
   {
-    id: "jestei-current-wordmark-lavender",
+    id: "jestei-current-wordmark-biloba",
     variantId: "jestei-current-wordmark",
-    colorwayId: "jestei-lavender",
+    colorwayId: "jestei-biloba",
     treatment: "flat",
   },
   {
-    id: "jestei-current-lockup-horizontal-black",
+    id: "jestei-current-lockup-horizontal-dark",
     variantId: "jestei-current-lockup-horizontal",
-    colorwayId: "jestei-black",
+    colorwayId: "jestei-dark",
     treatment: "flat",
   },
   {
-    id: "jestei-current-lockup-horizontal-white",
+    id: "jestei-current-lockup-horizontal-bright",
     variantId: "jestei-current-lockup-horizontal",
-    colorwayId: "jestei-white",
+    colorwayId: "jestei-bright",
     treatment: "flat",
   },
   {
@@ -94,9 +94,9 @@ export const logoRenditions = [
     treatment: "flat",
   },
   {
-    id: "jestei-current-lockup-horizontal-gold",
+    id: "jestei-current-lockup-horizontal-orange",
     variantId: "jestei-current-lockup-horizontal",
-    colorwayId: "jestei-gold",
+    colorwayId: "jestei-orange",
     treatment: "flat",
   },
   {
@@ -106,21 +106,21 @@ export const logoRenditions = [
     treatment: "flat",
   },
   {
-    id: "jestei-current-lockup-horizontal-lavender",
+    id: "jestei-current-lockup-horizontal-biloba",
     variantId: "jestei-current-lockup-horizontal",
-    colorwayId: "jestei-lavender",
+    colorwayId: "jestei-biloba",
     treatment: "flat",
   },
   {
-    id: "jestei-current-lockup-stacked-black",
+    id: "jestei-current-lockup-stacked-dark",
     variantId: "jestei-current-lockup-stacked",
-    colorwayId: "jestei-black",
+    colorwayId: "jestei-dark",
     treatment: "flat",
   },
   {
-    id: "jestei-current-lockup-stacked-white",
+    id: "jestei-current-lockup-stacked-bright",
     variantId: "jestei-current-lockup-stacked",
-    colorwayId: "jestei-white",
+    colorwayId: "jestei-bright",
     treatment: "flat",
   },
   {
@@ -130,9 +130,9 @@ export const logoRenditions = [
     treatment: "flat",
   },
   {
-    id: "jestei-current-lockup-stacked-gold",
+    id: "jestei-current-lockup-stacked-orange",
     variantId: "jestei-current-lockup-stacked",
-    colorwayId: "jestei-gold",
+    colorwayId: "jestei-orange",
     treatment: "flat",
   },
   {
@@ -142,9 +142,9 @@ export const logoRenditions = [
     treatment: "flat",
   },
   {
-    id: "jestei-current-lockup-stacked-lavender",
+    id: "jestei-current-lockup-stacked-biloba",
     variantId: "jestei-current-lockup-stacked",
-    colorwayId: "jestei-lavender",
+    colorwayId: "jestei-biloba",
     treatment: "flat",
   },
   {
@@ -152,7 +152,7 @@ export const logoRenditions = [
     variantId: "jestei-current-symbol",
     treatment: "3d",
     name: "3D-версия эмблемы",
-    description: "Семантическая запись 3D-версии эмблемы; восстановленная GLB-модель зарегистрирована отдельно, но её точное соответствие этой rendition ещё не подтверждено.",
+    description: "3D-версия эмблемы Jestei Pool; восстановленная GLB-модель подтверждена как модель только эмблемы.",
   },
   {
     id: "styx-current-primary-flat",
