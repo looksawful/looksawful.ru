@@ -11,6 +11,7 @@ export interface CaseData {
 
   visibility: CaseVisibility;
 
+  summary?: string;
   description?: string;
   date?: string;
 
