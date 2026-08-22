@@ -1,4 +1,6 @@
+import type { MediaEntryData } from "../../../types/media.ts";
 import type { ProjectId } from "../../catalog/projects/index.ts";
+import type { MediaAssetId } from "../assets/index.ts";
 import { resolveAssignedProjectIds } from "../project-assignments.ts";
 
 import { awfulCasesMediaEntries } from "./awful-cases.ts";
@@ -34,11 +36,17 @@ const rawMediaEntries = [
 ] as const;
 
 export type MediaEntryId = (typeof rawMediaEntries)[number]["id"];
-export type MediaEntryRecord = (typeof rawMediaEntries)[number] & {
-  readonly projectIds?: readonly ProjectId[];
+
+export type MediaEntryRecord = MediaEntryData<MediaAssetId, ProjectId> & {
+  id: MediaEntryId;
 };
 
-export const mediaEntries = rawMediaEntries.map((entry) => {
+const assignableMediaEntries = rawMediaEntries as readonly MediaEntryData<
+  MediaAssetId,
+  string
+>[];
+
+export const mediaEntries = assignableMediaEntries.map((entry) => {
   const projectIds = resolveAssignedProjectIds(entry);
 
   return projectIds
