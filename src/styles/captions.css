@@ -1,14 +1,18 @@
 /* ==================================================
    Media captions
-   One visual contract for authored, templated and legacy media.
-   Content stays in the original figcaption; presentation is controlled only
-   by data-caption-view: full | summary | overlay | lightbox-only.
+
+   Content lives in the original figcaption. The page only chooses one of four
+   presentation states:
+   full | summary | overlay | lightbox-only
+
+   Layout and input-mode adaptation are CSS responsibilities. JavaScript only
+   normalizes legacy attributes and opens the lightbox.
    ================================================== */
 
 .media__caption {
-  --caption-index-width: 2.25rem;
-  --caption-column-gap: clamp(0.5rem, 0.75cqi, 0.75rem);
-  --caption-row-gap: 0.18rem;
+  --caption-index-width: 2rem;
+  --caption-column-gap: clamp(0.45rem, 0.7cqi, 0.7rem);
+  --caption-row-gap: 0.16rem;
 
   inline-size: 100%;
   max-inline-size: min(100%, 72ch);
@@ -39,8 +43,9 @@
   margin: 0;
   color: currentColor;
   font-variant-numeric: tabular-nums;
+  font-weight: var(--fw-400);
   white-space: nowrap;
-  opacity: 0.66;
+  opacity: 0.58;
 }
 
 .media__title,
@@ -52,7 +57,8 @@
   font-weight: var(--fw-400);
 }
 
-.media__caption-line:not(:has(.media__index)) > :is(.media__title, .media__text, .media__meta) {
+.media__caption-line:not(:has(.media__index))
+  > :is(.media__title, .media__text, .media__meta) {
   grid-column: 1;
 }
 
@@ -67,27 +73,28 @@
   color: var(--clr-text-muted);
 }
 
-/* The old inline-caption CSS inserted spaces with pseudo-elements. In the
-   structured grid those pseudo-elements become visible junk, so remove them. */
+/* Old inline-caption styles inserted spaces between spans. In the structured
+   grid those generated spaces are visual noise. */
 .media__title + .media__text::before,
 .media__title + .media__meta::before,
 .media__text + .media__meta::before,
 .media-lightbox__caption .media__title + .media__text::before,
 .media-lightbox__caption .media__title + .media__meta::before,
 .media-lightbox__caption .media__text + .media__meta::before {
-  content: none !important;
+  content: none;
 }
 
 /* FULL ------------------------------------------------------------------- */
-:where(figure.media, figure.before-after)[data-caption-view="full"] > .media__caption,
+:where(figure.media, figure.before-after)[data-caption-view="full"]
+  > .media__caption,
 :where([data-slide-caption][data-caption-view="full"]) {
   opacity: 1;
   visibility: visible;
 }
 
 /* SUMMARY ----------------------------------------------------------------
-   Summary is deliberately static. Details stay in the DOM for the lightbox,
-   but hover/focus/tap can never change the page layout. */
+   A summary is intentionally static. It never grows on hover or focus; the
+   complete caption remains available in the lightbox. */
 :where(figure.media, figure.before-after)[data-caption-view="summary"]
   > :where(figcaption.media__caption, .media__caption)
   :where(.media__text, .media__meta),
@@ -98,7 +105,7 @@
   :where(.media__text, .media__meta),
 :where([data-slide-caption][data-caption-rest="summary"])
   :where(.media__text, .media__meta) {
-  display: none !important;
+  display: none;
 }
 
 /* LIGHTBOX ONLY ---------------------------------------------------------- */
@@ -108,117 +115,137 @@
 :where(figure.media, figure.before-after)[data-caption-rest="none"]
   > :where(figcaption.media__caption, .media__caption),
 :where([data-slide-caption][data-caption-rest="none"]) {
-  display: none !important;
+  display: none;
 }
 
-/* OVERLAY ----------------------------------------------------------------
-   Overlay captions never participate in layout. Fine pointers reveal on hover,
-   keyboard reveals through focus-within, coarse pointers use data-caption-open.
-   The media itself stays sharp; a restrained gradient supplies contrast. */
+/* OVERLAY: touch / coarse-pointer fallback -------------------------------
+   There is no hover interaction to emulate on touch devices. Overlay content
+   therefore falls back to the same compact, stable below-media presentation as
+   summary. Tapping the media can go directly to the lightbox. */
 :where(figure.media, figure.before-after):is(
     [data-caption-view="overlay"],
     [data-caption="overlay"]
-  ) {
-  position: relative;
-  isolation: isolate;
+  ) > figcaption.media__caption {
+  position: static;
+  inline-size: 100%;
+  max-inline-size: min(100%, 72ch);
+  color: var(--clr-text-muted);
+  opacity: 1;
+  visibility: visible;
+  translate: none;
+  pointer-events: auto;
+  text-shadow: none;
+}
+
+:where(figure.media, figure.before-after):is(
+    [data-caption-view="overlay"],
+    [data-caption="overlay"]
+  ) > figcaption.media__caption :where(.media__text, .media__meta) {
+  display: none;
 }
 
 :where(figure.media, figure.before-after):is(
     [data-caption-view="overlay"],
     [data-caption="overlay"]
   )::after {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgb(0 0 0 / 0.82) 0%,
-    rgb(0 0 0 / 0.58) 28%,
-    rgb(0 0 0 / 0.22) 58%,
-    transparent 82%
-  );
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 160ms ease;
+  content: none;
 }
 
-:where(figure.media, figure.before-after):is(
-    [data-caption-view="overlay"],
-    [data-caption="overlay"]
-  ) :where(.media__surface, .mockup__viewport) > :is(img, video),
-:where(figure.media, figure.before-after):is(
-    [data-caption-view="overlay"],
-    [data-caption="overlay"]
-  ) :where(.media__surface, .mockup__viewport) > picture > img {
-  filter: none !important;
-}
-
-:where(figure.media, figure.before-after):is(
-    [data-caption-view="overlay"],
-    [data-caption="overlay"]
-  ) > figcaption.media__caption {
-  position: absolute;
-  z-index: 2;
-  inset-inline: clamp(0.65rem, 1.3cqi, 1rem);
-  inset-block-end: clamp(0.65rem, 1.3cqi, 1rem);
-  inline-size: auto;
-  max-inline-size: min(52ch, calc(100% - clamp(1.3rem, 2.6cqi, 2rem)));
-  max-block-size: min(72%, 22rem);
-  overflow: auto;
-  overscroll-behavior: contain;
-  color: rgb(255 255 255 / 0.82);
-  opacity: 0;
-  visibility: hidden;
-  translate: 0 0.3rem;
-  pointer-events: none;
-  text-shadow: 0 1px 0.7rem rgb(0 0 0 / 0.45);
-  scrollbar-width: thin;
-  transition:
-    opacity 160ms ease,
-    translate 160ms ease,
-    visibility 0s linear 160ms;
-}
-
-:where(figure.media, figure.before-after):is(
-    [data-caption-view="overlay"],
-    [data-caption="overlay"]
-  ) > figcaption.media__caption .media__title {
-  color: #fff;
-  font-weight: var(--fw-600);
-}
-
-:where(figure.media, figure.before-after):is(
-    [data-caption-view="overlay"],
-    [data-caption="overlay"]
-  ) > figcaption.media__caption :is(.media__text, .media__meta) {
-  color: rgb(255 255 255 / 0.76);
-}
-
-:where(figure.media, figure.before-after):is(
-    [data-caption-view="overlay"],
-    [data-caption="overlay"]
-  ):is(:focus-within, [data-caption-open])::after,
-:where(figure.media, figure.before-after):is(
-    [data-caption-view="overlay"],
-    [data-caption="overlay"]
-  ):is(:focus-within, [data-caption-open]) > figcaption.media__caption {
-  opacity: 1;
-  visibility: visible;
-  translate: 0 0;
-  pointer-events: auto;
-  transition-delay: 0s;
-}
-
+/* OVERLAY: fine pointers -------------------------------------------------
+   On devices that genuinely support hover, overlay is a progressive
+   enhancement. It is absolutely positioned, so disclosure cannot change the
+   media-grid geometry. */
 @media (hover: hover) and (pointer: fine) {
   :where(figure.media, figure.before-after):is(
       [data-caption-view="overlay"],
       [data-caption="overlay"]
-    ):hover::after,
+    ) {
+    position: relative;
+    isolation: isolate;
+  }
+
   :where(figure.media, figure.before-after):is(
       [data-caption-view="overlay"],
       [data-caption="overlay"]
-    ):hover > figcaption.media__caption {
+    )::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgb(0 0 0 / 0.76) 0%,
+      rgb(0 0 0 / 0.5) 28%,
+      rgb(0 0 0 / 0.14) 58%,
+      transparent 78%
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease;
+  }
+
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ) :where(.media__surface, .mockup__viewport) > :is(img, video),
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ) :where(.media__surface, .mockup__viewport) > picture > img {
+    filter: none;
+  }
+
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ) > figcaption.media__caption {
+    position: absolute;
+    z-index: 2;
+    inset-block-start: auto;
+    inset-block-end: clamp(0.65rem, 1.3cqi, 1rem);
+    inset-inline: clamp(0.65rem, 1.3cqi, 1rem);
+    inline-size: auto;
+    max-inline-size: min(48ch, calc(100% - clamp(1.3rem, 2.6cqi, 2rem)));
+    max-block-size: min(66%, 18rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    color: rgb(255 255 255 / 0.8);
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 0.25rem;
+    pointer-events: none;
+    text-shadow: 0 1px 0.65rem rgb(0 0 0 / 0.42);
+    scrollbar-width: thin;
+    transition:
+      opacity 160ms ease,
+      translate 160ms ease,
+      visibility 0s linear 160ms;
+  }
+
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ) > figcaption.media__caption .media__title {
+    color: #fff;
+    font-weight: var(--fw-600);
+  }
+
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ) > figcaption.media__caption :is(.media__text, .media__meta) {
+    display: block;
+    color: rgb(255 255 255 / 0.72);
+  }
+
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ):is(:hover, :focus-within)::after,
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ):is(:hover, :focus-within) > figcaption.media__caption {
     opacity: 1;
     visibility: visible;
     translate: 0 0;
@@ -227,42 +254,49 @@
   }
 }
 
-/* Slide captions use the same state model. Their containing deck controls the
-   active caption; overlay never changes deck geometry. */
+/* Slide captions follow the same content-state contract. */
 [data-slide-caption][data-caption-view="overlay"] {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 160ms ease, visibility 0s linear 160ms;
-}
-
-:where(.media, .mockup, .before-after):is(:focus-within, [data-caption-open])
-  [data-slide-caption][data-caption-view="overlay"][data-active] {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto;
-  transition-delay: 0s;
+}
+
+[data-slide-caption][data-caption-view="overlay"]
+  :where(.media__text, .media__meta) {
+  display: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  :where(.media, .mockup, .before-after):hover
+  [data-slide-caption][data-caption-view="overlay"] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 160ms ease, visibility 0s linear 160ms;
+  }
+
+  :where(.media, .mockup, .before-after):is(:hover, :focus-within)
     [data-slide-caption][data-caption-view="overlay"][data-active] {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
     transition-delay: 0s;
   }
+
+  :where(.media, .mockup, .before-after):is(:hover, :focus-within)
+    [data-slide-caption][data-caption-view="overlay"][data-active]
+    :where(.media__text, .media__meta) {
+    display: block;
+  }
 }
 
 /* LIGHTBOX ---------------------------------------------------------------
-   The lightbox keeps the original structured caption instead of flattening it.
-   Long credits scroll independently from the media. */
+   Lightbox receives cloned structured caption nodes, not flattened text. Long
+   descriptions and credits scroll independently from the media. */
 .media-lightbox__caption {
-  --caption-index-width: 2.5rem;
+  --caption-index-width: 2.35rem;
 
   display: grid;
   grid-template-columns: var(--caption-index-width) minmax(0, 1fr);
-  gap: 0.35rem 0.75rem;
+  gap: 0.34rem 0.72rem;
   align-content: start;
   inline-size: min(100%, 76ch);
   max-block-size: min(34dvh, 22rem);
@@ -290,7 +324,6 @@
   grid-column: 1;
   grid-row: 1 / span 32;
   color: rgb(255 255 255 / 0.46);
-  font-variant-numeric: tabular-nums;
 }
 
 .media-lightbox__caption > :is(.media__title, .media__text, .media__meta) {
@@ -309,18 +342,18 @@
 }
 
 .media-lightbox__caption > :is(.media__text, .media__meta) {
-  display: block !important;
+  display: block;
   color: rgb(255 255 255 / 0.72);
 }
 
 @media (max-width: 42rem) {
   .media__caption {
-    --caption-index-width: 1.9rem;
-    --caption-column-gap: 0.5rem;
+    --caption-index-width: 1.75rem;
+    --caption-column-gap: 0.45rem;
   }
 
   .media-lightbox__caption {
-    --caption-index-width: 2rem;
+    --caption-index-width: 1.9rem;
     max-block-size: min(38dvh, 18rem);
     padding-block-start: 0.6rem;
   }
