@@ -55,6 +55,7 @@
   min-inline-size: 0;
   color: inherit;
   font-weight: var(--fw-400);
+  overflow-wrap: break-word;
 }
 
 .media__caption-line:not(:has(.media__index))
@@ -199,17 +200,21 @@
       [data-caption-view="overlay"],
       [data-caption="overlay"]
     ) > figcaption.media__caption {
+    --caption-index-width: 1.4rem;
+    --caption-column-gap: 0.32rem;
+
     position: absolute;
     z-index: 2;
     inset-block-start: auto;
-    inset-block-end: clamp(0.65rem, 1.3cqi, 1rem);
-    inset-inline: clamp(0.65rem, 1.3cqi, 1rem);
+    inset-block-end: clamp(0.55rem, 1.2cqi, 0.9rem);
+    inset-inline: clamp(0.55rem, 1.2cqi, 0.9rem);
     inline-size: auto;
-    max-inline-size: min(48ch, calc(100% - clamp(1.3rem, 2.6cqi, 2rem)));
-    max-block-size: min(66%, 18rem);
+    max-inline-size: min(46ch, calc(100% - clamp(1.1rem, 2.4cqi, 1.8rem)));
+    max-block-size: min(68%, 18rem);
     overflow: auto;
     overscroll-behavior: contain;
     color: rgb(255 255 255 / 0.8);
+    font-size: clamp(0.68rem, 0.65rem + 0.12cqi, 0.8rem);
     opacity: 0;
     visibility: hidden;
     translate: 0 0.25rem;
@@ -220,6 +225,13 @@
       opacity 160ms ease,
       translate 160ms ease,
       visibility 0s linear 160ms;
+  }
+
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ) > figcaption.media__caption :is(.media__title, .media__text, .media__meta) {
+    overflow-wrap: anywhere;
   }
 
   :where(figure.media, figure.before-after):is(
@@ -291,6 +303,16 @@
 /* LIGHTBOX ---------------------------------------------------------------
    Lightbox receives cloned structured caption nodes, not flattened text. Long
    descriptions and credits scroll independently from the media. */
+[data-media-lightbox] {
+  background: rgb(10 10 10 / 0.98);
+  color: #fff;
+}
+
+[data-media-lightbox]::backdrop {
+  background: rgb(0 0 0 / 0.92);
+  backdrop-filter: blur(2px);
+}
+
 .media-lightbox__caption {
   --caption-index-width: 2.35rem;
 
