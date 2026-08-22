@@ -1,0 +1,104 @@
+/* Unified media caption contract. */
+:where(figure.media, figure.before-after)[data-caption-view="summary"] > :where(figcaption.media__caption, .media__caption) :where(.media__text, .media__meta),
+:where([data-slide-caption][data-caption-view="summary"]) :where(.media__text, .media__meta) {
+  display: none !important;
+}
+
+:where(figure.media, figure.before-after)[data-caption-view="lightbox-only"] > :where(figcaption.media__caption, .media__caption),
+:where([data-slide-caption][data-caption-view="lightbox-only"]) {
+  display: none !important;
+}
+
+/* Compatibility until all hand-authored HTML is templated. */
+:where(figure.media, figure.before-after)[data-caption-rest="summary"] > :where(figcaption.media__caption, .media__caption) :where(.media__text, .media__meta),
+:where([data-slide-caption][data-caption-rest="summary"]) :where(.media__text, .media__meta) {
+  display: none !important;
+}
+:where(figure.media, figure.before-after)[data-caption-rest="none"] > :where(figcaption.media__caption, .media__caption),
+:where([data-slide-caption][data-caption-rest="none"]) {
+  display: none !important;
+}
+
+figure.media[data-caption-view="overlay"] {
+  --caption-fader-opacity: 0;
+  --caption-media-filter: none;
+  position: relative;
+  isolation: isolate;
+}
+figure.media[data-caption-view="overlay"]::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(0deg, rgb(0 0 0 / 0.96) 0%, rgb(0 0 0 / 0.86) 34%, rgb(0 0 0 / 0.56) 68%, rgb(0 0 0 / 0.28) 100%);
+  opacity: var(--caption-fader-opacity);
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+figure.media[data-caption-view="overlay"] :where(.media__surface, .mockup__viewport) > :is(img, video),
+figure.media[data-caption-view="overlay"] :where(.media__surface, .mockup__viewport) > picture > img {
+  filter: var(--caption-media-filter);
+  transition: filter 160ms ease;
+}
+figure.media[data-caption-view="overlay"] > figcaption.media__caption {
+  position: absolute;
+  z-index: 2;
+  inset-inline: clamp(0.55rem, 1.2cqi, 0.9rem);
+  inset-block-end: clamp(0.55rem, 1.2cqi, 0.9rem);
+  inline-size: auto;
+  max-inline-size: min(48ch, calc(100% - clamp(1.1rem, 2.4cqi, 1.8rem)));
+  max-block-size: calc(100% - clamp(1.1rem, 2.4cqi, 1.8rem));
+  overflow: auto;
+  color: #fff;
+  opacity: 0;
+  translate: 0 0.35rem;
+  pointer-events: none;
+  text-shadow: 0 1px 0.75rem rgb(0 0 0 / 0.6);
+  scrollbar-width: thin;
+  transition: opacity 160ms ease, translate 160ms ease;
+}
+figure.media[data-caption-view="overlay"]:is(:hover, :focus-within),
+figure.media[data-caption-view="overlay"][data-caption-open] {
+  --caption-fader-opacity: 1;
+  --caption-media-filter: grayscale(1) blur(1.2px) brightness(0.38);
+}
+figure.media[data-caption-view="overlay"]:is(:hover, :focus-within) > figcaption.media__caption,
+figure.media[data-caption-view="overlay"][data-caption-open] > figcaption.media__caption {
+  opacity: 1;
+  translate: 0 0;
+  pointer-events: auto;
+}
+
+[data-slide-caption][data-caption-view="overlay"] { opacity: 0; pointer-events: none; }
+:where(.media, .mockup, .before-after):is(:hover, :focus-within, [data-caption-open]) [data-slide-caption][data-caption-view="overlay"][data-active] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  figure.media[data-caption-view="overlay"]::after,
+  figure.media[data-caption-view="overlay"] :where(.media__surface, .mockup__viewport) > :is(img, video),
+  figure.media[data-caption-view="overlay"] :where(.media__surface, .mockup__viewport) > picture > img,
+  figure.media[data-caption-view="overlay"] > figcaption.media__caption { transition: none; }
+}
+
+.media-lightbox__caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
+  gap: 0.3rem 0.5rem;
+  inline-size: min(100%, 70ch);
+  max-block-size: min(32dvh, 20rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding-inline-end: 0.5rem;
+  color: rgb(255 255 255 / 0.76);
+  line-height: 1.42;
+  scrollbar-width: thin;
+}
+.media-lightbox__caption:empty { display: none; }
+.media-lightbox__caption .media__index { flex: 0 0 auto; color: rgb(255 255 255 / 0.5); font-variant-numeric: tabular-nums; }
+.media-lightbox__caption .media__title { flex: 1 1 20ch; color: #fff; font-weight: var(--fw-600); }
+.media-lightbox__caption .media__text,
+.media-lightbox__caption .media__meta { display: block !important; flex: 1 0 100%; margin: 0; color: inherit; }
+.media-lightbox__caption .media__meta + .media__meta { margin-block-start: 0.15rem; }

@@ -42,7 +42,7 @@ export type MediaAsset = ImageMedia | VideoMedia;
 
 export interface MediaCaptionData {
   index?: number;
-  title: string;
+  title?: string;
   text?: string;
   meta?: readonly string[];
 }
@@ -62,10 +62,8 @@ export interface MediaEntryData<
 > {
   id: string;
   assetId: AssetId;
-
   projectIds?: readonly ProjectId[];
   creditId?: CreditId;
-
   alt?: string;
   posterAssetId?: AssetId;
   caption?: MediaCaptionData;

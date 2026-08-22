@@ -6,37 +6,39 @@ function mediaFor(source) {
   if (source.classList.contains("mockup__viewport")) {
     return source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video, img, video");
   }
-
   return source.querySelector("img, video");
 }
 
 function mediaUrl(media) {
   if (media instanceof HTMLImageElement) return media.currentSrc || media.src || "";
   if (!(media instanceof HTMLVideoElement)) return "";
-  return (
-    media.currentSrc ||
-    media.src ||
-    media.querySelector("source[src]")?.getAttribute("src") ||
-    ""
-  );
+  return media.currentSrc || media.src || media.querySelector("source[src]")?.getAttribute("src") || "";
 }
 
-function captionText(caption) {
-  return caption?.textContent?.replace(/\s+/g, " ").trim() || "";
-}
-
-function captionFor(source) {
+function captionNodeFor(source) {
   const figure = source.closest("figure");
-  if (!(figure instanceof HTMLElement)) return "";
-
-  const directCaption = figure.querySelector(":scope > figcaption.media__caption");
-  if (directCaption) return captionText(directCaption);
-
+  if (!(figure instanceof HTMLElement)) return null;
   const activeSlideCaption =
     figure.querySelector(":scope > .media__caption [data-slide-caption][data-active]") ||
     figure.querySelector(":scope > .media__caption [data-slide-caption]");
+  if (activeSlideCaption instanceof HTMLElement) return activeSlideCaption;
+  const directCaption = figure.querySelector(":scope > figcaption.media__caption");
+  return directCaption instanceof HTMLElement ? directCaption : null;
+}
 
-  return captionText(activeSlideCaption);
+function renderCaption(host, source) {
+  if (!(host instanceof HTMLElement)) return;
+  host.replaceChildren();
+  const caption = captionNodeFor(source);
+  if (!caption) return;
+  const line = caption.matches(".media__caption-line") ? caption : caption.querySelector(".media__caption-line") || caption;
+  [...line.children].forEach((child) => {
+    if (child instanceof Element) host.append(child.cloneNode(true));
+  });
+  if (!host.children.length) {
+    const text = line.textContent?.replace(/\s+/g, " ").trim() || "";
+    if (text) host.textContent = text;
+  }
 }
 
 function sourcesFor(source) {
@@ -56,14 +58,9 @@ export function markLightboxSources(root = document) {
   root.querySelectorAll(".media__surface, .mockup__viewport").forEach((surface) => {
     if (!(surface instanceof HTMLElement)) return;
     if (surface.closest(EXCLUDED_SELECTOR)) return;
-    if (surface.classList.contains("media__surface") && surface.closest(".mockup__viewport")) {
-      return;
-    }
-
+    if (surface.classList.contains("media__surface") && surface.closest(".mockup__viewport")) return;
     const media = mediaFor(surface);
-
     if (!(media instanceof HTMLVideoElement || media instanceof HTMLImageElement)) return;
-
     surface.setAttribute("data-lightbox-source", "");
     if (!surface.hasAttribute("tabindex")) surface.tabIndex = 0;
     surface.setAttribute("role", "button");
@@ -74,55 +71,65 @@ export function markLightboxSources(root = document) {
 export function createMediaLightbox({ root = document } = {}) {
   const dialog = document.querySelector("[data-media-lightbox]");
   if (!(dialog instanceof HTMLDialogElement)) return () => {};
-
   const image = dialog.querySelector("[data-lightbox-image]");
   const video = dialog.querySelector("[data-lightbox-video]");
   const caption = dialog.querySelector("[data-lightbox-caption]");
   const prev = dialog.querySelector("[data-lightbox-prev]");
   const next = dialog.querySelector("[data-lightbox-next]");
   const close = dialog.querySelector("[data-lightbox-close]");
-
   let currentSources = [];
   let index = 0;
   let restoreFocus = null;
   let pointerX = null;
 
+  const resetVideo = () => {
+    if (!(video instanceof HTMLVideoElement)) return;
+    video.pause();
+    video.removeAttribute("src");
+    video.removeAttribute("poster");
+    video.load();
+    video.hidden = true;
+  };
+
   const render = () => {
     const source = currentSources[index];
     const media = mediaFor(source);
     if (!media) return;
-
-    video?.pause();
-    if (image instanceof HTMLImageElement) image.hidden = true;
-    if (video instanceof HTMLVideoElement) video.hidden = true;
+    if (image instanceof HTMLImageElement) {
+      image.hidden = true;
+      image.removeAttribute("src");
+    }
+    resetVideo();
 
     if (media instanceof HTMLVideoElement && video instanceof HTMLVideoElement) {
       const src = mediaUrl(media);
       if (!src) return;
-
       video.src = src;
       video.poster = media.poster || "";
       video.controls = true;
-      video.loop = true;
+      video.loop = media.loop;
       video.muted = false;
       video.defaultMuted = false;
       video.playsInline = true;
+      video.preload = "auto";
       video.hidden = false;
-
-      try {
-        video.currentTime = media.currentTime || 0;
-      } catch {
-        // Metadata may still be loading.
-      }
-
-      video.play().catch(() => {});
+      video.load();
+      const resumeAt = Number.isFinite(media.currentTime) ? media.currentTime : 0;
+      const play = () => {
+        try {
+          if (resumeAt > 0 && video.duration > resumeAt) video.currentTime = resumeAt;
+        } catch {}
+        video.play().catch(() => {});
+      };
+      if (video.readyState >= HTMLMediaElement.HAVE_METADATA) play();
+      else video.addEventListener("loadedmetadata", play, { once: true });
     } else if (media instanceof HTMLImageElement && image instanceof HTMLImageElement) {
       image.src = mediaUrl(media);
       image.alt = media.alt || "";
       image.hidden = false;
     }
 
-    if (caption) caption.textContent = captionFor(source);
+    renderCaption(caption, source);
     if (prev instanceof HTMLButtonElement) prev.disabled = currentSources.length < 2;
     if (next instanceof HTMLButtonElement) next.disabled = currentSources.length < 2;
   };
@@ -135,15 +142,8 @@ export function createMediaLightbox({ root = document } = {}) {
 
   const open = (source) => {
     currentSources = sourcesFor(source);
-    const selectedMedia = mediaFor(source);
-    const selectedKey = mediaUrl(selectedMedia);
-    index = Math.max(
-      0,
-      currentSources.findIndex((candidate) => {
-        const media = mediaFor(candidate);
-        return mediaUrl(media) === selectedKey;
-      }),
-    );
+    const selectedKey = mediaUrl(mediaFor(source));
+    index = Math.max(0, currentSources.findIndex((candidate) => mediaUrl(mediaFor(candidate)) === selectedKey));
     restoreFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if (!dialog.open) dialog.showModal();
     render();
@@ -151,7 +151,7 @@ export function createMediaLightbox({ root = document } = {}) {
   };
 
   const closeDialog = () => {
-    video?.pause();
+    resetVideo();
     if (dialog.open) dialog.close();
     restoreFocus?.focus?.();
     restoreFocus = null;
@@ -165,7 +165,6 @@ export function createMediaLightbox({ root = document } = {}) {
     event.preventDefault();
     open(source);
   };
-
   const handleSourceKey = (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
     const source = event.target instanceof Element ? event.target.closest(SOURCE_SELECTOR) : null;
@@ -173,21 +172,16 @@ export function createMediaLightbox({ root = document } = {}) {
     event.preventDefault();
     open(source);
   };
-
   const handleDialogKey = (event) => {
     if (event.key === "ArrowLeft") move(-1);
     if (event.key === "ArrowRight") move(1);
   };
-
   const handleBackdrop = (event) => {
     if (event.target === dialog) closeDialog();
   };
-
   const handlePointerDown = (event) => {
-    if (event.pointerType === "mouse") return;
-    pointerX = event.clientX;
+    if (event.pointerType !== "mouse") pointerX = event.clientX;
   };
-
   const handlePointerUp = (event) => {
     if (pointerX === null) return;
     const delta = event.clientX - pointerX;
@@ -204,7 +198,6 @@ export function createMediaLightbox({ root = document } = {}) {
   dialog.addEventListener("pointerup", handlePointerUp);
   root.addEventListener("click", handleClick);
   root.addEventListener("keydown", handleSourceKey);
-
   markLightboxSources(root);
 
   return () => {

@@ -1,10 +1,8 @@
 name: Deploy GitHub Pages
 
-# GitHub Pages is the only production deployment target.
 on:
   push:
-    branches:
-      - prod
+    branches: [prod]
   workflow_dispatch:
 
 permissions:
@@ -26,42 +24,30 @@ jobs:
         with:
           script: |
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.sha,
-              state: "pending",
-              context: "github-pages/production",
-              description: "Building and testing GitHub Pages deployment",
-              target_url: runUrl
-            });
-
+            await github.rest.repos.createCommitStatus({ owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: "pending", context: "github-pages/production", description: "Building and testing GitHub Pages deployment", target_url: runUrl });
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
-
       - name: Install
         run: npm ci
-
+      - name: Install browser for smoke tests
+        run: npx playwright install --with-deps chromium
       - name: Test
         run: npm test
-
       - name: Build
         run: npm run build
-
+      - name: Browser smoke
+        run: node tools/smoke-site.mjs
       - name: Stamp deployment
         run: |
           printf 'commit=%s\n' "$GITHUB_SHA" > dist/deploy-version.txt
           printf 'deployed-from=prod\n' >> dist/deploy-version.txt
-
       - name: Add nojekyll
         run: touch dist/.nojekyll
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -77,7 +63,6 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-
       - name: Verify production commit
         shell: bash
         run: |
@@ -85,39 +70,24 @@ jobs:
           expected="commit=${GITHUB_SHA}"
           version_url="https://www.looksawful.ru/deploy-version.txt?sha=${GITHUB_SHA}"
           index_url="https://www.looksawful.ru/?sha=${GITHUB_SHA}"
-
           for attempt in $(seq 1 60); do
-            body="$(curl --fail --silent --show-error --location --max-time 20 \
-              -H 'Cache-Control: no-cache' \
-              "${version_url}&attempt=${attempt}" || true)"
-
+            body="$(curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "${version_url}&attempt=${attempt}" || true)"
             index_file="$(mktemp)"
-            curl --fail --silent --show-error --location --max-time 20 \
-              -H 'Cache-Control: no-cache' \
-              "${index_url}&attempt=${attempt}" \
-              --output "${index_file}" || true
-
-            if grep -Fxq "$expected" <<<"$body" \
-              && grep -Eq 'href="/assets/[^"]+\.css"' "${index_file}" \
-              && grep -Eq 'src="/assets/[^"]+\.js"' "${index_file}" \
-              && ! grep -Eq '\./src/[^"]+\.(css|js)' "${index_file}"; then
+            curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "${index_url}&attempt=${attempt}" --output "${index_file}" || true
+            if grep -Fxq "$expected" <<<"$body" && grep -Eq 'href="/assets/[^"]+\.css"' "${index_file}" && grep -Eq 'src="/assets/[^"]+\.js"' "${index_file}" && ! grep -Eq '\./src/[^"]+\.(css|js)' "${index_file}"; then
               printf '%s\n' "$body"
               rm -f "${index_file}"
               exit 0
             fi
-
             rm -f "${index_file}"
             sleep 10
           done
-
           echo "Production did not expose ${expected} with built CSS/JS assets" >&2
           exit 1
 
   report:
     runs-on: ubuntu-latest
-    needs:
-      - build
-      - deploy
+    needs: [build, deploy]
     if: always()
     steps:
       - name: Report deployment status
@@ -129,18 +99,5 @@ jobs:
           script: |
             const success = process.env.BUILD_RESULT === "success" && process.env.DEPLOY_RESULT === "success";
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.sha,
-              state: success ? "success" : "failure",
-              context: "github-pages/production",
-              description: success
-                ? "Published and verified on www.looksawful.ru"
-                : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`,
-              target_url: runUrl
-            });
-
-            if (!success) {
-              core.setFailed(`GitHub Pages deployment failed. Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`);
-            }
+            await github.rest.repos.createCommitStatus({ owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: success ? "success" : "failure", context: "github-pages/production", description: success ? "Published and verified on www.looksawful.ru" : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`, target_url: runUrl });
+            if (!success) core.setFailed(`GitHub Pages deployment failed. Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`);
