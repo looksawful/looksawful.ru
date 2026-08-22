@@ -15,6 +15,31 @@ export const clients = [
     name: "PLAYERS CLUB",
   },
   {
+    id: "jestei-pool",
+    name: "Jestei Pool",
+    description: "Музыкальный сервис для диджеев.",
+    industryIds: ["music", "technology"],
+  },
+  {
+    id: "lyve-moscow",
+    name: "LYVÈ Moscow",
+    description: "Студия озеленения и ландшафтного дизайна.",
+    industryIds: ["landscape-design"],
+  },
+  {
+    id: "styx-jewel",
+    name: "Styx Jewel",
+    description:
+      "Московский бренд украшений, аксессуаров и одежды, вдохновлённый готической романтикой.",
+    industryIds: ["jewelry", "fashion", "ecommerce"],
+  },
+  {
+    id: "illumihand",
+    name: "illumihand",
+    description: "Бренд футболок с Камчатки.",
+    industryIds: ["fashion"],
+  },
+  {
     id: "vk-music",
     name: "VK Музыка",
     industryIds: ["music", "media", "technology"],

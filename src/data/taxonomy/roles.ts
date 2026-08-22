@@ -88,45 +88,74 @@ export const roles = [
     name: "Разработчик",
   },
 
-{
-  id: "assistant-producer",
-  name: "Ассистент продюсера",
-},
+  {
+    id: "assistant-producer",
+    name: "Ассистент продюсера",
+  },
 
-{
-  id: "junior-producer",
-  name: "Junior-продюсер",
-},
+  {
+    id: "junior-producer",
+    name: "Junior-продюсер",
+  },
 
-{
-  id: "smm-manager",
-  name: "SMM-менеджер",
-},
+  {
+    id: "smm-manager",
+    name: "SMM-менеджер",
+  },
 
-{
-  id: "brand-manager",
-  name: "Бренд-менеджер",
-},
+  {
+    id: "brand-manager",
+    name: "Бренд-менеджер",
+  },
 
-{
-  id: "retail-manager",
-  name: "Управляющий",
-},
+  {
+    id: "retail-manager",
+    name: "Управляющий",
+  },
 
-{
-  id: "book-designer",
-  name: "Книжный дизайнер",
-},
+  {
+    id: "book-designer",
+    name: "Книжный дизайнер",
+  },
 
-{
-  id: "layout-designer",
-  name: "Дизайнер-верстальщик",
-},
+  {
+    id: "layout-designer",
+    name: "Дизайнер-верстальщик",
+  },
 
-{
-  id: "sound-editor",
-  name: "Саунд-редактор",
-},
+  {
+    id: "sound-editor",
+    name: "Саунд-редактор",
+  },
+  {
+    id: "brand-designer",
+    name: "Бренд-дизайнер",
+  },
+
+  {
+    id: "illustrator",
+    name: "Иллюстратор",
+  },
+
+  {
+    id: "executive-producer",
+    name: "Генеральный продюсер",
+  },
+
+  {
+    id: "line-producer",
+    name: "Линейный продюсер",
+  },
+
+  {
+    id: "studio-director",
+    name: "Директор фотостудии",
+  },
+
+  {
+    id: "3d-designer",
+    name: "3D-дизайнер",
+  },
 ] as const satisfies readonly RoleData[];
 
 export type Role = (typeof roles)[number];

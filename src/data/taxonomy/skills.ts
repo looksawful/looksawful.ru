@@ -203,85 +203,214 @@ export const skills = [
     name: "Интерактивный дизайн",
   },
 
-{
-  id: "smm",
-  name: "SMM",
-},
+  {
+    id: "smm",
+    name: "SMM",
+  },
 
-{
-  id: "brand-management",
-  name: "Бренд-менеджмент",
-},
+  {
+    id: "brand-management",
+    name: "Бренд-менеджмент",
+  },
 
-{
-  id: "production-management",
-  name: "Управление продакшном",
-},
+  {
+    id: "production-management",
+    name: "Управление продакшном",
+  },
 
-{
-  id: "production-coordination",
-  name: "Координация производства",
-},
+  {
+    id: "production-coordination",
+    name: "Координация производства",
+  },
 
-{
-  id: "vendor-negotiation",
-  name: "Переговоры с производством и подрядчиками",
-},
+  {
+    id: "vendor-negotiation",
+    name: "Переговоры с производством и подрядчиками",
+  },
 
-{
-  id: "website-administration",
-  name: "Администрирование сайта",
-},
+  {
+    id: "website-administration",
+    name: "Администрирование сайта",
+  },
 
-{
-  id: "retail-management",
-  name: "Управление ритейлом",
-},
+  {
+    id: "retail-management",
+    name: "Управление ритейлом",
+  },
 
-{
-  id: "inventory-management",
-  name: "Инвентаризация",
-},
+  {
+    id: "inventory-management",
+    name: "Инвентаризация",
+  },
 
-{
-  id: "event-production",
-  name: "Продюсирование мероприятий",
-},
+  {
+    id: "event-production",
+    name: "Продюсирование мероприятий",
+  },
 
-{
-  id: "talent-coordination",
-  name: "Работа с артистами и участниками",
-},
+  {
+    id: "talent-coordination",
+    name: "Работа с артистами и участниками",
+  },
 
-{
-  id: "book-design",
-  name: "Книжный дизайн",
-},
+  {
+    id: "book-design",
+    name: "Книжный дизайн",
+  },
 
-{
-  id: "book-layout",
-  name: "Книжная верстка",
-},
+  {
+    id: "book-layout",
+    name: "Книжная верстка",
+  },
 
-{
-  id: "editorial-layout",
-  name: "Редакционная верстка",
-},
+  {
+    id: "editorial-layout",
+    name: "Редакционная верстка",
+  },
 
-{
-  id: "sound-editing",
-  name: "Редактирование звука",
-},
+  {
+    id: "sound-editing",
+    name: "Редактирование звука",
+  },
 
-{
-  id: "audio-production",
-  name: "Подготовка аудиоматериалов",
-},
+  {
+    id: "audio-production",
+    name: "Подготовка аудиоматериалов",
+  },
+  {
+    id: "design-resource-audit",
+    name: "Аудит дизайн-ресурсов",
+  },
 
-{
-  id: "cartography",
-  name: "Работа с картографическими материалами",
-},
+  {
+    id: "design-process-optimization",
+    name: "Оптимизация дизайн-процессов",
+  },
+
+  {
+    id: "workflow-design",
+    name: "Проектирование рабочих процессов",
+  },
+
+  {
+    id: "design-automation",
+    name: "Автоматизация дизайн-производства",
+  },
+
+  {
+    id: "ai-tool-integration",
+    name: "Интеграция ИИ-инструментов",
+  },
+
+  {
+    id: "generative-image-production",
+    name: "Генеративное производство изображений",
+  },
+
+  {
+    id: "generative-video-production",
+    name: "Генеративное производство видео",
+  },
+
+  {
+    id: "generative-text-production",
+    name: "Работа с генеративным текстом",
+  },
+
+  {
+    id: "ai-prototyping",
+    name: "Прототипирование с ИИ",
+  },
+
+  {
+    id: "cloud-ai-pipelines",
+    name: "Облачные ИИ-пайплайны",
+  },
+
+  {
+    id: "agent-workflows",
+    name: "Агентные рабочие процессы",
+  },
+
+  {
+    id: "design-documentation",
+    name: "Дизайн-документация",
+  },
+
+  {
+    id: "guideline-development",
+    name: "Разработка гайдлайнов",
+  },
+
+  {
+    id: "team-training",
+    name: "Обучение команды",
+  },
+
+  {
+    id: "product-metrics-analysis",
+    name: "Анализ продуктовых метрик",
+  },
+
+  {
+    id: "user-feedback-analysis",
+    name: "Анализ пользовательской обратной связи",
+  },
+
+  {
+    id: "3d-animation",
+    name: "3D-анимация",
+  },
+
+  {
+    id: "3d-texturing",
+    name: "Текстурирование и материалы",
+  },
+
+  {
+    id: "3d-lighting",
+    name: "Постановка света в 3D",
+  },
+
+  {
+    id: "3d-rigging",
+    name: "3D-риггинг",
+  },
+
+  {
+    id: "hard-surface-modeling",
+    name: "Hard-surface моделирование",
+  },
+
+  {
+    id: "organic-modeling",
+    name: "Органическое моделирование",
+  },
+
+  {
+    id: "prepress",
+    name: "Предпечатная подготовка",
+  },
+
+  {
+    id: "casting",
+    name: "Кастинг",
+  },
+
+  {
+    id: "location-scouting",
+    name: "Поиск и подбор локаций",
+  },
+
+  {
+    id: "production-budgeting",
+    name: "Бюджетирование продакшена",
+  },
+
+  {
+    id: "cartography",
+    name: "Работа с картографическими материалами",
+  },
 ] as const satisfies readonly SkillData[];
 
 export type Skill = (typeof skills)[number];

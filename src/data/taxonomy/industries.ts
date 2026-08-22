@@ -17,6 +17,14 @@ export const industries = [
     name: "Искусство",
   },
   {
+    id: "landscape-design",
+    name: "Ландшафтный дизайн и озеленение",
+  },
+  {
+    id: "video-production",
+    name: "Видео-продакшен",
+  },
+  {
     id: "jewelry",
     name: "Ювелирная индустрия",
   },
