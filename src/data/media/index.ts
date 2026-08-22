@@ -1,5 +1,37 @@
-export { mediaAssets } from "./assets/index.ts";
-export type { MediaAssetId, MediaAssetRecord } from "./assets/index.ts";
+import type { MediaAsset, MediaEntryData } from "../../types/media.ts";
 
-export { mediaEntries } from "./entries/index.ts";
-export type { MediaEntryId, MediaEntryRecord } from "./entries/index.ts";
+import { mediaAssets, type MediaAssetId, type MediaAssetRecord } from "./assets/index.ts";
+
+import { mediaEntries, type MediaEntryId, type MediaEntryRecord } from "./entries/index.ts";
+
+export { mediaAssets, mediaEntries };
+
+export type { MediaAssetId, MediaAssetRecord, MediaEntryId, MediaEntryRecord };
+
+const mediaAssetById = new Map<string, MediaAsset>(
+  mediaAssets.map((asset) => [asset.id, asset] as const),
+);
+
+const mediaEntryById = new Map<string, MediaEntryData<MediaAssetId>>(
+  mediaEntries.map((entry) => [entry.id, entry] as const),
+);
+
+export function getMediaAsset(id: MediaAssetId): MediaAsset {
+  const asset = mediaAssetById.get(id);
+
+  if (!asset) {
+    throw new Error(`Unknown MediaAsset: ${id}`);
+  }
+
+  return asset;
+}
+
+export function getMediaEntry(id: MediaEntryId): MediaEntryData<MediaAssetId> {
+  const entry = mediaEntryById.get(id);
+
+  if (!entry) {
+    throw new Error(`Unknown MediaEntry: ${id}`);
+  }
+
+  return entry;
+}
