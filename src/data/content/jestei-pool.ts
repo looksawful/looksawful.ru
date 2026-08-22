@@ -5,9 +5,12 @@ import type {
   SectionIntroData,
 } from "../../types/content.ts";
 
+import { getCase, getRole } from "../catalog/lookup.ts";
 import type { MediaEntryId } from "../media/index.ts";
-
 import type { LogoUsageId } from "../logos/index.ts";
+
+const jesteiCase = getCase("jestei-pool");
+const artDirectorRole = getRole("art-director");
 
 export const jesteiIntro = {
   head: {
@@ -21,10 +24,9 @@ export const jesteiIntro = {
     logoUsageId: "jestei-case-title-logo",
   },
 
-  role: "Арт-директор",
-  period: "2024–2026",
-
-  lead: "Я сформировал новый визуальный язык главного российского диджейского пула, разработал UX/UI-стратегию для core-продуктов и руководил всей командой дизайнеров проекта в течение двух с половиной лет.",
+  role: artDirectorRole.name,
+  period: jesteiCase.date,
+  lead: jesteiCase.summary,
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
 export const jesteiFeaturedMedia = {
