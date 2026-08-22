@@ -20,7 +20,7 @@ export const cases = [
     clientIds: ["styx-jewel"],
     roleIds: ["designer", "digital-artist"],
     engagementTypeIds: ["freelance", "long-term-client", "brand-side"],
-    industryIds: ["jewelry", "fashion", "ecommerce"],
+    industryIds: ["jewelry", "fashion", "ecommerce", "photo-production", "arts"],
   },
 
   {
