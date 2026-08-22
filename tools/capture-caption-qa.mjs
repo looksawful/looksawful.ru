@@ -126,10 +126,7 @@ async function captureMobile(browser) {
   if (await overlay.count()) {
     await overlay.scrollIntoViewIfNeeded();
     await page.waitForTimeout(80);
-    await captureLocator(page, overlay, `${OUTPUT}/mobile-overlay-rest.png`);
-    await overlay.tap({ force: true });
-    await page.waitForTimeout(80);
-    await captureLocator(page, overlay, `${OUTPUT}/mobile-overlay-active.png`);
+    await captureLocator(page, overlay, `${OUTPUT}/mobile-overlay-fallback.png`);
   }
 
   const summary = page
@@ -139,6 +136,15 @@ async function captureMobile(browser) {
     await summary.scrollIntoViewIfNeeded();
     await page.waitForTimeout(80);
     await captureLocator(page, summary, `${OUTPUT}/mobile-summary.png`);
+  }
+
+  const source = page
+    .locator('figure.media:visible:has(.media__title) [data-lightbox-source]:visible')
+    .first();
+  if (await source.count()) {
+    await source.tap({ force: true });
+    await page.waitForTimeout(100);
+    await page.screenshot({ path: `${OUTPUT}/mobile-lightbox.png` });
   }
 
   await context.close();
