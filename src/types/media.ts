@@ -55,9 +55,16 @@ export type MediaPurpose =
   | "supporting"
   | "work";
 
-export interface MediaEntryData<AssetId extends string = string> {
+export interface MediaEntryData<
+  AssetId extends string = string,
+  ProjectId extends string = string,
+  CreditId extends string = string,
+> {
   id: string;
   assetId: AssetId;
+
+  projectIds?: readonly ProjectId[];
+  creditId?: CreditId;
 
   alt?: string;
   posterAssetId?: AssetId;

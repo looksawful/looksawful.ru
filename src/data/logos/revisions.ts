@@ -66,6 +66,7 @@ export const logoRevisions = [
     name: "Текущая система",
     status: "current",
     authorship: "created-by-me",
+    projectIds: ["jestei-brand-system"],
     description: "Текущая система логотипа: четыре композиционных варианта и шесть цветовых версий.",
   },
   {
