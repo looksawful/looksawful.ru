@@ -8,7 +8,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "build": "npm run typecheck && node tools/build-responsive-media.mjs",
     "preview": "vite preview",
-    "test": "node --test"
+    "test": "node --test && node tools/check-data-integrity.ts"
   },
   "devDependencies": {
     "playwright": "^1.61.1",
