@@ -1,9 +1,15 @@
 import type { CaseData } from "../../types/case.ts";
 import type { ClientData } from "../../types/client.ts";
+import type { CollectionData } from "../../types/collection.ts";
+import type { EngagementData } from "../../types/engagement.ts";
+import type { ProjectData } from "../../types/project.ts";
 import type { RoleData, RoleId } from "../taxonomy/roles.ts";
 
 import { cases, type CaseId } from "./cases.ts";
 import { clients, type ClientId } from "./clients.ts";
+import { collections, type CollectionId } from "./collections.ts";
+import { engagements, type EngagementId } from "./engagements.ts";
+import { projects, type ProjectId } from "./projects/index.ts";
 import { roles } from "../taxonomy/roles.ts";
 
 function getById<T extends { id: string }>(
@@ -26,6 +32,18 @@ export function getCase(id: CaseId): CaseData {
 
 export function getClient(id: ClientId): ClientData {
   return getById(clients, id, "Client");
+}
+
+export function getCollection(id: CollectionId): CollectionData {
+  return getById(collections, id, "Collection");
+}
+
+export function getEngagement(id: EngagementId): EngagementData {
+  return getById(engagements, id, "Engagement");
+}
+
+export function getProject(id: ProjectId): ProjectData {
+  return getById(projects, id, "Project");
 }
 
 export function getRole(id: RoleId): RoleData {

@@ -57,6 +57,7 @@ export const clients = [
   {
     id: "li-ne-agency",
     name: "LI-NE Agency",
+    description: "Продакшн-агентство в сфере моды, рекламы и медиа.",
     industryIds: ["advertising-production", "creative-production", "fashion"],
   },
   {
@@ -67,16 +68,20 @@ export const clients = [
   {
     id: "mad-cow-films",
     name: "Mad Cow Films",
+    description: "Международный рекламный продакшн с офисами в Лондоне и Москве.",
     industryIds: ["advertising-production", "film", "advertising"],
   },
   {
     id: "moskovskie-novosti",
     name: "Газета «Московские Новости»",
+    description: "Ежедневная городская общественно-политическая газета о Москве.",
     industryIds: ["news", "media", "publishing"],
   },
   {
     id: "progress-tradition",
     name: "Прогресс-Традиция",
+    description:
+      "Российское издательство переводной, гуманитарной, художественной и образовательной литературы. Компания выпускает книги и работает с полным издательским циклом: текстом, структурой, редакционной подготовкой, иллюстрациями, вёрсткой и подготовкой материалов к печати.",
     industryIds: ["publishing"],
   },
   {
@@ -112,6 +117,8 @@ export const clients = [
   {
     id: "s-and-s",
     name: "S&S",
+    description:
+      "Бренд стильных боди и нижнего белья с акцентом на выразительный силуэт, женственность и современную подачу.",
     industryIds: ["fashion"],
   },
   {
@@ -209,6 +216,8 @@ export const clients = [
   {
     id: "berry-agency",
     name: "Berry Agency",
+    description:
+      "Московское модельное агентство, которое занимается подбором моделей, организацией кастингов, созданием модельных портфолио, а также проведением фото- и видеосъёмок.",
     industryIds: ["creative-production", "advertising-production"],
   },
   {
@@ -243,6 +252,10 @@ export const clients = [
     id: "chapurin",
     name: "Chapurin",
     industryIds: ["fashion"],
+  },
+  {
+    id: "evident-things",
+    name: "Evident Things",
   },
 ] as const satisfies readonly ClientData[];
 

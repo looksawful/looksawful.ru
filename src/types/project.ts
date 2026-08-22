@@ -1,5 +1,7 @@
 import type { CaseId } from "../data/catalog/cases.ts";
 import type { ClientId } from "../data/catalog/clients.ts";
+import type { CollectionId } from "../data/catalog/collections.ts";
+import type { EngagementId } from "../data/catalog/engagements.ts";
 
 import type { DeliverableId } from "../data/taxonomy/deliverables.ts";
 import type { EngagementTypeId } from "../data/taxonomy/engagement-types.ts";
@@ -19,18 +21,24 @@ export interface ProjectData {
   id: string;
   name: string;
 
+  summary?: string;
   description?: string;
   date?: string;
   status?: ProjectStatus;
 
   caseIds?: readonly CaseId[];
   clientIds?: readonly ClientId[];
+  collectionIds?: readonly CollectionId[];
+  engagementIds?: readonly EngagementId[];
 
   projectTypeIds?: readonly ProjectTypeId[];
   engagementTypeIds?: readonly EngagementTypeId[];
   industryIds?: readonly IndustryId[];
 
+  primaryRoleId?: RoleId;
+  primaryRoleLabel?: string;
   roleIds?: readonly RoleId[];
+
   workAreaIds?: readonly WorkAreaId[];
   serviceIds?: readonly ServiceId[];
   deliverableIds?: readonly DeliverableId[];

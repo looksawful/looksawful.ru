@@ -1,0 +1,175 @@
+import type { ProjectData } from "../../../types/project.ts";
+
+const sensetiqueBase = {
+  status: "completed",
+  caseIds: ["sensetique"],
+  engagementIds: ["sensetique-2016-2018"],
+  industryIds: ["fashion", "photo-production", "creative-production"],
+} as const;
+
+const producedEditorial = {
+  ...sensetiqueBase,
+  projectTypeIds: ["editorial"],
+  primaryRoleId: "producer",
+  roleIds: ["producer"],
+} as const;
+
+export const sensetiqueProjects = [
+  {
+    ...producedEditorial,
+    id: "sensetique-harsh-light-2018",
+    name: "HARSH LIGHT",
+    date: "2018",
+  },
+  {
+    ...producedEditorial,
+    id: "sensetique-young-pioneer-kaltblut",
+    name: "Young-pioneer — KALTBLUT",
+    clientIds: ["kaltblut"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-krasota-dress-lookbook",
+    name: "Krasota Dress Lookbook",
+    clientIds: ["krasota-dress"],
+    projectTypeIds: ["lookbook"],
+    primaryRoleId: "producer",
+    roleIds: ["producer"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-olovo-campaign",
+    name: "Olovo Moscow — кампейн",
+    clientIds: ["olovo-moscow"],
+    projectTypeIds: ["campaign-shooting"],
+    primaryRoleId: "producer",
+    roleIds: ["producer"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-olovo-lookbook-2016",
+    name: "Olovo Moscow — лукбук 2016",
+    date: "2016",
+    clientIds: ["olovo-moscow"],
+    projectTypeIds: ["lookbook"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-olovo-lookbook-2017",
+    name: "Olovo Moscow — лукбук 2017",
+    date: "2017",
+    clientIds: ["olovo-moscow"],
+    projectTypeIds: ["lookbook"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-olovo-lookbook-2018",
+    name: "Olovo Moscow — лукбук 2018",
+    date: "2018",
+    clientIds: ["olovo-moscow"],
+    projectTypeIds: ["lookbook"],
+    primaryRoleId: "producer",
+    roleIds: ["producer"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-inna-honour-lookbook",
+    name: "Inna Honour Lookbook",
+    clientIds: ["inna-honour"],
+    projectTypeIds: ["lookbook"],
+    primaryRoleId: "producer",
+    roleIds: ["producer"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-buro-24-7-special",
+    name: "BURO 24/7 — спецпроект",
+    clientIds: ["buro-24-7"],
+    projectTypeIds: ["editorial"],
+    primaryRoleId: "producer",
+    roleIds: ["producer"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-olovo-brandbook-architecture",
+    name: "Olovo Moscow — архитектурные фотографии для брендбука",
+    clientIds: ["olovo-moscow"],
+    projectTypeIds: ["shooting"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-olovo-booklet-design",
+    name: "Olovo Moscow — буклет",
+    clientIds: ["olovo-moscow"],
+    projectTypeIds: ["print-project"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-digital-fear-of-love",
+    name: "Digital Fear of Love — MiMi Moscow Jewelry",
+    clientIds: ["mimi-moscow"],
+    projectTypeIds: ["advertorial"],
+  },
+  {
+    ...producedEditorial,
+    id: "sensetique-chapurin-editorial-2018",
+    name: "Chapurin — эдиториал",
+    date: "2018",
+    clientIds: ["chapurin"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-wood-metal-panic",
+    name: "Wood.Metal.PANIC!",
+    projectTypeIds: ["editorial"],
+    primaryRoleId: "producer",
+    roleIds: ["producer"],
+  },
+  {
+    ...producedEditorial,
+    id: "sensetique-editorial-daniil-korotechenkov",
+    name: "Эдиториал Sensetique — Даниил Коротеченков",
+  },
+  {
+    ...producedEditorial,
+    id: "sensetique-editorial-tatiana-nikishina",
+    name: "Эдиториал Sensetique — Татьяна Никишина",
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-editorial-katya-knyazeva",
+    name: "Эдиториал Sensetique — Катя Князева",
+    projectTypeIds: ["editorial"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-editorial-yuri-ivanov",
+    name: "Эдиториал Sensetique — Юрий Иванов",
+    projectTypeIds: ["editorial"],
+    primaryRoleId: "digital-artist",
+    roleIds: ["digital-artist"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-editorial-ivan-krushinski",
+    name: "Эдиториал Sensetique — Иван Крушинский",
+    projectTypeIds: ["editorial"],
+    primaryRoleId: "photographer",
+    roleIds: ["photographer"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-editorial-andrey-raputo-01",
+    name: "Эдиториал Sensetique — Андрей Рапуто 01",
+    projectTypeIds: ["editorial"],
+  },
+  {
+    ...sensetiqueBase,
+    id: "sensetique-editorial-andrey-raputo-02",
+    name: "Эдиториал Sensetique — Андрей Рапуто 02",
+    projectTypeIds: ["editorial"],
+  },
+] as const satisfies readonly ProjectData[];
+
+export type SensetiqueProject = (typeof sensetiqueProjects)[number];
+export type SensetiqueProjectId = SensetiqueProject["id"];
