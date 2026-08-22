@@ -72,8 +72,7 @@ export const projects = [
     },
   },
 ] as const satisfies readonly ProjectCardData[];
+
 export type Project = (typeof projects)[number];
-
 export type ProjectId = Project["id"];
-
 export type ProjectRole = Project["role"];

@@ -21,7 +21,7 @@ export const industries = [
   {
     id: "media",
     name: "Медиа",
-  },ы
+  },
 
   {
     id: "publishing",
@@ -72,6 +72,41 @@ export const industries = [
     id: "creative-production",
     name: "Креативный продакшн",
   },
+
+{
+  id: "advertising-production",
+  name: "Рекламный продакшн",
+},
+
+{
+  id: "photo-production",
+  name: "Фото- и контент-продакшн",
+},
+
+{
+  id: "performing-arts",
+  name: "Театр и исполнительские искусства",
+},
+
+{
+  id: "retail",
+  name: "Ритейл",
+},
+
+{
+  id: "academic-research",
+  name: "Наука и исследования",
+},
+
+{
+  id: "linguistics",
+  name: "Лингвистика",
+},
+
+{
+  id: "news",
+  name: "Новости",
+},
 ] as const satisfies readonly IndustryData[];
 
 export type Industry = (typeof industries)[number];

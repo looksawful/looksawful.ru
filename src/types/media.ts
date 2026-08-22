@@ -1,35 +1,37 @@
 /* ==================================================
-   Assets
+   Rating
    ================================================== */
 
 export type MediaRating = 1 | 2 | 3 | 4 | 5;
 
 /*
-постоянная ручная оценка. В будущем отдельно появится вычисляемый score.
-   1 — технически нужен, но не хочется показывать
-   2 — слабый
-   3 — нормальный
-   4 — сильный
-   5 — ключевой
-   */
+  Постоянная ручная оценка. В будущем отдельно появится вычисляемый score.
+  1 — технически нужен, но не хочется показывать
+  2 — слабый
+  3 — нормальный
+  4 — сильный
+  5 — ключевой
+*/
+
+/* ==================================================
+   Assets
+   ================================================== */
 
 export interface MediaBase {
   id: string;
   src: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   date?: string;
   rating?: MediaRating;
 }
 
 export interface ImageMedia extends MediaBase {
   type: "image";
-  alt: string;
 }
 
 export interface VideoMedia extends MediaBase {
   type: "video";
-  poster?: string;
 }
 
 export type MediaAsset = ImageMedia | VideoMedia;
@@ -43,6 +45,24 @@ export interface MediaCaptionData {
   title: string;
   text?: string;
   meta?: readonly string[];
+}
+
+/* ==================================================
+   Entries
+   ================================================== */
+
+export type MediaPurpose =
+  | "supporting"
+  | "work";
+
+export interface MediaEntryData<AssetId extends string = string> {
+  id: string;
+  assetId: AssetId;
+
+  alt?: string;
+  posterAssetId?: AssetId;
+  caption?: MediaCaptionData;
+  purpose?: MediaPurpose;
 }
 
 /* ==================================================

@@ -4,12 +4,6 @@ export interface ClientLogoData {
   file: string;
   alt?: string;
 }
-export interface ClientLogoData {
-  id: string;
-  name: string;
-  file: string;
-  alt?: string;
-}
 
 export const clientLogos = [
   {

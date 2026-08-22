@@ -202,6 +202,86 @@ export const skills = [
     id: "interactive-design",
     name: "Интерактивный дизайн",
   },
+
+{
+  id: "smm",
+  name: "SMM",
+},
+
+{
+  id: "brand-management",
+  name: "Бренд-менеджмент",
+},
+
+{
+  id: "production-management",
+  name: "Управление продакшном",
+},
+
+{
+  id: "production-coordination",
+  name: "Координация производства",
+},
+
+{
+  id: "vendor-negotiation",
+  name: "Переговоры с производством и подрядчиками",
+},
+
+{
+  id: "website-administration",
+  name: "Администрирование сайта",
+},
+
+{
+  id: "retail-management",
+  name: "Управление ритейлом",
+},
+
+{
+  id: "inventory-management",
+  name: "Инвентаризация",
+},
+
+{
+  id: "event-production",
+  name: "Продюсирование мероприятий",
+},
+
+{
+  id: "talent-coordination",
+  name: "Работа с артистами и участниками",
+},
+
+{
+  id: "book-design",
+  name: "Книжный дизайн",
+},
+
+{
+  id: "book-layout",
+  name: "Книжная верстка",
+},
+
+{
+  id: "editorial-layout",
+  name: "Редакционная верстка",
+},
+
+{
+  id: "sound-editing",
+  name: "Редактирование звука",
+},
+
+{
+  id: "audio-production",
+  name: "Подготовка аудиоматериалов",
+},
+
+{
+  id: "cartography",
+  name: "Работа с картографическими материалами",
+},
 ] as const satisfies readonly SkillData[];
 
 export type Skill = (typeof skills)[number];

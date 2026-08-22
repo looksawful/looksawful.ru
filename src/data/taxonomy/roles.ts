@@ -87,6 +87,46 @@ export const roles = [
     id: "developer",
     name: "Разработчик",
   },
+
+{
+  id: "assistant-producer",
+  name: "Ассистент продюсера",
+},
+
+{
+  id: "junior-producer",
+  name: "Junior-продюсер",
+},
+
+{
+  id: "smm-manager",
+  name: "SMM-менеджер",
+},
+
+{
+  id: "brand-manager",
+  name: "Бренд-менеджер",
+},
+
+{
+  id: "retail-manager",
+  name: "Управляющий",
+},
+
+{
+  id: "book-designer",
+  name: "Книжный дизайнер",
+},
+
+{
+  id: "layout-designer",
+  name: "Дизайнер-верстальщик",
+},
+
+{
+  id: "sound-editor",
+  name: "Саунд-редактор",
+},
 ] as const satisfies readonly RoleData[];
 
 export type Role = (typeof roles)[number];

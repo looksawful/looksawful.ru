@@ -165,6 +165,91 @@ export const deliverables = [
 
     scope: ["Логотипы", "Иконки", "Изображения", "3D", "Шаблоны", "Компоненты", "Исходники"],
   },
+
+{
+  id: "logo",
+  name: "Логотип",
+},
+
+{
+  id: "brandbook",
+  name: "Брендбук",
+},
+
+{
+  id: "packaging",
+  name: "Упаковка",
+},
+
+{
+  id: "merch",
+  name: "Мерч",
+},
+
+{
+  id: "mascot",
+  name: "Маскот",
+},
+
+{
+  id: "print-materials",
+  name: "Печатные материалы",
+},
+
+{
+  id: "advertising-banner",
+  name: "Рекламный баннер",
+},
+
+{
+  id: "social-media-assets",
+  name: "Материалы для социальных сетей",
+},
+
+{
+  id: "website",
+  name: "Сайт",
+},
+
+{
+  id: "landing-page",
+  name: "Лендинг",
+},
+
+{
+  id: "catalog",
+  name: "Каталог",
+},
+
+{
+  id: "lookbook",
+  name: "Лукбук",
+},
+
+{
+  id: "campaign-assets",
+  name: "Материалы кампании",
+},
+
+{
+  id: "product-photography",
+  name: "Фотографии продукта",
+},
+
+{
+  id: "book",
+  name: "Книга",
+},
+
+{
+  id: "map",
+  name: "Карта",
+},
+
+{
+  id: "audio-materials",
+  name: "Аудиоматериалы",
+},
 ] as const satisfies readonly DeliverableData[];
 
 export type Deliverable = (typeof deliverables)[number];
