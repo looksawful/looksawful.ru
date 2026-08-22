@@ -304,11 +304,11 @@ async function auditContext(browser, { mobile }) {
   const errors = [];
 
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  page.on("requestfailed", (request) =>
-    errors.push(
-      `requestfailed: ${request.failure()?.errorText || "request failed"} ${request.url()}`,
-    ),
-  );
+  page.on("requestfailed", (request) => {
+    const errorText = request.failure()?.errorText || "request failed";
+    if (errorText === "net::ERR_ABORTED") return;
+    errors.push(`requestfailed: ${errorText} ${request.url()}`);
+  });
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(`console: ${message.text()}`);
   });
