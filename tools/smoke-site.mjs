@@ -111,7 +111,7 @@ async function verifyCaptions(page, mobile) {
   assert(state.lightboxSources > 0, "No lightbox sources were marked");
 
   const summary = page
-    .locator('[data-caption-view="summary"]:has(.media__text, .media__meta)')
+    .locator('[data-caption-view="summary"]:visible:has(.media__text, .media__meta)')
     .first();
 
   if (await summary.count()) {
@@ -147,7 +147,7 @@ async function verifyCaptions(page, mobile) {
   }
 
   const overlay = page
-    .locator('figure.media[data-caption-view="overlay"]:has(> .media__caption)')
+    .locator('figure.media[data-caption-view="overlay"]:visible:has(> .media__caption)')
     .first();
 
   if (await overlay.count()) {
@@ -187,7 +187,7 @@ async function verifyCaptions(page, mobile) {
 
   if (!mobile) {
     const source = page
-      .locator('figure.media:has(.media__title) [data-lightbox-source]')
+      .locator('figure.media:visible:has(.media__title) [data-lightbox-source]:visible')
       .first();
 
     if (await source.count()) {
