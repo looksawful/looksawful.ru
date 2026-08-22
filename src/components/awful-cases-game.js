@@ -96,6 +96,11 @@
     world:0
   };
 
+  const VIEWPORT_MARGIN = '50% 0px';
+  let nearViewport = typeof IntersectionObserver !== 'function';
+
+  const shouldRun = () => nearViewport && !document.hidden;
+
   function resize() {
     view.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     const bounds = shell.getBoundingClientRect();
@@ -808,12 +813,35 @@
   }
 
   function loop(now) {
+    game.raf = 0;
+    if (!shouldRun()) return;
+
     const dt = Math.min(.034, (now - game.last) / 1000 || 0);
     game.last = now;
-    updateView();
     update(dt);
     draw();
     game.raf = requestAnimationFrame(loop);
+  }
+
+  function stopLoop() {
+    if (!game.raf) return;
+    cancelAnimationFrame(game.raf);
+    game.raf = 0;
+  }
+
+  function startLoop() {
+    if (game.raf || !shouldRun()) return;
+    game.last = performance.now();
+    game.raf = requestAnimationFrame(loop);
+  }
+
+  function syncLoop() {
+    if (shouldRun()) {
+      startLoop();
+      return;
+    }
+
+    stopLoop();
   }
 
   function actionFromKeyboardEvent(event) {
@@ -827,6 +855,8 @@
   }
 
   function handleKey(event) {
+    if (!nearViewport) return;
+
     const active = document.activeElement;
     const target = event.target;
     const gameHasFocus = shell.contains(active) || target === canvas || shell.contains(target);
@@ -946,8 +976,26 @@
   });
 
   window.awfulCasesCaseTrainer = { game, view, dictionary:DICTIONARY, command, reset, startDemo, nearestTask };
+
+  const viewportObserver =
+    typeof IntersectionObserver === 'function'
+      ? new IntersectionObserver(
+          ([entry]) => {
+            nearViewport = Boolean(entry?.isIntersecting);
+            syncLoop();
+          },
+          {
+            rootMargin: VIEWPORT_MARGIN,
+            threshold: 0
+          }
+        )
+      : null;
+
+  viewportObserver?.observe(shell);
+  document.addEventListener('visibilitychange', syncLoop);
   window.addEventListener('resize', resize, { passive:true });
+
   resize();
   startDemo();
-  game.raf = requestAnimationFrame(loop);
+  syncLoop();
 })();
