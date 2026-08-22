@@ -1,104 +1,341 @@
-/* Unified media caption contract. */
-:where(figure.media, figure.before-after)[data-caption-view="summary"] > :where(figcaption.media__caption, .media__caption) :where(.media__text, .media__meta),
-:where([data-slide-caption][data-caption-view="summary"]) :where(.media__text, .media__meta) {
+/* ==================================================
+   Media captions
+   One visual contract for authored, templated and legacy media.
+   Content stays in the original figcaption; presentation is controlled only
+   by data-caption-view: full | summary | overlay | lightbox-only.
+   ================================================== */
+
+.media__caption {
+  --caption-index-width: 2.25rem;
+  --caption-column-gap: clamp(0.5rem, 0.75cqi, 0.75rem);
+  --caption-row-gap: 0.18rem;
+
+  inline-size: 100%;
+  max-inline-size: min(100%, 72ch);
+  margin: 0;
+  color: var(--clr-text-muted);
+  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-weight: var(--fw-400);
+  line-height: 1.36;
+}
+
+.media__caption-line {
+  display: grid;
+  grid-template-columns: var(--caption-index-width) minmax(0, 1fr);
+  column-gap: var(--caption-column-gap);
+  row-gap: var(--caption-row-gap);
+  align-items: start;
+  inline-size: 100%;
+  margin: 0;
+}
+
+.media__caption-line:not(:has(.media__index)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.media__index {
+  grid-column: 1;
+  grid-row: 1 / span 32;
+  margin: 0;
+  color: currentColor;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  opacity: 0.66;
+}
+
+.media__title,
+.media__text,
+.media__meta {
+  grid-column: 2;
+  min-inline-size: 0;
+  color: inherit;
+  font-weight: var(--fw-400);
+}
+
+.media__caption-line:not(:has(.media__index)) > :is(.media__title, .media__text, .media__meta) {
+  grid-column: 1;
+}
+
+.media__title {
+  color: var(--clr-text);
+  font-weight: var(--fw-500);
+}
+
+.media__text,
+.media__meta {
+  max-inline-size: 66ch;
+  color: var(--clr-text-muted);
+}
+
+/* The old inline-caption CSS inserted spaces with pseudo-elements. In the
+   structured grid those pseudo-elements become visible junk, so remove them. */
+.media__title + .media__text::before,
+.media__title + .media__meta::before,
+.media__text + .media__meta::before,
+.media-lightbox__caption .media__title + .media__text::before,
+.media-lightbox__caption .media__title + .media__meta::before,
+.media-lightbox__caption .media__text + .media__meta::before {
+  content: none !important;
+}
+
+/* FULL ------------------------------------------------------------------- */
+:where(figure.media, figure.before-after)[data-caption-view="full"] > .media__caption,
+:where([data-slide-caption][data-caption-view="full"]) {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* SUMMARY ----------------------------------------------------------------
+   Summary is deliberately static. Details stay in the DOM for the lightbox,
+   but hover/focus/tap can never change the page layout. */
+:where(figure.media, figure.before-after)[data-caption-view="summary"]
+  > :where(figcaption.media__caption, .media__caption)
+  :where(.media__text, .media__meta),
+:where([data-slide-caption][data-caption-view="summary"])
+  :where(.media__text, .media__meta),
+:where(figure.media, figure.before-after)[data-caption-rest="summary"]
+  > :where(figcaption.media__caption, .media__caption)
+  :where(.media__text, .media__meta),
+:where([data-slide-caption][data-caption-rest="summary"])
+  :where(.media__text, .media__meta) {
   display: none !important;
 }
 
-:where(figure.media, figure.before-after)[data-caption-view="lightbox-only"] > :where(figcaption.media__caption, .media__caption),
-:where([data-slide-caption][data-caption-view="lightbox-only"]) {
-  display: none !important;
-}
-
-/* Compatibility until all hand-authored HTML is templated. */
-:where(figure.media, figure.before-after)[data-caption-rest="summary"] > :where(figcaption.media__caption, .media__caption) :where(.media__text, .media__meta),
-:where([data-slide-caption][data-caption-rest="summary"]) :where(.media__text, .media__meta) {
-  display: none !important;
-}
-:where(figure.media, figure.before-after)[data-caption-rest="none"] > :where(figcaption.media__caption, .media__caption),
+/* LIGHTBOX ONLY ---------------------------------------------------------- */
+:where(figure.media, figure.before-after)[data-caption-view="lightbox-only"]
+  > :where(figcaption.media__caption, .media__caption),
+:where([data-slide-caption][data-caption-view="lightbox-only"]),
+:where(figure.media, figure.before-after)[data-caption-rest="none"]
+  > :where(figcaption.media__caption, .media__caption),
 :where([data-slide-caption][data-caption-rest="none"]) {
   display: none !important;
 }
 
-figure.media[data-caption-view="overlay"] {
-  --caption-fader-opacity: 0;
-  --caption-media-filter: none;
+/* OVERLAY ----------------------------------------------------------------
+   Overlay captions never participate in layout. Fine pointers reveal on hover,
+   keyboard reveals through focus-within, coarse pointers use data-caption-open.
+   The media itself stays sharp; a restrained gradient supplies contrast. */
+:where(figure.media, figure.before-after):is(
+    [data-caption-view="overlay"],
+    [data-caption="overlay"]
+  ) {
   position: relative;
   isolation: isolate;
 }
-figure.media[data-caption-view="overlay"]::after {
+
+:where(figure.media, figure.before-after):is(
+    [data-caption-view="overlay"],
+    [data-caption="overlay"]
+  )::after {
   content: "";
   position: absolute;
   z-index: 1;
   inset: 0;
-  background: linear-gradient(0deg, rgb(0 0 0 / 0.96) 0%, rgb(0 0 0 / 0.86) 34%, rgb(0 0 0 / 0.56) 68%, rgb(0 0 0 / 0.28) 100%);
-  opacity: var(--caption-fader-opacity);
+  background: linear-gradient(
+    to top,
+    rgb(0 0 0 / 0.82) 0%,
+    rgb(0 0 0 / 0.58) 28%,
+    rgb(0 0 0 / 0.22) 58%,
+    transparent 82%
+  );
+  opacity: 0;
   pointer-events: none;
   transition: opacity 160ms ease;
 }
-figure.media[data-caption-view="overlay"] :where(.media__surface, .mockup__viewport) > :is(img, video),
-figure.media[data-caption-view="overlay"] :where(.media__surface, .mockup__viewport) > picture > img {
-  filter: var(--caption-media-filter);
-  transition: filter 160ms ease;
+
+:where(figure.media, figure.before-after):is(
+    [data-caption-view="overlay"],
+    [data-caption="overlay"]
+  ) :where(.media__surface, .mockup__viewport) > :is(img, video),
+:where(figure.media, figure.before-after):is(
+    [data-caption-view="overlay"],
+    [data-caption="overlay"]
+  ) :where(.media__surface, .mockup__viewport) > picture > img {
+  filter: none !important;
 }
-figure.media[data-caption-view="overlay"] > figcaption.media__caption {
+
+:where(figure.media, figure.before-after):is(
+    [data-caption-view="overlay"],
+    [data-caption="overlay"]
+  ) > figcaption.media__caption {
   position: absolute;
   z-index: 2;
-  inset-inline: clamp(0.55rem, 1.2cqi, 0.9rem);
-  inset-block-end: clamp(0.55rem, 1.2cqi, 0.9rem);
+  inset-inline: clamp(0.65rem, 1.3cqi, 1rem);
+  inset-block-end: clamp(0.65rem, 1.3cqi, 1rem);
   inline-size: auto;
-  max-inline-size: min(48ch, calc(100% - clamp(1.1rem, 2.4cqi, 1.8rem)));
-  max-block-size: calc(100% - clamp(1.1rem, 2.4cqi, 1.8rem));
-  overflow: auto;
-  color: #fff;
-  opacity: 0;
-  translate: 0 0.35rem;
-  pointer-events: none;
-  text-shadow: 0 1px 0.75rem rgb(0 0 0 / 0.6);
-  scrollbar-width: thin;
-  transition: opacity 160ms ease, translate 160ms ease;
-}
-figure.media[data-caption-view="overlay"]:is(:hover, :focus-within),
-figure.media[data-caption-view="overlay"][data-caption-open] {
-  --caption-fader-opacity: 1;
-  --caption-media-filter: grayscale(1) blur(1.2px) brightness(0.38);
-}
-figure.media[data-caption-view="overlay"]:is(:hover, :focus-within) > figcaption.media__caption,
-figure.media[data-caption-view="overlay"][data-caption-open] > figcaption.media__caption {
-  opacity: 1;
-  translate: 0 0;
-  pointer-events: auto;
-}
-
-[data-slide-caption][data-caption-view="overlay"] { opacity: 0; pointer-events: none; }
-:where(.media, .mockup, .before-after):is(:hover, :focus-within, [data-caption-open]) [data-slide-caption][data-caption-view="overlay"][data-active] {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  figure.media[data-caption-view="overlay"]::after,
-  figure.media[data-caption-view="overlay"] :where(.media__surface, .mockup__viewport) > :is(img, video),
-  figure.media[data-caption-view="overlay"] :where(.media__surface, .mockup__viewport) > picture > img,
-  figure.media[data-caption-view="overlay"] > figcaption.media__caption { transition: none; }
-}
-
-.media-lightbox__caption {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: start;
-  gap: 0.3rem 0.5rem;
-  inline-size: min(100%, 70ch);
-  max-block-size: min(32dvh, 20rem);
+  max-inline-size: min(52ch, calc(100% - clamp(1.3rem, 2.6cqi, 2rem)));
+  max-block-size: min(72%, 22rem);
   overflow: auto;
   overscroll-behavior: contain;
-  padding-inline-end: 0.5rem;
+  color: rgb(255 255 255 / 0.82);
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 0.3rem;
+  pointer-events: none;
+  text-shadow: 0 1px 0.7rem rgb(0 0 0 / 0.45);
+  scrollbar-width: thin;
+  transition:
+    opacity 160ms ease,
+    translate 160ms ease,
+    visibility 0s linear 160ms;
+}
+
+:where(figure.media, figure.before-after):is(
+    [data-caption-view="overlay"],
+    [data-caption="overlay"]
+  ) > figcaption.media__caption .media__title {
+  color: #fff;
+  font-weight: var(--fw-600);
+}
+
+:where(figure.media, figure.before-after):is(
+    [data-caption-view="overlay"],
+    [data-caption="overlay"]
+  ) > figcaption.media__caption :is(.media__text, .media__meta) {
   color: rgb(255 255 255 / 0.76);
+}
+
+:where(figure.media, figure.before-after):is(
+    [data-caption-view="overlay"],
+    [data-caption="overlay"]
+  ):is(:focus-within, [data-caption-open])::after,
+:where(figure.media, figure.before-after):is(
+    [data-caption-view="overlay"],
+    [data-caption="overlay"]
+  ):is(:focus-within, [data-caption-open]) > figcaption.media__caption {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ):hover::after,
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ):hover > figcaption.media__caption {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+}
+
+/* Slide captions use the same state model. Their containing deck controls the
+   active caption; overlay never changes deck geometry. */
+[data-slide-caption][data-caption-view="overlay"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 160ms ease, visibility 0s linear 160ms;
+}
+
+:where(.media, .mockup, .before-after):is(:focus-within, [data-caption-open])
+  [data-slide-caption][data-caption-view="overlay"][data-active] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :where(.media, .mockup, .before-after):hover
+    [data-slide-caption][data-caption-view="overlay"][data-active] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+}
+
+/* LIGHTBOX ---------------------------------------------------------------
+   The lightbox keeps the original structured caption instead of flattening it.
+   Long credits scroll independently from the media. */
+.media-lightbox__caption {
+  --caption-index-width: 2.5rem;
+
+  display: grid;
+  grid-template-columns: var(--caption-index-width) minmax(0, 1fr);
+  gap: 0.35rem 0.75rem;
+  align-content: start;
+  inline-size: min(100%, 76ch);
+  max-block-size: min(34dvh, 22rem);
+  margin: 0;
+  padding-block-start: 0.75rem;
+  padding-inline-end: 0.5rem;
+  border-block-start: 1px solid rgb(255 255 255 / 0.16);
+  overflow: auto;
+  overscroll-behavior: contain;
+  color: rgb(255 255 255 / 0.72);
+  font-size: clamp(0.76rem, 0.72rem + 0.14vw, 0.9rem);
   line-height: 1.42;
   scrollbar-width: thin;
 }
-.media-lightbox__caption:empty { display: none; }
-.media-lightbox__caption .media__index { flex: 0 0 auto; color: rgb(255 255 255 / 0.5); font-variant-numeric: tabular-nums; }
-.media-lightbox__caption .media__title { flex: 1 1 20ch; color: #fff; font-weight: var(--fw-600); }
-.media-lightbox__caption .media__text,
-.media-lightbox__caption .media__meta { display: block !important; flex: 1 0 100%; margin: 0; color: inherit; }
-.media-lightbox__caption .media__meta + .media__meta { margin-block-start: 0.15rem; }
+
+.media-lightbox__caption:not(:has(.media__index)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.media-lightbox__caption:empty {
+  display: none;
+}
+
+.media-lightbox__caption > .media__index {
+  grid-column: 1;
+  grid-row: 1 / span 32;
+  color: rgb(255 255 255 / 0.46);
+  font-variant-numeric: tabular-nums;
+}
+
+.media-lightbox__caption > :is(.media__title, .media__text, .media__meta) {
+  grid-column: 2;
+  min-inline-size: 0;
+}
+
+.media-lightbox__caption:not(:has(.media__index))
+  > :is(.media__title, .media__text, .media__meta) {
+  grid-column: 1;
+}
+
+.media-lightbox__caption > .media__title {
+  color: #fff;
+  font-weight: var(--fw-600);
+}
+
+.media-lightbox__caption > :is(.media__text, .media__meta) {
+  display: block !important;
+  color: rgb(255 255 255 / 0.72);
+}
+
+@media (max-width: 42rem) {
+  .media__caption {
+    --caption-index-width: 1.9rem;
+    --caption-column-gap: 0.5rem;
+  }
+
+  .media-lightbox__caption {
+    --caption-index-width: 2rem;
+    max-block-size: min(38dvh, 18rem);
+    padding-block-start: 0.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    )::after,
+  :where(figure.media, figure.before-after):is(
+      [data-caption-view="overlay"],
+      [data-caption="overlay"]
+    ) > figcaption.media__caption,
+  [data-slide-caption][data-caption-view="overlay"] {
+    transition: none;
+  }
+}
