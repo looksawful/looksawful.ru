@@ -5,9 +5,12 @@ import type {
   SectionIntroData,
 } from "../../types/content.ts";
 
+import { getCase, getRole } from "../catalog/lookup.ts";
 import type { MediaEntryId } from "../media/index.ts";
-
 import type { LogoUsageId } from "../logos/index.ts";
+
+const styxCase = getCase("styx");
+const digitalArtistRole = getRole("digital-artist");
 
 export const styxIntro = {
   head: {
@@ -21,8 +24,8 @@ export const styxIntro = {
     logoUsageId: "styx-case-title-logo",
   },
 
-  role: "Digital artist",
-  period: "2021–2025",
+  role: digitalArtistRole.name,
+  period: styxCase.date,
 
   lead: "Возглавил комплексную работу над визуальной системой нишевого московского бренда украшений, аксессуаров и одежды, вдохновлённого готической романтикой и лавкрафтовским ужасом.",
 } as const satisfies ProjectIntroData<LogoUsageId>;
@@ -82,5 +85,5 @@ export const styxShootingsIntro = {
 export const styxLookbookIntro = {
   title: "Лукбук",
 
-  paragraphs: ["Съёмка лукбука Styx Jewels 2025 года."],
+  paragraphs: ["Съёмка лукбука Styx Jewel 2025 года."],
 } as const satisfies SectionIntroData;
