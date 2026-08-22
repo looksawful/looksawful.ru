@@ -59,6 +59,21 @@ export interface MockupData<EntryId extends string = string> {
 export interface SectionIntroData {
   title: string;
   paragraphs?: readonly string[];
+
+  /**
+   * Дополнительный класс для общего контейнера текста.
+   *
+   * Если указан, paragraphs рендерятся внутри:
+   *
+   * <div class="section-copy__text ${bodyClassName}">
+   *   <p>...</p>
+   * </div>
+   *
+   * Если не указан — сохраняется обычная структура:
+   *
+   * <p class="section-copy__text">...</p>
+   */
+  bodyClassName?: string;
 }
 
 export type ProjectIntroTitleData<LogoUsageId extends string = string> =
@@ -71,8 +86,35 @@ export type ProjectIntroTitleData<LogoUsageId extends string = string> =
       text: string;
     };
 
+export type ProjectIntroHeadData<LogoUsageId extends string = string> =
+  | {
+      type: "logo";
+      logoUsageId: LogoUsageId;
+
+      /**
+       * "none":
+       *   <img ...>
+       *
+       * "name":
+       *   <p class="project__name"><img ...></p>
+       */
+      wrapper?: "none" | "name";
+    }
+  | {
+      type: "text";
+      text: string;
+    };
+
+export interface ProjectIntroLinkData {
+  label: string;
+  href: string;
+
+  rel?: string;
+  target?: "_blank";
+}
+
 export interface ProjectIntroData<LogoUsageId extends string = string> {
-  headLogoUsageId?: LogoUsageId;
+  head?: ProjectIntroHeadData<LogoUsageId>;
 
   title: ProjectIntroTitleData<LogoUsageId>;
 
@@ -81,4 +123,7 @@ export interface ProjectIntroData<LogoUsageId extends string = string> {
 
   summary?: string;
   lead?: string;
+
+  linksLabel?: string;
+  links?: readonly ProjectIntroLinkData[];
 }

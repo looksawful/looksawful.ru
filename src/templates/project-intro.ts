@@ -2,7 +2,12 @@ import { logoFiles, logoUsages, type LogoFileId, type LogoUsageId } from "../dat
 
 import { getMediaAsset, type MediaAssetId } from "../data/media/index.ts";
 
-import type { ProjectIntroData, ProjectIntroTitleData } from "../types/content.ts";
+import type {
+  ProjectIntroData,
+  ProjectIntroHeadData,
+  ProjectIntroLinkData,
+  ProjectIntroTitleData,
+} from "../types/content.ts";
 
 import type { LogoFileData, LogoUsageData } from "../types/logo.ts";
 
@@ -57,6 +62,24 @@ function renderLogo(usageId: LogoUsageId): string {
   return `<img src="${escapeHtml(logo.src)}" alt="${escapeHtml(logo.alt)}">`;
 }
 
+function renderHead(head?: ProjectIntroHeadData<LogoUsageId>): string {
+  if (!head) {
+    return "";
+  }
+
+  if (head.type === "text") {
+    return `<p class="project__name">${escapeHtml(head.text)}</p>`;
+  }
+
+  const logo = renderLogo(head.logoUsageId);
+
+  if (head.wrapper === "name") {
+    return `<p class="project__name">${logo}</p>`;
+  }
+
+  return logo;
+}
+
 function renderTitle(title: ProjectIntroTitleData<LogoUsageId>): string {
   if (title.type === "logo") {
     return renderLogo(title.logoUsageId);
@@ -65,9 +88,32 @@ function renderTitle(title: ProjectIntroTitleData<LogoUsageId>): string {
   return escapeHtml(title.text);
 }
 
-export function renderProjectIntro(data: ProjectIntroData<LogoUsageId>): string {
-  const headLogo = data.headLogoUsageId ? renderLogo(data.headLogoUsageId) : "";
+function renderLink(link: ProjectIntroLinkData): string {
+  const rel = link.rel ? ` rel="${escapeHtml(link.rel)}"` : "";
 
+  const target = link.target ? ` target="${escapeHtml(link.target)}"` : "";
+
+  return `<a href="${escapeHtml(link.href)}"${rel}${target}>${escapeHtml(link.label)}</a>`;
+}
+
+function renderLinks(data: ProjectIntroData<LogoUsageId>): string {
+  if (!data.links?.length) {
+    return "";
+  }
+
+  const label = data.linksLabel ?? "Ссылки проекта";
+
+  return `
+    <nav
+      aria-label="${escapeHtml(label)}"
+      class="project__links cluster"
+    >
+      ${data.links.map(renderLink).join("\n")}
+    </nav>
+  `;
+}
+
+export function renderProjectIntro(data: ProjectIntroData<LogoUsageId>): string {
   const role = data.role ? `<p class="project__role">${escapeHtml(data.role)}</p>` : "";
 
   const period = data.period ? `<p class="project__period">${escapeHtml(data.period)}</p>` : "";
@@ -78,7 +124,7 @@ export function renderProjectIntro(data: ProjectIntroData<LogoUsageId>): string 
 
   return `
     <div class="project__head">
-      ${headLogo}
+      ${renderHead(data.head)}
       ${role}
       ${period}
     </div>
@@ -90,6 +136,7 @@ export function renderProjectIntro(data: ProjectIntroData<LogoUsageId>): string 
 
       ${summary}
       ${lead}
+      ${renderLinks(data)}
     </header>
   `;
 }
