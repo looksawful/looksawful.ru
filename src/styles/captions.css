@@ -5,8 +5,8 @@
    presentation states:
    full | summary | overlay | lightbox-only
 
-   Layout and input-mode adaptation are CSS responsibilities. JavaScript only
-   normalizes legacy attributes and opens the lightbox.
+   Layout and input-mode adaptation are CSS responsibilities. Captions are
+   authored directly with data-caption-view; JavaScript only opens the lightbox.
    ================================================== */
 
 .media__caption {
@@ -104,11 +104,6 @@
   > :where(figcaption.media__caption, .media__caption)
   :where(.media__text, .media__meta),
 :where([data-slide-caption][data-caption-view="summary"])
-  :where(.media__text, .media__meta),
-:where(figure.media, figure.before-after)[data-caption-rest="summary"]
-  > :where(figcaption.media__caption, .media__caption)
-  :where(.media__text, .media__meta),
-:where([data-slide-caption][data-caption-rest="summary"])
   :where(.media__text, .media__meta) {
   display: none;
 }
@@ -116,10 +111,7 @@
 /* LIGHTBOX ONLY ---------------------------------------------------------- */
 :where(figure.media, figure.before-after)[data-caption-view="lightbox-only"]
   > :where(figcaption.media__caption, .media__caption),
-:where([data-slide-caption][data-caption-view="lightbox-only"]),
-:where(figure.media, figure.before-after)[data-caption-rest="none"]
-  > :where(figcaption.media__caption, .media__caption),
-:where([data-slide-caption][data-caption-rest="none"]) {
+:where([data-slide-caption][data-caption-view="lightbox-only"]) {
   display: none;
 }
 
@@ -128,8 +120,7 @@
    therefore falls back to the same compact, stable below-media presentation as
    summary. Tapping the media can go directly to the lightbox. */
 :where(figure.media, figure.before-after):is(
-    [data-caption-view="overlay"],
-    [data-caption="overlay"]
+    [data-caption-view="overlay"]
   ) > figcaption.media__caption {
   position: static;
   inline-size: 100%;
@@ -143,15 +134,13 @@
 }
 
 :where(figure.media, figure.before-after):is(
-    [data-caption-view="overlay"],
-    [data-caption="overlay"]
+    [data-caption-view="overlay"]
   ) > figcaption.media__caption :where(.media__text, .media__meta) {
   display: none;
 }
 
 :where(figure.media, figure.before-after):is(
-    [data-caption-view="overlay"],
-    [data-caption="overlay"]
+    [data-caption-view="overlay"]
   )::after {
   content: none;
 }
@@ -162,16 +151,14 @@
    media-grid geometry. */
 @media (hover: hover) and (pointer: fine) {
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     ) {
     position: relative;
     isolation: isolate;
   }
 
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     )::after {
     content: "";
     position: absolute;
@@ -190,19 +177,16 @@
   }
 
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     ) :where(.media__surface, .mockup__viewport) > :is(img, video),
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     ) :where(.media__surface, .mockup__viewport) > picture > img {
     filter: none;
   }
 
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     ) > figcaption.media__caption {
     --caption-index-width: 1.4rem;
     --caption-column-gap: 0.32rem;
@@ -232,35 +216,30 @@
   }
 
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     ) > figcaption.media__caption :is(.media__title, .media__text, .media__meta) {
     overflow-wrap: anywhere;
   }
 
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     ) > figcaption.media__caption .media__title {
     color: #fff;
     font-weight: var(--fw-600);
   }
 
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     ) > figcaption.media__caption :is(.media__text, .media__meta) {
     display: block;
     color: rgb(255 255 255 / 0.72);
   }
 
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     ):is(:hover, :focus-within)::after,
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     ):is(:hover, :focus-within) > figcaption.media__caption {
     opacity: 1;
     visibility: visible;
@@ -389,14 +368,30 @@
   }
 }
 
+@media ((hover: none) or (pointer: coarse)) and (orientation: portrait) {
+  .media-lightbox__caption {
+    max-block-size: min(32dvh, 18rem);
+  }
+}
+
+@media ((hover: none) or (pointer: coarse)) and (orientation: landscape) {
+  .media-lightbox__caption {
+    align-content: start;
+    inline-size: 100%;
+    max-block-size: 100%;
+    padding-block-start: 0;
+    padding-inline-start: 0.75rem;
+    border-block-start: 0;
+    border-inline-start: 1px solid rgb(255 255 255 / 0.16);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     )::after,
   :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"],
-      [data-caption="overlay"]
+      [data-caption-view="overlay"]
     ) > figcaption.media__caption,
   [data-slide-caption][data-caption-view="overlay"] {
     transition: none;

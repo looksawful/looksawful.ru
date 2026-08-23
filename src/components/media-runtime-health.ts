@@ -1,13 +1,15 @@
+type MediaRuntimeRoot = ParentNode & Node;
+
 const noop = () => {};
 
-function isVisible(element) {
+function isVisible(element: Element): boolean {
   if (!(element instanceof HTMLElement)) return false;
   if (element.closest("[hidden]")) return false;
   const rect = element.getBoundingClientRect();
   return rect.width > 2 && rect.height > 2;
 }
 
-function primeVideo(video) {
+function primeVideo(video: Element): void {
   if (!(video instanceof HTMLVideoElement) || !isVisible(video)) return;
   if (video.hasAttribute("autoplay")) {
     video.muted = true;
@@ -19,7 +21,7 @@ function primeVideo(video) {
   if (video.hasAttribute("autoplay") && video.paused && !document.hidden) video.play().catch(() => {});
 }
 
-function nudgeCanvas(canvas) {
+function nudgeCanvas(canvas: Element): void {
   if (!(canvas instanceof HTMLCanvasElement) || !isVisible(canvas)) return;
   const rect = canvas.getBoundingClientRect();
   const dpr = Math.min(Math.max(1, window.devicePixelRatio || 1), 2);
@@ -38,15 +40,15 @@ function nudgeCanvas(canvas) {
   });
 }
 
-function refresh(root = document) {
+function refresh(root: ParentNode = document): void {
   root.querySelectorAll?.("video").forEach(primeVideo);
   root.querySelectorAll?.('[data-animated-canvas-gallery] canvas').forEach(nudgeCanvas);
 }
 
-export function createMediaRuntimeHealth({ root = document } = {}) {
+export function createMediaRuntimeHealth({ root = document }: { root?: MediaRuntimeRoot } = {}) {
   if (!root?.querySelectorAll) return noop;
-  let frame = 0;
-  const schedule = () => {
+  let frame: number = 0;
+  const schedule = (): void => {
     if (frame) cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
       frame = 0;
@@ -54,7 +56,7 @@ export function createMediaRuntimeHealth({ root = document } = {}) {
     });
   };
   const mutationObserver = typeof MutationObserver === "function"
-    ? new MutationObserver((records) => {
+    ? new MutationObserver((records: MutationRecord[]) => {
         if (records.some((record) => ["data-active", "hidden", "aria-hidden", "data-deck-view"].includes(record.attributeName ?? ""))) schedule();
       })
     : null;
@@ -63,7 +65,7 @@ export function createMediaRuntimeHealth({ root = document } = {}) {
     attributes: true,
     attributeFilter: ["data-active", "hidden", "aria-hidden", "data-deck-view"],
   });
-  const handleVisibility = () => {
+  const handleVisibility = (): void => {
     if (!document.hidden) schedule();
   };
   window.addEventListener("pageshow", schedule);

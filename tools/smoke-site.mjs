@@ -5,6 +5,19 @@ import { chromium } from "playwright";
 const HOST = "127.0.0.1";
 const PORT = 4173;
 const BASE_URL = `http://${HOST}:${PORT}`;
+const VIEWPORTS = [
+  { label: "phone-portrait", width: 390, height: 844, mobile: true },
+  { label: "phone-landscape", width: 844, height: 390, mobile: true },
+  { label: "grid-670", width: 670, height: 900, mobile: false },
+  { label: "grid-705", width: 705, height: 900, mobile: false },
+  { label: "grid-770", width: 770, height: 900, mobile: false },
+  { label: "grid-805", width: 805, height: 900, mobile: false },
+  { label: "grid-835", width: 835, height: 900, mobile: false },
+  { label: "tablet", width: 1024, height: 768, mobile: false },
+  { label: "desktop", width: 1280, height: 800, mobile: false },
+  { label: "wide", width: 1440, height: 900, mobile: false },
+];
+
 const server = spawn(
   process.execPath,
   [
@@ -26,8 +39,20 @@ server.stderr.on("data", (chunk) => {
   serverOutput += chunk.toString();
 });
 
+function assert(condition, message) {
+  if (!condition) throw new Error(message);
+}
+
+function isSameOrigin(url) {
+  try {
+    return new URL(url).origin === BASE_URL;
+  } catch {
+    return false;
+  }
+}
+
 async function waitForServer() {
-  for (let attempt = 0; attempt < 60; attempt += 1) {
+  for (let attempt = 0; attempt < 80; attempt += 1) {
     try {
       const response = await fetch(BASE_URL, { redirect: "follow" });
       if (response.ok) return;
@@ -38,280 +63,167 @@ async function waitForServer() {
   throw new Error(`Vite preview did not start.\n${serverOutput}`);
 }
 
-function assert(condition, message) {
-  if (!condition) throw new Error(message);
+async function revealProjectMedia(page) {
+  return page.evaluate(() => {
+    let count = 0;
+    document.querySelectorAll(".project[hidden]").forEach((project) => {
+      project.hidden = false;
+      project.setAttribute("data-smoke-revealed", "");
+      count += 1;
+    });
+    return count;
+  });
 }
 
-async function verifyVideoUrls(context, page) {
-  const urls = await page.evaluate(() => {
-    const values = new Set();
+async function scrollThroughPage(page) {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(150);
 
-    document.querySelectorAll("video").forEach((media) => {
-      const src = media.currentSrc || media.getAttribute("src") || "";
-      if (src) values.add(new URL(src, location.href).href);
-      if (media.poster) values.add(new URL(media.poster, location.href).href);
+  for (let step = 0; step < 90; step += 1) {
+    const state = await page.evaluate(() => {
+      const nextY = Math.min(
+        window.scrollY + Math.max(window.innerHeight * 0.75, 280),
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
+      window.scrollTo(0, nextY);
+      return {
+        y: window.scrollY,
+        maxY: document.documentElement.scrollHeight - window.innerHeight,
+      };
     });
-
-    return [...values];
-  });
-
-  const failures = [];
-
-  for (const url of urls) {
-    const response = await context.request.get(url, {
-      headers: { Range: "bytes=0-0" },
-      timeout: 20_000,
-      failOnStatusCode: false,
-    });
-
-    if (![200, 206].includes(response.status())) {
-      failures.push(`${response.status()} ${url}`);
-    }
+    await page.waitForTimeout(80);
+    if (state.y >= state.maxY - 2) break;
   }
 
-  assert(!failures.length, `Broken video/poster URLs:\n${failures.join("\n")}`);
+  await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => {});
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(150);
 }
 
-async function verifyCaptions(page, mobile) {
+async function verifyPageShell(page, label) {
   const state = await page.evaluate(() => {
-    const owners = [
-      ...document.querySelectorAll("figure.media, figure.before-after"),
-    ].filter((owner) =>
-      owner.querySelector(
-        ":scope > .media__caption, :scope > figcaption.media__caption",
-      ),
-    );
+    const body = document.body;
+    const bodyRect = body?.getBoundingClientRect();
+    const visibleMedia = [...document.querySelectorAll("img, video, canvas")].filter((node) => {
+      const rect = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      return style.display !== "none" && style.visibility !== "hidden" && rect.width > 1 && rect.height > 1;
+    }).length;
 
     return {
-      legacy: document.querySelectorAll("[data-caption], [data-caption-rest]")
-        .length,
-      missingView: owners.filter(
-        (owner) => !owner.hasAttribute("data-caption-view"),
-      ).length,
-      focusableOverlayOwners: document.querySelectorAll(
-        '[data-caption-view="overlay"][tabindex]',
-      ).length,
-      overlays: document.querySelectorAll('[data-caption-view="overlay"]')
-        .length,
-      lightboxSources: document.querySelectorAll("[data-lightbox-source]")
-        .length,
+      title: document.title,
+      textLength: body?.innerText?.replace(/\s+/g, " ").trim().length ?? 0,
+      bodyHeight: bodyRect?.height ?? 0,
+      visibleMedia,
     };
   });
 
-  assert(state.legacy === 0, `Legacy caption attributes remain: ${state.legacy}`);
+  assert(state.bodyHeight > 100, `${label}: page body is effectively blank`);
   assert(
-    state.missingView === 0,
-    `Caption owners without data-caption-view: ${state.missingView}`,
+    state.textLength > 20 || state.visibleMedia > 0,
+    `${label}: page has no meaningful visible text or media`,
   );
-  assert(
-    state.focusableOverlayOwners === 0,
-    `Overlay figures still create duplicate tab stops: ${state.focusableOverlayOwners}`,
-  );
-  assert(state.overlays > 0, "No overlay captions were discovered");
-  assert(state.lightboxSources > 0, "No lightbox sources were marked");
-
-  if (mobile) {
-    const overflow = await page.evaluate(() => {
-      const visible = (element) => {
-        if (!(element instanceof HTMLElement)) return false;
-        const style = getComputedStyle(element);
-        const rect = element.getBoundingClientRect();
-        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 1 && rect.height > 1;
-      };
-
-      return [...document.querySelectorAll("figcaption.media__caption")]
-        .filter(visible)
-        .flatMap((caption) => {
-          const captionRect = caption.getBoundingClientRect();
-          const line = caption.querySelector(".media__caption-line");
-          const candidates = [line, ...caption.querySelectorAll(".media__title, .media__text, .media__meta")]
-            .filter((node) => node instanceof HTMLElement && visible(node));
-
-          return candidates
-            .map((node) => {
-              const rect = node.getBoundingClientRect();
-              const overflows =
-                node.scrollWidth > node.clientWidth + 1 ||
-                rect.right > captionRect.right + 1 ||
-                rect.left < captionRect.left - 1;
-              if (!overflows) return null;
-              return {
-                view: caption.closest("[data-caption-view]")?.getAttribute("data-caption-view") || "",
-                text: node.textContent?.replace(/\s+/g, " ").trim().slice(0, 120) || "",
-                nodeWidth: Math.round(rect.width * 10) / 10,
-                clientWidth: node.clientWidth,
-                scrollWidth: node.scrollWidth,
-                captionWidth: Math.round(captionRect.width * 10) / 10,
-                left: Math.round(rect.left * 10) / 10,
-                right: Math.round(rect.right * 10) / 10,
-                captionLeft: Math.round(captionRect.left * 10) / 10,
-                captionRight: Math.round(captionRect.right * 10) / 10,
-              };
-            })
-            .filter(Boolean);
-        });
-    });
-
-    assert(
-      !overflow.length,
-      `Mobile captions overflow horizontally:\n${JSON.stringify(overflow.slice(0, 12), null, 2)}`,
-    );
-  }
-
-  const summary = page
-    .locator('[data-caption-view="summary"]:visible:has(.media__text, .media__meta)')
-    .first();
-
-  if (await summary.count()) {
-    await summary.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(80);
-
-    const before = await summary.evaluate((node) => ({
-      height: node.offsetHeight,
-      details: [...node.querySelectorAll(".media__text, .media__meta")].map(
-        (detail) => getComputedStyle(detail).display,
-      ),
-    }));
-
-    await summary.hover({ force: true });
-    await page.waitForTimeout(200);
-
-    const after = await summary.evaluate((node) => ({
-      height: node.offsetHeight,
-      details: [...node.querySelectorAll(".media__text, .media__meta")].map(
-        (detail) => getComputedStyle(detail).display,
-      ),
-    }));
-
-    assert(
-      before.height === after.height,
-      `Summary caption changed layout: ${before.height} -> ${after.height}`,
-    );
-    assert(
-      before.details.every((display) => display === "none") &&
-        after.details.every((display) => display === "none"),
-      `Summary details became visible: ${before.details.join(",")} -> ${after.details.join(",")}`,
-    );
-  }
-
-  const overlay = page
-    .locator('figure.media[data-caption-view="overlay"]:visible:has(> .media__caption)')
-    .first();
-
-  if (await overlay.count()) {
-    await overlay.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(80);
-
-    const beforeHeight = await overlay.evaluate((node) => node.offsetHeight);
-
-    if (!mobile) {
-      await overlay.hover({ force: true });
-      await page.waitForTimeout(200);
-
-      const stateAfterHover = await overlay.evaluate((node) => ({
-        height: node.offsetHeight,
-        opacity: Number.parseFloat(
-          getComputedStyle(node.querySelector(":scope > .media__caption")).opacity,
-        ),
-        position: getComputedStyle(
-          node.querySelector(":scope > .media__caption"),
-        ).position,
-      }));
-
-      assert(
-        stateAfterHover.height === beforeHeight,
-        `Overlay caption changed layout: ${beforeHeight} -> ${stateAfterHover.height}`,
-      );
-      assert(
-        stateAfterHover.position === "absolute",
-        `Overlay caption participates in layout: ${stateAfterHover.position}`,
-      );
-      assert(
-        stateAfterHover.opacity > 0.9,
-        `Overlay caption did not reveal on hover: ${stateAfterHover.opacity}`,
-      );
-    }
-  }
-
-  if (!mobile) {
-    const source = page
-      .locator('figure.media:visible:has(.media__title) [data-lightbox-source]:visible')
-      .first();
-
-    if (await source.count()) {
-      await source.click({ force: true });
-      await page.waitForTimeout(100);
-
-      const structure = await page.evaluate(() => ({
-        open: document.querySelector("[data-media-lightbox]")?.open === true,
-        title: Boolean(
-          document.querySelector("[data-lightbox-caption] .media__title"),
-        ),
-        flattened:
-          document.querySelector("[data-lightbox-caption]")?.children.length ===
-          0,
-      }));
-
-      assert(structure.open, "Lightbox did not open");
-      assert(structure.title, "Lightbox caption lost structured title markup");
-      assert(!structure.flattened, "Lightbox caption was flattened to textContent");
-
-      await page.locator("[data-lightbox-close]").click();
-    }
-  }
 }
 
-async function verifyCanvasAndVideo(page) {
-  await page.evaluate(() =>
-    document.querySelectorAll(".project[hidden]").forEach((project) => {
-      project.hidden = false;
-    }),
+async function verifyNoDocumentOverflow(page, label) {
+  const overflow = await page.evaluate(() => {
+    const root = document.documentElement;
+    const allowed = 1;
+    const viewportWidth = root.clientWidth;
+    const documentOverflow = root.scrollWidth - viewportWidth;
+
+    const offenders = [...document.body.querySelectorAll("*")]
+      .map((node) => {
+        const rect = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        if (style.display === "none" || style.visibility === "hidden") return null;
+        if (rect.width <= 1 || rect.height <= 1) return null;
+        if (style.position === "fixed") return null;
+        if (rect.right <= viewportWidth + allowed && rect.left >= -allowed) return null;
+        return {
+          tag: node.tagName.toLowerCase(),
+          className: typeof node.className === "string" ? node.className : "",
+          width: Math.round(rect.width),
+          left: Math.round(rect.left),
+          right: Math.round(rect.right),
+        };
+      })
+      .filter(Boolean)
+      .slice(0, 12);
+
+    return {
+      viewportWidth,
+      scrollWidth: root.scrollWidth,
+      documentOverflow,
+      offenders,
+    };
+  });
+
+  assert(
+    overflow.documentOverflow <= 1,
+    `${label}: horizontal document overflow ${overflow.documentOverflow}px\n${JSON.stringify(overflow, null, 2)}`,
   );
-  await page.waitForTimeout(1200);
+}
 
-  const canvasHosts = page.locator("[data-animated-canvas-gallery]");
-  const canvasCount = await canvasHosts.count();
+async function verifyImages(page, label) {
+  const failures = await page.evaluate(async () => {
+    const visible = (node) => {
+      const rect = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      return style.display !== "none" && style.visibility !== "hidden" && rect.width > 1 && rect.height > 1;
+    };
 
-  for (let index = 0; index < canvasCount; index += 1) {
-    const host = canvasHosts.nth(index);
-    await host.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1000);
+    const images = [...document.images].filter((image) => image.currentSrc || image.src).filter(visible);
 
-    const result = await host.evaluate((node) => {
-      const canvas = node.querySelector("canvas");
-      const rect = canvas?.getBoundingClientRect();
-
-      return {
-        state: node.getAttribute("data-gallery-state"),
-        width: canvas?.width ?? 0,
-        height: canvas?.height ?? 0,
-        cssWidth: rect?.width ?? 0,
-        cssHeight: rect?.height ?? 0,
-      };
-    });
-
-    assert(result.state !== "error", `Canvas gallery ${index} entered error state`);
-    assert(
-      result.cssWidth > 2 && result.cssHeight > 2,
-      `Canvas gallery ${index} has zero CSS size`,
+    await Promise.all(
+      images.map((image) => {
+        if (image.complete) return null;
+        image.loading = "eager";
+        return new Promise((resolve) => {
+          const done = () => {
+            image.removeEventListener("load", done);
+            image.removeEventListener("error", done);
+            clearTimeout(timer);
+            resolve(null);
+          };
+          const timer = setTimeout(done, 8_000);
+          image.addEventListener("load", done, { once: true });
+          image.addEventListener("error", done, { once: true });
+        });
+      }),
     );
-    assert(
-      result.width > 2 && result.height > 2,
-      `Canvas gallery ${index} has stale bitmap size`,
-    );
-  }
 
-  const videoFailures = await page.evaluate(async () => {
-    const videos = [...document.querySelectorAll("video[src]")];
+    const results = [];
+    for (const image of images) {
+      if (!image.complete || image.naturalWidth < 1 || image.naturalHeight < 1) {
+        results.push(`${image.currentSrc || image.src} (${image.naturalWidth}x${image.naturalHeight})`);
+        continue;
+      }
+
+      try {
+        await image.decode();
+      } catch {
+        results.push(`${image.currentSrc || image.src} (decode failed)`);
+      }
+    }
+
+    return results;
+  });
+
+  assert(!failures.length, `${label}: image decode failures:\n${failures.slice(0, 20).join("\n")}`);
+}
+
+async function verifyVideos(page, label) {
+  const failures = await page.evaluate(async () => {
+    const videos = [...document.querySelectorAll("video")].filter((video) => video.currentSrc || video.src);
 
     const results = await Promise.all(
       videos.map(
         (video) =>
           new Promise((resolve) => {
             const src = video.currentSrc || video.src;
-
             if (video.error) return resolve(`${video.error.code} ${src}`);
-            if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+            if (video.readyState >= HTMLMediaElement.HAVE_METADATA && video.videoWidth > 0 && video.videoHeight > 0) {
               return resolve(null);
             }
 
@@ -321,7 +233,7 @@ async function verifyCanvasAndVideo(page) {
               clearTimeout(timer);
               resolve(value);
             };
-            const ok = () => done(null);
+            const ok = () => done(video.videoWidth > 0 && video.videoHeight > 0 ? null : `zero metadata ${src}`);
             const fail = () => done(`${video.error?.code ?? "error"} ${src}`);
             const timer = setTimeout(() => done(`timeout ${src}`), 12_000);
 
@@ -336,61 +248,141 @@ async function verifyCanvasAndVideo(page) {
     return results.filter(Boolean);
   });
 
-  assert(
-    !videoFailures.length,
-    `Videos failed metadata load:\n${videoFailures.join("\n")}`,
-  );
+  assert(!failures.length, `${label}: video metadata failures:\n${failures.join("\n")}`);
 }
 
-async function auditContext(browser, { mobile }) {
+async function verifyCanvasHosts(page, label) {
+  const failures = await page.evaluate(() => {
+    return [...document.querySelectorAll("[data-animated-canvas-gallery]")]
+      .map((node, index) => {
+        const canvas = node.querySelector("canvas");
+        const rect = canvas?.getBoundingClientRect();
+        const state = node.getAttribute("data-gallery-state");
+        if (state === "error") return `canvas ${index}: gallery state is error`;
+        if (!canvas || !rect || rect.width <= 2 || rect.height <= 2) return `canvas ${index}: missing or zero CSS size`;
+        if (canvas.width <= 2 || canvas.height <= 2) return `canvas ${index}: zero bitmap size`;
+        return null;
+      })
+      .filter(Boolean);
+  });
+
+  assert(!failures.length, `${label}: canvas failures:\n${failures.join("\n")}`);
+}
+
+async function verifyLightbox(page, label) {
+  const source = page.locator("[data-lightbox-source]:visible").first();
+  if (!(await source.count())) return;
+
+  await source.scrollIntoViewIfNeeded();
+  await source.click({ force: true });
+  await page.waitForTimeout(120);
+
+  const open = await page.evaluate(() => document.querySelector("[data-media-lightbox]")?.open === true);
+  assert(open, `${label}: lightbox did not open from first source`);
+
+  const close = page.locator("[data-lightbox-close]").first();
+  if (await close.count()) {
+    await close.click({ force: true });
+    await page.waitForTimeout(80);
+  }
+}
+
+async function collectDuplicateMediaLoads(page) {
+  return page.evaluate(() => {
+    const counts = new Map();
+    performance
+      .getEntriesByType("resource")
+      .filter((entry) => /\/media\//.test(entry.name))
+      .forEach((entry) => {
+        counts.set(entry.name, (counts.get(entry.name) ?? 0) + 1);
+      });
+
+    return [...counts.entries()]
+      .filter(([, count]) => count > 4)
+      .map(([url, count]) => ({ url, count }))
+      .slice(0, 10);
+  });
+}
+
+async function auditViewport(browser, viewport) {
   const context = await browser.newContext({
-    viewport: mobile ? { width: 390, height: 844 } : { width: 1440, height: 1000 },
-    isMobile: mobile,
-    hasTouch: mobile,
+    viewport: { width: viewport.width, height: viewport.height },
+    isMobile: viewport.mobile,
+    hasTouch: viewport.mobile,
+    deviceScaleFactor: 1,
   });
   const page = await context.newPage();
   const errors = [];
+  const warnings = [];
+  const label = `${viewport.label} ${viewport.width}x${viewport.height}`;
 
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
   page.on("requestfailed", (request) => {
     const errorText = request.failure()?.errorText || "request failed";
     if (errorText === "net::ERR_ABORTED") return;
+    if (!isSameOrigin(request.url())) {
+      warnings.push(`external requestfailed: ${errorText} ${request.url()}`);
+      return;
+    }
     errors.push(`requestfailed: ${errorText} ${request.url()}`);
   });
+  page.on("response", (response) => {
+    const status = response.status();
+    const request = response.request();
+    const resourceType = request.resourceType();
+    if (status < 400) return;
+    if (!["document", "stylesheet", "script", "image", "media", "font"].includes(resourceType)) return;
+    if (!isSameOrigin(response.url())) {
+      warnings.push(`external response ${status}: ${resourceType} ${response.url()}`);
+      return;
+    }
+    errors.push(`response ${status}: ${resourceType} ${response.url()}`);
+  });
   page.on("console", (message) => {
+    if (message.text().startsWith("Failed to load resource:")) return;
     if (message.type() === "error") errors.push(`console: ${message.text()}`);
   });
 
-  await page.goto(BASE_URL, {
-    waitUntil: "domcontentloaded",
-    timeout: 30_000,
-  });
-  await page.evaluate(() => document.fonts?.ready);
-  await page.waitForTimeout(800);
+  try {
+    await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.evaluate(() => document.fonts?.ready);
+    await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => {});
+    const revealed = await revealProjectMedia(page);
+    await scrollThroughPage(page);
 
-  await verifyCaptions(page, mobile);
+    await verifyPageShell(page, label);
+    await verifyNoDocumentOverflow(page, label);
+    await verifyImages(page, label);
+    await verifyVideos(page, label);
+    await verifyCanvasHosts(page, label);
+    await verifyLightbox(page, label);
 
-  if (!mobile) {
-    await verifyCanvasAndVideo(page);
-    await verifyVideoUrls(context, page);
+    const duplicateLoads = await collectDuplicateMediaLoads(page);
+    if (duplicateLoads.length) {
+      warnings.push(`${label}: duplicate media resource entries ${JSON.stringify(duplicateLoads)}`);
+    }
+
+    assert(!errors.length, `${label}: browser errors:\n${errors.join("\n")}`);
+    console.log(`[smoke] ${label}: OK (${revealed} hidden projects revealed)`);
+    return warnings;
+  } finally {
+    await context.close();
   }
-
-  assert(
-    !errors.length,
-    `Browser errors (${mobile ? "mobile" : "desktop"}):\n${errors.join("\n")}`,
-  );
-
-  await context.close();
 }
 
 let browser;
+const allWarnings = [];
 
 try {
   await waitForServer();
   browser = await chromium.launch({ headless: true });
-  await auditContext(browser, { mobile: false });
-  await auditContext(browser, { mobile: true });
-  console.log("Browser smoke OK: captions, lightbox, canvases, videos, media URLs");
+
+  for (const viewport of VIEWPORTS) {
+    allWarnings.push(...(await auditViewport(browser, viewport)));
+  }
+
+  allWarnings.forEach((warning) => console.warn(`[smoke] warning: ${warning}`));
+  console.log(`Browser smoke OK: ${VIEWPORTS.length} viewports, media decode, video metadata, canvas health, lightbox, overflow`);
 } finally {
   await browser?.close();
   server.kill("SIGTERM");

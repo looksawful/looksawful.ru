@@ -792,7 +792,8 @@ export const sensetiqueMediaAssets = [
   {
     id: "sensetique-11-source-97-16x9",
     type: "video",
-    src: "/media/projects/sensetique/11/source/97-16x9.mov",
+    src: "/media/generated/video/projects/sensetique/11/source/97-16x9.web.mp4",
+    sourceSrc: "/media/projects/sensetique/11/source/97-16x9.mov",
     width: 16,
     height: 9,
   },

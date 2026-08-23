@@ -126,7 +126,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Дизайн шаблона для музыкальных постов в сторис.",
+      title: "Интерактивный плеер для инстаграм-постов.",
       index: 15,
     },
     purpose: "work",
@@ -137,7 +137,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Дизайн шаблона для музыкальных постов в сторис.",
+      title: "Интерактивный плеер для инстаграм-постов.",
       index: 16,
     },
     purpose: "work",
@@ -148,7 +148,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Дизайн шаблона для музыкальных постов в сторис.",
+      title: "Интерактивный плеер для инстаграм-постов.",
       index: 17,
     },
     purpose: "work",
@@ -159,7 +159,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Дизайн шаблона для музыкальных постов в сторис.",
+      title: "Интерактивный плеер для инстаграм-постов.",
       index: 18,
     },
     purpose: "work",
@@ -170,7 +170,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Дизайн шаблона для музыкальных постов в сторис.",
+      title: "Интерактивный плеер для инстаграм-постов.",
       index: 19,
     },
     purpose: "work",
@@ -181,7 +181,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Дизайн шаблона для музыкальных постов в сторис.",
+      title: "Интерактивный плеер для инстаграм-постов.",
       index: 20,
     },
     purpose: "work",

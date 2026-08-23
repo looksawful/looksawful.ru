@@ -26,7 +26,6 @@ export const logoRevisions = [
     name: "Текущая известная система",
     status: "current",
     authorship: "unknown",
-    description: "В системе существует более 30 вариантов логотипа для разных ситуаций. В этот файл внесены только варианты, которые сейчас можно надёжно идентифицировать.",
   },
   {
     id: "48-jewelry-current",
@@ -55,19 +54,17 @@ export const logoRevisions = [
   {
     id: "jestei-pool-legacy",
     familyId: "jestei-pool",
-    name: "Старая техническая версия",
+    name: "Версия логотипа Jestei Pool до ребрендинга",
     status: "legacy",
     authorship: "pre-existing",
-    description: "Версия до текущей системы айдентики; сохраняется для будущих сравнений до/после.",
   },
   {
     id: "jestei-pool-current",
     familyId: "jestei-pool",
-    name: "Текущая система",
+    name: "Логотип Jestei Pool",
     status: "current",
     authorship: "created-by-me",
     projectIds: ["jestei-brand-system"],
-    description: "Текущая система логотипа: четыре композиционных варианта и шесть цветовых версий.",
   },
   {
     id: "lyve-moscow-current",
@@ -178,7 +175,6 @@ export const logoRevisions = [
     name: "Текущая система",
     status: "current",
     authorship: "created-by-me",
-    description: "Текущая система логотипа Styx Jewel, включая полную и сокращённую версии.",
   },
   {
     id: "affa-media-current",

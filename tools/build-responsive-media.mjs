@@ -1,267 +1,259 @@
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, extname, parse, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
+import {
+  access,
+  mkdir,
+  readFile,
+  rename,
+  stat,
+  writeFile,
+} from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 
-const VARIANT_WIDTHS = [480, 960, 1600];
-const RASTER_EXTENSIONS = new Set(['.avif', '.jpeg', '.jpg', '.png', '.webp']);
-const DIST_DIR = 'dist';
+import { mediaAssets } from "../src/data/media/assets/index.ts";
+import {
+  RESPONSIVE_NEAR_MASTER_RATIO,
+  RESPONSIVE_WIDTHS,
+  responsiveVariantSrc,
+  responsiveVariantWidths,
+} from "../src/data/media/responsive-policy.ts";
 
-function attributeValue(tag, name) {
-  const match = tag.match(new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, 'i'));
-  return match?.[2] ?? '';
+export const DEFAULT_WIDTHS = [...RESPONSIVE_WIDTHS];
+const DEFAULT_MANIFEST = "public/media/generated/responsive-manifest.json";
+const DEFAULT_CATALOG = "src/data/media/responsive-generated.ts";
+const OUTPUT_PREFIX = "/media/generated/responsive";
+const RASTER_INPUT_FORMATS = new Set(["jpg", "jpeg", "png", "webp"]);
+const CONFIG = {
+  format: "webp",
+  quality: 84,
+  effort: 4,
+  nearMasterRatio: RESPONSIVE_NEAR_MASTER_RATIO,
+};
+
+function normalizePublicSrc(src) {
+  return String(src).split(/[?#]/, 1)[0].replace(/\\/g, "/").replace(/^\.?\//, "");
 }
 
-function replaceAttribute(tag, name, value) {
-  const pattern = new RegExp(`\\s+${name}\\s*=\\s*(["']).*?\\1`, 'i');
-  const attribute = ` ${name}="${value}"`;
-  if (pattern.test(tag)) return tag.replace(pattern, attribute);
-  return tag.replace(/\s*\/?>$/, (ending) => `${attribute}${ending}`);
+function extensionFor(src) {
+  return path.extname(normalizePublicSrc(src)).slice(1).toLowerCase();
 }
 
-function cleanMediaPath(src) {
-  const clean = String(src).split(/[?#]/, 1)[0].replace(/\\/g, '/');
-  if (clean.startsWith('./media/')) return clean.slice(2);
-  if (clean.startsWith('/media/')) return clean.slice(1);
-  if (clean.startsWith('media/')) return clean;
-  return '';
-}
-
-function isRasterSource(src) {
-  const mediaPath = cleanMediaPath(src);
-  return mediaPath && RASTER_EXTENSIONS.has(extname(mediaPath).toLowerCase());
-}
-
-export function getVariantWidths(sourceWidth) {
-  const width = Number(sourceWidth);
-  if (!Number.isFinite(width) || width <= 0) return [];
-  return VARIANT_WIDTHS.filter((candidate) => candidate < width * 0.85);
-}
-
-export function collectExcludedRanges(html) {
-  const ranges = [];
-  const patterns = [
-    /<!--[\s\S]*?-->/g,
-    /<template\b[^>]*data-disabled-section(?:\s*=\s*(["']).*?\1)?[^>]*>[\s\S]*?<\/template>/gi,
-  ];
-
-  for (const pattern of patterns) {
-    for (const match of html.matchAll(pattern)) {
-      ranges.push([match.index, match.index + match[0].length]);
-    }
-  }
-
-  return ranges.sort((a, b) => a[0] - b[0]);
-}
-
-export function isExcludedOffset(offset, ranges) {
-  return ranges.some(([start, end]) => offset >= start && offset < end);
-}
-
-export function getResponsiveUrl(src, width) {
-  const mediaPath = cleanMediaPath(src);
-  if (!mediaPath) return '';
-  const info = parse(mediaPath);
-  return `/media-responsive/${info.dir.replace(/^media\/?/, '')}/${info.name}-${width}.webp`;
-}
-
-function responsiveOutputPath(outputRoot, src, width) {
-  const url = getResponsiveUrl(src, width);
-  return resolve(outputRoot, url.replace(/^\//, ''));
-}
-
-export function addResponsiveAttributes(tag, { srcset, sizes }) {
-  let next = replaceAttribute(tag, 'srcset', srcset);
-  next = replaceAttribute(next, 'sizes', sizes);
-  return next;
-}
-
-async function fileExists(path) {
+async function exists(filePath) {
   try {
-    await access(path);
+    await access(filePath);
     return true;
   } catch {
     return false;
   }
 }
 
-async function resolveSourceFile(repoRoot, src) {
-  const mediaPath = cleanMediaPath(src);
-  if (!mediaPath) return null;
-
+async function resolveMediaFile(repoRoot, src) {
+  const clean = normalizePublicSrc(src);
   const candidates = [
-    resolve(repoRoot, mediaPath),
-    resolve(repoRoot, 'public', mediaPath),
+    path.join(repoRoot, clean),
+    path.join(repoRoot, "public", clean),
   ];
 
   for (const candidate of candidates) {
-    if (await fileExists(candidate)) return candidate;
+    if (await exists(candidate)) return candidate;
   }
 
   return null;
 }
 
-function activeImageMatches(html) {
-  const excluded = collectExcludedRanges(html);
-  return [...html.matchAll(/<img\b[^>]*>/gi)].filter(
-    (match) => !isExcludedOffset(match.index, excluded),
+async function hashFile(filePath) {
+  const hash = createHash("sha256");
+  await new Promise((resolve, reject) => {
+    createReadStream(filePath)
+      .on("data", (chunk) => hash.update(chunk))
+      .on("error", reject)
+      .on("end", resolve);
+  });
+  return hash.digest("hex");
+}
+
+function configHash(widths) {
+  return createHash("sha256")
+    .update(JSON.stringify({ ...CONFIG, widths }))
+    .digest("hex");
+}
+
+function outputPathFor(repoRoot, outputSrc) {
+  return path.join(repoRoot, "public", normalizePublicSrc(outputSrc));
+}
+
+export function selectVariantWidths(sourceWidth, widths = DEFAULT_WIDTHS) {
+  return responsiveVariantWidths(sourceWidth, widths);
+}
+
+async function readManifest(manifestPath) {
+  if (!(await exists(manifestPath))) {
+    return null;
+  }
+
+  return JSON.parse(await readFile(manifestPath, "utf8"));
+}
+
+async function writeIfChanged(filePath, contents) {
+  const previousContents = await readFile(filePath, "utf8").catch(() => null);
+  if (previousContents === contents) return false;
+
+  await mkdir(path.dirname(filePath), { recursive: true });
+  const tmpPath = `${filePath}.tmp`;
+  await writeFile(tmpPath, contents, "utf8");
+  await rename(tmpPath, filePath);
+  return true;
+}
+
+async function writeManifest(manifestPath, manifest) {
+  return writeIfChanged(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+}
+
+function renderResponsiveCatalog(manifest) {
+  const catalog = Object.fromEntries(
+    manifest.assets.map((asset) => [
+      asset.id,
+      asset.variants.map(({ src, width, height }) => ({ src, width, height })),
+    ]),
+  );
+
+  return `/* This file is generated by tools/build-responsive-media.mjs. Do not edit manually. */\n\nexport const responsiveMediaVariants = ${JSON.stringify(catalog, null, 2)} as const;\n`;
+}
+
+function previousEntryFor(previousManifest, asset, sourceHash, buildConfigHash) {
+  return previousManifest?.assets?.find(
+    (entry) =>
+      entry.id === asset.id &&
+      entry.src === asset.src &&
+      entry.sourceHash === sourceHash &&
+      entry.configHash === buildConfigHash,
   );
 }
 
-function sizesForTag(tag) {
-  return attributeValue(tag, 'loading').toLowerCase() === 'lazy'
-    ? 'auto, 100vw'
-    : '100vw';
-}
+export async function buildResponsiveVariants({
+  repoRoot = process.cwd(),
+  mediaAssets: assets = mediaAssets,
+  widths = DEFAULT_WIDTHS,
+  manifestPath = path.join(repoRoot, DEFAULT_MANIFEST),
+  catalogPath = path.join(repoRoot, DEFAULT_CATALOG),
+} = {}) {
+  const resolvedRoot = path.resolve(repoRoot);
+  const resolvedManifestPath = path.resolve(manifestPath);
+  const resolvedCatalogPath = path.resolve(catalogPath);
+  const previousManifest = await readManifest(resolvedManifestPath);
+  const buildConfigHash = configHash(widths);
+  const manifestAssets = [];
+  let generatedCount = 0;
+  let skippedCount = 0;
+  let sourceCount = 0;
+  let sourceBytes = 0;
+  let generatedBytes = 0;
 
-async function prepareResponsiveMarkup({ repoRoot, sourceHtml, outputRoot, sharp }) {
-  const matches = activeImageMatches(sourceHtml);
-  const generated = new Map();
-  let variantCount = 0;
-  let responsiveImageCount = 0;
-  let cursor = 0;
-  let output = '';
+  for (const asset of assets) {
+    if (asset.type !== "image") continue;
+    if (!RASTER_INPUT_FORMATS.has(extensionFor(asset.src))) continue;
 
-  for (const match of matches) {
-    const tag = match[0];
-    const src = attributeValue(tag, 'src');
-    output += sourceHtml.slice(cursor, match.index);
-    cursor = match.index + tag.length;
+    const sourcePath = await resolveMediaFile(resolvedRoot, asset.src);
+    if (!sourcePath) continue;
 
-    if (!isRasterSource(src)) {
-      output += tag;
-      continue;
-    }
+    const metadata = await sharp(sourcePath, { animated: false }).metadata();
+    const sourceWidth = metadata.width;
+    const sourceHeight = metadata.height;
+    if (!sourceWidth || !sourceHeight) continue;
 
-    const sourceFile = await resolveSourceFile(repoRoot, src);
-    if (!sourceFile) {
-      output += tag;
-      continue;
-    }
+    const selectedWidths = selectVariantWidths(sourceWidth, widths);
+    if (!selectedWidths.length) continue;
 
-    let info = generated.get(sourceFile);
-    if (!info) {
-      const metadata = await sharp(sourceFile).metadata();
-      const sourceWidth = Number(metadata.width);
-      if (!Number.isFinite(sourceWidth) || sourceWidth <= 0) {
-        output += tag;
+    sourceCount += 1;
+    const sourceStat = await stat(sourcePath);
+    const sourceHash = await hashFile(sourcePath);
+    sourceBytes += sourceStat.size;
+    const previousEntry = previousEntryFor(previousManifest, asset, sourceHash, buildConfigHash);
+    const variants = [];
+
+    for (const width of selectedWidths) {
+      const outputSrc = responsiveVariantSrc(asset.src, width);
+      const outputPath = outputPathFor(resolvedRoot, outputSrc);
+      const previousVariant = previousEntry?.variants?.find((variant) => variant.src === outputSrc && variant.width === width);
+      let outputStat = previousVariant ? await stat(outputPath).catch(() => null) : null;
+
+      if (previousVariant && outputStat && outputStat.size === previousVariant.bytes) {
+        skippedCount += 1;
+        generatedBytes += outputStat.size;
+        variants.push(previousVariant);
         continue;
       }
 
-      const variants = [];
-      for (const width of getVariantWidths(sourceWidth)) {
-        const outputPath = responsiveOutputPath(outputRoot, src, width);
-        await mkdir(dirname(outputPath), { recursive: true });
-        await sharp(sourceFile)
-          .resize({ width, withoutEnlargement: true })
-          .webp({ quality: 82, effort: 4 })
-          .toFile(outputPath);
-        variants.push({ width, url: getResponsiveUrl(src, width) });
-        variantCount += 1;
-      }
-
-      info = { sourceWidth, variants };
-      generated.set(sourceFile, info);
+      await mkdir(path.dirname(outputPath), { recursive: true });
+      const info = await sharp(sourcePath)
+        .resize({ width, withoutEnlargement: true })
+        .webp({ quality: CONFIG.quality, effort: CONFIG.effort })
+        .toFile(outputPath);
+      outputStat = await stat(outputPath);
+      generatedCount += 1;
+      generatedBytes += outputStat.size;
+      variants.push({
+        src: outputSrc,
+        width: info.width,
+        height: info.height,
+        bytes: outputStat.size,
+        format: "webp",
+      });
     }
 
-    const candidates = [
-      ...info.variants.map(({ url, width }) => `${url} ${width}w`),
-      `${src} ${info.sourceWidth}w`,
-    ];
-
-    output += addResponsiveAttributes(tag, {
-      srcset: candidates.join(', '),
-      sizes: sizesForTag(tag),
+    manifestAssets.push({
+      id: asset.id,
+      src: asset.src,
+      sourceWidth,
+      sourceHeight,
+      sourceBytes: sourceStat.size,
+      sourceHash,
+      configHash: buildConfigHash,
+      variants,
     });
-    responsiveImageCount += 1;
   }
 
-  output += sourceHtml.slice(cursor);
-  return { html: output, responsiveImageCount, variantCount, sourceCount: generated.size };
-}
-
-export function assertBuiltHtml(html, htmlPath) {
-  if (!/href="\/assets\/[^"]+\.css"/.test(html)) {
-    throw new Error(`${htmlPath} does not reference a built CSS asset.`);
-  }
-
-  if (!/src="\/assets\/[^"]+\.js"/.test(html)) {
-    throw new Error(`${htmlPath} does not reference a built JS asset.`);
-  }
-
-  if (/\bsrc=["']\.\/src\/[^"']+["']/.test(html)) {
-    throw new Error(`${htmlPath} still references source JS.`);
-  }
-
-  if (/\bhref=["']\.\/src\/[^"']+\.css["']/.test(html)) {
-    throw new Error(`${htmlPath} still references source CSS.`);
-  }
-}
-
-export async function buildResponsiveMedia({ repoRoot = process.cwd() } = {}) {
-  const indexPath = resolve(repoRoot, 'index.html');
-  const aboutPath = resolve(repoRoot, 'about/index.html');
-  const distDir = resolve(repoRoot, DIST_DIR);
-  const distIndexPath = resolve(distDir, 'index.html');
-
-  const [{ default: sharp }, { build }] = await Promise.all([
-    import('sharp'),
-    import('vite'),
-  ]);
-
-  const input = {
-    main: indexPath,
+  const manifest = {
+    widthPolicy: widths,
+    outputFormat: CONFIG.format,
+    quality: CONFIG.quality,
+    assets: manifestAssets,
   };
 
-  if (await fileExists(aboutPath)) {
-    input.about = aboutPath;
-  }
-
-  await build({
-    build: {
-      rollupOptions: {
-        input,
-      },
-    },
-  });
-
-  const sourceHtml = await readFile(distIndexPath, 'utf8');
-  let prepared = await prepareResponsiveMarkup({
-    repoRoot,
-    sourceHtml,
-    outputRoot: distDir,
-    sharp,
-  });
-
-  assertBuiltHtml(prepared.html, distIndexPath);
-  await writeFile(distIndexPath, prepared.html, 'utf8');
-
-  const distAboutPath = resolve(distDir, 'about/index.html');
-  if (await fileExists(distAboutPath)) {
-    const aboutHtml = await readFile(distAboutPath, 'utf8');
-    const aboutPrepared = await prepareResponsiveMarkup({
-      repoRoot,
-      sourceHtml: aboutHtml,
-      outputRoot: distDir,
-      sharp,
-    });
-
-    await writeFile(distAboutPath, aboutPrepared.html, 'utf8');
-    prepared = {
-      html: prepared.html,
-      responsiveImageCount:
-        prepared.responsiveImageCount + aboutPrepared.responsiveImageCount,
-      variantCount: prepared.variantCount + aboutPrepared.variantCount,
-      sourceCount: prepared.sourceCount + aboutPrepared.sourceCount,
-    };
-  }
-
-  console.log(
-    `[responsive-media] ${prepared.responsiveImageCount} images, ${prepared.sourceCount} sources, ${prepared.variantCount} generated variants`,
+  const manifestChanged = await writeManifest(resolvedManifestPath, manifest);
+  const catalogChanged = await writeIfChanged(
+    resolvedCatalogPath,
+    renderResponsiveCatalog(manifest),
   );
+
+  return {
+    manifest,
+    manifestChanged,
+    catalogChanged,
+    generatedCount,
+    skippedCount,
+    sourceCount,
+    sourceBytes,
+    generatedBytes,
+    manifestPath: resolvedManifestPath,
+    catalogPath: resolvedCatalogPath,
+  };
+}
+
+export async function buildResponsiveMedia(options = {}) {
+  const result = await buildResponsiveVariants(options);
+  console.log(
+    `[responsive-media] ${result.sourceCount} sources, ${result.generatedCount} generated, ${result.skippedCount} unchanged, ${result.generatedBytes} generated bytes`,
+  );
+  console.log(`[responsive-media] manifest: ${path.relative(process.cwd(), result.manifestPath)}`);
+  console.log(`[responsive-media] catalog: ${path.relative(process.cwd(), result.catalogPath)}`);
+  return result;
 }
 
 const isDirectRun = process.argv[1]
-  && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+  && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 
 if (isDirectRun) {
   await buildResponsiveMedia();

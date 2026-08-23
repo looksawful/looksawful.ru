@@ -1,11 +1,78 @@
 const PAGE_FLIP_SRC = "https://unpkg.com/page-flip@2.0.7/dist/js/page-flip.browser.js";
-let loader = null;
 
-function loadPageFlip() {
+type PageFlipOrientation = "portrait" | "landscape";
+type PageFlipCorner = "bottom";
+
+type PageFlipEvent = {
+  data?: unknown;
+};
+
+type PageFlipOptions = {
+  width: number;
+  height: number;
+  size: "stretch";
+  minWidth: number;
+  maxWidth: number;
+  minHeight: number;
+  maxHeight: number;
+  drawShadow: boolean;
+  flippingTime: number;
+  usePortrait: boolean;
+  startZIndex: number;
+  startPage: number;
+  autoSize: boolean;
+  maxShadowOpacity: number;
+  showCover: boolean;
+  mobileScrollSupport: boolean;
+  swipeDistance: number;
+  clickEventForward: boolean;
+  useMouseEvents: boolean;
+  showPageCorners: boolean;
+  disableFlipByClick: boolean;
+};
+
+type PageFlipEventName = "init" | "flip" | "changeOrientation";
+type PageFlipEventCallback = (event?: PageFlipEvent) => void;
+
+interface PageFlipInstance {
+  on(eventName: PageFlipEventName, callback: PageFlipEventCallback): void;
+  loadFromHTML(pages: NodeListOf<HTMLElement>): void;
+  getCurrentPageIndex(): number;
+  getPageCount(): number;
+  flipPrev(corner: PageFlipCorner): void;
+  flipNext(corner: PageFlipCorner): void;
+  destroy?(): void;
+}
+
+type PageFlipConstructor = new (book: HTMLElement, options: PageFlipOptions) => PageFlipInstance;
+
+type MotionPreferenceLike = {
+  allowsMotion?: () => boolean;
+};
+
+type CreatePageFlipOptions = {
+  motion?: MotionPreferenceLike;
+};
+
+type CreatePageFlipsOptions = CreatePageFlipOptions & {
+  root?: ParentNode;
+};
+
+declare global {
+  interface Window {
+    St?: {
+      PageFlip?: PageFlipConstructor;
+    };
+  }
+}
+
+let loader: Promise<PageFlipConstructor> | null = null;
+
+function loadPageFlip(): Promise<PageFlipConstructor> {
   if (window.St?.PageFlip) return Promise.resolve(window.St.PageFlip);
   if (loader) return loader;
 
-  loader = new Promise((resolve, reject) => {
+  loader = new Promise<PageFlipConstructor>((resolve, reject) => {
     const existing = document.querySelector('script[data-page-flip-library]');
     const script = existing instanceof HTMLScriptElement ? existing : document.createElement("script");
 
@@ -19,7 +86,7 @@ function loadPageFlip() {
       script.dataset.pageFlipLibrary = "";
       document.head.append(script);
     }
-  }).catch((error) => {
+  }).catch((error: unknown) => {
     loader = null;
     console.error(error);
     throw error;
@@ -28,13 +95,13 @@ function loadPageFlip() {
   return loader;
 }
 
-export function createPageFlip(root, { motion } = {}) {
+export function createPageFlip(root: unknown, { motion }: CreatePageFlipOptions = {}) {
   if (!(root instanceof HTMLElement)) return () => {};
-  let pageFlip = null;
+  let pageFlip: PageFlipInstance | null = null;
   let disposed = false;
-  let observer = null;
+  let observer: IntersectionObserver | null = null;
   const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-  let orientation = root.getBoundingClientRect().width <= 50 * rootFontSize ? "portrait" : "landscape";
+  let orientation: PageFlipOrientation = root.getBoundingClientRect().width <= 50 * rootFontSize ? "portrait" : "landscape";
 
   const mount = async () => {
     if (disposed || pageFlip) return;
@@ -46,7 +113,7 @@ export function createPageFlip(root, { motion } = {}) {
       if (disposed) return;
 
       const book = root.querySelector("[data-page-flip-book]");
-      const pages = book?.querySelectorAll(".page-flip__page");
+      const pages = book?.querySelectorAll<HTMLElement>(".page-flip__page");
       const prev = root.querySelector("[data-page-flip-prev]");
       const next = root.querySelector("[data-page-flip-next]");
       const count = root.querySelector("[data-page-flip-count]");
@@ -110,7 +177,7 @@ export function createPageFlip(root, { motion } = {}) {
   };
 
   if (typeof IntersectionObserver === "function") {
-    observer = new IntersectionObserver((entries) => {
+    observer = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
       if (entries.some((entry) => entry.isIntersecting)) void mount();
     }, { rootMargin: "100% 0px", threshold: 0.01 });
     observer.observe(root);
@@ -126,8 +193,8 @@ export function createPageFlip(root, { motion } = {}) {
   };
 }
 
-export function createPageFlips({ root = document, motion } = {}) {
-  const destroys = [...root.querySelectorAll("[data-page-flip]")].map((element) => createPageFlip(element, { motion }));
+export function createPageFlips({ root = document, motion }: CreatePageFlipsOptions = {}) {
+  const destroys = [...root.querySelectorAll<HTMLElement>("[data-page-flip]")].map((element) => createPageFlip(element, { motion }));
   return () => destroys.splice(0).reverse().forEach((destroy) => destroy?.());
 }
 

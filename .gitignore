@@ -71,8 +71,7 @@ _local/media-backup/*
 _local/tmp/*
 !_local/tmp/.gitkeep
 
-# temporary local patch scripts
-tools/
+# production tooling lives in tools/
 
 # local media sources / generated normalization folders
 _media-originals/
@@ -113,8 +112,9 @@ public/assets/media/cases/
 # Media System generated files
 .cache/media/
 media/.compression-backup/
-public/media/generated/
-src/generated/media-manifest.json
-src/generated/media-manifest.js
 .prototypes/
 .editorconfig
+
+# Reproducible derivatives are generated before dev/test/build.
+public/media/generated/responsive/
+public/media/generated/video/

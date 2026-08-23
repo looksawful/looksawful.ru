@@ -1,4 +1,15 @@
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+type MotionPreferenceState = {
+  reduced: boolean;
+  allowed: boolean;
+};
+
+type MotionPreferenceListener = (state: MotionPreferenceState) => void;
+
+type MotionPreferenceSubscribeOptions = {
+  immediate?: boolean;
+};
+
 const noop = () => {};
 
 export function createMotionPreference() {
@@ -6,7 +17,7 @@ export function createMotionPreference() {
     return {
       isReduced: () => true,
       allowsMotion: () => false,
-      subscribe(listener, { immediate = true } = {}) {
+      subscribe(listener: MotionPreferenceListener, { immediate = true }: MotionPreferenceSubscribeOptions = {}) {
         if (immediate && typeof listener === "function") {
           listener({ reduced: true, allowed: false });
         }
@@ -17,7 +28,7 @@ export function createMotionPreference() {
   }
 
   const media = window.matchMedia(REDUCED_MOTION_QUERY);
-  const listeners = new Set();
+  const listeners = new Set<MotionPreferenceListener>();
   let reduced = media.matches;
 
   const getState = () => ({ reduced, allowed: !reduced });
@@ -25,7 +36,7 @@ export function createMotionPreference() {
     const state = getState();
     for (const listener of listeners) listener(state);
   };
-  const handleChange = (event) => {
+  const handleChange = (event: MediaQueryListEvent) => {
     reduced = event.matches;
     notify();
   };
@@ -35,7 +46,7 @@ export function createMotionPreference() {
   return {
     isReduced: () => reduced,
     allowsMotion: () => !reduced,
-    subscribe(listener, { immediate = true } = {}) {
+    subscribe(listener: MotionPreferenceListener, { immediate = true }: MotionPreferenceSubscribeOptions = {}) {
       if (typeof listener !== "function") return noop;
       listeners.add(listener);
       if (immediate) listener(getState());

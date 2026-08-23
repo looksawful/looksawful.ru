@@ -1,15 +1,14 @@
 import "./components/awful-cases-game.js";
 import "./components/animated-canvas-gallery.js";
 
-import { createMediaCaptionInteractions } from "./components/media-caption.js";
-import { createMediaRuntimeHealth } from "./components/media-runtime-health.js";
-import { createMotionPreference } from "./components/motion-preference.js";
+import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
+import { createMotionPreference } from "./components/motion-preference.ts";
 import { createInfiniteReels } from "./components/infinite-reel.js";
 import { createMediaDecks } from "./components/media-deck.js";
-import { createMediaLightbox } from "./components/media-lightbox.js";
-import { createCodeBlocks } from "./components/code-block.js";
-import { createPageFlips } from "./components/page-flip.js";
-import { createBerserkAudioPlayers } from "./components/berserk-audio-player.js";
+import { createMediaLightbox } from "./components/media-lightbox.ts";
+import { createCodeBlocks } from "./components/code-block.ts";
+import { createPageFlips } from "./components/page-flip.ts";
+import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
 import { initSiteInteractive } from "./interactive.js";
 
 function initBeforeAfter(root) {
@@ -81,7 +80,6 @@ function initViewportAutoplayVideos(root = document) {
 const motion = createMotionPreference();
 const destroys = [];
 
-destroys.push(createMediaCaptionInteractions({ root: document }));
 destroys.push(initSiteInteractive({ root: document, motion }));
 destroys.push(createMediaLightbox({ root: document }));
 destroys.push(createMediaDecks({ root: document, motion }));

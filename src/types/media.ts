@@ -32,6 +32,8 @@ export interface ImageMedia extends MediaBase {
 
 export interface VideoMedia extends MediaBase {
   type: "video";
+  /** Original master used by media tooling when `src` points at an optimized delivery asset. */
+  sourceSrc?: string;
 }
 
 export type MediaAsset = ImageMedia | VideoMedia;

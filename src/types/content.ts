@@ -1,58 +1,14 @@
-export type MediaLoading = "eager" | "lazy";
-
-export type MediaCaptionView =
-  | "full"
-  | "summary"
-  | "overlay"
-  | "lightbox-only";
-
-export type MediaPresentation = "banner";
-
-export type MediaPreload = "none" | "metadata" | "auto";
-
-export interface MediaVideoOptions {
-  autoplay?: boolean;
-  loop?: boolean;
-  muted?: boolean;
-  playsInline?: boolean;
-  preload?: MediaPreload;
-}
-
-export interface MediaCaptionPresentation {
-  captionView: MediaCaptionView;
-}
-
-export interface MediaFigureData<EntryId extends string = string>
-  extends MediaCaptionPresentation {
-  entryId: EntryId;
-
-  presentation?: MediaPresentation;
-  loading?: MediaLoading;
-
-  className?: string;
-  mediaClassName?: string;
-
-  video?: MediaVideoOptions;
-}
-
-export type MockupDevice = "desktop" | "mobile";
-
-export interface MockupData<EntryId extends string = string>
-  extends MediaCaptionPresentation {
-  entryId: EntryId;
-
-  device: MockupDevice;
-
-  role?: string;
-  theme?: string;
-
-  loading?: MediaLoading;
-
-  className?: string;
-  mediaClassName?: string;
-
-  video?: MediaVideoOptions;
-}
+export type {
+  MediaCaptionPresentation,
+  MediaCaptionView,
+  MediaFigureData,
+  MediaLoading,
+  MediaPresentation,
+  MediaPreload,
+  MediaVideoOptions,
+  MockupData,
+  MockupDevice,
+} from "./media-presentation.ts";
 
 export interface SectionIntroData {
   title: string;

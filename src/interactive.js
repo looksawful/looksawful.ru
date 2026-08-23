@@ -607,119 +607,6 @@ function initPlaylistFilter(host) {
   form.addEventListener("submit", (event) => event.preventDefault());
 }
 
-function initMediaCaptionInteractions(root) {
-  if (!root?.addEventListener) return noop;
-
-  const coarsePointer = window.matchMedia?.("(hover: none), (pointer: coarse)");
-  const ownerSelector = "figure.media, figure.before-after";
-  const managedOwnerSelector =
-    'figure.media[data-caption="overlay"], figure.media[data-caption-rest], figure.before-after[data-caption-rest]';
-
-  const hasManagedCaption = (figure) =>
-    figure.matches(managedOwnerSelector) ||
-    Boolean(
-      figure.querySelector(
-        ":scope > .media__caption [data-slide-caption][data-caption-rest]",
-      ),
-    );
-
-  const captionOwnerFor = (element) => {
-    let figure = element?.closest(ownerSelector);
-
-    while (figure instanceof HTMLElement && root.contains(figure)) {
-      if (hasManagedCaption(figure)) return figure;
-      figure = figure.parentElement?.closest(ownerSelector);
-    }
-
-    return null;
-  };
-
-  const closeAll = (except = null) => {
-    root
-      .querySelectorAll(
-        "figure.media[data-caption-open], figure.before-after[data-caption-open]",
-      )
-      .forEach((figure) => {
-        if (figure !== except) figure.removeAttribute("data-caption-open");
-      });
-  };
-
-  const handleClick = (event) => {
-    if (!coarsePointer?.matches) return;
-
-    const target = event.target instanceof Element ? event.target : null;
-    const figure = target ? captionOwnerFor(target) : null;
-
-    if (!(figure instanceof HTMLElement)) {
-      closeAll();
-      return;
-    }
-
-    if (target.closest("a, button, input, select, textarea")) return;
-
-    const caption = target.closest(".media__caption");
-    const ownsCaption = (caption ? captionOwnerFor(caption) : null) === figure;
-    const open = figure.hasAttribute("data-caption-open");
-
-    if (ownsCaption && open) {
-      figure.removeAttribute("data-caption-open");
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      return;
-    }
-
-    if (!open) {
-      closeAll(figure);
-      figure.setAttribute("data-caption-open", "");
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      return;
-    }
-
-    figure.removeAttribute("data-caption-open");
-  };
-
-  const handleKeydown = (event) => {
-    if (event.key === "Escape") {
-      closeAll();
-      return;
-    }
-
-    if (event.key !== "Enter" && event.key !== " ") return;
-
-    if (
-      !(event.target instanceof HTMLElement) ||
-      captionOwnerFor(event.target) !== event.target
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-
-    const open = event.target.toggleAttribute(
-      "data-caption-open",
-      !event.target.hasAttribute("data-caption-open"),
-    );
-
-    if (open) closeAll(event.target);
-  };
-
-  const handlePointerModeChange = () => {
-    if (!coarsePointer?.matches) closeAll();
-  };
-
-  root.addEventListener("click", handleClick);
-  root.addEventListener("keydown", handleKeydown);
-  coarsePointer?.addEventListener?.("change", handlePointerModeChange);
-
-  return () => {
-    closeAll();
-    root.removeEventListener("click", handleClick);
-    root.removeEventListener("keydown", handleKeydown);
-    coarsePointer?.removeEventListener?.("change", handlePointerModeChange);
-  };
-}
-
 function initJesteiFilterFit(mockup) {
   if (!(mockup instanceof HTMLElement)) return noop;
 
@@ -772,7 +659,6 @@ function initJesteiFilterFit(mockup) {
 export function initSiteInteractive({ root = document } = {}) {
   const destroys = [];
 
-  destroys.push(initMediaCaptionInteractions(root));
   destroys.push(initGsapMotionLayer(root));
 
   root.querySelectorAll("playlist-filter-workflow").forEach(initPlaylistFilter);

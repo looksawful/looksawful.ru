@@ -4,11 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run media:video:build && npm run media:build && vite",
     "typecheck": "tsc -p tsconfig.json",
-    "build": "npm run typecheck && node tools/build-responsive-media.mjs",
+    "build": "npm run media:video:build && npm run media:build && npm run typecheck && vite build",
+    "media:build": "node tools/build-responsive-media.mjs",
+    "media:video": "node tools/build-video-media.mjs",
+    "media:video:build": "node tools/build-video-media.mjs --build",
     "preview": "vite preview",
-    "test": "node --test && node tools/check-data-integrity.ts"
+    "test": "npm run media:video:build && npm run media:build && node --test && node tools/check-data-integrity.ts",
+    "test:media": "npm run media:video:build && npm run media:build && node --test \"test/media-tools/*.test.mjs\" && node tools/check-data-integrity.ts",
+    "test:e2e": "node tools/smoke-site.mjs",
+    "verify": "npm run typecheck && npm test && npm run build && npm run test:e2e"
   },
   "devDependencies": {
     "playwright": "^1.61.1",

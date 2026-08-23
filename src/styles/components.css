@@ -160,6 +160,7 @@
 .project-card {
   display: block;
   min-inline-size: 0;
+  container: project-card / inline-size;
   color: inherit;
   text-decoration: none;
 }
@@ -238,7 +239,9 @@
   .projects-grid__list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
+@container project-card (width > 30rem) {
   .project-card__caption {
     grid-template-columns:
       minmax(5.75rem, 0.62fr)
@@ -616,6 +619,11 @@
     inline-size: min(100%, 10rem);
     block-size: auto;
   }
+
+  & > img {
+    grid-area: project;
+    min-inline-size: 0;
+  }
 }
 
 .project__name {
@@ -909,175 +917,6 @@
   }
 }
 
-.media__caption {
-  max-inline-size: 68ch;
-  margin: 0;
-  color: inherit;
-  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
-  font-weight: var(--fw-400);
-  line-height: 1.36;
-}
-
-.media__caption-line {
-  margin: 0;
-}
-
-.media__index {
-  margin-inline-end: 0.32em;
-  color: inherit;
-  font-weight: var(--fw-600);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.media__title,
-.media__text,
-.media__meta {
-  color: inherit;
-  font-weight: var(--fw-400);
-}
-
-.media__title + .media__text::before,
-.media__title + .media__meta::before,
-.media__text + .media__meta::before {
-  content: " ";
-}
-
-:where(figure.media, figure.before-after)[data-caption-rest="summary"]
-  > :where(figcaption.media__caption, .media__caption)
-  :where(.media__meta, .media__text),
-:where([data-slide-caption][data-caption-rest="summary"]) :where(.media__meta, .media__text) {
-  display: none;
-}
-
-:where(figure.media, figure.before-after)[data-caption-rest="none"]
-  > :where(figcaption.media__caption, .media__caption),
-:where([data-slide-caption][data-caption-rest="none"]) {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 160ms ease;
-}
-
-:where(figure.media, figure.before-after):is(
-    :hover,
-    :focus-within,
-    [data-caption-open]
-  )[data-caption-rest="summary"]
-  > :where(figcaption.media__caption, .media__caption)
-  :where(.media__meta, .media__text),
-:where(figure.media, figure.before-after):is(:hover, :focus-within, [data-caption-open])
-  :where([data-slide-caption][data-caption-rest="summary"])
-  :where(.media__meta, .media__text) {
-  display: inline;
-}
-
-:where(figure.media, figure.before-after):is(
-    :hover,
-    :focus-within,
-    [data-caption-open]
-  )[data-caption-rest="none"]
-  > :where(figcaption.media__caption, .media__caption),
-:where(figure.media, figure.before-after):is(:hover, :focus-within, [data-caption-open])
-  :where([data-slide-caption][data-caption-rest="none"]) {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :where(figure.media, figure.before-after)[data-caption-rest="none"]
-    > :where(figcaption.media__caption, .media__caption),
-  :where([data-slide-caption][data-caption-rest="none"]) {
-    transition: none;
-  }
-}
-
-/* Overlay captions ---------------------------------------------------------
-   Only media explicitly authored with data-caption="overlay" use this mode.
-   Their text stays in the original figcaption, but it no longer participates
-   in layout: desktop reveals it on hover/focus; touch reveals it on first tap.
-   The fader and media filter are part of this caption mechanic, so every
-   overlay caption stays readable without each media group adding local rules. */
-
-figure.media[data-caption="overlay"] {
-  --caption-fader-opacity: 0;
-  --caption-media-filter: none;
-
-  isolation: isolate;
-
-  &::after {
-    content: "";
-    position: absolute;
-    z-index: 1;
-    inset: 0;
-    background: linear-gradient(
-      0deg,
-      rgb(0 0 0 / 0.96) 0%,
-      rgb(0 0 0 / 0.86) 34%,
-      rgb(0 0 0 / 0.56) 68%,
-      rgb(0 0 0 / 0.28) 100%
-    );
-    opacity: var(--caption-fader-opacity);
-    pointer-events: none;
-    transition: opacity 160ms ease;
-  }
-
-  & :where(.media__surface, .mockup__viewport) > :is(img, video),
-  & :where(.media__surface, .mockup__viewport) > picture > img {
-    filter: var(--caption-media-filter);
-    transition: filter 160ms ease;
-  }
-
-  & > figcaption.media__caption {
-    position: absolute;
-    z-index: 2;
-    inset-inline: clamp(0.55rem, 1.2cqi, 0.9rem);
-    inset-block-end: clamp(0.55rem, 1.2cqi, 0.9rem);
-    inline-size: auto;
-    max-inline-size: min(42ch, calc(100% - clamp(1.1rem, 2.4cqi, 1.8rem)));
-    max-block-size: calc(100% - clamp(1.1rem, 2.4cqi, 1.8rem));
-    overflow: auto;
-    color: #fff;
-    opacity: 0;
-    translate: 0 0.35rem;
-    pointer-events: none;
-    text-shadow: 0 1px 0.75rem rgb(0 0 0 / 0.6);
-    scrollbar-width: none;
-    transition:
-      opacity 160ms ease,
-      translate 160ms ease;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  &:is(:hover, :focus-within),
-  &[data-caption-open] {
-    --caption-fader-opacity: 1;
-    --caption-media-filter: grayscale(1) blur(1.2px) brightness(0.38);
-  }
-
-  &:is(:hover, :focus-within) > figcaption.media__caption,
-  &[data-caption-open] > figcaption.media__caption {
-    opacity: 1;
-    translate: 0 0;
-    pointer-events: auto;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    &::after,
-    & :where(.media__surface, .mockup__viewport) > :is(img, video),
-    & :where(.media__surface, .mockup__viewport) > picture > img {
-      transition: none;
-    }
-
-    & > figcaption.media__caption {
-      translate: none;
-      transition: none;
-    }
-  }
-}
-
 .project__section > :is(.media, .mockup, .slider):only-child {
   inline-size: min(100%, var(--project-media-max));
   margin-inline: auto;
@@ -1269,10 +1108,6 @@ figure.media[data-caption="overlay"] {
   text-shadow: 0 1px 0.75rem rgb(255 255 255 / 0.72);
 }
 
-.brand-system__item:is(:hover, :focus-visible, :focus-within) .brand-system__hover-copy {
-  opacity: 1;
-  translate: 0;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .brand-system__hover-copy {
@@ -1328,12 +1163,20 @@ figure.media[data-caption="overlay"] {
   }
 }
 
-.jestei-captioned-group
-  .jestei-captioned-media:is(:hover, :focus-visible, :focus-within)
-  .jestei-media__hover-copy {
-  opacity: 1;
-  translate: 0;
-  pointer-events: auto;
+
+@media (hover: hover) and (pointer: fine) {
+  .brand-system__item:is(:hover, :focus-visible, :focus-within) .brand-system__hover-copy {
+    opacity: 1;
+    translate: 0;
+  }
+
+  .jestei-captioned-group
+    .jestei-captioned-media:is(:hover, :focus-visible, :focus-within)
+    .jestei-media__hover-copy {
+    opacity: 1;
+    translate: 0;
+    pointer-events: auto;
+  }
 }
 
 /* The video deck occupies exactly the old 08 surface. Each source keeps its
@@ -2105,14 +1948,6 @@ figure.media[data-caption="overlay"] {
   pointer-events: auto;
 }
 
-.mockup__caption-slide[data-active][data-caption-rest="none"] {
-  pointer-events: none;
-}
-
-.mockup:is(:hover, :focus-within, [data-caption-open])
-  .mockup__caption-slide[data-active][data-caption-rest="none"] {
-  pointer-events: auto;
-}
 
 .mockup > .slider-controls {
   justify-self: stretch;
@@ -3061,17 +2896,40 @@ figure.media[data-caption="overlay"] {
 }
 
 .media-deck__dot {
-  inline-size: 0.45rem;
-  block-size: 0.45rem;
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
   padding: 0;
-  border: 1px solid currentColor;
+  border: 0;
   border-radius: 50%;
-  opacity: 0.45;
+
+  &::before {
+    content: "";
+    inline-size: 0.45rem;
+    block-size: 0.45rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    opacity: 0.45;
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    opacity: 0.7;
+  }
+
+  &:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: -0.35rem;
+  }
 
   &[data-active],
   &[aria-current="true"] {
-    background: currentColor;
-    opacity: 1;
+    &::before {
+      background: currentColor;
+      opacity: 1;
+    }
   }
 }
 
@@ -3171,6 +3029,9 @@ figure.media[data-caption="overlay"] {
 }
 
 .media-lightbox {
+  --media-lightbox-control-offset: 1rem;
+  --media-lightbox-inset: clamp(0.75rem, 2vw, 1.5rem);
+
   inline-size: 100vw;
   max-inline-size: none;
   block-size: 100dvh;
@@ -3189,29 +3050,38 @@ figure.media[data-caption="overlay"] {
 .media-lightbox__layout {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   align-items: center;
   gap: clamp(0.5rem, 2vw, 1.5rem);
   inline-size: 100%;
   block-size: 100%;
-  padding: clamp(0.75rem, 2vw, 1.5rem);
+  min-inline-size: 0;
+  min-block-size: 0;
+  padding-block-start: calc(var(--media-lightbox-inset) + env(safe-area-inset-top, 0px));
+  padding-block-end: calc(var(--media-lightbox-inset) + env(safe-area-inset-bottom, 0px));
+  padding-inline-start: calc(var(--media-lightbox-inset) + env(safe-area-inset-left, 0px));
+  padding-inline-end: calc(var(--media-lightbox-inset) + env(safe-area-inset-right, 0px));
 }
 
 .media-lightbox__figure {
   grid-column: 2;
+  grid-row: 1;
   display: grid;
   place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
   min-inline-size: 0;
   min-block-size: 0;
   margin: 0;
   overflow: hidden;
+  touch-action: pan-y;
 
   & > :is(img, video) {
     display: block;
-    max-inline-size: 100%;
-    max-block-size: calc(100dvh - 6rem);
     inline-size: auto;
     block-size: auto;
+    max-inline-size: 100%;
+    max-block-size: 100%;
     object-fit: contain;
   }
 }
@@ -3240,61 +3110,49 @@ figure.media[data-caption="overlay"] {
   }
 }
 
-.media-lightbox__prev {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.media-lightbox__next {
-  grid-column: 3;
-  grid-row: 1;
-}
+.media-lightbox__prev { grid-column: 1; grid-row: 1; }
+.media-lightbox__next { grid-column: 3; grid-row: 1; }
 
 .media-lightbox__close {
   position: fixed;
   z-index: 2;
-  inset-block-start: 1rem;
-  inset-inline-end: 1rem;
+  inset-block-start: calc(var(--media-lightbox-control-offset) + env(safe-area-inset-top, 0px));
+  inset-inline-end: calc(var(--media-lightbox-control-offset) + env(safe-area-inset-right, 0px));
 }
 
 .media-lightbox__caption {
   grid-column: 2;
-  margin: 0;
-  max-inline-size: 70ch;
+  grid-row: 2;
   justify-self: start;
-  color: rgb(255 255 255 / 0.68);
-  font-size: 0.75rem;
-  line-height: 1.4;
 }
 
-@media (width <= 40rem) {
+@media ((hover: none) or (pointer: coarse)) and (orientation: portrait) {
   .media-lightbox__layout {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) auto auto;
   }
 
-  .media-lightbox__figure {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
+  .media-lightbox__figure { grid-column: 1; grid-row: 1; }
   .media-lightbox__prev,
-  .media-lightbox__next {
-    grid-column: 1;
-    grid-row: 2;
+  .media-lightbox__next { grid-column: 1; grid-row: 2; }
+  .media-lightbox__prev { justify-self: start; }
+  .media-lightbox__next { justify-self: end; }
+  .media-lightbox__caption { grid-column: 1; grid-row: 3; }
+}
+
+@media ((hover: none) or (pointer: coarse)) and (orientation: landscape) {
+  .media-lightbox__layout {
+    grid-template-columns: auto minmax(0, 1fr) auto minmax(12rem, 30vw);
+    grid-template-rows: minmax(0, 1fr);
   }
 
-  .media-lightbox__prev {
-    justify-self: start;
-  }
-
-  .media-lightbox__next {
-    justify-self: end;
-  }
-
+  .media-lightbox__figure { grid-column: 2; grid-row: 1; }
+  .media-lightbox__prev { grid-column: 1; grid-row: 1; }
+  .media-lightbox__next { grid-column: 3; grid-row: 1; }
   .media-lightbox__caption {
-    grid-column: 1;
-    grid-row: 3;
+    grid-column: 4;
+    grid-row: 1;
+    align-self: stretch;
   }
 }
 
