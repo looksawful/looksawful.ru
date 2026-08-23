@@ -25,6 +25,7 @@ import {
   jesteiLandingsMockup,
   jesteiPromoIntro,
   jesteiRedpolitikaMockup,
+  jesteiStoryMedia,
 } from "./src/data/content/jestei-pool.ts";
 
 import { liNeAgencyIntro } from "./src/data/content/li-ne-agency.ts";
@@ -73,6 +74,8 @@ import {
   styxShootingsIntro,
 } from "./src/data/content/styx.ts";
 
+import { getMediaAsset, getMediaEntry } from "./src/data/media/index.ts";
+
 import { renderClientLogo } from "./src/templates/client-logo.ts";
 
 import { renderMediaFigure } from "./src/templates/media-figure.ts";
@@ -100,6 +103,34 @@ function replaceRequiredSlots(html: string, slots: readonly HtmlSlot[]): string 
     (output, [slot, content]) => replaceRequiredSlot(output, slot, content),
     html,
   );
+}
+
+function replaceFigureContainingMedia(
+  html: string,
+  entryId: Parameters<typeof getMediaEntry>[0],
+  content: string,
+): string {
+  const entry = getMediaEntry(entryId);
+  const asset = getMediaAsset(entry.assetId);
+  const mediaIndex = html.indexOf(asset.src);
+
+  if (mediaIndex < 0) {
+    throw new Error(`Required legacy media source not found: ${asset.src}`);
+  }
+
+  if (html.indexOf(asset.src, mediaIndex + asset.src.length) >= 0) {
+    throw new Error(`Legacy media source is ambiguous: ${asset.src}`);
+  }
+
+  const figureStart = html.lastIndexOf("<figure", mediaIndex);
+  const figureClose = html.indexOf("</figure>", mediaIndex);
+
+  if (figureStart < 0 || figureClose < 0) {
+    throw new Error(`Could not resolve legacy figure for media source: ${asset.src}`);
+  }
+
+  const figureEnd = figureClose + "</figure>".length;
+  return `${html.slice(0, figureStart)}${content}${html.slice(figureEnd)}`;
 }
 
 function siteTemplatesPlugin(): Plugin {
@@ -185,7 +216,13 @@ function siteTemplatesPlugin(): Plugin {
         ["<!-- MOSCOW_NEWS_INTRO -->", renderProjectIntro(moskovskieNovostiIntro)],
       ];
 
-      return replaceRequiredSlots(html, slots);
+      let output = replaceRequiredSlots(html, slots);
+
+      for (const media of jesteiStoryMedia) {
+        output = replaceFigureContainingMedia(output, media.entryId, renderMediaFigure(media));
+      }
+
+      return output;
     },
   };
 }
