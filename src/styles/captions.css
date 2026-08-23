@@ -15,6 +15,7 @@
   --caption-row-gap: 0.16rem;
 
   inline-size: 100%;
+  min-inline-size: 0;
   max-inline-size: min(100%, 72ch);
   margin: 0;
   color: var(--clr-text-muted);
@@ -30,6 +31,7 @@
   row-gap: var(--caption-row-gap);
   align-items: start;
   inline-size: 100%;
+  min-inline-size: 0;
   margin: 0;
 }
 
@@ -53,8 +55,10 @@
 .media__meta {
   grid-column: 2;
   min-inline-size: 0;
+  max-inline-size: 100%;
   color: inherit;
   font-weight: var(--fw-400);
+  white-space: normal;
   overflow-wrap: break-word;
 }
 
@@ -372,6 +376,10 @@
   .media__caption {
     --caption-index-width: 1.75rem;
     --caption-column-gap: 0.45rem;
+  }
+
+  .media__title {
+    overflow-wrap: anywhere;
   }
 
   .media-lightbox__caption {
