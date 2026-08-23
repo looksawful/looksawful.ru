@@ -791,7 +791,9 @@
       return;
     }
 
-    const frame = RUN[Math.floor(game.time * 10) % RUN.length];
+    const elapsed = Number.isFinite(game.time) ? game.time : 0;
+    const frameIndex = ((Math.floor(elapsed * 10) % RUN.length) + RUN.length) % RUN.length;
+    const frame = RUN[frameIndex] ?? RUN[0];
     const s = view.scale * 1.18;
     const dw = Math.round(frame.w * s);
     const dh = Math.round(frame.h * s);
