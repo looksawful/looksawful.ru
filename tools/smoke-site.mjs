@@ -110,6 +110,54 @@ async function verifyCaptions(page, mobile) {
   assert(state.overlays > 0, "No overlay captions were discovered");
   assert(state.lightboxSources > 0, "No lightbox sources were marked");
 
+  if (mobile) {
+    const overflow = await page.evaluate(() => {
+      const visible = (element) => {
+        if (!(element instanceof HTMLElement)) return false;
+        const style = getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 1 && rect.height > 1;
+      };
+
+      return [...document.querySelectorAll("figcaption.media__caption")]
+        .filter(visible)
+        .flatMap((caption) => {
+          const captionRect = caption.getBoundingClientRect();
+          const line = caption.querySelector(".media__caption-line");
+          const candidates = [line, ...caption.querySelectorAll(".media__title, .media__text, .media__meta")]
+            .filter((node) => node instanceof HTMLElement && visible(node));
+
+          return candidates
+            .map((node) => {
+              const rect = node.getBoundingClientRect();
+              const overflows =
+                node.scrollWidth > node.clientWidth + 1 ||
+                rect.right > captionRect.right + 1 ||
+                rect.left < captionRect.left - 1;
+              if (!overflows) return null;
+              return {
+                view: caption.closest("[data-caption-view]")?.getAttribute("data-caption-view") || "",
+                text: node.textContent?.replace(/\s+/g, " ").trim().slice(0, 120) || "",
+                nodeWidth: Math.round(rect.width * 10) / 10,
+                clientWidth: node.clientWidth,
+                scrollWidth: node.scrollWidth,
+                captionWidth: Math.round(captionRect.width * 10) / 10,
+                left: Math.round(rect.left * 10) / 10,
+                right: Math.round(rect.right * 10) / 10,
+                captionLeft: Math.round(captionRect.left * 10) / 10,
+                captionRight: Math.round(captionRect.right * 10) / 10,
+              };
+            })
+            .filter(Boolean);
+        });
+    });
+
+    assert(
+      !overflow.length,
+      `Mobile captions overflow horizontally:\n${JSON.stringify(overflow.slice(0, 12), null, 2)}`,
+    );
+  }
+
   const summary = page
     .locator('[data-caption-view="summary"]:visible:has(.media__text, .media__meta)')
     .first();
