@@ -1,6 +1,5 @@
 @layer reset, tokens, colors, base, patterns, components, captions, utilities;
 
-@import "@fontsource-variable/rubik/wght.css";
 @import "@fontsource-variable/inter/wght.css";
 
 @import "./reset.css" layer(reset);
@@ -12,3 +11,94 @@
 @import "./motion.css" layer(components);
 @import "./captions.css" layer(captions);
 @import "./utilities.css" layer(utilities);
+
+/* Typography-only refinements live in the existing cascade layers. */
+@layer components {
+  .hero h1 {
+    line-height: var(--lh-hero);
+    letter-spacing: var(--ls-hero);
+  }
+
+  .hero > footer > p {
+    line-height: var(--lh-tight);
+    letter-spacing: var(--ls-lead);
+  }
+
+  .project__head {
+    line-height: var(--lh-heading);
+  }
+
+  .project__title {
+    line-height: var(--lh-display);
+    letter-spacing: var(--ls-heading);
+  }
+
+  .project__summary {
+    letter-spacing: var(--ls-copy);
+  }
+
+  .project__lead,
+  .text-lead {
+    max-inline-size: 36ch;
+    line-height: var(--lh-tight);
+    letter-spacing: var(--ls-tight);
+  }
+
+  .section-copy__title {
+    line-height: var(--lh-heading);
+    letter-spacing: var(--ls-display);
+  }
+
+  .section-copy__text {
+    line-height: var(--lh-copy);
+    letter-spacing: var(--ls-copy);
+  }
+
+  .project__section > :is(h2, h3),
+  .project__section > section > :is(h2, h3) {
+    line-height: var(--lh-heading);
+    letter-spacing: var(--ls-heading);
+  }
+
+  .project__section > p:not([class]),
+  .project__section > section > p:not([class]) {
+    line-height: var(--lh-copy);
+    letter-spacing: var(--ls-copy);
+  }
+
+  .group-note,
+  .editorial-note {
+    line-height: var(--lh-body);
+  }
+
+  .brand-system__hover-copy,
+  .jestei-captioned-group .jestei-media__hover-copy {
+    line-height: var(--lh-caption);
+  }
+
+  .slider-controls,
+  .page-flip__index,
+  .page-flip__count {
+    font-size: var(--fs-200);
+    line-height: var(--lh-heading);
+  }
+
+  .contact a {
+    line-height: 0.95;
+    letter-spacing: var(--ls-display);
+  }
+
+  .hero__role {
+    line-height: var(--lh-display);
+  }
+}
+
+@layer captions {
+  .media__caption {
+    line-height: var(--lh-caption);
+  }
+
+  .media-lightbox__caption {
+    line-height: var(--lh-body);
+  }
+}
