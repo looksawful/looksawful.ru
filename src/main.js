@@ -6,6 +6,7 @@ import { createMotionPreference } from "./components/motion-preference.ts";
 import { createInfiniteReels } from "./components/infinite-reel.js";
 import { createMediaDecks } from "./components/media-deck.js";
 import { createMediaLightbox } from "./components/media-lightbox.ts";
+import { numberMediaCaptions } from "./components/media-caption-numbering.ts";
 import { createCodeBlocks } from "./components/code-block.ts";
 import { createPageFlips } from "./components/page-flip.ts";
 import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
@@ -80,6 +81,7 @@ function initViewportAutoplayVideos(root = document) {
 const motion = createMotionPreference();
 const destroys = [];
 
+numberMediaCaptions(document);
 destroys.push(initSiteInteractive({ root: document, motion }));
 destroys.push(createMediaLightbox({ root: document }));
 destroys.push(createMediaDecks({ root: document, motion }));
