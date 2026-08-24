@@ -286,12 +286,12 @@
 /* LIGHTBOX ---------------------------------------------------------------
    Lightbox receives cloned structured caption nodes, not flattened text. Long
    descriptions and credits scroll independently from the media. */
-[data-media-lightbox] {
+.media-lightbox {
   background: rgb(10 10 10 / 0.98);
   color: #fff;
 }
 
-[data-media-lightbox]::backdrop {
+.media-lightbox::backdrop {
   background: rgb(0 0 0 / 0.92);
   backdrop-filter: blur(2px);
 }

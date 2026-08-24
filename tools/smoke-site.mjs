@@ -327,7 +327,7 @@ async function verifyCanvasHosts(page, label) {
 }
 
 async function closeLightbox(page) {
-  const close = page.locator("[data-lightbox-close]").first();
+  const close = page.locator("[data-lightbox-close], .pswp__button--close").first();
   if (await close.count()) {
     await close.click({ force: true });
     await page.waitForTimeout(100);
@@ -337,18 +337,58 @@ async function closeLightbox(page) {
 async function lightboxState(page) {
   return page.evaluate(() => {
     const dialog = document.querySelector("[data-media-lightbox]");
-    const open = dialog instanceof HTMLDialogElement && dialog.open;
+    const pswp = document.querySelector(".pswp");
+    const open = (dialog instanceof HTMLDialogElement && dialog.open) || pswp instanceof HTMLElement;
     const image = document.querySelector("[data-lightbox-image]");
     const video = document.querySelector("[data-lightbox-video]");
     const caption = document.querySelector("[data-lightbox-caption]");
     const prev = document.querySelector("[data-lightbox-prev]");
     const next = document.querySelector("[data-lightbox-next]");
 
+    if (pswp instanceof HTMLElement) {
+      const activeSlide =
+        pswp.querySelector('.pswp__item[aria-hidden="false"]') ||
+        pswp.querySelector(".pswp__item");
+      const pswpImage = activeSlide?.querySelector("img.pswp__img");
+      const pswpVideo = activeSlide?.querySelector("[data-photoswipe-video]");
+      const pswpCaption = pswp.querySelector(".media-lightbox__caption");
+      const pswpPrev = pswp.querySelector(".pswp__button--arrow--prev");
+      const pswpNext = pswp.querySelector(".pswp__button--arrow--next");
+
+      return {
+        open,
+        imageHidden: !(pswpImage instanceof HTMLImageElement),
+        imageSrc: pswpImage instanceof HTMLImageElement ? pswpImage.currentSrc || pswpImage.src || "" : "",
+        videoHidden: !(pswpVideo instanceof HTMLVideoElement),
+        videoSrc:
+          pswpVideo instanceof HTMLVideoElement
+            ? pswpVideo.currentSrc || pswpVideo.src || pswpVideo.querySelector("source[src]")?.getAttribute("src") || ""
+            : "",
+        videoPoster: pswpVideo instanceof HTMLVideoElement ? pswpVideo.poster || "" : "",
+        videoAttributeSrc: pswpVideo instanceof HTMLVideoElement ? pswpVideo.getAttribute("src") || "" : "",
+        videoControls: pswpVideo instanceof HTMLVideoElement ? pswpVideo.controls : false,
+        videoMuted: pswpVideo instanceof HTMLVideoElement ? pswpVideo.muted : null,
+        videoPaused: pswpVideo instanceof HTMLVideoElement ? pswpVideo.paused : true,
+        videoCurrentTime: pswpVideo instanceof HTMLVideoElement ? pswpVideo.currentTime : 0,
+        captionText: pswpCaption instanceof HTMLElement ? pswpCaption.textContent?.replace(/\s+/g, " ").trim() || "" : "",
+        prevDisabled: pswpPrev instanceof HTMLButtonElement ? pswpPrev.disabled : null,
+        nextDisabled: pswpNext instanceof HTMLButtonElement ? pswpNext.disabled : null,
+        pswpIndex: window.pswp?.currIndex ?? null,
+        pswpPotentialIndex: window.pswp?.potentialIndex ?? null,
+        pswpMainScrollX: window.pswp?.mainScroll?.x ?? null,
+        pswpCurrentSlideX: window.pswp?.mainScroll?.getCurrSlideX?.() ?? null,
+        pswpCanSwipe: window.pswp?.mainScroll?.canBeSwiped?.() ?? null,
+        pswpAllowPanToNext: window.pswp?.options?.allowPanToNext ?? null,
+        pswpIsPannable: window.pswp?.currSlide?.isPannable?.() ?? null,
+        pswpDragAxis: window.pswp?.gestures?.dragAxis ?? null,
+      };
+    }
+
     return {
       open,
-      imageHidden: image instanceof HTMLImageElement ? image.hidden : null,
+      imageHidden: image instanceof HTMLImageElement ? image.hidden : true,
       imageSrc: image instanceof HTMLImageElement ? image.currentSrc || image.src || "" : "",
-      videoHidden: video instanceof HTMLVideoElement ? video.hidden : null,
+      videoHidden: video instanceof HTMLVideoElement ? video.hidden : true,
       videoSrc:
         video instanceof HTMLVideoElement
           ? video.currentSrc || video.src || video.querySelector("source[src]")?.getAttribute("src") || ""
@@ -357,7 +397,7 @@ async function lightboxState(page) {
       videoAttributeSrc: video instanceof HTMLVideoElement ? video.getAttribute("src") || "" : "",
       videoControls: video instanceof HTMLVideoElement ? video.controls : false,
       videoMuted: video instanceof HTMLVideoElement ? video.muted : null,
-      videoPaused: video instanceof HTMLVideoElement ? video.paused : null,
+      videoPaused: video instanceof HTMLVideoElement ? video.paused : true,
       videoCurrentTime: video instanceof HTMLVideoElement ? video.currentTime : 0,
       captionText: caption instanceof HTMLElement ? caption.textContent?.replace(/\s+/g, " ").trim() || "" : "",
       prevDisabled: prev instanceof HTMLButtonElement ? prev.disabled : null,
@@ -504,19 +544,35 @@ async function verifyLightboxNavigationAndTouch(page, label, { touch = false } =
   if (touch) {
     await closeLightbox(page);
     await openSource(page, "[data-smoke-lightbox-navigation]", `${label}: touch source opens`);
-    await page.locator(".media-lightbox__figure").dispatchEvent("pointerdown", {
-      pointerType: "touch",
-      isPrimary: true,
-      clientX: 320,
-      clientY: 220,
+    await page
+      .waitForFunction(() => window.pswp?.opener?.isOpen === true, null, { timeout: 2_000 })
+      .catch(() => {});
+    const swipe = await page.evaluate(() => {
+      const rect = document.querySelector(".pswp__scroll-wrap")?.getBoundingClientRect();
+      if (!rect) {
+        return { startX: 320, endX: 110, y: 220 };
+      }
+
+      return {
+        startX: Math.round(rect.left + rect.width * 0.92),
+        endX: Math.round(rect.left + rect.width * 0.02),
+        y: Math.round(rect.top + rect.height * 0.5),
+      };
     });
-    await page.locator(".media-lightbox__figure").dispatchEvent("pointerup", {
-      pointerType: "touch",
-      isPrimary: true,
-      clientX: 120,
-      clientY: 220,
-    });
-    await page.waitForTimeout(120);
+    const client = await page.context().newCDPSession(page);
+    try {
+      await client.send("Input.synthesizeScrollGesture", {
+        x: swipe.startX,
+        y: swipe.y,
+        xDistance: swipe.endX - swipe.startX,
+        yDistance: 0,
+        gestureSourceType: "touch",
+        speed: 800,
+      });
+    } finally {
+      await client.detach().catch(() => {});
+    }
+    await page.waitForTimeout(700);
     state = await lightboxState(page);
     assert(state.imageSrc === candidate.second, `${label}: touch swipe did not move to the next project image\n${JSON.stringify({ candidate, state }, null, 2)}`);
   }
@@ -529,10 +585,15 @@ async function verifyLightboxBackdropClose(page, label) {
   if (!found) return;
 
   await openSource(page, "[data-smoke-lightbox-backdrop]", `${label}: backdrop source opens`);
-  await page.evaluate(() => {
-    const dialog = document.querySelector("[data-media-lightbox]");
-    dialog?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  });
+  const photoSwipeBackdrop = page.locator(".pswp__bg").first();
+  if (await photoSwipeBackdrop.count()) {
+    await photoSwipeBackdrop.click({ position: { x: 10, y: 10 }, force: true });
+  } else {
+    await page.evaluate(() => {
+      const dialog = document.querySelector("[data-media-lightbox]");
+      dialog?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+  }
   await page.waitForTimeout(120);
   await assertLightboxClosed(page, `${label}: backdrop click closes lightbox`);
 }

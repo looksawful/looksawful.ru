@@ -43,17 +43,25 @@ test("custom surface copy remains authored once and is explicitly available to t
   );
 });
 
-test("lightbox navigation is project-scoped and gesture handling belongs to the media area", async () => {
-  const lightbox = await read("src/components/media-lightbox.ts");
+test("lightbox navigation is project-scoped and media shell belongs to the PhotoSwipe adapter", async () => {
+  const [facade, adapter] = await Promise.all([
+    read("src/components/media-lightbox.ts"),
+    read("src/components/photoswipe-lightbox.ts"),
+  ]);
 
-  assert.match(lightbox, /closest\("\.project"\)/);
-  assert.doesNotMatch(lightbox, /\.media-group, \.project__section, \.project/);
-  assert.match(lightbox, /data-lightbox-caption-copy/);
-  assert.match(lightbox, /gestureArea\?\.addEventListener\("pointerdown"/);
-  assert.match(lightbox, /dialog\.addEventListener\("close"/);
-  assert.match(lightbox, /target === layout/);
-  assert.match(lightbox, /\[data-slide\]\[data-active\] img, \[data-slide\]\[data-active\] video/);
-  assert.doesNotMatch(lightbox, /source\.classList\.contains\("mockup__viewport"\)/);
+  assert.match(facade, /closest\("\.project"\)/);
+  assert.doesNotMatch(facade, /\.media-group, \.project__section, \.project/);
+  assert.match(facade, /data-lightbox-caption-copy/);
+  assert.match(facade, /createPhotoSwipeLightbox/);
+  assert.match(facade, /\[data-slide\]\[data-active\] img, \[data-slide\]\[data-active\] video/);
+  assert.doesNotMatch(facade, /source\.classList\.contains\("mockup__viewport"\)/);
+  assert.doesNotMatch(facade, /showModal\(|HTMLDialogElement|data-lightbox-image|data-lightbox-video/);
+
+  assert.match(adapter, /photoswipe\/lightbox/);
+  assert.match(adapter, /contentLoad/);
+  assert.match(adapter, /contentActivate/);
+  assert.match(adapter, /contentDeactivate/);
+  assert.match(adapter, /contentDestroy/);
 });
 
 test("lightbox CSS has bounded media and explicit touch portrait/landscape layouts", async () => {
@@ -94,6 +102,6 @@ test("custom Jestei hover copy is a fine-pointer enhancement, while touch goes s
 test("browser smoke exercises first-tap lightbox behavior on touch viewports too", async () => {
   const smoke = await read("tools/smoke-site.mjs");
 
-  assert.match(smoke, /await verifyLightbox\(page, label\)/);
+  assert.match(smoke, /await verifyLightbox\(page, label/);
   assert.doesNotMatch(smoke, /viewport\.width\s*>=\s*768[^\n]*verifyLightbox/);
 });
