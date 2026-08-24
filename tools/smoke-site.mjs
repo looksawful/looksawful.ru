@@ -5,6 +5,53 @@ import { chromium } from "playwright";
 const HOST = "127.0.0.1";
 const PORT = 4173;
 const BASE_URL = `http://${HOST}:${PORT}`;
+const PAGE_FLIP_SRC = "https://unpkg.com/page-flip@2.0.7/dist/js/page-flip.browser.js";
+const PAGE_FLIP_LIBRARY_FIXTURE = `
+window.St = window.St || {};
+window.St.PageFlip = class SmokePageFlip {
+  constructor(book) {
+    this.book = book;
+    this.events = new Map();
+    this.index = 0;
+    this.pages = [];
+  }
+
+  on(eventName, callback) {
+    const callbacks = this.events.get(eventName) || [];
+    callbacks.push(callback);
+    this.events.set(eventName, callbacks);
+  }
+
+  emit(eventName, event) {
+    (this.events.get(eventName) || []).forEach((callback) => callback(event));
+  }
+
+  loadFromHTML(pages) {
+    this.pages = [...pages];
+    this.emit("init", { data: this.book?.getBoundingClientRect?.().width <= 800 ? "portrait" : "landscape" });
+  }
+
+  getCurrentPageIndex() {
+    return this.index;
+  }
+
+  getPageCount() {
+    return this.pages.length;
+  }
+
+  flipPrev() {
+    this.index = Math.max(0, this.index - 1);
+    this.emit("flip", { data: this.index });
+  }
+
+  flipNext() {
+    this.index = Math.min(Math.max(0, this.pages.length - 1), this.index + 1);
+    this.emit("flip", { data: this.index });
+  }
+
+  destroy() {}
+};
+`;
 const VIEWPORTS = [
   { label: "phone-portrait", width: 390, height: 844, mobile: true },
   { label: "phone-landscape", width: 844, height: 390, mobile: true },
@@ -41,6 +88,16 @@ server.stderr.on("data", (chunk) => {
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+async function routeExternalRuntimeFixtures(context) {
+  await context.route(PAGE_FLIP_SRC, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "text/javascript; charset=utf-8",
+      body: PAGE_FLIP_LIBRARY_FIXTURE,
+    });
+  });
 }
 
 function isSameOrigin(url) {
@@ -269,22 +326,434 @@ async function verifyCanvasHosts(page, label) {
   assert(!failures.length, `${label}: canvas failures:\n${failures.join("\n")}`);
 }
 
-async function verifyLightbox(page, label) {
-  const source = page.locator("[data-lightbox-source]:visible").first();
-  if (!(await source.count())) return;
-
-  await source.scrollIntoViewIfNeeded();
-  await source.click({ force: true });
-  await page.waitForTimeout(120);
-
-  const open = await page.evaluate(() => document.querySelector("[data-media-lightbox]")?.open === true);
-  assert(open, `${label}: lightbox did not open from first source`);
-
+async function closeLightbox(page) {
   const close = page.locator("[data-lightbox-close]").first();
   if (await close.count()) {
     await close.click({ force: true });
-    await page.waitForTimeout(80);
+    await page.waitForTimeout(100);
   }
+}
+
+async function lightboxState(page) {
+  return page.evaluate(() => {
+    const dialog = document.querySelector("[data-media-lightbox]");
+    const open = dialog instanceof HTMLDialogElement && dialog.open;
+    const image = document.querySelector("[data-lightbox-image]");
+    const video = document.querySelector("[data-lightbox-video]");
+    const caption = document.querySelector("[data-lightbox-caption]");
+    const prev = document.querySelector("[data-lightbox-prev]");
+    const next = document.querySelector("[data-lightbox-next]");
+
+    return {
+      open,
+      imageHidden: image instanceof HTMLImageElement ? image.hidden : null,
+      imageSrc: image instanceof HTMLImageElement ? image.currentSrc || image.src || "" : "",
+      videoHidden: video instanceof HTMLVideoElement ? video.hidden : null,
+      videoSrc:
+        video instanceof HTMLVideoElement
+          ? video.currentSrc || video.src || video.querySelector("source[src]")?.getAttribute("src") || ""
+          : "",
+      videoPoster: video instanceof HTMLVideoElement ? video.poster || "" : "",
+      videoAttributeSrc: video instanceof HTMLVideoElement ? video.getAttribute("src") || "" : "",
+      videoControls: video instanceof HTMLVideoElement ? video.controls : false,
+      videoMuted: video instanceof HTMLVideoElement ? video.muted : null,
+      videoPaused: video instanceof HTMLVideoElement ? video.paused : null,
+      videoCurrentTime: video instanceof HTMLVideoElement ? video.currentTime : 0,
+      captionText: caption instanceof HTMLElement ? caption.textContent?.replace(/\s+/g, " ").trim() || "" : "",
+      prevDisabled: prev instanceof HTMLButtonElement ? prev.disabled : null,
+      nextDisabled: next instanceof HTMLButtonElement ? next.disabled : null,
+    };
+  });
+}
+
+async function assertLightboxOpen(page, label) {
+  const state = await lightboxState(page);
+  assert(state.open, `${label}: lightbox did not open\n${JSON.stringify(state, null, 2)}`);
+  return state;
+}
+
+async function assertLightboxClosed(page, label) {
+  const state = await lightboxState(page);
+  assert(!state.open, `${label}: lightbox did not close\n${JSON.stringify(state, null, 2)}`);
+  return state;
+}
+
+async function openSource(page, selector, label, method = "click") {
+  const source = page.locator(selector).first();
+  assert(await source.count(), `${label}: no lightbox source found for ${selector}`);
+  await source.scrollIntoViewIfNeeded();
+
+  if (method === "enter" || method === "space") {
+    await source.focus();
+    await page.keyboard.press(method === "enter" ? "Enter" : "Space");
+  } else {
+    await source.click({ force: true });
+  }
+
+  await page.waitForTimeout(160);
+  return assertLightboxOpen(page, label);
+}
+
+async function selectLightboxCandidate(page, selector, attributeName) {
+  return page.evaluate(
+    ({ selector: selectorValue, attribute }) => {
+      document.querySelectorAll(`[${attribute}]`).forEach((node) => {
+        node.removeAttribute(attribute);
+      });
+
+      const source = [...document.querySelectorAll(selectorValue)].find((candidate) => {
+        if (!(candidate instanceof HTMLElement)) return false;
+        if (candidate.closest("[hidden]")) return false;
+        const rect = candidate.getBoundingClientRect();
+        return rect.width > 1 && rect.height > 1;
+      });
+
+      if (!(source instanceof HTMLElement)) return false;
+
+      source.setAttribute(attribute, "");
+      return true;
+    },
+    { selector, attribute: attributeName },
+  );
+}
+
+async function verifyLightboxKeyboardAndFocus(page, label) {
+  const found = await selectLightboxCandidate(page, "[data-lightbox-source]", "data-smoke-lightbox-keyboard");
+  if (!found) return;
+
+  await openSource(page, "[data-smoke-lightbox-keyboard]", `${label}: Enter key opens lightbox`, "enter");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(120);
+  await assertLightboxClosed(page, `${label}: Escape closes lightbox`);
+
+  const focusRestored = await page.evaluate(() => document.activeElement?.hasAttribute("data-smoke-lightbox-keyboard") === true);
+  assert(focusRestored, `${label}: focus was not restored to the source after Escape`);
+
+  await openSource(page, "[data-smoke-lightbox-keyboard]", `${label}: Space key opens lightbox`, "space");
+  await closeLightbox(page);
+  await assertLightboxClosed(page, `${label}: close button closes keyboard-opened lightbox`);
+}
+
+async function selectNavigationCandidate(page) {
+  return page.evaluate(() => {
+    const mediaFor = (source) =>
+      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video, img, video");
+    const mediaUrl = (media) => {
+      if (media instanceof HTMLImageElement) return media.currentSrc || media.src || "";
+      if (media instanceof HTMLVideoElement) {
+        return media.currentSrc || media.src || media.querySelector("source[src]")?.getAttribute("src") || "";
+      }
+      return "";
+    };
+
+    document.querySelectorAll("[data-smoke-lightbox-navigation]").forEach((node) => {
+      node.removeAttribute("data-smoke-lightbox-navigation");
+    });
+
+    const projects = [...document.querySelectorAll(".project")].filter((project) => !project.closest("[hidden]"));
+
+    for (const project of projects) {
+      const sources = [...project.querySelectorAll("[data-lightbox-source]")]
+        .filter((source) => source instanceof HTMLElement)
+        .filter((source) => {
+          const media = mediaFor(source);
+          return media instanceof HTMLImageElement && Boolean(mediaUrl(media));
+        });
+
+      const urls = sources.map((source) => mediaUrl(mediaFor(source)));
+      const uniqueUrls = [...new Set(urls)];
+
+      if (uniqueUrls.length < 2) continue;
+
+      sources[0].setAttribute("data-smoke-lightbox-navigation", "");
+
+      return {
+        first: uniqueUrls[0],
+        second: uniqueUrls[1],
+        last: uniqueUrls.at(-1),
+      };
+    }
+
+    return null;
+  });
+}
+
+async function verifyLightboxNavigationAndTouch(page, label, { touch = false } = {}) {
+  const candidate = await selectNavigationCandidate(page);
+  if (!candidate) return;
+
+  await openSource(page, "[data-smoke-lightbox-navigation]", `${label}: navigation source opens`);
+  let state = await lightboxState(page);
+  assert(state.imageSrc === candidate.first, `${label}: first project image did not open\n${JSON.stringify({ candidate, state }, null, 2)}`);
+
+  await page.keyboard.press("ArrowRight");
+  await page.waitForTimeout(120);
+  state = await lightboxState(page);
+  assert(state.imageSrc === candidate.second, `${label}: ArrowRight did not move to the next project image\n${JSON.stringify({ candidate, state }, null, 2)}`);
+
+  await page.keyboard.press("ArrowLeft");
+  await page.waitForTimeout(120);
+  state = await lightboxState(page);
+  assert(state.imageSrc === candidate.first, `${label}: ArrowLeft did not return to the first project image\n${JSON.stringify({ candidate, state }, null, 2)}`);
+
+  await page.keyboard.press("ArrowLeft");
+  await page.waitForTimeout(120);
+  state = await lightboxState(page);
+  assert(state.imageSrc === candidate.last, `${label}: ArrowLeft did not wrap from first to last\n${JSON.stringify({ candidate, state }, null, 2)}`);
+
+  if (touch) {
+    await closeLightbox(page);
+    await openSource(page, "[data-smoke-lightbox-navigation]", `${label}: touch source opens`);
+    await page.locator(".media-lightbox__figure").dispatchEvent("pointerdown", {
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 320,
+      clientY: 220,
+    });
+    await page.locator(".media-lightbox__figure").dispatchEvent("pointerup", {
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 120,
+      clientY: 220,
+    });
+    await page.waitForTimeout(120);
+    state = await lightboxState(page);
+    assert(state.imageSrc === candidate.second, `${label}: touch swipe did not move to the next project image\n${JSON.stringify({ candidate, state }, null, 2)}`);
+  }
+
+  await closeLightbox(page);
+}
+
+async function verifyLightboxBackdropClose(page, label) {
+  const found = await selectLightboxCandidate(page, "[data-lightbox-source]", "data-smoke-lightbox-backdrop");
+  if (!found) return;
+
+  await openSource(page, "[data-smoke-lightbox-backdrop]", `${label}: backdrop source opens`);
+  await page.evaluate(() => {
+    const dialog = document.querySelector("[data-media-lightbox]");
+    dialog?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  await page.waitForTimeout(120);
+  await assertLightboxClosed(page, `${label}: backdrop click closes lightbox`);
+}
+
+async function verifyLightboxSupplementalCaption(page, label) {
+  const expected = await page.evaluate(() => {
+    document.querySelectorAll("[data-smoke-lightbox-supplemental]").forEach((node) => {
+      node.removeAttribute("data-smoke-lightbox-supplemental");
+    });
+
+    const copy = [...document.querySelectorAll("[data-lightbox-caption-copy]")]
+      .find((node) => node instanceof HTMLElement && !node.closest("[hidden]"));
+    const figure = copy?.closest("figure");
+    const source = figure?.querySelector("[data-lightbox-source]");
+
+    if (!(copy instanceof HTMLElement) || !(source instanceof HTMLElement)) return "";
+
+    source.setAttribute("data-smoke-lightbox-supplemental", "");
+    return copy.textContent?.replace(/\s+/g, " ").trim() || "";
+  });
+
+  if (!expected) return;
+
+  const state = await openSource(page, "[data-smoke-lightbox-supplemental]", `${label}: supplemental caption source opens`);
+  assert(
+    state.captionText.includes(expected),
+    `${label}: supplemental caption was not appended to lightbox caption\n${JSON.stringify({ expected, state }, null, 2)}`,
+  );
+  await closeLightbox(page);
+}
+
+async function verifyLightboxActiveDeckSlide(page, label) {
+  const expected = await page.evaluate(() => {
+    const mediaFor = (source) =>
+      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video, img, video");
+    const mediaUrl = (media) => {
+      if (media instanceof HTMLImageElement) return media.currentSrc || media.src || "";
+      if (media instanceof HTMLVideoElement) {
+        return media.currentSrc || media.src || media.querySelector("source[src]")?.getAttribute("src") || "";
+      }
+      return "";
+    };
+
+    document.querySelectorAll("[data-smoke-lightbox-deck]").forEach((node) => {
+      node.removeAttribute("data-smoke-lightbox-deck");
+    });
+
+    const deck = [...document.querySelectorAll("[data-media-deck]")]
+      .find((candidate) => {
+        if (!(candidate instanceof HTMLElement) || candidate.closest("[hidden]")) return false;
+        return Boolean(candidate.querySelector("[data-lightbox-source]") && candidate.querySelector("[data-deck-next]"));
+      });
+
+    const source = deck?.querySelector("[data-lightbox-source]");
+    const next = deck?.querySelector("[data-deck-next]");
+
+    if (!(deck instanceof HTMLElement) || !(source instanceof HTMLElement) || !(next instanceof HTMLButtonElement)) {
+      return null;
+    }
+
+    deck.scrollIntoView({ block: "center" });
+    return true;
+  });
+
+  if (!expected) return;
+
+  await page.locator("[data-media-deck]:has([data-lightbox-source]):has([data-deck-next])").first().scrollIntoViewIfNeeded();
+  await page.locator("[data-media-deck]:has([data-lightbox-source]):has([data-deck-next]) [data-deck-next]").first().click({ force: true });
+  await page.waitForTimeout(300);
+
+  const active = await page.evaluate(() => {
+    const mediaFor = (source) =>
+      source.querySelector("[data-slide][data-active] img, [data-slide][data-active] video, img, video");
+    const mediaUrl = (media) => {
+      if (media instanceof HTMLImageElement) return media.currentSrc || media.src || "";
+      if (media instanceof HTMLVideoElement) {
+        return media.currentSrc || media.src || media.querySelector("source[src]")?.getAttribute("src") || "";
+      }
+      return "";
+    };
+
+    const deck = [...document.querySelectorAll("[data-media-deck]")]
+      .find((candidate) => {
+        if (!(candidate instanceof HTMLElement) || candidate.closest("[hidden]")) return false;
+        return Boolean(candidate.querySelector("[data-lightbox-source]") && candidate.querySelector("[data-deck-next]"));
+      });
+    const source = deck?.querySelector("[data-lightbox-source]");
+    const caption = deck?.querySelector("[data-slide-caption][data-active]");
+
+    if (!(source instanceof HTMLElement)) return null;
+
+    source.setAttribute("data-smoke-lightbox-deck", "");
+
+    return {
+      url: mediaUrl(mediaFor(source)),
+      caption: caption instanceof HTMLElement ? caption.textContent?.replace(/\s+/g, " ").trim() || "" : "",
+    };
+  });
+
+  if (!active?.url) return;
+
+  const state = await openSource(page, "[data-smoke-lightbox-deck]", `${label}: active deck source opens`);
+  assert(
+    state.imageSrc === active.url || state.videoSrc === active.url,
+    `${label}: active deck slide did not open in lightbox\n${JSON.stringify({ active, state }, null, 2)}`,
+  );
+
+  if (active.caption) {
+    assert(
+      state.captionText.includes(active.caption),
+      `${label}: active deck caption did not open in lightbox\n${JSON.stringify({ active, state }, null, 2)}`,
+    );
+  }
+
+  await closeLightbox(page);
+}
+
+async function verifyLightboxVideo(page, label) {
+  const expected = await page.evaluate(async () => {
+    const mediaFor = (source) =>
+      source.querySelector("[data-slide][data-active] video, video");
+    const mediaUrl = (media) =>
+      media instanceof HTMLVideoElement
+        ? media.currentSrc || media.src || media.querySelector("source[src]")?.getAttribute("src") || ""
+        : "";
+
+    document.querySelectorAll("[data-smoke-lightbox-video]").forEach((node) => {
+      node.removeAttribute("data-smoke-lightbox-video");
+    });
+
+    const source = [...document.querySelectorAll("[data-lightbox-source]")]
+      .find((candidate) => {
+        if (!(candidate instanceof HTMLElement) || candidate.closest("[hidden]")) return false;
+        return mediaFor(candidate) instanceof HTMLVideoElement;
+      });
+
+    if (!(source instanceof HTMLElement)) return null;
+
+    const video = mediaFor(source);
+    if (!(video instanceof HTMLVideoElement)) return null;
+
+    source.setAttribute("data-smoke-lightbox-video", "");
+    video.preload = "metadata";
+    video.load();
+
+    if (video.readyState < HTMLMediaElement.HAVE_METADATA) {
+      await new Promise((resolve) => {
+        const done = () => {
+          video.removeEventListener("loadedmetadata", done);
+          video.removeEventListener("error", done);
+          resolve(null);
+        };
+
+        video.addEventListener("loadedmetadata", done, { once: true });
+        video.addEventListener("error", done, { once: true });
+        setTimeout(done, 3000);
+      });
+    }
+
+    const resumeAt = Number.isFinite(video.duration) && video.duration > 0.6 ? 0.25 : 0;
+
+    try {
+      video.currentTime = resumeAt;
+    } catch {
+      // Some browsers reject setting currentTime on media without seekable data.
+    }
+
+    return {
+      src: mediaUrl(video),
+      poster: video.poster || "",
+      loop: video.loop,
+      resumeAt,
+    };
+  });
+
+  if (!expected?.src) return;
+
+  let state = await openSource(page, "[data-smoke-lightbox-video]", `${label}: video source opens`);
+  assert(state.videoSrc === expected.src, `${label}: lightbox video src did not match source video\n${JSON.stringify({ expected, state }, null, 2)}`);
+  assert(state.videoControls, `${label}: lightbox video controls are not visible\n${JSON.stringify(state, null, 2)}`);
+  assert(state.videoMuted === false, `${label}: lightbox video should be unmuted\n${JSON.stringify(state, null, 2)}`);
+  assert(state.videoPoster === expected.poster, `${label}: lightbox video poster was not preserved\n${JSON.stringify({ expected, state }, null, 2)}`);
+  assert(
+    Math.abs(state.videoCurrentTime - expected.resumeAt) < 0.35,
+    `${label}: lightbox video did not preserve currentTime approximately\n${JSON.stringify({ expected, state }, null, 2)}`,
+  );
+
+  await page.keyboard.press("ArrowRight");
+  await page.waitForTimeout(160);
+  state = await lightboxState(page);
+  assert(
+    state.videoHidden || state.videoSrc !== expected.src,
+    `${label}: moving away from a video slide did not deactivate the lightbox video\n${JSON.stringify({ expected, state }, null, 2)}`,
+  );
+
+  await closeLightbox(page);
+  state = await lightboxState(page);
+  assert(
+    state.videoPaused && state.videoHidden && !state.videoAttributeSrc,
+    `${label}: closing lightbox did not pause and clear the video\n${JSON.stringify(state, null, 2)}`,
+  );
+}
+
+async function verifyLightbox(page, label, { touch = false, advanced = false } = {}) {
+  const source = page.locator("[data-lightbox-source]:visible").first();
+  if (!(await source.count())) return;
+
+  await openSource(page, "[data-lightbox-source]:visible", `${label}: click opens lightbox`);
+  await closeLightbox(page);
+  await assertLightboxClosed(page, `${label}: close button closes lightbox`);
+
+  if (!advanced) {
+    return;
+  }
+
+  await verifyLightboxKeyboardAndFocus(page, label);
+  await verifyLightboxNavigationAndTouch(page, label, { touch });
+  await verifyLightboxBackdropClose(page, label);
+  await verifyLightboxSupplementalCaption(page, label);
+  await verifyLightboxActiveDeckSlide(page, label);
+  await verifyLightboxVideo(page, label);
 }
 
 async function verifyNoVisibleRevealTargetsHidden(page, label) {
@@ -555,6 +1024,7 @@ async function auditViewport(browser, viewport) {
     hasTouch: viewport.mobile,
     deviceScaleFactor: 1,
   });
+  await routeExternalRuntimeFixtures(context);
   const page = await context.newPage();
   const errors = [];
   const warnings = [];
@@ -608,7 +1078,10 @@ async function auditViewport(browser, viewport) {
     await verifyImages(page, label);
     await verifyVideos(page, label);
     await verifyCanvasHosts(page, label);
-    await verifyLightbox(page, label);
+    await verifyLightbox(page, label, {
+      touch: viewport.mobile,
+      advanced: viewport.label === "phone-portrait" || viewport.label === "desktop",
+    });
 
     const duplicateLoads = await collectDuplicateMediaLoads(page);
     if (duplicateLoads.length) {
@@ -628,6 +1101,7 @@ async function auditDeepReloadAndHistory(browser) {
     viewport: { width: 1280, height: 800 },
     deviceScaleFactor: 1,
   });
+  await routeExternalRuntimeFixtures(context);
   const page = await context.newPage();
 
   try {
@@ -666,6 +1140,7 @@ async function auditReducedMotion(browser) {
     deviceScaleFactor: 1,
     reducedMotion: "reduce",
   });
+  await routeExternalRuntimeFixtures(context);
   const page = await context.newPage();
 
   try {
