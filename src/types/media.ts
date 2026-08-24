@@ -43,6 +43,7 @@ export type MediaAsset = ImageMedia | VideoMedia;
    ================================================== */
 
 export interface MediaCaptionData {
+  /** @deprecated Display numbering is derived from DOM order inside `.project__section`. */
   index?: number;
   title?: string;
   text?: string;

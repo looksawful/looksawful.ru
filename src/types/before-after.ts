@@ -7,6 +7,7 @@ export interface BeforeAfterSideData<EntryId extends string = string> {
 }
 
 export interface BeforeAfterCaptionData {
+  /** @deprecated Display numbering is derived from DOM order inside `.project__section`. */
   index?: number;
   title: string;
   text?: string;

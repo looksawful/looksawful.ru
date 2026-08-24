@@ -2,6 +2,7 @@ export type MediaLoading = "eager" | "lazy";
 
 export type MediaCaptionView = "full" | "summary" | "overlay" | "lightbox-only";
 
+/** `index` is a legacy authored selector retained for compatibility; renderers ignore it. */
 export type MediaCaptionField = "index" | "title" | "text" | "meta";
 
 export type MediaPresentation = "banner";
