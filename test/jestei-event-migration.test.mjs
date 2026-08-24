@@ -23,10 +23,8 @@ test("Jestei Event is typed content and uses registry-backed Moves Awful media",
   assert.doesNotMatch(html, /shared\/moves-awful/);
 
   assert.match(html, /data-lightbox-caption-copy[^>]*>\s*Для лендинга мы начали активно использовать canvas-анимации/);
-  assert.match(html, /<span class="media__index">35<\/span>/);
-  assert.match(html, /<span class="media__index">12<\/span>/);
-  assert.match(html, /<span class="media__index">13<\/span>/);
-  assert.match(html, /<span class="media__index">14<\/span>/);
+  assert.equal((html.match(/class="media__caption-line"/g) ?? []).length, 4);
+  assert.doesNotMatch(html, /class="media__index"/);
 });
 
 test("raw index has one Jestei Event slot and no direct project media after migration", async () => {
