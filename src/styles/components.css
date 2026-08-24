@@ -172,10 +172,17 @@
 }
 
 .project-card__media {
+  --radius-max: var(--radius-poster);
+
   display: grid;
   min-inline-size: 0;
   overflow: hidden;
   aspect-ratio: 790 / 680;
+  border-radius: clamp(
+    0px,
+    calc((100vw - var(--radius-edge-offset) - 100%) * 9999),
+    var(--radius-max)
+  );
   background: var(--clr-surface-raised);
 }
 
@@ -197,7 +204,7 @@
   min-block-size: clamp(4.25rem, 5.2cqi, 5.75rem);
   padding: var(--project-card-caption-padding);
   color: var(--clr-text-muted);
-  background: var(--clr-surface);
+  background: var(--clr-surface-page);
   font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
   font-weight: var(--fw-400);
   line-height: 1.36;
@@ -1060,9 +1067,16 @@
 }
 
 .brand-system__surface {
+  --radius-max: var(--radius-contained);
+
   position: relative;
   inline-size: 100%;
   aspect-ratio: var(--brand-system-surface-ratio);
+  border-radius: clamp(
+    0px,
+    calc((100vw - var(--radius-edge-offset) - 100%) * 9999),
+    var(--radius-max)
+  );
   background: var(--surface-bg, #000);
 }
 
@@ -1070,11 +1084,16 @@
   --surface-bg: #fff;
 }
 
+.brand-system__surface > picture {
+  border-radius: inherit;
+}
+
 .brand-system__surface > :is(img, video),
 .brand-system__surface > picture > img {
   inline-size: 100%;
   block-size: 100%;
   max-inline-size: none;
+  border-radius: inherit;
   object-fit: var(--object-fit, cover);
   object-position: var(--object-position, center);
 }
@@ -1130,6 +1149,19 @@
 .media-group.jestei-interface-group,
 .media-group.jestei-event-group {
   --group-compact-item-size: min(86cqi, 36rem);
+}
+
+:is(
+  .jestei-interface-group,
+  .jestei-event-group
+) .media__surface {
+  --radius-max: var(--radius-contained);
+
+  border-radius: clamp(
+    0px,
+    calc((100vw - var(--radius-edge-offset) - 100%) * 9999),
+    var(--radius-max)
+  );
 }
 
 .jestei-captioned-group .jestei-captioned-media > .media__surface {
@@ -1861,7 +1893,7 @@
 
     & .mockup__frame {
       padding-block-start: 2rem;
-      border-radius: var(--radius-200);
+      border-radius: var(--radius-shell);
     }
 
     & .mockup__frame::before {
@@ -1886,6 +1918,11 @@
         0.8rem 0 0 var(--mockup-detail),
         1.6rem 0 0 var(--mockup-detail);
     }
+  }
+
+  &[data-device="desktop"]:not([data-mockup-theme="dark"]) .mockup__frame {
+    background: var(--clr-surface-elevated);
+    box-shadow: var(--shadow-surface-elevated);
   }
 
   &[data-device="desktop"] .mockup__viewport {

@@ -10,18 +10,35 @@
 /* Every theme owns surface, foreground and accent. */
 
 :where(:root, [data-theme]) {
-  --clr-bg: var(--clr-surface);
+  --clr-surface-page: color-mix(
+    in srgb,
+    var(--clr-surface),
+    black 2.5%
+  );
+
+  --clr-surface-raised: var(--clr-surface);
+  --clr-surface-elevated: var(--clr-surface);
+
+  --clr-bg: var(--clr-surface-page);
   --clr-text: var(--clr-foreground);
 
-  --clr-surface-raised: color-mix(in srgb, var(--clr-surface), var(--clr-foreground) 4%);
+  --clr-text-muted: color-mix(
+    in srgb,
+    var(--clr-foreground),
+    transparent 38%
+  );
 
-  --clr-surface-muted: color-mix(in srgb, var(--clr-surface), var(--clr-foreground) 8%);
+  --clr-border: color-mix(
+    in srgb,
+    var(--clr-foreground),
+    transparent 80%
+  );
 
-  --clr-text-muted: color-mix(in srgb, var(--clr-foreground), transparent 38%);
-
-  --clr-border: color-mix(in srgb, var(--clr-foreground), transparent 80%);
-
-  --clr-border-strong: color-mix(in srgb, var(--clr-foreground), transparent 55%);
+  --clr-border-strong: color-mix(
+    in srgb,
+    var(--clr-foreground),
+    transparent 55%
+  );
 
   --clr-selection-bg: var(--clr-foreground);
   --clr-selection-text: var(--clr-surface);

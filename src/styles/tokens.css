@@ -69,6 +69,16 @@
   --radius-100: 0.5rem;
   --radius-200: 1rem;
 
+  --radius-editorial: 0;
+  --radius-poster: 0.5rem;
+  --radius-contained: 0.875rem;
+  --radius-shell: 1.25rem;
+  --radius-edge-offset: 1.25rem;
+
+  --shadow-surface-elevated:
+    0 1px 2px rgb(0 0 0 / 0.035),
+    0 10px 30px rgb(0 0 0 / 0.055);
+
   --border-width-100: 1px;
   --border-width-200: 2px;
 }

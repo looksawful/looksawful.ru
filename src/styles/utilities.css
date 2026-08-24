@@ -33,8 +33,10 @@
   background: currentColor;
 }
 
+.surface-raised,
 .surface-muted {
-  --surface-bg: var(--clr-surface-muted);
+  --surface-bg: var(--clr-surface-raised);
+  border-radius: var(--radius-contained);
 }
 
 .fit-contain {
