@@ -28,10 +28,6 @@ function renderSide(
 }
 
 function renderCaption(data: BeforeAfterData<MediaEntryId>): string {
-  const index =
-    typeof data.caption.index === "number"
-      ? `<span class="media__index">${String(data.caption.index).padStart(2, "0")}</span>`
-      : "";
   const text = data.caption.text
     ? `<span class="media__text">${escapeHtml(data.caption.text)}</span>`
     : "";
@@ -39,7 +35,6 @@ function renderCaption(data: BeforeAfterData<MediaEntryId>): string {
   return `
     <figcaption class="media__caption">
       <p class="media__caption-line">
-        ${index}
         <span class="media__title">${escapeHtml(data.caption.title)}</span>
         ${text}
       </p>

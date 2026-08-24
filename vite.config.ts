@@ -474,5 +474,13 @@ function siteTemplatesPlugin(): Plugin {
 }
 
 export default defineConfig({
+  css: {
+    lightningcss: {
+      drafts: {
+        scrollNavigationControls: true,
+      },
+    },
+  },
+
   plugins: [siteTemplatesPlugin()],
 });

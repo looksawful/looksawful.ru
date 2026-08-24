@@ -42,9 +42,6 @@ function renderSlideMedia(
 }
 
 function renderCaptionDataLine(caption: MediaCaptionData): string {
-  const index = typeof caption.index === "number"
-    ? `<span class="media__index">${String(caption.index).padStart(2, "0")}</span>`
-    : "";
   const title = caption.title
     ? `<span class="media__title">${escapeHtml(caption.title)}</span>`
     : "";
@@ -53,8 +50,8 @@ function renderCaptionDataLine(caption: MediaCaptionData): string {
     : "";
   const meta = caption.meta?.map((item) => `<span class="media__meta">${escapeHtml(item)}</span>`).join("") ?? "";
 
-  if (!index && !title && !text && !meta) return "";
-  return `<p class="media__caption-line">${index}${title}${text}${meta}</p>`;
+  if (!title && !text && !meta) return "";
+  return `<p class="media__caption-line">${title}${text}${meta}</p>`;
 }
 
 function renderSlideCaptionLine(slide: MockupDeckSlideData<MediaEntryId>): string {

@@ -143,11 +143,6 @@ export function renderMediaCaptionLine(
 
   const includes = (field: MediaCaptionField): boolean => !fields || fields.includes(field);
 
-  const index =
-    includes("index") && typeof caption.index === "number"
-      ? `<span class="media__index">${String(caption.index).padStart(2, "0")}</span>`
-      : "";
-
   const title = includes("title") && caption.title
     ? `<span class="media__title">${escapeHtml(caption.title)}</span>`
     : "";
@@ -162,13 +157,12 @@ export function renderMediaCaptionLine(
       "")
     : "";
 
-  if (!index && !title && !text && !meta) {
+  if (!title && !text && !meta) {
     return "";
   }
 
   return `
       <p class="media__caption-line">
-        ${index}
         ${title}
         ${text}
         ${meta}
