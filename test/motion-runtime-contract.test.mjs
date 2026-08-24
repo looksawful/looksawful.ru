@@ -23,6 +23,11 @@ test("strict motion runtime is isolated from site interaction code", async () =>
   assert.equal(motion.match(/new IntersectionObserver/g)?.length, 2);
   assert.match(motion, /Map<HTMLElement, Map<RevealKind, HTMLElement\[\]>>/);
   assert.match(motion, /REVEAL_RAIL_ATTRIBUTE/);
+  assert.match(
+    motion,
+    /if \(!kind \|\| isElementInViewport\(target\) \|\| activeRevealRailFor\(target\)\) \{/,
+    "active horizontal rails must relinquish ownership before offscreen children receive hidden reveal state",
+  );
   assert.match(motion, /CLEAR_REVEAL_PROPS\s*=\s*"opacity,visibility,transform,translate,scale"/);
 
   assert.doesNotMatch(
@@ -69,6 +74,9 @@ test("motion CSS owns first-paint hero entrance in the motion cascade layer", as
   assert.match(indexCss, /@import "\.\/motion\.css"\s+layer\(motion\);/);
 
   assert.match(motionCss, /@starting-style/);
+  assert.match(motionCss, /transition-delay:\s*70ms/);
+  assert.match(motionCss, /transition-delay:\s*140ms/);
+  assert.doesNotMatch(motionCss, /animation-delay:\s*(?:70|140)ms/);
   assert.doesNotMatch(motionCss, /@keyframes hero-text-enter|project-card__media img/);
 
   assert.doesNotMatch(componentsCss, /transform:\s*scale\(1\.025\)/);
