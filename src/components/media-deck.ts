@@ -1,15 +1,35 @@
-const pad = (value) => String(value).padStart(2, "0");
-const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-const noop = () => {};
+import {
+  createEmblaDeck,
+  type EmblaDeckController,
+} from "./embla-deck.ts";
+
+const pad = (value: number): string => String(value).padStart(2, "0");
+const clamp = (value: number, min: number, max: number): number =>
+  Math.min(max, Math.max(min, value));
+const noop = (): void => {};
 const VIEWPORT_MARGIN = "50% 0px";
 
-function fitContent(root) {
+type MotionState = { allowed: boolean };
+type MotionController = {
+  allowsMotion?: () => boolean;
+  subscribe?: (callback: (state: MotionState) => void) => () => void;
+};
+
+type CreateMediaDeckOptions = {
+  motion?: MotionController;
+};
+
+type CreateMediaDecksOptions = CreateMediaDeckOptions & {
+  root?: ParentNode;
+};
+
+function fitContent(root: HTMLElement): void {
   const grid = root.dataset.deckView === "grid";
   const maxHeight = grid ? 360 : 620;
 
-  root.querySelectorAll("[data-deck-fit-viewport]").forEach((viewport) => {
-    const fit = viewport.querySelector("[data-deck-fit]");
-    if (!(viewport instanceof HTMLElement) || !(fit instanceof HTMLElement)) return;
+  root.querySelectorAll<HTMLElement>("[data-deck-fit-viewport]").forEach((viewport) => {
+    const fit = viewport.querySelector<HTMLElement>("[data-deck-fit]");
+    if (!fit) return;
 
     fit.style.setProperty("--deck-fit-scale", "1");
     viewport.style.setProperty("--deck-fit-height", "auto");
@@ -24,27 +44,31 @@ function fitContent(root) {
   });
 }
 
-export function createMediaDeck(root, { motion } = {}) {
+export function createMediaDeck(
+  root: Element,
+  { motion }: CreateMediaDeckOptions = {},
+): () => void {
   if (!(root instanceof HTMLElement)) return noop;
 
-  const slides = [...root.querySelectorAll("[data-slide]")];
+  const slides = [...root.querySelectorAll<HTMLElement>("[data-slide]")];
   if (slides.length < 2) return noop;
 
-  const captions = [...root.querySelectorAll("[data-slide-caption]")];
-  const prev = root.querySelector("[data-deck-prev]");
-  const next = root.querySelector("[data-deck-next]");
-  const count = root.querySelector("[data-deck-count]");
-  const gridButton = root.querySelector("[data-deck-toggle-grid]");
-  const dots = [...root.querySelectorAll("[data-deck-dot]")];
-  const track = root.querySelector("[data-deck-track]");
-  const richTrack = track instanceof HTMLElement;
+  const captions = [...root.querySelectorAll<HTMLElement>("[data-slide-caption]")];
+  const prev = root.querySelector<HTMLElement>("[data-deck-prev]");
+  const next = root.querySelector<HTMLElement>("[data-deck-next]");
+  const count = root.querySelector<HTMLElement>("[data-deck-count]");
+  const gridButton = root.querySelector<HTMLElement>("[data-deck-toggle-grid]");
+  const dots = [...root.querySelectorAll<HTMLElement>("[data-deck-dot]")];
+  const track = root.querySelector<HTMLElement>("[data-deck-track]");
+  const viewport = track?.closest<HTMLElement>("[data-deck-viewport]") || null;
+  const richTrack = track instanceof HTMLElement && viewport instanceof HTMLElement;
   const interval = Number(root.dataset.deckInterval) || 5000;
   const autoplayMode = root.dataset.deckAutoplay || "forward";
   const autoplay = autoplayMode !== "off";
   const pingPong = autoplayMode === "ping-pong";
   const advanceOnEnded = root.hasAttribute("data-deck-advance-on-ended");
   const deckVideos = slides.flatMap((slide) =>
-    [...slide.querySelectorAll("video")].filter((video) => video instanceof HTMLVideoElement),
+    [...slide.querySelectorAll<HTMLVideoElement>("video")],
   );
 
   let index = Math.max(
@@ -54,26 +78,25 @@ export function createMediaDeck(root, { motion } = {}) {
   let direction = 1;
   let timer = 0;
   let updateFrame = 0;
-  let pointerStart = null;
-  let pointerScrollStart = 0;
-  let dragging = false;
+  let pointerStart: number | null = null;
   let allowed = motion?.allowsMotion?.() ?? true;
   let nearViewport = typeof IntersectionObserver !== "function";
   let playbackIndex = -1;
+  let emblaDeck: EmblaDeckController | null = null;
 
-  const isGrid = () => root.dataset.deckView === "grid";
-  const isActive = () => allowed && nearViewport && !document.hidden;
+  const isGrid = (): boolean => root.dataset.deckView === "grid";
+  const isActive = (): boolean => allowed && nearViewport && !document.hidden;
 
-  const stopTimer = () => {
+  const stopTimer = (): void => {
     window.clearTimeout(timer);
     timer = 0;
   };
 
-  const pauseVideos = () => {
+  const pauseVideos = (): void => {
     deckVideos.forEach((video) => video.pause());
   };
 
-  const updateDots = () => {
+  const updateDots = (): void => {
     dots.forEach((dot, dotIndex) => {
       const current = dotIndex === index;
       dot.toggleAttribute("data-active", current);
@@ -81,7 +104,7 @@ export function createMediaDeck(root, { motion } = {}) {
     });
   };
 
-  const updateStack = () => {
+  const updateStack = (): void => {
     slides.forEach((slide, slideIndex) => {
       const active = slideIndex === index;
       slide.toggleAttribute("data-active", active);
@@ -95,7 +118,7 @@ export function createMediaDeck(root, { motion } = {}) {
     });
   };
 
-  const syncVideoPlayback = () => {
+  const syncVideoPlayback = (): void => {
     if (!isActive() || isGrid()) {
       pauseVideos();
       return;
@@ -103,11 +126,9 @@ export function createMediaDeck(root, { motion } = {}) {
 
     if (advanceOnEnded && !richTrack) {
       slides.forEach((slide, slideIndex) => {
-        const videos = [...slide.querySelectorAll("video")];
+        const videos = [...slide.querySelectorAll<HTMLVideoElement>("video")];
 
         videos.forEach((video) => {
-          if (!(video instanceof HTMLVideoElement)) return;
-
           video.muted = true;
           video.playsInline = true;
 
@@ -122,7 +143,7 @@ export function createMediaDeck(root, { motion } = {}) {
             playbackIndex = index;
           }
 
-          video.play().catch(() => {});
+          void video.play().catch(() => {});
         });
       });
 
@@ -141,41 +162,36 @@ export function createMediaDeck(root, { motion } = {}) {
         (slide instanceof HTMLElement && slides[index] === slide);
 
       if (shouldPlay) {
-        if (video.paused) video.play().catch(() => {});
+        if (video.paused) void video.play().catch(() => {});
       } else if (!video.paused) {
         video.pause();
       }
     });
   };
 
-  const slideLeft = (slideIndex) => {
-    if (!richTrack) return 0;
-
-    const slide = slides[slideIndex];
-    if (!(slide instanceof HTMLElement)) return 0;
-
-    const trackRect = track.getBoundingClientRect();
-    const slideRect = slide.getBoundingClientRect();
-
-    return track.scrollLeft + slideRect.left - trackRect.left;
+  const scrollToIndex = (jump = !allowed): void => {
+    if (!emblaDeck || isGrid()) return;
+    emblaDeck.scrollToIndex(index, jump);
   };
 
-  const scrollToIndex = (behavior = allowed ? "smooth" : "auto") => {
-    if (!richTrack || isGrid()) return;
-    track.scrollTo({ left: slideLeft(index), behavior });
-  };
-
-  const refreshLayout = ({ alignTrack = true } = {}) => {
+  const refreshLayout = ({ alignTrack = true } = {}): void => {
     if (!nearViewport) return;
 
     fitContent(root);
 
-    if (alignTrack && richTrack && !isGrid()) {
-      scrollToIndex("auto");
+    if (emblaDeck) {
+      emblaDeck.reInit({
+        active: !isGrid(),
+        startIndex: index,
+      });
+    }
+
+    if (alignTrack && emblaDeck && !isGrid()) {
+      scrollToIndex(true);
     }
   };
 
-  const schedulePostUpdate = () => {
+  const schedulePostUpdate = (): void => {
     if (updateFrame) cancelAnimationFrame(updateFrame);
 
     updateFrame = requestAnimationFrame(() => {
@@ -186,7 +202,7 @@ export function createMediaDeck(root, { motion } = {}) {
     });
   };
 
-  const update = ({ scroll = true } = {}) => {
+  const update = ({ scroll = true } = {}): void => {
     if (!richTrack) updateStack();
     if (count) count.textContent = `${pad(index + 1)} / ${pad(slides.length)}`;
 
@@ -196,7 +212,7 @@ export function createMediaDeck(root, { motion } = {}) {
     schedulePostUpdate();
   };
 
-  const nextIndex = (step = 1) => {
+  const nextIndex = (step = 1): number => {
     if (pingPong) {
       if (index >= slides.length - 1) direction = -1;
       if (index <= 0) direction = 1;
@@ -207,10 +223,10 @@ export function createMediaDeck(root, { motion } = {}) {
     return (index + step + slides.length) % slides.length;
   };
 
-  const activeSlideHasVideo = () =>
+  const activeSlideHasVideo = (): boolean =>
     advanceOnEnded && slides[index]?.querySelector("video") instanceof HTMLVideoElement;
 
-  const schedule = () => {
+  const schedule = (): void => {
     stopTimer();
 
     if (!autoplay || !isActive() || isGrid()) return;
@@ -224,7 +240,7 @@ export function createMediaDeck(root, { motion } = {}) {
     }, interval);
   };
 
-  const syncActivity = ({ refresh = false } = {}) => {
+  const syncActivity = ({ refresh = false } = {}): void => {
     if (!isActive()) {
       stopTimer();
       pauseVideos();
@@ -237,7 +253,7 @@ export function createMediaDeck(root, { motion } = {}) {
     schedule();
   };
 
-  const goTo = (nextIndexValue, { restart = true } = {}) => {
+  const goTo = (nextIndexValue: number, { restart = true } = {}): void => {
     if (isGrid()) return;
 
     index = richTrack
@@ -249,10 +265,10 @@ export function createMediaDeck(root, { motion } = {}) {
     if (restart) schedule();
   };
 
-  const handleVideoEnded = (event) => {
+  const handleVideoEnded = (event: Event): void => {
     if (!advanceOnEnded || isGrid() || !isActive()) return;
 
-    const slideIndex = slides.findIndex((slide) => slide.contains(event.currentTarget));
+    const slideIndex = slides.findIndex((slide) => slide.contains(event.currentTarget as Node));
     if (slideIndex !== index) return;
 
     playbackIndex = -1;
@@ -266,74 +282,30 @@ export function createMediaDeck(root, { motion } = {}) {
     });
   }
 
-  const closestTrackSlide = () => {
-    if (!richTrack) return index;
+  const handlePrev = (): void => goTo(index - 1);
+  const handleNext = (): void => goTo(index + 1);
 
-    const left = track.getBoundingClientRect().left;
-    let closest = index;
-    let distance = Number.POSITIVE_INFINITY;
-
-    slides.forEach((slide, slideIndex) => {
-      const nextDistance = Math.abs(slide.getBoundingClientRect().left - left);
-
-      if (nextDistance < distance) {
-        distance = nextDistance;
-        closest = slideIndex;
-      }
-    });
-
-    return closest;
-  };
-
-  const handlePrev = () => goTo(index - 1);
-  const handleNext = () => goTo(index + 1);
-
-  const handlePointerDown = (event) => {
+  const handlePointerDown = (event: PointerEvent): void => {
     if (isGrid()) return;
 
     pointerStart = event.clientX;
-
-    if (richTrack) {
-      dragging = true;
-      pointerScrollStart = track.scrollLeft;
-      track.setPointerCapture?.(event.pointerId);
-      root.toggleAttribute("data-deck-dragging", true);
-    }
-
     stopTimer();
   };
 
-  const handlePointerMove = (event) => {
-    if (!richTrack || !dragging || pointerStart === null) return;
-    track.scrollLeft = pointerScrollStart - (event.clientX - pointerStart);
-  };
-
-  const handlePointerUp = (event) => {
+  const handlePointerUp = (event: PointerEvent): void => {
     if (pointerStart === null) return;
 
     const delta = event.clientX - pointerStart;
     pointerStart = null;
 
-    if (richTrack) {
-      dragging = false;
-      root.removeAttribute("data-deck-dragging");
-      track.releasePointerCapture?.(event.pointerId);
-
-      index = closestTrackSlide();
-
-      if (Math.abs(delta) > 36) {
-        index = clamp(index + (delta < 0 ? 1 : -1), 0, slides.length - 1);
-      }
-
-      update();
-    } else if (Math.abs(delta) > 40) {
+    if (Math.abs(delta) > 40) {
       goTo(index + (delta < 0 ? 1 : -1), { restart: false });
     }
 
     schedule();
   };
 
-  const toggleGrid = () => {
+  const toggleGrid = (): void => {
     const grid = !isGrid();
 
     root.dataset.deckView = grid ? "grid" : "slider";
@@ -349,17 +321,40 @@ export function createMediaDeck(root, { motion } = {}) {
   gridButton?.addEventListener("click", toggleGrid);
 
   const dotHandlers = dots.map((dot, dotIndex) => {
-    const handler = () => goTo(dotIndex);
+    const handler = (): void => goTo(dotIndex);
     dot.addEventListener("click", handler);
-    return [dot, handler];
+    return [dot, handler] as const;
   });
 
-  const pointerHost = richTrack ? track : root;
+  const pointerHost = richTrack ? null : root;
 
-  pointerHost.addEventListener("pointerdown", handlePointerDown);
-  pointerHost.addEventListener("pointermove", handlePointerMove);
-  pointerHost.addEventListener("pointerup", handlePointerUp);
-  pointerHost.addEventListener("pointercancel", handlePointerUp);
+  pointerHost?.addEventListener("pointerdown", handlePointerDown);
+  pointerHost?.addEventListener("pointerup", handlePointerUp);
+  pointerHost?.addEventListener("pointercancel", handlePointerUp);
+
+  if (richTrack && viewport) {
+    emblaDeck = createEmblaDeck({
+      viewport,
+      active: !isGrid(),
+      startIndex: index,
+      onPointerDown: () => {
+        if (isGrid()) return;
+        root.toggleAttribute("data-deck-dragging", true);
+        stopTimer();
+      },
+      onPointerUp: () => {
+        root.removeAttribute("data-deck-dragging");
+        schedule();
+      },
+      onSelect: (selectedIndex) => {
+        if (isGrid() || selectedIndex === index) return;
+
+        index = selectedIndex;
+        update({ scroll: false });
+        schedule();
+      },
+    });
+  }
 
   const intersectionObserver =
     typeof IntersectionObserver === "function"
@@ -381,7 +376,7 @@ export function createMediaDeck(root, { motion } = {}) {
 
   intersectionObserver?.observe(root);
 
-  const handleVisibility = () => {
+  const handleVisibility = (): void => {
     syncActivity({ refresh: !document.hidden });
   };
 
@@ -423,10 +418,9 @@ export function createMediaDeck(root, { motion } = {}) {
       dot.removeEventListener("click", handler);
     });
 
-    pointerHost.removeEventListener("pointerdown", handlePointerDown);
-    pointerHost.removeEventListener("pointermove", handlePointerMove);
-    pointerHost.removeEventListener("pointerup", handlePointerUp);
-    pointerHost.removeEventListener("pointercancel", handlePointerUp);
+    pointerHost?.removeEventListener("pointerdown", handlePointerDown);
+    pointerHost?.removeEventListener("pointerup", handlePointerUp);
+    pointerHost?.removeEventListener("pointercancel", handlePointerUp);
 
     document.removeEventListener("visibilitychange", handleVisibility);
 
@@ -437,13 +431,16 @@ export function createMediaDeck(root, { motion } = {}) {
     }
 
     pauseVideos();
+    emblaDeck?.destroy();
     intersectionObserver?.disconnect();
     resizeObserver?.disconnect();
     unsubscribe();
   };
 }
 
-export function createMediaDecks({ root = document, motion } = {}) {
+export function createMediaDecks(
+  { root = document, motion }: CreateMediaDecksOptions = {},
+): () => void {
   const destroys = [...root.querySelectorAll("[data-media-deck]")].map((deck) =>
     createMediaDeck(deck, { motion }),
   );
