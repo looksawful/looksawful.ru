@@ -11,6 +11,9 @@ import { createCodeBlocks } from "./components/code-block.ts";
 import { createPageFlips } from "./components/page-flip.ts";
 import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
 import { initSiteInteractive } from "./interactive.js";
+import {
+  initMotion,
+} from "./motion.ts";
 
 function initBeforeAfter(root) {
   const range = root.querySelector(".before-after__range");
@@ -82,7 +85,16 @@ const motion = createMotionPreference();
 const destroys = [];
 
 numberMediaCaptions(document);
-destroys.push(initSiteInteractive({ root: document, motion }));
+destroys.push(
+  initMotion({
+    root: document,
+  }),
+);
+destroys.push(
+  initSiteInteractive({
+    root: document,
+  }),
+);
 destroys.push(createMediaLightbox({ root: document }));
 destroys.push(createMediaDecks({ root: document, motion }));
 destroys.push(createInfiniteReels({ root: document, motion }));
@@ -96,7 +108,11 @@ document.querySelectorAll("[data-before-after]").forEach((root) => {
   destroys.push(initBeforeAfter(root));
 });
 
-window.addEventListener("pagehide", () => {
+window.addEventListener("pagehide", (event) => {
+  if (event.persisted) {
+    return;
+  }
+
   destroys.splice(0).reverse().forEach((destroy) => destroy?.());
   motion.destroy();
-}, { once: true });
+});

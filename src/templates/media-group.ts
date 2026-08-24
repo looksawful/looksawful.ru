@@ -20,9 +20,14 @@ import type {
 
 import type { MediaCaptionView, MediaFigureData } from "../types/media-presentation.ts";
 
+import { renderRevealAttribute, renderRevealGroupAttribute, renderRevealRailAttribute } from "../motion-contract.ts";
 import { escapeHtml } from "../utils/html.ts";
 
-import { renderMediaFigure, type MediaFigurePlacement } from "./media-figure.ts";
+import {
+  renderMediaFigure,
+  type MediaFigurePlacement,
+  type MediaFigureRevealPolicy,
+} from "./media-figure.ts";
 
 /* ==================================================
    Shared helpers
@@ -174,19 +179,19 @@ function renderLink(link: MediaGroupLinkData): string {
   return `<a href="${escapeHtml(link.href)}"${target}${rel}>${escapeHtml(link.label)}</a>`;
 }
 
-function renderNote(note: MediaGroupNoteData): string {
+function renderNote(note: MediaGroupNoteData, reveal: boolean): string {
   const className = note.kind === "editorial" ? "editorial-note" : "group-note";
 
   const link = note.link ? ` ${renderLink(note.link)}` : "";
 
   return `
-    <p class="${className}">
+    <p class="${className}"${renderRevealAttribute(reveal ? "copy" : false)}>
       ${escapeHtml(note.text)}${link}
     </p>
   `;
 }
 
-function renderGroupHead(head?: MediaGroupHeadData): string {
+function renderGroupHead(head?: MediaGroupHeadData, reveal = true): string {
   if (!head) {
     return "";
   }
@@ -197,7 +202,7 @@ function renderGroupHead(head?: MediaGroupHeadData): string {
 
   const creditsHtml = hasCredits
     ? `
-        <p class="credits">
+        <p class="credits"${renderRevealAttribute(reveal ? "copy" : false)}>
           ${
             credits?.title
               ? `<strong class="credits__title">${escapeHtml(credits.title)}</strong>`
@@ -213,7 +218,7 @@ function renderGroupHead(head?: MediaGroupHeadData): string {
       `
     : "";
 
-  const noteHtml = head.note ? renderNote(head.note) : "";
+  const noteHtml = head.note ? renderNote(head.note, reveal) : "";
 
   if (!creditsHtml && !noteHtml) {
     return "";
@@ -224,7 +229,7 @@ function renderGroupHead(head?: MediaGroupHeadData): string {
   const style = head.style ? ` style="${escapeHtml(head.style)}"` : "";
 
   return `
-    <header class="${escapeHtml(classes)}"${style}>
+    <header class="${escapeHtml(classes)}"${renderRevealGroupAttribute(reveal)}${style}>
       ${creditsHtml}
       ${noteHtml}
     </header>
@@ -335,6 +340,7 @@ function renderOverflowGridItems(data: OverflowReelGridMediaGroupData<MediaEntry
     .map((item) =>
       renderMediaFigure(toFigureData(item, data.captionView), {
         placement: gridPlacement(item),
+        reveal: false,
       }),
     )
     .join("\n");
@@ -367,8 +373,10 @@ function renderGridItems(data: GridMediaGroupData<MediaEntryId>): string {
    ================================================== */
 
 function renderStripItems(data: StripMediaGroupData<MediaEntryId>): string {
+  const reveal: MediaFigureRevealPolicy = data.infiniteReel ? false : "auto";
+
   return data.items
-    .map((item) => renderMediaFigure(toFigureData(item, data.captionView)))
+    .map((item) => renderMediaFigure(toFigureData(item, data.captionView), { reveal }))
     .join("\n");
 }
 
@@ -431,10 +439,15 @@ function renderSequenceItems(data: SequenceMediaGroupData<MediaEntryId>): string
     .filter(Boolean)
     .join(" ");
 
+  const middleMotion =
+    data.middleOverflow === "reel"
+      ? `${renderRevealGroupAttribute()}${renderRevealRailAttribute()}`
+      : "";
+
   return `
     ${leading}
 
-    <div class="${middleClasses}">
+    <div class="${middleClasses}"${middleMotion}>
       ${middle}
     </div>
 
@@ -494,6 +507,44 @@ function renderTrackAttribute(data: MediaGroupData<MediaEntryId>): string {
   return data.layout === "strip" && data.infiniteReel ? ` data-infinite-reel-track=""` : "";
 }
 
+function usesOuterRevealGroup(data: MediaGroupData<MediaEntryId>): boolean {
+  if (data.layout === "grid") {
+    return data.mode !== "overflow-reel";
+  }
+
+  if (data.layout === "strip") {
+    return !data.infiniteReel;
+  }
+
+  return true;
+}
+
+function usesOuterRevealRail(data: MediaGroupData<MediaEntryId>): boolean {
+  switch (data.layout) {
+    case "grid":
+      return data.mode === "overflow-reel" || data.mode === "compact-reel";
+
+    case "strip":
+      return !data.infiniteReel;
+
+    case "bento":
+      return true;
+
+    case "sequence":
+      return data.middleOverflow !== "reel";
+
+    case "masonry":
+    case "editorial":
+      return false;
+  }
+}
+
+function renderItemsMotionAttributes(data: MediaGroupData<MediaEntryId>): string {
+  return `${renderRevealGroupAttribute(usesOuterRevealGroup(data))}${renderRevealRailAttribute(
+    usesOuterRevealRail(data),
+  )}`;
+}
+
 /* ==================================================
    Media group
    ================================================== */
@@ -509,7 +560,7 @@ export function renderMediaGroup(data: MediaGroupData<MediaEntryId>): string {
 
   const style = renderGroupStyle(data);
 
-  const head = renderGroupHead(data.head);
+  const head = renderGroupHead(data.head, !(data.layout === "strip" && data.infiniteReel));
 
   const track = renderTrackAttribute(data);
 
@@ -523,7 +574,7 @@ export function renderMediaGroup(data: MediaGroupData<MediaEntryId>): string {
       ${head}
 
       <div
-        class="${escapeHtml(itemClasses)}"${track}
+        class="${escapeHtml(itemClasses)}"${renderItemsMotionAttributes(data)}${track}
       >
         ${renderItems(data)}
       </div>

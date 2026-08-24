@@ -1,4 +1,5 @@
 import type { ProjectCardData } from "../data/projects.ts";
+import { renderRevealAttribute } from "../motion-contract.ts";
 import { escapeHtml } from "../utils/html.ts";
 
 export function renderProjectCard(project: ProjectCardData): string {
@@ -18,6 +19,7 @@ export function renderProjectCard(project: ProjectCardData): string {
     <li>
       <a
         class="project-card"
+        ${renderRevealAttribute("card")}
         href="${escapeHtml(href)}"
         aria-label="${escapeHtml(ariaLabel)}"
       >

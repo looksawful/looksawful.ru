@@ -11,6 +11,7 @@ import type {
 
 import type { LogoFileData, LogoUsageData } from "../types/logo.ts";
 
+import { renderRevealAttribute, renderRevealGroupAttribute } from "../motion-contract.ts";
 import { escapeHtml } from "../utils/html.ts";
 
 function getLogoUsage(id: LogoUsageId): LogoUsageData<LogoFileId> {
@@ -56,10 +57,10 @@ function resolveLogoUsage(usageId: LogoUsageId): {
   };
 }
 
-function renderLogo(usageId: LogoUsageId): string {
+function renderLogo(usageId: LogoUsageId, attributes = ""): string {
   const logo = resolveLogoUsage(usageId);
 
-  return `<img src="${escapeHtml(logo.src)}" alt="${escapeHtml(logo.alt)}">`;
+  return `<img${attributes} src="${escapeHtml(logo.src)}" alt="${escapeHtml(logo.alt)}">`;
 }
 
 function renderHead(head?: ProjectIntroHeadData<LogoUsageId>): string {
@@ -68,16 +69,16 @@ function renderHead(head?: ProjectIntroHeadData<LogoUsageId>): string {
   }
 
   if (head.type === "text") {
-    return `<p class="project__name">${escapeHtml(head.text)}</p>`;
+    return `<p class="project__name"${renderRevealAttribute("copy")}>${escapeHtml(head.text)}</p>`;
   }
 
   const logo = renderLogo(head.logoUsageId);
 
   if (head.wrapper === "name") {
-    return `<p class="project__name">${logo}</p>`;
+    return `<p class="project__name"${renderRevealAttribute("copy")}>${logo}</p>`;
   }
 
-  return logo;
+  return renderLogo(head.logoUsageId, renderRevealAttribute("copy"));
 }
 
 function renderTitle(title: ProjectIntroTitleData<LogoUsageId>): string {
@@ -107,6 +108,7 @@ function renderLinks(data: ProjectIntroData<LogoUsageId>): string {
     <nav
       aria-label="${escapeHtml(label)}"
       class="project__links cluster"
+      ${renderRevealAttribute("copy")}
     >
       ${data.links.map(renderLink).join("\n")}
     </nav>
@@ -114,23 +116,23 @@ function renderLinks(data: ProjectIntroData<LogoUsageId>): string {
 }
 
 export function renderProjectIntro(data: ProjectIntroData<LogoUsageId>): string {
-  const role = data.role ? `<p class="project__role">${escapeHtml(data.role)}</p>` : "";
+  const role = data.role ? `<p class="project__role"${renderRevealAttribute("copy")}>${escapeHtml(data.role)}</p>` : "";
 
-  const period = data.period ? `<p class="project__period">${escapeHtml(data.period)}</p>` : "";
+  const period = data.period ? `<p class="project__period"${renderRevealAttribute("copy")}>${escapeHtml(data.period)}</p>` : "";
 
-  const summary = data.summary ? `<p class="project__summary">${escapeHtml(data.summary)}</p>` : "";
+  const summary = data.summary ? `<p class="project__summary"${renderRevealAttribute("copy")}>${escapeHtml(data.summary)}</p>` : "";
 
-  const lead = data.lead ? `<p class="project__lead">${escapeHtml(data.lead)}</p>` : "";
+  const lead = data.lead ? `<p class="project__lead"${renderRevealAttribute("copy")}>${escapeHtml(data.lead)}</p>` : "";
 
   return `
-    <div class="project__head">
+    <div class="project__head"${renderRevealGroupAttribute()}>
       ${renderHead(data.head)}
       ${role}
       ${period}
     </div>
 
-    <header class="project__intro wrapper prose editorial-grid">
-      <h2 class="project__title">
+    <header class="project__intro wrapper prose editorial-grid"${renderRevealGroupAttribute()}>
+      <h2 class="project__title"${renderRevealAttribute("copy")}>
         ${renderTitle(data.title)}
       </h2>
 

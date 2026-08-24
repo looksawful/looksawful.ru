@@ -10,6 +10,7 @@ import type {
   MediaVideoOptions,
 } from "../types/media-presentation.ts";
 
+import { renderRevealAttribute } from "../motion-contract.ts";
 import { escapeHtml } from "../utils/html.ts";
 import { renderResponsiveImageAttributes } from "./responsive-image.ts";
 
@@ -215,10 +216,14 @@ export type MediaFigurePlacement =
       rowSpan?: number;
     };
 
+export type MediaFigureRevealPolicy = "auto" | "media" | false;
+
 export interface RenderMediaFigureOptions {
   placement?: MediaFigurePlacement;
 
   mediaDimensions?: boolean;
+
+  reveal?: MediaFigureRevealPolicy;
 }
 
 function renderPlacementAttributes(placement?: MediaFigurePlacement): string {
@@ -309,6 +314,40 @@ function renderEmbeddedMediaDeck(
   `;
 }
 
+function isImageEntry(entryId: MediaEntryId): boolean {
+  const entry = getMediaEntry(entryId);
+  const asset = getMediaAsset(entry.assetId);
+
+  return asset.type === "image";
+}
+
+function resolveRevealKind(
+  data: MediaFigureData<MediaEntryId>,
+  options: RenderMediaFigureOptions,
+): "media" | false {
+  const policy = options.reveal ?? "auto";
+
+  if (policy === false) {
+    return false;
+  }
+
+  if (policy === "media") {
+    return "media";
+  }
+
+  if (data.surfaceDeck) {
+    return false;
+  }
+
+  const surfaceEntries = data.surfaceEntries ?? [];
+
+  if (surfaceEntries.length) {
+    return surfaceEntries.every((item) => isImageEntry(item.entryId)) ? "media" : false;
+  }
+
+  return isImageEntry(data.entryId) ? "media" : false;
+}
+
 /* ==================================================
    Figure
    ================================================== */
@@ -328,6 +367,8 @@ export function renderMediaFigure(
     : "";
 
   const lightbox = data.lightbox === false ? ` data-lightbox="off"` : "";
+
+  const reveal = renderRevealAttribute(resolveRevealKind(data, options));
 
   const placement = renderPlacementAttributes(options.placement);
 
@@ -366,7 +407,7 @@ export function renderMediaFigure(
   return `
     <figure
       class="${escapeHtml(classes)}"
-      data-caption-view="${escapeHtml(data.captionView)}"${presentation}${lightbox}${placement}
+      data-caption-view="${escapeHtml(data.captionView)}"${presentation}${lightbox}${reveal}${placement}
     >
       <div
         class="${escapeHtml(surfaceClasses)}"${surfaceLayout}${surfaceStyle}

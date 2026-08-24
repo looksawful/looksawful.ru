@@ -2,23 +2,20 @@
   --infinite-reel-speed: var(--motion-speed-autoscroll);
 }
 
-/* The old project-card image zoom is intentionally disabled.
-   Card entrance motion is owned by GSAP; hover does not crop the image. */
-.project-card__media img,
-.project-card:is(:hover, :focus-visible) .project-card__media img {
-  transform: none;
-  transition: none;
-}
-
 @media (prefers-reduced-motion: no-preference) {
-  /* Hero name remains visible from the first paint.
-     Role, description and contacts use the same restrained opacity + y
-     language as the original V1, but CSS owns the first-paint state so
-     there is no late gsap.from() flash. */
   .hero__role,
   .hero > footer > p,
   .hero > footer > address {
-    animation: hero-text-enter 450ms cubic-bezier(0.33, 1, 0.68, 1) both;
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity 450ms cubic-bezier(0.33, 1, 0.68, 1),
+      translate 450ms cubic-bezier(0.33, 1, 0.68, 1);
+
+    @starting-style {
+      opacity: 0;
+      translate: 0 6px;
+    }
   }
 
   .hero > footer > p {
@@ -38,17 +35,5 @@
     > [data-infinite-reel-track] {
     animation-play-state: running;
     will-change: transform;
-  }
-}
-
-@keyframes hero-text-enter {
-  from {
-    opacity: 0;
-    translate: 0 6px;
-  }
-
-  to {
-    opacity: 1;
-    translate: 0 0;
   }
 }

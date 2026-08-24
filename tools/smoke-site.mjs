@@ -287,6 +287,250 @@ async function verifyLightbox(page, label) {
   }
 }
 
+async function verifyNoVisibleRevealTargetsHidden(page, label) {
+  const offenders = await page.evaluate(() => {
+    const isInViewport = (node) => {
+      const rect = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      const viewport = document.documentElement;
+
+      return (
+        !node.closest("[hidden]") &&
+        style.display !== "none" &&
+        rect.width > 1 &&
+        rect.height > 1 &&
+        rect.bottom > 0 &&
+        rect.top < viewport.clientHeight &&
+        rect.right > 0 &&
+        rect.left < viewport.clientWidth
+      );
+    };
+
+    return [...document.querySelectorAll("[data-reveal]")]
+      .filter((node) => {
+        if (!isInViewport(node)) return false;
+        const style = getComputedStyle(node);
+        return style.visibility === "hidden" || Number(style.opacity) < 0.05;
+      })
+      .map((node) => ({
+        tag: node.tagName.toLowerCase(),
+        className: typeof node.className === "string" ? node.className : "",
+        reveal: node.getAttribute("data-reveal"),
+      }))
+      .slice(0, 12);
+  });
+
+  assert(!offenders.length, `${label}: visible reveal targets are hidden\n${JSON.stringify(offenders, null, 2)}`);
+}
+
+async function verifyMotionContract(page, label) {
+  const report = await page.evaluate(() => {
+    const count = (selector) => document.querySelectorAll(selector).length;
+    const exists = (selector) => Boolean(document.querySelector(selector));
+    const revealOwnerProblems = [];
+
+    const ownerSelectors = [
+      ["media deck", "[data-media-deck]"],
+      ["mockup", ".mockup"],
+      ["before/after", "[data-before-after]"],
+      ["page flip", "[data-page-flip]"],
+      ["animated canvas", "[data-animated-canvas-gallery]"],
+      ["infinite reel", "[data-infinite-reel]"],
+    ];
+
+    for (const [name, selector] of ownerSelectors) {
+      document.querySelectorAll(selector).forEach((node) => {
+        if (node.hasAttribute("data-reveal") || node.querySelector("[data-reveal]")) {
+          revealOwnerProblems.push(name);
+        }
+      });
+    }
+
+    const videoRevealOwners = [...document.querySelectorAll("video")]
+      .filter((node) => node.closest("[data-reveal]"))
+      .map((node) => node.closest("[data-reveal]")?.className || node.tagName)
+      .slice(0, 12);
+
+    const canvasRevealOwners = [...document.querySelectorAll("canvas")]
+      .filter((node) => node.closest("[data-reveal]"))
+      .map((node) => node.closest("[data-reveal]")?.className || node.tagName)
+      .slice(0, 12);
+
+    const coverage = {
+      projectCards: count(".project-card[data-reveal=\"card\"]") >= 2,
+      firstProjectRow: count(".project-card[data-reveal=\"card\"]") >= 2,
+      secondProjectRow: count(".project-card[data-reveal=\"card\"]") >= 4,
+      plainGrid: exists(".media-group[data-layout=\"grid\"]:not([data-overflow]):not([data-compact-layout]) > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
+      longGrid: [...document.querySelectorAll(".media-group[data-layout=\"grid\"]:not([data-overflow]):not([data-compact-layout])")]
+        .some((group) => group.querySelectorAll(":scope > .media-group__items > figure.media[data-reveal=\"media\"]").length >= 4),
+      masonry: exists(".media-group[data-layout=\"masonry\"] > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
+      editorial: !exists(".media-group[data-layout=\"editorial\"]") ||
+        exists(".media-group[data-layout=\"editorial\"] > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
+      bento: exists(".media-group[data-layout=\"bento\"] > .media-group__items[data-reveal-group][data-reveal-rail] > figure.media[data-reveal=\"media\"]"),
+      sequence: exists(".media-group[data-layout=\"sequence\"] > .media-group__items[data-reveal-group] figure.media[data-reveal=\"media\"]"),
+      compactReel: exists(".media-group[data-compact-layout=\"reel\"] > .media-group__items[data-reveal-group][data-reveal-rail]"),
+      overflowReel: exists(".media-group[data-overflow=\"reel\"] > .media-group__items[data-reveal-rail]") &&
+        count(".media-group[data-overflow=\"reel\"] > .media-group__items [data-reveal]") === 0,
+      infiniteReel: exists("[data-infinite-reel]") &&
+        count("[data-infinite-reel][data-reveal], [data-infinite-reel] [data-reveal]") === 0,
+      justifiedGallery: exists(".justified-gallery__row[data-reveal-group][data-reveal-rail] > figure.media[data-reveal=\"media\"]"),
+      video: count("video") > 0 && videoRevealOwners.length === 0,
+      slider: exists("[data-media-deck]"),
+      mockupDeck: exists(".mockup[data-media-deck]"),
+      beforeAfter: exists("[data-before-after]"),
+      canvas: exists("[data-animated-canvas-gallery]") && canvasRevealOwners.length === 0,
+    };
+
+    const invalidRevealKinds = [...document.querySelectorAll("[data-reveal]")]
+      .map((node) => node.getAttribute("data-reveal"))
+      .filter((value) => value !== "copy" && value !== "media" && value !== "card");
+
+    return {
+      coverage,
+      invalidRevealKinds,
+      revealOwnerProblems,
+      videoRevealOwners,
+      canvasRevealOwners,
+      revealTargets: count("[data-reveal]"),
+      revealGroups: count("[data-reveal-group]"),
+      revealRails: count("[data-reveal-rail]"),
+    };
+  });
+
+  const missingCoverage = Object.entries(report.coverage)
+    .filter(([, passed]) => !passed)
+    .map(([name]) => name);
+
+  assert(!missingCoverage.length, `${label}: missing motion coverage ${missingCoverage.join(", ")}\n${JSON.stringify(report, null, 2)}`);
+  assert(!report.invalidRevealKinds.length, `${label}: invalid reveal kinds ${report.invalidRevealKinds.join(", ")}`);
+  assert(!report.revealOwnerProblems.length, `${label}: interactive owners contain global reveal ${report.revealOwnerProblems.join(", ")}`);
+  assert(!report.videoRevealOwners.length, `${label}: videos are inside reveal targets ${report.videoRevealOwners.join(", ")}`);
+  assert(!report.canvasRevealOwners.length, `${label}: canvas is inside reveal targets ${report.canvasRevealOwners.join(", ")}`);
+
+  return report;
+}
+
+async function verifyProjectCardRevealBatching(page, label) {
+  const cardCount = await page.locator(".project-card[data-reveal=\"card\"]").count();
+  if (cardCount < 4) return;
+
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(180);
+
+  const initial = await page.evaluate(() => {
+    const cards = [...document.querySelectorAll(".project-card[data-reveal=\"card\"]")];
+    const last = cards.at(-1);
+    if (!(last instanceof HTMLElement)) return null;
+    const rect = last.getBoundingClientRect();
+    const style = getComputedStyle(last);
+    return {
+      hidden: style.visibility === "hidden" || Number(style.opacity) < 0.05,
+      belowViewport: rect.top >= document.documentElement.clientHeight,
+      opacity: style.opacity,
+      visibility: style.visibility,
+      top: Math.round(rect.top),
+    };
+  });
+
+  assert(initial?.hidden && initial.belowViewport, `${label}: final project card was not prepared below viewport\n${JSON.stringify(initial, null, 2)}`);
+
+  await page.locator(".project-card[data-reveal=\"card\"]").first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(900);
+
+  const partial = await page.evaluate(() => {
+    const cards = [...document.querySelectorAll(".project-card[data-reveal=\"card\"]")];
+    const first = cards[0];
+    const last = cards.at(-1);
+
+    if (!(first instanceof HTMLElement) || !(last instanceof HTMLElement)) return null;
+
+    const firstStyle = getComputedStyle(first);
+    const lastStyle = getComputedStyle(last);
+    const lastRect = last.getBoundingClientRect();
+
+    return {
+      firstVisible: firstStyle.visibility !== "hidden" && Number(firstStyle.opacity) > 0.95,
+      lastStillHidden: lastStyle.visibility === "hidden" || Number(lastStyle.opacity) < 0.05,
+      lastBelowViewport: lastRect.top >= document.documentElement.clientHeight,
+      firstOpacity: firstStyle.opacity,
+      lastOpacity: lastStyle.opacity,
+      lastTop: Math.round(lastRect.top),
+    };
+  });
+
+  assert(partial?.firstVisible, `${label}: first project card did not reveal\n${JSON.stringify(partial, null, 2)}`);
+  assert(partial.lastStillHidden && partial.lastBelowViewport, `${label}: lower project cards completed before entering viewport\n${JSON.stringify(partial, null, 2)}`);
+
+  await page.locator(".project-card[data-reveal=\"card\"]").last().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(900);
+
+  const final = await page.evaluate(() => {
+    const card = [...document.querySelectorAll(".project-card[data-reveal=\"card\"]")].at(-1);
+    if (!(card instanceof HTMLElement)) return null;
+    const style = getComputedStyle(card);
+    return {
+      visible: style.visibility !== "hidden" && Number(style.opacity) > 0.95,
+      opacity: style.opacity,
+      visibility: style.visibility,
+    };
+  });
+
+  assert(final?.visible, `${label}: final project card did not reveal after entering viewport\n${JSON.stringify(final, null, 2)}`);
+}
+
+async function verifyActiveRailRelease(page, label) {
+  const railIndex = await page.evaluate(() => {
+    const isActiveHorizontalRail = (rail) => {
+      const styles = getComputedStyle(rail);
+      const overflowAllowsScrolling = styles.overflowX === "auto" || styles.overflowX === "scroll";
+      return overflowAllowsScrolling && rail.scrollWidth > rail.clientWidth + 2;
+    };
+
+    return [...document.querySelectorAll("[data-reveal-rail]")]
+      .findIndex((rail) =>
+        rail instanceof HTMLElement &&
+        !rail.closest("[hidden]") &&
+        rail.querySelector("[data-reveal]") &&
+        isActiveHorizontalRail(rail),
+      );
+  });
+
+  assert(railIndex >= 0, `${label}: no active horizontal reveal rail found`);
+
+  await page.evaluate((index) => {
+    const rail = [...document.querySelectorAll("[data-reveal-rail]")][index];
+    rail?.scrollIntoView({ block: "center", inline: "start" });
+  }, railIndex);
+  await page.waitForTimeout(500);
+
+  const state = await page.evaluate((index) => {
+    const rail = [...document.querySelectorAll("[data-reveal-rail]")][index];
+    if (!(rail instanceof HTMLElement)) return null;
+
+    const targets = [...rail.querySelectorAll("[data-reveal]")].filter((node) => node instanceof HTMLElement);
+    const hidden = targets
+      .filter((node) => {
+        const style = getComputedStyle(node);
+        return style.visibility === "hidden" || Number(style.opacity) < 0.05;
+      })
+      .map((node) => ({
+        className: typeof node.className === "string" ? node.className : "",
+        reveal: node.getAttribute("data-reveal"),
+      }));
+
+    return {
+      hidden,
+      targetCount: targets.length,
+      scrollWidth: rail.scrollWidth,
+      clientWidth: rail.clientWidth,
+      overflowX: getComputedStyle(rail).overflowX,
+    };
+  }, railIndex);
+
+  assert(state && state.targetCount > 0, `${label}: active rail has no reveal targets\n${JSON.stringify(state, null, 2)}`);
+  assert(!state.hidden.length, `${label}: active rail did not release all reveal targets\n${JSON.stringify(state, null, 2)}`);
+}
+
 async function collectDuplicateMediaLoads(page) {
   return page.evaluate(() => {
     const counts = new Map();
@@ -347,8 +591,17 @@ async function auditViewport(browser, viewport) {
     await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.evaluate(() => document.fonts?.ready);
     await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => {});
+    await verifyNoVisibleRevealTargetsHidden(page, label);
+    const motionReport = await verifyMotionContract(page, label);
+
+    if (viewport.label === "phone-portrait") {
+      await verifyProjectCardRevealBatching(page, label);
+      await verifyActiveRailRelease(page, label);
+    }
+
     const revealed = await revealProjectMedia(page);
     await scrollThroughPage(page);
+    await verifyNoVisibleRevealTargetsHidden(page, label);
 
     await verifyPageShell(page, label);
     await verifyNoDocumentOverflow(page, label);
@@ -363,8 +616,80 @@ async function auditViewport(browser, viewport) {
     }
 
     assert(!errors.length, `${label}: browser errors:\n${errors.join("\n")}`);
-    console.log(`[smoke] ${label}: OK (${revealed} hidden projects revealed)`);
+    console.log(`[smoke] ${label}: OK (${revealed} hidden projects revealed, ${motionReport.revealTargets} reveal targets, ${motionReport.revealRails} reveal rails)`);
     return warnings;
+  } finally {
+    await context.close();
+  }
+}
+
+async function auditDeepReloadAndHistory(browser) {
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 800 },
+    deviceScaleFactor: 1,
+  });
+  const page = await context.newPage();
+
+  try {
+    await page.goto(`${BASE_URL}/#project-sensetique`, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.evaluate(() => document.fonts?.ready);
+    await page.reload({ waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.evaluate(() => document.fonts?.ready);
+    await verifyNoVisibleRevealTargetsHidden(page, "deep-reload #project-sensetique");
+
+    await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.evaluate(() => document.fonts?.ready);
+    await page.goto(`${BASE_URL}/#project-styx`, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.goBack({ waitUntil: "domcontentloaded" });
+    await verifyNoVisibleRevealTargetsHidden(page, "history Back");
+    await page.goForward({ waitUntil: "domcontentloaded" });
+    await verifyNoVisibleRevealTargetsHidden(page, "history Forward");
+
+    await page.evaluate(() => {
+      const event = new Event("pagehide");
+      Object.defineProperty(event, "persisted", { value: true });
+      window.dispatchEvent(event);
+    });
+    await verifyLightbox(page, "simulated BFCache pagehide");
+
+    console.log("[smoke] navigation lifecycle: OK (deep reload, Back, Forward, persisted pagehide)");
+  } finally {
+    await context.close();
+  }
+}
+
+async function auditReducedMotion(browser) {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+    deviceScaleFactor: 1,
+    reducedMotion: "reduce",
+  });
+  const page = await context.newPage();
+
+  try {
+    await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.evaluate(() => document.fonts?.ready);
+    await revealProjectMedia(page);
+    await page.waitForTimeout(120);
+
+    const hidden = await page.evaluate(() => {
+      return [...document.querySelectorAll("[data-reveal]")]
+        .filter((node) => {
+          if (!(node instanceof HTMLElement) || node.closest("[hidden]")) return false;
+          const style = getComputedStyle(node);
+          return style.visibility === "hidden" || Number(style.opacity) < 0.05;
+        })
+        .map((node) => ({
+          className: typeof node.className === "string" ? node.className : "",
+          reveal: node.getAttribute("data-reveal"),
+        }))
+        .slice(0, 12);
+    });
+
+    assert(!hidden.length, `reduced-motion: reveal targets should stay immediately visible\n${JSON.stringify(hidden, null, 2)}`);
+    console.log("[smoke] reduced-motion: OK (global reveal and hero ambient motion disabled)");
   } finally {
     await context.close();
   }
@@ -381,8 +706,11 @@ try {
     allWarnings.push(...(await auditViewport(browser, viewport)));
   }
 
+  await auditDeepReloadAndHistory(browser);
+  await auditReducedMotion(browser);
+
   allWarnings.forEach((warning) => console.warn(`[smoke] warning: ${warning}`));
-  console.log(`Browser smoke OK: ${VIEWPORTS.length} viewports, media decode, video metadata, canvas health, lightbox, overflow`);
+  console.log(`Browser smoke OK: ${VIEWPORTS.length} viewports, motion contract, reveal batching, rail release, navigation lifecycle, reduced motion, media decode, video metadata, canvas health, lightbox, overflow`);
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
