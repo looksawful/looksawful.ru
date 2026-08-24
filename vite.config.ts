@@ -447,13 +447,25 @@ function siteTemplatesPlugin(): Plugin {
 
         ["<!-- MOVES_AWFUL_CANVAS_GALLERY -->", renderAnimatedCanvasGallery(movesAwfulCanvasGallery)],
 
-        ["<!-- MOVES_AWFUL_ANIMATIONS_INTRO -->", renderSectionIntro(movesAwfulAnimationsIntro)],
+        [
+          "<!-- MOVES_AWFUL_ANIMATIONS_INTRO -->",
+          renderSectionIntro(movesAwfulAnimationsIntro, { reveal: false }),
+        ],
 
-        ["<!-- MOVES_AWFUL_MEDIA_01 -->", renderMediaFigure(movesAwfulLandingMedia[0])],
+        [
+          "<!-- MOVES_AWFUL_MEDIA_01 -->",
+          renderMediaFigure(movesAwfulLandingMedia[0], { reveal: false }),
+        ],
 
-        ["<!-- MOVES_AWFUL_MEDIA_02 -->", renderMediaFigure(movesAwfulLandingMedia[1])],
+        [
+          "<!-- MOVES_AWFUL_MEDIA_02 -->",
+          renderMediaFigure(movesAwfulLandingMedia[1], { reveal: false }),
+        ],
 
-        ["<!-- MOVES_AWFUL_MEDIA_03 -->", renderMediaFigure(movesAwfulLandingMedia[2])],
+        [
+          "<!-- MOVES_AWFUL_MEDIA_03 -->",
+          renderMediaFigure(movesAwfulLandingMedia[2], { reveal: false }),
+        ],
 
         /* ==============================
              Professional experience
