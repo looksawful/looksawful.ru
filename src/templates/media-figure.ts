@@ -46,6 +46,14 @@ function renderDimensions(width?: number, height?: number): string {
   return attributes.length ? ` ${attributes.join(" ")}` : "";
 }
 
+function renderMediaMetadataDimensions(width?: number, height?: number): string {
+  if (typeof width !== "number" || typeof height !== "number") {
+    return "";
+  }
+
+  return ` data-media-width="${width}" data-media-height="${height}"`;
+}
+
 function renderVideoBooleanAttribute(name: string, enabled?: boolean): string {
   return enabled ? ` ${name}=""` : "";
 }
@@ -65,7 +73,10 @@ export function renderMediaElement(
       entry.alt ?? "",
     )}" decoding="async"${
       options.dimensions === false ? "" : renderDimensions(asset.width, asset.height)
-    } loading="${loading}"${renderResponsiveImageAttributes(asset, loading)} src="${escapeHtml(asset.src)}">`;
+    }${renderMediaMetadataDimensions(asset.width, asset.height)} loading="${loading}"${renderResponsiveImageAttributes(
+      asset,
+      loading,
+    )} src="${escapeHtml(asset.src)}">`;
   }
 
   const video = options.video ?? {};
@@ -82,7 +93,9 @@ export function renderMediaElement(
     video.muted,
   )}${renderVideoBooleanAttribute("playsinline", video.playsInline)}${
     options.dimensions === false ? "" : renderDimensions(asset.width, asset.height)
-  }${poster ? ` poster="${escapeHtml(poster.src)}"` : ""} preload="${preload}"`;
+  }${renderMediaMetadataDimensions(asset.width, asset.height)}${
+    poster ? ` poster="${escapeHtml(poster.src)}"` : ""
+  } preload="${preload}"`;
 
   if (video.mimeType) {
     return `${attributes}><source src="${escapeHtml(asset.src)}" type="${escapeHtml(

@@ -55,6 +55,28 @@ test("media figure can preserve compound authored surfaces", () => {
   assert.match(ratio, /--media-position: 50% 65%/);
 });
 
+test("media elements expose lightbox dimensions without forcing intrinsic layout dimensions", () => {
+  const image = renderMediaFigure({
+    entryId: "styx-06-source-01-1920x913-use-01",
+    captionView: "summary",
+  });
+
+  assert.match(image, /<img[^>]*data-media-width="1920"[^>]*data-media-height="913"/);
+
+  const video = renderMediaFigure(
+    {
+      entryId: "sensetique-09-source-56-16x9-use-02",
+      captionView: "summary",
+      surface: { ratio: "16 / 9" },
+      video: { autoplay: true, loop: true, muted: true, playsInline: true, preload: "metadata", mimeType: "video/mp4" },
+    },
+    { mediaDimensions: false },
+  );
+
+  assert.match(video, /<video[^>]*data-media-width="1280"[^>]*data-media-height="720"/);
+  assert.doesNotMatch(video, /\s(?:width|height)="[0-9]+"/);
+});
+
 test("media slider renderer exists and preserves slide captions", async () => {
   assert.equal(existsSync(sliderModuleUrl), true, "media-slider.ts must exist");
 
@@ -82,7 +104,7 @@ test("media slider renderer exists and preserves slide captions", async () => {
       { entryId: "sensetique-11-source-69-320x213-use-03", captionView: "lightbox-only", loading: "lazy" },
     ],
   });
-  assert.doesNotMatch(withoutDimensions, /(?:width|height)="[0-9]+"/);
+  assert.doesNotMatch(withoutDimensions, /\s(?:width|height)="[0-9]+"/);
 });
 
 test("justified gallery renderer exists and keeps authored row kinds", async () => {
@@ -111,7 +133,7 @@ test("justified gallery renderer exists and keeps authored row kinds", async () 
   const productionHtml = renderJustifiedGallery(sensetiqueStudioJustifiedGallery);
   assert.match(productionHtml, /--media-ratio: 3 \/ 2/);
   assert.match(productionHtml, /--media-ratio: 2 \/ 3/);
-  assert.doesNotMatch(productionHtml, /(?:width|height)="[0-9]+"/);
+  assert.doesNotMatch(productionHtml, /\s(?:width|height)="[0-9]+"/);
 });
 
 test("brand-system can opt out of automatic surface-ratio derivation", () => {
@@ -131,5 +153,5 @@ test("standalone legacy media can omit intrinsic element dimensions without chan
   );
 
   assert.match(html, /--media-ratio: 16 \/ 9/);
-  assert.doesNotMatch(html, /(?:width|height)="[0-9]+"/);
+  assert.doesNotMatch(html, /\s(?:width|height)="[0-9]+"/);
 });
