@@ -2,9 +2,6 @@
   --ff-primary:
     "Inter Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-  --ff-rubik:
-    "Rubik Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-
   --ff-mono: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 
   --fw-300: 300;
@@ -20,9 +17,26 @@
   --fs-400: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
   --fs-500: clamp(1.125rem, 0.95rem + 0.8vw, 1.5rem);
   --fs-600: clamp(1.4rem, 1.1rem + 1.3vw, 2.15rem);
-  --fs-700: clamp(1.875rem, 1.2rem + 2.5vw, 4rem);
-  --fs-800: clamp(2.5rem, 1.5rem + 4.5vw, 6rem);
-  --fs-900: clamp(3.25rem, 1.5rem + 8vw, 10rem);
+  --fs-700: clamp(1.875rem, 1.35rem + 2.2vw, 3.5rem);
+  --fs-800: clamp(2.5rem, 1.6rem + 3.6vw, 5rem);
+  --fs-900: clamp(3.25rem, 1.65rem + 6vw, 8.5rem);
+
+  --lh-body: 1.45;
+  --lh-copy: 1.48;
+  --lh-caption: 1.36;
+  --lh-ui: 1.25;
+  --lh-tight: 1.18;
+  --lh-heading: 1;
+  --lh-display: 0.9;
+  --lh-hero: 0.82;
+
+  --ls-body: 0;
+  --ls-copy: -0.012em;
+  --ls-lead: -0.02em;
+  --ls-tight: -0.035em;
+  --ls-heading: -0.04em;
+  --ls-display: -0.045em;
+  --ls-hero: -0.065em;
 
   --size-100: clamp(0.25rem, 0.4vw, 0.5rem);
   --size-200: clamp(0.5rem, 0.7vw, 0.75rem);
