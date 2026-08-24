@@ -94,6 +94,10 @@
 }
 
 @layer captions {
+  .project__section .media__caption-line:not([data-media-index]) > .media__index {
+    display: none;
+  }
+
   .media__caption {
     line-height: var(--lh-caption);
   }
