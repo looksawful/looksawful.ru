@@ -202,7 +202,7 @@ function createGlobalReveals(root: MotionRoot): () => void {
   for (const target of targets) {
     const kind = revealKindFor(target);
 
-    if (!kind || isElementInViewport(target)) {
+    if (!kind || isElementInViewport(target) || activeRevealRailFor(target)) {
       continue;
     }
 
