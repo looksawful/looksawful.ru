@@ -19,11 +19,11 @@
   }
 
   .hero > footer > p {
-    animation-delay: 70ms;
+    transition-delay: 70ms;
   }
 
   .hero > footer > address {
-    animation-delay: 140ms;
+    transition-delay: 140ms;
   }
 
   [data-infinite-reel][data-animated="true"] > [data-infinite-reel-track] {
