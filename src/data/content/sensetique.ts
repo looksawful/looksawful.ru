@@ -26,14 +26,14 @@ export const sensetiqueIntro = {
   role: "Основатель",
   period: "2017–2018",
 
-  lead: "Занимался запуском, управлением, продюсированием съёмок и организацией команды московской фотостудии и продакшн для моды, рекламы и визуального контента.",
+  lead: "Запустил и управлял московской фотостудией и продакшеном для моды, рекламы и визуального контента. Собирал команду, продюсировал съёмки и организовывал производство.",
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
 export const sensetiqueStudioIntro = {
   title: "Студия",
 
   paragraphs: [
-    "В 2018 году мы закончили строительство студии с тремя съёмочными пространствами в здании завода на улице Дмитрия Ульянова, 42.",
+    "В 2018 году закончили строительство студии с тремя съёмочными пространствами в здании завода на улице Дмитрия Ульянова, 42.",
   ],
 } as const satisfies SectionIntroData;
 
@@ -41,7 +41,7 @@ export const sensetiqueProductionIntro = {
   title: "Продакшен",
 
   paragraphs: [
-    "В 2017 году я запустил production-агентство полного цикла Moch Fashn. Мы продюсировали и создавали фотосъёмки, занимались SMM и рекламой, разрабатывали и дорабатывали сайты. Снимали лукбуки и кампейны, стилизовали съёмки, администрировали интернет-магазины и делали редизайн сайтов для локальных брендов одежды и интернет-магазинов. В 2018 мы провели ребрендинг и масштабировали проект: начали строительство коммерческой фотостудии, начали совместную работу с другими продакшн-агентствами, выступая в роли субподрядчиков, выполняя часть задач крупных агентств, например организовывая кастинги, логистику, предоставляли стилистов и ассистентов на рекламных проектах.",
+    "В 2017 году я запустил продакшен-агентство полного цикла Moch Fashn. Мы продюсировали и снимали фотосъёмки, занимались SMM и рекламой, разрабатывали и дорабатывали сайты, администрировали интернет-магазины. Снимали лукбуки и кампейны, стилизовали съёмки и делали редизайн сайтов для локальных брендов одежды. В 2018 году провели ребрендинг и масштабировали проект: начали строить коммерческую фотостудию и работать субподрядчиками крупных продакшен-агентств. Организовывали кастинги и логистику, предоставляли стилистов и ассистентов для рекламных проектов.",
   ],
 } as const satisfies SectionIntroData;
 
@@ -53,7 +53,6 @@ export const sensetiqueBuro247Group = {
 
   head: {
     credits: {
-      title: "Спецпроект Bureau 24/7.",
       lines: [
         "Фотограф Андрей Рапуто",
         "Стилист Мария Жукова",
@@ -63,7 +62,7 @@ export const sensetiqueBuro247Group = {
 
     note: {
       kind: "editorial",
-      text: "Мы снимали спецпроекты для журналов и fashion stories, работали с селебрити — например, сняли для Buro 24/7 спецпроект с основателем проекта «Сила ветра».",
+      text: "Снимали для журналов спецпроекты и fashion stories, в том числе с селебрити. Для Bureau 24/7 сделали спецпроект с основателем «Силы ветра».",
     },
   },
 
@@ -105,7 +104,6 @@ export const sensetiqueTatianaNikishinaEditorialGroup = {
 
   head: {
     credits: {
-      title: "Эдиториал Sensetique.",
       lines: [
         "Фотограф Татьяна Никишина",
         "Стилист Мария Жукова",
@@ -136,7 +134,6 @@ export const sensetiqueKatyaKnyazevaEditorialGroup = {
 
   head: {
     credits: {
-      title: "Эдиториал Sensetique.",
       lines: [
         "Фотограф Катя Князева",
         "Стилист Мария Жукова",
@@ -159,7 +156,6 @@ export const sensetiqueYuriIvanovEditorialGroup = {
 
   head: {
     credits: {
-      title: "Эдиториал Sensetique.",
       lines: [
         "Фотограф Юрий Иванов",
         "Стилист Мария Жукова",
@@ -957,7 +953,7 @@ export const sensetiqueYoungPioneerSequence = {
   "ratio": "4 / 5",
   "head": {
     "credits": {
-      "title": "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+      "title": "Young-pioneer",
       "lines": [
         "Фотографы Дарья Сеничева и Никита Игнатов",
         "Стилист Мария Жукова",
@@ -1013,7 +1009,6 @@ export const sensetiqueKrasotaDressStrip = {
   "captionView": "overlay",
   "head": {
     "credits": {
-      "title": "Лукбук Krasota Dress.",
       "lines": [
         "Фотограф Дарья Сеничева",
         "Стилист Мария Жукова",
@@ -1052,7 +1047,6 @@ export const sensetiqueOlovoCampaignStrip = {
   "captionView": "overlay",
   "head": {
     "credits": {
-      "title": "Кампейн Olovo Moscow.",
       "lines": [
         "Фотограф Никита Игнатов",
         "Стилист Мария Жукова",
@@ -1091,7 +1085,6 @@ export const sensetiqueOlovoLookbook2016Reel = {
   "compactItemSize": "min(68cqi, 17rem)",
   "head": {
     "credits": {
-      "title": "Лукбук Olovo Moscow, 2016.",
       "lines": [
         "Фотограф Никита Игнатов",
         "Стилист Мария Жукова"
@@ -1099,7 +1092,7 @@ export const sensetiqueOlovoLookbook2016Reel = {
     },
     "note": {
       "kind": "editorial",
-      "text": "Мы выстраивали длительное сотрудничество с брендами и производили полный\n                  цикл контента: каталоги, кампейны и лукбуки, работали с\n                  интернет-магазинами, создавали графический дизайн и печатные материалы."
+      "text": "С брендами работали на постоянной основе и закрывали весь цикл контента: каталоги, кампейны, лукбуки, материалы для интернет-магазинов, графический дизайн и печатные материалы."
     }
   },
   "items": [
@@ -1130,7 +1123,6 @@ export const sensetiqueOlovoLookbook2018Reel = {
   "compactItemSize": "min(68cqi, 17rem)",
   "head": {
     "credits": {
-      "title": "Лукбук Olovo Moscow, 2018.",
       "lines": [
         "Фотограф Дарья Сеничева",
         "Стилист Мария Жукова",
@@ -1165,7 +1157,6 @@ export const sensetiqueInnaHonourReel = {
     "className": "split split-always",
     "style": "--split-min: 12rem; --split-gap: clamp(1rem, 6cqi, 6rem)",
     "credits": {
-      "title": "Лукбук Inna Honour.",
       "lines": [
         "Фотограф Дарья Сеничева",
         "Стилист Мария Жукова",
@@ -1236,7 +1227,6 @@ export const sensetiqueChapurinBentoGroup = {
   "captionView": "overlay",
   "head": {
     "credits": {
-      "title": "Эдиториал Chapurin, 2018.",
       "lines": [
         "Фотограф Андрей Рапуто",
         "Стилист Мария Жукова",
@@ -1321,7 +1311,7 @@ export const sensetiqueYoungPioneerStrip = {
   "height": "clamp(12rem, 30cqi, 20rem)",
   "head": {
     "credits": {
-      "title": "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+      "title": "Young-pioneer",
       "lines": [
         "Фотографы Дарья Сеничева и Никита Игнатов",
         "Стилист Мария Жукова",
@@ -1460,7 +1450,6 @@ export const sensetiqueTatianaNikishinaSupplementalReel = {
   "captionView": "overlay",
   "head": {
     "credits": {
-      "title": "Эдиториал Sensetique.",
       "lines": [
         "Фотограф Татьяна Никишина",
         "Стилист Мария Жукова",
@@ -1574,7 +1563,6 @@ export const sensetiqueIvanKrushinskyEditorialStrip = {
   "captionView": "overlay",
   "head": {
     "credits": {
-      "title": "Эдиториал Sensetique.",
       "lines": [
         "Фотограф Иван Крушинский",
         "Стилист Мария Жукова"
@@ -1605,7 +1593,6 @@ export const sensetiqueEditorialProductionReel = {
   "captionView": "overlay",
   "head": {
     "credits": {
-      "title": "Эдиториал Sensetique.",
       "lines": [
         "Стилист Мария Жукова",
         "Продюсер Иван Крушинский"
@@ -1755,7 +1742,7 @@ export const sensetiqueStudioMockupDeck = {
       caption: {
         index: 1,
         title: "Главная страница сайта студии.",
-        text: "В 2018 году мы закончили строительство студии с 3 съемочными пространствами в здании завода на ул. Дмитрия Ульянова 42.",
+        text: "В 2018 году мы закончили строительство трёх съёмочных пространств в здании завода на улице Дмитрия Ульянова, 42.",
       },
     },
     {
@@ -1782,7 +1769,7 @@ export const sensetiqueStudioMockupDeck = {
         { entryId: "sensetique-11-source-47-853x1280-use-01", sourceIndex: 105 },
         { entryId: "sensetique-11-source-50-853x1280-use-01", sourceIndex: 106 },
         { entryId: "sensetique-11-source-55-853x1280-use-01", sourceIndex: 107 },
-        { entryId: "sensetique-11-source-56-5x4-use-01", sourceIndex: 108, mediaTitle: "Эдиториал Chapurin 2018", mediaCredits: "Фотограф Андрей Рапуто,стилист Мария Жукова,продюсер Иван Крушинский" },
+        { entryId: "sensetique-11-source-56-5x4-use-01", sourceIndex: 108, mediaCredits: "Фотограф Андрей Рапуто,стилист Мария Жукова,продюсер Иван Крушинский" },
         { entryId: "sensetique-11-source-58-1280x799-use-01", sourceIndex: 109 },
         { entryId: "sensetique-11-source-60-1280x799-use-01", sourceIndex: 110 },
         { entryId: "sensetique-11-source-64-457x640-use-01", sourceIndex: 111 },
@@ -1790,7 +1777,7 @@ export const sensetiqueStudioMockupDeck = {
         { entryId: "sensetique-11-source-65-853x1280-use-01", sourceIndex: 115 },
         { entryId: "sensetique-11-source-66-4x5-use-01", sourceIndex: 116 },
         { entryId: "sensetique-11-source-68-4x5-use-01", sourceIndex: 117 },
-        { entryId: "sensetique-11-source-81-40x71-use-01", sourceIndex: 125, mediaTitle: "Эдиториал фотосъемка, 2018", mediaCredits: "Фотограф Никита Игнатов, стилист Мария Жукова, Kaltblut Magazine." },
+        { entryId: "sensetique-11-source-81-40x71-use-01", sourceIndex: 125, mediaCredits: "Фотограф Никита Игнатов, стилист Мария Жукова, Kaltblut Magazine." },
         { entryId: "sensetique-11-source-83-40x71-use-01", sourceIndex: 127 },
         { entryId: "sensetique-09-source-13-2x3-use-01", sourceIndex: 119 },
         { entryId: "sensetique-05-source-02-4x5-use-01", sourceIndex: 132 },
@@ -1818,9 +1805,9 @@ export const sensetiqueStudioMockupDeck = {
         { entryId: "sensetique-09-source-11-857x1200-use-01", sourceIndex: 175 },
         { entryId: "sensetique-09-source-18-4x5-use-01", sourceIndex: 176 },
         { entryId: "sensetique-09-source-19-2x3-use-01", sourceIndex: 177 },
-        { entryId: "sensetique-13-source-60-3x4-use-01", sourceIndex: 203, mediaTitle: "Стилдизация от команды сенсетик", mediaCredits: "Стилист Мария Жукова" },
-        { entryId: "sensetique-13-source-61-914x1280-use-01", sourceIndex: 204, mediaTitle: "Стилдизация от команды сенсетик", mediaCredits: "Стилист Мария Жукова" },
-        { entryId: "sensetique-13-source-62-852x1280-use-01", sourceIndex: 205, mediaTitle: "Стилдизация от команды сенсетик", mediaCredits: "Стилист Мария Жукова" },
+        { entryId: "sensetique-13-source-60-3x4-use-01", sourceIndex: 203, mediaTitle: "Стилизация команды Sensetique.", mediaCredits: "Стилист Мария Жукова" },
+        { entryId: "sensetique-13-source-61-914x1280-use-01", sourceIndex: 204, mediaTitle: "Стилизация команды Sensetique.", mediaCredits: "Стилист Мария Жукова" },
+        { entryId: "sensetique-13-source-62-852x1280-use-01", sourceIndex: 205, mediaTitle: "Стилизация команды Sensetique.", mediaCredits: "Стилист Мария Жукова" },
         ],
       },
     },
