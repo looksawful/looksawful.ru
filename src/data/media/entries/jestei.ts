@@ -12,7 +12,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Креатив для ежемесячной рубрики «Лучшие треки месяца».",
       index: 1,
-      text: "В 2025 году одной из задач было привлечь молодых диджеев и изменить их отношение к сервису. Поэтому мы омолодили визуальные образы диджеев в коммуникации и стали активнее добавлять музыку, популярную у аудитории 18–30 лет.",
+      text: "В 2025 году мы хотели привлечь молодых диджеев и изменить их отношение к сервису. Сделали героев коммуникации моложе и стали чаще добавлять музыку, популярную у аудитории 18–30 лет.",
     },
     purpose: "work",
   },
@@ -21,8 +21,8 @@ export const jesteiMediaEntries = [
     assetId: "jestei-01-source-02-55x28",
     projectIds: ["jestei-landings", "jestei-event", "jestei-promo-communication"],
     caption: {
-      title: "Скриншот секции лендинга для клубных диджеев.",
-      text: "К 2025 году один общий лендинг уже не отражал устройство сервиса: появилось много новых инструментов, сценариев, и была занята новая ниша — мы начали работать с музыкой для ивент-диджеев. Мы начали активно работать с таргетированной рекламой, и единый лендинг перестал эффективно работать как рекламный инструмент: он не описывал всю продуктовую линейку сервиса и не позволял делать точечные рекламные предложения. Поэтому мы запустили систему из двух лендингов, каждый из которых состоит из набора промомодулей, решающих свои рекламные задачи.",
+      title: "Секция лендинга для клубных диджеев.",
+      text: "К 2025 году один лендинг перестал описывать весь Jestei Pool. Появились новые инструменты и сценарии, а Event стал отдельным направлением. Мы активнее использовали таргетированную рекламу, поэтому разным аудиториям понадобились разные предложения. Запустили два лендинга и собрали каждый из промомодулей под свои рекламные задачи.",
     },
     purpose: "work",
   },
@@ -32,9 +32,9 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-core-interface", "jestei-event", "jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Главная страница Jestei Pool.",
+      title: "Экономичная персонализация главной страницы Jestei Pool.",
       index: 2,
-      text: "На главной странице сервиса пользователям показываются баннеры о свежих обновлениях контента. Мы полностью перестроили процесс создания баннеров, внедрили нейросети для генерации изображений вместо использования фотографий со стоков, переработали адаптивность компонента, сократив количество разрабатываемых баннеров для каждой рубрики с пяти до двух, перешли к таргетированному показу баннеров, подходящих конкретному пользователю — например, мы перестали показывать все баннеры об обновлениях в ивент-разделе клубным диджеям, которые не заходят в раздел ивент и не пытаются взаимодействовать с ним, и разработали концепции для рубрик, благодаря чему креативы стали последовательными и узнаваемыми.",
+      text: "Здесь пользователи видят баннеры о свежих обновлениях контента. Мы заменили стоковые фотографии генеративными изображениями и переработали адаптивный компонент: для каждой рубрики теперь делаем два макета вместо пяти. Мы также ввели показ по интересам пользователя. Например, клубные диджеи, которые не заходят в Event, больше не видят его обновления. Для регулярных рубрик разработали свои визуальные концепции, поэтому креативы стали последовательными и узнаваемыми.",
     },
     purpose: "work",
   },
@@ -46,7 +46,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Страница с подборкой плейлистов Jestei Pool.",
       index: 9,
-      text: "Мы начали группировать плейлисты и сопровождать их описаниями и заголвоками, наняли редактора и вместе с ним и диджеями,котоыре создают плейлисты описали более 200 плейлистов на сайте,рассказали о каждом из жэанров и собрали для каждой группы плейлистов свой визуальный код, вместо того чтобы использовать однообразные стоковые картинки для их обложек.",
+      text: "Мы сгруппировали плейлисты, добавили заголовки и описания и вместе с редактором и диджеями описали больше 200 плейлистов и все жанры. Для каждой группы разработали свой стиль обложек вместо однообразных стоковых картинок.",
     },
     purpose: "work",
   },
@@ -58,7 +58,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Страница динамического плейлиста с лентой треков.",
       index: 10,
-      text: "Мы разработали алгоритмические плейлисты, которые автоматически собирают самые популярные треки по жанру или части мероприятия, которые пользователь ещё не слышал. Например, 10 незнакомых, но популярных треков для праймтайма или афтерпати.",
+      text: "Алгоритм собирает популярные треки по жанру или части мероприятия и исключает музыку, которую пользователь уже слышал. Например, он может предложить десять популярных незнакомых треков для праймтайма или афтерпати.",
     },
     purpose: "work",
   },
@@ -70,7 +70,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Промосекция с тарифами.",
       index: 11,
-      text: "Мы полностью переделали сценарий покупки подписки, описали разницу между тарифами, разделили тарифы для разных сегментов при помощи цветовых профилей.",
+      text: "Мы полностью переделали сценарий покупки подписки, объяснили разницу между тарифами и разделили предложения для разных сегментов с помощью цветовых профилей.",
     },
     purpose: "work",
   },
@@ -82,7 +82,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Бенто-грид «Главное в Event».",
       index: 12,
-      text: "Ивент-диджеинг построен на сезонности, поэтому можно предсказать, какие коллекции плейлистов востребованы в данный момент. Мы провели исследование и выяснили, какие плейлисты наиболее востребованы у ивент-диджеев, перестроили навигацию в новом разделе, разделили сезонную музыку и музыку, которая нужна всегда, и выстроили порядок плейлистов так, чтобы самое главное всегда было под рукой.",
+      text: "Мы исследовали, какие плейлисты чаще всего нужны ивент-диджеям и как спрос меняется в течение года. Разделили музыку на сезонную и постоянную, а актуальные подборки подняли выше в навигации.",
     },
     purpose: "work",
   },
@@ -92,7 +92,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-landings", "jestei-playlist-system"],
     caption: {
       title: "Анимированная секция лендинга для клубных диджеев.",
-      text: "Для лендинга мы начали активно использовать canvas-анимации и интерактивные виджеты. В лендинге мы стали показывать ленту с подборками треков, сразу знакомящую пользователя с интерфейсом и инструментами сервиса, показали плейлисты и рассказали о музыкальных жанрах, которые представлены на сервисе. Для анимированных секций лендинга для клубных диджеев мы использовали мою библиотеку анимаций Moves Awful.",
+      text: "Canvas-анимации и интерактивные виджеты знакомят пользователя с продуктом прямо на странице. Лента показывает треки, интерфейс и инструменты сервиса. Для анимаций использовали мою библиотеку Moves Awful.",
     },
     purpose: "work",
   },
@@ -104,7 +104,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Промовиджет апгрейда тарифа.",
       index: 13,
-      text: "Мы создали виджеты с предложениями апгрейда подписки, чтобы стимулировать пользователя приобрести подписку следующего уровня.",
+      text: "Создали виджеты с предложением перейти на следующий тариф и встроили апгрейд подписки прямо в интерфейс.",
     },
     purpose: "work",
   },
@@ -116,7 +116,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Подборки плейлистов и коллекций.",
       index: 14,
-      text: "Мы изменили подход к группировке плейлистов и визуально разделили плейлисты и коллекции плейлистов, добавили подсказки и описания к группам плейлистов и перешли от использования стоковых картинок в обложках к дизайнерским обложкам.",
+      text: "Мы визуально разделили отдельные плейлисты и коллекции, добавили подсказки и описания к группам. Стоковые картинки заменили дизайнерскими обложками.",
     },
     purpose: "work",
   },
@@ -125,10 +125,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-04-source-01-9x16",
     projectIds: ["jestei-promo-communication"],
     alt: "",
-    caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
-      index: 15,
-    },
+    caption: { title: "Интерактивный плеер для Instagram-постов.", index: 15 },
     purpose: "work",
   },
   {
@@ -136,10 +133,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-04-source-02-9x16",
     projectIds: ["jestei-promo-communication"],
     alt: "",
-    caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
-      index: 16,
-    },
+    caption: { title: "Интерактивный плеер для Instagram-постов.", index: 16 },
     purpose: "work",
   },
   {
@@ -147,10 +141,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-04-source-03-9x16",
     projectIds: ["jestei-promo-communication"],
     alt: "",
-    caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
-      index: 17,
-    },
+    caption: { title: "Интерактивный плеер для Instagram-постов.", index: 17 },
     purpose: "work",
   },
   {
@@ -158,10 +149,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-04-source-04-323x623",
     projectIds: ["jestei-promo-communication"],
     alt: "",
-    caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
-      index: 18,
-    },
+    caption: { title: "Интерактивный плеер для Instagram-постов.", index: 18 },
     purpose: "work",
   },
   {
@@ -169,10 +157,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-04-source-05-323x623",
     projectIds: ["jestei-promo-communication"],
     alt: "",
-    caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
-      index: 19,
-    },
+    caption: { title: "Интерактивный плеер для Instagram-постов.", index: 19 },
     purpose: "work",
   },
   {
@@ -180,10 +165,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-04-source-06-323x623",
     projectIds: ["jestei-promo-communication"],
     alt: "",
-    caption: {
-      title: "Интерактивный плеер для инстаграм-постов.",
-      index: 20,
-    },
+    caption: { title: "Интерактивный плеер для Instagram-постов.", index: 20 },
     purpose: "work",
   },
   {
@@ -191,8 +173,8 @@ export const jesteiMediaEntries = [
     assetId: "jestei-08-source-03-1681x1938",
     projectIds: ["jestei-playlist-system", "jestei-promo-communication"],
     caption: {
-      title: "Шапки для авторских плейлистов от эксклюзивных эдиторов сайта.",
-      text: "Мы начали активно использовать яркие цвета и геометрические формы для декорирования авторских плейлистов, постов с музыкой в соцсетях и страниц постоянных партнёров сайта.",
+      title: "Шапки авторских плейлистов эксклюзивных эдиторов.",
+      text: "Для авторских плейлистов, музыкальных постов и страниц постоянных партнёров использовали яркие цвета и геометрические формы.",
     },
     purpose: "work",
   },
@@ -201,8 +183,8 @@ export const jesteiMediaEntries = [
     assetId: "jestei-08-source-04-697x644",
     projectIds: ["jestei-playlist-system", "jestei-promo-communication"],
     caption: {
-      title: "Креативы для постов, обложек и сторис в соцсетях с эксклюзивными эдитами, гест-треками и авторскими плейлистами.",
-      text: "Jestei Pool активно работает с диджеями, которые пишут музыку и собирают паки и плейлисты, доступные только пользователям сервиса. Мы активно использовали геометрические формы и яркие цвета, чтобы привлечь внимание к таким релизам.",
+      title: "Креативы для эксклюзивных эдитов, гест-треков и авторских плейлистов.",
+      text: "Jestei Pool работает с диджеями, которые выпускают музыку, паки и плейлисты только для пользователей сервиса. Яркие цвета и геометрические формы помогают выделять такие релизы в коммуникации.",
     },
     purpose: "work",
   },
@@ -214,7 +196,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Ежемесячный баннер об обновлении плейлиста Censored.",
       index: 24,
-      text: "Для регулярных рубрик мы подбирали общий набор метафор и идей.",
+      text: "Для регулярных рубрик подбирали общий набор метафор и идей.",
     },
     purpose: "work",
   },
@@ -226,7 +208,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Обложка плейлиста с советской электроникой.",
       index: 25,
-      text: "Мы перешли от использования сырого стокового контента к созданию собственного дизайна для каждой обложки.",
+      text: "Перешли от сырого стокового контента к собственному дизайну для каждой обложки.",
     },
     purpose: "work",
   },
@@ -236,9 +218,9 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-playlist-system"],
     alt: "",
     caption: {
-      title: "Обложка плейлиста техно.",
+      title: "Обложка техно-плейлиста.",
       index: 26,
-      text: "Для некоторых плейлистов мы создавали минималистичные обложки.",
+      text: "Для части плейлистов делали минималистичные обложки.",
     },
     purpose: "work",
   },
@@ -250,7 +232,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Обложка обновляемого плейлиста «Цензура» с треками без мата.",
       index: 27,
-      text: "Для регулярно обновляемых плейлистов мы придумывали метафоры, вокруг которых выстраивали дизайн. Благодаря этому рубрика оставалась узнаваемой, но обложки всегда выглядели свежими.",
+      text: "Для таких плейлистов мы выбирали одну метафору и строили вокруг неё серию обложек. Рубрика оставалась узнаваемой, а новые выпуски не повторяли друг друга.",
     },
     purpose: "work",
   },
@@ -262,7 +244,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Обложка регулярно обновляемого кураторского плейлиста Russian Transition с треками без мата.",
       index: 28,
-      text: "Диджеи редко проводят профессиональные съёмки, и, чтобы обложки всегда выглядели бодрыми и яркими, мы использовали нейросети, геометрические паттерны и быстро реализуемые приёмы для обработки и декорирования обложек.",
+      text: "Диджеи редко проводят профессиональные съёмки. Поэтому мы использовали нейросети, геометрические паттерны и простые приёмы обработки. Так мы могли регулярно выпускать яркие обложки без отдельной фотосъёмки.",
     },
     purpose: "work",
   },
@@ -271,10 +253,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-05-source-06-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
     alt: "",
-    caption: {
-      title: "Обложка коллекции треков-отбивок для ивент-диджеев.",
-      index: 29,
-    },
+    caption: { title: "Обложка коллекции треков-отбивок для ивент-диджеев.", index: 29 },
     purpose: "work",
   },
   {
@@ -285,7 +264,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Обложка для коллекции плейлистов с треками для спортивных мероприятий.",
       index: 30,
-      text: "Для коллекций мы стали использовать коллажи, чтобы подчеркнуть вложенность. Например, в коллекции «Спорт» — плейлисты про хоккей, футбол и бокс, поэтому в коллаже появились клюшка, футбольные ворота и боксёрские перчатки.",
+      text: "Для коллекций мы использовали коллажи, чтобы показать вложенность. В коллекции «Спорт» есть плейлисты про хоккей, футбол и бокс. Поэтому на обложке появились клюшка, футбольные ворота и боксёрские перчатки.",
     },
     purpose: "work",
   },
@@ -294,10 +273,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-05-source-08-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
     alt: "",
-    caption: {
-      title: "Обложка плейлиста для ивент-диджеев к 1 сентября.",
-      index: 31,
-    },
+    caption: { title: "Обложка плейлиста для ивент-диджеев к 1 сентября.", index: 31 },
     purpose: "work",
   },
   {
@@ -306,9 +282,9 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-playlist-system", "jestei-event"],
     alt: "",
     caption: {
-      title: "Обложка для новогоднего плейлиста «Русская эстрада» для ивент-диджеев.",
+      title: "Обложка новогоднего плейлиста «Русская эстрада» для ивент-диджеев.",
       index: 32,
-      text: "Для сезонных коллекций плейлистов мы стали разрабатывать отдельные цветовые и стилистические решения. Например, вся серия новогодних обложек для ивента строилась вокруг странных советских ёлочных игрушек.",
+      text: "Для сезонных коллекций разрабатывали отдельные цветовые и стилистические решения. Новогоднюю серию Event построили вокруг странных советских ёлочных игрушек.",
     },
     purpose: "work",
   },
@@ -318,9 +294,9 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-promo-communication"],
     alt: "",
     caption: {
-      title: "Обложка для поста с советами о том, как диджею готовиться к саундчеку.",
+      title: "Обложка поста о подготовке диджея к саундчеку.",
       index: 33,
-      text: "После ребрендинга мы начали рисовать небрежные иллюстрации и использовать метафоры, чтобы привлекать внимание и выстраивать эмоциональную связь с подписчиками.",
+      text: "После ребрендинга стали использовать намеренно небрежные иллюстрации и метафоры. Они привлекают внимание и делают коммуникацию с подписчиками живее.",
     },
     purpose: "work",
   },
@@ -329,10 +305,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-05-source-11-3x2",
     projectIds: ["jestei-promo-communication", "jestei-playlist-system"],
     alt: "",
-    caption: {
-      title: "Баннер об обновлении регулярной рубрики «Эксклюзивные эдиты».",
-      index: 34,
-    },
+    caption: { title: "Баннер об обновлении регулярной рубрики «Эксклюзивные эдиты».", index: 34 },
     purpose: "work",
   },
   {
@@ -343,7 +316,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Старый дизайн карточек с тарифами при регистрации.",
       index: 23,
-      text: "Мы полностью переделали сценарий покупки подписки, описали разницу между тарифами, разделили тарифы для разных сегментов при помощи цветовых профилей.",
+      text: "Полностью переделали сценарий покупки подписки, объяснили разницу между тарифами и разделили предложения для разных сегментов с помощью цветовых профилей.",
     },
     purpose: "work",
   },
@@ -355,7 +328,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Новый дизайн виджетов с тарифами.",
       index: 23,
-      text: "Мы полностью переделали сценарий покупки подписки, описали разницу между тарифами, разделили тарифы для разных сегментов при помощи цветовых профилей.",
+      text: "Полностью переделали сценарий покупки подписки, объяснили разницу между тарифами и разделили предложения для разных сегментов с помощью цветовых профилей.",
     },
     purpose: "work",
   },
@@ -363,45 +336,35 @@ export const jesteiMediaEntries = [
     id: "jestei-08-source-01-51x32-use-01",
     assetId: "jestei-08-source-01-51x32",
     projectIds: ["jestei-subscription"],
-    caption: {
-      title: "Система виджетов для апгрейда.",
-    },
+    caption: { title: "Система виджетов для апгрейда подписки." },
     purpose: "work",
   },
   {
     id: "jestei-08-source-02-6383x2862-use-01",
     assetId: "jestei-08-source-02-6383x2862",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Мы стали активно использовать объёмные текстурные тексты для заголовков.",
-    },
+    caption: { title: "Объёмные текстурные надписи для заголовков." },
     purpose: "work",
   },
   {
     id: "jestei-08-source-06-224x99-use-01",
     assetId: "jestei-08-source-06-224x99",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Карточки для плейлиста Jestei Edits.",
-    },
+    caption: { title: "Карточки плейлиста Jestei Edits." },
     purpose: "work",
   },
   {
     id: "jestei-08-source-10-673x420-use-01",
     assetId: "jestei-08-source-10-673x420",
     projectIds: ["jestei-landings", "jestei-event"],
-    caption: {
-      title: "Хиро-секция лендинга для ивент-диджеев.",
-    },
+    caption: { title: "Хиро-секция лендинга для ивент-диджеев." },
     purpose: "work",
   },
   {
     id: "jestei-08-source-07-449x240-use-01",
     assetId: "jestei-08-source-07-449x240",
     projectIds: ["jestei-landings"],
-    caption: {
-      title: "Одна из промостраниц для клубных диджеев.",
-    },
+    caption: { title: "Промостраница для клубных диджеев." },
     purpose: "work",
   },
   {
@@ -409,8 +372,8 @@ export const jesteiMediaEntries = [
     assetId: "jestei-08-source-08-85x112",
     projectIds: ["jestei-subscription", "jestei-landings", "jestei-event", "jestei-promo-communication"],
     caption: {
-      title: "Подробные виджеты с тарифами.",
-      text: "При регистрации пользователю, о котором мы ничего не знаем, предлагается любой тариф на выбор. Но для пользователей, которые приходят с таргетированной рекламы или по программе апгрейда, мы разработали отдельные виджеты и интерфейс подключения подписки. Пользователю, который хочет сделать апгрейд подписки или регистрируется через лендинг ивента, сначала предлагается подписка, решающая его задачу, вместо всех подписок сразу.",
+      title: "Виджеты с тарифами.",
+      text: "При обычной регистрации пользователь видит все тарифы. Для переходов из таргетированной рекламы и сценария апгрейда сделали отдельные виджеты: сначала показываем подписку, которая решает задачу пользователя, а не весь список сразу.",
     },
     purpose: "work",
   },
@@ -420,7 +383,7 @@ export const jesteiMediaEntries = [
     projectIds: ["jestei-track-filter", "jestei-event"],
     caption: {
       title: "Фильтр треков для ивент-диджеев.",
-      text: "В 2026 году мы запустили для ивент-диджеев собственную ленту треков с полностью перестроенной системой поиска и фильтрации музыки.",
+      text: "В 2026 году запустили для ивент-диджеев собственную ленту треков с полностью перестроенной системой поиска и фильтрации музыки.",
     },
     purpose: "work",
   },
@@ -429,8 +392,8 @@ export const jesteiMediaEntries = [
     assetId: "jestei-08-source-11-637x419",
     projectIds: ["jestei-brand-system", "jestei-track-filter"],
     caption: {
-      title: "Новый интерфейс для выбора тональности при помощи колеса Камелота.",
-      text: "Мы перестроили дизайн системы выбора тональности на основе кварто-квинтового круга, расположив минорные тональности во внутреннем кольце, а мажорные — во внешнем. Инструмент имеет две версии на выбор: диджейскую систему Камелота с цифрами и буквами для обозначения тональностей и классическую германскую буквенную систему для музыкантов, знающих музыкальную теорию.",
+      title: "Выбор тональности с помощью колеса Камелота.",
+      text: "Перестроили выбор тональности на основе кварто-квинтового круга: минорные тональности расположили во внутреннем кольце, мажорные — во внешнем. Оставили два режима: систему Камелота для диджеев и классическую буквенную нотацию для музыкантов.",
     },
     purpose: "work",
   },
@@ -438,733 +401,547 @@ export const jesteiMediaEntries = [
     id: "jestei-09-source-05-62x59-use-01",
     assetId: "jestei-09-source-05-62x59",
     projectIds: ["jestei-track-filter", "jestei-event", "jestei-core-interface"],
-    caption: {
-      title: "Фрагмент ui-kit с chips для ивент-версии фильтра треков",
-    },
+    caption: { title: "Фрагмент UI-kit с chips для Event-версии фильтра треков." },
     purpose: "work",
   },
-  {
-    id: "jestei-09-source-06-426x583-use-01",
-    assetId: "jestei-09-source-06-426x583",
-    purpose: "work",
-  },
+  { id: "jestei-09-source-06-426x583-use-01", assetId: "jestei-09-source-06-426x583", purpose: "work" },
   {
     id: "jestei-09-source-10-1x1-use-01",
     assetId: "jestei-09-source-10-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "шаблон макета поста о выходе гест-трека от нового партнера сервиса",
-    },
+    caption: { title: "Шаблон поста о выходе гест-трека нового партнёра сервиса." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-11-1x1-use-01",
     assetId: "jestei-09-source-11-1x1",
     projectIds: ["jestei-promo-communication", "jestei-playlist-system"],
-    caption: {
-      title: "3д леттеринг для подборки треков доступных только на джести пул",
-    },
+    caption: { title: "3D-леттеринг для подборки эксклюзивных треков Jestei Pool." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-12-1x1-use-01",
     assetId: "jestei-09-source-12-1x1",
     projectIds: ["jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Маскот для креативов сезона \"А-ля Рус\" в ивенте 2026",
-    },
+    caption: { title: "Маскот для креативов сезона «А-ля Рус» в Event, 2026." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-13-1x1-use-01",
     assetId: "jestei-09-source-13-1x1",
     projectIds: ["jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Расслабленное оформление текстовых постов в ивенте",
-    },
+    caption: { title: "Расслабленное оформление текстовых постов в Event." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-15-1x1-use-01",
     assetId: "jestei-09-source-15-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка для плейлиста \"свадебное караоке\"",
-    },
+    caption: { title: "Обложка плейлиста «Свадебное караоке»." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-17-2x1-use-01",
     assetId: "jestei-09-source-17-2x1",
     projectIds: ["jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Баннер об открытии сезона \"А-ля Рус\"в ивенте 2026",
-    },
+    caption: { title: "Баннер об открытии сезона «А-ля Рус» в Event, 2026." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-19-358x359-use-01",
     assetId: "jestei-09-source-19-358x359",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для подборки от Nikita Rise",
-    },
+    caption: { title: "Обложка подборки Nikita Rise." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-21-1x1-use-01",
     assetId: "jestei-09-source-21-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка для плейлиста Юбилей — 30 лет",
-    },
+    caption: { title: "Обложка плейлиста «Юбилей — 30 лет»." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-22-179x180-use-01",
     assetId: "jestei-09-source-22-179x180",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Облокжа для плейлиста \"Бизнес\" 2025",
-    },
+    caption: { title: "Обложка плейлиста «Бизнес», 2025." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-23-638x637-use-01",
     assetId: "jestei-09-source-23-638x637",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для новогоднего авторского плейлиста 2025",
-    },
+    caption: { title: "Обложка новогоднего авторского плейлиста, 2025." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-25-1x1-use-01",
     assetId: "jestei-09-source-25-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для плейлиста с треками на день рождения",
-    },
+    caption: { title: "Обложка плейлиста с треками на день рождения." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-26-275x249-use-01",
     assetId: "jestei-09-source-26-275x249",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для плейлиста с музыкой для детей",
-    },
+    caption: { title: "Обложка плейлиста с музыкой для детей." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-29-1x1-use-01",
     assetId: "jestei-09-source-29-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Баннер о выходе подборки самых популярных треков на jesteipool за месяц 2025",
-    },
+    caption: { title: "Баннер о выходе подборки популярных треков месяца Jestei Pool, 2025." },
     purpose: "work",
   },
-  {
-    id: "jestei-09-source-32-1027x1531-use-01",
-    assetId: "jestei-09-source-32-1027x1531",
-    purpose: "work",
-  },
+  { id: "jestei-09-source-32-1027x1531-use-01", assetId: "jestei-09-source-32-1027x1531", purpose: "work" },
   {
     id: "jestei-09-source-34-269x157-use-01",
     assetId: "jestei-09-source-34-269x157",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Баннер о выходе подборки самых популярных треков доступных только на jesteipool за месяц 2025",
-    },
+    caption: { title: "Баннер о выходе подборки эксклюзивных популярных треков месяца Jestei Pool, 2025." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-36-1x1-use-01",
     assetId: "jestei-09-source-36-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для плейлиста Цензура 2024",
-    },
+    caption: { title: "Обложка плейлиста «Цензура», 2024." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-42-1x1-use-01",
     assetId: "jestei-09-source-42-1x1",
     projectIds: ["jestei-playlist-system", "jestei-promo-communication"],
-    caption: {
-      title: "Обложка регулярного эксклюбзив эдита от Bass King 2025",
-    },
+    caption: { title: "Обложка регулярного Exclusive Edit от Bass King, 2025." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-43-1x1-use-01",
     assetId: "jestei-09-source-43-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка плейлиста фоны для сезона \"А-ля Рус\"",
-    },
+    caption: { title: "Обложка плейлиста «Фоны» для сезона «А-ля Рус»." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-44-1x1-use-01",
     assetId: "jestei-09-source-44-1x1",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "3д версия логотипа",
-    },
+    caption: { title: "3D-версия логотипа." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-45-1x1-use-01",
     assetId: "jestei-09-source-45-1x1",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "3д версия логотипа",
-    },
+    caption: { title: "3D-версия логотипа." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-46-1x1-use-01",
     assetId: "jestei-09-source-46-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка для сезонного свадебного плейлиста \"Свадебный Банкет\" 2026",
-    },
+    caption: { title: "Обложка сезонного свадебного плейлиста «Свадебный банкет», 2026." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-47-1x1-use-01",
     assetId: "jestei-09-source-47-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Облокжа для плейлиста \"Конференция\"",
-    },
+    caption: { title: "Обложка плейлиста «Конференция»." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-48-89x40-use-01",
     assetId: "jestei-09-source-48-89x40",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для динамического плейлиста",
-    },
+    caption: { title: "Обложка динамического плейлиста." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-49-89x40-use-01",
     assetId: "jestei-09-source-49-89x40",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для динамического плейлиста",
-    },
+    caption: { title: "Обложка динамического плейлиста." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-50-1x1-use-01",
     assetId: "jestei-09-source-50-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка для сезонного свадебного плейлиста \"Объявляем вас...\" 2026",
-    },
+    caption: { title: "Обложка сезонного свадебного плейлиста «Объявляем вас...», 2026." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-51-1x1-use-01",
     assetId: "jestei-09-source-51-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для сезонного плейлиста на Хеллоуин 2026",
-    },
+    caption: { title: "Обложка сезонного плейлиста к Хэллоуину, 2026." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-52-89x40-use-01",
     assetId: "jestei-09-source-52-89x40",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для динамического плейлиста",
-    },
+    caption: { title: "Обложка динамического плейлиста." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-53-1x1-use-01",
     assetId: "jestei-09-source-53-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка для сезонного свадебного плейлиста \"Дискотека\" 2026",
-    },
+    caption: { title: "Обложка сезонного свадебного плейлиста «Дискотека», 2026." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-54-1x1-use-01",
     assetId: "jestei-09-source-54-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка для сезонного свадебного плейлиста \"Фейерверк\" 2026",
-    },
+    caption: { title: "Обложка сезонного свадебного плейлиста «Фейерверк», 2026." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-55-1x1-use-01",
     assetId: "jestei-09-source-55-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка для сезонного свадебного плейлиста \"Свадебная вечеринка\" 2026",
-    },
+    caption: { title: "Обложка сезонного свадебного плейлиста «Свадебная вечеринка», 2026." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-56-229x121-use-01",
     assetId: "jestei-09-source-56-229x121",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для динамического плейлиста",
-    },
+    caption: { title: "Обложка динамического плейлиста." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-57-229x121-use-01",
     assetId: "jestei-09-source-57-229x121",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для динамического плейлиста",
-    },
+    caption: { title: "Обложка динамического плейлиста." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-58-229x121-use-01",
     assetId: "jestei-09-source-58-229x121",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для динамического плейлиста",
-    },
+    caption: { title: "Обложка динамического плейлиста." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-59-229x121-use-01",
     assetId: "jestei-09-source-59-229x121",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для динамического плейлиста",
-    },
+    caption: { title: "Обложка динамического плейлиста." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-60-229x121-use-01",
     assetId: "jestei-09-source-60-229x121",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для динамического плейлиста",
-    },
+    caption: { title: "Обложка динамического плейлиста." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-61-1x1-use-01",
     assetId: "jestei-09-source-61-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Слайд статьи о диджеинге",
-    },
+    caption: { title: "Слайд статьи о диджеинге." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-62-538x359-use-01",
     assetId: "jestei-09-source-62-538x359",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Креатив для рекламной кампании дял клубных диджеев",
-    },
+    caption: { title: "Креатив рекламной кампании для клубных диджеев." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-63-142x239-use-01",
     assetId: "jestei-09-source-63-142x239",
     projectIds: ["jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Креатив для рекламной кампании об открытии свадебного сезона в ивенте 2026",
-    },
+    caption: { title: "Креатив рекламной кампании к открытию свадебного сезона в Event, 2026." },
     purpose: "work",
   },
-  {
-    id: "jestei-09-source-64-358x359-use-01",
-    assetId: "jestei-09-source-64-358x359",
-    purpose: "work",
-  },
-  {
-    id: "jestei-09-source-65-1x1-use-01",
-    assetId: "jestei-09-source-65-1x1",
-    purpose: "work",
-  },
-  {
-    id: "jestei-09-source-66-1x1-use-01",
-    assetId: "jestei-09-source-66-1x1",
-    purpose: "work",
-  },
-  {
-    id: "jestei-09-source-67-1x1-use-01",
-    assetId: "jestei-09-source-67-1x1",
-    purpose: "work",
-  },
-  {
-    id: "jestei-09-source-68-1x1-use-01",
-    assetId: "jestei-09-source-68-1x1",
-    purpose: "work",
-  },
-  {
-    id: "jestei-09-source-69-13x19-use-01",
-    assetId: "jestei-09-source-69-13x19",
-    purpose: "work",
-  },
+  { id: "jestei-09-source-64-358x359-use-01", assetId: "jestei-09-source-64-358x359", purpose: "work" },
+  { id: "jestei-09-source-65-1x1-use-01", assetId: "jestei-09-source-65-1x1", purpose: "work" },
+  { id: "jestei-09-source-66-1x1-use-01", assetId: "jestei-09-source-66-1x1", purpose: "work" },
+  { id: "jestei-09-source-67-1x1-use-01", assetId: "jestei-09-source-67-1x1", purpose: "work" },
+  { id: "jestei-09-source-68-1x1-use-01", assetId: "jestei-09-source-68-1x1", purpose: "work" },
+  { id: "jestei-09-source-69-13x19-use-01", assetId: "jestei-09-source-69-13x19", purpose: "work" },
   {
     id: "jestei-09-source-70-245x122-use-01",
     assetId: "jestei-09-source-70-245x122",
     projectIds: ["jestei-landings", "jestei-promo-communication"],
-    caption: {
-      title: "Промомодуль отдельной страницы для треков на которые отправлялась реклама",
-    },
+    caption: { title: "Промомодуль страницы треков для рекламного трафика." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-71-479x244-use-01",
     assetId: "jestei-09-source-71-479x244",
     projectIds: ["jestei-landings", "jestei-playlist-system", "jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Промомодуль лендинга о плейлистах для спортивных мероприятий для таргетированной рекламы",
-    },
+    caption: { title: "Промомодуль о спортивных плейлистах для таргетированной рекламы." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-72-481x244-use-01",
     assetId: "jestei-09-source-72-481x244",
     projectIds: ["jestei-landings", "jestei-playlist-system", "jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Промомодуль лендинга о плейлистах для свадебной церемонии для таргетированной рекламы",
-    },
+    caption: { title: "Промомодуль о плейлистах для свадебной церемонии для таргетированной рекламы." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-73-120x61-use-01",
     assetId: "jestei-09-source-73-120x61",
     projectIds: ["jestei-landings", "jestei-playlist-system", "jestei-promo-communication"],
-    caption: {
-      title: "Промомодуль лендинга о плейлистах для дестких праздников для таргетированной рекламы",
-    },
+    caption: { title: "Промомодуль о плейлистах для детских праздников для таргетированной рекламы." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-75-325x244-use-01",
     assetId: "jestei-09-source-75-325x244",
     projectIds: ["jestei-landings", "jestei-event"],
-    caption: {
-      title: "Фрагмент лендинга для крлубных ивентов о жанрах доступных на сайте",
-    },
+    caption: { title: "Фрагмент Event-лендинга о доступных музыкальных жанрах." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-77-262x347-use-01",
     assetId: "jestei-09-source-77-262x347",
     projectIds: ["jestei-landings", "jestei-event"],
-    caption: {
-      title: "Фрагмент макетов для лендинга ивента",
-    },
+    caption: { title: "Фрагмент макетов Event-лендинга." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-78-265x84-use-01",
     assetId: "jestei-09-source-78-265x84",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Карточки коллекции \"Свадьбы\" в ивенте",
-    },
+    caption: { title: "Карточки коллекции «Свадьбы» в Event." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-79-535x84-use-01",
     assetId: "jestei-09-source-79-535x84",
     projectIds: ["jestei-event"],
-    caption: {
-      title: "Карточки колелкций плейлитосв в ивенте",
-    },
+    caption: { title: "Карточки коллекций плейлистов в Event." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-80-34x29-use-01",
     assetId: "jestei-09-source-80-34x29",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "Макет модалки \"Что нового?\"",
-    },
+    caption: { title: "Макет модального окна «Что нового?»." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-81-8x5-use-01",
     assetId: "jestei-09-source-81-8x5",
     projectIds: ["jestei-landings", "jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Промомодуль лендинга о начале свадебного сезона для таргетированной рекламы",
-    },
+    caption: { title: "Промомодуль к началу свадебного сезона для таргетированной рекламы." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-82-187x140-use-01",
     assetId: "jestei-09-source-82-187x140",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "Десктопная версия аккордеона с Часто задаваемыми вопросами",
-    },
+    caption: { title: "Десктопная версия аккордеона с часто задаваемыми вопросами." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-83-171x107-use-01",
     assetId: "jestei-09-source-83-171x107",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "фрагмент ui-kit с лентой миксов",
-    },
+    caption: { title: "Фрагмент UI-kit с лентой миксов." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-84-4x3-use-01",
     assetId: "jestei-09-source-84-4x3",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "фрагмент ui-kit с выпадающими меню",
-    },
+    caption: { title: "Фрагмент UI-kit с выпадающими меню." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-85-997x624-use-01",
     assetId: "jestei-09-source-85-997x624",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "Скриншотадесктопной версии интерфейса ленты новинок",
-    },
+    caption: { title: "Десктопная версия интерфейса ленты новинок." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-86-1x1-use-01",
     assetId: "jestei-09-source-86-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для треков",
-    },
+    caption: { title: "Обложка трека." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-87-1x1-use-01",
     assetId: "jestei-09-source-87-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для треков",
-    },
+    caption: { title: "Обложка трека." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-88-1x1-use-01",
     assetId: "jestei-09-source-88-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для треков",
-    },
+    caption: { title: "Обложка трека." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-89-1x1-use-01",
     assetId: "jestei-09-source-89-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для треков",
-    },
+    caption: { title: "Обложка трека." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-90-1423x1422-use-01",
     assetId: "jestei-09-source-90-1423x1422",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для треков",
-    },
+    caption: { title: "Обложка трека." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-91-1460x1369-use-01",
     assetId: "jestei-09-source-91-1460x1369",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "3д версия логотипа",
-    },
+    caption: { title: "3D-версия логотипа." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-93-1x1-use-01",
     assetId: "jestei-09-source-93-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для треков",
-    },
+    caption: { title: "Обложка трека." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-94-124x99-use-01",
     assetId: "jestei-09-source-94-124x99",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "Иконки для сайдбара",
-    },
+    caption: { title: "Иконки сайдбара." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-95-121x325-use-01",
     assetId: "jestei-09-source-95-121x325",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "Компонент сайдбара для десктопа на страницу с клубными продуктами",
-    },
+    caption: { title: "Десктопный сайдбар страницы клубных продуктов." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-97-121x325-use-01",
     assetId: "jestei-09-source-97-121x325",
     projectIds: ["jestei-event", "jestei-core-interface"],
-    caption: {
-      title: "Компонент сайдбара для десктопа на страницу с ивент продуктами",
-    },
+    caption: { title: "Десктопный сайдбар страницы Event." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-98-41x409-use-01",
     assetId: "jestei-09-source-98-41x409",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "Компонент сайдбара для мобильного устройства",
-    },
+    caption: { title: "Мобильный сайдбар." },
     purpose: "work",
   },
   {
     id: "jestei-09-source-99-11x78-use-01",
     assetId: "jestei-09-source-99-11x78",
     projectIds: ["jestei-subscription"],
-    caption: {
-      title: "Варианты виджетов для апгрейда подписки",
-    },
+    caption: { title: "Варианты виджетов для апгрейда подписки." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-11-png-icon-only-icon-only-bright-use-01",
     assetId: "jestei-logo-source-11-png-icon-only-icon-only-bright",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Эмблема, выворотка",
-    },
+    caption: { title: "Эмблема: выворотка." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-12-png-icon-only-icon-only-dark-use-01",
     assetId: "jestei-logo-source-12-png-icon-only-icon-only-dark",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Эмблема,  контраст",
-    },
+    caption: { title: "Эмблема: контрастная версия." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-13-png-icon-only-icon-only-orange-use-01",
     assetId: "jestei-logo-source-13-png-icon-only-icon-only-orange",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Эмблема, клуб",
-    },
+    caption: { title: "Эмблема: клубная версия." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-14-png-icon-only-logo-event-shield-only-use-01",
     assetId: "jestei-logo-source-14-png-icon-only-logo-event-shield-only",
     projectIds: ["jestei-brand-system", "jestei-event"],
-    caption: {
-      title: "Эмблема, ивент",
-    },
+    caption: { title: "Эмблема: Event-версия." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-21-svg-full-text-icon-full-split-use-01",
     assetId: "jestei-logo-source-21-svg-full-text-icon-full-split",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Символ бренда, клубаня версия",
-    },
+    caption: { title: "Символ бренда: клубная версия." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-25-svg-jestei-event-full-event-use-01",
     assetId: "jestei-logo-source-25-svg-jestei-event-full-event",
     projectIds: ["jestei-brand-system", "jestei-event"],
-    caption: {
-      title: "Полная версия логотипа, версия для ивента",
-    },
+    caption: { title: "Полная версия логотипа для Event." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-26-svg-jestei-event-full-split-use-01",
     assetId: "jestei-logo-source-26-svg-jestei-event-full-split",
     projectIds: ["jestei-brand-system", "jestei-event"],
-    caption: {
-      title: "Символ бренда,версия для ивента",
-    },
+    caption: { title: "Символ бренда: Event-версия." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-28-svg-jestei-event-text-logo-event-use-01",
     assetId: "jestei-logo-source-28-svg-jestei-event-text-logo-event",
     projectIds: ["jestei-brand-system", "jestei-event"],
-    caption: {
-      title: "Шрифтовая версия логотипа, версия для ивента",
-    },
+    caption: { title: "Шрифтовая версия логотипа для Event." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-29-svg-text-only-text-logo-bright-use-01",
     assetId: "jestei-logo-source-29-svg-text-only-text-logo-bright",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Шрифтовая версия логотипа, светлая версия",
-    },
+    caption: { title: "Шрифтовая версия логотипа: светлая." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-30-svg-text-only-text-logo-dark-use-01",
     assetId: "jestei-logo-source-30-svg-text-only-text-logo-dark",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Шрифтовая версия логотипа, контрастная версия",
-    },
+    caption: { title: "Шрифтовая версия логотипа: контрастная." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-31-svg-text-only-text-logo-orange-use-01",
     assetId: "jestei-logo-source-31-svg-text-only-text-logo-orange",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Шрифтовая версия логотипа, клубная версия",
-    },
+    caption: { title: "Шрифтовая версия логотипа: клубная." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-34-logo-jestei-pool-3-use-01",
     assetId: "jestei-logo-source-34-logo-jestei-pool-3",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Полная версия логотипа, клубная версия",
-    },
+    caption: { title: "Полная версия логотипа: клубная." },
     purpose: "work",
   },
   {
     id: "jestei-logo-source-35-jestei-logo-depth-reference-use-01",
     assetId: "jestei-logo-source-35-jestei-logo-depth-reference",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Варианты логотипа в объеме",
-    },
+    caption: { title: "Объёмные версии логотипа." },
     purpose: "work",
   },
   {
@@ -1172,10 +949,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-system-logo-source-logo-anatomy-slide",
     projectIds: ["jestei-brand-system", "jestei-promo-communication"],
     alt: "",
-    caption: {
-      title: "Подробная схема построения шильда",
-      index: 3,
-    },
+    caption: { title: "Схема построения знака.", index: 3 },
     purpose: "work",
   },
   {
@@ -1183,19 +957,14 @@ export const jesteiMediaEntries = [
     assetId: "jestei-system-logo-source-logo-color-slide",
     projectIds: ["jestei-brand-system"],
     alt: "",
-    caption: {
-      title: "Обновленная цветовая палитра бренда",
-      index: 4,
-    },
+    caption: { title: "Обновлённая цветовая палитра бренда.", index: 4 },
     purpose: "work",
   },
   {
     id: "jestei-system-logo-source-logo-wordmark-stack-use-01",
     assetId: "jestei-system-logo-source-logo-wordmark-stack",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Вароинаты логотипа в полном виде",
-    },
+    caption: { title: "Полная версия логотипа." },
     purpose: "work",
   },
   {
@@ -1203,19 +972,14 @@ export const jesteiMediaEntries = [
     assetId: "jestei-system-logo-source-logo-type-slide",
     projectIds: ["jestei-brand-system"],
     alt: "",
-    caption: {
-      title: "Подробная схема о структуре логотипа",
-      index: 5,
-    },
+    caption: { title: "Структура логотипа.", index: 5 },
     purpose: "work",
   },
   {
     id: "jestei-system-logo-source-logo-shirt-use-01",
     assetId: "jestei-system-logo-source-logo-shirt",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Мокап с логотоипом и на футболке",
-    },
+    caption: { title: "Логотип на футболке." },
     purpose: "work",
   },
   {
@@ -1223,10 +987,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-system-logo-source-logo-system-01",
     projectIds: ["jestei-brand-system"],
     alt: "",
-    caption: {
-      title: "Фрагмент дизайн системы с логотипом",
-      index: 6,
-    },
+    caption: { title: "Фрагмент дизайн-системы с логотипом.", index: 6 },
     purpose: "work",
   },
   {
@@ -1234,136 +995,105 @@ export const jesteiMediaEntries = [
     assetId: "jestei-system-type-source-logo-druk-slide",
     projectIds: ["jestei-brand-system"],
     alt: "",
-    caption: {
-      title: "Новый акцидентный шрифт бренда — Druk Wide",
-      index: 7,
-    },
+    caption: { title: "Новый акцидентный шрифт бренда — Druk Wide.", index: 7 },
     purpose: "work",
   },
   {
     id: "jestei-system-editorial-source-jestei-product-canvas-161-use-01",
     assetId: "jestei-system-editorial-source-jestei-product-canvas-161",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Фрагмент дизайна рассылок",
-    },
+    caption: { title: "Фрагмент дизайна рассылки." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-01-3963x2650-use-01",
     assetId: "jestei-10-source-01-3963x2650",
     projectIds: ["jestei-playlist-system", "jestei-core-interface"],
-    caption: {
-      title: "скриншот тз ui-kit с макетами новой страницы Record Pool",
-    },
+    caption: { title: "Макеты новой страницы Record Pool в UI-kit." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-02-640x221-use-01",
     assetId: "jestei-10-source-02-640x221",
     projectIds: ["jestei-playlist-system", "jestei-core-interface"],
-    caption: {
-      title: "скриншот тз ui-kit с макетами новой страницы Exclusives",
-    },
+    caption: { title: "Макеты новой страницы Exclusives в UI-kit." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-05-448x337-use-01",
     assetId: "jestei-10-source-05-448x337",
     projectIds: ["jestei-landings", "jestei-event"],
-    caption: {
-      title: "Интерактивная промосекция лендинга ивента для таргета",
-    },
+    caption: { title: "Интерактивная промосекция Event-лендинга для таргетированной рекламы." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-06-487x244-use-01",
     assetId: "jestei-10-source-06-487x244",
     projectIds: ["jestei-landings", "jestei-event"],
-    caption: {
-      title: "Интерактивная промосекция лендинга ивента для таргета",
-    },
+    caption: { title: "Интерактивная промосекция Event-лендинга для таргетированной рекламы." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-07-305x191-use-01",
     assetId: "jestei-10-source-07-305x191",
     projectIds: ["jestei-subscription", "jestei-landings"],
-    caption: {
-      title: "Секция с тарифами в новом лендинге для клубных диджеев",
-    },
+    caption: { title: "Секция с тарифами в новом лендинге для клубных диджеев." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-08-590x443-use-01",
     assetId: "jestei-10-source-08-590x443",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "скриншот тз ui-kit с макетами нового сайдбара",
-    },
+    caption: { title: "Макеты нового сайдбара в UI-kit." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-09-449x337-use-01",
     assetId: "jestei-10-source-09-449x337",
     projectIds: ["jestei-track-filter", "jestei-core-interface"],
-    caption: {
-      title: "скриншот тз ui-kit с макетами фильтра треков",
-    },
+    caption: { title: "Макеты фильтра треков в UI-kit." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-10-1x1-use-01",
     assetId: "jestei-10-source-10-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "обложка для баннера об ошибках на сайте",
-    },
+    caption: { title: "Обложка баннера об ошибках на сайте." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-11-1x1-use-01",
     assetId: "jestei-10-source-11-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "обложка для хеллоуинского плейлиста 2024",
-    },
+    caption: { title: "Обложка хэллоуинского плейлиста, 2024." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-13-1x1-use-01",
     assetId: "jestei-10-source-13-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка плейлиста 14 феквраля 2024",
-    },
+    caption: { title: "Обложка плейлиста к 14 февраля, 2024." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-14-426x583-use-01",
     assetId: "jestei-10-source-14-426x583",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "креатив для соцсетей",
-    },
+    caption: { title: "Креатив для соцсетей." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-15-1x1-use-01",
     assetId: "jestei-10-source-15-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для плейлиста на 9 мая 2026",
-    },
+    caption: { title: "Обложка плейлиста к 9 мая, 2026." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-16-223x286-use-01",
     assetId: "jestei-10-source-16-223x286",
     projectIds: ["jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "креатив для постов сзеона А-ля Рус",
-    },
+    caption: { title: "Креатив для постов сезона «А-ля Рус»." },
     purpose: "work",
   },
   {
@@ -1371,553 +1101,372 @@ export const jesteiMediaEntries = [
     assetId: "jestei-10-source-17-101x50",
     projectIds: ["jestei-core-interface"],
     alt: "",
-    caption: {
-      title: "разделили аудиторию на три группы: \"клубные диджеи\", \"ивент диджеи\" и \"саунд-продюсеры\"",
-      index: 8,
-    },
+    caption: { title: "Разделили аудиторию на клубных диджеев, ивент-диджеев и саунд-продюсеров.", index: 8 },
     purpose: "work",
   },
   {
     id: "jestei-10-source-18-19x26-use-01",
     assetId: "jestei-10-source-18-19x26",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "обложка для свадебного плейлиста",
-    },
+    caption: { title: "Обложка свадебного плейлиста." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-19-1x1-use-01",
     assetId: "jestei-10-source-19-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "обложка-коллаж для спортивных плейлистов",
-    },
+    caption: { title: "Обложка-коллаж для спортивных плейлистов." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-20-1x1-use-01",
     assetId: "jestei-10-source-20-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "креатив для рассылки",
-    },
+    caption: { title: "Креатив для рассылки." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-21-267x200-use-01",
     assetId: "jestei-10-source-21-267x200",
     projectIds: ["jestei-landings", "jestei-event"],
-    caption: {
-      title: "hero-image лендинга ивента",
-    },
+    caption: { title: "Хиро-изображение Event-лендинга." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-22-11x10-use-01",
     assetId: "jestei-10-source-22-11x10",
     projectIds: ["jestei-event"],
-    caption: {
-      title: "лента ивента в мобильном мокапе",
-    },
+    caption: { title: "Лента Event в мобильном мокапе." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-23-329x342-use-01",
     assetId: "jestei-10-source-23-329x342",
     projectIds: ["jestei-event"],
-    caption: {
-      title: "Лента ивента в мокапе ноутубка",
-    },
+    caption: { title: "Лента Event в мокапе ноутбука." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-24-491x256-use-01",
     assetId: "jestei-10-source-24-491x256",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "лента миксов",
-    },
+    caption: { title: "Лента миксов." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-25-608x311-use-01",
     assetId: "jestei-10-source-25-608x311",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "карточки с артистами",
-    },
+    caption: { title: "Карточки артистов." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-28-421x861-use-01",
     assetId: "jestei-10-source-28-421x861",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "Мобильный мокап с интерфейсом ленты новинок",
-    },
+    caption: { title: "Мобильный интерфейс ленты новинок." },
     purpose: "work",
   },
   {
     id: "jestei-10-source-29-720x289-use-01",
     assetId: "jestei-10-source-29-720x289",
     projectIds: ["jestei-landings"],
-    caption: {
-      title: "ФОновое изображение для лендинга",
-    },
+    caption: { title: "Фоновое изображение для лендинга." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-01-1x1-use-01",
     assetId: "jestei-11-source-01-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Креатив для соцсетей",
-    },
+    caption: { title: "Креатив для соцсетей." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-02-1x1-use-01",
     assetId: "jestei-11-source-02-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка для свадебного плейлиста с треками на вынос торта",
-    },
+    caption: { title: "Обложка свадебного плейлиста с треками на вынос торта." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-03-1x1-use-01",
     assetId: "jestei-11-source-03-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка плейлиста на 8 марта 2025",
-    },
+    caption: { title: "Обложка плейлиста к 8 марта, 2025." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-04-1x1-use-01",
     assetId: "jestei-11-source-04-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка плелйиста \"Бал\"",
-    },
+    caption: { title: "Обложка плейлиста «Бал»." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-05-1x1-use-01",
     assetId: "jestei-11-source-05-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка плейлиста \"Джаз\"",
-    },
+    caption: { title: "Обложка плейлиста «Джаз»." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-06-1x1-use-01",
     assetId: "jestei-11-source-06-1x1",
     projectIds: ["jestei-playlist-system", "jestei-promo-communication"],
-    caption: {
-      title: "Креатив для плейлиста на 8 марта 2024",
-    },
+    caption: { title: "Креатив плейлиста к 8 марта, 2024." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-07-644x800-use-01",
     assetId: "jestei-11-source-07-644x800",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Обложка поста об обновлении февральской подборки Топ 50 2026",
-    },
+    caption: { title: "Обложка поста об обновлении февральской подборки «Топ 50», 2026." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-08-1x1-use-01",
     assetId: "jestei-11-source-08-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Обложка поста об обновлении сентябрьской подборки Топ 50 2024",
-    },
+    caption: { title: "Обложка поста об обновлении сентябрьской подборки «Топ 50», 2024." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-09-1x1-use-01",
     assetId: "jestei-11-source-09-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Обложка материала о диджеях",
-    },
+    caption: { title: "Обложка материала о диджеях." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-10-1x1-use-01",
     assetId: "jestei-11-source-10-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Слайд поста об известных диджеях",
-    },
+    caption: { title: "Слайд поста об известных диджеях." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-11-4x5-use-01",
     assetId: "jestei-11-source-11-4x5",
     projectIds: ["jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Обложка для инстаграма об обткрытии свадебного сезона 2026",
-    },
+    caption: { title: "Обложка Instagram-поста об открытии свадебного сезона, 2026." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-12-4x5-use-01",
     assetId: "jestei-11-source-12-4x5",
     projectIds: ["jestei-playlist-system", "jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Слайд поста карусели для инстаграма об обновлении сезонных свадебных плейлистов в ивенте,плейлист \"Церемония\" 2026",
-    },
+    caption: { title: "Слайд Instagram-карусели об обновлении свадебных плейлистов: «Церемония», 2026." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-13-4x5-use-01",
     assetId: "jestei-11-source-13-4x5",
     projectIds: ["jestei-playlist-system", "jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Слайд поста карусели для инстаграма об обновлении сезонных свадебных плейлистов в ивенте,плейлист \"Банкет\" 2026",
-    },
+    caption: { title: "Слайд Instagram-карусели об обновлении свадебных плейлистов: «Банкет», 2026." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-14-1x1-use-01",
     assetId: "jestei-11-source-14-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Обложка поста об открытой вакансии",
-    },
+    caption: { title: "Обложка поста об открытой вакансии." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-15-1x1-use-01",
     assetId: "jestei-11-source-15-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Обложка статьи о подходе диджеев к оформлению своих выступлений",
-    },
+    caption: { title: "Обложка статьи об оформлении диджейских выступлений." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-16-1x1-use-01",
     assetId: "jestei-11-source-16-1x1",
     projectIds: ["jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Пост об обновлении в ивенте",
-    },
+    caption: { title: "Пост об обновлении Event." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-17-490x1280-use-01",
     assetId: "jestei-11-source-17-490x1280",
     projectIds: ["jestei-core-interface"],
-    caption: {
-      title: "Мобильная версия страницы с лентой треков \"Лента Новинок\"",
-    },
+    caption: { title: "Мобильная версия страницы «Лента новинок»." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-18-423x1280-use-01",
     assetId: "jestei-11-source-18-423x1280",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Мобильная версия страницы плейлиста",
-    },
+    caption: { title: "Мобильная версия страницы плейлиста." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-19-4x3-use-01",
     assetId: "jestei-11-source-19-4x3",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Скриншот страницы Эксклюзивы после перевода сайта на русский язык",
-    },
+    caption: { title: "Страница «Эксклюзивы» после перевода сайта на русский язык." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-20-1x1-use-01",
     assetId: "jestei-11-source-20-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Вступительная секция дизайна рассылки для реанимации клиентов",
-    },
+    caption: { title: "Вступительная секция рассылки для реанимации клиентов." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-21-1x1-use-01",
     assetId: "jestei-11-source-21-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Аутр, секция дизайна рассылки для реанимации клиентов",
-    },
+    caption: { title: "Аутро рассылки для реанимации клиентов." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-22-1x1-use-01",
     assetId: "jestei-11-source-22-1x1",
     projectIds: ["jestei-playlist-system", "jestei-promo-communication"],
-    caption: {
-      title: "Обльожка для хеллоуинского пака Bass King 2024",
-    },
+    caption: { title: "Обложка хэллоуинского пака Bass King, 2024." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-23-1x1-use-01",
     assetId: "jestei-11-source-23-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Обложка для развлекательной рубрики \"что делать\"",
-    },
+    caption: { title: "Обложка развлекательной рубрики «Что делать»." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-24-1x1-use-01",
     assetId: "jestei-11-source-24-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Обложка для развлекательной рубрики \"никогда не говори это диджею\"",
-    },
+    caption: { title: "Обложка развлекательной рубрики «Никогда не говори это диджею»." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-25-1x1-use-01",
     assetId: "jestei-11-source-25-1x1",
     projectIds: ["jestei-playlist-system", "jestei-promo-communication"],
-    caption: {
-      title: "Обложка для хеллоуинского пака от команды, Mages 2024",
-    },
+    caption: { title: "Обложка хэллоуинского пака команды Mages, 2024." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-26-1x1-use-01",
     assetId: "jestei-11-source-26-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для плейлиста \"Советский эмбиент\"",
-    },
+    caption: { title: "Обложка плейлиста «Советский эмбиент»." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-27-1x1-use-01",
     assetId: "jestei-11-source-27-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка для плейлиста \"Подложки\"в ивенте",
-    },
+    caption: { title: "Обложка плейлиста «Подложки» в Event." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-28-1x1-use-01",
     assetId: "jestei-11-source-28-1x1",
     projectIds: ["jestei-playlist-system", "jestei-event"],
-    caption: {
-      title: "Обложка для плейлиста \"Подложки\"в ивенте",
-    },
+    caption: { title: "Обложка плейлиста «Подложки» в Event." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-29-1x1-use-01",
     assetId: "jestei-11-source-29-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Обложка для поста-инструкции о том,как пользоваться Лентой новинок",
-    },
+    caption: { title: "Обложка поста-инструкции о «Ленте новинок»." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-30-1x1-use-01",
     assetId: "jestei-11-source-30-1x1",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Дизайн письма для реанимации клиентов",
-    },
+    caption: { title: "Дизайн письма для реанимации клиентов." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-31-572x1400-use-01",
     assetId: "jestei-11-source-31-572x1400",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Дизайн письма для реанимации клиентов",
-    },
+    caption: { title: "Дизайн письма для реанимации клиентов." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-32-550x412-use-01",
     assetId: "jestei-11-source-32-550x412",
     projectIds: ["jestei-brand-system", "jestei-promo-communication"],
-    caption: {
-      title: "Паттерн для дизайн баннеров 'Exclusive Edits' с использованием шейпов 2024",
-    },
+    caption: { title: "Паттерн баннеров Exclusive Edits с геометрическими формами, 2024." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-33-8x5-use-01",
     assetId: "jestei-11-source-33-8x5",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Шейпы и геометрические фигуры в дизайн системе",
-    },
+    caption: { title: "Геометрические формы в дизайн-системе." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-35-1x1-use-01",
     assetId: "jestei-11-source-35-1x1",
     projectIds: ["jestei-event", "jestei-promo-communication"],
-    caption: {
-      title: "Рекламный креатив для открытия свадебного сезона 2026",
-    },
+    caption: { title: "Рекламный креатив к открытию свадебного сезона, 2026." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-36-1289x1230-use-01",
     assetId: "jestei-11-source-36-1289x1230",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Обложка для плейлиста \"Электронные новинки\"",
-    },
+    caption: { title: "Обложка плейлиста «Электронные новинки»." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-37-1x1-use-01",
     assetId: "jestei-11-source-37-1x1",
     projectIds: ["jestei-playlist-system"],
-    caption: {
-      title: "Коллажи для обложек плейлистов",
-    },
+    caption: { title: "Коллажи для обложек плейлистов." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-38-16x9-use-01",
     assetId: "jestei-11-source-38-16x9",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Новая цветовая плаитра бренда",
-    },
+    caption: { title: "Новая цветовая палитра бренда." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-40-1260x898-use-01",
     assetId: "jestei-11-source-40-1260x898",
     projectIds: ["jestei-brand-system"],
-    caption: {
-      title: "Новый акцидентный шрифт бренда — Druk Wide",
-    },
+    caption: { title: "Новый акцидентный шрифт бренда — Druk Wide." },
     purpose: "work",
   },
   {
     id: "jestei-11-source-41-216x484-use-01",
     assetId: "jestei-11-source-41-216x484",
     projectIds: ["jestei-subscription", "jestei-core-interface"],
-    caption: {
-      title: "Промовиджет в сайдбаре с предложением повысить тариф.",
-    },
+    caption: { title: "Промовиджет в сайдбаре с предложением повысить тариф." },
     purpose: "work",
   },
   {
     id: "jestei-12-source-01-1080x1080-use-01",
     assetId: "jestei-12-source-01-1080x1080",
     projectIds: ["jestei-promo-communication"],
-    caption: {
-      title: "Кадр кампейна для Jestei Pool.",
-    },
+    caption: { title: "Кадр кампейна Jestei Pool." },
     purpose: "work",
   },
-  {
-    id: "jestei-13-source-01-16x9-use-01",
-    assetId: "jestei-13-source-01-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-01-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-02-16x9-use-01",
-    assetId: "jestei-13-source-02-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-02-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-03-16x9-use-01",
-    assetId: "jestei-13-source-03-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-03-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-04-16x9-use-01",
-    assetId: "jestei-13-source-04-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-04-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-05-16x9-use-01",
-    assetId: "jestei-13-source-05-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-05-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-06-16x9-use-01",
-    assetId: "jestei-13-source-06-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-06-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-07-16x9-use-01",
-    assetId: "jestei-13-source-07-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-07-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-08-16x9-use-01",
-    assetId: "jestei-13-source-08-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-08-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-09-16x9-use-01",
-    assetId: "jestei-13-source-09-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-09-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-10-16x9-use-01",
-    assetId: "jestei-13-source-10-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-10-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-11-16x9-use-01",
-    assetId: "jestei-13-source-11-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-11-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-13-source-12-16x9-use-01",
-    assetId: "jestei-13-source-12-16x9",
-    projectIds: ["jestei-track-filter"],
-    posterAssetId: "jestei-13-poster-12-16x9",
-    purpose: "work",
-  },
-  {
-    id: "jestei-14-source-01-4x5-use-01",
-    assetId: "jestei-14-source-01-4x5",
-    projectIds: ["jestei-promo-communication"],
-    posterAssetId: "jestei-14-poster-01-4x5",
-    purpose: "work",
-  },
+  { id: "jestei-13-source-01-16x9-use-01", assetId: "jestei-13-source-01-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-01-16x9", purpose: "work" },
+  { id: "jestei-13-source-02-16x9-use-01", assetId: "jestei-13-source-02-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-02-16x9", purpose: "work" },
+  { id: "jestei-13-source-03-16x9-use-01", assetId: "jestei-13-source-03-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-03-16x9", purpose: "work" },
+  { id: "jestei-13-source-04-16x9-use-01", assetId: "jestei-13-source-04-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-04-16x9", purpose: "work" },
+  { id: "jestei-13-source-05-16x9-use-01", assetId: "jestei-13-source-05-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-05-16x9", purpose: "work" },
+  { id: "jestei-13-source-06-16x9-use-01", assetId: "jestei-13-source-06-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-06-16x9", purpose: "work" },
+  { id: "jestei-13-source-07-16x9-use-01", assetId: "jestei-13-source-07-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-07-16x9", purpose: "work" },
+  { id: "jestei-13-source-08-16x9-use-01", assetId: "jestei-13-source-08-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-08-16x9", purpose: "work" },
+  { id: "jestei-13-source-09-16x9-use-01", assetId: "jestei-13-source-09-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-09-16x9", purpose: "work" },
+  { id: "jestei-13-source-10-16x9-use-01", assetId: "jestei-13-source-10-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-10-16x9", purpose: "work" },
+  { id: "jestei-13-source-11-16x9-use-01", assetId: "jestei-13-source-11-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-11-16x9", purpose: "work" },
+  { id: "jestei-13-source-12-16x9-use-01", assetId: "jestei-13-source-12-16x9", projectIds: ["jestei-track-filter"], posterAssetId: "jestei-13-poster-12-16x9", purpose: "work" },
+  { id: "jestei-14-source-01-4x5-use-01", assetId: "jestei-14-source-01-4x5", projectIds: ["jestei-promo-communication"], posterAssetId: "jestei-14-poster-01-4x5", purpose: "work" },
   {
     id: "jestei-13-source-13-1280x588-use-01",
     assetId: "jestei-13-source-13-1280x588",
@@ -1926,7 +1475,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Лендинги Jestei Pool.",
       index: 21,
-      text: "К 2025 году один общий лендинг уже не отражал устройство сервиса: появилось много новых инструментов,сценариев и была занята новая ниша — мы начали работать с музыкой для ивент-диджеев. Мы начали активно работать с таргетированный рекламой и единый лендинг перестал эффективно работать как рекламный инструмент: он не описывал всю продуктовую линейку сервиса и не позволял делать точечные рекламные предложения. Поэтому мы запустили систему из двух лендингов,каждый из которых состоит из набора промомодулей, каждый из которых решал свою рекламную цель.",
+      text: "К 2025 году сервис вырос: появились новые инструменты и сценарии, а Event стал отдельным направлением. Один лендинг уже не мог точно обращаться к разным аудиториям. Поэтому запустили два и собрали каждый из промомодулей под свои рекламные задачи.",
     },
     purpose: "work",
   },
@@ -1949,10 +1498,7 @@ export const jesteiMediaEntries = [
     assetId: "jestei-redpolitika-preview",
     projectIds: ["jestei-editorial-policy"],
     alt: "Первый экран редполитики Jestei Pool",
-    caption: {
-      title: "Редполитика Jestei Pool.",
-      index: 36,
-    },
+    caption: { title: "Редполитика Jestei Pool.", index: 36 },
     purpose: "work",
   },
   {
@@ -1969,6 +1515,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Анимированная секция лендинга для клубных диджеев.",
       index: 35,
+      text: "Canvas-анимации и интерактивные виджеты знакомят пользователя с продуктом прямо на странице. Лента показывает треки, интерфейс и инструменты сервиса. Для анимаций использовали мою библиотеку Moves Awful.",
     },
     purpose: "work",
   },
@@ -1980,6 +1527,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Анимированная секция лендинга для клубных диджеев.",
       index: 35,
+      text: "Canvas-анимации и интерактивные виджеты знакомят пользователя с продуктом прямо на странице. Лента показывает треки, интерфейс и инструменты сервиса. Для анимаций использовали мою библиотеку Moves Awful.",
     },
     purpose: "work",
   },
@@ -1991,6 +1539,7 @@ export const jesteiMediaEntries = [
     caption: {
       title: "Анимированная секция лендинга для клубных диджеев.",
       index: 35,
+      text: "Canvas-анимации и интерактивные виджеты знакомят пользователя с продуктом прямо на странице. Лента показывает треки, интерфейс и инструменты сервиса. Для анимаций использовали мою библиотеку Moves Awful.",
     },
     purpose: "work",
   },
