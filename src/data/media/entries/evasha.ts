@@ -7,7 +7,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-05-source-01-1x1",
       alt: "",
       caption: {
-        title: "Обложка сингла Evasha — Не подходи",
+        title: "Обложка сингла Evasha «Не подходи».",
         meta: [
           ", продюсер: Лёка Варданьян, стилист Зоя Просекова, лейбл ВК Музыка / 2025.",
         ],
@@ -51,7 +51,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-07-source-01-4x5",
       alt: "",
       caption: {
-        title: "Микс-медиа Evasha, 2025.",
+        title: "Микс-медиа для Evasha, 2025.",
         meta: [
           "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка.",
         ],
@@ -62,7 +62,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-07-source-02-121x125",
       alt: "",
       caption: {
-        title: "Микс-медиа Evasha, 2025.",
+        title: "Микс-медиа для Evasha, 2025.",
         meta: [
           "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка.",
         ],
@@ -73,7 +73,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-07-source-03-4x5",
       alt: "",
       caption: {
-        title: "Микс-медиа Evasha, 2025.",
+        title: "Микс-медиа для Evasha, 2025.",
         meta: [
           "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка.",
         ],
@@ -84,7 +84,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-08-source-01-99x140",
       alt: "",
       caption: {
-        title: "Микс-медиа Evasha",
+        title: "Микс-медиа для Evasha.",
         meta: [
           "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка.",
         ],
@@ -95,7 +95,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-08-source-02-4x5",
       alt: "",
       caption: {
-        title: "Портрет Evasha",
+        title: "Портрет Evasha.",
         meta: [
           "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка.",
         ],
@@ -106,7 +106,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-09-source-01-4x5",
       alt: "",
       caption: {
-        title: "Портрет Evasha",
+        title: "Портрет Evasha.",
         meta: [
           ", продюсер: Лёка Варданьян, стилист Зоя Просекова, лейбл ВК Музыка / 2025.",
         ],
@@ -117,7 +117,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-09-source-02-1x1",
       alt: "",
       caption: {
-        title: "Портрет Evasha",
+        title: "Портрет Evasha.",
         meta: [
           ", продюсер: Лёка Варданьян, стилист Зоя Просекова, лейбл ВК Музыка / 2025.",
         ],
@@ -150,7 +150,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-05-source-01-1x1",
       alt: "",
       caption: {
-        title: "Обложка сингла Evasha — Не подходи",
+        title: "Обложка сингла Evasha «Не подходи».",
         index: 15,
         meta: [
           ", продюсер: Лёка Варданьян, стилист Зоя Просекова, лейбл ВК Музыка / 2025.",
@@ -198,7 +198,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-07-source-01-4x5",
       alt: "",
       caption: {
-        title: "Микс-медиа Evasha, 2025.",
+        title: "Микс-медиа для Evasha, 2025.",
         index: 19,
         meta: [
           "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка.",
@@ -210,7 +210,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-07-source-02-121x125",
       alt: "",
       caption: {
-        title: "Микс-медиа Evasha, 2025.",
+        title: "Микс-медиа для Evasha, 2025.",
         index: 20,
         meta: [
           "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка.",
@@ -222,7 +222,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-07-source-03-4x5",
       alt: "",
       caption: {
-        title: "Микс-медиа Evasha, 2025.",
+        title: "Микс-медиа для Evasha, 2025.",
         index: 21,
         meta: [
           "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка.",
@@ -234,7 +234,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-08-source-01-99x140",
       alt: "",
       caption: {
-        title: "Микс-медиа Evasha",
+        title: "Микс-медиа для Evasha.",
         index: 22,
         meta: [
           "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка.",
@@ -246,7 +246,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-08-source-02-4x5",
       alt: "",
       caption: {
-        title: "Портрет Evasha",
+        title: "Портрет Evasha.",
         index: 23,
         meta: [
           "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка.",
@@ -258,7 +258,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-09-source-01-4x5",
       alt: "",
       caption: {
-        title: "Портрет Evasha",
+        title: "Портрет Evasha.",
         index: 24,
         meta: [
           ", продюсер: Лёка Варданьян, стилист Зоя Просекова, лейбл ВК Музыка / 2025.",
@@ -270,7 +270,7 @@ export const evashaMediaEntries = [
       assetId: "evasha-09-source-02-1x1",
       alt: "",
       caption: {
-        title: "Портрет Evasha",
+        title: "Портрет Evasha.",
         index: 24,
         meta: [
           ", продюсер: Лёка Варданьян, стилист Зоя Просекова, лейбл ВК Музыка / 2025.",
