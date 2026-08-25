@@ -17,6 +17,59 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Audit content structure and credits
+        run: |
+          git fetch origin prod --depth=1
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { execFileSync } from 'node:child_process';
+          import { readFileSync } from 'node:fs';
+
+          const fromProd = (path) => execFileSync('git', ['show', `origin/prod:${path}`], { encoding: 'utf8' });
+          const fromBranch = (path) => readFileSync(path, 'utf8');
+          const propertyStrings = (source, property) => [
+            ...source.matchAll(new RegExp(`\\b${property}:\\s*"([^"]+)"`, 'g')),
+          ].map((match) => match[1]);
+          const arrayLiterals = (source, property) => [
+            ...source.matchAll(new RegExp(`\\b${property}:\\s*\\[([\\s\\S]*?)\\]`, 'g')),
+          ].map((match) => match[1].match(/"(?:[^"\\\\]|\\\\.)*"/g) ?? []);
+
+          const jesteiPath = 'src/data/media/entries/jestei.ts';
+          for (const property of ['id', 'assetId']) {
+            assert.deepEqual(
+              propertyStrings(fromBranch(jesteiPath), property),
+              propertyStrings(fromProd(jesteiPath), property),
+              `Jestei ${property} sequence changed`,
+            );
+          }
+
+          for (const path of [
+            'src/data/media/entries/obladaet.ts',
+            'src/data/media/entries/evasha.ts',
+            'src/data/media/entries/igguana.ts',
+            'src/data/media/entries/hypression.ts',
+          ]) {
+            assert.deepEqual(
+              arrayLiterals(fromBranch(path), 'meta'),
+              arrayLiterals(fromProd(path), 'meta'),
+              `${path}: meta changed`,
+            );
+          }
+
+          for (const path of [
+            'src/data/content/sensetique.ts',
+            'src/data/content/shootings.ts',
+            'src/data/content/styx.ts',
+          ]) {
+            assert.deepEqual(
+              arrayLiterals(fromBranch(path), 'lines'),
+              arrayLiterals(fromProd(path), 'lines'),
+              `${path}: credit lines changed`,
+            );
+          }
+          NODE
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
