@@ -35,11 +35,11 @@ test("custom surface copy remains authored once and is explicitly available to t
 
   assert.match(
     brand,
-    /data-lightbox-caption-copy[^>]*>Мы сохранили узнаваемый шильд Jestei Pool/,
+    /data-lightbox-caption-copy[^>]*>Серьёзно переработали логотип Jestei Pool/,
   );
   assert.match(
     interfaceGroup,
-    /data-lightbox-caption-copy[^>]*>Мы начали группировать плейлисты/,
+    /data-lightbox-caption-copy[^>]*>Сгруппировали плейлисты и добавили заголовки и описания/,
   );
 });
 
