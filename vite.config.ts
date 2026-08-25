@@ -163,6 +163,7 @@ import { renderProjectIntro } from "./src/templates/project-intro.ts";
 import { renderSectionIntro } from "./src/templates/section-intro.ts";
 
 type HtmlSlot = readonly [marker: string, content: string];
+type HtmlPatternReplacement = readonly [pattern: RegExp, replacement: string, label: string];
 
 function replaceRequiredSlot(html: string, slot: string, content: string): string {
   if (!html.includes(slot)) {
@@ -175,6 +176,30 @@ function replaceRequiredSlot(html: string, slot: string, content: string): strin
 function replaceRequiredSlots(html: string, slots: readonly HtmlSlot[]): string {
   return slots.reduce(
     (output, [slot, content]) => replaceRequiredSlot(output, slot, content),
+    html,
+  );
+}
+
+function replaceRequiredPattern(
+  html: string,
+  pattern: RegExp,
+  replacement: string,
+  label: string,
+): string {
+  if (!pattern.test(html)) {
+    throw new Error(`Required HTML text not found: ${label}`);
+  }
+
+  pattern.lastIndex = 0;
+  return html.replace(pattern, replacement);
+}
+
+function replaceRequiredPatterns(
+  html: string,
+  replacements: readonly HtmlPatternReplacement[],
+): string {
+  return replacements.reduce(
+    (output, [pattern, replacement, label]) => replaceRequiredPattern(output, pattern, replacement, label),
     html,
   );
 }
@@ -480,7 +505,50 @@ function siteTemplatesPlugin(): Plugin {
         ["<!-- MOSCOW_NEWS_INTRO -->", renderProjectIntro(moskovskieNovostiIntro)],
       ];
 
-      return replaceRequiredSlots(html, slots);
+      const replacements: readonly HtmlPatternReplacement[] = [
+        [
+          /<p class="group-note" data-reveal="copy">\s*Вместо одного общего лендинга запустили два\. Каждый собрали из промомодулей под разные рекламные задачи\s*и продуктовые сценарии\.\s*<\/p>/,
+          "",
+          "stray Jestei landing copy inside Styx",
+        ],
+        [
+          /Новый\s+дизайн системы фильтрации треков\./,
+          "Новый интерфейс фильтрации треков.",
+          "Jestei filter caption",
+        ],
+        [
+          /Импульсный и постоянный свет, насадки, отражатели и оборудование для съёмок\./,
+          "В студии были импульсный и постоянный свет, насадки, отражатели и другое съёмочное оборудование.",
+          "Sensetique equipment copy",
+        ],
+        [
+          /Продакшен активно публиковал съёмки и сотрудничал с российскими и европейскими\s+изданиями\./,
+          "Публиковали съёмки в российских и европейских изданиях и работали с редакциями над спецпроектами.",
+          "Sensetique publications copy",
+        ],
+        [
+          /Продакшен снимал лукбуки, кампейны, видео и каталоги для российских\s+независимых дизайнеров и брендов одежды\./,
+          "Для российских независимых дизайнеров и брендов одежды снимали лукбуки, кампейны, видео и каталоги.",
+          "Sensetique fashion production copy",
+        ],
+        [
+          /<strong class="credits__title">Olovo Moscow<\/strong>/g,
+          "",
+          "client-only Olovo Moscow group headings",
+        ],
+        [
+          /В студии проходили мастер-классы и интенсивы с приглашёнными авторами —\s*ещё один способ превратить пространство в работающую творческую среду\./,
+          "В студии проводили мастер-классы и интенсивы с приглашёнными авторами.",
+          "Sensetique masterclasses copy",
+        ],
+        [
+          /Digital-fear-of-love — адверториал для ювелирного бренда MIMI MOSCOW/g,
+          "Digital Fear of Love",
+          "Digital Fear of Love title",
+        ],
+      ];
+
+      return replaceRequiredPatterns(replaceRequiredSlots(html, slots), replacements);
     },
   };
 }
