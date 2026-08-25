@@ -430,7 +430,17 @@ async function openSource(page, selector, label, method = "click") {
     await source.click({ force: true });
   }
 
-  await page.waitForTimeout(160);
+  await page
+    .waitForFunction(
+      () => {
+        const dialog = document.querySelector("[data-media-lightbox]");
+        if (dialog instanceof HTMLDialogElement && dialog.open) return true;
+        return Boolean(document.querySelector(".pswp"));
+      },
+      null,
+      { timeout: 2_500 },
+    )
+    .catch(() => {});
   return assertLightboxOpen(page, label);
 }
 
@@ -896,7 +906,8 @@ async function verifyMotionContract(page, label) {
       masonry: exists(".media-group[data-layout=\"masonry\"] > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
       editorial: !exists(".media-group[data-layout=\"editorial\"]") ||
         exists(".media-group[data-layout=\"editorial\"] > .media-group__items[data-reveal-group] > figure.media[data-reveal=\"media\"]"),
-      bento: exists(".media-group[data-layout=\"bento\"] > .media-group__items[data-reveal-group][data-reveal-rail] > figure.media[data-reveal=\"media\"]"),
+      bento: !exists(".media-group[data-layout=\"bento\"]") ||
+        exists(".media-group[data-layout=\"bento\"] > .media-group__items[data-reveal-group][data-reveal-rail] > figure.media[data-reveal=\"media\"]"),
       sequence: exists(".media-group[data-layout=\"sequence\"] > .media-group__items[data-reveal-group] figure.media[data-reveal=\"media\"]"),
       compactReel: exists(".media-group[data-compact-layout=\"reel\"] > .media-group__items[data-reveal-group][data-reveal-rail]"),
       overflowReel: exists(".media-group[data-overflow=\"reel\"] > .media-group__items[data-reveal-rail]") &&

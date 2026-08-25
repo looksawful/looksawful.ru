@@ -47,11 +47,9 @@ export const sensetiqueProductionIntro = {
 
 
 export const sensetiqueBuro247Group = {
-  layout: "grid",
+  layout: "editorial",
 
   captionView: "overlay",
-
-  columns: 3,
 
   head: {
     credits: {
@@ -70,11 +68,11 @@ export const sensetiqueBuro247Group = {
   },
 
   items: [
-    { entryId: "sensetique-04-source-12-544x763-use-02", loading: "lazy" },
-    { entryId: "sensetique-04-source-13-4x5-use-02", loading: "lazy" },
-    { entryId: "sensetique-05-source-03-375x538-use-02", loading: "lazy" },
-    { entryId: "sensetique-11-source-22-937x1171-use-02", loading: "lazy" },
-    { entryId: "sensetique-11-source-26-129x160-use-02", loading: "lazy" },
+    { entryId: "sensetique-04-source-12-544x763-use-02", loading: "lazy", role: "wide", start: 1, span: 8 },
+    { entryId: "sensetique-04-source-13-4x5-use-02", loading: "lazy", start: 9, span: 4 },
+    { entryId: "sensetique-05-source-03-375x538-use-02", loading: "lazy", start: 1, span: 4 },
+    { entryId: "sensetique-11-source-22-937x1171-use-02", loading: "lazy", start: 5, span: 4 },
+    { entryId: "sensetique-11-source-26-129x160-use-02", loading: "lazy", start: 9, span: 4 },
   ],
 } as const satisfies MediaGroupData<MediaEntryId>;
 
@@ -82,6 +80,9 @@ export const sensetiqueOlovoBookletGroup = {
   layout: "grid",
 
   captionView: "overlay",
+
+  columns: 2,
+  mobileColumns: 1,
 
   head: {
     credits: {
@@ -129,6 +130,9 @@ export const sensetiqueKatyaKnyazevaEditorialGroup = {
   layout: "grid",
 
   captionView: "overlay",
+
+  columns: 4,
+  mobileColumns: 2,
 
   head: {
     credits: {
@@ -949,9 +953,8 @@ export const sensetiqueRaputoEditorialStrip = {
 export const sensetiqueYoungPioneerSequence = {
   "layout": "sequence",
   "captionView": "overlay",
-  "columns": 2,
+  "columns": 3,
   "ratio": "4 / 5",
-  "middleOverflow": "reel",
   "head": {
     "credits": {
       "title": "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
@@ -1082,8 +1085,10 @@ export const sensetiqueOlovoCampaignStrip = {
 
 export const sensetiqueOlovoLookbook2016Reel = {
   "layout": "grid",
-  "mode": "overflow-reel",
+  "mode": "compact-reel",
   "captionView": "overlay",
+  "columns": 3,
+  "compactItemSize": "min(68cqi, 17rem)",
   "head": {
     "credits": {
       "title": "Лукбук Olovo Moscow, 2016.",
@@ -1119,8 +1124,10 @@ export const sensetiqueOlovoLookbook2016Reel = {
 
 export const sensetiqueOlovoLookbook2018Reel = {
   "layout": "grid",
-  "mode": "overflow-reel",
+  "mode": "compact-reel",
   "captionView": "overlay",
+  "columns": 3,
+  "compactItemSize": "min(68cqi, 17rem)",
   "head": {
     "credits": {
       "title": "Лукбук Olovo Moscow, 2018.",
@@ -1150,10 +1157,10 @@ export const sensetiqueOlovoLookbook2018Reel = {
 
 export const sensetiqueInnaHonourReel = {
   "layout": "grid",
-  "mode": "overflow-reel",
+  "mode": "compact-reel",
   "captionView": "overlay",
-  "mobileRows": 1,
-  "reelHeight": "clamp(12rem, 44cqi, 18rem)",
+  "columns": 4,
+  "compactItemSize": "min(68cqi, 17rem)",
   "head": {
     "className": "split split-always",
     "style": "--split-min: 12rem; --split-gap: clamp(1rem, 6cqi, 6rem)",
@@ -1225,7 +1232,7 @@ export const sensetiqueOlovoArchitectureStrip = {
 
 
 export const sensetiqueChapurinBentoGroup = {
-  "layout": "bento",
+  "layout": "editorial",
   "captionView": "overlay",
   "head": {
     "credits": {
@@ -1237,76 +1244,72 @@ export const sensetiqueChapurinBentoGroup = {
       ]
     }
   },
-  "rows": 2,
-  "columns": 9,
-  "cellSize": "clamp(8rem, 30cqi, 12rem)",
-  "height": "clamp(22rem, 36cqi, 32rem)",
   "items": [
     {
       "entryId": "sensetique-09-source-22-457x640-use-03",
       "loading": "lazy",
-      "colSpan": 2,
-      "rowSpan": 1
+      "start": 1,
+      "span": 4
     },
     {
       "entryId": "sensetique-09-source-23-457x640-use-03",
       "loading": "lazy",
-      "colSpan": 2,
-      "rowSpan": 2
+      "start": 5,
+      "span": 4
     },
     {
       "entryId": "sensetique-11-source-29-197x256-use-03",
       "loading": "lazy",
-      "colSpan": 2,
-      "rowSpan": 2
+      "start": 9,
+      "span": 4
     },
     {
       "entryId": "sensetique-11-source-35-4x5-use-03",
       "loading": "lazy",
-      "colSpan": 1,
-      "rowSpan": 1
+      "start": 1,
+      "span": 3
     },
     {
       "entryId": "sensetique-11-source-37-1023x1280-use-03",
       "loading": "lazy",
-      "colSpan": 1,
-      "rowSpan": 1
+      "start": 4,
+      "span": 3
     },
     {
       "entryId": "sensetique-11-source-41-4x5-use-03",
       "loading": "lazy",
-      "colSpan": 1,
-      "rowSpan": 1
+      "start": 7,
+      "span": 3
     },
     {
       "entryId": "sensetique-11-source-45-853x1280-use-03",
       "loading": "lazy",
-      "colSpan": 1,
-      "rowSpan": 1
+      "start": 10,
+      "span": 3
     },
     {
       "entryId": "sensetique-11-source-47-853x1280-use-03",
       "loading": "lazy",
-      "colSpan": 1,
-      "rowSpan": 1
+      "start": 1,
+      "span": 3
     },
     {
       "entryId": "sensetique-11-source-50-853x1280-use-03",
       "loading": "lazy",
-      "colSpan": 1,
-      "rowSpan": 1
+      "start": 4,
+      "span": 3
     },
     {
       "entryId": "sensetique-11-source-55-853x1280-use-03",
       "loading": "lazy",
-      "colSpan": 1,
-      "rowSpan": 1
+      "start": 7,
+      "span": 3
     },
     {
       "entryId": "sensetique-11-source-64-457x640-use-03",
       "loading": "lazy",
-      "colSpan": 1,
-      "rowSpan": 1
+      "start": 10,
+      "span": 3
     }
   ]
 } as const satisfies MediaGroupData<MediaEntryId>;
@@ -1657,6 +1660,11 @@ export const sensetiqueStudioJustifiedGallery = {
         { entryId: "sensetique-11-source-23-427x640-use-01", loading: "lazy", surface: { ratio: "427 / 640" } },
         { entryId: "sensetique-07-source-03-3x4-use-01", loading: "lazy", surface: { ratio: "3 / 4" } },
         { entryId: "sensetique-09-source-17-9x16-use-01", loading: "lazy", surface: { ratio: "9 / 16" } },
+      ],
+    },
+    {
+      kind: "mixed",
+      items: [
         { entryId: "sensetique-09-source-15-3x4-use-01", loading: "lazy", surface: { ratio: "3 / 4" } },
         { entryId: "sensetique-01-source-04-3x4-use-01", loading: "lazy", surface: { ratio: "3 / 4" } },
       ],

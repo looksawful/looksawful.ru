@@ -91,6 +91,15 @@
   .hero__role {
     line-height: var(--lh-display);
   }
+
+  .media-group[data-layout="strip"] .portfolio-logo-wall__item .media__surface {
+    isolation: isolate;
+    background: var(--clr-bg);
+  }
+
+  .media-group[data-layout="strip"] .portfolio-logo-wall__item .media__surface > img {
+    mix-blend-mode: darken;
+  }
 }
 
 @layer captions {

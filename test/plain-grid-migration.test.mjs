@@ -106,15 +106,24 @@ const slotByGroup = {
   shootingsHypressionPortraitsGroup: "SHOOTINGS_HYPRESSION_PORTRAITS_GROUP",
 };
 
-test("plain-grid groups are typed with the same media order", async () => {
+const layoutByGroup = {
+  sensetiqueBuro247Group: "editorial",
+};
+
+test("typed media groups keep their expected layout contracts and media order", async () => {
   for (const { module, groups } of Object.values(expected)) {
     const exports = await import(module);
 
     for (const [name, entryIds] of Object.entries(groups)) {
       const group = exports[name];
+      const expectedLayout = layoutByGroup[name] ?? "grid";
       assert.ok(group, `missing export ${name}`);
-      assert.equal(group.layout, "grid", `${name} must stay a grid`);
-      assert.equal(group.mode ?? "plain", "plain", `${name} must stay plain`);
+      assert.equal(group.layout, expectedLayout, `${name} must keep its expected layout`);
+      if (expectedLayout === "grid") {
+        assert.equal(group.mode ?? "plain", "plain", `${name} must stay plain`);
+      } else {
+        assert.equal("mode" in group, false, `${name} must not define grid-only mode`);
+      }
       assert.equal(group.captionView, "overlay", `${name} must keep overlay captions`);
       assert.deepEqual(
         group.items.map((item) => item.entryId),
