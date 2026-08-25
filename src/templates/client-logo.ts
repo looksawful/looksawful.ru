@@ -15,14 +15,14 @@ export function renderClientLogo(logo: ClientLogoData): string {
     >
       <div
         class="media__surface"
-        style="--media-ratio: 1200 / 496"
+        style="--media-ratio: 1200 / 496; --media-surface-bg: var(--clr-bg)"
       >
         <img
           alt="${escapeHtml(alt)}"
           decoding="async"
           height="496"
           src="${escapeHtml(src)}"
-          style="mix-blend-mode: multiply"
+          style="mix-blend-mode: darken"
           width="1200"
         >
       </div>
