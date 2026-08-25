@@ -7,7 +7,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-14-source-01-5x4",
       alt: "",
       caption: {
-        title: "Микс-медиа арт HYPRESSION",
+        title: "Микс-медиа для HYPRESSION.",
         meta: [
           ", стилист Мария Жукова, художник по свету: Валентин Панков / 2023.",
         ],
@@ -18,7 +18,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-15-source-01-1x1",
       alt: "",
       caption: {
-        title: "Коллаж-арт HYPRESSION",
+        title: "Коллаж для HYPRESSION.",
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
         ],
@@ -29,7 +29,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-15-source-02-256x181",
       alt: "",
       caption: {
-        title: "Фотография HYPRESSION",
+        title: "Фотография для HYPRESSION.",
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
         ],
@@ -40,7 +40,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-16-source-01-479x671",
       alt: "",
       caption: {
-        title: "Фотография HYPRESSION",
+        title: "Фотография для HYPRESSION.",
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
         ],
@@ -51,7 +51,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-16-source-02-2x3",
       alt: "",
       caption: {
-        title: "Микс-медиа арт HYPRESSION",
+        title: "Микс-медиа для HYPRESSION.",
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
         ],
@@ -62,7 +62,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-17-source-01-4x5",
       alt: "",
       caption: {
-        title: "Фотография HYPRESSION, 2023.",
+        title: "Фотография для HYPRESSION, 2023.",
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
         ],
@@ -73,7 +73,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-17-source-02-121x175",
       alt: "",
       caption: {
-        title: "Фотография HYPRESSION, 2023.",
+        title: "Фотография для HYPRESSION, 2023.",
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
         ],
@@ -84,7 +84,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-14-source-01-5x4",
       alt: "",
       caption: {
-        title: "Микс-медиа арт HYPRESSION",
+        title: "Микс-медиа для HYPRESSION.",
         index: 34,
         meta: [
           ", стилист Мария Жукова, художник по свету: Валентин Панков / 2023.",
@@ -96,7 +96,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-15-source-01-1x1",
       alt: "",
       caption: {
-        title: "Коллаж-арт HYPRESSION",
+        title: "Коллаж для HYPRESSION.",
         index: 35,
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
@@ -108,7 +108,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-15-source-02-256x181",
       alt: "",
       caption: {
-        title: "Фотография HYPRESSION",
+        title: "Фотография для HYPRESSION.",
         index: 36,
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
@@ -120,7 +120,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-16-source-01-479x671",
       alt: "",
       caption: {
-        title: "Фотография HYPRESSION",
+        title: "Фотография для HYPRESSION.",
         index: 37,
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
@@ -132,7 +132,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-16-source-02-2x3",
       alt: "",
       caption: {
-        title: "Микс-медиа арт HYPRESSION",
+        title: "Микс-медиа для HYPRESSION.",
         index: 38,
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
@@ -144,7 +144,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-17-source-01-4x5",
       alt: "",
       caption: {
-        title: "Фотография HYPRESSION, 2023.",
+        title: "Фотография для HYPRESSION, 2023.",
         index: 39,
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
@@ -156,7 +156,7 @@ export const hypressionMediaEntries = [
       assetId: "hypression-17-source-02-121x175",
       alt: "",
       caption: {
-        title: "Фотография HYPRESSION, 2023.",
+        title: "Фотография для HYPRESSION, 2023.",
         index: 40,
         meta: [
           "Стилист Мария Жукова, Художник по свету Валентин Панков.",
