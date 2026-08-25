@@ -64,6 +64,26 @@ test("lightbox navigation is project-scoped and media shell belongs to the Photo
   assert.match(adapter, /contentDestroy/);
 });
 
+test("persistent rails and standalone sliders keep captions out of page geometry but available to lightbox", async () => {
+  const [styles, facade] = await Promise.all([
+    read("src/styles/index.css"),
+    read("src/components/media-lightbox.ts"),
+  ]);
+
+  assert.match(styles, /\.media-group\[data-layout="strip"\]/);
+  assert.match(styles, /\.media-group\[data-layout="grid"\]\[data-overflow="reel"\]/);
+  assert.match(styles, /\.justified-gallery__row/);
+  assert.match(
+    styles,
+    /\.slider\[data-media-deck\] \[data-slide-caption\]:not\(\[data-caption-view="full"\]\)/,
+  );
+  assert.match(styles, /figure\.media\[data-caption-view="overlay"\]::after[\s\S]*?content:\s*none/);
+
+  assert.match(facade, /MARKABLE_SOURCE_SELECTOR/);
+  assert.match(facade, /\.slider\[data-media-deck\] > \.slider__viewport/);
+  assert.match(facade, /data-slide-caption\]\[data-active\]/);
+});
+
 test("lightbox CSS has bounded media and explicit touch portrait/landscape layouts", async () => {
   const [components, captions] = await Promise.all([
     read("src/styles/components.css"),

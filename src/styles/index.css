@@ -114,4 +114,27 @@
   .media-lightbox__caption {
     line-height: var(--lh-body);
   }
+
+  /* Persistent horizontal compositions must not let captions participate in
+     their cross-size. The authored caption remains in the DOM so PhotoSwipe
+     can clone the same structured content into the lightbox. An explicitly
+     authored non-overlay item remains an escape hatch. */
+  :is(
+    .media-group[data-layout="strip"],
+    .media-group[data-layout="grid"][data-overflow="reel"]
+  ) > .media-group__items > figure.media[data-caption-view="overlay"] > .media__caption,
+  .justified-gallery__row > figure.media[data-caption-view="overlay"] > .media__caption,
+  .slider[data-media-deck] [data-slide-caption]:not([data-caption-view="full"]) {
+    display: none;
+  }
+
+  /* Overlay captions normally add a hover gradient. When the caption itself
+     is lightbox-only in a rail, suppress that empty overlay as well. */
+  :is(
+    .media-group[data-layout="strip"],
+    .media-group[data-layout="grid"][data-overflow="reel"]
+  ) > .media-group__items > figure.media[data-caption-view="overlay"]::after,
+  .justified-gallery__row > figure.media[data-caption-view="overlay"]::after {
+    content: none;
+  }
 }

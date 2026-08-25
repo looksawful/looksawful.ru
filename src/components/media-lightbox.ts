@@ -4,6 +4,8 @@ import {
 } from "./photoswipe-lightbox.ts";
 
 const SOURCE_SELECTOR = "[data-lightbox-source]";
+const MARKABLE_SOURCE_SELECTOR =
+  ".media__surface, .mockup__viewport, .slider[data-media-deck] > .slider__viewport";
 const EXCLUDED_SELECTOR = ".before-after, [data-page-flip], [data-lightbox=\"off\"]";
 const INTERACTIVE_SELECTOR =
   "a, button, input, select, textarea, [contenteditable], video[controls]";
@@ -221,7 +223,7 @@ function sourcesFor(source: HTMLElement): HTMLElement[] {
 
 export function markLightboxSources(root: ParentNode = document): void {
   root
-    .querySelectorAll<HTMLElement>(".media__surface, .mockup__viewport")
+    .querySelectorAll<HTMLElement>(MARKABLE_SOURCE_SELECTOR)
     .forEach((surface) => {
       if (surface.closest(EXCLUDED_SELECTOR)) {
         return;
