@@ -22,6 +22,7 @@ export function renderClientLogo(logo: ClientLogoData): string {
           decoding="async"
           height="496"
           src="${escapeHtml(src)}"
+          style="mix-blend-mode: multiply"
           width="1200"
         >
       </div>
