@@ -8,6 +8,7 @@
 @import "./base.css" layer(base);
 @import "./patterns.css" layer(patterns);
 @import "./components.css" layer(components);
+@import "./expertise.css" layer(components);
 @import "./captions.css" layer(captions);
 @import "./motion.css" layer(motion);
 @import "./utilities.css" layer(utilities);

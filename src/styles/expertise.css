@@ -1,0 +1,107 @@
+.expertise {
+  --section-inline: var(--page-padding-inline);
+}
+
+.expertise .expertise__list {
+  counter-reset: expertise;
+  border-block-start: var(--border-width-100) solid currentColor;
+}
+
+.expertise .expertise__item {
+  counter-increment: expertise;
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0 var(--size-300);
+  padding-block: var(--size-500);
+  border-block-end: var(--border-width-100) solid var(--clr-border);
+}
+
+.expertise .expertise__item::before {
+  content: counter(expertise, decimal-leading-zero);
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  padding-block-start: 0.1rem;
+  font-size: var(--fs-200);
+  font-variant-numeric: tabular-nums;
+}
+
+.expertise__head {
+  grid-column: 2;
+  display: grid;
+  gap: var(--size-200);
+  min-inline-size: 0;
+}
+
+.expertise .expertise__title {
+  grid-column: auto;
+  font-size: var(--fs-400);
+  font-weight: var(--fw-600);
+  line-height: 1.1;
+}
+
+.expertise__description {
+  max-inline-size: 62ch;
+  color: var(--clr-text-muted);
+  font-size: var(--fs-300);
+  line-height: 1.45;
+}
+
+/* The complete accordion body is authored now but intentionally unavailable.
+   There is no trigger, button or interaction until the component is enabled later. */
+.expertise__panel {
+  grid-column: 2;
+}
+
+.expertise__panel-inner {
+  padding-block-start: var(--size-500);
+}
+
+.expertise__split {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--size-500);
+}
+
+.expertise__media-slot {
+  inline-size: min(100%, 15rem);
+  aspect-ratio: 4 / 3;
+}
+
+.expertise__media-slot:empty {
+  display: none;
+}
+
+.expertise__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--size-200);
+  max-inline-size: 62ch;
+  font-size: var(--fs-300);
+  line-height: 1.45;
+}
+
+.expertise__action::before {
+  content: "— ";
+}
+
+@container page-section (width > 44rem) {
+  .expertise .expertise__item {
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 0 var(--size-400);
+  }
+
+  .expertise__head {
+    grid-template-columns: minmax(14rem, 0.75fr) minmax(0, 1.25fr);
+    gap: var(--size-400);
+    align-items: start;
+  }
+
+  .expertise__panel {
+    grid-column: 2;
+  }
+
+  .expertise__split {
+    grid-template-columns: minmax(12rem, 15rem) minmax(0, 1fr);
+    gap: var(--size-500);
+  }
+}
