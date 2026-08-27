@@ -41,13 +41,23 @@ test("experience renders only the approved seven engagements", async () => {
   assert.match(source, /experience__place/);
 });
 
-test("experience typography keeps the approved compact fluid composition", async () => {
+test("experience renders the workplaces heading and labels the section from it", async () => {
+  const source = await readFile(componentUrl, "utf8");
+
+  assert.match(source, /<h2 id="experience-title">Места работы<\/h2>/);
+  assert.match(source, /section\.setAttribute\("aria-labelledby",\s*"experience-title"\)/);
+  assert.doesNotMatch(source, /section\.setAttribute\("aria-label",\s*"Опыт работы"\)/);
+});
+
+test("experience typography stays compact and shifts left only on wide layouts", async () => {
   assert.equal(existsSync(stylesUrl), true, "experience.css should exist");
   const styles = await readFile(stylesUrl, "utf8");
 
-  assert.match(styles, /font-size:\s*clamp\(1rem,\s*0\.72rem \+ 1\.35cqi,\s*2\.25rem\)/);
+  assert.match(styles, /font-size:\s*clamp\(0\.9375rem,\s*0\.8rem \+ 0\.65cqi,\s*1\.625rem\)/);
   assert.match(styles, /font-weight:\s*440/);
   assert.match(styles, /line-height:\s*0\.97/);
   assert.match(styles, /letter-spacing:\s*-0\.035em/);
   assert.match(styles, /font-variant-numeric:\s*tabular-nums/);
+  assert.match(styles, /margin-block-start:\s*0\.11em/);
+  assert.match(styles, /@container page-section \(width > 64rem\)[\s\S]*translate:\s*clamp\(-3rem,\s*-2\.2cqi,\s*-1\.5rem\) 0/);
 });
