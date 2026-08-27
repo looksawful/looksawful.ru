@@ -4,13 +4,39 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("desktop overlay caption is a full-width lower-third with controlled contrast", async () => {
+function extractBlock(source, pattern, message) {
+  const match = source.match(pattern);
+  assert.ok(match?.[1], message);
+  return match[1];
+}
+
+test("caption index occupies only the first grid row", async () => {
   const captions = await read("src/styles/captions.css");
 
   assert.match(
     captions,
-    /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?> figcaption\.media__caption \{[\s\S]*?--caption-index-width:\s*2\.2ch;[\s\S]*?inset-block-end:\s*0;[\s\S]*?inset-inline:\s*0;[\s\S]*?max-inline-size:\s*none;[\s\S]*?padding:[^;]+;[\s\S]*?border-block-start:\s*1px solid rgb\(255 255 255 \/ 0\.16\);[\s\S]*?background:\s*rgb\(10 10 10 \/ 0\.82\);[\s\S]*?backdrop-filter:\s*blur\(6px\);[\s\S]*?font-size:\s*clamp\(0\.82rem,[^;]+0\.95rem\);[\s\S]*?text-shadow:\s*none;/,
+    /\.media__index\s*\{[\s\S]*?grid-column:\s*1;[\s\S]*?grid-row:\s*1;/,
   );
+  assert.doesNotMatch(captions, /grid-row:\s*1\s*\/\s*span\s*32/);
+});
+
+test("desktop overlay lower-third grows intrinsically and scrolls only when content exceeds the media", async () => {
+  const captions = await read("src/styles/captions.css");
+  const overlay = extractBlock(
+    captions,
+    /\) > figcaption\.media__caption \{\n\s*--caption-index-width:\s*2\.2ch;([\s\S]*?)\n\s*\}/,
+    "desktop overlay caption rule should exist",
+  );
+
+  assert.match(overlay, /inset-block-end:\s*0;/);
+  assert.match(overlay, /inset-inline:\s*0;/);
+  assert.match(overlay, /max-inline-size:\s*none;/);
+  assert.match(overlay, /max-block-size:\s*100%;/);
+  assert.match(overlay, /overflow-x:\s*hidden;/);
+  assert.match(overlay, /overflow-y:\s*auto;/);
+  assert.match(overlay, /background:\s*rgb\(10 10 10 \/ 0\.82\);/);
+  assert.doesNotMatch(overlay, /max-block-size:\s*min\(60%,\s*18rem\)/);
+  assert.doesNotMatch(overlay, /overscroll-behavior:\s*contain/);
 });
 
 test("persistent rail overlays stay out of touch geometry without being disabled on desktop", async () => {
@@ -30,11 +56,20 @@ test("persistent rail overlays stay out of touch geometry without being disabled
   );
 });
 
-test("custom Jestei hover copy uses the same lower-third surface from the caption layer", async () => {
+test("custom Jestei hover copy uses intrinsic height with the full-surface safety cap", async () => {
   const captions = await read("src/styles/captions.css");
-
-  assert.match(
+  const custom = extractBlock(
     captions,
-    /\.brand-system__hover-copy,[\s\S]*?\.jestei-captioned-group \.jestei-media__hover-copy \{[\s\S]*?inset-inline:\s*0;[\s\S]*?inset-block-end:\s*0;[\s\S]*?max-inline-size:\s*none;[\s\S]*?padding:[^;]+;[\s\S]*?border-block-start:\s*1px solid rgb\(255 255 255 \/ 0\.16\);[\s\S]*?background:\s*rgb\(10 10 10 \/ 0\.82\);[\s\S]*?backdrop-filter:\s*blur\(6px\);[\s\S]*?color:\s*#fff;[\s\S]*?text-shadow:\s*none;/,
+    /\.brand-system__hover-copy,\n\s*\.jestei-captioned-group \.jestei-media__hover-copy \{([\s\S]*?)\n\s*\}/,
+    "custom Jestei lower-third rule should exist",
   );
+
+  assert.match(custom, /inset-inline:\s*0;/);
+  assert.match(custom, /inset-block-end:\s*0;/);
+  assert.match(custom, /max-inline-size:\s*none;/);
+  assert.match(custom, /max-block-size:\s*100%;/);
+  assert.match(custom, /overflow-x:\s*hidden;/);
+  assert.match(custom, /overflow-y:\s*auto;/);
+  assert.match(custom, /background:\s*rgb\(10 10 10 \/ 0\.82\);/);
+  assert.doesNotMatch(custom, /max-block-size:\s*min\(60%,\s*18rem\)/);
 });
