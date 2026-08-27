@@ -1668,7 +1668,6 @@ export const sensetiqueStudioJustifiedGallery = {
 
 export const sensetiqueHarshLightSlider = {
   captionView: "full",
-  mediaDimensions: false,
   slides: [
     {
       entryId: "sensetique-11-source-69-320x213-use-03",
