@@ -16,10 +16,23 @@
 }
 
 .hero {
+  --hero-portrait-width: clamp(30rem, 35vw, 43rem);
+  --hero-portrait-inline-start: 58%;
+  --hero-portrait-block-start: calc(37% + clamp(4.5rem, 6vw, 7rem));
+
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-rows: 1fr auto;
   min-block-size: 100svh;
   padding: var(--size-400) var(--section-inline);
+  overflow: hidden;
+
+  & > header,
+  & > footer {
+    position: relative;
+    z-index: 2;
+  }
 
   & h1 {
     max-inline-size: 11ch;
@@ -58,6 +71,53 @@
   }
 }
 
+.hero__portrait {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: var(--hero-portrait-block-start);
+  inset-inline-start: var(--hero-portrait-inline-start);
+  inline-size: var(--hero-portrait-width);
+  max-inline-size: none;
+  margin: 0;
+  translate: 0 0;
+  pointer-events: none;
+  user-select: none;
+
+  & img {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    max-inline-size: none;
+  }
+}
+
+@media (width <= 64rem) {
+  .hero {
+    --hero-portrait-width: clamp(26rem, 48vw, 34rem);
+    --hero-portrait-inline-start: 54%;
+    --hero-portrait-block-start: calc(40% + clamp(3rem, 5vw, 5rem));
+  }
+}
+
+@media (width <= 48rem) {
+  .hero {
+    --hero-portrait-width: min(40rem, 92vw);
+    --hero-portrait-inline-start: 50%;
+    --hero-portrait-block-start: 50%;
+  }
+
+  .hero__portrait {
+    translate: -50% -50%;
+  }
+}
+
+@media (width <= 32rem) {
+  .hero {
+    --hero-portrait-width: 105vw;
+    --hero-portrait-inline-start: 50%;
+    --hero-portrait-block-start: 50%;
+  }
+}
 .expertise,
 .experience,
 .projects-grid,
