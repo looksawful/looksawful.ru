@@ -11,6 +11,7 @@ import { createCodeBlocks } from "./components/code-block.ts";
 import { createPageFlips } from "./components/page-flip.ts";
 import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
 import { mountExpertise } from "./components/expertise.ts";
+import { mountExperience } from "./components/experience.ts";
 import { initSiteInteractive } from "./interactive.js";
 import {
   initMotion,
@@ -83,6 +84,7 @@ function initViewportAutoplayVideos(root = document) {
 }
 
 mountExpertise(document);
+mountExperience(document);
 
 const motion = createMotionPreference();
 const destroys = [];
