@@ -1,3 +1,7 @@
+.experience {
+  padding-block: var(--size-600);
+}
+
 .experience .experience__list {
   inline-size: fit-content;
   max-inline-size: 100%;
@@ -17,7 +21,7 @@
   padding-block: 0;
   border-block-end: 0;
 
-  font-size: clamp(1rem, 0.72rem + 1.35cqi, 2.25rem);
+  font-size: clamp(0.9375rem, 0.8rem + 0.65cqi, 1.625rem);
   font-weight: 440;
   line-height: 0.97;
   letter-spacing: -0.035em;
@@ -26,7 +30,7 @@
 }
 
 .experience .experience__item + .experience__item {
-  margin-block-start: 0.16em;
+  margin-block-start: 0.11em;
 }
 
 .experience__period {
@@ -49,6 +53,12 @@
 .experience__place {
   min-inline-size: 0;
   text-wrap: pretty;
+}
+
+@container page-section (width > 64rem) {
+  .experience .experience__list {
+    translate: clamp(-3rem, -2.2cqi, -1.5rem) 0;
+  }
 }
 
 @container page-section (width <= 42rem) {
