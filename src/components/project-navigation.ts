@@ -1,5 +1,60 @@
 const noop = () => {};
 
+export function initProjectNavigationBackToTop(
+  root: Document | HTMLElement = document,
+): () => void {
+  const navigation = root.querySelector<HTMLElement>("[data-projects-navigation]");
+  if (!(navigation instanceof HTMLElement)) return noop;
+
+  const inner = navigation.querySelector<HTMLElement>(".project-nav__inner");
+  if (!(inner instanceof HTMLElement) || inner.querySelector(".project-nav__top")) {
+    return noop;
+  }
+
+  const hero = root.querySelector<HTMLElement>(".hero");
+  if (!(hero instanceof HTMLElement)) return noop;
+
+  const doc = hero.ownerDocument;
+  let targetId = hero.id;
+  let assignedTopId = false;
+
+  if (!targetId) {
+    const existingTop = doc.getElementById("top");
+
+    if (existingTop instanceof HTMLElement) {
+      targetId = "top";
+    } else {
+      targetId = "top";
+      hero.id = targetId;
+      assignedTopId = true;
+    }
+  }
+
+  const link = doc.createElement("a");
+  link.className = "project-nav__top";
+  link.setAttribute("href", `#${targetId}`);
+  link.setAttribute("aria-label", "Наверх");
+
+  const arrow = doc.createElement("span");
+  arrow.setAttribute("aria-hidden", "true");
+  arrow.textContent = "↑";
+
+  const label = doc.createElement("span");
+  label.className = "project-nav__top-label";
+  label.textContent = "Наверх";
+
+  link.append(arrow, label);
+  inner.append(link);
+
+  return () => {
+    link.remove();
+
+    if (assignedTopId && hero.id === "top") {
+      hero.removeAttribute("id");
+    }
+  };
+}
+
 function supportsNativeProjectNavigation(): boolean {
   return (
     typeof CSS !== "undefined"
@@ -24,7 +79,7 @@ export function initProjectNavigationFallback(
   const list = navigation.querySelector<HTMLElement>(".project-nav__list");
   if (!(list instanceof HTMLElement)) return noop;
 
-  const entries = [...navigation.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')]
+  const entries = [...navigation.querySelectorAll<HTMLAnchorElement>('.project-nav__link[href^="#"]')]
     .map((link) => {
       if (!(link instanceof HTMLAnchorElement) || !link.hash) return null;
 

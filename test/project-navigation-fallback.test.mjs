@@ -62,8 +62,11 @@ function createFixture() {
     new FakeElement("project-sensetique"),
     new FakeElement("project-shootings"),
   ];
+  const top = new FakeElement("top");
 
-  const byId = new Map(projects.map((project) => [project.id, project]));
+  const byId = new Map(
+    [...projects, top].map((element) => [element.id, element]),
+  );
   const root = {
     querySelector(selector) {
       return selector === "[data-projects-navigation]" ? navigation : null;
@@ -79,6 +82,7 @@ function createFixture() {
   const links = projects.map(
     (project) => new FakeAnchorElement(`#${project.id}`, root),
   );
+  const backTop = new FakeAnchorElement("#top", root);
 
   const list = new FakeElement();
   list.scrollWidth = 900;
@@ -95,10 +99,13 @@ function createFixture() {
   const navigation = new FakeElement();
   navigation.querySelector = (selector) =>
     selector === ".project-nav__list" ? list : null;
-  navigation.querySelectorAll = (selector) =>
-    selector === 'a[href^="#"]' ? links : [];
+  navigation.querySelectorAll = (selector) => {
+    if (selector === '.project-nav__link[href^="#"]') return links;
+    if (selector === 'a[href^="#"]') return [...links, backTop];
+    return [];
+  };
 
-  return { root, projects, links, list };
+  return { root, projects, links, list, backTop };
 }
 
 function installDomGlobals({ nativeSupport }) {
@@ -138,11 +145,11 @@ function installDomGlobals({ nativeSupport }) {
   };
 }
 
-test("unsupported browsers use one IntersectionObserver and update aria-current without scroll listeners", () => {
+test("unsupported browsers observe only project links and update aria-current without scroll listeners", () => {
   const globals = installDomGlobals({ nativeSupport: false });
 
   try {
-    const { root, projects, links, list } = createFixture();
+    const { root, projects, links, list, backTop } = createFixture();
     const destroy = initSiteInteractive({ root });
 
     assert.equal(FakeIntersectionObserver.instances.length, 1);
@@ -164,6 +171,7 @@ test("unsupported browsers use one IntersectionObserver and update aria-current 
     assert.equal(links[0].getAttribute("aria-current"), null);
     assert.equal(links[2].getAttribute("aria-current"), null);
     assert.equal(links[3].getAttribute("aria-current"), null);
+    assert.equal(backTop.getAttribute("aria-current"), null);
     assert.equal(list.scrollCalls.length, 1);
 
     destroy();

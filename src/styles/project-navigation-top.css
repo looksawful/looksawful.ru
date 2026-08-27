@@ -1,0 +1,51 @@
+.project-nav__inner {
+  grid-template-columns: minmax(0, 1fr) max-content;
+}
+
+.project-nav__top {
+  display: inline-flex;
+  align-items: baseline;
+  justify-self: end;
+  gap: 0.32rem;
+
+  color: var(--clr-text-muted);
+  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-weight: var(--fw-400);
+  line-height: 1.36;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.project-nav__top:is(:hover, :focus-visible) {
+  color: var(--clr-text);
+}
+
+@container projects (width <= 40rem) {
+  .project-nav__top {
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    min-inline-size: 2.75rem;
+    min-block-size: 2.75rem;
+  }
+
+  .project-nav__top-label {
+    display: none;
+  }
+}
+
+@container projects (width > 96rem) {
+  .project-nav__inner {
+    inline-size: calc(100cqi - (var(--page-padding-inline) * 2));
+  }
+
+  .project-nav__list {
+    inline-size: var(--project-nav-rail-width);
+  }
+
+  .project-nav__top {
+    position: absolute;
+    inset-inline-end: 0;
+    inset-block-end: 0;
+  }
+}

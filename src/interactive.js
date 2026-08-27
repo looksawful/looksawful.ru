@@ -1,4 +1,7 @@
-import { initProjectNavigationFallback } from "./components/project-navigation.ts";
+import {
+  initProjectNavigationBackToTop,
+  initProjectNavigationFallback,
+} from "./components/project-navigation.ts";
 
 const noop = () => {};
 
@@ -191,6 +194,7 @@ function initJesteiThemeOrganismFit(mockup) {
 export function initSiteInteractive({ root = document } = {}) {
   const destroys = [];
 
+  destroys.push(initProjectNavigationBackToTop(root));
   destroys.push(initProjectNavigationFallback(root));
 
   root.querySelectorAll("playlist-filter-workflow").forEach(initPlaylistFilter);
