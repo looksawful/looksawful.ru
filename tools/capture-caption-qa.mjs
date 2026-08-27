@@ -63,6 +63,24 @@ async function captureLocator(page, locator, path) {
   await page.screenshot({ path, clip: { x, y, width, height } });
 }
 
+async function clearHover(page) {
+  const viewport = page.viewportSize();
+  await page.mouse.move(Math.max(1, viewport.width - 2), 1);
+  await page.waitForTimeout(40);
+}
+
+async function captureHoverPair(page, locator, stem) {
+  if (!(await locator.count())) return;
+
+  await locator.scrollIntoViewIfNeeded();
+  await clearHover(page);
+  await page.waitForTimeout(80);
+  await captureLocator(page, locator, `${OUTPUT}/${stem}-rest.png`);
+  await locator.hover({ force: true });
+  await page.waitForTimeout(80);
+  await captureLocator(page, locator, `${OUTPUT}/${stem}-active.png`);
+}
+
 async function captureDesktop(browser) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
@@ -84,16 +102,28 @@ async function captureDesktop(browser) {
   }
 
   const overlay = page
-    .locator('figure.media[data-caption-view="overlay"]:visible:has(> .media__caption)')
+    .locator(
+      'figure.media[data-caption-view="overlay"]:visible:has(> .media__caption .media__text)',
+    )
     .first();
-  if (await overlay.count()) {
-    await overlay.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(80);
-    await captureLocator(page, overlay, `${OUTPUT}/desktop-overlay-rest.png`);
-    await overlay.hover({ force: true });
-    await page.waitForTimeout(80);
-    await captureLocator(page, overlay, `${OUTPUT}/desktop-overlay-active.png`);
-  }
+  await captureHoverPair(page, overlay, "desktop-overlay");
+
+  const railOverlay = page
+    .locator(
+      ':is(.media-group[data-layout="strip"], .media-group[data-layout="grid"][data-overflow="reel"]) > .media-group__items > figure.media[data-caption-view="overlay"]:visible:has(> .media__caption)',
+    )
+    .first();
+  await captureHoverPair(page, railOverlay, "desktop-rail-overlay");
+
+  const brandOverlay = page
+    .locator('.brand-system__item:visible:has(.brand-system__hover-copy)')
+    .first();
+  await captureHoverPair(page, brandOverlay, "desktop-brand-system-overlay");
+
+  const jesteiOverlay = page
+    .locator('.jestei-captioned-media:visible:has(.jestei-media__hover-copy)')
+    .first();
+  await captureHoverPair(page, jesteiOverlay, "desktop-jestei-overlay");
 
   const source = page
     .locator('figure.media:visible:has(.media__title) [data-lightbox-source]:visible')
@@ -127,6 +157,17 @@ async function captureMobile(browser) {
     await overlay.scrollIntoViewIfNeeded();
     await page.waitForTimeout(80);
     await captureLocator(page, overlay, `${OUTPUT}/mobile-overlay-fallback.png`);
+  }
+
+  const railOverlay = page
+    .locator(
+      ':is(.media-group[data-layout="strip"], .media-group[data-layout="grid"][data-overflow="reel"]) > .media-group__items > figure.media[data-caption-view="overlay"]:visible:has(> .media__caption)',
+    )
+    .first();
+  if (await railOverlay.count()) {
+    await railOverlay.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(80);
+    await captureLocator(page, railOverlay, `${OUTPUT}/mobile-rail-overlay-fallback.png`);
   }
 
   const summary = page
