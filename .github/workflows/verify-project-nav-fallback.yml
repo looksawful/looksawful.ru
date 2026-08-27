@@ -22,6 +22,10 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
       - name: Install
         run: npm ci
       - name: Install Firefox
