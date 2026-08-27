@@ -1,3 +1,5 @@
+import { initProjectNavigationFallback } from "./components/project-navigation.ts";
+
 const noop = () => {};
 
 function initPlaylistFilter(host) {
@@ -139,6 +141,8 @@ function initJesteiFilterFit(mockup) {
 
 export function initSiteInteractive({ root = document } = {}) {
   const destroys = [];
+
+  destroys.push(initProjectNavigationFallback(root));
 
   root.querySelectorAll("playlist-filter-workflow").forEach(initPlaylistFilter);
 
