@@ -41,7 +41,7 @@
 
 .media__index {
   grid-column: 1;
-  grid-row: 1 / span 32;
+  grid-row: 1;
   margin: 0;
   color: currentColor;
   font-variant-numeric: tabular-nums;
@@ -148,8 +148,8 @@
 /* OVERLAY: fine pointers -------------------------------------------------
    On devices that genuinely support hover, overlay is a progressive
    enhancement. The lower-third is absolutely positioned, so disclosure never
-   changes the media-grid geometry. A controlled surface replaces image-aware
-   text shadows and keeps contrast stable across light and busy artwork. */
+   changes the media-grid geometry. Its block size is content-driven; only
+   content taller than the media itself reaches the cap and becomes scrollable. */
 @media (hover: hover) and (pointer: fine) {
   :where(figure.media, figure.before-after):is(
       [data-caption-view="overlay"]
@@ -180,13 +180,13 @@
     inset-inline: 0;
     inline-size: auto;
     max-inline-size: none;
-    max-block-size: min(60%, 18rem);
+    max-block-size: 100%;
     padding: clamp(0.65rem, 1.2cqi, 0.9rem);
     border-block-start: 1px solid rgb(255 255 255 / 0.16);
     background: rgb(10 10 10 / 0.82);
     backdrop-filter: blur(6px);
-    overflow: auto;
-    overscroll-behavior: contain;
+    overflow-x: hidden;
+    overflow-y: auto;
     color: rgb(255 255 255 / 0.82);
     font-size: clamp(0.82rem, 0.78rem + 0.14cqi, 0.95rem);
     line-height: 1.3;
@@ -233,18 +233,20 @@
   }
 
   /* Jestei authored surface copy is a second content source for the lightbox,
-     but it should not become a second visual system on desktop. Keep the
-     existing reveal contract and normalize only its presentation here. */
+     but it should not become a second visual system on desktop. Its lower-third
+     follows the same intrinsic-height and full-surface cap as figcaptions. */
   .brand-system__hover-copy,
   .jestei-captioned-group .jestei-media__hover-copy {
     inset-inline: 0;
     inset-block-end: 0;
     max-inline-size: none;
-    max-block-size: min(60%, 18rem);
+    max-block-size: 100%;
     padding: clamp(0.65rem, 1.2cqi, 0.9rem);
     border-block-start: 1px solid rgb(255 255 255 / 0.16);
     background: rgb(10 10 10 / 0.82);
     backdrop-filter: blur(6px);
+    overflow-x: hidden;
+    overflow-y: auto;
     color: #fff;
     font-size: clamp(0.82rem, 0.78rem + 0.14cqi, 0.95rem);
     line-height: 1.3;
@@ -330,7 +332,7 @@
 
 .media-lightbox__caption > .media__index {
   grid-column: 1;
-  grid-row: 1 / span 32;
+  grid-row: 1;
   color: rgb(255 255 255 / 0.46);
 }
 
