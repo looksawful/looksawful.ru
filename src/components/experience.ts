@@ -41,6 +41,7 @@ function renderExperienceItem(id: EngagementId): string {
 
 function renderExperience(): string {
   return `
+    <h2 id="experience-title">Места работы</h2>
     <ol class="experience__list">
       ${experienceEngagementIds.map(renderExperienceItem).join("\n")}
     </ol>`;
@@ -51,7 +52,8 @@ export function mountExperience(root: ParentNode = document): void {
 
   if (!section) return;
 
-  section.setAttribute("aria-label", "Опыт работы");
+  section.setAttribute("aria-labelledby", "experience-title");
+  section.removeAttribute("aria-label");
   section.innerHTML = renderExperience();
   section.hidden = false;
 }
