@@ -968,6 +968,22 @@
   }
 }
 
+.media__surface.media__surface--center-crop {
+  position: relative;
+}
+
+.media__surface.media__surface--center-crop > video {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: 100%;
+  block-size: auto;
+  min-inline-size: 100%;
+  min-block-size: 100%;
+  max-inline-size: none;
+  translate: -50% -50%;
+}
+
 .project__section > :is(.media, .mockup, .slider):only-child {
   inline-size: min(100%, var(--project-media-max));
   margin-inline: auto;

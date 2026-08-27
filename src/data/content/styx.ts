@@ -537,7 +537,8 @@ export const styxProductionMediaGroup = {
     {
       entryId: "styx-01-source-04-9x16-use-01",
       loading: "lazy",
-      surface: { ratio: "4 / 5", fit: "cover", position: "50% 65%" },
+      surfaceClassName: "media__surface--center-crop",
+      surface: { ratio: "4 / 5", fit: "cover", position: "50% 50%" },
       video: { autoplay: true, loop: true, muted: true, playsInline: true, preload: "metadata" },
     },
   ],

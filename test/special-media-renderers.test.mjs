@@ -5,6 +5,7 @@ import test from "node:test";
 import { renderMediaFigure } from "../src/templates/media-figure.ts";
 import { renderMediaGroup } from "../src/templates/media-group.ts";
 import { jesteiBrandSystemGroup } from "../src/data/content/jestei-pool.ts";
+import { styxProductionMediaGroup } from "../src/data/content/styx.ts";
 import { sensetiqueStudioJustifiedGallery } from "../src/data/content/sensetique.ts";
 
 const sliderModuleUrl = new URL("../src/templates/media-slider.ts", import.meta.url);
@@ -46,13 +47,23 @@ test("media figure can preserve compound authored surfaces", () => {
   const ratio = renderMediaFigure({
     entryId: "styx-01-source-04-9x16-use-01",
     captionView: "overlay",
-    surface: { ratio: "4 / 5", fit: "cover", position: "50% 65%" },
+    surface: { ratio: "4 / 5", fit: "cover", position: "50% 50%" },
     video: { autoplay: true, loop: true, muted: true, playsInline: true, preload: "metadata" },
   });
 
   assert.match(ratio, /--media-ratio: 4 \/ 5/);
   assert.match(ratio, /--media-fit: cover/);
-  assert.match(ratio, /--media-position: 50% 65%/);
+  assert.match(ratio, /--media-position: 50% 50%/);
+});
+
+test("Styx production packaging video crops from the center of its fixed surface", () => {
+  const html = renderMediaGroup(styxProductionMediaGroup);
+
+  assert.match(html, /\/media\/projects\/styx\/01\/source\/04-9x16\.mp4/);
+  assert.match(html, /class="media__surface media__surface--center-crop"/);
+  assert.match(html, /--media-ratio: 4 \/ 5/);
+  assert.match(html, /--media-fit: cover/);
+  assert.match(html, /--media-position: 50% 50%/);
 });
 
 test("media elements expose lightbox dimensions without forcing intrinsic layout dimensions", () => {
