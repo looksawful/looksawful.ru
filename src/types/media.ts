@@ -36,7 +36,13 @@ export interface VideoMedia extends MediaBase {
   sourceSrc?: string;
 }
 
-export type MediaAsset = ImageMedia | VideoMedia;
+export interface ModelMedia extends MediaBase {
+  type: "model";
+  mimeType?: "model/gltf-binary" | "model/gltf+json";
+  byteLength?: number;
+}
+
+export type MediaAsset = ImageMedia | VideoMedia | ModelMedia;
 
 /* ==================================================
    Captions

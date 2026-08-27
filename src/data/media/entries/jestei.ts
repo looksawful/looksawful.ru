@@ -812,6 +812,12 @@ export const jesteiMediaEntries = [
     purpose: "work",
   },
   {
+    id: "jestei-theme-organism-model-use-01",
+    assetId: "jestei-theme-organism-model",
+    projectIds: ["jestei-brand-system"],
+    purpose: "work",
+  },
+  {
     id: "jestei-09-source-93-1x1-use-01",
     assetId: "jestei-09-source-93-1x1",
     projectIds: ["jestei-playlist-system"],

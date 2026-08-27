@@ -10,6 +10,7 @@ import { numberMediaCaptions } from "./components/media-caption-numbering.ts";
 import { createCodeBlocks } from "./components/code-block.ts";
 import { createPageFlips } from "./components/page-flip.ts";
 import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
+import { createJesteiThemeOrganisms } from "./components/jestei-theme-organism/jestei-theme-organism.js";
 import { mountExpertise } from "./components/expertise.ts";
 import { mountExperience } from "./components/experience.ts";
 import { initSiteInteractive } from "./interactive.js";
@@ -100,6 +101,16 @@ destroys.push(
     root: document,
   }),
 );
+const jesteiThemeOrganisms = createJesteiThemeOrganisms({ root: document, motion });
+destroys.push(() => jesteiThemeOrganisms?.destroy());
+
+const canWarmJesteiThemeOrganism = window.matchMedia?.("(hover: hover) and (pointer: fine)").matches;
+if (canWarmJesteiThemeOrganism) {
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    void jesteiThemeOrganisms?.preload?.();
+  }));
+}
+
 destroys.push(createMediaLightbox({ root: document }));
 destroys.push(createMediaDecks({ root: document, motion }));
 destroys.push(createInfiniteReels({ root: document, motion }));

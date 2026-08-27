@@ -32,6 +32,7 @@ import {
   jesteiRedpolitikaMockup,
   jesteiSubscriptionBeforeAfter,
 } from "./src/data/content/jestei-pool.ts";
+import { jesteiThemeOrganismMockup } from "./src/data/content/jestei-theme-organism.ts";
 
 import { liNeAgencyIntro } from "./src/data/content/li-ne-agency.ts";
 
@@ -148,6 +149,8 @@ import { renderMediaGroup } from "./src/templates/media-group.ts";
 
 import { renderJustifiedGallery } from "./src/templates/justified-gallery.ts";
 
+import { renderJesteiThemeOrganismMockup } from "./src/templates/jestei-theme-organism.ts";
+
 import { renderMediaSlider } from "./src/templates/media-slider.ts";
 
 import { renderPageFlip } from "./src/templates/page-flip.ts";
@@ -235,6 +238,8 @@ function siteTemplatesPlugin(): Plugin {
         ["<!-- JESTEI_HOME_MOCKUP -->", renderMockup(jesteiHomeMockup)],
 
         ["<!-- JESTEI_BRAND_INTRO -->", renderSectionIntro(jesteiBrandIntro)],
+
+        ["<!-- JESTEI_THEME_ORGANISM_MOCKUP -->", renderJesteiThemeOrganismMockup(jesteiThemeOrganismMockup)],
 
         ["<!-- JESTEI_BRAND_SYSTEM_GROUP -->", renderMediaGroup(jesteiBrandSystemGroup)],
 

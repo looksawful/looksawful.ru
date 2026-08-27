@@ -79,8 +79,11 @@ export function renderMediaElement(
     )} src="${escapeHtml(asset.src)}">`;
   }
 
-  const video = options.video ?? {};
+  if (asset.type !== "video") {
+    throw new Error(`Unsupported MediaAsset type for media element: ${asset.type}`);
+  }
 
+  const video = options.video ?? {};
   const poster = entry.posterAssetId ? getMediaAsset(entry.posterAssetId) : undefined;
 
   const preload = video.preload ?? (video.autoplay ? "auto" : "metadata");

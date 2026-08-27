@@ -22,10 +22,12 @@ import { mediaEntries } from "../src/data/media/entries/index.ts";
 const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif", "svg"]);
 const VIDEO_EXTENSIONS = new Set(["mp4", "mov", "webm", "m4v"]);
 const AUDIO_EXTENSIONS = new Set(["mp3", "wav", "m4a", "aac", "ogg"]);
+const MODEL_EXTENSIONS = new Set(["glb", "gltf"]);
 const MEDIA_EXTENSIONS = new Set([
   ...IMAGE_EXTENSIONS,
   ...VIDEO_EXTENSIONS,
   ...AUDIO_EXTENSIONS,
+  ...MODEL_EXTENSIONS,
 ]);
 
 const EXTENSION_FORMATS = new Map([
@@ -44,6 +46,8 @@ const EXTENSION_FORMATS = new Map([
   ["m4a", "mp4"],
   ["aac", "aac"],
   ["ogg", "ogg"],
+  ["glb", "glb"],
+  ["gltf", "gltf"],
 ]);
 
 const CODE_EXTENSIONS = new Set([
@@ -140,6 +144,7 @@ export async function inspectFileFormat(filePath: string): Promise<string> {
   if (head.length >= 8 && head.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "png";
   if (head.subarray(0, 6).toString("ascii") === "GIF87a" || head.subarray(0, 6).toString("ascii") === "GIF89a") return "gif";
   if (head.length >= 12 && head.subarray(0, 4).toString("ascii") === "RIFF" && head.subarray(8, 12).toString("ascii") === "WEBP") return "webp";
+  if (head.length >= 4 && head.subarray(0, 4).toString("ascii") === "glTF") return "glb";
   if (head.length >= 4 && head[0] === 0x1a && head[1] === 0x45 && head[2] === 0xdf && head[3] === 0xa3) return "webm";
   if (head.subarray(0, 3).toString("ascii") === "ID3" || (head[0] === 0xff && (head[1] & 0xe0) === 0xe0)) return "mp3";
   if (head.length >= 12 && head.subarray(0, 4).toString("ascii") === "RIFF" && head.subarray(8, 12).toString("ascii") === "WAVE") return "wav";
@@ -151,6 +156,7 @@ export async function inspectFileFormat(filePath: string): Promise<string> {
 
   const text = head.toString("utf8").trimStart().toLowerCase();
   if (text.startsWith("<svg") || text.startsWith("<?xml") && text.includes("<svg")) return "svg";
+  if (text.startsWith("{") && text.includes('"asset"') && text.includes('"version"')) return "gltf";
   if (text.startsWith("oggs")) return "ogg";
 
   return "unknown";
@@ -353,6 +359,7 @@ export async function createMediaIntegrityReport(options: IntegrityOptions = {})
   let imageCount = 0;
   let videoCount = 0;
   let audioCount = 0;
+  let modelCount = 0;
 
   pushDuplicateErrors(errors, "MediaAsset", assets);
   pushDuplicateErrors(errors, "MediaEntry", entries);
@@ -367,6 +374,7 @@ export async function createMediaIntegrityReport(options: IntegrityOptions = {})
 
     if (asset.type === "image") imageCount += 1;
     else if (asset.type === "video") videoCount += 1;
+    else if (asset.type === "model") modelCount += 1;
     else if (AUDIO_EXTENSIONS.has(ext)) audioCount += 1;
 
     const resolved = await resolveMediaFile(repoRoot, asset.src);
@@ -408,6 +416,10 @@ export async function createMediaIntegrityReport(options: IntegrityOptions = {})
       if (typeof asset.height === "number" && typeof dimensions.height === "number" && asset.height !== dimensions.height) {
         errors.push(`${owner}: height ${asset.height} != ${dimensions.height}: ${asset.src}`);
       }
+    }
+
+    if (asset.type === "model" && typeof asset.byteLength === "number" && asset.byteLength !== resolved.size) {
+      errors.push(`${owner}: byteLength ${asset.byteLength} != ${resolved.size}: ${asset.src}`);
     }
 
     const fileHash = await hashFile(resolved.path);
@@ -539,6 +551,7 @@ export async function createMediaIntegrityReport(options: IntegrityOptions = {})
       images: imageCount,
       videos: videoCount,
       audio: audioCount,
+      models: modelCount,
       sourceBytes,
       generatedVariants: generated.variantCount,
       generatedBytes: generated.bytes,
@@ -577,7 +590,12 @@ async function runCli(): Promise<void> {
   }
 
   console.log(
-    `Data integrity OK: ${clients.length} clients, ${cases.length} cases, ${engagements.length} engagements, ${projects.length} projects, ${mediaEntries.length} media entries, ${report.summary.assets} media assets (${report.summary.images} images, ${report.summary.videos} videos), ${report.summary.sourceBytes} source bytes.`,
+    `Data integrity OK: ${clients.length} clients, ${cases.length} cases, ${engagements.length} engagements, ${projects.length} projects, ${mediaEntries.length} media entries, ${report.summary.assets} media assets (${[
+      `${report.summary.images} images`,
+      `${report.summary.videos} videos`,
+      report.summary.audio ? `${report.summary.audio} audio` : "",
+      report.summary.models ? `${report.summary.models} models` : "",
+    ].filter(Boolean).join(", ")}), ${report.summary.sourceBytes} source bytes.`,
   );
 }
 

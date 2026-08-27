@@ -139,6 +139,55 @@ function initJesteiFilterFit(mockup) {
   };
 }
 
+function initJesteiThemeOrganismFit(mockup) {
+  if (!(mockup instanceof HTMLElement)) return noop;
+
+  const viewport = mockup.querySelector(".mockup__viewport");
+  const organism = mockup.querySelector("[data-jestei-theme-organism]");
+
+  if (
+    !(viewport instanceof HTMLElement) ||
+    !(organism instanceof HTMLElement)
+  ) {
+    return noop;
+  }
+
+  const render = () => {
+    const viewportStyles = getComputedStyle(viewport);
+    const paddingInline =
+      (Number.parseFloat(viewportStyles.paddingInlineStart) || 0) +
+      (Number.parseFloat(viewportStyles.paddingInlineEnd) || 0);
+
+    const availableWidth = Math.max(0, viewport.clientWidth - paddingInline);
+    const designWidth = organism.offsetWidth;
+    const designHeight = organism.offsetHeight;
+
+    if (!availableWidth || !designWidth || !designHeight) return;
+
+    const scale = Math.min(1, availableWidth / designWidth);
+
+    mockup.style.setProperty("--jestei-theme-fit-scale", String(scale));
+    mockup.style.setProperty(
+      "--jestei-theme-fit-height",
+      `${designHeight * scale}px`,
+    );
+  };
+
+  const observer =
+    typeof ResizeObserver === "function"
+      ? new ResizeObserver(render)
+      : null;
+
+  observer?.observe(viewport);
+  render();
+
+  return () => {
+    observer?.disconnect();
+    mockup.style.removeProperty("--jestei-theme-fit-scale");
+    mockup.style.removeProperty("--jestei-theme-fit-height");
+  };
+}
+
 export function initSiteInteractive({ root = document } = {}) {
   const destroys = [];
 
@@ -148,6 +197,10 @@ export function initSiteInteractive({ root = document } = {}) {
 
   root.querySelectorAll(".jestei-filter-mockup").forEach((mockup) => {
     destroys.push(initJesteiFilterFit(mockup));
+  });
+
+  root.querySelectorAll(".jestei-theme-organism-mockup").forEach((mockup) => {
+    destroys.push(initJesteiThemeOrganismFit(mockup));
   });
 
   return () =>

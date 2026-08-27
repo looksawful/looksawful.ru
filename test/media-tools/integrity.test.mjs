@@ -79,3 +79,34 @@ test("integrity report catches missing files, wrong dimensions, duplicate ids, w
   assert.match(report.errors.join("\n"), /MediaEntry\(unknown-asset-use\)\.assetId: unknown MediaAsset "unknown-asset"/);
   assert.match(report.errors.join("\n"), /stale generated variant.*valid@480\.webp/);
 });
+
+test("integrity report supports registered GLB model assets", async () => {
+  const root = await fixtureRoot("integrity-model");
+  const model = join(root, "public", "media", "fixtures", "organism.glb");
+  await writeFile(
+    model,
+    Buffer.concat([
+      Buffer.from("glTF"),
+      Buffer.from([2, 0, 0, 0]),
+      Buffer.from([12, 0, 0, 0]),
+    ]),
+  );
+
+  const report = await createMediaIntegrityReport({
+    repoRoot: root,
+    mediaAssets: [
+      {
+        id: "theme-organism",
+        type: "model",
+        src: "/media/fixtures/organism.glb",
+        mimeType: "model/gltf-binary",
+        byteLength: 12,
+      },
+    ],
+    mediaEntries: [{ id: "theme-organism-use", assetId: "theme-organism" }],
+    scanPhysicalMedia: false,
+  });
+
+  assert.equal(report.errorCount, 0);
+  assert.equal(report.summary.models, 1);
+});

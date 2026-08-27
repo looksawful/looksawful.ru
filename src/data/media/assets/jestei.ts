@@ -737,6 +737,13 @@ export const jesteiMediaAssets = [
     height: 1369,
   },
   {
+    id: "jestei-theme-organism-model",
+    type: "model",
+    src: "/media/projects/jestei/theme-organism/jestei-theme-organism.glb",
+    mimeType: "model/gltf-binary",
+    byteLength: 11404,
+  },
+  {
     id: "jestei-09-source-93-1x1",
     type: "image",
     src: "/media/projects/jestei/09/source/93-1x1.webp",
