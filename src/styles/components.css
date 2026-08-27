@@ -1583,7 +1583,8 @@
    ================================================== */
 
 .slider {
-  inline-size: min(100%, var(--project-media-max, 72.5rem));
+  inline-size: 100%;
+  max-inline-size: var(--project-media-max, 72.5rem);
   margin-inline: auto;
   min-inline-size: 0;
 }
