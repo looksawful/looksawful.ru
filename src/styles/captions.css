@@ -147,33 +147,15 @@
 
 /* OVERLAY: fine pointers -------------------------------------------------
    On devices that genuinely support hover, overlay is a progressive
-   enhancement. It is absolutely positioned, so disclosure cannot change the
-   media-grid geometry. */
+   enhancement. The lower-third is absolutely positioned, so disclosure never
+   changes the media-grid geometry. A controlled surface replaces image-aware
+   text shadows and keeps contrast stable across light and busy artwork. */
 @media (hover: hover) and (pointer: fine) {
   :where(figure.media, figure.before-after):is(
       [data-caption-view="overlay"]
     ) {
     position: relative;
     isolation: isolate;
-  }
-
-  :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"]
-    )::after {
-    content: "";
-    position: absolute;
-    z-index: 1;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      rgb(0 0 0 / 0.76) 0%,
-      rgb(0 0 0 / 0.5) 28%,
-      rgb(0 0 0 / 0.14) 58%,
-      transparent 78%
-    );
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 160ms ease;
   }
 
   :where(figure.media, figure.before-after):is(
@@ -188,26 +170,31 @@
   :where(figure.media, figure.before-after):is(
       [data-caption-view="overlay"]
     ) > figcaption.media__caption {
-    --caption-index-width: 1.4rem;
-    --caption-column-gap: 0.32rem;
+    --caption-index-width: 2.2ch;
+    --caption-column-gap: 0.5rem;
 
     position: absolute;
     z-index: 2;
     inset-block-start: auto;
-    inset-block-end: clamp(0.55rem, 1.2cqi, 0.9rem);
-    inset-inline: clamp(0.55rem, 1.2cqi, 0.9rem);
+    inset-block-end: 0;
+    inset-inline: 0;
     inline-size: auto;
-    max-inline-size: min(46ch, calc(100% - clamp(1.1rem, 2.4cqi, 1.8rem)));
-    max-block-size: min(68%, 18rem);
+    max-inline-size: none;
+    max-block-size: min(60%, 18rem);
+    padding: clamp(0.65rem, 1.2cqi, 0.9rem);
+    border-block-start: 1px solid rgb(255 255 255 / 0.16);
+    background: rgb(10 10 10 / 0.82);
+    backdrop-filter: blur(6px);
     overflow: auto;
     overscroll-behavior: contain;
-    color: rgb(255 255 255 / 0.8);
-    font-size: clamp(0.68rem, 0.65rem + 0.12cqi, 0.8rem);
+    color: rgb(255 255 255 / 0.82);
+    font-size: clamp(0.82rem, 0.78rem + 0.14cqi, 0.95rem);
+    line-height: 1.3;
     opacity: 0;
     visibility: hidden;
-    translate: 0 0.25rem;
+    translate: 0 0.35rem;
     pointer-events: none;
-    text-shadow: 0 1px 0.65rem rgb(0 0 0 / 0.42);
+    text-shadow: none;
     scrollbar-width: thin;
     transition:
       opacity 160ms ease,
@@ -232,12 +219,9 @@
       [data-caption-view="overlay"]
     ) > figcaption.media__caption :is(.media__text, .media__meta) {
     display: block;
-    color: rgb(255 255 255 / 0.72);
+    color: rgb(255 255 255 / 0.8);
   }
 
-  :where(figure.media, figure.before-after):is(
-      [data-caption-view="overlay"]
-    ):is(:hover, :focus-within)::after,
   :where(figure.media, figure.before-after):is(
       [data-caption-view="overlay"]
     ):is(:hover, :focus-within) > figcaption.media__caption {
@@ -246,6 +230,25 @@
     translate: 0 0;
     pointer-events: auto;
     transition-delay: 0s;
+  }
+
+  /* Jestei authored surface copy is a second content source for the lightbox,
+     but it should not become a second visual system on desktop. Keep the
+     existing reveal contract and normalize only its presentation here. */
+  .brand-system__hover-copy,
+  .jestei-captioned-group .jestei-media__hover-copy {
+    inset-inline: 0;
+    inset-block-end: 0;
+    max-inline-size: none;
+    max-block-size: min(60%, 18rem);
+    padding: clamp(0.65rem, 1.2cqi, 0.9rem);
+    border-block-start: 1px solid rgb(255 255 255 / 0.16);
+    background: rgb(10 10 10 / 0.82);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: clamp(0.82rem, 0.78rem + 0.14cqi, 0.95rem);
+    line-height: 1.3;
+    text-shadow: none;
   }
 }
 
