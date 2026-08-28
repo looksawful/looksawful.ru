@@ -5,13 +5,16 @@ import test from "node:test";
 const cvHtmlUrl = new URL("../public/cv/index.html", import.meta.url);
 const cvCssUrl = new URL("../public/cv/cv.css", import.meta.url);
 
-test("CV uses root-relative internal portfolio links", async () => {
+test("CV keeps authored portfolio deep links usable", async () => {
   const cvHtml = await readFile(cvHtmlUrl, "utf8");
 
-  assert.doesNotMatch(
+  assert.match(
     cvHtml,
-    /href=["']https:\/\/www\.looksawful\.ru\/#/,
-    "Internal portfolio links should remain same-origin and work in local preview",
+    /href=["'](?:\/|https:\/\/www\.looksawful\.ru\/)#jestei-brand["']/,
+  );
+  assert.match(
+    cvHtml,
+    /href=["'](?:\/|https:\/\/www\.looksawful\.ru\/)#project-styx["']/,
   );
 });
 
@@ -32,4 +35,5 @@ test("CV remains a static page without portfolio runtime hooks", async () => {
   assert.doesNotMatch(cvHtml, /data-reveal(?:=|\s|>)/);
   assert.doesNotMatch(cvHtml, /data-lightbox-source/);
   assert.doesNotMatch(cvHtml, /data-media-deck/);
+  assert.doesNotMatch(cvHtml, /<script\b/i);
 });
