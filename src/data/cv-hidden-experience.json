@@ -1,0 +1,12 @@
+{
+  "description": "DEV-ONLY exclusion manifest for CV experience entries. Entries listed here must never be emitted into the production /cv/ HTML unless this manifest is explicitly changed.",
+  "classes": [
+    "experience-card--illumihand",
+    "experience-card--berry",
+    "experience-card--ss",
+    "experience-card--olovo",
+    "experience-card--theatre",
+    "experience-card--soroka",
+    "experience-card--ran"
+  ]
+}
