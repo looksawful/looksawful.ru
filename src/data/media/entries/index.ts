@@ -4,7 +4,9 @@ import type { MediaAssetId } from "../assets/index.ts";
 import { resolveAssignedProjectIds } from "../project-assignments.ts";
 
 import { awfulCasesMediaEntries } from "./awful-cases.ts";
+import { behanceShootingMediaEntries } from "./behance-shootings.ts";
 import { berryMediaEntries } from "./berry.ts";
+import { berserkTimerMediaEntries } from "./berserk-timer.ts";
 import { esmiMediaEntries } from "./esmi.ts";
 import { evashaMediaEntries } from "./evasha.ts";
 import { hypressionMediaEntries } from "./hypression.ts";
@@ -20,7 +22,9 @@ import { unassignedMediaEntries } from "./unassigned.ts";
 
 const rawMediaEntries = [
   ...awfulCasesMediaEntries,
+  ...behanceShootingMediaEntries,
   ...berryMediaEntries,
+  ...berserkTimerMediaEntries,
   ...esmiMediaEntries,
   ...evashaMediaEntries,
   ...hypressionMediaEntries,
