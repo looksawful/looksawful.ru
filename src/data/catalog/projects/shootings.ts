@@ -8,6 +8,23 @@ const musicPhotographyBase = {
   workAreaIds: ["photography"],
 } as const;
 
+const berryPhotographyBase = {
+  status: "completed",
+  date: "2020",
+  clientIds: ["berry-agency"],
+  engagementIds: ["berry-agency-2020"],
+  primaryRoleId: "photographer",
+  roleIds: ["photographer"],
+  workAreaIds: ["photography"],
+} as const;
+
+const behancePhotographyBase = {
+  status: "completed",
+  primaryRoleId: "photographer",
+  roleIds: ["photographer"],
+  workAreaIds: ["photography"],
+} as const;
+
 export const shootingsProjects = [
   {
     ...musicPhotographyBase,
@@ -56,6 +73,56 @@ export const shootingsProjects = [
     date: "2023",
     clientIds: ["ofelia"],
     roleIds: ["photographer"],
+  },
+  {
+    ...berryPhotographyBase,
+    id: "shootings-berry-model-tests",
+    name: "Berry Agency — модельные тесты",
+  },
+  {
+    ...berryPhotographyBase,
+    id: "shootings-berry-editorial",
+    name: "Berry Agency — эдиториал с моделью агентства",
+  },
+  {
+    ...berryPhotographyBase,
+    id: "shootings-berry-lookbook",
+    name: "Berry Agency — лукбук",
+  },
+  {
+    ...berryPhotographyBase,
+    id: "shootings-berry-product",
+    name: "Berry Agency — предметная съёмка для бренда подарков",
+  },
+  {
+    ...behancePhotographyBase,
+    id: "shootings-behance-ecobasik",
+    name: "Lookbook for Ecobasik",
+  },
+  {
+    ...behancePhotographyBase,
+    id: "shootings-behance-offmi",
+    name: "Offmi",
+  },
+  {
+    ...behancePhotographyBase,
+    id: "shootings-behance-cinema-stills-2",
+    name: "CINEMA STILLS 2",
+  },
+  {
+    ...behancePhotographyBase,
+    id: "shootings-behance-anka-model-tests",
+    name: "Anka model tests",
+  },
+  {
+    ...behancePhotographyBase,
+    id: "shootings-behance-choose-your-character",
+    name: "Choose your character",
+  },
+  {
+    ...behancePhotographyBase,
+    id: "shootings-behance-editorial-photography",
+    name: "Editorial photography",
   },
 ] as const satisfies readonly ProjectData[];
 
