@@ -18,12 +18,13 @@ test("CV remains a direct-link-only page", async () => {
   );
 });
 
-test("CV opts out of search indexing and caching", async () => {
+test("CV remains indexable", async () => {
   const cvHtml = await readFile(cvHtmlUrl, "utf8");
 
-  assert.match(
+  assert.doesNotMatch(
     cvHtml,
-    /<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*noindex[^"']*nofollow[^"']*noarchive[^"']*["'][^>]*>/i,
+    /<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*noindex/i,
+    "Public CV should remain indexable",
   );
 });
 
@@ -71,9 +72,9 @@ test("CV displays the portrait that already exists on the main site", async () =
   await access(portraitUrl);
 });
 
-test("CV preserves authored hidden experience entries", async () => {
+test("CV source preserves authored hidden experience entries for development", async () => {
   const cvHtml = await readFile(cvHtmlUrl, "utf8");
 
   const hiddenCards = cvHtml.match(/<article\b[^>]*\bhidden\b[^>]*class=["'][^"']*experience-card|<article\b[^>]*class=["'][^"']*experience-card[^"']*["'][^>]*\bhidden\b/g) ?? [];
-  assert.ok(hiddenCards.length > 0, "Expected hidden experience cards to remain in the CV source");
+  assert.ok(hiddenCards.length > 0, "Expected hidden experience cards to remain in the development CV source");
 });
