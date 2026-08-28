@@ -162,9 +162,17 @@ a:hover { text-decoration-color: currentColor; }
   margin-left: auto;
   aspect-ratio: 1 / 1.05;
   overflow: hidden;
-  background: #efefef;
+  background-color: #efefef;
+  background-image: url("/media/hero/hero-portrait.webp");
+  background-size: cover;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
 }
 .portrait { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+
+@media screen {
+  .portrait { opacity: 0; }
+}
 
 .main-grid {
   display: grid;
