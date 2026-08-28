@@ -5,7 +5,7 @@ import test from "node:test";
 const rootHtmlUrl = new URL("../index.html", import.meta.url);
 const cvHtmlUrl = new URL("../public/cv/index.html", import.meta.url);
 const cvCssUrl = new URL("../public/cv/cv.css", import.meta.url);
-const portraitUrl = new URL("../public/media/cv/portrait-signature.png", import.meta.url);
+const portraitUrl = new URL("../public/media/cv/portrait-signature.webp", import.meta.url);
 
 test("CV remains a direct-link-only page", async () => {
   const rootHtml = await readFile(rootHtmlUrl, "utf8");
@@ -41,7 +41,7 @@ test("CV portrait is a real asset, not an inline data URI", async () => {
   const cvHtml = await readFile(cvHtmlUrl, "utf8");
 
   assert.doesNotMatch(cvHtml, /data:image\//);
-  assert.match(cvHtml, /src=["']\/media\/cv\/portrait-signature\.png["']/);
+  assert.match(cvHtml, /src=["']\/media\/cv\/portrait-signature\.webp["']/);
   await access(portraitUrl);
 });
 
