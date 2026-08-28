@@ -1,3 +1,7 @@
+.experience[data-experience-visibility="hidden"] {
+  display: none !important;
+}
+
 .experience {
   padding-block: var(--size-600);
 }
