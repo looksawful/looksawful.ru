@@ -37,12 +37,17 @@ test("CV keeps its own white editorial surface and external stylesheet", async (
   assert.match(cvCss, /font-family:\s*Arial,\s*Helvetica,\s*sans-serif/i);
 });
 
-test("CV reuses the existing site portrait instead of duplicating a CV image", async () => {
-  const cvHtml = await readFile(cvHtmlUrl, "utf8");
+test("CV displays the portrait that already exists on the main site", async () => {
+  const [cvHtml, cvCss] = await Promise.all([
+    readFile(cvHtmlUrl, "utf8"),
+    readFile(cvCssUrl, "utf8"),
+  ]);
 
   assert.doesNotMatch(cvHtml, /data:image\//);
-  assert.match(cvHtml, /src=["']\/media\/hero\/hero-portrait\.webp["']/);
-  assert.doesNotMatch(cvHtml, /\/media\/cv\/portrait-signature\./);
+  assert.match(
+    cvCss,
+    /\.portrait\s*\{[^}]*content:\s*url\(["']?\/media\/hero\/hero-portrait\.webp["']?\)/s,
+  );
   await access(portraitUrl);
 });
 
