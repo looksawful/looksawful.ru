@@ -20,6 +20,18 @@ test("experience component is mounted and styled as an isolated component", asyn
   assert.equal(existsSync(stylesUrl), true, "experience.css should exist");
 });
 
+test("experience visibility is controlled by a data attribute and defaults to hidden", async () => {
+  const [source, styles] = await Promise.all([
+    readFile(componentUrl, "utf8"),
+    readFile(stylesUrl, "utf8"),
+  ]);
+
+  assert.match(source, /section\.dataset\.experienceVisibility \?\? "hidden"/);
+  assert.match(source, /section\.dataset\.experienceVisibility = visibility/);
+  assert.match(source, /if \(visibility === "hidden"\) \{[\s\S]*section\.hidden = true;[\s\S]*return;/);
+  assert.match(styles, /\.experience\[data-experience-visibility="hidden"\]\s*\{[\s\S]*display:\s*none\s*!important/);
+});
+
 test("experience renders only the approved seven engagements", async () => {
   assert.equal(existsSync(componentUrl), true, "experience.ts should exist");
   const source = await readFile(componentUrl, "utf8");
