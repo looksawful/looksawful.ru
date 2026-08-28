@@ -1,10 +1,15 @@
 import { spawn } from "node:child_process";
+import { mkdir } from "node:fs/promises";
+import { resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright";
 
 const HOST = "127.0.0.1";
 const PORT = 4174;
 const BASE_URL = `http://${HOST}:${PORT}`;
+const CAPTURE_DIR = process.env.CV_SMOKE_CAPTURE_DIR
+  ? resolve(process.env.CV_SMOKE_CAPTURE_DIR)
+  : null;
 const VIEWPORTS = [
   { label: "phone", width: 390, height: 844 },
   { label: "tablet", width: 1024, height: 768 },
@@ -83,10 +88,10 @@ async function auditViewport(browser, viewport) {
 
       if (portrait instanceof HTMLImageElement) {
         if (!portrait.complete) {
-          await new Promise((resolve) => {
-            portrait.addEventListener("load", resolve, { once: true });
-            portrait.addEventListener("error", resolve, { once: true });
-            setTimeout(resolve, 5_000);
+          await new Promise((resolvePromise) => {
+            portrait.addEventListener("load", resolvePromise, { once: true });
+            portrait.addEventListener("error", resolvePromise, { once: true });
+            setTimeout(resolvePromise, 5_000);
           });
         }
         try { await portrait.decode(); } catch {}
@@ -118,6 +123,14 @@ async function auditViewport(browser, viewport) {
     assert(state.hiddenCards > 0, `${label}: authored hidden experience entries disappeared`);
     assert(state.scriptCount === 0, `${label}: standalone CV unexpectedly loads JavaScript`);
     assert(!errors.length, `${label}: browser errors:\n${errors.join("\n")}`);
+
+    if (CAPTURE_DIR) {
+      await mkdir(CAPTURE_DIR, { recursive: true });
+      await page.screenshot({
+        path: `${CAPTURE_DIR}/${viewport.label}-${viewport.width}x${viewport.height}.png`,
+        fullPage: true,
+      });
+    }
 
     console.log(`[cv-smoke] ${label}: OK`);
   } finally {
