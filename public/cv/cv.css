@@ -1,0 +1,381 @@
+/* Site-consistent escape navigation for the standalone CV page. */
+.resume-nav {
+  --nav-inline: clamp(1rem, 2.2vw, 2.5rem);
+  --nav-max: 72rem;
+  inline-size: min(calc(100% - (var(--nav-inline) * 2)), var(--nav-max));
+  margin-inline: auto;
+  padding-block: clamp(0.75rem, 1vw, 1rem);
+  border-block-end: 1px solid rgb(0 0 0 / 0.2);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(0.875rem, 0.84rem + 0.18vw, 1rem);
+  line-height: 1.25;
+}
+
+.resume-nav__inner {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: clamp(1rem, 2vw, 2rem);
+}
+
+.resume-nav__brand,
+.resume-nav__back {
+  color: #111;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.resume-nav__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+}
+
+.resume-nav__back-icon {
+  inline-size: 1em;
+  block-size: 1em;
+  flex: none;
+}
+
+.resume-nav__brand:hover,
+.resume-nav__back:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+.resume-nav__brand:focus-visible,
+.resume-nav__back:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 0.2em;
+}
+
+@media print {
+  .resume-nav { display: none; }
+}
+
+:root {
+  --bg: #fff;
+  --fg: #000;
+  --muted: #606060;
+  --line: #d8d8d8;
+  --link-line: #9a9a9a;
+  --page: 1180px;
+  --gutter: clamp(18px, 3vw, 42px);
+  --gap: clamp(30px, 4vw, 58px);
+  --text: clamp(14px, .88vw, 15.5px);
+  --small: clamp(13px, .78vw, 14px);
+  --title: clamp(14px, .86vw, 15px);
+  --name: clamp(21px, 1.35vw, 25px);
+  --role: clamp(16px, 1.05vw, 18px);
+}
+
+* { box-sizing: border-box; }
+html { background: var(--bg); color: var(--fg); font-family: Arial, Helvetica, sans-serif; }
+body { margin: 0; background: var(--bg); color: var(--fg); }
+img { max-width: 100%; display: block; }
+[hidden] { display: none !important; }
+
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--link-line);
+  text-underline-offset: .14em;
+  text-decoration-skip-ink: auto;
+}
+a:hover { text-decoration-color: currentColor; }
+
+.resume,
+.experience-sheet {
+  width: min(100%, var(--page));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.resume { padding-top: var(--gutter); padding-bottom: var(--gutter); }
+
+.top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.13fr) minmax(300px, .77fr);
+  gap: var(--gap);
+  align-items: start;
+}
+.name {
+  margin: 0 0 18px;
+  font-size: var(--name);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+}
+.eyebrow,
+.section-title,
+.cluster-title,
+.experience-title {
+  margin: 0;
+  font-size: var(--title);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  text-transform: uppercase;
+}
+.eyebrow { margin-bottom: 14px; }
+
+.about { max-width: 720px; }
+.contacts,
+.url,
+.about p,
+.sales p,
+.copy p,
+.tech p,
+.tools p,
+.langs p,
+.course,
+.experience-sheet {
+  font-size: var(--text);
+  line-height: 1.3;
+  letter-spacing: -.014em;
+}
+.contacts { margin-bottom: 14px; font-size: var(--small); line-height: 1.2; }
+.url { margin-bottom: 24px; font-size: var(--small); }
+.about > p { margin: 0 0 18px; max-width: 64ch; }
+.sales { margin-top: 26px; max-width: 70ch; }
+.sales p { margin: 0 0 11px; }
+.sales b,
+.copy b,
+.tech b,
+.tools b,
+.langs b { font-weight: 700; }
+
+.visual { position: sticky; top: var(--gutter); }
+.role {
+  margin-bottom: 24px;
+  max-width: 25ch;
+  font-size: var(--role);
+  line-height: 1.02;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  text-transform: uppercase;
+}
+.portrait-wrap {
+  width: min(100%, 420px);
+  margin-left: auto;
+  aspect-ratio: 1 / 1.05;
+  overflow: hidden;
+  background: #efefef;
+}
+.portrait { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+
+.main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, .75fr);
+  gap: var(--gap);
+  align-items: start;
+  margin-top: clamp(38px, 4.4vw, 68px);
+}
+section.block { margin-bottom: clamp(30px, 3.5vw, 50px); }
+.copy p { margin: 0 0 11px; }
+.hard p { margin: 0 0 15px; }
+.tech p,
+.tools p { margin: 0 0 10px; }
+.section-title { margin-bottom: 15px; }
+.sidebar { display: grid; gap: clamp(26px, 3vw, 40px); }
+.sidebar .block { margin-bottom: 0; }
+.soft,
+.tools,
+.langs { text-align: right; }
+.soft p { margin-bottom: 12px; }
+
+.education {
+  margin-top: clamp(64px, 8vw, 110px);
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.education-layout {
+  display: grid;
+  grid-template-columns: minmax(190px, .7fr) minmax(0, 2.3fr);
+  gap: clamp(34px, 4vw, 58px);
+  align-items: start;
+}
+.education-column,
+.courses-column { min-width: 0; }
+.education-column .cluster-title,
+.courses-column .cluster-title { margin-bottom: 22px; }
+.courses-grid {
+  columns: 3 210px;
+  column-gap: 34px;
+}
+.course {
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 24px;
+  font-size: var(--small);
+  line-height: 1.22;
+  break-inside: avoid;
+  overflow-wrap: anywhere;
+}
+.course b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--small);
+  line-height: 1.08;
+}
+.course > b > a { font-weight: inherit; }
+.course > a:not(:first-child) { text-decoration: none; }
+
+.experience-sheet {
+  margin-top: clamp(90px, 10vw, 140px);
+  padding-bottom: var(--gutter);
+  background: #fff;
+  color: #000;
+}
+.experience-title {
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+.experience-card {
+  display: grid;
+  grid-template-columns: minmax(220px, .78fr) minmax(0, 1.42fr);
+  gap: clamp(30px, 4vw, 56px);
+  align-items: start;
+  min-height: 0;
+  padding: 28px 0 30px;
+  border-bottom: 1px solid var(--line);
+}
+.experience-card:last-of-type { border-bottom: 0; }
+.experience-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.experience-company,
+.experience-role,
+.experience-label {
+  margin: 0;
+  font-weight: 700;
+}
+.experience-company,
+.experience-role {
+  font-size: var(--title);
+  line-height: 1.08;
+  letter-spacing: -.022em;
+  text-transform: uppercase;
+}
+.experience-meta {
+  margin: 5px 0 0;
+  font-size: var(--small);
+  line-height: 1.2;
+  letter-spacing: -.012em;
+  text-transform: uppercase;
+}
+.experience-meta i { font-style: italic; text-transform: none; }
+.experience-description,
+.experience-value,
+.experience-links a {
+  font-size: var(--text);
+  line-height: 1.3;
+  letter-spacing: -.014em;
+}
+.experience-description { margin: 10px 0 0; max-width: 64ch; }
+.experience-facts { display: grid; gap: 11px; margin-top: 12px; }
+.experience-fact { min-width: 0; }
+.experience-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: var(--small);
+  line-height: 1.1;
+}
+.experience-cases { margin-top: 20px; }
+.experience-cases .experience-value,
+.experience-cases a {
+  display: block;
+  margin-bottom: 5px;
+  font-size: var(--small);
+  line-height: 1.22;
+}
+.experience-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px 14px;
+  margin-top: 20px;
+  text-align: right;
+}
+.experience-links .experience-label { flex-basis: 100%; text-align: right; margin-bottom: 0; }
+.experience-links a { display: inline; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  :root { --text: 14px; --small: 13px; --title: 14px; --name: 23px; --role: 17px; }
+  .resume,
+  .experience-sheet { padding-inline: 20px; }
+  .top,
+  .main-grid { grid-template-columns: 1fr; gap: 34px; }
+  .visual {
+    position: static;
+    display: grid;
+    grid-template-columns: minmax(0, .8fr) minmax(220px, 1.2fr);
+    gap: 26px;
+    align-items: end;
+  }
+  .role { margin: 0; align-self: start; }
+  .portrait-wrap { margin-left: 0; width: 100%; }
+  .sidebar { grid-template-columns: 1fr 1fr; align-items: start; }
+  .soft,
+  .tools,
+  .langs { text-align: left; }
+  .langs { grid-column: 1 / -1; }
+  .education-layout { grid-template-columns: 1fr; gap: 34px; }
+  .courses-grid { columns: 2 240px; }
+  .experience-card { grid-template-columns: minmax(190px, .65fr) minmax(0, 1.35fr); gap: 32px; }
+}
+
+@media (max-width: 620px) {
+  :root { --gutter: 16px; --text: 14px; --small: 13px; --title: 14px; --name: 22px; --role: 16px; }
+  .resume,
+  .experience-sheet { padding-inline: 16px; }
+  .visual { display: flex; flex-direction: column; align-items: stretch; gap: 18px; }
+  .role { max-width: 100%; }
+  .portrait-wrap { width: 100%; aspect-ratio: 4 / 5; }
+  .sidebar { grid-template-columns: 1fr; }
+  .soft,
+  .tools,
+  .langs { text-align: left; }
+  .langs { grid-column: auto; }
+  .education { margin-top: 58px; }
+  .courses-grid { columns: 1; }
+  .experience-sheet { margin-top: 72px; }
+  .experience-card { grid-template-columns: 1fr; gap: 20px; padding: 24px 0 26px; }
+  .experience-cases { margin-top: 16px; }
+  .experience-links { justify-content: flex-start; text-align: left; margin-top: 16px; }
+  .experience-links .experience-label { text-align: left; }
+}
+
+@media print {
+  @page { size: A4; margin: 10mm; }
+  :root { --text: 7.6pt; --small: 7.1pt; --title: 7.9pt; --name: 11pt; --role: 9.5pt; }
+  html, body { background: #fff; }
+  .resume,
+  .experience-sheet { width: 100%; max-width: none; padding-inline: 0; }
+  .resume { padding-top: 0; padding-bottom: 0; }
+  .top { grid-template-columns: 1.08fr .72fr; gap: 12mm; }
+  .main-grid { grid-template-columns: 1.12fr .7fr; gap: 12mm; margin-top: 10mm; }
+  .visual { position: static; }
+  .portrait-wrap { max-width: 67mm; }
+  .education { margin-top: 15mm; }
+  .education-layout { grid-template-columns: 42mm minmax(0, 1fr); gap: 8mm; }
+  .courses-grid { columns: 3; column-gap: 6mm; }
+  .course { margin-bottom: 4mm; font-size: var(--small); }
+  .experience-sheet { break-before: page; margin-top: 0; padding-bottom: 0; }
+  .experience-card {
+    grid-template-columns: 48mm minmax(0, 1fr);
+    gap: 8mm;
+    padding: 5mm 0;
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+  .experience-card--sensetique { break-before: page; page-break-before: always; }
+  .experience-cases .experience-value,
+  .experience-cases a { font-size: var(--small); }
+  a { text-decoration-color: #777; }
+}
