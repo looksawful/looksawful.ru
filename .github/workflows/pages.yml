@@ -42,6 +42,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Verify
         run: npm run verify
+      - name: Prepare production CV
+        run: node tools/prepare-cv-production.mjs dist/cv/index.html
       - name: Capture caption visual QA
         run: node tools/capture-caption-qa.mjs
       - name: Upload caption visual QA
@@ -78,19 +80,27 @@ jobs:
           expected="commit=${GITHUB_SHA}"
           version_url="https://www.looksawful.ru/deploy-version.txt?sha=${GITHUB_SHA}"
           index_url="https://www.looksawful.ru/?sha=${GITHUB_SHA}"
+          cv_url="https://www.looksawful.ru/cv/?sha=${GITHUB_SHA}"
           for attempt in $(seq 1 60); do
             body="$(curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "${version_url}&attempt=${attempt}" || true)"
             index_file="$(mktemp)"
+            cv_file="$(mktemp)"
             curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "${index_url}&attempt=${attempt}" --output "${index_file}" || true
-            if grep -Fxq "$expected" <<<"$body" && grep -Eq 'href="/assets/[^"]+\.css"' "${index_file}" && grep -Eq 'src="/assets/[^"]+\.js"' "${index_file}" && ! grep -Eq '\./src/[^"]+\.(css|js)' "${index_file}"; then
+            curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "${cv_url}&attempt=${attempt}" --output "${cv_file}" || true
+            if grep -Fxq "$expected" <<<"$body" \
+              && grep -Eq 'href="/assets/[^"]+\.css"' "${index_file}" \
+              && grep -Eq 'src="/assets/[^"]+\.js"' "${index_file}" \
+              && ! grep -Eq '\./src/[^"]+\.(css|js)' "${index_file}" \
+              && grep -Fq 'ИВАН КРУШИНСКИЙ' "${cv_file}" \
+              && ! grep -Eqi '<article[^>]*class="[^"]*experience-card[^"]*"[^>]*hidden|<article[^>]*hidden[^>]*class="[^"]*experience-card' "${cv_file}"; then
               printf '%s\n' "$body"
-              rm -f "${index_file}"
+              rm -f "${index_file}" "${cv_file}"
               exit 0
             fi
-            rm -f "${index_file}"
+            rm -f "${index_file}" "${cv_file}"
             sleep 10
           done
-          echo "Production did not expose ${expected} with built CSS/JS assets" >&2
+          echo "Production did not expose ${expected} with built assets and a sanitized CV" >&2
           exit 1
 
   report:
