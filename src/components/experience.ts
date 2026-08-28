@@ -52,6 +52,14 @@ export function mountExperience(root: ParentNode = document): void {
 
   if (!section) return;
 
+  const visibility = section.dataset.experienceVisibility ?? "hidden";
+  section.dataset.experienceVisibility = visibility;
+
+  if (visibility === "hidden") {
+    section.hidden = true;
+    return;
+  }
+
   section.setAttribute("aria-labelledby", "experience-title");
   section.removeAttribute("aria-label");
   section.innerHTML = renderExperience();
