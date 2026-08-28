@@ -1,0 +1,30 @@
+name: Production healthcheck
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  healthcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout prod
+        uses: actions/checkout@v4
+        with:
+          ref: prod
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Check production
+        shell: bash
+        run: |
+          export EXPECTED_PROD_SHA="$(git rev-parse HEAD)"
+          node tools/check-production.mjs

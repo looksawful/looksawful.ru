@@ -1,0 +1,55 @@
+content:
+  - name: project-cards
+    label: Карточки проектов
+    type: file
+    path: src/content/projects.json
+    format: json
+    list: true
+    operations:
+      create: false
+      rename: false
+      delete: false
+    fields:
+      - name: id
+        label: ID
+        type: string
+        required: true
+        readonly: true
+      - name: title
+        label: Название
+        type: string
+        required: true
+      - name: focus
+        label: Описание
+        type: text
+        required: true
+      - name: role
+        label: Роль
+        type: string
+      - name: period
+        label: Период
+        type: string
+      - name: ariaLabel
+        label: ARIA label
+        type: string
+      - name: cover
+        label: Обложка
+        type: object
+        required: true
+        fields:
+          - name: src
+            label: Путь
+            type: string
+            required: true
+          - name: alt
+            label: Alt
+            type: text
+            required: true
+          - name: width
+            label: Ширина
+            type: number
+            required: true
+          - name: height
+            label: Высота
+            type: number
+            required: true

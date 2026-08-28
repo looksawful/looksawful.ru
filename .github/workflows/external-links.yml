@@ -1,0 +1,44 @@
+name: External links
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 6 * * 4"
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+
+      - name: Install from lockfile
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Check external links
+        run: npm run check:external-links
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-links
+          path: artifacts/external-links
+          if-no-files-found: warn

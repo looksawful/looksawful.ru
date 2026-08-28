@@ -118,3 +118,10 @@ media/.compression-backup/
 # Reproducible derivatives are generated before dev/test/build.
 public/media/generated/responsive/
 public/media/generated/video/
+
+# Lighthouse CI
+.lighthouseci/
+artifacts/lighthouse/
+
+# External link reports
+artifacts/external-links/
