@@ -32,4 +32,13 @@ jobs:
       - name: Install browser for smoke tests
         run: npx playwright install --with-deps chromium
       - name: Verify
+        env:
+          CV_SMOKE_CAPTURE_DIR: artifacts/cv-smoke
         run: npm run verify
+      - name: Upload CV visual QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cv-smoke
+          path: artifacts/cv-smoke
+          if-no-files-found: warn
