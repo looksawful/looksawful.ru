@@ -46,8 +46,9 @@ test("CV displays the portrait that already exists on the main site", async () =
   assert.doesNotMatch(cvHtml, /data:image\//);
   assert.match(
     cvCss,
-    /\.portrait\s*\{[^}]*content:\s*url\(["']?\/media\/hero\/hero-portrait\.webp["']?\)/s,
+    /\.portrait-wrap\s*\{[^}]*background-image:\s*url\(["']?\/media\/hero\/hero-portrait\.webp["']?\)/s,
   );
+  assert.match(cvCss, /@media\s+screen[^{]*\{[\s\S]*?\.portrait\s*\{[^}]*opacity:\s*0/s);
   await access(portraitUrl);
 });
 
