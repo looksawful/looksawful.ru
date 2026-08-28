@@ -6,6 +6,7 @@ const rootHtmlUrl = new URL("../index.html", import.meta.url);
 const cvHtmlUrl = new URL("../public/cv/index.html", import.meta.url);
 const cvCssUrl = new URL("../public/cv/cv.css", import.meta.url);
 const portraitUrl = new URL("../public/media/hero/hero-portrait.webp", import.meta.url);
+const pagesWorkflowUrl = new URL("../.github/workflows/pages.yml", import.meta.url);
 
 test("CV remains a direct-link-only page", async () => {
   const rootHtml = await readFile(rootHtmlUrl, "utf8");
@@ -14,6 +15,24 @@ test("CV remains a direct-link-only page", async () => {
     rootHtml,
     /href=["']\/cv\/?["']/,
     "Main portfolio must not link to /cv/",
+  );
+});
+
+test("CV opts out of search indexing and caching", async () => {
+  const cvHtml = await readFile(cvHtmlUrl, "utf8");
+
+  assert.match(
+    cvHtml,
+    /<meta\b[^>]*name=["']robots["'][^>]*content=["'][^"']*noindex[^"']*nofollow[^"']*noarchive[^"']*["'][^>]*>/i,
+  );
+});
+
+test("production deployment strips hidden CV experience cards before upload", async () => {
+  const workflow = await readFile(pagesWorkflowUrl, "utf8");
+
+  assert.match(
+    workflow,
+    /node tools\/prepare-cv-production\.mjs dist\/cv\/index\.html/,
   );
 });
 
