@@ -20,6 +20,12 @@ export function entryRequestToPagePath(requestPath: string): string {
   return pathname;
 }
 
+export function rewriteCvDevRequest(requestUrl: string): string {
+  const match = requestUrl.match(/^\/cv\/?([?#].*)?$/);
+  if (!match) return requestUrl;
+  return `/cv/index.html${match[1] ?? ""}`;
+}
+
 export function renderNotFoundPage(page: NonNullable<ReturnType<typeof getPageByPath>>): string {
   return renderPageShell({
     page,
@@ -36,6 +42,12 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
   return {
     name: "site-pages",
     enforce: "pre",
+    configureServer(server) {
+      server.middlewares.use((request, _response, next) => {
+        if (request.url) request.url = rewriteCvDevRequest(request.url);
+        next();
+      });
+    },
     transformIndexHtml: {
       order: "pre",
       handler(html, context) {
