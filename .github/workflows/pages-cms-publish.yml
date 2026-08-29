@@ -1,0 +1,84 @@
+name: Prepare CMS publication
+
+on:
+  workflow_dispatch:
+    inputs:
+      payload:
+        description: Pages CMS payload as JSON
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pages-cms-publication
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate CMS source branch
+        env:
+          CMS_PAYLOAD: ${{ inputs.payload }}
+          WORKFLOW_REF: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_ref="$(node --input-type=module <<'NODE'
+          const payload = JSON.parse(process.env.CMS_PAYLOAD || "{}");
+          process.stdout.write(payload?.repository?.ref ?? "");
+          NODE
+          )"
+
+          echo "Pages CMS source ref: ${source_ref:-<missing>}"
+          echo "Workflow ref: ${WORKFLOW_REF}"
+
+          if [[ "$source_ref" != "dev" || "$WORKFLOW_REF" != "dev" ]]; then
+            echo "Publication preparation is allowed only from the dev branch." >&2
+            echo "Open dev in Pages CMS, save and verify the changes there, then run this action again." >&2
+            exit 1
+          fi
+
+      - name: Create or reuse dev to prod pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ahead_by="$(gh api "repos/${GITHUB_REPOSITORY}/compare/prod...dev" --jq '.ahead_by')"
+          echo "dev commits ahead of prod: ${ahead_by}"
+
+          if [[ "$ahead_by" == "0" ]]; then
+            echo "There are no unpublished dev commits. Nothing to publish."
+            exit 0
+          fi
+
+          existing_url="$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --base prod \
+            --head dev \
+            --state open \
+            --json url \
+            --jq '.[0].url // ""')"
+
+          if [[ -n "$existing_url" ]]; then
+            echo "Publication pull request already exists: $existing_url"
+            echo "### Publication PR" >> "$GITHUB_STEP_SUMMARY"
+            echo "$existing_url" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          pr_url="$(gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base prod \
+            --head dev \
+            --title "Publish verified dev changes" \
+            --body $'Prepared from Pages CMS.\n\nSource: `dev`\nTarget: `prod`\n\nDo not merge until required verification checks are green. This workflow never merges or deploys automatically.')"
+
+          echo "Created publication pull request: $pr_url"
+          echo "### Publication PR" >> "$GITHUB_STEP_SUMMARY"
+          echo "$pr_url" >> "$GITHUB_STEP_SUMMARY"
