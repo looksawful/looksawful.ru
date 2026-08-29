@@ -51,9 +51,32 @@ test("standalone Shootings page uses the Collection route and excludes case DOM"
   assert.doesNotMatch(html, /<!-- SHOOTINGS_[A-Z0-9_]+ -->/);
 });
 
+test("unlisted standalone Project pages reuse their exact homepage article bodies", () => {
+  const awful = renderStandaloneEntityPage(indexHtml, page("project:awful-cases"));
+  assert.match(awful, /id="project-awful-cases"/);
+  assert.match(awful, /<h1 class="project__title"/);
+  assert.match(awful, /class="media mockup awful-cases-game"/);
+  assert.doesNotMatch(awful, /<article\b[^>]*hidden/);
+  assert.doesNotMatch(awful, /<!-- AWFUL_CASES_[A-Z0-9_]+ -->/);
+  assert.match(awful, /<meta name="robots" content="noindex,nofollow">/);
+
+  const moves = renderStandaloneEntityPage(indexHtml, page("project:moves-awful"));
+  assert.match(moves, /id="project-moves-awful"/);
+  assert.match(moves, /data-animated-canvas-gallery/);
+  assert.doesNotMatch(moves, /<article\b[^>]*hidden/);
+  assert.doesNotMatch(moves, /<!-- MOVES_AWFUL_[A-Z0-9_]+ -->/);
+
+  const berry = renderStandaloneEntityPage(indexHtml, page("project:berry-social-content-2020"));
+  assert.match(berry, /id="project-berry-social-content-2020"/);
+  assert.match(berry, /<h1 class="project__title"/);
+  assert.doesNotMatch(berry, /<article\b[^>]*hidden/);
+  assert.doesNotMatch(berry, /<!-- BERRY_[A-Z0-9_]+ -->/);
+});
+
 test("Vite transform path resolution is explicit and route-safe", () => {
   assert.equal(entryRequestToPagePath("/index.html"), "/");
   assert.equal(entryRequestToPagePath("/work/jestei-pool/index.html"), "/work/jestei-pool/");
+  assert.equal(entryRequestToPagePath("/work/awful-cases/index.html"), "/work/awful-cases/");
   assert.equal(entryRequestToPagePath("/shootings/index.html"), "/shootings/");
   assert.equal(entryRequestToPagePath("/404.html"), "/404.html");
 });
