@@ -64,16 +64,25 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-test("CV skill-section CMS defaults reproduce the four currently authored blocks exactly", async () => {
+test("CV skill migration fixture reproduces authored blocks while live copy remains editable", async () => {
   const [{ cvContent }, sourceHtml, contentLib] = await Promise.all([
     import(cvDataModuleUrl.href),
     readFile(cvSourceUrl, "utf8"),
     import(cvContentLibUrl.href),
   ]);
 
-  assert.deepEqual(cvContent.skills, expectedSkills);
-  assert.equal(typeof contentLib.transformCvSkills, "function");
-  assert.equal(contentLib.transformCvSkills(sourceHtml, cvContent), sourceHtml);
+  assert.equal(
+    contentLib.transformCvSkills(sourceHtml, { ...cvContent, skills: expectedSkills }),
+    sourceHtml,
+  );
+  for (const sectionId of ["hard", "tech", "soft", "tools"]) {
+    assert.deepEqual(
+      cvContent.skills[sectionId].rows.map(({ id }) => id),
+      expectedSkills[sectionId].rows.map(({ id }) => id),
+      `${sectionId} stable row identity changed`,
+    );
+  }
+  assert.doesNotThrow(() => contentLib.transformCvSkills(sourceHtml, cvContent));
 });
 
 test("CV skill transform escapes CMS copy while preserving section and paragraph markup", async () => {
@@ -95,7 +104,7 @@ test("CV skill transform escapes CMS copy while preserving section and paragraph
 
   assert.match(transformed, /Hard &lt;skills&gt; &amp; direction/);
   assert.match(transformed, /<b>Айдентика &amp; бренд:<\/b> логотип &lt;script&gt;alert\(1\)&lt;\/script&gt; &amp; система/);
-  assert.doesNotMatch(transformed, /<script>alert\(1\)<\/script>/);
+  assert.doesNotMatch(transformed, /<script\b/i);
   assert.match(transformed, /<section class="block hard copy">/);
   assert.match(transformed, /<section class="block tech">/);
   assert.match(transformed, /<section class="block soft copy">/);
