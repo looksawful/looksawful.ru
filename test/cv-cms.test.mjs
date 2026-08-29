@@ -34,6 +34,28 @@ const expectedVisibility = new Map([
 
 const experienceIds = [...expectedVisibility.keys()];
 
+const fixtureProfile = {
+  name: "Fixture Name",
+  role: "Fixture Role",
+  aboutPrimary: "Fixture about one.",
+  aboutSecondary: "Fixture about two.",
+  principles: [
+    { id: "visual", title: "Visual:", text: "Visual text." },
+    { id: "communication", title: "Communication:", text: "Communication text." },
+    { id: "product", title: "Product:", text: "Product text." },
+    { id: "new-products", title: "New products:", text: "New products text." },
+    { id: "leadership", title: "Leadership:", text: "Leadership text." },
+  ],
+  languages: [
+    { id: "english", name: "English", level: "B2" },
+    { id: "czech", name: "Czech", level: "A2" },
+  ],
+};
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
 function assertFileExists(url, label) {
   assert.equal(existsSync(fileURLToPath(url)), true, `${label} must exist`);
 }
@@ -49,6 +71,7 @@ function articleFor(html, id) {
 
 function fixtureContent(overrides = {}) {
   return {
+    profile: clone(fixtureProfile),
     experience: experienceIds.map((id) => ({
       id,
       visible: Object.hasOwn(overrides, id) ? overrides[id] : expectedVisibility.get(id),
@@ -57,11 +80,27 @@ function fixtureContent(overrides = {}) {
 }
 
 function fixtureHtml(hiddenIds = new Set()) {
+  const principles = fixtureProfile.principles
+    .map(({ title, text }) => `<p><b>${title}</b> ${text}</p>`)
+    .join("");
+  const languages = fixtureProfile.languages
+    .map(({ name, level }) => `<b>${name}</b> — ${level}`)
+    .join("<br/>");
+  const profile = [
+    '<main><section class="about">',
+    `<h1 class="name">${fixtureProfile.name}</h1>`,
+    '<div class="url">Fixture URL</div>',
+    `<p>${fixtureProfile.aboutPrimary}</p><p>${fixtureProfile.aboutSecondary}</p>`,
+    `<div class="sales">${principles}</div>`,
+    "</section>",
+    `<div class="role">${fixtureProfile.role}</div>`,
+    `<section class="block langs"><h2>Languages</h2><p>${languages}</p></section></main>`,
+  ].join("");
   const cards = experienceIds.map((id) => {
     const hidden = hiddenIds.has(id) ? " hidden" : "";
     return `<article class="experience-card experience-card--${id}"${hidden}>CARD ${id}</article>`;
   });
-  return `<!doctype html><html><body>${cards.join("")}</body></html>`;
+  return `<!doctype html><html><body>${profile}${cards.join("")}</body></html>`;
 }
 
 test("CV CMS data has one fixed visibility record for every authored experience card", async () => {
@@ -87,16 +126,24 @@ test("CV content adapter rejects incomplete, duplicate and unknown experience id
   assertFileExists(cvDataModuleUrl, "src/data/cv.ts");
   const { parseCvContent } = await import(cvDataModuleUrl.href);
 
+  const incomplete = fixtureContent();
+  incomplete.experience = incomplete.experience.slice(0, -1);
   assert.throws(
-    () => parseCvContent({ experience: fixtureContent().experience.slice(0, -1) }),
+    () => parseCvContent(incomplete),
     /missing required CV experience id|experience count/i,
   );
+
+  const duplicate = fixtureContent();
+  duplicate.experience = [...duplicate.experience, { id: "jestei", visible: true }];
   assert.throws(
-    () => parseCvContent({ experience: [...fixtureContent().experience, { id: "jestei", visible: true }] }),
+    () => parseCvContent(duplicate),
     /duplicate CV experience id/i,
   );
+
+  const unknown = fixtureContent();
+  unknown.experience = unknown.experience.map((item, index) => index === 0 ? { ...item, id: "unknown" } : item);
   assert.throws(
-    () => parseCvContent({ experience: fixtureContent().experience.map((item, index) => index === 0 ? { ...item, id: "unknown" } : item) }),
+    () => parseCvContent(unknown),
     /unexpected CV experience id/i,
   );
 });
