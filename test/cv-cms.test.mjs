@@ -32,6 +32,8 @@ const expectedVisibility = new Map([
   ["ria", true],
 ]);
 
+const experienceIds = [...expectedVisibility.keys()];
+
 function assertFileExists(url, label) {
   assert.equal(existsSync(fileURLToPath(url)), true, `${label} must exist`);
 }
@@ -45,6 +47,23 @@ function articleFor(html, id) {
   return html.match(pattern)?.[0] ?? null;
 }
 
+function fixtureContent(overrides = {}) {
+  return {
+    experience: experienceIds.map((id) => ({
+      id,
+      visible: Object.hasOwn(overrides, id) ? overrides[id] : expectedVisibility.get(id),
+    })),
+  };
+}
+
+function fixtureHtml(hiddenIds = new Set()) {
+  const cards = experienceIds.map((id) => {
+    const hidden = hiddenIds.has(id) ? " hidden" : "";
+    return `<article class="experience-card experience-card--${id}"${hidden}>CARD ${id}</article>`;
+  });
+  return `<!doctype html><html><body>${cards.join("")}</body></html>`;
+}
+
 test("CV CMS data has one fixed visibility record for every authored experience card", async () => {
   assertFileExists(cvDataModuleUrl, "src/data/cv.ts");
   assertFileExists(cvContentUrl, "src/content/cv.json");
@@ -54,7 +73,7 @@ test("CV CMS data has one fixed visibility record for every authored experience 
     readFile(cvSourceUrl, "utf8"),
   ]);
 
-  assert.deepEqual(CV_EXPERIENCE_IDS, [...expectedVisibility.keys()]);
+  assert.deepEqual(CV_EXPERIENCE_IDS, experienceIds);
   assert.deepEqual(
     cvContent.experience.map(({ id, visible }) => [id, visible]),
     [...expectedVisibility.entries()],
@@ -64,6 +83,24 @@ test("CV CMS data has one fixed visibility record for every authored experience 
   assert.deepEqual([...new Set(authoredIds)], CV_EXPERIENCE_IDS);
 });
 
+test("CV content adapter rejects incomplete, duplicate and unknown experience identity", async () => {
+  assertFileExists(cvDataModuleUrl, "src/data/cv.ts");
+  const { parseCvContent } = await import(cvDataModuleUrl.href);
+
+  assert.throws(
+    () => parseCvContent({ experience: fixtureContent().experience.slice(0, -1) }),
+    /missing required CV experience id|experience count/i,
+  );
+  assert.throws(
+    () => parseCvContent({ experience: [...fixtureContent().experience, { id: "jestei", visible: true }] }),
+    /duplicate CV experience id/i,
+  );
+  assert.throws(
+    () => parseCvContent({ experience: fixtureContent().experience.map((item, index) => index === 0 ? { ...item, id: "unknown" } : item) }),
+    /unexpected CV experience id/i,
+  );
+});
+
 test("CV build visibility is controlled by content data rather than legacy hidden attributes", async () => {
   assertFileExists(applyScriptUrl, "tools/apply-cv-content.mjs");
 
@@ -71,30 +108,16 @@ test("CV build visibility is controlled by content data rather than legacy hidde
   const htmlPath = join(dir, "index.html");
   const contentPath = join(dir, "cv.json");
 
-  await writeFile(
-    htmlPath,
-    [
-      "<!doctype html><html><body>",
-      '<article class="experience-card experience-card--jestei" hidden>VISIBLE BY DATA</article>',
-      '<article class="experience-card experience-card--styx">HIDDEN BY DATA</article>',
-      "</body></html>",
-    ].join(""),
-    "utf8",
-  );
+  await writeFile(htmlPath, fixtureHtml(new Set(["jestei"])), "utf8");
   await writeFile(
     contentPath,
-    JSON.stringify({
-      experience: [
-        { id: "jestei", visible: true },
-        { id: "styx", visible: false },
-      ],
-    }),
+    JSON.stringify(fixtureContent({ jestei: true, styx: false })),
     "utf8",
   );
 
   const result = spawnSync(
     process.execPath,
-    [fileURLToPath(applyScriptUrl), htmlPath, contentPath, "--allow-partial"],
+    [fileURLToPath(applyScriptUrl), htmlPath, contentPath],
     { encoding: "utf8" },
   );
   assert.equal(result.status, 0, result.stderr || result.stdout);
@@ -108,42 +131,59 @@ test("CV build visibility is controlled by content data rather than legacy hidde
   assert.match(styx, /\bhidden(?:\s*=|\s|>)/i);
 });
 
-test("production CV physically removes experience entries whose CMS visibility is false", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "cv-production-content-"));
+test("CV build fails closed when the HTML and visibility registry drift apart", async () => {
+  assertFileExists(applyScriptUrl, "tools/apply-cv-content.mjs");
+
+  const dir = await mkdtemp(join(tmpdir(), "cv-content-drift-"));
   const htmlPath = join(dir, "index.html");
   const contentPath = join(dir, "cv.json");
 
   await writeFile(
     htmlPath,
-    [
-      "<!doctype html><html><body>",
-      '<article class="experience-card experience-card--jestei" hidden>KEEP ME</article>',
-      '<article class="experience-card experience-card--styx">REMOVE ME</article>',
-      "</body></html>",
-    ].join(""),
+    fixtureHtml().replace(/<article class="experience-card experience-card--ria">[\s\S]*?<\/article>/, ""),
     "utf8",
   );
+  await writeFile(contentPath, JSON.stringify(fixtureContent()), "utf8");
+
+  const result = spawnSync(
+    process.execPath,
+    [fileURLToPath(applyScriptUrl), htmlPath, contentPath],
+    { encoding: "utf8" },
+  );
+
+  assert.notEqual(result.status, 0);
+  assert.match(`${result.stderr}\n${result.stdout}`, /missing CV experience card.*ria/i);
+});
+
+test("production CV physically removes experience entries whose CMS visibility is false", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "cv-production-content-"));
+  const htmlPath = join(dir, "index.html");
+  const contentPath = join(dir, "cv.json");
+
+  await writeFile(htmlPath, fixtureHtml(new Set(["jestei"])), "utf8");
   await writeFile(
     contentPath,
-    JSON.stringify({
-      experience: [
-        { id: "jestei", visible: true },
-        { id: "styx", visible: false },
-      ],
-    }),
+    JSON.stringify(fixtureContent({ jestei: true, styx: false })),
     "utf8",
   );
 
   const result = spawnSync(
     process.execPath,
-    [fileURLToPath(productionScriptUrl), htmlPath, contentPath, "--allow-partial"],
+    [fileURLToPath(productionScriptUrl), htmlPath, contentPath],
     { encoding: "utf8" },
   );
   assert.equal(result.status, 0, result.stderr || result.stdout);
 
   const productionHtml = await readFile(htmlPath, "utf8");
-  assert.match(productionHtml, /KEEP ME/);
-  assert.doesNotMatch(productionHtml, /REMOVE ME/);
+  assert.match(productionHtml, /CARD jestei/);
+  assert.doesNotMatch(productionHtml, /CARD styx/);
+  for (const [id, visible] of Object.entries(Object.fromEntries(expectedVisibility))) {
+    if (id === "styx") continue;
+    const expected = id === "jestei" ? true : visible;
+    if (expected) assert.match(productionHtml, new RegExp(`CARD ${id}\\b`));
+    else assert.doesNotMatch(productionHtml, new RegExp(`CARD ${id}\\b`));
+  }
+  assert.doesNotMatch(productionHtml, /<article\b[^>]*\bexperience-card\b[^>]*\bhidden\b/i);
 });
 
 test("Pages CMS exposes CV experience visibility without exposing identity or layout controls", async () => {
