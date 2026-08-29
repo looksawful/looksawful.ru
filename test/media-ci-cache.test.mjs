@@ -29,7 +29,7 @@ test("verify prepares generated media at most once while standalone test/build r
   assert.equal(scripts.verify, "npm run media:prepare && npm run verify:core");
 });
 
-test("CI restores generated derivatives by content hash and skips regeneration on exact cache hits", async () => {
+test("CI restores complete generated-media state by content hash and skips regeneration on exact cache hits", async () => {
   for (const workflowUrl of workflowUrls) {
     const workflow = await readFile(workflowUrl, "utf8");
     const label = workflowUrl.pathname.split("/").at(-1);
@@ -38,6 +38,10 @@ test("CI restores generated derivatives by content hash and skips regeneration o
     assert.match(workflow, /id: media-cache/, `${label} must expose media cache hit state`);
     assert.match(workflow, /public\/media\/generated\/responsive/, `${label} must cache responsive derivatives`);
     assert.match(workflow, /public\/media\/generated\/video/, `${label} must cache video derivatives`);
+    assert.match(workflow, /public\/media\/generated\/responsive-manifest\.json/, `${label} must cache responsive manifest`);
+    assert.match(workflow, /public\/media\/generated\/video-inventory\.json/, `${label} must cache video inventory`);
+    assert.match(workflow, /src\/data\/media\/responsive-generated\.ts/, `${label} must cache generated responsive catalog`);
+    assert.match(workflow, /key: generated-media-v2-/, `${label} must invalidate incomplete v1 caches`);
     assert.match(workflow, /hashFiles\([\s\S]*public\/media\/[\s\S]*src\/data\/media\/assets[\s\S]*build-responsive-media\.mjs[\s\S]*build-video-media\.mjs[\s\S]*\)/, `${label} cache key must follow media sources and builders`);
     assert.match(workflow, /media-cache\.outputs\.cache-hit != 'true'[\s\S]*npm run media:prepare/, `${label} must prepare media only on cache miss`);
     assert.match(workflow, /run: npm run verify:core/, `${label} must not invoke the self-preparing verify command`);
