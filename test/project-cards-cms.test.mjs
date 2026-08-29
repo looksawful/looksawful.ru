@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 import { projects } from "../src/data/projects.ts";
+import { getProjectCardHref } from "../src/site/pages/project-card-routes.ts";
 import { renderProjectCard } from "../src/templates/project-card.ts";
 
 const cmsConfig = readFileSync(new URL("../.pages.yml", import.meta.url), "utf8");
@@ -74,10 +75,10 @@ const projectIds = baselineProjects.map(({ id }) => id);
 test("CMS project-card migration fixture preserves the original rendering contract without freezing live copy", () => {
   const baselineHtml = baselineProjects.map(renderProjectCard).join("\n");
 
+  assert.equal((baselineHtml.match(/class="project-card"/g) ?? []).length, baselineProjects.length);
   for (const project of baselineProjects) {
-    assert.match(baselineHtml, new RegExp(`data-project-id="${project.id}"|project-${project.id}`));
+    assert.ok(baselineHtml.includes(`href="${getProjectCardHref(project.id)}"`));
   }
-  assert.equal((baselineHtml.match(/class="project-card/g) ?? []).length, baselineProjects.length);
 });
 
 test("CMS project-card IDs remain the fixed routing contract while copy stays editable", () => {
