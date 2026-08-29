@@ -6,6 +6,7 @@ export type ProjectId = (typeof PROJECT_IDS)[number];
 
 export interface ProjectCardData {
   id: ProjectId;
+  visible: boolean;
   title: string;
   focus: string;
   role?: string;
@@ -30,6 +31,14 @@ function requireNonEmptyString(record: Record<string, unknown>, key: string, lab
   const value = record[key];
   if (typeof value !== "string" || value.length === 0) {
     throw new Error(`${label}.${key} must be a non-empty string`);
+  }
+  return value;
+}
+
+function requireBoolean(record: Record<string, unknown>, key: string, label: string): boolean {
+  const value = record[key];
+  if (typeof value !== "boolean") {
+    throw new Error(`${label}.${key} must be a boolean`);
   }
   return value;
 }
@@ -62,6 +71,7 @@ function parseProject(value: unknown, index: number): ProjectCardData {
 
   return {
     id,
+    visible: requireBoolean(value, "visible", label),
     title: requireNonEmptyString(value, "title", label),
     focus: requireNonEmptyString(value, "focus", label),
     role: optionalString(value, "role", label),
@@ -100,6 +110,12 @@ function validateProjects(value: unknown): readonly ProjectCardData[] {
 }
 
 export const projects = validateProjects(rawProjects);
+
+export function getHomepageProjects(
+  source: readonly ProjectCardData[] = projects,
+): readonly ProjectCardData[] {
+  return source.filter((project) => project.visible);
+}
 
 export type Project = ProjectCardData;
 export type ProjectRole = NonNullable<ProjectCardData["role"]>;

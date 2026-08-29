@@ -16,13 +16,9 @@ const [html, content] = await Promise.all([
   readCvContent(contentPath),
 ]);
 
-const result = transformCvContent(html, content, { removeHidden: true });
-
-if (/<article\b(?=[^>]*\bclass=["'][^"']*\bexperience-card\b[^"']*["'])(?=[^>]*\bhidden(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)[^>]*>/i.test(result.html)) {
-  throw new Error(`Hidden CV experience card remains in ${target}`);
-}
-
+const result = transformCvContent(html, content);
 await writeFile(target, result.html, "utf8");
+
 console.log(
-  `Prepared production CV: applied CMS profile and removed ${result.removed} CMS-hidden experience card(s) from ${target}`,
+  `Applied CV content: ${result.hidden} hidden experience card(s) in ${target}`,
 );

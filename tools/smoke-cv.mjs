@@ -4,12 +4,15 @@ import { resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright";
 
+import { cvContent } from "../src/data/cv.ts";
+
 const HOST = "127.0.0.1";
 const PORT = 4174;
 const BASE_URL = `http://${HOST}:${PORT}`;
 const CAPTURE_DIR = process.env.CV_SMOKE_CAPTURE_DIR
   ? resolve(process.env.CV_SMOKE_CAPTURE_DIR)
   : null;
+const EXPECTED_HIDDEN_CARDS = cvContent.experience.filter(({ visible }) => !visible).length;
 const VIEWPORTS = [
   { label: "phone", width: 390, height: 844 },
   { label: "tablet", width: 1024, height: 768 },
@@ -85,6 +88,7 @@ async function auditViewport(browser, viewport) {
       const nav = document.querySelector(".resume-nav");
       const back = document.querySelector(".resume-nav__back");
       const portrait = document.querySelector(".portrait");
+      const profileName = document.querySelector(".name");
 
       if (portrait instanceof HTMLImageElement) {
         if (!portrait.complete) {
@@ -99,6 +103,7 @@ async function auditViewport(browser, viewport) {
 
       return {
         title: document.title,
+        profileName: profileName?.textContent?.trim() ?? "",
         bodyBackground: getComputedStyle(document.body).backgroundColor,
         resumeFont: resume instanceof HTMLElement ? getComputedStyle(resume).fontFamily : "",
         navVisible: nav instanceof HTMLElement && getComputedStyle(nav).display !== "none",
@@ -112,7 +117,8 @@ async function auditViewport(browser, viewport) {
       };
     });
 
-    assert(state.title.includes("Иван Крушинский"), `${label}: unexpected page title`);
+    assert(state.title.length > 0, `${label}: page title is missing`);
+    assert(state.profileName === cvContent.profile.name, `${label}: CV profile name does not match structured content`);
     assert(state.visibleTextLength > 1_000, `${label}: CV content is effectively missing`);
     assert(state.bodyBackground === "rgb(255, 255, 255)", `${label}: page is not pure white`);
     assert(/Arial/i.test(state.resumeFont), `${label}: CV typography changed: ${state.resumeFont}`);
@@ -120,7 +126,7 @@ async function auditViewport(browser, viewport) {
     assert(state.backHref === "/", `${label}: back navigation does not point to /`);
     assert(state.portraitWidth > 0 && state.portraitHeight > 0, `${label}: portrait failed to decode`);
     assert(state.overflow <= 1, `${label}: horizontal document overflow ${state.overflow}px`);
-    assert(state.hiddenCards > 0, `${label}: authored hidden experience entries disappeared`);
+    assert(state.hiddenCards === EXPECTED_HIDDEN_CARDS, `${label}: expected ${EXPECTED_HIDDEN_CARDS} hidden experience cards, got ${state.hiddenCards}`);
     assert(state.scriptCount === 0, `${label}: standalone CV unexpectedly loads JavaScript`);
     assert(!errors.length, `${label}: browser errors:\n${errors.join("\n")}`);
 

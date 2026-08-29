@@ -65,6 +65,11 @@ content:
         required: true
         readonly: true
         description: Служебный идентификатор карточки и часть стабильного routing-контракта. Не изменяется через CMS.
+      - name: visible
+        label: Показывать на главной
+        type: boolean
+        required: true
+        description: Управляет только наличием карточки на главной. Маршрут и отдельная страница проекта остаются доступными.
       - name: title
         label: Название
         type: string
@@ -121,3 +126,358 @@ content:
             description: Фактическая высота исходного WebP в пикселях. После замены обложки обязательно проверь значение.
             options:
               min: 1
+
+  - name: client-logo-visibility
+    label: Логотипы клиентов
+    type: file
+    path: src/content/client-logo-visibility.json
+    format: json
+    list: true
+    operations:
+      create: false
+      rename: false
+      delete: false
+    commit:
+      templates:
+        update: "content(cms): update client logo visibility"
+    actions:
+      - name: verify-client-logos
+        label: Проверить сайт
+        workflow: verify-pr.yml
+        ref: current
+        confirm:
+          title: Запустить полную проверку сайта?
+          message: Будут проверены данные, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
+          button: Проверить
+    fields:
+      - name: id
+        label: ID
+        type: string
+        required: true
+        readonly: true
+        description: Стабильный технический ID логотипа. Название и файл логотипа остаются в коде.
+      - name: visible
+        label: Показывать
+        type: boolean
+        required: true
+        description: Управляет только отображением этого логотипа в блоке клиентов на главной.
+
+  - name: cv
+    label: Резюме
+    type: file
+    path: src/content/cv.json
+    format: json
+    operations:
+      create: false
+      rename: false
+      delete: false
+    commit:
+      templates:
+        update: "content(cms): update CV"
+    actions:
+      - name: verify-cv
+        label: Проверить сайт
+        workflow: verify-pr.yml
+        ref: current
+        confirm:
+          title: Запустить полную проверку сайта?
+          message: Будут проверены CV-данные, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
+          button: Проверить
+    fields:
+      - name: profile
+        label: Профиль
+        type: object
+        required: true
+        fields:
+          - name: name
+            label: Имя
+            type: string
+            required: true
+            description: Имя в основной шапке резюме.
+          - name: role
+            label: Роль / заголовок
+            type: string
+            required: true
+            description: Основная профессиональная роль рядом с портретом.
+          - name: aboutPrimary
+            label: О себе — абзац 1
+            type: text
+            required: true
+          - name: aboutSecondary
+            label: О себе — абзац 2
+            type: text
+            required: true
+          - name: principles
+            label: Ключевые тезисы
+            type: object
+            required: true
+            list:
+              min: 5
+              max: 5
+              collapsible:
+                collapsed: true
+                summary: "{title}"
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+                description: Стабильный технический ID тезиса. Не изменяется через CMS.
+              - name: title
+                label: Заголовок
+                type: string
+                required: true
+              - name: text
+                label: Текст
+                type: text
+                required: true
+          - name: languages
+            label: Языки
+            type: object
+            required: true
+            list:
+              min: 2
+              max: 2
+              collapsible:
+                collapsed: true
+                summary: "{name}"
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+                description: Стабильный технический ID языка. Не изменяется через CMS.
+              - name: name
+                label: Язык
+                type: string
+                required: true
+              - name: level
+                label: Уровень
+                type: string
+                required: true
+      - name: skills
+        label: Навыки и инструменты
+        type: object
+        required: true
+        fields:
+          - name: hard
+            label: Хард скиллс
+            type: object
+            required: true
+            fields:
+              - name: title
+                label: Заголовок блока
+                type: string
+                required: true
+              - name: rows
+                label: Строки
+                type: object
+                required: true
+                list:
+                  min: 8
+                  max: 8
+                  collapsible:
+                    collapsed: true
+                    summary: "{label}"
+                fields:
+                  - name: id
+                    label: ID
+                    type: string
+                    required: true
+                    readonly: true
+                    description: Стабильный технический ID строки. Не изменяется через CMS.
+                  - name: label
+                    label: Подзаголовок
+                    type: string
+                    required: true
+                  - name: text
+                    label: Текст
+                    type: text
+                    required: true
+          - name: tech
+            label: Технологический стек
+            type: object
+            required: true
+            fields:
+              - name: title
+                label: Заголовок блока
+                type: string
+                required: true
+              - name: rows
+                label: Строки
+                type: object
+                required: true
+                list:
+                  min: 6
+                  max: 6
+                  collapsible:
+                    collapsed: true
+                    summary: "{label}"
+                fields:
+                  - name: id
+                    label: ID
+                    type: string
+                    required: true
+                    readonly: true
+                    description: Стабильный технический ID строки. Не изменяется через CMS.
+                  - name: label
+                    label: Подзаголовок
+                    type: string
+                    required: true
+                  - name: text
+                    label: Текст
+                    type: text
+                    required: true
+          - name: soft
+            label: Софт скиллс
+            type: object
+            required: true
+            fields:
+              - name: title
+                label: Заголовок блока
+                type: string
+                required: true
+              - name: rows
+                label: Строки
+                type: object
+                required: true
+                list:
+                  min: 6
+                  max: 6
+                  collapsible:
+                    collapsed: true
+                    summary: "{label}"
+                fields:
+                  - name: id
+                    label: ID
+                    type: string
+                    required: true
+                    readonly: true
+                    description: Стабильный технический ID строки. Не изменяется через CMS.
+                  - name: label
+                    label: Подзаголовок
+                    type: string
+                    required: true
+                  - name: text
+                    label: Текст
+                    type: text
+                    required: true
+          - name: tools
+            label: Инструменты
+            type: object
+            required: true
+            fields:
+              - name: title
+                label: Заголовок блока
+                type: string
+                required: true
+              - name: rows
+                label: Строки
+                type: object
+                required: true
+                list:
+                  min: 9
+                  max: 9
+                  collapsible:
+                    collapsed: true
+                    summary: "{label}"
+                fields:
+                  - name: id
+                    label: ID
+                    type: string
+                    required: true
+                    readonly: true
+                    description: Стабильный технический ID строки. Не изменяется через CMS.
+                  - name: label
+                    label: Подзаголовок
+                    type: string
+                    required: true
+                  - name: text
+                    label: Текст
+                    type: text
+                    required: true
+      - name: education
+        label: Образование
+        type: object
+        required: true
+        fields:
+          - name: higherTitle
+            label: Заголовок высшего образования
+            type: string
+            required: true
+          - name: higher
+            label: Высшее образование
+            type: object
+            required: true
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+                description: Стабильный технический ID записи. Ссылка и структура остаются в коде.
+              - name: name
+                label: Учебное заведение
+                type: string
+                required: true
+              - name: lines
+                label: Строки
+                type: string
+                required: true
+                list:
+                  min: 1
+          - name: additionalTitle
+            label: Заголовок дополнительного образования
+            type: string
+            required: true
+          - name: additional
+            label: Дополнительное образование
+            type: object
+            required: true
+            list:
+              min: 16
+              max: 16
+              collapsible:
+                collapsed: true
+                summary: "{name}"
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+                description: Стабильный технический ID курса. Ссылка и структура остаются в коде.
+              - name: name
+                label: Школа / автор
+                type: string
+                required: true
+              - name: lines
+                label: Курсы
+                type: string
+                required: true
+                list:
+                  min: 1
+      - name: experience
+        label: Опыт
+        type: object
+        required: true
+        list:
+          min: 15
+          max: 15
+          collapsible:
+            collapsed: true
+            summary: "{id}"
+        fields:
+          - name: id
+            label: ID
+            type: string
+            required: true
+            readonly: true
+            description: Стабильный технический ID карточки опыта. Не изменяется через CMS и не управляет маршрутом, классами или разметкой.
+          - name: visible
+            label: Показывать
+            type: boolean
+            required: true
+            description: Управляет видимостью этой карточки опыта. В production скрытые карточки физически удаляются из HTML.
