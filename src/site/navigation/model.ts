@@ -23,7 +23,11 @@ const primaryPageIds = [
   "collection:music-photography",
 ] as const;
 
-function getPageLabel(page: SitePageDefinition): string {
+const navigationLabelOverrides: Readonly<Record<string, string>> = {
+  "case:styx": "Styx",
+};
+
+function getDomainPageLabel(page: SitePageDefinition): string {
   switch (page.type) {
     case "home":
       return "Главная";
@@ -42,6 +46,10 @@ function getPageLabel(page: SitePageDefinition): string {
   }
 }
 
+function getNavigationPageLabel(page: SitePageDefinition): string {
+  return navigationLabelOverrides[page.id] ?? getDomainPageLabel(page);
+}
+
 function requirePage(id: (typeof primaryPageIds)[number]): SitePageDefinition {
   const page = sitePages.find((candidate) => candidate.id === id && candidate.enabled);
 
@@ -57,7 +65,7 @@ export function getPrimaryNavigationItems(): readonly SiteNavigationItem[] {
     const page = requirePage(id);
     return {
       id: page.id,
-      label: getPageLabel(page),
+      label: getNavigationPageLabel(page),
       href: page.path,
     };
   });
@@ -85,7 +93,7 @@ export function getBreadcrumbItems(
     },
     {
       id: page.id,
-      label: getPageLabel(page),
+      label: getNavigationPageLabel(page),
       current: true,
     },
   ];
