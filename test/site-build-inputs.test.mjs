@@ -10,6 +10,7 @@ const root = path.resolve(new URL("..", import.meta.url).pathname);
 test("page routes map to physical Vite HTML entry paths", () => {
   assert.equal(pagePathToEntryPath("/"), "index.html");
   assert.equal(pagePathToEntryPath("/work/jestei-pool/"), "work/jestei-pool/index.html");
+  assert.equal(pagePathToEntryPath("/work/awful-cases/"), "work/awful-cases/index.html");
   assert.equal(pagePathToEntryPath("/shootings/"), "shootings/index.html");
   assert.equal(pagePathToEntryPath("/404.html"), "404.html");
 });
@@ -24,6 +25,9 @@ test("Vite inputs are derived from enabled managed pages and exclude public CV o
     "work/styx/index.html",
     "work/sensetique/index.html",
     "shootings/index.html",
+    "work/awful-cases/index.html",
+    "work/moves-awful/index.html",
+    "work/berry-social-content-2020/index.html",
     "404.html",
   ]));
   assert.equal(relative.includes("cv/index.html"), false);
