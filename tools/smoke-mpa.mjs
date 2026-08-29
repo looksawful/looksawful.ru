@@ -130,7 +130,7 @@ async function verifyDocument(page, route, label) {
 
   assert(state.bodyHeight > 100, `${label}: document is effectively blank`);
   assert(state.textLength > 20, `${label}: document has no meaningful text`);
-  assert(state.h1Count === 1, `${label}: expected exactly one h1, got ${state.h1Count}`);
+  assert(state.h1Count === 1, `${label}: expected exactly one light-DOM h1, got ${state.h1Count}`);
   assert(state.h1Text.length > 0, `${label}: h1 is empty`);
   assert(state.articleExists, `${label}: missing ${route.articleId}`);
   assert(state.pageType === route.pageType, `${label}: wrong data-page-type ${state.pageType}`);
@@ -198,6 +198,79 @@ async function verifyVideos(page, label) {
   assert(failures.length === 0, `${label}: video failures\n${failures.join("\n")}`);
 }
 
+async function verifyLightbox(page, label) {
+  const source = page.locator("[data-lightbox-source]:visible").first();
+  if (!(await source.count())) return;
+
+  await source.scrollIntoViewIfNeeded();
+  await source.click({ force: true });
+  await page.waitForFunction(() => {
+    const dialog = document.querySelector("[data-media-lightbox]");
+    return Boolean(document.querySelector(".pswp")) || (dialog instanceof HTMLDialogElement && dialog.open);
+  }, null, { timeout: 3_000 }).catch(() => {});
+
+  const opened = await page.evaluate(() => {
+    const dialog = document.querySelector("[data-media-lightbox]");
+    return Boolean(document.querySelector(".pswp")) || (dialog instanceof HTMLDialogElement && dialog.open);
+  });
+  assert(opened, `${label}: standalone lightbox did not open`);
+
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(150);
+  const closed = await page.evaluate(() => {
+    const dialog = document.querySelector("[data-media-lightbox]");
+    return !document.querySelector(".pswp") && !(dialog instanceof HTMLDialogElement && dialog.open);
+  });
+  assert(closed, `${label}: standalone lightbox did not close with Escape`);
+}
+
+async function verifyBeforeAfter(page, label) {
+  const root = page.locator("[data-before-after]").first();
+  if (!(await root.count())) return;
+  await root.scrollIntoViewIfNeeded();
+
+  const result = await root.evaluate((node) => {
+    const range = node.querySelector(".before-after__range");
+    if (!(range instanceof HTMLInputElement)) return { supported: false };
+    const previous = range.value;
+    range.value = "37";
+    range.dispatchEvent(new Event("input", { bubbles: true }));
+    const applied = node.style.getPropertyValue("--before-after-split").trim();
+    range.value = previous;
+    range.dispatchEvent(new Event("input", { bubbles: true }));
+    return { supported: true, applied };
+  });
+
+  assert(result.supported, `${label}: before/after range is missing`);
+  assert(result.applied === "37%", `${label}: before/after input did not update split (${result.applied})`);
+}
+
+async function verifyPageFlip(page, label) {
+  const root = page.locator("[data-page-flip]").first();
+  if (!(await root.count())) return;
+  await root.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(350);
+
+  const before = await root.evaluate((node) => ({
+    state: node.getAttribute("data-page-flip-state") || "",
+    count: node.querySelector("[data-page-flip-count]")?.textContent?.trim() || "",
+    nextDisabled: node.querySelector("[data-page-flip-next]") instanceof HTMLButtonElement
+      ? node.querySelector("[data-page-flip-next]").disabled
+      : null,
+  }));
+  assert(before.state !== "error", `${label}: page flip entered error state`);
+  assert(before.count.length > 0, `${label}: page flip count was not initialized`);
+
+  const next = root.locator("[data-page-flip-next]");
+  assert(await next.count(), `${label}: page flip next button is missing`);
+  if (!before.nextDisabled) {
+    await next.click({ force: true });
+    await page.waitForTimeout(100);
+    const afterCount = await root.locator("[data-page-flip-count]").textContent();
+    assert(afterCount?.trim() && afterCount.trim() !== before.count, `${label}: page flip next did not advance`);
+  }
+}
+
 async function auditRoute(browser, route, width, height) {
   const mobile = width <= 844;
   const context = await browser.newContext({
@@ -238,12 +311,50 @@ async function auditRoute(browser, route, width, height) {
     await verifyImages(page, label);
     await verifyVideos(page, label);
 
+    if (width === 1440) {
+      await verifyLightbox(page, label);
+      await verifyBeforeAfter(page, label);
+      await verifyPageFlip(page, label);
+    }
+
     await page.reload({ waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.evaluate(() => document.fonts?.ready);
     await verifyDocument(page, route, `${label} reload`);
 
     assert(errors.length === 0, `${label}: browser errors\n${errors.join("\n")}`);
     console.log(`[smoke-mpa] ${label}: OK`);
+  } finally {
+    await context.close();
+  }
+}
+
+async function auditReducedMotion(browser) {
+  const route = ROUTES[0];
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+    deviceScaleFactor: 1,
+    reducedMotion: "reduce",
+  });
+  const page = await context.newPage();
+
+  try {
+    await page.goto(`${BASE_URL}${route.path}`, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.evaluate(() => document.fonts?.ready);
+    await page.waitForTimeout(150);
+    const hidden = await page.evaluate(() => [...document.querySelectorAll("[data-reveal]")]
+      .filter((node) => {
+        if (!(node instanceof HTMLElement) || node.closest("[hidden]")) return false;
+        const style = getComputedStyle(node);
+        const rect = node.getBoundingClientRect();
+        if (rect.width <= 1 || rect.height <= 1) return false;
+        return style.visibility === "hidden" || Number(style.opacity) < 0.05;
+      })
+      .slice(0, 12)
+      .map((node) => ({ className: node.className, reveal: node.getAttribute("data-reveal") })));
+    assert(hidden.length === 0, `standalone reduced-motion left reveal targets hidden\n${JSON.stringify(hidden, null, 2)}`);
+    console.log("[smoke-mpa] reduced-motion standalone route: OK");
   } finally {
     await context.close();
   }
@@ -258,7 +369,8 @@ try {
       await auditRoute(browser, route, width, height);
     }
   }
-  console.log(`[smoke-mpa] OK: ${ROUTES.length} standalone routes with direct reload, isolation, metadata, overflow and media checks`);
+  await auditReducedMotion(browser);
+  console.log(`[smoke-mpa] OK: ${ROUTES.length} standalone routes with direct reload, isolation, metadata, overflow, media, lightbox, page-flip, before/after and reduced-motion checks`);
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
