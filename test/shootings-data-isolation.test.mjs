@@ -6,7 +6,7 @@ import test from "node:test";
 const protectedPresentationFiles = new Map([
   ["index.html", "6ec87a42ce9a5844c6ca4e150ddc27f1ed310415"],
   ["src/main.js", "642cacd7060f09cc5bd757fd33b6eff747620fd7"],
-  ["src/styles/index.css", "9656426bf803a0e85da393a3cfabdefda37ba7e7"],
+  ["src/styles/index.css", "f5b08fb3743e93747629476480f819cd69d5d3a9"],
   ["src/styles/base.css", "1be5205dcae1522e78ab9cfdc97699875d568f55"],
   ["src/styles/tokens.css", "09b571fe9dcb2ab9485cc610295e8fb134c44c68"],
   ["vite.config.ts", "1fbdd4788730d0b8a6bf700e31ca4c824eb330d9"],
