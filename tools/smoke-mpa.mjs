@@ -156,16 +156,21 @@ async function verifyImages(page, label) {
       const style = getComputedStyle(node);
       return !node.closest("[hidden]") && style.display !== "none" && style.visibility !== "hidden" && rect.width > 1 && rect.height > 1;
     };
-    const images = [...document.images].filter(visible);
-    await Promise.all(images.map(async (image) => {
-      if (!image.complete) {
-        await new Promise((resolve) => {
-          const done = () => resolve(null);
-          image.addEventListener("load", done, { once: true });
-          image.addEventListener("error", done, { once: true });
-          setTimeout(done, 8_000);
-        });
-      }
+    const images = [...document.images].filter((image) => image.currentSrc || image.src).filter(visible);
+    await Promise.all(images.map((image) => {
+      if (image.complete) return null;
+      image.loading = "eager";
+      return new Promise((resolve) => {
+        const done = () => {
+          image.removeEventListener("load", done);
+          image.removeEventListener("error", done);
+          clearTimeout(timer);
+          resolve(null);
+        };
+        const timer = setTimeout(done, 8_000);
+        image.addEventListener("load", done, { once: true });
+        image.addEventListener("error", done, { once: true });
+      });
     }));
     const failures = [];
     for (const image of images) {
