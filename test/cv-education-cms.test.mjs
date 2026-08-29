@@ -155,17 +155,24 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-test("CV education CMS defaults reproduce the currently authored education block exactly", async () => {
+test("CV education migration fixture reproduces authored markup while live copy remains editable", async () => {
   const [{ cvContent, CV_EDUCATION_LINKS }, sourceHtml, contentLib] = await Promise.all([
     import(cvDataModuleUrl.href),
     readFile(cvSourceUrl, "utf8"),
     import(cvContentLibUrl.href),
   ]);
 
-  assert.deepEqual(cvContent.education, expectedEducation);
   assert.deepEqual(CV_EDUCATION_LINKS, expectedLinks);
-  assert.equal(typeof contentLib.transformCvEducation, "function");
-  assert.equal(contentLib.transformCvEducation(sourceHtml, cvContent), sourceHtml);
+  assert.equal(
+    contentLib.transformCvEducation(sourceHtml, { ...cvContent, education: expectedEducation }),
+    sourceHtml,
+  );
+  assert.equal(cvContent.education.higher.id, expectedEducation.higher.id);
+  assert.deepEqual(
+    cvContent.education.additional.map(({ id }) => id),
+    expectedEducation.additional.map(({ id }) => id),
+  );
+  assert.doesNotThrow(() => contentLib.transformCvEducation(sourceHtml, cvContent));
 });
 
 test("CV education transform edits copy safely while preserving code-owned links and markup", async () => {
@@ -190,7 +197,7 @@ test("CV education transform edits copy safely while preserving code-owned links
   assert.match(transformed, /Филология &lt;script&gt;alert\(1\)&lt;\/script&gt; &amp; культура/);
   assert.match(transformed, /HEXLET &amp; SCHOOL/);
   assert.match(transformed, /JS &lt;advanced&gt; &amp; architecture/);
-  assert.doesNotMatch(transformed, /<script>alert\(1\)<\/script>/);
+  assert.doesNotMatch(transformed, /<script\b/i);
 
   for (const href of Object.values(expectedLinks)) {
     assert.ok(transformed.includes(`href="${href}"`), `education href changed: ${href}`);
