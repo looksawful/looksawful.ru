@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import {
   readCvContent,
-  transformCvExperienceVisibility,
+  transformCvContent,
 } from "./lib/cv-content.mjs";
 
 const target = resolve(process.argv[2] ?? "dist/cv/index.html");
@@ -16,9 +16,9 @@ const [html, content] = await Promise.all([
   readCvContent(contentPath),
 ]);
 
-const result = transformCvExperienceVisibility(html, content);
+const result = transformCvContent(html, content);
 await writeFile(target, result.html, "utf8");
 
 console.log(
-  `Applied CV content visibility: ${result.hidden} hidden experience card(s) in ${target}`,
+  `Applied CV content: ${result.hidden} hidden experience card(s) in ${target}`,
 );
