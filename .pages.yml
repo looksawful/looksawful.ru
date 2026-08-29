@@ -121,3 +121,48 @@ content:
             description: Фактическая высота исходного WebP в пикселях. После замены обложки обязательно проверь значение.
             options:
               min: 1
+
+  - name: cv
+    label: Резюме
+    type: file
+    path: src/content/cv.json
+    format: json
+    operations:
+      create: false
+      rename: false
+      delete: false
+    commit:
+      templates:
+        update: "content(cms): update CV"
+    actions:
+      - name: verify-cv
+        label: Проверить сайт
+        workflow: verify-pr.yml
+        ref: current
+        confirm:
+          title: Запустить полную проверку сайта?
+          message: Будут проверены CV-данные, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
+          button: Проверить
+    fields:
+      - name: experience
+        label: Опыт
+        type: object
+        required: true
+        list:
+          min: 15
+          max: 15
+          collapsible:
+            collapsed: true
+            summary: "{id}"
+        fields:
+          - name: id
+            label: ID
+            type: string
+            required: true
+            readonly: true
+            description: Стабильный технический ID карточки опыта. Не изменяется через CMS и не управляет маршрутом, классами или разметкой.
+          - name: visible
+            label: Показывать
+            type: boolean
+            required: true
+            description: Управляет видимостью этой карточки опыта. В production скрытые карточки физически удаляются из HTML.
