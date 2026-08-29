@@ -217,6 +217,147 @@ content:
                 label: Уровень
                 type: string
                 required: true
+      - name: skills
+        label: Навыки и инструменты
+        type: object
+        required: true
+        fields:
+          - name: hard
+            label: Хард скиллс
+            type: object
+            required: true
+            fields:
+              - name: title
+                label: Заголовок блока
+                type: string
+                required: true
+              - name: rows
+                label: Строки
+                type: object
+                required: true
+                list:
+                  min: 8
+                  max: 8
+                  collapsible:
+                    collapsed: true
+                    summary: "{label}"
+                fields:
+                  - name: id
+                    label: ID
+                    type: string
+                    required: true
+                    readonly: true
+                    description: Стабильный технический ID строки. Не изменяется через CMS.
+                  - name: label
+                    label: Подзаголовок
+                    type: string
+                    required: true
+                  - name: text
+                    label: Текст
+                    type: text
+                    required: true
+          - name: tech
+            label: Технологический стек
+            type: object
+            required: true
+            fields:
+              - name: title
+                label: Заголовок блока
+                type: string
+                required: true
+              - name: rows
+                label: Строки
+                type: object
+                required: true
+                list:
+                  min: 6
+                  max: 6
+                  collapsible:
+                    collapsed: true
+                    summary: "{label}"
+                fields:
+                  - name: id
+                    label: ID
+                    type: string
+                    required: true
+                    readonly: true
+                    description: Стабильный технический ID строки. Не изменяется через CMS.
+                  - name: label
+                    label: Подзаголовок
+                    type: string
+                    required: true
+                  - name: text
+                    label: Текст
+                    type: text
+                    required: true
+          - name: soft
+            label: Софт скиллс
+            type: object
+            required: true
+            fields:
+              - name: title
+                label: Заголовок блока
+                type: string
+                required: true
+              - name: rows
+                label: Строки
+                type: object
+                required: true
+                list:
+                  min: 6
+                  max: 6
+                  collapsible:
+                    collapsed: true
+                    summary: "{label}"
+                fields:
+                  - name: id
+                    label: ID
+                    type: string
+                    required: true
+                    readonly: true
+                    description: Стабильный технический ID строки. Не изменяется через CMS.
+                  - name: label
+                    label: Подзаголовок
+                    type: string
+                    required: true
+                  - name: text
+                    label: Текст
+                    type: text
+                    required: true
+          - name: tools
+            label: Инструменты
+            type: object
+            required: true
+            fields:
+              - name: title
+                label: Заголовок блока
+                type: string
+                required: true
+              - name: rows
+                label: Строки
+                type: object
+                required: true
+                list:
+                  min: 9
+                  max: 9
+                  collapsible:
+                    collapsed: true
+                    summary: "{label}"
+                fields:
+                  - name: id
+                    label: ID
+                    type: string
+                    required: true
+                    readonly: true
+                    description: Стабильный технический ID строки. Не изменяется через CMS.
+                  - name: label
+                    label: Подзаголовок
+                    type: string
+                    required: true
+                  - name: text
+                    label: Текст
+                    type: text
+                    required: true
       - name: experience
         label: Опыт
         type: object
