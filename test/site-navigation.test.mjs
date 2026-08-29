@@ -20,6 +20,7 @@ const requireLabel = (id) => {
   assert.ok(label, `missing navigation label ${id}`);
   return label;
 };
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const primaryDestinations = [
   ["home", "/"],
@@ -36,7 +37,7 @@ test("global menu contains exactly the six public primary destinations and no Wo
   for (const [label, href] of primaryDestinations) {
     assert.match(
       html,
-      new RegExp(`href=\\\\"${href.replaceAll("/", "\\\\/")}\\\\"[^>]*>${escapeHtml(label)}<`),
+      new RegExp(`href="${escapeRegExp(href)}"[^>]*>${escapeRegExp(escapeHtml(label))}<`),
     );
   }
 
@@ -55,8 +56,10 @@ test("navigation exposes an accessible hamburger control and menu relationship",
 
 test("current public destination is marked and breadcrumb is shallow", () => {
   const html = renderSiteNavigation(page("collection:music-photography"));
-  const homeLabel = escapeHtml(requireLabel("home"));
-  const shootingsLabel = escapeHtml(requireLabel("collection:music-photography"));
+  const homeLabel = escapeRegExp(escapeHtml(requireLabel("home")));
+  const shootingsLabel = escapeRegExp(
+    escapeHtml(requireLabel("collection:music-photography")),
+  );
 
   assert.match(
     html,
@@ -73,7 +76,7 @@ test("current public destination is marked and breadcrumb is shallow", () => {
 
 test("direct-link project receives a breadcrumb but is not promoted into the primary menu", () => {
   const html = renderSiteNavigation(page("project:awful-cases"));
-  const homeLabel = escapeHtml(requireLabel("home"));
+  const homeLabel = escapeRegExp(escapeHtml(requireLabel("home")));
 
   assert.match(html, new RegExp(`href="/">${homeLabel}<\\/a>`));
   assert.match(html, /aria-current="page"[^>]*>Awful Cases<\/span>/);
@@ -91,7 +94,7 @@ test("homepage build renders the same live global navigation instead of the lega
   for (const [label, href] of primaryDestinations) {
     assert.match(
       html,
-      new RegExp(`href=\\\\"${href.replaceAll("/", "\\\\/")}\\\\"[^>]*>${escapeHtml(label)}<`),
+      new RegExp(`href="${escapeRegExp(href)}"[^>]*>${escapeRegExp(escapeHtml(label))}<`),
     );
   }
 });
