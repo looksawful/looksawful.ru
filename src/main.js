@@ -1,3 +1,5 @@
+import "./styles/site-navigation.css";
+
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
 import { createMotionPreference } from "./components/motion-preference.ts";
 import { createInfiniteReels } from "./components/infinite-reel.js";
