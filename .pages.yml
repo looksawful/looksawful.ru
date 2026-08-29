@@ -1,3 +1,40 @@
+settings:
+  content:
+    merge: true
+  commit:
+    identity: app
+    templates:
+      create: "content(cms): create {path}"
+      update: "content(cms): update {path}"
+      delete: "content(cms): delete {path}"
+      rename: "content(cms): rename {oldPath} -> {newPath}"
+
+media:
+  - name: project-covers
+    label: Обложки карточек проектов
+    input: public/media/projects/index
+    output: /media/projects/index
+    rename: safe
+    extensions: [webp]
+    categories: [image]
+    commit:
+      templates:
+        create: "media(cms): add project cover {filename}"
+        update: "media(cms): update project cover {filename}"
+        delete: "media(cms): delete project cover {filename}"
+        rename: "media(cms): rename project cover {oldFilename} -> {newFilename}"
+
+actions:
+  - name: prepare-publication
+    label: Подготовить публикацию
+    workflow: pages-cms-publish.yml
+    ref: current
+    cancelable: false
+    confirm:
+      title: Подготовить публикацию?
+      message: Создаст или найдёт pull request из dev в prod. Сайт не будет опубликован автоматически.
+      button: Подготовить
+
 content:
   - name: project-cards
     label: Карточки проектов
@@ -9,52 +46,74 @@ content:
       create: false
       rename: false
       delete: false
+    commit:
+      templates:
+        update: "content(cms): update homepage project cards"
     actions:
       - name: verify-project-cards
-        label: Проверить изменения
+        label: Проверить сайт
         workflow: verify-pr.yml
         ref: current
+        confirm:
+          title: Запустить полную проверку сайта?
+          message: Будут проверены данные, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
+          button: Проверить
     fields:
       - name: id
         label: ID
         type: string
         required: true
         readonly: true
+        description: Служебный идентификатор карточки и часть стабильного routing-контракта. Не изменяется через CMS.
       - name: title
         label: Название
         type: string
         required: true
+        description: Название проекта, которое показывается на карточке.
       - name: focus
         label: Описание
         type: text
         required: true
+        description: Короткое описание проекта на карточке. Это обычный текст без Markdown и HTML.
       - name: role
         label: Роль
         type: string
+        description: Роль в проекте. Оставляй пустым только если карточка действительно не должна показывать роль.
       - name: period
         label: Период
         type: string
+        description: Период работы в том виде, в котором он должен отображаться на сайте, например 2024–2026.
       - name: ariaLabel
         label: ARIA label
         type: string
+        description: Необязательная доступная подпись ссылки карточки. Если поле пустое, сайт использует обычный текст карточки.
       - name: cover
         label: Обложка
         type: object
         required: true
         fields:
           - name: src
-            label: Путь
-            type: string
+            label: Обложка проекта
+            type: image
             required: true
+            description: Выбери существующий WebP или загрузи новый. CMS имеет доступ только к папке обложек карточек проектов.
+            options:
+              media: project-covers
+              extensions: [webp]
+              categories: [image]
+              rename: safe
           - name: alt
             label: Alt
             type: text
             required: true
+            description: Описывает содержание изображения для accessibility. Не дублируй название проекта без необходимости.
           - name: width
             label: Ширина
             type: number
             required: true
+            description: Фактическая ширина исходного WebP в пикселях. После замены обложки обязательно проверь значение.
           - name: height
             label: Высота
             type: number
             required: true
+            description: Фактическая высота исходного WebP в пикселях. После замены обложки обязательно проверь значение.
