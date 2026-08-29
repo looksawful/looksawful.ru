@@ -57,6 +57,39 @@ export const sitePages = [
     },
   },
   {
+    id: "project:awful-cases",
+    type: "project",
+    entityId: "awful-cases",
+    path: "/work/awful-cases/",
+    enabled: true,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
+    id: "project:moves-awful",
+    type: "project",
+    entityId: "moves-awful",
+    path: "/work/moves-awful/",
+    enabled: true,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
+    id: "project:berry-social-content-2020",
+    type: "project",
+    entityId: "berry-social-content-2020",
+    path: "/work/berry-social-content-2020/",
+    enabled: true,
+    discovery: {
+      listed: false,
+      indexable: false,
+    },
+  },
+  {
     id: "not-found",
     type: "not-found",
     path: "/404.html",
