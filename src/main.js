@@ -1,6 +1,3 @@
-import "./components/awful-cases-game.js";
-import "./components/animated-canvas-gallery.js";
-
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
 import { createMotionPreference } from "./components/motion-preference.ts";
 import { createInfiniteReels } from "./components/infinite-reel.js";
@@ -18,6 +15,14 @@ import { initSiteInteractive } from "./interactive.js";
 import {
   initMotion,
 } from "./motion.ts";
+
+if (document.querySelector(".awful-cases-game")) {
+  void import("./components/awful-cases-game.js");
+}
+
+if (document.querySelector("[data-animated-canvas-gallery]")) {
+  void import("./components/animated-canvas-gallery.js");
+}
 
 function initBeforeAfter(root) {
   const range = root.querySelector(".before-after__range");
