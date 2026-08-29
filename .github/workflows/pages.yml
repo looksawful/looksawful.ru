@@ -42,7 +42,10 @@ jobs:
           path: |
             public/media/generated/responsive
             public/media/generated/video
-          key: generated-media-v1-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+            public/media/generated/responsive-manifest.json
+            public/media/generated/video-inventory.json
+            src/data/media/responsive-generated.ts
+          key: generated-media-v2-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
       - name: Install media tooling
         if: steps.media-cache.outputs.cache-hit != 'true'
         run: |
@@ -106,7 +109,7 @@ jobs:
               && grep -Eq 'href="/assets/[^"]+\.css"' "${index_file}" \
               && grep -Eq 'src="/assets/[^"]+\.js"' "${index_file}" \
               && ! grep -Eq '\./src/[^"]+\.(css|js)' "${index_file}" \
-              && grep -Fq 'ИВАН КРУШИНСКИЙ' "${cv_file}" \
+              && grep -Eq 'class="[^"]*resume[^"]*"' "${cv_file}" \
               && ! grep -Eqi '<article[^>]*class="[^"]*experience-card[^"]*"[^>]*hidden|<article[^>]*hidden[^>]*class="[^"]*experience-card' "${cv_file}"; then
               printf '%s\n' "$body"
               rm -f "${index_file}" "${cv_file}"
