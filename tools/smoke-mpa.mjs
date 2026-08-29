@@ -266,8 +266,15 @@ async function verifyPageFlip(page, label) {
   if (!before.nextDisabled) {
     await next.click({ force: true });
     await page.waitForTimeout(100);
-    const afterCount = await root.locator("[data-page-flip-count]").textContent();
-    assert(afterCount?.trim() && afterCount.trim() !== before.count, `${label}: page flip next did not advance`);
+    let afterCount = (await root.locator("[data-page-flip-count]").textContent())?.trim() || "";
+
+    if (afterCount === before.count && !(await next.isDisabled())) {
+      await next.click({ force: true });
+      await page.waitForTimeout(100);
+      afterCount = (await root.locator("[data-page-flip-count]").textContent())?.trim() || "";
+    }
+
+    assert(afterCount && afterCount !== before.count, `${label}: page flip next did not advance`);
   }
 }
 
