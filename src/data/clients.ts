@@ -1,11 +1,13 @@
-export interface ClientLogoData {
+import visibilityJson from "../content/client-logo-visibility.json" with { type: "json" };
+
+export interface ClientLogoDefinition {
   id: string;
   name: string;
   file: string;
   alt?: string;
 }
 
-export const clientLogos = [
+const clientLogoDefinitions = [
   {
     id: "kursovoy",
     name: "KURSOVOY",
@@ -156,8 +158,99 @@ export const clientLogos = [
     name: "VINNE",
     file: "32",
   },
-] as const satisfies readonly ClientLogoData[];
+] as const satisfies readonly ClientLogoDefinition[];
 
-export type ClientLogo = (typeof clientLogos)[number];
+export type ClientLogoId = (typeof clientLogoDefinitions)[number]["id"];
 
-export type ClientLogoId = ClientLogo["id"];
+export interface ClientLogoVisibility {
+  id: ClientLogoId;
+  visible: boolean;
+}
+
+export interface ClientLogoData extends ClientLogoDefinition {
+  id: ClientLogoId;
+  visible: boolean;
+}
+
+const clientLogoIds = new Set<string>(clientLogoDefinitions.map(({ id }) => id));
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseVisibilityItem(value: unknown, index: number): ClientLogoVisibility {
+  const label = `clientLogoVisibility[${index}]`;
+  if (!isRecord(value)) throw new Error(`${label} must be an object`);
+
+  const idValue = value.id;
+  if (typeof idValue !== "string" || idValue.length === 0) {
+    throw new Error(`${label}.id must be a non-empty string`);
+  }
+  if (!clientLogoIds.has(idValue)) {
+    throw new Error(`unexpected client logo id: ${idValue}`);
+  }
+  const id = clientLogoDefinitions.find(({ id }) => id === idValue)?.id;
+  if (!id) throw new Error(`unexpected client logo id: ${idValue}`);
+
+  if (typeof value.visible !== "boolean") {
+    throw new Error(`${label}.visible must be a boolean`);
+  }
+
+  return { id, visible: value.visible };
+}
+
+export function parseClientLogoVisibility(value: unknown): readonly ClientLogoVisibility[] {
+  if (!Array.isArray(value)) {
+    throw new Error("client logo visibility content must be an array");
+  }
+
+  const parsed = value.map(parseVisibilityItem);
+  const byId = new Map<ClientLogoId, ClientLogoVisibility>();
+
+  for (const item of parsed) {
+    if (byId.has(item.id)) {
+      throw new Error(`duplicate client logo id: ${item.id}`);
+    }
+    byId.set(item.id, item);
+  }
+
+  for (const { id } of clientLogoDefinitions) {
+    if (!byId.has(id)) {
+      throw new Error(`missing required client logo id: ${id}`);
+    }
+  }
+
+  if (parsed.length !== clientLogoDefinitions.length) {
+    throw new Error(
+      `client logo visibility count must remain ${clientLogoDefinitions.length}; got ${parsed.length}`,
+    );
+  }
+
+  return Object.freeze(clientLogoDefinitions.map(({ id }) => {
+    const item = byId.get(id);
+    if (!item) throw new Error(`missing required client logo id: ${id}`);
+    return Object.freeze({ ...item });
+  }));
+}
+
+const rawVisibility: unknown = visibilityJson;
+const clientLogoVisibility = parseClientLogoVisibility(rawVisibility);
+const visibilityById = new Map(clientLogoVisibility.map(({ id, visible }) => [id, visible]));
+
+export const clientLogos: readonly ClientLogoData[] = Object.freeze(
+  clientLogoDefinitions.map((definition) => {
+    const visible = visibilityById.get(definition.id);
+    if (visible === undefined) {
+      throw new Error(`missing required client logo id: ${definition.id}`);
+    }
+    return Object.freeze({ ...definition, visible });
+  }),
+);
+
+export function getVisibleClientLogos(
+  source: readonly ClientLogoData[] = clientLogos,
+): readonly ClientLogoData[] {
+  return source.filter((logo) => logo.visible);
+}
+
+export type ClientLogo = ClientLogoData;
