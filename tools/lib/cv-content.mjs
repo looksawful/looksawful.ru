@@ -3,6 +3,7 @@ import { parseCvContent } from "../../src/data/cv.ts";
 
 const experienceArticlePattern = /<article\b([^>]*)>[\s\S]*?<\/article>/gi;
 const hiddenAttributePattern = /\s+hidden(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi;
+const skillSectionIds = ["hard", "tech", "soft", "tools"];
 
 function getClasses(attrs) {
   const classMatch = attrs.match(/\bclass\s*=\s*["']([^"']*)["']/i);
@@ -113,6 +114,60 @@ export function transformCvProfile(html, content) {
   return transformed;
 }
 
+function transformCvSkillSection(html, sectionId, section) {
+  const sectionPattern = new RegExp(
+    `(<section\\b(?=[^>]*\\bclass=["'][^"']*\\b${sectionId}\\b[^"']*["'])[^>]*>)([\\s\\S]*?)(<\\/section>)`,
+    "i",
+  );
+
+  return replaceExactlyOnce(
+    html,
+    sectionPattern,
+    (_match, open, inner, close) => {
+      let transformedInner = replaceElementTextByClass(
+        inner,
+        "h2",
+        "section-title",
+        section.title,
+      );
+
+      const paragraphPattern = /(<p\b[^>]*>)[\s\S]*?(<\/p>)/gi;
+      const paragraphs = [...transformedInner.matchAll(paragraphPattern)];
+      if (paragraphs.length !== section.rows.length) {
+        throw new Error(
+          `CV ${sectionId} paragraph row count must remain ${section.rows.length}; got ${paragraphs.length}`,
+        );
+      }
+
+      let rowIndex = 0;
+      transformedInner = transformedInner.replace(
+        paragraphPattern,
+        (_paragraph, paragraphOpen, paragraphClose) => {
+          const row = section.rows[rowIndex];
+          rowIndex += 1;
+          return `${paragraphOpen}<b>${escapeHtml(row.label)}</b> ${escapeHtml(row.text)}${paragraphClose}`;
+        },
+      );
+
+      return `${open}${transformedInner}${close}`;
+    },
+    `.${sectionId} skill section`,
+  );
+}
+
+export function transformCvSkills(html, content) {
+  const { skills } = content;
+  if (!skills) throw new Error("CV skills content is required");
+
+  let transformed = html;
+  for (const sectionId of skillSectionIds) {
+    const section = skills[sectionId];
+    if (!section) throw new Error(`CV skills.${sectionId} content is required`);
+    transformed = transformCvSkillSection(transformed, sectionId, section);
+  }
+  return transformed;
+}
+
 export function transformCvExperienceVisibility(html, content, options = {}) {
   const { removeHidden = false } = options;
   const visibility = new Map(
@@ -156,5 +211,6 @@ export function transformCvExperienceVisibility(html, content, options = {}) {
 
 export function transformCvContent(html, content, options = {}) {
   const withProfile = transformCvProfile(html, content);
-  return transformCvExperienceVisibility(withProfile, content, options);
+  const withSkills = transformCvSkills(withProfile, content);
+  return transformCvExperienceVisibility(withSkills, content, options);
 }
