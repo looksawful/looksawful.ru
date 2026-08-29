@@ -17,6 +17,9 @@ const expectedRoutes = new Map([
   ["case:styx", "/work/styx/"],
   ["case:sensetique", "/work/sensetique/"],
   ["collection:music-photography", "/shootings/"],
+  ["project:awful-cases", "/work/awful-cases/"],
+  ["project:moves-awful", "/work/moves-awful/"],
+  ["project:berry-social-content-2020", "/work/berry-social-content-2020/"],
   ["not-found", "/404.html"],
 ]);
 
@@ -24,7 +27,7 @@ test("site page manifest validates without errors", () => {
   assert.doesNotThrow(() => validateSitePages(sitePages));
 });
 
-test("initial MPA routes are stable and unique", () => {
+test("managed MPA routes are stable and unique", () => {
   assert.equal(sitePages.length, expectedRoutes.size);
   const ids = new Set(sitePages.map((page) => page.id));
   const paths = new Set(sitePages.map((page) => page.path));
@@ -47,28 +50,22 @@ test("enabled page lookup uses canonical normalized paths", () => {
   assert.equal(page?.id, "case:jestei-pool");
 });
 
-test("initial entity routes reference the existing domain model", () => {
-  const jestei = sitePages.find((page) => page.id === "case:jestei-pool");
-  const styx = sitePages.find((page) => page.id === "case:styx");
-  const sensetique = sitePages.find((page) => page.id === "case:sensetique");
-  const shootings = sitePages.find((page) => page.id === "collection:music-photography");
+test("entity routes reference the existing domain model", () => {
+  const expectedEntities = new Map([
+    ["case:jestei-pool", { type: "case", entityId: "jestei-pool" }],
+    ["case:styx", { type: "case", entityId: "styx" }],
+    ["case:sensetique", { type: "case", entityId: "sensetique" }],
+    ["collection:music-photography", { type: "collection", entityId: "music-photography" }],
+    ["project:awful-cases", { type: "project", entityId: "awful-cases" }],
+    ["project:moves-awful", { type: "project", entityId: "moves-awful" }],
+    ["project:berry-social-content-2020", { type: "project", entityId: "berry-social-content-2020" }],
+  ]);
 
-  assert.deepEqual(jestei && { type: jestei.type, entityId: jestei.entityId }, {
-    type: "case",
-    entityId: "jestei-pool",
-  });
-  assert.deepEqual(styx && { type: styx.type, entityId: styx.entityId }, {
-    type: "case",
-    entityId: "styx",
-  });
-  assert.deepEqual(sensetique && { type: sensetique.type, entityId: sensetique.entityId }, {
-    type: "case",
-    entityId: "sensetique",
-  });
-  assert.deepEqual(shootings && { type: shootings.type, entityId: shootings.entityId }, {
-    type: "collection",
-    entityId: "music-photography",
-  });
+  for (const [id, expected] of expectedEntities) {
+    const page = sitePages.find((candidate) => candidate.id === id);
+    assert.ok(page, `missing entity page ${id}`);
+    assert.deepEqual({ type: page.type, entityId: page.entityId }, expected);
+  }
 });
 
 test("only enabled pages are returned for build inputs", () => {
@@ -77,11 +74,16 @@ test("only enabled pages are returned for build inputs", () => {
   assert.ok(enabled.every((page) => page.enabled));
 });
 
-test("public entity pages are listed and indexable while 404 is not", () => {
+test("public Case and Collection pages are indexable while selected Project pages stay unlisted", () => {
   for (const page of sitePages) {
     if (page.type === "case" || page.type === "collection") {
       assert.equal(page.discovery.listed, true);
       assert.equal(page.discovery.indexable, true);
+    }
+
+    if (page.type === "project") {
+      assert.equal(page.discovery.listed, false);
+      assert.equal(page.discovery.indexable, false);
     }
   }
 
