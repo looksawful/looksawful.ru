@@ -5,7 +5,10 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("Moves Awful legacy infinite reel explicitly opts nested renderers out of global reveal", async () => {
-  const [index, vite] = await Promise.all([read("index.html"), read("vite.config.ts")]);
+  const [index, composition] = await Promise.all([
+    read("index.html"),
+    read("src/site/renderers/home/home-slots.ts"),
+  ]);
 
   assert.match(
     index,
@@ -14,14 +17,14 @@ test("Moves Awful legacy infinite reel explicitly opts nested renderers out of g
   );
 
   assert.match(
-    vite,
+    composition,
     /renderSectionIntro\(movesAwfulAnimationsIntro, \{ reveal: false \}\)/,
     "nested intro must not enter the global reveal layer",
   );
 
   for (const index of [0, 1, 2]) {
     assert.match(
-      vite,
+      composition,
       new RegExp(`renderMediaFigure\\(movesAwfulLandingMedia\\[${index}\\], \\{ reveal: false \\}\\)`),
       `Moves Awful media ${index + 1} must remain component-owned`,
     );
