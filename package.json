@@ -22,8 +22,9 @@
     "test:media": "npm run media:video:build && npm run media:build && node --test \"test/media-tools/*.test.mjs\" && node tools/check-data-integrity.ts",
     "test:e2e": "node tools/smoke-site.mjs",
     "test:e2e:mpa": "node tools/smoke-mpa.mjs",
+    "test:e2e:projects": "node tools/smoke-project-pages.mjs",
     "test:e2e:cv": "node tools/smoke-cv.mjs",
-    "verify": "npm run typecheck && npm test && npm run build && npm run test:e2e && npm run test:e2e:mpa && npm run test:e2e:cv"
+    "verify": "npm run typecheck && npm test && npm run build && npm run test:e2e && npm run test:e2e:mpa && npm run test:e2e:projects && npm run test:e2e:cv"
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
