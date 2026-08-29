@@ -50,16 +50,27 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-test("CV profile CMS defaults reproduce the currently authored top-level copy exactly", async () => {
+test("CV profile migration fixture reproduces the authored page while live copy remains editable", async () => {
   const [{ cvContent }, sourceHtml, contentLib] = await Promise.all([
     import(cvDataModuleUrl.href),
     readFile(cvSourceUrl, "utf8"),
     import(cvContentLibUrl.href),
   ]);
 
-  assert.deepEqual(cvContent.profile, expectedProfile);
   assert.equal(typeof contentLib.transformCvProfile, "function");
-  assert.equal(contentLib.transformCvProfile(sourceHtml, cvContent), sourceHtml);
+  assert.equal(
+    contentLib.transformCvProfile(sourceHtml, { ...cvContent, profile: expectedProfile }),
+    sourceHtml,
+  );
+  assert.deepEqual(
+    cvContent.profile.principles.map(({ id }) => id),
+    expectedProfile.principles.map(({ id }) => id),
+  );
+  assert.deepEqual(
+    cvContent.profile.languages.map(({ id }) => id),
+    expectedProfile.languages.map(({ id }) => id),
+  );
+  assert.doesNotThrow(() => contentLib.transformCvProfile(sourceHtml, cvContent));
 });
 
 test("CV profile transform escapes CMS text and preserves code-owned layout hooks", async () => {
@@ -88,7 +99,7 @@ test("CV profile transform escapes CMS text and preserves code-owned layout hook
   assert.match(transformed, /Первый &lt;абзац&gt; &amp; проверка/);
   assert.match(transformed, /<b>Визуал &amp; система:<\/b> безопасный &lt;текст&gt;/);
   assert.match(transformed, /<b>English &amp; русский<\/b> — B2 &lt;script&gt;/);
-  assert.doesNotMatch(transformed, /<script>/);
+  assert.doesNotMatch(transformed, /<script\b/i);
 
   assert.match(transformed, /class="resume-nav"/);
   assert.match(transformed, /class="portrait"/);
