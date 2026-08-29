@@ -8,7 +8,7 @@ import {
 } from "../pages/homepage.ts";
 import { getPageByPath } from "../pages/manifest.ts";
 import { renderStandaloneEntityPage } from "../renderers/entity-page.ts";
-import { renderHomepage } from "../renderers/home/home-slots.ts";
+import { renderHomepagePage } from "../renderers/home/home-page.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
 
 export function entryRequestToPagePath(requestPath: string): string {
@@ -43,7 +43,7 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
         const page = getPageByPath(pagePath);
         if (!page) return html;
 
-        if (page.type === "home") return renderHomepage(html);
+        if (page.type === "home") return renderHomepagePage(html);
 
         if (page.type === "case" || page.type === "project" || page.type === "collection") {
           const homepageTemplate = readFileSync(homepageTemplatePath, "utf8");
