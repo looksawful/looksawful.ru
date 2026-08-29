@@ -1,0 +1,26 @@
+[
+  {
+    "id": "home",
+    "label": "Главная"
+  },
+  {
+    "id": "case:jestei-pool",
+    "label": "Jestei Pool"
+  },
+  {
+    "id": "case:styx",
+    "label": "Styx"
+  },
+  {
+    "id": "case:sensetique",
+    "label": "Sensetique"
+  },
+  {
+    "id": "collection:music-photography",
+    "label": "Shootings"
+  },
+  {
+    "id": "cv",
+    "label": "Резюме"
+  }
+]

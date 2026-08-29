@@ -2,26 +2,37 @@ import { spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright";
 
+import navigationJson from "../src/content/navigation.json" with { type: "json" };
+
 const HOST = "127.0.0.1";
 const PORT = 4177;
 const BASE_URL = `http://${HOST}:${PORT}`;
 
+const labelById = new Map(navigationJson.map(({ id, label }) => [id, label]));
+const requireLabel = (id) => {
+  const label = labelById.get(id);
+  if (typeof label !== "string" || label.length === 0) {
+    throw new Error(`missing navigation label ${id}`);
+  }
+  return label;
+};
+
 const PRIMARY_LINKS = [
-  ["Главная", "/"],
-  ["Jestei Pool", "/work/jestei-pool/"],
-  ["Styx", "/work/styx/"],
-  ["Sensetique", "/work/sensetique/"],
-  ["Shootings", "/shootings/"],
-  ["Резюме", "/cv/"],
-];
+  ["home", "/"],
+  ["case:jestei-pool", "/work/jestei-pool/"],
+  ["case:styx", "/work/styx/"],
+  ["case:sensetique", "/work/sensetique/"],
+  ["collection:music-photography", "/shootings/"],
+  ["cv", "/cv/"],
+].map(([id, href]) => [requireLabel(id), href]);
 
 const CASES = [
-  ["/", "Главная", 390, 844],
-  ["/work/jestei-pool/", "Jestei Pool", 390, 844],
-  ["/work/styx/", "Styx", 390, 844],
-  ["/work/sensetique/", "Sensetique", 390, 844],
-  ["/shootings/", "Shootings", 390, 844],
-  ["/work/jestei-pool/", "Jestei Pool", 1440, 900],
+  ["/", requireLabel("home"), 390, 844],
+  ["/work/jestei-pool/", requireLabel("case:jestei-pool"), 390, 844],
+  ["/work/styx/", requireLabel("case:styx"), 390, 844],
+  ["/work/sensetique/", requireLabel("case:sensetique"), 390, 844],
+  ["/shootings/", requireLabel("collection:music-photography"), 390, 844],
+  ["/work/jestei-pool/", requireLabel("case:jestei-pool"), 1440, 900],
 ];
 
 function assert(condition, message) {
@@ -113,7 +124,10 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
 
     if (path !== "/") {
       const breadcrumb = await page.locator('[aria-label="Хлебные крошки"]').innerText();
-      assert(breadcrumb.includes("Главная") && breadcrumb.includes(currentLabel), `${label}: breadcrumb is incomplete: ${breadcrumb}`);
+      assert(
+        breadcrumb.includes(requireLabel("home")) && breadcrumb.includes(currentLabel),
+        `${label}: breadcrumb is incomplete: ${breadcrumb}`,
+      );
     }
 
     await page.keyboard.press("Escape");

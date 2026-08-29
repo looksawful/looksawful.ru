@@ -36,6 +36,41 @@ actions:
       button: Подготовить
 
 content:
+  - name: navigation-labels
+    label: Навигация
+    type: file
+    path: src/content/navigation.json
+    format: json
+    list: true
+    operations:
+      create: false
+      rename: false
+      delete: false
+    commit:
+      templates:
+        update: "content(cms): update navigation labels"
+    actions:
+      - name: verify-navigation
+        label: Проверить сайт
+        workflow: verify-pr.yml
+        ref: current
+        confirm:
+          title: Запустить полную проверку сайта?
+          message: Будут проверены подписи навигации, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
+          button: Проверить
+    fields:
+      - name: id
+        label: ID
+        type: string
+        required: true
+        readonly: true
+        description: Стабильный технический ID пункта. Маршрут и положение в меню остаются в коде.
+      - name: label
+        label: Подпись
+        type: string
+        required: true
+        description: Текст пункта в глобальном меню и связанных хлебных крошках.
+
   - name: project-cards
     label: Карточки проектов
     type: file
