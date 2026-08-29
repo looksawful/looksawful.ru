@@ -146,5 +146,40 @@
     .justified-gallery__row > figure.media[data-caption-view="overlay"]::after {
       content: none;
     }
+
+    /* Compact reels are rails only until their authored 42rem grid breakpoint.
+       Keep the original caption node for the lightbox, but do not let the touch
+       fallback add variable-height rows while the composition is still a rail. */
+    @container media-group (width <= 42rem) {
+      .media-group[data-layout="grid"][data-compact-layout="reel"]
+        > .media-group__items
+        > figure.media[data-caption-view="overlay"]
+        > .media__caption {
+        display: none;
+      }
+    }
+
+    /* Sequence and bento use constrained rail/cell geometry until 48rem. Their
+       below-media touch fallback would make row height depend on caption length,
+       so overlay captions stay in the DOM but out of compact page geometry. */
+    @container media-group (width <= 48rem) {
+      .media-group[data-layout="sequence"]:not([data-middle-overflow="reel"])
+        figure.media[data-caption-view="overlay"]
+        > .media__caption,
+      .media-group[data-layout="bento"]
+        > .media-group__items
+        > figure.media[data-caption-view="overlay"]
+        > .media__caption {
+        display: none;
+      }
+    }
+
+    /* Authored sequence middle reels remain rails at every container width. */
+    .media-group[data-layout="sequence"][data-middle-overflow="reel"]
+      .media-group__middle
+      > figure.media[data-caption-view="overlay"]
+      > .media__caption {
+      display: none;
+    }
   }
 }
