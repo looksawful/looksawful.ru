@@ -3,17 +3,16 @@ import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const indexPath = new URL("../src/styles/index.css", import.meta.url);
+const mainPath = new URL("../src/main.js", import.meta.url);
 const componentPath = new URL("../src/styles/site-navigation.css", import.meta.url);
 const indexSource = readFileSync(indexPath, "utf8");
+const mainSource = readFileSync(mainPath, "utf8");
 const componentSource = existsSync(componentPath) ? readFileSync(componentPath, "utf8") : "";
 
-test("dedicated site navigation stylesheet is loaded after the existing component base", () => {
-  const componentsImport = indexSource.indexOf('@import "./components.css" layer(components);');
-  const navigationImport = indexSource.indexOf('@import "./site-navigation.css" layer(components);');
-
-  assert.ok(componentsImport >= 0, "components stylesheet import must exist");
-  assert.ok(navigationImport > componentsImport, "site navigation styles must override the legacy component base");
+test("dedicated navigation stylesheet loads as component-owned CSS without changing the protected stylesheet entrypoint", () => {
   assert.ok(existsSync(componentPath), "site navigation stylesheet must exist");
+  assert.doesNotMatch(indexSource, /site-navigation\.css/);
+  assert.match(mainSource, /import\s+["']\.\/styles\/site-navigation\.css["'];/);
 });
 
 test("site navigation CSS keeps one responsive structure and the minimal full-viewport menu", () => {
