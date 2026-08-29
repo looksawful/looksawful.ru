@@ -48,6 +48,14 @@ function optedOut(privacy: SitePrivacySignals): boolean {
   return privacy.globalPrivacyControl === true || privacy.doNotTrack === "1";
 }
 
+export function isLocalAnalyticsHostname(hostname: string): boolean {
+  const normalized = hostname.trim().toLowerCase();
+  return normalized === "localhost"
+    || normalized === "127.0.0.1"
+    || normalized === "::1"
+    || normalized.endsWith(".localhost");
+}
+
 export function selectSiteAnalyticsProviders(
   config: SiteAnalyticsConfig,
   privacy: SitePrivacySignals,
@@ -135,6 +143,8 @@ function queueClarityConsent(target: Window): void {
 }
 
 export function mountSiteAnalytics({ root, target, config }: MountSiteAnalyticsOptions): SiteAnalyticsProvider[] {
+  if (isLocalAnalyticsHostname(target.location.hostname)) return [];
+
   const scripts = buildSiteAnalyticsScripts(
     config,
     readSitePrivacySignals(target),
