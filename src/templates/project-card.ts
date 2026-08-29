@@ -2,8 +2,15 @@ import type { ProjectCardData } from "../data/projects.ts";
 import { renderRevealAttribute } from "../motion-contract.ts";
 import { escapeHtml } from "../utils/html.ts";
 
-export function renderProjectCard(project: ProjectCardData): string {
-  const href = `#project-${project.id}`;
+export interface ProjectCardRenderOptions {
+  href?: string;
+}
+
+export function renderProjectCard(
+  project: ProjectCardData,
+  options: ProjectCardRenderOptions = {},
+): string {
+  const href = options.href ?? `#project-${project.id}`;
 
   const ariaLabel = project.ariaLabel ?? `Перейти к проекту ${project.title}`;
 
