@@ -113,9 +113,9 @@ export function hasStoredClarityConsent(target: Window): boolean {
   }
 }
 
-function ensureClarityQueue(target: Window): void {
+function ensureClarityQueue(target: Window): ClarityFunction {
   const analyticsTarget = target as AnalyticsWindow;
-  if (analyticsTarget.clarity) return;
+  if (analyticsTarget.clarity) return analyticsTarget.clarity;
 
   const clarity = ((...args: unknown[]) => {
     clarity.q ??= [];
@@ -123,6 +123,15 @@ function ensureClarityQueue(target: Window): void {
   }) as ClarityFunction;
   clarity.q = [];
   analyticsTarget.clarity = clarity;
+  return clarity;
+}
+
+function queueClarityConsent(target: Window): void {
+  const clarity = ensureClarityQueue(target);
+  clarity("consentv2", {
+    ad_Storage: "denied",
+    analytics_Storage: "granted",
+  });
 }
 
 export function mountSiteAnalytics({ root, target, config }: MountSiteAnalyticsOptions): SiteAnalyticsProvider[] {
@@ -136,7 +145,7 @@ export function mountSiteAnalytics({ root, target, config }: MountSiteAnalyticsO
 
   for (const descriptor of scripts) {
     if (root.querySelector(`script[data-site-analytics="${descriptor.provider}"]`)) continue;
-    if (descriptor.provider === "clarity") ensureClarityQueue(target);
+    if (descriptor.provider === "clarity") queueClarityConsent(target);
 
     const script = root.createElement("script");
     script.src = descriptor.src;
