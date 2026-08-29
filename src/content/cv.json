@@ -5,31 +5,11 @@
     "aboutPrimary": "Проектирую цифровые продукты: исследую аудиторию, разбираю пользовательские сценарии, определяю UX/UI-направление, проектирую интерфейсы и собираю дизайн-системы. Работаю с продуктом от исследования и концепции до разработки и релиза — помогаю сокращать лишние шаги, делать интерфейсы понятнее, ускорять производство дизайна и сохранять целостность продукта по мере его развития.",
     "aboutSecondary": "Руковожу дизайнерами и креативными командами: ставлю задачи, провожу ревью, выстраиваю процессы и координирую работу дизайна, продукта, разработки и контента. На последнем месте работы сократил пользовательский путь в ключевом сценарии с 6 шагов до 2, ускорил производство дизайна в 2,5 раза и помог повысить стоимость продукта на 15% без деградации клиентской базы. Разделил аудиторию на четыре сегмента, перестроил под них продуктовые сценарии и коммуникацию и участвовал в подготовке продукта к выходу на рынок США.",
     "principles": [
-      {
-        "id": "visual",
-        "title": "Делаю проекты красивыми:",
-        "text": "задаю визуальный язык, собираю айдентику и слежу, чтобы все части проекта выглядели цельно."
-      },
-      {
-        "id": "communication",
-        "title": "Делаю коммуникацию чище:",
-        "text": "определяю, что и как говорит продукт, редактирую тексты и упрощаю подачу сложной информации."
-      },
-      {
-        "id": "product",
-        "title": "Делаю продукты удобнее:",
-        "text": "изучаю пользовательские сценарии, нахожу лишние шаги и несогласованности и перестраиваю интерфейс там, где он мешает пользователю."
-      },
-      {
-        "id": "new-products",
-        "title": "Придумываю и развиваю новые продукты:",
-        "text": "изучаю аудиторию и конкурентов, нахожу возможности, проверяю гипотезы и довожу решения до запуска."
-      },
-      {
-        "id": "leadership",
-        "title": "Руковожу дизайнерами:",
-        "text": "ставлю задачи, провожу ревью, помогаю принимать решения, развиваю дизайнеров и ввожу новых людей в работу."
-      }
+      { "id": "visual", "title": "Делаю проекты красивыми:", "text": "задаю визуальный язык, собираю айдентику и слежу, чтобы все части проекта выглядели цельно." },
+      { "id": "communication", "title": "Делаю коммуникацию чище:", "text": "определяю, что и как говорит продукт, редактирую тексты и упрощаю подачу сложной информации." },
+      { "id": "product", "title": "Делаю продукты удобнее:", "text": "изучаю пользовательские сценарии, нахожу лишние шаги и несогласованности и перестраиваю интерфейс там, где он мешает пользователю." },
+      { "id": "new-products", "title": "Придумываю и развиваю новые продукты:", "text": "изучаю аудиторию и конкурентов, нахожу возможности, проверяю гипотезы и довожу решения до запуска." },
+      { "id": "leadership", "title": "Руковожу дизайнерами:", "text": "ставлю задачи, провожу ревью, помогаю принимать решения, развиваю дизайнеров и ввожу новых людей в работу." }
     ],
     "languages": [
       { "id": "english", "name": "Английский", "level": "B2" },
@@ -86,6 +66,36 @@
         { "id": "utilities", "label": "Утилиты:", "text": "ImageMagick • FFmpeg" }
       ]
     }
+  },
+  "education": {
+    "higherTitle": "ВЫСШЕЕ ОБРАЗОВАНИЕ",
+    "higher": {
+      "id": "mpgu",
+      "name": "МПГУ им. Ленина",
+      "lines": [
+        "Славянская и западноевропейская филология",
+        "Компаративистика"
+      ]
+    },
+    "additionalTitle": "ДОПОЛНИТЕЛЬНОЕ ОБРАЗОВАНИЕ",
+    "additional": [
+      { "id": "hexlet", "name": "HEXLET", "lines": ["JS: Архитектура фронтенда", "JS: Абстракция с помощью данных", "JS: Составные данные", "JS: Объектно-ориентированный дизайн", "JS: Прототипы", "TypeScript", "Асинхронное программирование на JavaScript", "JS: Автоматическое тестирование", "JS: Продвинутое тестирование", "React", "React Hooks", "Redux Toolkit", "HTTP API", "REST API в Node.js", "Git", "CI"] },
+      { "id": "stepik", "name": "STEPIK", "lines": ["Введение в программирование (C++)", "JavaScript для начинающих", "Python: основы и применение", "Веб-технологии: практический курс", "CSS"] },
+      { "id": "codecademy", "name": "CODECADEMY", "lines": ["Learn CSS", "Learn JavaScript", "Learn Python 3", "Learn TypeScript", "Learn React"] },
+      { "id": "kevin-powell", "name": "KEVIN POWELL", "lines": ["Conquering Responsive Layouts", "Build a Space Travel Website", "HTML & CSS Crash Course"] },
+      { "id": "book-of-shaders", "name": "PATRICIO GONZALEZ VIVO & JEN LOWE", "lines": ["The Book of Shaders"] },
+      { "id": "blender-studio", "name": "BLENDER STUDIO / SYBREN STÜVEL", "lines": ["Scripting for Artists"] },
+      { "id": "blender-guru", "name": "BLENDER GURU / ANDREW PRICE", "lines": ["Blender Beginner Donut Tutorial"] },
+      { "id": "cg-boost", "name": "CG BOOST / ZACH REINHARDT", "lines": ["Blender Launch Pad"] },
+      { "id": "creative-shrimp", "name": "CREATIVE SHRIMP / GLEB ALEXANDROV & AIDY BURROWS", "lines": ["Hard Surface Modeling in Blender", "Cinematic Lighting in Blender", "HDR Image-Based Lighting in Blender"] },
+      { "id": "cg-cookie", "name": "CG COOKIE", "lines": ["Blender Python Scripting Superpowers for Non-Programmers"] },
+      { "id": "phlearn", "name": "PHLEARN / AARON NACE", "lines": ["Photoshop 101–301", "The Ultimate Guide to Retouching", "How to Master Dodging & Burning in Photoshop", "Advanced Compositing with Stock Images in Photoshop"] },
+      { "id": "ridd", "name": "MICHAEL “RIDD” RIDDERING", "lines": ["Figma Academy"] },
+      { "id": "mizko", "name": "MIZKO", "lines": ["Figma & UI Design Masterclass"] },
+      { "id": "photoplay-producer", "name": "PHOTOPLAY / НИНА ЛОБЫКИНА", "lines": ["Продюсирование съёмок"] },
+      { "id": "photoplay-model", "name": "PHOTOPLAY / IRA ROKKA", "lines": ["Работа с моделью"] },
+      { "id": "ilyahov", "name": "МАКСИМ ИЛЬЯХОВ", "lines": ["Основы визуального повествования"] }
+    ]
   },
   "experience": [
     { "id": "jestei", "visible": true },
