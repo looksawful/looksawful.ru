@@ -7,33 +7,27 @@ import { getProjectCardHref } from "../src/site/pages/project-card-routes.ts";
 
 const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
 const homeSlotsUrl = new URL("../src/site/renderers/home/home-slots.ts", import.meta.url);
+const expectedIds = ["jestei", "styx", "sensetique", "shootings"];
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-test("project cards default to visible without changing the current homepage set", () => {
-  assert.deepEqual(
-    projects.map(({ id, visible }) => [id, visible]),
-    [
-      ["jestei", true],
-      ["styx", true],
-      ["sensetique", true],
-      ["shootings", true],
-    ],
-  );
+test("project cards keep fixed identity while homepage visibility remains editable", () => {
+  assert.deepEqual(projects.map(({ id }) => id), expectedIds);
+  assert.ok(projects.every(({ visible }) => typeof visible === "boolean"));
 });
 
 test("homepage project selection filters only cards whose CMS visibility is false", async () => {
   const dataModule = await import("../src/data/projects.ts");
   assert.equal(typeof dataModule.getHomepageProjects, "function");
 
-  const fixture = clone(projects);
+  const fixture = clone(projects).map((project) => ({ ...project, visible: true }));
   fixture[0].visible = false;
 
   assert.deepEqual(
     dataModule.getHomepageProjects(fixture).map(({ id }) => id),
-    ["styx", "sensetique", "shootings"],
+    expectedIds.slice(1),
   );
 });
 
@@ -52,7 +46,7 @@ test("hiding a homepage card does not own or alter its standalone route", () => 
 
 test("Pages CMS exposes homepage visibility but no route controls for project cards", async () => {
   const cmsConfig = await readFile(cmsConfigUrl, "utf8");
-  const projectCardsBlock = cmsConfig.match(/- name: project-cards\b[\s\S]*?(?=\n  - name: cv\b)/)?.[0] ?? "";
+  const projectCardsBlock = cmsConfig.match(/\n  - name: project-cards\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
 
   assert.match(projectCardsBlock, /- name: visible\b[\s\S]*?type: boolean/);
   assert.match(projectCardsBlock, /label: Показывать на главной/);
