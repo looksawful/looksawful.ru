@@ -144,6 +144,79 @@ content:
           message: Будут проверены CV-данные, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
           button: Проверить
     fields:
+      - name: profile
+        label: Профиль
+        type: object
+        required: true
+        fields:
+          - name: name
+            label: Имя
+            type: string
+            required: true
+            description: Имя в основной шапке резюме.
+          - name: role
+            label: Роль / заголовок
+            type: string
+            required: true
+            description: Основная профессиональная роль рядом с портретом.
+          - name: aboutPrimary
+            label: О себе — абзац 1
+            type: text
+            required: true
+          - name: aboutSecondary
+            label: О себе — абзац 2
+            type: text
+            required: true
+          - name: principles
+            label: Ключевые тезисы
+            type: object
+            required: true
+            list:
+              min: 5
+              max: 5
+              collapsible:
+                collapsed: true
+                summary: "{title}"
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+                description: Стабильный технический ID тезиса. Не изменяется через CMS.
+              - name: title
+                label: Заголовок
+                type: string
+                required: true
+              - name: text
+                label: Текст
+                type: text
+                required: true
+          - name: languages
+            label: Языки
+            type: object
+            required: true
+            list:
+              min: 2
+              max: 2
+              collapsible:
+                collapsed: true
+                summary: "{name}"
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+                description: Стабильный технический ID языка. Не изменяется через CMS.
+              - name: name
+                label: Язык
+                type: string
+                required: true
+              - name: level
+                label: Уровень
+                type: string
+                required: true
       - name: experience
         label: Опыт
         type: object
