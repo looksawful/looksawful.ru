@@ -10,6 +10,7 @@ import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts"
 import { mountExpertise } from "./components/expertise.ts";
 import { mountExperience } from "./components/experience.ts";
 import { mountSiteAnalytics } from "./components/site-analytics.ts";
+import { initSiteNavigation } from "./components/site-navigation.ts";
 import { initSiteInteractive } from "./interactive.js";
 import {
   initMotion,
@@ -118,6 +119,7 @@ destroys.push(
     root: document,
   }),
 );
+destroys.push(initSiteNavigation(document));
 
 if (document.querySelector('[data-jestei-theme-organism][data-jestei-theme-instance="inline"]')) {
   void import("./components/jestei-theme-organism/jestei-theme-organism.js")
