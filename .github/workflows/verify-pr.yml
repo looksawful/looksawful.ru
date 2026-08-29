@@ -1,0 +1,45 @@
+name: Verify changes
+
+on:
+  pull_request:
+    branches: [prod, dev]
+  push:
+    branches: [infra/post-seo-foundation-v2]
+  workflow_dispatch:
+    inputs:
+      payload:
+        description: Pages CMS payload as JSON
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-changes-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Analytics contract
+        run: node --test test/site-analytics.test.mjs
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Install
+        run: npm ci
+      - name: Install browser for smoke tests
+        run: npx playwright install --with-deps chromium
+      - name: Verify
+        run: npm run verify
