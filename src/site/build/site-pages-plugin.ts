@@ -36,21 +36,24 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
   return {
     name: "site-pages",
     enforce: "pre",
-    transformIndexHtml(html, context) {
-      const pagePath = entryRequestToPagePath(context.path);
-      const page = getPageByPath(pagePath);
-      if (!page) return html;
+    transformIndexHtml: {
+      order: "pre",
+      handler(html, context) {
+        const pagePath = entryRequestToPagePath(context.path);
+        const page = getPageByPath(pagePath);
+        if (!page) return html;
 
-      if (page.type === "home") return renderHomepage(html);
+        if (page.type === "home") return renderHomepage(html);
 
-      if (page.type === "case" || page.type === "project" || page.type === "collection") {
-        const homepageTemplate = readFileSync(homepageTemplatePath, "utf8");
-        return renderStandaloneEntityPage(homepageTemplate, page);
-      }
+        if (page.type === "case" || page.type === "project" || page.type === "collection") {
+          const homepageTemplate = readFileSync(homepageTemplatePath, "utf8");
+          return renderStandaloneEntityPage(homepageTemplate, page);
+        }
 
-      if (page.type === "not-found") return renderNotFoundPage(page);
+        if (page.type === "not-found") return renderNotFoundPage(page);
 
-      return html;
+        return html;
+      },
     },
   };
 }
