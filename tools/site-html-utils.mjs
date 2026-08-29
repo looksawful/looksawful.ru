@@ -1,7 +1,9 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
-export const SITE_ORIGIN = "https://www.looksawful.ru";
+import { SITE_ORIGIN } from "../src/site/config.ts";
+
+export { SITE_ORIGIN };
 export const SITE_ORIGIN_URL = new URL(SITE_ORIGIN);
 
 const FIXTURE_SEGMENTS = new Set(["fixtures", "__fixtures__", "test-fixtures"]);
