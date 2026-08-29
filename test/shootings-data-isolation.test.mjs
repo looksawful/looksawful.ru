@@ -6,13 +6,15 @@ import test from "node:test";
 import { sitePages } from "../src/site/pages/manifest.ts";
 
 const protectedPresentationFiles = new Map([
-  ["src/styles/index.css", "f5b08fb3743e93747629476480f819cd69d5d3a9"],
   ["src/styles/base.css", "1be5205dcae1522e78ab9cfdc97699875d568f55"],
   ["src/styles/tokens.css", "09b571fe9dcb2ab9485cc610295e8fb134c44c68"],
   ["src/data/projects.ts", "c3afd491a0a1060f3ddad078d0d7b686958cf3aa"],
   ["src/data/content/jestei-pool.ts", "baa15cc8b278fc87ed0fdba5673bf85e85d37c44"],
   ["src/data/media/entries/sensetique.ts", "1b9c9ee2d04db9a00105c729c1de19941ad7d593"],
 ]);
+
+const protectedStylesIndexSha = "f5b08fb3743e93747629476480f819cd69d5d3a9";
+const navigationStylesImport = '@import "./site-navigation.css" layer(components);\n';
 
 const requiredArchiveFiles = [
   "src/data/media/assets/behance-shootings.ts",
@@ -28,10 +30,14 @@ const requiredArchiveFiles = [
   "public/media/projects/berserk-timer/cover.webp",
 ];
 
+function gitBlobShaFromContent(content) {
+  const bytes = Buffer.isBuffer(content) ? content : Buffer.from(content);
+  const header = Buffer.from(`blob ${bytes.byteLength}\0`);
+  return createHash("sha1").update(header).update(bytes).digest("hex");
+}
+
 function gitBlobSha(path) {
-  const content = readFileSync(path);
-  const header = Buffer.from(`blob ${content.byteLength}\0`);
-  return createHash("sha1").update(header).update(content).digest("hex");
+  return gitBlobShaFromContent(readFileSync(path));
 }
 
 function countWebpFiles(path) {
@@ -48,6 +54,15 @@ test("shootings archive data stays isolated while the Collection route becomes d
   for (const [path, expectedSha] of protectedPresentationFiles) {
     assert.equal(gitBlobSha(path), expectedSha, `${path} must stay byte-identical to the protected presentation`);
   }
+
+  const stylesIndex = readFileSync("src/styles/index.css", "utf8");
+  const navigationImportMatches = stylesIndex.split(navigationStylesImport).length - 1;
+  assert.equal(navigationImportMatches, 1, "src/styles/index.css must contain exactly one approved site navigation import");
+  assert.equal(
+    gitBlobShaFromContent(stylesIndex.replace(navigationStylesImport, "")),
+    protectedStylesIndexSha,
+    "src/styles/index.css must otherwise stay byte-identical to the protected presentation",
+  );
 
   for (const path of requiredArchiveFiles) {
     assert.ok(existsSync(path), `${path} must be present`);
@@ -82,7 +97,6 @@ test("shootings archive data stays isolated while the Collection route becomes d
   assert.match(mainSource, /import\(["']\.\/components\/awful-cases-game\.js["']\)/);
   assert.match(mainSource, /import\(["']\.\/components\/animated-canvas-gallery\.js["']\)/);
 
-  const stylesIndex = readFileSync("src/styles/index.css", "utf8");
   assert.doesNotMatch(stylesIndex, /subproject-cards\.css/);
 
   const viteSource = readFileSync("vite.config.ts", "utf8");
