@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { projects } from "../src/data/projects.ts";
 import { renderProjectCard } from "../src/templates/project-card.ts";
+
+const cmsConfig = readFileSync(new URL("../.pages.yml", import.meta.url), "utf8");
 
 const baselineProjects = [
   {
@@ -67,4 +70,24 @@ test("CMS project-card migration preserves rendered output exactly", () => {
 
 test("CMS project-card IDs remain the fixed routing contract", () => {
   assert.deepEqual(projects.map((project) => project.id), ["jestei", "styx", "sensetique", "shootings"]);
+});
+
+test("Pages CMS keeps project-card identity and destructive operations locked", () => {
+  assert.match(cmsConfig, /operations:\s*\n\s+create: false\s*\n\s+rename: false\s*\n\s+delete: false/);
+  assert.match(cmsConfig, /- name: id\s*\n\s+label: ID\s*\n\s+type: string\s*\n\s+required: true\s*\n\s+readonly: true/);
+});
+
+test("Pages CMS uses a scoped WebP media source for project covers", () => {
+  assert.match(cmsConfig, /media:\s*\n\s+- name: project-covers/);
+  assert.match(cmsConfig, /input: public\/media\/projects\/index/);
+  assert.match(cmsConfig, /output: \/media\/projects\/index/);
+  assert.match(cmsConfig, /extensions: \[webp\]/);
+  assert.match(cmsConfig, /- name: src\s*\n\s+label: Обложка проекта\s*\n\s+type: image/);
+  assert.match(cmsConfig, /media: project-covers/);
+});
+
+test("Pages CMS exposes a clear verification action and no routing fields", () => {
+  assert.match(cmsConfig, /label: Проверить сайт/);
+  assert.match(cmsConfig, /confirm:\s*\n\s+title: Запустить полную проверку сайта\?/);
+  assert.doesNotMatch(cmsConfig, /- name: (route|canonical|listed|indexable|slug|pageType)\b/);
 });
