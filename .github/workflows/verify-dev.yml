@@ -30,7 +30,10 @@ jobs:
           path: |
             public/media/generated/responsive
             public/media/generated/video
-          key: generated-media-v1-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+            public/media/generated/responsive-manifest.json
+            public/media/generated/video-inventory.json
+            src/data/media/responsive-generated.ts
+          key: generated-media-v2-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
       - name: Install media tooling
         if: steps.media-cache.outputs.cache-hit != 'true'
         run: |
