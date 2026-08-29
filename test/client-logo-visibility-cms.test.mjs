@@ -8,6 +8,7 @@ import { clientLogos } from "../src/data/clients.ts";
 
 const visibilityUrl = new URL("../src/content/client-logo-visibility.json", import.meta.url);
 const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
+const clientDataUrl = new URL("../src/data/clients.ts", import.meta.url);
 const homeSlotsUrl = new URL("../src/site/renderers/home/home-slots.ts", import.meta.url);
 
 const expectedIds = [
@@ -91,10 +92,14 @@ test("client logo selection filters only logos whose CMS visibility is false", a
   );
 });
 
-test("homepage renderer uses the visibility-filtered client logo collection", async () => {
-  const source = await readFile(homeSlotsUrl, "utf8");
-  assert.match(source, /getVisibleClientLogos\(\)\.map\(renderClientLogo\)/);
-  assert.doesNotMatch(source, /const logos = clientLogos\.map\(renderClientLogo\)/);
+test("homepage consumes a client-logo export that is filtered at the data boundary", async () => {
+  const [clientDataSource, homeSource] = await Promise.all([
+    readFile(clientDataUrl, "utf8"),
+    readFile(homeSlotsUrl, "utf8"),
+  ]);
+
+  assert.match(clientDataSource, /export const clientLogos[\s\S]*?getVisibleClientLogos\(\)/);
+  assert.match(homeSource, /const logos = clientLogos\.map\(renderClientLogo\)/);
 });
 
 test("Pages CMS exposes only client logo identity and visibility controls", async () => {
