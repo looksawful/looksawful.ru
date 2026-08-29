@@ -1,14 +1,21 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { SITE_ORIGIN as pageSiteOrigin } from "../src/site/config.ts";
 import { renderPageMetadata } from "../src/site/shell/metadata.ts";
 import { renderPageShell } from "../src/site/shell/page-shell.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
+import { SITE_ORIGIN as toolingSiteOrigin } from "../tools/site-html-utils.mjs";
 
 const jestei = sitePages.find((page) => page.id === "case:jestei-pool");
 const notFound = sitePages.find((page) => page.id === "not-found");
 
 if (!jestei || !notFound) throw new Error("required test pages are missing");
+
+test("page rendering and postbuild tooling share one production origin", () => {
+  assert.equal(pageSiteOrigin, "https://www.looksawful.ru");
+  assert.equal(toolingSiteOrigin, pageSiteOrigin);
+});
 
 test("public page metadata uses the production canonical origin", () => {
   const html = renderPageMetadata({
