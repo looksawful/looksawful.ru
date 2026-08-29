@@ -2,6 +2,10 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
 
+import {
+  assertHomepagePresentationSupported,
+  homepageEntries,
+} from "../pages/homepage.ts";
 import { getPageByPath } from "../pages/manifest.ts";
 import { renderStandaloneEntityPage } from "../renderers/entity-page.ts";
 import { renderHomepage } from "../renderers/home/home-slots.ts";
@@ -27,6 +31,7 @@ export function renderNotFoundPage(page: NonNullable<ReturnType<typeof getPageBy
 
 export function createSitePagesPlugin(root = process.cwd()): Plugin {
   const homepageTemplatePath = path.resolve(root, "index.html");
+  assertHomepagePresentationSupported(homepageEntries);
 
   return {
     name: "site-pages",
