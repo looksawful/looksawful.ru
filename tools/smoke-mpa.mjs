@@ -111,13 +111,21 @@ async function verifyDocument(page, route, label) {
   const state = await page.evaluate(({ expected }) => {
     const root = document.documentElement;
     const h1 = [...document.querySelectorAll("h1")];
+    const heading = h1[0];
+    const headingName = heading
+      ? [
+        heading.getAttribute("aria-label") || "",
+        heading.textContent || "",
+        ...[...heading.querySelectorAll("img[alt]")].map((image) => image.getAttribute("alt") || ""),
+      ].join(" ").replace(/\s+/g, " ").trim()
+      : "";
     const article = document.getElementById(expected.articleId);
     const canonical = document.querySelector('link[rel="canonical"]')?.getAttribute("href") || "";
     return {
       bodyHeight: document.body.getBoundingClientRect().height,
       textLength: document.body.innerText.replace(/\s+/g, " ").trim().length,
       h1Count: h1.length,
-      h1Text: h1[0]?.textContent?.replace(/\s+/g, " ").trim() || "",
+      h1Name: headingName,
       articleExists: article instanceof HTMLElement,
       pageType: document.body.dataset.pageType,
       pageId: document.body.dataset.pageId,
@@ -131,7 +139,7 @@ async function verifyDocument(page, route, label) {
   assert(state.bodyHeight > 100, `${label}: document is effectively blank`);
   assert(state.textLength > 20, `${label}: document has no meaningful text`);
   assert(state.h1Count === 1, `${label}: expected exactly one light-DOM h1, got ${state.h1Count}`);
-  assert(state.h1Text.length > 0, `${label}: h1 is empty`);
+  assert(state.h1Name.length > 0, `${label}: h1 has no accessible name`);
   assert(state.articleExists, `${label}: missing ${route.articleId}`);
   assert(state.pageType === route.pageType, `${label}: wrong data-page-type ${state.pageType}`);
   assert(state.pageId === route.pageId, `${label}: wrong data-page-id ${state.pageId}`);
