@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 
 import { createSiteInputs, pagePathToEntryPath } from "../src/site/build/inputs.ts";
+import { createSitePagesPlugin } from "../src/site/build/site-pages-plugin.ts";
 
 const root = path.resolve(new URL("..", import.meta.url).pathname);
 
@@ -35,4 +36,11 @@ test("Vite inputs are derived from enabled managed pages and exclude public CV o
   for (const input of Object.values(inputs)) {
     assert.equal(existsSync(input), true, `missing physical Vite input ${input}`);
   }
+});
+
+test("site page HTML composition runs before Vite core asset processing", () => {
+  const plugin = createSitePagesPlugin(root);
+  assert.equal(typeof plugin.transformIndexHtml, "object");
+  assert.equal(plugin.transformIndexHtml?.order, "pre");
+  assert.equal(typeof plugin.transformIndexHtml?.handler, "function");
 });
