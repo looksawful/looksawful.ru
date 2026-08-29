@@ -8,7 +8,6 @@
 @import "./base.css" layer(base);
 @import "./patterns.css" layer(patterns);
 @import "./components.css" layer(components);
-@import "./site-navigation.css" layer(components);
 @import "./project-navigation-top.css" layer(components);
 @import "./expertise.css" layer(components);
 @import "./experience.css" layer(components);
