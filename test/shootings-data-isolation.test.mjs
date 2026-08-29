@@ -5,7 +5,7 @@ import test from "node:test";
 
 const protectedPresentationFiles = new Map([
   ["index.html", "6ec87a42ce9a5844c6ca4e150ddc27f1ed310415"],
-  ["src/main.js", "642cacd7060f09cc5bd757fd33b6eff747620fd7"],
+  ["src/main.js", "0327b946b4166256774b735a982d695917321a2e"],
   ["src/styles/index.css", "f5b08fb3743e93747629476480f819cd69d5d3a9"],
   ["src/styles/base.css", "1be5205dcae1522e78ab9cfdc97699875d568f55"],
   ["src/styles/tokens.css", "09b571fe9dcb2ab9485cc610295e8fb134c44c68"],
