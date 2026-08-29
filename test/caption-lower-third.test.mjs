@@ -56,6 +56,20 @@ test("persistent rail overlays stay out of touch geometry without being disabled
   );
 });
 
+test("dense compact layouts keep overlay captions out of touch geometry only while compact", async () => {
+  const styles = await read("src/styles/index.css");
+
+  assert.match(
+    styles,
+    /@media \(\(hover: none\) or \(pointer: coarse\)\) \{[\s\S]*?@container media-group \(width <= 42rem\) \{[\s\S]*?\.media-group\[data-layout="grid"\]\[data-compact-layout="reel"\][\s\S]*?figure\.media\[data-caption-view="overlay"\][\s\S]*?> \.media__caption[\s\S]*?display:\s*none;/,
+  );
+
+  assert.match(
+    styles,
+    /@container media-group \(width <= 48rem\) \{[\s\S]*?\.media-group\[data-layout="sequence"\][\s\S]*?figure\.media\[data-caption-view="overlay"\][\s\S]*?> \.media__caption,[\s\S]*?\.media-group\[data-layout="bento"\][\s\S]*?figure\.media\[data-caption-view="overlay"\][\s\S]*?> \.media__caption[\s\S]*?display:\s*none;/,
+  );
+});
+
 test("custom Jestei hover copy uses intrinsic height with the full-surface safety cap", async () => {
   const captions = await read("src/styles/captions.css");
   const custom = extractBlock(
