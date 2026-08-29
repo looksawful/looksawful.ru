@@ -13,6 +13,7 @@ import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts"
 import { createJesteiThemeOrganisms } from "./components/jestei-theme-organism/jestei-theme-organism.js";
 import { mountExpertise } from "./components/expertise.ts";
 import { mountExperience } from "./components/experience.ts";
+import { mountSiteAnalytics } from "./components/site-analytics.ts";
 import { initSiteInteractive } from "./interactive.js";
 import {
   initMotion,
@@ -82,6 +83,17 @@ function initViewportAutoplayVideos(root = document) {
     videos.forEach((video) => video.pause());
     nearViewport.clear();
   };
+}
+
+if (import.meta.env.PROD) {
+  mountSiteAnalytics({
+    root: document,
+    target: window,
+    config: {
+      cloudflareToken: import.meta.env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN,
+      clarityProjectId: import.meta.env.VITE_CLARITY_PROJECT_ID,
+    },
+  });
 }
 
 mountExpertise(document);
