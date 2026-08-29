@@ -1,0 +1,19 @@
+{
+  "experience": [
+    { "id": "jestei", "visible": true },
+    { "id": "styx", "visible": true },
+    { "id": "illumihand", "visible": false },
+    { "id": "madcow", "visible": true },
+    { "id": "sensetique", "visible": true },
+    { "id": "line", "visible": true },
+    { "id": "berry", "visible": false },
+    { "id": "ss", "visible": false },
+    { "id": "olovo", "visible": false },
+    { "id": "theatre", "visible": false },
+    { "id": "soroka", "visible": false },
+    { "id": "kursovoy", "visible": true },
+    { "id": "ran", "visible": false },
+    { "id": "progress", "visible": true },
+    { "id": "ria", "visible": true }
+  ]
+}
