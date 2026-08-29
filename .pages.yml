@@ -112,8 +112,12 @@ content:
             type: number
             required: true
             description: Фактическая ширина исходного WebP в пикселях. После замены обложки обязательно проверь значение.
+            options:
+              min: 1
           - name: height
             label: Высота
             type: number
             required: true
             description: Фактическая высота исходного WebP в пикселях. После замены обложки обязательно проверь значение.
+            options:
+              min: 1
