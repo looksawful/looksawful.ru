@@ -61,3 +61,13 @@ test("analytics script descriptors match the official provider endpoints", async
     },
   ]);
 });
+
+test("analytics is disabled on local preview hosts used by smoke tests", async () => {
+  const { isLocalAnalyticsHostname } = await loadAnalytics();
+  assert.equal(isLocalAnalyticsHostname("localhost"), true);
+  assert.equal(isLocalAnalyticsHostname("127.0.0.1"), true);
+  assert.equal(isLocalAnalyticsHostname("::1"), true);
+  assert.equal(isLocalAnalyticsHostname("preview.localhost"), true);
+  assert.equal(isLocalAnalyticsHostname("looksawful.ru"), false);
+  assert.equal(isLocalAnalyticsHostname("www.looksawful.ru"), false);
+});
