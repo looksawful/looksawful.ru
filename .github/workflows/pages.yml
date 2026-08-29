@@ -18,6 +18,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
+      VITE_CLARITY_PROJECT_ID: ${{ vars.CLARITY_PROJECT_ID }}
     steps:
       - name: Mark deployment pending
         uses: actions/github-script@v7
