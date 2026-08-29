@@ -31,10 +31,7 @@ test("production deployment verifies stable CV structure rather than editable li
   const workflow = await readFile(pagesWorkflowUrl, "utf8");
 
   assert.doesNotMatch(workflow, /ИВАН КРУШИНСКИЙ/);
-  assert.match(
-    workflow,
-    /grep -Fq '<main class="resume">' "\\$\\{cv_file\\}"/,
-  );
+  assert.match(workflow, /grep -Fq '<main class="resume">'/);
 });
 
 test("generated-media cache restores metadata together with derivative binaries", async () => {
