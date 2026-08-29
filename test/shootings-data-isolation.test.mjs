@@ -4,7 +4,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import test from "node:test";
 
 const protectedPresentationFiles = new Map([
-  ["index.html", "6ec87a42ce9a5844c6ca4e150ddc27f1ed310415"],
+  ["index.html", "0ca35b8d7e4bd84f7dfb5f4187661d53bffce9c6"],
   ["src/main.js", "0327b946b4166256774b735a982d695917321a2e"],
   ["src/styles/index.css", "f5b08fb3743e93747629476480f819cd69d5d3a9"],
   ["src/styles/base.css", "1be5205dcae1522e78ab9cfdc97699875d568f55"],
