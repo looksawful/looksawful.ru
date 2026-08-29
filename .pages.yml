@@ -9,6 +9,11 @@ content:
       create: false
       rename: false
       delete: false
+    actions:
+      - name: verify-project-cards
+        label: Проверить изменения
+        workflow: verify-pr.yml
+        ref: current
     fields:
       - name: id
         label: ID
