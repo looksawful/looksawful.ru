@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
+import sharp from "sharp";
+
 import { projects } from "../src/data/projects.ts";
 import { renderProjectCard } from "../src/templates/project-card.ts";
 
@@ -74,6 +76,23 @@ test("CMS project-card migration preserves rendered output exactly", () => {
 
 test("CMS project-card IDs remain the fixed routing contract", () => {
   assert.deepEqual(projects.map((project) => project.id), ["jestei", "styx", "sensetique", "shootings"]);
+});
+
+test("CMS project covers stay in the scoped WebP folder and metadata matches the real files", async () => {
+  for (const project of projects) {
+    assert.match(
+      project.cover.src,
+      /^\/media\/projects\/index\/[a-z0-9][a-z0-9-]*\.webp$/,
+      `${project.id} cover must use the CMS project-cover path`,
+    );
+
+    const fileUrl = new URL(`../public${project.cover.src}`, import.meta.url);
+    const metadata = await sharp(fileUrl).metadata();
+
+    assert.equal(metadata.format, "webp", `${project.id} cover must be WebP`);
+    assert.equal(metadata.width, project.cover.width, `${project.id} cover width metadata is stale`);
+    assert.equal(metadata.height, project.cover.height, `${project.id} cover height metadata is stale`);
+  }
 });
 
 test("Pages CMS keeps project-card identity and destructive operations locked", () => {
