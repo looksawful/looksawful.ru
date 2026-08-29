@@ -40,7 +40,11 @@ test("registry renders one isolated project root for every enabled entity page",
 
     assert.match(article, /^<article\b/);
     assert.match(article, new RegExp(`\\bid=["']${expectedRootId}["']`));
-    assert.equal((article.match(/<h1\b/g) ?? []).length, 1, `${page.id} must render exactly one h1`);
+    assert.equal(
+      (article.match(/<h1\b[^>]*class=["'][^"']*\bproject__title\b[^"']*["'][^>]*>/g) ?? []).length,
+      1,
+      `${page.id} must render exactly one project title h1`,
+    );
     assert.doesNotMatch(article, /<!-- [A-Z][A-Z0-9_]+ -->/, `${page.id} left unresolved build markers`);
 
     for (const otherRootId of allRootIds) {
