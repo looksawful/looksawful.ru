@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
 import { createSiteInputs, pagePathToEntryPath } from "../src/site/build/inputs.ts";
 
-const root = "/repo";
+const root = path.resolve(new URL("..", import.meta.url).pathname);
 
 test("page routes map to physical Vite HTML entry paths", () => {
   assert.equal(pagePathToEntryPath("/"), "index.html");
@@ -26,4 +27,8 @@ test("Vite inputs are derived from enabled managed pages and exclude public CV o
     "404.html",
   ]));
   assert.equal(relative.includes("cv/index.html"), false);
+
+  for (const input of Object.values(inputs)) {
+    assert.equal(existsSync(input), true, `missing physical Vite input ${input}`);
+  }
 });
