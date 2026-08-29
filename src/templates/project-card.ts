@@ -9,8 +9,9 @@ export interface ProjectCardRenderOptions {
 
 export function renderProjectCard(
   project: ProjectCardData,
-  options: ProjectCardRenderOptions = {},
+  optionsOrIndex: ProjectCardRenderOptions | number = {},
 ): string {
+  const options = typeof optionsOrIndex === "number" ? {} : optionsOrIndex;
   const href = options.href ?? getProjectCardHref(project.id);
 
   const ariaLabel = project.ariaLabel ?? `Перейти к проекту ${project.title}`;
