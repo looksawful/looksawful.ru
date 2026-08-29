@@ -25,12 +25,15 @@ test("before-after renderer preserves runtime selectors and controls", async () 
   assert.match(html, /Новый дизайн тарифов\./);
 });
 
-test("index and Vite render before-after through one slot", async () => {
+test("index and site composition render before-after through one slot", async () => {
   const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  const vite = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
+  const composition = await readFile(
+    new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
+    "utf8",
+  );
   const marker = "<!-- JESTEI_SUBSCRIPTION_BEFORE_AFTER -->";
 
   assert.equal(index.split(marker).length - 1, 1);
-  assert.equal(vite.split(marker).length - 1, 1);
-  assert.match(vite, /renderBeforeAfter/);
+  assert.equal(composition.split(marker).length - 1, 1);
+  assert.match(composition, /renderBeforeAfter/);
 });
