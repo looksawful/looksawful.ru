@@ -358,6 +358,67 @@ content:
                     label: Текст
                     type: text
                     required: true
+      - name: education
+        label: Образование
+        type: object
+        required: true
+        fields:
+          - name: higherTitle
+            label: Заголовок высшего образования
+            type: string
+            required: true
+          - name: higher
+            label: Высшее образование
+            type: object
+            required: true
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+                description: Стабильный технический ID записи. Ссылка и структура остаются в коде.
+              - name: name
+                label: Учебное заведение
+                type: string
+                required: true
+              - name: lines
+                label: Строки
+                type: string
+                required: true
+                list:
+                  min: 1
+          - name: additionalTitle
+            label: Заголовок дополнительного образования
+            type: string
+            required: true
+          - name: additional
+            label: Дополнительное образование
+            type: object
+            required: true
+            list:
+              min: 16
+              max: 16
+              collapsible:
+                collapsed: true
+                summary: "{name}"
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+                description: Стабильный технический ID курса. Ссылка и структура остаются в коде.
+              - name: name
+                label: Школа / автор
+                type: string
+                required: true
+              - name: lines
+                label: Курсы
+                type: string
+                required: true
+                list:
+                  min: 1
       - name: experience
         label: Опыт
         type: object
