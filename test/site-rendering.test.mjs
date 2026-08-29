@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { extractElementById } from "../src/site/rendering/html.ts";
+import {
+  extractElementById,
+  extractElementContainingMarker,
+} from "../src/site/rendering/html.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { jesteiIntro } from "../src/data/content/jestei-pool.ts";
 
@@ -14,6 +17,14 @@ test("balanced element extraction returns only the requested project article", (
   assert.match(article, /<!-- JESTEI_INTRO -->/);
   assert.doesNotMatch(article, /id="project-styx"/);
   assert.doesNotMatch(article, /id="project-sensetique"/);
+});
+
+test("marker-based extraction returns the complete hidden Project article only", () => {
+  const article = extractElementContainingMarker(indexHtml, "article", "<!-- AWFUL_CASES_INTRO -->");
+  assert.match(article, /^<article\b[^>]*hidden[^>]*>/);
+  assert.match(article, /<!-- AWFUL_CASES_INTRO -->/);
+  assert.match(article, /class="media mockup awful-cases-game"/);
+  assert.doesNotMatch(article, /<!-- MOVES_AWFUL_INTRO -->/);
 });
 
 test("project intro keeps homepage h2 by default and supports standalone h1", () => {
