@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { sitePages } from "../src/site/pages/manifest.ts";
+import { renderHomepage } from "../src/site/renderers/home/home-slots.ts";
 import { renderSiteNavigation } from "../src/site/shell/navigation.ts";
 
 const page = (id) => {
@@ -55,4 +57,17 @@ test("direct-link project receives a breadcrumb but is not promoted into the pri
   assert.match(html, /href="\/">Главная<\/a>/);
   assert.match(html, /aria-current="page"[^>]*>Awful Cases<\/span>/);
   assert.doesNotMatch(html, /href="\/work\/awful-cases\/"[^>]*>Awful Cases<\/a>/);
+});
+
+test("homepage build renders the same live global navigation instead of the legacy hidden Work nav", () => {
+  const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const html = renderHomepage(source);
+
+  assert.match(html, /data-site-navigation/);
+  assert.doesNotMatch(html, /data-site-navigation[^>]*hidden/);
+  assert.doesNotMatch(html, />Work<\/a>/);
+
+  for (const [label, href] of primaryDestinations) {
+    assert.match(html, new RegExp(`href=\\"${href.replaceAll("/", "\\/")}\\"[^>]*>${label}<`));
+  }
 });
