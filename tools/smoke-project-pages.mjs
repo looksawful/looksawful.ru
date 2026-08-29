@@ -99,6 +99,31 @@ async function verifyProjectPage(page, route, label) {
   assert(state.textLength > 20, `${label}: page is effectively blank`);
 }
 
+async function verifyProjectRuntime(page, route, label) {
+  if (route.entityId !== "moves-awful") return;
+
+  const gallery = page.locator("[data-animated-canvas-gallery]").first();
+  assert(await gallery.count(), `${label}: Moves canvas gallery is missing`);
+  await gallery.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+
+  const state = await gallery.evaluate((node) => {
+    const canvas = node.querySelector("canvas");
+    const rect = canvas?.getBoundingClientRect();
+    return {
+      galleryState: node.getAttribute("data-gallery-state") || "",
+      cssWidth: rect?.width ?? 0,
+      cssHeight: rect?.height ?? 0,
+      bitmapWidth: canvas instanceof HTMLCanvasElement ? canvas.width : 0,
+      bitmapHeight: canvas instanceof HTMLCanvasElement ? canvas.height : 0,
+    };
+  });
+
+  assert(state.galleryState !== "error", `${label}: Moves canvas gallery entered error state`);
+  assert(state.cssWidth > 2 && state.cssHeight > 2, `${label}: Moves canvas has zero CSS size\n${JSON.stringify(state)}`);
+  assert(state.bitmapWidth > 2 && state.bitmapHeight > 2, `${label}: Moves canvas has zero bitmap size\n${JSON.stringify(state)}`);
+}
+
 async function audit(browser, route, viewport) {
   const context = await browser.newContext({
     viewport,
@@ -135,6 +160,7 @@ async function audit(browser, route, viewport) {
     await page.evaluate(() => document.fonts?.ready);
     await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => {});
     await verifyProjectPage(page, route, label);
+    await verifyProjectRuntime(page, route, label);
 
     await page.reload({ waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.evaluate(() => document.fonts?.ready);
@@ -156,7 +182,7 @@ try {
       await audit(browser, route, viewport);
     }
   }
-  console.log(`[smoke-project-pages] OK: ${ROUTES.length} unlisted Project routes`);
+  console.log(`[smoke-project-pages] OK: ${ROUTES.length} unlisted Project routes with runtime health`);
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
