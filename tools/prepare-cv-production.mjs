@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import {
   readCvContent,
-  transformCvExperienceVisibility,
+  transformCvContent,
 } from "./lib/cv-content.mjs";
 
 const target = resolve(process.argv[2] ?? "dist/cv/index.html");
@@ -16,7 +16,7 @@ const [html, content] = await Promise.all([
   readCvContent(contentPath),
 ]);
 
-const result = transformCvExperienceVisibility(html, content, { removeHidden: true });
+const result = transformCvContent(html, content, { removeHidden: true });
 
 if (/<article\b(?=[^>]*\bclass=["'][^"']*\bexperience-card\b[^"']*["'])(?=[^>]*\bhidden(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)[^>]*>/i.test(result.html)) {
   throw new Error(`Hidden CV experience card remains in ${target}`);
@@ -24,5 +24,5 @@ if (/<article\b(?=[^>]*\bclass=["'][^"']*\bexperience-card\b[^"']*["'])(?=[^>]*\
 
 await writeFile(target, result.html, "utf8");
 console.log(
-  `Prepared production CV: removed ${result.removed} CMS-hidden experience card(s) from ${target}`,
+  `Prepared production CV: applied CMS profile and removed ${result.removed} CMS-hidden experience card(s) from ${target}`,
 );
