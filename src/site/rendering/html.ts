@@ -44,23 +44,13 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export function extractElementById(
+function extractBalancedElement(
   html: string,
   tagName: string,
-  id: string,
+  start: number,
+  label: string,
 ): string {
   const tag = escapeRegExp(tagName);
-  const targetId = escapeRegExp(id);
-  const opening = new RegExp(
-    `<${tag}\\b[^>]*\\bid=(?:"${targetId}"|'${targetId}')[^>]*>`,
-    "i",
-  );
-  const openingMatch = opening.exec(html);
-  if (!openingMatch || openingMatch.index === undefined) {
-    throw new Error(`Required <${tagName}>#${id} not found`);
-  }
-
-  const start = openingMatch.index;
   const tokenPattern = new RegExp(`<\\/?${tag}\\b[^>]*>`, "gi");
   tokenPattern.lastIndex = start;
   let depth = 0;
@@ -82,5 +72,61 @@ export function extractElementById(
     if (selfClosing) depth -= 1;
   }
 
-  throw new Error(`Unbalanced <${tagName}>#${id}`);
+  throw new Error(`Unbalanced <${tagName}> ${label}`);
+}
+
+export function extractElementById(
+  html: string,
+  tagName: string,
+  id: string,
+): string {
+  const tag = escapeRegExp(tagName);
+  const targetId = escapeRegExp(id);
+  const opening = new RegExp(
+    `<${tag}\\b[^>]*\\bid=(?:"${targetId}"|'${targetId}')[^>]*>`,
+    "i",
+  );
+  const openingMatch = opening.exec(html);
+  if (!openingMatch || openingMatch.index === undefined) {
+    throw new Error(`Required <${tagName}>#${id} not found`);
+  }
+
+  return extractBalancedElement(html, tagName, openingMatch.index, `#${id}`);
+}
+
+export function extractElementContainingMarker(
+  html: string,
+  tagName: string,
+  marker: string,
+): string {
+  const markerIndex = html.indexOf(marker);
+  if (markerIndex < 0) {
+    throw new Error(`Required HTML marker not found: ${marker}`);
+  }
+
+  const tag = escapeRegExp(tagName);
+  const openingPattern = new RegExp(`<${tag}\\b[^>]*>`, "gi");
+  let candidate: RegExpExecArray | null = null;
+  let match: RegExpExecArray | null;
+
+  while ((match = openingPattern.exec(html)) !== null) {
+    if (match.index > markerIndex) break;
+    candidate = match;
+  }
+
+  if (!candidate || candidate.index === undefined) {
+    throw new Error(`No <${tagName}> contains marker: ${marker}`);
+  }
+
+  const element = extractBalancedElement(
+    html,
+    tagName,
+    candidate.index,
+    `containing ${marker}`,
+  );
+  if (!element.includes(marker)) {
+    throw new Error(`Marker is not contained by the nearest <${tagName}>: ${marker}`);
+  }
+
+  return element;
 }
