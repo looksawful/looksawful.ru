@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { sitePages } from "../src/site/pages/manifest.ts";
-import { renderHomepage } from "../src/site/renderers/home/home-slots.ts";
+import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
 import { renderSiteNavigation } from "../src/site/shell/navigation.ts";
 
 const page = (id) => {
@@ -61,7 +61,7 @@ test("direct-link project receives a breadcrumb but is not promoted into the pri
 
 test("homepage build renders the same live global navigation instead of the legacy hidden Work nav", () => {
   const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
-  const html = renderHomepage(source);
+  const html = renderHomepagePage(source);
 
   assert.match(html, /data-site-navigation/);
   assert.doesNotMatch(html, /data-site-navigation[^>]*hidden/);
