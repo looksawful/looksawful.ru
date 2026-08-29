@@ -16,12 +16,12 @@ export function entryRequestToPagePath(requestPath: string): string {
   return pathname;
 }
 
-function renderNotFoundPage(page: NonNullable<ReturnType<typeof getPageByPath>>): string {
+export function renderNotFoundPage(page: NonNullable<ReturnType<typeof getPageByPath>>): string {
   return renderPageShell({
     page,
     title: "404 — Иван Крушинский",
     description: "Страница не найдена.",
-    content: '<section class="wrapper stack"><h1>404</h1></section>',
+    content: '<section class="wrapper stack"><h1>404</h1><p><a href="/">На главную</a></p></section>',
   });
 }
 
