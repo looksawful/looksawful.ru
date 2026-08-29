@@ -30,6 +30,37 @@ function setArticleHidden(article, hidden) {
   });
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function replaceExactlyOnce(html, pattern, replacer, label) {
+  const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
+  const matches = [...html.matchAll(new RegExp(pattern.source, flags))];
+  if (matches.length !== 1) {
+    throw new Error(`Expected exactly one ${label} in CV HTML; got ${matches.length}`);
+  }
+  return html.replace(pattern, replacer);
+}
+
+function replaceElementTextByClass(html, tagName, className, value) {
+  const pattern = new RegExp(
+    `(<${tagName}\\b(?=[^>]*\\bclass=["'][^"']*\\b${className}\\b[^"']*["'])[^>]*>)[\\s\\S]*?(<\\/${tagName}>)`,
+    "i",
+  );
+  return replaceExactlyOnce(
+    html,
+    pattern,
+    (_match, open, close) => `${open}${escapeHtml(value)}${close}`,
+    `.${className}`,
+  );
+}
+
 export async function readCvContent(contentPath) {
   const raw = await readFile(contentPath, "utf8");
   let parsed;
@@ -40,6 +71,46 @@ export async function readCvContent(contentPath) {
     throw new Error(`Invalid CV content JSON at ${contentPath}: ${message}`);
   }
   return parseCvContent(parsed);
+}
+
+export function transformCvProfile(html, content) {
+  const { profile } = content;
+  if (!profile) throw new Error("CV profile content is required");
+
+  let transformed = replaceElementTextByClass(html, "h1", "name", profile.name);
+  transformed = replaceElementTextByClass(transformed, "div", "role", profile.role);
+
+  const aboutPattern = /(<section\b(?=[^>]*\bclass=["'][^"']*\babout\b[^"']*["'])[^>]*>[\s\S]*?<div\b(?=[^>]*\bclass=["'][^"']*\burl\b[^"']*["'])[^>]*>[\s\S]*?<\/div>)<p>[\s\S]*?<\/p><p>[\s\S]*?<\/p>(<div\b(?=[^>]*\bclass=["'][^"']*\bsales\b[^"']*["'])[^>]*>)/i;
+  transformed = replaceExactlyOnce(
+    transformed,
+    aboutPattern,
+    (_match, prefix, salesOpen) => `${prefix}<p>${escapeHtml(profile.aboutPrimary)}</p><p>${escapeHtml(profile.aboutSecondary)}</p>${salesOpen}`,
+    "about copy block",
+  );
+
+  const salesPattern = /(<div\b(?=[^>]*\bclass=["'][^"']*\bsales\b[^"']*["'])[^>]*>)[\s\S]*?(<\/div>)/i;
+  const salesHtml = profile.principles
+    .map(({ title, text }) => `<p><b>${escapeHtml(title)}</b> ${escapeHtml(text)}</p>`)
+    .join("");
+  transformed = replaceExactlyOnce(
+    transformed,
+    salesPattern,
+    (_match, open, close) => `${open}${salesHtml}${close}`,
+    ".sales block",
+  );
+
+  const languagesPattern = /(<section\b(?=[^>]*\bclass=["'][^"']*\blangs\b[^"']*["'])[^>]*>[\s\S]*?<p>)[\s\S]*?(<\/p>[\s\S]*?<\/section>)/i;
+  const languagesHtml = profile.languages
+    .map(({ name, level }) => `<b>${escapeHtml(name)}</b> — ${escapeHtml(level)}`)
+    .join("<br/>");
+  transformed = replaceExactlyOnce(
+    transformed,
+    languagesPattern,
+    (_match, prefix, suffix) => `${prefix}${languagesHtml}${suffix}`,
+    ".langs copy block",
+  );
+
+  return transformed;
 }
 
 export function transformCvExperienceVisibility(html, content, options = {}) {
@@ -81,4 +152,9 @@ export function transformCvExperienceVisibility(html, content, options = {}) {
   }
 
   return Object.freeze({ html: transformed, hidden, removed });
+}
+
+export function transformCvContent(html, content, options = {}) {
+  const withProfile = transformCvProfile(html, content);
+  return transformCvExperienceVisibility(withProfile, content, options);
 }
