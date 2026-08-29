@@ -7,7 +7,6 @@ import { numberMediaCaptions } from "./components/media-caption-numbering.ts";
 import { createCodeBlocks } from "./components/code-block.ts";
 import { createPageFlips } from "./components/page-flip.ts";
 import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
-import { createJesteiThemeOrganisms } from "./components/jestei-theme-organism/jestei-theme-organism.js";
 import { mountExpertise } from "./components/expertise.ts";
 import { mountExperience } from "./components/experience.ts";
 import { mountSiteAnalytics } from "./components/site-analytics.ts";
@@ -106,6 +105,7 @@ mountExperience(document);
 
 const motion = createMotionPreference();
 const destroys = [];
+let destroyed = false;
 
 numberMediaCaptions(document);
 destroys.push(
@@ -118,14 +118,27 @@ destroys.push(
     root: document,
   }),
 );
-const jesteiThemeOrganisms = createJesteiThemeOrganisms({ root: document, motion });
-destroys.push(() => jesteiThemeOrganisms?.destroy());
 
-const canWarmJesteiThemeOrganism = window.matchMedia?.("(hover: hover) and (pointer: fine)").matches;
-if (canWarmJesteiThemeOrganism) {
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    void jesteiThemeOrganisms?.preload?.();
-  }));
+if (document.querySelector('[data-jestei-theme-organism][data-jestei-theme-instance="inline"]')) {
+  void import("./components/jestei-theme-organism/jestei-theme-organism.js")
+    .then(({ createJesteiThemeOrganisms }) => {
+      if (destroyed) return;
+
+      const jesteiThemeOrganisms = createJesteiThemeOrganisms({ root: document, motion });
+      if (!jesteiThemeOrganisms) return;
+
+      destroys.push(() => jesteiThemeOrganisms.destroy());
+
+      const canWarmJesteiThemeOrganism = window.matchMedia?.("(hover: hover) and (pointer: fine)").matches;
+      if (canWarmJesteiThemeOrganism) {
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          if (!destroyed) void jesteiThemeOrganisms.preload?.();
+        }));
+      }
+    })
+    .catch((error) => {
+      console.error("Jestei theme organism runtime failed to load.", error);
+    });
 }
 
 destroys.push(createMediaLightbox({ root: document }));
@@ -146,6 +159,7 @@ window.addEventListener("pagehide", (event) => {
     return;
   }
 
+  destroyed = true;
   destroys.splice(0).reverse().forEach((destroy) => destroy?.());
   motion.destroy();
 });
