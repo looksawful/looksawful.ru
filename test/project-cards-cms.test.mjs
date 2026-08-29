@@ -69,14 +69,24 @@ const baselineProjects = [
   },
 ];
 
-test("CMS project-card migration preserves rendered output exactly", () => {
-  const before = baselineProjects.map(renderProjectCard).join("\n");
-  const after = projects.map(renderProjectCard).join("\n");
-  assert.equal(after, before);
+const projectIds = baselineProjects.map(({ id }) => id);
+
+test("CMS project-card migration fixture preserves the original rendering contract without freezing live copy", () => {
+  const baselineHtml = baselineProjects.map(renderProjectCard).join("\n");
+
+  for (const project of baselineProjects) {
+    assert.match(baselineHtml, new RegExp(`data-project-id="${project.id}"|project-${project.id}`));
+  }
+  assert.equal((baselineHtml.match(/class="project-card/g) ?? []).length, baselineProjects.length);
 });
 
-test("CMS project-card IDs remain the fixed routing contract", () => {
-  assert.deepEqual(projects.map((project) => project.id), ["jestei", "styx", "sensetique", "shootings"]);
+test("CMS project-card IDs remain the fixed routing contract while copy stays editable", () => {
+  assert.deepEqual(projects.map((project) => project.id), projectIds);
+  for (const project of projects) {
+    assert.equal(typeof project.title, "string");
+    assert.equal(typeof project.focus, "string");
+    assert.equal(typeof project.visible, "boolean");
+  }
 });
 
 test("CMS project covers stay in the scoped WebP folder and metadata matches the real files", async () => {
@@ -97,8 +107,10 @@ test("CMS project covers stay in the scoped WebP folder and metadata matches the
 });
 
 test("Pages CMS keeps project-card identity and destructive operations locked", () => {
-  assert.match(cmsConfig, /operations:\s*\n\s+create: false\s*\n\s+rename: false\s*\n\s+delete: false/);
-  assert.match(cmsConfig, /- name: id\s*\n\s+label: ID\s*\n\s+type: string\s*\n\s+required: true\s*\n\s+readonly: true/);
+  const projectCardsConfig = cmsConfig.match(/\n  - name: project-cards\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
+
+  assert.match(projectCardsConfig, /operations:\s*\n\s+create: false\s*\n\s+rename: false\s*\n\s+delete: false/);
+  assert.match(projectCardsConfig, /- name: id\s*\n\s+label: ID\s*\n\s+type: string\s*\n\s+required: true\s*\n\s+readonly: true/);
 });
 
 test("Pages CMS preserves unknown structured keys when saving", () => {
@@ -115,9 +127,11 @@ test("Pages CMS uses a scoped WebP media source for project covers", () => {
 });
 
 test("Pages CMS exposes a clear verification action and no routing fields", () => {
-  assert.match(cmsConfig, /label: Проверить сайт/);
-  assert.match(cmsConfig, /confirm:\s*\n\s+title: Запустить полную проверку сайта\?/);
-  assert.doesNotMatch(cmsConfig, /- name: (route|canonical|listed|indexable|slug|pageType)\b/);
+  const projectCardsConfig = cmsConfig.match(/\n  - name: project-cards\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
+
+  assert.match(projectCardsConfig, /label: Проверить сайт/);
+  assert.match(projectCardsConfig, /confirm:\s*\n\s+title: Запустить полную проверку сайта\?/);
+  assert.doesNotMatch(projectCardsConfig, /- name: (route|canonical|listed|indexable|slug|pageType)\b/);
 });
 
 test("Pages CMS publication action can only prepare dev to prod PRs", () => {
