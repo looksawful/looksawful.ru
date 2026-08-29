@@ -109,7 +109,7 @@ jobs:
               && grep -Eq 'href="/assets/[^"]+\.css"' "${index_file}" \
               && grep -Eq 'src="/assets/[^"]+\.js"' "${index_file}" \
               && ! grep -Eq '\./src/[^"]+\.(css|js)' "${index_file}" \
-              && grep -Eq 'class="[^"]*resume[^"]*"' "${cv_file}" \
+              && grep -Fq '<main class="resume">' "${cv_file}" \
               && ! grep -Eqi '<article[^>]*class="[^"]*experience-card[^"]*"[^>]*hidden|<article[^>]*hidden[^>]*class="[^"]*experience-card' "${cv_file}"; then
               printf '%s\n' "$body"
               rm -f "${index_file}" "${cv_file}"
