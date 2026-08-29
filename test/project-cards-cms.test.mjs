@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import sharp from "sharp";
 
@@ -86,8 +87,8 @@ test("CMS project covers stay in the scoped WebP folder and metadata matches the
       `${project.id} cover must use the CMS project-cover path`,
     );
 
-    const fileUrl = new URL(`../public${project.cover.src}`, import.meta.url);
-    const metadata = await sharp(fileUrl).metadata();
+    const filePath = fileURLToPath(new URL(`../public${project.cover.src}`, import.meta.url));
+    const metadata = await sharp(filePath).metadata();
 
     assert.equal(metadata.format, "webp", `${project.id} cover must be WebP`);
     assert.equal(metadata.width, project.cover.width, `${project.id} cover width metadata is stale`);
