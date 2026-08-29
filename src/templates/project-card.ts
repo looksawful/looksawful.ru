@@ -1,5 +1,6 @@
 import type { ProjectCardData } from "../data/projects.ts";
 import { renderRevealAttribute } from "../motion-contract.ts";
+import { getProjectCardHref } from "../site/pages/project-card-routes.ts";
 import { escapeHtml } from "../utils/html.ts";
 
 export interface ProjectCardRenderOptions {
@@ -10,7 +11,7 @@ export function renderProjectCard(
   project: ProjectCardData,
   options: ProjectCardRenderOptions = {},
 ): string {
-  const href = options.href ?? `#project-${project.id}`;
+  const href = options.href ?? getProjectCardHref(project.id);
 
   const ariaLabel = project.ariaLabel ?? `Перейти к проекту ${project.title}`;
 
