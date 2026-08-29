@@ -127,6 +127,41 @@ content:
             options:
               min: 1
 
+  - name: client-logo-visibility
+    label: Логотипы клиентов
+    type: file
+    path: src/content/client-logo-visibility.json
+    format: json
+    list: true
+    operations:
+      create: false
+      rename: false
+      delete: false
+    commit:
+      templates:
+        update: "content(cms): update client logo visibility"
+    actions:
+      - name: verify-client-logos
+        label: Проверить сайт
+        workflow: verify-pr.yml
+        ref: current
+        confirm:
+          title: Запустить полную проверку сайта?
+          message: Будут проверены данные, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
+          button: Проверить
+    fields:
+      - name: id
+        label: ID
+        type: string
+        required: true
+        readonly: true
+        description: Стабильный технический ID логотипа. Название и файл логотипа остаются в коде.
+      - name: visible
+        label: Показывать
+        type: boolean
+        required: true
+        description: Управляет только отображением этого логотипа в блоке клиентов на главной.
+
   - name: cv
     label: Резюме
     type: file
