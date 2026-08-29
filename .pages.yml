@@ -65,6 +65,11 @@ content:
         required: true
         readonly: true
         description: Служебный идентификатор карточки и часть стабильного routing-контракта. Не изменяется через CMS.
+      - name: visible
+        label: Показывать на главной
+        type: boolean
+        required: true
+        description: Управляет только наличием карточки на главной. Маршрут и отдельная страница проекта остаются доступными.
       - name: title
         label: Название
         type: string
