@@ -10,6 +10,48 @@ export const CV_PRINCIPLE_IDS = [
 
 export const CV_LANGUAGE_IDS = ["english", "czech"] as const;
 
+export const CV_SKILL_SECTION_IDS = ["hard", "tech", "soft", "tools"] as const;
+
+export const CV_SKILL_ROW_IDS = {
+  hard: [
+    "identity",
+    "direction",
+    "product",
+    "communications",
+    "motion",
+    "graphic",
+    "generative",
+    "production",
+  ],
+  tech: [
+    "code",
+    "graphics",
+    "design-systems",
+    "color",
+    "automation",
+    "generative",
+  ],
+  soft: [
+    "leader",
+    "researcher",
+    "teacher",
+    "negotiator",
+    "multitasking",
+    "responsible",
+  ],
+  tools: [
+    "design",
+    "code",
+    "tests",
+    "audio",
+    "color",
+    "shootings",
+    "editing",
+    "ai",
+    "utilities",
+  ],
+} as const;
+
 export const CV_EXPERIENCE_IDS = [
   "jestei",
   "styx",
@@ -30,6 +72,8 @@ export const CV_EXPERIENCE_IDS = [
 
 export type CvPrincipleId = (typeof CV_PRINCIPLE_IDS)[number];
 export type CvLanguageId = (typeof CV_LANGUAGE_IDS)[number];
+export type CvSkillSectionId = (typeof CV_SKILL_SECTION_IDS)[number];
+export type CvSkillRowId = (typeof CV_SKILL_ROW_IDS)[CvSkillSectionId][number];
 export type CvExperienceId = (typeof CV_EXPERIENCE_IDS)[number];
 
 export interface CvProfilePrinciple {
@@ -53,6 +97,24 @@ export interface CvProfileData {
   languages: readonly CvLanguage[];
 }
 
+export interface CvSkillRowData {
+  id: CvSkillRowId;
+  label: string;
+  text: string;
+}
+
+export interface CvSkillSectionData {
+  title: string;
+  rows: readonly CvSkillRowData[];
+}
+
+export interface CvSkillsData {
+  hard: CvSkillSectionData;
+  tech: CvSkillSectionData;
+  soft: CvSkillSectionData;
+  tools: CvSkillSectionData;
+}
+
 export interface CvExperienceVisibility {
   id: CvExperienceId;
   visible: boolean;
@@ -60,6 +122,7 @@ export interface CvExperienceVisibility {
 
 export interface CvContentData {
   profile: CvProfileData;
+  skills: CvSkillsData;
   experience: readonly CvExperienceVisibility[];
 }
 
@@ -200,6 +263,81 @@ function parseProfile(value: unknown): CvProfileData {
   });
 }
 
+function parseSkillRow(
+  value: unknown,
+  index: number,
+  sectionId: CvSkillSectionId,
+): CvSkillRowData {
+  const label = `cv.skills.${sectionId}.rows[${index}]`;
+  if (!isRecord(value)) throw new Error(`${label} must be an object`);
+
+  const idValue = requireNonEmptyString(value, "id", label);
+  const expectedIds: readonly string[] = CV_SKILL_ROW_IDS[sectionId];
+  if (!expectedIds.includes(idValue)) {
+    throw new Error(`unexpected CV ${sectionId} row id: ${idValue}`);
+  }
+  const id = expectedIds.find((candidate) => candidate === idValue) as CvSkillRowId | undefined;
+  if (!id) throw new Error(`unexpected CV ${sectionId} row id: ${idValue}`);
+
+  return {
+    id,
+    label: requireNonEmptyString(value, "label", label),
+    text: requireNonEmptyString(value, "text", label),
+  };
+}
+
+function parseSkillSection(
+  value: unknown,
+  sectionId: CvSkillSectionId,
+): CvSkillSectionData {
+  const label = `cv.skills.${sectionId}`;
+  if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  if (!Array.isArray(value.rows)) throw new Error(`${label}.rows must be an array`);
+
+  const expectedIds: readonly string[] = CV_SKILL_ROW_IDS[sectionId];
+  const parsed = value.rows.map((row, index) => parseSkillRow(row, index, sectionId));
+  const byId = new Map<string, CvSkillRowData>();
+
+  for (const row of parsed) {
+    if (byId.has(row.id)) {
+      throw new Error(`duplicate CV ${sectionId} row id: ${row.id}`);
+    }
+    byId.set(row.id, row);
+  }
+
+  for (const expectedId of expectedIds) {
+    if (!byId.has(expectedId)) {
+      throw new Error(`missing required CV ${sectionId} row id: ${expectedId}`);
+    }
+  }
+
+  if (parsed.length !== expectedIds.length) {
+    throw new Error(
+      `CV ${sectionId} row count must remain ${expectedIds.length}; got ${parsed.length}`,
+    );
+  }
+
+  return Object.freeze({
+    title: requireNonEmptyString(value, "title", label),
+    rows: Object.freeze(expectedIds.map((id) => {
+      const row = byId.get(id);
+      if (!row) throw new Error(`missing required CV ${sectionId} row id: ${id}`);
+      return Object.freeze({ ...row });
+    })),
+  });
+}
+
+function parseSkills(value: unknown): CvSkillsData {
+  if (!isRecord(value)) throw new Error("cv.skills must be an object");
+
+  return Object.freeze({
+    hard: parseSkillSection(value.hard, "hard"),
+    tech: parseSkillSection(value.tech, "tech"),
+    soft: parseSkillSection(value.soft, "soft"),
+    tools: parseSkillSection(value.tools, "tools"),
+  });
+}
+
 function parseExperience(value: unknown, index: number): CvExperienceVisibility {
   const label = `cv.experience[${index}]`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
@@ -255,6 +393,7 @@ export function parseCvContent(value: unknown): CvContentData {
 
   return Object.freeze({
     profile: parseProfile(value.profile),
+    skills: parseSkills(value.skills),
     experience: parseExperienceList(value.experience),
   });
 }
