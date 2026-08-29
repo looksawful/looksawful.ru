@@ -1,5 +1,9 @@
 import { readFile } from "node:fs/promises";
-import { parseCvContent } from "../../src/data/cv.ts";
+import {
+  CV_EDUCATION_COURSE_IDS,
+  CV_EDUCATION_LINKS,
+  parseCvContent,
+} from "../../src/data/cv.ts";
 
 const experienceArticlePattern = /<article\b([^>]*)>[\s\S]*?<\/article>/gi;
 const hiddenAttributePattern = /\s+hidden(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi;
@@ -168,6 +172,81 @@ export function transformCvSkills(html, content) {
   return transformed;
 }
 
+function transformEducationCourse(courseHtml, entry, expectedHref) {
+  const anchorPattern = /(<b><a\b([^>]*)>)[\s\S]*?(<\/a><\/b>)([\s\S]*)/i;
+  const match = courseHtml.match(anchorPattern);
+  if (!match) {
+    throw new Error(`CV education ${entry.id} link markup is missing`);
+  }
+
+  const [, anchorOpen, attrs, anchorClose] = match;
+  const href = attrs.match(/\bhref=["']([^"']+)["']/i)?.[1] ?? null;
+  if (href !== expectedHref) {
+    throw new Error(
+      `CV education ${entry.id} href drift: expected ${expectedHref}; got ${href ?? "missing"}`,
+    );
+  }
+
+  return `${anchorOpen}${escapeHtml(entry.name)}${anchorClose}\n${entry.lines.map(escapeHtml).join("<br/>")}`;
+}
+
+export function transformCvEducation(html, content) {
+  const { education } = content;
+  if (!education) throw new Error("CV education content is required");
+
+  const sectionPattern = /(<section\b(?=[^>]*\bclass=["'][^"']*\beducation\b[^"']*["'])[^>]*>)([\s\S]*?)(<\/section>)/i;
+  return replaceExactlyOnce(
+    html,
+    sectionPattern,
+    (_match, open, inner, close) => {
+      const titlePattern = /(<h2\b(?=[^>]*\bclass=["'][^"']*\bcluster-title\b[^"']*["'])[^>]*>)[\s\S]*?(<\/h2>)/gi;
+      const titles = [...inner.matchAll(titlePattern)];
+      if (titles.length !== 2) {
+        throw new Error(`CV education cluster-title count must remain 2; got ${titles.length}`);
+      }
+
+      let titleIndex = 0;
+      const titleValues = [education.higherTitle, education.additionalTitle];
+      let transformedInner = inner.replace(
+        titlePattern,
+        (_title, titleOpen, titleClose) => {
+          const value = titleValues[titleIndex];
+          titleIndex += 1;
+          return `${titleOpen}${escapeHtml(value)}${titleClose}`;
+        },
+      );
+
+      const coursePattern = /(<div\b(?=[^>]*\bclass=["'][^"']*\bcourse\b[^"']*["'])[^>]*>)([\s\S]*?)(<\/div>)/gi;
+      const courses = [...transformedInner.matchAll(coursePattern)];
+      const entries = [education.higher, ...education.additional];
+      const ids = ["mpgu", ...CV_EDUCATION_COURSE_IDS];
+      if (courses.length !== entries.length) {
+        throw new Error(
+          `CV education course count must remain ${entries.length}; got ${courses.length}`,
+        );
+      }
+
+      let courseIndex = 0;
+      transformedInner = transformedInner.replace(
+        coursePattern,
+        (_course, courseOpen, courseInner, courseClose) => {
+          const entry = entries[courseIndex];
+          const id = ids[courseIndex];
+          courseIndex += 1;
+          if (!entry || entry.id !== id) {
+            throw new Error(`CV education course identity drift at index ${courseIndex - 1}`);
+          }
+          const expectedHref = CV_EDUCATION_LINKS[id];
+          return `${courseOpen}${transformEducationCourse(courseInner, entry, expectedHref)}${courseClose}`;
+        },
+      );
+
+      return `${open}${transformedInner}${close}`;
+    },
+    ".education section",
+  );
+}
+
 export function transformCvExperienceVisibility(html, content, options = {}) {
   const { removeHidden = false } = options;
   const visibility = new Map(
@@ -212,5 +291,6 @@ export function transformCvExperienceVisibility(html, content, options = {}) {
 export function transformCvContent(html, content, options = {}) {
   const withProfile = transformCvProfile(html, content);
   const withSkills = transformCvSkills(withProfile, content);
-  return transformCvExperienceVisibility(withSkills, content, options);
+  const withEducation = transformCvEducation(withSkills, content);
+  return transformCvExperienceVisibility(withEducation, content, options);
 }
