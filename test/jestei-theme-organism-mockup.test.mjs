@@ -114,12 +114,15 @@ test("Jestei theme organism mockup keeps the internal moving copy visible", asyn
   assert.match(css, /grid-template-columns:\s*minmax\(0, 1fr\) minmax\(16rem, 0[.]42fr\)/);
 });
 
-test("Jestei brand section and Vite pipeline render the theme organism slot", async () => {
+test("Jestei brand section and site composition render the theme organism slot", async () => {
   const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  const vite = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
+  const composition = await readFile(
+    new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
+    "utf8",
+  );
 
   assert.equal((index.match(/<!-- JESTEI_THEME_ORGANISM_MOCKUP -->/g) ?? []).length, 1);
   assert.match(index, /id="jestei-brand"[\s\S]*<!-- JESTEI_THEME_ORGANISM_MOCKUP -->[\s\S]*<!-- JESTEI_BRAND_SYSTEM_GROUP -->/);
-  assert.match(vite, /jesteiThemeOrganismMockup/);
-  assert.match(vite, /renderJesteiThemeOrganismMockup\(jesteiThemeOrganismMockup\)/);
+  assert.match(composition, /jesteiThemeOrganismMockup/);
+  assert.match(composition, /renderJesteiThemeOrganismMockup\(jesteiThemeOrganismMockup\)/);
 });

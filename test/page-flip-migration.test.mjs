@@ -32,12 +32,15 @@ test("page-flip renderer preserves the existing runtime contract", async () => {
   assert.doesNotMatch(html, /(?:width|height)="[0-9]+"/);
 });
 
-test("index and Vite use a single page-flip slot", async () => {
+test("index and site composition use a single page-flip slot", async () => {
   const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  const vite = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
+  const composition = await readFile(
+    new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
+    "utf8",
+  );
   const marker = "<!-- SENSETIQUE_DIGITAL_FEAR_PAGE_FLIP -->";
 
   assert.equal(index.split(marker).length - 1, 1);
-  assert.equal(vite.split(marker).length - 1, 1);
-  assert.match(vite, /renderPageFlip/);
+  assert.equal(composition.split(marker).length - 1, 1);
+  assert.match(composition, /renderPageFlip/);
 });

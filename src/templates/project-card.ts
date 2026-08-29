@@ -1,9 +1,18 @@
 import type { ProjectCardData } from "../data/projects.ts";
 import { renderRevealAttribute } from "../motion-contract.ts";
+import { getProjectCardHref } from "../site/pages/project-card-routes.ts";
 import { escapeHtml } from "../utils/html.ts";
 
-export function renderProjectCard(project: ProjectCardData): string {
-  const href = `#project-${project.id}`;
+export interface ProjectCardRenderOptions {
+  href?: string;
+}
+
+export function renderProjectCard(
+  project: ProjectCardData,
+  optionsOrIndex: ProjectCardRenderOptions | number = {},
+): string {
+  const options = typeof optionsOrIndex === "number" ? {} : optionsOrIndex;
+  const href = options.href ?? getProjectCardHref(project.id);
 
   const ariaLabel = project.ariaLabel ?? `Перейти к проекту ${project.title}`;
 

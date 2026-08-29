@@ -41,9 +41,12 @@ test("mobile-device deck preserves phone shell and slide attributes", async () =
   assert.doesNotMatch(html, /slider-controls/);
 });
 
-test("index and Vite render both image-only mockup decks through slots", async () => {
+test("index and site composition render both image-only mockup decks through slots", async () => {
   const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  const vite = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
+  const composition = await readFile(
+    new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
+    "utf8",
+  );
   const markers = [
     "<!-- STYX_SOCIAL_INSTRUCTION_MOCKUP_DECK -->",
     "<!-- SANDS_FEATURE_MOCKUP_DECK -->",
@@ -51,7 +54,7 @@ test("index and Vite render both image-only mockup decks through slots", async (
 
   for (const marker of markers) {
     assert.equal(index.split(marker).length - 1, 1, marker);
-    assert.equal(vite.split(marker).length - 1, 1, marker);
+    assert.equal(composition.split(marker).length - 1, 1, marker);
   }
-  assert.match(vite, /renderMockupDeck/);
+  assert.match(composition, /renderMockupDeck/);
 });

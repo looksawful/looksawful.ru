@@ -1,0 +1,53 @@
+name: Verify site architecture
+
+on:
+  pull_request:
+    branches:
+      - prod
+    paths:
+      - ".github/workflows/verify-site-architecture.yml"
+      - "src/site/**"
+      - "src/templates/project-intro.ts"
+      - "vite.config.ts"
+      - "index.html"
+      - "work/**"
+      - "shootings/**"
+      - "404.html"
+      - "tools/**"
+      - "test/site-*.test.mjs"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-architecture-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Site contracts
+        shell: bash
+        run: |
+          mapfile -d '' tests < <(find test -maxdepth 1 -type f -name 'site-*.test.mjs' -print0 | sort -z)
+          if (( ${#tests[@]} == 0 )); then
+            echo "No site contract tests found" >&2
+            exit 1
+          fi
+          node --test "${tests[@]}"

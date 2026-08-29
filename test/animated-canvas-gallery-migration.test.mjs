@@ -51,7 +51,7 @@ test("animated canvas gallery renderer supports production fallback and moves JS
   assert.match(moves, /"src": "\/media\/projects\/shootings\/01\/source\/02-2x3\.webp"/);
 });
 
-test("production canvas decks and Moves gallery are typed content and use Vite slots", async () => {
+test("production canvas decks and Moves gallery are typed content and use composition slots", async () => {
   const styx = await import("../src/data/content/styx.ts");
   const sensetique = await import("../src/data/content/sensetique.ts");
   const moves = await import("../src/data/content/moves-awful.ts");
@@ -61,7 +61,10 @@ test("production canvas decks and Moves gallery are typed content and use Vite s
   assert.notEqual(moves.movesAwfulCanvasGallery, undefined);
 
   const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  const vite = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
+  const composition = await readFile(
+    new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
+    "utf8",
+  );
   const slots = [
     "STYX_PRODUCTION_MOCKUP_DECK",
     "SENSETIQUE_STUDIO_MOCKUP_DECK",
@@ -71,10 +74,10 @@ test("production canvas decks and Moves gallery are typed content and use Vite s
   for (const slot of slots) {
     const marker = `<!-- ${slot} -->`;
     assert.equal(index.split(marker).length - 1, 1, marker);
-    assert.equal(vite.split(marker).length - 1, 1, marker);
+    assert.equal(composition.split(marker).length - 1, 1, marker);
   }
 
-  assert.match(vite, /renderAnimatedCanvasGallery/);
-  assert.match(vite, /renderMockupDeck\(styxProductionMockupDeck\)/);
-  assert.match(vite, /renderMockupDeck\(sensetiqueStudioMockupDeck\)/);
+  assert.match(composition, /renderAnimatedCanvasGallery/);
+  assert.match(composition, /renderMockupDeck\(styxProductionMockupDeck\)/);
+  assert.match(composition, /renderMockupDeck\(sensetiqueStudioMockupDeck\)/);
 });

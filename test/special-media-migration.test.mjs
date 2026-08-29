@@ -48,15 +48,17 @@ test("index uses one production slot for every migrated special media component"
   }
 });
 
-
-test("vite template plugin renders every migrated special media slot", async () => {
-  const vite = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
+test("site composition renders every migrated special media slot", async () => {
+  const composition = await readFile(
+    new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
+    "utf8",
+  );
 
   for (const slot of expectedSlots) {
     const marker = `<!-- ${slot} -->`;
-    assert.equal(vite.split(marker).length - 1, 1, marker);
+    assert.equal(composition.split(marker).length - 1, 1, marker);
   }
 
-  assert.match(vite, /renderMediaSlider/);
-  assert.match(vite, /renderJustifiedGallery/);
+  assert.match(composition, /renderMediaSlider/);
+  assert.match(composition, /renderJustifiedGallery/);
 });

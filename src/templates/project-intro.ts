@@ -14,6 +14,10 @@ import type { LogoFileData, LogoUsageData } from "../types/logo.ts";
 import { renderRevealAttribute, renderRevealGroupAttribute } from "../motion-contract.ts";
 import { escapeHtml } from "../utils/html.ts";
 
+export interface ProjectIntroRenderOptions {
+  headingLevel?: 1 | 2;
+}
+
 function getLogoUsage(id: LogoUsageId): LogoUsageData<LogoFileId> {
   const usage = logoUsages.find((candidate) => candidate.id === id);
 
@@ -115,7 +119,10 @@ function renderLinks(data: ProjectIntroData<LogoUsageId>): string {
   `;
 }
 
-export function renderProjectIntro(data: ProjectIntroData<LogoUsageId>): string {
+export function renderProjectIntro(
+  data: ProjectIntroData<LogoUsageId>,
+  options: ProjectIntroRenderOptions = {},
+): string {
   const role = data.role ? `<p class="project__role"${renderRevealAttribute("copy")}>${escapeHtml(data.role)}</p>` : "";
 
   const period = data.period ? `<p class="project__period"${renderRevealAttribute("copy")}>${escapeHtml(data.period)}</p>` : "";
@@ -123,6 +130,7 @@ export function renderProjectIntro(data: ProjectIntroData<LogoUsageId>): string 
   const summary = data.summary ? `<p class="project__summary"${renderRevealAttribute("copy")}>${escapeHtml(data.summary)}</p>` : "";
 
   const lead = data.lead ? `<p class="project__lead"${renderRevealAttribute("copy")}>${escapeHtml(data.lead)}</p>` : "";
+  const headingTag = options.headingLevel === 1 ? "h1" : "h2";
 
   return `
     <div class="project__head"${renderRevealGroupAttribute()}>
@@ -132,9 +140,9 @@ export function renderProjectIntro(data: ProjectIntroData<LogoUsageId>): string 
     </div>
 
     <header class="project__intro wrapper prose editorial-grid"${renderRevealGroupAttribute()}>
-      <h2 class="project__title"${renderRevealAttribute("copy")}>
+      <${headingTag} class="project__title"${renderRevealAttribute("copy")}>
         ${renderTitle(data.title)}
-      </h2>
+      </${headingTag}>
 
       ${summary}
       ${lead}

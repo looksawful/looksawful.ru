@@ -29,10 +29,11 @@ test("Jestei Event is typed content and uses registry-backed Moves Awful media",
 
 test("raw index has one Jestei Event slot and no direct project media after migration", async () => {
   const index = await read("index.html");
-  const vite = await read("vite.config.ts");
+  const composition = await read("src/site/renderers/home/home-slots.ts");
 
   assert.equal((index.match(/<!-- JESTEI_EVENT_GROUP -->/g) ?? []).length, 1);
-  assert.match(vite, /JESTEI_EVENT_GROUP/);
+  assert.match(composition, /JESTEI_EVENT_GROUP/);
+  assert.match(composition, /renderMediaGroup\(jesteiEventGroup\)/);
   assert.doesNotMatch(index, /shared\/moves-awful/);
   assert.doesNotMatch(index, /(?:src|poster)="\.\/media\/projects\//);
 });
