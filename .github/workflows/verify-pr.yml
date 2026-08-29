@@ -3,8 +3,6 @@ name: Verify changes
 on:
   pull_request:
     branches: [prod, dev]
-  push:
-    branches: [infra/post-seo-foundation-v2]
   workflow_dispatch:
     inputs:
       payload:
