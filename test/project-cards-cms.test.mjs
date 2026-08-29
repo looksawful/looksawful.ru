@@ -6,6 +6,10 @@ import { projects } from "../src/data/projects.ts";
 import { renderProjectCard } from "../src/templates/project-card.ts";
 
 const cmsConfig = readFileSync(new URL("../.pages.yml", import.meta.url), "utf8");
+const publishWorkflow = readFileSync(
+  new URL("../.github/workflows/pages-cms-publish.yml", import.meta.url),
+  "utf8",
+);
 
 const baselineProjects = [
   {
@@ -77,6 +81,10 @@ test("Pages CMS keeps project-card identity and destructive operations locked", 
   assert.match(cmsConfig, /- name: id\s*\n\s+label: ID\s*\n\s+type: string\s*\n\s+required: true\s*\n\s+readonly: true/);
 });
 
+test("Pages CMS preserves unknown structured keys when saving", () => {
+  assert.match(cmsConfig, /settings:\s*\n\s+content:\s*\n\s+merge: true/);
+});
+
 test("Pages CMS uses a scoped WebP media source for project covers", () => {
   assert.match(cmsConfig, /media:\s*\n\s+- name: project-covers/);
   assert.match(cmsConfig, /input: public\/media\/projects\/index/);
@@ -90,4 +98,16 @@ test("Pages CMS exposes a clear verification action and no routing fields", () =
   assert.match(cmsConfig, /label: Проверить сайт/);
   assert.match(cmsConfig, /confirm:\s*\n\s+title: Запустить полную проверку сайта\?/);
   assert.doesNotMatch(cmsConfig, /- name: (route|canonical|listed|indexable|slug|pageType)\b/);
+});
+
+test("Pages CMS publication action can only prepare dev to prod PRs", () => {
+  assert.match(cmsConfig, /name: prepare-publication/);
+  assert.match(cmsConfig, /label: Подготовить публикацию/);
+  assert.match(cmsConfig, /workflow: pages-cms-publish\.yml/);
+  assert.match(publishWorkflow, /source_ref.*!=.*dev/s);
+  assert.match(publishWorkflow, /WORKFLOW_REF.*!=.*dev/s);
+  assert.match(publishWorkflow, /compare\/prod\.\.\.dev/);
+  assert.match(publishWorkflow, /--base prod/);
+  assert.match(publishWorkflow, /--head dev/);
+  assert.doesNotMatch(publishWorkflow, /gh pr merge|enable.*auto.?merge|merge_pull_request/i);
 });
