@@ -3,13 +3,13 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import test from "node:test";
 
+import { sitePages } from "../src/site/pages/manifest.ts";
+
 const protectedPresentationFiles = new Map([
-  ["index.html", "6ec87a42ce9a5844c6ca4e150ddc27f1ed310415"],
   ["src/main.js", "0327b946b4166256774b735a982d695917321a2e"],
   ["src/styles/index.css", "f5b08fb3743e93747629476480f819cd69d5d3a9"],
   ["src/styles/base.css", "1be5205dcae1522e78ab9cfdc97699875d568f55"],
   ["src/styles/tokens.css", "09b571fe9dcb2ab9485cc610295e8fb134c44c68"],
-  ["vite.config.ts", "1fbdd4788730d0b8a6bf700e31ca4c824eb330d9"],
   ["src/data/projects.ts", "c3afd491a0a1060f3ddad078d0d7b686958cf3aa"],
   ["src/templates/project-card.ts", "655fcf61e195a9e06d805f6fb33ed0bed3d9342c"],
   ["src/data/content/jestei-pool.ts", "baa15cc8b278fc87ed0fdba5673bf85e85d37c44"],
@@ -46,9 +46,9 @@ function countWebpFiles(path) {
   return count;
 }
 
-test("shootings archive data is available without changing the current presentation contract", () => {
+test("shootings archive data stays isolated while the Collection route becomes deployable", () => {
   for (const [path, expectedSha] of protectedPresentationFiles) {
-    assert.equal(gitBlobSha(path), expectedSha, `${path} must stay byte-identical to current prod`);
+    assert.equal(gitBlobSha(path), expectedSha, `${path} must stay byte-identical to the protected presentation`);
   }
 
   for (const path of requiredArchiveFiles) {
@@ -61,7 +61,16 @@ test("shootings archive data is available without changing the current presentat
     "all 80 imported Behance WebP assets must be present",
   );
 
-  assert.equal(existsSync("shootings/index.html"), false, "the new shootings page must not be deployed yet");
+  assert.equal(existsSync("shootings/index.html"), true, "the Collection route must have a physical Vite input");
+  const shootingsPage = sitePages.find((page) => page.id === "collection:music-photography");
+  assert.ok(shootingsPage);
+  assert.equal(shootingsPage.type, "collection");
+  assert.equal(shootingsPage.path, "/shootings/");
+
+  const indexSource = readFileSync("index.html", "utf8");
+  assert.match(indexSource, /id="project-shootings"/);
+  assert.match(indexSource, /<!-- SHOOTINGS_INTRO -->/);
+  assert.doesNotMatch(indexSource, /\/media\/projects\/shootings\/behance\//);
 
   const projectsSource = readFileSync("src/data/projects.ts", "utf8");
   assert.doesNotMatch(projectsSource, /href:\s*["']\/shootings\//);
@@ -70,5 +79,7 @@ test("shootings archive data is available without changing the current presentat
   assert.doesNotMatch(stylesIndex, /subproject-cards\.css/);
 
   const viteSource = readFileSync("vite.config.ts", "utf8");
-  assert.doesNotMatch(viteSource, /SHOOTING_CARD_GROUPS|PET_PROJECT_CARDS|shootings:\s*["']shootings\/index\.html/);
+  assert.match(viteSource, /createSiteInputs/);
+  assert.match(viteSource, /createSitePagesPlugin/);
+  assert.doesNotMatch(viteSource, /SHOOTING_CARD_GROUPS|PET_PROJECT_CARDS/);
 });
