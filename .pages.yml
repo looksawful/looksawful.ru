@@ -35,6 +35,13 @@ actions:
       message: Создаст или найдёт pull request из dev в prod. Сайт не будет опубликован автоматически.
       button: Подготовить
 
+  - name: blog-images
+    label: Blog images
+    input: public/media/blog
+    output: /media/blog
+    extensions: [webp]
+    rename: safe
+
 content:
   - name: navigation-labels
     label: Навигация
@@ -516,3 +523,110 @@ content:
             type: boolean
             required: true
             description: Управляет видимостью этой карточки опыта. В production скрытые карточки физически удаляются из HTML.
+  - name: blog
+    label: Блог
+    type: collection
+    path: src/content/blog
+    format: yaml-frontmatter
+    filename:
+      template: "{primary}.md"
+      field: create
+    operations:
+      create: true
+      rename: false
+      delete: false
+    view:
+      primary: title
+      fields: [kind, published, publishedAt]
+      sort: publishedAt
+      order: desc
+    fields:
+      - name: title
+        label: Заголовок
+        type: string
+        required: true
+      - name: summary
+        label: Краткое описание
+        type: text
+        required: true
+      - name: kind
+        label: Тип
+        type: select
+        required: true
+        options:
+          values:
+            - value: tool
+              label: Инструмент
+            - value: course
+              label: Курс
+            - value: tutorial
+              label: Урок
+            - value: note
+              label: Заметка
+      - name: published
+        label: Опубликовано
+        type: boolean
+        default: false
+      - name: publishedAt
+        label: Дата публикации
+        type: date
+        required: true
+      - name: updatedAt
+        label: Дата обновления
+        type: date
+        required: false
+      - name: featured
+        label: Избранное
+        type: boolean
+        default: false
+      - name: tags
+        label: Теги
+        type: string
+        list: true
+      - name: cover
+        label: Обложка
+        type: object
+        required: false
+        fields:
+          - name: src
+            label: Изображение
+            type: image
+            options:
+              media: blog-images
+          - name: alt
+            label: Alt-текст
+            type: string
+          - name: width
+            label: Ширина, px
+            type: number
+          - name: height
+            label: Высота, px
+            type: number
+      - name: sourceName
+        label: Название ресурса
+        type: string
+        required: false
+      - name: externalUrl
+        label: Внешняя ссылка
+        type: string
+        required: false
+      - name: video
+        label: YouTube
+        type: object
+        required: false
+        fields:
+          - name: provider
+            label: Провайдер
+            type: select
+            options:
+              values: [youtube]
+          - name: id
+            label: YouTube ID
+            type: string
+          - name: title
+            label: Название видео
+            type: string
+      - name: body
+        label: Текст
+        type: rich-text
+        required: true
