@@ -1,6 +1,18 @@
+import { access } from "node:fs/promises";
+
 import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
 function assert(condition, message) { if (!condition) throw new Error(message); }
+
+async function fileExists(url) {
+  try {
+    await access(url);
+    return true;
+  } catch (error) {
+    if (error?.code === "ENOENT") return false;
+    throw error;
+  }
+}
 
 async function verifyVideoRuntime(page) {
   await page.route("https://www.youtube-nocookie.com/**", (route) => route.fulfill({
@@ -98,11 +110,9 @@ async function auditIndex(browser, baseUrl, width, height) {
 export async function runSmokeBlog({ browser, baseUrl }) {
   await auditIndex(browser, baseUrl, 390, 844);
   await auditIndex(browser, baseUrl, 1440, 900);
-  const context = await browser.newContext();
-  try {
-    const response = await context.request.get(`${baseUrl}/blog/definitely-not-authored/`);
-    assert(response.status() === 404, `draft/unknown blog route must be absent, got ${response.status()}`);
-  } finally { await context.close(); }
+
+  const unknownEntry = new URL("../dist/blog/definitely-not-authored/index.html", import.meta.url);
+  assert(!(await fileExists(unknownEntry)), "draft/unknown blog route must not produce a deployable HTML entry");
 }
 
 if (isDirectExecution(import.meta.url)) await withE2ERuntime(({ browser, baseUrl }) => runSmokeBlog({ browser, baseUrl }));
