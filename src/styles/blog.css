@@ -189,7 +189,18 @@
   .blog-prose a { overflow-wrap: anywhere; text-decoration-thickness: from-font; text-underline-offset: 0.16em; }
   .blog-prose blockquote { margin-inline: 0; border-inline-start: var(--border-width-200) solid var(--clr-border-strong); padding-inline-start: var(--size-300); font-size: var(--fs-500); font-style: italic; }
   .blog-prose hr { border: 0; border-block-start: var(--blog-rule); margin-block: var(--size-600); }
-  .blog-prose > img { inline-size: 100%; block-size: auto; margin-block: var(--size-400); border-radius: var(--radius-poster); }
+
+  .blog-figure { margin-block: var(--size-400); }
+  .blog-figure img { inline-size: 100%; block-size: auto; border-radius: var(--radius-poster); }
+
+  .blog-table {
+    max-inline-size: 100%;
+    margin-block: var(--size-400);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+  .blog-table:focus-visible { outline: var(--border-width-200) solid var(--clr-border-strong); outline-offset: var(--size-100); }
+
   .blog-prose :not(pre) > code { border-block-end: var(--blog-rule); font-family: var(--ff-mono); font-size: 0.88em; }
   .blog-prose table { inline-size: 100%; border-collapse: collapse; font-family: var(--ff-primary); font-size: var(--fs-300); }
   .blog-prose :is(th, td) { border-block-end: var(--blog-rule); padding: var(--size-200) var(--size-300) var(--size-200) 0; text-align: start; vertical-align: top; }
