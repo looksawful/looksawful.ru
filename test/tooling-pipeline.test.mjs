@@ -74,3 +74,32 @@ test("standalone core/build/e2e debugging scripts remain available", () => {
     requireScript(name);
   }
 });
+
+test("combined browser smoke uses one shared runtime while individual suites stay directly runnable", async () => {
+  const runtimePath = new URL("../tools/e2e/runtime.mjs", import.meta.url);
+  const runAllPath = new URL("../tools/e2e/run-all.mjs", import.meta.url);
+  const runtime = await readFile(runtimePath, "utf8");
+  const runAll = await readFile(runAllPath, "utf8");
+
+  assert.match(runtime, /export\s+async\s+function\s+withE2ERuntime/);
+  assert.match(runtime, /vite\/bin\/vite\.js/);
+  assert.match(runtime, /chromium\.launch/);
+  assert.match(runtime, /--strictPort/);
+  assert.match(runAll, /withE2ERuntime/);
+
+  const suites = [
+    ["smoke-site.mjs", "runSmokeSite"],
+    ["smoke-site-navigation.mjs", "runSmokeNavigation"],
+    ["smoke-mpa.mjs", "runSmokeMpa"],
+    ["smoke-project-pages.mjs", "runSmokeProjectPages"],
+    ["smoke-cv.mjs", "runSmokeCv"],
+  ];
+
+  for (const [fileName, exportName] of suites) {
+    const source = await readFile(new URL(`../tools/${fileName}`, import.meta.url), "utf8");
+    assert.match(source, new RegExp(`export\\s+async\\s+function\\s+${exportName}`), `${fileName} must export ${exportName}`);
+    assert.match(source, /withE2ERuntime/, `${fileName} must use the shared runtime only for direct execution`);
+    assert.match(source, /isDirectExecution/, `${fileName} must guard its standalone wrapper`);
+    assert.doesNotMatch(source, /const\s+server\s*=\s*spawn\(/, `${fileName} must not own a preview server`);
+  }
+});
