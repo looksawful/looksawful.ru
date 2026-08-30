@@ -1,14 +1,15 @@
 import type { MockupData, ProjectIntroData } from "../../types/content.ts";
 import type { MediaEntryId } from "../media/index.ts";
 import type { LogoUsageId } from "../logos/index.ts";
+import { berryEditorialContent } from "./berry-editorial.ts";
 
 export const berryIntro = {
-  head: { type: "text", text: "Berry Agency" },
-  title: { type: "text", text: "Berry Agency" },
-  role: "СММ",
-  period: "2020",
-  summary: "Московское модельное агентство, которое занимается подбором моделей, организацией кастингов, созданием модельных портфолио, а также проведением фото- и видеосъёмок.",
-  lead: "Работал фотографом и SMM-специалистом агентства, составлял контент-план, создавал дизайн постов, укомплектовал студию агентства оборудованием, снимал модельные тесты, коммерческие и эдиториал-фотосъёмки.",
+  head: { type: "text", text: berryEditorialContent.head },
+  title: { type: "text", text: berryEditorialContent.title },
+  role: berryEditorialContent.role,
+  period: berryEditorialContent.period,
+  summary: berryEditorialContent.summary,
+  lead: berryEditorialContent.lead,
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
 export const berryStoryMockups = [
