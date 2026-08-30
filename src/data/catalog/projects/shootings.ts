@@ -1,4 +1,22 @@
 import type { ProjectData } from "../../../types/project.ts";
+import { getShootingEditorialRecord } from "../../content/shootings-editorial.ts";
+
+const obladaetEditorial = getShootingEditorialRecord("shootings-obladaet");
+const evashaEditorial = getShootingEditorialRecord("shootings-evasha");
+const igguanaEditorial = getShootingEditorialRecord("shootings-igguana");
+const esmiEditorial = getShootingEditorialRecord("shootings-esmi");
+const hypressionEditorial = getShootingEditorialRecord("shootings-hypression");
+const ofeliaEditorial = getShootingEditorialRecord("shootings-ofelia");
+const berryModelTestsEditorial = getShootingEditorialRecord("shootings-berry-model-tests");
+const berryEditorialEditorial = getShootingEditorialRecord("shootings-berry-editorial");
+const berryLookbookEditorial = getShootingEditorialRecord("shootings-berry-lookbook");
+const berryProductEditorial = getShootingEditorialRecord("shootings-berry-product");
+const ecobasikEditorial = getShootingEditorialRecord("shootings-behance-ecobasik");
+const offmiEditorial = getShootingEditorialRecord("shootings-behance-offmi");
+const cinemaStillsEditorial = getShootingEditorialRecord("shootings-behance-cinema-stills-2");
+const ankaModelTestsEditorial = getShootingEditorialRecord("shootings-behance-anka-model-tests");
+const chooseYourCharacterEditorial = getShootingEditorialRecord("shootings-behance-choose-your-character");
+const editorialPhotographyEditorial = getShootingEditorialRecord("shootings-behance-editorial-photography");
 
 const musicPhotographyBase = {
   status: "completed",
@@ -10,7 +28,6 @@ const musicPhotographyBase = {
 
 const berryPhotographyBase = {
   status: "completed",
-  date: "2020",
   clientIds: ["berry-agency"],
   engagementIds: ["berry-agency-2020"],
   primaryRoleId: "photographer",
@@ -29,100 +46,104 @@ export const shootingsProjects = [
   {
     ...musicPhotographyBase,
     id: "shootings-obladaet",
-    name: "Obladaet",
-    date: "2020–2022",
+    name: obladaetEditorial.title,
+    date: obladaetEditorial.date,
     clientIds: ["obladaet"],
     roleIds: ["photographer", "digital-artist"],
   },
   {
     ...musicPhotographyBase,
     id: "shootings-evasha",
-    name: "Evasha",
-    date: "2025",
+    name: evashaEditorial.title,
+    date: evashaEditorial.date,
     clientIds: ["evasha", "vk-music"],
     roleIds: ["photographer", "digital-artist"],
   },
   {
     ...musicPhotographyBase,
     id: "shootings-igguana",
-    name: "Igguana",
-    date: "2023",
+    name: igguanaEditorial.title,
+    date: igguanaEditorial.date,
     clientIds: ["igguana"],
     roleIds: ["photographer", "digital-artist"],
   },
   {
     ...musicPhotographyBase,
     id: "shootings-esmi",
-    name: "ESMI",
-    date: "2025",
+    name: esmiEditorial.title,
+    date: esmiEditorial.date,
     clientIds: ["esmi", "vk-music"],
     roleIds: ["photographer"],
   },
   {
     ...musicPhotographyBase,
     id: "shootings-hypression",
-    name: "HYPRESSION",
-    date: "2023",
+    name: hypressionEditorial.title,
+    date: hypressionEditorial.date,
     clientIds: ["hypression"],
     roleIds: ["photographer", "digital-artist"],
   },
   {
     ...musicPhotographyBase,
     id: "shootings-ofelia",
-    name: "Ofelia",
-    date: "2023",
+    name: ofeliaEditorial.title,
+    date: ofeliaEditorial.date,
     clientIds: ["ofelia"],
     roleIds: ["photographer"],
   },
   {
     ...berryPhotographyBase,
     id: "shootings-berry-model-tests",
-    name: "Berry Agency — модельные тесты",
+    name: berryModelTestsEditorial.title,
+    date: berryModelTestsEditorial.date,
   },
   {
     ...berryPhotographyBase,
     id: "shootings-berry-editorial",
-    name: "Berry Agency — эдиториал с моделью агентства",
+    name: berryEditorialEditorial.title,
+    date: berryEditorialEditorial.date,
   },
   {
     ...berryPhotographyBase,
     id: "shootings-berry-lookbook",
-    name: "Berry Agency — лукбук",
+    name: berryLookbookEditorial.title,
+    date: berryLookbookEditorial.date,
   },
   {
     ...berryPhotographyBase,
     id: "shootings-berry-product",
-    name: "Berry Agency — предметная съёмка для бренда подарков",
+    name: berryProductEditorial.title,
+    date: berryProductEditorial.date,
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-ecobasik",
-    name: "Lookbook for Ecobasik",
+    name: ecobasikEditorial.title,
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-offmi",
-    name: "Offmi",
+    name: offmiEditorial.title,
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-cinema-stills-2",
-    name: "CINEMA STILLS 2",
+    name: cinemaStillsEditorial.title,
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-anka-model-tests",
-    name: "Anka model tests",
+    name: ankaModelTestsEditorial.title,
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-choose-your-character",
-    name: "Choose your character",
+    name: chooseYourCharacterEditorial.title,
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-editorial-photography",
-    name: "Editorial photography",
+    name: editorialPhotographyEditorial.title,
   },
 ] as const satisfies readonly ProjectData[];
 

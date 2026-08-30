@@ -3,24 +3,32 @@ import type { MediaFigureData } from "../../types/media-presentation.ts";
 import type { MediaGroupData } from "../../types/media-group.ts";
 import type { MediaEntryId } from "../media/index.ts";
 import type { LogoUsageId } from "../logos/index.ts";
+import { getShootingEditorialRecord, shootingsOverview } from "./shootings-editorial.ts";
+
+const shootingsObladaetEditorial = getShootingEditorialRecord("shootings-obladaet");
+const shootingsEvashaEditorial = getShootingEditorialRecord("shootings-evasha");
+const shootingsIgguanaEditorial = getShootingEditorialRecord("shootings-igguana");
+const shootingsEsmiEditorial = getShootingEditorialRecord("shootings-esmi");
+const shootingsHypressionEditorial = getShootingEditorialRecord("shootings-hypression");
+const shootingsOfeliaEditorial = getShootingEditorialRecord("shootings-ofelia");
 
 export const shootingsIntro = {
-  head: { type: "text", text: "Shootings" },
-  title: { type: "text", text: "Shootings" },
-  role: "Фотограф",
-  summary: "С 2017 года снимаю и продюсирую контент для музыкантов, музыкальных лейблов и брендов одежды, делаю обложки и публикую авторские работы в российских и европейских fashion- и арт-изданиях.",
-  lead: "Ниже — мои фотографии, съёмки, которые я продюсировал, заказные микс-медиа из моих фотографий и снимков других авторов, а также дизайн на основе моих кадров — мой и других дизайнеров.",
+  head: { type: "text", text: shootingsOverview.head },
+  title: { type: "text", text: shootingsOverview.title },
+  role: shootingsOverview.role,
+  summary: shootingsOverview.summary,
+  lead: shootingsOverview.lead,
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
-export const shootingsObladaetIntro = { title: "Obladaet", paragraphs: ["В 2020–2022 годах снимал для Obladaet портреты и делал коллажи, обложки и микс-медиа."] } as const satisfies SectionIntroData;
-export const shootingsEvashaIntro = { title: "Evasha", paragraphs: ["В 2025 году снял серию портретов для Evasha и ВК Музыки и сделал обложки и микс-медиа."] } as const satisfies SectionIntroData;
+export const shootingsObladaetIntro = { title: shootingsObladaetEditorial.title, paragraphs: [shootingsObladaetEditorial.description] } as const satisfies SectionIntroData;
+export const shootingsEvashaIntro = { title: shootingsEvashaEditorial.title, paragraphs: [shootingsEvashaEditorial.description] } as const satisfies SectionIntroData;
 export const shootingsEvashaBanner = { entryId: "evasha-05-source-01-1x1-use-02", presentation: "banner", captionView: "summary", loading: "lazy" } as const satisfies MediaFigureData<MediaEntryId>;
-export const shootingsIgguanaIntro = { title: "Igguana", paragraphs: ["Обложка и серия микс-медиа работ для Igguana, 2023."] } as const satisfies SectionIntroData;
-export const shootingsEsmiIntro = { title: "ESMI", paragraphs: ["Фотография для обложки Esmi, 2025."] } as const satisfies SectionIntroData;
+export const shootingsIgguanaIntro = { title: shootingsIgguanaEditorial.title, paragraphs: [shootingsIgguanaEditorial.description] } as const satisfies SectionIntroData;
+export const shootingsEsmiIntro = { title: shootingsEsmiEditorial.title, paragraphs: [shootingsEsmiEditorial.description] } as const satisfies SectionIntroData;
 export const shootingsEsmiBanner = { entryId: "esmi-12-source-01-1x1-use-02", presentation: "banner", captionView: "summary", loading: "lazy" } as const satisfies MediaFigureData<MediaEntryId>;
-export const shootingsHypressionIntro = { title: "HYPRESSION", paragraphs: ["Фотографии, коллажи и микс-медиа для HYPRESSION, 2023."] } as const satisfies SectionIntroData;
+export const shootingsHypressionIntro = { title: shootingsHypressionEditorial.title, paragraphs: [shootingsHypressionEditorial.description] } as const satisfies SectionIntroData;
 export const shootingsHypressionBanner = { entryId: "hypression-14-source-01-5x4-use-02", presentation: "banner", captionView: "lightbox-only", loading: "lazy" } as const satisfies MediaFigureData<MediaEntryId>;
-export const shootingsOfeliaIntro = { title: "Ofelia", paragraphs: ["Серия фотографий для спектакля Ofelia, 2023."] } as const satisfies SectionIntroData;
+export const shootingsOfeliaIntro = { title: shootingsOfeliaEditorial.title, paragraphs: [shootingsOfeliaEditorial.description] } as const satisfies SectionIntroData;
 
 
 export const shootingsObladaetPortraitsGroup = {
