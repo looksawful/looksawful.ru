@@ -1,0 +1,45 @@
+name: Temporary CV contacts codemod
+
+on:
+  push:
+    branches: [feat/cms-cv-contacts]
+    paths:
+      - tools/tmp-apply-cv-contacts.mjs
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/cms-cv-contacts
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Apply exact codemod
+        run: node tools/tmp-apply-cv-contacts.mjs
+      - name: Verify only expected files changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only | sort)"
+          expected="$(printf '%s\n' '.pages.yml' 'src/content/cv.json' 'src/data/cv.ts' 'test/cv-profile-cms.test.mjs' 'tools/lib/cv-content.mjs' | sort)"
+          printf 'Changed files:\n%s\n' "$changed"
+          test "$changed" = "$expected"
+          git diff --check
+      - name: Run focused tests
+        run: node --test test/cv-contacts-cms.test.mjs test/cv-profile-cms.test.mjs
+      - name: Commit implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .pages.yml src/content/cv.json src/data/cv.ts test/cv-profile-cms.test.mjs tools/lib/cv-content.mjs
+          git commit -m "feat(cms): make CV contacts editable"
+          git push origin HEAD:feat/cms-cv-contacts
