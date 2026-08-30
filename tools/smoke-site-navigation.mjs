@@ -18,6 +18,7 @@ const PRIMARY_LINKS = [
   ["case:styx", "/work/styx/"],
   ["case:sensetique", "/work/sensetique/"],
   ["collection:music-photography", "/shootings/"],
+  ["blog", "/blog/"],
   ["cv", "/cv/"],
 ].map(([id, href]) => [requireLabel(id), href]);
 
@@ -29,6 +30,7 @@ const CASES = [
   ["/work/styx/", requireLabel("case:styx"), 390, 844],
   ["/work/sensetique/", requireLabel("case:sensetique"), 390, 844],
   ["/shootings/", requireLabel("collection:music-photography"), 390, 844],
+  ["/blog/", requireLabel("blog"), 390, 844],
   ["/work/jestei-pool/", requireLabel("case:jestei-pool"), 1440, 900],
 ];
 
