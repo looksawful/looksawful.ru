@@ -12,6 +12,7 @@ const adapterPath = "src/data/content/berry-editorial.ts";
 
 const clone = (value) => structuredClone(value);
 
+// RED contract: storage and adapter are intentionally required before implementation exists.
 test("Berry standalone Project has a strict CMS-owned editorial source", async () => {
   assert.equal(existsSync(contentPath), true, `${contentPath} must exist`);
   assert.equal(existsSync(adapterPath), true, `${adapterPath} must exist`);
@@ -92,7 +93,6 @@ test("Pages CMS exposes Berry copy without route, discovery, taxonomy or media c
   for (const forbidden of [
     "id",
     "route",
-    "path",
     "href",
     "listed",
     "indexable",
@@ -107,7 +107,6 @@ test("Pages CMS exposes Berry copy without route, discovery, taxonomy or media c
     "captionView",
     "layout",
   ]) {
-    if (forbidden === "path") continue;
     assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
   }
 
