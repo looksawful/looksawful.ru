@@ -24,6 +24,13 @@ function isSafeBlogImageHref(href: string): boolean {
   return withoutQuery.startsWith("/media/blog/") && withoutQuery.toLowerCase().endsWith(".webp");
 }
 
+function decorateBlogMarkdownHtml(html: string): string {
+  return html
+    .replace(/<p>(<img\b[^>]*>)<\/p>/g, '<figure class="blog-figure">$1</figure>')
+    .replace(/<table>/g, '<div class="blog-table" tabindex="0"><table>')
+    .replace(/<\/table>/g, "</table></div>");
+}
+
 const blogMarkdown = new Marked({
   gfm: true,
   breaks: false,
@@ -61,5 +68,5 @@ blogMarkdown.use({
 export function renderBlogMarkdown(markdown: string): string {
   const html = blogMarkdown.parse(markdown, { async: false });
   if (typeof html !== "string") fail("renderer returned an unexpected async result");
-  return html;
+  return decorateBlogMarkdownHtml(html);
 }
