@@ -3,11 +3,22 @@ import { escapeHtml } from "../../utils/html.ts";
 import { renderPageMetadata } from "./metadata.ts";
 import { renderSiteNavigation } from "./navigation.ts";
 
+export interface PageAssets {
+  readonly stylesheet: string;
+  readonly script: string;
+}
+
+export const DEFAULT_PAGE_ASSETS: PageAssets = Object.freeze({
+  stylesheet: "/src/styles/index.css",
+  script: "/src/main.js",
+});
+
 export interface PageShellOptions {
   page: SitePageDefinition;
   title: string;
   description: string;
   content: string;
+  assets?: PageAssets;
 }
 
 function renderBodyAttributes(page: SitePageDefinition): string {
@@ -23,11 +34,17 @@ function renderBodyAttributes(page: SitePageDefinition): string {
   return attributes.join(" ");
 }
 
+function renderPageAssets(assets: PageAssets): string {
+  return `<link href="${escapeHtml(assets.stylesheet)}" rel="stylesheet">
+    <script src="${escapeHtml(assets.script)}" type="module"></script>`;
+}
+
 export function renderPageShell({
   page,
   title,
   description,
   content,
+  assets = DEFAULT_PAGE_ASSETS,
 }: PageShellOptions): string {
   return `<!DOCTYPE html>
 <html lang="ru">
@@ -36,8 +53,7 @@ export function renderPageShell({
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     ${renderPageMetadata({ page, title, description })}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link href="/src/styles/index.css" rel="stylesheet">
-    <script src="/src/main.js" type="module"></script>
+    ${renderPageAssets(assets)}
   </head>
   <body ${renderBodyAttributes(page)}>
     ${renderSiteNavigation(page)}
