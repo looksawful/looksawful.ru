@@ -60,11 +60,14 @@ src/content/projects.json
 src/content/cases/*.json
 src/content/collections/shootings.json
 src/content/shootings/*.json
+src/content/standalone-projects/*.json
 src/content/client-logo-visibility.json
 src/content/cv.json
 ```
 
-This includes navigation labels, the four homepage cards, validated editorial copy for Jestei Pool / Styx / Sensetique, the Shootings overview and existing shooting records, client-logo visibility and CV content.
+This includes navigation labels, the four homepage cards, validated editorial copy for Jestei Pool / Styx / Sensetique, the Shootings overview and existing shooting records, selected standalone Project copy, client-logo visibility and CV content.
+
+The initial standalone Project slice contains Berry Agency, Awful Cases and Moves Awful. For these projects CMS owns only the explicitly exposed editorial fields. Their routes, direct-link/noindex state, taxonomy, links, media identity, canvas/video runtime and visual composition remain code-owned.
 
 Create, rename and delete are disabled for fixed records. Stable IDs, routes, renderer selection, taxonomy relationships, visual composition and media identity remain code-owned. This protects the card-to-route and record-to-presentation contracts.
 
@@ -382,19 +385,16 @@ IndexNow can be evaluated later. Do not add it during unrelated CMS work.
 
 ## 20. Expanding the CMS later
 
-The current CMS is intentionally a pilot/editor for homepage cards.
+The CMS now covers the first safe slices of homepage cards, Cases, Shootings and standalone Projects. Expansion remains contract-first rather than directory-wide.
 
-Future expansion should happen only after the relevant content model has a stable typed contract.
+Completed safe slices:
 
-Recommended order:
+1. homepage cards;
+2. Jestei Pool / Styx / Sensetique editorial copy;
+3. Shootings overview and existing text records;
+4. Berry Agency / Awful Cases / Moves Awful standalone Project copy.
 
-1. homepage cards — current stage;
-2. one Case as a content-model pilot;
-3. remaining Cases;
-4. Shootings collection records — current safe text-record slice;
-5. standalone Project content;
-6. carefully selected global site data;
-7. SEO fields only where editorial control is genuinely useful.
+Future expansion should happen only after the relevant content model has a stable typed consumer and preservation tests.
 
 Do not move the canonical domain catalog wholesale into CMS.
 
