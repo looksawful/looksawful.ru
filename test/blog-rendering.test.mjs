@@ -33,21 +33,23 @@ test("blog index renders an editorial progressively-enhanced feed with isolated 
   assert.match(html, /data-blog-kind="tool"/);
   assert.match(html, /data-blog-search=/);
   assert.match(html, /data-blog-filter-kind="all"/);
-  assert.match(html, /role="group" aria-label="Тип материала"/);
   assert.match(html, /<label[^>]+for="blog-search"/);
   assert.match(html, /\/src\/styles\/blog-entry\.css/);
   assert.match(html, /\/src\/blog\.ts/);
   assert.doesNotMatch(html, /\/src\/main\.js/);
 });
 
-test("blog article renders semantic metadata, safe editorial Markdown media and BlogPosting SEO", () => {
+test("blog filter controls expose a semantic labelled group", () => {
+  const html = renderBlogIndexPage(blogIndexPage, [fixture]);
+  assert.match(html, /role="group" aria-label="Тип материала"/);
+});
+
+test("blog article renders metadata, video fallback and BlogPosting SEO", () => {
   const html = renderBlogPostPage(fixture);
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1);
   assert.match(html, /<article class="blog-post"/);
   assert.match(html, /<time datetime="2026-08-30"/);
   assert.match(html, /<h2>Heading<\/h2>/);
-  assert.match(html, /<figure class="blog-figure"><img src="\/media\/blog\/inline\.webp" alt="Inline visual"><\/figure>/);
-  assert.match(html, /<div class="blog-table" tabindex="0"><table>/);
   assert.match(html, /data-blog-video/);
   assert.match(html, /youtube\.com\/watch\?v=dQw4w9WgXcQ/);
   assert.doesNotMatch(html, /<iframe/);
@@ -55,4 +57,15 @@ test("blog article renders semantic metadata, safe editorial Markdown media and 
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /"@type":"BlogPosting"/);
   assert.match(html, /rel="canonical" href="https:\/\/www\.looksawful\.ru\/blog\/test-tool\/"/);
+});
+
+test("blog Markdown images render as editorial figures", () => {
+  const html = renderBlogPostPage(fixture);
+  assert.match(html, /<figure class="blog-figure"><img src="\/media\/blog\/inline\.webp" alt="Inline visual"><\/figure>/);
+});
+
+test("blog Markdown tables render inside a keyboard-scrollable wrapper", () => {
+  const html = renderBlogPostPage(fixture);
+  assert.match(html, /<div class="blog-table" tabindex="0"><table>/);
+  assert.match(html, /<\/table><\/div>/);
 });
