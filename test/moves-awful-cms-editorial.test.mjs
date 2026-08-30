@@ -131,7 +131,7 @@ test("Moves Awful CMS leaves media, canvas runtime, route and discovery code-own
         "ofelia-19-source-01-4x5-use-01",
         "ofelia-19-source-03-1553x2135-use-01",
         "obladaet-04-source-01-4x5-use-01",
-        "obldaet-03-source-03-1129x1280-use-01",
+        "obladaet-03-source-03-1129x1280-use-01",
         "evasha-10-source-02-2x3-use-01",
         "hypression-17-source-01-4x5-use-01",
         "evasha-08-source-01-99x140-use-01",
