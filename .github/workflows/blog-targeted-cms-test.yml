@@ -1,0 +1,30 @@
+name: Blog targeted CMS contract test
+
+on:
+  push:
+    branches:
+      - feat/blog-v1-editorial
+    paths:
+      - .github/workflows/blog-targeted-cms-test.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/blog-v1-editorial
+          fetch-depth: 1
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Run blog CMS contract test
+        run: node --test test/blog-integration-contract.test.mjs
