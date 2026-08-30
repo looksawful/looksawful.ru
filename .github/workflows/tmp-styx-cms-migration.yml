@@ -1,0 +1,43 @@
+name: Temporary Styx CMS migration
+
+on:
+  push:
+    branches:
+      - feat/cms-styx-editorial-copy
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/cms-styx-editorial-copy
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Apply exact Styx editorial migration
+        run: node tools/tmp-apply-styx-cms.mjs
+      - name: Verify migration diff scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          mapfile -t changed < <(git diff --name-only)
+          printf '%s\n' "${changed[@]}"
+          [[ "${#changed[@]}" -eq 2 ]]
+          [[ " ${changed[*]} " == *" .pages.yml "* ]]
+          [[ " ${changed[*]} " == *" src/data/content/styx.ts "* ]]
+      - name: Commit deterministic migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .pages.yml src/data/content/styx.ts
+          git commit -m "feat(cms): migrate Styx editorial copy"
+          git push origin HEAD:feat/cms-styx-editorial-copy
