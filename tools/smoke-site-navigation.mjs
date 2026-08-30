@@ -26,7 +26,7 @@ const PRIMARY_LINKS = [
   ["cv", "/cv/"],
 ].map(([id, href]) => [requireLabel(id), href]);
 
-const LONG_UNBROKEN_LABEL = `CMS-${"navigation-label".repeat(24)}`;
+const LONG_UNBROKEN_LABEL = `CMS${"navigationlabel".repeat(32)}`;
 
 const CASES = [
   ["/", requireLabel("home"), 390, 844],
