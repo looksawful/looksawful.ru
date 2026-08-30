@@ -12,8 +12,19 @@ import type { MediaEntryId } from "../media/index.ts";
 
 import type { LogoUsageId } from "../logos/index.ts";
 
+import { getStyxEditorialCredit, getStyxEditorialSection, styxEditorialContent } from "./styx-editorial.ts";
+
 const styxCase = getCase("styx");
 const designerRole = getRole("designer");
+
+const styxBrandEditorial = getStyxEditorialSection("brand");
+const styxProductionEditorial = getStyxEditorialSection("production");
+const styxScanographyEditorial = getStyxEditorialSection("scanography");
+const styxShootingsEditorial = getStyxEditorialSection("shootings");
+const styxLookbookEditorial = getStyxEditorialSection("lookbook");
+const styxBrandLookbook2023Credit = getStyxEditorialCredit("brand-lookbook-2023");
+const styxScanography2021Credit = getStyxEditorialCredit("scanography-2021");
+const styxLookbook2025Credit = getStyxEditorialCredit("lookbook-2025");
 
 export const styxIntro = {
   head: {
@@ -30,15 +41,12 @@ export const styxIntro = {
   role: designerRole.name,
   period: styxCase.date,
 
-  lead: "Возглавил работу над визуальной системой московского бренда украшений, аксессуаров и одежды, вдохновлённого готической романтикой и лавкрафтовским ужасом.",
+  lead: styxEditorialContent.lead,
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
 export const styxBrandIntro = {
-  title: "Айдентика",
-
-  paragraphs: [
-    "С нуля собрал визуальную систему Styx: разработал логотип, фирменный стиль, упаковку, печатные материалы, оформление соцсетей, рекламные публикации и баннеры.",
-  ],
+  title: styxBrandEditorial.title,
+  paragraphs: styxBrandEditorial.paragraphs,
 } as const satisfies SectionIntroData;
 
 export const styxLogoBanner = {
@@ -52,19 +60,13 @@ export const styxLogoBanner = {
 } as const satisfies MediaFigureData<MediaEntryId>;
 
 export const styxProductionIntro = {
-  title: "Продакшен",
-
-  paragraphs: [
-    "Продюсировал и снимал кампейны, лукбуки и каталоги Styx. Готовил материал для рекламы, каталогов и соцсетей, делал техническую, художественную и экспериментальную обработку фотографий и создавал сканографические анимации и арты.",
-  ],
+  title: styxProductionEditorial.title,
+  paragraphs: styxProductionEditorial.paragraphs,
 } as const satisfies SectionIntroData;
 
 export const styxScanographyIntro = {
-  title: "Сканографии",
-
-  paragraphs: [
-    "Для Styx придумал собственную технику сканографии. Сканировал один объект разными сканерами и вручную монтировал кадры, поэтому искажения и артефакты возникали при сканировании, а не имитировались цифровой обработкой.",
-  ],
+  title: styxScanographyEditorial.title,
+  paragraphs: styxScanographyEditorial.paragraphs,
 } as const satisfies SectionIntroData;
 
 /**
@@ -171,17 +173,13 @@ export const styxCatalogMockup = {
 } as const satisfies MockupData<MediaEntryId>;
 
 export const styxShootingsIntro = {
-  title: "Съёмки",
-
-  paragraphs: [
-    "Продюсировал и снимал для Styx лукбуки, кампейны и коллаборации. Из отснятого материала собирал каталожные, рекламные и экспериментальные визуалы бренда.",
-  ],
+  title: styxShootingsEditorial.title,
+  paragraphs: styxShootingsEditorial.paragraphs,
 } as const satisfies SectionIntroData;
 
 export const styxLookbookIntro = {
-  title: "Лукбук",
-
-  paragraphs: ["Снял лукбук Styx Jewel 2025 года."],
+  title: styxLookbookEditorial.title,
+  paragraphs: styxLookbookEditorial.paragraphs,
 } as const satisfies SectionIntroData;
 
 
@@ -323,7 +321,7 @@ export const styxBrandLookbookReel = {
   "captionView": "overlay",
   "head": {
     "credits": {
-      "title": "Лукбук Styx Jewels, 2023."
+      "title": styxBrandLookbook2023Credit.title
     }
   },
   "items": [
@@ -455,7 +453,7 @@ export const styxScanographyStrip = {
   "captionView": "overlay",
   "head": {
     "credits": {
-      "title": "Сканография, 2021."
+      "title": styxScanography2021Credit.title
     }
   },
   "height": "clamp(12rem, 30cqi, 19rem)",
@@ -507,7 +505,7 @@ export const styxLookbook2025Reel = {
   "captionView": "overlay",
   "head": {
     "credits": {
-      "title": "Лукбук Styx Jewels, 2025."
+      "title": styxLookbook2025Credit.title
     }
   },
   "items": [
