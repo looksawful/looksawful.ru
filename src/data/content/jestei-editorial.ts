@@ -13,6 +13,16 @@ export const JESTEI_OVERLAY_IDS = [
 export type JesteiSectionId = (typeof JESTEI_SECTION_IDS)[number];
 export type JesteiOverlayId = (typeof JESTEI_OVERLAY_IDS)[number];
 
+const JESTEI_SECTION_MIN_PARAGRAPHS: Readonly<Record<JesteiSectionId, number>> = {
+  home: 1,
+  brand: 1,
+  interface: 3,
+  editorial: 1,
+  event: 4,
+  landings: 1,
+  promo: 1,
+};
+
 export interface JesteiEditorialSection {
   id: JesteiSectionId;
   title: string;
@@ -74,14 +84,18 @@ function parseSection(value: unknown, index: number): JesteiEditorialSection {
   if (!JESTEI_SECTION_IDS.some((candidate) => candidate === id)) {
     throw new Error(`${label} has unknown id "${id}"`);
   }
+  const sectionId = id as JesteiSectionId;
 
   const paragraphs = expectArray(record.paragraphs, `${label}.paragraphs`);
-  if (paragraphs.length === 0) {
-    throw new Error(`${label}.paragraphs must contain at least one non-empty string`);
+  const minimumParagraphs = JESTEI_SECTION_MIN_PARAGRAPHS[sectionId];
+  if (paragraphs.length < minimumParagraphs) {
+    throw new Error(
+      `Jestei section "${sectionId}" paragraphs must contain at least ${minimumParagraphs} non-empty strings`,
+    );
   }
 
   return {
-    id: id as JesteiSectionId,
+    id: sectionId,
     title: expectNonEmptyString(record.title, `${label}.title`),
     paragraphs: paragraphs.map((paragraph, paragraphIndex) =>
       expectNonEmptyString(paragraph, `${label}.paragraphs[${paragraphIndex}]`),
