@@ -21,16 +21,14 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Install media tooling
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-
-      - name: Install from lockfile
+      - name: Install
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Build HTML
+        run: npm run build:vite
+
+      - name: Apply CV content
+        run: npm run cv:content:apply
 
       - name: Check external links
         run: npm run check:external-links
