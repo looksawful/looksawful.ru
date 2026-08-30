@@ -1,0 +1,54 @@
+name: Apply blog CMS patch
+
+on:
+  push:
+    branches:
+      - feat/blog-v1-editorial
+    paths:
+      - .github/workflows/blog-cms-patch.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/blog-v1-editorial
+          fetch-depth: 0
+
+      - name: Patch Pages CMS and remove temporary workflows
+        shell: python
+        run: |
+          from pathlib import Path
+
+          config_path = Path('.pages.yml')
+          source = config_path.read_text(encoding='utf-8')
+
+          media_block = '''  - name: blog-images\n    label: Blog images\n    input: public/media/blog\n    output: /media/blog\n    extensions: [webp]\n    rename: safe\n'''
+          if 'name: blog-images' not in source:
+              anchor = '\ncontent:\n'
+              if anchor not in source:
+                  raise SystemExit('CMS media insertion anchor not found')
+              source = source.replace(anchor, '\n' + media_block + '\ncontent:\n', 1)
+
+          collection_block = '''\n  - name: blog\n    label: Блог\n    type: collection\n    path: src/content/blog\n    format: yaml-frontmatter\n    filename:\n      template: "{primary}.md"\n      field: create\n    operations:\n      create: true\n      rename: false\n      delete: false\n    view:\n      primary: title\n      fields: [kind, published, publishedAt]\n      sort: publishedAt\n      order: desc\n    fields:\n      - name: title\n        label: Заголовок\n        type: string\n        required: true\n      - name: summary\n        label: Краткое описание\n        type: text\n        required: true\n      - name: kind\n        label: Тип\n        type: select\n        required: true\n        options:\n          values:\n            - value: tool\n              label: Инструмент\n            - value: course\n              label: Курс\n            - value: tutorial\n              label: Урок\n            - value: note\n              label: Заметка\n      - name: published\n        label: Опубликовано\n        type: boolean\n        default: false\n      - name: publishedAt\n        label: Дата публикации\n        type: date\n        required: true\n      - name: updatedAt\n        label: Дата обновления\n        type: date\n        required: false\n      - name: featured\n        label: Избранное\n        type: boolean\n        default: false\n      - name: tags\n        label: Теги\n        type: string\n        list: true\n      - name: cover\n        label: Обложка\n        type: object\n        required: false\n        fields:\n          - name: src\n            label: Изображение\n            type: image\n            options:\n              media: blog-images\n          - name: alt\n            label: Alt-текст\n            type: string\n          - name: width\n            label: Ширина, px\n            type: number\n          - name: height\n            label: Высота, px\n            type: number\n      - name: sourceName\n        label: Название ресурса\n        type: string\n        required: false\n      - name: externalUrl\n        label: Внешняя ссылка\n        type: string\n        required: false\n      - name: video\n        label: YouTube\n        type: object\n        required: false\n        fields:\n          - name: provider\n            label: Провайдер\n            type: select\n            options:\n              values: [youtube]\n          - name: id\n            label: YouTube ID\n            type: string\n          - name: title\n            label: Название видео\n            type: string\n      - name: body\n        label: Текст\n        type: rich-text\n        required: true\n'''
+          if '\n  - name: blog\n' not in source:
+              source = source.rstrip() + '\n' + collection_block + '\n'
+
+          config_path.write_text(source, encoding='utf-8')
+          Path('.github/workflows/blog-lockfile.yml').unlink(missing_ok=True)
+          Path('.github/workflows/blog-cms-patch.yml').unlink(missing_ok=True)
+
+      - name: Commit scoped CMS patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .pages.yml .github/workflows/blog-lockfile.yml .github/workflows/blog-cms-patch.yml
+          git diff --cached --check
+          git commit -m "feat(blog): configure Pages CMS authoring"
+          git push origin HEAD:feat/blog-v1-editorial
