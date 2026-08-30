@@ -154,9 +154,10 @@ export function validateBlogEntry(input: BlogEntryValidationInput): BlogEntry {
   }
   const published = frontmatter.published;
   const publishedAt = parseDate(frontmatter.publishedAt, filePath, "publishedAt");
-  const updatedAt = frontmatter.updatedAt === undefined
-    ? undefined
-    : parseDate(frontmatter.updatedAt, filePath, "updatedAt");
+  const updatedAtValue = optionalString(frontmatter.updatedAt, filePath, "updatedAt");
+  const updatedAt = updatedAtValue
+    ? parseDate(updatedAtValue, filePath, "updatedAt")
+    : undefined;
 
   if (updatedAt && updatedAt < publishedAt) {
     fail(filePath, "updatedAt", "must not be earlier than publishedAt");
