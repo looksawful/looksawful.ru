@@ -18,6 +18,8 @@ export interface StyxEditorialCredit {
 }
 
 export interface StyxEditorialContent {
+  role: string;
+  period: string;
   lead: string;
   sections: readonly StyxEditorialSection[];
   credits: readonly StyxEditorialCredit[];
@@ -126,12 +128,14 @@ function normalizeById<T extends { id: string }>(
 
 export function parseStyxEditorialContent(value: unknown): StyxEditorialContent {
   const record = expectRecord(value, "Styx editorial content");
-  expectExactKeys(record, ["lead", "sections", "credits"], "Styx editorial content");
+  expectExactKeys(record, ["role", "period", "lead", "sections", "credits"], "Styx editorial content");
 
   const sections = expectArray(record.sections, "Styx sections").map(parseSection);
   const credits = expectArray(record.credits, "Styx credits").map(parseCredit);
 
   return {
+    role: expectNonEmptyString(record.role, "Styx role"),
+    period: expectNonEmptyString(record.period, "Styx period"),
     lead: expectNonEmptyString(record.lead, "Styx lead"),
     sections: normalizeById(sections, STYX_SECTION_IDS, "Styx sections"),
     credits: normalizeById(credits, STYX_CREDIT_IDS, "Styx credits"),
