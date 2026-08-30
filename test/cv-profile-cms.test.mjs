@@ -117,26 +117,28 @@ test("CV content adapter fails closed on malformed profile identity and required
   ]);
   const current = JSON.parse(contentRaw);
 
+  const validProfile = { ...clone(expectedProfile), contacts: current.profile.contacts };
+
   assert.throws(
     () => parseCvContent({ ...current, profile: undefined }),
     /profile/i,
   );
 
-  const duplicatePrinciples = clone(expectedProfile);
+  const duplicatePrinciples = clone(validProfile);
   duplicatePrinciples.principles[1].id = duplicatePrinciples.principles[0].id;
   assert.throws(
     () => parseCvContent({ ...current, profile: duplicatePrinciples }),
     /duplicate.*principle|principle.*duplicate/i,
   );
 
-  const unknownLanguage = clone(expectedProfile);
+  const unknownLanguage = clone(validProfile);
   unknownLanguage.languages[0].id = "unknown";
   assert.throws(
     () => parseCvContent({ ...current, profile: unknownLanguage }),
     /unexpected.*language|language.*unexpected/i,
   );
 
-  const emptyRole = clone(expectedProfile);
+  const emptyRole = clone(validProfile);
   emptyRole.role = "";
   assert.throws(
     () => parseCvContent({ ...current, profile: emptyRole }),
