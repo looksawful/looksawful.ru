@@ -1,4 +1,5 @@
 import type { ProjectData } from "../../../types/project.ts";
+import { awfulCasesEditorialContent } from "../../content/awful-cases-editorial.ts";
 
 export const otherProjects = [
   {
@@ -37,13 +38,12 @@ export const otherProjects = [
   },
   {
     id: "awful-cases",
-    name: "Awful Cases",
-    date: "2024–2026",
+    name: awfulCasesEditorialContent.title,
+    date: awfulCasesEditorialContent.period,
     status: "active",
     collectionIds: ["pet-projects"],
-    summary: "Утилита для Windows, которая меняет регистр и типографику выделенного текста.",
-    description:
-      "Awful Cases работает через глобальные горячие клавиши. Выделите текст в любом редактируемом поле, нажмите сочетание клавиш — приложение заменит выделенный текст на преобразованный вариант.",
+    summary: awfulCasesEditorialContent.summary,
+    description: awfulCasesEditorialContent.lead,
     engagementTypeIds: ["self-initiated", "open-source"],
     primaryRoleId: "developer",
     roleIds: ["developer"],
