@@ -1,14 +1,10 @@
-import { spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
-import { setTimeout as delay } from "node:timers/promises";
-import { chromium } from "playwright";
 
 import { cvContent } from "../src/data/cv.ts";
+import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
-const HOST = "127.0.0.1";
-const PORT = 4174;
-const BASE_URL = `http://${HOST}:${PORT}`;
+let BASE_URL = "";
 const CAPTURE_DIR = process.env.CV_SMOKE_CAPTURE_DIR
   ? resolve(process.env.CV_SMOKE_CAPTURE_DIR)
   : null;
@@ -19,37 +15,8 @@ const VIEWPORTS = [
   { label: "desktop", width: 1440, height: 900 },
 ];
 
-const server = spawn(
-  process.execPath,
-  [
-    "node_modules/vite/bin/vite.js",
-    "preview",
-    "--host",
-    HOST,
-    "--port",
-    String(PORT),
-    "--strictPort",
-  ],
-  { stdio: ["ignore", "pipe", "pipe"] },
-);
-
-let serverOutput = "";
-server.stdout.on("data", (chunk) => { serverOutput += chunk.toString(); });
-server.stderr.on("data", (chunk) => { serverOutput += chunk.toString(); });
-
 function assert(condition, message) {
   if (!condition) throw new Error(message);
-}
-
-async function waitForServer() {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    try {
-      const response = await fetch(`${BASE_URL}/cv/`, { redirect: "follow" });
-      if (response.ok) return;
-    } catch {}
-    await delay(250);
-  }
-  throw new Error(`Vite preview did not start.\n${serverOutput}`);
 }
 
 async function auditViewport(browser, viewport) {
@@ -144,15 +111,14 @@ async function auditViewport(browser, viewport) {
   }
 }
 
-let browser;
-try {
-  await waitForServer();
-  browser = await chromium.launch({ headless: true });
+export async function runSmokeCv({ browser, baseUrl }) {
+  BASE_URL = baseUrl;
   for (const viewport of VIEWPORTS) {
     await auditViewport(browser, viewport);
   }
   console.log(`CV browser smoke OK: ${VIEWPORTS.length} viewports`);
-} finally {
-  await browser?.close();
-  server.kill("SIGTERM");
+}
+
+if (isDirectExecution(import.meta.url)) {
+  await withE2ERuntime(({ browser, baseUrl }) => runSmokeCv({ browser, baseUrl }));
 }
