@@ -52,6 +52,21 @@ test("validateBlogEntry returns a normalized typed entry for valid authored data
   assert.equal(entry.video?.provider, "youtube");
 });
 
+test("validateBlogEntry accepts the empty optional updatedAt value emitted by Pages CMS", async () => {
+  const { validateBlogEntry } = await loadValidationModule();
+  const input = makeValidInput({
+    frontmatter: {
+      ...makeValidInput().frontmatter,
+      updatedAt: "",
+      tags: [],
+    },
+  });
+
+  const entry = validateBlogEntry(input);
+  assert.equal(entry.updatedAt, undefined);
+  assert.deepEqual(entry.tags, []);
+});
+
 test("validateBlogEntry rejects invalid filename-derived slugs with file context", async () => {
   const { validateBlogEntry } = await loadValidationModule();
 
