@@ -1,12 +1,7 @@
-import { spawn } from "node:child_process";
-import { setTimeout as delay } from "node:timers/promises";
-import { chromium } from "playwright";
-
 import navigationJson from "../src/content/navigation.json" with { type: "json" };
+import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
-const HOST = "127.0.0.1";
-const PORT = 4177;
-const BASE_URL = `http://${HOST}:${PORT}`;
+let BASE_URL = "";
 
 const labelById = new Map(navigationJson.map(({ id, label }) => [id, label]));
 const requireLabel = (id) => {
@@ -39,26 +34,6 @@ const CASES = [
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
-}
-
-const server = spawn(
-  process.execPath,
-  ["node_modules/vite/bin/vite.js", "preview", "--host", HOST, "--port", String(PORT), "--strictPort"],
-  { stdio: ["ignore", "pipe", "pipe"] },
-);
-let serverOutput = "";
-server.stdout.on("data", (chunk) => { serverOutput += chunk.toString(); });
-server.stderr.on("data", (chunk) => { serverOutput += chunk.toString(); });
-
-async function waitForServer() {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    try {
-      const response = await fetch(BASE_URL, { redirect: "follow" });
-      if (response.ok) return;
-    } catch {}
-    await delay(250);
-  }
-  throw new Error(`Vite preview did not start.\n${serverOutput}`);
 }
 
 async function auditNavigation(browser, path, currentLabel, width, height) {
@@ -176,15 +151,14 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
   }
 }
 
-let browser;
-try {
-  await waitForServer();
-  browser = await chromium.launch({ headless: true });
+export async function runSmokeNavigation({ browser, baseUrl }) {
+  BASE_URL = baseUrl;
   for (const [path, currentLabel, width, height] of CASES) {
     await auditNavigation(browser, path, currentLabel, width, height);
   }
   console.log(`[smoke-navigation] OK: ${CASES.length} responsive navigation checks`);
-} finally {
-  await browser?.close();
-  server.kill("SIGTERM");
+}
+
+if (isDirectExecution(import.meta.url)) {
+  await withE2ERuntime(({ browser, baseUrl }) => runSmokeNavigation({ browser, baseUrl }));
 }
