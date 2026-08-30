@@ -1,39 +1,18 @@
-import { spawn } from "node:child_process";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { runSmokeCv } from "../smoke-cv.mjs";
+import { runSmokeMpa } from "../smoke-mpa.mjs";
+import { runSmokeProjectPages } from "../smoke-project-pages.mjs";
+import { runSmokeNavigation } from "../smoke-site-navigation.mjs";
+import { runSmokeSite } from "../smoke-site.mjs";
+import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
-const SUITES = [
-  "../smoke-site.mjs",
-  "../smoke-site-navigation.mjs",
-  "../smoke-mpa.mjs",
-  "../smoke-project-pages.mjs",
-  "../smoke-cv.mjs",
-];
-
-function runNodeScript(scriptPath) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [scriptPath], { stdio: "inherit" });
-    child.on("error", reject);
-    child.on("close", (code, signal) => {
-      if (code === 0) {
-        resolve();
-        return;
-      }
-      reject(new Error(`${path.basename(scriptPath)} failed${signal ? ` with signal ${signal}` : ` with exit code ${code}`}`));
-    });
-  });
+export async function runAllSmokeSuites({ browser, baseUrl, cvMode = "authored" }) {
+  await runSmokeSite({ browser, baseUrl });
+  await runSmokeNavigation({ browser, baseUrl });
+  await runSmokeMpa({ browser, baseUrl });
+  await runSmokeProjectPages({ browser, baseUrl });
+  await runSmokeCv({ browser, baseUrl, mode: cvMode });
 }
 
-export async function runAllSmokeSuites() {
-  const directory = path.dirname(fileURLToPath(import.meta.url));
-  for (const relativePath of SUITES) {
-    await runNodeScript(path.resolve(directory, relativePath));
-  }
-}
-
-const isDirectRun = process.argv[1]
-  && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
-
-if (isDirectRun) {
-  await runAllSmokeSuites();
+if (isDirectExecution(import.meta.url)) {
+  await withE2ERuntime(({ browser, baseUrl }) => runAllSmokeSuites({ browser, baseUrl }));
 }
