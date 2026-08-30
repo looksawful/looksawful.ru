@@ -75,6 +75,24 @@ export const CV_EXPERIENCE_IDS = [
   "ria",
 ] as const;
 
+export const CV_EXPERIENCE_SHAPES = {
+  jestei: { cases: 18, facts: 0, links: 2, description: true },
+  styx: { cases: 8, facts: 1, links: 2, description: false },
+  illumihand: { cases: 3, facts: 2, links: 0, description: false },
+  madcow: { cases: 2, facts: 0, links: 2, description: true },
+  sensetique: { cases: 0, facts: 0, links: 1, description: true },
+  line: { cases: 3, facts: 1, links: 1, description: true },
+  berry: { cases: 3, facts: 2, links: 0, description: false },
+  ss: { cases: 5, facts: 1, links: 1, description: true },
+  olovo: { cases: 6, facts: 2, links: 2, description: false },
+  theatre: { cases: 3, facts: 2, links: 1, description: false },
+  soroka: { cases: 3, facts: 2, links: 0, description: false },
+  kursovoy: { cases: 0, facts: 2, links: 0, description: false },
+  ran: { cases: 4, facts: 2, links: 0, description: false },
+  progress: { cases: 2, facts: 1, links: 1, description: true },
+  ria: { cases: 0, facts: 0, links: 0, description: true },
+} as const;
+
 export type CvPrincipleId = (typeof CV_PRINCIPLE_IDS)[number];
 export type CvLanguageId = (typeof CV_LANGUAGE_IDS)[number];
 export type CvSkillSectionId = (typeof CV_SKILL_SECTION_IDS)[number];
@@ -145,16 +163,31 @@ export interface CvEducationData {
   additional: readonly CvEducationEntryData[];
 }
 
-export interface CvExperienceVisibility {
+export interface CvExperienceFactData {
+  label: string;
+  text: string;
+}
+
+export interface CvExperienceData {
   id: CvExperienceId;
   visible: boolean;
+  company: string;
+  context: string;
+  period: string;
+  role: string;
+  description: string;
+  cases: readonly string[];
+  facts: readonly CvExperienceFactData[];
+  links: readonly string[];
 }
+
+export type CvExperienceVisibility = Pick<CvExperienceData, "id" | "visible">;
 
 export interface CvContentData {
   profile: CvProfileData;
   skills: CvSkillsData;
   education: CvEducationData;
-  experience: readonly CvExperienceVisibility[];
+  experience: readonly CvExperienceData[];
 }
 
 const principleIds = new Set<string>(CV_PRINCIPLE_IDS);
@@ -166,10 +199,34 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function expectExactKeys(record: Record<string, unknown>, keys: readonly string[], label: string): void {
+  const expected = new Set(keys);
+  for (const key of Object.keys(record)) {
+    if (!expected.has(key)) throw new Error(`${label} has unexpected field "${key}"`);
+  }
+  for (const key of keys) {
+    if (!(key in record)) throw new Error(`${label} is missing field "${key}"`);
+  }
+}
+
 function requireNonEmptyString(record: Record<string, unknown>, key: string, label: string): string {
   const value = record[key];
   if (typeof value !== "string" || value.length === 0) {
     throw new Error(`${label}.${key} must be a non-empty string`);
+  }
+  return value;
+}
+
+function requireTrimmedNonEmptyString(record: Record<string, unknown>, key: string, label: string): string {
+  const value = requireNonEmptyString(record, key, label);
+  if (value.trim() !== value) throw new Error(`${label}.${key} must be a trimmed non-empty string`);
+  return value;
+}
+
+function requireTrimmedString(record: Record<string, unknown>, key: string, label: string): string {
+  const value = record[key];
+  if (typeof value !== "string" || value.trim() !== value) {
+    throw new Error(`${label}.${key} must be a trimmed string`);
   }
   return value;
 }
@@ -185,6 +242,19 @@ function parseStringList(value: unknown, label: string): readonly string[] {
     return item;
   });
   return Object.freeze(parsed);
+}
+
+function parseFixedStringList(value: unknown, label: string, expectedCount: number): readonly string[] {
+  if (!Array.isArray(value)) throw new Error(`${label} must be an array`);
+  if (value.length !== expectedCount) {
+    throw new Error(`${label} count must remain ${expectedCount}; got ${value.length}`);
+  }
+  return Object.freeze(value.map((item, index) => {
+    if (typeof item !== "string" || item.trim().length === 0 || item.trim() !== item) {
+      throw new Error(`${label}[${index}] must be a trimmed non-empty string`);
+    }
+    return item;
+  }));
 }
 
 function parsePrinciple(value: unknown, index: number): CvProfilePrinciple {
@@ -434,21 +504,64 @@ function parseEducation(value: unknown): CvEducationData {
   });
 }
 
-function parseExperience(value: unknown, index: number): CvExperienceVisibility {
+function parseExperienceFact(value: unknown, label: string): CvExperienceFactData {
+  if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  expectExactKeys(value, ["label", "text"], label);
+  return Object.freeze({
+    label: requireTrimmedString(value, "label", label),
+    text: requireTrimmedNonEmptyString(value, "text", label),
+  });
+}
+
+function parseExperience(value: unknown, index: number): CvExperienceData {
   const label = `cv.experience[${index}]`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  expectExactKeys(
+    value,
+    ["id", "visible", "company", "context", "period", "role", "description", "cases", "facts", "links"],
+    label,
+  );
+
   const idValue = requireNonEmptyString(value, "id", label);
   if (!experienceIds.has(idValue)) throw new Error(`unexpected CV experience id: ${idValue}`);
   const id = CV_EXPERIENCE_IDS.find((candidate) => candidate === idValue);
   if (!id) throw new Error(`unexpected CV experience id: ${idValue}`);
   if (typeof value.visible !== "boolean") throw new Error(`${label}.visible must be a boolean`);
-  return { id, visible: value.visible };
+
+  const shape = CV_EXPERIENCE_SHAPES[id];
+  const description = requireTrimmedString(value, "description", label);
+  if (shape.description && description.length === 0) {
+    throw new Error(`${label}.description must be non-empty for ${id}`);
+  }
+  if (!shape.description && description.length !== 0) {
+    throw new Error(`${label}.description must stay empty because this card has no description slot`);
+  }
+
+  if (!Array.isArray(value.facts)) throw new Error(`${label}.facts must be an array`);
+  if (value.facts.length !== shape.facts) {
+    throw new Error(`${label}.facts count must remain ${shape.facts}; got ${value.facts.length}`);
+  }
+
+  return Object.freeze({
+    id,
+    visible: value.visible,
+    company: requireTrimmedNonEmptyString(value, "company", label),
+    context: requireTrimmedNonEmptyString(value, "context", label),
+    period: requireTrimmedNonEmptyString(value, "period", label),
+    role: requireTrimmedNonEmptyString(value, "role", label),
+    description,
+    cases: parseFixedStringList(value.cases, `${label}.cases`, shape.cases),
+    facts: Object.freeze(value.facts.map((fact, factIndex) =>
+      parseExperienceFact(fact, `${label}.facts[${factIndex}]`),
+    )),
+    links: parseFixedStringList(value.links, `${label}.links`, shape.links),
+  });
 }
 
-function parseExperienceList(value: unknown): readonly CvExperienceVisibility[] {
+function parseExperienceList(value: unknown): readonly CvExperienceData[] {
   if (!Array.isArray(value)) throw new Error("CV content.experience must be an array");
   const parsed = value.map(parseExperience);
-  const byId = new Map<CvExperienceId, CvExperienceVisibility>();
+  const byId = new Map<CvExperienceId, CvExperienceData>();
   for (const item of parsed) {
     if (byId.has(item.id)) throw new Error(`duplicate CV experience id: ${item.id}`);
     byId.set(item.id, item);
@@ -462,7 +575,7 @@ function parseExperienceList(value: unknown): readonly CvExperienceVisibility[] 
   return Object.freeze(CV_EXPERIENCE_IDS.map((id) => {
     const item = byId.get(id);
     if (!item) throw new Error(`missing required CV experience id: ${id}`);
-    return Object.freeze({ ...item });
+    return item;
   }));
 }
 
