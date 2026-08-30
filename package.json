@@ -59,5 +59,7 @@
     "photoswipe": "5.4.4",
     "three": "^0.184.0"
   },
-  "engines": { "node": "24.x" }
+  "engines": {
+    "node": "24.x"
+  }
 }
