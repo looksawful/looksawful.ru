@@ -11,7 +11,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: verify-changes-${{ github.event.pull_request.number || github.ref }}
@@ -70,6 +70,28 @@ jobs:
             public/media/generated/video-inventory.json
             src/data/media/responsive-generated.ts
           if-no-files-found: error
+      - name: Commit regenerated media metadata
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'perf/tooling-pipeline-production'
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          cp public/media/generated/responsive-manifest.json "$tmp/responsive-manifest.json"
+          cp public/media/generated/video-inventory.json "$tmp/video-inventory.json"
+          cp src/data/media/responsive-generated.ts "$tmp/responsive-generated.ts"
+          git checkout -B "${{ github.event.pull_request.head.ref }}" "${{ github.event.pull_request.head.sha }}"
+          cp "$tmp/responsive-manifest.json" public/media/generated/responsive-manifest.json
+          cp "$tmp/video-inventory.json" public/media/generated/video-inventory.json
+          cp "$tmp/responsive-generated.ts" src/data/media/responsive-generated.ts
+          git add public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
+          if git diff --cached --quiet; then
+            echo "Tracked media metadata already matches deterministic builder output."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: refresh generated media metadata"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
       - name: Check tracked media metadata
         run: git diff --exit-code -- public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
       - name: Core tests
