@@ -136,7 +136,7 @@ content:
             label: Обложка проекта
             type: image
             required: true
-            description: Выбери существующий WebP или загрузи новый. CMS имеет доступ только к папке обложек карточек проектов.
+            description: Выбери существующий WebP или загрузи новый. CMS имеет доступ только к папке обложек карточек проектов. После сохранения dev-проверка зарегистрирует файл и обновит responsive-варианты.
             options:
               media: project-covers
               extensions: [webp]

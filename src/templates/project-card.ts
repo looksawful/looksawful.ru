@@ -1,3 +1,5 @@
+import { projectIndexMediaAssetFor } from "../data/media/assets/project-index.ts";
+import { responsiveImageSrcSet } from "../data/media/responsive.ts";
 import type { ProjectCardData } from "../data/projects.ts";
 import { renderRevealAttribute } from "../motion-contract.ts";
 import { getProjectCardHref } from "../site/pages/project-card-routes.ts";
@@ -15,6 +17,11 @@ export function renderProjectCard(
   const href = options.href ?? getProjectCardHref(project.id);
 
   const ariaLabel = project.ariaLabel ?? `Перейти к проекту ${project.title}`;
+  const coverAsset = projectIndexMediaAssetFor(project);
+  const coverSrcset = responsiveImageSrcSet(coverAsset);
+  const responsiveAttributes = coverSrcset
+    ? ` sizes="(min-width: 44rem) 50vw, 100vw" srcset="${escapeHtml(coverSrcset)}"`
+    : "";
 
   const role = project.role
     ? `<span class="project-card__role">${escapeHtml(project.role)}</span>`
@@ -38,6 +45,7 @@ export function renderProjectCard(
               alt="${escapeHtml(project.cover.alt)}"
               decoding="async"
               height="${project.cover.height}"
+              ${responsiveAttributes}
               src="${escapeHtml(project.cover.src)}"
               width="${project.cover.width}"
             >

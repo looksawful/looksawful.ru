@@ -1,5 +1,6 @@
 import type { ImageMedia } from "../../types/media.ts";
 import { responsiveMediaVariants } from "./responsive-generated.ts";
+import { responsiveVariantSrc } from "./responsive-policy.ts";
 
 export {
   isResponsiveImageSrc,
@@ -17,7 +18,13 @@ export type ResponsiveMediaVariant = {
 };
 
 export function responsiveVariantsFor(asset: ImageMedia): readonly ResponsiveMediaVariant[] {
-  return (responsiveMediaVariants as Record<string, readonly ResponsiveMediaVariant[]>)[asset.id] ?? [];
+  const variants = (responsiveMediaVariants as Record<string, readonly ResponsiveMediaVariant[]>)[asset.id] ?? [];
+
+  return variants.every(
+    (variant) => variant.src === responsiveVariantSrc(asset.src, variant.width),
+  )
+    ? variants
+    : [];
 }
 
 export function responsiveImageSrcSet(asset: ImageMedia): string {

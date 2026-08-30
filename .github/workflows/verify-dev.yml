@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: verify-dev
@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -35,7 +37,7 @@ jobs:
           path: |
             public/media/generated/responsive
             public/media/generated/video
-          key: generated-media-v3-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+          key: generated-media-v3-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
           restore-keys: |
             generated-media-v3-${{ runner.os }}-
       - name: Ensure media tooling
@@ -50,6 +52,58 @@ jobs:
           ffprobe -version | head -n 1
       - name: Sync generated media
         run: npm run media:sync
+      - name: Persist CMS project-cover metadata
+        if: github.event_name == 'push'
+        env:
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cms_metadata=(
+            public/media/generated/responsive-manifest.json
+            src/data/media/responsive-generated.ts
+          )
+
+          if git diff --quiet -- "${cms_metadata[@]}"; then
+            echo "Project-cover metadata is already current."
+            exit 0
+          fi
+
+          if ! git diff --quiet -- public/media/generated/video-inventory.json; then
+            echo "Refusing to persist generated metadata: video metadata changed during a project-cover sync." >&2
+            exit 1
+          fi
+
+          if [[ -z "$PUSH_BEFORE" || "$PUSH_BEFORE" =~ ^0+$ ]]; then
+            echo "Refusing to persist generated metadata: the prior dev commit is unavailable." >&2
+            exit 1
+          fi
+
+          mapfile -t changed_paths < <(git diff --name-only "$PUSH_BEFORE" "$PUSH_SHA")
+          saw_project_cover_change=false
+          for changed_path in "${changed_paths[@]}"; do
+            case "$changed_path" in
+              src/content/projects.json|public/media/projects/index/*)
+                saw_project_cover_change=true
+                ;;
+              *)
+                echo "Refusing to persist generated metadata: unexpected source change $changed_path" >&2
+                exit 1
+                ;;
+            esac
+          done
+
+          if [[ "$saw_project_cover_change" != "true" ]]; then
+            echo "Refusing to persist generated metadata: no CMS project-cover source changed." >&2
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "${cms_metadata[@]}"
+          git commit -m "chore(media): sync CMS project cover metadata"
+          git push origin HEAD:dev
       - name: Check tracked media metadata
         run: git diff --exit-code -- public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
       - name: Core tests

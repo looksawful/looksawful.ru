@@ -128,6 +128,13 @@ Only WebP is allowed in this source.
 
 The CMS intentionally does not expose the whole `public/media` tree.
 
+Project-card cover assets are derived into the typed media registry from
+`src/content/projects.json`. Selecting or uploading a new cover therefore does
+not require a hand-written TypeScript registry edit. The dev verification builds
+the responsive variants and persists only the deterministic responsive manifest
+and catalog in a follow-up bot commit. If the same push changes anything outside
+the project-card JSON and scoped cover folder, this automatic commit fails closed.
+
 ### Alt
 
 Describe the meaningful contents of the image for accessibility.
@@ -203,7 +210,17 @@ Every push to `dev` also triggers:
 .github/workflows/verify-dev.yml
 ```
 
-This runs the full `npm run verify` contract and stores verification artifacts.
+This runs type checking, deterministic media synchronization, core tests, the
+production build and the shared browser smoke suite.
+
+For a CMS project-cover change, the workflow may add one generated-only commit:
+
+```text
+chore(media): sync CMS project cover metadata
+```
+
+That commit can contain only the responsive manifest and generated TypeScript
+catalog. It is not permitted to rewrite authored content or source media.
 
 Pages CMS saves therefore receive automatic CI even if the manual `Проверить сайт` button is not used.
 
