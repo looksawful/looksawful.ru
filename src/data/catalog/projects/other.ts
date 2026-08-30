@@ -1,5 +1,6 @@
 import type { ProjectData } from "../../../types/project.ts";
 import { awfulCasesEditorialContent } from "../../content/awful-cases-editorial.ts";
+import { movesAwfulEditorialContent } from "../../content/moves-awful-editorial.ts";
 
 export const otherProjects = [
   {
@@ -50,11 +51,11 @@ export const otherProjects = [
   },
   {
     id: "moves-awful",
-    name: "Moves Awful",
-    date: "2025",
+    name: movesAwfulEditorialContent.intro.title,
+    date: movesAwfulEditorialContent.intro.period,
     status: "active",
     collectionIds: ["pet-projects"],
-    summary: "Библиотека анимированных галерей для лендингов.",
+    summary: movesAwfulEditorialContent.intro.summary,
     engagementTypeIds: ["self-initiated"],
     primaryRoleId: "developer",
     roleIds: ["developer"],
