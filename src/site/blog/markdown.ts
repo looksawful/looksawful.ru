@@ -1,6 +1,7 @@
 import { Marked } from "marked";
 
 import { escapeHtml } from "../../utils/html.ts";
+import { isBlogMediaWebpPath } from "./media-path.ts";
 
 function fail(message: string): never {
   throw new Error(`[blog] Markdown ${message}`);
@@ -17,11 +18,6 @@ function isSafeLinkHref(href: string): boolean {
   } catch {
     return false;
   }
-}
-
-function isSafeBlogImageHref(href: string): boolean {
-  const withoutQuery = href.split(/[?#]/, 1)[0] ?? href;
-  return withoutQuery.startsWith("/media/blog/") && withoutQuery.toLowerCase().endsWith(".webp");
 }
 
 function decorateBlogMarkdownHtml(html: string): string {
@@ -57,7 +53,7 @@ blogMarkdown.use({
     }
 
     if (token.type === "image") {
-      if (!isSafeBlogImageHref(token.href)) {
+      if (!isBlogMediaWebpPath(token.href)) {
         fail(`image must reference a WebP under /media/blog/: ${token.href}`);
       }
       if (!token.text.trim()) fail("images require non-empty alt text");

@@ -6,6 +6,7 @@ import {
   type BlogKind,
   type BlogVideo,
 } from "./types.ts";
+import { isBlogMediaWebpPath } from "./media-path.ts";
 
 const BLOG_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -80,7 +81,7 @@ function parseCover(value: unknown, filePath: string): BlogCover | undefined {
   if (!isRecord(value)) fail(filePath, "cover", "must be an object");
 
   const src = requiredString(value.src, filePath, "cover.src");
-  if (!src.startsWith("/media/blog/") || !src.toLowerCase().endsWith(".webp")) {
+  if (!isBlogMediaWebpPath(src)) {
     fail(filePath, "cover.src", "must reference a WebP under /media/blog/");
   }
 
