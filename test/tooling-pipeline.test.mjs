@@ -133,3 +133,13 @@ test("production E2E runner tests sanitized output and captures QA in the same r
   assert.match(source, /cvMode:\s*["']production["']/);
   assert.match(source, /captureCaptionQa/);
 });
+
+test("standalone production CV runner target exists and reuses the shared E2E runtime", async () => {
+  assert.equal(requireScript("test:e2e:cv:production"), "node tools/e2e/run-cv-production.mjs");
+  const source = await readFile(new URL("../tools/e2e/run-cv-production.mjs", import.meta.url), "utf8");
+
+  assert.match(source, /runSmokeCv/);
+  assert.match(source, /mode:\s*["']production["']/);
+  assert.match(source, /withE2ERuntime/);
+  assert.match(source, /isDirectExecution/);
+});
