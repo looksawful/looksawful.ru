@@ -1,58 +1,31 @@
-import { spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
-import { setTimeout as delay } from "node:timers/promises";
-import { chromium } from "playwright";
 
 import { cvContent } from "../src/data/cv.ts";
+import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
-const HOST = "127.0.0.1";
-const PORT = 4174;
-const BASE_URL = `http://${HOST}:${PORT}`;
+let BASE_URL = "";
 const CAPTURE_DIR = process.env.CV_SMOKE_CAPTURE_DIR
   ? resolve(process.env.CV_SMOKE_CAPTURE_DIR)
   : null;
-const EXPECTED_HIDDEN_CARDS = cvContent.experience.filter(({ visible }) => !visible).length;
+const AUTHORED_HIDDEN_CARDS = cvContent.experience.filter(({ visible }) => !visible).length;
 const VIEWPORTS = [
   { label: "phone", width: 390, height: 844 },
   { label: "tablet", width: 1024, height: 768 },
   { label: "desktop", width: 1440, height: 900 },
 ];
 
-const server = spawn(
-  process.execPath,
-  [
-    "node_modules/vite/bin/vite.js",
-    "preview",
-    "--host",
-    HOST,
-    "--port",
-    String(PORT),
-    "--strictPort",
-  ],
-  { stdio: ["ignore", "pipe", "pipe"] },
-);
-
-let serverOutput = "";
-server.stdout.on("data", (chunk) => { serverOutput += chunk.toString(); });
-server.stderr.on("data", (chunk) => { serverOutput += chunk.toString(); });
-
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-async function waitForServer() {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    try {
-      const response = await fetch(`${BASE_URL}/cv/`, { redirect: "follow" });
-      if (response.ok) return;
-    } catch {}
-    await delay(250);
-  }
-  throw new Error(`Vite preview did not start.\n${serverOutput}`);
+export function getExpectedCvHiddenCards(mode) {
+  if (mode === "authored") return AUTHORED_HIDDEN_CARDS;
+  if (mode === "production") return 0;
+  throw new Error(`invalid CV smoke mode: ${String(mode)}`);
 }
 
-async function auditViewport(browser, viewport) {
+async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
     deviceScaleFactor: 1,
@@ -126,7 +99,11 @@ async function auditViewport(browser, viewport) {
     assert(state.backHref === "/", `${label}: back navigation does not point to /`);
     assert(state.portraitWidth > 0 && state.portraitHeight > 0, `${label}: portrait failed to decode`);
     assert(state.overflow <= 1, `${label}: horizontal document overflow ${state.overflow}px`);
-    assert(state.hiddenCards === EXPECTED_HIDDEN_CARDS, `${label}: expected ${EXPECTED_HIDDEN_CARDS} hidden experience cards, got ${state.hiddenCards}`);
+    if (mode === "production") {
+      assert(state.hiddenCards === 0, `${label}: production CV must contain zero hidden experience cards, got ${state.hiddenCards}`);
+    } else {
+      assert(state.hiddenCards === expectedHiddenCards, `${label}: expected ${expectedHiddenCards} hidden experience cards, got ${state.hiddenCards}`);
+    }
     assert(state.scriptCount === 0, `${label}: standalone CV unexpectedly loads JavaScript`);
     assert(!errors.length, `${label}: browser errors:\n${errors.join("\n")}`);
 
@@ -138,21 +115,21 @@ async function auditViewport(browser, viewport) {
       });
     }
 
-    console.log(`[cv-smoke] ${label}: OK`);
+    console.log(`[cv-smoke] ${label} ${mode}: OK`);
   } finally {
     await context.close();
   }
 }
 
-let browser;
-try {
-  await waitForServer();
-  browser = await chromium.launch({ headless: true });
+export async function runSmokeCv({ browser, baseUrl, mode = "authored" }) {
+  BASE_URL = baseUrl;
+  const expectedHiddenCards = getExpectedCvHiddenCards(mode);
   for (const viewport of VIEWPORTS) {
-    await auditViewport(browser, viewport);
+    await auditViewport(browser, viewport, mode, expectedHiddenCards);
   }
-  console.log(`CV browser smoke OK: ${VIEWPORTS.length} viewports`);
-} finally {
-  await browser?.close();
-  server.kill("SIGTERM");
+  console.log(`CV browser smoke OK: ${VIEWPORTS.length} viewports (${mode})`);
+}
+
+if (isDirectExecution(import.meta.url)) {
+  await withE2ERuntime(({ browser, baseUrl }) => runSmokeCv({ browser, baseUrl, mode: "authored" }));
 }

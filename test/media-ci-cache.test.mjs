@@ -2,70 +2,57 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const packageUrl = new URL("../package.json", import.meta.url);
 const workflowUrls = [
   new URL("../.github/workflows/verify-pr.yml", import.meta.url),
   new URL("../.github/workflows/verify-dev.yml", import.meta.url),
   new URL("../.github/workflows/pages.yml", import.meta.url),
 ];
 
-test("verify prepares generated media at most once while standalone test/build remain self-contained", async () => {
-  const pkg = JSON.parse(await readFile(packageUrl, "utf8"));
-  const scripts = pkg.scripts ?? {};
+function cacheBlock(workflow) {
+  return workflow.match(/\n      - name: Restore generated media\b[\s\S]*?(?=\n      - name: )/)?.[0] ?? "";
+}
 
-  assert.equal(
-    scripts["media:prepare"],
-    "npm run media:video:build && npm run media:build",
-  );
-  assert.match(scripts["test:core"], /node --test/);
-  assert.doesNotMatch(scripts["test:core"], /media:(?:video:)?build|media:prepare/);
-  assert.match(scripts["build:core"], /vite build/);
-  assert.doesNotMatch(scripts["build:core"], /media:(?:video:)?build|media:prepare/);
-  assert.equal(scripts.test, "npm run media:prepare && npm run test:core");
-  assert.equal(scripts.build, "npm run media:prepare && npm run build:core");
-  assert.match(scripts["verify:core"], /npm run test:core/);
-  assert.match(scripts["verify:core"], /npm run build:core/);
-  assert.doesNotMatch(scripts["verify:core"], /media:(?:video:)?build|media:prepare/);
-  assert.equal(scripts.verify, "npm run media:prepare && npm run verify:core");
-});
+function syncBlock(workflow) {
+  return workflow.match(/\n      - name: Sync generated media\b[\s\S]*?(?=\n      - name: )/)?.[0] ?? "";
+}
 
-test("CI restores complete generated-media state by content hash and skips regeneration on exact cache hits", async () => {
+test("CI caches only reproducible media derivatives and always validates them with deterministic builders", async () => {
   for (const workflowUrl of workflowUrls) {
     const workflow = await readFile(workflowUrl, "utf8");
     const label = workflowUrl.pathname.split("/").at(-1);
+    const cache = cacheBlock(workflow);
+    const sync = syncBlock(workflow);
 
-    assert.match(workflow, /uses: actions\/cache@v4/, `${label} must restore generated media cache`);
-    assert.match(workflow, /id: media-cache/, `${label} must expose media cache hit state`);
-    assert.match(workflow, /public\/media\/generated\/responsive/, `${label} must cache responsive derivatives`);
-    assert.match(workflow, /public\/media\/generated\/video/, `${label} must cache video derivatives`);
-    assert.match(workflow, /public\/media\/generated\/responsive-manifest\.json/, `${label} must cache responsive manifest`);
-    assert.match(workflow, /public\/media\/generated\/video-inventory\.json/, `${label} must cache video inventory`);
-    assert.match(workflow, /src\/data\/media\/responsive-generated\.ts/, `${label} must cache generated responsive catalog`);
-    assert.match(workflow, /key: generated-media-v2-/, `${label} must invalidate incomplete v1 caches`);
-    assert.match(workflow, /hashFiles\([\s\S]*public\/media\/[\s\S]*src\/data\/media\/assets[\s\S]*build-responsive-media\.mjs[\s\S]*build-video-media\.mjs[\s\S]*\)/, `${label} cache key must follow media sources and builders`);
-    assert.match(workflow, /media-cache\.outputs\.cache-hit != 'true'[\s\S]*npm run media:prepare/, `${label} must prepare media only on cache miss`);
-    assert.match(workflow, /run: npm run verify:core/, `${label} must not invoke the self-preparing verify command`);
+    assert.match(cache, /uses: actions\/cache@v4/, `${label} must restore generated media cache`);
+    assert.match(cache, /public\/media\/generated\/responsive\b/, `${label} must cache responsive derivatives`);
+    assert.match(cache, /public\/media\/generated\/video\b/, `${label} must cache video derivatives`);
+    assert.doesNotMatch(cache, /responsive-manifest\.json/, `${label} must not cache tracked responsive metadata`);
+    assert.doesNotMatch(cache, /video-inventory\.json/, `${label} must not cache tracked video metadata`);
+    assert.doesNotMatch(cache, /responsive-generated\.ts/, `${label} must not cache tracked generated catalog`);
+    assert.match(cache, /key: generated-media-v3-/, `${label} must invalidate the old metadata-owning cache generation`);
+    assert.match(cache, /restore-keys:/, `${label} must allow prior derivative caches to seed changed media commits`);
+
+    assert.match(sync, /run: npm run media:sync/, `${label} must run deterministic builders after cache restore`);
+    assert.doesNotMatch(sync, /if:/, `${label} media correctness must not depend on a cache-hit condition`);
+    assert.doesNotMatch(workflow, /media-cache\.outputs\.cache-hit/, `${label} must never treat cache hit as correctness proof`);
   }
 });
 
-test("Lighthouse reuses generated media and builds core output without redundant preparation", async () => {
+test("Lighthouse uses the same derivative-only cache and deterministic media validation", async () => {
   const workflow = await readFile(
     new URL("../.github/workflows/lighthouse.yml", import.meta.url),
     "utf8",
   );
+  const cache = cacheBlock(workflow);
+  const sync = syncBlock(workflow);
 
-  assert.match(workflow, /uses: actions\/cache@v4/);
-  assert.match(workflow, /id: media-cache/);
-  assert.match(workflow, /public\/media\/generated\/responsive/);
-  assert.match(workflow, /public\/media\/generated\/video/);
-  assert.match(workflow, /public\/media\/generated\/responsive-manifest\.json/);
-  assert.match(workflow, /public\/media\/generated\/video-inventory\.json/);
-  assert.match(workflow, /src\/data\/media\/responsive-generated\.ts/);
-  assert.match(workflow, /key: generated-media-v2-/);
-  assert.match(
-    workflow,
-    /media-cache\.outputs\.cache-hit != 'true'[\s\S]*npm run media:prepare/,
-  );
-  assert.match(workflow, /run: npm run build:core/);
-  assert.doesNotMatch(workflow, /run: npm run build\s*$/m);
+  assert.match(cache, /uses: actions\/cache@v4/);
+  assert.match(cache, /public\/media\/generated\/responsive\b/);
+  assert.match(cache, /public\/media\/generated\/video\b/);
+  assert.doesNotMatch(cache, /responsive-manifest\.json|video-inventory\.json|responsive-generated\.ts/);
+  assert.match(cache, /key: generated-media-v3-/);
+  assert.match(sync, /run: npm run media:sync/);
+  assert.doesNotMatch(sync, /if:/);
+  assert.doesNotMatch(workflow, /media-cache\.outputs\.cache-hit/);
+  assert.match(workflow, /run: npm run build:site/);
 });
