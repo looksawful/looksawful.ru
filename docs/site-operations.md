@@ -76,6 +76,8 @@ The following operations are deliberately disabled:
 
 This protects the fixed card-to-route contract.
 
+The blog is a separate typed CMS scope. Its entries live in `src/content/blog/*.md`, its media source is scoped to `public/media/blog`, and its public routes remain code-owned. Blog-specific editorial rules are documented in [`docs/blog-authoring.md`](./blog-authoring.md).
+
 ## 4. Project-card fields
 
 ### ID
@@ -377,6 +379,8 @@ The current CMS is intentionally a pilot/editor for homepage cards.
 
 Future expansion should happen only after the relevant content model has a stable typed contract.
 
+The blog follows this rule: CMS authoring was added only after its typed frontmatter schema, build-time validation, content-derived routes and dedicated renderer/runtime boundary were defined. Do not use the blog collection as a generic escape hatch for unrelated site architecture.
+
 Recommended order:
 
 1. homepage cards — current stage;
@@ -443,6 +447,8 @@ For a normal CMS content change:
 [ ] Pages deployment green
 [ ] production smoke check
 ```
+
+For blog authoring, use the dedicated checklist and validation rules in [`docs/blog-authoring.md`](./blog-authoring.md).
 
 For a new external-service configuration:
 
