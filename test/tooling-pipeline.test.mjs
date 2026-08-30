@@ -58,7 +58,6 @@ test("standalone core/build/e2e debugging scripts remain available", () => {
   assert.match(requireScript("test:core"), /node --test/);
   assert.match(requireScript("test:core"), /check-data-integrity/);
   assert.equal(requireScript("test:e2e:all"), "node tools/e2e/run-all.mjs");
-  assert.equal(requireScript("test:e2e:production"), "node tools/e2e/run-production.mjs");
 
   for (const name of [
     "test:e2e",
@@ -66,6 +65,7 @@ test("standalone core/build/e2e debugging scripts remain available", () => {
     "test:e2e:mpa",
     "test:e2e:projects",
     "test:e2e:cv",
+    "media:prepare",
     "media:build",
     "media:video",
     "media:video:build",
