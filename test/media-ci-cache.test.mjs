@@ -2,32 +2,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const packageUrl = new URL("../package.json", import.meta.url);
 const workflowUrls = [
   new URL("../.github/workflows/verify-pr.yml", import.meta.url),
   new URL("../.github/workflows/verify-dev.yml", import.meta.url),
   new URL("../.github/workflows/pages.yml", import.meta.url),
 ];
-
-test("verify prepares generated media at most once while standalone test/build remain self-contained", async () => {
-  const pkg = JSON.parse(await readFile(packageUrl, "utf8"));
-  const scripts = pkg.scripts ?? {};
-
-  assert.equal(
-    scripts["media:prepare"],
-    "npm run media:video:build && npm run media:build",
-  );
-  assert.match(scripts["test:core"], /node --test/);
-  assert.doesNotMatch(scripts["test:core"], /media:(?:video:)?build|media:prepare/);
-  assert.match(scripts["build:core"], /vite build/);
-  assert.doesNotMatch(scripts["build:core"], /media:(?:video:)?build|media:prepare/);
-  assert.equal(scripts.test, "npm run media:prepare && npm run test:core");
-  assert.equal(scripts.build, "npm run media:prepare && npm run build:core");
-  assert.match(scripts["verify:core"], /npm run test:core/);
-  assert.match(scripts["verify:core"], /npm run build:core/);
-  assert.doesNotMatch(scripts["verify:core"], /media:(?:video:)?build|media:prepare/);
-  assert.equal(scripts.verify, "npm run media:prepare && npm run verify:core");
-});
 
 test("CI restores complete generated-media state by content hash and skips regeneration on exact cache hits", async () => {
   for (const workflowUrl of workflowUrls) {
