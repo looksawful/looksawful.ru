@@ -34,6 +34,7 @@
     "test:e2e:projects": "node tools/smoke-project-pages.mjs",
     "test:e2e:cv": "node tools/smoke-cv.mjs",
     "test:e2e:all": "node tools/e2e/run-all.mjs",
+    "test:e2e:production": "node tools/e2e/run-production.mjs",
     "verify:core": "npm run typecheck && npm run test:core && npm run build:site && npm run test:e2e:all",
     "verify": "npm run media:sync && npm run verify:core"
   },
