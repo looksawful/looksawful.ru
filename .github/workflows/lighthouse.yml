@@ -52,6 +52,9 @@ jobs:
       - name: Sync generated media
         run: npm run media:sync
 
+      - name: Check tracked media metadata
+        run: git diff --exit-code -- public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
+
       - name: Build site
         run: npm run build:site
 
