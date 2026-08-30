@@ -104,6 +104,16 @@ test("combined browser smoke uses one shared runtime while individual suites sta
   }
 });
 
+test("shared E2E runtime terminates preview processes and preserves signal termination", async () => {
+  const runtime = await readFile(new URL("../tools/e2e/runtime.mjs", import.meta.url), "utf8");
+
+  assert.match(runtime, /server\.once\(["']exit["']/);
+  assert.match(runtime, /SIGTERM/);
+  assert.match(runtime, /SIGKILL/);
+  assert.match(runtime, /process\.kill\(process\.pid,\s*signal\)/);
+  assert.doesNotMatch(runtime, /server\.killed/);
+});
+
 test("CV smoke has explicit authored and production modes with fail-closed validation", async () => {
   const source = await readFile(new URL("../tools/smoke-cv.mjs", import.meta.url), "utf8");
 
