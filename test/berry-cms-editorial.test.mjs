@@ -6,6 +6,7 @@ import test from "node:test";
 import { berryIntro, berryStoryMockups } from "../src/data/content/berry.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
+import { escapeHtml } from "../src/utils/html.ts";
 
 const contentPath = "src/content/standalone-projects/berry-social-content-2020.json";
 const adapterPath = "src/data/content/berry-editorial.ts";
@@ -52,7 +53,10 @@ test("Berry CMS editorial values flow through the existing Project intro rendere
 
   const rendered = renderProjectIntro(berryIntro);
   for (const value of Object.values(source)) {
-    assert.ok(rendered.includes(value), `Rendered Berry intro must contain current CMS value: ${value}`);
+    assert.ok(
+      rendered.includes(escapeHtml(value)),
+      `Rendered Berry intro must contain the escaped current CMS value: ${value}`,
+    );
   }
 
   assert.deepEqual(
@@ -76,7 +80,7 @@ test("Pages CMS exposes Berry copy without route, discovery, taxonomy or media c
   const start = cms.indexOf("      - name: berry-standalone-project\n");
   assert.notEqual(start, -1, "Berry standalone Project CMS entry must exist");
   const rest = cms.slice(start);
-  const nextEntry = rest.indexOf("\n      - name: ", 8);
+  const nextEntry = rest.indexOf("\n  - name: ", 8);
   const config = nextEntry === -1 ? rest : rest.slice(0, nextEntry);
 
   assert.match(config, /type: file/);
