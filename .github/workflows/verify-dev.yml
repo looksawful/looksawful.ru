@@ -15,6 +15,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,6 +24,10 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - name: Install
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
       - name: Restore generated media
         id: media-cache
         uses: actions/cache@v4
@@ -30,31 +35,28 @@ jobs:
           path: |
             public/media/generated/responsive
             public/media/generated/video
-            public/media/generated/responsive-manifest.json
-            public/media/generated/video-inventory.json
-            src/data/media/responsive-generated.ts
-          key: generated-media-v2-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
-      - name: Install media tooling
-        if: steps.media-cache.outputs.cache-hit != 'true'
+          key: generated-media-v3-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+          restore-keys: |
+            generated-media-v3-${{ runner.os }}-
+      - name: Ensure media tooling
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-      - name: Install
-        run: npm ci
-      - name: Prepare generated media
-        if: steps.media-cache.outputs.cache-hit != 'true'
-        run: npm run media:prepare
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes ffmpeg
+          fi
+          ffmpeg -version | head -n 1
+          ffprobe -version | head -n 1
+      - name: Sync generated media
+        run: npm run media:sync
+      - name: Check tracked media metadata
+        run: git diff --exit-code -- public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
+      - name: Core tests
+        run: npm run test:core
+      - name: Build site
+        run: npm run build:site
       - name: Install browser for smoke tests
         run: npx playwright install --with-deps chromium
-      - name: Verify
-        run: npm run verify:core
-      - name: Capture caption visual QA
-        run: node tools/capture-caption-qa.mjs
-      - name: Upload verification artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dev-verification
-          path: |
-            dist
-            artifacts/caption-qa
-          if-no-files-found: error
+      - name: Browser smoke
+        run: npm run test:e2e:all

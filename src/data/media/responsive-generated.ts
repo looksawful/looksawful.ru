@@ -35,6 +35,1402 @@ export const responsiveMediaVariants = {
       "height": 693
     }
   ],
+  "behance-photography-and-digital-art-for-obladaet-001": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@1920.webp",
+      "width": 1920,
+      "height": 2400
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001@2560.webp",
+      "width": 2560,
+      "height": 3201
+    }
+  ],
+  "behance-photography-and-digital-art-for-obladaet-002": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@1920.webp",
+      "width": 1920,
+      "height": 2400
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/002@2560.webp",
+      "width": 2560,
+      "height": 3200
+    }
+  ],
+  "behance-photography-and-digital-art-for-obladaet-003": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@1920.webp",
+      "width": 1920,
+      "height": 2400
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/003@2560.webp",
+      "width": 2560,
+      "height": 3201
+    }
+  ],
+  "behance-photography-and-digital-art-for-obladaet-004": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@1920.webp",
+      "width": 1920,
+      "height": 2400
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/004@2560.webp",
+      "width": 2560,
+      "height": 3200
+    }
+  ],
+  "behance-photography-and-digital-art-for-obladaet-005": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@1920.webp",
+      "width": 1920,
+      "height": 2400
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/005@2560.webp",
+      "width": 2560,
+      "height": 3200
+    }
+  ],
+  "behance-photography-and-digital-art-for-obladaet-006": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@480.webp",
+      "width": 480,
+      "height": 553
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@768.webp",
+      "width": 768,
+      "height": 884
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@1280.webp",
+      "width": 1280,
+      "height": 1474
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@1920.webp",
+      "width": 1920,
+      "height": 2211
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/006@2560.webp",
+      "width": 2560,
+      "height": 2948
+    }
+  ],
+  "behance-ecobasik-001": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/001@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/001@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-002": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/002@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/002@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-003": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/003@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/003@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-004": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/004@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/004@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-005": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/005@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/005@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-006": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/006@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/006@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-007": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/007@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/007@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-008": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/008@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/008@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-009": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/009@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/009@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-010": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/010@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/010@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-011": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/011@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/011@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-012": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/012@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/012@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-ecobasik-013": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/013@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/ecobasik/source/013@768.webp",
+      "width": 768,
+      "height": 960
+    }
+  ],
+  "behance-obladaet-content-covers-001": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/001@480.webp",
+      "width": 480,
+      "height": 612
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/001@768.webp",
+      "width": 768,
+      "height": 979
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/001@1280.webp",
+      "width": 1280,
+      "height": 1632
+    }
+  ],
+  "behance-obladaet-content-covers-002": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/002@1920.webp",
+      "width": 1920,
+      "height": 2400
+    }
+  ],
+  "behance-obladaet-content-covers-003": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/003@480.webp",
+      "width": 480,
+      "height": 481
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/003@768.webp",
+      "width": 768,
+      "height": 770
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/003@1280.webp",
+      "width": 1280,
+      "height": 1283
+    }
+  ],
+  "behance-obladaet-content-covers-004": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/004@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/004@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/004@1280.webp",
+      "width": 1280,
+      "height": 1600
+    }
+  ],
+  "behance-obladaet-content-covers-005": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/005@480.webp",
+      "width": 480,
+      "height": 661
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/005@768.webp",
+      "width": 768,
+      "height": 1057
+    }
+  ],
+  "behance-obladaet-content-covers-006": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/006@480.webp",
+      "width": 480,
+      "height": 544
+    }
+  ],
+  "behance-obladaet-content-covers-007": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/007@1920.webp",
+      "width": 1920,
+      "height": 2400
+    }
+  ],
+  "behance-obladaet-content-covers-008": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/obladaet-content-covers/source/008@1920.webp",
+      "width": 1920,
+      "height": 2400
+    }
+  ],
+  "behance-hypression-001": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/001@480.webp",
+      "width": 480,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/001@768.webp",
+      "width": 768,
+      "height": 768
+    }
+  ],
+  "behance-hypression-002": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/002@480.webp",
+      "width": 480,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/002@768.webp",
+      "width": 768,
+      "height": 768
+    }
+  ],
+  "behance-hypression-003": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/003@480.webp",
+      "width": 480,
+      "height": 719
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/003@768.webp",
+      "width": 768,
+      "height": 1151
+    }
+  ],
+  "behance-hypression-004": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/004@480.webp",
+      "width": 480,
+      "height": 694
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/004@768.webp",
+      "width": 768,
+      "height": 1110
+    }
+  ],
+  "behance-hypression-005": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/005@480.webp",
+      "width": 480,
+      "height": 672
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/005@768.webp",
+      "width": 768,
+      "height": 1075
+    }
+  ],
+  "behance-hypression-006": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/006@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/006@768.webp",
+      "width": 768,
+      "height": 959
+    }
+  ],
+  "behance-hypression-007": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/007@480.webp",
+      "width": 480,
+      "height": 384
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/007@768.webp",
+      "width": 768,
+      "height": 614
+    }
+  ],
+  "behance-hypression-008": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/008@480.webp",
+      "width": 480,
+      "height": 601
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/008@768.webp",
+      "width": 768,
+      "height": 961
+    }
+  ],
+  "behance-hypression-009": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/009@480.webp",
+      "width": 480,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/009@768.webp",
+      "width": 768,
+      "height": 768
+    }
+  ],
+  "behance-offmi-001": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/001@480.webp",
+      "width": 480,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/001@768.webp",
+      "width": 768,
+      "height": 768
+    }
+  ],
+  "behance-offmi-002": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@480.webp",
+      "width": 480,
+      "height": 384
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@768.webp",
+      "width": 768,
+      "height": 614
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@1280.webp",
+      "width": 1280,
+      "height": 1024
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@1920.webp",
+      "width": 1920,
+      "height": 1536
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/002@2560.webp",
+      "width": 2560,
+      "height": 2048
+    }
+  ],
+  "behance-offmi-003": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@1920.webp",
+      "width": 1920,
+      "height": 2400
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/003@2560.webp",
+      "width": 2560,
+      "height": 3200
+    }
+  ],
+  "behance-offmi-004": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@480.webp",
+      "width": 480,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@768.webp",
+      "width": 768,
+      "height": 768
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@1280.webp",
+      "width": 1280,
+      "height": 1280
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@1920.webp",
+      "width": 1920,
+      "height": 1920
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/004@2560.webp",
+      "width": 2560,
+      "height": 2560
+    }
+  ],
+  "behance-offmi-005": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/005@480.webp",
+      "width": 480,
+      "height": 686
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/offmi/source/005@768.webp",
+      "width": 768,
+      "height": 1097
+    }
+  ],
+  "behance-cinema-stills-2-001": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/001@480.webp",
+      "width": 480,
+      "height": 724
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/001@768.webp",
+      "width": 768,
+      "height": 1158
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/001@1280.webp",
+      "width": 1280,
+      "height": 1931
+    }
+  ],
+  "behance-cinema-stills-2-002": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/002@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/002@768.webp",
+      "width": 768,
+      "height": 961
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/cinema-stills-2/source/002@1280.webp",
+      "width": 1280,
+      "height": 1601
+    }
+  ],
+  "behance-anka-model-tests-001": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/001@480.webp",
+      "width": 480,
+      "height": 475
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/001@768.webp",
+      "width": 768,
+      "height": 760
+    }
+  ],
+  "behance-anka-model-tests-002": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/002@480.webp",
+      "width": 480,
+      "height": 475
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/002@768.webp",
+      "width": 768,
+      "height": 760
+    }
+  ],
+  "behance-anka-model-tests-003": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/003@480.webp",
+      "width": 480,
+      "height": 720
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/003@768.webp",
+      "width": 768,
+      "height": 1152
+    }
+  ],
+  "behance-anka-model-tests-004": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/004@480.webp",
+      "width": 480,
+      "height": 720
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/004@768.webp",
+      "width": 768,
+      "height": 1152
+    }
+  ],
+  "behance-anka-model-tests-005": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/005@480.webp",
+      "width": 480,
+      "height": 343
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/005@768.webp",
+      "width": 768,
+      "height": 548
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/005@1280.webp",
+      "width": 1280,
+      "height": 914
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/anka-model-tests/source/005@1920.webp",
+      "width": 1920,
+      "height": 1371
+    }
+  ],
+  "behance-choose-your-character-001": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/001@480.webp",
+      "width": 480,
+      "height": 384
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/001@768.webp",
+      "width": 768,
+      "height": 614
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/001@1280.webp",
+      "width": 1280,
+      "height": 1024
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/001@1920.webp",
+      "width": 1920,
+      "height": 1536
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/001@2560.webp",
+      "width": 2560,
+      "height": 2048
+    }
+  ],
+  "behance-choose-your-character-002": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/002@480.webp",
+      "width": 480,
+      "height": 384
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/002@768.webp",
+      "width": 768,
+      "height": 614
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/002@1280.webp",
+      "width": 1280,
+      "height": 1024
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/002@1920.webp",
+      "width": 1920,
+      "height": 1536
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/002@2560.webp",
+      "width": 2560,
+      "height": 2048
+    }
+  ],
+  "behance-choose-your-character-003": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/003@480.webp",
+      "width": 480,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/003@768.webp",
+      "width": 768,
+      "height": 768
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/003@1280.webp",
+      "width": 1280,
+      "height": 1280
+    }
+  ],
+  "behance-choose-your-character-004": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/004@480.webp",
+      "width": 480,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/004@768.webp",
+      "width": 768,
+      "height": 768
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/004@1280.webp",
+      "width": 1280,
+      "height": 1280
+    }
+  ],
+  "behance-choose-your-character-005": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/005@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/005@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/005@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/005@1920.webp",
+      "width": 1920,
+      "height": 2400
+    }
+  ],
+  "behance-choose-your-character-006": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/006@480.webp",
+      "width": 480,
+      "height": 454
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/006@768.webp",
+      "width": 768,
+      "height": 726
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/006@1280.webp",
+      "width": 1280,
+      "height": 1210
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/006@1920.webp",
+      "width": 1920,
+      "height": 1815
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/006@2560.webp",
+      "width": 2560,
+      "height": 2420
+    }
+  ],
+  "behance-choose-your-character-007": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/007@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/007@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/007@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/007@1920.webp",
+      "width": 1920,
+      "height": 2399
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/007@2560.webp",
+      "width": 2560,
+      "height": 3199
+    }
+  ],
+  "behance-choose-your-character-008": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/008@480.webp",
+      "width": 480,
+      "height": 319
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/008@768.webp",
+      "width": 768,
+      "height": 510
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/008@1280.webp",
+      "width": 1280,
+      "height": 850
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/008@1920.webp",
+      "width": 1920,
+      "height": 1276
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/008@2560.webp",
+      "width": 2560,
+      "height": 1701
+    }
+  ],
+  "behance-choose-your-character-009": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/009@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/009@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/009@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/009@1920.webp",
+      "width": 1920,
+      "height": 2399
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/009@2560.webp",
+      "width": 2560,
+      "height": 3199
+    }
+  ],
+  "behance-choose-your-character-010": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/010@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/010@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/010@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/010@1920.webp",
+      "width": 1920,
+      "height": 2399
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/010@2560.webp",
+      "width": 2560,
+      "height": 3199
+    }
+  ],
+  "behance-choose-your-character-011": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/011@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/011@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/011@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/011@1920.webp",
+      "width": 1920,
+      "height": 2399
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/011@2560.webp",
+      "width": 2560,
+      "height": 3199
+    }
+  ],
+  "behance-choose-your-character-012": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/012@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/012@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/012@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/012@1920.webp",
+      "width": 1920,
+      "height": 2399
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/012@2560.webp",
+      "width": 2560,
+      "height": 3199
+    }
+  ],
+  "behance-choose-your-character-013": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/013@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/013@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/013@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/013@1920.webp",
+      "width": 1920,
+      "height": 2399
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/013@2560.webp",
+      "width": 2560,
+      "height": 3199
+    }
+  ],
+  "behance-choose-your-character-014": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/014@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/014@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/014@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/014@1920.webp",
+      "width": 1920,
+      "height": 2399
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/014@2560.webp",
+      "width": 2560,
+      "height": 3199
+    }
+  ],
+  "behance-choose-your-character-015": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/015@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/015@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/015@1280.webp",
+      "width": 1280,
+      "height": 1600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/015@1920.webp",
+      "width": 1920,
+      "height": 2399
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/015@2560.webp",
+      "width": 2560,
+      "height": 3199
+    }
+  ],
+  "behance-choose-your-character-016": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/016@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/016@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/016@1280.webp",
+      "width": 1280,
+      "height": 1600
+    }
+  ],
+  "behance-choose-your-character-017": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/017@480.webp",
+      "width": 480,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/017@768.webp",
+      "width": 768,
+      "height": 768
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/017@1280.webp",
+      "width": 1280,
+      "height": 1280
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/017@1920.webp",
+      "width": 1920,
+      "height": 1920
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/017@2560.webp",
+      "width": 2560,
+      "height": 2560
+    }
+  ],
+  "behance-choose-your-character-018": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/018@480.webp",
+      "width": 480,
+      "height": 668
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/018@768.webp",
+      "width": 768,
+      "height": 1068
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/018@1280.webp",
+      "width": 1280,
+      "height": 1781
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/018@1920.webp",
+      "width": 1920,
+      "height": 2671
+    }
+  ],
+  "behance-choose-your-character-019": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/019@480.webp",
+      "width": 480,
+      "height": 668
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/019@768.webp",
+      "width": 768,
+      "height": 1068
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/019@1280.webp",
+      "width": 1280,
+      "height": 1781
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/019@1920.webp",
+      "width": 1920,
+      "height": 2671
+    }
+  ],
+  "behance-choose-your-character-020": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/020@480.webp",
+      "width": 480,
+      "height": 384
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/020@768.webp",
+      "width": 768,
+      "height": 615
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/020@1280.webp",
+      "width": 1280,
+      "height": 1024
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/020@1920.webp",
+      "width": 1920,
+      "height": 1537
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/020@2560.webp",
+      "width": 2560,
+      "height": 2049
+    }
+  ],
+  "behance-choose-your-character-021": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/021@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/021@768.webp",
+      "width": 768,
+      "height": 960
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/021@1280.webp",
+      "width": 1280,
+      "height": 1601
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/choose-your-character/source/021@1920.webp",
+      "width": 1920,
+      "height": 2401
+    }
+  ],
+  "behance-editorial-photography-001": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/001@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/001@768.webp",
+      "width": 768,
+      "height": 961
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/001@1280.webp",
+      "width": 1280,
+      "height": 1601
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/001@1920.webp",
+      "width": 1920,
+      "height": 2401
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/001@2560.webp",
+      "width": 2560,
+      "height": 3202
+    }
+  ],
+  "behance-editorial-photography-002": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/002@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/002@768.webp",
+      "width": 768,
+      "height": 961
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/002@1280.webp",
+      "width": 1280,
+      "height": 1601
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/002@1920.webp",
+      "width": 1920,
+      "height": 2402
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/002@2560.webp",
+      "width": 2560,
+      "height": 3203
+    }
+  ],
+  "behance-editorial-photography-003": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/003@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/003@768.webp",
+      "width": 768,
+      "height": 961
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/003@1280.webp",
+      "width": 1280,
+      "height": 1601
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/003@1920.webp",
+      "width": 1920,
+      "height": 2401
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/003@2560.webp",
+      "width": 2560,
+      "height": 3202
+    }
+  ],
+  "behance-editorial-photography-004": [
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/004@480.webp",
+      "width": 480,
+      "height": 600
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/004@768.webp",
+      "width": 768,
+      "height": 961
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/004@1280.webp",
+      "width": 1280,
+      "height": 1601
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/004@1920.webp",
+      "width": 1920,
+      "height": 2401
+    },
+    {
+      "src": "/media/generated/responsive/projects/shootings/behance/editorial-photography/source/004@2560.webp",
+      "width": 2560,
+      "height": 3202
+    }
+  ],
   "berry-02-source-01-9x16": [
     {
       "src": "/media/generated/responsive/projects/berry/02/source/01-9x16@480.webp",
@@ -61,6 +1457,86 @@ export const responsiveMediaVariants = {
       "src": "/media/generated/responsive/projects/berry/02/source/04-9x16@480.webp",
       "width": 480,
       "height": 853
+    }
+  ],
+  "berry-03-source-06-2x3": [
+    {
+      "src": "/media/generated/responsive/projects/berry/03/source/06-2x3@480.webp",
+      "width": 480,
+      "height": 720
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/03/source/06-2x3@768.webp",
+      "width": 768,
+      "height": 1152
+    }
+  ],
+  "berry-05-source-01-1050x1400": [
+    {
+      "src": "/media/generated/responsive/projects/berry/05/source/01-1050x1400@480.webp",
+      "width": 480,
+      "height": 640
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/05/source/01-1050x1400@768.webp",
+      "width": 768,
+      "height": 1024
+    }
+  ],
+  "berry-05-source-05-2000x2000": [
+    {
+      "src": "/media/generated/responsive/projects/berry/05/source/05-2000x2000@480.webp",
+      "width": 480,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/05/source/05-2000x2000@768.webp",
+      "width": 768,
+      "height": 768
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/05/source/05-2000x2000@1280.webp",
+      "width": 1280,
+      "height": 1280
+    }
+  ],
+  "berry-05-source-07-2144x2144": [
+    {
+      "src": "/media/generated/responsive/projects/berry/05/source/07-2144x2144@480.webp",
+      "width": 480,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/05/source/07-2144x2144@768.webp",
+      "width": 768,
+      "height": 768
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/05/source/07-2144x2144@1280.webp",
+      "width": 1280,
+      "height": 1280
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/05/source/07-2144x2144@1920.webp",
+      "width": 1920,
+      "height": 1920
+    }
+  ],
+  "berserk-timer-cover": [
+    {
+      "src": "/media/generated/responsive/projects/berserk-timer/cover@480.webp",
+      "width": 480,
+      "height": 300
+    },
+    {
+      "src": "/media/generated/responsive/projects/berserk-timer/cover@768.webp",
+      "width": 768,
+      "height": 480
+    },
+    {
+      "src": "/media/generated/responsive/projects/berserk-timer/cover@1280.webp",
+      "width": 1280,
+      "height": 800
     }
   ],
   "esmi-12-source-01-1x1": [
@@ -2534,6 +4010,74 @@ export const responsiveMediaVariants = {
       "src": "/media/generated/responsive/projects/shootings/19/source/04-1553x2173@1280.webp",
       "width": 1280,
       "height": 1791
+    }
+  ],
+  "project-index-jestei-pool-cover": [
+    {
+      "src": "/media/generated/responsive/projects/index/jestei-pool-cover@480.webp",
+      "width": 480,
+      "height": 413
+    },
+    {
+      "src": "/media/generated/responsive/projects/index/jestei-pool-cover@768.webp",
+      "width": 768,
+      "height": 661
+    },
+    {
+      "src": "/media/generated/responsive/projects/index/jestei-pool-cover@1280.webp",
+      "width": 1280,
+      "height": 1102
+    }
+  ],
+  "project-index-styx-jewel-cover": [
+    {
+      "src": "/media/generated/responsive/projects/index/styx-jewel-cover@480.webp",
+      "width": 480,
+      "height": 413
+    },
+    {
+      "src": "/media/generated/responsive/projects/index/styx-jewel-cover@768.webp",
+      "width": 768,
+      "height": 661
+    },
+    {
+      "src": "/media/generated/responsive/projects/index/styx-jewel-cover@1280.webp",
+      "width": 1280,
+      "height": 1102
+    }
+  ],
+  "project-index-sensetique-cover": [
+    {
+      "src": "/media/generated/responsive/projects/index/sensetique-cover@480.webp",
+      "width": 480,
+      "height": 413
+    },
+    {
+      "src": "/media/generated/responsive/projects/index/sensetique-cover@768.webp",
+      "width": 768,
+      "height": 661
+    },
+    {
+      "src": "/media/generated/responsive/projects/index/sensetique-cover@1280.webp",
+      "width": 1280,
+      "height": 1102
+    }
+  ],
+  "project-index-shootings-cover": [
+    {
+      "src": "/media/generated/responsive/projects/index/shootings-cover@480.webp",
+      "width": 480,
+      "height": 413
+    },
+    {
+      "src": "/media/generated/responsive/projects/index/shootings-cover@768.webp",
+      "width": 768,
+      "height": 661
+    },
+    {
+      "src": "/media/generated/responsive/projects/index/shootings-cover@1280.webp",
+      "width": 1280,
+      "height": 1102
     }
   ],
   "sands-01-source-01-4x5": [

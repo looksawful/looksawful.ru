@@ -6,6 +6,7 @@ import { chromium } from "playwright";
 
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 4173;
+const SERVER_STOP_GRACE_MS = 2_000;
 
 export function isDirectExecution(metaUrl) {
   return Boolean(
@@ -31,9 +32,28 @@ async function waitForServer(baseUrl, server, getOutput, attempts = 80) {
   throw new Error(`Vite preview did not start at ${baseUrl}.\n${getOutput()}`);
 }
 
-function stopServer(server) {
-  if (!server || server.exitCode !== null || server.killed) return;
+function waitForExit(server) {
+  if (!server || server.exitCode !== null) return Promise.resolve();
+  return new Promise((resolve) => {
+    server.once("exit", resolve);
+  });
+}
+
+async function stopServer(server) {
+  if (!server || server.exitCode !== null) return;
+
+  const exited = waitForExit(server);
   server.kill("SIGTERM");
+
+  const graceful = await Promise.race([
+    exited.then(() => true),
+    delay(SERVER_STOP_GRACE_MS).then(() => false),
+  ]);
+
+  if (graceful || server.exitCode !== null) return;
+
+  server.kill("SIGKILL");
+  await exited;
 }
 
 export async function withE2ERuntime(callback, options = {}) {
@@ -63,19 +83,29 @@ export async function withE2ERuntime(callback, options = {}) {
   server.stderr.on("data", (chunk) => { serverOutput += chunk.toString(); });
 
   let browser;
-  let cleaning = false;
-  const cleanup = async () => {
-    if (cleaning) return;
-    cleaning = true;
-    try {
-      await browser?.close();
-    } finally {
-      stopServer(server);
-    }
+  let cleanupPromise;
+  const cleanup = () => {
+    if (cleanupPromise) return cleanupPromise;
+    cleanupPromise = (async () => {
+      try {
+        await browser?.close();
+      } finally {
+        await stopServer(server);
+      }
+    })();
+    return cleanupPromise;
   };
 
-  const onSignal = () => {
-    void cleanup();
+  const onSignal = (signal) => {
+    process.removeListener("SIGINT", onSignal);
+    process.removeListener("SIGTERM", onSignal);
+    void cleanup()
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        process.kill(process.pid, signal);
+      });
   };
   process.once("SIGINT", onSignal);
   process.once("SIGTERM", onSignal);

@@ -34,13 +34,17 @@ test("production deployment verifies stable CV structure rather than editable li
   assert.match(workflow, /grep -Fq '<main class="resume">'/);
 });
 
-test("generated-media cache restores metadata together with derivative binaries", async () => {
+test("generated-media cache stores only derivative binaries while tracked metadata stays repository-owned", async () => {
   for (const workflowUrl of workflowUrls) {
     const workflow = await readFile(workflowUrl, "utf8");
     const label = workflowUrl.pathname.split("/").at(-1);
+    const cache = workflow.match(/\n      - name: Restore generated media\b[\s\S]*?(?=\n      - name: )/)?.[0] ?? "";
+    const sync = workflow.match(/\n      - name: Sync generated media\b[\s\S]*?(?=\n      - name: )/)?.[0] ?? "";
 
-    assert.match(workflow, /public\/media\/generated\/responsive-manifest\.json/, `${label} must cache responsive manifest`);
-    assert.match(workflow, /public\/media\/generated\/video-inventory\.json/, `${label} must cache video inventory`);
-    assert.match(workflow, /src\/data\/media\/responsive-generated\.ts/, `${label} must cache generated responsive catalog`);
+    assert.match(cache, /public\/media\/generated\/responsive\b/, `${label} must cache responsive derivatives`);
+    assert.match(cache, /public\/media\/generated\/video\b/, `${label} must cache video derivatives`);
+    assert.doesNotMatch(cache, /responsive-manifest\.json|video-inventory\.json|responsive-generated\.ts/, `${label} must not cache tracked metadata`);
+    assert.match(sync, /npm run media:sync/, `${label} must validate cache contents against current repository metadata`);
+    assert.doesNotMatch(sync, /if:/, `${label} must run media validation even on cache hits`);
   }
 });
