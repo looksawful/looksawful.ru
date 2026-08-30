@@ -56,3 +56,21 @@ test("standalone page shell exposes page identity and one main landmark", () => 
   assert.match(html, /<link href="\/src\/styles\/index\.css" rel="stylesheet">/);
   assert.match(html, /<script src="\/src\/main\.js" type="module"><\/script>/);
 });
+
+test("page shell supports an explicit asset profile without changing the default", () => {
+  const html = renderPageShell({
+    page: jestei,
+    title: "Blog shell fixture",
+    description: "Asset profile fixture.",
+    content: "<article><h1>Fixture</h1></article>",
+    assets: {
+      stylesheet: "/src/styles/blog-entry.css",
+      script: "/src/blog.ts",
+    },
+  });
+
+  assert.match(html, /<link href="\/src\/styles\/blog-entry\.css" rel="stylesheet">/);
+  assert.match(html, /<script src="\/src\/blog\.ts" type="module"><\/script>/);
+  assert.doesNotMatch(html, /\/src\/styles\/index\.css/);
+  assert.doesNotMatch(html, /\/src\/main\.js/);
+});
