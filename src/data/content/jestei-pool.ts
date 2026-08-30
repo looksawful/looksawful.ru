@@ -1,13 +1,9 @@
 import type { BeforeAfterData } from "../../types/before-after.ts";
 import type { MediaFigureData, MockupData, ProjectIntroData, SectionIntroData } from "../../types/content.ts";
 import type { MediaGroupData } from "../../types/media-group.ts";
-import { getCase, getRole } from "../catalog/lookup.ts";
 import type { MediaEntryId } from "../media/index.ts";
 import type { LogoUsageId } from "../logos/index.ts";
 import { getJesteiEditorialOverlay, getJesteiEditorialSection, jesteiEditorialContent } from "./jestei-editorial.ts";
-
-const jesteiCase = getCase("jestei-pool");
-const artDirectorRole = getRole("art-director");
 
 const jesteiHomeEditorial = getJesteiEditorialSection("home");
 const jesteiBrandEditorial = getJesteiEditorialSection("brand");
@@ -26,8 +22,8 @@ const jesteiAudiencesOverlay = getJesteiEditorialOverlay("audiences");
 export const jesteiIntro = {
   head: { type: "logo", logoUsageId: "jestei-case-head-logo", wrapper: "none" },
   title: { type: "logo", logoUsageId: "jestei-case-title-logo" },
-  role: artDirectorRole.name,
-  period: jesteiCase.date,
+  role: jesteiEditorialContent.role,
+  period: jesteiEditorialContent.period,
   lead: jesteiEditorialContent.lead,
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
