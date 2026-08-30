@@ -72,12 +72,10 @@ export async function loadBlogEntries(
 }
 
 export function getPublishedBlogEntries(entries: readonly BlogEntry[]): readonly BlogEntry[] {
-  return Object.freeze(
-    entries
-      .filter((entry) => entry.published)
-      .toSorted((left, right) => {
-        const byDate = right.publishedAt.localeCompare(left.publishedAt);
-        return byDate || left.slug.localeCompare(right.slug, "en");
-      }),
-  );
+  const published = entries.filter((entry) => entry.published);
+  published.sort((left, right) => {
+    const byDate = right.publishedAt.localeCompare(left.publishedAt);
+    return byDate || left.slug.localeCompare(right.slug, "en");
+  });
+  return Object.freeze(published);
 }
