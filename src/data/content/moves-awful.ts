@@ -2,18 +2,19 @@ import type { AnimatedCanvasGalleryData } from "../../types/animated-canvas-gall
 import type { MediaFigureData, ProjectIntroData, SectionIntroData } from "../../types/content.ts";
 import type { MediaEntryId } from "../media/index.ts";
 import type { LogoUsageId } from "../logos/index.ts";
+import { movesAwfulEditorialContent } from "./moves-awful-editorial.ts";
 
 export const movesAwfulIntro = {
-  head: { type: "text", text: "Moves Awful" },
-  title: { type: "text", text: "Moves Awful" },
-  role: "Разработчик",
-  period: "2025",
-  summary: "Библиотека анимированных галерей для лендингов.",
+  head: { type: "text", text: movesAwfulEditorialContent.intro.head },
+  title: { type: "text", text: movesAwfulEditorialContent.intro.title },
+  role: movesAwfulEditorialContent.intro.role,
+  period: movesAwfulEditorialContent.intro.period,
+  summary: movesAwfulEditorialContent.intro.summary,
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
 export const movesAwfulAnimationsIntro = {
-  title: "Анимации лендинга",
-  paragraphs: ["Для лендинга мы начали активно использовать canvas-анимации и интерактивные виджеты. В лендинге мы стали показывать ленту с подборками треков, сразу знакомящую пользователя с интерфейсом и инструментами сервиса, показали плейлисты и рассказали о музыкальных жанрах, которые представлены на сервисе. Для анимированных секций лендинга для клубных диджеев мы использовали мою библиотеку анимаций Moves Awful."],
+  title: movesAwfulEditorialContent.animations.title,
+  paragraphs: movesAwfulEditorialContent.animations.paragraphs,
 } as const satisfies SectionIntroData;
 
 export const movesAwfulLandingMedia = [
