@@ -33,7 +33,8 @@
   }
 
   .blog-index__intro {
-    grid-column: 3 / -1;
+    grid-column: 4 / -1;
+    justify-self: end;
     max-inline-size: 42ch;
     margin: 0;
     color: var(--clr-text-muted);
@@ -61,6 +62,7 @@
   }
 
   .blog-filter__button {
+    min-inline-size: 2.75rem;
     min-block-size: 2.75rem;
     border: 0;
     border-block-end: var(--border-width-100) solid transparent;
@@ -147,13 +149,17 @@
   .blog-card__tags { margin: 0; color: var(--clr-text-muted); font-size: var(--fs-200); line-height: var(--lh-ui); }
   .blog-card__media { margin: 0; overflow: hidden; border-radius: var(--radius-poster); aspect-ratio: 16 / 10; background: var(--clr-surface-raised); }
   .blog-card__media img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+  .blog-card--featured .blog-card__title { font-size: var(--fs-700); line-height: 1.02; }
 
   @container blog-card (width > 52rem) {
     .blog-card { grid-template-columns: minmax(7rem, 1fr) repeat(3, minmax(0, 1fr)) repeat(2, minmax(0, 1fr)); align-items: start; }
     .blog-card__meta { grid-column: 1; display: grid; }
     .blog-card__content { grid-column: 2 / 5; }
     .blog-card__media { grid-column: 5 / 7; }
-    .blog-card:not(:has(.blog-card__media)) .blog-card__content { grid-column: 2 / -1; }
+    .blog-card--text .blog-card__content { grid-column: 2 / -1; }
+    .blog-card--featured.blog-card--media .blog-card__content { grid-column: 2 / 4; }
+    .blog-card--featured.blog-card--media .blog-card__media { grid-column: 4 / 7; }
+    .blog-card--featured.blog-card--text .blog-card__content { grid-column: 2 / -1; }
   }
 
   .blog-index__empty,
@@ -164,10 +170,14 @@
     font-size: var(--fs-300);
   }
 
-  .blog-post { container: blog-post / inline-size; padding-block: var(--size-500) var(--size-800); }
+  .blog-post {
+    --blog-breakout: min(calc(100cqi - 2 * var(--page-padding-inline)), var(--blog-wide));
+    container: blog-post / inline-size;
+    padding-block: var(--size-500) var(--size-800);
+  }
   .blog-post__header { --wrapper-max-width: var(--blog-wide); align-items: start; padding-block: var(--size-600) var(--size-500); border-block-end: var(--blog-rule-strong); }
   .blog-post__meta { grid-column: 1 / 2; display: grid; gap: var(--size-100); margin: 0; color: var(--clr-text-muted); font-size: var(--fs-200); font-variant-numeric: tabular-nums; line-height: var(--lh-ui); }
-  .blog-post__title { grid-column: 2 / -1; margin: 0; font-family: var(--blog-serif); font-size: clamp(2.7rem, 1.8rem + 4cqi, 6.6rem); font-weight: var(--fw-600); line-height: 0.94; letter-spacing: -0.045em; text-wrap: balance; }
+  .blog-post__title { grid-column: 2 / -1; margin: 0; font-family: var(--ff-primary); font-size: clamp(2.7rem, 1.8rem + 4cqi, 6.6rem); font-weight: var(--fw-600); line-height: 0.94; letter-spacing: -0.045em; text-wrap: balance; }
   .blog-post__lead { grid-column: 3 / -1; max-inline-size: 42ch; margin: var(--size-300) 0 0; font-family: var(--blog-serif); font-size: var(--fs-500); font-weight: var(--fw-400); line-height: 1.35; letter-spacing: -0.015em; }
   .blog-post__tags { grid-column: 3 / -1; margin: var(--size-200) 0 0; color: var(--clr-text-muted); font-size: var(--fs-200); line-height: var(--lh-ui); }
   .blog-post__cover,
@@ -190,6 +200,12 @@
   .blog-prose blockquote { margin-inline: 0; border-inline-start: var(--border-width-200) solid var(--clr-border-strong); padding-inline-start: var(--size-300); font-size: var(--fs-500); font-style: italic; }
   .blog-prose hr { border: 0; border-block-start: var(--blog-rule); margin-block: var(--size-600); }
 
+  .blog-prose > :is(.blog-figure, .blog-table, .blog-code) {
+    inline-size: var(--blog-breakout);
+    max-inline-size: none;
+    margin-inline: calc((100% - var(--blog-breakout)) / 2);
+  }
+
   .blog-figure { margin-block: var(--size-400); }
   .blog-figure img { inline-size: 100%; block-size: auto; border-radius: var(--radius-poster); }
 
@@ -202,7 +218,7 @@
   .blog-table:focus-visible { outline: var(--border-width-200) solid var(--clr-border-strong); outline-offset: var(--size-100); }
 
   .blog-prose :not(pre) > code { border-block-end: var(--blog-rule); font-family: var(--ff-mono); font-size: 0.88em; }
-  .blog-prose table { inline-size: 100%; border-collapse: collapse; font-family: var(--ff-primary); font-size: var(--fs-300); }
+  .blog-prose table { inline-size: 100%; min-inline-size: 42rem; border-collapse: collapse; font-family: var(--ff-primary); font-size: var(--fs-300); }
   .blog-prose :is(th, td) { border-block-end: var(--blog-rule); padding: var(--size-200) var(--size-300) var(--size-200) 0; text-align: start; vertical-align: top; }
   .blog-prose thead { border-block-end: var(--blog-rule-strong); }
 
@@ -219,7 +235,11 @@
   .blog-video { margin: 0; }
   .blog-video__media { display: grid; place-items: center; overflow: hidden; aspect-ratio: 16 / 9; border-radius: var(--radius-poster); background: color-mix(in srgb, var(--clr-text), transparent 94%); }
   .blog-video__media iframe { inline-size: 100%; block-size: 100%; border: 0; }
-  .blog-video__trigger { inline-size: 100%; block-size: 100%; border: 0; background: transparent; color: var(--clr-text); font: inherit; font-size: var(--fs-300); cursor: pointer; }
+  .blog-video__trigger { display: grid; inline-size: 100%; block-size: 100%; place-items: center; border: 0; padding: 0; background: transparent; color: var(--clr-text); font: inherit; font-size: var(--fs-300); cursor: pointer; }
+  .blog-video__poster,
+  .blog-video__trigger-label { grid-area: 1 / 1; }
+  .blog-video__poster { inline-size: 100%; block-size: 100%; object-fit: cover; }
+  .blog-video__trigger-label { z-index: 1; padding: var(--size-100) var(--size-200); background: var(--clr-bg); }
   .blog-video__label { margin-block-start: var(--size-100); color: var(--clr-text-muted); font-family: var(--ff-primary); font-size: var(--fs-200); line-height: var(--lh-caption); }
 
   .blog-post__footer { --wrapper-max-width: var(--blog-wide); margin-block-start: var(--size-700); padding-block-start: var(--size-300); border-block-start: var(--blog-rule-strong); font-size: var(--fs-300); }

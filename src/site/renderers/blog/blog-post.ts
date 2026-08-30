@@ -24,7 +24,8 @@ export function renderBlogPostPage(entry: BlogEntry): string {
   const updated = entry.updatedAt && entry.updatedAt !== entry.publishedAt
     ? `<span>обновлено <time datetime="${entry.updatedAt}">${entry.updatedAt}</time></span>`
     : "";
-  const video = entry.video ? renderBlogVideo(entry.video) : "";
+  const cover = entry.video ? "" : renderCover(entry);
+  const video = entry.video ? renderBlogVideo(entry.video, entry.cover) : "";
   const prose = renderBlogMarkdown(entry.body);
   const content = `<article class="blog-post">
   <header class="blog-post__header wrapper editorial-grid">
@@ -33,7 +34,7 @@ export function renderBlogPostPage(entry: BlogEntry): string {
     <p class="blog-post__lead">${escapeHtml(entry.summary)}</p>
     ${tags}
   </header>
-  ${renderCover(entry)}
+  ${cover}
   ${video ? `<div class="blog-post__feature wrapper">${video}</div>` : ""}
   <div class="blog-post__body"><div class="blog-prose prose">${renderResource(entry)}${prose}</div></div>
   <footer class="blog-post__footer wrapper"><a href="/blog/">← вернуться в блог</a></footer>

@@ -12,11 +12,21 @@ const FILTERS = [
   ["note", "заметки"],
 ] as const;
 
+function orderFeedEntries(entries: readonly BlogEntry[]): readonly BlogEntry[] {
+  const featured = entries.find((entry) => entry.featured);
+  if (!featured) return entries;
+  return [featured, ...entries.filter((entry) => entry.slug !== featured.slug)];
+}
+
 export function renderBlogIndexPage(
   page: BlogIndexPageDefinition,
   entries: readonly BlogEntry[],
 ): string {
-  const cards = entries.map((entry) => `<li>${renderBlogCard(entry)}</li>`).join("\n");
+  const feedEntries = orderFeedEntries(entries);
+  const featuredSlug = feedEntries.find((entry) => entry.featured)?.slug;
+  const cards = feedEntries
+    .map((entry) => `<li>${renderBlogCard(entry, { featured: entry.slug === featuredSlug })}</li>`)
+    .join("\n");
   const initialEmpty = entries.length === 0
     ? '<p class="blog-index__initial-empty wrapper">Пока здесь нет опубликованных материалов.</p>'
     : "";
