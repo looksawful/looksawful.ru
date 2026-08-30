@@ -4,6 +4,7 @@ import path from "node:path";
 import { getEnabledSitePages } from "../pages/manifest.ts";
 
 const BLOG_ENTRY_MARKER = "<!-- GENERATED BLOG ENTRY: tools/prepare-blog-entries.mjs -->";
+type PreparedBlogInput = readonly [`blog:${string}`, string];
 
 export function pagePathToEntryPath(pagePath: string): string {
   if (pagePath === "/") return "index.html";
@@ -11,7 +12,7 @@ export function pagePathToEntryPath(pagePath: string): string {
   return `${pagePath.replace(/^\//, "").replace(/\/$/, "")}/index.html`;
 }
 
-function getPreparedBlogInputs(root: string): readonly [string, string][] {
+function getPreparedBlogInputs(root: string): readonly PreparedBlogInput[] {
   const blogRoot = path.resolve(root, "blog");
   let entries;
   try { entries = readdirSync(blogRoot, { withFileTypes: true }); } catch { return []; }
@@ -27,8 +28,8 @@ function getPreparedBlogInputs(root: string): readonly [string, string][] {
         return null;
       }
     })
-    .filter((entry): entry is readonly [string, string] => entry !== null)
-    .toSorted(([left], [right]) => left.localeCompare(right, "en"));
+    .filter((entry): entry is PreparedBlogInput => entry !== null)
+    .sort(([left], [right]) => left.localeCompare(right, "en"));
 }
 
 export function createSiteInputs(root: string): Record<string, string> {
