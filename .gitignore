@@ -119,6 +119,9 @@ media/.compression-backup/
 public/media/generated/responsive/
 public/media/generated/video/
 
+# Generated blog article Vite entry stubs
+blog/*/index.html
+
 # Lighthouse CI
 .lighthouseci/
 artifacts/lighthouse/

@@ -3,11 +3,12 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Plugin } from "vite";
 
-import {
-  assertHomepagePresentationSupported,
-  homepageEntries,
-} from "../pages/homepage.ts";
+import { getPublishedBlogEntries, loadBlogEntries } from "../blog/loader.ts";
+import { getBlogPostPageByPath } from "../blog/page-registry.ts";
+import { assertHomepagePresentationSupported, homepageEntries } from "../pages/homepage.ts";
 import { getPageByPath } from "../pages/manifest.ts";
+import { renderBlogIndexPage } from "../renderers/blog/blog-index.ts";
+import { renderBlogPostPage } from "../renderers/blog/blog-post.ts";
 import { renderStandaloneEntityPage } from "../renderers/entity-page.ts";
 import { renderHomepagePage } from "../renderers/home/home-page.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
@@ -25,9 +26,7 @@ async function loadCvContentModule(root: string): Promise<CvContentModule> {
 export function entryRequestToPagePath(requestPath: string): string {
   const pathname = requestPath.split(/[?#]/, 1)[0] || "/";
   if (pathname === "/index.html") return "/";
-  if (pathname.endsWith("/index.html")) {
-    return pathname.slice(0, -"index.html".length);
-  }
+  if (pathname.endsWith("/index.html")) return pathname.slice(0, -"index.html".length);
   return pathname;
 }
 
@@ -54,6 +53,7 @@ export function renderNotFoundPage(page: NonNullable<ReturnType<typeof getPageBy
 
 export function createSitePagesPlugin(root = process.cwd()): Plugin {
   const homepageTemplatePath = path.resolve(root, "index.html");
+  const blogContentPath = path.resolve(root, "src/content/blog");
   assertHomepagePresentationSupported(homepageEntries);
 
   return {
@@ -72,16 +72,25 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
         if (pagePath === "/cv/") return renderCvDevHtml(html, root);
 
         const page = getPageByPath(pagePath);
-        if (!page) return html;
-
-        if (page.type === "home") return renderHomepagePage(html);
-
-        if (page.type === "case" || page.type === "project" || page.type === "collection") {
+        if (page?.type === "home") return renderHomepagePage(html);
+        if (page?.type === "case" || page?.type === "project" || page?.type === "collection") {
           const homepageTemplate = readFileSync(homepageTemplatePath, "utf8");
           return renderStandaloneEntityPage(homepageTemplate, page);
         }
+        if (page?.type === "blog-index") {
+          const entries = getPublishedBlogEntries(await loadBlogEntries(blogContentPath));
+          return renderBlogIndexPage(page, entries);
+        }
+        if (page?.type === "not-found") return renderNotFoundPage(page);
 
-        if (page.type === "not-found") return renderNotFoundPage(page);
+        if (pagePath.startsWith("/blog/")) {
+          const entries = await loadBlogEntries(blogContentPath);
+          const blogPage = getBlogPostPageByPath(entries, pagePath);
+          if (!blogPage) return html;
+          const entry = entries.find((candidate) => candidate.slug === blogPage.slug && candidate.published);
+          if (!entry) return html;
+          return renderBlogPostPage(entry);
+        }
 
         return html;
       },

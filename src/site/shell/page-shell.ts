@@ -1,6 +1,6 @@
 import type { SitePageDefinition } from "../pages/types.ts";
 import { escapeHtml } from "../../utils/html.ts";
-import { renderPageMetadata } from "./metadata.ts";
+import { renderPageMetadata, type PageMetadataExtras } from "./metadata.ts";
 import { renderSiteNavigation } from "./navigation.ts";
 
 export interface PageAssets {
@@ -19,6 +19,7 @@ export interface PageShellOptions {
   description: string;
   content: string;
   assets?: PageAssets;
+  metadata?: PageMetadataExtras;
 }
 
 function renderBodyAttributes(page: SitePageDefinition): string {
@@ -30,13 +31,13 @@ function renderBodyAttributes(page: SitePageDefinition): string {
   if (page.type === "case" || page.type === "project" || page.type === "collection") {
     attributes.push(`data-entity-id="${escapeHtml(page.entityId)}"`);
   }
+  if (page.type === "blog-post") attributes.push(`data-blog-slug="${escapeHtml(page.slug)}"`);
 
   return attributes.join(" ");
 }
 
 function renderPageAssets(assets: PageAssets): string {
-  return `<link href="${escapeHtml(assets.stylesheet)}" rel="stylesheet">
-    <script src="${escapeHtml(assets.script)}" type="module"></script>`;
+  return `<link href="${escapeHtml(assets.stylesheet)}" rel="stylesheet">\n    <script src="${escapeHtml(assets.script)}" type="module"></script>`;
 }
 
 export function renderPageShell({
@@ -45,13 +46,14 @@ export function renderPageShell({
   description,
   content,
   assets = DEFAULT_PAGE_ASSETS,
+  metadata = {},
 }: PageShellOptions): string {
   return `<!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    ${renderPageMetadata({ page, title, description })}
+    ${renderPageMetadata({ page, title, description, ...metadata })}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     ${renderPageAssets(assets)}
   </head>

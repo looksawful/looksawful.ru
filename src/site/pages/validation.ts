@@ -48,22 +48,22 @@ export function validateSitePages(pages: readonly SitePageDefinition[]): void {
 
     switch (page.type) {
       case "case":
-        if (!caseIds.has(page.entityId)) {
-          throw new Error(`Unknown Case page entity: ${page.entityId}`);
-        }
+        if (!caseIds.has(page.entityId)) throw new Error(`Unknown Case page entity: ${page.entityId}`);
         break;
       case "project":
-        if (!projectIds.has(page.entityId)) {
-          throw new Error(`Unknown Project page entity: ${page.entityId}`);
-        }
+        if (!projectIds.has(page.entityId)) throw new Error(`Unknown Project page entity: ${page.entityId}`);
         break;
       case "collection":
-        if (!collectionIds.has(page.entityId)) {
-          throw new Error(`Unknown Collection page entity: ${page.entityId}`);
+        if (!collectionIds.has(page.entityId)) throw new Error(`Unknown Collection page entity: ${page.entityId}`);
+        break;
+      case "blog-post":
+        if (page.id !== `blog:${page.slug}` || page.path !== `/blog/${page.slug}/`) {
+          throw new Error(`Blog post page identity is inconsistent: ${page.id}`);
         }
         break;
       case "home":
       case "static":
+      case "blog-index":
       case "not-found":
         break;
       default: {

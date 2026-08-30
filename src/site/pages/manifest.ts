@@ -7,10 +7,7 @@ export const sitePages = [
     type: "home",
     path: "/",
     enabled: true,
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "case:jestei-pool",
@@ -18,10 +15,7 @@ export const sitePages = [
     entityId: "jestei-pool",
     path: "/work/jestei-pool/",
     enabled: true,
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "case:styx",
@@ -29,10 +23,7 @@ export const sitePages = [
     entityId: "styx",
     path: "/work/styx/",
     enabled: true,
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "case:sensetique",
@@ -40,10 +31,7 @@ export const sitePages = [
     entityId: "sensetique",
     path: "/work/sensetique/",
     enabled: true,
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "collection:music-photography",
@@ -51,10 +39,14 @@ export const sitePages = [
     entityId: "music-photography",
     path: "/shootings/",
     enabled: true,
-    discovery: {
-      listed: true,
-      indexable: true,
-    },
+    discovery: { listed: true, indexable: true },
+  },
+  {
+    id: "blog",
+    type: "blog-index",
+    path: "/blog/",
+    enabled: true,
+    discovery: { listed: true, indexable: true },
   },
   {
     id: "project:awful-cases",
@@ -62,10 +54,7 @@ export const sitePages = [
     entityId: "awful-cases",
     path: "/work/awful-cases/",
     enabled: true,
-    discovery: {
-      listed: false,
-      indexable: false,
-    },
+    discovery: { listed: false, indexable: false },
   },
   {
     id: "project:moves-awful",
@@ -73,10 +62,7 @@ export const sitePages = [
     entityId: "moves-awful",
     path: "/work/moves-awful/",
     enabled: true,
-    discovery: {
-      listed: false,
-      indexable: false,
-    },
+    discovery: { listed: false, indexable: false },
   },
   {
     id: "project:berry-social-content-2020",
@@ -84,20 +70,14 @@ export const sitePages = [
     entityId: "berry-social-content-2020",
     path: "/work/berry-social-content-2020/",
     enabled: true,
-    discovery: {
-      listed: false,
-      indexable: false,
-    },
+    discovery: { listed: false, indexable: false },
   },
   {
     id: "not-found",
     type: "not-found",
     path: "/404.html",
     enabled: true,
-    discovery: {
-      listed: false,
-      indexable: false,
-    },
+    discovery: { listed: false, indexable: false },
   },
 ] as const satisfies readonly SitePageDefinition[];
 

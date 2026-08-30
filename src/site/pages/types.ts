@@ -39,6 +39,19 @@ export interface StaticPageDefinition extends BasePageDefinition {
   pageKey: string;
 }
 
+export interface BlogIndexPageDefinition extends BasePageDefinition {
+  type: "blog-index";
+  id: "blog";
+  path: "/blog/";
+}
+
+export interface BlogPostPageDefinition extends BasePageDefinition {
+  type: "blog-post";
+  id: `blog:${string}`;
+  slug: string;
+  title: string;
+}
+
 export interface NotFoundPageDefinition extends BasePageDefinition {
   type: "not-found";
   id: "not-found";
@@ -54,4 +67,6 @@ export type SitePageDefinition =
   | HomePageDefinition
   | EntityPageDefinition
   | StaticPageDefinition
+  | BlogIndexPageDefinition
+  | BlogPostPageDefinition
   | NotFoundPageDefinition;
