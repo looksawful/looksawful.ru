@@ -1,3 +1,4 @@
+import { runSmokeBlog } from "../smoke-blog.mjs";
 import { runSmokeCv } from "../smoke-cv.mjs";
 import { runSmokeMpa } from "../smoke-mpa.mjs";
 import { runSmokeProjectPages } from "../smoke-project-pages.mjs";
@@ -10,9 +11,8 @@ export async function runAllSmokeSuites({ browser, baseUrl, cvMode = "authored" 
   await runSmokeNavigation({ browser, baseUrl });
   await runSmokeMpa({ browser, baseUrl });
   await runSmokeProjectPages({ browser, baseUrl });
+  await runSmokeBlog({ browser, baseUrl });
   await runSmokeCv({ browser, baseUrl, mode: cvMode });
 }
 
-if (isDirectExecution(import.meta.url)) {
-  await withE2ERuntime(({ browser, baseUrl }) => runAllSmokeSuites({ browser, baseUrl }));
-}
+if (isDirectExecution(import.meta.url)) await withE2ERuntime(({ browser, baseUrl }) => runAllSmokeSuites({ browser, baseUrl }));

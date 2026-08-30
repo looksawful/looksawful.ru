@@ -1,0 +1,14 @@
+@layer reset, tokens, colors, base, patterns, components, utilities;
+
+@import "@fontsource-variable/inter/wght.css";
+@import "@fontsource-variable/source-serif-4/wght.css";
+@import "@fontsource-variable/source-serif-4/wght-italic.css";
+
+@import "./reset.css" layer(reset);
+@import "./tokens.css" layer(tokens);
+@import "./colors.css" layer(colors);
+@import "./base.css" layer(base);
+@import "./patterns.css" layer(patterns);
+@import "./blog.css" layer(components);
+@import "./utilities.css" layer(utilities);
+@import "./site-navigation.css";
