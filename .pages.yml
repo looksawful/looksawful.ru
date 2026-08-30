@@ -631,6 +631,70 @@ content:
             required: true
             description: Только текст существующего проекта Awful Cases. Ссылки, маршрут, видимость, taxonomy, media и композиция остаются в коде.
 
+      - name: moves-awful-standalone-project
+        label: Moves Awful
+        type: file
+        path: src/content/standalone-projects/moves-awful.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update Moves Awful standalone project copy"
+        actions:
+          - name: verify-moves-awful-standalone-project
+            label: Проверить сайт
+            workflow: verify-pr.yml
+            ref: current
+            confirm:
+              title: Запустить полную проверку сайта?
+              message: Будут проверены Moves Awful-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              button: Проверить
+        fields:
+          - name: intro
+            label: Вводные данные
+            type: object
+            required: true
+            fields:
+              - name: head
+                label: Заголовок в шапке
+                type: string
+                required: true
+              - name: title
+                label: Основной заголовок
+                type: string
+                required: true
+              - name: role
+                label: Роль
+                type: string
+                required: true
+              - name: period
+                label: Период
+                type: string
+                required: true
+              - name: summary
+                label: Краткое описание
+                type: text
+                required: true
+          - name: animations
+            label: Анимации лендинга
+            type: object
+            required: true
+            description: Только текст существующей секции. Видео, canvas-gallery, route, discovery, taxonomy и runtime остаются в коде.
+            fields:
+              - name: title
+                label: Заголовок
+                type: string
+                required: true
+              - name: paragraphs
+                label: Абзацы
+                type: text
+                required: true
+                list:
+                  min: 1
+
   - name: client-logo-visibility
     label: Логотипы клиентов
     type: file
