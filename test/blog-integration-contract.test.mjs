@@ -50,8 +50,18 @@ test("Pages CMS owns blog authoring and media but not routing", async () => {
   assert.ok(blogCollection, "blog collection must be registered under content");
   assert.equal(blogCollection.path, "src/content/blog");
   assert.equal(blogCollection.format, "yaml-frontmatter");
+  assert.deepEqual(blogCollection.exclude, [".gitkeep"]);
   assert.equal(blogCollection.operations?.rename, false);
   assert.equal(blogCollection.operations?.delete, false);
+  assert.deepEqual(blogCollection.view?.sort, ["publishedAt", "title"]);
+  assert.equal(blogCollection.view?.default?.sort, "publishedAt");
+  assert.equal(blogCollection.view?.default?.order, "desc");
+
+  const publishedAt = blogCollection.fields?.find((field) => field?.name === "publishedAt");
+  const updatedAt = blogCollection.fields?.find((field) => field?.name === "updatedAt");
+  assert.equal(publishedAt?.options?.format, "yyyy-MM-dd");
+  assert.equal(updatedAt?.default, "");
+  assert.equal(updatedAt?.options?.format, "yyyy-MM-dd");
   assert.ok(blogCollection.fields?.some((field) => field?.name === "body" && field?.type === "rich-text"));
 
   assert.ok(navigation.some(({ id, label }) => id === "blog" && label === "Блог"));
