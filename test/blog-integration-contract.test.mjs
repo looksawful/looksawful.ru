@@ -57,12 +57,13 @@ test("Pages CMS owns blog authoring and media but not routing", async () => {
   assert.ok(navigation.some(({ id, label }) => id === "blog" && label === "Блог"));
 });
 
-test("blog article stubs are generated before dev/build rather than committed as authored pages", async () => {
+test("blog article stubs are generated before dev/site builds rather than committed as authored pages", async () => {
   const packageJson = JSON.parse(await read("package.json"));
   const gitignore = await read(".gitignore");
 
   assert.equal(packageJson.scripts["site:entries:prepare"], "node tools/prepare-blog-entries.mjs");
   assert.match(packageJson.scripts.dev, /site:entries:prepare/);
-  assert.match(packageJson.scripts["build:vite"], /site:entries:prepare/);
+  assert.match(packageJson.scripts["build:site"], /site:entries:prepare/);
+  assert.equal(packageJson.scripts["build:vite"], "vite build");
   assert.match(gitignore, /blog\/\*\/index\.html/);
 });
