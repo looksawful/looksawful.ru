@@ -58,6 +58,12 @@ test("navigation label adapter rejects missing, duplicate, unknown and empty con
     ))),
     /label must be a non-empty string/i,
   );
+  assert.throws(
+    () => parseNavigationLabels(fixture.map((item, index) => (
+      index === 0 ? { ...item, label: "   \t" } : item
+    ))),
+    /label must be a non-empty string/i,
+  );
 });
 
 test("edited CMS labels feed both menu and breadcrumbs while hrefs stay code-owned", () => {
@@ -84,7 +90,7 @@ test("live navigation content keeps six stable IDs with editable non-empty label
   );
 
   assert.deepEqual(content.map(({ id }) => id), NAVIGATION_LABEL_IDS);
-  assert.ok(content.every(({ label }) => typeof label === "string" && label.length > 0));
+  assert.ok(content.every(({ label }) => typeof label === "string" && label.trim().length > 0));
 });
 
 test("Pages CMS exposes only navigation identity and label, never routing", async () => {
