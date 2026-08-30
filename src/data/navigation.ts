@@ -34,7 +34,7 @@ function parseNavigationLabel(value: unknown, index: number): NavigationLabelDat
   const id = NAVIGATION_LABEL_IDS.find((candidate) => candidate === idValue);
   if (!id) throw new Error(`unexpected navigation label id: ${idValue}`);
 
-  if (typeof value.label !== "string" || value.label.length === 0) {
+  if (typeof value.label !== "string" || value.label.trim().length === 0) {
     throw new Error(`${itemLabel}.label must be a non-empty string`);
   }
 
