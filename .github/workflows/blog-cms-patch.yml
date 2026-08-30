@@ -20,7 +20,7 @@ jobs:
           ref: feat/blog-v1-editorial
           fetch-depth: 0
 
-      - name: Patch Pages CMS and remove temporary workflows
+      - name: Patch Pages CMS
         shell: python
         run: |
           from pathlib import Path
@@ -40,15 +40,17 @@ jobs:
               source = source.rstrip() + '\n' + collection_block + '\n'
 
           config_path.write_text(source, encoding='utf-8')
-          Path('.github/workflows/blog-lockfile.yml').unlink(missing_ok=True)
-          Path('.github/workflows/blog-cms-patch.yml').unlink(missing_ok=True)
 
       - name: Commit scoped CMS patch
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .pages.yml .github/workflows/blog-lockfile.yml .github/workflows/blog-cms-patch.yml
+          git add .pages.yml
           git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "Pages CMS already contains blog schema"
+            exit 0
+          fi
           git commit -m "feat(blog): configure Pages CMS authoring"
           git push origin HEAD:feat/blog-v1-editorial
