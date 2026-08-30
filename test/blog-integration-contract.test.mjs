@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { parse as parseYaml } from "yaml";
+
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("blog uses an isolated lightweight CSS and runtime entrypoint", async () => {
@@ -32,18 +34,26 @@ test("blog uses an isolated lightweight CSS and runtime entrypoint", async () =>
 });
 
 test("Pages CMS owns blog authoring and media but not routing", async () => {
-  const cms = await read(".pages.yml");
+  const cmsSource = await read(".pages.yml");
+  const cms = parseYaml(cmsSource);
   const navigation = JSON.parse(await read("src/content/navigation.json"));
 
-  assert.match(cms, /name: blog-images/);
-  assert.match(cms, /input: public\/media\/blog/);
-  assert.match(cms, /output: \/media\/blog/);
-  assert.match(cms, /name: blog\b/);
-  assert.match(cms, /path: src\/content\/blog/);
-  assert.match(cms, /format: yaml-frontmatter/);
-  assert.match(cms, /rename: false/);
-  assert.match(cms, /delete: false/);
-  assert.match(cms, /name: body\b[\s\S]*?type: rich-text/);
+  assert.ok(Array.isArray(cms.media), "Pages CMS media must be an array");
+  const blogMedia = cms.media.find((item) => item?.name === "blog-images");
+  assert.ok(blogMedia, "blog-images must be registered under top-level media");
+  assert.equal(blogMedia.input, "public/media/blog");
+  assert.equal(blogMedia.output, "/media/blog");
+  assert.equal(cms.actions?.some((item) => item?.name === "blog-images"), false);
+
+  assert.ok(Array.isArray(cms.content), "Pages CMS content must be an array");
+  const blogCollection = cms.content.find((item) => item?.name === "blog");
+  assert.ok(blogCollection, "blog collection must be registered under content");
+  assert.equal(blogCollection.path, "src/content/blog");
+  assert.equal(blogCollection.format, "yaml-frontmatter");
+  assert.equal(blogCollection.operations?.rename, false);
+  assert.equal(blogCollection.operations?.delete, false);
+  assert.ok(blogCollection.fields?.some((field) => field?.name === "body" && field?.type === "rich-text"));
+
   assert.ok(navigation.some(({ id, label }) => id === "blog" && label === "Блог"));
 });
 
