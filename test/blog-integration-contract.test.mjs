@@ -59,9 +59,11 @@ test("Pages CMS owns blog authoring and media but not routing", async () => {
 
   const publishedAt = blogCollection.fields?.find((field) => field?.name === "publishedAt");
   const updatedAt = blogCollection.fields?.find((field) => field?.name === "updatedAt");
+  const tags = blogCollection.fields?.find((field) => field?.name === "tags");
   assert.equal(publishedAt?.options?.format, "yyyy-MM-dd");
   assert.equal(updatedAt?.default, "");
   assert.equal(updatedAt?.options?.format, "yyyy-MM-dd");
+  assert.deepEqual(tags?.default, []);
   assert.ok(blogCollection.fields?.some((field) => field?.name === "body" && field?.type === "rich-text"));
 
   assert.ok(navigation.some(({ id, label }) => id === "blog" && label === "Блог"));
