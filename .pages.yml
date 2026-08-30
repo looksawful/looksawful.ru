@@ -24,6 +24,13 @@ media:
         delete: "media(cms): delete project cover {filename}"
         rename: "media(cms): rename project cover {oldFilename} -> {newFilename}"
 
+  - name: blog-images
+    label: Blog images
+    input: public/media/blog
+    output: /media/blog
+    extensions: [webp]
+    rename: safe
+
 actions:
   - name: prepare-publication
     label: Подготовить публикацию
@@ -34,13 +41,6 @@ actions:
       title: Подготовить публикацию?
       message: Создаст или найдёт pull request из dev в prod. Сайт не будет опубликован автоматически.
       button: Подготовить
-
-  - name: blog-images
-    label: Blog images
-    input: public/media/blog
-    output: /media/blog
-    extensions: [webp]
-    rename: safe
 
 content:
   - name: navigation-labels
