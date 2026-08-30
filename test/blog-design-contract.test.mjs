@@ -85,10 +85,14 @@ test("blog index intro is pinned to the right half of the six-column editorial g
   assert.match(introRule, /grid-column:\s*4\s*\/\s*-1/);
 });
 
-test("editorial media, code and tables can break out beyond the 68ch reading column", async () => {
+test("editorial media, code and tables use Grid tracks to break out beyond the reading column", async () => {
   const css = await readFile(new URL("../src/styles/blog.css", import.meta.url), "utf8");
+  const proseRule = css.match(/\.blog-prose\s*\{[\s\S]*?\}/)?.[0] ?? "";
+  const breakoutRule = css.match(/\.blog-prose\s*>\s*:is\([^)]*\.blog-figure[^)]*\.blog-table[^)]*\.blog-code[^)]*\)\s*\{[\s\S]*?\}/)?.[0] ?? "";
 
-  assert.match(css, /--blog-breakout:/);
-  assert.match(css, /\.blog-prose\s*>\s*:is\([^)]*\.blog-figure[^)]*\.blog-table[^)]*\.blog-code[^)]*\)/);
-  assert.match(css, /inline-size:\s*var\(--blog-breakout\)/);
+  assert.match(proseRule, /grid-column:\s*1\s*\/\s*-1/);
+  assert.match(proseRule, /grid-template-columns:\s*subgrid/);
+  assert.match(breakoutRule, /grid-column:\s*1\s*\/\s*-1/);
+  assert.match(breakoutRule, /inline-size:\s*100%/);
+  assert.doesNotMatch(breakoutRule, /margin-inline:\s*calc/);
 });
