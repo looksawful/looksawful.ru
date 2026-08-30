@@ -103,3 +103,33 @@ test("combined browser smoke uses one shared runtime while individual suites sta
     assert.doesNotMatch(source, /const\s+server\s*=\s*spawn\(/, `${fileName} must not own a preview server`);
   }
 });
+
+test("CV smoke has explicit authored and production modes with fail-closed validation", async () => {
+  const source = await readFile(new URL("../tools/smoke-cv.mjs", import.meta.url), "utf8");
+
+  assert.match(source, /mode\s*=\s*["']authored["']/);
+  assert.match(source, /authored/);
+  assert.match(source, /production/);
+  assert.match(source, /unsupported CV smoke mode|invalid CV smoke mode/i);
+  assert.match(source, /mode\s*===\s*["']production["'][\s\S]*hiddenCards\s*===\s*0/);
+});
+
+test("caption QA is an exported suite that reuses the shared browser runtime", async () => {
+  const source = await readFile(new URL("../tools/capture-caption-qa.mjs", import.meta.url), "utf8");
+
+  assert.match(source, /export\s+async\s+function\s+captureCaptionQa/);
+  assert.match(source, /withE2ERuntime/);
+  assert.match(source, /isDirectExecution/);
+  assert.doesNotMatch(source, /const\s+server\s*=\s*spawn\(/);
+  assert.match(source, /outputDir/);
+});
+
+test("production E2E runner tests sanitized output and captures QA in the same runtime", async () => {
+  assert.equal(requireScript("test:e2e:production"), "node tools/e2e/run-production.mjs");
+  const source = await readFile(new URL("../tools/e2e/run-production.mjs", import.meta.url), "utf8");
+
+  assert.match(source, /withE2ERuntime/);
+  assert.match(source, /runAllSmokeSuites/);
+  assert.match(source, /cvMode:\s*["']production["']/);
+  assert.match(source, /captureCaptionQa/);
+});
