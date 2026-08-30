@@ -23,6 +23,8 @@ jobs:
           node-version: 24
           cache: npm
       - name: Verify presentation isolation first
+        env:
+          SHOOTINGS_ENFORCE_PRESENTATION_ISOLATION: "1"
         run: node --test test/shootings-data-isolation.test.mjs
       - name: Install
         run: npm ci
