@@ -528,6 +528,7 @@ content:
     type: collection
     path: src/content/blog
     format: yaml-frontmatter
+    exclude: [".gitkeep"]
     filename:
       template: "{primary}.md"
       field: create
@@ -538,8 +539,10 @@ content:
     view:
       primary: title
       fields: [kind, published, publishedAt]
-      sort: publishedAt
-      order: desc
+      sort: [publishedAt, title]
+      default:
+        sort: publishedAt
+        order: desc
     fields:
       - name: title
         label: Заголовок
@@ -571,10 +574,15 @@ content:
         label: Дата публикации
         type: date
         required: true
+        options:
+          format: yyyy-MM-dd
       - name: updatedAt
         label: Дата обновления
         type: date
         required: false
+        default: ""
+        options:
+          format: yyyy-MM-dd
       - name: featured
         label: Избранное
         type: boolean
