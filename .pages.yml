@@ -166,6 +166,82 @@ content:
     label: Кейсы
     type: group
     items:
+      - name: jestei-case
+        label: Jestei Pool
+        type: file
+        path: src/content/cases/jestei-pool.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update Jestei editorial copy"
+        actions:
+          - name: verify-jestei-case
+            label: Проверить сайт
+            workflow: verify-pr.yml
+            ref: current
+            confirm:
+              title: Запустить полную проверку сайта?
+              message: Будут проверены Jestei-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              button: Проверить
+        fields:
+          - name: lead
+            label: Вводный текст
+            type: text
+            required: true
+            description: Вводный текст Jestei Pool. Роль, период, логотипы, маршрут и композиция остаются в коде.
+          - name: sections
+            label: Тексты разделов
+            type: object
+            required: true
+            list:
+              min: 7
+              max: 7
+              collapsible:
+                collapsed: true
+                summary: "{title}"
+            description: Семь фиксированных текстовых разделов. Их порядок определяется кодом; layout и runtime через CMS не редактируются.
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+              - name: title
+                label: Заголовок
+                type: string
+                required: true
+              - name: paragraphs
+                label: Абзацы
+                type: text
+                required: true
+                list:
+                  min: 1
+          - name: overlays
+            label: Тексты карточек бренд-системы
+            type: object
+            required: true
+            list:
+              min: 6
+              max: 6
+              collapsible:
+                collapsed: true
+                summary: "{id}"
+            description: Только текст шести существующих hover-карточек. Media, surface, caption, layout и hover-механика остаются в TypeScript.
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+              - name: text
+                label: Текст
+                type: text
+                required: true
+
       - name: styx-case
         label: Styx
         type: file

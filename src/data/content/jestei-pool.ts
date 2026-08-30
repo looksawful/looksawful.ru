@@ -4,26 +4,41 @@ import type { MediaGroupData } from "../../types/media-group.ts";
 import { getCase, getRole } from "../catalog/lookup.ts";
 import type { MediaEntryId } from "../media/index.ts";
 import type { LogoUsageId } from "../logos/index.ts";
+import { getJesteiEditorialOverlay, getJesteiEditorialSection, jesteiEditorialContent } from "./jestei-editorial.ts";
 
 const jesteiCase = getCase("jestei-pool");
 const artDirectorRole = getRole("art-director");
+
+const jesteiHomeEditorial = getJesteiEditorialSection("home");
+const jesteiBrandEditorial = getJesteiEditorialSection("brand");
+const jesteiInterfaceEditorial = getJesteiEditorialSection("interface");
+const jesteiEditorialEditorial = getJesteiEditorialSection("editorial");
+const jesteiEventEditorial = getJesteiEditorialSection("event");
+const jesteiLandingsEditorial = getJesteiEditorialSection("landings");
+const jesteiPromoEditorial = getJesteiEditorialSection("promo");
+const jesteiLogoGeometryOverlay = getJesteiEditorialOverlay("logo-geometry");
+const jesteiProductColorOverlay = getJesteiEditorialOverlay("product-color");
+const jesteiLogoVariantsOverlay = getJesteiEditorialOverlay("logo-variants");
+const jesteiDesignSystemOverlay = getJesteiEditorialOverlay("design-system");
+const jesteiDisplayTypeOverlay = getJesteiEditorialOverlay("display-type");
+const jesteiAudiencesOverlay = getJesteiEditorialOverlay("audiences");
 
 export const jesteiIntro = {
   head: { type: "logo", logoUsageId: "jestei-case-head-logo", wrapper: "none" },
   title: { type: "logo", logoUsageId: "jestei-case-title-logo" },
   role: artDirectorRole.name,
   period: jesteiCase.date,
-  lead: jesteiCase.summary,
+  lead: jesteiEditorialContent.lead,
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
 export const jesteiFeaturedMedia = { entryId: "jestei-01-source-01-823x419-use-01", presentation: "banner", captionView: "summary", loading: "lazy" } as const satisfies MediaFigureData<MediaEntryId>;
-export const jesteiHomeIntro = { title: "Персонализация", paragraphs: ["На главной Jestei Pool пользователи видят баннеры о новых релизах и обновлениях контента. Мы заменили стоковые фотографии генеративными изображениями и переработали адаптивность компонента. В результате сократили расходы на производство баннеров в 2,5 раза. Ввели показ по интересам пользователя. Например, клубные диджеи, которые не заходят в Event, больше не видят его обновления. Для регулярных рубрик разработали свои визуальные концепции, поэтому креативы стали последовательными и узнаваемыми."] } as const satisfies SectionIntroData;
+export const jesteiHomeIntro = { title: jesteiHomeEditorial.title, paragraphs: jesteiHomeEditorial.paragraphs } as const satisfies SectionIntroData;
 export const jesteiHomeMockup = { entryId: "jestei-02-source-01-16x10-use-01", device: "desktop", role: "wide", captionView: "summary", loading: "eager" } as const satisfies MockupData<MediaEntryId>;
-export const jesteiBrandIntro = { title: "Ребрендинг", bodyClassName: "brand-system__intro", paragraphs: ["Провели ребрендинг Jestei Pool: серьёзно переработали логотип, обновили типографику и сделали цвет частью продуктовой навигации. Новую айдентику встроили в интерфейс и дизайн-систему."] } as const satisfies SectionIntroData;
-export const jesteiInterfaceIntro = { title: "Продукт", bodyClassName: "jestei-section-copy-list", paragraphs: ["Сгруппировали плейлисты и добавили заголовки и описания. Наняли редактора и вместе с диджеями описали больше 200 плейлистов и все жанры. Для каждой группы разработали свой стиль обложек вместо однообразных стоковых картинок.", "Разработали алгоритмические плейлисты. Они собирают популярные треки по жанру или части мероприятия и исключают музыку, которую пользователь уже слышал. Например, плейлист может предложить десять популярных треков для праймтайма или афтерпати, которые пользователь ещё не знает.", "Полностью переделали сценарий покупки подписки. Объяснили разницу между тарифами и обозначили предложения для разных сегментов своими цветами."] } as const satisfies SectionIntroData;
-export const jesteiEditorialIntro = { title: "Коммуникации", paragraphs: ["Собрали единые правила для tone of voice, терминологии, UX-текстов, интерфейсных текстов и редакционной работы Jestei Pool."] } as const satisfies SectionIntroData;
+export const jesteiBrandIntro = { title: jesteiBrandEditorial.title, bodyClassName: "brand-system__intro", paragraphs: jesteiBrandEditorial.paragraphs } as const satisfies SectionIntroData;
+export const jesteiInterfaceIntro = { title: jesteiInterfaceEditorial.title, bodyClassName: "jestei-section-copy-list", paragraphs: jesteiInterfaceEditorial.paragraphs } as const satisfies SectionIntroData;
+export const jesteiEditorialIntro = { title: jesteiEditorialEditorial.title, paragraphs: jesteiEditorialEditorial.paragraphs } as const satisfies SectionIntroData;
 export const jesteiRedpolitikaMockup = { entryId: "jestei-redpolitika-preview-use-01", device: "desktop", role: "wide", captionView: "lightbox-only", loading: "lazy", mediaClassName: "fit-cover" } as const satisfies MockupData<MediaEntryId>;
-export const jesteiEventIntro = { title: "Масштабы", bodyClassName: "jestei-section-copy-list", paragraphs: ["Добавили на лендинг Canvas-анимации и интерактивные виджеты. Лента с треками знакомит пользователя с интерфейсом и инструментами сервиса прямо на странице. Там же показали плейлисты и музыкальные жанры. Анимации для клубных диджеев сделали на моей библиотеке Moves Awful.", "Спрос в ивент-диджеинге зависит от сезона, поэтому его можно прогнозировать. Мы исследовали, какие плейлисты чаще всего нужны ивент-диджеям. Разделили музыку на сезонную и постоянную, а актуальные подборки подняли выше в навигации.", "Создали виджеты с предложением перейти на следующий тариф и встроили апгрейд подписки прямо в интерфейс.", "Разделили отдельные плейлисты и коллекции. Добавили подсказки и описания к группам. Стоковые картинки заменили дизайнерскими обложками."] } as const satisfies SectionIntroData;
+export const jesteiEventIntro = { title: jesteiEventEditorial.title, bodyClassName: "jestei-section-copy-list", paragraphs: jesteiEventEditorial.paragraphs } as const satisfies SectionIntroData;
 
 export const jesteiEventGroup = {
   layout: "grid",
@@ -99,9 +114,9 @@ export const jesteiEventGroup = {
   ],
 } as const satisfies MediaGroupData<MediaEntryId>;
 
-export const jesteiLandingsIntro = { title: "Лендинги", paragraphs: ["К 2025 году один лендинг перестал описывать весь Jestei Pool. Появились новые инструменты и сценарии, а Event стал отдельным направлением. Мы активнее использовали таргетированную рекламу, поэтому разным аудиториям понадобились разные предложения. Запустили два лендинга и собрали каждый из промомодулей под свои рекламные задачи."] } as const satisfies SectionIntroData;
+export const jesteiLandingsIntro = { title: jesteiLandingsEditorial.title, paragraphs: jesteiLandingsEditorial.paragraphs } as const satisfies SectionIntroData;
 export const jesteiLandingsMockup = { entryId: "jestei-13-source-13-1280x588-use-01", device: "desktop", captionView: "summary", video: { autoplay: true, loop: true, muted: true, playsInline: true, preload: "auto" } } as const satisfies MockupData<MediaEntryId>;
-export const jesteiPromoIntro = { title: "Дизайн", paragraphs: ["Отказались от однообразного стокового контента для плейлистов, регулярных рубрик и сезонных подборок. Вместо него использовали метафоры, коллажи, иллюстрации и нейросети. Для каждой рубрики разработали свой визуальный подход."] } as const satisfies SectionIntroData;
+export const jesteiPromoIntro = { title: jesteiPromoEditorial.title, paragraphs: jesteiPromoEditorial.paragraphs } as const satisfies SectionIntroData;
 
 
 export const jesteiInstagramPlayerStrip = {
@@ -208,7 +223,7 @@ export const jesteiBrandSystemGroup = {
       captionFields: ["index", "title"],
       surfaceOverlay: {
         className: "brand-system__hover-copy",
-        text: "Серьёзно переработали логотип Jestei Pool. Заново построили геометрию знака и описали правила его применения в интерфейсе, айдентике и промоматериалах.",
+        text: jesteiLogoGeometryOverlay.text,
       },
     },
     {
@@ -222,7 +237,7 @@ export const jesteiBrandSystemGroup = {
       captionFields: ["index", "title"],
       surfaceOverlay: {
         className: "brand-system__hover-copy",
-        text: "Связали цвет с продуктовой навигацией. Оранжевый обозначает клубный продукт, зелёный — Event, синий — Pro. Для новых функций добавили отдельный цвет.",
+        text: jesteiProductColorOverlay.text,
       },
     },
     {
@@ -236,7 +251,7 @@ export const jesteiBrandSystemGroup = {
       captionFields: ["index", "title"],
       surfaceOverlay: {
         className: "brand-system__hover-copy",
-        text: "Для нового логотипа сделали полную и сокращённую версии. Задали пропорции знака и шрифтовой части и описали правила применения в разных форматах.",
+        text: jesteiLogoVariantsOverlay.text,
       },
     },
     {
@@ -250,7 +265,7 @@ export const jesteiBrandSystemGroup = {
       captionFields: ["index", "title"],
       surfaceOverlay: {
         className: "brand-system__hover-copy",
-        text: "Новую айдентику встроили в дизайн-систему. Связали логотип, типографику и цвет с интерфейсными правилами. Теперь один визуальный язык работает и в продукте, и в коммуникации.",
+        text: jesteiDesignSystemOverlay.text,
       },
     },
     {
@@ -264,7 +279,7 @@ export const jesteiBrandSystemGroup = {
       captionFields: ["index", "title"],
       surfaceOverlay: {
         className: "brand-system__hover-copy",
-        text: "Добавили Druk Wide для крупных заголовков и промокоммуникации. Функциональный текст оставили на основном интерфейсном шрифте.",
+        text: jesteiDisplayTypeOverlay.text,
       },
     },
     {
@@ -278,7 +293,7 @@ export const jesteiBrandSystemGroup = {
       captionFields: ["index", "title"],
       surfaceOverlay: {
         className: "brand-system__hover-copy",
-        text: "Разделили аудиторию на клубных диджеев, ивент-диджеев и саунд-продюсеров. Для каждой группы настроили свои продуктовые предложения, навигацию и коммуникацию.",
+        text: jesteiAudiencesOverlay.text,
       },
     },
   ],
@@ -298,7 +313,7 @@ export const jesteiInterfaceGroup = {
       captionFields: ["index", "title"],
       surfaceOverlay: {
         className: "jestei-media__hover-copy",
-        text: "Сгруппировали плейлисты и добавили заголовки и описания. Наняли редактора и вместе с диджеями описали больше 200 плейлистов и все жанры. Для каждой группы разработали свой стиль обложек вместо однообразных стоковых картинок.",
+        text: jesteiInterfaceIntro.paragraphs[0],
       },
     },
     {
@@ -308,7 +323,7 @@ export const jesteiInterfaceGroup = {
       captionFields: ["index", "title"],
       surfaceOverlay: {
         className: "jestei-media__hover-copy",
-        text: "Разработали алгоритмические плейлисты. Они собирают популярные треки по жанру или части мероприятия и исключают музыку, которую пользователь уже слышал. Например, плейлист может предложить десять популярных треков для праймтайма или афтерпати, которые пользователь ещё не знает.",
+        text: jesteiInterfaceIntro.paragraphs[1],
       },
     },
     {
@@ -318,7 +333,7 @@ export const jesteiInterfaceGroup = {
       captionFields: ["index", "title"],
       surfaceOverlay: {
         className: "jestei-media__hover-copy",
-        text: "Полностью переделали сценарий покупки подписки. Объяснили разницу между тарифами и обозначили предложения для разных сегментов своими цветами.",
+        text: jesteiInterfaceIntro.paragraphs[2],
       },
     },
   ],
