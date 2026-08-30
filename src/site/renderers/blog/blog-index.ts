@@ -30,7 +30,7 @@ export function renderBlogIndexPage(
     <p class="blog-index__intro">Инструменты, курсы, видеоуроки и заметки о дизайне, коде и нейросетях.</p>
   </header>
   <div class="blog-index__controls wrapper" data-blog-filter>
-    <div class="blog-filter__types" aria-label="Тип материала">${controls}</div>
+    <div class="blog-filter__types" role="group" aria-label="Тип материала">${controls}</div>
     <div class="blog-search"><label class="blog-search__label" for="blog-search">поиск</label><input class="blog-search__input" id="blog-search" type="search" autocomplete="off" data-blog-search-input></div>
     <p class="blog-filter__count" data-blog-count>${entries.length}</p>
   </div>
