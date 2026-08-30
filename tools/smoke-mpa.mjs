@@ -1,10 +1,6 @@
-import { spawn } from "node:child_process";
-import { setTimeout as delay } from "node:timers/promises";
-import { chromium } from "playwright";
+import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
-const HOST = "127.0.0.1";
-const PORT = 4174;
-const BASE_URL = `http://${HOST}:${PORT}`;
+let BASE_URL = "";
 const PAGE_FLIP_SRC = "https://unpkg.com/page-flip@2.0.7/dist/js/page-flip.browser.js";
 const PAGE_FLIP_LIBRARY_FIXTURE = `
 window.St = window.St || {};
@@ -70,26 +66,6 @@ function isSameOrigin(url) {
   } catch {
     return false;
   }
-}
-
-const server = spawn(
-  process.execPath,
-  ["node_modules/vite/bin/vite.js", "preview", "--host", HOST, "--port", String(PORT), "--strictPort"],
-  { stdio: ["ignore", "pipe", "pipe"] },
-);
-let serverOutput = "";
-server.stdout.on("data", (chunk) => { serverOutput += chunk.toString(); });
-server.stderr.on("data", (chunk) => { serverOutput += chunk.toString(); });
-
-async function waitForServer() {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    try {
-      const response = await fetch(BASE_URL, { redirect: "follow" });
-      if (response.ok) return;
-    } catch {}
-    await delay(250);
-  }
-  throw new Error(`Vite preview did not start.\n${serverOutput}`);
 }
 
 async function scrollThroughPage(page) {
@@ -380,10 +356,8 @@ async function auditReducedMotion(browser) {
   }
 }
 
-let browser;
-try {
-  await waitForServer();
-  browser = await chromium.launch({ headless: true });
+export async function runSmokeMpa({ browser, baseUrl }) {
+  BASE_URL = baseUrl;
   for (const route of ROUTES) {
     for (const [width, height] of route.viewports) {
       await auditRoute(browser, route, width, height);
@@ -391,7 +365,8 @@ try {
   }
   await auditReducedMotion(browser);
   console.log(`[smoke-mpa] OK: ${ROUTES.length} standalone routes with direct reload, isolation, metadata, overflow, media, lightbox, page-flip, before/after and reduced-motion checks`);
-} finally {
-  await browser?.close();
-  server.kill("SIGTERM");
+}
+
+if (isDirectExecution(import.meta.url)) {
+  await withE2ERuntime(({ browser, baseUrl }) => runSmokeMpa({ browser, baseUrl }));
 }
