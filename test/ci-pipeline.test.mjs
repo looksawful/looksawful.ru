@@ -45,18 +45,28 @@ function assertAlwaysSyncsMedia(workflow) {
   assert.doesNotMatch(block, /if:/);
 }
 
+function assertTrackedMediaMetadataClean(workflow) {
+  const block = stepBlock(workflow, "Check tracked media metadata");
+  assert.match(block, /git diff --exit-code/);
+  assert.match(block, /responsive-manifest\.json/);
+  assert.match(block, /video-inventory\.json/);
+  assert.match(block, /responsive-generated\.ts/);
+}
+
 test("PR verification fails cheaply, always validates restored media, and installs Chromium last", async () => {
   const workflow = await read(".github/workflows/verify-pr.yml");
 
   assert.doesNotMatch(workflow, /name: Analytics contract/);
   assertDerivativeOnlyCache(workflow);
   assertAlwaysSyncsMedia(workflow);
+  assertTrackedMediaMetadataClean(workflow);
   assertOrdered(workflow, [
     "Install",
     "Typecheck",
     "Restore generated media",
     "Ensure media tooling",
     "Sync generated media",
+    "Check tracked media metadata",
     "Core tests",
     "Build site",
     "Install browser for smoke tests",
@@ -72,14 +82,17 @@ test("PR verification fails cheaply, always validates restored media, and instal
 test("dev verification keeps correctness coverage without caption QA or unused dist artifacts", async () => {
   const workflow = await read(".github/workflows/verify-dev.yml");
 
+  assert.match(workflow, /workflow_dispatch:/);
   assertDerivativeOnlyCache(workflow);
   assertAlwaysSyncsMedia(workflow);
+  assertTrackedMediaMetadataClean(workflow);
   assertOrdered(workflow, [
     "Install",
     "Typecheck",
     "Restore generated media",
     "Ensure media tooling",
     "Sync generated media",
+    "Check tracked media metadata",
     "Core tests",
     "Build site",
     "Install browser for smoke tests",
@@ -97,12 +110,14 @@ test("production tests the sanitized final dist before uploading the Pages artif
   assert.match(workflow, /github-pages\/production/);
   assertDerivativeOnlyCache(workflow);
   assertAlwaysSyncsMedia(workflow);
+  assertTrackedMediaMetadataClean(workflow);
   assertOrdered(workflow, [
     "Install",
     "Typecheck",
     "Restore generated media",
     "Ensure media tooling",
     "Sync generated media",
+    "Check tracked media metadata",
     "Core tests",
     "Build site",
     "Prepare production CV",
@@ -128,12 +143,14 @@ test("Lighthouse is scheduled/manual only and validates deterministic media befo
   assert.match(workflow, /schedule:/);
   assertDerivativeOnlyCache(workflow);
   assertAlwaysSyncsMedia(workflow);
+  assertTrackedMediaMetadataClean(workflow);
   assertOrdered(workflow, [
     "Install",
     "Typecheck",
     "Restore generated media",
     "Ensure media tooling",
     "Sync generated media",
+    "Check tracked media metadata",
     "Build site",
     "Install Chromium",
     "Run Lighthouse CI",
@@ -156,12 +173,14 @@ test("specialized CV branch keeps screenshots and adds production CV smoke witho
   assert.match(workflow, /CV_SMOKE_CAPTURE_DIR: artifacts\/cv-smoke/);
   assertDerivativeOnlyCache(workflow);
   assertAlwaysSyncsMedia(workflow);
+  assertTrackedMediaMetadataClean(workflow);
   assertOrdered(workflow, [
     "Install",
     "Typecheck",
     "Restore generated media",
     "Ensure media tooling",
     "Sync generated media",
+    "Check tracked media metadata",
     "Core tests",
     "Build site",
     "Install browser for smoke tests",
@@ -185,6 +204,7 @@ test("shootings integration keeps its intentional early isolation guard and then
     "Restore generated media",
     "Ensure media tooling",
     "Sync generated media",
+    "Check tracked media metadata",
     "Core tests",
     "Build site",
     "Install browser for smoke tests",
@@ -193,6 +213,7 @@ test("shootings integration keeps its intentional early isolation guard and then
   assert.match(stepBlock(workflow, "Verify presentation isolation first"), /shootings-data-isolation\.test\.mjs/);
   assertDerivativeOnlyCache(workflow);
   assertAlwaysSyncsMedia(workflow);
+  assertTrackedMediaMetadataClean(workflow);
   assert.doesNotMatch(workflow, /npm run verify(?::core)?/);
 });
 
