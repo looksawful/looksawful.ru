@@ -531,6 +531,58 @@ content:
             type: text
             description: Текст раздела съёмки. Media, порядок блоков, credits и визуальная композиция остаются в коде.
 
+  - name: standalone-projects
+    label: Отдельные проекты
+    type: group
+    items:
+      - name: berry-standalone-project
+        label: Berry Agency
+        type: file
+        path: src/content/standalone-projects/berry-social-content-2020.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update Berry standalone project copy"
+        actions:
+          - name: verify-berry-standalone-project
+            label: Проверить сайт
+            workflow: verify-pr.yml
+            ref: current
+            confirm:
+              title: Запустить полную проверку сайта?
+              message: Будут проверены Berry-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              button: Проверить
+        fields:
+          - name: head
+            label: Заголовок в шапке
+            type: string
+            required: true
+          - name: title
+            label: Основной заголовок
+            type: string
+            required: true
+          - name: role
+            label: Роль
+            type: string
+            required: true
+          - name: period
+            label: Период
+            type: string
+            required: true
+          - name: summary
+            label: Краткое описание
+            type: text
+            required: true
+          - name: lead
+            label: Вводный текст
+            type: text
+            required: true
+            description: Только текст существующего проекта Berry. Маршрут, видимость, taxonomy, media и композиция остаются в коде.
+
   - name: client-logo-visibility
     label: Логотипы клиентов
     type: file
