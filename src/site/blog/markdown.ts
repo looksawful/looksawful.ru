@@ -27,6 +27,9 @@ function isSafeBlogImageHref(href: string): boolean {
 const blogMarkdown = new Marked({
   gfm: true,
   breaks: false,
+});
+
+blogMarkdown.use({
   renderer: {
     html() {
       return fail("raw HTML is not allowed");
