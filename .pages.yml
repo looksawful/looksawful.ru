@@ -591,6 +591,7 @@ content:
         label: Теги
         type: string
         list: true
+        default: []
       - name: cover
         label: Обложка
         type: object
