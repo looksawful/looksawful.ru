@@ -42,6 +42,8 @@ const behancePhotographyBase = {
   workAreaIds: ["photography"],
 } as const;
 
+const optionalDate = (date: string) => (date ? { date } : {});
+
 export const shootingsProjects = [
   {
     ...musicPhotographyBase,
@@ -119,31 +121,37 @@ export const shootingsProjects = [
     ...behancePhotographyBase,
     id: "shootings-behance-ecobasik",
     name: ecobasikEditorial.title,
+    ...optionalDate(ecobasikEditorial.date),
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-offmi",
     name: offmiEditorial.title,
+    ...optionalDate(offmiEditorial.date),
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-cinema-stills-2",
     name: cinemaStillsEditorial.title,
+    ...optionalDate(cinemaStillsEditorial.date),
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-anka-model-tests",
     name: ankaModelTestsEditorial.title,
+    ...optionalDate(ankaModelTestsEditorial.date),
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-choose-your-character",
     name: chooseYourCharacterEditorial.title,
+    ...optionalDate(chooseYourCharacterEditorial.date),
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-editorial-photography",
     name: editorialPhotographyEditorial.title,
+    ...optionalDate(editorialPhotographyEditorial.date),
   },
 ] as const satisfies readonly ProjectData[];
 
