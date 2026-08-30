@@ -80,10 +80,14 @@ async function auditIndex(browser, baseUrl, width, height) {
     assert(state.blogCurrent, "blog menu item is not current");
     assert(state.overflow <= 1, `horizontal overflow ${state.overflow}px`);
 
-    await page.locator('[data-blog-filter-kind="tool"]').click();
-    assert(new URL(page.url()).searchParams.get("type") === "tool", "filter did not sync URL state");
-    await page.locator("[data-blog-search-input]").fill("css");
-    assert(new URL(page.url()).searchParams.get("q") === "css", "search did not sync URL state");
+    await Promise.all([
+      page.waitForURL((url) => url.searchParams.get("type") === "tool", { timeout: 2_000 }),
+      page.locator('[data-blog-filter-kind="tool"]').click(),
+    ]);
+    await Promise.all([
+      page.waitForURL((url) => url.searchParams.get("q") === "css", { timeout: 2_000 }),
+      page.locator("[data-blog-search-input]").fill("css"),
+    ]);
 
     await verifyVideoRuntime(page);
     assert(errors.length === 0, errors.join("\n"));
