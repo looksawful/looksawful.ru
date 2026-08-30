@@ -63,6 +63,9 @@ module.exports = {
       staticDistDir: "./dist",
       url: localUrls,
       numberOfRuns: 1,
+      settings: {
+        chromeFlags: "--no-sandbox",
+      },
     },
     assert: {
       assertions: {

@@ -510,7 +510,7 @@
       "sourceHash": "ddab2d8e2e8bfa5f02dde5ae9f03b4d6ecb329861a36ed84fc93871145cba2d1",
       "configHash": "8011e25b81024afbda2d6e8d6ca281eedbeb5a12696852c69d7b3d5ac801d11c",
       "outputSrc": "/media/generated/video/projects/sensetique/11/source/97-16x9.web.mp4",
-      "outputBytes": 26822646,
+      "outputBytes": 26373477,
       "status": "transcode",
       "reasons": [
         "mov container should be replaced with web mp4"

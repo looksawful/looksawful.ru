@@ -9,7 +9,7 @@ const protectedPresentationFiles = new Map([
   ["src/styles/index.css", "f5b08fb3743e93747629476480f819cd69d5d3a9"],
   ["src/styles/base.css", "1be5205dcae1522e78ab9cfdc97699875d568f55"],
   ["src/styles/tokens.css", "09b571fe9dcb2ab9485cc610295e8fb134c44c68"],
-  ["src/data/projects.ts", "c3afd491a0a1060f3ddad078d0d7b686958cf3aa"],
+  ["src/data/projects.ts", "765f97f2dbc4a95599db07a61e97882df3ca9d6c"],
   ["src/data/content/jestei-pool.ts", "baa15cc8b278fc87ed0fdba5673bf85e85d37c44"],
   ["src/data/media/entries/sensetique.ts", "1b9c9ee2d04db9a00105c729c1de19941ad7d593"],
 ]);

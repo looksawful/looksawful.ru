@@ -1,9 +1,6 @@
 name: Lighthouse
 
 on:
-  push:
-    branches:
-      - dev
   workflow_dispatch:
   schedule:
     - cron: "13 5 * * 3"
@@ -24,21 +21,47 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Install media tooling
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-
-      - name: Install from lockfile
+      - name: Install
         run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Restore generated media
+        id: media-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+          key: generated-media-v3-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+          restore-keys: |
+            generated-media-v3-${{ runner.os }}-
+
+      - name: Ensure media tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes ffmpeg
+          fi
+          ffmpeg -version | head -n 1
+          ffprobe -version | head -n 1
+
+      - name: Sync generated media
+        run: npm run media:sync
+
+      - name: Check tracked media metadata
+        run: git diff --exit-code -- public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
+
+      - name: Build site
+        run: npm run build:site
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Build
-        run: npm run build
-
-      - name: Lighthouse CI
+      - name: Run Lighthouse CI
         shell: bash
         run: |
           export CHROME_PATH="$(node --input-type=module -e "import { chromium } from 'playwright'; process.stdout.write(chromium.executablePath())")"

@@ -135,6 +135,8 @@
 
 .site-nav__menu-link {
   display: inline-block;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
   font-size: clamp(2rem, 5vw, 4.5rem);
   font-weight: var(--fw-500);
   line-height: 0.98;

@@ -1,0 +1,117 @@
+{
+  "profile": {
+    "name": "ИВАН КРУШИНСКИЙ",
+    "role": "АРТ-ДИРЕКТОР ЦИФРОВЫХ ПРОДУКТОВ | ДИЗАЙНЕР",
+    "aboutPrimary": "Проектирую цифровые продукты: исследую аудиторию, разбираю пользовательские сценарии, определяю UX/UI-направление, проектирую интерфейсы и собираю дизайн-системы. Работаю с продуктом от исследования и концепции до разработки и релиза — помогаю сокращать лишние шаги, делать интерфейсы понятнее, ускорять производство дизайна и сохранять целостность продукта по мере его развития.",
+    "aboutSecondary": "Руковожу дизайнерами и креативными командами: ставлю задачи, провожу ревью, выстраиваю процессы и координирую работу дизайна, продукта, разработки и контента. На последнем месте работы сократил пользовательский путь в ключевом сценарии с 6 шагов до 2, ускорил производство дизайна в 2,5 раза и помог повысить стоимость продукта на 15% без деградации клиентской базы. Разделил аудиторию на четыре сегмента, перестроил под них продуктовые сценарии и коммуникацию и участвовал в подготовке продукта к выходу на рынок США.",
+    "principles": [
+      { "id": "visual", "title": "Делаю проекты красивыми:", "text": "задаю визуальный язык, собираю айдентику и слежу, чтобы все части проекта выглядели цельно." },
+      { "id": "communication", "title": "Делаю коммуникацию чище:", "text": "определяю, что и как говорит продукт, редактирую тексты и упрощаю подачу сложной информации." },
+      { "id": "product", "title": "Делаю продукты удобнее:", "text": "изучаю пользовательские сценарии, нахожу лишние шаги и несогласованности и перестраиваю интерфейс там, где он мешает пользователю." },
+      { "id": "new-products", "title": "Придумываю и развиваю новые продукты:", "text": "изучаю аудиторию и конкурентов, нахожу возможности, проверяю гипотезы и довожу решения до запуска." },
+      { "id": "leadership", "title": "Руковожу дизайнерами:", "text": "ставлю задачи, провожу ревью, помогаю принимать решения, развиваю дизайнеров и ввожу новых людей в работу." }
+    ],
+    "languages": [
+      { "id": "english", "name": "Английский", "level": "B2" },
+      { "id": "czech", "name": "Чешский", "level": "A2" }
+    ]
+  },
+  "skills": {
+    "hard": {
+      "title": "ХАРД СКИЛЛС",
+      "rows": [
+        { "id": "identity", "label": "Разработка айдентики:", "text": "создание логотипа • подбор шрифтов • формирование цветовой палитры • дизайн печатных материалов • проектирование упаковки • разработка мерча • создание маскота • создание иконок и графики • формирование брендбука" },
+        { "id": "direction", "label": "Арт- и дизайн-дирекшн:", "text": "разработка визуальной концепции • руководство арт- и дизайн-направлениями • формирование брендбука • дизайн-ревью • аудит дизайн-ресурсов • контроль реализации" },
+        { "id": "product", "label": "Продуктовый и UX/UI-дизайн:", "text": "анализ продукта • исследование аудитории и конкурентов • глубинные интервью • коридорные тестирования • юзабилити-исследования • формирование и проверка гипотез • проектирование функций и пользовательских сценариев • информационная архитектура • CJM и user flow • прототипирование • проектирование адаптивных интерфейсов • дизайн-системы • MVP и приоритизация • анализ продуктовых метрик" },
+        { "id": "communications", "label": "Коммуникации:", "text": "разработка коммуникационной платформы • формирование ключевых сообщений • упаковка продуктов и функций • tone of voice и редакционная политика • продуктовая терминология и нейминг • UX-writing" },
+        { "id": "motion", "label": "Motion:", "text": "анимация интерфейсов и микровзаимодействий • анимация типографики и графики • motion-айдентика • промо-анимация • интерактивная графика" },
+        { "id": "graphic", "label": "Графический дизайн:", "text": "типографические системы • модульные сетки • многостраничная вёрстка • дизайн публикаций • инфографика и визуализация данных • фотомонтаж и коллаж • обработка изображений • препресс и подготовка к производству • книжный дизайн • газетный дизайн" },
+        { "id": "generative", "label": "Генеративный дизайн и AI:", "text": "генерация изображений, видео и звука • генеративная графика • prompt design • создание генеративных пайплайнов • автоматизация производства контента • интеграция AI в дизайн-процессы" },
+        { "id": "production", "label": "Продюсирование съёмок:", "text": "формирование команды • поиск и координация подрядчиков • бюджетирование • кастинг • скаутинг • локейшн • стилизация • аренда оборудования • закупки • организация съёмочного процесса • постановка света • постпродакшен • ретушь • цветокоррекция" }
+      ]
+    },
+    "tech": {
+      "title": "Технологический стек",
+      "rows": [
+        { "id": "code", "label": "Код:", "text": "HTML • CSS • JavaScript • TypeScript • React • Next.js • Python" },
+        { "id": "graphics", "label": "Компьютерная графика:", "text": "Three.js • WebGL • GLSL • Canvas • SVG • GSAP" },
+        { "id": "design-systems", "label": "Дизайн-системы:", "text": "design tokens • semantic tokens • Figma Variables • component libraries • accessibility • handoff" },
+        { "id": "color", "label": "Цветокоррекция:", "text": "Lightroom • Capture One" },
+        { "id": "automation", "label": "Автоматизация:", "text": "Python • JavaScript • ImageMagick • FFmpeg • batch processing • локальные AI-workflows" },
+        { "id": "generative", "label": "Генеративные технологии:", "text": "Stable Diffusion • ComfyUI • ControlNet • IP-Adapter • LoRA • локальные модели • AI-пайплайны" }
+      ]
+    },
+    "soft": {
+      "title": "СОФТ СКИЛЛС",
+      "rows": [
+        { "id": "leader", "label": "Руководитель:", "text": "ставлю задачи, распределяю работу, провожу ревью и контролирую качество результата." },
+        { "id": "researcher", "label": "Исследователь:", "text": "разбираюсь в продукте, аудитории и проблеме до того, как предлагать решение." },
+        { "id": "teacher", "label": "Преподаватель:", "text": "объясняю решения и принципы, помогаю дизайнерам развивать самостоятельность." },
+        { "id": "negotiator", "label": "Переговорщик:", "text": "презентую и защищаю решения, договариваюсь с продуктом, разработкой, руководством и подрядчиками." },
+        { "id": "multitasking", "label": "Мультизадачный:", "text": "веду несколько направлений одновременно и удерживаю связи между дизайном, продуктом и производством." },
+        { "id": "responsible", "label": "Ответственный:", "text": "довожу задачи от постановки до реализации, контролирую сроки и качество." }
+      ]
+    },
+    "tools": {
+      "title": "СОФТ",
+      "rows": [
+        { "id": "design", "label": "Дизайн:", "text": "Figma, Photoshop, Blender, ComfyUI, InDesign, CorelDRAW, Krita, Illustrator, Material Designer, Font Forge, Maya, ZBrush" },
+        { "id": "code", "label": "Код:", "text": "VS Code, WebStorm, Zed" },
+        { "id": "tests", "label": "Тесты:", "text": "DevTools, Playwright" },
+        { "id": "audio", "label": "Звук:", "text": "Ableton Live, Adobe Audition" },
+        { "id": "color", "label": "Цвет:", "text": "Lightroom, Capture One" },
+        { "id": "shootings", "label": "Съёмки:", "text": "Set a Light" },
+        { "id": "editing", "label": "Монтаж:", "text": "Premiere Pro, After Effects, Final Cut Pro" },
+        { "id": "ai", "label": "ИИ:", "text": "Codex, Claude, Ollama, Open Claw, ComfyUI, Automatic1111, SwarmUI" },
+        { "id": "utilities", "label": "Утилиты:", "text": "ImageMagick • FFmpeg" }
+      ]
+    }
+  },
+  "education": {
+    "higherTitle": "ВЫСШЕЕ ОБРАЗОВАНИЕ",
+    "higher": {
+      "id": "mpgu",
+      "name": "МПГУ им. Ленина",
+      "lines": [
+        "Славянская и западноевропейская филология",
+        "Компаративистика"
+      ]
+    },
+    "additionalTitle": "ДОПОЛНИТЕЛЬНОЕ ОБРАЗОВАНИЕ",
+    "additional": [
+      { "id": "hexlet", "name": "HEXLET", "lines": ["JS: Архитектура фронтенда", "JS: Абстракция с помощью данных", "JS: Составные данные", "JS: Объектно-ориентированный дизайн", "JS: Прототипы", "TypeScript", "Асинхронное программирование на JavaScript", "JS: Автоматическое тестирование", "JS: Продвинутое тестирование", "React", "React Hooks", "Redux Toolkit", "HTTP API", "REST API в Node.js", "Git", "CI"] },
+      { "id": "stepik", "name": "STEPIK", "lines": ["Введение в программирование (C++)", "JavaScript для начинающих", "Python: основы и применение", "Веб-технологии: практический курс", "CSS"] },
+      { "id": "codecademy", "name": "CODECADEMY", "lines": ["Learn CSS", "Learn JavaScript", "Learn Python 3", "Learn TypeScript", "Learn React"] },
+      { "id": "kevin-powell", "name": "KEVIN POWELL", "lines": ["Conquering Responsive Layouts", "Build a Space Travel Website", "HTML & CSS Crash Course"] },
+      { "id": "book-of-shaders", "name": "PATRICIO GONZALEZ VIVO & JEN LOWE", "lines": ["The Book of Shaders"] },
+      { "id": "blender-studio", "name": "BLENDER STUDIO / SYBREN STÜVEL", "lines": ["Scripting for Artists"] },
+      { "id": "blender-guru", "name": "BLENDER GURU / ANDREW PRICE", "lines": ["Blender Beginner Donut Tutorial"] },
+      { "id": "cg-boost", "name": "CG BOOST / ZACH REINHARDT", "lines": ["Blender Launch Pad"] },
+      { "id": "creative-shrimp", "name": "CREATIVE SHRIMP / GLEB ALEXANDROV & AIDY BURROWS", "lines": ["Hard Surface Modeling in Blender", "Cinematic Lighting in Blender", "HDR Image-Based Lighting in Blender"] },
+      { "id": "cg-cookie", "name": "CG COOKIE", "lines": ["Blender Python Scripting Superpowers for Non-Programmers"] },
+      { "id": "phlearn", "name": "PHLEARN / AARON NACE", "lines": ["Photoshop 101–301", "The Ultimate Guide to Retouching", "How to Master Dodging & Burning in Photoshop", "Advanced Compositing with Stock Images in Photoshop"] },
+      { "id": "ridd", "name": "MICHAEL “RIDD” RIDDERING", "lines": ["Figma Academy"] },
+      { "id": "mizko", "name": "MIZKO", "lines": ["Figma & UI Design Masterclass"] },
+      { "id": "photoplay-producer", "name": "PHOTOPLAY / НИНА ЛОБЫКИНА", "lines": ["Продюсирование съёмок"] },
+      { "id": "photoplay-model", "name": "PHOTOPLAY / IRA ROKKA", "lines": ["Работа с моделью"] },
+      { "id": "ilyahov", "name": "МАКСИМ ИЛЬЯХОВ", "lines": ["Основы визуального повествования"] }
+    ]
+  },
+  "experience": [
+    { "id": "jestei", "visible": true },
+    { "id": "styx", "visible": true },
+    { "id": "illumihand", "visible": false },
+    { "id": "madcow", "visible": true },
+    { "id": "sensetique", "visible": true },
+    { "id": "line", "visible": true },
+    { "id": "berry", "visible": false },
+    { "id": "ss", "visible": false },
+    { "id": "olovo", "visible": false },
+    { "id": "theatre", "visible": false },
+    { "id": "soroka", "visible": false },
+    { "id": "kursovoy", "visible": true },
+    { "id": "ran", "visible": false },
+    { "id": "progress", "visible": true },
+    { "id": "ria", "visible": true }
+  ]
+}

@@ -1,4 +1,9 @@
 import { getCase, getCollection, getProject } from "../../data/catalog/lookup.ts";
+import {
+  getNavigationLabel,
+  navigationLabels,
+  type NavigationLabelData,
+} from "../../data/navigation.ts";
 import { sitePages } from "../pages/manifest.ts";
 import type { SitePageDefinition } from "../pages/types.ts";
 
@@ -23,14 +28,10 @@ const primaryPageIds = [
   "collection:music-photography",
 ] as const;
 
-const navigationLabelOverrides: Readonly<Record<string, string>> = {
-  "case:styx": "Styx",
-};
-
 function getDomainPageLabel(page: SitePageDefinition): string {
   switch (page.type) {
     case "home":
-      return "Главная";
+      return getNavigationLabel("home");
     case "case":
       return getCase(page.entityId).name;
     case "collection": {
@@ -46,8 +47,11 @@ function getDomainPageLabel(page: SitePageDefinition): string {
   }
 }
 
-function getNavigationPageLabel(page: SitePageDefinition): string {
-  return navigationLabelOverrides[page.id] ?? getDomainPageLabel(page);
+function getNavigationPageLabel(
+  page: SitePageDefinition,
+  labels: readonly NavigationLabelData[],
+): string {
+  return labels.find((item) => item.id === page.id)?.label ?? getDomainPageLabel(page);
 }
 
 function requirePage(id: (typeof primaryPageIds)[number]): SitePageDefinition {
@@ -60,12 +64,14 @@ function requirePage(id: (typeof primaryPageIds)[number]): SitePageDefinition {
   return page;
 }
 
-export function getPrimaryNavigationItems(): readonly SiteNavigationItem[] {
+export function getPrimaryNavigationItems(
+  labels: readonly NavigationLabelData[] = navigationLabels,
+): readonly SiteNavigationItem[] {
   const pageItems = primaryPageIds.map((id) => {
     const page = requirePage(id);
     return {
       id: page.id,
-      label: getNavigationPageLabel(page),
+      label: getNavigationPageLabel(page, labels),
       href: page.path,
     };
   });
@@ -74,7 +80,7 @@ export function getPrimaryNavigationItems(): readonly SiteNavigationItem[] {
     ...pageItems,
     {
       id: "cv",
-      label: "Резюме",
+      label: getNavigationLabel("cv", labels),
       href: "/cv/",
     },
   ];
@@ -82,18 +88,19 @@ export function getPrimaryNavigationItems(): readonly SiteNavigationItem[] {
 
 export function getBreadcrumbItems(
   page: SitePageDefinition,
+  labels: readonly NavigationLabelData[] = navigationLabels,
 ): readonly SiteBreadcrumbItem[] {
   if (page.type === "home") return [];
 
   return [
     {
       id: "home",
-      label: "Главная",
+      label: getNavigationLabel("home", labels),
       href: "/",
     },
     {
       id: page.id,
-      label: getNavigationPageLabel(page),
+      label: getNavigationPageLabel(page, labels),
       current: true,
     },
   ];

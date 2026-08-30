@@ -1,4 +1,4 @@
-import { projects } from "../../../data/projects.ts";
+import { getHomepageProjects } from "../../../data/projects.ts";
 import { clientLogos } from "../../../data/clients.ts";
 
 import {
@@ -171,7 +171,7 @@ function intro(
 export function createHomepageSlots(
   options: HomepageRenderOptions = {},
 ): readonly HtmlSlot[] {
-  const projectCards = projects.map(renderProjectCard).join("\n");
+  const projectCards = getHomepageProjects().map(renderProjectCard).join("\n");
   const logos = clientLogos.map(renderClientLogo).join("\n");
 
   return [

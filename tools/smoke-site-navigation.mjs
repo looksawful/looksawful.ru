@@ -1,51 +1,39 @@
-import { spawn } from "node:child_process";
-import { setTimeout as delay } from "node:timers/promises";
-import { chromium } from "playwright";
+import navigationJson from "../src/content/navigation.json" with { type: "json" };
+import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
-const HOST = "127.0.0.1";
-const PORT = 4177;
-const BASE_URL = `http://${HOST}:${PORT}`;
+let BASE_URL = "";
+
+const labelById = new Map(navigationJson.map(({ id, label }) => [id, label]));
+const requireLabel = (id) => {
+  const label = labelById.get(id);
+  if (typeof label !== "string" || label.length === 0) {
+    throw new Error(`missing navigation label ${id}`);
+  }
+  return label;
+};
 
 const PRIMARY_LINKS = [
-  ["Главная", "/"],
-  ["Jestei Pool", "/work/jestei-pool/"],
-  ["Styx", "/work/styx/"],
-  ["Sensetique", "/work/sensetique/"],
-  ["Shootings", "/shootings/"],
-  ["Резюме", "/cv/"],
-];
+  ["home", "/"],
+  ["case:jestei-pool", "/work/jestei-pool/"],
+  ["case:styx", "/work/styx/"],
+  ["case:sensetique", "/work/sensetique/"],
+  ["collection:music-photography", "/shootings/"],
+  ["cv", "/cv/"],
+].map(([id, href]) => [requireLabel(id), href]);
+
+const LONG_UNBROKEN_LABEL = `CMS${"navigationlabel".repeat(32)}`;
 
 const CASES = [
-  ["/", "Главная", 390, 844],
-  ["/work/jestei-pool/", "Jestei Pool", 390, 844],
-  ["/work/styx/", "Styx", 390, 844],
-  ["/work/sensetique/", "Sensetique", 390, 844],
-  ["/shootings/", "Shootings", 390, 844],
-  ["/work/jestei-pool/", "Jestei Pool", 1440, 900],
+  ["/", requireLabel("home"), 390, 844],
+  ["/work/jestei-pool/", requireLabel("case:jestei-pool"), 390, 844],
+  ["/work/styx/", requireLabel("case:styx"), 390, 844],
+  ["/work/sensetique/", requireLabel("case:sensetique"), 390, 844],
+  ["/shootings/", requireLabel("collection:music-photography"), 390, 844],
+  ["/work/jestei-pool/", requireLabel("case:jestei-pool"), 1440, 900],
 ];
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
-}
-
-const server = spawn(
-  process.execPath,
-  ["node_modules/vite/bin/vite.js", "preview", "--host", HOST, "--port", String(PORT), "--strictPort"],
-  { stdio: ["ignore", "pipe", "pipe"] },
-);
-let serverOutput = "";
-server.stdout.on("data", (chunk) => { serverOutput += chunk.toString(); });
-server.stderr.on("data", (chunk) => { serverOutput += chunk.toString(); });
-
-async function waitForServer() {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
-    try {
-      const response = await fetch(BASE_URL, { redirect: "follow" });
-      if (response.ok) return;
-    } catch {}
-    await delay(250);
-  }
-  throw new Error(`Vite preview did not start.\n${serverOutput}`);
 }
 
 async function auditNavigation(browser, path, currentLabel, width, height) {
@@ -111,9 +99,30 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(JSON.stringify(opened.links) === JSON.stringify(PRIMARY_LINKS), `${label}: primary menu destinations differ`);
     assert(opened.currentLabel === currentLabel, `${label}: wrong active menu item ${opened.currentLabel}`);
 
+    const openMenuOverflowWithLongLabel = await page.evaluate((longLabel) => {
+      const menu = document.querySelector("[data-site-menu]");
+      const editableLink = document.querySelector('.site-nav__menu-link:not([aria-current="page"])');
+      if (!(menu instanceof HTMLElement) || !(editableLink instanceof HTMLElement)) {
+        return null;
+      }
+      editableLink.textContent = longLabel;
+      return new Promise((resolve) => {
+        requestAnimationFrame(() => {
+          resolve(menu.scrollWidth - menu.clientWidth);
+        });
+      });
+    }, LONG_UNBROKEN_LABEL);
+    assert(
+      typeof openMenuOverflowWithLongLabel === "number" && openMenuOverflowWithLongLabel <= 1,
+      `${label}: open menu horizontal overflow with long CMS label ${openMenuOverflowWithLongLabel}px`,
+    );
+
     if (path !== "/") {
       const breadcrumb = await page.locator('[aria-label="Хлебные крошки"]').innerText();
-      assert(breadcrumb.includes("Главная") && breadcrumb.includes(currentLabel), `${label}: breadcrumb is incomplete: ${breadcrumb}`);
+      assert(
+        breadcrumb.includes(requireLabel("home")) && breadcrumb.includes(currentLabel),
+        `${label}: breadcrumb is incomplete: ${breadcrumb}`,
+      );
     }
 
     await page.keyboard.press("Escape");
@@ -142,15 +151,14 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
   }
 }
 
-let browser;
-try {
-  await waitForServer();
-  browser = await chromium.launch({ headless: true });
+export async function runSmokeNavigation({ browser, baseUrl }) {
+  BASE_URL = baseUrl;
   for (const [path, currentLabel, width, height] of CASES) {
     await auditNavigation(browser, path, currentLabel, width, height);
   }
   console.log(`[smoke-navigation] OK: ${CASES.length} responsive navigation checks`);
-} finally {
-  await browser?.close();
-  server.kill("SIGTERM");
+}
+
+if (isDirectExecution(import.meta.url)) {
+  await withE2ERuntime(({ browser, baseUrl }) => runSmokeNavigation({ browser, baseUrl }));
 }
