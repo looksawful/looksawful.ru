@@ -159,6 +159,36 @@ function transformCvSkillSection(html, sectionId, section) {
   );
 }
 
+export function transformCvContacts(html, content) {
+  const contacts = content.profile?.contacts;
+  if (!contacts) throw new Error("CV profile.contacts content is required");
+
+  const phoneHref = `tel:${contacts.phone.replace(/[^+\d]/g, "")}`;
+  const telegramHref = `https://t.me/${contacts.telegram.slice(1)}`;
+  const instagramHref = `https://www.instagram.com/${contacts.instagram.slice(1)}/`;
+  const emailHref = `mailto:${contacts.email}`;
+
+  const contactsPattern = /(<div\b(?=[^>]*\bclass=["'][^"']*\bcontacts\b[^"']*["'])[^>]*>)[\s\S]*?(<\/div>)/i;
+  let transformed = replaceExactlyOnce(
+    html,
+    contactsPattern,
+    (_match, open, close) =>
+      `${open}${escapeHtml(contacts.location)}<br/><a href="${escapeHtml(phoneHref)}">${escapeHtml(contacts.phone)}</a><br/>Telegram: <a href="${escapeHtml(telegramHref)}" rel="noopener noreferrer" target="_blank">${escapeHtml(contacts.telegram)}</a><br/>Instagram: <a href="${escapeHtml(instagramHref)}" rel="noopener noreferrer" target="_blank">${escapeHtml(contacts.instagram)}</a><br/>email: <a href="${escapeHtml(emailHref)}">${escapeHtml(contacts.email)}</a>${close}`,
+    ".contacts block",
+  );
+
+  const urlPattern = /(<div\b(?=[^>]*\bclass=["'][^"']*\burl\b[^"']*["'])[^>]*>)[\s\S]*?(<\/div>)/i;
+  transformed = replaceExactlyOnce(
+    transformed,
+    urlPattern,
+    (_match, open, close) =>
+      `${open}<a href="${escapeHtml(contacts.website)}" rel="noopener noreferrer" target="_blank">${escapeHtml(contacts.website)}</a>${close}`,
+    ".url contact block",
+  );
+
+  return transformed;
+}
+
 export function transformCvSkills(html, content) {
   const { skills } = content;
   if (!skills) throw new Error("CV skills content is required");
@@ -290,7 +320,8 @@ export function transformCvExperienceVisibility(html, content, options = {}) {
 
 export function transformCvContent(html, content, options = {}) {
   const withProfile = transformCvProfile(html, content);
-  const withSkills = transformCvSkills(withProfile, content);
+  const withContacts = transformCvContacts(withProfile, content);
+  const withSkills = transformCvSkills(withContacts, content);
   const withEducation = transformCvEducation(withSkills, content);
   return transformCvExperienceVisibility(withEducation, content, options);
 }

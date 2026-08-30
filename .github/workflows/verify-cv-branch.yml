@@ -34,7 +34,7 @@ jobs:
           path: |
             public/media/generated/responsive
             public/media/generated/video
-          key: generated-media-v3-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+          key: generated-media-v3-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
           restore-keys: |
             generated-media-v3-${{ runner.os }}-
       - name: Ensure media tooling

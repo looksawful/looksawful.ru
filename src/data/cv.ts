@@ -95,11 +95,21 @@ export interface CvLanguage {
   level: string;
 }
 
+export interface CvContactData {
+  location: string;
+  phone: string;
+  telegram: string;
+  instagram: string;
+  email: string;
+  website: string;
+}
+
 export interface CvProfileData {
   name: string;
   role: string;
   aboutPrimary: string;
   aboutSecondary: string;
+  contacts: CvContactData;
   principles: readonly CvProfilePrinciple[];
   languages: readonly CvLanguage[];
 }
@@ -247,6 +257,70 @@ function parseLanguages(value: unknown): readonly CvLanguage[] {
   }));
 }
 
+function parseContacts(value: unknown): CvContactData {
+  const label = "cv.profile.contacts";
+  if (!isRecord(value)) throw new Error(`${label} must be an object`);
+
+  const requireTrimmed = (key: string): string => {
+    const fieldValue = requireNonEmptyString(value, key, label);
+    if (fieldValue.trim() !== fieldValue || fieldValue.trim().length === 0) {
+      throw new Error(`${label}.${key} must be a trimmed non-empty string`);
+    }
+    return fieldValue;
+  };
+
+  const location = requireTrimmed("location");
+  const phone = requireTrimmed("phone");
+  const telegram = requireTrimmed("telegram");
+  const instagram = requireTrimmed("instagram");
+  const email = requireTrimmed("email");
+  const website = requireTrimmed("website");
+
+  const telHref = phone.replace(/[ ()-]/g, "");
+  if (!/^\+\d{7,15}$/.test(telHref)) {
+    throw new Error(`${label}.phone must be an international phone number beginning with +`);
+  }
+  if (!/^@[A-Za-z0-9_]{5,32}$/.test(telegram)) {
+    throw new Error(`${label}.telegram must be an @username handle`);
+  }
+  const instagramUsername = instagram.slice(1);
+  if (
+    !/^@[A-Za-z0-9._]{1,30}$/.test(instagram)
+    || instagramUsername.startsWith(".")
+    || instagramUsername.endsWith(".")
+    || instagramUsername.includes("..")
+  ) {
+    throw new Error(`${label}.instagram must be an @username handle`);
+  }
+  const [emailLocal, emailDomain] = email.split("@");
+  if (
+    !/^[^\s@<>:]+@[^\s@<>:]+\.[^\s@<>:]+$/.test(email)
+    || emailLocal.startsWith(".")
+    || emailLocal.endsWith(".")
+    || emailLocal.includes("..")
+    || emailDomain.startsWith(".")
+    || emailDomain.endsWith(".")
+    || emailDomain.includes("..")
+  ) {
+    throw new Error(`${label}.email must be a valid email address`);
+  }
+
+  let parsedWebsite: URL;
+  try {
+    parsedWebsite = new URL(website);
+  } catch {
+    throw new Error(`${label}.website must be an absolute HTTP(S) URL`);
+  }
+  if (!(["http:", "https:"] as const).includes(parsedWebsite.protocol as "http:" | "https:")) {
+    throw new Error(`${label}.website must use http or https`);
+  }
+  if (parsedWebsite.username || parsedWebsite.password) {
+    throw new Error(`${label}.website must not include credentials`);
+  }
+
+  return Object.freeze({ location, phone, telegram, instagram, email, website });
+}
+
 function parseProfile(value: unknown): CvProfileData {
   if (!isRecord(value)) throw new Error("cv.profile must be an object");
   return Object.freeze({
@@ -254,6 +328,7 @@ function parseProfile(value: unknown): CvProfileData {
     role: requireNonEmptyString(value, "role", "cv.profile"),
     aboutPrimary: requireNonEmptyString(value, "aboutPrimary", "cv.profile"),
     aboutSecondary: requireNonEmptyString(value, "aboutSecondary", "cv.profile"),
+    contacts: parseContacts(value.contacts),
     principles: parsePrinciples(value.principles),
     languages: parseLanguages(value.languages),
   });

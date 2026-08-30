@@ -136,7 +136,7 @@ content:
             label: Обложка проекта
             type: image
             required: true
-            description: Выбери существующий WebP или загрузи новый. CMS имеет доступ только к папке обложек карточек проектов.
+            description: Выбери существующий WebP или загрузи новый. CMS имеет доступ только к папке обложек карточек проектов. После сохранения dev-проверка зарегистрирует файл и обновит responsive-варианты.
             options:
               media: project-covers
               extensions: [webp]
@@ -242,6 +242,41 @@ content:
             label: О себе — абзац 2
             type: text
             required: true
+          - name: contacts
+            label: Контакты
+            type: object
+            required: true
+            fields:
+              - name: location
+                label: Местоположение
+                type: string
+                required: true
+                description: Отображаемый город / страна.
+              - name: phone
+                label: Телефон
+                type: string
+                required: true
+                description: "Международный номер с +. Ссылка tel: формируется сайтом автоматически."
+              - name: telegram
+                label: Telegram
+                type: string
+                required: true
+                description: Только handle в формате @username. Ссылка t.me формируется сайтом автоматически.
+              - name: instagram
+                label: Instagram
+                type: string
+                required: true
+                description: Только handle в формате @username. Ссылка Instagram формируется сайтом автоматически.
+              - name: email
+                label: Email
+                type: string
+                required: true
+                description: "Email как он должен отображаться. Ссылка mailto: формируется сайтом автоматически."
+              - name: website
+                label: Сайт
+                type: string
+                required: true
+                description: Полный адрес сайта с https://. Разрешены только http/https URL.
           - name: principles
             label: Ключевые тезисы
             type: object
