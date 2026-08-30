@@ -47,3 +47,25 @@ test("CI restores complete generated-media state by content hash and skips regen
     assert.match(workflow, /run: npm run verify:core/, `${label} must not invoke the self-preparing verify command`);
   }
 });
+
+test("Lighthouse reuses generated media and builds core output without redundant preparation", async () => {
+  const workflow = await readFile(
+    new URL("../.github/workflows/lighthouse.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(workflow, /uses: actions\/cache@v4/);
+  assert.match(workflow, /id: media-cache/);
+  assert.match(workflow, /public\/media\/generated\/responsive/);
+  assert.match(workflow, /public\/media\/generated\/video/);
+  assert.match(workflow, /public\/media\/generated\/responsive-manifest\.json/);
+  assert.match(workflow, /public\/media\/generated\/video-inventory\.json/);
+  assert.match(workflow, /src\/data\/media\/responsive-generated\.ts/);
+  assert.match(workflow, /key: generated-media-v2-/);
+  assert.match(
+    workflow,
+    /media-cache\.outputs\.cache-hit != 'true'[\s\S]*npm run media:prepare/,
+  );
+  assert.match(workflow, /run: npm run build:core/);
+  assert.doesNotMatch(workflow, /run: npm run build\s*$/m);
+});

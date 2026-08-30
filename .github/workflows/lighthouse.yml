@@ -24,7 +24,20 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Restore generated media
+        id: media-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/responsive-manifest.json
+            public/media/generated/video-inventory.json
+            src/data/media/responsive-generated.ts
+          key: generated-media-v2-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+
       - name: Install media tooling
+        if: steps.media-cache.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install --yes ffmpeg
@@ -32,11 +45,15 @@ jobs:
       - name: Install from lockfile
         run: npm ci
 
+      - name: Prepare generated media
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: npm run media:prepare
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
       - name: Build
-        run: npm run build
+        run: npm run build:core
 
       - name: Lighthouse CI
         shell: bash
