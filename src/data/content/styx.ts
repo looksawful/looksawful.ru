@@ -6,16 +6,11 @@ import type { MediaGroupData } from "../../types/media-group.ts";
 import type { MediaSliderData } from "../../types/media-slider.ts";
 import type { MockupDeckData } from "../../types/mockup-deck.ts";
 
-import { getCase, getRole } from "../catalog/lookup.ts";
-
 import type { MediaEntryId } from "../media/index.ts";
 
 import type { LogoUsageId } from "../logos/index.ts";
 
 import { getStyxEditorialCredit, getStyxEditorialSection, styxEditorialContent } from "./styx-editorial.ts";
-
-const styxCase = getCase("styx");
-const designerRole = getRole("designer");
 
 const styxBrandEditorial = getStyxEditorialSection("brand");
 const styxProductionEditorial = getStyxEditorialSection("production");
@@ -38,8 +33,8 @@ export const styxIntro = {
     logoUsageId: "styx-case-title-logo",
   },
 
-  role: designerRole.name,
-  period: styxCase.date,
+  role: styxEditorialContent.role,
+  period: styxEditorialContent.period,
 
   lead: styxEditorialContent.lead,
 } as const satisfies ProjectIntroData<LogoUsageId>;
