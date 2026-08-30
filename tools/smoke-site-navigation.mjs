@@ -26,6 +26,8 @@ const PRIMARY_LINKS = [
   ["cv", "/cv/"],
 ].map(([id, href]) => [requireLabel(id), href]);
 
+const LONG_UNBROKEN_LABEL = `CMS-${"navigation-label".repeat(24)}`;
+
 const CASES = [
   ["/", requireLabel("home"), 390, 844],
   ["/work/jestei-pool/", requireLabel("case:jestei-pool"), 390, 844],
@@ -121,6 +123,24 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(opened.menuCoversViewport, `${label}: menu does not cover the available viewport`);
     assert(JSON.stringify(opened.links) === JSON.stringify(PRIMARY_LINKS), `${label}: primary menu destinations differ`);
     assert(opened.currentLabel === currentLabel, `${label}: wrong active menu item ${opened.currentLabel}`);
+
+    const openMenuOverflowWithLongLabel = await page.evaluate((longLabel) => {
+      const menu = document.querySelector("[data-site-menu]");
+      const editableLink = document.querySelector('.site-nav__menu-link:not([aria-current="page"])');
+      if (!(menu instanceof HTMLElement) || !(editableLink instanceof HTMLElement)) {
+        return null;
+      }
+      editableLink.textContent = longLabel;
+      return new Promise((resolve) => {
+        requestAnimationFrame(() => {
+          resolve(menu.scrollWidth - menu.clientWidth);
+        });
+      });
+    }, LONG_UNBROKEN_LABEL);
+    assert(
+      typeof openMenuOverflowWithLongLabel === "number" && openMenuOverflowWithLongLabel <= 1,
+      `${label}: open menu horizontal overflow with long CMS label ${openMenuOverflowWithLongLabel}px`,
+    );
 
     if (path !== "/") {
       const breadcrumb = await page.locator('[aria-label="Хлебные крошки"]').innerText();
