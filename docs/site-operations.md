@@ -52,29 +52,21 @@ The MPA page manifest remains the routing source of truth. The CMS project-card 
 
 ## 3. Current CMS scope
 
-The first production CMS scope is deliberately narrow:
+Pages CMS owns the explicitly configured authored sources below:
 
 ```text
+src/content/navigation.json
 src/content/projects.json
+src/content/cases/*.json
+src/content/collections/shootings.json
+src/content/shootings/*.json
+src/content/client-logo-visibility.json
+src/content/cv.json
 ```
 
-It contains the four homepage project cards:
+This includes navigation labels, the four homepage cards, validated editorial copy for Jestei Pool / Styx / Sensetique, the Shootings overview and existing shooting records, client-logo visibility and CV content.
 
-- Jestei Pool
-- Styx Jewel
-- Sensetique
-- Shootings
-
-The CMS may edit the card title, description, role, period, optional ARIA label and cover metadata.
-
-The following operations are deliberately disabled:
-
-- create a fifth card;
-- delete a card;
-- rename a card entity;
-- edit the card ID.
-
-This protects the fixed card-to-route contract.
+Create, rename and delete are disabled for fixed records. Stable IDs, routes, renderer selection, taxonomy relationships, visual composition and media identity remain code-owned. This protects the card-to-route and record-to-presentation contracts.
 
 ## 4. Project-card fields
 
@@ -82,7 +74,7 @@ This protects the fixed card-to-route contract.
 
 Read-only.
 
-Do not try to change `jestei`, `styx`, `sensetique` or `shootings` through CMS or by hand without an explicit architecture migration.
+Do not change the fixed card IDs `jestei`, `styx`, `sensetique` or `shootings`. Editable labels and copy are separate from those architecture IDs.
 
 ### Название
 
@@ -399,7 +391,7 @@ Recommended order:
 1. homepage cards — current stage;
 2. one Case as a content-model pilot;
 3. remaining Cases;
-4. Shootings collection records;
+4. Shootings collection records — current safe text-record slice;
 5. standalone Project content;
 6. carefully selected global site data;
 7. SEO fields only where editorial control is genuinely useful.

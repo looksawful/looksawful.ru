@@ -232,11 +232,11 @@ Then add it to navigation/homepage presentation only if the product decision req
 
 ## CMS boundary
 
-Pages CMS currently owns editable homepage-card content in `src/content/projects.json`.
+Pages CMS owns only the authored sources explicitly listed in `.pages.yml`, including homepage-card content, validated Case copy and the fixed Shootings overview/record text files.
 
 Do not make arbitrary routes editable through the CMS. Card IDs remain fixed and validated.
 
-Do not move the canonical domain catalog into the CMS as part of ordinary page work.
+Shootings record titles/dates are adapted into the existing domain catalog, but IDs, taxonomy relationships and record registration remain in code. Do not move the canonical domain catalog wholesale into CMS as part of ordinary page work.
 
 ## Media boundary
 

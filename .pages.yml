@@ -432,6 +432,105 @@ content:
                 type: text
                 required: true
 
+  - name: shootings
+    label: Съёмки
+    type: group
+    items:
+      - name: shootings-overview
+        label: Общая шапка
+        type: file
+        path: src/content/collections/shootings.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update Shootings overview"
+        actions:
+          - name: verify-shootings-overview
+            label: Проверить сайт
+            workflow: verify-pr.yml
+            ref: current
+            confirm:
+              title: Запустить полную проверку сайта?
+              message: Будут проверены Shootings-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              button: Проверить
+        fields:
+          - name: head
+            label: Заголовок в шапке
+            type: string
+            required: true
+          - name: title
+            label: Основной заголовок
+            type: string
+            required: true
+          - name: role
+            label: Роль
+            type: string
+            required: true
+          - name: summary
+            label: Краткое описание
+            type: text
+            required: true
+          - name: lead
+            label: Вводный текст
+            type: text
+            required: true
+            description: Только текст шапки Shootings. Маршрут, layout, классы и media остаются в коде.
+
+      - name: shooting-records
+        label: Съёмки
+        type: collection
+        path: src/content/shootings
+        format: json
+        filename: "{id}.json"
+        operations:
+          create: false
+          rename: false
+          delete: false
+        view:
+          fields: [title, date, id]
+          primary: title
+          sort: [title, date]
+          search: [title, date, id]
+          default:
+            sort: title
+            order: asc
+        commit:
+          templates:
+            update: "content(cms): update shooting {path}"
+        actions:
+          - name: verify-shooting-records
+            label: Проверить сайт
+            scope: collection
+            workflow: verify-pr.yml
+            ref: current
+            confirm:
+              title: Запустить полную проверку сайта?
+              message: Будут проверены все записи Shootings, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              button: Проверить
+        fields:
+          - name: id
+            label: ID
+            type: string
+            required: true
+            readonly: true
+            description: Стабильный ID записи. Новый ID требует отдельной регистрации в коде и не создаёт маршрут автоматически.
+          - name: title
+            label: Название
+            type: string
+            required: true
+          - name: date
+            label: Год / период
+            type: string
+            description: Оставь пустым, если год или период пока не указан в исходных данных.
+          - name: description
+            label: Короткое описание
+            type: text
+            description: Текст раздела съёмки. Media, порядок блоков, credits и визуальная композиция остаются в коде.
+
   - name: client-logo-visibility
     label: Логотипы клиентов
     type: file

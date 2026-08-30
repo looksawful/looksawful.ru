@@ -242,19 +242,19 @@ Current authored module: `src/data/content/sensetique.ts`.
 
 ## Shootings
 
-Current authored module: `src/data/content/shootings.ts`. Shootings remains a Collection domain concept; this map only records the current large authored module and render slots. The future normalized record model is a later roadmap stage.
+The normalized authored sources are `src/content/collections/shootings.json` and one file per stable record in `src/content/shootings/`. `src/data/content/shootings-editorial.ts` validates that storage and `src/data/content/shootings.ts` remains the presentation adapter. Shootings remains a Collection domain concept rather than a Case.
 
 ### Logical section inventory
 
 | SECTION ID / current identity | CURRENT HTML WRAPPER | INTRO EXPORT | BLOCK EXPORTS | SLOT MARKERS | SPECIAL RUNTIME | CMS MANAGED |
 | --- | --- | --- | --- | --- | --- | --- |
-| project intro | `article#project-shootings` | `shootingsIntro` | — | `SHOOTINGS_INTRO` | project shell | No. |
-| `shootings-obladaet` | `section#shootings-obladaet` plus adjacent blocks | `shootingsObladaetIntro` | collage reel, portraits group, mixed-media reel, pair group | `SHOOTINGS_OBLADAET_INTRO`, `SHOOTINGS_OBLADAET_COLLAGE_REEL`, `SHOOTINGS_OBLADAET_PORTRAITS_GROUP`, `SHOOTINGS_OBLADAET_MIXED_MEDIA_REEL`, `SHOOTINGS_OBLADAET_PAIR_GROUP` | reels/groups | No. |
-| `shootings-evasha` | `section#shootings-evasha` plus adjacent blocks | `shootingsEvashaIntro` | banner, portrait reel, cover reel, mixed group, pair figure, portraits group | `SHOOTINGS_EVASHA_INTRO`, `SHOOTINGS_EVASHA_BANNER`, `SHOOTINGS_EVASHA_PORTRAIT_REEL`, `SHOOTINGS_EVASHA_COVER_REEL`, `SHOOTINGS_EVASHA_MIXED_GROUP`, `SHOOTINGS_EVASHA_PAIR_FIGURE`, `SHOOTINGS_EVASHA_PORTRAITS_GROUP` | reels/groups/figure | No. |
-| `shootings-igguana` | `section#shootings-igguana` plus adjacent masonry | `shootingsIgguanaIntro` | Igguana masonry group | `SHOOTINGS_IGGUANA_INTRO`, `SHOOTINGS_IGGUANA_MASONRY_GROUP` | masonry | No. |
-| `shootings-esmi` | `section#shootings-esmi` plus anonymous credited banner wrapper | `shootingsEsmiIntro` | `shootingsEsmiBanner` + inline credits | `SHOOTINGS_ESMI_INTRO`, `SHOOTINGS_ESMI_BANNER` | ordinary figure | No. |
-| `shootings-hypression` | `section#shootings-hypression` plus adjacent blocks | `shootingsHypressionIntro` | banner, collage, mixed media, portraits | `SHOOTINGS_HYPRESSION_INTRO`, `SHOOTINGS_HYPRESSION_BANNER`, `SHOOTINGS_HYPRESSION_COLLAGE_GROUP`, `SHOOTINGS_HYPRESSION_MIXED_MEDIA_GROUP`, `SHOOTINGS_HYPRESSION_PORTRAITS_GROUP` | groups/figure | No. |
-| `shootings-ofelia` | `section#shootings-ofelia` plus following strip | `shootingsOfeliaIntro` | `shootingsOfeliaStrip` | `SHOOTINGS_OFELIA_INTRO`, `SHOOTINGS_OFELIA_STRIP` | strip | No. |
+| project intro | `article#project-shootings` | `shootingsIntro` | — | `SHOOTINGS_INTRO` | project shell | Yes — head/title, role, summary and lead only. |
+| `shootings-obladaet` | `section#shootings-obladaet` plus adjacent blocks | `shootingsObladaetIntro` | collage reel, portraits group, mixed-media reel, pair group | `SHOOTINGS_OBLADAET_INTRO`, `SHOOTINGS_OBLADAET_COLLAGE_REEL`, `SHOOTINGS_OBLADAET_PORTRAITS_GROUP`, `SHOOTINGS_OBLADAET_MIXED_MEDIA_REEL`, `SHOOTINGS_OBLADAET_PAIR_GROUP` | reels/groups | Yes — record title/date/description only. |
+| `shootings-evasha` | `section#shootings-evasha` plus adjacent blocks | `shootingsEvashaIntro` | banner, portrait reel, cover reel, mixed group, pair figure, portraits group | `SHOOTINGS_EVASHA_INTRO`, `SHOOTINGS_EVASHA_BANNER`, `SHOOTINGS_EVASHA_PORTRAIT_REEL`, `SHOOTINGS_EVASHA_COVER_REEL`, `SHOOTINGS_EVASHA_MIXED_GROUP`, `SHOOTINGS_EVASHA_PAIR_FIGURE`, `SHOOTINGS_EVASHA_PORTRAITS_GROUP` | reels/groups/figure | Yes — record title/date/description only. |
+| `shootings-igguana` | `section#shootings-igguana` plus adjacent masonry | `shootingsIgguanaIntro` | Igguana masonry group | `SHOOTINGS_IGGUANA_INTRO`, `SHOOTINGS_IGGUANA_MASONRY_GROUP` | masonry | Yes — record title/date/description only. |
+| `shootings-esmi` | `section#shootings-esmi` plus anonymous credited banner wrapper | `shootingsEsmiIntro` | `shootingsEsmiBanner` + inline credits | `SHOOTINGS_ESMI_INTRO`, `SHOOTINGS_ESMI_BANNER` | ordinary figure | Yes — record title/date/description only. |
+| `shootings-hypression` | `section#shootings-hypression` plus adjacent blocks | `shootingsHypressionIntro` | banner, collage, mixed media, portraits | `SHOOTINGS_HYPRESSION_INTRO`, `SHOOTINGS_HYPRESSION_BANNER`, `SHOOTINGS_HYPRESSION_COLLAGE_GROUP`, `SHOOTINGS_HYPRESSION_MIXED_MEDIA_GROUP`, `SHOOTINGS_HYPRESSION_PORTRAITS_GROUP` | groups/figure | Yes — record title/date/description only. |
+| `shootings-ofelia` | `section#shootings-ofelia` plus following strip | `shootingsOfeliaIntro` | `shootingsOfeliaStrip` | `SHOOTINGS_OFELIA_INTRO`, `SHOOTINGS_OFELIA_STRIP` | strip | Yes — record title/date/description only. |
 
 ### Slot inventory
 

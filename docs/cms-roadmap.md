@@ -262,6 +262,17 @@ Only clearly editorial Jestei copy/data should be migrated.
 
 Shootings is a Collection, not a Case.
 
+The first safe implementation slice uses:
+
+```text
+src/content/collections/shootings.json
+src/content/shootings/<stable-id>.json
+```
+
+The overview file owns only the existing Shootings head/title, role, summary and lead. Each record file owns only the existing stable `id`, editorial title, date/period and short description. The strict adapter restores code-owned ordering and rejects unknown IDs, unexpected presentation fields and missing descriptions for the six records already rendered on the site.
+
+Create, rename and delete remain disabled in Pages CMS for this slice. A new record ID still requires deliberate code registration so a CMS save cannot create a route, indexable page, taxonomy relationship or visual composition by accident.
+
 Current authored data lives in:
 
 ```text
@@ -303,6 +314,8 @@ instead of one huge top-level JSON array if individual records will be created a
 ### CMS behavior
 
 Once the record model is stable, Pages CMS `type: collection` can provide search, sorting and a meaningful `view.primary` title. This is better suited to a growing Shootings library than the current top-level-array editor.
+
+The initial collection view uses `title` as its primary label and supports search/sort over `title`, `date` and the readonly stable `id`. Media identity, credits, publications, links, cover/alt data and record visibility are not exposed until each field has a real typed consumer and a separate preservation test.
 
 ### Routes
 
