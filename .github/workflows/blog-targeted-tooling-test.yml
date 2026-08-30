@@ -1,0 +1,20 @@
+name: Blog targeted tooling test
+
+on:
+  push:
+    branches:
+      - feat/blog-v1-editorial
+    paths:
+      - .github/workflows/blog-targeted-tooling-test.yml
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/blog-v1-editorial
+          fetch-depth: 1
+      - name: Run tooling contract test
+        run: node --test test/tooling-pipeline.test.mjs
