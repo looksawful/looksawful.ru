@@ -283,10 +283,25 @@ function parseContacts(value: unknown): CvContactData {
   if (!/^@[A-Za-z0-9_]{5,32}$/.test(telegram)) {
     throw new Error(`${label}.telegram must be an @username handle`);
   }
-  if (!/^@[A-Za-z0-9._]{1,30}$/.test(instagram)) {
+  const instagramUsername = instagram.slice(1);
+  if (
+    !/^@[A-Za-z0-9._]{1,30}$/.test(instagram)
+    || instagramUsername.startsWith(".")
+    || instagramUsername.endsWith(".")
+    || instagramUsername.includes("..")
+  ) {
     throw new Error(`${label}.instagram must be an @username handle`);
   }
-  if (!/^[^\s@<>:]+@[^\s@<>:]+\.[^\s@<>:]+$/.test(email)) {
+  const [emailLocal, emailDomain] = email.split("@");
+  if (
+    !/^[^\s@<>:]+@[^\s@<>:]+\.[^\s@<>:]+$/.test(email)
+    || emailLocal.startsWith(".")
+    || emailLocal.endsWith(".")
+    || emailLocal.includes("..")
+    || emailDomain.startsWith(".")
+    || emailDomain.endsWith(".")
+    || emailDomain.includes("..")
+  ) {
     throw new Error(`${label}.email must be a valid email address`);
   }
 

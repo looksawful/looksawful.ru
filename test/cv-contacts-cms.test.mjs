@@ -77,7 +77,18 @@ test("CV content adapter rejects malformed contact values and unsafe website sch
     ["phone", "call me", /contacts\.phone/i],
     ["telegram", "looksawful", /contacts\.telegram/i],
     ["instagram", "looks awful", /contacts\.instagram/i],
+    ["instagram", "@.", /contacts\.instagram/i],
+    ["instagram", "@..", /contacts\.instagram/i],
+    ["instagram", "@.name", /contacts\.instagram/i],
+    ["instagram", "@name.", /contacts\.instagram/i],
+    ["instagram", "@name..name", /contacts\.instagram/i],
     ["email", "not-an-email", /contacts\.email/i],
+    ["email", ".first@example.com", /contacts\.email/i],
+    ["email", "first.@example.com", /contacts\.email/i],
+    ["email", "first..last@example.com", /contacts\.email/i],
+    ["email", "me@.example.com", /contacts\.email/i],
+    ["email", "me@example..com", /contacts\.email/i],
+    ["email", "me@example.com.", /contacts\.email/i],
     ["website", "javascript:alert(1)", /contacts\.website/i],
   ]) {
     const contacts = { ...baseContacts, [key]: value };
