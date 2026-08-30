@@ -60,6 +60,16 @@ jobs:
           ffprobe -version | head -n 1
       - name: Sync generated media
         run: npm run media:sync
+      - name: Export generated media metadata
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'perf/tooling-pipeline-production'
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-media-metadata
+          path: |
+            public/media/generated/responsive-manifest.json
+            public/media/generated/video-inventory.json
+            src/data/media/responsive-generated.ts
+          if-no-files-found: error
       - name: Check tracked media metadata
         run: git diff --exit-code -- public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
       - name: Core tests
