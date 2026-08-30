@@ -88,3 +88,4 @@ await update("test/cv-profile-cms.test.mjs", (source) => {
 });
 
 console.log("Applied CV contacts implementation to exactly five tracked files.");
+// trigger: workflow is now present on the feature branch
