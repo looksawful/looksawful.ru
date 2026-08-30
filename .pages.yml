@@ -169,6 +169,200 @@ content:
             options:
               min: 1
 
+  - name: cases
+    label: Кейсы
+    type: group
+    items:
+      - name: styx-case
+        label: Styx
+        type: file
+        path: src/content/cases/styx.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update Styx editorial copy"
+        actions:
+          - name: verify-styx-case
+            label: Проверить сайт
+            workflow: verify-pr.yml
+            ref: current
+            confirm:
+              title: Запустить полную проверку сайта?
+              message: Будут проверены Styx-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              button: Проверить
+        fields:
+          - name: lead
+            label: Вводный текст
+            type: text
+            required: true
+            description: Текст вводного абзаца Styx. Логотип, роль, период, маршрут и композиция остаются в коде.
+          - name: sections
+            label: Тексты разделов
+            type: object
+            required: true
+            list:
+              min: 5
+              max: 5
+              collapsible:
+                collapsed: true
+                summary: "{title}"
+            description: Пять фиксированных текстовых разделов. Их порядок на сайте определяется кодом, а не порядком в CMS.
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+                description: Стабильный ID раздела. Не изменяется через CMS.
+              - name: title
+                label: Заголовок
+                type: string
+                required: true
+              - name: paragraphs
+                label: Абзацы
+                type: text
+                required: true
+                list:
+                  min: 1
+                description: Обычный текст. Media, layout, классы и runtime остаются в TypeScript.
+          - name: credits
+            label: Подписи серий
+            type: object
+            required: true
+            list:
+              min: 3
+              max: 3
+              collapsible:
+                collapsed: true
+                summary: "{title}"
+            description: Редактируемые заголовки трёх существующих серий; media и порядок остаются в коде.
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+                description: Стабильный ID подписи. Не изменяется через CMS.
+              - name: title
+                label: Подпись
+                type: string
+                required: true
+
+      - name: sensetique-case
+        label: Sensetique
+        type: file
+        path: src/content/cases/sensetique.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update Sensetique editorial copy"
+        actions:
+          - name: verify-sensetique-case
+            label: Проверить сайт
+            workflow: verify-pr.yml
+            ref: current
+            confirm:
+              title: Запустить полную проверку сайта?
+              message: Будут проверены Sensetique-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              button: Проверить
+        fields:
+          - name: intro
+            label: Вводные данные
+            type: object
+            required: true
+            fields:
+              - name: role
+                label: Роль
+                type: string
+                required: true
+              - name: period
+                label: Период
+                type: string
+                required: true
+              - name: lead
+                label: Вводный текст
+                type: text
+                required: true
+          - name: sections
+            label: Тексты разделов
+            type: object
+            required: true
+            list:
+              min: 2
+              max: 2
+              collapsible:
+                collapsed: true
+                summary: "{title}"
+            description: Два фиксированных текстовых раздела. Их порядок на сайте определяется кодом.
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+              - name: title
+                label: Заголовок
+                type: string
+                required: true
+              - name: paragraphs
+                label: Абзацы
+                type: text
+                required: true
+                list:
+                  min: 1
+          - name: credits
+            label: Кредиты и подписи серий
+            type: object
+            required: true
+            list:
+              min: 22
+              max: 22
+              collapsible:
+                collapsed: true
+                summary: "{id}"
+            description: Фиксированные подписи существующих серий. Хотя бы title или lines должны оставаться заполненными; media и порядок остаются в коде.
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+              - name: title
+                label: Заголовок
+                type: string
+              - name: lines
+                label: Строки кредитов
+                type: string
+                list: true
+          - name: notes
+            label: Редакторские примечания
+            type: object
+            required: true
+            list:
+              min: 2
+              max: 2
+              collapsible:
+                collapsed: true
+                summary: "{id}"
+            fields:
+              - name: id
+                label: ID
+                type: string
+                required: true
+                readonly: true
+              - name: text
+                label: Текст
+                type: text
+                required: true
+
   - name: client-logo-visibility
     label: Логотипы клиентов
     type: file
