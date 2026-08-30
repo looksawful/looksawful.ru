@@ -5,6 +5,10 @@ import { fileURLToPath } from "node:url";
 
 import sharp from "sharp";
 
+import {
+  projectIndexMediaAssetFor,
+  projectIndexMediaAssets,
+} from "../src/data/media/assets/project-index.ts";
 import { projects } from "../src/data/projects.ts";
 import { getProjectCardHref } from "../src/site/pages/project-card-routes.ts";
 import { renderProjectCard } from "../src/templates/project-card.ts";
@@ -12,6 +16,10 @@ import { renderProjectCard } from "../src/templates/project-card.ts";
 const cmsConfig = readFileSync(new URL("../.pages.yml", import.meta.url), "utf8");
 const publishWorkflow = readFileSync(
   new URL("../.github/workflows/pages-cms-publish.yml", import.meta.url),
+  "utf8",
+);
+const verifyDevWorkflow = readFileSync(
+  new URL("../.github/workflows/verify-dev.yml", import.meta.url),
   "utf8",
 );
 
@@ -107,6 +115,61 @@ test("CMS project covers stay in the scoped WebP folder and metadata matches the
   }
 });
 
+test("CMS project covers are derived into the typed media registry", () => {
+  assert.equal(projectIndexMediaAssets.length, projects.length);
+
+  for (const project of projects) {
+    const asset = projectIndexMediaAssetFor(project);
+    assert.deepEqual(
+      projectIndexMediaAssets.find(({ id }) => id === asset.id),
+      asset,
+      `${project.id} cover must be present in the live registry`,
+    );
+    assert.equal(asset.type, "image");
+    assert.equal(asset.src, project.cover.src);
+    assert.equal(asset.width, project.cover.width);
+    assert.equal(asset.height, project.cover.height);
+  }
+
+  const uploadedCover = {
+    ...projects[0],
+    cover: {
+      ...projects[0].cover,
+      src: "/media/projects/index/cms-uploaded-cover.webp",
+      width: 2048,
+      height: 1152,
+    },
+  };
+  const uploadedAsset = projectIndexMediaAssetFor(uploadedCover);
+
+  assert.equal(uploadedAsset.src, uploadedCover.cover.src);
+  assert.equal(uploadedAsset.width, uploadedCover.cover.width);
+  assert.equal(uploadedAsset.height, uploadedCover.cover.height);
+});
+
+test("homepage project cards consume registry-backed responsive cover variants", () => {
+  const html = renderProjectCard(projects[0]);
+
+  assert.match(html, /\ssrcset="[^"]+"/);
+  assert.match(html, /\ssizes="[^"]+"/);
+  assert.match(html, /\/media\/generated\/responsive\/projects\/index\/jestei-pool-cover@/);
+
+  const uploadedCover = {
+    ...projects[0],
+    cover: {
+      ...projects[0].cover,
+      src: "/media/projects/index/cms-uploaded-cover.webp",
+    },
+  };
+  const unsyncedHtml = renderProjectCard(uploadedCover);
+
+  assert.doesNotMatch(
+    unsyncedHtml,
+    /jestei-pool-cover@/,
+    "a newly selected cover must never reuse stale derivatives from the prior file",
+  );
+});
+
 test("Pages CMS keeps project-card identity and destructive operations locked", () => {
   const projectCardsConfig = cmsConfig.match(/\n  - name: project-cards\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
 
@@ -145,4 +208,15 @@ test("Pages CMS publication action can only prepare dev to prod PRs", () => {
   assert.match(publishWorkflow, /--base prod/);
   assert.match(publishWorkflow, /--head dev/);
   assert.doesNotMatch(publishWorkflow, /gh pr merge|enable.*auto.?merge|merge_pull_request/i);
+});
+
+test("dev verification persists deterministic metadata for CMS project-cover changes only", () => {
+  assert.match(verifyDevWorkflow, /permissions:\s*\n\s+contents: write/);
+  assert.match(verifyDevWorkflow, /name: Persist CMS project-cover metadata/);
+  assert.match(verifyDevWorkflow, /src\/content\/projects\.json/);
+  assert.match(verifyDevWorkflow, /public\/media\/projects\/index\/\*/);
+  assert.match(verifyDevWorkflow, /public\/media\/generated\/responsive-manifest\.json/);
+  assert.match(verifyDevWorkflow, /src\/data\/media\/responsive-generated\.ts/);
+  assert.match(verifyDevWorkflow, /git push origin HEAD:dev/);
+  assert.match(verifyDevWorkflow, /Refusing to persist generated metadata/);
 });
