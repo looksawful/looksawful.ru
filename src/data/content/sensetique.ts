@@ -10,6 +10,12 @@ import type { MediaEntryId } from "../media/index.ts";
 import type { PageFlipData } from "../../types/page-flip.ts";
 
 import type { LogoUsageId } from "../logos/index.ts";
+import {
+  getSensetiqueEditorialCredit,
+  getSensetiqueEditorialNote,
+  getSensetiqueEditorialSection,
+  sensetiqueEditorialContent,
+} from "./sensetique-editorial.ts";
 
 export const sensetiqueIntro = {
   head: {
@@ -23,26 +29,22 @@ export const sensetiqueIntro = {
     logoUsageId: "sensetique-case-title-logo",
   },
 
-  role: "Основатель",
-  period: "2017–2018",
+  role: sensetiqueEditorialContent.intro.role,
+  period: sensetiqueEditorialContent.intro.period,
 
-  lead: "Запустил и управлял московской фотостудией и продакшеном для моды, рекламы и визуального контента. Собирал команду, продюсировал съёмки и организовывал производство.",
+  lead: sensetiqueEditorialContent.intro.lead,
 } as const satisfies ProjectIntroData<LogoUsageId>;
 
 export const sensetiqueStudioIntro = {
-  title: "Студия",
+  title: getSensetiqueEditorialSection("studio").title,
 
-  paragraphs: [
-    "В 2018 году закончили строительство студии с тремя съёмочными пространствами в здании завода на улице Дмитрия Ульянова, 42.",
-  ],
+  paragraphs: getSensetiqueEditorialSection("studio").paragraphs,
 } as const satisfies SectionIntroData;
 
 export const sensetiqueProductionIntro = {
-  title: "Продакшен",
+  title: getSensetiqueEditorialSection("production").title,
 
-  paragraphs: [
-    "В 2017 году я запустил продакшен-агентство полного цикла Moch Fashn. Мы продюсировали и снимали фотосъёмки, занимались SMM и рекламой, разрабатывали и дорабатывали сайты, администрировали интернет-магазины. Снимали лукбуки и кампейны, стилизовали съёмки и делали редизайн сайтов для локальных брендов одежды. В 2018 году провели ребрендинг и масштабировали проект: начали строить коммерческую фотостудию и работать субподрядчиками крупных продакшен-агентств. Организовывали кастинги и логистику, предоставляли стилистов и ассистентов для рекламных проектов.",
-  ],
+  paragraphs: getSensetiqueEditorialSection("production").paragraphs,
 } as const satisfies SectionIntroData;
 
 
@@ -52,18 +54,9 @@ export const sensetiqueBuro247Group = {
   captionView: "overlay",
 
   head: {
-    credits: {
-      lines: [
-        "Фотограф Андрей Рапуто",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский",
-      ],
-    },
+    credits: { lines: getSensetiqueEditorialCredit("buro247").lines! },
 
-    note: {
-      kind: "editorial",
-      text: "Снимали для журналов спецпроекты и fashion stories, в том числе с селебрити. Для Bureau 24/7 сделали спецпроект с основателем «Силы ветра».",
-    },
+    note: { kind: "editorial", text: getSensetiqueEditorialNote("buro247").text },
   },
 
   items: [
@@ -84,9 +77,7 @@ export const sensetiqueOlovoBookletGroup = {
   mobileColumns: 1,
 
   head: {
-    credits: {
-      title: "Дизайн буклета Olovo Moscow.",
-    },
+    credits: { title: getSensetiqueEditorialCredit("olovo-booklet").title! },
   },
 
   items: [
@@ -103,13 +94,7 @@ export const sensetiqueTatianaNikishinaEditorialGroup = {
   columns: 4,
 
   head: {
-    credits: {
-      lines: [
-        "Фотограф Татьяна Никишина",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский",
-      ],
-    },
+    credits: { lines: getSensetiqueEditorialCredit("tatiana-nikishina").lines! },
   },
 
   items: [
@@ -133,12 +118,7 @@ export const sensetiqueKatyaKnyazevaEditorialGroup = {
   mobileColumns: 2,
 
   head: {
-    credits: {
-      lines: [
-        "Фотограф Катя Князева",
-        "Стилист Мария Жукова",
-      ],
-    },
+    credits: { lines: getSensetiqueEditorialCredit("katya-knyazeva").lines! },
   },
 
   items: [
@@ -155,13 +135,7 @@ export const sensetiqueYuriIvanovEditorialGroup = {
   captionView: "overlay",
 
   head: {
-    credits: {
-      lines: [
-        "Фотограф Юрий Иванов",
-        "Стилист Мария Жукова",
-        "Коллаж Иван Крушинский",
-      ],
-    },
+    credits: { lines: getSensetiqueEditorialCredit("yuri-ivanov").lines! },
   },
 
   items: [
@@ -887,14 +861,7 @@ export const sensetiqueHarshLightStrip = {
   "captionView": "overlay",
   "height": "clamp(12rem, 30cqi, 20rem)",
   "head": {
-    "credits": {
-      "title": "HARSH LIGHT, 2018.",
-      "lines": [
-        "Фотограф Андрей Рапуто",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский"
-      ]
-    }
+    "credits": { title: getSensetiqueEditorialCredit("harsh-light").title!, lines: getSensetiqueEditorialCredit("harsh-light").lines! }
   },
   "items": [
     {
@@ -921,12 +888,7 @@ export const sensetiqueRaputoEditorialStrip = {
   "layout": "strip",
   "captionView": "overlay",
   "head": {
-    "credits": {
-      "lines": [
-        "Фотограф Андрей Рапуто",
-        "Стилист Мария Жукова"
-      ]
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("raputo-editorial").lines! }
   },
   "height": "clamp(12rem, 30cqi, 20rem)",
   "items": [
@@ -952,14 +914,7 @@ export const sensetiqueYoungPioneerSequence = {
   "columns": 3,
   "ratio": "4 / 5",
   "head": {
-    "credits": {
-      "title": "Young-pioneer",
-      "lines": [
-        "Фотографы Дарья Сеничева и Никита Игнатов",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский"
-      ]
-    }
+    "credits": { title: getSensetiqueEditorialCredit("young-pioneer-sequence").title!, lines: getSensetiqueEditorialCredit("young-pioneer-sequence").lines! }
   },
   "leading": {
     "entryId": "sensetique-09-source-37-17x11-use-02",
@@ -1008,13 +963,7 @@ export const sensetiqueKrasotaDressStrip = {
   "layout": "strip",
   "captionView": "overlay",
   "head": {
-    "credits": {
-      "lines": [
-        "Фотограф Дарья Сеничева",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский"
-      ]
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("krasota-dress").lines! }
   },
   "height": "clamp(12rem, 30cqi, 20rem)",
   "items": [
@@ -1046,13 +995,7 @@ export const sensetiqueOlovoCampaignStrip = {
   "layout": "strip",
   "captionView": "overlay",
   "head": {
-    "credits": {
-      "lines": [
-        "Фотограф Никита Игнатов",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский"
-      ]
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("olovo-campaign").lines! }
   },
   "height": "clamp(12rem, 30cqi, 20rem)",
   "items": [
@@ -1084,16 +1027,8 @@ export const sensetiqueOlovoLookbook2016Reel = {
   "columns": 3,
   "compactItemSize": "min(68cqi, 17rem)",
   "head": {
-    "credits": {
-      "lines": [
-        "Фотограф Никита Игнатов",
-        "Стилист Мария Жукова"
-      ]
-    },
-    "note": {
-      "kind": "editorial",
-      "text": "С брендами работали на постоянной основе и закрывали весь цикл контента: каталоги, кампейны, лукбуки, материалы для интернет-магазинов, графический дизайн и печатные материалы."
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("olovo-lookbook-2016").lines! },
+    "note": { kind: "editorial", text: getSensetiqueEditorialNote("olovo-lookbook-2016").text }
   },
   "items": [
     {
@@ -1122,13 +1057,7 @@ export const sensetiqueOlovoLookbook2018Reel = {
   "columns": 3,
   "compactItemSize": "min(68cqi, 17rem)",
   "head": {
-    "credits": {
-      "lines": [
-        "Фотограф Дарья Сеничева",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский"
-      ]
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("olovo-lookbook-2018").lines! }
   },
   "items": [
     {
@@ -1156,13 +1085,7 @@ export const sensetiqueInnaHonourReel = {
   "head": {
     "className": "split split-always",
     "style": "--split-min: 12rem; --split-gap: clamp(1rem, 6cqi, 6rem)",
-    "credits": {
-      "lines": [
-        "Фотограф Дарья Сеничева",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский"
-      ]
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("inna-honour").lines! }
   },
   "items": [
     {
@@ -1189,12 +1112,7 @@ export const sensetiqueOlovoArchitectureStrip = {
   "layout": "strip",
   "captionView": "overlay",
   "head": {
-    "credits": {
-      "title": "Архитектурные фотографии для брендбука Olovo Moscow.",
-      "lines": [
-        "Фотограф Дарья Сеничева"
-      ]
-    }
+    "credits": { title: getSensetiqueEditorialCredit("olovo-architecture").title!, lines: getSensetiqueEditorialCredit("olovo-architecture").lines! }
   },
   "height": "clamp(12rem, 30cqi, 20rem)",
   "items": [
@@ -1226,13 +1144,7 @@ export const sensetiqueChapurinBentoGroup = {
   "layout": "editorial",
   "captionView": "overlay",
   "head": {
-    "credits": {
-      "lines": [
-        "Фотограф Андрей Рапуто",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский"
-      ]
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("chapurin").lines! }
   },
   "items": [
     {
@@ -1310,15 +1222,7 @@ export const sensetiqueYoungPioneerStrip = {
   "captionView": "overlay",
   "height": "clamp(12rem, 30cqi, 20rem)",
   "head": {
-    "credits": {
-      "title": "Young-pioneer",
-      "lines": [
-        "Фотографы Дарья Сеничева и Никита Игнатов",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский",
-        "Kaltblut Magazine"
-      ]
-    }
+    "credits": { title: getSensetiqueEditorialCredit("young-pioneer-strip").title!, lines: getSensetiqueEditorialCredit("young-pioneer-strip").lines! }
   },
   "items": [
     {
@@ -1374,13 +1278,7 @@ export const sensetiqueDaniilKorotechenkovSequence = {
   "captionView": "overlay",
   "ratio": "4 / 5",
   "head": {
-    "credits": {
-      "lines": [
-        "Фотограф Даниил Коротеченков",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский"
-      ]
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("daniil-korotechenkov").lines! }
   },
   "leading": {
     "entryId": "sensetique-01-source-08-3x2-use-02",
@@ -1449,13 +1347,7 @@ export const sensetiqueTatianaNikishinaSupplementalReel = {
   "mode": "overflow-reel",
   "captionView": "overlay",
   "head": {
-    "credits": {
-      "lines": [
-        "Фотограф Татьяна Никишина",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский"
-      ]
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("tatiana-nikishina-supplemental").lines! }
   },
   "items": [
     {
@@ -1487,15 +1379,7 @@ export const sensetiqueWoodMetalPanicStrip = {
   "captionView": "overlay",
   "height": "clamp(12rem, 30cqi, 20rem)",
   "head": {
-    "credits": {
-      "title": "Wood.Metal.PANIC!",
-      "lines": [
-        "Фотограф Дарья Сахатская",
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский",
-        "Художник по свету Валентин Панков"
-      ]
-    }
+    "credits": { title: getSensetiqueEditorialCredit("wood-metal-panic").title!, lines: getSensetiqueEditorialCredit("wood-metal-panic").lines! }
   },
   "items": [
     {
@@ -1562,12 +1446,7 @@ export const sensetiqueIvanKrushinskyEditorialStrip = {
   "layout": "strip",
   "captionView": "overlay",
   "head": {
-    "credits": {
-      "lines": [
-        "Фотограф Иван Крушинский",
-        "Стилист Мария Жукова"
-      ]
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("ivan-krushinsky").lines! }
   },
   "height": "clamp(12rem, 30cqi, 20rem)",
   "items": [
@@ -1592,12 +1471,7 @@ export const sensetiqueEditorialProductionReel = {
   "mode": "overflow-reel",
   "captionView": "overlay",
   "head": {
-    "credits": {
-      "lines": [
-        "Стилист Мария Жукова",
-        "Продюсер Иван Крушинский"
-      ]
-    }
+    "credits": { lines: getSensetiqueEditorialCredit("editorial-production").lines! }
   },
   "items": [
     {
@@ -1713,10 +1587,7 @@ export const sensetiqueOlovoBackstageVideo = {
 } as const satisfies MediaFigureData<MediaEntryId>;
 
 export const sensetiqueDigitalFearPageFlip = {
-  credits: {
-    title: "Digital-fear-of-love — адверториал для ювелирного бренда MIMI MOSCOW",
-    lines: ["Фотограф Елена Литвинюк", "Модель Данила Поляков"],
-  },
+  credits: { title: getSensetiqueEditorialCredit("digital-fear").title!, lines: getSensetiqueEditorialCredit("digital-fear").lines! },
   lightbox: false,
   pages: [
     { entryId: "sensetique-11-source-06-911x1280-use-01", index: 111, density: "soft", loading: "lazy" },
