@@ -115,7 +115,7 @@ media/.compression-backup/
 .prototypes/
 .editorconfig
 
-# Reproducible derivatives are generated before dev/test/build.
+# Reproducible derivatives are generated/ensured by the media pipeline and are not committed.
 public/media/generated/responsive/
 public/media/generated/video/
 
