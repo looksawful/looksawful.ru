@@ -25,6 +25,7 @@ test("CI caches only reproducible media derivatives and always validates them wi
 
     assert.match(cache, /uses: actions\/cache@v4/, `${label} must restore generated media cache`);
     assert.match(cache, /public\/media\/generated\/responsive\b/, `${label} must cache responsive derivatives`);
+    assert.match(cache, /src\/content\/projects\.json/, `${label} must invalidate cache when CMS cover selection changes`);
     assert.match(cache, /public\/media\/generated\/video\b/, `${label} must cache video derivatives`);
     assert.doesNotMatch(cache, /responsive-manifest\.json/, `${label} must not cache tracked responsive metadata`);
     assert.doesNotMatch(cache, /video-inventory\.json/, `${label} must not cache tracked video metadata`);

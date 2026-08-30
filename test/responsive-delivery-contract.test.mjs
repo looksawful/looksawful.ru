@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { responsiveImageSrcSet } from "../src/data/media/responsive.ts";
+import { mediaAssets } from "../src/data/media/assets/index.ts";
+import {
+  responsiveImageSrcSet,
+  responsiveVariantsFor,
+} from "../src/data/media/responsive.ts";
 import { renderMediaElement } from "../src/templates/media-figure.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
@@ -31,4 +35,17 @@ test("registry-backed images use generated responsive variants without duplicati
   });
   assert.match(spaced, /Screenshot%202026-08-19%20135302@480\.webp 480w/);
   assert.doesNotMatch(spaced, /Screenshot 2026/);
+});
+
+test("responsive delivery fails closed when an asset path changes before its catalog is regenerated", () => {
+  const currentAsset = mediaAssets.find(({ id }) => id === "project-index-jestei-pool-cover");
+  assert.ok(currentAsset && currentAsset.type === "image");
+
+  const changedAsset = {
+    ...currentAsset,
+    src: "/media/projects/index/cms-uploaded-cover.webp",
+  };
+
+  assert.deepEqual(responsiveVariantsFor(changedAsset), []);
+  assert.equal(responsiveImageSrcSet(changedAsset), "");
 });
