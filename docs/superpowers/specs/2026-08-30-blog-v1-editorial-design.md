@@ -4,7 +4,7 @@
 
 Approved architecture for the first production blog implementation on looksawful.ru.
 
-The feature branch is intentionally based on the current head of `perf/tooling-pipeline-production` so the blog is developed against the media/build/E2E orchestration expected to land in `dev`. Before integration, re-check PR #24 and compare the feature branch with the then-current `dev`.
+The feature branch targets `dev` directly and is periodically synchronized with its current head through guarded merge workflows. Before integration, compare the feature branch with the then-current `dev`, preserve `dev` as the source of truth for shared infrastructure/CMS work, and rerun the full verification contract on the exact final feature SHA.
 
 ## Goal
 
@@ -133,7 +133,7 @@ Reject:
 - update date before publication date;
 - invalid tags;
 - non-http(s) external URL;
-- cover path outside `/media/blog/`;
+- cover path that is not a canonical WebP under `/media/blog/`, including literal or percent-encoded dot-segment traversal;
 - invalid cover dimensions or empty alt;
 - unknown video provider or invalid YouTube id;
 - H1 inside Markdown body;
@@ -224,7 +224,7 @@ Normalize query with NFKC, trim and Russian locale lowercase. Visibility uses na
 
 V1 allows only structured YouTube data. No arbitrary iframe URLs from Markdown or CMS.
 
-Before activation, render a normal figure/trigger and an external fallback link. Only after user activation create an iframe using `youtube-nocookie.com`, a meaningful `title`, the required `allow` value and `allowfullscreen`.
+Before activation, render a normal figure/trigger and an external fallback link. Only after user activation create an iframe using `youtube-nocookie.com`, a meaningful `title`, the required `allow` value and `allowfullscreen`. If an entry has both `cover` and `video`, the cover is the video poster and no second standalone hero cover is rendered; a non-video entry keeps its standalone cover.
 
 ## CMS
 
@@ -240,17 +240,14 @@ Navigation continues the current contract: route and stable id are code-owned; l
 
 Blog CSS is a separate entry, not an import into `src/styles/index.css`.
 
-Target files:
+V1 keeps the isolated editorial layer intentionally compact:
 
 ```text
 src/styles/blog-entry.css
-src/styles/blog/blog.css
-src/styles/blog/prose.css
-src/styles/blog/code.css
-src/styles/blog/media.css
+src/styles/blog.css
 ```
 
-`blog-entry.css` imports the existing reset/tokens/colors/base/patterns/navigation/utilities and the blog editorial files in cascade layers.
+`blog-entry.css` imports the existing reset/tokens/colors/base/patterns/navigation/utilities and the single focused `blog.css` component layer. Split the blog stylesheet further only if future article components create a concrete maintenance boundary; V1 does not create file granularity for its own sake.
 
 Do not create a second global token set. Blog-specific values are local custom properties on `.blog-index` and `.blog-post`.
 
@@ -277,8 +274,8 @@ The site remains Inter-first. Blog reading introduces one additional family: Sou
 
 Roles:
 
-- global navigation/UI/index/cards/meta/captions/tables/resource data: Inter Variable;
-- article title/lead/body/H2/H3/blockquote: Source Serif 4 Variable;
+- global navigation/UI/index/cards/meta/captions/tables/resource data and article H1: Inter Variable;
+- article lead/body/H2/H3/blockquote: Source Serif 4 Variable;
 - code: existing `--ff-mono` stack.
 
 Do not set the whole `.blog` subtree to serif.
@@ -287,7 +284,7 @@ Local starting values:
 
 - long-form body: about 18px, `line-height: 1.58`, tracking 0;
 - text measure: about `68ch`, tuned with real Russian content;
-- title: fluid serif display size using a bounded `clamp()`;
+- article title: fluid Inter display size using a bounded `clamp()`;
 - H2/H3: serif with moderate weights, not heavy bold;
 - captions/meta: existing small Inter scale.
 
@@ -295,17 +292,19 @@ Existing global `text-wrap: balance/pretty` remains in effect.
 
 ## Editorial layout
 
-Blog index stays visually connected to the site: large Inter `блог`, thin rules, editorial feed, minimal text filters and a real search field. Avoid SaaS cards, badges, colorful pills, shadows, sticky filter panels and sidebars.
+Blog index stays visually connected to the site: large Inter `блог`, thin rules, editorial feed, minimal text filters and a real search field. The intro occupies the right half of the six-column editorial grid on wide layouts. The first `featured: true` entry is promoted to the first feed position and receives the only featured treatment; later featured flags do not create repeated hero rows. Feed rows expose explicit media and text-only variants instead of inferring layout with `:has()`. Avoid SaaS cards, badges, colorful pills, shadows, sticky filter panels and sidebars.
 
 Article header uses existing `.wrapper` and `.editorial-grid`. On wide layouts meta, title and lead may occupy asymmetric columns. On narrow layouts it collapses naturally.
 
 Article prose uses a content/wide Grid model:
 
-- paragraphs/headings/lists use the reading track;
-- code/images/video/tables may use a wider track;
+- `.blog-post__body` owns the bounded wide container;
+- `.blog-prose` spans that grid and adopts its columns with `subgrid`;
+- ordinary paragraphs/headings/lists stay on the centered reading track;
+- direct article figures, code blocks and table wrappers span the wide track;
 - mobile naturally collapses both to available width.
 
-Use Grid tracks rather than negative-margin or transform breakout hacks.
+Use Grid/subgrid tracks rather than negative-margin or transform breakout hacks.
 
 ## Code blocks
 
@@ -324,7 +323,7 @@ Code is a first-class editorial component.
 
 Article figures use blog-specific markup, not portfolio `.media`/caption contracts. Screenshots are not cropped and may receive a thin semantic border when needed against the page background. Captions use Inter.
 
-Blog V1 images live under `public/media/blog/`; do not create a competing responsive-media builder. Existing project media source-of-truth remains untouched.
+Blog V1 images live under `public/media/blog/`; do not create a competing responsive-media builder. Both frontmatter covers and Markdown images use the same canonical-path validator: only WebP paths that remain inside `/media/blog/` after URL normalization/decoding are accepted. Existing project media source-of-truth remains untouched.
 
 Tables use semantic table markup and Inter. On narrow containers they scroll horizontally rather than converting to cards.
 
@@ -374,8 +373,8 @@ Before completion run the repository's current `npm run verify` and relevant Lig
 
 The blog branch must remain reviewable as a blog feature. Before final integration:
 
-1. confirm PR #24 is merged or otherwise resolve its base intentionally;
-2. compare feature branch against current `dev`;
-3. ensure the effective blog diff excludes unrelated tooling history;
-4. run full verification against the integration base;
-5. only then open/retarget the blog PR to `dev`.
+1. compare the feature branch against current `dev`;
+2. synchronize new shared CMS/infrastructure commits from `dev` with a guarded merge;
+3. ensure the effective blog diff excludes unrelated tooling history and formatting churn;
+4. run full verification against the exact final feature SHA;
+5. keep the PR targeting `dev` and mark it ready only after that verification is observed GREEN.

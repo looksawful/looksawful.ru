@@ -394,3 +394,15 @@ Do not promote a failing `dev` state to `prod`.
 [ ] production deployment green
 [ ] final production smoke check complete
 ```
+
+## Editorial presentation contract
+
+Presentation remains code-owned; authors choose structured content, not layout classes.
+
+- `featured: true` is an editorial signal, but only the first featured published entry receives the promoted feed layout.
+- A cover is optional. Text-only tools/notes are intentional and do not require placeholder media.
+- If an entry has both `cover` and `video`, the cover becomes the click-to-load video poster; the article does not render a second standalone hero cover.
+- Article H1 and all interface/meta text use the site's Inter system. Long-form lead/body headings/quotes use Source Serif 4.
+- Markdown figures, fenced code and GFM tables may use the article wide track; normal prose stays on the reading measure.
+- Tables retain semantic markup and horizontally scroll when their intrinsic width exceeds the viewport.
+- Blog media must be a canonical `.webp` path under `/media/blog/`; traversal-like or encoded escape paths fail the build.
