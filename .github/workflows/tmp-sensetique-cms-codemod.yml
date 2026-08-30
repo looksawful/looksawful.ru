@@ -1,0 +1,48 @@
+name: Temporary Sensetique CMS codemod
+
+on:
+  push:
+    branches:
+      - feat/cms-sensetique-editorial-copy
+    paths:
+      - tools/tmp-sensetique-cms-codemod.mjs
+      - .github/workflows/tmp-sensetique-cms-codemod.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/cms-sensetique-editorial-copy
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Apply exact-scope codemod
+        run: node tools/tmp-sensetique-cms-codemod.mjs
+      - name: Verify changed scope
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only)"
+          printf '%s\n' "$changed"
+          test "$changed" = $'.pages.yml\nsrc/data/content/sensetique.ts' || {
+            echo "Unexpected codemod scope" >&2
+            exit 1
+          }
+          git diff --check
+          node --test test/sensetique-cms-copy.test.mjs
+          npm run typecheck
+      - name: Commit deterministic migration
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .pages.yml src/data/content/sensetique.ts
+          git commit -m "feat(cms): migrate Sensetique editorial copy"
+          git push origin HEAD:feat/cms-sensetique-editorial-copy
