@@ -38,7 +38,7 @@ const expectedSkills = {
     ],
   },
   soft: {
-    visible: true,
+    visible: false,
     titleVisible: false,
     title: "СОФТ СКИЛЛС",
     rows: [
@@ -115,9 +115,9 @@ test("CV skill transform escapes CMS copy while preserving section and paragraph
   assert.doesNotMatch(transformed, /<script\b/i);
   assert.match(transformed, /<section class="block hard copy">/);
   assert.match(transformed, /<section class="block tech">/);
-  assert.match(transformed, /<section class="block soft copy">/);
+  assert.match(transformed, /<section class="block soft copy" hidden>/);
   assert.match(transformed, /<section class="block tools" hidden>/);
-  assert.match(transformed, /<section class="block soft copy"><h2 class="section-title" hidden>/);
+  assert.match(transformed, /<section class="block soft copy" hidden><h2 class="section-title" hidden>/);
   assert.equal(
     (transformed.match(/<section class="block (?:hard copy|tech|soft copy|tools)"(?: hidden)?>/g) ?? []).length,
     4,

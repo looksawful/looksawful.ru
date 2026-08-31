@@ -88,7 +88,7 @@ test("CV experience CMS source owns copy but keeps fixed identity and presentati
   }
 });
 
-test("CV experience source contains the approved Jestei, LI-NE and Progress copy", async () => {
+test("CV experience source contains the approved Jestei, LI-NE, Progress and RIA copy", async () => {
   const source = await readSource();
   const byId = new Map(source.experience.map((entry) => [entry.id, entry]));
 
@@ -103,6 +103,11 @@ test("CV experience source contains the approved Jestei, LI-NE and Progress copy
   assert.equal(
     byId.get("progress")?.description,
     "Работал книжным дизайнером в издательстве гуманитарной и образовательной литературы: разрабатывал макеты, верстал и вёл полный цикл дизайн-процессов при разработке научных и гуманитарных изданий, включая книги Елены Ровенко и Бориса Ерёмина, а также руководил разработкой и администрированием сайта издательства.",
+  );
+  assert.equal(byId.get("ria")?.role, "Дизайнер");
+  assert.equal(
+    byId.get("ria")?.description,
+    "Работал верстальщиком в ежедневной городской общественно-политической газете о Москве",
   );
   assert.deepEqual(byId.get("line")?.facts, []);
   assert.deepEqual(byId.get("progress")?.facts, []);
