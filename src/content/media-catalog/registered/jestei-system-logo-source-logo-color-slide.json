@@ -1,0 +1,38 @@
+{
+  "id": "jestei-system-logo-source-logo-color-slide",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/system/logo/source/logo-color-slide.png",
+  "sourceSrc": "",
+  "width": 1246,
+  "height": 594,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Обновлённая цветовая палитра бренда.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-brand-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "identity",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "identity-project"
+  ],
+  "deliverableIds": [
+    "identity-system",
+    "logo",
+    "brand-assets"
+  ],
+  "tags": [
+    "графический дизайн",
+    "айдентика"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -210,12 +210,16 @@ test("Pages CMS publication action can only prepare dev to prod PRs", () => {
   assert.doesNotMatch(publishWorkflow, /gh pr merge|enable.*auto.?merge|merge_pull_request/i);
 });
 
-test("dev verification persists deterministic metadata for CMS project-cover changes only", () => {
+test("dev verification safely persists deterministic metadata for project covers and media catalog uploads", () => {
   assert.match(verifyDevWorkflow, /permissions:\s*\n\s+contents: write/);
-  assert.match(verifyDevWorkflow, /name: Persist CMS project-cover metadata/);
+  assert.match(verifyDevWorkflow, /name: Persist synchronized CMS media metadata/);
   assert.match(verifyDevWorkflow, /src\/content\/projects\.json/);
   assert.match(verifyDevWorkflow, /public\/media\/projects\/index\/\*/);
+  assert.match(verifyDevWorkflow, /src\/content\/media-catalog\/uploads\/\*\.json/);
+  assert.match(verifyDevWorkflow, /public\/media\/catalog\/\*/);
+  assert.match(verifyDevWorkflow, /src\/data\/media\/catalog-records\.generated\.ts/);
   assert.match(verifyDevWorkflow, /public\/media\/generated\/responsive-manifest\.json/);
+  assert.match(verifyDevWorkflow, /public\/media\/generated\/video-inventory\.json/);
   assert.match(verifyDevWorkflow, /src\/data\/media\/responsive-generated\.ts/);
   assert.match(verifyDevWorkflow, /git push origin HEAD:dev/);
   assert.match(verifyDevWorkflow, /Refusing to persist generated metadata/);

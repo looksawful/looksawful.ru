@@ -1,0 +1,46 @@
+{
+  "id": "jestei-system-logo-source-logo-anatomy-slide",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/system/logo/source/logo-anatomy-slide.png",
+  "sourceSrc": "",
+  "width": 1942,
+  "height": 891,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Схема построения знака.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-brand-system",
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "identity",
+    "brand-communication",
+    "social-media",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "identity-project"
+  ],
+  "deliverableIds": [
+    "identity-system",
+    "logo",
+    "brand-assets",
+    "advertising-banner",
+    "social-media-assets",
+    "advertising-creative",
+    "campaign-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн",
+    "айдентика"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

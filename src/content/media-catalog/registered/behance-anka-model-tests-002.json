@@ -1,0 +1,33 @@
+{
+  "id": "behance-anka-model-tests-002",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/behance/anka-model-tests/source/002.webp",
+  "sourceSrc": "",
+  "width": 1200,
+  "height": 1188,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Anka model tests",
+  "alt": "Anka model tests — кадр 2",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "shootings-behance-anka-model-tests"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "fashion-shooting",
+    "portrait-shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

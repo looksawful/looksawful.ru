@@ -1,0 +1,29 @@
+{
+  "id": "portfolio-portfolio-extra-10-854x1280",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/portfolio/source/portfolio-extra-10-854x1280.webp",
+  "sourceSrc": "",
+  "width": 854,
+  "height": 1280,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фотография",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [],
+  "tags": [
+    "фото"
+  ],
+  "credits": [
+    "Фотограф: Иван Крушинский."
+  ],
+  "reusable": true,
+  "archived": false
+}

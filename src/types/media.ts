@@ -45,6 +45,44 @@ export interface ModelMedia extends MediaBase {
 export type MediaAsset = ImageMedia | VideoMedia | ModelMedia;
 
 /* ==================================================
+   Reusable catalog metadata
+   ================================================== */
+
+export interface MediaCatalogMetadata<
+  ProjectId extends string = string,
+  WorkAreaId extends string = string,
+  ProjectTypeId extends string = string,
+  DeliverableId extends string = string,
+> {
+  title: string;
+  alt: string;
+  description: string;
+  date: string;
+  projectIds: readonly ProjectId[];
+  workAreaIds: readonly WorkAreaId[];
+  projectTypeIds: readonly ProjectTypeId[];
+  deliverableIds: readonly DeliverableId[];
+  tags: readonly string[];
+  credits: readonly string[];
+  reusable: boolean;
+  archived: boolean;
+}
+
+export interface MediaCatalogItemData<
+  ProjectId extends string = string,
+  WorkAreaId extends string = string,
+  ProjectTypeId extends string = string,
+  DeliverableId extends string = string,
+> extends MediaCatalogMetadata<ProjectId, WorkAreaId, ProjectTypeId, DeliverableId> {
+  origin: "registered" | "cms";
+  asset: MediaAsset;
+  posterSrc?: string;
+  durationSeconds?: number;
+  mimeType?: string;
+  byteLength?: number;
+}
+
+/* ==================================================
    Captions
    ================================================== */
 

@@ -1,0 +1,45 @@
+{
+  "id": "jestei-logo-source-28-svg-jestei-event-text-logo-event",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/logo/source/28-svg-jestei-event-text-logo-event.svg",
+  "sourceSrc": "",
+  "width": 102,
+  "height": 11,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Шрифтовая версия логотипа для Event.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-brand-system",
+    "jestei-event"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "identity",
+    "product-design",
+    "ux",
+    "ui",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "identity-project"
+  ],
+  "deliverableIds": [
+    "identity-system",
+    "logo",
+    "brand-assets",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн",
+    "айдентика"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

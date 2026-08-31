@@ -1,0 +1,43 @@
+{
+  "id": "jestei-10-source-01-3963x2650",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/10/source/01-3963x2650.png",
+  "sourceSrc": "",
+  "width": 7926,
+  "height": 5300,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Макеты новой страницы Record Pool в UI-kit.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-core-interface",
+    "jestei-playlist-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "product-design",
+    "ux",
+    "ui",
+    "design-systems"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "social-media-assets",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

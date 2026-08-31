@@ -1,0 +1,36 @@
+{
+  "id": "styx-06-source-03-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/styx/06/source/03-1x1.webp",
+  "sourceSrc": "",
+  "width": 441,
+  "height": 441,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "QR-код для покупки кольца Cemetery Ring из печатного каталога.",
+  "alt": "",
+  "description": "",
+  "date": "2023",
+  "projectIds": [
+    "styx-print-materials-2023"
+  ],
+  "workAreaIds": [
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "catalog",
+    "print-project"
+  ],
+  "deliverableIds": [
+    "print-materials",
+    "catalog"
+  ],
+  "tags": [
+    "графический дизайн",
+    "каталог"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

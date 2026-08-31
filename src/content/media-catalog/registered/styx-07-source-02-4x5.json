@@ -1,0 +1,41 @@
+{
+  "id": "styx-07-source-02-4x5",
+  "mediaType": "image",
+  "src": "/media/projects/styx/07/source/02-4x5.webp",
+  "sourceSrc": "",
+  "width": 959,
+  "height": 1200,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Сканографический портрет из кампейна",
+  "alt": "",
+  "description": "",
+  "date": "2022",
+  "projectIds": [
+    "styx-scanographic-campaign-2022"
+  ],
+  "workAreaIds": [
+    "photography",
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "campaign-shooting",
+    "scanography-project"
+  ],
+  "deliverableIds": [
+    "campaign-assets"
+  ],
+  "tags": [
+    "фото",
+    "графический дизайн",
+    "кампейн",
+    "сканография"
+  ],
+  "credits": [
+    "/ 2022."
+  ],
+  "reusable": true,
+  "archived": false
+}

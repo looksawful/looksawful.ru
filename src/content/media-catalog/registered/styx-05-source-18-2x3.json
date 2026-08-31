@@ -1,0 +1,37 @@
+{
+  "id": "styx-05-source-18-2x3",
+  "mediaType": "image",
+  "src": "/media/projects/styx/05/source/18-2x3.webp",
+  "sourceSrc": "",
+  "width": 417,
+  "height": 620,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фотография основателя Styx Jewels.",
+  "alt": "",
+  "description": "",
+  "date": "2022",
+  "projectIds": [
+    "styx-founder-portraits-2022"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "portrait-shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен"
+  ],
+  "credits": [
+    "Фотограф и продюсер: Иван Крушинский / 2022.",
+    "Фотограф\n                      и продюсер: Иван Крушинский / 2022."
+  ],
+  "reusable": true,
+  "archived": false
+}

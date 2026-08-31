@@ -1,0 +1,35 @@
+{
+  "id": "igguana-11-source-02-4x5",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/11/source/02-4x5.webp",
+  "sourceSrc": "",
+  "width": 1121,
+  "height": 1400,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Микс-медиа для Igguana.",
+  "alt": "",
+  "description": "",
+  "date": "2023",
+  "projectIds": [
+    "shootings-igguana"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "music-shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "музыка"
+  ],
+  "credits": [
+    "Фотограф: Иван Крушинский, стилист Мария Жукова / 2023."
+  ],
+  "reusable": true,
+  "archived": false
+}

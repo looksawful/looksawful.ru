@@ -1,0 +1,35 @@
+{
+  "id": "styx-01-source-02-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/styx/01/source/02-1x1.webp",
+  "sourceSrc": "",
+  "width": 1200,
+  "height": 1200,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Развертка крышки подарочной упаковки",
+  "alt": "",
+  "description": "",
+  "date": "2024",
+  "projectIds": [
+    "styx-packaging-2024"
+  ],
+  "workAreaIds": [
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "packaging-project"
+  ],
+  "deliverableIds": [
+    "packaging"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [
+    "/ 2024."
+  ],
+  "reusable": true,
+  "archived": false
+}

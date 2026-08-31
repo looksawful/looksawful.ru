@@ -1,0 +1,33 @@
+{
+  "id": "behance-editorial-photography-002",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/behance/editorial-photography/source/002.webp",
+  "sourceSrc": "",
+  "width": 4773,
+  "height": 5971,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Editorial photography",
+  "alt": "Editorial photography — кадр 2",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "shootings-behance-editorial-photography"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "editorial"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "эдиториал"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,36 @@
+{
+  "id": "obladaet-02-source-02-4x5",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/02/source/02-4x5.webp",
+  "sourceSrc": "",
+  "width": 1120,
+  "height": 1400,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Портрет Obladaet.",
+  "alt": "",
+  "description": "",
+  "date": "2020–2022",
+  "projectIds": [
+    "shootings-obladaet"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "music-shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "музыка"
+  ],
+  "credits": [
+    "Фотограф: Иван Крушинский / 2020.",
+    "Фотограф: Иван Крушинский"
+  ],
+  "reusable": true,
+  "archived": false
+}

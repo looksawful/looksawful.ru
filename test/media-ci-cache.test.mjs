@@ -26,11 +26,13 @@ test("CI caches only reproducible media derivatives and always validates them wi
     assert.match(cache, /uses: actions\/cache@v4/, `${label} must restore generated media cache`);
     assert.match(cache, /public\/media\/generated\/responsive\b/, `${label} must cache responsive derivatives`);
     assert.match(cache, /src\/content\/projects\.json/, `${label} must invalidate cache when CMS cover selection changes`);
+    assert.match(cache, /src\/content\/media-catalog\/\*\*\/\*\.json/, `${label} must invalidate cache when catalog records change`);
+    assert.match(cache, /tools\/sync-media-catalog\.mjs/, `${label} must invalidate cache when catalog synchronization changes`);
     assert.match(cache, /public\/media\/generated\/video\b/, `${label} must cache video derivatives`);
     assert.doesNotMatch(cache, /responsive-manifest\.json/, `${label} must not cache tracked responsive metadata`);
     assert.doesNotMatch(cache, /video-inventory\.json/, `${label} must not cache tracked video metadata`);
     assert.doesNotMatch(cache, /responsive-generated\.ts/, `${label} must not cache tracked generated catalog`);
-    assert.match(cache, /key: generated-media-v3-/, `${label} must invalidate the old metadata-owning cache generation`);
+    assert.match(cache, /key: generated-media-v4-/, `${label} must use the catalog-aware cache generation`);
     assert.match(cache, /restore-keys:/, `${label} must allow prior derivative caches to seed changed media commits`);
 
     assert.match(sync, /run: npm run media:sync/, `${label} must run deterministic builders after cache restore`);
@@ -51,7 +53,9 @@ test("Lighthouse uses the same derivative-only cache and deterministic media val
   assert.match(cache, /public\/media\/generated\/responsive\b/);
   assert.match(cache, /public\/media\/generated\/video\b/);
   assert.doesNotMatch(cache, /responsive-manifest\.json|video-inventory\.json|responsive-generated\.ts/);
-  assert.match(cache, /key: generated-media-v3-/);
+  assert.match(cache, /key: generated-media-v4-/);
+  assert.match(cache, /src\/content\/media-catalog\/\*\*\/\*\.json/);
+  assert.match(cache, /tools\/sync-media-catalog\.mjs/);
   assert.match(sync, /run: npm run media:sync/);
   assert.doesNotMatch(sync, /if:/);
   assert.doesNotMatch(workflow, /media-cache\.outputs\.cache-hit/);

@@ -1,0 +1,43 @@
+{
+  "id": "jestei-09-source-12-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/09/source/12-1x1.webp",
+  "sourceSrc": "",
+  "width": 1024,
+  "height": 1024,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Маскот для креативов сезона «А-ля Рус» в Event, 2026.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-event",
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "social-media",
+    "product-design",
+    "ux",
+    "ui"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "advertising-banner",
+    "social-media-assets",
+    "advertising-creative",
+    "campaign-assets",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

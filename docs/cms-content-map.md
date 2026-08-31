@@ -78,8 +78,11 @@ Examples:
 | `SectionIntroData.bodyClassName` | PRESENTATION | Keep in TypeScript. |
 | media/group `head.credits.title`, `head.credits.lines`, `head.note.text` | EDITORIAL | Structured editorial data. |
 | `surfaceOverlay.text` | EDITORIAL | Text may migrate; overlay wiring/class stays code-owned. |
-| MediaEntry caption `title`, `text`, `meta` | EDITORIAL | Future media-CMS contract. |
-| media alt text | EDITORIAL / accessibility | Future validated media-CMS field. |
+| MediaEntry caption `title`, `text`, `meta` | EDITORIAL | Remains usage-specific authored content; the media catalog does not overwrite current page captions. |
+| media alt text | EDITORIAL / accessibility | The catalog owns a reusable default; current per-placement alt stays on `MediaEntry`. |
+| media catalog title, description, date, project links, taxonomy IDs, tags, credits, reusable/archive flags | EDITORIAL | Managed in `src/content/media-catalog/` through the validated media-catalog contract. |
+| registered MediaAsset ID/type/src/dimensions | ARCHITECTURE / GENERATED | Readonly in CMS and synchronized from the existing typed registry. |
+| uploaded media technical metadata and generated delivery path | GENERATED | Probed and synchronized by `tools/sync-media-catalog.mjs`; readonly in CMS. |
 | `captionView` | PRESENTATION with future dedicated editorial control | If exposed, write only `full`, `summary`, `overlay`, `lightbox-only`; renderer still owns `data-caption-view`. |
 | `lightbox` | PRESENTATION with future dedicated editorial control | If exposed, map to existing typed boolean; never expose raw `data-lightbox`. |
 | `entryId`, source asset IDs, logo IDs | ARCHITECTURE | Stable typed identity, readonly. |
@@ -102,6 +105,37 @@ These are migration candidates because the copy is currently authored directly i
 - Shootings ESMI wrapper: inline photographer credits around `SHOOTINGS_ESMI_BANNER`.
 
 These values must not be silently rewritten during migration. Default CMS data must reproduce the existing output.
+
+## Reusable media catalog
+
+The CMS media catalog is an editorial metadata layer over the existing media registry. It does not change current routes, media ordering, captions, layouts or renderer behavior.
+
+### Registered media
+
+- Storage: `src/content/media-catalog/registered/*.json`.
+- Coverage: exactly one record for every code-registered `MediaAsset`.
+- CMS operations: edit metadata; create, rename and delete are disabled.
+- Readonly identity: asset ID, media type, source path and technical properties.
+- Editable metadata: title, default alt, description, date, projects, work areas, project types, deliverables, free tags, credits and reuse/archive flags.
+
+### CMS uploads
+
+- Files: `public/media/catalog/`.
+- Records: `src/content/media-catalog/uploads/*.json`.
+- CMS operations: create, edit and delete records; upload photos and videos.
+- Identity: Pages CMS generates a UUID and runtime prefixes the physical asset ID with `cms-`.
+- Technical metadata: width, height, MIME type, byte length, duration and optional optimized video delivery path are synchronized before verification.
+
+### Taxonomy ownership
+
+The catalog uses curated subsets of the canonical taxonomies in `src/data/taxonomy/`:
+
+- work areas include photography, production, illustration, graphic design, identity, motion and 3D;
+- shooting project types include music, lookbook, catalog, campaign and editorial;
+- deliverables include brand/print formats, screen mockups, music covers and books;
+- free tags remain an additional uncontrolled search facet.
+
+The curated view is defined in `src/data/taxonomy/media-taxonomy.ts`; it does not create parallel IDs for concepts that already exist.
 
 ## Jestei Pool
 

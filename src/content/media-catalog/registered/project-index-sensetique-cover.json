@@ -1,0 +1,25 @@
+{
+  "id": "project-index-sensetique-cover",
+  "mediaType": "image",
+  "src": "/media/projects/index/sensetique-cover.webp",
+  "sourceSrc": "",
+  "width": 1580,
+  "height": 1360,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "project-index-sensetique-cover",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [],
+  "workAreaIds": [],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "cover"
+  ],
+  "tags": [],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

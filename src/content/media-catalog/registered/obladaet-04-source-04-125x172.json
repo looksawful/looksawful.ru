@@ -1,0 +1,36 @@
+{
+  "id": "obladaet-04-source-04-125x172",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/04/source/04-125x172.webp",
+  "sourceSrc": "",
+  "width": 750,
+  "height": 1032,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Коллаж для Obladaet.",
+  "alt": "",
+  "description": "",
+  "date": "2020–2022",
+  "projectIds": [
+    "shootings-obladaet"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "music-shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "музыка"
+  ],
+  "credits": [
+    "Фотограф: Иван Крушинский / 2020.",
+    "Фотограф: Иван Крушинский"
+  ],
+  "reusable": true,
+  "archived": false
+}

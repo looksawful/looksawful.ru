@@ -1,0 +1,39 @@
+{
+  "id": "jestei-03-source-04-16x9",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/03/source/04-16x9.webp",
+  "sourceSrc": "",
+  "width": 2248,
+  "height": 1258,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Подборки плейлистов и коллекций.",
+  "alt": "",
+  "description": "Мы визуально разделили отдельные плейлисты и коллекции, добавили подсказки и описания к группам. Стоковые картинки заменили дизайнерскими обложками.",
+  "date": "",
+  "projectIds": [
+    "jestei-playlist-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "product-design",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "social-media-assets",
+    "cover",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

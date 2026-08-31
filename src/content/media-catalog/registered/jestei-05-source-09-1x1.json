@@ -1,0 +1,43 @@
+{
+  "id": "jestei-05-source-09-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/05/source/09-1x1.webp",
+  "sourceSrc": "",
+  "width": 1877,
+  "height": 1877,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Обложка новогоднего плейлиста «Русская эстрада» для ивент-диджеев.",
+  "alt": "",
+  "description": "Для сезонных коллекций разрабатывали отдельные цветовые и стилистические решения. Новогоднюю серию Event построили вокруг странных советских ёлочных игрушек.",
+  "date": "",
+  "projectIds": [
+    "jestei-event",
+    "jestei-playlist-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "product-design",
+    "ux",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "social-media-assets",
+    "cover",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

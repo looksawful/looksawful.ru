@@ -1,0 +1,40 @@
+{
+  "id": "styx-02-source-01-9x16",
+  "mediaType": "video",
+  "src": "/media/projects/styx/02/source/01-9x16.mp4",
+  "sourceSrc": "",
+  "width": 1438,
+  "height": 2556,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Перекладная анимация для подарочной скульптуры.",
+  "alt": "",
+  "description": "",
+  "date": "2025",
+  "projectIds": [
+    "styx-gift-sculpture-animation-2025"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "motion"
+  ],
+  "projectTypeIds": [
+    "motion-project",
+    "animation",
+    "video-project",
+    "scanography-project"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "графический дизайн",
+    "моушен",
+    "сканография"
+  ],
+  "credits": [
+    "Каждый кадр получен сканированием объекта на разных сканерах и собран вручную. Искажения и артефакты появились при сканировании, а не в цифровой обработке.",
+    "/ 2025."
+  ],
+  "reusable": true,
+  "archived": false
+}

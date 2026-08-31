@@ -1,0 +1,36 @@
+{
+  "id": "styx-logo-source-styx-logo-volume",
+  "mediaType": "image",
+  "src": "/media/projects/styx/logo/source/styx-logo-volume.webp",
+  "sourceSrc": "",
+  "width": 1400,
+  "height": 559,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Основная цветная версия логотипа Styx Jewels.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "styx-brand-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "identity"
+  ],
+  "projectTypeIds": [
+    "identity-project"
+  ],
+  "deliverableIds": [
+    "identity-system",
+    "logo"
+  ],
+  "tags": [
+    "графический дизайн",
+    "айдентика"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

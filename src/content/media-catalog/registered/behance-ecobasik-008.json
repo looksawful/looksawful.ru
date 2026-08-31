@@ -1,0 +1,36 @@
+{
+  "id": "behance-ecobasik-008",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/behance/ecobasik/source/008.webp",
+  "sourceSrc": "",
+  "width": 1150,
+  "height": 1437,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Lookbook for Ecobasik",
+  "alt": "Lookbook for Ecobasik — кадр 8",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "shootings-behance-ecobasik"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook",
+    "fashion-shooting"
+  ],
+  "deliverableIds": [
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "лукбук"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

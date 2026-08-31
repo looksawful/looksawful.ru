@@ -1,0 +1,41 @@
+{
+  "id": "styx-01-source-01-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/styx/01/source/01-1x1.webp",
+  "sourceSrc": "",
+  "width": 1200,
+  "height": 1200,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фотография из каталога с подарочной упаковкой, карточкой и стикером",
+  "alt": "",
+  "description": "",
+  "date": "2024",
+  "projectIds": [
+    "styx-packaging-2024"
+  ],
+  "workAreaIds": [
+    "photography",
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "catalog",
+    "packaging-project"
+  ],
+  "deliverableIds": [
+    "sticker",
+    "packaging",
+    "catalog"
+  ],
+  "tags": [
+    "фото",
+    "графический дизайн",
+    "каталог"
+  ],
+  "credits": [
+    "/ 2024."
+  ],
+  "reusable": true,
+  "archived": false
+}

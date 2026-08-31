@@ -1,0 +1,33 @@
+{
+  "id": "styx-06-source-04-69x80",
+  "mediaType": "image",
+  "src": "/media/projects/styx/06/source/04-69x80.webp",
+  "sourceSrc": "",
+  "width": 690,
+  "height": 800,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Печатная карточка со ссылками на избранные изделия.",
+  "alt": "",
+  "description": "",
+  "date": "2023",
+  "projectIds": [
+    "styx-print-materials-2023"
+  ],
+  "workAreaIds": [
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "print-project"
+  ],
+  "deliverableIds": [
+    "print-materials"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

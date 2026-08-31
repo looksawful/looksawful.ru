@@ -1,0 +1,35 @@
+{
+  "id": "sands-04-source-03-920x1289",
+  "mediaType": "image",
+  "src": "/media/projects/sands/04/source/03-920x1289.webp",
+  "sourceSrc": "",
+  "width": 920,
+  "height": 1289,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фотография для первого лукбука бренда.",
+  "alt": "Фотография для первого лукбука бренда.",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "s-and-s-first-lookbook"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook"
+  ],
+  "deliverableIds": [
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "лукбук"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

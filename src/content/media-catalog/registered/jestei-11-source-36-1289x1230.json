@@ -1,0 +1,39 @@
+{
+  "id": "jestei-11-source-36-1289x1230",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/11/source/36-1289x1230.webp",
+  "sourceSrc": "",
+  "width": 1289,
+  "height": 1230,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Обложка плейлиста «Электронные новинки».",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-playlist-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "product-design",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "social-media-assets",
+    "cover",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

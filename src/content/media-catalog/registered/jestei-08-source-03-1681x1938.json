@@ -1,0 +1,43 @@
+{
+  "id": "jestei-08-source-03-1681x1938",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/08/source/03-1681x1938.webp",
+  "sourceSrc": "",
+  "width": 1681,
+  "height": 1938,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Шапки авторских плейлистов эксклюзивных эдиторов.",
+  "alt": "",
+  "description": "Для авторских плейлистов, музыкальных постов и страниц постоянных партнёров использовали яркие цвета и геометрические формы.",
+  "date": "",
+  "projectIds": [
+    "jestei-playlist-system",
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "social-media",
+    "product-design",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "advertising-banner",
+    "social-media-assets",
+    "advertising-creative",
+    "campaign-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

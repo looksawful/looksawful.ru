@@ -1,0 +1,41 @@
+{
+  "id": "jestei-13-source-13-1280x588",
+  "mediaType": "video",
+  "src": "/media/projects/jestei/13/source/13-1280x588.mp4",
+  "sourceSrc": "",
+  "width": 1280,
+  "height": 588,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Лендинги Jestei Pool.",
+  "alt": "",
+  "description": "К 2025 году сервис вырос: появились новые инструменты и сценарии, а Event стал отдельным направлением. Один лендинг уже не мог точно обращаться к разным аудиториям. Поэтому запустили два и собрали каждый из промомодулей под свои рекламные задачи.",
+  "date": "",
+  "projectIds": [
+    "jestei-landings"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "motion",
+    "product-design",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "motion-project",
+    "video-project"
+  ],
+  "deliverableIds": [
+    "advertising-creative",
+    "website",
+    "landing-page",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн",
+    "моушен"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

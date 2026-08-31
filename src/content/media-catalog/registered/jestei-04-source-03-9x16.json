@@ -1,0 +1,38 @@
+{
+  "id": "jestei-04-source-03-9x16",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/04/source/03-9x16.webp",
+  "sourceSrc": "",
+  "width": 349,
+  "height": 620,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Интерактивный плеер для Instagram-постов.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "social-media"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "advertising-banner",
+    "social-post",
+    "social-media-assets",
+    "advertising-creative",
+    "campaign-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

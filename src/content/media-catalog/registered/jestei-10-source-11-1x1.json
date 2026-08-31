@@ -1,0 +1,39 @@
+{
+  "id": "jestei-10-source-11-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/10/source/11-1x1.png",
+  "sourceSrc": "",
+  "width": 1024,
+  "height": 1024,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Обложка хэллоуинского плейлиста, 2024.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-playlist-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "product-design",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "social-media-assets",
+    "cover",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}
