@@ -1,0 +1,45 @@
+{
+  "id": "jestei-logo-source-26-svg-jestei-event-full-split",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/logo/source/26-svg-jestei-event-full-split.svg",
+  "sourceSrc": "",
+  "width": 138,
+  "height": 24,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Символ бренда: Event-версия.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-brand-system",
+    "jestei-event"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "identity",
+    "product-design",
+    "ux",
+    "ui",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "identity-project"
+  ],
+  "deliverableIds": [
+    "identity-system",
+    "logo",
+    "brand-assets",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн",
+    "айдентика"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,43 @@
+{
+  "id": "jestei-10-source-02-640x221",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/10/source/02-640x221.png",
+  "sourceSrc": "",
+  "width": 1280,
+  "height": 442,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Макеты новой страницы Exclusives в UI-kit.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-core-interface",
+    "jestei-playlist-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "product-design",
+    "ux",
+    "ui",
+    "design-systems"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "social-media-assets",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,37 @@
+{
+  "id": "jestei-09-source-98-41x409",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/09/source/98-41x409.webp",
+  "sourceSrc": "",
+  "width": 82,
+  "height": 818,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Мобильный сайдбар.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-core-interface"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui",
+    "design-systems"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

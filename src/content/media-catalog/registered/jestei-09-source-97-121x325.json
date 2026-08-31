@@ -1,0 +1,38 @@
+{
+  "id": "jestei-09-source-97-121x325",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/09/source/97-121x325.webp",
+  "sourceSrc": "",
+  "width": 242,
+  "height": 650,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Десктопный сайдбар страницы Event.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-core-interface",
+    "jestei-event"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui",
+    "design-systems"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

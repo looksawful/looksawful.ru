@@ -1,0 +1,35 @@
+{
+  "id": "sensetique-11-source-16-457x640",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/11/source/16-457x640.webp",
+  "sourceSrc": "",
+  "width": 914,
+  "height": 1280,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "sensetique-11-source-16-457x640",
+  "alt": "Эдиториал Sensetique",
+  "description": "",
+  "date": "",
+  "projectIds": [],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "editorial"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен",
+    "эдиториал"
+  ],
+  "credits": [
+    "Стилист Мария Жукова, Продюсер Иван Крушинский."
+  ],
+  "reusable": true,
+  "archived": false
+}

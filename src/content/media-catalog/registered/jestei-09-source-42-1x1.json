@@ -1,0 +1,44 @@
+{
+  "id": "jestei-09-source-42-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/09/source/42-1x1.webp",
+  "sourceSrc": "",
+  "width": 220,
+  "height": 220,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Обложка регулярного Exclusive Edit от Bass King, 2025.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-playlist-system",
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "social-media",
+    "product-design",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "advertising-banner",
+    "social-media-assets",
+    "advertising-creative",
+    "cover",
+    "campaign-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

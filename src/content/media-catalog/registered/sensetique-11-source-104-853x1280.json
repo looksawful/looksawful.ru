@@ -1,0 +1,39 @@
+{
+  "id": "sensetique-11-source-104-853x1280",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/11/source/104-853x1280.webp",
+  "sourceSrc": "",
+  "width": 853,
+  "height": 1280,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Olovo Moscow — лукбук 2018",
+  "alt": "Лукбук Olovo Moscow, 2018",
+  "description": "",
+  "date": "2018",
+  "projectIds": [
+    "sensetique-olovo-lookbook-2018"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook"
+  ],
+  "deliverableIds": [
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "продакшен",
+    "лукбук"
+  ],
+  "credits": [
+    "Фотограф Дарья Сеничева, Стилист Мария Жукова, Продюсер Иван Крушинский."
+  ],
+  "reusable": true,
+  "archived": false
+}

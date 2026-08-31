@@ -1,0 +1,31 @@
+{
+  "id": "sensetique-10-source-11-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/10/source/11-1x1.webp",
+  "sourceSrc": "",
+  "width": 0,
+  "height": 0,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Студийное оборудование",
+  "alt": "Студийное оборудование",
+  "description": "",
+  "date": "",
+  "projectIds": [],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен"
+  ],
+  "credits": [
+    "В студии был не только импульсный но и постоянный свет"
+  ],
+  "reusable": true,
+  "archived": false
+}

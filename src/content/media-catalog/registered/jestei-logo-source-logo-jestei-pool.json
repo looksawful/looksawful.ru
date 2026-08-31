@@ -1,0 +1,38 @@
+{
+  "id": "jestei-logo-source-logo-jestei-pool",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/logo/source/Logo-Jestei-Pool.svg",
+  "sourceSrc": "",
+  "width": 0,
+  "height": 0,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Айдентика Jestei Pool",
+  "alt": "Jestei Pool",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-brand-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "identity",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "identity-project"
+  ],
+  "deliverableIds": [
+    "identity-system",
+    "logo",
+    "brand-assets"
+  ],
+  "tags": [
+    "графический дизайн",
+    "айдентика"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

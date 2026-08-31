@@ -1,0 +1,38 @@
+{
+  "id": "jestei-08-source-06-224x99",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/08/source/06-224x99.webp",
+  "sourceSrc": "",
+  "width": 448,
+  "height": 198,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Карточки плейлиста Jestei Edits.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-playlist-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "product-design",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "social-media-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,37 @@
+{
+  "id": "sensetique-05-source-02-4x5",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/05/source/02-4x5.webp",
+  "sourceSrc": "",
+  "width": 850,
+  "height": 1078,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Young-pioneer",
+  "alt": "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "sensetique-young-pioneer-kaltblut"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "editorial"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен",
+    "эдиториал"
+  ],
+  "credits": [
+    "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский."
+  ],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,29 @@
+{
+  "id": "sensetique-01-source-06-3x2",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/01/source/06-3x2.webp",
+  "sourceSrc": "",
+  "width": 0,
+  "height": 0,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фотография зала с циклорамой. (в павильон одновременно могут зайти до 40 человек). В зале также\n                        находится отдельная гримерная комната. 96’",
+  "alt": "Фотография большого зала с циклорамой '96.",
+  "description": "(В павильон одновременно могут зайти до 40 человек.) В зале также находится отдельная гримерная комната. 96’",
+  "date": "",
+  "projectIds": [],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

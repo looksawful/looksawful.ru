@@ -1,0 +1,29 @@
+{
+  "id": "sensetique-09-source-15-3x4",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/09/source/15-3x4.webp",
+  "sourceSrc": "",
+  "width": 0,
+  "height": 0,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Реквизит фотостудии",
+  "alt": "Реквизит фотостудии",
+  "description": "",
+  "date": "",
+  "projectIds": [],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,47 @@
+{
+  "id": "jestei-11-source-12-4x5",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/11/source/12-4x5.webp",
+  "sourceSrc": "",
+  "width": 1080,
+  "height": 1350,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Слайд Instagram-карусели об обновлении свадебных плейлистов: «Церемония», 2026.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-event",
+    "jestei-playlist-system",
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "social-media",
+    "product-design",
+    "ux",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "advertising-banner",
+    "social-media-assets",
+    "advertising-creative",
+    "campaign-assets",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

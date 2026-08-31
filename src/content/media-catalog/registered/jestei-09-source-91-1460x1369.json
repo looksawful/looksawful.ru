@@ -1,0 +1,40 @@
+{
+  "id": "jestei-09-source-91-1460x1369",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/09/source/91-1460x1369.webp",
+  "sourceSrc": "",
+  "width": 1460,
+  "height": 1369,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "3D-версия логотипа.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-brand-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "identity",
+    "3d",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "identity-project"
+  ],
+  "deliverableIds": [
+    "identity-system",
+    "logo",
+    "brand-assets"
+  ],
+  "tags": [
+    "графический дизайн",
+    "айдентика",
+    "3D"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

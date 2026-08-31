@@ -1,0 +1,31 @@
+{
+  "id": "behance-offmi-004",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/behance/offmi/source/004.webp",
+  "sourceSrc": "",
+  "width": 4389,
+  "height": 4389,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Offmi",
+  "alt": "Offmi — кадр 4",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "shootings-behance-offmi"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,40 @@
+{
+  "id": "jestei-05-source-10-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/05/source/10-1x1.webp",
+  "sourceSrc": "",
+  "width": 1877,
+  "height": 1877,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Обложка поста о подготовке диджея к саундчеку.",
+  "alt": "",
+  "description": "После ребрендинга стали использовать намеренно небрежные иллюстрации и метафоры. Они привлекают внимание и делают коммуникацию с подписчиками живее.",
+  "date": "",
+  "projectIds": [
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "illustration",
+    "graphic-design",
+    "brand-communication",
+    "social-media"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "advertising-banner",
+    "social-media-assets",
+    "advertising-creative",
+    "cover",
+    "campaign-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "иллюстрация",
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

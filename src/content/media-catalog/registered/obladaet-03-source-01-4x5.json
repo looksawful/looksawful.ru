@@ -1,0 +1,35 @@
+{
+  "id": "obladaet-03-source-01-4x5",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/03/source/01-4x5.webp",
+  "sourceSrc": "",
+  "width": 1120,
+  "height": 1400,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Арт-обработка для Players Club Obladaet.",
+  "alt": "",
+  "description": "",
+  "date": "2020–2022",
+  "projectIds": [
+    "shootings-obladaet"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "music-shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "музыка"
+  ],
+  "credits": [
+    "/ 2022."
+  ],
+  "reusable": true,
+  "archived": false
+}

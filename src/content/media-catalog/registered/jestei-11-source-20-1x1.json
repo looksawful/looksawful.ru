@@ -1,0 +1,39 @@
+{
+  "id": "jestei-11-source-20-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/11/source/20-1x1.png",
+  "sourceSrc": "",
+  "width": 1150,
+  "height": 1150,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Вступительная секция рассылки для реанимации клиентов.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "social-media",
+    "motion"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "advertising-banner",
+    "social-media-assets",
+    "advertising-creative",
+    "campaign-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн",
+    "моушен"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

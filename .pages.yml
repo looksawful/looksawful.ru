@@ -9,6 +9,176 @@ settings:
       delete: "content(cms): delete {path}"
       rename: "content(cms): rename {oldPath} -> {newPath}"
 
+components:
+  media-catalog-project-ids:
+    type: select
+    options:
+      multiple: true
+      values:
+        - { name: jestei-brand-system, label: "Айдентика Jestei Pool" }
+        - { name: jestei-core-interface, label: "Core-интерфейс Jestei Pool" }
+        - { name: jestei-event, label: "Jestei Event" }
+        - { name: jestei-track-filter, label: "Фильтр треков Jestei Pool" }
+        - { name: jestei-landings, label: "Лендинги Jestei Pool" }
+        - { name: jestei-playlist-system, label: "Плейлисты и коллекции Jestei Pool" }
+        - { name: jestei-subscription, label: "Тарифы и подписка Jestei Pool" }
+        - { name: jestei-editorial-policy, label: "Редполитика Jestei Pool" }
+        - { name: jestei-promo-communication, label: "Промокоммуникация Jestei Pool" }
+        - { name: styx-brand-system, label: "Айдентика Styx Jewel" }
+        - { name: styx-ecommerce-site, label: "Сайт Styx Jewel" }
+        - { name: styx-packaging-2024, label: "Упаковка Styx Jewel" }
+        - { name: styx-panoramic-catalog-2021, label: "Панорамный каталог Styx Jewel" }
+        - { name: styx-print-materials-2023, label: "Печатные материалы Styx Jewel" }
+        - { name: styx-social-instructions, label: "Инструкции Styx Jewel для социальных сетей" }
+        - { name: styx-evident-things-collaboration-2022, label: "Styx Jewel × Evident Things" }
+        - { name: styx-lookbook-2023, label: "Лукбук Styx Jewel 2023" }
+        - { name: styx-lookbook-2024, label: "Лукбук Styx Jewel 2024" }
+        - { name: styx-lookbook-2025, label: "Лукбук Styx Jewel 2025" }
+        - { name: styx-founder-portraits-2022, label: "Портреты основателя Styx Jewel" }
+        - { name: styx-jacket-lookbook, label: "Лукбук куртки Styx Jewel" }
+        - { name: styx-mystery-chest-animation-2024, label: "Mystery Chest" }
+        - { name: styx-gift-sculpture-animation-2025, label: "Подарочная скульптура Styx Jewel" }
+        - { name: styx-apocriphon-scanography-2022, label: "Apocriphon" }
+        - { name: styx-scanographic-campaign-2022, label: "Сканографический кампейн Styx Jewel" }
+        - { name: sensetique-harsh-light-2018, label: "HARSH LIGHT" }
+        - { name: sensetique-young-pioneer-kaltblut, label: "Young-pioneer — KALTBLUT" }
+        - { name: sensetique-krasota-dress-lookbook, label: "Krasota Dress Lookbook" }
+        - { name: sensetique-olovo-campaign, label: "Olovo Moscow — кампейн" }
+        - { name: sensetique-olovo-lookbook-2016, label: "Olovo Moscow — лукбук 2016" }
+        - { name: sensetique-olovo-lookbook-2017, label: "Olovo Moscow — лукбук 2017" }
+        - { name: sensetique-olovo-lookbook-2018, label: "Olovo Moscow — лукбук 2018" }
+        - { name: sensetique-inna-honour-lookbook, label: "Inna Honour Lookbook" }
+        - { name: sensetique-buro-24-7-special, label: "BURO 24/7 — спецпроект" }
+        - { name: sensetique-olovo-brandbook-architecture, label: "Olovo Moscow — архитектурные фотографии для брендбука" }
+        - { name: sensetique-olovo-booklet-design, label: "Olovo Moscow — буклет" }
+        - { name: sensetique-digital-fear-of-love, label: "Digital Fear of Love — MiMi Moscow Jewelry" }
+        - { name: sensetique-chapurin-editorial-2018, label: "Chapurin — эдиториал" }
+        - { name: sensetique-wood-metal-panic, label: "Wood.Metal.PANIC!" }
+        - { name: sensetique-editorial-daniil-korotechenkov, label: "Эдиториал Sensetique — Даниил Коротеченков" }
+        - { name: sensetique-editorial-tatiana-nikishina, label: "Эдиториал Sensetique — Татьяна Никишина" }
+        - { name: sensetique-editorial-katya-knyazeva, label: "Эдиториал Sensetique — Катя Князева" }
+        - { name: sensetique-editorial-yuri-ivanov, label: "Эдиториал Sensetique — Юрий Иванов" }
+        - { name: sensetique-editorial-ivan-krushinski, label: "Эдиториал Sensetique — Иван Крушинский" }
+        - { name: sensetique-editorial-andrey-raputo-01, label: "Эдиториал Sensetique — Андрей Рапуто 01" }
+        - { name: sensetique-editorial-andrey-raputo-02, label: "Эдиториал Sensetique — Андрей Рапуто 02" }
+        - { name: shootings-obladaet, label: "Obladaet" }
+        - { name: shootings-evasha, label: "Evasha" }
+        - { name: shootings-igguana, label: "Igguana" }
+        - { name: shootings-esmi, label: "ESMI" }
+        - { name: shootings-hypression, label: "HYPRESSION" }
+        - { name: shootings-ofelia, label: "Ofelia" }
+        - { name: shootings-berry-model-tests, label: "Berry Agency — модельные тесты" }
+        - { name: shootings-berry-editorial, label: "Berry Agency — эдиториал с моделью агентства" }
+        - { name: shootings-berry-lookbook, label: "Berry Agency — лукбук" }
+        - { name: shootings-berry-product, label: "Berry Agency — предметная съёмка для бренда подарков" }
+        - { name: shootings-behance-ecobasik, label: "Lookbook for Ecobasik" }
+        - { name: shootings-behance-offmi, label: "Offmi" }
+        - { name: shootings-behance-cinema-stills-2, label: "CINEMA STILLS 2" }
+        - { name: shootings-behance-anka-model-tests, label: "Anka model tests" }
+        - { name: shootings-behance-choose-your-character, label: "Choose your character" }
+        - { name: shootings-behance-editorial-photography, label: "Editorial photography" }
+        - { name: berry-social-content-2020, label: "Berry Agency — контент для соцсетей" }
+        - { name: s-and-s-first-lookbook, label: "S&S — первый лукбук" }
+        - { name: s-and-s-catalog-content, label: "S&S — каталожный контент" }
+        - { name: awful-cases, label: "Awful Cases" }
+        - { name: moves-awful, label: "Moves Awful" }
+        - { name: berserk-timer, label: "Berserk Timer" }
+
+  media-catalog-work-area-ids:
+    type: select
+    options:
+      multiple: true
+      values:
+        - { name: photography, label: "Фото" }
+        - { name: photo-direction, label: "Фотодирекшн" }
+        - { name: production, label: "Продакшен" }
+        - { name: illustration, label: "Иллюстрации" }
+        - { name: graphic-design, label: "Графический дизайн" }
+        - { name: editorial-design, label: "Редакционный дизайн" }
+        - { name: identity, label: "Айдентика" }
+        - { name: brand-communication, label: "Бренд-коммуникация" }
+        - { name: social-media, label: "Социальные сети" }
+        - { name: motion, label: "Моушен" }
+        - { name: 3d, label: "3D" }
+        - { name: product-design, label: "Продуктовый дизайн" }
+        - { name: ux, label: "UX" }
+        - { name: ui, label: "UI" }
+        - { name: design-systems, label: "Дизайн-системы" }
+        - { name: art-direction, label: "Арт-дирекшн" }
+        - { name: frontend, label: "Фронтенд и интерактив" }
+
+  media-catalog-project-type-ids:
+    type: select
+    options:
+      multiple: true
+      values:
+        - { name: shooting, label: "Съёмка" }
+        - { name: music-shooting, label: "Музыка" }
+        - { name: lookbook, label: "Лукбук" }
+        - { name: catalog, label: "Каталог" }
+        - { name: campaign-shooting, label: "Кампейн" }
+        - { name: editorial, label: "Эдиториал" }
+        - { name: product-shooting, label: "Предметная съёмка" }
+        - { name: fashion-shooting, label: "Fashion-съёмка" }
+        - { name: portrait-shooting, label: "Портретная съёмка" }
+        - { name: cover-shooting, label: "Съёмка обложки" }
+        - { name: backstage, label: "Бэкстейдж" }
+        - { name: content-production, label: "Контент-продакшн" }
+        - { name: advertorial, label: "Адверториал" }
+        - { name: graphic-design-project, label: "Графический проект" }
+        - { name: identity-project, label: "Разработка айдентики" }
+        - { name: print-project, label: "Печатный проект" }
+        - { name: packaging-project, label: "Упаковка" }
+        - { name: poster-project, label: "Постер" }
+        - { name: social-content, label: "Контент для социальных сетей" }
+        - { name: motion-project, label: "Motion-проект" }
+        - { name: animation, label: "Анимация" }
+        - { name: interface-animation, label: "Интерфейсная анимация" }
+        - { name: video-project, label: "Видео" }
+        - { name: 3d-project, label: "3D-проект" }
+        - { name: 3d-animation, label: "3D-анимация" }
+        - { name: scanography-project, label: "Сканография" }
+        - { name: book-project, label: "Книжный проект" }
+        - { name: book-design, label: "Книжный дизайн" }
+
+  media-catalog-deliverable-ids:
+    type: select
+    options:
+      multiple: true
+      values:
+        - { name: identity-system, label: "Айдентика" }
+        - { name: logo, label: "Логотип" }
+        - { name: brandbook, label: "Брендбук" }
+        - { name: brand-assets, label: "Бренд-ресурсы" }
+        - { name: design-assets, label: "Дизайн-ассеты" }
+        - { name: business-card, label: "Визитка" }
+        - { name: banner, label: "Баннер" }
+        - { name: advertising-banner, label: "Рекламный баннер" }
+        - { name: social-post, label: "Пост" }
+        - { name: social-media-assets, label: "Материалы для социальных сетей" }
+        - { name: advertising-creative, label: "Реклама" }
+        - { name: cover, label: "Обложка" }
+        - { name: certificate, label: "Сертификат" }
+        - { name: poster, label: "Постер" }
+        - { name: sticker, label: "Стикер" }
+        - { name: booklet, label: "Буклет" }
+        - { name: t-shirt, label: "Футболка" }
+        - { name: print-materials, label: "Печатные материалы" }
+        - { name: packaging, label: "Упаковка" }
+        - { name: merch, label: "Мерч" }
+        - { name: campaign-assets, label: "Материалы кампании" }
+        - { name: product-photography, label: "Фотографии продукта" }
+        - { name: catalog, label: "Каталог" }
+        - { name: lookbook, label: "Лукбук" }
+        - { name: website, label: "Сайт" }
+        - { name: landing-page, label: "Лендинг" }
+        - { name: ui-kit, label: "UI kit" }
+        - { name: wireframe, label: "Вайрфрейм" }
+        - { name: prototype, label: "Прототип" }
+        - { name: screen-mockup, label: "Макет экрана" }
+        - { name: music-cover, label: "Обложка для музыканта" }
+        - { name: book, label: "Книга" }
+
 media:
   - name: project-covers
     label: Обложки карточек проектов
@@ -23,6 +193,20 @@ media:
         update: "media(cms): update project cover {filename}"
         delete: "media(cms): delete project cover {filename}"
         rename: "media(cms): rename project cover {oldFilename} -> {newFilename}"
+
+  - name: media-catalog
+    label: Медиакаталог — фото и видео
+    input: public/media/catalog
+    output: /media/catalog
+    rename: safe
+    extensions: [avif, gif, jpeg, jpg, png, webp, m4v, mov, mp4, webm]
+    categories: [image, video]
+    commit:
+      templates:
+        create: "media(cms): upload catalog asset {filename}"
+        update: "media(cms): update catalog asset {filename}"
+        delete: "media(cms): delete catalog asset {filename}"
+        rename: "media(cms): rename catalog asset {oldFilename} -> {newFilename}"
 
 actions:
   - name: prepare-publication
@@ -161,6 +345,298 @@ content:
             description: Фактическая высота исходного WebP в пикселях. После замены обложки обязательно проверь значение.
             options:
               min: 1
+
+  - name: media-library
+    label: Медиакаталог
+    type: group
+    items:
+      - name: registered-media-catalog
+        label: Существующие медиа
+        type: collection
+        path: src/content/media-catalog/registered
+        format: json
+        filename: "{id}.json"
+        operations:
+          create: false
+          rename: false
+          delete: false
+        view:
+          fields: [title, mediaType, date, id]
+          primary: title
+          sort: [title, date, mediaType]
+          search: [title, id, date, tags, credits]
+          default:
+            sort: title
+            order: asc
+        commit:
+          templates:
+            update: "content(cms): update registered media metadata {path}"
+        actions:
+          - name: verify-registered-media-catalog
+            label: Проверить медиакаталог
+            scope: collection
+            workflow: verify-pr.yml
+            ref: current
+            confirm:
+              title: Проверить медиакаталог?
+              message: Будут проверены все свойства, категории, теги, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              button: Проверить
+        fields:
+          - name: id
+            label: ID ассета
+            type: string
+            required: true
+            readonly: true
+            description: Стабильный ID общего media registry. Не изменяется через CMS.
+          - name: mediaType
+            label: Тип файла
+            type: select
+            required: true
+            readonly: true
+            options:
+              values:
+                - { name: image, label: Фото / изображение }
+                - { name: video, label: Видео }
+                - { name: model, label: 3D-модель }
+          - name: src
+            label: Файл
+            type: string
+            required: true
+            readonly: true
+            description: Текущий физический источник уже используемого ассета.
+          - name: sourceSrc
+            label: Исходный мастер видео
+            type: string
+            readonly: true
+          - name: width
+            label: Ширина, px
+            type: number
+            required: true
+            readonly: true
+          - name: height
+            label: Высота, px
+            type: number
+            required: true
+            readonly: true
+          - name: durationSeconds
+            label: Длительность, сек.
+            type: number
+            required: true
+            readonly: true
+          - name: mimeType
+            label: MIME type
+            type: string
+            readonly: true
+          - name: byteLength
+            label: Размер, байт
+            type: number
+            required: true
+            readonly: true
+          - name: title
+            label: Название в каталоге
+            type: string
+            required: true
+            description: Короткое название самого ассета. Оно не заменяет текущие подписи на страницах проектов.
+          - name: alt
+            label: Alt по умолчанию
+            type: text
+            description: Базовое описание для будущего переиспользования. Текущие usage-specific alt остаются у MediaEntry.
+          - name: description
+            label: Описание
+            type: text
+          - name: date
+            label: Год / период
+            type: string
+          - name: projectIds
+            label: Проекты
+            component: media-catalog-project-ids
+            description: Один файл может относиться к нескольким проектам.
+          - name: workAreaIds
+            label: Направления
+            component: media-catalog-work-area-ids
+            description: Фото, продакшен, иллюстрации, графический дизайн, айдентика, моушен, 3D и смежные направления.
+          - name: projectTypeIds
+            label: Типы работы и съёмки
+            component: media-catalog-project-type-ids
+            description: Для съёмок доступны музыка, лукбук, каталог, кампейн и эдиториал.
+          - name: deliverableIds
+            label: Форматы и носители
+            component: media-catalog-deliverable-ids
+          - name: tags
+            label: Свободные теги
+            type: string
+            list: true
+            description: Произвольные поисковые теги. Каждый тег добавляется отдельной строкой.
+          - name: credits
+            label: Авторы и кредиты
+            type: string
+            list: true
+          - name: reusable
+            label: Можно переиспользовать
+            type: boolean
+            required: true
+          - name: archived
+            label: В архиве
+            type: boolean
+            required: true
+
+      - name: uploaded-media-catalog
+        label: Новые загрузки
+        type: collection
+        path: src/content/media-catalog/uploads
+        format: json
+        filename: "{id}.json"
+        operations:
+          create: true
+          rename: false
+          delete: true
+        view:
+          fields: [title, mediaType, date, id]
+          primary: title
+          sort: [title, date, mediaType]
+          search: [title, id, date, tags, credits]
+          default:
+            sort: title
+            order: asc
+        commit:
+          templates:
+            create: "content(cms): register uploaded media {path}"
+            update: "content(cms): update uploaded media metadata {path}"
+            delete: "content(cms): remove uploaded media record {path}"
+        actions:
+          - name: verify-uploaded-media-catalog
+            label: Проверить медиакаталог
+            scope: collection
+            workflow: verify-pr.yml
+            ref: current
+            confirm:
+              title: Проверить новые медиа?
+              message: Система сверит файлы, технические свойства, категории и теги, затем проверит сборку сайта. Эта кнопка ничего не публикует.
+              button: Проверить
+        fields:
+          - name: id
+            label: ID записи
+            type: uuid
+            required: true
+            options:
+              editable: false
+            description: Генерируется автоматически. Общий asset ID получит безопасный префикс cms-.
+          - name: mediaType
+            label: Тип файла
+            type: select
+            required: true
+            default: image
+            options:
+              values:
+                - { name: image, label: Фото / изображение }
+                - { name: video, label: Видео }
+          - name: src
+            label: Фото или видео
+            type: file
+            required: true
+            options:
+              media: media-catalog
+              categories: [image, video]
+              extensions: [avif, gif, jpeg, jpg, png, webp, m4v, mov, mp4, webm]
+              rename: safe
+            description: Выбери загруженный файл или загрузи новый. После сохранения dev-проверка сама определит технические свойства.
+          - name: deliverySrc
+            label: Оптимизированный видеофайл
+            type: string
+            readonly: true
+            default: ""
+            description: Заполняется автоматически, если исходное видео требует web-версии.
+          - name: posterSrc
+            label: Постер видео
+            type: image
+            default: ""
+            options:
+              media: media-catalog
+              categories: [image]
+              extensions: [avif, gif, jpeg, jpg, png, webp]
+              rename: safe
+          - name: width
+            label: Ширина, px
+            type: number
+            required: true
+            readonly: true
+            default: 0
+          - name: height
+            label: Высота, px
+            type: number
+            required: true
+            readonly: true
+            default: 0
+          - name: durationSeconds
+            label: Длительность, сек.
+            type: number
+            required: true
+            readonly: true
+            default: 0
+          - name: mimeType
+            label: MIME type
+            type: string
+            readonly: true
+            default: ""
+          - name: byteLength
+            label: Размер, байт
+            type: number
+            required: true
+            readonly: true
+            default: 0
+          - name: title
+            label: Название в каталоге
+            type: string
+            required: true
+          - name: alt
+            label: Alt по умолчанию
+            type: text
+            default: ""
+          - name: description
+            label: Описание
+            type: text
+            default: ""
+          - name: date
+            label: Год / период
+            type: string
+            default: ""
+          - name: projectIds
+            label: Проекты
+            component: media-catalog-project-ids
+            default: []
+          - name: workAreaIds
+            label: Направления
+            component: media-catalog-work-area-ids
+            default: []
+          - name: projectTypeIds
+            label: Типы работы и съёмки
+            component: media-catalog-project-type-ids
+            default: []
+            description: Для съёмок доступны музыка, лукбук, каталог, кампейн и эдиториал.
+          - name: deliverableIds
+            label: Форматы и носители
+            component: media-catalog-deliverable-ids
+            default: []
+          - name: tags
+            label: Свободные теги
+            type: string
+            list: true
+            default: []
+          - name: credits
+            label: Авторы и кредиты
+            type: string
+            list: true
+            default: []
+          - name: reusable
+            label: Можно переиспользовать
+            type: boolean
+            required: true
+            default: true
+          - name: archived
+            label: В архиве
+            type: boolean
+            required: true
+            default: false
 
   - name: cases
     label: Кейсы

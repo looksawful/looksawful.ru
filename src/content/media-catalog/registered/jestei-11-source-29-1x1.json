@@ -1,0 +1,38 @@
+{
+  "id": "jestei-11-source-29-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/11/source/29-1x1.webp",
+  "sourceSrc": "",
+  "width": 464,
+  "height": 464,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Обложка поста-инструкции о «Ленте новинок».",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "social-media"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "advertising-banner",
+    "social-media-assets",
+    "advertising-creative",
+    "cover",
+    "campaign-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

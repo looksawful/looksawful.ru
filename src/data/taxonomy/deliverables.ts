@@ -177,6 +177,56 @@ export const deliverables = [
 },
 
 {
+  id: "business-card",
+  name: "Визитка",
+},
+
+{
+  id: "banner",
+  name: "Баннер",
+},
+
+{
+  id: "social-post",
+  name: "Пост для социальных сетей",
+},
+
+{
+  id: "advertising-creative",
+  name: "Рекламный креатив",
+},
+
+{
+  id: "cover",
+  name: "Обложка",
+},
+
+{
+  id: "certificate",
+  name: "Сертификат",
+},
+
+{
+  id: "poster",
+  name: "Постер",
+},
+
+{
+  id: "sticker",
+  name: "Стикер",
+},
+
+{
+  id: "booklet",
+  name: "Буклет",
+},
+
+{
+  id: "t-shirt",
+  name: "Футболка",
+},
+
+{
   id: "packaging",
   name: "Упаковка",
 },
@@ -239,6 +289,16 @@ export const deliverables = [
 {
   id: "book",
   name: "Книга",
+},
+
+{
+  id: "screen-mockup",
+  name: "Макет экрана",
+},
+
+{
+  id: "music-cover",
+  name: "Обложка для музыканта",
 },
 
 {

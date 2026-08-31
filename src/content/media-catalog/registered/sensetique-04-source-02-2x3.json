@@ -1,0 +1,39 @@
+{
+  "id": "sensetique-04-source-02-2x3",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/04/source/02-2x3.webp",
+  "sourceSrc": "",
+  "width": 853,
+  "height": 1280,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Krasota Dress Lookbook",
+  "alt": "Лукбук Krasota Dress",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "sensetique-krasota-dress-lookbook"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook"
+  ],
+  "deliverableIds": [
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "продакшен",
+    "лукбук"
+  ],
+  "credits": [
+    "Фотограф Дарья Сеничева, Стилист Мария Жукова, Продюсер Иван Крушинский."
+  ],
+  "reusable": true,
+  "archived": false
+}

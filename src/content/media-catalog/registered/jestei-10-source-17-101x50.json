@@ -1,0 +1,39 @@
+{
+  "id": "jestei-10-source-17-101x50",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/10/source/17-101x50.png",
+  "sourceSrc": "",
+  "width": 2424,
+  "height": 1200,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Разделили аудиторию на клубных диджеев, ивент-диджеев и саунд-продюсеров.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-core-interface"
+  ],
+  "workAreaIds": [
+    "production",
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui",
+    "design-systems"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "продакшен",
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

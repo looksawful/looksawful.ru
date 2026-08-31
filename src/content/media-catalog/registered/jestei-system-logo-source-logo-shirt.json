@@ -1,0 +1,39 @@
+{
+  "id": "jestei-system-logo-source-logo-shirt",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/system/logo/source/logo-shirt.png",
+  "sourceSrc": "",
+  "width": 286,
+  "height": 271,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Логотип на футболке.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-brand-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "identity",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "identity-project"
+  ],
+  "deliverableIds": [
+    "identity-system",
+    "logo",
+    "brand-assets",
+    "t-shirt"
+  ],
+  "tags": [
+    "графический дизайн",
+    "айдентика"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

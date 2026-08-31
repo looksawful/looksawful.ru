@@ -1,0 +1,37 @@
+{
+  "id": "jestei-11-source-10-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/11/source/10-1x1.webp",
+  "sourceSrc": "",
+  "width": 603,
+  "height": 603,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Слайд поста об известных диджеях.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "social-media"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "advertising-banner",
+    "social-media-assets",
+    "advertising-creative",
+    "campaign-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,38 @@
+{
+  "id": "sensetique-11-source-69-320x213",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/11/source/69-320x213.webp",
+  "sourceSrc": "",
+  "width": 640,
+  "height": 426,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "HARSH LIGHT",
+  "alt": "Harshlight эдиториал фотсъемка 2018",
+  "description": "",
+  "date": "2018",
+  "projectIds": [
+    "sensetique-harsh-light-2018"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "editorial"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен",
+    "эдиториал"
+  ],
+  "credits": [
+    "Фотограф Андрей Рапуто,стилист Мария Жукова,продюсер Иван Крушинский",
+    "Фотограф Андрей Рапуто, Стилист Мария Жукова, Продюсер Иван Крушинский."
+  ],
+  "reusable": true,
+  "archived": false
+}

@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "npm run media:ensure && vite",
     "typecheck": "tsc -p tsconfig.json",
-    "media:sync": "npm run media:video:build && npm run media:build && node tools/media-dev-state.mjs --write",
-    "media:ensure": "node tools/media-dev-state.mjs --ensure",
+    "media:catalog:sync": "node tools/sync-media-catalog.mjs",
+    "media:catalog:check": "node tools/sync-media-catalog.mjs --check",
+    "media:sync": "npm run media:catalog:sync && npm run media:video:build && npm run media:build && node tools/media-dev-state.mjs --write",
+    "media:ensure": "npm run media:catalog:sync && node tools/media-dev-state.mjs --ensure",
     "media:prepare": "npm run media:sync",
     "build:vite": "vite build",
     "build:site": "npm run build:vite && npm run site:postbuild",

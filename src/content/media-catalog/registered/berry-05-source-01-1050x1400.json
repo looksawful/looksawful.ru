@@ -1,0 +1,40 @@
+{
+  "id": "berry-05-source-01-1050x1400",
+  "mediaType": "image",
+  "src": "/media/projects/berry/05/source/01-1050x1400.webp",
+  "sourceSrc": "",
+  "width": 1050,
+  "height": 1400,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Модельные тесты для агентства",
+  "alt": "Модельные тесты для Berry Agency",
+  "description": "",
+  "date": "2020",
+  "projectIds": [
+    "shootings-berry-model-tests",
+    "berry-social-content-2020"
+  ],
+  "workAreaIds": [
+    "photography",
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "fashion-shooting",
+    "portrait-shooting",
+    "social-content"
+  ],
+  "deliverableIds": [
+    "social-post",
+    "social-media-assets"
+  ],
+  "tags": [
+    "фото",
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

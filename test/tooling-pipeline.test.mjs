@@ -27,8 +27,10 @@ test("local dev/test/build use cheap media ensure while explicit sync stays avai
 
   assert.match(mediaSync, /media:video:build/);
   assert.match(mediaSync, /media:build/);
+  assert.match(mediaSync, /media:catalog:sync/);
   assert.match(mediaSync, /media-dev-state\.mjs --write/);
-  assert.equal(mediaEnsure, "node tools/media-dev-state.mjs --ensure");
+  assert.match(mediaEnsure, /media:catalog:sync/);
+  assert.match(mediaEnsure, /media-dev-state\.mjs --ensure/);
 
   for (const [name, script] of Object.entries({ dev, test: testScript, build })) {
     assert.match(script, /npm run media:ensure/, `${name} must ensure generated media`);

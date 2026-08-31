@@ -1,0 +1,38 @@
+{
+  "id": "jestei-system-type-source-logo-druk-slide",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/system/type/source/logo-druk-slide.png",
+  "sourceSrc": "",
+  "width": 1790,
+  "height": 891,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Новый акцидентный шрифт бренда — Druk Wide.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-brand-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "identity",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "identity-project"
+  ],
+  "deliverableIds": [
+    "identity-system",
+    "logo",
+    "brand-assets"
+  ],
+  "tags": [
+    "графический дизайн",
+    "айдентика"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

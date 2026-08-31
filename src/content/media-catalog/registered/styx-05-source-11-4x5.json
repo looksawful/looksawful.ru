@@ -1,0 +1,29 @@
+{
+  "id": "styx-05-source-11-4x5",
+  "mediaType": "image",
+  "src": "/media/projects/styx/05/source/11-4x5.webp",
+  "sourceSrc": "",
+  "width": 541,
+  "height": 676,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Сканография",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [],
+  "workAreaIds": [
+    "graphic-design"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [
+    "/ 2022."
+  ],
+  "reusable": true,
+  "archived": false
+}

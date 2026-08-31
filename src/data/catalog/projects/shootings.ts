@@ -21,6 +21,7 @@ const editorialPhotographyEditorial = getShootingEditorialRecord("shootings-beha
 const musicPhotographyBase = {
   status: "completed",
   collectionIds: ["music-photography"],
+  projectTypeIds: ["shooting", "music-shooting"],
   primaryRoleId: "photographer",
   industryIds: ["music"],
   workAreaIds: ["photography"],
@@ -30,6 +31,7 @@ const berryPhotographyBase = {
   status: "completed",
   clientIds: ["berry-agency"],
   engagementIds: ["berry-agency-2020"],
+  projectTypeIds: ["shooting"],
   primaryRoleId: "photographer",
   roleIds: ["photographer"],
   workAreaIds: ["photography"],
@@ -37,6 +39,7 @@ const berryPhotographyBase = {
 
 const behancePhotographyBase = {
   status: "completed",
+  projectTypeIds: ["shooting"],
   primaryRoleId: "photographer",
   roleIds: ["photographer"],
   workAreaIds: ["photography"],
@@ -98,30 +101,35 @@ export const shootingsProjects = [
     id: "shootings-berry-model-tests",
     name: berryModelTestsEditorial.title,
     date: berryModelTestsEditorial.date,
+    projectTypeIds: ["shooting", "portrait-shooting", "fashion-shooting"],
   },
   {
     ...berryPhotographyBase,
     id: "shootings-berry-editorial",
     name: berryEditorialEditorial.title,
     date: berryEditorialEditorial.date,
+    projectTypeIds: ["shooting", "editorial"],
   },
   {
     ...berryPhotographyBase,
     id: "shootings-berry-lookbook",
     name: berryLookbookEditorial.title,
     date: berryLookbookEditorial.date,
+    projectTypeIds: ["shooting", "lookbook"],
   },
   {
     ...berryPhotographyBase,
     id: "shootings-berry-product",
     name: berryProductEditorial.title,
     date: berryProductEditorial.date,
+    projectTypeIds: ["shooting", "catalog", "product-shooting"],
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-ecobasik",
     name: ecobasikEditorial.title,
     ...optionalDate(ecobasikEditorial.date),
+    projectTypeIds: ["shooting", "lookbook", "fashion-shooting"],
   },
   {
     ...behancePhotographyBase,
@@ -134,24 +142,28 @@ export const shootingsProjects = [
     id: "shootings-behance-cinema-stills-2",
     name: cinemaStillsEditorial.title,
     ...optionalDate(cinemaStillsEditorial.date),
+    projectTypeIds: ["shooting", "editorial"],
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-anka-model-tests",
     name: ankaModelTestsEditorial.title,
     ...optionalDate(ankaModelTestsEditorial.date),
+    projectTypeIds: ["shooting", "portrait-shooting", "fashion-shooting"],
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-choose-your-character",
     name: chooseYourCharacterEditorial.title,
     ...optionalDate(chooseYourCharacterEditorial.date),
+    projectTypeIds: ["shooting", "editorial", "fashion-shooting"],
   },
   {
     ...behancePhotographyBase,
     id: "shootings-behance-editorial-photography",
     name: editorialPhotographyEditorial.title,
     ...optionalDate(editorialPhotographyEditorial.date),
+    projectTypeIds: ["shooting", "editorial"],
   },
 ] as const satisfies readonly ProjectData[];
 

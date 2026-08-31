@@ -1,0 +1,39 @@
+{
+  "id": "jestei-08-source-10-673x420",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/08/source/10-673x420.webp",
+  "sourceSrc": "",
+  "width": 673,
+  "height": 420,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Хиро-секция лендинга для ивент-диджеев.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-event",
+    "jestei-landings"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "website",
+    "landing-page",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

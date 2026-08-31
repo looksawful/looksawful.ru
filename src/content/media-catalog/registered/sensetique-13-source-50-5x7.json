@@ -1,0 +1,37 @@
+{
+  "id": "sensetique-13-source-50-5x7",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/13/source/50-5x7.webp",
+  "sourceSrc": "",
+  "width": 1000,
+  "height": 1400,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Эдиториал Sensetique — Андрей Рапуто 02",
+  "alt": "Эдиториал фотосъъемка",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "sensetique-editorial-andrey-raputo-02"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "editorial"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен",
+    "эдиториал"
+  ],
+  "credits": [
+    "Фотограф Андрей Рапуто, Стилист Мария Жукова."
+  ],
+  "reusable": true,
+  "archived": false
+}

@@ -187,6 +187,13 @@ export const projectTypes = [
   },
 
   {
+    id: "music-shooting",
+    name: "Музыкальная съёмка",
+    description:
+      "Фото- или видеосъёмка музыканта, релиза, тура, концерта или материалов музыкального проекта.",
+  },
+
+  {
     id: "lookbook",
     name: "Лукбук",
     description:

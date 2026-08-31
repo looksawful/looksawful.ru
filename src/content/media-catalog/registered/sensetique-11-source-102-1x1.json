@@ -1,0 +1,37 @@
+{
+  "id": "sensetique-11-source-102-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/11/source/102-1x1.webp",
+  "sourceSrc": "",
+  "width": 1280,
+  "height": 1280,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Архитектурные фотографии для брендбука Olovo Moscow.",
+  "alt": "Архитектурные фотографии для брендбука Olovo Moscow",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "sensetique-olovo-brandbook-architecture"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting"
+  ],
+  "deliverableIds": [
+    "brandbook"
+  ],
+  "tags": [
+    "фото",
+    "продакшен"
+  ],
+  "credits": [
+    "Фотограф Дарья Сеничева."
+  ],
+  "reusable": true,
+  "archived": false
+}

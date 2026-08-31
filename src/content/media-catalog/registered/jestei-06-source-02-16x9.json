@@ -1,0 +1,36 @@
+{
+  "id": "jestei-06-source-02-16x9",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/06/source/02-16x9.webp",
+  "sourceSrc": "",
+  "width": 3588,
+  "height": 2019,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Новый дизайн виджетов с тарифами.",
+  "alt": "Изображение после изменений",
+  "description": "Полностью переделали сценарий покупки подписки, объяснили разницу между тарифами и разделили предложения для разных сегментов с помощью цветовых профилей.",
+  "date": "",
+  "projectIds": [
+    "jestei-subscription"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

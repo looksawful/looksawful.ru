@@ -1,0 +1,37 @@
+{
+  "id": "sensetique-11-source-26-129x160",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/11/source/26-129x160.webp",
+  "sourceSrc": "",
+  "width": 1032,
+  "height": 1280,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "BURO 24/7 — спецпроект",
+  "alt": "Спецпроект Bureau 24/7",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "sensetique-buro-24-7-special"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "editorial"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен",
+    "эдиториал"
+  ],
+  "credits": [
+    "Фотограф Андрей Рапуто, Стилист Мария Жукова, Продюсер Иван Крушинский."
+  ],
+  "reusable": true,
+  "archived": false
+}

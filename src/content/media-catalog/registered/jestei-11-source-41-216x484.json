@@ -1,0 +1,39 @@
+{
+  "id": "jestei-11-source-41-216x484",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/11/source/41-216x484.webp",
+  "sourceSrc": "",
+  "width": 216,
+  "height": 484,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Промовиджет в сайдбаре с предложением повысить тариф.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-core-interface",
+    "jestei-subscription"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui",
+    "design-systems"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "advertising-creative",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,37 @@
+{
+  "id": "styx-04-source-01-16x9",
+  "mediaType": "image",
+  "src": "/media/projects/styx/04/source/01-16x9.webp",
+  "sourceSrc": "",
+  "width": 1400,
+  "height": 788,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Панорамный каталог с украшениями",
+  "alt": "",
+  "description": "",
+  "date": "2021",
+  "projectIds": [
+    "styx-panoramic-catalog-2021"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "catalog"
+  ],
+  "deliverableIds": [
+    "catalog"
+  ],
+  "tags": [
+    "фото",
+    "каталог"
+  ],
+  "credits": [
+    "/ 2021."
+  ],
+  "reusable": true,
+  "archived": false
+}

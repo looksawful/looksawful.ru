@@ -1,0 +1,37 @@
+{
+  "id": "sensetique-11-source-73-640x427",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/11/source/73-640x427.webp",
+  "sourceSrc": "",
+  "width": 1280,
+  "height": 854,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Wood.Metal.PANIC!",
+  "alt": "Wood.Metal.PANIC!",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "sensetique-wood-metal-panic"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "editorial"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен",
+    "эдиториал"
+  ],
+  "credits": [
+    "Фотограф Дарья Сахатская, Стилист Мария Жукова, Продюсер Иван Крушинский, Художник по свету Валентин Панков."
+  ],
+  "reusable": true,
+  "archived": false
+}

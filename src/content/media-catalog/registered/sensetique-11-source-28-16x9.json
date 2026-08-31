@@ -1,0 +1,41 @@
+{
+  "id": "sensetique-11-source-28-16x9",
+  "mediaType": "video",
+  "src": "/media/projects/sensetique/11/source/28-16x9.mp4",
+  "sourceSrc": "",
+  "width": 16,
+  "height": 9,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Бейкстейдж ролик со съемки лукбука Олово 2017",
+  "alt": "",
+  "description": "",
+  "date": "2017",
+  "projectIds": [
+    "sensetique-olovo-lookbook-2017"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production",
+    "motion"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook",
+    "motion-project",
+    "video-project"
+  ],
+  "deliverableIds": [
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "продакшен",
+    "моушен",
+    "лукбук"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

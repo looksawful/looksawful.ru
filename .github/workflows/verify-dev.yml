@@ -28,18 +28,6 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Restore generated media
-        id: media-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            public/media/generated/responsive
-            public/media/generated/video
-          key: generated-media-v3-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
-          restore-keys: |
-            generated-media-v3-${{ runner.os }}-
       - name: Ensure media tooling
         shell: bash
         run: |
@@ -50,9 +38,23 @@ jobs:
           fi
           ffmpeg -version | head -n 1
           ffprobe -version | head -n 1
+      - name: Sync CMS media catalog
+        run: npm run media:catalog:sync
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Restore generated media
+        id: media-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+          key: generated-media-v4-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/content/media-catalog/**/*.json', 'src/data/media/assets/**/*.ts', 'src/data/media/catalog*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/sync-media-catalog.mjs', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+          restore-keys: |
+            generated-media-v4-${{ runner.os }}-
       - name: Sync generated media
         run: npm run media:sync
-      - name: Persist CMS project-cover metadata
+      - name: Persist synchronized CMS media metadata
         if: github.event_name == 'push'
         env:
           PUSH_BEFORE: ${{ github.event.before }}
@@ -61,18 +63,15 @@ jobs:
         run: |
           set -euo pipefail
           cms_metadata=(
+            src/data/media/catalog-records.generated.ts
             public/media/generated/responsive-manifest.json
+            public/media/generated/video-inventory.json
             src/data/media/responsive-generated.ts
           )
 
-          if git diff --quiet -- "${cms_metadata[@]}"; then
-            echo "Project-cover metadata is already current."
+          if git diff --quiet -- "${cms_metadata[@]}" src/content/media-catalog/registered src/content/media-catalog/uploads; then
+            echo "CMS media metadata is already current."
             exit 0
-          fi
-
-          if ! git diff --quiet -- public/media/generated/video-inventory.json; then
-            echo "Refusing to persist generated metadata: video metadata changed during a project-cover sync." >&2
-            exit 1
           fi
 
           if [[ -z "$PUSH_BEFORE" || "$PUSH_BEFORE" =~ ^0+$ ]]; then
@@ -81,11 +80,16 @@ jobs:
           fi
 
           mapfile -t changed_paths < <(git diff --name-only "$PUSH_BEFORE" "$PUSH_SHA")
-          saw_project_cover_change=false
+          saw_supported_media_change=false
+          saw_catalog_change=false
           for changed_path in "${changed_paths[@]}"; do
             case "$changed_path" in
               src/content/projects.json|public/media/projects/index/*)
-                saw_project_cover_change=true
+                saw_supported_media_change=true
+                ;;
+              src/content/media-catalog/registered/*.json|src/content/media-catalog/uploads/*.json|public/media/catalog/*)
+                saw_supported_media_change=true
+                saw_catalog_change=true
                 ;;
               *)
                 echo "Refusing to persist generated metadata: unexpected source change $changed_path" >&2
@@ -94,18 +98,23 @@ jobs:
             esac
           done
 
-          if [[ "$saw_project_cover_change" != "true" ]]; then
-            echo "Refusing to persist generated metadata: no CMS project-cover source changed." >&2
+          if [[ "$saw_supported_media_change" != "true" ]]; then
+            echo "Refusing to persist generated metadata: no supported CMS media source changed." >&2
+            exit 1
+          fi
+
+          if [[ "$saw_catalog_change" != "true" ]] && ! git diff --quiet -- public/media/generated/video-inventory.json; then
+            echo "Refusing to persist generated metadata: video metadata changed without a media-catalog source change." >&2
             exit 1
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- "${cms_metadata[@]}"
-          git commit -m "chore(media): sync CMS project cover metadata"
+          git add -- "${cms_metadata[@]}" src/content/media-catalog/registered src/content/media-catalog/uploads
+          git commit -m "chore(media): sync CMS media metadata"
           git push origin HEAD:dev
       - name: Check tracked media metadata
-        run: git diff --exit-code -- public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
+        run: git diff --exit-code -- src/content/media-catalog src/data/media/catalog-records.generated.ts public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
       - name: Core tests
         run: npm run test:core
       - name: Build site

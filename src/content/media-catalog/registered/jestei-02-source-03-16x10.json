@@ -1,0 +1,38 @@
+{
+  "id": "jestei-02-source-03-16x10",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/02/source/03-16x10.webp",
+  "sourceSrc": "",
+  "width": 2974,
+  "height": 1859,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Страница динамического плейлиста с лентой треков.",
+  "alt": "",
+  "description": "Алгоритм собирает популярные треки по жанру или части мероприятия и исключает музыку, которую пользователь уже слышал. Например, он может предложить десять популярных незнакомых треков для праймтайма или афтерпати.",
+  "date": "",
+  "projectIds": [
+    "jestei-playlist-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "product-design",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "social-media-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

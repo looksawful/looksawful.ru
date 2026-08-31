@@ -1,0 +1,34 @@
+{
+  "id": "behance-choose-your-character-020",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/behance/choose-your-character/source/020.webp",
+  "sourceSrc": "",
+  "width": 3641,
+  "height": 2914,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Choose your character",
+  "alt": "Choose your character — кадр 20",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "shootings-behance-choose-your-character"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "editorial",
+    "fashion-shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "эдиториал"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

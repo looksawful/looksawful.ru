@@ -1,0 +1,31 @@
+{
+  "id": "sensetique-13-source-07-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/13/source/07-1x1.webp",
+  "sourceSrc": "",
+  "width": 0,
+  "height": 0,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Оборудование студии",
+  "alt": "Оборудование студии",
+  "description": "",
+  "date": "",
+  "projectIds": [],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен"
+  ],
+  "credits": [
+    "Profoto Magnum Знаменитый Рефлектор Profoto Magnum reflector 100624 обеспечивает мощный направленный свет с четкой прорисовкой теней. Имеет серебристое рельефное покрытие"
+  ],
+  "reusable": true,
+  "archived": false
+}
