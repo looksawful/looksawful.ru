@@ -1,14 +1,15 @@
 import type { MediaFigureData, MockupData, ProjectIntroData } from "../../types/content.ts";
 import type { MediaEntryId } from "../media/index.ts";
 import type { LogoUsageId } from "../logos/index.ts";
+import { awfulCasesEditorialContent } from "./awful-cases-editorial.ts";
 
 export const awfulCasesIntro = {
-  head: { type: "text", text: "Awful Cases" },
-  title: { type: "text", text: "Awful Cases" },
-  role: "Разработчик",
-  period: "2024–2026",
-  summary: "Утилита для Windows, которая меняет регистр и типографику выделенного текста.",
-  lead: "Awful Cases работает через глобальные горячие клавиши. Выделите текст в любом редактируемом поле, нажмите сочетание клавиш — приложение заменит выделенный текст на преобразованный вариант.",
+  head: { type: "text", text: awfulCasesEditorialContent.head },
+  title: { type: "text", text: awfulCasesEditorialContent.title },
+  role: awfulCasesEditorialContent.role,
+  period: awfulCasesEditorialContent.period,
+  summary: awfulCasesEditorialContent.summary,
+  lead: awfulCasesEditorialContent.lead,
   links: [
     { label: "GitHub", href: "https://github.com/looksawful/awful-cases", rel: "noopener", target: "_blank" },
     { label: "Download ZIP", href: "https://github.com/looksawful/awful-cases/archive/refs/heads/main.zip" },

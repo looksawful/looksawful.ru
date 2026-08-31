@@ -35,6 +35,8 @@ export interface JesteiEditorialOverlay {
 }
 
 export interface JesteiEditorialContent {
+  role: string;
+  period: string;
   lead: string;
   sections: readonly JesteiEditorialSection[];
   overlays: readonly JesteiEditorialOverlay[];
@@ -147,12 +149,14 @@ function normalizeById<T extends { id: string }>(
 
 export function parseJesteiEditorialContent(value: unknown): JesteiEditorialContent {
   const record = expectRecord(value, "Jestei editorial content");
-  expectExactKeys(record, ["lead", "sections", "overlays"], "Jestei editorial content");
+  expectExactKeys(record, ["role", "period", "lead", "sections", "overlays"], "Jestei editorial content");
 
   const sections = expectArray(record.sections, "Jestei sections").map(parseSection);
   const overlays = expectArray(record.overlays, "Jestei overlays").map(parseOverlay);
 
   return {
+    role: expectNonEmptyString(record.role, "Jestei role"),
+    period: expectNonEmptyString(record.period, "Jestei period"),
     lead: expectNonEmptyString(record.lead, "Jestei lead"),
     sections: normalizeById(sections, JESTEI_SECTION_IDS, "Jestei sections"),
     overlays: normalizeById(overlays, JESTEI_OVERLAY_IDS, "Jestei overlays"),

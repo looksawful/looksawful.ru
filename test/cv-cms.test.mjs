@@ -101,7 +101,7 @@ test("CV content adapter rejects incomplete, duplicate and unknown experience id
   );
 
   const duplicate = await fixtureContent();
-  duplicate.experience = [...duplicate.experience, { id: "jestei", visible: true }];
+  duplicate.experience = [...duplicate.experience, structuredClone(duplicate.experience[0])];
   assert.throws(
     () => parseCvContent(duplicate),
     /duplicate CV experience id/i,
