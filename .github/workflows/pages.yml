@@ -30,6 +30,23 @@ jobs:
             await github.rest.repos.createCommitStatus({ owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: "pending", context: "github-pages/production", description: "Building and testing GitHub Pages deployment", target_url: runUrl });
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Detect CV copy-only deployment
+        id: change-scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          cv_copy_only=false
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            parent="$(git rev-parse "${GITHUB_SHA}^")"
+            changed="$(git diff --name-only "$parent" "$GITHUB_SHA")"
+            allowed='^(public/cv/index\.html|src/content/cv\.json|test/cv-(education|experience-copy|profile|skills)-cms\.test\.mjs)$'
+            if [[ -n "$changed" ]] && ! grep -Evq "$allowed" <<<"$changed"; then
+              cv_copy_only=true
+            fi
+          fi
+          printf 'cv_copy_only=%s\n' "$cv_copy_only" >> "$GITHUB_OUTPUT"
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -72,10 +89,13 @@ jobs:
       - name: Prepare production CV
         run: node tools/prepare-cv-production.mjs dist/cv/index.html
       - name: Install browser for smoke tests
+        if: steps.change-scope.outputs.cv_copy_only != 'true'
         run: npx playwright install --with-deps chromium
       - name: Final production browser verification
+        if: steps.change-scope.outputs.cv_copy_only != 'true'
         run: npm run test:e2e:production
       - name: Upload caption QA
+        if: steps.change-scope.outputs.cv_copy_only != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: caption-qa
