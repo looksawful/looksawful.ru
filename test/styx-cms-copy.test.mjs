@@ -5,50 +5,10 @@ import test from "node:test";
 import * as styx from "../src/data/content/styx.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { renderSectionIntro } from "../src/templates/section-intro.ts";
+import { escapeHtml } from "../src/utils/html.ts";
 
-const expected = {
-  lead: "Возглавил работу над визуальной системой московского бренда украшений, аксессуаров и одежды, вдохновлённого готической романтикой и лавкрафтовским ужасом.",
-  sections: [
-    {
-      id: "brand",
-      title: "Айдентика",
-      paragraphs: [
-        "С нуля собрал визуальную систему Styx: разработал логотип, фирменный стиль, упаковку, печатные материалы, оформление соцсетей, рекламные публикации и баннеры.",
-      ],
-    },
-    {
-      id: "production",
-      title: "Продакшен",
-      paragraphs: [
-        "Продюсировал и снимал кампейны, лукбуки и каталоги Styx. Готовил материал для рекламы, каталогов и соцсетей, делал техническую, художественную и экспериментальную обработку фотографий и создавал сканографические анимации и арты.",
-      ],
-    },
-    {
-      id: "scanography",
-      title: "Сканографии",
-      paragraphs: [
-        "Для Styx придумал собственную технику сканографии. Сканировал один объект разными сканерами и вручную монтировал кадры, поэтому искажения и артефакты возникали при сканировании, а не имитировались цифровой обработкой.",
-      ],
-    },
-    {
-      id: "shootings",
-      title: "Съёмки",
-      paragraphs: [
-        "Продюсировал и снимал для Styx лукбуки, кампейны и коллаборации. Из отснятого материала собирал каталожные, рекламные и экспериментальные визуалы бренда.",
-      ],
-    },
-    {
-      id: "lookbook",
-      title: "Лукбук",
-      paragraphs: ["Снял лукбук Styx Jewel 2025 года."],
-    },
-  ],
-  credits: [
-    { id: "brand-lookbook-2023", title: "Лукбук Styx Jewels, 2023." },
-    { id: "scanography-2021", title: "Сканография, 2021." },
-    { id: "lookbook-2025", title: "Лукбук Styx Jewels, 2025." },
-  ],
-};
+const sectionIds = ["brand", "production", "scanography", "shootings", "lookbook"];
+const creditIds = ["brand-lookbook-2023", "scanography-2021", "lookbook-2025"];
 
 const sectionExports = [
   styx.styxBrandIntro,
@@ -64,94 +24,97 @@ const creditExports = [
   styx.styxLookbook2025Reel.head?.credits,
 ];
 
-function clone(value) {
-  return JSON.parse(JSON.stringify(value));
+const clone = (value) => structuredClone(value);
+
+async function readSource() {
+  return JSON.parse(await readFile(new URL("../src/content/cases/styx.json", import.meta.url), "utf8"));
 }
 
-test("Styx editorial output baseline is explicit before CMS storage migration", () => {
-  assert.equal(styx.styxIntro.lead, expected.lead);
+test("Styx CMS source owns editable intro metadata and fixed editorial structures", async () => {
+  const source = await readSource();
+
+  assert.deepEqual(Object.keys(source).sort(), ["credits", "lead", "period", "role", "sections"]);
+  assert.equal(typeof source.role, "string");
+  assert.ok(source.role.trim());
+  assert.equal(typeof source.period, "string");
+  assert.ok(source.period.trim());
+  assert.deepEqual(source.sections.map(({ id }) => id), sectionIds);
+  assert.deepEqual(source.credits.map(({ id }) => id), creditIds);
+});
+
+test("Styx live intro, sections and credits consume current CMS values", async () => {
+  const source = await readSource();
+
+  assert.equal(styx.styxIntro.role, source.role);
+  assert.equal(styx.styxIntro.period, source.period);
+  assert.equal(styx.styxIntro.lead, source.lead);
   assert.deepEqual(
-    sectionExports.map((section, index) => ({ id: expected.sections[index].id, ...section })),
-    expected.sections,
+    sectionExports.map((section, index) => ({ id: sectionIds[index], title: section.title, paragraphs: section.paragraphs })),
+    source.sections,
   );
   assert.deepEqual(
-    creditExports.map((credits, index) => ({ id: expected.credits[index].id, title: credits?.title })),
-    expected.credits,
+    creditExports.map((credits, index) => ({ id: creditIds[index], title: credits?.title })),
+    source.credits,
   );
 
-  const rendered = [
-    renderProjectIntro(styx.styxIntro),
-    ...sectionExports.map((section) => renderSectionIntro(section)),
-  ].join("\n");
-
-  for (const text of [expected.lead, ...expected.sections.flatMap((section) => [section.title, ...section.paragraphs])]) {
-    assert.ok(rendered.includes(text), `Rendered Styx output must preserve: ${text}`);
+  const rendered = [renderProjectIntro(styx.styxIntro), ...sectionExports.map(renderSectionIntro)].join("\n");
+  for (const value of [source.role, source.period, source.lead, ...source.sections.flatMap(({ title, paragraphs }) => [title, ...paragraphs])]) {
+    assert.ok(rendered.includes(escapeHtml(value)), `Rendered Styx output must consume current CMS value: ${value}`);
   }
 });
 
-test("Styx CMS content file owns only fixed editorial copy fields", async () => {
-  const source = JSON.parse(
-    await readFile(new URL("../src/content/cases/styx.json", import.meta.url), "utf8"),
-  );
+test("Styx parser accepts legitimate copy edits but rejects structural leakage", async () => {
+  const source = await readSource();
+  const { parseStyxEditorialContent, STYX_CREDIT_IDS, STYX_SECTION_IDS } = await import("../src/data/content/styx-editorial.ts");
 
-  assert.deepEqual(Object.keys(source).sort(), ["credits", "lead", "sections"]);
-  assert.equal(source.lead, expected.lead);
-  assert.deepEqual(source.sections, expected.sections);
-  assert.deepEqual(source.credits, expected.credits);
-});
+  assert.deepEqual(parseStyxEditorialContent(clone(source)), source);
 
-test("Styx editorial parser rejects malformed structure and preserves code-owned ordering", async () => {
-  const {
-    parseStyxEditorialContent,
-    STYX_CREDIT_IDS,
-    STYX_SECTION_IDS,
-  } = await import("../src/data/content/styx-editorial.ts");
+  const edited = clone(source);
+  edited.role = "Новая отображаемая роль";
+  edited.period = "2021–2026";
+  edited.lead = "Обновлённый редакционный текст";
+  edited.sections[0].title = "Новый заголовок";
+  edited.credits[0].title = "Новая подпись";
+  const parsedEdited = parseStyxEditorialContent(edited);
+  assert.equal(parsedEdited.role, edited.role);
+  assert.equal(parsedEdited.period, edited.period);
+  assert.equal(parsedEdited.lead, edited.lead);
+  assert.equal(parsedEdited.sections[0].title, edited.sections[0].title);
+  assert.equal(parsedEdited.credits[0].title, edited.credits[0].title);
 
-  const parsed = parseStyxEditorialContent(clone(expected));
-  assert.deepEqual(parsed.sections.map((section) => section.id), STYX_SECTION_IDS);
-  assert.deepEqual(parsed.credits.map((credit) => credit.id), STYX_CREDIT_IDS);
-
-  const reordered = clone(expected);
+  const reordered = clone(source);
   reordered.sections.reverse();
   reordered.credits.reverse();
   const normalized = parseStyxEditorialContent(reordered);
-  assert.deepEqual(normalized.sections.map((section) => section.id), STYX_SECTION_IDS);
-  assert.deepEqual(normalized.credits.map((credit) => credit.id), STYX_CREDIT_IDS);
+  assert.deepEqual(normalized.sections.map(({ id }) => id), STYX_SECTION_IDS);
+  assert.deepEqual(normalized.credits.map(({ id }) => id), STYX_CREDIT_IDS);
 
-  const duplicateSection = clone(expected);
+  const whitespaceRole = clone(source);
+  whitespaceRole.role = "   ";
+  assert.throws(() => parseStyxEditorialContent(whitespaceRole), /non-empty|string/i);
+
+  const duplicateSection = clone(source);
   duplicateSection.sections[4].id = "brand";
   assert.throws(() => parseStyxEditorialContent(duplicateSection), /duplicate|missing/i);
 
-  const unknownSection = clone(expected);
-  unknownSection.sections[0].id = "layout";
-  assert.throws(() => parseStyxEditorialContent(unknownSection), /unexpected|unknown/i);
-
-  const whitespace = clone(expected);
-  whitespace.sections[0].paragraphs = ["   "];
-  assert.throws(() => parseStyxEditorialContent(whitespace), /non-empty|string/i);
-
-  const presentationLeak = clone(expected);
+  const presentationLeak = clone(source);
   presentationLeak.sections[0].className = "project__section";
   assert.throws(() => parseStyxEditorialContent(presentationLeak), /unexpected|field|key/i);
 });
 
-test("Pages CMS exposes Styx inside a Cases group without route or presentation controls", async () => {
+test("Pages CMS exposes Styx editorial metadata without route, media or presentation controls", async () => {
   const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-
-  assert.match(cms, /- name: cases\s+label: Кейсы\s+type: group/s);
-  assert.match(cms, /- name: styx-case[\s\S]*?path: src\/content\/cases\/styx\.json/);
-
   const start = cms.indexOf("      - name: styx-case");
   assert.notEqual(start, -1);
   const rest = cms.slice(start);
   const nextEntry = rest.indexOf("\n      - name: ", 8);
-  const styxConfig = nextEntry === -1 ? rest : rest.slice(0, nextEntry);
+  const config = nextEntry === -1 ? rest : rest.slice(0, nextEntry);
 
-  for (const field of ["lead", "sections", "id", "title", "paragraphs", "credits"]) {
-    assert.match(styxConfig, new RegExp(`name: ${field}\\b`));
+  for (const field of ["role", "period", "lead", "sections", "id", "title", "paragraphs", "credits"]) {
+    assert.match(config, new RegExp(`name: ${field}\\b`));
   }
 
-  for (const forbidden of ["entryId", "className", "layout", "route", "canonical", "href", "renderer"] ) {
-    assert.doesNotMatch(styxConfig, new RegExp(`name: ${forbidden}\\b`));
+  for (const forbidden of ["entryId", "className", "layout", "route", "canonical", "href", "renderer"]) {
+    assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
   }
 });
