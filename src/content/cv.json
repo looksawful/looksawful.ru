@@ -240,7 +240,7 @@
     },
     {
       "id": "kursovoy",
-      "visible": true,
+      "visible": false,
       "company": "KURSOVOY",
       "context": "Мультибрендовый бутик",
       "period": "2015–2016",

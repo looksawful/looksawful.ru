@@ -313,6 +313,20 @@ section.block { margin-bottom: clamp(30px, 3.5vw, 50px); }
 .experience-links .experience-label { flex-basis: 100%; text-align: right; margin-bottom: 0; }
 .experience-links a { display: inline; white-space: nowrap; }
 
+.experience-cases {
+  display: none;
+}
+
+.experience-links a[href^="/#project-"],
+.experience-links a[href^="https://www.looksawful.ru/"],
+.experience-links a[href^="https://looksawful.ru/"] {
+  display: none;
+}
+
+.experience-links:not(:has(> a[href]:not([href^="/#project-"]):not([href^="https://www.looksawful.ru/"]):not([href^="https://looksawful.ru/"]))) {
+  display: none;
+}
+
 @media (max-width: 900px) {
   :root { --text: 14px; --small: 13px; --title: 14px; --name: 23px; --role: 17px; }
   .resume,
