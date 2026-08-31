@@ -1,0 +1,43 @@
+{
+  "id": "jestei-11-source-27-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/11/source/27-1x1.webp",
+  "sourceSrc": "",
+  "width": 736,
+  "height": 736,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Обложка плейлиста «Подложки» в Event.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-event",
+    "jestei-playlist-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "product-design",
+    "ux",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "social-media-assets",
+    "cover",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

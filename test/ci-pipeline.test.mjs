@@ -35,7 +35,7 @@ function assertDerivativeOnlyCache(workflow) {
   assert.doesNotMatch(block, /responsive-manifest\.json/);
   assert.doesNotMatch(block, /video-inventory\.json/);
   assert.doesNotMatch(block, /responsive-generated\.ts/);
-  assert.match(block, /key: generated-media-v3-/);
+  assert.match(block, /key: generated-media-v(?:3|4)-/);
   assert.match(block, /restore-keys:/);
 }
 
@@ -65,6 +65,7 @@ test("PR verification fails cheaply, always validates restored media, and instal
     "Typecheck",
     "Restore generated media",
     "Ensure media tooling",
+    "Check CMS media catalog",
     "Sync generated media",
     "Check tracked media metadata",
     "Core tests",
@@ -88,10 +89,12 @@ test("dev verification keeps correctness coverage without caption QA or unused d
   assertTrackedMediaMetadataClean(workflow);
   assertOrdered(workflow, [
     "Install",
+    "Ensure media tooling",
+    "Sync CMS media catalog",
     "Typecheck",
     "Restore generated media",
-    "Ensure media tooling",
     "Sync generated media",
+    "Persist synchronized CMS media metadata",
     "Check tracked media metadata",
     "Core tests",
     "Build site",
@@ -116,6 +119,7 @@ test("production tests the sanitized final dist before uploading the Pages artif
     "Typecheck",
     "Restore generated media",
     "Ensure media tooling",
+    "Check CMS media catalog",
     "Sync generated media",
     "Check tracked media metadata",
     "Core tests",
@@ -149,6 +153,7 @@ test("Lighthouse is scheduled/manual only and validates deterministic media befo
     "Typecheck",
     "Restore generated media",
     "Ensure media tooling",
+    "Check CMS media catalog",
     "Sync generated media",
     "Check tracked media metadata",
     "Build site",

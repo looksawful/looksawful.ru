@@ -1,0 +1,41 @@
+{
+  "id": "berry-05-source-05-2000x2000",
+  "mediaType": "image",
+  "src": "/media/projects/berry/05/source/05-2000x2000.webp",
+  "sourceSrc": "",
+  "width": 2000,
+  "height": 2000,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Съёмка лукбука",
+  "alt": "Лукбук Berry Agency",
+  "description": "",
+  "date": "2020",
+  "projectIds": [
+    "shootings-berry-lookbook",
+    "berry-social-content-2020"
+  ],
+  "workAreaIds": [
+    "photography",
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook",
+    "social-content"
+  ],
+  "deliverableIds": [
+    "social-post",
+    "social-media-assets",
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "графический дизайн",
+    "лукбук"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

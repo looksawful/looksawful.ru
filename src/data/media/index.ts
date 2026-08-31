@@ -3,10 +3,30 @@ import type { MediaAsset, MediaEntryData } from "../../types/media.ts";
 import { mediaAssets, type MediaAssetId, type MediaAssetRecord } from "./assets/index.ts";
 
 import { mediaEntries, type MediaEntryId, type MediaEntryRecord } from "./entries/index.ts";
+import {
+  findMediaCatalogItems,
+  getMediaCatalogItem,
+  mediaCatalogItems,
+  type MediaCatalogFilters,
+  type MediaCatalogItem,
+} from "./catalog.ts";
 
-export { mediaAssets, mediaEntries };
+export {
+  findMediaCatalogItems,
+  getMediaCatalogItem,
+  mediaAssets,
+  mediaCatalogItems,
+  mediaEntries,
+};
 
-export type { MediaAssetId, MediaAssetRecord, MediaEntryId, MediaEntryRecord };
+export type {
+  MediaAssetId,
+  MediaAssetRecord,
+  MediaCatalogFilters,
+  MediaCatalogItem,
+  MediaEntryId,
+  MediaEntryRecord,
+};
 
 const mediaAssetById = new Map<string, MediaAsset>(
   mediaAssets.map((asset) => [asset.id, asset] as const),

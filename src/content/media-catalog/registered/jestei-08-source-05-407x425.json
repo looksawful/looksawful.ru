@@ -1,0 +1,37 @@
+{
+  "id": "jestei-08-source-05-407x425",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/08/source/05-407x425.webp",
+  "sourceSrc": "",
+  "width": 407,
+  "height": 425,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фильтр треков для ивент-диджеев.",
+  "alt": "",
+  "description": "В 2026 году запустили для ивент-диджеев собственную ленту треков с полностью перестроенной системой поиска и фильтрации музыки.",
+  "date": "",
+  "projectIds": [
+    "jestei-event",
+    "jestei-track-filter"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

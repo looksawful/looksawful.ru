@@ -1,0 +1,35 @@
+{
+  "id": "styx-05-source-19-2x3",
+  "mediaType": "image",
+  "src": "/media/projects/styx/05/source/19-2x3.webp",
+  "sourceSrc": "",
+  "width": 427,
+  "height": 640,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фотография из коллаборации Styx Jewels и Evident Things.",
+  "alt": "",
+  "description": "",
+  "date": "2022",
+  "projectIds": [
+    "styx-evident-things-collaboration-2022"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен"
+  ],
+  "credits": [
+    "Фотограф и продюсер: Иван Крушинский / 2022."
+  ],
+  "reusable": true,
+  "archived": false
+}

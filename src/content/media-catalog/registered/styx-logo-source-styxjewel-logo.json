@@ -1,0 +1,25 @@
+{
+  "id": "styx-logo-source-styxjewel-logo",
+  "mediaType": "image",
+  "src": "/media/projects/styx/logo/source/styxjewel_logo.webp",
+  "sourceSrc": "",
+  "width": 0,
+  "height": 0,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "styx-logo-source-styxjewel-logo",
+  "alt": "Styx Jewel",
+  "description": "",
+  "date": "",
+  "projectIds": [],
+  "workAreaIds": [],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "logo"
+  ],
+  "tags": [],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

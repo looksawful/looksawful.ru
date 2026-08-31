@@ -1,0 +1,37 @@
+{
+  "id": "evasha-07-source-02-121x125",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/07/source/02-121x125.webp",
+  "sourceSrc": "",
+  "width": 1210,
+  "height": 1250,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Микс-медиа для Evasha, 2025.",
+  "alt": "",
+  "description": "",
+  "date": "2025",
+  "projectIds": [
+    "shootings-evasha"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "music-shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен",
+    "музыка"
+  ],
+  "credits": [
+    "Продюсер Лёка Варданьян, Стилист Зоя Просекова, Лейбл ВК Музыка."
+  ],
+  "reusable": true,
+  "archived": false
+}

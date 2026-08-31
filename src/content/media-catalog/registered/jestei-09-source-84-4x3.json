@@ -1,0 +1,37 @@
+{
+  "id": "jestei-09-source-84-4x3",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/09/source/84-4x3.webp",
+  "sourceSrc": "",
+  "width": 472,
+  "height": 354,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фрагмент UI-kit с выпадающими меню.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-core-interface"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui",
+    "design-systems"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

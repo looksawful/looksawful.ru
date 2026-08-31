@@ -1,0 +1,39 @@
+{
+  "id": "sensetique-13-source-59-854x1280",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/13/source/59-854x1280.webp",
+  "sourceSrc": "",
+  "width": 854,
+  "height": 1280,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Olovo Moscow — кампейн",
+  "alt": "Кампейн Olovo Moscow",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "sensetique-olovo-campaign"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "campaign-shooting"
+  ],
+  "deliverableIds": [
+    "campaign-assets"
+  ],
+  "tags": [
+    "фото",
+    "продакшен",
+    "кампейн"
+  ],
+  "credits": [
+    "Фотограф Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский."
+  ],
+  "reusable": true,
+  "archived": false
+}

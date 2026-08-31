@@ -1,0 +1,35 @@
+{
+  "id": "styx-05-source-21-4x5",
+  "mediaType": "image",
+  "src": "/media/projects/styx/05/source/21-4x5.webp",
+  "sourceSrc": "",
+  "width": 1120,
+  "height": 1400,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фотография лукбука 2025.",
+  "alt": "",
+  "description": "",
+  "date": "2025",
+  "projectIds": [
+    "styx-lookbook-2025"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook"
+  ],
+  "deliverableIds": [
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "лукбук"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

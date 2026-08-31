@@ -1,0 +1,37 @@
+{
+  "id": "jestei-11-source-17-490x1280",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/11/source/17-490x1280.webp",
+  "sourceSrc": "",
+  "width": 490,
+  "height": 1280,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Мобильная версия страницы «Лента новинок».",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-core-interface"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui",
+    "design-systems"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

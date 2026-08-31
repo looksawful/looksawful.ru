@@ -1,0 +1,39 @@
+{
+  "id": "jestei-09-source-25-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/09/source/25-1x1.webp",
+  "sourceSrc": "",
+  "width": 1024,
+  "height": 1024,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Обложка плейлиста с треками на день рождения.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-playlist-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "product-design",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "social-media-assets",
+    "cover",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

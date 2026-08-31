@@ -1,0 +1,39 @@
+{
+  "id": "sensetique-11-source-100-187x280",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/11/source/100-187x280.webp",
+  "sourceSrc": "",
+  "width": 935,
+  "height": 1400,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Olovo Moscow — лукбук 2016",
+  "alt": "Лукбук Olovo Moscow, 2016",
+  "description": "",
+  "date": "2016",
+  "projectIds": [
+    "sensetique-olovo-lookbook-2016"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook"
+  ],
+  "deliverableIds": [
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "продакшен",
+    "лукбук"
+  ],
+  "credits": [
+    "Фотограф Никита Игнатов, Стилист Мария Жукова."
+  ],
+  "reusable": true,
+  "archived": false
+}

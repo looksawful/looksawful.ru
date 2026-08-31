@@ -1,0 +1,33 @@
+{
+  "id": "styx-07-source-03-4x5",
+  "mediaType": "image",
+  "src": "/media/projects/styx/07/source/03-4x5.webp",
+  "sourceSrc": "",
+  "width": 512,
+  "height": 640,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фотография из коллаборации Styx Jewels и Evident Things",
+  "alt": "",
+  "description": "",
+  "date": "2022",
+  "projectIds": [
+    "styx-evident-things-collaboration-2022"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото"
+  ],
+  "credits": [
+    "/ 2022."
+  ],
+  "reusable": true,
+  "archived": false
+}

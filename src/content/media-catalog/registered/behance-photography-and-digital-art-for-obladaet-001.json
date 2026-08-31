@@ -1,0 +1,33 @@
+{
+  "id": "behance-photography-and-digital-art-for-obladaet-001",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/behance/photography-and-digital-art-for-obladaet/source/001.webp",
+  "sourceSrc": "",
+  "width": 4812,
+  "height": 6016,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Obladaet",
+  "alt": "Photography and digital art for Obladaet — кадр 1",
+  "description": "",
+  "date": "2020–2022",
+  "projectIds": [
+    "shootings-obladaet"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "music-shooting"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "музыка"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

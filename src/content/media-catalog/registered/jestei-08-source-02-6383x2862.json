@@ -1,0 +1,38 @@
+{
+  "id": "jestei-08-source-02-6383x2862",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/08/source/02-6383x2862.webp",
+  "sourceSrc": "",
+  "width": 6383,
+  "height": 2862,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Объёмные текстурные надписи для заголовков.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-brand-system"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "identity",
+    "art-direction"
+  ],
+  "projectTypeIds": [
+    "identity-project"
+  ],
+  "deliverableIds": [
+    "identity-system",
+    "logo",
+    "brand-assets"
+  ],
+  "tags": [
+    "графический дизайн",
+    "айдентика"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

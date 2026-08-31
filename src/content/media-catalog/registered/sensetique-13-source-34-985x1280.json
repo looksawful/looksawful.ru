@@ -1,0 +1,37 @@
+{
+  "id": "sensetique-13-source-34-985x1280",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/13/source/34-985x1280.webp",
+  "sourceSrc": "",
+  "width": 985,
+  "height": 1280,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Эдиториал Sensetique — Даниил Коротеченков",
+  "alt": "Эдиториал фотосхемка",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "sensetique-editorial-daniil-korotechenkov"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "editorial"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "фото",
+    "продакшен",
+    "эдиториал"
+  ],
+  "credits": [
+    "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский."
+  ],
+  "reusable": true,
+  "archived": false
+}

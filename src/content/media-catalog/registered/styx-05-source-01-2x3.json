@@ -1,0 +1,35 @@
+{
+  "id": "styx-05-source-01-2x3",
+  "mediaType": "image",
+  "src": "/media/projects/styx/05/source/01-2x3.webp",
+  "sourceSrc": "",
+  "width": 1664,
+  "height": 2496,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Арт-обработка лукбука куртки бренда.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "styx-jacket-lookbook"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook"
+  ],
+  "deliverableIds": [
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "лукбук"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

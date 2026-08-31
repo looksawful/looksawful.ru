@@ -1,0 +1,44 @@
+{
+  "id": "jestei-05-source-11-3x2",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/05/source/11-3x2.webp",
+  "sourceSrc": "",
+  "width": 5630,
+  "height": 3754,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Баннер об обновлении регулярной рубрики «Эксклюзивные эдиты».",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-playlist-system",
+    "jestei-promo-communication"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "brand-communication",
+    "social-media",
+    "product-design",
+    "ui"
+  ],
+  "projectTypeIds": [
+    "graphic-design-project"
+  ],
+  "deliverableIds": [
+    "design-assets",
+    "banner",
+    "advertising-banner",
+    "social-media-assets",
+    "advertising-creative",
+    "campaign-assets",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

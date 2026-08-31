@@ -1,0 +1,39 @@
+{
+  "id": "styx-02-source-02-9x16",
+  "mediaType": "video",
+  "src": "/media/projects/styx/02/source/02-9x16.mp4",
+  "sourceSrc": "",
+  "width": 900,
+  "height": 1600,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Перекладная анимация с подарочной моделью для хранения украшений Mystery Chest",
+  "alt": "",
+  "description": "",
+  "date": "2024",
+  "projectIds": [
+    "styx-mystery-chest-animation-2024"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "motion"
+  ],
+  "projectTypeIds": [
+    "motion-project",
+    "animation",
+    "video-project",
+    "scanography-project"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "графический дизайн",
+    "моушен",
+    "сканография"
+  ],
+  "credits": [
+    "/ 2024."
+  ],
+  "reusable": true,
+  "archived": false
+}

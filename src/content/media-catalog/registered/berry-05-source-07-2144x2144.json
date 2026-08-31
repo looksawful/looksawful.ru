@@ -1,0 +1,42 @@
+{
+  "id": "berry-05-source-07-2144x2144",
+  "mediaType": "image",
+  "src": "/media/projects/berry/05/source/07-2144x2144.webp",
+  "sourceSrc": "",
+  "width": 2144,
+  "height": 2144,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Предметная съёмка для бренда подарков",
+  "alt": "Предметная съёмка для бренда подарков",
+  "description": "",
+  "date": "2020",
+  "projectIds": [
+    "shootings-berry-product",
+    "berry-social-content-2020"
+  ],
+  "workAreaIds": [
+    "photography",
+    "graphic-design"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "catalog",
+    "product-shooting",
+    "social-content"
+  ],
+  "deliverableIds": [
+    "social-post",
+    "social-media-assets",
+    "catalog"
+  ],
+  "tags": [
+    "фото",
+    "графический дизайн",
+    "каталог"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

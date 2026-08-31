@@ -1,0 +1,36 @@
+{
+  "id": "jestei-08-source-01-51x32",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/08/source/01-51x32.webp",
+  "sourceSrc": "",
+  "width": 255,
+  "height": 160,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Система виджетов для апгрейда подписки.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-subscription"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

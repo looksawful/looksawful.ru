@@ -1,0 +1,39 @@
+{
+  "id": "jestei-09-source-05-62x59",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/09/source/05-62x59.webp",
+  "sourceSrc": "",
+  "width": 310,
+  "height": 295,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фрагмент UI-kit с chips для Event-версии фильтра треков.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-core-interface",
+    "jestei-event",
+    "jestei-track-filter"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui",
+    "design-systems"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

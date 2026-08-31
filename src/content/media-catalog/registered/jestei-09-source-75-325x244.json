@@ -1,0 +1,39 @@
+{
+  "id": "jestei-09-source-75-325x244",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/09/source/75-325x244.webp",
+  "sourceSrc": "",
+  "width": 1300,
+  "height": 976,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фрагмент Event-лендинга о доступных музыкальных жанрах.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-event",
+    "jestei-landings"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "website",
+    "landing-page",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

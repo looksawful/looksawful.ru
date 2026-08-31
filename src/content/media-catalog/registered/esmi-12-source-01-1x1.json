@@ -1,0 +1,38 @@
+{
+  "id": "esmi-12-source-01-1x1",
+  "mediaType": "image",
+  "src": "/media/projects/shootings/12/source/01-1x1.webp",
+  "sourceSrc": "",
+  "width": 950,
+  "height": 950,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Обложка сингла Esmi, 2025.",
+  "alt": "",
+  "description": "",
+  "date": "2025",
+  "projectIds": [
+    "shootings-esmi"
+  ],
+  "workAreaIds": [
+    "photography"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "music-shooting"
+  ],
+  "deliverableIds": [
+    "cover",
+    "music-cover"
+  ],
+  "tags": [
+    "фото",
+    "музыка"
+  ],
+  "credits": [
+    "Фотограф: Иван Крушинский, лейбл ВК Музыка."
+  ],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,39 @@
+{
+  "id": "sensetique-12-source-16-853x1280",
+  "mediaType": "image",
+  "src": "/media/projects/sensetique/12/source/16-853x1280.webp",
+  "sourceSrc": "",
+  "width": 853,
+  "height": 1280,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Inna Honour Lookbook",
+  "alt": "Лукбук Inna Honour",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "sensetique-inna-honour-lookbook"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook"
+  ],
+  "deliverableIds": [
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "продакшен",
+    "лукбук"
+  ],
+  "credits": [
+    "Фотограф Дарья Сеничева, Стилист Мария Жукова, Продюсер Иван Крушинский."
+  ],
+  "reusable": true,
+  "archived": false
+}

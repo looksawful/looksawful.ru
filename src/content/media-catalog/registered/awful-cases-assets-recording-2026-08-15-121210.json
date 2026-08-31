@@ -1,0 +1,32 @@
+{
+  "id": "awful-cases-assets-recording-2026-08-15-121210",
+  "mediaType": "video",
+  "src": "/pets/awful-cases/assets/recording-2026-08-15-121210.mp4",
+  "sourceSrc": "",
+  "width": 1720,
+  "height": 880,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "как это работает",
+  "alt": "",
+  "description": "",
+  "date": "2024–2026",
+  "projectIds": [
+    "awful-cases"
+  ],
+  "workAreaIds": [
+    "motion"
+  ],
+  "projectTypeIds": [
+    "motion-project",
+    "video-project"
+  ],
+  "deliverableIds": [],
+  "tags": [
+    "моушен"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}

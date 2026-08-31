@@ -1,0 +1,43 @@
+{
+  "id": "sensetique-09-source-56-16x9",
+  "mediaType": "video",
+  "src": "/media/projects/sensetique/09/source/56-16x9.mp4",
+  "sourceSrc": "",
+  "width": 1280,
+  "height": 720,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Krasota Dress Lookbook",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "sensetique-krasota-dress-lookbook"
+  ],
+  "workAreaIds": [
+    "photography",
+    "production",
+    "motion"
+  ],
+  "projectTypeIds": [
+    "shooting",
+    "lookbook",
+    "motion-project",
+    "video-project"
+  ],
+  "deliverableIds": [
+    "lookbook"
+  ],
+  "tags": [
+    "фото",
+    "продакшен",
+    "моушен",
+    "лукбук"
+  ],
+  "credits": [
+    "Фотограф Дарья Сеничева, стилист Мария Жукова."
+  ],
+  "reusable": true,
+  "archived": false
+}

@@ -1,0 +1,39 @@
+{
+  "id": "jestei-09-source-77-262x347",
+  "mediaType": "image",
+  "src": "/media/projects/jestei/09/source/77-262x347.webp",
+  "sourceSrc": "",
+  "width": 262,
+  "height": 347,
+  "durationSeconds": 0,
+  "mimeType": "",
+  "byteLength": 0,
+  "title": "Фрагмент макетов Event-лендинга.",
+  "alt": "",
+  "description": "",
+  "date": "",
+  "projectIds": [
+    "jestei-event",
+    "jestei-landings"
+  ],
+  "workAreaIds": [
+    "graphic-design",
+    "product-design",
+    "ux",
+    "ui"
+  ],
+  "projectTypeIds": [],
+  "deliverableIds": [
+    "website",
+    "landing-page",
+    "ui-kit",
+    "prototype",
+    "screen-mockup"
+  ],
+  "tags": [
+    "графический дизайн"
+  ],
+  "credits": [],
+  "reusable": true,
+  "archived": false
+}
