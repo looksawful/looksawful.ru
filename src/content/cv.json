@@ -46,11 +46,11 @@
       "title": "ТЕХНОЛОГИИ И ИНСТРУМЕНТЫ",
       "rows": [
         { "id": "design", "label": "Дизайн:", "text": "Figma • Illustrator • InDesign • CorelDRAW • Krita • Font Forge" },
-        { "id": "development", "label": "Разработка:", "text": "HTML • CSS • JavaScript • TypeScript • Python • VS Code • WebStorm • Zed • WebGL • GLSL • Canvas • SVG • GSAP" },
+        { "id": "development", "label": "Разработка:", "text": "CSS • JavaScript • TypeScript • Python • VS Code • WebStorm • Zed • GLSL • Canvas • SVG • GSAP" },
         { "id": "graphics-3d", "label": "3D и компьютерная графика:", "text": "Blender • Maya • ZBrush • Material Designer • Three.js" },
-        { "id": "images", "label": "Изображения:", "text": "Photoshop • Lightroom • Capture One • ImageMagick" },
+        { "id": "images", "label": "Постпродакшен:", "text": "Photoshop • Lightroom • Capture One • ImageMagick" },
         { "id": "ai", "label": "ИИ:", "text": "Stable Diffusion • SDXL • FLUX.1 • FLUX.2 • Z-Image • Qwen-Image • HunyuanImage-3.0 • HiDream-I1 • ComfyUI • ControlNet • IP-Adapter • LoRA • Automatic1111 • SwarmUI • Codex • Claude • Ollama • OpenClaw" },
-        { "id": "motion", "label": "Моушен:", "text": "After Effects • Premiere Pro • Final Cut Pro • FFmpeg • Ableton Live • Adobe Audition" }
+        { "id": "motion", "label": "Моушен-дизайн:", "text": "After Effects • Premiere Pro • Final Cut Pro • FFmpeg • Ableton Live • Adobe Audition • WebGL" }
       ]
     },
     "soft": {
