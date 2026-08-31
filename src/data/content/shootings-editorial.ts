@@ -16,6 +16,13 @@ import igguanaSource from "../../content/shootings/shootings-igguana.json" with 
 import obladaetSource from "../../content/shootings/shootings-obladaet.json" with { type: "json" };
 import ofeliaSource from "../../content/shootings/shootings-ofelia.json" with { type: "json" };
 
+import {
+  expectAllowedKeys,
+  expectKnownId,
+  expectRecord,
+  readEditorialText,
+} from "./editorial-validation.ts";
+
 export const SHOOTING_RECORD_IDS = [
   "shootings-obladaet",
   "shootings-evasha",
@@ -35,15 +42,6 @@ export const SHOOTING_RECORD_IDS = [
   "shootings-behance-editorial-photography",
 ] as const;
 
-const RENDERED_SHOOTING_RECORD_IDS = [
-  "shootings-obladaet",
-  "shootings-evasha",
-  "shootings-igguana",
-  "shootings-esmi",
-  "shootings-hypression",
-  "shootings-ofelia",
-] as const;
-
 export type ShootingRecordId = (typeof SHOOTING_RECORD_IDS)[number];
 
 export interface ShootingsOverview {
@@ -61,86 +59,31 @@ export interface ShootingEditorialRecord {
   description: string;
 }
 
-function expectRecord(value: unknown, label: string): Record<string, unknown> {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new TypeError(`${label} must be an object`);
-  }
-  return value as Record<string, unknown>;
-}
-
-function expectExactKeys(record: Record<string, unknown>, expected: readonly string[], label: string): void {
-  const allowed = new Set(expected);
-  for (const key of Object.keys(record)) {
-    if (!allowed.has(key)) {
-      throw new Error(`${label} has unexpected field "${key}"`);
-    }
-  }
-  for (const key of expected) {
-    if (!(key in record)) {
-      throw new Error(`${label} is missing field "${key}"`);
-    }
-  }
-}
-
-function expectNonEmptyString(value: unknown, label: string): string {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    throw new TypeError(`${label} must be a non-empty string`);
-  }
-  return value;
-}
-
-function expectOptionalText(value: unknown, label: string): string {
-  if (typeof value !== "string") {
-    throw new TypeError(`${label} must be a string`);
-  }
-  if (value.length > 0 && value.trim().length === 0) {
-    throw new TypeError(`${label} must be empty or contain non-whitespace text`);
-  }
-  return value;
-}
-
-function isShootingRecordId(value: string): value is ShootingRecordId {
-  return SHOOTING_RECORD_IDS.some((candidate) => candidate === value);
-}
-
-function isRenderedShootingRecordId(value: ShootingRecordId): boolean {
-  return RENDERED_SHOOTING_RECORD_IDS.some((candidate) => candidate === value);
-}
-
 export function parseShootingsOverview(value: unknown): ShootingsOverview {
   const label = "Shootings overview";
   const record = expectRecord(value, label);
-  expectExactKeys(record, ["head", "title", "role", "summary", "lead"], label);
+  expectAllowedKeys(record, ["head", "title", "role", "summary", "lead"], [], label);
 
   return {
-    head: expectNonEmptyString(record.head, `${label}.head`),
-    title: expectNonEmptyString(record.title, `${label}.title`),
-    role: expectNonEmptyString(record.role, `${label}.role`),
-    summary: expectNonEmptyString(record.summary, `${label}.summary`),
-    lead: expectNonEmptyString(record.lead, `${label}.lead`),
+    head: readEditorialText(record.head, `${label}.head`),
+    title: readEditorialText(record.title, `${label}.title`),
+    role: readEditorialText(record.role, `${label}.role`),
+    summary: readEditorialText(record.summary, `${label}.summary`),
+    lead: readEditorialText(record.lead, `${label}.lead`),
   };
 }
 
 export function parseShootingEditorialRecord(value: unknown): ShootingEditorialRecord {
   const label = "Shooting editorial record";
   const record = expectRecord(value, label);
-  expectExactKeys(record, ["id", "title", "date", "description"], label);
-
-  const id = expectNonEmptyString(record.id, `${label}.id`);
-  if (!isShootingRecordId(id)) {
-    throw new Error(`${label} has unknown id "${id}"`);
-  }
-
-  const description = expectOptionalText(record.description, `${label}.description`);
-  if (isRenderedShootingRecordId(id) && description.length === 0) {
-    throw new Error(`${label} "${id}" description must be a non-empty string`);
-  }
+  expectAllowedKeys(record, ["id", "title", "date", "description"], ["id"], label);
+  const id = expectKnownId(record.id, SHOOTING_RECORD_IDS, `${label}.id`);
 
   return {
     id,
-    title: expectNonEmptyString(record.title, `${label}.title`),
-    date: expectOptionalText(record.date, `${label}.date`),
-    description,
+    title: readEditorialText(record.title, `${label}.title`),
+    date: readEditorialText(record.date, `${label}.date`),
+    description: readEditorialText(record.description, `${label}.description`),
   };
 }
 

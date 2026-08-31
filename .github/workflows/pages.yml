@@ -32,12 +32,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - name: Detect CV copy-only deployment
+      - name: Detect deployment scope
         id: change-scope
         shell: bash
         run: |
           set -euo pipefail
           cv_copy_only=false
+          media_inputs_changed=true
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
             parent="$(git rev-parse "${GITHUB_SHA}^")"
             changed="$(git diff --name-only "$parent" "$GITHUB_SHA")"
@@ -45,8 +46,14 @@ jobs:
             if [[ -n "$changed" ]] && ! grep -Evq "$allowed" <<<"$changed"; then
               cv_copy_only=true
             fi
+            media_inputs_changed=false
+            media_inputs='^(public/media/|src/content/media-catalog/|src/content/projects\.json$|src/data/media/|tools/(build-responsive-media|build-video-media|media-dev-state|sync-media-catalog)\.mjs$|package(-lock)?\.json$)'
+            if grep -Eq "$media_inputs" <<<"$changed"; then
+              media_inputs_changed=true
+            fi
           fi
           printf 'cv_copy_only=%s\n' "$cv_copy_only" >> "$GITHUB_OUTPUT"
+          printf 'media_inputs_changed=%s\n' "$media_inputs_changed" >> "$GITHUB_OUTPUT"
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -67,6 +74,7 @@ jobs:
           restore-keys: |
             generated-media-v4-${{ runner.os }}-
       - name: Ensure media tooling
+        if: steps.change-scope.outputs.media_inputs_changed == 'true' || steps.media-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -77,12 +85,32 @@ jobs:
           ffmpeg -version | head -n 1
           ffprobe -version | head -n 1
       - name: Check CMS media catalog
+        if: steps.change-scope.outputs.media_inputs_changed == 'true' || steps.media-cache.outputs.cache-hit != 'true'
         run: npm run media:catalog:check
       - name: Sync generated media
+        if: steps.change-scope.outputs.media_inputs_changed == 'true' || steps.media-cache.outputs.cache-hit != 'true'
         run: npm run media:sync
       - name: Check tracked media metadata
+        if: steps.change-scope.outputs.media_inputs_changed == 'true' || steps.media-cache.outputs.cache-hit != 'true'
         run: git diff --exit-code -- src/content/media-catalog src/data/media/catalog-records.generated.ts public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
+      - name: Core tests without media pipeline checks
+        if: steps.change-scope.outputs.media_inputs_changed != 'true' && steps.media-cache.outputs.cache-hit == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          find test -maxdepth 1 -type f -name '*.test.mjs' \
+            ! -name 'media-catalog-*.test.mjs' \
+            ! -name 'media-ci-cache.test.mjs' \
+            ! -name 'media-tooling-contract.test.mjs' \
+            ! -name 'cv-entry.test.mjs' \
+            ! -name 'project-cards-cms.test.mjs' \
+            ! -name 'remaining-media-migration.test.mjs' \
+            ! -name 'responsive-*.test.mjs' \
+            ! -name 'shootings-data-isolation.test.mjs' \
+            ! -name 'video-delivery-contract.test.mjs' \
+            -print0 | sort -z | xargs -0 node --test
       - name: Core tests
+        if: steps.change-scope.outputs.media_inputs_changed == 'true' || steps.media-cache.outputs.cache-hit != 'true'
         run: npm run test:core
       - name: Build site
         run: npm run build:site

@@ -13,25 +13,27 @@ function getEntityPageCopy(page: EntityPageDefinition): {
 } {
   if (page.type === "case") {
     const entity = getCase(page.entityId);
+    const name = entity.name || page.entityId;
     return {
-      title: `${entity.name} — Иван Крушинский`,
-      description: entity.description ?? entity.summary ?? entity.name,
+      title: `${name} — Иван Крушинский`,
+      description: entity.description || entity.summary || name,
     };
   }
 
   if (page.type === "collection") {
     const entity = getCollection(page.entityId);
-    const name = entity.displayName ?? entity.name;
+    const name = entity.displayName || entity.name || page.entityId;
     return {
       title: `${name} — Иван Крушинский`,
-      description: entity.description ?? entity.summary ?? entity.name,
+      description: entity.description || entity.summary || name,
     };
   }
 
   const entity = getProject(page.entityId);
+  const name = entity.name || page.entityId;
   return {
-    title: `${entity.name} — Иван Крушинский`,
-    description: entity.description ?? entity.summary ?? entity.name,
+    title: `${name} — Иван Крушинский`,
+    description: entity.description || entity.summary || name,
   };
 }
 

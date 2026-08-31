@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import {
   CV_EDUCATION_COURSE_IDS,
   CV_EDUCATION_LINKS,
+  CV_EXPERIENCE_SHAPES,
   parseCvContent,
 } from "../../src/data/cv.ts";
 
@@ -152,7 +153,9 @@ export function transformCvProfile(html, content) {
   if (!profile) throw new Error("CV profile content is required");
 
   let transformed = replaceElementTextByClass(html, "h1", "name", profile.name);
+  transformed = setElementHiddenByClass(transformed, "h1", "name", !profile.name);
   transformed = replaceElementTextByClass(transformed, "div", "role", profile.role);
+  transformed = setElementHiddenByClass(transformed, "div", "role", !profile.role);
 
   const aboutPattern = /(<section\b(?=[^>]*\bclass=["'][^"']*\babout\b[^"']*["'])[^>]*>[\s\S]*?<div\b(?=[^>]*\bclass=["'][^"']*\burl\b[^"']*["'])[^>]*>[\s\S]*?<\/div>)(?:<p>[\s\S]*?<\/p>){1,2}(<div\b(?=[^>]*\bclass=["'][^"']*\bsales\b[^"']*["'])[^>]*>)/i;
   const aboutHtml = [profile.aboutPrimary, profile.aboutSecondary]
@@ -167,8 +170,13 @@ export function transformCvProfile(html, content) {
   );
 
   const salesPattern = /(<div\b(?=[^>]*\bclass=["'][^"']*\bsales\b[^"']*["'])[^>]*>)[\s\S]*?(<\/div>)/i;
-  const salesHtml = profile.principles
-    .map(({ title, text }) => `<p><b>${escapeHtml(title)}</b> ${escapeHtml(text)}</p>`)
+  const visiblePrinciples = profile.principles.filter(({ title, text }) => title || text);
+  const salesHtml = visiblePrinciples
+    .map(({ title, text }) => {
+      const titleHtml = title ? `<b>${escapeHtml(title)}</b>` : "";
+      const separator = title && text ? " " : "";
+      return `<p>${titleHtml}${separator}${escapeHtml(text)}</p>`;
+    })
     .join("");
   transformed = replaceExactlyOnce(
     transformed,
@@ -176,10 +184,16 @@ export function transformCvProfile(html, content) {
     (_match, open, close) => `${open}${salesHtml}${close}`,
     ".sales block",
   );
+  transformed = setElementHiddenByClass(transformed, "div", "sales", visiblePrinciples.length === 0);
 
   const languagesPattern = /(<section\b(?=[^>]*\bclass=["'][^"']*\blangs\b[^"']*["'])[^>]*>[\s\S]*?<p>)[\s\S]*?(<\/p>[\s\S]*?<\/section>)/i;
-  const languagesHtml = profile.languages
-    .map(({ name, level }) => `<b>${escapeHtml(name)}</b> — ${escapeHtml(level)}`)
+  const visibleLanguages = profile.languages.filter(({ name, level }) => name || level);
+  const languagesHtml = visibleLanguages
+    .map(({ name, level }) => {
+      if (name && level) return `<b>${escapeHtml(name)}</b> — ${escapeHtml(level)}`;
+      if (name) return `<b>${escapeHtml(name)}</b>`;
+      return escapeHtml(level);
+    })
     .join("<br/>");
   transformed = replaceExactlyOnce(
     transformed,
@@ -187,6 +201,7 @@ export function transformCvProfile(html, content) {
     (_match, prefix, suffix) => `${prefix}${languagesHtml}${suffix}`,
     ".langs copy block",
   );
+  transformed = setElementHiddenByClass(transformed, "section", "langs", visibleLanguages.length === 0);
 
   return transformed;
 }
@@ -211,7 +226,7 @@ function transformCvSkillSection(html, sectionId, section) {
         transformedInner,
         "h2",
         "section-title",
-        !section.titleVisible,
+        !section.titleVisible || !section.title,
       );
 
       const paragraphPattern = /(<p\b[^>]*>)[\s\S]*?(<\/p>)/gi;
@@ -228,11 +243,18 @@ function transformCvSkillSection(html, sectionId, section) {
         (_paragraph, paragraphOpen, paragraphClose) => {
           const row = section.rows[rowIndex];
           rowIndex += 1;
-          return `${paragraphOpen}<b>${escapeHtml(row.label)}</b> ${escapeHtml(row.text)}${paragraphClose}`;
+          const label = row.label ? `<b>${escapeHtml(row.label)}</b>` : "";
+          const separator = row.label && row.text ? " " : "";
+          const opening = setOpeningHidden(paragraphOpen, !row.label && !row.text);
+          return `${opening}${label}${separator}${escapeHtml(row.text)}${paragraphClose}`;
         },
       );
 
-      return `${setOpeningHidden(open, !section.visible)}${transformedInner}${close}`;
+      const hasVisibleCopy = Boolean(
+        (section.titleVisible && section.title)
+        || section.rows.some(({ label, text }) => label || text),
+      );
+      return `${setOpeningHidden(open, !section.visible || !hasVisibleCopy)}${transformedInner}${close}`;
     },
     `.${sectionId} skill section`,
   );
@@ -242,28 +264,44 @@ export function transformCvContacts(html, content) {
   const contacts = content.profile?.contacts;
   if (!contacts) throw new Error("CV profile.contacts content is required");
 
-  const phoneHref = `tel:${contacts.phone.replace(/[^+\d]/g, "")}`;
-  const telegramHref = `https://t.me/${contacts.telegram.slice(1)}`;
-  const instagramHref = `https://www.instagram.com/${contacts.instagram.slice(1)}/`;
-  const emailHref = `mailto:${contacts.email}`;
+  const contactLines = [];
+  if (contacts.location) contactLines.push(escapeHtml(contacts.location));
+  if (contacts.phone) {
+    const phoneHref = `tel:${contacts.phone.replace(/[^+\d]/g, "")}`;
+    contactLines.push(`<a href="${escapeHtml(phoneHref)}">${escapeHtml(contacts.phone)}</a>`);
+  }
+  if (contacts.telegram) {
+    const telegramHref = `https://t.me/${contacts.telegram.slice(1)}`;
+    contactLines.push(`Telegram: <a href="${escapeHtml(telegramHref)}" rel="noopener noreferrer" target="_blank">${escapeHtml(contacts.telegram)}</a>`);
+  }
+  if (contacts.instagram) {
+    const instagramHref = `https://www.instagram.com/${contacts.instagram.slice(1)}/`;
+    contactLines.push(`Instagram: <a href="${escapeHtml(instagramHref)}" rel="noopener noreferrer" target="_blank">${escapeHtml(contacts.instagram)}</a>`);
+  }
+  if (contacts.email) {
+    const emailHref = `mailto:${contacts.email}`;
+    contactLines.push(`email: <a href="${escapeHtml(emailHref)}">${escapeHtml(contacts.email)}</a>`);
+  }
 
   const contactsPattern = /(<div\b(?=[^>]*\bclass=["'][^"']*\bcontacts\b[^"']*["'])[^>]*>)[\s\S]*?(<\/div>)/i;
   let transformed = replaceExactlyOnce(
     html,
     contactsPattern,
-    (_match, open, close) =>
-      `${open}${escapeHtml(contacts.location)}<br/><a href="${escapeHtml(phoneHref)}">${escapeHtml(contacts.phone)}</a><br/>Telegram: <a href="${escapeHtml(telegramHref)}" rel="noopener noreferrer" target="_blank">${escapeHtml(contacts.telegram)}</a><br/>Instagram: <a href="${escapeHtml(instagramHref)}" rel="noopener noreferrer" target="_blank">${escapeHtml(contacts.instagram)}</a><br/>email: <a href="${escapeHtml(emailHref)}">${escapeHtml(contacts.email)}</a>${close}`,
+    (_match, open, close) => `${open}${contactLines.join("<br/>")}${close}`,
     ".contacts block",
   );
+  transformed = setElementHiddenByClass(transformed, "div", "contacts", contactLines.length === 0);
 
   const urlPattern = /(<div\b(?=[^>]*\bclass=["'][^"']*\burl\b[^"']*["'])[^>]*>)[\s\S]*?(<\/div>)/i;
   transformed = replaceExactlyOnce(
     transformed,
     urlPattern,
-    (_match, open, close) =>
-      `${open}<a href="${escapeHtml(contacts.website)}" rel="noopener noreferrer" target="_blank">${escapeHtml(contacts.website)}</a>${close}`,
+    (_match, open, close) => contacts.website
+      ? `${open}<a href="${escapeHtml(contacts.website)}" rel="noopener noreferrer" target="_blank">${escapeHtml(contacts.website)}</a>${close}`
+      : `${open}${close}`,
     ".url contact block",
   );
+  transformed = setElementHiddenByClass(transformed, "div", "url", !contacts.website);
 
   return transformed;
 }
@@ -282,8 +320,13 @@ export function transformCvSkills(html, content) {
 }
 
 function renderEducationCourse(entry, href) {
-  const name = `<b><a href="${escapeHtml(href)}" rel="noopener noreferrer" target="_blank">${escapeHtml(entry.name)}</a></b>`;
-  return `<div class="course">${name}\n${entry.lines.map(escapeHtml).join("<br/>")}</div>`;
+  const name = entry.name
+    ? `<b><a href="${escapeHtml(href)}" rel="noopener noreferrer" target="_blank">${escapeHtml(entry.name)}</a></b>`
+    : "";
+  const lines = entry.lines.map(escapeHtml).join("<br/>");
+  const separator = name && lines ? "\n" : "";
+  const hidden = !name && !lines ? " hidden" : "";
+  return `<div class="course"${hidden}>${name}${separator}${lines}</div>`;
 }
 
 export function transformCvEducation(html, content) {
@@ -308,7 +351,7 @@ export function transformCvEducation(html, content) {
         (_title, titleOpen, titleClose) => {
           const value = titleValues[titleIndex];
           titleIndex += 1;
-          return `${titleOpen}${escapeHtml(value)}${titleClose}`;
+          return `${setOpeningHidden(titleOpen, !value)}${escapeHtml(value)}${titleClose}`;
         },
       );
 
@@ -329,7 +372,14 @@ export function transformCvEducation(html, content) {
       const renderedGrid = `${coursesGrid.open}${renderedCourses}${coursesGrid.close}`;
       transformedInner = `${transformedInner.slice(0, coursesGrid.start)}${renderedGrid}${transformedInner.slice(coursesGrid.end)}`;
 
-      return `${open}${transformedInner}${close}`;
+      const hasEducationCopy = Boolean(
+        education.higherTitle
+        || education.additionalTitle
+        || education.higher.name
+        || education.higher.lines.length
+        || education.additional.some(({ name, lines }) => name || lines.length),
+      );
+      return `${setOpeningHidden(open, !hasEducationCopy)}${transformedInner}${close}`;
     },
     ".education section",
   );
@@ -362,14 +412,17 @@ function transformExperienceMeta(article, entry) {
       const separator = inner.indexOf("|");
       if (separator === -1) throw new Error(`CV experience ${entry.id} meta separator is missing`);
       const periodTemplate = inner.slice(separator + 1).trim();
-      return `${open}${escapeHtml(entry.context)} | ${renderExperiencePeriod(periodTemplate, entry.period)}${close}`;
+      const context = escapeHtml(entry.context);
+      const period = entry.period ? renderExperiencePeriod(periodTemplate, entry.period) : "";
+      const divider = context && period ? " | " : "";
+      return `${setOpeningHidden(open, !context && !period)}${context}${divider}${period}${close}`;
     },
     `.experience-meta for ${entry.id}`,
   );
 }
 
 function transformExperienceCases(article, entry) {
-  return transformElementByClass(
+  const transformed = transformElementByClass(
     article,
     "div",
     "experience-cases",
@@ -383,11 +436,14 @@ function transformExperienceCases(article, entry) {
       return inner.replace(pattern, (_match, open, _tag, close) => {
         const value = entry.cases[index];
         index += 1;
-        return `${open}${escapeHtml(value)}${close}`;
+        return `${setOpeningHidden(open, !value)}${escapeHtml(value)}${close}`;
       });
     },
     entry.cases.length > 0,
   );
+  return entry.cases.length > 0
+    ? setElementHiddenByClass(transformed, "div", "experience-cases", entry.cases.every((value) => !value))
+    : transformed;
 }
 
 function transformExperienceFacts(article, entry) {
@@ -397,7 +453,7 @@ function transformExperienceFacts(article, entry) {
     return `${article.slice(0, element.start)}${article.slice(element.end)}`;
   }
 
-  return transformElementByClass(
+  const transformed = transformElementByClass(
     article,
     "div",
     "experience-facts",
@@ -435,15 +491,21 @@ function transformExperienceFacts(article, entry) {
           (_valueMatch, valueOpen, valueClose) => `${valueOpen}${escapeHtml(fact.text)}${valueClose}`,
           `.experience-value for ${entry.id} fact ${index}`,
         );
-        return `${open}${transformedInner}${close}`;
+        return `${setOpeningHidden(open, !fact.label && !fact.text)}${transformedInner}${close}`;
       });
     },
     entry.facts.length > 0,
   );
+  return setElementHiddenByClass(
+    transformed,
+    "div",
+    "experience-facts",
+    entry.facts.every(({ label, text }) => !label && !text),
+  );
 }
 
 function transformExperienceLinks(article, entry) {
-  return transformElementByClass(
+  const transformed = transformElementByClass(
     article,
     "div",
     "experience-links",
@@ -457,27 +519,34 @@ function transformExperienceLinks(article, entry) {
       return inner.replace(pattern, (_match, open, close) => {
         const label = entry.links[index];
         index += 1;
-        return `${open}${escapeHtml(label)}${close}`;
+        return `${setOpeningHidden(open, !label)}${escapeHtml(label)}${close}`;
       });
     },
     entry.links.length > 0,
   );
+  return entry.links.length > 0
+    ? setElementHiddenByClass(transformed, "div", "experience-links", entry.links.every((value) => !value))
+    : transformed;
 }
 
 function transformExperienceDescription(article, entry) {
   const hasDescription = /<p\b(?=[^>]*\bclass=["'][^"']*\bexperience-description\b[^"']*["'])/i.test(article);
-  if (!entry.description) {
+  const shape = CV_EXPERIENCE_SHAPES[entry.id];
+  if (!shape.description) {
     if (hasDescription) throw new Error(`CV experience ${entry.id} has an unexpected description slot`);
     return article;
   }
   if (!hasDescription) throw new Error(`CV experience ${entry.id} description slot is missing`);
-  return replaceElementTextByClass(article, "p", "experience-description", entry.description);
+  const transformed = replaceElementTextByClass(article, "p", "experience-description", entry.description);
+  return setElementHiddenByClass(transformed, "p", "experience-description", !entry.description);
 }
 
 function transformExperienceArticle(article, entry) {
   let transformed = replaceElementTextByClass(article, "h3", "experience-company", entry.company);
+  transformed = setElementHiddenByClass(transformed, "h3", "experience-company", !entry.company);
   transformed = transformExperienceMeta(transformed, entry);
   transformed = replaceElementTextByClass(transformed, "h3", "experience-role", entry.role);
+  transformed = setElementHiddenByClass(transformed, "h3", "experience-role", !entry.role);
   transformed = transformExperienceDescription(transformed, entry);
   transformed = transformExperienceCases(transformed, entry);
   transformed = transformExperienceFacts(transformed, entry);
@@ -509,7 +578,19 @@ export function transformCvExperienceCopy(html, content) {
 export function transformCvExperienceVisibility(html, content, options = {}) {
   const { removeHidden = false } = options;
   const visibility = new Map(
-    content.experience.map(({ id, visible }) => [id, visible]),
+    content.experience.map((entry) => [
+      entry.id,
+      entry.visible && Boolean(
+        entry.company
+        || entry.context
+        || entry.period
+        || entry.role
+        || entry.description
+        || entry.cases.some(Boolean)
+        || entry.facts.some(({ label, text }) => label || text)
+        || entry.links.some(Boolean),
+      ),
+    ]),
   );
   const seen = new Set();
   let hidden = 0;

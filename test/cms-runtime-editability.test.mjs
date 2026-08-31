@@ -45,6 +45,14 @@ test("generated-media cache stores only derivative binaries while tracked metada
     assert.match(cache, /public\/media\/generated\/video\b/, `${label} must cache video derivatives`);
     assert.doesNotMatch(cache, /responsive-manifest\.json|video-inventory\.json|responsive-generated\.ts/, `${label} must not cache tracked metadata`);
     assert.match(sync, /npm run media:sync/, `${label} must validate cache contents against current repository metadata`);
-    assert.doesNotMatch(sync, /if:/, `${label} must run media validation even on cache hits`);
+    if (label === "pages.yml") {
+      assert.match(
+        sync,
+        /if:.*media_inputs_changed.*media-cache\.outputs\.cache-hit/,
+        `${label} may skip media validation only for a content-only change with an exact generated-media cache hit`,
+      );
+    } else {
+      assert.doesNotMatch(sync, /if:/, `${label} must run media validation even on cache hits`);
+    }
   }
 });

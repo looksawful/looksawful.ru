@@ -5,13 +5,13 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 function stepIndex(workflow, name) {
-  const index = workflow.indexOf(`- name: ${name}`);
+  const index = workflow.indexOf(`- name: ${name}\n`);
   assert.notEqual(index, -1, `missing workflow step: ${name}`);
   return index;
 }
 
 function stepBlock(workflow, name) {
-  const marker = `      - name: ${name}`;
+  const marker = `      - name: ${name}\n`;
   const start = workflow.indexOf(marker);
   assert.notEqual(start, -1, `missing workflow step: ${name}`);
   const next = workflow.indexOf("\n      - name: ", start + marker.length);
@@ -43,6 +43,14 @@ function assertAlwaysSyncsMedia(workflow) {
   const block = stepBlock(workflow, "Sync generated media");
   assert.match(block, /run: npm run media:sync/);
   assert.doesNotMatch(block, /if:/);
+}
+
+function assertContentOnlyDeployCanReuseValidatedMedia(workflow) {
+  const block = stepBlock(workflow, "Sync generated media");
+  assert.match(block, /run: npm run media:sync/);
+  assert.match(block, /if:.*media_inputs_changed.*media-cache\.outputs\.cache-hit/);
+  assert.match(workflow, /media_inputs_changed=false/);
+  assert.match(workflow, /public\/media\/|src\/content\/media-catalog\/|src\/data\/media\//);
 }
 
 function assertTrackedMediaMetadataClean(workflow) {
@@ -106,13 +114,13 @@ test("dev verification keeps correctness coverage without caption QA or unused d
   assert.doesNotMatch(workflow, /npm run verify(?::core)?/);
 });
 
-test("production tests the sanitized final dist before uploading the Pages artifact", async () => {
+test("production tests the sanitized final dist and skips media work only for validated content-only changes", async () => {
   const workflow = await read(".github/workflows/pages.yml");
 
   assert.match(workflow, /statuses: write/);
   assert.match(workflow, /github-pages\/production/);
   assertDerivativeOnlyCache(workflow);
-  assertAlwaysSyncsMedia(workflow);
+  assertContentOnlyDeployCanReuseValidatedMedia(workflow);
   assertTrackedMediaMetadataClean(workflow);
   assertOrdered(workflow, [
     "Install",
@@ -122,6 +130,7 @@ test("production tests the sanitized final dist before uploading the Pages artif
     "Check CMS media catalog",
     "Sync generated media",
     "Check tracked media metadata",
+    "Core tests without media pipeline checks",
     "Core tests",
     "Build site",
     "Prepare production CV",
@@ -131,6 +140,8 @@ test("production tests the sanitized final dist before uploading the Pages artif
     "Stamp deployment",
     "Upload Pages artifact",
   ]);
+  assert.match(stepBlock(workflow, "Core tests without media pipeline checks"), /find test/);
+  assert.match(stepBlock(workflow, "Core tests"), /npm run test:core/);
   assert.match(stepBlock(workflow, "Final production browser verification"), /npm run test:e2e:production/);
   assert.doesNotMatch(workflow, /npm run verify(?::core)?/);
   assert.match(workflow, /delays=\(0 5 5 10 10 15 15 20 20 30 30 45 60\)/);

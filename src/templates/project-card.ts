@@ -16,7 +16,7 @@ export function renderProjectCard(
   const options = typeof optionsOrIndex === "number" ? {} : optionsOrIndex;
   const href = options.href ?? getProjectCardHref(project.id);
 
-  const ariaLabel = project.ariaLabel ?? `Перейти к проекту ${project.title}`;
+  const ariaLabel = project.ariaLabel ?? (project.title ? `Перейти к проекту ${project.title}` : "Перейти к проекту");
   const coverAsset = projectIndexMediaAssetFor(project);
   const coverSrcset = responsiveImageSrcSet(coverAsset);
   const responsiveAttributes = coverSrcset
@@ -29,6 +29,12 @@ export function renderProjectCard(
 
   const period = project.period
     ? `<span class="project-card__period">${escapeHtml(project.period)}</span>`
+    : "";
+  const title = project.title
+    ? `<span class="project-card__name">${escapeHtml(project.title)}</span>`
+    : "";
+  const focus = project.focus
+    ? `<span class="project-card__focus">${escapeHtml(project.focus)}</span>`
     : "";
 
   return `
@@ -52,8 +58,8 @@ export function renderProjectCard(
           </div>
 
           <figcaption class="project-card__caption">
-            <span class="project-card__name">${escapeHtml(project.title)}</span>
-            <span class="project-card__focus">${escapeHtml(project.focus)}</span>
+            ${title}
+            ${focus}
             ${role}
             ${period}
           </figcaption>

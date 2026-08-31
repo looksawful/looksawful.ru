@@ -143,7 +143,7 @@ test("CV education transform edits copy safely while preserving code-owned links
   assert.match(transformed, /<div class="courses-grid">/);
 });
 
-test("CV education adapter fixes identity, order and required text structure", async () => {
+test("CV education adapter fixes identity and order while allowing empty copy", async () => {
   const [{ parseCvContent }, contentRaw] = await Promise.all([
     import(cvDataModuleUrl.href),
     readFile(cvContentUrl, "utf8"),
@@ -178,9 +178,16 @@ test("CV education adapter fixes identity, order and required text structure", a
 
   const emptyLines = clone(expectedEducation);
   emptyLines.higher.lines = [];
+  delete emptyLines.higher.name;
+  const parsedEmpty = parseCvContent({ ...current, education: emptyLines });
+  assert.equal(parsedEmpty.education.higher.name, "");
+  assert.deepEqual(parsedEmpty.education.higher.lines, []);
+
+  const invalidCopy = clone(expectedEducation);
+  invalidCopy.higher.lines = [42];
   assert.throws(
-    () => parseCvContent({ ...current, education: emptyLines }),
-    /higher.*lines|education.*lines|non-empty/i,
+    () => parseCvContent({ ...current, education: invalidCopy }),
+    /higher.*lines|education.*lines|string/i,
   );
 });
 

@@ -1,5 +1,7 @@
 import projectsJson from "../content/projects.json" with { type: "json" };
 
+import { expectAllowedKeys, readEditorialText } from "./content/editorial-validation.ts";
+
 export const PROJECT_IDS = ["jestei", "styx", "sensetique", "shootings"] as const;
 
 export type ProjectId = (typeof PROJECT_IDS)[number];
@@ -43,11 +45,11 @@ function requireBoolean(record: Record<string, unknown>, key: string, label: str
   return value;
 }
 
-function optionalString(record: Record<string, unknown>, key: string, label: string): string | undefined {
+function optionalEditorialText(record: Record<string, unknown>, key: string, label: string): string | undefined {
   const value = record[key];
-  if (value === undefined) return undefined;
-  if (typeof value !== "string") throw new Error(`${label}.${key} must be a string when present`);
-  return value;
+  if (value === undefined || value === null) return undefined;
+  const parsed = readEditorialText(value, `${label}.${key}`);
+  return parsed || undefined;
 }
 
 function requirePositiveInteger(record: Record<string, unknown>, key: string, label: string): number {
@@ -61,6 +63,12 @@ function requirePositiveInteger(record: Record<string, unknown>, key: string, la
 function parseProject(value: unknown, index: number): ProjectCardData {
   const label = `projects[${index}]`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  expectAllowedKeys(
+    value,
+    ["id", "visible", "title", "focus", "role", "period", "ariaLabel", "cover"],
+    ["id", "visible", "cover"],
+    label,
+  );
 
   const idValue = requireNonEmptyString(value, "id", label);
   if (!projectIds.has(idValue)) throw new Error(`${label}.id is unexpected: ${idValue}`);
@@ -68,25 +76,31 @@ function parseProject(value: unknown, index: number): ProjectCardData {
 
   const coverValue = value.cover;
   if (!isRecord(coverValue)) throw new Error(`${label}.cover must be an object`);
+  expectAllowedKeys(
+    coverValue,
+    ["src", "alt", "width", "height"],
+    ["src", "width", "height"],
+    `${label}.cover`,
+  );
 
   return {
     id,
     visible: requireBoolean(value, "visible", label),
-    title: requireNonEmptyString(value, "title", label),
-    focus: requireNonEmptyString(value, "focus", label),
-    role: optionalString(value, "role", label),
-    period: optionalString(value, "period", label),
-    ariaLabel: optionalString(value, "ariaLabel", label),
+    title: readEditorialText(value.title, `${label}.title`),
+    focus: readEditorialText(value.focus, `${label}.focus`),
+    role: optionalEditorialText(value, "role", label),
+    period: optionalEditorialText(value, "period", label),
+    ariaLabel: optionalEditorialText(value, "ariaLabel", label),
     cover: {
       src: requireNonEmptyString(coverValue, "src", `${label}.cover`),
-      alt: requireNonEmptyString(coverValue, "alt", `${label}.cover`),
+      alt: readEditorialText(coverValue.alt, `${label}.cover.alt`),
       width: requirePositiveInteger(coverValue, "width", `${label}.cover`),
       height: requirePositiveInteger(coverValue, "height", `${label}.cover`),
     },
   };
 }
 
-function validateProjects(value: unknown): readonly ProjectCardData[] {
+export function parseProjectCards(value: unknown): readonly ProjectCardData[] {
   if (!Array.isArray(value)) throw new Error("projects content must be an array");
 
   const parsed = value.map(parseProject);
@@ -109,7 +123,7 @@ function validateProjects(value: unknown): readonly ProjectCardData[] {
   })));
 }
 
-export const projects = validateProjects(rawProjects);
+export const projects = parseProjectCards(rawProjects);
 
 export function getHomepageProjects(
   source: readonly ProjectCardData[] = projects,

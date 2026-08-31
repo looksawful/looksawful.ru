@@ -99,7 +99,14 @@ test("Sensetique parser accepts legitimate copy edits but rejects structural lea
   const source = await readSource();
   const { parseSensetiqueEditorialContent, SENSETIQUE_CREDIT_IDS, SENSETIQUE_NOTE_IDS, SENSETIQUE_SECTION_IDS } = await import("../src/data/content/sensetique-editorial.ts");
 
-  assert.deepEqual(parseSensetiqueEditorialContent(clone(source)), source);
+  assert.deepEqual(parseSensetiqueEditorialContent(clone(source)), {
+    ...source,
+    credits: source.credits.map((credit) => ({
+      ...credit,
+      title: credit.title ?? "",
+      lines: credit.lines ?? [],
+    })),
+  });
 
   const edited = clone(source);
   edited.intro.role = "Новая отображаемая роль";
@@ -130,7 +137,25 @@ test("Sensetique parser accepts legitimate copy edits but rejects structural lea
 
   const whitespace = clone(source);
   whitespace.credits[0].lines = ["   "];
-  assert.throws(() => parseSensetiqueEditorialContent(whitespace), /non-empty|string/i);
+  assert.deepEqual(parseSensetiqueEditorialContent(whitespace).credits[0].lines, []);
+
+  const missingCopy = clone(source);
+  delete missingCopy.intro.lead;
+  delete missingCopy.sections[0].title;
+  delete missingCopy.sections[0].paragraphs;
+  delete missingCopy.credits[0].title;
+  delete missingCopy.credits[0].lines;
+  delete missingCopy.notes[0].text;
+  const parsedMissingCopy = parseSensetiqueEditorialContent(missingCopy);
+  assert.equal(parsedMissingCopy.intro.lead, "");
+  assert.equal(parsedMissingCopy.sections[0].title, "");
+  assert.deepEqual(parsedMissingCopy.sections[0].paragraphs, []);
+  assert.deepEqual(parsedMissingCopy.credits[0], { id: "buro247", title: "", lines: [] });
+  assert.equal(parsedMissingCopy.notes[0].text, "");
+
+  const invalidCopy = clone(source);
+  invalidCopy.notes[0].text = 42;
+  assert.throws(() => parseSensetiqueEditorialContent(invalidCopy), /string/i);
 
   const presentationLeak = clone(source);
   presentationLeak.credits[0].className = "project__section";

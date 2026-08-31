@@ -209,12 +209,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function expectExactKeys(record: Record<string, unknown>, keys: readonly string[], label: string): void {
-  const expected = new Set(keys);
+function expectAllowedKeys(
+  record: Record<string, unknown>,
+  allowedKeys: readonly string[],
+  requiredKeys: readonly string[],
+  label: string,
+): void {
+  const allowed = new Set(allowedKeys);
   for (const key of Object.keys(record)) {
-    if (!expected.has(key)) throw new Error(`${label} has unexpected field "${key}"`);
+    if (!allowed.has(key)) throw new Error(`${label} has unexpected field "${key}"`);
   }
-  for (const key of keys) {
+  for (const key of requiredKeys) {
     if (!(key in record)) throw new Error(`${label} is missing field "${key}"`);
   }
 }
@@ -227,57 +232,54 @@ function requireNonEmptyString(record: Record<string, unknown>, key: string, lab
   return value;
 }
 
-function requireTrimmedNonEmptyString(record: Record<string, unknown>, key: string, label: string): string {
-  const value = requireNonEmptyString(record, key, label);
-  if (value.trim() !== value) throw new Error(`${label}.${key} must be a trimmed non-empty string`);
-  return value;
-}
-
-function requireTrimmedString(record: Record<string, unknown>, key: string, label: string): string {
+function readEditorialText(record: Record<string, unknown>, key: string, label: string): string {
   const value = record[key];
-  if (typeof value !== "string" || value.trim() !== value) {
-    throw new Error(`${label}.${key} must be a trimmed string`);
-  }
-  return value;
+  if (value === undefined || value === null) return "";
+  if (typeof value !== "string") throw new Error(`${label}.${key} must be a string when present`);
+  return value.trim().length === 0 ? "" : value;
 }
 
 function parseStringList(value: unknown, label: string): readonly string[] {
-  if (!Array.isArray(value) || value.length === 0) {
-    throw new Error(`${label} must be a non-empty array`);
-  }
-  const parsed = value.map((item, index) => {
-    if (typeof item !== "string" || item.length === 0) {
-      throw new Error(`${label}[${index}] must be a non-empty string`);
-    }
-    return item;
-  });
+  if (value === undefined || value === null) return Object.freeze([]);
+  if (!Array.isArray(value)) throw new Error(`${label} must be an array when present`);
+  const parsed = value
+    .map((item, index) => {
+      if (typeof item !== "string") throw new Error(`${label}[${index}] must be a string`);
+      return item.trim().length === 0 ? "" : item;
+    })
+    .filter((item) => item.length > 0);
   return Object.freeze(parsed);
 }
 
 function parseFixedStringList(value: unknown, label: string, expectedCount: number): readonly string[] {
-  if (!Array.isArray(value)) throw new Error(`${label} must be an array`);
+  if (value === undefined || value === null) {
+    return Object.freeze(Array.from({ length: expectedCount }, () => ""));
+  }
+  if (!Array.isArray(value)) throw new Error(`${label} must be an array when present`);
+  if (value.length === 0) {
+    return Object.freeze(Array.from({ length: expectedCount }, () => ""));
+  }
   if (value.length !== expectedCount) {
     throw new Error(`${label} count must remain ${expectedCount}; got ${value.length}`);
   }
   return Object.freeze(value.map((item, index) => {
-    if (typeof item !== "string" || item.trim().length === 0 || item.trim() !== item) {
-      throw new Error(`${label}[${index}] must be a trimmed non-empty string`);
-    }
-    return item;
+    if (typeof item !== "string") throw new Error(`${label}[${index}] must be a string`);
+    return item.trim().length === 0 ? "" : item;
   }));
 }
 
 function parsePrinciple(value: unknown, index: number): CvProfilePrinciple {
   const label = `cv.profile.principles[${index}]`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  expectAllowedKeys(value, ["id", "title", "text"], ["id"], label);
   const idValue = requireNonEmptyString(value, "id", label);
   if (!principleIds.has(idValue)) throw new Error(`unexpected CV principle id: ${idValue}`);
   const id = CV_PRINCIPLE_IDS.find((candidate) => candidate === idValue);
   if (!id) throw new Error(`unexpected CV principle id: ${idValue}`);
   return {
     id,
-    title: requireNonEmptyString(value, "title", label),
-    text: requireNonEmptyString(value, "text", label),
+    title: readEditorialText(value, "title", label),
+    text: readEditorialText(value, "text", label),
   };
 }
 
@@ -305,14 +307,15 @@ function parsePrinciples(value: unknown): readonly CvProfilePrinciple[] {
 function parseLanguage(value: unknown, index: number): CvLanguage {
   const label = `cv.profile.languages[${index}]`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  expectAllowedKeys(value, ["id", "name", "level"], ["id"], label);
   const idValue = requireNonEmptyString(value, "id", label);
   if (!languageIds.has(idValue)) throw new Error(`unexpected CV language id: ${idValue}`);
   const id = CV_LANGUAGE_IDS.find((candidate) => candidate === idValue);
   if (!id) throw new Error(`unexpected CV language id: ${idValue}`);
   return {
     id,
-    name: requireNonEmptyString(value, "name", label),
-    level: requireNonEmptyString(value, "level", label),
+    name: readEditorialText(value, "name", label),
+    level: readEditorialText(value, "level", label),
   };
 }
 
@@ -340,62 +343,68 @@ function parseLanguages(value: unknown): readonly CvLanguage[] {
 function parseContacts(value: unknown): CvContactData {
   const label = "cv.profile.contacts";
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  expectAllowedKeys(
+    value,
+    ["location", "phone", "telegram", "instagram", "email", "website"],
+    [],
+    label,
+  );
 
-  const requireTrimmed = (key: string): string => {
-    const fieldValue = requireNonEmptyString(value, key, label);
-    if (fieldValue.trim() !== fieldValue || fieldValue.trim().length === 0) {
-      throw new Error(`${label}.${key} must be a trimmed non-empty string`);
-    }
-    return fieldValue;
-  };
-
-  const location = requireTrimmed("location");
-  const phone = requireTrimmed("phone");
-  const telegram = requireTrimmed("telegram");
-  const instagram = requireTrimmed("instagram");
-  const email = requireTrimmed("email");
-  const website = requireTrimmed("website");
+  const location = readEditorialText(value, "location", label);
+  const phone = readEditorialText(value, "phone", label);
+  const telegram = readEditorialText(value, "telegram", label);
+  const instagram = readEditorialText(value, "instagram", label);
+  const email = readEditorialText(value, "email", label);
+  const website = readEditorialText(value, "website", label);
 
   const telHref = phone.replace(/[ ()-]/g, "");
-  if (!/^\+\d{7,15}$/.test(telHref)) {
+  if (phone && !/^\+\d{7,15}$/.test(telHref)) {
     throw new Error(`${label}.phone must be an international phone number beginning with +`);
   }
-  if (!/^@[A-Za-z0-9_]{5,32}$/.test(telegram)) {
+  if (telegram && !/^@[A-Za-z0-9_]{5,32}$/.test(telegram)) {
     throw new Error(`${label}.telegram must be an @username handle`);
   }
   const instagramUsername = instagram.slice(1);
   if (
-    !/^@[A-Za-z0-9._]{1,30}$/.test(instagram)
-    || instagramUsername.startsWith(".")
-    || instagramUsername.endsWith(".")
-    || instagramUsername.includes("..")
+    instagram
+    && (
+      !/^@[A-Za-z0-9._]{1,30}$/.test(instagram)
+      || instagramUsername.startsWith(".")
+      || instagramUsername.endsWith(".")
+      || instagramUsername.includes("..")
+    )
   ) {
     throw new Error(`${label}.instagram must be an @username handle`);
   }
   const [emailLocal, emailDomain] = email.split("@");
   if (
-    !/^[^\s@<>:]+@[^\s@<>:]+\.[^\s@<>:]+$/.test(email)
-    || emailLocal.startsWith(".")
-    || emailLocal.endsWith(".")
-    || emailLocal.includes("..")
-    || emailDomain.startsWith(".")
-    || emailDomain.endsWith(".")
-    || emailDomain.includes("..")
+    email
+    && (
+      !/^[^\s@<>:]+@[^\s@<>:]+\.[^\s@<>:]+$/.test(email)
+      || emailLocal.startsWith(".")
+      || emailLocal.endsWith(".")
+      || emailLocal.includes("..")
+      || emailDomain.startsWith(".")
+      || emailDomain.endsWith(".")
+      || emailDomain.includes("..")
+    )
   ) {
     throw new Error(`${label}.email must be a valid email address`);
   }
 
-  let parsedWebsite: URL;
-  try {
-    parsedWebsite = new URL(website);
-  } catch {
-    throw new Error(`${label}.website must be an absolute HTTP(S) URL`);
-  }
-  if (!(["http:", "https:"] as const).includes(parsedWebsite.protocol as "http:" | "https:")) {
-    throw new Error(`${label}.website must use http or https`);
-  }
-  if (parsedWebsite.username || parsedWebsite.password) {
-    throw new Error(`${label}.website must not include credentials`);
+  if (website) {
+    let parsedWebsite: URL;
+    try {
+      parsedWebsite = new URL(website);
+    } catch {
+      throw new Error(`${label}.website must be an absolute HTTP(S) URL`);
+    }
+    if (!(["http:", "https:"] as const).includes(parsedWebsite.protocol as "http:" | "https:")) {
+      throw new Error(`${label}.website must use http or https`);
+    }
+    if (parsedWebsite.username || parsedWebsite.password) {
+      throw new Error(`${label}.website must not include credentials`);
+    }
   }
 
   return Object.freeze({ location, phone, telegram, instagram, email, website });
@@ -403,11 +412,17 @@ function parseContacts(value: unknown): CvContactData {
 
 function parseProfile(value: unknown): CvProfileData {
   if (!isRecord(value)) throw new Error("cv.profile must be an object");
+  expectAllowedKeys(
+    value,
+    ["name", "role", "aboutPrimary", "aboutSecondary", "contacts", "principles", "languages"],
+    ["contacts", "principles", "languages"],
+    "cv.profile",
+  );
   return Object.freeze({
-    name: requireNonEmptyString(value, "name", "cv.profile"),
-    role: requireNonEmptyString(value, "role", "cv.profile"),
-    aboutPrimary: requireNonEmptyString(value, "aboutPrimary", "cv.profile"),
-    aboutSecondary: requireTrimmedString(value, "aboutSecondary", "cv.profile"),
+    name: readEditorialText(value, "name", "cv.profile"),
+    role: readEditorialText(value, "role", "cv.profile"),
+    aboutPrimary: readEditorialText(value, "aboutPrimary", "cv.profile"),
+    aboutSecondary: readEditorialText(value, "aboutSecondary", "cv.profile"),
     contacts: parseContacts(value.contacts),
     principles: parsePrinciples(value.principles),
     languages: parseLanguages(value.languages),
@@ -417,6 +432,7 @@ function parseProfile(value: unknown): CvProfileData {
 function parseSkillRow(value: unknown, index: number, sectionId: CvSkillSectionId): CvSkillRowData {
   const label = `cv.skills.${sectionId}.rows[${index}]`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  expectAllowedKeys(value, ["id", "label", "text"], ["id"], label);
   const idValue = requireNonEmptyString(value, "id", label);
   const expectedIds: readonly string[] = CV_SKILL_ROW_IDS[sectionId];
   if (!expectedIds.includes(idValue)) throw new Error(`unexpected CV ${sectionId} row id: ${idValue}`);
@@ -424,14 +440,15 @@ function parseSkillRow(value: unknown, index: number, sectionId: CvSkillSectionI
   if (!id) throw new Error(`unexpected CV ${sectionId} row id: ${idValue}`);
   return {
     id,
-    label: requireNonEmptyString(value, "label", label),
-    text: requireNonEmptyString(value, "text", label),
+    label: readEditorialText(value, "label", label),
+    text: readEditorialText(value, "text", label),
   };
 }
 
 function parseSkillSection(value: unknown, sectionId: CvSkillSectionId): CvSkillSectionData {
   const label = `cv.skills.${sectionId}`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  expectAllowedKeys(value, ["visible", "titleVisible", "title", "rows"], ["visible", "titleVisible", "rows"], label);
   if (typeof value.visible !== "boolean") throw new Error(`${label}.visible must be a boolean`);
   if (typeof value.titleVisible !== "boolean") throw new Error(`${label}.titleVisible must be a boolean`);
   if (!Array.isArray(value.rows)) throw new Error(`${label}.rows must be an array`);
@@ -451,7 +468,7 @@ function parseSkillSection(value: unknown, sectionId: CvSkillSectionId): CvSkill
   return Object.freeze({
     visible: value.visible,
     titleVisible: value.titleVisible,
-    title: requireNonEmptyString(value, "title", label),
+    title: readEditorialText(value, "title", label),
     rows: Object.freeze(expectedIds.map((id) => {
       const row = byId.get(id);
       if (!row) throw new Error(`missing required CV ${sectionId} row id: ${id}`);
@@ -462,6 +479,7 @@ function parseSkillSection(value: unknown, sectionId: CvSkillSectionId): CvSkill
 
 function parseSkills(value: unknown): CvSkillsData {
   if (!isRecord(value)) throw new Error("cv.skills must be an object");
+  expectAllowedKeys(value, CV_SKILL_SECTION_IDS, CV_SKILL_SECTION_IDS, "cv.skills");
   return Object.freeze({
     hard: parseSkillSection(value.hard, "hard"),
     tech: parseSkillSection(value.tech, "tech"),
@@ -472,6 +490,7 @@ function parseSkills(value: unknown): CvSkillsData {
 
 function parseEducationEntry(value: unknown, label: string, expectedId?: CvEducationEntryId): CvEducationEntryData {
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  expectAllowedKeys(value, ["id", "name", "lines"], ["id"], label);
   const idValue = requireNonEmptyString(value, "id", label);
   if (expectedId && idValue !== expectedId) {
     throw new Error(`unexpected CV education id: ${idValue}; expected ${expectedId}`);
@@ -482,13 +501,19 @@ function parseEducationEntry(value: unknown, label: string, expectedId?: CvEduca
   const id = idValue as CvEducationEntryId;
   return Object.freeze({
     id,
-    name: requireNonEmptyString(value, "name", label),
+    name: readEditorialText(value, "name", label),
     lines: parseStringList(value.lines, `${label}.lines`),
   });
 }
 
 function parseEducation(value: unknown): CvEducationData {
   if (!isRecord(value)) throw new Error("cv.education must be an object");
+  expectAllowedKeys(
+    value,
+    ["higherTitle", "higher", "additionalTitle", "additional"],
+    ["higher", "additional"],
+    "cv.education",
+  );
   if (!Array.isArray(value.additional)) throw new Error("cv.education.additional must be an array");
 
   const parsedAdditional = value.additional.map((entry, index) =>
@@ -507,9 +532,9 @@ function parseEducation(value: unknown): CvEducationData {
   }
 
   return Object.freeze({
-    higherTitle: requireNonEmptyString(value, "higherTitle", "cv.education"),
+    higherTitle: readEditorialText(value, "higherTitle", "cv.education"),
     higher: parseEducationEntry(value.higher, "cv.education.higher", "mpgu"),
-    additionalTitle: requireNonEmptyString(value, "additionalTitle", "cv.education"),
+    additionalTitle: readEditorialText(value, "additionalTitle", "cv.education"),
     additional: Object.freeze(CV_EDUCATION_COURSE_IDS.map((id) => {
       const entry = byId.get(id);
       if (!entry) throw new Error(`missing required CV education course id: ${id}`);
@@ -520,19 +545,20 @@ function parseEducation(value: unknown): CvEducationData {
 
 function parseExperienceFact(value: unknown, label: string): CvExperienceFactData {
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
-  expectExactKeys(value, ["label", "text"], label);
+  expectAllowedKeys(value, ["label", "text"], [], label);
   return Object.freeze({
-    label: requireTrimmedString(value, "label", label),
-    text: requireTrimmedNonEmptyString(value, "text", label),
+    label: readEditorialText(value, "label", label),
+    text: readEditorialText(value, "text", label),
   });
 }
 
 function parseExperience(value: unknown, index: number): CvExperienceData {
   const label = `cv.experience[${index}]`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
-  expectExactKeys(
+  expectAllowedKeys(
     value,
     ["id", "visible", "company", "context", "period", "role", "description", "cases", "facts", "links"],
+    ["id", "visible"],
     label,
   );
 
@@ -543,29 +569,32 @@ function parseExperience(value: unknown, index: number): CvExperienceData {
   if (typeof value.visible !== "boolean") throw new Error(`${label}.visible must be a boolean`);
 
   const shape = CV_EXPERIENCE_SHAPES[id];
-  const description = requireTrimmedString(value, "description", label);
-  if (shape.description && description.length === 0) {
-    throw new Error(`${label}.description must be non-empty for ${id}`);
-  }
+  const description = readEditorialText(value, "description", label);
   if (!shape.description && description.length !== 0) {
     throw new Error(`${label}.description must stay empty because this card has no description slot`);
   }
 
-  if (!Array.isArray(value.facts)) throw new Error(`${label}.facts must be an array`);
-  if (value.facts.length !== shape.facts) {
-    throw new Error(`${label}.facts count must remain ${shape.facts}; got ${value.facts.length}`);
+  if (value.facts !== undefined && value.facts !== null && !Array.isArray(value.facts)) {
+    throw new Error(`${label}.facts must be an array when present`);
+  }
+  const providedFacts = Array.isArray(value.facts) ? value.facts : [];
+  const facts = providedFacts.length === 0 && shape.facts > 0
+    ? Array.from({ length: shape.facts }, () => ({}))
+    : providedFacts;
+  if (facts.length !== shape.facts) {
+    throw new Error(`${label}.facts count must remain ${shape.facts}; got ${facts.length}`);
   }
 
   return Object.freeze({
     id,
     visible: value.visible,
-    company: requireTrimmedNonEmptyString(value, "company", label),
-    context: requireTrimmedNonEmptyString(value, "context", label),
-    period: requireTrimmedNonEmptyString(value, "period", label),
-    role: requireTrimmedNonEmptyString(value, "role", label),
+    company: readEditorialText(value, "company", label),
+    context: readEditorialText(value, "context", label),
+    period: readEditorialText(value, "period", label),
+    role: readEditorialText(value, "role", label),
     description,
     cases: parseFixedStringList(value.cases, `${label}.cases`, shape.cases),
-    facts: Object.freeze(value.facts.map((fact, factIndex) =>
+    facts: Object.freeze(facts.map((fact, factIndex) =>
       parseExperienceFact(fact, `${label}.facts[${factIndex}]`),
     )),
     links: parseFixedStringList(value.links, `${label}.links`, shape.links),
@@ -595,6 +624,7 @@ function parseExperienceList(value: unknown): readonly CvExperienceData[] {
 
 export function parseCvContent(value: unknown): CvContentData {
   if (!isRecord(value)) throw new Error("CV content must be an object");
+  expectAllowedKeys(value, ["profile", "skills", "education", "experience"], ["profile", "skills", "education", "experience"], "CV content");
   return Object.freeze({
     profile: parseProfile(value.profile),
     skills: parseSkills(value.skills),

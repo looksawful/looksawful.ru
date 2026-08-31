@@ -72,8 +72,27 @@ test("CV content adapter rejects malformed contact values and unsafe website sch
   const current = JSON.parse(contentRaw);
   const baseContacts = clone(expectedContacts);
 
+  const blankContacts = Object.fromEntries(Object.keys(baseContacts).map((key) => [key, "   "]));
+  const parsedBlank = parseCvContent({
+    ...current,
+    profile: { ...current.profile, contacts: blankContacts },
+  });
+  assert.deepEqual(parsedBlank.profile.contacts, {
+    location: "",
+    phone: "",
+    telegram: "",
+    instagram: "",
+    email: "",
+    website: "",
+  });
+
+  const parsedMissing = parseCvContent({
+    ...current,
+    profile: { ...current.profile, contacts: {} },
+  });
+  assert.deepEqual(parsedMissing.profile.contacts, parsedBlank.profile.contacts);
+
   for (const [key, value, pattern] of [
-    ["location", "   ", /contacts\.location/i],
     ["phone", "call me", /contacts\.phone/i],
     ["telegram", "looksawful", /contacts\.telegram/i],
     ["instagram", "looks awful", /contacts\.instagram/i],
@@ -101,6 +120,14 @@ test("CV content adapter rejects malformed contact values and unsafe website sch
       `${key} must fail closed`,
     );
   }
+
+  assert.throws(
+    () => parseCvContent({
+      ...current,
+      profile: { ...current.profile, contacts: { ...baseContacts, location: 42 } },
+    }),
+    /contacts\.location.*string/i,
+  );
 });
 
 test("Pages CMS exposes only CV contact values, not link mechanics", async () => {

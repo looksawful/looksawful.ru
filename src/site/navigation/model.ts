@@ -33,13 +33,13 @@ function getDomainPageLabel(page: SitePageDefinition): string {
     case "home":
       return getNavigationLabel("home");
     case "case":
-      return getCase(page.entityId).name;
+      return getCase(page.entityId).name || page.entityId;
     case "collection": {
       const collection = getCollection(page.entityId);
-      return collection.displayName ?? collection.name;
+      return collection.displayName || collection.name || page.entityId;
     }
     case "project":
-      return getProject(page.entityId).name;
+      return getProject(page.entityId).name || page.entityId;
     case "not-found":
       return "404";
     case "static":

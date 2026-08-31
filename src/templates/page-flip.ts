@@ -5,10 +5,17 @@ import { renderMediaElement } from "./media-figure.ts";
 
 function renderCredits(data: PageFlipData<MediaEntryId>["credits"]): string {
   const lines = data.lines
-    ?.map((line) => `<span class="credits__line">${escapeHtml(line)}</span>`)
+    ?.filter(Boolean)
+    .map((line) => `<span class="credits__line">${escapeHtml(line)}</span>`)
     .join("") ?? "";
 
-  return `<p class="credits"><strong class="credits__title">${escapeHtml(data.title)}</strong>${lines}</p>`;
+  if (!data.title && !lines) return "";
+
+  const title = data.title
+    ? `<strong class="credits__title">${escapeHtml(data.title)}</strong>`
+    : "";
+
+  return `<p class="credits">${title}${lines}</p>`;
 }
 
 export function renderPageFlip(data: PageFlipData<MediaEntryId>): string {

@@ -112,7 +112,7 @@ test("CV profile transform escapes CMS text and preserves code-owned layout hook
   );
 });
 
-test("CV content adapter fails closed on malformed profile identity and required copy", async () => {
+test("CV content adapter protects profile identity while allowing empty copy", async () => {
   const [{ parseCvContent }, contentRaw] = await Promise.all([
     import(cvDataModuleUrl.href),
     readFile(cvContentUrl, "utf8"),
@@ -141,15 +141,22 @@ test("CV content adapter fails closed on malformed profile identity and required
   );
 
   const emptyRole = clone(validProfile);
-  emptyRole.role = "";
-  assert.throws(
-    () => parseCvContent({ ...current, profile: emptyRole }),
-    /profile\.role.*non-empty/i,
-  );
+  emptyRole.role = "   ";
+  delete emptyRole.name;
+  const parsedEmpty = parseCvContent({ ...current, profile: emptyRole });
+  assert.equal(parsedEmpty.profile.role, "");
+  assert.equal(parsedEmpty.profile.name, "");
 
   const emptySecondary = clone(validProfile);
   emptySecondary.aboutSecondary = "";
   assert.doesNotThrow(() => parseCvContent({ ...current, profile: emptySecondary }));
+
+  const invalidCopy = clone(validProfile);
+  invalidCopy.role = 42;
+  assert.throws(
+    () => parseCvContent({ ...current, profile: invalidCopy }),
+    /profile\.role.*string/i,
+  );
 });
 
 test("Pages CMS exposes CV profile copy but keeps structural controls out of the editor", async () => {

@@ -133,7 +133,16 @@ test("CV parser accepts legitimate experience copy edits and rejects architectur
 
   const whitespace = clone(source);
   whitespace.experience[0].company = "   ";
-  assert.throws(() => parseCvContent(whitespace), /non-empty|string|trim/i);
+  delete whitespace.experience[0].role;
+  whitespace.experience[0].description = "";
+  const parsedWhitespace = parseCvContent(whitespace);
+  assert.equal(parsedWhitespace.experience[0].company, "");
+  assert.equal(parsedWhitespace.experience[0].role, "");
+  assert.equal(parsedWhitespace.experience[0].description, "");
+
+  const invalidCopy = clone(source);
+  invalidCopy.experience[0].company = 42;
+  assert.throws(() => parseCvContent(invalidCopy), /company.*string/i);
 
   const caseCountDrift = clone(source);
   caseCountDrift.experience[0].cases.pop();

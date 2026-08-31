@@ -8,12 +8,14 @@ interface SectionIntroRenderOptions {
 }
 
 function renderParagraphs(data: SectionIntroData, reveal: boolean): string {
-  if (!data.paragraphs?.length) {
+  const paragraphs = data.paragraphs?.filter(Boolean) ?? [];
+
+  if (!paragraphs.length) {
     return "";
   }
 
   if (data.bodyClassName) {
-    const paragraphs = data.paragraphs
+    const paragraphHtml = paragraphs
       .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
       .join("");
 
@@ -21,12 +23,12 @@ function renderParagraphs(data: SectionIntroData, reveal: boolean): string {
       <div class="section-copy__text ${escapeHtml(data.bodyClassName)}"${renderRevealAttribute(
         reveal ? "copy" : false,
       )}>
-        ${paragraphs}
+        ${paragraphHtml}
       </div>
     `;
   }
 
-  return data.paragraphs
+  return paragraphs
     .map(
       (paragraph) =>
         `<p class="section-copy__text"${renderRevealAttribute(reveal ? "copy" : false)}>${escapeHtml(
@@ -38,14 +40,19 @@ function renderParagraphs(data: SectionIntroData, reveal: boolean): string {
 
 export function renderSectionIntro(data: SectionIntroData, options: SectionIntroRenderOptions = {}): string {
   const reveal = options.reveal ?? true;
+  const paragraphs = renderParagraphs(data, reveal);
+  if (!data.title && !paragraphs) return "";
+  const title = data.title
+    ? `<h3 class="section-copy__title"${renderRevealAttribute(reveal ? "copy" : false)}>
+        ${escapeHtml(data.title)}
+      </h3>`
+    : "";
 
   return `
     <header class="section-copy flow"${renderRevealGroupAttribute(reveal)}>
-      <h3 class="section-copy__title"${renderRevealAttribute(reveal ? "copy" : false)}>
-        ${escapeHtml(data.title)}
-      </h3>
+      ${title}
 
-      ${renderParagraphs(data, reveal)}
+      ${paragraphs}
     </header>
   `;
 }

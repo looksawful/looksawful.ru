@@ -73,6 +73,7 @@ function renderHead(head?: ProjectIntroHeadData<LogoUsageId>): string {
   }
 
   if (head.type === "text") {
+    if (!head.text) return "";
     return `<p class="project__name"${renderRevealAttribute("copy")}>${escapeHtml(head.text)}</p>`;
   }
 
@@ -131,22 +132,39 @@ export function renderProjectIntro(
 
   const lead = data.lead ? `<p class="project__lead"${renderRevealAttribute("copy")}>${escapeHtml(data.lead)}</p>` : "";
   const headingTag = options.headingLevel === 1 ? "h1" : "h2";
-
-  return `
+  const head = renderHead(data.head);
+  const projectHead = head || role || period
+    ? `
     <div class="project__head"${renderRevealGroupAttribute()}>
-      ${renderHead(data.head)}
+      ${head}
       ${role}
       ${period}
     </div>
-
+  `
+    : "";
+  const title = renderTitle(data.title);
+  const titleHtml = title
+    ? `<${headingTag} class="project__title"${renderRevealAttribute("copy")}>
+        ${title}
+      </${headingTag}>`
+    : "";
+  const links = renderLinks(data);
+  const projectIntro = titleHtml || summary || lead || links
+    ? `
     <header class="project__intro wrapper prose editorial-grid"${renderRevealGroupAttribute()}>
-      <${headingTag} class="project__title"${renderRevealAttribute("copy")}>
-        ${renderTitle(data.title)}
-      </${headingTag}>
+      ${titleHtml}
 
       ${summary}
       ${lead}
-      ${renderLinks(data)}
+      ${links}
     </header>
+  `
+    : "";
+
+  if (!projectHead && !projectIntro) return "";
+
+  return `
+    ${projectHead}
+    ${projectIntro}
   `;
 }

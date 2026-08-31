@@ -91,7 +91,22 @@ test("Styx parser accepts legitimate copy edits but rejects structural leakage",
 
   const whitespaceRole = clone(source);
   whitespaceRole.role = "   ";
-  assert.throws(() => parseStyxEditorialContent(whitespaceRole), /non-empty|string/i);
+  assert.equal(parseStyxEditorialContent(whitespaceRole).role, "");
+
+  const missingCopy = clone(source);
+  delete missingCopy.lead;
+  delete missingCopy.sections[0].title;
+  delete missingCopy.sections[0].paragraphs;
+  delete missingCopy.credits[0].title;
+  const parsedMissingCopy = parseStyxEditorialContent(missingCopy);
+  assert.equal(parsedMissingCopy.lead, "");
+  assert.equal(parsedMissingCopy.sections[0].title, "");
+  assert.deepEqual(parsedMissingCopy.sections[0].paragraphs, []);
+  assert.equal(parsedMissingCopy.credits[0].title, "");
+
+  const invalidCopy = clone(source);
+  invalidCopy.role = 42;
+  assert.throws(() => parseStyxEditorialContent(invalidCopy), /string/i);
 
   const duplicateSection = clone(source);
   duplicateSection.sections[4].id = "brand";

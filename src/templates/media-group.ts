@@ -184,6 +184,8 @@ function renderNote(note: MediaGroupNoteData, reveal: boolean): string {
 
   const link = note.link ? ` ${renderLink(note.link)}` : "";
 
+  if (!note.text && !link) return "";
+
   return `
     <p class="${className}"${renderRevealAttribute(reveal ? "copy" : false)}>
       ${escapeHtml(note.text)}${link}
@@ -197,8 +199,9 @@ function renderGroupHead(head?: MediaGroupHeadData, reveal = true): string {
   }
 
   const credits = head.credits;
+  const creditLines = credits?.lines?.filter(Boolean) ?? [];
 
-  const hasCredits = Boolean(credits?.title || credits?.lines?.length);
+  const hasCredits = Boolean(credits?.title || creditLines.length);
 
   const creditsHtml = hasCredits
     ? `
@@ -210,9 +213,9 @@ function renderGroupHead(head?: MediaGroupHeadData, reveal = true): string {
           }
 
           ${
-            credits?.lines
-              ?.map((line) => `<span class="credits__line">${escapeHtml(line)}</span>`)
-              .join("") ?? ""
+            creditLines
+              .map((line) => `<span class="credits__line">${escapeHtml(line)}</span>`)
+              .join("")
           }
         </p>
       `
