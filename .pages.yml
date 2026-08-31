@@ -188,11 +188,21 @@ content:
               message: Будут проверены Jestei-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
+          - name: role
+            label: Роль
+            type: string
+            required: true
+            description: Отображаемая роль в шапке Jestei Pool. Логотипы и техническая идентичность проекта остаются в коде.
+          - name: period
+            label: Период
+            type: string
+            required: true
+            description: Период работы в том виде, в котором он отображается в шапке проекта.
           - name: lead
             label: Вводный текст
             type: text
             required: true
-            description: Вводный текст Jestei Pool. Роль, период, логотипы, маршрут и композиция остаются в коде.
+            description: Вводный текст Jestei Pool. Логотипы, маршрут и композиция остаются в коде.
           - name: sections
             label: Тексты разделов
             type: object
@@ -264,11 +274,21 @@ content:
               message: Будут проверены Styx-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
+          - name: role
+            label: Роль
+            type: string
+            required: true
+            description: Отображаемая роль в шапке Styx. Логотип и техническая идентичность проекта остаются в коде.
+          - name: period
+            label: Период
+            type: string
+            required: true
+            description: Период работы в том виде, в котором он отображается в шапке проекта.
           - name: lead
             label: Вводный текст
             type: text
             required: true
-            description: Текст вводного абзаца Styx. Логотип, роль, период, маршрут и композиция остаются в коде.
+            description: Текст вводного абзаца Styx. Логотип, маршрут и композиция остаются в коде.
           - name: sections
             label: Тексты разделов
             type: object
@@ -1020,3 +1040,54 @@ content:
             type: boolean
             required: true
             description: Управляет видимостью этой карточки опыта. В production скрытые карточки физически удаляются из HTML.
+          - name: company
+            label: Компания / проект
+            type: string
+            required: true
+          - name: context
+            label: Контекст
+            type: string
+            required: true
+            description: Тип компании, продукта или проекта, показываемый рядом с периодом.
+          - name: period
+            label: Период
+            type: string
+            required: true
+          - name: role
+            label: Роль
+            type: string
+            required: true
+          - name: description
+            label: Описание
+            type: text
+            description: Поле может быть пустым только у карточек без существующего слота описания. Разметка карточки остаётся в коде.
+          - name: cases
+            label: Кейсы
+            type: string
+            required: true
+            list: true
+            description: Редактируй только существующие строки. Их количество и ссылки защищены кодом.
+          - name: facts
+            label: Факты
+            type: object
+            required: true
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{label}"
+            description: Редактируй текст существующих фактов, не добавляя и не удаляя строки.
+            fields:
+              - name: label
+                label: Подпись
+                type: string
+                description: Может быть пустой у объединённого факта без отдельного заголовка.
+              - name: text
+                label: Текст
+                type: text
+                required: true
+          - name: links
+            label: Подписи ссылок
+            type: string
+            required: true
+            list: true
+            description: Меняются только видимые подписи. Адреса и атрибуты ссылок остаются в коде.
