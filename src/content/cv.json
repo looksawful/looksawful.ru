@@ -2,8 +2,8 @@
   "profile": {
     "name": "ИВАН КРУШИНСКИЙ",
     "role": "АРТ-ДИРЕКТОР ЦИФРОВЫХ ПРОДУКТОВ | ДИЗАЙНЕР",
-    "aboutPrimary": "Проектирую цифровые продукты и создаю их дизайн. Определяю UX/UI-направление, проектирую интерфейсы, развиваю дизайн-системы и формирую визуальную стратегию продуктов.",
-    "aboutSecondary": "Руковожу дизайнерами и креативными командами: провожу арт-дирекшн, ставлю задачи, выполняю ревью, выстраиваю процессы и координирую работу дизайнеров с продуктом и разработчиками.",
+    "aboutPrimary": "Я проектирую цифровые продукты, создаю дизайн и руковожу креативными командами.",
+    "aboutSecondary": "",
     "contacts": {
       "location": "Москва, Россия",
       "phone": "+7 999 113 89 17",
@@ -13,11 +13,11 @@
       "website": "https://www.looksawful.ru"
     },
     "principles": [
-      { "id": "visual", "title": "Делаю проекты красивыми:", "text": "задаю визуальный язык, собираю айдентику и слежу, чтобы все части проекта выглядели цельно." },
-      { "id": "communication", "title": "Делаю коммуникацию чище:", "text": "определяю, что и как говорит продукт, редактирую тексты и упрощаю подачу сложной информации." },
-      { "id": "product", "title": "Делаю продукты удобнее:", "text": "изучаю пользовательские сценарии, нахожу лишние шаги и несогласованности и перестраиваю интерфейс там, где он мешает пользователю." },
-      { "id": "new-products", "title": "Придумываю и развиваю новые продукты:", "text": "изучаю аудиторию и конкурентов, нахожу возможности, проверяю гипотезы и довожу решения до запуска." },
-      { "id": "leadership", "title": "Руковожу дизайнерами:", "text": "ставлю задачи, провожу ревью, помогаю принимать решения, развиваю дизайнеров и ввожу новых людей в работу." }
+      { "id": "visual", "title": "Делаю продукт красивым:", "text": "провожу ребрендинг, разрабатываю айдентику, развиваю дизайн-системы, занимаюсь арт- и креативным дирекшеном." },
+      { "id": "communication", "title": "Делаю коммуникацию чище:", "text": "определяю, что и как говорит продукт, формулирую ключевые сообщения, строю коммуникационную платформу и объясняю сложное простыми словами." },
+      { "id": "product", "title": "Делаю продукты удобнее:", "text": "изучаю пользовательские сценарии и оптимизирую их пути, провожу ревью существующих дизайн-решений, тестирую, анализирую и исправляю ошибки." },
+      { "id": "new-products", "title": "Придумываю и развиваю новые продукты:", "text": "исследую аудиторию и конкурентов, нахожу возможности, проверяю гипотезы, формирую UX/UI-стратегию и проектирую интерфейсы." },
+      { "id": "leadership", "title": "Организую процессы:", "text": "провожу аудит дизайн-ресурсов, ставлю задачи, принимаю решения и выстраиваю процессы. Координирую работу дизайнеров с разработчиками от идеи до релиза." }
     ],
     "languages": [
       { "id": "english", "name": "Английский", "level": "B2" },
@@ -26,7 +26,9 @@
   },
   "skills": {
     "hard": {
-      "title": "ХАРД СКИЛЛС",
+      "visible": true,
+      "titleVisible": true,
+      "title": "КОМПЕТЕНЦИИ",
       "rows": [
         { "id": "identity", "label": "Разработка айдентики:", "text": "создание логотипа • подбор шрифтов • формирование цветовой палитры • дизайн печатных материалов • проектирование упаковки • разработка мерча • создание маскота • создание иконок и графики • формирование брендбука" },
         { "id": "direction", "label": "Арт- и дизайн-дирекшн:", "text": "разработка визуальной концепции • руководство арт- и дизайн-направлениями • формирование брендбука • дизайн-ревью • аудит дизайн-ресурсов • контроль реализации" },
@@ -39,17 +41,21 @@
       ]
     },
     "tech": {
-      "title": "Технологический стек",
+      "visible": true,
+      "titleVisible": true,
+      "title": "ТЕХНОЛОГИИ И ИНСТРУМЕНТЫ",
       "rows": [
-        { "id": "code", "label": "Код:", "text": "HTML • CSS • JavaScript • TypeScript • React • Next.js • Python" },
-        { "id": "graphics", "label": "Компьютерная графика:", "text": "Three.js • WebGL • GLSL • Canvas • SVG • GSAP" },
-        { "id": "design-systems", "label": "Дизайн-системы:", "text": "design tokens • semantic tokens • Figma Variables • component libraries • accessibility • handoff" },
-        { "id": "color", "label": "Цветокоррекция:", "text": "Lightroom • Capture One" },
-        { "id": "automation", "label": "Автоматизация:", "text": "Python • JavaScript • ImageMagick • FFmpeg • batch processing • локальные AI-workflows" },
-        { "id": "generative", "label": "Генеративные технологии:", "text": "Stable Diffusion • ComfyUI • ControlNet • IP-Adapter • LoRA • локальные модели • AI-пайплайны" }
+        { "id": "design", "label": "Дизайн:", "text": "Figma • Illustrator • InDesign • CorelDRAW • Krita • Font Forge" },
+        { "id": "development", "label": "Разработка:", "text": "HTML • CSS • JavaScript • TypeScript • Python • VS Code • WebStorm • Zed • WebGL • GLSL • Canvas • SVG • GSAP" },
+        { "id": "graphics-3d", "label": "3D и компьютерная графика:", "text": "Blender • Maya • ZBrush • Material Designer • Three.js" },
+        { "id": "images", "label": "Изображения:", "text": "Photoshop • Lightroom • Capture One • ImageMagick" },
+        { "id": "ai", "label": "ИИ:", "text": "Stable Diffusion • SDXL • FLUX.1 • FLUX.2 • Z-Image • Qwen-Image • HunyuanImage-3.0 • HiDream-I1 • ComfyUI • ControlNet • IP-Adapter • LoRA • Automatic1111 • SwarmUI • Codex • Claude • Ollama • OpenClaw" },
+        { "id": "motion", "label": "Моушен:", "text": "After Effects • Premiere Pro • Final Cut Pro • FFmpeg • Ableton Live • Adobe Audition" }
       ]
     },
     "soft": {
+      "visible": true,
+      "titleVisible": false,
       "title": "СОФТ СКИЛЛС",
       "rows": [
         { "id": "leader", "label": "Руководитель:", "text": "ставлю задачи, распределяю работу, провожу ревью и контролирую качество результата." },
@@ -61,6 +67,8 @@
       ]
     },
     "tools": {
+      "visible": false,
+      "titleVisible": false,
       "title": "СОФТ",
       "rows": [
         { "id": "design", "label": "Дизайн:", "text": "Figma, Photoshop, Blender, ComfyUI, InDesign, CorelDRAW, Krita, Illustrator, Material Designer, Font Forge, Maya, ZBrush" },
@@ -76,33 +84,37 @@
     }
   },
   "education": {
-    "higherTitle": "ВЫСШЕЕ ОБРАЗОВАНИЕ",
+    "higherTitle": "ОБРАЗОВАНИЕ",
     "higher": {
       "id": "mpgu",
-      "name": "МПГУ им. Ленина",
+      "name": "Московский педагогический государственный университет (МПГУ)",
       "lines": [
-        "Славянская и западноевропейская филология",
-        "Компаративистика"
+        "2012–2016",
+        "Филология — «Славянская и западноевропейская филология»"
       ]
     },
     "additionalTitle": "ДОПОЛНИТЕЛЬНОЕ ОБРАЗОВАНИЕ",
     "additional": [
-      { "id": "hexlet", "name": "HEXLET", "lines": ["JS: Архитектура фронтенда", "JS: Абстракция с помощью данных", "JS: Составные данные", "JS: Объектно-ориентированный дизайн", "JS: Прототипы", "TypeScript", "Асинхронное программирование на JavaScript", "JS: Автоматическое тестирование", "JS: Продвинутое тестирование", "React", "React Hooks", "Redux Toolkit", "HTTP API", "REST API в Node.js", "Git", "CI"] },
-      { "id": "stepik", "name": "STEPIK", "lines": ["Введение в программирование (C++)", "JavaScript для начинающих", "Python: основы и применение", "Веб-технологии: практический курс", "CSS"] },
-      { "id": "codecademy", "name": "CODECADEMY", "lines": ["Learn CSS", "Learn JavaScript", "Learn Python 3", "Learn TypeScript", "Learn React"] },
-      { "id": "kevin-powell", "name": "KEVIN POWELL", "lines": ["Conquering Responsive Layouts", "Build a Space Travel Website", "HTML & CSS Crash Course"] },
+      { "id": "hexlet", "name": "HEXLET", "lines": ["JS: Архитектура фронтенда", "TypeScript", "Асинхронное программирование на JS", "JS: Автоматическое тестирование", "JS: Продвинутое тестирование", "React"] },
+      { "id": "stepik", "name": "STEPIK", "lines": ["Введение в программирование (C++)", "Python: основы и применение", "JavaScript для начинающих", "Веб-технологии: практический курс CSS"] },
+      { "id": "kevin-powell", "name": "KEVIN POWELL", "lines": ["Conquering Responsive Layouts", "Build a Space Travel Website"] },
       { "id": "book-of-shaders", "name": "PATRICIO GONZALEZ VIVO & JEN LOWE", "lines": ["The Book of Shaders"] },
-      { "id": "blender-studio", "name": "BLENDER STUDIO / SYBREN STÜVEL", "lines": ["Scripting for Artists"] },
-      { "id": "blender-guru", "name": "BLENDER GURU / ANDREW PRICE", "lines": ["Blender Beginner Donut Tutorial"] },
-      { "id": "cg-boost", "name": "CG BOOST / ZACH REINHARDT", "lines": ["Blender Launch Pad"] },
-      { "id": "creative-shrimp", "name": "CREATIVE SHRIMP / GLEB ALEXANDROV & AIDY BURROWS", "lines": ["Hard Surface Modeling in Blender", "Cinematic Lighting in Blender", "HDR Image-Based Lighting in Blender"] },
-      { "id": "cg-cookie", "name": "CG COOKIE", "lines": ["Blender Python Scripting Superpowers for Non-Programmers"] },
-      { "id": "phlearn", "name": "PHLEARN / AARON NACE", "lines": ["Photoshop 101–301", "The Ultimate Guide to Retouching", "How to Master Dodging & Burning in Photoshop", "Advanced Compositing with Stock Images in Photoshop"] },
+      { "id": "lewy-blue", "name": "LEWY BLUE", "lines": ["Discover three.js"] },
+      { "id": "threejs", "name": "THREE.JS", "lines": ["Three.js Fundamentals"] },
+      { "id": "figma", "name": "FIGMA", "lines": ["Learn Design", "Introduction to Design Systems"] },
       { "id": "ridd", "name": "MICHAEL “RIDD” RIDDERING", "lines": ["Figma Academy"] },
       { "id": "mizko", "name": "MIZKO", "lines": ["Figma & UI Design Masterclass"] },
+      { "id": "alexey-bychkov", "name": "ALEXEY BYCHKOV", "lines": ["Фигма с нуля"] },
+      { "id": "blender-studio", "name": "BLENDER STUDIO / SYBREN STÜVEL", "lines": ["Scripting for Artists"] },
+      { "id": "gamedev-tv", "name": "GAMEDEV.TV / GRANT ABBITT", "lines": ["Blender Environment Artist: Create Your Own 3D Game Worlds"] },
+      { "id": "andrey-sokolov", "name": "ANDREY SOKOLOV", "lines": ["Blender"] },
+      { "id": "blender-bros", "name": "BLENDER BROS / JOSH GAMBRELL & RYUU", "lines": ["The BlenderBros Hard Surface Game Asset Course"] },
+      { "id": "covingsworth", "name": "COVINGSWORTH", "lines": ["Ultimate Photorealistic Environment Animation Course"] },
+      { "id": "creative-shrimp-hard-surface", "name": "CREATIVE SHRIMP / GLEB ALEXANDROV & AIDY BURROWS", "lines": ["Hard Surface Modeling in Blender"] },
+      { "id": "creative-shrimp-lighting", "name": "CREATIVE SHRIMP / GLEB ALEXANDROV", "lines": ["Cinematic Lighting in Blender", "HDR Image-Based Lighting in Blender"] },
+      { "id": "phlearn", "name": "PHLEARN / AARON NACE", "lines": ["The Ultimate Guide to Retouching", "Advanced Compositing with Stock Images in Photoshop"] },
       { "id": "photoplay-producer", "name": "PHOTOPLAY / НИНА ЛОБЫКИНА", "lines": ["Продюсирование съёмок"] },
-      { "id": "photoplay-model", "name": "PHOTOPLAY / IRA ROKKA", "lines": ["Работа с моделью"] },
-      { "id": "ilyahov", "name": "МАКСИМ ИЛЬЯХОВ", "lines": ["Основы визуального повествования"] }
+      { "id": "photoplay-model", "name": "PHOTOPLAY / IRA ROKKA", "lines": ["Работа с моделью"] }
     ]
   },
   "experience": [
@@ -113,7 +125,7 @@
       "context": "Музыкальный сервис для диджеев",
       "period": "2024–2026",
       "role": "Арт-директор",
-      "description": "Я сформировал новый визуальный язык музыкального сервиса — главного российского диджейского пула для подготовки к выступлениям, разработал UX/UI-стратегию для core-продуктов и руководил всей командой дизайнеров. За это время мы реорганизовали дизайн-систему и ускорили процесс разработки макетов и прототипов, создали документацию и CJM для ключевых пользовательских сценариев для 4 сегментов аудитории, сократили количество шагов для получения доступа к контенту с 6 до 2, создали прогрессивную систему фильтрации и поиска треков, разработали триггеры апгрейда и реанимации клиентов, промо-материалы и лендинговые страницы, запустили таргетированную рекламу во «ВКонтакте» и «Яндексе», освоили новую премиальную аудиторию и проработали инструменты для неё. Всё это позволило поднять стоимость подписки без деградации клиентской базы и подготовиться к выходу продукта на американский рынок.",
+      "description": "Сформировал новый визуальный язык музыкального сервиса — главного российского диджейского пула. Разработал UX/UI-стратегию для core-продуктов и руководил всей командой дизайнеров. Реорганизовал дизайн-систему и ускорил процесс разработки макетов и прототипов, создал документацию и CJM для ключевых пользовательских сценариев для 4 сегментов аудитории, сократил количество шагов для получения доступа к контенту с 6 до 2, спроектировал прогрессивную систему фильтрации треков, разработал триггеры апгрейда и дизайн рассылки для реанимации клиентов, переработал промо-материалы, спроектировал архитектуру новой системы лендинговых страниц для двух аудиторий, создал дизайн для таргетированной рекламы, спроектировал дизайн раздела для новой премиальной аудитории и проработал инструменты для неё. Всё это позволило поднять стоимость подписки без деградации клиентской базы, расширить аудиторию, сократить время производства контента и подготовиться к выходу продукта на американский рынок.",
       "cases": ["Ребрендинг сервиса: айдентика, tone of voice", "Проектирование и разработка раздела для ивент-диджеев", "Проектирование лендинговых страниц", "Редизайн core-продуктов сервиса", "Коммуникационная платформа", "Новая система навигации", "Новая система фильтрации треков", "Дизайн системы рассылок", "Дизайн анимации", "Рефакторинг дизайн-системы", "Интеграция ИИ-инструментов и пайплайнов в производство контента", "Редизайн в соцсетях", "Исследования аудитории", "CJM", "Редизайн системы тарифов и подписок", "Подготовка к запуску иностранной версии сайта", "Собеседования и найм дизайнеров, моушен-дизайнеров, копирайтеров и редакторов", "Разработка редполитики"],
       "facts": [],
       "links": ["jesteipool.ru", "Портфолио"]
@@ -173,9 +185,9 @@
       "context": "Продакшен-агентство",
       "period": "2016–2017",
       "role": "Junior-продюсер",
-      "description": "Продакшен-агентство в сфере моды, рекламы и медиа.",
+      "description": "Работал младшим продюсером в продакшен-агентстве в сфере моды и рекламы. Изучал и занимался организацией fashion- и рекламных фото- и видеосъёмок, а также мероприятий: препродакшн, кастинги, локации, логистика, координация команды. Работал над крупными съёмками для «Детского мира», Puma, H&M и в других небольших проектах.",
       "cases": ["Детский мир", "PUMA", "H&M"],
-      "facts": [{ "label": "", "text": "Участвовал в организации fashion- и рекламных съёмок: препродакшн, кастинги, локации, логистика, координация команды и съёмочного дня. Работал над проектами для «Детского мира», Puma, H&M и в небольших проектах." }],
+      "facts": [],
       "links": ["li-ne.agency"]
     },
     {
@@ -269,9 +281,9 @@
       "context": "Книжное издательство",
       "period": "2013–2015",
       "role": "Дизайнер книги",
-      "description": "Российское издательство переводной, гуманитарной, художественной и образовательной литературы. Компания выпускает книги и работает с полным издательским циклом: текстом, структурой, редакционной подготовкой, иллюстрациями, вёрсткой и подготовкой материалов к печати.",
+      "description": "Работал книжным дизайнером в издательстве гуманитарной и образовательной литературы: разрабатывал макеты, верстал и вёл полный цикл дизайн-процессов при разработке научных и гуманитарных изданий, включая книги Елены Ровенко и Бориса Ерёмина, а также руководил разработкой и администрированием сайта издательства.",
       "cases": ["Елена Ровенко — «Время в философском и художественном мышлении: Анри Бергсон, Клод Дебюсси, Одилон Редон»", "Архитектор Борис Ерёмин. Творческое наследие. Реконструкция центра Москвы: архитектурные концепции и проекты второй половины XX века"],
-      "facts": [{ "label": "", "text": "Проектировал и верстал книги: сетки, типографика, макеты, работа с иллюстрациями, вёрстка обложки и подготовка макетов к печати. Работал над научными и гуманитарными изданиями, включая книги Елены Ровенко и Бориса Ерёмина, а также руководил разработкой сайта издательства и администрированием сайта издательства." }],
+      "facts": [],
       "links": ["Прогресс-Традиция"]
     },
     {

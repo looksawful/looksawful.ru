@@ -13,7 +13,7 @@ export const CV_SKILL_SECTION_IDS = ["hard", "tech", "soft", "tools"] as const;
 
 export const CV_SKILL_ROW_IDS = {
   hard: ["identity", "direction", "product", "communications", "motion", "graphic", "generative", "production"],
-  tech: ["code", "graphics", "design-systems", "color", "automation", "generative"],
+  tech: ["design", "development", "graphics-3d", "images", "ai", "motion"],
   soft: ["leader", "researcher", "teacher", "negotiator", "multitasking", "responsible"],
   tools: ["design", "code", "tests", "audio", "color", "shootings", "editing", "ai", "utilities"],
 } as const;
@@ -21,40 +21,48 @@ export const CV_SKILL_ROW_IDS = {
 export const CV_EDUCATION_COURSE_IDS = [
   "hexlet",
   "stepik",
-  "codecademy",
   "kevin-powell",
   "book-of-shaders",
-  "blender-studio",
-  "blender-guru",
-  "cg-boost",
-  "creative-shrimp",
-  "cg-cookie",
-  "phlearn",
+  "lewy-blue",
+  "threejs",
+  "figma",
   "ridd",
   "mizko",
+  "alexey-bychkov",
+  "blender-studio",
+  "gamedev-tv",
+  "andrey-sokolov",
+  "blender-bros",
+  "covingsworth",
+  "creative-shrimp-hard-surface",
+  "creative-shrimp-lighting",
+  "phlearn",
   "photoplay-producer",
   "photoplay-model",
-  "ilyahov",
 ] as const;
 
 export const CV_EDUCATION_LINKS = {
   mpgu: "https://mpgu.su/",
   hexlet: "https://ru.hexlet.io/",
   stepik: "https://stepik.org/",
-  codecademy: "https://www.codecademy.com/",
   "kevin-powell": "https://www.kevinpowell.co/",
   "book-of-shaders": "https://thebookofshaders.com/",
-  "blender-studio": "https://studio.blender.org/",
-  "blender-guru": "https://www.youtube.com/@blenderguru",
-  "cg-boost": "https://www.cgboost.com/",
-  "creative-shrimp": "https://www.creativeshrimp.com/",
-  "cg-cookie": "https://cgcookie.com/",
-  phlearn: "https://phlearn.com/",
+  "lewy-blue": "https://discoverthreejs.com/",
+  threejs: "https://threejs.org/manual/",
+  figma: "https://www.figma.com/resource-library/design-basics/",
   ridd: "https://ridd.substack.com/",
   mizko: "https://www.mizko.net/",
+  "alexey-bychkov": "https://www.youtube.com/channel/UCClA4EqjQMGyYR2-TIuHwQw",
+  "blender-studio": "https://studio.blender.org/",
+  "gamedev-tv": "https://gamedev.tv/courses/blender-environment-artist",
+  "andrey-sokolov": "https://www.youtube.com/c/AndreySokolovRu",
+  "blender-bros": "https://www.blenderbros.com/",
+  covingsworth: "https://www.artstation.com/marketplace/p/PmwnV/ultimate-photorealistic-3d-environment-animation-course-blender-substance-painter-speedtree-davinci-resolve",
+  "creative-shrimp-hard-surface": "https://www.creativeshrimp.com/",
+  "creative-shrimp-lighting": "https://www.creativeshrimp.com/",
+  phlearn: "https://phlearn.com/",
   "photoplay-producer": "https://photoplay.ru/",
   "photoplay-model": "https://photoplay.ru/",
-  ilyahov: "https://bureau.ru/soviet/",
 } as const;
 
 export const CV_EXPERIENCE_IDS = [
@@ -81,7 +89,7 @@ export const CV_EXPERIENCE_SHAPES = {
   illumihand: { cases: 3, facts: 2, links: 0, description: false },
   madcow: { cases: 2, facts: 0, links: 2, description: true },
   sensetique: { cases: 0, facts: 0, links: 1, description: true },
-  line: { cases: 3, facts: 1, links: 1, description: true },
+  line: { cases: 3, facts: 0, links: 1, description: true },
   berry: { cases: 3, facts: 2, links: 0, description: false },
   ss: { cases: 5, facts: 1, links: 1, description: true },
   olovo: { cases: 6, facts: 2, links: 2, description: false },
@@ -89,7 +97,7 @@ export const CV_EXPERIENCE_SHAPES = {
   soroka: { cases: 3, facts: 2, links: 0, description: false },
   kursovoy: { cases: 0, facts: 2, links: 0, description: false },
   ran: { cases: 4, facts: 2, links: 0, description: false },
-  progress: { cases: 2, facts: 1, links: 1, description: true },
+  progress: { cases: 2, facts: 0, links: 1, description: true },
   ria: { cases: 0, facts: 0, links: 0, description: true },
 } as const;
 
@@ -139,6 +147,8 @@ export interface CvSkillRowData {
 }
 
 export interface CvSkillSectionData {
+  visible: boolean;
+  titleVisible: boolean;
   title: string;
   rows: readonly CvSkillRowData[];
 }
@@ -397,7 +407,7 @@ function parseProfile(value: unknown): CvProfileData {
     name: requireNonEmptyString(value, "name", "cv.profile"),
     role: requireNonEmptyString(value, "role", "cv.profile"),
     aboutPrimary: requireNonEmptyString(value, "aboutPrimary", "cv.profile"),
-    aboutSecondary: requireNonEmptyString(value, "aboutSecondary", "cv.profile"),
+    aboutSecondary: requireTrimmedString(value, "aboutSecondary", "cv.profile"),
     contacts: parseContacts(value.contacts),
     principles: parsePrinciples(value.principles),
     languages: parseLanguages(value.languages),
@@ -422,6 +432,8 @@ function parseSkillRow(value: unknown, index: number, sectionId: CvSkillSectionI
 function parseSkillSection(value: unknown, sectionId: CvSkillSectionId): CvSkillSectionData {
   const label = `cv.skills.${sectionId}`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  if (typeof value.visible !== "boolean") throw new Error(`${label}.visible must be a boolean`);
+  if (typeof value.titleVisible !== "boolean") throw new Error(`${label}.titleVisible must be a boolean`);
   if (!Array.isArray(value.rows)) throw new Error(`${label}.rows must be an array`);
   const expectedIds: readonly string[] = CV_SKILL_ROW_IDS[sectionId];
   const parsed = value.rows.map((row, index) => parseSkillRow(row, index, sectionId));
@@ -437,6 +449,8 @@ function parseSkillSection(value: unknown, sectionId: CvSkillSectionId): CvSkill
     throw new Error(`CV ${sectionId} row count must remain ${expectedIds.length}; got ${parsed.length}`);
   }
   return Object.freeze({
+    visible: value.visible,
+    titleVisible: value.titleVisible,
     title: requireNonEmptyString(value, "title", label),
     rows: Object.freeze(expectedIds.map((id) => {
       const row = byId.get(id);

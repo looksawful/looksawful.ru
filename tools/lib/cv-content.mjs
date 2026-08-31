@@ -35,6 +35,11 @@ function setArticleHidden(article, hidden) {
   });
 }
 
+function setOpeningHidden(opening, hidden) {
+  const normalized = opening.replace(hiddenAttributePattern, "");
+  return normalized.replace(/>$/, `${hidden ? " hidden" : ""}>`);
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -108,6 +113,15 @@ function hasElementByClass(html, tagName, className) {
   return classOpeningPattern(tagName, className).test(html);
 }
 
+function setElementHiddenByClass(html, tagName, className, hidden) {
+  return replaceExactlyOnce(
+    html,
+    classOpeningPattern(tagName, className),
+    (opening) => setOpeningHidden(opening, hidden),
+    `.${className} opening tag`,
+  );
+}
+
 function transformElementByClass(html, tagName, className, transformInner, required) {
   if (!required) {
     if (hasElementByClass(html, tagName, className)) {
@@ -140,11 +154,15 @@ export function transformCvProfile(html, content) {
   let transformed = replaceElementTextByClass(html, "h1", "name", profile.name);
   transformed = replaceElementTextByClass(transformed, "div", "role", profile.role);
 
-  const aboutPattern = /(<section\b(?=[^>]*\bclass=["'][^"']*\babout\b[^"']*["'])[^>]*>[\s\S]*?<div\b(?=[^>]*\bclass=["'][^"']*\burl\b[^"']*["'])[^>]*>[\s\S]*?<\/div>)<p>[\s\S]*?<\/p><p>[\s\S]*?<\/p>(<div\b(?=[^>]*\bclass=["'][^"']*\bsales\b[^"']*["'])[^>]*>)/i;
+  const aboutPattern = /(<section\b(?=[^>]*\bclass=["'][^"']*\babout\b[^"']*["'])[^>]*>[\s\S]*?<div\b(?=[^>]*\bclass=["'][^"']*\burl\b[^"']*["'])[^>]*>[\s\S]*?<\/div>)(?:<p>[\s\S]*?<\/p>){1,2}(<div\b(?=[^>]*\bclass=["'][^"']*\bsales\b[^"']*["'])[^>]*>)/i;
+  const aboutHtml = [profile.aboutPrimary, profile.aboutSecondary]
+    .filter(Boolean)
+    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .join("");
   transformed = replaceExactlyOnce(
     transformed,
     aboutPattern,
-    (_match, prefix, salesOpen) => `${prefix}<p>${escapeHtml(profile.aboutPrimary)}</p><p>${escapeHtml(profile.aboutSecondary)}</p>${salesOpen}`,
+    (_match, prefix, salesOpen) => `${prefix}${aboutHtml}${salesOpen}`,
     "about copy block",
   );
 
@@ -189,6 +207,12 @@ function transformCvSkillSection(html, sectionId, section) {
         "section-title",
         section.title,
       );
+      transformedInner = setElementHiddenByClass(
+        transformedInner,
+        "h2",
+        "section-title",
+        !section.titleVisible,
+      );
 
       const paragraphPattern = /(<p\b[^>]*>)[\s\S]*?(<\/p>)/gi;
       const paragraphs = [...transformedInner.matchAll(paragraphPattern)];
@@ -208,7 +232,7 @@ function transformCvSkillSection(html, sectionId, section) {
         },
       );
 
-      return `${open}${transformedInner}${close}`;
+      return `${setOpeningHidden(open, !section.visible)}${transformedInner}${close}`;
     },
     `.${sectionId} skill section`,
   );
@@ -257,22 +281,9 @@ export function transformCvSkills(html, content) {
   return transformed;
 }
 
-function transformEducationCourse(courseHtml, entry, expectedHref) {
-  const anchorPattern = /(<b><a\b([^>]*)>)[\s\S]*?(<\/a><\/b>)([\s\S]*)/i;
-  const match = courseHtml.match(anchorPattern);
-  if (!match) {
-    throw new Error(`CV education ${entry.id} link markup is missing`);
-  }
-
-  const [, anchorOpen, attrs, anchorClose] = match;
-  const href = attrs.match(/\bhref=["']([^"']+)["']/i)?.[1] ?? null;
-  if (href !== expectedHref) {
-    throw new Error(
-      `CV education ${entry.id} href drift: expected ${expectedHref}; got ${href ?? "missing"}`,
-    );
-  }
-
-  return `${anchorOpen}${escapeHtml(entry.name)}${anchorClose}\n${entry.lines.map(escapeHtml).join("<br/>")}`;
+function renderEducationCourse(entry, href) {
+  const name = `<b><a href="${escapeHtml(href)}" rel="noopener noreferrer" target="_blank">${escapeHtml(entry.name)}</a></b>`;
+  return `<div class="course">${name}\n${entry.lines.map(escapeHtml).join("<br/>")}</div>`;
 }
 
 export function transformCvEducation(html, content) {
@@ -301,30 +312,22 @@ export function transformCvEducation(html, content) {
         },
       );
 
-      const coursePattern = /(<div\b(?=[^>]*\bclass=["'][^"']*\bcourse\b[^"']*["'])[^>]*>)([\s\S]*?)(<\/div>)/gi;
-      const courses = [...transformedInner.matchAll(coursePattern)];
-      const entries = [education.higher, ...education.additional];
-      const ids = ["mpgu", ...CV_EDUCATION_COURSE_IDS];
-      if (courses.length !== entries.length) {
-        throw new Error(
-          `CV education course count must remain ${entries.length}; got ${courses.length}`,
-        );
-      }
-
-      let courseIndex = 0;
-      transformedInner = transformedInner.replace(
-        coursePattern,
-        (_course, courseOpen, courseInner, courseClose) => {
-          const entry = entries[courseIndex];
-          const id = ids[courseIndex];
-          courseIndex += 1;
-          if (!entry || entry.id !== id) {
-            throw new Error(`CV education course identity drift at index ${courseIndex - 1}`);
-          }
-          const expectedHref = CV_EDUCATION_LINKS[id];
-          return `${courseOpen}${transformEducationCourse(courseInner, entry, expectedHref)}${courseClose}`;
-        },
+      const higherColumn = findElementByClass(transformedInner, "div", "education-column");
+      const higherCourse = findElementByClass(higherColumn.inner, "div", "course");
+      const renderedHigher = renderEducationCourse(
+        education.higher,
+        CV_EDUCATION_LINKS.mpgu,
       );
+      const higherInner = `${higherColumn.inner.slice(0, higherCourse.start)}${renderedHigher}${higherColumn.inner.slice(higherCourse.end)}`;
+      const renderedHigherColumn = `${higherColumn.open}${higherInner}${higherColumn.close}`;
+      transformedInner = `${transformedInner.slice(0, higherColumn.start)}${renderedHigherColumn}${transformedInner.slice(higherColumn.end)}`;
+
+      const coursesGrid = findElementByClass(transformedInner, "div", "courses-grid");
+      const renderedCourses = education.additional
+        .map((entry) => renderEducationCourse(entry, CV_EDUCATION_LINKS[entry.id]))
+        .join("");
+      const renderedGrid = `${coursesGrid.open}${renderedCourses}${coursesGrid.close}`;
+      transformedInner = `${transformedInner.slice(0, coursesGrid.start)}${renderedGrid}${transformedInner.slice(coursesGrid.end)}`;
 
       return `${open}${transformedInner}${close}`;
     },
@@ -388,6 +391,12 @@ function transformExperienceCases(article, entry) {
 }
 
 function transformExperienceFacts(article, entry) {
+  if (entry.facts.length === 0) {
+    if (!hasElementByClass(article, "div", "experience-facts")) return article;
+    const element = findElementByClass(article, "div", "experience-facts");
+    return `${article.slice(0, element.start)}${article.slice(element.end)}`;
+  }
+
   return transformElementByClass(
     article,
     "div",

@@ -1206,7 +1206,7 @@ content:
           - name: aboutSecondary
             label: О себе — абзац 2
             type: text
-            required: true
+            description: Необязательный второй абзац. Если поле пустое, абзац не выводится.
           - name: contacts
             label: Контакты
             type: object
@@ -1298,10 +1298,18 @@ content:
         required: true
         fields:
           - name: hard
-            label: Хард скиллс
+            label: Компетенции
             type: object
             required: true
             fields:
+              - name: visible
+                label: Показывать блок
+                type: boolean
+                required: true
+              - name: titleVisible
+                label: Показывать заголовок
+                type: boolean
+                required: true
               - name: title
                 label: Заголовок блока
                 type: string
@@ -1332,10 +1340,18 @@ content:
                     type: text
                     required: true
           - name: tech
-            label: Технологический стек
+            label: Технологии и инструменты
             type: object
             required: true
             fields:
+              - name: visible
+                label: Показывать блок
+                type: boolean
+                required: true
+              - name: titleVisible
+                label: Показывать заголовок
+                type: boolean
+                required: true
               - name: title
                 label: Заголовок блока
                 type: string
@@ -1370,6 +1386,14 @@ content:
             type: object
             required: true
             fields:
+              - name: visible
+                label: Показывать блок
+                type: boolean
+                required: true
+              - name: titleVisible
+                label: Показывать заголовок
+                type: boolean
+                required: true
               - name: title
                 label: Заголовок блока
                 type: string
@@ -1404,6 +1428,14 @@ content:
             type: object
             required: true
             fields:
+              - name: visible
+                label: Показывать блок
+                type: boolean
+                required: true
+              - name: titleVisible
+                label: Показывать заголовок
+                type: boolean
+                required: true
               - name: title
                 label: Заголовок блока
                 type: string
@@ -1472,8 +1504,8 @@ content:
             type: object
             required: true
             list:
-              min: 16
-              max: 16
+              min: 20
+              max: 20
               collapsible:
                 collapsed: true
                 summary: "{name}"
