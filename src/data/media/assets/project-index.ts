@@ -1,4 +1,4 @@
-import { projects, type ProjectCardData, type ProjectId } from "../../projects.ts";
+import { homeCards, type HomeCardData, type HomeCardId } from "../../projects.ts";
 import type { ImageMedia } from "../../../types/media.ts";
 
 export const PROJECT_INDEX_MEDIA_ASSET_IDS = {
@@ -6,25 +6,25 @@ export const PROJECT_INDEX_MEDIA_ASSET_IDS = {
   styx: "project-index-styx-jewel-cover",
   sensetique: "project-index-sensetique-cover",
   shootings: "project-index-shootings-cover",
-} as const satisfies Record<ProjectId, string>;
+} as const satisfies Record<HomeCardId, string>;
 
 export type ProjectIndexMediaAssetId =
-  (typeof PROJECT_INDEX_MEDIA_ASSET_IDS)[ProjectId];
+  (typeof PROJECT_INDEX_MEDIA_ASSET_IDS)[HomeCardId];
 
 export type ProjectIndexMediaAsset = ImageMedia & {
   id: ProjectIndexMediaAssetId;
 };
 
 export function projectIndexMediaAssetFor(
-  project: Pick<ProjectCardData, "id" | "cover">,
+  card: Pick<HomeCardData, "id" | "cover">,
 ): ProjectIndexMediaAsset {
   return {
-    id: PROJECT_INDEX_MEDIA_ASSET_IDS[project.id],
+    id: PROJECT_INDEX_MEDIA_ASSET_IDS[card.id],
     type: "image",
-    src: project.cover.src,
-    width: project.cover.width,
-    height: project.cover.height,
+    src: card.cover.src,
+    width: card.cover.width,
+    height: card.cover.height,
   };
 }
 
-export const projectIndexMediaAssets = projects.map(projectIndexMediaAssetFor);
+export const projectIndexMediaAssets = homeCards.map(projectIndexMediaAssetFor);
