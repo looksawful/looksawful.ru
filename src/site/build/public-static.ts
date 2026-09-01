@@ -1,12 +1,16 @@
 import path from "node:path";
 
-import type { PublicStaticPageBuild } from "../pages/types.ts";
+import type { SitePageBuild } from "../pages/types.ts";
 
-interface PublicStaticPageLike {
-  readonly build: PublicStaticPageBuild;
+interface SitePageBuildLike {
+  readonly build: SitePageBuild;
 }
 
-function publicStaticRelativePath(page: PublicStaticPageLike): string {
+function publicStaticRelativePath(page: SitePageBuildLike): string {
+  if (page.build.kind !== "public-static") {
+    throw new Error("SitePage build must be public-static");
+  }
+
   const sourcePath = page.build.sourcePath.replaceAll("\\", "/").replace(/^\.\//, "");
   const prefix = "public/";
 
@@ -22,12 +26,12 @@ function publicStaticRelativePath(page: PublicStaticPageLike): string {
   return relativePath;
 }
 
-export function publicStaticRequestPath(page: PublicStaticPageLike): string {
+export function publicStaticRequestPath(page: SitePageBuildLike): string {
   return `/${publicStaticRelativePath(page)}`;
 }
 
 export function publicStaticOutputPath(
-  page: PublicStaticPageLike,
+  page: SitePageBuildLike,
   root = process.cwd(),
 ): string {
   return path.resolve(root, "dist", publicStaticRelativePath(page));
