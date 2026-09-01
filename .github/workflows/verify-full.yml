@@ -22,7 +22,7 @@ jobs:
         id: change-scope
         run: node tools/ci/change-scope.mjs --full
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
