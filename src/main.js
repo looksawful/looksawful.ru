@@ -2,7 +2,7 @@ import "./styles/site-navigation.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
 import { createMotionPreference } from "./components/motion-preference.ts";
-import { createInfiniteReels } from "./components/infinite-reel.js";
+import { createInfiniteReels } from "./components/infinite-reel.ts";
 import { createMediaDecks } from "./components/media-deck.ts";
 import { createMediaLightbox } from "./components/media-lightbox.ts";
 import { numberMediaCaptions } from "./components/media-caption-numbering.ts";
