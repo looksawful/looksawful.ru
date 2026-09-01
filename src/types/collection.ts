@@ -1,6 +1,4 @@
 import type { EntityBase } from "./entity.ts";
-import type { RoleId } from "../data/taxonomy/roles.ts";
-import type { WorkAreaId } from "../data/taxonomy/work-areas.ts";
 
 export type CollectionVisibility = "public" | "hidden";
 
@@ -10,9 +8,9 @@ export interface CollectionData extends EntityBase {
   displayName?: string;
   summary?: string;
 
-  primaryRoleId?: RoleId;
+  primaryRoleId?: string;
   primaryRoleLabel?: string;
-  roleIds?: readonly RoleId[];
+  roleIds?: readonly string[];
 
-  workAreaIds?: readonly WorkAreaId[];
+  workAreaIds?: readonly string[];
 }
