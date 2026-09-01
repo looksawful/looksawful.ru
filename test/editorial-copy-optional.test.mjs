@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { parseCvContent } from "../src/data/cv.ts";
-import { parseHomeCards } from "../src/data/projects.ts";
+import { parseProjectCardPresentations } from "../src/data/projects.ts";
 import { renderProjectCard } from "../src/templates/project-card.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { renderSectionIntro } from "../src/templates/section-intro.ts";
@@ -76,7 +76,7 @@ test("Pages CMS keeps editorial strings optional while structural fields stay pr
   );
 });
 
-test("home-card copy accepts empty or omitted values without weakening media identity", async () => {
+test("project-card copy derives omitted canonical values while explicit teaser overrides stay editable", async () => {
   const source = JSON.parse(await readFile(new URL("../src/content/projects.json", import.meta.url), "utf8"));
   const edited = clone(source);
   delete edited[0].title;
@@ -86,25 +86,26 @@ test("home-card copy accepts empty or omitted values without weakening media ide
   delete edited[0].ariaLabel;
   delete edited[0].cover.alt;
 
-  const parsed = parseHomeCards(edited);
-  assert.equal(parsed[0].title, "");
+  const parsed = parseProjectCardPresentations(edited);
+  assert.equal(parsed[0].title, "Jestei Pool");
   assert.equal(parsed[0].focus, "");
-  assert.equal(parsed[0].role, undefined);
-  assert.equal(parsed[0].period, undefined);
+  assert.equal(parsed[0].role, "");
+  assert.equal(parsed[0].period, "2024–2026");
   assert.equal(parsed[0].cover.alt, "");
 
   const html = renderProjectCard(parsed[0]);
-  assert.match(html, /aria-label="Перейти к проекту"/);
-  assert.doesNotMatch(html, /project-card__name/);
+  assert.match(html, /aria-label="Перейти к проекту Jestei Pool"/);
+  assert.match(html, /project-card__name/);
   assert.doesNotMatch(html, /project-card__focus/);
+  assert.doesNotMatch(html, /project-card__role/);
 
   const invalidCopy = clone(source);
   invalidCopy[0].title = 42;
-  assert.throws(() => parseHomeCards(invalidCopy), /title.*string/i);
+  assert.throws(() => parseProjectCardPresentations(invalidCopy), /title.*string/i);
 
   const missingTechnicalSource = clone(source);
   delete missingTechnicalSource[0].cover.src;
-  assert.throws(() => parseHomeCards(missingTechnicalSource), /cover.*src/i);
+  assert.throws(() => parseProjectCardPresentations(missingTechnicalSource), /cover.*src/i);
 });
 
 test("empty project and section copy produces no empty editorial wrappers", () => {
