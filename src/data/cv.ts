@@ -1,4 +1,9 @@
 import cvJson from "../content/cv.json" with { type: "json" };
+import {
+  expectAllowedKeys,
+  expectBoolean,
+  expectRecord,
+} from "./content/editorial-validation.ts";
 
 export const CV_PRINCIPLE_IDS = [
   "visual",
@@ -205,24 +210,14 @@ const languageIds = new Set<string>(CV_LANGUAGE_IDS);
 const educationCourseIds = new Set<string>(CV_EDUCATION_COURSE_IDS);
 const experienceIds = new Set<string>(CV_EXPERIENCE_IDS);
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function expectAllowedKeys(
-  record: Record<string, unknown>,
-  allowedKeys: readonly string[],
-  requiredKeys: readonly string[],
-  label: string,
-): void {
-  const allowed = new Set(allowedKeys);
-  for (const key of Object.keys(record)) {
-    if (!allowed.has(key)) throw new Error(`${label} has unexpected field "${key}"`);
+const isRecord = (value: unknown): value is Record<string, unknown> => {
+  try {
+    expectRecord(value, "value");
+    return true;
+  } catch {
+    return false;
   }
-  for (const key of requiredKeys) {
-    if (!(key in record)) throw new Error(`${label} is missing field "${key}"`);
-  }
-}
+};
 
 function requireNonEmptyString(record: Record<string, unknown>, key: string, label: string): string {
   const value = record[key];
@@ -449,8 +444,8 @@ function parseSkillSection(value: unknown, sectionId: CvSkillSectionId): CvSkill
   const label = `cv.skills.${sectionId}`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
   expectAllowedKeys(value, ["visible", "titleVisible", "title", "rows"], ["visible", "titleVisible", "rows"], label);
-  if (typeof value.visible !== "boolean") throw new Error(`${label}.visible must be a boolean`);
-  if (typeof value.titleVisible !== "boolean") throw new Error(`${label}.titleVisible must be a boolean`);
+  const visible = expectBoolean(value.visible, `${label}.visible`);
+  const titleVisible = expectBoolean(value.titleVisible, `${label}.titleVisible`);
   if (!Array.isArray(value.rows)) throw new Error(`${label}.rows must be an array`);
   const expectedIds: readonly string[] = CV_SKILL_ROW_IDS[sectionId];
   const parsed = value.rows.map((row, index) => parseSkillRow(row, index, sectionId));
@@ -466,8 +461,8 @@ function parseSkillSection(value: unknown, sectionId: CvSkillSectionId): CvSkill
     throw new Error(`CV ${sectionId} row count must remain ${expectedIds.length}; got ${parsed.length}`);
   }
   return Object.freeze({
-    visible: value.visible,
-    titleVisible: value.titleVisible,
+    visible,
+    titleVisible,
     title: readEditorialText(value, "title", label),
     rows: Object.freeze(expectedIds.map((id) => {
       const row = byId.get(id);
@@ -566,7 +561,7 @@ function parseExperience(value: unknown, index: number): CvExperienceData {
   if (!experienceIds.has(idValue)) throw new Error(`unexpected CV experience id: ${idValue}`);
   const id = CV_EXPERIENCE_IDS.find((candidate) => candidate === idValue);
   if (!id) throw new Error(`unexpected CV experience id: ${idValue}`);
-  if (typeof value.visible !== "boolean") throw new Error(`${label}.visible must be a boolean`);
+  const visible = expectBoolean(value.visible, `${label}.visible`);
 
   const shape = CV_EXPERIENCE_SHAPES[id];
   const description = readEditorialText(value, "description", label);
@@ -587,7 +582,7 @@ function parseExperience(value: unknown, index: number): CvExperienceData {
 
   return Object.freeze({
     id,
-    visible: value.visible,
+    visible,
     company: readEditorialText(value, "company", label),
     context: readEditorialText(value, "context", label),
     period: readEditorialText(value, "period", label),

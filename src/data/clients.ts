@@ -1,5 +1,10 @@
 import visibilityJson from "../content/client-logo-visibility.json" with { type: "json" };
 import { clients, type Client, type ClientId } from "./catalog/clients.ts";
+import {
+  expectBoolean,
+  expectRecord,
+  expectStructuralString,
+} from "./content/editorial-validation.ts";
 
 export interface ClientLogoDefinition {
   id: string;
@@ -77,29 +82,18 @@ export interface ClientLogoData extends ClientLogoDefinition {
 
 const clientLogoIds = new Set<string>(clientLogoDefinitions.map(({ id }) => id));
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 function parseVisibilityItem(value: unknown, index: number): ClientLogoVisibility {
   const label = `clientLogoVisibility[${index}]`;
-  if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  const record = expectRecord(value, label);
 
-  const idValue = value.id;
-  if (typeof idValue !== "string" || idValue.length === 0) {
-    throw new Error(`${label}.id must be a non-empty string`);
-  }
+  const idValue = expectStructuralString(record.id, `${label}.id`);
   if (!clientLogoIds.has(idValue)) {
     throw new Error(`unexpected client logo id: ${idValue}`);
   }
   const id = clientLogoDefinitions.find(({ id }) => id === idValue)?.id;
   if (!id) throw new Error(`unexpected client logo id: ${idValue}`);
 
-  if (typeof value.visible !== "boolean") {
-    throw new Error(`${label}.visible must be a boolean`);
-  }
-
-  return { id, visible: value.visible };
+  return { id, visible: expectBoolean(record.visible, `${label}.visible`) };
 }
 
 export function parseClientLogoVisibility(value: unknown): readonly ClientLogoVisibility[] {

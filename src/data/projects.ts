@@ -2,7 +2,14 @@ import projectsJson from "../content/projects.json" with { type: "json" };
 import type { CaseId } from "./catalog/cases.ts";
 import type { CollectionId } from "./catalog/collections.ts";
 import { getCase, getCollection, getRole } from "./catalog/lookup.ts";
-import { expectAllowedKeys, readEditorialText } from "./content/editorial-validation.ts";
+import {
+  expectAllowedKeys,
+  expectBoolean,
+  expectPositiveInteger,
+  expectRecord,
+  expectStructuralString,
+  readEditorialText,
+} from "./content/editorial-validation.ts";
 
 export const PROJECT_CARD_PRESENTATION_DEFINITIONS = [
   { id: "jestei", pageId: "case:jestei-pool" },
@@ -50,26 +57,6 @@ interface CanonicalProjectCardCopy {
 
 const rawProjectCards: unknown = projectsJson;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function requireNonEmptyString(record: Record<string, unknown>, key: string, label: string): string {
-  const value = record[key];
-  if (typeof value !== "string" || value.length === 0) {
-    throw new Error(`${label}.${key} must be a non-empty string`);
-  }
-  return value;
-}
-
-function requireBoolean(record: Record<string, unknown>, key: string, label: string): boolean {
-  const value = record[key];
-  if (typeof value !== "boolean") {
-    throw new Error(`${label}.${key} must be a boolean`);
-  }
-  return value;
-}
-
 function optionalEditorialOverride(record: Record<string, unknown>, key: string, label: string): string | undefined {
   if (!(key in record) || record[key] === undefined || record[key] === null) return undefined;
   return readEditorialText(record[key], `${label}.${key}`);
@@ -78,14 +65,6 @@ function optionalEditorialOverride(record: Record<string, unknown>, key: string,
 function optionalEditorialText(record: Record<string, unknown>, key: string, label: string): string | undefined {
   const parsed = optionalEditorialOverride(record, key, label);
   return parsed || undefined;
-}
-
-function requirePositiveInteger(record: Record<string, unknown>, key: string, label: string): number {
-  const value = record[key];
-  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
-    throw new Error(`${label}.${key} must be a positive integer`);
-  }
-  return value;
 }
 
 function resolveRole(
@@ -115,22 +94,21 @@ function resolveCanonicalProjectCardCopy(pageId: ProjectCardPageId): CanonicalPr
 
 function parseProjectCardSource(value: unknown, index: number): ProjectCardEditorialSource {
   const label = `projectCards[${index}]`;
-  if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  const record = expectRecord(value, label);
   expectAllowedKeys(
-    value,
+    record,
     ["id", "visible", "title", "focus", "role", "period", "ariaLabel", "cover"],
     ["id", "visible", "cover"],
     label,
   );
 
-  const idValue = requireNonEmptyString(value, "id", label);
+  const idValue = expectStructuralString(record.id, `${label}.id`);
   const definition = PROJECT_CARD_PRESENTATION_DEFINITIONS.find(({ id }) => id === idValue);
   if (!definition) throw new Error(`${label}.id is unexpected: ${idValue}`);
 
-  const coverValue = value.cover;
-  if (!isRecord(coverValue)) throw new Error(`${label}.cover must be an object`);
+  const coverRecord = expectRecord(record.cover, `${label}.cover`);
   expectAllowedKeys(
-    coverValue,
+    coverRecord,
     ["src", "alt", "width", "height"],
     ["src", "width", "height"],
     `${label}.cover`,
@@ -138,17 +116,17 @@ function parseProjectCardSource(value: unknown, index: number): ProjectCardEdito
 
   return {
     id: definition.id,
-    visible: requireBoolean(value, "visible", label),
-    title: optionalEditorialOverride(value, "title", label),
-    focus: readEditorialText(value.focus, `${label}.focus`),
-    role: optionalEditorialOverride(value, "role", label),
-    period: optionalEditorialOverride(value, "period", label),
-    ariaLabel: optionalEditorialText(value, "ariaLabel", label),
+    visible: expectBoolean(record.visible, `${label}.visible`),
+    title: optionalEditorialOverride(record, "title", label),
+    focus: readEditorialText(record.focus, `${label}.focus`),
+    role: optionalEditorialOverride(record, "role", label),
+    period: optionalEditorialOverride(record, "period", label),
+    ariaLabel: optionalEditorialText(record, "ariaLabel", label),
     cover: {
-      src: requireNonEmptyString(coverValue, "src", `${label}.cover`),
-      alt: readEditorialText(coverValue.alt, `${label}.cover.alt`),
-      width: requirePositiveInteger(coverValue, "width", `${label}.cover`),
-      height: requirePositiveInteger(coverValue, "height", `${label}.cover`),
+      src: expectStructuralString(coverRecord.src, `${label}.cover.src`),
+      alt: readEditorialText(coverRecord.alt, `${label}.cover.alt`),
+      width: expectPositiveInteger(coverRecord.width, `${label}.cover.width`),
+      height: expectPositiveInteger(coverRecord.height, `${label}.cover.height`),
     },
   };
 }

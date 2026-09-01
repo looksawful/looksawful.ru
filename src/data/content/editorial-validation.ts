@@ -27,6 +27,20 @@ export function expectStructuralString(value: unknown, label: string): string {
   return value;
 }
 
+export function expectBoolean(value: unknown, label: string): boolean {
+  if (typeof value !== "boolean") {
+    throw new TypeError(`${label} must be a boolean`);
+  }
+  return value;
+}
+
+export function expectPositiveInteger(value: unknown, label: string): number {
+  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
+    throw new TypeError(`${label} must be a positive integer`);
+  }
+  return value;
+}
+
 export function readEditorialText(value: unknown, label: string): string {
   if (value === undefined || value === null) return "";
   if (typeof value !== "string") throw new TypeError(`${label} must be a string when present`);

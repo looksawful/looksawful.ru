@@ -3,6 +3,10 @@ import {
   PRIMARY_NAVIGATION_PAGE_IDS,
   type PrimaryNavigationPageId,
 } from "../site/navigation/primary.ts";
+import {
+  expectRecord,
+  expectStructuralString,
+} from "./content/editorial-validation.ts";
 
 export type NavigationLabelId = PrimaryNavigationPageId;
 
@@ -13,27 +17,22 @@ export interface NavigationLabelData {
 
 const navigationLabelIds = new Set<string>(PRIMARY_NAVIGATION_PAGE_IDS);
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 function parseNavigationLabel(value: unknown, index: number): NavigationLabelData {
   const itemLabel = `navigationLabels[${index}]`;
-  if (!isRecord(value)) throw new Error(`${itemLabel} must be an object`);
+  const record = expectRecord(value, itemLabel);
 
-  const idValue = value.id;
-  if (typeof idValue !== "string" || !navigationLabelIds.has(idValue)) {
-    throw new Error(`unexpected navigation label id: ${String(idValue)}`);
+  const idValue = expectStructuralString(record.id, `${itemLabel}.id`);
+  if (!navigationLabelIds.has(idValue)) {
+    throw new Error(`unexpected navigation label id: ${idValue}`);
   }
 
   const id = PRIMARY_NAVIGATION_PAGE_IDS.find((candidate) => candidate === idValue);
   if (!id) throw new Error(`unexpected navigation label id: ${idValue}`);
 
-  if (typeof value.label !== "string" || value.label.trim().length === 0) {
-    throw new Error(`${itemLabel}.label must be a non-empty string`);
-  }
-
-  return { id, label: value.label };
+  return {
+    id,
+    label: expectStructuralString(record.label, `${itemLabel}.label`),
+  };
 }
 
 export function parseNavigationLabels(value: unknown): readonly NavigationLabelData[] {
