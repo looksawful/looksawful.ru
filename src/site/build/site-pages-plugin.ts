@@ -13,6 +13,7 @@ import { normalizePagePath } from "../pages/validation.ts";
 import { renderStandaloneEntityPage } from "../renderers/entity-page.ts";
 import { renderHomepagePage } from "../renderers/home/home-page.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
+import { publicStaticRequestPath } from "./public-static.ts";
 
 interface CvContentModule {
   readCvContent(contentPath: string): Promise<unknown>;
@@ -31,15 +32,6 @@ export function entryRequestToPagePath(requestPath: string): string {
     return pathname.slice(0, -"index.html".length);
   }
   return pathname;
-}
-
-function publicStaticSourceToRequestPath(sourcePath: string): string {
-  const normalized = sourcePath.replaceAll("\\", "/").replace(/^\.\//, "");
-  const prefix = "public/";
-  if (!normalized.startsWith(prefix) || normalized.length === prefix.length) {
-    throw new Error(`Public-static SitePage source must live under public/: ${sourcePath}`);
-  }
-  return `/${normalized.slice(prefix.length)}`;
 }
 
 export function rewritePublicStaticDevRequest(
@@ -64,7 +56,7 @@ export function rewritePublicStaticDevRequest(
   ));
 
   if (!page || page.build.kind !== "public-static") return requestUrl;
-  return `${publicStaticSourceToRequestPath(page.build.sourcePath)}${suffix}`;
+  return `${publicStaticRequestPath(page)}${suffix}`;
 }
 
 export async function renderCvDevHtml(html: string, root = process.cwd()): Promise<string> {
