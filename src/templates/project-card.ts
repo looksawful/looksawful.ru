@@ -1,8 +1,8 @@
 import { projectIndexMediaAssetFor } from "../data/media/assets/project-index.ts";
 import { responsiveImageSrcSet } from "../data/media/responsive.ts";
-import type { ProjectCardData } from "../data/projects.ts";
+import type { HomeCardData } from "../data/projects.ts";
 import { renderRevealAttribute } from "../motion-contract.ts";
-import { getProjectCardHref } from "../site/pages/project-card-routes.ts";
+import { getHomeCardHref } from "../site/pages/project-card-routes.ts";
 import { escapeHtml } from "../utils/html.ts";
 
 export interface ProjectCardRenderOptions {
@@ -10,31 +10,31 @@ export interface ProjectCardRenderOptions {
 }
 
 export function renderProjectCard(
-  project: ProjectCardData,
+  card: HomeCardData,
   optionsOrIndex: ProjectCardRenderOptions | number = {},
 ): string {
   const options = typeof optionsOrIndex === "number" ? {} : optionsOrIndex;
-  const href = options.href ?? getProjectCardHref(project.id);
+  const href = options.href ?? getHomeCardHref(card);
 
-  const ariaLabel = project.ariaLabel ?? (project.title ? `Перейти к проекту ${project.title}` : "Перейти к проекту");
-  const coverAsset = projectIndexMediaAssetFor(project);
+  const ariaLabel = card.ariaLabel ?? (card.title ? `Перейти к проекту ${card.title}` : "Перейти к проекту");
+  const coverAsset = projectIndexMediaAssetFor(card);
   const coverSrcset = responsiveImageSrcSet(coverAsset);
   const responsiveAttributes = coverSrcset
     ? ` sizes="(min-width: 44rem) 50vw, 100vw" srcset="${escapeHtml(coverSrcset)}"`
     : "";
 
-  const role = project.role
-    ? `<span class="project-card__role">${escapeHtml(project.role)}</span>`
+  const role = card.role
+    ? `<span class="project-card__role">${escapeHtml(card.role)}</span>`
     : "";
 
-  const period = project.period
-    ? `<span class="project-card__period">${escapeHtml(project.period)}</span>`
+  const period = card.period
+    ? `<span class="project-card__period">${escapeHtml(card.period)}</span>`
     : "";
-  const title = project.title
-    ? `<span class="project-card__name">${escapeHtml(project.title)}</span>`
+  const title = card.title
+    ? `<span class="project-card__name">${escapeHtml(card.title)}</span>`
     : "";
-  const focus = project.focus
-    ? `<span class="project-card__focus">${escapeHtml(project.focus)}</span>`
+  const focus = card.focus
+    ? `<span class="project-card__focus">${escapeHtml(card.focus)}</span>`
     : "";
 
   return `
@@ -48,12 +48,12 @@ export function renderProjectCard(
         <figure class="project-card__figure">
           <div class="project-card__media">
             <img
-              alt="${escapeHtml(project.cover.alt)}"
+              alt="${escapeHtml(card.cover.alt)}"
               decoding="async"
-              height="${project.cover.height}"
+              height="${card.cover.height}"
               ${responsiveAttributes}
-              src="${escapeHtml(project.cover.src)}"
-              width="${project.cover.width}"
+              src="${escapeHtml(card.cover.src)}"
+              width="${card.cover.width}"
             >
           </div>
 
