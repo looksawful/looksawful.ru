@@ -42,11 +42,14 @@ test("data and CMS adapters consume shared record validation instead of redefini
   assert.doesNotMatch(cv, /function expectAllowedKeys\s*\(/, "CV must use shared key validation");
 });
 
-test("project-card structural scalar checks use shared validation primitives", async () => {
-  const projects = await source("src/data/projects.ts");
+test("boolean structural fields use the same shared primitive across adapters", async () => {
+  for (const path of ["src/data/projects.ts", "src/data/clients.ts", "src/data/cv.ts"]) {
+    const text = await source(path);
+    assert.match(text, /expectBoolean\(/, `${path} must consume expectBoolean`);
+  }
 
+  const projects = await source("src/data/projects.ts");
   assert.doesNotMatch(projects, /function requireBoolean\s*\(/);
   assert.doesNotMatch(projects, /function requirePositiveInteger\s*\(/);
-  assert.match(projects, /expectBoolean\(/);
   assert.match(projects, /expectPositiveInteger\(/);
 });
