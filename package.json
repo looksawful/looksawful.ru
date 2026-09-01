@@ -14,7 +14,7 @@
     "media:ensure": "npm run media:catalog:sync && node tools/media-dev-state.mjs --ensure",
     "media:prepare": "npm run media:sync",
     "build:vite": "vite build",
-    "build:site": "npm run build:vite && npm run site:postbuild",
+    "build:site": "npm run cms:check && npm run build:vite && npm run site:postbuild",
     "build:core": "npm run typecheck && npm run build:site",
     "build": "npm run media:ensure && npm run typecheck && npm run build:site",
     "cv:content:apply": "node tools/apply-cv-content.mjs",
@@ -48,8 +48,8 @@
     "test:e2e:affected": "node tools/e2e/run-affected.mjs",
     "test:e2e:production": "node tools/e2e/run-production.mjs",
     "test:e2e:cv:production": "node tools/e2e/run-cv-production.mjs",
-    "verify:core": "npm run cms:check && npm run typecheck && npm run test:core && npm run build:site && npm run test:e2e:full",
-    "verify": "npm run cms:check && npm run media:ensure && npm run typecheck && npm run test:fast && npm run test:media:contract && npm run build:site && npm run test:e2e:smoke",
+    "verify:core": "npm run typecheck && npm run test:core && npm run build:site && npm run test:e2e:full",
+    "verify": "npm run media:ensure && npm run typecheck && npm run test:fast && npm run test:media:contract && npm run build:site && npm run test:e2e:smoke",
     "verify:full": "npm run media:sync && npm run verify:core"
   },
   "devDependencies": {
