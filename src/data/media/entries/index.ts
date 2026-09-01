@@ -57,9 +57,10 @@ const projectIdsByAssetId = new Map<string, readonly ProjectId[]>(
 );
 
 export const mediaEntries = assignableMediaEntries.map((entry) => {
+  const { projectIds: _legacyProjectIds, ...entryWithoutProjectIds } = entry;
   const projectIds = projectIdsByAssetId.get(entry.assetId);
 
   return projectIds?.length
-    ? { ...entry, projectIds }
-    : entry;
+    ? { ...entryWithoutProjectIds, projectIds }
+    : entryWithoutProjectIds;
 }) as readonly MediaEntryRecord[];
