@@ -31,14 +31,14 @@ test("publication workflow separates CMS source dev from trusted execution ref p
 
 test("publication workflow blocks non-linear branch topology before scope authorization", async () => {
   const workflow = await read(".github/workflows/pages-cms-publish.yml");
-  assert.match(workflow, /git fetch[^\n]*origin[^\n]*prod[^\n]*dev|git fetch[^\n]*origin[^\n]*dev[^\n]*prod/);
+  assert.match(workflow, /git fetch --no-tags origin[\s\S]*refs\/heads\/prod:refs\/remotes\/origin\/prod[\s\S]*refs\/heads\/dev:refs\/remotes\/origin\/dev/);
   assert.match(workflow, /git rev-parse origin\/prod/);
   assert.match(workflow, /git rev-parse origin\/dev/);
   assert.match(workflow, /Nothing to publish|no unpublished dev commits/i);
   assert.match(workflow, /git merge-base --is-ancestor origin\/prod origin\/dev/);
   assert.match(workflow, /dev is not a linear descendant of prod/i);
 
-  const equalCheck = workflow.indexOf("origin/prod");
+  const equalCheck = workflow.indexOf('if [[ "$prod_sha" == "$dev_sha" ]]');
   const ancestorCheck = workflow.indexOf("git merge-base --is-ancestor");
   const classifier = workflow.indexOf("cms-publication-scope.mjs");
   assert.ok(equalCheck !== -1 && equalCheck < ancestorCheck, "equal/no-op check must happen before ancestry authorization");
