@@ -1,7 +1,7 @@
 import type { MediaEntryData } from "../../../types/media.ts";
 import type { ProjectId } from "../../catalog/projects/index.ts";
 import type { MediaAssetId } from "../assets/index.ts";
-import { resolveAssignedProjectIds } from "../project-assignments.ts";
+import { mediaCatalogItems } from "../catalog.ts";
 
 import { awfulCasesMediaEntries } from "./awful-cases.ts";
 import { behanceShootingMediaEntries } from "./behance-shootings.ts";
@@ -52,10 +52,14 @@ const assignableMediaEntries = rawMediaEntries as readonly MediaEntryData<
   string
 >[];
 
-export const mediaEntries = assignableMediaEntries.map((entry) => {
-  const projectIds = resolveAssignedProjectIds(entry);
+const projectIdsByAssetId = new Map<string, readonly ProjectId[]>(
+  mediaCatalogItems.map((item) => [item.asset.id, item.projectIds] as const),
+);
 
-  return projectIds
+export const mediaEntries = assignableMediaEntries.map((entry) => {
+  const projectIds = projectIdsByAssetId.get(entry.assetId);
+
+  return projectIds?.length
     ? { ...entry, projectIds }
     : entry;
 }) as readonly MediaEntryRecord[];
