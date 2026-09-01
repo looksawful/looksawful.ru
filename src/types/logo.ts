@@ -1,14 +1,11 @@
-import type { CaseId } from "../data/catalog/cases.ts";
-import type { ClientId } from "../data/catalog/clients.ts";
-
 export type LogoSubjectRef =
   | {
       type: "client";
-      id: ClientId;
+      id: string;
     }
   | {
       type: "case";
-      id: CaseId;
+      id: string;
     }
   | {
       type: "project";
@@ -158,11 +155,11 @@ export type LogoUsageContext =
     }
   | {
       type: "client";
-      id: ClientId;
+      id: string;
     }
   | {
       type: "case";
-      id: CaseId;
+      id: string;
     }
   | {
       type: "project";
