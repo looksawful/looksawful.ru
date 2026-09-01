@@ -33,7 +33,11 @@ test("production deployment strips hidden CV experience cards before upload", as
 
   assert.match(
     workflow,
-    /node tools\/prepare-cv-production\.mjs dist\/cv\/index\.html/,
+    /run: node tools\/prepare-cv-production\.mjs(?:\n|$)/,
+  );
+  assert.doesNotMatch(
+    workflow,
+    /node tools\/prepare-cv-production\.mjs\s+dist\/cv\/index\.html/,
   );
 });
 
