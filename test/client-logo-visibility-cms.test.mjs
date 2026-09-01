@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { clients } from "../src/data/catalog/clients.ts";
 import { clientLogos } from "../src/data/clients.ts";
 
 const visibilityUrl = new URL("../src/content/client-logo-visibility.json", import.meta.url);
@@ -44,12 +45,40 @@ const expectedIds = [
   "vinne",
 ];
 
+const logoOnlyIds = new Set([
+  "sensetique-photostudio",
+  "sensetique-production-agency",
+]);
+
 test("client logo visibility registry keeps fixed identity while booleans remain editable", async () => {
   assert.equal(existsSync(fileURLToPath(visibilityUrl)), true, "client logo visibility content must exist");
   const visibility = JSON.parse(await readFile(visibilityUrl, "utf8"));
 
   assert.deepEqual(visibility.map(({ id }) => id), expectedIds);
   assert.ok(visibility.every(({ visible }) => typeof visible === "boolean"));
+});
+
+test("client logo definitions relate canonical clients without collapsing logo-only identities", async () => {
+  const dataModule = await import("../src/data/clients.ts");
+  const definitions = dataModule.clientLogoDefinitions;
+
+  assert.ok(Array.isArray(definitions), "clientLogoDefinitions must expose the complete code-owned logo collection");
+  assert.deepEqual(definitions.map(({ id }) => id), expectedIds);
+
+  const canonicalClientIds = new Set(clients.map(({ id }) => id));
+
+  for (const definition of definitions) {
+    if (logoOnlyIds.has(definition.id)) {
+      assert.equal(definition.clientId, undefined, `${definition.id} must remain presentation-only`);
+      continue;
+    }
+
+    assert.equal(definition.clientId, definition.id, `${definition.id} must relate directly to its canonical Client`);
+    assert.equal(canonicalClientIds.has(definition.clientId), true, `${definition.id} must reference an existing Client`);
+  }
+
+  assert.equal(canonicalClientIds.has("illumihand"), true, "illumihand must remain a canonical Client");
+  assert.equal(definitions.some(({ id }) => id === "illumihand"), false, "illumihand must not be auto-added to the logo wall");
 });
 
 test("client logo presentation follows the current visibility registry", async () => {
@@ -114,5 +143,5 @@ test("Pages CMS exposes only client logo identity and visibility controls", asyn
   assert.match(block, /path: src\/content\/client-logo-visibility\.json/);
   assert.match(block, /- name: id\b[\s\S]*?readonly: true/);
   assert.match(block, /- name: visible\b[\s\S]*?type: boolean/);
-  assert.doesNotMatch(block, /- name: (name|file|alt|src|href|route|className)\b/);
+  assert.doesNotMatch(block, /- name: (name|file|alt|src|href|route|className|clientId)\b/);
 });
