@@ -661,14 +661,6 @@ content:
               message: Будут проверены Jestei-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
-          - name: role
-            label: Роль
-            type: string
-            description: Отображаемая роль в шапке Jestei Pool. Логотипы и техническая идентичность проекта остаются в коде.
-          - name: period
-            label: Период
-            type: string
-            description: Период работы в том виде, в котором он отображается в шапке проекта.
           - name: lead
             label: Вводный текст
             type: text
@@ -740,14 +732,6 @@ content:
               message: Будут проверены Styx-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
-          - name: role
-            label: Роль
-            type: string
-            description: Отображаемая роль в шапке Styx. Логотип и техническая идентичность проекта остаются в коде.
-          - name: period
-            label: Период
-            type: string
-            description: Период работы в том виде, в котором он отображается в шапке проекта.
           - name: lead
             label: Вводный текст
             type: text
@@ -827,12 +811,6 @@ content:
             type: object
             required: true
             fields:
-              - name: role
-                label: Роль
-                type: string
-              - name: period
-                label: Период
-                type: string
               - name: lead
                 label: Вводный текст
                 type: text
