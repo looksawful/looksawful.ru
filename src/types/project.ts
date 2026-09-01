@@ -1,6 +1,24 @@
 export type ProjectStatus = "active" | "completed" | "archived";
 
-export interface ProjectData {
+export interface ProjectIdTypes {
+  caseId: string;
+  clientId: string;
+  collectionId: string;
+  engagementId: string;
+  projectTypeId: string;
+  engagementTypeId: string;
+  industryId: string;
+  roleId: string;
+  workAreaId: string;
+  serviceId: string;
+  deliverableId: string;
+  skillId: string;
+  technologyId: string;
+  softwareId: string;
+  professionalQualityId: string;
+}
+
+export interface ProjectData<Ids extends ProjectIdTypes = ProjectIdTypes> {
   id: string;
   name: string;
 
@@ -9,26 +27,26 @@ export interface ProjectData {
   date?: string;
   status?: ProjectStatus;
 
-  caseIds?: readonly string[];
-  clientIds?: readonly string[];
-  collectionIds?: readonly string[];
-  engagementIds?: readonly string[];
+  caseIds?: readonly Ids["caseId"][];
+  clientIds?: readonly Ids["clientId"][];
+  collectionIds?: readonly Ids["collectionId"][];
+  engagementIds?: readonly Ids["engagementId"][];
 
-  projectTypeIds?: readonly string[];
-  engagementTypeIds?: readonly string[];
-  industryIds?: readonly string[];
+  projectTypeIds?: readonly Ids["projectTypeId"][];
+  engagementTypeIds?: readonly Ids["engagementTypeId"][];
+  industryIds?: readonly Ids["industryId"][];
 
-  primaryRoleId?: string;
+  primaryRoleId?: Ids["roleId"];
   primaryRoleLabel?: string;
-  roleIds?: readonly string[];
+  roleIds?: readonly Ids["roleId"][];
 
-  workAreaIds?: readonly string[];
-  serviceIds?: readonly string[];
-  deliverableIds?: readonly string[];
+  workAreaIds?: readonly Ids["workAreaId"][];
+  serviceIds?: readonly Ids["serviceId"][];
+  deliverableIds?: readonly Ids["deliverableId"][];
 
-  skillIds?: readonly string[];
-  technologyIds?: readonly string[];
-  softwareIds?: readonly string[];
+  skillIds?: readonly Ids["skillId"][];
+  technologyIds?: readonly Ids["technologyId"][];
+  softwareIds?: readonly Ids["softwareId"][];
 
-  professionalQualityIds?: readonly string[];
+  professionalQualityIds?: readonly Ids["professionalQualityId"][];
 }
