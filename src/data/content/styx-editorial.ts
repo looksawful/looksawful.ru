@@ -9,6 +9,7 @@ import {
   readEditorialText,
   readEditorialTextList,
 } from "./editorial-validation.ts";
+import { resolveCaseIntroIdentity } from "./case-intro-identity.ts";
 
 export const STYX_SECTION_IDS = ["brand", "production", "scanography", "shootings", "lookbook"] as const;
 export const STYX_CREDIT_IDS = ["brand-lookbook-2023", "scanography-2021", "lookbook-2025"] as const;
@@ -27,12 +28,15 @@ export interface StyxEditorialCredit {
   title: string;
 }
 
-export interface StyxEditorialContent {
-  role: string;
-  period: string;
+export interface StyxEditorialSource {
   lead: string;
   sections: readonly StyxEditorialSection[];
   credits: readonly StyxEditorialCredit[];
+}
+
+export interface StyxEditorialContent extends StyxEditorialSource {
+  role: string;
+  period: string;
 }
 
 function parseSection(value: unknown, index: number): StyxEditorialSection {
@@ -58,11 +62,11 @@ function parseCredit(value: unknown, index: number): StyxEditorialCredit {
   };
 }
 
-export function parseStyxEditorialContent(value: unknown): StyxEditorialContent {
+export function parseStyxEditorialContent(value: unknown): StyxEditorialSource {
   const record = expectRecord(value, "Styx editorial content");
   expectAllowedKeys(
     record,
-    ["role", "period", "lead", "sections", "credits"],
+    ["lead", "sections", "credits"],
     ["sections", "credits"],
     "Styx editorial content",
   );
@@ -71,15 +75,18 @@ export function parseStyxEditorialContent(value: unknown): StyxEditorialContent 
   const credits = expectArray(record.credits, "Styx credits").map(parseCredit);
 
   return {
-    role: readEditorialText(record.role, "Styx role"),
-    period: readEditorialText(record.period, "Styx period"),
     lead: readEditorialText(record.lead, "Styx lead"),
     sections: normalizeById(sections, STYX_SECTION_IDS, "Styx sections"),
     credits: normalizeById(credits, STYX_CREDIT_IDS, "Styx credits"),
   };
 }
 
-export const styxEditorialContent = parseStyxEditorialContent(source);
+const parsedStyxEditorialContent = parseStyxEditorialContent(source);
+
+export const styxEditorialContent: StyxEditorialContent = {
+  ...resolveCaseIntroIdentity("styx"),
+  ...parsedStyxEditorialContent,
+};
 
 export function getStyxEditorialSection(id: StyxSectionId): StyxEditorialSection {
   const section = styxEditorialContent.sections.find((candidate) => candidate.id === id);

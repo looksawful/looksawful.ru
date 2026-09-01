@@ -70,7 +70,7 @@ async function readSource() {
 function readCanonicalIntro() {
   const caseData = getCase("sensetique");
   const role = caseData.primaryRoleLabel ?? (caseData.primaryRoleId ? getRole(caseData.primaryRoleId).name : "");
-  return { caseData, role, period: caseData.date ?? "" };
+  return { caseData, role, period: caseData.periodLabel ?? caseData.date ?? "" };
 }
 
 test("Sensetique CMS source keeps fixed editorial identities while Case owns intro identity", async () => {
@@ -80,6 +80,8 @@ test("Sensetique CMS source keeps fixed editorial identities while Case owns int
   assert.deepEqual(Object.keys(source).sort(), ["credits", "intro", "notes", "sections"]);
   assert.deepEqual(Object.keys(source.intro).sort(), ["lead"]);
   assert.equal(caseData.summary, undefined);
+  assert.equal(caseData.date, "2016–2018");
+  assert.equal(caseData.periodLabel, "2017–2018");
   assert.deepEqual(source.sections.map(({ id }) => id), sectionIds);
   assert.deepEqual(source.credits.map(({ id }) => id), creditIds);
   assert.deepEqual(source.notes.map(({ id }) => id), noteIds);

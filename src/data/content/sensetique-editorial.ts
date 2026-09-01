@@ -9,6 +9,7 @@ import {
   readEditorialText,
   readEditorialTextList,
 } from "./editorial-validation.ts";
+import { resolveCaseIntroIdentity } from "./case-intro-identity.ts";
 
 export const SENSETIQUE_SECTION_IDS = ["studio", "production"] as const;
 export const SENSETIQUE_CREDIT_IDS = [
@@ -41,10 +42,13 @@ export type SensetiqueSectionId = (typeof SENSETIQUE_SECTION_IDS)[number];
 export type SensetiqueCreditId = (typeof SENSETIQUE_CREDIT_IDS)[number];
 export type SensetiqueNoteId = (typeof SENSETIQUE_NOTE_IDS)[number];
 
-export interface SensetiqueEditorialIntro {
+export interface SensetiqueEditorialSourceIntro {
+  lead: string;
+}
+
+export interface SensetiqueEditorialIntro extends SensetiqueEditorialSourceIntro {
   role: string;
   period: string;
-  lead: string;
 }
 
 export interface SensetiqueEditorialSection {
@@ -64,11 +68,15 @@ export interface SensetiqueEditorialNote {
   text: string;
 }
 
-export interface SensetiqueEditorialContent {
-  intro: SensetiqueEditorialIntro;
+export interface SensetiqueEditorialSourceContent {
+  intro: SensetiqueEditorialSourceIntro;
   sections: readonly SensetiqueEditorialSection[];
   credits: readonly SensetiqueEditorialCredit[];
   notes: readonly SensetiqueEditorialNote[];
+}
+
+export interface SensetiqueEditorialContent extends Omit<SensetiqueEditorialSourceContent, "intro"> {
+  intro: SensetiqueEditorialIntro;
 }
 
 function parseSection(value: unknown, index: number): SensetiqueEditorialSection {
@@ -103,7 +111,7 @@ function parseNote(value: unknown, index: number): SensetiqueEditorialNote {
   };
 }
 
-export function parseSensetiqueEditorialContent(value: unknown): SensetiqueEditorialContent {
+export function parseSensetiqueEditorialContent(value: unknown): SensetiqueEditorialSourceContent {
   const record = expectRecord(value, "Sensetique editorial content");
   expectAllowedKeys(
     record,
@@ -113,12 +121,10 @@ export function parseSensetiqueEditorialContent(value: unknown): SensetiqueEdito
   );
 
   const intro = expectRecord(record.intro, "Sensetique intro");
-  expectAllowedKeys(intro, ["role", "period", "lead"], [], "Sensetique intro");
+  expectAllowedKeys(intro, ["lead"], [], "Sensetique intro");
 
   return {
     intro: {
-      role: readEditorialText(intro.role, "Sensetique intro.role"),
-      period: readEditorialText(intro.period, "Sensetique intro.period"),
       lead: readEditorialText(intro.lead, "Sensetique intro.lead"),
     },
     sections: normalizeById(expectArray(record.sections, "Sensetique sections").map(parseSection), SENSETIQUE_SECTION_IDS, "Sensetique sections"),
@@ -127,7 +133,15 @@ export function parseSensetiqueEditorialContent(value: unknown): SensetiqueEdito
   };
 }
 
-export const sensetiqueEditorialContent = parseSensetiqueEditorialContent(source);
+const parsedSensetiqueEditorialContent = parseSensetiqueEditorialContent(source);
+
+export const sensetiqueEditorialContent: SensetiqueEditorialContent = {
+  ...parsedSensetiqueEditorialContent,
+  intro: {
+    ...resolveCaseIntroIdentity("sensetique"),
+    ...parsedSensetiqueEditorialContent.intro,
+  },
+};
 
 export function getSensetiqueEditorialSection(id: SensetiqueSectionId): SensetiqueEditorialSection {
   const value = sensetiqueEditorialContent.sections.find((candidate) => candidate.id === id);

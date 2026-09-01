@@ -10,6 +10,7 @@ import {
   readEditorialTextList,
   readEditorialTextSlots,
 } from "./editorial-validation.ts";
+import { resolveCaseIntroIdentity } from "./case-intro-identity.ts";
 
 export const JESTEI_SECTION_IDS = ["home", "brand", "interface", "editorial", "event", "landings", "promo"] as const;
 export const JESTEI_OVERLAY_IDS = [
@@ -40,12 +41,15 @@ export interface JesteiEditorialOverlay {
   text: string;
 }
 
-export interface JesteiEditorialContent {
-  role: string;
-  period: string;
+export interface JesteiEditorialSource {
   lead: string;
   sections: readonly JesteiEditorialSection[];
   overlays: readonly JesteiEditorialOverlay[];
+}
+
+export interface JesteiEditorialContent extends JesteiEditorialSource {
+  role: string;
+  period: string;
 }
 
 function parseSection(value: unknown, index: number): JesteiEditorialSection {
@@ -84,11 +88,11 @@ function parseOverlay(value: unknown, index: number): JesteiEditorialOverlay {
   };
 }
 
-export function parseJesteiEditorialContent(value: unknown): JesteiEditorialContent {
+export function parseJesteiEditorialContent(value: unknown): JesteiEditorialSource {
   const record = expectRecord(value, "Jestei editorial content");
   expectAllowedKeys(
     record,
-    ["role", "period", "lead", "sections", "overlays"],
+    ["lead", "sections", "overlays"],
     ["sections", "overlays"],
     "Jestei editorial content",
   );
@@ -97,15 +101,18 @@ export function parseJesteiEditorialContent(value: unknown): JesteiEditorialCont
   const overlays = expectArray(record.overlays, "Jestei overlays").map(parseOverlay);
 
   return {
-    role: readEditorialText(record.role, "Jestei role"),
-    period: readEditorialText(record.period, "Jestei period"),
     lead: readEditorialText(record.lead, "Jestei lead"),
     sections: normalizeById(sections, JESTEI_SECTION_IDS, "Jestei sections"),
     overlays: normalizeById(overlays, JESTEI_OVERLAY_IDS, "Jestei overlays"),
   };
 }
 
-export const jesteiEditorialContent = parseJesteiEditorialContent(source);
+const parsedJesteiEditorialContent = parseJesteiEditorialContent(source);
+
+export const jesteiEditorialContent: JesteiEditorialContent = {
+  ...resolveCaseIntroIdentity("jestei-pool"),
+  ...parsedJesteiEditorialContent,
+};
 
 export function getJesteiEditorialSection(id: JesteiSectionId): JesteiEditorialSection {
   const section = jesteiEditorialContent.sections.find((candidate) => candidate.id === id);

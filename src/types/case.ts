@@ -15,6 +15,7 @@ export interface CaseData {
   summary?: string;
   description?: string;
   date?: string;
+  periodLabel?: string;
 
   clientIds?: readonly ClientId[];
   engagementIds?: readonly EngagementId[];
