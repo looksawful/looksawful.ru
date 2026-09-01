@@ -40,6 +40,11 @@ media-state validator. Fast tests and physical-media contracts also remain
 mandatory. Thus cache presence is not correctness proof. For ordinary content/CV
 changes with valid cached derivatives, neither ffmpeg installation nor sync/media
 fixtures run. Build/local-link checks still reject missing referenced assets.
+On this validated unchanged-input path, catalog `--check --check-stored` checks
+registered technical fields, upload source presence/size/type/dimensions and the
+import index without ffprobe. It is read-only and cannot write metadata. Any media
+change or unusable cache instead installs tooling first and runs the original
+full catalog probe/check and deterministic sync; `media:sync` never uses this mode.
 
 ### CMS metadata mutation
 
@@ -107,6 +112,8 @@ shared between contexts. Framework migration is not required.
 Ignored networkidle waits were removed from site, MPA, Project and CV tests.
 Initial readiness is the required DOM, fonts and rendering frames. Scroll waits
 use animation frames; image/video checks explicitly decode/read metadata.
+The full home motion test additionally waits for load/pageshow because the actual
+global-reveal runtime deliberately initializes at that event plus one frame.
 Canvas readiness observes bitmap/CSS size/error, lightbox close observes actual
 dialog removal, page flip observes counter initialization/change.
 Navigation already uses observable DOM state and contains no fixed sleeps.

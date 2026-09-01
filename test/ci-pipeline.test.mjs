@@ -16,6 +16,10 @@ for (const name of ["verify-dev.yml", "verify-pr.yml"]) {
     assert.match(workflow, /media-scope\.outputs\.needs_sync == 'true'/);
     assert.match(workflow, /test:media:checks/);
     assert.match(workflow, /git diff --exit-code/);
+    assert.match(step(workflow, "Check CMS media catalog"), /needs_sync == 'true'/);
+    assert.match(step(workflow, "Check unchanged catalog structure"), /needs_sync != 'true'/);
+    assert.match(step(workflow, "Check unchanged catalog structure"), /--check-stored/);
+    assert.ok(workflow.indexOf("Ensure media tooling") < workflow.indexOf("Check CMS media catalog"));
     assert.ok(workflow.indexOf("npm run typecheck") < workflow.indexOf("Ensure media tooling"));
     assert.ok(workflow.indexOf("npm run test:fast") < workflow.indexOf("playwright install"));
     assert.doesNotMatch(workflow, /test:e2e:all|test:e2e:full/);

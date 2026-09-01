@@ -1097,7 +1097,9 @@ async function auditViewport(browser, viewport) {
 
   try {
     await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 30_000 });
-    await page.evaluate(() => document.fonts?.ready);
+    // Global reveals initialize on pageshow + RAF (src/motion.ts), not DOM ready.
+    // Load is required here by that lifecycle; networkidle is not a readiness signal.
+    await page.waitForLoadState("load", { timeout: 30_000 });
     await waitForDocumentReady(page);
     await verifyNoVisibleRevealTargetsHidden(page, label);
     const motionReport = await verifyMotionContract(page, label);

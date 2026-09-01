@@ -49,8 +49,6 @@ jobs:
           key: generated-media-v4-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/content/media-catalog/**/*.json', 'src/data/media/assets/**/*.ts', 'src/data/media/catalog*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/sync-media-catalog.mjs', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
           restore-keys: |
             generated-media-v4-${{ runner.os }}-
-      - name: Check CMS media catalog
-        run: npm run media:catalog:check
       - name: Inspect cached media
         id: media-scope
         env:
@@ -66,6 +64,12 @@ jobs:
             sudo apt-get update
             sudo apt-get install --yes ffmpeg
           fi
+      - name: Check CMS media catalog
+        if: steps.media-scope.outputs.needs_sync == 'true'
+        run: npm run media:catalog:check
+      - name: Check unchanged catalog structure
+        if: steps.media-scope.outputs.needs_sync != 'true'
+        run: npm run media:catalog:check -- --check-stored
       - name: Sync generated media
         if: steps.media-scope.outputs.needs_sync == 'true'
         run: npm run media:sync
