@@ -95,7 +95,8 @@ always request deterministic media validation regardless of cache.
 ## Full verification
 
 `npm run verify:full`: media:sync → typecheck → core → build:site → full browser.
-`test:e2e:all` remains a compatibility alias of `test:e2e:full`.
+`npm run test:e2e:full` is the single canonical full-browser command; the former
+`test:e2e:all` compatibility alias was removed during repository consolidation.
 
 | Level | Contract |
 | --- | --- |
@@ -162,8 +163,8 @@ CV feature branch has unintegrated work: its workflow stays, narrowed to CV test
 build, authored/production CV and screenshots, with the current cache contract.
 Shootings integration branch is already ancestor of prod/dev. Its obsolete workflow
 is removed, not the branch; ordinary shootings isolation/data tests and MPA browser
-route checks remain. The historical SHA-freeze test remains opt-in for archaeology,
-not a permanent freeze of current presentation.
+route checks remain. The completed historical Shootings SHA-freeze guard is removed
+and no longer participates in verification.
 
 ## Troubleshooting
 
