@@ -1,25 +1,22 @@
 import projectsJson from "../content/projects.json" with { type: "json" };
-import type { sitePages } from "../site/pages/manifest.ts";
-
+import type { CaseId } from "./catalog/cases.ts";
+import type { CollectionId } from "./catalog/collections.ts";
+import { getCase, getCollection, getRole } from "./catalog/lookup.ts";
 import { expectAllowedKeys, readEditorialText } from "./content/editorial-validation.ts";
 
-export const HOME_CARD_IDS = ["jestei", "styx", "sensetique", "shootings"] as const;
+export const PROJECT_CARD_PRESENTATION_DEFINITIONS = [
+  { id: "jestei", pageId: "case:jestei-pool" },
+  { id: "styx", pageId: "case:styx" },
+  { id: "sensetique", pageId: "case:sensetique" },
+  { id: "shootings", pageId: "collection:music-photography" },
+] as const;
 
-export type HomeCardId = (typeof HOME_CARD_IDS)[number];
-type SitePageId = (typeof sitePages)[number]["id"];
+export type ProjectCardId = (typeof PROJECT_CARD_PRESENTATION_DEFINITIONS)[number]["id"];
+export type ProjectCardPageId = (typeof PROJECT_CARD_PRESENTATION_DEFINITIONS)[number]["pageId"];
 
-const HOME_CARD_PAGE_IDS = {
-  jestei: "case:jestei-pool",
-  styx: "case:styx",
-  sensetique: "case:sensetique",
-  shootings: "collection:music-photography",
-} as const satisfies Record<HomeCardId, SitePageId>;
-
-export type HomeCardPageId = (typeof HOME_CARD_PAGE_IDS)[HomeCardId];
-
-export interface HomeCardData {
-  id: HomeCardId;
-  pageId: HomeCardPageId;
+export interface ProjectCardPresentation {
+  id: ProjectCardId;
+  pageId: ProjectCardPageId;
   visible: boolean;
   title: string;
   focus: string;
@@ -34,8 +31,24 @@ export interface HomeCardData {
   };
 }
 
-const rawHomeCards: unknown = projectsJson;
-const homeCardIds = new Set<string>(HOME_CARD_IDS);
+interface ProjectCardEditorialSource {
+  id: ProjectCardId;
+  visible: boolean;
+  title?: string;
+  focus: string;
+  role?: string;
+  period?: string;
+  ariaLabel?: string;
+  cover: ProjectCardPresentation["cover"];
+}
+
+interface CanonicalProjectCardCopy {
+  title: string;
+  role?: string;
+  period?: string;
+}
+
+const rawProjectCards: unknown = projectsJson;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -57,10 +70,13 @@ function requireBoolean(record: Record<string, unknown>, key: string, label: str
   return value;
 }
 
+function optionalEditorialOverride(record: Record<string, unknown>, key: string, label: string): string | undefined {
+  if (!(key in record) || record[key] === undefined || record[key] === null) return undefined;
+  return readEditorialText(record[key], `${label}.${key}`);
+}
+
 function optionalEditorialText(record: Record<string, unknown>, key: string, label: string): string | undefined {
-  const value = record[key];
-  if (value === undefined || value === null) return undefined;
-  const parsed = readEditorialText(value, `${label}.${key}`);
+  const parsed = optionalEditorialOverride(record, key, label);
   return parsed || undefined;
 }
 
@@ -72,8 +88,33 @@ function requirePositiveInteger(record: Record<string, unknown>, key: string, la
   return value;
 }
 
-function parseHomeCard(value: unknown, index: number): HomeCardData {
-  const label = `homeCards[${index}]`;
+function resolveRole(
+  primaryRoleLabel: string | undefined,
+  primaryRoleId: Parameters<typeof getRole>[0] | undefined,
+): string | undefined {
+  if (primaryRoleLabel) return primaryRoleLabel;
+  return primaryRoleId ? getRole(primaryRoleId).name : undefined;
+}
+
+function resolveCanonicalProjectCardCopy(pageId: ProjectCardPageId): CanonicalProjectCardCopy {
+  if (pageId.startsWith("case:")) {
+    const entity = getCase(pageId.slice("case:".length) as CaseId);
+    return {
+      title: entity.name,
+      role: resolveRole(entity.primaryRoleLabel, entity.primaryRoleId),
+      period: entity.date,
+    };
+  }
+
+  const entity = getCollection(pageId.slice("collection:".length) as CollectionId);
+  return {
+    title: entity.displayName || entity.name,
+    role: resolveRole(entity.primaryRoleLabel, entity.primaryRoleId),
+  };
+}
+
+function parseProjectCardSource(value: unknown, index: number): ProjectCardEditorialSource {
+  const label = `projectCards[${index}]`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
   expectAllowedKeys(
     value,
@@ -83,8 +124,8 @@ function parseHomeCard(value: unknown, index: number): HomeCardData {
   );
 
   const idValue = requireNonEmptyString(value, "id", label);
-  if (!homeCardIds.has(idValue)) throw new Error(`${label}.id is unexpected: ${idValue}`);
-  const id: HomeCardId = HOME_CARD_IDS.find((candidate) => candidate === idValue) ?? (() => { throw new Error(`${label}.id is invalid`); })();
+  const definition = PROJECT_CARD_PRESENTATION_DEFINITIONS.find(({ id }) => id === idValue);
+  if (!definition) throw new Error(`${label}.id is unexpected: ${idValue}`);
 
   const coverValue = value.cover;
   if (!isRecord(coverValue)) throw new Error(`${label}.cover must be an object`);
@@ -96,13 +137,12 @@ function parseHomeCard(value: unknown, index: number): HomeCardData {
   );
 
   return {
-    id,
-    pageId: HOME_CARD_PAGE_IDS[id],
+    id: definition.id,
     visible: requireBoolean(value, "visible", label),
-    title: readEditorialText(value.title, `${label}.title`),
+    title: optionalEditorialOverride(value, "title", label),
     focus: readEditorialText(value.focus, `${label}.focus`),
-    role: optionalEditorialText(value, "role", label),
-    period: optionalEditorialText(value, "period", label),
+    role: optionalEditorialOverride(value, "role", label),
+    period: optionalEditorialOverride(value, "period", label),
     ariaLabel: optionalEditorialText(value, "ariaLabel", label),
     cover: {
       src: requireNonEmptyString(coverValue, "src", `${label}.cover`),
@@ -113,35 +153,50 @@ function parseHomeCard(value: unknown, index: number): HomeCardData {
   };
 }
 
-export function parseHomeCards(value: unknown): readonly HomeCardData[] {
-  if (!Array.isArray(value)) throw new Error("home card content must be an array");
+export function parseProjectCardPresentations(value: unknown): readonly ProjectCardPresentation[] {
+  if (!Array.isArray(value)) throw new Error("project-card content must be an array");
 
-  const parsed = value.map(parseHomeCard);
-  const seen = new Set<HomeCardId>();
+  const parsed = value.map(parseProjectCardSource);
+  const sourceById = new Map<ProjectCardId, ProjectCardEditorialSource>();
   for (const card of parsed) {
-    if (seen.has(card.id)) throw new Error(`duplicate home card id: ${card.id}`);
-    seen.add(card.id);
+    if (sourceById.has(card.id)) throw new Error(`duplicate project-card id: ${card.id}`);
+    sourceById.set(card.id, card);
   }
 
-  for (const expectedId of HOME_CARD_IDS) {
-    if (!seen.has(expectedId)) throw new Error(`missing required home card id: ${expectedId}`);
-  }
-  if (parsed.length !== HOME_CARD_IDS.length) {
-    throw new Error(`home card count must remain ${HOME_CARD_IDS.length}; got ${parsed.length}`);
+  if (parsed.length !== PROJECT_CARD_PRESENTATION_DEFINITIONS.length) {
+    throw new Error(`project-card count must remain ${PROJECT_CARD_PRESENTATION_DEFINITIONS.length}; got ${parsed.length}`);
   }
 
-  return Object.freeze(parsed.map((card) => Object.freeze({
-    ...card,
-    cover: Object.freeze({ ...card.cover }),
-  })));
+  const resolved = PROJECT_CARD_PRESENTATION_DEFINITIONS.map((definition) => {
+    const source = sourceById.get(definition.id);
+    if (!source) throw new Error(`missing required project-card id: ${definition.id}`);
+    const canonical = resolveCanonicalProjectCardCopy(definition.pageId);
+
+    return {
+      id: definition.id,
+      pageId: definition.pageId,
+      visible: source.visible,
+      title: source.title ?? canonical.title,
+      focus: source.focus,
+      role: source.role ?? canonical.role,
+      period: source.period ?? canonical.period,
+      ariaLabel: source.ariaLabel,
+      cover: Object.freeze({ ...source.cover }),
+    } satisfies ProjectCardPresentation;
+  });
+
+  return Object.freeze(resolved.map((card) => Object.freeze(card)));
 }
 
-export const homeCards = parseHomeCards(rawHomeCards);
+export const projectCardPresentations = parseProjectCardPresentations(rawProjectCards);
 
-export function getVisibleHomeCards(
-  source: readonly HomeCardData[] = homeCards,
-): readonly HomeCardData[] {
+export function getVisibleProjectCardPresentations(
+  source: readonly ProjectCardPresentation[] = projectCardPresentations,
+): readonly ProjectCardPresentation[] {
   return source.filter((card) => card.visible);
 }
 
-export type HomeCardRole = NonNullable<HomeCardData["role"]>;
+export const getVisibleHomeCards = getVisibleProjectCardPresentations;
+export type HomeCardData = ProjectCardPresentation;
+export type HomeCardId = ProjectCardId;
+export type ProjectCardRole = NonNullable<ProjectCardPresentation["role"]>;

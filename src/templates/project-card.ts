@@ -1,8 +1,8 @@
 import { projectIndexMediaAssetFor } from "../data/media/assets/project-index.ts";
 import { responsiveImageSrcSet } from "../data/media/responsive.ts";
-import type { HomeCardData } from "../data/projects.ts";
+import type { ProjectCardPresentation } from "../data/projects.ts";
 import { renderRevealAttribute } from "../motion-contract.ts";
-import { getHomeCardHref } from "../site/pages/project-card-routes.ts";
+import { getProjectCardHref } from "../site/pages/project-card-routes.ts";
 import { escapeHtml } from "../utils/html.ts";
 
 export interface ProjectCardRenderOptions {
@@ -10,11 +10,11 @@ export interface ProjectCardRenderOptions {
 }
 
 export function renderProjectCard(
-  card: HomeCardData,
+  card: ProjectCardPresentation,
   optionsOrIndex: ProjectCardRenderOptions | number = {},
 ): string {
   const options = typeof optionsOrIndex === "number" ? {} : optionsOrIndex;
-  const href = options.href ?? getHomeCardHref(card);
+  const href = options.href ?? getProjectCardHref(card);
 
   const ariaLabel = card.ariaLabel ?? (card.title ? `Перейти к проекту ${card.title}` : "Перейти к проекту");
   const coverAsset = projectIndexMediaAssetFor(card);

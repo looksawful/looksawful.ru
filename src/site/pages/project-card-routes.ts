@@ -1,8 +1,8 @@
-import type { HomeCardData } from "../../data/projects.ts";
+import type { ProjectCardPresentation } from "../../data/projects.ts";
 import { sitePages } from "./manifest.ts";
 
-export function getHomeCardHref(
-  card: Pick<HomeCardData, "id" | "pageId">,
+export function getProjectCardHref(
+  card: Pick<ProjectCardPresentation, "id" | "pageId">,
 ): string {
   const page = sitePages.find((candidate) => candidate.id === card.pageId);
 
@@ -12,3 +12,5 @@ export function getHomeCardHref(
 
   return page.path;
 }
+
+export const getHomeCardHref = getProjectCardHref;
