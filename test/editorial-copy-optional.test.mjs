@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { parseCvContent } from "../src/data/cv.ts";
-import { parseProjectCards } from "../src/data/projects.ts";
+import { parseHomeCards } from "../src/data/projects.ts";
 import { renderProjectCard } from "../src/templates/project-card.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { renderSectionIntro } from "../src/templates/section-intro.ts";
@@ -76,7 +76,7 @@ test("Pages CMS keeps editorial strings optional while structural fields stay pr
   );
 });
 
-test("project-card copy accepts empty or omitted values without weakening media identity", async () => {
+test("home-card copy accepts empty or omitted values without weakening media identity", async () => {
   const source = JSON.parse(await readFile(new URL("../src/content/projects.json", import.meta.url), "utf8"));
   const edited = clone(source);
   delete edited[0].title;
@@ -86,7 +86,7 @@ test("project-card copy accepts empty or omitted values without weakening media 
   delete edited[0].ariaLabel;
   delete edited[0].cover.alt;
 
-  const parsed = parseProjectCards(edited);
+  const parsed = parseHomeCards(edited);
   assert.equal(parsed[0].title, "");
   assert.equal(parsed[0].focus, "");
   assert.equal(parsed[0].role, undefined);
@@ -100,11 +100,11 @@ test("project-card copy accepts empty or omitted values without weakening media 
 
   const invalidCopy = clone(source);
   invalidCopy[0].title = 42;
-  assert.throws(() => parseProjectCards(invalidCopy), /title.*string/i);
+  assert.throws(() => parseHomeCards(invalidCopy), /title.*string/i);
 
   const missingTechnicalSource = clone(source);
   delete missingTechnicalSource[0].cover.src;
-  assert.throws(() => parseProjectCards(missingTechnicalSource), /cover.*src/i);
+  assert.throws(() => parseHomeCards(missingTechnicalSource), /cover.*src/i);
 });
 
 test("empty project and section copy produces no empty editorial wrappers", () => {
