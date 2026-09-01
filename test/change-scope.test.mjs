@@ -29,3 +29,10 @@ test("docs and CV-specific styles do not select exhaustive media regression", ()
   assert.deepEqual(classifyChangedFiles(["docs/tooling-pipeline.md"]).suites, ["smoke"]);
   assert.deepEqual(classifyChangedFiles(["public/cv/style.css"]).suites, ["smoke", "cv"]);
 });
+test("domain catalog migration guard stays in affected content scope", () => {
+  const scope = classifyChangedFiles(["test/domain-catalog-identity.test.mjs"]);
+  assert.equal(scope.scope, "affected");
+  assert.equal(scope.mediaChanged, false);
+  assert.deepEqual(scope.groups, ["content"]);
+  assert.deepEqual(scope.suites, ["smoke", "mpa"]);
+});
