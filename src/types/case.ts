@@ -1,9 +1,3 @@
-import type { ClientId } from "../data/catalog/clients.ts";
-import type { EngagementId } from "../data/catalog/engagements.ts";
-import type { EngagementTypeId } from "../data/taxonomy/engagement-types.ts";
-import type { IndustryId } from "../data/taxonomy/industries.ts";
-import type { RoleId } from "../data/taxonomy/roles.ts";
-
 export type CaseVisibility = "public" | "hidden";
 
 export interface CaseData {
@@ -17,13 +11,13 @@ export interface CaseData {
   date?: string;
   periodLabel?: string;
 
-  clientIds?: readonly ClientId[];
-  engagementIds?: readonly EngagementId[];
+  clientIds?: readonly string[];
+  engagementIds?: readonly string[];
 
-  primaryRoleId?: RoleId;
+  primaryRoleId?: string;
   primaryRoleLabel?: string;
-  roleIds?: readonly RoleId[];
+  roleIds?: readonly string[];
 
-  engagementTypeIds?: readonly EngagementTypeId[];
-  industryIds?: readonly IndustryId[];
+  engagementTypeIds?: readonly string[];
+  industryIds?: readonly string[];
 }
