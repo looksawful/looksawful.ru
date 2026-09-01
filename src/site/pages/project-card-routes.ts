@@ -12,5 +12,3 @@ export function getProjectCardHref(
 
   return page.path;
 }
-
-export const getHomeCardHref = getProjectCardHref;
