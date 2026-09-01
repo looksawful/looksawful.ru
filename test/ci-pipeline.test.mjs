@@ -5,6 +5,16 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const step = (workflow, name) => workflow.match(new RegExp(`      - name: ${name}\\n[\\s\\S]*?(?=\\n      - name: |$)`))?.[0] ?? "";
 
+test("every cached-media verification still checks complete catalog/data integrity", async () => {
+  const { scripts } = JSON.parse(await read("package.json"));
+  assert.match(scripts["test:media:contract"], /check-data-integrity/);
+  for (const name of ["verify-dev", "verify-pr", "pages", "verify-full", "verify-cv-branch"]) {
+    const workflow = await read(`.github/workflows/${name}.yml`);
+    assert.match(step(workflow, "Media contracts"), /npm run test:media:contract/);
+    assert.doesNotMatch(step(workflow, "Media contracts"), /if:/);
+  }
+});
+
 for (const name of ["verify-dev.yml", "verify-pr.yml"]) {
   test(`${name}: read-only verification retains cheap checks, build and affected browser validation`, async () => {
     const workflow = await read(`.github/workflows/${name}`);

@@ -12,7 +12,7 @@ Postbuild applies CMS CV content, builds the sitemap and checks metadata/local l
 
 `npm test` / `npm run test:fast` runs ordinary recursive Node tests (including nested
 CSS contracts), without physical derivative checks or media-tool fixtures.
-`npm run verify` runs ensure, typecheck, fast tests, build:site and compact smoke.
+`npm run verify` runs ensure, typecheck, fast tests, media/data contracts, build:site and compact smoke.
 `test:core` retains the original recursive `node --test` plus data integrity;
 it includes all media fixtures and requires prepared derivatives.
 `test:unit`, `test:ci`, `test:cv` expose focused groups. Lists belong to
@@ -38,6 +38,9 @@ CI calls deterministic sync and media fixtures if any of these is true:
 Even an exact hit is checked by `tools/ci/media-scope.mjs`, using the existing
 media-state validator. Fast tests and physical-media contracts also remain
 mandatory. Thus cache presence is not correctness proof. For ordinary content/CV
+changes complete data integrity (IDs, references, real source formats/dimensions,
+manifest files) also runs in `test:media:contract`, after derivatives are available.
+It does not invoke ffmpeg or regenerate media. For ordinary content/CV
 changes with valid cached derivatives, neither ffmpeg installation nor sync/media
 fixtures run. Build/local-link checks still reject missing referenced assets.
 On this validated unchanged-input path, catalog `--check --check-stored` checks

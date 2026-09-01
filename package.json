@@ -33,7 +33,7 @@
     "test:unit": "node tools/ci/run-tests.mjs unit",
     "test:ci": "node tools/ci/run-tests.mjs ci",
     "test:cv": "node tools/ci/run-tests.mjs cv",
-    "test:media:contract": "node tools/ci/run-tests.mjs media-contract",
+    "test:media:contract": "node tools/ci/run-tests.mjs media-contract && node tools/check-data-integrity.ts",
     "test:media:checks": "node tools/ci/run-tests.mjs media && node tools/check-data-integrity.ts",
     "test:media": "npm run media:sync && npm run test:media:checks",
     "test:e2e": "node tools/smoke-site.mjs",
@@ -48,7 +48,7 @@
     "test:e2e:production": "node tools/e2e/run-production.mjs",
     "test:e2e:cv:production": "node tools/e2e/run-cv-production.mjs",
     "verify:core": "npm run typecheck && npm run test:core && npm run build:site && npm run test:e2e:all",
-    "verify": "npm run media:ensure && npm run typecheck && npm run test:fast && npm run build:site && npm run test:e2e:smoke",
+    "verify": "npm run media:ensure && npm run typecheck && npm run test:fast && npm run test:media:contract && npm run build:site && npm run test:e2e:smoke",
     "verify:full": "npm run media:sync && npm run verify:core"
   },
   "devDependencies": {
