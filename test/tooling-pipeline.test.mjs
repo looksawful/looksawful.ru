@@ -47,7 +47,7 @@ test("verify performs every expensive core stage exactly once", () => {
   assert.match(verifyCore, /npm run typecheck/);
   assert.match(verifyCore, /npm run test:core/);
   assert.match(verifyCore, /npm run build:site/);
-  assert.match(verifyCore, /npm run test:e2e:all/);
+  assert.match(verifyCore, /npm run test:e2e:full/);
   assert.doesNotMatch(verifyCore, /npm test|npm run test(?:\s|$)|npm run build(?:\s|$)|build:core|test:e2e:navigation|test:e2e:mpa|test:e2e:projects|test:e2e:cv/);
   assert.equal(countCommand(verifyCore, "npm run typecheck"), 1);
   assert.doesNotMatch(buildSite, /typecheck|media:ensure|media:sync|media:prepare/);
@@ -59,7 +59,7 @@ test("standalone core/build/e2e debugging scripts remain available", () => {
   assert.equal(requireScript("build:vite"), "vite build");
   assert.match(requireScript("test:core"), /node --test/);
   assert.match(requireScript("test:core"), /check-data-integrity/);
-  assert.equal(requireScript("test:e2e:all"), "node tools/e2e/run-all.mjs");
+  assert.equal(requireScript("test:e2e:full"), "node tools/e2e/run-all.mjs");
 
   for (const name of [
     "test:e2e",
