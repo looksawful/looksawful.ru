@@ -7,7 +7,9 @@ import {
   assertHomepagePresentationSupported,
   homepageEntries,
 } from "../pages/homepage.ts";
-import { getPageByPath } from "../pages/manifest.ts";
+import { getPageByPath, sitePages } from "../pages/manifest.ts";
+import type { SitePageDefinition } from "../pages/types.ts";
+import { normalizePagePath } from "../pages/validation.ts";
 import { renderStandaloneEntityPage } from "../renderers/entity-page.ts";
 import { renderHomepagePage } from "../renderers/home/home-page.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
@@ -31,10 +33,38 @@ export function entryRequestToPagePath(requestPath: string): string {
   return pathname;
 }
 
-export function rewriteCvDevRequest(requestUrl: string): string {
-  const match = requestUrl.match(/^\/cv\/?([?#].*)?$/);
-  if (!match) return requestUrl;
-  return `/cv/index.html${match[1] ?? ""}`;
+function publicStaticSourceToRequestPath(sourcePath: string): string {
+  const normalized = sourcePath.replaceAll("\\", "/").replace(/^\.\//, "");
+  const prefix = "public/";
+  if (!normalized.startsWith(prefix) || normalized.length === prefix.length) {
+    throw new Error(`Public-static SitePage source must live under public/: ${sourcePath}`);
+  }
+  return `/${normalized.slice(prefix.length)}`;
+}
+
+export function rewritePublicStaticDevRequest(
+  requestUrl: string,
+  pages: readonly SitePageDefinition[] = sitePages,
+): string {
+  const suffixIndex = requestUrl.search(/[?#]/);
+  const pathname = suffixIndex === -1 ? requestUrl : requestUrl.slice(0, suffixIndex);
+  const suffix = suffixIndex === -1 ? "" : requestUrl.slice(suffixIndex);
+
+  let normalizedPath: string;
+  try {
+    normalizedPath = normalizePagePath(pathname || "/");
+  } catch {
+    return requestUrl;
+  }
+
+  const page = pages.find((candidate) => (
+    candidate.enabled
+    && candidate.build.kind === "public-static"
+    && candidate.path === normalizedPath
+  ));
+
+  if (!page || page.build.kind !== "public-static") return requestUrl;
+  return `${publicStaticSourceToRequestPath(page.build.sourcePath)}${suffix}`;
 }
 
 export async function renderCvDevHtml(html: string, root = process.cwd()): Promise<string> {
@@ -61,7 +91,7 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
     enforce: "pre",
     configureServer(server) {
       server.middlewares.use((request, _response, next) => {
-        if (request.url) request.url = rewriteCvDevRequest(request.url);
+        if (request.url) request.url = rewritePublicStaticDevRequest(request.url);
         next();
       });
     },
@@ -69,19 +99,18 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
       order: "pre",
       async handler(html, context) {
         const pagePath = entryRequestToPagePath(context.path);
-        if (pagePath === "/cv/") return renderCvDevHtml(html, root);
-
         const page = getPageByPath(pagePath);
         if (!page) return html;
 
-        if (page.type === "home") return renderHomepagePage(html);
+        if (page.renderer === "cv") return renderCvDevHtml(html, root);
+        if (page.renderer === "home") return renderHomepagePage(html);
 
-        if (page.type === "case" || page.type === "project" || page.type === "collection") {
+        if (page.renderer === "entity") {
           const homepageTemplate = readFileSync(homepageTemplatePath, "utf8");
           return renderStandaloneEntityPage(homepageTemplate, page);
         }
 
-        if (page.type === "not-found") return renderNotFoundPage(page);
+        if (page.renderer === "not-found") return renderNotFoundPage(page);
 
         return html;
       },
