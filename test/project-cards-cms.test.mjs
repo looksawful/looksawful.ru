@@ -9,11 +9,15 @@ import {
   projectIndexMediaAssetFor,
   projectIndexMediaAssets,
 } from "../src/data/media/assets/project-index.ts";
-import { homeCards } from "../src/data/projects.ts";
-import { getHomeCardHref } from "../src/site/pages/project-card-routes.ts";
+import {
+  parseProjectCardPresentations,
+  projectCardPresentations,
+} from "../src/data/projects.ts";
+import { getProjectCardHref } from "../src/site/pages/project-card-routes.ts";
 import { renderProjectCard } from "../src/templates/project-card.ts";
 
 const cmsConfig = readFileSync(new URL("../.pages.yml", import.meta.url), "utf8");
+const sourceCards = JSON.parse(readFileSync(new URL("../src/content/projects.json", import.meta.url), "utf8"));
 const publishWorkflow = readFileSync(
   new URL("../.github/workflows/pages-cms-publish.yml", import.meta.url),
   "utf8",
@@ -82,29 +86,55 @@ const baselineCards = [
   },
 ];
 
-const homeCardIds = baselineCards.map(({ id }) => id);
+const projectCardIds = baselineCards.map(({ id }) => id);
 
-test("CMS project-card migration fixture preserves the original rendering contract without freezing live copy", () => {
+test("ProjectCardPresentation preserves the existing rendered card contract", () => {
   const baselineHtml = baselineCards.map(renderProjectCard).join("\n");
+  const liveHtml = projectCardPresentations.map(renderProjectCard).join("\n");
 
   assert.equal((baselineHtml.match(/class="project-card"/g) ?? []).length, baselineCards.length);
+  assert.equal(liveHtml, baselineHtml);
   for (const card of baselineCards) {
-    assert.ok(baselineHtml.includes(`href="${getHomeCardHref(card)}"`));
+    assert.ok(baselineHtml.includes(`href="${getProjectCardHref(card)}"`));
   }
 });
 
-test("CMS home-card IDs remain the fixed presentation contract while copy stays editable", () => {
-  assert.deepEqual(homeCards.map((card) => card.id), homeCardIds);
-  for (const card of homeCards) {
-    assert.equal(typeof card.title, "string");
-    assert.equal(typeof card.focus, "string");
-    assert.equal(typeof card.visible, "boolean");
-    assert.equal(typeof card.pageId, "string");
+test("ProjectCardPresentation derives canonical title, role and normal Case period instead of storing redundant CMS copies", () => {
+  assert.deepEqual(projectCardPresentations.map(({ id }) => id), projectCardIds);
+  assert.deepEqual(
+    projectCardPresentations.map(({ title, role, period }) => ({ title, role, period })),
+    baselineCards.map(({ title, role, period }) => ({ title, role, period })),
+  );
+
+  for (const source of sourceCards.slice(0, 3)) {
+    assert.equal("title" in source, false, `${source.id} title must derive from its canonical entity`);
+    assert.equal("role" in source, false, `${source.id} role must derive from its canonical entity`);
+    assert.equal("period" in source, false, `${source.id} period must derive from its canonical Case chronology`);
   }
+  assert.equal("title" in sourceCards[3], false, "Shootings title must derive from its canonical Collection");
+  assert.equal("role" in sourceCards[3], false, "Shootings role must derive from its canonical Collection");
+  assert.equal(sourceCards[3].period, "2016–2025", "Shootings keeps its presentation-specific period override");
+});
+
+test("ProjectCardPresentation keeps fixed code-owned identity/order while CMS copy and explicit teaser overrides remain editable", () => {
+  const reordered = structuredClone(sourceCards).reverse();
+  const normalized = parseProjectCardPresentations(reordered);
+  assert.deepEqual(normalized.map(({ id }) => id), projectCardIds);
+
+  const edited = structuredClone(sourceCards);
+  edited[0].title = "Тизерное название";
+  edited[0].role = "Тизерная роль";
+  edited[0].period = "Тизерный период";
+  edited[0].focus = "Тизерное описание";
+  const parsed = parseProjectCardPresentations(edited);
+  assert.equal(parsed[0].title, edited[0].title);
+  assert.equal(parsed[0].role, edited[0].role);
+  assert.equal(parsed[0].period, edited[0].period);
+  assert.equal(parsed[0].focus, edited[0].focus);
 });
 
 test("CMS project covers stay in the scoped WebP folder and metadata matches the real files", async () => {
-  for (const card of homeCards) {
+  for (const card of projectCardPresentations) {
     assert.match(
       card.cover.src,
       /^\/media\/projects\/index\/[a-z0-9][a-z0-9-]*\.webp$/,
@@ -121,9 +151,9 @@ test("CMS project covers stay in the scoped WebP folder and metadata matches the
 });
 
 test("CMS project covers are derived into the typed media registry", () => {
-  assert.equal(projectIndexMediaAssets.length, homeCards.length);
+  assert.equal(projectIndexMediaAssets.length, projectCardPresentations.length);
 
-  for (const card of homeCards) {
+  for (const card of projectCardPresentations) {
     const asset = projectIndexMediaAssetFor(card);
     assert.deepEqual(
       projectIndexMediaAssets.find(({ id }) => id === asset.id),
@@ -137,9 +167,9 @@ test("CMS project covers are derived into the typed media registry", () => {
   }
 
   const uploadedCover = {
-    ...homeCards[0],
+    ...projectCardPresentations[0],
     cover: {
-      ...homeCards[0].cover,
+      ...projectCardPresentations[0].cover,
       src: "/media/projects/index/cms-uploaded-cover.webp",
       width: 2048,
       height: 1152,
@@ -153,16 +183,16 @@ test("CMS project covers are derived into the typed media registry", () => {
 });
 
 test("homepage project cards consume registry-backed responsive cover variants", () => {
-  const html = renderProjectCard(homeCards[0]);
+  const html = renderProjectCard(projectCardPresentations[0]);
 
   assert.match(html, /\ssrcset="[^"]+"/);
   assert.match(html, /\ssizes="[^"]+"/);
   assert.match(html, /\/media\/generated\/responsive\/projects\/index\/jestei-pool-cover@/);
 
   const uploadedCover = {
-    ...homeCards[0],
+    ...projectCardPresentations[0],
     cover: {
-      ...homeCards[0].cover,
+      ...projectCardPresentations[0].cover,
       src: "/media/projects/index/cms-uploaded-cover.webp",
     },
   };

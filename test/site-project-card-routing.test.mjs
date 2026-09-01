@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import * as homeCardData from "../src/data/projects.ts";
+import * as projectCardData from "../src/data/projects.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 import { createHomepageSlots } from "../src/site/renderers/home/home-slots.ts";
 
@@ -12,13 +12,15 @@ const expected = new Map([
   ["shootings", { pageId: "collection:music-photography", path: "/shootings/" }],
 ]);
 
-test("homepage cards own a direct canonical SitePage relation", () => {
-  assert.ok(Array.isArray(homeCardData.homeCards), "homeCards must be the homepage-card collection");
-  assert.equal("projects" in homeCardData, false, "homepage cards must not export a fake Project catalog");
+test("ProjectCardPresentation owns a direct canonical SitePage relation without legacy HomeCard identity", () => {
+  assert.ok(Array.isArray(projectCardData.projectCardPresentations));
+  assert.equal("projects" in projectCardData, false, "project cards must not export a fake Project catalog");
+  assert.equal("homeCards" in projectCardData, false, "legacy HomeCard collection must be removed");
+  assert.equal("HOME_CARD_IDS" in projectCardData, false, "legacy HomeCard IDs must be removed");
 
-  for (const card of homeCardData.homeCards) {
+  for (const card of projectCardData.projectCardPresentations) {
     const expectedTarget = expected.get(card.id);
-    assert.ok(expectedTarget, `unexpected home card ${card.id}`);
+    assert.ok(expectedTarget, `unexpected project-card presentation ${card.id}`);
     assert.equal(card.pageId, expectedTarget.pageId);
 
     const page = sitePages.find((candidate) => candidate.id === card.pageId);
@@ -28,7 +30,7 @@ test("homepage cards own a direct canonical SitePage relation", () => {
   }
 });
 
-test("homepage card markup links through its canonical SitePage relation", () => {
+test("homepage card markup links through canonical SitePage relations", () => {
   const cards = createHomepageSlots().find(([marker]) => marker === "<!-- PROJECT_CARDS -->")?.[1];
   assert.ok(cards);
 
