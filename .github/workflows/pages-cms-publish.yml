@@ -109,7 +109,7 @@ jobs:
 
           const diff = execFileSync(
             "git",
-            ["diff", "--name-only", "-z", "origin/prod..origin/dev"],
+            ["diff", "--name-only", "--no-renames", "-z", "origin/prod..origin/dev"],
             { encoding: "utf8" },
           );
           const files = diff.split("\0").filter(Boolean);
