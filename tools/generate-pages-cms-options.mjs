@@ -12,6 +12,7 @@ const cmsPath = fileURLToPath(new URL("../.pages.yml", import.meta.url));
 const checkOnly = process.argv.includes("--check");
 
 const escapeYamlLabel = (value) => value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+const unescapeYamlLabel = (value) => value.replaceAll('\\"', '"').replaceAll("\\\\", "\\");
 
 function renderComponent(name, values) {
   return [
@@ -22,6 +23,17 @@ function renderComponent(name, values) {
     "      values:",
     ...values.map(({ id, label }) => `        - { name: ${id}, label: "${escapeYamlLabel(label)}" }`),
   ].join("\n");
+}
+
+function existingLabels(componentBlock) {
+  const labels = new Map();
+  const optionPattern = /^\s*- \{ name: ([^,}]+), label: "((?:\\.|[^"\\])*)" \}$/gm;
+
+  for (const match of componentBlock.matchAll(optionPattern)) {
+    labels.set(match[1], unescapeYamlLabel(match[2]));
+  }
+
+  return labels;
 }
 
 const generatedComponents = [
@@ -54,11 +66,18 @@ export function renderPagesCmsGeneratedOptions(source) {
       `^  ${component.name}:\\n[\\s\\S]*?(?=^${boundary.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")})`,
       "m",
     );
-    const rendered = `${renderComponent(component.name, component.values)}\n\n`;
+    const currentBlock = output.match(pattern)?.[0];
 
-    if (!pattern.test(output)) {
+    if (!currentBlock) {
       throw new Error(`Missing generated CMS component block: ${component.name}`);
     }
+
+    const labels = existingLabels(currentBlock);
+    const values = component.values.map(({ id, label }) => ({
+      id,
+      label: labels.get(id) ?? label,
+    }));
+    const rendered = `${renderComponent(component.name, values)}\n\n`;
     output = output.replace(pattern, rendered);
   }
 
