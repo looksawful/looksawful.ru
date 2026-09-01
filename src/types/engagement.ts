@@ -1,9 +1,3 @@
-import type { ClientId } from "../data/catalog/clients.ts";
-import type { EngagementTypeId } from "../data/taxonomy/engagement-types.ts";
-import type { IndustryId } from "../data/taxonomy/industries.ts";
-import type { RoleId } from "../data/taxonomy/roles.ts";
-import type { WorkAreaId } from "../data/taxonomy/work-areas.ts";
-
 export interface EngagementData {
   id: string;
 
@@ -12,13 +6,13 @@ export interface EngagementData {
   summary?: string;
   description?: string;
 
-  clientIds?: readonly ClientId[];
+  clientIds?: readonly string[];
 
-  primaryRoleId?: RoleId;
+  primaryRoleId?: string;
   primaryRoleLabel?: string;
-  roleIds?: readonly RoleId[];
+  roleIds?: readonly string[];
 
-  engagementTypeIds?: readonly EngagementTypeId[];
-  industryIds?: readonly IndustryId[];
-  workAreaIds?: readonly WorkAreaId[];
+  engagementTypeIds?: readonly string[];
+  industryIds?: readonly string[];
+  workAreaIds?: readonly string[];
 }
