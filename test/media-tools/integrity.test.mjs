@@ -80,6 +80,35 @@ test("integrity report catches missing files, wrong dimensions, duplicate ids, w
   assert.match(report.errors.join("\n"), /stale generated variant.*valid@480\.webp/);
 });
 
+test("integrity report rejects unknown canonical Client relations without rejecting presentation-only logos", async () => {
+  const root = await fixtureRoot("integrity-client-logo");
+  const report = await createMediaIntegrityReport({
+    repoRoot: root,
+    mediaAssets: [],
+    mediaEntries: [],
+    clientLogos: [
+      {
+        id: "linked-logo",
+        clientId: "unknown-client",
+        name: "Linked logo",
+        file: "01",
+      },
+      {
+        id: "presentation-only-logo",
+        name: "Presentation-only logo",
+        file: "02",
+      },
+    ],
+    scanPhysicalMedia: false,
+  });
+
+  assert.match(
+    report.errors.join("\n"),
+    /ClientLogo\(linked-logo\)\.clientId: unknown Client "unknown-client"/,
+  );
+  assert.doesNotMatch(report.errors.join("\n"), /ClientLogo\(presentation-only-logo\)\.clientId/);
+});
+
 test("integrity report supports registered GLB model assets", async () => {
   const root = await fixtureRoot("integrity-model");
   const model = join(root, "public", "media", "fixtures", "organism.glb");
