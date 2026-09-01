@@ -33,9 +33,9 @@ test("caption QA is import-safe and uses the shared E2E runtime when executed di
   assert.doesNotMatch(source, /vite\.js["'],\s*["']preview/);
 });
 
-test("production E2E runner reuses one runtime for all smoke suites and caption QA", async () => {
+test("production E2E runner reuses one runtime for compact production smoke and caption QA", async () => {
   const source = await read("tools/e2e/run-production.mjs");
-  assert.match(source, /runAllSmokeSuites\(\{\s*browser,\s*baseUrl,\s*cvMode:\s*["']production["']/s);
+  assert.match(source, /runQuickSmoke\(\{\s*browser,\s*baseUrl,\s*cvMode:\s*["']production["']/s);
   assert.match(source, /captureCaptionQa\(\{\s*browser,\s*baseUrl/s);
   assert.match(source, /withE2ERuntime/);
 });

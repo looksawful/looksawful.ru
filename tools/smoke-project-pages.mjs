@@ -1,3 +1,4 @@
+import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./e2e/readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
 let BASE_URL = "";
@@ -81,7 +82,11 @@ async function verifyProjectRuntime(page, route, label) {
   const gallery = page.locator("[data-animated-canvas-gallery]").first();
   assert(await gallery.count(), `${label}: Moves canvas gallery is missing`);
   await gallery.scrollIntoViewIfNeeded();
-  await page.waitForTimeout(500);
+  await page.waitForFunction(() => {
+    const gallery = document.querySelector("[data-animated-canvas-gallery]");
+    const canvas = gallery?.querySelector("canvas");
+    return gallery?.dataset.galleryState === "error" || (canvas?.width > 2 && canvas?.height > 2 && canvas.getBoundingClientRect().width > 2);
+  });
 
   const state = await gallery.evaluate((node) => {
     const canvas = node.querySelector("canvas");
@@ -134,7 +139,7 @@ async function audit(browser, route, viewport) {
   try {
     await page.goto(`${BASE_URL}${route.path}`, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.evaluate(() => document.fonts?.ready);
-    await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => {});
+    await waitForDocumentReady(page, route.requiredSelector);
     await verifyProjectPage(page, route, label);
     await verifyProjectRuntime(page, route, label);
 

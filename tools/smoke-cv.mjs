@@ -1,3 +1,4 @@
+import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./e2e/readiness.mjs";
 import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -71,7 +72,7 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
     assert(response?.ok(), `${label}: /cv/ returned ${response?.status()}`);
 
     await page.evaluate(() => document.fonts?.ready);
-    await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
+    await waitForDocumentReady(page, "main.resume");
 
     const state = await page.evaluate(async () => {
       const root = document.documentElement;

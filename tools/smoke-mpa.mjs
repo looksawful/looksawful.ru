@@ -1,3 +1,4 @@
+import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./e2e/readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
 let BASE_URL = "";
@@ -76,10 +77,10 @@ async function scrollThroughPage(page) {
       window.scrollTo(0, Math.min(window.scrollY + Math.max(window.innerHeight * 0.8, 320), maxY));
       return window.scrollY >= maxY - 2;
     });
-    await page.waitForTimeout(60);
+    await waitForAnimationFrames(page);
     if (done) break;
   }
-  await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => {});
+  // Media readiness is checked below through decode/metadata, not network silence.
   await page.evaluate(() => window.scrollTo(0, 0));
 }
 
@@ -204,8 +205,10 @@ async function verifyLightbox(page, label) {
   });
   assert(opened, `${label}: standalone lightbox did not open`);
 
+  await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
+
   await page.keyboard.press("Escape");
-  await page.waitForTimeout(150);
+  await waitForLightboxClosed(page);
   const closed = await page.evaluate(() => {
     const dialog = document.querySelector("[data-media-lightbox]");
     return !document.querySelector(".pswp") && !(dialog instanceof HTMLDialogElement && dialog.open);
@@ -238,7 +241,11 @@ async function verifyPageFlip(page, label) {
   const root = page.locator("[data-page-flip]").first();
   if (!(await root.count())) return;
   await root.scrollIntoViewIfNeeded();
-  await page.waitForTimeout(350);
+  await page.waitForFunction(() => {
+    const root = document.querySelector("[data-page-flip]");
+    // The count is server-rendered; disabled Prev proves runtime initialization.
+    return root?.getAttribute("data-page-flip-state") === "error" || root?.querySelector("[data-page-flip-prev]")?.disabled === true;
+  });
 
   const before = await root.evaluate((node) => ({
     state: node.getAttribute("data-page-flip-state") || "",
@@ -254,14 +261,13 @@ async function verifyPageFlip(page, label) {
   assert(await next.count(), `${label}: page flip next button is missing`);
   if (!before.nextDisabled) {
     await next.click({ force: true });
-    await page.waitForTimeout(100);
-    let afterCount = (await root.locator("[data-page-flip-count]").textContent())?.trim() || "";
-
-    if (afterCount === before.count && !(await next.isDisabled())) {
+    await waitForAnimationFrames(page);
+    // The existing fixture increments pages, while landscape counts spreads.
+    if ((await root.locator("[data-page-flip-count]").textContent())?.trim() === before.count && !(await next.isDisabled())) {
       await next.click({ force: true });
-      await page.waitForTimeout(100);
-      afterCount = (await root.locator("[data-page-flip-count]").textContent())?.trim() || "";
     }
+    await page.waitForFunction((previous) => document.querySelector("[data-page-flip-count]")?.textContent?.trim() !== previous, before.count);
+    const afterCount = (await root.locator("[data-page-flip-count]").textContent())?.trim() || "";
 
     assert(afterCount && afterCount !== before.count, `${label}: page flip next did not advance`);
   }
@@ -300,7 +306,7 @@ async function auditRoute(browser, route, width, height) {
   try {
     await page.goto(`${BASE_URL}${route.path}`, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.evaluate(() => document.fonts?.ready);
-    await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => {});
+    await waitForDocumentReady(page);
     await verifyDocument(page, route, label);
     await scrollThroughPage(page);
     await verifyDocument(page, route, label);
@@ -338,7 +344,7 @@ async function auditReducedMotion(browser) {
   try {
     await page.goto(`${BASE_URL}${route.path}`, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.evaluate(() => document.fonts?.ready);
-    await page.waitForTimeout(150);
+    await waitForAnimationFrames(page);
     const hidden = await page.evaluate(() => [...document.querySelectorAll("[data-reveal]")]
       .filter((node) => {
         if (!(node instanceof HTMLElement) || node.closest("[hidden]")) return false;

@@ -1,9 +1,10 @@
 import { captureCaptionQa } from "../capture-caption-qa.mjs";
-import { runAllSmokeSuites } from "./run-all.mjs";
+import { runQuickSmoke, runMediaSanity } from "./run-smoke.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 export async function runProductionE2E({ browser, baseUrl }) {
-  await runAllSmokeSuites({ browser, baseUrl, cvMode: "production" });
+  await runQuickSmoke({ browser, baseUrl, cvMode: "production" });
+  await runMediaSanity({ browser, baseUrl });
   await captureCaptionQa({ browser, baseUrl });
 }
 

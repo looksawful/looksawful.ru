@@ -1,32 +1,26 @@
-name: Verify CV branch
-
+name: Full regression
 on:
-  push:
-    branches: [feat/cv-page]
+  schedule:
+    - cron: '17 3 * * *'
   workflow_dispatch:
-
 permissions:
   contents: read
-
 concurrency:
-  group: verify-cv-branch
+  group: full-regression-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: ${{ github.sha }}
           persist-credentials: false
-      - name: Classify changes
+      - name: Full scope
         id: change-scope
-        env:
-          CI_DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          CI_DIFF_HEAD: ${{ github.sha }}
-        run: node tools/ci/change-scope.mjs
+        run: node tools/ci/change-scope.mjs --full
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -36,8 +30,6 @@ jobs:
         run: npm ci
       - name: Typecheck
         run: npm run typecheck
-      - name: Fast tests
-        run: npm run test:cv
       - name: Restore generated media
         id: media-cache
         uses: actions/cache@v4
@@ -76,25 +68,11 @@ jobs:
         run: git diff --exit-code -- src/content/media-catalog src/data/media/catalog-records.generated.ts public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
       - name: Media contracts
         run: npm run test:media:contract
-      - name: Media tooling tests
-        if: steps.media-scope.outputs.needs_sync == 'true'
-        run: npm run test:media:checks
+      - name: Core tests
+        run: npm run test:core
       - name: Build site
         run: npm run build:site
-      - name: Install browser for smoke tests
+      - name: Install browser
         run: npx playwright install --with-deps chromium
-      - name: Authored browser smoke
-        env:
-          CV_SMOKE_CAPTURE_DIR: artifacts/cv-smoke
-        run: npm run test:e2e:cv
-      - name: Prepare production CV
-        run: node tools/prepare-cv-production.mjs dist/cv/index.html
-      - name: Production CV smoke
-        run: npm run test:e2e:cv:production
-      - name: Upload CV visual QA
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cv-smoke
-          path: artifacts/cv-smoke
-          if-no-files-found: warn
+      - name: Full browser regression
+        run: npm run test:e2e:full

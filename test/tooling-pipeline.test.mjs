@@ -18,11 +18,11 @@ function countCommand(script, command) {
   return script.split(command).length - 1;
 }
 
-test("local dev/test/build use cheap media ensure while explicit sync stays available", () => {
+test("local dev/build use cheap media ensure and test stays fast while explicit sync stays available", () => {
   const mediaSync = requireScript("media:sync");
   const mediaEnsure = requireScript("media:ensure");
   const dev = requireScript("dev");
-  const testScript = requireScript("test");
+  assert.equal(requireScript("test"), "npm run test:fast");
   const build = requireScript("build");
 
   assert.match(mediaSync, /media:video:build/);
@@ -32,14 +32,14 @@ test("local dev/test/build use cheap media ensure while explicit sync stays avai
   assert.match(mediaEnsure, /media:catalog:sync/);
   assert.match(mediaEnsure, /media-dev-state\.mjs --ensure/);
 
-  for (const [name, script] of Object.entries({ dev, test: testScript, build })) {
+  for (const [name, script] of Object.entries({ dev, build })) {
     assert.match(script, /npm run media:ensure/, `${name} must ensure generated media`);
     assert.doesNotMatch(script, /media:prepare|media:video:build|media:build/, `${name} must not force a full media sync`);
   }
 });
 
 test("verify performs every expensive core stage exactly once", () => {
-  const verify = requireScript("verify");
+  const verify = requireScript("verify:full");
   const verifyCore = requireScript("verify:core");
   const buildSite = requireScript("build:site");
 
@@ -141,7 +141,7 @@ test("production E2E runner tests sanitized output and captures QA in the same r
   const source = await readFile(new URL("../tools/e2e/run-production.mjs", import.meta.url), "utf8");
 
   assert.match(source, /withE2ERuntime/);
-  assert.match(source, /runAllSmokeSuites/);
+  assert.match(source, /runQuickSmoke/);
   assert.match(source, /cvMode:\s*["']production["']/);
   assert.match(source, /captureCaptionQa/);
 });
