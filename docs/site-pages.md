@@ -44,22 +44,25 @@ Typed content + media registry
   authored copy and media presentation data
 
 Page manifest
-  which entities have URLs
+  canonical page identity, route, type, entity relation, discovery, renderer and build ownership
 
 Discovery settings
   whether a page is listed and/or indexable
 
 Renderer
-  how the entity body is composed
+  how the page body is composed or transformed
 
 Page shell
-  shared HTML document, metadata, navigation and page diagnostics
+  shared HTML document, metadata, navigation and page diagnostics for portfolio-rendered pages
 
 Vite MPA
-  physical HTML inputs and build-time transforms
+  physical HTML inputs for SitePages with build.kind = "vite"
+
+Public-static build
+  physical authored source under public/ copied to the matching dist target
 
 Postbuild
-  sitemap, metadata and local-link validation
+  CMS transforms, sitemap, metadata and local-link validation
 
 Runtime
   progressive enhancement only
@@ -69,13 +72,19 @@ Do not put route, canonical, navigation or homepage-mode fields into Case/Projec
 
 ## Page manifest
 
-Managed routes live in:
+Canonical page definitions live in:
 
 `src/site/pages/manifest.ts`
 
-The manifest is the source of truth for managed MPA routes. Vite inputs are derived from it through:
+The manifest is the source of truth for page identity, canonical route, page type, entity relation, discovery state, renderer ownership and build ownership.
+
+Vite inputs are derived from manifest entries with `build.kind: "vite"` through:
 
 `src/site/build/inputs.ts`
+
+`build.kind: "public-static"` pages instead identify an authored source under `public/`. The same `sourcePath` is used to resolve their development request document and production `dist/` target through:
+
+`src/site/build/public-static.ts`
 
 Current public/indexable entity routes:
 
@@ -90,9 +99,19 @@ Current direct-link-only Project routes:
 - `/work/moves-awful/`
 - `/work/berry-social-content-2020/`
 
-`/cv/` is intentionally not owned by the page manifest during this migration. It remains the existing static artifact in `public/cv/`.
+`/cv/` is a static SitePage. Its route, renderer identity and public-static build source are owned by the manifest. Its authored resume document remains `public/cv/index.html`, and its existing CMS/content transformation pipeline remains responsible for resume copy and production visibility sanitization. CV does not use the portfolio page shell or portfolio runtime.
 
 `/404.html` is a managed static noindex page.
+
+## Navigation
+
+Primary navigation stores canonical SitePage identities, not independent hrefs. The fixed six-page order lives in:
+
+`src/site/navigation/primary.ts`
+
+`src/site/navigation/model.ts` resolves those identities through `sitePages` and obtains every menu and breadcrumb href from `SitePage.path`.
+
+Pages CMS may edit the six navigation labels through `src/content/navigation.json`. The adapter in `src/data/navigation.ts` derives the fixed identity/order from the primary SitePage ID list; CMS does not own hrefs, routes, page type, discovery state or renderer/build mechanics.
 
 ## Discovery and indexability
 
@@ -167,13 +186,13 @@ Shared shell files:
 - `src/site/shell/metadata.ts`
 - `src/site/shell/navigation.ts`
 
-Managed pages expose:
+Portfolio-rendered managed pages expose:
 
 - `data-page-type`
 - `data-page-id`
 - `data-entity-id` for entity pages
 
-Indexable pages receive canonical and Open Graph URL metadata using the centralized production origin.
+Indexable pages receive canonical and Open Graph URL metadata using the centralized production origin. Public-static CV keeps its existing authored metadata document while sharing canonical SitePage route/discovery identity.
 
 Direct-link-only Project pages and 404 receive `noindex,nofollow` and are excluded from sitemap generation.
 
@@ -230,9 +249,11 @@ Then add it to navigation/homepage presentation only if the product decision req
 
 ## CMS boundary
 
-Pages CMS owns only the authored sources explicitly listed in `.pages.yml`, including homepage-card content, validated Case copy and the fixed Shootings overview/record text files.
+Pages CMS owns only the authored sources explicitly listed in `.pages.yml`, including homepage-card content, navigation labels, CV authored content, validated Case copy and the fixed Shootings overview/record text files.
 
-Do not make arbitrary routes editable through the CMS. Card IDs remain fixed and validated.
+CMS does not own SitePage route/path, canonical URL, page type, renderer/build ownership, listed/indexable state, Vite entries or sitemap mechanics.
+
+Do not make arbitrary routes editable through the CMS. Card and navigation IDs remain fixed and validated.
 
 Shootings record titles/dates are adapted into the existing domain catalog, but IDs, taxonomy relationships and record registration remain in code. Do not move the canonical domain catalog wholesale into CMS as part of ordinary page work.
 
@@ -253,9 +274,11 @@ Do not manually edit generated media output.
 
 ## Runtime boundary
 
-Shared `src/main.js` must be DOM-safe on every managed page.
+Shared `src/main.js` must be DOM-safe on every portfolio-runtime page.
 
 Project-specific side-effect runtimes are loaded only when their matching DOM exists. Avoid adding unconditional page-specific imports to the shared entry.
+
+CV remains an authored public-static page and does not load the portfolio runtime.
 
 JavaScript is progressive enhancement. Core text and media must exist in the built HTML.
 
@@ -282,6 +305,7 @@ npm run verify
 The build also runs the existing postbuild pipeline:
 
 ```text
+apply CV CMS content to the manifest-derived public-static target
 generate sitemap
 → check site metadata
 → check local links
