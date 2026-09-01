@@ -5,28 +5,24 @@ import {
   type NavigationLabelData,
 } from "../../data/navigation.ts";
 import { sitePages } from "../pages/manifest.ts";
-import type { SitePageDefinition } from "../pages/types.ts";
+import type { SitePageDefinition, SitePageId } from "../pages/types.ts";
+import {
+  PRIMARY_NAVIGATION_PAGE_IDS,
+  type PrimaryNavigationPageId,
+} from "./primary.ts";
 
 export interface SiteNavigationItem {
-  id: string;
+  id: SitePageId;
   label: string;
   href: string;
 }
 
 export interface SiteBreadcrumbItem {
-  id: string;
+  id: SitePageId;
   label: string;
   href?: string;
   current?: boolean;
 }
-
-const primaryPageIds = [
-  "home",
-  "case:jestei-pool",
-  "case:styx",
-  "case:sensetique",
-  "collection:music-photography",
-] as const;
 
 function getDomainPageLabel(page: SitePageDefinition): string {
   switch (page.type) {
@@ -54,8 +50,11 @@ function getNavigationPageLabel(
   return labels.find((item) => item.id === page.id)?.label ?? getDomainPageLabel(page);
 }
 
-function requirePage(id: (typeof primaryPageIds)[number]): SitePageDefinition {
-  const page = sitePages.find((candidate) => candidate.id === id && candidate.enabled);
+function requirePage(
+  id: PrimaryNavigationPageId,
+  pages: readonly SitePageDefinition[],
+): SitePageDefinition {
+  const page = pages.find((candidate) => candidate.id === id && candidate.enabled);
 
   if (!page) {
     throw new Error(`Primary navigation page is unavailable: ${id}`);
@@ -66,37 +65,32 @@ function requirePage(id: (typeof primaryPageIds)[number]): SitePageDefinition {
 
 export function getPrimaryNavigationItems(
   labels: readonly NavigationLabelData[] = navigationLabels,
+  pages: readonly SitePageDefinition[] = sitePages,
 ): readonly SiteNavigationItem[] {
-  const pageItems = primaryPageIds.map((id) => {
-    const page = requirePage(id);
+  return PRIMARY_NAVIGATION_PAGE_IDS.map((id) => {
+    const page = requirePage(id, pages);
     return {
       id: page.id,
       label: getNavigationPageLabel(page, labels),
       href: page.path,
     };
   });
-
-  return [
-    ...pageItems,
-    {
-      id: "cv",
-      label: getNavigationLabel("cv", labels),
-      href: "/cv/",
-    },
-  ];
 }
 
 export function getBreadcrumbItems(
   page: SitePageDefinition,
   labels: readonly NavigationLabelData[] = navigationLabels,
+  pages: readonly SitePageDefinition[] = sitePages,
 ): readonly SiteBreadcrumbItem[] {
   if (page.type === "home") return [];
 
+  const homePage = requirePage("home", pages);
+
   return [
     {
-      id: "home",
+      id: homePage.id,
       label: getNavigationLabel("home", labels),
-      href: "/",
+      href: homePage.path,
     },
     {
       id: page.id,
