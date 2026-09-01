@@ -10,9 +10,11 @@ export function pagePathToEntryPath(pagePath: string): string {
 
 export function createSiteInputs(root: string): Record<string, string> {
   return Object.fromEntries(
-    getEnabledSitePages().map((page) => [
-      page.id,
-      path.resolve(root, pagePathToEntryPath(page.path)),
-    ]),
+    getEnabledSitePages()
+      .filter((page) => page.build.kind === "vite")
+      .map((page) => [
+        page.id,
+        path.resolve(root, pagePathToEntryPath(page.path)),
+      ]),
   );
 }
