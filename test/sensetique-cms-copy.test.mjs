@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import * as sensetique from "../src/data/content/sensetique.ts";
+import { getCase, getRole } from "../src/data/catalog/lookup.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { renderSectionIntro } from "../src/templates/section-intro.ts";
 import { escapeHtml } from "../src/utils/html.ts";
@@ -66,21 +67,32 @@ async function readSource() {
   return JSON.parse(await readFile(new URL("../src/content/cases/sensetique.json", import.meta.url), "utf8"));
 }
 
-test("Sensetique CMS source keeps fixed editorial identities while copy remains editable", async () => {
+function readCanonicalIntro() {
+  const caseData = getCase("sensetique");
+  const role = caseData.primaryRoleLabel ?? (caseData.primaryRoleId ? getRole(caseData.primaryRoleId).name : "");
+  return { caseData, role, period: caseData.date ?? "" };
+}
+
+test("Sensetique CMS source keeps fixed editorial identities while Case owns intro identity", async () => {
   const source = await readSource();
+  const { caseData } = readCanonicalIntro();
+
   assert.deepEqual(Object.keys(source).sort(), ["credits", "intro", "notes", "sections"]);
-  assert.deepEqual(Object.keys(source.intro).sort(), ["lead", "period", "role"]);
+  assert.deepEqual(Object.keys(source.intro).sort(), ["lead"]);
+  assert.equal(caseData.summary, undefined);
   assert.deepEqual(source.sections.map(({ id }) => id), sectionIds);
   assert.deepEqual(source.credits.map(({ id }) => id), creditIds);
   assert.deepEqual(source.notes.map(({ id }) => id), noteIds);
 });
 
-test("Sensetique live intro, sections, credits and notes consume current CMS values", async () => {
+test("Sensetique live intro resolves role and period from canonical Case data and copy from CMS", async () => {
   const source = await readSource();
+  const { role, period } = readCanonicalIntro();
 
+  assert.equal(period, "2017–2018");
   assert.deepEqual(
     { role: sensetique.sensetiqueIntro.role, period: sensetique.sensetiqueIntro.period, lead: sensetique.sensetiqueIntro.lead },
-    source.intro,
+    { role, period, lead: source.intro.lead },
   );
   assert.deepEqual(sectionExports.map((section, index) => ({ id: sectionIds[index], ...section })), source.sections);
   assert.deepEqual(creditExports.map((credits, index) => ({ id: creditIds[index], ...credits })), source.credits);
@@ -90,12 +102,12 @@ test("Sensetique live intro, sections, credits and notes consume current CMS val
   );
 
   const rendered = [renderProjectIntro(sensetique.sensetiqueIntro), ...sectionExports.map(renderSectionIntro)].join("\n");
-  for (const value of [source.intro.role, source.intro.period, source.intro.lead, ...source.sections.flatMap(({ title, paragraphs }) => [title, ...paragraphs])]) {
-    assert.ok(rendered.includes(escapeHtml(value)), `Rendered Sensetique output must consume current CMS value: ${value}`);
+  for (const value of [role, period, source.intro.lead, ...source.sections.flatMap(({ title, paragraphs }) => [title, ...paragraphs])]) {
+    assert.ok(rendered.includes(escapeHtml(value)), `Rendered Sensetique output must consume canonical/CMS value: ${value}`);
   }
 });
 
-test("Sensetique parser accepts legitimate copy edits but rejects structural leakage", async () => {
+test("Sensetique parser accepts legitimate copy edits but rejects Case-owned or structural leakage", async () => {
   const source = await readSource();
   const { parseSensetiqueEditorialContent, SENSETIQUE_CREDIT_IDS, SENSETIQUE_NOTE_IDS, SENSETIQUE_SECTION_IDS } = await import("../src/data/content/sensetique-editorial.ts");
 
@@ -109,15 +121,12 @@ test("Sensetique parser accepts legitimate copy edits but rejects structural lea
   });
 
   const edited = clone(source);
-  edited.intro.role = "Новая отображаемая роль";
-  edited.intro.period = "2017–2019";
   edited.intro.lead = "Обновлённый вводный текст";
   edited.sections[0].title = "Новый заголовок";
   edited.credits[0].lines = ["Новая строка кредита"];
   edited.notes[0].text = "Новое примечание";
   const parsedEdited = parseSensetiqueEditorialContent(edited);
-  assert.equal(parsedEdited.intro.role, edited.intro.role);
-  assert.equal(parsedEdited.intro.period, edited.intro.period);
+  assert.equal(parsedEdited.intro.lead, edited.intro.lead);
   assert.equal(parsedEdited.sections[0].title, edited.sections[0].title);
   assert.deepEqual(parsedEdited.credits[0].lines, edited.credits[0].lines);
   assert.equal(parsedEdited.notes[0].text, edited.notes[0].text);
@@ -157,12 +166,18 @@ test("Sensetique parser accepts legitimate copy edits but rejects structural lea
   invalidCopy.notes[0].text = 42;
   assert.throws(() => parseSensetiqueEditorialContent(invalidCopy), /string/i);
 
+  for (const field of ["role", "period"]) {
+    const ownershipLeak = clone(source);
+    ownershipLeak.intro[field] = field === "role" ? "Новая отображаемая роль" : "2017–2019";
+    assert.throws(() => parseSensetiqueEditorialContent(ownershipLeak), /unexpected|field|key/i);
+  }
+
   const presentationLeak = clone(source);
   presentationLeak.credits[0].className = "project__section";
   assert.throws(() => parseSensetiqueEditorialContent(presentationLeak), /unexpected|field|key/i);
 });
 
-test("Pages CMS exposes Sensetique copy without route or presentation controls", async () => {
+test("Pages CMS exposes Sensetique copy without Case identity, route or presentation controls", async () => {
   const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
   const start = cms.indexOf("      - name: sensetique-case");
   assert.notEqual(start, -1);
@@ -170,10 +185,10 @@ test("Pages CMS exposes Sensetique copy without route or presentation controls",
   const nextEntry = rest.indexOf("\n      - name: ", 8);
   const config = nextEntry === -1 ? rest : rest.slice(0, nextEntry);
 
-  for (const field of ["intro", "role", "period", "lead", "sections", "credits", "notes", "id", "title", "lines", "text"]) {
+  for (const field of ["intro", "lead", "sections", "credits", "notes", "id", "title", "lines", "text"]) {
     assert.match(config, new RegExp(`name: ${field}\\b`));
   }
-  for (const forbidden of ["entryId", "className", "layout", "route", "canonical", "href", "renderer", "captionView", "columns"]) {
+  for (const forbidden of ["role", "period", "entryId", "className", "layout", "route", "canonical", "href", "renderer", "captionView", "columns"]) {
     assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
   }
 });
