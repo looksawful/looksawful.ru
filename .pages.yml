@@ -212,7 +212,7 @@ actions:
   - name: prepare-publication
     label: Подготовить публикацию
     workflow: pages-cms-publish.yml
-    ref: current
+    ref: prod
     cancelable: false
     confirm:
       title: Подготовить публикацию?
