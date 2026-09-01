@@ -88,7 +88,7 @@ jobs:
           CV_SMOKE_CAPTURE_DIR: artifacts/cv-smoke
         run: npm run test:e2e:cv
       - name: Prepare production CV
-        run: node tools/prepare-cv-production.mjs dist/cv/index.html
+        run: node tools/prepare-cv-production.mjs
       - name: Production CV smoke
         run: npm run test:e2e:cv:production
       - name: Upload CV visual QA
