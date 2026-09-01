@@ -3,14 +3,16 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
-  NAVIGATION_LABEL_IDS,
   parseNavigationLabels,
 } from "../src/data/navigation.ts";
-import { sitePages } from "../src/site/pages/manifest.ts";
 import {
   getBreadcrumbItems,
   getPrimaryNavigationItems,
 } from "../src/site/navigation/model.ts";
+import { PRIMARY_NAVIGATION_PAGE_IDS } from "../src/site/navigation/primary.ts";
+import { sitePages } from "../src/site/pages/manifest.ts";
+
+const navigationDataUrl = new URL("../src/data/navigation.ts", import.meta.url);
 
 const fixture = [
   { id: "home", label: "Старт" },
@@ -27,14 +29,17 @@ const page = (id) => {
   return found;
 };
 
-test("navigation label adapter keeps fixed identity and restores canonical order", () => {
+test("navigation label adapter derives fixed identity and order from primary SitePage IDs", async () => {
   const parsed = parseNavigationLabels([...fixture].reverse());
+  const source = await readFile(navigationDataUrl, "utf8");
 
-  assert.deepEqual(parsed.map(({ id }) => id), NAVIGATION_LABEL_IDS);
+  assert.deepEqual(parsed.map(({ id }) => id), PRIMARY_NAVIGATION_PAGE_IDS);
   assert.deepEqual(
     parsed.map(({ label }) => label),
     ["Старт", "Музыка", "Украшения", "Студия", "Съёмки", "Опыт"],
   );
+  assert.match(source, /PRIMARY_NAVIGATION_PAGE_IDS/);
+  assert.doesNotMatch(source, /export const NAVIGATION_LABEL_IDS\s*=\s*\[/);
 });
 
 test("navigation label adapter rejects missing, duplicate, unknown and empty content", () => {
@@ -89,7 +94,7 @@ test("live navigation content keeps six stable IDs with editable non-empty label
     await readFile(new URL("../src/content/navigation.json", import.meta.url), "utf8"),
   );
 
-  assert.deepEqual(content.map(({ id }) => id), NAVIGATION_LABEL_IDS);
+  assert.deepEqual(content.map(({ id }) => id), PRIMARY_NAVIGATION_PAGE_IDS);
   assert.ok(content.every(({ label }) => typeof label === "string" && label.trim().length > 0));
 });
 
