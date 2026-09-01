@@ -20,9 +20,8 @@ const rules = [
 export function classifyChangedFiles(files, { full = false } = {}) {
   const changedFiles = [...new Set(files.map((file) => file.replaceAll("\\", "/")).filter(Boolean))].sort();
   const groups = [...new Set(changedFiles.map((file) => rules.find(([, pattern]) => pattern.test(file))?.[0] ?? "unknown"))].sort();
-  const missingDiff = changedFiles.length === 0;
-  const broad = full || missingDiff || groups.some((group) => ["shared-runtime", "build-config", "dependencies", "unknown"].includes(group));
-  const mediaChanged = full || missingDiff || groups.some((group) => ["media", "dependencies", "unknown"].includes(group));
+  const broad = full || groups.some((group) => ["shared-runtime", "build-config", "dependencies", "unknown"].includes(group));
+  const mediaChanged = full || groups.some((group) => ["media", "dependencies", "unknown"].includes(group));
   const suites = new Set(["smoke"]);
   if (groups.includes("cv")) suites.add("cv");
   if (groups.includes("navigation")) suites.add("navigation");
