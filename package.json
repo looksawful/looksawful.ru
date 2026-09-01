@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "npm run media:ensure && vite",
     "typecheck": "tsc -p tsconfig.json",
+    "cms:generate": "node tools/generate-pages-cms-options.mjs",
+    "cms:check": "node tools/generate-pages-cms-options.mjs --check",
     "media:catalog:sync": "node tools/sync-media-catalog.mjs",
     "media:catalog:check": "node tools/sync-media-catalog.mjs --check",
     "media:sync": "npm run media:catalog:sync && npm run media:video:build && npm run media:build && node tools/media-dev-state.mjs --write",
@@ -47,8 +49,8 @@
     "test:e2e:affected": "node tools/e2e/run-affected.mjs",
     "test:e2e:production": "node tools/e2e/run-production.mjs",
     "test:e2e:cv:production": "node tools/e2e/run-cv-production.mjs",
-    "verify:core": "npm run typecheck && npm run test:core && npm run build:site && npm run test:e2e:all",
-    "verify": "npm run media:ensure && npm run typecheck && npm run test:fast && npm run test:media:contract && npm run build:site && npm run test:e2e:smoke",
+    "verify:core": "npm run cms:check && npm run typecheck && npm run test:core && npm run build:site && npm run test:e2e:all",
+    "verify": "npm run cms:check && npm run media:ensure && npm run typecheck && npm run test:fast && npm run test:media:contract && npm run build:site && npm run test:e2e:smoke",
     "verify:full": "npm run media:sync && npm run verify:core"
   },
   "devDependencies": {
