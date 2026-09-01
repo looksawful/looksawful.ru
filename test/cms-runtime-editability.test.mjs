@@ -11,11 +11,13 @@ const workflowUrls = [
   pagesWorkflowUrl,
 ];
 
-test("CV dev rendering applies structured CMS content instead of only rewriting the URL", async () => {
+test("CV dev rendering applies structured CMS content after canonical SitePage resolution", async () => {
   const plugin = await readFile(pluginUrl, "utf8");
 
+  assert.match(plugin, /const page = getPageByPath\(pagePath\)/);
+  assert.match(plugin, /page\.renderer === ["']cv["'][\s\S]*renderCvDevHtml/);
   assert.match(plugin, /renderCvDevHtml|transformCvContent/);
-  assert.match(plugin, /pagePath === ["']\/cv\/["']/);
+  assert.doesNotMatch(plugin, /pagePath === ["']\/cv\/["']/);
 });
 
 test("CV browser smoke derives editable profile and visibility expectations from structured content", async () => {
