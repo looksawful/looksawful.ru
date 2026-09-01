@@ -1,12 +1,16 @@
 import type { SitePageDefinition } from "./types.ts";
 import { normalizePagePath, validateSitePages } from "./validation.ts";
 
+const VITE_BUILD = { kind: "vite" } as const;
+
 export const sitePages = [
   {
     id: "home",
     type: "home",
     path: "/",
     enabled: true,
+    renderer: "home",
+    build: VITE_BUILD,
     discovery: {
       listed: true,
       indexable: true,
@@ -18,6 +22,8 @@ export const sitePages = [
     entityId: "jestei-pool",
     path: "/work/jestei-pool/",
     enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
     discovery: {
       listed: true,
       indexable: true,
@@ -29,6 +35,8 @@ export const sitePages = [
     entityId: "styx",
     path: "/work/styx/",
     enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
     discovery: {
       listed: true,
       indexable: true,
@@ -40,6 +48,8 @@ export const sitePages = [
     entityId: "sensetique",
     path: "/work/sensetique/",
     enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
     discovery: {
       listed: true,
       indexable: true,
@@ -51,6 +61,8 @@ export const sitePages = [
     entityId: "music-photography",
     path: "/shootings/",
     enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
     discovery: {
       listed: true,
       indexable: true,
@@ -62,6 +74,8 @@ export const sitePages = [
     entityId: "awful-cases",
     path: "/work/awful-cases/",
     enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
     discovery: {
       listed: false,
       indexable: false,
@@ -73,6 +87,8 @@ export const sitePages = [
     entityId: "moves-awful",
     path: "/work/moves-awful/",
     enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
     discovery: {
       listed: false,
       indexable: false,
@@ -84,9 +100,26 @@ export const sitePages = [
     entityId: "berry-social-content-2020",
     path: "/work/berry-social-content-2020/",
     enabled: true,
+    renderer: "entity",
+    build: VITE_BUILD,
     discovery: {
       listed: false,
       indexable: false,
+    },
+  },
+  {
+    id: "cv",
+    type: "static",
+    path: "/cv/",
+    enabled: true,
+    renderer: "cv",
+    build: {
+      kind: "public-static",
+      sourcePath: "public/cv/index.html",
+    },
+    discovery: {
+      listed: true,
+      indexable: true,
     },
   },
   {
@@ -94,6 +127,8 @@ export const sitePages = [
     type: "not-found",
     path: "/404.html",
     enabled: true,
+    renderer: "not-found",
+    build: VITE_BUILD,
     discovery: {
       listed: false,
       indexable: false,
