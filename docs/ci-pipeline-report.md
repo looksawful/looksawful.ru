@@ -197,8 +197,6 @@ verify: success, 619s
 | Post Setup Node | success | 0 |
 | Post Checkout | success | 0 |
 | Complete job | success | 0 |
-
-
 ### Run [33429925039](https://github.com/looksawful/looksawful.ru/actions/runs/33429925039)
 
 verify: success, 633s
@@ -361,4 +359,3 @@ lighthouse: failure, 390s
 | Post Setup Node | skipped | 0 |
 | Post Checkout | success | 0 |
 | Complete job | success | 0 |
-
