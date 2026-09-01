@@ -1,20 +1,3 @@
-import type { CaseId } from "../data/catalog/cases.ts";
-import type { ClientId } from "../data/catalog/clients.ts";
-import type { CollectionId } from "../data/catalog/collections.ts";
-import type { EngagementId } from "../data/catalog/engagements.ts";
-
-import type { DeliverableId } from "../data/taxonomy/deliverables.ts";
-import type { EngagementTypeId } from "../data/taxonomy/engagement-types.ts";
-import type { IndustryId } from "../data/taxonomy/industries.ts";
-import type { ProfessionalQualityId } from "../data/taxonomy/professional-qualities.ts";
-import type { ProjectTypeId } from "../data/taxonomy/project-types.ts";
-import type { RoleId } from "../data/taxonomy/roles.ts";
-import type { ServiceId } from "../data/taxonomy/services.ts";
-import type { SkillId } from "../data/taxonomy/skills.ts";
-import type { SoftwareId } from "../data/taxonomy/software.ts";
-import type { TechnologyId } from "../data/taxonomy/technologies.ts";
-import type { WorkAreaId } from "../data/taxonomy/work-areas.ts";
-
 export type ProjectStatus = "active" | "completed" | "archived";
 
 export interface ProjectData {
@@ -26,26 +9,26 @@ export interface ProjectData {
   date?: string;
   status?: ProjectStatus;
 
-  caseIds?: readonly CaseId[];
-  clientIds?: readonly ClientId[];
-  collectionIds?: readonly CollectionId[];
-  engagementIds?: readonly EngagementId[];
+  caseIds?: readonly string[];
+  clientIds?: readonly string[];
+  collectionIds?: readonly string[];
+  engagementIds?: readonly string[];
 
-  projectTypeIds?: readonly ProjectTypeId[];
-  engagementTypeIds?: readonly EngagementTypeId[];
-  industryIds?: readonly IndustryId[];
+  projectTypeIds?: readonly string[];
+  engagementTypeIds?: readonly string[];
+  industryIds?: readonly string[];
 
-  primaryRoleId?: RoleId;
+  primaryRoleId?: string;
   primaryRoleLabel?: string;
-  roleIds?: readonly RoleId[];
+  roleIds?: readonly string[];
 
-  workAreaIds?: readonly WorkAreaId[];
-  serviceIds?: readonly ServiceId[];
-  deliverableIds?: readonly DeliverableId[];
+  workAreaIds?: readonly string[];
+  serviceIds?: readonly string[];
+  deliverableIds?: readonly string[];
 
-  skillIds?: readonly SkillId[];
-  technologyIds?: readonly TechnologyId[];
-  softwareIds?: readonly SoftwareId[];
+  skillIds?: readonly string[];
+  technologyIds?: readonly string[];
+  softwareIds?: readonly string[];
 
-  professionalQualityIds?: readonly ProfessionalQualityId[];
+  professionalQualityIds?: readonly string[];
 }
