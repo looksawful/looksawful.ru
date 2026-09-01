@@ -1,13 +1,25 @@
 import projectsJson from "../content/projects.json" with { type: "json" };
+import type { sitePages } from "../site/pages/manifest.ts";
 
 import { expectAllowedKeys, readEditorialText } from "./content/editorial-validation.ts";
 
-export const PROJECT_IDS = ["jestei", "styx", "sensetique", "shootings"] as const;
+export const HOME_CARD_IDS = ["jestei", "styx", "sensetique", "shootings"] as const;
 
-export type ProjectId = (typeof PROJECT_IDS)[number];
+export type HomeCardId = (typeof HOME_CARD_IDS)[number];
+type SitePageId = (typeof sitePages)[number]["id"];
 
-export interface ProjectCardData {
-  id: ProjectId;
+const HOME_CARD_PAGE_IDS = {
+  jestei: "case:jestei-pool",
+  styx: "case:styx",
+  sensetique: "case:sensetique",
+  shootings: "collection:music-photography",
+} as const satisfies Record<HomeCardId, SitePageId>;
+
+export type HomeCardPageId = (typeof HOME_CARD_PAGE_IDS)[HomeCardId];
+
+export interface HomeCardData {
+  id: HomeCardId;
+  pageId: HomeCardPageId;
   visible: boolean;
   title: string;
   focus: string;
@@ -22,8 +34,8 @@ export interface ProjectCardData {
   };
 }
 
-const rawProjects: unknown = projectsJson;
-const projectIds = new Set<string>(PROJECT_IDS);
+const rawHomeCards: unknown = projectsJson;
+const homeCardIds = new Set<string>(HOME_CARD_IDS);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -60,8 +72,8 @@ function requirePositiveInteger(record: Record<string, unknown>, key: string, la
   return value;
 }
 
-function parseProject(value: unknown, index: number): ProjectCardData {
-  const label = `projects[${index}]`;
+function parseHomeCard(value: unknown, index: number): HomeCardData {
+  const label = `homeCards[${index}]`;
   if (!isRecord(value)) throw new Error(`${label} must be an object`);
   expectAllowedKeys(
     value,
@@ -71,8 +83,8 @@ function parseProject(value: unknown, index: number): ProjectCardData {
   );
 
   const idValue = requireNonEmptyString(value, "id", label);
-  if (!projectIds.has(idValue)) throw new Error(`${label}.id is unexpected: ${idValue}`);
-  const id: ProjectId = PROJECT_IDS.find((candidate) => candidate === idValue) ?? (() => { throw new Error(`${label}.id is invalid`); })();
+  if (!homeCardIds.has(idValue)) throw new Error(`${label}.id is unexpected: ${idValue}`);
+  const id: HomeCardId = HOME_CARD_IDS.find((candidate) => candidate === idValue) ?? (() => { throw new Error(`${label}.id is invalid`); })();
 
   const coverValue = value.cover;
   if (!isRecord(coverValue)) throw new Error(`${label}.cover must be an object`);
@@ -85,6 +97,7 @@ function parseProject(value: unknown, index: number): ProjectCardData {
 
   return {
     id,
+    pageId: HOME_CARD_PAGE_IDS[id],
     visible: requireBoolean(value, "visible", label),
     title: readEditorialText(value.title, `${label}.title`),
     focus: readEditorialText(value.focus, `${label}.focus`),
@@ -100,36 +113,35 @@ function parseProject(value: unknown, index: number): ProjectCardData {
   };
 }
 
-export function parseProjectCards(value: unknown): readonly ProjectCardData[] {
-  if (!Array.isArray(value)) throw new Error("projects content must be an array");
+export function parseHomeCards(value: unknown): readonly HomeCardData[] {
+  if (!Array.isArray(value)) throw new Error("home card content must be an array");
 
-  const parsed = value.map(parseProject);
-  const seen = new Set<ProjectId>();
-  for (const project of parsed) {
-    if (seen.has(project.id)) throw new Error(`duplicate project id: ${project.id}`);
-    seen.add(project.id);
+  const parsed = value.map(parseHomeCard);
+  const seen = new Set<HomeCardId>();
+  for (const card of parsed) {
+    if (seen.has(card.id)) throw new Error(`duplicate home card id: ${card.id}`);
+    seen.add(card.id);
   }
 
-  for (const expectedId of PROJECT_IDS) {
-    if (!seen.has(expectedId)) throw new Error(`missing required project id: ${expectedId}`);
+  for (const expectedId of HOME_CARD_IDS) {
+    if (!seen.has(expectedId)) throw new Error(`missing required home card id: ${expectedId}`);
   }
-  if (parsed.length !== PROJECT_IDS.length) {
-    throw new Error(`project card count must remain ${PROJECT_IDS.length}; got ${parsed.length}`);
+  if (parsed.length !== HOME_CARD_IDS.length) {
+    throw new Error(`home card count must remain ${HOME_CARD_IDS.length}; got ${parsed.length}`);
   }
 
-  return Object.freeze(parsed.map((project) => Object.freeze({
-    ...project,
-    cover: Object.freeze({ ...project.cover }),
+  return Object.freeze(parsed.map((card) => Object.freeze({
+    ...card,
+    cover: Object.freeze({ ...card.cover }),
   })));
 }
 
-export const projects = parseProjectCards(rawProjects);
+export const homeCards = parseHomeCards(rawHomeCards);
 
-export function getHomepageProjects(
-  source: readonly ProjectCardData[] = projects,
-): readonly ProjectCardData[] {
-  return source.filter((project) => project.visible);
+export function getVisibleHomeCards(
+  source: readonly HomeCardData[] = homeCards,
+): readonly HomeCardData[] {
+  return source.filter((card) => card.visible);
 }
 
-export type Project = ProjectCardData;
-export type ProjectRole = NonNullable<ProjectCardData["role"]>;
+export type HomeCardRole = NonNullable<HomeCardData["role"]>;
