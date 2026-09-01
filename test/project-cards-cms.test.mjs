@@ -9,8 +9,8 @@ import {
   projectIndexMediaAssetFor,
   projectIndexMediaAssets,
 } from "../src/data/media/assets/project-index.ts";
-import { projects } from "../src/data/projects.ts";
-import { getProjectCardHref } from "../src/site/pages/project-card-routes.ts";
+import { homeCards } from "../src/data/projects.ts";
+import { getHomeCardHref } from "../src/site/pages/project-card-routes.ts";
 import { renderProjectCard } from "../src/templates/project-card.ts";
 
 const cmsConfig = readFileSync(new URL("../.pages.yml", import.meta.url), "utf8");
@@ -23,9 +23,10 @@ const verifyDevWorkflow = readFileSync(
   "utf8",
 );
 
-const baselineProjects = [
+const baselineCards = [
   {
     id: "jestei",
+    pageId: "case:jestei-pool",
     title: "Jestei Pool",
     focus: "Музыкальный сервис для диджеев",
     role: "Арт-директор",
@@ -39,6 +40,7 @@ const baselineProjects = [
   },
   {
     id: "styx",
+    pageId: "case:styx",
     title: "Styx Jewel",
     focus: "Готический бренд ювелирных изделий и одежды",
     role: "Дизайнер",
@@ -52,6 +54,7 @@ const baselineProjects = [
   },
   {
     id: "sensetique",
+    pageId: "case:sensetique",
     title: "Sensetique",
     focus: "Продакшен агентство полного цикла в индустрии моды и искусства и коммерческая фотостудия",
     role: "Основатель",
@@ -65,6 +68,7 @@ const baselineProjects = [
   },
   {
     id: "shootings",
+    pageId: "collection:music-photography",
     title: "Shootings",
     focus: "Фотографии и микс-медиа арт для музыкантов, выставок и брендов",
     role: "Фотограф",
@@ -78,63 +82,64 @@ const baselineProjects = [
   },
 ];
 
-const projectIds = baselineProjects.map(({ id }) => id);
+const homeCardIds = baselineCards.map(({ id }) => id);
 
 test("CMS project-card migration fixture preserves the original rendering contract without freezing live copy", () => {
-  const baselineHtml = baselineProjects.map(renderProjectCard).join("\n");
+  const baselineHtml = baselineCards.map(renderProjectCard).join("\n");
 
-  assert.equal((baselineHtml.match(/class="project-card"/g) ?? []).length, baselineProjects.length);
-  for (const project of baselineProjects) {
-    assert.ok(baselineHtml.includes(`href="${getProjectCardHref(project.id)}"`));
+  assert.equal((baselineHtml.match(/class="project-card"/g) ?? []).length, baselineCards.length);
+  for (const card of baselineCards) {
+    assert.ok(baselineHtml.includes(`href="${getHomeCardHref(card)}"`));
   }
 });
 
-test("CMS project-card IDs remain the fixed routing contract while copy stays editable", () => {
-  assert.deepEqual(projects.map((project) => project.id), projectIds);
-  for (const project of projects) {
-    assert.equal(typeof project.title, "string");
-    assert.equal(typeof project.focus, "string");
-    assert.equal(typeof project.visible, "boolean");
+test("CMS home-card IDs remain the fixed presentation contract while copy stays editable", () => {
+  assert.deepEqual(homeCards.map((card) => card.id), homeCardIds);
+  for (const card of homeCards) {
+    assert.equal(typeof card.title, "string");
+    assert.equal(typeof card.focus, "string");
+    assert.equal(typeof card.visible, "boolean");
+    assert.equal(typeof card.pageId, "string");
   }
 });
 
 test("CMS project covers stay in the scoped WebP folder and metadata matches the real files", async () => {
-  for (const project of projects) {
+  for (const card of homeCards) {
     assert.match(
-      project.cover.src,
+      card.cover.src,
       /^\/media\/projects\/index\/[a-z0-9][a-z0-9-]*\.webp$/,
-      `${project.id} cover must use the CMS project-cover path`,
+      `${card.id} cover must use the CMS project-cover path`,
     );
 
-    const filePath = fileURLToPath(new URL(`../public${project.cover.src}`, import.meta.url));
+    const filePath = fileURLToPath(new URL(`../public${card.cover.src}`, import.meta.url));
     const metadata = await sharp(filePath).metadata();
 
-    assert.equal(metadata.format, "webp", `${project.id} cover must be WebP`);
-    assert.equal(metadata.width, project.cover.width, `${project.id} cover width metadata is stale`);
-    assert.equal(metadata.height, project.cover.height, `${project.id} cover height metadata is stale`);
+    assert.equal(metadata.format, "webp", `${card.id} cover must be WebP`);
+    assert.equal(metadata.width, card.cover.width, `${card.id} cover width metadata is stale`);
+    assert.equal(metadata.height, card.cover.height, `${card.id} cover height metadata is stale`);
   }
 });
 
 test("CMS project covers are derived into the typed media registry", () => {
-  assert.equal(projectIndexMediaAssets.length, projects.length);
+  assert.equal(projectIndexMediaAssets.length, homeCards.length);
 
-  for (const project of projects) {
-    const asset = projectIndexMediaAssetFor(project);
+  for (const card of homeCards) {
+    const asset = projectIndexMediaAssetFor(card);
     assert.deepEqual(
       projectIndexMediaAssets.find(({ id }) => id === asset.id),
       asset,
-      `${project.id} cover must be present in the live registry`,
+      `${card.id} cover must be present in the live registry`,
     );
     assert.equal(asset.type, "image");
-    assert.equal(asset.src, project.cover.src);
-    assert.equal(asset.width, project.cover.width);
-    assert.equal(asset.height, project.cover.height);
+    assert.equal(asset.src, card.cover.src);
+    assert.equal(asset.width, card.cover.width);
+    assert.equal(asset.height, card.cover.height);
   }
 
   const uploadedCover = {
-    ...projects[0],
+    ...homeCards[0],
     cover: {
-      ...projects[0].cover,
+      ...homeCards[0].cover,
       src: "/media/projects/index/cms-uploaded-cover.webp",
       width: 2048,
       height: 1152,
@@ -148,16 +153,16 @@ test("CMS project covers are derived into the typed media registry", () => {
 });
 
 test("homepage project cards consume registry-backed responsive cover variants", () => {
-  const html = renderProjectCard(projects[0]);
+  const html = renderProjectCard(homeCards[0]);
 
   assert.match(html, /\ssrcset="[^"]+"/);
   assert.match(html, /\ssizes="[^"]+"/);
   assert.match(html, /\/media\/generated\/responsive\/projects\/index\/jestei-pool-cover@/);
 
   const uploadedCover = {
-    ...projects[0],
+    ...homeCards[0],
     cover: {
-      ...projects[0].cover,
+      ...homeCards[0].cover,
       src: "/media/projects/index/cms-uploaded-cover.webp",
     },
   };
@@ -195,7 +200,7 @@ test("Pages CMS exposes a clear verification action and no routing fields", () =
 
   assert.match(projectCardsConfig, /label: Проверить сайт/);
   assert.match(projectCardsConfig, /confirm:\s*\n\s+title: Запустить полную проверку сайта\?/);
-  assert.doesNotMatch(projectCardsConfig, /- name: (route|canonical|listed|indexable|slug|pageType)\b/);
+  assert.doesNotMatch(projectCardsConfig, /- name: (route|canonical|listed|indexable|slug|pageType|pageId)\b/);
 });
 
 test("Pages CMS publication action can only prepare dev to prod PRs", () => {
