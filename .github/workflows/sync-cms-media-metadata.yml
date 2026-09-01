@@ -116,7 +116,7 @@ jobs:
             exit 1
           fi
           git push origin HEAD:dev
-          printf 'changed=true\\n' >> "$GITHUB_OUTPUT"
+          printf 'changed=true\n' >> "$GITHUB_OUTPUT"
       - name: Verify the new dev SHA
         if: steps.persist.outputs.changed == 'true'
         uses: actions/github-script@v7

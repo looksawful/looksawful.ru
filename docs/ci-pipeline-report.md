@@ -136,8 +136,6 @@ f2b3dff feat: guard hidden homepage experience in CSS
 
 ```
 
-## GitHub
-
 ## Local evidence
 
 Fresh recovery environment, Node 24.19.0:
@@ -359,3 +357,141 @@ lighthouse: failure, 390s
 | Post Setup Node | skipped | 0 |
 | Post Checkout | success | 0 |
 | Complete job | success | 0 |
+
+## Изменённые файлы и назначение
+
+Application, CSS, пользовательский контент, CMS schema и tracked media metadata
+сохранены без изменений относительно исходного production SHA df1ddce.
+
+| Path | Изменение и причина |
+| --- | --- |
+| package.json | Понятные fast/core/media/smoke/affected/full/production команды; старый all остаётся alias full. |
+| .github/workflows/verify-dev.yml | Read-only verify, дешёвые проверки первыми, conditional media и affected browser. |
+| .github/workflows/verify-pr.yml | Полный PR diff, общий classifier, ранний typecheck/fast, conditional media и affected. |
+| .github/workflows/pages.yml | Exact artifact, отдельный production smoke, сохранены CV sanitation/stamp/Pages/status; проверяются реальные опубликованные JS/CSS. |
+| .github/workflows/verify-full.yml | Новый nightly/manual deterministic media + core + exhaustive browser. |
+| .github/workflows/sync-cms-media-metadata.yml | Узкая отдельная mutation operation с проверкой гонки и явным Verify dev после bot push. |
+| .github/workflows/verify-cv-branch.yml | Только CV contracts, build, authored/production CV и visual QA; общий cache contract. |
+| .github/workflows/verify-shootings-data-integration.yml | Удалён obsolete workflow интегрированной ветки; тесты и сама ветка сохранены. |
+| tools/ci/change-scope.mjs | Единый conservative classifier и GitHub outputs. |
+| tools/ci/media-scope.mjs | Проверка exact cache и файлов относительно tracked metadata; fallback к реальному sync. |
+| tools/ci/run-tests.mjs | Рекурсивные группы тестов вне YAML; nested CSS tests не потеряны. |
+| tools/e2e/concurrency.mjs | Bounded concurrency 2 с завершением активных работников при ошибке. |
+| tools/e2e/readiness.mjs | Общие DOM/fonts/frame/lightbox observable signals. |
+| tools/e2e/run-smoke.mjs | Короткий репрезентативный browser smoke и production delivery-video sanity. |
+| tools/e2e/run-affected.mjs | Smoke и выбранные оригинальные focused suites. |
+| tools/e2e/run-all.mjs | Все оригинальные suites сохранены, ограниченный параллелизм. |
+| tools/e2e/run-production.mjs | Compact production smoke/video/caption QA вместо повторного exhaustive suite. |
+| tools/smoke-site.mjs | Убраны игнорируемые networkidle; сохранены motion/swipe/deck time contracts; pageshow readiness для reveal. |
+| tools/smoke-mpa.mjs | DOM/frame/lightbox/page-flip signals вместо произвольных задержек. |
+| tools/smoke-project-pages.mjs | Canvas bitmap/CSS/error readiness вместо sleep. |
+| tools/smoke-cv.mjs | DOM/fonts/frame readiness; authored/production contracts сохранены. |
+| tools/sync-media-catalog.mjs | Read-only stored consistency check только для доказанно неизменившихся inputs; полноценный ffprobe/sync по умолчанию не изменён. |
+| test/change-scope.test.mjs | CV/nav/projects/media/global/unknown scenarios. |
+| test/ci-pipeline.test.mjs | Read-only/security/media/deploy contracts и исполняемый тест CMS output. |
+| test/e2e-concurrency.test.mjs | Лимит, порядок результатов и обработка ошибок workers. |
+| test/e2e-production-pipeline.test.mjs | Production runner проверяет специализированный smoke и caption QA. |
+| test/media-ci-cache.test.mjs | Cache хранит только binaries; version-independent invariant и genuine correctness path. |
+| test/media-catalog-sync.test.mjs | Pure catalog/index/stored-source consistency без ffprobe. |
+| test/media-tools/catalog-probe.test.mjs | Перенесён существующий настоящий ffprobe image fixture в media group, не удалён и не замокан. |
+| test/cms-runtime-editability.test.mjs | CMS mutation contract перенесён на отдельный workflow. |
+| test/project-cards-cms.test.mjs | CMS project-cover metadata сохраняет отдельную mutation operation. |
+| test/shootings-isolation-mode.test.mjs | Сохранены isolation/freeze fixtures без зависимости от obsolete workflow. |
+| test/test-groups.test.mjs | Fast сохраняет nested tests и исключает только physical/media-tool group. |
+| test/tooling-pipeline.test.mjs | Контракты публичных команд и общего browser runtime. |
+| docs/tooling-pipeline.md | Документация реальной архитектуры и troubleshooting. |
+| docs/ci-pipeline-report.md | Исходный аудит, измерения и итоговые доказательства. |
+
+## Удалённый workflow
+
+`verify-shootings-data-integration.yml`: integration/shootings-data-prod уже
+является предком обеих основных веток. Ordinary shootings isolation/data contracts
+и MPA browser route coverage остаются в core/full/affected. Ветка не удалена.
+`feat/cv-page` содержит неинтегрированную работу, поэтому её workflow сохранён
+и сужен. Healthcheck, dependency audit, external links, Lighthouse и CodeQL не удалены.
+
+## Новая структура CI
+
+| Контур | Последовательность |
+| --- | --- |
+| dev | classify → install → typecheck/fast → conditional media → build → affected |
+| PR | полный integration diff → typecheck/fast → conditional media → build → affected; CodeQL отдельно |
+| prod | exact SHA → fast/correctness → build → CV sanitation → production smoke/QA → stamp/artifact/deploy → published SHA/assets/CV → status |
+| nightly/manual | deterministic media → core → build → полный browser suite |
+
+Verify не выполняет commit/push. Полный suite выбирается и для глобальных
+изменений runtime/build/dependencies/unknown, но не для обычной правки CV или docs.
+
+## Test matrix
+
+| Уровень | Реальное покрытие |
+| --- | --- |
+| smoke | Home 390×844 и 1440×900, built JS/CSS, fatal/resource errors, navigation open/Escape, overflow, Case, image decode, lightbox, Moves canvas, CV. |
+| affected | Smoke + оригинальные CV/navigation/project-pages/MPA/media suites по единому classifier. |
+| full | Smoke + все исходные site/navigation/MPA/project-pages/CV матрицы, reduced motion, image/video, canvas, lightbox, page flip, reload/history, overflow и standalone routes. |
+| production | Smoke на sanitized artifact + delivery-video metadata + caption QA; exhaustive regression не повторяется. |
+
+## Media logic
+
+Sync обязателен при изменённых media/dependencies, неизвестном diff, full manual,
+cache miss или несоответствии физических derivatives tracked metadata.
+Только неизменившиеся inputs + exact cache + проверка файлов допускают fast path.
+В нём ffmpeg и повторная media regeneration не запускаются. Tracked catalog,
+manifest, inventory и generated TS никогда не восстанавливаются из cache.
+
+Stored catalog check не декодирует upload и не заменяет real validation. При
+изменении source/catalog или cache miss выполняются исходный ffprobe и настоящий
+deterministic sync. Stale tracked metadata всегда приводит к ошибке verification.
+
+## Обнаруженные и исправленные проблемы при проверке
+
+- Checkout report имел лишнюю пустую строку EOF: `git diff --check` остановил PR,
+  whitespace исправлен.
+- Старый catalog probe test зависел от ffprobe внутри fast group: перенесён целиком
+  в media-tools, pure catalog tests остаются fast.
+- Global reveal runtime инициализируется на pageshow + RAF: ожидание только DOM
+  было ранним. В full home audit добавлено явное load lifecycle ожидание;
+  assertion о скрытой нижней карточке не ослаблен.
+- CMS mutation output имел literal backslash-n: воспроизведено failing shell test,
+  исправлено, test теперь проходит. Следующий Verify dev получает true.
+- Полная регрессия и production smoke считаются проверенными только по свежим
+  успешным Actions runs, не по локальному наличию кода.
+
+## Отдельные будущие задачи
+
+- Возможная миграция на @playwright/test — необязательная отдельная работа.
+- Git history/media storage/LFS cleanup — в этой задаче не выполнялись.
+- Branch protection требует отдельного решения владельца; CodeQL поэтому
+  не ослаблен.
+
+## Первый успешный полный прогон после оптимизации
+
+[Verify changes 33482852220](https://github.com/looksawful/looksawful.ru/actions/runs/33482852220), SHA `1930f04`: **success**. Весь job 284s, full browser 155s (baseline PR 633s / browser 504s). Это инфраструктурный PR с полным media/full scope, не замер обычного content commit. CodeQL того же SHA успешен.
+
+| Step | Result | Seconds |
+| --- | --- | ---: |
+| Set up job | success | 1 |
+| Checkout | success | 38 |
+| Classify changes | success | 2 |
+| Setup Node | success | 4 |
+| Install | success | 8 |
+| Typecheck | success | 1 |
+| Fast tests | success | 10 |
+| Restore generated media | success | 4 |
+| Inspect cached media | success | 0 |
+| Ensure media tooling | success | 21 |
+| Check CMS media catalog | success | 0 |
+| Check unchanged catalog structure | skipped | 0 |
+| Sync generated media | success | 5 |
+| Check tracked media metadata | success | 0 |
+| Media contracts | success | 1 |
+| Media tooling tests | success | 6 |
+| Build site | success | 5 |
+| Install browser for smoke tests | success | 16 |
+| Affected browser verification | success | 155 |
+| Post Restore generated media | success | 5 |
+| Post Setup Node | success | 0 |
+| Post Checkout | success | 1 |
+| Complete job | success | 0 |
+
+Финальные локальные fast: 309 passed; core: 326 passed + data integrity; typecheck/build проходят. Browser binaries локально недоступны; успешный full выше выполнен реально в GitHub Actions. Существующие warnings о повторных media resource entries и build chunk size не повышались/не понижались по severity в этой задаче.

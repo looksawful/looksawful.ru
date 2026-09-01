@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
@@ -63,6 +64,9 @@ test("CMS mutation is explicit, narrowly scoped, race-safe and verifies its resu
   assert.match(workflow, /git push origin HEAD:dev/);
   assert.match(workflow, /git rev-parse origin\/dev/);
   assert.match(workflow, /createWorkflowDispatch/);
+  const outputFormat = workflow.match(/printf '([^']*changed=true[^']*)'/)?.[1];
+  assert.ok(outputFormat, "CMS operation must signal whether a commit was pushed");
+  assert.equal(execFileSync("bash", ["-c", 'printf "$1"', "cms-output-test", outputFormat], { encoding: "utf8" }), "changed=true\n");
   assert.doesNotMatch(workflow, /--force/);
   // Pages CMS always sends payload to action workflows. Removing the input breaks buttons.
   assert.match(await read(".github/workflows/verify-pr.yml"), /inputs:\s*\n\s+payload:/);
