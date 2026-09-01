@@ -13,7 +13,7 @@ const rules = [
   ["shared-runtime", /^(src\/(main\.|interactive\.|motion\/|components\/|templates\/|types\/|site\/|styles\/(index|base|tokens|layout|reset|components)\.)|tools\/(e2e\/|ci\/change-scope\.mjs$|smoke-site\.mjs$|smoke-mpa\.mjs$|capture-caption-qa\.mjs$))/],
   ["build-config", /^(vite\.config\.|tsconfig[^/]*|\.pages\.yml$|index\.html$|404\.html$|tools\/(generate-sitemap|check-site-meta|check-local-links|site-html-utils)\.mjs$)/],
   ["styles", /^src\/styles\//],
-  ["content", /^(src\/(content\/|data\/)|work\/|shootings\/|test\/(jestei|styx|sensetique|shootings|client|project-card))/],
+  ["content", /^(src\/(content\/|data\/)|work\/|shootings\/|test\/(domain-catalog-identity|jestei|styx|sensetique|shootings|client|project-card))/],
   ["ci", /^(\.github\/|tools\/ci\/|test\/(ci-pipeline|change-scope|e2e-concurrency|tooling-pipeline)\.test\.mjs$|docs\/|AGENTS\.md$|README[^/]*$|\.editorconfig$|\.gitignore$|\.gitattributes$)/],
 ];
 
