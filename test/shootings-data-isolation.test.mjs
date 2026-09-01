@@ -9,7 +9,6 @@ const protectedPresentationFiles = new Map([
   ["src/styles/index.css", "f5b08fb3743e93747629476480f819cd69d5d3a9"],
   ["src/styles/base.css", "1be5205dcae1522e78ab9cfdc97699875d568f55"],
   ["src/styles/tokens.css", "09b571fe9dcb2ab9485cc610295e8fb134c44c68"],
-  ["src/data/projects.ts", "0e9043a620d5ecca65f2ae54bee12bb9d4e4b864"],
   ["src/data/content/jestei-pool.ts", "6e166a1a8807a72bad9f4d47f41aa2e5b5e54875"],
   ["src/data/media/entries/sensetique.ts", "1b9c9ee2d04db9a00105c729c1de19941ad7d593"],
 ]);
@@ -74,10 +73,13 @@ test("shootings archive data stays isolated while the Collection route becomes d
 
   const projectsSource = readFileSync("src/data/projects.ts", "utf8");
   assert.doesNotMatch(projectsSource, /href:\s*["']\/shootings\//);
-  assert.match(projectsSource, /shootings:\s*["']collection:music-photography["']/);
+  assert.match(
+    projectsSource,
+    /\{\s*id:\s*["']shootings["'],\s*pageId:\s*["']collection:music-photography["']\s*\}/,
+  );
 
   const cardSource = readFileSync("src/templates/project-card.ts", "utf8");
-  assert.match(cardSource, /getHomeCardHref\(card\)/);
+  assert.match(cardSource, /getProjectCardHref\(card\)/);
   assert.doesNotMatch(cardSource, /const href = `#project-\$\{card\.id\}`/);
 
   const mainSource = readFileSync("src/main.js", "utf8");
