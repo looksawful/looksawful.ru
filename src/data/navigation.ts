@@ -1,22 +1,17 @@
 import navigationJson from "../content/navigation.json" with { type: "json" };
+import {
+  PRIMARY_NAVIGATION_PAGE_IDS,
+  type PrimaryNavigationPageId,
+} from "../site/navigation/primary.ts";
 
-export const NAVIGATION_LABEL_IDS = [
-  "home",
-  "case:jestei-pool",
-  "case:styx",
-  "case:sensetique",
-  "collection:music-photography",
-  "cv",
-] as const;
-
-export type NavigationLabelId = (typeof NAVIGATION_LABEL_IDS)[number];
+export type NavigationLabelId = PrimaryNavigationPageId;
 
 export interface NavigationLabelData {
   id: NavigationLabelId;
   label: string;
 }
 
-const navigationLabelIds = new Set<string>(NAVIGATION_LABEL_IDS);
+const navigationLabelIds = new Set<string>(PRIMARY_NAVIGATION_PAGE_IDS);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -31,7 +26,7 @@ function parseNavigationLabel(value: unknown, index: number): NavigationLabelDat
     throw new Error(`unexpected navigation label id: ${String(idValue)}`);
   }
 
-  const id = NAVIGATION_LABEL_IDS.find((candidate) => candidate === idValue);
+  const id = PRIMARY_NAVIGATION_PAGE_IDS.find((candidate) => candidate === idValue);
   if (!id) throw new Error(`unexpected navigation label id: ${idValue}`);
 
   if (typeof value.label !== "string" || value.label.trim().length === 0) {
@@ -52,19 +47,19 @@ export function parseNavigationLabels(value: unknown): readonly NavigationLabelD
     byId.set(item.id, item);
   }
 
-  for (const expectedId of NAVIGATION_LABEL_IDS) {
+  for (const expectedId of PRIMARY_NAVIGATION_PAGE_IDS) {
     if (!byId.has(expectedId)) {
       throw new Error(`missing required navigation label id: ${expectedId}`);
     }
   }
 
-  if (parsed.length !== NAVIGATION_LABEL_IDS.length) {
+  if (parsed.length !== PRIMARY_NAVIGATION_PAGE_IDS.length) {
     throw new Error(
-      `navigation label count must remain ${NAVIGATION_LABEL_IDS.length}; got ${parsed.length}`,
+      `navigation label count must remain ${PRIMARY_NAVIGATION_PAGE_IDS.length}; got ${parsed.length}`,
     );
   }
 
-  return Object.freeze(NAVIGATION_LABEL_IDS.map((id) => {
+  return Object.freeze(PRIMARY_NAVIGATION_PAGE_IDS.map((id) => {
     const item = byId.get(id);
     if (!item) throw new Error(`missing required navigation label id: ${id}`);
     return Object.freeze({ ...item });
