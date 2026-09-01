@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
+import path from "node:path";
 import test from "node:test";
 
+import {
+  publicStaticOutputPath,
+  publicStaticRequestPath,
+} from "../src/site/build/public-static.ts";
 import {
   getEnabledSitePages,
   getPageByPath,
@@ -67,6 +72,30 @@ test("CV is a canonical static SitePage with explicit renderer and build ownersh
         sourcePath: "public/cv/index.html",
       },
     },
+  );
+});
+
+test("public-static sourcePath owns both dev request path and production target", () => {
+  const cv = sitePages.find((page) => page.id === "cv");
+  assert.ok(cv && cv.build.kind === "public-static", "missing public-static CV page");
+
+  assert.equal(publicStaticRequestPath(cv), "/cv/index.html");
+  assert.equal(
+    publicStaticOutputPath(cv, "/repo"),
+    path.resolve("/repo", "dist/cv/index.html"),
+  );
+
+  const relocated = {
+    ...cv,
+    build: {
+      kind: "public-static",
+      sourcePath: "public/resume-shell/index.html",
+    },
+  };
+  assert.equal(publicStaticRequestPath(relocated), "/resume-shell/index.html");
+  assert.equal(
+    publicStaticOutputPath(relocated, "/repo"),
+    path.resolve("/repo", "dist/resume-shell/index.html"),
   );
 });
 
