@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { homeCards } from "../src/data/projects.ts";
+import { projectCardPresentations } from "../src/data/projects.ts";
 import { renderAnimatedCanvasGallery } from "../src/templates/animated-canvas-gallery.ts";
 import { renderBeforeAfter } from "../src/templates/before-after.ts";
 import { renderJustifiedGallery } from "../src/templates/justified-gallery.ts";
@@ -28,7 +28,7 @@ function assertNoGlobalReveal(html, label) {
 }
 
 test("project card renderer marks cards while the grid list owns their reveal group", async () => {
-  const card = renderProjectCard(homeCards[0]);
+  const card = renderProjectCard(projectCardPresentations[0]);
   const index = await read("index.html");
 
   assert.match(card, /<a[\s\S]*class="project-card"[\s\S]*data-reveal="card"/);
