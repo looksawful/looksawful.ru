@@ -3,6 +3,10 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { navigationLabels } from "../src/data/navigation.ts";
+import {
+  getBreadcrumbItems,
+  getPrimaryNavigationItems,
+} from "../src/site/navigation/model.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
 import { renderSiteNavigation } from "../src/site/shell/navigation.ts";
@@ -43,6 +47,23 @@ test("global menu contains exactly the six public primary destinations and no Wo
 
   assert.doesNotMatch(html, />Work</);
   assert.doesNotMatch(html, /Awful Cases|Moves Awful|Berry/);
+});
+
+test("primary navigation and breadcrumbs derive hrefs from canonical SitePage records", () => {
+  const fixturePages = sitePages.map((candidate) => {
+    if (candidate.id === "home") return { ...candidate, path: "/portfolio-fixture/" };
+    if (candidate.id === "cv") return { ...candidate, path: "/resume-fixture/" };
+    return candidate;
+  });
+
+  const menu = getPrimaryNavigationItems(navigationLabels, fixturePages);
+  assert.equal(menu.find(({ id }) => id === "home")?.href, "/portfolio-fixture/");
+  assert.equal(menu.find(({ id }) => id === "cv")?.href, "/resume-fixture/");
+
+  assert.deepEqual(
+    getBreadcrumbItems(page("case:jestei-pool"), navigationLabels, fixturePages)[0],
+    { id: "home", label: requireLabel("home"), href: "/portfolio-fixture/" },
+  );
 });
 
 test("navigation exposes an accessible hamburger control and menu relationship", () => {
