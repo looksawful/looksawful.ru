@@ -18,6 +18,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Classify changes
+        id: change-scope
+        env:
+          CI_DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          CI_DIFF_HEAD: ${{ github.sha }}
+        run: node tools/ci/change-scope.mjs
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -27,6 +36,8 @@ jobs:
         run: npm ci
       - name: Typecheck
         run: npm run typecheck
+      - name: Fast tests
+        run: npm run test:cv
       - name: Restore generated media
         id: media-cache
         uses: actions/cache@v4
@@ -34,10 +45,19 @@ jobs:
           path: |
             public/media/generated/responsive
             public/media/generated/video
-          key: generated-media-v3-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/data/media/assets/**/*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+          key: generated-media-v4-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/content/media-catalog/**/*.json', 'src/data/media/assets/**/*.ts', 'src/data/media/catalog*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/sync-media-catalog.mjs', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
           restore-keys: |
-            generated-media-v3-${{ runner.os }}-
+            generated-media-v4-${{ runner.os }}-
+      - name: Check CMS media catalog
+        run: npm run media:catalog:check
+      - name: Inspect cached media
+        id: media-scope
+        env:
+          MEDIA_INPUTS_CHANGED: ${{ steps.change-scope.outputs.media_inputs_changed }}
+          MEDIA_CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
+        run: node tools/ci/media-scope.mjs
       - name: Ensure media tooling
+        if: steps.media-scope.outputs.needs_sync == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -45,14 +65,16 @@ jobs:
             sudo apt-get update
             sudo apt-get install --yes ffmpeg
           fi
-          ffmpeg -version | head -n 1
-          ffprobe -version | head -n 1
       - name: Sync generated media
+        if: steps.media-scope.outputs.needs_sync == 'true'
         run: npm run media:sync
       - name: Check tracked media metadata
-        run: git diff --exit-code -- public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
-      - name: Core tests
-        run: npm run test:core
+        run: git diff --exit-code -- src/content/media-catalog src/data/media/catalog-records.generated.ts public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
+      - name: Media contracts
+        run: npm run test:media:contract
+      - name: Media tooling tests
+        if: steps.media-scope.outputs.needs_sync == 'true'
+        run: npm run test:media:checks
       - name: Build site
         run: npm run build:site
       - name: Install browser for smoke tests
@@ -60,7 +82,7 @@ jobs:
       - name: Authored browser smoke
         env:
           CV_SMOKE_CAPTURE_DIR: artifacts/cv-smoke
-        run: npm run test:e2e:all
+        run: npm run test:e2e:cv
       - name: Prepare production CV
         run: node tools/prepare-cv-production.mjs dist/cv/index.html
       - name: Production CV smoke

@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     env:
       VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
@@ -31,29 +32,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
-      - name: Detect deployment scope
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Classify changes
         id: change-scope
-        shell: bash
-        run: |
-          set -euo pipefail
-          cv_copy_only=false
-          media_inputs_changed=true
-          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            parent="$(git rev-parse "${GITHUB_SHA}^")"
-            changed="$(git diff --name-only "$parent" "$GITHUB_SHA")"
-            allowed='^(public/cv/index\.html|src/content/cv\.json|test/cv-(education|experience-copy|profile|skills)-cms\.test\.mjs)$'
-            if [[ -n "$changed" ]] && ! grep -Evq "$allowed" <<<"$changed"; then
-              cv_copy_only=true
-            fi
-            media_inputs_changed=false
-            media_inputs='^(public/media/|src/content/media-catalog/|src/content/projects\.json$|src/data/media/|tools/(build-responsive-media|build-video-media|media-dev-state|sync-media-catalog)\.mjs$|package(-lock)?\.json$)'
-            if grep -Eq "$media_inputs" <<<"$changed"; then
-              media_inputs_changed=true
-            fi
-          fi
-          printf 'cv_copy_only=%s\n' "$cv_copy_only" >> "$GITHUB_OUTPUT"
-          printf 'media_inputs_changed=%s\n' "$media_inputs_changed" >> "$GITHUB_OUTPUT"
+        env:
+          CI_DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          CI_DIFF_HEAD: ${{ github.sha }}
+        run: node tools/ci/change-scope.mjs
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -63,6 +50,8 @@ jobs:
         run: npm ci
       - name: Typecheck
         run: npm run typecheck
+      - name: Fast tests
+        run: npm run test:fast
       - name: Restore generated media
         id: media-cache
         uses: actions/cache@v4
@@ -73,8 +62,16 @@ jobs:
           key: generated-media-v4-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/content/media-catalog/**/*.json', 'src/data/media/assets/**/*.ts', 'src/data/media/catalog*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/sync-media-catalog.mjs', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
           restore-keys: |
             generated-media-v4-${{ runner.os }}-
+      - name: Check CMS media catalog
+        run: npm run media:catalog:check
+      - name: Inspect cached media
+        id: media-scope
+        env:
+          MEDIA_INPUTS_CHANGED: ${{ steps.change-scope.outputs.media_inputs_changed }}
+          MEDIA_CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
+        run: node tools/ci/media-scope.mjs
       - name: Ensure media tooling
-        if: steps.change-scope.outputs.media_inputs_changed == 'true' || steps.media-cache.outputs.cache-hit != 'true'
+        if: steps.media-scope.outputs.needs_sync == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -82,48 +79,25 @@ jobs:
             sudo apt-get update
             sudo apt-get install --yes ffmpeg
           fi
-          ffmpeg -version | head -n 1
-          ffprobe -version | head -n 1
-      - name: Check CMS media catalog
-        if: steps.change-scope.outputs.media_inputs_changed == 'true' || steps.media-cache.outputs.cache-hit != 'true'
-        run: npm run media:catalog:check
       - name: Sync generated media
-        if: steps.change-scope.outputs.media_inputs_changed == 'true' || steps.media-cache.outputs.cache-hit != 'true'
+        if: steps.media-scope.outputs.needs_sync == 'true'
         run: npm run media:sync
       - name: Check tracked media metadata
-        if: steps.change-scope.outputs.media_inputs_changed == 'true' || steps.media-cache.outputs.cache-hit != 'true'
         run: git diff --exit-code -- src/content/media-catalog src/data/media/catalog-records.generated.ts public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
-      - name: Core tests without media pipeline checks
-        if: steps.change-scope.outputs.media_inputs_changed != 'true' && steps.media-cache.outputs.cache-hit == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          find test -maxdepth 1 -type f -name '*.test.mjs' \
-            ! -name 'media-catalog-*.test.mjs' \
-            ! -name 'media-ci-cache.test.mjs' \
-            ! -name 'media-tooling-contract.test.mjs' \
-            ! -name 'cv-entry.test.mjs' \
-            ! -name 'project-cards-cms.test.mjs' \
-            ! -name 'remaining-media-migration.test.mjs' \
-            ! -name 'responsive-*.test.mjs' \
-            ! -name 'shootings-data-isolation.test.mjs' \
-            ! -name 'video-delivery-contract.test.mjs' \
-            -print0 | sort -z | xargs -0 node --test
-      - name: Core tests
-        if: steps.change-scope.outputs.media_inputs_changed == 'true' || steps.media-cache.outputs.cache-hit != 'true'
-        run: npm run test:core
+      - name: Media contracts
+        run: npm run test:media:contract
+      - name: Media tooling tests
+        if: steps.media-scope.outputs.needs_sync == 'true'
+        run: npm run test:media:checks
       - name: Build site
         run: npm run build:site
       - name: Prepare production CV
         run: node tools/prepare-cv-production.mjs dist/cv/index.html
       - name: Install browser for smoke tests
-        if: steps.change-scope.outputs.cv_copy_only != 'true'
         run: npx playwright install --with-deps chromium
       - name: Final production browser verification
-        if: steps.change-scope.outputs.cv_copy_only != 'true'
         run: npm run test:e2e:production
       - name: Upload caption QA
-        if: steps.change-scope.outputs.cv_copy_only != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: caption-qa
@@ -176,6 +150,18 @@ jobs:
               && ! grep -Eq '\./src/[^"]+\.(css|js)' "${index_file}" \
               && grep -Fq '<main class="resume">' "${cv_file}" \
               && ! grep -Eqi '<article[^>]*class="[^"]*experience-card[^"]*"[^>]*hidden|<article[^>]*hidden[^>]*class="[^"]*experience-card' "${cv_file}"; then
+              assets_ok=true
+              while IFS= read -r asset_path; do
+                asset_file="$(mktemp)"
+                if ! curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "https://www.looksawful.ru${asset_path}?sha=${GITHUB_SHA}&attempt=${attempt}" --output "$asset_file" || [[ ! -s "$asset_file" ]] || grep -Eqi '<!doctype html|<html' "$asset_file"; then
+                  assets_ok=false
+                fi
+                rm -f "$asset_file"
+              done < <(grep -Eo '/assets/[^" ]+\.(css|js)' "$index_file" | sort -u)
+              if [[ "$assets_ok" != true ]]; then
+                rm -f "${index_file}" "${cv_file}"
+                continue
+              fi
               printf '%s\n' "$body"
               rm -f "${index_file}" "${cv_file}"
               exit 0

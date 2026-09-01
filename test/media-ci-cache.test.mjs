@@ -16,7 +16,7 @@ function syncBlock(workflow) {
   return workflow.match(/\n      - name: Sync generated media\b[\s\S]*?(?=\n      - name: )/)?.[0] ?? "";
 }
 
-test("CI caches only reproducible media derivatives and always validates them with deterministic builders", async () => {
+test("CI caches only reproducible media derivatives and validates changed media deterministically and inspects unchanged cached binaries", async () => {
   for (const workflowUrl of workflowUrls) {
     const workflow = await readFile(workflowUrl, "utf8");
     const label = workflowUrl.pathname.split("/").at(-1);
@@ -36,8 +36,8 @@ test("CI caches only reproducible media derivatives and always validates them wi
     assert.match(cache, /restore-keys:/, `${label} must allow prior derivative caches to seed changed media commits`);
 
     assert.match(sync, /run: npm run media:sync/, `${label} must run deterministic builders after cache restore`);
-    assert.doesNotMatch(sync, /if:/, `${label} media correctness must not depend on a cache-hit condition`);
-    assert.doesNotMatch(workflow, /media-cache\.outputs\.cache-hit/, `${label} must never treat cache hit as correctness proof`);
+    assert.match(sync, /if:.*media-scope\.outputs\.needs_sync/, `${label} must route media changes/cache defects to deterministic sync`);
+    assert.ok(workflow.includes("node tools/ci/media-scope.mjs"), `${label} must inspect cached files against repository metadata`);
   }
 });
 
