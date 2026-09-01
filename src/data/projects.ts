@@ -174,7 +174,4 @@ export function getVisibleProjectCardPresentations(
   return source.filter((card) => card.visible);
 }
 
-export const getVisibleHomeCards = getVisibleProjectCardPresentations;
-export type HomeCardData = ProjectCardPresentation;
-export type HomeCardId = ProjectCardId;
 export type ProjectCardRole = NonNullable<ProjectCardPresentation["role"]>;
