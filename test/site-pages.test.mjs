@@ -20,6 +20,7 @@ const expectedRoutes = new Map([
   ["project:awful-cases", "/work/awful-cases/"],
   ["project:moves-awful", "/work/moves-awful/"],
   ["project:berry-social-content-2020", "/work/berry-social-content-2020/"],
+  ["cv", "/cv/"],
   ["not-found", "/404.html"],
 ]);
 
@@ -27,7 +28,7 @@ test("site page manifest validates without errors", () => {
   assert.doesNotThrow(() => validateSitePages(sitePages));
 });
 
-test("managed MPA routes are stable and unique", () => {
+test("managed SitePage routes are stable and unique", () => {
   assert.equal(sitePages.length, expectedRoutes.size);
   const ids = new Set(sitePages.map((page) => page.id));
   const paths = new Set(sitePages.map((page) => page.path));
@@ -76,6 +77,7 @@ test("enabled page lookup uses canonical normalized paths", () => {
 
   const page = getPageByPath("/work/jestei-pool");
   assert.equal(page?.id, "case:jestei-pool");
+  assert.equal(getPageByPath("/cv")?.id, "cv");
 });
 
 test("entity routes reference the existing domain model", () => {
@@ -96,15 +98,15 @@ test("entity routes reference the existing domain model", () => {
   }
 });
 
-test("only enabled pages are returned for build inputs", () => {
+test("only enabled pages are returned for build ownership decisions", () => {
   const enabled = getEnabledSitePages();
   assert.equal(enabled.length, sitePages.filter((page) => page.enabled).length);
   assert.ok(enabled.every((page) => page.enabled));
 });
 
-test("public Case and Collection pages are indexable while selected Project pages stay unlisted", () => {
+test("public Case, Collection and CV pages are indexable while selected Project pages stay unlisted", () => {
   for (const page of sitePages) {
-    if (page.type === "case" || page.type === "collection") {
+    if (page.type === "case" || page.type === "collection" || page.id === "cv") {
       assert.equal(page.discovery.listed, true);
       assert.equal(page.discovery.indexable, true);
     }
