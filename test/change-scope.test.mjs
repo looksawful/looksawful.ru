@@ -22,9 +22,21 @@ test("global infrastructure and unknown paths fail closed to full regression", (
   for (const file of ["src/main.ts", "vite.config.ts", "src/styles/base.css", "src/components/media-lightbox.ts", "unclassified/new-module.ts"]) {
     assert.deepEqual(classifyChangedFiles([file]).suites, ["full"], file);
   }
-  assert.deepEqual(classifyChangedFiles([]).suites, ["full"]);
-  assert.equal(classifyChangedFiles([]).mediaChanged, true);
 });
+
+test("empty diff stays cheap while explicit full mode still fails closed", () => {
+  const empty = classifyChangedFiles([]);
+  assert.equal(empty.scope, "affected");
+  assert.equal(empty.mediaChanged, false);
+  assert.deepEqual(empty.groups, []);
+  assert.deepEqual(empty.suites, ["smoke"]);
+
+  const forced = classifyChangedFiles([], { full: true });
+  assert.equal(forced.scope, "full");
+  assert.equal(forced.mediaChanged, true);
+  assert.deepEqual(forced.suites, ["full"]);
+});
+
 test("docs and CV-specific styles do not select exhaustive media regression", () => {
   assert.deepEqual(classifyChangedFiles(["docs/tooling-pipeline.md"]).suites, ["smoke"]);
   assert.deepEqual(classifyChangedFiles(["public/cv/style.css"]).suites, ["smoke", "cv"]);
