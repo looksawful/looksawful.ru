@@ -41,6 +41,34 @@ test("managed MPA routes are stable and unique", () => {
   }
 });
 
+test("CV is a canonical static SitePage with explicit renderer and build ownership", () => {
+  const cv = sitePages.find((page) => page.id === "cv");
+  assert.ok(cv, "missing page cv");
+  assert.deepEqual(
+    {
+      type: cv.type,
+      path: cv.path,
+      enabled: cv.enabled,
+      listed: cv.discovery.listed,
+      indexable: cv.discovery.indexable,
+      renderer: cv.renderer,
+      build: cv.build,
+    },
+    {
+      type: "static",
+      path: "/cv/",
+      enabled: true,
+      listed: true,
+      indexable: true,
+      renderer: "cv",
+      build: {
+        kind: "public-static",
+        sourcePath: "public/cv/index.html",
+      },
+    },
+  );
+});
+
 test("enabled page lookup uses canonical normalized paths", () => {
   assert.equal(normalizePagePath("work/jestei-pool"), "/work/jestei-pool/");
   assert.equal(normalizePagePath("/work/jestei-pool/"), "/work/jestei-pool/");
