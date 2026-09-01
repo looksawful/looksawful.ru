@@ -233,13 +233,17 @@ test("Pages CMS exposes a clear verification action and no routing fields", () =
   assert.doesNotMatch(projectCardsConfig, /- name: (route|canonical|listed|indexable|slug|pageType|pageId)\b/);
 });
 
-test("Pages CMS publication action can only prepare dev to prod PRs", () => {
-  assert.match(cmsConfig, /name: prepare-publication/);
-  assert.match(cmsConfig, /label: Подготовить публикацию/);
-  assert.match(cmsConfig, /workflow: pages-cms-publish\.yml/);
+test("Pages CMS publication action uses trusted prod policy before preparing dev to prod PRs", () => {
+  const action = cmsConfig.match(/actions:\s*\n\s+- name: prepare-publication[\s\S]*?(?=\ncontent:)/)?.[0] ?? "";
+  assert.match(action, /name: prepare-publication/);
+  assert.match(action, /label: Подготовить публикацию/);
+  assert.match(action, /workflow: pages-cms-publish\.yml/);
+  assert.match(action, /ref: prod\b/);
+  assert.doesNotMatch(action, /ref: current\b/);
   assert.match(publishWorkflow, /source_ref.*!=.*dev/s);
-  assert.match(publishWorkflow, /WORKFLOW_REF.*!=.*dev/s);
-  assert.match(publishWorkflow, /compare\/prod\.\.\.dev/);
+  assert.match(publishWorkflow, /WORKFLOW_REF.*!=.*prod/s);
+  assert.match(publishWorkflow, /git merge-base --is-ancestor origin\/prod origin\/dev/);
+  assert.match(publishWorkflow, /cms-publication-scope\.mjs/);
   assert.match(publishWorkflow, /--base prod/);
   assert.match(publishWorkflow, /--head dev/);
   assert.doesNotMatch(publishWorkflow, /gh pr merge|enable.*auto.?merge|merge_pull_request/i);
