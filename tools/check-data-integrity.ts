@@ -15,6 +15,7 @@ import { clients } from "../src/data/catalog/clients.ts";
 import { collections } from "../src/data/catalog/collections.ts";
 import { engagements } from "../src/data/catalog/engagements.ts";
 import { projects } from "../src/data/catalog/projects/index.ts";
+import { clientLogoDefinitions, type ClientLogoDefinition } from "../src/data/clients.ts";
 import { roles } from "../src/data/taxonomy/roles.ts";
 import { mediaAssets } from "../src/data/media/assets/index.ts";
 import { mediaEntries } from "../src/data/media/entries/index.ts";
@@ -341,6 +342,7 @@ type IntegrityOptions = {
   repoRoot?: string;
   mediaAssets?: readonly any[];
   mediaEntries?: readonly any[];
+  clientLogos?: readonly ClientLogoDefinition[];
   generatedManifestPath?: string;
   scanPhysicalMedia?: boolean;
 };
@@ -349,6 +351,7 @@ export async function createMediaIntegrityReport(options: IntegrityOptions = {})
   const repoRoot = path.resolve(options.repoRoot ?? process.cwd());
   const assets = options.mediaAssets ?? mediaAssets;
   const entries = options.mediaEntries ?? mediaEntries;
+  const logos: readonly ClientLogoDefinition[] = options.clientLogos ?? clientLogoDefinitions;
   const errors: string[] = [];
   const warnings: string[] = [];
   const assetIds = new Set(assets.map((asset) => asset.id));
@@ -484,6 +487,7 @@ export async function createMediaIntegrityReport(options: IntegrityOptions = {})
       .slice(0, 200) as string[];
   }
 
+  pushDuplicateErrors(errors, "ClientLogo", logos);
   pushDuplicateErrors(errors, "Client", clients);
   pushDuplicateErrors(errors, "Case", cases);
   pushDuplicateErrors(errors, "Collection", collections);
@@ -497,6 +501,12 @@ export async function createMediaIntegrityReport(options: IntegrityOptions = {})
   const engagementIds = new Set(engagements.map(({ id }) => id));
   const projectIds = new Set(projects.map(({ id }) => id));
   const roleIds = new Set(roles.map(({ id }) => id));
+
+  for (const logo of logos) {
+    if (logo.clientId && !clientIds.has(logo.clientId)) {
+      errors.push(`ClientLogo(${logo.id}).clientId: unknown Client "${logo.clientId}"`);
+    }
+  }
 
   for (const item of cases) {
     const owner = `Case(${item.id})`;
