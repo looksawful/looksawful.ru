@@ -45,10 +45,11 @@ test("publication workflow blocks non-linear branch topology before scope author
   assert.ok(ancestorCheck < classifier, "topology must be authorized before path classification");
 });
 
-test("trusted classifier runs before existing-PR lookup and PR creation", async () => {
+test("trusted classifier sees both sides of renames and runs before PR operations", async () => {
   const workflow = await read(".github/workflows/pages-cms-publish.yml");
   assert.match(workflow, /cms-publication-scope\.mjs/);
   assert.match(workflow, /prod\.\.\.dev|origin\/prod\.\.origin\/dev|origin\/prod\.\.\.origin\/dev/);
+  assert.match(workflow, /git[\s\S]*diff[\s\S]*--name-only[\s\S]*--no-renames[\s\S]*-z[\s\S]*origin\/prod\.\.origin\/dev/);
 
   const classifier = workflow.indexOf("cms-publication-scope.mjs");
   const list = workflow.indexOf("gh pr list");
