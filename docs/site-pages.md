@@ -128,13 +128,11 @@ The four CMS-managed cards come from:
 
 `src/content/projects.json`
 
-`src/data/projects.ts` validates that JSON and preserves the fixed card IDs.
+`src/data/projects.ts` validates that JSON as `HomeCard` presentation data, preserves the fixed card IDs and attaches a code-owned canonical `pageId` for each card.
 
-Routing is not editable in Pages CMS. The explicit card-ID-to-page mapping is owned by:
+Routing is not editable in Pages CMS. `src/site/pages/project-card-routes.ts` resolves each HomeCard's `pageId` through the canonical `sitePages` manifest instead of owning a second card-ID-to-page mapping.
 
-`src/site/pages/project-card-routes.ts`
-
-This keeps CMS content and route ownership separate.
+This keeps CMS content and route ownership separate while making the HomeCard-to-page relationship explicit in the typed presentation model.
 
 A future compact homepage must render less DOM and media. Do not implement compact mode by rendering a full Case and hiding most of it with CSS.
 
