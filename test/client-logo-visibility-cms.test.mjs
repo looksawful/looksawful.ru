@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import { clients } from "../src/data/catalog/clients.ts";
 import { clientLogos } from "../src/data/clients.ts";
+import { renderClientLogo } from "../src/templates/client-logo.ts";
 
 const visibilityUrl = new URL("../src/content/client-logo-visibility.json", import.meta.url);
 const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
@@ -50,6 +51,12 @@ const logoOnlyIds = new Set([
   "sensetique-production-agency",
 ]);
 
+const preservedPresentationLabels = new Map([
+  ["lyve-moscow", "Lyve Moscow"],
+  ["moskovskie-novosti", "Газета Московские Новости"],
+  ["progress-tradition", "Издательство Прогресс-Традиция"],
+]);
+
 test("client logo visibility registry keeps fixed identity while booleans remain editable", async () => {
   assert.equal(existsSync(fileURLToPath(visibilityUrl)), true, "client logo visibility content must exist");
   const visibility = JSON.parse(await readFile(visibilityUrl, "utf8"));
@@ -79,6 +86,24 @@ test("client logo definitions relate canonical clients without collapsing logo-o
 
   assert.equal(canonicalClientIds.has("illumihand"), true, "illumihand must remain a canonical Client");
   assert.equal(definitions.some(({ id }) => id === "illumihand"), false, "illumihand must not be auto-added to the logo wall");
+});
+
+test("canonical Client names own linked logo names without changing established presentation labels", async () => {
+  const dataModule = await import("../src/data/clients.ts");
+  const canonicalClients = new Map(clients.map((client) => [client.id, client]));
+
+  for (const definition of dataModule.clientLogoDefinitions) {
+    if (!definition.clientId) continue;
+    const client = canonicalClients.get(definition.clientId);
+    assert.ok(client, `${definition.id} must resolve its canonical Client`);
+    assert.equal(definition.name, client.name, `${definition.id} must derive its name from canonical Client data`);
+  }
+
+  for (const [id, expectedLabel] of preservedPresentationLabels) {
+    const logo = clientLogos.find((candidate) => candidate.id === id);
+    assert.ok(logo, `${id} must remain visible in the current logo wall fixture`);
+    assert.match(renderClientLogo(logo), new RegExp(`aria-label="${expectedLabel}"`));
+  }
 });
 
 test("client logo presentation follows the current visibility registry", async () => {
