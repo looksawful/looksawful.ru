@@ -87,7 +87,22 @@ test("Jestei parser accepts legitimate copy edits but rejects structural leakage
 
   const whitespaceRole = clone(source);
   whitespaceRole.role = "   ";
-  assert.throws(() => parseJesteiEditorialContent(whitespaceRole), /non-empty|string/i);
+  assert.equal(parseJesteiEditorialContent(whitespaceRole).role, "");
+
+  const missingCopy = clone(source);
+  delete missingCopy.lead;
+  delete missingCopy.sections[0].title;
+  delete missingCopy.sections[0].paragraphs;
+  delete missingCopy.overlays[0].text;
+  const parsedMissingCopy = parseJesteiEditorialContent(missingCopy);
+  assert.equal(parsedMissingCopy.lead, "");
+  assert.equal(parsedMissingCopy.sections[0].title, "");
+  assert.deepEqual(parsedMissingCopy.sections[0].paragraphs, []);
+  assert.equal(parsedMissingCopy.overlays[0].text, "");
+
+  const invalidCopy = clone(source);
+  invalidCopy.role = 42;
+  assert.throws(() => parseJesteiEditorialContent(invalidCopy), /string/i);
 
   const duplicateSection = clone(source);
   duplicateSection.sections[6].id = "home";

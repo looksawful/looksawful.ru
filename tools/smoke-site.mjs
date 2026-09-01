@@ -1,3 +1,4 @@
+import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./e2e/readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
 let BASE_URL = "";
@@ -99,7 +100,7 @@ async function revealProjectMedia(page) {
 
 async function scrollThroughPage(page) {
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.waitForTimeout(150);
+  await waitForAnimationFrames(page);
 
   for (let step = 0; step < 90; step += 1) {
     const state = await page.evaluate(() => {
@@ -113,13 +114,13 @@ async function scrollThroughPage(page) {
         maxY: document.documentElement.scrollHeight - window.innerHeight,
       };
     });
-    await page.waitForTimeout(80);
+    await waitForAnimationFrames(page);
     if (state.y >= state.maxY - 2) break;
   }
 
-  await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => {});
+  // Media readiness is checked below through decode/metadata, not network silence.
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.waitForTimeout(150);
+  await waitForAnimationFrames(page);
 }
 
 async function verifyPageShell(page, label) {
@@ -295,7 +296,7 @@ async function closeLightbox(page) {
   const close = page.locator("[data-lightbox-close], .pswp__button--close").first();
   if (await close.count()) {
     await close.click({ force: true });
-    await page.waitForTimeout(100);
+    await waitForLightboxClosed(page);
   }
 }
 
@@ -438,7 +439,7 @@ async function verifyLightboxKeyboardAndFocus(page, label) {
 
   await openSource(page, "[data-smoke-lightbox-keyboard]", `${label}: Enter key opens lightbox`, "enter");
   await page.keyboard.press("Escape");
-  await page.waitForTimeout(120);
+  await waitForLightboxClosed(page);
   await assertLightboxClosed(page, `${label}: Escape closes lightbox`);
 
   const focusRestored = await page.evaluate(() => document.activeElement?.hasAttribute("data-smoke-lightbox-keyboard") === true);
@@ -569,7 +570,7 @@ async function verifyLightboxBackdropClose(page, label) {
       dialog?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
   }
-  await page.waitForTimeout(120);
+  await waitForLightboxClosed(page);
   await assertLightboxClosed(page, `${label}: backdrop click closes lightbox`);
 }
 
@@ -1096,8 +1097,10 @@ async function auditViewport(browser, viewport) {
 
   try {
     await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 30_000 });
-    await page.evaluate(() => document.fonts?.ready);
-    await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => {});
+    // Global reveals initialize on pageshow + RAF (src/motion.ts), not DOM ready.
+    // Load is required here by that lifecycle; networkidle is not a readiness signal.
+    await page.waitForLoadState("load", { timeout: 30_000 });
+    await waitForDocumentReady(page);
     await verifyNoVisibleRevealTargetsHidden(page, label);
     const motionReport = await verifyMotionContract(page, label);
 

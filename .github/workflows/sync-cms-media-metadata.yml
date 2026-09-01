@@ -1,0 +1,126 @@
+name: Sync CMS media metadata
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'src/content/projects.json'
+      - 'public/media/projects/index/**'
+      - 'src/content/media-catalog/registered/**'
+      - 'src/content/media-catalog/uploads/**'
+      - 'public/media/catalog/**'
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: sync-cms-media-metadata
+  cancel-in-progress: false
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout CMS source SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Restore generated media
+        id: media-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+          key: generated-media-v4-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/content/media-catalog/**/*.json', 'src/data/media/assets/**/*.ts', 'src/data/media/catalog*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/sync-media-catalog.mjs', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+          restore-keys: |
+            generated-media-v4-${{ runner.os }}-
+      - name: Ensure media tooling
+        run: |
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install --yes ffmpeg
+          fi
+      - name: Synchronize CMS metadata deterministically
+        run: npm run media:sync
+      - name: Validate synchronized media
+        run: npm run test:media:checks
+      - name: Persist synchronized CMS media metadata
+        id: persist
+        env:
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cms_metadata=(
+            src/data/media/catalog-records.generated.ts
+            public/media/generated/responsive-manifest.json
+            public/media/generated/video-inventory.json
+            src/data/media/responsive-generated.ts
+          )
+
+          if git diff --quiet -- "${cms_metadata[@]}" src/content/media-catalog/registered src/content/media-catalog/uploads; then
+            echo "CMS media metadata is already current."
+            exit 0
+          fi
+
+          if [[ -z "$PUSH_BEFORE" || "$PUSH_BEFORE" =~ ^0+$ ]]; then
+            echo "Refusing to persist generated metadata: the prior dev commit is unavailable." >&2
+            exit 1
+          fi
+
+          mapfile -t changed_paths < <(git diff --name-only "$PUSH_BEFORE" "$PUSH_SHA")
+          saw_supported_media_change=false
+          saw_catalog_change=false
+          for changed_path in "${changed_paths[@]}"; do
+            case "$changed_path" in
+              src/content/projects.json|public/media/projects/index/*)
+                saw_supported_media_change=true
+                ;;
+              src/content/media-catalog/registered/*.json|src/content/media-catalog/uploads/*.json|public/media/catalog/*)
+                saw_supported_media_change=true
+                saw_catalog_change=true
+                ;;
+              *)
+                echo "Refusing to persist generated metadata: unexpected source change $changed_path" >&2
+                exit 1
+                ;;
+            esac
+          done
+
+          if [[ "$saw_supported_media_change" != "true" ]]; then
+            echo "Refusing to persist generated metadata: no supported CMS media source changed." >&2
+            exit 1
+          fi
+
+          if [[ "$saw_catalog_change" != "true" ]] && ! git diff --quiet -- public/media/generated/video-inventory.json; then
+            echo "Refusing to persist generated metadata: video metadata changed without a media-catalog source change." >&2
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "${cms_metadata[@]}" src/content/media-catalog/registered src/content/media-catalog/uploads
+          git commit -m "chore(media): sync CMS media metadata"
+          git fetch origin dev
+          if [[ "$(git rev-parse HEAD^)" != "$(git rev-parse origin/dev)" ]]; then
+            echo "dev advanced during CMS synchronization; save/retry against the new head." >&2
+            exit 1
+          fi
+          git push origin HEAD:dev
+          printf 'changed=true\n' >> "$GITHUB_OUTPUT"
+      - name: Verify the new dev SHA
+        if: steps.persist.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Pushes with GITHUB_TOKEN do not trigger push workflows.
+            await github.rest.actions.createWorkflowDispatch({ ...context.repo, workflow_id: "verify-dev.yml", ref: "dev" });

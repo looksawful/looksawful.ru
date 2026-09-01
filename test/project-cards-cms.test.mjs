@@ -19,7 +19,7 @@ const publishWorkflow = readFileSync(
   "utf8",
 );
 const verifyDevWorkflow = readFileSync(
-  new URL("../.github/workflows/verify-dev.yml", import.meta.url),
+  new URL("../.github/workflows/sync-cms-media-metadata.yml", import.meta.url),
   "utf8",
 );
 
@@ -210,7 +210,7 @@ test("Pages CMS publication action can only prepare dev to prod PRs", () => {
   assert.doesNotMatch(publishWorkflow, /gh pr merge|enable.*auto.?merge|merge_pull_request/i);
 });
 
-test("dev verification safely persists deterministic metadata for project covers and media catalog uploads", () => {
+test("explicit CMS mutation safely persists deterministic metadata for project covers and media catalog uploads", () => {
   assert.match(verifyDevWorkflow, /permissions:\s*\n\s+contents: write/);
   assert.match(verifyDevWorkflow, /name: Persist synchronized CMS media metadata/);
   assert.match(verifyDevWorkflow, /src\/content\/projects\.json/);

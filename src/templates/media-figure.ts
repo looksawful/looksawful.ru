@@ -414,7 +414,7 @@ export function renderMediaFigure(
           video: data.video,
         });
 
-  const overlay = data.surfaceOverlay
+  const overlay = data.surfaceOverlay?.text
     ? `<p class="${escapeHtml(data.surfaceOverlay.className)}" data-lightbox-caption-copy>${escapeHtml(
         data.surfaceOverlay.text,
       )}</p>`

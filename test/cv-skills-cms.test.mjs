@@ -10,7 +10,9 @@ const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
 
 const expectedSkills = {
   hard: {
-    title: "ХАРД СКИЛЛС",
+    visible: true,
+    titleVisible: true,
+    title: "КОМПЕТЕНЦИИ",
     rows: [
       { id: "identity", label: "Разработка айдентики:", text: "создание логотипа • подбор шрифтов • формирование цветовой палитры • дизайн печатных материалов • проектирование упаковки • разработка мерча • создание маскота • создание иконок и графики • формирование брендбука" },
       { id: "direction", label: "Арт- и дизайн-дирекшн:", text: "разработка визуальной концепции • руководство арт- и дизайн-направлениями • формирование брендбука • дизайн-ревью • аудит дизайн-ресурсов • контроль реализации" },
@@ -23,17 +25,21 @@ const expectedSkills = {
     ],
   },
   tech: {
-    title: "Технологический стек",
+    visible: true,
+    titleVisible: true,
+    title: "ТЕХНОЛОГИИ И ИНСТРУМЕНТЫ",
     rows: [
-      { id: "code", label: "Код:", text: "HTML • CSS • JavaScript • TypeScript • React • Next.js • Python" },
-      { id: "graphics", label: "Компьютерная графика:", text: "Three.js • WebGL • GLSL • Canvas • SVG • GSAP" },
-      { id: "design-systems", label: "Дизайн-системы:", text: "design tokens • semantic tokens • Figma Variables • component libraries • accessibility • handoff" },
-      { id: "color", label: "Цветокоррекция:", text: "Lightroom • Capture One" },
-      { id: "automation", label: "Автоматизация:", text: "Python • JavaScript • ImageMagick • FFmpeg • batch processing • локальные AI-workflows" },
-      { id: "generative", label: "Генеративные технологии:", text: "Stable Diffusion • ComfyUI • ControlNet • IP-Adapter • LoRA • локальные модели • AI-пайплайны" },
+      { id: "design", label: "Дизайн:", text: "Figma • Illustrator • InDesign • CorelDRAW • Krita • Font Forge" },
+      { id: "development", label: "Разработка:", text: "CSS • JavaScript • TypeScript • Python • VS Code • WebStorm • Zed • GLSL • Canvas • SVG • GSAP" },
+      { id: "graphics-3d", label: "3D и компьютерная графика:", text: "Blender • Maya • ZBrush • Material Designer • Three.js" },
+      { id: "images", label: "Постпродакшен:", text: "Photoshop • Lightroom • Capture One • ImageMagick" },
+      { id: "ai", label: "ИИ:", text: "Stable Diffusion • SDXL • FLUX.1 • FLUX.2 • Z-Image • Qwen-Image • HunyuanImage-3.0 • HiDream-I1 • ComfyUI • ControlNet • IP-Adapter • LoRA • Automatic1111 • SwarmUI • Codex • Claude • Ollama • OpenClaw" },
+      { id: "motion", label: "Моушен-дизайн:", text: "After Effects • Premiere Pro • Final Cut Pro • FFmpeg • Ableton Live • Adobe Audition • WebGL" },
     ],
   },
   soft: {
+    visible: false,
+    titleVisible: false,
     title: "СОФТ СКИЛЛС",
     rows: [
       { id: "leader", label: "Руководитель:", text: "ставлю задачи, распределяю работу, провожу ревью и контролирую качество результата." },
@@ -45,6 +51,8 @@ const expectedSkills = {
     ],
   },
   tools: {
+    visible: false,
+    titleVisible: false,
     title: "СОФТ",
     rows: [
       { id: "design", label: "Дизайн:", text: "Figma, Photoshop, Blender, ComfyUI, InDesign, CorelDRAW, Krita, Illustrator, Material Designer, Font Forge, Maya, ZBrush" },
@@ -107,10 +115,11 @@ test("CV skill transform escapes CMS copy while preserving section and paragraph
   assert.doesNotMatch(transformed, /<script\b/i);
   assert.match(transformed, /<section class="block hard copy">/);
   assert.match(transformed, /<section class="block tech">/);
-  assert.match(transformed, /<section class="block soft copy">/);
-  assert.match(transformed, /<section class="block tools">/);
+  assert.match(transformed, /<section class="block soft copy" hidden>/);
+  assert.match(transformed, /<section class="block tools" hidden>/);
+  assert.match(transformed, /<section class="block soft copy" hidden><h2 class="section-title" hidden>/);
   assert.equal(
-    (transformed.match(/<section class="block (?:hard copy|tech|soft copy|tools)">/g) ?? []).length,
+    (transformed.match(/<section class="block (?:hard copy|tech|soft copy|tools)"(?: hidden)?>/g) ?? []).length,
     4,
   );
 });
@@ -157,7 +166,7 @@ test("CV skill transform fails closed when source paragraph structure drifts", a
   ]);
 
   const drifted = sourceHtml.replace(
-    /(<section class="block tech">[\s\S]*?)<p><b>Генеративные технологии:<\/b>[\s\S]*?<\/p>(<\/section>)/,
+    /(<section class="block tech">[\s\S]*?)<p><b>Моушен-дизайн:<\/b>[\s\S]*?<\/p>(<\/section>)/,
     "$1$2",
   );
 
@@ -176,6 +185,8 @@ test("Pages CMS exposes the four fixed CV skill blocks without layout or HTML co
     assert.match(cvConfig, new RegExp(`name: ${id}\\b[\\s\\S]*?type: object`));
   }
   assert.match(cvConfig, /name: rows\b[\s\S]*?list:/);
+  assert.match(cvConfig, /name: visible\b[\s\S]*?type: boolean/);
+  assert.match(cvConfig, /name: titleVisible\b[\s\S]*?type: boolean/);
   assert.match(cvConfig, /name: id\b[\s\S]*?readonly: true/);
   assert.match(cvConfig, /name: label\b[\s\S]*?type: string/);
   assert.match(cvConfig, /name: text\b[\s\S]*?type: text/);

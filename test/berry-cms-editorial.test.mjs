@@ -36,7 +36,15 @@ test("Berry standalone Project has a strict CMS-owned editorial source", async (
 
   const whitespace = clone(source);
   whitespace.title = "   ";
-  assert.throws(() => parseBerryEditorialContent(whitespace), /non-empty|string/i);
+  assert.equal(parseBerryEditorialContent(whitespace).title, "");
+
+  const missing = clone(source);
+  delete missing.summary;
+  assert.equal(parseBerryEditorialContent(missing).summary, "");
+
+  const invalid = clone(source);
+  invalid.lead = 42;
+  assert.throws(() => parseBerryEditorialContent(invalid), /string/i);
 });
 
 test("Berry CMS editorial values flow through the existing Project intro renderer", async () => {

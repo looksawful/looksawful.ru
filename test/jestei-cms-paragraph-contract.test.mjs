@@ -37,3 +37,23 @@ test("Jestei CMS rejects event copy that cannot feed all four existing overlays"
     /event.*4|4.*event|paragraph/i,
   );
 });
+
+test("Jestei CMS can clear all overlay-fed copy while preserving its fixed slots", () => {
+  const content = clone(source);
+  sectionById(content, "interface").paragraphs = [];
+  delete sectionById(content, "event").paragraphs;
+
+  const parsed = parseJesteiEditorialContent(content);
+  assert.deepEqual(sectionById(parsed, "interface").paragraphs, ["", "", ""]);
+  assert.deepEqual(sectionById(parsed, "event").paragraphs, ["", "", "", ""]);
+});
+
+test("Jestei CMS can leave any individual overlay-fed text slot empty", () => {
+  const content = clone(source);
+  sectionById(content, "interface").paragraphs[1] = "   ";
+  sectionById(content, "event").paragraphs[2] = "";
+
+  const parsed = parseJesteiEditorialContent(content);
+  assert.equal(sectionById(parsed, "interface").paragraphs[1], "");
+  assert.equal(sectionById(parsed, "event").paragraphs[2], "");
+});

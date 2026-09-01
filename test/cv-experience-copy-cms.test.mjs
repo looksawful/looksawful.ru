@@ -11,7 +11,7 @@ const expectedCounts = {
   illumihand: { cases: 3, facts: 2, links: 0 },
   madcow: { cases: 2, facts: 0, links: 2 },
   sensetique: { cases: 0, facts: 0, links: 1 },
-  line: { cases: 3, facts: 1, links: 1 },
+  line: { cases: 3, facts: 0, links: 1 },
   berry: { cases: 3, facts: 2, links: 0 },
   ss: { cases: 5, facts: 1, links: 1 },
   olovo: { cases: 6, facts: 2, links: 2 },
@@ -19,7 +19,7 @@ const expectedCounts = {
   soroka: { cases: 3, facts: 2, links: 0 },
   kursovoy: { cases: 0, facts: 2, links: 0 },
   ran: { cases: 4, facts: 2, links: 0 },
-  progress: { cases: 2, facts: 1, links: 1 },
+  progress: { cases: 2, facts: 0, links: 1 },
   ria: { cases: 0, facts: 0, links: 0 },
 };
 
@@ -88,6 +88,31 @@ test("CV experience CMS source owns copy but keeps fixed identity and presentati
   }
 });
 
+test("CV experience source contains the approved Jestei, LI-NE, Progress and RIA copy", async () => {
+  const source = await readSource();
+  const byId = new Map(source.experience.map((entry) => [entry.id, entry]));
+
+  assert.equal(
+    byId.get("jestei")?.description,
+    "Сформировал новый визуальный язык музыкального сервиса — главного российского диджейского пула. Разработал UX/UI-стратегию для core-продуктов и руководил всей командой дизайнеров. Реорганизовал дизайн-систему и ускорил процесс разработки макетов и прототипов, создал документацию и CJM для ключевых пользовательских сценариев для 4 сегментов аудитории, сократил количество шагов для получения доступа к контенту с 6 до 2, спроектировал прогрессивную систему фильтрации треков, разработал триггеры апгрейда и дизайн рассылки для реанимации клиентов, переработал промо-материалы, спроектировал архитектуру новой системы лендинговых страниц для двух аудиторий, создал дизайн для таргетированной рекламы, спроектировал дизайн раздела для новой премиальной аудитории и проработал инструменты для неё. Всё это позволило поднять стоимость подписки без деградации клиентской базы, расширить аудиторию, сократить время производства контента и подготовиться к выходу продукта на американский рынок.",
+  );
+  assert.equal(
+    byId.get("line")?.description,
+    "Работал младшим продюсером в продакшен-агентстве в сфере моды и рекламы. Изучал и занимался организацией fashion- и рекламных фото- и видеосъёмок, а также мероприятий: препродакшн, кастинги, локации, логистика, координация команды. Работал над крупными съёмками для «Детского мира», Puma, H&M и в других небольших проектах.",
+  );
+  assert.equal(
+    byId.get("progress")?.description,
+    "Работал книжным дизайнером в издательстве гуманитарной и образовательной литературы: разрабатывал макеты, верстал и вёл полный цикл дизайн-процессов при разработке научных и гуманитарных изданий, включая книги Елены Ровенко и Бориса Ерёмина, а также руководил разработкой и администрированием сайта издательства.",
+  );
+  assert.equal(byId.get("ria")?.role, "Дизайнер");
+  assert.equal(
+    byId.get("ria")?.description,
+    "Работал верстальщиком в ежедневной городской общественно-политической газете о Москве",
+  );
+  assert.deepEqual(byId.get("line")?.facts, []);
+  assert.deepEqual(byId.get("progress")?.facts, []);
+});
+
 test("CV parser accepts legitimate experience copy edits and rejects architecture or count drift", async () => {
   const source = await readSource();
   assert.deepEqual(parseCvContent(clone(source)), source);
@@ -108,7 +133,16 @@ test("CV parser accepts legitimate experience copy edits and rejects architectur
 
   const whitespace = clone(source);
   whitespace.experience[0].company = "   ";
-  assert.throws(() => parseCvContent(whitespace), /non-empty|string|trim/i);
+  delete whitespace.experience[0].role;
+  whitespace.experience[0].description = "";
+  const parsedWhitespace = parseCvContent(whitespace);
+  assert.equal(parsedWhitespace.experience[0].company, "");
+  assert.equal(parsedWhitespace.experience[0].role, "");
+  assert.equal(parsedWhitespace.experience[0].description, "");
+
+  const invalidCopy = clone(source);
+  invalidCopy.experience[0].company = 42;
+  assert.throws(() => parseCvContent(invalidCopy), /company.*string/i);
 
   const caseCountDrift = clone(source);
   caseCountDrift.experience[0].cases.pop();

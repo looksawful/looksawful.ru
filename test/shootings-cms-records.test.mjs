@@ -101,11 +101,19 @@ test("Shootings editorial parser is strict and restores code-owned record order"
 
   const whitespace = clone(recordsInCodeOwnedOrder[0]);
   whitespace.title = "   ";
-  assert.throws(() => parseShootingEditorialRecord(whitespace), /non-empty|string/i);
+  assert.equal(parseShootingEditorialRecord(whitespace).title, "");
 
   const missingRenderedDescription = clone(recordsInCodeOwnedOrder[0]);
-  missingRenderedDescription.description = "";
-  assert.throws(() => parseShootingEditorialRecord(missingRenderedDescription), /description|non-empty/i);
+  delete missingRenderedDescription.description;
+  assert.equal(parseShootingEditorialRecord(missingRenderedDescription).description, "");
+
+  const missingOverviewCopy = clone(overview);
+  delete missingOverviewCopy.title;
+  assert.equal(parseShootingsOverview(missingOverviewCopy).title, "");
+
+  const invalidCopy = clone(recordsInCodeOwnedOrder[0]);
+  invalidCopy.description = 42;
+  assert.throws(() => parseShootingEditorialRecord(invalidCopy), /string/i);
 });
 
 test("Shootings CMS data flows through the current catalog and rendered copy", async () => {

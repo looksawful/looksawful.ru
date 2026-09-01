@@ -1,3 +1,4 @@
+import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./e2e/readiness.mjs";
 import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -8,7 +9,19 @@ let BASE_URL = "";
 const CAPTURE_DIR = process.env.CV_SMOKE_CAPTURE_DIR
   ? resolve(process.env.CV_SMOKE_CAPTURE_DIR)
   : null;
-const AUTHORED_HIDDEN_CARDS = cvContent.experience.filter(({ visible }) => !visible).length;
+const hasExperienceCopy = (entry) => Boolean(
+  entry.company
+  || entry.context
+  || entry.period
+  || entry.role
+  || entry.description
+  || entry.cases.some(Boolean)
+  || entry.facts.some(({ label, text }) => label || text)
+  || entry.links.some(Boolean)
+);
+const visibleExperience = cvContent.experience.filter((entry) => entry.visible && hasExperienceCopy(entry));
+const AUTHORED_HIDDEN_CARDS = cvContent.experience.length - visibleExperience.length;
+const AUTHORED_CARD_COUNT = cvContent.experience.length;
 const VIEWPORTS = [
   { label: "phone", width: 390, height: 844 },
   { label: "tablet", width: 1024, height: 768 },
@@ -22,6 +35,12 @@ function assert(condition, message) {
 export function getExpectedCvHiddenCards(mode) {
   if (mode === "authored") return AUTHORED_HIDDEN_CARDS;
   if (mode === "production") return 0;
+  throw new Error(`invalid CV smoke mode: ${String(mode)}`);
+}
+
+export function getExpectedCvCardCount(mode) {
+  if (mode === "authored") return AUTHORED_CARD_COUNT;
+  if (mode === "production") return visibleExperience.length;
   throw new Error(`invalid CV smoke mode: ${String(mode)}`);
 }
 
@@ -53,7 +72,7 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
     assert(response?.ok(), `${label}: /cv/ returned ${response?.status()}`);
 
     await page.evaluate(() => document.fonts?.ready);
-    await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
+    await waitForDocumentReady(page, "main.resume");
 
     const state = await page.evaluate(async () => {
       const root = document.documentElement;
@@ -84,15 +103,17 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
         portraitWidth: portrait instanceof HTMLImageElement ? portrait.naturalWidth : 0,
         portraitHeight: portrait instanceof HTMLImageElement ? portrait.naturalHeight : 0,
         overflow: root.scrollWidth - root.clientWidth,
+        resumePresent: resume instanceof HTMLElement,
+        experienceCards: document.querySelectorAll(".experience-card").length,
         hiddenCards: document.querySelectorAll(".experience-card[hidden]").length,
-        visibleTextLength: document.body.innerText.replace(/\s+/g, " ").trim().length,
         scriptCount: document.scripts.length,
       };
     });
 
     assert(state.title.length > 0, `${label}: page title is missing`);
     assert(state.profileName === cvContent.profile.name, `${label}: CV profile name does not match structured content`);
-    assert(state.visibleTextLength > 1_000, `${label}: CV content is effectively missing`);
+    assert(state.resumePresent, `${label}: CV main structure is missing`);
+    assert(state.experienceCards === getExpectedCvCardCount(mode), `${label}: CV experience structure is incomplete`);
     assert(state.bodyBackground === "rgb(255, 255, 255)", `${label}: page is not pure white`);
     assert(/Arial/i.test(state.resumeFont), `${label}: CV typography changed: ${state.resumeFont}`);
     assert(state.navVisible, `${label}: back navigation is hidden`);

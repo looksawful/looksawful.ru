@@ -445,7 +445,24 @@ async function writeAtomic(filePath, contents) {
   await rename(temporaryPath, filePath);
 }
 
-export async function syncMediaCatalog({ repoRoot = process.cwd(), check = false } = {}) {
+// CI may use this only for unchanged inputs with validated derivative cache.
+// It checks tracked record/source consistency, never substitutes for ffprobe on
+// changed inputs or for media:sync's deterministic correctness path.
+export async function checkStoredUploadedRecord(record, { repoRoot = process.cwd() } = {}) {
+  const filePath = await resolvePublicFile(path.resolve(repoRoot), record.src);
+  if (!filePath) throw new Error(`Uploaded media source does not exist: ${record.src}`);
+  const fileStat = await stat(filePath);
+  if (!["image", "video"].includes(record.mediaType)
+    || !(record.width > 0 && record.height > 0)
+    || record.mimeType !== mimeFor(record.src)
+    || record.byteLength !== fileStat.size) {
+    throw new Error(`Stored uploaded metadata is stale: ${record.src}; run media:sync`);
+  }
+  return record;
+}
+
+export async function syncMediaCatalog({ repoRoot = process.cwd(), check = false, checkStored = false } = {}) {
+  if (checkStored && !check) throw new Error("Stored metadata validation requires --check (read-only)");
   const root = path.resolve(repoRoot);
   const registeredDir = path.join(root, REGISTERED_DIR);
   const uploadedDir = path.join(root, UPLOADED_DIR);
@@ -490,7 +507,7 @@ export async function syncMediaCatalog({ repoRoot = process.cwd(), check = false
     if (`${record.id}.json` !== filename) {
       throw new Error(`${path.relative(root, filePath)} id must match filename`);
     }
-    const next = await syncUploadedRecord(record, { repoRoot: root });
+    const next = await (checkStored ? checkStoredUploadedRecord : syncUploadedRecord)(record, { repoRoot: root });
     const contents = `${JSON.stringify(next, null, 2)}\n`;
     if (await changedFile(filePath, contents)) {
       changedPaths.push(path.relative(root, filePath));
@@ -522,7 +539,7 @@ const isDirectRun = process.argv[1]
   && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 
 if (isDirectRun) {
-  const result = await syncMediaCatalog({ check: process.argv.includes("--check") });
+  const result = await syncMediaCatalog({ check: process.argv.includes("--check"), checkStored: process.argv.includes("--check-stored") });
   console.log(
     `[media-catalog] ${result.registeredCount} registered, ${result.uploadedCount} uploaded, ${result.changedPaths.length} synchronized files`,
   );

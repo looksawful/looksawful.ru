@@ -9,13 +9,13 @@ const cvContentLibUrl = new URL("../tools/lib/cv-content.mjs", import.meta.url);
 const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
 
 const expectedEducation = {
-  higherTitle: "ВЫСШЕЕ ОБРАЗОВАНИЕ",
+  higherTitle: "ОБРАЗОВАНИЕ",
   higher: {
     id: "mpgu",
-    name: "МПГУ им. Ленина",
+    name: "Московский педагогический государственный университет (МПГУ)",
     lines: [
-      "Славянская и западноевропейская филология",
-      "Компаративистика",
+      "2012–2016",
+      "Филология — «Славянская и западноевропейская филология»",
     ],
   },
   additionalTitle: "ДОПОЛНИТЕЛЬНОЕ ОБРАЗОВАНИЕ",
@@ -25,21 +25,11 @@ const expectedEducation = {
       name: "HEXLET",
       lines: [
         "JS: Архитектура фронтенда",
-        "JS: Абстракция с помощью данных",
-        "JS: Составные данные",
-        "JS: Объектно-ориентированный дизайн",
-        "JS: Прототипы",
         "TypeScript",
-        "Асинхронное программирование на JavaScript",
+        "Асинхронное программирование на JS",
         "JS: Автоматическое тестирование",
         "JS: Продвинутое тестирование",
         "React",
-        "React Hooks",
-        "Redux Toolkit",
-        "HTTP API",
-        "REST API в Node.js",
-        "Git",
-        "CI",
       ],
     },
     {
@@ -47,87 +37,29 @@ const expectedEducation = {
       name: "STEPIK",
       lines: [
         "Введение в программирование (C++)",
-        "JavaScript для начинающих",
         "Python: основы и применение",
-        "Веб-технологии: практический курс",
-        "CSS",
+        "JavaScript для начинающих",
+        "Веб-технологии: практический курс CSS",
       ],
     },
-    {
-      id: "codecademy",
-      name: "CODECADEMY",
-      lines: ["Learn CSS", "Learn JavaScript", "Learn Python 3", "Learn TypeScript", "Learn React"],
-    },
-    {
-      id: "kevin-powell",
-      name: "KEVIN POWELL",
-      lines: ["Conquering Responsive Layouts", "Build a Space Travel Website", "HTML & CSS Crash Course"],
-    },
-    {
-      id: "book-of-shaders",
-      name: "PATRICIO GONZALEZ VIVO & JEN LOWE",
-      lines: ["The Book of Shaders"],
-    },
-    {
-      id: "blender-studio",
-      name: "BLENDER STUDIO / SYBREN STÜVEL",
-      lines: ["Scripting for Artists"],
-    },
-    {
-      id: "blender-guru",
-      name: "BLENDER GURU / ANDREW PRICE",
-      lines: ["Blender Beginner Donut Tutorial"],
-    },
-    {
-      id: "cg-boost",
-      name: "CG BOOST / ZACH REINHARDT",
-      lines: ["Blender Launch Pad"],
-    },
-    {
-      id: "creative-shrimp",
-      name: "CREATIVE SHRIMP / GLEB ALEXANDROV & AIDY BURROWS",
-      lines: ["Hard Surface Modeling in Blender", "Cinematic Lighting in Blender", "HDR Image-Based Lighting in Blender"],
-    },
-    {
-      id: "cg-cookie",
-      name: "CG COOKIE",
-      lines: ["Blender Python Scripting Superpowers for Non-Programmers"],
-    },
-    {
-      id: "phlearn",
-      name: "PHLEARN / AARON NACE",
-      lines: [
-        "Photoshop 101–301",
-        "The Ultimate Guide to Retouching",
-        "How to Master Dodging & Burning in Photoshop",
-        "Advanced Compositing with Stock Images in Photoshop",
-      ],
-    },
-    {
-      id: "ridd",
-      name: "MICHAEL “RIDD” RIDDERING",
-      lines: ["Figma Academy"],
-    },
-    {
-      id: "mizko",
-      name: "MIZKO",
-      lines: ["Figma & UI Design Masterclass"],
-    },
-    {
-      id: "photoplay-producer",
-      name: "PHOTOPLAY / НИНА ЛОБЫКИНА",
-      lines: ["Продюсирование съёмок"],
-    },
-    {
-      id: "photoplay-model",
-      name: "PHOTOPLAY / IRA ROKKA",
-      lines: ["Работа с моделью"],
-    },
-    {
-      id: "ilyahov",
-      name: "МАКСИМ ИЛЬЯХОВ",
-      lines: ["Основы визуального повествования"],
-    },
+    { id: "kevin-powell", name: "KEVIN POWELL", lines: ["Conquering Responsive Layouts", "Build a Space Travel Website"] },
+    { id: "book-of-shaders", name: "PATRICIO GONZALEZ VIVO & JEN LOWE", lines: ["The Book of Shaders"] },
+    { id: "lewy-blue", name: "LEWY BLUE", lines: ["Discover three.js"] },
+    { id: "threejs", name: "THREE.JS", lines: ["Three.js Fundamentals"] },
+    { id: "figma", name: "FIGMA", lines: ["Learn Design", "Introduction to Design Systems"] },
+    { id: "ridd", name: "MICHAEL “RIDD” RIDDERING", lines: ["Figma Academy"] },
+    { id: "mizko", name: "MIZKO", lines: ["Figma & UI Design Masterclass"] },
+    { id: "alexey-bychkov", name: "ALEXEY BYCHKOV", lines: ["Фигма с нуля"] },
+    { id: "blender-studio", name: "BLENDER STUDIO / SYBREN STÜVEL", lines: ["Scripting for Artists"] },
+    { id: "gamedev-tv", name: "GAMEDEV.TV / GRANT ABBITT", lines: ["Blender Environment Artist: Create Your Own 3D Game Worlds"] },
+    { id: "andrey-sokolov", name: "ANDREY SOKOLOV", lines: ["Blender"] },
+    { id: "blender-bros", name: "BLENDER BROS / JOSH GAMBRELL & RYUU", lines: ["The BlenderBros Hard Surface Game Asset Course"] },
+    { id: "covingsworth", name: "COVINGSWORTH", lines: ["Ultimate Photorealistic Environment Animation Course"] },
+    { id: "creative-shrimp-hard-surface", name: "CREATIVE SHRIMP / GLEB ALEXANDROV & AIDY BURROWS", lines: ["Hard Surface Modeling in Blender"] },
+    { id: "creative-shrimp-lighting", name: "CREATIVE SHRIMP / GLEB ALEXANDROV", lines: ["Cinematic Lighting in Blender", "HDR Image-Based Lighting in Blender"] },
+    { id: "phlearn", name: "PHLEARN / AARON NACE", lines: ["The Ultimate Guide to Retouching", "Advanced Compositing with Stock Images in Photoshop"] },
+    { id: "photoplay-producer", name: "PHOTOPLAY / НИНА ЛОБЫКИНА", lines: ["Продюсирование съёмок"] },
+    { id: "photoplay-model", name: "PHOTOPLAY / IRA ROKKA", lines: ["Работа с моделью"] },
   ],
 };
 
@@ -135,20 +67,24 @@ const expectedLinks = {
   mpgu: "https://mpgu.su/",
   hexlet: "https://ru.hexlet.io/",
   stepik: "https://stepik.org/",
-  codecademy: "https://www.codecademy.com/",
   "kevin-powell": "https://www.kevinpowell.co/",
   "book-of-shaders": "https://thebookofshaders.com/",
-  "blender-studio": "https://studio.blender.org/",
-  "blender-guru": "https://www.youtube.com/@blenderguru",
-  "cg-boost": "https://www.cgboost.com/",
-  "creative-shrimp": "https://www.creativeshrimp.com/",
-  "cg-cookie": "https://cgcookie.com/",
-  phlearn: "https://phlearn.com/",
+  "lewy-blue": "https://discoverthreejs.com/",
+  threejs: "https://threejs.org/manual/",
+  figma: "https://www.figma.com/resource-library/design-basics/",
   ridd: "https://ridd.substack.com/",
   mizko: "https://www.mizko.net/",
+  "alexey-bychkov": "https://www.youtube.com/channel/UCClA4EqjQMGyYR2-TIuHwQw",
+  "blender-studio": "https://studio.blender.org/",
+  "gamedev-tv": "https://gamedev.tv/courses/blender-environment-artist",
+  "andrey-sokolov": "https://www.youtube.com/c/AndreySokolovRu",
+  "blender-bros": "https://www.blenderbros.com/",
+  covingsworth: "https://www.artstation.com/marketplace/p/PmwnV/ultimate-photorealistic-3d-environment-animation-course-blender-substance-painter-speedtree-davinci-resolve",
+  "creative-shrimp-hard-surface": "https://www.creativeshrimp.com/",
+  "creative-shrimp-lighting": "https://www.creativeshrimp.com/",
+  phlearn: "https://phlearn.com/",
   "photoplay-producer": "https://photoplay.ru/",
   "photoplay-model": "https://photoplay.ru/",
-  ilyahov: "https://bureau.ru/soviet/",
 };
 
 function clone(value) {
@@ -207,7 +143,7 @@ test("CV education transform edits copy safely while preserving code-owned links
   assert.match(transformed, /<div class="courses-grid">/);
 });
 
-test("CV education adapter fixes identity, order and required text structure", async () => {
+test("CV education adapter fixes identity and order while allowing empty copy", async () => {
   const [{ parseCvContent }, contentRaw] = await Promise.all([
     import(cvDataModuleUrl.href),
     readFile(cvContentUrl, "utf8"),
@@ -242,13 +178,20 @@ test("CV education adapter fixes identity, order and required text structure", a
 
   const emptyLines = clone(expectedEducation);
   emptyLines.higher.lines = [];
+  delete emptyLines.higher.name;
+  const parsedEmpty = parseCvContent({ ...current, education: emptyLines });
+  assert.equal(parsedEmpty.education.higher.name, "");
+  assert.deepEqual(parsedEmpty.education.higher.lines, []);
+
+  const invalidCopy = clone(expectedEducation);
+  invalidCopy.higher.lines = [42];
   assert.throws(
-    () => parseCvContent({ ...current, education: emptyLines }),
-    /higher.*lines|education.*lines|non-empty/i,
+    () => parseCvContent({ ...current, education: invalidCopy }),
+    /higher.*lines|education.*lines|string/i,
   );
 });
 
-test("CV education transform fails closed when a code-owned course href drifts", async () => {
+test("CV education transform restores code-owned course hrefs when source markup drifts", async () => {
   const [{ cvContent }, sourceHtml, contentLib] = await Promise.all([
     import(cvDataModuleUrl.href),
     readFile(cvSourceUrl, "utf8"),
@@ -260,10 +203,9 @@ test("CV education transform fails closed when a code-owned course href drifts",
     'href="https://example.com/wrong-hexlet"',
   );
 
-  assert.throws(
-    () => contentLib.transformCvEducation(drifted, cvContent),
-    /hexlet.*href|href.*hexlet|education.*link/i,
-  );
+  const transformed = contentLib.transformCvEducation(drifted, cvContent);
+  assert.doesNotMatch(transformed, /https:\/\/example\.com\/wrong-hexlet/);
+  assert.match(transformed, /href="https:\/\/ru\.hexlet\.io\/"/);
 });
 
 test("Pages CMS exposes education copy but keeps href and layout code-owned", async () => {
