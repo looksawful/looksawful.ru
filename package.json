@@ -15,7 +15,7 @@
     "build:site": "npm run build:vite && npm run site:postbuild",
     "build:core": "npm run typecheck && npm run build:site",
     "build": "npm run media:ensure && npm run typecheck && npm run build:site",
-    "cv:content:apply": "node tools/apply-cv-content.mjs dist/cv/index.html",
+    "cv:content:apply": "node tools/apply-cv-content.mjs",
     "site:postbuild": "npm run cv:content:apply && node tools/generate-sitemap.mjs && node tools/check-site-meta.mjs && node tools/check-local-links.mjs",
     "check:site-meta": "node tools/check-site-meta.mjs",
     "check:links": "node tools/check-local-links.mjs",
