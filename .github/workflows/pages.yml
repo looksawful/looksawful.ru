@@ -96,7 +96,7 @@ jobs:
       - name: Build site
         run: npm run build:site
       - name: Prepare production CV
-        run: node tools/prepare-cv-production.mjs dist/cv/index.html
+        run: node tools/prepare-cv-production.mjs
       - name: Install browser for smoke tests
         run: npx playwright install --with-deps chromium
       - name: Final production browser verification
