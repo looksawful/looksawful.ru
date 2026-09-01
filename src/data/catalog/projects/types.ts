@@ -1,0 +1,34 @@
+import type { ProjectData } from "../../../types/project.ts";
+import type { CaseId } from "../cases.ts";
+import type { ClientId } from "../clients.ts";
+import type { CollectionId } from "../collections.ts";
+import type { EngagementId } from "../engagements.ts";
+import type { DeliverableId } from "../../taxonomy/deliverables.ts";
+import type { EngagementTypeId } from "../../taxonomy/engagement-types.ts";
+import type { IndustryId } from "../../taxonomy/industries.ts";
+import type { ProfessionalQualityId } from "../../taxonomy/professional-qualities.ts";
+import type { ProjectTypeId } from "../../taxonomy/project-types.ts";
+import type { RoleId } from "../../taxonomy/roles.ts";
+import type { ServiceId } from "../../taxonomy/services.ts";
+import type { SkillId } from "../../taxonomy/skills.ts";
+import type { SoftwareId } from "../../taxonomy/software.ts";
+import type { TechnologyId } from "../../taxonomy/technologies.ts";
+import type { WorkAreaId } from "../../taxonomy/work-areas.ts";
+
+export type CanonicalProjectData = ProjectData<{
+  caseId: CaseId;
+  clientId: ClientId;
+  collectionId: CollectionId;
+  engagementId: EngagementId;
+  projectTypeId: ProjectTypeId;
+  engagementTypeId: EngagementTypeId;
+  industryId: IndustryId;
+  roleId: RoleId;
+  workAreaId: WorkAreaId;
+  serviceId: ServiceId;
+  deliverableId: DeliverableId;
+  skillId: SkillId;
+  technologyId: TechnologyId;
+  softwareId: SoftwareId;
+  professionalQualityId: ProfessionalQualityId;
+}>;
