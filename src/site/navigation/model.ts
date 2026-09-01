@@ -43,7 +43,7 @@ function getDomainPageLabel(page: SitePageDefinition): string {
     case "not-found":
       return "404";
     case "static":
-      return page.pageKey;
+      return page.id;
   }
 }
 
