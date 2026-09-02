@@ -23,7 +23,7 @@ export function classifyChangedFiles(files, { full = false } = {}) {
   const groups = [...new Set(changedFiles.map((file) => rules.find(([, pattern]) => pattern.test(file))?.[0] ?? "unknown"))].sort();
   const broad = full || groups.some((group) => ["shared-runtime", "build-config", "dependencies", "unknown"].includes(group));
   const mediaChanged = full || groups.some((group) => ["media", "dependencies", "unknown"].includes(group));
-  const mediaDeskChanged = full || groups.includes("media-desk") || groups.includes("media");
+  const mediaDeskChanged = broad || groups.includes("media-desk") || groups.includes("media");
   const suites = new Set(["smoke"]);
   if (groups.includes("cv")) suites.add("cv");
   if (groups.includes("navigation")) suites.add("navigation");
