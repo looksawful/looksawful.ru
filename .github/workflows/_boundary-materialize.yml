@@ -1,0 +1,93 @@
+name: Boundary materialization
+
+on:
+  push:
+    branches:
+      - agent/minimal-ci-migration-20260902
+    paths:
+      - .github/workflows/_boundary-materialize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Move mixed structural content out of editorial layer
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+          import path from 'node:path';
+
+          const root = process.cwd();
+          const p = (value) => path.join(root, value);
+          async function exists(relative) { try { await stat(p(relative)); return true; } catch { return false; } }
+          async function move(source, destination) {
+            if (!(await exists(source))) return;
+            await mkdir(path.dirname(p(destination)), { recursive: true });
+            await rename(p(source), p(destination));
+          }
+          async function moveJsonDir(sourceDir, destinationDir) {
+            if (!(await exists(sourceDir))) return;
+            await mkdir(p(destinationDir), { recursive: true });
+            for (const name of await readdir(p(sourceDir))) {
+              if (name.endsWith('.json')) await move(`${sourceDir}/${name}`, `${destinationDir}/${name}`);
+            }
+            await rm(p(sourceDir), { recursive: true, force: true });
+          }
+          const skipDirs = new Set(['.git', 'node_modules', 'dist', '.cache']);
+          const textExtensions = new Set(['.ts', '.mjs', '.js', '.json', '.yml', '.yaml', '.md', '.html']);
+          async function walk(dir, files = []) {
+            for (const entry of await readdir(dir, { withFileTypes: true })) {
+              if (entry.isDirectory() && skipDirs.has(entry.name)) continue;
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) await walk(full, files);
+              else if (textExtensions.has(path.extname(entry.name))) files.push(full);
+            }
+            return files;
+          }
+          async function replaceAcrossRepo(replacements) {
+            for (const file of await walk(root)) {
+              let source = await readFile(file, 'utf8');
+              let next = source;
+              for (const [from, to] of replacements) next = next.split(from).join(to);
+              if (next !== source) await writeFile(file, next, 'utf8');
+            }
+          }
+
+          await move('src/content/editorial/navigation.json', 'src/content/navigation.json');
+          await moveJsonDir('src/content/editorial/cases', 'src/content/cases');
+          await moveJsonDir('src/content/editorial/standalone-projects', 'src/content/standalone-projects');
+          await move('src/content/editorial/collections/shootings.json', 'src/content/collections/shootings.json');
+          await moveJsonDir('src/content/editorial/shootings', 'src/content/shootings');
+          await moveJsonDir('src/content/editorial/moves-awful', 'src/content/moves-awful');
+
+          await replaceAcrossRepo([
+            ['src/content/editorial/navigation.json', 'src/content/navigation.json'],
+            ['content/editorial/navigation.json', 'content/navigation.json'],
+            ['src/content/editorial/cases/', 'src/content/cases/'],
+            ['content/editorial/cases/', 'content/cases/'],
+            ['src/content/editorial/standalone-projects/', 'src/content/standalone-projects/'],
+            ['content/editorial/standalone-projects/', 'content/standalone-projects/'],
+            ['src/content/editorial/collections/shootings.json', 'src/content/collections/shootings.json'],
+            ['content/editorial/collections/shootings.json', 'content/collections/shootings.json'],
+            ['src/content/editorial/shootings/', 'src/content/shootings/'],
+            ['content/editorial/shootings/', 'content/shootings/'],
+            ['src/content/editorial/moves-awful/', 'src/content/moves-awful/'],
+            ['content/editorial/moves-awful/', 'content/moves-awful/'],
+          ]);
+          NODE
+          git rm -f .github/workflows/_boundary-materialize.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content src/data test tools .pages.yml package.json
+          git add -u
+          git status --short
+          git commit -m "fix: keep mixed structural content outside editorial layer"
+          git push origin HEAD:agent/minimal-ci-migration-20260902
