@@ -86,11 +86,10 @@ jobs:
         with:
           path: |
             public/media/generated/responsive
-            public/media/generated/video/*.web.mp4
-            public/media/generated/video/*.webm
-            public/media/generated/video/*.web.mov
+            public/media/generated/video
+            public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
-          key: generated-media-v2-${{ runner.os }}-${{ steps.previous-media.outputs.fingerprint }}
+          key: generated-media-v3-${{ runner.os }}-${{ steps.previous-media.outputs.fingerprint }}
       - name: Require base cache for image-only mutation
         if: github.event_name == 'push' && steps.scope.outputs.has_image == 'true' && steps.scope.outputs.has_video != 'true' && steps.previous-cache.outputs.cache-hit != 'true'
         shell: bash
@@ -142,11 +141,10 @@ jobs:
         with:
           path: |
             public/media/generated/responsive
-            public/media/generated/video/*.web.mp4
-            public/media/generated/video/*.webm
-            public/media/generated/video/*.web.mov
+            public/media/generated/video
+            public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
-          key: generated-media-v2-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Final Fast validation for source upload
         if: steps.scope.outputs.has_source == 'true'
         shell: bash

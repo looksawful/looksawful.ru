@@ -8,12 +8,13 @@ function block(workflow, name) {
   return workflow.match(new RegExp(`\\n      - name: ${name}\\b[\\s\\S]*?(?=\\n      - name: |$)`))?.[0] ?? "";
 }
 
-function assertDerivativeOnlyCache(cache, label) {
+function assertGeneratedMediaCache(cache, label) {
   assert.match(cache, /public\/media\/generated\/responsive\b/, `${label} must cache responsive binaries`);
-  assert.match(cache, /public\/media\/generated\/video\/\*\.web/, `${label} must cache generated video binaries`);
+  assert.match(cache, /^[ \t]*public\/media\/generated\/video[ \t]*$/m, `${label} must cache the complete generated video directory recursively`);
+  assert.match(cache, /^[ \t]*public\/media\/generated\/video-inventory\.json[ \t]*$/m, `${label} must cache the generated video inventory separately`);
+  assert.doesNotMatch(cache, /public\/media\/generated\/video\/\*\./, `${label} must not use non-recursive video globs`);
   assert.match(cache, /\.cache\/media\/generated-cache\.json/, `${label} must cache canonical marker`);
   assert.doesNotMatch(cache, /responsive-manifest\.json/, `${label} must not cache tracked responsive metadata`);
-  assert.doesNotMatch(cache, /video-inventory\.json/, `${label} must not cache tracked video metadata`);
   assert.doesNotMatch(cache, /responsive-generated\.ts/, `${label} must not cache tracked generated catalog`);
 }
 
@@ -22,9 +23,10 @@ test("Fast CI and production consume only exact fingerprinted generated-media ca
     const workflow = await read(`.github/workflows/${name}`);
     const restore = block(workflow, name === "ci-fast.yml" ? "Restore exact generated media cache" : "Restore exact generated media cache");
     assert.match(restore, /actions\/cache\/restore@v4/, `${name} exact cache restore`);
-    assertDerivativeOnlyCache(restore, name);
-    assert.match(restore, /generated-media-v2-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
+    assertGeneratedMediaCache(restore, name);
+    assert.match(restore, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
     assert.doesNotMatch(restore, /restore-keys:/, `${name} must never accept stale cache fallback`);
+    assert.doesNotMatch(workflow, /generated-media-v2-/, "workflow must not expose the retired v2 cache namespace");
     assert.match(workflow, /media-dev-state\.mjs --cache-verify/, `${name} must verify restored cache completeness`);
   }
 });
@@ -46,16 +48,19 @@ test("CMS media consumes an exact previous cache and saves one exact final cache
   const save = block(workflow, "Save exact generated media cache");
 
   assert.match(previous, /actions\/cache\/restore@v4/);
-  assertDerivativeOnlyCache(previous, "cms previous cache");
+  assertGeneratedMediaCache(previous, "cms previous cache");
   assert.match(previous, /steps\.previous-media\.outputs\.fingerprint/);
+  assert.match(previous, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.previous-media\.outputs\.fingerprint \}\}/);
   assert.doesNotMatch(previous, /restore-keys:/);
   assert.match(workflow, /Verify previous cache before incremental generation[\s\S]*?media-dev-state\.mjs --cache-verify/);
 
   assert.match(save, /actions\/cache\/save@v4/);
-  assertDerivativeOnlyCache(save, "cms final cache");
+  assertGeneratedMediaCache(save, "cms final cache");
   assert.match(save, /steps\.media\.outputs\.fingerprint/);
+  assert.match(save, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
   assert.match(workflow, /Write canonical generated-media cache marker[\s\S]*?--cache-write/);
   assert.match(workflow, /Verify complete final generated media state[\s\S]*?--cache-verify/);
+  assert.doesNotMatch(workflow, /generated-media-v2-/, "cms media must not expose the retired v2 cache namespace");
 });
 
 test("scheduled Lighthouse rebuilds deterministic media instead of trusting an unrelated cache", async () => {

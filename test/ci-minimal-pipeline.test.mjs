@@ -26,7 +26,7 @@ test("Fast CI automatically validates engineering dev pushes and PRs while warm-
   }
 
   assert.match(workflow, /actions\/cache\/restore@v4/);
-  assert.match(workflow, /generated-media-v2-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
+  assert.match(workflow, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.doesNotMatch(workflow, /restore-keys:/);
 

@@ -53,11 +53,10 @@ jobs:
         with:
           path: |
             public/media/generated/responsive
-            public/media/generated/video/*.web.mp4
-            public/media/generated/video/*.webm
-            public/media/generated/video/*.web.mov
+            public/media/generated/video
+            public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
-          key: generated-media-v2-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Require exact generated media cache
         if: steps.media-cache.outputs.cache-hit != 'true'
         shell: bash

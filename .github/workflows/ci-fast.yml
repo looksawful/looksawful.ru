@@ -62,11 +62,10 @@ jobs:
         with:
           path: |
             public/media/generated/responsive
-            public/media/generated/video/*.web.mp4
-            public/media/generated/video/*.webm
-            public/media/generated/video/*.web.mov
+            public/media/generated/video
+            public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
-          key: generated-media-v2-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Verify restored generated media
         if: steps.media-cache.outputs.cache-hit == 'true'
         run: node tools/media-dev-state.mjs --cache-verify
@@ -91,11 +90,10 @@ jobs:
         with:
           path: |
             public/media/generated/responsive
-            public/media/generated/video/*.web.mp4
-            public/media/generated/video/*.webm
-            public/media/generated/video/*.web.mov
+            public/media/generated/video
+            public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
-          key: generated-media-v2-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Typecheck
         run: npm run typecheck
       - name: Fast tests
