@@ -4,8 +4,6 @@ Status: current content/storage inventory. Architectural ownership rules are aut
 
 This map records the CMS-managed authored sources that exist now, their typed adapters, and important authored content that still lives outside the CMS layer. It deliberately does not describe routes, layout or runtime as editor-owned.
 
-The previous migration-era version of this file contained stale statements such as “Jestei CMS managed = No” and treated Case `role` / `period` as future CMS candidates. Those statements are no longer correct: the current Case parsers resolve canonical identity from the TypeScript domain layer and Pages CMS edits only the dedicated authored copy fields.
-
 ## Ownership legend
 
 ### DOMAIN
@@ -14,7 +12,7 @@ Code-owned canonical identity and relations: Case/Project/Collection/Client/Role
 
 ### EDITORIAL
 
-Authored copy and explicitly curated metadata. These values may be CMS-managed only through a configured source plus a strict adapter/parser.
+Authored copy and explicitly curated metadata. These values may be CMS-managed only through a configured source plus a strict adapter/parser. Optional editorial text can be omitted or cleared; adapters normalize missing/empty/whitespace-only values to `""` where the field is defined as optional copy.
 
 ### PRESENTATION
 
@@ -33,11 +31,13 @@ Responsive/video derivatives, generated manifests/indexes and build output. Tool
 | Current data | Ownership | Current CMS direction |
 | --- | --- | --- |
 | Case/Project/Collection identity | DOMAIN | readonly/code-owned |
-| Case `role` / `period` where canonical Case identity exists | DOMAIN | not Case JSON fields; resolved from domain identity |
+| Case `role` / `period` where canonical Case identity exists | DOMAIN | resolved from domain identity, not Case copy fields |
 | Case `lead`, section `title`/`paragraphs`, configured overlays/credits/notes | EDITORIAL | CMS-managed where present in `.pages.yml` |
 | navigation labels | EDITORIAL | CMS-managed; href/routes remain `SitePage`-owned |
-| project-card visibility/copy overrides and cover selection | EDITORIAL | CMS-managed; route identity remains code-owned |
-| CV authored copy/visibility | EDITORIAL | CMS-managed through CV adapters |
+| project-card editorial copy | EDITORIAL | `src/content/editorial/home-project-cards.json` |
+| project-card visibility/cover selection | EDITORIAL / constrained presentation | `src/content/projects.json`; route identity remains code-owned |
+| CV structural IDs/shape | DOMAIN | `src/content/cv.json`; not the current Pages CMS edit surface |
+| CV editorial copy | EDITORIAL | `src/content/editorial/cv.json` through CV adapters |
 | reusable media title/default alt/description/date/taxonomy/tags/credits/reuse/archive | EDITORIAL | CMS-managed through Media Catalog records |
 | MediaAsset ID/type/src/source/dimensions | DOMAIN / GENERATED | readonly in CMS |
 | uploaded media technical metadata/delivery path | GENERATED | synchronized by media tooling; readonly in CMS |
@@ -60,13 +60,19 @@ CMS edits stable navigation labels. Item identity/order and route href resolutio
 
 ### Homepage project cards
 
-Storage:
+Editorial copy storage:
+
+```text
+src/content/editorial/home-project-cards.json
+```
+
+Visibility and configured cover selection storage:
 
 ```text
 src/content/projects.json
 ```
 
-CMS may edit the configured editorial/presentation overrides, visibility and scoped project-cover source metadata. Stable card identity and canonical page relation remain code-owned. Project-cover files are restricted to `public/media/projects/index/`.
+CMS may edit only the configured copy/visibility/cover controls. Stable card identity and canonical page relation remain code-owned. Project-cover files are restricted to `public/media/projects/index/`.
 
 ### Jestei Pool
 
@@ -83,13 +89,7 @@ src/data/content/jestei-editorial.ts
 src/data/content/jestei-pool.ts
 ```
 
-Current CMS-owned fields:
-
-- `lead`;
-- seven fixed section records: stable readonly `id`, editable `title` and `paragraphs`;
-- six fixed overlay records: stable readonly `id`, editable `text`.
-
-Canonical role and period are resolved from Case identity and are not authored in this Case JSON. Layout, media identity, filter behavior, theme-organism runtime, mockup/deck configuration, GSAP/Three.js/Canvas behavior and route ownership remain in code.
+Current CMS-owned fields are authored lead/section/overlay copy. Stable IDs are readonly. Canonical role/period, layout, media identity, filters, animation/runtime and route ownership remain in code.
 
 ### Styx
 
@@ -99,7 +99,7 @@ Storage:
 src/content/cases/styx.json
 ```
 
-Current CMS-owned fields include the Case lead, five fixed section copy records and three fixed credit/title records. Stable IDs are readonly. Canonical Case identity, routes, media composition and presentation remain code-owned.
+Current CMS-owned fields include the Case lead, fixed section copy and configured credit/title records. Stable IDs are readonly. Canonical Case identity, routes, media composition and presentation remain code-owned.
 
 ### Sensetique
 
@@ -109,7 +109,7 @@ Storage:
 src/content/cases/sensetique.json
 ```
 
-Current CMS-owned fields include intro lead, two fixed section copy records, fixed credit records and configured editorial notes. Stable IDs are readonly. Canonical Case identity and all presentation/runtime/media composition remain code-owned.
+Current CMS-owned fields include intro/section copy, fixed credit records and configured editorial notes. Stable IDs are readonly. Canonical Case identity and presentation/runtime/media composition remain code-owned.
 
 ### Shootings
 
@@ -120,9 +120,7 @@ src/content/collections/shootings.json
 src/content/shootings/*.json
 ```
 
-The overview exposes configured authored header/copy fields. Individual existing shooting records expose stable readonly identity with editable title/date/description. Record create/rename/delete are disabled because identity and presentation relations remain code-owned.
-
-Shootings remains a Collection/domain concept; CMS storage does not create routes or new canonical records.
+The overview exposes configured authored header/copy fields. Individual existing shooting records expose stable readonly identity with editable title/date/description. Record lifecycle remains constrained because identity and presentation relations are code-owned.
 
 ### Standalone projects
 
@@ -133,7 +131,7 @@ src/content/standalone-projects/berry-social-content-2020.json
 src/content/standalone-projects/awful-cases.json
 ```
 
-CMS edits the configured authored intro copy only. Route, visibility/discovery, taxonomy, links, media and composition remain code-owned.
+CMS edits the configured authored intro copy only. Route, visibility/discovery, taxonomy, links, media and composition remain code-owned unless an explicit existing control says otherwise.
 
 ### Client logo visibility
 
@@ -143,17 +141,23 @@ Storage:
 src/content/client-logo-visibility.json
 ```
 
-CMS edits only visibility. Logo identity/name/file relations remain code-owned.
+CMS edits only existing visibility controls. Logo identity/name/file relations remain code-owned.
 
 ### CV
 
-Storage:
+Structural source:
 
 ```text
 src/content/cv.json
 ```
 
-CMS owns configured profile/contact copy, skills/tool text, education copy, experience copy and visibility controls. Stable row/entry IDs, link mechanics, layout and production sanitization remain code-owned and validated.
+Current Pages CMS editorial source:
+
+```text
+src/content/editorial/cv.json
+```
+
+The CMS edits configured profile/contact, skill/tool, education and experience copy. Structural IDs/shape, link mechanics, layout and production sanitization remain code-owned and validated.
 
 ## Reusable Media Catalog
 
@@ -167,9 +171,7 @@ Storage:
 src/content/media-catalog/registered/*.json
 ```
 
-Coverage is one editable metadata record per registered `MediaAsset`.
-
-Readonly/code or tool-owned fields include stable asset ID, media type, source path and technical properties. Editable metadata includes title, reusable default alt, description, date, project/work-area/project-type/deliverable relations, tags, credits, reusable and archived state.
+Coverage is one editable metadata record per registered `MediaAsset`. Stable asset ID/type/source and technical properties are readonly. Editorial metadata includes title/default alt/description/date, taxonomy relations, tags, credits, reusable and archived state.
 
 ### CMS uploads
 
@@ -185,7 +187,7 @@ Records:
 src/content/media-catalog/uploads/*.json
 ```
 
-Pages CMS creates a UUID-backed record and accepts configured image/video source types. Media tooling probes width/height/MIME/byte length/duration and generates delivery metadata where required. Source masters are preserved.
+Pages CMS creates a UUID-backed record and accepts configured image/video source types. Media tooling probes technical metadata and generates delivery metadata where required. Source masters are preserved.
 
 ### Taxonomy ownership
 
@@ -204,37 +206,12 @@ src/data/media/responsive-generated.ts
 
 Generated derivative binaries and `dist` are also tool-owned. Do not hand-edit generated output.
 
-## Inline authored copy still outside typed/CMS content
-
-These remain candidates for a later content-completion wave only if they still exist after a fresh repository inventory:
-
-- Jestei editorial resource-row explanatory copy and resource labels;
-- Jestei landings group note;
-- Styx production/social-instruction explanatory notes/credits surrounding typed slots;
-- Sensetique equipment/resource copy, production notes/credits and trailing community/masterclass note;
-- Shootings ESMI inline photographer credits.
-
-These are inventory candidates, not permission to migrate or rewrite them during unrelated work. Any migration must preserve the rendered copy and existing DOM/presentation contract.
-
 ## Restricted runtime/presentation structures
 
-The following remain code-owned:
-
-- Jestei filter structure/logic;
-- Jestei theme-organism renderer;
-- before/after component structure and interaction;
-- PageFlip page order/density/runtime;
-- sequence leading/middle/trailing roles;
-- mockup-deck device/layout/runtime settings;
-- embedded deck autoplay/active-slide behavior;
-- justified-gallery row composition;
-- infinite-reel timing/sizing;
-- GSAP, Three.js and Canvas behavior;
-- route extraction and standalone page composition;
-- `data-caption-view` and lightbox implementation mechanics.
+Layout/runtime internals remain code-owned: filters, component composition, PageFlip/decks, lightbox mechanics, GSAP/Three.js/Canvas behavior, route extraction, responsive composition and similar implementation details.
 
 ## Publication ownership
 
-CMS content ownership does not imply publication-policy ownership. `.pages.yml`, `.github/**`, `tools/**`, tests and documentation are engineering changes.
+CMS content ownership does not imply publication-policy ownership. `.pages.yml`, `.github/**`, `tools/**`, tests, documentation and `AGENTS.md` are engineering changes.
 
-Pages CMS works on `dev`; publication authorization is executed from trusted `prod` and uses the explicit fail-closed classifier documented in `docs/cms-architecture.md`. A new CMS source becomes publishable only after its CMS model and trusted authorization policy have passed the normal engineering release path.
+Pages CMS works on `dev`; publication authorization executes from trusted `prod` and uses the fail-closed classifier documented in `docs/cms-architecture.md`. Safe diverged release history is allowed only when `prod` contains no content that would be added back to `dev`. A new CMS source becomes publishable only after its model and trusted authorization policy have passed the normal engineering release path.

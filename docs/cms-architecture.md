@@ -41,7 +41,7 @@ Examples:
 - reusable media title/default alt/description/tags/credits/taxonomy relations;
 - explicit visibility flags where a tested render contract exists.
 
-Editorial JSON is treated as `unknown` at its parser boundary and must pass strict validation before becoming typed application data.
+Editorial JSON is treated as `unknown` at its parser boundary and must pass strict validation before becoming typed application data. Optional editorial text accepts a missing value, an empty string or whitespace-only input and normalizes those states to `""`; wrong types still fail. Structural fields do not inherit this optional-copy rule.
 
 ### PRESENTATION
 
@@ -102,10 +102,12 @@ Media masters are preserved. Source and delivery assets have different ownership
 | Collection/Shootings identity | TypeScript domain catalog | no | domain/catalog tests | collection renderer |
 | Shootings copy | `src/content/collections/shootings.json` + configured records | yes | shootings editorial parser | typed adapter |
 | Project-card identity/routes | TypeScript/SitePage relations | no | project/page tests | homepage renderer |
-| Project-card editorial overrides/visibility | `src/content/projects.json` | yes | project-card parser/tests | project presentations |
+| Project-card editorial copy | `src/content/editorial/home-project-cards.json` | yes | project-card copy parser/tests | project presentations |
+| Project-card visibility/cover selection | `src/content/projects.json` | yes, only configured controls | structural project parser/tests | project presentations |
 | Navigation route identity | `SitePage` | no | route/navigation tests | navigation runtime/build |
 | Navigation label | `src/content/navigation.json` | yes | navigation content adapter | menu/breadcrumb rendering |
-| CV authored data | `src/content/cv.json` | yes | CV content adapters/tests | CV build transform |
+| CV structural data | `src/content/cv.json` | no in current Pages CMS model | CV contract/adapters | CV build transform |
+| CV editorial copy | `src/content/editorial/cv.json` | yes | CV editorial adapter/tests | CV build transform |
 | Media identity | typed media registry | no | media registry/contracts | Media Catalog/public renderers |
 | Registered reusable media metadata | `src/content/media-catalog/registered/*.json` | yes | Media Catalog parser | typed Media Catalog |
 | Uploaded media authored metadata | `src/content/media-catalog/uploads/*.json` | yes | Media Catalog parser + sync tooling | typed Media Catalog |
@@ -184,9 +186,12 @@ The invariant is: unpublished `dev` cannot expand the permissions used to author
 
 ### Branch topology
 
-- `prod == dev`: successful no-op; nothing to publish.
-- `prod` is an ancestor of `dev`: inspect `origin/prod..origin/dev` and apply publication classifier.
-- `dev` behind `prod` or branches diverged: block before path authorization and require synchronization through the normal engineering workflow.
+- identical refs, or different release-history SHAs with identical trees: successful no-op; nothing to publish;
+- `prod` is an ancestor of `dev`: inspect the exact current `origin/prod..origin/dev` file set and apply the publication classifier;
+- diverged history is allowed only when a hypothetical conflict-free merge of current `prod` back into current `dev` produces exactly the current `dev` tree;
+- if that merge would add/change content in `dev`, conflicts, or cannot be proven safe: block before path authorization and synchronize through the normal engineering workflow.
+
+Release-only merge history is therefore not itself a blocker. Production-only content missing from `dev` is a blocker.
 
 ### Publication classes
 
@@ -224,7 +229,7 @@ Future CMS ownership must first be introduced as a normal engineering change and
 
 Required repository configuration is external to the code contracts.
 
-`prod` should prevent force pushes and deletion and require normal updates through a reviewable PR path with appropriate verification checks. A mandatory approval count is not required solely for ceremony in a solo-maintainer repository.
+`prod` should prevent force pushes and deletion and require normal updates through a controlled, reviewable release path with appropriate verification checks. A mandatory approval count is not required solely for ceremony in a solo-maintainer repository.
 
 `dev` should prevent destructive force-push/history rewrite and deletion while retaining direct writes required by Pages CMS/media synchronization automation and normal development.
 
