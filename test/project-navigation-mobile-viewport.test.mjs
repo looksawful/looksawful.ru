@@ -50,7 +50,7 @@ test("mobile project navigation follows visual viewport height changes without s
 
 test("mobile project navigation runtime is wired to visualViewport and avoids viewport-unit sticky positioning", async () => {
   const [styles, interactive, source] = await Promise.all([
-    read("src/styles/components.css"),
+    read("src/styles/project-navigation-top.css"),
     read("src/interactive.js"),
     read("src/components/project-navigation.ts"),
   ]);
