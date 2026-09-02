@@ -106,3 +106,32 @@ test("independent security and scheduled checks remain enabled", async () => {
   const links = await read(".github/workflows/external-links.yml");
   assert.doesNotMatch(links, /ffmpeg|media:sync|playwright/i);
 });
+
+test("dependency automation targets dev and official actions stay on current Node 24 majors", async () => {
+  const dependabot = await read(".github/dependabot.yml");
+  const targetBranches = [...dependabot.matchAll(/target-branch:\s*([^\s]+)/g)].map((match) => match[1]);
+  assert.deepEqual(targetBranches, ["dev", "dev"]);
+
+  for (const name of [
+    "codeql",
+    "dependency-audit",
+    "external-links",
+    "healthcheck",
+    "lighthouse",
+    "pages-cms-publish",
+    "pages",
+    "sync-cms-media-metadata",
+    "verify-cv-branch",
+    "verify-dev",
+    "verify-full",
+    "verify-pr",
+  ]) {
+    const workflow = await read(`.github/workflows/${name}.yml`);
+    assert.doesNotMatch(workflow, /actions\/checkout@v[1-6](?:\D|$)/, `${name}: stale checkout major`);
+    assert.doesNotMatch(workflow, /actions\/setup-node@v[1-6](?:\D|$)/, `${name}: stale setup-node major`);
+    assert.doesNotMatch(workflow, /actions\/upload-artifact@v[1-6](?:\D|$)/, `${name}: stale upload-artifact major`);
+  }
+
+  const pages = await read(".github/workflows/pages.yml");
+  assert.match(pages, /actions\/deploy-pages@v5/);
+});
