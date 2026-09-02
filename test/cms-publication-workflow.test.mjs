@@ -35,6 +35,7 @@ test("publication workflow validates content-aware topology before scope authori
   assert.match(workflow, /node tools\/cms-publication-topology\.mjs[\s\S]*--prod origin\/prod[\s\S]*--dev origin\/dev/);
   assert.doesNotMatch(workflow, /git merge-base --is-ancestor origin\/prod origin\/dev/);
   assert.match(workflow, /steps\.topology\.outputs\.nothing_to_publish != 'true'/);
+  assert.match(workflow, /dev_sha=.*git rev-parse origin\/dev/);
 
   const topology = workflow.indexOf("cms-publication-topology.mjs");
   const classifier = workflow.indexOf("cms-publication-scope.mjs");
@@ -56,9 +57,36 @@ test("trusted classifier sees both sides of renames and runs before PR operation
   assert.ok(create !== -1 && classifier < create, "current diff must pass classifier before PR creation");
 });
 
-test("publication workflow preserves reviewable PR-only behavior and never merges or deploys", async () => {
+test("publication waits for checks, guards the exact dev SHA, then merges without deploying directly", async () => {
   const workflow = await read(".github/workflows/pages-cms-publish.yml");
+  assert.match(workflow, /contents: write/);
   assert.match(workflow, /pull-requests: write/);
+  assert.match(workflow, /checks: read/);
   assert.match(workflow, /gh pr create/);
-  assert.doesNotMatch(workflow, /gh pr merge|actions\/deploy-pages|git push[^\n]*prod/);
+  assert.match(workflow, /gh pr checks[\s\S]*--watch/);
+  assert.match(workflow, /EXPECTED_DEV_SHA/);
+  assert.match(workflow, /headRefOid/);
+  assert.match(workflow, /repos\/\$\{GITHUB_REPOSITORY\}\/pulls\/\$\{PR_NUMBER\}\/merge/);
+  assert.match(workflow, /-f sha="\$EXPECTED_DEV_SHA"/);
+  assert.doesNotMatch(workflow, /actions\/deploy-pages|git push[^\n]*prod/);
+});
+
+test("text-only CMS saves are silent on dev while publication PRs always run Fast CI", async () => {
+  const workflow = await read(".github/workflows/ci-fast.yml");
+  const pushBlock = workflow.match(/push:\n([\s\S]*?)\n  pull_request:/)?.[1] ?? "";
+  const prBlock = workflow.match(/pull_request:\n([\s\S]*?)\n  workflow_dispatch:/)?.[1] ?? "";
+
+  for (const path of [
+    "src/content/editorial/cv.json",
+    "src/content/editorial/home-project-cards.json",
+    "src/content/navigation.json",
+    "src/content/cases/**",
+    "src/content/collections/shootings.json",
+    "src/content/shootings/**",
+    "src/content/standalone-projects/**",
+  ]) {
+    assert.match(pushBlock, new RegExp(path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+
+  assert.doesNotMatch(prBlock, /paths-ignore:/, "publication and engineering PRs must run Fast CI even for editorial-only diffs");
 });
