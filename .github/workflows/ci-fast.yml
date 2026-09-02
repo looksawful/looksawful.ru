@@ -4,6 +4,9 @@ on:
   push:
     branches: [dev]
     paths-ignore:
+      - 'docs/**'
+      - 'AGENTS.md'
+      - 'archive/**'
       - 'src/content/editorial/cv.json'
       - 'src/content/editorial/home-project-cards.json'
       - 'src/content/navigation.json'
