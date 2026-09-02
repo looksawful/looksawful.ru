@@ -1,6 +1,7 @@
 import {
   initProjectNavigationBackToTop,
   initProjectNavigationFallback,
+  initProjectNavigationViewportAnchor,
 } from "./components/project-navigation.ts";
 
 const noop = () => {};
@@ -195,6 +196,7 @@ export function initSiteInteractive({ root = document } = {}) {
   const destroys = [];
 
   destroys.push(initProjectNavigationBackToTop(root));
+  destroys.push(initProjectNavigationViewportAnchor(root));
   destroys.push(initProjectNavigationFallback(root));
 
   root.querySelectorAll("playlist-filter-workflow").forEach(initPlaylistFilter);
