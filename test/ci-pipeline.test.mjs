@@ -89,7 +89,7 @@ test("CMS media mutation is explicit, allowlisted, race-safe and does one final 
   assert.match(workflow, /git push origin HEAD:dev/);
   assert.match(workflow, /git rev-parse origin\/dev/);
   assert.match(workflow, /SOURCE_SHA/);
-  assert.doesNotMatch(workflow, /createWorkflowDispatch|gh workflow run|git\\s+(?:push|update-ref)\\b[^\\n]*--force(?:-with-lease)?/);
+  assert.doesNotMatch(workflow, /createWorkflowDispatch|gh workflow run|git\s+(?:push|update-ref)\b[^\n]*--force(?:-with-lease)?/);
   assert.equal((workflow.match(/npm run typecheck/g) ?? []).length, 1);
   assert.equal((workflow.match(/npm run test:fast/g) ?? []).length, 1);
   assert.equal((workflow.match(/npm run build:site/g) ?? []).length, 1);
