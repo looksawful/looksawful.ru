@@ -30,12 +30,12 @@ jobs:
           from pathlib import Path
 
           multiline_old = '''  const candidates = [
-              path.join(repoRoot, clean),
-              path.join(repoRoot, "public", clean),
-            ];'''.replace('            ', '')
+    path.join(repoRoot, clean),
+    path.join(repoRoot, "public", clean),
+  ];'''
           multiline_new = '''  const candidates = [
-              path.join(repoRoot, "public", clean),
-            ];'''.replace('            ', '')
+    path.join(repoRoot, "public", clean),
+  ];'''
 
           for filename in [
               'tools/build-responsive-media.mjs',
@@ -60,18 +60,10 @@ jobs:
 
           p = Path('tools/check-data-integrity.ts')
           text = p.read_text('utf-8')
-          old = '''    const physicalFiles = [
-              ...await walkFiles(path.join(repoRoot, "media")),
-              ...await walkFiles(path.join(repoRoot, "public", "media")),
-              ...await walkFiles(path.join(repoRoot, "public", "pets")),
-            ].filter((file) => MEDIA_EXTENSIONS.has(extensionFor(file)));'''.replace('            ', '')
-          new = '''    const physicalFiles = [
-              ...await walkFiles(path.join(repoRoot, "public", "media")),
-              ...await walkFiles(path.join(repoRoot, "public", "pets")),
-            ].filter((file) => MEDIA_EXTENSIONS.has(extensionFor(file)));'''.replace('            ', '')
-          if old not in text:
-              raise SystemExit('expected legacy physical media scan not found')
-          p.write_text(text.replace(old, new, 1), 'utf-8')
+          legacy_line = '      ...await walkFiles(path.join(repoRoot, "media")),\n'
+          if legacy_line not in text:
+              raise SystemExit('expected legacy physical media scan line not found')
+          p.write_text(text.replace(legacy_line, '', 1), 'utf-8')
           PY
 
           cat > test/media-root-ownership.test.mjs <<'EOF'
