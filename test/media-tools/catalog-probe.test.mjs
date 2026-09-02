@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, truncate, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -55,4 +55,65 @@ test("upload technical sync probes an image without rewriting authored catalog m
   assert.deepEqual(synced.credits, record.credits);
 
   assert.equal(await readFile(imagePath).then((value) => value.byteLength), onePixelPng.byteLength);
+});
+
+test("CMS upload policy warns early and rejects oversized Git-backed masters", async () => {
+  const mediaCatalog = await import("../../tools/sync-media-catalog.mjs");
+  assert.equal(typeof mediaCatalog.assessCmsMediaUploadSize, "function", "upload size policy helper must exist");
+  const assess = mediaCatalog.assessCmsMediaUploadSize;
+  const MiB = 1024 * 1024;
+
+  assert.deepEqual(assess("image", 20 * MiB), { warning: false, allowed: true });
+  assert.deepEqual(assess("image", 20 * MiB + 1), { warning: true, allowed: true });
+  assert.deepEqual(assess("image", 50 * MiB), { warning: true, allowed: true });
+  assert.deepEqual(assess("image", 50 * MiB + 1), { warning: true, allowed: false });
+
+  assert.deepEqual(assess("video", 50 * MiB), { warning: false, allowed: true });
+  assert.deepEqual(assess("video", 50 * MiB + 1), { warning: true, allowed: true });
+  assert.deepEqual(assess("video", 95 * MiB), { warning: true, allowed: true });
+  assert.deepEqual(assess("video", 95 * MiB + 1), { warning: true, allowed: false });
+
+  assert.throws(() => assess("model", 1), /Unsupported CMS upload media type/);
+});
+
+test("oversized CMS master is rejected before ffprobe", async () => {
+  const { syncUploadedRecord } = await import("../../tools/sync-media-catalog.mjs");
+  const root = await mkdtemp(path.join(tmpdir(), "looksawful-media-catalog-limit-"));
+  const publicDir = path.join(root, "public", "media", "catalog");
+  const { mkdir } = await import("node:fs/promises");
+  await mkdir(publicDir, { recursive: true });
+
+  const imagePath = path.join(publicDir, "oversized.png");
+  await writeFile(imagePath, "");
+  await truncate(imagePath, 50 * 1024 * 1024 + 1);
+
+  const record = {
+    id: "b5a2a0b2-dbb8-49a0-9284-d28c6896ae80",
+    mediaType: "image",
+    src: "/media/catalog/oversized.png",
+    deliverySrc: "",
+    posterSrc: "",
+    width: 0,
+    height: 0,
+    durationSeconds: 0,
+    mimeType: "",
+    byteLength: 0,
+    title: "Oversized fixture",
+    alt: "",
+    description: "",
+    date: "",
+    projectIds: [],
+    workAreaIds: [],
+    projectTypeIds: [],
+    deliverableIds: [],
+    tags: [],
+    credits: [],
+    reusable: true,
+    archived: false,
+  };
+
+  await assert.rejects(
+    syncUploadedRecord(record, { repoRoot: root }),
+    /exceeds Git-backed image limit.*50 MiB/i,
+  );
 });

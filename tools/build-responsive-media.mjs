@@ -52,7 +52,6 @@ async function exists(filePath) {
 async function resolveMediaFile(repoRoot, src) {
   const clean = normalizePublicSrc(src);
   const candidates = [
-    path.join(repoRoot, clean),
     path.join(repoRoot, "public", clean),
   ];
 

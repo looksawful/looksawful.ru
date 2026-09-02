@@ -8,7 +8,8 @@ const rules = [
   ["cv", /^(public\/cv\/|src\/(content\/cv[^/]*|data\/cv[^/]*)|tools\/(apply-cv-content|prepare-cv-production|smoke-cv)\.mjs$|tools\/lib\/cv-content\.mjs$|test\/cv-)/],
   ["navigation", /^(src\/(content\/navigation\.json|data\/navigation\.ts|components\/site-nav[^/]*|styles\/site-nav[^/]*)|test\/(site-navigation|navigation-labels|project-navigation)|tools\/smoke-site-navigation\.mjs$)/],
   ["media-desk", /^(src\/tools\/media-desk\/|tools\/media-desk\/|tools\/e2e\/run-media-desk\.mjs$|test\/media-desk)/],
-  ["media", /^(public\/media\/|media\/|src\/content\/(media-catalog\/|projects\.json$)|src\/data\/media\/|src\/types\/media\.ts$|tools\/(build-responsive-media|build-video-media|media-dev-state|sync-media-catalog)\.mjs$|test\/(media-|responsive-|video-delivery))/],
+  ["media-tooling", /^(tools\/(build-responsive-media|build-video-media|media-dev-state|sync-media-catalog)\.mjs$|test\/(media-|responsive-|video-delivery))/],
+  ["media", /^(public\/media\/|media\/|src\/content\/(media-catalog\/|projects\.json$)|src\/data\/media\/|src\/types\/media\.ts$)/],
   ["dependencies", /^package(-lock)?\.json$/],
   ["project-pages", /^(work\/(awful-cases|moves-awful|berry-social-content-2020)\/|src\/(content|data\/content)\/(awful-cases|moves-awful|berry)[^/]*|test\/(awful-cases|moves-awful|berry)|tools\/smoke-project-pages\.mjs$)/],
   ["shared-runtime", /^(src\/(main\.|interactive\.|motion\/|components\/|templates\/|types\/|site\/|styles\/(index|base|tokens|layout|reset|components)\.)|tools\/(e2e\/|ci\/change-scope\.mjs$|smoke-site\.mjs$|smoke-mpa\.mjs$|capture-caption-qa\.mjs$))/],
@@ -22,13 +23,14 @@ export function classifyChangedFiles(files, { full = false } = {}) {
   const changedFiles = [...new Set(files.map((file) => file.replaceAll("\\", "/")).filter(Boolean))].sort();
   const groups = [...new Set(changedFiles.map((file) => rules.find(([, pattern]) => pattern.test(file))?.[0] ?? "unknown"))].sort();
   const broad = full || groups.some((group) => ["shared-runtime", "build-config", "dependencies", "unknown"].includes(group));
-  const mediaChanged = full || groups.some((group) => ["media", "dependencies", "unknown"].includes(group));
+  const mediaChanged = full || groups.some((group) => ["media", "media-tooling", "dependencies", "unknown"].includes(group));
   const mediaDeskChanged = broad || groups.includes("media-desk") || groups.includes("media");
-  const suites = new Set(["smoke"]);
+  const mediaToolingOnly = groups.includes("media-tooling") && groups.every((group) => ["ci", "media-tooling"].includes(group));
+  const suites = new Set(mediaToolingOnly ? [] : ["smoke"]);
   if (groups.includes("cv")) suites.add("cv");
   if (groups.includes("navigation")) suites.add("navigation");
   if (groups.includes("project-pages")) suites.add("project-pages");
-  if (groups.includes("media")) suites.add("media");
+  if (groups.some((group) => ["media", "media-tooling"].includes(group))) suites.add("media");
   if (groups.some((group) => ["content", "styles"].includes(group))) suites.add("mpa");
   if (groups.includes("styles")) suites.add("project-pages");
   return {
@@ -41,9 +43,32 @@ export function classifyChangedFiles(files, { full = false } = {}) {
   };
 }
 
+function commitIsAvailable(ref) {
+  try {
+    execFileSync("git", ["cat-file", "-e", `${ref}^{commit}`], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function ensureCommitAvailable(ref) {
+  if (!ref || /^0+$/.test(ref) || commitIsAvailable(ref)) return;
+
+  // Shallow CI checkouts intentionally contain only the checked-out SHA. Fetch
+  // the exact comparison revision instead of downloading every branch/tag and
+  // the entire repository history. Any fetch/validation failure remains fatal.
+  execFileSync("git", ["fetch", "--no-tags", "--depth=1", "origin", ref], { stdio: "inherit" });
+  if (!commitIsAvailable(ref)) {
+    throw new Error(`Fetched comparison revision is still unavailable: ${ref}`);
+  }
+}
+
 export function scopeFromGit({ base, head = "HEAD", mergeBase = false, full = false } = {}) {
   if (full || !base || /^0+$/.test(base)) return classifyChangedFiles([], { full: true });
   // Invalid/unavailable revisions fail the job; they never silently shrink scope.
+  ensureCommitAvailable(base);
+  ensureCommitAvailable(head);
   const range = `${base}${mergeBase ? "..." : ".."}${head}`;
   execFileSync("git", ["diff", "--check", range], { stdio: "inherit" });
   const diff = execFileSync("git", ["diff", "--name-only", "-z", range], { encoding: "utf8" });

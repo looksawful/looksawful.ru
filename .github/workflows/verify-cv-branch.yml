@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           persist-credentials: false
       - name: Classify changes
         id: change-scope
@@ -28,7 +28,7 @@ jobs:
           CI_DIFF_HEAD: ${{ github.sha }}
         run: node tools/ci/change-scope.mjs
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -40,7 +40,7 @@ jobs:
         run: npm run test:cv
       - name: Restore generated media
         id: media-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             public/media/generated/responsive
@@ -81,6 +81,11 @@ jobs:
         run: npm run test:media:checks
       - name: Build site
         run: npm run build:site
+      - name: Restore Playwright Chromium
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-v1-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install browser for smoke tests
         run: npx playwright install --with-deps chromium
       - name: Authored browser smoke
@@ -93,7 +98,7 @@ jobs:
         run: npm run test:e2e:cv:production
       - name: Upload CV visual QA
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cv-smoke
           path: artifacts/cv-smoke

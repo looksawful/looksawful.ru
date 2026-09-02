@@ -139,3 +139,24 @@ test("integrity report supports registered GLB model assets", async () => {
   assert.equal(report.errorCount, 0);
   assert.equal(report.summary.models, 1);
 });
+
+test("integrity report never lets legacy root media shadow the public delivery file", async () => {
+  const root = await fixtureRoot("integrity-public-ownership");
+  const publicImage = join(root, "public", "media", "fixtures", "shadow.webp");
+  const legacyDir = join(root, "media", "fixtures");
+  const legacyImage = join(legacyDir, "shadow.webp");
+  await mkdir(legacyDir, { recursive: true });
+  await sharp({ create: { width: 10, height: 6, channels: 3, background: "green" } }).webp().toFile(publicImage);
+  await sharp({ create: { width: 3, height: 3, channels: 3, background: "red" } }).webp().toFile(legacyImage);
+
+  const report = await createMediaIntegrityReport({
+    repoRoot: root,
+    mediaAssets: [
+      { id: "public-shadow", type: "image", src: "/media/fixtures/shadow.webp", width: 10, height: 6 },
+    ],
+    mediaEntries: [{ id: "public-shadow-use", assetId: "public-shadow" }],
+    scanPhysicalMedia: false,
+  });
+
+  assert.equal(report.errorCount, 0, report.errors.join("\n"));
+});

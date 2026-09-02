@@ -112,7 +112,6 @@ async function statCaseSensitive(filePath: string): Promise<{ exists: boolean; p
 async function resolveMediaFile(repoRoot: string, src: string): Promise<{ path: string; size: number } | null> {
   const clean = normalizePublicSrc(src);
   const candidates = [
-    path.join(repoRoot, clean),
     path.join(repoRoot, "public", clean),
   ];
 
@@ -467,7 +466,6 @@ export async function createMediaIntegrityReport(options: IntegrityOptions = {})
 
   if (options.scanPhysicalMedia !== false) {
     const physicalFiles = [
-      ...await walkFiles(path.join(repoRoot, "media")),
       ...await walkFiles(path.join(repoRoot, "public", "media")),
       ...await walkFiles(path.join(repoRoot, "public", "pets")),
     ].filter((file) => MEDIA_EXTENSIONS.has(extensionFor(file)));

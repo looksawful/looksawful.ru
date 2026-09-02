@@ -242,7 +242,8 @@ test("Pages CMS publication action uses trusted prod policy before preparing dev
   assert.doesNotMatch(action, /ref: current\b/);
   assert.match(publishWorkflow, /source_ref.*!=.*dev/s);
   assert.match(publishWorkflow, /WORKFLOW_REF.*!=.*prod/s);
-  assert.match(publishWorkflow, /git merge-base --is-ancestor origin\/prod origin\/dev/);
+  assert.match(publishWorkflow, /cms-publication-topology\.mjs/);
+  assert.doesNotMatch(publishWorkflow, /git merge-base --is-ancestor origin\/prod origin\/dev/);
   assert.match(publishWorkflow, /cms-publication-scope\.mjs/);
   assert.match(publishWorkflow, /--base prod/);
   assert.match(publishWorkflow, /--head dev/);

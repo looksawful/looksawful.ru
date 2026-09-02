@@ -9,6 +9,12 @@ export async function waitForDocumentReady(page, selector = "main") {
   await page.evaluate(() => document.fonts.ready);
   await waitForAnimationFrames(page);
 }
+export async function waitForLightboxOpen(page) {
+  await page.waitForFunction(() => {
+    const dialog = document.querySelector("[data-media-lightbox]");
+    return Boolean(document.querySelector(".pswp")) || (dialog instanceof HTMLDialogElement && dialog.open);
+  });
+}
 export async function waitForLightboxClosed(page) {
   await page.waitForFunction(() => !document.querySelector(".pswp") && !document.querySelector("[data-media-lightbox][open]"));
 }
