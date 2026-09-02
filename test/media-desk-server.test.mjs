@@ -4,7 +4,10 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { saveMediaDeskMetadata } from "../src/tools/media-desk/server.ts";
+import {
+  createMediaDeskWritePlugin,
+  saveMediaDeskMetadata,
+} from "../src/tools/media-desk/server.ts";
 
 const ASSET_ID = "awful-cases-assets-recording-2026-08-15-121210-poster";
 const ORIGINAL = {
@@ -81,5 +84,31 @@ test("local writer rejects protected technical fields without touching the recor
     assert.equal(await readFile(file, "utf8"), before);
   } finally {
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("write middleware is registered only for explicit Content Desk mode", () => {
+  const previous = process.env.CONTENT_DESK_WRITE;
+  try {
+    const routes = [];
+    const server = {
+      middlewares: {
+        use(pathname, handler) {
+          routes.push([pathname, handler]);
+        },
+      },
+    };
+
+    delete process.env.CONTENT_DESK_WRITE;
+    createMediaDeskWritePlugin(process.cwd()).configureServer(server);
+    assert.equal(routes.length, 0, "ordinary vite dev must remain read-only");
+
+    process.env.CONTENT_DESK_WRITE = "1";
+    createMediaDeskWritePlugin(process.cwd()).configureServer(server);
+    assert.equal(routes.length, 1, "npm run desk mode must register the write endpoint");
+    assert.equal(routes[0][0], "/__media-desk/metadata");
+  } finally {
+    if (previous === undefined) delete process.env.CONTENT_DESK_WRITE;
+    else process.env.CONTENT_DESK_WRITE = previous;
   }
 });
