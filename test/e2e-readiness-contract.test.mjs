@@ -8,6 +8,7 @@ test("site smoke waits for a lightbox-open condition before asserting state", as
   const readiness = await read("tools/e2e/readiness.mjs");
   const smoke = await read("tools/smoke-site.mjs");
 
+  // A click may start PhotoSwipe's async module load; state must not be sampled eagerly.
   assert.match(readiness, /export async function waitForLightboxOpen\(page\)/);
   assert.match(readiness, /waitForFunction\([\s\S]*\.pswp[\s\S]*data-media-lightbox/);
   assert.match(smoke, /import \{[^}]*waitForLightboxOpen[^}]*\} from "\.\/e2e\/readiness\.mjs"/);
