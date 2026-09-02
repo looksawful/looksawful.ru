@@ -29,20 +29,17 @@ test("publication workflow separates CMS source dev from trusted execution ref p
   assert.doesNotMatch(workflow, /WORKFLOW_REF[^\n]*!= "dev"|"\$WORKFLOW_REF" != "dev"/);
 });
 
-test("publication workflow blocks non-linear branch topology before scope authorization", async () => {
+test("publication workflow validates content-aware topology before scope authorization", async () => {
   const workflow = await read(".github/workflows/pages-cms-publish.yml");
   assert.match(workflow, /git fetch --no-tags origin[\s\S]*refs\/heads\/prod:refs\/remotes\/origin\/prod[\s\S]*refs\/heads\/dev:refs\/remotes\/origin\/dev/);
-  assert.match(workflow, /git rev-parse origin\/prod/);
-  assert.match(workflow, /git rev-parse origin\/dev/);
-  assert.match(workflow, /Nothing to publish|no unpublished dev commits/i);
-  assert.match(workflow, /git merge-base --is-ancestor origin\/prod origin\/dev/);
-  assert.match(workflow, /dev is not a linear descendant of prod/i);
+  assert.match(workflow, /node tools\/cms-publication-topology\.mjs[\s\S]*--prod origin\/prod[\s\S]*--dev origin\/dev/);
+  assert.doesNotMatch(workflow, /git merge-base --is-ancestor origin\/prod origin\/dev/);
+  assert.match(workflow, /steps\.topology\.outputs\.nothing_to_publish != 'true'/);
 
-  const equalCheck = workflow.indexOf('if [[ "$prod_sha" == "$dev_sha" ]]');
-  const ancestorCheck = workflow.indexOf("git merge-base --is-ancestor");
+  const topology = workflow.indexOf("cms-publication-topology.mjs");
   const classifier = workflow.indexOf("cms-publication-scope.mjs");
-  assert.ok(equalCheck !== -1 && equalCheck < ancestorCheck, "equal/no-op check must happen before ancestry authorization");
-  assert.ok(ancestorCheck < classifier, "topology must be authorized before path classification");
+  assert.ok(topology !== -1, "content-aware topology guard must be invoked");
+  assert.ok(topology < classifier, "topology must be authorized before path classification");
 });
 
 test("trusted classifier sees both sides of renames and runs before PR operations", async () => {
