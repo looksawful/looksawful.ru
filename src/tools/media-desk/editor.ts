@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import "./editor.css";
 
 import { projects } from "../../data/catalog/projects/index.ts";
