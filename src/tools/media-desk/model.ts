@@ -89,7 +89,7 @@ export function filterAndSortMediaDeskItems(
 
   const filtered = items.filter((item) => {
     if (mediaType !== "all" && item.asset.type !== mediaType) return false;
-    if (projectId && !item.projectIds.includes(projectId as never)) return false;
+    if (projectId && !item.projectIds.some((id) => id === projectId)) return false;
     if (!matchesReview(item, review)) return false;
     if (search && !searchableText(item, projectNames).includes(search)) return false;
     return true;
