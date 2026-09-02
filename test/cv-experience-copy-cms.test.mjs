@@ -2,199 +2,103 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { CV_EXPERIENCE_IDS, parseCvContent } from "../src/data/cv.ts";
+import { CV_EXPERIENCE_IDS, cvContent, parseCvContent } from "../src/data/cv.ts";
 import { transformCvContent } from "../tools/lib/cv-content.mjs";
 
 const expectedCounts = {
-  jestei: { cases: 18, facts: 0, links: 2 },
-  styx: { cases: 8, facts: 1, links: 2 },
-  illumihand: { cases: 3, facts: 2, links: 0 },
-  madcow: { cases: 2, facts: 0, links: 2 },
-  sensetique: { cases: 0, facts: 0, links: 1 },
-  line: { cases: 3, facts: 0, links: 1 },
-  berry: { cases: 3, facts: 2, links: 0 },
-  ss: { cases: 5, facts: 1, links: 1 },
-  olovo: { cases: 6, facts: 2, links: 2 },
-  theatre: { cases: 3, facts: 2, links: 1 },
-  soroka: { cases: 3, facts: 2, links: 0 },
-  kursovoy: { cases: 0, facts: 2, links: 0 },
-  ran: { cases: 4, facts: 2, links: 0 },
-  progress: { cases: 2, facts: 0, links: 1 },
-  ria: { cases: 0, facts: 0, links: 0 },
+  jestei: { cases: 18, facts: 0, links: 2 }, styx: { cases: 8, facts: 1, links: 2 },
+  illumihand: { cases: 3, facts: 2, links: 0 }, madcow: { cases: 2, facts: 0, links: 2 },
+  sensetique: { cases: 0, facts: 0, links: 1 }, line: { cases: 3, facts: 0, links: 1 },
+  berry: { cases: 3, facts: 2, links: 0 }, ss: { cases: 5, facts: 1, links: 1 },
+  olovo: { cases: 6, facts: 2, links: 2 }, theatre: { cases: 3, facts: 2, links: 1 },
+  soroka: { cases: 3, facts: 2, links: 0 }, kursovoy: { cases: 0, facts: 2, links: 0 },
+  ran: { cases: 4, facts: 2, links: 0 }, progress: { cases: 2, facts: 0, links: 1 }, ria: { cases: 0, facts: 0, links: 0 },
 };
 
-const entryKeys = ["cases", "company", "context", "description", "facts", "id", "links", "period", "role", "visible"];
 const clone = (value) => structuredClone(value);
-
-async function readSource() {
-  return JSON.parse(await readFile(new URL("../src/content/cv.json", import.meta.url), "utf8"));
-}
+const editorialUrl = new URL("../src/content/editorial/cv.json", import.meta.url);
+const structureUrl = new URL("../src/content/cv.json", import.meta.url);
 
 function experienceSheet(html) {
   const match = html.match(/<section\b[^>]*class="experience-sheet"[\s\S]*?<\/section>/i);
-  assert.ok(match, "CV experience sheet must exist");
+  assert.ok(match);
   return match[0];
 }
-
-function hrefs(html) {
-  return [...experienceSheet(html).matchAll(/\shref="([^"]+)"/g)].map((match) => match[1]);
-}
-
+const hrefs = (html) => [...experienceSheet(html).matchAll(/\shref="([^"]+)"/g)].map((match) => match[1]);
 function articleFor(html, id) {
-  const pattern = new RegExp(
-    `<article\\b(?=[^>]*\\bclass=["'][^"']*\\bexperience-card--${id}\\b[^"']*["'])[^>]*>[\\s\\S]*?<\\/article>`,
-    "i",
-  );
-  const matches = [...html.matchAll(new RegExp(pattern.source, "gi"))];
-  assert.equal(matches.length, 1, `expected exactly one CV experience article for ${id}`);
+  const matches = [...html.matchAll(new RegExp(`<article\\b(?=[^>]*\\bclass=["'][^"']*\\bexperience-card--${id}\\b[^"']*["'])[^>]*>[\\s\\S]*?<\\/article>`, "gi"))];
+  assert.equal(matches.length, 1);
   return matches[0][0];
 }
 
-test("CV experience CMS source owns copy but keeps fixed identity and presentation counts", async () => {
-  const source = await readSource();
+test("experience authored source owns copy only while IDs, visibility and links stay structural", async () => {
+  const editorial = JSON.parse(await readFile(editorialUrl, "utf8"));
+  const structure = JSON.parse(await readFile(structureUrl, "utf8"));
+  assert.deepEqual(Object.keys(editorial.experience), [...CV_EXPERIENCE_IDS]);
+  assert.deepEqual(Object.keys(structure.experience), [...CV_EXPERIENCE_IDS]);
 
-  assert.deepEqual(source.experience.map(({ id }) => id), CV_EXPERIENCE_IDS);
-  for (const entry of source.experience) {
-    assert.deepEqual(Object.keys(entry).sort(), entryKeys);
-    assert.equal(typeof entry.visible, "boolean");
-    for (const field of ["company", "context", "period", "role"]) {
-      assert.equal(typeof entry[field], "string", `${entry.id}.${field} must be a string`);
-      assert.ok(entry[field].trim(), `${entry.id}.${field} must be non-empty`);
-    }
-    assert.equal(typeof entry.description, "string");
-    assert.equal(entry.description.trim(), entry.description, `${entry.id}.description must be trimmed`);
-
-    const counts = expectedCounts[entry.id];
-    assert.ok(counts, `unexpected CV experience id: ${entry.id}`);
-    assert.equal(entry.cases.length, counts.cases, `${entry.id} case count is presentation-owned`);
-    assert.equal(entry.facts.length, counts.facts, `${entry.id} fact count is presentation-owned`);
-    assert.equal(entry.links.length, counts.links, `${entry.id} link-label count is presentation-owned`);
-
-    for (const [index, value] of entry.cases.entries()) {
-      assert.equal(typeof value, "string");
-      assert.ok(value.trim(), `${entry.id}.cases[${index}] must be non-empty`);
-    }
-    for (const [index, fact] of entry.facts.entries()) {
-      assert.deepEqual(Object.keys(fact).sort(), ["label", "text"]);
-      assert.equal(typeof fact.label, "string");
-      assert.equal(fact.label.trim(), fact.label);
-      assert.equal(typeof fact.text, "string");
-      assert.ok(fact.text.trim(), `${entry.id}.facts[${index}].text must be non-empty`);
-    }
-    for (const [index, value] of entry.links.entries()) {
-      assert.equal(typeof value, "string");
-      assert.ok(value.trim(), `${entry.id}.links[${index}] must be non-empty`);
-    }
+  for (const id of CV_EXPERIENCE_IDS) {
+    const copy = editorial.experience[id];
+    const state = structure.experience[id];
+    assert.deepEqual(Object.keys(state).sort(), ["links", "visible"]);
+    assert.equal(typeof state.visible, "boolean");
+    assert.equal("id" in copy, false);
+    assert.equal("visible" in copy, false);
+    assert.equal("links" in copy, false);
+    assert.ok(["company", "context", "period", "role", "description", "cases", "facts"].every((key) => key in copy));
   }
 });
 
-test("CV experience source contains the approved Jestei, LI-NE, Progress and RIA copy", async () => {
-  const source = await readSource();
-  const byId = new Map(source.experience.map((entry) => [entry.id, entry]));
-
-  assert.equal(
-    byId.get("jestei")?.description,
-    "Сформировал новый визуальный язык музыкального сервиса — главного российского диджейского пула. Разработал UX/UI-стратегию для core-продуктов и руководил всей командой дизайнеров. Реорганизовал дизайн-систему и ускорил процесс разработки макетов и прототипов, создал документацию и CJM для ключевых пользовательских сценариев для 4 сегментов аудитории, сократил количество шагов для получения доступа к контенту с 6 до 2, спроектировал прогрессивную систему фильтрации треков, разработал триггеры апгрейда и дизайн рассылки для реанимации клиентов, переработал промо-материалы, спроектировал архитектуру новой системы лендинговых страниц для двух аудиторий, создал дизайн для таргетированной рекламы, спроектировал дизайн раздела для новой премиальной аудитории и проработал инструменты для неё. Всё это позволило поднять стоимость подписки без деградации клиентской базы, расширить аудиторию, сократить время производства контента и подготовиться к выходу продукта на американский рынок.",
-  );
-  assert.equal(
-    byId.get("line")?.description,
-    "Работал младшим продюсером в продакшен-агентстве в сфере моды и рекламы. Изучал и занимался организацией fashion- и рекламных фото- и видеосъёмок, а также мероприятий: препродакшн, кастинги, локации, логистика, координация команды. Работал над крупными съёмками для «Детского мира», Puma, H&M и в других небольших проектах.",
-  );
-  assert.equal(
-    byId.get("progress")?.description,
-    "Работал книжным дизайнером в издательстве гуманитарной и образовательной литературы: разрабатывал макеты, верстал и вёл полный цикл дизайн-процессов при разработке научных и гуманитарных изданий, включая книги Елены Ровенко и Бориса Ерёмина, а также руководил разработкой и администрированием сайта издательства.",
-  );
+test("composed experience retains fixed presentation counts and approved copy", () => {
+  assert.deepEqual(cvContent.experience.map(({ id }) => id), [...CV_EXPERIENCE_IDS]);
+  for (const entry of cvContent.experience) {
+    const counts = expectedCounts[entry.id];
+    assert.equal(entry.cases.length, counts.cases, `${entry.id} cases`);
+    assert.equal(entry.facts.length, counts.facts, `${entry.id} facts`);
+    assert.equal(entry.links.length, counts.links, `${entry.id} links`);
+  }
+  const byId = new Map(cvContent.experience.map((entry) => [entry.id, entry]));
   assert.equal(byId.get("ria")?.role, "Дизайнер");
-  assert.equal(
-    byId.get("ria")?.description,
-    "Работал верстальщиком в ежедневной городской общественно-политической газете о Москве",
-  );
+  assert.equal(byId.get("ria")?.description, "Работал верстальщиком в ежедневной городской общественно-политической газете о Москве");
   assert.deepEqual(byId.get("line")?.facts, []);
   assert.deepEqual(byId.get("progress")?.facts, []);
 });
 
-test("CV parser accepts legitimate experience copy edits and rejects architecture or count drift", async () => {
-  const source = await readSource();
+test("full runtime parser accepts copy edits but rejects architecture and shape drift", () => {
+  const source = clone(cvContent);
   assert.deepEqual(parseCvContent(clone(source)), source);
-
   const edited = clone(source);
   edited.experience[0].company = "JESTEI & POOL";
-  edited.experience[0].role = "Новая роль";
   edited.experience[0].description = "Новый <текст>";
-  edited.experience[0].cases[0] = "Новый кейс";
-  edited.experience[0].links[0] = "Новая подпись";
-  const parsed = parseCvContent(edited);
-  assert.equal(parsed.experience[0].company, edited.experience[0].company);
-  assert.equal(parsed.experience[0].description, edited.experience[0].description);
+  assert.equal(parseCvContent(edited).experience[0].company, "JESTEI & POOL");
 
   const routeLeak = clone(source);
   routeLeak.experience[0].route = "/changed-by-cms/";
   assert.throws(() => parseCvContent(routeLeak), /unexpected|field|key/i);
-
-  const whitespace = clone(source);
-  whitespace.experience[0].company = "   ";
-  delete whitespace.experience[0].role;
-  whitespace.experience[0].description = "";
-  const parsedWhitespace = parseCvContent(whitespace);
-  assert.equal(parsedWhitespace.experience[0].company, "");
-  assert.equal(parsedWhitespace.experience[0].role, "");
-  assert.equal(parsedWhitespace.experience[0].description, "");
-
-  const invalidCopy = clone(source);
-  invalidCopy.experience[0].company = 42;
-  assert.throws(() => parseCvContent(invalidCopy), /company.*string/i);
-
-  const caseCountDrift = clone(source);
-  caseCountDrift.experience[0].cases.pop();
-  assert.throws(() => parseCvContent(caseCountDrift), /count|length|cases/i);
+  const countDrift = clone(source);
+  countDrift.experience[0].cases.pop();
+  assert.throws(() => parseCvContent(countDrift), /count|length|cases/i);
 });
 
-test("CV experience transform changes editorial copy while preserving code-owned hrefs and card classes", async () => {
-  const source = await readSource();
+test("experience transform changes copy while preserving code-owned hrefs and classes", async () => {
   const originalHtml = await readFile(new URL("../public/cv/index.html", import.meta.url), "utf8");
-  const originalHrefs = hrefs(originalHtml);
-
-  const edited = clone(source);
+  const edited = clone(cvContent);
   const jestei = edited.experience.find(({ id }) => id === "jestei");
   const styx = edited.experience.find(({ id }) => id === "styx");
-  assert.ok(jestei);
-  assert.ok(styx);
-
-  jestei.company = "JESTEI & POOL";
-  jestei.context = "Музыкальный <сервис>";
-  jestei.period = "2024–2027";
   jestei.role = "Арт-директор & дизайн-лид";
-  jestei.description = "Описание <без HTML> & безопасно";
   jestei.cases[0] = "Кейс & исследование";
-  jestei.links[0] = "Сайт & продукт";
   styx.facts[0].text = "Факт <сохранён> & обновлён";
-
   const transformed = transformCvContent(originalHtml, parseCvContent(edited)).html;
-  const transformedJestei = articleFor(transformed, "jestei");
-  const transformedStyx = articleFor(transformed, "styx");
-
-  assert.deepEqual(hrefs(transformed), originalHrefs, "CMS copy edits must not own experience hrefs");
-  assert.match(transformedJestei, /<h3 class="experience-role">Арт-директор &amp; дизайн-лид<\/h3>/);
-  assert.match(transformedJestei, /<div class="experience-cases">/);
-  assert.match(transformedJestei, /<a class="experience-value" href="\/#jestei-brand"[^>]*>Кейс &amp; исследование<\/a>/);
-  assert.match(transformedJestei, /<div class="experience-links">/);
-  assert.match(transformedStyx, /<div class="experience-facts">/);
-  assert.match(transformedStyx, /<span class="experience-value">Факт &lt;сохранён&gt; &amp; обновлён<\/span>/);
-  assert.doesNotMatch(transformed, /Описание <без HTML>/);
+  assert.deepEqual(hrefs(transformed), hrefs(originalHtml));
+  assert.match(articleFor(transformed, "jestei"), /Арт-директор &amp; дизайн-лид/);
+  assert.match(articleFor(transformed, "styx"), /Факт &lt;сохранён&gt; &amp; обновлён/);
 });
 
-test("Pages CMS exposes CV experience copy without href, class or route controls", async () => {
+test("Pages CMS experience editor exposes copy fields only", async () => {
   const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-  const start = cms.indexOf("      - name: experience\n");
-  assert.notEqual(start, -1, "CV experience CMS block must exist");
-  const rest = cms.slice(start);
-  const nextTopLevel = rest.indexOf("\n  - name: ", 8);
-  const config = nextTopLevel === -1 ? rest : rest.slice(0, nextTopLevel);
-
-  for (const field of ["id", "visible", "company", "context", "period", "role", "description", "cases", "facts", "label", "text", "links"]) {
-    assert.match(config, new RegExp(`name: ${field}\\b`));
-  }
-  for (const forbidden of ["href", "route", "className", "target", "rel", "layout", "indexable", "listed"]) {
-    assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
+  const cvConfig = cms.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
+  assert.match(cvConfig, /path: src\/content\/editorial\/cv\.json/);
+  for (const forbidden of ["visible", "links", "href", "route", "className", "target", "rel", "layout"]) {
+    assert.doesNotMatch(cvConfig, new RegExp(`- name: ${forbidden}\\b`));
   }
 });

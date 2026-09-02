@@ -148,10 +148,11 @@ test("Shootings CMS data flows through the current catalog and rendered copy", a
 
 test("Pages CMS exposes Shootings records without architecture or presentation controls", async () => {
   const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
-  const start = cms.indexOf("  - name: shootings\n");
+  const marker = "\n  - name: shootings\n";
+  const start = cms.indexOf(marker);
   assert.notEqual(start, -1, "Shootings CMS group must exist");
-  const rest = cms.slice(start);
-  const nextEntry = rest.indexOf("\n  - name: ", 4);
+  const rest = cms.slice(start + 1);
+  const nextEntry = rest.indexOf("\n  - name: ", marker.length - 1);
   const config = nextEntry === -1 ? rest : rest.slice(0, nextEntry);
 
   assert.match(config, /type: group/);

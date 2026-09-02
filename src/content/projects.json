@@ -2,10 +2,8 @@
   {
     "id": "jestei",
     "visible": true,
-    "focus": "Музыкальный сервис для диджеев",
     "cover": {
       "src": "/media/projects/index/jestei-pool-cover.webp",
-      "alt": "Коллаж с ноутбуками, планшетами и мобильными устройствами с интерфейсами сервиса Jestei Pool на экранах",
       "width": 1580,
       "height": 1360
     }
@@ -13,10 +11,8 @@
   {
     "id": "styx",
     "visible": true,
-    "focus": "Готический бренд ювелирных изделий и одежды",
     "cover": {
       "src": "/media/projects/index/styx-jewel-cover.webp",
-      "alt": "Два мобильных устройства с логотипом Styx Jewel и интерфейсом интернет магазина бренда на экранах",
       "width": 1580,
       "height": 1360
     }
@@ -24,10 +20,8 @@
   {
     "id": "sensetique",
     "visible": true,
-    "focus": "Продакшен агентство полного цикла в индустрии моды и искусства и коммерческая фотостудия",
     "cover": {
       "src": "/media/projects/index/sensetique-cover.webp",
-      "alt": "Коллаж с фотографиями продакшена Sensetique и интерьерами залов фотостудии",
       "width": 1580,
       "height": 1360
     }
@@ -35,11 +29,8 @@
   {
     "id": "shootings",
     "visible": true,
-    "focus": "Фотографии и микс-медиа арт для музыкантов, выставок и брендов",
-    "period": "2016–2025",
     "cover": {
       "src": "/media/projects/index/shootings-cover.webp",
-      "alt": "Печатный разворот с фотографией Evasha",
       "width": 1580,
       "height": 1360
     }

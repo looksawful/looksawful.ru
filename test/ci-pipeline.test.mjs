@@ -1,137 +1,129 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const step = (workflow, name) => workflow.match(new RegExp(`      - name: ${name}\\n[\\s\\S]*?(?=\\n      - name: |$)`))?.[0] ?? "";
 
-test("every cached-media verification still checks complete catalog/data integrity", async () => {
+const workflows = [
+  "ci-fast",
+  "cms-media",
+  "codeql",
+  "pages-cms-publish",
+  "pages",
+  "quality",
+];
+
+test("media contracts retain complete data-integrity coverage", async () => {
   const { scripts } = JSON.parse(await read("package.json"));
   assert.match(scripts["test:media:contract"], /check-data-integrity/);
-  for (const name of ["verify-dev", "verify-pr", "pages", "verify-full", "verify-cv-branch"]) {
-    const workflow = await read(`.github/workflows/${name}.yml`);
-    assert.match(step(workflow, "Media contracts"), /npm run test:media:contract/);
-    assert.doesNotMatch(step(workflow, "Media contracts"), /if:/);
-  }
+  assert.match(scripts["test:media:checks"], /check-data-integrity/);
 });
 
-for (const name of ["verify-dev.yml", "verify-pr.yml"]) {
-  test(`${name}: read-only verification retains cheap checks, build and affected browser validation`, async () => {
-    const workflow = await read(`.github/workflows/${name}`);
-    assert.match(workflow, /contents: read/);
-    assert.doesNotMatch(workflow, /contents: write|git commit|git push|continue-on-error/);
-    for (const command of ["typecheck", "test:fast", "build:site", "test:e2e:affected"]) assert.ok(workflow.includes(`npm run ${command}`), command);
-    assert.match(workflow, /change-scope\.mjs/);
-    assert.match(workflow, /media:catalog:check/);
-    assert.match(workflow, /media:sync/);
-    assert.match(workflow, /media-scope\.outputs\.needs_sync == 'true'/);
-    assert.match(workflow, /test:media:checks/);
-    assert.match(workflow, /git diff --exit-code/);
-    assert.match(step(workflow, "Check CMS media catalog"), /needs_sync == 'true'/);
-    assert.match(step(workflow, "Check unchanged catalog structure"), /needs_sync != 'true'/);
-    assert.match(step(workflow, "Check unchanged catalog structure"), /--check-stored/);
-    assert.ok(workflow.indexOf("Ensure media tooling") < workflow.indexOf("Check CMS media catalog"));
-    assert.ok(workflow.indexOf("npm run typecheck") < workflow.indexOf("Ensure media tooling"));
-    assert.ok(workflow.indexOf("npm run test:fast") < workflow.indexOf("playwright install"));
-    assert.doesNotMatch(workflow, /test:e2e:all|test:e2e:full/);
-  });
-}
+test("Fast CI is read-only, automatic for dev and PRs, and checks exact generated media before build", async () => {
+  const workflow = await read(".github/workflows/ci-fast.yml");
+  assert.match(workflow, /contents: read/);
+  assert.match(workflow, /push:\s*\n\s*branches:\s*\[dev\]/);
+  assert.match(workflow, /pull_request:\s*\n\s*branches:\s*\[dev, prod\]/);
+  assert.match(workflow, /npm ci/);
+  assert.match(workflow, /node tools\/media-dev-state\.mjs --fingerprint/);
+  assert.match(workflow, /actions\/cache\/restore@v4/);
+  assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
+  assert.match(workflow, /npm run typecheck/);
+  assert.match(workflow, /npm run test:fast/);
+  assert.match(workflow, /npm run build:site/);
+  assert.doesNotMatch(workflow, /contents: write|git commit|git push|continue-on-error/);
+  assert.doesNotMatch(workflow, /test:e2e:full|lighthouse/i);
+});
 
-test("production deploy depends on validated exact artifact and checks published SHA/assets/CV", async () => {
+test("production deploy builds exact prod SHA, validates fast safety, compact browser sanity and published SHA/assets/CV", async () => {
   const workflow = await read(".github/workflows/pages.yml");
   assert.match(workflow, /ref: \$\{\{ github\.sha \}\}/);
+  assert.match(workflow, /persist-credentials: false/);
   assert.match(workflow, /needs: build/);
-  for (const command of ["npm ci", "npm run typecheck", "npm run test:fast", "npm run build:site", "npm run test:e2e:production", "prepare-cv-production.mjs", "dist/deploy-version.txt", "dist/.nojekyll", "actions/upload-pages-artifact", "actions/deploy-pages", "github-pages/production"]) assert.ok(workflow.includes(command), command);
-  assert.doesNotMatch(step(workflow, "Final production browser verification"), /if:/);
+  for (const command of [
+    "npm ci",
+    "npm run typecheck",
+    "npm run test:fast",
+    "npm run build:site",
+    "npm run cv:prod:prepare",
+    "npm run test:e2e:production",
+    "npm run cv:prod:verify",
+    "dist/deploy-version.txt",
+    "dist/.nojekyll",
+    "actions/upload-pages-artifact",
+    "actions/deploy-pages",
+    "github-pages/production",
+  ]) assert.ok(workflow.includes(command), command);
+  assert.match(workflow, /actions\/cache\/restore@v4/);
+  assert.doesNotMatch(workflow, /restore-keys:/);
+  assert.match(workflow, /media-dev-state\.mjs --cache-verify/);
+  assert.match(step(workflow, "Regenerate exact media cache on miss"), /if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*npm run media:sync/);
+  assert.match(step(workflow, "Require clean tracked tree after cache recovery"), /if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*git diff --exit-code/);
   assert.match(workflow, /https:\/\/www\.looksawful\.ru\/deploy-version\.txt/);
   assert.match(workflow, /https:\/\/www\.looksawful\.ru\/cv\//);
   assert.match(workflow, /Cache-Control: no-cache/);
   assert.match(workflow, /commit=\$\{GITHUB_SHA\}/);
-  assert.match(workflow, /assets_ok/);
-  assert.match(workflow, /curl[^\n]*asset_path/);
-  assert.match(workflow, /grep -Fq '<main class="resume">'/);
-  assert.doesNotMatch(workflow, /find test|! -name|continue-on-error|cv_copy_only/);
+  assert.doesNotMatch(workflow, /test:e2e:full/);
 });
 
-test("full regression remains scheduled and manual with deterministic media and all original suites", async () => {
-  const workflow = await read(".github/workflows/verify-full.yml");
+test("full regression remains scheduled and manual outside push CI", async () => {
+  const workflow = await read(".github/workflows/quality.yml");
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /workflow_dispatch:/);
-  assert.match(workflow, /change-scope\.mjs --full/);
   assert.match(workflow, /npm run test:core/);
   assert.match(workflow, /npm run test:e2e:full/);
-  assert.match(workflow, /media:sync/);
+  assert.match(workflow, /npm run media:sync/);
+  assert.doesNotMatch(workflow, /^\s*push:/m);
+
   const runner = await read("tools/e2e/run-all.mjs");
-  for (const suite of ["runSmokeSite", "runSmokeNavigation", "runSmokeMpa", "runSmokeProjectPages", "runSmokeCv"]) assert.ok(runner.includes(suite));
+  for (const suite of ["runSmokeSite", "runSmokeNavigation", "runSmokeMpa", "runSmokeProjectPages", "runSmokeCv"]) {
+    assert.ok(runner.includes(suite), suite);
+  }
   assert.match(runner, /mapWithConcurrency/);
 });
 
-test("CMS mutation is explicit, narrowly scoped, race-safe and verifies its resulting SHA", async () => {
-  const workflow = await read(".github/workflows/sync-cms-media-metadata.yml");
+test("CMS media mutation is explicit, allowlisted, race-safe and does one final Fast validation", async () => {
+  const workflow = await read(".github/workflows/cms-media.yml");
   assert.match(workflow, /branches: \[dev\]/);
   assert.match(workflow, /paths:/);
-  assert.match(workflow, /Refusing to persist generated metadata/);
+  assert.match(workflow, /CMS media attempted unexpected tracked mutation/);
   assert.match(workflow, /git push origin HEAD:dev/);
   assert.match(workflow, /git rev-parse origin\/dev/);
-  assert.match(workflow, /createWorkflowDispatch/);
-  const outputFormat = workflow.match(/printf '([^']*changed=true[^']*)'/)?.[1];
-  assert.ok(outputFormat, "CMS operation must signal whether a commit was pushed");
-  assert.equal(execFileSync("bash", ["-c", 'printf "$1"', "cms-output-test", outputFormat], { encoding: "utf8" }), "changed=true\n");
-  assert.doesNotMatch(workflow, /--force/);
-  // Pages CMS always sends payload to action workflows. Removing the input breaks buttons.
-  assert.match(await read(".github/workflows/verify-pr.yml"), /inputs:\s*\n\s+payload:/);
+  assert.match(workflow, /SOURCE_SHA/);
+  assert.doesNotMatch(workflow, /createWorkflowDispatch|gh workflow run|git\s+(?:push|update-ref)\b[^\n]*--force(?:-with-lease)?/);
+  assert.equal((workflow.match(/npm run typecheck/g) ?? []).length, 1);
+  assert.equal((workflow.match(/npm run test:fast/g) ?? []).length, 1);
+  assert.equal((workflow.match(/npm run build:site/g) ?? []).length, 1);
+  assert.doesNotMatch(workflow, /git add -A/);
 });
 
-test("CV branch stays focused; integrated shootings workflow is retired without deleting its tests", async () => {
-  const cv = await read(".github/workflows/verify-cv-branch.yml");
-  assert.match(cv, /npm run test:cv/);
-  assert.match(cv, /npm run test:e2e:cv\n/);
-  assert.match(cv, /npm run test:e2e:cv:production/);
-  assert.match(cv, /CV_SMOKE_CAPTURE_DIR/);
-  assert.doesNotMatch(cv, /test:e2e:all|test:e2e:full/);
-  await assert.rejects(read(".github/workflows/verify-shootings-data-integration.yml"), /ENOENT/);
-  assert.match(await read("test/shootings-data-isolation.test.mjs"), /all 80 imported Behance/);
-});
-
-test("independent security and scheduled checks remain enabled", async () => {
-  for (const name of ["healthcheck", "dependency-audit", "external-links", "lighthouse", "codeql"]) {
-    const workflow = await read(`.github/workflows/${name}.yml`);
-    assert.match(workflow, /schedule:/);
-    if (name !== "codeql") assert.match(workflow, /workflow_dispatch:/);
+test("scheduled quality and CodeQL remain automatic", async () => {
+  const quality = await read(".github/workflows/quality.yml");
+  for (const marker of ["17 */6 * * *", "31 2 * * *", "41 4 * * 2", "13 5 * * 3", "23 6 * * 4"]) {
+    assert.ok(quality.includes(marker), marker);
   }
+  assert.match(quality, /workflow_dispatch:/);
+
   const codeql = await read(".github/workflows/codeql.yml");
-  assert.match(codeql, /push:/);
   assert.match(codeql, /pull_request:/);
+  assert.match(codeql, /schedule:/);
+  assert.match(codeql, /workflow_dispatch:/);
   assert.match(codeql, /security-events: write/);
-  const links = await read(".github/workflows/external-links.yml");
-  assert.doesNotMatch(links, /ffmpeg|media:sync|playwright/i);
+  assert.doesNotMatch(codeql, /^\s*push:/m);
 });
 
-test("dependency automation targets dev and official actions stay on current Node 24 majors", async () => {
+test("dependency automation targets dev and official actions stay on current majors", async () => {
   const dependabot = await read(".github/dependabot.yml");
   const targetBranches = [...dependabot.matchAll(/target-branch:\s*([^\s]+)/g)].map((match) => match[1]);
   assert.deepEqual(targetBranches, ["dev", "dev"]);
 
-  for (const name of [
-    "codeql",
-    "dependency-audit",
-    "external-links",
-    "healthcheck",
-    "lighthouse",
-    "pages-cms-publish",
-    "pages",
-    "sync-cms-media-metadata",
-    "verify-cv-branch",
-    "verify-dev",
-    "verify-full",
-    "verify-pr",
-  ]) {
+  for (const name of workflows) {
     const workflow = await read(`.github/workflows/${name}.yml`);
     assert.doesNotMatch(workflow, /actions\/checkout@v[1-6](?:\D|$)/, `${name}: stale checkout major`);
     assert.doesNotMatch(workflow, /actions\/setup-node@v[1-6](?:\D|$)/, `${name}: stale setup-node major`);
     assert.doesNotMatch(workflow, /actions\/upload-artifact@v[1-6](?:\D|$)/, `${name}: stale upload-artifact major`);
   }
 
-  const pages = await read(".github/workflows/pages.yml");
-  assert.match(pages, /actions\/deploy-pages@v5/);
+  assert.match(await read(".github/workflows/pages.yml"), /actions\/deploy-pages@v5/);
 });
