@@ -147,11 +147,19 @@ Any mismatch blocks publication preparation.
 
 ## 9. Branch topology gate
 
-The trusted workflow fetches current `origin/prod` and `origin/dev` and evaluates topology before file authorization.
+The trusted workflow fetches current `origin/prod` and `origin/dev` and evaluates both Git history and content trees before file authorization.
 
-### prod == dev
+The topology decision is owned by:
 
-Result:
+```text
+tools/cms-publication-topology.mjs
+```
+
+A normal `dev -> prod` pull-request merge creates a production merge commit that does not exist on `dev`. Therefore Git ancestry alone is not a valid publication invariant.
+
+### identical refs or identical trees
+
+If both refs are identical, or the SHAs differ only because of release merge history while both refs point to identical content trees, the result is:
 
 ```text
 Nothing to publish.
@@ -161,20 +169,25 @@ Successful no-op. No PR is created.
 
 ### prod is ancestor of dev
 
-The workflow inspects the exact current `origin/prod..origin/dev` changed-file set and passes it to the trusted publication classifier.
+This is the simple linear case. The workflow inspects the exact current `origin/prod..origin/dev` changed-file set and passes it to the trusted publication classifier.
 
-### dev behind prod or branches diverged
+### histories diverged after a normal release merge
 
-Publication preparation is blocked before classifier/PR operations.
+Diverged history is not automatically unsafe. The topology guard computes the tree that would result from merging current `prod` back into current `dev` without changing either branch.
 
-Expected diagnostic:
+Publication may continue only when that hypothetical merge is conflict-free and produces exactly the current `dev` tree. In other words, `prod` may contain release-only merge history, but it must not contain production-only content that is missing from `dev`.
 
-```text
-dev is not a linear descendant of prod.
-Synchronize dev before preparing CMS publication.
-```
+The exact `origin/prod..origin/dev` file set is still classified afterward. Content-aligned history does not bypass the CMS publication scope classifier.
 
-Synchronize through the normal engineering workflow. Do not rewrite permanent branch history.
+### prod contains content missing from dev, or merge conflicts
+
+Publication preparation is blocked before classifier/PR operations when:
+
+- merging `prod` into `dev` would add or change content;
+- the hypothetical merge conflicts;
+- topology cannot be proven safely.
+
+Synchronize through the normal engineering workflow. Do not rewrite permanent branch history and do not bypass this guard.
 
 ## 10. CMS publication classifier
 
@@ -387,7 +400,7 @@ If publication is blocked by `ENGINEERING`, `UNKNOWN` or branch topology, do not
 [ ] Pages CMS source branch is dev
 [ ] only intended authored/media fields changed
 [ ] automatic/manual dev verification is green
-[ ] current dev is a linear descendant of prod
+[ ] topology guard reports a safe state and no production-only content/conflict is missing from dev
 [ ] trusted prod publication gate authorizes the complete prod..dev diff
 [ ] dev -> prod PR exists
 [ ] PR checks are green
