@@ -21,6 +21,7 @@ test("site smoke waits for a lightbox-open condition before asserting state", as
 test("video resume smoke proves a non-zero seek without failing as autoplay advances", async () => {
   const smoke = await read("tools/smoke-site.mjs");
 
+  // The lightbox may already be playing by the time state is sampled; only regressions toward zero are invalid.
   assert.match(smoke, /video\.duration > 5 \? 2 : video\.duration > 0\.6 \? 0\.25 : 0/);
   assert.match(smoke, /state\.videoCurrentTime \+ 0\.15 >= expected\.resumeAt/);
   assert.doesNotMatch(smoke, /Math\.abs\(state\.videoCurrentTime - expected\.resumeAt\) < 0\.35/);
