@@ -20,6 +20,8 @@ test("explicit Pages CMS-owned content paths are publishable", () => {
     "src/content/projects.json",
     "src/content/client-logo-visibility.json",
     "src/content/cv.json",
+    "src/content/editorial/cv.json",
+    "src/content/editorial/home-project-cards.json",
     "src/content/cases/jestei-pool.json",
     "src/content/cases/styx.json",
     "src/content/cases/sensetique.json",
@@ -125,6 +127,8 @@ test("file classification normalizes paths, removes empty/duplicate inputs and s
 test("safe CMS content/media/generated combinations are allowed", () => {
   const result = classifyCmsPublicationFiles([
     "src/content/cases/jestei-pool.json",
+    "src/content/editorial/cv.json",
+    "src/content/editorial/home-project-cards.json",
     "src/content/media-catalog/uploads/74f88a53-7663-4eb4-a1cb-d300f219d8ab.json",
     "public/media/catalog/example.webp",
     "public/media/generated/video-inventory.json",
