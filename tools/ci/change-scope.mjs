@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 const rules = [
   ["cv", /^(public\/cv\/|src\/(content\/cv[^/]*|data\/cv[^/]*)|tools\/(apply-cv-content|prepare-cv-production|smoke-cv)\.mjs$|tools\/lib\/cv-content\.mjs$|test\/cv-)/],
   ["navigation", /^(src\/(content\/navigation\.json|data\/navigation\.ts|components\/site-nav[^/]*|styles\/site-nav[^/]*)|test\/(site-navigation|navigation-labels|project-navigation)|tools\/smoke-site-navigation\.mjs$)/],
-  ["media", /^(public\/media\/|media\/|src\/content\/(media-catalog\/|projects\.json$)|src\/data\/media\/|src\/types\/media\.ts$|tools\/(build-responsive-media|build-video-media|media-dev-state|sync-media-catalog)\.mjs$|test\/(media-|responsive-|video-delivery))/],
   ["media-desk", /^(src\/tools\/media-desk\/|tools\/media-desk\/|tools\/e2e\/run-media-desk\.mjs$|test\/media-desk)/],
+  ["media", /^(public\/media\/|media\/|src\/content\/(media-catalog\/|projects\.json$)|src\/data\/media\/|src\/types\/media\.ts$|tools\/(build-responsive-media|build-video-media|media-dev-state|sync-media-catalog)\.mjs$|test\/(media-|responsive-|video-delivery))/],
   ["dependencies", /^package(-lock)?\.json$/],
   ["project-pages", /^(work\/(awful-cases|moves-awful|berry-social-content-2020)\/|src\/(content|data\/content)\/(awful-cases|moves-awful|berry)[^/]*|test\/(awful-cases|moves-awful|berry)|tools\/smoke-project-pages\.mjs$)/],
   ["shared-runtime", /^(src\/(main\.|interactive\.|motion\/|components\/|templates\/|types\/|site\/|styles\/(index|base|tokens|layout|reset|components)\.)|tools\/(e2e\/|ci\/change-scope\.mjs$|smoke-site\.mjs$|smoke-mpa\.mjs$|capture-caption-qa\.mjs$))/],
