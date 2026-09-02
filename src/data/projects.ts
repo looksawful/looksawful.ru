@@ -1,4 +1,5 @@
-import projectsJson from "../content/projects.json" with { type: "json" };
+import projectStructureJson from "../content/projects.json" with { type: "json" };
+import projectCopyJson from "../content/editorial/home-project-cards.json" with { type: "json" };
 import type { CaseId } from "./catalog/cases.ts";
 import type { CollectionId } from "./catalog/collections.ts";
 import { getCase, getCollection, getRole } from "./catalog/lookup.ts";
@@ -38,15 +39,19 @@ export interface ProjectCardPresentation {
   };
 }
 
-interface ProjectCardEditorialSource {
+interface ProjectCardStructureSource {
   id: ProjectCardId;
   visible: boolean;
+  cover: Omit<ProjectCardPresentation["cover"], "alt">;
+}
+
+interface ProjectCardCopySource {
   title?: string;
   focus: string;
   role?: string;
   period?: string;
   ariaLabel?: string;
-  cover: ProjectCardPresentation["cover"];
+  coverAlt: string;
 }
 
 interface CanonicalProjectCardCopy {
@@ -55,7 +60,8 @@ interface CanonicalProjectCardCopy {
   period?: string;
 }
 
-const rawProjectCards: unknown = projectsJson;
+const rawProjectStructure: unknown = projectStructureJson;
+const rawProjectCopy: unknown = projectCopyJson;
 
 function optionalEditorialOverride(record: Record<string, unknown>, key: string, label: string): string | undefined {
   if (!(key in record) || record[key] === undefined || record[key] === null) return undefined;
@@ -92,81 +98,90 @@ function resolveCanonicalProjectCardCopy(pageId: ProjectCardPageId): CanonicalPr
   };
 }
 
-function parseProjectCardSource(value: unknown, index: number): ProjectCardEditorialSource {
-  const label = `projectCards[${index}]`;
+function parseStructure(value: unknown, index: number): ProjectCardStructureSource {
+  const label = `projectCardStructure[${index}]`;
   const record = expectRecord(value, label);
-  expectAllowedKeys(
-    record,
-    ["id", "visible", "title", "focus", "role", "period", "ariaLabel", "cover"],
-    ["id", "visible", "cover"],
-    label,
-  );
+  expectAllowedKeys(record, ["id", "visible", "cover"], ["id", "visible", "cover"], label);
 
   const idValue = expectStructuralString(record.id, `${label}.id`);
   const definition = PROJECT_CARD_PRESENTATION_DEFINITIONS.find(({ id }) => id === idValue);
   if (!definition) throw new Error(`${label}.id is unexpected: ${idValue}`);
 
   const coverRecord = expectRecord(record.cover, `${label}.cover`);
-  expectAllowedKeys(
-    coverRecord,
-    ["src", "alt", "width", "height"],
-    ["src", "width", "height"],
-    `${label}.cover`,
-  );
+  expectAllowedKeys(coverRecord, ["src", "width", "height"], ["src", "width", "height"], `${label}.cover`);
 
   return {
     id: definition.id,
     visible: expectBoolean(record.visible, `${label}.visible`),
-    title: optionalEditorialOverride(record, "title", label),
-    focus: readEditorialText(record.focus, `${label}.focus`),
-    role: optionalEditorialOverride(record, "role", label),
-    period: optionalEditorialOverride(record, "period", label),
-    ariaLabel: optionalEditorialText(record, "ariaLabel", label),
     cover: {
       src: expectStructuralString(coverRecord.src, `${label}.cover.src`),
-      alt: readEditorialText(coverRecord.alt, `${label}.cover.alt`),
       width: expectPositiveInteger(coverRecord.width, `${label}.cover.width`),
       height: expectPositiveInteger(coverRecord.height, `${label}.cover.height`),
     },
   };
 }
 
-export function parseProjectCardPresentations(value: unknown): readonly ProjectCardPresentation[] {
-  if (!Array.isArray(value)) throw new Error("project-card content must be an array");
+function parseCopy(value: unknown, id: ProjectCardId): ProjectCardCopySource {
+  const label = `projectCardCopy.${id}`;
+  const record = expectRecord(value, label);
+  expectAllowedKeys(record, ["title", "focus", "role", "period", "ariaLabel", "coverAlt"], ["focus", "coverAlt"], label);
 
-  const parsed = value.map(parseProjectCardSource);
-  const sourceById = new Map<ProjectCardId, ProjectCardEditorialSource>();
-  for (const card of parsed) {
-    if (sourceById.has(card.id)) throw new Error(`duplicate project-card id: ${card.id}`);
-    sourceById.set(card.id, card);
+  return {
+    title: optionalEditorialOverride(record, "title", label),
+    focus: readEditorialText(record.focus, `${label}.focus`),
+    role: optionalEditorialOverride(record, "role", label),
+    period: optionalEditorialOverride(record, "period", label),
+    ariaLabel: optionalEditorialText(record, "ariaLabel", label),
+    coverAlt: readEditorialText(record.coverAlt, `${label}.coverAlt`),
+  };
+}
+
+export function parseProjectCardPresentations(
+  structureValue: unknown = rawProjectStructure,
+  copyValue: unknown = rawProjectCopy,
+): readonly ProjectCardPresentation[] {
+  if (!Array.isArray(structureValue)) throw new Error("project-card structure must be an array");
+  const copyRecord = expectRecord(copyValue, "projectCardCopy");
+  expectAllowedKeys(
+    copyRecord,
+    PROJECT_CARD_PRESENTATION_DEFINITIONS.map(({ id }) => id),
+    PROJECT_CARD_PRESENTATION_DEFINITIONS.map(({ id }) => id),
+    "projectCardCopy",
+  );
+
+  const parsedStructure = structureValue.map(parseStructure);
+  const structureById = new Map<ProjectCardId, ProjectCardStructureSource>();
+  for (const card of parsedStructure) {
+    if (structureById.has(card.id)) throw new Error(`duplicate project-card id: ${card.id}`);
+    structureById.set(card.id, card);
   }
-
-  if (parsed.length !== PROJECT_CARD_PRESENTATION_DEFINITIONS.length) {
-    throw new Error(`project-card count must remain ${PROJECT_CARD_PRESENTATION_DEFINITIONS.length}; got ${parsed.length}`);
+  if (parsedStructure.length !== PROJECT_CARD_PRESENTATION_DEFINITIONS.length) {
+    throw new Error(`project-card count must remain ${PROJECT_CARD_PRESENTATION_DEFINITIONS.length}; got ${parsedStructure.length}`);
   }
 
   const resolved = PROJECT_CARD_PRESENTATION_DEFINITIONS.map((definition) => {
-    const source = sourceById.get(definition.id);
-    if (!source) throw new Error(`missing required project-card id: ${definition.id}`);
+    const structure = structureById.get(definition.id);
+    if (!structure) throw new Error(`missing required project-card id: ${definition.id}`);
+    const copy = parseCopy(copyRecord[definition.id], definition.id);
     const canonical = resolveCanonicalProjectCardCopy(definition.pageId);
 
     return {
       id: definition.id,
       pageId: definition.pageId,
-      visible: source.visible,
-      title: source.title ?? canonical.title,
-      focus: source.focus,
-      role: source.role ?? canonical.role,
-      period: source.period ?? canonical.period,
-      ariaLabel: source.ariaLabel,
-      cover: Object.freeze({ ...source.cover }),
+      visible: structure.visible,
+      title: copy.title ?? canonical.title,
+      focus: copy.focus,
+      role: copy.role ?? canonical.role,
+      period: copy.period ?? canonical.period,
+      ariaLabel: copy.ariaLabel,
+      cover: Object.freeze({ ...structure.cover, alt: copy.coverAlt }),
     } satisfies ProjectCardPresentation;
   });
 
   return Object.freeze(resolved.map((card) => Object.freeze(card)));
 }
 
-export const projectCardPresentations = parseProjectCardPresentations(rawProjectCards);
+export const projectCardPresentations = parseProjectCardPresentations();
 
 export function getVisibleProjectCardPresentations(
   source: readonly ProjectCardPresentation[] = projectCardPresentations,
