@@ -1,0 +1,206 @@
+name: Materialize minimal CI migration
+
+on:
+  push:
+    branches:
+      - agent/minimal-ci-migration-20260902
+    paths:
+      - .github/workflows/_materialize-minimal-ci.yml
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Materialize repository state
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+          import path from 'node:path';
+
+          const root = process.cwd();
+          const p = (value) => path.join(root, value);
+          const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
+
+          async function exists(relative) {
+            try { await stat(p(relative)); return true; } catch { return false; }
+          }
+
+          async function move(source, destination) {
+            if (!(await exists(source))) return;
+            await mkdir(path.dirname(p(destination)), { recursive: true });
+            await rename(p(source), p(destination));
+          }
+
+          async function moveJsonDir(sourceDir, destinationDir) {
+            if (!(await exists(sourceDir))) return;
+            await mkdir(p(destinationDir), { recursive: true });
+            for (const name of await readdir(p(sourceDir))) {
+              if (!name.endsWith('.json')) continue;
+              await move(`${sourceDir}/${name}`, `${destinationDir}/${name}`);
+            }
+            await rm(p(sourceDir), { recursive: true, force: true });
+          }
+
+          const skipDirs = new Set(['.git', 'node_modules', 'dist', '.cache']);
+          const textExtensions = new Set(['.ts', '.mjs', '.js', '.json', '.yml', '.yaml', '.md', '.html']);
+          async function walk(dir, files = []) {
+            for (const entry of await readdir(dir, { withFileTypes: true })) {
+              if (entry.isDirectory() && skipDirs.has(entry.name)) continue;
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) await walk(full, files);
+              else if (textExtensions.has(path.extname(entry.name))) files.push(full);
+            }
+            return files;
+          }
+
+          async function replaceAcrossRepo(replacements) {
+            for (const file of await walk(root)) {
+              let source = await readFile(file, 'utf8');
+              let next = source;
+              for (const [from, to] of replacements) next = next.split(from).join(to);
+              if (next !== source) await writeFile(file, next, 'utf8');
+            }
+          }
+
+          await mkdir(p('src/content/editorial'), { recursive: true });
+          await move('src/content/navigation.json', 'src/content/editorial/navigation.json');
+          await moveJsonDir('src/content/cases', 'src/content/editorial/cases');
+          await moveJsonDir('src/content/standalone-projects', 'src/content/editorial/standalone-projects');
+          await move('src/content/collections/shootings.json', 'src/content/editorial/collections/shootings.json');
+          await moveJsonDir('src/content/shootings', 'src/content/editorial/shootings');
+          await moveJsonDir('src/content/moves-awful', 'src/content/editorial/moves-awful');
+
+          const projectPath = p('src/content/projects.json');
+          const projects = JSON.parse(await readFile(projectPath, 'utf8'));
+          const projectCopy = {};
+          for (const project of projects) {
+            const copy = {};
+            for (const key of ['title', 'focus', 'role', 'period', 'ariaLabel']) {
+              if (key in project) {
+                copy[key] = project[key];
+                delete project[key];
+              }
+            }
+            if (project.cover && typeof project.cover === 'object' && 'alt' in project.cover) {
+              copy.coverAlt = project.cover.alt;
+              delete project.cover.alt;
+            }
+            projectCopy[project.id] = copy;
+          }
+          await writeFile(projectPath, json(projects));
+          await writeFile(p('src/content/editorial/home-project-cards.json'), json(projectCopy));
+
+          const cvPath = p('src/content/cv.json');
+          const cv = JSON.parse(await readFile(cvPath, 'utf8'));
+          const cvStructure = {
+            profile: {
+              contacts: {
+                phone: cv.profile.contacts.phone,
+                telegram: cv.profile.contacts.telegram,
+                instagram: cv.profile.contacts.instagram,
+                email: cv.profile.contacts.email,
+                website: cv.profile.contacts.website,
+              },
+            },
+            skills: Object.fromEntries(Object.entries(cv.skills).map(([sectionId, section]) => [
+              sectionId,
+              { visible: section.visible, titleVisible: section.titleVisible },
+            ])),
+            experience: Object.fromEntries(cv.experience.map((item) => [
+              item.id,
+              { visible: item.visible, links: item.links },
+            ])),
+          };
+          const cvEditorial = {
+            profile: {
+              name: cv.profile.name,
+              role: cv.profile.role,
+              aboutPrimary: cv.profile.aboutPrimary,
+              aboutSecondary: cv.profile.aboutSecondary,
+              location: cv.profile.contacts.location,
+              principles: Object.fromEntries(cv.profile.principles.map(({ id, title, text }) => [id, { title, text }])),
+              languages: Object.fromEntries(cv.profile.languages.map(({ id, name, level }) => [id, { name, level }])),
+            },
+            skills: Object.fromEntries(Object.entries(cv.skills).map(([sectionId, section]) => [
+              sectionId,
+              {
+                title: section.title,
+                rows: Object.fromEntries(section.rows.map(({ id, label, text }) => [id, { label, text }])),
+              },
+            ])),
+            education: {
+              higherTitle: cv.education.higherTitle,
+              higher: { name: cv.education.higher.name, lines: cv.education.higher.lines },
+              additionalTitle: cv.education.additionalTitle,
+              additional: Object.fromEntries(cv.education.additional.map(({ id, name, lines }) => [id, { name, lines }])),
+            },
+            experience: Object.fromEntries(cv.experience.map((item) => [
+              item.id,
+              {
+                company: item.company,
+                context: item.context,
+                period: item.period,
+                role: item.role,
+                description: item.description,
+                cases: item.cases,
+                facts: item.facts,
+              },
+            ])),
+          };
+          await writeFile(cvPath, json(cvStructure));
+          await writeFile(p('src/content/editorial/cv.json'), json(cvEditorial));
+
+          await replaceAcrossRepo([
+            ['src/content/navigation.json', 'src/content/editorial/navigation.json'],
+            ['content/navigation.json', 'content/editorial/navigation.json'],
+            ['src/content/cases/', 'src/content/editorial/cases/'],
+            ['content/cases/', 'content/editorial/cases/'],
+            ['src/content/standalone-projects/', 'src/content/editorial/standalone-projects/'],
+            ['content/standalone-projects/', 'content/editorial/standalone-projects/'],
+            ['src/content/collections/shootings.json', 'src/content/editorial/collections/shootings.json'],
+            ['content/collections/shootings.json', 'content/editorial/collections/shootings.json'],
+            ['src/content/shootings/', 'src/content/editorial/shootings/'],
+            ['content/shootings/', 'content/editorial/shootings/'],
+            ['src/content/moves-awful/', 'src/content/editorial/moves-awful/'],
+            ['content/moves-awful/', 'content/editorial/moves-awful/'],
+          ]);
+
+          const pagesPath = p('.pages.yml');
+          let pages = await readFile(pagesPath, 'utf8');
+          pages = pages.replace('path: src/content/cv.json', 'path: src/content/editorial/cv.json');
+          await writeFile(pagesPath, pages, 'utf8');
+
+          const packagePath = p('package.json');
+          const pkg = JSON.parse(await readFile(packagePath, 'utf8'));
+          pkg.scripts.dev = 'vite';
+          pkg.scripts.build = 'npm run build:site';
+          pkg.scripts['quality:dependency-audit'] = 'npm audit --audit-level=high';
+          pkg.scripts['quality:external-links'] = 'node tools/check-external-links.mjs';
+          pkg.scripts['quality:health'] = 'node tools/check-production-health.mjs';
+          pkg.scripts['quality:lighthouse'] = 'node tools/run-lighthouse-production.mjs';
+          pkg.scripts['cv:prod:prepare'] = 'node tools/prepare-cv-production.mjs';
+          pkg.scripts['cv:prod:verify'] = 'node tools/verify-cv-production.mjs';
+          await writeFile(packagePath, json(pkg));
+          NODE
+
+          npm run cms:generate
+          git rm tools/_apply-minimal-ci.mjs .github/workflows/_materialize-minimal-ci.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .pages.yml package.json src/content src/data test tools .github/workflows
+          git status --short
+          git commit -m "refactor: materialize editorial content boundary"
+          git push origin HEAD:agent/minimal-ci-migration-20260902
