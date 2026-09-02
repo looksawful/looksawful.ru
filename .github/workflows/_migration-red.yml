@@ -20,4 +20,17 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - name: Patch migration runner
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const file = 'tools/_apply-minimal-ci.mjs';
+          let source = readFileSync(file, 'utf8');
+          const needle = "  replaceAcrossRepo([\n    ['src/content/navigation.json', 'src/content/editorial/navigation.json'],";
+          const replacement = `${needle}\n    ['content/navigation.json', 'content/editorial/navigation.json'],`;
+          if (!source.includes(needle)) throw new Error('navigation replacement marker not found');
+          source = source.replace(needle, replacement);
+          writeFileSync(file, source);
+          NODE
       - run: node tools/_apply-minimal-ci.mjs
