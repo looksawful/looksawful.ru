@@ -1,0 +1,129 @@
+name: CMS media
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'src/content/projects.json'
+      - 'public/media/projects/index/**'
+      - 'public/media/catalog/**'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: cms-media-dev
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Classify media mutation
+        id: scope
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          has_image=false
+          has_video=false
+          has_source=false
+          while IFS= read -r file; do
+            case "${file,,}" in
+              *.jpg|*.jpeg|*.png|*.webp|*.avif|*.gif) has_image=true; has_source=true ;;
+              *.mov|*.mp4|*.m4v|*.webm) has_video=true; has_source=true ;;
+            esac
+          done < <(git diff --name-only "$BEFORE" "$HEAD_SHA")
+          printf 'has_image=%s\nhas_video=%s\nhas_source=%s\n' "$has_image" "$has_video" "$has_source" >> "$GITHUB_OUTPUT"
+      - name: Restore generated media
+        if: steps.scope.outputs.has_source == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+          key: generated-media-v4-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/content/media-catalog/**/*.json', 'src/data/media/assets/**/*.ts', 'src/data/media/catalog*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/sync-media-catalog.mjs', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
+          restore-keys: |
+            generated-media-v4-${{ runner.os }}-
+      - name: Synchronize catalog index
+        if: steps.scope.outputs.has_source == 'true'
+        run: npm run media:catalog:sync
+      - name: Install video tooling
+        if: steps.scope.outputs.has_video == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes ffmpeg
+          fi
+      - name: Build video derivatives
+        if: steps.scope.outputs.has_video == 'true'
+        run: npm run media:video:build
+      - name: Build image derivatives
+        if: steps.scope.outputs.has_image == 'true'
+        run: npm run media:build
+      - name: Record media state
+        if: steps.scope.outputs.has_source == 'true'
+        run: node tools/media-dev-state.mjs --write
+      - name: Validate media references
+        run: npm run test:media:contract
+      - name: Validate generated media
+        if: steps.scope.outputs.has_source == 'true'
+        run: npm run test:media:checks
+      - name: Persist normalized metadata
+        id: persist
+        if: steps.scope.outputs.has_source == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          metadata=(
+            src/data/media/catalog-records.generated.ts
+            public/media/generated/responsive-manifest.json
+            public/media/generated/video-inventory.json
+            src/data/media/responsive-generated.ts
+            src/content/media-catalog/registered
+            src/content/media-catalog/uploads
+          )
+          if git diff --quiet -- "${metadata[@]}"; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- "${metadata[@]}"
+          git commit -m 'chore(media): sync CMS media metadata'
+          git fetch origin dev
+          if [[ "$(git rev-parse HEAD^)" != "$(git rev-parse origin/dev)" ]]; then
+            echo 'dev advanced during media synchronization' >&2
+            exit 1
+          fi
+          git push origin HEAD:dev
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+      - name: Run Fast CI for final source-upload state
+        if: steps.scope.outputs.has_source == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              ...context.repo,
+              workflow_id: "ci-fast.yml",
+              ref: "dev",
+            });
