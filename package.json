@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "desk": "npm run media:ensure && vite --open /tools/media-desk/",
+    "desk": "npm run media:ensure && node tools/run-content-desk.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "cms:generate": "node tools/generate-pages-cms-options.mjs",
     "cms:check": "node tools/generate-pages-cms-options.mjs --check",

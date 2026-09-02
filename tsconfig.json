@@ -4,13 +4,14 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "types": ["vite/client"],
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "strict": true,
     "noEmit": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "vite.config.ts"],
+  "include": ["src/**/*.ts", "vite.config.ts"]
 }

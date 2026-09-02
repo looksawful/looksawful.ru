@@ -68,6 +68,7 @@ function option(value: string, label: string): HTMLOptionElement {
 
 function updateUrl(): void {
   const next = new URLSearchParams();
+  if (params.get("view") === "text") next.set("view", "text");
   if (state.search) next.set("q", state.search);
   if (state.mediaType !== "all") next.set("type", state.mediaType);
   if (state.projectId) next.set("project", state.projectId);
