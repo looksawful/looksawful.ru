@@ -25,7 +25,7 @@ const DEFAULT_CONFIG_FILES = [
   "src/data/media/assets/index.ts",
   "src/data/media/assets/registered.ts",
   "src/data/media/catalog.ts",
-  "src/data/media/media-catalog.json",
+  "src/data/media/catalog-records.generated.ts",
   "package-lock.json",
 ];
 
