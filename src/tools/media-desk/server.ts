@@ -1,5 +1,5 @@
-import { access, readFile, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { access, readFile, readdir, writeFile } from "node:fs/promises";
+import { join, resolve } from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
 
@@ -7,11 +7,29 @@ import {
   parseRegisteredMediaCatalogRecord,
   parseUploadedMediaCatalogRecord,
 } from "../../data/media/catalog.ts";
-import { applyMediaEditorialPatch } from "./editor-model.ts";
+import {
+  applyMediaEditorialPatch,
+  collectContentDeskTextEntries,
+  type ContentDeskTextEntry,
+} from "./editor-model.ts";
 
-const API_PATH = "/__media-desk/metadata";
+const METADATA_API_PATH = "/__media-desk/metadata";
+const TEXTS_API_PATH = "/__media-desk/texts";
 const MAX_BODY_BYTES = 128 * 1024;
 const SAFE_ASSET_ID = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
+const TEXT_SOURCE_FILES = [
+  "src/content/navigation.json",
+  "src/content/projects.json",
+] as const;
+
+const TEXT_SOURCE_DIRECTORIES = [
+  "src/content/editorial",
+  "src/content/cases",
+  "src/content/collections",
+  "src/content/shootings",
+  "src/content/standalone-projects",
+] as const;
 
 interface SaveRequest {
   id: string;
@@ -85,6 +103,37 @@ async function existingRecordPath(root: string, id: string): Promise<{
   throw new Error(`Media catalog record "${id}" was not found`);
 }
 
+async function readTextSource(root: string, sourcePath: string): Promise<[string, unknown]> {
+  const absolutePath = resolve(root, sourcePath);
+  return [sourcePath, JSON.parse(await readFile(absolutePath, "utf8"))];
+}
+
+export async function loadContentDeskTextEntries(root: string): Promise<readonly ContentDeskTextEntry[]> {
+  const sources: Record<string, unknown> = {};
+
+  for (const sourcePath of TEXT_SOURCE_FILES) {
+    const [path, value] = await readTextSource(root, sourcePath);
+    sources[path] = value;
+  }
+
+  for (const directoryPath of TEXT_SOURCE_DIRECTORIES) {
+    const absoluteDirectory = resolve(root, directoryPath);
+    const entries = await readdir(absoluteDirectory, { withFileTypes: true });
+    const jsonFiles = entries
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
+      .map((entry) => entry.name)
+      .sort();
+
+    for (const filename of jsonFiles) {
+      const sourcePath = join(directoryPath, filename).replaceAll("\\", "/");
+      const [path, value] = await readTextSource(root, sourcePath);
+      sources[path] = value;
+    }
+  }
+
+  return collectContentDeskTextEntries(sources);
+}
+
 export async function saveMediaDeskMetadata(
   root: string,
   request: SaveRequest,
@@ -111,9 +160,24 @@ export function createMediaDeskWritePlugin(root: string): Plugin {
     name: "looksawful-media-desk-write",
     apply: "serve",
     configureServer(server) {
+      server.middlewares.use(TEXTS_API_PATH, async (request, response) => {
+        if (request.method !== "GET") {
+          json(response, 405, { ok: false, error: "Method not allowed" });
+          return;
+        }
+
+        try {
+          const entries = await loadContentDeskTextEntries(root);
+          json(response, 200, { ok: true, entries });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Unknown Content Desk error";
+          json(response, 500, { ok: false, error: message });
+        }
+      });
+
       if (process.env.CONTENT_DESK_WRITE !== "1") return;
 
-      server.middlewares.use(API_PATH, async (request, response) => {
+      server.middlewares.use(METADATA_API_PATH, async (request, response) => {
         if (request.method !== "POST") {
           json(response, 405, { ok: false, error: "Method not allowed" });
           return;
