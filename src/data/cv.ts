@@ -1,4 +1,4 @@
-import cvJson from "../content/cv.json" with { type: "json" };
+import { cvSourceJson as cvJson } from "./cv-source.ts";
 import {
   expectAllowedKeys,
   expectBoolean,

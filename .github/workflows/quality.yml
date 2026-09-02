@@ -1,0 +1,137 @@
+name: Quality
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Quality suite to run
+        required: true
+        default: all
+        type: choice
+        options: [all, full-e2e, lighthouse, dependency-audit, external-links, health]
+  schedule:
+    - cron: "17 */6 * * *"
+    - cron: "31 2 * * *"
+    - cron: "41 4 * * 2"
+    - cron: "13 5 * * 3"
+    - cron: "23 6 * * 4"
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    if: github.event.schedule == '17 */6 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'health'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: prod
+          fetch-depth: 1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Verify production health and published SHA
+        shell: bash
+        run: |
+          export EXPECTED_PROD_SHA="$(git rev-parse HEAD)"
+          node tools/check-production.mjs
+
+  dependency-audit:
+    if: github.event.schedule == '41 4 * * 2' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'dependency-audit'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Audit production dependencies
+        run: npm run audit:deps
+
+  external-links:
+    if: github.event.schedule == '23 6 * * 4' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'external-links'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build:vite
+      - run: npm run cv:content:apply
+      - run: npm run check:external-links
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: external-links
+          path: artifacts/external-links
+          if-no-files-found: warn
+
+  full-e2e:
+    if: github.event.schedule == '31 2 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'full-e2e'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Rebuild and validate generated media
+        run: |
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+      - run: npm run typecheck
+      - run: npm run test:core
+      - run: npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Full browser regression
+        run: npm run test:e2e:full
+
+  lighthouse:
+    if: github.event.schedule == '13 5 * * 3' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'lighthouse'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Rebuild generated media
+        run: |
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+      - run: npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Lighthouse CI
+        shell: bash
+        run: |
+          export CHROME_PATH="$(node --input-type=module -e "import { chromium } from 'playwright'; process.stdout.write(chromium.executablePath())")"
+          npm run lighthouse
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse
+          path: artifacts/lighthouse
+          if-no-files-found: warn

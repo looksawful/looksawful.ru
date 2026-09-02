@@ -144,11 +144,8 @@ test("CV education transform edits copy safely while preserving code-owned links
 });
 
 test("CV education adapter fixes identity and order while allowing empty copy", async () => {
-  const [{ parseCvContent }, contentRaw] = await Promise.all([
-    import(cvDataModuleUrl.href),
-    readFile(cvContentUrl, "utf8"),
-  ]);
-  const current = JSON.parse(contentRaw);
+  const { parseCvContent, cvContent } = await import(cvDataModuleUrl.href);
+  const current = clone(cvContent);
 
   assert.throws(
     () => parseCvContent({ ...current, education: undefined }),
@@ -208,17 +205,16 @@ test("CV education transform restores code-owned course hrefs when source markup
   assert.match(transformed, /href="https:\/\/ru\.hexlet\.io\/"/);
 });
 
-test("Pages CMS exposes education copy but keeps href and layout code-owned", async () => {
+test("Pages CMS exposes keyed education copy while stable course identity and hrefs stay code-owned", async () => {
   const cmsConfig = await readFile(cmsConfigUrl, "utf8");
   const cvConfig = cmsConfig.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
   const educationConfig = cvConfig.match(/\n      - name: education\b[\s\S]*?(?=\n      - name: experience\b)/)?.[0] ?? "";
 
-  assert.match(educationConfig, /name: education\b[\s\S]*?type: object/);
   assert.match(educationConfig, /name: higherTitle\b[\s\S]*?type: string/);
-  assert.match(educationConfig, /name: higher\b[\s\S]*?name: id\b[\s\S]*?readonly: true/);
+  assert.match(educationConfig, /name: higher\b[\s\S]*?type: object/);
   assert.match(educationConfig, /name: additionalTitle\b[\s\S]*?type: string/);
-  assert.match(educationConfig, /name: additional\b[\s\S]*?list:/);
-  assert.match(educationConfig, /name: name\b[\s\S]*?type: string/);
-  assert.match(educationConfig, /name: lines\b[\s\S]*?list:/);
-  assert.doesNotMatch(educationConfig, /name: (href|url|target|rel|className|layout|column|html|markup)\b/);
+  assert.match(educationConfig, /name: additional\b[\s\S]*?type: object/);
+  assert.match(educationConfig, /name: hexlet\b[\s\S]*?type: object/);
+  assert.match(educationConfig, /name: lines\b[\s\S]*?list: true/);
+  assert.doesNotMatch(educationConfig, /- name: id\b|name: (href|url|target|rel|className|layout|column|html|markup)\b/);
 });

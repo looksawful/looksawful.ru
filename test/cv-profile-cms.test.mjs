@@ -113,11 +113,8 @@ test("CV profile transform escapes CMS text and preserves code-owned layout hook
 });
 
 test("CV content adapter protects profile identity while allowing empty copy", async () => {
-  const [{ parseCvContent }, contentRaw] = await Promise.all([
-    import(cvDataModuleUrl.href),
-    readFile(cvContentUrl, "utf8"),
-  ]);
-  const current = JSON.parse(contentRaw);
+  const { parseCvContent, cvContent } = await import(cvDataModuleUrl.href);
+  const current = clone(cvContent);
 
   const validProfile = { ...clone(expectedProfile), contacts: current.profile.contacts };
 
@@ -159,17 +156,18 @@ test("CV content adapter protects profile identity while allowing empty copy", a
   );
 });
 
-test("Pages CMS exposes CV profile copy but keeps structural controls out of the editor", async () => {
+test("Pages CMS exposes keyed profile copy while stable identity stays outside editorial JSON", async () => {
   const cmsConfig = await readFile(cmsConfigUrl, "utf8");
   const cvConfig = cmsConfig.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
+  const profileConfig = cvConfig.match(/\n      - name: profile\b[\s\S]*?(?=\n      - name: skills\b)/)?.[0] ?? "";
 
-  assert.match(cvConfig, /name: profile\b[\s\S]*?type: object/);
-  assert.match(cvConfig, /name: name\b[\s\S]*?type: string/);
-  assert.match(cvConfig, /name: role\b[\s\S]*?type: string/);
-  assert.match(cvConfig, /name: aboutPrimary\b[\s\S]*?type: text/);
-  assert.match(cvConfig, /name: aboutSecondary\b[\s\S]*?type: text/);
-  assert.match(cvConfig, /name: principles\b[\s\S]*?list:/);
-  assert.match(cvConfig, /name: languages\b[\s\S]*?list:/);
-  assert.match(cvConfig, /name: id\b[\s\S]*?readonly: true/);
-  assert.doesNotMatch(cvConfig, /name: (className|layout|route|canonical|portraitSrc|stylesheet|pageType)\b/);
+  for (const field of ["name", "role", "aboutPrimary", "aboutSecondary", "location"]) {
+    assert.match(profileConfig, new RegExp(`name: ${field}\\b`));
+  }
+  assert.match(profileConfig, /name: principles\b[\s\S]*?type: object/);
+  assert.match(profileConfig, /name: visual\b[\s\S]*?type: object/);
+  assert.match(profileConfig, /name: languages\b[\s\S]*?type: object/);
+  assert.match(profileConfig, /name: english\b[\s\S]*?type: object/);
+  assert.doesNotMatch(profileConfig, /- name: id\b|\blist:/);
+  assert.doesNotMatch(profileConfig, /name: (visible|titleVisible|route|canonical|portraitSrc|stylesheet|pageType)\b/);
 });

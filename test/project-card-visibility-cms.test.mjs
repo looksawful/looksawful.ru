@@ -47,11 +47,13 @@ test("hiding a homepage card does not own or alter its standalone route", () => 
   }
 });
 
-test("Pages CMS exposes homepage visibility but no route controls for project cards", async () => {
+test("Pages CMS exposes homepage visibility only on the structural project-card surface", async () => {
   const cmsConfig = await readFile(cmsConfigUrl, "utf8");
-  const projectCardsBlock = cmsConfig.match(/\n  - name: project-cards\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
+  const projectMediaBlock = cmsConfig.match(/\n  - name: project-card-media\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
+  const projectCopyBlock = cmsConfig.match(/\n  - name: project-cards\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
 
-  assert.match(projectCardsBlock, /- name: visible\b[\s\S]*?type: boolean/);
-  assert.match(projectCardsBlock, /label: Показывать на главной/);
-  assert.doesNotMatch(projectCardsBlock, /- name: (route|canonical|listed|indexable|slug|pageType|pageId)\b/);
+  assert.match(projectMediaBlock, /- name: visible\b[\s\S]*?type: boolean/);
+  assert.match(projectMediaBlock, /label: Показывать на главной/);
+  assert.doesNotMatch(projectMediaBlock, /- name: (route|canonical|listed|indexable|slug|pageType|pageId)\b/);
+  assert.doesNotMatch(projectCopyBlock, /- name: visible\b/);
 });

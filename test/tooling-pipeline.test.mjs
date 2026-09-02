@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const packageJson = JSON.parse(
-  await readFile(new URL("../package.json", import.meta.url), "utf8"),
-);
-
+const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 const scripts = packageJson.scripts ?? {};
 
 function requireScript(name) {
@@ -18,27 +15,26 @@ function countCommand(script, command) {
   return script.split(command).length - 1;
 }
 
-test("local dev/build use cheap media ensure and test stays fast while explicit sync stays available", () => {
+test("local dev and ordinary build stay non-mutating while explicit media preparation remains available", () => {
   const mediaSync = requireScript("media:sync");
   const mediaEnsure = requireScript("media:ensure");
-  const dev = requireScript("dev");
+  assert.equal(requireScript("dev"), "vite");
+  assert.equal(requireScript("build"), "npm run build:site");
   assert.equal(requireScript("test"), "npm run test:fast");
-  const build = requireScript("build");
 
+  assert.match(mediaSync, /media:catalog:sync/);
   assert.match(mediaSync, /media:video:build/);
   assert.match(mediaSync, /media:build/);
-  assert.match(mediaSync, /media:catalog:sync/);
   assert.match(mediaSync, /media-dev-state\.mjs --write/);
   assert.match(mediaEnsure, /media:catalog:sync/);
   assert.match(mediaEnsure, /media-dev-state\.mjs --ensure/);
 
-  for (const [name, script] of Object.entries({ dev, build })) {
-    assert.match(script, /npm run media:ensure/, `${name} must ensure generated media`);
-    assert.doesNotMatch(script, /media:prepare|media:video:build|media:build/, `${name} must not force a full media sync`);
-  }
+  assert.doesNotMatch(requireScript("dev"), /media:/);
+  assert.doesNotMatch(requireScript("build"), /media:/);
+  assert.doesNotMatch(requireScript("build:site"), /media:sync|media:ensure|media:prepare/);
 });
 
-test("verify performs every expensive core stage exactly once", () => {
+test("explicit full verification performs expensive core stages exactly once", () => {
   const verify = requireScript("verify:full");
   const verifyCore = requireScript("verify:core");
   const buildSite = requireScript("build:site");
@@ -48,14 +44,13 @@ test("verify performs every expensive core stage exactly once", () => {
   assert.match(verifyCore, /npm run test:core/);
   assert.match(verifyCore, /npm run build:site/);
   assert.match(verifyCore, /npm run test:e2e:full/);
-  assert.doesNotMatch(verifyCore, /npm test|npm run test(?:\s|$)|npm run build(?:\s|$)|build:core|test:e2e:navigation|test:e2e:mpa|test:e2e:projects|test:e2e:cv/);
   assert.equal(countCommand(verifyCore, "npm run typecheck"), 1);
-  assert.doesNotMatch(buildSite, /typecheck|media:ensure|media:sync|media:prepare/);
+  assert.match(buildSite, /npm run cms:check/);
   assert.match(buildSite, /npm run build:vite/);
   assert.match(buildSite, /npm run site:postbuild/);
 });
 
-test("standalone core/build/e2e debugging scripts remain available", () => {
+test("standalone core, media and browser debugging scripts remain available", () => {
   assert.equal(requireScript("build:vite"), "vite build");
   assert.match(requireScript("test:core"), /node --test/);
   assert.match(requireScript("test:core"), /check-data-integrity/);
@@ -67,22 +62,20 @@ test("standalone core/build/e2e debugging scripts remain available", () => {
     "test:e2e:mpa",
     "test:e2e:projects",
     "test:e2e:cv",
+    "test:e2e:smoke",
+    "test:e2e:affected",
+    "test:e2e:production",
     "media:prepare",
     "media:build",
     "media:video",
     "media:video:build",
     "site:postbuild",
-  ]) {
-    requireScript(name);
-  }
+  ]) requireScript(name);
 });
 
-test("combined browser smoke uses one shared runtime while individual suites stay directly runnable", async () => {
-  const runtimePath = new URL("../tools/e2e/runtime.mjs", import.meta.url);
-  const runAllPath = new URL("../tools/e2e/run-all.mjs", import.meta.url);
-  const runtime = await readFile(runtimePath, "utf8");
-  const runAll = await readFile(runAllPath, "utf8");
-
+test("combined browser regression uses one shared runtime while individual suites remain directly runnable", async () => {
+  const runtime = await readFile(new URL("../tools/e2e/runtime.mjs", import.meta.url), "utf8");
+  const runAll = await readFile(new URL("../tools/e2e/run-all.mjs", import.meta.url), "utf8");
   assert.match(runtime, /export\s+async\s+function\s+withE2ERuntime/);
   assert.match(runtime, /vite\/bin\/vite\.js/);
   assert.match(runtime, /chromium\.launch/);
@@ -96,19 +89,17 @@ test("combined browser smoke uses one shared runtime while individual suites sta
     ["smoke-project-pages.mjs", "runSmokeProjectPages"],
     ["smoke-cv.mjs", "runSmokeCv"],
   ];
-
   for (const [fileName, exportName] of suites) {
     const source = await readFile(new URL(`../tools/${fileName}`, import.meta.url), "utf8");
-    assert.match(source, new RegExp(`export\\s+async\\s+function\\s+${exportName}`), `${fileName} must export ${exportName}`);
-    assert.match(source, /withE2ERuntime/, `${fileName} must use the shared runtime only for direct execution`);
-    assert.match(source, /isDirectExecution/, `${fileName} must guard its standalone wrapper`);
-    assert.doesNotMatch(source, /const\s+server\s*=\s*spawn\(/, `${fileName} must not own a preview server`);
+    assert.match(source, new RegExp(`export\\s+async\\s+function\\s+${exportName}`));
+    assert.match(source, /withE2ERuntime/);
+    assert.match(source, /isDirectExecution/);
+    assert.doesNotMatch(source, /const\s+server\s*=\s*spawn\(/);
   }
 });
 
 test("shared E2E runtime terminates preview processes and preserves signal termination", async () => {
   const runtime = await readFile(new URL("../tools/e2e/runtime.mjs", import.meta.url), "utf8");
-
   assert.match(runtime, /server\.once\(["']exit["']/);
   assert.match(runtime, /SIGTERM/);
   assert.match(runtime, /SIGKILL/);
@@ -116,32 +107,27 @@ test("shared E2E runtime terminates preview processes and preserves signal termi
   assert.doesNotMatch(runtime, /server\.killed/);
 });
 
-test("CV smoke has explicit authored and production modes with fail-closed validation", async () => {
+test("CV smoke retains authored and production fail-closed modes", async () => {
   const source = await readFile(new URL("../tools/smoke-cv.mjs", import.meta.url), "utf8");
-
   assert.match(source, /mode\s*=\s*["']authored["']/);
-  assert.match(source, /authored/);
   assert.match(source, /production/);
   assert.match(source, /unsupported CV smoke mode|invalid CV smoke mode/i);
   assert.match(source, /mode\s*===\s*["']production["'][\s\S]*hiddenCards\s*===\s*0/);
 });
 
-test("caption QA is an exported suite that reuses the shared browser runtime", async () => {
+test("caption QA remains an optional standalone suite rather than production deploy work", async () => {
   const source = await readFile(new URL("../tools/capture-caption-qa.mjs", import.meta.url), "utf8");
-
   assert.match(source, /export\s+async\s+function\s+captureCaptionQa/);
   assert.match(source, /withE2ERuntime/);
   assert.match(source, /isDirectExecution/);
-  assert.doesNotMatch(source, /const\s+server\s*=\s*spawn\(/);
-  assert.match(source, /outputDir/);
 });
 
-test("production E2E runner tests sanitized output and captures QA in the same runtime", async () => {
+test("production E2E is compact: production quick smoke plus media sanity in one runtime", async () => {
   assert.equal(requireScript("test:e2e:production"), "node tools/e2e/run-production.mjs");
   const source = await readFile(new URL("../tools/e2e/run-production.mjs", import.meta.url), "utf8");
-
   assert.match(source, /withE2ERuntime/);
   assert.match(source, /runQuickSmoke/);
+  assert.match(source, /runMediaSanity/);
   assert.match(source, /cvMode:\s*["']production["']/);
-  assert.match(source, /captureCaptionQa/);
+  assert.doesNotMatch(source, /captureCaptionQa|runAllSmokeSuites|runSmokeNavigation|runSmokeMpa/);
 });

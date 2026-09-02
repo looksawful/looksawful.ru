@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
+import { cvContent } from "../src/data/cv.ts";
 import { publicStaticOutputPath } from "../src/site/build/public-static.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 import {
@@ -16,15 +16,11 @@ if (!cvPage || cvPage.build.kind !== "public-static") {
 const target = process.argv[2]
   ? resolve(process.argv[2])
   : publicStaticOutputPath(cvPage);
-const contentPath = resolve(
-  process.argv[3] ?? fileURLToPath(new URL("../src/content/cv.json", import.meta.url)),
-);
+const content = process.argv[3]
+  ? await readCvContent(resolve(process.argv[3]))
+  : cvContent;
 
-const [html, content] = await Promise.all([
-  readFile(target, "utf8"),
-  readCvContent(contentPath),
-]);
-
+const html = await readFile(target, "utf8");
 const result = transformCvContent(html, content, { removeHidden: true });
 
 if (/<article\b(?=[^>]*\bclass=["'][^"']*\bexperience-card\b[^"']*["'])(?=[^>]*\bhidden(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)[^>]*>/i.test(result.html)) {

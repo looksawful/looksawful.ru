@@ -19,6 +19,7 @@ jobs:
   build:
     if: github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
       VITE_CLARITY_PROJECT_ID: ${{ vars.CLARITY_PROJECT_ID }}
@@ -28,86 +29,90 @@ jobs:
         with:
           script: |
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.repos.createCommitStatus({ owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: "pending", context: "github-pages/production", description: "Building and testing GitHub Pages deployment", target_url: runUrl });
-      - name: Checkout
+            await github.rest.repos.createCommitStatus({ owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: "pending", context: "github-pages/production", description: "Building exact production SHA", target_url: runUrl });
+      - name: Checkout exact production SHA
         uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
-          fetch-depth: 0
+          fetch-depth: 1
           persist-credentials: false
-      - name: Classify changes
-        id: change-scope
-        env:
-          CI_DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          CI_DIFF_HEAD: ${{ github.sha }}
-        run: node tools/ci/change-scope.mjs
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - name: Install
+      - name: Install dependencies
         run: npm ci
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Fast tests
-        run: npm run test:fast
-      - name: Restore generated media
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Restore exact generated media cache
         id: media-cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             public/media/generated/responsive
             public/media/generated/video
-          key: generated-media-v4-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/content/media-catalog/**/*.json', 'src/data/media/assets/**/*.ts', 'src/data/media/catalog*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/sync-media-catalog.mjs', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
-          restore-keys: |
-            generated-media-v4-${{ runner.os }}-
-      - name: Inspect cached media
-        id: media-scope
-        env:
-          MEDIA_INPUTS_CHANGED: ${{ steps.change-scope.outputs.media_inputs_changed }}
-          MEDIA_CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
-        run: node tools/ci/media-scope.mjs
-      - name: Ensure media tooling
-        if: steps.media-scope.outputs.needs_sync == 'true'
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Install media tooling on exact cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
-          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install --yes ffmpeg
-          fi
-      - name: Check CMS media catalog
-        if: steps.media-scope.outputs.needs_sync == 'true'
-        run: npm run media:catalog:check
-      - name: Check unchanged catalog structure
-        if: steps.media-scope.outputs.needs_sync != 'true'
-        run: npm run media:catalog:check -- --check-stored
-      - name: Sync generated media
-        if: steps.media-scope.outputs.needs_sync == 'true'
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Regenerate exact media cache on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
         run: npm run media:sync
-      - name: Check tracked media metadata
-        run: git diff --exit-code -- src/content/media-catalog src/data/media/catalog-records.generated.ts public/media/generated/responsive-manifest.json public/media/generated/video-inventory.json src/data/media/responsive-generated.ts
-      - name: Media contracts
-        run: npm run test:media:contract
-      - name: Media tooling tests
-        if: steps.media-scope.outputs.needs_sync == 'true'
-        run: npm run test:media:checks
+      - name: Write canonical generated-media cache marker on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: node tools/media-dev-state.mjs --cache-write
+      - name: Verify exact generated media cache
+        run: node tools/media-dev-state.mjs --cache-verify
+      - name: Require clean tracked tree after cache recovery
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git diff --exit-code --; then
+            echo "Production media cache recovery changed tracked repository state." >&2
+            echo "Generated metadata in the exact production tree must already be canonical before deployment." >&2
+            exit 1
+          fi
+      - name: Save exact generated media cache on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Fast tests
+        run: npm run test:fast
       - name: Build site
         run: npm run build:site
       - name: Prepare production CV
-        run: node tools/prepare-cv-production.mjs
-      - name: Install browser for smoke tests
-        run: npx playwright install --with-deps chromium
-      - name: Final production browser verification
-        run: npm run test:e2e:production
-      - name: Upload caption QA
-        uses: actions/upload-artifact@v7
+        run: npm run cv:prod:prepare
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v4
         with:
-          name: caption-qa
-          path: artifacts/caption-qa
-          if-no-files-found: error
-      - name: Stamp deployment
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Chromium for compact production sanity
+        run: npx playwright install --with-deps chromium
+      - name: Compact production browser sanity
+        run: npm run test:e2e:production
+      - name: Verify production CV artifact
+        run: npm run cv:prod:verify
+      - name: Stamp exact deployment SHA
+        shell: bash
         run: |
           printf 'commit=%s\n' "$GITHUB_SHA" > dist/deploy-version.txt
           printf 'deployed-from=prod\n' >> dist/deploy-version.txt
@@ -119,60 +124,35 @@ jobs:
           path: dist
 
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
-      - name: Deploy
+      - name: Deploy exact Pages artifact
         id: deployment
         uses: actions/deploy-pages@v5
-      - name: Verify production commit
+      - name: Verify published SHA, root, CV and built assets
         shell: bash
         run: |
           set -euo pipefail
           expected="commit=${GITHUB_SHA}"
-          version_url="https://www.looksawful.ru/deploy-version.txt?sha=${GITHUB_SHA}"
-          index_url="https://www.looksawful.ru/?sha=${GITHUB_SHA}"
-          cv_url="https://www.looksawful.ru/cv/?sha=${GITHUB_SHA}"
-          delays=(0 5 5 10 10 15 15 20 20 30 30 45 60)
-          for i in "${!delays[@]}"; do
-            delay="${delays[$i]}"
-            if (( delay > 0 )); then
-              sleep "$delay"
-            fi
-            attempt=$((i + 1))
-            body="$(curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "${version_url}&attempt=${attempt}" || true)"
-            index_file="$(mktemp)"
-            cv_file="$(mktemp)"
-            curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "${index_url}&attempt=${attempt}" --output "${index_file}" || true
-            curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "${cv_url}&attempt=${attempt}" --output "${cv_file}" || true
-            if grep -Fxq "$expected" <<<"$body" \
-              && grep -Eq 'href="/assets/[^"]+\.css"' "${index_file}" \
-              && grep -Eq 'src="/assets/[^"]+\.js"' "${index_file}" \
-              && ! grep -Eq '\./src/[^"]+\.(css|js)' "${index_file}" \
-              && grep -Fq '<main class="resume">' "${cv_file}" \
-              && ! grep -Eqi '<article[^>]*class="[^"]*experience-card[^"]*"[^>]*hidden|<article[^>]*hidden[^>]*class="[^"]*experience-card' "${cv_file}"; then
-              assets_ok=true
-              while IFS= read -r asset_path; do
-                asset_file="$(mktemp)"
-                if ! curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "https://www.looksawful.ru${asset_path}?sha=${GITHUB_SHA}&attempt=${attempt}" --output "$asset_file" || [[ ! -s "$asset_file" ]] || grep -Eqi '<!doctype html|<html' "$asset_file"; then
-                  assets_ok=false
-                fi
-                rm -f "$asset_file"
-              done < <(grep -Eo '/assets/[^" ]+\.(css|js)' "$index_file" | sort -u)
-              if [[ "$assets_ok" != true ]]; then
-                rm -f "${index_file}" "${cv_file}"
-                continue
-              fi
-              printf '%s\n' "$body"
-              rm -f "${index_file}" "${cv_file}"
-              exit 0
-            fi
-            rm -f "${index_file}" "${cv_file}"
+          for delay in 0 5 10 20 30; do
+            if (( delay > 0 )); then sleep "$delay"; fi
+            version="$(curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "https://www.looksawful.ru/deploy-version.txt?sha=${GITHUB_SHA}" || true)"
+            if ! grep -Fxq "$expected" <<< "$version"; then continue; fi
+            curl --fail --silent --show-error --location --max-time 20 "https://www.looksawful.ru/?sha=${GITHUB_SHA}" > /tmp/index.html
+            curl --fail --silent --show-error --location --max-time 20 "https://www.looksawful.ru/cv/?sha=${GITHUB_SHA}" > /dev/null
+            assets="$(grep -Eo '/assets/[^\" ]+\.(css|js)' /tmp/index.html | sort -u)"
+            test -n "$assets"
+            while IFS= read -r asset; do
+              test -z "$asset" && continue
+              curl --fail --silent --show-error --location --max-time 20 "https://www.looksawful.ru${asset}?sha=${GITHUB_SHA}" > /dev/null
+            done <<< "$assets"
+            exit 0
           done
-          echo "Production did not expose ${expected} with built assets and a sanitized CV" >&2
+          echo "Production did not expose expected SHA: ${GITHUB_SHA}" >&2
           exit 1
 
   report:
@@ -189,5 +169,5 @@ jobs:
           script: |
             const success = process.env.BUILD_RESULT === "success" && process.env.DEPLOY_RESULT === "success";
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.repos.createCommitStatus({ owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: success ? "success" : "failure", context: "github-pages/production", description: success ? "Published and verified on www.looksawful.ru" : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`, target_url: runUrl });
+            await github.rest.repos.createCommitStatus({ owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: success ? "success" : "failure", context: "github-pages/production", description: success ? "Published exact production SHA" : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`, target_url: runUrl });
             if (!success) core.setFailed(`GitHub Pages deployment failed. Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`);

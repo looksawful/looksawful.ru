@@ -15,6 +15,7 @@ import path from "node:path";
 import test from "node:test";
 
 import {
+  computeMediaFingerprint,
   ensureMediaDevState,
   inspectMediaDevState,
   writeMediaDevState,
@@ -110,23 +111,33 @@ async function writeFreshState(fixture) {
   await writeMediaDevState({
     repoRoot: fixture.repoRoot,
     assets: fixture.assets,
+    configFiles: CONFIG_FILES,
   });
   const result = await inspectMediaDevState({
     repoRoot: fixture.repoRoot,
     assets: fixture.assets,
+    configFiles: CONFIG_FILES,
   });
   assert.equal(result.fresh, true, result.reasons.join("; "));
 }
 
 test("missing or corrupted local state is stale", async () => {
   await withFixture(async (fixture) => {
-    let result = await inspectMediaDevState({ repoRoot: fixture.repoRoot, assets: fixture.assets });
+    let result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
     assert.equal(result.fresh, false);
     assert.match(result.reasons.join(" "), /state/i);
 
     await mkdir(path.dirname(fixture.statePath), { recursive: true });
     await writeFile(fixture.statePath, "{broken-json", "utf8");
-    result = await inspectMediaDevState({ repoRoot: fixture.repoRoot, assets: fixture.assets });
+    result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
     assert.equal(result.fresh, false);
     assert.match(result.reasons.join(" "), /state/i);
   });
@@ -139,13 +150,21 @@ test("missing manifest or generated outputs invalidate an otherwise fresh state"
     const manifestPath = path.join(fixture.repoRoot, "public/media/generated/responsive-manifest.json");
     const manifestContents = await readFile(manifestPath, "utf8");
     await unlink(manifestPath);
-    let result = await inspectMediaDevState({ repoRoot: fixture.repoRoot, assets: fixture.assets });
+    let result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
     assert.equal(result.fresh, false);
     assert.match(result.reasons.join(" "), /manifest/i);
     await writeFile(manifestPath, manifestContents, "utf8");
 
     await unlink(path.join(fixture.repoRoot, "public/media/generated/responsive/image-640.webp"));
-    result = await inspectMediaDevState({ repoRoot: fixture.repoRoot, assets: fixture.assets });
+    result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
     assert.equal(result.fresh, false);
     assert.match(result.reasons.join(" "), /responsive|output/i);
   });
@@ -156,58 +175,110 @@ test("missing generated video invalidates state while outputSrc null requires no
     await writeFreshState(fixture);
     await unlink(path.join(fixture.repoRoot, "public/media/generated/video/video.web.mp4"));
 
-    const result = await inspectMediaDevState({ repoRoot: fixture.repoRoot, assets: fixture.assets });
+    const result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
     assert.equal(result.fresh, false);
     assert.match(result.reasons.join(" "), /video|output/i);
   });
 });
 
-test("source size and mtime changes invalidate local state without content hashing", async () => {
+test("source fingerprint changes on content bytes even when size and mtime are preserved", async () => {
   await withFixture(async (fixture) => {
     await writeFreshState(fixture);
     const sourcePath = path.join(fixture.repoRoot, "public/media/source/image.jpg");
+    const beforeStat = await stat(sourcePath);
+    const beforeFingerprint = await computeMediaFingerprint({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
 
-    await appendFile(sourcePath, "!");
-    let result = await inspectMediaDevState({ repoRoot: fixture.repoRoot, assets: fixture.assets });
+    await writeFile(sourcePath, "image-sourcf");
+    await utimes(sourcePath, beforeStat.atime, beforeStat.mtime);
+
+    const afterFingerprint = await computeMediaFingerprint({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
+    assert.notEqual(afterFingerprint, beforeFingerprint);
+
+    const result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
     assert.equal(result.fresh, false);
-    assert.match(result.reasons.join(" "), /source|fingerprint/i);
+    assert.match(result.reasons.join(" "), /fingerprint/i);
   });
+});
 
+test("mtime-only source changes do not invalidate deterministic media fingerprint", async () => {
   await withFixture(async (fixture) => {
     await writeFreshState(fixture);
     const sourcePath = path.join(fixture.repoRoot, "public/media/source/image.jpg");
     const sourceStat = await stat(sourcePath);
-    const nextMtime = new Date(sourceStat.mtimeMs + 5_000);
-    await utimes(sourcePath, sourceStat.atime, nextMtime);
+    const beforeFingerprint = await computeMediaFingerprint({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
 
-    const result = await inspectMediaDevState({ repoRoot: fixture.repoRoot, assets: fixture.assets });
-    assert.equal(result.fresh, false);
-    assert.match(result.reasons.join(" "), /source|fingerprint/i);
+    await utimes(sourcePath, sourceStat.atime, new Date(sourceStat.mtimeMs + 5_000));
+
+    const afterFingerprint = await computeMediaFingerprint({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
+    assert.equal(afterFingerprint, beforeFingerprint);
+
+    const result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
+    assert.equal(result.fresh, true, result.reasons.join("; "));
   });
 });
 
-test("registry and builder/config signature changes invalidate local state", async () => {
+test("registry and builder/config content changes invalidate canonical fingerprint", async () => {
   await withFixture(async (fixture) => {
     await writeFreshState(fixture);
     const changedAssets = fixture.assets.map((asset, index) => (
       index === 0 ? { ...asset, id: "image-renamed" } : asset
     ));
 
-    let result = await inspectMediaDevState({ repoRoot: fixture.repoRoot, assets: changedAssets });
+    let result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot,
+      assets: changedAssets,
+      configFiles: CONFIG_FILES,
+    });
     assert.equal(result.fresh, false);
-    assert.match(result.reasons.join(" "), /registry/i);
+    assert.match(result.reasons.join(" "), /fingerprint/i);
 
     await appendFile(path.join(fixture.repoRoot, "tools/build-responsive-media.mjs"), "changed\n");
-    result = await inspectMediaDevState({ repoRoot: fixture.repoRoot, assets: fixture.assets });
+    result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
     assert.equal(result.fresh, false);
-    assert.match(result.reasons.join(" "), /config|tool/i);
+    assert.match(result.reasons.join(" "), /fingerprint/i);
   });
 });
 
 test("matching state, manifests, outputs, registry and config are fresh", async () => {
   await withFixture(async (fixture) => {
     await writeFreshState(fixture);
-    const result = await inspectMediaDevState({ repoRoot: fixture.repoRoot, assets: fixture.assets });
+    const result = await inspectMediaDevState({
+      repoRoot: fixture.repoRoot,
+      assets: fixture.assets,
+      configFiles: CONFIG_FILES,
+    });
     assert.equal(result.fresh, true, result.reasons.join("; "));
     assert.deepEqual(result.reasons, []);
   });
@@ -219,6 +290,7 @@ test("failed stale-state sync does not create a fresh state file", async () => {
       ensureMediaDevState({
         repoRoot: fixture.repoRoot,
         assets: fixture.assets,
+        configFiles: CONFIG_FILES,
         sync: async () => {
           throw new Error("sync failed");
         },
