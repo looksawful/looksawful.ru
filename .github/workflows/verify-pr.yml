@@ -93,3 +93,6 @@ jobs:
         env:
           E2E_AFFECTED_SUITES: ${{ steps.change-scope.outputs.affected_suites }}
         run: npm run test:e2e:affected
+      - name: Media Desk browser verification
+        if: steps.change-scope.outputs.media_desk_changed == 'true'
+        run: npm run test:e2e:media-desk
