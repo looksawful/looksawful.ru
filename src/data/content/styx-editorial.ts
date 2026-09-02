@@ -1,4 +1,4 @@
-import source from "../../content/cases/styx.json" with { type: "json" };
+import source from "../../content/editorial/cases/styx.json" with { type: "json" };
 
 import {
   expectAllowedKeys,

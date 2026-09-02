@@ -1,4 +1,4 @@
-import source from "../../content/cases/jestei-pool.json" with { type: "json" };
+import source from "../../content/editorial/cases/jestei-pool.json" with { type: "json" };
 
 import {
   expectAllowedKeys,

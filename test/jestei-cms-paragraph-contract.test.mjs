@@ -5,7 +5,7 @@ import test from "node:test";
 import { parseJesteiEditorialContent } from "../src/data/content/jestei-editorial.ts";
 
 const source = JSON.parse(
-  await readFile(new URL("../src/content/cases/jestei-pool.json", import.meta.url), "utf8"),
+  await readFile(new URL("../src/content/editorial/cases/jestei-pool.json", import.meta.url), "utf8"),
 );
 
 function clone(value) {

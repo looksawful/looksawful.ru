@@ -16,17 +16,17 @@ const classify = (path) => classifyCmsPublicationPath(path);
 
 test("explicit Pages CMS-owned content paths are publishable", () => {
   for (const path of [
-    "src/content/navigation.json",
+    "src/content/editorial/navigation.json",
     "src/content/projects.json",
     "src/content/client-logo-visibility.json",
     "src/content/cv.json",
-    "src/content/cases/jestei-pool.json",
-    "src/content/cases/styx.json",
-    "src/content/cases/sensetique.json",
-    "src/content/collections/shootings.json",
-    "src/content/shootings/obladaet.json",
-    "src/content/standalone-projects/berry-social-content-2020.json",
-    "src/content/standalone-projects/awful-cases.json",
+    "src/content/editorial/cases/jestei-pool.json",
+    "src/content/editorial/cases/styx.json",
+    "src/content/editorial/cases/sensetique.json",
+    "src/content/editorial/collections/shootings.json",
+    "src/content/editorial/shootings/obladaet.json",
+    "src/content/editorial/standalone-projects/berry-social-content-2020.json",
+    "src/content/editorial/standalone-projects/awful-cases.json",
     "src/content/media-catalog/registered/jestei-13-source-01-16x9.json",
     "src/content/media-catalog/uploads/74f88a53-7663-4eb4-a1cb-d300f219d8ab.json",
   ]) {
@@ -96,8 +96,8 @@ test("known engineering surfaces always block CMS publication", () => {
 test("unconfigured content and arbitrary repository paths fail closed as UNKNOWN", () => {
   for (const path of [
     "src/content/experimental-new-system.json",
-    "src/content/cases/new-case.json",
-    "src/content/standalone-projects/unregistered.json",
+    "src/content/editorial/cases/new-case.json",
+    "src/content/editorial/standalone-projects/unregistered.json",
     "some-new-directory/file.xyz",
   ]) {
     assert.equal(classify(path), UNKNOWN, path);
@@ -108,14 +108,14 @@ test("file classification normalizes paths, removes empty/duplicate inputs and s
   const result = classifyCmsPublicationFiles([
     "",
     "src\\content\\cases\\jestei-pool.json",
-    "src/content/cases/jestei-pool.json",
+    "src/content/editorial/cases/jestei-pool.json",
     "  ",
     "public/media/catalog/example.webp",
   ]);
 
   assert.deepEqual(result.files, [
     { path: "public/media/catalog/example.webp", classification: CMS_MEDIA },
-    { path: "src/content/cases/jestei-pool.json", classification: CMS_CONTENT },
+    { path: "src/content/editorial/cases/jestei-pool.json", classification: CMS_CONTENT },
   ]);
   assert.deepEqual(result.classifications, [CMS_CONTENT, CMS_MEDIA]);
   assert.equal(result.safe, true);
@@ -124,7 +124,7 @@ test("file classification normalizes paths, removes empty/duplicate inputs and s
 
 test("safe CMS content/media/generated combinations are allowed", () => {
   const result = classifyCmsPublicationFiles([
-    "src/content/cases/jestei-pool.json",
+    "src/content/editorial/cases/jestei-pool.json",
     "src/content/media-catalog/uploads/74f88a53-7663-4eb4-a1cb-d300f219d8ab.json",
     "public/media/catalog/example.webp",
     "public/media/generated/video-inventory.json",
@@ -137,7 +137,7 @@ test("safe CMS content/media/generated combinations are allowed", () => {
 
 test("mixed CMS and engineering/unknown diffs always block", () => {
   for (const files of [
-    ["src/content/cases/jestei-pool.json", "src/components/site-nav.ts"],
+    ["src/content/editorial/cases/jestei-pool.json", "src/components/site-nav.ts"],
     ["public/media/catalog/example.webp", "src/styles/site-nav.css"],
     ["public/media/generated/video-inventory.json", "package.json"],
     ["src/content/cv.json", "some-new-directory/file.xyz"],
