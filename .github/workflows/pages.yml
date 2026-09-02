@@ -19,7 +19,7 @@ jobs:
   build:
     if: github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
       VITE_CLARITY_PROJECT_ID: ${{ vars.CLARITY_PROJECT_ID }}
@@ -41,22 +41,52 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - name: Install
+      - name: Install dependencies
         run: npm ci
-      - name: Restore generated media
-        uses: actions/cache@v4
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Restore exact generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v4
         with:
           path: |
             public/media/generated/responsive
-            public/media/generated/video
-          key: generated-media-v4-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/content/media-catalog/**/*.json', 'src/data/media/assets/**/*.ts', 'src/data/media/catalog*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/sync-media-catalog.mjs', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
-          restore-keys: |
-            generated-media-v4-${{ runner.os }}-
+            public/media/generated/video/*.web.mp4
+            public/media/generated/video/*.webm
+            public/media/generated/video/*.web.mov
+            .cache/media/generated-cache.json
+          key: generated-media-v2-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Require exact generated media cache
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          echo "required generated-media cache for fingerprint ${{ steps.media.outputs.fingerprint }} is missing" >&2
+          echo "Run the explicit CMS media cache rebuild workflow before production deployment." >&2
+          exit 1
+      - name: Verify exact generated media cache
+        run: node tools/media-dev-state.mjs --cache-verify
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Fast tests
+        run: npm run test:fast
       - name: Build site
         run: npm run build:site
       - name: Prepare production CV
-        run: node tools/prepare-cv-production.mjs
-      - name: Stamp deployment
+        run: npm run cv:prod:prepare
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Chromium for compact production sanity
+        run: npx playwright install --with-deps chromium
+      - name: Compact production browser sanity
+        run: npm run test:e2e:production
+      - name: Verify production CV artifact
+        run: npm run cv:prod:verify
+      - name: Stamp exact deployment SHA
         shell: bash
         run: |
           printf 'commit=%s\n' "$GITHUB_SHA" > dist/deploy-version.txt
@@ -75,10 +105,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy
+      - name: Deploy exact Pages artifact
         id: deployment
         uses: actions/deploy-pages@v5
-      - name: Verify published SHA and assets
+      - name: Verify published SHA, root, CV and built assets
         shell: bash
         run: |
           set -euo pipefail
