@@ -38,20 +38,20 @@ test("production deployment verifies stable CV output without pinning editable l
 
 test("generated-media cache stores recursive video tree, inventory, derivatives and canonical marker", async () => {
   for (const name of ["ci-fast.yml", "pages.yml", "cms-media.yml"]) {
-    const workflow = await read(`.github/workflows/${name}`);
-    const cache = workflow.match(/uses: actions\\/cache\\/(?:restore|save)@v4[\\s\\S]*?(?=\\n      - name: |$)/)?.[0] ?? "";
+    const workflow = await read(".github/workflows/" + name);
+    const cache = workflow.match(/uses: actions\/cache\/(?:restore|save)@v4[\s\S]*?(?=\n      - name: |$)/)?.[0] ?? "";
 
-    assert.match(cache, /public\\/media\\/generated\\/responsive\\b/, `${name}: responsive derivatives`);
-    assert.match(cache, /^[ \\t]*public\\/media\\/generated\\/video[ \\t]*$/m, `${name}: complete generated video directory`);
-    assert.match(cache, /^[ \\t]*public\\/media\\/generated\\/video-inventory\\.json[ \\t]*$/m, `${name}: generated video inventory`);
-    assert.match(cache, /\\.cache\\/media\\/generated-cache\\.json/, `${name}: canonical marker`);
-    assert.doesNotMatch(cache, /public\\/media\\/generated\\/video\\/\\*\\./, `${name}: non-recursive video globs`);
+    assert.match(cache, /public\/media\/generated\/responsive\b/, name + ": responsive derivatives");
+    assert.match(cache, /^[ \t]*public\/media\/generated\/video[ \t]*$/m, name + ": complete generated video directory");
+    assert.match(cache, /^[ \t]*public\/media\/generated\/video-inventory\.json[ \t]*$/m, name + ": generated video inventory");
+    assert.match(cache, /\.cache\/media\/generated-cache\.json/, name + ": canonical marker");
+    assert.doesNotMatch(cache, /public\/media\/generated\/video\/\*\./, name + ": non-recursive video globs");
     assert.doesNotMatch(
       cache,
-      /responsive-manifest\\.json|responsive-generated\\.ts/,
-      `${name}: responsive tracked metadata must stay repository-owned`,
+      /responsive-manifest\.json|responsive-generated\.ts/,
+      name + ": responsive tracked metadata must stay repository-owned",
     );
-    assert.match(workflow, /media-dev-state\\.mjs --cache-verify/);
+    assert.match(workflow, /media-dev-state\.mjs --cache-verify/);
     assert.match(workflow, /generated-media-v3-/);
     assert.doesNotMatch(workflow, /generated-media-v2-/);
   }
