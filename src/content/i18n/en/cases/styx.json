@@ -1,0 +1,54 @@
+{
+  "lead": "I was responsible for the visual system of a Moscow jewelry, accessories, and apparel brand inspired by Gothic romanticism and Lovecraftian horror.",
+  "sections": [
+    {
+      "id": "brand",
+      "title": "Brand Identity",
+      "paragraphs": [
+        "I developed Styx’s visual system: logo, brand identity, packaging, printed materials, social media, advertising posts, and banners."
+      ]
+    },
+    {
+      "id": "production",
+      "title": "Production",
+      "paragraphs": [
+        "I produced and shot Styx campaigns, lookbooks, and catalogs. I prepared material for advertising, e-commerce, and social media, handled technical and artistic image processing, and created scanography-based images and animation."
+      ]
+    },
+    {
+      "id": "scanography",
+      "title": "Scanography",
+      "paragraphs": [
+        "For Styx, I developed a scanography technique based on scanning the same object with different devices and assembling the frames manually. The distortions and artifacts came from the scanning process rather than digital simulation."
+      ]
+    },
+    {
+      "id": "shootings",
+      "title": "Shoots",
+      "paragraphs": [
+        "I produced and shot Styx lookbooks, campaigns, and collaborations and used the material for catalogs, advertising, and experimental projects."
+      ]
+    },
+    {
+      "id": "lookbook",
+      "title": "Lookbook",
+      "paragraphs": [
+        "I shot the 2025 Styx Jewel lookbook."
+      ]
+    }
+  ],
+  "credits": [
+    {
+      "id": "brand-lookbook-2023",
+      "title": "Лукбук Styx Jewels, 2023."
+    },
+    {
+      "id": "scanography-2021",
+      "title": "Сканография, 2021."
+    },
+    {
+      "id": "lookbook-2025",
+      "title": "Лукбук Styx Jewels, 2025."
+    }
+  ]
+}
