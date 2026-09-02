@@ -87,7 +87,7 @@ test("local writer rejects protected technical fields without touching the recor
   }
 });
 
-test("write middleware is registered only for explicit Content Desk mode", () => {
+test("Content Desk middleware is registered only for explicit Desk mode", () => {
   const previous = process.env.CONTENT_DESK_WRITE;
   try {
     const routes = [];
@@ -105,8 +105,11 @@ test("write middleware is registered only for explicit Content Desk mode", () =>
 
     process.env.CONTENT_DESK_WRITE = "1";
     createMediaDeskWritePlugin(process.cwd()).configureServer(server);
-    assert.equal(routes.length, 1, "npm run desk mode must register the write endpoint");
-    assert.equal(routes[0][0], "/__media-desk/metadata");
+    assert.deepEqual(
+      routes.map(([pathname]) => pathname).sort(),
+      ["/__media-desk/metadata", "/__media-desk/texts"],
+      "npm run desk mode must register only the Content Desk endpoints",
+    );
   } finally {
     if (previous === undefined) delete process.env.CONTENT_DESK_WRITE;
     else process.env.CONTENT_DESK_WRITE = previous;
