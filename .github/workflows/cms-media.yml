@@ -71,8 +71,16 @@ jobs:
             while IFS= read -r file; do
               case "${file,,}" in
                 src/content/projects.json|src/content/media-catalog/registered/*|src/content/media-catalog/uploads/*)
-                  has_media_reference_or_metadata=true
-                  has_media_change=true
+                  if [[ "${file,,}" == 'src/content/projects.json' ]]; then
+                    if git diff --unified=0 "$BEFORE" "$HEAD_SHA" -- "$file" \
+                      | grep -Eq '^[+-][[:space:]]+"(src|width|height)":'; then
+                      has_media_reference_or_metadata=true
+                      has_media_change=true
+                    fi
+                  else
+                    has_media_reference_or_metadata=true
+                    has_media_change=true
+                  fi
                   ;;
                 *.jpg|*.jpeg|*.png|*.webp|*.avif|*.gif)
                   has_image_source=true
