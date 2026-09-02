@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 import { projects } from "../src/data/catalog/projects/index.ts";
+import { clientLogoDefinitions } from "../src/data/clients.ts";
 import {
   mediaCatalogDeliverables,
   mediaCatalogProjectTypes,
@@ -9,6 +10,9 @@ import {
 } from "../src/data/taxonomy/media-taxonomy.ts";
 
 const cmsPath = fileURLToPath(new URL("../.pages.yml", import.meta.url));
+const clientLogoVisibilityPath = fileURLToPath(
+  new URL("../src/content/client-logo-visibility.json", import.meta.url),
+);
 const checkOnly = process.argv.includes("--check");
 
 const escapeYamlLabel = (value) => value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
@@ -84,15 +88,60 @@ export function renderPagesCmsGeneratedOptions(source) {
   return output;
 }
 
-const source = await readFile(cmsPath, "utf8");
-const generated = renderPagesCmsGeneratedOptions(source);
+export function renderClientLogoEditorMetadata(source) {
+  const records = JSON.parse(source);
+  if (!Array.isArray(records)) {
+    throw new Error("client logo visibility content must be an array");
+  }
+
+  const visibleById = new Map(
+    records.map((record) => [record?.id, record?.visible]),
+  );
+
+  const generated = clientLogoDefinitions.map(({ id, name, file }) => {
+    const visible = visibleById.get(id);
+    if (typeof visible !== "boolean") {
+      throw new Error(`Missing authored client logo visibility for ${id}`);
+    }
+
+    return {
+      id,
+      name,
+      previewSrc: `/media/clients/logo-wall/client-logo-${file}.webp`,
+      visible,
+    };
+  });
+
+  return `${JSON.stringify(generated, null, 2)}\n`;
+}
+
+const [cmsSource, clientLogoVisibilitySource] = await Promise.all([
+  readFile(cmsPath, "utf8"),
+  readFile(clientLogoVisibilityPath, "utf8"),
+]);
+const generatedCms = renderPagesCmsGeneratedOptions(cmsSource);
+const generatedClientLogoVisibility = renderClientLogoEditorMetadata(clientLogoVisibilitySource);
 
 if (checkOnly) {
-  if (generated !== source) {
+  let stale = false;
+
+  if (generatedCms !== cmsSource) {
     console.error(".pages.yml canonical option blocks are stale. Run npm run cms:generate.");
-    process.exitCode = 1;
+    stale = true;
   }
-} else if (generated !== source) {
-  await writeFile(cmsPath, generated, "utf8");
-  console.log("Updated canonical option blocks in .pages.yml");
+  if (generatedClientLogoVisibility !== clientLogoVisibilitySource) {
+    console.error("Client logo editor metadata is stale. Run npm run cms:generate.");
+    stale = true;
+  }
+
+  if (stale) process.exitCode = 1;
+} else {
+  if (generatedCms !== cmsSource) {
+    await writeFile(cmsPath, generatedCms, "utf8");
+    console.log("Updated canonical option blocks in .pages.yml");
+  }
+  if (generatedClientLogoVisibility !== clientLogoVisibilitySource) {
+    await writeFile(clientLogoVisibilityPath, generatedClientLogoVisibility, "utf8");
+    console.log("Updated client logo editor metadata");
+  }
 }

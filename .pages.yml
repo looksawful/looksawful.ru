@@ -237,7 +237,7 @@ content:
       - name: verify-navigation
         label: Проверить сайт
         workflow: ci-fast.yml
-        ref: current
+        ref: dev
         confirm:
           title: Запустить быструю проверку сайта?
           message: Будут проверены подписи навигации, TypeScript, сборка, локальные ссылки и быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -247,8 +247,8 @@ content:
         label: ID
         type: string
         required: true
+        hidden: true
         readonly: true
-        description: Стабильный технический ID пункта. Маршрут и положение в меню остаются в коде.
       - name: label
         label: Подпись
         type: string
@@ -271,7 +271,7 @@ content:
       - name: verify-project-card-copy
         label: Проверить сайт
         workflow: ci-fast.yml
-        ref: current
+        ref: dev
         confirm:
           title: Запустить быструю проверку сайта?
           message: Будут проверены TypeScript, быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -369,6 +369,7 @@ content:
           - name: coverAlt
             label: Alt обложки
             type: text
+
   - name: project-card-media
     label: Карточки проектов — видимость и обложки
     type: file
@@ -386,7 +387,7 @@ content:
       - name: verify-project-card-media
         label: Проверить сайт
         workflow: ci-fast.yml
-        ref: current
+        ref: dev
         confirm:
           title: Запустить быструю проверку сайта?
           message: Будут проверены TypeScript, быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -396,6 +397,7 @@ content:
         label: ID
         type: string
         required: true
+        hidden: true
         readonly: true
       - name: visible
         label: Показывать на главной
@@ -427,6 +429,7 @@ content:
             required: true
             options:
               min: 1
+
   - name: media-library
     label: Медиакаталог
     type: group
@@ -442,7 +445,7 @@ content:
           rename: false
           delete: false
         view:
-          fields: [title, mediaType, date, id]
+          fields: [title, mediaType, date]
           primary: title
           sort: [title, date, mediaType]
           search: [title, id, date, tags, credits]
@@ -457,18 +460,18 @@ content:
             label: Проверить медиакаталог
             scope: collection
             workflow: ci-fast.yml
-            ref: current
+            ref: dev
             confirm:
               title: Проверить медиакаталог?
-              message: Будут проверены все свойства, категории, теги, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
+              message: Будут проверены свойства, категории, теги, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
           - name: id
             label: ID ассета
             type: string
             required: true
+            hidden: true
             readonly: true
-            description: Стабильный ID общего media registry. Не изменяется через CMS.
           - name: mediaType
             label: Тип файла
             type: select
@@ -484,7 +487,7 @@ content:
             type: string
             required: true
             readonly: true
-            description: Текущий физический источник уже используемого ассета.
+            description: Физический источник уже используемого ассета.
           - name: sourceSrc
             label: Исходный мастер видео
             type: string
@@ -493,31 +496,36 @@ content:
             label: Ширина, px
             type: number
             required: true
+            hidden: true
             readonly: true
           - name: height
             label: Высота, px
             type: number
             required: true
+            hidden: true
             readonly: true
           - name: durationSeconds
             label: Длительность, сек.
             type: number
             required: true
+            hidden: true
             readonly: true
           - name: mimeType
             label: MIME type
             type: string
+            hidden: true
             readonly: true
           - name: byteLength
             label: Размер, байт
             type: number
             required: true
+            hidden: true
             readonly: true
           - name: title
             label: Название в каталоге
             type: string
             required: true
-            description: Короткое название самого ассета. Оно не заменяет текущие подписи на страницах проектов.
+            description: Короткое название ассета.
           - name: alt
             label: Alt по умолчанию
             type: text
@@ -572,7 +580,7 @@ content:
           rename: false
           delete: true
         view:
-          fields: [title, mediaType, date, id]
+          fields: [title, mediaType, date]
           primary: title
           sort: [title, date, mediaType]
           search: [title, id, date, tags, credits]
@@ -589,7 +597,7 @@ content:
             label: Проверить медиакаталог
             scope: collection
             workflow: ci-fast.yml
-            ref: current
+            ref: dev
             confirm:
               title: Проверить новые медиа?
               message: Система сверит файлы, технические свойства, категории и теги, затем проверит сборку сайта. Эта кнопка ничего не публикует.
@@ -599,9 +607,9 @@ content:
             label: ID записи
             type: uuid
             required: true
+            hidden: true
             options:
               editable: false
-            description: Генерируется автоматически. Общий asset ID получит безопасный префикс cms-.
           - name: mediaType
             label: Тип файла
             type: select
@@ -624,9 +632,9 @@ content:
           - name: deliverySrc
             label: Оптимизированный видеофайл
             type: string
+            hidden: true
             readonly: true
             default: ""
-            description: Заполняется автоматически, если исходное видео требует web-версии.
           - name: posterSrc
             label: Постер видео
             type: image
@@ -640,29 +648,34 @@ content:
             label: Ширина, px
             type: number
             required: true
+            hidden: true
             readonly: true
             default: 0
           - name: height
             label: Высота, px
             type: number
             required: true
+            hidden: true
             readonly: true
             default: 0
           - name: durationSeconds
             label: Длительность, сек.
             type: number
             required: true
+            hidden: true
             readonly: true
             default: 0
           - name: mimeType
             label: MIME type
             type: string
+            hidden: true
             readonly: true
             default: ""
           - name: byteLength
             label: Размер, байт
             type: number
             required: true
+            hidden: true
             readonly: true
             default: 0
           - name: title
@@ -739,7 +752,7 @@ content:
           - name: verify-jestei-case
             label: Проверить сайт
             workflow: ci-fast.yml
-            ref: current
+            ref: dev
             confirm:
               title: Запустить быструю проверку сайта?
               message: Будут проверены Jestei-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -765,6 +778,7 @@ content:
                 label: ID
                 type: string
                 required: true
+                hidden: true
                 readonly: true
               - name: title
                 label: Заголовок
@@ -789,6 +803,7 @@ content:
                 label: ID
                 type: string
                 required: true
+                hidden: true
                 readonly: true
               - name: text
                 label: Текст
@@ -810,7 +825,7 @@ content:
           - name: verify-styx-case
             label: Проверить сайт
             workflow: ci-fast.yml
-            ref: current
+            ref: dev
             confirm:
               title: Запустить быструю проверку сайта?
               message: Будут проверены Styx-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -836,8 +851,8 @@ content:
                 label: ID
                 type: string
                 required: true
+                hidden: true
                 readonly: true
-                description: Стабильный ID раздела. Не изменяется через CMS.
               - name: title
                 label: Заголовок
                 type: string
@@ -862,8 +877,8 @@ content:
                 label: ID
                 type: string
                 required: true
+                hidden: true
                 readonly: true
-                description: Стабильный ID подписи. Не изменяется через CMS.
               - name: title
                 label: Подпись
                 type: string
@@ -884,7 +899,7 @@ content:
           - name: verify-sensetique-case
             label: Проверить сайт
             workflow: ci-fast.yml
-            ref: current
+            ref: dev
             confirm:
               title: Запустить быструю проверку сайта?
               message: Будут проверены Sensetique-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -914,6 +929,7 @@ content:
                 label: ID
                 type: string
                 required: true
+                hidden: true
                 readonly: true
               - name: title
                 label: Заголовок
@@ -938,6 +954,7 @@ content:
                 label: ID
                 type: string
                 required: true
+                hidden: true
                 readonly: true
               - name: title
                 label: Заголовок
@@ -961,6 +978,7 @@ content:
                 label: ID
                 type: string
                 required: true
+                hidden: true
                 readonly: true
               - name: text
                 label: Текст
@@ -986,7 +1004,7 @@ content:
           - name: verify-shootings-overview
             label: Проверить сайт
             workflow: ci-fast.yml
-            ref: current
+            ref: dev
             confirm:
               title: Запустить быструю проверку сайта?
               message: Будут проверены Shootings-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -1020,7 +1038,7 @@ content:
           rename: false
           delete: false
         view:
-          fields: [title, date, id]
+          fields: [title, date]
           primary: title
           sort: [title, date]
           search: [title, date, id]
@@ -1035,7 +1053,7 @@ content:
             label: Проверить сайт
             scope: collection
             workflow: ci-fast.yml
-            ref: current
+            ref: dev
             confirm:
               title: Запустить быструю проверку сайта?
               message: Будут проверены все записи Shootings, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -1045,8 +1063,8 @@ content:
             label: ID
             type: string
             required: true
+            hidden: true
             readonly: true
-            description: Стабильный ID записи. Новый ID требует отдельной регистрации в коде и не создаёт маршрут автоматически.
           - name: title
             label: Название
             type: string
@@ -1079,7 +1097,7 @@ content:
           - name: verify-berry-standalone-project
             label: Проверить сайт
             workflow: ci-fast.yml
-            ref: current
+            ref: dev
             confirm:
               title: Запустить быструю проверку сайта?
               message: Будут проверены Berry-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -1121,7 +1139,7 @@ content:
           - name: verify-awful-cases-standalone-project
             label: Проверить сайт
             workflow: ci-fast.yml
-            ref: current
+            ref: dev
             confirm:
               title: Запустить быструю проверку сайта?
               message: Будут проверены Awful Cases-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -1164,7 +1182,7 @@ content:
       - name: verify-client-logos
         label: Проверить сайт
         workflow: ci-fast.yml
-        ref: current
+        ref: dev
         confirm:
           title: Запустить быструю проверку сайта?
           message: Будут проверены данные, TypeScript, сборка, локальные ссылки и быстрые тесты и production build. Эта кнопка ничего не публикует.
@@ -1174,13 +1192,78 @@ content:
         label: ID
         type: string
         required: true
+        hidden: true
         readonly: true
-        description: Стабильный технический ID логотипа. Название и файл логотипа остаются в коде.
+      - name: previewSrc
+        label: Превью
+        type: image
+        required: true
+        readonly: true
+        description: Генерируется из канонического определения логотипа.
+      - name: name
+        label: Название
+        type: string
+        required: true
+        readonly: true
+        description: Генерируется из канонического списка клиентов.
       - name: visible
         label: Показывать
         type: boolean
         required: true
-        description: Управляет только отображением этого логотипа в блоке клиентов на главной.
+        description: Управляет отображением логотипа в блоке клиентов на главной.
+
+  - name: documentation
+    label: Документация
+    type: group
+    items:
+      - name: cms-handbook
+        label: CMS handbook
+        type: file
+        path: docs/cms-handbook.md
+        format: raw
+        operations: { create: false, rename: false, delete: false }
+      - name: cms-architecture
+        label: CMS architecture
+        type: file
+        path: docs/cms-architecture.md
+        format: raw
+        operations: { create: false, rename: false, delete: false }
+      - name: cms-content-map
+        label: CMS content map
+        type: file
+        path: docs/cms-content-map.md
+        format: raw
+        operations: { create: false, rename: false, delete: false }
+      - name: site-operations
+        label: Site operations
+        type: file
+        path: docs/site-operations.md
+        format: raw
+        operations: { create: false, rename: false, delete: false }
+      - name: tooling-pipeline
+        label: Tooling pipeline
+        type: file
+        path: docs/tooling-pipeline.md
+        format: raw
+        operations: { create: false, rename: false, delete: false }
+      - name: media-upload-policy
+        label: Media upload policy
+        type: file
+        path: docs/media-upload-policy.md
+        format: raw
+        operations: { create: false, rename: false, delete: false }
+      - name: site-pages
+        label: Site pages
+        type: file
+        path: docs/site-pages.md
+        format: raw
+        operations: { create: false, rename: false, delete: false }
+      - name: agents
+        label: AGENTS.md
+        type: file
+        path: AGENTS.md
+        format: raw
+        operations: { create: false, rename: false, delete: false }
 
   - name: cv
     label: Резюме — тексты
@@ -1198,7 +1281,7 @@ content:
       - name: verify-cv
         label: Проверить сайт
         workflow: ci-fast.yml
-        ref: current
+        ref: dev
         confirm:
           title: Запустить быструю проверку сайта?
           message: Будут проверены TypeScript, быстрые тесты и production build. Эта кнопка ничего не публикует.
