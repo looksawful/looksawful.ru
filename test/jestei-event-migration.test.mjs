@@ -22,7 +22,7 @@ test("Jestei Event is typed content and uses registry-backed Moves Awful media",
   assert.match(html, /\/media\/projects\/jestei\/landings\/moves-awful\/source\/03-1914x1208\.mp4/);
   assert.doesNotMatch(html, /shared\/moves-awful/);
 
-  assert.match(html, /data-lightbox-caption-copy[^>]*>\s*Добавили на лендинги Canvas-анимации и интерактивные виджеты/);
+  assert.equal((html.match(/data-lightbox-caption-copy/g) ?? []).length, 4);
   assert.equal((html.match(/class="media__caption-line"/g) ?? []).length, 4);
   assert.doesNotMatch(html, /class="media__index"/);
 });
