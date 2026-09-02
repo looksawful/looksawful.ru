@@ -5,9 +5,32 @@ import test from "node:test";
 
 const root = new URL("../src/content/editorial/", import.meta.url);
 const forbidden = new Set([
-  "route", "pageType", "componentType", "layout", "layoutKind", "renderMode",
-  "breakpoint", "breakpoints", "mediaSrc", "src", "assetId", "coverId",
-  "visible", "order", "width", "height",
+  "id",
+  "slug",
+  "route",
+  "href",
+  "url",
+  "target",
+  "pageType",
+  "componentType",
+  "component",
+  "layout",
+  "layoutKind",
+  "renderMode",
+  "breakpoint",
+  "breakpoints",
+  "media",
+  "mediaSrc",
+  "src",
+  "sourceSrc",
+  "assetId",
+  "coverId",
+  "cover",
+  "visible",
+  "titleVisible",
+  "order",
+  "width",
+  "height",
 ]);
 
 async function files(dir) {
@@ -20,6 +43,10 @@ async function files(dir) {
   return result;
 }
 
+function isStructuralKey(key) {
+  return forbidden.has(key) || /(?:Id|Ids|Src|Path|Route)$/.test(key);
+}
+
 function walk(value, location) {
   if (Array.isArray(value)) {
     value.forEach((item, index) => walk(item, `${location}[${index}]`));
@@ -27,13 +54,15 @@ function walk(value, location) {
   }
   if (!value || typeof value !== "object") return;
   for (const [key, child] of Object.entries(value)) {
-    assert.equal(forbidden.has(key), false, `editorial structural key "${key}" at ${location}`);
+    assert.equal(isStructuralKey(key), false, `editorial structural key "${key}" at ${location}`);
     walk(child, `${location}.${key}`);
   }
 }
 
-test("editorial JSON cannot own routing, layout, visibility or media structure", async () => {
-  for (const file of await files(root)) {
+test("editorial JSON owns authored copy only, never routing, IDs, visibility, media or runtime structure", async () => {
+  const editorialFiles = await files(root);
+  assert.ok(editorialFiles.length > 0, "editorial layer must contain authored copy files");
+  for (const file of editorialFiles) {
     const value = JSON.parse(await readFile(file, "utf8"));
     walk(value, path.basename(file.pathname));
   }
