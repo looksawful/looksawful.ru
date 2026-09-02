@@ -6,6 +6,7 @@ import { createSitePagesPlugin } from "./src/site/build/site-pages-plugin.ts";
 import { createMediaDeskWritePlugin } from "./src/tools/media-desk/server.ts";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
+const contentDeskWrite = process.env.CONTENT_DESK_WRITE === "1";
 
 export default defineConfig({
   css: {
@@ -16,7 +17,10 @@ export default defineConfig({
     },
   },
 
-  plugins: [createSitePagesPlugin(root), createMediaDeskWritePlugin(root)],
+  plugins: [
+    createSitePagesPlugin(root),
+    ...(contentDeskWrite ? [createMediaDeskWritePlugin(root)] : []),
+  ],
 
   build: {
     rollupOptions: {
