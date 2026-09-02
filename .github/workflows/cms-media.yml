@@ -100,7 +100,7 @@ jobs:
           exit 1
       - name: Verify previous cache before incremental generation
         if: github.event_name == 'push' && steps.scope.outputs.has_source == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
-        run: node tools/media-dev-state.mjs --cache-verify || true
+        run: node tools/media-dev-state.mjs --cache-verify
       - name: Synchronize catalog metadata
         if: steps.scope.outputs.has_source == 'true'
         run: npm run media:catalog:sync
