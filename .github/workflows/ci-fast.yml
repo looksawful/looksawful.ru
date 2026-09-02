@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - 'src/content/editorial/cv.json'
       - 'src/content/editorial/home-project-cards.json'
+      - 'src/content/projects.json'
       - 'public/media/catalog/**'
       - 'public/media/projects/index/**'
       - 'src/data/media/catalog-records.generated.ts'
@@ -20,6 +21,11 @@ on:
       - 'src/content/editorial/cv.json'
       - 'src/content/editorial/home-project-cards.json'
   workflow_dispatch:
+    inputs:
+      payload:
+        description: Optional Pages CMS action payload; Fast CI never mutates it
+        required: false
+        type: string
   workflow_call:
 
 permissions:
