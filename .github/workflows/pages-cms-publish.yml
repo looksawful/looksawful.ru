@@ -48,7 +48,7 @@ jobs:
           fi
 
       - name: Checkout trusted publication policy
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: prod
           fetch-depth: 0
