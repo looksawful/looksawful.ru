@@ -70,7 +70,7 @@ test("ProjectCardPresentation keeps code-owned order while authored overrides re
   editedCopy.jestei.focus = "Тизерное описание";
 
   const parsed = parseProjectCardPresentations(reordered, editedCopy);
-  assert.deepEqual(parsed.map(({ id }) => id, projectCardIds);
+  assert.deepEqual(parsed.map(({ id }) => id), projectCardIds);
   assert.equal(parsed[0].title, editedCopy.jestei.title);
   assert.equal(parsed[0].role, editedCopy.jestei.role);
   assert.equal(parsed[0].period, editedCopy.jestei.period);
