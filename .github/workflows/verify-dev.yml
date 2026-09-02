@@ -41,7 +41,7 @@ jobs:
         run: npm run test:fast
       - name: Restore generated media
         id: media-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             public/media/generated/responsive
@@ -83,7 +83,7 @@ jobs:
       - name: Build site
         run: npm run build:site
       - name: Restore Playwright Chromium
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-v1-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
