@@ -39,11 +39,15 @@ test("Fast CI automatically validates engineering dev pushes and PRs while warm-
   }
   assert.doesNotMatch(workflow, /git\s+(?:commit|push)\b/);
 
-  for (const editorial of [
+  for (const ignored of [
+    "docs/**",
+    "AGENTS.md",
+    ".agents/**",
+    "archive/**",
     "src/content/editorial/cv.json",
     "src/content/editorial/home-project-cards.json",
   ]) {
-    assert.ok(workflow.includes(editorial), `Fast CI must ignore proven copy-only path ${editorial}`);
+    assert.ok(workflow.includes(ignored), `Fast CI must ignore non-runtime/copy-only path ${ignored}`);
   }
 });
 

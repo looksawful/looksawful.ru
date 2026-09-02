@@ -1,0 +1,4 @@
+interface:
+  display_name: "Looksawful Policy Boundaries"
+  short_description: "Protect CMS, CI, branch, and agent-policy boundaries"
+  default_prompt: "Use $looksawful-policy-boundaries to review this policy or guard change, identify bypasses and untrusted-input risks, and require executable negative checks."

@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - 'docs/**'
       - 'AGENTS.md'
+      - '.agents/**'
       - 'archive/**'
       - 'src/content/editorial/cv.json'
       - 'src/content/editorial/home-project-cards.json'

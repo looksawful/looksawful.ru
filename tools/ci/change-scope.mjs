@@ -16,7 +16,7 @@ const rules = [
   ["build-config", /^(vite\.config\.|tsconfig[^/]*|\.pages\.yml$|index\.html$|404\.html$|tools\/(generate-sitemap|check-site-meta|check-local-links|site-html-utils)\.mjs$)/],
   ["styles", /^src\/styles\//],
   ["content", /^(src\/(content\/|data\/)|work\/|shootings\/|test\/(domain-catalog-identity|jestei|styx|sensetique|shootings|client|project-card))/],
-  ["ci", /^(\.github\/|tools\/ci\/|test\/(ci-pipeline|change-scope|e2e-concurrency|tooling-pipeline)\.test\.mjs$|docs\/|AGENTS\.md$|README[^/]*$|\.editorconfig$|\.gitignore$|\.gitattributes$)/],
+  ["ci", /^(\.github\/|\.agents\/|tools\/ci\/|test\/(ci-pipeline|change-scope|e2e-concurrency|tooling-pipeline)\.test\.mjs$|docs\/|AGENTS\.md$|README[^/]*$|\.editorconfig$|\.gitignore$|\.gitattributes$)/],
 ];
 
 export function classifyChangedFiles(files, { full = false } = {}) {
@@ -73,6 +73,11 @@ export function scopeFromGit({ base, head = "HEAD", mergeBase = false, full = fa
   execFileSync("git", ["diff", "--check", range], { stdio: "inherit" });
   const diff = execFileSync("git", ["diff", "--name-only", "-z", range], { encoding: "utf8" });
   return classifyChangedFiles(diff.split("\0"));
+}
+
+function argumentValue(args, name) {
+  const index = args.indexOf(name);
+  return index === -1 ? undefined : args[index + 1];
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {

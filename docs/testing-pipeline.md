@@ -90,6 +90,7 @@ Push в `dev` не запускает Fast CI для заведомо non-runtim
 
 - `docs/**`;
 - `AGENTS.md`;
+- `.agents/**`;
 - `archive/**`;
 - разрешённых copy-only CMS JSON;
 - путей, принадлежащих отдельному media workflow.
@@ -116,7 +117,7 @@ PR по-прежнему получает Fast CI как integration gate нез
 - Очевидные migration tests исключены из Fast автоматически, но не удалены без разбора: часть из них всё ещё защищает runtime/typed composition contracts и остаётся в broad/full tier.
 - В нескольких historical component tests удалены literal assertions на пользовательский copy.
 - Из remaining-media migration test удалён чисто исторический check на уже завершённый temporary bridge.
-- Documentation/archive pushes исключены из Fast CI.
+- Documentation/archive/agent-skill pushes исключены из Fast CI.
 
 ## Правило для будущей работы
 
