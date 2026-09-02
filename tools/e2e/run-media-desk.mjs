@@ -16,7 +16,7 @@ async function waitForServer(server, output) {
     } catch {}
     await delay(250);
   }
-  throw new Error(`Media Desk dev server did not become ready.\n${output()}`);
+  throw new Error(`Content Desk dev server did not become ready.\n${output()}`);
 }
 
 async function stopServer(server) {
@@ -38,10 +38,11 @@ async function auditViewport(browser, viewport) {
   });
   try {
     const response = await page.goto(`${BASE_URL}/tools/media-desk/`, { waitUntil: "networkidle" });
-    assert.ok(response?.ok(), `Media Desk HTTP ${response?.status()}`);
-    assert.equal(await page.locator("h1").textContent(), "Media Desk");
-    assert.ok(await page.locator(".media-card").count() > 0, "Media Desk must render catalog cards");
-    assert.ok(await page.locator(".media-desk__summary").textContent(), "Media Desk summary must render");
+    assert.ok(response?.ok(), `Content Desk HTTP ${response?.status()}`);
+    assert.equal(await page.locator("h1").textContent(), "Content Desk");
+    assert.equal(await page.locator(".content-desk__tab").count(), 2, "Content Desk must expose Media and Text tabs");
+    assert.ok(await page.locator(".media-card").count() > 0, "Media view must render catalog cards");
+    assert.ok(await page.locator(".media-desk__summary").textContent(), "Media summary must render");
 
     const search = page.getByLabel("Поиск по медиакаталогу");
     await search.fill("jestei-13-source-01-16x9");
@@ -54,13 +55,22 @@ async function auditViewport(browser, viewport) {
     await dialog.waitFor();
     assert.equal(await dialog.locator("video").count(), 1, "video detail must use controlled playback");
     assert.match(await dialog.locator(".media-desk__details").textContent(), /jestei-13-source-01-16x9/);
+    assert.equal(await dialog.locator(".content-desk__media-form").count(), 1, "Media detail must expose editorial editing");
+    assert.equal(await dialog.getByRole("button", { name: "Сохранить metadata" }).count(), 1);
     await page.getByRole("button", { name: "Закрыть" }).click();
+
+    await page.goto(`${BASE_URL}/tools/media-desk/?view=text`, { waitUntil: "networkidle" });
+    assert.equal(await page.locator("h1").textContent(), "Content Desk");
+    assert.ok(await page.locator(".content-desk__text-card").count() > 0, "Text view must render CMS-owned text fields");
+    assert.equal(await page.getByLabel("Поиск по текстам сайта").count(), 1);
+    await page.getByLabel("Поиск по текстам сайта").fill("jestei");
+    assert.ok(await page.locator(".content-desk__text-card").count() > 0, "Text search must keep matching entries");
 
     assert.ok(
       await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1),
-      `${viewport.width}px Media Desk document overflow`,
+      `${viewport.width}px Content Desk document overflow`,
     );
-    assert.deepEqual(errors, [], "Media Desk browser/resource errors");
+    assert.deepEqual(errors, [], "Content Desk browser/resource errors");
   } finally {
     await context.close();
   }
@@ -83,7 +93,7 @@ try {
   browser = await chromium.launch({ headless: true });
   await auditViewport(browser, { width: 1440, height: 900 });
   await auditViewport(browser, { width: 390, height: 844 });
-  console.log("[media-desk-smoke] desktop + mobile: OK");
+  console.log("[content-desk-smoke] desktop + mobile: OK");
 } finally {
   await browser?.close();
   await stopServer(server);
