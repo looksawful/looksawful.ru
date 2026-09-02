@@ -22,13 +22,13 @@ const CAN_WRITE_MEDIA = import.meta.env.VITE_CONTENT_DESK_WRITE === "1";
 
 const textSources = import.meta.glob(
   [
-    "../../content/navigation.json",
-    "../../content/editorial/*.json",
-    "../../content/projects.json",
-    "../../content/cases/*.json",
-    "../../content/collections/*.json",
-    "../../content/shootings/*.json",
-    "../../content/standalone-projects/*.json",
+    "/src/content/navigation.json",
+    "/src/content/editorial/*.json",
+    "/src/content/projects.json",
+    "/src/content/cases/*.json",
+    "/src/content/collections/*.json",
+    "/src/content/shootings/*.json",
+    "/src/content/standalone-projects/*.json",
   ],
   { eager: true, import: "default" },
 ) as Record<string, unknown>;
