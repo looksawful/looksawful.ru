@@ -6,6 +6,7 @@ import test from "node:test";
 
 import {
   createMediaDeskWritePlugin,
+  loadContentDeskTextEntries,
   saveMediaDeskMetadata,
 } from "../src/tools/media-desk/server.ts";
 
@@ -85,6 +86,14 @@ test("local writer rejects protected technical fields without touching the recor
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test("Content Desk text loader indexes the real CMS-owned content tree", async () => {
+  const entries = await loadContentDeskTextEntries(process.cwd());
+  assert.ok(entries.length > 0, "real content tree must produce text entries");
+  assert.ok(entries.some(({ sourcePath }) => sourcePath === "src/content/navigation.json"));
+  assert.ok(entries.some(({ sourcePath }) => sourcePath.startsWith("src/content/editorial/")));
+  assert.ok(entries.every(({ sourcePath }) => !sourcePath.includes("/media-catalog/")));
 });
 
 test("Content Desk middleware is registered only for explicit Desk mode", () => {
