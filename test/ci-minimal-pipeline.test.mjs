@@ -20,6 +20,7 @@ test("Fast CI automatically validates engineering dev pushes and PRs while warm-
   assert.match(workflow, /pull_request:\s*\n\s*branches:\s*\[dev, prod\]/);
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /workflow_call:/);
+  assert.match(workflow, /ref: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}/);
 
   for (const command of ["npm ci", "npm run typecheck", "npm run test:fast", "npm run build:site"]) {
     assert.ok(workflow.includes(command), command);
@@ -58,6 +59,8 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /actions\/cache\/restore@v4/);
   assert.doesNotMatch(workflow, /restore-keys:/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
+  assert.match(workflow, /Regenerate exact media cache on miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
+  assert.match(workflow, /Require clean tracked tree after cache recovery[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?git diff --exit-code/);
   assert.match(workflow, /npm run typecheck/);
   assert.match(workflow, /npm run test:fast/);
   assert.match(workflow, /npm run build:site/);
@@ -70,7 +73,6 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /looksawful\.ru\/deploy-version\.txt/);
   assert.match(workflow, /looksawful\.ru\/cv\//);
   assert.match(workflow, /\/assets\/\[\^/);
-  assert.doesNotMatch(workflow, /npm run media:sync/);
 });
 
 test("CMS media distinguishes references, image sources and video sources, saves cache, and validates once", async () => {

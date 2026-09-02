@@ -58,11 +58,13 @@ test("production deploy builds exact prod SHA, validates fast safety, compact br
   assert.match(workflow, /actions\/cache\/restore@v4/);
   assert.doesNotMatch(workflow, /restore-keys:/);
   assert.match(workflow, /media-dev-state\.mjs --cache-verify/);
+  assert.match(step(workflow, "Regenerate exact media cache on miss"), /if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*npm run media:sync/);
+  assert.match(step(workflow, "Require clean tracked tree after cache recovery"), /if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*git diff --exit-code/);
   assert.match(workflow, /https:\/\/www\.looksawful\.ru\/deploy-version\.txt/);
   assert.match(workflow, /https:\/\/www\.looksawful\.ru\/cv\//);
   assert.match(workflow, /Cache-Control: no-cache/);
   assert.match(workflow, /commit=\$\{GITHUB_SHA\}/);
-  assert.doesNotMatch(workflow, /media:sync|test:e2e:full/);
+  assert.doesNotMatch(workflow, /test:e2e:full/);
 });
 
 test("full regression remains scheduled and manual outside push CI", async () => {
