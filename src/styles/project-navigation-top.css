@@ -20,6 +20,14 @@
   color: var(--clr-text);
 }
 
+@container projects (width <= 96rem) {
+  .project-nav[data-viewport-anchor] {
+    position: relative;
+    inset-block-start: var(--project-nav-viewport-offset, 0px);
+    translate: none;
+  }
+}
+
 @container projects (width <= 40rem) {
   .project-nav__top {
     align-items: center;
