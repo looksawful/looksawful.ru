@@ -18,6 +18,7 @@ import {
 
 const PAGES_CMS_URL = "https://app.pagescms.org/";
 const TEXT_RENDER_LIMIT = 500;
+const CAN_WRITE_MEDIA = import.meta.env.VITE_CONTENT_DESK_WRITE === "1";
 
 const textSources = import.meta.glob(
   [
@@ -56,7 +57,11 @@ function addTabs(app: HTMLElement, view: "media" | "text"): void {
   const title = header.querySelector("h1");
   if (title) title.textContent = "Content Desk";
   const eyebrow = header.querySelector(".media-desk__eyebrow");
-  if (eyebrow) eyebrow.textContent = "Internal tool · local content workspace";
+  if (eyebrow) {
+    eyebrow.textContent = CAN_WRITE_MEDIA
+      ? "Internal tool · local write mode"
+      : "Internal tool · read only";
+  }
 
   const navigation = element("nav", "content-desk__tabs");
   navigation.setAttribute("aria-label", "Content Desk разделы");
@@ -345,7 +350,7 @@ if (app) {
 
   if (view === "text") {
     renderTextView(app);
-  } else {
+  } else if (CAN_WRITE_MEDIA) {
     document.addEventListener("click", (event) => {
       const target = event.target;
       if (!(target instanceof Element) || !target.closest(".media-card")) return;
