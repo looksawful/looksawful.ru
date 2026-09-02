@@ -1,5 +1,119 @@
 const noop = () => {};
 
+export interface ProjectNavigationViewportGeometry {
+  viewportTop: number;
+  viewportHeight: number;
+  naturalNavigationTop: number;
+  navigationHeight: number;
+  sectionTop: number;
+  sectionBottom: number;
+}
+
+export function calculateProjectNavigationViewportOffset({
+  viewportTop,
+  viewportHeight,
+  naturalNavigationTop,
+  navigationHeight,
+  sectionTop,
+  sectionBottom,
+}: ProjectNavigationViewportGeometry): number {
+  const viewportBottom = viewportTop + Math.max(0, viewportHeight);
+  const safeNavigationHeight = Math.max(0, navigationHeight);
+  const sectionNavigationEnd = Math.max(
+    sectionTop,
+    sectionBottom - safeNavigationHeight,
+  );
+  const desiredTop = viewportBottom - safeNavigationHeight;
+  const targetTop = Math.min(
+    Math.max(desiredTop, sectionTop),
+    sectionNavigationEnd,
+  );
+
+  return Math.max(0, targetTop - naturalNavigationTop);
+}
+
+export function initProjectNavigationViewportAnchor(
+  root: Document | HTMLElement = document,
+): () => void {
+  const navigation = root.querySelector<HTMLElement>("[data-projects-navigation]");
+  if (!(navigation instanceof HTMLElement)) return noop;
+
+  const projects = navigation.closest<HTMLElement>(".projects");
+  if (!(projects instanceof HTMLElement)) return noop;
+
+  const view = navigation.ownerDocument.defaultView;
+  const visualViewport = view?.visualViewport;
+  if (!view || !visualViewport) return noop;
+
+  const narrowLayout = view.matchMedia("(max-width: 96rem)");
+  let currentOffset = 0;
+  let frame = 0;
+
+  const clearAnchor = (): void => {
+    currentOffset = 0;
+    navigation.removeAttribute("data-viewport-anchor");
+    navigation.style.removeProperty("--project-nav-viewport-offset");
+  };
+
+  const render = (): void => {
+    if (!narrowLayout.matches) {
+      clearAnchor();
+      return;
+    }
+
+    if (!navigation.hasAttribute("data-viewport-anchor")) {
+      currentOffset = 0;
+      navigation.setAttribute("data-viewport-anchor", "");
+      navigation.style.setProperty("--project-nav-viewport-offset", "0px");
+    }
+
+    const navigationRect = navigation.getBoundingClientRect();
+    const projectsRect = projects.getBoundingClientRect();
+    const naturalNavigationTop = navigationRect.top - currentOffset;
+    const nextOffset = calculateProjectNavigationViewportOffset({
+      viewportTop: Math.max(0, visualViewport.offsetTop),
+      viewportHeight: visualViewport.height,
+      naturalNavigationTop,
+      navigationHeight: navigationRect.height,
+      sectionTop: projectsRect.top,
+      sectionBottom: projectsRect.bottom,
+    });
+
+    currentOffset = nextOffset;
+    navigation.style.setProperty(
+      "--project-nav-viewport-offset",
+      `${nextOffset}px`,
+    );
+  };
+
+  const schedule = (): void => {
+    if (frame) return;
+
+    frame = view.requestAnimationFrame(() => {
+      frame = 0;
+      render();
+    });
+  };
+
+  view.addEventListener("scroll", schedule, { passive: true });
+  view.addEventListener("resize", schedule, { passive: true });
+  visualViewport.addEventListener("scroll", schedule, { passive: true });
+  visualViewport.addEventListener("resize", schedule, { passive: true });
+  narrowLayout.addEventListener("change", schedule);
+
+  render();
+
+  return () => {
+    if (frame) view.cancelAnimationFrame(frame);
+    view.removeEventListener("scroll", schedule);
+    view.removeEventListener("resize", schedule);
+    visualViewport.removeEventListener("scroll", schedule);
+    visualViewport.removeEventListener("resize", schedule);
+    narrowLayout.removeEventListener("change", schedule);
+    clearAnchor();
+  };
+}
+
 export function initProjectNavigationBackToTop(
   root: Document | HTMLElement = document,
 ): () => void {
