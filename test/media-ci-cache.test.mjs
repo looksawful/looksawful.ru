@@ -23,7 +23,7 @@ test("CI caches only reproducible media derivatives and validates changed media 
     const cache = cacheBlock(workflow);
     const sync = syncBlock(workflow);
 
-    assert.match(cache, /uses: actions\/cache@v4/, `${label} must restore generated media cache`);
+    assert.match(cache, /uses: actions\/cache@v[45]/, `${label} must restore generated media cache`);
     assert.match(cache, /public\/media\/generated\/responsive\b/, `${label} must cache responsive derivatives`);
     assert.match(cache, /src\/content\/projects\.json/, `${label} must invalidate cache when CMS cover selection changes`);
     assert.match(cache, /src\/content\/media-catalog\/\*\*\/\*\.json/, `${label} must invalidate cache when catalog records change`);

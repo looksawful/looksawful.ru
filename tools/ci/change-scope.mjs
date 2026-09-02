@@ -43,9 +43,32 @@ export function classifyChangedFiles(files, { full = false } = {}) {
   };
 }
 
+function commitIsAvailable(ref) {
+  try {
+    execFileSync("git", ["cat-file", "-e", `${ref}^{commit}`], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function ensureCommitAvailable(ref) {
+  if (!ref || /^0+$/.test(ref) || commitIsAvailable(ref)) return;
+
+  // Shallow CI checkouts intentionally contain only the checked-out SHA. Fetch
+  // the exact comparison revision instead of downloading every branch/tag and
+  // the entire repository history. Any fetch/validation failure remains fatal.
+  execFileSync("git", ["fetch", "--no-tags", "--depth=1", "origin", ref], { stdio: "inherit" });
+  if (!commitIsAvailable(ref)) {
+    throw new Error(`Fetched comparison revision is still unavailable: ${ref}`);
+  }
+}
+
 export function scopeFromGit({ base, head = "HEAD", mergeBase = false, full = false } = {}) {
   if (full || !base || /^0+$/.test(base)) return classifyChangedFiles([], { full: true });
   // Invalid/unavailable revisions fail the job; they never silently shrink scope.
+  ensureCommitAvailable(base);
+  ensureCommitAvailable(head);
   const range = `${base}${mergeBase ? "..." : ".."}${head}`;
   execFileSync("git", ["diff", "--check", range], { stdio: "inherit" });
   const diff = execFileSync("git", ["diff", "--name-only", "-z", range], { encoding: "utf8" });

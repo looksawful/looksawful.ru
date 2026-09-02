@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           persist-credentials: false
       - name: Classify changes
         id: change-scope
@@ -40,7 +40,7 @@ jobs:
         run: npm run test:cv
       - name: Restore generated media
         id: media-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             public/media/generated/responsive
@@ -81,6 +81,11 @@ jobs:
         run: npm run test:media:checks
       - name: Build site
         run: npm run build:site
+      - name: Restore Playwright Chromium
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-v1-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install browser for smoke tests
         run: npx playwright install --with-deps chromium
       - name: Authored browser smoke
