@@ -1,0 +1,56 @@
+name: Temporary patch lightbox readiness
+
+on:
+  push:
+    branches: [fix/e2e-lightbox-readiness-red]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/e2e-lightbox-readiness-red
+          fetch-depth: 1
+      - name: Apply minimal readiness patch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          readiness = Path('tools/e2e/readiness.mjs')
+          text = readiness.read_text()
+          needle = 'export async function waitForLightboxClosed(page) {\n'
+          insert = '''export async function waitForLightboxOpen(page) {\n  await page.waitForFunction(() => {\n    const dialog = document.querySelector("[data-media-lightbox]");\n    return Boolean(document.querySelector(".pswp")) || (dialog instanceof HTMLDialogElement && dialog.open);\n  });\n}\n'''
+          if 'export async function waitForLightboxOpen(page)' not in text:
+              if needle not in text:
+                  raise SystemExit('readiness insertion point not found')
+              text = text.replace(needle, insert + needle, 1)
+              readiness.write_text(text)
+
+          smoke = Path('tools/smoke-site.mjs')
+          text = smoke.read_text()
+          old_import = 'import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./e2e/readiness.mjs";'
+          new_import = 'import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxOpen, waitForLightboxClosed } from "./e2e/readiness.mjs";'
+          if old_import not in text and new_import not in text:
+              raise SystemExit('smoke import not found')
+          text = text.replace(old_import, new_import, 1)
+
+          old_helper = '''async function assertLightboxOpen(page, label) {\n  const state = await lightboxState(page);\n  assert(state.open, `${label}: lightbox did not open\\n${JSON.stringify(state, null, 2)}`);\n  return state;\n}'''
+          new_helper = '''async function assertLightboxOpen(page, label) {\n  await waitForLightboxOpen(page);\n  const state = await lightboxState(page);\n  assert(state.open, `${label}: lightbox did not open\\n${JSON.stringify(state, null, 2)}`);\n  return state;\n}'''
+          if old_helper not in text and new_helper not in text:
+              raise SystemExit('assertLightboxOpen helper not found')
+          text = text.replace(old_helper, new_helper, 1)
+          smoke.write_text(text)
+          PY
+          git diff --check
+          git rm .github/workflows/_temporary_patch_lightbox_readiness.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/e2e/readiness.mjs tools/smoke-site.mjs test/e2e-readiness-contract.test.mjs
+          git commit -m "test(e2e): wait for lightbox open readiness"
+          git push origin HEAD:fix/e2e-lightbox-readiness-red
