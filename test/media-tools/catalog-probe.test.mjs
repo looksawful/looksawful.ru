@@ -56,3 +56,22 @@ test("upload technical sync probes an image without rewriting authored catalog m
 
   assert.equal(await readFile(imagePath).then((value) => value.byteLength), onePixelPng.byteLength);
 });
+
+test("CMS upload policy warns early and rejects oversized Git-backed masters", async () => {
+  const mediaCatalog = await import("../../tools/sync-media-catalog.mjs");
+  assert.equal(typeof mediaCatalog.assessCmsMediaUploadSize, "function", "upload size policy helper must exist");
+  const assess = mediaCatalog.assessCmsMediaUploadSize;
+  const MiB = 1024 * 1024;
+
+  assert.deepEqual(assess("image", 20 * MiB), { warning: false, allowed: true });
+  assert.deepEqual(assess("image", 20 * MiB + 1), { warning: true, allowed: true });
+  assert.deepEqual(assess("image", 50 * MiB), { warning: true, allowed: true });
+  assert.deepEqual(assess("image", 50 * MiB + 1), { warning: true, allowed: false });
+
+  assert.deepEqual(assess("video", 50 * MiB), { warning: false, allowed: true });
+  assert.deepEqual(assess("video", 50 * MiB + 1), { warning: true, allowed: true });
+  assert.deepEqual(assess("video", 95 * MiB), { warning: true, allowed: true });
+  assert.deepEqual(assess("video", 95 * MiB + 1), { warning: true, allowed: false });
+
+  assert.throws(() => assess("model", 1), /Unsupported CMS upload media type/);
+});
