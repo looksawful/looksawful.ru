@@ -1,4 +1,4 @@
-import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./e2e/readiness.mjs";
+import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxOpen, waitForLightboxClosed } from "./e2e/readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
 let BASE_URL = "";
@@ -373,6 +373,7 @@ async function lightboxState(page) {
 }
 
 async function assertLightboxOpen(page, label) {
+  await waitForLightboxOpen(page);
   const state = await lightboxState(page);
   assert(state.open, `${label}: lightbox did not open\n${JSON.stringify(state, null, 2)}`);
   return state;
