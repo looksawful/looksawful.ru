@@ -10,7 +10,6 @@ import {
   mediaCatalogWorkAreas,
 } from "../../data/taxonomy/media-taxonomy.ts";
 import {
-  collectContentDeskTextEntries,
   pickMediaEditorialMetadata,
   type ContentDeskTextEntry,
   type MediaEditorialPatch,
@@ -19,19 +18,6 @@ import {
 const PAGES_CMS_URL = "https://app.pagescms.org/";
 const TEXT_RENDER_LIMIT = 500;
 const CAN_WRITE_MEDIA = import.meta.env.VITE_CONTENT_DESK_WRITE === "1";
-
-const textSources = import.meta.glob(
-  [
-    "/src/content/navigation.json",
-    "/src/content/editorial/*.json",
-    "/src/content/projects.json",
-    "/src/content/cases/*.json",
-    "/src/content/collections/*.json",
-    "/src/content/shootings/*.json",
-    "/src/content/standalone-projects/*.json",
-  ],
-  { eager: true, import: "default" },
-) as Record<string, unknown>;
 
 function element<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -280,7 +266,7 @@ function textCard(entry: ContentDeskTextEntry): HTMLElement {
   return card;
 }
 
-function renderTextView(app: HTMLElement): void {
+async function renderTextView(app: HTMLElement): Promise<void> {
   for (const selector of [
     ".media-desk__toolbar",
     ".media-desk__status",
@@ -292,55 +278,73 @@ function renderTextView(app: HTMLElement): void {
     if (node) node.hidden = true;
   }
 
-  const entries = collectContentDeskTextEntries(textSources);
-  const sources = [...new Set(entries.map(({ sourcePath }) => sourcePath))].sort();
   const summary = app.querySelector(".media-desk__summary");
-  if (summary) summary.textContent = `${entries.length} текстовых полей · ${sources.length} sources`;
-
   const section = element("section", "content-desk__texts");
-  const controls = element("div", "content-desk__text-controls");
-  const search = element("input", "content-desk__search");
-  search.type = "search";
-  search.placeholder = "Поиск по тексту, source или полю…";
-  search.setAttribute("aria-label", "Поиск по текстам сайта");
-
-  const sourceFilter = element("select", "content-desk__source-filter");
-  sourceFilter.setAttribute("aria-label", "Источник текста");
-  const all = element("option", undefined, "Все sources");
-  all.value = "";
-  sourceFilter.append(all);
-  for (const sourcePath of sources) {
-    const option = element("option", undefined, sourcePath);
-    option.value = sourcePath;
-    sourceFilter.append(option);
-  }
-  controls.append(search, sourceFilter);
-
-  const status = element("p", "content-desk__save-state");
-  const list = element("div", "content-desk__text-list");
-
-  const render = (): void => {
-    const query = search.value.trim().toLocaleLowerCase();
-    const selectedSource = sourceFilter.value;
-    const filtered = entries.filter((entry) => {
-      if (selectedSource && entry.sourcePath !== selectedSource) return false;
-      if (!query) return true;
-      return `${entry.sourcePath} ${entry.fieldPath} ${entry.value}`.toLocaleLowerCase().includes(query);
-    });
-    const visible = filtered.slice(0, TEXT_RENDER_LIMIT);
-    status.textContent = filtered.length > TEXT_RENDER_LIMIT
-      ? `${filtered.length} найдено · показываются первые ${TEXT_RENDER_LIMIT}`
-      : `${filtered.length} найдено`;
-    const fragment = document.createDocumentFragment();
-    for (const entry of visible) fragment.append(textCard(entry));
-    list.replaceChildren(fragment);
-  };
-
-  search.addEventListener("input", render);
-  sourceFilter.addEventListener("change", render);
-  section.append(controls, status, list);
+  const status = element("p", "content-desk__save-state", "Загружаю индекс текстов…");
+  section.append(status);
   app.append(section);
-  render();
+
+  try {
+    const response = await fetch("/__media-desk/texts");
+    const payload = await response.json() as {
+      ok?: boolean;
+      entries?: ContentDeskTextEntry[];
+      error?: string;
+    };
+    if (!response.ok || !payload.ok || !Array.isArray(payload.entries)) {
+      throw new Error(payload.error ?? `HTTP ${response.status}`);
+    }
+
+    const entries = payload.entries;
+    const sources = [...new Set(entries.map(({ sourcePath }) => sourcePath))].sort();
+    if (summary) summary.textContent = `${entries.length} текстовых полей · ${sources.length} sources`;
+
+    const controls = element("div", "content-desk__text-controls");
+    const search = element("input", "content-desk__search");
+    search.type = "search";
+    search.placeholder = "Поиск по тексту, source или полю…";
+    search.setAttribute("aria-label", "Поиск по текстам сайта");
+
+    const sourceFilter = element("select", "content-desk__source-filter");
+    sourceFilter.setAttribute("aria-label", "Источник текста");
+    const all = element("option", undefined, "Все sources");
+    all.value = "";
+    sourceFilter.append(all);
+    for (const sourcePath of sources) {
+      const option = element("option", undefined, sourcePath);
+      option.value = sourcePath;
+      sourceFilter.append(option);
+    }
+    controls.append(search, sourceFilter);
+
+    const list = element("div", "content-desk__text-list");
+    section.replaceChildren(controls, status, list);
+
+    const render = (): void => {
+      const query = search.value.trim().toLocaleLowerCase();
+      const selectedSource = sourceFilter.value;
+      const filtered = entries.filter((entry) => {
+        if (selectedSource && entry.sourcePath !== selectedSource) return false;
+        if (!query) return true;
+        return `${entry.sourcePath} ${entry.fieldPath} ${entry.value}`.toLocaleLowerCase().includes(query);
+      });
+      const visible = filtered.slice(0, TEXT_RENDER_LIMIT);
+      status.textContent = filtered.length > TEXT_RENDER_LIMIT
+        ? `${filtered.length} найдено · показываются первые ${TEXT_RENDER_LIMIT}`
+        : `${filtered.length} найдено`;
+      const fragment = document.createDocumentFragment();
+      for (const entry of visible) fragment.append(textCard(entry));
+      list.replaceChildren(fragment);
+    };
+
+    search.addEventListener("input", render);
+    sourceFilter.addEventListener("change", render);
+    render();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Ошибка загрузки текстов";
+    status.textContent = `Не удалось загрузить индекс текстов: ${message}`;
+    if (summary) summary.textContent = "Text index unavailable";
+  }
 }
 
 const app = document.querySelector<HTMLElement>(".media-desk");
@@ -349,7 +353,7 @@ if (app) {
   addTabs(app, view);
 
   if (view === "text") {
-    renderTextView(app);
+    void renderTextView(app);
   } else if (CAN_WRITE_MEDIA) {
     document.addEventListener("click", (event) => {
       const target = event.target;
