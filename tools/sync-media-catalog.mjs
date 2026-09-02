@@ -24,6 +24,44 @@ import {
 const REGISTERED_DIR = "src/content/media-catalog/registered";
 const UPLOADED_DIR = "src/content/media-catalog/uploads";
 const GENERATED_INDEX = "src/data/media/catalog-records.generated.ts";
+const MEBIBYTE = 1024 * 1024;
+
+export const CMS_MEDIA_UPLOAD_POLICY = Object.freeze({
+  image: Object.freeze({ warnBytes: 20 * MEBIBYTE, maxBytes: 50 * MEBIBYTE }),
+  video: Object.freeze({ warnBytes: 50 * MEBIBYTE, maxBytes: 95 * MEBIBYTE }),
+});
+
+export function assessCmsMediaUploadSize(mediaType, byteLength) {
+  const policy = CMS_MEDIA_UPLOAD_POLICY[mediaType];
+  if (!policy) throw new Error(`Unsupported CMS upload media type: ${mediaType}`);
+  if (!Number.isFinite(byteLength) || byteLength < 0) {
+    throw new Error(`Invalid CMS upload byte length: ${byteLength}`);
+  }
+  return {
+    warning: byteLength > policy.warnBytes,
+    allowed: byteLength <= policy.maxBytes,
+  };
+}
+
+function formatMiB(bytes) {
+  return `${(bytes / MEBIBYTE).toFixed(1)} MiB`;
+}
+
+function enforceCmsMediaUploadSize(record, byteLength) {
+  const assessment = assessCmsMediaUploadSize(record.mediaType, byteLength);
+  const policy = CMS_MEDIA_UPLOAD_POLICY[record.mediaType];
+  const maxMiB = policy.maxBytes / MEBIBYTE;
+  if (!assessment.allowed) {
+    throw new Error(
+      `CMS media upload exceeds Git-backed ${record.mediaType} limit: ${record.src} (${formatMiB(byteLength)}; max ${maxMiB} MiB). Reduce or compress the source before uploading.`,
+    );
+  }
+  if (assessment.warning) {
+    console.warn(
+      `[media-catalog] Large CMS ${record.mediaType} upload: ${record.src} (${formatMiB(byteLength)}; max ${maxMiB} MiB)`,
+    );
+  }
+}
 
 const MIME_BY_EXTENSION = new Map([
   ["avif", "image/avif"],
@@ -349,6 +387,7 @@ export async function syncUploadedRecord(record, { repoRoot = process.cwd() } = 
   const filePath = await resolvePublicFile(path.resolve(repoRoot), record.src);
   if (!filePath) throw new Error(`Uploaded media source does not exist: ${record.src}`);
   const fileStat = await stat(filePath);
+  enforceCmsMediaUploadSize(record, fileStat.size);
 
   if (record.mediaType === "image") {
     const probe = await probeMedia(filePath);
@@ -452,6 +491,7 @@ export async function checkStoredUploadedRecord(record, { repoRoot = process.cwd
   const filePath = await resolvePublicFile(path.resolve(repoRoot), record.src);
   if (!filePath) throw new Error(`Uploaded media source does not exist: ${record.src}`);
   const fileStat = await stat(filePath);
+  enforceCmsMediaUploadSize(record, fileStat.size);
   if (!["image", "video"].includes(record.mediaType)
     || !(record.width > 0 && record.height > 0)
     || record.mimeType !== mimeFor(record.src)
