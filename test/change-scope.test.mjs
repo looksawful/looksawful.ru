@@ -38,6 +38,10 @@ test("media desk changes stay focused and request the dedicated internal browser
   const catalogChange = classifyChangedFiles(["src/data/media/catalog.ts"]);
   assert.equal(catalogChange.mediaDeskChanged, true);
   assert.equal(catalogChange.mediaChanged, true);
+
+  const dependencyChange = classifyChangedFiles(["package.json"]);
+  assert.equal(dependencyChange.scope, "full");
+  assert.equal(dependencyChange.mediaDeskChanged, true);
 });
 test("global infrastructure and unknown paths fail closed to full regression", () => {
   for (const file of ["src/main.ts", "vite.config.ts", "src/styles/base.css", "src/components/media-lightbox.ts", "unclassified/new-module.ts"]) {
