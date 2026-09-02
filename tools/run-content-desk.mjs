@@ -9,6 +9,7 @@ const child = spawn(process.execPath, args, {
   env: {
     ...process.env,
     CONTENT_DESK_WRITE: "1",
+    VITE_CONTENT_DESK_WRITE: "1",
   },
 });
 
