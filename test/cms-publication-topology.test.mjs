@@ -116,7 +116,9 @@ test("production-only content blocks CMS publication even when histories otherwi
     writeCommit(root, "dev", "release", "release content");
     git(root, "checkout", "-q", "prod");
     git(root, "merge", "--no-ff", "-qm", "release dev", "dev");
-    writeCommit(root, "prod", "production hotfix", "prod hotfix");
+    writeFileSync(join(root, "prod-only.txt"), "production hotfix\n");
+    git(root, "add", "prod-only.txt");
+    git(root, "commit", "-qm", "prod hotfix");
     writeCommit(root, "dev", "cms edit after release", "cms edit");
 
     const { result, payload } = inspect(root);
