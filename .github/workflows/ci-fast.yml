@@ -4,41 +4,95 @@ on:
   push:
     branches: [dev]
     paths-ignore:
-      - 'src/content/editorial/**'
-      - 'docs/**'
-      - 'src/content/media-catalog/**'
+      - 'src/content/editorial/cv.json'
+      - 'src/content/editorial/home-project-cards.json'
       - 'public/media/catalog/**'
       - 'public/media/projects/index/**'
-      - 'src/content/projects.json'
+      - 'src/data/media/catalog-records.generated.ts'
+      - 'src/data/media/responsive-generated.ts'
+      - 'src/content/media-catalog/registered/**'
+      - 'src/content/media-catalog/uploads/**'
+      - 'public/media/generated/responsive-manifest.json'
+      - 'public/media/generated/video-inventory.json'
+  pull_request:
+    branches: [dev, prod]
+    paths-ignore:
+      - 'src/content/editorial/cv.json'
+      - 'src/content/editorial/home-project-cards.json'
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: fast-ci-dev
+  group: fast-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - name: Checkout
+      - name: Checkout exact source tree
         uses: actions/checkout@v7
         with:
-          fetch-depth: 1
-          persist-credentials: false
+          ref: ${{ github.sha }}
+          fetch-depth: 0
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - name: Install
+      - name: Install dependencies
         run: npm ci
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Restore exact generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video/*.web.mp4
+            public/media/generated/video/*.webm
+            public/media/generated/video/*.web.mov
+            .cache/media/generated-cache.json
+          key: generated-media-v2-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Verify restored generated media
+        if: steps.media-cache.outputs.cache-hit == 'true'
+        run: node tools/media-dev-state.mjs --cache-verify
+      - name: Install recovery video tooling on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Recover generated media on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+      - name: Save recovered generated media cache
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video/*.web.mp4
+            public/media/generated/video/*.webm
+            public/media/generated/video/*.web.mov
+            .cache/media/generated-cache.json
+          key: generated-media-v2-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Typecheck
         run: npm run typecheck
       - name: Fast tests
         run: npm run test:fast
-      - name: Build
+      - name: Production build
         run: npm run build:site
