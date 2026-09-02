@@ -24,8 +24,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Ensure generated media
-        run: npm run media:ensure
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Content Desk desktop and mobile smoke
