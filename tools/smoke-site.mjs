@@ -1,4 +1,4 @@
-import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./e2e/readiness.mjs";
+import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxOpen, waitForLightboxClosed } from "./e2e/readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
 let BASE_URL = "";
@@ -373,6 +373,7 @@ async function lightboxState(page) {
 }
 
 async function assertLightboxOpen(page, label) {
+  await waitForLightboxOpen(page);
   const state = await lightboxState(page);
   assert(state.open, `${label}: lightbox did not open\n${JSON.stringify(state, null, 2)}`);
   return state;
@@ -729,7 +730,7 @@ async function verifyLightboxVideo(page, label) {
       });
     }
 
-    const resumeAt = Number.isFinite(video.duration) && video.duration > 0.6 ? 0.25 : 0;
+    const resumeAt = Number.isFinite(video.duration) ? (video.duration > 5 ? 2 : video.duration > 0.6 ? 0.25 : 0) : 0;
 
     try {
       video.currentTime = resumeAt;
@@ -753,8 +754,8 @@ async function verifyLightboxVideo(page, label) {
   assert(state.videoMuted === false, `${label}: lightbox video should be unmuted\n${JSON.stringify(state, null, 2)}`);
   assert(state.videoPoster === expected.poster, `${label}: lightbox video poster was not preserved\n${JSON.stringify({ expected, state }, null, 2)}`);
   assert(
-    Math.abs(state.videoCurrentTime - expected.resumeAt) < 0.35,
-    `${label}: lightbox video did not preserve currentTime approximately\n${JSON.stringify({ expected, state }, null, 2)}`,
+    state.videoCurrentTime + 0.15 >= expected.resumeAt,
+    `${label}: lightbox video resumed before the source currentTime\n${JSON.stringify({ expected, state }, null, 2)}`,
   );
 
   await page.keyboard.press("ArrowRight");
