@@ -18,6 +18,27 @@ test("media changes always validate real derivatives and browser media", () => {
     assert.ok(scope.suites.includes("media") || scope.suites.includes("full"), file);
   }
 });
+test("media tooling changes skip unrelated global and Media Desk browser smoke", () => {
+  const scope = classifyChangedFiles([
+    "docs/media-upload-policy.md",
+    "test/media-tools/catalog-probe.test.mjs",
+    "tools/sync-media-catalog.mjs",
+  ]);
+
+  assert.equal(scope.scope, "affected");
+  assert.equal(scope.mediaChanged, true);
+  assert.equal(scope.mediaDeskChanged, false);
+  assert.deepEqual(scope.groups, ["ci", "media-tooling"]);
+  assert.deepEqual(scope.suites, ["media"]);
+});
+test("rendered media data keeps global, media and Media Desk coverage", () => {
+  const scope = classifyChangedFiles(["src/data/media/catalog.ts"]);
+  assert.equal(scope.scope, "affected");
+  assert.equal(scope.mediaChanged, true);
+  assert.equal(scope.mediaDeskChanged, true);
+  assert.deepEqual(scope.groups, ["media"]);
+  assert.deepEqual(scope.suites, ["smoke", "media"]);
+});
 test("media desk changes stay focused and request the dedicated internal browser smoke", () => {
   for (const file of [
     "src/tools/media-desk/main.ts",
@@ -34,10 +55,6 @@ test("media desk changes stay focused and request the dedicated internal browser
     assert.deepEqual(scope.groups, ["media-desk"], file);
     assert.deepEqual(scope.suites, ["smoke"], file);
   }
-
-  const catalogChange = classifyChangedFiles(["src/data/media/catalog.ts"]);
-  assert.equal(catalogChange.mediaDeskChanged, true);
-  assert.equal(catalogChange.mediaChanged, true);
 
   const dependencyChange = classifyChangedFiles(["package.json"]);
   assert.equal(dependencyChange.scope, "full");
