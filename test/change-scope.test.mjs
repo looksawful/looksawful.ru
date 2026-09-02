@@ -122,10 +122,12 @@ test("scopeFromGit retrieves an exact missing base commit in a shallow checkout"
     writeFileSync(path.join(seed, "docs", "head.md"), "head\n");
     git(seed, ["add", "."]);
     git(seed, ["commit", "-m", "head"]);
+    const head = git(seed, ["rev-parse", "HEAD"]).trim();
     git(seed, ["remote", "add", "origin", remote]);
     git(seed, ["push", "-u", "origin", "main"]);
 
-    git(root, ["clone", "--depth=1", `file://${remote}`, shallow]);
+    git(root, ["clone", "--depth=1", "--branch", "main", `file://${remote}`, shallow]);
+    assert.equal(git(shallow, ["rev-parse", "HEAD"]).trim(), head, "fixture must have a valid shallow HEAD");
     assert.throws(
       () => git(shallow, ["cat-file", "-e", `${base}^{commit}`]),
       /Command failed/,
