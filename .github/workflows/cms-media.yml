@@ -7,10 +7,16 @@ on:
       - 'src/content/projects.json'
       - 'public/media/projects/index/**'
       - 'public/media/catalog/**'
+  workflow_dispatch:
+    inputs:
+      rebuild_cache:
+        description: Rebuild the complete generated-media cache explicitly
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: write
-  actions: write
 
 concurrency:
   group: cms-media-dev
@@ -18,9 +24,9 @@ concurrency:
 
 jobs:
   prepare:
-    if: github.actor != 'github-actions[bot]'
+    if: github.event_name == 'workflow_dispatch' || github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout source commit
         uses: actions/checkout@v7
@@ -32,7 +38,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - name: Install
+      - name: Install dependencies
         run: npm ci
       - name: Classify media mutation
         id: scope
@@ -40,29 +46,62 @@ jobs:
         env:
           BEFORE: ${{ github.event.before }}
           HEAD_SHA: ${{ github.sha }}
+          REBUILD: ${{ inputs.rebuild_cache }}
         run: |
           set -euo pipefail
           has_image=false
           has_video=false
           has_source=false
-          while IFS= read -r file; do
-            case "${file,,}" in
-              *.jpg|*.jpeg|*.png|*.webp|*.avif|*.gif) has_image=true; has_source=true ;;
-              *.mov|*.mp4|*.m4v|*.webm) has_video=true; has_source=true ;;
-            esac
-          done < <(git diff --name-only "$BEFORE" "$HEAD_SHA")
-          printf 'has_image=%s\nhas_video=%s\nhas_source=%s\n' "$has_image" "$has_video" "$has_source" >> "$GITHUB_OUTPUT"
-      - name: Restore generated media
-        if: steps.scope.outputs.has_source == 'true'
-        uses: actions/cache@v4
+          rebuild=false
+          if [[ "${{ github.event_name }}" == 'workflow_dispatch' && "$REBUILD" == 'true' ]]; then
+            has_image=true
+            has_video=true
+            has_source=true
+            rebuild=true
+          elif [[ "${{ github.event_name }}" == 'push' ]]; then
+            while IFS= read -r file; do
+              case "${file,,}" in
+                *.jpg|*.jpeg|*.png|*.webp|*.avif|*.gif) has_image=true; has_source=true ;;
+                *.mov|*.mp4|*.m4v|*.webm) has_video=true; has_source=true ;;
+              esac
+            done < <(git diff --name-only "$BEFORE" "$HEAD_SHA")
+          fi
+          printf 'has_image=%s\nhas_video=%s\nhas_source=%s\nrebuild=%s\n' "$has_image" "$has_video" "$has_source" "$rebuild" >> "$GITHUB_OUTPUT"
+      - name: Calculate previous media fingerprint
+        if: github.event_name == 'push' && steps.scope.outputs.has_source == 'true'
+        id: previous-media
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach /tmp/media-before "$BEFORE"
+          previous="$(cd /tmp/media-before && node tools/media-dev-state.mjs --fingerprint)"
+          git worktree remove --force /tmp/media-before
+          echo "fingerprint=$previous" >> "$GITHUB_OUTPUT"
+      - name: Restore exact previous generated media cache
+        if: github.event_name == 'push' && steps.scope.outputs.has_source == 'true'
+        id: previous-cache
+        uses: actions/cache/restore@v4
         with:
           path: |
             public/media/generated/responsive
-            public/media/generated/video
-          key: generated-media-v4-${{ runner.os }}-${{ hashFiles('public/media/**/*', '!public/media/generated/**', 'src/content/projects.json', 'src/content/media-catalog/**/*.json', 'src/data/media/assets/**/*.ts', 'src/data/media/catalog*.ts', 'src/data/media/responsive.ts', 'src/data/media/responsive-policy.ts', 'tools/sync-media-catalog.mjs', 'tools/build-responsive-media.mjs', 'tools/build-video-media.mjs', 'package-lock.json') }}
-          restore-keys: |
-            generated-media-v4-${{ runner.os }}-
-      - name: Synchronize catalog index
+            public/media/generated/video/*.web.mp4
+            public/media/generated/video/*.webm
+            public/media/generated/video/*.web.mov
+            .cache/media/generated-cache.json
+          key: generated-media-v2-${{ runner.os }}-${{ steps.previous-media.outputs.fingerprint }}
+      - name: Require base cache for image-only mutation
+        if: github.event_name == 'push' && steps.scope.outputs.has_image == 'true' && steps.scope.outputs.has_video != 'true' && steps.previous-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          echo "Exact previous generated-media cache is missing for an image-only update." >&2
+          echo "Run CMS media with rebuild_cache=true, then retry the image upload. ffmpeg is intentionally not installed for image-only updates." >&2
+          exit 1
+      - name: Verify previous cache before incremental generation
+        if: github.event_name == 'push' && steps.scope.outputs.has_source == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
+        run: node tools/media-dev-state.mjs --cache-verify || true
+      - name: Synchronize catalog metadata
         if: steps.scope.outputs.has_source == 'true'
         run: npm run media:catalog:sync
       - name: Install video tooling
@@ -70,31 +109,60 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install --yes ffmpeg
-          fi
-      - name: Build video derivatives
-        if: steps.scope.outputs.has_video == 'true'
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Full explicit media cache rebuild
+        if: steps.scope.outputs.rebuild == 'true' || (steps.scope.outputs.has_video == 'true' && steps.previous-cache.outputs.cache-hit != 'true')
+        run: npm run media:sync
+      - name: Build video derivatives incrementally
+        if: steps.scope.outputs.rebuild != 'true' && steps.scope.outputs.has_video == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
         run: npm run media:video:build
-      - name: Build image derivatives
-        if: steps.scope.outputs.has_image == 'true'
+      - name: Build image derivatives incrementally
+        if: steps.scope.outputs.rebuild != 'true' && steps.scope.outputs.has_image == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
         run: npm run media:build
-      - name: Record media state
-        if: steps.scope.outputs.has_source == 'true'
-        run: node tools/media-dev-state.mjs --write
       - name: Validate media references
         run: npm run test:media:contract
       - name: Validate generated media
         if: steps.scope.outputs.has_source == 'true'
         run: npm run test:media:checks
-      - name: Persist normalized metadata
-        id: persist
+      - name: Write canonical generated-media cache marker
+        if: steps.scope.outputs.has_source == 'true'
+        run: node tools/media-dev-state.mjs --cache-write
+      - name: Calculate final media fingerprint
+        if: steps.scope.outputs.has_source == 'true'
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Verify complete final generated media state
+        if: steps.scope.outputs.has_source == 'true'
+        run: node tools/media-dev-state.mjs --cache-verify
+      - name: Save exact generated media cache
+        if: steps.scope.outputs.has_source == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video/*.web.mp4
+            public/media/generated/video/*.webm
+            public/media/generated/video/*.web.mov
+            .cache/media/generated-cache.json
+          key: generated-media-v2-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Final Fast validation for source upload
         if: steps.scope.outputs.has_source == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          metadata=(
+          npm run typecheck
+          npm run test:fast
+          npm run build:site
+      - name: Persist normalized tracked metadata only
+        if: github.event_name == 'push' && steps.scope.outputs.has_source == 'true'
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          allowed=(
             src/data/media/catalog-records.generated.ts
             public/media/generated/responsive-manifest.json
             public/media/generated/video-inventory.json
@@ -102,28 +170,31 @@ jobs:
             src/content/media-catalog/registered
             src/content/media-catalog/uploads
           )
-          if git diff --quiet -- "${metadata[@]}"; then
-            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          mapfile -t changed < <(git status --porcelain=v1 | sed -E 's/^.. //' | sed -E 's/.* -> //')
+          if (( ${#changed[@]} == 0 )); then
             exit 0
           fi
+          for file in "${changed[@]}"; do
+            allowed_match=false
+            for root in "${allowed[@]}"; do
+              if [[ "$file" == "$root" || "$file" == "$root/"* ]]; then
+                allowed_match=true
+                break
+              fi
+            done
+            if [[ "$allowed_match" != true ]]; then
+              echo "CMS media attempted unexpected tracked mutation: $file" >&2
+              exit 1
+            fi
+          done
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- "${metadata[@]}"
+          git add -- "${allowed[@]}"
+          git diff --cached --quiet && exit 0
           git commit -m 'chore(media): sync CMS media metadata'
           git fetch origin dev
-          if [[ "$(git rev-parse HEAD^)" != "$(git rev-parse origin/dev)" ]]; then
-            echo 'dev advanced during media synchronization' >&2
+          if [[ "$(git rev-parse origin/dev)" != "$SOURCE_SHA" ]]; then
+            echo 'dev advanced during media normalization; refusing non-fast-forward source mutation' >&2
             exit 1
           fi
           git push origin HEAD:dev
-          echo 'changed=true' >> "$GITHUB_OUTPUT"
-      - name: Run Fast CI for final source-upload state
-        if: steps.scope.outputs.has_source == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              ...context.repo,
-              workflow_id: "ci-fast.yml",
-              ref: "dev",
-            });
