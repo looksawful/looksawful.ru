@@ -87,7 +87,7 @@ test("project-card copy derives omitted canonical values while explicit teaser o
   editedCopy.jestei.role = "";
   delete editedCopy.jestei.period;
   delete editedCopy.jestei.ariaLabel;
-  delete editedCopy.jestei.coverAlt;
+  editedCopy.jestei.coverAlt = "   ";
 
   const parsed = parseProjectCardPresentations(structure, editedCopy);
   assert.equal(parsed[0].title, "Jestei Pool");
@@ -110,6 +110,7 @@ test("project-card copy derives omitted canonical values while explicit teaser o
   delete missingTechnicalSource[0].cover.src;
   assert.throws(() => parseProjectCardPresentations(missingTechnicalSource, copy), /cover.*src/i);
 });
+
 test("empty project and section copy produces no empty editorial wrappers", () => {
   assert.equal(
     renderProjectIntro({
