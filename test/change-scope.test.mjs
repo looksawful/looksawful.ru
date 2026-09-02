@@ -18,6 +18,31 @@ test("media changes always validate real derivatives and browser media", () => {
     assert.ok(scope.suites.includes("media") || scope.suites.includes("full"), file);
   }
 });
+test("media desk changes stay focused and request the dedicated internal browser smoke", () => {
+  for (const file of [
+    "src/tools/media-desk/main.ts",
+    "src/tools/media-desk/model.ts",
+    "src/tools/media-desk/media-desk.css",
+    "tools/media-desk/index.html",
+    "tools/e2e/run-media-desk.mjs",
+    "test/media-desk-model.test.mjs",
+  ]) {
+    const scope = classifyChangedFiles([file]);
+    assert.equal(scope.scope, "affected", file);
+    assert.equal(scope.mediaChanged, false, file);
+    assert.equal(scope.mediaDeskChanged, true, file);
+    assert.deepEqual(scope.groups, ["media-desk"], file);
+    assert.deepEqual(scope.suites, ["smoke"], file);
+  }
+
+  const catalogChange = classifyChangedFiles(["src/data/media/catalog.ts"]);
+  assert.equal(catalogChange.mediaDeskChanged, true);
+  assert.equal(catalogChange.mediaChanged, true);
+
+  const dependencyChange = classifyChangedFiles(["package.json"]);
+  assert.equal(dependencyChange.scope, "full");
+  assert.equal(dependencyChange.mediaDeskChanged, true);
+});
 test("global infrastructure and unknown paths fail closed to full regression", () => {
   for (const file of ["src/main.ts", "vite.config.ts", "src/styles/base.css", "src/components/media-lightbox.ts", "unclassified/new-module.ts"]) {
     assert.deepEqual(classifyChangedFiles([file]).suites, ["full"], file);
@@ -28,12 +53,14 @@ test("empty diff stays cheap while explicit full mode still fails closed", () =>
   const empty = classifyChangedFiles([]);
   assert.equal(empty.scope, "affected");
   assert.equal(empty.mediaChanged, false);
+  assert.equal(empty.mediaDeskChanged, false);
   assert.deepEqual(empty.groups, []);
   assert.deepEqual(empty.suites, ["smoke"]);
 
   const forced = classifyChangedFiles([], { full: true });
   assert.equal(forced.scope, "full");
   assert.equal(forced.mediaChanged, true);
+  assert.equal(forced.mediaDeskChanged, true);
   assert.deepEqual(forced.suites, ["full"]);
 });
 

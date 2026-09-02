@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const rules = [
   ["cv", /^(public\/cv\/|src\/(content\/cv[^/]*|data\/cv[^/]*)|tools\/(apply-cv-content|prepare-cv-production|smoke-cv)\.mjs$|tools\/lib\/cv-content\.mjs$|test\/cv-)/],
   ["navigation", /^(src\/(content\/navigation\.json|data\/navigation\.ts|components\/site-nav[^/]*|styles\/site-nav[^/]*)|test\/(site-navigation|navigation-labels|project-navigation)|tools\/smoke-site-navigation\.mjs$)/],
+  ["media-desk", /^(src\/tools\/media-desk\/|tools\/media-desk\/|tools\/e2e\/run-media-desk\.mjs$|test\/media-desk)/],
   ["media", /^(public\/media\/|media\/|src\/content\/(media-catalog\/|projects\.json$)|src\/data\/media\/|src\/types\/media\.ts$|tools\/(build-responsive-media|build-video-media|media-dev-state|sync-media-catalog)\.mjs$|test\/(media-|responsive-|video-delivery))/],
   ["dependencies", /^package(-lock)?\.json$/],
   ["project-pages", /^(work\/(awful-cases|moves-awful|berry-social-content-2020)\/|src\/(content|data\/content)\/(awful-cases|moves-awful|berry)[^/]*|test\/(awful-cases|moves-awful|berry)|tools\/smoke-project-pages\.mjs$)/],
@@ -22,6 +23,7 @@ export function classifyChangedFiles(files, { full = false } = {}) {
   const groups = [...new Set(changedFiles.map((file) => rules.find(([, pattern]) => pattern.test(file))?.[0] ?? "unknown"))].sort();
   const broad = full || groups.some((group) => ["shared-runtime", "build-config", "dependencies", "unknown"].includes(group));
   const mediaChanged = full || groups.some((group) => ["media", "dependencies", "unknown"].includes(group));
+  const mediaDeskChanged = broad || groups.includes("media-desk") || groups.includes("media");
   const suites = new Set(["smoke"]);
   if (groups.includes("cv")) suites.add("cv");
   if (groups.includes("navigation")) suites.add("navigation");
@@ -29,7 +31,14 @@ export function classifyChangedFiles(files, { full = false } = {}) {
   if (groups.includes("media")) suites.add("media");
   if (groups.some((group) => ["content", "styles"].includes(group))) suites.add("mpa");
   if (groups.includes("styles")) suites.add("project-pages");
-  return { changedFiles, groups, mediaChanged, suites: broad ? ["full"] : [...suites], scope: broad ? "full" : "affected" };
+  return {
+    changedFiles,
+    groups,
+    mediaChanged,
+    mediaDeskChanged,
+    suites: broad ? ["full"] : [...suites],
+    scope: broad ? "full" : "affected",
+  };
 }
 
 export function scopeFromGit({ base, head = "HEAD", mergeBase = false, full = false } = {}) {
@@ -49,6 +58,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     : scopeFromGit({ base: value("--base") ?? process.env.CI_DIFF_BASE, head: value("--head") ?? process.env.CI_DIFF_HEAD ?? "HEAD", mergeBase: args.includes("--merge-base"), full: args.includes("--full") });
   console.log(JSON.stringify(scope, null, 2));
   if (process.env.GITHUB_OUTPUT) {
-    appendFileSync(process.env.GITHUB_OUTPUT, `media_inputs_changed=${scope.mediaChanged}\ne2e_scope=${scope.scope}\naffected_suites=${scope.suites.join(",")}\ngroups=${scope.groups.join(",")}\nchanged_count=${scope.changedFiles.length}\n`);
+    appendFileSync(
+      process.env.GITHUB_OUTPUT,
+      `media_inputs_changed=${scope.mediaChanged}\nmedia_desk_changed=${scope.mediaDeskChanged}\ne2e_scope=${scope.scope}\naffected_suites=${scope.suites.join(",")}\ngroups=${scope.groups.join(",")}\nchanged_count=${scope.changedFiles.length}\n`,
+    );
   }
 }
