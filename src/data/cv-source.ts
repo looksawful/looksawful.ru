@@ -85,9 +85,12 @@ interface CvEditorialSource {
 }
 
 const structure = cvStructureJson as unknown as CvStructureSource;
-const editorial = cvEditorialJson as unknown as CvEditorialSource;
 
-export const cvSourceJson = Object.freeze({
+export function composeCvSourceJson(
+  editorialSource: CvEditorialSource = cvEditorialJson as unknown as CvEditorialSource,
+) {
+  const editorial = editorialSource;
+  return Object.freeze({
   profile: Object.freeze({
     name: editorial.profile.name,
     role: editorial.profile.role,
@@ -156,4 +159,7 @@ export const cvSourceJson = Object.freeze({
       links: Object.freeze([...state.links]),
     });
   })),
-});
+  });
+}
+
+export const cvSourceJson = composeCvSourceJson();

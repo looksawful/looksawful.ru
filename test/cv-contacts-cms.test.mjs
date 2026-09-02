@@ -65,11 +65,8 @@ test("CV contacts render safe code-owned hrefs while keeping authored display va
 });
 
 test("CV content adapter rejects malformed contact values and unsafe website schemes", async () => {
-  const [{ parseCvContent }, contentRaw] = await Promise.all([
-    import(cvDataModuleUrl.href),
-    readFile(cvContentUrl, "utf8"),
-  ]);
-  const current = JSON.parse(contentRaw);
+  const { parseCvContent, cvContent } = await import(cvDataModuleUrl.href);
+  const current = clone(cvContent);
   const baseContacts = clone(expectedContacts);
 
   const blankContacts = Object.fromEntries(Object.keys(baseContacts).map((key) => [key, "   "]));
@@ -130,14 +127,15 @@ test("CV content adapter rejects malformed contact values and unsafe website sch
   );
 });
 
-test("Pages CMS exposes only CV contact values, not link mechanics", async () => {
+test("Pages CMS exposes only authored CV location while structural contacts stay outside the editor", async () => {
   const cmsConfig = await readFile(cmsConfigUrl, "utf8");
   const cvConfig = cmsConfig.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
-  const contactsConfig = cvConfig.match(/\n          - name: contacts\b[\s\S]*?(?=\n          - name: principles\b)/)?.[0] ?? "";
+  const profileConfig = cvConfig.match(/\n      - name: profile\b[\s\S]*?(?=\n      - name: skills\b)/)?.[0] ?? "";
 
-  assert.match(contactsConfig, /name: contacts\b[\s\S]*?type: object/);
-  for (const field of ["location", "phone", "telegram", "instagram", "email", "website"]) {
-    assert.match(contactsConfig, new RegExp(`name: ${field}\\b[\\s\\S]*?type: string`));
+  assert.match(profileConfig, /name: location\b[\s\S]*?type: string/);
+  assert.doesNotMatch(profileConfig, /name: contacts\b/);
+  for (const field of ["phone", "telegram", "instagram", "email", "website"]) {
+    assert.doesNotMatch(cvConfig, new RegExp(`- name: ${field}\\b`));
   }
-  assert.doesNotMatch(contactsConfig, /name: (href|phoneHref|telegramHref|instagramHref|emailHref|target|rel|route|canonical)\b/);
+  assert.doesNotMatch(cvConfig, /name: (href|target|rel|route|canonical)\b/);
 });

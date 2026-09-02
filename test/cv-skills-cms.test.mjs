@@ -125,11 +125,8 @@ test("CV skill transform escapes CMS copy while preserving section and paragraph
 });
 
 test("CV skill adapter fails closed on missing blocks and malformed stable row identity", async () => {
-  const [{ parseCvContent }, contentRaw] = await Promise.all([
-    import(cvDataModuleUrl.href),
-    readFile(cvContentUrl, "utf8"),
-  ]);
-  const current = JSON.parse(contentRaw);
+  const { parseCvContent, cvContent } = await import(cvDataModuleUrl.href);
+  const current = clone(cvContent);
 
   assert.throws(
     () => parseCvContent({ ...current, skills: undefined }),
@@ -176,19 +173,17 @@ test("CV skill transform fails closed when source paragraph structure drifts", a
   );
 });
 
-test("Pages CMS exposes the four fixed CV skill blocks without layout or HTML controls", async () => {
+test("Pages CMS exposes keyed authored skill copy without structural visibility or row identity", async () => {
   const cmsConfig = await readFile(cmsConfigUrl, "utf8");
   const cvConfig = cmsConfig.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
+  const skillsConfig = cvConfig.match(/\n      - name: skills\b[\s\S]*?(?=\n      - name: education\b)/)?.[0] ?? "";
 
-  assert.match(cvConfig, /name: skills\b[\s\S]*?type: object/);
   for (const id of ["hard", "tech", "soft", "tools"]) {
-    assert.match(cvConfig, new RegExp(`name: ${id}\\b[\\s\\S]*?type: object`));
+    assert.match(skillsConfig, new RegExp(`name: ${id}\\b[\\s\\S]*?type: object`));
   }
-  assert.match(cvConfig, /name: rows\b[\s\S]*?list:/);
-  assert.match(cvConfig, /name: visible\b[\s\S]*?type: boolean/);
-  assert.match(cvConfig, /name: titleVisible\b[\s\S]*?type: boolean/);
-  assert.match(cvConfig, /name: id\b[\s\S]*?readonly: true/);
-  assert.match(cvConfig, /name: label\b[\s\S]*?type: string/);
-  assert.match(cvConfig, /name: text\b[\s\S]*?type: text/);
-  assert.doesNotMatch(cvConfig, /name: (className|html|markup|layout|column|route|stylesheet)\b/);
+  assert.match(skillsConfig, /name: rows\b[\s\S]*?type: object/);
+  assert.match(skillsConfig, /name: identity\b[\s\S]*?type: object/);
+  assert.match(skillsConfig, /name: label\b[\s\S]*?type: string/);
+  assert.match(skillsConfig, /name: text\b[\s\S]*?type: text/);
+  assert.doesNotMatch(skillsConfig, /name: (id|visible|titleVisible|className|html|markup|layout|column|route|stylesheet)\b/);
 });

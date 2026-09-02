@@ -147,3 +147,9 @@ test("ordinary dev and build scripts do not mutate media", async () => {
   assert.doesNotMatch(scripts.dev, /media:/);
   assert.doesNotMatch(scripts.build, /media:/);
 });
+
+test("Pages CMS actions reference only live lightweight verification workflows", async () => {
+  const cms = await read(".pages.yml");
+  assert.doesNotMatch(cms, /workflow: verify-pr\.yml/);
+  assert.match(cms, /workflow: ci-fast\.yml/);
+});

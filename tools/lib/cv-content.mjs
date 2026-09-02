@@ -5,6 +5,7 @@ import {
   CV_EXPERIENCE_SHAPES,
   parseCvContent,
 } from "../../src/data/cv.ts";
+import { composeCvSourceJson } from "../../src/data/cv-source.ts";
 
 const experienceArticlePattern = /<article\b([^>]*)>[\s\S]*?<\/article>/gi;
 const hiddenAttributePattern = /\s+hidden(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi;
@@ -145,7 +146,11 @@ export async function readCvContent(contentPath) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Invalid CV content JSON at ${contentPath}: ${message}`);
   }
-  return parseCvContent(parsed);
+  if (Array.isArray(parsed?.experience)) return parseCvContent(parsed);
+  if (parsed && typeof parsed === "object" && parsed.profile && parsed.education && !Array.isArray(parsed.experience)) {
+    return parseCvContent(composeCvSourceJson(parsed));
+  }
+  throw new Error("CV content override must be a composed CV document or authored editorial CV document");
 }
 
 export function transformCvProfile(html, content) {

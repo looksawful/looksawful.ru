@@ -236,11 +236,11 @@ content:
     actions:
       - name: verify-navigation
         label: Проверить сайт
-        workflow: verify-pr.yml
+        workflow: ci-fast.yml
         ref: current
         confirm:
-          title: Запустить полную проверку сайта?
-          message: Будут проверены подписи навигации, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
+          title: Запустить быструю проверку сайта?
+          message: Будут проверены подписи навигации, TypeScript, сборка, локальные ссылки и быстрые тесты и production build. Эта кнопка ничего не публикует.
           button: Проверить
     fields:
       - name: id
@@ -256,7 +256,121 @@ content:
         description: Текст пункта в глобальном меню и связанных хлебных крошках.
 
   - name: project-cards
-    label: Карточки проектов
+    label: Карточки проектов — тексты
+    type: file
+    path: src/content/editorial/home-project-cards.json
+    format: json
+    operations:
+      create: false
+      rename: false
+      delete: false
+    commit:
+      templates:
+        update: "content(cms): update homepage project card copy"
+    actions:
+      - name: verify-project-card-copy
+        label: Проверить сайт
+        workflow: ci-fast.yml
+        ref: current
+        confirm:
+          title: Запустить быструю проверку сайта?
+          message: Будут проверены TypeScript, быстрые тесты и production build. Эта кнопка ничего не публикует.
+          button: Проверить
+    fields:
+      - name: jestei
+        label: jestei
+        type: object
+        required: true
+        fields:
+          - name: title
+            label: Название
+            type: string
+          - name: focus
+            label: Описание
+            type: text
+          - name: role
+            label: Роль
+            type: string
+          - name: period
+            label: Период
+            type: string
+          - name: ariaLabel
+            label: ARIA label
+            type: string
+          - name: coverAlt
+            label: Alt обложки
+            type: text
+      - name: styx
+        label: styx
+        type: object
+        required: true
+        fields:
+          - name: title
+            label: Название
+            type: string
+          - name: focus
+            label: Описание
+            type: text
+          - name: role
+            label: Роль
+            type: string
+          - name: period
+            label: Период
+            type: string
+          - name: ariaLabel
+            label: ARIA label
+            type: string
+          - name: coverAlt
+            label: Alt обложки
+            type: text
+      - name: sensetique
+        label: sensetique
+        type: object
+        required: true
+        fields:
+          - name: title
+            label: Название
+            type: string
+          - name: focus
+            label: Описание
+            type: text
+          - name: role
+            label: Роль
+            type: string
+          - name: period
+            label: Период
+            type: string
+          - name: ariaLabel
+            label: ARIA label
+            type: string
+          - name: coverAlt
+            label: Alt обложки
+            type: text
+      - name: shootings
+        label: shootings
+        type: object
+        required: true
+        fields:
+          - name: title
+            label: Название
+            type: string
+          - name: focus
+            label: Описание
+            type: text
+          - name: role
+            label: Роль
+            type: string
+          - name: period
+            label: Период
+            type: string
+          - name: ariaLabel
+            label: ARIA label
+            type: string
+          - name: coverAlt
+            label: Alt обложки
+            type: text
+  - name: project-card-media
+    label: Карточки проектов — видимость и обложки
     type: file
     path: src/content/projects.json
     format: json
@@ -267,15 +381,15 @@ content:
       delete: false
     commit:
       templates:
-        update: "content(cms): update homepage project cards"
+        update: "content(cms): update homepage project card media"
     actions:
-      - name: verify-project-cards
+      - name: verify-project-card-media
         label: Проверить сайт
-        workflow: verify-pr.yml
+        workflow: ci-fast.yml
         ref: current
         confirm:
-          title: Запустить полную проверку сайта?
-          message: Будут проверены данные, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
+          title: Запустить быструю проверку сайта?
+          message: Будут проверены TypeScript, быстрые тесты и production build. Эта кнопка ничего не публикует.
           button: Проверить
     fields:
       - name: id
@@ -283,32 +397,10 @@ content:
         type: string
         required: true
         readonly: true
-        description: Служебный идентификатор карточки и часть стабильного routing-контракта. Не изменяется через CMS.
       - name: visible
         label: Показывать на главной
         type: boolean
         required: true
-        description: Управляет только наличием карточки на главной. Маршрут и отдельная страница проекта остаются доступными.
-      - name: title
-        label: Название
-        type: string
-        description: Название проекта, которое показывается на карточке.
-      - name: focus
-        label: Описание
-        type: text
-        description: Короткое описание проекта на карточке. Это обычный текст без Markdown и HTML.
-      - name: role
-        label: Роль
-        type: string
-        description: Роль в проекте. Оставляй пустым только если карточка действительно не должна показывать роль.
-      - name: period
-        label: Период
-        type: string
-        description: Период работы в том виде, в котором он должен отображаться на сайте, например 2024–2026.
-      - name: ariaLabel
-        label: ARIA label
-        type: string
-        description: Необязательная доступная подпись ссылки карточки. Если поле пустое, сайт использует обычный текст карточки.
       - name: cover
         label: Обложка
         type: object
@@ -318,31 +410,23 @@ content:
             label: Обложка проекта
             type: image
             required: true
-            description: Выбери существующий WebP или загрузи новый. CMS имеет доступ только к папке обложек карточек проектов. После сохранения dev-проверка зарегистрирует файл и обновит responsive-варианты.
             options:
               media: project-covers
               extensions: [webp]
               categories: [image]
               rename: safe
-          - name: alt
-            label: Alt
-            type: text
-            description: Описывает содержание изображения для accessibility. Не дублируй название проекта без необходимости.
           - name: width
             label: Ширина
             type: number
             required: true
-            description: Фактическая ширина исходного WebP в пикселях. После замены обложки обязательно проверь значение.
             options:
               min: 1
           - name: height
             label: Высота
             type: number
             required: true
-            description: Фактическая высота исходного WebP в пикселях. После замены обложки обязательно проверь значение.
             options:
               min: 1
-
   - name: media-library
     label: Медиакаталог
     type: group
@@ -372,11 +456,11 @@ content:
           - name: verify-registered-media-catalog
             label: Проверить медиакаталог
             scope: collection
-            workflow: verify-pr.yml
+            workflow: ci-fast.yml
             ref: current
             confirm:
               title: Проверить медиакаталог?
-              message: Будут проверены все свойства, категории, теги, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              message: Будут проверены все свойства, категории, теги, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
           - name: id
@@ -504,7 +588,7 @@ content:
           - name: verify-uploaded-media-catalog
             label: Проверить медиакаталог
             scope: collection
-            workflow: verify-pr.yml
+            workflow: ci-fast.yml
             ref: current
             confirm:
               title: Проверить новые медиа?
@@ -654,11 +738,11 @@ content:
         actions:
           - name: verify-jestei-case
             label: Проверить сайт
-            workflow: verify-pr.yml
+            workflow: ci-fast.yml
             ref: current
             confirm:
-              title: Запустить полную проверку сайта?
-              message: Будут проверены Jestei-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              title: Запустить быструю проверку сайта?
+              message: Будут проверены Jestei-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
           - name: lead
@@ -725,11 +809,11 @@ content:
         actions:
           - name: verify-styx-case
             label: Проверить сайт
-            workflow: verify-pr.yml
+            workflow: ci-fast.yml
             ref: current
             confirm:
-              title: Запустить полную проверку сайта?
-              message: Будут проверены Styx-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              title: Запустить быструю проверку сайта?
+              message: Будут проверены Styx-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
           - name: lead
@@ -799,11 +883,11 @@ content:
         actions:
           - name: verify-sensetique-case
             label: Проверить сайт
-            workflow: verify-pr.yml
+            workflow: ci-fast.yml
             ref: current
             confirm:
-              title: Запустить полную проверку сайта?
-              message: Будут проверены Sensetique-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              title: Запустить быструю проверку сайта?
+              message: Будут проверены Sensetique-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
           - name: intro
@@ -901,11 +985,11 @@ content:
         actions:
           - name: verify-shootings-overview
             label: Проверить сайт
-            workflow: verify-pr.yml
+            workflow: ci-fast.yml
             ref: current
             confirm:
-              title: Запустить полную проверку сайта?
-              message: Будут проверены Shootings-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              title: Запустить быструю проверку сайта?
+              message: Будут проверены Shootings-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
           - name: head
@@ -950,11 +1034,11 @@ content:
           - name: verify-shooting-records
             label: Проверить сайт
             scope: collection
-            workflow: verify-pr.yml
+            workflow: ci-fast.yml
             ref: current
             confirm:
-              title: Запустить полную проверку сайта?
-              message: Будут проверены все записи Shootings, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              title: Запустить быструю проверку сайта?
+              message: Будут проверены все записи Shootings, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
           - name: id
@@ -994,11 +1078,11 @@ content:
         actions:
           - name: verify-berry-standalone-project
             label: Проверить сайт
-            workflow: verify-pr.yml
+            workflow: ci-fast.yml
             ref: current
             confirm:
-              title: Запустить полную проверку сайта?
-              message: Будут проверены Berry-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              title: Запустить быструю проверку сайта?
+              message: Будут проверены Berry-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
           - name: head
@@ -1036,11 +1120,11 @@ content:
         actions:
           - name: verify-awful-cases-standalone-project
             label: Проверить сайт
-            workflow: verify-pr.yml
+            workflow: ci-fast.yml
             ref: current
             confirm:
-              title: Запустить полную проверку сайта?
-              message: Будут проверены Awful Cases-данные, TypeScript, сборка и browser smoke tests. Эта кнопка ничего не публикует.
+              title: Запустить быструю проверку сайта?
+              message: Будут проверены Awful Cases-данные, TypeScript, сборка и быстрые тесты и production build. Эта кнопка ничего не публикует.
               button: Проверить
         fields:
           - name: head
@@ -1079,11 +1163,11 @@ content:
     actions:
       - name: verify-client-logos
         label: Проверить сайт
-        workflow: verify-pr.yml
+        workflow: ci-fast.yml
         ref: current
         confirm:
-          title: Запустить полную проверку сайта?
-          message: Будут проверены данные, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
+          title: Запустить быструю проверку сайта?
+          message: Будут проверены данные, TypeScript, сборка, локальные ссылки и быстрые тесты и production build. Эта кнопка ничего не публикует.
           button: Проверить
     fields:
       - name: id
@@ -1099,7 +1183,7 @@ content:
         description: Управляет только отображением этого логотипа в блоке клиентов на главной.
 
   - name: cv
-    label: Резюме
+    label: Резюме — тексты
     type: file
     path: src/content/editorial/cv.json
     format: json
@@ -1109,15 +1193,15 @@ content:
       delete: false
     commit:
       templates:
-        update: "content(cms): update CV"
+        update: "content(cms): update CV copy"
     actions:
       - name: verify-cv
         label: Проверить сайт
-        workflow: verify-pr.yml
+        workflow: ci-fast.yml
         ref: current
         confirm:
-          title: Запустить полную проверку сайта?
-          message: Будут проверены CV-данные, TypeScript, сборка, локальные ссылки и browser smoke tests. Эта кнопка ничего не публикует.
+          title: Запустить быструю проверку сайта?
+          message: Будут проверены TypeScript, быстрые тесты и production build. Эта кнопка ничего не публикует.
           button: Проверить
     fields:
       - name: profile
@@ -1128,111 +1212,115 @@ content:
           - name: name
             label: Имя
             type: string
-            description: Имя в основной шапке резюме.
           - name: role
             label: Роль / заголовок
             type: string
-            description: Основная профессиональная роль рядом с портретом.
           - name: aboutPrimary
             label: О себе — абзац 1
             type: text
           - name: aboutSecondary
             label: О себе — абзац 2
             type: text
-            description: Необязательный второй абзац. Если поле пустое, абзац не выводится.
-          - name: contacts
-            label: Контакты
-            type: object
-            required: true
-            fields:
-              - name: location
-                label: Местоположение
-                type: string
-                description: Отображаемый город / страна.
-              - name: phone
-                label: Телефон
-                type: string
-                description: "Международный номер с +. Ссылка tel: формируется сайтом автоматически."
-              - name: telegram
-                label: Telegram
-                type: string
-                description: Только handle в формате @username. Ссылка t.me формируется сайтом автоматически.
-              - name: instagram
-                label: Instagram
-                type: string
-                description: Только handle в формате @username. Ссылка Instagram формируется сайтом автоматически.
-              - name: email
-                label: Email
-                type: string
-                description: "Email как он должен отображаться. Ссылка mailto: формируется сайтом автоматически."
-              - name: website
-                label: Сайт
-                type: string
-                description: Полный адрес сайта с https://. Разрешены только http/https URL.
+          - name: location
+            label: Местоположение
+            type: string
           - name: principles
             label: Ключевые тезисы
             type: object
             required: true
-            list:
-              min: 5
-              max: 5
-              collapsible:
-                collapsed: true
-                summary: "{title}"
             fields:
-              - name: id
-                label: ID
-                type: string
+              - name: visual
+                label: visual
+                type: object
                 required: true
-                readonly: true
-                description: Стабильный технический ID тезиса. Не изменяется через CMS.
-              - name: title
-                label: Заголовок
-                type: string
-              - name: text
-                label: Текст
-                type: text
+                fields:
+                  - name: title
+                    label: Заголовок
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+              - name: communication
+                label: communication
+                type: object
+                required: true
+                fields:
+                  - name: title
+                    label: Заголовок
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+              - name: product
+                label: product
+                type: object
+                required: true
+                fields:
+                  - name: title
+                    label: Заголовок
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+              - name: new-products
+                label: new-products
+                type: object
+                required: true
+                fields:
+                  - name: title
+                    label: Заголовок
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+              - name: leadership
+                label: leadership
+                type: object
+                required: true
+                fields:
+                  - name: title
+                    label: Заголовок
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
           - name: languages
             label: Языки
             type: object
             required: true
-            list:
-              min: 2
-              max: 2
-              collapsible:
-                collapsed: true
-                summary: "{name}"
             fields:
-              - name: id
-                label: ID
-                type: string
+              - name: english
+                label: english
+                type: object
                 required: true
-                readonly: true
-                description: Стабильный технический ID языка. Не изменяется через CMS.
-              - name: name
-                label: Язык
-                type: string
-              - name: level
-                label: Уровень
-                type: string
+                fields:
+                  - name: name
+                    label: Язык
+                    type: string
+                  - name: level
+                    label: Уровень
+                    type: string
+              - name: czech
+                label: czech
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Язык
+                    type: string
+                  - name: level
+                    label: Уровень
+                    type: string
       - name: skills
         label: Навыки и инструменты
         type: object
         required: true
         fields:
           - name: hard
-            label: Компетенции
+            label: hard
             type: object
             required: true
             fields:
-              - name: visible
-                label: Показывать блок
-                type: boolean
-                required: true
-              - name: titleVisible
-                label: Показывать заголовок
-                type: boolean
-                required: true
               - name: title
                 label: Заголовок блока
                 type: string
@@ -1240,38 +1328,100 @@ content:
                 label: Строки
                 type: object
                 required: true
-                list:
-                  min: 8
-                  max: 8
-                  collapsible:
-                    collapsed: true
-                    summary: "{label}"
                 fields:
-                  - name: id
-                    label: ID
-                    type: string
+                  - name: identity
+                    label: identity
+                    type: object
                     required: true
-                    readonly: true
-                    description: Стабильный технический ID строки. Не изменяется через CMS.
-                  - name: label
-                    label: Подзаголовок
-                    type: string
-                  - name: text
-                    label: Текст
-                    type: text
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: direction
+                    label: direction
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: product
+                    label: product
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: communications
+                    label: communications
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: motion
+                    label: motion
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: graphic
+                    label: graphic
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: generative
+                    label: generative
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: production
+                    label: production
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
           - name: tech
-            label: Технологии и инструменты
+            label: tech
             type: object
             required: true
             fields:
-              - name: visible
-                label: Показывать блок
-                type: boolean
-                required: true
-              - name: titleVisible
-                label: Показывать заголовок
-                type: boolean
-                required: true
               - name: title
                 label: Заголовок блока
                 type: string
@@ -1279,38 +1429,78 @@ content:
                 label: Строки
                 type: object
                 required: true
-                list:
-                  min: 6
-                  max: 6
-                  collapsible:
-                    collapsed: true
-                    summary: "{label}"
                 fields:
-                  - name: id
-                    label: ID
-                    type: string
+                  - name: design
+                    label: design
+                    type: object
                     required: true
-                    readonly: true
-                    description: Стабильный технический ID строки. Не изменяется через CMS.
-                  - name: label
-                    label: Подзаголовок
-                    type: string
-                  - name: text
-                    label: Текст
-                    type: text
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: development
+                    label: development
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: graphics-3d
+                    label: graphics-3d
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: images
+                    label: images
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: ai
+                    label: ai
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: motion
+                    label: motion
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
           - name: soft
-            label: Софт скиллс
+            label: soft
             type: object
             required: true
             fields:
-              - name: visible
-                label: Показывать блок
-                type: boolean
-                required: true
-              - name: titleVisible
-                label: Показывать заголовок
-                type: boolean
-                required: true
               - name: title
                 label: Заголовок блока
                 type: string
@@ -1318,38 +1508,78 @@ content:
                 label: Строки
                 type: object
                 required: true
-                list:
-                  min: 6
-                  max: 6
-                  collapsible:
-                    collapsed: true
-                    summary: "{label}"
                 fields:
-                  - name: id
-                    label: ID
-                    type: string
+                  - name: leader
+                    label: leader
+                    type: object
                     required: true
-                    readonly: true
-                    description: Стабильный технический ID строки. Не изменяется через CMS.
-                  - name: label
-                    label: Подзаголовок
-                    type: string
-                  - name: text
-                    label: Текст
-                    type: text
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: researcher
+                    label: researcher
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: teacher
+                    label: teacher
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: negotiator
+                    label: negotiator
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: multitasking
+                    label: multitasking
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: responsible
+                    label: responsible
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
           - name: tools
-            label: Инструменты
+            label: tools
             type: object
             required: true
             fields:
-              - name: visible
-                label: Показывать блок
-                type: boolean
-                required: true
-              - name: titleVisible
-                label: Показывать заголовок
-                type: boolean
-                required: true
               - name: title
                 label: Заголовок блока
                 type: string
@@ -1357,25 +1587,106 @@ content:
                 label: Строки
                 type: object
                 required: true
-                list:
-                  min: 9
-                  max: 9
-                  collapsible:
-                    collapsed: true
-                    summary: "{label}"
                 fields:
-                  - name: id
-                    label: ID
-                    type: string
+                  - name: design
+                    label: design
+                    type: object
                     required: true
-                    readonly: true
-                    description: Стабильный технический ID строки. Не изменяется через CMS.
-                  - name: label
-                    label: Подзаголовок
-                    type: string
-                  - name: text
-                    label: Текст
-                    type: text
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: code
+                    label: code
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: tests
+                    label: tests
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: audio
+                    label: audio
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: color
+                    label: color
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: shootings
+                    label: shootings
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: editing
+                    label: editing
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: ai
+                    label: ai
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
+                  - name: utilities
+                    label: utilities
+                    type: object
+                    required: true
+                    fields:
+                      - name: label
+                        label: Подзаголовок
+                        type: string
+                      - name: text
+                        label: Текст
+                        type: text
       - name: education
         label: Образование
         type: object
@@ -1389,12 +1700,6 @@ content:
             type: object
             required: true
             fields:
-              - name: id
-                label: ID
-                type: string
-                required: true
-                readonly: true
-                description: Стабильный технический ID записи. Ссылка и структура остаются в коде.
               - name: name
                 label: Учебное заведение
                 type: string
@@ -1409,88 +1714,774 @@ content:
             label: Дополнительное образование
             type: object
             required: true
-            list:
-              min: 20
-              max: 20
-              collapsible:
-                collapsed: true
-                summary: "{name}"
             fields:
-              - name: id
-                label: ID
-                type: string
+              - name: hexlet
+                label: hexlet
+                type: object
                 required: true
-                readonly: true
-                description: Стабильный технический ID курса. Ссылка и структура остаются в коде.
-              - name: name
-                label: Школа / автор
-                type: string
-              - name: lines
-                label: Курсы
-                type: string
-                list: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: stepik
+                label: stepik
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: kevin-powell
+                label: kevin-powell
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: book-of-shaders
+                label: book-of-shaders
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: lewy-blue
+                label: lewy-blue
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: threejs
+                label: threejs
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: figma
+                label: figma
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: ridd
+                label: ridd
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: mizko
+                label: mizko
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: alexey-bychkov
+                label: alexey-bychkov
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: blender-studio
+                label: blender-studio
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: gamedev-tv
+                label: gamedev-tv
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: andrey-sokolov
+                label: andrey-sokolov
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: blender-bros
+                label: blender-bros
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: covingsworth
+                label: covingsworth
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: creative-shrimp-hard-surface
+                label: creative-shrimp-hard-surface
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: creative-shrimp-lighting
+                label: creative-shrimp-lighting
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: phlearn
+                label: phlearn
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: photoplay-producer
+                label: photoplay-producer
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
+              - name: photoplay-model
+                label: photoplay-model
+                type: object
+                required: true
+                fields:
+                  - name: name
+                    label: Название
+                    type: string
+                  - name: lines
+                    label: Курсы / строки
+                    type: string
+                    list: true
       - name: experience
         label: Опыт
         type: object
         required: true
-        list:
-          min: 15
-          max: 15
-          collapsible:
-            collapsed: true
-            summary: "{id}"
         fields:
-          - name: id
-            label: ID
-            type: string
-            required: true
-            readonly: true
-            description: Стабильный технический ID карточки опыта. Не изменяется через CMS и не управляет маршрутом, классами или разметкой.
-          - name: visible
-            label: Показывать
-            type: boolean
-            required: true
-            description: Управляет видимостью этой карточки опыта. В production скрытые карточки физически удаляются из HTML.
-          - name: company
-            label: Компания / проект
-            type: string
-          - name: context
-            label: Контекст
-            type: string
-            description: Тип компании, продукта или проекта, показываемый рядом с периодом.
-          - name: period
-            label: Период
-            type: string
-          - name: role
-            label: Роль
-            type: string
-          - name: description
-            label: Описание
-            type: text
-            description: Пустое описание не выводится. Разметка карточки остаётся в коде.
-          - name: cases
-            label: Кейсы
-            type: string
-            list: true
-            description: Редактируй только существующие строки. Их количество и ссылки защищены кодом.
-          - name: facts
-            label: Факты
+          - name: jestei
+            label: JESTEI POOL
             type: object
-            list:
-              collapsible:
-                collapsed: true
-                summary: "{label}"
-            description: Редактируй текст существующих фактов, не добавляя и не удаляя строки.
+            required: true
             fields:
-              - name: label
-                label: Подпись
+              - name: company
+                label: Компания / проект
                 type: string
-                description: Может быть пустой у объединённого факта без отдельного заголовка.
-              - name: text
-                label: Текст
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
                 type: text
-          - name: links
-            label: Подписи ссылок
-            type: string
-            list: true
-            description: Меняются только видимые подписи. Адреса и атрибуты ссылок остаются в коде.
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: styx
+            label: STYX JEWEL
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: illumihand
+            label: ILLUMIHAND
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: madcow
+            label: MAD COW FILMS
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: sensetique
+            label: SENSETIQUE
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: line
+            label: LI-NE AGENCY
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: berry
+            label: BERRY AGENCY
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: ss
+            label: S&S
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: olovo
+            label: OLOVO MOSCOW
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: theatre
+            label: ТЕАТР «О»
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: soroka
+            label: SERGEI SOROKA
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: kursovoy
+            label: KURSOVOY
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: ran
+            label: ИНСТИТУТ ЯЗЫКОЗНАНИЯ РАН
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: progress
+            label: ПРОГРЕСС-ТРАДИЦИЯ
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
+          - name: ria
+            label: РИА НОВОСТИ
+            type: object
+            required: true
+            fields:
+              - name: company
+                label: Компания / проект
+                type: string
+              - name: context
+                label: Контекст
+                type: string
+              - name: period
+                label: Период
+                type: string
+              - name: role
+                label: Роль
+                type: string
+              - name: description
+                label: Описание
+                type: text
+              - name: cases
+                label: Кейсы
+                type: string
+                list: true
+              - name: facts
+                label: Факты
+                type: object
+                list: true
+                fields:
+                  - name: label
+                    label: Подпись
+                    type: string
+                  - name: text
+                    label: Текст
+                    type: text
