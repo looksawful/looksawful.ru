@@ -21,6 +21,7 @@ const DEFAULT_VIDEO_INVENTORY = "public/media/generated/video-inventory.json";
 const DEFAULT_CONFIG_FILES = [
   "tools/build-responsive-media.mjs",
   "tools/build-video-media.mjs",
+  "tools/sync-media-catalog.mjs",
   "src/data/media/responsive-policy.ts",
   "src/data/media/assets/index.ts",
   "src/data/media/assets/registered.ts",
