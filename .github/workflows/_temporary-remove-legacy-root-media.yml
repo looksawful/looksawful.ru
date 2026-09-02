@@ -1,0 +1,158 @@
+name: Temporary remove legacy root media
+
+on:
+  push:
+    branches: [cleanup/remove-legacy-root-media]
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup/remove-legacy-root-media
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Establish public-owned media resolution and remove legacy root
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          multiline_old = '''  const candidates = [
+              path.join(repoRoot, clean),
+              path.join(repoRoot, "public", clean),
+            ];'''.replace('            ', '')
+          multiline_new = '''  const candidates = [
+              path.join(repoRoot, "public", clean),
+            ];'''.replace('            ', '')
+
+          for filename in [
+              'tools/build-responsive-media.mjs',
+              'tools/build-video-media.mjs',
+              'tools/media-dev-state.mjs',
+              'tools/check-data-integrity.ts',
+          ]:
+              p = Path(filename)
+              text = p.read_text('utf-8')
+              if multiline_old not in text:
+                  raise SystemExit(f'expected root-first resolver not found in {filename}')
+              text = text.replace(multiline_old, multiline_new, 1)
+              p.write_text(text, 'utf-8')
+
+          p = Path('tools/sync-media-catalog.mjs')
+          text = p.read_text('utf-8')
+          old = '  const candidates = [path.join(repoRoot, clean), path.join(repoRoot, "public", clean)];'
+          new = '  const candidates = [path.join(repoRoot, "public", clean)];'
+          if old not in text:
+              raise SystemExit('expected root-first sync resolver not found')
+          p.write_text(text.replace(old, new, 1), 'utf-8')
+
+          p = Path('tools/check-data-integrity.ts')
+          text = p.read_text('utf-8')
+          old = '''    const physicalFiles = [
+              ...await walkFiles(path.join(repoRoot, "media")),
+              ...await walkFiles(path.join(repoRoot, "public", "media")),
+              ...await walkFiles(path.join(repoRoot, "public", "pets")),
+            ].filter((file) => MEDIA_EXTENSIONS.has(extensionFor(file)));'''.replace('            ', '')
+          new = '''    const physicalFiles = [
+              ...await walkFiles(path.join(repoRoot, "public", "media")),
+              ...await walkFiles(path.join(repoRoot, "public", "pets")),
+            ].filter((file) => MEDIA_EXTENSIONS.has(extensionFor(file)));'''.replace('            ', '')
+          if old not in text:
+              raise SystemExit('expected legacy physical media scan not found')
+          p.write_text(text.replace(old, new, 1), 'utf-8')
+          PY
+
+          cat > test/media-root-ownership.test.mjs <<'EOF'
+          import assert from "node:assert/strict";
+          import { access, readFile } from "node:fs/promises";
+          import { test } from "node:test";
+
+          const toolingFiles = [
+            "tools/build-responsive-media.mjs",
+            "tools/build-video-media.mjs",
+            "tools/media-dev-state.mjs",
+            "tools/sync-media-catalog.mjs",
+            "tools/check-data-integrity.ts",
+          ];
+
+          test("repository has no legacy root media tree", async () => {
+            let error = null;
+            try {
+              await access(new URL("../media/", import.meta.url));
+            } catch (caught) {
+              error = caught;
+            }
+            assert.ok(error, "root media/ must stay absent; public/media is canonical delivery storage");
+            assert.equal(error.code, "ENOENT");
+          });
+
+          test("media tooling resolves URL-backed assets from public storage only", async () => {
+            for (const filename of toolingFiles) {
+              const source = await readFile(new URL(`../${filename}`, import.meta.url), "utf8");
+              assert.doesNotMatch(source, /path\.join\(repoRoot,\s*clean\)/, `${filename} must not resolve through repoRoot/media`);
+              assert.match(source, /path\.join\(repoRoot,\s*"public",\s*clean\)/, `${filename} must resolve through public storage`);
+            }
+
+            const integrity = await readFile(new URL("../tools/check-data-integrity.ts", import.meta.url), "utf8");
+            assert.doesNotMatch(integrity, /walkFiles\(path\.join\(repoRoot,\s*"media"\)\)/, "physical integrity scan must not treat legacy root media as delivery storage");
+          });
+          EOF
+
+          cat >> test/media-tools/integrity.test.mjs <<'EOF'
+
+          test("integrity report never lets legacy root media shadow the public delivery file", async () => {
+            const root = await fixtureRoot("integrity-public-ownership");
+            const publicImage = join(root, "public", "media", "fixtures", "shadow.webp");
+            const legacyDir = join(root, "media", "fixtures");
+            const legacyImage = join(legacyDir, "shadow.webp");
+            await mkdir(legacyDir, { recursive: true });
+            await sharp({ create: { width: 10, height: 6, channels: 3, background: "green" } }).webp().toFile(publicImage);
+            await sharp({ create: { width: 3, height: 3, channels: 3, background: "red" } }).webp().toFile(legacyImage);
+
+            const report = await createMediaIntegrityReport({
+              repoRoot: root,
+              mediaAssets: [
+                { id: "public-shadow", type: "image", src: "/media/fixtures/shadow.webp", width: 10, height: 6 },
+              ],
+              mediaEntries: [{ id: "public-shadow-use", assetId: "public-shadow" }],
+              scanPhysicalMedia: false,
+            });
+
+            assert.equal(report.errorCount, 0, report.errors.join("\n"));
+          });
+          EOF
+
+          git rm -r media
+          rm .github/workflows/_temporary-remove-legacy-root-media.yml
+
+      - name: Verify focused cleanup contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          npm run typecheck
+          npm run test:fast
+          node --test test/media-tools/integrity.test.mjs
+
+      - name: Commit cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git status --short
+          git commit -m 'cleanup(media): remove legacy root media storage'
+          git push origin HEAD:cleanup/remove-legacy-root-media
