@@ -31,6 +31,9 @@ jobs:
           const replacement = `${needle}\n    ['content/navigation.json', 'content/editorial/navigation.json'],`;
           if (!source.includes(needle)) throw new Error('navigation replacement marker not found');
           source = source.replace(needle, replacement);
+          const pagesNeedle = "  write('.pages.yml', pages);";
+          if (!source.includes(pagesNeedle)) throw new Error('Pages CMS write marker not found');
+          source = source.replace(pagesNeedle, `${pagesNeedle}\n  run('npm', ['run', 'cms:generate']);`);
           source = source.replace("run('npm', ['run', 'test:fast']);", "console.log('test:fast deferred until legacy architecture assertions are rewritten');");
           source = source.replace("run(process.execPath, ['--test']);", "console.log('full node tests deferred until legacy architecture assertions are rewritten');");
           source = source.replace('/^\\s*schedule:/m', '/^[ \\t]*schedule:/m');
