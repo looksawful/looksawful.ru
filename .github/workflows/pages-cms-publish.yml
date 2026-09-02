@@ -62,38 +62,9 @@ jobs:
           git fetch --no-tags origin \
             +refs/heads/prod:refs/remotes/origin/prod \
             +refs/heads/dev:refs/remotes/origin/dev
-
-          prod_sha="$(git rev-parse origin/prod)"
-          dev_sha="$(git rev-parse origin/dev)"
-
-          {
-            echo "## CMS publication branch topology"
-            echo ""
-            echo "- prod: \`$prod_sha\`"
-            echo "- dev: \`$dev_sha\`"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          if [[ "$prod_sha" == "$dev_sha" ]]; then
-            echo ""
-            echo "Nothing to publish: dev and prod are identical." >> "$GITHUB_STEP_SUMMARY"
-            echo "nothing_to_publish=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          if ! git merge-base --is-ancestor origin/prod origin/dev; then
-            {
-              echo ""
-              echo "CMS publication blocked."
-              echo ""
-              echo "dev is not a linear descendant of prod."
-              echo "Synchronize dev before preparing CMS publication."
-              echo "Use the normal engineering release workflow."
-            } >> "$GITHUB_STEP_SUMMARY"
-            echo "dev is not a linear descendant of prod. Synchronize dev before preparing CMS publication." >&2
-            exit 1
-          fi
-
-          echo "nothing_to_publish=false" >> "$GITHUB_OUTPUT"
+          node tools/cms-publication-topology.mjs \
+            --prod origin/prod \
+            --dev origin/dev
 
       - name: Authorize CMS publication scope
         if: steps.topology.outputs.nothing_to_publish != 'true'
