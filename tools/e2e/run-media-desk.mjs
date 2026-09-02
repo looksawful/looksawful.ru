@@ -19,6 +19,15 @@ async function waitForServer(server, output) {
   throw new Error(`Content Desk dev server did not become ready.\n${output()}`);
 }
 
+async function verifyTextEndpoint() {
+  const response = await fetch(`${BASE_URL}/__media-desk/texts`);
+  const source = await response.text();
+  assert.ok(response.ok, `Content Desk text endpoint HTTP ${response.status}: ${source.slice(0, 500)}`);
+  const payload = JSON.parse(source);
+  assert.equal(payload.ok, true, `Content Desk text endpoint returned error: ${source.slice(0, 500)}`);
+  assert.ok(Array.isArray(payload.entries) && payload.entries.length > 0, "Content Desk text endpoint must return entries");
+}
+
 async function stopServer(server) {
   if (server.exitCode !== null) return;
   const exited = new Promise((resolve) => server.once("exit", resolve));
@@ -70,7 +79,12 @@ async function auditViewport(browser, viewport) {
 
     await openContentDesk(page, "/tools/media-desk/?view=text");
     assert.equal(await page.locator("h1").textContent(), "Content Desk");
-    await page.locator(".content-desk__text-card").first().waitFor();
+    try {
+      await page.locator(".content-desk__text-card").first().waitFor({ timeout: 10_000 });
+    } catch (error) {
+      const status = await page.locator(".content-desk__texts .content-desk__save-state").textContent().catch(() => "");
+      throw new Error(`Text view did not render cards. Status: ${status || "<missing>"}. ${error instanceof Error ? error.message : error}`);
+    }
     assert.ok(await page.locator(".content-desk__text-card").count() > 0, "Text view must render CMS-owned text fields");
     assert.equal(await page.getByLabel("Поиск по текстам сайта").count(), 1);
     await page.getByLabel("Поиск по текстам сайта").fill("jestei");
@@ -107,6 +121,7 @@ server.stderr.on("data", (chunk) => { serverOutput += chunk.toString(); });
 let browser;
 try {
   await waitForServer(server, () => serverOutput);
+  await verifyTextEndpoint();
   browser = await chromium.launch({ headless: true });
   await auditViewport(browser, { width: 1440, height: 900 });
   await auditViewport(browser, { width: 390, height: 844 });
