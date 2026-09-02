@@ -1,4 +1,4 @@
-import { access, readFile, rename, writeFile } from "node:fs/promises";
+import { access, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
@@ -102,10 +102,7 @@ export async function saveMediaDeskMetadata(
     parseUploadedMediaCatalogRecord(next);
   }
 
-  const serialized = `${JSON.stringify(next, null, 2)}\n`;
-  const temporary = `${target.path}.media-desk.tmp`;
-  await writeFile(temporary, serialized, "utf8");
-  await rename(temporary, target.path);
+  await writeFile(target.path, `${JSON.stringify(next, null, 2)}\n`, "utf8");
   return next;
 }
 
