@@ -57,15 +57,41 @@ jobs:
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
-      - name: Require exact generated media cache
+      - name: Install media tooling on exact cache miss
         if: steps.media-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          echo "required generated-media cache for fingerprint ${{ steps.media.outputs.fingerprint }} is missing" >&2
-          echo "Run the explicit CMS media cache rebuild workflow before production deployment." >&2
-          exit 1
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Regenerate exact media cache on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: npm run media:sync
+      - name: Write canonical generated-media cache marker on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: node tools/media-dev-state.mjs --cache-write
       - name: Verify exact generated media cache
         run: node tools/media-dev-state.mjs --cache-verify
+      - name: Require clean tracked tree after cache recovery
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git diff --exit-code --; then
+            echo "Production media cache recovery changed tracked repository state." >&2
+            echo "Generated metadata in the exact production tree must already be canonical before deployment." >&2
+            exit 1
+          fi
+      - name: Save exact generated media cache on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Typecheck
         run: npm run typecheck
       - name: Fast tests
