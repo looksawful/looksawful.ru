@@ -49,7 +49,8 @@ test("experience authored source owns copy only while IDs, visibility and links 
   }
 });
 
-test("composed experience retains fixed presentation counts and approved copy", () => {
+test("composed experience retains fixed presentation counts and current authored copy", async () => {
+  const editorial = JSON.parse(await readFile(editorialUrl, "utf8"));
   assert.deepEqual(cvContent.experience.map(({ id }) => id), [...CV_EXPERIENCE_IDS]);
   for (const entry of cvContent.experience) {
     const counts = expectedCounts[entry.id];
@@ -58,10 +59,10 @@ test("composed experience retains fixed presentation counts and approved copy", 
     assert.equal(entry.links.length, counts.links, `${entry.id} links`);
   }
   const byId = new Map(cvContent.experience.map((entry) => [entry.id, entry]));
-  assert.equal(byId.get("ria")?.role, "Дизайнер");
-  assert.equal(byId.get("ria")?.description, "Работал верстальщиком в ежедневной городской общественно-политической газете о Москве");
-  assert.deepEqual(byId.get("line")?.facts, []);
-  assert.deepEqual(byId.get("progress")?.facts, []);
+  assert.equal(byId.get("ria")?.role, editorial.experience.ria.role);
+  assert.equal(byId.get("ria")?.description, editorial.experience.ria.description);
+  assert.deepEqual(byId.get("line")?.facts, editorial.experience.line.facts);
+  assert.deepEqual(byId.get("progress")?.facts, editorial.experience.progress.facts);
 });
 
 test("full runtime parser accepts copy edits but rejects architecture and shape drift", () => {

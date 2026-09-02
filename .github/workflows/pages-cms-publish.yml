@@ -9,10 +9,8 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
-  checks: read
-  statuses: read
 
 concurrency:
   group: pages-cms-publication
@@ -68,8 +66,6 @@ jobs:
           node tools/cms-publication-topology.mjs \
             --prod origin/prod \
             --dev origin/dev
-          echo "prod_sha=$(git rev-parse origin/prod)" >> "$GITHUB_OUTPUT"
-          echo "dev_sha=$(git rev-parse origin/dev)" >> "$GITHUB_OUTPUT"
 
       - name: Authorize CMS publication scope
         if: steps.topology.outputs.nothing_to_publish != 'true'
@@ -94,7 +90,6 @@ jobs:
           node tools/cms-publication-scope.mjs --files "$CMS_CHANGED_FILES"
 
       - name: Create or reuse dev to prod pull request
-        id: pr
         if: steps.topology.outputs.nothing_to_publish != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -113,7 +108,6 @@ jobs:
           existing_url="$(jq -r '.url // empty' <<< "$existing_json")"
 
           if [[ -n "$existing_number" ]]; then
-            pr_number="$existing_number"
             pr_url="$existing_url"
             echo "Publication pull request already exists and the current diff is authorized: $pr_url"
           else
@@ -122,79 +116,12 @@ jobs:
               --base prod \
               --head dev \
               --title "Publish verified CMS changes" \
-              --body $'Prepared from Pages CMS after trusted production policy authorized the current `prod..dev` diff.\n\nCMS source: `dev`\nAuthorization workflow: `prod`\nTarget: `prod`\n\nThe publication workflow waits for PR checks, requires the exact authorized dev SHA, then merges. Production deployment remains fail-closed in `pages.yml`.')"
-            pr_number="$(gh pr view "$pr_url" --repo "$GITHUB_REPOSITORY" --json number --jq '.number')"
+              --body $'Prepared from Pages CMS after trusted production policy authorized the current `prod..dev` diff.\n\nCMS source: `dev`\nAuthorization workflow: `prod`\nTarget: `prod`\n\nThis workflow only prepares or reuses the publication PR and stops. Verification, merge into `prod`, and production deployment remain separate controlled operations.')"
             echo "Created publication pull request: $pr_url"
           fi
 
-          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
-          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
-          echo "### Publication PR" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Publication PR prepared" >> "$GITHUB_STEP_SUMMARY"
           echo "$pr_url" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Wait for publication verification
-        if: steps.topology.outputs.nothing_to_publish != 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ steps.pr.outputs.number }}
-          EXPECTED_DEV_SHA: ${{ steps.topology.outputs.dev_sha }}
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          checks_json="${RUNNER_TEMP}/publication-checks.json"
-          found_checks=false
-          for _ in {1..18}; do
-            if gh pr checks "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json name,state > "$checks_json" 2>/dev/null; then
-              if [[ "$(jq 'length' "$checks_json")" -gt 0 ]]; then
-                found_checks=true
-                break
-              fi
-            fi
-            sleep 5
-          done
-
-          if [[ "$found_checks" != true ]]; then
-            echo "No verification checks appeared for publication PR #${PR_NUMBER}." >&2
-            exit 1
-          fi
-
-          gh pr checks "$PR_NUMBER" \
-            --repo "$GITHUB_REPOSITORY" \
-            --watch \
-            --interval 10 \
-            --fail-fast
-
-          current_head="$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq '.headRefOid')"
-          if [[ "$current_head" != "$EXPECTED_DEV_SHA" ]]; then
-            echo "dev changed during publication verification; refusing to merge unverified content." >&2
-            echo "Expected: $EXPECTED_DEV_SHA" >&2
-            echo "Current:  $current_head" >&2
-            exit 1
-          fi
-
-      - name: Merge verified CMS publication
-        if: steps.topology.outputs.nothing_to_publish != 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ steps.pr.outputs.number }}
-          EXPECTED_DEV_SHA: ${{ steps.topology.outputs.dev_sha }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          response="$(gh api \
-            --method PUT \
-            "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/merge" \
-            -f merge_method=merge \
-            -f sha="$EXPECTED_DEV_SHA")"
-          if [[ "$(jq -r '.merged // false' <<< "$response")" != "true" ]]; then
-            echo "$response" >&2
-            exit 1
-          fi
-          merge_sha="$(jq -r '.sha' <<< "$response")"
-          echo "Merged verified CMS publication at $merge_sha"
-          echo "### Publication merged" >> "$GITHUB_STEP_SUMMARY"
-          echo "Production deployment will run from exact prod SHA: $merge_sha" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Nothing to publish
         if: steps.topology.outputs.nothing_to_publish == 'true'

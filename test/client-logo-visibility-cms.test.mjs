@@ -65,6 +65,24 @@ test("client logo visibility registry keeps fixed identity while booleans remain
   assert.ok(visibility.every(({ visible }) => typeof visible === "boolean"));
 });
 
+test("client logo editor metadata mirrors canonical definitions", async () => {
+  const visibility = JSON.parse(await readFile(visibilityUrl, "utf8"));
+  const dataModule = await import("../src/data/clients.ts");
+  const definitions = new Map(dataModule.clientLogoDefinitions.map((definition) => [definition.id, definition]));
+
+  assert.equal(visibility.length, expectedIds.length);
+  for (const record of visibility) {
+    const definition = definitions.get(record.id);
+    assert.ok(definition, `${record.id} must resolve a canonical client logo definition`);
+    assert.equal(record.name, definition.name, `${record.id} editor name must be generated from canonical definitions`);
+    assert.equal(
+      record.previewSrc,
+      `/media/clients/logo-wall/client-logo-${definition.file}.webp`,
+      `${record.id} editor preview must be generated from canonical definitions`,
+    );
+  }
+});
+
 test("client logo definitions relate canonical clients without collapsing logo-only identities", async () => {
   const dataModule = await import("../src/data/clients.ts");
   const definitions = dataModule.clientLogoDefinitions;
@@ -161,12 +179,14 @@ test("homepage consumes a client-logo export that is filtered at the data bounda
   assert.match(homeSource, /const logos = clientLogos\.map\(renderClientLogo\)/);
 });
 
-test("Pages CMS exposes only client logo identity and visibility controls", async () => {
+test("Pages CMS exposes generated client logo preview, name and visibility while hiding identity", async () => {
   const cmsConfig = await readFile(cmsConfigUrl, "utf8");
   const block = cmsConfig.match(/\n  - name: client-logo-visibility\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/)?.[0] ?? "";
 
   assert.match(block, /path: src\/content\/client-logo-visibility\.json/);
-  assert.match(block, /- name: id\b[\s\S]*?readonly: true/);
+  assert.match(block, /- name: id\b[\s\S]*?hidden: true/);
+  assert.match(block, /- name: previewSrc\b[\s\S]*?type: image[\s\S]*?readonly: true/);
+  assert.match(block, /- name: name\b[\s\S]*?readonly: true/);
   assert.match(block, /- name: visible\b[\s\S]*?type: boolean/);
-  assert.doesNotMatch(block, /- name: (name|file|alt|src|href|route|className|clientId)\b/);
+  assert.doesNotMatch(block, /- name: (file|alt|href|route|className|clientId)\b/);
 });

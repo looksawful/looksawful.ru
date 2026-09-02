@@ -35,7 +35,6 @@ test("publication workflow validates content-aware topology before scope authori
   assert.match(workflow, /node tools\/cms-publication-topology\.mjs[\s\S]*--prod origin\/prod[\s\S]*--dev origin\/dev/);
   assert.doesNotMatch(workflow, /git merge-base --is-ancestor origin\/prod origin\/dev/);
   assert.match(workflow, /steps\.topology\.outputs\.nothing_to_publish != 'true'/);
-  assert.match(workflow, /dev_sha=.*git rev-parse origin\/dev/);
 
   const topology = workflow.indexOf("cms-publication-topology.mjs");
   const classifier = workflow.indexOf("cms-publication-scope.mjs");
@@ -57,17 +56,19 @@ test("trusted classifier sees both sides of renames and runs before PR operation
   assert.ok(create !== -1 && classifier < create, "current diff must pass classifier before PR creation");
 });
 
-test("publication waits for checks, guards the exact dev SHA, then merges without deploying directly", async () => {
+test("publication prepares or reuses the PR and stops without checks, merge, deploy, or prod mutation", async () => {
   const workflow = await read(".github/workflows/pages-cms-publish.yml");
-  assert.match(workflow, /contents: write/);
+  assert.match(workflow, /contents: read/);
   assert.match(workflow, /pull-requests: write/);
-  assert.match(workflow, /checks: read/);
+  assert.doesNotMatch(workflow, /contents: write/);
+  assert.doesNotMatch(workflow, /checks: read|statuses: read/);
+  assert.match(workflow, /gh pr list/);
   assert.match(workflow, /gh pr create/);
-  assert.match(workflow, /gh pr checks[\s\S]*--watch/);
-  assert.match(workflow, /EXPECTED_DEV_SHA/);
-  assert.match(workflow, /headRefOid/);
-  assert.match(workflow, /repos\/\$\{GITHUB_REPOSITORY\}\/pulls\/\$\{PR_NUMBER\}\/merge/);
-  assert.match(workflow, /-f sha="\$EXPECTED_DEV_SHA"/);
+  assert.match(workflow, /Publication PR prepared/);
+  assert.doesNotMatch(workflow, /Wait for publication verification|Merge verified CMS publication/);
+  assert.doesNotMatch(workflow, /gh pr checks/);
+  assert.doesNotMatch(workflow, /EXPECTED_DEV_SHA|headRefOid/);
+  assert.doesNotMatch(workflow, /repos\/\$\{GITHUB_REPOSITORY\}\/pulls\/\$\{PR_NUMBER\}\/merge/);
   assert.doesNotMatch(workflow, /actions\/deploy-pages|git push[^\n]*prod/);
 });
 

@@ -54,6 +54,7 @@ const CMS_GENERATED_FILES = new Set([
 const TOP_LEVEL_ENGINEERING = [
   /^\.pages\.yml$/,
   /^\.github\//,
+  /^\.agents\//,
   /^tools\//,
   /^package(?:-lock)?\.json$/,
   /^vite\.config(?:\.[^/]+)?$/,

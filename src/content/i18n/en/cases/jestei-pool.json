@@ -1,0 +1,85 @@
+{
+  "lead": "I defined Jestei Pool’s visual language and UX/UI strategy for its core products and led the design team for two and a half years.",
+  "sections": [
+    {
+      "id": "home",
+      "title": "Personalization",
+      "paragraphs": [
+        "The Jestei Pool homepage uses banners for new releases and content updates. We replaced stock photography with generative imagery and rebuilt the responsive component, reducing banner production costs by 2.5×. We added interest-based delivery so users see updates from relevant product areas. Recurring formats received dedicated visual systems."
+      ]
+    },
+    {
+      "id": "brand",
+      "title": "Rebrand",
+      "paragraphs": [
+        "We rebranded Jestei Pool: redesigned the logo, updated the typography, and linked color to product navigation. The identity was integrated into the interface and design system."
+      ]
+    },
+    {
+      "id": "interface",
+      "title": "Product",
+      "paragraphs": [
+        "We grouped playlists and added titles and descriptions. Working with an editor and DJs, we documented more than 200 playlists and every genre on the service. Each group received its own cover system instead of stock imagery.",
+        "We designed algorithmic playlists that surface popular tracks by genre or event stage while excluding music the user has already heard. For example, a playlist can suggest ten tracks for prime time or an afterparty that are new to that user.",
+        "We redesigned the subscription purchase flow, clarified the differences between plans, and used color to distinguish offers for different audience segments."
+      ]
+    },
+    {
+      "id": "editorial",
+      "title": "Communication",
+      "paragraphs": [
+        "We defined shared rules for Jestei Pool’s tone of voice, terminology, UX and interface copy, and editorial workflow."
+      ]
+    },
+    {
+      "id": "event",
+      "title": "Scale",
+      "paragraphs": [
+        "We added Canvas animations and interactive widgets to the landing pages. The track feed shows music, interface elements, and product tools; separate modules present playlists and genres. The club-DJ animations use the Moves Awful library.",
+        "We studied seasonal demand among event DJs and playlist usage. We split the catalog into seasonal and evergreen content and moved timely collections higher in the navigation.",
+        "We designed upgrade widgets and embedded subscription upsells directly into the interface.",
+        "We separated individual playlists from collections, added contextual hints and group descriptions, and replaced stock imagery with custom covers."
+      ]
+    },
+    {
+      "id": "landings",
+      "title": "Landing Pages",
+      "paragraphs": [
+        "By 2025, one landing page no longer covered all Jestei Pool use cases: new tools had appeared and Event had become a separate product area. We launched two landing pages, each built from reusable promo modules for its audience and acquisition goals."
+      ]
+    },
+    {
+      "id": "promo",
+      "title": "Design",
+      "paragraphs": [
+        "For playlists, recurring formats, and seasonal collections, we replaced stock content with visual metaphors, collage, illustration, and generative imagery. Each format received its own visual direction."
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "id": "logo-geometry",
+      "text": "We redesigned the Jestei Pool logo, rebuilt the mark’s geometry, and defined its use across the interface, identity system, and promotional materials."
+    },
+    {
+      "id": "product-color",
+      "text": "We tied color directly to product navigation. Orange represents the club product, green represents Event, and blue represents Pro, with a separate color reserved for new features."
+    },
+    {
+      "id": "logo-variants",
+      "text": "The new logo has full and compact versions. We defined the proportions between the symbol and wordmark and documented how each version should be used across formats."
+    },
+    {
+      "id": "design-system",
+      "text": "We integrated the identity into the design system, connecting the logo, typography, and color to interface rules. The same visual language is used across the product and communication."
+    },
+    {
+      "id": "display-type",
+      "text": "We introduced Druk Wide for large headlines and promotional communication while keeping functional interface copy in the core UI typeface."
+    },
+    {
+      "id": "audiences",
+      "text": "We segmented the audience into club DJs, event DJs, and sound producers, then tailored product offers, navigation, and communication for each group."
+    }
+  ]
+}

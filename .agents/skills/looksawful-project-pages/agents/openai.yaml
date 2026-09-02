@@ -1,0 +1,4 @@
+interface:
+  display_name: "Looksawful Project Pages"
+  short_description: "Change pages, routes, navigation, and indexability safely"
+  default_prompt: "Use $looksawful-project-pages to trace this page or route change through the manifest, domain model, renderers, navigation, SEO, and browser coverage."

@@ -132,7 +132,7 @@ test("Pages CMS uses scoped WebP media source and merge-safe saves", () => {
   assert.match(cmsConfig, /extensions: \[webp\]/);
 });
 
-test("publication action keeps trusted prod policy and merges only the exact verified dev head", () => {
+test("publication action keeps trusted prod policy and only prepares a dev to prod PR", () => {
   const action = cmsConfig.match(/actions:\s*\n\s+- name: prepare-publication[\s\S]*?(?=\ncontent:)/)?.[0] ?? "";
   assert.match(action, /workflow: pages-cms-publish\.yml/);
   assert.match(action, /ref: prod\b/);
@@ -140,12 +140,12 @@ test("publication action keeps trusted prod policy and merges only the exact ver
   assert.match(publishWorkflow, /WORKFLOW_REF.*!=.*prod/s);
   assert.match(publishWorkflow, /cms-publication-topology\.mjs/);
   assert.match(publishWorkflow, /cms-publication-scope\.mjs/);
-  assert.match(publishWorkflow, /gh pr checks[\s\S]*--watch/s);
-  assert.match(publishWorkflow, /EXPECTED_DEV_SHA/);
-  assert.match(publishWorkflow, /headRefOid/);
-  assert.match(publishWorkflow, /pulls\/\$\{PR_NUMBER\}\/merge/);
-  assert.match(publishWorkflow, /-f sha="\$EXPECTED_DEV_SHA"/);
-  assert.doesNotMatch(publishWorkflow, /actions\/deploy-pages/);
+  assert.match(publishWorkflow, /gh pr list/);
+  assert.match(publishWorkflow, /gh pr create/);
+  assert.doesNotMatch(publishWorkflow, /gh pr checks/);
+  assert.doesNotMatch(publishWorkflow, /EXPECTED_DEV_SHA|headRefOid/);
+  assert.doesNotMatch(publishWorkflow, /pulls\/\$\{PR_NUMBER\}\/merge/);
+  assert.doesNotMatch(publishWorkflow, /actions\/deploy-pages|git push[^\n]*prod/);
 });
 
 test("CMS media workflow owns project-cover mutation and normalized metadata through an allowlist", () => {

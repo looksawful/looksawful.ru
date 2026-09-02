@@ -88,8 +88,11 @@ test("empty diff stays cheap while explicit full mode still fails closed", () =>
   assert.deepEqual(forced.suites, ["full"]);
 });
 
-test("docs and CV-specific styles do not select exhaustive media regression", () => {
+test("docs, agent policy, and CV-specific styles stay in focused affected scope", () => {
   assert.deepEqual(classifyChangedFiles(["docs/tooling-pipeline.md"]).suites, ["smoke"]);
+  const skillScope = classifyChangedFiles([".agents/skills/looksawful-project-pages/SKILL.md"]);
+  assert.deepEqual(skillScope.groups, ["ci"]);
+  assert.deepEqual(skillScope.suites, ["smoke"]);
   assert.deepEqual(classifyChangedFiles(["public/cv/style.css"]).suites, ["smoke", "cv"]);
 });
 test("domain catalog migration guard stays in affected content scope", () => {

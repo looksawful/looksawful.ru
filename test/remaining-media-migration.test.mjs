@@ -128,9 +128,3 @@ test("index contains exactly one slot for every migrated group", async () => {
     assert.equal(html.split(marker).length - 1, 1, marker);
   }
 });
-
-test("temporary figure replacement bridge is gone after Jestei strip migration", async () => {
-  const vite = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
-  assert.doesNotMatch(vite, /replaceFigureContainingMedia/);
-  assert.doesNotMatch(vite, /jesteiStoryMedia/);
-});

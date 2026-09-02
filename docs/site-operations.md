@@ -1,58 +1,46 @@
 # Site operations
 
-This is the operating manual for `looksawful.ru` CMS/content/media publication and the surrounding production checks.
-
-Architecture/ownership rules are defined in `docs/cms-architecture.md`. This file describes how to operate the current system.
+This is the operating reference for `looksawful.ru` CMS/content/media publication. Architecture and ownership rules are defined in `docs/cms-architecture.md`; the shorter owner-facing manual is `docs/cms-handbook.md`.
 
 ## 1. Permanent branches
 
-- `dev` — working/integration branch and Pages CMS content source.
-- `prod` — production branch and trusted source of CMS publication authorization policy.
+- `dev` — working/integration branch and normal Pages CMS content source.
+- `prod` — production/release branch and trusted source of CMS publication authorization policy.
 
-GitHub Pages deploys production from `prod` through the existing production workflow.
+GitHub Pages production deployment remains explicitly tied to `prod`.
+
+At the time of this document the GitHub repository default branch is still `prod`. That repository setting is separate from CMS working-branch semantics.
 
 Normal content flow:
 
 ```text
 Pages CMS on dev
-  -> Save
-  -> dev verification / Проверить сайт
+  -> Save (real commit on dev)
+  -> optional manual Проверить сайт / dev Fast CI
   -> Подготовить публикацию
   -> trusted publication workflow from prod
   -> topology + explicit CMS diff authorization
-  -> dev -> prod pull request
-  -> required checks + diff review
-  -> manual merge
-  -> GitHub Pages deploy
-  -> production verification
+  -> create/reuse dev -> prod pull request
+  -> review / required checks
+  -> separate controlled merge/release to prod
+  -> GitHub Pages deployment from prod
 ```
 
-Pages CMS must not be used as a direct ordinary editor for `prod`.
+Pages CMS must not be used as the ordinary editor for `prod`.
 
 ## 2. Responsibility boundaries
 
-Pages CMS edits only explicitly configured authored content and explicitly configured source-media surfaces.
+Pages CMS edits explicitly configured authored content and metadata plus configured source-media surfaces. It does not own routes/slugs/canonical URLs, stable domain IDs, layout/CSS, runtime/component implementation, generated media output, build/deployment architecture or publication policy.
 
-It does not own:
-
-- routes/slugs/canonical URLs;
-- `SitePage` page type, renderer, discovery/indexability or Vite inputs;
-- CSS/layout/responsive behavior;
-- runtime selectors or component implementation;
-- GSAP, Three.js, Canvas/WebGL or PageFlip behavior;
-- Jestei filter logic;
-- generated responsive/video output;
-- sitemap/build/deployment architecture;
-- CMS publication policy itself.
-
-`.pages.yml`, `.github/**`, `tools/**`, tests, docs and package/build configuration are engineering changes and cannot be published through the CMS publication action.
+`.pages.yml`, `.github/**`, `tools/**`, tests, docs, `AGENTS.md` and package/build configuration are engineering changes. They are not ordinary CMS-only publication content.
 
 ## 3. Current Pages CMS content scope
 
-The current editor includes configured sources for:
+Current configured sources include:
 
 ```text
 src/content/navigation.json
+src/content/editorial/home-project-cards.json
 src/content/projects.json
 src/content/cases/jestei-pool.json
 src/content/cases/styx.json
@@ -62,73 +50,56 @@ src/content/shootings/*.json
 src/content/standalone-projects/berry-social-content-2020.json
 src/content/standalone-projects/awful-cases.json
 src/content/client-logo-visibility.json
-src/content/cv.json
+src/content/editorial/cv.json
 src/content/media-catalog/registered/*.json
 src/content/media-catalog/uploads/*.json
 ```
 
-This list describes editor ownership, not a generic publication glob. The trusted publication classifier has its own explicit allowlist. Adding an arbitrary new file under `src/content/` does not grant publication permission.
+This inventory is not a generic publication glob. The trusted publication classifier maintains its own explicit allowlist. Stable IDs remain readonly where domain identity is fixed.
 
-Fixed records keep stable IDs readonly and disable create/rename/delete where the domain does not have a safe lifecycle for those actions.
+Optional editorial text should be cleared completely when no copy is wanted. Do not use a whitespace placeholder. Structural fields remain strict.
 
 ## 4. Current Pages CMS media scope
 
-Project-card cover source:
+Project-card cover source is scoped to:
 
 ```text
 public/media/projects/index/*
 ```
 
-The current CMS source accepts scoped WebP covers.
-
-Reusable Media Catalog upload source:
+Reusable Media Catalog uploads use:
 
 ```text
 public/media/catalog/*
+src/content/media-catalog/uploads/*.json
 ```
 
-The current Pages CMS media configuration accepts the configured image/video extensions. Do not expose broad `public/media/**` access.
-
-Generated responsive/video assets are not editor-owned. Source masters must be preserved.
+Source masters are preserved. Generated responsive/video files and technical metadata are tooling-owned. Upload size policy remains in `docs/media-upload-policy.md`.
 
 ## 5. Saving in Pages CMS
 
-`Save` creates a real Git commit on the branch selected in Pages CMS.
+`Save` creates a real Git commit on the selected Pages CMS branch. For ordinary editing, select `dev`.
 
-For ordinary editing the selected content branch must be:
+A save on `dev` does not deploy production. Text-only CMS paths are intentionally ignored by the automatic `ci-fast.yml` push trigger; use the entity action `Проверить сайт` when verification is needed. Publication PRs targeting `prod` still run the normal PR verification configured for that workflow.
 
-```text
-dev
-```
-
-If the editor is showing `prod`, do not make an ordinary content edit there. Switch to `dev`.
-
-A save may trigger the existing deterministic CMS/media synchronization workflow where relevant. That automation may update only its configured generated metadata/content-normalization surfaces and must fail closed on unexpected source changes.
+Media-source changes can invoke the separate `CMS media` workflow on `dev`, which may persist only its explicitly allowed normalized/generated metadata and uses a non-force update guard.
 
 ## 6. Проверить сайт
 
-Collection/entity `Проверить сайт` actions continue to run verification for the current editing branch.
+Configured `Проверить сайт` actions dispatch `ci-fast.yml` using explicit `ref: dev`, so they validate the `dev` CMS branch. The current Fast CI contract includes TypeScript, fast tests and a production site build, with its existing media-state recovery/validation path.
 
-They do not publish production.
+The action does not publish production.
 
-A failed verification means the change must not be promoted until the failure is understood. Do not weaken validators simply to obtain a green run.
+## 7. Подготовить публикацию — trust model
 
-## 7. Automatic dev verification
-
-Pushes to `dev` run the repository's current dev verification workflow. Relevant checks include TypeScript, fast/contracts, deterministic media state, production build and browser verification according to current pipeline policy.
-
-Media synchronization can create an expected bot follow-up commit only within its explicit persistence contract. It is not allowed to rewrite unrelated authored content or engineering code.
-
-## 8. Подготовить публикацию — trust model
-
-The global Pages CMS action is configured as:
+The global Pages CMS action dispatches:
 
 ```text
 workflow: pages-cms-publish.yml
 ref: prod
 ```
 
-This distinction is intentional:
+The intended invariant is:
 
 ```text
 CMS content source = dev
@@ -136,276 +107,72 @@ publication policy source = prod
 classifier source = prod
 ```
 
-The unpublished `dev` branch therefore cannot modify the workflow/classifier used to authorize publication of that same `dev` state.
+The trusted workflow validates the CMS source branch, current `prod`/`dev` topology and the complete changed-file set before a publication PR may be created or reused.
 
-The workflow independently validates:
+## 8. Branch topology gate
 
-1. the Pages CMS payload says the edited source is `dev`;
-2. the workflow itself is executing from `prod`.
+The topology guard is `tools/cms-publication-topology.mjs`.
 
-Any mismatch blocks publication preparation.
+- Identical refs or identical trees: successful no-op.
+- `prod` ancestor of `dev`: inspect `origin/prod..origin/dev` and classify it.
+- Diverged histories: allowed only when a conflict-free hypothetical merge of current `prod` into current `dev` produces exactly the current `dev` tree.
+- If `prod` contains content missing from `dev`, the merge conflicts, or safety cannot be proven: block before publication authorization.
 
-## 9. Branch topology gate
+Release-only merge history is therefore acceptable; production-only content missing from `dev` is not.
 
-The trusted workflow fetches current `origin/prod` and `origin/dev` and evaluates both Git history and content trees before file authorization.
+## 9. CMS publication classifier
 
-The topology decision is owned by:
+`tools/cms-publication-scope.mjs` classifies the full current diff as `CMS_CONTENT`, `CMS_MEDIA`, `CMS_GENERATED`, `ENGINEERING` or `UNKNOWN`.
 
-```text
-tools/cms-publication-topology.mjs
-```
+Only an entirely allowed CMS content/media/generated diff can proceed. Any engineering, unknown or mixed engineering/CMS diff uses the normal engineering release path. `tools/ci/change-scope.mjs` selects verification coverage and does not grant publication permission.
 
-A normal `dev -> prod` pull-request merge creates a production merge commit that does not exist on `dev`. Therefore Git ancestry alone is not a valid publication invariant.
+## 10. Publication PR behavior
 
-### identical refs or identical trees
+After topology and scope authorization, `Подготовить публикацию` should create or reuse an open `dev -> prod` PR and stop. It must not merge that PR or deploy production automatically.
 
-If both refs are identical, or the SHAs differ only because of release merge history while both refs point to identical content trees, the result is:
+The final merge/release to `prod` is a separate controlled action. A push to `prod` then triggers the explicit production Pages workflow.
 
-```text
-Nothing to publish.
-```
+## 11. Engineering release versus CMS publication
 
-Successful no-op. No PR is created.
+Use CMS publication only for explicit CMS-owned content/media plus allowed deterministic generated metadata.
 
-### prod is ancestor of dev
+Use normal engineering flow for TypeScript/runtime, CSS/HTML architecture, `.pages.yml`, workflows, tooling/classifiers, tests, docs/`AGENTS.md`, package/build configuration and any mixed/unknown diff.
 
-This is the simple linear case. The workflow inspects the exact current `origin/prod..origin/dev` changed-file set and passes it to the trusted publication classifier.
+## 12. Branch protection readiness
 
-### histories diverged after a normal release merge
+Repository rulesets/protection are external configuration. Before enabling them, preserve the operating model:
 
-Diverged history is not automatically unsafe. The topology guard computes the tree that would result from merging current `prod` back into current `dev` without changing either branch.
+`prod` should block deletion and force-push/history rewrite and permit only controlled release updates.
 
-Publication may continue only when that hypothetical merge is conflict-free and produces exactly the current `dev` tree. In other words, `prod` may contain release-only merge history, but it must not contain production-only content that is missing from `dev`.
+`dev` should block deletion and destructive history rewrite while still permitting legitimate direct Pages CMS writes and the existing bot/media-normalization writes.
 
-The exact `origin/prod..origin/dev` file set is still classified afterward. Content-aligned history does not bypass the CMS publication scope classifier.
+Do not claim these controls are active until repository state confirms them.
 
-### prod contains content missing from dev, or merge conflicts
+## 13. Media Catalog operations
 
-Publication preparation is blocked before classifier/PR operations when:
+Registered media metadata lives under `src/content/media-catalog/registered/*.json`. New uploads use `public/media/catalog/*` plus `src/content/media-catalog/uploads/*.json`.
 
-- merging `prod` into `dev` would add or change content;
-- the hypothetical merge conflicts;
-- topology cannot be proven safely.
+Tooling owns width/height/MIME/size/duration and generated delivery metadata. Editorial catalog metadata must survive deterministic sync, and catalog defaults must not silently overwrite placement-specific captions/alt/layout.
 
-Synchronize through the normal engineering workflow. Do not rewrite permanent branch history and do not bypass this guard.
+## 14. Emergency rules
 
-## 10. CMS publication classifier
+If a CMS save breaks `dev`, do not publish it. Fix or revert through normal Git history and rerun the appropriate verification.
 
-The trusted policy lives in:
+If a bad change reaches `prod`, use a normal revert/fix release. Do not force-push or reset permanent branches.
 
-```text
-tools/cms-publication-scope.mjs
-```
+If publication is blocked by `ENGINEERING`, `UNKNOWN` or unsafe branch topology, do not bypass the gate.
 
-It is intentionally separate from:
-
-```text
-tools/ci/change-scope.mjs
-```
-
-`change-scope.mjs` selects regression coverage. It does not authorize production publication.
-
-Publication classes:
-
-```text
-CMS_CONTENT
-CMS_MEDIA
-CMS_GENERATED
-ENGINEERING
-UNKNOWN
-```
-
-Only a diff composed entirely of the first three classes may proceed.
-
-`ENGINEERING` or `UNKNOWN` anywhere in the current diff blocks the action. Mixed CMS + engineering changes therefore always use the normal engineering release path.
-
-The classifier uses ownership paths, not file extensions.
-
-## 11. Explicit CMS publication surfaces
-
-Current content authorization is limited to the exact fixed files and configured collection record patterns represented in the trusted classifier.
-
-Current CMS media authorization is limited to the configured project-cover and Media Catalog source folders/files.
-
-Current generated authorization is limited to these exact deterministic metadata outputs:
-
-```text
-src/data/media/catalog-records.generated.ts
-public/media/generated/responsive-manifest.json
-public/media/generated/video-inventory.json
-src/data/media/responsive-generated.ts
-```
-
-Broad rules such as `src/content/**`, `public/media/**` or `public/media/generated/**` are intentionally not publication permissions.
-
-Any new CMS entity must first reach trusted `prod` through the normal engineering path before it can be added to this allowlist.
-
-## 12. Publication diagnostics
-
-When authorization fails, the workflow/classifier must expose actionable information in the GitHub Step Summary, including:
-
-- current `prod`/`dev` topology/SHA context;
-- safe CMS files;
-- blocked engineering files;
-- unknown files;
-- instruction to use the normal engineering release workflow.
-
-Do not treat a generic “invalid scope” message as sufficient diagnostics.
-
-## 13. Existing publication PR behavior
-
-If the current diff passes topology and classifier checks, the workflow searches for an existing open `dev -> prod` publication PR.
-
-- existing authorized PR: reuse it;
-- no PR: create one;
-- current diff not authorized: block before PR lookup/reuse/creation.
-
-An old open PR never bypasses re-evaluation of the current `prod..dev` diff.
-
-The workflow never merges `prod` and never deploys production automatically.
-
-## 14. Engineering release versus CMS publication
-
-Use CMS publication only for explicit CMS-owned content/media plus allowed generated metadata.
-
-Use the normal engineering flow for:
-
-- TypeScript/runtime changes;
-- CSS/HTML architecture;
-- `.pages.yml` changes;
-- workflow changes;
-- tools/classifier changes;
-- tests/docs/package/build configuration;
-- any mixed or unknown diff.
-
-The WAVE 1 gate itself must first be released through this normal engineering path. It becomes a trusted CMS authorization boundary only after the same workflow/classifier/configuration exists in `prod`.
-
-## 15. Production merge
-
-For an authorized CMS publication:
-
-1. verify the intended CMS changes on `dev`;
-2. run `Подготовить публикацию`;
-3. wait for the trusted scope gate and PR checks;
-4. review the diff;
-5. merge manually into `prod`;
-6. wait for GitHub Pages deployment;
-7. verify production.
-
-Do not enable automatic CMS merge/deploy as a shortcut.
-
-## 16. Branch protection requirements
-
-Branch protection/rulesets are repository configuration, not a code substitute.
-
-Recommended `prod` policy:
-
-- prevent force pushes/non-fast-forward history rewriting;
-- prevent deletion;
-- require PR-based normal updates;
-- require relevant verification checks;
-- avoid a ceremonial approval count if it would break the solo-maintainer workflow.
-
-Recommended `dev` policy:
-
-- prevent force pushes/history rewrite;
-- prevent deletion;
-- preserve direct writes required by Pages CMS and the existing media synchronization bot;
-- preserve normal development/integration workflow.
-
-Do not claim these controls are configured until GitHub API/UI state confirms them.
-
-## 17. Media Catalog operations
-
-Registered media metadata is editable through:
-
-```text
-src/content/media-catalog/registered/*.json
-```
-
-Stable media identity/type/source and technical properties are readonly.
-
-New uploads use:
-
-```text
-public/media/catalog/*
-src/content/media-catalog/uploads/*.json
-```
-
-Media tooling owns width/height/MIME/size/duration and generated delivery metadata. Editorial fields such as title, reusable default alt/description, taxonomy/tags/credits/reuse/archive must survive deterministic sync.
-
-Do not use catalog metadata to overwrite placement-specific captions/alt/layout.
-
-## 18. Project-card cover operation
-
-For an intentional cover replacement:
-
-1. prepare the final WebP;
-2. use a safe descriptive filename;
-3. open the project card on `dev`;
-4. select/upload inside the scoped project-cover media source;
-5. update intended alt and required source metadata;
-6. save;
-7. verify dev/site;
-8. wait for deterministic responsive metadata sync;
-9. publish only through an authorized content-only release.
-
-Do not upload arbitrary source photography, PSD/AI files, video masters or generated derivatives into the cover source.
-
-## 19. Production deployment and monitoring
-
-Production deployment remains owned by:
-
-```text
-.github/workflows/pages.yml
-```
-
-The repository also maintains independent operational/security checks such as production health, external links, dependency audit, Lighthouse and CodeQL. Investigate failures; do not reduce assertions to hide them.
-
-## 20. Search/analytics operations
-
-Cloudflare Web Analytics should remain integrated through the shared analytics layer and repository configuration. Do not paste duplicate provider snippets into individual pages.
-
-The canonical sitemap remains:
-
-```text
-https://www.looksawful.ru/sitemap.xml
-```
-
-Google Search Console, Bing Webmaster Tools and Yandex Webmaster should consume the generated canonical sitemap rather than separate hand-maintained variants.
-
-Search/analytics service configuration does not belong in Pages CMS unless a dedicated future contract explicitly requires it.
-
-## 21. Emergency rules
-
-If a CMS save breaks `dev`:
-
-1. do not publish;
-2. inspect the failing verification;
-3. fix or revert with normal Git history;
-4. rerun verification.
-
-If a bad content change reaches `prod`:
-
-1. do not force-push/reset permanent branches;
-2. create a normal revert/fix commit or PR;
-3. let the normal deployment workflow publish the correction;
-4. verify production after deploy.
-
-If publication is blocked by `ENGINEERING`, `UNKNOWN` or branch topology, do not bypass the gate. Use the normal engineering release path or synchronize branches correctly.
-
-## 22. Routine CMS publication checklist
+## 15. Routine CMS publication checklist
 
 ```text
 [ ] Pages CMS source branch is dev
 [ ] only intended authored/media fields changed
-[ ] automatic/manual dev verification is green
-[ ] topology guard reports a safe state and no production-only content/conflict is missing from dev
-[ ] trusted prod publication gate authorizes the complete prod..dev diff
+[ ] optional empty copy is actually empty, not a whitespace placeholder
+[ ] Проверить сайт / relevant verification is green when required
+[ ] topology contains no production-only content missing from dev
+[ ] trusted prod classifier authorizes the complete prod..dev diff
 [ ] dev -> prod PR exists
-[ ] PR checks are green
-[ ] diff reviewed
-[ ] manual merge to prod
-[ ] Pages deployment green
-[ ] production smoke check
+[ ] PR checks/diff are reviewed
+[ ] separate controlled merge/release to prod
+[ ] Pages deployment from prod is green
 ```
