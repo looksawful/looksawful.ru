@@ -111,6 +111,8 @@ export function createMediaDeskWritePlugin(root: string): Plugin {
     name: "looksawful-media-desk-write",
     apply: "serve",
     configureServer(server) {
+      if (process.env.CONTENT_DESK_WRITE !== "1") return;
+
       server.middlewares.use(API_PATH, async (request, response) => {
         if (request.method !== "POST") {
           json(response, 405, { ok: false, error: "Method not allowed" });
