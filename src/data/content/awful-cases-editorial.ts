@@ -1,4 +1,4 @@
-import source from "../../content/editorial/standalone-projects/awful-cases.json" with { type: "json" };
+import source from "../../content/standalone-projects/awful-cases.json" with { type: "json" };
 
 import { expectAllowedKeys, expectRecord, readEditorialText } from "./editorial-validation.ts";
 

@@ -13,7 +13,7 @@ import { sitePages } from "../src/site/pages/manifest.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { escapeHtml } from "../src/utils/html.ts";
 
-const contentPath = "src/content/editorial/standalone-projects/awful-cases.json";
+const contentPath = "src/content/standalone-projects/awful-cases.json";
 const adapterPath = "src/data/content/awful-cases-editorial.ts";
 
 const clone = (value) => structuredClone(value);

@@ -19,16 +19,16 @@ const {
 } = CMS_PUBLICATION_CLASS;
 
 const FIXED_CMS_CONTENT = new Set([
-  "src/content/editorial/navigation.json",
+  "src/content/navigation.json",
   "src/content/projects.json",
   "src/content/client-logo-visibility.json",
   "src/content/cv.json",
-  "src/content/editorial/cases/jestei-pool.json",
-  "src/content/editorial/cases/styx.json",
-  "src/content/editorial/cases/sensetique.json",
-  "src/content/editorial/collections/shootings.json",
-  "src/content/editorial/standalone-projects/berry-social-content-2020.json",
-  "src/content/editorial/standalone-projects/awful-cases.json",
+  "src/content/cases/jestei-pool.json",
+  "src/content/cases/styx.json",
+  "src/content/cases/sensetique.json",
+  "src/content/collections/shootings.json",
+  "src/content/standalone-projects/berry-social-content-2020.json",
+  "src/content/standalone-projects/awful-cases.json",
 ]);
 
 const CMS_CONTENT_COLLECTIONS = [

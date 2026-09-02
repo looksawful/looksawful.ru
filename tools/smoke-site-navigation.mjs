@@ -1,4 +1,4 @@
-import navigationJson from "../src/content/editorial/navigation.json" with { type: "json" };
+import navigationJson from "../src/content/navigation.json" with { type: "json" };
 import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
 let BASE_URL = "";

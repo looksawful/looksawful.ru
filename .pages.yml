@@ -223,7 +223,7 @@ content:
   - name: navigation-labels
     label: Навигация
     type: file
-    path: src/content/editorial/navigation.json
+    path: src/content/navigation.json
     format: json
     list: true
     operations:
@@ -642,7 +642,7 @@ content:
       - name: jestei-case
         label: Jestei Pool
         type: file
-        path: src/content/editorial/cases/jestei-pool.json
+        path: src/content/cases/jestei-pool.json
         format: json
         operations:
           create: false
@@ -713,7 +713,7 @@ content:
       - name: styx-case
         label: Styx
         type: file
-        path: src/content/editorial/cases/styx.json
+        path: src/content/cases/styx.json
         format: json
         operations:
           create: false
@@ -787,7 +787,7 @@ content:
       - name: sensetique-case
         label: Sensetique
         type: file
-        path: src/content/editorial/cases/sensetique.json
+        path: src/content/cases/sensetique.json
         format: json
         operations:
           create: false
@@ -889,7 +889,7 @@ content:
       - name: shootings-overview
         label: Общая шапка
         type: file
-        path: src/content/editorial/collections/shootings.json
+        path: src/content/collections/shootings.json
         format: json
         operations:
           create: false
@@ -982,7 +982,7 @@ content:
       - name: berry-standalone-project
         label: Berry Agency
         type: file
-        path: src/content/editorial/standalone-projects/berry-social-content-2020.json
+        path: src/content/standalone-projects/berry-social-content-2020.json
         format: json
         operations:
           create: false
@@ -1024,7 +1024,7 @@ content:
       - name: awful-cases-standalone-project
         label: Awful Cases
         type: file
-        path: src/content/editorial/standalone-projects/awful-cases.json
+        path: src/content/standalone-projects/awful-cases.json
         format: json
         operations:
           create: false

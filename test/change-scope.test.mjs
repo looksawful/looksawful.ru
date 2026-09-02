@@ -15,7 +15,7 @@ test("CV copy stays focused and never requests media transcoding", () => {
   assert.deepEqual(scope.suites, ["smoke", "cv"]);
 });
 test("navigation and standalone projects select their actual browser suites", () => {
-  assert.deepEqual(classifyChangedFiles(["src/content/editorial/navigation.json"]).suites, ["smoke", "navigation"]);
+  assert.deepEqual(classifyChangedFiles(["src/content/navigation.json"]).suites, ["smoke", "navigation"]);
   assert.deepEqual(classifyChangedFiles(["src/content/berry.json"]).suites, ["smoke", "project-pages"]);
 });
 test("media changes always validate real derivatives and browser media", () => {

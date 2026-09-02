@@ -91,7 +91,7 @@ test("edited CMS labels feed both menu and breadcrumbs while hrefs stay code-own
 
 test("live navigation content keeps six stable IDs with editable non-empty labels", async () => {
   const content = JSON.parse(
-    await readFile(new URL("../src/content/editorial/navigation.json", import.meta.url), "utf8"),
+    await readFile(new URL("../src/content/navigation.json", import.meta.url), "utf8"),
   );
 
   assert.deepEqual(content.map(({ id }) => id), PRIMARY_NAVIGATION_PAGE_IDS);

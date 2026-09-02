@@ -24,7 +24,7 @@ const sectionExports = [
 const clone = (value) => structuredClone(value);
 
 async function readSource() {
-  return JSON.parse(await readFile(new URL("../src/content/editorial/cases/jestei-pool.json", import.meta.url), "utf8"));
+  return JSON.parse(await readFile(new URL("../src/content/cases/jestei-pool.json", import.meta.url), "utf8"));
 }
 
 function readCanonicalIntro() {

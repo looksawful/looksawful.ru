@@ -8,7 +8,7 @@ import { sitePages } from "../src/site/pages/manifest.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { escapeHtml } from "../src/utils/html.ts";
 
-const contentPath = "src/content/editorial/standalone-projects/berry-social-content-2020.json";
+const contentPath = "src/content/standalone-projects/berry-social-content-2020.json";
 const adapterPath = "src/data/content/berry-editorial.ts";
 
 const clone = (value) => structuredClone(value);

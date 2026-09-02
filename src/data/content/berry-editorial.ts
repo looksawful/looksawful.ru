@@ -1,4 +1,4 @@
-import source from "../../content/editorial/standalone-projects/berry-social-content-2020.json" with { type: "json" };
+import source from "../../content/standalone-projects/berry-social-content-2020.json" with { type: "json" };
 
 import { expectAllowedKeys, expectRecord, readEditorialText } from "./editorial-validation.ts";
 

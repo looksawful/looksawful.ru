@@ -1,4 +1,4 @@
-import navigationJson from "../content/editorial/navigation.json" with { type: "json" };
+import navigationJson from "../content/navigation.json" with { type: "json" };
 import {
   PRIMARY_NAVIGATION_PAGE_IDS,
   type PrimaryNavigationPageId,

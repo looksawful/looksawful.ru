@@ -16,7 +16,7 @@ import { shootingsProjects } from "../src/data/catalog/projects/shootings.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { renderSectionIntro } from "../src/templates/section-intro.ts";
 
-const overviewPath = "src/content/editorial/collections/shootings.json";
+const overviewPath = "src/content/collections/shootings.json";
 const recordsPath = "src/content/shootings";
 
 const expectedIds = [

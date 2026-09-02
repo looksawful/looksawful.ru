@@ -64,7 +64,7 @@ const creditExports = [
 const clone = (value) => structuredClone(value);
 
 async function readSource() {
-  return JSON.parse(await readFile(new URL("../src/content/editorial/cases/sensetique.json", import.meta.url), "utf8"));
+  return JSON.parse(await readFile(new URL("../src/content/cases/sensetique.json", import.meta.url), "utf8"));
 }
 
 function readCanonicalIntro() {

@@ -1,20 +1,20 @@
-import overviewSource from "../../content/editorial/collections/shootings.json" with { type: "json" };
-import ankaModelTestsSource from "../../content/editorial/shootings/shootings-behance-anka-model-tests.json" with { type: "json" };
-import chooseYourCharacterSource from "../../content/editorial/shootings/shootings-behance-choose-your-character.json" with { type: "json" };
-import cinemaStillsSource from "../../content/editorial/shootings/shootings-behance-cinema-stills-2.json" with { type: "json" };
-import ecobasikSource from "../../content/editorial/shootings/shootings-behance-ecobasik.json" with { type: "json" };
-import editorialPhotographySource from "../../content/editorial/shootings/shootings-behance-editorial-photography.json" with { type: "json" };
-import offmiSource from "../../content/editorial/shootings/shootings-behance-offmi.json" with { type: "json" };
-import berryEditorialSource from "../../content/editorial/shootings/shootings-berry-editorial.json" with { type: "json" };
-import berryLookbookSource from "../../content/editorial/shootings/shootings-berry-lookbook.json" with { type: "json" };
-import berryModelTestsSource from "../../content/editorial/shootings/shootings-berry-model-tests.json" with { type: "json" };
-import berryProductSource from "../../content/editorial/shootings/shootings-berry-product.json" with { type: "json" };
-import esmiSource from "../../content/editorial/shootings/shootings-esmi.json" with { type: "json" };
-import evashaSource from "../../content/editorial/shootings/shootings-evasha.json" with { type: "json" };
-import hypressionSource from "../../content/editorial/shootings/shootings-hypression.json" with { type: "json" };
-import igguanaSource from "../../content/editorial/shootings/shootings-igguana.json" with { type: "json" };
-import obladaetSource from "../../content/editorial/shootings/shootings-obladaet.json" with { type: "json" };
-import ofeliaSource from "../../content/editorial/shootings/shootings-ofelia.json" with { type: "json" };
+import overviewSource from "../../content/collections/shootings.json" with { type: "json" };
+import ankaModelTestsSource from "../../content/shootings/shootings-behance-anka-model-tests.json" with { type: "json" };
+import chooseYourCharacterSource from "../../content/shootings/shootings-behance-choose-your-character.json" with { type: "json" };
+import cinemaStillsSource from "../../content/shootings/shootings-behance-cinema-stills-2.json" with { type: "json" };
+import ecobasikSource from "../../content/shootings/shootings-behance-ecobasik.json" with { type: "json" };
+import editorialPhotographySource from "../../content/shootings/shootings-behance-editorial-photography.json" with { type: "json" };
+import offmiSource from "../../content/shootings/shootings-behance-offmi.json" with { type: "json" };
+import berryEditorialSource from "../../content/shootings/shootings-berry-editorial.json" with { type: "json" };
+import berryLookbookSource from "../../content/shootings/shootings-berry-lookbook.json" with { type: "json" };
+import berryModelTestsSource from "../../content/shootings/shootings-berry-model-tests.json" with { type: "json" };
+import berryProductSource from "../../content/shootings/shootings-berry-product.json" with { type: "json" };
+import esmiSource from "../../content/shootings/shootings-esmi.json" with { type: "json" };
+import evashaSource from "../../content/shootings/shootings-evasha.json" with { type: "json" };
+import hypressionSource from "../../content/shootings/shootings-hypression.json" with { type: "json" };
+import igguanaSource from "../../content/shootings/shootings-igguana.json" with { type: "json" };
+import obladaetSource from "../../content/shootings/shootings-obladaet.json" with { type: "json" };
+import ofeliaSource from "../../content/shootings/shootings-ofelia.json" with { type: "json" };
 
 import {
   expectAllowedKeys,
