@@ -38,7 +38,7 @@ export function initProjectNavigationViewportAnchor(
   const navigation = root.querySelector<HTMLElement>("[data-projects-navigation]");
   if (!(navigation instanceof HTMLElement)) return noop;
 
-  const projects = navigation.closest<HTMLElement>(".projects");
+  const projects = root.querySelector<HTMLElement>(".projects");
   if (!(projects instanceof HTMLElement)) return noop;
 
   const view = navigation.ownerDocument.defaultView;
