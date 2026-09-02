@@ -81,7 +81,14 @@ const server = spawn(process.execPath, [
   "--host", HOST,
   "--port", String(PORT),
   "--strictPort",
-], { stdio: ["ignore", "pipe", "pipe"] });
+], {
+  stdio: ["ignore", "pipe", "pipe"],
+  env: {
+    ...process.env,
+    CONTENT_DESK_WRITE: "1",
+    VITE_CONTENT_DESK_WRITE: "1",
+  },
+});
 
 let serverOutput = "";
 server.stdout.on("data", (chunk) => { serverOutput += chunk.toString(); });
