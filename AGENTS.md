@@ -11,7 +11,8 @@
 - For optimized video, `VideoMedia.src` is the browser delivery asset and optional `sourceSrc` is the retained source master for media tooling. Never destroy the master as part of optimization.
 - Prefer deterministic media tooling: validate registry paths, dimensions, byte formats, generated manifests, and browser smoke checks before reporting success. Unchanged builds must not rewrite manifests or retranscode media.
 - Do not create placeholder media to satisfy checks. Missing production assets must be restored from an authoritative source or reported explicitly.
-- Follow `docs/testing-policy.md` for every test or verification change. A test created for a bug, migration, refactor, experiment, or RED → GREEN development loop is TEMPORARY by default; `regression test` is not a reason to keep it forever.
+- Follow `docs/testing-policy.md` for every test or verification change. `docs/testing-pipeline.md` is the current operational map of test tiers and CI routing; older tooling/handoff documents do not override either file.
+- A test created for a bug, migration, refactor, experiment, or RED → GREEN development loop is TEMPORARY by default; `regression test` is not a reason to keep it forever.
 - Before finishing any task that creates or changes tests, classify every affected test as `KEEP`, `MOVE`, or `DELETE`. Keep only long-lived contracts; move specialized checks to affected/full/quality tiers; delete temporary development tests before completion.
 - Never add a new test to `test:fast` implicitly. Fast CI is a small explicit allowlist of cheap permanent contracts. New tests require an explicit fast-tier justification under `docs/testing-policy.md`.
 - Use the cheapest sufficient verification tier. Do not run full E2E, media rebuilds, Lighthouse, or broad verification for changes that are already proven by a narrower relevant check. Production releases still require their configured fail-closed production gates.
