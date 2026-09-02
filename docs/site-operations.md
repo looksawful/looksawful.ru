@@ -16,7 +16,7 @@ Normal content flow:
 ```text
 Pages CMS on dev
   -> Save (real commit on dev)
-  -> optional manual Проверить сайт / current Fast CI
+  -> optional manual Проверить сайт / dev Fast CI
   -> Подготовить публикацию
   -> trusted publication workflow from prod
   -> topology + explicit CMS diff authorization
@@ -86,7 +86,7 @@ Media-source changes can invoke the separate `CMS media` workflow on `dev`, whic
 
 ## 6. Проверить сайт
 
-Configured `Проверить сайт` actions dispatch `ci-fast.yml` using `ref: current`, so they validate the current selected CMS branch. The current Fast CI contract includes TypeScript, fast tests and a production site build, with its existing media-state recovery/validation path.
+Configured `Проверить сайт` actions dispatch `ci-fast.yml` using explicit `ref: dev`, so they validate the `dev` CMS branch. The current Fast CI contract includes TypeScript, fast tests and a production site build, with its existing media-state recovery/validation path.
 
 The action does not publish production.
 

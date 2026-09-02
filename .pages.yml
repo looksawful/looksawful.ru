@@ -1234,6 +1234,12 @@ content:
         path: docs/cms-content-map.md
         format: raw
         operations: { create: false, rename: false, delete: false }
+      - name: cms-roadmap
+        label: CMS roadmap
+        type: file
+        path: docs/cms-roadmap.md
+        format: raw
+        operations: { create: false, rename: false, delete: false }
       - name: site-operations
         label: Site operations
         type: file

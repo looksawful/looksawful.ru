@@ -16,7 +16,7 @@ Use Node 24. Install dependencies with `npm ci` when the lockfile/dependencies a
 
 `npm run typecheck` runs TypeScript checking. `npm run build:site` is the production site build contract used by the current fast CI flow.
 
-The Pages CMS `Проверить сайт` actions dispatch `.github/workflows/ci-fast.yml` at `ref: current`. Fast CI performs its existing media-state cache/recovery guard, then typecheck, fast tests and `build:site`.
+The Pages CMS `Проверить сайт` actions dispatch `.github/workflows/ci-fast.yml` at explicit `ref: dev`. Fast CI performs its existing media-state cache/recovery guard, then typecheck, fast tests and `build:site`.
 
 ## CMS push behavior
 
