@@ -1,7 +1,8 @@
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
-const vite = new URL("../node_modules/vite/bin/vite.js", import.meta.url);
-const args = [vite.pathname, "--open", "/tools/media-desk/", ...process.argv.slice(2)];
+const vite = fileURLToPath(new URL("../node_modules/vite/bin/vite.js", import.meta.url));
+const args = [vite, "--open", "/tools/media-desk/", ...process.argv.slice(2)];
 
 const child = spawn(process.execPath, args, {
   stdio: "inherit",
