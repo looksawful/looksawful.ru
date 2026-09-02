@@ -1,0 +1,19 @@
+name: Migration RED
+
+on:
+  push:
+    branches:
+      - agent/minimal-ci-migration-20260902
+
+permissions:
+  contents: read
+
+jobs:
+  red:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: node --test test/ci-minimal-pipeline.test.mjs
