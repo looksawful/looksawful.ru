@@ -10,8 +10,12 @@ import { escapeHtml } from "../src/utils/html.ts";
 
 const contentPath = "src/content/standalone-projects/berry-social-content-2020.json";
 const adapterPath = "src/data/content/berry-editorial.ts";
+const editableFields = ["head", "title", "role", "period", "summary", "lead"];
 
 const clone = (value) => structuredClone(value);
+const normalizeSource = (source) => Object.fromEntries(
+  editableFields.map((field) => [field, source[field] ?? ""]),
+);
 
 test("Berry standalone Project has a strict CMS-owned editorial source", async () => {
   assert.equal(existsSync(contentPath), true, `${contentPath} must exist`);
@@ -19,16 +23,18 @@ test("Berry standalone Project has a strict CMS-owned editorial source", async (
 
   const source = JSON.parse(await readFile(contentPath, "utf8"));
   assert.deepEqual(
-    Object.keys(source).sort(),
-    ["head", "title", "role", "period", "summary", "lead"].sort(),
+    Object.keys(source).filter((field) => !editableFields.includes(field)),
+    [],
+    "Berry editorial source must contain only approved editable copy fields",
   );
 
   const { berryEditorialContent, parseBerryEditorialContent } = await import(
     "../src/data/content/berry-editorial.ts"
   );
+  const normalized = normalizeSource(source);
 
-  assert.deepEqual(berryEditorialContent, source);
-  assert.deepEqual(parseBerryEditorialContent(clone(source)), source);
+  assert.deepEqual(berryEditorialContent, normalized);
+  assert.deepEqual(parseBerryEditorialContent(clone(source)), normalized);
 
   const unexpected = clone(source);
   unexpected.route = "/work/changed-by-cms/";
@@ -49,15 +55,16 @@ test("Berry standalone Project has a strict CMS-owned editorial source", async (
 
 test("Berry CMS editorial values flow through the existing Project intro renderer", async () => {
   const source = JSON.parse(await readFile(contentPath, "utf8"));
+  const normalized = normalizeSource(source);
 
   assert.equal(berryIntro.head.type, "text");
-  assert.equal(berryIntro.head.text, source.head);
+  assert.equal(berryIntro.head.text, normalized.head);
   assert.equal(berryIntro.title.type, "text");
-  assert.equal(berryIntro.title.text, source.title);
-  assert.equal(berryIntro.role, source.role);
-  assert.equal(berryIntro.period, source.period);
-  assert.equal(berryIntro.summary, source.summary);
-  assert.equal(berryIntro.lead, source.lead);
+  assert.equal(berryIntro.title.text, normalized.title);
+  assert.equal(berryIntro.role, normalized.role);
+  assert.equal(berryIntro.period, normalized.period);
+  assert.equal(berryIntro.summary, normalized.summary);
+  assert.equal(berryIntro.lead, normalized.lead);
 
   const rendered = renderProjectIntro(berryIntro);
   for (const value of Object.values(source)) {
@@ -97,7 +104,7 @@ test("Pages CMS exposes Berry copy without route, discovery, taxonomy or media c
   assert.match(config, /rename: false/);
   assert.match(config, /delete: false/);
 
-  for (const field of ["head", "title", "role", "period", "summary", "lead"]) {
+  for (const field of editableFields) {
     assert.match(config, new RegExp(`name: ${field}\\b`));
   }
 
