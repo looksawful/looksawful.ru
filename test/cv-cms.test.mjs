@@ -8,29 +8,14 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const cvDataModuleUrl = new URL("../src/data/cv.ts", import.meta.url);
-const cvContentUrl = new URL("../src/content/cv.json", import.meta.url);
+const cvStructureUrl = new URL("../src/content/cv.json", import.meta.url);
+const cvEditorialUrl = new URL("../src/content/editorial/cv.json", import.meta.url);
 const cvSourceUrl = new URL("../public/cv/index.html", import.meta.url);
 const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
 const applyScriptUrl = new URL("../tools/apply-cv-content.mjs", import.meta.url);
 const productionScriptUrl = new URL("../tools/prepare-cv-production.mjs", import.meta.url);
 
-const experienceIds = [
-  "jestei",
-  "styx",
-  "illumihand",
-  "madcow",
-  "sensetique",
-  "line",
-  "berry",
-  "ss",
-  "olovo",
-  "theatre",
-  "soroka",
-  "kursovoy",
-  "ran",
-  "progress",
-  "ria",
-];
+const experienceIds = ["jestei", "styx", "illumihand", "madcow", "sensetique", "line", "berry", "ss", "olovo", "theatre", "soroka", "kursovoy", "ran", "progress", "ria"];
 
 function assertFileExists(url, label) {
   assert.equal(existsSync(fileURLToPath(url)), true, `${label} must exist`);
@@ -38,172 +23,96 @@ function assertFileExists(url, label) {
 
 function articleFor(html, id) {
   const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp(
-    `<article\\b(?=[^>]*\\bclass=["'][^"']*\\bexperience-card--${escaped}\\b[^"']*["'])[^>]*>[\\s\\S]*?<\\/article>`,
-    "i",
-  );
-  return html.match(pattern)?.[0] ?? null;
+  return html.match(new RegExp(`<article\\b(?=[^>]*\\bclass=["'][^"']*\\bexperience-card--${escaped}\\b[^"']*["'])[^>]*>[\\s\\S]*?<\\/article>`, "i"))?.[0] ?? null;
 }
 
 async function fixtureContent(overrides = {}) {
-  const current = JSON.parse(await readFile(cvContentUrl, "utf8"));
-  return {
-    ...current,
-    experience: current.experience.map((item) => ({
-      ...item,
-      visible: Object.hasOwn(overrides, item.id) ? overrides[item.id] : item.visible,
-    })),
-  };
+  const { cvContent } = await import(cvDataModuleUrl.href);
+  const current = structuredClone(cvContent);
+  current.experience = current.experience.map((item) => ({
+    ...item,
+    visible: Object.hasOwn(overrides, item.id) ? overrides[item.id] : item.visible,
+  }));
+  return current;
 }
 
 async function fixtureHtml({ forceHidden = [] } = {}) {
   let html = await readFile(cvSourceUrl, "utf8");
   for (const id of forceHidden) {
     const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const openingPattern = new RegExp(
-      `<article\\b(?=[^>]*\\bclass=["'][^"']*\\bexperience-card--${escaped}\\b[^"']*["'])[^>]*>`,
-      "i",
-    );
-    html = html.replace(openingPattern, (opening) => {
-      const normalized = opening.replace(/\s+hidden(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi, "");
-      return normalized.replace(/>$/, " hidden>");
-    });
+    const openingPattern = new RegExp(`<article\\b(?=[^>]*\\bclass=["'][^"']*\\bexperience-card--${escaped}\\b[^"']*["'])[^>]*>`, "i");
+    html = html.replace(openingPattern, (opening) => opening.replace(/\s+hidden(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi, "").replace(/>$/, " hidden>"));
   }
   return html;
 }
 
-test("CV CMS data keeps fixed experience identity while visibility remains editable", async () => {
+test("CV composed data keeps fixed experience identity and structural visibility", async () => {
   assertFileExists(cvDataModuleUrl, "src/data/cv.ts");
-  assertFileExists(cvContentUrl, "src/content/cv.json");
-
-  const [{ cvContent, CV_EXPERIENCE_IDS }, sourceHtml] = await Promise.all([
-    import(cvDataModuleUrl.href),
-    readFile(cvSourceUrl, "utf8"),
-  ]);
-
+  assertFileExists(cvStructureUrl, "src/content/cv.json");
+  assertFileExists(cvEditorialUrl, "src/content/editorial/cv.json");
+  const [{ cvContent, CV_EXPERIENCE_IDS }, sourceHtml] = await Promise.all([import(cvDataModuleUrl.href), readFile(cvSourceUrl, "utf8")]);
   assert.deepEqual(CV_EXPERIENCE_IDS, experienceIds);
   assert.deepEqual(cvContent.experience.map(({ id }) => id), experienceIds);
   assert.ok(cvContent.experience.every(({ visible }) => typeof visible === "boolean"));
-
-  const authoredIds = [...sourceHtml.matchAll(/experience-card--([a-z0-9-]+)/g)].map((match) => match[1]);
-  assert.deepEqual(authoredIds, CV_EXPERIENCE_IDS);
+  assert.deepEqual([...sourceHtml.matchAll(/experience-card--([a-z0-9-]+)/g)].map((match) => match[1]), CV_EXPERIENCE_IDS);
 });
 
-test("CV content adapter rejects incomplete, duplicate and unknown experience identity", async () => {
-  assertFileExists(cvDataModuleUrl, "src/data/cv.ts");
+test("full CV parser still rejects incomplete, duplicate and unknown runtime identity", async () => {
   const { parseCvContent } = await import(cvDataModuleUrl.href);
-
   const incomplete = await fixtureContent();
   incomplete.experience = incomplete.experience.slice(0, -1);
-  assert.throws(
-    () => parseCvContent(incomplete),
-    /missing required CV experience id|experience count/i,
-  );
-
+  assert.throws(() => parseCvContent(incomplete), /missing required CV experience id|experience count/i);
   const duplicate = await fixtureContent();
   duplicate.experience = [...duplicate.experience, structuredClone(duplicate.experience[0])];
-  assert.throws(
-    () => parseCvContent(duplicate),
-    /duplicate CV experience id/i,
-  );
-
+  assert.throws(() => parseCvContent(duplicate), /duplicate CV experience id/i);
   const unknown = await fixtureContent();
-  unknown.experience = unknown.experience.map((item, index) => index === 0 ? { ...item, id: "unknown" } : item);
-  assert.throws(
-    () => parseCvContent(unknown),
-    /unexpected CV experience id/i,
-  );
+  unknown.experience[0].id = "unknown";
+  assert.throws(() => parseCvContent(unknown), /unexpected CV experience id/i);
 });
 
-test("CV build visibility is controlled by content data rather than legacy hidden attributes", async () => {
-  assertFileExists(applyScriptUrl, "tools/apply-cv-content.mjs");
-
+test("CV build visibility is controlled by composed content rather than legacy hidden attributes", async () => {
   const dir = await mkdtemp(join(tmpdir(), "cv-content-"));
   const htmlPath = join(dir, "index.html");
   const contentPath = join(dir, "cv.json");
-
   await writeFile(htmlPath, await fixtureHtml({ forceHidden: ["jestei"] }), "utf8");
-  await writeFile(
-    contentPath,
-    JSON.stringify(await fixtureContent({ jestei: true, styx: false })),
-    "utf8",
-  );
-
-  const result = spawnSync(
-    process.execPath,
-    [fileURLToPath(applyScriptUrl), htmlPath, contentPath],
-    { encoding: "utf8" },
-  );
+  await writeFile(contentPath, JSON.stringify(await fixtureContent({ jestei: true, styx: false })), "utf8");
+  const result = spawnSync(process.execPath, [fileURLToPath(applyScriptUrl), htmlPath, contentPath], { encoding: "utf8" });
   assert.equal(result.status, 0, result.stderr || result.stdout);
-
   const builtHtml = await readFile(htmlPath, "utf8");
-  const jestei = articleFor(builtHtml, "jestei");
-  const styx = articleFor(builtHtml, "styx");
-  assert.ok(jestei);
-  assert.ok(styx);
-  assert.doesNotMatch(jestei, /\bhidden(?:\s*=|\s|>)/i);
-  assert.match(styx, /\bhidden(?:\s*=|\s|>)/i);
+  assert.doesNotMatch(articleFor(builtHtml, "jestei"), /\bhidden(?:\s*=|\s|>)/i);
+  assert.match(articleFor(builtHtml, "styx"), /\bhidden(?:\s*=|\s|>)/i);
 });
 
-test("CV build fails closed when the HTML and visibility registry drift apart", async () => {
-  assertFileExists(applyScriptUrl, "tools/apply-cv-content.mjs");
-
+test("CV build fails closed when HTML and runtime registry drift apart", async () => {
   const dir = await mkdtemp(join(tmpdir(), "cv-content-drift-"));
   const htmlPath = join(dir, "index.html");
   const contentPath = join(dir, "cv.json");
-  const sourceHtml = await fixtureHtml();
-
-  await writeFile(
-    htmlPath,
-    sourceHtml.replace(
-      /<article\b(?=[^>]*\bclass=["'][^"']*\bexperience-card--ria\b[^"']*["'])[^>]*>[\s\S]*?<\/article>/i,
-      "",
-    ),
-    "utf8",
-  );
+  await writeFile(htmlPath, (await fixtureHtml()).replace(/<article\b(?=[^>]*\bclass=["'][^"']*\bexperience-card--ria\b[^"']*["'])[^>]*>[\s\S]*?<\/article>/i, ""), "utf8");
   await writeFile(contentPath, JSON.stringify(await fixtureContent()), "utf8");
-
-  const result = spawnSync(
-    process.execPath,
-    [fileURLToPath(applyScriptUrl), htmlPath, contentPath],
-    { encoding: "utf8" },
-  );
-
+  const result = spawnSync(process.execPath, [fileURLToPath(applyScriptUrl), htmlPath, contentPath], { encoding: "utf8" });
   assert.notEqual(result.status, 0);
   assert.match(`${result.stderr}\n${result.stdout}`, /missing CV experience card.*ria/i);
 });
 
-test("production CV physically removes exactly the entries disabled by current content", async () => {
+test("production CV physically removes exactly runtime-disabled entries", async () => {
   const dir = await mkdtemp(join(tmpdir(), "cv-production-content-"));
   const htmlPath = join(dir, "index.html");
   const contentPath = join(dir, "cv.json");
   const content = await fixtureContent({ jestei: true, styx: false });
-
   await writeFile(htmlPath, await fixtureHtml({ forceHidden: ["jestei"] }), "utf8");
   await writeFile(contentPath, JSON.stringify(content), "utf8");
-
-  const result = spawnSync(
-    process.execPath,
-    [fileURLToPath(productionScriptUrl), htmlPath, contentPath],
-    { encoding: "utf8" },
-  );
+  const result = spawnSync(process.execPath, [fileURLToPath(productionScriptUrl), htmlPath, contentPath], { encoding: "utf8" });
   assert.equal(result.status, 0, result.stderr || result.stdout);
-
   const productionHtml = await readFile(htmlPath, "utf8");
-  for (const { id, visible } of content.experience) {
-    assert.equal(Boolean(articleFor(productionHtml, id)), visible, `production visibility mismatch for ${id}`);
-  }
+  for (const { id, visible } of content.experience) assert.equal(Boolean(articleFor(productionHtml, id)), visible, id);
   assert.doesNotMatch(productionHtml, /<article\b[^>]*\bexperience-card\b[^>]*\bhidden\b/i);
 });
 
-test("Pages CMS exposes CV experience visibility without exposing identity or layout controls", async () => {
+test("Pages CMS exposes authored CV copy only; visibility and identity remain structural", async () => {
   const cmsConfig = await readFile(cmsConfigUrl, "utf8");
   const cvConfig = cmsConfig.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
-  const experienceConfig = cvConfig.match(/\n      - name: experience\b[\s\S]*$/)?.[0] ?? "";
-
-  assert.match(cvConfig, /path: src\/content\/cv\.json/);
-  assert.match(experienceConfig, /name: experience\b[\s\S]*?type: object[\s\S]*?list:/);
-  assert.match(experienceConfig, /name: id\b[\s\S]*?readonly: true/);
-  assert.match(experienceConfig, /name: visible\b[\s\S]*?type: boolean/);
-  assert.doesNotMatch(experienceConfig, /name: (className|route|canonical|listed|indexable|pageType)\b/);
+  assert.match(cvConfig, /path: src\/content\/editorial\/cv\.json/);
+  assert.doesNotMatch(cvConfig, /- name: (id|visible|titleVisible|phone|telegram|instagram|email|website)\b/);
+  const structure = JSON.parse(await readFile(cvStructureUrl, "utf8"));
+  assert.ok(Object.values(structure.experience).every(({ visible }) => typeof visible === "boolean"));
 });
