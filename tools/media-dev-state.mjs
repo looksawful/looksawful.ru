@@ -13,14 +13,19 @@ import { fileURLToPath } from "node:url";
 
 import { mediaAssets } from "../src/data/media/assets/index.ts";
 
-const STATE_VERSION = 1;
+const STATE_VERSION = 2;
 const DEFAULT_STATE_PATH = ".cache/media/dev-state.json";
+const DEFAULT_CACHE_MARKER_PATH = ".cache/media/generated-cache.json";
 const DEFAULT_RESPONSIVE_MANIFEST = "public/media/generated/responsive-manifest.json";
 const DEFAULT_VIDEO_INVENTORY = "public/media/generated/video-inventory.json";
 const DEFAULT_CONFIG_FILES = [
   "tools/build-responsive-media.mjs",
   "tools/build-video-media.mjs",
   "src/data/media/responsive-policy.ts",
+  "src/data/media/assets/index.ts",
+  "src/data/media/assets/registered.ts",
+  "src/data/media/catalog.ts",
+  "src/data/media/media-catalog.json",
   "package-lock.json",
 ];
 
@@ -46,35 +51,39 @@ async function exists(filePath) {
 
 async function resolveMediaFile(repoRoot, src) {
   const clean = normalizePublicSrc(src);
-  const candidates = [
-    path.join(repoRoot, "public", clean),
-  ];
-
-  for (const candidate of candidates) {
-    if (await exists(candidate)) return path.resolve(candidate);
-  }
-
-  return null;
+  const candidate = path.join(repoRoot, "public", clean);
+  return await exists(candidate) ? path.resolve(candidate) : null;
 }
 
-function hashText(contents) {
+function hashBytes(contents) {
   return createHash("sha256").update(contents).digest("hex");
 }
 
-async function hashSmallFile(filePath) {
-  return hashText(await readFile(filePath));
+async function hashFile(filePath) {
+  return hashBytes(await readFile(filePath));
+}
+
+function stableValue(value) {
+  if (Array.isArray(value)) return value.map(stableValue);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, child]) => [key, stableValue(child)]),
+    );
+  }
+  return value;
+}
+
+function stableJson(value) {
+  return JSON.stringify(stableValue(value));
 }
 
 function registrySignature(assets) {
-  const normalized = assets
-    .map((asset) => ({
-      id: String(asset.id),
-      type: String(asset.type),
-      src: String(asset.src),
-      sourceSrc: asset.sourceSrc == null ? null : String(asset.sourceSrc),
-    }))
-    .sort((left, right) => left.id.localeCompare(right.id));
-  return hashText(JSON.stringify(normalized));
+  const normalized = [...assets]
+    .map((asset) => stableValue(asset))
+    .sort((left, right) => String(left.id).localeCompare(String(right.id)));
+  return hashBytes(stableJson(normalized));
 }
 
 async function collectSourceFingerprint(repoRoot, assets) {
@@ -83,17 +92,15 @@ async function collectSourceFingerprint(repoRoot, assets) {
   for (const asset of assets) {
     const sourceSrc = asset.sourceSrc ?? asset.src;
     const sourcePath = await resolveMediaFile(repoRoot, sourceSrc);
-    if (!sourcePath) {
-      throw new Error(`media source is missing: ${sourceSrc}`);
-    }
+    if (!sourcePath) throw new Error(`media source is missing: ${sourceSrc}`);
 
-    const normalizedPath = normalizeSlashes(sourcePath);
-    if (byPath.has(normalizedPath)) continue;
+    const relativePath = normalizeSlashes(path.relative(repoRoot, sourcePath));
+    if (byPath.has(relativePath)) continue;
     const fileStat = await stat(sourcePath);
-    byPath.set(normalizedPath, {
-      path: normalizedPath,
+    byPath.set(relativePath, {
+      path: relativePath,
       size: fileStat.size,
-      mtimeMs: fileStat.mtimeMs,
+      hash: await hashFile(sourcePath),
     });
   }
 
@@ -104,12 +111,10 @@ async function collectConfigFingerprint(repoRoot, configFiles) {
   const records = [];
   for (const relativePath of configFiles) {
     const filePath = path.resolve(repoRoot, relativePath);
-    if (!(await exists(filePath))) {
-      throw new Error(`media config/tool file is missing: ${relativePath}`);
-    }
+    if (!(await exists(filePath))) throw new Error(`media config/tool file is missing: ${relativePath}`);
     records.push({
       path: normalizeSlashes(relativePath),
-      hash: await hashSmallFile(filePath),
+      hash: await hashFile(filePath),
     });
   }
   return records.sort((left, right) => left.path.localeCompare(right.path));
@@ -120,14 +125,12 @@ async function readJsonFile(filePath, label) {
   try {
     contents = await readFile(filePath, "utf8");
   } catch (error) {
-    if (error?.code === "ENOENT") {
-      return { value: null, hash: null, error: `${label} is missing` };
-    }
+    if (error?.code === "ENOENT") return { value: null, hash: null, error: `${label} is missing` };
     throw error;
   }
 
   try {
-    return { value: JSON.parse(contents), hash: hashText(contents), error: null };
+    return { value: JSON.parse(contents), hash: hashBytes(contents), error: null };
   } catch {
     return { value: null, hash: null, error: `${label} is invalid JSON` };
   }
@@ -141,11 +144,8 @@ async function validateGeneratedOutputs(repoRoot, responsiveManifest, videoInven
       if (!variant?.src) continue;
       const outputPath = path.join(repoRoot, "public", normalizePublicSrc(variant.src));
       const outputStat = await stat(outputPath).catch(() => null);
-      if (!outputStat) {
-        reasons.push(`responsive output is missing: ${variant.src}`);
-        continue;
-      }
-      if (Number.isFinite(variant.bytes) && outputStat.size !== variant.bytes) {
+      if (!outputStat) reasons.push(`responsive output is missing: ${variant.src}`);
+      else if (Number.isFinite(variant.bytes) && outputStat.size !== variant.bytes) {
         reasons.push(`responsive output byte size changed: ${variant.src}`);
       }
     }
@@ -155,70 +155,12 @@ async function validateGeneratedOutputs(repoRoot, responsiveManifest, videoInven
     if (!video?.outputSrc) continue;
     const outputPath = path.join(repoRoot, "public", normalizePublicSrc(video.outputSrc));
     const outputStat = await stat(outputPath).catch(() => null);
-    if (!outputStat) {
-      reasons.push(`generated video output is missing: ${video.outputSrc}`);
-      continue;
-    }
-    if (Number.isFinite(video.outputBytes) && outputStat.size !== video.outputBytes) {
+    if (!outputStat) reasons.push(`generated video output is missing: ${video.outputSrc}`);
+    else if (Number.isFinite(video.outputBytes) && outputStat.size !== video.outputBytes) {
       reasons.push(`generated video output byte size changed: ${video.outputSrc}`);
     }
   }
 
-  return reasons;
-}
-
-async function collectCurrentState({
-  repoRoot,
-  assets,
-  configFiles,
-  responsiveManifestPath,
-  videoInventoryPath,
-}) {
-  const responsive = await readJsonFile(responsiveManifestPath, "responsive manifest");
-  const video = await readJsonFile(videoInventoryPath, "video inventory");
-  const reasons = [responsive.error, video.error].filter(Boolean);
-  if (reasons.length) return { state: null, reasons };
-
-  const outputReasons = await validateGeneratedOutputs(repoRoot, responsive.value, video.value);
-  if (outputReasons.length) return { state: null, reasons: outputReasons };
-
-  try {
-    const [sources, config] = await Promise.all([
-      collectSourceFingerprint(repoRoot, assets),
-      collectConfigFingerprint(repoRoot, configFiles),
-    ]);
-
-    return {
-      state: {
-        version: STATE_VERSION,
-        registrySignature: registrySignature(assets),
-        sources,
-        config,
-        responsiveManifestHash: responsive.hash,
-        videoInventoryHash: video.hash,
-      },
-      reasons: [],
-    };
-  } catch (error) {
-    return {
-      state: null,
-      reasons: [error instanceof Error ? error.message : String(error)],
-    };
-  }
-}
-
-function sameJson(left, right) {
-  return JSON.stringify(left) === JSON.stringify(right);
-}
-
-function compareState(saved, current) {
-  const reasons = [];
-  if (saved.version !== STATE_VERSION) reasons.push("local media state version changed");
-  if (saved.registrySignature !== current.registrySignature) reasons.push("media registry signature changed");
-  if (!sameJson(saved.sources, current.sources)) reasons.push("media source fingerprint changed");
-  if (!sameJson(saved.config, current.config)) reasons.push("media config/tool signature changed");
-  if (saved.responsiveManifestHash !== current.responsiveManifestHash) reasons.push("responsive manifest changed");
-  if (saved.videoInventoryHash !== current.videoInventoryHash) reasons.push("video inventory changed");
   return reasons;
 }
 
@@ -229,19 +171,100 @@ function resolveOptions(options = {}) {
     assets: options.assets ?? mediaAssets,
     configFiles: options.configFiles ?? DEFAULT_CONFIG_FILES,
     statePath: path.resolve(repoRoot, options.statePath ?? DEFAULT_STATE_PATH),
-    responsiveManifestPath: path.resolve(
-      repoRoot,
-      options.responsiveManifestPath ?? DEFAULT_RESPONSIVE_MANIFEST,
-    ),
-    videoInventoryPath: path.resolve(
-      repoRoot,
-      options.videoInventoryPath ?? DEFAULT_VIDEO_INVENTORY,
-    ),
+    cacheMarkerPath: path.resolve(repoRoot, options.cacheMarkerPath ?? DEFAULT_CACHE_MARKER_PATH),
+    responsiveManifestPath: path.resolve(repoRoot, options.responsiveManifestPath ?? DEFAULT_RESPONSIVE_MANIFEST),
+    videoInventoryPath: path.resolve(repoRoot, options.videoInventoryPath ?? DEFAULT_VIDEO_INVENTORY),
   };
 }
 
-export function npmCommandForPlatform(platform = process.platform) {
-  return platform === "win32" ? "npm.cmd" : "npm";
+export async function computeMediaInputState(options = {}) {
+  const resolved = resolveOptions(options);
+  const [sources, config] = await Promise.all([
+    collectSourceFingerprint(resolved.repoRoot, resolved.assets),
+    collectConfigFingerprint(resolved.repoRoot, resolved.configFiles),
+  ]);
+  return Object.freeze({
+    version: STATE_VERSION,
+    registrySignature: registrySignature(resolved.assets),
+    sources: Object.freeze(sources),
+    config: Object.freeze(config),
+  });
+}
+
+export async function computeMediaFingerprint(options = {}) {
+  return hashBytes(stableJson(await computeMediaInputState(options)));
+}
+
+async function collectGeneratedState(resolved) {
+  const responsive = await readJsonFile(resolved.responsiveManifestPath, "responsive manifest");
+  const video = await readJsonFile(resolved.videoInventoryPath, "video inventory");
+  const reasons = [responsive.error, video.error].filter(Boolean);
+  if (reasons.length) return { state: null, reasons };
+
+  const outputReasons = await validateGeneratedOutputs(resolved.repoRoot, responsive.value, video.value);
+  if (outputReasons.length) return { state: null, reasons: outputReasons };
+
+  return {
+    state: {
+      responsiveManifestHash: responsive.hash,
+      videoInventoryHash: video.hash,
+    },
+    reasons: [],
+  };
+}
+
+async function writeJsonAtomic(filePath, value) {
+  await mkdir(path.dirname(filePath), { recursive: true });
+  const temporaryPath = `${filePath}.${process.pid}.tmp`;
+  await writeFile(temporaryPath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  await rename(temporaryPath, filePath);
+}
+
+export async function writeGeneratedMediaCacheMarker(options = {}) {
+  const resolved = resolveOptions(options);
+  const [input, generated] = await Promise.all([
+    computeMediaInputState(options),
+    collectGeneratedState(resolved),
+  ]);
+  if (!generated.state) {
+    throw new Error(`cannot mark generated media cache complete: ${generated.reasons.join("; ")}`);
+  }
+  const marker = Object.freeze({
+    version: STATE_VERSION,
+    fingerprint: hashBytes(stableJson(input)),
+    input,
+    ...generated.state,
+  });
+  await writeJsonAtomic(resolved.cacheMarkerPath, marker);
+  return marker;
+}
+
+export async function verifyGeneratedMediaCache(options = {}) {
+  const resolved = resolveOptions(options);
+  let marker;
+  try {
+    marker = JSON.parse(await readFile(resolved.cacheMarkerPath, "utf8"));
+  } catch (error) {
+    return {
+      valid: false,
+      fingerprint: await computeMediaFingerprint(options),
+      reasons: [error?.code === "ENOENT" ? "generated-media cache marker is missing" : "generated-media cache marker is invalid"],
+    };
+  }
+
+  const expectedFingerprint = await computeMediaFingerprint(options);
+  const reasons = [];
+  if (marker?.version !== STATE_VERSION) reasons.push("generated-media cache marker version changed");
+  if (marker?.fingerprint !== expectedFingerprint) reasons.push(`generated-media cache fingerprint mismatch: expected ${expectedFingerprint}, got ${marker?.fingerprint ?? "missing"}`);
+
+  const generated = await collectGeneratedState(resolved);
+  reasons.push(...generated.reasons);
+  if (generated.state) {
+    if (marker?.responsiveManifestHash !== generated.state.responsiveManifestHash) reasons.push("responsive manifest does not match cached generated media");
+    if (marker?.videoInventoryHash !== generated.state.videoInventoryHash) reasons.push("video inventory does not match cached generated media");
+  }
+
+  return { valid: reasons.length === 0, fingerprint: expectedFingerprint, reasons };
 }
 
 export async function inspectMediaDevState(options = {}) {
@@ -250,52 +273,37 @@ export async function inspectMediaDevState(options = {}) {
   try {
     savedState = JSON.parse(await readFile(resolved.statePath, "utf8"));
   } catch (error) {
-    const reason = error?.code === "ENOENT"
-      ? "local media state is missing"
-      : "local media state is corrupted";
-    return { fresh: false, reasons: [reason] };
+    return { fresh: false, reasons: [error?.code === "ENOENT" ? "local media state is missing" : "local media state is corrupted"] };
   }
 
-  if (!savedState || typeof savedState !== "object" || Array.isArray(savedState)) {
-    return { fresh: false, reasons: ["local media state is corrupted"] };
+  const cache = await verifyGeneratedMediaCache(options);
+  if (!cache.valid) return { fresh: false, reasons: cache.reasons };
+  if (savedState?.fingerprint !== cache.fingerprint) {
+    return { fresh: false, reasons: ["local media state fingerprint changed"] };
   }
-
-  const current = await collectCurrentState(resolved);
-  if (!current.state) return { fresh: false, reasons: current.reasons };
-
-  const reasons = compareState(savedState, current.state);
-  return { fresh: reasons.length === 0, reasons, state: current.state };
+  return { fresh: true, reasons: [], state: savedState };
 }
 
 export async function writeMediaDevState(options = {}) {
   const resolved = resolveOptions(options);
-  const current = await collectCurrentState(resolved);
-  if (!current.state) {
-    throw new Error(`cannot write local media state: ${current.reasons.join("; ")}`);
-  }
+  const marker = await writeGeneratedMediaCacheMarker(options);
+  const state = Object.freeze({ version: STATE_VERSION, fingerprint: marker.fingerprint });
+  await writeJsonAtomic(resolved.statePath, state);
+  return state;
+}
 
-  await mkdir(path.dirname(resolved.statePath), { recursive: true });
-  const contents = `${JSON.stringify(current.state, null, 2)}\n`;
-  const temporaryPath = `${resolved.statePath}.${process.pid}.tmp`;
-  await writeFile(temporaryPath, contents, "utf8");
-  await rename(temporaryPath, resolved.statePath);
-  return current.state;
+export function npmCommandForPlatform(platform = process.platform) {
+  return platform === "win32" ? "npm.cmd" : "npm";
 }
 
 export async function runNpmMediaSync({ repoRoot = process.cwd() } = {}) {
   const cwd = path.resolve(repoRoot);
   await new Promise((resolve, reject) => {
-    const child = spawn(npmCommandForPlatform(), ["run", "media:sync"], {
-      cwd,
-      stdio: "inherit",
-    });
+    const child = spawn(npmCommandForPlatform(), ["run", "media:sync"], { cwd, stdio: "inherit" });
     child.on("error", reject);
     child.on("close", (code, signal) => {
-      if (code === 0) {
-        resolve();
-        return;
-      }
-      reject(new Error(`npm run media:sync failed${signal ? ` with signal ${signal}` : ` with exit code ${code}`}`));
+      if (code === 0) resolve();
+      else reject(new Error(`npm run media:sync failed${signal ? ` with signal ${signal}` : ` with exit code ${code}`}`));
     });
   });
 }
@@ -308,39 +316,45 @@ export async function ensureMediaDevState({ sync, ...options } = {}) {
   await syncMedia();
 
   const after = await inspectMediaDevState(options);
-  if (!after.fresh) {
-    throw new Error(`media sync completed but local media state is still stale: ${after.reasons.join("; ")}`);
-  }
+  if (!after.fresh) throw new Error(`media sync completed but local media state is still stale: ${after.reasons.join("; ")}`);
   return after;
 }
 
 async function runCli() {
   const mode = process.argv[2];
-  if (mode === "--write") {
-    await writeMediaDevState();
-    console.log("[media-ensure] local media state written");
+  if (mode === "--fingerprint") {
+    console.log(await computeMediaFingerprint());
     return;
   }
-
+  if (mode === "--cache-write") {
+    const marker = await writeGeneratedMediaCacheMarker();
+    console.log(`[media-cache] ${marker.fingerprint}`);
+    return;
+  }
+  if (mode === "--cache-verify") {
+    const result = await verifyGeneratedMediaCache();
+    if (!result.valid) throw new Error(`required generated-media cache for fingerprint ${result.fingerprint} is invalid: ${result.reasons.join("; ")}`);
+    console.log(`[media-cache] verified ${result.fingerprint}`);
+    return;
+  }
+  if (mode === "--write") {
+    const state = await writeMediaDevState();
+    console.log(`[media-ensure] local media state written ${state.fingerprint}`);
+    return;
+  }
   if (mode === "--ensure") {
     const before = await inspectMediaDevState();
     if (before.fresh) {
       console.log("[media-ensure] up to date");
       return;
     }
-
     console.log(`[media-ensure] stale: ${before.reasons.join("; ")}`);
     await ensureMediaDevState();
     console.log("[media-ensure] synchronized");
     return;
   }
-
-  throw new Error("usage: node tools/media-dev-state.mjs --ensure|--write");
+  throw new Error("usage: node tools/media-dev-state.mjs --fingerprint|--cache-write|--cache-verify|--ensure|--write");
 }
 
-const isDirectRun = process.argv[1]
-  && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
-
-if (isDirectRun) {
-  await runCli();
-}
+const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isDirectRun) await runCli();
