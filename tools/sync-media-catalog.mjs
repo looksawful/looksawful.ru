@@ -85,7 +85,7 @@ async function exists(filePath) {
 
 async function resolvePublicFile(repoRoot, src) {
   const clean = cleanSrc(src);
-  const candidates = [path.join(repoRoot, clean), path.join(repoRoot, "public", clean)];
+  const candidates = [path.join(repoRoot, "public", clean)];
   for (const candidate of candidates) {
     if (await exists(candidate)) return candidate;
   }
