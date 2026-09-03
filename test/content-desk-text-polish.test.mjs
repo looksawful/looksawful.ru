@@ -4,10 +4,22 @@ import { readFile } from "node:fs/promises";
 
 const source = await readFile(new URL("../src/tools/media-desk/text-desk.ts", import.meta.url), "utf8");
 
-test("text desk guards dirty detail before switching or mobile back", () => {
+test("text desk guards dirty detail before switching and uses one guarded close lifecycle", () => {
   assert.match(source, /export function canLeaveTextEditor/);
   assert.match(source, /currentDetail && !currentDetail\.canLeave\(\)/);
-  assert.match(source, /if \(canLeaveTextEditor\(isDirty\(\)\)\) onBack\(\)/);
+  assert.match(source, /const closeDetail = \(\): void => \{/);
+  assert.match(source, /if \(currentDetail && !currentDetail\.canLeave\(\)\) return;\s*selected = null;\s*currentDetail = null;/s);
+  assert.match(source, /back\.addEventListener\("click", onBack\)/);
+  assert.doesNotMatch(source, /if \(canLeaveTextEditor\(isDirty\(\)\)\) onBack\(\)/);
+});
+
+test("discarded mobile detail is destroyed and can be selected again", () => {
+  assert.match(source, /selected = null;/);
+  assert.match(source, /currentDetail = null;/);
+  assert.match(source, /detail\.replaceChildren\(emptyDetail\(\)\);/);
+  assert.match(source, /root\.classList\.remove\("text-desk--detail-open"\);\s*render\(\);/s);
+  assert.match(source, /if \(selected === entry\) return;/);
+  assert.match(source, /currentDetail = detailPane\(entry, closeDetail, render\)/);
 });
 
 test("text desk keeps current detail when search or source filter changes", () => {

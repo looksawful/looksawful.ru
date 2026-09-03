@@ -31,6 +31,7 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: stri
 }
 
 const sourceName = (path: string): string => path.split("/").at(-1) ?? path;
+const emptyDetail = (): HTMLElement => element("div", "text-desk__empty-detail", "Выбери текстовое поле");
 
 function buildAnalysis(entries: readonly ContentDeskTextEntry[]): HTMLElement {
   const analysis = analyzeTextDeskEntries(entries);
@@ -169,9 +170,7 @@ function detailPane(entry: ContentDeskTextEntry, onBack: () => void, onSaved: ()
       void saveCurrent();
     }
   });
-  back.addEventListener("click", () => {
-    if (canLeaveTextEditor(isDirty())) onBack();
-  });
+  back.addEventListener("click", onBack);
 
   const footer = element("div", "text-desk__detail-footer");
   actions.append(save, copy, source, cms);
@@ -237,7 +236,7 @@ export async function renderContentDeskTextView(app: HTMLElement): Promise<void>
     const browser = element("div", "text-desk__browser");
     const list = element("div", "text-desk__results");
     const detail = element("div", "text-desk__detail-slot");
-    detail.append(element("div", "text-desk__empty-detail", "Выбери текстовое поле"));
+    detail.append(emptyDetail());
     browser.append(list, detail);
     root.replaceChildren(header, controls, browser);
 
@@ -248,16 +247,20 @@ export async function renderContentDeskTextView(app: HTMLElement): Promise<void>
       for (const entry of filtered) fragment.append(resultRow(entry, selected === entry, () => select(entry)));
       list.replaceChildren(fragment);
     };
+    const closeDetail = (): void => {
+      if (currentDetail && !currentDetail.canLeave()) return;
+      selected = null;
+      currentDetail = null;
+      detail.replaceChildren(emptyDetail());
+      root.classList.remove("text-desk--detail-open");
+      render();
+    };
     const select = (entry: ContentDeskTextEntry): void => {
       if (selected === entry) return;
       if (currentDetail && !currentDetail.canLeave()) return;
       selected = entry;
       root.classList.add("text-desk--detail-open");
-      currentDetail = detailPane(
-        entry,
-        () => root.classList.remove("text-desk--detail-open"),
-        render,
-      );
+      currentDetail = detailPane(entry, closeDetail, render);
       detail.replaceChildren(currentDetail.node);
       render();
     };
