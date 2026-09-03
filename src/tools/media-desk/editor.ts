@@ -360,7 +360,12 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
   };
 }
 
-function renderEditor(target: HTMLElement, session: EditorSession, persistent: boolean): void {
+function renderEditor(
+  target: HTMLElement,
+  session: EditorSession,
+  persistent: boolean,
+  onClose?: () => void,
+): void {
   const shell = element("div", "content-desk__inspector-shell");
   const header = element("header", "content-desk__inspector-header");
   header.append(element("span", "content-desk__inspector-kicker", "Media metadata"));
@@ -370,6 +375,7 @@ function renderEditor(target: HTMLElement, session: EditorSession, persistent: b
     close.addEventListener("click", () => {
       if (session.getState() === "unsaved" && !window.confirm("Закрыть Inspector и потерять несохранённые изменения?")) return;
       session.destroy();
+      onClose?.();
       target.replaceChildren();
       target.removeAttribute("data-open");
       document.documentElement.classList.remove("content-desk--inspector-open");
@@ -411,8 +417,11 @@ function connectPersistentInspector(): void {
     const canonical = mediaCatalogItems.find((candidate) => candidate.asset.id === id);
     if (!canonical) return;
     active?.destroy();
-    active = buildMediaEditor(currentEditorItem(canonical));
-    renderEditor(inspector, active, true);
+    const next = buildMediaEditor(currentEditorItem(canonical));
+    active = next;
+    renderEditor(inspector, next, true, () => {
+      if (active === next) active = null;
+    });
   };
 
   const open = (id: string): void => {
