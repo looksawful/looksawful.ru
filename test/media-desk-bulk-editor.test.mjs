@@ -101,3 +101,18 @@ test("single editor cache listens to metadata-saved so bulk updates stay current
   assert.match(editorSource, /editorialOverrides\.set\(detail\.id, detail\.metadata\)/);
   assert.match(editorSource, /connectMediaDeskBulkEditor\(\)/);
 });
+
+test("active persistent inspector refreshes external saved metadata without dropping drafts", () => {
+  assert.match(editorSource, /const rebuild = \(id: string\): void =>/);
+  assert.match(editorSource, /active\?\.destroy\(\);[\s\S]*active = buildMediaEditor\(currentEditorItem\(canonical\)\);[\s\S]*renderEditor\(inspector, active, true\)/);
+  assert.match(editorSource, /detail\.origin === "single"/);
+  assert.match(editorSource, /active\?\.item\.asset\.id !== detail\.id \|\| active\.getState\(\) !== "saved"/);
+  assert.match(editorSource, /if \(active\?\.item\.asset\.id === id\) \{[\s\S]*active\.getState\(\) === "unsaved"[\s\S]*rebuild\(id\)/);
+  assert.match(editorSource, /detail: \{ id: item\.asset\.id, metadata: next, origin: "single" \}/);
+
+  const metadataListener = editorSource.match(
+    /document\.addEventListener\("media-desk:metadata-saved", \(event\) => \{[\s\S]*?\n  \}\);/g,
+  );
+  assert.ok(metadataListener && metadataListener.length >= 2);
+  assert.doesNotMatch(metadataListener.at(-1), /dispatchEvent\(new CustomEvent\("media-desk:metadata-saved"/);
+});

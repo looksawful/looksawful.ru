@@ -343,7 +343,7 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
       editorialOverrides.set(item.asset.id, next);
       updateState("saved");
       document.dispatchEvent(new CustomEvent("media-desk:metadata-saved", {
-        detail: { id: item.asset.id, metadata: next },
+        detail: { id: item.asset.id, metadata: next, origin: "single" },
       }));
     } catch (error) {
       updateState("error", error instanceof Error ? error.message : "Ошибка сохранения");
@@ -407,15 +407,35 @@ function connectPersistentInspector(): void {
   if (!inspector) return;
   let active: EditorSession | null = null;
 
-  const open = (id: string): void => {
-    if (!id || active?.item.asset.id === id) return;
-    if (active?.getState() === "unsaved" && !window.confirm("Переключиться и потерять несохранённые изменения?")) return;
+  const rebuild = (id: string): void => {
     const canonical = mediaCatalogItems.find((candidate) => candidate.asset.id === id);
     if (!canonical) return;
     active?.destroy();
     active = buildMediaEditor(currentEditorItem(canonical));
     renderEditor(inspector, active, true);
   };
+
+  const open = (id: string): void => {
+    if (!id) return;
+    if (active?.item.asset.id === id) {
+      if (active.getState() === "unsaved") return;
+      rebuild(id);
+      return;
+    }
+    if (active?.getState() === "unsaved" && !window.confirm("Переключиться и потерять несохранённые изменения?")) return;
+    rebuild(id);
+  };
+
+  document.addEventListener("media-desk:metadata-saved", (event) => {
+    const detail = (event as CustomEvent<{
+      id?: string;
+      metadata?: MediaEditorialPatch;
+      origin?: "single" | "bulk";
+    }>).detail;
+    if (!detail?.id || !detail.metadata || detail.origin === "single") return;
+    if (active?.item.asset.id !== detail.id || active.getState() !== "saved") return;
+    rebuild(detail.id);
+  });
 
   document.addEventListener("media-desk:asset-select", (event) => {
     const id = (event as CustomEvent<{ id?: string }>).detail?.id;
