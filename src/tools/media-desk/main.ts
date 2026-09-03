@@ -1,4 +1,7 @@
 import "./media-desk.css";
+import "./editor.css";
+import "./bulk-editor.css";
+import "./text-desk.css";
 
 import { JustifiedInfiniteGrid, MasonryInfiniteGrid } from "@egjs/infinitegrid";
 import Split from "split.js";
@@ -21,6 +24,12 @@ import {
   idsBetween,
   type MediaDeskMetadataOverride,
 } from "./browser-layout.ts";
+import {
+  analyzeMediaDeskItems,
+  MEDIA_ANALYSIS_FILTER_EVENT,
+  type MediaAnalysisFilterIntent,
+} from "./media-analysis.ts";
+import { renderContentDeskTextView } from "./text-desk.ts";
 
 const CHUNK_SIZE = 60;
 const DESKTOP_BREAKPOINT = 900;
@@ -87,6 +96,7 @@ const sortValues: readonly MediaDeskSort[] = [
 ];
 
 const params = new URLSearchParams(location.search);
+const isTextView = params.get("view") === "text";
 const state: Required<MediaDeskState> = {
   search: params.get("q") ?? "",
   mediaType: enumParam("type", mediaTypeValues, "all"),
@@ -111,7 +121,7 @@ const lightbox = createPhotoSwipeLightbox();
 
 function updateUrl(): void {
   const next = new URLSearchParams();
-  if (params.get("view") === "text") next.set("view", "text");
+  if (isTextView) next.set("view", "text");
   if (state.search) next.set("q", state.search);
   if (state.mediaType !== "all") next.set("type", state.mediaType);
   if (state.projectId) next.set("project", state.projectId);
@@ -574,7 +584,8 @@ function renderBrowser(): void {
   destroyLayout();
   app.dataset.view = viewMode;
   app.dataset.density = density;
-  summary.textContent = `${sessionItems.length} assets · ${sessionItems.filter((item) => item.asset.type === "video").length} video · ${sessionItems.filter((item) => item.archived).length} archived`;
+  const analysis = analyzeMediaDeskItems(sessionItems);
+  summary.textContent = `${analysis.total} assets · ${analysis.videoCount} video · ${analysis.archived} archived`;
   selectionText.textContent = selectedIds.size > 0 ? `${selectedIds.size} selected` : activeId ? "1 active" : "";
   statusText.textContent = `${filteredItems.length} найдено`;
   updateUrl();
@@ -638,13 +649,29 @@ for (const [value, button] of densityButtons) {
   });
 }
 
+document.addEventListener(MEDIA_ANALYSIS_FILTER_EVENT, (event) => {
+  const intent = (event as CustomEvent<{ intent?: MediaAnalysisFilterIntent }>).detail?.intent;
+  if (!intent || !reviewValues.includes(intent)) return;
+  state.review = intent;
+  reviewSelect.value = state.review;
+  renderAfterControlChange();
+});
+
+document.addEventListener("media-desk:selection-clear", () => {
+  selectedIds.clear();
+  selectionAnchorId = null;
+  selectionText.textContent = activeId ? "1 active" : "";
+  updateSelectionDom();
+  dispatchSelection();
+});
+
 document.addEventListener("media-desk:metadata-saved", (event) => {
   const detail = (event as CustomEvent<{ id?: unknown; metadata?: unknown }>).detail;
   if (!detail || typeof detail.id !== "string" || !detail.metadata || typeof detail.metadata !== "object") {
     return;
   }
   metadataOverrides.set(detail.id, detail.metadata as MediaDeskMetadataOverride);
-  renderBrowser();
+  if (!isTextView) renderBrowser();
 });
 
 function savedInspectorPercent(): number {
@@ -676,10 +703,35 @@ function syncSplit(): void {
   }
 }
 
-const splitMedia = matchMedia(`(min-width: ${DESKTOP_BREAKPOINT}px)`);
-splitMedia.addEventListener("change", syncSplit);
-syncSplit();
-renderBrowser();
+function appendTextWorkspaceTabs(): void {
+  title.textContent = "Content Desk";
+  const navigation = element("nav", "content-desk__tabs");
+  navigation.setAttribute("aria-label", "Content Desk разделы");
+  const mediaLink = element("a", "content-desk__tab", "Медиа");
+  mediaLink.href = "/tools/media-desk/";
+  const textLink = element("a", "content-desk__tab", "Тексты");
+  textLink.href = "/tools/media-desk/?view=text";
+  textLink.setAttribute("aria-current", "page");
+  navigation.append(mediaLink, textLink);
+  header.insertAdjacentElement("afterend", navigation);
+}
+
+if (isTextView) {
+  workspace.hidden = true;
+  toolbar.hidden = true;
+  status.hidden = true;
+  app.style.width = "min(100%, 1920px)";
+  app.style.margin = "0 auto";
+  app.style.padding = "20px";
+  app.classList.remove("media-desk");
+  appendTextWorkspaceTabs();
+  void renderContentDeskTextView(app);
+} else {
+  const splitMedia = matchMedia(`(min-width: ${DESKTOP_BREAKPOINT}px)`);
+  splitMedia.addEventListener("change", syncSplit);
+  syncSplit();
+  renderBrowser();
+}
 
 window.addEventListener("beforeunload", () => {
   lightbox.destroy();
