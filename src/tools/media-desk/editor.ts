@@ -11,6 +11,7 @@ import {
   mediaCatalogProjectTypes,
   mediaCatalogWorkAreas,
 } from "../../data/taxonomy/media-taxonomy.ts";
+import { connectMediaDeskBulkEditor } from "./bulk-editor.ts";
 import {
   applyMediaEditorialPatchToItem,
   buildMediaEditorialPatch,
@@ -26,6 +27,11 @@ const TEXT_RENDER_LIMIT = 500;
 const CAN_WRITE_MEDIA = import.meta.env.VITE_CONTENT_DESK_WRITE === "1";
 const MOBILE_BREAKPOINT = 899;
 const editorialOverrides = new Map<string, MediaEditorialPatch>();
+
+document.addEventListener("media-desk:metadata-saved", (event) => {
+  const detail = (event as CustomEvent<{ id?: string; metadata?: MediaEditorialPatch }>).detail;
+  if (detail?.id && detail.metadata) editorialOverrides.set(detail.id, detail.metadata);
+});
 
 type SaveState = "saved" | "unsaved" | "saving" | "error";
 
@@ -507,6 +513,7 @@ if (app) {
     void renderTextView(app);
   } else if (CAN_WRITE_MEDIA) {
     connectPersistentInspector();
+    connectMediaDeskBulkEditor();
     document.addEventListener("click", (event) => {
       const target = event.target;
       if (!(target instanceof Element) || !target.closest(".media-card")) return;
