@@ -17,7 +17,7 @@ jobs:
       - name: Checkout exact assembly SHA
         uses: actions/checkout@v7
         with:
-          ref: 6c79b0e1b4a78a5a486d828bd1a90c52b74a0fd7
+          ref: 9cdf3be71e707a9bd9fa3243acf6fd4767619890
           fetch-depth: 1
       - name: Setup Node 24
         uses: actions/setup-node@v7
@@ -47,12 +47,12 @@ jobs:
   windows-desk:
     name: Windows Node 24 Desk gate
     runs-on: windows-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     steps:
       - name: Checkout exact assembly SHA
         uses: actions/checkout@v7
         with:
-          ref: 6c79b0e1b4a78a5a486d828bd1a90c52b74a0fd7
+          ref: 9cdf3be71e707a9bd9fa3243acf6fd4767619890
           fetch-depth: 1
       - name: Setup Node 24
         uses: actions/setup-node@v7
@@ -61,9 +61,24 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install ffmpeg tooling
+      - name: Calculate canonical media fingerprint
+        id: media
         shell: pwsh
-        run: choco install ffmpeg --yes --no-progress
+        run: '"fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append'
+      - name: Restore exact verified generated media cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-Linux-${{ steps.media.outputs.fingerprint }}
+          enableCrossOsArchive: true
+      - name: Verify generated media and write local Desk state
+        run: |
+          node tools/media-dev-state.mjs --cache-verify
+          node tools/media-dev-state.mjs --write
       - name: Windows path and launcher contracts
         run: |
           node --test test/cms-publication-topology.test.mjs
@@ -80,7 +95,7 @@ jobs:
           $process = Start-Process npm.cmd -ArgumentList @('run','desk','--','--host','127.0.0.1','--port','4175','--strictPort') -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
           try {
             $ready = $false
-            for ($i = 0; $i -lt 1200; $i++) {
+            for ($i = 0; $i -lt 120; $i++) {
               if ($process.HasExited) { break }
               try {
                 $response = Invoke-WebRequest -UseBasicParsing 'http://127.0.0.1:4175/tools/media-desk/' -TimeoutSec 2
