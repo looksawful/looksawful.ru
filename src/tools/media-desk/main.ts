@@ -350,9 +350,11 @@ app.dataset.density = density;
 
 const header = element("header", "media-desk__header");
 const headingGroup = element("div");
+const title = element("h1", "media-desk__title", "Media Desk");
+title.style.fontSize = "28px";
 headingGroup.append(
   element("p", "media-desk__eyebrow", "Internal tool"),
-  element("h1", "media-desk__title", "Media Desk"),
+  title,
 );
 const summary = element("p", "media-desk__summary");
 header.append(headingGroup, summary);
@@ -533,22 +535,29 @@ function startInfiniteGrid(): void {
   };
 
   infiniteGrid.on("requestAppend", (event) => {
+    event.wait();
     if (loadedCount >= filteredItems.length) {
-      event.reachEnd();
+      event.currentTarget.isReachEnd = true;
+      event.ready();
       return;
     }
+
     const nextGroupKey = Math.floor(loadedCount / CHUNK_SIZE);
-    event.wait();
     event.currentTarget.appendPlaceholders(Math.min(8, filteredItems.length - loadedCount), nextGroupKey);
     requestAnimationFrame(() => {
       event.currentTarget.removePlaceholders({ groupKey: nextGroupKey });
       appendChunk(nextGroupKey);
+      if (loadedCount >= filteredItems.length) {
+        event.currentTarget.isReachEnd = true;
+      }
       event.ready();
-      if (loadedCount >= filteredItems.length) event.reachEnd();
     });
   });
 
   appendChunk(0);
+  if (loadedCount >= filteredItems.length) {
+    infiniteGrid.isReachEnd = true;
+  }
   infiniteGrid.renderItems();
 }
 
