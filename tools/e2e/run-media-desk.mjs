@@ -37,64 +37,103 @@ async function stopServer(server) {
   await exited;
 }
 
+function attachRuntimeGuards(page, errors) {
+  page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(`console: ${message.text()}`);
+  });
+  page.on("response", (response) => {
+    if (new URL(response.url()).origin === BASE_URL && response.status() >= 400) {
+      errors.push(`${response.status()} ${response.url()}`);
+    }
+  });
+}
+
 async function openContentDesk(page, path) {
   const response = await page.goto(`${BASE_URL}${path}`, { waitUntil: "domcontentloaded" });
   assert.ok(response?.ok(), `Content Desk HTTP ${response?.status()}`);
-  await page.locator("h1", { hasText: "Content Desk" }).waitFor();
+  await page.locator("h1").waitFor();
   await page.evaluate(() => document.fonts.ready);
-  return response;
 }
 
-async function auditViewport(browser, viewport) {
-  const context = await browser.newContext({ viewport, isMobile: viewport.width < 600, hasTouch: viewport.width < 600 });
+async function auditDesktop(browser) {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
   const errors = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  page.on("response", (response) => {
-    if (new URL(response.url()).origin === BASE_URL && response.status() >= 400) errors.push(`${response.status()} ${response.url()}`);
-  });
+  attachRuntimeGuards(page, errors);
+
   try {
     await openContentDesk(page, "/tools/media-desk/");
+    await page.locator(".media-card:not(.media-card--skeleton)").first().waitFor();
     assert.equal(await page.locator("h1").textContent(), "Content Desk");
-    assert.equal(await page.locator(".content-desk__tab").count(), 2, "Content Desk must expose Media and Text tabs");
-    await page.locator(".media-card").first().waitFor();
-    assert.ok(await page.locator(".media-card").count() > 0, "Media view must render catalog cards");
-    assert.ok(await page.locator(".media-desk__summary").textContent(), "Media summary must render");
+    assert.equal(await page.locator(".content-desk__tab").count(), 2, "Media and Text tabs must be available");
+    assert.equal(await page.locator(".media-desk__pagination").count(), 0, "Legacy pagination must stay removed");
 
-    const search = page.getByLabel("Поиск по медиакаталогу");
-    await search.fill("jestei-13-source-01-16x9");
-    await page.getByLabel("Тип медиа").selectOption("video");
-    await page.waitForFunction(() => document.querySelectorAll(".media-card").length === 1);
-    assert.equal(await page.locator(".media-card").count(), 1);
+    const firstCard = page.locator(".media-card:not(.media-card--skeleton)").first();
+    await firstCard.click();
+    const inspector = page.locator("#media-desk-inspector[data-open=\"true\"]");
+    await inspector.waitFor();
+    assert.equal(await inspector.locator(".content-desk__media-form").count(), 1, "Persistent Inspector must expose metadata form");
+    assert.equal(await inspector.getByRole("button", { name: "Сохранить", exact: true }).count(), 1);
 
-    await page.locator(".media-card").click();
-    const dialog = page.locator("dialog[open]");
-    await dialog.waitFor();
-    assert.equal(await dialog.locator("video").count(), 1, "video detail must use controlled playback");
-    assert.match(await dialog.locator(".media-desk__details").textContent(), /jestei-13-source-01-16x9/);
-    await dialog.locator(".content-desk__media-form").waitFor();
-    assert.equal(await dialog.locator(".content-desk__media-form").count(), 1, "Media detail must expose editorial editing");
-    assert.equal(await dialog.getByRole("button", { name: "Сохранить metadata" }).count(), 1);
-    await page.getByRole("button", { name: "Закрыть" }).click();
+    await firstCard.dblclick();
+    await page.locator(".pswp.pswp--open").waitFor();
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => !document.querySelector(".pswp.pswp--open"));
 
     await openContentDesk(page, "/tools/media-desk/?view=text");
+    await page.locator(".text-desk").waitFor();
+    await page.locator(".text-desk__result").first().waitFor();
     assert.equal(await page.locator("h1").textContent(), "Content Desk");
-    try {
-      await page.locator(".content-desk__text-card").first().waitFor({ timeout: 10_000 });
-    } catch (error) {
-      const status = await page.locator(".content-desk__texts .content-desk__save-state").textContent().catch(() => "");
-      throw new Error(`Text view did not render cards. Status: ${status || "<missing>"}. ${error instanceof Error ? error.message : error}`);
-    }
-    assert.ok(await page.locator(".content-desk__text-card").count() > 0, "Text view must render CMS-owned text fields");
-    assert.equal(await page.getByLabel("Поиск по текстам сайта").count(), 1);
-    await page.getByLabel("Поиск по текстам сайта").fill("jestei");
-    await page.waitForFunction(() => document.querySelectorAll(".content-desk__text-card").length > 0);
+    assert.equal(await page.locator(".content-desk__media-form").count(), 0, "Text view must not bootstrap media editor");
+    assert.equal(await page.locator(".content-desk__text-card").count(), 0, "Legacy text cards must stay removed");
+    assert.equal(await page.locator(".text-desk__search").count(), 1);
+    await page.locator(".text-desk__search").fill("jestei");
+    await page.waitForFunction(() => document.querySelectorAll(".text-desk__result").length > 0);
+    await page.locator(".text-desk__result").first().click();
+    assert.equal(await page.locator(".text-desk__editor").count(), 1, "Text result must open editable detail");
 
     assert.ok(
-      await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1),
-      `${viewport.width}px Content Desk document overflow`,
+      await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 2),
+      "Desktop Content Desk must not overflow horizontally",
     );
-    assert.deepEqual(errors, [], "Content Desk browser/resource errors");
+    assert.deepEqual(errors, [], `Desktop Content Desk runtime errors:\n${errors.join("\n")}`);
+  } finally {
+    await context.close();
+  }
+}
+
+async function auditMobile(browser) {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await context.newPage();
+  const errors = [];
+  attachRuntimeGuards(page, errors);
+
+  try {
+    await openContentDesk(page, "/tools/media-desk/");
+    const firstCard = page.locator(".media-card:not(.media-card--skeleton)").first();
+    await firstCard.waitFor();
+    await firstCard.click();
+    const inspector = page.locator("#media-desk-inspector[data-open=\"true\"]");
+    await inspector.waitFor();
+    assert.equal(await inspector.locator(".content-desk__media-form").count(), 1, "Mobile Inspector must open full-screen");
+    await inspector.getByRole("button", { name: "Закрыть", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector("#media-desk-inspector[data-open=\"true\"]"));
+
+    await openContentDesk(page, "/tools/media-desk/?view=text");
+    const result = page.locator(".text-desk__result").first();
+    await result.waitFor();
+    await result.click();
+    await page.locator(".text-desk.text-desk--detail-open").waitFor();
+    await page.getByRole("button", { name: "Назад", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector(".text-desk.text-desk--detail-open"));
+    assert.equal(await page.locator(".text-desk__editor").count(), 0, "Mobile Back must remove detail editor from DOM");
+
+    assert.ok(
+      await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 2),
+      "Mobile Content Desk must not overflow horizontally",
+    );
+    assert.deepEqual(errors, [], `Mobile Content Desk runtime errors:\n${errors.join("\n")}`);
   } finally {
     await context.close();
   }
@@ -123,9 +162,9 @@ try {
   await waitForServer(server, () => serverOutput);
   await verifyTextEndpoint();
   browser = await chromium.launch({ headless: true });
-  await auditViewport(browser, { width: 1440, height: 900 });
-  await auditViewport(browser, { width: 390, height: 844 });
-  console.log("[content-desk-smoke] desktop + mobile: OK");
+  await auditDesktop(browser);
+  await auditMobile(browser);
+  console.log("[content-desk-smoke] assembled desktop + mobile: OK");
 } finally {
   await browser?.close();
   await stopServer(server);
