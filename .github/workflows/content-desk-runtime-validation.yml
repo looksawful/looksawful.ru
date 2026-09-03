@@ -1,0 +1,101 @@
+name: Content Desk Runtime Validation
+
+on:
+  pull_request:
+    branches:
+      - validation/content-desk-runtime-base-20260903
+
+permissions:
+  contents: read
+
+jobs:
+  linux-desk:
+    name: Linux Desk browser gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact assembly SHA
+        uses: actions/checkout@v7
+        with:
+          ref: e644240f3b44c0d9870f28ef1046719c31520bb8
+          fetch-depth: 1
+      - name: Setup Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Targeted Desk contracts
+        run: |
+          node --test test/media-desk-server.test.mjs
+          node --test test/media-ci-cache.test.mjs
+          node --test test/media-desk-browser-layout.test.mjs
+          node --test test/media-desk-editor-ux.test.mjs
+          node --test test/media-desk-bulk-editor.test.mjs
+          node --test test/content-desk-text-analysis.test.mjs
+          node --test test/content-desk-text-polish.test.mjs
+          node --test test/content-desk-main-wiring.test.mjs
+          node --test test/content-desk-editor-entry.test.mjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Content Desk smoke
+        run: npm run test:e2e:media-desk
+      - name: Media Desk browser QA
+        run: node tools/e2e/run-media-desk-browser-qa.mjs
+
+  windows-desk:
+    name: Windows Node 24 Desk gate
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact assembly SHA
+        uses: actions/checkout@v7
+        with:
+          ref: e644240f3b44c0d9870f28ef1046719c31520bb8
+          fetch-depth: 1
+      - name: Setup Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Windows path and launcher contracts
+        run: |
+          node --test test/cms-publication-topology.test.mjs
+          node --test test/site-build-inputs.test.mjs
+          node --test test/cv-production.test.mjs
+          node --test test/media-ci-cache.test.mjs
+      - name: Typecheck on Windows
+        run: npm run typecheck
+      - name: Start Content Desk and verify HTTP readiness
+        shell: pwsh
+        run: |
+          $out = Join-Path $env:RUNNER_TEMP 'content-desk.out.log'
+          $err = Join-Path $env:RUNNER_TEMP 'content-desk.err.log'
+          $process = Start-Process npm.cmd -ArgumentList @('run','desk','--','--host','127.0.0.1','--port','4175','--strictPort') -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 120; $i++) {
+              if ($process.HasExited) { break }
+              try {
+                $response = Invoke-WebRequest -UseBasicParsing 'http://127.0.0.1:4175/tools/media-desk/' -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch {}
+              Start-Sleep -Milliseconds 500
+            }
+            if (-not $ready) {
+              Write-Host '--- stdout ---'
+              if (Test-Path $out) { Get-Content $out }
+              Write-Host '--- stderr ---'
+              if (Test-Path $err) { Get-Content $err }
+              throw 'Content Desk did not become ready on Windows Node 24'
+            }
+            $text = Invoke-WebRequest -UseBasicParsing 'http://127.0.0.1:4175/__media-desk/texts' -TimeoutSec 5
+            if ($text.StatusCode -ne 200) { throw "Text endpoint returned $($text.StatusCode)" }
+          } finally {
+            if (-not $process.HasExited) {
+              Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            }
+          }
