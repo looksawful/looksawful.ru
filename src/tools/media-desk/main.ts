@@ -26,6 +26,7 @@ import {
 } from "./browser-layout.ts";
 import {
   analyzeMediaDeskItems,
+  dispatchMediaAnalysisFilterIntent,
   MEDIA_ANALYSIS_FILTER_EVENT,
   type MediaAnalysisFilterIntent,
 } from "./media-analysis.ts";
@@ -440,11 +441,32 @@ for (const value of densityValues) {
   densityButtons.set(value, button);
 }
 
+const analysisActions: readonly { intent: MediaAnalysisFilterIntent; label: string }[] = [
+  { intent: "missing-alt", label: "Missing alt" },
+  { intent: "missing-description", label: "Missing description" },
+  { intent: "missing-project", label: "Missing project" },
+  { intent: "archived", label: "Archived" },
+];
+const analysisControl = element("div", "media-desk__segmented media-desk__analysis-actions");
+analysisControl.setAttribute("aria-label", "Media analysis");
+const analysisButtons = new Map<MediaAnalysisFilterIntent, HTMLButtonElement>();
+for (const action of analysisActions) {
+  const button = element("button", "media-desk__segmented-button", action.label);
+  button.type = "button";
+  button.dataset.analysisIntent = action.intent;
+  button.addEventListener("click", () => {
+    dispatchMediaAnalysisFilterIntent(document, action.intent);
+  });
+  analysisControl.append(button);
+  analysisButtons.set(action.intent, button);
+}
+
 toolbar.append(
   searchInput,
   typeSelect,
   projectSelect,
   reviewSelect,
+  analysisControl,
   sortSelect,
   viewControl,
   densityControl,
@@ -585,6 +607,18 @@ function renderBrowser(): void {
   app.dataset.view = viewMode;
   app.dataset.density = density;
   const analysis = analyzeMediaDeskItems(sessionItems);
+  const analysisCounts: Record<MediaAnalysisFilterIntent, number> = {
+    "missing-alt": analysis.missingAlt,
+    "missing-description": analysis.missingDescription,
+    "missing-project": analysis.missingProject,
+    archived: analysis.archived,
+  };
+  for (const action of analysisActions) {
+    const button = analysisButtons.get(action.intent);
+    if (!button) continue;
+    button.textContent = `${action.label} ${analysisCounts[action.intent]}`;
+    button.classList.toggle("is-active", state.review === action.intent);
+  }
   summary.textContent = `${analysis.total} assets · ${analysis.videoCount} video · ${analysis.archived} archived`;
   selectionText.textContent = selectedIds.size > 0 ? `${selectedIds.size} selected` : activeId ? "1 active" : "";
   statusText.textContent = `${filteredItems.length} найдено`;
