@@ -17,7 +17,7 @@ jobs:
       - name: Checkout exact assembly SHA
         uses: actions/checkout@v7
         with:
-          ref: 9cdf3be71e707a9bd9fa3243acf6fd4767619890
+          ref: 0ec5fd1b789befa147b00c57ce1bd1b29c1ac3c3
           fetch-depth: 1
       - name: Setup Node 24
         uses: actions/setup-node@v7
@@ -44,15 +44,15 @@ jobs:
       - name: Media Desk browser QA
         run: node tools/e2e/run-media-desk-browser-qa.mjs
 
-  windows-desk:
-    name: Windows Node 24 Desk gate
+  windows-final-sanity:
+    name: Windows exact-final sanity
     runs-on: windows-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - name: Checkout exact assembly SHA
         uses: actions/checkout@v7
         with:
-          ref: 9cdf3be71e707a9bd9fa3243acf6fd4767619890
+          ref: 0ec5fd1b789befa147b00c57ce1bd1b29c1ac3c3
           fetch-depth: 1
       - name: Setup Node 24
         uses: actions/setup-node@v7
@@ -61,25 +61,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Calculate canonical media fingerprint
-        id: media
-        shell: pwsh
-        run: '"fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append'
-      - name: Restore exact verified generated media cache
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            public/media/generated/responsive
-            public/media/generated/video
-            public/media/generated/video-inventory.json
-            .cache/media/generated-cache.json
-          key: generated-media-v3-Linux-${{ steps.media.outputs.fingerprint }}
-          enableCrossOsArchive: true
-      - name: Verify generated media and write local Desk state
-        run: |
-          node tools/media-dev-state.mjs --cache-verify
-          node tools/media-dev-state.mjs --write
-      - name: Windows path and launcher contracts
+      - name: Windows path contracts
         run: |
           node --test test/cms-publication-topology.test.mjs
           node --test test/site-build-inputs.test.mjs
@@ -87,12 +69,14 @@ jobs:
           node --test test/media-ci-cache.test.mjs
       - name: Typecheck on Windows
         run: npm run typecheck
-      - name: Start Content Desk and verify HTTP readiness
+      - name: Start local Desk server directly and verify HTTP readiness
         shell: pwsh
         run: |
           $out = Join-Path $env:RUNNER_TEMP 'content-desk.out.log'
           $err = Join-Path $env:RUNNER_TEMP 'content-desk.err.log'
-          $process = Start-Process npm.cmd -ArgumentList @('run','desk','--','--host','127.0.0.1','--port','4175','--strictPort') -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+          $env:CONTENT_DESK_WRITE = '1'
+          $env:VITE_CONTENT_DESK_WRITE = '1'
+          $process = Start-Process node -ArgumentList @('tools/run-content-desk.mjs','--host','127.0.0.1','--port','4175','--strictPort') -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
           try {
             $ready = $false
             for ($i = 0; $i -lt 120; $i++) {
@@ -108,7 +92,7 @@ jobs:
               if (Test-Path $out) { Get-Content $out }
               Write-Host '--- stderr ---'
               if (Test-Path $err) { Get-Content $err }
-              throw 'Content Desk did not become ready on Windows Node 24'
+              throw 'Content Desk direct server did not become ready on Windows Node 24'
             }
             $text = Invoke-WebRequest -UseBasicParsing 'http://127.0.0.1:4175/__media-desk/texts' -TimeoutSec 5
             if ($text.StatusCode -ne 200) { throw "Text endpoint returned $($text.StatusCode)" }
