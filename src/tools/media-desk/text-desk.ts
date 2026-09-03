@@ -6,8 +6,22 @@ import { analyzeTextDeskEntries, filterTextDeskEntries } from "./text-analysis.t
 const PAGES_CMS_URL = "https://app.pagescms.org/";
 const TEXT_API = "/__media-desk/texts";
 const GITHUB_SOURCE_ROOT = "https://github.com/looksawful/looksawful.ru/blob/dev/";
+const UNSAVED_CONFIRM_MESSAGE = "Есть несохранённые изменения. Отменить их?";
 
 type SaveState = "saved" | "unsaved" | "saving" | "error";
+type ConfirmDiscard = (message: string) => boolean;
+
+interface DetailController {
+  node: HTMLElement;
+  canLeave(): boolean;
+}
+
+export function canLeaveTextEditor(
+  isDirty: boolean,
+  confirmDiscard: ConfirmDiscard = window.confirm.bind(window),
+): boolean {
+  return !isDirty || confirmDiscard(UNSAVED_CONFIRM_MESSAGE);
+}
 
 function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag);
@@ -70,12 +84,11 @@ function setSaveState(node: HTMLElement, state: SaveState, message?: string): vo
   node.textContent = message ? `${labels[state]} · ${message}` : labels[state];
 }
 
-function detailPane(entry: ContentDeskTextEntry, onBack: () => void, onSaved: () => void): HTMLElement {
+function detailPane(entry: ContentDeskTextEntry, onBack: () => void, onSaved: () => void): DetailController {
   const pane = element("aside", "text-desk__detail");
   const header = element("header", "text-desk__detail-header");
   const back = element("button", "text-desk__back", "Назад");
   back.type = "button";
-  back.addEventListener("click", onBack);
   const title = element("div", "text-desk__detail-title");
   title.append(element("strong", undefined, sourceName(entry.sourcePath)), element("code", undefined, entry.fieldPath));
   header.append(back, title);
@@ -85,16 +98,11 @@ function detailPane(entry: ContentDeskTextEntry, onBack: () => void, onSaved: ()
   const stateNode = element("span", "text-desk__save-state");
   let state: SaveState = "saved";
   setSaveState(stateNode, state);
-  textarea.addEventListener("input", () => {
-    if (state !== "saving") {
-      state = "unsaved";
-      setSaveState(stateNode, state);
-    }
-  });
 
   const actions = element("div", "text-desk__actions");
   const save = element("button", "text-desk__action text-desk__action--primary", "Сохранить");
   save.type = "button";
+  save.disabled = true;
   const copy = element("button", "text-desk__action", "Копировать путь");
   copy.type = "button";
   const source = element("a", "text-desk__action", "Открыть source");
@@ -106,12 +114,26 @@ function detailPane(entry: ContentDeskTextEntry, onBack: () => void, onSaved: ()
   cms.target = "_blank";
   cms.rel = "noreferrer";
 
+  const isDirty = (): boolean => textarea.value !== entry.value;
+  const syncDirtyState = (): void => {
+    if (state === "saving") return;
+    state = isDirty() ? "unsaved" : "saved";
+    save.disabled = !isDirty();
+    setSaveState(stateNode, state);
+  };
+
+  textarea.addEventListener("input", syncDirtyState);
+
   copy.addEventListener("click", async () => {
     await navigator.clipboard.writeText(`${entry.sourcePath} · ${entry.fieldPath}`);
     copy.textContent = "Скопировано";
   });
-  save.addEventListener("click", async () => {
-    if (state === "saving") return;
+
+  const saveCurrent = async (): Promise<void> => {
+    if (state === "saving" || !isDirty()) {
+      syncDirtyState();
+      return;
+    }
     state = "saving";
     save.disabled = true;
     setSaveState(stateNode, state);
@@ -125,6 +147,7 @@ function detailPane(entry: ContentDeskTextEntry, onBack: () => void, onSaved: ()
       if (!response.ok || !payload.ok) throw new Error(payload.error ?? `HTTP ${response.status}`);
       entry.value = textarea.value;
       state = "saved";
+      save.disabled = true;
       setSaveState(stateNode, state);
       onSaved();
       document.dispatchEvent(new CustomEvent("content-desk:text-saved", {
@@ -132,17 +155,32 @@ function detailPane(entry: ContentDeskTextEntry, onBack: () => void, onSaved: ()
       }));
     } catch (error) {
       state = "error";
-      setSaveState(stateNode, state, error instanceof Error ? error.message : "Ошибка сохранения");
-    } finally {
       save.disabled = false;
+      setSaveState(stateNode, state, error instanceof Error ? error.message : "Ошибка сохранения");
     }
+  };
+
+  save.addEventListener("click", () => {
+    void saveCurrent();
+  });
+  textarea.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLocaleLowerCase() === "s") {
+      event.preventDefault();
+      void saveCurrent();
+    }
+  });
+  back.addEventListener("click", () => {
+    if (canLeaveTextEditor(isDirty())) onBack();
   });
 
   const footer = element("div", "text-desk__detail-footer");
   actions.append(save, copy, source, cms);
   footer.append(stateNode, actions);
   pane.append(header, element("code", "text-desk__source-path", entry.sourcePath), textarea, footer);
-  return pane;
+  return {
+    node: pane,
+    canLeave: () => canLeaveTextEditor(isDirty()),
+  };
 }
 
 export async function renderContentDeskTextView(app: HTMLElement): Promise<void> {
@@ -171,6 +209,7 @@ export async function renderContentDeskTextView(app: HTMLElement): Promise<void>
     const entries = payload.entries.map((entry) => ({ ...entry }));
     const sources = [...new Set(entries.map(({ sourcePath }) => sourcePath))].sort();
     let selected: ContentDeskTextEntry | null = null;
+    let currentDetail: DetailController | null = null;
     const summary = app.querySelector(".media-desk__summary");
     if (summary) summary.textContent = `${entries.length} текстовых полей · ${sources.length} sources`;
 
@@ -210,9 +249,16 @@ export async function renderContentDeskTextView(app: HTMLElement): Promise<void>
       list.replaceChildren(fragment);
     };
     const select = (entry: ContentDeskTextEntry): void => {
+      if (selected === entry) return;
+      if (currentDetail && !currentDetail.canLeave()) return;
       selected = entry;
       root.classList.add("text-desk--detail-open");
-      detail.replaceChildren(detailPane(entry, () => root.classList.remove("text-desk--detail-open"), render));
+      currentDetail = detailPane(
+        entry,
+        () => root.classList.remove("text-desk--detail-open"),
+        render,
+      );
+      detail.replaceChildren(currentDetail.node);
       render();
     };
 
