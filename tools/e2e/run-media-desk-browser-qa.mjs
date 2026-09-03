@@ -71,7 +71,7 @@ async function representativeCardWidth(page) {
 async function setView(page, label, expectedView) {
   await page.getByRole("button", { name: label, exact: true }).click();
   await page.waitForFunction((view) => document.querySelector(".media-desk")?.getAttribute("data-view") === view, expectedView);
-  assert.ok(await page.locator(".media-card:not(.media-card--skeleton)").count() > 0, `${label} view must retain cards`);
+  await page.waitForFunction(() => document.querySelectorAll(".media-card:not(.media-card--skeleton)").length > 0);
 }
 
 async function resetSearch(page) {
