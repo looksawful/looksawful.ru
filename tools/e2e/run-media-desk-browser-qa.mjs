@@ -49,11 +49,19 @@ async function openDesk(page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
-async function waitForCardCountAbove(page, previousCount) {
-  await page.waitForFunction(
-    (count) => document.querySelectorAll(".media-card:not(.media-card--skeleton)").length > count,
-    previousCount,
-  );
+function progressFromStatusText(text) {
+  const match = text.match(/(\d+)\s+найдено(?:\s+·\s+показано\s+(\d+))?/i);
+  if (!match) return null;
+  const found = Number(match[1]);
+  const shown = match[2] === undefined ? null : Number(match[2]);
+  return { found, shown };
+}
+
+async function progressFromStatus(page) {
+  const text = (await page.locator(".media-desk__status").textContent()) ?? "";
+  const progress = progressFromStatusText(text);
+  assert.ok(progress, `Media Desk status must expose found/shown progress: ${text}`);
+  return progress;
 }
 
 async function representativeCardWidth(page) {
@@ -94,9 +102,20 @@ async function auditDesktop(browser) {
     );
     assert.ok(new Set(aspectRatios).size >= 2, `Masonry previews must preserve varying natural ratios: ${aspectRatios.join(", ")}`);
 
-    const initialCount = await page.locator(".media-card:not(.media-card--skeleton)").count();
-    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    await waitForCardCountAbove(page, initialCount);
+    const initialProgress = await progressFromStatus(page);
+    if (initialProgress.shown !== null && initialProgress.shown < initialProgress.found) {
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await page.waitForFunction((previousShown) => {
+        const text = document.querySelector(".media-desk__status")?.textContent ?? "";
+        const match = text.match(/показано\s+(\d+)/i);
+        return match !== null && Number(match[1]) > previousShown;
+      }, initialProgress.shown);
+      const nextProgress = await progressFromStatus(page);
+      assert.ok(nextProgress.shown !== null && nextProgress.shown > initialProgress.shown, "Progressive loading must increase logical shown count");
+      assert.ok(nextProgress.shown <= nextProgress.found, `Shown count must not exceed found count (${nextProgress.shown} > ${nextProgress.found})`);
+    } else {
+      assert.ok(initialProgress.shown === null || initialProgress.shown <= initialProgress.found, "Initial loaded count must not exceed found count");
+    }
 
     await setView(page, "Rows", "justified");
     await setView(page, "Grid", "grid");
