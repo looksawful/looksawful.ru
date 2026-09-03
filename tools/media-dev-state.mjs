@@ -293,14 +293,37 @@ export async function writeMediaDevState(options = {}) {
   return state;
 }
 
-export function npmCommandForPlatform(platform = process.platform) {
-  return platform === "win32" ? "npm.cmd" : "npm";
+export function resolveNpmMediaSyncCommand({
+  platform = process.platform,
+  env = process.env,
+  execPath = process.execPath,
+} = {}) {
+  const npmExecPath = typeof env.npm_execpath === "string" ? env.npm_execpath.trim() : "";
+  if (npmExecPath) {
+    return {
+      command: execPath,
+      args: [npmExecPath, "run", "media:sync"],
+    };
+  }
+
+  if (platform === "win32") {
+    return {
+      command: env.ComSpec || env.COMSPEC || "cmd.exe",
+      args: ["/d", "/s", "/c", "npm.cmd run media:sync"],
+    };
+  }
+
+  return {
+    command: "npm",
+    args: ["run", "media:sync"],
+  };
 }
 
 export async function runNpmMediaSync({ repoRoot = process.cwd() } = {}) {
   const cwd = path.resolve(repoRoot);
+  const invocation = resolveNpmMediaSyncCommand();
   await new Promise((resolve, reject) => {
-    const child = spawn(npmCommandForPlatform(), ["run", "media:sync"], { cwd, stdio: "inherit" });
+    const child = spawn(invocation.command, invocation.args, { cwd, stdio: "inherit" });
     child.on("error", reject);
     child.on("close", (code, signal) => {
       if (code === 0) resolve();

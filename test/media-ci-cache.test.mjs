@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { resolveNpmMediaSyncCommand } from "../tools/media-dev-state.mjs";
+
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 function block(workflow, name) {
@@ -70,4 +72,39 @@ test("scheduled Lighthouse rebuilds deterministic media instead of trusting an u
   assert.match(lighthouse, /git diff --exit-code/);
   assert.match(lighthouse, /npm run build:site/);
   assert.doesNotMatch(lighthouse, /restore-keys:/);
+});
+
+test("media sync command never directly spawns an npm .cmd shim on Windows", () => {
+  const npmExecPath = "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js";
+  const execPath = "C:\\Program Files\\nodejs\\node.exe";
+  assert.deepEqual(
+    resolveNpmMediaSyncCommand({
+      platform: "win32",
+      env: { npm_execpath: npmExecPath },
+      execPath,
+    }),
+    {
+      command: execPath,
+      args: [npmExecPath, "run", "media:sync"],
+    },
+  );
+
+  assert.deepEqual(
+    resolveNpmMediaSyncCommand({
+      platform: "win32",
+      env: { ComSpec: "C:\\Windows\\System32\\cmd.exe" },
+      execPath,
+    }),
+    {
+      command: "C:\\Windows\\System32\\cmd.exe",
+      args: ["/d", "/s", "/c", "npm.cmd run media:sync"],
+    },
+  );
+});
+
+test("media sync command preserves the direct npm path on non-Windows platforms", () => {
+  assert.deepEqual(
+    resolveNpmMediaSyncCommand({ platform: "linux", env: {}, execPath: "/usr/bin/node" }),
+    { command: "npm", args: ["run", "media:sync"] },
+  );
 });
