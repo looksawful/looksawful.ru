@@ -61,6 +61,11 @@ async function waitForMediaWorkspace(page) {
   await page.locator(".media-card:not(.media-card--skeleton)").first().waitFor();
 }
 
+async function activateCardByKeyboard(page, card) {
+  await card.focus();
+  await page.keyboard.press("Enter");
+}
+
 async function auditDesktop(browser) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
@@ -75,13 +80,14 @@ async function auditDesktop(browser) {
     assert.equal(await page.locator(".media-desk__pagination").count(), 0, "Legacy pagination must stay removed");
 
     const firstCard = page.locator(".media-card:not(.media-card--skeleton)").first();
-    await firstCard.click();
+    await activateCardByKeyboard(page, firstCard);
     const inspector = page.locator("#media-desk-inspector[data-open=\"true\"]");
     await inspector.waitFor();
     assert.equal(await inspector.locator(".content-desk__media-form").count(), 1, "Persistent Inspector must expose metadata form");
     assert.equal(await inspector.getByRole("button", { name: "Сохранить", exact: true }).count(), 1);
 
-    await firstCard.dblclick();
+    await firstCard.focus();
+    await page.keyboard.press("Space");
     await page.locator(".pswp.pswp--open").waitFor();
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => !document.querySelector(".pswp.pswp--open"));
@@ -118,7 +124,7 @@ async function auditMobile(browser) {
     await openContentDesk(page, "/tools/media-desk/");
     await waitForMediaWorkspace(page);
     const firstCard = page.locator(".media-card:not(.media-card--skeleton)").first();
-    await firstCard.click();
+    await activateCardByKeyboard(page, firstCard);
     const inspector = page.locator("#media-desk-inspector[data-open=\"true\"]");
     await inspector.waitFor();
     assert.equal(await inspector.locator(".content-desk__media-form").count(), 1, "Mobile Inspector must open full-screen");
