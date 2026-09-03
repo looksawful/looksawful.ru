@@ -17,7 +17,7 @@ jobs:
       - name: Checkout exact assembly SHA
         uses: actions/checkout@v7
         with:
-          ref: 8f769f05c9ac9326c3ee7e8d4fdc3cf4fe512ce7
+          ref: 91f4903393de469c1b113c848d9f2e964668c474
           fetch-depth: 1
       - name: Setup Node 24
         uses: actions/setup-node@v7
@@ -52,7 +52,7 @@ jobs:
       - name: Checkout exact assembly SHA
         uses: actions/checkout@v7
         with:
-          ref: 8f769f05c9ac9326c3ee7e8d4fdc3cf4fe512ce7
+          ref: 91f4903393de469c1b113c848d9f2e964668c474
           fetch-depth: 1
       - name: Setup Node 24
         uses: actions/setup-node@v7
