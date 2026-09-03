@@ -4,9 +4,9 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
-const repoRoot = new URL("../", import.meta.url);
-const topologyScript = new URL("../tools/cms-publication-topology.mjs", import.meta.url);
+const topologyScript = fileURLToPath(new URL("../tools/cms-publication-topology.mjs", import.meta.url));
 
 function git(root, ...args) {
   return execFileSync("git", ["-C", root, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
@@ -34,7 +34,7 @@ function writeCommit(root, branch, value, message) {
 
 function inspect(root) {
   assert.ok(existsSync(topologyScript), "cms publication topology helper must exist");
-  const result = spawnSync(process.execPath, [topologyScript.pathname, "--repo", root, "--prod", "prod", "--dev", "dev"], {
+  const result = spawnSync(process.execPath, [topologyScript, "--repo", root, "--prod", "prod", "--dev", "dev"], {
     encoding: "utf8",
   });
   let payload = null;
