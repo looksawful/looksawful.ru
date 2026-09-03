@@ -179,6 +179,34 @@ button, select { cursor: pointer; }
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
+.media-desk[data-density="s"] {
+  --media-masonry-card-width: 150px;
+  --media-justified-card-width: 120px;
+}
+
+.media-desk[data-density="m"] {
+  --media-masonry-card-width: 210px;
+  --media-justified-card-width: 170px;
+}
+
+.media-desk[data-density="l"] {
+  --media-masonry-card-width: 280px;
+  --media-justified-card-width: 230px;
+}
+
+.media-desk[data-density="xl"] {
+  --media-masonry-card-width: 360px;
+  --media-justified-card-width: 310px;
+}
+
+.media-desk[data-view="masonry"] .media-desk__grid:not(.media-desk__grid--css) .media-card {
+  width: min(100%, var(--media-masonry-card-width, 210px));
+}
+
+.media-desk[data-view="justified"] .media-desk__grid:not(.media-desk__grid--css) .media-card {
+  width: min(100%, var(--media-justified-card-width, 170px));
+}
+
 .media-card:hover,
 .media-card:focus-visible,
 .media-card.is-active { border-color: #999; }
