@@ -155,7 +155,9 @@ async function auditDesktop(browser) {
     await cards.nth(1).click({ modifiers: ["Control"] });
     assert.ok(await cards.nth(0).evaluate((node) => node.classList.contains("is-selected")), "Ctrl click must select first asset");
     assert.ok(await cards.nth(1).evaluate((node) => node.classList.contains("is-selected")), "Ctrl click must select second asset");
-    assert.match((await page.locator(".media-desk__status").textContent()) ?? "", /2 selected/, "Selection summary must update");
+    const bulkBar = page.locator(".content-desk__bulk-bar");
+    await bulkBar.waitFor();
+    assert.equal(await bulkBar.locator(".content-desk__bulk-count").textContent(), "2 выбрано", "Bulk selection summary must update");
 
     assert.equal(await page.locator("#media-desk-inspector").count(), 1, "Inspector host must exist");
 
