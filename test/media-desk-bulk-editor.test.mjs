@@ -104,7 +104,11 @@ test("single editor cache listens to metadata-saved so bulk updates stay current
 
 test("active persistent inspector refreshes external saved metadata without dropping drafts", () => {
   assert.match(editorSource, /const rebuild = \(id: string\): void =>/);
-  assert.match(editorSource, /active\?\.destroy\(\);[\s\S]*active = buildMediaEditor\(currentEditorItem\(canonical\)\);[\s\S]*renderEditor\(inspector, active, true\)/);
+  assert.match(
+    editorSource,
+    /const next = buildMediaEditor\(currentEditorItem\(canonical\)\);[\s\S]*active = next;[\s\S]*renderEditor\(inspector, next, true, \(\) => \{[\s\S]*if \(active === next\) active = null/,
+  );
+  assert.match(editorSource, /onClose\?\.\(\)/);
   assert.match(editorSource, /detail\.origin === "single"/);
   assert.match(editorSource, /active\?\.item\.asset\.id !== detail\.id \|\| active\.getState\(\) !== "saved"/);
   assert.match(editorSource, /if \(active\?\.item\.asset\.id === id\) \{[\s\S]*active\.getState\(\) === "unsaved"[\s\S]*rebuild\(id\)/);
