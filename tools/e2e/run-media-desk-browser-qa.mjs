@@ -210,7 +210,10 @@ async function auditMobile(browser) {
     await setView(page, "Masonry", "masonry");
 
     const firstCard = page.locator(".media-card:not(.media-card--skeleton)").first();
-    await firstCard.dblclick();
+    const previewButton = firstCard.getByRole("button", { name: "Preview", exact: true });
+    await previewButton.waitFor();
+    assert.ok(await previewButton.isVisible(), "Mobile Preview action must stay visible without hover");
+    await previewButton.click();
     await page.locator(".pswp.pswp--open").waitFor();
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => !document.querySelector(".pswp.pswp--open"));
