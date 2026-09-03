@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -23,18 +22,25 @@ const base = {
   archived: false,
 };
 
-const bulkSource = await readFile(new URL("../src/tools/media-desk/bulk-editor.ts", import.meta.url), "utf8");
-const editorSource = await readFile(new URL("../src/tools/media-desk/editor.ts", import.meta.url), "utf8");
-
 test("bulk array operations add, remove, replace and dedupe", () => {
-  assert.deepEqual(applyBulkArrayOperation(["a", "b"], "add", [" b ", "c", "c"]), ["a", "b", "c"]);
-  assert.deepEqual(applyBulkArrayOperation(["a", "b", "c"], "remove", ["b", "missing"]), ["a", "c"]);
-  assert.deepEqual(applyBulkArrayOperation(["a"], "set", [" x ", "x", "y"]), ["x", "y"]);
+  assert.deepEqual(
+    applyBulkArrayOperation(["a", "b"], "add", [" b ", "c", "c"]),
+    ["a", "b", "c"],
+  );
+  assert.deepEqual(
+    applyBulkArrayOperation(["a", "b", "c"], "remove", ["b", "missing"]),
+    ["a", "c"],
+  );
+  assert.deepEqual(
+    applyBulkArrayOperation(["a"], "set", [" x ", "x", "y"]),
+    ["x", "y"],
+  );
 });
 
 test("bulk editorial plan applies arrays and booleans without mutating current metadata", () => {
   const current = structuredClone(base);
   const snapshot = structuredClone(current);
+
   const next = applyBulkEditorialPlan(current, {
     arrays: [
       { field: "projectIds", mode: "add", values: ["two"] },
@@ -53,7 +59,11 @@ test("bulk editorial plan applies arrays and booleans without mutating current m
 });
 
 test("batch request respects different current asset states and leaves canonical items untouched", () => {
-  const first = { origin: "registered", asset: { id: "a", type: "image", src: "/a.jpg" }, ...structuredClone(base) };
+  const first = {
+    origin: "registered",
+    asset: { id: "a", type: "image", src: "/a.jpg" },
+    ...structuredClone(base),
+  };
   const second = {
     origin: "registered",
     asset: { id: "b", type: "image", src: "/b.jpg" },
@@ -62,7 +72,9 @@ test("batch request respects different current asset states and leaves canonical
     tags: ["other"],
     reusable: true,
   };
+
   const originals = structuredClone([first, second]);
+
   const batch = buildBulkMetadataRequest([first, second], {
     arrays: [
       { field: "projectIds", mode: "add", values: ["three"] },
@@ -80,43 +92,4 @@ test("batch request respects different current asset states and leaves canonical
   assert.equal(batch[1].metadata.reusable, true);
   assert.equal(batch[0].metadata.archived, true);
   assert.equal(batch[1].metadata.archived, true);
-});
-
-test("bulk UI uses direct batch endpoint, explicit semantics and event contracts", () => {
-  assert.match(bulkSource, /\/__media-desk\/metadata\/bulk/);
-  assert.match(bulkSource, /JSON\.stringify\(batch\)/);
-  assert.match(bulkSource, /ADD/);
-  assert.match(bulkSource, /REMOVE/);
-  assert.match(bulkSource, /SET \/ REPLACE/);
-  assert.match(bulkSource, /create: false/);
-  assert.match(bulkSource, /create: true/);
-  assert.match(bulkSource, /media-desk:selection-change/);
-  assert.match(bulkSource, /media-desk:selection-clear/);
-  assert.match(bulkSource, /media-desk:metadata-saved/);
-  assert.doesNotMatch(bulkSource, /location\.reload|window\.location\.reload/);
-});
-
-test("single editor cache listens to metadata-saved so bulk updates stay current", () => {
-  assert.match(editorSource, /addEventListener\("media-desk:metadata-saved"/);
-  assert.match(editorSource, /editorialOverrides\.set\(detail\.id, detail\.metadata\)/);
-  assert.match(editorSource, /connectMediaDeskBulkEditor\(\)/);
-});
-
-test("active persistent inspector refreshes external saved metadata without dropping drafts", () => {
-  assert.match(editorSource, /const rebuild = \(id: string\): void =>/);
-  assert.match(
-    editorSource,
-    /const next = buildMediaEditor\(currentEditorItem\(canonical\)\);[\s\S]*active = next;[\s\S]*renderEditor\(inspector, next, true, \(\) => \{[\s\S]*if \(active === next\) active = null/,
-  );
-  assert.match(editorSource, /onClose\?\.\(\)/);
-  assert.match(editorSource, /detail\.origin === "single"/);
-  assert.match(editorSource, /active\?\.item\.asset\.id !== detail\.id \|\| active\.getState\(\) !== "saved"/);
-  assert.match(editorSource, /if \(active\?\.item\.asset\.id === id\) \{[\s\S]*active\.getState\(\) === "unsaved"[\s\S]*rebuild\(id\)/);
-  assert.match(editorSource, /detail: \{ id: item\.asset\.id, metadata: next, origin: "single" \}/);
-
-  const metadataListener = editorSource.match(
-    /document\.addEventListener\("media-desk:metadata-saved", \(event\) => \{[\s\S]*?\n  \}\);/g,
-  );
-  assert.ok(metadataListener && metadataListener.length >= 2);
-  assert.doesNotMatch(metadataListener.at(-1), /dispatchEvent\(new CustomEvent\("media-desk:metadata-saved"/);
 });

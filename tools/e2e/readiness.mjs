@@ -4,17 +4,46 @@ export async function waitForAnimationFrames(page, count = 2) {
     requestAnimationFrame(tick);
   }), count);
 }
+
 export async function waitForDocumentReady(page, selector = "main") {
   await page.locator(selector).first().waitFor({ state: "attached" });
   await page.evaluate(() => document.fonts.ready);
   await waitForAnimationFrames(page);
 }
+
 export async function waitForLightboxOpen(page) {
   await page.waitForFunction(() => {
     const dialog = document.querySelector("[data-media-lightbox]");
     return Boolean(document.querySelector(".pswp")) || (dialog instanceof HTMLDialogElement && dialog.open);
   });
+
+  await page.evaluate(async () => {
+    const pswp = document.querySelector(".pswp");
+    if (!(pswp instanceof HTMLElement)) return;
+
+    const activeSlide =
+      pswp.querySelector('.pswp__item[aria-hidden="false"]') ||
+      pswp.querySelector(".pswp__item");
+    const video = activeSlide?.querySelector("[data-photoswipe-video]");
+
+    if (!(video instanceof HTMLVideoElement)) return;
+    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) return;
+
+    await new Promise((resolve) => {
+      const done = () => {
+        video.removeEventListener("loadedmetadata", done);
+        video.removeEventListener("error", done);
+        resolve(null);
+      };
+
+      video.addEventListener("loadedmetadata", done, { once: true });
+      video.addEventListener("error", done, { once: true });
+    });
+  });
+
+  await waitForAnimationFrames(page, 1);
 }
+
 export async function waitForLightboxClosed(page) {
   await page.waitForFunction(() => !document.querySelector(".pswp") && !document.querySelector("[data-media-lightbox][open]"));
 }

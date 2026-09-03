@@ -1,7 +1,14 @@
-import "./main.ts";
+import "./desk.css";
 
-const isTextView = new URLSearchParams(location.search).get("view") === "text";
-
-if (!isTextView) {
-  void import("./editor.ts");
+const url = new URL(location.href);
+if (url.searchParams.has("view")) {
+  url.searchParams.delete("view");
+  history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
 }
+
+async function bootMediaDesk(): Promise<void> {
+  await import("./main.ts");
+  await import("./editor.ts");
+}
+
+void bootMediaDesk();

@@ -1,5 +1,4 @@
 import TomSelect from "tom-select";
-import "./bulk-editor.css";
 
 import { projects } from "../../data/catalog/projects/index.ts";
 import { mediaCatalogItems, type MediaCatalogItem } from "../../data/media/catalog.ts";
@@ -12,7 +11,8 @@ import {
   type BulkEditPlan,
 } from "./bulk-editor-model.ts";
 
-export const MEDIA_DESK_BULK_METADATA_ENDPOINT = "/__media-desk/metadata/bulk";
+export const MEDIA_DESK_BULK_METADATA_ENDPOINT =
+  "/__media-desk/metadata/bulk";
 
 const sessionOverrides = new Map<string, MediaEditorialPatch>();
 
@@ -28,36 +28,47 @@ function element<K extends keyof HTMLElementTagNameMap>(
 }
 
 function currentItem(id: string): MediaCatalogItem | undefined {
-  const canonical = mediaCatalogItems.find((item) => item.asset.id === id);
+  const canonical = mediaCatalogItems.find(
+    (item) => item.asset.id === id,
+  );
   if (!canonical) return undefined;
+
   const override = sessionOverrides.get(id);
-  return override ? applyMediaEditorialPatchToItem(canonical, override) : canonical;
+  return override
+    ? applyMediaEditorialPatchToItem(canonical, override)
+    : canonical;
 }
 
-function operationSelect(label: string): HTMLLabelElement {
-  const field = element("label", "content-desk__bulk-operation");
-  field.append(element("span", undefined, label));
-  const select = element("select");
-  for (const [value, text] of [["add", "ADD"], ["remove", "REMOVE"], ["set", "SET / REPLACE"]] as const) {
+function operationSelect(): HTMLSelectElement {
+  const select = element("select", "md-input");
+
+  for (const [value, text] of [
+    ["add", "Добавить"],
+    ["remove", "Удалить"],
+    ["set", "Заменить"],
+  ] as const) {
     const option = element("option", undefined, text);
     option.value = value;
     select.append(option);
   }
-  field.append(select);
-  return field;
+
+  return select;
 }
 
-function booleanSelect(label: string): HTMLLabelElement {
-  const field = element("label", "content-desk__bulk-boolean");
-  field.append(element("span", undefined, label));
-  const select = element("select");
-  for (const [value, text] of [["", "Не менять"], ["true", "Set true"], ["false", "Set false"]] as const) {
+function booleanSelect(): HTMLSelectElement {
+  const select = element("select", "md-input");
+
+  for (const [value, text] of [
+    ["", "Не менять"],
+    ["true", "Да"],
+    ["false", "Нет"],
+  ] as const) {
     const option = element("option", undefined, text);
     option.value = value;
     select.append(option);
   }
-  field.append(select);
-  return field;
+
+  return select;
 }
 
 function selectedTomValues(tom: TomSelect): string[] {
@@ -67,59 +78,66 @@ function selectedTomValues(tom: TomSelect): string[] {
     .filter(Boolean);
 }
 
-function readMode(field: HTMLLabelElement): BulkArrayMode {
-  return (field.querySelector("select") as HTMLSelectElement).value as BulkArrayMode;
+function readBoolean(
+  select: HTMLSelectElement,
+): boolean | undefined {
+  return select.value === "true"
+    ? true
+    : select.value === "false"
+      ? false
+      : undefined;
 }
 
-function readBoolean(field: HTMLLabelElement): boolean | undefined {
-  const value = (field.querySelector("select") as HTMLSelectElement).value;
-  return value === "true" ? true : value === "false" ? false : undefined;
-}
-
-export function connectMediaDeskBulkEditor(): void {
-  if (document.querySelector(".content-desk__bulk-bar")) return;
+export function connectMediaDeskBulkEditor(
+  host: HTMLElement,
+): void {
+  if (host.dataset.connected === "true") return;
+  host.dataset.connected = "true";
 
   let selectedIds: string[] = [];
   let saving = false;
 
-  const bar = element("section", "content-desk__bulk-bar");
-  bar.hidden = true;
-  bar.setAttribute("aria-label", "Bulk media metadata editor");
+  const form = element("form", "md-bulk");
 
-  const summary = element("strong", "content-desk__bulk-count", "0 выбрано");
-  const edit = element("button", "content-desk__action", "Изменить");
-  edit.type = "button";
-  const clear = element("button", "content-desk__action content-desk__bulk-clear", "Clear");
+  const intro = element("div", "md-bulk__intro");
+  const count = element("strong", undefined, "0 ассетов");
+  const clear = element("button", "md-button", "Очистить выбор");
   clear.type = "button";
-  const top = element("div", "content-desk__bulk-summary");
-  top.append(summary, edit, clear);
+  intro.append(count, clear);
 
-  const panel = element("form", "content-desk__bulk-panel");
-  panel.hidden = true;
-
-  const projectGroup = element("fieldset", "content-desk__bulk-field");
-  const projectLegend = element("label", "content-desk__bulk-enable");
+  const projectGroup = element("section", "md-bulk-group");
+  const projectHeader = element("label", "md-bulk-toggle");
   const projectEnabled = element("input");
   projectEnabled.type = "checkbox";
-  projectLegend.append(projectEnabled, document.createTextNode(" Projects"));
-  const projectMode = operationSelect("Операция");
+  projectHeader.append(
+    projectEnabled,
+    document.createTextNode("Изменить проекты"),
+  );
+
+  const projectMode = operationSelect();
   const projectSelect = element("select");
   projectSelect.multiple = true;
+
   for (const project of projects) {
     const option = element("option", undefined, project.name);
     option.value = project.id;
     projectSelect.append(option);
   }
-  projectGroup.append(projectLegend, projectMode, projectSelect);
 
-  const tagGroup = element("fieldset", "content-desk__bulk-field");
-  const tagLegend = element("label", "content-desk__bulk-enable");
+  projectGroup.append(projectHeader, projectMode, projectSelect);
+
+  const tagsGroup = element("section", "md-bulk-group");
+  const tagsHeader = element("label", "md-bulk-toggle");
   const tagsEnabled = element("input");
   tagsEnabled.type = "checkbox";
-  tagLegend.append(tagsEnabled, document.createTextNode(" Tags"));
-  const tagMode = operationSelect("Операция");
-  const tagInput = element("input");
-  tagGroup.append(tagLegend, tagMode, tagInput);
+  tagsHeader.append(
+    tagsEnabled,
+    document.createTextNode("Изменить теги"),
+  );
+
+  const tagMode = operationSelect();
+  const tagInput = element("input", "md-input");
+  tagsGroup.append(tagsHeader, tagMode, tagInput);
 
   const projectTom = new TomSelect(projectSelect, {
     plugins: ["remove_button"],
@@ -129,9 +147,13 @@ export function connectMediaDeskBulkEditor(): void {
     closeAfterSelect: false,
     searchField: ["text"],
   });
-  const tagSuggestions = [...new Set(mediaCatalogItems.flatMap((item) => item.tags))]
+
+  const tagSuggestions = [
+    ...new Set(mediaCatalogItems.flatMap((item) => item.tags)),
+  ]
     .filter(Boolean)
     .map((value) => ({ value, text: value }));
+
   const tagTom = new TomSelect(tagInput, {
     plugins: ["remove_button"],
     create: true,
@@ -144,107 +166,188 @@ export function connectMediaDeskBulkEditor(): void {
     searchField: ["text"],
   });
 
-  const booleans = element("div", "content-desk__bulk-booleans");
-  const reusable = booleanSelect("Reusable");
-  const archived = booleanSelect("Archived");
-  booleans.append(reusable, archived);
+  const statusGroup = element("section", "md-bulk-group");
+  const reusable = booleanSelect();
+  const archived = booleanSelect();
 
-  const actions = element("div", "content-desk__bulk-actions");
-  const save = element("button", "content-desk__action content-desk__action--primary", "Применить");
+  const reusableField = element("label", "md-field");
+  reusableField.append(
+    element("span", "md-field__label", "Reusable"),
+    reusable,
+  );
+
+  const archivedField = element("label", "md-field");
+  archivedField.append(
+    element("span", "md-field__label", "Archived"),
+    archived,
+  );
+
+  statusGroup.append(reusableField, archivedField);
+
+  const footer = element("footer", "md-editor-actions");
+  const state = element(
+    "span",
+    "md-save-state",
+    "Выберите изменения",
+  );
+  const save = element(
+    "button",
+    "md-button md-button--primary",
+    "Применить",
+  );
   save.type = "submit";
-  const cancel = element("button", "content-desk__action", "Закрыть");
-  cancel.type = "button";
-  const state = element("span", "content-desk__save-state", "Выберите поля и операцию");
-  actions.append(save, cancel, state);
+  footer.append(state, save);
 
-  panel.append(projectGroup, tagGroup, booleans, actions);
-  bar.append(top, panel);
-  document.body.append(bar);
+  form.append(
+    intro,
+    projectGroup,
+    tagsGroup,
+    statusGroup,
+    footer,
+  );
+  host.replaceChildren(form);
 
-  const setVisible = (): void => {
-    bar.hidden = selectedIds.length < 2;
-    summary.textContent = `${selectedIds.length} выбрано`;
-    if (bar.hidden) panel.hidden = true;
+  const syncVisibility = (): void => {
+    count.textContent = `${selectedIds.length} ассетов`;
+    host.hidden = selectedIds.length < 2;
   };
 
   document.addEventListener("media-desk:metadata-saved", (event) => {
-    const detail = (event as CustomEvent<{ id?: string; metadata?: MediaEditorialPatch }>).detail;
-    if (detail?.id && detail.metadata) sessionOverrides.set(detail.id, detail.metadata);
+    const detail = (
+      event as CustomEvent<{
+        id?: string;
+        metadata?: MediaEditorialPatch;
+      }>
+    ).detail;
+
+    if (detail?.id && detail.metadata) {
+      sessionOverrides.set(detail.id, detail.metadata);
+    }
   });
 
   document.addEventListener("media-desk:selection-change", (event) => {
-    const ids = (event as CustomEvent<{ ids?: string[] }>).detail?.ids ?? [];
+    const ids =
+      (event as CustomEvent<{ ids?: string[] }>).detail?.ids ?? [];
+
     selectedIds = [...new Set(ids)].filter(Boolean);
-    setVisible();
+    syncVisibility();
   });
 
-  edit.addEventListener("click", () => {
-    panel.hidden = !panel.hidden;
-  });
-  cancel.addEventListener("click", () => {
-    panel.hidden = true;
-  });
   clear.addEventListener("click", () => {
     selectedIds = [];
-    setVisible();
-    document.dispatchEvent(new CustomEvent("media-desk:selection-clear"));
+    syncVisibility();
+
+    document.dispatchEvent(
+      new CustomEvent("media-desk:selection-clear"),
+    );
   });
 
-  panel.addEventListener("submit", async (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
+
     if (saving || selectedIds.length < 2) return;
 
     const arrays: BulkArrayEdit[] = [];
+
     if (projectEnabled.checked) {
-      arrays.push({ field: "projectIds", mode: readMode(projectMode), values: selectedTomValues(projectTom) });
+      arrays.push({
+        field: "projectIds",
+        mode: projectMode.value as BulkArrayMode,
+        values: selectedTomValues(projectTom),
+      });
     }
+
     if (tagsEnabled.checked) {
-      arrays.push({ field: "tags", mode: readMode(tagMode), values: selectedTomValues(tagTom) });
+      arrays.push({
+        field: "tags",
+        mode: tagMode.value as BulkArrayMode,
+        values: selectedTomValues(tagTom),
+      });
     }
+
     const reusableValue = readBoolean(reusable);
     const archivedValue = readBoolean(archived);
-    if (arrays.length === 0 && reusableValue === undefined && archivedValue === undefined) {
-      state.textContent = "Выберите хотя бы одно изменение";
+
+    if (
+      arrays.length === 0 &&
+      reusableValue === undefined &&
+      archivedValue === undefined
+    ) {
+      state.textContent = "Нет изменений";
       return;
     }
 
-    const items = selectedIds.map(currentItem).filter((item): item is MediaCatalogItem => Boolean(item));
+    const items = selectedIds
+      .map(currentItem)
+      .filter(
+        (item): item is MediaCatalogItem => Boolean(item),
+      );
+
     if (items.length !== selectedIds.length) {
-      state.textContent = "Некоторые assets больше не доступны";
+      state.textContent = "Часть ассетов недоступна";
       return;
     }
 
     const plan: BulkEditPlan = {
       arrays,
-      ...(reusableValue === undefined ? {} : { reusable: reusableValue }),
-      ...(archivedValue === undefined ? {} : { archived: archivedValue }),
+      ...(reusableValue === undefined
+        ? {}
+        : { reusable: reusableValue }),
+      ...(archivedValue === undefined
+        ? {}
+        : { archived: archivedValue }),
     };
+
     const batch = buildBulkMetadataRequest(items, plan);
 
     saving = true;
     save.disabled = true;
-    state.textContent = "Saving…";
+    state.textContent = "Сохраняю…";
+
     try {
-      const response = await fetch(MEDIA_DESK_BULK_METADATA_ENDPOINT, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(batch),
-      });
-      const payload = await response.json() as { ok?: boolean; error?: string };
-      if (!response.ok || !payload.ok) throw new Error(payload.error ?? `HTTP ${response.status}`);
+      const response = await fetch(
+        MEDIA_DESK_BULK_METADATA_ENDPOINT,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(batch),
+        },
+      );
+
+      const payload = await response.json() as {
+        ok?: boolean;
+        error?: string;
+      };
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error ?? `HTTP ${response.status}`);
+      }
 
       for (const entry of batch) {
         sessionOverrides.set(entry.id, entry.metadata);
-        document.dispatchEvent(new CustomEvent("media-desk:metadata-saved", {
-          detail: { id: entry.id, metadata: entry.metadata },
-        }));
+
+        document.dispatchEvent(
+          new CustomEvent("media-desk:metadata-saved", {
+            detail: {
+              id: entry.id,
+              metadata: entry.metadata,
+              origin: "bulk",
+            },
+          }),
+        );
       }
-      state.textContent = `${batch.length} assets updated`;
+
+      state.textContent = `${batch.length} обновлено`;
     } catch (error) {
-      state.textContent = error instanceof Error ? error.message : "Bulk save failed";
+      state.textContent =
+        error instanceof Error
+          ? error.message
+          : "Ошибка сохранения";
     } finally {
       saving = false;
       save.disabled = false;
     }
   });
+
+  syncVisibility();
 }
