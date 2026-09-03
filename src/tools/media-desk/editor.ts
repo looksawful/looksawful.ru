@@ -11,7 +11,10 @@ import {
   mediaCatalogProjectTypes,
   mediaCatalogWorkAreas,
 } from "../../data/taxonomy/media-taxonomy.ts";
-import { buildMediaEditorialPatch } from "./editor-serialization.ts";
+import {
+  applyMediaEditorialPatchToItem,
+  buildMediaEditorialPatch,
+} from "./editor-serialization.ts";
 import {
   pickMediaEditorialMetadata,
   type ContentDeskTextEntry,
@@ -21,7 +24,8 @@ import {
 const PAGES_CMS_URL = "https://app.pagescms.org/";
 const TEXT_RENDER_LIMIT = 500;
 const CAN_WRITE_MEDIA = import.meta.env.VITE_CONTENT_DESK_WRITE === "1";
-const MOBILE_BREAKPOINT = 704;
+const MOBILE_BREAKPOINT = 899;
+const editorialOverrides = new Map<string, MediaEditorialPatch>();
 
 type SaveState = "saved" | "unsaved" | "saving" | "error";
 
@@ -158,6 +162,11 @@ function tomValues(control: TomSelect): string[] {
   return (Array.isArray(value) ? value : value.split(","))
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function currentEditorItem(item: MediaCatalogItem): MediaCatalogItem {
+  const override = editorialOverrides.get(item.asset.id);
+  return override ? applyMediaEditorialPatchToItem(item, override) : item;
 }
 
 function previewSummary(item: MediaCatalogItem): HTMLElement {
@@ -325,6 +334,7 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
       });
       const payload = await response.json() as { ok?: boolean; error?: string };
       if (!response.ok || !payload.ok) throw new Error(payload.error ?? `HTTP ${response.status}`);
+      editorialOverrides.set(item.asset.id, next);
       updateState("saved");
       document.dispatchEvent(new CustomEvent("media-desk:metadata-saved", {
         detail: { id: item.asset.id, metadata: next },
@@ -380,10 +390,10 @@ function assetIdFromDialog(dialog: HTMLDialogElement): string {
 function enhanceMediaDialog(): void {
   const dialog = document.querySelector<HTMLDialogElement>(".media-desk__dialog[open]");
   if (!dialog || dialog.querySelector(".content-desk__media-form")) return;
-  const item = mediaCatalogItems.find((candidate) => candidate.asset.id === assetIdFromDialog(dialog));
+  const canonical = mediaCatalogItems.find((candidate) => candidate.asset.id === assetIdFromDialog(dialog));
   const content = dialog.querySelector(".media-desk__dialog-content");
-  if (!item || !(content instanceof HTMLElement)) return;
-  renderEditor(content, buildMediaEditor(item), false);
+  if (!canonical || !(content instanceof HTMLElement)) return;
+  renderEditor(content, buildMediaEditor(currentEditorItem(canonical)), false);
 }
 
 function connectPersistentInspector(): void {
@@ -394,10 +404,10 @@ function connectPersistentInspector(): void {
   const open = (id: string): void => {
     if (!id || active?.item.asset.id === id) return;
     if (active?.getState() === "unsaved" && !window.confirm("Переключиться и потерять несохранённые изменения?")) return;
-    const item = mediaCatalogItems.find((candidate) => candidate.asset.id === id);
-    if (!item) return;
+    const canonical = mediaCatalogItems.find((candidate) => candidate.asset.id === id);
+    if (!canonical) return;
     active?.destroy();
-    active = buildMediaEditor(item);
+    active = buildMediaEditor(currentEditorItem(canonical));
     renderEditor(inspector, active, true);
   };
 

@@ -1,3 +1,4 @@
+import type { MediaCatalogItem } from "../../data/media/catalog.ts";
 import type { MediaEditorialPatch } from "./editor-model.ts";
 
 export interface MediaEditorValues {
@@ -34,4 +35,11 @@ export function buildMediaEditorialPatch(values: MediaEditorValues): MediaEditor
     reusable: values.reusable,
     archived: values.archived,
   };
+}
+
+export function applyMediaEditorialPatchToItem(
+  item: MediaCatalogItem,
+  patch: MediaEditorialPatch,
+): MediaCatalogItem {
+  return { ...item, ...patch };
 }
