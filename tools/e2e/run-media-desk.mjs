@@ -56,6 +56,11 @@ async function openContentDesk(page, path) {
   await page.evaluate(() => document.fonts.ready);
 }
 
+async function waitForMediaWorkspace(page) {
+  await page.waitForFunction(() => document.querySelectorAll(".content-desk__tab").length === 2);
+  await page.locator(".media-card:not(.media-card--skeleton)").first().waitFor();
+}
+
 async function auditDesktop(browser) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
@@ -64,7 +69,7 @@ async function auditDesktop(browser) {
 
   try {
     await openContentDesk(page, "/tools/media-desk/");
-    await page.locator(".media-card:not(.media-card--skeleton)").first().waitFor();
+    await waitForMediaWorkspace(page);
     assert.equal(await page.locator("h1").textContent(), "Content Desk");
     assert.equal(await page.locator(".content-desk__tab").count(), 2, "Media and Text tabs must be available");
     assert.equal(await page.locator(".media-desk__pagination").count(), 0, "Legacy pagination must stay removed");
@@ -111,8 +116,8 @@ async function auditMobile(browser) {
 
   try {
     await openContentDesk(page, "/tools/media-desk/");
+    await waitForMediaWorkspace(page);
     const firstCard = page.locator(".media-card:not(.media-card--skeleton)").first();
-    await firstCard.waitFor();
     await firstCard.click();
     const inspector = page.locator("#media-desk-inspector[data-open=\"true\"]");
     await inspector.waitFor();
