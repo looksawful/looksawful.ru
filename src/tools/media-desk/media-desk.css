@@ -416,6 +416,10 @@ button, select { cursor: pointer; }
     min-height: 0;
     border-left: 0;
   }
+  .media-card__overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
   .gutter { display: none; }
   .media-desk__grid--css {
     grid-template-columns: repeat(auto-fill, minmax(min(42vw, var(--media-card-min, 170px)), 1fr));
