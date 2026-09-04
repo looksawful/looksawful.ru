@@ -11,6 +11,8 @@ const MIGRATION_MODE = { normalizeDedupeAliases: true };
 
 test("dedupe migration preserves the frozen pre-dedupe semantics", async () => {
   const expected = await readSemanticBaselineFixture();
+  assert.equal(expected.version, 2);
+
   const actual = buildSemanticBaseline(
     expected.trackedCatalogAssetIds,
     MIGRATION_MODE,
