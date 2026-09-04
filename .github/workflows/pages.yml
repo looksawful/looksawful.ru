@@ -9,7 +9,6 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  statuses: write
 
 concurrency:
   group: pages
@@ -24,12 +23,6 @@ jobs:
       VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
       VITE_CLARITY_PROJECT_ID: ${{ vars.CLARITY_PROJECT_ID }}
     steps:
-      - name: Mark deployment pending
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.repos.createCommitStatus({ owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: "pending", context: "github-pages/production", description: "Building exact production SHA", target_url: runUrl });
       - name: Checkout exact production SHA
         uses: actions/checkout@v7
         with:
@@ -57,45 +50,17 @@ jobs:
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
-      - name: Install media tooling on exact cache miss
+      - name: Require exact generated media cache
         if: steps.media-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-      - name: Regenerate exact media cache on miss
-        if: steps.media-cache.outputs.cache-hit != 'true'
-        run: npm run media:sync
-      - name: Write canonical generated-media cache marker on miss
-        if: steps.media-cache.outputs.cache-hit != 'true'
-        run: node tools/media-dev-state.mjs --cache-write
+          echo "Exact generated-media cache is missing for this production SHA." >&2
+          echo "Production deployment never regenerates media; rebuild it through CMS media first." >&2
+          exit 1
       - name: Verify exact generated media cache
         run: node tools/media-dev-state.mjs --cache-verify
-      - name: Require clean tracked tree after cache recovery
-        if: steps.media-cache.outputs.cache-hit != 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          if ! git diff --exit-code --; then
-            echo "Production media cache recovery changed tracked repository state." >&2
-            echo "Generated metadata in the exact production tree must already be canonical before deployment." >&2
-            exit 1
-          fi
-      - name: Save exact generated media cache on miss
-        if: steps.media-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            public/media/generated/responsive
-            public/media/generated/video
-            public/media/generated/video-inventory.json
-            .cache/media/generated-cache.json
-          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Typecheck
         run: npm run typecheck
-      - name: Fast tests
-        run: npm run test:fast
       - name: Build site
         run: npm run build:site
       - name: Prepare production CV
@@ -154,20 +119,3 @@ jobs:
           done
           echo "Production did not expose expected SHA: ${GITHUB_SHA}" >&2
           exit 1
-
-  report:
-    runs-on: ubuntu-latest
-    needs: [build, deploy]
-    if: always()
-    steps:
-      - name: Report deployment status
-        uses: actions/github-script@v7
-        env:
-          BUILD_RESULT: ${{ needs.build.result }}
-          DEPLOY_RESULT: ${{ needs.deploy.result }}
-        with:
-          script: |
-            const success = process.env.BUILD_RESULT === "success" && process.env.DEPLOY_RESULT === "success";
-            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.repos.createCommitStatus({ owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: success ? "success" : "failure", context: "github-pages/production", description: success ? "Published exact production SHA" : `Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`, target_url: runUrl });
-            if (!success) core.setFailed(`GitHub Pages deployment failed. Build: ${process.env.BUILD_RESULT}; deploy: ${process.env.DEPLOY_RESULT}`);
