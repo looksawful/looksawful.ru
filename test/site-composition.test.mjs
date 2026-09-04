@@ -49,7 +49,7 @@ test("homepage renderer supplies every uppercase build-time marker exactly once"
 });
 
 test("standalone Jestei page is isolated from other case DOM and uses h1", () => {
-  const html = renderStandaloneEntityPage(indexHtml, page("case:jestei-pool"));
+  const html = renderStandaloneEntityPage(page("case:jestei-pool"));
   assert.match(html, /id="project-jestei"/);
   assert.match(html, /<h1 class="project__title"/);
   assert.doesNotMatch(html, /id="project-styx"/);
@@ -61,7 +61,7 @@ test("standalone Jestei page is isolated from other case DOM and uses h1", () =>
 test("standalone Sensetique page is canonical, isolated, and marker-free", () => {
   assert.equal(entityPageContentRegistry.has("case:sensetique"), true);
 
-  const html = renderStandaloneEntityPage(indexHtml, page("case:sensetique"));
+  const html = renderStandaloneEntityPage(page("case:sensetique"));
   assert.match(html, /id="project-sensetique"/);
   assert.match(html, /<h1 class="project__title"/);
   assert.match(html, /id="sensetique-studio"/);
@@ -93,7 +93,7 @@ test("standalone Sensetique page is canonical, isolated, and marker-free", () =>
 });
 
 test("standalone Shootings page uses the Collection route and excludes case DOM", () => {
-  const html = renderStandaloneEntityPage(indexHtml, page("collection:music-photography"));
+  const html = renderStandaloneEntityPage(page("collection:music-photography"));
   assert.match(html, /id="project-shootings"/);
   assert.match(html, /<h1 class="project__title"/);
   assert.doesNotMatch(html, /id="project-jestei"/);
@@ -103,7 +103,7 @@ test("standalone Shootings page uses the Collection route and excludes case DOM"
 });
 
 test("unlisted standalone Project pages render canonical project content", () => {
-  const awful = renderStandaloneEntityPage(indexHtml, page("project:awful-cases"));
+  const awful = renderStandaloneEntityPage(page("project:awful-cases"));
   assert.match(awful, /id="project-awful-cases"/);
   assert.match(awful, /<h1 class="project__title"/);
   assert.match(awful, /id="awful-cases-demo"/);
@@ -112,13 +112,13 @@ test("unlisted standalone Project pages render canonical project content", () =>
   assert.doesNotMatch(awful, /<!-- AWFUL_CASES_[A-Z0-9_]+ -->/);
   assert.match(awful, /<meta name="robots" content="noindex,nofollow">/);
 
-  const moves = renderStandaloneEntityPage(indexHtml, page("project:moves-awful"));
+  const moves = renderStandaloneEntityPage(page("project:moves-awful"));
   assert.match(moves, /id="project-moves-awful"/);
   assert.match(moves, /data-animated-canvas-gallery/);
   assert.doesNotMatch(moves, /<article\b[^>]*hidden/);
   assert.doesNotMatch(moves, /<!-- MOVES_AWFUL_[A-Z0-9_]+ -->/);
 
-  const berry = renderStandaloneEntityPage(indexHtml, page("project:berry-social-content-2020"));
+  const berry = renderStandaloneEntityPage(page("project:berry-social-content-2020"));
   assert.match(berry, /id="project-berry-social-content-2020"/);
   assert.match(berry, /<h1 class="project__title"/);
   assert.doesNotMatch(berry, /<article\b[^>]*hidden/);
