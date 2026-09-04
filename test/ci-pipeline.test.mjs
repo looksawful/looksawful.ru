@@ -71,9 +71,13 @@ test("full regression remains scheduled and manual outside push CI", async () =>
   const workflow = await read(".github/workflows/quality.yml");
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /37 1 \* \* \*/);
+  assert.match(workflow, /Resolve exact target SHA/);
+  assert.match(workflow, /needs\.resolve-target\.outputs\.target-sha/);
   assert.match(workflow, /npm run test:core/);
   assert.match(workflow, /npm run test:e2e:full/);
   assert.match(workflow, /npm run media:sync/);
+  assert.match(workflow, /npm run media:dedupe:physical/);
   assert.doesNotMatch(workflow, /^\s*push:/m);
 
   const runner = await read("tools/e2e/run-all.mjs");
@@ -98,16 +102,20 @@ test("CMS media mutation is explicit, allowlisted, race-safe and does one final 
   assert.doesNotMatch(workflow, /git add -A/);
 });
 
-test("scheduled quality and CodeQL remain automatic", async () => {
+test("scheduled quality and CodeQL remain automatic without schedule overlap", async () => {
   const quality = await read(".github/workflows/quality.yml");
-  for (const marker of ["17 */6 * * *", "31 2 * * *", "41 4 * * 2", "13 5 * * 3", "23 6 * * 4"]) {
+  for (const marker of ["17 */6 * * *", "37 1 * * *"]) {
     assert.ok(quality.includes(marker), marker);
   }
+  for (const retired of ["31 2 * * *", "41 4 * * 2", "13 5 * * 3", "23 6 * * 4"]) {
+    assert.equal(quality.includes(retired), false, retired);
+  }
   assert.match(quality, /workflow_dispatch:/);
+  assert.match(quality, /concurrency:[\s\S]*?cancel-in-progress: false/);
 
   const codeql = await read(".github/workflows/codeql.yml");
   assert.match(codeql, /pull_request:/);
-  assert.match(codeql, /schedule:/);
+  assert.match(codeql, /29 3 \* \* 1/);
   assert.match(codeql, /workflow_dispatch:/);
   assert.match(codeql, /security-events: write/);
   assert.doesNotMatch(codeql, /^\s*push:/m);
