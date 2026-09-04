@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { mediaEntries } from "../src/data/media/entries/index.ts";
 import {
   dedupeMediaUsageRecords,
   mediaUsageMetadataByEntryId,
@@ -63,4 +64,20 @@ test("explicit empty contextual arrays survive parsing and indexing", () => {
     (metadata) => metadata.projectIds !== undefined && metadata.projectIds.length === 0,
   );
   assert.ok(realEmptyOverride, "reviewed migration data must retain explicit empty projectIds");
+});
+
+test("dedupe metadata preserves missing alt instead of materializing an empty override", () => {
+  const entryId = "jestei-logo-source-34-logo-jestei-pool-3-use-01";
+  const metadata = mediaUsageMetadataByEntryId.get(entryId);
+  const entry = mediaEntries.find((candidate) => candidate.id === entryId);
+
+  assert.ok(metadata, `missing dedupe usage metadata for ${entryId}`);
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(metadata, "alt"),
+    false,
+    "reviewed usage evidence must not turn a missing alt into an explicit empty string",
+  );
+  assert.ok(entry, `missing MediaEntry ${entryId}`);
+  assert.equal(Object.prototype.hasOwnProperty.call(entry, "alt"), false);
+  assert.equal(entry.alt, undefined);
 });
