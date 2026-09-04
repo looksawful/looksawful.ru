@@ -9,6 +9,7 @@ test("dry-run normalization never schedules a mutating command", () => {
     "check-materialized-entry-context",
     "logical-dedupe-dry-run",
     "deferred-physical-dedupe-dry-run",
+    "check-pages-cms-compact",
   ]);
   for (const step of steps) {
     assert.equal(step.args.includes("--apply"), false, step.label);
@@ -27,6 +28,8 @@ test("apply normalization snapshots semantics before mutation and verifies after
     "logical-dedupe-apply",
     "deferred-physical-dedupe-dry-run",
     "deferred-physical-dedupe-apply",
+    "compact-pages-cms",
+    "check-pages-cms-compact",
     "media-sync",
     "verify-live-semantics-final",
     "dedupe-integrity",
@@ -39,4 +42,5 @@ test("apply normalization snapshots semantics before mutation and verifies after
   assert.equal(steps[1].args.includes("--write"), true);
   assert.equal(steps[5].args.includes("--apply"), true);
   assert.equal(steps[7].args.includes("--apply"), true);
+  assert.equal(steps[8].args.includes("--write"), true);
 });
