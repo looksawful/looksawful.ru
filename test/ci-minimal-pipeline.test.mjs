@@ -26,7 +26,7 @@ test("Fast CI automatically validates engineering dev pushes and PRs while warm-
     assert.ok(workflow.includes(command), command);
   }
 
-  assert.match(workflow, /actions\/cache\/restore@v4/);
+  assert.match(workflow, /actions\/cache\/restore@v6/);
   assert.match(workflow, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.doesNotMatch(workflow, /restore-keys:/);
@@ -60,7 +60,7 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /persist-credentials: false/);
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --fingerprint/);
-  assert.match(workflow, /actions\/cache\/restore@v4/);
+  assert.match(workflow, /actions\/cache\/restore@v6/);
   assert.doesNotMatch(workflow, /restore-keys:/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /Regenerate exact media cache on miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
@@ -93,7 +93,7 @@ test("CMS media distinguishes references, image sources and video sources, saves
   assert.match(workflow, /Build image derivatives incrementally[\s\S]*?if: steps\.scope\.outputs\.rebuild != 'true' && steps\.scope\.outputs\.has_image == 'true'/);
   assert.match(workflow, /npm run test:media:contract/);
   assert.match(workflow, /npm run test:media:checks/);
-  assert.match(workflow, /actions\/cache\/save@v4/);
+  assert.match(workflow, /actions\/cache\/save@v6/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-write/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
 
