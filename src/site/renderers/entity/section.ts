@@ -90,25 +90,15 @@ function renderProjectGroup(section: ProjectGroupSection): string {
   return renderSectionShell(section, `${intro}\n${credits}\n${items}`);
 }
 
-function assertNeverSpecializedSection(section: never): never {
-  throw new Error(`Unhandled SpecializedSection: ${JSON.stringify(section)}`);
-}
-
 function renderSpecializedSection(
-  section: SpecializedSection,
+  section: JesteiTrackFilterSection,
   renderers: SpecializedSectionRenderers = {},
 ): string {
-  switch (section.kind) {
-    case "jestei-track-filter": {
-      const renderer = renderers.jesteiTrackFilter;
-      if (!renderer) {
-        throw new Error("Missing specialized renderer: jestei-track-filter");
-      }
-      return renderer(section);
-    }
-    default:
-      return assertNeverSpecializedSection(section);
+  const renderer = renderers.jesteiTrackFilter;
+  if (!renderer) {
+    throw new Error("Missing specialized renderer: jestei-track-filter");
   }
+  return renderer(section);
 }
 
 export function renderSection(section: Section, options: SectionRenderOptions = {}): string {
