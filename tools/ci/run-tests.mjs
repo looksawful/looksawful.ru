@@ -29,8 +29,10 @@ export const fastTests = new Set([
   "test/pages-cms-yaml-syntax.test.mjs",
   "test/production-media-cache.test.mjs",
   "test/shared-validation-primitives.test.mjs",
+  "test/site-analytics.test.mjs",
   "test/site-build-inputs.test.mjs",
   "test/site-pages.test.mjs",
+  "test/static-site-analytics.test.mjs",
   "test/test-groups.test.mjs",
 ]);
 
