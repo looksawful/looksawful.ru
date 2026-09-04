@@ -91,7 +91,7 @@ test("CV and privacy are canonical static SitePages with explicit build ownershi
       type: "static",
       path: "/privacy/",
       enabled: true,
-      listed: false,
+      listed: true,
       indexable: true,
       renderer: "privacy",
       build: {
@@ -169,15 +169,10 @@ test("only enabled pages are returned for build ownership decisions", () => {
   assert.ok(enabled.every((page) => page.enabled));
 });
 
-test("public Case, Collection, CV and privacy pages are indexable while selected Project pages stay unlisted", () => {
+test("public Case, Collection, CV and privacy pages are listed and indexable while selected Project pages stay unlisted", () => {
   for (const page of sitePages) {
-    if (page.type === "case" || page.type === "collection" || page.id === "cv") {
+    if (page.type === "case" || page.type === "collection" || page.id === "cv" || page.id === "privacy") {
       assert.equal(page.discovery.listed, true);
-      assert.equal(page.discovery.indexable, true);
-    }
-
-    if (page.id === "privacy") {
-      assert.equal(page.discovery.listed, false);
       assert.equal(page.discovery.indexable, true);
     }
 
