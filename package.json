@@ -11,6 +11,7 @@
     "cms:check": "node tools/generate-pages-cms-options.mjs --check",
     "media:catalog:sync": "node tools/sync-media-catalog.mjs",
     "media:catalog:check": "node tools/sync-media-catalog.mjs --check",
+    "media:dedupe:check": "node tools/media/check-dedupe-integrity.mjs",
     "media:sync": "npm run media:catalog:sync && npm run media:video:build && npm run media:build && node tools/media-dev-state.mjs --write",
     "media:ensure": "npm run media:catalog:sync && node tools/media-dev-state.mjs --ensure",
     "media:prepare": "npm run media:sync",
@@ -75,7 +76,7 @@
     "gsap": "^3.15.0",
     "photoswipe": "5.4.4",
     "photoswipe-dynamic-caption-plugin": "1.2.7",
-    "split.js": "^1.6.5",
+    "split.js": "^1.6.0",
     "three": "^0.184.0",
     "tom-select": "^2.6.2"
   },
