@@ -5,8 +5,6 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 import { mediaEntries } from "../../src/data/media/entries/index.ts";
-import { mediaCatalogItems as baseMediaCatalogItems } from "../../src/data/media/catalog.ts";
-import { resolveMediaUsageMetadata } from "../../src/data/media/usage.ts";
 import { dedupeUsageEvidenceByEntryId } from "../../src/data/media/usage-records.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
@@ -183,23 +181,23 @@ export function materializeMediaEntrySource(sourceText, fileName, runtimeEntries
 }
 
 function materializedRuntimeEntries() {
-  const catalogByAssetId = new Map(
-    baseMediaCatalogItems.map((item) => [item.asset.id, item]),
-  );
-
   return new Map(mediaEntries.map((entry) => {
     const evidence = dedupeUsageEvidenceByEntryId.get(entry.id);
-    const contextualAssetId = evidence?.fromAssetId ?? entry.assetId;
-    const catalog = catalogByAssetId.get(contextualAssetId);
-    const resolved = catalog
-      ? resolveMediaUsageMetadata(entry, catalog)
-      : {};
-
-    return [entry.id, {
-      ...entry,
-      ...resolved,
+    const desired = {
+      id: entry.id,
       assetId: entry.assetId,
-    }];
+      projectIds: entry.projectIds ?? [],
+    };
+
+    if (evidence) {
+      for (const key of CONTEXT_KEYS) {
+        if (Object.prototype.hasOwnProperty.call(evidence, key)) {
+          desired[key] = evidence[key];
+        }
+      }
+    }
+
+    return [entry.id, desired];
   }));
 }
 
