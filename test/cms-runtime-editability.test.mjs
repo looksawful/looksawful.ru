@@ -39,7 +39,7 @@ test("production deployment verifies stable CV output without pinning editable l
 test("generated-media cache stores recursive video tree, inventory, derivatives and canonical marker", async () => {
   for (const name of ["ci-fast.yml", "pages.yml", "cms-media.yml"]) {
     const workflow = await read(".github/workflows/" + name);
-    const cache = workflow.match(/uses: actions\/cache\/(?:restore|save)@v4[\s\S]*?(?=\n      - name: |$)/)?.[0] ?? "";
+    const cache = workflow.match(/uses: actions\/cache\/(?:restore|save)@v6[\s\S]*?(?=\n      - name: |$)/)?.[0] ?? "";
 
     assert.match(cache, /public\/media\/generated\/responsive\b/, name + ": responsive derivatives");
     assert.match(cache, /^[ \t]*public\/media\/generated\/video[ \t]*$/m, name + ": complete generated video directory");
