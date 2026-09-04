@@ -46,7 +46,7 @@ test("CMS media routes existing references and metadata through targeted media v
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-write/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --fingerprint/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
-  assert.match(workflow, /actions\/cache\/save@v4/);
+  assert.match(workflow, /actions\/cache\/save@v6/);
 
   const sourceFast = step(workflow, "Final Fast validation for source mutation");
   assert.match(sourceFast, /has_image == 'true'.*has_video == 'true'.*rebuild == 'true'/s);
