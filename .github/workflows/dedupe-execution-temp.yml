@@ -1,5 +1,4 @@
-# Candidate gate after AST remover regression
-name: Media Dedupe Final Preapply Gate TEMP
+name: Media Dedupe Semantic Baseline Calibration TEMP
 
 on:
   push:
@@ -10,11 +9,9 @@ permissions:
   contents: read
 
 jobs:
-  preapply:
+  calibrate:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
-    env:
-      E2E_AFFECTED_SUITES: media
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -24,65 +21,5 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Install media tooling
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-      - name: Prove deterministic generated state
-        run: |
-          npm run media:sync
-          node tools/media-dev-state.mjs --cache-verify
-          git diff --exit-code
-      - name: Dedupe apply tool regression
-        run: node --test test/media-dedupe-apply-tool.test.mjs
-      - name: Guarded dedupe dry-runs
-        run: |
-          node tools/media/apply-dedupe-migration.mjs
-          node tools/media/apply-deferred-physical-dedupe.mjs
-          node tools/media/apply-physical-only-dedupe.mjs
-      - name: Semantic and physical contracts
-        run: |
-          node tools/media/export-semantic-baseline.mjs --migration --check
-          node --test test/media-semantic-baseline.test.mjs test/media-physical-only-dedupe.test.mjs
-      - name: Rehearse complete dedupe apply transactionally
-        shell: bash
-        run: |
-          set -euo pipefail
-          node tools/media/apply-dedupe-migration.mjs --apply
-          node tools/media/apply-deferred-physical-dedupe.mjs --apply
-          node tools/media/apply-physical-only-dedupe.mjs --apply
-          npm run media:sync
-          node tools/media/export-semantic-baseline.mjs --migration --check
-          npm run media:dedupe:check
-          npm run typecheck
-          git reset --hard HEAD
-          git clean -fd
-          git diff --exit-code
-      - name: Type and media verification
-        run: |
-          npm run typecheck
-          npm run test:media:contract
-          npm run test:media:checks
-          npm run build:site
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Affected media browser regression
-        run: npm run test:e2e:affected
-      - name: Smoke browser regression
-        run: npm run test:e2e:smoke
-      - name: Repository verify
-        shell: bash
-        run: |
-          set -euo pipefail
-          temp_workflow="$RUNNER_TEMP/dedupe-execution-temp.yml"
-          mv .github/workflows/dedupe-execution-temp.yml "$temp_workflow"
-          trap 'mv "$temp_workflow" .github/workflows/dedupe-execution-temp.yml' EXIT
-          npm run verify
-          npm run verify:full
-      - name: Final preapply invariants
-        run: |
-          git diff --exit-code
-          node tools/media/export-semantic-baseline.mjs --migration --check
-          node tools/media/apply-dedupe-migration.mjs
-          node tools/media/apply-deferred-physical-dedupe.mjs
-          node tools/media/apply-physical-only-dedupe.mjs
+      - name: Print canonical semantic baseline candidate
+        run: node tools/media/export-semantic-baseline.mjs --migration
