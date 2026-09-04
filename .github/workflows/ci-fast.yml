@@ -44,7 +44,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout exact source tree
         uses: actions/checkout@v7
@@ -106,3 +106,7 @@ jobs:
         run: npm run test:fast
       - name: Production build
         run: npm run build:site
+      - name: Install Chromium for Three.js validation
+        run: npx playwright install --with-deps chromium
+      - name: Validate Jestei Three.js WebGL runtime
+        run: node tools/e2e/validate-three-jestei.mjs
