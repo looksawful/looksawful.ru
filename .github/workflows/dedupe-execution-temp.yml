@@ -24,8 +24,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install TypeScript 6 compatibility compiler for migration tooling experiment
-        run: npm install --no-save @typescript/typescript6@6.0.2
+      - name: Materialize TypeScript 6 compatibility dependency
+        run: npm install --save-dev @typescript/typescript6@6.0.2
       - name: Patch migration-tool imports in runner only
         shell: bash
         run: |
@@ -37,14 +37,22 @@ jobs:
           do
             sed -i 's/from "typescript";/from "@typescript\/typescript6";/' "$file"
           done
-          grep -n '@typescript/typescript6' \
-            tools/media/apply-dedupe-migration.mjs \
-            tools/media/apply-deferred-physical-dedupe.mjs \
-            tools/media/materialize-entry-context.mjs
       - name: Focused AST tooling tests
         run: node --test test/media-dedupe-apply-tool.test.mjs test/media-deferred-physical-tool.test.mjs test/media-materialize-entry-context.test.mjs
       - name: MD-02 guarded dry-run
         run: node tools/media/apply-dedupe-migration.mjs
+      - name: Package compatibility patch artifact
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: dedupe-ts6-compat-patch
+          path: |
+            package.json
+            package-lock.json
+            tools/media/apply-dedupe-migration.mjs
+            tools/media/apply-deferred-physical-dedupe.mjs
+            tools/media/materialize-entry-context.mjs
+          if-no-files-found: error
       - name: Typecheck
         if: always()
         run: npm run typecheck
