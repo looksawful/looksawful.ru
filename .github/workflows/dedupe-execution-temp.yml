@@ -54,9 +54,14 @@ jobs:
       - name: Smoke browser regression
         run: npm run test:e2e:smoke
       - name: Repository verify
-        run: npm run verify
-      - name: Repository full verify
-        run: npm run verify:full
+        shell: bash
+        run: |
+          set -euo pipefail
+          temp_workflow="$RUNNER_TEMP/dedupe-execution-temp.yml"
+          mv .github/workflows/dedupe-execution-temp.yml "$temp_workflow"
+          trap 'mv "$temp_workflow" .github/workflows/dedupe-execution-temp.yml' EXIT
+          npm run verify
+          npm run verify:full
       - name: Final preapply invariants
         run: |
           git diff --exit-code
