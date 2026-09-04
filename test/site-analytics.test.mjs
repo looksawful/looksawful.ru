@@ -4,17 +4,22 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const componentUrl = new URL("../src/components/site-analytics.ts", import.meta.url);
+const consentUrl = new URL("../src/components/site-analytics-consent.ts", import.meta.url);
+const consentStylesUrl = new URL("../src/styles/site-analytics-consent.css", import.meta.url);
 const mainUrl = new URL("../src/main.js", import.meta.url);
 
 async function loadAnalytics() {
   return import(componentUrl.href);
 }
 
-test("site analytics is isolated in a dedicated component and mounted from main", async () => {
+test("site analytics is isolated in dedicated components and mounted from main", async () => {
   const main = await readFile(mainUrl, "utf8");
   assert.equal(existsSync(componentUrl), true, "site-analytics.ts should exist");
+  assert.equal(existsSync(consentUrl), true, "site-analytics-consent.ts should exist");
+  assert.equal(existsSync(consentStylesUrl), true, "site analytics consent styles should exist");
   assert.match(main, /mountSiteAnalytics/);
   assert.match(main, /mountSiteAnalyticsGoalTracking/);
+  assert.match(main, /mountSiteAnalyticsConsent/);
   assert.match(main, /VITE_YANDEX_METRIKA_COUNTER_ID/);
 });
 
@@ -73,9 +78,18 @@ test("Yandex counter IDs are validated before analytics is mounted", async () =>
   assert.equal(parseYandexCounterId("abc"), null);
 });
 
+test("stored analytics consent distinguishes unknown, granted and denied states", async () => {
+  const { readStoredAnalyticsConsent } = await loadAnalytics();
+  const target = (value) => ({ localStorage: { getItem: () => value } });
+  assert.equal(readStoredAnalyticsConsent(target(null)), null);
+  assert.equal(readStoredAnalyticsConsent(target("granted")), "granted");
+  assert.equal(readStoredAnalyticsConsent(target("denied")), "denied");
+  assert.equal(readStoredAnalyticsConsent(target("other")), null);
+});
+
 test("the Yandex event taxonomy stays small and conversion-oriented", async () => {
   const source = await readFile(componentUrl, "utf8");
-  for (const goal of ["project_open", "cv_open", "contact_email", "contact_telegram", "download"]) {
+  for (const goal of ["project_open", "cv_open", "contact_email", "contact_phone", "contact_telegram", "download"]) {
     assert.match(source, new RegExp(`\\"${goal}\\"`));
   }
   assert.doesNotMatch(source, /clarity/i);
