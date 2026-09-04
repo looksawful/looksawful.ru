@@ -4,6 +4,7 @@ import type { MediaAssetId } from "../assets/index.ts";
 import { mediaCatalogItems } from "../catalog.ts";
 import {
   dedupeMediaUsageRecords,
+  dedupeUsageEvidenceByEntryId,
   mediaUsageMetadataByEntryId,
 } from "../usage-records.ts";
 
@@ -80,16 +81,23 @@ const projectIdsByAssetId = new Map<string, readonly ProjectId[]>(
 
 export const mediaEntries = assignableMediaEntries.map((entry) => {
   const usageMetadata = mediaUsageMetadataByEntryId.get(entry.id);
+  const migration = dedupeUsageEvidenceByEntryId.get(entry.id);
+  const assetId = (
+    migration && entry.assetId === migration.fromAssetId
+      ? migration.toAssetId
+      : entry.assetId
+  ) as MediaAssetId;
+
   const projectIds =
     usageMetadata?.projectIds !== undefined
       ? usageMetadata.projectIds
       : entry.projectIds !== undefined
         ? entry.projectIds
-        : projectIdsByAssetId.get(entry.assetId);
+        : projectIdsByAssetId.get(assetId);
 
   const enrichedEntry = usageMetadata
-    ? { ...entry, ...usageMetadata }
-    : entry;
+    ? { ...entry, ...usageMetadata, assetId }
+    : { ...entry, assetId };
 
   return projectIds !== undefined
     ? { ...enrichedEntry, projectIds }
