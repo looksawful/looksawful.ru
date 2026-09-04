@@ -194,7 +194,7 @@ export function rewriteAssetIdentityProperties(sourceText, fileName, aliases) {
   return applyEdits(sourceText, edits);
 }
 
-function removeAssetDeclarations(sourceText, fileName, removeIds) {
+export function removeAssetDeclarations(sourceText, fileName, removeIds) {
   const sourceFile = sourceFileFor(sourceText, fileName);
   const edits = [];
 
@@ -207,7 +207,7 @@ function removeAssetDeclarations(sourceText, fileName, removeIds) {
       );
       const id = idProperty?.initializer?.text;
       if (id && removeIds.has(id)) {
-        let start = node.getFullStart();
+        const start = node.getStart(sourceFile);
         let end = node.getEnd();
         while (end < sourceText.length && /[ \t]/.test(sourceText[end])) end += 1;
         if (sourceText[end] === ",") end += 1;
