@@ -31,27 +31,24 @@ function renderInnerDivider(): string {
   return '<div class="divider" aria-hidden="true"></div>';
 }
 
-function renderSectionHead(
-  credits?: CreditsData,
-  note?: SectionNoteData,
-  reveal = true,
-): string {
+function renderCredits(credits?: CreditsData, reveal = true): string {
   const lines = credits?.lines?.filter(Boolean) ?? [];
   const hasCredits = Boolean(credits?.title || lines.length);
+  if (!hasCredits) return "";
+
+  return `<p class="credits"${renderRevealAttribute(reveal ? "copy" : false)}>
+    ${
+      credits?.title
+        ? `<strong class="credits__title">${escapeHtml(credits.title)}</strong>`
+        : ""
+    }
+    ${lines.map((line) => `<span class="credits__line">${escapeHtml(line)}</span>`).join("")}
+  </p>`;
+}
+
+function renderSectionNote(note?: SectionNoteData, reveal = true): string {
   const hasNote = Boolean(note?.text || note?.link);
-
-  if (!hasCredits && !hasNote) return "";
-
-  const creditsHtml = hasCredits
-    ? `<p class="credits"${renderRevealAttribute(reveal ? "copy" : false)}>
-        ${
-          credits?.title
-            ? `<strong class="credits__title">${escapeHtml(credits.title)}</strong>`
-            : ""
-        }
-        ${lines.map((line) => `<span class="credits__line">${escapeHtml(line)}</span>`).join("")}
-      </p>`
-    : "";
+  if (!hasNote) return "";
 
   const noteLink = note?.link
     ? ` <a href="${escapeHtml(note.link.href)}"${
@@ -60,11 +57,21 @@ function renderSectionHead(
         note.link.label,
       )}</a>`
     : "";
-  const noteHtml = hasNote
-    ? `<p class="group-note"${renderRevealAttribute(reveal ? "copy" : false)}>${escapeHtml(
-        note?.text ?? "",
-      )}${noteLink}</p>`
-    : "";
+
+  return `<p class="group-note"${renderRevealAttribute(reveal ? "copy" : false)}>${escapeHtml(
+    note?.text ?? "",
+  )}${noteLink}</p>`;
+}
+
+function renderSectionHead(
+  credits?: CreditsData,
+  note?: SectionNoteData,
+  reveal = true,
+): string {
+  const creditsHtml = renderCredits(credits, reveal);
+  const noteHtml = renderSectionNote(note, reveal);
+
+  if (!creditsHtml && !noteHtml) return "";
 
   return `
     <header class="media-group__head flow"${renderRevealGroupAttribute(reveal)}>
@@ -80,6 +87,7 @@ function sectionShellPresentation(presentation?: SectionPresentation): {
 } {
   switch (presentation?.layout ?? "stack") {
     case "stack":
+    case "split-always":
       return {
         className: "project__section wrapper stack",
         attributes: "",
@@ -144,13 +152,15 @@ function renderBlockBody(
 ): string {
   const reveal = usesGlobalReveal(presentation);
   const layout = presentation?.layout ?? "stack";
+  const isStackLike = layout === "stack" || layout === "split-always";
 
-  if (presentation?.separator && layout !== "stack") {
-    throw new Error(`Section separator requires stack layout; got ${layout}`);
+  if (presentation?.separator && !isStackLike) {
+    throw new Error(`Section separator requires stack-like layout; got ${layout}`);
   }
 
   switch (layout) {
-    case "stack": {
+    case "stack":
+    case "split-always": {
       const blocksHtml = renderStackBlocks(blocks, presentation, reveal);
       return presentation?.separator === "before-blocks"
         ? `${renderInnerDivider()}\n${blocksHtml}`
@@ -167,30 +177,50 @@ function renderBlockBody(
   }
 }
 
+function wrapSectionBody(body: string, presentation?: SectionPresentation): string {
+  if (presentation?.layout !== "split-always") return body;
+
+  return `<div class="split split-always" style="--split-min: 8rem; --split-gap: clamp(0.75rem, 3cqi, 1.5rem)">
+    ${body}
+  </div>`;
+}
+
 function renderIntroAndBlocks(section: Extract<Section, { type: "content" | "project" }>): string {
   const reveal = usesGlobalReveal(section.presentation);
   const intro = section.intro ? renderSectionIntro(section.intro, { reveal }) : "";
-  const head = renderSectionHead(section.credits, section.note, reveal);
+  const notePlacement = section.presentation?.notePlacement ?? "before-blocks";
+  const head = renderSectionHead(
+    section.credits,
+    notePlacement === "before-blocks" ? section.note : undefined,
+    reveal,
+  );
   const blocks = renderBlockBody(section.blocks, section.presentation);
+  const trailingNote =
+    notePlacement === "after-blocks" ? renderSectionNote(section.note, reveal) : "";
   const resources = section.resources
     ? renderResourceLinks(section.resources, { reveal })
     : "";
+  const body = wrapSectionBody(
+    `${intro}\n${head}\n${blocks}\n${trailingNote}\n${resources}`,
+    section.presentation,
+  );
   const projectAttribute =
     section.type === "project" ? ` data-project-id="${escapeHtml(section.projectId)}"` : "";
 
-  return renderSectionShell(
-    section,
-    `${intro}\n${head}\n${blocks}\n${resources}`,
-    projectAttribute,
-  );
+  return renderSectionShell(section, body, projectAttribute);
 }
 
 function renderProjectPresentation(item: ProjectPresentation): string {
   const reveal = usesGlobalReveal(item.presentation);
   const intro = item.intro ? renderSectionIntro(item.intro, { reveal }) : "";
-  const head = renderSectionHead(item.credits, item.note, reveal);
+  const notePlacement = item.presentation?.notePlacement ?? "before-blocks";
+  const head = renderSectionHead(
+    item.credits,
+    notePlacement === "before-blocks" ? item.note : undefined,
+    reveal,
+  );
   const blockHtml = renderContentBlocks(item.blocks, { reveal });
-  const body =
+  const blocks =
     item.presentation?.layout === "mockup-grid-reel"
       ? `<div class="media-group__items reel">${blockHtml}</div>`
       : item.presentation?.layout === "infinite-media-reel"
@@ -198,15 +228,18 @@ function renderProjectPresentation(item: ProjectPresentation): string {
         : item.presentation?.separator === "before-blocks"
           ? `${renderInnerDivider()}\n${renderStackBlocks(item.blocks, item.presentation, reveal)}`
           : renderStackBlocks(item.blocks, item.presentation, reveal);
+  const trailingNote =
+    notePlacement === "after-blocks" ? renderSectionNote(item.note, reveal) : "";
   const resources = item.resources ? renderResourceLinks(item.resources, { reveal }) : "";
+  const body = wrapSectionBody(
+    `${intro}\n${head}\n${blocks}\n${trailingNote}\n${resources}`,
+    item.presentation,
+  );
   const presentation = sectionShellPresentation(item.presentation);
 
   return `
     <div class="${presentation.className}" data-project-id="${escapeHtml(item.projectId)}" data-media-caption-scope${presentation.attributes}>
-      ${intro}
-      ${head}
       ${body}
-      ${resources}
     </div>
   `;
 }
