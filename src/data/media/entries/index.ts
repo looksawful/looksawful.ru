@@ -1,10 +1,10 @@
 import type { MediaEntryData } from "../../../types/media.ts";
 import type { ProjectId } from "../../catalog/projects/index.ts";
+import { canonicalMediaAssetId } from "../asset-aliases.ts";
 import type { MediaAssetId } from "../assets/index.ts";
 import { mediaCatalogItems } from "../catalog.ts";
 import {
   dedupeMediaUsageRecords,
-  dedupeUsageEvidenceByEntryId,
   mediaUsageMetadataByEntryId,
 } from "../usage-records.ts";
 
@@ -81,12 +81,7 @@ const projectIdsByAssetId = new Map<string, readonly ProjectId[]>(
 
 export const mediaEntries = assignableMediaEntries.map((entry) => {
   const usageMetadata = mediaUsageMetadataByEntryId.get(entry.id);
-  const migration = dedupeUsageEvidenceByEntryId.get(entry.id);
-  const assetId = (
-    migration && entry.assetId === migration.fromAssetId
-      ? migration.toAssetId
-      : entry.assetId
-  ) as MediaAssetId;
+  const assetId = canonicalMediaAssetId(entry.assetId) as MediaAssetId;
 
   const projectIds =
     usageMetadata?.projectIds !== undefined
