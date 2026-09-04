@@ -14,14 +14,20 @@ export const SECTION_TYPES = ["content", "project", "project-group", "specialize
 
 export type SectionType = (typeof SECTION_TYPES)[number];
 
-export type SectionLayout = "stack" | "mockup-grid-reel" | "infinite-media-reel";
+export type SectionLayout =
+  | "stack"
+  | "mockup-grid-reel"
+  | "infinite-media-reel"
+  | "split-always";
 export type SectionMotion = "global-reveal" | "section-owned";
 export type SectionSeparator = "before-blocks" | "between-blocks";
+export type SectionNotePlacement = "before-blocks" | "after-blocks";
 
 export interface SectionPresentation {
   layout?: SectionLayout;
   motion?: SectionMotion;
   separator?: SectionSeparator;
+  notePlacement?: SectionNotePlacement;
 }
 
 export interface ContentSection {
