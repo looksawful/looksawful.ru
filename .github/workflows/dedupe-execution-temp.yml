@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   repair:
-    if: ${{ github.event.head_commit.message != 'fix(media): preserve missing alt semantics in dedupe guard' }}
+    if: github.event.head_commit.message != 'fix media preserve missing alt semantics in dedupe guard'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -131,5 +131,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add tools/media/apply-dedupe-migration.mjs test/media-dedupe-metadata-blockers.test.mjs
-          git commit -m 'fix(media): preserve missing alt semantics in dedupe guard'
+          git commit -m 'fix media preserve missing alt semantics in dedupe guard'
           git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-20260904
