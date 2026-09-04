@@ -46,13 +46,13 @@ jobs:
           git diff --exit-code
       - name: Typecheck
         run: npm run typecheck
-      - name: Media contract
-        run: npm run test:media:contract
       - name: Rebuild and validate generated media
         run: |
           npm run media:sync
           node tools/media-dev-state.mjs --cache-verify
           git diff --exit-code
+      - name: Media contract
+        run: npm run test:media:contract
       - name: Media checks
         run: npm run test:media:checks
       - name: Build site
