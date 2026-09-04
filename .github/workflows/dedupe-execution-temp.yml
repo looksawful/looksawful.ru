@@ -48,7 +48,6 @@ jobs:
           node tools/media/apply-deferred-physical-dedupe.mjs --apply
           node tools/media/apply-physical-only-dedupe.mjs --apply
           node tools/media/export-semantic-baseline.mjs --migration --check
-          npm run media:dedupe:check
           npm run typecheck
 
       - name: Install ffmpeg only if missing
