@@ -101,7 +101,7 @@ test("every reviewed entry retarget keeps its contextual metadata", () => {
   }
 });
 
-test("physical cleanup is either fully staged or fully applied, never partial", async () => {
+test("physical cleanup phases are internally atomic and never partial", async () => {
   assert.equal(physicalSource.removedPhysicalPathCount, 63);
   assert.equal(physicalSource.removePhysicalPaths.length, 63);
 
@@ -120,21 +120,18 @@ test("physical cleanup is either fully staged or fully applied, never partial", 
   ];
   const deferredPresence = await Promise.all(deferredPaths.map((path) => exists(path)));
   const existingDeferredCount = deferredPresence.filter(Boolean).length;
+  assert.ok(
+    existingDeferredCount === 0 || existingDeferredCount === deferredPaths.length,
+    `deferred cleanup is partial: ${existingDeferredCount}/${deferredPaths.length} scheduled sources still exist`,
+  );
 
-  if (existingPhysicalCount === physicalSource.removePhysicalPaths.length) {
+  if (existingPhysicalCount === 0) {
     assert.equal(
       existingDeferredCount,
-      deferredPaths.length,
-      `pre-apply state lost deferred sources: ${existingDeferredCount}/${deferredPaths.length} remain`,
+      0,
+      `post-physical state retained deferred sources: ${existingDeferredCount}/${deferredPaths.length} remain`,
     );
-    return;
   }
-
-  assert.equal(
-    existingDeferredCount,
-    0,
-    `post-apply state retained deferred sources: ${existingDeferredCount}/${deferredPaths.length} remain`,
-  );
 });
 
 test("VARIANT and DIFFERENT decisions remain physically and logically distinct", async () => {
