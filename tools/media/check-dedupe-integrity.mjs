@@ -85,7 +85,8 @@ export async function checkDedupeIntegrity() {
   }
 
   for (const asset of mediaAssets) {
-    const repoPath = repoPathFor(asset.src);
+    const authoredSrc = asset.type === "video" ? (asset.sourceSrc ?? asset.src) : asset.src;
+    const repoPath = repoPathFor(authoredSrc);
     if (!repoPath) continue;
 
     let bytes;
