@@ -10,6 +10,11 @@ export type {
   MockupDevice,
 } from "./media-presentation.ts";
 
+export interface CreditsData {
+  title?: string;
+  lines?: readonly string[];
+}
+
 export interface SectionIntroData {
   title: string;
   paragraphs?: readonly string[];
