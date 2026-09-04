@@ -88,15 +88,22 @@ jobs:
       - name: Affected media browser regression on rehearsed post-apply state
         run: npm run test:e2e:affected
 
-      - name: Repository verify once at the end on rehearsed post-apply state
+      - name: Repository lint not already covered
+        run: npm run lint
+
+      - name: Fast repository tests not already covered
         shell: bash
         run: |
           set -euo pipefail
           temp_workflow="$RUNNER_TEMP/dedupe-execution-temp.yml"
           mv .github/workflows/dedupe-execution-temp.yml "$temp_workflow"
           trap 'mv "$temp_workflow" .github/workflows/dedupe-execution-temp.yml' EXIT
-          npm run verify
-          npm run verify:full
+          npm run test:fast
+
+      - name: Built output smoke checks not already covered
+        run: |
+          npm run smoke:dist
+          npm run smoke:dist:assets
 
       - name: Restore exact candidate and prove final preapply invariants
         shell: bash
