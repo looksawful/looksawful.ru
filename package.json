@@ -76,7 +76,7 @@
     "gsap": "^3.15.0",
     "photoswipe": "5.4.4",
     "photoswipe-dynamic-caption-plugin": "1.2.7",
-    "split.js": "^1.6.0",
+    "split.js": "^1.6.5",
     "three": "^0.184.0",
     "tom-select": "^2.6.2"
   },
