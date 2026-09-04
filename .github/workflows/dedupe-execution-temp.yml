@@ -1,107 +1,99 @@
-name: Dedupe Execution TEMP
+name: Dedupe Preapply Full Gate TEMP
 
 on:
   push:
     branches:
-      - agent/media-normalization-dedupe-exec-20260904
+      - agent/media-normalization-dedupe-wave1-preapply-20260904
 
 permissions:
   contents: read
 
 jobs:
-  semantic-summary:
+  dry-run-and-media:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
-      - name: Checkout current execution branch
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 1
-      - name: Setup Node
-        uses: actions/setup-node@v7
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - name: Install exact dependencies
-        run: npm ci
-      - name: Summarize true semantic differences from frozen base
-        shell: bash
+      - run: npm ci
+      - name: Install media tooling
         run: |
-          set -euo pipefail
-          git fetch --depth=1 origin 83ea6cb845528e1976b13687956bdd249ba8def8
-          git worktree add --detach /tmp/dedupe-base 83ea6cb845528e1976b13687956bdd249ba8def8
-          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/dedupe-base/node_modules
-          node --input-type=module <<'NODE'
-          import { pathToFileURL } from 'node:url';
-          const root = process.env.GITHUB_WORKSPACE;
-          const current = await import(pathToFileURL(`${root}/src/data/media/index.ts`).href);
-          const registered = await import(pathToFileURL(`${root}/src/data/media/assets/registered.ts`).href);
-          const usage = await import(pathToFileURL(`${root}/src/data/media/usage-records.ts`).href);
-          const base = await import(pathToFileURL('/tmp/dedupe-base/src/data/media/index.ts').href);
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Pin candidate
+        run: |
+          echo "candidate=$(git rev-parse HEAD)"
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - name: Focused semantic regressions
+        run: node --test test/media-project-assignment.test.mjs test/media-usage-records.test.mjs test/media-catalog-cms.test.mjs
+      - name: Deterministic contextual state
+        run: |
+          node tools/media/materialize-entry-context.mjs
+          npm run media:catalog:check
+          git diff --exit-code
+      - name: Guarded dedupe dry-run
+        run: |
+          node tools/media/apply-dedupe-migration.mjs
+          git diff --exit-code
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Media contract
+        run: npm run test:media:contract
+      - name: Media checks
+        run: npm run test:media:checks
+      - name: Build site
+        run: npm run build:site
+      - name: Tracked tree remains deterministic
+        run: git diff --exit-code
 
-          function row(entry, asset, assetId = entry.assetId) {
-            return {
-              id: entry.id,
-              assetId,
-              projectIds: entry.projectIds ?? [],
-              creditId: entry.creditId ?? null,
-              alt: entry.alt ?? null,
-              posterAssetId: entry.posterAssetId ?? null,
-              caption: entry.caption ?? null,
-              purpose: entry.purpose ?? null,
-              mediaType: asset?.type ?? null,
-              src: asset?.src ?? null,
-            };
-          }
-          const currentAssetById = new Map(
-            [...registered.registeredMediaAssets, ...current.mediaAssets].map((asset) => [asset.id, asset]),
-          );
-          const baseAssetById = new Map(base.mediaAssets.map((asset) => [asset.id, asset]));
-          const baseRows = new Map(base.mediaEntries.map((entry) => [entry.id, row(entry, baseAssetById.get(entry.assetId))]));
-          const currentRows = new Map(current.mediaEntries.map((entry) => {
-            const evidence = usage.dedupeUsageEvidenceByEntryId.get(entry.id);
-            const baselineAssetId = evidence && entry.assetId === evidence.toAssetId ? evidence.fromAssetId : entry.assetId;
-            return [entry.id, row(entry, currentAssetById.get(baselineAssetId), baselineAssetId)];
-          }));
+  browser-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Build site
+        run: npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Affected E2E from frozen execution base
+        env:
+          CI_DIFF_BASE: 3140c01f001385e2a3e445a5622c08a5c63b1d79
+        run: npm run test:e2e:affected
+      - name: Smoke E2E
+        run: npm run test:e2e:smoke
 
-          const orderOnly = [];
-          const projectSetChanges = [];
-          const valueChanges = [];
-          const fields = ['assetId','creditId','alt','posterAssetId','caption','purpose','mediaType','src'];
-          for (const [id, expected] of baseRows) {
-            const actual = currentRows.get(id);
-            if (!actual) {
-              valueChanges.push({id, field:'entry', expected:'present', actual:'missing'});
-              continue;
-            }
-            if (JSON.stringify(expected.projectIds) !== JSON.stringify(actual.projectIds)) {
-              const expectedSet = new Set(expected.projectIds);
-              const actualSet = new Set(actual.projectIds);
-              const missing = expected.projectIds.filter((x) => !actualSet.has(x));
-              const added = actual.projectIds.filter((x) => !expectedSet.has(x));
-              if (missing.length === 0 && added.length === 0) {
-                orderOnly.push({id, expected:expected.projectIds, actual:actual.projectIds});
-              } else {
-                projectSetChanges.push({id, missing, added, expected:expected.projectIds, actual:actual.projectIds});
-              }
-            }
-            for (const field of fields) {
-              if (JSON.stringify(expected[field]) !== JSON.stringify(actual[field])) {
-                valueChanges.push({id, field, expected:expected[field], actual:actual[field]});
-              }
-            }
-          }
-          for (const id of currentRows.keys()) {
-            if (!baseRows.has(id)) valueChanges.push({id, field:'entry', expected:'missing', actual:'present'});
-          }
-          console.log(JSON.stringify({
-            baseCount: baseRows.size,
-            currentCount: currentRows.size,
-            projectOrderOnlyCount: orderOnly.length,
-            projectSetChangeCount: projectSetChanges.length,
-            valueChangeCount: valueChanges.length,
-            projectSetChanges,
-            valueChanges,
-          }, null, 2));
-          if (projectSetChanges.length || valueChanges.length) process.exitCode = 1;
-          NODE
+  full-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install media and browser tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npx playwright install --with-deps chromium
+      - name: Verify
+        run: npm run verify
+      - name: Verify full
+        run: npm run verify:full
+      - name: Generated state stays deterministic
+        run: git diff --exit-code
