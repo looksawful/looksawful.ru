@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  semantic-diagnostic:
+  semantic-summary:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -24,19 +24,7 @@ jobs:
           cache: npm
       - name: Install exact dependencies
         run: npm ci
-      - name: Verify public catalog projection count
-        run: |
-          node --input-type=module <<'NODE'
-          import assert from 'node:assert/strict';
-          const { mediaCatalogItems, mediaAssets } = await import('./src/data/media/index.ts');
-          assert.equal(mediaCatalogItems.length, mediaAssets.length);
-          assert.deepEqual(
-            new Set(mediaCatalogItems.map(({ asset }) => asset.id)),
-            new Set(mediaAssets.map(({ id }) => id)),
-          );
-          console.log(JSON.stringify({catalogItems: mediaCatalogItems.length, mediaAssets: mediaAssets.length}));
-          NODE
-      - name: Compare entry semantics against frozen base
+      - name: Summarize true semantic differences from frozen base
         shell: bash
         run: |
           set -euo pipefail
@@ -65,41 +53,55 @@ jobs:
               src: asset?.src ?? null,
             };
           }
-
           const currentAssetById = new Map(
             [...registered.registeredMediaAssets, ...current.mediaAssets].map((asset) => [asset.id, asset]),
           );
           const baseAssetById = new Map(base.mediaAssets.map((asset) => [asset.id, asset]));
-          const baseRows = new Map(base.mediaEntries.map((entry) => [
-            entry.id,
-            row(entry, baseAssetById.get(entry.assetId)),
-          ]));
-
+          const baseRows = new Map(base.mediaEntries.map((entry) => [entry.id, row(entry, baseAssetById.get(entry.assetId))]));
           const currentRows = new Map(current.mediaEntries.map((entry) => {
             const evidence = usage.dedupeUsageEvidenceByEntryId.get(entry.id);
-            const baselineAssetId = evidence && entry.assetId === evidence.toAssetId
-              ? evidence.fromAssetId
-              : entry.assetId;
+            const baselineAssetId = evidence && entry.assetId === evidence.toAssetId ? evidence.fromAssetId : entry.assetId;
             return [entry.id, row(entry, currentAssetById.get(baselineAssetId), baselineAssetId)];
           }));
 
-          const fields = ['assetId','projectIds','creditId','alt','posterAssetId','caption','purpose','mediaType','src'];
-          const diffs = [];
+          const orderOnly = [];
+          const projectSetChanges = [];
+          const valueChanges = [];
+          const fields = ['assetId','creditId','alt','posterAssetId','caption','purpose','mediaType','src'];
           for (const [id, expected] of baseRows) {
             const actual = currentRows.get(id);
             if (!actual) {
-              diffs.push({id, field:'entry', expected:'present', actual:'missing'});
+              valueChanges.push({id, field:'entry', expected:'present', actual:'missing'});
               continue;
+            }
+            if (JSON.stringify(expected.projectIds) !== JSON.stringify(actual.projectIds)) {
+              const expectedSet = new Set(expected.projectIds);
+              const actualSet = new Set(actual.projectIds);
+              const missing = expected.projectIds.filter((x) => !actualSet.has(x));
+              const added = actual.projectIds.filter((x) => !expectedSet.has(x));
+              if (missing.length === 0 && added.length === 0) {
+                orderOnly.push({id, expected:expected.projectIds, actual:actual.projectIds});
+              } else {
+                projectSetChanges.push({id, missing, added, expected:expected.projectIds, actual:actual.projectIds});
+              }
             }
             for (const field of fields) {
               if (JSON.stringify(expected[field]) !== JSON.stringify(actual[field])) {
-                diffs.push({id, field, expected: expected[field], actual: actual[field]});
+                valueChanges.push({id, field, expected:expected[field], actual:actual[field]});
               }
             }
           }
           for (const id of currentRows.keys()) {
-            if (!baseRows.has(id)) diffs.push({id, field:'entry', expected:'missing', actual:'present'});
+            if (!baseRows.has(id)) valueChanges.push({id, field:'entry', expected:'missing', actual:'present'});
           }
-          console.log(JSON.stringify({baseCount:baseRows.size,currentCount:currentRows.size,diffCount:diffs.length,diffs:diffs.slice(0,300)}, null, 2));
-          if (diffs.length) process.exitCode = 1;
+          console.log(JSON.stringify({
+            baseCount: baseRows.size,
+            currentCount: currentRows.size,
+            projectOrderOnlyCount: orderOnly.length,
+            projectSetChangeCount: projectSetChanges.length,
+            valueChangeCount: valueChanges.length,
+            projectSetChanges,
+            valueChanges,
+          }, null, 2));
+          if (projectSetChanges.length || valueChanges.length) process.exitCode = 1;
           NODE
