@@ -83,6 +83,35 @@ export interface MediaCatalogItemData<
 }
 
 /* ==================================================
+   Contextual usage metadata
+   ================================================== */
+
+/**
+ * Metadata describing one contextual use of a MediaAsset.
+ *
+ * Fields are optional while the media system is migrated from catalog-level
+ * defaults. `undefined` means "use the compatibility default"; explicit empty
+ * strings and arrays are intentional values and must not trigger fallback.
+ */
+export interface MediaUsageMetadata<
+  ProjectId extends string = string,
+  WorkAreaId extends string = string,
+  ProjectTypeId extends string = string,
+  DeliverableId extends string = string,
+> {
+  title?: string;
+  alt?: string;
+  description?: string;
+  date?: string;
+  projectIds?: readonly ProjectId[];
+  workAreaIds?: readonly WorkAreaId[];
+  projectTypeIds?: readonly ProjectTypeId[];
+  deliverableIds?: readonly DeliverableId[];
+  tags?: readonly string[];
+  credits?: readonly string[];
+}
+
+/* ==================================================
    Captions
    ================================================== */
 
@@ -106,12 +135,13 @@ export interface MediaEntryData<
   AssetId extends string = string,
   ProjectId extends string = string,
   CreditId extends string = string,
-> {
+  WorkAreaId extends string = string,
+  ProjectTypeId extends string = string,
+  DeliverableId extends string = string,
+> extends MediaUsageMetadata<ProjectId, WorkAreaId, ProjectTypeId, DeliverableId> {
   id: string;
   assetId: AssetId;
-  projectIds?: readonly ProjectId[];
   creditId?: CreditId;
-  alt?: string;
   posterAssetId?: AssetId;
   caption?: MediaCaptionData;
   purpose?: MediaPurpose;
