@@ -1,5 +1,5 @@
 import { readdir, readFile, rm, writeFile } from "node:fs/promises";
-import { dirname, extname, join, relative, resolve, sep } from "node:path";
+import { extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import ts from "typescript";
@@ -18,6 +18,7 @@ const TEXT_EXTENSIONS = new Set([
   ".ts", ".tsx", ".js", ".mjs", ".cjs", ".json", ".html", ".css",
   ".md", ".txt", ".yml", ".yaml",
 ]);
+const SCRIPT_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs"]);
 const CONTEXT_KEYS = [
   "title",
   "alt",
@@ -31,13 +32,18 @@ const CONTEXT_KEYS = [
   "credits",
 ];
 const LIBRARY_ONLY_KEYS = ["reusable", "archived"];
+const BLOCKING_REFERENCE_KINDS = new Set([
+  "RUNTIME_DIRECT",
+  "ASSET_REGISTRY",
+  "CATALOG_SOURCE",
+]);
 
 function posix(path) {
   return path.split(sep).join("/");
 }
 
-function repoPath(absolute) {
-  return posix(relative(ROOT, absolute));
+function repoPath(absolutePath) {
+  return posix(relative(ROOT, absolutePath));
 }
 
 function absolute(repoRelative) {
@@ -46,7 +52,8 @@ function absolute(repoRelative) {
 
 function physicalPathForAsset(asset) {
   if (!asset?.src?.startsWith("/")) return null;
-  return `public${asset.src.split(/[?#]/, 1)[0]}`;
+  const clean = asset.src.split(/[?#]/)[0];
+  return `public${clean}`;
 }
 
 function stableEqual(left, right) {
@@ -73,7 +80,7 @@ async function walk(dir) {
   return result;
 }
 
-function classifyReference(path) {
+export function classifyReference(path) {
   const p = posix(path);
   if (p.startsWith("tools/media-migration/manifests/")
       || p === "src/data/media/asset-aliases.json"
@@ -83,7 +90,8 @@ function classifyReference(path) {
   }
   if (p.includes("catalog-records.generated")
       || p.includes("responsive-generated")
-      || p.startsWith("public/media/generated/")) {
+      || p.startsWith("public/media/generated/")
+      || p === "public/media/projects/shootings/behance/manifest.json") {
     return "GENERATED";
   }
   if (p.includes("tmp-media-dedupe") || p.startsWith(".cache/")) return "TEMP_TOOL";
@@ -93,18 +101,47 @@ function classifyReference(path) {
   return "RUNTIME_DIRECT";
 }
 
+function scriptKindFor(fileName) {
+  if (fileName.endsWith(".tsx")) return ts.ScriptKind.TSX;
+  if (fileName.endsWith(".jsx")) return ts.ScriptKind.JSX;
+  if (fileName.endsWith(".js") || fileName.endsWith(".mjs") || fileName.endsWith(".cjs")) {
+    return ts.ScriptKind.JS;
+  }
+  return ts.ScriptKind.TS;
+}
+
+function sourceFileFor(sourceText, fileName) {
+  return ts.createSourceFile(
+    fileName,
+    sourceText,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKindFor(fileName),
+  );
+}
+
 function propertyName(node) {
   if (!node.name) return null;
   if (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) return node.name.text;
   return null;
 }
 
-function rewriteAssetProperties(sourceText, sourceFile, aliases) {
+function applyEdits(sourceText, edits) {
+  return [...edits]
+    .sort((left, right) => right.start - left.start)
+    .reduce(
+      (text, edit) => `${text.slice(0, edit.start)}${edit.text}${text.slice(edit.end)}`,
+      sourceText,
+    );
+}
+
+export function rewriteAssetIdentityProperties(sourceText, fileName, aliases) {
+  const sourceFile = sourceFileFor(sourceText, fileName);
   const edits = [];
 
   function visit(node) {
     if (ts.isPropertyAssignment(node)
-        && ["assetId", "mediaAssetId"].includes(propertyName(node))
+        && ["assetId", "mediaAssetId", "posterAssetId"].includes(propertyName(node))
         && ts.isStringLiteralLike(node.initializer)) {
       const replacement = aliases.get(node.initializer.text);
       if (replacement) {
@@ -122,7 +159,8 @@ function rewriteAssetProperties(sourceText, sourceFile, aliases) {
   return applyEdits(sourceText, edits);
 }
 
-function removeAssetDeclarations(sourceText, sourceFile, removeIds) {
+function removeAssetDeclarations(sourceText, fileName, removeIds) {
+  const sourceFile = sourceFileFor(sourceText, fileName);
   const edits = [];
 
   function visit(node) {
@@ -151,13 +189,9 @@ function removeAssetDeclarations(sourceText, sourceFile, removeIds) {
   return applyEdits(sourceText, edits);
 }
 
-function applyEdits(sourceText, edits) {
-  return [...edits]
-    .sort((left, right) => right.start - left.start)
-    .reduce(
-      (text, edit) => `${text.slice(0, edit.start)}${edit.text}${text.slice(edit.end)}`,
-      sourceText,
-    );
+function shouldRewriteScript(path) {
+  const kind = classifyReference(path);
+  return !["GENERATED", "MIGRATION_EVIDENCE", "TEMP_TOOL", "TEST_FIXTURE"].includes(kind);
 }
 
 async function buildTextWorkspace(aliases, removeIds) {
@@ -174,24 +208,10 @@ async function buildTextWorkspace(aliases, removeIds) {
       continue;
     }
 
-    if ([".ts", ".tsx", ".js", ".mjs", ".cjs"].includes(extname(path).toLowerCase())) {
-      const sourceFile = ts.createSourceFile(
-        rel,
-        text,
-        ts.ScriptTarget.Latest,
-        true,
-        rel.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
-      );
-      text = rewriteAssetProperties(text, sourceFile, aliases);
+    if (SCRIPT_EXTENSIONS.has(extname(path).toLowerCase()) && shouldRewriteScript(rel)) {
+      text = rewriteAssetIdentityProperties(text, rel, aliases);
       if (rel.startsWith("src/data/media/assets/")) {
-        const rewrittenFile = ts.createSourceFile(
-          rel,
-          text,
-          ts.ScriptTarget.Latest,
-          true,
-          ts.ScriptKind.TS,
-        );
-        text = removeAssetDeclarations(text, rewrittenFile, removeIds);
+        text = removeAssetDeclarations(text, rel, removeIds);
       }
     }
 
@@ -201,21 +221,30 @@ async function buildTextWorkspace(aliases, removeIds) {
   return workspace;
 }
 
-function findLiveReferences(workspace, component, deletedTextPaths) {
+function exactStringLiteralPresent(text, value) {
+  return text.includes(JSON.stringify(value))
+    || text.includes(`'${value.replaceAll("'", "\\'")}'`)
+    || text.includes(`\`${value.replaceAll("`", "\\`")}\``);
+}
+
+function componentReferenceNeedles(component) {
+  const needles = component.removeAssetIds.map((value) => ({ type: "asset", value }));
+  for (const path of component.removePhysicalPaths) {
+    needles.push({ type: "path", value: path });
+    if (path.startsWith("public/")) needles.push({ type: "path", value: path.slice("public".length) });
+  }
+  return needles;
+}
+
+export function findCandidateReferences(workspace, component, deletedTextPaths = new Set()) {
   const refs = [];
-  const needles = new Set([
-    ...component.removeAssetIds,
-    ...component.removePhysicalPaths,
-    ...component.removePhysicalPaths
-      .filter((path) => path.startsWith("public/"))
-      .map((path) => path.slice("public".length)),
-  ]);
+  const needles = componentReferenceNeedles(component);
 
   for (const [path, text] of workspace) {
     if (deletedTextPaths.has(path)) continue;
-    for (const needle of needles) {
-      if (!needle || !text.includes(needle)) continue;
-      refs.push({ path, kind: classifyReference(path), needle });
+    for (const { type, value } of needles) {
+      if (!value || !exactStringLiteralPresent(text, value)) continue;
+      refs.push({ path, kind: classifyReference(path), type, needle: value });
     }
   }
 
@@ -257,12 +286,33 @@ function metadataBlockers(component, catalogById, usageByEntryId) {
   return blockers;
 }
 
+function noMergeViolations(aliasMap, assetByPhysicalPath) {
+  const violations = [];
+  const canonical = (id) => aliasMap.get(id) ?? id;
+
+  for (const constraint of noMergeSource) {
+    const left = assetByPhysicalPath.get(constraint.left);
+    const right = assetByPhysicalPath.get(constraint.right);
+    if (!left || !right) continue;
+    const leftCanonical = canonical(left.id);
+    const rightCanonical = canonical(right.id);
+    if (leftCanonical === rightCanonical) {
+      violations.push({
+        source: constraint.source,
+        decision: constraint.decision,
+        left: constraint.left,
+        right: constraint.right,
+        canonicalAssetId: leftCanonical,
+      });
+    }
+  }
+
+  return violations;
+}
+
 function noMergeBlockers(component, assetByPhysicalPath) {
   const removePaths = new Set(component.removePhysicalPaths);
-  const involvedIds = new Set([
-    component.canonicalAssetId,
-    ...component.removeAssetIds,
-  ]);
+  const involvedIds = new Set([component.canonicalAssetId, ...component.removeAssetIds]);
   const blockers = [];
 
   for (const constraint of noMergeSource) {
@@ -294,8 +344,13 @@ async function buildPlan() {
 
   const aliases = new Map();
   const removeIds = new Set();
+  const decisionContradictions = [];
   for (const component of logicalSource.components) {
     for (const removeId of component.removeAssetIds) {
+      const existing = aliases.get(removeId);
+      if (existing && existing !== component.canonicalAssetId) {
+        decisionContradictions.push({ removeAssetId: removeId, left: existing, right: component.canonicalAssetId });
+      }
       aliases.set(removeId, component.canonicalAssetId);
       removeIds.add(removeId);
     }
@@ -305,6 +360,7 @@ async function buildPlan() {
   const plannedCatalogDeletes = new Set(
     [...removeIds].map((id) => `src/content/media-catalog/registered/${id}.json`),
   );
+  const globalNoMergeViolations = noMergeViolations(aliases, assetByPhysicalPath);
 
   const components = [];
   for (const component of logicalSource.components) {
@@ -312,7 +368,9 @@ async function buildPlan() {
     const canonicalAsset = runtimeAssetById.get(component.canonicalAssetId);
     if (!canonicalAsset) blockers.push(`canonical runtime asset missing: ${component.canonicalAssetId}`);
 
-    const canonicalPath = physicalPathForAsset(canonicalAsset ?? legacyAssetById.get(component.canonicalAssetId));
+    const canonicalPath = physicalPathForAsset(
+      canonicalAsset ?? legacyAssetById.get(component.canonicalAssetId),
+    );
     if (!canonicalPath || !(await exists(canonicalPath))) {
       blockers.push(`canonical physical source missing: ${canonicalPath ?? component.canonicalAssetId}`);
     }
@@ -337,10 +395,11 @@ async function buildPlan() {
     blockers.push(...metadataBlockers(component, catalogById, usageByEntryId));
     blockers.push(...noMergeBlockers(component, assetByPhysicalPath));
 
-    const refs = findLiveReferences(workspace, component, plannedCatalogDeletes);
-    const runtimeRefs = refs.filter((ref) => ref.kind === "RUNTIME_DIRECT");
-    for (const ref of runtimeRefs) {
-      blockers.push(`live runtime reference: ${ref.path} -> ${ref.needle}`);
+    const references = findCandidateReferences(workspace, component, plannedCatalogDeletes);
+    for (const ref of references) {
+      if (BLOCKING_REFERENCE_KINDS.has(ref.kind)) {
+        blockers.push(`live ${ref.kind} reference: ${ref.path} -> ${ref.needle}`);
+      }
     }
 
     const physicalFiles = [];
@@ -355,54 +414,44 @@ async function buildPlan() {
       removeAssetIds: component.removeAssetIds,
       entryIds: component.entryIds,
       physicalFiles,
-      references: refs,
+      references,
       blockers: [...new Set(blockers)],
       eligible: blockers.length === 0,
     });
   }
 
-  return { components, workspace, aliases, plannedCatalogDeletes };
+  return {
+    components,
+    aliases,
+    decisionContradictions,
+    noMergeViolations: globalNoMergeViolations,
+  };
 }
 
 async function applyPlan(plan) {
-  const eligible = plan.components.filter((component) => component.eligible);
-  const eligibleIds = new Set(eligible.flatMap((component) => component.removeAssetIds));
-  const eligibleAliases = new Map(
-    [...plan.aliases].filter(([from]) => eligibleIds.has(from)),
-  );
-
+  const removeIds = new Set(plan.components.flatMap((component) => component.removeAssetIds));
   const files = await walk(ROOT);
+
   for (const path of files) {
     const rel = repoPath(path);
-    if (![".ts", ".tsx", ".js", ".mjs", ".cjs"].includes(extname(path).toLowerCase())) continue;
+    if (!SCRIPT_EXTENSIONS.has(extname(path).toLowerCase()) || !shouldRewriteScript(rel)) continue;
+
     let text;
     try {
       text = await readFile(path, "utf8");
     } catch {
       continue;
     }
-    const sourceFile = ts.createSourceFile(
-      rel,
-      text,
-      ts.ScriptTarget.Latest,
-      true,
-      rel.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
-    );
-    let next = rewriteAssetProperties(text, sourceFile, eligibleAliases);
+
+    let next = rewriteAssetIdentityProperties(text, rel, plan.aliases);
     if (rel.startsWith("src/data/media/assets/")) {
-      const rewrittenFile = ts.createSourceFile(
-        rel,
-        next,
-        ts.ScriptTarget.Latest,
-        true,
-        ts.ScriptKind.TS,
-      );
-      next = removeAssetDeclarations(next, rewrittenFile, eligibleIds);
+      next = removeAssetDeclarations(next, rel, removeIds);
     }
     if (next !== text) await writeFile(path, next, "utf8");
   }
 
-  for (const component of eligible) {
+  const removedPhysicalPaths = [];
+  for (const component of plan.components) {
     for (const removeId of component.removeAssetIds) {
       await rm(
         absolute(`src/content/media-catalog/registered/${removeId}.json`),
@@ -410,23 +459,32 @@ async function applyPlan(plan) {
       );
     }
     for (const file of component.physicalFiles) {
-      if (file.exists) await rm(absolute(file.path), { force: true });
+      if (!file.exists) continue;
+      await rm(absolute(file.path), { force: true });
+      removedPhysicalPaths.push(file.path);
     }
   }
 
   return {
-    appliedComponentIds: eligible.map((component) => component.componentId),
-    removedAssetIds: [...eligibleIds],
-    removedPhysicalPaths: eligible.flatMap((component) =>
-      component.physicalFiles.filter((file) => file.exists).map((file) => file.path),
-    ),
+    appliedComponentIds: plan.components.map((component) => component.componentId),
+    removedAssetIds: [...removeIds],
+    removedPhysicalPaths,
   };
+}
+
+function summarizeReferences(references) {
+  const summary = {};
+  for (const ref of references) summary[ref.kind] = (summary[ref.kind] ?? 0) + 1;
+  return summary;
 }
 
 async function main() {
   const plan = await buildPlan();
   const eligible = plan.components.filter((component) => component.eligible);
   const blocked = plan.components.filter((component) => !component.eligible);
+  const clean = blocked.length === 0
+    && plan.decisionContradictions.length === 0
+    && plan.noMergeViolations.length === 0;
 
   const report = {
     mode: APPLY ? "apply" : "dry-run",
@@ -434,23 +492,22 @@ async function main() {
     eligibleComponents: eligible.length,
     blockedComponents: blocked.length,
     entryRetargetEvidenceCount: dedupeMediaUsageRecords.length,
+    decisionContradictions: plan.decisionContradictions,
+    noMergeViolations: plan.noMergeViolations,
+    clean,
     components: plan.components.map(({ references, ...component }) => ({
       ...component,
-      referenceSummary: Object.fromEntries(
-        [...new Set(references.map((ref) => ref.kind))].map((kind) => [
-          kind,
-          references.filter((ref) => ref.kind === kind).length,
-        ]),
-      ),
+      referenceSummary: summarizeReferences(references),
     })),
   };
 
   if (!APPLY) {
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+    if (!clean) process.exitCode = 1;
     return;
   }
 
-  if (eligible.length === 0) {
+  if (!clean) {
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     process.exitCode = 1;
     return;
@@ -458,7 +515,8 @@ async function main() {
 
   const applied = await applyPlan(plan);
   process.stdout.write(`${JSON.stringify({ ...report, applied }, null, 2)}\n`);
-  if (blocked.length > 0) process.exitCode = 2;
 }
 
-await main();
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  await main();
+}
