@@ -4,7 +4,7 @@
 
 - Repository: `looksawful/looksawful.ru`
 - Working branch: `agent/media-normalization-dedupe-20260903`
-- Design snapshot HEAD before this document: `22f316b49e108227ca619faeaa1f0e18f721ace0`
+- Design snapshot HEAD before this document: `0985fb9f407e2c421ded9b0652cac335e2571986`
 - This work must not modify `dev` or `prod`, open a PR, run GitHub Actions, or force-push.
 - Physical source deletion remains forbidden until every lossless safety gate in this document passes.
 
@@ -37,13 +37,17 @@ The branch already contains the migration scaffolding required to separate ident
 - `src/data/media/usage.ts` resolves usage metadata with legacy catalog fallback. Only `undefined` falls back; explicit empty strings and arrays are preserved.
 - `src/content/media-usages/registered.json` records contextual metadata needed when an entry is retargeted from a retired duplicate asset to its canonical asset.
 - `src/data/media/usage-records.ts` validates those migration records, taxonomy IDs, and evidence component IDs.
-- `src/data/media/asset-aliases.json` currently records 24 retired logical asset IDs and their canonical IDs.
+- `src/data/media/asset-aliases.json` records 24 reviewed retired logical asset IDs and their canonical IDs.
+- `src/data/media/assets/registered.ts` still exposes the complete legacy registry for migration tooling, but also builds `canonicalRegisteredMediaAssets` with those 24 retired IDs filtered out.
+- `src/data/media/assets/index.ts` exposes only the canonical registered assets plus uploaded CMS assets to runtime consumers.
 - `src/data/media/entries/index.ts` applies usage metadata, canonicalizes retired asset IDs, and preserves explicit project membership before exposing runtime entries.
-- `src/data/media/project-assignments.ts` now treats `MediaEntry.projectIds` as authoritative and no longer derives project membership from asset/catalog metadata.
+- `src/data/media/project-assignments.ts` treats `MediaEntry.projectIds` as authoritative and no longer derives project membership from asset/catalog metadata.
 - `src/data/media/catalog-view.ts` exposes a read-only catalog projection. Context is derived from usages when every usage defines a field; legacy catalog metadata remains a compatibility fallback while migration is incomplete.
+- `test/media-retired-assets.test.mjs` independently checks the reviewed logical migration manifest against runtime assets and entries, proving that all 24 retired IDs are absent from the runtime asset set and no runtime entry resolves to them.
 - `tools/media/live-semantic-snapshot.mjs` has been decoupled from runtime migration aliases so the semantic verifier can independently test the migration rather than proving itself with the same scaffolding it is meant to verify.
+- `tools/media/normalize-media-source.mjs` already uses image-scoped regeneration steps (`media:catalog:sync`, `media:build`, and media-dev-state refresh) instead of the broader `media:sync`, reducing the risk of touching unrelated video inventory state during image normalization.
 
-This scaffolding is transitional. It is not the final source-of-truth layout.
+This means logical retirement is already effective in the runtime projection, but the legacy source records, raw references, aliases, and physical duplicate files still need a controlled one-shot cleanup. The scaffolding is transitional and is not the final source-of-truth layout.
 
 ## Source-of-truth ownership
 
@@ -120,7 +124,7 @@ The Stage 1–4 analysis and the user's visual review are the evidence base for 
 - 64 components do not require semantic conflict resolution under the new contextual model.
 - 21 components require contextual metadata to remain distinct at the `MediaEntry` level while their logical assets converge.
 - Stage 4 identified 95 potentially removable physical paths, but this is a migration map, not a deletion list.
-- The 24 retired logical assets already represented in `asset-aliases.json` are the logical-identity migration set for registered duplicate assets.
+- The 24 retired logical assets already represented in `asset-aliases.json` are the registered logical-identity migration set.
 - User visual decisions are authoritative over heuristic detectors.
 
 The following unique pairs/components remain permanent no-merge constraints because they are DIFFERENT or VARIANT rather than the same logical image:
@@ -138,7 +142,7 @@ No automated or future near-duplicate detector may override these decisions.
 
 ### Phase 1: freeze and independently verify semantics
 
-Before source deletion or catalog-record removal:
+Before source deletion or legacy catalog-record removal:
 
 - keep the semantic golden baseline immutable;
 - generate a live semantic snapshot independently of runtime alias/usage scaffolding;
@@ -162,7 +166,7 @@ The snapshot must include at least:
 
 ### Phase 2: finish contextual materialization
 
-For every entry whose logical asset will be retired, materialize exactly the contextual values required to make its behavior independent of the retired asset's catalog record.
+For every entry whose legacy logical asset will be removed from source data, materialize exactly the contextual values required to make its behavior independent of the retired asset's catalog record.
 
 Rules:
 
@@ -172,7 +176,7 @@ Rules:
 - preserve entry-specific captions, credits, project membership, purpose, and poster relations;
 - do not merge entries merely because they point to the same canonical asset.
 
-When a contextual value already matches the canonical asset's compatibility default, it may remain omitted only while that fallback is intentionally part of the migration contract. Before the legacy catalog context is removed, every required contextual field must become explicit or be provided by a new non-legacy source whose ownership is defined in this design.
+When a contextual value already matches the canonical asset's compatibility default, it may remain omitted only while that fallback is intentionally part of the migration contract. Before legacy catalog context is removed, every required contextual field must become explicit or be provided by a new non-legacy source whose ownership is defined in this design.
 
 ### Phase 3: make runtime consumers usage-first
 
@@ -188,15 +192,18 @@ This includes at least:
 
 A concrete usage must never gain project membership merely because its canonical `MediaAsset` is used by another project.
 
-### Phase 4: retire duplicate logical assets
+### Phase 4: materialize logical retirement in source data
+
+Runtime already excludes the 24 reviewed duplicate asset IDs. The remaining task is to make source data match that runtime state so aliases are no longer required.
 
 After semantic equivalence is green:
 
-- retarget every affected entry to its canonical `MediaAsset`;
-- remove retired duplicate `MediaAsset` records;
-- remove retired registered catalog records;
-- remove migration aliases only after no runtime or content source still contains a retired asset ID;
-- keep evidence/manifests outside runtime sources for auditability if still useful.
+- rewrite raw affected `MediaEntry.assetId` values to canonical `MediaAsset` IDs;
+- remove the 24 retired duplicate `MediaAsset` source records;
+- remove their registered catalog records;
+- verify no runtime/content source contains a retired asset ID;
+- then remove runtime asset aliases and dedupe-only alias filtering;
+- keep reviewed migration evidence/manifests under tooling/docs for auditability if still useful.
 
 Logical retirement and physical source deletion are separate operations and must remain separately reviewable.
 
@@ -243,17 +250,19 @@ For each promotion:
 
 ### Phase 8: regenerate generated media metadata
 
-Generated responsive manifests and derivatives must be regenerated from canonical sources after source changes.
+Generated responsive manifests and derivatives must be regenerated from canonical image sources after source changes.
 
-They must not be hand-edited as the primary migration mechanism.
+The normalization path must remain image-scoped. It must use the current `media:catalog:sync` + `media:build` + media-dev-state refresh sequence rather than broad `media:sync`, so unrelated video inventory state is not regenerated as a side effect.
+
+Generated outputs must not be hand-edited as the primary migration mechanism.
 
 The pre-existing unrelated `public/media/generated/video-inventory.json` working-tree change must remain outside the dedupe commit unless its origin has been explicitly resolved.
 
 ### Phase 9: remove migration scaffolding
 
-After all retired assets and paths are gone and every usage is independent of legacy context:
+After all retired asset records and removable physical paths are gone and every usage is independent of legacy context:
 
-- remove runtime asset aliases;
+- remove runtime asset aliases and canonical filtering based on those aliases;
 - remove dedupe-only usage evidence plumbing from runtime paths;
 - keep or move audit manifests under tooling/docs if historical evidence is still required;
 - remove temporary Stage 1–4 scripts and review helpers;
@@ -293,7 +302,7 @@ The migration is lossless only when all of the following remain true before and 
 - no missing or undecodable canonical source media;
 - no unresolved references to removed IDs or paths;
 - no user-approved VARIANT/DIFFERENT pair collapsed;
-- generated manifests rebuilt successfully from canonical source state.
+- generated manifests rebuilt successfully from canonical image source state without unrelated video regeneration.
 
 Changing only the physical URL of an entry to the reviewed canonical source for the same logical image is permitted. Changing its contextual meaning is not.
 
@@ -303,11 +312,11 @@ The remaining implementation should be split into independently verifiable commi
 
 1. semantic/context completion and tests;
 2. usage-first consumer completion;
-3. logical asset/catalog retirement;
+3. source-level logical asset/catalog retirement;
 4. direct-production reference rewrites;
 5. ordinary physical dedupe;
 6. quality promotions;
-7. generated-media regeneration;
+7. image-scoped generated-media regeneration;
 8. removal of migration scaffolding and temporary tools;
 9. permanent integrity guards and final verification.
 
@@ -323,6 +332,6 @@ The project is complete when:
 - all approved SAME duplicates are normalized where safe;
 - all VARIANT/DIFFERENT constraints are preserved;
 - no content, project membership, metadata, credits, captions, purpose, or poster relations are lost;
-- generated media is rebuilt from canonical sources;
+- generated image media is rebuilt from canonical sources without unrelated video regeneration;
 - temporary migration scaffolding is no longer required at runtime;
 - permanent integrity checks prevent the same class of duplication from silently returning.
