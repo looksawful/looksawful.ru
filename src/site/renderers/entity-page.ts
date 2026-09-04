@@ -2,7 +2,6 @@ import { renderJesteiTrackFilter } from "../../components/specialized/index.ts";
 import {
   entityPageContentRegistry,
   getEntityPageContent,
-  hasEntityPageContent,
 } from "../../content/pages/index.ts";
 import {
   getCase,
@@ -13,7 +12,6 @@ import { getEntityShellPresentation } from "../pages/entity-presentation.ts";
 import type { EntityPageDefinition } from "../pages/types.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
 import { renderEntityShell } from "./entity/entity-shell.ts";
-import { renderEntityArticle } from "./registry.ts";
 
 function getEntityPageCopy(page: EntityPageDefinition): {
   title: string;
@@ -58,13 +56,8 @@ function renderCanonicalEntityArticle(page: EntityPageDefinition): string {
   });
 }
 
-export function renderStandaloneEntityPage(
-  homepageTemplate: string,
-  page: EntityPageDefinition,
-): string {
-  const article = hasEntityPageContent(entityPageContentRegistry, page.id)
-    ? renderCanonicalEntityArticle(page)
-    : renderEntityArticle(homepageTemplate, page);
+export function renderStandaloneEntityPage(page: EntityPageDefinition): string {
+  const article = renderCanonicalEntityArticle(page);
   const copy = getEntityPageCopy(page);
 
   return renderPageShell({
