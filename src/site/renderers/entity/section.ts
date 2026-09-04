@@ -1,15 +1,16 @@
 import { renderSectionIntro } from "../../../components/composition/section-intro.ts";
+import { renderMovesCanvasDemo } from "../../../components/specialized/index.ts";
 import {
   assertNeverSection,
   type JesteiTrackFilterSection,
+  type MovesCanvasDemoSection,
   type ProjectGroupSection,
   type ProjectPresentation,
   type Section,
   type SectionPresentation,
-  type SpecializedSection,
 } from "../../../content/contracts/sections.ts";
 import { renderRevealAttribute, renderRevealGroupAttribute } from "../../../motion-contract.ts";
-import type { CreditsData } from "../../../types/content.ts";
+import type { CreditsData, SectionNoteData } from "../../../types/content.ts";
 import { escapeHtml } from "../../../utils/html.ts";
 import { renderContentBlocks } from "./content-block.ts";
 
@@ -21,23 +22,49 @@ export interface SectionRenderOptions {
   specialized?: SpecializedSectionRenderers;
 }
 
-function renderCredits(credits?: CreditsData): string {
-  const lines = credits?.lines?.filter(Boolean) ?? [];
-  if (!credits?.title && !lines.length) return "";
+function usesGlobalReveal(presentation?: SectionPresentation): boolean {
+  return presentation?.motion !== "section-owned";
+}
 
-  const title = credits?.title
-    ? `<strong class="credits__title">${escapeHtml(credits.title)}</strong>`
+function renderSectionHead(
+  credits?: CreditsData,
+  note?: SectionNoteData,
+  reveal = true,
+): string {
+  const lines = credits?.lines?.filter(Boolean) ?? [];
+  const hasCredits = Boolean(credits?.title || lines.length);
+  const hasNote = Boolean(note?.text || note?.link);
+
+  if (!hasCredits && !hasNote) return "";
+
+  const creditsHtml = hasCredits
+    ? `<p class="credits"${renderRevealAttribute(reveal ? "copy" : false)}>
+        ${
+          credits?.title
+            ? `<strong class="credits__title">${escapeHtml(credits.title)}</strong>`
+            : ""
+        }
+        ${lines.map((line) => `<span class="credits__line">${escapeHtml(line)}</span>`).join("")}
+      </p>`
     : "";
-  const lineHtml = lines
-    .map((line) => `<span class="credits__line">${escapeHtml(line)}</span>`)
-    .join("");
+
+  const noteLink = note?.link
+    ? ` <a href="${escapeHtml(note.link.href)}"${
+        note.link.rel ? ` rel="${escapeHtml(note.link.rel)}"` : ""
+      }${note.link.target ? ` target="${escapeHtml(note.link.target)}"` : ""}>${escapeHtml(
+        note.link.label,
+      )}</a>`
+    : "";
+  const noteHtml = hasNote
+    ? `<p class="group-note"${renderRevealAttribute(reveal ? "copy" : false)}>${escapeHtml(
+        note?.text ?? "",
+      )}${noteLink}</p>`
+    : "";
 
   return `
-    <header class="media-group__head flow"${renderRevealGroupAttribute()}>
-      <p class="credits"${renderRevealAttribute("copy")}>
-        ${title}
-        ${lineHtml}
-      </p>
+    <header class="media-group__head flow"${renderRevealGroupAttribute(reveal)}>
+      ${creditsHtml}
+      ${noteHtml}
     </header>
   `;
 }
@@ -58,15 +85,27 @@ function sectionShellPresentation(presentation?: SectionPresentation): {
         attributes:
           ' data-layout="grid" data-compact-layout="reel" style="--group-columns: 4; --group-compact-item-size: min(72cqi, 18rem); --group-compact-align: stretch; --group-wide-item-inline-size: min(100%, 18rem)"',
       };
+    case "infinite-media-reel":
+      return {
+        className: "project__section wrapper media-group",
+        attributes:
+          ' data-infinite-reel="" data-layout="strip" style="--strip-height: clamp(12rem, 30cqi, 20rem); --infinite-reel-duration: 32s"',
+      };
   }
 }
 
+interface SectionShellInput {
+  id: string;
+  type: Section["type"];
+  presentation?: SectionPresentation;
+}
+
 function renderSectionShell(
-  section: Exclude<Section, SpecializedSection>,
+  section: SectionShellInput,
   body: string,
   extraAttributes = "",
 ): string {
-  const presentation = "presentation" in section ? sectionShellPresentation(section.presentation) : sectionShellPresentation();
+  const presentation = sectionShellPresentation(section.presentation);
 
   return `
     <section
@@ -81,40 +120,50 @@ function renderSectionShell(
 }
 
 function renderBlockBody(
-  section: Extract<Section, { type: "content" | "project" }>,
+  blocks: Extract<Section, { type: "content" | "project" }>["blocks"],
+  presentation?: SectionPresentation,
 ): string {
-  const blocks = renderContentBlocks(section.blocks);
+  const reveal = usesGlobalReveal(presentation);
+  const blockHtml = renderContentBlocks(blocks, { reveal });
 
-  if (section.presentation?.layout === "mockup-grid-reel") {
-    return `<div class="media-group__items reel">${blocks}</div>`;
+  switch (presentation?.layout ?? "stack") {
+    case "stack":
+      return blockHtml;
+    case "mockup-grid-reel":
+      return `<div class="media-group__items reel">${blockHtml}</div>`;
+    case "infinite-media-reel":
+      return `<div class="media-group__items reel" data-infinite-reel-track="">${blockHtml}</div>`;
   }
-
-  return blocks;
 }
 
 function renderIntroAndBlocks(section: Extract<Section, { type: "content" | "project" }>): string {
-  const intro = section.intro ? renderSectionIntro(section.intro) : "";
-  const credits = renderCredits(section.credits);
-  const blocks = renderBlockBody(section);
+  const reveal = usesGlobalReveal(section.presentation);
+  const intro = section.intro ? renderSectionIntro(section.intro, { reveal }) : "";
+  const head = renderSectionHead(section.credits, section.note, reveal);
+  const blocks = renderBlockBody(section.blocks, section.presentation);
   const projectAttribute =
     section.type === "project" ? ` data-project-id="${escapeHtml(section.projectId)}"` : "";
 
-  return renderSectionShell(section, `${intro}\n${credits}\n${blocks}`, projectAttribute);
+  return renderSectionShell(section, `${intro}\n${head}\n${blocks}`, projectAttribute);
 }
 
 function renderProjectPresentation(item: ProjectPresentation): string {
-  const intro = item.intro ? renderSectionIntro(item.intro) : "";
-  const credits = renderCredits(item.credits);
-  const blocks = renderContentBlocks(item.blocks);
-  const body = item.presentation?.layout === "mockup-grid-reel"
-    ? `<div class="media-group__items reel">${blocks}</div>`
-    : blocks;
+  const reveal = usesGlobalReveal(item.presentation);
+  const intro = item.intro ? renderSectionIntro(item.intro, { reveal }) : "";
+  const head = renderSectionHead(item.credits, item.note, reveal);
+  const blockHtml = renderContentBlocks(item.blocks, { reveal });
+  const body =
+    item.presentation?.layout === "mockup-grid-reel"
+      ? `<div class="media-group__items reel">${blockHtml}</div>`
+      : item.presentation?.layout === "infinite-media-reel"
+        ? `<div class="media-group__items reel" data-infinite-reel-track="">${blockHtml}</div>`
+        : blockHtml;
   const presentation = sectionShellPresentation(item.presentation);
 
   return `
     <div class="${presentation.className}" data-project-id="${escapeHtml(item.projectId)}" data-media-caption-scope${presentation.attributes}>
       ${intro}
-      ${credits}
+      ${head}
       ${body}
     </div>
   `;
@@ -122,21 +171,39 @@ function renderProjectPresentation(item: ProjectPresentation): string {
 
 function renderProjectGroup(section: ProjectGroupSection): string {
   const intro = section.intro ? renderSectionIntro(section.intro) : "";
-  const credits = renderCredits(section.credits);
+  const head = renderSectionHead(section.credits, section.note);
   const items = section.items.map(renderProjectPresentation).join("\n");
 
-  return renderSectionShell(section, `${intro}\n${credits}\n${items}`);
+  return renderSectionShell(section, `${intro}\n${head}\n${items}`);
+}
+
+function renderMovesCanvasDemoSection(section: MovesCanvasDemoSection): string {
+  return renderSectionShell(
+    section,
+    renderMovesCanvasDemo(section.gallery),
+    ` data-project-id="${escapeHtml(section.projectId)}"`,
+  );
 }
 
 function renderSpecializedSection(
-  section: JesteiTrackFilterSection,
+  section: Extract<Section, { type: "specialized" }>,
   renderers: SpecializedSectionRenderers = {},
 ): string {
-  const renderer = renderers.jesteiTrackFilter;
-  if (!renderer) {
-    throw new Error("Missing specialized renderer: jestei-track-filter");
+  switch (section.kind) {
+    case "jestei-track-filter": {
+      const renderer = renderers.jesteiTrackFilter;
+      if (!renderer) {
+        throw new Error("Missing specialized renderer: jestei-track-filter");
+      }
+      return renderer(section);
+    }
+    case "moves-canvas-demo":
+      return renderMovesCanvasDemoSection(section);
+    default: {
+      const exhaustive: never = section;
+      throw new Error(`Unhandled SpecializedSection: ${JSON.stringify(exhaustive)}`);
+    }
   }
-  return renderer(section);
 }
 
 export function renderSection(section: Section, options: SectionRenderOptions = {}): string {

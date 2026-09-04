@@ -24,6 +24,7 @@ function validateSection(section: Section): void {
     case "specialized":
       switch (section.kind) {
         case "jestei-track-filter":
+        case "moves-canvas-demo":
           validateProjectId(section.projectId);
           return;
       }

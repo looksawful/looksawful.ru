@@ -15,6 +15,16 @@ export interface CreditsData {
   lines?: readonly string[];
 }
 
+export interface SectionNoteData {
+  text: string;
+  link?: {
+    label: string;
+    href: string;
+    rel?: string;
+    target?: "_blank";
+  };
+}
+
 export interface SectionIntroData {
   title: string;
   paragraphs?: readonly string[];

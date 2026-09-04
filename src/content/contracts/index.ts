@@ -24,10 +24,14 @@ export {
 export type {
   ContentSection,
   JesteiTrackFilterSection,
+  MovesCanvasDemoSection,
   ProjectGroupSection,
   ProjectPresentation,
   ProjectSection,
   Section,
+  SectionLayout,
+  SectionMotion,
+  SectionPresentation,
   SectionType,
   SpecializedSection,
 } from "./sections.ts";
