@@ -15,10 +15,25 @@ export const MEDIA_EDITORIAL_FIELDS = [
   "archived",
 ] as const;
 
+export const REGISTERED_MEDIA_EDITORIAL_FIELDS = [
+  "title",
+  "alt",
+  "description",
+  "date",
+  "workAreaIds",
+  "projectTypeIds",
+  "deliverableIds",
+  "tags",
+  "credits",
+  "reusable",
+  "archived",
+] as const;
+
 export type MediaEditorialField = (typeof MEDIA_EDITORIAL_FIELDS)[number];
 export type MediaEditorialPatch = Pick<MediaCatalogItem, MediaEditorialField>;
 
 const editorialFieldSet = new Set<string>(MEDIA_EDITORIAL_FIELDS);
+const registeredEditorialFieldSet = new Set<string>(REGISTERED_MEDIA_EDITORIAL_FIELDS);
 
 export function pickMediaEditorialMetadata(item: MediaCatalogItem): MediaEditorialPatch {
   return Object.fromEntries(
@@ -26,21 +41,52 @@ export function pickMediaEditorialMetadata(item: MediaCatalogItem): MediaEditori
   ) as MediaEditorialPatch;
 }
 
-export function applyMediaEditorialPatch(
+function applyAllowedMediaEditorialPatch(
   record: Record<string, unknown>,
   patch: Record<string, unknown>,
+  allowed: ReadonlySet<string>,
+  errorPrefix: string,
 ): Record<string, unknown> {
   for (const key of Object.keys(patch)) {
-    if (!editorialFieldSet.has(key)) {
-      throw new Error(`Media Desk cannot edit protected field "${key}"`);
+    if (!allowed.has(key)) {
+      throw new Error(`${errorPrefix} cannot edit protected field "${key}"`);
     }
   }
 
   const next = { ...record };
-  for (const field of MEDIA_EDITORIAL_FIELDS) {
-    if (field in patch) next[field] = patch[field];
+  for (const [field, value] of Object.entries(patch)) {
+    next[field] = value;
   }
   return next;
+}
+
+export function applyMediaEditorialPatch(
+  record: Record<string, unknown>,
+  patch: Record<string, unknown>,
+): Record<string, unknown> {
+  return applyAllowedMediaEditorialPatch(
+    record,
+    patch,
+    editorialFieldSet,
+    "Media Desk",
+  );
+}
+
+/**
+ * Registered catalog rows are library defaults. Project membership belongs to
+ * MediaEntry usages, so an asset-level Media Desk save must never create or
+ * overwrite `projectIds` in the registered catalog source.
+ */
+export function applyRegisteredMediaEditorialPatch(
+  record: Record<string, unknown>,
+  patch: Record<string, unknown>,
+): Record<string, unknown> {
+  return applyAllowedMediaEditorialPatch(
+    record,
+    patch,
+    registeredEditorialFieldSet,
+    "Registered Media Desk metadata",
+  );
 }
 
 export interface ContentDeskTextEntry {
