@@ -18,6 +18,8 @@ const DEFAULT_STATE_PATH = ".cache/media/dev-state.json";
 const DEFAULT_CACHE_MARKER_PATH = ".cache/media/generated-cache.json";
 const DEFAULT_RESPONSIVE_MANIFEST = "public/media/generated/responsive-manifest.json";
 const DEFAULT_VIDEO_INVENTORY = "public/media/generated/video-inventory.json";
+const PACKAGE_LOCK_CONFIG = "package-lock.json";
+const SHARP_PACKAGE_PATH = "node_modules/sharp";
 const DEFAULT_CONFIG_FILES = [
   "tools/build-responsive-media.mjs",
   "tools/build-video-media.mjs",
@@ -27,7 +29,7 @@ const DEFAULT_CONFIG_FILES = [
   "src/data/media/assets/registered.ts",
   "src/data/media/catalog.ts",
   "src/data/media/catalog-records.generated.ts",
-  "package-lock.json",
+  PACKAGE_LOCK_CONFIG,
 ];
 
 function normalizeSlashes(value) {
@@ -80,6 +82,83 @@ function stableJson(value) {
   return JSON.stringify(stableValue(value));
 }
 
+function dependencyNames(record) {
+  return [...new Set([
+    ...Object.keys(record?.dependencies ?? {}),
+    ...Object.keys(record?.optionalDependencies ?? {}),
+    ...Object.keys(record?.peerDependencies ?? {}),
+  ])].sort((left, right) => left.localeCompare(right));
+}
+
+function dependencyCandidatePaths(packagePath, dependencyName) {
+  const candidates = [`${packagePath}/node_modules/${dependencyName}`];
+  const segments = packagePath.split("/");
+  for (let index = segments.length - 1; index >= 0; index -= 1) {
+    if (segments[index] !== "node_modules") continue;
+    candidates.push(`${segments.slice(0, index + 1).join("/")}/${dependencyName}`);
+  }
+  return [...new Set(candidates)];
+}
+
+function sharpDependencyLockState(lock) {
+  const packages = lock?.packages;
+  if (!packages || typeof packages !== "object" || Array.isArray(packages)) {
+    throw new Error("media package-lock.json must contain a packages object");
+  }
+
+  const root = packages[""] ?? {};
+  const sharpSpec = root.devDependencies?.sharp
+    ?? root.dependencies?.sharp
+    ?? root.optionalDependencies?.sharp
+    ?? null;
+  if (!sharpSpec || !packages[SHARP_PACKAGE_PATH]) {
+    throw new Error("media package-lock.json must contain the direct sharp dependency");
+  }
+
+  const selectedPackages = {};
+  const unresolvedDependencies = [];
+  const queue = [SHARP_PACKAGE_PATH];
+  const visited = new Set();
+
+  while (queue.length) {
+    const packagePath = queue.shift();
+    if (visited.has(packagePath)) continue;
+    visited.add(packagePath);
+
+    const record = packages[packagePath];
+    if (!record || typeof record !== "object" || Array.isArray(record)) {
+      unresolvedDependencies.push({ from: packagePath, name: "<package>" });
+      continue;
+    }
+    selectedPackages[packagePath] = record;
+
+    for (const dependencyName of dependencyNames(record)) {
+      const resolvedPath = dependencyCandidatePaths(packagePath, dependencyName)
+        .find((candidate) => packages[candidate] && typeof packages[candidate] === "object");
+      if (resolvedPath) queue.push(resolvedPath);
+      else unresolvedDependencies.push({ from: packagePath, name: dependencyName });
+    }
+  }
+
+  return {
+    lockfileVersion: lock.lockfileVersion ?? null,
+    sharpSpec,
+    packages: selectedPackages,
+    unresolvedDependencies: unresolvedDependencies
+      .sort((left, right) => `${left.from}:${left.name}`.localeCompare(`${right.from}:${right.name}`)),
+  };
+}
+
+async function hashMediaPackageLock(filePath) {
+  let lock;
+  try {
+    lock = JSON.parse(await readFile(filePath, "utf8"));
+  } catch {
+    throw new Error("media package-lock.json is invalid JSON");
+  }
+  return hashBytes(stableJson(sharpDependencyLockState(lock)));
+}
+
 function registrySignature(assets) {
   const normalized = [...assets]
     .map((asset) => stableValue(asset))
@@ -113,9 +192,12 @@ async function collectConfigFingerprint(repoRoot, configFiles) {
   for (const relativePath of configFiles) {
     const filePath = path.resolve(repoRoot, relativePath);
     if (!(await exists(filePath))) throw new Error(`media config/tool file is missing: ${relativePath}`);
+    const normalizedPath = normalizeSlashes(relativePath);
     records.push({
-      path: normalizeSlashes(relativePath),
-      hash: await hashFile(filePath),
+      path: normalizedPath,
+      hash: normalizedPath === PACKAGE_LOCK_CONFIG
+        ? await hashMediaPackageLock(filePath)
+        : await hashFile(filePath),
     });
   }
   return records.sort((left, right) => left.path.localeCompare(right.path));
