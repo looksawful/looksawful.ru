@@ -6,12 +6,12 @@ on:
       - agent/media-normalization-dedupe-wave1-preapply-20260904
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  materialize-preview:
+  materialize-and-commit:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Checkout isolated preapply branch
         uses: actions/checkout@v7
@@ -41,7 +41,7 @@ jobs:
           delete matches[0].alt;
           await writeFile(file, `${JSON.stringify(records)}\n`, 'utf8');
           NODE
-      - name: Verify semantic fixes before generation
+      - name: Verify known regressions before generation
         run: node --test test/media-project-assignment.test.mjs test/media-usage-records.test.mjs
       - name: Materialize contextual entry state
         run: node tools/media/materialize-entry-context.mjs --write
@@ -72,56 +72,241 @@ jobs:
           NODE
       - name: Synchronize deterministic media catalog state
         run: npm run media:catalog:sync
-      - name: Export bounded generated state
+      - name: Switch runtime to usage-owned project membership
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > src/data/media/entries/index.ts <<'EOF'
+          import type { MediaEntryData } from "../../../types/media.ts";
+          import type { ProjectId } from "../../catalog/projects/index.ts";
+          import { canonicalMediaAssetId } from "../asset-aliases.ts";
+          import type { MediaAssetId } from "../assets/index.ts";
+          import {
+            dedupeMediaUsageRecords,
+            mediaUsageMetadataByEntryId,
+          } from "../usage-records.ts";
+
+          import { awfulCasesMediaEntries } from "./awful-cases.ts";
+          import { behanceShootingMediaEntries } from "./behance-shootings.ts";
+          import { berryMediaEntries } from "./berry.ts";
+          import { berserkTimerMediaEntries } from "./berserk-timer.ts";
+          import { esmiMediaEntries } from "./esmi.ts";
+          import { evashaMediaEntries } from "./evasha.ts";
+          import { hypressionMediaEntries } from "./hypression.ts";
+          import { igguanaMediaEntries } from "./igguana.ts";
+          import { jesteiMediaEntries } from "./jestei.ts";
+          import { movesAwfulMediaEntries } from "./moves-awful.ts";
+          import { obladaetMediaEntries } from "./obladaet.ts";
+          import { ofeliaMediaEntries } from "./ofelia.ts";
+          import { sandsMediaEntries } from "./sands.ts";
+          import { normalizeSensetiqueCaption } from "./sensetique-normalization.ts";
+          import { sensetiqueMediaEntries } from "./sensetique.ts";
+          import { normalizeStyxCaption } from "./styx-normalization.ts";
+          import { styxMediaEntries } from "./styx.ts";
+          import { unassignedMediaEntries } from "./unassigned.ts";
+
+          const rawMediaEntries = [
+            ...awfulCasesMediaEntries,
+            ...behanceShootingMediaEntries,
+            ...berryMediaEntries,
+            ...berserkTimerMediaEntries,
+            ...esmiMediaEntries,
+            ...evashaMediaEntries,
+            ...hypressionMediaEntries,
+            ...igguanaMediaEntries,
+            ...jesteiMediaEntries,
+            ...movesAwfulMediaEntries,
+            ...obladaetMediaEntries,
+            ...ofeliaMediaEntries,
+            ...sandsMediaEntries,
+            ...sensetiqueMediaEntries.map(normalizeSensetiqueCaption),
+            ...styxMediaEntries.map(normalizeStyxCaption),
+            ...unassignedMediaEntries,
+          ] as const;
+
+          export type MediaEntryId = (typeof rawMediaEntries)[number]["id"];
+
+          export type MediaEntryRecord = MediaEntryData<MediaAssetId, ProjectId> & {
+            id: MediaEntryId;
+          };
+
+          const assignableMediaEntries = rawMediaEntries as readonly MediaEntryData<
+            MediaAssetId,
+            string
+          >[];
+
+          const rawEntryById = new Map<string, MediaEntryData<MediaAssetId, string>>(
+            assignableMediaEntries.map((entry) => [entry.id, entry] as const),
+          );
+
+          for (const record of dedupeMediaUsageRecords) {
+            const entry = rawEntryById.get(record.entryId);
+            if (!entry) {
+              throw new Error(
+                `Dedupe usage metadata references unknown MediaEntry "${record.entryId}"`,
+              );
+            }
+            if (entry.assetId !== record.fromAssetId && entry.assetId !== record.toAssetId) {
+              throw new Error(
+                `Dedupe usage metadata for "${record.entryId}" expected asset "${record.fromAssetId}" or "${record.toAssetId}", got "${entry.assetId}"`,
+              );
+            }
+          }
+
+          export const mediaEntries = assignableMediaEntries.map((entry) => {
+            const usageMetadata = mediaUsageMetadataByEntryId.get(entry.id);
+            const assetId = canonicalMediaAssetId(entry.assetId) as MediaAssetId;
+
+            return usageMetadata
+              ? { ...entry, ...usageMetadata, assetId }
+              : { ...entry, assetId };
+          }) as readonly MediaEntryRecord[];
+          EOF
+      - name: Move catalog test to the public media boundary
         shell: bash
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFile, writeFile } from 'node:fs/promises';
+
+          const file = 'test/media-catalog-cms.test.mjs';
+          let text = await readFile(file, 'utf8');
+          const before = '  const { findMediaCatalogItems, mediaCatalogItems } = await import("../src/data/media/catalog.ts");\n  const { mediaAssets } = await import("../src/data/media/assets/index.ts");';
+          const after = '  const { findMediaCatalogItems, mediaCatalogItems, mediaAssets } =\n    await import("../src/data/media/index.ts");';
+          assert.equal(text.includes(before), true, 'expected raw catalog test import boundary');
+          text = text.replace(before, after);
+          assert.equal(text.includes(before), false);
+          assert.equal(text.includes(after), true);
+          await writeFile(file, text, 'utf8');
+          NODE
+      - name: Verify atomic semantic state
+        run: node --test test/media-project-assignment.test.mjs test/media-usage-records.test.mjs test/media-catalog-cms.test.mjs
+      - name: Compare semantics against frozen pre-normalization base
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 83ea6cb845528e1976b13687956bdd249ba8def8
+          git worktree add --detach /tmp/dedupe-base 83ea6cb845528e1976b13687956bdd249ba8def8
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/dedupe-base/node_modules
+          node --input-type=module <<'NODE'
+          import { pathToFileURL } from 'node:url';
+          const root = process.env.GITHUB_WORKSPACE;
+          const current = await import(pathToFileURL(`${root}/src/data/media/index.ts`).href);
+          const registered = await import(pathToFileURL(`${root}/src/data/media/assets/registered.ts`).href);
+          const usage = await import(pathToFileURL(`${root}/src/data/media/usage-records.ts`).href);
+          const base = await import(pathToFileURL('/tmp/dedupe-base/src/data/media/index.ts').href);
+
+          function row(entry, asset, assetId = entry.assetId) {
+            return {
+              id: entry.id,
+              assetId,
+              projectIds: entry.projectIds ?? [],
+              creditId: entry.creditId ?? null,
+              alt: entry.alt ?? null,
+              posterAssetId: entry.posterAssetId ?? null,
+              caption: entry.caption ?? null,
+              purpose: entry.purpose ?? null,
+              mediaType: asset?.type ?? null,
+              src: asset?.src ?? null,
+            };
+          }
+
+          const currentAssetById = new Map(
+            [...registered.registeredMediaAssets, ...current.mediaAssets].map((asset) => [asset.id, asset]),
+          );
+          const baseAssetById = new Map(base.mediaAssets.map((asset) => [asset.id, asset]));
+          const baseRows = new Map(base.mediaEntries.map((entry) => [entry.id, row(entry, baseAssetById.get(entry.assetId))]));
+          const currentRows = new Map(current.mediaEntries.map((entry) => {
+            const evidence = usage.dedupeUsageEvidenceByEntryId.get(entry.id);
+            const baselineAssetId = evidence && entry.assetId === evidence.toAssetId ? evidence.fromAssetId : entry.assetId;
+            return [entry.id, row(entry, currentAssetById.get(baselineAssetId), baselineAssetId)];
+          }));
+
+          const projectSetChanges = [];
+          const valueChanges = [];
+          const fields = ['assetId','creditId','alt','posterAssetId','caption','purpose','mediaType','src'];
+
+          for (const [id, expected] of baseRows) {
+            const actual = currentRows.get(id);
+            if (!actual) {
+              valueChanges.push({ id, field: 'entry', expected: 'present', actual: 'missing' });
+              continue;
+            }
+            const expectedSet = new Set(expected.projectIds);
+            const actualSet = new Set(actual.projectIds);
+            const missing = expected.projectIds.filter((x) => !actualSet.has(x));
+            const added = actual.projectIds.filter((x) => !expectedSet.has(x));
+            if (missing.length || added.length) {
+              projectSetChanges.push({ id, missing, added, expected: expected.projectIds, actual: actual.projectIds });
+            }
+            for (const field of fields) {
+              if (JSON.stringify(expected[field]) !== JSON.stringify(actual[field])) {
+                valueChanges.push({ id, field, expected: expected[field], actual: actual[field] });
+              }
+            }
+          }
+          for (const id of currentRows.keys()) {
+            if (!baseRows.has(id)) valueChanges.push({ id, field: 'entry', expected: 'missing', actual: 'present' });
+          }
+
+          console.log(JSON.stringify({
+            baseCount: baseRows.size,
+            currentCount: currentRows.size,
+            projectSetChangeCount: projectSetChanges.length,
+            valueChangeCount: valueChanges.length,
+            projectSetChanges,
+            valueChanges,
+          }, null, 2));
+
+          if (baseRows.size !== 889 || currentRows.size !== 889) process.exitCode = 1;
+          if (projectSetChanges.length || valueChanges.length) process.exitCode = 1;
+          NODE
+      - name: Verify deterministic generators
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/media/materialize-entry-context.mjs
+          npm run media:catalog:check
+      - name: Verify mutation boundary and restore temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 3140c01f001385e2a3e445a5622c08a5c63b1d79
+          git show 3140c01f001385e2a3e445a5622c08a5c63b1d79:.github/workflows/dedupe-execution-temp.yml > .github/workflows/dedupe-execution-temp.yml
+          node --input-type=module <<'NODE'
           import { execFileSync } from 'node:child_process';
-          import { copyFile, mkdir, stat, writeFile } from 'node:fs/promises';
-          import path from 'node:path';
 
           const raw = execFileSync('git', ['status', '--porcelain=v1', '-z'], { encoding: 'utf8' });
           const rows = raw.split('\0').filter(Boolean);
-          const changes = [];
-
+          const unexpected = [];
           for (const row of rows) {
             const status = row.slice(0, 2);
             const filePath = row.slice(3);
             if (status.includes('R') || status.includes('C')) {
-              throw new Error(`unexpected rename/copy in generated state: ${row}`);
+              unexpected.push({ status, path: filePath, reason: 'rename/copy' });
+              continue;
             }
             const allowed =
-              filePath === 'src/content/media-usages/registered.json'
-              || filePath === 'src/data/media/catalog-records.generated.ts'
-              || (filePath.startsWith('src/data/media/entries/') && filePath.endsWith('.ts') && filePath !== 'src/data/media/entries/index.ts')
+              filePath === '.github/workflows/dedupe-execution-temp.yml'
+              || filePath === 'src/content/media-usages/registered.json'
+              || filePath === 'src/data/media/entries/index.ts'
+              || filePath === 'test/media-catalog-cms.test.mjs'
+              || (filePath.startsWith('src/data/media/entries/') && filePath.endsWith('.ts'))
               || (filePath.startsWith('src/content/media-catalog/registered/') && filePath.endsWith('.json'));
-            if (!allowed) throw new Error(`unexpected generated-state path: ${filePath}`);
-
-            const deleted = status.includes('D');
-            changes.push({ status, path: filePath, deleted });
-            if (!deleted) {
-              await stat(filePath);
-              const destination = path.join('.preapply-artifact', 'files', filePath);
-              await mkdir(path.dirname(destination), { recursive: true });
-              await copyFile(filePath, destination);
-            }
+            if (!allowed) unexpected.push({ status, path: filePath, reason: 'outside boundary' });
           }
-
-          if (!changes.length) throw new Error('expected deterministic state changes, found none');
-          await mkdir('.preapply-artifact', { recursive: true });
-          await writeFile(
-            '.preapply-artifact/manifest.json',
-            `${JSON.stringify({ baseSha: process.env.GITHUB_SHA, changes }, null, 2)}\n`,
-            'utf8',
-          );
-          console.log(JSON.stringify({ changedPathCount: changes.length, changes }, null, 2));
+          console.log(JSON.stringify({ changedPathCount: rows.length, unexpected }, null, 2));
+          if (unexpected.length) process.exitCode = 1;
           NODE
-      - name: Upload deterministic state artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: media-preapply-state
-          path: .preapply-artifact
-          if-no-files-found: error
-          retention-days: 1
-          include-hidden-files: true
+      - name: Commit deterministic preapply state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --stat
+          git diff --cached --quiet && { echo 'Expected atomic preapply changes, found none'; exit 1; }
+          git commit -m 'chore(media): materialize usage-owned preapply state'
+          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-20260904
