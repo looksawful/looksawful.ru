@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Приватность и аналитика — looksawful</title>
+  <meta name="description" content="Как looksawful.ru использует Cloudflare Web Analytics и Яндекс Метрику.">
+  <link rel="canonical" href="https://www.looksawful.ru/privacy/">
+  <meta name="robots" content="index,follow">
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#000;background:#fff;line-height:1.45}
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:inherit;text-underline-offset:.18em}
+    button{font:inherit;color:inherit}
+    main{width:min(100% - 2rem,56rem);margin-inline:auto;padding-block:clamp(2rem,7vw,6rem)}
+    header{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;margin-block-end:clamp(3rem,8vw,7rem)}
+    h1{font-size:clamp(2.5rem,8vw,6.5rem);line-height:.92;letter-spacing:-.055em;margin:0 0 2rem}
+    h2{font-size:clamp(1.35rem,3vw,2rem);line-height:1.05;letter-spacing:-.035em;margin:3rem 0 .8rem}
+    p,ul{max-width:48rem;margin:.7rem 0}
+    ul{padding-inline-start:1.25rem}
+    .meta{font-size:.875rem;opacity:.62}
+    .controls{display:flex;flex-wrap:wrap;gap:.6rem;margin-block-start:1.25rem}
+    .button{min-height:44px;border:1px solid currentColor;border-radius:0;background:#fff;padding:.55rem .9rem;cursor:pointer}
+    .button:first-child{background:#000;color:#fff}
+    .status{min-height:1.45em;margin-block-start:.7rem;font-size:.875rem}
+    footer{margin-block-start:5rem;padding-block-start:1rem;border-top:1px solid #000}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a href="/">looksawful</a>
+      <a href="/">на сайт</a>
+    </header>
+
+    <h1>Приватность и аналитика</h1>
+    <p class="meta">Обновлено: 5 сентября 2026</p>
+
+    <p>На looksawful.ru используются два инструмента статистики с разными задачами: Cloudflare Web Analytics для агрегированной статистики и производительности страниц и Яндекс Метрика для поведенческой аналитики. Яндекс Метрика загружается только после явного согласия посетителя.</p>
+
+    <h2>Cloudflare Web Analytics</h2>
+    <p>Cloudflare Web Analytics используется для оценки просмотров страниц, производительности и Core Web Vitals. По документации Cloudflare этот сервис работает без cookie, собирает минимальный объём данных для статистики и не отслеживает отдельных посетителей между сайтами.</p>
+    <p><a href="https://developers.cloudflare.com/web-analytics/about/" rel="noopener noreferrer" target="_blank">Документация Cloudflare Web Analytics</a></p>
+
+    <h2>Яндекс Метрика</h2>
+    <p>Счётчик Яндекс Метрики № 112065623 включается только после выбора «Разрешить». До этого скрипт Метрики не загружается.</p>
+    <p>После согласия Метрика может обрабатывать технические сведения о посещении и устройстве, источнике перехода, просмотренных страницах и действиях на сайте. Включены стандартные функции click map, link tracking, accurate bounce и Webvisor. Обработка IP-адреса и другие параметры зависят от настроек счётчика и условий сервиса Яндекс Метрика.</p>
+    <p>Сайт отправляет в Метрику только следующие собственные цели:</p>
+    <ul>
+      <li><code>project_open</code> — переход к проекту;</li>
+      <li><code>cv_open</code> — открытие резюме;</li>
+      <li><code>contact_email</code> — переход по email-ссылке;</li>
+      <li><code>contact_phone</code> — переход по телефонной ссылке;</li>
+      <li><code>contact_telegram</code> — переход в Telegram;</li>
+      <li><code>download</code> — запуск скачивания по ссылке с атрибутом download.</li>
+    </ul>
+    <p>В параметры этих целей не передаются введённые пользователем тексты, имя, email, телефон или другие самостоятельно введённые персональные данные.</p>
+    <p><a href="https://yandex.com/support/metrica/ru/general/gdpr" rel="noopener noreferrer" target="_blank">Яндекс Метрика и GDPR</a> · <a href="https://yandex.com/legal/metrica_termsofuse/ru/" rel="noopener noreferrer" target="_blank">условия Яндекс Метрики</a></p>
+
+    <h2>Согласие</h2>
+    <p>Выбор хранится только в браузере этого устройства в localStorage под ключом <code>looksawful:analytics-consent</code>. Значение может быть <code>granted</code> или <code>denied</code>. При Global Privacy Control или Do Not Track аналитика, требующая согласия, не включается.</p>
+    <p>Выбор можно сбросить здесь. После сброса сайт снова спросит разрешение при следующем посещении страницы с аналитикой.</p>
+    <div class="controls">
+      <button class="button" type="button" data-consent-reset>Сбросить выбор</button>
+      <a class="button" href="/">Вернуться на сайт</a>
+    </div>
+    <p class="status" data-consent-status aria-live="polite"></p>
+
+    <h2>Контакт</h2>
+    <p>По вопросам, связанным с работой сайта и аналитикой: <a href="mailto:i@lookawful.ru">i@lookawful.ru</a>.</p>
+
+    <footer>
+      <a href="/">looksawful.ru</a>
+    </footer>
+  </main>
+  <script>
+    (() => {
+      const key = "looksawful:analytics-consent";
+      const reset = document.querySelector("[data-consent-reset]");
+      const status = document.querySelector("[data-consent-status]");
+      if (!(reset instanceof HTMLButtonElement) || !(status instanceof HTMLElement)) return;
+      const render = () => {
+        try {
+          const value = localStorage.getItem(key);
+          status.textContent = value === "granted" ? "Сейчас: аналитика разрешена." : value === "denied" ? "Сейчас: Яндекс Метрика запрещена." : "Сейчас выбор не сохранён.";
+        } catch {
+          status.textContent = "Браузер не даёт доступ к локальному хранилищу.";
+        }
+      };
+      reset.addEventListener("click", () => {
+        try {
+          localStorage.removeItem(key);
+          render();
+        } catch {
+          status.textContent = "Не удалось изменить настройку в этом браузере.";
+        }
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>
