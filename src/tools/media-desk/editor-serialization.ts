@@ -1,5 +1,9 @@
 import type { MediaCatalogItem } from "../../data/media/catalog.ts";
-import type { MediaEditorialPatch } from "./editor-model.ts";
+import type {
+  MediaEditorialPatch,
+  MediaEditorialWritePatch,
+  RegisteredMediaEditorialPatch,
+} from "./editor-model.ts";
 
 export interface MediaEditorValues {
   title: string;
@@ -20,7 +24,7 @@ function cleanStrings(values: readonly string[]): string[] {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
 
-export function buildMediaEditorialPatch(values: MediaEditorValues): MediaEditorialPatch {
+function fullMediaEditorialPatch(values: MediaEditorValues): MediaEditorialPatch {
   return {
     title: values.title.trim(),
     alt: values.alt.trim(),
@@ -37,9 +41,26 @@ export function buildMediaEditorialPatch(values: MediaEditorValues): MediaEditor
   };
 }
 
+export function mediaEditorialWritePatchForOrigin(
+  patch: MediaEditorialPatch,
+  origin: MediaCatalogItem["origin"],
+): MediaEditorialWritePatch {
+  if (origin !== "registered") return patch;
+  const { projectIds: _projectIds, ...registered } = patch;
+  return registered as RegisteredMediaEditorialPatch;
+}
+
+export function buildMediaEditorialPatch(
+  values: MediaEditorValues,
+  origin?: MediaCatalogItem["origin"],
+): MediaEditorialWritePatch {
+  const patch = fullMediaEditorialPatch(values);
+  return origin ? mediaEditorialWritePatchForOrigin(patch, origin) : patch;
+}
+
 export function applyMediaEditorialPatchToItem(
   item: MediaCatalogItem,
-  patch: MediaEditorialPatch,
+  patch: Partial<MediaEditorialPatch>,
 ): MediaCatalogItem {
   return { ...item, ...patch };
 }
