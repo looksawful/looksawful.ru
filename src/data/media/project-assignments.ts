@@ -7,14 +7,16 @@ const projectIdsByAssetId = new Map<string, readonly ProjectId[]>(
 );
 
 /**
- * Resolves the canonical media→Project relation from catalog metadata.
- * Entry-level projectIds are accepted only for explicit transient/tool fixtures;
- * production MediaEntry records are normalized from MediaCatalogMetadata.
+ * Resolves project membership for one media usage.
+ *
+ * Explicit entry-level values are authoritative, including an explicit empty
+ * array. Catalog metadata remains only as a compatibility default for legacy
+ * entries that do not yet carry their own project relation.
  */
 export function resolveAssignedProjectIds(
   entry: Pick<MediaEntryData<string, string>, "assetId" | "projectIds">,
 ): readonly ProjectId[] | undefined {
-  if (entry.projectIds?.length) {
+  if (entry.projectIds !== undefined) {
     return entry.projectIds as readonly ProjectId[];
   }
 
