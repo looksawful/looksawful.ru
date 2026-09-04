@@ -1006,31 +1006,6 @@
       ]
     },
     {
-      "id": "behance-hypression-004",
-      "src": "/media/projects/shootings/behance/hypression/source/004.webp",
-      "sourceWidth": 923,
-      "sourceHeight": 1334,
-      "sourceBytes": 289854,
-      "sourceHash": "562f8f3355f32aeb8120046ea3d3aba69fab8fd8dc27cbe8f740547a3146654b",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/004@480.webp",
-          "width": 480,
-          "height": 694,
-          "bytes": 47286,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/004@768.webp",
-          "width": 768,
-          "height": 1110,
-          "bytes": 111332,
-          "format": "webp"
-        }
-      ]
-    },
-    {
       "id": "behance-hypression-005",
       "src": "/media/projects/shootings/behance/hypression/source/005.webp",
       "sourceWidth": 898,
@@ -1076,31 +1051,6 @@
           "width": 768,
           "height": 959,
           "bytes": 84278,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "behance-hypression-007",
-      "src": "/media/projects/shootings/behance/hypression/source/007.webp",
-      "sourceWidth": 1200,
-      "sourceHeight": 960,
-      "sourceBytes": 173514,
-      "sourceHash": "7583a1788b5bb557d392c94ad9e87039f37fe91a8554230cbb5a5ded22ec65b3",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/007@480.webp",
-          "width": 480,
-          "height": 384,
-          "bytes": 16332,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/007@768.webp",
-          "width": 768,
-          "height": 614,
-          "bytes": 37372,
           "format": "webp"
         }
       ]
@@ -3052,31 +3002,6 @@
       ]
     },
     {
-      "id": "evasha-08-source-02-4x5",
-      "src": "/media/projects/shootings/08/source/02-4x5.webp",
-      "sourceWidth": 1120,
-      "sourceHeight": 1400,
-      "sourceBytes": 225128,
-      "sourceHash": "6eccb31bf236ab173459f5b11cb55d9e14e27026881cdedb6c10e7c01054de88",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/08/source/02-4x5@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 36298,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/08/source/02-4x5@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 82918,
-          "format": "webp"
-        }
-      ]
-    },
-    {
       "id": "evasha-09-source-01-4x5",
       "src": "/media/projects/shootings/09/source/01-4x5.webp",
       "sourceWidth": 956,
@@ -3247,24 +3172,6 @@
           "width": 768,
           "height": 543,
           "bytes": 33078,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "hypression-16-source-02-2x3",
-      "src": "/media/projects/shootings/16/source/02-2x3.webp",
-      "sourceWidth": 853,
-      "sourceHeight": 1280,
-      "sourceBytes": 166140,
-      "sourceHash": "6f0f5dd649fb6d455cadb710aa9066c0a5493ee03da6ca72ab65b2d2cdfb7bd6",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/16/source/02-2x3@480.webp",
-          "width": 480,
-          "height": 720,
-          "bytes": 41170,
           "format": "webp"
         }
       ]
@@ -7498,31 +7405,6 @@
       ]
     },
     {
-      "id": "obladaet-02-source-04-4x5",
-      "src": "/media/projects/shootings/02/source/04-4x5.webp",
-      "sourceWidth": 1120,
-      "sourceHeight": 1400,
-      "sourceBytes": 92392,
-      "sourceHash": "d9531794b3c7fbbc8519585bead9b7d8c9a3b8a150f9206e5544ad4459718f24",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/02/source/04-4x5@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 26228,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/02/source/04-4x5@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 50956,
-          "format": "webp"
-        }
-      ]
-    },
-    {
       "id": "obladaet-03-source-01-4x5",
       "src": "/media/projects/shootings/03/source/01-4x5.webp",
       "sourceWidth": 1120,
@@ -7593,56 +7475,6 @@
           "width": 768,
           "height": 871,
           "bytes": 34108,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "obladaet-04-source-01-4x5",
-      "src": "/media/projects/shootings/04/source/01-4x5.webp",
-      "sourceWidth": 1120,
-      "sourceHeight": 1400,
-      "sourceBytes": 151850,
-      "sourceHash": "fe904e9ba97699230ccf482be05526ed78186a216123e54101731ab2d350ae0b",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/04/source/01-4x5@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 45226,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/04/source/01-4x5@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 82138,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "obladaet-04-source-02-4x5",
-      "src": "/media/projects/shootings/04/source/02-4x5.webp",
-      "sourceWidth": 1120,
-      "sourceHeight": 1400,
-      "sourceBytes": 166706,
-      "sourceHash": "091c04003d89a3b936b8aa1219ec7b34573586be5fa419db4325825d7eff8827",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/04/source/02-4x5@480.webp",
-          "width": 480,
-          "height": 600,
-          "bytes": 44180,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/04/source/02-4x5@768.webp",
-          "width": 768,
-          "height": 960,
-          "bytes": 83812,
           "format": "webp"
         }
       ]
@@ -8207,31 +8039,6 @@
           "width": 480,
           "height": 853,
           "bytes": 22910,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "sands-04-source-05-2x3",
-      "src": "/media/projects/sands/04/source/05-2x3.webp",
-      "sourceWidth": 933,
-      "sourceHeight": 1400,
-      "sourceBytes": 96630,
-      "sourceHash": "1f5a044a8fc6eaddf7c9fd8c35500c4b8326e8255948fcff224c7a1891bbaf72",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/sands/04/source/05-2x3@480.webp",
-          "width": 480,
-          "height": 720,
-          "bytes": 32684,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/sands/04/source/05-2x3@768.webp",
-          "width": 768,
-          "height": 1152,
-          "bytes": 62398,
           "format": "webp"
         }
       ]
@@ -11208,31 +11015,6 @@
       ]
     },
     {
-      "id": "sensetique-12-source-11-427x640",
-      "src": "/media/projects/sensetique/12/source/11-427x640.webp",
-      "sourceWidth": 854,
-      "sourceHeight": 1280,
-      "sourceBytes": 263910,
-      "sourceHash": "948c23de84caec4cec1d7b11faf56bf4b88e19d3e1e1e5e0ba7cf390bab60dde",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/sensetique/12/source/11-427x640@480.webp",
-          "width": 480,
-          "height": 719,
-          "bytes": 62254,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/sensetique/12/source/11-427x640@768.webp",
-          "width": 768,
-          "height": 1151,
-          "bytes": 132054,
-          "format": "webp"
-        }
-      ]
-    },
-    {
       "id": "sensetique-12-source-12-427x640",
       "src": "/media/projects/sensetique/12/source/12-427x640.webp",
       "sourceWidth": 854,
@@ -12653,56 +12435,6 @@
       ]
     },
     {
-      "id": "styx-05-source-12-4x5",
-      "src": "/media/projects/styx/05/source/12-4x5.webp",
-      "sourceWidth": 1119,
-      "sourceHeight": 1400,
-      "sourceBytes": 60250,
-      "sourceHash": "7326c5c7bed570c4fea8541c5b76c03c6e303a6707bdb7ad3ae677ed2c26b45b",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/styx/05/source/12-4x5@480.webp",
-          "width": 480,
-          "height": 601,
-          "bytes": 14928,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/styx/05/source/12-4x5@768.webp",
-          "width": 768,
-          "height": 961,
-          "bytes": 29962,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "styx-05-source-17-4x5",
-      "src": "/media/projects/styx/05/source/17-4x5.webp",
-      "sourceWidth": 959,
-      "sourceHeight": 1200,
-      "sourceBytes": 85156,
-      "sourceHash": "889df54c30f4dcbfc8079bfaa7648801e1d4f4c05a743bbdf5e02cc73e262d69",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/styx/05/source/17-4x5@480.webp",
-          "width": 480,
-          "height": 601,
-          "bytes": 25428,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/styx/05/source/17-4x5@768.webp",
-          "width": 768,
-          "height": 961,
-          "bytes": 48314,
-          "format": "webp"
-        }
-      ]
-    },
-    {
       "id": "styx-05-source-20-9x16",
       "src": "/media/projects/styx/05/source/20-9x16.webp",
       "sourceWidth": 788,
@@ -13273,106 +13005,6 @@
           "width": 768,
           "height": 960,
           "bytes": 164302,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "portfolio-portfolio-extra-06-2x3",
-      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-06-2x3.webp",
-      "sourceWidth": 930,
-      "sourceHeight": 1400,
-      "sourceBytes": 166576,
-      "sourceHash": "66e4e725a43edfde00a1e8690a25a15defcb2fbae5a886dcf3af676a420bfb8b",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-06-2x3@480.webp",
-          "width": 480,
-          "height": 723,
-          "bytes": 55498,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-06-2x3@768.webp",
-          "width": 768,
-          "height": 1156,
-          "bytes": 104880,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "portfolio-portfolio-extra-07-1216x1400",
-      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-07-1216x1400.webp",
-      "sourceWidth": 1216,
-      "sourceHeight": 1400,
-      "sourceBytes": 301792,
-      "sourceHash": "cbf6ed75fb35374791c50632f6178f9eec01c8bf2957da8463a7b738fd49747c",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-07-1216x1400@480.webp",
-          "width": 480,
-          "height": 553,
-          "bytes": 33668,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-07-1216x1400@768.webp",
-          "width": 768,
-          "height": 884,
-          "bytes": 94710,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "portfolio-portfolio-extra-08-1x1",
-      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-08-1x1.webp",
-      "sourceWidth": 1400,
-      "sourceHeight": 1400,
-      "sourceBytes": 328260,
-      "sourceHash": "ea1ad5bc271ba3a58958b35ee64cf8f4a3e34e7bc61998320eea6936040c5d48",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-08-1x1@480.webp",
-          "width": 480,
-          "height": 480,
-          "bytes": 32194,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-08-1x1@768.webp",
-          "width": 768,
-          "height": 768,
-          "bytes": 78752,
-          "format": "webp"
-        }
-      ]
-    },
-    {
-      "id": "portfolio-portfolio-extra-09-2x3",
-      "src": "/media/projects/shootings/portfolio/source/portfolio-extra-09-2x3.webp",
-      "sourceWidth": 929,
-      "sourceHeight": 1400,
-      "sourceBytes": 172994,
-      "sourceHash": "ff69089914d46a10b67a1de70c25be9fb4ccfaaa18434269cdd24449de3040ba",
-      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
-      "variants": [
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-09-2x3@480.webp",
-          "width": 480,
-          "height": 723,
-          "bytes": 51910,
-          "format": "webp"
-        },
-        {
-          "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-09-2x3@768.webp",
-          "width": 768,
-          "height": 1157,
-          "bytes": 103592,
           "format": "webp"
         }
       ]
