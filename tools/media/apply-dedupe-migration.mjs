@@ -251,14 +251,10 @@ export function findCandidateReferences(workspace, component, deletedTextPaths =
   return refs;
 }
 
-function metadataBlockers(component, catalogById, usageByEntryId) {
+export function metadataBlockers(component, catalogById, usageByEntryId, entryById) {
   const blockers = [];
   const canonical = catalogById.get(component.canonicalAssetId);
   if (!canonical) return [`missing canonical catalog item ${component.canonicalAssetId}`];
-
-  const usageRecords = component.entryIds
-    .map((entryId) => usageByEntryId.get(entryId))
-    .filter(Boolean);
 
   for (const removeId of component.removeAssetIds) {
     const old = catalogById.get(removeId);
@@ -269,11 +265,20 @@ function metadataBlockers(component, catalogById, usageByEntryId) {
 
     for (const key of CONTEXT_KEYS) {
       if (stableEqual(old[key], canonical[key])) continue;
-      const preserved = usageRecords.some(
-        (record) => Object.prototype.hasOwnProperty.call(record, key)
-          && stableEqual(record[key], old[key]),
-      );
-      if (!preserved) blockers.push(`${removeId}.${key} differs without usage carrier`);
+
+      for (const entryId of component.entryIds) {
+        const usage = usageByEntryId.get(entryId);
+        const entry = entryById.get(entryId);
+        const source = usage && Object.prototype.hasOwnProperty.call(usage, key)
+          ? usage
+          : entry && Object.prototype.hasOwnProperty.call(entry, key)
+            ? entry
+            : null;
+
+        if (!source || !stableEqual(source[key], old[key])) {
+          blockers.push(`${removeId}.${key} differs without usage carrier on ${entryId}`);
+        }
+      }
     }
 
     for (const key of LIBRARY_ONLY_KEYS) {
@@ -392,7 +397,7 @@ async function buildPlan() {
       }
     }
 
-    blockers.push(...metadataBlockers(component, catalogById, usageByEntryId));
+    blockers.push(...metadataBlockers(component, catalogById, usageByEntryId, entryById));
     blockers.push(...noMergeBlockers(component, assetByPhysicalPath));
 
     const references = findCandidateReferences(workspace, component, plannedCatalogDeletes);
