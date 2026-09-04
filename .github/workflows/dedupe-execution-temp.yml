@@ -1,4 +1,4 @@
-name: Media Dedupe Final Preapply Gate TEMP
+name: Restore Physical-Only Preapply Sources TEMP
 
 on:
   push:
@@ -6,14 +6,13 @@ on:
       - agent/media-normalization-dedupe-wave1-preapply-20260904
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  preapply:
+  restore:
+    if: "${{ github.event.head_commit.message != 'fix(media): restore physical-only sources before guarded apply' }}"
     runs-on: ubuntu-latest
-    timeout-minutes: 120
-    env:
-      E2E_AFFECTED_SUITES: media
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
@@ -21,46 +20,83 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
-      - name: Install media tooling
+      - name: Fetch provenance commits
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-      - name: Prove deterministic generated state
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin 4b941f5569b9f200ebf61a5e53962a6eeaae64b0
+          git fetch --no-tags --depth=1 origin 753045b9c80a2404df5793fd4afb4feaffc738b8
+      - name: Prove premature deletion commit exactly matches reviewed physical targets
+        shell: bash
         run: |
-          npm run media:sync
-          node tools/media-dev-state.mjs --cache-verify
-          git diff --exit-code
-      - name: Guarded dedupe dry-runs
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { execFileSync } from 'node:child_process';
+          import physical from './tools/media-migration/manifests/2026-09-03-media-dedupe/physical-only.json' with { type: 'json' };
+
+          const expected = new Set([
+            ...physical.removePhysicalPaths,
+            ...(physical.deferredRuntimeRewrites ?? []).map((item) => item.path),
+            ...(physical.deferredQualityPromotions ?? []).map((item) => item.bestSourcePath),
+          ]);
+          const deleted = new Set(execFileSync('git', [
+            'diff', '--name-only', '--diff-filter=D',
+            '4b941f5569b9f200ebf61a5e53962a6eeaae64b0',
+            '753045b9c80a2404df5793fd4afb4feaffc738b8',
+          ], { encoding: 'utf8' }).trim().split('\n').filter(Boolean));
+          const missing = [...expected].filter((path) => !deleted.has(path));
+          const extra = [...deleted].filter((path) => !expected.has(path));
+          console.log(JSON.stringify({ expected: expected.size, deleted: deleted.size, missing, extra }, null, 2));
+          if (expected.size !== 66 || deleted.size !== 66 || missing.length || extra.length) process.exit(1);
+          NODE
+      - name: Prove current state has only deferred sources restored
+        shell: bash
         run: |
-          node tools/media/apply-dedupe-migration.mjs
-          node tools/media/apply-deferred-physical-dedupe.mjs
-          node tools/media/apply-physical-only-dedupe.mjs
-      - name: Semantic and physical contracts
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { access } from 'node:fs/promises';
+          import physical from './tools/media-migration/manifests/2026-09-03-media-dedupe/physical-only.json' with { type: 'json' };
+          const exists = async (p) => access(p).then(() => true, () => false);
+          const physicalPresent = [];
+          for (const p of physical.removePhysicalPaths) if (await exists(p)) physicalPresent.push(p);
+          const deferred = [
+            ...(physical.deferredRuntimeRewrites ?? []).map((item) => item.path),
+            ...(physical.deferredQualityPromotions ?? []).map((item) => item.bestSourcePath),
+          ];
+          const deferredMissing = [];
+          for (const p of deferred) if (!(await exists(p))) deferredMissing.push(p);
+          console.log(JSON.stringify({ physicalPresent, deferredMissing }, null, 2));
+          if (physicalPresent.length || deferredMissing.length) process.exit(1);
+          NODE
+      - name: Restore exactly the 63 physical-only sources from their pre-deletion tree
+        shell: bash
         run: |
-          node tools/media/export-semantic-baseline.mjs --migration --check
-          node --test test/media-semantic-baseline.test.mjs test/media-physical-only-dedupe.test.mjs
-      - name: Type and media verification
+          set -euo pipefail
+          node --input-type=module <<'NODE' > /tmp/physical-paths0
+          import physical from './tools/media-migration/manifests/2026-09-03-media-dedupe/physical-only.json' with { type: 'json' };
+          process.stdout.write(physical.removePhysicalPaths.join('\0') + '\0');
+          NODE
+          xargs -0 git checkout 4b941f5569b9f200ebf61a5e53962a6eeaae64b0 -- < /tmp/physical-paths0
+      - name: Verify exact restored count and byte total
+        shell: bash
         run: |
-          npm run typecheck
-          npm run test:media:contract
-          npm run test:media:checks
-          npm run build:site
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Affected media browser regression
-        run: npm run test:e2e:affected
-      - name: Smoke browser regression
-        run: npm run test:e2e:smoke
-      - name: Repository verify
-        run: npm run verify
-      - name: Repository full verify
-        run: npm run verify:full
-      - name: Final preapply invariants
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { stat } from 'node:fs/promises';
+          import physical from './tools/media-migration/manifests/2026-09-03-media-dedupe/physical-only.json' with { type: 'json' };
+          let bytes = 0;
+          for (const p of physical.removePhysicalPaths) bytes += (await stat(p)).size;
+          console.log(JSON.stringify({ count: physical.removePhysicalPaths.length, bytes }, null, 2));
+          if (physical.removePhysicalPaths.length !== 63 || bytes !== 6127743) process.exit(1);
+          NODE
+          test "$(git status --porcelain | wc -l)" -eq 63
+      - name: Commit restored preapply source state
+        shell: bash
         run: |
-          git diff --exit-code
-          node tools/media/export-semantic-baseline.mjs --migration --check
-          node tools/media/apply-dedupe-migration.mjs
-          node tools/media/apply-deferred-physical-dedupe.mjs
-          node tools/media/apply-physical-only-dedupe.mjs
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- public/media
+          test "$(git diff --cached --name-only | wc -l)" -eq 63
+          git commit -m 'fix(media): restore physical-only sources before guarded apply'
+          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-20260904
