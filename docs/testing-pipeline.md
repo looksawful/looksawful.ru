@@ -1,136 +1,62 @@
 # Testing and verification pipeline
 
-Этот документ описывает фактическое распределение проверок. Нормативные правила жизненного цикла находятся в [`docs/testing-policy.md`](./testing-policy.md). Если документы расходятся, `testing-policy.md` имеет приоритет.
+Нормативные правила находятся в [`docs/testing-policy.md`](./testing-policy.md).
 
-## Результат аудита 2026-09-02
+## Обычный engineering push / PR
 
-До изменения селектора в `test/` находилось 102 Node test-файла.
+`.github/workflows/ci-fast.yml` выполняет только:
 
-Старый `test:fast` выбирал 94 файла автоматически: практически любой новый `*.test.mjs` становился частью Fast CI. Среди них находились:
+1. `npm ci`;
+2. вычисление canonical media fingerprint;
+3. восстановление exact generated-media cache;
+4. fail-fast при отсутствии exact cache;
+5. `node tools/media-dev-state.mjs --cache-verify`;
+6. `npm run typecheck`;
+7. `npm run build`.
 
-- 10 файлов с `migration` в имени;
-- компонентные CV/CMS тесты, несмотря на отдельный `test:cv`;
-- navigation, motion, lightbox, page-flip и другие специализированные component checks;
-- media/CI checks, часть которых уже имеет отдельные media/quality контуры;
-- временный mobile VisualViewport RED → GREEN regression test.
+Глобального Node test-suite на каждый push/PR нет.
 
-Nightly Quality при этом уже выполняет `test:core`, а `test:core` запускает полный `node --test` после подготовки media. Поэтому широкий Node-набор не исчезает: он просто перестаёт дублироваться на каждом обычном push.
+## Media changes
 
-## Текущие уровни
+`.github/workflows/cms-media.yml` обслуживает только media mutation:
 
-### `npm run test:fast`
+- классифицирует image/video/metadata changes;
+- использует exact previous generated-media cache;
+- синхронизирует catalog metadata;
+- строит только нужные derivatives либо выполняет explicit full rebuild;
+- запускает `npm run media:check`;
+- проверяет final generated-media cache;
+- сохраняет exact final cache;
+- может коммитить только разрешённый deterministic generated metadata обратно в `dev`.
 
-Обычный push/PR/production safety tier.
+`npm run media:check` включает текущие responsive/video delivery contracts, data integrity, catalog stability и permanent media integrity checker.
 
-Fast является opt-in allowlist в `tools/ci/run-tests.mjs`. Новый тест не попадает сюда автоматически.
+## Production
 
-Текущий Fast содержит только дешёвые долгоживущие contracts:
+`.github/workflows/pages.yml` выполняет:
 
-- `test/change-scope.test.mjs`
-- `test/ci-minimal-pipeline.test.mjs`
-- `test/cms-publication-scope.test.mjs`
-- `test/cms-publication-topology.test.mjs`
-- `test/cms-publication-workflow.test.mjs`
-- `test/cms-runtime-editability.test.mjs`
-- `test/domain-catalog-identity.test.mjs`
-- `test/domain-taxonomy-references.test.mjs`
-- `test/editorial-content-boundary.test.mjs`
-- `test/editorial-copy-optional.test.mjs`
-- `test/media-ci-cache.test.mjs`
-- `test/media-routing.test.mjs`
-- `test/pages-cms-yaml-syntax.test.mjs`
-- `test/production-media-cache.test.mjs`
-- `test/shared-validation-primitives.test.mjs`
-- `test/site-build-inputs.test.mjs`
-- `test/site-pages.test.mjs`
-- `test/test-groups.test.mjs`
-
-Итого: 18 test-файлов вместо прежних 94.
-
-### `npm run test:unit`
-
-Широкий дешёвый Node-набор для локальной/manual проверки. Он включает обычные `*.test.mjs`, но не physical media-tool fixtures и не derivative contracts.
-
-Это место для полезных component/runtime tests, которые не оправдывают стоимость каждого push.
-
-### `npm run test:ci`
-
-Фокусированный набор контрактов CI/CMS publication/cache/E2E tooling. Используется при работе над pipeline, а не как обязательный шаг любой UI-задачи.
-
-### `npm run test:cv`
-
-Фокусированный CV-набор. Не нужен для несвязанных с CV изменений.
-
-### `npm run test:media:contract` / `npm run test:media:checks`
-
-Media-specific integrity. Запускается media workflow или специальной media-проверкой; ordinary unrelated push не должен повторять физические media checks.
-
-### `npm run test:core`
-
-Широкий полный Node-контур плюс data integrity. Используется в тяжёлом/full verification. Nightly Quality выполняет его после deterministic media preparation.
-
-### E2E
-
-- `test:e2e:affected` — специализированные browser suites по реально затронутой области;
-- `test:e2e:production` — компактный production smoke;
-- `test:e2e:full` — полный browser regression для nightly/manual/широких архитектурных изменений.
-
-## Fast CI
-
-`.github/workflows/ci-fast.yml` выполняет:
-
-1. exact shallow checkout;
+1. checkout exact `prod` SHA;
 2. `npm ci`;
-3. canonical media fingerprint и exact cache verification/recovery при реальном miss;
-4. typecheck;
-5. `test:fast`;
-6. `build:site`.
+3. exact generated-media cache restore + verify;
+4. `npm run typecheck`;
+5. `npm run build`;
+6. production CV preparation;
+7. компактный `npm run test:e2e:production`;
+8. CV artifact verification;
+9. GitHub Pages upload/deploy;
+10. post-deploy проверку exact SHA, `/`, `/cv/` и опубликованных CSS/JS assets.
 
-Push в `dev` не запускает Fast CI для заведомо non-runtime путей:
+Production deployment не регенерирует media и не чинит cache miss. Подготовка media должна происходить раньше через `CMS media`.
 
-- `docs/**`;
-- `AGENTS.md`;
-- `.agents/**`;
-- `archive/**`;
-- разрешённых copy-only CMS JSON;
-- путей, принадлежащих отдельному media workflow.
+## Локальные тесты
 
-PR по-прежнему получает Fast CI как integration gate независимо от того, что отдельный text-only push мог быть тихим.
+Оставшиеся `*.test.mjs` не образуют автоматический глобальный suite. Их запускают напрямую, когда задача действительно касается соответствующей подсистемы.
 
-## Quality
+Migration-specific и CI-implementation tests после завершения соответствующей работы удаляются.
 
-`.github/workflows/quality.yml` остаётся местом для широких и тяжёлых проверок:
+Два media derivative contract используются непосредственно командой `npm run media:check`:
 
-- production health — каждые 6 часов;
-- full Node + full E2E — nightly;
-- dependency audit — по расписанию/manual;
-- Lighthouse — по расписанию/manual;
-- external links — по расписанию/manual.
+- `test/responsive-manifest-contract.test.mjs`;
+- `test/video-delivery-contract.test.mjs`.
 
-Именно здесь допустима цена полного regression набора.
-
-## Что было изменено при введении политики
-
-- Fast изменён с auto-discovery на explicit allowlist.
-- `unit` сохранён широким, чтобы полезные component tests не были потеряны.
-- Temporary mobile VisualViewport regression test удалён после подтверждённого production hotfix.
-- Очевидные migration tests исключены из Fast автоматически, но не удалены без разбора: часть из них всё ещё защищает runtime/typed composition contracts и остаётся в broad/full tier.
-- В нескольких historical component tests удалены literal assertions на пользовательский copy.
-- Из remaining-media migration test удалён чисто исторический check на уже завершённый temporary bridge.
-- Documentation/archive/agent-skill pushes исключены из Fast CI.
-
-## Правило для будущей работы
-
-Не добавлять файл в Fast только потому, что он существует или когда-то поймал баг.
-
-Для нового теста сначала решить его lifecycle согласно `docs/testing-policy.md`:
-
-`TEMPORARY → DELETE`
-
-или
-
-`CONTRACT → explicit Fast allowlist`
-
-или
-
-`AFFECTED/FULL → специализированный/manual/scheduled контур`.
+Production browser smoke запускается через `npm run test:e2e:production`.
