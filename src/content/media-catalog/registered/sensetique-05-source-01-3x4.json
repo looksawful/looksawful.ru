@@ -1,20 +1,9 @@
 {
   "id": "sensetique-05-source-01-3x4",
-  "mediaType": "image",
-  "src": "/media/projects/sensetique/05/source/01-3x4.webp",
-  "sourceSrc": "",
-  "width": 954,
-  "height": 1280,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Эдиториал Sensetique — Даниил Коротеченков",
   "alt": "Эдиториал-фотосъемка Sensetique.",
   "description": "",
   "date": "",
-  "projectIds": [
-    "sensetique-editorial-daniil-korotechenkov"
-  ],
   "workAreaIds": [
     "photography",
     "production"

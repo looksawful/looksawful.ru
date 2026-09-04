@@ -1,20 +1,9 @@
 {
   "id": "styx-05-source-16-4x5",
-  "mediaType": "image",
-  "src": "/media/projects/styx/05/source/16-4x5.webp",
-  "sourceSrc": "",
-  "width": 344,
-  "height": 429,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Фотография из лукбука",
   "alt": "",
   "description": "",
   "date": "2024",
-  "projectIds": [
-    "styx-lookbook-2024"
-  ],
   "workAreaIds": [
     "photography"
   ],

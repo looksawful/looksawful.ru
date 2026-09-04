@@ -1,20 +1,9 @@
 {
   "id": "sensetique-04-source-08-2x3",
-  "mediaType": "image",
-  "src": "/media/projects/sensetique/04/source/08-2x3.webp",
-  "sourceSrc": "",
-  "width": 852,
-  "height": 1280,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Фотографии и визуалы проекта Sensetique.",
   "alt": "Эдиториал фотосъемка Sensetique, стилист Мария Жукова, фотограф АНдрей Рапуто.",
   "description": "",
   "date": "",
-  "projectIds": [
-    "sensetique-editorial-andrey-raputo-01"
-  ],
   "workAreaIds": [
     "photography",
     "production"

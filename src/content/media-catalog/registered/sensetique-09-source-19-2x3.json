@@ -1,20 +1,9 @@
 {
   "id": "sensetique-09-source-19-2x3",
-  "mediaType": "image",
-  "src": "/media/projects/sensetique/09/source/19-2x3.webp",
-  "sourceSrc": "",
-  "width": 800,
-  "height": 1200,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Фотографии и визуалы проекта Sensetique.",
   "alt": "Эдиториал Sensetique",
   "description": "",
   "date": "",
-  "projectIds": [
-    "sensetique-editorial-katya-knyazeva"
-  ],
   "workAreaIds": [
     "photography",
     "production"

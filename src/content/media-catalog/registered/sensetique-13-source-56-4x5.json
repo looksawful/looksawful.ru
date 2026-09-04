@@ -1,20 +1,9 @@
 {
   "id": "sensetique-13-source-56-4x5",
-  "mediaType": "image",
-  "src": "/media/projects/sensetique/13/source/56-4x5.webp",
-  "sourceSrc": "",
-  "width": 960,
-  "height": 1200,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Фотографии и визуалы проекта Sensetique.",
   "alt": "Эдиториал Sensetique",
   "description": "",
   "date": "",
-  "projectIds": [
-    "sensetique-editorial-tatiana-nikishina"
-  ],
   "workAreaIds": [
     "photography",
     "production"

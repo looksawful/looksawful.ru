@@ -1,21 +1,9 @@
 {
   "id": "jestei-08-source-11-637x419",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/08/source/11-637x419.webp",
-  "sourceSrc": "",
-  "width": 637,
-  "height": 419,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Выбор тональности с помощью колеса Камелота.",
   "alt": "",
   "description": "Перестроили выбор тональности на основе кварто-квинтового круга: минорные тональности расположили во внутреннем кольце, мажорные — во внешнем. Оставили два режима: систему Камелота для диджеев и классическую буквенную нотацию для музыкантов.",
   "date": "",
-  "projectIds": [
-    "jestei-brand-system",
-    "jestei-track-filter"
-  ],
   "workAreaIds": [
     "graphic-design",
     "identity",

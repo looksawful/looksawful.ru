@@ -1,20 +1,9 @@
 {
   "id": "jestei-13-source-07-16x9",
-  "mediaType": "video",
-  "src": "/media/projects/jestei/13/source/07-16x9.mp4",
-  "sourceSrc": "",
-  "width": 1280,
-  "height": 720,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Фильтр треков Jestei Pool",
   "alt": "",
   "description": "",
   "date": "",
-  "projectIds": [
-    "jestei-track-filter"
-  ],
   "workAreaIds": [
     "graphic-design",
     "motion",

@@ -1,20 +1,9 @@
 {
   "id": "jestei-03-source-03-16x9",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/03/source/03-16x9.webp",
-  "sourceSrc": "",
-  "width": 2248,
-  "height": 1258,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Промовиджет апгрейда тарифа.",
   "alt": "",
   "description": "Создали виджеты с предложением перейти на следующий тариф и встроили апгрейд подписки прямо в интерфейс.",
   "date": "",
-  "projectIds": [
-    "jestei-subscription"
-  ],
   "workAreaIds": [
     "graphic-design",
     "product-design",

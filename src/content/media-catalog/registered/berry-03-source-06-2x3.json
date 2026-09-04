@@ -1,21 +1,9 @@
 {
   "id": "berry-03-source-06-2x3",
-  "mediaType": "image",
-  "src": "/media/projects/berry/03/source/06-2x3.webp",
-  "sourceSrc": "",
-  "width": 933,
-  "height": 1400,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Эдиториал съёмка с моделью агентства",
   "alt": "Эдиториал с моделью Berry Agency",
   "description": "",
   "date": "2020",
-  "projectIds": [
-    "shootings-berry-editorial",
-    "berry-social-content-2020"
-  ],
   "workAreaIds": [
     "photography",
     "graphic-design"

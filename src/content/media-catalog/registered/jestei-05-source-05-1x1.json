@@ -1,20 +1,9 @@
 {
   "id": "jestei-05-source-05-1x1",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/05/source/05-1x1.webp",
-  "sourceSrc": "",
-  "width": 1877,
-  "height": 1877,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Обложка регулярно обновляемого кураторского плейлиста Russian Transition с треками без мата.",
   "alt": "",
   "description": "Диджеи редко проводят профессиональные съёмки. Поэтому мы использовали нейросети, геометрические паттерны и простые приёмы обработки. Так мы могли регулярно выпускать яркие обложки без отдельной фотосъёмки.",
   "date": "",
-  "projectIds": [
-    "jestei-playlist-system"
-  ],
   "workAreaIds": [
     "photography",
     "graphic-design",

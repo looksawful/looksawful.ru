@@ -1,20 +1,9 @@
 {
   "id": "jestei-redpolitika-preview",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/redpolitika/preview-copy.webp",
-  "sourceSrc": "",
-  "width": 1323,
-  "height": 827,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Редполитика Jestei Pool.",
   "alt": "Первый экран редполитики Jestei Pool",
   "description": "",
   "date": "",
-  "projectIds": [
-    "jestei-editorial-policy"
-  ],
   "workAreaIds": [
     "graphic-design",
     "editorial-design",

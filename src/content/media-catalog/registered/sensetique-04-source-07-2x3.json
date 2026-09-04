@@ -1,20 +1,9 @@
 {
   "id": "sensetique-04-source-07-2x3",
-  "mediaType": "image",
-  "src": "/media/projects/sensetique/04/source/07-2x3.webp",
-  "sourceSrc": "",
-  "width": 933,
-  "height": 1400,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Эдиториал Sensetique — Андрей Рапуто 01",
   "alt": "Эдиториал-фотосъемка Sensetique,",
   "description": "",
   "date": "",
-  "projectIds": [
-    "sensetique-editorial-andrey-raputo-01"
-  ],
   "workAreaIds": [
     "photography",
     "production"

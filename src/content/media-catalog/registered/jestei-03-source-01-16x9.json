@@ -1,22 +1,9 @@
 {
   "id": "jestei-03-source-01-16x9",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/03/source/01-16x9.webp",
-  "sourceSrc": "",
-  "width": 2248,
-  "height": 1265,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Бенто-грид «Главное в Event».",
   "alt": "",
   "description": "Мы исследовали, какие плейлисты чаще всего нужны ивент-диджеям и как спрос меняется в течение года. Разделили музыку на сезонную и постоянную, а актуальные подборки подняли выше в навигации.",
   "date": "",
-  "projectIds": [
-    "jestei-event",
-    "jestei-playlist-system",
-    "jestei-promo-communication"
-  ],
   "workAreaIds": [
     "graphic-design",
     "brand-communication",

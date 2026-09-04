@@ -1,20 +1,9 @@
 {
   "id": "evasha-08-source-02-4x5",
-  "mediaType": "image",
-  "src": "/media/projects/shootings/08/source/02-4x5.webp",
-  "sourceSrc": "",
-  "width": 1120,
-  "height": 1400,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Портрет Evasha.",
   "alt": "",
   "description": "",
   "date": "2025",
-  "projectIds": [
-    "shootings-evasha"
-  ],
   "workAreaIds": [
     "photography",
     "production"

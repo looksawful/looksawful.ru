@@ -3,371 +3,416 @@ import type { MediaAssetId } from "../assets/index.ts";
 
 export const obladaetMediaEntries = [
   {
-      id: "obladaet-01-source-01-32x45-use-01",
-      assetId: "obladaet-01-source-01-32x45",
-      alt: "",
-      caption: {
+    id: "obladaet-01-source-01-32x45-use-01",
+    assetId: "obladaet-01-source-01-32x45",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Коллаж для Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский / 2020.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-01-source-02-2x3-use-01",
-      assetId: "obladaet-01-source-02-2x3",
-      alt: "",
-      caption: {
+    id: "obladaet-01-source-02-2x3-use-01",
+    assetId: "obladaet-01-source-02-2x3",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Портрет Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский / 2021.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-01-source-03-4x5-use-01",
-      assetId: "obladaet-01-source-03-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-01-source-03-4x5-use-01",
+    assetId: "obladaet-01-source-03-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Микс-медиа для Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский / 2020.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-02-source-01-4x5-use-01",
-      assetId: "obladaet-02-source-01-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-02-source-01-4x5-use-01",
+    assetId: "obladaet-02-source-01-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Коллаж для Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский / 2021.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-02-source-02-4x5-use-01",
-      assetId: "obladaet-02-source-02-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-02-source-02-4x5-use-01",
+    assetId: "obladaet-02-source-02-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Портрет Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский / 2020.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-02-source-03-4x5-use-01",
-      assetId: "obladaet-02-source-03-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-02-source-03-4x5-use-01",
+    assetId: "obladaet-02-source-03-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Коллаж для Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский / 2021.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-02-source-04-4x5-use-01",
-      assetId: "obladaet-02-source-04-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-02-source-04-4x5-use-01",
+    assetId: "behance-photography-and-digital-art-for-obladaet-004",
+    title: "\u041F\u043E\u0440\u0442\u0440\u0435\u0442 \u0434\u043B\u044F \u043E\u0431\u043B\u043E\u0436\u043A\u0438 Obladaet.",
+    projectIds: ["shootings-obladaet"],
+    deliverableIds: ["cover", "music-cover"],
+    credits: ["\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444: \u0418\u0432\u0430\u043D \u041A\u0440\u0443\u0448\u0438\u043D\u0441\u043A\u0438\u0439 / 2021.", "\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444: \u0418\u0432\u0430\u043D \u041A\u0440\u0443\u0448\u0438\u043D\u0441\u043A\u0438\u0439"],
+    alt: "",
+    caption: {
         title: "Портрет для обложки Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский / 2021.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-03-source-01-4x5-use-01",
-      assetId: "obladaet-03-source-01-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-03-source-01-4x5-use-01",
+    assetId: "obladaet-03-source-01-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Арт-обработка для Players Club Obladaet.",
         meta: [
-          "/ 2022.",
+            "/ 2022.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-03-source-02-29x40-use-01",
-      assetId: "obladaet-03-source-02-29x40",
-      alt: "",
-      caption: {
+    id: "obladaet-03-source-02-29x40-use-01",
+    assetId: "obladaet-03-source-02-29x40",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Коллаж для Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский / 2020.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-03-source-03-1129x1280-use-01",
-      assetId: "obladaet-03-source-03-1129x1280",
-      alt: "",
-      caption: {
+    id: "obladaet-03-source-03-1129x1280-use-01",
+    assetId: "obladaet-03-source-03-1129x1280",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Портрет Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский / 2021.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-04-source-01-4x5-use-01",
-      assetId: "obladaet-04-source-01-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-04-source-01-4x5-use-01",
+    assetId: "behance-obladaet-content-covers-008",
+    title: "\u041E\u0431\u043B\u043E\u0436\u043A\u0430 \u0434\u043B\u044F \u0442\u0443\u0440\u0430 Obladaet.",
+    projectIds: ["shootings-obladaet"],
+    credits: ["\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444: \u0418\u0432\u0430\u043D \u041A\u0440\u0443\u0448\u0438\u043D\u0441\u043A\u0438\u0439, \u0434\u0438\u0437\u0430\u0439\u043D Shulya / 2020."],
+    alt: "",
+    caption: {
         title: "Обложка для тура Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
+            "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-04-source-02-4x5-use-01",
-      assetId: "obladaet-04-source-02-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-04-source-02-4x5-use-01",
+    assetId: "behance-obladaet-content-covers-007",
+    title: "\u041E\u0431\u043B\u043E\u0436\u043A\u0430 \u0434\u043B\u044F \u0442\u0443\u0440\u0430 Obladaet.",
+    projectIds: ["shootings-obladaet"],
+    credits: ["\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444: \u0418\u0432\u0430\u043D \u041A\u0440\u0443\u0448\u0438\u043D\u0441\u043A\u0438\u0439, \u0434\u0438\u0437\u0430\u0439\u043D Shulya / 2020."],
+    alt: "",
+    caption: {
         title: "Обложка для тура Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
+            "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-04-source-03-4x5-use-01",
-      assetId: "obladaet-04-source-03-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-04-source-03-4x5-use-01",
+    assetId: "obladaet-04-source-03-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Портрет Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский / 2021.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-04-source-04-125x172-use-01",
-      assetId: "obladaet-04-source-04-125x172",
-      alt: "",
-      caption: {
+    id: "obladaet-04-source-04-125x172-use-01",
+    assetId: "obladaet-04-source-04-125x172",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Коллаж для Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский / 2020.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-04-source-05-4x5-use-01",
-      assetId: "obladaet-04-source-05-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-04-source-05-4x5-use-01",
+    assetId: "obladaet-04-source-05-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Портрет Obladaet.",
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский / 2020.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-portfolio-portfolio-extra-01-4x5-use-01",
-      assetId: "obladaet-portfolio-portfolio-extra-01-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-portfolio-portfolio-extra-01-4x5-use-01",
+    assetId: "obladaet-portfolio-portfolio-extra-01-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Фотография",
         meta: [
-          "Фотограф: Иван Крушинский.",
+            "Фотограф: Иван Крушинский.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-01-source-01-32x45-use-02",
-      assetId: "obladaet-01-source-01-32x45",
-      alt: "",
-      caption: {
+    id: "obladaet-01-source-01-32x45-use-02",
+    assetId: "obladaet-01-source-01-32x45",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Коллаж для Obladaet.",
         index: 1,
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-01-source-02-2x3-use-02",
-      assetId: "obladaet-01-source-02-2x3",
-      alt: "",
-      caption: {
+    id: "obladaet-01-source-02-2x3-use-02",
+    assetId: "obladaet-01-source-02-2x3",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Портрет Obladaet.",
         index: 2,
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-01-source-03-4x5-use-02",
-      assetId: "obladaet-01-source-03-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-01-source-03-4x5-use-02",
+    assetId: "obladaet-01-source-03-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Микс-медиа для Obladaet.",
         index: 3,
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-02-source-01-4x5-use-02",
-      assetId: "obladaet-02-source-01-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-02-source-01-4x5-use-02",
+    assetId: "obladaet-02-source-01-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Коллаж для Obladaet.",
         index: 4,
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-02-source-02-4x5-use-02",
-      assetId: "obladaet-02-source-02-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-02-source-02-4x5-use-02",
+    assetId: "obladaet-02-source-02-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Портрет Obladaet.",
         index: 5,
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-02-source-03-4x5-use-02",
-      assetId: "obladaet-02-source-03-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-02-source-03-4x5-use-02",
+    assetId: "obladaet-02-source-03-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Коллаж для Obladaet.",
         index: 6,
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-02-source-04-4x5-use-02",
-      assetId: "obladaet-02-source-04-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-02-source-04-4x5-use-02",
+    assetId: "behance-photography-and-digital-art-for-obladaet-004",
+    title: "\u041F\u043E\u0440\u0442\u0440\u0435\u0442 \u0434\u043B\u044F \u043E\u0431\u043B\u043E\u0436\u043A\u0438 Obladaet.",
+    projectIds: ["shootings-obladaet"],
+    deliverableIds: ["cover", "music-cover"],
+    credits: ["\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444: \u0418\u0432\u0430\u043D \u041A\u0440\u0443\u0448\u0438\u043D\u0441\u043A\u0438\u0439 / 2021.", "\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444: \u0418\u0432\u0430\u043D \u041A\u0440\u0443\u0448\u0438\u043D\u0441\u043A\u0438\u0439"],
+    alt: "",
+    caption: {
         title: "Портрет для обложки Obladaet.",
         index: 7,
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-03-source-01-4x5-use-02",
-      assetId: "obladaet-03-source-01-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-03-source-01-4x5-use-02",
+    assetId: "obladaet-03-source-01-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Арт-обработка для Players Club Obladaet.",
         index: 8,
         meta: [
-          "/ 2022.",
+            "/ 2022.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-03-source-02-29x40-use-02",
-      assetId: "obladaet-03-source-02-29x40",
-      alt: "",
-      caption: {
+    id: "obladaet-03-source-02-29x40-use-02",
+    assetId: "obladaet-03-source-02-29x40",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Коллаж для Obladaet.",
         index: 9,
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-03-source-03-1129x1280-use-02",
-      assetId: "obladaet-03-source-03-1129x1280",
-      alt: "",
-      caption: {
+    id: "obladaet-03-source-03-1129x1280-use-02",
+    assetId: "obladaet-03-source-03-1129x1280",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Портрет Obladaet.",
         index: 10,
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-04-source-01-4x5-use-02",
-      assetId: "obladaet-04-source-01-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-04-source-01-4x5-use-02",
+    assetId: "behance-obladaet-content-covers-008",
+    title: "\u041E\u0431\u043B\u043E\u0436\u043A\u0430 \u0434\u043B\u044F \u0442\u0443\u0440\u0430 Obladaet.",
+    projectIds: ["shootings-obladaet"],
+    credits: ["\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444: \u0418\u0432\u0430\u043D \u041A\u0440\u0443\u0448\u0438\u043D\u0441\u043A\u0438\u0439, \u0434\u0438\u0437\u0430\u0439\u043D Shulya / 2020."],
+    alt: "",
+    caption: {
         title: "Обложка для тура Obladaet.",
         index: 11,
         meta: [
-          "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
+            "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-04-source-02-4x5-use-02",
-      assetId: "obladaet-04-source-02-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-04-source-02-4x5-use-02",
+    assetId: "behance-obladaet-content-covers-007",
+    title: "\u041E\u0431\u043B\u043E\u0436\u043A\u0430 \u0434\u043B\u044F \u0442\u0443\u0440\u0430 Obladaet.",
+    projectIds: ["shootings-obladaet"],
+    credits: ["\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444: \u0418\u0432\u0430\u043D \u041A\u0440\u0443\u0448\u0438\u043D\u0441\u043A\u0438\u0439, \u0434\u0438\u0437\u0430\u0439\u043D Shulya / 2020."],
+    alt: "",
+    caption: {
         title: "Обложка для тура Obladaet.",
         index: 11,
         meta: [
-          "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
+            "Фотограф: Иван Крушинский, дизайн Shulya / 2020.",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-04-source-03-4x5-use-02",
-      assetId: "obladaet-04-source-03-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-04-source-03-4x5-use-02",
+    assetId: "obladaet-04-source-03-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Портрет Obladaet.",
         index: 12,
         meta: [
-          "Фотограф: Иван Крушинский / 2021.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2021.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-04-source-04-125x172-use-02",
-      assetId: "obladaet-04-source-04-125x172",
-      alt: "",
-      caption: {
+    id: "obladaet-04-source-04-125x172-use-02",
+    assetId: "obladaet-04-source-04-125x172",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Коллаж для Obladaet.",
         index: 13,
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
   {
-      id: "obladaet-04-source-05-4x5-use-02",
-      assetId: "obladaet-04-source-05-4x5",
-      alt: "",
-      caption: {
+    id: "obladaet-04-source-05-4x5-use-02",
+    assetId: "obladaet-04-source-05-4x5",
+    projectIds: ["shootings-obladaet"],
+    alt: "",
+    caption: {
         title: "Портрет Obladaet.",
         index: 14,
         meta: [
-          "Фотограф: Иван Крушинский / 2020.",
-          "Фотограф: Иван Крушинский",
+            "Фотограф: Иван Крушинский / 2020.",
+            "Фотограф: Иван Крушинский",
         ],
-      },
-    },
+    }
+},
 ] as const satisfies readonly MediaEntryData<MediaAssetId>[];

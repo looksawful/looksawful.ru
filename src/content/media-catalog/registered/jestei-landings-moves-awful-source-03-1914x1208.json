@@ -1,21 +1,9 @@
 {
   "id": "jestei-landings-moves-awful-source-03-1914x1208",
-  "mediaType": "video",
-  "src": "/media/projects/jestei/landings/moves-awful/source/03-1914x1208.mp4",
-  "sourceSrc": "",
-  "width": 1914,
-  "height": 1208,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Анимированная секция лендинга для клубных диджеев.",
   "alt": "",
   "description": "Canvas-анимации и интерактивные виджеты знакомят пользователя с продуктом прямо на странице. Лента показывает треки, интерфейс и инструменты сервиса. Для анимаций использовали мою библиотеку Moves Awful.",
   "date": "",
-  "projectIds": [
-    "jestei-landings",
-    "moves-awful"
-  ],
   "workAreaIds": [
     "graphic-design",
     "motion",

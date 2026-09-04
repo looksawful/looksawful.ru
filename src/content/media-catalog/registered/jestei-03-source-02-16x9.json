@@ -1,21 +1,9 @@
 {
   "id": "jestei-03-source-02-16x9",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/03/source/02-16x9.webp",
-  "sourceSrc": "",
-  "width": 2248,
-  "height": 1265,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Анимированная секция лендинга для клубных диджеев.",
   "alt": "",
   "description": "Canvas-анимации и интерактивные виджеты знакомят пользователя с продуктом прямо на странице. Лента показывает треки, интерфейс и инструменты сервиса. Для анимаций использовали мою библиотеку Moves Awful.",
   "date": "",
-  "projectIds": [
-    "jestei-landings",
-    "jestei-playlist-system"
-  ],
   "workAreaIds": [
     "graphic-design",
     "brand-communication",

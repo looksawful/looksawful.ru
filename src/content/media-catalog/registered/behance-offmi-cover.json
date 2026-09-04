@@ -1,20 +1,9 @@
 {
   "id": "behance-offmi-cover",
-  "mediaType": "image",
-  "src": "/media/projects/shootings/behance/offmi/cover.webp",
-  "sourceSrc": "",
-  "width": 404,
-  "height": 316,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Offmi",
   "alt": "Offmi",
   "description": "",
   "date": "",
-  "projectIds": [
-    "shootings-behance-offmi"
-  ],
   "workAreaIds": [
     "photography"
   ],

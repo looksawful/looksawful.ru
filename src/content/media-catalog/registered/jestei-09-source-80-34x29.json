@@ -1,20 +1,9 @@
 {
   "id": "jestei-09-source-80-34x29",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/09/source/80-34x29.webp",
-  "sourceSrc": "",
-  "width": 170,
-  "height": 145,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Макет модального окна «Что нового?».",
   "alt": "",
   "description": "",
   "date": "",
-  "projectIds": [
-    "jestei-core-interface"
-  ],
   "workAreaIds": [
     "graphic-design",
     "product-design",

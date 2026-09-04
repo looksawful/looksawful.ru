@@ -1,21 +1,9 @@
 {
   "id": "jestei-05-source-04-1x1",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/05/source/04-1x1.webp",
-  "sourceSrc": "",
-  "width": 1877,
-  "height": 1877,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Обложка обновляемого плейлиста «Цензура» с треками без мата.",
   "alt": "",
   "description": "Для таких плейлистов мы выбирали одну метафору и строили вокруг неё серию обложек. Рубрика оставалась узнаваемой, а новые выпуски не повторяли друг друга.",
   "date": "",
-  "projectIds": [
-    "jestei-playlist-system",
-    "jestei-promo-communication"
-  ],
   "workAreaIds": [
     "graphic-design",
     "brand-communication",

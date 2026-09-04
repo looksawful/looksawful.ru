@@ -1,20 +1,9 @@
 {
   "id": "sensetique-09-source-02-2x3",
-  "mediaType": "image",
-  "src": "/media/projects/sensetique/09/source/02-2x3.webp",
-  "sourceSrc": "",
-  "width": 853,
-  "height": 1280,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Krasota Dress Lookbook",
   "alt": "Лукбук Krasota Dress",
   "description": "",
   "date": "",
-  "projectIds": [
-    "sensetique-krasota-dress-lookbook"
-  ],
   "workAreaIds": [
     "photography",
     "production"

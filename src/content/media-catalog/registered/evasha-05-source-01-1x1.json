@@ -1,20 +1,9 @@
 {
   "id": "evasha-05-source-01-1x1",
-  "mediaType": "image",
-  "src": "/media/projects/shootings/05/source/01-1x1.webp",
-  "sourceSrc": "",
-  "width": 1280,
-  "height": 1280,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Обложка сингла Evasha «Не подходи».",
   "alt": "",
   "description": "",
   "date": "2025",
-  "projectIds": [
-    "shootings-evasha"
-  ],
   "workAreaIds": [
     "photography",
     "production"
