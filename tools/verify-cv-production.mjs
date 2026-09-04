@@ -64,6 +64,25 @@ if (actualIds.length !== expectedVisibleIds.length) {
   );
 }
 
+const cloudflareToken = process.env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN?.trim() ?? "";
+const yandexCounterId = process.env.VITE_YANDEX_METRIKA_COUNTER_ID?.trim() ?? "";
+if (cloudflareToken || /^[1-9]\d*$/.test(yandexCounterId)) {
+  if (!html.includes("data-static-site-analytics")) {
+    throw new Error(`Production CV analytics bootstrap is missing in ${target}`);
+  }
+  if (cloudflareToken && !html.includes("https://static.cloudflareinsights.com/beacon.min.js")) {
+    throw new Error(`Production CV Cloudflare analytics bootstrap is missing in ${target}`);
+  }
+  if (/^[1-9]\d*$/.test(yandexCounterId)) {
+    if (!html.includes("https://mc.yandex.ru/metrika/tag.js")) {
+      throw new Error(`Production CV Yandex Metrica bootstrap is missing in ${target}`);
+    }
+    if (!html.includes("looksawful:analytics-consent")) {
+      throw new Error(`Production CV analytics consent gate is missing in ${target}`);
+    }
+  }
+}
+
 console.log(
   `Verified production CV: ${expectedVisibleIds.length} visible experience card(s), ${expectedHiddenIds.length} disabled card(s) absent in ${target}`,
 );
