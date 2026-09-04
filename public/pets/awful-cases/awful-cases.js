@@ -3,7 +3,7 @@ export function enhanceAwfulCases(root) {
   let active = false;
   let destroyed = false;
   const abortController = new AbortController();
-  const ATLAS_SRC = "/media/interactive/awful-cases-atlas.png";
+  const ATLAS_SRC = "/pets/awful-cases/assets/atlas.png";
   const GROUND_SRC = "/pets/awful-cases/assets/ground.png";
   const PIT_SRC = "/pets/awful-cases/assets/pit.png";
   const FALL1_SRC = "/pets/awful-cases/assets/fall1.png";
@@ -30,245 +30,934 @@ export function enhanceAwfulCases(root) {
     'toggle','toggle','toggle','toggle',
     'title','title','title','title'
   ];
+  const HINTS = {
+    upper: '↑',
+    lower: '↓',
+    toggle: '→',
+    title: '←'
+  };
+  const canvas = root.querySelector('[data-awful-cases-canvas]');
+  const startPanel = root.querySelector('[data-awful-cases-start]');
+  const startButton = root.querySelector('[data-awful-cases-start-button]');
+  const restartPanel = root.querySelector('[data-awful-cases-restart]');
+  const restartTitle = root.querySelector('[data-awful-cases-restart-title]');
+  const restartMeta = root.querySelector('[data-awful-cases-restart-meta]');
+  const restartButton = root.querySelector('[data-awful-cases-restart-button]');
+  const ctx = canvas.getContext('2d', { alpha:false });
+  const atlas = new Image();
+  let atlasReady = false;
+  atlas.onload = () => { atlasReady = true; };
+  atlas.src = ATLAS_SRC;
 
-  const state = {
-    score: 0,
-    mistakes: 0,
-    index: 0,
-    trainingIndex: 0,
-    current: null,
-    started: false,
-    finished: false,
-    locked: false,
-    session: []
+  const groundTile = new Image();
+  let groundReady = false;
+  groundTile.onload = () => { groundReady = true; };
+  groundTile.src = GROUND_SRC;
+
+  const pitTile = new Image();
+  let pitReady = false;
+  pitTile.onload = () => { pitReady = true; };
+  pitTile.src = PIT_SRC;
+
+  function loadSprite(src) {
+    const image = new Image();
+    image.ready = false;
+    image.onload = () => { image.ready = true; };
+    image.src = src;
+    return image;
+  }
+
+  const fallSprites = [loadSprite(FALL1_SRC), loadSprite(FALL2_SRC)];
+  const victorySprite = loadSprite(VICTORY_SRC);
+  const flagSprite = loadSprite(FLAG_SRC);
+  const decorSprites = DECOR_SOURCES.map(loadSprite);
+
+  const RUN = Array.from({ length:6 }, (_, i) => ({ x:i*270, y:0, w:270, h:230 }));
+  const TYPES = ['upper','lower','toggle','title'];
+  const view = { w:0, h:0, dpr:1, floor:0, scale:1, playerX:0, footX:0, font:32, speed:180 };
+  const game = {
+    mode:'demo',
+    time:0,
+    last:performance.now(),
+    speed:180,
+    obstacles:[],
+    decor:[],
+    nextDecorX:0,
+    finishX:null,
+    victoryTimer:0,
+    fallStep:0,
+    nextType:0,
+    shake:0,
+    raf:0,
+    failTimer:0,
+    inputCooldown:0,
+    spawned:0,
+    solved:0,
+    mistakes:0,
+    phaseHintShown:{ upper:false, lower:false, toggle:false, title:false },
+    completeTimer:0,
+    world:0
   };
 
-  const canvas = root.querySelector('[data-awful-cases-canvas]');
-  const context = canvas instanceof HTMLCanvasElement ? canvas.getContext('2d') : null;
-  const score = root.querySelector('[data-awful-cases-score]');
-  const progress = root.querySelector('[data-awful-cases-progress]');
-  const prompt = root.querySelector('[data-awful-cases-prompt]');
-  const answer = root.querySelector('[data-awful-cases-answer]');
-  const instruction = root.querySelector('[data-awful-cases-instruction]');
-  const start = root.querySelector('[data-awful-cases-start]');
-  const restart = root.querySelector('[data-awful-cases-restart]');
-  const feedback = root.querySelector('[data-awful-cases-feedback]');
-  const actionButtons = Array.from(root.querySelectorAll('[data-awful-cases-action]'));
-
-  if (!(canvas instanceof HTMLCanvasElement) || !context || !score || !progress || !prompt || !answer || !instruction || !start || !restart || !feedback) {
-    return { setActive() {}, destroy() {} };
+  function resize() {
+    view.dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    view.w = Math.max(260, root.clientWidth || 260);
+    view.h = Math.max(320, root.clientHeight || 320);
+    canvas.width = Math.floor(view.w * view.dpr);
+    canvas.height = Math.floor(view.h * view.dpr);
+    canvas.style.width = view.w + 'px';
+    canvas.style.height = view.h + 'px';
+    ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    updateView();
   }
 
-  const imageSources = [
-    ['atlas', ATLAS_SRC],
-    ['ground', GROUND_SRC],
-    ['pit', PIT_SRC],
-    ['fall1', FALL1_SRC],
-    ['fall2', FALL2_SRC],
-    ['victory', VICTORY_SRC],
-    ['flag', FLAG_SRC],
-    ...DECOR_SOURCES.map((src, index) => [`decor${index + 1}`, src])
-  ];
-  const images = new Map();
-  let loadedImages = 0;
+  function updateView() {
+    const compact = view.w < 560;
+    view.scale = clamp(Math.min(view.w / 1180, view.h / 520), compact ? .32 : .46, 1.34);
+    view.floor = Math.round(view.h * (compact ? .68 : .66));
+    view.playerX = Math.round(view.w * (compact ? .44 : .5));
+    view.footX = view.playerX + 36 * view.scale;
+    view.font = Math.round(clamp(33 * view.scale, compact ? 13 : 18, 44));
+    view.speed = 205 * view.scale;
+  }
 
-  for (const [key, src] of imageSources) {
-    const image = new Image();
-    image.decoding = 'async';
-    image.onload = () => {
-      loadedImages += 1;
-      render();
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function smooth(t) { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); }
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+  function irnd(a, b) { return Math.floor(rnd(a, b + 1)); }
+  function rect(x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  }
+
+  function setFont(size = view.font, weight = 900) {
+    ctx.font = `${weight} ${Math.round(size)}px "Press Start 2P", monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#000';
+    ctx.fontKerning = 'normal';
+  }
+
+  function textMetrics(text, size = view.font, weight = 900) {
+    setFont(size, weight);
+    const m = ctx.measureText(text);
+    const ascent = Math.ceil(m.actualBoundingBoxAscent || size * .78);
+    const descent = Math.ceil(m.actualBoundingBoxDescent || size * .22);
+    return { width:m.width, ascent, descent, height:ascent + descent };
+  }
+
+  function textWidth(text, size = view.font) {
+    return textMetrics(text, size).width;
+  }
+
+  function visualTextHeight(text, size) {
+    return textMetrics(text, size).height;
+  }
+
+  function drawTextTop(text, x, topY, size, color = '#000', alpha = 1, weight = 900) {
+    const m = textMetrics(text, size, weight);
+    ctx.save();
+    setFont(size, weight);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.fillText(text, Math.round(x), Math.round(topY + m.ascent));
+    ctx.restore();
+    return m;
+  }
+
+  function drawTextTopSurface(text, x, topY, size, mode = 'normal', alpha = 1, weight = 900) {
+    const m = textMetrics(text, size, weight);
+    const baseline = Math.round(topY + m.ascent);
+
+    let lightColor = '#000';
+    let darkColor = '#fff';
+
+    if (mode === 'error') {
+      lightColor = '#c00000';
+      darkColor = '#ff4040';
+    } else if (mode === 'correct') {
+      lightColor = '#008a24';
+      darkColor = '#30ff65';
+    }
+
+    ctx.save();
+    setFont(size, weight);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = lightColor;
+    ctx.fillText(text, Math.round(x), baseline);
+    ctx.beginPath();
+    ctx.rect(0, view.floor, view.w, view.h - view.floor);
+    ctx.clip();
+    ctx.fillStyle = darkColor;
+    ctx.fillText(text, Math.round(x), baseline);
+    ctx.restore();
+    return m;
+  }
+
+  function taskSizes(task) {
+    if (task.type === 'upper') {
+      return { input:view.font * .38, output:view.font * 1.34 };
+    }
+    if (task.type === 'lower') {
+      return { input:view.font * 3.52, output:view.font * .84 };
+    }
+    return { input:view.font * 2.72, output:view.font * 1.08 };
+  }
+
+  function taskTextWidth(task, which = 'output') {
+    const sizes = taskSizes(task);
+    const text = which === 'input' ? task.input : task.output;
+    const size = which === 'input' ? sizes.input : sizes.output;
+    return textWidth(text, size);
+  }
+
+  function taskWidth(task) {
+    const a = taskTextWidth(task, 'input');
+    const b = taskTextWidth(task, 'output');
+    return Math.max(a, b) + 76 * view.scale;
+  }
+
+  function taskHoleRect(task) {
+    const holeW = Math.max(96 * view.scale, taskTextWidth(task, 'output') + 94 * view.scale);
+    const w = taskWidth(task);
+    return {
+      x: task.x + w * .5 - holeW * .5,
+      w: holeW
     };
-    image.onerror = () => {
-      loadedImages += 1;
-      render();
+  }
+
+  function randomTask(type) {
+    const pool = DICTIONARY.filter(item => item.type === type);
+    const src = pool[irnd(0, pool.length - 1)];
+    return {
+      id: String(Date.now()) + Math.random(),
+      type: src.type,
+      input: src.input,
+      output: src.output,
+      x: 0,
+      progress: 0,
+      target: 0,
+      solved: false,
+      failed: false
     };
-    image.src = src;
-    images.set(key, image);
   }
 
-  function resetState() {
-    state.score = 0;
-    state.mistakes = 0;
-    state.index = 0;
-    state.trainingIndex = 0;
-    state.current = null;
-    state.started = false;
-    state.finished = false;
-    state.locked = false;
-    state.session = [];
-  }
-
-  function shuffled(items) {
-    const copy = [...items];
-    for (let index = copy.length - 1; index > 0; index -= 1) {
-      const swap = Math.floor(Math.random() * (index + 1));
-      [copy[index], copy[swap]] = [copy[swap], copy[index]];
+  function spawn(type = null, x = null) {
+    const chosenType = type || TYPES[game.nextType++ % TYPES.length];
+    const task = randomTask(chosenType);
+    const last = game.obstacles[game.obstacles.length - 1];
+    const w = taskWidth(task);
+    const minX = view.w + 120 * view.scale;
+    const gap = rnd(360, 520) * view.scale;
+    task.x = x ?? (last ? Math.max(minX, last.x + taskWidth(last) + gap) : minX);
+    task._w = w;
+    task.index = game.spawned;
+    task.showHint = !game.phaseHintShown[task.type];
+    if (task.showHint) game.phaseHintShown[task.type] = true;
+    game.spawned += 1;
+    game.obstacles.push(task);
+    if (game.mode === 'running' && game.spawned === SESSION_LENGTH) {
+      game.finishX = task.x + w + 520 * view.scale;
     }
-    return copy;
+    return task;
   }
 
-  function createSession() {
-    const groups = new Map();
-    for (const item of DICTIONARY) {
-      if (!groups.has(item.type)) groups.set(item.type, []);
-      groups.get(item.type).push(item);
+  function canSpawn() {
+    return game.mode === 'demo' || game.spawned < SESSION_LENGTH;
+  }
+
+  function spawnNext(x = null) {
+    if (!canSpawn()) return null;
+    const idx = game.mode === 'demo' ? game.spawned % TRAINING_SEQUENCE.length : game.spawned;
+    const type = TRAINING_SEQUENCE[idx] || TYPES[game.nextType++ % TYPES.length];
+    return spawn(type, x);
+  }
+
+  function resetState(mode) {
+    game.mode = mode;
+    game.time = 0;
+    game.speed = view.speed;
+    game.shake = 0;
+    game.failTimer = 0;
+    game.inputCooldown = 0;
+    game.spawned = 0;
+    game.solved = 0;
+    game.mistakes = 0;
+    game.completeTimer = 0;
+    game.victoryTimer = 0;
+    game.fallStep = 0;
+    game.world = 0;
+    game.phaseHintShown = { upper:false, lower:false, toggle:false, title:false };
+    game.obstacles.length = 0;
+    game.decor.length = 0;
+    game.nextDecorX = view.w + 240 * view.scale;
+    game.finishX = null;
+    game.nextType = 0;
+  }
+
+  function focusCanvas() {
+    if (!active || destroyed) return;
+    setTimeout(() => {
+      if (active && !destroyed && root.isConnected) canvas.focus({ preventScroll:true });
+    }, 0);
+  }
+
+  function startDemo() {
+    resetState('demo');
+    startPanel.hidden = false;
+    restartPanel.hidden = true;
+    spawnNext(view.playerX + 380 * view.scale);
+    fillQueue();
+    focusCanvas();
+  }
+
+  function reset() {
+    resetState('running');
+    startPanel.hidden = true;
+    restartPanel.hidden = true;
+    spawnNext(view.playerX + 300 * view.scale);
+    fillQueue();
+    focusCanvas();
+  }
+
+  function fillQueue() {
+    let guard = 0;
+    while (game.obstacles.length < 5 && canSpawn() && guard++ < 30) spawnNext();
+    while (game.obstacles.length && canSpawn() && game.obstacles[game.obstacles.length - 1].x < view.w + 760 * view.scale && guard++ < 60) spawnNext();
+  }
+
+  function command(type) {
+    if (game.mode !== 'running') return false;
+
+    if (game.inputCooldown > 0) {
+      game.shake = Math.max(game.shake, .8);
+      return false;
     }
-    return TRAINING_SEQUENCE.map((type) => {
-      const group = groups.get(type) || DICTIONARY;
-      return group[Math.floor(Math.random() * group.length)];
-    });
-  }
 
-  function currentAction() {
-    return state.current ? ACTIONS[state.current.type] : null;
-  }
+    const task = nearestTask();
 
-  function updateHud() {
-    score.textContent = String(state.score);
-    progress.textContent = `${Math.min(state.index + 1, SESSION_LENGTH)}/${SESSION_LENGTH}`;
-    prompt.textContent = state.current?.input || '—';
-    answer.textContent = state.current?.output || '—';
-
-    if (!state.started) {
-      instruction.textContent = 'Нажмите «Начать», затем выбирайте преобразование клавишами-стрелками.';
-    } else if (state.finished) {
-      instruction.textContent = `Готово. Ошибок: ${state.mistakes}.`;
-    } else {
-      const action = currentAction();
-      instruction.textContent = action ? `Как преобразовать строку? ${action.label}` : '';
+    if (!task) {
+      game.shake = Math.max(game.shake, 1.4);
+      game.inputCooldown = .12;
+      return false;
     }
 
-    for (const button of actionButtons) {
-      const type = button.getAttribute('data-awful-cases-action');
-      button.classList.toggle('is-active', type === state.current?.type && state.locked);
+    if (task.type !== type) {
+      task.failed = true;
+      task.errorTime = .42;
+      task.hintTime = .9;
+      game.mistakes += 1;
+      game.shake = Math.max(game.shake, 2.3);
+      game.inputCooldown = .20;
+      return false;
     }
-  }
 
-  function renderFallback() {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = '#f3f3f3';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = '#111';
-    context.font = '600 28px system-ui, sans-serif';
-    context.textAlign = 'center';
-    context.fillText('AWFUL CASES', canvas.width / 2, canvas.height / 2);
-  }
+    task.failed = false;
+    task.errorTime = 0;
+    task.hintTime = .35;
+    task.correctTime = .55;
+    task.target = 1;
+    task.solved = true;
+    task.progress = Math.max(task.progress, .12);
+    game.solved += 1;
+    game.inputCooldown = .24;
 
-  function drawSprite(image, sx, sy, sw, sh, dx, dy, dw, dh) {
-    if (!(image instanceof HTMLImageElement) || !image.complete || !image.naturalWidth) return false;
-    context.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
     return true;
   }
 
-  function render() {
-    updateHud();
-    const atlas = images.get('atlas');
-    if (!(atlas instanceof HTMLImageElement) || !atlas.complete || !atlas.naturalWidth) {
-      renderFallback();
-      return;
+  function nearestTask() {
+    const zoneLeft = view.playerX - 260 * view.scale;
+    const zoneRight = view.w - 72 * view.scale;
+
+    for (const task of game.obstacles) {
+      if (task.target >= 1 || task.solved) continue;
+      const w = taskWidth(task);
+      const right = task.x + w;
+      if (right < zoneLeft) continue;
+      if (task.x > zoneRight) continue;
+      return task;
     }
 
-    context.imageSmoothingEnabled = false;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = '#f6f1e8';
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    return null;
+  }
 
-    const ground = images.get('ground');
-    if (ground instanceof HTMLImageElement && ground.complete && ground.naturalWidth) {
-      context.drawImage(ground, 0, canvas.height - 96, canvas.width, 96);
-    }
+  function die() {
+    if (game.mode !== 'running') return;
+    game.mode = 'falling';
+    game.failTimer = 1.15;
+    game.fallStep = 0;
+    game.shake = 8;
+  }
 
-    const pit = images.get('pit');
-    if (pit instanceof HTMLImageElement && pit.complete && pit.naturalWidth) {
-      context.drawImage(pit, canvas.width - 190, canvas.height - 164, 160, 68);
-    }
+  function startVictory() {
+    if (game.mode !== 'running') return;
+    game.mode = 'victory';
+    game.victoryTimer = 1.35;
+    game.shake = 0;
+  }
 
-    const decor = images.get(`decor${(state.index % DECOR_SOURCES.length) + 1}`);
-    if (decor instanceof HTMLImageElement && decor.complete && decor.naturalWidth) {
-      context.drawImage(decor, 40, 40, 90, 90);
-    }
+  function complete() {
+    if (game.mode !== 'victory') return;
+    game.mode = 'complete';
+    showRestart('complete', `${game.solved} of ${SESSION_LENGTH} · mistakes: ${game.mistakes}`);
+  }
 
-    const frame = state.finished ? 5 : state.locked ? 2 : 0;
-    const drawn = drawSprite(atlas, frame * 270, 0, 270, 230, 70, canvas.height - 310, 270, 230);
-    if (!drawn) renderFallback();
+  function showRestart(title, meta) {
+    restartTitle.textContent = title;
+    restartMeta.textContent = meta + ' · enter — restart';
+    restartPanel.hidden = false;
+    restartButton.focus({ preventScroll:true });
+  }
 
-    if (state.finished) {
-      const victory = images.get('victory');
-      if (victory instanceof HTMLImageElement && victory.complete && victory.naturalWidth) {
-        context.drawImage(victory, canvas.width / 2 - 160, 30, 320, 120);
+  function updateDemoAutomation() {
+    const triggerX = view.playerX + 330 * view.scale;
+    for (const task of game.obstacles) {
+      if (task.solved || task.target >= 1) continue;
+      if (task.x < triggerX) {
+        task.failed = false;
+        task.errorTime = 0;
+        task.hintTime = .45;
+        task.target = 1;
+        task.solved = true;
+        task.progress = Math.max(task.progress, .06);
+        game.solved += 1;
+        break;
       }
     }
   }
 
-  function nextQuestion() {
-    if (state.index >= SESSION_LENGTH) {
-      state.finished = true;
-      state.current = null;
-      state.locked = false;
-      render();
+  function update(dt) {
+    if (game.mode === 'running' || game.mode === 'demo' || game.mode === 'falling' || game.mode === 'victory') game.time += dt;
+    game.inputCooldown = Math.max(0, game.inputCooldown - dt);
+    for (const task of game.obstacles) {
+      task.errorTime = Math.max(0, (task.errorTime || 0) - dt);
+      task.hintTime = Math.max(0, (task.hintTime || 0) - dt);
+      task.correctTime = Math.max(0, (task.correctTime || 0) - dt);
+    }
+
+    if (game.mode === 'falling') {
+      game.failTimer = Math.max(0, game.failTimer - dt);
+      game.fallStep = game.failTimer > .55 ? 0 : 1;
+      if (game.failTimer <= 0) {
+        game.mode = 'dead';
+        showRestart('fell', `${game.solved} of ${SESSION_LENGTH} · mistakes: ${game.mistakes}`);
+      }
+      game.shake = Math.max(0, game.shake - dt * 18);
       return;
     }
-    state.current = state.session[state.index];
-    state.locked = false;
-    feedback.textContent = '';
-    render();
-  }
 
-  function startSession() {
-    resetState();
-    state.started = true;
-    state.session = createSession();
-    start.hidden = true;
-    restart.hidden = false;
-    nextQuestion();
-  }
-
-  function answerWith(type) {
-    if (!active || !state.started || state.finished || state.locked || !state.current) return;
-    state.locked = true;
-    const correct = type === state.current.type;
-    if (correct) {
-      state.score += 1;
-      feedback.textContent = 'Верно';
-    } else {
-      state.mistakes += 1;
-      feedback.textContent = `Неверно: ${ACTIONS[state.current.type].label}`;
+    if (game.mode === 'victory') {
+      game.victoryTimer = Math.max(0, game.victoryTimer - dt);
+      if (game.victoryTimer <= 0) complete();
+      return;
     }
-    render();
-    window.setTimeout(() => {
-      if (destroyed) return;
-      state.index += 1;
-      nextQuestion();
-    }, 450);
+
+    if (game.mode === 'running' || game.mode === 'demo') {
+      const demo = game.mode === 'demo';
+      game.speed = demo
+        ? view.speed * .78
+        : view.speed + Math.min(72 * view.scale, game.time * 2.2 * view.scale);
+      game.world += game.speed * dt;
+      for (const task of game.obstacles) {
+        task.x -= game.speed * dt;
+        task.progress += (task.target - task.progress) * Math.min(1, dt * 10);
+      }
+      for (const decor of game.decor) decor.x -= game.speed * dt;
+      if (game.finishX != null) game.finishX -= game.speed * dt;
+
+      updateDecor();
+      if (demo) updateDemoAutomation();
+      if (!demo) {
+        for (const task of game.obstacles) {
+          if (task.target >= 1) continue;
+          if (footInHole(task)) {
+            die();
+            break;
+          }
+        }
+      }
+      while (game.obstacles.length && game.obstacles[0].x + taskWidth(game.obstacles[0]) < -180 * view.scale) {
+        game.obstacles.shift();
+      }
+      while (game.decor.length && game.decor[0].x < -220 * view.scale) game.decor.shift();
+      fillQueue();
+      if (!demo && game.finishX != null && game.finishX < view.playerX + 80 * view.scale) startVictory();
+    }
+    game.shake = Math.max(0, game.shake - dt * 24);
   }
 
-  function onKeyDown(event) {
-    if (!active) return;
-    const found = Object.entries(ACTIONS).find(([, action]) => action.code === event.code);
-    if (!found) return;
+  function updateDecor() {
+    if (!decorSprites.length) return;
+    if (game.nextDecorX < view.w + 80 * view.scale) game.nextDecorX = view.w + rnd(120, 260) * view.scale;
+    let guard = 0;
+    while (game.nextDecorX < view.w + 980 * view.scale && guard++ < 12) {
+      const spriteIndex = irnd(0, decorSprites.length - 1);
+      const sprite = decorSprites[spriteIndex];
+      const scale = rnd(.76, 1.08) * envTileScale();
+      game.decor.push({
+        x: game.nextDecorX,
+        spriteIndex,
+        scale,
+        flip: Math.random() > .5,
+        yOffset: rnd(-2, 4) * view.scale
+      });
+      game.nextDecorX += rnd(420, 760) * view.scale;
+    }
+  }
+
+  function footInHole(task) {
+    const foot = view.footX;
+    const h = taskHoleRect(task);
+    return foot >= h.x && foot <= h.x + h.w;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, view.w, view.h);
+    rect(0, 0, view.w, view.h, '#007a7a');
+    rect(0, view.floor + Math.round(14 * view.scale), view.w, view.h - view.floor, '#5a341d');
+    const amp = game.shake;
+    ctx.save();
+    if (amp > 0) ctx.translate((Math.random() - .5) * amp, (Math.random() - .5) * amp);
+    drawFloor();
+    for (const task of game.obstacles) drawTaskHole(task);
+    drawDecor();
+    drawFinishFlag();
+    for (const task of game.obstacles) drawTask(task);
+    drawKnight();
+    ctx.restore();
+    drawPinnedHint();
+  }
+
+  function envTileScale() {
+    return clamp(view.scale * 1.78, 1.22, 2.35);
+  }
+
+  function groundTileSize() {
+    const s = envTileScale();
+    return {
+      w: groundReady ? Math.max(1, groundTile.width * s) : 120 * s,
+      h: groundReady ? groundTile.height * s : 48 * s
+    };
+  }
+
+  function pitTileSize() {
+    const s = envTileScale();
+    return {
+      w: pitReady ? Math.max(1, pitTile.width * s) : 112 * s,
+      h: pitReady ? pitTile.height * s : 48 * s
+    };
+  }
+
+  function pitDrawRect(task) {
+    const h = taskHoleRect(task);
+    const size = pitTileSize();
+    const drawW = Math.max(size.w * 1.18, h.w + 112 * view.scale);
+    return {
+      x: Math.round(h.x + h.w * .5 - drawW * .5),
+      y: Math.round(view.floor),
+      w: Math.round(drawW),
+      h: Math.round(size.h)
+    };
+  }
+
+  function visiblePitRects() {
+    const rects = [];
+    for (const task of game.obstacles) {
+      const p = pitDrawRect(task);
+      if (p.x + p.w < -8 || p.x > view.w + 8) continue;
+      rects.push(p);
+    }
+    rects.sort((a, b) => a.x - b.x);
+    return rects;
+  }
+
+  function drawImageMaybeFlip(image, x, y, w, h, flip = false) {
+    if (!flip) {
+      ctx.drawImage(image, Math.floor(x), Math.round(y), Math.ceil(w), Math.ceil(h));
+      return;
+    }
+    ctx.save();
+    ctx.translate(Math.floor(x) + Math.ceil(w), Math.round(y));
+    ctx.scale(-1, 1);
+    ctx.drawImage(image, 0, 0, Math.ceil(w), Math.ceil(h));
+    ctx.restore();
+  }
+
+  function drawGroundTilesClipped(left, right) {
+    if (right <= left) return;
+    const size = groundTileSize();
+    const top = Math.round(view.floor);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(Math.floor(left) - 12, top, Math.ceil(right - left) + 24, Math.ceil(size.h + 18 * view.scale));
+    ctx.clip();
+
+    rect(left - 16, top + Math.round(10 * view.scale), right - left + 32, size.h + 18 * view.scale, '#5a341d');
+
+    if (!groundReady) {
+      rect(left, top, right - left, Math.max(2, Math.round(3 * view.scale)), '#000');
+      ctx.restore();
+      return;
+    }
+
+    const overlap = Math.max(14, Math.round(24 * view.scale));
+    const tileW = Math.ceil(size.w);
+    const tileH = Math.ceil(size.h);
+    const step = Math.max(1, tileW - overlap);
+    const offset = -((game.world % step + step) % step);
+
+    for (let x = offset - step * 4; x < view.w + step * 4; x += step) {
+      drawImageMaybeFlip(groundTile, Math.floor(x), top, tileW, tileH, false);
+    }
+
+    ctx.restore();
+  }
+
+  function drawFloor() {
+    drawGroundTilesClipped(-16, view.w + 16);
+  }
+
+  function drawTaskHole(task) {
+    const p = pitDrawRect(task);
+
+    if (!pitReady) return;
+
+    drawImageMaybeFlip(pitTile, p.x, p.y, p.w, p.h, task.index % 2 === 1);
+  }
+
+  function drawTask(task) {
+    const floor = view.floor;
+    const w = taskWidth(task);
+    const x = task.x + w * .5;
+    const p = smooth(task.progress);
+    const sizes = taskSizes(task);
+    const inputH = visualTextHeight(task.input, sizes.input);
+    const outputH = visualTextHeight(task.output, sizes.output);
+    let inputTop;
+    if (task.type === 'upper') {
+      inputTop = floor + 48 * view.scale;
+    } else {
+      inputTop = floor - inputH - 16 * view.scale;
+    }
+
+    if (task.target <= 0) {
+      const wrongShake = task.errorTime > 0 ? Math.sin(game.time * 80) * 4 * view.scale : 0;
+      const aboveGround = task.type !== 'upper';
+      if (task.errorTime > 0) {
+        drawTextTopSurface(task.input, x + wrongShake, inputTop, sizes.input, 'error');
+      } else if (aboveGround) {
+        drawTextTop(task.input, x + wrongShake, inputTop, sizes.input, '#b30000', 1, 900);
+      } else {
+        drawTextTopSurface(task.input, x + wrongShake, inputTop, sizes.input, 'normal');
+      }
+      return;
+    }
+
+    const startSize = sizes.input;
+    const finalSize = sizes.output;
+    const size = startSize + (finalSize - startSize) * p;
+    const outputHNow = visualTextHeight(task.output, size);
+    const startTop = task.type === 'upper'
+      ? floor + 50 * view.scale
+      : floor - outputH - 16 * view.scale;
+    const finalTop = floor;
+    const top = startTop + (finalTop - startTop) * p;
+    const mode = (task.correctTime || 0) > 0 ? 'correct' : 'normal';
+
+    drawTextTopSurface(task.output, x, top, size, mode);
+  }
+
+  function actionTitle(type) {
+    if (type === 'upper') return 'uppercase';
+    if (type === 'lower') return 'lowercase';
+    if (type === 'toggle') return 'toggle case';
+    if (type === 'title') return 'title case';
+    return type;
+  }
+
+  function hintTask() {
+    const showFromX = Math.min(view.w - 80 * view.scale, view.playerX + 520 * view.scale);
+    const hideAfterX = view.playerX - 42 * view.scale;
+
+    for (const task of game.obstacles) {
+      const w = taskWidth(task);
+      const taskRight = task.x + w;
+      if (task.x > showFromX) continue;
+      if (taskRight < hideAfterX) continue;
+      return task;
+    }
+
+    return null;
+  }
+
+  function drawPinnedHint() {
+    if (game.mode !== 'running') return;
+    const task = hintTask();
+    if (!task) return;
+
+    const w = taskWidth(task);
+    const taskRight = task.x + w;
+    const showFromX = Math.min(view.w - 80 * view.scale, view.playerX + 520 * view.scale);
+    const hideAfterX = view.playerX - 42 * view.scale;
+    const fadeIn = clamp((showFromX - task.x) / (120 * view.scale), 0, 1);
+    const fadeOut = clamp((taskRight - hideAfterX) / (44 * view.scale), 0, 1);
+    const alpha = Math.min(fadeIn, fadeOut);
+    if (alpha <= .02) return;
+
+    const color = task.errorTime > 0 ? '#c00000' : '#000';
+    const fontSize = Math.round(clamp(16 * view.scale, 13, 20));
+    const smallSize = Math.round(clamp(12 * view.scale, 10, 15));
+    const title = task.errorTime > 0 ? 'wrong action' : actionTitle(task.type);
+    const hint = HINTS[task.type];
+    const preview = `${task.input} → ${task.output}`;
+    const padX = Math.round(16 * view.scale);
+    const padY = Math.round(10 * view.scale);
+    const gap = Math.round(5 * view.scale);
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.font = `700 ${fontSize}px "Press Start 2P", monospace`;
+    const w1 = ctx.measureText(`${hint}  ${title}`).width;
+    ctx.font = `400 ${smallSize}px "Press Start 2P", monospace`;
+    const w2 = ctx.measureText(preview).width;
+    const boxW = Math.ceil(Math.max(w1, w2) + padX * 2);
+    const boxH = Math.ceil(fontSize + smallSize + padY * 2 + gap);
+    const left = Math.round((view.w - boxW) / 2);
+    const top = Math.round(view.h - boxH - clamp(24 * view.scale, 18, 38));
+    const cx = Math.round(view.w / 2);
+
+    rect(left, top, boxW, boxH, '#fff');
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = Math.max(1, Math.round(1.5 * view.scale));
+    ctx.strokeRect(Math.round(left) + .5, Math.round(top) + .5, Math.round(boxW) - 1, Math.round(boxH) - 1);
+
+    ctx.fillStyle = color;
+    ctx.font = `700 ${fontSize}px "Press Start 2P", monospace`;
+    ctx.fillText(`${hint}  ${title}`, cx, top + padY);
+    ctx.font = `400 ${smallSize}px "Press Start 2P", monospace`;
+    ctx.fillText(preview, cx, top + padY + fontSize + gap);
+    ctx.restore();
+  }
+
+
+
+  function drawDecor() {
+    if (!game.decor.length) return;
+    for (const item of game.decor) {
+      const sprite = decorSprites[item.spriteIndex];
+      if (!sprite || !sprite.ready) continue;
+      const w = sprite.width * item.scale;
+      const h = sprite.height * item.scale;
+      const x = item.x;
+      const y = view.floor - h + 8 * view.scale + item.yOffset;
+      if (x + w < -20 || x > view.w + 20) continue;
+      ctx.save();
+      ctx.globalAlpha = .92;
+      drawImageMaybeFlip(sprite, x, y, w, h, item.flip);
+      ctx.restore();
+    }
+  }
+
+  function drawFinishFlag() {
+    if (game.finishX == null || !flagSprite.ready) return;
+    const s = envTileScale() * .98;
+    const w = flagSprite.width * s;
+    const h = flagSprite.height * s;
+    const x = game.finishX;
+    const y = view.floor - h + 12 * view.scale;
+    if (x + w < -40 || x > view.w + 80) return;
+    drawImageMaybeFlip(flagSprite, x, y, w, h, false);
+  }
+
+  function drawKnight() {
+    if (game.mode === 'falling' || game.mode === 'dead') {
+      const sprite = fallSprites[game.mode === 'dead' ? 1 : game.fallStep];
+      if (sprite && sprite.ready) {
+        const s = view.scale * 1.64;
+        const w = sprite.width * s;
+        const h = sprite.height * s;
+        drawImageMaybeFlip(sprite, view.playerX - w * .52, view.floor - h + 14 * view.scale, w, h, false);
+        return;
+      }
+    }
+
+    if ((game.mode === 'victory' || game.mode === 'complete') && victorySprite.ready) {
+      const s = view.scale * 1.64;
+      const w = victorySprite.width * s;
+      const h = victorySprite.height * s;
+      drawImageMaybeFlip(victorySprite, view.playerX - w * .48, view.floor - h + 14 * view.scale, w, h, false);
+      return;
+    }
+
+    const frame = RUN[Math.floor(game.time * 10) % RUN.length];
+    const s = view.scale * 1.18;
+    const dw = Math.round(frame.w * s);
+    const dh = Math.round(frame.h * s);
+    const dx = Math.round(view.playerX - dw * .5);
+    const dy = Math.round(view.floor - dh + 9 * s);
+    if (!atlasReady) {
+      rect(view.playerX - 42 * view.scale, view.floor - 84 * view.scale, 84 * view.scale, 70 * view.scale, '#000');
+      return;
+    }
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.beginPath();
+    ctx.rect(view.playerX - 142 * s, view.floor - 224 * s, 284 * s, 232 * s);
+    ctx.clip();
+    ctx.translate(dx + dw, dy);
+    ctx.scale(-1, 1);
+    ctx.drawImage(atlas, frame.x, frame.y, frame.w, frame.h, 0, 0, dw, dh);
+    ctx.restore();
+  }
+
+  function loop(now) {
+    if (!active || destroyed) {
+      game.raf = 0;
+      return;
+    }
+    const dt = Math.max(0, Math.min(.034, (now - game.last) / 1000 || 0));
+    game.last = now;
+    updateView();
+    update(dt);
+    draw();
+    game.raf = requestAnimationFrame(loop);
+  }
+
+  function actionFromKeyboardEvent(event) {
+    const code = event.code || '';
+    const key = event.key || '';
+    if (code === 'ArrowUp' || key === 'ArrowUp' || key === 'Up' || event.keyCode === 38) return 'upper';
+    if (code === 'ArrowDown' || key === 'ArrowDown' || key === 'Down' || event.keyCode === 40) return 'lower';
+    if (code === 'ArrowRight' || key === 'ArrowRight' || key === 'Right' || event.keyCode === 39) return 'toggle';
+    if (code === 'ArrowLeft' || key === 'ArrowLeft' || key === 'Left' || event.keyCode === 37) return 'title';
+    return null;
+  }
+
+  function handleKey(event) {
+    if (!active || destroyed || !root.contains(document.activeElement)) return;
+    const code = event.code || '';
+    const key = event.key || '';
+    const isEnter = code === 'Enter' || key === 'Enter' || event.keyCode === 13;
+    const action = actionFromKeyboardEvent(event);
+
+    if (!startPanel.hidden) {
+      if (isEnter) {
+        event.preventDefault();
+        event.stopImmediatePropagation?.();
+        event.stopPropagation();
+        if (!event.repeat) reset();
+        return;
+      }
+      if (action) {
+        event.preventDefault();
+        event.stopImmediatePropagation?.();
+        event.stopPropagation();
+        return;
+      }
+    }
+
+    if (!restartPanel.hidden) {
+      if (isEnter) {
+        event.preventDefault();
+        event.stopImmediatePropagation?.();
+        event.stopPropagation();
+        if (!event.repeat) reset();
+        return;
+      }
+      if (action) {
+        event.preventDefault();
+        event.stopImmediatePropagation?.();
+        event.stopPropagation();
+        return;
+      }
+    }
+
+    if (action) {
+      event.preventDefault();
+      event.stopImmediatePropagation?.();
+      event.stopPropagation();
+      if (!event.repeat) command(action);
+      return;
+    }
+  }
+
+  window.addEventListener('keydown', handleKey, { capture:true, passive:false, signal: abortController.signal });
+
+  let startPointerHandled = false;
+
+  startButton.addEventListener('pointerdown', event => {
     event.preventDefault();
-    answerWith(found[0]);
-  }
+    event.stopPropagation();
+    startPointerHandled = true;
+    reset();
+  }, { signal: abortController.signal });
 
-  start.addEventListener('click', startSession, { signal: abortController.signal });
-  restart.addEventListener('click', startSession, { signal: abortController.signal });
-  for (const button of actionButtons) {
-    button.addEventListener('click', () => answerWith(button.getAttribute('data-awful-cases-action')), { signal: abortController.signal });
-  }
-  window.addEventListener('keydown', onKeyDown, { signal: abortController.signal });
+  startButton.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (startPointerHandled) {
+      startPointerHandled = false;
+      return;
+    }
+    reset();
+  }, { signal: abortController.signal });
 
-  resetState();
-  render();
+  let restartPointerHandled = false;
+
+  restartButton.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    restartPointerHandled = true;
+    reset();
+  }, { signal: abortController.signal });
+
+  restartButton.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (restartPointerHandled) {
+      restartPointerHandled = false;
+      return;
+    }
+    reset();
+  }, { signal: abortController.signal });
+
+  focusCanvas();
+
+  root.awfulCasesCaseTrainer = { game, view, dictionary:DICTIONARY, command, reset, startDemo, nearestTask };
+  const resizeObserver = 'ResizeObserver' in window ? new ResizeObserver(resize) : null;
+  resizeObserver?.observe(root);
+  window.addEventListener('resize', resize, { passive:true, signal: abortController.signal });
+  resize();
+  startDemo();
 
   return {
     setActive(nextActive) {
+      if (destroyed) return;
       active = Boolean(nextActive);
-      if (active) render();
+      if (!active) {
+        if (game.raf) cancelAnimationFrame(game.raf);
+        game.raf = 0;
+        return;
+      }
+      resize();
+      game.last = performance.now();
+      focusCanvas();
+      if (!game.raf) game.raf = requestAnimationFrame(loop);
     },
     destroy() {
+      if (destroyed) return;
       destroyed = true;
+      active = false;
+      if (game.raf) cancelAnimationFrame(game.raf);
+      game.raf = 0;
+      resizeObserver?.disconnect();
       abortController.abort();
-    }
+      delete root.awfulCasesCaseTrainer;
+    },
   };
+
 }
