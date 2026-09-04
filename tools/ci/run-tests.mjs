@@ -20,7 +20,9 @@ export const fastTests = new Set([
   "test/editorial-copy-optional.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
+  "test/site-analytics.test.mjs",
   "test/site-pages.test.mjs",
+  "test/static-site-analytics.test.mjs",
 ]);
 
 const ciTests = new Set([
