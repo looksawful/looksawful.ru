@@ -27,7 +27,8 @@ function renderSectionShell(
     <section
       class="project__section wrapper stack"
       id="${escapeHtml(section.id)}"
-      data-section-type="${escapeHtml(section.type)}"${extraAttributes}
+      data-section-type="${escapeHtml(section.type)}"
+      data-media-caption-scope${extraAttributes}
     >
       ${body}
     </section>
