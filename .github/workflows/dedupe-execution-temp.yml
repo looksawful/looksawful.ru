@@ -1,0 +1,40 @@
+name: Dedupe Execution TEMP
+
+on:
+  push:
+    branches:
+      - agent/media-normalization-dedupe-exec-20260904
+
+permissions:
+  contents: read
+
+jobs:
+  preapply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: MD-02 guarded dry-run
+        run: node tools/media/apply-dedupe-migration.mjs
+      - name: Typecheck
+        if: always()
+        run: npm run typecheck
+      - name: Media contract
+        if: always()
+        run: npm run test:media:contract
+      - name: Media checks
+        if: always()
+        run: npm run test:media:checks
+      - name: Production build
+        if: always()
+        run: npm run build:site
