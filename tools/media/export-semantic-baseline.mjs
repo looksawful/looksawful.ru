@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   mediaAssets,
+  mediaCatalogItems,
   mediaEntries,
 } from "../../src/data/media/index.ts";
 import { registeredMediaAssets } from "../../src/data/media/assets/registered.ts";
@@ -68,13 +69,13 @@ function catalogSemanticRecord(item, assetId = item.asset.id) {
  * Builds the semantic golden snapshot.
  *
  * During the reviewed dedupe migration, runtime entries intentionally point at
- * canonical assets. `normalizeDedupeAliases` projects those specific entries
- * back to their pre-dedupe asset identity solely for comparison with the
- * frozen 83ea6cb8 fixture. Contextual values are never normalized or merged.
+ * canonical assets. `normalizeDedupeAliases` projects only those asset
+ * identities back to their pre-dedupe values for comparison with the frozen
+ * 83ea6cb8 fixture. Contextual values are never normalized, unioned or dropped.
  *
  * The migration comparison reads the legacy/base catalog projection because
- * retired records remain available until the final source cleanup. Runtime
- * browsing is validated separately through catalog-view tests.
+ * retired rows remain available until the final source cleanup. Runtime
+ * browsing is validated independently through catalog-view tests.
  */
 export function buildSemanticBaseline(
   trackedCatalogAssetIds,
@@ -86,7 +87,7 @@ export function buildSemanticBaseline(
   );
   const catalogItems = normalizeDedupeAliases
     ? baseMediaCatalogItems
-    : (awaitRuntimeCatalogItems());
+    : mediaCatalogItems;
   const catalogByAssetId = new Map(
     catalogItems.map((item) => [item.asset.id, item]),
   );
@@ -149,16 +150,6 @@ export function buildSemanticBaseline(
     missingTrackedCatalogAssetIds,
     trackedCatalogMetadataSha256: sha256(trackedCatalogSemantics),
   };
-}
-
-// Keep the normal baseline tied to the public runtime catalog without creating
-// a static import cycle in the migration-only path.
-function awaitRuntimeCatalogItems() {
-  // catalog-view is already evaluated by src/data/media/index.ts. Requiring the
-  // same data here through the exported module would add no new semantics, so
-  // the base catalog is used for ordinary comparison as well until the final
-  // cleanup removes the transitional records.
-  return baseMediaCatalogItems;
 }
 
 export async function readSemanticBaselineFixture() {
