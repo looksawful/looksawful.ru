@@ -356,7 +356,7 @@ export function parseUploadedMediaCatalogRecord(value: unknown): ParsedUploadedM
   const record = expectRecord(value, "Uploaded media catalog record");
   expectExactKeys(record, UPLOADED_KEYS, "Uploaded media catalog record");
   const id = expectString(record.id, "Uploaded media catalog record.id", { empty: false });
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(id)) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
     throw new Error(`Uploaded media catalog record has invalid UUID "${id}"`);
   }
   const mediaType = expectCmsMediaType(record.mediaType, `Uploaded media catalog record "${id}".mediaType`);
@@ -398,7 +398,9 @@ function normalizeCatalogRecords() {
   const uploaded = uploadedMediaCatalogSources.map((source) =>
     parseUploadedMediaCatalogRecord(source),
   );
-  const registeredAssetById = new Map(registeredMediaAssets.map((asset) => [asset.id, asset]));
+  const registeredAssetById = new Map<string, MediaAsset>(
+    registeredMediaAssets.map((asset) => [asset.id, asset]),
+  );
   const ids = new Set<string>();
   const sources = new Set<string>();
 
