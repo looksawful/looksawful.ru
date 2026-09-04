@@ -17,6 +17,13 @@ function page(id) {
   return result;
 }
 
+function videoOpeningTagForSource(html, source) {
+  const escapedSource = source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = html.match(new RegExp(`<video([^>]*)><source src="${escapedSource}"`));
+  assert.ok(match, `missing video source ${source}`);
+  return match[1];
+}
+
 test("every enabled entity page has canonical PageContent", () => {
   assert.doesNotThrow(() => validatePageContentManifest(
     sitePages,
@@ -67,9 +74,18 @@ test("standalone Sensetique page is canonical, isolated, and marker-free", () =>
   assert.match(html, />Digital Fear of Love<\/strong>/);
   assert.doesNotMatch(html, /Digital-fear-of-love — адверториал для ювелирного бренда MIMI MOSCOW/);
   assert.doesNotMatch(html, /<strong class="credits__title">Olovo Moscow<\/strong>/);
-  assert.match(html, /<video[^>]*sensetique-09-source-56-16x9-use-02/);
-  assert.doesNotMatch(html, /<video[^>]*(?:width|height)="[^"]*"[^>]*sensetique-09-source-56-16x9-use-02/);
-  assert.doesNotMatch(html, /<video[^>]*(?:width|height)="[^"]*"[^>]*sensetique-11-source-28-16x9-use-02/);
+
+  const krasotaVideo = videoOpeningTagForSource(
+    html,
+    "/media/projects/sensetique/09/source/56-16x9.mp4",
+  );
+  const olovoVideo = videoOpeningTagForSource(
+    html,
+    "/media/projects/sensetique/11/source/28-16x9.mp4",
+  );
+  assert.doesNotMatch(krasotaVideo, /\b(?:width|height)="/);
+  assert.doesNotMatch(olovoVideo, /\b(?:width|height)="/);
+
   assert.doesNotMatch(html, /id="project-jestei"/);
   assert.doesNotMatch(html, /id="project-styx"/);
   assert.doesNotMatch(html, /id="project-shootings"/);
