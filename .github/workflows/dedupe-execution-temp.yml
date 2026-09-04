@@ -1,4 +1,4 @@
-name: Materialize Responsive Preapply State TEMP
+name: Diagnose Semantic Baseline Drift TEMP
 
 on:
   push:
@@ -6,13 +6,12 @@ on:
       - agent/media-normalization-dedupe-wave1-preapply-20260904
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  materialize-responsive:
-    if: github.event.head_commit.message != 'chore media materialize responsive preapply state'
+  semantic-diff:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
         with:
@@ -22,41 +21,123 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Install media tooling
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-      - name: Materialize repository media state
-        run: |
-          npm run media:sync
-          node tools/media-dev-state.mjs --cache-verify
-      - name: Verify generated mutation boundary
+      - name: Fetch frozen base
         shell: bash
         run: |
           set -euo pipefail
-          node --input-type=module <<'NODE'
-          import { execFileSync } from 'node:child_process';
-          const changed = execFileSync('git', ['status', '--porcelain=v1', '-z'], { encoding: 'utf8' })
-            .split('\0').filter(Boolean).map((row) => row.slice(3)).sort();
-          const expected = [
-            'public/media/generated/responsive-manifest.json',
-            'src/data/media/responsive-generated.ts',
-          ].sort();
-          console.log(JSON.stringify({ changed, expected }, null, 2));
-          if (JSON.stringify(changed) !== JSON.stringify(expected)) process.exitCode = 1;
+          git fetch --no-tags --depth=1 origin 83ea6cb845528e1976b13687956bdd249ba8def8
+          git worktree add /tmp/semantic-base FETCH_HEAD
+      - name: Export exact base/current semantic records and diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/semantic-diff.mjs <<'NODE'
+          import { pathToFileURL } from 'node:url';
+
+          const tracked = (await import(pathToFileURL(`${process.cwd()}/test/fixtures/media-semantic-baseline.json`), { with: { type: 'json' } })).default.trackedCatalogAssetIds;
+
+          function entryRecord(entry, asset, assetId = entry.assetId) {
+            return {
+              id: entry.id,
+              assetId,
+              projectIds: entry.projectIds ?? [],
+              creditId: entry.creditId ?? null,
+              alt: entry.alt ?? null,
+              posterAssetId: entry.posterAssetId ?? null,
+              caption: entry.caption ?? null,
+              purpose: entry.purpose ?? null,
+              mediaType: asset?.type ?? null,
+              src: asset?.src ?? null,
+            };
+          }
+
+          function catalogRecord(item, assetId = item.asset.id) {
+            return {
+              assetId,
+              title: item.title,
+              alt: item.alt,
+              description: item.description,
+              date: item.date,
+              projectIds: item.projectIds,
+              workAreaIds: item.workAreaIds,
+              projectTypeIds: item.projectTypeIds,
+              deliverableIds: item.deliverableIds,
+              tags: item.tags,
+              credits: item.credits,
+              reusable: item.reusable,
+              archived: item.archived,
+            };
+          }
+
+          async function loadBase(root) {
+            const index = await import(pathToFileURL(`${root}/src/data/media/index.ts`));
+            const catalog = await import(pathToFileURL(`${root}/src/data/media/catalog.ts`));
+            const assets = index.mediaAssets;
+            const byId = new Map(assets.map((asset) => [asset.id, asset]));
+            const entries = [...index.mediaEntries]
+              .sort((a, b) => a.id.localeCompare(b.id))
+              .map((entry) => entryRecord(entry, byId.get(entry.assetId)));
+            const catalogById = new Map(catalog.mediaCatalogItems.map((item) => [item.asset.id, item]));
+            const trackedCatalog = [...tracked]
+              .sort((a, b) => a.localeCompare(b))
+              .flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id)] : []);
+            return { entries, trackedCatalog };
+          }
+
+          async function loadCurrent(root) {
+            const index = await import(pathToFileURL(`${root}/src/data/media/index.ts`));
+            const catalog = await import(pathToFileURL(`${root}/src/data/media/catalog.ts`));
+            const registered = await import(pathToFileURL(`${root}/src/data/media/assets/registered.ts`));
+            const usage = await import(pathToFileURL(`${root}/src/data/media/usage-records.ts`));
+            const runtimeById = new Map(index.mediaAssets.map((asset) => [asset.id, asset]));
+            const legacyById = new Map([...registered.registeredMediaAssets, ...index.mediaAssets].map((asset) => [asset.id, asset]));
+            const entries = [...index.mediaEntries]
+              .sort((a, b) => a.id.localeCompare(b.id))
+              .map((entry) => {
+                const migration = usage.dedupeUsageEvidenceByEntryId.get(entry.id);
+                const baselineAssetId = migration && entry.assetId === migration.toAssetId ? migration.fromAssetId : entry.assetId;
+                return entryRecord(entry, legacyById.get(baselineAssetId) ?? runtimeById.get(entry.assetId), baselineAssetId);
+              });
+            const catalogById = new Map(catalog.mediaCatalogItems.map((item) => [item.asset.id, item]));
+            const trackedCatalog = [...tracked]
+              .sort((a, b) => a.localeCompare(b))
+              .flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id)] : []);
+            return { entries, trackedCatalog };
+          }
+
+          function diffRecords(base, current, key) {
+            const left = new Map(base.map((row) => [row[key], row]));
+            const right = new Map(current.map((row) => [row[key], row]));
+            const ids = [...new Set([...left.keys(), ...right.keys()])].sort();
+            const diffs = [];
+            for (const id of ids) {
+              const a = left.get(id);
+              const b = right.get(id);
+              if (JSON.stringify(a) === JSON.stringify(b)) continue;
+              const fields = [...new Set([...Object.keys(a ?? {}), ...Object.keys(b ?? {})])];
+              const changed = {};
+              for (const field of fields) {
+                if (JSON.stringify(a?.[field]) !== JSON.stringify(b?.[field])) changed[field] = { base: a?.[field], current: b?.[field] };
+              }
+              diffs.push({ id, changed });
+            }
+            return diffs;
+          }
+
+          const base = await loadBase('/tmp/semantic-base');
+          const current = await loadCurrent(process.cwd());
+          const entryDiffs = diffRecords(base.entries, current.entries, 'id');
+          const catalogDiffs = diffRecords(base.trackedCatalog, current.trackedCatalog, 'assetId');
+          console.log(JSON.stringify({
+            baseEntryCount: base.entries.length,
+            currentEntryCount: current.entries.length,
+            entryDiffCount: entryDiffs.length,
+            entryDiffs,
+            baseTrackedCatalogCount: base.trackedCatalog.length,
+            currentTrackedCatalogCount: current.trackedCatalog.length,
+            catalogDiffCount: catalogDiffs.length,
+            catalogDiffs,
+          }, null, 2));
+          if (entryDiffs.length || catalogDiffs.length) process.exitCode = 1;
           NODE
-      - name: Verify generated media contracts
-        run: |
-          npm run test:media:contract
-          npm run test:media:checks
-          npm run build:site
-      - name: Commit deterministic generated state
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/media/generated/responsive-manifest.json src/data/media/responsive-generated.ts
-          git diff --cached --quiet && { echo 'expected responsive generated state changes'; exit 1; }
-          git commit -m 'chore media materialize responsive preapply state'
-          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-20260904
+          node /tmp/semantic-diff.mjs
