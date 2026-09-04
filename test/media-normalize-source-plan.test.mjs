@@ -5,23 +5,38 @@ import { buildNormalizationSteps } from "../tools/media/normalize-media-source.m
 
 test("dry-run normalization never schedules a mutating command", () => {
   const steps = buildNormalizationSteps({ apply: false });
-  assert.ok(steps.length >= 4);
+  assert.deepEqual(steps.map((step) => step.label), [
+    "check-materialized-entry-context",
+    "logical-dedupe-dry-run",
+    "deferred-physical-dedupe-dry-run",
+  ]);
   for (const step of steps) {
     assert.equal(step.args.includes("--apply"), false, step.label);
     assert.equal(step.args.includes("--write"), false, step.label);
   }
 });
 
-test("apply normalization materializes context before destructive dedupe", () => {
+test("apply normalization snapshots semantics before mutation and verifies after each destructive phase", () => {
   const steps = buildNormalizationSteps({ apply: true });
-  const labels = steps.map((step) => step.label);
-  assert.deepEqual(labels.slice(0, 4), [
+  assert.deepEqual(steps.map((step) => step.label), [
+    "capture-live-semantics",
     "materialize-entry-context",
     "check-materialized-entry-context",
-    "logical-dedupe",
-    "deferred-physical-dedupe",
+    "verify-semantics-after-materialize",
+    "logical-dedupe-dry-run",
+    "logical-dedupe-apply",
+    "deferred-physical-dedupe-dry-run",
+    "deferred-physical-dedupe-apply",
+    "media-sync",
+    "verify-live-semantics-final",
+    "dedupe-integrity",
+    "typecheck",
+    "media-tests",
+    "fast-tests",
+    "site-build",
   ]);
   assert.equal(steps[0].args.includes("--write"), true);
-  assert.equal(steps[2].args.includes("--apply"), true);
-  assert.equal(steps[3].args.includes("--apply"), true);
+  assert.equal(steps[1].args.includes("--write"), true);
+  assert.equal(steps[5].args.includes("--apply"), true);
+  assert.equal(steps[7].args.includes("--apply"), true);
 });
