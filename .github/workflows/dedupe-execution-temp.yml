@@ -11,7 +11,7 @@ permissions:
 jobs:
   dry-run-and-media:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
@@ -36,18 +36,23 @@ jobs:
           node tools/media/materialize-entry-context.mjs
           npm run media:catalog:check
           git diff --exit-code
-      - name: Guarded dedupe dry-run
+      - name: Guarded logical dedupe dry-run
         run: |
           node tools/media/apply-dedupe-migration.mjs
+          git diff --exit-code
+      - name: Guarded deferred physical dry-run
+        run: |
+          node tools/media/apply-deferred-physical-dedupe.mjs
           git diff --exit-code
       - name: Typecheck
         run: npm run typecheck
       - name: Media contract
         run: npm run test:media:contract
-      - name: Generate media derivatives
+      - name: Rebuild and validate generated media
         run: |
-          npm run media:video:generate
-          npm run media:responsive:generate
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
       - name: Media checks
         run: npm run test:media:checks
       - name: Build site
@@ -71,10 +76,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes ffmpeg
-      - name: Generate media derivatives
+      - name: Rebuild and validate generated media
         run: |
-          npm run media:video:generate
-          npm run media:responsive:generate
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
       - name: Build site
         run: npm run build:site
       - name: Install Chromium
@@ -88,7 +94,7 @@ jobs:
 
   full-verification:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@v7
         with:
@@ -103,10 +109,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes ffmpeg
           npx playwright install --with-deps chromium
-      - name: Generate media derivatives
+      - name: Rebuild generated media
         run: |
-          npm run media:video:generate
-          npm run media:responsive:generate
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
       - name: Verify
         run: npm run verify
       - name: Verify full
