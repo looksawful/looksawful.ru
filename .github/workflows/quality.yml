@@ -8,13 +8,18 @@ on:
         required: true
         default: all
         type: choice
-        options: [all, full-e2e, lighthouse, dependency-audit, external-links, health]
+        options: [all, full-e2e, media-physical, lighthouse, dependency-audit, external-links, health]
+      target:
+        description: Branch/ref for manual quality jobs
+        required: true
+        default: dev
+        type: choice
+        options: [dev, prod]
   schedule:
+    # Production health stays lightweight and frequent.
     - cron: "17 */6 * * *"
-    - cron: "31 2 * * *"
-    - cron: "41 4 * * 2"
-    - cron: "13 5 * * 3"
-    - cron: "23 6 * * 4"
+    # Nightly full quality suite. GitHub cron is UTC: 01:37 UTC = 04:37 Moscow.
+    - cron: "37 1 * * *"
 
 permissions:
   contents: read
@@ -39,11 +44,14 @@ jobs:
           node tools/check-production.mjs
 
   dependency-audit:
-    if: github.event.schedule == '41 4 * * 2' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'dependency-audit'))
+    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'dependency-audit'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          fetch-depth: 1
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -53,11 +61,14 @@ jobs:
         run: npm run audit:deps
 
   external-links:
-    if: github.event.schedule == '23 6 * * 4' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'external-links'))
+    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'external-links'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          fetch-depth: 1
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -73,12 +84,32 @@ jobs:
           path: artifacts/external-links
           if-no-files-found: warn
 
-  full-e2e:
-    if: github.event.schedule == '31 2 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'full-e2e'))
+  media-physical:
+    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'media-physical'))
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Audit physical media duplicates
+        run: npm run media:dedupe:physical
+
+  full-e2e:
+    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'full-e2e'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          fetch-depth: 1
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -95,6 +126,7 @@ jobs:
           git diff --exit-code
       - run: npm run typecheck
       - run: npm run test:core
+      - run: npm run media:dedupe:check
       - run: npm run build:site
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -102,11 +134,14 @@ jobs:
         run: npm run test:e2e:full
 
   lighthouse:
-    if: github.event.schedule == '13 5 * * 3' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'lighthouse'))
+    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'lighthouse'))
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          fetch-depth: 1
       - uses: actions/setup-node@v7
         with:
           node-version: 24
