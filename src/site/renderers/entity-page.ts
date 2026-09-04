@@ -1,3 +1,4 @@
+import { renderJesteiTrackFilter } from "../../components/specialized/index.ts";
 import {
   entityPageContentRegistry,
   getEntityPageContent,
@@ -51,6 +52,9 @@ function renderCanonicalEntityArticle(page: EntityPageDefinition): string {
   return renderEntityShell(content, {
     ...presentation,
     introHeadingLevel: 1,
+    specialized: {
+      jesteiTrackFilter: renderJesteiTrackFilter,
+    },
   });
 }
 
