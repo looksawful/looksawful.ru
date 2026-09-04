@@ -1445,6 +1445,21 @@ export const responsiveMediaVariants = {
       "src": "/media/generated/responsive/projects/berry/03/source/06-2x3@768.webp",
       "width": 768,
       "height": 1152
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/03/source/06-2x3@1280.webp",
+      "width": 1280,
+      "height": 1920
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/03/source/06-2x3@1920.webp",
+      "width": 1920,
+      "height": 2880
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/03/source/06-2x3@2560.webp",
+      "width": 2560,
+      "height": 3840
     }
   ],
   "berry-05-source-01-1050x1400": [
@@ -4377,6 +4392,11 @@ export const responsiveMediaVariants = {
       "src": "/media/generated/responsive/projects/sensetique/05/source/02-4x5@480.webp",
       "width": 480,
       "height": 609
+    },
+    {
+      "src": "/media/generated/responsive/projects/sensetique/05/source/02-4x5@768.webp",
+      "width": 768,
+      "height": 974
     }
   ],
   "sensetique-05-source-03-375x538": [

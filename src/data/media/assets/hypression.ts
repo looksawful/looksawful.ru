@@ -22,21 +22,7 @@ export const hypressionMediaAssets = [
       width: 1280,
       height: 905,
     },
-  {
-      id: "hypression-16-source-01-479x671",
-      type: "image",
-      src: "/media/projects/shootings/16/source/01-479x671.webp",
-      width: 479,
-      height: 671,
-    },
-  {
-      id: "hypression-16-source-02-2x3",
-      type: "image",
-      src: "/media/projects/shootings/16/source/02-2x3.webp",
-      width: 853,
-      height: 1280,
-    },
-  {
+      {
       id: "hypression-17-source-01-4x5",
       type: "image",
       src: "/media/projects/shootings/17/source/01-4x5.webp",

@@ -43,14 +43,7 @@ export const obladaetMediaAssets = [
       width: 1120,
       height: 1400,
     },
-  {
-      id: "obladaet-02-source-04-4x5",
-      type: "image",
-      src: "/media/projects/shootings/02/source/04-4x5.webp",
-      width: 1120,
-      height: 1400,
-    },
-  {
+    {
       id: "obladaet-03-source-01-4x5",
       type: "image",
       src: "/media/projects/shootings/03/source/01-4x5.webp",
@@ -71,21 +64,7 @@ export const obladaetMediaAssets = [
       width: 1129,
       height: 1280,
     },
-  {
-      id: "obladaet-04-source-01-4x5",
-      type: "image",
-      src: "/media/projects/shootings/04/source/01-4x5.webp",
-      width: 1120,
-      height: 1400,
-    },
-  {
-      id: "obladaet-04-source-02-4x5",
-      type: "image",
-      src: "/media/projects/shootings/04/source/02-4x5.webp",
-      width: 1120,
-      height: 1400,
-    },
-  {
+      {
       id: "obladaet-04-source-03-4x5",
       type: "image",
       src: "/media/projects/shootings/04/source/03-4x5.webp",

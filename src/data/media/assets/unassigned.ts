@@ -29,35 +29,7 @@ export const unassignedMediaAssets = [
       width: 1120,
       height: 1400,
     },
-  {
-      id: "portfolio-portfolio-extra-06-2x3",
-      type: "image",
-      src: "/media/projects/shootings/portfolio/source/portfolio-extra-06-2x3.webp",
-      width: 930,
-      height: 1400,
-    },
-  {
-      id: "portfolio-portfolio-extra-07-1216x1400",
-      type: "image",
-      src: "/media/projects/shootings/portfolio/source/portfolio-extra-07-1216x1400.webp",
-      width: 1216,
-      height: 1400,
-    },
-  {
-      id: "portfolio-portfolio-extra-08-1x1",
-      type: "image",
-      src: "/media/projects/shootings/portfolio/source/portfolio-extra-08-1x1.webp",
-      width: 1400,
-      height: 1400,
-    },
-  {
-      id: "portfolio-portfolio-extra-09-2x3",
-      type: "image",
-      src: "/media/projects/shootings/portfolio/source/portfolio-extra-09-2x3.webp",
-      width: 929,
-      height: 1400,
-    },
-  {
+          {
       id: "portfolio-portfolio-extra-10-854x1280",
       type: "image",
       src: "/media/projects/shootings/portfolio/source/portfolio-extra-10-854x1280.webp",

@@ -218,14 +218,7 @@ export const behanceShootingMediaAssets = [
     width: 854,
     height: 1280,
   },
-  {
-    id: "behance-hypression-004",
-    type: "image",
-    src: "/media/projects/shootings/behance/hypression/source/004.webp",
-    width: 923,
-    height: 1334,
-  },
-  {
+    {
     id: "behance-hypression-005",
     type: "image",
     src: "/media/projects/shootings/behance/hypression/source/005.webp",
@@ -239,14 +232,7 @@ export const behanceShootingMediaAssets = [
     width: 1068,
     height: 1334,
   },
-  {
-    id: "behance-hypression-007",
-    type: "image",
-    src: "/media/projects/shootings/behance/hypression/source/007.webp",
-    width: 1200,
-    height: 960,
-  },
-  {
+    {
     id: "behance-hypression-008",
     type: "image",
     src: "/media/projects/shootings/behance/hypression/source/008.webp",
@@ -267,14 +253,7 @@ export const behanceShootingMediaAssets = [
     width: 362,
     height: 270,
   },
-  {
-    id: "behance-offmi-cover",
-    type: "image",
-    src: "/media/projects/shootings/behance/offmi/cover.webp",
-    width: 404,
-    height: 316,
-  },
-  {
+    {
     id: "behance-offmi-001",
     type: "image",
     src: "/media/projects/shootings/behance/offmi/source/001.webp",
