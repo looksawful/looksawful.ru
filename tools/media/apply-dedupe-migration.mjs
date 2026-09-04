@@ -310,7 +310,10 @@ export function metadataBlockers(component, catalogById, usageByEntryId, entryBy
             ? entry
             : null;
 
-        if (!source || !stableEqual(source[key], old[key])) {
+        const missingLegacyEmptyAlt =
+          key === "alt" && old[key] === "" && source === null;
+
+        if (!missingLegacyEmptyAlt && (!source || !stableEqual(source[key], old[key]))) {
           blockers.push(`${removeId}.${key} differs without usage carrier on ${entryId}`);
         }
       }
