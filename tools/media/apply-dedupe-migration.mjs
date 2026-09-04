@@ -8,6 +8,7 @@ import { mediaAssets, mediaEntries } from "../../src/data/media/index.ts";
 import { registeredMediaAssets } from "../../src/data/media/assets/registered.ts";
 import { mediaCatalogItems as baseMediaCatalogItems } from "../../src/data/media/catalog.ts";
 import { dedupeMediaUsageRecords } from "../../src/data/media/usage-records.ts";
+import { renderMediaCatalogImportIndex } from "../sync-media-catalog.mjs";
 
 import logicalSource from "../media-migration/manifests/2026-09-03-media-dedupe/logical-assets.json" with { type: "json" };
 import noMergeSource from "../media-migration/manifests/2026-09-03-media-dedupe/no-merge.json" with { type: "json" };
@@ -78,6 +79,40 @@ async function walk(dir) {
     else result.push(path);
   }
   return result;
+}
+
+async function jsonFilenames(repoRelative) {
+  return (await readdir(absolute(repoRelative)).catch(() => []))
+    .filter((filename) => filename.endsWith(".json"))
+    .sort();
+}
+
+export function filterCatalogRegisteredFilenames(filenames, removeIds) {
+  return filenames
+    .filter((filename) => filename.endsWith(".json"))
+    .filter((filename) => !removeIds.has(filename.slice(0, -5)))
+    .sort();
+}
+
+async function refreshCatalogImportIndex(removeIds) {
+  const registeredFilenames = filterCatalogRegisteredFilenames(
+    await jsonFilenames("src/content/media-catalog/registered"),
+    removeIds,
+  );
+  const uploadedFilenames = await jsonFilenames("src/content/media-catalog/uploads");
+  const contents = renderMediaCatalogImportIndex({
+    registeredFilenames,
+    uploadedFilenames,
+  });
+  await writeFile(
+    absolute("src/data/media/catalog-records.generated.ts"),
+    contents,
+    "utf8",
+  );
+  return {
+    registeredCount: registeredFilenames.length,
+    uploadedCount: uploadedFilenames.length,
+  };
 }
 
 export function classifyReference(path) {
@@ -455,6 +490,8 @@ async function applyPlan(plan) {
     if (next !== text) await writeFile(path, next, "utf8");
   }
 
+  const catalogImportIndex = await refreshCatalogImportIndex(removeIds);
+
   const removedPhysicalPaths = [];
   for (const component of plan.components) {
     for (const removeId of component.removeAssetIds) {
@@ -474,6 +511,7 @@ async function applyPlan(plan) {
     appliedComponentIds: plan.components.map((component) => component.componentId),
     removedAssetIds: [...removeIds],
     removedPhysicalPaths,
+    catalogImportIndex,
   };
 }
 
