@@ -6,7 +6,9 @@ import { entityPageContentRegistry } from "../src/content/pages/index.ts";
 import { entryRequestToPagePath } from "../src/site/build/site-pages-plugin.ts";
 import { validatePageContentManifest } from "../src/site/pages/content-validation.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
+import { extractElementById } from "../src/site/rendering/html.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
+import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
 import { createHomepageSlots, renderHomepage } from "../src/site/renderers/home/home-slots.ts";
 
 const indexHtml = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -45,6 +47,28 @@ test("homepage renderer supplies every uppercase build-time marker exactly once"
   const rendered = renderHomepage(indexHtml);
   for (const marker of authoredMarkers) {
     assert.equal(rendered.includes(marker), false, `unresolved homepage marker ${marker}`);
+  }
+});
+
+test("homepage full entities render from canonical PageContent in declared order", () => {
+  const html = renderHomepagePage(indexHtml);
+  const articleIds = [
+    "project-jestei",
+    "project-styx",
+    "project-sensetique",
+    "project-shootings",
+  ];
+
+  let previousIndex = -1;
+  for (const articleId of articleIds) {
+    const article = extractElementById(html, "article", articleId);
+    const articleIndex = html.indexOf(article);
+    assert.ok(articleIndex > previousIndex, `${articleId} must follow homepageEntries order`);
+    previousIndex = articleIndex;
+
+    assert.match(article, /data-section-type=/, `${articleId} must use canonical Section rendering`);
+    assert.match(article, /<h2\b[^>]*class="project__title"/, `${articleId} must keep h2 on Homepage`);
+    assert.doesNotMatch(article, /<!-- [A-Z][A-Z0-9_]+ -->/);
   }
 });
 
