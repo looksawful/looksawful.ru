@@ -3,7 +3,7 @@
   "sourceEvidence": "stage4 user-reviewed SAME decisions",
   "baseEvidenceSha": "83ea6cb845528e1976b13687956bdd249ba8def8",
   "scope": "physical duplicate sources removed without MediaAsset deletion",
-  "componentIds": [1,2,3,4,7,8,9,10,11,14,18,19,20,23,26,27,29,30,31,32,33,34,36,37,38,39,40,41,42,43,44,45,46,47,48,49,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,81,83],
+  "componentIds": [1,2,3,4,7,8,9,10,11,14,19,20,23,26,27,29,30,31,32,33,34,36,37,38,39,40,41,42,43,44,45,46,47,48,49,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,81,83],
   "removePhysicalPaths": [
     "public/media/projects/berry/04/source/01-3x4.webp",
     "public/media/projects/shared/moves-awful/01/poster/01-2044x1112.webp",
@@ -18,7 +18,6 @@
     "public/media/projects/sensetique/09/source/29-4x5.webp",
     "public/media/projects/sensetique/11/poster/97-16x9.webp",
     "public/media/projects/shootings/13/source/01-1x1.webp",
-    "public/pets/awful-cases/assets/atlas.png",
     "public/media/projects/sensetique/09/source/30-2x3.webp",
     "public/media/projects/sensetique/11/source/79-933x1400.webp",
     "public/media/projects/sensetique/09/source/20-425x539.webp",
@@ -70,11 +69,17 @@
     "public/media/clients/logo-wall/client-logo-07.webp",
     "public/media/projects/shootings/22/source/01-7x10.webp"
   ],
-  "removedPhysicalPathCount": 64,
-  "removedBytes": 6634290,
-  "runtimeRewrites": {
-    "public/pets/awful-cases/assets/atlas.png": "public/media/interactive/awful-cases-atlas.png"
-  },
+  "removedPhysicalPathCount": 63,
+  "removedBytes": 6127743,
+  "runtimeRewrites": {},
+  "deferredRuntimeRewrites": [
+    {
+      "componentId": 18,
+      "path": "public/pets/awful-cases/assets/atlas.png",
+      "canonicalPath": "public/media/interactive/awful-cases-atlas.png",
+      "reason": "awful-cases implementation restored; apply the single ATLAS_SRC rewrite before deleting the duplicate atlas"
+    }
+  ],
   "ignoredTemporaryToolReferences": [
     "public/media/clients/logo-wall/client-logo-07.webp",
     "public/media/projects/shootings/22/source/01-7x10.webp"
