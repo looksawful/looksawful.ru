@@ -1,20 +1,9 @@
 {
   "id": "styx-03-source-03-4x5",
-  "mediaType": "image",
-  "src": "/media/projects/styx/03/source/03-4x5.webp",
-  "sourceSrc": "",
-  "width": 960,
-  "height": 1200,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Фотография из лукбука",
   "alt": "",
   "description": "",
   "date": "2023",
-  "projectIds": [
-    "styx-lookbook-2023"
-  ],
   "workAreaIds": [
     "photography"
   ],

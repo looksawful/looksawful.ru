@@ -1,20 +1,9 @@
 {
   "id": "behance-ecobasik-cover",
-  "mediaType": "image",
-  "src": "/media/projects/shootings/behance/ecobasik/cover.webp",
-  "sourceSrc": "",
-  "width": 404,
-  "height": 316,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Lookbook for Ecobasik",
   "alt": "Lookbook for Ecobasik",
   "description": "",
   "date": "",
-  "projectIds": [
-    "shootings-behance-ecobasik"
-  ],
   "workAreaIds": [
     "photography"
   ],

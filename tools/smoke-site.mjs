@@ -943,7 +943,12 @@ async function verifyProjectCardRevealBatching(page, label) {
   assert(initial?.hidden && initial.belowViewport, `${label}: final project card was not prepared below viewport\n${JSON.stringify(initial, null, 2)}`);
 
   await page.locator(".project-card[data-reveal=\"card\"]").first().scrollIntoViewIfNeeded();
-  await page.waitForTimeout(900);
+  await page.waitForFunction(() => {
+    const first = document.querySelector('.project-card[data-reveal="card"]');
+    if (!(first instanceof HTMLElement)) return false;
+    const style = getComputedStyle(first);
+    return style.visibility !== "hidden" && Number(style.opacity) > 0.95;
+  }, null, { timeout: 2_500 });
 
   const partial = await page.evaluate(() => {
     const cards = [...document.querySelectorAll(".project-card[data-reveal=\"card\"]")];
@@ -970,7 +975,12 @@ async function verifyProjectCardRevealBatching(page, label) {
   assert(partial.lastStillHidden && partial.lastBelowViewport, `${label}: lower project cards completed before entering viewport\n${JSON.stringify(partial, null, 2)}`);
 
   await page.locator(".project-card[data-reveal=\"card\"]").last().scrollIntoViewIfNeeded();
-  await page.waitForTimeout(900);
+  await page.waitForFunction(() => {
+    const card = [...document.querySelectorAll('.project-card[data-reveal="card"]')].at(-1);
+    if (!(card instanceof HTMLElement)) return false;
+    const style = getComputedStyle(card);
+    return style.visibility !== "hidden" && Number(style.opacity) > 0.95;
+  }, null, { timeout: 2_500 });
 
   const final = await page.evaluate(() => {
     const card = [...document.querySelectorAll(".project-card[data-reveal=\"card\"]")].at(-1);

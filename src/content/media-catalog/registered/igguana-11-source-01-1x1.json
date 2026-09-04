@@ -1,20 +1,9 @@
 {
   "id": "igguana-11-source-01-1x1",
-  "mediaType": "image",
-  "src": "/media/projects/shootings/11/source/01-1x1.webp",
-  "sourceSrc": "",
-  "width": 568,
-  "height": 562,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Обложка для Igguana.",
   "alt": "",
   "description": "",
   "date": "2023",
-  "projectIds": [
-    "shootings-igguana"
-  ],
   "workAreaIds": [
     "photography"
   ],

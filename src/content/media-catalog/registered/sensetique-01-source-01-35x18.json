@@ -1,18 +1,9 @@
 {
   "id": "sensetique-01-source-01-35x18",
-  "mediaType": "image",
-  "src": "/media/projects/sensetique/01/source/01-35x18.webp",
-  "sourceSrc": "",
-  "width": 0,
-  "height": 0,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Главная страница сайта студии.",
   "alt": "Главная страница сайта студии.",
   "description": "В 2018 году мы закончили строительство студии с 3 съемочными пространствами в здании завода на ул. Дмитрия Ульянова 42.",
   "date": "",
-  "projectIds": [],
   "workAreaIds": [
     "photography",
     "production"

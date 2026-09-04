@@ -1,20 +1,9 @@
 {
   "id": "obladaet-02-source-01-4x5",
-  "mediaType": "image",
-  "src": "/media/projects/shootings/02/source/01-4x5.webp",
-  "sourceSrc": "",
-  "width": 1024,
-  "height": 1280,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Коллаж для Obladaet.",
   "alt": "",
   "description": "",
   "date": "2020–2022",
-  "projectIds": [
-    "shootings-obladaet"
-  ],
   "workAreaIds": [
     "photography"
   ],

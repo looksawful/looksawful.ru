@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import test from "node:test";
 
+import { behanceShootingMediaAssets } from "../src/data/media/assets/behance-shootings.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 
 const requiredArchiveFiles = [
@@ -33,10 +34,16 @@ test("shootings archive data stays isolated while the Collection route remains d
     assert.ok(existsSync(path), `${path} must be present`);
   }
 
+  for (const asset of behanceShootingMediaAssets) {
+    assert.ok(
+      existsSync(`public${asset.src}`),
+      `registered Behance asset must have a physical file: ${asset.id} -> ${asset.src}`,
+    );
+  }
   assert.equal(
     countWebpFiles("public/media/projects/shootings/behance"),
-    80,
-    "all 80 imported Behance WebP assets must be present",
+    behanceShootingMediaAssets.length,
+    "Behance archive must contain exactly the registered deduped WebP assets",
   );
 
   assert.equal(existsSync("shootings/index.html"), true, "the Collection route must have a physical Vite input");

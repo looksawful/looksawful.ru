@@ -1,20 +1,9 @@
 {
   "id": "jestei-theme-organism-model",
-  "mediaType": "model",
-  "src": "/media/projects/jestei/theme-organism/jestei-theme-organism.glb",
-  "sourceSrc": "",
-  "width": 0,
-  "height": 0,
-  "durationSeconds": 0,
-  "mimeType": "model/gltf-binary",
-  "byteLength": 11404,
   "title": "Айдентика Jestei Pool",
   "alt": "",
   "description": "",
   "date": "",
-  "projectIds": [
-    "jestei-brand-system"
-  ],
   "workAreaIds": [
     "graphic-design",
     "identity",

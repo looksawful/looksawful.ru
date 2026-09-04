@@ -1,21 +1,9 @@
 {
   "id": "jestei-11-source-16-1x1",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/11/source/16-1x1.webp",
-  "sourceSrc": "",
-  "width": 676,
-  "height": 676,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Пост об обновлении Event.",
   "alt": "",
   "description": "",
   "date": "",
-  "projectIds": [
-    "jestei-event",
-    "jestei-promo-communication"
-  ],
   "workAreaIds": [
     "graphic-design",
     "brand-communication",

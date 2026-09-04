@@ -78,14 +78,7 @@ export const sandsMediaAssets = [
     width: 788,
     height: 1400,
   },
-  {
-    id: "sands-04-source-05-2x3",
-    type: "image",
-    src: "/media/projects/sands/04/source/05-2x3.webp",
-    width: 933,
-    height: 1400,
-  },
-  {
+    {
     id: "sands-05-source-16-1080x1920",
     type: "image",
     src: "/media/projects/sands/05/source/16-1080x1920.webp",

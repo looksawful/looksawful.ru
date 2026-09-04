@@ -525,18 +525,6 @@ export const responsiveMediaVariants = {
       "height": 1151
     }
   ],
-  "behance-hypression-004": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/004@480.webp",
-      "width": 480,
-      "height": 694
-    },
-    {
-      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/004@768.webp",
-      "width": 768,
-      "height": 1110
-    }
-  ],
   "behance-hypression-005": [
     {
       "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/005@480.webp",
@@ -559,18 +547,6 @@ export const responsiveMediaVariants = {
       "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/006@768.webp",
       "width": 768,
       "height": 959
-    }
-  ],
-  "behance-hypression-007": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/007@480.webp",
-      "width": 480,
-      "height": 384
-    },
-    {
-      "src": "/media/generated/responsive/projects/shootings/behance/hypression/source/007@768.webp",
-      "width": 768,
-      "height": 614
     }
   ],
   "behance-hypression-008": [
@@ -1469,6 +1445,21 @@ export const responsiveMediaVariants = {
       "src": "/media/generated/responsive/projects/berry/03/source/06-2x3@768.webp",
       "width": 768,
       "height": 1152
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/03/source/06-2x3@1280.webp",
+      "width": 1280,
+      "height": 1920
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/03/source/06-2x3@1920.webp",
+      "width": 1920,
+      "height": 2880
+    },
+    {
+      "src": "/media/generated/responsive/projects/berry/03/source/06-2x3@2560.webp",
+      "width": 2560,
+      "height": 3840
     }
   ],
   "berry-05-source-01-1050x1400": [
@@ -1635,18 +1626,6 @@ export const responsiveMediaVariants = {
       "height": 1086
     }
   ],
-  "evasha-08-source-02-4x5": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/08/source/02-4x5@480.webp",
-      "width": 480,
-      "height": 600
-    },
-    {
-      "src": "/media/generated/responsive/projects/shootings/08/source/02-4x5@768.webp",
-      "width": 768,
-      "height": 960
-    }
-  ],
   "evasha-09-source-01-4x5": [
     {
       "src": "/media/generated/responsive/projects/shootings/09/source/01-4x5@480.webp",
@@ -1729,13 +1708,6 @@ export const responsiveMediaVariants = {
       "src": "/media/generated/responsive/projects/shootings/15/source/02-256x181@768.webp",
       "width": 768,
       "height": 543
-    }
-  ],
-  "hypression-16-source-02-2x3": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/16/source/02-2x3@480.webp",
-      "width": 480,
-      "height": 720
     }
   ],
   "hypression-17-source-01-4x5": [
@@ -3856,18 +3828,6 @@ export const responsiveMediaVariants = {
       "height": 960
     }
   ],
-  "obladaet-02-source-04-4x5": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/02/source/04-4x5@480.webp",
-      "width": 480,
-      "height": 600
-    },
-    {
-      "src": "/media/generated/responsive/projects/shootings/02/source/04-4x5@768.webp",
-      "width": 768,
-      "height": 960
-    }
-  ],
   "obladaet-03-source-01-4x5": [
     {
       "src": "/media/generated/responsive/projects/shootings/03/source/01-4x5@480.webp",
@@ -3902,30 +3862,6 @@ export const responsiveMediaVariants = {
       "src": "/media/generated/responsive/projects/shootings/03/source/03-1129x1280@768.webp",
       "width": 768,
       "height": 871
-    }
-  ],
-  "obladaet-04-source-01-4x5": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/04/source/01-4x5@480.webp",
-      "width": 480,
-      "height": 600
-    },
-    {
-      "src": "/media/generated/responsive/projects/shootings/04/source/01-4x5@768.webp",
-      "width": 768,
-      "height": 960
-    }
-  ],
-  "obladaet-04-source-02-4x5": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/04/source/02-4x5@480.webp",
-      "width": 480,
-      "height": 600
-    },
-    {
-      "src": "/media/generated/responsive/projects/shootings/04/source/02-4x5@768.webp",
-      "width": 768,
-      "height": 960
     }
   ],
   "obladaet-04-source-03-4x5": [
@@ -4202,18 +4138,6 @@ export const responsiveMediaVariants = {
       "height": 853
     }
   ],
-  "sands-04-source-05-2x3": [
-    {
-      "src": "/media/generated/responsive/projects/sands/04/source/05-2x3@480.webp",
-      "width": 480,
-      "height": 720
-    },
-    {
-      "src": "/media/generated/responsive/projects/sands/04/source/05-2x3@768.webp",
-      "width": 768,
-      "height": 1152
-    }
-  ],
   "sands-05-source-16-1080x1920": [
     {
       "src": "/media/generated/responsive/projects/sands/05/source/16-1080x1920@480.webp",
@@ -4468,6 +4392,11 @@ export const responsiveMediaVariants = {
       "src": "/media/generated/responsive/projects/sensetique/05/source/02-4x5@480.webp",
       "width": 480,
       "height": 609
+    },
+    {
+      "src": "/media/generated/responsive/projects/sensetique/05/source/02-4x5@768.webp",
+      "width": 768,
+      "height": 974
     }
   ],
   "sensetique-05-source-03-375x538": [
@@ -5604,18 +5533,6 @@ export const responsiveMediaVariants = {
       "height": 1102
     }
   ],
-  "sensetique-12-source-11-427x640": [
-    {
-      "src": "/media/generated/responsive/projects/sensetique/12/source/11-427x640@480.webp",
-      "width": 480,
-      "height": 719
-    },
-    {
-      "src": "/media/generated/responsive/projects/sensetique/12/source/11-427x640@768.webp",
-      "width": 768,
-      "height": 1151
-    }
-  ],
   "sensetique-12-source-12-427x640": [
     {
       "src": "/media/generated/responsive/projects/sensetique/12/source/12-427x640@480.webp",
@@ -6314,30 +6231,6 @@ export const responsiveMediaVariants = {
       "height": 600
     }
   ],
-  "styx-05-source-12-4x5": [
-    {
-      "src": "/media/generated/responsive/projects/styx/05/source/12-4x5@480.webp",
-      "width": 480,
-      "height": 601
-    },
-    {
-      "src": "/media/generated/responsive/projects/styx/05/source/12-4x5@768.webp",
-      "width": 768,
-      "height": 961
-    }
-  ],
-  "styx-05-source-17-4x5": [
-    {
-      "src": "/media/generated/responsive/projects/styx/05/source/17-4x5@480.webp",
-      "width": 480,
-      "height": 601
-    },
-    {
-      "src": "/media/generated/responsive/projects/styx/05/source/17-4x5@768.webp",
-      "width": 768,
-      "height": 961
-    }
-  ],
   "styx-05-source-20-9x16": [
     {
       "src": "/media/generated/responsive/projects/styx/05/source/20-9x16@480.webp",
@@ -6612,54 +6505,6 @@ export const responsiveMediaVariants = {
       "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-05-4x5@768.webp",
       "width": 768,
       "height": 960
-    }
-  ],
-  "portfolio-portfolio-extra-06-2x3": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-06-2x3@480.webp",
-      "width": 480,
-      "height": 723
-    },
-    {
-      "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-06-2x3@768.webp",
-      "width": 768,
-      "height": 1156
-    }
-  ],
-  "portfolio-portfolio-extra-07-1216x1400": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-07-1216x1400@480.webp",
-      "width": 480,
-      "height": 553
-    },
-    {
-      "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-07-1216x1400@768.webp",
-      "width": 768,
-      "height": 884
-    }
-  ],
-  "portfolio-portfolio-extra-08-1x1": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-08-1x1@480.webp",
-      "width": 480,
-      "height": 480
-    },
-    {
-      "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-08-1x1@768.webp",
-      "width": 768,
-      "height": 768
-    }
-  ],
-  "portfolio-portfolio-extra-09-2x3": [
-    {
-      "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-09-2x3@480.webp",
-      "width": 480,
-      "height": 723
-    },
-    {
-      "src": "/media/generated/responsive/projects/shootings/portfolio/source/portfolio-extra-09-2x3@768.webp",
-      "width": 768,
-      "height": 1157
     }
   ],
   "portfolio-portfolio-extra-10-854x1280": [

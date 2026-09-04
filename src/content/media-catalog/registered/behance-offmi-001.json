@@ -1,20 +1,9 @@
 {
   "id": "behance-offmi-001",
-  "mediaType": "image",
-  "src": "/media/projects/shootings/behance/offmi/source/001.webp",
-  "sourceSrc": "",
-  "width": 1125,
-  "height": 1125,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Offmi",
   "alt": "Offmi — кадр 1",
   "description": "",
   "date": "",
-  "projectIds": [
-    "shootings-behance-offmi"
-  ],
   "workAreaIds": [
     "photography"
   ],

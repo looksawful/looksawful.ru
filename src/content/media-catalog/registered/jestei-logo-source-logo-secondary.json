@@ -1,20 +1,9 @@
 {
   "id": "jestei-logo-source-logo-secondary",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/logo/source/logo-secondary.svg",
-  "sourceSrc": "",
-  "width": 24,
-  "height": 24,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Айдентика Jestei Pool",
   "alt": "",
   "description": "",
   "date": "",
-  "projectIds": [
-    "jestei-brand-system"
-  ],
   "workAreaIds": [
     "graphic-design",
     "identity",

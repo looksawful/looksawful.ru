@@ -2,11 +2,12 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { createSiteInputs, pagePathToEntryPath } from "../src/site/build/inputs.ts";
 import { createSitePagesPlugin } from "../src/site/build/site-pages-plugin.ts";
 
-const root = path.resolve(new URL("..", import.meta.url).pathname);
+const root = fileURLToPath(new URL("../", import.meta.url));
 
 test("page routes map to physical Vite HTML entry paths", () => {
   assert.equal(pagePathToEntryPath("/"), "index.html");

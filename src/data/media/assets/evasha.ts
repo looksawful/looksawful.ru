@@ -57,14 +57,7 @@ export const evashaMediaAssets = [
       width: 990,
       height: 1400,
     },
-  {
-      id: "evasha-08-source-02-4x5",
-      type: "image",
-      src: "/media/projects/shootings/08/source/02-4x5.webp",
-      width: 1120,
-      height: 1400,
-    },
-  {
+    {
       id: "evasha-09-source-01-4x5",
       type: "image",
       src: "/media/projects/shootings/09/source/01-4x5.webp",

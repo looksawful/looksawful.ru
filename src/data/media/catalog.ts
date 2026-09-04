@@ -20,7 +20,22 @@ import {
   uploadedMediaCatalogSources,
 } from "./catalog-records.generated.ts";
 
-const REGISTERED_KEYS = [
+const REGISTERED_COMPACT_KEYS = [
+  "id",
+  "title",
+  "alt",
+  "description",
+  "date",
+  "workAreaIds",
+  "projectTypeIds",
+  "deliverableIds",
+  "tags",
+  "credits",
+  "reusable",
+  "archived",
+] as const;
+
+const REGISTERED_LEGACY_KEYS = [
   "id",
   "mediaType",
   "src",
@@ -83,16 +98,15 @@ export type MediaCatalogMetadataRecord = MediaCatalogMetadata<
   MediaCatalogDeliverableId
 >;
 
+/**
+ * Normalized registered catalog metadata.
+ *
+ * The persisted compact source intentionally excludes technical MediaAsset
+ * fields and project membership. Legacy sources are still accepted during the
+ * migration and normalize into this shape.
+ */
 export interface RegisteredMediaCatalogRecord extends MediaCatalogMetadataRecord {
   id: string;
-  mediaType: MediaAsset["type"];
-  src: string;
-  sourceSrc: string;
-  width: number;
-  height: number;
-  durationSeconds: number;
-  mimeType: string;
-  byteLength: number;
 }
 
 export interface UploadedMediaCatalogRecord extends MediaCatalogMetadataRecord {
@@ -200,13 +214,16 @@ function expectKnownIds<Id extends string>(
 function parseMetadata(
   record: Record<string, unknown>,
   label: string,
+  { projectIds = true } = {},
 ): MediaCatalogMetadataRecord {
   return {
     title: expectString(record.title, `${label}.title`, { empty: false }),
     alt: expectString(record.alt, `${label}.alt`),
     description: expectString(record.description, `${label}.description`),
     date: expectString(record.date, `${label}.date`),
-    projectIds: expectKnownIds<ProjectId>(record.projectIds, projectIdSet, `${label}.projectIds`),
+    projectIds: projectIds
+      ? expectKnownIds<ProjectId>(record.projectIds, projectIdSet, `${label}.projectIds`)
+      : [],
     workAreaIds: expectKnownIds<MediaCatalogWorkAreaId>(
       record.workAreaIds,
       workAreaIdSet,
@@ -255,16 +272,11 @@ function technicalValuesFor(asset: MediaAsset) {
   } as const;
 }
 
-export function parseRegisteredMediaCatalogRecord(
-  value: unknown,
-  assets: readonly MediaAsset[] = registeredMediaAssets,
-): RegisteredMediaCatalogRecord {
-  const record = expectRecord(value, "Registered media catalog record");
-  expectExactKeys(record, REGISTERED_KEYS, "Registered media catalog record");
-  const id = expectString(record.id, "Registered media catalog record.id", { empty: false });
-  const asset = assets.find((candidate) => candidate.id === id);
-  if (!asset) throw new Error(`Registered media catalog record has unknown asset id "${id}"`);
-
+function validateLegacyRegisteredTechnicalFields(
+  record: Record<string, unknown>,
+  asset: MediaAsset,
+  id: string,
+): void {
   const technical = {
     mediaType: expectMediaType(record.mediaType, `Registered media catalog record "${id}".mediaType`),
     src: expectString(record.src, `Registered media catalog record "${id}".src`, { empty: false }),
@@ -277,21 +289,43 @@ export function parseRegisteredMediaCatalogRecord(
       `Registered media catalog record "${id}".byteLength`,
     ),
   };
+  expectNonNegativeNumber(
+    record.durationSeconds,
+    `Registered media catalog record "${id}".durationSeconds`,
+  );
+
   const expected = technicalValuesFor(asset);
   for (const key of Object.keys(expected) as (keyof typeof expected)[]) {
     if (technical[key] !== expected[key]) {
       throw new Error(`Registered media catalog record "${id}".${key} does not match MediaAsset`);
     }
   }
+}
+
+export function parseRegisteredMediaCatalogRecord(
+  value: unknown,
+  assets: readonly MediaAsset[] = registeredMediaAssets,
+): RegisteredMediaCatalogRecord {
+  const record = expectRecord(value, "Registered media catalog record");
+  const legacy = "mediaType" in record || "src" in record || "projectIds" in record;
+  expectExactKeys(
+    record,
+    legacy ? REGISTERED_LEGACY_KEYS : REGISTERED_COMPACT_KEYS,
+    "Registered media catalog record",
+  );
+  const id = expectString(record.id, "Registered media catalog record.id", { empty: false });
+  const asset = assets.find((candidate) => candidate.id === id);
+  if (!asset) throw new Error(`Registered media catalog record has unknown asset id "${id}"`);
+
+  if (legacy) validateLegacyRegisteredTechnicalFields(record, asset, id);
 
   return {
     id,
-    ...technical,
-    durationSeconds: expectNonNegativeNumber(
-      record.durationSeconds,
-      `Registered media catalog record "${id}".durationSeconds`,
+    ...parseMetadata(
+      record,
+      `Registered media catalog record "${id}"`,
+      { projectIds: legacy },
     ),
-    ...parseMetadata(record, `Registered media catalog record "${id}"`),
   };
 }
 
@@ -364,10 +398,22 @@ function normalizeCatalogRecords() {
   const uploaded = uploadedMediaCatalogSources.map((source) =>
     parseUploadedMediaCatalogRecord(source),
   );
+  const registeredAssetById = new Map<string, MediaAsset>(
+    registeredMediaAssets.map((asset) => [asset.id, asset]),
+  );
   const ids = new Set<string>();
   const sources = new Set<string>();
-  for (const record of [...registered, ...uploaded]) {
-    const assetId = "asset" in record ? record.asset.id : record.id;
+
+  for (const record of registered) {
+    if (ids.has(record.id)) throw new Error(`Media catalog contains duplicate asset id "${record.id}"`);
+    ids.add(record.id);
+    const src = registeredAssetById.get(record.id)?.src;
+    if (!src) throw new Error(`Missing registered MediaAsset "${record.id}"`);
+    if (sources.has(src)) throw new Error(`Media catalog contains duplicate src "${src}"`);
+    sources.add(src);
+  }
+  for (const record of uploaded) {
+    const assetId = record.asset.id;
     if (ids.has(assetId)) throw new Error(`Media catalog contains duplicate asset id "${assetId}"`);
     ids.add(assetId);
     if (sources.has(record.src)) throw new Error(`Media catalog contains duplicate src "${record.src}"`);
@@ -386,6 +432,7 @@ export const mediaCatalogItems: readonly MediaCatalogItem[] = [
   ...normalizedRecords.registered.map((record) => {
     const asset = registeredMediaAssets.find((candidate) => candidate.id === record.id);
     if (!asset) throw new Error(`Missing registered MediaAsset "${record.id}"`);
+    const technical = technicalValuesFor(asset);
     return {
       origin: "registered" as const,
       asset,
@@ -401,9 +448,8 @@ export const mediaCatalogItems: readonly MediaCatalogItem[] = [
       credits: record.credits,
       reusable: record.reusable,
       archived: record.archived,
-      ...(record.durationSeconds > 0 ? { durationSeconds: record.durationSeconds } : {}),
-      ...(record.mimeType ? { mimeType: record.mimeType } : {}),
-      ...(record.byteLength > 0 ? { byteLength: record.byteLength } : {}),
+      ...(technical.mimeType ? { mimeType: technical.mimeType } : {}),
+      ...(technical.byteLength > 0 ? { byteLength: technical.byteLength } : {}),
     };
   }),
   ...normalizedRecords.uploaded.map((record) => ({

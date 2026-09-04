@@ -1,20 +1,9 @@
 {
   "id": "sands-05-source-16-1080x1920",
-  "mediaType": "image",
-  "src": "/media/projects/sands/05/source/16-1080x1920.webp",
-  "sourceSrc": "",
-  "width": 1080,
-  "height": 1920,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Каталожная фотография S&S.",
   "alt": "Каталожная фотография S&S",
   "description": "",
   "date": "",
-  "projectIds": [
-    "s-and-s-catalog-content"
-  ],
   "workAreaIds": [
     "photography"
   ],

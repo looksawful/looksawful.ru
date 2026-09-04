@@ -1,20 +1,9 @@
 {
   "id": "sands-02-source-03-2x3",
-  "mediaType": "image",
-  "src": "/media/projects/sands/02/source/03-2x3.webp",
-  "sourceSrc": "",
-  "width": 933,
-  "height": 1400,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Фотография для первого лукбука бренда.",
   "alt": "Фотография для первого лукбука бренда.",
   "description": "",
   "date": "",
-  "projectIds": [
-    "s-and-s-first-lookbook"
-  ],
   "workAreaIds": [
     "photography"
   ],

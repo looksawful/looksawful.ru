@@ -1,20 +1,9 @@
 {
   "id": "sensetique-11-source-41-4x5",
-  "mediaType": "image",
-  "src": "/media/projects/sensetique/11/source/41-4x5.webp",
-  "sourceSrc": "",
-  "width": 1024,
-  "height": 1280,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Фотографии и визуалы проекта Sensetique.",
   "alt": "Эдиториал Chapurin, 2018",
   "description": "",
   "date": "2018",
-  "projectIds": [
-    "sensetique-chapurin-editorial-2018"
-  ],
   "workAreaIds": [
     "photography",
     "production"

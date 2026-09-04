@@ -1,20 +1,9 @@
 {
   "id": "styx-10-source-03-9x16",
-  "mediaType": "image",
-  "src": "/media/projects/styx/10/source/03-9x16.webp",
-  "sourceSrc": "",
-  "width": 450,
-  "height": 800,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Дизайн инструкции в социальных сетях.",
   "alt": "",
   "description": "",
   "date": "",
-  "projectIds": [
-    "styx-social-instructions"
-  ],
   "workAreaIds": [
     "graphic-design"
   ],

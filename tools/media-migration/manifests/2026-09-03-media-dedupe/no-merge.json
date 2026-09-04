@@ -1,0 +1,9 @@
+[
+  {"left":"public/media/projects/jestei/09/source/95-121x325.webp","right":"public/media/projects/jestei/09/source/97-121x325.webp","decision":"different","source":"C10"},
+  {"left":"public/media/projects/styx/11/source/03-2x3.webp","right":"public/media/projects/styx/11/source/05-2x3.webp","decision":"variant","source":"C21"},
+  {"left":"public/media/projects/sensetique/11/source/98-187x280.webp","right":"public/media/projects/sensetique/13/source/17-854x1280.webp","decision":"variant","source":"C24"},
+  {"left":"public/media/projects/sensetique/11/source/100-187x280.webp","right":"public/media/projects/sensetique/13/source/21-854x1280.webp","decision":"variant","source":"C25"},
+  {"left":"public/media/projects/sensetique/11/source/99-187x280.webp","right":"public/media/projects/sensetique/13/source/24-854x1280.webp","decision":"variant","source":"C26"},
+  {"left":"public/media/projects/styx/11/source/03-2x3.webp","right":"public/media/projects/styx/11/source/05-2x3.webp","decision":"variant","source":"R05"},
+  {"left":"public/media/projects/shootings/03/source/03-1129x1280.webp","right":"public/media/projects/shootings/behance/obladaet-content-covers/source/006.webp","decision":"variant","source":"R09"}
+]

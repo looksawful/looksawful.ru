@@ -1,20 +1,9 @@
 {
   "id": "sensetique-11-source-97-16x9",
-  "mediaType": "video",
-  "src": "/media/generated/video/projects/sensetique/11/source/97-16x9.web.mp4",
-  "sourceSrc": "/media/projects/sensetique/11/source/97-16x9.mov",
-  "width": 16,
-  "height": 9,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Бекстейдж со съемки эдиториал",
   "alt": "",
   "description": "",
   "date": "",
-  "projectIds": [
-    "sensetique-editorial-daniil-korotechenkov"
-  ],
   "workAreaIds": [
     "photography",
     "production",

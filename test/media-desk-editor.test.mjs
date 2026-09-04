@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   applyMediaEditorialPatch,
+  applyRegisteredMediaEditorialPatch,
   collectContentDeskTextEntries,
 } from "../src/tools/media-desk/editor-model.ts";
 
@@ -31,6 +32,37 @@ test("media desk editorial patch preserves technical metadata and rejects protec
     () => applyMediaEditorialPatch(record, { src: "/media/changed.webp" }),
     /protected field/i,
   );
+});
+
+test("registered Media Desk metadata cannot write asset-level project membership", () => {
+  const record = {
+    id: "asset-a",
+    title: "Old title",
+    alt: "",
+    description: "",
+    date: "2026",
+    workAreaIds: ["photography"],
+    projectTypeIds: ["shooting"],
+    deliverableIds: [],
+    tags: [],
+    credits: [],
+    reusable: true,
+    archived: false,
+  };
+
+  assert.throws(
+    () => applyRegisteredMediaEditorialPatch(record, { projectIds: ["project-a"] }),
+    /projectIds|usage|protected/i,
+  );
+
+  const next = applyRegisteredMediaEditorialPatch(record, {
+    title: "New title",
+    tags: ["фото"],
+    reusable: false,
+  });
+  assert.equal(next.title, "New title");
+  assert.deepEqual(next.tags, ["фото"]);
+  assert.equal(next.reusable, false);
 });
 
 test("content desk text index keeps authored copy and excludes structural values", () => {

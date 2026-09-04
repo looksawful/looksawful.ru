@@ -1,20 +1,9 @@
 {
   "id": "sensetique-09-source-08-2x3",
-  "mediaType": "image",
-  "src": "/media/projects/sensetique/09/source/08-2x3.webp",
-  "sourceSrc": "",
-  "width": 854,
-  "height": 1280,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Olovo Moscow — кампейн",
   "alt": "Кампейн Olovo Moscow",
   "description": "",
   "date": "",
-  "projectIds": [
-    "sensetique-olovo-campaign"
-  ],
   "workAreaIds": [
     "photography",
     "production"

@@ -1,20 +1,9 @@
 {
   "id": "behance-cinema-stills-2-cover",
-  "mediaType": "image",
-  "src": "/media/projects/shootings/behance/cinema-stills-2/cover.webp",
-  "sourceSrc": "",
-  "width": 404,
-  "height": 316,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "CINEMA STILLS 2",
   "alt": "CINEMA STILLS 2",
   "description": "",
   "date": "",
-  "projectIds": [
-    "shootings-behance-cinema-stills-2"
-  ],
   "workAreaIds": [
     "photography"
   ],

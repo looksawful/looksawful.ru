@@ -1,7 +1,11 @@
 import type { MediaEntryData } from "../../../types/media.ts";
 import type { ProjectId } from "../../catalog/projects/index.ts";
+import { canonicalMediaAssetId } from "../asset-aliases.ts";
 import type { MediaAssetId } from "../assets/index.ts";
-import { mediaCatalogItems } from "../catalog.ts";
+import {
+  dedupeMediaUsageRecords,
+  mediaUsageMetadataByEntryId,
+} from "../usage-records.ts";
 
 import { awfulCasesMediaEntries } from "./awful-cases.ts";
 import { behanceShootingMediaEntries } from "./behance-shootings.ts";
@@ -52,15 +56,29 @@ const assignableMediaEntries = rawMediaEntries as readonly MediaEntryData<
   string
 >[];
 
-const projectIdsByAssetId = new Map<string, readonly ProjectId[]>(
-  mediaCatalogItems.map((item) => [item.asset.id, item.projectIds] as const),
+const rawEntryById = new Map<string, MediaEntryData<MediaAssetId, string>>(
+  assignableMediaEntries.map((entry) => [entry.id, entry] as const),
 );
 
-export const mediaEntries = assignableMediaEntries.map((entry) => {
-  const { projectIds: _legacyProjectIds, ...entryWithoutProjectIds } = entry;
-  const projectIds = projectIdsByAssetId.get(entry.assetId);
+for (const record of dedupeMediaUsageRecords) {
+  const entry = rawEntryById.get(record.entryId);
+  if (!entry) {
+    throw new Error(
+      `Dedupe usage metadata references unknown MediaEntry "${record.entryId}"`,
+    );
+  }
+  if (entry.assetId !== record.fromAssetId && entry.assetId !== record.toAssetId) {
+    throw new Error(
+      `Dedupe usage metadata for "${record.entryId}" expected asset "${record.fromAssetId}" or "${record.toAssetId}", got "${entry.assetId}"`,
+    );
+  }
+}
 
-  return projectIds?.length
-    ? { ...entryWithoutProjectIds, projectIds }
-    : entryWithoutProjectIds;
+export const mediaEntries = assignableMediaEntries.map((entry) => {
+  const usageMetadata = mediaUsageMetadataByEntryId.get(entry.id);
+  const assetId = canonicalMediaAssetId(entry.assetId) as MediaAssetId;
+
+  return usageMetadata
+    ? { ...entry, ...usageMetadata, assetId }
+    : { ...entry, assetId };
 }) as readonly MediaEntryRecord[];

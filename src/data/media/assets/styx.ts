@@ -141,14 +141,7 @@ export const styxMediaAssets = [
     width: 459,
     height: 583,
   },
-  {
-    id: "styx-05-source-09-4x5",
-    type: "image",
-    src: "/media/projects/styx/05/source/09-4x5.webp",
-    width: 195,
-    height: 244,
-  },
-  {
+    {
     id: "styx-05-source-10-4x5",
     type: "image",
     src: "/media/projects/styx/05/source/10-4x5.webp",
@@ -162,49 +155,14 @@ export const styxMediaAssets = [
     width: 541,
     height: 676,
   },
-  {
-    id: "styx-05-source-12-4x5",
-    type: "image",
-    src: "/media/projects/styx/05/source/12-4x5.webp",
-    width: 1119,
-    height: 1400,
-  },
-  {
+    {
     id: "styx-05-source-13-13x14",
     type: "image",
     src: "/media/projects/styx/05/source/13-13x14.webp",
     width: 416,
     height: 448,
   },
-  {
-    id: "styx-05-source-14-4x5",
-    type: "image",
-    src: "/media/projects/styx/05/source/14-4x5.webp",
-    width: 195,
-    height: 244,
-  },
-  {
-    id: "styx-05-source-15-4x5",
-    type: "image",
-    src: "/media/projects/styx/05/source/15-4x5.webp",
-    width: 195,
-    height: 244,
-  },
-  {
-    id: "styx-05-source-16-4x5",
-    type: "image",
-    src: "/media/projects/styx/05/source/16-4x5.webp",
-    width: 344,
-    height: 429,
-  },
-  {
-    id: "styx-05-source-17-4x5",
-    type: "image",
-    src: "/media/projects/styx/05/source/17-4x5.webp",
-    width: 959,
-    height: 1200,
-  },
-  {
+          {
     id: "styx-05-source-18-2x3",
     type: "image",
     src: "/media/projects/styx/05/source/18-2x3.webp",
@@ -309,14 +267,7 @@ export const styxMediaAssets = [
     width: 512,
     height: 640,
   },
-  {
-    id: "styx-07-source-04-4x5",
-    type: "image",
-    src: "/media/projects/styx/07/source/04-4x5.webp",
-    width: 512,
-    height: 640,
-  },
-  {
+    {
     id: "styx-07-source-05-4x5",
     type: "image",
     src: "/media/projects/styx/07/source/05-4x5.webp",

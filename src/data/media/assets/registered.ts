@@ -1,3 +1,5 @@
+import { retiredMediaAssetIds } from "../asset-aliases.ts";
+
 import { awfulCasesMediaAssets } from "./awful-cases.ts";
 import { behanceShootingMediaAssets } from "./behance-shootings.ts";
 import { berryMediaAssets } from "./berry.ts";
@@ -16,10 +18,8 @@ import { styxMediaAssets } from "./styx.ts";
 import { unassignedMediaAssets } from "./unassigned.ts";
 
 /**
- * Physical assets that predate the CMS media catalog.
- *
- * Their TypeScript modules remain authoritative for source paths and technical
- * identity. CMS records may enrich their reusable catalog metadata only.
+ * Complete legacy registry. Low-level catalog migration/validation may still
+ * read retired records until the one-shot source cleanup removes them.
  */
 export const registeredMediaAssets = [
   ...awfulCasesMediaAssets,
@@ -42,3 +42,8 @@ export const registeredMediaAssets = [
 
 export type RegisteredMediaAsset = (typeof registeredMediaAssets)[number];
 export type RegisteredMediaAssetId = RegisteredMediaAsset["id"];
+
+/** Canonical runtime registry with reviewed duplicate identities removed. */
+export const canonicalRegisteredMediaAssets = registeredMediaAssets.filter(
+  (asset) => !retiredMediaAssetIds.has(asset.id),
+) as readonly RegisteredMediaAsset[];

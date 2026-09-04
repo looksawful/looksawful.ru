@@ -147,9 +147,9 @@ export const sensetiqueMediaAssets = [
     id: "sensetique-05-source-02-4x5",
     type: "image",
     src: "/media/projects/sensetique/05/source/02-4x5.webp",
-    width: 850,
-    height: 1078,
-  },
+    width: 1104,
+    height: 1400
+},
   {
     id: "sensetique-05-source-03-375x538",
     type: "image",
@@ -844,14 +844,7 @@ export const sensetiqueMediaAssets = [
     width: 892,
     height: 1280,
   },
-  {
-    id: "sensetique-12-source-11-427x640",
-    type: "image",
-    src: "/media/projects/sensetique/12/source/11-427x640.webp",
-    width: 854,
-    height: 1280,
-  },
-  {
+    {
     id: "sensetique-12-source-12-427x640",
     type: "image",
     src: "/media/projects/sensetique/12/source/12-427x640.webp",

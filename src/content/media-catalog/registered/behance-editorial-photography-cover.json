@@ -1,20 +1,9 @@
 {
   "id": "behance-editorial-photography-cover",
-  "mediaType": "image",
-  "src": "/media/projects/shootings/behance/editorial-photography/cover.webp",
-  "sourceSrc": "",
-  "width": 404,
-  "height": 316,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Editorial photography",
   "alt": "Editorial photography",
   "description": "",
   "date": "",
-  "projectIds": [
-    "shootings-behance-editorial-photography"
-  ],
   "workAreaIds": [
     "photography"
   ],

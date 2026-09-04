@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
-import "./editor.css";
+import TomSelect from "tom-select";
+import "tom-select/dist/css/tom-select.css";
 
 import { projects } from "../../data/catalog/projects/index.ts";
 import { mediaCatalogItems, type MediaCatalogItem } from "../../data/media/catalog.ts";
@@ -10,14 +11,26 @@ import {
   mediaCatalogWorkAreas,
 } from "../../data/taxonomy/media-taxonomy.ts";
 import {
+  applyMediaEditorialPatchToItem,
+  buildMediaEditorialPatch,
+} from "./editor-serialization.ts";
+import {
   pickMediaEditorialMetadata,
-  type ContentDeskTextEntry,
   type MediaEditorialPatch,
 } from "./editor-model.ts";
+import { connectMediaDeskBulkEditor } from "./bulk-editor.ts";
 
-const PAGES_CMS_URL = "https://app.pagescms.org/";
-const TEXT_RENDER_LIMIT = 500;
 const CAN_WRITE_MEDIA = import.meta.env.VITE_CONTENT_DESK_WRITE === "1";
+const editorialOverrides = new Map<string, MediaEditorialPatch>();
+
+type SaveState = "saved" | "unsaved" | "saving" | "error";
+
+interface EditorSession {
+  item: MediaCatalogItem;
+  form: HTMLFormElement;
+  getState(): SaveState;
+  destroy(): void;
+}
 
 function element<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -30,335 +43,536 @@ function element<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
-function tab(label: string, href: string, active: boolean): HTMLAnchorElement {
-  const link = element("a", "content-desk__tab", label);
-  link.href = href;
-  if (active) link.setAttribute("aria-current", "page");
-  return link;
+function currentEditorItem(item: MediaCatalogItem): MediaCatalogItem {
+  const override = editorialOverrides.get(item.asset.id);
+  return override ? applyMediaEditorialPatchToItem(item, override) : item;
 }
 
-function addTabs(app: HTMLElement, view: "media" | "text"): void {
-  const header = app.querySelector(".media-desk__header");
-  if (!(header instanceof HTMLElement)) return;
-  const title = header.querySelector("h1");
-  if (title) title.textContent = "Content Desk";
-  const eyebrow = header.querySelector(".media-desk__eyebrow");
-  if (eyebrow) {
-    eyebrow.textContent = CAN_WRITE_MEDIA
-      ? "Internal tool · local write mode"
-      : "Internal tool · read only";
+function field(
+  label: string,
+  control: HTMLElement,
+  className = "",
+): HTMLLabelElement {
+  const wrapper = element(
+    "label",
+    `md-field${className ? ` ${className}` : ""}`,
+  );
+  wrapper.append(element("span", "md-field__label", label), control);
+  return wrapper;
+}
+
+function textField(
+  label: string,
+  value: string,
+  options: {
+    multiline?: boolean;
+    rows?: number;
+    compact?: boolean;
+  } = {},
+): {
+  field: HTMLLabelElement;
+  control: HTMLInputElement | HTMLTextAreaElement;
+} {
+  const control = options.multiline
+    ? element("textarea", "md-input md-textarea")
+    : element("input", "md-input");
+
+  control.value = value;
+
+  if (control instanceof HTMLTextAreaElement) {
+    control.rows = options.rows ?? 3;
   }
 
-  const navigation = element("nav", "content-desk__tabs");
-  navigation.setAttribute("aria-label", "Content Desk разделы");
-  navigation.append(
-    tab("Медиа", "/tools/media-desk/", view === "media"),
-    tab("Тексты", "/tools/media-desk/?view=text", view === "text"),
-  );
-  header.insertAdjacentElement("afterend", navigation);
+  return {
+    field: field(
+      label,
+      control,
+      options.compact ? "md-field--compact" : "",
+    ),
+    control,
+  };
 }
 
-function inputField(label: string, value: string, multiline = false): HTMLLabelElement {
-  const field = element("label", "content-desk__field");
-  field.append(element("span", undefined, label));
-  const control = multiline ? element("textarea") : element("input");
-  control.value = value;
-  field.append(control);
-  return field;
+function group(
+  title: string,
+  options: { open?: boolean; description?: string } = {},
+): HTMLDetailsElement {
+  const details = element("details", "md-editor-group");
+  details.open = options.open ?? true;
+
+  const summary = element("summary", "md-editor-group__summary");
+  summary.append(element("span", undefined, title));
+
+  if (options.description) {
+    summary.append(
+      element("small", undefined, options.description),
+    );
+  }
+
+  details.append(summary);
+  return details;
 }
 
-function selectedValues(select: HTMLSelectElement): string[] {
-  return [...select.selectedOptions].map(({ value }) => value);
-}
-
-function multiSelectField(
+function taxonomyField(
   label: string,
   values: readonly string[],
-  options: readonly { readonly id: string; readonly name: string }[],
-): { field: HTMLLabelElement; select: HTMLSelectElement } {
-  const field = element("label", "content-desk__field");
-  field.append(element("span", undefined, label));
-  const select = element("select");
+  options: readonly {
+    readonly id: string;
+    readonly name: string;
+  }[],
+): {
+  field: HTMLLabelElement;
+  tom: TomSelect;
+} {
+  const select = element("select", "md-select");
   select.multiple = true;
-  for (const optionValue of options) {
+
+  for (const item of options) {
     const option = element("option");
-    option.value = optionValue.id;
-    option.textContent = optionValue.name;
-    option.selected = values.includes(optionValue.id);
+    option.value = item.id;
+    option.textContent = item.name;
+    option.selected = values.includes(item.id);
     select.append(option);
   }
-  field.append(select);
-  return { field, select };
+
+  const wrapper = field(label, select);
+
+  const tom = new TomSelect(select, {
+    plugins: ["remove_button"],
+    create: false,
+    persist: false,
+    maxItems: null,
+    closeAfterSelect: false,
+    hideSelected: true,
+    items: [...values],
+    searchField: ["text"],
+  });
+
+  return { field: wrapper, tom };
 }
 
-function lineList(value: string): string[] {
-  return value
-    .split("\n")
+function listField(
+  label: string,
+  values: readonly string[],
+  suggestions: readonly string[],
+): {
+  field: HTMLLabelElement;
+  tom: TomSelect;
+} {
+  const input = element("input", "md-input");
+  const wrapper = field(label, input);
+
+  const options = [...new Set([...values, ...suggestions])]
+    .filter(Boolean)
+    .map((value) => ({ value, text: value }));
+
+  const tom = new TomSelect(input, {
+    plugins: ["remove_button"],
+    create: true,
+    persist: false,
+    maxItems: null,
+    delimiter: ",",
+    items: [...values],
+    options,
+    valueField: "value",
+    labelField: "text",
+    searchField: ["text"],
+  });
+
+  return { field: wrapper, tom };
+}
+
+function tomValues(control: TomSelect): string[] {
+  const value = control.getValue();
+
+  return (Array.isArray(value) ? value : value.split(","))
     .map((item) => item.trim())
     .filter(Boolean);
 }
 
-function assetIdFromDialog(dialog: HTMLDialogElement): string {
-  for (const term of dialog.querySelectorAll("dt")) {
-    if (term.textContent?.trim() !== "Asset ID") continue;
-    return term.nextElementSibling?.textContent?.trim() ?? "";
+function technicalGroup(item: MediaCatalogItem): HTMLDetailsElement {
+  const details = group("Technical", { open: false });
+  const list = element("dl", "md-technical");
+
+  const values: Array<[string, string]> = [
+    ["Asset ID", item.asset.id],
+    ["Source", item.asset.src],
+    ["Type", item.asset.type],
+    [
+      "Dimensions",
+      item.asset.width && item.asset.height
+        ? `${item.asset.width} × ${item.asset.height}`
+        : "—",
+    ],
+    ["Duration", item.durationSeconds ? `${item.durationSeconds}s` : "—"],
+    ["MIME", item.mimeType || "—"],
+    ["Bytes", item.byteLength ? item.byteLength.toLocaleString() : "—"],
+  ];
+
+  if (item.asset.type === "video" && item.asset.sourceSrc) {
+    values.splice(2, 0, ["Master", item.asset.sourceSrc]);
   }
-  return "";
+
+  for (const [label, value] of values) {
+    list.append(
+      element("dt", undefined, label),
+      element("dd", undefined, value),
+    );
+  }
+
+  details.append(list);
+  return details;
 }
 
-function enhanceMediaDialog(): void {
-  const dialog = document.querySelector<HTMLDialogElement>(".media-desk__dialog[open]");
-  if (!dialog || dialog.querySelector(".content-desk__media-form")) return;
+function setState(
+  form: HTMLFormElement,
+  stateNode: HTMLElement,
+  saveButton: HTMLButtonElement,
+  state: SaveState,
+  message?: string,
+): void {
+  const labels: Record<SaveState, string> = {
+    saved: "Сохранено",
+    unsaved: "Есть изменения",
+    saving: "Сохраняю…",
+    error: "Ошибка",
+  };
 
-  const id = assetIdFromDialog(dialog);
-  const item = mediaCatalogItems.find((candidate) => candidate.asset.id === id);
-  if (!item) return;
-
-  const content = dialog.querySelector(".media-desk__dialog-content");
-  if (!(content instanceof HTMLElement)) return;
-  content.append(buildMediaEditor(item));
+  form.dataset.saveState = state;
+  saveButton.disabled = state === "saving" || !CAN_WRITE_MEDIA;
+  stateNode.textContent = message
+    ? `${labels[state]} · ${message}`
+    : labels[state];
 }
 
-function buildMediaEditor(item: MediaCatalogItem): HTMLFormElement {
+function buildMediaEditor(item: MediaCatalogItem): EditorSession {
   const metadata = pickMediaEditorialMetadata(item);
-  const form = element("form", "content-desk__media-form");
-  form.append(element("h3", undefined, "Редактировать metadata"));
+  const form = element("form", "md-editor");
+  const tomControls: TomSelect[] = [];
 
-  const title = inputField("Название", metadata.title);
-  const titleInput = title.querySelector("input") as HTMLInputElement;
-  titleInput.required = true;
-  const alt = inputField("Alt", metadata.alt, true);
-  const description = inputField("Описание", metadata.description, true);
-  const date = inputField("Дата", metadata.date);
+  const texts = group("Тексты", { open: true });
+  const textGrid = element("div", "md-editor-grid");
 
-  const project = multiSelectField(
+  const title = textField("Название", metadata.title);
+  const date = textField("Дата / период", metadata.date, { compact: true });
+  const description = textField(
+    "Подпись / описание",
+    metadata.description,
+    { multiline: true, rows: 4 },
+  );
+  const alt = textField(
+    "Alt",
+    metadata.alt,
+    { multiline: true, rows: 3 },
+  );
+
+  textGrid.append(
+    title.field,
+    date.field,
+    description.field,
+    alt.field,
+  );
+  texts.append(textGrid);
+
+  const creditsGroup = group("Credits & tags", { open: true });
+  const creditsGrid = element("div", "md-editor-grid");
+
+  const creditSuggestions = mediaCatalogItems.flatMap(
+    (candidate) => candidate.credits,
+  );
+  const credits = listField(
+    "Credits",
+    metadata.credits,
+    creditSuggestions,
+  );
+
+  const tagSuggestions = mediaCatalogItems.flatMap(
+    (candidate) => candidate.tags,
+  );
+  const tags = listField(
+    "Теги",
+    metadata.tags,
+    tagSuggestions,
+  );
+
+  tomControls.push(credits.tom, tags.tom);
+  creditsGrid.append(credits.field, tags.field);
+  creditsGroup.append(creditsGrid);
+
+  const classification = group("Классификация", { open: false });
+  const classificationGrid = element("div", "md-editor-grid");
+
+  const project = taxonomyField(
     "Проекты",
     metadata.projectIds,
     projects.map(({ id, name }) => ({ id, name })),
   );
-  const workArea = multiSelectField(
+  const workArea = taxonomyField(
     "Направления",
     metadata.workAreaIds,
     mediaCatalogWorkAreas.map(({ id, name }) => ({ id, name })),
   );
-  const projectType = multiSelectField(
-    "Типы проекта",
+  const projectType = taxonomyField(
+    "Тип проекта",
     metadata.projectTypeIds,
     mediaCatalogProjectTypes.map(({ id, name }) => ({ id, name })),
   );
-  const deliverable = multiSelectField(
+  const deliverable = taxonomyField(
     "Результаты",
     metadata.deliverableIds,
     mediaCatalogDeliverables.map(({ id, name }) => ({ id, name })),
   );
 
-  const tags = inputField("Теги · один на строку", metadata.tags.join("\n"), true);
-  const credits = inputField("Credits · один на строку", metadata.credits.join("\n"), true);
+  tomControls.push(
+    project.tom,
+    workArea.tom,
+    projectType.tom,
+    deliverable.tom,
+  );
 
-  const checks = element("div", "content-desk__checks");
-  const reusable = element("label", "content-desk__check");
-  const reusableInput = element("input");
-  reusableInput.type = "checkbox";
-  reusableInput.checked = metadata.reusable;
-  reusable.append(reusableInput, document.createTextNode("Переиспользуемое"));
-
-  const archived = element("label", "content-desk__check");
-  const archivedInput = element("input");
-  archivedInput.type = "checkbox";
-  archivedInput.checked = metadata.archived;
-  archived.append(archivedInput, document.createTextNode("Архив"));
-  checks.append(reusable, archived);
-
-  const actions = element("div", "content-desk__form-actions");
-  const save = element("button", "content-desk__action", "Сохранить metadata");
-  save.type = "submit";
-  const state = element("span", "content-desk__save-state", "Изменяются только editorial поля");
-  actions.append(save, state);
-
-  form.append(
-    title,
-    alt,
-    description,
-    date,
+  classificationGrid.append(
     project.field,
     workArea.field,
     projectType.field,
     deliverable.field,
-    tags,
-    credits,
-    checks,
+  );
+  classification.append(classificationGrid);
+
+  const statusGroup = group("Статус", { open: false });
+  const statusGrid = element("div", "md-check-grid");
+
+  const reusable = element("label", "md-check");
+  const reusableInput = element("input");
+  reusableInput.type = "checkbox";
+  reusableInput.checked = metadata.reusable;
+  reusable.append(
+    reusableInput,
+    document.createTextNode("Можно переиспользовать"),
+  );
+
+  const archived = element("label", "md-check");
+  const archivedInput = element("input");
+  archivedInput.type = "checkbox";
+  archivedInput.checked = metadata.archived;
+  archived.append(
+    archivedInput,
+    document.createTextNode("В архиве"),
+  );
+
+  statusGrid.append(reusable, archived);
+  statusGroup.append(statusGrid);
+
+  const actions = element("footer", "md-editor-actions");
+  const stateNode = element("span", "md-save-state");
+  const save = element("button", "md-button md-button--primary", "Сохранить");
+  save.type = "submit";
+
+  if (!CAN_WRITE_MEDIA) {
+    stateNode.textContent = "Read only";
+    save.disabled = true;
+  }
+
+  actions.append(stateNode, save);
+
+  form.append(
+    texts,
+    creditsGroup,
+    classification,
+    statusGroup,
+    technicalGroup(item),
     actions,
   );
 
+  let saveState: SaveState = "saved";
+
+  const updateState = (next: SaveState, message?: string): void => {
+    saveState = next;
+    setState(form, stateNode, save, next, message);
+  };
+
+  updateState("saved");
+
+  const markDirty = (): void => {
+    if (saveState !== "saving") {
+      updateState("unsaved");
+    }
+  };
+
+  form.addEventListener("input", markDirty);
+  form.addEventListener("change", markDirty);
+  for (const control of tomControls) {
+    control.on("change", markDirty);
+  }
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    save.disabled = true;
-    state.textContent = "Сохраняю…";
 
-    const next: MediaEditorialPatch = {
-      title: titleInput.value.trim(),
-      alt: (alt.querySelector("textarea") as HTMLTextAreaElement).value.trim(),
-      description: (description.querySelector("textarea") as HTMLTextAreaElement).value.trim(),
-      date: (date.querySelector("input") as HTMLInputElement).value.trim(),
-      projectIds: selectedValues(project.select) as MediaEditorialPatch["projectIds"],
-      workAreaIds: selectedValues(workArea.select) as MediaEditorialPatch["workAreaIds"],
-      projectTypeIds: selectedValues(projectType.select) as MediaEditorialPatch["projectTypeIds"],
-      deliverableIds: selectedValues(deliverable.select) as MediaEditorialPatch["deliverableIds"],
-      tags: lineList((tags.querySelector("textarea") as HTMLTextAreaElement).value),
-      credits: lineList((credits.querySelector("textarea") as HTMLTextAreaElement).value),
+    if (!CAN_WRITE_MEDIA || saveState === "saving") {
+      return;
+    }
+
+    const next: MediaEditorialPatch = buildMediaEditorialPatch({
+      title: title.control.value,
+      alt: alt.control.value,
+      description: description.control.value,
+      date: date.control.value,
+      projectIds: tomValues(project.tom),
+      workAreaIds: tomValues(workArea.tom),
+      projectTypeIds: tomValues(projectType.tom),
+      deliverableIds: tomValues(deliverable.tom),
+      tags: tomValues(tags.tom),
+      credits: tomValues(credits.tom),
       reusable: reusableInput.checked,
       archived: archivedInput.checked,
-    };
+    });
+
+    updateState("saving");
 
     try {
       const response = await fetch("/__media-desk/metadata", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id: item.asset.id, metadata: next }),
+        body: JSON.stringify({
+          id: item.asset.id,
+          metadata: next,
+        }),
       });
-      const payload = await response.json() as { ok?: boolean; error?: string };
-      if (!response.ok || !payload.ok) throw new Error(payload.error ?? `HTTP ${response.status}`);
-      state.textContent = "Сохранено. Перезагружаю каталог…";
-      window.setTimeout(() => location.reload(), 250);
+
+      const payload = await response.json() as {
+        ok?: boolean;
+        error?: string;
+      };
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error ?? `HTTP ${response.status}`);
+      }
+
+      editorialOverrides.set(item.asset.id, next);
+      updateState("saved");
+
+      document.dispatchEvent(
+        new CustomEvent("media-desk:metadata-saved", {
+          detail: {
+            id: item.asset.id,
+            metadata: next,
+            origin: "single",
+          },
+        }),
+      );
     } catch (error) {
-      state.textContent = error instanceof Error ? error.message : "Ошибка сохранения";
-      save.disabled = false;
+      updateState(
+        "error",
+        error instanceof Error ? error.message : "Ошибка сохранения",
+      );
     }
   });
 
-  return form;
+  return {
+    item,
+    form,
+    getState: () => saveState,
+    destroy: () => {
+      for (const control of tomControls) {
+        control.destroy();
+      }
+    },
+  };
 }
 
-function textCard(entry: ContentDeskTextEntry): HTMLElement {
-  const card = element("article", "content-desk__text-card");
-  const meta = element("div", "content-desk__text-meta");
-  meta.append(
-    element("code", undefined, entry.sourcePath),
-    element("code", undefined, entry.fieldPath),
-  );
+const inspector = document.querySelector<HTMLElement>("#media-desk-inspector");
+const bulkHost = document.querySelector<HTMLElement>("#media-desk-bulk");
 
-  const value = element(
-    "p",
-    `content-desk__text-value${entry.value ? "" : " content-desk__empty-value"}`,
-    entry.value || "Пустое поле",
-  );
+if (inspector && bulkHost) {
+  let active: EditorSession | null = null;
+  let selectionCount = 0;
 
-  const actions = element("div", "content-desk__text-actions");
-  const cms = element("a", "content-desk__action", "Открыть Pages CMS");
-  cms.href = PAGES_CMS_URL;
-  cms.target = "_blank";
-  cms.rel = "noreferrer";
+  const showEmpty = (): void => {
+    inspector.replaceChildren(
+      element(
+        "div",
+        "md-properties-empty",
+        "Выберите ассет, чтобы редактировать его свойства.",
+      ),
+    );
+  };
 
-  const source = element("a", "content-desk__action", "Открыть source");
-  source.href = `https://github.com/looksawful/looksawful.ru/blob/dev/${entry.sourcePath}`;
-  source.target = "_blank";
-  source.rel = "noreferrer";
+  const rebuild = (id: string): void => {
+    const canonical = mediaCatalogItems.find(
+      (candidate) => candidate.asset.id === id,
+    );
+    if (!canonical) return;
 
-  const copy = element("button", "content-desk__action", "Копировать путь");
-  copy.type = "button";
-  copy.addEventListener("click", async () => {
-    await navigator.clipboard.writeText(`${entry.sourcePath} · ${entry.fieldPath}`);
-    copy.textContent = "Скопировано";
+    active?.destroy();
+    active = buildMediaEditor(currentEditorItem(canonical));
+    inspector.replaceChildren(active.form);
+  };
+
+  const open = (id: string): void => {
+    if (!id || selectionCount > 1) return;
+
+    if (active?.item.asset.id === id) {
+      if (active.getState() === "unsaved") return;
+      rebuild(id);
+      return;
+    }
+
+    if (
+      active?.getState() === "unsaved" &&
+      !window.confirm(
+        "Переключиться и потерять несохранённые изменения?",
+      )
+    ) {
+      return;
+    }
+
+    rebuild(id);
+  };
+
+  showEmpty();
+  connectMediaDeskBulkEditor(bulkHost);
+
+  document.addEventListener("media-desk:selection-change", (event) => {
+    const ids =
+      (event as CustomEvent<{ ids?: string[] }>).detail?.ids ?? [];
+
+    selectionCount = ids.length;
+    const bulkMode = selectionCount > 1;
+
+    inspector.hidden = bulkMode;
+    bulkHost.hidden = !bulkMode;
+
+    if (!bulkMode && ids.length === 1) {
+      open(ids[0] ?? "");
+    }
   });
-  actions.append(cms, source, copy);
 
-  card.append(meta, value, actions);
-  return card;
-}
+  document.addEventListener("media-desk:asset-select", (event) => {
+    const id =
+      (event as CustomEvent<{ id?: string }>).detail?.id;
 
-async function renderTextView(app: HTMLElement): Promise<void> {
-  for (const selector of [
-    ".media-desk__toolbar",
-    ".media-desk__status",
-    ".media-desk__grid",
-    ".media-desk__pagination",
-    ".media-desk__dialog",
-  ]) {
-    const node = app.querySelector<HTMLElement>(selector);
-    if (node) node.hidden = true;
-  }
+    if (id) open(id);
+  });
 
-  const summary = app.querySelector(".media-desk__summary");
-  const section = element("section", "content-desk__texts");
-  const status = element("p", "content-desk__save-state", "Загружаю индекс текстов…");
-  section.append(status);
-  app.append(section);
+  document.addEventListener("media-desk:metadata-saved", (event) => {
+    const detail = (
+      event as CustomEvent<{
+        id?: string;
+        metadata?: MediaEditorialPatch;
+        origin?: "single" | "bulk";
+      }>
+    ).detail;
 
-  try {
-    const response = await fetch("/__media-desk/texts");
-    const payload = await response.json() as {
-      ok?: boolean;
-      entries?: ContentDeskTextEntry[];
-      error?: string;
-    };
-    if (!response.ok || !payload.ok || !Array.isArray(payload.entries)) {
-      throw new Error(payload.error ?? `HTTP ${response.status}`);
+    if (detail?.id && detail.metadata) {
+      editorialOverrides.set(detail.id, detail.metadata);
     }
 
-    const entries = payload.entries;
-    const sources = [...new Set(entries.map(({ sourcePath }) => sourcePath))].sort();
-    if (summary) summary.textContent = `${entries.length} текстовых полей · ${sources.length} sources`;
-
-    const controls = element("div", "content-desk__text-controls");
-    const search = element("input", "content-desk__search");
-    search.type = "search";
-    search.placeholder = "Поиск по тексту, source или полю…";
-    search.setAttribute("aria-label", "Поиск по текстам сайта");
-
-    const sourceFilter = element("select", "content-desk__source-filter");
-    sourceFilter.setAttribute("aria-label", "Источник текста");
-    const all = element("option", undefined, "Все sources");
-    all.value = "";
-    sourceFilter.append(all);
-    for (const sourcePath of sources) {
-      const option = element("option", undefined, sourcePath);
-      option.value = sourcePath;
-      sourceFilter.append(option);
+    if (
+      detail?.origin === "bulk" &&
+      detail.id &&
+      active?.item.asset.id === detail.id &&
+      active.getState() === "saved"
+    ) {
+      rebuild(detail.id);
     }
-    controls.append(search, sourceFilter);
-
-    const list = element("div", "content-desk__text-list");
-    section.replaceChildren(controls, status, list);
-
-    const render = (): void => {
-      const query = search.value.trim().toLocaleLowerCase();
-      const selectedSource = sourceFilter.value;
-      const filtered = entries.filter((entry) => {
-        if (selectedSource && entry.sourcePath !== selectedSource) return false;
-        if (!query) return true;
-        return `${entry.sourcePath} ${entry.fieldPath} ${entry.value}`.toLocaleLowerCase().includes(query);
-      });
-      const visible = filtered.slice(0, TEXT_RENDER_LIMIT);
-      status.textContent = filtered.length > TEXT_RENDER_LIMIT
-        ? `${filtered.length} найдено · показываются первые ${TEXT_RENDER_LIMIT}`
-        : `${filtered.length} найдено`;
-      const fragment = document.createDocumentFragment();
-      for (const entry of visible) fragment.append(textCard(entry));
-      list.replaceChildren(fragment);
-    };
-
-    search.addEventListener("input", render);
-    sourceFilter.addEventListener("change", render);
-    render();
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Ошибка загрузки текстов";
-    status.textContent = `Не удалось загрузить индекс текстов: ${message}`;
-    if (summary) summary.textContent = "Text index unavailable";
-  }
-}
-
-const app = document.querySelector<HTMLElement>(".media-desk");
-if (app) {
-  const view = new URLSearchParams(location.search).get("view") === "text" ? "text" : "media";
-  addTabs(app, view);
-
-  if (view === "text") {
-    void renderTextView(app);
-  } else if (CAN_WRITE_MEDIA) {
-    document.addEventListener("click", (event) => {
-      const target = event.target;
-      if (!(target instanceof Element) || !target.closest(".media-card")) return;
-      queueMicrotask(enhanceMediaDialog);
-    });
-  }
+  });
 }

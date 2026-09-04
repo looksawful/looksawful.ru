@@ -1,18 +1,9 @@
 {
   "id": "project-index-shootings-cover",
-  "mediaType": "image",
-  "src": "/media/projects/index/shootings-cover.webp",
-  "sourceSrc": "",
-  "width": 1580,
-  "height": 1360,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "project-index-shootings-cover",
   "alt": "",
   "description": "",
   "date": "",
-  "projectIds": [],
   "workAreaIds": [],
   "projectTypeIds": [],
   "deliverableIds": [

@@ -1,21 +1,9 @@
 {
   "id": "jestei-10-source-09-449x337",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/10/source/09-449x337.png",
-  "sourceSrc": "",
-  "width": 449,
-  "height": 337,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Макеты фильтра треков в UI-kit.",
   "alt": "",
   "description": "",
   "date": "",
-  "projectIds": [
-    "jestei-core-interface",
-    "jestei-track-filter"
-  ],
   "workAreaIds": [
     "graphic-design",
     "product-design",

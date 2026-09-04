@@ -1,20 +1,9 @@
 {
   "id": "jestei-02-source-04-16x10",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/02/source/04-16x10.webp",
-  "sourceSrc": "",
-  "width": 2974,
-  "height": 1898,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Промосекция с тарифами.",
   "alt": "",
   "description": "Мы полностью переделали сценарий покупки подписки, объяснили разницу между тарифами и разделили предложения для разных сегментов с помощью цветовых профилей.",
   "date": "",
-  "projectIds": [
-    "jestei-subscription"
-  ],
   "workAreaIds": [
     "graphic-design",
     "product-design",

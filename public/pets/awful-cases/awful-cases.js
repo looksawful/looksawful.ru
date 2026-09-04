@@ -3,7 +3,7 @@ export function enhanceAwfulCases(root) {
   let active = false;
   let destroyed = false;
   const abortController = new AbortController();
-  const ATLAS_SRC = "/pets/awful-cases/assets/atlas.png";
+  const ATLAS_SRC = "/media/interactive/awful-cases-atlas.png";
   const GROUND_SRC = "/pets/awful-cases/assets/ground.png";
   const PIT_SRC = "/pets/awful-cases/assets/pit.png";
   const FALL1_SRC = "/pets/awful-cases/assets/fall1.png";

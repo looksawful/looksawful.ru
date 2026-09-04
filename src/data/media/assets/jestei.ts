@@ -799,14 +799,7 @@ export const jesteiMediaAssets = [
     width: 96,
     height: 96,
   },
-  {
-    id: "jestei-logo-source-13-png-icon-only-icon-only-orange",
-    type: "image",
-    src: "/media/projects/jestei/logo/source/13-png-icon-only-icon-only-orange.png",
-    width: 96,
-    height: 96,
-  },
-  {
+    {
     id: "jestei-logo-source-14-png-icon-only-logo-event-shield-only",
     type: "image",
     src: "/media/projects/jestei/logo/source/14-png-icon-only-logo-event-shield-only.png",
@@ -862,14 +855,7 @@ export const jesteiMediaAssets = [
     width: 102,
     height: 11,
   },
-  {
-    id: "jestei-logo-source-34-logo-jestei-pool-3",
-    type: "image",
-    src: "/media/projects/jestei/logo/source/34-logo-jestei-pool-3.png",
-    width: 240,
-    height: 42,
-  },
-  {
+    {
     id: "jestei-logo-source-35-jestei-logo-depth-reference",
     type: "image",
     src: "/media/projects/jestei/logo/source/35-jestei-logo-depth-reference.png",

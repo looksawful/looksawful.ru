@@ -1,21 +1,9 @@
 {
   "id": "jestei-05-source-07-1x1",
-  "mediaType": "image",
-  "src": "/media/projects/jestei/05/source/07-1x1.webp",
-  "sourceSrc": "",
-  "width": 1877,
-  "height": 1876,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Обложка для коллекции плейлистов с треками для спортивных мероприятий.",
   "alt": "",
   "description": "Для коллекций мы использовали коллажи, чтобы показать вложенность. В коллекции «Спорт» есть плейлисты про хоккей, футбол и бокс. Поэтому на обложке появились клюшка, футбольные ворота и боксёрские перчатки.",
   "date": "",
-  "projectIds": [
-    "jestei-event",
-    "jestei-playlist-system"
-  ],
   "workAreaIds": [
     "graphic-design",
     "brand-communication",

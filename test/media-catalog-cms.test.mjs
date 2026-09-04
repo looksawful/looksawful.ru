@@ -180,8 +180,8 @@ test("catalog parsers reject unknown fields and taxonomy IDs", async () => {
 });
 
 test("media catalog query API intersects facets and matches normalized tags", async () => {
-  const { findMediaCatalogItems, mediaCatalogItems } = await import("../src/data/media/catalog.ts");
-  const { mediaAssets } = await import("../src/data/media/assets/index.ts");
+  const { findMediaCatalogItems, mediaCatalogItems, mediaAssets } =
+    await import("../src/data/media/index.ts");
 
   assert.equal(mediaCatalogItems.length, mediaAssets.length);
   assert.deepEqual(

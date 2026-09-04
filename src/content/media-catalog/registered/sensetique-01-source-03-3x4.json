@@ -1,18 +1,9 @@
 {
   "id": "sensetique-01-source-03-3x4",
-  "mediaType": "image",
-  "src": "/media/projects/sensetique/01/source/03-3x4.webp",
-  "sourceSrc": "",
-  "width": 0,
-  "height": 0,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Фотография студийной фотозоны",
   "alt": "Фотография студийной фотозоны",
   "description": "",
   "date": "",
-  "projectIds": [],
   "workAreaIds": [
     "photography",
     "production"

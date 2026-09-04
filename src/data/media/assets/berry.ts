@@ -33,9 +33,9 @@ export const berryMediaAssets = [
     id: "berry-03-source-06-2x3",
     type: "image",
     src: "/media/projects/berry/03/source/06-2x3.webp",
-    width: 933,
-    height: 1400,
-  },
+    width: 3264,
+    height: 4896
+},
   {
     id: "berry-05-source-01-1050x1400",
     type: "image",

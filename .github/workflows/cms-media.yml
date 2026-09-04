@@ -109,7 +109,6 @@ jobs:
           set -euo pipefail
           git worktree add --detach /tmp/media-before "$BEFORE"
           previous="$(cd /tmp/media-before && node tools/media-dev-state.mjs --fingerprint)"
-          git worktree remove --force /tmp/media-before
           echo "fingerprint=$previous" >> "$GITHUB_OUTPUT"
       - name: Restore exact previous generated media cache
         if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true'
@@ -131,7 +130,21 @@ jobs:
           exit 1
       - name: Verify previous cache before incremental generation or targeted validation
         if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
-        run: node tools/media-dev-state.mjs --cache-verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'git worktree remove --force /tmp/media-before >/dev/null 2>&1 || true' EXIT
+          rm -rf \
+            /tmp/media-before/public/media/generated/responsive \
+            /tmp/media-before/public/media/generated/video
+          mkdir -p \
+            /tmp/media-before/public/media/generated \
+            /tmp/media-before/.cache/media
+          cp -a public/media/generated/responsive /tmp/media-before/public/media/generated/
+          cp -a public/media/generated/video /tmp/media-before/public/media/generated/
+          cp -a public/media/generated/video-inventory.json /tmp/media-before/public/media/generated/video-inventory.json
+          cp -a .cache/media/generated-cache.json /tmp/media-before/.cache/media/generated-cache.json
+          (cd /tmp/media-before && node tools/media-dev-state.mjs --cache-verify)
       - name: Synchronize catalog metadata
         if: steps.scope.outputs.has_media_change == 'true'
         run: npm run media:catalog:sync

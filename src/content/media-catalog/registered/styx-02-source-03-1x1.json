@@ -1,20 +1,9 @@
 {
   "id": "styx-02-source-03-1x1",
-  "mediaType": "image",
-  "src": "/media/projects/styx/02/source/03-1x1.webp",
-  "sourceSrc": "",
-  "width": 1179,
-  "height": 1200,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Сканографический арт с кольцом Apocriphon.",
   "alt": "",
   "description": "",
   "date": "2022",
-  "projectIds": [
-    "styx-apocriphon-scanography-2022"
-  ],
   "workAreaIds": [
     "photography",
     "production",

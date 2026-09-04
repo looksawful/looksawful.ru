@@ -7,8 +7,10 @@ import {
   findMediaCatalogItems,
   getMediaCatalogItem,
   mediaCatalogItems,
-  type MediaCatalogFilters,
-  type MediaCatalogItem,
+} from "./catalog-view.ts";
+import type {
+  MediaCatalogFilters,
+  MediaCatalogItem,
 } from "./catalog.ts";
 
 export {

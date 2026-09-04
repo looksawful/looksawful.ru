@@ -1,20 +1,9 @@
 {
   "id": "obladaet-01-source-02-2x3",
-  "mediaType": "image",
-  "src": "/media/projects/shootings/01/source/02-2x3.webp",
-  "sourceSrc": "",
-  "width": 1024,
-  "height": 1535,
-  "durationSeconds": 0,
-  "mimeType": "",
-  "byteLength": 0,
   "title": "Портрет Obladaet.",
   "alt": "",
   "description": "",
   "date": "2020–2022",
-  "projectIds": [
-    "shootings-obladaet"
-  ],
   "workAreaIds": [
     "photography"
   ],
