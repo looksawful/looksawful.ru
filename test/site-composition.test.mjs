@@ -51,6 +51,20 @@ test("standalone Jestei page is isolated from other case DOM and uses h1", () =>
   assert.doesNotMatch(html, /<!-- JESTEI_[A-Z0-9_]+ -->/);
 });
 
+test("standalone Sensetique page is canonical, isolated, and marker-free", () => {
+  assert.equal(entityPageContentRegistry.has("case:sensetique"), true);
+
+  const html = renderStandaloneEntityPage(indexHtml, page("case:sensetique"));
+  assert.match(html, /id="project-sensetique"/);
+  assert.match(html, /<h1 class="project__title"/);
+  assert.match(html, /id="sensetique-studio"/);
+  assert.match(html, /id="sensetique-production"/);
+  assert.doesNotMatch(html, /id="project-jestei"/);
+  assert.doesNotMatch(html, /id="project-styx"/);
+  assert.doesNotMatch(html, /id="project-shootings"/);
+  assert.doesNotMatch(html, /<!-- SENSETIQUE_[A-Z0-9_]+ -->/);
+});
+
 test("standalone Shootings page uses the Collection route and excludes case DOM", () => {
   const html = renderStandaloneEntityPage(indexHtml, page("collection:music-photography"));
   assert.match(html, /id="project-shootings"/);
