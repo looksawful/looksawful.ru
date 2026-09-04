@@ -1,4 +1,4 @@
-name: Prove Semantic Baseline Hash Contract TEMP
+name: Verify Baseline And Materialize Responsive State TEMP
 
 on:
   push:
@@ -6,12 +6,13 @@ on:
       - agent/media-normalization-dedupe-wave1-preapply-20260904
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  semantic-hashes:
+  materialize:
+    if: github.event.head_commit.message != 'chore(media): materialize responsive preapply state'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
@@ -21,119 +22,51 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Fetch frozen base
+      - name: Verify ownership-correct semantic baseline
+        run: |
+          node --test test/media-semantic-baseline.test.mjs test/media-physical-only-dedupe.test.mjs
+          node tools/media/export-semantic-baseline.mjs --migration --check
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Materialize generated media state
+        run: |
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+      - name: Enforce generated-only mutation boundary
         shell: bash
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin 83ea6cb845528e1976b13687956bdd249ba8def8
-          git worktree add /tmp/semantic-base FETCH_HEAD
-      - name: Prove current serializer against exact frozen records
-        shell: bash
-        run: |
-          set -euo pipefail
-          cat > /tmp/semantic-hashes.mjs <<'NODE'
-          import { createHash } from 'node:crypto';
-          import { pathToFileURL } from 'node:url';
-
-          const fixture = (await import(pathToFileURL(`${process.cwd()}/test/fixtures/media-semantic-baseline.json`), { with: { type: 'json' } })).default;
-          const tracked = fixture.trackedCatalogAssetIds;
-
-          function canonicalJson(value) {
-            if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
-            if (value && typeof value === 'object') {
-              return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+          mapfile -t changed < <(git status --porcelain | sed -E 's/^.. //' | sort)
+          printf 'changed files:\n%s\n' "${changed[*]}"
+          expected=(
+            'public/media/generated/responsive-manifest.json'
+            'src/data/media/responsive-generated.ts'
+          )
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          if [[ "${#changed[@]}" -ne "${#expected_sorted[@]}" ]]; then
+            echo 'Unexpected generated mutation count'
+            git status --short
+            exit 1
+          fi
+          for i in "${!expected_sorted[@]}"; do
+            [[ "${changed[$i]}" == "${expected_sorted[$i]}" ]] || {
+              echo "Unexpected mutation: ${changed[$i]}"
+              git status --short
+              exit 1
             }
-            return JSON.stringify(value);
-          }
-          function sha256(value) {
-            return createHash('sha256').update(canonicalJson(value)).digest('hex');
-          }
-          function entryRecord(entry, asset, assetId = entry.assetId) {
-            return {
-              id: entry.id,
-              assetId,
-              projectIds: entry.projectIds ?? [],
-              creditId: entry.creditId ?? null,
-              alt: entry.alt ?? null,
-              posterAssetId: entry.posterAssetId ?? null,
-              caption: entry.caption ?? null,
-              purpose: entry.purpose ?? null,
-              mediaType: asset?.type ?? null,
-              src: asset?.src ?? null,
-            };
-          }
-          function catalogRecord(item, assetId = item.asset.id, includeProjectIds = true) {
-            const record = {
-              assetId,
-              title: item.title,
-              alt: item.alt,
-              description: item.description,
-              date: item.date,
-              workAreaIds: item.workAreaIds,
-              projectTypeIds: item.projectTypeIds,
-              deliverableIds: item.deliverableIds,
-              tags: item.tags,
-              credits: item.credits,
-              reusable: item.reusable,
-              archived: item.archived,
-            };
-            if (includeProjectIds) record.projectIds = item.projectIds;
-            return record;
-          }
-
-          async function loadBase(root) {
-            const index = await import(pathToFileURL(`${root}/src/data/media/index.ts`));
-            const catalog = await import(pathToFileURL(`${root}/src/data/media/catalog.ts`));
-            const byId = new Map(index.mediaAssets.map((asset) => [asset.id, asset]));
-            const entries = [...index.mediaEntries].sort((a,b) => a.id.localeCompare(b.id)).map((entry) => entryRecord(entry, byId.get(entry.assetId)));
-            const catalogById = new Map(catalog.mediaCatalogItems.map((item) => [item.asset.id, item]));
-            const catalogWithProjects = [...tracked].sort().flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id, true)] : []);
-            const catalogWithoutProjects = [...tracked].sort().flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id, false)] : []);
-            return { entries, catalogWithProjects, catalogWithoutProjects };
-          }
-
-          async function loadCurrent(root) {
-            const index = await import(pathToFileURL(`${root}/src/data/media/index.ts`));
-            const catalog = await import(pathToFileURL(`${root}/src/data/media/catalog.ts`));
-            const registered = await import(pathToFileURL(`${root}/src/data/media/assets/registered.ts`));
-            const usage = await import(pathToFileURL(`${root}/src/data/media/usage-records.ts`));
-            const runtimeById = new Map(index.mediaAssets.map((asset) => [asset.id, asset]));
-            const legacyById = new Map([...registered.registeredMediaAssets, ...index.mediaAssets].map((asset) => [asset.id, asset]));
-            const entries = [...index.mediaEntries].sort((a,b) => a.id.localeCompare(b.id)).map((entry) => {
-              const migration = usage.dedupeUsageEvidenceByEntryId.get(entry.id);
-              const baselineAssetId = migration && entry.assetId === migration.toAssetId ? migration.fromAssetId : entry.assetId;
-              return entryRecord(entry, legacyById.get(baselineAssetId) ?? runtimeById.get(entry.assetId), baselineAssetId);
-            });
-            const catalogById = new Map(catalog.mediaCatalogItems.map((item) => [item.asset.id, item]));
-            const catalogWithProjects = [...tracked].sort().flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id, true)] : []);
-            const catalogWithoutProjects = [...tracked].sort().flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id, false)] : []);
-            return { entries, catalogWithProjects, catalogWithoutProjects };
-          }
-
-          const base = await loadBase('/tmp/semantic-base');
-          const current = await loadCurrent(process.cwd());
-          const result = {
-            fixture: {
-              entrySemanticsSha256: fixture.entrySemanticsSha256,
-              trackedCatalogMetadataSha256: fixture.trackedCatalogMetadataSha256,
-            },
-            baseCurrentSerializer: {
-              entrySemanticsSha256: sha256(base.entries),
-              catalogWithProjectIdsSha256: sha256(base.catalogWithProjects),
-              catalogWithoutProjectIdsSha256: sha256(base.catalogWithoutProjects),
-            },
-            currentNormalized: {
-              entrySemanticsSha256: sha256(current.entries),
-              catalogWithProjectIdsSha256: sha256(current.catalogWithProjects),
-              catalogWithoutProjectIdsSha256: sha256(current.catalogWithoutProjects),
-            },
-            exact: {
-              entriesEqual: canonicalJson(base.entries) === canonicalJson(current.entries),
-              catalogWithoutProjectIdsEqual: canonicalJson(base.catalogWithoutProjects) === canonicalJson(current.catalogWithoutProjects),
-              catalogWithProjectIdsEqual: canonicalJson(base.catalogWithProjects) === canonicalJson(current.catalogWithProjects),
-            },
-          };
-          console.log(JSON.stringify(result, null, 2));
-          if (!result.exact.entriesEqual || !result.exact.catalogWithoutProjectIdsEqual) process.exitCode = 1;
-          NODE
-          node /tmp/semantic-hashes.mjs
+          done
+      - name: Verify media and build
+        run: |
+          npm run test:media:contract
+          npm run test:media:checks
+          npm run build:site
+      - name: Commit deterministic responsive state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- public/media/generated/responsive-manifest.json src/data/media/responsive-generated.ts
+          git diff --cached --exit-code && exit 0
+          git commit -m 'chore(media): materialize responsive preapply state'
+          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-20260904
