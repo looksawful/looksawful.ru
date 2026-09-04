@@ -35,8 +35,8 @@ test("shootings archive data stays isolated while the Collection route remains d
 
   assert.equal(
     countWebpFiles("public/media/projects/shootings/behance"),
-    80,
-    "all 80 imported Behance WebP assets must be present",
+    77,
+    "all 77 post-dedupe imported Behance WebP assets must be present",
   );
 
   assert.equal(existsSync("shootings/index.html"), true, "the Collection route must have a physical Vite input");
