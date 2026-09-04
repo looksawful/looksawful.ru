@@ -1,5 +1,5 @@
 import type { ProjectId } from "../../data/catalog/projects/index.ts";
-import type { SectionIntroData } from "../../types/content.ts";
+import type { CreditsData, SectionIntroData } from "../../types/content.ts";
 import type { ContentBlock } from "./content-block.ts";
 import type { SectionId } from "./ids.ts";
 
@@ -11,6 +11,7 @@ export interface ContentSection {
   type: "content";
   id: SectionId;
   intro?: SectionIntroData;
+  credits?: CreditsData;
   blocks: readonly ContentBlock[];
 }
 
@@ -19,12 +20,14 @@ export interface ProjectSection {
   id: SectionId;
   projectId: ProjectId;
   intro?: SectionIntroData;
+  credits?: CreditsData;
   blocks: readonly ContentBlock[];
 }
 
 export interface ProjectPresentation {
   projectId: ProjectId;
   intro?: SectionIntroData;
+  credits?: CreditsData;
   blocks: readonly ContentBlock[];
 }
 
@@ -32,6 +35,7 @@ export interface ProjectGroupSection {
   type: "project-group";
   id: SectionId;
   intro?: SectionIntroData;
+  credits?: CreditsData;
   items: readonly ProjectPresentation[];
 }
 
