@@ -14,7 +14,7 @@ import {
 export const MEDIA_DESK_BULK_METADATA_ENDPOINT =
   "/__media-desk/metadata/bulk";
 
-const sessionOverrides = new Map<string, MediaEditorialPatch>();
+const sessionOverrides = new Map<string, Partial<MediaEditorialPatch>>();
 
 function element<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -109,10 +109,8 @@ export function connectMediaDeskBulkEditor(
   const projectHeader = element("label", "md-bulk-toggle");
   const projectEnabled = element("input");
   projectEnabled.type = "checkbox";
-  projectHeader.append(
-    projectEnabled,
-    document.createTextNode("Изменить проекты"),
-  );
+  const projectLabel = document.createTextNode("Изменить проекты");
+  projectHeader.append(projectEnabled, projectLabel);
 
   const projectMode = operationSelect();
   const projectSelect = element("select");
@@ -207,16 +205,34 @@ export function connectMediaDeskBulkEditor(
   );
   host.replaceChildren(form);
 
+  const selectedItems = (): MediaCatalogItem[] =>
+    selectedIds
+      .map(currentItem)
+      .filter((item): item is MediaCatalogItem => Boolean(item));
+
   const syncVisibility = (): void => {
+    const items = selectedItems();
+    const uploadCount = items.filter((item) => item.origin === "cms").length;
+    const registeredCount = items.length - uploadCount;
+
     count.textContent = `${selectedIds.length} ассетов`;
     host.hidden = selectedIds.length < 2;
+
+    projectGroup.hidden = uploadCount === 0;
+    projectEnabled.disabled = uploadCount === 0;
+    if (uploadCount === 0) {
+      projectEnabled.checked = false;
+    }
+    projectLabel.textContent = registeredCount > 0
+      ? `Изменить проекты (только загрузки: ${uploadCount})`
+      : "Изменить проекты";
   };
 
   document.addEventListener("media-desk:metadata-saved", (event) => {
     const detail = (
       event as CustomEvent<{
         id?: string;
-        metadata?: MediaEditorialPatch;
+        metadata?: Partial<MediaEditorialPatch>;
       }>
     ).detail;
 
@@ -249,7 +265,7 @@ export function connectMediaDeskBulkEditor(
 
     const arrays: BulkArrayEdit[] = [];
 
-    if (projectEnabled.checked) {
+    if (projectEnabled.checked && !projectGroup.hidden) {
       arrays.push({
         field: "projectIds",
         mode: projectMode.value as BulkArrayMode,
@@ -277,11 +293,7 @@ export function connectMediaDeskBulkEditor(
       return;
     }
 
-    const items = selectedIds
-      .map(currentItem)
-      .filter(
-        (item): item is MediaCatalogItem => Boolean(item),
-      );
+    const items = selectedItems();
 
     if (items.length !== selectedIds.length) {
       state.textContent = "Часть ассетов недоступна";

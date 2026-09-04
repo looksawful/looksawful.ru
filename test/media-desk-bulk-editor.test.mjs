@@ -58,24 +58,24 @@ test("bulk editorial plan applies arrays and booleans without mutating current m
   assert.deepEqual(next.credits, ["Photo: A"]);
 });
 
-test("batch request respects different current asset states and leaves canonical items untouched", () => {
-  const first = {
+test("batch request keeps registered project membership out of writes while editing uploads", () => {
+  const registered = {
     origin: "registered",
     asset: { id: "a", type: "image", src: "/a.jpg" },
     ...structuredClone(base),
   };
-  const second = {
-    origin: "registered",
-    asset: { id: "b", type: "image", src: "/b.jpg" },
+  const uploaded = {
+    origin: "cms",
+    asset: { id: "cms-11111111-1111-4111-8111-111111111111", type: "image", src: "/media/catalog/b.jpg" },
     ...structuredClone(base),
     projectIds: ["two"],
     tags: ["other"],
     reusable: true,
   };
 
-  const originals = structuredClone([first, second]);
+  const originals = structuredClone([registered, uploaded]);
 
-  const batch = buildBulkMetadataRequest([first, second], {
+  const batch = buildBulkMetadataRequest([registered, uploaded], {
     arrays: [
       { field: "projectIds", mode: "add", values: ["three"] },
       { field: "tags", mode: "set", values: ["bulk", "bulk"] },
@@ -83,8 +83,8 @@ test("batch request respects different current asset states and leaves canonical
     archived: true,
   });
 
-  assert.deepEqual([first, second], originals);
-  assert.deepEqual(batch[0].metadata.projectIds, ["one", "three"]);
+  assert.deepEqual([registered, uploaded], originals);
+  assert.equal(Object.hasOwn(batch[0].metadata, "projectIds"), false);
   assert.deepEqual(batch[1].metadata.projectIds, ["two", "three"]);
   assert.deepEqual(batch[0].metadata.tags, ["bulk"]);
   assert.deepEqual(batch[1].metadata.tags, ["bulk"]);
