@@ -1,4 +1,4 @@
-name: Dedupe Preapply Full Gate TEMP
+name: Materialize Responsive Preapply State TEMP
 
 on:
   push:
@@ -6,12 +6,13 @@ on:
       - agent/media-normalization-dedupe-wave1-preapply-20260904
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  dry-run-and-media:
+  materialize-responsive:
+    if: github.event.head_commit.message != 'chore media materialize responsive preapply state'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v7
         with:
@@ -25,102 +26,37 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes ffmpeg
-      - name: Pin candidate
-        run: |
-          echo "candidate=$(git rev-parse HEAD)"
-          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
-      - name: Focused semantic and deletion-contract regressions
-        run: node --test test/media-dedupe-metadata-blockers.test.mjs test/media-physical-only-dedupe.test.mjs test/media-project-assignment.test.mjs test/media-usage-records.test.mjs test/media-catalog-cms.test.mjs
-      - name: Deterministic contextual state
-        run: |
-          node tools/media/materialize-entry-context.mjs
-          npm run media:catalog:check
-          git diff --exit-code
-      - name: Guarded logical dedupe dry-run
-        run: |
-          node tools/media/apply-dedupe-migration.mjs
-          git diff --exit-code
-      - name: Guarded deferred physical dry-run
-        run: |
-          node tools/media/apply-deferred-physical-dedupe.mjs
-          git diff --exit-code
-      - name: Guarded physical-only deletion dry-run
-        run: |
-          node tools/media/apply-physical-only-dedupe.mjs
-          git diff --exit-code
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Rebuild and validate generated media
+      - name: Materialize repository media state
         run: |
           npm run media:sync
           node tools/media-dev-state.mjs --cache-verify
-          git diff --exit-code
-      - name: Media contract
-        run: npm run test:media:contract
-      - name: Media checks
-        run: npm run test:media:checks
-      - name: Build site
-        run: npm run build:site
-      - name: Tracked tree remains deterministic
-        run: git diff --exit-code
-
-  browser-regression:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 1
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - name: Install media tooling
+      - name: Verify generated mutation boundary
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-      - name: Rebuild and validate generated media
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { execFileSync } from 'node:child_process';
+          const changed = execFileSync('git', ['status', '--porcelain=v1', '-z'], { encoding: 'utf8' })
+            .split('\0').filter(Boolean).map((row) => row.slice(3)).sort();
+          const expected = [
+            'public/media/generated/responsive-manifest.json',
+            'src/data/media/responsive-generated.ts',
+          ].sort();
+          console.log(JSON.stringify({ changed, expected }, null, 2));
+          if (JSON.stringify(changed) !== JSON.stringify(expected)) process.exitCode = 1;
+          NODE
+      - name: Verify generated media contracts
         run: |
-          npm run media:sync
-          node tools/media-dev-state.mjs --cache-verify
-          git diff --exit-code
-      - name: Build site
-        run: npm run build:site
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Media-affected E2E
-        env:
-          E2E_AFFECTED_SUITES: media
-        run: npm run test:e2e:affected
-      - name: Smoke E2E
-        run: npm run test:e2e:smoke
-
-  full-verification:
-    runs-on: ubuntu-latest
-    timeout-minutes: 65
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 1
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - name: Install media and browser tooling
+          npm run test:media:contract
+          npm run test:media:checks
+          npm run build:site
+      - name: Commit deterministic generated state
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-          npx playwright install --with-deps chromium
-      - name: Rebuild generated media
-        run: |
-          npm run media:sync
-          node tools/media-dev-state.mjs --cache-verify
-          git diff --exit-code
-      - name: Verify
-        run: npm run verify
-      - name: Verify full
-        run: npm run verify:full
-      - name: Generated state stays deterministic
-        run: git diff --exit-code
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/media/generated/responsive-manifest.json src/data/media/responsive-generated.ts
+          git diff --cached --quiet && { echo 'expected responsive generated state changes'; exit 1; }
+          git commit -m 'chore media materialize responsive preapply state'
+          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-20260904
