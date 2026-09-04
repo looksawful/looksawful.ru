@@ -7,9 +7,7 @@ import {
   mediaCatalogItems,
   mediaEntries,
 } from "../../src/data/media/index.ts";
-import { registeredMediaAssets } from "../../src/data/media/assets/registered.ts";
-import { mediaCatalogItems as baseMediaCatalogItems } from "../../src/data/media/catalog.ts";
-import { dedupeUsageEvidenceByEntryId } from "../../src/data/media/usage-records.ts";
+import { canonicalMediaAssetId } from "../../src/data/media/asset-aliases.ts";
 
 const fixtureUrl = new URL("../../test/fixtures/media-semantic-baseline.json", import.meta.url);
 
@@ -32,18 +30,42 @@ function sha256(value) {
   return createHash("sha256").update(canonicalJson(value)).digest("hex");
 }
 
-function entrySemanticRecord(entry, asset, assetId = entry.assetId) {
+function optional(value) {
+  return value === undefined ? null : value;
+}
+
+export function entrySemanticRecord(
+  entry,
+  asset,
+  { normalizeDedupeAliases = false } = {},
+) {
+  const assetId = normalizeDedupeAliases
+    ? canonicalMediaAssetId(entry.assetId)
+    : entry.assetId;
+  const posterAssetId = entry.posterAssetId
+    ? normalizeDedupeAliases
+      ? canonicalMediaAssetId(entry.posterAssetId)
+      : entry.posterAssetId
+    : null;
+
   return {
     id: entry.id,
     assetId,
-    projectIds: entry.projectIds ?? [],
-    creditId: entry.creditId ?? null,
-    alt: entry.alt ?? null,
-    posterAssetId: entry.posterAssetId ?? null,
-    caption: entry.caption ?? null,
-    purpose: entry.purpose ?? null,
+    projectIds: optional(entry.projectIds),
+    creditId: optional(entry.creditId),
+    title: optional(entry.title),
+    alt: optional(entry.alt),
+    description: optional(entry.description),
+    date: optional(entry.date),
+    workAreaIds: optional(entry.workAreaIds),
+    projectTypeIds: optional(entry.projectTypeIds),
+    deliverableIds: optional(entry.deliverableIds),
+    tags: optional(entry.tags),
+    credits: optional(entry.credits),
+    posterAssetId,
+    caption: optional(entry.caption),
+    purpose: optional(entry.purpose),
     mediaType: asset?.type ?? null,
-    src: asset?.src ?? null,
   };
 }
 
@@ -67,32 +89,24 @@ function catalogSemanticRecord(item, assetId = item.asset.id) {
 /**
  * Builds the semantic golden snapshot.
  *
- * During the reviewed dedupe migration, runtime entries intentionally point at
- * canonical assets. `normalizeDedupeAliases` projects only those asset
- * identities back to their pre-dedupe values for comparison with the frozen
- * 83ea6cb8 fixture. Contextual values are never normalized, unioned or dropped.
+ * Migration mode compares contextual usage semantics in canonical identity
+ * space. Only approved asset aliases are canonicalized. Contextual fields are
+ * never normalized, unioned or dropped, and physical source paths are checked
+ * by the dedicated dedupe/physical contracts rather than this usage contract.
  *
- * Project membership is usage-owned and therefore covered by MediaEntry
- * semantics above. It is intentionally excluded from catalog semantics so the
- * derived browsing/library projection cannot become contextual authority.
- *
- * The migration comparison reads the legacy/base catalog projection because
- * retired rows remain available until the final source cleanup. Runtime
- * browsing is validated independently through catalog-view tests.
+ * Catalog metadata is checked only for canonical surviving asset identities.
+ * Retired duplicate catalog rows are intentionally absent after logical dedupe;
+ * their contextual metadata is protected by the MediaEntry usage semantics.
+ * Project membership is usage-owned and intentionally excluded from catalog
+ * semantics so the derived browsing/library projection cannot become authority.
  */
 export function buildSemanticBaseline(
   trackedCatalogAssetIds,
   { normalizeDedupeAliases = false } = {},
 ) {
   const runtimeAssetById = new Map(mediaAssets.map((asset) => [asset.id, asset]));
-  const legacyAssetById = new Map(
-    [...registeredMediaAssets, ...mediaAssets].map((asset) => [asset.id, asset]),
-  );
-  const catalogItems = normalizeDedupeAliases
-    ? baseMediaCatalogItems
-    : mediaCatalogItems;
   const catalogByAssetId = new Map(
-    catalogItems.map((item) => [item.asset.id, item]),
+    mediaCatalogItems.map((item) => [item.asset.id, item]),
   );
 
   const duplicateEntryIds = [];
@@ -106,30 +120,41 @@ export function buildSemanticBaseline(
       if (seenEntryIds.has(entry.id)) duplicateEntryIds.push(entry.id);
       seenEntryIds.add(entry.id);
 
-      const runtimeAsset = runtimeAssetById.get(entry.assetId);
+      const effectiveAssetId = normalizeDedupeAliases
+        ? canonicalMediaAssetId(entry.assetId)
+        : entry.assetId;
+      const runtimeAsset = runtimeAssetById.get(effectiveAssetId);
       if (!runtimeAsset) {
-        missingAssetRefs.push({ entryId: entry.id, assetId: entry.assetId });
+        missingAssetRefs.push({ entryId: entry.id, assetId: effectiveAssetId });
       }
 
-      if (entry.posterAssetId && !runtimeAssetById.has(entry.posterAssetId)) {
-        missingPosterRefs.push({ entryId: entry.id, posterAssetId: entry.posterAssetId });
+      const effectivePosterAssetId = entry.posterAssetId
+        ? normalizeDedupeAliases
+          ? canonicalMediaAssetId(entry.posterAssetId)
+          : entry.posterAssetId
+        : null;
+      if (effectivePosterAssetId && !runtimeAssetById.has(effectivePosterAssetId)) {
+        missingPosterRefs.push({
+          entryId: entry.id,
+          posterAssetId: effectivePosterAssetId,
+        });
       }
 
-      if (!normalizeDedupeAliases) {
-        return entrySemanticRecord(entry, runtimeAsset);
-      }
-
-      const migration = dedupeUsageEvidenceByEntryId.get(entry.id);
-      const baselineAssetId =
-        migration && entry.assetId === migration.toAssetId
-          ? migration.fromAssetId
-          : entry.assetId;
-      const baselineAsset = legacyAssetById.get(baselineAssetId) ?? runtimeAsset;
-      return entrySemanticRecord(entry, baselineAsset, baselineAssetId);
+      return entrySemanticRecord(entry, runtimeAsset, {
+        normalizeDedupeAliases,
+      });
     });
 
+  const normalizedTrackedCatalogAssetIds = normalizeDedupeAliases
+    ? [
+        ...new Set(
+          trackedCatalogAssetIds.map((assetId) => canonicalMediaAssetId(assetId)),
+        ),
+      ]
+    : [...trackedCatalogAssetIds];
+
   const missingTrackedCatalogAssetIds = [];
-  const trackedCatalogSemantics = [...trackedCatalogAssetIds]
+  const trackedCatalogSemantics = [...normalizedTrackedCatalogAssetIds]
     .sort((left, right) => left.localeCompare(right))
     .flatMap((assetId) => {
       const item = catalogByAssetId.get(assetId);
@@ -147,7 +172,7 @@ export function buildSemanticBaseline(
     missingAssetRefs,
     missingPosterRefs,
     entrySemanticsSha256: sha256(entrySemantics),
-    trackedCatalogAssetIds: [...trackedCatalogAssetIds].sort((left, right) =>
+    trackedCatalogAssetIds: [...normalizedTrackedCatalogAssetIds].sort((left, right) =>
       left.localeCompare(right),
     ),
     missingTrackedCatalogAssetIds,
