@@ -1,9 +1,11 @@
 export type SiteAnalyticsProvider = "cloudflare" | "yandex";
+export type SiteAnalyticsConsent = "granted" | "denied" | null;
 
 export type SiteAnalyticsGoal =
   | "project_open"
   | "cv_open"
   | "contact_email"
+  | "contact_phone"
   | "contact_telegram"
   | "download";
 
@@ -72,7 +74,7 @@ export function parseYandexCounterId(value: string | number | null | undefined):
   return Number.isSafeInteger(counterId) ? counterId : null;
 }
 
-function optedOut(privacy: SitePrivacySignals): boolean {
+export function isSiteAnalyticsOptedOut(privacy: SitePrivacySignals): boolean {
   return privacy.globalPrivacyControl === true || privacy.doNotTrack === "1";
 }
 
@@ -89,7 +91,7 @@ export function selectSiteAnalyticsProviders(
   privacy: SitePrivacySignals,
   analyticsConsent: boolean,
 ): SiteAnalyticsProvider[] {
-  if (optedOut(privacy)) return [];
+  if (isSiteAnalyticsOptedOut(privacy)) return [];
 
   const providers: SiteAnalyticsProvider[] = [];
   if (clean(config.cloudflareToken)) providers.push("cloudflare");
@@ -140,12 +142,17 @@ export function readSitePrivacySignals(target: Window): SitePrivacySignals {
   };
 }
 
-export function hasStoredAnalyticsConsent(target: Window): boolean {
+export function readStoredAnalyticsConsent(target: Window): SiteAnalyticsConsent {
   try {
-    return target.localStorage.getItem(ANALYTICS_CONSENT_KEY) === "granted";
+    const value = target.localStorage.getItem(ANALYTICS_CONSENT_KEY);
+    return value === "granted" || value === "denied" ? value : null;
   } catch {
-    return false;
+    return null;
   }
+}
+
+export function hasStoredAnalyticsConsent(target: Window): boolean {
+  return readStoredAnalyticsConsent(target) === "granted";
 }
 
 export function storeSiteAnalyticsConsent(target: Window, granted: boolean): boolean {
@@ -234,10 +241,15 @@ export function classifySiteAnalyticsGoal(
   target: Window,
 ): SiteAnalyticsGoalEvent | null {
   const href = anchor.getAttribute("href")?.trim() ?? "";
+  const lowerHref = href.toLowerCase();
   const page = analyticsPagePath(target);
 
-  if (href.toLowerCase().startsWith("mailto:")) {
+  if (lowerHref.startsWith("mailto:")) {
     return { goal: "contact_email", params: Object.freeze({ page }) };
+  }
+
+  if (lowerHref.startsWith("tel:")) {
+    return { goal: "contact_phone", params: Object.freeze({ page }) };
   }
 
   const url = urlForAnchor(anchor, target);
@@ -261,7 +273,8 @@ export function classifySiteAnalyticsGoal(
     return { goal: "contact_telegram", params: Object.freeze({ page }) };
   }
 
-  if (url.origin === target.location.origin && url.pathname.replace(/\/+$/, "/") === "/cv/") {
+  const normalizedPath = url.pathname.endsWith("/") ? url.pathname : `${url.pathname}/`;
+  if (url.origin === target.location.origin && normalizedPath === "/cv/") {
     return { goal: "cv_open", params: Object.freeze({ page }) };
   }
 
@@ -274,7 +287,7 @@ export function reachSiteAnalyticsGoal(
   event: SiteAnalyticsGoalEvent,
 ): boolean {
   if (isLocalAnalyticsHostname(target.location.hostname)) return false;
-  if (optedOut(readSitePrivacySignals(target))) return false;
+  if (isSiteAnalyticsOptedOut(readSitePrivacySignals(target))) return false;
   if (!hasStoredAnalyticsConsent(target)) return false;
 
   const counterId = parseYandexCounterId(config.yandexCounterId);
