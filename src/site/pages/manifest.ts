@@ -133,7 +133,7 @@ export const sitePages = [
       sourcePath: "public/privacy/index.html",
     },
     discovery: {
-      listed: false,
+      listed: true,
       indexable: true,
     },
   },
