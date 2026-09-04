@@ -7,17 +7,28 @@ import {
   readSemanticBaselineFixture,
 } from "../tools/media/export-semantic-baseline.mjs";
 
-test("current media semantics match the dedupe-safe golden baseline", async () => {
+const MIGRATION_MODE = { normalizeDedupeAliases: true };
+
+test("dedupe migration preserves the frozen pre-dedupe semantics", async () => {
   const expected = await readSemanticBaselineFixture();
-  const actual = buildSemanticBaseline(expected.trackedCatalogAssetIds);
+  const actual = buildSemanticBaseline(
+    expected.trackedCatalogAssetIds,
+    MIGRATION_MODE,
+  );
 
   assert.deepEqual(compareSemanticBaseline(actual, expected), []);
 });
 
-test("semantic baseline export is deterministic", async () => {
+test("alias-aware semantic baseline export is deterministic", async () => {
   const expected = await readSemanticBaselineFixture();
-  const first = buildSemanticBaseline(expected.trackedCatalogAssetIds);
-  const second = buildSemanticBaseline(expected.trackedCatalogAssetIds);
+  const first = buildSemanticBaseline(
+    expected.trackedCatalogAssetIds,
+    MIGRATION_MODE,
+  );
+  const second = buildSemanticBaseline(
+    expected.trackedCatalogAssetIds,
+    MIGRATION_MODE,
+  );
 
   assert.deepEqual(second, first);
 });
