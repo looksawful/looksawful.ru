@@ -34,6 +34,7 @@
     "preview": "vite preview",
     "test:core": "node --test && node tools/check-data-integrity.ts",
     "test": "npm run test:fast",
+    "pretest:fast": "npm run build:site && npx playwright install --with-deps chromium",
     "test:fast": "node tools/ci/run-tests.mjs fast",
     "test:unit": "node tools/ci/run-tests.mjs unit",
     "test:ci": "node tools/ci/run-tests.mjs ci",
