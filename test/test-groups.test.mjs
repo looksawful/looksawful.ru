@@ -15,7 +15,6 @@ test("fast tests are opt-in contracts while broad cheap coverage stays available
 
   assert.deepEqual(selectTests("fast", files), [
     "test/cms-publication-scope.test.mjs",
-    "test/test-groups.test.mjs",
   ]);
 
   assert.deepEqual(selectTests("unit", files), [
@@ -33,6 +32,10 @@ test("fast tests are opt-in contracts while broad cheap coverage stays available
 
   assert.equal(fastTests.has("test/new-widget-regression.test.mjs"), false);
   assert.equal(fastTests.has("test/before-after-migration.test.mjs"), false);
+  assert.equal(fastTests.has("test/test-groups.test.mjs"), false);
   assert.equal(fastTests.has("test/cms-publication-scope.test.mjs"), true);
+  assert.equal(fastTests.has("test/ci-minimal-pipeline.test.mjs"), true);
+  assert.equal(fastTests.has("test/media-ci-cache.test.mjs"), true);
+  assert.equal(fastTests.has("test/media-tools/media-cache-fingerprint-scope.test.mjs"), true);
   assert.throws(() => selectTests("invalid", files), /unknown test group/);
 });
