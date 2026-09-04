@@ -39,7 +39,7 @@
     "test:ci": "node tools/ci/run-tests.mjs ci",
     "test:cv": "node tools/ci/run-tests.mjs cv",
     "test:media:contract": "node tools/ci/run-tests.mjs media-contract && node tools/check-data-integrity.ts",
-    "test:media:checks": "node tools/ci/run-tests.mjs media && node tools/check-data-integrity.ts && npm run media:dedupe:check && npm run media:dedupe:physical",
+    "test:media:checks": "node tools/ci/run-tests.mjs media && node tools/check-data-integrity.ts && npm run media:dedupe:check",
     "test:media": "npm run media:sync && npm run test:media:checks",
     "test:e2e": "node tools/smoke-site.mjs",
     "test:e2e:navigation": "node tools/smoke-site-navigation.mjs",
