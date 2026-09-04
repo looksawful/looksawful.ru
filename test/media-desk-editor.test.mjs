@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import "./media-desk-media-model-sync.test.mjs";
+
 import {
   applyMediaEditorialPatch,
   applyRegisteredMediaEditorialPatch,
