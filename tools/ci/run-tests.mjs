@@ -21,6 +21,7 @@ export const fastTests = new Set([
   "test/editorial-copy-optional.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
+  "test/site-composition.test.mjs",
   "test/site-pages.test.mjs",
 ]);
 
