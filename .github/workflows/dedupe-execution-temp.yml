@@ -9,6 +9,77 @@ permissions:
   contents: read
 
 jobs:
+  materialize-state:
+    if: github.event.head_commit.message == 'ci(media): materialize deterministic preapply state'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout isolated preapply branch
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install exact dependencies
+        run: npm ci
+      - name: Remove the one false explicit alt override
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFile, writeFile } from 'node:fs/promises';
+
+          const file = 'src/content/media-usages/registered.json';
+          const records = JSON.parse(await readFile(file, 'utf8'));
+          const targetId = 'jestei-logo-source-34-logo-jestei-pool-3-use-01';
+          const matches = records.filter((record) => record.entryId === targetId);
+          assert.equal(matches.length, 1, `expected exactly one ${targetId} record`);
+          assert.equal(matches[0].alt, '', 'expected the known false empty alt override');
+          delete matches[0].alt;
+          await writeFile(file, `${JSON.stringify(records)}\n`, 'utf8');
+          NODE
+      - name: Materialize contextual entry state
+        run: node tools/media/materialize-entry-context.mjs --write
+      - name: Synchronize deterministic media catalog state
+        run: npm run media:catalog:sync
+      - name: Verify mutation boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { execFileSync } from 'node:child_process';
+
+          const raw = execFileSync('git', ['status', '--porcelain=v1', '-z'], { encoding: 'utf8' });
+          const paths = raw.split('\0').filter(Boolean).map((row) => row.slice(3));
+          const allowed = (path) =>
+            path === 'src/content/media-usages/registered.json'
+            || path === 'src/data/media/catalog-records.generated.ts'
+            || (path.startsWith('src/data/media/entries/') && path.endsWith('.ts') && path !== 'src/data/media/entries/index.ts')
+            || (path.startsWith('src/content/media-catalog/registered/') && path.endsWith('.json'));
+          const unexpected = paths.filter((path) => !allowed(path));
+          console.log(JSON.stringify({ changedPathCount: paths.length, unexpected }, null, 2));
+          if (unexpected.length) process.exitCode = 1;
+          NODE
+      - name: Verify focused semantic regressions after materialization
+        run: node --test test/media-project-assignment.test.mjs test/media-usage-records.test.mjs
+      - name: Commit deterministic preapply state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --stat
+          git diff --cached --quiet && { echo 'Expected deterministic state changes, found none'; exit 1; }
+          git commit -m 'chore(media): materialize deterministic preapply state'
+          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-20260904
+
   regression-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 20
