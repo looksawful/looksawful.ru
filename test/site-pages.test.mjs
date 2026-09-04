@@ -26,6 +26,7 @@ const expectedRoutes = new Map([
   ["project:moves-awful", "/work/moves-awful/"],
   ["project:berry-social-content-2020", "/work/berry-social-content-2020/"],
   ["cv", "/cv/"],
+  ["privacy", "/privacy/"],
   ["not-found", "/404.html"],
 ]);
 
@@ -47,7 +48,7 @@ test("managed SitePage routes are stable and unique", () => {
   }
 });
 
-test("CV is a canonical static SitePage with explicit renderer and build ownership", () => {
+test("CV and privacy are canonical static SitePages with explicit build ownership", () => {
   const cv = sitePages.find((page) => page.id === "cv");
   assert.ok(cv, "missing page cv");
   assert.deepEqual(
@@ -73,6 +74,32 @@ test("CV is a canonical static SitePage with explicit renderer and build ownersh
       },
     },
   );
+
+  const privacy = sitePages.find((page) => page.id === "privacy");
+  assert.ok(privacy, "missing page privacy");
+  assert.deepEqual(
+    {
+      type: privacy.type,
+      path: privacy.path,
+      enabled: privacy.enabled,
+      listed: privacy.discovery.listed,
+      indexable: privacy.discovery.indexable,
+      renderer: privacy.renderer,
+      build: privacy.build,
+    },
+    {
+      type: "static",
+      path: "/privacy/",
+      enabled: true,
+      listed: true,
+      indexable: true,
+      renderer: "privacy",
+      build: {
+        kind: "public-static",
+        sourcePath: "public/privacy/index.html",
+      },
+    },
+  );
 });
 
 test("public-static sourcePath owns both dev request path and production target", () => {
@@ -83,6 +110,14 @@ test("public-static sourcePath owns both dev request path and production target"
   assert.equal(
     publicStaticOutputPath(cv, "/repo"),
     path.resolve("/repo", "dist/cv/index.html"),
+  );
+
+  const privacy = sitePages.find((page) => page.id === "privacy");
+  assert.ok(privacy && privacy.build.kind === "public-static", "missing public-static privacy page");
+  assert.equal(publicStaticRequestPath(privacy), "/privacy/index.html");
+  assert.equal(
+    publicStaticOutputPath(privacy, "/repo"),
+    path.resolve("/repo", "dist/privacy/index.html"),
   );
 
   const relocated = {
@@ -107,6 +142,7 @@ test("enabled page lookup uses canonical normalized paths", () => {
   const page = getPageByPath("/work/jestei-pool");
   assert.equal(page?.id, "case:jestei-pool");
   assert.equal(getPageByPath("/cv")?.id, "cv");
+  assert.equal(getPageByPath("/privacy")?.id, "privacy");
 });
 
 test("entity routes reference the existing domain model", () => {
@@ -133,9 +169,9 @@ test("only enabled pages are returned for build ownership decisions", () => {
   assert.ok(enabled.every((page) => page.enabled));
 });
 
-test("public Case, Collection and CV pages are indexable while selected Project pages stay unlisted", () => {
+test("public Case, Collection, CV and privacy pages are listed and indexable while selected Project pages stay unlisted", () => {
   for (const page of sitePages) {
-    if (page.type === "case" || page.type === "collection" || page.id === "cv") {
+    if (page.type === "case" || page.type === "collection" || page.id === "cv" || page.id === "privacy") {
       assert.equal(page.discovery.listed, true);
       assert.equal(page.discovery.indexable, true);
     }

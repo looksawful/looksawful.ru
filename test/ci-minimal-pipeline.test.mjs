@@ -21,7 +21,7 @@ test("Fast CI automatically validates engineering dev pushes and PRs while warm-
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /workflow_call:/);
   assert.match(workflow, /ref: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}/);
-  assert.match(workflow, /group: fast-ci-\$\{\{ github\.workflow \}\}-\$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.head\.sha \|\| github\.ref \}\}/);
+  assert.match(workflow, /group: fast-ci-\$\{\{ github\.workflow \}\}-\$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.number \|\| github\.ref \}\}/);
   assert.match(workflow, /cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}/);
 
   for (const command of ["npm ci", "npm run typecheck", "npm run test:fast", "npm run build:site"]) {
