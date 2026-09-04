@@ -9,10 +9,7 @@ import {
   type MediaCatalogWorkAreaId,
 } from "../taxonomy/media-taxonomy.ts";
 
-import usageChunk1 from "../../content/media-usages/dedupe-context-1.json" with { type: "json" };
-import usageChunk2 from "../../content/media-usages/dedupe-context-2.json" with { type: "json" };
-import usageChunk3 from "../../content/media-usages/dedupe-context-3.json" with { type: "json" };
-import usageChunk4 from "../../content/media-usages/dedupe-context-4.json" with { type: "json" };
+import usageRecordsSource from "../../content/media-usages/registered.json" with { type: "json" };
 
 export type DedupeMediaUsageMetadata = MediaUsageMetadata<
   ProjectId,
@@ -33,13 +30,6 @@ const WORK_AREA_IDS = new Set<string>(MEDIA_CATALOG_WORK_AREA_IDS);
 const PROJECT_TYPE_IDS = new Set<string>(MEDIA_CATALOG_PROJECT_TYPE_IDS);
 const DELIVERABLE_IDS = new Set<string>(MEDIA_CATALOG_DELIVERABLE_IDS);
 
-const AUDIT_KEYS = [
-  "entryId",
-  "evidenceComponentId",
-  "fromAssetId",
-  "toAssetId",
-] as const;
-
 const METADATA_KEYS = [
   "title",
   "alt",
@@ -53,7 +43,13 @@ const METADATA_KEYS = [
   "credits",
 ] as const;
 
-const ALLOWED_KEYS = new Set<string>([...AUDIT_KEYS, ...METADATA_KEYS]);
+const ALLOWED_KEYS = new Set<string>([
+  "entryId",
+  "evidenceComponentId",
+  "fromAssetId",
+  "toAssetId",
+  ...METADATA_KEYS,
+]);
 
 function expectObject(value: unknown, label: string): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -62,7 +58,7 @@ function expectObject(value: unknown, label: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function expectString(value: unknown, label: string): string {
+function expectRequiredString(value: unknown, label: string): string {
   if (typeof value !== "string" || value.length === 0) {
     throw new TypeError(`${label} must be a non-empty string`);
   }
@@ -82,11 +78,16 @@ function expectPositiveInteger(value: unknown, label: string): number {
   return value as number;
 }
 
-function expectUniqueStringArray(value: unknown, label: string): readonly string[] | undefined {
+function expectUniqueStringArray(
+  value: unknown,
+  label: string,
+): readonly string[] | undefined {
   if (value === undefined) return undefined;
   if (!Array.isArray(value)) throw new TypeError(`${label} must be an array`);
 
-  const values = value.map((item, index) => expectString(item, `${label}[${index}]`));
+  const values = value.map((item, index) =>
+    expectRequiredString(item, `${label}[${index}]`),
+  );
   if (new Set(values).size !== values.length) {
     throw new Error(`${label} must not contain duplicates`);
   }
@@ -111,20 +112,31 @@ function parseRecord(value: unknown, index: number): DedupeMediaUsageRecord {
   const record = expectObject(value, label);
 
   for (const key of Object.keys(record)) {
-    if (!ALLOWED_KEYS.has(key)) throw new Error(`${label} has unexpected field "${key}"`);
+    if (!ALLOWED_KEYS.has(key)) {
+      throw new Error(`${label} has unexpected field "${key}"`);
+    }
   }
 
-  const fromAssetId = expectString(record.fromAssetId, `${label}.fromAssetId`);
-  const toAssetId = expectString(record.toAssetId, `${label}.toAssetId`);
+  const fromAssetId = expectRequiredString(record.fromAssetId, `${label}.fromAssetId`);
+  const toAssetId = expectRequiredString(record.toAssetId, `${label}.toAssetId`);
   if (fromAssetId === toAssetId) {
     throw new Error(`${label} must map different source and canonical asset ids`);
   }
 
-  const metadata: DedupeMediaUsageMetadata = {
+  return {
+    entryId: expectRequiredString(record.entryId, `${label}.entryId`),
+    evidenceComponentId: expectPositiveInteger(
+      record.evidenceComponentId,
+      `${label}.evidenceComponentId`,
+    ),
+    fromAssetId,
+    toAssetId,
     ...(record.title !== undefined
       ? { title: expectOptionalString(record.title, `${label}.title`) }
       : {}),
-    ...(record.alt !== undefined ? { alt: expectOptionalString(record.alt, `${label}.alt`) } : {}),
+    ...(record.alt !== undefined
+      ? { alt: expectOptionalString(record.alt, `${label}.alt`) }
+      : {}),
     ...(record.description !== undefined
       ? { description: expectOptionalString(record.description, `${label}.description`) }
       : {}),
@@ -132,7 +144,13 @@ function parseRecord(value: unknown, index: number): DedupeMediaUsageRecord {
       ? { date: expectOptionalString(record.date, `${label}.date`) }
       : {}),
     ...(record.projectIds !== undefined
-      ? { projectIds: expectKnownIds<ProjectId>(record.projectIds, PROJECT_IDS, `${label}.projectIds`) }
+      ? {
+          projectIds: expectKnownIds<ProjectId>(
+            record.projectIds,
+            PROJECT_IDS,
+            `${label}.projectIds`,
+          ),
+        }
       : {}),
     ...(record.workAreaIds !== undefined
       ? {
@@ -168,34 +186,31 @@ function parseRecord(value: unknown, index: number): DedupeMediaUsageRecord {
       ? { credits: expectUniqueStringArray(record.credits, `${label}.credits`) }
       : {}),
   };
-
-  return {
-    entryId: expectString(record.entryId, `${label}.entryId`),
-    evidenceComponentId: expectPositiveInteger(
-      record.evidenceComponentId,
-      `${label}.evidenceComponentId`,
-    ),
-    fromAssetId,
-    toAssetId,
-    ...metadata,
-  };
 }
 
-export function parseDedupeMediaUsageRecords(value: unknown): readonly DedupeMediaUsageRecord[] {
-  if (!Array.isArray(value)) throw new TypeError("Dedupe media usage records must be an array");
+export function parseDedupeMediaUsageRecords(
+  value: unknown,
+): readonly DedupeMediaUsageRecord[] {
+  if (!Array.isArray(value)) {
+    throw new TypeError("Dedupe media usage records must be an array");
+  }
 
   const records = value.map(parseRecord);
   const seen = new Set<string>();
   for (const record of records) {
     if (seen.has(record.entryId)) {
-      throw new Error(`Dedupe media usage records contain duplicate entryId "${record.entryId}"`);
+      throw new Error(
+        `Dedupe media usage records contain duplicate entryId "${record.entryId}"`,
+      );
     }
     seen.add(record.entryId);
   }
   return records;
 }
 
-function usageMetadataFor(record: DedupeMediaUsageRecord): DedupeMediaUsageMetadata {
+function usageMetadataFor(
+  record: DedupeMediaUsageRecord,
+): DedupeMediaUsageMetadata {
   const metadata: DedupeMediaUsageMetadata = {};
   for (const key of METADATA_KEYS) {
     const value = record[key];
@@ -204,19 +219,19 @@ function usageMetadataFor(record: DedupeMediaUsageRecord): DedupeMediaUsageMetad
   return metadata;
 }
 
-const rawUsageRecords: unknown[] = [
-  ...usageChunk1,
-  ...usageChunk2,
-  ...usageChunk3,
-  ...usageChunk4,
-];
+export const dedupeMediaUsageRecords =
+  parseDedupeMediaUsageRecords(usageRecordsSource);
 
-export const dedupeMediaUsageRecords = parseDedupeMediaUsageRecords(rawUsageRecords);
+export const mediaUsageMetadataByEntryId =
+  new Map<string, DedupeMediaUsageMetadata>(
+    dedupeMediaUsageRecords.map(
+      (record) => [record.entryId, usageMetadataFor(record)] as const,
+    ),
+  );
 
-export const mediaUsageMetadataByEntryId = new Map<string, DedupeMediaUsageMetadata>(
-  dedupeMediaUsageRecords.map((record) => [record.entryId, usageMetadataFor(record)] as const),
-);
-
-export const dedupeUsageEvidenceByEntryId = new Map<string, DedupeMediaUsageRecord>(
-  dedupeMediaUsageRecords.map((record) => [record.entryId, record] as const),
-);
+export const dedupeUsageEvidenceByEntryId =
+  new Map<string, DedupeMediaUsageRecord>(
+    dedupeMediaUsageRecords.map(
+      (record) => [record.entryId, record] as const,
+    ),
+  );
