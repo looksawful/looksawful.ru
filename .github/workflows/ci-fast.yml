@@ -35,7 +35,7 @@ on:
   workflow_call:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: fast-ci-${{ github.workflow }}-${{ github.ref }}
@@ -44,7 +44,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - name: Checkout exact source tree
         uses: actions/checkout@v7
@@ -85,34 +85,3 @@ jobs:
         run: npm run typecheck
       - name: Production build
         run: npm run build
-      - name: One-time cleanup media validation
-        if: github.event_name == 'pull_request' && github.head_ref == 'agent/minimal-ci-cleanup-20260904'
-        run: npm run media:check
-      - name: One-time remove retired CMS publication helper
-        if: github.event_name == 'pull_request' && github.head_ref == 'agent/minimal-ci-cleanup-20260904'
-        shell: bash
-        env:
-          HEAD_BRANCH: ${{ github.head_ref }}
-        run: |
-          set -euo pipefail
-          node --input-type=module <<'NODE'
-          import { readFileSync, writeFileSync } from "node:fs";
-          const path = ".pages.yml";
-          const block = `actions:\n  - name: prepare-publication\n    label: Подготовить публикацию\n    workflow: pages-cms-publish.yml\n    ref: prod\n    cancelable: false\n    confirm:\n      title: Подготовить публикацию?\n      message: Создаст или найдёт pull request из dev в prod. Сайт не будет опубликован автоматически.\n      button: Подготовить\n\n`;
-          const source = readFileSync(path, "utf8");
-          if (!source.includes(block)) throw new Error("exact prepare-publication block not found");
-          writeFileSync(path, source.replace(block, ""));
-          NODE
-          git rm \
-            .github/workflows/pages-cms-publish.yml \
-            tools/cms-publication-scope.mjs \
-            tools/cms-publication-topology.mjs \
-            test/cms-publication-scope.test.mjs \
-            test/cms-publication-topology.test.mjs \
-            test/cms-publication-workflow.test.mjs
-          git diff --check
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .pages.yml
-          git commit -m 'chore(cms): remove retired publication helper'
-          git push origin HEAD:"$HEAD_BRANCH"
