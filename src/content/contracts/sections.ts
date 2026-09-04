@@ -7,11 +7,18 @@ export const SECTION_TYPES = ["content", "project", "project-group", "specialize
 
 export type SectionType = (typeof SECTION_TYPES)[number];
 
+export type SectionLayout = "stack" | "mockup-grid-reel";
+
+export interface SectionPresentation {
+  layout?: SectionLayout;
+}
+
 export interface ContentSection {
   type: "content";
   id: SectionId;
   intro?: SectionIntroData;
   credits?: CreditsData;
+  presentation?: SectionPresentation;
   blocks: readonly ContentBlock[];
 }
 
@@ -21,6 +28,7 @@ export interface ProjectSection {
   projectId: ProjectId;
   intro?: SectionIntroData;
   credits?: CreditsData;
+  presentation?: SectionPresentation;
   blocks: readonly ContentBlock[];
 }
 
@@ -28,6 +36,7 @@ export interface ProjectPresentation {
   projectId: ProjectId;
   intro?: SectionIntroData;
   credits?: CreditsData;
+  presentation?: SectionPresentation;
   blocks: readonly ContentBlock[];
 }
 
