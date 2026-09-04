@@ -227,10 +227,12 @@ function analyticsPagePath(target: Window): string {
 
 function urlForAnchor(anchor: HTMLAnchorElement, target: Window): URL | null {
   const href = anchor.getAttribute("href")?.trim();
-  if (!href || href.startsWith("#") || href.startsWith("javascript:")) return null;
+  if (!href || href.startsWith("#")) return null;
 
   try {
-    return new URL(href, target.location.href);
+    const url = new URL(href, target.location.href);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    return url;
   } catch {
     return null;
   }
