@@ -1,4 +1,4 @@
-name: Media Dedupe Final Preapply Gate TEMP
+name: Fix E2E Reveal Wait TEMP
 
 on:
   push:
@@ -6,61 +6,38 @@ on:
       - agent/media-normalization-dedupe-wave1-preapply-20260904
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  preapply:
+  fix:
+    if: "${{ github.event.head_commit.message != 'test(e2e): wait for project reveal completion' }}"
     runs-on: ubuntu-latest
-    timeout-minutes: 120
-    env:
-      E2E_AFFECTED_SUITES: media
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - name: Install media tooling
+      - name: Replace fixed reveal sleeps with state waits
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-      - name: Prove deterministic generated state
-        run: |
-          npm run media:sync
-          node tools/media-dev-state.mjs --cache-verify
-          git diff --exit-code
-      - name: Guarded dedupe dry-runs
-        run: |
-          node tools/media/apply-dedupe-migration.mjs
-          node tools/media/apply-deferred-physical-dedupe.mjs
-          node tools/media/apply-physical-only-dedupe.mjs
-      - name: Semantic and physical contracts
-        run: |
-          node tools/media/export-semantic-baseline.mjs --migration --check
-          node --test test/media-semantic-baseline.test.mjs test/media-physical-only-dedupe.test.mjs
-      - name: Type and media verification
-        run: |
-          npm run typecheck
-          npm run test:media:contract
-          npm run test:media:checks
-          npm run build:site
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Affected media browser regression
-        run: npm run test:e2e:affected
-      - name: Smoke browser regression
-        run: npm run test:e2e:smoke
-      - name: Repository verify
-        run: npm run verify
-      - name: Repository full verify
-        run: npm run verify:full
-      - name: Final preapply invariants
-        run: |
-          git diff --exit-code
-          node tools/media/export-semantic-baseline.mjs --migration --check
-          node tools/media/apply-dedupe-migration.mjs
-          node tools/media/apply-deferred-physical-dedupe.mjs
-          node tools/media/apply-physical-only-dedupe.mjs
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'tools/smoke-site.mjs';
+          let source = fs.readFileSync(path, 'utf8');
+          const oldFirst = `  await page.locator(".project-card[data-reveal=\\"card\\"]").first().scrollIntoViewIfNeeded();\n  await page.waitForTimeout(900);\n\n  const partial = await page.evaluate(() => {`;
+          const newFirst = `  await page.locator(".project-card[data-reveal=\\"card\\"]").first().scrollIntoViewIfNeeded();\n  await page.waitForFunction(() => {\n    const first = document.querySelector('.project-card[data-reveal="card"]');\n    if (!(first instanceof HTMLElement)) return false;\n    const style = getComputedStyle(first);\n    return style.visibility !== "hidden" && Number(style.opacity) > 0.95;\n  }, null, { timeout: 2_500 });\n\n  const partial = await page.evaluate(() => {`;
+          const oldLast = `  await page.locator(".project-card[data-reveal=\\"card\\"]").last().scrollIntoViewIfNeeded();\n  await page.waitForTimeout(900);\n\n  const final = await page.evaluate(() => {`;
+          const newLast = `  await page.locator(".project-card[data-reveal=\\"card\\"]").last().scrollIntoViewIfNeeded();\n  await page.waitForFunction(() => {\n    const card = [...document.querySelectorAll('.project-card[data-reveal="card"]')].at(-1);\n    if (!(card instanceof HTMLElement)) return false;\n    const style = getComputedStyle(card);\n    return style.visibility !== "hidden" && Number(style.opacity) > 0.95;\n  }, null, { timeout: 2_500 });\n\n  const final = await page.evaluate(() => {`;
+          if (!source.includes(oldFirst)) throw new Error('first reveal wait target not found');
+          if (!source.includes(oldLast)) throw new Error('last reveal wait target not found');
+          source = source.replace(oldFirst, newFirst).replace(oldLast, newLast);
+          fs.writeFileSync(path, source);
+          NODE
+          git diff --check
+          git diff -- tools/smoke-site.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tools/smoke-site.mjs
+          git commit -m 'test(e2e): wait for project reveal completion'
+          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-20260904
