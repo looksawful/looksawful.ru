@@ -39,6 +39,12 @@ export function buildNormalizationSteps({ apply }) {
         "deferred-physical-dedupe-dry-run",
         "tools/media/apply-deferred-physical-dedupe.mjs",
       ),
+      nodeStep(
+        "check-pages-cms-compact",
+        "tools/media/compact-pages-cms-media-catalog.mjs",
+        [],
+        { allowStatuses: [0, 1] },
+      ),
     ];
   }
 
@@ -51,6 +57,8 @@ export function buildNormalizationSteps({ apply }) {
     nodeStep("logical-dedupe-apply", "tools/media/apply-dedupe-migration.mjs", ["--apply"]),
     nodeStep("deferred-physical-dedupe-dry-run", "tools/media/apply-deferred-physical-dedupe.mjs"),
     nodeStep("deferred-physical-dedupe-apply", "tools/media/apply-deferred-physical-dedupe.mjs", ["--apply"]),
+    nodeStep("compact-pages-cms", "tools/media/compact-pages-cms-media-catalog.mjs", ["--write"]),
+    nodeStep("check-pages-cms-compact", "tools/media/compact-pages-cms-media-catalog.mjs"),
     npmStep("media-sync", "media:sync"),
     nodeStep("verify-live-semantics-final", "tools/media/live-semantic-snapshot.mjs", ["--check", SNAPSHOT]),
     nodeStep("dedupe-integrity", "tools/media/check-dedupe-integrity.mjs"),
