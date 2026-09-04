@@ -5,15 +5,22 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 import { mediaAssets, mediaEntries } from "../../src/data/media/index.ts";
-import {
-  canonicalMediaAssetId,
-  retiredMediaAssetIds,
-} from "../../src/data/media/asset-aliases.ts";
 import { registeredMediaAssets } from "../../src/data/media/assets/registered.ts";
 
+import logicalSource from "../media-migration/manifests/2026-09-03-media-dedupe/logical-assets.json" with { type: "json" };
 import noMergeSource from "../media-migration/manifests/2026-09-03-media-dedupe/no-merge.json" with { type: "json" };
 
 const rootUrl = new URL("../../", import.meta.url);
+const retiredAliasMap = new Map(
+  logicalSource.components.flatMap((component) =>
+    component.removeAssetIds.map((fromAssetId) => [fromAssetId, component.canonicalAssetId]),
+  ),
+);
+const retiredMediaAssetIds = new Set(retiredAliasMap.keys());
+
+function canonicalMediaAssetId(assetId) {
+  return retiredAliasMap.get(assetId) ?? assetId;
+}
 
 function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
