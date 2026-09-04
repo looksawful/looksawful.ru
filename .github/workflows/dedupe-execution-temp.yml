@@ -1,4 +1,4 @@
-name: Restore Premature Physical Deletes TEMP
+name: Media Dedupe Final Preapply Gate TEMP
 
 on:
   push:
@@ -6,23 +6,61 @@ on:
       - agent/media-normalization-dedupe-wave1-preapply-20260904
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  restore:
-    if: "${{ github.event.head_commit.message != 'fix(media): restore premature physical deletions' }}"
+  preapply:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 120
+    env:
+      E2E_AFFECTED_SUITES: media
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-      - name: Revert premature physical deletion commit
-        shell: bash
+          fetch-depth: 1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install media tooling
         run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git revert --no-edit 753045b9c80a2404df5793fd4afb4feaffc738b8
-          git commit --amend -m 'fix(media): restore premature physical deletions'
-          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-20260904
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Prove deterministic generated state
+        run: |
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+      - name: Guarded dedupe dry-runs
+        run: |
+          node tools/media/apply-dedupe-migration.mjs
+          node tools/media/apply-deferred-physical-dedupe.mjs
+          node tools/media/apply-physical-only-dedupe.mjs
+      - name: Semantic and physical contracts
+        run: |
+          node tools/media/export-semantic-baseline.mjs --migration --check
+          node --test test/media-semantic-baseline.test.mjs test/media-physical-only-dedupe.test.mjs
+      - name: Type and media verification
+        run: |
+          npm run typecheck
+          npm run test:media:contract
+          npm run test:media:checks
+          npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Affected media browser regression
+        run: npm run test:e2e:affected
+      - name: Smoke browser regression
+        run: npm run test:e2e:smoke
+      - name: Repository verify
+        run: npm run verify
+      - name: Repository full verify
+        run: npm run verify:full
+      - name: Final preapply invariants
+        run: |
+          git diff --exit-code
+          node tools/media/export-semantic-baseline.mjs --migration --check
+          node tools/media/apply-dedupe-migration.mjs
+          node tools/media/apply-deferred-physical-dedupe.mjs
+          node tools/media/apply-physical-only-dedupe.mjs
