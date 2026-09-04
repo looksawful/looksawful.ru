@@ -41,12 +41,37 @@ jobs:
           delete matches[0].alt;
           await writeFile(file, `${JSON.stringify(records)}\n`, 'utf8');
           NODE
+      - name: Verify semantic fixes before generation
+        run: node --test test/media-project-assignment.test.mjs test/media-usage-records.test.mjs
       - name: Materialize contextual entry state
         run: node tools/media/materialize-entry-context.mjs --write
+      - name: Verify materialized usage ownership directly
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { berryMediaEntries } from './src/data/media/entries/berry.ts';
+          import { jesteiMediaEntries } from './src/data/media/entries/jestei.ts';
+
+          const byId = new Map([...berryMediaEntries, ...jesteiMediaEntries].map((entry) => [entry.id, entry]));
+          const expected = new Map([
+            ['berry-03-source-06-2x3-use-01', ['shootings-berry-editorial', 'berry-social-content-2020']],
+            ['berry-05-source-01-1050x1400-use-01', ['shootings-berry-model-tests', 'berry-social-content-2020']],
+            ['berry-05-source-05-2000x2000-use-01', ['shootings-berry-lookbook', 'berry-social-content-2020']],
+            ['berry-05-source-07-2144x2144-use-01', ['shootings-berry-product', 'berry-social-content-2020']],
+            ['jestei-landings-moves-awful-source-01-use-jestei', ['jestei-landings', 'moves-awful']],
+            ['jestei-landings-moves-awful-source-02-use-jestei', ['jestei-landings', 'moves-awful']],
+            ['jestei-landings-moves-awful-source-03-use-jestei', ['jestei-landings', 'moves-awful']],
+          ]);
+          for (const [entryId, expectedProjectIds] of expected) {
+            const entry = byId.get(entryId);
+            assert.ok(entry, `missing materialized MediaEntry ${entryId}`);
+            assert.deepEqual(new Set(entry.projectIds ?? []), new Set(expectedProjectIds));
+          }
+          NODE
       - name: Synchronize deterministic media catalog state
         run: npm run media:catalog:sync
-      - name: Verify focused semantic regressions
-        run: node --test test/media-project-assignment.test.mjs test/media-usage-records.test.mjs
       - name: Export bounded generated state
         shell: bash
         run: |
@@ -60,8 +85,7 @@ jobs:
           const rows = raw.split('\0').filter(Boolean);
           const changes = [];
 
-          for (let index = 0; index < rows.length; index += 1) {
-            const row = rows[index];
+          for (const row of rows) {
             const status = row.slice(0, 2);
             const filePath = row.slice(3);
             if (status.includes('R') || status.includes('C')) {
