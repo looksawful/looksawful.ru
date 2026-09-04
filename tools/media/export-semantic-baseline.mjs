@@ -54,7 +54,6 @@ function catalogSemanticRecord(item, assetId = item.asset.id) {
     alt: item.alt,
     description: item.description,
     date: item.date,
-    projectIds: item.projectIds,
     workAreaIds: item.workAreaIds,
     projectTypeIds: item.projectTypeIds,
     deliverableIds: item.deliverableIds,
@@ -72,6 +71,10 @@ function catalogSemanticRecord(item, assetId = item.asset.id) {
  * canonical assets. `normalizeDedupeAliases` projects only those asset
  * identities back to their pre-dedupe values for comparison with the frozen
  * 83ea6cb8 fixture. Contextual values are never normalized, unioned or dropped.
+ *
+ * Project membership is usage-owned and therefore covered by MediaEntry
+ * semantics above. It is intentionally excluded from catalog semantics so the
+ * derived browsing/library projection cannot become contextual authority.
  *
  * The migration comparison reads the legacy/base catalog projection because
  * retired rows remain available until the final source cleanup. Runtime
