@@ -49,6 +49,19 @@ jobs:
           PY
       - name: Dedupe remover regression
         run: node --test test/media-dedupe-apply-tool.test.mjs
+      - name: Commit fix when needed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- tools/media/apply-dedupe-migration.mjs; then
+            exit 0
+          fi
+          git diff --check -- tools/media/apply-dedupe-migration.mjs
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/media/apply-dedupe-migration.mjs
+          git commit -m "fix(media): preserve syntax when removing adjacent assets"
+          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-fix-20260904
       - name: Rehearse logical apply and parse-check repository
         shell: bash
         run: |
@@ -57,16 +70,3 @@ jobs:
           npm run typecheck
           git reset --hard HEAD
           git clean -fd
-      - name: Commit fix when needed
-        shell: bash
-        run: |
-          set -euo pipefail
-          if git diff --quiet; then
-            exit 0
-          fi
-          git diff --check
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tools/media/apply-dedupe-migration.mjs
-          git commit -m "fix(media): preserve syntax when removing adjacent assets"
-          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-fix-20260904
