@@ -72,6 +72,15 @@ test("homepage full entities render from canonical PageContent in declared order
   }
 });
 
+test("homepage canonical entities do not depend on legacy entity markers", () => {
+  const withoutEntityMarkers = indexHtml.replace(
+    /<!-- (?:JESTEI|STYX|SENSETIQUE|SHOOTINGS)_[A-Z0-9_]+ -->/g,
+    "",
+  );
+
+  assert.doesNotThrow(() => renderHomepagePage(withoutEntityMarkers));
+});
+
 test("standalone Jestei page is isolated from other case DOM and uses h1", () => {
   const html = renderStandaloneEntityPage(page("case:jestei-pool"));
   assert.match(html, /id="project-jestei"/);
