@@ -11,7 +11,10 @@ import { createPageFlips } from "./components/page-flip.ts";
 import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
 import { mountExpertise } from "./components/expertise.ts";
 import { mountExperience } from "./components/experience.ts";
-import { mountSiteAnalytics } from "./components/site-analytics.ts";
+import {
+  mountSiteAnalytics,
+  mountSiteAnalyticsGoalTracking,
+} from "./components/site-analytics.ts";
 import { initSiteNavigation } from "./components/site-navigation.ts";
 import { initSiteInteractive } from "./interactive.js";
 import {
@@ -92,14 +95,22 @@ function initViewportAutoplayVideos(root = document) {
   };
 }
 
+const siteAnalyticsConfig = {
+  cloudflareToken: import.meta.env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN,
+  yandexCounterId: import.meta.env.VITE_YANDEX_METRIKA_COUNTER_ID,
+};
+
+let destroySiteAnalyticsGoalTracking = () => {};
 if (import.meta.env.PROD) {
   mountSiteAnalytics({
     root: document,
     target: window,
-    config: {
-      cloudflareToken: import.meta.env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN,
-      clarityProjectId: import.meta.env.VITE_CLARITY_PROJECT_ID,
-    },
+    config: siteAnalyticsConfig,
+  });
+  destroySiteAnalyticsGoalTracking = mountSiteAnalyticsGoalTracking({
+    root: document,
+    target: window,
+    config: siteAnalyticsConfig,
   });
 }
 
@@ -107,7 +118,7 @@ mountExpertise(document);
 mountExperience(document);
 
 const motion = createMotionPreference();
-const destroys = [];
+const destroys = [destroySiteAnalyticsGoalTracking];
 let destroyed = false;
 
 numberMediaCaptions(document);
