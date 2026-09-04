@@ -8,10 +8,11 @@ import {
   type ProjectGroupSection,
   type ProjectPresentation,
   type Section,
+  type SectionHeadOrder,
   type SectionPresentation,
 } from "../../../content/contracts/sections.ts";
 import { renderRevealAttribute, renderRevealGroupAttribute } from "../../../motion-contract.ts";
-import type { CreditsData, SectionNoteData } from "../../../types/content.ts";
+import type { CreditsData, SectionHeadingData, SectionNoteData } from "../../../types/content.ts";
 import { escapeHtml } from "../../../utils/html.ts";
 import { renderContentBlock, renderContentBlocks } from "./content-block.ts";
 
@@ -46,6 +47,11 @@ function renderCredits(credits?: CreditsData, reveal = true): string {
   </p>`;
 }
 
+function renderSectionHeading(heading?: SectionHeadingData, reveal = true): string {
+  if (!heading?.text) return "";
+  return `<h3${renderRevealAttribute(reveal ? "copy" : false)}>${escapeHtml(heading.text)}</h3>`;
+}
+
 function renderSectionNote(note?: SectionNoteData, reveal = true): string {
   const hasNote = Boolean(note?.text || note?.link);
   if (!hasNote) return "";
@@ -57,8 +63,9 @@ function renderSectionNote(note?: SectionNoteData, reveal = true): string {
         note.link.label,
       )}</a>`
     : "";
+  const className = note?.kind === "editorial" ? "editorial-note" : "group-note";
 
-  return `<p class="group-note"${renderRevealAttribute(reveal ? "copy" : false)}>${escapeHtml(
+  return `<p class="${className}"${renderRevealAttribute(reveal ? "copy" : false)}>${escapeHtml(
     note?.text ?? "",
   )}${noteLink}</p>`;
 }
@@ -67,16 +74,21 @@ function renderSectionHead(
   credits?: CreditsData,
   note?: SectionNoteData,
   reveal = true,
+  order: SectionHeadOrder = "credits-note",
 ): string {
   const creditsHtml = renderCredits(credits, reveal);
   const noteHtml = renderSectionNote(note, reveal);
 
   if (!creditsHtml && !noteHtml) return "";
 
+  const content =
+    order === "note-credits"
+      ? `${noteHtml}\n${creditsHtml}`
+      : `${creditsHtml}\n${noteHtml}`;
+
   return `
     <header class="media-group__head flow"${renderRevealGroupAttribute(reveal)}>
-      ${creditsHtml}
-      ${noteHtml}
+      ${content}
     </header>
   `;
 }
@@ -90,6 +102,11 @@ function sectionShellPresentation(presentation?: SectionPresentation): {
     case "split-always":
       return {
         className: "project__section wrapper stack",
+        attributes: "",
+      };
+    case "media-stack":
+      return {
+        className: "project__section wrapper media-stack stack",
         attributes: "",
       };
     case "mockup-grid-reel":
@@ -146,6 +163,15 @@ function renderStackBlocks(
   return blockHtml.join("\n");
 }
 
+function renderMediaStackBlocks(
+  blocks: readonly ProjectPresentation["blocks"][number][],
+  reveal: boolean,
+): string {
+  const [first, ...rest] = blocks.map((block) => renderContentBlock(block, { reveal }));
+  if (!first) return "";
+  return `<div class="media-stack__hero">${first}</div>\n${rest.join("\n")}`;
+}
+
 function renderBlockBody(
   blocks: Extract<Section, { type: "content" | "project" }>["blocks"],
   presentation?: SectionPresentation,
@@ -166,6 +192,8 @@ function renderBlockBody(
         ? `${renderInnerDivider()}\n${blocksHtml}`
         : blocksHtml;
     }
+    case "media-stack":
+      return renderMediaStackBlocks(blocks, reveal);
     case "mockup-grid-reel": {
       const blockHtml = renderContentBlocks(blocks, { reveal });
       return `<div class="media-group__items reel">${blockHtml}</div>`;
@@ -193,7 +221,9 @@ function renderIntroAndBlocks(section: Extract<Section, { type: "content" | "pro
     section.credits,
     notePlacement === "before-blocks" ? section.note : undefined,
     reveal,
+    section.presentation?.headOrder,
   );
+  const heading = renderSectionHeading(section.heading, reveal);
   const blocks = renderBlockBody(section.blocks, section.presentation);
   const trailingNote =
     notePlacement === "after-blocks" ? renderSectionNote(section.note, reveal) : "";
@@ -201,7 +231,7 @@ function renderIntroAndBlocks(section: Extract<Section, { type: "content" | "pro
     ? renderResourceLinks(section.resources, { reveal })
     : "";
   const body = wrapSectionBody(
-    `${intro}\n${head}\n${blocks}\n${trailingNote}\n${resources}`,
+    `${intro}\n${head}\n${heading}\n${blocks}\n${trailingNote}\n${resources}`,
     section.presentation,
   );
   const projectAttribute =
@@ -218,21 +248,25 @@ function renderProjectPresentation(item: ProjectPresentation): string {
     item.credits,
     notePlacement === "before-blocks" ? item.note : undefined,
     reveal,
+    item.presentation?.headOrder,
   );
+  const heading = renderSectionHeading(item.heading, reveal);
   const blockHtml = renderContentBlocks(item.blocks, { reveal });
   const blocks =
     item.presentation?.layout === "mockup-grid-reel"
       ? `<div class="media-group__items reel">${blockHtml}</div>`
       : item.presentation?.layout === "infinite-media-reel"
         ? `<div class="media-group__items reel" data-infinite-reel-track="">${blockHtml}</div>`
-        : item.presentation?.separator === "before-blocks"
-          ? `${renderInnerDivider()}\n${renderStackBlocks(item.blocks, item.presentation, reveal)}`
-          : renderStackBlocks(item.blocks, item.presentation, reveal);
+        : item.presentation?.layout === "media-stack"
+          ? renderMediaStackBlocks(item.blocks, reveal)
+          : item.presentation?.separator === "before-blocks"
+            ? `${renderInnerDivider()}\n${renderStackBlocks(item.blocks, item.presentation, reveal)}`
+            : renderStackBlocks(item.blocks, item.presentation, reveal);
   const trailingNote =
     notePlacement === "after-blocks" ? renderSectionNote(item.note, reveal) : "";
   const resources = item.resources ? renderResourceLinks(item.resources, { reveal }) : "";
   const body = wrapSectionBody(
-    `${intro}\n${head}\n${blocks}\n${trailingNote}\n${resources}`,
+    `${intro}\n${head}\n${heading}\n${blocks}\n${trailingNote}\n${resources}`,
     item.presentation,
   );
   const presentation = sectionShellPresentation(item.presentation);
@@ -245,12 +279,19 @@ function renderProjectPresentation(item: ProjectPresentation): string {
 }
 
 function renderProjectGroup(section: ProjectGroupSection): string {
-  const intro = section.intro ? renderSectionIntro(section.intro) : "";
-  const head = renderSectionHead(section.credits, section.note);
+  const reveal = usesGlobalReveal(section.presentation);
+  const intro = section.intro ? renderSectionIntro(section.intro, { reveal }) : "";
+  const head = renderSectionHead(
+    section.credits,
+    section.note,
+    reveal,
+    section.presentation?.headOrder,
+  );
+  const heading = renderSectionHeading(section.heading, reveal);
   const items = section.items.map(renderProjectPresentation).join("\n");
-  const resources = section.resources ? renderResourceLinks(section.resources) : "";
+  const resources = section.resources ? renderResourceLinks(section.resources, { reveal }) : "";
 
-  return renderSectionShell(section, `${intro}\n${head}\n${items}\n${resources}`);
+  return renderSectionShell(section, `${intro}\n${head}\n${heading}\n${items}\n${resources}`);
 }
 
 function renderMovesCanvasDemoSection(section: MovesCanvasDemoSection): string {
@@ -282,6 +323,11 @@ function renderSpecializedSection(
   }
 }
 
+function shouldRenderOuterDivider(section: Section): boolean {
+  if (section.type === "specialized") return true;
+  return section.presentation?.outerDivider !== false;
+}
+
 export function renderSection(section: Section, options: SectionRenderOptions = {}): string {
   switch (section.type) {
     case "content":
@@ -301,9 +347,11 @@ export function renderSections(
   options: SectionRenderOptions = {},
 ): string {
   return sections
-    .map(
-      (section) =>
-        `<div class="divider wrapper" aria-hidden="true"></div>\n${renderSection(section, options)}`,
-    )
+    .map((section) => {
+      const divider = shouldRenderOuterDivider(section)
+        ? '<div class="divider wrapper" aria-hidden="true"></div>\n'
+        : "";
+      return `${divider}${renderSection(section, options)}`;
+    })
     .join("\n");
 }

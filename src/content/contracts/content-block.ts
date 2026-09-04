@@ -24,9 +24,14 @@ export const CONTENT_BLOCK_TYPES = [
 
 export type ContentBlockType = (typeof CONTENT_BLOCK_TYPES)[number];
 
+export interface MediaFigureBlockPresentation {
+  mediaDimensions?: boolean;
+}
+
 export interface MediaFigureBlock {
   type: "media-figure";
   data: MediaFigureData<MediaEntryId>;
+  presentation?: MediaFigureBlockPresentation;
 }
 
 export interface MediaGroupBlock {

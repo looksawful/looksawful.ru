@@ -1,5 +1,6 @@
 import type { EntityPageContent } from "../contracts/page-content.ts";
 import { jesteiPoolPageContent } from "./cases/jestei-pool.ts";
+import { sensetiquePageContent } from "./cases/sensetique.ts";
 import { styxPageContent } from "./cases/styx.ts";
 import { shootingsPageContent } from "./collections/shootings.ts";
 import { awfulCasesPageContent } from "./projects/awful-cases.ts";
@@ -16,6 +17,7 @@ import { validateEntityPageContents } from "./validation.ts";
 export const entityPageContents = [
   jesteiPoolPageContent,
   styxPageContent,
+  sensetiquePageContent,
   shootingsPageContent,
   awfulCasesPageContent,
   berrySocialContentPageContent,

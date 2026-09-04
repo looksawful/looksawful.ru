@@ -28,9 +28,16 @@ export interface ResourceLinksData {
   links: readonly ResourceLinkData[];
 }
 
+export type SectionNoteKind = "group" | "editorial";
+
 export interface SectionNoteData {
   text: string;
   link?: ResourceLinkData;
+  kind?: SectionNoteKind;
+}
+
+export interface SectionHeadingData {
+  text: string;
 }
 
 export interface SectionIntroData {

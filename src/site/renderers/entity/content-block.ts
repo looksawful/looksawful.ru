@@ -33,9 +33,12 @@ export function renderContentBlock(
 ): string {
   switch (block.type) {
     case "media-figure":
-      return options.reveal === false
-        ? renderMediaFigure(block.data, { reveal: false })
-        : renderMediaFigure(block.data);
+      return renderMediaFigure(block.data, {
+        ...(options.reveal === false ? { reveal: false as const } : {}),
+        ...(block.presentation?.mediaDimensions !== undefined
+          ? { mediaDimensions: block.presentation.mediaDimensions }
+          : {}),
+      });
     case "media-group":
       return renderMediaGroup(block.data);
     case "media-slider":
