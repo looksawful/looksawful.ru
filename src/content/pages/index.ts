@@ -1,12 +1,16 @@
 import type { EntityPageContent } from "../contracts/page-content.ts";
+import { shootingsPageContent } from "./collections/shootings.ts";
 import { createEntityPageContentRegistry } from "./registry.ts";
 import { validateEntityPageContents } from "./validation.ts";
 
 /**
  * Migration registry. Page modules are added here only after their canonical
- * PageContent has passed parity verification against the current renderer.
+ * PageContent has passed focused structural review and are verified through
+ * the normal page/build gates before integration.
  */
-export const entityPageContents = [] as const satisfies readonly EntityPageContent[];
+export const entityPageContents = [
+  shootingsPageContent,
+] as const satisfies readonly EntityPageContent[];
 
 validateEntityPageContents(entityPageContents);
 
