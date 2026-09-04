@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 import {
   SITE_ORIGIN,
   collectHtmlFiles,
-  extractReferenceAttributes,
+  parseAttributes,
   readUtf8,
 } from "./site-html-utils.mjs";
 
@@ -42,7 +42,7 @@ async function checkUrl(url) {
   try {
     let response = await request(url, "HEAD");
     let method = "HEAD";
-    if (response.status === 405 || response.status === 501) {
+    if (response.status >= 400) {
       response = await request(url, "GET");
       method = "GET";
     }
@@ -80,10 +80,16 @@ async function collectExternalHrefs(distDir) {
   const urls = new Set();
   for (const file of files) {
     const html = await readUtf8(file);
-    for (const reference of extractReferenceAttributes(html)) {
-      if (reference.attribute !== "href" || !/^https?:\/\//i.test(reference.url)) continue;
+    for (const tag of html.match(/<[A-Za-z][A-Za-z0-9:-]*\b[^>]*>/g) ?? []) {
+      const attrs = parseAttributes(tag);
+      if (!attrs.href || !/^https?:\/\//i.test(attrs.href)) continue;
+
+      const relTokens = (attrs.rel ?? "").toLowerCase().split(/\s+/).filter(Boolean);
+      const isResourceHint = /^<link\b/i.test(tag) && relTokens.some((token) => token === "preconnect" || token === "dns-prefetch");
+      if (isResourceHint) continue;
+
       let parsed;
-      try { parsed = new URL(reference.url); } catch { continue; }
+      try { parsed = new URL(attrs.href); } catch { continue; }
       if (parsed.origin === SITE_ORIGIN) continue;
       urls.add(parsed.href);
     }

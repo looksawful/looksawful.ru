@@ -15,7 +15,6 @@ test("fast tests are opt-in contracts while broad cheap coverage stays available
 
   assert.deepEqual(selectTests("fast", files), [
     "test/cms-publication-scope.test.mjs",
-    "test/test-groups.test.mjs",
   ]);
 
   assert.deepEqual(selectTests("unit", files), [
