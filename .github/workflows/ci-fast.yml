@@ -84,4 +84,4 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
       - name: Production build
-        run: npm run build:site
+        run: npm run build
