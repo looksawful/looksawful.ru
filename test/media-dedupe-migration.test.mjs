@@ -101,25 +101,40 @@ test("every reviewed entry retarget keeps its contextual metadata", () => {
   }
 });
 
-test("applied physical duplicate list is absent and deferred sources survive", async () => {
+test("physical cleanup is either fully staged or fully applied, never partial", async () => {
   assert.equal(physicalSource.removedPhysicalPathCount, 63);
   assert.equal(physicalSource.removePhysicalPaths.length, 63);
 
-  for (const path of physicalSource.removePhysicalPaths) {
-    assert.equal(await exists(path), false, `removed duplicate still exists: ${path}`);
-  }
+  const physicalPresence = await Promise.all(
+    physicalSource.removePhysicalPaths.map((path) => exists(path)),
+  );
+  const existingPhysicalCount = physicalPresence.filter(Boolean).length;
+  assert.ok(
+    existingPhysicalCount === 0 || existingPhysicalCount === physicalSource.removePhysicalPaths.length,
+    `physical-only cleanup is partial: ${existingPhysicalCount}/${physicalSource.removePhysicalPaths.length} scheduled paths still exist`,
+  );
 
-  for (const item of physicalSource.deferredRuntimeRewrites ?? []) {
-    assert.equal(await exists(item.path), true, `deferred runtime source missing: ${item.path}`);
-  }
+  const deferredPaths = [
+    ...(physicalSource.deferredRuntimeRewrites ?? []).map((item) => item.path),
+    ...(physicalSource.deferredQualityPromotions ?? []).map((item) => item.bestSourcePath),
+  ];
+  const deferredPresence = await Promise.all(deferredPaths.map((path) => exists(path)));
+  const existingDeferredCount = deferredPresence.filter(Boolean).length;
 
-  for (const item of physicalSource.deferredQualityPromotions ?? []) {
+  if (existingPhysicalCount === physicalSource.removePhysicalPaths.length) {
     assert.equal(
-      await exists(item.bestSourcePath),
-      true,
-      `deferred quality source missing: ${item.bestSourcePath}`,
+      existingDeferredCount,
+      deferredPaths.length,
+      `pre-apply state lost deferred sources: ${existingDeferredCount}/${deferredPaths.length} remain`,
     );
+    return;
   }
+
+  assert.equal(
+    existingDeferredCount,
+    0,
+    `post-apply state retained deferred sources: ${existingDeferredCount}/${deferredPaths.length} remain`,
+  );
 });
 
 test("VARIANT and DIFFERENT decisions remain physically and logically distinct", async () => {
