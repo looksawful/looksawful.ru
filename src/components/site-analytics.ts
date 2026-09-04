@@ -1,8 +1,17 @@
-export type SiteAnalyticsProvider = "cloudflare" | "clarity";
+export type SiteAnalyticsProvider = "cloudflare" | "yandex";
+export type SiteAnalyticsConsent = "granted" | "denied" | null;
+
+export type SiteAnalyticsGoal =
+  | "project_open"
+  | "cv_open"
+  | "contact_email"
+  | "contact_phone"
+  | "contact_telegram"
+  | "download";
 
 export interface SiteAnalyticsConfig {
   cloudflareToken?: string | null;
-  clarityProjectId?: string | null;
+  yandexCounterId?: string | number | null;
 }
 
 export interface SitePrivacySignals {
@@ -18,18 +27,30 @@ export interface SiteAnalyticsScript {
   attributes: Readonly<Record<string, string>>;
 }
 
+export interface SiteAnalyticsGoalEvent {
+  goal: SiteAnalyticsGoal;
+  params: Readonly<Record<string, string>>;
+}
+
 interface MountSiteAnalyticsOptions {
   root: Document;
   target: Window;
   config: SiteAnalyticsConfig;
 }
 
-type ClarityFunction = ((...args: unknown[]) => void) & {
-  q?: unknown[][];
+interface MountSiteAnalyticsGoalTrackingOptions {
+  root: Document;
+  target: Window;
+  config: SiteAnalyticsConfig;
+}
+
+type YandexMetrikaFunction = ((...args: unknown[]) => void) & {
+  a?: unknown[][];
+  l?: number;
 };
 
 type AnalyticsWindow = Window & {
-  clarity?: ClarityFunction;
+  ym?: YandexMetrikaFunction;
 };
 
 type PrivacyNavigator = Navigator & {
@@ -37,14 +58,23 @@ type PrivacyNavigator = Navigator & {
 };
 
 const CLOUDFLARE_BEACON_SRC = "https://static.cloudflareinsights.com/beacon.min.js";
-const CLARITY_SCRIPT_BASE = "https://www.clarity.ms/tag/";
-const CLARITY_CONSENT_KEY = "looksawful:analytics-consent";
+const YANDEX_METRIKA_SRC = "https://mc.yandex.ru/metrika/tag.js";
+const ANALYTICS_CONSENT_KEY = "looksawful:analytics-consent";
+const noop = () => {};
 
 function clean(value: string | null | undefined): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function optedOut(privacy: SitePrivacySignals): boolean {
+export function parseYandexCounterId(value: string | number | null | undefined): number | null {
+  const normalized = typeof value === "number" ? String(value) : clean(value);
+  if (!/^[1-9]\d*$/.test(normalized)) return null;
+
+  const counterId = Number(normalized);
+  return Number.isSafeInteger(counterId) ? counterId : null;
+}
+
+export function isSiteAnalyticsOptedOut(privacy: SitePrivacySignals): boolean {
   return privacy.globalPrivacyControl === true || privacy.doNotTrack === "1";
 }
 
@@ -59,22 +89,22 @@ export function isLocalAnalyticsHostname(hostname: string): boolean {
 export function selectSiteAnalyticsProviders(
   config: SiteAnalyticsConfig,
   privacy: SitePrivacySignals,
-  clarityConsent: boolean,
+  analyticsConsent: boolean,
 ): SiteAnalyticsProvider[] {
-  if (optedOut(privacy)) return [];
+  if (isSiteAnalyticsOptedOut(privacy)) return [];
 
   const providers: SiteAnalyticsProvider[] = [];
   if (clean(config.cloudflareToken)) providers.push("cloudflare");
-  if (clean(config.clarityProjectId) && clarityConsent) providers.push("clarity");
+  if (parseYandexCounterId(config.yandexCounterId) && analyticsConsent) providers.push("yandex");
   return providers;
 }
 
 export function buildSiteAnalyticsScripts(
   config: SiteAnalyticsConfig,
   privacy: SitePrivacySignals,
-  clarityConsent: boolean,
+  analyticsConsent: boolean,
 ): SiteAnalyticsScript[] {
-  const providers = selectSiteAnalyticsProviders(config, privacy, clarityConsent);
+  const providers = selectSiteAnalyticsProviders(config, privacy, analyticsConsent);
   const scripts: SiteAnalyticsScript[] = [];
 
   for (const provider of providers) {
@@ -92,10 +122,9 @@ export function buildSiteAnalyticsScripts(
       continue;
     }
 
-    const projectId = clean(config.clarityProjectId);
     scripts.push({
       provider,
-      src: `${CLARITY_SCRIPT_BASE}${encodeURIComponent(projectId)}`,
+      src: YANDEX_METRIKA_SRC,
       type: "text/javascript",
       async: true,
       attributes: Object.freeze({}),
@@ -113,49 +142,69 @@ export function readSitePrivacySignals(target: Window): SitePrivacySignals {
   };
 }
 
-export function hasStoredClarityConsent(target: Window): boolean {
+export function readStoredAnalyticsConsent(target: Window): SiteAnalyticsConsent {
   try {
-    return target.localStorage.getItem(CLARITY_CONSENT_KEY) === "granted";
+    const value = target.localStorage.getItem(ANALYTICS_CONSENT_KEY);
+    return value === "granted" || value === "denied" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+export function hasStoredAnalyticsConsent(target: Window): boolean {
+  return readStoredAnalyticsConsent(target) === "granted";
+}
+
+export function storeSiteAnalyticsConsent(target: Window, granted: boolean): boolean {
+  try {
+    target.localStorage.setItem(ANALYTICS_CONSENT_KEY, granted ? "granted" : "denied");
+    return true;
   } catch {
     return false;
   }
 }
 
-function ensureClarityQueue(target: Window): ClarityFunction {
+function ensureYandexQueue(target: Window): YandexMetrikaFunction {
   const analyticsTarget = target as AnalyticsWindow;
-  if (analyticsTarget.clarity) return analyticsTarget.clarity;
+  if (analyticsTarget.ym) return analyticsTarget.ym;
 
-  const clarity = ((...args: unknown[]) => {
-    clarity.q ??= [];
-    clarity.q.push(args);
-  }) as ClarityFunction;
-  clarity.q = [];
-  analyticsTarget.clarity = clarity;
-  return clarity;
+  const ym = ((...args: unknown[]) => {
+    ym.a ??= [];
+    ym.a.push(args);
+  }) as YandexMetrikaFunction;
+  ym.a = [];
+  ym.l = Date.now();
+  analyticsTarget.ym = ym;
+  return ym;
 }
 
-function queueClarityConsent(target: Window): void {
-  const clarity = ensureClarityQueue(target);
-  clarity("consentv2", {
-    ad_Storage: "denied",
-    analytics_Storage: "granted",
+function queueYandexInit(target: Window, counterId: number): void {
+  const ym = ensureYandexQueue(target);
+  ym(counterId, "init", {
+    clickmap: true,
+    trackLinks: true,
+    accurateTrackBounce: true,
+    webvisor: true,
   });
 }
 
 export function mountSiteAnalytics({ root, target, config }: MountSiteAnalyticsOptions): SiteAnalyticsProvider[] {
   if (isLocalAnalyticsHostname(target.location.hostname)) return [];
 
-  const scripts = buildSiteAnalyticsScripts(
-    config,
-    readSitePrivacySignals(target),
-    hasStoredClarityConsent(target),
-  );
+  const privacy = readSitePrivacySignals(target);
+  const analyticsConsent = hasStoredAnalyticsConsent(target);
+  const scripts = buildSiteAnalyticsScripts(config, privacy, analyticsConsent);
   const host = root.head ?? root.documentElement;
   const mounted: SiteAnalyticsProvider[] = [];
 
   for (const descriptor of scripts) {
     if (root.querySelector(`script[data-site-analytics="${descriptor.provider}"]`)) continue;
-    if (descriptor.provider === "clarity") queueClarityConsent(target);
+
+    if (descriptor.provider === "yandex") {
+      const counterId = parseYandexCounterId(config.yandexCounterId);
+      if (!counterId) continue;
+      queueYandexInit(target, counterId);
+    }
 
     const script = root.createElement("script");
     script.src = descriptor.src;
@@ -170,4 +219,109 @@ export function mountSiteAnalytics({ root, target, config }: MountSiteAnalyticsO
   }
 
   return mounted;
+}
+
+function analyticsPagePath(target: Window): string {
+  return target.location.pathname || "/";
+}
+
+function urlForAnchor(anchor: HTMLAnchorElement, target: Window): URL | null {
+  const href = anchor.getAttribute("href")?.trim();
+  if (!href || href.startsWith("#") || href.startsWith("javascript:")) return null;
+
+  try {
+    return new URL(href, target.location.href);
+  } catch {
+    return null;
+  }
+}
+
+export function classifySiteAnalyticsGoal(
+  anchor: HTMLAnchorElement,
+  target: Window,
+): SiteAnalyticsGoalEvent | null {
+  const href = anchor.getAttribute("href")?.trim() ?? "";
+  const lowerHref = href.toLowerCase();
+  const page = analyticsPagePath(target);
+
+  if (lowerHref.startsWith("mailto:")) {
+    return { goal: "contact_email", params: Object.freeze({ page }) };
+  }
+
+  if (lowerHref.startsWith("tel:")) {
+    return { goal: "contact_phone", params: Object.freeze({ page }) };
+  }
+
+  const url = urlForAnchor(anchor, target);
+  if (!url) return null;
+
+  if (anchor.hasAttribute("download")) {
+    return {
+      goal: "download",
+      params: Object.freeze({ page, target: url.pathname }),
+    };
+  }
+
+  if (url.hostname === "t.me" || url.hostname === "telegram.me") {
+    return { goal: "contact_telegram", params: Object.freeze({ page }) };
+  }
+
+  if (url.origin !== target.location.origin) return null;
+
+  const normalizedPath = url.pathname.endsWith("/") ? url.pathname : `${url.pathname}/`;
+  if (normalizedPath === "/cv/") {
+    return { goal: "cv_open", params: Object.freeze({ page }) };
+  }
+
+  if (normalizedPath.startsWith("/work/") && normalizedPath !== `${page.replace(/\/+$/, "")}/`) {
+    return {
+      goal: "project_open",
+      params: Object.freeze({ page, target: url.pathname }),
+    };
+  }
+
+  return null;
+}
+
+export function reachSiteAnalyticsGoal(
+  target: Window,
+  config: SiteAnalyticsConfig,
+  event: SiteAnalyticsGoalEvent,
+): boolean {
+  if (isLocalAnalyticsHostname(target.location.hostname)) return false;
+  if (isSiteAnalyticsOptedOut(readSitePrivacySignals(target))) return false;
+  if (!hasStoredAnalyticsConsent(target)) return false;
+
+  const counterId = parseYandexCounterId(config.yandexCounterId);
+  if (!counterId) return false;
+
+  const ym = ensureYandexQueue(target);
+  ym(counterId, "reachGoal", event.goal, {
+    action_info: event.params,
+  });
+  return true;
+}
+
+export function mountSiteAnalyticsGoalTracking({
+  root,
+  target,
+  config,
+}: MountSiteAnalyticsGoalTrackingOptions): () => void {
+  if (isLocalAnalyticsHostname(target.location.hostname)) return noop;
+  if (!parseYandexCounterId(config.yandexCounterId)) return noop;
+
+  const onClick = (event: MouseEvent): void => {
+    const source = event.target;
+    if (!(source instanceof Element)) return;
+
+    const anchor = source.closest<HTMLAnchorElement>("a[href]");
+    if (!(anchor instanceof HTMLAnchorElement)) return;
+
+    const analyticsEvent = classifySiteAnalyticsGoal(anchor, target);
+    if (!analyticsEvent) return;
+    reachSiteAnalyticsGoal(target, config, analyticsEvent);
+  };
+
+  root.addEventListener("click", onClick);
+  return () => root.removeEventListener("click", onClick);
 }
