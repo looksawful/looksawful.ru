@@ -65,13 +65,30 @@ test("CMS media consumes an exact previous cache and saves one exact final cache
   assert.doesNotMatch(workflow, /generated-media-v2-/, "cms media must not expose the retired v2 cache namespace");
 });
 
-test("scheduled Lighthouse rebuilds deterministic media instead of trusting an unrelated cache", async () => {
+test("nightly rebuilds generated media once and heavy browser jobs consume that exact cache", async () => {
   const workflow = await read(".github/workflows/quality.yml");
+  const prepare = workflow.match(/  prepare-media:[\s\S]*?(?=\n  [a-z][\w-]*:|$)/)?.[0] ?? "";
+  const fullE2E = workflow.match(/  full-e2e:[\s\S]*?(?=\n  [a-z][\w-]*:|$)/)?.[0] ?? "";
   const lighthouse = workflow.match(/  lighthouse:[\s\S]*?(?=\n  [a-z][\w-]*:|$)/)?.[0] ?? "";
-  assert.match(lighthouse, /npm run media:sync/);
-  assert.match(lighthouse, /git diff --exit-code/);
+
+  assert.match(prepare, /npm run media:sync/);
+  assert.match(prepare, /media-dev-state\.mjs --cache-verify/);
+  assert.match(prepare, /git diff --exit-code/);
+  assert.match(prepare, /actions\/cache\/save@v4/);
+  assertGeneratedMediaCache(prepare, "nightly prepared cache");
+  assert.match(prepare, /steps\.media\.outputs\.fingerprint/);
+
+  for (const [label, job] of [["full e2e", fullE2E], ["lighthouse", lighthouse]]) {
+    assert.match(job, /needs: \[resolve-target, prepare-media\]/, `${label} waits for prepared media`);
+    assert.match(job, /actions\/cache\/restore@v4/, `${label} restores prepared media`);
+    assertGeneratedMediaCache(job, label);
+    assert.match(job, /needs\.prepare-media\.outputs\.fingerprint/, `${label} uses prepared fingerprint`);
+    assert.match(job, /fail-on-cache-miss: true/, `${label} must fail instead of regenerating`);
+    assert.match(job, /media-dev-state\.mjs --cache-verify/, `${label} verifies prepared cache`);
+    assert.doesNotMatch(job, /npm run media:sync/, `${label} must not duplicate the nightly rebuild`);
+    assert.doesNotMatch(job, /restore-keys:/, `${label} must never accept stale fallback`);
+  }
   assert.match(lighthouse, /npm run build:site/);
-  assert.doesNotMatch(lighthouse, /restore-keys:/);
 });
 
 test("media sync command never directly spawns an npm .cmd shim on Windows", () => {
