@@ -1,6 +1,7 @@
 param(
   [string]$Repo = "looksawful/looksawful.ru",
-  [switch]$Apply
+  [switch]$Apply,
+  [switch]$EnableDependabotSecurityUpdates
 )
 
 $ErrorActionPreference = "Stop"
@@ -25,6 +26,16 @@ function Invoke-GhJson([string]$Method, [string]$Endpoint, $Payload) {
   if ($LASTEXITCODE -ne 0) { throw "gh api $Method failed: $Endpoint" }
   if ([string]::IsNullOrWhiteSpace(($raw -join "`n"))) { return $null }
   return (($raw -join "`n") | ConvertFrom-Json)
+}
+
+function Invoke-GhNoContent([string]$Method, [string]$Endpoint) {
+  & gh api --method $Method -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: $apiVersion" $Endpoint | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw "gh api $Method failed: $Endpoint" }
+}
+
+function Test-GhEndpoint([string]$Endpoint) {
+  & gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: $apiVersion" $Endpoint *> $null
+  return $LASTEXITCODE -eq 0
 }
 
 function Upsert-Ruleset([string]$Name, $Payload) {
@@ -66,6 +77,14 @@ $repoSettings = [ordered]@{
   allow_rebase_merge     = $true
   allow_auto_merge       = $false
   allow_update_branch    = $false
+  security_and_analysis  = @{
+    secret_scanning = @{
+      status = "enabled"
+    }
+    secret_scanning_push_protection = @{
+      status = "enabled"
+    }
+  }
 }
 
 $prodRuleset = [ordered]@{
@@ -127,13 +146,24 @@ Write-Host "Plan:"
 Write-Host "  prod: PR-only, merge commits, required check 'verify', no approvals, no strict up-to-date, no force-push/delete"
 Write-Host "  dev: direct fast-forward pushes allowed, no force-push/delete"
 Write-Host "  global auto-delete merged head branches: OFF"
+Write-Host "  Dependabot alerts + dependency graph: ON"
+Write-Host "  secret scanning + push protection: ON"
+Write-Host "  Dependabot security updates: $(if ($EnableDependabotSecurityUpdates) { 'ON' } else { 'unchanged' })"
 Write-Host "  CodeQL/Lighthouse/full E2E remain non-blocking"
 
 if (-not $Apply) {
-  Write-Host "DRY RUN ONLY. Re-run with -Apply to write repository settings."
+  Write-Host "DRY RUN ONLY. Re-run with -Apply to write repository/security settings."
 } else {
   [void](Invoke-GhJson "PATCH" "repos/$Repo" $repoSettings)
-  Write-Host "UPDATED repository merge/default-branch settings"
+  Write-Host "UPDATED repository merge/default-branch/security settings"
+
+  Invoke-GhNoContent "PUT" "repos/$Repo/vulnerability-alerts"
+  Write-Host "ENABLED Dependabot vulnerability alerts and dependency graph"
+
+  if ($EnableDependabotSecurityUpdates) {
+    Invoke-GhNoContent "PUT" "repos/$Repo/automated-security-fixes"
+    Write-Host "ENABLED Dependabot security updates"
+  }
 }
 
 Upsert-Ruleset "prod-minimal-protection" $prodRuleset
@@ -144,10 +174,13 @@ if ($Apply) {
   $finalRulesets = @(Invoke-GhGet "repos/$Repo/rulesets?includes_parents=false")
   $prodBranch = Invoke-GhGet "repos/$Repo/branches/prod"
   $devBranch = Invoke-GhGet "repos/$Repo/branches/dev"
+  $alertsEnabled = Test-GhEndpoint "repos/$Repo/vulnerability-alerts"
+  $dependencyReviewReady = Test-GhEndpoint "repos/$Repo/dependency-graph/compare/prod...dev"
 
   if ($finalRepo.default_branch -ne "prod") { throw "Verification failed: default branch is not prod." }
   if ($finalRepo.delete_branch_on_merge) { throw "Verification failed: automatic head-branch deletion is enabled." }
   if (-not $finalRepo.allow_merge_commit) { throw "Verification failed: merge commits are disabled." }
+  if (-not $alertsEnabled) { throw "Verification failed: Dependabot vulnerability alerts are not enabled." }
   if (-not ($finalRulesets | Where-Object { $_.name -eq "prod-minimal-protection" -and $_.enforcement -eq "active" })) {
     throw "Verification failed: prod-minimal-protection ruleset is not active."
   }
@@ -155,9 +188,26 @@ if ($Apply) {
     throw "Verification failed: dev-safety ruleset is not active."
   }
 
+  if ($finalRepo.security_and_analysis) {
+    if ($finalRepo.security_and_analysis.secret_scanning.status -ne "enabled") {
+      throw "Verification failed: secret scanning is not enabled."
+    }
+    if ($finalRepo.security_and_analysis.secret_scanning_push_protection.status -ne "enabled") {
+      throw "Verification failed: secret scanning push protection is not enabled."
+    }
+  } else {
+    Write-Warning "GitHub did not return security_and_analysis in the repository response; verify Secret scanning and Push protection in Settings > Advanced Security."
+  }
+
+  if ($EnableDependabotSecurityUpdates -and -not (Test-GhEndpoint "repos/$Repo/automated-security-fixes")) {
+    throw "Verification failed: Dependabot security updates are not enabled."
+  }
+
   Write-Host "VERIFIED"
   Write-Host "  default branch: $($finalRepo.default_branch)"
   Write-Host "  prod protected: $($prodBranch.protected)"
   Write-Host "  dev protected: $($devBranch.protected)"
   Write-Host "  active rulesets: $((($finalRulesets | Where-Object enforcement -eq 'active').name) -join ', ')"
+  Write-Host "  vulnerability alerts/dependency graph: enabled"
+  Write-Host "  dependency review API: $(if ($dependencyReviewReady) { 'READY' } else { 'NOT READY YET; dependency graph may still be indexing' })"
 }
