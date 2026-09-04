@@ -1,5 +1,12 @@
 import type { MediaCatalogItem } from "../../data/media/catalog.ts";
-import { pickMediaEditorialMetadata, type MediaEditorialPatch } from "./editor-model.ts";
+import {
+  mediaEditorialWritePatchForOrigin,
+} from "./editor-serialization.ts";
+import {
+  pickMediaEditorialMetadata,
+  type MediaEditorialPatch,
+  type MediaEditorialWritePatch,
+} from "./editor-model.ts";
 
 export type BulkArrayField =
   | "projectIds"
@@ -24,7 +31,7 @@ export interface BulkEditPlan {
 
 export interface BulkMetadataRequestItem {
   id: string;
-  metadata: MediaEditorialPatch;
+  metadata: MediaEditorialWritePatch;
 }
 
 function clean(values: readonly string[]): string[] {
@@ -83,8 +90,14 @@ export function buildBulkMetadataRequest(
   items: readonly MediaCatalogItem[],
   plan: BulkEditPlan,
 ): BulkMetadataRequestItem[] {
-  return items.map((item) => ({
-    id: item.asset.id,
-    metadata: applyBulkEditorialPlan(pickMediaEditorialMetadata(item), plan),
-  }));
+  return items.map((item) => {
+    const metadata = applyBulkEditorialPlan(
+      pickMediaEditorialMetadata(item),
+      plan,
+    );
+    return {
+      id: item.asset.id,
+      metadata: mediaEditorialWritePatchForOrigin(metadata, item.origin),
+    };
+  });
 }

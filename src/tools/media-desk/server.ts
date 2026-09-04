@@ -9,6 +9,7 @@ import {
 } from "../../data/media/catalog.ts";
 import {
   applyMediaEditorialPatch,
+  applyRegisteredMediaEditorialPatch,
   collectContentDeskTextEntries,
   type ContentDeskTextEntry,
 } from "./editor-model.ts";
@@ -20,6 +21,7 @@ const MAX_BODY_BYTES = 128 * 1024;
 const MAX_BULK_ITEMS = 100;
 const SAFE_ASSET_ID = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const SAFE_ARRAY_INDEX = /^(0|[1-9]\d*)$/;
+const CMS_RUNTIME_ASSET_PREFIX = "cms-";
 
 const TEXT_SOURCE_FILES = [
   "src/content/navigation.json",
@@ -143,18 +145,28 @@ function parseTextSaveRequest(value: unknown): TextSaveRequest {
   };
 }
 
+function persistedUploadId(id: string): string {
+  return id.startsWith(CMS_RUNTIME_ASSET_PREFIX)
+    ? id.slice(CMS_RUNTIME_ASSET_PREFIX.length)
+    : id;
+}
+
 async function existingRecordPath(root: string, id: string): Promise<{
   path: string;
   origin: "registered" | "upload";
+  recordId: string;
 }> {
+  const uploadId = persistedUploadId(id);
   const candidates = [
     {
       path: resolve(root, "src/content/media-catalog/registered", `${id}.json`),
       origin: "registered" as const,
+      recordId: id,
     },
     {
-      path: resolve(root, "src/content/media-catalog/uploads", `${id}.json`),
+      path: resolve(root, "src/content/media-catalog/uploads", `${uploadId}.json`),
       origin: "upload" as const,
+      recordId: uploadId,
     },
   ];
 
@@ -288,11 +300,14 @@ async function prepareMediaDeskMetadata(
 ): Promise<PreparedMediaSave> {
   const target = await existingRecordPath(root, request.id);
   const current = JSON.parse(await readFile(target.path, "utf8")) as Record<string, unknown>;
-  if (current.id !== request.id) {
+  if (current.id !== target.recordId) {
     throw new Error(`Media catalog record id mismatch for "${request.id}"`);
   }
 
-  const next = applyMediaEditorialPatch(current, request.metadata);
+  const next = target.origin === "registered"
+    ? applyRegisteredMediaEditorialPatch(current, request.metadata)
+    : applyMediaEditorialPatch(current, request.metadata);
+
   if (target.origin === "registered") {
     parseRegisteredMediaCatalogRecord(next);
   } else {

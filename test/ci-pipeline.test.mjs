@@ -27,7 +27,7 @@ test("Fast CI is read-only, automatic for dev and PRs, and checks exact generate
   assert.match(workflow, /pull_request:\s*\n\s*branches:\s*\[dev, prod\]/);
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --fingerprint/);
-  assert.match(workflow, /actions\/cache\/restore@v4/);
+  assert.match(workflow, /actions\/cache\/restore@v6/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /npm run typecheck/);
   assert.match(workflow, /npm run test:fast/);
@@ -55,7 +55,7 @@ test("production deploy builds exact prod SHA, validates fast safety, compact br
     "actions/deploy-pages",
     "github-pages/production",
   ]) assert.ok(workflow.includes(command), command);
-  assert.match(workflow, /actions\/cache\/restore@v4/);
+  assert.match(workflow, /actions\/cache\/restore@v6/);
   assert.doesNotMatch(workflow, /restore-keys:/);
   assert.match(workflow, /media-dev-state\.mjs --cache-verify/);
   assert.match(step(workflow, "Regenerate exact media cache on miss"), /if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*npm run media:sync/);

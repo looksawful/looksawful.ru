@@ -21,12 +21,14 @@ test("Fast CI automatically validates engineering dev pushes and PRs while warm-
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /workflow_call:/);
   assert.match(workflow, /ref: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}/);
+  assert.match(workflow, /group: fast-ci-\$\{\{ github\.workflow \}\}-\$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.head\.sha \|\| github\.ref \}\}/);
+  assert.match(workflow, /cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}/);
 
   for (const command of ["npm ci", "npm run typecheck", "npm run test:fast", "npm run build:site"]) {
     assert.ok(workflow.includes(command), command);
   }
 
-  assert.match(workflow, /actions\/cache\/restore@v4/);
+  assert.match(workflow, /actions\/cache\/restore@v6/);
   assert.match(workflow, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.doesNotMatch(workflow, /restore-keys:/);
@@ -60,7 +62,7 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /persist-credentials: false/);
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --fingerprint/);
-  assert.match(workflow, /actions\/cache\/restore@v4/);
+  assert.match(workflow, /actions\/cache\/restore@v6/);
   assert.doesNotMatch(workflow, /restore-keys:/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /Regenerate exact media cache on miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
@@ -72,7 +74,8 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /npm run test:e2e:production/);
   assert.match(workflow, /npm run cv:prod:verify/);
   assert.match(workflow, /deploy-version\.txt/);
-  assert.match(workflow, /actions\/upload-pages-artifact@v3/);
+  assert.match(workflow, /actions\/upload-pages-artifact@v5/);
+  assert.match(workflow, /include-hidden-files:\s*true/);
   assert.match(workflow, /actions\/deploy-pages@v5/);
   assert.match(workflow, /looksawful\.ru\/deploy-version\.txt/);
   assert.match(workflow, /looksawful\.ru\/cv\//);
@@ -93,7 +96,7 @@ test("CMS media distinguishes references, image sources and video sources, saves
   assert.match(workflow, /Build image derivatives incrementally[\s\S]*?if: steps\.scope\.outputs\.rebuild != 'true' && steps\.scope\.outputs\.has_image == 'true'/);
   assert.match(workflow, /npm run test:media:contract/);
   assert.match(workflow, /npm run test:media:checks/);
-  assert.match(workflow, /actions\/cache\/save@v4/);
+  assert.match(workflow, /actions\/cache\/save@v6/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-write/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
 

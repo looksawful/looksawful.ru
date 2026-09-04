@@ -113,7 +113,7 @@ jobs:
       - name: Restore exact previous generated media cache
         if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true'
         id: previous-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: |
             public/media/generated/responsive
@@ -186,7 +186,7 @@ jobs:
         run: node tools/media-dev-state.mjs --cache-verify
       - name: Save exact generated media cache
         if: steps.scope.outputs.has_media_change == 'true' && (github.event_name != 'push' || steps.previous-cache.outputs.cache-hit != 'true' || steps.media.outputs.fingerprint != steps.previous-media.outputs.fingerprint)
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: |
             public/media/generated/responsive

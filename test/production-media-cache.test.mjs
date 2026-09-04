@@ -13,7 +13,7 @@ function stepBlock(name) {
 
 test("warm production path restores exact v3 cache and verifies it without regeneration", () => {
   const restore = stepBlock("Restore exact generated media cache");
-  assert.match(restore, /actions\/cache\/restore@v4/);
+  assert.match(restore, /actions\/cache\/restore@v6/);
   assert.match(restore, /key: generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
   assert.doesNotMatch(restore, /restore-keys:/);
 
@@ -46,7 +46,7 @@ test("production exact cache miss recovers deterministically and saves the exact
   assert.match(mutation, /git diff --exit-code --/);
 
   const save = stepBlock("Save exact generated media cache on miss");
-  assert.match(save, /actions\/cache\/save@v4/);
+  assert.match(save, /actions\/cache\/save@v6/);
   assert.match(save, /key: generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
 
   const recoveryIndex = workflow.indexOf("- name: Regenerate exact media cache on miss");

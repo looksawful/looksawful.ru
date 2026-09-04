@@ -23,8 +23,8 @@ function assertGeneratedMediaCache(cache, label) {
 test("Fast CI and production consume only exact fingerprinted generated-media caches", async () => {
   for (const name of ["ci-fast.yml", "pages.yml"]) {
     const workflow = await read(`.github/workflows/${name}`);
-    const restore = block(workflow, name === "ci-fast.yml" ? "Restore exact generated media cache" : "Restore exact generated media cache");
-    assert.match(restore, /actions\/cache\/restore@v4/, `${name} exact cache restore`);
+    const restore = block(workflow, "Restore exact generated media cache");
+    assert.match(restore, /actions\/cache\/restore@v6/, `${name} exact cache restore`);
     assertGeneratedMediaCache(restore, name);
     assert.match(restore, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
     assert.doesNotMatch(restore, /restore-keys:/, `${name} must never accept stale cache fallback`);
@@ -41,7 +41,7 @@ test("Fast CI media generation exists only as explicit cache-miss recovery", asy
   assert.match(tooling, /ffmpeg/);
   assert.match(recovery, /cache-hit != 'true'/);
   assert.match(recovery, /npm run media:sync/);
-  assert.match(workflow, /actions\/cache\/save@v4/);
+  assert.match(workflow, /actions\/cache\/save@v6/);
 });
 
 test("CMS media consumes an exact previous cache and saves one exact final cache", async () => {
@@ -49,14 +49,14 @@ test("CMS media consumes an exact previous cache and saves one exact final cache
   const previous = block(workflow, "Restore exact previous generated media cache");
   const save = block(workflow, "Save exact generated media cache");
 
-  assert.match(previous, /actions\/cache\/restore@v4/);
+  assert.match(previous, /actions\/cache\/restore@v6/);
   assertGeneratedMediaCache(previous, "cms previous cache");
   assert.match(previous, /steps\.previous-media\.outputs\.fingerprint/);
   assert.match(previous, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.previous-media\.outputs\.fingerprint \}\}/);
   assert.doesNotMatch(previous, /restore-keys:/);
   assert.match(workflow, /Verify previous cache before incremental generation[\s\S]*?media-dev-state\.mjs --cache-verify/);
 
-  assert.match(save, /actions\/cache\/save@v4/);
+  assert.match(save, /actions\/cache\/save@v6/);
   assertGeneratedMediaCache(save, "cms final cache");
   assert.match(save, /steps\.media\.outputs\.fingerprint/);
   assert.match(save, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
@@ -74,13 +74,13 @@ test("nightly rebuilds generated media once and heavy browser jobs consume that 
   assert.match(prepare, /npm run media:sync/);
   assert.match(prepare, /media-dev-state\.mjs --cache-verify/);
   assert.match(prepare, /git diff --exit-code/);
-  assert.match(prepare, /actions\/cache\/save@v4/);
+  assert.match(prepare, /actions\/cache\/save@v6/);
   assertGeneratedMediaCache(prepare, "nightly prepared cache");
   assert.match(prepare, /steps\.media\.outputs\.fingerprint/);
 
   for (const [label, job] of [["full e2e", fullE2E], ["lighthouse", lighthouse]]) {
     assert.match(job, /needs: \[resolve-target, prepare-media\]/, `${label} waits for prepared media`);
-    assert.match(job, /actions\/cache\/restore@v4/, `${label} restores prepared media`);
+    assert.match(job, /actions\/cache\/restore@v6/, `${label} restores prepared media`);
     assertGeneratedMediaCache(job, label);
     assert.match(job, /needs\.prepare-media\.outputs\.fingerprint/, `${label} uses prepared fingerprint`);
     assert.match(job, /fail-on-cache-miss: true/, `${label} must fail instead of regenerating`);

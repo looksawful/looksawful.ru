@@ -445,9 +445,9 @@ content:
           rename: false
           delete: false
         view:
-          fields: [title, mediaType, date]
+          fields: [title, date]
           primary: title
-          sort: [title, date, mediaType]
+          sort: [title, date]
           search: [title, id, date, tags, credits]
           default:
             sort: title
@@ -472,82 +472,28 @@ content:
             required: true
             hidden: true
             readonly: true
-          - name: mediaType
-            label: Тип файла
-            type: select
-            required: true
-            readonly: true
-            options:
-              values:
-                - { name: image, label: Фото / изображение }
-                - { name: video, label: Видео }
-                - { name: model, label: 3D-модель }
-          - name: src
-            label: Файл
-            type: string
-            required: true
-            readonly: true
-            description: Физический источник уже используемого ассета.
-          - name: sourceSrc
-            label: Исходный мастер видео
-            type: string
-            readonly: true
-          - name: width
-            label: Ширина, px
-            type: number
-            required: true
-            hidden: true
-            readonly: true
-          - name: height
-            label: Высота, px
-            type: number
-            required: true
-            hidden: true
-            readonly: true
-          - name: durationSeconds
-            label: Длительность, сек.
-            type: number
-            required: true
-            hidden: true
-            readonly: true
-          - name: mimeType
-            label: MIME type
-            type: string
-            hidden: true
-            readonly: true
-          - name: byteLength
-            label: Размер, байт
-            type: number
-            required: true
-            hidden: true
-            readonly: true
           - name: title
             label: Название в каталоге
             type: string
             required: true
-            description: Короткое название ассета.
+            description: Короткое библиотечное название ассета.
           - name: alt
             label: Alt по умолчанию
             type: text
-            description: Базовое описание для будущего переиспользования. Текущие usage-specific alt остаются у MediaEntry.
+            description: Базовое описание для переиспользования. Usage-specific alt остаётся у MediaEntry.
           - name: description
             label: Описание
             type: text
           - name: date
-            label: Год / период
+            label: Год / период по умолчанию
             type: string
-          - name: projectIds
-            label: Проекты
-            component: media-catalog-project-ids
-            description: Один файл может относиться к нескольким проектам.
           - name: workAreaIds
             label: Направления
             component: media-catalog-work-area-ids
-            description: Фото, продакшен, иллюстрации, графический дизайн, айдентика, моушен, 3D и смежные направления.
+            description: Библиотечная классификация. Контекст конкретного использования может быть уточнён на MediaEntry.
           - name: projectTypeIds
             label: Типы работы и съёмки
             component: media-catalog-project-type-ids
-            description: Для съёмок доступны музыка, лукбук, каталог, кампейн и эдиториал.
           - name: deliverableIds
             label: Форматы и носители
             component: media-catalog-deliverable-ids
@@ -555,9 +501,9 @@ content:
             label: Свободные теги
             type: string
             list: true
-            description: Произвольные поисковые теги. Каждый тег добавляется отдельной строкой.
+            description: Библиотечные поисковые теги.
           - name: credits
-            label: Авторы и кредиты
+            label: Авторы и кредиты по умолчанию
             type: string
             list: true
           - name: reusable
