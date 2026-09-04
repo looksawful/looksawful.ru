@@ -13,6 +13,7 @@ import {
 import {
   applyMediaEditorialPatchToItem,
   buildMediaEditorialPatch,
+  mediaEditorialWritePatchForOrigin,
 } from "./editor-serialization.ts";
 import {
   pickMediaEditorialMetadata,
@@ -21,7 +22,7 @@ import {
 import { connectMediaDeskBulkEditor } from "./bulk-editor.ts";
 
 const CAN_WRITE_MEDIA = import.meta.env.VITE_CONTENT_DESK_WRITE === "1";
-const editorialOverrides = new Map<string, MediaEditorialPatch>();
+const editorialOverrides = new Map<string, Partial<MediaEditorialPatch>>();
 
 type SaveState = "saved" | "unsaved" | "saving" | "error";
 
@@ -299,14 +300,21 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
   creditsGrid.append(credits.field, tags.field);
   creditsGroup.append(creditsGrid);
 
-  const classification = group("Классификация", { open: false });
+  const classification = group("Классификация", {
+    open: false,
+    ...(item.origin === "registered"
+      ? { description: "Проекты принадлежат конкретным размещениям MediaEntry, а не библиотечному ассету." }
+      : {}),
+  });
   const classificationGrid = element("div", "md-editor-grid");
 
-  const project = taxonomyField(
-    "Проекты",
-    metadata.projectIds,
-    projects.map(({ id, name }) => ({ id, name })),
-  );
+  const project = item.origin === "cms"
+    ? taxonomyField(
+        "Проекты",
+        metadata.projectIds,
+        projects.map(({ id, name }) => ({ id, name })),
+      )
+    : null;
   const workArea = taxonomyField(
     "Направления",
     metadata.workAreaIds,
@@ -323,15 +331,15 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
     mediaCatalogDeliverables.map(({ id, name }) => ({ id, name })),
   );
 
+  if (project) tomControls.push(project.tom);
   tomControls.push(
-    project.tom,
     workArea.tom,
     projectType.tom,
     deliverable.tom,
   );
 
+  if (project) classificationGrid.append(project.field);
   classificationGrid.append(
-    project.field,
     workArea.field,
     projectType.field,
     deliverable.field,
@@ -411,12 +419,12 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
       return;
     }
 
-    const next: MediaEditorialPatch = buildMediaEditorialPatch({
+    const next = buildMediaEditorialPatch({
       title: title.control.value,
       alt: alt.control.value,
       description: description.control.value,
       date: date.control.value,
-      projectIds: tomValues(project.tom),
+      projectIds: project ? tomValues(project.tom) : metadata.projectIds,
       workAreaIds: tomValues(workArea.tom),
       projectTypeIds: tomValues(projectType.tom),
       deliverableIds: tomValues(deliverable.tom),
@@ -425,6 +433,7 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
       reusable: reusableInput.checked,
       archived: archivedInput.checked,
     });
+    const writePatch = mediaEditorialWritePatchForOrigin(next, item.origin);
 
     updateState("saving");
 
@@ -434,7 +443,7 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           id: item.asset.id,
-          metadata: next,
+          metadata: writePatch,
         }),
       });
 
@@ -557,7 +566,7 @@ if (inspector && bulkHost) {
     const detail = (
       event as CustomEvent<{
         id?: string;
-        metadata?: MediaEditorialPatch;
+        metadata?: Partial<MediaEditorialPatch>;
         origin?: "single" | "bulk";
       }>
     ).detail;
