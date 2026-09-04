@@ -32,6 +32,7 @@ export type {
   SectionLayout,
   SectionMotion,
   SectionPresentation,
+  SectionSeparator,
   SectionType,
   SpecializedSection,
 } from "./sections.ts";

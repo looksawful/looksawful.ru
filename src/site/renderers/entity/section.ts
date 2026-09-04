@@ -1,3 +1,4 @@
+import { renderResourceLinks } from "../../../components/composition/resource-links.ts";
 import { renderSectionIntro } from "../../../components/composition/section-intro.ts";
 import { renderMovesCanvasDemo } from "../../../components/specialized/index.ts";
 import {
@@ -12,7 +13,7 @@ import {
 import { renderRevealAttribute, renderRevealGroupAttribute } from "../../../motion-contract.ts";
 import type { CreditsData, SectionNoteData } from "../../../types/content.ts";
 import { escapeHtml } from "../../../utils/html.ts";
-import { renderContentBlocks } from "./content-block.ts";
+import { renderContentBlock, renderContentBlocks } from "./content-block.ts";
 
 export interface SpecializedSectionRenderers {
   jesteiTrackFilter?: (section: JesteiTrackFilterSection) => string;
@@ -24,6 +25,10 @@ export interface SectionRenderOptions {
 
 function usesGlobalReveal(presentation?: SectionPresentation): boolean {
   return presentation?.motion !== "section-owned";
+}
+
+function renderInnerDivider(): string {
+  return '<div class="divider" aria-hidden="true"></div>';
 }
 
 function renderSectionHead(
@@ -119,20 +124,46 @@ function renderSectionShell(
   `;
 }
 
+function renderStackBlocks(
+  blocks: Extract<Section, { type: "content" | "project" }>["blocks"],
+  presentation: SectionPresentation | undefined,
+  reveal: boolean,
+): string {
+  const blockHtml = blocks.map((block) => renderContentBlock(block, { reveal }));
+
+  if (presentation?.separator === "between-blocks") {
+    return blockHtml.join(`\n${renderInnerDivider()}\n`);
+  }
+
+  return blockHtml.join("\n");
+}
+
 function renderBlockBody(
   blocks: Extract<Section, { type: "content" | "project" }>["blocks"],
   presentation?: SectionPresentation,
 ): string {
   const reveal = usesGlobalReveal(presentation);
-  const blockHtml = renderContentBlocks(blocks, { reveal });
+  const layout = presentation?.layout ?? "stack";
 
-  switch (presentation?.layout ?? "stack") {
-    case "stack":
-      return blockHtml;
-    case "mockup-grid-reel":
+  if (presentation?.separator && layout !== "stack") {
+    throw new Error(`Section separator requires stack layout; got ${layout}`);
+  }
+
+  switch (layout) {
+    case "stack": {
+      const blocksHtml = renderStackBlocks(blocks, presentation, reveal);
+      return presentation?.separator === "before-blocks"
+        ? `${renderInnerDivider()}\n${blocksHtml}`
+        : blocksHtml;
+    }
+    case "mockup-grid-reel": {
+      const blockHtml = renderContentBlocks(blocks, { reveal });
       return `<div class="media-group__items reel">${blockHtml}</div>`;
-    case "infinite-media-reel":
+    }
+    case "infinite-media-reel": {
+      const blockHtml = renderContentBlocks(blocks, { reveal });
       return `<div class="media-group__items reel" data-infinite-reel-track="">${blockHtml}</div>`;
+    }
   }
 }
 
@@ -141,10 +172,17 @@ function renderIntroAndBlocks(section: Extract<Section, { type: "content" | "pro
   const intro = section.intro ? renderSectionIntro(section.intro, { reveal }) : "";
   const head = renderSectionHead(section.credits, section.note, reveal);
   const blocks = renderBlockBody(section.blocks, section.presentation);
+  const resources = section.resources
+    ? renderResourceLinks(section.resources, { reveal })
+    : "";
   const projectAttribute =
     section.type === "project" ? ` data-project-id="${escapeHtml(section.projectId)}"` : "";
 
-  return renderSectionShell(section, `${intro}\n${head}\n${blocks}`, projectAttribute);
+  return renderSectionShell(
+    section,
+    `${intro}\n${head}\n${blocks}\n${resources}`,
+    projectAttribute,
+  );
 }
 
 function renderProjectPresentation(item: ProjectPresentation): string {
@@ -157,7 +195,10 @@ function renderProjectPresentation(item: ProjectPresentation): string {
       ? `<div class="media-group__items reel">${blockHtml}</div>`
       : item.presentation?.layout === "infinite-media-reel"
         ? `<div class="media-group__items reel" data-infinite-reel-track="">${blockHtml}</div>`
-        : blockHtml;
+        : item.presentation?.separator === "before-blocks"
+          ? `${renderInnerDivider()}\n${renderStackBlocks(item.blocks, item.presentation, reveal)}`
+          : renderStackBlocks(item.blocks, item.presentation, reveal);
+  const resources = item.resources ? renderResourceLinks(item.resources, { reveal }) : "";
   const presentation = sectionShellPresentation(item.presentation);
 
   return `
@@ -165,6 +206,7 @@ function renderProjectPresentation(item: ProjectPresentation): string {
       ${intro}
       ${head}
       ${body}
+      ${resources}
     </div>
   `;
 }
@@ -173,8 +215,9 @@ function renderProjectGroup(section: ProjectGroupSection): string {
   const intro = section.intro ? renderSectionIntro(section.intro) : "";
   const head = renderSectionHead(section.credits, section.note);
   const items = section.items.map(renderProjectPresentation).join("\n");
+  const resources = section.resources ? renderResourceLinks(section.resources) : "";
 
-  return renderSectionShell(section, `${intro}\n${head}\n${items}`);
+  return renderSectionShell(section, `${intro}\n${head}\n${items}\n${resources}`);
 }
 
 function renderMovesCanvasDemoSection(section: MovesCanvasDemoSection): string {

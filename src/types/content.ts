@@ -15,14 +15,22 @@ export interface CreditsData {
   lines?: readonly string[];
 }
 
+export interface ResourceLinkData {
+  label: string;
+  href: string;
+  rel?: string;
+  target?: "_blank";
+  download?: string;
+}
+
+export interface ResourceLinksData {
+  text: string;
+  links: readonly ResourceLinkData[];
+}
+
 export interface SectionNoteData {
   text: string;
-  link?: {
-    label: string;
-    href: string;
-    rel?: string;
-    target?: "_blank";
-  };
+  link?: ResourceLinkData;
 }
 
 export interface SectionIntroData {

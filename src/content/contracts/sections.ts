@@ -1,7 +1,12 @@
 import type { ProjectId } from "../../data/catalog/projects/index.ts";
 import type { MediaEntryId } from "../../data/media/index.ts";
 import type { MovesAnimatedCanvasGalleryData } from "../../types/animated-canvas-gallery.ts";
-import type { CreditsData, SectionIntroData, SectionNoteData } from "../../types/content.ts";
+import type {
+  CreditsData,
+  ResourceLinksData,
+  SectionIntroData,
+  SectionNoteData,
+} from "../../types/content.ts";
 import type { ContentBlock } from "./content-block.ts";
 import type { SectionId } from "./ids.ts";
 
@@ -11,10 +16,12 @@ export type SectionType = (typeof SECTION_TYPES)[number];
 
 export type SectionLayout = "stack" | "mockup-grid-reel" | "infinite-media-reel";
 export type SectionMotion = "global-reveal" | "section-owned";
+export type SectionSeparator = "before-blocks" | "between-blocks";
 
 export interface SectionPresentation {
   layout?: SectionLayout;
   motion?: SectionMotion;
+  separator?: SectionSeparator;
 }
 
 export interface ContentSection {
@@ -23,6 +30,7 @@ export interface ContentSection {
   intro?: SectionIntroData;
   credits?: CreditsData;
   note?: SectionNoteData;
+  resources?: ResourceLinksData;
   presentation?: SectionPresentation;
   blocks: readonly ContentBlock[];
 }
@@ -34,6 +42,7 @@ export interface ProjectSection {
   intro?: SectionIntroData;
   credits?: CreditsData;
   note?: SectionNoteData;
+  resources?: ResourceLinksData;
   presentation?: SectionPresentation;
   blocks: readonly ContentBlock[];
 }
@@ -43,6 +52,7 @@ export interface ProjectPresentation {
   intro?: SectionIntroData;
   credits?: CreditsData;
   note?: SectionNoteData;
+  resources?: ResourceLinksData;
   presentation?: SectionPresentation;
   blocks: readonly ContentBlock[];
 }
@@ -53,6 +63,7 @@ export interface ProjectGroupSection {
   intro?: SectionIntroData;
   credits?: CreditsData;
   note?: SectionNoteData;
+  resources?: ResourceLinksData;
   items: readonly ProjectPresentation[];
 }
 
