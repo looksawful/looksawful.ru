@@ -11,7 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import sharp from "sharp";
-import ts from "typescript";
+import ts from "@typescript/typescript6";
 
 import { registeredMediaAssets } from "../../src/data/media/assets/registered.ts";
 import physicalSource from "../media-migration/manifests/2026-09-03-media-dedupe/physical-only.json" with { type: "json" };

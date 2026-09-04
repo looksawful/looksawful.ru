@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
+    "@typescript/typescript6": "^6.0.2",
     "playwright": "^1.61.1",
     "sharp": "^0.34.5",
     "typescript": "^7.0.2",

@@ -2,7 +2,7 @@ import { readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import ts from "typescript";
+import ts from "@typescript/typescript6";
 
 import { mediaAssets, mediaEntries } from "../../src/data/media/index.ts";
 import { registeredMediaAssets } from "../../src/data/media/assets/registered.ts";

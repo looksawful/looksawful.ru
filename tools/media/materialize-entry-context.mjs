@@ -2,7 +2,7 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import ts from "typescript";
+import ts from "@typescript/typescript6";
 
 import { mediaEntries } from "../../src/data/media/entries/index.ts";
 import { dedupeUsageEvidenceByEntryId } from "../../src/data/media/usage-records.ts";
