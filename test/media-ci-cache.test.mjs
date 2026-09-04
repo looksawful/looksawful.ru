@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
 
 import { resolveNpmMediaSyncCommand } from "../tools/media-dev-state.mjs";
@@ -20,10 +23,29 @@ function assertGeneratedMediaCache(cache, label) {
   assert.doesNotMatch(cache, /responsive-generated\.ts/, `${label} must not cache tracked generated catalog`);
 }
 
+async function hashTree(root) {
+  const rows = [];
+  async function walk(dir) {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const absolute = path.join(dir, entry.name);
+      if (entry.isDirectory()) await walk(absolute);
+      else {
+        const bytes = await readFile(absolute);
+        rows.push([
+          path.relative(root, absolute).replaceAll("\\", "/"),
+          createHash("sha256").update(bytes).digest("hex"),
+        ]);
+      }
+    }
+  }
+  await walk(root);
+  return rows.sort(([a], [b]) => a.localeCompare(b));
+}
+
 test("Fast CI and production consume only exact fingerprinted generated-media caches", async () => {
   for (const name of ["ci-fast.yml", "pages.yml"]) {
     const workflow = await read(`.github/workflows/${name}`);
-    const restore = block(workflow, name === "ci-fast.yml" ? "Restore exact generated media cache" : "Restore exact generated media cache");
+    const restore = block(workflow, "Restore exact generated media cache");
     assert.match(restore, /actions\/cache\/restore@v4/, `${name} exact cache restore`);
     assertGeneratedMediaCache(restore, name);
     assert.match(restore, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
@@ -107,4 +129,20 @@ test("media sync command preserves the direct npm path on non-Windows platforms"
     resolveNpmMediaSyncCommand({ platform: "linux", env: {}, execPath: "/usr/bin/node" }),
     { command: "npm", args: ["run", "media:sync"] },
   );
+});
+
+test("TEMP Sharp 0.35.4 produces byte-identical responsive derivatives to released cache", async () => {
+  const root = "public/media/generated/responsive";
+  const before = await hashTree(root);
+  assert.ok(before.length > 0, "released responsive cache must be restored before validation");
+
+  const result = spawnSync(process.execPath, ["tools/build-responsive-media.mjs"], {
+    encoding: "utf8",
+    stdio: "pipe",
+    timeout: 600_000,
+  });
+  assert.equal(result.status, 0, `responsive rebuild failed:\n${result.stdout}\n${result.stderr}`);
+
+  const after = await hashTree(root);
+  assert.deepEqual(after, before, "Sharp/libvips changed generated responsive bytes");
 });
