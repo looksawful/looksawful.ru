@@ -1,6 +1,7 @@
 import type { EntityPageContent } from "../contracts/page-content.ts";
 import { shootingsPageContent } from "./collections/shootings.ts";
 import { awfulCasesPageContent } from "./projects/awful-cases.ts";
+import { berrySocialContentPageContent } from "./projects/berry-social-content-2020.ts";
 import { createEntityPageContentRegistry } from "./registry.ts";
 import { validateEntityPageContents } from "./validation.ts";
 
@@ -12,6 +13,7 @@ import { validateEntityPageContents } from "./validation.ts";
 export const entityPageContents = [
   shootingsPageContent,
   awfulCasesPageContent,
+  berrySocialContentPageContent,
 ] as const satisfies readonly EntityPageContent[];
 
 validateEntityPageContents(entityPageContents);
