@@ -208,17 +208,6 @@ media:
         delete: "media(cms): delete catalog asset {filename}"
         rename: "media(cms): rename catalog asset {oldFilename} -> {newFilename}"
 
-actions:
-  - name: prepare-publication
-    label: Подготовить публикацию
-    workflow: pages-cms-publish.yml
-    ref: prod
-    cancelable: false
-    confirm:
-      title: Подготовить публикацию?
-      message: Создаст или найдёт pull request из dev в prod. Сайт не будет опубликован автоматически.
-      button: Подготовить
-
 content:
   - name: navigation-labels
     label: Навигация
