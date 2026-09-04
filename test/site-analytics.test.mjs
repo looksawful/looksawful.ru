@@ -96,6 +96,43 @@ test("the Yandex event taxonomy stays small and conversion-oriented", async () =
   assert.doesNotMatch(source, /clarity/i);
 });
 
+test("analytics goal classification rejects non-web URL schemes without breaking contact goals", async () => {
+  const { classifySiteAnalyticsGoal } = await loadAnalytics();
+  const target = {
+    location: {
+      href: "https://looksawful.ru/work/jestei-pool/",
+      origin: "https://looksawful.ru",
+      pathname: "/work/jestei-pool/",
+    },
+  };
+  const anchor = (href, download = false) => ({
+    getAttribute: (name) => (name === "href" ? href : null),
+    hasAttribute: (name) => name === "download" && download,
+  });
+
+  for (const href of [
+    "javascript:alert(1)",
+    "data:text/html,<script>alert(1)</script>",
+    "vbscript:msgbox(1)",
+    "blob:https://looksawful.ru/01234567-89ab-cdef-0123-456789abcdef",
+  ]) {
+    assert.equal(classifySiteAnalyticsGoal(anchor(href, true), target), null, href);
+  }
+
+  assert.deepEqual(classifySiteAnalyticsGoal(anchor("mailto:i@lookawful.ru"), target), {
+    goal: "contact_email",
+    params: { page: "/work/jestei-pool/" },
+  });
+  assert.deepEqual(classifySiteAnalyticsGoal(anchor("tel:+70000000000"), target), {
+    goal: "contact_phone",
+    params: { page: "/work/jestei-pool/" },
+  });
+  assert.deepEqual(classifySiteAnalyticsGoal(anchor("/docs/jestei-editorial-guide.pdf", true), target), {
+    goal: "download",
+    params: { page: "/work/jestei-pool/", target: "/docs/jestei-editorial-guide.pdf" },
+  });
+});
+
 test("consent control exposes the privacy notice", async () => {
   const source = await readFile(consentUrl, "utf8");
   assert.match(source, /privacy\.href = "\/privacy\/"/);
