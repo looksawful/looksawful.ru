@@ -1,0 +1,111 @@
+[
+  {
+    "entryId": "portfolio-portfolio-extra-09-2x3-use-01",
+    "evidenceComponentId": 24,
+    "fromAssetId": "portfolio-portfolio-extra-09-2x3",
+    "toAssetId": "sensetique-09-source-04-2x3",
+    "title": "Фотография",
+    "alt": "",
+    "projectIds": [],
+    "workAreaIds": [
+      "photography"
+    ],
+    "projectTypeIds": [],
+    "tags": [
+      "фото"
+    ],
+    "credits": [
+      "Фотограф: Иван Крушинский."
+    ]
+  },
+  {
+    "entryId": "sands-04-source-05-2x3-use-01",
+    "evidenceComponentId": 6,
+    "fromAssetId": "sands-04-source-05-2x3",
+    "toAssetId": "sands-02-source-02-2x3"
+  },
+  {
+    "entryId": "sensetique-12-source-11-427x640-use-01",
+    "evidenceComponentId": 12,
+    "fromAssetId": "sensetique-12-source-11-427x640",
+    "toAssetId": "sensetique-11-source-72-427x640"
+  },
+  {
+    "entryId": "sensetique-12-source-11-427x640-use-02",
+    "evidenceComponentId": 12,
+    "fromAssetId": "sensetique-12-source-11-427x640",
+    "toAssetId": "sensetique-11-source-72-427x640"
+  },
+  {
+    "entryId": "styx-05-source-09-4x5-use-01",
+    "evidenceComponentId": 80,
+    "fromAssetId": "styx-05-source-09-4x5",
+    "toAssetId": "styx-03-source-03-4x5",
+    "date": "2024",
+    "projectIds": [
+      "styx-lookbook-2024"
+    ],
+    "credits": [
+      "/ 2024."
+    ]
+  },
+  {
+    "entryId": "styx-05-source-09-4x5-use-02",
+    "evidenceComponentId": 80,
+    "fromAssetId": "styx-05-source-09-4x5",
+    "toAssetId": "styx-03-source-03-4x5",
+    "date": "2024",
+    "projectIds": [
+      "styx-lookbook-2024"
+    ],
+    "credits": [
+      "/ 2024."
+    ]
+  },
+  {
+    "entryId": "styx-05-source-12-4x5-use-01",
+    "evidenceComponentId": 16,
+    "fromAssetId": "styx-05-source-12-4x5",
+    "toAssetId": "styx-07-source-01-4x5",
+    "title": "Сканография",
+    "credits": [
+      "/ 2022."
+    ]
+  },
+  {
+    "entryId": "styx-05-source-12-4x5-use-02",
+    "evidenceComponentId": 16,
+    "fromAssetId": "styx-05-source-12-4x5",
+    "toAssetId": "styx-07-source-01-4x5",
+    "title": "Сканография",
+    "credits": [
+      "/ 2022."
+    ]
+  },
+  {
+    "entryId": "styx-05-source-14-4x5-use-01",
+    "evidenceComponentId": 79,
+    "fromAssetId": "styx-05-source-14-4x5",
+    "toAssetId": "styx-03-source-01-4x5",
+    "date": "2024",
+    "projectIds": [
+      "styx-lookbook-2024"
+    ],
+    "credits": [
+      "/ 2024."
+    ]
+  },
+  {
+    "entryId": "styx-05-source-14-4x5-use-02",
+    "evidenceComponentId": 79,
+    "fromAssetId": "styx-05-source-14-4x5",
+    "toAssetId": "styx-03-source-01-4x5",
+    "date": "2024",
+    "projectIds": [
+      "styx-lookbook-2024"
+    ],
+    "credits": [
+      "/ 2024."
+    ]
+  }
+]

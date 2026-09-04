@@ -1,0 +1,106 @@
+[
+  {
+    "entryId": "styx-05-source-15-4x5-use-01",
+    "evidenceComponentId": 85,
+    "fromAssetId": "styx-05-source-15-4x5",
+    "toAssetId": "styx-03-source-02-4x5",
+    "date": "2024",
+    "projectIds": [
+      "styx-lookbook-2024"
+    ],
+    "credits": [
+      "/ 2024."
+    ]
+  },
+  {
+    "entryId": "styx-05-source-15-4x5-use-02",
+    "evidenceComponentId": 85,
+    "fromAssetId": "styx-05-source-15-4x5",
+    "toAssetId": "styx-03-source-02-4x5",
+    "date": "2024",
+    "projectIds": [
+      "styx-lookbook-2024"
+    ],
+    "credits": [
+      "/ 2024."
+    ]
+  },
+  {
+    "entryId": "styx-05-source-16-4x5-use-01",
+    "evidenceComponentId": 78,
+    "fromAssetId": "styx-05-source-16-4x5",
+    "toAssetId": "styx-01-source-03-4x5"
+  },
+  {
+    "entryId": "styx-05-source-16-4x5-use-02",
+    "evidenceComponentId": 78,
+    "fromAssetId": "styx-05-source-16-4x5",
+    "toAssetId": "styx-01-source-03-4x5"
+  },
+  {
+    "entryId": "styx-05-source-17-4x5-use-01",
+    "evidenceComponentId": 17,
+    "fromAssetId": "styx-05-source-17-4x5",
+    "toAssetId": "styx-07-source-02-4x5",
+    "title": "Сканография",
+    "date": "",
+    "projectIds": [],
+    "workAreaIds": [
+      "graphic-design"
+    ],
+    "projectTypeIds": [],
+    "deliverableIds": [],
+    "tags": [
+      "графический дизайн"
+    ]
+  },
+  {
+    "entryId": "styx-05-source-17-4x5-use-02",
+    "evidenceComponentId": 17,
+    "fromAssetId": "styx-05-source-17-4x5",
+    "toAssetId": "styx-07-source-02-4x5",
+    "title": "Сканография",
+    "date": "",
+    "projectIds": [],
+    "workAreaIds": [
+      "graphic-design"
+    ],
+    "projectTypeIds": [],
+    "deliverableIds": [],
+    "tags": [
+      "графический дизайн"
+    ]
+  },
+  {
+    "entryId": "styx-07-source-04-4x5-use-01",
+    "evidenceComponentId": 76,
+    "fromAssetId": "styx-07-source-04-4x5",
+    "toAssetId": "styx-05-source-06-4x5",
+    "title": "Фотография из коллаборации Styx Jewels и Evident Things",
+    "workAreaIds": [
+      "photography"
+    ],
+    "tags": [
+      "фото"
+    ],
+    "credits": [
+      "/ 2022."
+    ]
+  },
+  {
+    "entryId": "styx-07-source-04-4x5-use-02",
+    "evidenceComponentId": 76,
+    "fromAssetId": "styx-07-source-04-4x5",
+    "toAssetId": "styx-05-source-06-4x5",
+    "title": "Фотография из коллаборации Styx Jewels и Evident Things",
+    "workAreaIds": [
+      "photography"
+    ],
+    "tags": [
+      "фото"
+    ],
+    "credits": [
+      "/ 2022."
+    ]
+  }
+]

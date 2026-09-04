@@ -2,6 +2,10 @@ import type { MediaEntryData } from "../../../types/media.ts";
 import type { ProjectId } from "../../catalog/projects/index.ts";
 import type { MediaAssetId } from "../assets/index.ts";
 import { mediaCatalogItems } from "../catalog.ts";
+import {
+  dedupeMediaUsageRecords,
+  mediaUsageMetadataByEntryId,
+} from "../usage-records.ts";
 
 import { awfulCasesMediaEntries } from "./awful-cases.ts";
 import { behanceShootingMediaEntries } from "./behance-shootings.ts";
@@ -52,15 +56,39 @@ const assignableMediaEntries = rawMediaEntries as readonly MediaEntryData<
   string
 >[];
 
+const rawEntryById = new Map<string, MediaEntryData<MediaAssetId, string>>(
+  assignableMediaEntries.map((entry) => [entry.id, entry] as const),
+);
+
+for (const record of dedupeMediaUsageRecords) {
+  const entry = rawEntryById.get(record.entryId);
+  if (!entry) {
+    throw new Error(`Dedupe usage metadata references unknown MediaEntry "${record.entryId}"`);
+  }
+  if (entry.assetId !== record.fromAssetId && entry.assetId !== record.toAssetId) {
+    throw new Error(
+      `Dedupe usage metadata for "${record.entryId}" expected asset "${record.fromAssetId}" or "${record.toAssetId}", got "${entry.assetId}"`,
+    );
+  }
+}
+
 const projectIdsByAssetId = new Map<string, readonly ProjectId[]>(
   mediaCatalogItems.map((item) => [item.asset.id, item.projectIds] as const),
 );
 
 export const mediaEntries = assignableMediaEntries.map((entry) => {
   const { projectIds: _legacyProjectIds, ...entryWithoutProjectIds } = entry;
-  const projectIds = projectIdsByAssetId.get(entry.assetId);
+  const usageMetadata = mediaUsageMetadataByEntryId.get(entry.id);
+  const projectIds =
+    usageMetadata?.projectIds !== undefined
+      ? usageMetadata.projectIds
+      : projectIdsByAssetId.get(entry.assetId);
 
-  return projectIds?.length
-    ? { ...entryWithoutProjectIds, projectIds }
+  const enrichedEntry = usageMetadata
+    ? { ...entryWithoutProjectIds, ...usageMetadata }
     : entryWithoutProjectIds;
+
+  return projectIds !== undefined
+    ? { ...enrichedEntry, projectIds }
+    : enrichedEntry;
 }) as readonly MediaEntryRecord[];
