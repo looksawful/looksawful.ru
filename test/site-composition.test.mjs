@@ -83,8 +83,8 @@ test("standalone Sensetique page is canonical, isolated, and marker-free", () =>
     html,
     "/media/projects/sensetique/11/source/28-16x9.mp4",
   );
-  assert.doesNotMatch(krasotaVideo, /\b(?:width|height)="/);
-  assert.doesNotMatch(olovoVideo, /\b(?:width|height)="/);
+  assert.doesNotMatch(krasotaVideo, /(?:^|\s)(?:width|height)="/);
+  assert.doesNotMatch(olovoVideo, /(?:^|\s)(?:width|height)="/);
 
   assert.doesNotMatch(html, /id="project-jestei"/);
   assert.doesNotMatch(html, /id="project-styx"/);
