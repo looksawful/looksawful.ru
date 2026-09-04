@@ -5,6 +5,7 @@ import physicalSource from "../tools/media-migration/manifests/2026-09-03-media-
 import logicalSource from "../tools/media-migration/manifests/2026-09-03-media-dedupe/logical-assets.json" with { type: "json" };
 import noMergeSource from "../tools/media-migration/manifests/2026-09-03-media-dedupe/no-merge.json" with { type: "json" };
 import {
+  classifyReferencePath,
   validatePhysicalOnlyManifest,
 } from "../tools/media/apply-physical-only-dedupe.mjs";
 
@@ -29,6 +30,11 @@ test("physical-only deletions never overlap logical asset removals", () => {
   );
   const overlap = physicalSource.removePhysicalPaths.filter((path) => logicalRemovalPaths.has(path));
   assert.deepEqual(overlap, []);
+});
+
+test("derived media manifest is classified as generated evidence", () => {
+  assert.equal(classifyReferencePath("public/media/media-manifest.json"), "GENERATED");
+  assert.equal(classifyReferencePath("public/pets/awful-cases/awful-cases.js"), "RUNTIME_DIRECT");
 });
 
 test("manifest validator rejects duplicate, registered, protected and deferred paths", () => {
