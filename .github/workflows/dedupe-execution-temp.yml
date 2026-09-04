@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 jobs:
-  persist-ts6-compat:
-    if: ${{ !contains(github.event.head_commit.message, '[persist-ts6]') }}
+  persist-catalog-fixes:
+    if: ${{ !contains(github.event.head_commit.message, '[persist-catalog-fix]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -31,46 +31,42 @@ jobs:
           cache: npm
       - name: Install exact dependencies
         run: npm ci
-      - name: Add TypeScript 6 compatibility compiler
-        run: npm install --save-dev @typescript/typescript6@6.0.2
-      - name: Switch AST tooling to compatibility compiler
+      - name: Apply two isolated catalog fixes
         shell: bash
         run: |
           set -euo pipefail
-          for file in \
-            tools/media/apply-dedupe-migration.mjs \
-            tools/media/apply-deferred-physical-dedupe.mjs \
-            tools/media/materialize-entry-context.mjs
-          do
-            sed -i 's/from "typescript";/from "@typescript\/typescript6";/' "$file"
-          done
-      - name: Verify focused tooling
-        run: node --test test/media-dedupe-apply-tool.test.mjs test/media-deferred-physical-tool.test.mjs test/media-materialize-entry-context.test.mjs
-      - name: Verify MD-02 dry-run
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/data/media/catalog.ts')
+          s = p.read_text()
+          old_uuid = r'/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{12}$/i'
+          new_uuid = r'/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i'
+          old_map = 'const registeredAssetById = new Map(registeredMediaAssets.map((asset) => [asset.id, asset]));'
+          new_map = 'const registeredAssetById = new Map<string, MediaAsset>(\n    registeredMediaAssets.map((asset) => [asset.id, asset]),\n  );'
+          assert s.count(old_uuid) == 1, 'UUID validator shape changed unexpectedly'
+          assert s.count(old_map) == 1, 'registeredAssetById shape changed unexpectedly'
+          s = s.replace(old_uuid, new_uuid).replace(old_map, new_map)
+          p.write_text(s)
+          PY
+      - name: Verify UUID parser regression
+        run: node --test --test-name-pattern="catalog parsers reject unknown fields and taxonomy IDs" test/media-catalog-cms.test.mjs
+      - name: Verify Media Desk UUID fixtures
+        run: node --test --test-name-pattern="bulk writer" test/media-desk-server.test.mjs
+      - name: Verify typecheck
+        run: npm run typecheck
+      - name: Verify MD-02 remains clean
         run: node tools/media/apply-dedupe-migration.mjs
       - name: Guard changed paths
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -t changed < <(git diff --name-only | sort)
-          printf '%s\n' "${changed[@]}"
-          expected=(
-            package-lock.json
-            package.json
-            tools/media/apply-dedupe-migration.mjs
-            tools/media/apply-deferred-physical-dedupe.mjs
-            tools/media/materialize-entry-context.mjs
-          )
-          test "$(printf '%s\n' "${changed[@]}")" = "$(printf '%s\n' "${expected[@]}" | sort)"
-      - name: Commit verified compatibility fix
+          test "$(git diff --name-only)" = "src/data/media/catalog.ts"
+      - name: Commit verified catalog fixes
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json \
-            tools/media/apply-dedupe-migration.mjs \
-            tools/media/apply-deferred-physical-dedupe.mjs \
-            tools/media/materialize-entry-context.mjs
-          git commit -m "fix(tooling): use TS6 compiler API compatibility [persist-ts6]"
+          git add src/data/media/catalog.ts
+          git commit -m "fix(media): repair catalog UUID and registry typing [persist-catalog-fix]"
           git push origin HEAD:agent/media-normalization-dedupe-exec-20260904
