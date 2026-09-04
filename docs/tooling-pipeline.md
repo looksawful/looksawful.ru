@@ -1,61 +1,55 @@
 # Tooling pipeline
 
-This document records the current command/workflow contracts that matter for routine development and CMS operation. It intentionally avoids duplicating the full CI implementation.
+This document records the small command/workflow surface used for routine development and CMS operation.
 
 ## Local development
 
-Use Node 24. Install dependencies with `npm ci` when the lockfile/dependencies are not already installed.
+Use Node 24.
 
-`npm run dev` currently runs Vite directly.
+Core commands:
 
-`npm run build:site` runs the CMS generated-option check, Vite production build and site postbuild. Site postbuild applies CV content, generates the sitemap and validates metadata/local links. `npm run typecheck` remains a separate explicit command.
+- `npm run dev` — Vite development server;
+- `npm run desk` — Content Desk with media state preparation;
+- `npm run typecheck` — TypeScript check;
+- `npm run build` — CMS option check, Vite production build, CV content application, sitemap generation and local site validation;
+- `npm run preview` — preview built site.
 
-## Fast verification
+## CMS configuration
 
-`npm test` and `npm run test:fast` run the repository's fast Node-test group.
+- `npm run cms:generate` updates generated Pages CMS options;
+- `npm run cms:check` verifies generated Pages CMS options are current.
 
-`npm run typecheck` runs TypeScript checking. `npm run build:site` is the production site build contract used by the current fast CI flow.
+## Media
 
-The Pages CMS `Проверить сайт` actions dispatch `.github/workflows/ci-fast.yml` at explicit `ref: dev`. Fast CI performs its existing media-state cache/recovery guard, then typecheck, fast tests and `build:site`.
+- `npm run media:sync` builds the canonical catalog/video/responsive/generated state;
+- `npm run media:ensure` prepares the required local media state without a full derivative rebuild;
+- `npm run media:check` verifies catalog stability, derivative contracts, data integrity and permanent media integrity.
 
-## CMS push behavior
+`.github/workflows/cms-media.yml` owns automatic media mutation on `dev`. It may persist only explicit deterministic generated metadata and refuses to overwrite an advanced `dev` branch.
 
-`.github/workflows/ci-fast.yml` listens to pushes on `dev`, but deliberately ignores the configured CMS text/content paths and media paths that have their own handling. Therefore a normal text-only CMS save does not automatically run Fast CI merely because it created a commit.
+## Fast CI
 
-Use `Проверить сайт` when a manual fast verification is needed. Pull requests targeting `dev` or `prod` are still in the Fast CI PR trigger.
+`.github/workflows/ci-fast.yml` is intentionally small:
 
-## CMS media mutation
+- `npm ci`;
+- exact generated-media cache restore/verify;
+- `npm run typecheck`;
+- `npm run build`.
 
-The current mutation workflow is `.github/workflows/cms-media.yml` (`CMS media`). It is explicitly tied to `dev` media/content paths.
+It does not run a generic test suite and does not regenerate missing media. A missing exact media cache is a hard failure that must be repaired through the media pipeline.
 
-It can normalize catalog metadata and generated media state, but persistence is guarded to explicit allowed paths. Before writing back it confirms `origin/dev` still matches the source SHA and pushes non-force to `dev`. Verification workflows themselves should not gain arbitrary mutation behavior.
+Pages CMS `Проверить сайт` actions may dispatch Fast CI explicitly on `dev`.
 
-Source masters remain preserved; generated technical metadata and derivatives remain tooling-owned. Size limits and upload ownership are documented in `docs/media-upload-policy.md`.
+## Production
 
-## CMS publication
+`.github/workflows/pages.yml` is tied explicitly to `prod` and publishes only the exact checked-out production SHA.
 
-Pages CMS editing and publication trust are intentionally separate:
+Before deploy it requires exact media cache integrity, typecheck, build, production CV preparation and the compact production browser smoke. After deploy it verifies the published SHA, root page, CV and built CSS/JS assets.
 
-```text
-edit/save branch: dev
-trusted publication workflow ref: prod
-production deployment branch: prod
-```
+`npm run test:e2e:production` is the only package-level E2E command kept as a permanent deployment gate.
 
-`Подготовить публикацию` must validate current branch topology and the full `prod..dev` publication scope using trusted `prod` policy, then create/reuse a `dev -> prod` PR. It must not perform the merge/deploy itself.
+## Publication
 
-The publication classifier is separate from ordinary CI change classification: verification coverage is not publication authorization.
+Editing happens on `dev`; production deployment happens from `prod`. The current Pages CMS publication helper, where retained, may only prepare/reuse a `dev -> prod` PR and must never merge or deploy automatically.
 
-## Production deployment
-
-`.github/workflows/pages.yml` remains explicitly tied to `prod` by both its push branch and job guard. It checks out the exact production SHA and builds/deploys that production state. Changing the repository default branch must not weaken or implicitize this explicit `prod` deployment contract.
-
-## Default-branch assumptions
-
-Repository default-branch choice is not used as a substitute for operational branch names:
-
-- development/CMS automation should explicitly target `dev`;
-- production deployment and trusted CMS publication policy should explicitly target `prod`;
-- Dependabot should explicitly target `dev`.
-
-This keeps behavior stable if the GitHub repository default branch is later changed from `prod` to `dev`.
+Dependabot and development automation should continue to target `dev` explicitly rather than relying on the repository default branch.
