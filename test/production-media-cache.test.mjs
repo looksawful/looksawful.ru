@@ -36,7 +36,7 @@ test("production exact cache miss recovers deterministically and saves the exact
   const regenerate = stepBlock("Regenerate exact media cache on miss");
   assert.match(regenerate, /npm run media:sync/);
 
-  const marker = stepBlock("Write canonical generated media cache marker on miss");
+  const marker = stepBlock("Write canonical generated-media cache marker on miss");
   assert.match(marker, /node tools\/media-dev-state\.mjs --cache-write/);
 
   const verify = stepBlock("Verify exact generated media cache");
@@ -50,7 +50,7 @@ test("production exact cache miss recovers deterministically and saves the exact
   assert.match(save, /key: generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
 
   const recoveryIndex = workflow.indexOf("- name: Regenerate exact media cache on miss");
-  const markerIndex = workflow.indexOf("- name: Write canonical generated media cache marker on miss");
+  const markerIndex = workflow.indexOf("- name: Write canonical generated-media cache marker on miss");
   const verifyIndex = workflow.indexOf("- name: Verify exact generated media cache");
   const mutationIndex = workflow.indexOf("- name: Require clean tracked tree after cache recovery");
   const saveIndex = workflow.indexOf("- name: Save exact generated media cache on miss");
