@@ -6,24 +6,17 @@ on:
       - agent/media-normalization-dedupe-exec-20260904
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  persist-catalog-fixes:
-    if: ${{ !contains(github.event.head_commit.message, '[persist-catalog-fix]') }}
+  md10-diagnostic:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     steps:
       - name: Checkout exact source tree
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.sha }}
           fetch-depth: 1
-      - name: Guard execution branch
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$GITHUB_REF" = "refs/heads/agent/media-normalization-dedupe-exec-20260904"
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
@@ -31,42 +24,42 @@ jobs:
           cache: npm
       - name: Install exact dependencies
         run: npm ci
-      - name: Apply two isolated catalog fixes
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          p = Path('src/data/media/catalog.ts')
-          s = p.read_text()
-          old_uuid = r'/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{12}$/i'
-          new_uuid = r'/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i'
-          old_map = 'const registeredAssetById = new Map(registeredMediaAssets.map((asset) => [asset.id, asset]));'
-          new_map = 'const registeredAssetById = new Map<string, MediaAsset>(\n    registeredMediaAssets.map((asset) => [asset.id, asset]),\n  );'
-          assert s.count(old_uuid) == 1, 'UUID validator shape changed unexpectedly'
-          assert s.count(old_map) == 1, 'registeredAssetById shape changed unexpectedly'
-          s = s.replace(old_uuid, new_uuid).replace(old_map, new_map)
-          p.write_text(s)
-          PY
-      - name: Verify UUID parser regression
-        run: node --test --test-name-pattern="catalog parsers reject unknown fields and taxonomy IDs" test/media-catalog-cms.test.mjs
-      - name: Verify Media Desk UUID fixtures
-        run: node --test --test-name-pattern="bulk writer" test/media-desk-server.test.mjs
-      - name: Verify typecheck
-        run: npm run typecheck
-      - name: Verify MD-02 remains clean
+      - name: MD-02 guarded dry-run
         run: node tools/media/apply-dedupe-migration.mjs
-      - name: Guard changed paths
+      - name: Typecheck
+        if: always()
+        run: npm run typecheck
+      - name: Semantic baseline gate
+        if: always()
+        run: node tools/media/export-semantic-baseline.mjs --migration --check
+      - name: Media contract before regeneration
+        if: always()
+        run: npm run test:media:contract
+      - name: Media checks before regeneration
+        if: always()
+        run: npm run test:media:checks
+      - name: Production build
+        if: always()
+        run: npm run build:site
+      - name: Install ffmpeg for isolated media regeneration
+        if: always()
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Regenerate media in runner only
+        if: always()
+        run: npm run media:sync
+      - name: Show deterministic regeneration diff
+        if: always()
         shell: bash
         run: |
-          set -euo pipefail
-          test "$(git diff --name-only)" = "src/data/media/catalog.ts"
-      - name: Commit verified catalog fixes
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/media/catalog.ts
-          git commit -m "fix(media): repair catalog UUID and registry typing [persist-catalog-fix]"
-          git push origin HEAD:agent/media-normalization-dedupe-exec-20260904
+          echo '=== generated diff ==='
+          git status --short
+          git diff --stat
+          git diff --name-only
+      - name: Media contract after regeneration
+        if: always()
+        run: npm run test:media:contract
+      - name: Media checks after regeneration
+        if: always()
+        run: npm run test:media:checks
