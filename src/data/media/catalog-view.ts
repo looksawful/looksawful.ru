@@ -7,6 +7,12 @@ import {
 } from "./catalog.ts";
 import { mediaEntries } from "./entries/index.ts";
 
+type CatalogScalarKey =
+  | "title"
+  | "alt"
+  | "description"
+  | "date";
+
 type CatalogFacetKey =
   | "projectIds"
   | "workAreaIds"
@@ -18,12 +24,8 @@ type CatalogFacetKey =
 type CatalogUsageEntry = Pick<
   MediaEntryData,
   | "assetId"
-  | "projectIds"
-  | "workAreaIds"
-  | "projectTypeIds"
-  | "deliverableIds"
-  | "tags"
-  | "credits"
+  | CatalogScalarKey
+  | CatalogFacetKey
 >;
 
 function stableUnion(values: readonly (readonly string[])[]): readonly string[] {
@@ -39,6 +41,22 @@ function stableUnion(values: readonly (readonly string[])[]): readonly string[] 
   return result;
 }
 
+function everyUsageDefines(
+  entries: readonly CatalogUsageEntry[],
+  key: CatalogScalarKey | CatalogFacetKey,
+): boolean {
+  return entries.length > 0 && entries.every((entry) => entry[key] !== undefined);
+}
+
+function deriveScalar(
+  item: MediaCatalogItem,
+  entries: readonly CatalogUsageEntry[],
+  key: CatalogScalarKey,
+): string {
+  if (!everyUsageDefines(entries, key)) return item[key];
+  return entries[0][key] as string;
+}
+
 function deriveFacet(
   item: MediaCatalogItem,
   entries: readonly CatalogUsageEntry[],
@@ -48,13 +66,19 @@ function deriveFacet(
     .map((entry) => entry[key])
     .filter((values): values is readonly string[] => values !== undefined);
 
-  return stableUnion([item[key], ...explicitUsageValues]);
+  return everyUsageDefines(entries, key)
+    ? stableUnion(explicitUsageValues)
+    : stableUnion([item[key], ...explicitUsageValues]);
 }
 
 /**
  * Builds the read-only browsing projection.
- * Retired duplicate identities are hidden from runtime browsing. Contextual
- * relations are aggregated from usages, but are never written back to entries.
+ *
+ * During migration, legacy catalog context remains only as a fallback for keys
+ * that have not yet been materialized on every usage of an asset. Once every
+ * usage defines a contextual key, the catalog derives that key exclusively
+ * from usages. This lets the source cleanup remove duplicated catalog context
+ * without changing the browsing API.
  */
 export function deriveMediaCatalogItems(
   baseItems: readonly MediaCatalogItem[],
@@ -75,6 +99,10 @@ export function deriveMediaCatalogItems(
 
       return {
         ...item,
+        title: deriveScalar(item, assetEntries, "title"),
+        alt: deriveScalar(item, assetEntries, "alt"),
+        description: deriveScalar(item, assetEntries, "description"),
+        date: deriveScalar(item, assetEntries, "date"),
         projectIds: deriveFacet(item, assetEntries, "projectIds"),
         workAreaIds: deriveFacet(item, assetEntries, "workAreaIds"),
         projectTypeIds: deriveFacet(item, assetEntries, "projectTypeIds"),
