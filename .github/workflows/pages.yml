@@ -49,7 +49,7 @@ jobs:
         run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
       - name: Restore exact generated media cache
         id: media-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: |
             public/media/generated/responsive
@@ -84,7 +84,7 @@ jobs:
           fi
       - name: Save exact generated media cache on miss
         if: steps.media-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: |
             public/media/generated/responsive
@@ -101,7 +101,7 @@ jobs:
       - name: Prepare production CV
         run: npm run cv:prod:prepare
       - name: Cache Playwright Chromium
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
