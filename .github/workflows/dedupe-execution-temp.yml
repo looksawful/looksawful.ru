@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   materialize-state:
-    if: github.event.head_commit.message == 'ci(media): materialize deterministic preapply state'
+    if: ${{ github.event.head_commit.message == 'ci(media): materialize deterministic preapply state' }}
     permissions:
       contents: write
     runs-on: ubuntu-latest
