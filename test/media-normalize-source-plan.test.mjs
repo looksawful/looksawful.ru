@@ -30,7 +30,9 @@ test("apply normalization snapshots semantics before mutation and verifies after
     "deferred-physical-dedupe-apply",
     "compact-pages-cms",
     "check-pages-cms-compact",
-    "media-sync",
+    "media-catalog-sync",
+    "responsive-media-build",
+    "media-dev-state-write",
     "verify-live-semantics-final",
     "dedupe-integrity",
     "typecheck",
@@ -43,4 +45,12 @@ test("apply normalization snapshots semantics before mutation and verifies after
   assert.equal(steps[5].args.includes("--apply"), true);
   assert.equal(steps[7].args.includes("--apply"), true);
   assert.equal(steps[8].args.includes("--write"), true);
+
+  assert.equal(
+    steps.some((step) => step.command.endsWith("npm") || step.command.endsWith("npm.cmd")
+      ? step.args.includes("media:sync")
+      : false),
+    false,
+    "normalization must not rebuild unrelated video outputs",
+  );
 });
