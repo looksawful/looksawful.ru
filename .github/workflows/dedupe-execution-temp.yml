@@ -1,4 +1,4 @@
-# Final candidate gate: cheap invariants first, destructive rehearsal before expensive browser/full verification.
+# Final candidate gate: cheap invariants first, destructive rehearsal before expensive generation/browser/full verification.
 name: Media Dedupe Final Preapply Gate TEMP
 
 on:
@@ -37,11 +37,8 @@ jobs:
           node tools/media/apply-deferred-physical-dedupe.mjs
           node tools/media/apply-physical-only-dedupe.mjs
 
-      - name: Fast type and media contracts
-        run: |
-          npm run typecheck
-          npm run test:media:contract
-          npm run test:media:checks
+      - name: Fast typecheck
+        run: npm run typecheck
 
       - name: Rehearse destructive dedupe before regeneration
         shell: bash
@@ -72,31 +69,24 @@ jobs:
           node tools/media/export-semantic-baseline.mjs --migration --check
           npm run media:dedupe:check
           npm run typecheck
+          npm run test:media:contract
+          npm run test:media:checks
           git diff --binary > "$RUNNER_TEMP/media-sync-first.patch"
           npm run media:sync
           node tools/media-dev-state.mjs --cache-verify
           git diff --binary > "$RUNNER_TEMP/media-sync-second.patch"
           cmp "$RUNNER_TEMP/media-sync-first.patch" "$RUNNER_TEMP/media-sync-second.patch"
 
-      - name: Restore exact candidate after rehearsal
-        shell: bash
-        run: |
-          set -euo pipefail
-          git reset --hard HEAD
-          git clean -fd
-          git diff --exit-code
-          node tools/media/export-semantic-baseline.mjs --migration --check
-
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Media Desk browser regression
+      - name: Media Desk browser regression on rehearsed post-apply state
         run: npm run test:e2e:media-desk
 
-      - name: Affected media browser regression
+      - name: Affected media browser regression on rehearsed post-apply state
         run: npm run test:e2e:affected
 
-      - name: Repository verify once at the end
+      - name: Repository verify once at the end on rehearsed post-apply state
         shell: bash
         run: |
           set -euo pipefail
@@ -106,8 +96,12 @@ jobs:
           npm run verify
           npm run verify:full
 
-      - name: Final preapply invariants
+      - name: Restore exact candidate and prove final preapply invariants
+        shell: bash
         run: |
+          set -euo pipefail
+          git reset --hard HEAD
+          git clean -fd
           git diff --exit-code
           node tools/media/export-semantic-baseline.mjs --migration --check
           node tools/media/apply-dedupe-migration.mjs
