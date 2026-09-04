@@ -16,7 +16,7 @@ export interface SectionIntroData {
   bodyClassName?: string;
 }
 
-export type ProjectIntroTitleData<LogoUsageId extends string = string> =
+export type EntityIntroTitleData<LogoUsageId extends string = string> =
   | {
       type: "logo";
       logoUsageId: LogoUsageId;
@@ -26,7 +26,7 @@ export type ProjectIntroTitleData<LogoUsageId extends string = string> =
       text: string;
     };
 
-export type ProjectIntroHeadData<LogoUsageId extends string = string> =
+export type EntityIntroHeadData<LogoUsageId extends string = string> =
   | {
       type: "logo";
       logoUsageId: LogoUsageId;
@@ -37,20 +37,35 @@ export type ProjectIntroHeadData<LogoUsageId extends string = string> =
       text: string;
     };
 
-export interface ProjectIntroLinkData {
+export interface EntityIntroLinkData {
   label: string;
   href: string;
   rel?: string;
   target?: "_blank";
 }
 
-export interface ProjectIntroData<LogoUsageId extends string = string> {
-  head?: ProjectIntroHeadData<LogoUsageId>;
-  title: ProjectIntroTitleData<LogoUsageId>;
+export interface EntityIntroData<LogoUsageId extends string = string> {
+  head?: EntityIntroHeadData<LogoUsageId>;
+  title: EntityIntroTitleData<LogoUsageId>;
   role?: string;
   period?: string;
   summary?: string;
   lead?: string;
   linksLabel?: string;
-  links?: readonly ProjectIntroLinkData[];
+  links?: readonly EntityIntroLinkData[];
 }
+
+/** @deprecated Use EntityIntroTitleData. */
+export type ProjectIntroTitleData<LogoUsageId extends string = string> =
+  EntityIntroTitleData<LogoUsageId>;
+
+/** @deprecated Use EntityIntroHeadData. */
+export type ProjectIntroHeadData<LogoUsageId extends string = string> =
+  EntityIntroHeadData<LogoUsageId>;
+
+/** @deprecated Use EntityIntroLinkData. */
+export type ProjectIntroLinkData = EntityIntroLinkData;
+
+/** @deprecated Use EntityIntroData. */
+export type ProjectIntroData<LogoUsageId extends string = string> =
+  EntityIntroData<LogoUsageId>;
