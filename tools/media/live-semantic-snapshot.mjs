@@ -3,15 +3,50 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { mediaAssets, mediaEntries } from "../../src/data/media/index.ts";
-import { canonicalMediaAssetId } from "../../src/data/media/asset-aliases.ts";
 import { mediaCatalogItems as baseMediaCatalogItems } from "../../src/data/media/catalog.ts";
-import { resolveMediaUsageMetadata } from "../../src/data/media/usage.ts";
-import { dedupeUsageEvidenceByEntryId } from "../../src/data/media/usage-records.ts";
+import logicalSource from "../media-migration/manifests/2026-09-03-media-dedupe/logical-assets.json" with { type: "json" };
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
+const CONTEXT_KEYS = [
+  "title",
+  "alt",
+  "description",
+  "date",
+  "projectIds",
+  "workAreaIds",
+  "projectTypeIds",
+  "deliverableIds",
+  "tags",
+  "credits",
+];
+
+const retiredAliasMap = new Map(
+  logicalSource.components.flatMap((component) =>
+    component.removeAssetIds.map((fromAssetId) => [fromAssetId, component.canonicalAssetId]),
+  ),
+);
+const legacyContextAssetByEntryId = new Map(
+  logicalSource.components.flatMap((component) => {
+    const legacyAssetId = component.removeAssetIds[0] ?? component.canonicalAssetId;
+    return component.entryIds.map((entryId) => [entryId, legacyAssetId]);
+  }),
+);
+
+function canonicalMediaAssetId(assetId) {
+  return retiredAliasMap.get(assetId) ?? assetId;
+}
 
 function normalizedArray(value) {
   return value ?? [];
+}
+
+function resolveContext(entry, catalog) {
+  if (!catalog) return entry;
+  const result = {};
+  for (const key of CONTEXT_KEYS) {
+    result[key] = entry[key] !== undefined ? entry[key] : catalog[key];
+  }
+  return result;
 }
 
 export function semanticEntryRecord(entry, asset) {
@@ -48,16 +83,14 @@ export function buildLiveSemanticSnapshot() {
   const entries = [...mediaEntries]
     .sort((left, right) => left.id.localeCompare(right.id))
     .map((entry) => {
-      const evidence = dedupeUsageEvidenceByEntryId.get(entry.id);
-      const contextualAssetId = evidence?.fromAssetId ?? entry.assetId;
+      const contextualAssetId = legacyContextAssetByEntryId.get(entry.id) ?? entry.assetId;
       const catalog = catalogByAssetId.get(contextualAssetId)
-        ?? catalogByAssetId.get(entry.assetId);
-      const context = catalog
-        ? resolveMediaUsageMetadata(entry, catalog)
-        : entry;
+        ?? catalogByAssetId.get(canonicalMediaAssetId(entry.assetId));
+      const context = resolveContext(entry, catalog);
+      const canonicalAssetId = canonicalMediaAssetId(entry.assetId);
       return semanticEntryRecord(
-        { ...entry, ...context },
-        assetById.get(canonicalMediaAssetId(entry.assetId)),
+        { ...entry, ...context, assetId: canonicalAssetId },
+        assetById.get(canonicalAssetId),
       );
     });
 
