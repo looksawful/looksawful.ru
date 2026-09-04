@@ -5,6 +5,7 @@ import type { MediaAssetId } from "../assets/index.ts";
 import { mediaCatalogItems } from "../catalog.ts";
 import {
   dedupeMediaUsageRecords,
+  dedupeUsageEvidenceByEntryId,
   mediaUsageMetadataByEntryId,
 } from "../usage-records.ts";
 
@@ -80,19 +81,24 @@ const projectIdsByAssetId = new Map<string, readonly ProjectId[]>(
 );
 
 export const mediaEntries = assignableMediaEntries.map((entry) => {
+  const { projectIds: _legacyProjectIds, ...entryWithoutProjectIds } = entry;
   const usageMetadata = mediaUsageMetadataByEntryId.get(entry.id);
+  const usageEvidence = dedupeUsageEvidenceByEntryId.get(entry.id);
   const assetId = canonicalMediaAssetId(entry.assetId) as MediaAssetId;
 
+  // Until contextual project membership has been materialized into every usage,
+  // preserve the frozen pre-normalization semantics. Raw entry.projectIds are
+  // legacy values from before catalog-owned project assignment and cannot become
+  // authoritative merely because ownership is moving back to MediaEntry.
+  const baselineAssetId = usageEvidence?.fromAssetId ?? entry.assetId;
   const projectIds =
     usageMetadata?.projectIds !== undefined
       ? usageMetadata.projectIds
-      : entry.projectIds !== undefined
-        ? entry.projectIds
-        : projectIdsByAssetId.get(assetId);
+      : projectIdsByAssetId.get(baselineAssetId);
 
   const enrichedEntry = usageMetadata
-    ? { ...entry, ...usageMetadata, assetId }
-    : { ...entry, assetId };
+    ? { ...entryWithoutProjectIds, ...usageMetadata, assetId }
+    : { ...entryWithoutProjectIds, assetId };
 
   return projectIds !== undefined
     ? { ...enrichedEntry, projectIds }
