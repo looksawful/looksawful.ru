@@ -2,8 +2,8 @@
   "version": 1,
   "sourceEvidence": "stage4 user-reviewed SAME decisions",
   "baseEvidenceSha": "83ea6cb845528e1976b13687956bdd249ba8def8",
-  "scope": "physical duplicate sources; no MediaAsset removal",
-  "componentIds": [1,2,3,4,7,8,9,10,11,14,18,19,20,23,26,27,28,29,30,31,32,33,34,36,37,38,39,40,41,42,43,44,45,46,47,48,49,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,81,83],
+  "scope": "physical duplicate sources removed without MediaAsset deletion",
+  "componentIds": [1,2,3,4,7,8,9,10,11,14,18,19,20,23,26,27,29,30,31,32,33,34,36,37,38,39,40,41,42,43,44,45,46,47,48,49,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,81,83],
   "removePhysicalPaths": [
     "public/media/projects/berry/04/source/01-3x4.webp",
     "public/media/projects/shared/moves-awful/01/poster/01-2044x1112.webp",
@@ -22,11 +22,9 @@
     "public/media/projects/sensetique/09/source/30-2x3.webp",
     "public/media/projects/sensetique/11/source/79-933x1400.webp",
     "public/media/projects/sensetique/09/source/20-425x539.webp",
-    "public/media/projects/sensetique/11/source/91-138x175.webp",
     "public/media/projects/sensetique/08/source/09-681x1400.webp",
     "public/media/projects/sensetique/09/source/25-2x3.webp",
     "public/media/projects/sensetique/09/source/01-2x3.webp",
-    "public/media/projects/shootings/26/source/11-3264x4896.webp",
     "public/media/projects/sensetique/09/source/10-2x3.webp",
     "public/media/projects/sensetique/09/source/16-2x3.webp",
     "public/media/projects/sensetique/09/source/28-2x3.webp",
@@ -72,13 +70,28 @@
     "public/media/clients/logo-wall/client-logo-07.webp",
     "public/media/projects/shootings/22/source/01-7x10.webp"
   ],
-  "removedBytes": 9322782,
+  "removedPhysicalPathCount": 64,
+  "removedBytes": 6634290,
   "runtimeRewrites": {
     "public/pets/awful-cases/assets/atlas.png": "public/media/interactive/awful-cases-atlas.png"
   },
   "ignoredTemporaryToolReferences": [
     "public/media/clients/logo-wall/client-logo-07.webp",
     "public/media/projects/shootings/22/source/01-7x10.webp"
+  ],
+  "deferredQualityPromotions": [
+    {
+      "componentId": 20,
+      "canonicalAssetId": "sensetique-05-source-02-4x5",
+      "bestSourcePath": "public/media/projects/sensetique/11/source/91-138x175.webp",
+      "reason": "best source must be copied to canonical path before source deletion"
+    },
+    {
+      "componentId": 28,
+      "canonicalAssetId": "berry-03-source-06-2x3",
+      "bestSourcePath": "public/media/projects/shootings/26/source/11-3264x4896.webp",
+      "reason": "best source must be copied to canonical path before source deletion"
+    }
   ],
   "constraints": {
     "mediaAssetRemovals": 0,
