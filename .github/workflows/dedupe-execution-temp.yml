@@ -9,11 +9,11 @@ permissions:
   contents: read
 
 jobs:
-  md10-diagnostic:
+  semantic-diagnostic:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 20
     steps:
-      - name: Checkout exact source tree
+      - name: Checkout current execution branch
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
@@ -24,42 +24,82 @@ jobs:
           cache: npm
       - name: Install exact dependencies
         run: npm ci
-      - name: MD-02 guarded dry-run
-        run: node tools/media/apply-dedupe-migration.mjs
-      - name: Typecheck
-        if: always()
-        run: npm run typecheck
-      - name: Semantic baseline gate
-        if: always()
-        run: node tools/media/export-semantic-baseline.mjs --migration --check
-      - name: Media contract before regeneration
-        if: always()
-        run: npm run test:media:contract
-      - name: Media checks before regeneration
-        if: always()
-        run: npm run test:media:checks
-      - name: Production build
-        if: always()
-        run: npm run build:site
-      - name: Install ffmpeg for isolated media regeneration
-        if: always()
+      - name: Verify public catalog projection count
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-      - name: Regenerate media in runner only
-        if: always()
-        run: npm run media:sync
-      - name: Show deterministic regeneration diff
-        if: always()
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          const { mediaCatalogItems, mediaAssets } = await import('./src/data/media/index.ts');
+          assert.equal(mediaCatalogItems.length, mediaAssets.length);
+          assert.deepEqual(
+            new Set(mediaCatalogItems.map(({ asset }) => asset.id)),
+            new Set(mediaAssets.map(({ id }) => id)),
+          );
+          console.log(JSON.stringify({catalogItems: mediaCatalogItems.length, mediaAssets: mediaAssets.length}));
+          NODE
+      - name: Compare entry semantics against frozen base
         shell: bash
         run: |
-          echo '=== generated diff ==='
-          git status --short
-          git diff --stat
-          git diff --name-only
-      - name: Media contract after regeneration
-        if: always()
-        run: npm run test:media:contract
-      - name: Media checks after regeneration
-        if: always()
-        run: npm run test:media:checks
+          set -euo pipefail
+          git fetch --depth=1 origin 83ea6cb845528e1976b13687956bdd249ba8def8
+          git worktree add --detach /tmp/dedupe-base 83ea6cb845528e1976b13687956bdd249ba8def8
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/dedupe-base/node_modules
+          node --input-type=module <<'NODE'
+          import { pathToFileURL } from 'node:url';
+          const root = process.env.GITHUB_WORKSPACE;
+          const current = await import(pathToFileURL(`${root}/src/data/media/index.ts`).href);
+          const registered = await import(pathToFileURL(`${root}/src/data/media/assets/registered.ts`).href);
+          const usage = await import(pathToFileURL(`${root}/src/data/media/usage-records.ts`).href);
+          const base = await import(pathToFileURL('/tmp/dedupe-base/src/data/media/index.ts').href);
+
+          function row(entry, asset, assetId = entry.assetId) {
+            return {
+              id: entry.id,
+              assetId,
+              projectIds: entry.projectIds ?? [],
+              creditId: entry.creditId ?? null,
+              alt: entry.alt ?? null,
+              posterAssetId: entry.posterAssetId ?? null,
+              caption: entry.caption ?? null,
+              purpose: entry.purpose ?? null,
+              mediaType: asset?.type ?? null,
+              src: asset?.src ?? null,
+            };
+          }
+
+          const currentAssetById = new Map(
+            [...registered.registeredMediaAssets, ...current.mediaAssets].map((asset) => [asset.id, asset]),
+          );
+          const baseAssetById = new Map(base.mediaAssets.map((asset) => [asset.id, asset]));
+          const baseRows = new Map(base.mediaEntries.map((entry) => [
+            entry.id,
+            row(entry, baseAssetById.get(entry.assetId)),
+          ]));
+
+          const currentRows = new Map(current.mediaEntries.map((entry) => {
+            const evidence = usage.dedupeUsageEvidenceByEntryId.get(entry.id);
+            const baselineAssetId = evidence && entry.assetId === evidence.toAssetId
+              ? evidence.fromAssetId
+              : entry.assetId;
+            return [entry.id, row(entry, currentAssetById.get(baselineAssetId), baselineAssetId)];
+          }));
+
+          const fields = ['assetId','projectIds','creditId','alt','posterAssetId','caption','purpose','mediaType','src'];
+          const diffs = [];
+          for (const [id, expected] of baseRows) {
+            const actual = currentRows.get(id);
+            if (!actual) {
+              diffs.push({id, field:'entry', expected:'present', actual:'missing'});
+              continue;
+            }
+            for (const field of fields) {
+              if (JSON.stringify(expected[field]) !== JSON.stringify(actual[field])) {
+                diffs.push({id, field, expected: expected[field], actual: actual[field]});
+              }
+            }
+          }
+          for (const id of currentRows.keys()) {
+            if (!baseRows.has(id)) diffs.push({id, field:'entry', expected:'missing', actual:'present'});
+          }
+          console.log(JSON.stringify({baseCount:baseRows.size,currentCount:currentRows.size,diffCount:diffs.length,diffs:diffs.slice(0,300)}, null, 2));
+          if (diffs.length) process.exitCode = 1;
+          NODE
