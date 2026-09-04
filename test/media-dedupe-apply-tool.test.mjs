@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import ts from "@typescript/typescript6";
+
 import {
   classifyReference,
   findCandidateReferences,
@@ -120,9 +122,19 @@ test("asset declaration removal preserves syntax across adjacent retired assets"
     "fixture.ts",
     new Set(["drop-14", "drop-15", "drop-16", "drop-17"]),
   );
+  const parsed = ts.createSourceFile(
+    "fixture.ts",
+    rewritten,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
 
   assert.match(rewritten, /id: "keep-13"/);
   assert.match(rewritten, /id: "keep-18"/);
   assert.doesNotMatch(rewritten, /id: "drop-(14|15|16|17)"/);
-  assert.match(rewritten, /\},\s*\{\s*id: "keep-18"/);
+  assert.deepEqual(
+    parsed.parseDiagnostics.map((diagnostic) => diagnostic.messageText),
+    [],
+  );
 });
