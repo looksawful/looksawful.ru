@@ -1,17 +1,19 @@
-name: Media Dedupe Apply Tool Regression TEMP
+name: Media Dedupe Final Preapply Gate TEMP
 
 on:
   push:
     branches:
-      - agent/media-normalization-dedupe-wave1-preapply-fix-20260904
+      - agent/media-normalization-dedupe-wave1-preapply-20260904
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  regression:
+  preapply:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
+    env:
+      E2E_AFFECTED_SUITES: media
     steps:
       - uses: actions/checkout@v7
         with:
@@ -21,52 +23,65 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Apply minimal AST range fix
-        shell: bash
+      - name: Install media tooling
         run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path("tools/media/apply-dedupe-migration.mjs")
-          text = path.read_text(encoding="utf-8")
-
-          old_decl = "function removeAssetDeclarations(sourceText, fileName, removeIds) {"
-          new_decl = "export function removeAssetDeclarations(sourceText, fileName, removeIds) {"
-          if old_decl in text:
-              text = text.replace(old_decl, new_decl, 1)
-          elif new_decl not in text:
-              raise SystemExit("removeAssetDeclarations declaration not found")
-
-          old_start = "        let start = node.getFullStart();"
-          new_start = "        const start = node.getStart(sourceFile);"
-          if old_start in text:
-              text = text.replace(old_start, new_start, 1)
-          elif new_start not in text:
-              raise SystemExit("asset removal start expression not found")
-
-          path.write_text(text, encoding="utf-8")
-          PY
-      - name: Dedupe remover regression
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Prove deterministic generated state
+        run: |
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+      - name: Dedupe apply tool regression
         run: node --test test/media-dedupe-apply-tool.test.mjs
-      - name: Commit fix when needed
-        shell: bash
+      - name: Guarded dedupe dry-runs
         run: |
-          set -euo pipefail
-          if git diff --quiet -- tools/media/apply-dedupe-migration.mjs; then
-            exit 0
-          fi
-          git diff --check -- tools/media/apply-dedupe-migration.mjs
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tools/media/apply-dedupe-migration.mjs
-          git commit -m "fix(media): preserve syntax when removing adjacent assets"
-          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-fix-20260904
-      - name: Rehearse logical apply and parse-check repository
+          node tools/media/apply-dedupe-migration.mjs
+          node tools/media/apply-deferred-physical-dedupe.mjs
+          node tools/media/apply-physical-only-dedupe.mjs
+      - name: Semantic and physical contracts
+        run: |
+          node tools/media/export-semantic-baseline.mjs --migration --check
+          node --test test/media-semantic-baseline.test.mjs test/media-physical-only-dedupe.test.mjs
+      - name: Rehearse complete dedupe apply transactionally
         shell: bash
         run: |
           set -euo pipefail
           node tools/media/apply-dedupe-migration.mjs --apply
+          node tools/media/apply-deferred-physical-dedupe.mjs --apply
+          node tools/media/apply-physical-only-dedupe.mjs --apply
+          npm run media:sync
+          node tools/media/export-semantic-baseline.mjs --migration --check
+          npm run media:dedupe:check
           npm run typecheck
           git reset --hard HEAD
           git clean -fd
+          git diff --exit-code
+      - name: Type and media verification
+        run: |
+          npm run typecheck
+          npm run test:media:contract
+          npm run test:media:checks
+          npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Affected media browser regression
+        run: npm run test:e2e:affected
+      - name: Smoke browser regression
+        run: npm run test:e2e:smoke
+      - name: Repository verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          temp_workflow="$RUNNER_TEMP/dedupe-execution-temp.yml"
+          mv .github/workflows/dedupe-execution-temp.yml "$temp_workflow"
+          trap 'mv "$temp_workflow" .github/workflows/dedupe-execution-temp.yml' EXIT
+          npm run verify
+          npm run verify:full
+      - name: Final preapply invariants
+        run: |
+          git diff --exit-code
+          node tools/media/export-semantic-baseline.mjs --migration --check
+          node tools/media/apply-dedupe-migration.mjs
+          node tools/media/apply-deferred-physical-dedupe.mjs
+          node tools/media/apply-physical-only-dedupe.mjs
