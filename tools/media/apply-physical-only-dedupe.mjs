@@ -41,15 +41,22 @@ function physicalPathForAsset(asset) {
   return `public${asset.src.split(/[?#]/, 1)[0]}`;
 }
 
-function classifyReference(filePath) {
-  const value = repoPath(filePath);
+export function classifyReferencePath(value) {
   if (value.startsWith("tools/media-migration/manifests/")) return "MIGRATION_EVIDENCE";
-  if (value.startsWith("public/media/generated/") || value.includes("catalog-records.generated")) {
+  if (
+    value === "public/media/media-manifest.json"
+    || value.startsWith("public/media/generated/")
+    || value.includes("catalog-records.generated")
+  ) {
     return "GENERATED";
   }
   if (value.includes("tmp-media-dedupe") || value.startsWith(".cache/")) return "TEMP_TOOL";
   if (value.startsWith("test/")) return "TEST_FIXTURE";
   return "RUNTIME_DIRECT";
+}
+
+function classifyReference(filePath) {
+  return classifyReferencePath(repoPath(filePath));
 }
 
 async function walk(dir) {
