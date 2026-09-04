@@ -59,6 +59,17 @@ test("standalone Sensetique page is canonical, isolated, and marker-free", () =>
   assert.match(html, /<h1 class="project__title"/);
   assert.match(html, /id="sensetique-studio"/);
   assert.match(html, /id="sensetique-production"/);
+  assert.match(html, /<h3[^>]*>\s*Оборудование\s*<\/h3>/);
+  assert.match(html, /В студии были импульсный и постоянный свет, насадки, отражатели и другое съёмочное оборудование\./);
+  assert.match(html, /Публиковали съёмки в российских и европейских изданиях и работали с редакциями над спецпроектами\./);
+  assert.match(html, /Для российских независимых дизайнеров и брендов одежды снимали лукбуки, кампейны, видео и каталоги\./);
+  assert.match(html, /В студии проводили мастер-классы и интенсивы с приглашёнными авторами\./);
+  assert.match(html, />Digital Fear of Love<\/strong>/);
+  assert.doesNotMatch(html, /Digital-fear-of-love — адверториал для ювелирного бренда MIMI MOSCOW/);
+  assert.doesNotMatch(html, /<strong class="credits__title">Olovo Moscow<\/strong>/);
+  assert.match(html, /<video[^>]*sensetique-09-source-56-16x9-use-02/);
+  assert.doesNotMatch(html, /<video[^>]*(?:width|height)="[^"]*"[^>]*sensetique-09-source-56-16x9-use-02/);
+  assert.doesNotMatch(html, /<video[^>]*(?:width|height)="[^"]*"[^>]*sensetique-11-source-28-16x9-use-02/);
   assert.doesNotMatch(html, /id="project-jestei"/);
   assert.doesNotMatch(html, /id="project-styx"/);
   assert.doesNotMatch(html, /id="project-shootings"/);
