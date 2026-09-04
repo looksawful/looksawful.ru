@@ -96,7 +96,25 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     assert.equal(await page.locator("main.resume").count(), 1);
     assert.equal(await page.locator(".experience-card").count(), getExpectedCvCardCount(cvMode));
     assert.equal(await page.locator(".experience-card[hidden]").count(), getExpectedCvHiddenCards(cvMode));
-    assert.equal(await page.locator("script").count(), 0, "CV must remain static");
+    if (cvMode === "production") {
+      assert.equal(
+        await page.locator("script[data-static-site-analytics]").count(),
+        1,
+        "Production CV must include exactly one isolated analytics bootstrap",
+      );
+      assert.equal(
+        await page.locator('script[src="/src/main.js"], script[src^="/assets/main-"]').count(),
+        0,
+        "Production CV must not load the site application runtime",
+      );
+      assert.equal(
+        await page.locator('script[data-site-analytics="yandex"]').count(),
+        0,
+        "Yandex Metrica must remain unloaded before analytics consent",
+      );
+    } else {
+      assert.equal(await page.locator("script").count(), 0, "Authored CV must remain script-free");
+    }
     assert.equal(await page.locator(".resume-nav__back").getAttribute("href"), "/");
   });
 }
