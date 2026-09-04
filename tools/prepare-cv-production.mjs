@@ -7,6 +7,7 @@ import {
   readCvContent,
   transformCvContent,
 } from "./lib/cv-content.mjs";
+import { injectStaticSiteAnalytics } from "./lib/static-site-analytics.mjs";
 
 const cvPage = sitePages.find((page) => page.enabled && page.renderer === "cv");
 if (!cvPage || cvPage.build.kind !== "public-static") {
@@ -27,7 +28,12 @@ if (/<article\b(?=[^>]*\bclass=["'][^"']*\bexperience-card\b[^"']*["'])(?=[^>]*\
   throw new Error(`Hidden CV experience card remains in ${target}`);
 }
 
-await writeFile(target, result.html, "utf8");
+const productionHtml = injectStaticSiteAnalytics(result.html, {
+  cloudflareToken: process.env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN,
+  yandexCounterId: process.env.VITE_YANDEX_METRIKA_COUNTER_ID,
+});
+
+await writeFile(target, productionHtml, "utf8");
 console.log(
   `Prepared production CV: applied CMS profile and removed ${result.removed} CMS-hidden experience card(s) from ${target}`,
 );
