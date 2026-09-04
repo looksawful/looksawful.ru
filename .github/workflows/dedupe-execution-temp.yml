@@ -42,12 +42,13 @@ jobs:
           if not match:
               raise SystemExit('metadata blocker source block not found')
           indent = match.group('i')
+          template_literal = '${removeId}.${key} differs without usage carrier on ${entryId}'
           replacement = (
               f'{indent}const missingLegacyEmptyAlt =\n'
               f'{indent}  key === "alt" && old[key] === "" && source === null;\n\n'
               f'{indent}if (!missingLegacyEmptyAlt && (!source || !stableEqual(source[key], old[key]))) {{\n'
-              f'{indent}  blockers.push(`${{removeId}}.${{key}} differs without usage carrier on ${{entryId}}`);\n'
-              f'{indent}}}'
+              + indent + '  blockers.push(`' + template_literal + '`);\n'
+              + indent + '}'
           )
           text, count = pattern.subn(lambda _: replacement, text, count=1)
           if count != 1:
