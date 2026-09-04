@@ -52,6 +52,17 @@ export function mediaEditorialWritePatchForOrigin(
 
 export function buildMediaEditorialPatch(
   values: MediaEditorValues,
+): MediaEditorialPatch;
+export function buildMediaEditorialPatch(
+  values: MediaEditorValues,
+  origin: "registered",
+): RegisteredMediaEditorialPatch;
+export function buildMediaEditorialPatch(
+  values: MediaEditorValues,
+  origin: "cms",
+): MediaEditorialPatch;
+export function buildMediaEditorialPatch(
+  values: MediaEditorValues,
   origin?: MediaCatalogItem["origin"],
 ): MediaEditorialWritePatch {
   const patch = fullMediaEditorialPatch(values);
