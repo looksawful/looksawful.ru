@@ -61,11 +61,12 @@ test("standalone Shootings page uses the Collection route and excludes case DOM"
   assert.doesNotMatch(html, /<!-- SHOOTINGS_[A-Z0-9_]+ -->/);
 });
 
-test("unlisted standalone Project pages reuse their exact homepage article bodies", () => {
+test("unlisted standalone Project pages render canonical project content", () => {
   const awful = renderStandaloneEntityPage(indexHtml, page("project:awful-cases"));
   assert.match(awful, /id="project-awful-cases"/);
   assert.match(awful, /<h1 class="project__title"/);
-  assert.match(awful, /class="media mockup awful-cases-game"/);
+  assert.match(awful, /id="awful-cases-demo"/);
+  assert.match(awful, /id="awful-cases-settings"/);
   assert.doesNotMatch(awful, /<article\b[^>]*hidden/);
   assert.doesNotMatch(awful, /<!-- AWFUL_CASES_[A-Z0-9_]+ -->/);
   assert.match(awful, /<meta name="robots" content="noindex,nofollow">/);
