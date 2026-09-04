@@ -27,22 +27,32 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
+          import re
           from pathlib import Path
 
           path = Path('tools/media/apply-dedupe-migration.mjs')
           text = path.read_text(encoding='utf-8')
-          before = '''        if (!source || !stableEqual(source[key], old[key])) {
-            blockers.push(`${removeId}.${key} differs without usage carrier on ${entryId}`);
-          }'''
-          after = '''        const missingLegacyEmptyAlt =
-            key === "alt" && old[key] === "" && source === null;
-
-          if (!missingLegacyEmptyAlt && (!source || !stableEqual(source[key], old[key]))) {
-            blockers.push(`${removeId}.${key} differs without usage carrier on ${entryId}`);
-          }'''
-          if before not in text:
-              raise SystemExit('expected metadata blocker source block not found')
-          path.write_text(text.replace(before, after, 1), encoding='utf-8')
+          pattern = re.compile(
+              r'^(?P<i>[ \t]*)if \(!source \|\| !stableEqual\(source\[key\], old\[key\]\)\) \{\n'
+              r'(?P=i)  blockers\.push\(`\$\{removeId\}\.\$\{key\} differs without usage carrier on \$\{entryId\}`\);\n'
+              r'(?P=i)\}',
+              re.MULTILINE,
+          )
+          match = pattern.search(text)
+          if not match:
+              raise SystemExit('metadata blocker source block not found')
+          indent = match.group('i')
+          replacement = (
+              f'{indent}const missingLegacyEmptyAlt =\n'
+              f'{indent}  key === "alt" && old[key] === "" && source === null;\n\n'
+              f'{indent}if (!missingLegacyEmptyAlt && (!source || !stableEqual(source[key], old[key]))) {{\n'
+              f'{indent}  blockers.push(`${{removeId}}.${{key}} differs without usage carrier on ${{entryId}}`);\n'
+              f'{indent}}}'
+          )
+          text, count = pattern.subn(lambda _: replacement, text, count=1)
+          if count != 1:
+              raise SystemExit(f'expected one metadata blocker replacement, got {count}')
+          path.write_text(text, encoding='utf-8')
           PY
       - name: Add focused regression test
         shell: bash
