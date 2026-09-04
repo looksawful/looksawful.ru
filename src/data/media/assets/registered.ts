@@ -1,3 +1,5 @@
+import { retiredMediaAssetIds } from "../asset-aliases.ts";
+
 import { awfulCasesMediaAssets } from "./awful-cases.ts";
 import { behanceShootingMediaAssets } from "./behance-shootings.ts";
 import { berryMediaAssets } from "./berry.ts";
@@ -19,9 +21,10 @@ import { unassignedMediaAssets } from "./unassigned.ts";
  * Physical assets that predate the CMS media catalog.
  *
  * Their TypeScript modules remain authoritative for source paths and technical
- * identity. CMS records may enrich their reusable catalog metadata only.
+ * identity. Retired duplicate identities are filtered by the reviewed alias map
+ * until the one-shot source cleanup removes the obsolete declarations.
  */
-export const registeredMediaAssets = [
+const registeredMediaAssetSources = [
   ...awfulCasesMediaAssets,
   ...behanceShootingMediaAssets,
   ...berryMediaAssets,
@@ -39,6 +42,12 @@ export const registeredMediaAssets = [
   ...styxMediaAssets,
   ...unassignedMediaAssets,
 ] as const;
+
+export type RegisteredMediaAssetSource = (typeof registeredMediaAssetSources)[number];
+
+export const registeredMediaAssets = registeredMediaAssetSources.filter(
+  (asset) => !retiredMediaAssetIds.has(asset.id),
+) as readonly RegisteredMediaAssetSource[];
 
 export type RegisteredMediaAsset = (typeof registeredMediaAssets)[number];
 export type RegisteredMediaAssetId = RegisteredMediaAsset["id"];
