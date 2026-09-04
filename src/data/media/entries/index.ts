@@ -63,7 +63,9 @@ const rawEntryById = new Map<string, MediaEntryData<MediaAssetId, string>>(
 for (const record of dedupeMediaUsageRecords) {
   const entry = rawEntryById.get(record.entryId);
   if (!entry) {
-    throw new Error(`Dedupe usage metadata references unknown MediaEntry "${record.entryId}"`);
+    throw new Error(
+      `Dedupe usage metadata references unknown MediaEntry "${record.entryId}"`,
+    );
   }
   if (entry.assetId !== record.fromAssetId && entry.assetId !== record.toAssetId) {
     throw new Error(
@@ -77,16 +79,17 @@ const projectIdsByAssetId = new Map<string, readonly ProjectId[]>(
 );
 
 export const mediaEntries = assignableMediaEntries.map((entry) => {
-  const { projectIds: _legacyProjectIds, ...entryWithoutProjectIds } = entry;
   const usageMetadata = mediaUsageMetadataByEntryId.get(entry.id);
   const projectIds =
     usageMetadata?.projectIds !== undefined
       ? usageMetadata.projectIds
-      : projectIdsByAssetId.get(entry.assetId);
+      : entry.projectIds !== undefined
+        ? entry.projectIds
+        : projectIdsByAssetId.get(entry.assetId);
 
   const enrichedEntry = usageMetadata
-    ? { ...entryWithoutProjectIds, ...usageMetadata }
-    : entryWithoutProjectIds;
+    ? { ...entry, ...usageMetadata }
+    : entry;
 
   return projectIds !== undefined
     ? { ...enrichedEntry, projectIds }
