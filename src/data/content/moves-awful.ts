@@ -1,5 +1,11 @@
 import type { AnimatedCanvasGalleryData } from "../../types/animated-canvas-gallery.ts";
-import type { MediaFigureData, ProjectIntroData, SectionIntroData } from "../../types/content.ts";
+import type {
+  CreditsData,
+  MediaFigureData,
+  ProjectIntroData,
+  SectionIntroData,
+  SectionNoteData,
+} from "../../types/content.ts";
 import type { MediaEntryId } from "../media/index.ts";
 import type { LogoUsageId } from "../logos/index.ts";
 
@@ -15,6 +21,20 @@ export const movesAwfulAnimationsIntro = {
   title: "Анимации лендинга",
   paragraphs: ["На лендинге использовали Canvas-анимации и интерактивные виджеты. Лента показывает подборки треков, интерфейс и инструменты сервиса; отдельные модули — плейлисты и музыкальные жанры. Анимированные секции для клубных диджеев построены на библиотеке Moves Awful."],
 } as const satisfies SectionIntroData;
+
+export const movesAwfulLandingCredits = {
+  title: "Анимированные секции лендинга Jestei Pool.",
+} as const satisfies CreditsData;
+
+export const movesAwfulLandingNote = {
+  text: "использование библиотеки в лендинге",
+  link: {
+    label: "www.jesteipool.ru",
+    href: "https://www.jesteipool.ru/",
+    rel: "noopener noreferrer",
+    target: "_blank",
+  },
+} as const satisfies SectionNoteData;
 
 export const movesAwfulLandingMedia = [
   { entryId: "moves-awful-jestei-landing-animation-01-use-01", captionView: "overlay", video: { autoplay: true, loop: true, muted: true, playsInline: true, preload: "auto" } },
