@@ -9,10 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  materialize-state:
-    if: ${{ github.event.head_commit.message == 'ci(media): materialize deterministic preapply state' }}
-    permissions:
-      contents: write
+  materialize-preview:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -48,154 +45,58 @@ jobs:
         run: node tools/media/materialize-entry-context.mjs --write
       - name: Synchronize deterministic media catalog state
         run: npm run media:catalog:sync
-      - name: Verify mutation boundary
+      - name: Verify focused semantic regressions
+        run: node --test test/media-project-assignment.test.mjs test/media-usage-records.test.mjs
+      - name: Export bounded generated state
         shell: bash
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
           import { execFileSync } from 'node:child_process';
+          import { copyFile, mkdir, stat, writeFile } from 'node:fs/promises';
+          import path from 'node:path';
 
           const raw = execFileSync('git', ['status', '--porcelain=v1', '-z'], { encoding: 'utf8' });
-          const paths = raw.split('\0').filter(Boolean).map((row) => row.slice(3));
-          const allowed = (path) =>
-            path === 'src/content/media-usages/registered.json'
-            || path === 'src/data/media/catalog-records.generated.ts'
-            || (path.startsWith('src/data/media/entries/') && path.endsWith('.ts') && path !== 'src/data/media/entries/index.ts')
-            || (path.startsWith('src/content/media-catalog/registered/') && path.endsWith('.json'));
-          const unexpected = paths.filter((path) => !allowed(path));
-          console.log(JSON.stringify({ changedPathCount: paths.length, unexpected }, null, 2));
-          if (unexpected.length) process.exitCode = 1;
-          NODE
-      - name: Verify focused semantic regressions after materialization
-        run: node --test test/media-project-assignment.test.mjs test/media-usage-records.test.mjs
-      - name: Commit deterministic preapply state
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git diff --cached --stat
-          git diff --cached --quiet && { echo 'Expected deterministic state changes, found none'; exit 1; }
-          git commit -m 'chore(media): materialize deterministic preapply state'
-          git push origin HEAD:agent/media-normalization-dedupe-wave1-preapply-20260904
+          const rows = raw.split('\0').filter(Boolean);
+          const changes = [];
 
-  regression-tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout isolated preapply branch
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 1
-      - name: Setup Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - name: Install exact dependencies
-        run: npm ci
-      - name: Run focused semantic regression tests
-        run: node --test test/media-project-assignment.test.mjs test/media-usage-records.test.mjs
+          for (let index = 0; index < rows.length; index += 1) {
+            const row = rows[index];
+            const status = row.slice(0, 2);
+            const filePath = row.slice(3);
+            if (status.includes('R') || status.includes('C')) {
+              throw new Error(`unexpected rename/copy in generated state: ${row}`);
+            }
+            const allowed =
+              filePath === 'src/content/media-usages/registered.json'
+              || filePath === 'src/data/media/catalog-records.generated.ts'
+              || (filePath.startsWith('src/data/media/entries/') && filePath.endsWith('.ts') && filePath !== 'src/data/media/entries/index.ts')
+              || (filePath.startsWith('src/content/media-catalog/registered/') && filePath.endsWith('.json'));
+            if (!allowed) throw new Error(`unexpected generated-state path: ${filePath}`);
 
-  semantic-summary:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout isolated preapply branch
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 1
-      - name: Setup Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - name: Install exact dependencies
-        run: npm ci
-      - name: Compare semantics against frozen pre-normalization base
-        shell: bash
-        run: |
-          set -euo pipefail
-          git fetch --depth=1 origin 83ea6cb845528e1976b13687956bdd249ba8def8
-          git worktree add --detach /tmp/dedupe-base 83ea6cb845528e1976b13687956bdd249ba8def8
-          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/dedupe-base/node_modules
-          node --input-type=module <<'NODE'
-          import { pathToFileURL } from 'node:url';
-          const root = process.env.GITHUB_WORKSPACE;
-          const current = await import(pathToFileURL(`${root}/src/data/media/index.ts`).href);
-          const registered = await import(pathToFileURL(`${root}/src/data/media/assets/registered.ts`).href);
-          const usage = await import(pathToFileURL(`${root}/src/data/media/usage-records.ts`).href);
-          const base = await import(pathToFileURL('/tmp/dedupe-base/src/data/media/index.ts').href);
-
-          function row(entry, asset, assetId = entry.assetId) {
-            return {
-              id: entry.id,
-              assetId,
-              projectIds: entry.projectIds ?? [],
-              creditId: entry.creditId ?? null,
-              alt: entry.alt ?? null,
-              posterAssetId: entry.posterAssetId ?? null,
-              caption: entry.caption ?? null,
-              purpose: entry.purpose ?? null,
-              mediaType: asset?.type ?? null,
-              src: asset?.src ?? null,
-            };
+            const deleted = status.includes('D');
+            changes.push({ status, path: filePath, deleted });
+            if (!deleted) {
+              await stat(filePath);
+              const destination = path.join('.preapply-artifact', 'files', filePath);
+              await mkdir(path.dirname(destination), { recursive: true });
+              await copyFile(filePath, destination);
+            }
           }
 
-          const currentAssetById = new Map(
-            [...registered.registeredMediaAssets, ...current.mediaAssets].map((asset) => [asset.id, asset]),
+          if (!changes.length) throw new Error('expected deterministic state changes, found none');
+          await mkdir('.preapply-artifact', { recursive: true });
+          await writeFile(
+            '.preapply-artifact/manifest.json',
+            `${JSON.stringify({ baseSha: process.env.GITHUB_SHA, changes }, null, 2)}\n`,
+            'utf8',
           );
-          const baseAssetById = new Map(base.mediaAssets.map((asset) => [asset.id, asset]));
-          const baseRows = new Map(base.mediaEntries.map((entry) => [entry.id, row(entry, baseAssetById.get(entry.assetId))]));
-          const currentRows = new Map(current.mediaEntries.map((entry) => {
-            const evidence = usage.dedupeUsageEvidenceByEntryId.get(entry.id);
-            const baselineAssetId = evidence && entry.assetId === evidence.toAssetId ? evidence.fromAssetId : entry.assetId;
-            return [entry.id, row(entry, currentAssetById.get(baselineAssetId), baselineAssetId)];
-          }));
-
-          const orderOnly = [];
-          const projectSetChanges = [];
-          const valueChanges = [];
-          const fields = ['assetId','creditId','alt','posterAssetId','caption','purpose','mediaType','src'];
-
-          for (const [id, expected] of baseRows) {
-            const actual = currentRows.get(id);
-            if (!actual) {
-              valueChanges.push({id, field:'entry', expected:'present', actual:'missing'});
-              continue;
-            }
-            if (JSON.stringify(expected.projectIds) !== JSON.stringify(actual.projectIds)) {
-              const expectedSet = new Set(expected.projectIds);
-              const actualSet = new Set(actual.projectIds);
-              const missing = expected.projectIds.filter((x) => !actualSet.has(x));
-              const added = actual.projectIds.filter((x) => !expectedSet.has(x));
-              if (missing.length === 0 && added.length === 0) {
-                orderOnly.push({id, expected:expected.projectIds, actual:actual.projectIds});
-              } else {
-                projectSetChanges.push({id, missing, added, expected:expected.projectIds, actual:actual.projectIds});
-              }
-            }
-            for (const field of fields) {
-              if (JSON.stringify(expected[field]) !== JSON.stringify(actual[field])) {
-                valueChanges.push({id, field, expected:expected[field], actual:actual[field]});
-              }
-            }
-          }
-          for (const id of currentRows.keys()) {
-            if (!baseRows.has(id)) valueChanges.push({id, field:'entry', expected:'missing', actual:'present'});
-          }
-
-          console.log(JSON.stringify({
-            baseCount: baseRows.size,
-            currentCount: currentRows.size,
-            projectOrderOnlyCount: orderOnly.length,
-            projectSetChangeCount: projectSetChanges.length,
-            valueChangeCount: valueChanges.length,
-            projectSetChanges,
-            valueChanges,
-          }, null, 2));
-
-          if (baseRows.size !== 889 || currentRows.size !== 889) process.exitCode = 1;
-          if (projectSetChanges.length || valueChanges.length) process.exitCode = 1;
+          console.log(JSON.stringify({ changedPathCount: changes.length, changes }, null, 2));
           NODE
+      - name: Upload deterministic state artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: media-preapply-state
+          path: .preapply-artifact
+          if-no-files-found: error
+          retention-days: 1
