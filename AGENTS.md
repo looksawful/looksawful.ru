@@ -27,14 +27,15 @@
 
 ## Testing and verification
 
-- Follow `docs/testing-policy.md` for every test or verification change. `docs/testing-pipeline.md` is the current operational map of test tiers and CI routing; older tooling/handoff documents do not override either file.
-- A test created for a bug, migration, refactor, experiment, or RED → GREEN development loop is TEMPORARY by default; `regression test` is not a reason to keep it forever.
-- Before finishing any task that creates or changes tests, classify every affected test as `KEEP`, `MOVE`, or `DELETE`. Keep only long-lived contracts; move specialized checks to affected/full/quality tiers; delete temporary development tests before completion.
-- Never add a new test to `test:fast` implicitly. Fast CI is a small explicit allowlist of cheap permanent contracts. New tests require an explicit fast-tier justification under `docs/testing-policy.md`.
-- Use the cheapest sufficient verification tier. Do not run full E2E, media rebuilds, Lighthouse, or broad verification for changes that are already proven by a narrower relevant check. Production releases still require their configured fail-closed production gates.
+- Follow `docs/testing-policy.md`; `docs/testing-pipeline.md` is the current operational map. Historical plans/reports do not override them.
+- Global engineering verification is deliberately small: exact media cache verification, `npm run typecheck`, and `npm run build`.
+- Do not recreate a generic `test:fast`, broad unit suite, full E2E, Lighthouse, or scheduled quality layer without a separate explicit decision and a concrete recurring risk.
+- A test created for a bug, migration, refactor, experiment, or RED → GREEN development loop is TEMPORARY by default. Remove migration/history-only tests after the relevant work is complete.
+- Runtime/contract tests may stay in the repository for direct local use without becoming global CI.
+- Media changes use the dedicated `npm run media:check` and `CMS media` workflow. Do not run physical media work for unrelated UI/content changes.
+- Production releases retain fail-closed exact-cache, typecheck, build, compact browser smoke, CV artifact and exact deployed-SHA checks.
 - Authored CMS copy tests must not pin editable literal wording. Test structure, identity, escaping, composition, and code-owned boundaries instead.
-- When tests were created, moved, or deleted, the final report must state `NEW PERMANENT TESTS`, `TEMPORARY TESTS REMOVED`, and `MOVED TO AFFECTED/FULL` counts.
-- If the environment cannot run a required relevant check, state exactly which check was not run; do not substitute a broader unrelated check merely to produce activity.
+- If a required relevant check cannot run, state exactly which check was not run; do not claim success from unrelated activity.
 
 ## Git and external actions
 
