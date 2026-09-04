@@ -24,7 +24,31 @@ on:
 permissions:
   contents: read
 
+# Never run two expensive Quality workflows at once. Jobs inside one run still
+# execute in parallel, but a manual run cannot collide with a scheduled run.
+concurrency:
+  group: quality-${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
+  resolve-target:
+    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && inputs.suite != 'health')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      target-sha: ${{ steps.target.outputs.sha }}
+    steps:
+      - name: Checkout quality target
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Resolve exact target SHA
+        id: target
+        shell: bash
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
   health:
     if: github.event.schedule == '17 */6 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'health'))
     runs-on: ubuntu-latest
@@ -34,6 +58,7 @@ jobs:
         with:
           ref: prod
           fetch-depth: 1
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -44,14 +69,16 @@ jobs:
           node tools/check-production.mjs
 
   dependency-audit:
+    needs: resolve-target
     if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'dependency-audit'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          ref: ${{ needs.resolve-target.outputs.target-sha }}
           fetch-depth: 1
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -61,14 +88,16 @@ jobs:
         run: npm run audit:deps
 
   external-links:
+    needs: resolve-target
     if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'external-links'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          ref: ${{ needs.resolve-target.outputs.target-sha }}
           fetch-depth: 1
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -85,14 +114,16 @@ jobs:
           if-no-files-found: warn
 
   media-physical:
+    needs: resolve-target
     if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'media-physical'))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          ref: ${{ needs.resolve-target.outputs.target-sha }}
           fetch-depth: 1
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -102,14 +133,16 @@ jobs:
         run: npm run media:dedupe:physical
 
   full-e2e:
+    needs: resolve-target
     if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'full-e2e'))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          ref: ${{ needs.resolve-target.outputs.target-sha }}
           fetch-depth: 1
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -134,14 +167,16 @@ jobs:
         run: npm run test:e2e:full
 
   lighthouse:
+    needs: resolve-target
     if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'lighthouse'))
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.target }}
+          ref: ${{ needs.resolve-target.outputs.target-sha }}
           fetch-depth: 1
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: 24
