@@ -76,6 +76,9 @@ jobs:
           git diff --binary > "$RUNNER_TEMP/media-sync-second.patch"
           cmp "$RUNNER_TEMP/media-sync-first.patch" "$RUNNER_TEMP/media-sync-second.patch"
 
+      - name: Build rehearsed post-apply app
+        run: npm run build
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
