@@ -35,10 +35,6 @@ export const styxCanonicalLookbookMasonryGroup = withoutLegacySectionShell(
 export const styxCanonicalScanographyStrip = withoutLegacySectionShell(styxScanographyStrip);
 export const styxCanonicalLookbook2025Reel = withoutLegacySectionShell(styxLookbook2025Reel);
 
-export const styxProductionMockupNote = {
-  text: "Вместо одного общего лендинга запустили два. Каждый собрали из промомодулей под разные рекламные задачи и продуктовые сценарии.",
-} as const satisfies SectionNoteData;
-
 export const styxSocialInstructionCredits = {
   title: "Дизайн инструкции в социальных сетях.",
 } as const satisfies CreditsData;

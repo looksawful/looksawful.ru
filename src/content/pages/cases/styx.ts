@@ -20,7 +20,6 @@ import {
   styxCanonicalScanographyCampaignGroup,
   styxCanonicalScanographyGroup,
   styxCanonicalScanographyStrip,
-  styxProductionMockupNote,
   styxSocialInstructionCredits,
   styxSocialInstructionNote,
 } from "../../../data/content/styx-page-presentation.ts";
@@ -51,8 +50,6 @@ export const styxPageContent = {
     {
       type: "content",
       id: "styx-production-preview",
-      note: styxProductionMockupNote,
-      presentation: { notePlacement: "after-blocks" },
       blocks: [{ type: "mockup-deck", data: styxProductionMockupDeck }],
     },
     {
@@ -101,13 +98,15 @@ export const styxPageContent = {
       blocks: [{ type: "media-group", data: styxCanonicalLookbookMasonryGroup }],
     },
     {
-      type: "content",
+      type: "project",
       id: "styx-gift-certificate",
+      projectId: "styx-print-materials-2023",
       blocks: [{ type: "media-slider", data: styxGiftCertificateSlider }],
     },
     {
-      type: "content",
+      type: "project",
       id: "styx-print-links",
+      projectId: "styx-print-materials-2023",
       blocks: [{ type: "media-group", data: styxCanonicalPrintLinksGroup }],
     },
     {
