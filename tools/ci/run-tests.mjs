@@ -11,29 +11,18 @@ const derivativeTests = new Set([
 // Fast CI is intentionally opt-in. New test files stay out until they are
 // explicitly justified as cheap, long-lived contracts under docs/testing-policy.md.
 export const fastTests = new Set([
-  "test/change-scope.test.mjs",
-  "test/ci-minimal-pipeline.test.mjs",
   "test/cms-publication-scope.test.mjs",
   "test/cms-publication-topology.test.mjs",
   "test/cms-publication-workflow.test.mjs",
-  "test/cms-runtime-editability.test.mjs",
   "test/domain-catalog-identity.test.mjs",
   "test/domain-taxonomy-references.test.mjs",
   "test/editorial-content-boundary.test.mjs",
   "test/editorial-copy-optional.test.mjs",
-  "test/media-ci-cache.test.mjs",
-  "test/media-desk-editor.test.mjs",
-  "test/media-desk-model.test.mjs",
-  "test/media-desk-server.test.mjs",
-  "test/media-routing.test.mjs",
+  "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
-  "test/production-media-cache.test.mjs",
-  "test/shared-validation-primitives.test.mjs",
   "test/site-analytics.test.mjs",
-  "test/site-build-inputs.test.mjs",
   "test/site-pages.test.mjs",
   "test/static-site-analytics.test.mjs",
-  "test/test-groups.test.mjs",
 ]);
 
 const ciTests = new Set([
