@@ -64,7 +64,7 @@ jobs:
         run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
       - name: Restore exact generated media cache
         id: media-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: |
             public/media/generated/responsive
@@ -92,7 +92,7 @@ jobs:
           git diff --exit-code
       - name: Save recovered generated media cache
         if: steps.media-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: |
             public/media/generated/responsive

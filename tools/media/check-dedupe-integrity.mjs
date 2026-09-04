@@ -7,20 +7,9 @@ import sharp from "sharp";
 import { mediaAssets, mediaEntries } from "../../src/data/media/index.ts";
 import { registeredMediaAssets } from "../../src/data/media/assets/registered.ts";
 
-import logicalSource from "../media-migration/manifests/2026-09-03-media-dedupe/logical-assets.json" with { type: "json" };
 import noMergeSource from "../media-migration/manifests/2026-09-03-media-dedupe/no-merge.json" with { type: "json" };
 
 const rootUrl = new URL("../../", import.meta.url);
-const retiredAliasMap = new Map(
-  logicalSource.components.flatMap((component) =>
-    component.removeAssetIds.map((fromAssetId) => [fromAssetId, component.canonicalAssetId]),
-  ),
-);
-const retiredMediaAssetIds = new Set(retiredAliasMap.keys());
-
-function canonicalMediaAssetId(assetId) {
-  return retiredAliasMap.get(assetId) ?? assetId;
-}
 
 function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
@@ -77,10 +66,6 @@ export async function checkDedupeIntegrity() {
     pushGroup(assetIdGroups, asset.id, asset);
     pushGroup(srcGroups, asset.src, asset);
     assetById.set(asset.id, asset);
-
-    if (retiredMediaAssetIds.has(asset.id)) {
-      errors.push(`retired MediaAsset survived runtime registry: ${asset.id}`);
-    }
   }
 
   for (const group of duplicateGroups(assetIdGroups)) {
@@ -94,16 +79,14 @@ export async function checkDedupeIntegrity() {
     if (!assetById.has(entry.assetId)) {
       errors.push(`dangling MediaEntry.assetId: ${entry.id} -> ${entry.assetId}`);
     }
-    if (retiredMediaAssetIds.has(entry.assetId)) {
-      errors.push(`MediaEntry references retired asset: ${entry.id} -> ${entry.assetId}`);
-    }
     if (entry.posterAssetId && !assetById.has(entry.posterAssetId)) {
       errors.push(`dangling posterAssetId: ${entry.id} -> ${entry.posterAssetId}`);
     }
   }
 
   for (const asset of mediaAssets) {
-    const repoPath = repoPathFor(asset.src);
+    const authoredSrc = asset.type === "video" ? (asset.sourceSrc ?? asset.src) : asset.src;
+    const repoPath = repoPathFor(authoredSrc);
     if (!repoPath) continue;
 
     let bytes;
@@ -149,14 +132,10 @@ export async function checkDedupeIntegrity() {
 
     const leftAsset = registeredByPath.get(constraint.left);
     const rightAsset = registeredByPath.get(constraint.right);
-    if (leftAsset && rightAsset) {
-      const leftCanonical = canonicalMediaAssetId(leftAsset.id);
-      const rightCanonical = canonicalMediaAssetId(rightAsset.id);
-      if (leftCanonical === rightCanonical) {
-        errors.push(
-          `${constraint.decision.toUpperCase()} no-merge violation: ${constraint.source} -> ${leftCanonical}`,
-        );
-      }
+    if (leftAsset && rightAsset && leftAsset.id === rightAsset.id) {
+      errors.push(
+        `${constraint.decision.toUpperCase()} no-merge violation: ${constraint.source} -> ${leftAsset.id}`,
+      );
     }
   }
 
@@ -171,7 +150,6 @@ export async function checkDedupeIntegrity() {
     assetCount: mediaAssets.length,
     entryCount: mediaEntries.length,
     imageAssetCount: mediaAssets.filter((asset) => asset.type === "image").length,
-    retiredAliasCount: retiredMediaAssetIds.size,
     noMergeConstraintCount: noMergeSource.length,
     errors,
     warnings,

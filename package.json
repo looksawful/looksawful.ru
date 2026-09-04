@@ -12,6 +12,7 @@
     "media:catalog:sync": "node tools/sync-media-catalog.mjs",
     "media:catalog:check": "node tools/sync-media-catalog.mjs --check",
     "media:dedupe:check": "node tools/media/check-dedupe-integrity.mjs",
+    "media:dedupe:physical": "node tools/media/audit-physical-duplicates.mjs",
     "media:sync": "npm run media:catalog:sync && npm run media:video:build && npm run media:build && node tools/media-dev-state.mjs --write",
     "media:ensure": "npm run media:catalog:sync && node tools/media-dev-state.mjs --ensure",
     "media:prepare": "npm run media:sync",
@@ -67,7 +68,7 @@
     "playwright": "^1.61.1",
     "sharp": "^0.34.5",
     "typescript": "^7.0.2",
-    "vite": "^8.0.10"
+    "vite": "^8.2.2"
   },
   "dependencies": {
     "@egjs/infinitegrid": "^4.13.0",
