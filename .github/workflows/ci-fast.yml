@@ -39,8 +39,7 @@ permissions:
 
 concurrency:
   group: fast-ci-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
-  cancel-in-progress: false
-  queue: max
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify:
