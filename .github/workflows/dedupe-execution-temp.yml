@@ -29,8 +29,8 @@ jobs:
         run: |
           echo "candidate=$(git rev-parse HEAD)"
           test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
-      - name: Focused semantic regressions
-        run: node --test test/media-dedupe-metadata-blockers.test.mjs test/media-project-assignment.test.mjs test/media-usage-records.test.mjs test/media-catalog-cms.test.mjs
+      - name: Focused semantic and deletion-contract regressions
+        run: node --test test/media-dedupe-metadata-blockers.test.mjs test/media-physical-only-dedupe.test.mjs test/media-project-assignment.test.mjs test/media-usage-records.test.mjs test/media-catalog-cms.test.mjs
       - name: Deterministic contextual state
         run: |
           node tools/media/materialize-entry-context.mjs
@@ -43,6 +43,10 @@ jobs:
       - name: Guarded deferred physical dry-run
         run: |
           node tools/media/apply-deferred-physical-dedupe.mjs
+          git diff --exit-code
+      - name: Guarded physical-only deletion dry-run
+        run: |
+          node tools/media/apply-physical-only-dedupe.mjs
           git diff --exit-code
       - name: Typecheck
         run: npm run typecheck
