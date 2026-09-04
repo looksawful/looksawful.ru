@@ -1,4 +1,4 @@
-name: Diagnose Semantic Baseline Drift TEMP
+name: Prove Semantic Baseline Hash Contract TEMP
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  semantic-diff:
+  semantic-hashes:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -27,15 +27,27 @@ jobs:
           set -euo pipefail
           git fetch --no-tags --depth=1 origin 83ea6cb845528e1976b13687956bdd249ba8def8
           git worktree add /tmp/semantic-base FETCH_HEAD
-      - name: Export exact base/current semantic records and diff
+      - name: Prove current serializer against exact frozen records
         shell: bash
         run: |
           set -euo pipefail
-          cat > /tmp/semantic-diff.mjs <<'NODE'
+          cat > /tmp/semantic-hashes.mjs <<'NODE'
+          import { createHash } from 'node:crypto';
           import { pathToFileURL } from 'node:url';
 
-          const tracked = (await import(pathToFileURL(`${process.cwd()}/test/fixtures/media-semantic-baseline.json`), { with: { type: 'json' } })).default.trackedCatalogAssetIds;
+          const fixture = (await import(pathToFileURL(`${process.cwd()}/test/fixtures/media-semantic-baseline.json`), { with: { type: 'json' } })).default;
+          const tracked = fixture.trackedCatalogAssetIds;
 
+          function canonicalJson(value) {
+            if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+            if (value && typeof value === 'object') {
+              return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+            }
+            return JSON.stringify(value);
+          }
+          function sha256(value) {
+            return createHash('sha256').update(canonicalJson(value)).digest('hex');
+          }
           function entryRecord(entry, asset, assetId = entry.assetId) {
             return {
               id: entry.id,
@@ -50,15 +62,13 @@ jobs:
               src: asset?.src ?? null,
             };
           }
-
-          function catalogRecord(item, assetId = item.asset.id) {
-            return {
+          function catalogRecord(item, assetId = item.asset.id, includeProjectIds = true) {
+            const record = {
               assetId,
               title: item.title,
               alt: item.alt,
               description: item.description,
               date: item.date,
-              projectIds: item.projectIds,
               workAreaIds: item.workAreaIds,
               projectTypeIds: item.projectTypeIds,
               deliverableIds: item.deliverableIds,
@@ -67,21 +77,19 @@ jobs:
               reusable: item.reusable,
               archived: item.archived,
             };
+            if (includeProjectIds) record.projectIds = item.projectIds;
+            return record;
           }
 
           async function loadBase(root) {
             const index = await import(pathToFileURL(`${root}/src/data/media/index.ts`));
             const catalog = await import(pathToFileURL(`${root}/src/data/media/catalog.ts`));
-            const assets = index.mediaAssets;
-            const byId = new Map(assets.map((asset) => [asset.id, asset]));
-            const entries = [...index.mediaEntries]
-              .sort((a, b) => a.id.localeCompare(b.id))
-              .map((entry) => entryRecord(entry, byId.get(entry.assetId)));
+            const byId = new Map(index.mediaAssets.map((asset) => [asset.id, asset]));
+            const entries = [...index.mediaEntries].sort((a,b) => a.id.localeCompare(b.id)).map((entry) => entryRecord(entry, byId.get(entry.assetId)));
             const catalogById = new Map(catalog.mediaCatalogItems.map((item) => [item.asset.id, item]));
-            const trackedCatalog = [...tracked]
-              .sort((a, b) => a.localeCompare(b))
-              .flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id)] : []);
-            return { entries, trackedCatalog };
+            const catalogWithProjects = [...tracked].sort().flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id, true)] : []);
+            const catalogWithoutProjects = [...tracked].sort().flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id, false)] : []);
+            return { entries, catalogWithProjects, catalogWithoutProjects };
           }
 
           async function loadCurrent(root) {
@@ -91,53 +99,41 @@ jobs:
             const usage = await import(pathToFileURL(`${root}/src/data/media/usage-records.ts`));
             const runtimeById = new Map(index.mediaAssets.map((asset) => [asset.id, asset]));
             const legacyById = new Map([...registered.registeredMediaAssets, ...index.mediaAssets].map((asset) => [asset.id, asset]));
-            const entries = [...index.mediaEntries]
-              .sort((a, b) => a.id.localeCompare(b.id))
-              .map((entry) => {
-                const migration = usage.dedupeUsageEvidenceByEntryId.get(entry.id);
-                const baselineAssetId = migration && entry.assetId === migration.toAssetId ? migration.fromAssetId : entry.assetId;
-                return entryRecord(entry, legacyById.get(baselineAssetId) ?? runtimeById.get(entry.assetId), baselineAssetId);
-              });
+            const entries = [...index.mediaEntries].sort((a,b) => a.id.localeCompare(b.id)).map((entry) => {
+              const migration = usage.dedupeUsageEvidenceByEntryId.get(entry.id);
+              const baselineAssetId = migration && entry.assetId === migration.toAssetId ? migration.fromAssetId : entry.assetId;
+              return entryRecord(entry, legacyById.get(baselineAssetId) ?? runtimeById.get(entry.assetId), baselineAssetId);
+            });
             const catalogById = new Map(catalog.mediaCatalogItems.map((item) => [item.asset.id, item]));
-            const trackedCatalog = [...tracked]
-              .sort((a, b) => a.localeCompare(b))
-              .flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id)] : []);
-            return { entries, trackedCatalog };
-          }
-
-          function diffRecords(base, current, key) {
-            const left = new Map(base.map((row) => [row[key], row]));
-            const right = new Map(current.map((row) => [row[key], row]));
-            const ids = [...new Set([...left.keys(), ...right.keys()])].sort();
-            const diffs = [];
-            for (const id of ids) {
-              const a = left.get(id);
-              const b = right.get(id);
-              if (JSON.stringify(a) === JSON.stringify(b)) continue;
-              const fields = [...new Set([...Object.keys(a ?? {}), ...Object.keys(b ?? {})])];
-              const changed = {};
-              for (const field of fields) {
-                if (JSON.stringify(a?.[field]) !== JSON.stringify(b?.[field])) changed[field] = { base: a?.[field], current: b?.[field] };
-              }
-              diffs.push({ id, changed });
-            }
-            return diffs;
+            const catalogWithProjects = [...tracked].sort().flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id, true)] : []);
+            const catalogWithoutProjects = [...tracked].sort().flatMap((id) => catalogById.has(id) ? [catalogRecord(catalogById.get(id), id, false)] : []);
+            return { entries, catalogWithProjects, catalogWithoutProjects };
           }
 
           const base = await loadBase('/tmp/semantic-base');
           const current = await loadCurrent(process.cwd());
-          const entryDiffs = diffRecords(base.entries, current.entries, 'id');
-          const catalogDiffs = diffRecords(base.trackedCatalog, current.trackedCatalog, 'assetId');
-          console.log(JSON.stringify({
-            baseEntryCount: base.entries.length,
-            currentEntryCount: current.entries.length,
-            entryDiffCount: entryDiffs.length,
-            entryDiffs,
-            baseTrackedCatalogCount: base.trackedCatalog.length,
-            currentTrackedCatalogCount: current.trackedCatalog.length,
-            catalogDiffCount: catalogDiffs.length,
-            catalogDiffs,
-          }, null, 2));
-          if (entryDiffs.length || catalogDiffs.length) process.exitCode = 1;
+          const result = {
+            fixture: {
+              entrySemanticsSha256: fixture.entrySemanticsSha256,
+              trackedCatalogMetadataSha256: fixture.trackedCatalogMetadataSha256,
+            },
+            baseCurrentSerializer: {
+              entrySemanticsSha256: sha256(base.entries),
+              catalogWithProjectIdsSha256: sha256(base.catalogWithProjects),
+              catalogWithoutProjectIdsSha256: sha256(base.catalogWithoutProjects),
+            },
+            currentNormalized: {
+              entrySemanticsSha256: sha256(current.entries),
+              catalogWithProjectIdsSha256: sha256(current.catalogWithProjects),
+              catalogWithoutProjectIdsSha256: sha256(current.catalogWithoutProjects),
+            },
+            exact: {
+              entriesEqual: canonicalJson(base.entries) === canonicalJson(current.entries),
+              catalogWithoutProjectIdsEqual: canonicalJson(base.catalogWithoutProjects) === canonicalJson(current.catalogWithoutProjects),
+              catalogWithProjectIdsEqual: canonicalJson(base.catalogWithProjects) === canonicalJson(current.catalogWithProjects),
+            },
+          };
+          console.log(JSON.stringify(result, null, 2));
+          if (!result.exact.entriesEqual || !result.exact.catalogWithoutProjectIdsEqual) process.exitCode = 1;
           NODE
-          node /tmp/semantic-diff.mjs
+          node /tmp/semantic-hashes.mjs
