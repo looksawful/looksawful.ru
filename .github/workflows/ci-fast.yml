@@ -44,7 +44,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout exact source tree
         uses: actions/checkout@v7
@@ -75,31 +75,29 @@ jobs:
       - name: Verify restored generated media
         if: steps.media-cache.outputs.cache-hit == 'true'
         run: node tools/media-dev-state.mjs --cache-verify
-      - name: Install recovery video tooling on cache miss
-        if: steps.media-cache.outputs.cache-hit != 'true'
+      - name: Validate Sharp media output against released cache
+        if: steps.media-cache.outputs.cache-hit == 'true'
         shell: bash
         run: |
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install --yes ffmpeg
-      - name: Recover generated media on cache miss
+          find public/media/generated/responsive public/media/generated/video -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/media-before.sha256
+          sha256sum public/media/generated/video-inventory.json >> /tmp/media-before.sha256
+          npm run media:sync
+          find public/media/generated/responsive public/media/generated/video -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/media-after.sha256
+          sha256sum public/media/generated/video-inventory.json >> /tmp/media-after.sha256
+          diff -u /tmp/media-before.sha256 /tmp/media-after.sha256
+          node tools/media-dev-state.mjs --cache-verify
+          npm run test:media:checks
+          git diff --exit-code
+      - name: Install recovery video tooling on cache miss
         if: steps.media-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
-          npm run media:sync
-          node tools/media-dev-state.mjs --cache-verify
-          git diff --exit-code
-      - name: Save recovered generated media cache
-        if: steps.media-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            public/media/generated/responsive
-            public/media/generated/video
-            public/media/generated/video-inventory.json
-            .cache/media/generated-cache.json
-          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+          echo "Sharp validation requires the released exact cache as comparison baseline." >&2
+          exit 1
       - name: Typecheck
         run: npm run typecheck
       - name: Fast tests
