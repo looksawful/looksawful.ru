@@ -72,7 +72,8 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /npm run test:e2e:production/);
   assert.match(workflow, /npm run cv:prod:verify/);
   assert.match(workflow, /deploy-version\.txt/);
-  assert.match(workflow, /actions\/upload-pages-artifact@v3/);
+  assert.match(workflow, /actions\/upload-pages-artifact@v5/);
+  assert.match(workflow, /include-hidden-files:\s*true/);
   assert.match(workflow, /actions\/deploy-pages@v5/);
   assert.match(workflow, /looksawful\.ru\/deploy-version\.txt/);
   assert.match(workflow, /looksawful\.ru\/cv\//);
