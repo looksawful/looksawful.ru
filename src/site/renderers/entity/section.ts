@@ -5,6 +5,7 @@ import {
   type ProjectGroupSection,
   type ProjectPresentation,
   type Section,
+  type SectionPresentation,
   type SpecializedSection,
 } from "../../../content/contracts/sections.ts";
 import { renderRevealAttribute, renderRevealGroupAttribute } from "../../../motion-contract.ts";
@@ -41,27 +42,60 @@ function renderCredits(credits?: CreditsData): string {
   `;
 }
 
+function sectionShellPresentation(presentation?: SectionPresentation): {
+  className: string;
+  attributes: string;
+} {
+  switch (presentation?.layout ?? "stack") {
+    case "stack":
+      return {
+        className: "project__section wrapper stack",
+        attributes: "",
+      };
+    case "mockup-grid-reel":
+      return {
+        className: "project__section wrapper media-group",
+        attributes:
+          ' data-layout="grid" data-compact-layout="reel" style="--group-columns: 4; --group-compact-item-size: min(72cqi, 18rem); --group-compact-align: stretch; --group-wide-item-inline-size: min(100%, 18rem)"',
+      };
+  }
+}
+
 function renderSectionShell(
   section: Exclude<Section, SpecializedSection>,
   body: string,
   extraAttributes = "",
 ): string {
+  const presentation = "presentation" in section ? sectionShellPresentation(section.presentation) : sectionShellPresentation();
+
   return `
     <section
-      class="project__section wrapper stack"
+      class="${presentation.className}"
       id="${escapeHtml(section.id)}"
       data-section-type="${escapeHtml(section.type)}"
-      data-media-caption-scope${extraAttributes}
+      data-media-caption-scope${presentation.attributes}${extraAttributes}
     >
       ${body}
     </section>
   `;
 }
 
+function renderBlockBody(
+  section: Extract<Section, { type: "content" | "project" }>,
+): string {
+  const blocks = renderContentBlocks(section.blocks);
+
+  if (section.presentation?.layout === "mockup-grid-reel") {
+    return `<div class="media-group__items reel">${blocks}</div>`;
+  }
+
+  return blocks;
+}
+
 function renderIntroAndBlocks(section: Extract<Section, { type: "content" | "project" }>): string {
   const intro = section.intro ? renderSectionIntro(section.intro) : "";
   const credits = renderCredits(section.credits);
-  const blocks = renderContentBlocks(section.blocks);
+  const blocks = renderBlockBody(section);
   const projectAttribute =
     section.type === "project" ? ` data-project-id="${escapeHtml(section.projectId)}"` : "";
 
@@ -72,12 +106,16 @@ function renderProjectPresentation(item: ProjectPresentation): string {
   const intro = item.intro ? renderSectionIntro(item.intro) : "";
   const credits = renderCredits(item.credits);
   const blocks = renderContentBlocks(item.blocks);
+  const body = item.presentation?.layout === "mockup-grid-reel"
+    ? `<div class="media-group__items reel">${blocks}</div>`
+    : blocks;
+  const presentation = sectionShellPresentation(item.presentation);
 
   return `
-    <div class="stack" data-project-id="${escapeHtml(item.projectId)}" data-media-caption-scope>
+    <div class="${presentation.className}" data-project-id="${escapeHtml(item.projectId)}" data-media-caption-scope${presentation.attributes}>
       ${intro}
       ${credits}
-      ${blocks}
+      ${body}
     </div>
   `;
 }
