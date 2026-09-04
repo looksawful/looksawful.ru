@@ -26,6 +26,7 @@ export const fastTests = new Set([
   "test/media-desk-model.test.mjs",
   "test/media-desk-server.test.mjs",
   "test/media-routing.test.mjs",
+  "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
   "test/production-media-cache.test.mjs",
   "test/shared-validation-primitives.test.mjs",
