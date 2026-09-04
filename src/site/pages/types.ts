@@ -1,3 +1,4 @@
+import type { EntityPageId as CanonicalEntityPageId } from "../../content/contracts/ids.ts";
 import type { CaseId } from "../../data/catalog/cases.ts";
 import type { CollectionId } from "../../data/catalog/collections.ts";
 import type { ProjectId } from "../../data/catalog/projects/index.ts";
@@ -7,10 +8,7 @@ export interface PageDiscovery {
   indexable: boolean;
 }
 
-export type EntityPageId =
-  | `case:${CaseId}`
-  | `project:${ProjectId}`
-  | `collection:${CollectionId}`;
+export type EntityPageId = CanonicalEntityPageId;
 
 export type SitePageId = "home" | "cv" | "not-found" | EntityPageId;
 
