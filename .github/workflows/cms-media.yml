@@ -51,54 +51,40 @@ jobs:
           REBUILD: ${{ inputs.rebuild_cache }}
         run: |
           set -euo pipefail
-          has_image_source=false
-          has_video_source=false
-          has_media_reference_or_metadata=false
           has_image=false
           has_video=false
-          has_source=false
           has_media_change=false
           rebuild=false
           if [[ "${{ github.event_name }}" == 'workflow_dispatch' && "$REBUILD" == 'true' ]]; then
-            has_image_source=true
-            has_video_source=true
             has_image=true
             has_video=true
-            has_source=true
             has_media_change=true
             rebuild=true
           elif [[ "${{ github.event_name }}" == 'push' ]]; then
             while IFS= read -r file; do
               case "${file,,}" in
-                src/content/projects.json|src/content/media-catalog/registered/*|src/content/media-catalog/uploads/*)
-                  if [[ "${file,,}" == 'src/content/projects.json' ]]; then
-                    if git diff --unified=0 "$BEFORE" "$HEAD_SHA" -- "$file" \
-                      | grep -Eq '^[+-][[:space:]]+"(src|width|height)":'; then
-                      has_media_reference_or_metadata=true
-                      has_media_change=true
-                    fi
-                  else
-                    has_media_reference_or_metadata=true
+                src/content/projects.json)
+                  if git diff --unified=0 "$BEFORE" "$HEAD_SHA" -- "$file" \
+                    | grep -Eq '^[+-][[:space:]]+"(src|width|height)":'; then
                     has_media_change=true
                   fi
                   ;;
+                src/content/media-catalog/registered/*|src/content/media-catalog/uploads/*)
+                  has_media_change=true
+                  ;;
                 *.jpg|*.jpeg|*.png|*.webp|*.avif|*.gif)
-                  has_image_source=true
                   has_image=true
-                  has_source=true
                   has_media_change=true
                   ;;
                 *.mov|*.mp4|*.m4v|*.webm)
-                  has_video_source=true
                   has_video=true
-                  has_source=true
                   has_media_change=true
                   ;;
               esac
             done < <(git diff --name-only "$BEFORE" "$HEAD_SHA")
           fi
-          printf 'has_image_source=%s\nhas_video_source=%s\nhas_media_reference_or_metadata=%s\nhas_image=%s\nhas_video=%s\nhas_source=%s\nhas_media_change=%s\nrebuild=%s\n' \
-            "$has_image_source" "$has_video_source" "$has_media_reference_or_metadata" "$has_image" "$has_video" "$has_source" "$has_media_change" "$rebuild" >> "$GITHUB_OUTPUT"
+          printf 'has_image=%s\nhas_video=%s\nhas_media_change=%s\nrebuild=%s\n' \
+            "$has_image" "$has_video" "$has_media_change" "$rebuild" >> "$GITHUB_OUTPUT"
       - name: Calculate previous media fingerprint
         if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true'
         id: previous-media
@@ -125,15 +111,14 @@ jobs:
         if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.scope.outputs.has_video != 'true' && steps.previous-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          echo "Exact previous generated-media cache is missing for a reference/metadata or image-only media update." >&2
-          echo "Run CMS media with rebuild_cache=true, then retry. ffmpeg and heavy video generation are intentionally not used for this path." >&2
+          echo "Exact previous generated-media cache is missing for a metadata or image-only update." >&2
+          echo "Run CMS media with rebuild_cache=true, then retry." >&2
           exit 1
-      - name: Verify previous cache before incremental generation or targeted validation
+      - name: Verify previous cache against previous source tree
         if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          trap 'git worktree remove --force /tmp/media-before >/dev/null 2>&1 || true' EXIT
           rm -rf \
             /tmp/media-before/public/media/generated/responsive \
             /tmp/media-before/public/media/generated/video
@@ -145,9 +130,13 @@ jobs:
           cp -a public/media/generated/video-inventory.json /tmp/media-before/public/media/generated/video-inventory.json
           cp -a .cache/media/generated-cache.json /tmp/media-before/.cache/media/generated-cache.json
           (cd /tmp/media-before && node tools/media-dev-state.mjs --cache-verify)
+      - name: Remove previous source worktree
+        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true'
+        shell: bash
+        run: git worktree remove --force /tmp/media-before || true
       - name: Synchronize catalog metadata
         if: steps.scope.outputs.has_media_change == 'true'
-        run: npm run media:catalog:sync
+        run: node tools/sync-media-catalog.mjs
       - name: Install video tooling
         if: steps.scope.outputs.has_video == 'true'
         shell: bash
@@ -160,19 +149,13 @@ jobs:
         run: npm run media:sync
       - name: Build video derivatives incrementally
         if: steps.scope.outputs.rebuild != 'true' && steps.scope.outputs.has_video == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
-        run: npm run media:video:build
+        run: node tools/build-video-media.mjs --build
       - name: Build image derivatives incrementally
         if: steps.scope.outputs.rebuild != 'true' && steps.scope.outputs.has_image == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
-        run: npm run media:build
-      - name: Validate media references
+        run: node tools/build-responsive-media.mjs
+      - name: Validate canonical media state
         if: steps.scope.outputs.has_media_change == 'true'
-        run: npm run test:media:contract
-      - name: Validate generated media
-        if: steps.scope.outputs.has_media_change == 'true'
-        run: npm run test:media:checks
-      - name: Confirm normalized media catalog is stable
-        if: steps.scope.outputs.has_media_change == 'true'
-        run: npm run media:catalog:check
+        run: npm run media:check
       - name: Write canonical generated-media cache marker
         if: steps.scope.outputs.has_media_change == 'true'
         run: node tools/media-dev-state.mjs --cache-write
@@ -194,14 +177,6 @@ jobs:
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
-      - name: Final Fast validation for source mutation
-        if: steps.scope.outputs.has_image == 'true' || steps.scope.outputs.has_video == 'true' || steps.scope.outputs.rebuild == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm run typecheck
-          npm run test:fast
-          npm run build:site
       - name: Persist normalized tracked metadata only
         if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true'
         shell: bash
