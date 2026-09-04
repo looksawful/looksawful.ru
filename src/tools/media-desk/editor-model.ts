@@ -31,6 +31,8 @@ export const REGISTERED_MEDIA_EDITORIAL_FIELDS = [
 
 export type MediaEditorialField = (typeof MEDIA_EDITORIAL_FIELDS)[number];
 export type MediaEditorialPatch = Pick<MediaCatalogItem, MediaEditorialField>;
+export type RegisteredMediaEditorialPatch = Omit<MediaEditorialPatch, "projectIds">;
+export type MediaEditorialWritePatch = MediaEditorialPatch | RegisteredMediaEditorialPatch;
 
 const editorialFieldSet = new Set<string>(MEDIA_EDITORIAL_FIELDS);
 const registeredEditorialFieldSet = new Set<string>(REGISTERED_MEDIA_EDITORIAL_FIELDS);
