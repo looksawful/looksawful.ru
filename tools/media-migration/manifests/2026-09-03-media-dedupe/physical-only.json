@@ -1,0 +1,444 @@
+{
+  "version": 1,
+  "sourceEvidence": "stage4 user-reviewed SAME decisions",
+  "scope": "physical duplicate sources with no MediaAsset removal",
+  "baseEvidenceSha": "83ea6cb845528e1976b13687956bdd249ba8def8",
+  "componentCount": 61,
+  "removedPhysicalPathCount": 66,
+  "removedBytes": 9322782,
+  "constraints": {
+    "mediaAssetRemovals": 0,
+    "mediaEntryRetargets": 0,
+    "variantOrDifferentMerges": 0,
+    "generatedFilesEditedManually": false
+  },
+  "components": [
+    {
+      "componentId": 1,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/berry/03/source/08-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/berry/04/source/01-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 2,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/jestei/landings/moves-awful/poster/01-2044x1112.webp",
+      "removePhysicalPaths": ["public/media/projects/shared/moves-awful/01/poster/01-2044x1112.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 3,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/jestei/landings/moves-awful/poster/02-2540x790.webp",
+      "removePhysicalPaths": ["public/media/projects/shared/moves-awful/01/poster/02-2540x790.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 4,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/jestei/landings/moves-awful/poster/03-1914x1208.webp",
+      "removePhysicalPaths": ["public/media/projects/shared/moves-awful/01/poster/03-1914x1208.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 7,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sands/02/source/03-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sands/04/source/06-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 8,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/01/source/01-35x18.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/16-35x18.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 9,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/01/source/03-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/17-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 10,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/01/source/04-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/18-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 11,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/01/source/06-3x2.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/19-3x2.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 14,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/01/source/08-3x2.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/20-3x2.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 18,
+      "classification": "PHYSICAL_PATH_REWRITE_REQUIRED",
+      "canonicalPath": "public/media/interactive/awful-cases-atlas.png",
+      "removePhysicalPaths": ["public/pets/awful-cases/assets/atlas.png"],
+      "referenceDisposition": "runtime-rewrite-applied"
+    },
+    {
+      "componentId": 19,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/02/source/03-4x5.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/04-4x5.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 20,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/02-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/02-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 23,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/03-3x2.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/03-3x2.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 26,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/04-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/05-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 27,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/05-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/06-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 28,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/07-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/07-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 29,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/08-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/08-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 30,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/09-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/09-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 31,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/10-4x5.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/10-4x5.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 32,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/11-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/11-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 33,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/12-544x763.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/12-544x763.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 34,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/13-4x5.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/13-4x5.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 36,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/14-4x5.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/14-4x5.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 37,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/15-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/15-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 38,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/16-4x5.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/21-4x5.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 39,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/04/source/17-247x320.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/22-247x320.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 40,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/05/source/01-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/23-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 41,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/05/source/02-4x5.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/25-4x5.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 42,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/sensetique/05/source/03-375x538.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/26-375x538.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 43,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/13-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/27-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 44,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/15-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/28-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 45,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/17-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/29-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 46,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/18-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/30-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 47,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/19-4x5.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/31-4x5.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 48,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/20-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/32-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 49,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/21-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/33-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 53,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/22-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/34-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 54,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/23-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/35-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 55,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/24-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/36-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 56,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/25-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/37-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 57,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/26-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/38-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 58,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/27-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/39-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 59,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/28-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/40-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 60,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/29-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/41-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 61,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/30-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/42-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 62,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/31-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/43-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 63,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/32-4x5.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/44-4x5.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 64,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/33-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/45-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 65,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/34-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/46-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 66,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/35-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/47-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 67,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/36-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/48-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 68,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/37-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/49-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 69,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/38-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/50-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 70,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/39-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/51-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 71,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/40-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/52-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 72,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/41-2x3.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/53-2x3.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 73,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/09/source/42-3x4.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/54-3x4.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 74,
+      "classification": "PHYSICAL_ONLY",
+      "canonicalPath": "public/media/projects/sensetique/01/source/07-700x359.webp",
+      "removePhysicalPaths": ["public/media/projects/sensetique/10/source/24-35x18.webp"],
+      "referenceDisposition": "no-live-references"
+    },
+    {
+      "componentId": 81,
+      "classification": "PHYSICAL_PATH_REWRITE_REQUIRED",
+      "canonicalPath": "public/media/clients/logo-wall/client-logo-12.webp",
+      "removePhysicalPaths": ["public/media/clients/logo-wall/client-logo-07.webp"],
+      "referenceDisposition": "temporary-tool-only"
+    },
+    {
+      "componentId": 83,
+      "classification": "SINGLE_ASSET",
+      "canonicalPath": "public/media/projects/shootings/behance/offmi/source/005.webp",
+      "removePhysicalPaths": ["public/media/projects/shootings/22/source/01-7x10.webp"],
+      "referenceDisposition": "temporary-tool-only"
+    }
+  ]
+}
