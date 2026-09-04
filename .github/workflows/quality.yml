@@ -132,11 +132,13 @@ jobs:
       - name: Audit physical media duplicates
         run: npm run media:dedupe:physical
 
-  full-e2e:
+  prepare-media:
     needs: resolve-target
-    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'full-e2e'))
+    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'full-e2e' || inputs.suite == 'lighthouse'))
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
+    outputs:
+      fingerprint: ${{ steps.media.outputs.fingerprint }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -148,15 +150,57 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
       - name: Install media tooling
         run: |
           sudo apt-get update
           sudo apt-get install --yes ffmpeg
-      - name: Rebuild and validate generated media
+      - name: Rebuild and validate generated media once
         run: |
           npm run media:sync
           node tools/media-dev-state.mjs --cache-verify
           git diff --exit-code
+      - name: Save exact nightly generated media cache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
+  full-e2e:
+    needs: [resolve-target, prepare-media]
+    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'full-e2e'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.resolve-target.outputs.target-sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Restore exact prepared media
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ needs.prepare-media.outputs.fingerprint }}
+          fail-on-cache-miss: true
+      - name: Verify prepared generated media
+        run: node tools/media-dev-state.mjs --cache-verify
       - run: npm run typecheck
       - run: npm run test:core
       - run: npm run media:dedupe:check
@@ -167,10 +211,10 @@ jobs:
         run: npm run test:e2e:full
 
   lighthouse:
-    needs: resolve-target
+    needs: [resolve-target, prepare-media]
     if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'lighthouse'))
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -182,15 +226,18 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Install media tooling
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-      - name: Rebuild generated media
-        run: |
-          npm run media:sync
-          node tools/media-dev-state.mjs --cache-verify
-          git diff --exit-code
+      - name: Restore exact prepared media
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ needs.prepare-media.outputs.fingerprint }}
+          fail-on-cache-miss: true
+      - name: Verify prepared generated media
+        run: node tools/media-dev-state.mjs --cache-verify
       - run: npm run build:site
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
