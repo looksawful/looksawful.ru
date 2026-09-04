@@ -1,4 +1,5 @@
 import type { MediaEntryData } from "../../types/media.ts";
+import { retiredMediaAssetIds } from "./asset-aliases.ts";
 import {
   mediaCatalogItems as baseMediaCatalogItems,
   type MediaCatalogFilters,
@@ -52,10 +53,8 @@ function deriveFacet(
 
 /**
  * Builds the read-only browsing projection.
- *
- * The base catalog remains the library/editor source. Contextual relations are
- * added from MediaEntry usages, but this aggregate is never written back into
- * an individual MediaEntry.
+ * Retired duplicate identities are hidden from runtime browsing. Contextual
+ * relations are aggregated from usages, but are never written back to entries.
  */
 export function deriveMediaCatalogItems(
   baseItems: readonly MediaCatalogItem[],
@@ -68,20 +67,22 @@ export function deriveMediaCatalogItems(
     else entriesByAssetId.set(entry.assetId, [entry]);
   }
 
-  return baseItems.map((item) => {
-    const assetEntries = entriesByAssetId.get(item.asset.id) ?? [];
-    if (assetEntries.length === 0) return item;
+  return baseItems
+    .filter((item) => !retiredMediaAssetIds.has(item.asset.id))
+    .map((item) => {
+      const assetEntries = entriesByAssetId.get(item.asset.id) ?? [];
+      if (assetEntries.length === 0) return item;
 
-    return {
-      ...item,
-      projectIds: deriveFacet(item, assetEntries, "projectIds"),
-      workAreaIds: deriveFacet(item, assetEntries, "workAreaIds"),
-      projectTypeIds: deriveFacet(item, assetEntries, "projectTypeIds"),
-      deliverableIds: deriveFacet(item, assetEntries, "deliverableIds"),
-      tags: deriveFacet(item, assetEntries, "tags"),
-      credits: deriveFacet(item, assetEntries, "credits"),
-    } as MediaCatalogItem;
-  });
+      return {
+        ...item,
+        projectIds: deriveFacet(item, assetEntries, "projectIds"),
+        workAreaIds: deriveFacet(item, assetEntries, "workAreaIds"),
+        projectTypeIds: deriveFacet(item, assetEntries, "projectTypeIds"),
+        deliverableIds: deriveFacet(item, assetEntries, "deliverableIds"),
+        tags: deriveFacet(item, assetEntries, "tags"),
+        credits: deriveFacet(item, assetEntries, "credits"),
+      } as MediaCatalogItem;
+    });
 }
 
 export const mediaCatalogItems =
