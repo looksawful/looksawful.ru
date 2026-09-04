@@ -13,7 +13,6 @@ import { fileURLToPath } from "node:url";
 
 import { projects } from "../src/data/catalog/projects/index.ts";
 import { mediaEntries } from "../src/data/media/entries/index.ts";
-import { resolveAssignedProjectIds } from "../src/data/media/project-assignments.ts";
 import { registeredMediaAssets } from "../src/data/media/assets/registered.ts";
 import {
   MEDIA_CATALOG_DELIVERABLE_IDS,
@@ -167,26 +166,13 @@ function hasAny(text, values) {
   return values.some((value) => text.includes(value));
 }
 
-function registeredTechnicalValues(asset) {
-  return {
-    mediaType: asset.type,
-    src: asset.src,
-    sourceSrc: asset.type === "video" ? (asset.sourceSrc ?? "") : "",
-    width: asset.width ?? 0,
-    height: asset.height ?? 0,
-    durationSeconds: 0,
-    mimeType: asset.type === "model" ? (asset.mimeType ?? mimeFor(asset.src)) : "",
-    byteLength: asset.type === "model" ? (asset.byteLength ?? 0) : 0,
-  };
-}
-
-function inferProjectIds(asset, entries) {
-  const direct = entries.flatMap((entry) => entry.projectIds ?? []);
-  const inferred = resolveAssignedProjectIds({
-    id: `${asset.id}-catalog`,
-    assetId: asset.id,
-  }) ?? [];
-  return ordered([...direct, ...inferred].filter((id) => projectById.has(id)), PROJECT_ORDER);
+function inferProjectIds(entries) {
+  return ordered(
+    entries
+      .flatMap((entry) => entry.projectIds ?? [])
+      .filter((id) => projectById.has(id)),
+    PROJECT_ORDER,
+  );
 }
 
 function inferClassification(asset, entries, projectIds) {
@@ -236,7 +222,14 @@ function inferClassification(asset, entries, projectIds) {
     projectTypeIds.push("scanography-project");
     workAreaIds.push("graphic-design");
   }
-  if (projectTypeIds.some((id) => ["identity-project", "graphic-design-project", "print-project", "packaging-project", "poster-project", "social-content"].includes(id))) {
+  if (projectTypeIds.some((id) => [
+    "identity-project",
+    "graphic-design-project",
+    "print-project",
+    "packaging-project",
+    "poster-project",
+    "social-content",
+  ].includes(id))) {
     workAreaIds.push("graphic-design");
   }
   if (projectTypeIds.includes("identity-project")) workAreaIds.push("identity");
@@ -244,7 +237,9 @@ function inferClassification(asset, entries, projectIds) {
     workAreaIds.push("editorial-design", "graphic-design");
   }
 
-  if (isShootingFamily && hasAny(corpus, ["obladaet", "evasha", "igguana", "esmi", "hypression", "ofelia", "music", "музык"])) {
+  if (isShootingFamily && hasAny(corpus, [
+    "obladaet", "evasha", "igguana", "esmi", "hypression", "ofelia", "music", "музык",
+  ])) {
     projectTypeIds.push("shooting", "music-shooting");
   }
   if (hasAny(corpus, ["лукбук", "lookbook"])) projectTypeIds.push("shooting", "lookbook");
@@ -285,7 +280,11 @@ function inferClassification(asset, entries, projectIds) {
   if (hasAny(corpus, ["логотип", "logo"])) deliverableIds.push("logo");
   if (hasAny(corpus, ["книг", "book design"])) deliverableIds.push("book");
 
-  const screenProject = projectIds.some((id) => id.startsWith("jestei-") && !id.includes("brand-system") && !id.includes("editorial-policy"));
+  const screenProject = projectIds.some(
+    (id) => id.startsWith("jestei-")
+      && !id.includes("brand-system")
+      && !id.includes("editorial-policy"),
+  );
   if (
     screenProject
     || hasAny(corpus, ["интерфейс", "лендинг", "страниц", "виджет", "экран", "ui kit", "ui-kit"])
@@ -339,9 +338,26 @@ function inferTags(classification) {
   return unique(tags);
 }
 
+export function compactRegisteredCatalogRecord(record) {
+  return {
+    id: record.id,
+    title: record.title,
+    alt: record.alt,
+    description: record.description,
+    date: record.date,
+    workAreaIds: record.workAreaIds,
+    projectTypeIds: record.projectTypeIds,
+    deliverableIds: record.deliverableIds,
+    tags: record.tags,
+    credits: record.credits,
+    reusable: record.reusable,
+    archived: record.archived,
+  };
+}
+
 export function inferRegisteredMediaCatalogRecord(asset, entries = mediaEntries) {
   const assetEntries = entries.filter((entry) => entry.assetId === asset.id);
-  const projectIds = inferProjectIds(asset, assetEntries);
+  const projectIds = inferProjectIds(assetEntries);
   const classification = inferClassification(asset, assetEntries, projectIds);
   const assignedProjects = projectIds.map((id) => projectById.get(id)).filter(Boolean);
   const firstCaption = assetEntries.find((entry) => entry.caption?.title || entry.caption?.text)?.caption;
@@ -349,12 +365,10 @@ export function inferRegisteredMediaCatalogRecord(asset, entries = mediaEntries)
 
   return {
     id: asset.id,
-    ...registeredTechnicalValues(asset),
     title: firstCaption?.title || firstProject?.name || asset.id,
     alt: assetEntries.find((entry) => entry.alt?.trim())?.alt ?? "",
     description: firstCaption?.text ?? "",
     date: asset.date ?? firstProject?.date ?? "",
-    projectIds,
     ...classification,
     tags: inferTags(classification),
     credits: unique(assetEntries.flatMap((entry) => entry.caption?.meta ?? [])),
@@ -521,10 +535,7 @@ export async function syncMediaCatalog({ repoRoot = process.cwd(), check = false
     if (seeded.id !== asset.id) {
       throw new Error(`${path.relative(root, filePath)} id must match filename and MediaAsset`);
     }
-    const next = {
-      ...seeded,
-      ...registeredTechnicalValues(asset),
-    };
+    const next = compactRegisteredCatalogRecord(seeded);
     const contents = `${JSON.stringify(next, null, 2)}\n`;
     if (await changedFile(filePath, contents)) {
       changedPaths.push(path.relative(root, filePath));
@@ -547,7 +558,10 @@ export async function syncMediaCatalog({ repoRoot = process.cwd(), check = false
     if (`${record.id}.json` !== filename) {
       throw new Error(`${path.relative(root, filePath)} id must match filename`);
     }
-    const next = await (checkStored ? checkStoredUploadedRecord : syncUploadedRecord)(record, { repoRoot: root });
+    const next = await (checkStored ? checkStoredUploadedRecord : syncUploadedRecord)(
+      record,
+      { repoRoot: root },
+    );
     const contents = `${JSON.stringify(next, null, 2)}\n`;
     if (await changedFile(filePath, contents)) {
       changedPaths.push(path.relative(root, filePath));
@@ -579,7 +593,10 @@ const isDirectRun = process.argv[1]
   && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 
 if (isDirectRun) {
-  const result = await syncMediaCatalog({ check: process.argv.includes("--check"), checkStored: process.argv.includes("--check-stored") });
+  const result = await syncMediaCatalog({
+    check: process.argv.includes("--check"),
+    checkStored: process.argv.includes("--check-stored"),
+  });
   console.log(
     `[media-catalog] ${result.registeredCount} registered, ${result.uploadedCount} uploaded, ${result.changedPaths.length} synchronized files`,
   );
