@@ -1,4 +1,5 @@
 import "./styles/site-navigation.css";
+import "./styles/site-analytics-consent.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
 import { createMotionPreference } from "./components/motion-preference.ts";
@@ -11,6 +12,7 @@ import { createPageFlips } from "./components/page-flip.ts";
 import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
 import { mountExpertise } from "./components/expertise.ts";
 import { mountExperience } from "./components/experience.ts";
+import { mountSiteAnalyticsConsent } from "./components/site-analytics-consent.ts";
 import {
   mountSiteAnalytics,
   mountSiteAnalyticsGoalTracking,
@@ -101,6 +103,7 @@ const siteAnalyticsConfig = {
 };
 
 let destroySiteAnalyticsGoalTracking = () => {};
+let destroySiteAnalyticsConsent = () => {};
 if (import.meta.env.PROD) {
   mountSiteAnalytics({
     root: document,
@@ -112,13 +115,18 @@ if (import.meta.env.PROD) {
     target: window,
     config: siteAnalyticsConfig,
   });
+  destroySiteAnalyticsConsent = mountSiteAnalyticsConsent({
+    root: document,
+    target: window,
+    config: siteAnalyticsConfig,
+  });
 }
 
 mountExpertise(document);
 mountExperience(document);
 
 const motion = createMotionPreference();
-const destroys = [destroySiteAnalyticsGoalTracking];
+const destroys = [destroySiteAnalyticsGoalTracking, destroySiteAnalyticsConsent];
 let destroyed = false;
 
 numberMediaCaptions(document);
