@@ -1,4 +1,5 @@
-name: Media Dedupe Semantic Baseline Calibration TEMP
+# Final candidate gate: cheap invariants first, destructive rehearsal before expensive browser/full verification.
+name: Media Dedupe Final Preapply Gate TEMP
 
 on:
   push:
@@ -9,9 +10,11 @@ permissions:
   contents: read
 
 jobs:
-  calibrate:
+  preapply:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 120
+    env:
+      E2E_AFFECTED_SUITES: media
     steps:
       - uses: actions/checkout@v7
         with:
@@ -21,5 +24,92 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Print canonical semantic baseline candidate
-        run: node tools/media/export-semantic-baseline.mjs --migration
+
+      - name: Fast dedupe regression and semantic contracts
+        run: |
+          node --test test/media-dedupe-apply-tool.test.mjs
+          node tools/media/export-semantic-baseline.mjs --migration --check
+          node --test test/media-semantic-baseline.test.mjs test/media-physical-only-dedupe.test.mjs
+
+      - name: Guarded dedupe dry-runs
+        run: |
+          node tools/media/apply-dedupe-migration.mjs
+          node tools/media/apply-deferred-physical-dedupe.mjs
+          node tools/media/apply-physical-only-dedupe.mjs
+
+      - name: Fast type and media contracts
+        run: |
+          npm run typecheck
+          npm run test:media:contract
+          npm run test:media:checks
+
+      - name: Rehearse destructive dedupe before regeneration
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/media/apply-dedupe-migration.mjs --apply
+          node tools/media/apply-deferred-physical-dedupe.mjs --apply
+          node tools/media/apply-physical-only-dedupe.mjs --apply
+          node tools/media/export-semantic-baseline.mjs --migration --check
+          npm run media:dedupe:check
+          npm run typecheck
+
+      - name: Install ffmpeg only if missing
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes ffmpeg
+          fi
+
+      - name: Regenerate post-apply state and prove idempotence
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          node tools/media/export-semantic-baseline.mjs --migration --check
+          npm run media:dedupe:check
+          npm run typecheck
+          git diff --binary > "$RUNNER_TEMP/media-sync-first.patch"
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --binary > "$RUNNER_TEMP/media-sync-second.patch"
+          cmp "$RUNNER_TEMP/media-sync-first.patch" "$RUNNER_TEMP/media-sync-second.patch"
+
+      - name: Restore exact candidate after rehearsal
+        shell: bash
+        run: |
+          set -euo pipefail
+          git reset --hard HEAD
+          git clean -fd
+          git diff --exit-code
+          node tools/media/export-semantic-baseline.mjs --migration --check
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Media Desk browser regression
+        run: npm run test:e2e:media-desk
+
+      - name: Affected media browser regression
+        run: npm run test:e2e:affected
+
+      - name: Repository verify once at the end
+        shell: bash
+        run: |
+          set -euo pipefail
+          temp_workflow="$RUNNER_TEMP/dedupe-execution-temp.yml"
+          mv .github/workflows/dedupe-execution-temp.yml "$temp_workflow"
+          trap 'mv "$temp_workflow" .github/workflows/dedupe-execution-temp.yml' EXIT
+          npm run verify
+          npm run verify:full
+
+      - name: Final preapply invariants
+        run: |
+          git diff --exit-code
+          node tools/media/export-semantic-baseline.mjs --migration --check
+          node tools/media/apply-dedupe-migration.mjs
+          node tools/media/apply-deferred-physical-dedupe.mjs
+          node tools/media/apply-physical-only-dedupe.mjs
