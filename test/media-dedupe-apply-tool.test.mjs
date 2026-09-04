@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   classifyReference,
   findCandidateReferences,
+  removeAssetDeclarations,
   rewriteAssetIdentityProperties,
 } from "../tools/media/apply-dedupe-migration.mjs";
 
@@ -78,4 +79,50 @@ test("asset identity rewrite covers assetId, mediaAssetId and posterAssetId only
   assert.match(rewritten, new RegExp(`posterAssetId: "${NEW_ASSET}"`));
   assert.match(rewritten, new RegExp(`entryId: "${OLD_ASSET}-use-01"`));
   assert.match(rewritten, new RegExp(`coverEntryId: "${OLD_ASSET}-use-02"`));
+});
+
+test("asset declaration removal preserves syntax across adjacent retired assets", () => {
+  const source = `export const assets = [
+  {
+    id: "keep-13",
+    type: "image",
+    src: "/keep-13.webp",
+  },
+  {
+    id: "drop-14",
+    type: "image",
+    src: "/drop-14.webp",
+  },
+  {
+    id: "drop-15",
+    type: "image",
+    src: "/drop-15.webp",
+  },
+  {
+    id: "drop-16",
+    type: "image",
+    src: "/drop-16.webp",
+  },
+  {
+    id: "drop-17",
+    type: "image",
+    src: "/drop-17.webp",
+  },
+  {
+    id: "keep-18",
+    type: "image",
+    src: "/keep-18.webp",
+  },
+];`;
+
+  const rewritten = removeAssetDeclarations(
+    source,
+    "fixture.ts",
+    new Set(["drop-14", "drop-15", "drop-16", "drop-17"]),
+  );
+
+  assert.match(rewritten, /id: "keep-13"/);
+  assert.match(rewritten, /id: "keep-18"/);
+  assert.doesNotMatch(rewritten, /id: "drop-(14|15|16|17)"/);
+  assert.match(rewritten, /\},\s*\{\s*id: "keep-18"/);
 });
