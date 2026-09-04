@@ -123,6 +123,21 @@ export const sitePages = [
     },
   },
   {
+    id: "privacy",
+    type: "static",
+    path: "/privacy/",
+    enabled: true,
+    renderer: "privacy",
+    build: {
+      kind: "public-static",
+      sourcePath: "public/privacy/index.html",
+    },
+    discovery: {
+      listed: false,
+      indexable: true,
+    },
+  },
+  {
     id: "not-found",
     type: "not-found",
     path: "/404.html",
