@@ -18,13 +18,10 @@ import { styxMediaAssets } from "./styx.ts";
 import { unassignedMediaAssets } from "./unassigned.ts";
 
 /**
- * Physical assets that predate the CMS media catalog.
- *
- * Their TypeScript modules remain authoritative for source paths and technical
- * identity. Retired duplicate identities are filtered by the reviewed alias map
- * until the one-shot source cleanup removes the obsolete declarations.
+ * Complete legacy registry. Low-level catalog migration/validation may still
+ * read retired records until the one-shot source cleanup removes them.
  */
-const registeredMediaAssetSources = [
+export const registeredMediaAssets = [
   ...awfulCasesMediaAssets,
   ...behanceShootingMediaAssets,
   ...berryMediaAssets,
@@ -43,11 +40,10 @@ const registeredMediaAssetSources = [
   ...unassignedMediaAssets,
 ] as const;
 
-export type RegisteredMediaAssetSource = (typeof registeredMediaAssetSources)[number];
-
-export const registeredMediaAssets = registeredMediaAssetSources.filter(
-  (asset) => !retiredMediaAssetIds.has(asset.id),
-) as readonly RegisteredMediaAssetSource[];
-
 export type RegisteredMediaAsset = (typeof registeredMediaAssets)[number];
 export type RegisteredMediaAssetId = RegisteredMediaAsset["id"];
+
+/** Canonical runtime registry with reviewed duplicate identities removed. */
+export const canonicalRegisteredMediaAssets = registeredMediaAssets.filter(
+  (asset) => !retiredMediaAssetIds.has(asset.id),
+) as readonly RegisteredMediaAsset[];
