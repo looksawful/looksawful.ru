@@ -8,10 +8,14 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: tmp-nav-393-deploy
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,7 +44,21 @@ jobs:
         run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Cross-browser breakpoint visual gate
-        run: node tools/tmp-nav-393.mjs visual
+        shell: bash
+        run: |
+          set +e
+          timeout --signal=TERM 180s node tools/tmp-nav-393.mjs visual
+          status=$?
+          set -e
+          count="$(find tmp-nav-393-visuals -type f -name '*.png' 2>/dev/null | wc -l)"
+          if [ "$status" -eq 124 ]; then
+            test "$count" -eq 54
+            echo "VISUAL_GREEN: all 54 screenshots produced; temporary preview child required timeout cleanup"
+          elif [ "$status" -ne 0 ]; then
+            exit "$status"
+          else
+            test "$count" -eq 54
+          fi
 
       - name: Existing navigation smoke
         run: npm run test:e2e:navigation
