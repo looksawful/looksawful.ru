@@ -70,13 +70,20 @@ test("Jestei theme organism runtime keeps the restored animation contracts", asy
     new URL("../src/components/jestei-theme-organism/jestei-theme-organism.js", import.meta.url),
     "utf8",
   );
+  const dataShim = await readFile(
+    new URL("../src/components/jestei-theme-organism/jestei-theme-organism-data.js", import.meta.url),
+    "utf8",
+  );
   const shaders = await readFile(
     new URL("../src/components/jestei-theme-organism/jestei-theme-organism-shaders.js", import.meta.url),
     "utf8",
   );
 
-  assert.match(runtime, /jestei-theme-organism-data\.ts/);
-  assert.doesNotMatch(runtime, /jestei-theme-organism-data\.js/);
+  assert.equal(
+    dataShim.trim(),
+    'export * from "./jestei-theme-organism-data.ts";',
+  );
+  assert.match(runtime, /jestei-theme-organism-data\.js/);
   assert.match(runtime, /import\("three"\)/);
   assert.match(runtime, /GLTFLoader/);
   assert.match(runtime, /DRACOLoader/);
