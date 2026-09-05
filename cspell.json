@@ -1,0 +1,30 @@
+{
+  "version": "0.2",
+  "language": "en,ru",
+  "import": ["@cspell/dict-ru_ru/cspell-ext.json"],
+  "useGitignore": true,
+  "allowCompoundWords": true,
+  "caseSensitive": false,
+  "dictionaryDefinitions": [
+    {
+      "name": "looksawful-project",
+      "path": "./cspell-words.txt",
+      "addWords": true
+    }
+  ],
+  "dictionaries": ["looksawful-project"],
+  "ignorePaths": [
+    "node_modules/**",
+    "dist/**",
+    "archive/**",
+    "public/**",
+    ".cache/**",
+    "package-lock.json",
+    ".pages.yml",
+    "**/*.min.*",
+    "**/*.generated.*",
+    "**/generated/**",
+    "**/fixtures/**",
+    "**/*.{png,jpg,jpeg,webp,avif,gif,svg,mp4,webm,mov,mp3,wav,woff,woff2,ttf,otf}"
+  ]
+}
