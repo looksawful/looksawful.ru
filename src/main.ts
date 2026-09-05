@@ -2,6 +2,7 @@ import "./styles/site-navigation.css";
 import "./styles/site-analytics-consent.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
+import { hydrateDeferredVideoSource } from "./components/deferred-video-source.ts";
 import { createMotionPreference } from "./components/motion-preference.ts";
 import { createInfiniteReels } from "./components/infinite-reel.ts";
 import { createMediaDecks } from "./components/media-deck.ts";
@@ -60,11 +61,14 @@ function initViewportAutoplayVideos(root: ParentNode = document): Destroy {
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
-    if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
+
     if (!document.hidden && nearViewport.has(video)) {
+      hydrateDeferredVideoSource(video);
+      if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
       if (video.paused) void video.play().catch(() => {});
       return;
     }
+
     if (!video.paused) video.pause();
   };
 
@@ -84,7 +88,7 @@ function initViewportAutoplayVideos(root: ParentNode = document): Destroy {
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
-    if (!video.poster) video.preload = "auto";
+    if (!video.poster && !video.hasAttribute("data-autoplay-deferred")) video.preload = "auto";
     if (observer) {
       video.pause();
       observer.observe(video);
