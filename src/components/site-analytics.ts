@@ -60,10 +60,43 @@ type PrivacyNavigator = Navigator & {
 const CLOUDFLARE_BEACON_SRC = "https://static.cloudflareinsights.com/beacon.min.js";
 const YANDEX_METRIKA_SRC = "https://mc.yandex.ru/metrika/tag.js";
 const ANALYTICS_CONSENT_KEY = "looksawful:analytics-consent";
+const ANALYTICS_REGION_KEY = "looksawful:analytics-region";
 const noop = () => {};
 
 function clean(value: string | null | undefined): string {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeAnalyticsCountry(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(normalized) ? normalized : null;
+}
+
+export function parseAnalyticsCountryResponse(value: string): string | null {
+  const source = typeof value === "string" ? value.trim() : "";
+  if (!source) return null;
+
+  try {
+    const parsed: unknown = JSON.parse(source);
+    if (typeof parsed === "object" && parsed !== null && "country" in parsed) {
+      const country = normalizeAnalyticsCountry((parsed as { country?: unknown }).country);
+      if (country) return country;
+    }
+  } catch {
+    // Cloudflare trace is line based, not JSON.
+  }
+
+  for (const line of source.split(/\r?\n/)) {
+    if (!line.startsWith("loc=")) continue;
+    return normalizeAnalyticsCountry(line.slice(4));
+  }
+
+  return null;
+}
+
+export function shouldAutoGrantAnalyticsConsent(country: string | null | undefined): boolean {
+  return normalizeAnalyticsCountry(country) === "RU";
 }
 
 export function parseYandexCounterId(value: string | number | null | undefined): number | null {
@@ -151,8 +184,34 @@ export function readStoredAnalyticsConsent(target: Window): SiteAnalyticsConsent
   }
 }
 
+export function readSessionAnalyticsCountry(target: Window): string | null {
+  try {
+    return normalizeAnalyticsCountry(target.sessionStorage.getItem(ANALYTICS_REGION_KEY));
+  } catch {
+    return null;
+  }
+}
+
+export function storeSessionAnalyticsCountry(target: Window, country: string): boolean {
+  const normalized = normalizeAnalyticsCountry(country);
+  if (!normalized) return false;
+
+  try {
+    target.sessionStorage.setItem(ANALYTICS_REGION_KEY, normalized);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function hasStoredAnalyticsConsent(target: Window): boolean {
   return readStoredAnalyticsConsent(target) === "granted";
+}
+
+export function hasSiteAnalyticsConsent(target: Window): boolean {
+  const explicitConsent = readStoredAnalyticsConsent(target);
+  if (explicitConsent !== null) return explicitConsent === "granted";
+  return shouldAutoGrantAnalyticsConsent(readSessionAnalyticsCountry(target));
 }
 
 export function storeSiteAnalyticsConsent(target: Window, granted: boolean): boolean {
@@ -192,7 +251,7 @@ export function mountSiteAnalytics({ root, target, config }: MountSiteAnalyticsO
   if (isLocalAnalyticsHostname(target.location.hostname)) return [];
 
   const privacy = readSitePrivacySignals(target);
-  const analyticsConsent = hasStoredAnalyticsConsent(target);
+  const analyticsConsent = hasSiteAnalyticsConsent(target);
   const scripts = buildSiteAnalyticsScripts(config, privacy, analyticsConsent);
   const host = root.head ?? root.documentElement;
   const mounted: SiteAnalyticsProvider[] = [];
@@ -292,7 +351,7 @@ export function reachSiteAnalyticsGoal(
 ): boolean {
   if (isLocalAnalyticsHostname(target.location.hostname)) return false;
   if (isSiteAnalyticsOptedOut(readSitePrivacySignals(target))) return false;
-  if (!hasStoredAnalyticsConsent(target)) return false;
+  if (!hasSiteAnalyticsConsent(target)) return false;
 
   const counterId = parseYandexCounterId(config.yandexCounterId);
   if (!counterId) return false;
