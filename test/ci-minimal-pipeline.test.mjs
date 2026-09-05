@@ -21,7 +21,7 @@ test("Fast CI automatically validates engineering dev pushes and PRs while warm-
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /workflow_call:/);
   assert.match(workflow, /ref: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}/);
-  assert.match(workflow, /group: fast-ci-\$\{\{ github\.workflow \}\}-\$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.number \|\| github\.ref \}\}/);
+  assert.match(workflow, /group: fast-ci-\$\{\{ github\.workflow \}\}-\$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.number \|\| github\.event_name == 'push' && github\.ref \|\| github\.run_id \}\}/);
   assert.match(workflow, /cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}/);
 
   for (const command of ["npm ci", "npm run typecheck", "npm run test:fast", "npm run build:site"]) {
@@ -124,6 +124,7 @@ test("scheduled quality remains automatic but expensive suites are outside ordin
   assert.match(workflow, /concurrency:[\s\S]*?cancel-in-progress: false/);
   assert.match(workflow, /Resolve exact target SHA/);
   assert.match(workflow, /needs\.resolve-target\.outputs\.target-sha/);
+  assert.match(workflow, /full-e2e:[\s\S]*?Install media tooling[\s\S]*?ffmpeg[\s\S]*?npm run test:core/);
   assert.match(workflow, /npm run test:e2e:full/);
   assert.match(workflow, /npm run media:dedupe:physical/);
   assert.match(workflow, /npm run audit:deps/);
