@@ -6,7 +6,7 @@ import test from "node:test";
 
 import { checkExternalLinks } from "../tools/check-external-links.mjs";
 
-test("external link checker confirms a HEAD/Range 404 with a normal GET before declaring a link broken", async () => {
+test("external link checker retries a failed HEAD with a browser-like GET before declaring a link broken", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "external-links-"));
   const distDir = path.join(root, "dist");
   const outputDir = path.join(root, "artifacts");
@@ -23,10 +23,12 @@ test("external link checker confirms a HEAD/Range 404 with a normal GET before d
     const method = options.method ?? "GET";
     const headers = new Headers(options.headers);
     const range = headers.get("Range");
-    calls.push({ method, range });
+    const userAgent = headers.get("User-Agent");
+    calls.push({ method, range, userAgent });
 
     if (method === "HEAD") return new Response(null, { status: 404 });
     if (range) return new Response(null, { status: 404 });
+    if (!userAgent?.startsWith("Mozilla/5.0")) return new Response(null, { status: 404 });
     return new Response("ok", { status: 200 });
   };
 
@@ -34,10 +36,12 @@ test("external link checker confirms a HEAD/Range 404 with a normal GET before d
     const report = await checkExternalLinks({ distDir, outputDir });
     assert.equal(report.summary.broken, 0);
     assert.equal(report.summary.ok, 1);
-    assert.deepEqual(calls, [
-      { method: "HEAD", range: null },
-      { method: "GET", range: null },
-    ]);
+    assert.equal(calls.length, 2);
+    assert.equal(calls[0].method, "HEAD");
+    assert.equal(calls[0].range, null);
+    assert.equal(calls[1].method, "GET");
+    assert.equal(calls[1].range, null);
+    assert.match(calls[1].userAgent ?? "", /^Mozilla\/5\.0/);
   } finally {
     globalThis.fetch = originalFetch;
     await rm(root, { recursive: true, force: true });
