@@ -1,7 +1,8 @@
 import { JustifiedInfiniteGrid } from "@egjs/infinitegrid";
 
 import { projects } from "../../data/catalog/projects/index.ts";
-import { mediaCatalogItems, type MediaCatalogItem } from "../../data/media/catalog.ts";
+import type { MediaCatalogItem } from "../../data/media/catalog.ts";
+import { mediaCatalogItems } from "../../data/media/catalog-view.ts";
 import {
   filterAndSortMediaDeskItems,
   type MediaDeskReviewFilter,
