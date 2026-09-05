@@ -89,3 +89,18 @@ test("built Homepage keeps explicit eager images live and defers every other ima
 
   assert.match(html, /\bdata-home-image-loader\b/i);
 });
+
+test("Homepage hero exposes generated responsive candidates with intrinsic dimensions", async () => {
+  const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const plugin = createSitePagesPlugin();
+  const hook = plugin.transformIndexHtml;
+  const html = await hook.handler(source, { path: "/" });
+  const hero = imageTags(html).find((image) => /hero-portrait\.webp/i.test(image));
+
+  assert.ok(hero, "expected Homepage hero portrait");
+  assert.match(hero, /\bwidth="1122"/i);
+  assert.match(hero, /\bheight="739"/i);
+  assert.match(hero, /\bsizes="\(max-width: 32rem\) 105vw, \(max-width: 48rem\) 92vw, \(max-width: 64rem\) 48vw, 35vw"/i);
+  assert.match(hero, /hero-portrait@480\.webp 480w/i);
+  assert.match(hero, /hero-portrait@768\.webp 768w/i);
+});
