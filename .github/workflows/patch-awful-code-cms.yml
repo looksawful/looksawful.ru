@@ -26,42 +26,44 @@ jobs:
 
           path = Path('.pages.yml')
           text = path.read_text(encoding='utf-8')
-          needle = '''          - name: lead
-            label: Вводный текст
-            type: text
-            description: Только текст существующего проекта Awful Cases. Ссылки, маршрут, видимость, taxonomy, media и композиция остаются в коде.
-          '''
-          addition = '''          - name: codeBlocks
-            label: Кодовые блоки
-            type: object
-            required: true
-            description: Только редактируемые заголовки и команды. Язык, вариант, layout и поведение компонента остаются в TypeScript.
-            fields:
-              - name: install
-                label: Установка
-                type: object
-                required: true
-                fields:
-                  - name: title
-                    label: Заголовок
-                    type: string
-                  - name: code
-                    label: Код
-                    type: text
-                    required: true
-              - name: run
-                label: Запуск
-                type: object
-                required: true
-                fields:
-                  - name: title
-                    label: Заголовок
-                    type: string
-                  - name: code
-                    label: Код
-                    type: text
-                    required: true
-          '''
+          needle = (
+              "          - name: lead\n"
+              "            label: Вводный текст\n"
+              "            type: text\n"
+              "            description: Только текст существующего проекта Awful Cases. Ссылки, маршрут, видимость, taxonomy, media и композиция остаются в коде.\n"
+          )
+          addition = (
+              "          - name: codeBlocks\n"
+              "            label: Кодовые блоки\n"
+              "            type: object\n"
+              "            required: true\n"
+              "            description: Только редактируемые заголовки и команды. Язык, вариант, layout и поведение компонента остаются в TypeScript.\n"
+              "            fields:\n"
+              "              - name: install\n"
+              "                label: Установка\n"
+              "                type: object\n"
+              "                required: true\n"
+              "                fields:\n"
+              "                  - name: title\n"
+              "                    label: Заголовок\n"
+              "                    type: string\n"
+              "                  - name: code\n"
+              "                    label: Код\n"
+              "                    type: text\n"
+              "                    required: true\n"
+              "              - name: run\n"
+              "                label: Запуск\n"
+              "                type: object\n"
+              "                required: true\n"
+              "                fields:\n"
+              "                  - name: title\n"
+              "                    label: Заголовок\n"
+              "                    type: string\n"
+              "                  - name: code\n"
+              "                    label: Код\n"
+              "                    type: text\n"
+              "                    required: true\n"
+          )
           count = text.count(needle)
           if count != 1:
               raise SystemExit(f'expected exactly one Awful lead anchor, found {count}')
