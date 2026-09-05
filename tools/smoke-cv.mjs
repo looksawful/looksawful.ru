@@ -55,7 +55,7 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
 
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(`console: ${message.text()}`);
+    if (message.type() === "error") errors.push(`console: ${message.text()}`));
   });
   page.on("response", (response) => {
     if (response.status() < 400) return;
@@ -142,7 +142,7 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
   }
 }
 
-export async function runSmokeCv({ browser, baseUrl, mode = "authored" }) {
+export async function runSmokeCv({ browser, baseUrl, mode = "production" }) {
   BASE_URL = baseUrl;
   const expectedHiddenCards = getExpectedCvHiddenCards(mode);
   for (const viewport of VIEWPORTS) {
@@ -152,5 +152,5 @@ export async function runSmokeCv({ browser, baseUrl, mode = "authored" }) {
 }
 
 if (isDirectExecution(import.meta.url)) {
-  await withE2ERuntime(({ browser, baseUrl }) => runSmokeCv({ browser, baseUrl, mode: "authored" }));
+  await withE2ERuntime(({ browser, baseUrl }) => runSmokeCv({ browser, baseUrl, mode: "production" }));
 }
