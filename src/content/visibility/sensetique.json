@@ -1,0 +1,31 @@
+{
+  "sections": [
+    { "id": "sensetique-studio-preview", "visible": true, "blocks": [{ "id": "sensetique-studio-preview:mockup-deck", "visible": true }] },
+    { "id": "sensetique-studio", "visible": true, "blocks": [{ "id": "sensetique-studio:justified-gallery", "visible": true }] },
+    { "id": "sensetique-equipment", "visible": true, "blocks": [{ "id": "sensetique-equipment:media-group", "visible": true }] },
+    { "id": "sensetique-production", "visible": true, "blocks": [] },
+    { "id": "sensetique-harsh-light", "visible": true, "blocks": [{ "id": "sensetique-harsh-light:media-slider", "visible": true }, { "id": "sensetique-harsh-light:media-group", "visible": true }] },
+    { "id": "sensetique-raputo-editorial", "visible": true, "blocks": [{ "id": "sensetique-raputo-editorial:media-group", "visible": true }] },
+    { "id": "sensetique-young-pioneer-sequence", "visible": true, "blocks": [{ "id": "sensetique-young-pioneer-sequence:media-group", "visible": true }] },
+    { "id": "sensetique-krasota-dress", "visible": true, "blocks": [{ "id": "sensetique-krasota-dress:media-figure", "visible": true }, { "id": "sensetique-krasota-dress:media-group", "visible": true }] },
+    { "id": "sensetique-olovo-campaign-media", "visible": true, "blocks": [{ "id": "sensetique-olovo-campaign-media:media-figure", "visible": true }, { "id": "sensetique-olovo-campaign-media:media-group", "visible": true }] },
+    { "id": "sensetique-olovo-lookbook-2016", "visible": true, "blocks": [{ "id": "sensetique-olovo-lookbook-2016:media-group", "visible": true }] },
+    { "id": "sensetique-olovo-lookbook-2018", "visible": true, "blocks": [{ "id": "sensetique-olovo-lookbook-2018:media-group", "visible": true }] },
+    { "id": "sensetique-inna-honour", "visible": true, "blocks": [{ "id": "sensetique-inna-honour:media-group", "visible": true }] },
+    { "id": "sensetique-buro-24-7", "visible": true, "blocks": [{ "id": "sensetique-buro-24-7:media-group", "visible": true }] },
+    { "id": "sensetique-olovo-architecture", "visible": true, "blocks": [{ "id": "sensetique-olovo-architecture:media-group", "visible": true }] },
+    { "id": "sensetique-olovo-booklet", "visible": true, "blocks": [{ "id": "sensetique-olovo-booklet:media-group", "visible": true }] },
+    { "id": "sensetique-digital-fear", "visible": true, "blocks": [{ "id": "sensetique-digital-fear:page-flip", "visible": true }] },
+    { "id": "sensetique-chapurin", "visible": true, "blocks": [{ "id": "sensetique-chapurin:media-group", "visible": true }] },
+    { "id": "sensetique-young-pioneer-strip", "visible": true, "blocks": [{ "id": "sensetique-young-pioneer-strip:media-group", "visible": true }] },
+    { "id": "sensetique-daniil-korotechenkov", "visible": true, "blocks": [{ "id": "sensetique-daniil-korotechenkov:media-group", "visible": true }] },
+    { "id": "sensetique-tatiana-nikishina", "visible": true, "blocks": [{ "id": "sensetique-tatiana-nikishina:media-group", "visible": true }] },
+    { "id": "sensetique-tatiana-nikishina-supplemental", "visible": true, "blocks": [{ "id": "sensetique-tatiana-nikishina-supplemental:media-group", "visible": true }] },
+    { "id": "sensetique-katya-knyazeva", "visible": true, "blocks": [{ "id": "sensetique-katya-knyazeva:media-group", "visible": true }] },
+    { "id": "sensetique-wood-metal-panic", "visible": true, "blocks": [{ "id": "sensetique-wood-metal-panic:media-group", "visible": true }] },
+    { "id": "sensetique-yuri-ivanov", "visible": true, "blocks": [{ "id": "sensetique-yuri-ivanov:media-group", "visible": true }] },
+    { "id": "sensetique-ivan-krushinski", "visible": true, "blocks": [{ "id": "sensetique-ivan-krushinski:media-group", "visible": true }] },
+    { "id": "sensetique-editorial-production", "visible": true, "blocks": [{ "id": "sensetique-editorial-production:media-group", "visible": true }] },
+    { "id": "sensetique-masterclasses", "visible": true, "blocks": [] }
+  ]
+}
