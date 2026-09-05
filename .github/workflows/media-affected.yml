@@ -1,0 +1,104 @@
+name: Affected media
+
+on:
+  pull_request:
+    branches: [dev, prod]
+    paths:
+      - 'public/media/**/*.jpg'
+      - 'public/media/**/*.jpeg'
+      - 'public/media/**/*.png'
+      - 'public/media/**/*.webp'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: affected-media-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - name: Fetch PR base
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          git cat-file -e "$BASE_SHA^{commit}"
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Resolve affected images
+        id: affected
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          node tools/media/affected-media.mjs \
+            --base "$BASE_SHA" \
+            --head "$HEAD_SHA" \
+            --github-output "$GITHUB_OUTPUT"
+      - name: Install dependencies
+        if: steps.affected.outputs.image_only == 'true'
+        run: npm ci
+      - name: Build affected responsive variants only
+        if: steps.affected.outputs.image_only == 'true'
+        id: build
+        shell: bash
+        env:
+          IMAGE_ASSET_IDS: ${{ steps.affected.outputs.image_asset_ids }}
+        run: |
+          set -euo pipefail
+          started="$SECONDS"
+          IFS=',' read -ra ids <<< "$IMAGE_ASSET_IDS"
+          args=()
+          for id in "${ids[@]}"; do
+            [[ -n "$id" ]] && args+=(--asset-id "$id")
+          done
+          (( ${#args[@]} > 0 )) || { echo 'No affected image assets resolved.' >&2; exit 1; }
+          node tools/build-responsive-media.mjs "${args[@]}"
+          echo "elapsed_seconds=$((SECONDS-started))" >> "$GITHUB_OUTPUT"
+      - name: Verify affected-media contract
+        if: steps.affected.outputs.image_only == 'true'
+        run: node --test test/media-tools/affected-media-ci.test.mjs
+      - name: Check targeted tracked mutations
+        if: steps.affected.outputs.image_only == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t changed < <(git diff --name-only)
+          for file in "${changed[@]}"; do
+            case "$file" in
+              public/media/generated/responsive-manifest.json|src/data/media/responsive-generated.ts)
+                ;;
+              *)
+                echo "Affected image build mutated unexpected tracked file: $file" >&2
+                exit 1
+                ;;
+            esac
+          done
+      - name: Summarize affected work
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '### Affected media'
+            echo "- image-only: ${{ steps.affected.outputs.image_only || 'false' }}"
+            echo "- image assets: ${{ steps.affected.outputs.image_asset_count || '0' }}"
+            echo "- responsive build: ${{ steps.build.outputs.elapsed_seconds || 'not run' }}s"
+            echo '- heavy video tooling: not used'
+            echo '- whole-library media rebuild: not used'
+          } >> "$GITHUB_STEP_SUMMARY"
