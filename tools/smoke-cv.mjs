@@ -3,6 +3,7 @@ import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import { cvContent } from "../src/data/cv.ts";
+import { hasConfiguredCvAnalytics } from "./e2e/cv-analytics.mjs";
 import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
 let BASE_URL = "";
@@ -107,6 +108,8 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
         experienceCards: document.querySelectorAll(".experience-card").length,
         hiddenCards: document.querySelectorAll(".experience-card[hidden]").length,
         scriptCount: document.scripts.length,
+        staticAnalyticsBootstrapCount: document.querySelectorAll("script[data-static-site-analytics]").length,
+        appRuntimeScriptCount: document.querySelectorAll('script[src="/src/main.js"], script[src^="/assets/main-"]').length,
       };
     });
 
@@ -121,11 +124,17 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
     assert(state.portraitWidth > 0 && state.portraitHeight > 0, `${label}: portrait failed to decode`);
     assert(state.overflow <= 1, `${label}: horizontal document overflow ${state.overflow}px`);
     if (mode === "production") {
+      const analyticsConfigured = hasConfiguredCvAnalytics();
       assert(state.hiddenCards === 0, `${label}: production CV must contain zero hidden experience cards, got ${state.hiddenCards}`);
+      assert(
+        state.staticAnalyticsBootstrapCount === (analyticsConfigured ? 1 : 0),
+        `${label}: production CV analytics bootstrap does not match configured providers`,
+      );
+      assert(state.appRuntimeScriptCount === 0, `${label}: production CV must not load the site application runtime`);
     } else {
       assert(state.hiddenCards === expectedHiddenCards, `${label}: expected ${expectedHiddenCards} hidden experience cards, got ${state.hiddenCards}`);
+      assert(state.scriptCount === 0, `${label}: authored CV unexpectedly loads JavaScript`);
     }
-    assert(state.scriptCount === 0, `${label}: standalone CV unexpectedly loads JavaScript`);
     assert(!errors.length, `${label}: browser errors:\n${errors.join("\n")}`);
 
     if (CAPTURE_DIR) {
@@ -142,7 +151,7 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
   }
 }
 
-export async function runSmokeCv({ browser, baseUrl, mode = "authored" }) {
+export async function runSmokeCv({ browser, baseUrl, mode = "production" }) {
   BASE_URL = baseUrl;
   const expectedHiddenCards = getExpectedCvHiddenCards(mode);
   for (const viewport of VIEWPORTS) {
@@ -152,5 +161,5 @@ export async function runSmokeCv({ browser, baseUrl, mode = "authored" }) {
 }
 
 if (isDirectExecution(import.meta.url)) {
-  await withE2ERuntime(({ browser, baseUrl }) => runSmokeCv({ browser, baseUrl, mode: "authored" }));
+  await withE2ERuntime(({ browser, baseUrl }) => runSmokeCv({ browser, baseUrl, mode: "production" }));
 }
