@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const require = createRequire(import.meta.url);
 const configPath = fileURLToPath(new URL("../lighthouserc.cjs", import.meta.url));
 
-test("Lighthouse config launches CI Chromium without a Linux sandbox", async () => {
+async function withLighthouseConfig(run) {
   const fixtureRoot = await mkdtemp(path.join(tmpdir(), "looksawful-lhci-"));
   const previousCwd = process.cwd();
 
@@ -22,12 +22,26 @@ test("Lighthouse config launches CI Chromium without a Linux sandbox", async () 
   try {
     process.chdir(fixtureRoot);
     delete require.cache[require.resolve(configPath)];
-    const config = require(configPath);
-
-    assert.equal(config.ci.collect.settings?.chromeFlags, "--no-sandbox");
+    await run(require(configPath));
   } finally {
     process.chdir(previousCwd);
     delete require.cache[require.resolve(configPath)];
     await rm(fixtureRoot, { recursive: true, force: true });
   }
+}
+
+test("Lighthouse config launches CI Chromium without a Linux sandbox", async () => {
+  await withLighthouseConfig((config) => {
+    assert.equal(config.ci.collect.settings?.chromeFlags, "--no-sandbox");
+  });
+});
+
+test("Lighthouse keeps lightweight performance regression budgets warning-only", async () => {
+  await withLighthouseConfig((config) => {
+    const assertions = config.ci.assert.assertions;
+
+    assert.deepEqual(assertions["largest-contentful-paint"], ["warn", { maxNumericValue: 4000 }]);
+    assert.deepEqual(assertions["total-byte-weight"], ["warn", { maxNumericValue: 15 * 1024 * 1024 }]);
+    assert.deepEqual(assertions["resource-summary:third-party:count"], ["warn", { maxNumericValue: 10 }]);
+  });
 });

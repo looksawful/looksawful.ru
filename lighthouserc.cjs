@@ -73,6 +73,9 @@ module.exports = {
         "categories:accessibility": ["warn", { minScore: 0.9 }],
         "categories:best-practices": ["warn", { minScore: 0.9 }],
         "categories:seo": ["warn", { minScore: 0.9 }],
+        "largest-contentful-paint": ["warn", { maxNumericValue: 4000 }],
+        "total-byte-weight": ["warn", { maxNumericValue: 15 * 1024 * 1024 }],
+        "resource-summary:third-party:count": ["warn", { maxNumericValue: 10 }],
       },
     },
     upload: {
