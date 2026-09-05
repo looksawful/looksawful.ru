@@ -126,6 +126,11 @@ test("application development tooling has a canonical src/devtools boundary", as
     true,
     "Media Desk application tooling must be available from src/devtools",
   );
+  assert.equal(
+    await exists(legacyMediaDeskPath),
+    false,
+    "legacy src/tools/media-desk must be retired once all consumers use src/devtools",
+  );
 });
 
 test("external Media Desk consumers use the canonical src/devtools path", async () => {
