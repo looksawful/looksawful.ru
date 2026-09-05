@@ -1,0 +1,24 @@
+name: Temporary caption trust 347 RED-GREEN
+
+on:
+  push:
+    branches:
+      - test/caption-trust-boundary-347
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v6
+      - name: Setup Node 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm ci
+      - name: Caption trust contract
+        run: node --test test/caption-trust-boundary.test.mjs
