@@ -10,6 +10,7 @@ import type { MockupDeckData } from "../../types/mockup-deck.ts";
 import type { PageFlipData } from "../../types/page-flip.ts";
 
 export const CONTENT_BLOCK_TYPES = [
+  "code-block",
   "media-figure",
   "media-group",
   "media-slider",
@@ -24,6 +25,27 @@ export const CONTENT_BLOCK_TYPES = [
 ] as const;
 
 export type ContentBlockType = (typeof CONTENT_BLOCK_TYPES)[number];
+
+export const CODE_BLOCK_LANGUAGES = [
+  "text",
+  "shell",
+  "powershell",
+  "python",
+] as const;
+
+export type CodeBlockLanguage = (typeof CODE_BLOCK_LANGUAGES)[number];
+
+export interface CodeBlockData {
+  code: string;
+  title?: string;
+  description?: string;
+  language?: CodeBlockLanguage;
+}
+
+export interface CodeBlock {
+  type: "code-block";
+  data: CodeBlockData;
+}
 
 export interface MediaFigureBlockPresentation {
   mediaDimensions?: boolean;
@@ -85,6 +107,7 @@ export interface AwfulCasesGameBlock {
 }
 
 export type ContentBlock =
+  | CodeBlock
   | MediaFigureBlock
   | MediaGroupBlock
   | MediaSliderBlock

@@ -1,4 +1,5 @@
 import {
+  awfulCasesCodeBlocks,
   awfulCasesIntro,
   awfulCasesSettingsMockup,
 } from "../../../data/content/awful-cases.ts";
@@ -15,6 +16,21 @@ export const awfulCasesPageContent = {
       blocks: [
         {
           type: "awful-cases-game",
+        },
+      ],
+    },
+    {
+      type: "project",
+      id: "awful-cases-code",
+      projectId: "awful-cases",
+      blocks: [
+        {
+          type: "code-block",
+          data: awfulCasesCodeBlocks.install,
+        },
+        {
+          type: "code-block",
+          data: awfulCasesCodeBlocks.run,
         },
       ],
     },
