@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "desk": "npm run media:ensure && node tools/run-content-desk.mjs",
-    "typecheck": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.tools.json",
     "lint": "npx --yes oxlint@1.80.0 src tools",
     "format": "node tools/quality/format.mjs",
     "format:check": "node tools/quality/format.mjs --check",
