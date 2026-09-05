@@ -51,7 +51,7 @@
     "id": "jestei-pool",
     "name": "Jestei Pool",
     "previewSrc": "/media/clients/logo-wall/client-logo-11.webp",
-    "visible": true
+    "visible": false
   },
   {
     "id": "lyve-moscow",
@@ -87,7 +87,7 @@
     "id": "sensetique-production-agency",
     "name": "Sensetique Production Agency",
     "previewSrc": "/media/clients/logo-wall/client-logo-17.webp",
-    "visible": true
+    "visible": false
   },
   {
     "id": "buro-24-7",
@@ -105,13 +105,13 @@
     "id": "lenfilm",
     "name": "Ленфильм",
     "previewSrc": "/media/clients/logo-wall/client-logo-20.webp",
-    "visible": true
+    "visible": false
   },
   {
     "id": "stereotactic",
     "name": "STEREOTACTIC",
     "previewSrc": "/media/clients/logo-wall/client-logo-21.webp",
-    "visible": true
+    "visible": false
   },
   {
     "id": "kaltblut",
@@ -177,6 +177,6 @@
     "id": "vinne",
     "name": "VINNE",
     "previewSrc": "/media/clients/logo-wall/client-logo-32.webp",
-    "visible": true
+    "visible": false
   }
 ]

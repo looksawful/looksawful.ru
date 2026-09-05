@@ -4,9 +4,9 @@ import { mediaAssets, type MediaAssetId, type MediaAssetRecord } from "./assets/
 
 import { mediaEntries, type MediaEntryId, type MediaEntryRecord } from "./entries/index.ts";
 import {
+  contextualMediaCatalogItems as mediaCatalogItems,
   findMediaCatalogItems,
   getMediaCatalogItem,
-  mediaCatalogItems,
 } from "./catalog-view.ts";
 import {
   catalogDirections,

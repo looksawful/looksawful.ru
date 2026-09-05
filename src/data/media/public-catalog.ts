@@ -4,7 +4,7 @@ import {
   MEDIA_CATALOG_WORK_AREA_IDS,
 } from "../taxonomy/media-taxonomy.ts";
 import type { MediaCatalogItem } from "./catalog.ts";
-import { mediaCatalogItems } from "./catalog-view.ts";
+import { contextualMediaCatalogItems as mediaCatalogItems } from "./catalog-view.ts";
 
 export const catalogDirections = [
   { id: "photo", label: "PHOTO" },

@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { deriveMediaCatalogItems } from "../src/data/media/catalog-view.ts";
+import {
+  deriveMediaCatalogDisplayItems,
+  deriveMediaCatalogItems,
+} from "../src/data/media/catalog-view.ts";
 
 const asset = {
   id: "shared",
@@ -85,4 +88,66 @@ test("incomplete migration keeps legacy catalog context only as a compatibility 
 test("asset with no usage preserves the library catalog item", () => {
   const [item] = deriveMediaCatalogItems(base, []);
   assert.equal(item, base[0]);
+});
+
+test("video poster projection preserves manual posters and supplies orientation fallbacks", () => {
+  const videoBase = [
+    {
+      ...base[0],
+      asset: { id: "video-manual", type: "video", src: "/media/manual.mp4", width: 1920, height: 1080 },
+    },
+    {
+      ...base[0],
+      asset: { id: "poster-manual", type: "image", src: "/media/manual-poster.webp", width: 1920, height: 1080 },
+    },
+    {
+      ...base[0],
+      asset: { id: "video-landscape", type: "video", src: "/media/landscape.mp4", width: 1920, height: 1080 },
+    },
+    {
+      ...base[0],
+      asset: { id: "video-portrait", type: "video", src: "/media/portrait.mp4", width: 1080, height: 1920 },
+    },
+  ];
+
+  const projected = deriveMediaCatalogItems(videoBase, [
+    { assetId: "video-manual", posterAssetId: "poster-manual" },
+    { assetId: "video-landscape" },
+    { assetId: "video-portrait" },
+  ]);
+  const byId = new Map(projected.map((item) => [item.asset.id, item]));
+
+  assert.equal(byId.get("video-manual").posterSrc, "/media/manual-poster.webp");
+  assert.equal(byId.get("video-landscape").posterSrc, "/media/fallback/video-16x9.svg");
+  assert.equal(byId.get("video-portrait").posterSrc, "/media/fallback/video-9x16.svg");
+});
+
+test("Media Desk display projection adds posters without replacing editable catalog metadata", () => {
+  const videoBase = [{
+    ...base[0],
+    asset: { id: "video", type: "video", src: "/media/video.mp4", width: 1920, height: 1080 },
+  }];
+
+  const [item] = deriveMediaCatalogDisplayItems(videoBase, [{
+    assetId: "video",
+    title: "Usage title",
+    alt: "Usage alt",
+    description: "Usage description",
+    posterAssetId: "missing-poster",
+  }]);
+
+  assert.equal(item.title, "Library title");
+  assert.equal(item.alt, "Library alt");
+  assert.equal(item.description, "Library description");
+  assert.equal(item.posterSrc, "/media/fallback/video-16x9.svg");
+});
+
+test("every canonical video exposed by the catalog has a resolved poster", async () => {
+  const { mediaCatalogItems } = await import("../src/data/media/catalog-view.ts");
+  const videos = mediaCatalogItems.filter((item) => item.asset.type === "video");
+
+  assert.ok(videos.length > 0);
+  for (const video of videos) {
+    assert.ok(video.posterSrc, `${video.asset.id} must resolve a poster`);
+  }
 });
