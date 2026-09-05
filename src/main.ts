@@ -65,10 +65,15 @@ function hydrateDeferredAutoplaySource(video: HTMLVideoElement): void {
   });
 
   const preload = video.dataset.autoplayPreload;
-  if (preload) {
+  if (
+    preload === "" ||
+    preload === "metadata" ||
+    preload === "auto" ||
+    preload === "none"
+  ) {
     video.preload = preload;
-    delete video.dataset.autoplayPreload;
   }
+  delete video.dataset.autoplayPreload;
 
   video.removeAttribute("data-autoplay-deferred");
 }
