@@ -6,29 +6,69 @@ on:
       - agent/home-images-mainthread-363
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Generate responsive metadata through canonical pipeline
+      - name: Build canonical media derivatives
         run: npm run media:build
-      - name: Hero responsive GREEN
+      - name: Focused GREEN
         run: node --test test/home-media-deferral.test.mjs
-      - name: Commit generated responsive metadata
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Fast tests
+        run: npm run test:fast
+      - name: Production build
+        run: npm run build:site
+      - name: Measure production-like Homepage
         shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/media/responsive-generated.ts public/media/generated/responsive-manifest.json
-          if ! git diff --cached --quiet; then
-            git commit -m "media: generate responsive hero metadata"
-            git push
-          fi
+          npm run preview -- --host 127.0.0.1 > /tmp/preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          mkdir -p artifacts/home-perf
+          npx lighthouse http://127.0.0.1:4173/ --output=json --output-path=artifacts/home-perf/mobile.json --chrome-flags='--headless --no-sandbox' --quiet
+          npx lighthouse http://127.0.0.1:4173/ --preset=desktop --output=json --output-path=artifacts/home-perf/desktop.json --chrome-flags='--headless --no-sandbox' --quiet
+          node <<'NODE'
+          const fs = require('node:fs');
+          const summary = [];
+          for (const mode of ['mobile', 'desktop']) {
+            const r = JSON.parse(fs.readFileSync(`artifacts/home-perf/${mode}.json`, 'utf8'));
+            const a = r.audits;
+            const c = r.categories;
+            summary.push({
+              mode,
+              performance: Math.round((c.performance?.score ?? 0) * 100),
+              lcpMs: Math.round(a['largest-contentful-paint']?.numericValue ?? 0),
+              tbtMs: Math.round(a['total-blocking-time']?.numericValue ?? 0),
+              transferMiB: Number(((a['total-byte-weight']?.numericValue ?? 0) / 1024 / 1024).toFixed(2)),
+              requests: a['network-requests']?.details?.items?.length ?? 0,
+              mainThreadMs: Math.round(a['mainthread-work-breakdown']?.numericValue ?? 0),
+              cls: Number((a['cumulative-layout-shift']?.numericValue ?? 0).toFixed(4)),
+            });
+          }
+          fs.writeFileSync('artifacts/home-perf/summary.json', JSON.stringify(summary, null, 2));
+          console.log(JSON.stringify(summary));
+          NODE
+      - name: Upload Lighthouse evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-perf-363-final
+          path: artifacts/home-perf
+          retention-days: 7
