@@ -88,7 +88,7 @@
 }
 
 .awfulface__background {
-  fill: var(--clr-bg);
+  fill: none;
   stroke: none;
 }
 
@@ -99,13 +99,13 @@
 .site-nav__menu {
   position: fixed;
   z-index: 1;
-  inset-block: var(--site-nav-total-height) 0;
+  inset-block: 0;
   inset-inline: 0;
   display: grid;
-  place-items: center;
+  align-items: center;
   min-block-size: 0;
   overflow: clip;
-  padding-block-start: clamp(2rem, 8svh, 5.5rem);
+  padding-block-start: calc(var(--site-nav-total-height) + clamp(2rem, 8svh, 5.5rem));
   padding-block-end: max(clamp(2rem, 8svh, 5.5rem), env(safe-area-inset-bottom));
   padding-inline-start: max(var(--page-padding-inline), env(safe-area-inset-left));
   padding-inline-end: max(var(--page-padding-inline), env(safe-area-inset-right));
@@ -118,14 +118,14 @@
 }
 
 .site-nav__menu-nav {
-  inline-size: fit-content;
-  max-inline-size: min(100%, var(--content-wide-width));
-  margin-inline: auto;
+  inline-size: 100%;
+  max-inline-size: var(--content-wide-width);
+  margin-inline: 0;
 }
 
 .site-nav__menu-list {
   display: grid;
-  justify-items: center;
+  justify-items: start;
   align-content: center;
   gap: clamp(0.35rem, 0.8vw, 0.75rem);
   margin: 0;
@@ -136,7 +136,7 @@
 .site-nav__menu-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-block-size: 2.75rem;
   max-inline-size: 100%;
   overflow-wrap: anywhere;
@@ -144,7 +144,7 @@
   font-weight: var(--fw-500);
   line-height: 0.98;
   letter-spacing: var(--ls-display);
-  text-align: center;
+  text-align: start;
   text-wrap: balance;
 }
 
@@ -180,10 +180,6 @@
 .site-nav :is(a, button):focus-visible {
   outline: var(--border-width-100) solid currentColor;
   outline-offset: 0.25rem;
-}
-
-.site-nav[data-menu-open] .site-nav__bar {
-  background: var(--clr-bg);
 }
 
 @media (hover: none), (pointer: coarse) {
@@ -226,22 +222,25 @@
   }
 
   .site-nav__menu {
-    padding-block-start: clamp(1.25rem, 5svh, 2.5rem);
+    padding-block-start: calc(var(--site-nav-total-height) + clamp(1.25rem, 5svh, 2.5rem));
     padding-block-end: max(clamp(1.25rem, 5svh, 2.5rem), env(safe-area-inset-bottom));
   }
 
   .site-nav__menu-list {
+    justify-items: center;
     gap: clamp(0.2rem, 0.8svh, 0.5rem);
   }
 
   .site-nav__menu-link {
+    justify-content: center;
     letter-spacing: -0.035em;
+    text-align: center;
   }
 }
 
 @media (width <= 32rem) and (height <= 36rem) {
   .site-nav__menu {
-    padding-block-start: 0.75rem;
+    padding-block-start: calc(var(--site-nav-total-height) + 0.75rem);
     padding-block-end: max(0.75rem, env(safe-area-inset-bottom));
   }
 
@@ -253,7 +252,7 @@
 @media (pointer: coarse) and (height <= 36rem),
        (hover: none) and (height <= 36rem) {
   .site-nav__menu {
-    padding-block-start: 0.75rem;
+    padding-block-start: calc(var(--site-nav-total-height) + 0.75rem);
     padding-block-end: max(0.75rem, env(safe-area-inset-bottom));
   }
 
