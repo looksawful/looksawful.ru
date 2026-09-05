@@ -1,11 +1,17 @@
+import { renderJesteiTrackFilter } from "../../components/specialized/index.ts";
+import {
+  entityPageContentRegistry,
+  getEntityPageContent,
+} from "../../content/pages/index.ts";
 import {
   getCase,
   getCollection,
   getProject,
 } from "../../data/catalog/lookup.ts";
+import { getEntityShellPresentation } from "../pages/entity-presentation.ts";
 import type { EntityPageDefinition } from "../pages/types.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
-import { renderEntityArticle } from "./registry.ts";
+import { renderEntityShell } from "./entity/entity-shell.ts";
 
 function getEntityPageCopy(page: EntityPageDefinition): {
   title: string;
@@ -37,11 +43,21 @@ function getEntityPageCopy(page: EntityPageDefinition): {
   };
 }
 
-export function renderStandaloneEntityPage(
-  homepageTemplate: string,
-  page: EntityPageDefinition,
-): string {
-  const article = renderEntityArticle(homepageTemplate, page);
+function renderCanonicalEntityArticle(page: EntityPageDefinition): string {
+  const content = getEntityPageContent(entityPageContentRegistry, page.id);
+  const presentation = getEntityShellPresentation(page.id);
+
+  return renderEntityShell(content, {
+    ...presentation,
+    introHeadingLevel: 1,
+    specialized: {
+      jesteiTrackFilter: renderJesteiTrackFilter,
+    },
+  });
+}
+
+export function renderStandaloneEntityPage(page: EntityPageDefinition): string {
+  const article = renderCanonicalEntityArticle(page);
   const copy = getEntityPageCopy(page);
 
   return renderPageShell({

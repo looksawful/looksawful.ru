@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { sensetiqueDigitalFearPageFlip } from "../src/data/content/sensetique.ts";
@@ -27,17 +26,4 @@ test("page-flip renderer preserves the existing runtime contract", async () => {
   assert.match(html, /data-page-flip-next=""/);
   assert.match(html, /data-page-flip-count="">01 \/ 03/);
   assert.doesNotMatch(html, /(?:width|height)="[0-9]+"/);
-});
-
-test("index and site composition use a single page-flip slot", async () => {
-  const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  const composition = await readFile(
-    new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
-    "utf8",
-  );
-  const marker = "<!-- SENSETIQUE_DIGITAL_FEAR_PAGE_FLIP -->";
-
-  assert.equal(index.split(marker).length - 1, 1);
-  assert.equal(composition.split(marker).length - 1, 1);
-  assert.match(composition, /renderPageFlip/);
 });

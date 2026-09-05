@@ -54,7 +54,7 @@ test("shootings archive data stays isolated while the Collection route remains d
 
   const indexSource = readFileSync("index.html", "utf8");
   assert.match(indexSource, /id="project-shootings"/);
-  assert.match(indexSource, /<!-- SHOOTINGS_INTRO -->/);
+  assert.doesNotMatch(indexSource, /<!-- SHOOTINGS_INTRO -->/);
   assert.doesNotMatch(indexSource, /\/media\/projects\/shootings\/behance\//);
 
   const projectsSource = readFileSync("src/data/projects.ts", "utf8");

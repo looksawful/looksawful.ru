@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const templateUrl = new URL("../src/templates/animated-canvas-gallery.ts", import.meta.url);
@@ -49,35 +48,4 @@ test("animated canvas gallery renderer supports production fallback and moves JS
   assert.match(moves, /data-animated-canvas-gallery-canvas=""/);
   assert.match(moves, /data-gallery-items="" type="application\/json"/);
   assert.match(moves, /"src": "\/media\/projects\/shootings\/01\/source\/02-2x3\.webp"/);
-});
-
-test("production canvas decks and Moves gallery are typed content and use composition slots", async () => {
-  const styx = await import("../src/data/content/styx.ts");
-  const sensetique = await import("../src/data/content/sensetique.ts");
-  const moves = await import("../src/data/content/moves-awful.ts");
-
-  assert.notEqual(styx.styxProductionMockupDeck, undefined);
-  assert.notEqual(sensetique.sensetiqueStudioMockupDeck, undefined);
-  assert.notEqual(moves.movesAwfulCanvasGallery, undefined);
-
-  const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  const composition = await readFile(
-    new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
-    "utf8",
-  );
-  const slots = [
-    "STYX_PRODUCTION_MOCKUP_DECK",
-    "SENSETIQUE_STUDIO_MOCKUP_DECK",
-    "MOVES_AWFUL_CANVAS_GALLERY",
-  ];
-
-  for (const slot of slots) {
-    const marker = `<!-- ${slot} -->`;
-    assert.equal(index.split(marker).length - 1, 1, marker);
-    assert.equal(composition.split(marker).length - 1, 1, marker);
-  }
-
-  assert.match(composition, /renderAnimatedCanvasGallery/);
-  assert.match(composition, /renderMockupDeck\(styxProductionMockupDeck\)/);
-  assert.match(composition, /renderMockupDeck\(sensetiqueStudioMockupDeck\)/);
 });

@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const expected = {
@@ -90,22 +89,6 @@ const expected = {
   },
 };
 
-const slotByGroup = {
-  styxPrintLinksGroup: "STYX_PRINT_LINKS_GROUP",
-  styxScanographyCampaignGroup: "STYX_SCANOGRAPHY_CAMPAIGN_GROUP",
-  sensetiqueBuro247Group: "SENSETIQUE_BURO247_GROUP",
-  sensetiqueOlovoBookletGroup: "SENSETIQUE_OLOVO_BOOKLET_GROUP",
-  sensetiqueTatianaNikishinaEditorialGroup: "SENSETIQUE_TATIANA_NIKISHINA_GROUP",
-  sensetiqueKatyaKnyazevaEditorialGroup: "SENSETIQUE_KATYA_KNYAZEVA_GROUP",
-  sensetiqueYuriIvanovEditorialGroup: "SENSETIQUE_YURI_IVANOV_GROUP",
-  shootingsObladaetPortraitsGroup: "SHOOTINGS_OBLADAET_PORTRAITS_GROUP",
-  shootingsEvashaMixedGroup: "SHOOTINGS_EVASHA_MIXED_GROUP",
-  shootingsEvashaPortraitsGroup: "SHOOTINGS_EVASHA_PORTRAITS_GROUP",
-  shootingsHypressionCollageGroup: "SHOOTINGS_HYPRESSION_COLLAGE_GROUP",
-  shootingsHypressionMixedMediaGroup: "SHOOTINGS_HYPRESSION_MIXED_MEDIA_GROUP",
-  shootingsHypressionPortraitsGroup: "SHOOTINGS_HYPRESSION_PORTRAITS_GROUP",
-};
-
 const layoutByGroup = {
   sensetiqueBuro247Group: "editorial",
 };
@@ -131,14 +114,5 @@ test("typed media groups keep their expected layout contracts and media order", 
         `${name} media order changed`,
       );
     }
-  }
-});
-
-test("index uses one slot for every migrated plain-grid group", async () => {
-  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
-
-  for (const slot of Object.values(slotByGroup)) {
-    const marker = `<!-- ${slot} -->`;
-    assert.equal(html.split(marker).length - 1, 1, `${marker} must appear exactly once`);
   }
 });

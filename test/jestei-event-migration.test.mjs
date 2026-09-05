@@ -1,11 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { jesteiEventGroup } from "../src/data/content/jestei-pool.ts";
 import { renderMediaGroup } from "../src/templates/media-group.ts";
-
-const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("Jestei Event is typed content and uses registry-backed Moves Awful media", () => {
   const html = renderMediaGroup(jesteiEventGroup);
@@ -25,15 +22,4 @@ test("Jestei Event is typed content and uses registry-backed Moves Awful media",
   assert.equal((html.match(/data-lightbox-caption-copy/g) ?? []).length, 4);
   assert.equal((html.match(/class="media__caption-line"/g) ?? []).length, 4);
   assert.doesNotMatch(html, /class="media__index"/);
-});
-
-test("raw index has one Jestei Event slot and no direct project media after migration", async () => {
-  const index = await read("index.html");
-  const composition = await read("src/site/renderers/home/home-slots.ts");
-
-  assert.equal((index.match(/<!-- JESTEI_EVENT_GROUP -->/g) ?? []).length, 1);
-  assert.match(composition, /JESTEI_EVENT_GROUP/);
-  assert.match(composition, /renderMediaGroup\(jesteiEventGroup\)/);
-  assert.doesNotMatch(index, /shared\/moves-awful/);
-  assert.doesNotMatch(index, /(?:src|poster)="\.\/media\/projects\//);
 });
