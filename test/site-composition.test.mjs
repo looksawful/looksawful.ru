@@ -12,6 +12,10 @@ import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
 
 const indexHtml = await readFile(new URL("../index.html", import.meta.url), "utf8");
+const homepageRendererSource = await readFile(
+  new URL("../src/site/renderers/home/home-page.ts", import.meta.url),
+  "utf8",
+);
 
 function page(id) {
   const result = sitePages.find((candidate) => candidate.id === id);
@@ -81,6 +85,16 @@ test("entity architecture rejects orphan presentation records", () => {
     ),
     /Entity presentation is not declared in page manifest: case:ghost/,
   );
+});
+
+test("homepage source uses one canonical entity mount instead of legacy entity shells", () => {
+  assert.match(indexHtml, /<div data-home-entities><\/div>/);
+  assert.doesNotMatch(
+    indexHtml,
+    /<article\b[^>]*\bid="project-(?:jestei|styx|sensetique|shootings)"/,
+  );
+  assert.doesNotMatch(homepageRendererSource, /extractElementById/);
+  assert.doesNotMatch(homepageRendererSource, /replaceHomepageEntities/);
 });
 
 test("homepage final output resolves every build-time marker", () => {
