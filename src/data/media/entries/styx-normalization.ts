@@ -16,23 +16,40 @@ const captionOverrides: Readonly<Record<string, { text?: string; metaFirst?: str
   },
 };
 
+function normalizeStyxJewelName(value: string): string {
+  return value
+    .replaceAll("Styx Jewels", "Styx Jewel")
+    .replace(/\bStyx\b(?!\s+Jewel)/g, "Styx Jewel");
+}
+
 export function normalizeStyxCaption(
   entry: MediaEntryData<MediaAssetId, string>,
 ): MediaEntryData<MediaAssetId, string> {
-  const override = captionOverrides[entry.id];
-
-  if (!override || !entry.caption) {
+  if (!entry.caption) {
     return entry;
   }
 
+  const override = captionOverrides[entry.id];
   const caption = { ...entry.caption };
 
-  if (override.text !== undefined) {
+  if (override?.text !== undefined) {
     caption.text = override.text;
   }
 
-  if (override.metaFirst !== undefined && caption.meta?.length) {
+  if (override?.metaFirst !== undefined && caption.meta?.length) {
     caption.meta = [override.metaFirst, ...caption.meta.slice(1)];
+  }
+
+  if (caption.title) {
+    caption.title = normalizeStyxJewelName(caption.title);
+  }
+
+  if (caption.text) {
+    caption.text = normalizeStyxJewelName(caption.text);
+  }
+
+  if (caption.meta?.length) {
+    caption.meta = caption.meta.map(normalizeStyxJewelName);
   }
 
   return { ...entry, caption };
