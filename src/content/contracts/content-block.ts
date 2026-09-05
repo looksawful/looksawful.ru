@@ -20,6 +20,7 @@ export const CONTENT_BLOCK_TYPES = [
   "page-flip",
   "animated-canvas-gallery",
   "jestei-theme",
+  "awful-cases-game",
 ] as const;
 
 export type ContentBlockType = (typeof CONTENT_BLOCK_TYPES)[number];
@@ -79,6 +80,10 @@ export interface JesteiThemeBlock {
   data: JesteiThemeOrganismMockupData<MediaEntryId>;
 }
 
+export interface AwfulCasesGameBlock {
+  type: "awful-cases-game";
+}
+
 export type ContentBlock =
   | MediaFigureBlock
   | MediaGroupBlock
@@ -89,7 +94,8 @@ export type ContentBlock =
   | BeforeAfterBlock
   | PageFlipBlock
   | AnimatedCanvasGalleryBlock
-  | JesteiThemeBlock;
+  | JesteiThemeBlock
+  | AwfulCasesGameBlock;
 
 export function assertNeverContentBlock(value: never): never {
   throw new Error(`Unhandled ContentBlock: ${JSON.stringify(value)}`);
