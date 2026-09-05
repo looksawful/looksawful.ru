@@ -6,7 +6,7 @@ import { CONTENT_BLOCK_TYPES } from "../src/content/contracts/content-block.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderContentBlock } from "../src/site/renderers/entity/content-block.ts";
-import { collectContentDeskTextEntries } from "../src/tools/media-desk/editor-model.ts";
+import { collectContentDeskTextEntries } from "../src/devtools/media-desk/editor-model.ts";
 
 const awfulCasesSourcePath = "src/content/standalone-projects/awful-cases.json";
 
