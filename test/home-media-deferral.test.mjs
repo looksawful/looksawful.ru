@@ -11,6 +11,11 @@ function deferredVideoBlocks(html) {
     .filter((video) => /data-autoplay-deferred=""/i.test(video));
 }
 
+function lazyImageTags(html) {
+  return [...html.matchAll(/<img\b[^>]*\bloading="lazy"[^>]*>/gi)]
+    .map((match) => match[0]);
+}
+
 test("Homepage defers autoplay video sources across ordinary and managed media lifecycles", () => {
   const html = `
     <section>
@@ -55,4 +60,27 @@ test("built Homepage contains deferred autoplay media with no live network sourc
     assert.doesNotMatch(video, /<source\b[^>]*\ssrc="/i);
     assert.match(video, /data-autoplay-src="/i);
   }
+});
+
+test("built Homepage keeps the eager hero but removes live sources from lazy images", async () => {
+  const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const plugin = createSitePagesPlugin();
+  const hook = plugin.transformIndexHtml;
+
+  assert.equal(typeof hook, "object");
+  assert.equal(typeof hook.handler, "function");
+
+  const html = await hook.handler(source, { path: "/" });
+  const lazyImages = lazyImageTags(html);
+
+  assert.ok(lazyImages.length > 0, "expected lazy Homepage images");
+  assert.match(html, /<img\b(?=[^>]*fetchpriority="high")(?=[^>]*hero-portrait\.webp)[^>]*>/i);
+
+  for (const image of lazyImages) {
+    assert.doesNotMatch(image, /\ssrc="/i);
+    assert.doesNotMatch(image, /\ssrcset="/i);
+    assert.match(image, /\bdata-home-src="/i);
+  }
+
+  assert.match(html, /data-home-image-loader=/i);
 });
