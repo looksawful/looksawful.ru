@@ -40,7 +40,7 @@ test("open menu removes the header band instead of only making it transparent", 
   );
   assert.match(
     componentSource,
-    /\.site-nav\[data-menu-open\]\s+\.site-nav__context\s*\{[\s\S]*?display:\s*none/,
+    /\.site-nav\[data-menu-open\]\s+\.site-nav__context,\s*\.site-nav\[data-menu-open\]\s+\.site-nav__breadcrumbs\s*\{[\s\S]*?display:\s*none/,
   );
   assert.match(
     componentSource,
