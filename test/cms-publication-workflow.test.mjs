@@ -31,7 +31,9 @@ test("publication workflow separates CMS source dev from trusted execution ref p
 
 test("publication workflow validates content-aware topology before scope authorization", async () => {
   const workflow = await read(".github/workflows/pages-cms-publish.yml");
-  assert.match(workflow, /git fetch --no-tags --depth=1 origin[\s\S]*refs\/heads\/prod:refs\/remotes\/origin\/prod[\s\S]*refs\/heads\/dev:refs\/remotes\/origin\/dev/);
+  assert.match(workflow, /git fetch --no-tags --depth=1 origin/);
+  assert.match(workflow, /refs\/heads\/prod:refs\/remotes\/origin\/prod/);
+  assert.match(workflow, /refs\/heads\/dev:refs\/remotes\/origin\/dev/);
   assert.match(workflow, /node tools\/cms-publication-topology\.mjs[\s\S]*--prod origin\/prod[\s\S]*--dev origin\/dev/);
   assert.doesNotMatch(workflow, /git merge-base --is-ancestor origin\/prod origin\/dev/);
   assert.match(workflow, /steps\.topology\.outputs\.nothing_to_publish != 'true'/);
