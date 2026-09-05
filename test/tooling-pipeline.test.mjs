@@ -76,11 +76,14 @@ test("standalone core, media and browser debugging scripts remain available", ()
 test("combined browser regression uses one shared runtime while individual suites remain directly runnable", async () => {
   const runtime = await readFile(new URL("../tools/e2e/runtime.mjs", import.meta.url), "utf8");
   const runAll = await readFile(new URL("../tools/e2e/run-all.mjs", import.meta.url), "utf8");
+  const quickSmoke = await readFile(new URL("../tools/e2e/run-smoke.mjs", import.meta.url), "utf8");
   assert.match(runtime, /export\s+async\s+function\s+withE2ERuntime/);
   assert.match(runtime, /vite\/bin\/vite\.js/);
   assert.match(runtime, /chromium\.launch/);
   assert.match(runtime, /--strictPort/);
   assert.match(runAll, /withE2ERuntime/);
+  assert.match(runAll, /cvMode\s*=\s*["']production["']/);
+  assert.match(quickSmoke, /cvMode\s*=\s*["']production["']/);
 
   const suites = [
     ["smoke-site.mjs", "runSmokeSite"],
@@ -107,10 +110,11 @@ test("shared E2E runtime terminates preview processes and preserves signal termi
   assert.doesNotMatch(runtime, /server\.killed/);
 });
 
-test("CV smoke retains authored and production fail-closed modes", async () => {
+test("CV smoke retains authored and production fail-closed modes while preview defaults to production", async () => {
   const source = await readFile(new URL("../tools/smoke-cv.mjs", import.meta.url), "utf8");
-  assert.match(source, /mode\s*=\s*["']authored["']/);
-  assert.match(source, /production/);
+  assert.match(source, /mode\s*=\s*["']production["']/);
+  assert.match(source, /mode\s*===\s*["']authored["']/);
+  assert.match(source, /mode\s*===\s*["']production["']/);
   assert.match(source, /unsupported CV smoke mode|invalid CV smoke mode/i);
   assert.match(source, /mode\s*===\s*["']production["'][\s\S]*hiddenCards\s*===\s*0/);
 });
