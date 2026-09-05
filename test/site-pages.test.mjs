@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
@@ -29,6 +31,25 @@ const expectedRoutes = new Map([
   ["privacy", "/privacy/"],
   ["not-found", "/404.html"],
 ]);
+
+test("portfolio runtime entrypoints are TypeScript-only", async () => {
+  for (const name of ["main", "interactive"]) {
+    assert.equal(existsSync(new URL(`../src/${name}.ts`, import.meta.url)), true, `${name}.ts must exist`);
+    assert.equal(existsSync(new URL(`../src/${name}.js`, import.meta.url)), false, `${name}.js must be removed`);
+  }
+
+  const [indexHtml, pageShell, mainSource] = await Promise.all([
+    readFile(new URL("../index.html", import.meta.url), "utf8"),
+    readFile(new URL("../src/site/shell/page-shell.ts", import.meta.url), "utf8"),
+    readFile(new URL("../src/main.ts", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(indexHtml, /src\/main\.ts/);
+  assert.doesNotMatch(indexHtml, /src\/main\.js/);
+  assert.match(pageShell, /\/src\/main\.ts/);
+  assert.doesNotMatch(pageShell, /\/src\/main\.js/);
+  assert.doesNotMatch(mainSource, /interactive\.js/);
+});
 
 test("site page manifest validates without errors", () => {
   assert.doesNotThrow(() => validateSitePages(sitePages));
