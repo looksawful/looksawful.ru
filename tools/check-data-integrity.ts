@@ -19,6 +19,7 @@ import { clientLogoDefinitions, type ClientLogoDefinition } from "../src/data/cl
 import { roles } from "../src/data/taxonomy/roles.ts";
 import { mediaAssets } from "../src/data/media/assets/index.ts";
 import { mediaEntries } from "../src/data/media/entries/index.ts";
+import type { MediaAsset, MediaEntryData } from "../src/types/media.ts";
 
 const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif", "svg"]);
 const VIDEO_EXTENSIONS = new Set(["mp4", "mov", "webm", "m4v"]);
@@ -337,10 +338,15 @@ async function inspectGeneratedManifest(
   return { variantCount, bytes };
 }
 
+type IntegrityMediaEntry = Pick<
+  MediaEntryData,
+  "id" | "assetId" | "posterAssetId"
+>;
+
 type IntegrityOptions = {
   repoRoot?: string;
-  mediaAssets?: readonly any[];
-  mediaEntries?: readonly any[];
+  mediaAssets?: readonly MediaAsset[];
+  mediaEntries?: readonly IntegrityMediaEntry[];
   clientLogos?: readonly ClientLogoDefinition[];
   generatedManifestPath?: string;
   scanPhysicalMedia?: boolean;
@@ -348,8 +354,8 @@ type IntegrityOptions = {
 
 export async function createMediaIntegrityReport(options: IntegrityOptions = {}) {
   const repoRoot = path.resolve(options.repoRoot ?? process.cwd());
-  const assets = options.mediaAssets ?? mediaAssets;
-  const entries = options.mediaEntries ?? mediaEntries;
+  const assets: readonly MediaAsset[] = options.mediaAssets ?? mediaAssets;
+  const entries: readonly IntegrityMediaEntry[] = options.mediaEntries ?? mediaEntries;
   const logos: readonly ClientLogoDefinition[] = options.clientLogos ?? clientLogoDefinitions;
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -508,44 +514,59 @@ export async function createMediaIntegrityReport(options: IntegrityOptions = {})
 
   for (const item of cases) {
     const owner = `Case(${item.id})`;
-    assertUniqueValues(errors, owner, "clientIds", item.clientIds);
-    assertUniqueValues(errors, owner, "engagementIds", item.engagementIds);
-    assertUniqueValues(errors, owner, "roleIds", item.roleIds);
-    assertReferences(errors, owner, "clientIds", item.clientIds, clientIds);
-    assertReferences(errors, owner, "engagementIds", item.engagementIds, engagementIds);
-    assertReferences(errors, owner, "roleIds", item.roleIds, roleIds);
-    assertPrimaryRole(errors, owner, item.primaryRoleId, item.roleIds, roleIds);
+    const itemClientIds = "clientIds" in item ? item.clientIds : undefined;
+    const itemEngagementIds = "engagementIds" in item ? item.engagementIds : undefined;
+    const itemRoleIds = "roleIds" in item ? item.roleIds : undefined;
+    const itemPrimaryRoleId = "primaryRoleId" in item ? item.primaryRoleId : undefined;
+    assertUniqueValues(errors, owner, "clientIds", itemClientIds);
+    assertUniqueValues(errors, owner, "engagementIds", itemEngagementIds);
+    assertUniqueValues(errors, owner, "roleIds", itemRoleIds);
+    assertReferences(errors, owner, "clientIds", itemClientIds, clientIds);
+    assertReferences(errors, owner, "engagementIds", itemEngagementIds, engagementIds);
+    assertReferences(errors, owner, "roleIds", itemRoleIds, roleIds);
+    assertPrimaryRole(errors, owner, itemPrimaryRoleId, itemRoleIds, roleIds);
   }
 
   for (const item of collections) {
     const owner = `Collection(${item.id})`;
-    assertUniqueValues(errors, owner, "roleIds", item.roleIds);
-    assertReferences(errors, owner, "roleIds", item.roleIds, roleIds);
-    assertPrimaryRole(errors, owner, item.primaryRoleId, item.roleIds, roleIds);
+    const itemRoleIds = "roleIds" in item ? item.roleIds : undefined;
+    const itemPrimaryRoleId = "primaryRoleId" in item ? item.primaryRoleId : undefined;
+    assertUniqueValues(errors, owner, "roleIds", itemRoleIds);
+    assertReferences(errors, owner, "roleIds", itemRoleIds, roleIds);
+    assertPrimaryRole(errors, owner, itemPrimaryRoleId, itemRoleIds, roleIds);
   }
 
   for (const item of engagements) {
     const owner = `Engagement(${item.id})`;
-    assertUniqueValues(errors, owner, "clientIds", item.clientIds);
-    assertUniqueValues(errors, owner, "roleIds", item.roleIds);
-    assertReferences(errors, owner, "clientIds", item.clientIds, clientIds);
-    assertReferences(errors, owner, "roleIds", item.roleIds, roleIds);
-    assertPrimaryRole(errors, owner, item.primaryRoleId, item.roleIds, roleIds);
+    const itemClientIds = "clientIds" in item ? item.clientIds : undefined;
+    const itemRoleIds = "roleIds" in item ? item.roleIds : undefined;
+    const itemPrimaryRoleId = "primaryRoleId" in item ? item.primaryRoleId : undefined;
+    assertUniqueValues(errors, owner, "clientIds", itemClientIds);
+    assertUniqueValues(errors, owner, "roleIds", itemRoleIds);
+    assertReferences(errors, owner, "clientIds", itemClientIds, clientIds);
+    assertReferences(errors, owner, "roleIds", itemRoleIds, roleIds);
+    assertPrimaryRole(errors, owner, itemPrimaryRoleId, itemRoleIds, roleIds);
   }
 
   for (const item of projects) {
     const owner = `Project(${item.id})`;
-    assertUniqueValues(errors, owner, "caseIds", item.caseIds);
-    assertUniqueValues(errors, owner, "clientIds", item.clientIds);
-    assertUniqueValues(errors, owner, "collectionIds", item.collectionIds);
-    assertUniqueValues(errors, owner, "engagementIds", item.engagementIds);
-    assertUniqueValues(errors, owner, "roleIds", item.roleIds);
-    assertReferences(errors, owner, "caseIds", item.caseIds, caseIds);
-    assertReferences(errors, owner, "clientIds", item.clientIds, clientIds);
-    assertReferences(errors, owner, "collectionIds", item.collectionIds, collectionIds);
-    assertReferences(errors, owner, "engagementIds", item.engagementIds, engagementIds);
-    assertReferences(errors, owner, "roleIds", item.roleIds, roleIds);
-    assertPrimaryRole(errors, owner, item.primaryRoleId, item.roleIds, roleIds);
+    const itemCaseIds = "caseIds" in item ? item.caseIds : undefined;
+    const itemClientIds = "clientIds" in item ? item.clientIds : undefined;
+    const itemCollectionIds = "collectionIds" in item ? item.collectionIds : undefined;
+    const itemEngagementIds = "engagementIds" in item ? item.engagementIds : undefined;
+    const itemRoleIds = "roleIds" in item ? item.roleIds : undefined;
+    const itemPrimaryRoleId = "primaryRoleId" in item ? item.primaryRoleId : undefined;
+    assertUniqueValues(errors, owner, "caseIds", itemCaseIds);
+    assertUniqueValues(errors, owner, "clientIds", itemClientIds);
+    assertUniqueValues(errors, owner, "collectionIds", itemCollectionIds);
+    assertUniqueValues(errors, owner, "engagementIds", itemEngagementIds);
+    assertUniqueValues(errors, owner, "roleIds", itemRoleIds);
+    assertReferences(errors, owner, "caseIds", itemCaseIds, caseIds);
+    assertReferences(errors, owner, "clientIds", itemClientIds, clientIds);
+    assertReferences(errors, owner, "collectionIds", itemCollectionIds, collectionIds);
+    assertReferences(errors, owner, "engagementIds", itemEngagementIds, engagementIds);
+    assertReferences(errors, owner, "roleIds", itemRoleIds, roleIds);
+    assertPrimaryRole(errors, owner, itemPrimaryRoleId, itemRoleIds, roleIds);
   }
 
   return {
