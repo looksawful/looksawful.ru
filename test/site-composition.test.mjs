@@ -129,6 +129,9 @@ test("unlisted standalone Project pages render canonical project content", () =>
   assert.match(awful, /<h1 class="project__title"/);
   assert.match(awful, /id="awful-cases-demo"/);
   assert.match(awful, /id="awful-cases-settings"/);
+  assert.match(awful, /class="media mockup awful-cases-game"/);
+  assert.match(awful, /id="runnerGameShell"/);
+  assert.match(awful, /id="game"/);
   assert.doesNotMatch(awful, /<article\b[^>]*hidden/);
   assert.doesNotMatch(awful, /<!-- AWFUL_CASES_[A-Z0-9_]+ -->/);
   assert.match(awful, /<meta name="robots" content="noindex,nofollow">/);
