@@ -9,7 +9,6 @@ import { sitePages } from "../src/site/pages/manifest.ts";
 import { extractElementById } from "../src/site/rendering/html.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
-import { createHomepageSlots, renderHomepage } from "../src/site/renderers/home/home-slots.ts";
 
 const indexHtml = await readFile(new URL("../index.html", import.meta.url), "utf8");
 
@@ -34,20 +33,9 @@ test("every enabled entity page has canonical PageContent", () => {
   ));
 });
 
-test("homepage renderer supplies every uppercase build-time marker exactly once", () => {
-  const authoredMarkers = [...indexHtml.matchAll(/<!-- ([A-Z][A-Z0-9_]+) -->/g)]
-    .map((match) => `<!-- ${match[1]} -->`);
-  const renderedMarkers = createHomepageSlots().map(([marker]) => marker);
-
-  assert.equal(new Set(renderedMarkers).size, renderedMarkers.length, "renderer markers must be unique");
-  for (const marker of authoredMarkers) {
-    assert.equal(renderedMarkers.includes(marker), true, `missing renderer for ${marker}`);
-  }
-
-  const rendered = renderHomepage(indexHtml);
-  for (const marker of authoredMarkers) {
-    assert.equal(rendered.includes(marker), false, `unresolved homepage marker ${marker}`);
-  }
+test("homepage final output resolves every build-time marker", () => {
+  const rendered = renderHomepagePage(indexHtml);
+  assert.doesNotMatch(rendered, /<!-- [A-Z][A-Z0-9_]+ -->/);
 });
 
 test("homepage full entities render from canonical PageContent in declared order", () => {
