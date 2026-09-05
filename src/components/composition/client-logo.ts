@@ -1,1 +1,1 @@
-export { renderClientLogo } from "../../templates/client-logo.ts";
+export { renderClientLogo } from "../client-logo.ts";

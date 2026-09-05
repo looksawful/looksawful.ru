@@ -1,10 +1,10 @@
 export {
   renderProjectIntro as renderEntityIntro,
-} from "../../templates/project-intro.ts";
+} from "../entity-intro-renderer.ts";
 
 export type {
   ProjectIntroRenderOptions as EntityIntroRenderOptions,
-} from "../../templates/project-intro.ts";
+} from "../entity-intro-renderer.ts";
 
 export type {
   EntityIntroData,

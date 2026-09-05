@@ -1,1 +1,1 @@
-export * from "../../templates/jestei-theme-organism.ts";
+export * from "../jestei-theme-organism-renderer.ts";
