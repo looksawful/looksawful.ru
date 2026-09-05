@@ -287,7 +287,7 @@ th{background:var(--face);font-weight:700}
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
     </div>
     <div class="dos-body">
-      <div class="dos-tools"><button class="copy" type="button" data-copy-target="install-code"><span class="btn-u">C</span>opy</button></div>
+      <div class="dos-tools"><button class="copy" type="button" data-copy-target="install-code" data-copy-transform="dos"><span class="btn-u">C</span>opy</button></div>
       <pre><code id="install-code"><span class="prompt">C:\&gt;</span> git clone <span class="url">https://github.com/looksawful/awful-cases.git</span>
 <span class="prompt">C:\&gt;</span> cd <span class="path">awful-cases</span></code></pre>
     </div>
@@ -299,35 +299,14 @@ th{background:var(--face);font-weight:700}
       <span class="titlebar__buttons" aria-hidden="true"><i class="titlebar__button">_</i><i class="titlebar__button">□</i><i class="titlebar__button">×</i></span>
     </div>
     <div class="dos-body">
-      <div class="dos-tools"><button class="copy" type="button" data-copy-target="run-code"><span class="btn-u">C</span>opy</button></div>
+      <div class="dos-tools"><button class="copy" type="button" data-copy-target="run-code" data-copy-transform="dos"><span class="btn-u">C</span>opy</button></div>
       <pre><code id="run-code"><span class="prompt">C:\awful-cases&gt;</span> .\awful-cases.exe
 <span class="comment">REM AutoHotkey v2 is required only when running the source file directly.</span>
 <span class="prompt">C:\awful-cases&gt;</span> .\awful-cases.ahk</code></pre>
     </div>
   </section>
 </main>
-<script>
-document.querySelectorAll('[data-copy-target]').forEach((button)=>{
-  button.addEventListener('click',async()=>{
-    const target=document.getElementById(button.dataset.copyTarget);
-    if(!target)return;
-    const text=target.textContent.replace(/^C:\\>\s?/gm,'').replace(/^C:\\awful-cases>\s?/gm,'').replace(/^REM\s?/gm,'# ').trim();
-    try{
-      await navigator.clipboard.writeText(text);
-      const old=button.innerHTML;
-      button.innerHTML='<span class="btn-u">C</span>opied';
-      button.classList.add('is-copied');
-      setTimeout(()=>{button.innerHTML=old;button.classList.remove('is-copied')},1000);
-    }catch{
-      const range=document.createRange();
-      range.selectNodeContents(target);
-      const selection=window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  });
-});
-</script>
+<script type="module" src="/pets/shared-code-copy.js"></script>
 <script type="module">
   import { enhanceAwfulCases } from "/pets/awful-cases/awful-cases.js";
   const gameRoot = document.querySelector("[data-awful-cases]");
