@@ -25,15 +25,17 @@ import { portfolioShootingsStrip } from "../../../data/content/shootings.ts";
 import { portfolioScanographyStrip } from "../../../data/content/styx.ts";
 import { getVisibleProjectCardPresentations } from "../../../data/projects.ts";
 
-import { renderAnimatedCanvasGallery } from "../../../templates/animated-canvas-gallery.ts";
-import { renderClientLogo } from "../../../templates/client-logo.ts";
-import { renderMediaFigure } from "../../../templates/media-figure.ts";
-import { renderMediaGroup } from "../../../templates/media-group.ts";
-import { renderMockup } from "../../../templates/mockup.ts";
-import { renderMockupDeck } from "../../../templates/mockup-deck.ts";
+import { renderClientLogo } from "../../../components/composition/client-logo.ts";
+import { renderSectionIntro } from "../../../components/composition/section-intro.ts";
+import {
+  renderMediaFigure,
+  renderMediaGroup,
+  renderMockup,
+  renderMockupDeck,
+} from "../../../components/content/index.ts";
+import { renderAnimatedCanvasGallery } from "../../../components/specialized/index.ts";
 import { renderProjectCard } from "../../../templates/project-card.ts";
 import { renderProjectIntro } from "../../../templates/project-intro.ts";
-import { renderSectionIntro } from "../../../templates/section-intro.ts";
 import {
   replaceRequiredSlots,
   type HtmlSlot,
@@ -76,8 +78,4 @@ export function createHomepageSlots(): readonly HtmlSlot[] {
     ["<!-- PROGRESS_TRADITION_INTRO -->", renderProjectIntro(progressTraditionIntro)],
     ["<!-- MOSCOW_NEWS_INTRO -->", renderProjectIntro(moskovskieNovostiIntro)],
   ] as const;
-}
-
-export function renderHomepage(html: string): string {
-  return replaceRequiredSlots(html, createHomepageSlots());
 }
