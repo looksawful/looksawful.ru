@@ -33,10 +33,8 @@ function initPlaylistFilter(host: Element): void {
   };
 
   root.addEventListener("click", (event) => {
-    if (!(event.target instanceof Element)) return;
-
-    const target = event.target.closest("[data-action]");
-    if (!(target instanceof HTMLElement)) return;
+    const target = (event.target as Element).closest("[data-action]") as HTMLElement | null;
+    if (!(target instanceof Element)) return;
 
     const action = target.dataset.action;
 
