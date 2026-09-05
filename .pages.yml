@@ -1127,7 +1127,6 @@ content:
                   - name: code
                     label: Код
                     type: text
-                    required: true
               - name: run
                 label: Запуск
                 type: object
@@ -1139,7 +1138,6 @@ content:
                   - name: code
                     label: Код
                     type: text
-                    required: true
 
   - name: client-logo-visibility
     label: Логотипы клиентов
