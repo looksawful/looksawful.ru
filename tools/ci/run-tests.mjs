@@ -17,6 +17,7 @@ export const fastTests = new Set([
   "test/cms-publication-scope.test.mjs",
   "test/cms-publication-topology.test.mjs",
   "test/cms-publication-workflow.test.mjs",
+  "test/cv-principles-lowercase.test.mjs",
   "test/domain-catalog-identity.test.mjs",
   "test/domain-taxonomy-references.test.mjs",
   "test/editorial-content-boundary.test.mjs",

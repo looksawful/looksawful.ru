@@ -1674,6 +1674,18 @@ export const responsiveMediaVariants = {
       "height": 1145
     }
   ],
+  "hero-portrait": [
+    {
+      "src": "/media/generated/responsive/hero/hero-portrait@480.webp",
+      "width": 480,
+      "height": 316
+    },
+    {
+      "src": "/media/generated/responsive/hero/hero-portrait@768.webp",
+      "width": 768,
+      "height": 506
+    }
+  ],
   "hypression-14-source-01-5x4": [
     {
       "src": "/media/generated/responsive/projects/shootings/14/source/01-5x4@480.webp",

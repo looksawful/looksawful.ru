@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "vite",
     "desk": "npm run media:ensure && node tools/run-content-desk.mjs",
+    "design:capture": "node tools/design-capture/cli.mjs",
+    "design:capture:pages": "node tools/design-capture/cli.mjs --mode=pages",
+    "design:capture:components": "node tools/design-capture/cli.mjs --mode=components",
+    "design:capture:selfcheck": "node tools/design-capture/selfcheck.mjs",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.tools.json",
     "lint": "npx --yes oxlint@1.80.0 src tools",
     "format": "node tools/quality/format.mjs",

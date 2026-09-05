@@ -71,17 +71,24 @@ test("navigation label adapter rejects missing, duplicate, unknown and empty con
   );
 });
 
-test("edited CMS labels feed both menu and breadcrumbs while hrefs stay code-owned", () => {
+test("edited CMS labels feed menu and breadcrumbs while href and preview stay code-owned", () => {
   const labels = parseNavigationLabels(fixture);
+  const menu = getPrimaryNavigationItems(labels);
 
-  assert.deepEqual(getPrimaryNavigationItems(labels), [
-    { id: "home", label: "Старт", href: "/" },
-    { id: "case:jestei-pool", label: "Музыка", href: "/work/jestei-pool/" },
-    { id: "case:styx", label: "Украшения", href: "/work/styx/" },
-    { id: "case:sensetique", label: "Студия", href: "/work/sensetique/" },
-    { id: "collection:music-photography", label: "Съёмки", href: "/shootings/" },
-    { id: "cv", label: "Опыт", href: "/cv/" },
-  ]);
+  assert.deepEqual(
+    menu.map(({ id, label, href }) => ({ id, label, href })),
+    [
+      { id: "home", label: "Старт", href: "/" },
+      { id: "case:jestei-pool", label: "Музыка", href: "/work/jestei-pool/" },
+      { id: "case:styx", label: "Украшения", href: "/work/styx/" },
+      { id: "case:sensetique", label: "Студия", href: "/work/sensetique/" },
+      { id: "collection:music-photography", label: "Съёмки", href: "/shootings/" },
+      { id: "cv", label: "Опыт", href: "/cv/" },
+    ],
+  );
+  assert.ok(
+    menu.every(({ previewSrc }) => typeof previewSrc === "string" && previewSrc.startsWith("/media/")),
+  );
 
   assert.deepEqual(getBreadcrumbItems(page("case:jestei-pool"), labels), [
     { id: "home", label: "Старт", href: "/" },
@@ -98,7 +105,7 @@ test("live navigation content keeps six stable IDs with editable non-empty label
   assert.ok(content.every(({ label }) => typeof label === "string" && label.trim().length > 0));
 });
 
-test("Pages CMS exposes only navigation identity and label, never routing", async () => {
+test("Pages CMS exposes only navigation identity and label, never routing or preview ownership", async () => {
   const cmsConfig = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
   const block = cmsConfig.match(
     /\n  - name: navigation-labels\b[\s\S]*?(?=\n  - name: [a-z0-9-]+\b)/,
@@ -107,5 +114,5 @@ test("Pages CMS exposes only navigation identity and label, never routing", asyn
   assert.match(block, /path: src\/content\/navigation\.json/);
   assert.match(block, /- name: id\b[\s\S]*?readonly: true/);
   assert.match(block, /- name: label\b[\s\S]*?type: string/);
-  assert.doesNotMatch(block, /- name: (href|path|route|pageId|slug|canonical)\b/);
+  assert.doesNotMatch(block, /- name: (href|path|route|pageId|slug|canonical|preview|previewSrc)\b/);
 });
