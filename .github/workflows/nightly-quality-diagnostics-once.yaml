@@ -8,6 +8,24 @@ permissions:
   contents: read
 
 jobs:
+  contracts:
+    if: github.head_ref == 'agent/nightly-quality-fix-v2-20260905'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Run focused nightly contracts
+        run: node --test test/ci-minimal-pipeline.test.mjs test/external-links.test.mjs
+
   external-links:
     if: github.head_ref == 'agent/nightly-quality-fix-v2-20260905'
     runs-on: ubuntu-latest
