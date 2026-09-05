@@ -1,0 +1,46 @@
+name: Temporary package metadata updater
+
+on:
+  push:
+    branches:
+      - chore/package-metadata-345
+
+permissions:
+  contents: write
+
+jobs:
+  update-package-metadata:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v6
+        with:
+          ref: chore/package-metadata-345
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Regenerate package metadata with npm
+        run: |
+          npm pkg set name=looksawful-ru
+          npm uninstall --save-dev @typescript/typescript6 --package-lock-only
+
+      - name: Verify intended package diff only
+        run: |
+          git diff --exit-code -- . ':!.github/workflows/tmp-package-metadata-345.yml' || true
+          test "$(node -p "require('./package.json').name")" = "looksawful-ru"
+          ! grep -q 'typescript6' package.json
+          ! grep -q 'typescript6' package-lock.json
+          ! grep -q '"node_modules/@typescript/old"' package-lock.json
+
+      - name: Commit generated package files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: clean package metadata"
+          git push origin HEAD:chore/package-metadata-345
