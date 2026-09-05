@@ -57,5 +57,10 @@ jobs:
       - run: npm run build:site
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run accessibility-enabled quick smoke
-        run: npm run test:e2e:smoke
+      - name: Run accessibility-enabled quick smoke in production CV mode
+        run: |
+          node --input-type=module <<'NODE'
+          import { runQuickSmoke } from './tools/e2e/run-smoke.mjs';
+          import { withE2ERuntime } from './tools/e2e/runtime.mjs';
+          await withE2ERuntime(({ browser, baseUrl }) => runQuickSmoke({ browser, baseUrl, cvMode: 'production' }));
+          NODE
