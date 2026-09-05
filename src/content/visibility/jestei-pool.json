@@ -1,0 +1,13 @@
+[
+  { "id": "jestei-featured", "visible": true },
+  { "id": "jestei-home", "visible": true },
+  { "id": "jestei-brand", "visible": true },
+  { "id": "jestei-interface", "visible": true },
+  { "id": "jestei-editorial", "visible": true },
+  { "id": "jestei-event", "visible": true },
+  { "id": "jestei-instagram-player", "visible": true },
+  { "id": "jestei-landings", "visible": true },
+  { "id": "jestei-track-filter", "visible": true },
+  { "id": "jestei-subscription", "visible": true },
+  { "id": "jestei-promo", "visible": true }
+]
