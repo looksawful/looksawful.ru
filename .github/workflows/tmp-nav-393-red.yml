@@ -187,7 +187,7 @@ jobs:
                   assert(closed.border === "0px", `${label}: closed separator is ${closed.border}`);
                   assert(closed.overflow <= 1, `${label}: closed horizontal overflow ${closed.overflow}px`);
                   assert(closed.toggleWidth >= 44, `${label}: toggle target ${closed.toggleWidth}px`);
-                  await page.screenshot({ path: `${out}/${name}-${caseName}-closed.png`, fullPage: true });
+                  await page.screenshot({ path: `${out}/${name}-${caseName}-closed.png` });
 
                   await page.locator("[data-site-menu-toggle]").click();
                   await page.waitForTimeout(700);
@@ -215,7 +215,7 @@ jobs:
                   } else {
                     assert(opened.textAlign === "start" || opened.textAlign === "left", `${label}: desktop text align ${opened.textAlign}`);
                   }
-                  await page.screenshot({ path: `${out}/${name}-${caseName}-open.png`, fullPage: true });
+                  await page.screenshot({ path: `${out}/${name}-${caseName}-open.png` });
                   await page.keyboard.press("Escape");
                 } finally {
                   await context.close();
