@@ -1,18 +1,108 @@
 name: Tmp 255 targeted
 
 on:
-  pull_request:
-    branches: [dev]
+  push:
+    branches: [agent/editorial-ownership-255]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  targeted:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: agent/editorial-ownership-255
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+      - name: Apply ownership-only patch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace(path, old, new):
+              p = Path(path)
+              text = p.read_text()
+              if old not in text:
+                  raise SystemExit(f"expected source fragment missing: {path}")
+              p.write_text(text.replace(old, new, 1))
+
+          replace(
+              "src/content/cases/sensetique.json",
+              '    },\n    {\n      "id": "production",',
+              '    },\n    {\n      "id": "equipment",\n      "title": "Оборудование",\n      "paragraphs": []\n    },\n    {\n      "id": "production",',
+          )
+          replace(
+              "src/data/content/sensetique-editorial.ts",
+              'export const SENSETIQUE_SECTION_IDS = ["studio", "production"] as const;',
+              'export const SENSETIQUE_SECTION_IDS = ["studio", "equipment", "production"] as const;',
+          )
+          replace(
+              "src/content/pages/cases/sensetique.ts",
+              'import type { EntityPageContent } from "../../contracts/page-content.ts";',
+              'import { getSensetiqueEditorialSection } from "../../../data/content/sensetique-editorial.ts";\nimport type { EntityPageContent } from "../../contracts/page-content.ts";\n\nconst sensetiqueEquipmentEditorial = getSensetiqueEditorialSection("equipment");',
+          )
+          replace(
+              "src/content/pages/cases/sensetique.ts",
+              'heading: { text: "Оборудование" },',
+              'heading: { text: sensetiqueEquipmentEditorial.title },',
+          )
+          replace(
+              "src/content/shootings/shootings-esmi.json",
+              '  "description": "Фотография для обложки Esmi, 2025."\n}',
+              '  "description": "Фотография для обложки Esmi, 2025.",\n  "credits": ["Фотограф Иван Крушинский"]\n}',
+          )
+          replace(
+              "src/data/content/shootings-editorial.ts",
+              '  readEditorialText,\n} from "./editorial-validation.ts";',
+              '  readEditorialText,\n  readEditorialTextList,\n} from "./editorial-validation.ts";',
+          )
+          replace(
+              "src/data/content/shootings-editorial.ts",
+              '  description: string;\n}',
+              '  description: string;\n  credits: readonly string[];\n}',
+          )
+          replace(
+              "src/data/content/shootings-editorial.ts",
+              'expectAllowedKeys(record, ["id", "title", "date", "description"], ["id"], label);',
+              'expectAllowedKeys(record, ["id", "title", "date", "description", "credits"], ["id"], label);',
+          )
+          replace(
+              "src/data/content/shootings-editorial.ts",
+              '    description: readEditorialText(record.description, `${label}.description`),\n  };',
+              '    description: readEditorialText(record.description, `${label}.description`),\n    credits: readEditorialTextList(record.credits, `${label}.credits`),\n  };',
+          )
+          replace(
+              "src/content/pages/collections/shootings.ts",
+              'import type { MediaEntryId } from "../../../data/media/index.ts";',
+              'import { getShootingEditorialRecord } from "../../../data/content/shootings-editorial.ts";\nimport type { MediaEntryId } from "../../../data/media/index.ts";',
+          )
+          replace(
+              "src/content/pages/collections/shootings.ts",
+              'function mediaGroup(data: MediaGroupData<MediaEntryId>): ContentBlock {',
+              'const shootingsEsmiEditorial = getShootingEditorialRecord("shootings-esmi");\n\nfunction mediaGroup(data: MediaGroupData<MediaEntryId>): ContentBlock {',
+          )
+          replace(
+              "src/content/pages/collections/shootings.ts",
+              '      credits: {\n        lines: ["Фотограф Иван Крушинский"],\n      },',
+              '      credits: { lines: shootingsEsmiEditorial.credits },',
+          )
+          PY
       - run: node --test test/page-content-editorial-ownership.test.mjs
+      - name: Commit GREEN implementation
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content/cases/sensetique.json \
+            src/data/content/sensetique-editorial.ts \
+            src/content/pages/cases/sensetique.ts \
+            src/content/shootings/shootings-esmi.json \
+            src/data/content/shootings-editorial.ts \
+            src/content/pages/collections/shootings.ts
+          git commit -m "architecture: move PageContent literals to editorial sources"
+          git push origin HEAD:agent/editorial-ownership-255
