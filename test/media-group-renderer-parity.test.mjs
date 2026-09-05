@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { renderMediaFigure } from "../src/templates/media-figure.ts";
-import { renderMediaGroup } from "../src/templates/media-group.ts";
+import {
+  renderMediaFigure,
+  renderMediaGroup,
+} from "../src/components/content/index.ts";
 
 test("media group renderer preserves authored wrapper, head presentation and surface class", () => {
   const html = renderMediaGroup({
