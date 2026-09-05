@@ -22,7 +22,6 @@ export const fastTests = new Set([
   "test/lighthouse-ci-config.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
-  "test/production-health-workflow.test.mjs",
   "test/search-presentation.test.mjs",
   "test/security-tooling.test.mjs",
   "test/site-analytics.test.mjs",
