@@ -1,4 +1,3 @@
-import "./styles/site-navigation.css";
 import "./styles/site-analytics-consent.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
