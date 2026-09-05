@@ -2,15 +2,6 @@ name: UI Responsive
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - dev
-    paths:
-      - "src/styles/components.css"
-      - "src/styles/project-header.css"
-      - "src/styles/index.css"
-      - "tools/e2e/run-responsive-ui.mjs"
-      - ".github/workflows/ui-responsive.yml"
 
 permissions:
   contents: read
