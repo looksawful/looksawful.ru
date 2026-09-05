@@ -54,8 +54,8 @@ export function mountSiteAnalyticsConsent({
 
   const actions = root.createElement("div");
   actions.className = "site-analytics-consent__actions";
-  const accept = button(root, "Разрешить", "granted");
-  const reject = button(root, "Не разрешать", "denied");
+  const accept = button(root, "Принять", "granted");
+  const reject = button(root, "Отклонить", "denied");
   actions.append(accept, reject);
   panel.append(copy, actions);
 
