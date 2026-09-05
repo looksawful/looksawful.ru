@@ -70,12 +70,17 @@ test("Jestei theme organism static runtime dependencies are strict TypeScript ow
 
   assert.equal(existsSync(dataTs), true, "theme runtime data must be owned by TypeScript");
   assert.equal(existsSync(shadersTs), true, "theme shaders must be owned by TypeScript");
-  assert.equal(existsSync(dataJs), false, "legacy theme runtime data JS must be removed");
-  assert.equal(existsSync(shadersJs), false, "legacy theme shader JS must be removed");
+  assert.equal(existsSync(dataJs), true, "theme runtime data compatibility shim must remain available");
+  assert.equal(existsSync(shadersJs), true, "theme shader compatibility shim must remain available");
 
-  const runtime = await readFile(new URL("jestei-theme-organism.js", componentUrl), "utf8");
-  assert.match(runtime, /from "[.]\/jestei-theme-organism-data[.]ts"/);
-  assert.match(runtime, /from "[.]\/jestei-theme-organism-shaders[.]ts"/);
+  assert.equal(
+    (await readFile(dataJs, "utf8")).trim(),
+    'export * from "./jestei-theme-organism-data.ts";',
+  );
+  assert.equal(
+    (await readFile(shadersJs, "utf8")).trim(),
+    'export * from "./jestei-theme-organism-shaders.ts";',
+  );
 });
 
 test("Jestei theme organism runtime keeps the restored animation contracts", async () => {
