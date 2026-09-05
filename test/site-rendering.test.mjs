@@ -11,12 +11,20 @@ import { jesteiIntro } from "../src/data/content/jestei-pool.ts";
 
 const indexHtml = await readFile(new URL("../index.html", import.meta.url), "utf8");
 
-test("balanced element extraction returns only the requested project article", () => {
-  const article = extractElementById(indexHtml, "article", "project-jestei");
-  assert.match(article, /id="project-jestei"/);
-  assert.match(article, /<!-- JESTEI_INTRO -->/);
-  assert.doesNotMatch(article, /id="project-styx"/);
-  assert.doesNotMatch(article, /id="project-sensetique"/);
+test("canonical homepage entity source shells contain no legacy body", () => {
+  for (const articleId of [
+    "project-jestei",
+    "project-styx",
+    "project-sensetique",
+    "project-shootings",
+  ]) {
+    const article = extractElementById(indexHtml, "article", articleId);
+    assert.match(article, new RegExp(`^<article\\b[^>]*\\bid=["']${articleId}["'][^>]*>`));
+    const body = article
+      .replace(/^<article\b[^>]*>/, "")
+      .replace(/<\/article>$/, "");
+    assert.equal(body.trim(), "", `${articleId} still carries legacy source-template body`);
+  }
 });
 
 test("marker-based extraction returns the complete hidden Project article only", () => {
