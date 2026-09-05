@@ -2,6 +2,7 @@ import {
   createPhotoSwipeLightbox,
   type PhotoSwipeLightboxItem,
 } from "./photoswipe-lightbox.ts";
+import { normalizeCaptionText } from "./caption-trust.ts";
 
 const SOURCE_SELECTOR = "[data-lightbox-source]";
 const MARKABLE_SOURCE_SELECTOR =
@@ -59,7 +60,7 @@ function appendSupplementalCaption(host: HTMLElement, figure: HTMLElement): void
   }
 
   const supplemental = figure.querySelector<HTMLElement>(SUPPLEMENTAL_CAPTION_SELECTOR);
-  const text = supplemental?.textContent?.replace(/\s+/g, " ").trim() || "";
+  const text = normalizeCaptionText(supplemental?.textContent);
 
   if (!text) {
     return;
@@ -95,7 +96,7 @@ function renderCaption(host: HTMLElement | null, source: HTMLElement): void {
     });
 
     if (!host.children.length) {
-      const text = line.textContent?.replace(/\s+/g, " ").trim() || "";
+      const text = normalizeCaptionText(line.textContent);
       if (text) {
         host.textContent = text;
       }
