@@ -56,6 +56,8 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - name: Check repository growth
+        run: npm run check:repo-growth
       - name: Install dependencies
         run: npm ci
       - name: Calculate canonical media fingerprint
