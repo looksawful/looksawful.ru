@@ -51,11 +51,19 @@ src/content/standalone-projects/berry-social-content-2020.json
 src/content/standalone-projects/awful-cases.json
 src/content/client-logo-visibility.json
 src/content/editorial/cv.json
+src/content/visibility/jestei-pool.json
+src/content/visibility/styx.json
+src/content/visibility/sensetique.json
+src/content/visibility/shootings.json
 src/content/media-catalog/registered/*.json
 src/content/media-catalog/uploads/*.json
 ```
 
 This inventory is not a generic publication glob. The trusted publication classifier maintains its own explicit allowlist. Stable IDs remain readonly where domain identity is fixed.
+
+Section/block visibility is controlled only through the four `src/content/visibility/*.json` files listed above. In Pages CMS, edit only the `visible` booleans. Section and block IDs are technical code-owned identifiers and must remain readonly; do not delete rows, duplicate rows or invent IDs. Validation is strict and fails closed when the visibility source no longer matches canonical `PageContent`.
+
+`visible: false` removes the matching section or block before both Homepage and standalone entity rendering. It does not change the page route, canonical URL or indexability. With all visibility flags set to `true`, rendered content remains unchanged.
 
 Optional editorial text should be cleared completely when no copy is wanted. Do not use a whitespace placeholder. Structural fields remain strict.
 

@@ -8,6 +8,7 @@ import {
   getCollection,
   getProject,
 } from "../../data/catalog/lookup.ts";
+import { resolveEntityPageContentVisibility } from "../../data/content/section-visibility.ts";
 import { getEntityShellPresentation } from "../pages/entity-presentation.ts";
 import type { EntityPageDefinition } from "../pages/types.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
@@ -44,7 +45,9 @@ function getEntityPageCopy(page: EntityPageDefinition): {
 }
 
 function renderCanonicalEntityArticle(page: EntityPageDefinition): string {
-  const content = getEntityPageContent(entityPageContentRegistry, page.id);
+  const content = resolveEntityPageContentVisibility(
+    getEntityPageContent(entityPageContentRegistry, page.id),
+  );
   const presentation = getEntityShellPresentation(page.id);
 
   return renderEntityShell(content, {

@@ -3,6 +3,7 @@ import {
   entityPageContentRegistry,
   getEntityPageContent,
 } from "../../../content/pages/index.ts";
+import { resolveEntityPageContentVisibility } from "../../../data/content/section-visibility.ts";
 import { getEntityShellPresentation } from "../../pages/entity-presentation.ts";
 import {
   homepageEntries,
@@ -40,7 +41,9 @@ function pageIdForHomepageEntry(entry: HomepageEntry): EntityPageId {
 
 function renderCanonicalHomepageEntity(entry: HomepageEntry): string {
   const pageId = pageIdForHomepageEntry(entry);
-  const content = getEntityPageContent(entityPageContentRegistry, pageId);
+  const content = resolveEntityPageContentVisibility(
+    getEntityPageContent(entityPageContentRegistry, pageId),
+  );
   const presentation = getEntityShellPresentation(pageId);
 
   return renderEntityShell(content, {

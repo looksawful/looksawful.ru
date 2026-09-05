@@ -179,6 +179,44 @@ components:
         - { name: music-cover, label: "Обложка для музыканта" }
         - { name: book, label: "Книга" }
 
+  page-visibility-sections:
+    type: object
+    label: Секции и блоки
+    required: true
+    list:
+      collapsible:
+        collapsed: true
+        summary: "{id}"
+    description: Меняйте только переключатели видимости. Технические ID используются кодом и доступны только для чтения.
+    fields:
+      - name: id
+        label: Технический ID секции
+        type: string
+        required: true
+        readonly: true
+      - name: visible
+        label: Показывать секцию
+        type: boolean
+        required: true
+      - name: blocks
+        label: Блоки
+        type: object
+        required: true
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{id}"
+        fields:
+          - name: id
+            label: Технический ID блока
+            type: string
+            required: true
+            readonly: true
+          - name: visible
+            label: Показывать блок
+            type: boolean
+            required: true
+
 media:
   - name: project-covers
     label: Обложки карточек проектов
@@ -429,6 +467,74 @@ content:
             required: true
             options:
               min: 1
+
+  - name: page-visibility
+    label: Видимость секций и блоков
+    type: group
+    items:
+      - name: jestei-pool-visibility
+        label: Jestei Pool
+        type: file
+        path: src/content/visibility/jestei-pool.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update page visibility {path}"
+        fields:
+          - name: sections
+            component: page-visibility-sections
+
+      - name: styx-visibility
+        label: Styx Jewel
+        type: file
+        path: src/content/visibility/styx.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update page visibility {path}"
+        fields:
+          - name: sections
+            component: page-visibility-sections
+
+      - name: sensetique-visibility
+        label: Sensetique
+        type: file
+        path: src/content/visibility/sensetique.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update page visibility {path}"
+        fields:
+          - name: sections
+            component: page-visibility-sections
+
+      - name: shootings-visibility
+        label: Shootings
+        type: file
+        path: src/content/visibility/shootings.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update page visibility {path}"
+        fields:
+          - name: sections
+            component: page-visibility-sections
 
   - name: media-library
     label: Медиакаталог

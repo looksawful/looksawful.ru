@@ -1,0 +1,22 @@
+{
+  "sections": [
+    { "id": "styx-brand", "visible": true, "blocks": [] },
+    { "id": "styx-logo-banner", "visible": true, "blocks": [{ "id": "styx-logo-banner:media-figure", "visible": true }] },
+    { "id": "styx-production-preview", "visible": true, "blocks": [{ "id": "styx-production-preview:mockup-deck", "visible": true }] },
+    { "id": "styx-production", "visible": true, "blocks": [] },
+    { "id": "styx-production-media", "visible": true, "blocks": [{ "id": "styx-production-media:media-group", "visible": true }] },
+    { "id": "styx-scanography", "visible": true, "blocks": [] },
+    { "id": "styx-scanography-media", "visible": true, "blocks": [{ "id": "styx-scanography-media:media-group", "visible": true }] },
+    { "id": "styx-brand-lookbook-2023", "visible": true, "blocks": [{ "id": "styx-brand-lookbook-2023:media-group", "visible": true }] },
+    { "id": "styx-catalog", "visible": true, "blocks": [{ "id": "styx-catalog:mockup", "visible": true }] },
+    { "id": "styx-shootings", "visible": true, "blocks": [] },
+    { "id": "styx-lookbook-masonry", "visible": true, "blocks": [{ "id": "styx-lookbook-masonry:media-group", "visible": true }] },
+    { "id": "styx-gift-certificate", "visible": true, "blocks": [{ "id": "styx-gift-certificate:media-slider", "visible": true }] },
+    { "id": "styx-print-links", "visible": true, "blocks": [{ "id": "styx-print-links:media-group", "visible": true }] },
+    { "id": "styx-scanography-campaign", "visible": true, "blocks": [{ "id": "styx-scanography-campaign:media-group", "visible": true }] },
+    { "id": "styx-scanography-strip", "visible": true, "blocks": [{ "id": "styx-scanography-strip:media-group", "visible": true }] },
+    { "id": "styx-lookbook", "visible": true, "blocks": [] },
+    { "id": "styx-lookbook-2025", "visible": true, "blocks": [{ "id": "styx-lookbook-2025:media-group", "visible": true }] },
+    { "id": "styx-social-instructions", "visible": true, "blocks": [{ "id": "styx-social-instructions:mockup-deck", "visible": true }] }
+  ]
+}

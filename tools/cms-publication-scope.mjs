@@ -31,6 +31,10 @@ const FIXED_CMS_CONTENT = new Set([
   "src/content/collections/shootings.json",
   "src/content/standalone-projects/berry-social-content-2020.json",
   "src/content/standalone-projects/awful-cases.json",
+  "src/content/visibility/jestei-pool.json",
+  "src/content/visibility/styx.json",
+  "src/content/visibility/sensetique.json",
+  "src/content/visibility/shootings.json",
 ]);
 
 const CMS_CONTENT_COLLECTIONS = [

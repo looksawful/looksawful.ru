@@ -1,13 +1,15 @@
-[
-  { "id": "jestei-featured", "visible": true },
-  { "id": "jestei-home", "visible": true },
-  { "id": "jestei-brand", "visible": true },
-  { "id": "jestei-interface", "visible": true },
-  { "id": "jestei-editorial", "visible": true },
-  { "id": "jestei-event", "visible": true },
-  { "id": "jestei-instagram-player", "visible": true },
-  { "id": "jestei-landings", "visible": true },
-  { "id": "jestei-track-filter", "visible": true },
-  { "id": "jestei-subscription", "visible": true },
-  { "id": "jestei-promo", "visible": true }
-]
+{
+  "sections": [
+    { "id": "jestei-featured", "visible": true, "blocks": [{ "id": "jestei-featured:media-figure", "visible": true }] },
+    { "id": "jestei-home", "visible": true, "blocks": [{ "id": "jestei-home:mockup", "visible": true }] },
+    { "id": "jestei-brand", "visible": true, "blocks": [{ "id": "jestei-brand:jestei-theme", "visible": true }, { "id": "jestei-brand:media-group", "visible": true }] },
+    { "id": "jestei-interface", "visible": true, "blocks": [{ "id": "jestei-interface:media-group", "visible": true }] },
+    { "id": "jestei-editorial", "visible": true, "blocks": [{ "id": "jestei-editorial:mockup", "visible": true }] },
+    { "id": "jestei-event", "visible": true, "blocks": [{ "id": "jestei-event:media-group", "visible": true }] },
+    { "id": "jestei-instagram-player", "visible": true, "blocks": [{ "id": "jestei-instagram-player:media-group", "visible": true }] },
+    { "id": "jestei-landings", "visible": true, "blocks": [{ "id": "jestei-landings:mockup", "visible": true }] },
+    { "id": "jestei-track-filter", "visible": true, "blocks": [] },
+    { "id": "jestei-subscription", "visible": true, "blocks": [{ "id": "jestei-subscription:before-after", "visible": true }] },
+    { "id": "jestei-promo", "visible": true, "blocks": [{ "id": "jestei-promo:media-group", "visible": true }] }
+  ]
+}
