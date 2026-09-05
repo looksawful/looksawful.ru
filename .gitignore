@@ -58,6 +58,7 @@ _rollback-audit/
 
 # local-only working area
 _local/*
+_local/design-capture/
 !_local/comments/
 _local/comments/*
 !_local/comments/.gitkeep
