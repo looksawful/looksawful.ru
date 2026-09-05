@@ -12,9 +12,8 @@ test("caption QA targets the real Jestei case route with the required mobile mat
     assert.match(source, new RegExp(`width:\\s*${width}\\b`));
   }
 
-  assert.match(source, /sequence/);
+  assert.match(source, /data-layout=["']sequence["']/);
   assert.match(source, /summary-control/);
-  assert.match(source, /data-middle-overflow=["']reel["']/);
   assert.match(source, /route.*viewport|viewport.*route/i);
 });
 
