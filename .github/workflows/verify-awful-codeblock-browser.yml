@@ -1,0 +1,111 @@
+name: Verify Awful CodeBlock browser smoke
+
+on:
+  push:
+    branches:
+      - agent/code-block-contract-268
+    paths:
+      - .github/workflows/verify-awful-codeblock-browser.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          ref: agent/code-block-contract-268
+          fetch-depth: 1
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Restore exact generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Verify restored generated media
+        if: steps.media-cache.outputs.cache-hit == 'true'
+        run: node tools/media-dev-state.mjs --cache-verify
+      - name: Recover generated media on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+      - name: Build production site
+        run: npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start production preview
+        shell: bash
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/vite-preview.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/work/awful-cases/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/vite-preview.log
+          exit 1
+      - name: Verify Awful Cases CodeBlock in browser
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { chromium } from 'playwright';
+
+          const browser = await chromium.launch({ headless: true });
+          try {
+            for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+              const context = await browser.newContext({ viewport });
+              const page = await context.newPage();
+              const errors = [];
+              page.on('pageerror', (error) => errors.push(error.message));
+              page.on('response', (response) => {
+                if (response.url().startsWith('http://127.0.0.1:4173/') && response.status() >= 400) {
+                  errors.push(`${response.status()} ${response.url()}`);
+                }
+              });
+              const response = await page.goto('http://127.0.0.1:4173/work/awful-cases/', { waitUntil: 'networkidle' });
+              assert.ok(response?.ok(), `HTTP ${response?.status()}`);
+              assert.equal(await page.locator('[data-code-block]').count(), 2, 'expected exactly two CodeBlocks');
+              assert.equal(await page.locator('[data-code-copy-button]').count(), 2, 'expected Copy control for each CodeBlock');
+              const titles = await page.locator('.code-block__title').allTextContents();
+              assert.deepEqual(titles.map((value) => value.trim()), ['Установка', 'Запуск']);
+              const code = await page.locator('[data-code-source]').allTextContents();
+              assert.equal(code[0].trim(), 'git clone https://github.com/looksawful/awful-cases.git\ncd awful-cases\\app');
+              assert.equal(code[1].trim(), '.\\awful-cases.ahk');
+              assert.equal(await page.locator('main').count(), 1, 'expected one main landmark');
+              const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+              assert.ok(overflow <= 1, `document overflow: ${overflow}px`);
+              assert.deepEqual(errors, [], 'page/resource errors');
+              console.log(`[awful-codeblock-smoke] ${viewport.width}x${viewport.height}: OK`);
+              await context.close();
+            }
+          } finally {
+            await browser.close();
+          }
+          NODE
