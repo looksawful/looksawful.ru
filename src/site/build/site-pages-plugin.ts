@@ -7,10 +7,12 @@ import {
   homepageEntries,
 } from "../pages/homepage.ts";
 import { getPageByPath, sitePages } from "../pages/manifest.ts";
+import { cvSearchPresentation } from "../pages/search-presentation.ts";
 import type { SitePageDefinition } from "../pages/types.ts";
 import { normalizePagePath } from "../pages/validation.ts";
 import { renderStandaloneEntityPage } from "../renderers/entity-page.ts";
 import { renderHomepagePage } from "../renderers/home/home-page.ts";
+import { replacePageMetadata } from "../shell/metadata.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
 import { publicStaticRequestPath } from "./public-static.ts";
 
@@ -22,6 +24,14 @@ interface CvContentModule {
 async function loadCvContentModule(root: string): Promise<CvContentModule> {
   const moduleUrl = pathToFileURL(path.resolve(root, "tools/lib/cv-content.mjs")).href;
   return await import(/* @vite-ignore */ moduleUrl) as CvContentModule;
+}
+
+function getCvPage() {
+  const page = getPageByPath("/cv/");
+  if (!page || page.renderer !== "cv") {
+    throw new Error("CV route is unavailable");
+  }
+  return page;
 }
 
 export function entryRequestToPagePath(requestPath: string): string {
@@ -61,7 +71,11 @@ export function rewritePublicStaticDevRequest(
 export async function renderCvDevHtml(html: string, root = process.cwd()): Promise<string> {
   const contentLib = await loadCvContentModule(root);
   const content = await contentLib.readCvContent(path.resolve(root, "src/content/cv.json"));
-  return contentLib.transformCvContent(html, content).html;
+  const rendered = contentLib.transformCvContent(html, content).html;
+  return replacePageMetadata(rendered, {
+    page: getCvPage(),
+    ...cvSearchPresentation,
+  });
 }
 
 export function renderNotFoundPage(page: NonNullable<ReturnType<typeof getPageByPath>>): string {
