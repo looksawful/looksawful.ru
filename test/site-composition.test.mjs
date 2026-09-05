@@ -16,6 +16,16 @@ const homepageRendererSource = await readFile(
   new URL("../src/site/renderers/home/home-page.ts", import.meta.url),
   "utf8",
 );
+const canonicalContentComponents = [
+  "media-figure",
+  "media-group",
+  "media-slider",
+  "mockup",
+  "mockup-deck",
+  "justified-gallery",
+  "before-after",
+  "page-flip",
+];
 
 function page(id) {
   const result = sitePages.find((candidate) => candidate.id === id);
@@ -29,6 +39,33 @@ function videoOpeningTagForSource(html, source) {
   assert.ok(match, `missing video source ${source}`);
   return match[1];
 }
+
+test("generic content implementations are owned by canonical component modules", async () => {
+  for (const name of canonicalContentComponents) {
+    const [componentSource, templateSource, componentModule, templateModule] = await Promise.all([
+      readFile(new URL(`../src/components/content/${name}.ts`, import.meta.url), "utf8"),
+      readFile(new URL(`../src/templates/${name}.ts`, import.meta.url), "utf8"),
+      import(`../src/components/content/${name}.ts`),
+      import(`../src/templates/${name}.ts`),
+    ]);
+
+    assert.doesNotMatch(
+      componentSource,
+      /(?:\.\.\/)+templates\//,
+      `${name} canonical component still delegates implementation to src/templates`,
+    );
+    assert.equal(
+      templateSource.trim(),
+      `export * from "../components/content/${name}.ts";`,
+      `${name} legacy template must be compatibility-only`,
+    );
+    assert.deepEqual(
+      Object.keys(templateModule).sort(),
+      Object.keys(componentModule).sort(),
+      `${name} compatibility entrypoint changed its public exports`,
+    );
+  }
+});
 
 test("every enabled entity page has canonical PageContent", () => {
   assert.doesNotThrow(() => pageValidation.validatePageContentManifest(
