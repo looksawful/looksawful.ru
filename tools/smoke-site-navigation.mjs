@@ -117,7 +117,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
       const bar = document.querySelector(".site-nav__bar");
-      const navContext = document.querySelector(".site-nav__context");
+      const navContext = document.querySelector(".site-nav__context, .site-nav__breadcrumbs");
       const main = document.querySelector("main");
       const preview = document.querySelector("[data-menu-preview]");
       const faceBackground = document.querySelector(".awfulface__background");
@@ -259,7 +259,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
       const bar = document.querySelector(".site-nav__bar");
-      const navContext = document.querySelector(".site-nav__context");
+      const navContext = document.querySelector(".site-nav__context, .site-nav__breadcrumbs");
       const main = document.querySelector("main");
       const barRect = bar instanceof HTMLElement ? bar.getBoundingClientRect() : null;
       const contextStyle = navContext instanceof HTMLElement ? getComputedStyle(navContext) : null;
