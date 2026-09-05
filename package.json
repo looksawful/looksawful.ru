@@ -18,7 +18,7 @@
     "media:prepare": "npm run media:sync",
     "build:vite": "vite build",
     "build:site": "npm run cms:check && npm run build:vite && npm run site:postbuild",
-    "build": "npm run build:site",
+    "build": "npm run typecheck && npm run build:site",
     "site:postbuild": "node tools/generate-sitemap.mjs && node tools/check-site-meta.mjs && node tools/check-local-links.mjs",
     "check:site-meta": "node tools/check-site-meta.mjs",
     "check:links": "node tools/check-local-links.mjs",
