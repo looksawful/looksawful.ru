@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { sitePages } from "../src/site/pages/manifest.ts";
-import { renderNotFoundPage } from "../src/site/build/site-pages-plugin.ts";
+import { renderNotFoundPage } from "../src/site/renderers/not-found-page.ts";
 
 const notFound = sitePages.find((page) => page.type === "not-found");
 if (!notFound) throw new Error("missing not-found page definition");
