@@ -6,8 +6,6 @@ on:
       - agent/page-architecture-wave2-render-pipeline-20260904
     paths:
       - index.html
-      - src/components/specialized/awful-cases-game.ts
-      - src/components/specialized/index.ts
       - src/content/contracts/content-block.ts
       - src/content/pages/projects/awful-cases.ts
       - src/site/renderers/entity/content-block.ts
