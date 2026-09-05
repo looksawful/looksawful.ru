@@ -187,6 +187,12 @@ if ($Apply) {
   if (-not ($finalRulesets | Where-Object { $_.name -eq "dev-safety" -and $_.enforcement -eq "active" })) {
     throw "Verification failed: dev-safety ruleset is not active."
   }
+  if (-not $prodBranch.protected) {
+    throw "Verification failed: GitHub still reports prod as unprotected after ruleset application."
+  }
+  if (-not $devBranch.protected) {
+    throw "Verification failed: GitHub still reports dev as unprotected after ruleset application."
+  }
 
   if ($finalRepo.security_and_analysis) {
     if ($finalRepo.security_and_analysis.secret_scanning.status -ne "enabled") {
