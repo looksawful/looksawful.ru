@@ -11,6 +11,7 @@ export const MEDIA_EDITORIAL_FIELDS = [
   "deliverableIds",
   "tags",
   "credits",
+  "showInCatalog",
   "reusable",
   "archived",
 ] as const;
@@ -25,6 +26,7 @@ export const REGISTERED_MEDIA_EDITORIAL_FIELDS = [
   "deliverableIds",
   "tags",
   "credits",
+  "showInCatalog",
   "reusable",
   "archived",
 ] as const;

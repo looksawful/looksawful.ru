@@ -11,7 +11,7 @@ import {
 import { getPageByPath } from "../../pages/manifest.ts";
 import { homeSearchPresentation } from "../../pages/search-presentation.ts";
 import type { EntityPageId } from "../../pages/types.ts";
-import { extractElementById } from "../../rendering/html.ts";
+import { replaceRequiredSlot } from "../../rendering/html.ts";
 import {
   renderHomeStructuredData,
   replacePageMetadata,
@@ -20,6 +20,7 @@ import { renderSiteNavigation } from "../../shell/navigation.ts";
 import { renderEntityShell } from "../entity/entity-shell.ts";
 import { renderHomepage } from "./home-slots.ts";
 
+const homeEntitiesMount = '<div data-home-entities></div>';
 const legacyHomepageNavigation = /<nav\b(?=[^>]*\bdata-site-navigation\b)(?=[^>]*\bhidden\b)[^>]*>[\s\S]*?<\/nav>/g;
 const homeStructuredData = /<script\b(?=[^>]*\btype=["']application\/ld\+json["'])[^>]*>[\s\S]*?<\/script>/i;
 
@@ -51,17 +52,11 @@ function renderCanonicalHomepageEntity(entry: HomepageEntry): string {
   });
 }
 
-function replaceHomepageEntities(html: string): string {
-  const entries = [...homepageEntries].sort((left, right) => left.order - right.order);
-
-  return entries.reduce((output, entry) => {
-    const pageId = pageIdForHomepageEntry(entry);
-    const presentation = getEntityShellPresentation(pageId);
-    const legacyArticle = extractElementById(output, "article", presentation.articleId);
-    const canonicalArticle = renderCanonicalHomepageEntity(entry);
-
-    return output.replace(legacyArticle, canonicalArticle);
-  }, html);
+function renderCanonicalHomepageEntities(): string {
+  return [...homepageEntries]
+    .sort((left, right) => left.order - right.order)
+    .map(renderCanonicalHomepageEntity)
+    .join("\n");
 }
 
 function replaceHomepageStructuredData(html: string): string {
@@ -93,7 +88,11 @@ function excludeUtilityTextFromSnippets(html: string): string {
 
 export function renderHomepagePage(html: string): string {
   const page = getHomePage();
-  const rendered = replaceHomepageEntities(renderHomepage(html));
+  const rendered = replaceRequiredSlot(
+    renderHomepage(html),
+    homeEntitiesMount,
+    renderCanonicalHomepageEntities(),
+  );
   const matches = rendered.match(legacyHomepageNavigation);
 
   if (matches?.length !== 1) {

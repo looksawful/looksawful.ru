@@ -10,7 +10,7 @@ export type ResolvedMediaUsageMetadata<
   DeliverableId extends string = string,
 > = Omit<
   MediaCatalogMetadata<ProjectId, WorkAreaId, ProjectTypeId, DeliverableId>,
-  "reusable" | "archived"
+  "showInCatalog" | "reusable" | "archived"
 >;
 
 /**

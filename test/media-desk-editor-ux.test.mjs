@@ -18,6 +18,7 @@ test("media editor serialization preserves optional text and normalizes lists", 
     deliverableIds: ["d1"],
     tags: [" fashion ", "fashion", "editorial"],
     credits: [" Photo: A ", "Photo: A", "Styling: B"],
+    showInCatalog: true,
     reusable: true,
     archived: false,
   });
@@ -32,6 +33,7 @@ test("media editor serialization preserves optional text and normalizes lists", 
   assert.deepEqual(patch.deliverableIds, ["d1"]);
   assert.deepEqual(patch.tags, ["fashion", "editorial"]);
   assert.deepEqual(patch.credits, ["Photo: A", "Styling: B"]);
+  assert.equal(patch.showInCatalog, true);
   assert.equal(patch.reusable, true);
   assert.equal(patch.archived, false);
 });
@@ -50,6 +52,7 @@ test("session editorial patch overlays catalog data without mutating canonical d
     deliverableIds: [],
     tags: ["old"],
     credits: [],
+    showInCatalog: false,
     reusable: true,
     archived: false,
   };
@@ -59,6 +62,7 @@ test("session editorial patch overlays catalog data without mutating canonical d
     title: "New",
     tags: ["new"],
     projectIds: ["project-a"],
+    showInCatalog: true,
   });
 
   const current = applyMediaEditorialPatchToItem(canonical, patch);
@@ -66,7 +70,9 @@ test("session editorial patch overlays catalog data without mutating canonical d
   assert.equal(current.title, "New");
   assert.deepEqual(current.tags, ["new"]);
   assert.deepEqual(current.projectIds, ["project-a"]);
+  assert.equal(current.showInCatalog, true);
   assert.equal(current.asset, canonical.asset);
   assert.equal(canonical.title, "Old");
   assert.deepEqual(canonical.tags, ["old"]);
+  assert.equal(canonical.showInCatalog, false);
 });

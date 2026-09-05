@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
@@ -15,6 +16,15 @@ import {
   normalizePagePath,
   validateSitePages,
 } from "../src/site/pages/validation.ts";
+
+const pluginSource = await readFile(
+  new URL("../src/site/build/site-pages-plugin.ts", import.meta.url),
+  "utf8",
+);
+const homepageSource = await readFile(
+  new URL("../src/site/pages/homepage.ts", import.meta.url),
+  "utf8",
+);
 
 const expectedRoutes = new Map([
   ["home", "/"],
@@ -186,4 +196,15 @@ test("public Case, Collection, CV and privacy pages are listed and indexable whi
   assert.ok(notFound);
   assert.equal(notFound.discovery.listed, false);
   assert.equal(notFound.discovery.indexable, false);
+});
+
+test("central site-pages plugin is orchestration-only", () => {
+  assert.doesNotMatch(pluginSource, /404 — Иван Крушинский/);
+  assert.doesNotMatch(pluginSource, /Страница не найдена\./);
+  assert.doesNotMatch(pluginSource, /tools\/lib\/cv-content\.mjs/);
+  assert.doesNotMatch(pluginSource, /src\/content\/cv\.json/);
+});
+
+test("Homepage support is derived from executable architecture, not a duplicate allowlist", () => {
+  assert.doesNotMatch(homepageSource, /implementedFullRenderers/);
 });
