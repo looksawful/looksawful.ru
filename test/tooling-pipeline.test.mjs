@@ -120,6 +120,14 @@ test("caption QA remains an optional standalone suite rather than production dep
   assert.match(source, /export\s+async\s+function\s+captureCaptionQa/);
   assert.match(source, /withE2ERuntime/);
   assert.match(source, /isDirectExecution/);
+  assert.match(source, /path:\s*["']\/work\/jestei-pool\/["']/);
+  for (const width of [320, 360, 390, 430]) {
+    assert.match(source, new RegExp(`width:\\s*${width}`));
+  }
+  assert.match(source, /data-layout=[\\"']sequence[\\"']/);
+  assert.match(source, /mobile-\$\{viewport\.width\}-sequence\.png/);
+  assert.match(source, /mobile-\$\{viewport\.width\}-summary-control\.png/);
+  assert.match(source, /viewport\.width\s*===\s*390/);
 });
 
 test("production E2E is compact: production quick smoke plus media sanity in one runtime", async () => {
