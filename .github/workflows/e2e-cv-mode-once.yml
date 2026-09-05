@@ -1,0 +1,26 @@
+name: E2E CV mode contract (temporary)
+
+on:
+  push:
+    branches:
+      - fix/e2e-cv-production-mode-20260905
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node --test test/e2e-production-pipeline.test.mjs
