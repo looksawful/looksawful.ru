@@ -6,13 +6,13 @@ import test from "node:test";
 
 import {
   buildBulkMetadataRequest,
-} from "../src/tools/media-desk/bulk-editor-model.ts";
+} from "../src/devtools/media-desk/bulk-editor-model.ts";
 import {
   buildMediaEditorialPatch,
-} from "../src/tools/media-desk/editor-serialization.ts";
+} from "../src/devtools/media-desk/editor-serialization.ts";
 import {
   saveMediaDeskMetadata,
-} from "../src/tools/media-desk/server.ts";
+} from "../src/devtools/media-desk/server.ts";
 
 const REGISTERED_ID = "jestei-02-source-01-16x10";
 const UPLOAD_ID = "11111111-1111-4111-8111-111111111111";
