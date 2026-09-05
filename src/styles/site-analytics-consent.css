@@ -1,72 +1,81 @@
 .site-analytics-consent {
   position: fixed;
   z-index: 110;
-  inset-inline: var(--page-padding-inline);
-  inset-block-end: max(var(--page-padding-inline), env(safe-area-inset-bottom, 0px));
-  display: grid;
-  gap: var(--size-300);
-  max-inline-size: 42rem;
-  border: var(--border-width-100) solid currentColor;
-  background: #fff;
+  inset-inline-start: var(--page-padding-inline);
+  inset-inline-end: auto;
+  inset-block-end: max(var(--size-200), env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--size-200);
+  max-inline-size: min(24rem, calc(100vw - (2 * var(--page-padding-inline))));
+  border: var(--border-width-100) solid rgb(0 0 0 / 0.12);
+  background: rgb(255 255 255 / 0.94);
   color: #000;
-  padding: var(--size-300);
-  box-shadow: var(--shadow-surface-elevated);
+  padding: 0.45rem 0.55rem;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.06);
   font-family: var(--ff-primary);
-  font-size: var(--fs-300);
-  line-height: var(--lh-ui);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  backdrop-filter: blur(8px);
 }
 
 .site-analytics-consent__copy {
-  max-inline-size: 56ch;
+  flex: 1 1 12rem;
+  max-inline-size: 28ch;
 }
 
 .site-analytics-consent__privacy {
   color: inherit;
-  text-underline-offset: 0.18em;
+  opacity: 0.62;
+  text-underline-offset: 0.14em;
 }
 
 .site-analytics-consent__actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--size-200);
+  align-items: center;
+  gap: 0.3rem;
+  margin-inline-start: auto;
 }
 
 .site-analytics-consent__button {
-  min-block-size: 2.75rem;
-  border: var(--border-width-100) solid currentColor;
+  min-block-size: 2rem;
+  border: 0;
   border-radius: 0;
-  background: #fff;
-  color: #000;
-  padding-inline: var(--size-300);
+  background: transparent;
+  color: inherit;
+  padding-inline: 0.45rem;
+  font: inherit;
   cursor: pointer;
+  opacity: 0.62;
 }
 
 .site-analytics-consent__button:first-child {
   background: #000;
   color: #fff;
+  opacity: 1;
 }
 
 .site-analytics-consent__button:focus-visible,
 .site-analytics-consent__privacy:focus-visible {
   outline: var(--border-width-200) solid currentColor;
-  outline-offset: 0.2rem;
+  outline-offset: 0.12rem;
 }
 
 @media (hover: hover) {
   .site-analytics-consent__button:hover,
   .site-analytics-consent__privacy:hover {
-    text-decoration: underline;
-    text-underline-offset: 0.18em;
+    opacity: 1;
   }
 }
 
-@media (min-width: 44rem) {
+@media (max-width: 32rem) {
   .site-analytics-consent {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    inset-inline-end: var(--page-padding-inline);
+    max-inline-size: none;
   }
 
-  .site-analytics-consent__actions {
-    flex-wrap: nowrap;
+  .site-analytics-consent__copy {
+    max-inline-size: none;
   }
 }
