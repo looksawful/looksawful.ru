@@ -34,12 +34,23 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
-          fetch-depth: 0
+          fetch-depth: 1
+      - name: Fetch previous push commit
+        if: github.event_name == 'push'
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$BEFORE"
+          git cat-file -e "$BEFORE^{commit}"
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
+      - name: Check repository growth
+        run: npm run check:repo-growth
       - name: Install dependencies
         run: npm ci
       - name: Classify media mutation

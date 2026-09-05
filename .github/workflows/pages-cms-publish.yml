@@ -52,7 +52,8 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: prod
-          fetch-depth: 0
+          fetch-depth: 1
+          filter: blob:none
           persist-credentials: false
 
       - name: Validate branch topology
@@ -60,9 +61,33 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git fetch --no-tags origin \
-            +refs/heads/prod:refs/remotes/origin/prod \
+          refs=(
+            +refs/heads/prod:refs/remotes/origin/prod
             +refs/heads/dev:refs/remotes/origin/dev
+          )
+
+          git fetch --no-tags --depth=1 origin "${refs[@]}"
+
+          have_required_history() {
+            local prod_tree dev_tree
+            prod_tree="$(git rev-parse 'origin/prod^{tree}')"
+            dev_tree="$(git rev-parse 'origin/dev^{tree}')"
+            [[ "$prod_tree" == "$dev_tree" ]] || git merge-base origin/prod origin/dev >/dev/null 2>&1
+          }
+
+          if ! have_required_history; then
+            git fetch --no-tags --deepen=64 origin "${refs[@]}"
+          fi
+          if ! have_required_history; then
+            git fetch --no-tags --deepen=256 origin "${refs[@]}"
+          fi
+          if ! have_required_history; then
+            shallow_file="$(git rev-parse --git-path shallow)"
+            if [[ -f "$shallow_file" ]]; then
+              git fetch --no-tags --unshallow origin "${refs[@]}"
+            fi
+          fi
+
           node tools/cms-publication-topology.mjs \
             --prod origin/prod \
             --dev origin/dev

@@ -24,6 +24,7 @@
     "check:links": "node tools/check-local-links.mjs",
     "check:external-links": "node tools/check-external-links.mjs",
     "check:production": "node tools/check-production.mjs",
+    "check:repo-growth": "node tools/ci/check-repository-growth.mjs",
     "audit:deps": "npm audit --omit=dev --audit-level=high",
     "lighthouse": "lhci autorun",
     "media:build": "node tools/build-responsive-media.mjs",
