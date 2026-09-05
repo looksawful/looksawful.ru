@@ -71,12 +71,12 @@ jobs:
             if (typeof start !== 'number') throw new Error(`${id}: missing article offset`);
             const innerStart = start + opening[0].length;
 
-            const tags = /<article\\b[^>]*>|<\\/article>/gi;
+            const tags = /<article\b[^>]*>|<\/article>/gi;
             tags.lastIndex = start;
             let depth = 0;
             let closeStart = -1;
             for (let match = tags.exec(html); match; match = tags.exec(html)) {
-              if (/^<\\/article/i.test(match[0])) {
+              if (/^<\/article/i.test(match[0])) {
                 depth -= 1;
                 if (depth === 0) {
                   closeStart = match.index;
