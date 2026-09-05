@@ -11,9 +11,8 @@ function deferredVideoBlocks(html) {
     .filter((video) => /data-autoplay-deferred=""/i.test(video));
 }
 
-function lazyImageTags(html) {
-  return [...html.matchAll(/<img\b[^>]*\bloading="lazy"[^>]*>/gi)]
-    .map((match) => match[0]);
+function imageTags(html) {
+  return [...html.matchAll(/<img\b[^>]*>/gi)].map((match) => match[0]);
 }
 
 test("Homepage defers autoplay video sources across ordinary and managed media lifecycles", () => {
@@ -62,7 +61,7 @@ test("built Homepage contains deferred autoplay media with no live network sourc
   }
 });
 
-test("built Homepage keeps the eager hero but removes live sources from lazy images", async () => {
+test("built Homepage keeps explicit eager images live and defers every other image source", async () => {
   const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
   const plugin = createSitePagesPlugin();
   const hook = plugin.transformIndexHtml;
@@ -71,12 +70,18 @@ test("built Homepage keeps the eager hero but removes live sources from lazy ima
   assert.equal(typeof hook.handler, "function");
 
   const html = await hook.handler(source, { path: "/" });
-  const lazyImages = lazyImageTags(html);
+  const images = imageTags(html);
+  const eagerImages = images.filter((image) => /\bfetchpriority="high"|\bloading="eager"/i.test(image));
+  const deferredImages = images.filter((image) => !/\bfetchpriority="high"|\bloading="eager"/i.test(image));
 
-  assert.ok(lazyImages.length > 0, "expected lazy Homepage images");
-  assert.match(html, /<img\b(?=[^>]*fetchpriority="high")(?=[^>]*hero-portrait\.webp)[^>]*>/i);
+  assert.ok(deferredImages.length > 0, "expected deferred Homepage images");
+  assert.ok(eagerImages.some((image) => /hero-portrait\.webp/i.test(image)), "expected eager hero portrait");
 
-  for (const image of lazyImages) {
+  for (const image of eagerImages) {
+    assert.match(image, /\ssrc="/i);
+  }
+
+  for (const image of deferredImages) {
     assert.doesNotMatch(image, /\ssrc="/i);
     assert.doesNotMatch(image, /\ssrcset="/i);
     assert.match(image, /\bdata-home-src="/i);
