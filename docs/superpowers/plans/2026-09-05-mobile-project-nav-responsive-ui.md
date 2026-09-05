@@ -44,8 +44,7 @@ Edit:
 
 - `src/components/project-navigation.ts`;
 - `src/interactive.ts`;
-- `src/styles/project-navigation-top.css`;
-- `src/styles/components.css`.
+- `src/styles/project-navigation-top.css`.
 
 Remove:
 
@@ -56,7 +55,7 @@ Remove:
 - `[data-viewport-anchor]` CSS;
 - inline viewport offset state.
 
-Keep the narrow sticky placement browser-native and add `env(safe-area-inset-bottom, 0px)` without changing wide rail geometry.
+Keep the existing narrow sticky placement in `src/styles/components.css` browser-native and unchanged. Add `env(safe-area-inset-bottom, 0px)` in the dedicated project-navigation style layer without changing wide rail geometry.
 
 ## Task 3 — GREEN focused contracts
 
