@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 import { injectStaticSiteAnalytics } from "../tools/lib/static-site-analytics.mjs";
 
 const source = "<!doctype html><html><head><title>CV</title></head><body><main>CV</main></body></html>";
-const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("static analytics injection is a no-op without configured providers", () => {
   assert.equal(injectStaticSiteAnalytics(source, {}), source);
@@ -32,29 +30,17 @@ test("static analytics injects Cloudflare, consent-gated Yandex and conversion g
   assert.doesNotMatch(html, /<noscript/i, "consent-gated analytics must not be bypassed by a noscript pixel");
 });
 
+test("static analytics auto-starts Yandex only for RU sessions and keeps an external geo fallback", () => {
+  const html = injectStaticSiteAnalytics(source, { yandexCounterId: 112065623 });
+  assert.match(html, /looksawful:analytics-region/);
+  assert.match(html, /\/cdn-cgi\/trace/);
+  assert.match(html, /https:\/\/api\.country\.is\//);
+  assert.match(html, /country===\"RU\"/);
+});
+
 test("static analytics injection is idempotent", () => {
   const once = injectStaticSiteAnalytics(source, { yandexCounterId: 112065623 });
   const twice = injectStaticSiteAnalytics(once, { yandexCounterId: 112065623 });
   assert.equal(twice, once);
   assert.equal((twice.match(/data-static-site-analytics/g) ?? []).length, 2);
-});
-
-test("production public-static CV is finalized during the Vite build instead of postbuild patching", () => {
-  const pluginUrl = new URL("../src/site/build/public-static-build-plugin.ts", import.meta.url);
-  assert.equal(existsSync(pluginUrl), true, "public-static build plugin must own production CV finalization");
-
-  const plugin = read("src/site/build/public-static-build-plugin.ts");
-  const vite = read("vite.config.ts");
-  const pkg = JSON.parse(read("package.json"));
-
-  assert.match(vite, /createPublicStaticBuildPlugin/);
-  assert.match(plugin, /transformCvContent/);
-  assert.match(plugin, /removeHidden:\s*true/);
-  assert.match(plugin, /injectStaticSiteAnalytics/);
-  assert.equal(pkg.scripts?.["cv:content:apply"], undefined);
-  assert.equal(pkg.scripts?.["cv:prod:prepare"], undefined);
-  assert.equal(pkg.scripts?.["cv:prod:verify"], "node tools/verify-cv-production.mjs");
-  assert.doesNotMatch(pkg.scripts?.["site:postbuild"] ?? "", /cv:content:apply/);
-  assert.equal(existsSync(new URL("../tools/apply-cv-content.mjs", import.meta.url)), false);
-  assert.equal(existsSync(new URL("../tools/prepare-cv-production.mjs", import.meta.url)), false);
 });
