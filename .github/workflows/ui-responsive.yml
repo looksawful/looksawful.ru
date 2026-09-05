@@ -2,18 +2,31 @@ name: UI Responsive
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - dev
 
 permissions:
   contents: read
 
 concurrency:
-  group: ui-responsive-${{ github.workflow }}-${{ github.ref }}
+  group: ui-responsive-${{ github.workflow }}-${{ github.ref }}-${{ matrix.browser }}
   cancel-in-progress: true
 
 jobs:
   responsive:
+    name: ${{ matrix.browser }}
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - chromium
+          - firefox
+          - webkit
+          - chrome
+          - msedge
     steps:
       - uses: actions/checkout@v7
         with:
@@ -32,7 +45,9 @@ jobs:
           test/project-navigation-mobile-viewport.test.mjs
       - name: Build site
         run: npm run build:vite
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Responsive UI
+        env:
+          E2E_BROWSER: ${{ matrix.browser }}
         run: npm run test:ui:responsive
