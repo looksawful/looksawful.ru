@@ -36,7 +36,7 @@ export const jesteiPoolProjects = [
   {
     ...jesteiProjectBase,
     id: "jestei-event",
-    name: "Jestei Event",
+    name: "Jestei Pool Event",
     status: "active",
     projectTypeIds: ["digital-product", "feature-development", "navigation-redesign"],
     workAreaIds: ["product-design", "ux", "ui"],
