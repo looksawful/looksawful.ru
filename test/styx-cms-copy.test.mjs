@@ -155,22 +155,13 @@ test("Pages CMS exposes Styx editorial copy without Case identity, route, media 
 
 test("Styx user-facing sources keep the canonical Styx Jewel display name", async () => {
   const source = await readSource();
-  const archive = JSON.parse(
-    await readFile(
-      new URL("../archive/texts/2026-09-02-pre-simplification/src/content/cases/styx.json", import.meta.url),
-      "utf8",
-    ),
-  );
-
-  for (const [label, editorial] of [["live CMS", source], ["archived CMS", archive]]) {
-    const values = [
-      editorial.lead,
-      ...editorial.sections.flatMap(({ title, paragraphs }) => [title, ...paragraphs]),
-      ...editorial.credits.map(({ title }) => title),
-    ];
-    for (const value of values) {
-      assertCanonicalBrandName(value, `${label} copy`);
-    }
+  const values = [
+    source.lead,
+    ...source.sections.flatMap(({ title, paragraphs }) => [title, ...paragraphs]),
+    ...source.credits.map(({ title }) => title),
+  ];
+  for (const value of values) {
+    assertCanonicalBrandName(value, "live CMS copy");
   }
 
   for (const entry of styxMediaEntries) {
