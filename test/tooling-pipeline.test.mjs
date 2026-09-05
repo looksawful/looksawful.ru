@@ -84,6 +84,9 @@ test("combined browser regression uses one shared runtime while individual suite
   assert.match(runAll, /withE2ERuntime/);
   assert.match(runAll, /cvMode\s*=\s*["']production["']/);
   assert.match(quickSmoke, /cvMode\s*=\s*["']production["']/);
+  assert.match(quickSmoke, /expectedStaticAnalyticsBootstrapCount/);
+  assert.match(quickSmoke, /VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN/);
+  assert.match(quickSmoke, /VITE_YANDEX_METRIKA_COUNTER_ID/);
 
   const suites = [
     ["smoke-site.mjs", "runSmokeSite"],
