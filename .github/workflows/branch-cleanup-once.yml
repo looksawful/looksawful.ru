@@ -36,6 +36,7 @@ jobs:
           )
 
           deleted=0
+          raced=0
           for branch in "${branches[@]}"; do
             case "$branch" in
               dev|prod)
@@ -45,8 +46,12 @@ jobs:
             esac
 
             echo "Deleting temporary branch: $branch"
-            git push origin --delete "$branch"
-            deleted=$((deleted + 1))
+            if git push origin --delete "$branch"; then
+              deleted=$((deleted + 1))
+            else
+              echo "Deletion raced or branch already disappeared: $branch"
+              raced=$((raced + 1))
+            fi
           done
 
           mapfile -t remaining < <(
@@ -55,7 +60,7 @@ jobs:
               sort
           )
 
-          printf 'Deleted %d temporary branches. Remaining refs:\n' "$deleted"
+          printf 'Deleted %d temporary branches; %d delete races. Remaining refs:\n' "$deleted" "$raced"
           printf '  %s\n' "${remaining[@]}"
 
           unexpected=()
