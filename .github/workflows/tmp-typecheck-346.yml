@@ -1,0 +1,24 @@
+name: Temporary typecheck 346 RED-GREEN
+
+on:
+  push:
+    branches:
+      - chore/strict-tools-typecheck-346
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v6
+      - name: Setup Node 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm ci
+      - name: Tooling typecheck contract
+        run: node --test test/tooling-typecheck-contract.test.mjs
