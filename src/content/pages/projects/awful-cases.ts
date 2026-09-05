@@ -1,5 +1,4 @@
 import {
-  awfulCasesDemo,
   awfulCasesIntro,
   awfulCasesSettingsMockup,
 } from "../../../data/content/awful-cases.ts";
@@ -15,8 +14,7 @@ export const awfulCasesPageContent = {
       projectId: "awful-cases",
       blocks: [
         {
-          type: "media-figure",
-          data: awfulCasesDemo,
+          type: "awful-cases-game",
         },
       ],
     },
