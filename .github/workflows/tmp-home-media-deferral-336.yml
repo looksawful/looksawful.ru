@@ -1,0 +1,84 @@
+name: Tmp home media deferral 336
+
+on:
+  push:
+    branches: [agent/home-media-deferral-336]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Restore exact generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Verify restored generated media
+        if: steps.media-cache.outputs.cache-hit == 'true'
+        run: node tools/media-dev-state.mjs --cache-verify
+      - name: Install recovery video tooling on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Recover generated media on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: |
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+      - run: node --test test/home-media-deferral.test.mjs
+      - run: npm run typecheck
+      - run: npm run build:site
+      - name: Measure production-like Homepage
+        shell: bash
+        run: |
+          npm run preview -- --host 127.0.0.1 > /tmp/preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          mkdir -p artifacts/home-perf
+          npx lighthouse http://127.0.0.1:4173/ --output=json --output-path=artifacts/home-perf/mobile.json --chrome-flags='--headless --no-sandbox' --quiet
+          npx lighthouse http://127.0.0.1:4173/ --preset=desktop --output=json --output-path=artifacts/home-perf/desktop.json --chrome-flags='--headless --no-sandbox' --quiet
+          node <<'NODE'
+          const fs = require('node:fs');
+          for (const mode of ['mobile', 'desktop']) {
+            const r = JSON.parse(fs.readFileSync(`artifacts/home-perf/${mode}.json`, 'utf8'));
+            const a = r.audits;
+            const c = r.categories;
+            console.log(JSON.stringify({
+              mode,
+              performance: Math.round((c.performance?.score ?? 0) * 100),
+              lcpMs: Math.round(a['largest-contentful-paint']?.numericValue ?? 0),
+              tbtMs: Math.round(a['total-blocking-time']?.numericValue ?? 0),
+              transferMiB: Number(((a['total-byte-weight']?.numericValue ?? 0) / 1024 / 1024).toFixed(2)),
+              requests: a['network-requests']?.details?.items?.length ?? 0,
+              mainThreadMs: Math.round(a['mainthread-work-breakdown']?.numericValue ?? 0),
+            }));
+          }
+          NODE
