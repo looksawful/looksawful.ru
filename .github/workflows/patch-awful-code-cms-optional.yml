@@ -1,0 +1,54 @@
+name: Patch Awful code CMS optionality
+
+on:
+  push:
+    branches:
+      - agent/code-block-contract-268
+    paths:
+      - .github/workflows/patch-awful-code-cms-optional.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: agent/code-block-contract-268
+          fetch-depth: 1
+      - name: Make authored code text optional
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('.pages.yml')
+          text = path.read_text(encoding='utf-8')
+          start = text.index('      - name: awful-cases-standalone-project\n')
+          tail = text[start:]
+          next_top = tail.find('\n  - name: ', 1)
+          end = len(text) if next_top == -1 else start + next_top
+          entry = text[start:end]
+          needle = (
+              '                  - name: code\n'
+              '                    label: Код\n'
+              '                    type: text\n'
+              '                    required: true\n'
+          )
+          count = entry.count(needle)
+          if count != 2:
+              raise SystemExit(f'expected exactly two required Awful code fields, found {count}')
+          entry = entry.replace(needle, needle.removesuffix('                    required: true\n'))
+          path.write_text(text[:start] + entry + text[end:], encoding='utf-8')
+          PY
+      - name: Commit Pages CMS optionality fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .pages.yml
+          git diff --cached --check
+          git commit -m "cms: keep Awful code text optional"
+          git push origin HEAD:agent/code-block-contract-268
