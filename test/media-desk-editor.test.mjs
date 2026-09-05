@@ -7,7 +7,7 @@ import {
   applyMediaEditorialPatch,
   applyRegisteredMediaEditorialPatch,
   collectContentDeskTextEntries,
-} from "../src/tools/media-desk/editor-model.ts";
+} from "../src/devtools/media-desk/editor-model.ts";
 
 test("media desk editorial patch preserves technical metadata and rejects protected fields", () => {
   const record = {

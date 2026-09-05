@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   applyMediaEditorialPatchToItem,
   buildMediaEditorialPatch,
-} from "../src/tools/media-desk/editor-serialization.ts";
+} from "../src/devtools/media-desk/editor-serialization.ts";
 
 test("media editor serialization preserves optional text and normalizes lists", () => {
   const patch = buildMediaEditorialPatch({

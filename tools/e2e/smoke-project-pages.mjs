@@ -1,5 +1,5 @@
-import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./e2e/readiness.mjs";
-import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
+import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./readiness.mjs";
+import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 let BASE_URL = "";
 const ROUTES = [

@@ -26,5 +26,3 @@
 *.zip binary
 *.7z binary
 *.rar binary
-src/components/showcases/case-header/jp-header/assets/three.module-DZlTWqWi.js whitespace=-trailing-space,-space-before-tab
-src/components/showcases/case-header/styx-header/assets/three.module-DZlTWqWi.js whitespace=-trailing-space,-space-before-tab

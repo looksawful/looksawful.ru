@@ -1,10 +1,10 @@
 import { runSmokeCv } from "../smoke-cv.mjs";
-import { runSmokeMpa } from "../smoke-mpa.mjs";
-import { runSmokeProjectPages } from "../smoke-project-pages.mjs";
 import { runSmokeNavigation } from "../smoke-site-navigation.mjs";
 import { runSmokeSite } from "../smoke-site.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 import { mapWithConcurrency } from "./concurrency.mjs";
+import { runSmokeMpa } from "./smoke-mpa.mjs";
+import { runSmokeProjectPages } from "./smoke-project-pages.mjs";
 import { runQuickSmoke } from "./run-smoke.mjs";
 
 export async function runAllSmokeSuites({ browser, baseUrl, cvMode = "authored" }) {

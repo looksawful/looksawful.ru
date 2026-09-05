@@ -1,13 +1,13 @@
 import { scopeFromGit } from "../ci/change-scope.mjs";
 import { runSmokeCv } from "../smoke-cv.mjs";
-import { runSmokeMpa } from "../smoke-mpa.mjs";
-import { runSmokeProjectPages } from "../smoke-project-pages.mjs";
 import { runSmokeNavigation } from "../smoke-site-navigation.mjs";
 import { runSmokeSite } from "../smoke-site.mjs";
 import { mapWithConcurrency } from "./concurrency.mjs";
 import { runAllSmokeSuites } from "./run-all.mjs";
 import { runQuickSmoke } from "./run-smoke.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
+import { runSmokeMpa } from "./smoke-mpa.mjs";
+import { runSmokeProjectPages } from "./smoke-project-pages.mjs";
 
 export async function runAffected(runtime, suites) {
   const selected = [...new Set(suites)];

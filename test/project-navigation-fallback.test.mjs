@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { initSiteInteractive } from "../src/interactive.js";
+import { initSiteInteractive } from "../src/interactive.ts";
 
 class FakeElement {
   constructor(id = "") {
