@@ -108,3 +108,39 @@ jobs:
         run: npm run test:fast
       - name: Production build
         run: npm run build:site
+
+  responsive-browser-matrix-temp:
+    if: github.event_name == 'pull_request' && github.head_ref == 'test/project-nav-browser-matrix-327'
+    name: responsive-${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - chromium
+          - firefox
+          - webkit
+          - chrome
+          - msedge
+    steps:
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build site
+        run: npm run build:vite
+      - name: Install browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run project-nav responsive diagnostic
+        env:
+          E2E_BROWSER: ${{ matrix.browser }}
+        run: npm run test:ui:responsive
