@@ -65,6 +65,35 @@ async function readGeometry(page) {
   });
 }
 
+async function readProjectHeaders(page) {
+  return page.evaluate(() => {
+    const headers = [...document.querySelectorAll(".project:not([hidden]) .project__head")];
+
+    return headers.flatMap((header) => {
+      if (!(header instanceof HTMLElement)) return [];
+
+      const name = header.querySelector(".project__name");
+      const directLogo = [...header.children].find((child) => child instanceof HTMLImageElement);
+      const identity = name instanceof HTMLElement
+        ? name
+        : directLogo instanceof HTMLElement
+          ? directLogo
+          : null;
+
+      if (!(identity instanceof HTMLElement)) return [];
+
+      const role = header.querySelector(".project__role");
+      const period = header.querySelector(".project__period");
+
+      return [{
+        identityDisplay: getComputedStyle(identity).display,
+        roleDisplay: role instanceof HTMLElement ? getComputedStyle(role).display : null,
+        periodDisplay: period instanceof HTMLElement ? getComputedStyle(period).display : null,
+      }];
+    });
+  });
+}
+
 function assertMobileGeometry(geometry, label) {
   assert.equal(geometry.position, "sticky", `${label}: navigation must remain sticky`);
   assert.ok(
@@ -83,12 +112,40 @@ function assertMobileGeometry(geometry, label) {
   );
 }
 
+function assertMobileProjectHeaders(headers, label) {
+  assert.ok(headers.length > 0, `${label}: expected at least one visible project header identity`);
+
+  for (const header of headers) {
+    assert.equal(header.identityDisplay, "none", `${label}: repeated project identity must be hidden`);
+
+    if (header.roleDisplay !== null) {
+      assert.notEqual(header.roleDisplay, "none", `${label}: project role must remain visible`);
+    }
+
+    if (header.periodDisplay !== null) {
+      assert.notEqual(header.periodDisplay, "none", `${label}: project period must remain visible`);
+    }
+  }
+}
+
+function assertWideProjectHeaders(headers) {
+  assert.ok(headers.length > 0, "wide viewport: expected at least one visible project header identity");
+
+  for (const header of headers) {
+    assert.notEqual(header.identityDisplay, "none", "wide viewport: project identity must remain visible");
+  }
+}
+
 async function checkMobileViewport(browser, baseUrl, viewport) {
   const { context, page } = await openHomepage(browser, baseUrl, viewport, { mobile: true });
 
   try {
     await scrollInsideProjects(page);
     assertMobileGeometry(await readGeometry(page), `${viewport.width}x${viewport.height}`);
+    assertMobileProjectHeaders(
+      await readProjectHeaders(page),
+      `${viewport.width}x${viewport.height}`,
+    );
 
     const reducedHeight = Math.max(640, viewport.height - 160);
     await page.setViewportSize({ width: viewport.width, height: reducedHeight });
@@ -127,6 +184,7 @@ async function checkWideViewport(browser, baseUrl) {
     );
     assert.equal(geometry.hasViewportAnchor, false, "wide navigation must not gain JS viewport anchor");
     assert.equal(geometry.inlineViewportOffset, "", "wide navigation must not gain JS viewport offset");
+    assertWideProjectHeaders(await readProjectHeaders(page));
   } finally {
     await context.close();
   }
