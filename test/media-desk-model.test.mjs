@@ -5,7 +5,7 @@ import {
   filterAndSortMediaDeskItems,
   getMediaDeskIssues,
   mediaDeskCompleteness,
-} from "../src/tools/media-desk/model.ts";
+} from "../src/devtools/media-desk/model.ts";
 
 const projectNames = new Map([
   ["project-a", "Alpha Project"],
