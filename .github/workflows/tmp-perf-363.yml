@@ -6,7 +6,7 @@ on:
       - agent/home-images-mainthread-363
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify:
@@ -18,5 +18,17 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Focused RED/GREEN
+      - name: Generate responsive metadata through canonical pipeline
+        run: npm run media:build
+      - name: Hero responsive GREEN
         run: node --test test/home-media-deferral.test.mjs
+      - name: Commit generated responsive metadata
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/media/responsive-generated.ts public/media/generated/responsive-manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "media: generate responsive hero metadata"
+            git push
+          fi
