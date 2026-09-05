@@ -4,35 +4,46 @@ import test from "node:test";
 
 import { renderEntityIntro } from "../src/components/composition/index.ts";
 import { jesteiIntro } from "../src/data/content/jestei-pool.ts";
-import {
-  extractElementById,
-  extractElementContainingMarker,
-} from "../src/site/rendering/html.ts";
+import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
 
 const indexHtml = await readFile(new URL("../index.html", import.meta.url), "utf8");
+const legacyCanonicalEntityShells = /<article\b(?=[^>]*\bid=["']project-(?:jestei|styx|sensetique|shootings)["'])[^>]*>\s*<\/article>\s*/g;
+const legacyHiddenProjectArticles = /<article\b(?=[^>]*\bclass=["'][^"']*\bproject\b[^"']*["'])(?=[^>]*\bhidden\b)[^>]*>[\s\S]*?<\/article>\s*/g;
 
-test("canonical homepage entity source shells contain no legacy body", () => {
+function withoutLegacyProjectScaffolds(html) {
+  return html
+    .replace(legacyCanonicalEntityShells, "")
+    .replace(legacyHiddenProjectArticles, "");
+}
+
+test("homepage canonical entities do not depend on legacy source article scaffolds", () => {
+  const source = withoutLegacyProjectScaffolds(indexHtml);
+  const html = renderHomepagePage(source);
+
   for (const articleId of [
     "project-jestei",
     "project-styx",
     "project-sensetique",
     "project-shootings",
   ]) {
-    const article = extractElementById(indexHtml, "article", articleId);
-    assert.match(article, new RegExp(`^<article\\b[^>]*\\bid=["']${articleId}["'][^>]*>`));
-    const body = article
-      .replace(/^<article\b[^>]*>/, "")
-      .replace(/<\/article>$/, "");
-    assert.equal(body.trim(), "", `${articleId} still carries legacy source-template body`);
+    assert.equal(
+      (html.match(new RegExp(`id=["']${articleId}["']`, "g")) ?? []).length,
+      1,
+      `${articleId} must be rendered exactly once from canonical PageContent`,
+    );
   }
+
+  assert.doesNotMatch(
+    html,
+    /<!-- (?:BERRY|SANDS|AWFUL_CASES|MOVES_AWFUL|MAD_COW_FILMS|LI_NE_AGENCY|PROGRESS_TRADITION|MOSCOW_NEWS)_[A-Z0-9_]+ -->/,
+  );
 });
 
-test("marker-based extraction returns the complete hidden Project article only", () => {
-  const article = extractElementContainingMarker(indexHtml, "article", "<!-- AWFUL_CASES_INTRO -->");
-  assert.match(article, /^<article\b[^>]*hidden[^>]*>/);
-  assert.match(article, /<!-- AWFUL_CASES_INTRO -->/);
-  assert.match(article, /class="media mockup awful-cases-game"/);
-  assert.doesNotMatch(article, /<!-- MOVES_AWFUL_INTRO -->/);
+test("homepage build removes retired hidden Project marker scaffolds", () => {
+  const html = renderHomepagePage(indexHtml);
+
+  assert.doesNotMatch(html, /<!-- [A-Z][A-Z0-9_]+ -->/);
+  assert.doesNotMatch(html, /<article\b(?=[^>]*\bclass=["'][^"']*\bproject\b[^"']*["'])(?=[^>]*\bhidden\b)/);
 });
 
 test("entity intro keeps homepage h2 by default and supports standalone h1", () => {
