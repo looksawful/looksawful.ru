@@ -40,17 +40,37 @@ Git LFS is intentionally not used for the GitHub Pages media contract. Do not ad
 
 The Pages CMS `Проверить сайт` actions dispatch `.github/workflows/ci-fast.yml` at explicit `ref: dev`. Fast CI performs the repository-growth guard and existing media-state cache/recovery guard, then typecheck, fast tests and `build:site`.
 
+`Проверить сайт` does not validate unsynchronized text that exists only on `content/text-cms`. Staged copy is validated after it is applied to a temporary integration branch based on current `dev`, where the normal PR checks can run, or after it reaches `dev`.
+
+## Manual text staging
+
+`content/text-cms` is a permanent manual Pages CMS branch for text/copy editing. It is not an integration, publication or deployment branch.
+
+Normal transfer is deliberately two-stage:
+
+```text
+content/text-cms
+  -> owner-approved text diff
+  -> disposable integration branch created from latest dev
+  -> checks / PR
+  -> dev
+```
+
+Do not merge `content/text-cms` wholesale into `dev`. Do not use it as the head of an ordinary merge PR, because repository settings may automatically delete merged PR branches. After a successful transfer, synchronize the permanent branch back to the latest `dev` tree only when a fresh comparison shows that no new CMS edits remain pending. Routine synchronization preserves history and is non-force.
+
 ## CMS push behavior
 
-`.github/workflows/ci-fast.yml` listens to pushes on `dev`, but deliberately ignores the configured CMS text/content paths and media paths that have their own handling. Therefore a normal text-only CMS save does not automatically run Fast CI merely because it created a commit.
+`.github/workflows/ci-fast.yml` listens to pushes on `dev`, but deliberately ignores the configured CMS text/content paths and media paths that have their own handling. A text-only save on `content/text-cms` does not create a `dev` push at all, and therefore does not run the `dev` push pipeline.
 
-Use `Проверить сайт` when a manual fast verification is needed. Pull requests targeting `dev` or `prod` are still in the Fast CI PR trigger.
+Use the temporary integration PR to obtain normal PR verification for staged text. Pull requests targeting `dev` or `prod` remain in the Fast CI PR trigger.
 
 ## CMS media mutation
 
 The current mutation workflow is `.github/workflows/cms-media.yml` (`CMS media`). It is explicitly tied to `dev` media/content paths.
 
-It can normalize catalog metadata and generated media state, but persistence is guarded to explicit allowed paths. Before writing back it confirms `origin/dev` still matches the source SHA and pushes non-force to `dev`. Verification workflows themselves should not gain arbitrary mutation behavior.
+The permanent `content/text-cms` branch does not replace or broaden this media contract. It is for manual text staging. Media uploads, normalization and generated metadata continue through the existing `dev`-bound workflow unless a separate engineering change explicitly redesigns that system.
+
+The media workflow can normalize catalog metadata and generated media state, but persistence is guarded to explicit allowed paths. Before writing back it confirms `origin/dev` still matches the source SHA and pushes non-force to `dev`. Verification workflows themselves should not gain arbitrary mutation behavior.
 
 CMS media checks out the source SHA shallowly and fetches only the exact previous push commit needed for diffing and cache comparison. It does not require complete repository history.
 
@@ -58,19 +78,22 @@ Source masters remain preserved; generated technical metadata and derivatives re
 
 ## CMS publication
 
-Pages CMS editing and publication trust are intentionally separate:
+Manual text editing, integration, publication trust and production deployment are intentionally separate:
 
 ```text
-edit/save branch: dev
+manual text edit/save branch: content/text-cms
+integration/publication source: dev
 trusted publication workflow ref: prod
 production deployment branch: prod
 ```
 
-`Подготовить публикацию` must validate current branch topology and the full `prod..dev` publication scope using trusted `prod` policy, then create/reuse a `dev -> prod` PR. It must not perform the merge/deploy itself.
+Text on `content/text-cms` has no direct publication authority. It must first be copied as approved editorial values onto a fresh integration branch based on current `dev`, pass the relevant checks and be merged to `dev`.
+
+`Подготовить публикацию` continues to validate current branch topology and the full `prod..dev` publication scope using trusted `prod` policy, then create/reuse a `dev -> prod` PR. It must not perform the merge/deploy itself.
 
 Publication starts from shallow `prod`/`dev` tips. When their trees differ and the common history is not yet available, the workflow deepens history in bounded stages before using a full-history fallback. The content-aware topology guard remains fail-closed.
 
-The publication classifier is separate from ordinary CI change classification: verification coverage is not publication authorization.
+The publication classifier is separate from ordinary CI change classification: verification coverage is not publication authorization. The staging branch is outside this classifier until approved values have reached `dev`.
 
 ## Production deployment
 
@@ -80,8 +103,10 @@ The publication classifier is separate from ordinary CI change classification: v
 
 Repository default-branch choice is not used as a substitute for operational branch names:
 
-- development/CMS automation should explicitly target `dev`;
-- production deployment and trusted CMS publication policy should explicitly target `prod`;
-- Dependabot should explicitly target `dev`.
+- ordinary development and integration explicitly target `dev`;
+- manual Pages CMS text staging explicitly targets `content/text-cms`;
+- existing CMS media automation explicitly targets `dev`;
+- production deployment and trusted CMS publication policy explicitly target `prod`;
+- Dependabot explicitly targets `dev`.
 
-This keeps behavior stable if the GitHub repository default branch is later changed from `prod` to `dev`.
+This keeps behavior stable even though the repository default branch is currently `dev`, and keeps the permanent text-staging branch isolated from concurrent engineering work.
