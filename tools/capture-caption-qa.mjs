@@ -3,6 +3,22 @@ import { resolve } from "node:path";
 
 import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
 
+const CAPTION_QA_TARGET = {
+  slug: "jestei",
+  path: "/work/jestei-pool/",
+};
+
+const MOBILE_VIEWPORTS = [
+  { width: 320, height: 844 },
+  { width: 360, height: 844 },
+  { width: 390, height: 844 },
+  { width: 430, height: 844 },
+];
+
+function targetUrl(baseUrl, target) {
+  return new URL(target.path, baseUrl).href;
+}
+
 async function freezeMotion(page) {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addStyleTag({
@@ -49,13 +65,13 @@ async function captureHoverPair(page, locator, outputDir, stem) {
   await captureLocator(page, locator, `${outputDir}/${stem}-active.png`);
 }
 
-async function captureDesktop(browser, baseUrl, outputDir) {
+async function captureDesktop(browser, baseUrl, outputDir, target) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     reducedMotion: "reduce",
   });
   const page = await context.newPage();
-  await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await page.goto(targetUrl(baseUrl, target), { waitUntil: "domcontentloaded" });
   await page.evaluate(() => document.fonts?.ready);
   await freezeMotion(page);
   await page.waitForTimeout(250);
@@ -66,7 +82,7 @@ async function captureDesktop(browser, baseUrl, outputDir) {
   if (await summary.count()) {
     await summary.scrollIntoViewIfNeeded();
     await page.waitForTimeout(80);
-    await captureLocator(page, summary, `${outputDir}/desktop-summary.png`);
+    await captureLocator(page, summary, `${outputDir}/${target.slug}-desktop-summary.png`);
   }
 
   const overlay = page
@@ -74,24 +90,24 @@ async function captureDesktop(browser, baseUrl, outputDir) {
       'figure.media[data-caption-view="overlay"]:visible:has(> .media__caption .media__text)',
     )
     .first();
-  await captureHoverPair(page, overlay, outputDir, "desktop-overlay");
+  await captureHoverPair(page, overlay, outputDir, `${target.slug}-desktop-overlay`);
 
   const railOverlay = page
     .locator(
       ':is(.media-group[data-layout="strip"], .media-group[data-layout="grid"][data-overflow="reel"]) > .media-group__items > figure.media[data-caption-view="overlay"]:visible:has(> .media__caption)',
     )
     .first();
-  await captureHoverPair(page, railOverlay, outputDir, "desktop-rail-overlay");
+  await captureHoverPair(page, railOverlay, outputDir, `${target.slug}-desktop-rail-overlay`);
 
   const brandOverlay = page
     .locator('.brand-system__item:visible:has(.brand-system__hover-copy)')
     .first();
-  await captureHoverPair(page, brandOverlay, outputDir, "desktop-brand-system-overlay");
+  await captureHoverPair(page, brandOverlay, outputDir, `${target.slug}-desktop-brand-system-overlay`);
 
   const jesteiOverlay = page
     .locator('.jestei-captioned-media:visible:has(.jestei-media__hover-copy)')
     .first();
-  await captureHoverPair(page, jesteiOverlay, outputDir, "desktop-jestei-overlay");
+  await captureHoverPair(page, jesteiOverlay, outputDir, `${target.slug}-desktop-jestei-overlay`);
 
   const source = page
     .locator('figure.media:visible:has(.media__title) [data-lightbox-source]:visible')
@@ -99,43 +115,38 @@ async function captureDesktop(browser, baseUrl, outputDir) {
   if (await source.count()) {
     await source.click({ force: true });
     await page.waitForTimeout(100);
-    await page.screenshot({ path: `${outputDir}/desktop-lightbox.png` });
+    await page.screenshot({ path: `${outputDir}/${target.slug}-desktop-lightbox.png` });
   }
 
   await context.close();
 }
 
-async function captureMobile(browser, baseUrl, outputDir) {
+async function captureMobile(browser, baseUrl, outputDir, target, viewport) {
   const context = await browser.newContext({
-    viewport: { width: 390, height: 844 },
+    viewport,
     isMobile: true,
     hasTouch: true,
     reducedMotion: "reduce",
   });
   const page = await context.newPage();
-  await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await page.goto(targetUrl(baseUrl, target), { waitUntil: "domcontentloaded" });
   await page.evaluate(() => document.fonts?.ready);
   await freezeMotion(page);
   await page.waitForTimeout(250);
 
-  const overlay = page
-    .locator('figure.media[data-caption-view="overlay"]:visible:has(> .media__caption)')
-    .first();
-  if (await overlay.count()) {
-    await overlay.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(80);
-    await captureLocator(page, overlay, `${outputDir}/mobile-overlay-fallback.png`);
-  }
-
-  const railOverlay = page
+  const sequence = page
     .locator(
-      ':is(.media-group[data-layout="strip"], .media-group[data-layout="grid"][data-overflow="reel"]) > .media-group__items > figure.media[data-caption-view="overlay"]:visible:has(> .media__caption)',
+      '.media-group[data-layout="sequence"] figure.media[data-caption-view="overlay"]:visible:has(> .media__caption)',
     )
     .first();
-  if (await railOverlay.count()) {
-    await railOverlay.scrollIntoViewIfNeeded();
+  if (await sequence.count()) {
+    await sequence.scrollIntoViewIfNeeded();
     await page.waitForTimeout(80);
-    await captureLocator(page, railOverlay, `${outputDir}/mobile-rail-overlay-fallback.png`);
+    await captureLocator(
+      page,
+      sequence,
+      `${outputDir}/${target.slug}-mobile-${viewport.width}-sequence.png`,
+    );
   }
 
   const summary = page
@@ -144,16 +155,22 @@ async function captureMobile(browser, baseUrl, outputDir) {
   if (await summary.count()) {
     await summary.scrollIntoViewIfNeeded();
     await page.waitForTimeout(80);
-    await captureLocator(page, summary, `${outputDir}/mobile-summary.png`);
+    await captureLocator(
+      page,
+      summary,
+      `${outputDir}/${target.slug}-mobile-${viewport.width}-summary-control.png`,
+    );
   }
 
-  const source = page
-    .locator('figure.media:visible:has(.media__title) [data-lightbox-source]:visible')
-    .first();
-  if (await source.count()) {
-    await source.tap({ force: true });
-    await page.waitForTimeout(100);
-    await page.screenshot({ path: `${outputDir}/mobile-lightbox.png` });
+  if (viewport.width === 390 && await sequence.count()) {
+    const source = sequence.locator("[data-lightbox-source]:visible").first();
+    if (await source.count()) {
+      await source.tap({ force: true });
+      await page.waitForTimeout(100);
+      await page.screenshot({
+        path: `${outputDir}/${target.slug}-mobile-${viewport.width}-lightbox.png`,
+      });
+    }
   }
 
   await context.close();
@@ -166,8 +183,10 @@ export async function captureCaptionQa({
 }) {
   const absoluteOutputDir = resolve(outputDir);
   await mkdir(absoluteOutputDir, { recursive: true });
-  await captureDesktop(browser, baseUrl, absoluteOutputDir);
-  await captureMobile(browser, baseUrl, absoluteOutputDir);
+  await captureDesktop(browser, baseUrl, absoluteOutputDir, CAPTION_QA_TARGET);
+  for (const viewport of MOBILE_VIEWPORTS) {
+    await captureMobile(browser, baseUrl, absoluteOutputDir, CAPTION_QA_TARGET, viewport);
+  }
   console.log(`Caption QA screenshots written to ${absoluteOutputDir}`);
 }
 
