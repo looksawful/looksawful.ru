@@ -158,5 +158,5 @@ test("Pages deployment verifies Yandex-visible discovery files after publish", (
   assert.match(pagesWorkflow, /favicon\.svg/);
   assert.match(pagesWorkflow, /robots\.txt/);
   assert.match(pagesWorkflow, /sitemap\.xml/);
-  assert.match(pagesWorkflow, /image\/svg\+xml/);
+  assert.match(pagesWorkflow, /content-type:[^\n]*image\/svg/);
 });
