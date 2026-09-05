@@ -5,6 +5,8 @@ import type { Plugin } from "vite";
 
 import { cvContent } from "../../data/cv.ts";
 import { sitePages } from "../pages/manifest.ts";
+import { cvSearchPresentation } from "../pages/search-presentation.ts";
+import { replacePageMetadata } from "../shell/metadata.ts";
 import { publicStaticOutputPath } from "./public-static.ts";
 
 interface CvTransformResult {
@@ -61,7 +63,11 @@ export async function finalizeProductionCv(
     throw new Error(`Hidden CV experience card remains in ${target}`);
   }
 
-  const productionHtml = analyticsModule.injectStaticSiteAnalytics(result.html, {
+  const withMetadata = replacePageMetadata(result.html, {
+    page: cvPage,
+    ...cvSearchPresentation,
+  });
+  const productionHtml = analyticsModule.injectStaticSiteAnalytics(withMetadata, {
     cloudflareToken: env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN,
     yandexCounterId: env.VITE_YANDEX_METRIKA_COUNTER_ID,
   });
