@@ -80,7 +80,7 @@ async function verifyCanvas(page) {
   assert.notEqual(await page.locator("[data-animated-canvas-gallery]").first().getAttribute("data-gallery-state"), "error");
 }
 
-export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
+export async function runQuickSmoke({ browser, baseUrl, cvMode = "production" }) {
   const runtime = { browser, baseUrl };
   // These are the only parallel contexts; callers run quick smoke before deep suites.
   await mapWithConcurrency(VIEWPORTS, 2, (viewport) => audit(runtime, "/", viewport, async (page) => {
