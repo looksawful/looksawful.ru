@@ -6,7 +6,7 @@ import test from "node:test";
 const componentUrl = new URL("../src/components/site-analytics.ts", import.meta.url);
 const consentUrl = new URL("../src/components/site-analytics-consent.ts", import.meta.url);
 const consentStylesUrl = new URL("../src/styles/site-analytics-consent.css", import.meta.url);
-const mainUrl = new URL("../src/main.js", import.meta.url);
+const mainUrl = new URL("../src/main.ts", import.meta.url);
 
 async function loadAnalytics() {
   return import(componentUrl.href);
