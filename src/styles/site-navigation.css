@@ -158,7 +158,8 @@
   pointer-events: none;
 }
 
-.site-nav[data-menu-open] .site-nav__context {
+.site-nav[data-menu-open] .site-nav__context,
+.site-nav[data-menu-open] .site-nav__breadcrumbs {
   display: none;
 }
 
