@@ -6,7 +6,7 @@ import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 
-async function assertBasicAccessibility(page, route) {
+export async function assertBasicAccessibility(page, route) {
   const violations = await page.evaluate(() => {
     const issues = [];
     const normalize = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
