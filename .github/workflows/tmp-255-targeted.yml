@@ -1,8 +1,8 @@
 name: Tmp 255 targeted
 
 on:
-  push:
-    branches: [agent/editorial-ownership-255]
+  pull_request:
+    branches: [dev]
 
 permissions:
   contents: write
