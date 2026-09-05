@@ -9,20 +9,33 @@ const indexSource = readFileSync(indexPath, "utf8");
 const mainSource = readFileSync(mainPath, "utf8");
 const componentSource = existsSync(componentPath) ? readFileSync(componentPath, "utf8") : "";
 
-test("dedicated navigation stylesheet loads as component-owned CSS without changing the protected stylesheet entrypoint", () => {
+test("dedicated navigation stylesheet stays component-owned", () => {
   assert.ok(existsSync(componentPath), "site navigation stylesheet must exist");
   assert.doesNotMatch(indexSource, /site-navigation\.css/);
   assert.match(mainSource, /import\s+["']\.\/styles\/site-navigation\.css["'];/);
 });
 
-test("site navigation CSS keeps one responsive structure and the minimal full-viewport menu", () => {
+test("site navigation uses one two-column responsive structure and minimal fullscreen menu", () => {
   assert.match(componentSource, /\.site-nav__bar/);
-  assert.match(componentSource, /grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)\s+max-content/);
-  assert.match(componentSource, /\.site-nav__toggle/);
-  assert.match(componentSource, /min-inline-size:\s*2\.75rem/);
-  assert.match(componentSource, /min-block-size:\s*2\.75rem/);
-  assert.match(componentSource, /\.site-nav__menu/);
-  assert.match(componentSource, /position:\s*fixed/);
+  assert.match(componentSource, /grid-template-columns:\s*minmax\(0,\s*1fr\)\s+max-content/);
+  assert.doesNotMatch(componentSource, /\.site-nav__brand\b|\.site-nav__toggle-icon\b/);
+  assert.match(componentSource, /\.site-nav__toggle\b[\s\S]*?min-inline-size:\s*3\.5rem/);
+  assert.match(componentSource, /\.site-nav__toggle-face\b[\s\S]*?inline-size:\s*3rem/);
+  assert.match(componentSource, /\.site-nav__menu\b[\s\S]*?position:\s*fixed/);
+  assert.match(componentSource, /\.site-nav__menu\b[\s\S]*?overflow:\s*clip/);
   assert.match(componentSource, /background:\s*var\(--clr-bg\)/);
   assert.doesNotMatch(componentSource, /box-shadow|backdrop-filter|border-radius/);
+});
+
+test("coarse pointer geometry and fine-pointer preview are CSS capability contracts", () => {
+  assert.match(componentSource, /@media\s*\([^)]*(?:hover:\s*none|pointer:\s*coarse)/);
+  assert.match(componentSource, /--site-nav-height:\s*4rem/);
+  assert.match(componentSource, /min-inline-size:\s*4rem/);
+  assert.match(componentSource, /\.site-nav__toggle-face\b[\s\S]*?inline-size:\s*3\.5rem/);
+  assert.match(componentSource, /\.awfulface__morph-targets\b[\s\S]*?visibility:\s*hidden/);
+  assert.match(componentSource, /\.menu-preview\b/);
+  assert.match(componentSource, /inline-size:\s*clamp\(15rem,\s*27vi,\s*29rem\)/);
+  assert.match(componentSource, /aspect-ratio:\s*790\s*\/\s*680/);
+  assert.match(componentSource, /@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)/);
+  assert.match(componentSource, /@media\s*\(prefers-reduced-motion:\s*no-preference\)/);
 });
