@@ -53,7 +53,6 @@
     "verify:core": "npm run typecheck && npm run test:core && npm run build:site && npm run test:e2e:full",
     "verify": "npm run media:ensure && npm run typecheck && npm run test:fast && npm run test:media:contract && npm run build:site && npm run test:e2e:smoke",
     "verify:full": "npm run media:sync && npm run verify:core",
-    "cv:prod:prepare": "npm run cv:prod:verify",
     "cv:prod:verify": "node tools/verify-cv-production.mjs"
   },
   "devDependencies": {
