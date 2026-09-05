@@ -36,10 +36,6 @@ export interface SectionNoteData {
   kind?: SectionNoteKind;
 }
 
-export interface SectionHeadingData {
-  text: string;
-}
-
 export interface SectionIntroData {
   title: string;
   paragraphs?: readonly string[];
