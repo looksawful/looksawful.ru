@@ -86,7 +86,7 @@ test("combined browser regression uses one shared runtime while individual suite
     ["smoke-site.mjs", "runSmokeSite"],
     ["smoke-site-navigation.mjs", "runSmokeNavigation"],
     ["smoke-mpa.mjs", "runSmokeMpa"],
-    ["smoke-project-pages.mjs", "runSmokeProjectPages"],
+    ["e2e/smoke-project-pages.mjs", "runSmokeProjectPages"],
     ["smoke-cv.mjs", "runSmokeCv"],
   ];
   for (const [fileName, exportName] of suites) {
