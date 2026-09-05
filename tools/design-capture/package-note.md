@@ -1,1 +1,0 @@
-This tool uses the repository's existing `playwright` devDependency and Node/Vite tooling only. It must not add production dependencies or runtime imports.
