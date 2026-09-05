@@ -1,0 +1,44 @@
+name: Nightly Quality Diagnostics Once
+
+on:
+  pull_request:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+jobs:
+  external-links:
+    if: github.head_ref == 'agent/nightly-quality-fix-v2-20260905'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build:vite
+      - run: npm run cv:content:apply
+      - name: Run external link checker
+        id: links
+        continue-on-error: true
+        run: npm run check:external-links
+      - name: Print broken external links
+        if: always()
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile } from 'node:fs/promises';
+          const report = JSON.parse(await readFile('artifacts/external-links/report.json', 'utf8'));
+          const broken = report.results.filter((item) => item.severity === 'broken');
+          console.log(JSON.stringify(broken, null, 2));
+          NODE
+      - name: Preserve checker result
+        if: steps.links.outcome == 'failure'
+        run: exit 1
