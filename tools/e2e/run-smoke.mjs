@@ -6,6 +6,16 @@ import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 
+export function getExpectedStaticAnalyticsBootstrapCount(env = process.env) {
+  const cloudflareToken = typeof env?.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN === "string"
+    ? env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN.trim()
+    : "";
+  const yandexCounterId = typeof env?.VITE_YANDEX_METRIKA_COUNTER_ID === "string"
+    ? env.VITE_YANDEX_METRIKA_COUNTER_ID.trim()
+    : "";
+  return cloudflareToken || /^[1-9]\d*$/.test(yandexCounterId) ? 1 : 0;
+}
+
 export async function assertBasicAccessibility(page, route) {
   const violations = await page.evaluate(() => {
     const issues = [];
@@ -171,10 +181,13 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     assert.equal(await page.locator(".experience-card").count(), getExpectedCvCardCount(cvMode));
     assert.equal(await page.locator(".experience-card[hidden]").count(), getExpectedCvHiddenCards(cvMode));
     if (cvMode === "production") {
+      const expectedAnalyticsBootstrapCount = getExpectedStaticAnalyticsBootstrapCount();
       assert.equal(
         await page.locator("script[data-static-site-analytics]").count(),
-        1,
-        "Production CV must include exactly one isolated analytics bootstrap",
+        expectedAnalyticsBootstrapCount,
+        expectedAnalyticsBootstrapCount === 1
+          ? "Production CV must include exactly one isolated analytics bootstrap when analytics is configured"
+          : "Production CV must not include an analytics bootstrap without configured providers",
       );
       assert.equal(
         await page.locator('script[src="/src/main.js"], script[src^="/assets/main-"]').count(),

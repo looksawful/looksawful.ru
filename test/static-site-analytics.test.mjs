@@ -52,7 +52,8 @@ test("production public-static CV is finalized during the Vite build instead of 
   assert.match(plugin, /removeHidden:\s*true/);
   assert.match(plugin, /injectStaticSiteAnalytics/);
   assert.equal(pkg.scripts?.["cv:content:apply"], undefined);
-  assert.equal(pkg.scripts?.["cv:prod:prepare"], "npm run cv:prod:verify");
+  assert.equal(pkg.scripts?.["cv:prod:prepare"], undefined);
+  assert.equal(pkg.scripts?.["cv:prod:verify"], "node tools/verify-cv-production.mjs");
   assert.doesNotMatch(pkg.scripts?.["site:postbuild"] ?? "", /cv:content:apply/);
   assert.equal(existsSync(new URL("../tools/apply-cv-content.mjs", import.meta.url)), false);
   assert.equal(existsSync(new URL("../tools/prepare-cv-production.mjs", import.meta.url)), false);
