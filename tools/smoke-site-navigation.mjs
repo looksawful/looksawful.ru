@@ -76,6 +76,14 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(!initial.oldBrandPresent, `${label}: old brand/hamburger markup is still rendered`);
     assert(initial.overflow <= 1, `${label}: initial horizontal overflow ${initial.overflow}px`);
 
+    if (path !== "/") {
+      const breadcrumb = await page.locator('[aria-label="Хлебные крошки"]').innerText();
+      assert(breadcrumb.includes(currentLabel), `${label}: breadcrumb is missing current label: ${breadcrumb}`);
+      if (!mobile) {
+        assert(breadcrumb.includes(requireLabel("home")), `${label}: desktop breadcrumb is missing home label: ${breadcrumb}`);
+      }
+    }
+
     if (mobile) {
       const neutralEyes = await page.evaluate(() => {
         const left = document.querySelector("[data-awfulface-eye-left]");
@@ -105,9 +113,11 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     await toggle.click();
 
     const opened = await page.evaluate(({ primaryLinks, current, mobileViewport }) => {
+      const siteNav = document.querySelector(".site-nav");
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
       const bar = document.querySelector(".site-nav__bar");
+      const navContext = document.querySelector(".site-nav__context, .site-nav__breadcrumbs");
       const main = document.querySelector("main");
       const preview = document.querySelector("[data-menu-preview]");
       const faceBackground = document.querySelector(".awfulface__background");
@@ -118,8 +128,13 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
       ]);
       const currentLink = document.querySelector('.site-nav__menu-link[aria-current="page"]');
       const menuRect = menu instanceof HTMLElement ? menu.getBoundingClientRect() : null;
+      const barRect = bar instanceof HTMLElement ? bar.getBoundingClientRect() : null;
+      const navRect = siteNav instanceof HTMLElement ? siteNav.getBoundingClientRect() : null;
+      const toggleRect = toggle instanceof HTMLElement ? toggle.getBoundingClientRect() : null;
       const menuLinkStyle = firstMenuLink instanceof HTMLElement ? getComputedStyle(firstMenuLink) : null;
       const barStyle = bar instanceof HTMLElement ? getComputedStyle(bar) : null;
+      const contextStyle = navContext instanceof HTMLElement ? getComputedStyle(navContext) : null;
+      const toggleStyle = toggle instanceof HTMLElement ? getComputedStyle(toggle) : null;
       const faceBackgroundStyle = faceBackground instanceof SVGElement ? getComputedStyle(faceBackground) : null;
       return {
         expanded: toggle?.getAttribute("aria-expanded") || "",
@@ -135,6 +150,17 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
           && menuRect.bottom >= innerHeight - 1
         ),
         barBackground: barStyle?.backgroundColor || "",
+        barHeight: barRect?.height ?? null,
+        navHeight: navRect?.height ?? null,
+        contextDisplay: contextStyle?.display || "",
+        togglePosition: toggleStyle?.position || "",
+        toggleFloatsInViewport: Boolean(
+          toggleRect
+          && toggleRect.width >= 44
+          && toggleRect.height >= 44
+          && toggleRect.top >= -1
+          && toggleRect.right <= innerWidth + 1
+        ),
         faceBackgroundFill: faceBackgroundStyle?.fill || "",
         menuTextAlign: menuLinkStyle?.textAlign || "",
         menuJustifyContent: menuLinkStyle?.justifyContent || "",
@@ -153,6 +179,11 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
       opened.barBackground === "rgba(0, 0, 0, 0)" || opened.barBackground === "transparent",
       `${label}: open menu header still paints a detached strip (${opened.barBackground})`,
     );
+    assert(typeof opened.barHeight === "number" && opened.barHeight <= 1, `${label}: open header band still occupies ${opened.barHeight}px`);
+    assert(typeof opened.navHeight === "number" && opened.navHeight <= 1, `${label}: open site-nav still reserves ${opened.navHeight}px`);
+    assert(opened.contextDisplay === "none", `${label}: breadcrumb/context remains in the open header band (${opened.contextDisplay})`);
+    assert(opened.togglePosition === "fixed", `${label}: Awfulface is still positioned as part of the header row (${opened.togglePosition})`);
+    assert(opened.toggleFloatsInViewport, `${label}: floating Awfulface control left the usable viewport`);
     assert(opened.faceBackgroundFill === "none", `${label}: Awfulface backing disc is still visible (${opened.faceBackgroundFill})`);
     assert(JSON.stringify(opened.links) === JSON.stringify(PRIMARY_LINKS), `${label}: primary menu destinations differ`);
     assert(opened.currentLabel === currentLabel, `${label}: wrong active menu item ${opened.currentLabel}`);
@@ -222,20 +253,17 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
       `${label}: open menu horizontal overflow with long CMS label ${openMenuOverflowWithLongLabel}px`,
     );
 
-    if (path !== "/") {
-      const breadcrumb = await page.locator('[aria-label="Хлебные крошки"]').innerText();
-      assert(breadcrumb.includes(currentLabel), `${label}: breadcrumb is missing current label: ${breadcrumb}`);
-      if (!mobile) {
-        assert(breadcrumb.includes(requireLabel("home")), `${label}: desktop breadcrumb is missing home label: ${breadcrumb}`);
-      }
-    }
-
     await page.keyboard.press("Escape");
 
     const closed = await page.evaluate(() => {
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
+      const bar = document.querySelector(".site-nav__bar");
+      const navContext = document.querySelector(".site-nav__context, .site-nav__breadcrumbs");
       const main = document.querySelector("main");
+      const barRect = bar instanceof HTMLElement ? bar.getBoundingClientRect() : null;
+      const contextStyle = navContext instanceof HTMLElement ? getComputedStyle(navContext) : null;
+      const toggleStyle = toggle instanceof HTMLElement ? getComputedStyle(toggle) : null;
       return {
         expanded: toggle?.getAttribute("aria-expanded") || "",
         menuHidden: menu instanceof HTMLElement ? menu.hidden : null,
@@ -243,6 +271,9 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
         mainInert: main instanceof HTMLElement ? main.inert : null,
         focusReturned: document.activeElement === toggle,
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        barHeight: barRect?.height ?? null,
+        contextDisplay: contextStyle?.display || "",
+        togglePosition: toggleStyle?.position || "",
       };
     });
 
@@ -252,6 +283,9 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(closed.mainInert === false, `${label}: main inert state was not restored`);
     assert(closed.focusReturned, `${label}: focus did not return to menu control`);
     assert(closed.overflow <= 1, `${label}: horizontal overflow after close ${closed.overflow}px`);
+    assert(typeof closed.barHeight === "number" && closed.barHeight >= 44, `${label}: closed header did not restore its normal height`);
+    assert(closed.contextDisplay !== "none", `${label}: closed breadcrumb/context did not return`);
+    assert(closed.togglePosition !== "fixed", `${label}: closed Awfulface stayed detached from the normal header`);
 
     console.log(`[smoke-navigation] ${label}: OK`);
   } finally {
