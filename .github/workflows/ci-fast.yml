@@ -104,8 +104,5 @@ jobs:
         run: npm run typecheck
       - name: Fast tests
         run: npm run test:fast
-      - name: CV cleanup broader CI contracts
-        if: github.event_name == 'pull_request' && github.head_ref == 'agent/remove-cv-prod-prepare-20260905'
-        run: npm run test:ci
       - name: Production build
         run: npm run build:site
