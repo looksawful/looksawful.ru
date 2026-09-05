@@ -30,6 +30,19 @@ test("combined preview runners default CV checks to production artifacts", async
   assert.match(full, /runAllSmokeSuites\(\{\s*browser,\s*baseUrl,\s*cvMode\s*=\s*["']production["']/s);
 });
 
+test("production CV static analytics expectation follows build-time provider configuration", async () => {
+  const smoke = await import("../tools/e2e/run-smoke.mjs");
+  assert.equal(typeof smoke.getExpectedStaticAnalyticsBootstrapCount, "function");
+  assert.equal(smoke.getExpectedStaticAnalyticsBootstrapCount({}), 0);
+  assert.equal(smoke.getExpectedStaticAnalyticsBootstrapCount({ VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: "cf-token" }), 1);
+  assert.equal(smoke.getExpectedStaticAnalyticsBootstrapCount({ VITE_YANDEX_METRIKA_COUNTER_ID: "112065623" }), 1);
+  assert.equal(smoke.getExpectedStaticAnalyticsBootstrapCount({ VITE_YANDEX_METRIKA_COUNTER_ID: "invalid" }), 0);
+  assert.equal(smoke.getExpectedStaticAnalyticsBootstrapCount({
+    VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: "cf-token",
+    VITE_YANDEX_METRIKA_COUNTER_ID: "112065623",
+  }), 1);
+});
+
 test("caption QA stays optional and import-safe", async () => {
   const source = await read("tools/capture-caption-qa.mjs");
   assert.match(source, /export async function captureCaptionQa\(\{\s*browser,\s*baseUrl,/s);
