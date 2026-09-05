@@ -120,7 +120,7 @@ test("partial responsive generation preserves untouched manifest entries byte-fo
   }
 });
 
-test("media-only PRs use the affected image gate instead of Fast CI recovery", async () => {
+test("raster-only PRs use the affected image gate instead of Fast CI recovery", async () => {
   const [fastCi, cmsMedia, affectedWorkflow] = await Promise.all([
     readRepo(".github/workflows/ci-fast.yml"),
     readRepo(".github/workflows/cms-media.yml"),
@@ -130,8 +130,14 @@ test("media-only PRs use the affected image gate instead of Fast CI recovery", a
   ]);
 
   assert.match(fastCi, /pull_request:\s*\n\s+branches: \[dev, prod\][\s\S]*?paths-ignore:/);
-  assert.match(fastCi, /public\/media\/projects\/index\/\*\*/);
-  assert.match(fastCi, /public\/media\/catalog\/\*\*/);
+  for (const extension of ["jpg", "jpeg", "png", "webp", "avif", "gif"]) {
+    assert.match(fastCi, new RegExp(`public/media/\\*\\*/\\*\\.${extension}`));
+  }
+  assert.doesNotMatch(
+    fastCi,
+    /pull_request:[\s\S]*?paths-ignore:[\s\S]*?public\/media\/catalog\/\*\*/,
+    "video-bearing catalog folders must not be skipped wholesale",
+  );
 
   assert.doesNotMatch(
     cmsMedia,
