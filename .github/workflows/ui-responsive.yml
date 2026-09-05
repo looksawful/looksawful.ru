@@ -1,6 +1,9 @@
 name: UI Responsive
 
 on:
+  push:
+    branches:
+      - feat/page-visibility-267-final
   workflow_dispatch:
 
 permissions:
