@@ -13,7 +13,15 @@ import {
 } from "./discover-breakpoints.mjs";
 import { addCapture, addWarning } from "./manifest.mjs";
 import { componentCapturePath, safeOutputPath } from "./paths.mjs";
-import { openDesignPage, settleDesignPage } from "./runtime.mjs";
+import {
+  openDesignPage,
+  SCREENSHOT_TIMEOUT_MS,
+  settleDesignPage,
+} from "./runtime.mjs";
+
+function errorMessage(error) {
+  return error instanceof Error ? error.message : String(error);
+}
 
 async function discoveredBreakpoints(rootDir, component, manifest) {
   const groups = [];
@@ -27,7 +35,7 @@ async function discoveredBreakpoints(rootDir, component, manifest) {
     } catch (error) {
       addWarning(
         manifest,
-        `${component.name}: could not read stylesheet hint ${relativePath}: ${error instanceof Error ? error.message : String(error)}`,
+        `${component.name}: could not read stylesheet hint ${relativePath}: ${errorMessage(error)}`,
       );
     }
   }
@@ -90,22 +98,32 @@ async function captureComponentSide({
         addWarning(manifest, `${component.name} instance ${instance} is hidden at ${width}px; skipped`);
         continue;
       }
-      await target.screenshot({
-        path: absolutePath,
-        animations: "disabled",
-        caret: "hide",
-      });
-      addCapture(manifest, {
-        type: "component",
-        component: component.name,
-        route: component.route,
-        selector: component.selector,
-        instance,
-        breakpoint,
-        side,
-        viewport: { width, height: viewport.height },
-        file: relativePath.replaceAll("\\", "/"),
-      });
+
+      console.log(`[design-capture]   instance ${instance} screenshot start`);
+      try {
+        await target.screenshot({
+          path: absolutePath,
+          animations: "disabled",
+          caret: "hide",
+          timeout: SCREENSHOT_TIMEOUT_MS,
+        });
+        addCapture(manifest, {
+          type: "component",
+          component: component.name,
+          route: component.route,
+          selector: component.selector,
+          instance,
+          breakpoint,
+          side,
+          viewport: { width, height: viewport.height },
+          file: relativePath.replaceAll("\\", "/"),
+        });
+        console.log(`[design-capture]   instance ${instance} saved`);
+      } catch (error) {
+        const message = `${component.name} ${breakpoint}px ${side} instance ${instance}: ${errorMessage(error)}`;
+        addWarning(manifest, message);
+        console.warn(`[design-capture]   warning: ${message}`);
+      }
     }
   } finally {
     await context.close();
@@ -133,16 +151,22 @@ export async function captureComponents({
     for (const breakpoint of breakpoints) {
       for (const side of ["before", "after"]) {
         console.log(`[design-capture] component ${component.name} ${breakpoint}px ${side}`);
-        await captureComponentSide({
-          browser,
-          baseUrl,
-          rootDir,
-          outputDir,
-          manifest,
-          component,
-          breakpoint,
-          side,
-        });
+        try {
+          await captureComponentSide({
+            browser,
+            baseUrl,
+            rootDir,
+            outputDir,
+            manifest,
+            component,
+            breakpoint,
+            side,
+          });
+        } catch (error) {
+          const message = `${component.name} ${breakpoint}px ${side}: ${errorMessage(error)}`;
+          addWarning(manifest, message);
+          console.warn(`[design-capture] warning: ${message}`);
+        }
       }
     }
   }
