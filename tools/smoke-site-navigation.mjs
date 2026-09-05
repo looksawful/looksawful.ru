@@ -113,7 +113,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     await toggle.click();
 
     const opened = await page.evaluate(({ primaryLinks, current, mobileViewport }) => {
-      const siteNav = document.querySelector("[data-site-nav]");
+      const siteNav = document.querySelector(".site-nav");
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
       const bar = document.querySelector(".site-nav__bar");
