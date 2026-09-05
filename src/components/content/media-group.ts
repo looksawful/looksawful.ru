@@ -1,1 +1,1 @@
-export * from "../../templates/media-group.ts";
+export * from "../media-group.ts";

@@ -1,1 +1,1 @@
-export * from "../../templates/animated-canvas-gallery.ts";
+export * from "../animated-canvas-gallery.ts";

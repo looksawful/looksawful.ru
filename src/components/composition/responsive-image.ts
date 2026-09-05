@@ -1,1 +1,1 @@
-export { renderResponsiveImageAttributes } from "../../templates/responsive-image.ts";
+export * from "../responsive-image.ts";

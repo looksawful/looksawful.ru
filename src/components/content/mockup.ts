@@ -1,1 +1,1 @@
-export * from "../../templates/mockup.ts";
+export * from "../mockup.ts";

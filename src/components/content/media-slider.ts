@@ -1,1 +1,1 @@
-export * from "../../templates/media-slider.ts";
+export * from "../media-slider.ts";

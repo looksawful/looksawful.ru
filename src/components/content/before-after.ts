@@ -1,1 +1,1 @@
-export * from "../../templates/before-after.ts";
+export * from "../before-after.ts";

@@ -1,1 +1,1 @@
-export * from "../../templates/page-flip.ts";
+export * from "../page-flip-renderer.ts";

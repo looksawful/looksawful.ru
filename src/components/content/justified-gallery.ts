@@ -1,1 +1,1 @@
-export * from "../../templates/justified-gallery.ts";
+export * from "../justified-gallery.ts";
