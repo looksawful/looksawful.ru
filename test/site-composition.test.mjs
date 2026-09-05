@@ -4,7 +4,8 @@ import test from "node:test";
 
 import { entityPageContentRegistry } from "../src/content/pages/index.ts";
 import { entryRequestToPagePath } from "../src/site/build/site-pages-plugin.ts";
-import { validatePageContentManifest } from "../src/site/pages/content-validation.ts";
+import * as pageValidation from "../src/site/pages/content-validation.ts";
+import * as entityPresentation from "../src/site/pages/entity-presentation.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
 import { extractElementById } from "../src/site/rendering/html.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
@@ -26,11 +27,60 @@ function videoOpeningTagForSource(html, source) {
 }
 
 test("every enabled entity page has canonical PageContent", () => {
-  assert.doesNotThrow(() => validatePageContentManifest(
+  assert.doesNotThrow(() => pageValidation.validatePageContentManifest(
     sitePages,
     entityPageContentRegistry,
     { requireEnabledEntityCoverage: true },
   ));
+});
+
+test("enabled entity architecture is covered by PageContent and presentation", () => {
+  assert.equal(typeof pageValidation.validateEntityPageArchitecture, "function");
+  assert.ok(entityPresentation.entityShellPresentationRegistry instanceof Map);
+
+  assert.doesNotThrow(() => pageValidation.validateEntityPageArchitecture(
+    sitePages,
+    entityPageContentRegistry,
+    entityPresentation.entityShellPresentationRegistry,
+  ));
+});
+
+test("entity architecture rejects an enabled page without presentation", () => {
+  assert.equal(typeof pageValidation.validateEntityPageArchitecture, "function");
+  assert.ok(entityPresentation.entityShellPresentationRegistry instanceof Map);
+
+  const presentations = new Map(entityPresentation.entityShellPresentationRegistry);
+  presentations.delete("case:styx");
+
+  assert.throws(
+    () => pageValidation.validateEntityPageArchitecture(
+      sitePages,
+      entityPageContentRegistry,
+      presentations,
+    ),
+    /Enabled entity page has no presentation: case:styx/,
+  );
+});
+
+test("entity architecture rejects orphan presentation records", () => {
+  assert.equal(typeof pageValidation.validateEntityPageArchitecture, "function");
+  assert.ok(entityPresentation.entityShellPresentationRegistry instanceof Map);
+
+  const presentations = new Map(entityPresentation.entityShellPresentationRegistry);
+  presentations.set("case:ghost", {
+    articleId: "project-ghost",
+    theme: "neutral",
+    navigationProject: false,
+  });
+
+  assert.throws(
+    () => pageValidation.validateEntityPageArchitecture(
+      sitePages,
+      entityPageContentRegistry,
+      presentations,
+    ),
+    /Entity presentation is not declared in page manifest: case:ghost/,
+  );
 });
 
 test("homepage final output resolves every build-time marker", () => {
