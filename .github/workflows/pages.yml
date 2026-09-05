@@ -132,17 +132,30 @@ jobs:
       - name: Deploy exact Pages artifact
         id: deployment
         uses: actions/deploy-pages@v5
-      - name: Verify published SHA, root, CV and built assets
+      - name: Verify published SHA, discovery files, root, CV and built assets
         shell: bash
         run: |
           set -euo pipefail
           expected="commit=${GITHUB_SHA}"
+          yandex_user_agent='Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)'
           for delay in 0 5 10 20 30; do
             if (( delay > 0 )); then sleep "$delay"; fi
             version="$(curl --fail --silent --show-error --location --max-time 20 -H 'Cache-Control: no-cache' "https://www.looksawful.ru/deploy-version.txt?sha=${GITHUB_SHA}" || true)"
             if ! grep -Fxq "$expected" <<< "$version"; then continue; fi
+
             curl --fail --silent --show-error --location --max-time 20 "https://www.looksawful.ru/?sha=${GITHUB_SHA}" > /tmp/index.html
             curl --fail --silent --show-error --location --max-time 20 "https://www.looksawful.ru/cv/?sha=${GITHUB_SHA}" > /dev/null
+
+            curl --fail --silent --show-error --location --max-time 20 -A "$yandex_user_agent" -D /tmp/favicon.headers "https://www.looksawful.ru/favicon.svg?sha=${GITHUB_SHA}" > /tmp/favicon.svg
+            grep -Eqi '^content-type:[[:space:]]*image/svg\+xml' /tmp/favicon.headers
+            grep -Eqi '<svg\b' /tmp/favicon.svg
+
+            curl --fail --silent --show-error --location --max-time 20 -A "$yandex_user_agent" "https://www.looksawful.ru/robots.txt?sha=${GITHUB_SHA}" > /tmp/robots.txt
+            grep -Fq 'Sitemap: https://www.looksawful.ru/sitemap.xml' /tmp/robots.txt
+
+            curl --fail --silent --show-error --location --max-time 20 -A "$yandex_user_agent" "https://www.looksawful.ru/sitemap.xml?sha=${GITHUB_SHA}" > /tmp/sitemap.xml
+            grep -Eqi '<(urlset|sitemapindex)\b' /tmp/sitemap.xml
+
             assets="$(grep -Eo '/assets/[^\" ]+\.(css|js)' /tmp/index.html | sort -u)"
             test -n "$assets"
             while IFS= read -r asset; do
@@ -151,7 +164,7 @@ jobs:
             done <<< "$assets"
             exit 0
           done
-          echo "Production did not expose expected SHA: ${GITHUB_SHA}" >&2
+          echo "Production did not expose expected SHA or discovery files: ${GITHUB_SHA}" >&2
           exit 1
 
   report:
