@@ -12,6 +12,7 @@ const derivativeTests = new Set([
 // explicitly justified as cheap, long-lived contracts under docs/testing-policy.md.
 export const fastTests = new Set([
   "test/ci-fast-concurrency.test.mjs",
+  "test/code-block-contract.test.mjs",
   "test/cms-publication-scope.test.mjs",
   "test/cms-publication-topology.test.mjs",
   "test/cms-publication-workflow.test.mjs",
