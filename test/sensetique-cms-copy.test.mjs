@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import * as sensetique from "../src/data/content/sensetique.ts";
+import {
+  renderEntityIntro as renderProjectIntro,
+  renderSectionIntro,
+} from "../src/components/composition/index.ts";
 import { getCase, getRole } from "../src/data/catalog/lookup.ts";
-import { renderProjectIntro } from "../src/templates/project-intro.ts";
-import { renderSectionIntro } from "../src/templates/section-intro.ts";
+import * as sensetique from "../src/data/content/sensetique.ts";
 import { escapeHtml } from "../src/utils/html.ts";
 
 const sectionIds = ["studio", "production"];

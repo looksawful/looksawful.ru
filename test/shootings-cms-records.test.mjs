@@ -4,6 +4,11 @@ import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 import {
+  renderEntityIntro as renderProjectIntro,
+  renderSectionIntro,
+} from "../src/components/composition/index.ts";
+import { shootingsProjects } from "../src/data/catalog/projects/shootings.ts";
+import {
   shootingsEsmiIntro,
   shootingsEvashaIntro,
   shootingsHypressionIntro,
@@ -12,9 +17,6 @@ import {
   shootingsObladaetIntro,
   shootingsOfeliaIntro,
 } from "../src/data/content/shootings.ts";
-import { shootingsProjects } from "../src/data/catalog/projects/shootings.ts";
-import { renderProjectIntro } from "../src/templates/project-intro.ts";
-import { renderSectionIntro } from "../src/templates/section-intro.ts";
 
 const overviewPath = "src/content/collections/shootings.json";
 const recordsPath = "src/content/shootings";

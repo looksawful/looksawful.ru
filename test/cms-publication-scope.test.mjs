@@ -75,7 +75,7 @@ test("known engineering surfaces always block CMS publication", () => {
     "src/styles/site-nav.css",
     "src/site/build/site-pages-plugin.ts",
     "src/runtime/example.ts",
-    "src/templates/project-intro.ts",
+    "src/components/composition/entity-intro.ts",
     "src/types/media.ts",
     "src/data/catalog/lookup.ts",
     ".pages.yml",

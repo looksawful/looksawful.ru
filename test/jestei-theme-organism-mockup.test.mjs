@@ -2,13 +2,13 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 
+import { renderJesteiThemeOrganismMockup } from "../src/components/specialized/index.ts";
+import { JESTEI_THEME_NAMES } from "../src/components/jestei-theme-organism/jestei-theme-organism-data.js";
 import {
   jesteiThemeOrganismMockup,
   jesteiThemeOrganismThemes,
 } from "../src/data/content/jestei-theme-organism.ts";
 import { getMediaAsset, getMediaEntry } from "../src/data/media/index.ts";
-import { JESTEI_THEME_NAMES } from "../src/components/jestei-theme-organism/jestei-theme-organism-data.js";
-import { renderJesteiThemeOrganismMockup } from "../src/templates/jestei-theme-organism.ts";
 
 test("Jestei theme organism model is registered as project media", () => {
   const entry = getMediaEntry(jesteiThemeOrganismMockup.modelEntryId);

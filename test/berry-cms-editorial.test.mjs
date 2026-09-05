@@ -3,9 +3,9 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { renderEntityIntro as renderProjectIntro } from "../src/components/composition/index.ts";
 import { berryIntro, berryStoryMockups } from "../src/data/content/berry.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
-import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { escapeHtml } from "../src/utils/html.ts";
 
 const contentPath = "src/content/standalone-projects/berry-social-content-2020.json";

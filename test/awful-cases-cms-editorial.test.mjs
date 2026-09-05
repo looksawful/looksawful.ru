@@ -3,14 +3,14 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { renderEntityIntro as renderProjectIntro } from "../src/components/composition/index.ts";
+import { otherProjects } from "../src/data/catalog/projects/other.ts";
 import {
   awfulCasesDemo,
   awfulCasesIntro,
   awfulCasesSettingsMockup,
 } from "../src/data/content/awful-cases.ts";
-import { otherProjects } from "../src/data/catalog/projects/other.ts";
 import { sitePages } from "../src/site/pages/manifest.ts";
-import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { escapeHtml } from "../src/utils/html.ts";
 
 const contentPath = "src/content/standalone-projects/awful-cases.json";
