@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { renderMediaGroup } from "../src/components/content/index.ts";
 import { jesteiEventGroup } from "../src/data/content/jestei-pool.ts";
-import { renderMediaGroup } from "../src/templates/media-group.ts";
 
 test("Jestei Event is typed content and uses registry-backed Moves Awful media", () => {
   const html = renderMediaGroup(jesteiEventGroup);

@@ -1,10 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { renderMockupDeck } from "../src/components/content/index.ts";
 import { sandsFeatureMockupDeck } from "../src/data/content/sands.ts";
 import { styxSocialInstructionMockupDeck } from "../src/data/content/styx.ts";
-
-const templateUrl = new URL("../src/templates/mockup-deck.ts", import.meta.url);
 
 test("image-only mockup decks are typed production data", () => {
   assert.equal(styxSocialInstructionMockupDeck.variant, "standard");
@@ -13,8 +12,7 @@ test("image-only mockup decks are typed production data", () => {
   assert.equal(sandsFeatureMockupDeck.slides.length, 2);
 });
 
-test("standard mockup deck preserves mockup and media-deck contracts", async () => {
-  const { renderMockupDeck } = await import(templateUrl);
+test("standard mockup deck preserves mockup and media-deck contracts", () => {
   const html = renderMockupDeck(styxSocialInstructionMockupDeck);
 
   assert.match(html, /class="media mockup"/);
@@ -27,8 +25,7 @@ test("standard mockup deck preserves mockup and media-deck contracts", async () 
   assert.match(html, /01 \/ 04/);
 });
 
-test("mobile-device deck preserves phone shell and slide attributes", async () => {
-  const { renderMockupDeck } = await import(templateUrl);
+test("mobile-device deck preserves phone shell and slide attributes", () => {
   const html = renderMockupDeck(sandsFeatureMockupDeck);
 
   assert.match(html, /class="media feature-layout__mockup"/);

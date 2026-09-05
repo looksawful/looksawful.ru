@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import {
+  renderEntityIntro,
+  renderPortfolioEntityCard,
+  renderSectionIntro,
+} from "../src/components/composition/index.ts";
 import { cvContent, parseCvContent } from "../src/data/cv.ts";
 import { parseProjectCardPresentations } from "../src/data/projects.ts";
-import { renderProjectCard } from "../src/templates/project-card.ts";
-import { renderProjectIntro } from "../src/templates/project-intro.ts";
-import { renderSectionIntro } from "../src/templates/section-intro.ts";
 import { transformCvContent } from "../tools/lib/cv-content.mjs";
 
 const clone = (value) => structuredClone(value);
@@ -96,7 +98,7 @@ test("project-card copy derives omitted canonical values while explicit teaser o
   assert.equal(parsed[0].period, "2024–2026");
   assert.equal(parsed[0].cover.alt, "");
 
-  const html = renderProjectCard(parsed[0]);
+  const html = renderPortfolioEntityCard(parsed[0]);
   assert.match(html, /aria-label="Перейти к проекту Jestei Pool"/);
   assert.match(html, /project-card__name/);
   assert.doesNotMatch(html, /project-card__focus/);
@@ -113,7 +115,7 @@ test("project-card copy derives omitted canonical values while explicit teaser o
 
 test("empty project and section copy produces no empty editorial wrappers", () => {
   assert.equal(
-    renderProjectIntro({
+    renderEntityIntro({
       head: { type: "text", text: "" },
       title: { type: "text", text: "" },
       role: "",

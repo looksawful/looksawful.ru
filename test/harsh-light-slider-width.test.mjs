@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { renderMediaSlider } from "../src/components/content/index.ts";
 import { sensetiqueHarshLightSlider } from "../src/data/content/sensetique.ts";
-import { renderMediaSlider } from "../src/templates/media-slider.ts";
 
 test("HARSH LIGHT keeps intrinsic image sizing without changing the generic slider width contract", async () => {
   const html = renderMediaSlider(sensetiqueHarshLightSlider);

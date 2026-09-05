@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { renderEntityIntro } from "../src/components/composition/index.ts";
+import { jesteiIntro } from "../src/data/content/jestei-pool.ts";
 import {
   extractElementById,
   extractElementContainingMarker,
 } from "../src/site/rendering/html.ts";
-import { renderProjectIntro } from "../src/templates/project-intro.ts";
-import { jesteiIntro } from "../src/data/content/jestei-pool.ts";
 
 const indexHtml = await readFile(new URL("../index.html", import.meta.url), "utf8");
 
@@ -35,9 +35,9 @@ test("marker-based extraction returns the complete hidden Project article only",
   assert.doesNotMatch(article, /<!-- MOVES_AWFUL_INTRO -->/);
 });
 
-test("project intro keeps homepage h2 by default and supports standalone h1", () => {
-  const homepage = renderProjectIntro(jesteiIntro);
-  const standalone = renderProjectIntro(jesteiIntro, { headingLevel: 1 });
+test("entity intro keeps homepage h2 by default and supports standalone h1", () => {
+  const homepage = renderEntityIntro(jesteiIntro);
+  const standalone = renderEntityIntro(jesteiIntro, { headingLevel: 1 });
 
   assert.match(homepage, /<h2 class="project__title"/);
   assert.match(standalone, /<h1 class="project__title"/);

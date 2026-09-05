@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { renderPageFlip } from "../src/components/content/index.ts";
 import { sensetiqueDigitalFearPageFlip } from "../src/data/content/sensetique.ts";
-
-const templateUrl = new URL("../src/templates/page-flip.ts", import.meta.url);
 
 test("page-flip production data is typed content, not inline HTML", () => {
   assert.equal(sensetiqueDigitalFearPageFlip.pages.length, 6);
@@ -14,8 +13,7 @@ test("page-flip production data is typed content, not inline HTML", () => {
   assert.equal(typeof sensetiqueDigitalFearPageFlip.credits.title, "string");
 });
 
-test("page-flip renderer preserves the existing runtime contract", async () => {
-  const { renderPageFlip } = await import(templateUrl);
+test("page-flip renderer preserves the existing runtime contract", () => {
   const html = renderPageFlip(sensetiqueDigitalFearPageFlip);
 
   assert.match(html, /class="page-flip" data-lightbox="off" data-page-flip=""/);
