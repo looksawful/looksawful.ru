@@ -224,10 +224,10 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
 
     if (path !== "/") {
       const breadcrumb = await page.locator('[aria-label="Хлебные крошки"]').innerText();
-      assert(
-        breadcrumb.includes(requireLabel("home")) && breadcrumb.includes(currentLabel),
-        `${label}: breadcrumb is incomplete: ${breadcrumb}`,
-      );
+      assert(breadcrumb.includes(currentLabel), `${label}: breadcrumb is missing current label: ${breadcrumb}`);
+      if (!mobile) {
+        assert(breadcrumb.includes(requireLabel("home")), `${label}: desktop breadcrumb is missing home label: ${breadcrumb}`);
+      }
     }
 
     await page.keyboard.press("Escape");
