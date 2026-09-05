@@ -154,13 +154,21 @@ Placement-specific captions, alt text and presentation remain with the placement
 
 ## CMS publication trust boundary
 
-Pages CMS edits `dev`. CMS publication authorization is executed from trusted `prod`.
+Manual text/copy editing in Pages CMS is staged in the permanent `content/text-cms` branch. Approved text is copied through a disposable integration branch based on current `dev`; `dev` remains the publication source. CMS publication authorization is executed from trusted `prod`.
+
+The staging branch is intentionally outside the production trust boundary and has no direct publication authority. Existing media mutation remains bound to `dev`; `content/text-cms` does not replace that contract.
 
 ```text
-Pages CMS on dev
+Pages CMS text edits on content/text-cms
         |
         v
-save/verify dev
+owner-approved text transfer
+        |
+        v
+temporary integration branch from latest dev
+        |
+        v
+checks / PR -> dev
         |
         v
 prepare publication action
@@ -182,7 +190,7 @@ classify prod..dev changed paths
         +-- explicit CMS-only scope -> create/reuse dev -> prod PR
 ```
 
-The invariant is: unpublished `dev` cannot expand the permissions used to authorize publication of that same `dev`.
+The invariant is: unpublished `dev` cannot expand the permissions used to authorize publication of that same `dev`. Content staged only in `content/text-cms` is not publishable until it has been explicitly integrated into current `dev`.
 
 ### Branch topology
 
@@ -191,7 +199,7 @@ The invariant is: unpublished `dev` cannot expand the permissions used to author
 - diverged history is allowed only when a hypothetical conflict-free merge of current `prod` back into current `dev` produces exactly the current `dev` tree;
 - if that merge would add/change content in `dev`, conflicts, or cannot be proven safe: block before path authorization and synchronize through the normal engineering workflow.
 
-Release-only merge history is therefore not itself a blocker. Production-only content missing from `dev` is a blocker.
+Release-only merge history is therefore not itself a blocker. Production-only content missing from `dev` is a blocker. `content/text-cms` is not part of this topology gate.
 
 ### Publication classes
 
@@ -231,7 +239,9 @@ Required repository configuration is external to the code contracts.
 
 `prod` should prevent force pushes and deletion and require normal updates through a controlled, reviewable release path with appropriate verification checks. A mandatory approval count is not required solely for ceremony in a solo-maintainer repository.
 
-`dev` should prevent destructive force-push/history rewrite and deletion while retaining direct writes required by Pages CMS/media synchronization automation and normal development.
+`dev` should prevent destructive force-push/history rewrite and deletion while retaining legitimate integration writes and the existing media synchronization automation.
+
+`content/text-cms` is permanent and should prevent deletion and destructive history rewrite while retaining ordinary Pages CMS saves. Routine synchronization after a completed editorial transfer must be non-force and must occur only when no newer pending CMS edits would be overwritten.
 
 Code/tests must not claim these settings are active until the GitHub protection/ruleset state is re-read and confirms them.
 
