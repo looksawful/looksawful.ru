@@ -43,7 +43,13 @@ function moveAttribute(tag: string, name: string, dataName: string): string {
   return tag.replace(pattern, ` ${dataName}="${match[1]}"`);
 }
 
-function deferLazyImageTag(tag: string): string {
+function shouldKeepImageEager(tag: string): boolean {
+  return /\sfetchpriority="high"/i.test(tag) || /\sloading="eager"/i.test(tag);
+}
+
+function deferImageTag(tag: string): string {
+  if (shouldKeepImageEager(tag)) return tag;
+
   let next = moveAttribute(tag, "sizes", "data-home-sizes");
   next = moveAttribute(next, "srcset", "data-home-srcset");
   next = moveAttribute(next, "src", "data-home-src");
@@ -53,7 +59,7 @@ function deferLazyImageTag(tag: string): string {
 }
 
 export function deferHomepageLazyImages(html: string): string {
-  const withDeferredImages = html.replace(/<img\b[^>]*\bloading="lazy"[^>]*>/gi, deferLazyImageTag);
+  const withDeferredImages = html.replace(/<img\b[^>]*>/gi, deferImageTag);
   if (withDeferredImages === html) return html;
   if (/\bdata-home-image-loader\b/i.test(withDeferredImages)) return withDeferredImages;
   if (!/<\/body>/i.test(withDeferredImages)) {
