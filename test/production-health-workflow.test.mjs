@@ -32,3 +32,12 @@ test("Production health identifies each actionable surface without expensive QA"
   assert.match(source, /\/assets\//);
   assert.doesNotMatch(source, /npm ci|playwright|lighthouse|media:sync/i);
 });
+
+test("Production health contract verifies itself without joining shared Fast CI", async () => {
+  const source = await workflow();
+
+  assert.match(source, /pull_request:/);
+  assert.match(source, /name: Verify production health contract/);
+  assert.match(source, /node --test test\/production-health-workflow[.]test[.]mjs/);
+  assert.match(source, /github[.]event_name == 'pull_request'/);
+});
