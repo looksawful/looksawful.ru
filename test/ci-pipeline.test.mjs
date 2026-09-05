@@ -118,8 +118,10 @@ test("production health owns frequent monitoring while Quality owns nightly and 
   for (const retired of ["17 */6 * * *", "31 2 * * *", "41 4 * * 2", "13 5 * * 3", "23 6 * * 4"]) {
     assert.equal(quality.includes(retired), false, retired);
   }
-  assert.match(quality, /workflow_dispatch:/);
-  assert.match(quality, /concurrency:[\s\S]*?cancel-in-progress: false/);
+  assert.match(quality, /pull_request:\s*\n\s*branches:\s*\[dev\]/);
+  assert.match(quality, /Verify Quality schedule contracts/);
+  assert.match(quality, /group: quality-\$\{\{ github\.workflow \}\}-\$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.number \|\| 'heavy' \}\}/);
+  assert.match(quality, /cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}/);
   assert.equal(job(quality, "health"), "");
 
   const productionHealth = await read(".github/workflows/production-health.yml");
