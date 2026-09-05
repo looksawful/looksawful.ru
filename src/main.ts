@@ -151,7 +151,7 @@ destroys.push(
     root: document,
   }),
 );
-destroys.push(initSiteNavigation(document));
+destroys.push(initSiteNavigation(document, motion));
 
 if (document.querySelector('[data-jestei-theme-organism][data-jestei-theme-instance="inline"]')) {
   void import("./components/jestei-theme-organism/jestei-theme-organism.js")
