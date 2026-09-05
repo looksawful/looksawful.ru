@@ -1,27 +1,38 @@
 name: UI Responsive
 
 on:
-  push:
-    branches:
-      - feat/page-visibility-267-final
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ui-responsive-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  patch-page-visibility-cms:
+  responsive:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 12
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-
-      - name: Patch Pages CMS visibility controls
-        run: python tools/tmp-page-visibility-cms-patch.py
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Project navigation contracts
+        run: >-
+          node --test
+          test/project-navigation-back-to-top.test.mjs
+          test/project-navigation-fallback.test.mjs
+          test/project-navigation-mobile-viewport.test.mjs
+      - name: Build site
+        run: npm run build:vite
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Responsive UI
+        run: npm run test:ui:responsive
