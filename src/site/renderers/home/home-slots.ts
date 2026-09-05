@@ -1,25 +1,4 @@
 import { clientLogos } from "../../../data/clients.ts";
-import {
-  awfulCasesDemo,
-  awfulCasesIntro,
-  awfulCasesSettingsMockup,
-} from "../../../data/content/awful-cases.ts";
-import { berryIntro, berryStoryMockups } from "../../../data/content/berry.ts";
-import { liNeAgencyIntro } from "../../../data/content/li-ne-agency.ts";
-import { madCowFilmsIntro } from "../../../data/content/mad-cow-films.ts";
-import { moskovskieNovostiIntro } from "../../../data/content/moskovskie-novosti.ts";
-import {
-  movesAwfulAnimationsIntro,
-  movesAwfulCanvasGallery,
-  movesAwfulIntro,
-  movesAwfulLandingMedia,
-} from "../../../data/content/moves-awful.ts";
-import { progressTraditionIntro } from "../../../data/content/progress-tradition.ts";
-import {
-  sandsFeatureMockupDeck,
-  sandsIntro,
-  sandsLookbookStrip,
-} from "../../../data/content/sands.ts";
 import { portfolioSensetiqueStrip } from "../../../data/content/sensetique.ts";
 import { portfolioShootingsStrip } from "../../../data/content/shootings.ts";
 import { portfolioScanographyStrip } from "../../../data/content/styx.ts";
@@ -27,17 +6,9 @@ import { getVisibleProjectCardPresentations } from "../../../data/projects.ts";
 
 import {
   renderClientLogo,
-  renderEntityIntro,
   renderPortfolioEntityCard,
-  renderSectionIntro,
 } from "../../../components/composition/index.ts";
-import {
-  renderMediaFigure,
-  renderMediaGroup,
-  renderMockup,
-  renderMockupDeck,
-} from "../../../components/content/index.ts";
-import { renderAnimatedCanvasGallery } from "../../../components/specialized/index.ts";
+import { renderMediaGroup } from "../../../components/content/index.ts";
 import {
   replaceRequiredSlots,
   type HtmlSlot,
@@ -55,31 +26,9 @@ export function createHomepageSlots(): readonly HtmlSlot[] {
     ["<!-- PORTFOLIO_SHOOTINGS_STRIP -->", renderMediaGroup(portfolioShootingsStrip)],
     ["<!-- PORTFOLIO_SENSETIQUE_STRIP -->", renderMediaGroup(portfolioSensetiqueStrip)],
     ["<!-- PORTFOLIO_SCANOGRAPHY_STRIP -->", renderMediaGroup(portfolioScanographyStrip)],
-
-    ["<!-- BERRY_INTRO -->", renderEntityIntro(berryIntro)],
-    ["<!-- BERRY_STORY_01 -->", renderMockup(berryStoryMockups[0])],
-    ["<!-- BERRY_STORY_02 -->", renderMockup(berryStoryMockups[1])],
-    ["<!-- BERRY_STORY_03 -->", renderMockup(berryStoryMockups[2])],
-    ["<!-- BERRY_STORY_04 -->", renderMockup(berryStoryMockups[3])],
-
-    ["<!-- SANDS_INTRO -->", renderEntityIntro(sandsIntro)],
-    ["<!-- SANDS_FEATURE_MOCKUP_DECK -->", renderMockupDeck(sandsFeatureMockupDeck)],
-    ["<!-- SANDS_LOOKBOOK_STRIP -->", renderMediaGroup(sandsLookbookStrip)],
-
-    ["<!-- AWFUL_CASES_INTRO -->", renderEntityIntro(awfulCasesIntro)],
-    ["<!-- AWFUL_CASES_DEMO -->", renderMediaFigure(awfulCasesDemo)],
-    ["<!-- AWFUL_CASES_SETTINGS_MOCKUP -->", renderMockup(awfulCasesSettingsMockup)],
-
-    ["<!-- MOVES_AWFUL_INTRO -->", renderEntityIntro(movesAwfulIntro)],
-    ["<!-- MOVES_AWFUL_CANVAS_GALLERY -->", renderAnimatedCanvasGallery(movesAwfulCanvasGallery)],
-    ["<!-- MOVES_AWFUL_ANIMATIONS_INTRO -->", renderSectionIntro(movesAwfulAnimationsIntro, { reveal: false })],
-    ["<!-- MOVES_AWFUL_MEDIA_01 -->", renderMediaFigure(movesAwfulLandingMedia[0], { reveal: false })],
-    ["<!-- MOVES_AWFUL_MEDIA_02 -->", renderMediaFigure(movesAwfulLandingMedia[1], { reveal: false })],
-    ["<!-- MOVES_AWFUL_MEDIA_03 -->", renderMediaFigure(movesAwfulLandingMedia[2], { reveal: false })],
-
-    ["<!-- MAD_COW_FILMS_INTRO -->", renderEntityIntro(madCowFilmsIntro)],
-    ["<!-- LI_NE_AGENCY_INTRO -->", renderEntityIntro(liNeAgencyIntro)],
-    ["<!-- PROGRESS_TRADITION_INTRO -->", renderEntityIntro(progressTraditionIntro)],
-    ["<!-- MOSCOW_NEWS_INTRO -->", renderEntityIntro(moskovskieNovostiIntro)],
   ] as const;
+}
+
+export function renderHomepage(html: string): string {
+  return replaceRequiredSlots(html, createHomepageSlots());
 }
