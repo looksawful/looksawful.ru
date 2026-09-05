@@ -107,9 +107,10 @@ test("shared E2E runtime terminates preview processes and preserves signal termi
   assert.doesNotMatch(runtime, /server\.killed/);
 });
 
-test("CV smoke retains authored and production fail-closed modes", async () => {
+test("CV smoke retains authored and production fail-closed modes with production preview default", async () => {
   const source = await readFile(new URL("../tools/smoke-cv.mjs", import.meta.url), "utf8");
-  assert.match(source, /mode\s*=\s*["']authored["']/);
+  assert.match(source, /mode\s*=\s*["']production["']/);
+  assert.match(source, /authored/);
   assert.match(source, /production/);
   assert.match(source, /unsupported CV smoke mode|invalid CV smoke mode/i);
   assert.match(source, /mode\s*===\s*["']production["'][\s\S]*hiddenCards\s*===\s*0/);
