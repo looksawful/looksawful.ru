@@ -106,5 +106,7 @@ jobs:
         run: npm run typecheck
       - name: Fast tests
         run: npm run test:fast
+      - name: Repository structure contract
+        run: node --test test/repository-structure.test.mjs
       - name: Production build
         run: npm run build:site
