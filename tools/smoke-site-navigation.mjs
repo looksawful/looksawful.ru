@@ -54,26 +54,36 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     const initial = await page.evaluate(() => {
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
+      const face = document.querySelector("[data-awfulface]");
+      const preview = document.querySelector("[data-menu-preview]");
       const root = document.documentElement;
       return {
         toggleVisible: toggle instanceof HTMLElement && toggle.getBoundingClientRect().width >= 44,
         expanded: toggle?.getAttribute("aria-expanded") || "",
         menuHidden: menu instanceof HTMLElement ? menu.hidden : null,
+        facePresent: face instanceof SVGElement,
+        previewPresent: preview instanceof HTMLElement,
+        oldBrandPresent: Boolean(document.querySelector(".site-nav__brand, .site-nav__toggle-icon")),
         overflow: root.scrollWidth - root.clientWidth,
       };
     });
 
-    assert(initial.toggleVisible, `${label}: hamburger is missing or below 44px hit target`);
+    assert(initial.toggleVisible, `${label}: menu control is missing or below 44px hit target`);
     assert(initial.expanded === "false", `${label}: menu must start collapsed`);
     assert(initial.menuHidden === true, `${label}: menu must start hidden`);
+    assert(initial.facePresent, `${label}: Awfulface control is missing`);
+    assert(initial.previewPresent, `${label}: shared menu preview is missing`);
+    assert(!initial.oldBrandPresent, `${label}: old brand/hamburger markup is still rendered`);
     assert(initial.overflow <= 1, `${label}: initial horizontal overflow ${initial.overflow}px`);
 
     const toggle = page.locator("[data-site-menu-toggle]");
     await toggle.click();
 
-    const opened = await page.evaluate(({ primaryLinks, current }) => {
+    const opened = await page.evaluate(({ primaryLinks, current, mobileViewport }) => {
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
+      const main = document.querySelector("main");
+      const preview = document.querySelector("[data-menu-preview]");
       const links = [...document.querySelectorAll(".site-nav__menu-link")].map((link) => [
         link.textContent?.trim() || "",
         link.getAttribute("href") || "",
@@ -84,20 +94,62 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
         expanded: toggle?.getAttribute("aria-expanded") || "",
         menuHidden: menu instanceof HTMLElement ? menu.hidden : null,
         bodyOverflow: document.body.style.overflow,
+        mainInert: main instanceof HTMLElement ? main.inert : null,
         links,
         currentLabel: currentLink?.textContent?.trim() || "",
         menuCoversViewport: Boolean(menuRect && menuRect.width >= innerWidth - 1 && menuRect.bottom >= innerHeight - 1),
+        mobilePreviewHidden: mobileViewport && preview instanceof HTMLElement ? preview.hidden : null,
         expected: primaryLinks,
         current,
       };
-    }, { primaryLinks: PRIMARY_LINKS, current: currentLabel });
+    }, { primaryLinks: PRIMARY_LINKS, current: currentLabel, mobileViewport: mobile });
 
-    assert(opened.expanded === "true", `${label}: hamburger did not expand`);
+    assert(opened.expanded === "true", `${label}: menu control did not expand`);
     assert(opened.menuHidden === false, `${label}: menu stayed hidden after click`);
     assert(opened.bodyOverflow === "hidden", `${label}: page scroll was not locked`);
+    assert(opened.mainInert === true, `${label}: main content was not made inert`);
     assert(opened.menuCoversViewport, `${label}: menu does not cover the available viewport`);
     assert(JSON.stringify(opened.links) === JSON.stringify(PRIMARY_LINKS), `${label}: primary menu destinations differ`);
     assert(opened.currentLabel === currentLabel, `${label}: wrong active menu item ${opened.currentLabel}`);
+    if (mobile) {
+      assert(opened.mobilePreviewHidden === true, `${label}: coarse/mobile preview should stay hidden`);
+    }
+
+    if (!mobile) {
+      await page.keyboard.press("Tab");
+      const previewOnFocus = await page.evaluate(() => {
+        const preview = document.querySelector("[data-menu-preview]");
+        return preview instanceof HTMLElement
+          && preview.dataset.visible === "true"
+          && !preview.hidden;
+      });
+      assert(!previewOnFocus, `${label}: keyboard focus must not show a hover-only preview`);
+      await page.keyboard.press("Shift+Tab");
+
+      const previewLink = page.locator('.site-nav__menu-link:not([aria-current="page"])').first();
+      await previewLink.hover();
+      await page.waitForFunction(() => {
+        const preview = document.querySelector("[data-menu-preview]");
+        const image = document.querySelector("[data-menu-preview-image]");
+        return preview instanceof HTMLElement
+          && preview.dataset.visible === "true"
+          && !preview.hidden
+          && image instanceof HTMLImageElement
+          && Boolean(image.getAttribute("src"));
+      });
+
+      const desktopPreview = await page.evaluate(() => {
+        const preview = document.querySelector("[data-menu-preview]");
+        const image = document.querySelector("[data-menu-preview-image]");
+        return {
+          visible: preview instanceof HTMLElement && preview.dataset.visible === "true" && !preview.hidden,
+          src: image instanceof HTMLImageElement ? image.getAttribute("src") || "" : "",
+        };
+      });
+      assert(desktopPreview.visible, `${label}: fine-pointer hover preview did not become visible`);
+      assert(desktopPreview.src.startsWith("/media/"), `${label}: preview source is not site media: ${desktopPreview.src}`);
+      await page.mouse.move(width - 4, height - 4);
+    }
 
     const openMenuOverflowWithLongLabel = await page.evaluate((longLabel) => {
       const menu = document.querySelector("[data-site-menu]");
@@ -130,10 +182,12 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     const closed = await page.evaluate(() => {
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
+      const main = document.querySelector("main");
       return {
         expanded: toggle?.getAttribute("aria-expanded") || "",
         menuHidden: menu instanceof HTMLElement ? menu.hidden : null,
         bodyOverflow: document.body.style.overflow,
+        mainInert: main instanceof HTMLElement ? main.inert : null,
         focusReturned: document.activeElement === toggle,
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       };
@@ -142,7 +196,8 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(closed.expanded === "false", `${label}: Escape did not collapse menu`);
     assert(closed.menuHidden === true, `${label}: Escape did not hide menu`);
     assert(closed.bodyOverflow !== "hidden", `${label}: scroll lock was not restored`);
-    assert(closed.focusReturned, `${label}: focus did not return to hamburger`);
+    assert(closed.mainInert === false, `${label}: main inert state was not restored`);
+    assert(closed.focusReturned, `${label}: focus did not return to menu control`);
     assert(closed.overflow <= 1, `${label}: horizontal overflow after close ${closed.overflow}px`);
 
     console.log(`[smoke-navigation] ${label}: OK`);

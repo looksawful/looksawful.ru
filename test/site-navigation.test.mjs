@@ -49,7 +49,7 @@ test("global menu contains exactly the six public primary destinations and no Wo
   assert.doesNotMatch(html, /Awful Cases|Moves Awful|Berry/);
 });
 
-test("primary navigation and breadcrumbs derive hrefs from canonical SitePage records", () => {
+test("primary navigation derives hrefs from SitePage records and exposes a preview for every destination", () => {
   const fixturePages = sitePages.map((candidate) => {
     if (candidate.id === "home") return { ...candidate, path: "/portfolio-fixture/" };
     if (candidate.id === "cv") return { ...candidate, path: "/resume-fixture/" };
@@ -59,6 +59,9 @@ test("primary navigation and breadcrumbs derive hrefs from canonical SitePage re
   const menu = getPrimaryNavigationItems(navigationLabels, fixturePages);
   assert.equal(menu.find(({ id }) => id === "home")?.href, "/portfolio-fixture/");
   assert.equal(menu.find(({ id }) => id === "cv")?.href, "/resume-fixture/");
+  assert.ok(
+    menu.every(({ previewSrc }) => typeof previewSrc === "string" && previewSrc.startsWith("/media/")),
+  );
 
   assert.deepEqual(
     getBreadcrumbItems(page("case:jestei-pool"), navigationLabels, fixturePages)[0],
@@ -66,13 +69,25 @@ test("primary navigation and breadcrumbs derive hrefs from canonical SitePage re
   );
 });
 
-test("navigation exposes an accessible hamburger control and menu relationship", () => {
+test("navigation exposes one accessible Awfulface menu control and one shared preview", () => {
   const html = renderSiteNavigation(page("case:styx"));
 
   assert.match(html, /<button[^>]+data-site-menu-toggle/);
   assert.match(html, /aria-expanded="false"/);
   assert.match(html, /aria-controls="site-menu"/);
   assert.match(html, /id="site-menu"[^>]+data-site-menu/);
+  assert.match(html, /data-awfulface(?:\s|>)/);
+  assert.match(html, /data-awfulface-eye-left/);
+  assert.match(html, /data-awfulface-eye-right/);
+  assert.match(html, /data-awfulface-target="desktop-upper"/);
+  assert.match(html, /data-awfulface-target="coarse-upper"/);
+  assert.match(html, /data-awfulface-target="collapse-upper"/);
+  assert.doesNotMatch(html, /site-nav__brand|site-nav__toggle-icon/);
+
+  const previewFigures = html.match(/<figure\b[^>]*\bdata-menu-preview(?:\s|>)/g) ?? [];
+  assert.equal(previewFigures.length, 1);
+  assert.match(html, /data-menu-preview-image/);
+  assert.equal((html.match(/\bdata-preview="/g) ?? []).length, primaryDestinations.length);
 });
 
 test("current public destination is marked and breadcrumb is shallow", () => {
@@ -109,6 +124,7 @@ test("homepage build renders the same live global navigation instead of the lega
   const html = renderHomepagePage(source);
 
   assert.match(html, /data-site-navigation/);
+  assert.match(html, /data-awfulface(?:\s|>)/);
   assert.doesNotMatch(html, /data-site-navigation[^>]*hidden/);
   assert.doesNotMatch(html, />Work<\/a>/);
 

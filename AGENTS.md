@@ -25,6 +25,15 @@
 - Treat `AGENTS.md`, `.agents/skills/**`, `.pages.yml`, `.github/workflows/**`, publication/topology/scope tools, CI classifiers, package scripts, and testing-policy files as protected policy surfaces. Change them only as an explicit, reviewable policy/tooling task.
 - `dev` is the working/integration branch. `prod` is production and the deploy source. Re-read the live branch/workflow state before making release claims; do not rely on remembered topology or old runbooks.
 
+## Manual design capture
+
+- `tools/design-capture/` is a manual, local-only design documentation utility for screenshots, Notion/Figma handoff, and breakpoint inspection.
+- Do not run it unless the user explicitly asks for screenshots/design capture or explicitly asks to validate this tool itself.
+- Never add `design:capture*` commands to CI, GitHub Actions, normal test/verify/build/deploy flows, hooks, or scheduled automation.
+- Never import `tools/design-capture/**` from `src/**` or any client/runtime entry.
+- Generated captures must stay under `_local/design-capture/`; do not move them into tracked/public/build paths.
+- A non-interactive agent may pass `--manual` only when the current user request explicitly authorizes a capture run. The flag is not standing permission for future runs.
+
 ## Testing and verification
 
 - Follow `docs/testing-policy.md` for every test or verification change. `docs/testing-pipeline.md` is the current operational map of test tiers and CI routing; older tooling/handoff documents do not override either file.
