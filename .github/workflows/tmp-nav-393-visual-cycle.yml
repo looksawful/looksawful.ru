@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   visual-cycle:
-    if: ${{ !startsWith(github.event.head_commit.message, 'fix(ui): remove legacy site-nav border') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -24,281 +23,55 @@ jobs:
       - run: npm ci
       - name: Install Chromium Firefox WebKit
         run: npx playwright install --with-deps chromium firefox webkit
-      - name: Prepare RED contracts and temporary visual harness
-        shell: bash
-        run: |
-          python <<'PY'
-          from pathlib import Path
-
-          test_path = Path('test/site-navigation-style.test.mjs')
-          source = test_path.read_text()
-          source = source.replace(
-              'const componentPath = new URL("../src/styles/site-navigation.css", import.meta.url);\n',
-              'const componentPath = new URL("../src/styles/site-navigation.css", import.meta.url);\nconst legacyComponentsPath = new URL("../src/styles/components.css", import.meta.url);\n',
-          )
-          source = source.replace(
-              'const componentSource = existsSync(componentPath) ? readFileSync(componentPath, "utf8") : "";\n',
-              'const componentSource = existsSync(componentPath) ? readFileSync(componentPath, "utf8") : "";\nconst legacyComponentsSource = readFileSync(legacyComponentsPath, "utf8");\n',
-          )
-          source = source.replace(
-              '  assert.match(mainSource, /import\\s+["\']\\.\\/styles\\/site-navigation\\.css["\'];/);\n',
-              '  assert.match(mainSource, /import\\s+["\']\\.\\/styles\\/site-navigation\\.css["\'];/);\n  assert.doesNotMatch(\n    legacyComponentsSource,\n    /(^|\\n)\\s*\\.site-nav(?:\\b|__)/m,\n    "global site navigation selectors must stay out of legacy components.css",\n  );\n',
-          )
-          test_path.write_text(source)
-
-          smoke_path = Path('tools/smoke-site-navigation.mjs')
-          source = smoke_path.read_text()
-          source = source.replace(
-              '      const preview = document.querySelector("[data-menu-preview]");\n      const root = document.documentElement;\n      return {',
-              '      const preview = document.querySelector("[data-menu-preview]");\n      const siteNav = document.querySelector(".site-nav");\n      const siteNavStyle = siteNav instanceof HTMLElement ? getComputedStyle(siteNav) : null;\n      const root = document.documentElement;\n      return {',
-              1,
-          )
-          source = source.replace(
-              '        overflow: root.scrollWidth - root.clientWidth,\n      };',
-              '        overflow: root.scrollWidth - root.clientWidth,\n        navBorderBlockEndWidth: siteNavStyle?.borderBlockEndWidth || siteNavStyle?.borderBottomWidth || "",\n      };',
-              1,
-          )
-          source = source.replace(
-              '    assert(initial.overflow <= 1, `${label}: initial horizontal overflow ${initial.overflow}px`);\n',
-              '    assert(initial.overflow <= 1, `${label}: initial horizontal overflow ${initial.overflow}px`);\n    assert(initial.navBorderBlockEndWidth === "0px", `${label}: global site nav still has separator border ${initial.navBorderBlockEndWidth}`);\n',
-              1,
-          )
-          source = source.replace(
-              '      const menuLinkStyle = firstMenuLink instanceof HTMLElement ? getComputedStyle(firstMenuLink) : null;\n',
-              '      const menuLinkStyle = firstMenuLink instanceof HTMLElement ? getComputedStyle(firstMenuLink) : null;\n      const siteNavStyle = siteNav instanceof HTMLElement ? getComputedStyle(siteNav) : null;\n',
-              1,
-          )
-          source = source.replace(
-              '        navHeight: navRect?.height ?? null,\n',
-              '        navHeight: navRect?.height ?? null,\n        navBorderBlockEndWidth: siteNavStyle?.borderBlockEndWidth || siteNavStyle?.borderBottomWidth || "",\n',
-              1,
-          )
-          source = source.replace(
-              '    assert(typeof opened.navHeight === "number" && opened.navHeight <= 1, `${label}: open site-nav still reserves ${opened.navHeight}px`);\n',
-              '    assert(typeof opened.navHeight === "number" && opened.navHeight <= 1, `${label}: open site-nav still reserves ${opened.navHeight}px`);\n    assert(opened.navBorderBlockEndWidth === "0px", `${label}: open site nav still has separator border ${opened.navBorderBlockEndWidth}`);\n',
-              1,
-          )
-          source = source.replace(
-              '      const toggleStyle = toggle instanceof HTMLElement ? getComputedStyle(toggle) : null;\n      return {',
-              '      const toggleStyle = toggle instanceof HTMLElement ? getComputedStyle(toggle) : null;\n      const siteNav = document.querySelector(".site-nav");\n      const siteNavStyle = siteNav instanceof HTMLElement ? getComputedStyle(siteNav) : null;\n      return {',
-              1,
-          )
-          source = source.replace(
-              '        togglePosition: toggleStyle?.position || "",\n      };',
-              '        togglePosition: toggleStyle?.position || "",\n        navBorderBlockEndWidth: siteNavStyle?.borderBlockEndWidth || siteNavStyle?.borderBottomWidth || "",\n      };',
-              1,
-          )
-          source = source.replace(
-              '    assert(closed.togglePosition !== "fixed", `${label}: closed Awfulface stayed detached from the normal header`);\n',
-              '    assert(closed.togglePosition !== "fixed", `${label}: closed Awfulface stayed detached from the normal header`);\n    assert(closed.navBorderBlockEndWidth === "0px", `${label}: closed site nav restored a separator border ${closed.navBorderBlockEndWidth}`);\n',
-              1,
-          )
-          smoke_path.write_text(source)
-          PY
-
-          cat > /tmp/nav-visual-matrix.mjs <<'EOF'
-          import { chromium, firefox, webkit } from 'playwright';
-          import { spawn } from 'node:child_process';
-          import { mkdir } from 'node:fs/promises';
-          import net from 'node:net';
-          import path from 'node:path';
-
-          const phase = process.argv[2];
-          const expected = process.argv[3];
-          if (!['before', 'after'].includes(phase) || !['present', 'absent'].includes(expected)) {
-            throw new Error('usage: nav-visual-matrix.mjs before|after present|absent');
-          }
-
-          const browsers = { chromium, firefox, webkit };
-          const cases = [
-            { name: 'desktop-1440x900', width: 1440, height: 900, route: '/', touch: false },
-            { name: 'width-above-32rem-513x844', width: 513, height: 844, route: '/', touch: false },
-            { name: 'width-at-32rem-512x844', width: 512, height: 844, route: '/', touch: true },
-            { name: 'mobile-390x844', width: 390, height: 844, route: '/', touch: true },
-            { name: 'height-above-36rem-390x577', width: 390, height: 577, route: '/', touch: true },
-            { name: 'height-at-36rem-390x576', width: 390, height: 576, route: '/', touch: true },
-            { name: 'height-above-28rem-390x449', width: 390, height: 449, route: '/', touch: true },
-            { name: 'height-at-28rem-390x448', width: 390, height: 448, route: '/', touch: true },
-            { name: 'inner-breadcrumb-390x844', width: 390, height: 844, route: '/work/jestei-pool/', touch: true },
-          ];
-
-          const port = 4175;
-          const baseUrl = `http://127.0.0.1:${port}`;
-          const outDir = path.join('tmp-nav-393-artifacts', phase);
-          await mkdir(outDir, { recursive: true });
-
-          const waitForPort = () => new Promise((resolve, reject) => {
-            const started = Date.now();
-            const probe = () => {
-              const socket = net.connect(port, '127.0.0.1');
-              socket.once('connect', () => { socket.end(); resolve(); });
-              socket.once('error', () => {
-                socket.destroy();
-                if (Date.now() - started > 20000) reject(new Error('vite did not start'));
-                else setTimeout(probe, 150);
-              });
-            };
-            probe();
-          });
-
-          const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', String(port), '--strictPort'], {
-            stdio: ['ignore', 'pipe', 'pipe'],
-            shell: process.platform === 'win32',
-          });
-          server.stdout.on('data', (chunk) => process.stdout.write(`[vite] ${chunk}`));
-          server.stderr.on('data', (chunk) => process.stderr.write(`[vite] ${chunk}`));
-
-          try {
-            await waitForPort();
-            const summary = [];
-            for (const [browserName, launcher] of Object.entries(browsers)) {
-              const browser = await launcher.launch({ headless: true });
-              try {
-                for (const item of cases) {
-                  const options = { viewport: { width: item.width, height: item.height }, deviceScaleFactor: 1 };
-                  if (item.touch) options.hasTouch = true;
-                  if (item.touch && browserName !== 'firefox') options.isMobile = true;
-                  const context = await browser.newContext(options);
-                  const page = await context.newPage();
-                  try {
-                    await page.goto(`${baseUrl}${item.route}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-                    await page.evaluate(() => document.fonts?.ready);
-                    const closed = await page.evaluate(() => {
-                      const nav = document.querySelector('.site-nav');
-                      const bar = document.querySelector('.site-nav__bar');
-                      const toggle = document.querySelector('[data-site-menu-toggle]');
-                      const navStyle = nav instanceof HTMLElement ? getComputedStyle(nav) : null;
-                      return {
-                        border: navStyle?.borderBlockEndWidth || navStyle?.borderBottomWidth || '',
-                        borderColor: navStyle?.borderBlockEndColor || navStyle?.borderBottomColor || '',
-                        navHeight: nav instanceof HTMLElement ? nav.getBoundingClientRect().height : null,
-                        barHeight: bar instanceof HTMLElement ? bar.getBoundingClientRect().height : null,
-                        toggleWidth: toggle instanceof HTMLElement ? toggle.getBoundingClientRect().width : null,
-                        coarse: matchMedia('(pointer: coarse)').matches,
-                        fine: matchMedia('(pointer: fine)').matches,
-                        hoverNone: matchMedia('(hover: none)').matches,
-                        hoverHover: matchMedia('(hover: hover)').matches,
-                      };
-                    });
-                    await page.screenshot({ path: path.join(outDir, `${browserName}-${item.name}-closed.png`), fullPage: false });
-                    const borderPx = Number.parseFloat(closed.border) || 0;
-                    if (expected === 'present' && borderPx < 0.5) throw new Error(`${browserName} ${item.name}: expected legacy border, got ${closed.border}`);
-                    if (expected === 'absent' && borderPx > 0.01) throw new Error(`${browserName} ${item.name}: separator survives at ${closed.border}`);
-
-                    await page.locator('[data-site-menu-toggle]').click();
-                    const opened = await page.evaluate(() => {
-                      const nav = document.querySelector('.site-nav');
-                      const bar = document.querySelector('.site-nav__bar');
-                      const menu = document.querySelector('[data-site-menu]');
-                      const link = document.querySelector('.site-nav__menu-link');
-                      const context = document.querySelector('.site-nav__context, .site-nav__breadcrumbs');
-                      const navStyle = nav instanceof HTMLElement ? getComputedStyle(nav) : null;
-                      const linkStyle = link instanceof HTMLElement ? getComputedStyle(link) : null;
-                      const menuRect = menu instanceof HTMLElement ? menu.getBoundingClientRect() : null;
-                      return {
-                        border: navStyle?.borderBlockEndWidth || navStyle?.borderBottomWidth || '',
-                        navHeight: nav instanceof HTMLElement ? nav.getBoundingClientRect().height : null,
-                        barHeight: bar instanceof HTMLElement ? bar.getBoundingClientRect().height : null,
-                        contextDisplay: context instanceof HTMLElement ? getComputedStyle(context).display : '',
-                        textAlign: linkStyle?.textAlign || '',
-                        menuTop: menuRect?.top ?? null,
-                        menuBottomGap: menuRect ? innerHeight - menuRect.bottom : null,
-                        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-                      };
-                    });
-                    await page.screenshot({ path: path.join(outDir, `${browserName}-${item.name}-open.png`), fullPage: false });
-                    const openBorderPx = Number.parseFloat(opened.border) || 0;
-                    if (expected === 'present' && openBorderPx < 0.5) throw new Error(`${browserName} ${item.name} open: expected legacy border, got ${opened.border}`);
-                    if (expected === 'absent' && openBorderPx > 0.01) throw new Error(`${browserName} ${item.name} open: separator survives at ${opened.border}`);
-                    if ((opened.barHeight ?? 99) > 1) throw new Error(`${browserName} ${item.name}: open bar height ${opened.barHeight}`);
-                    if (opened.contextDisplay !== 'none') throw new Error(`${browserName} ${item.name}: open context display ${opened.contextDisplay}`);
-                    if (Math.abs(opened.menuTop ?? 99) > 1 || Math.abs(opened.menuBottomGap ?? 99) > 1) throw new Error(`${browserName} ${item.name}: menu not fullscreen`);
-                    if ((opened.overflow ?? 99) > 1) throw new Error(`${browserName} ${item.name}: horizontal overflow ${opened.overflow}`);
-                    if (item.width <= 512 && opened.textAlign !== 'center') throw new Error(`${browserName} ${item.name}: expected centered mobile menu, got ${opened.textAlign}`);
-                    if (item.width > 512 && !['start', 'left'].includes(opened.textAlign)) throw new Error(`${browserName} ${item.name}: expected start desktop menu, got ${opened.textAlign}`);
-                    summary.push({ browser: browserName, ...item, closed, opened });
-                  } finally {
-                    await context.close();
-                  }
-                }
-              } finally {
-                await browser.close();
-              }
-            }
-            console.log(`NAV393_${phase.toUpperCase()}_SUMMARY=${JSON.stringify(summary)}`);
-          } finally {
-            server.kill('SIGTERM');
-          }
-          EOF
-      - name: RED plus visual baseline then clean fix and visual GREEN
+      - name: RED ownership contract
         shell: bash
         run: |
           set -euo pipefail
+          python tools/tmp-nav-393-patch.py contracts
           if node --test test/site-navigation-style.test.mjs; then
-            echo 'ERROR: expected ownership contract to be RED before cleanup' >&2
-            exit 1
-          else
-            echo 'RED_CONFIRMED: legacy .site-nav ownership is caught'
-          fi
-
-          node /tmp/nav-visual-matrix.mjs before present
-
-          python <<'PY'
-          from pathlib import Path
-          import re
-
-          path = Path('src/styles/components.css')
-          source = path.read_text()
-          pattern = re.compile(
-              r'/\* ==================================================\n'
-              r'   Portfolio navigation\n'
-              r'   ================================================== \*/\n\n'
-              r'\.site-nav \{.*?\n\}\n\n'
-              r'\.site-nav__brand,\n\.site-nav__link \{.*?\n\}\n\n'
-              r'\.site-nav__list \{.*?\n\}\n\n'
-              r'(?=/\* One global project navigator)',
-              re.S,
-          )
-          updated, count = pattern.subn('', source, count=1)
-          if count != 1:
-              raise SystemExit(f'expected exactly one legacy site-nav block, removed {count}')
-          if re.search(r'(^|\n)\s*\.site-nav(?:\b|__)', updated):
-              raise SystemExit('site-nav selector remains in components.css after cleanup')
-          path.write_text(updated)
-          PY
-
-          node --test test/site-navigation-style.test.mjs
-          node /tmp/nav-visual-matrix.mjs after absent
-          npm run test:e2e:navigation
-
-          if git diff -- src/styles/site-navigation.css | grep -q .; then
-            echo 'ERROR: dedicated site-navigation.css changed; this fix must be deletion-only in legacy CSS' >&2
+            echo 'ERROR: expected ownership contract RED before cleanup' >&2
             exit 1
           fi
-      - name: Commit only permanent clean fix and remove temporary workflow
+          echo 'RED_CONFIRMED: legacy .site-nav ownership is caught'
+      - name: Cross-browser visual baseline
+        run: node tools/tmp-nav-393-matrix.mjs before present
+      - name: Apply deletion-only CSS cleanup
         shell: bash
         run: |
           set -euo pipefail
-          git rm .github/workflows/tmp-nav-393-visual-cycle.yml
-          rm -rf tmp-nav-393-artifacts
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/styles/components.css test/site-navigation-style.test.mjs tools/smoke-site-navigation.mjs
-          echo 'FINAL_DIFF:'
-          git diff --cached --stat
-          changed="$(git diff --cached --name-only | sort)"
-          expected="$(printf '%s\n' 'src/styles/components.css' 'test/site-navigation-style.test.mjs' 'tools/smoke-site-navigation.mjs' | sort)"
-          if [ "$changed" != "$expected" ]; then
-            echo 'ERROR: final staged files are not the exact three-file contract' >&2
-            printf 'changed:\n%s\nexpected:\n%s\n' "$changed" "$expected"
+          python tools/tmp-nav-393-patch.py fix
+          node --test test/site-navigation-style.test.mjs
+          if git diff -- src/styles/site-navigation.css | grep -q .; then
+            echo 'ERROR: site-navigation.css changed; #393 must not add an override' >&2
             exit 1
           fi
-          git commit -m 'fix(ui): remove legacy site-nav border (#393)'
-          git push origin HEAD:fix/site-nav-legacy-border-393
-      - name: Upload before/after visual evidence
+      - name: Cross-browser visual GREEN
+        run: node tools/tmp-nav-393-matrix.mjs after absent
+      - name: Existing Chromium navigation smoke
+        run: npm run test:e2e:navigation
+      - name: Upload before and after screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nav-393-cross-browser-visuals
           path: tmp-nav-393-artifacts
           if-no-files-found: warn
+      - name: Commit only permanent files and delete temporary harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/tmp-nav-393-visual-cycle.yml tools/tmp-nav-393-matrix.mjs tools/tmp-nav-393-patch.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/styles/components.css test/site-navigation-style.test.mjs tools/smoke-site-navigation.mjs
+          changed="$(git diff --cached --name-only | sort)"
+          expected="$(printf '%s\n' 'src/styles/components.css' 'test/site-navigation-style.test.mjs' 'tools/smoke-site-navigation.mjs' | sort)"
+          if [ "$changed" != "$expected" ]; then
+            echo 'ERROR: final staged diff is not exactly the three permanent files' >&2
+            printf 'changed:\n%s\nexpected:\n%s\n' "$changed" "$expected"
+            exit 1
+          fi
+          echo 'FINAL_DIFF:'
+          git diff --cached --stat
+          git commit -m 'fix(ui): remove legacy site-nav border (#393)'
+          git push origin HEAD:fix/site-nav-legacy-border-393
