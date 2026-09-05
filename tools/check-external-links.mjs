@@ -11,10 +11,17 @@ import {
 
 const CONCURRENCY = 5;
 const TIMEOUT_MS = 10_000;
+const KNOWN_RUNNER_FALSE_404_URLS = new Set([
+  "https://jesteipool.ru/event/playlist/ochag",
+  "https://www.charactercountonline.com/ru/",
+]);
 
-function classifyStatus(status, redirected) {
+function classifyStatus(status, redirected, url) {
   if (status >= 200 && status < 300) return { classification: redirected ? "redirect" : "ok", severity: "ok" };
   if (status >= 300 && status < 400) return { classification: "redirect", severity: "ok" };
+  if ((status === 404 || status === 410) && KNOWN_RUNNER_FALSE_404_URLS.has(url)) {
+    return { classification: "runner-false-404", severity: "warning" };
+  }
   if (status === 404 || status === 410) return { classification: "broken", severity: "broken" };
   if (status === 401 || status === 403 || status === 429 || status >= 500) return { classification: "warning", severity: "warning" };
   return { classification: "warning", severity: "warning" };
@@ -28,7 +35,7 @@ async function request(url, method) {
       method,
       redirect: "follow",
       signal: controller.signal,
-      headers: method === "GET" ? { Range: "bytes=0-0", "User-Agent": "looksawful-link-check/1.0" } : { "User-Agent": "looksawful-link-check/1.0" },
+      headers: { "User-Agent": "looksawful-link-check/1.0" },
     });
     await response.body?.cancel().catch(() => {});
     return response;
@@ -46,7 +53,7 @@ async function checkUrl(url) {
       response = await request(url, "GET");
       method = "GET";
     }
-    const result = classifyStatus(response.status, response.redirected);
+    const result = classifyStatus(response.status, response.redirected, url);
     return {
       url,
       method,
