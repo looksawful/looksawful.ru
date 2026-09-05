@@ -6,46 +6,54 @@ export interface EntityShellPresentation {
   navigationProject: boolean;
 }
 
-const entityShellPresentations = {
-  "case:jestei-pool": {
+export type EntityShellPresentationRegistry = ReadonlyMap<
+  EntityPageId,
+  EntityShellPresentation
+>;
+
+export const entityShellPresentationRegistry: EntityShellPresentationRegistry = new Map<
+  EntityPageId,
+  EntityShellPresentation
+>([
+  ["case:jestei-pool", {
     articleId: "project-jestei",
     theme: "pink-red",
     navigationProject: true,
-  },
-  "case:styx": {
+  }],
+  ["case:styx", {
     articleId: "project-styx",
     theme: "red-pink",
     navigationProject: true,
-  },
-  "case:sensetique": {
+  }],
+  ["case:sensetique", {
     articleId: "project-sensetique",
     theme: "pink-red",
     navigationProject: true,
-  },
-  "collection:music-photography": {
+  }],
+  ["collection:music-photography", {
     articleId: "project-shootings",
     theme: "neutral",
     navigationProject: true,
-  },
-  "project:awful-cases": {
+  }],
+  ["project:awful-cases", {
     articleId: "project-awful-cases",
     theme: "neutral",
     navigationProject: false,
-  },
-  "project:moves-awful": {
+  }],
+  ["project:moves-awful", {
     articleId: "project-moves-awful",
     theme: "orange-cream",
     navigationProject: false,
-  },
-  "project:berry-social-content-2020": {
+  }],
+  ["project:berry-social-content-2020", {
     articleId: "project-berry-social-content-2020",
     theme: "berry-pink",
     navigationProject: false,
-  },
-} as const satisfies Partial<Record<EntityPageId, EntityShellPresentation>>;
+  }],
+]);
 
 export function getEntityShellPresentation(pageId: EntityPageId): EntityShellPresentation {
-  const presentation = entityShellPresentations[pageId as keyof typeof entityShellPresentations];
+  const presentation = entityShellPresentationRegistry.get(pageId);
 
   if (!presentation) {
     throw new Error(`Missing entity shell presentation: ${pageId}`);
