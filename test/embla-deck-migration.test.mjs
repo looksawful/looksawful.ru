@@ -19,7 +19,7 @@ test("media deck facade delegates horizontal track ownership to an Embla adapter
   );
 
   const [main, facade, adapter] = await Promise.all([
-    read("src/main.js"),
+    read("src/main.ts"),
     read("src/components/media-deck.ts"),
     read("src/components/embla-deck.ts"),
   ]);

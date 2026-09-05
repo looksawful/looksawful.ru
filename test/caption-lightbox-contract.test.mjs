@@ -10,8 +10,8 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 test("caption architecture has one authored data-caption-view contract and no legacy interaction bridge", async () => {
   const [index, main, interactive, components, captions] = await Promise.all([
     read("index.html"),
-    read("src/main.js"),
-    read("src/interactive.js"),
+    read("src/main.ts"),
+    read("src/interactive.ts"),
     read("src/styles/components.css"),
     read("src/styles/captions.css"),
   ]);
