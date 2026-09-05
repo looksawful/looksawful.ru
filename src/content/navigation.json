@@ -1,7 +1,7 @@
 [
   {
     "id": "home",
-    "label": "Главная"
+    "label": "Иван Крушинский"
   },
   {
     "id": "case:jestei-pool",
@@ -9,7 +9,7 @@
   },
   {
     "id": "case:styx",
-    "label": "Styx"
+    "label": "Styx Jewel"
   },
   {
     "id": "case:sensetique",
@@ -17,7 +17,7 @@
   },
   {
     "id": "collection:music-photography",
-    "label": "Shootings"
+    "label": "Съёмки"
   },
   {
     "id": "cv",
