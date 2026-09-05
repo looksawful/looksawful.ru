@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
@@ -24,6 +25,19 @@ function videoOpeningTagForSource(html, source) {
   assert.ok(match, `missing video source ${source}`);
   return match[1];
 }
+
+test("portfolio runtime entrypoints are strict TypeScript only", async () => {
+  for (const name of ["main", "interactive"]) {
+    assert.equal(existsSync(new URL(`../src/${name}.ts`, import.meta.url)), true, `${name}.ts must exist`);
+    assert.equal(existsSync(new URL(`../src/${name}.js`, import.meta.url)), false, `${name}.js must be removed`);
+  }
+
+  const pageShell = await readFile(new URL("../src/site/shell/page-shell.ts", import.meta.url), "utf8");
+  assert.match(indexHtml, /src\/main\.ts/);
+  assert.doesNotMatch(indexHtml, /src\/main\.js/);
+  assert.match(pageShell, /\/src\/main\.ts/);
+  assert.doesNotMatch(pageShell, /\/src\/main\.js/);
+});
 
 test("every enabled entity page has canonical PageContent", () => {
   assert.doesNotThrow(() => validatePageContentManifest(
@@ -81,7 +95,6 @@ test("standalone Jestei page is isolated from other case DOM and uses h1", () =>
 
 test("standalone Sensetique page is canonical, isolated, and marker-free", () => {
   assert.equal(entityPageContentRegistry.has("case:sensetique"), true);
-
   const html = renderStandaloneEntityPage(page("case:sensetique"));
   assert.match(html, /id="project-sensetique"/);
   assert.match(html, /<h1 class="project__title"/);
@@ -96,14 +109,8 @@ test("standalone Sensetique page is canonical, isolated, and marker-free", () =>
   assert.doesNotMatch(html, /Digital-fear-of-love — адверториал для ювелирного бренда MIMI MOSCOW/);
   assert.doesNotMatch(html, /<strong class="credits__title">Olovo Moscow<\/strong>/);
 
-  const krasotaVideo = videoOpeningTagForSource(
-    html,
-    "/media/projects/sensetique/09/source/56-16x9.mp4",
-  );
-  const olovoVideo = videoOpeningTagForSource(
-    html,
-    "/media/projects/sensetique/11/source/28-16x9.mp4",
-  );
+  const krasotaVideo = videoOpeningTagForSource(html, "/media/projects/sensetique/09/source/56-16x9.mp4");
+  const olovoVideo = videoOpeningTagForSource(html, "/media/projects/sensetique/11/source/28-16x9.mp4");
   assert.doesNotMatch(krasotaVideo, /(?:^|\s)(?:width|height)="/);
   assert.doesNotMatch(olovoVideo, /(?:^|\s)(?:width|height)="/);
 
