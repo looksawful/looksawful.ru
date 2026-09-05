@@ -17,15 +17,9 @@
 
 До изменения селектора в `test/` находилось 102 Node test-файла.
 
-Старый `test:fast` выбирал 94 файла автоматически: практически любой новый `*.test.mjs` становился частью Fast CI. Среди них находились:
+Старый `test:fast` выбирал 94 файла автоматически: практически любой новый `*.test.mjs` становился частью Fast CI. Среди них находились migration, component, media и browser-specific проверки, которые не оправдывали стоимость каждого обычного push.
 
-- 10 файлов с `migration` в имени;
-- компонентные CV/CMS тесты, несмотря на отдельный `test:cv`;
-- navigation, motion, lightbox, page-flip и другие специализированные component checks;
-- media/CI checks, часть которых уже имеет отдельные media/quality контуры;
-- временный mobile VisualViewport RED → GREEN regression test.
-
-Nightly Quality при этом уже выполняет `test:core`, а `test:core` запускает полный `node --test` после подготовки media. Поэтому широкий Node-набор не исчезает: он просто перестаёт дублироваться на каждом обычном push.
+Nightly Quality при этом уже выполняет `test:core`, а `test:core` запускает полный `node --test` после подготовки media. Поэтому широкий Node-набор не исчезает: он просто не дублируется на каждом обычном push.
 
 ## Текущие уровни
 
@@ -35,34 +29,32 @@ Nightly Quality при этом уже выполняет `test:core`, а `test:
 
 Fast является opt-in allowlist в `tools/ci/run-tests.mjs`. Новый тест не попадает сюда автоматически.
 
-Текущий Fast содержит только дешёвые долгоживущие contracts:
+Текущий Fast содержит 20 дешёвых долгоживущих contracts:
 
-- `test/change-scope.test.mjs`
-- `test/ci-minimal-pipeline.test.mjs`
+- `test/awful-cases-cms-editorial.test.mjs`
+- `test/ci-fast-concurrency.test.mjs`
+- `test/code-block-contract.test.mjs`
 - `test/cms-publication-scope.test.mjs`
 - `test/cms-publication-topology.test.mjs`
 - `test/cms-publication-workflow.test.mjs`
-- `test/cms-runtime-editability.test.mjs`
 - `test/domain-catalog-identity.test.mjs`
 - `test/domain-taxonomy-references.test.mjs`
 - `test/editorial-content-boundary.test.mjs`
 - `test/editorial-copy-optional.test.mjs`
-- `test/media-ci-cache.test.mjs`
-- `test/media-routing.test.mjs`
+- `test/lighthouse-ci-config.test.mjs`
+- `test/media-tools/media-cache-fingerprint-scope.test.mjs`
 - `test/pages-cms-yaml-syntax.test.mjs`
-- `test/production-media-cache.test.mjs`
-- `test/shared-validation-primitives.test.mjs`
-- `test/site-build-inputs.test.mjs`
+- `test/repository-growth-policy.test.mjs`
+- `test/search-presentation.test.mjs`
+- `test/security-tooling.test.mjs`
+- `test/site-analytics.test.mjs`
+- `test/site-composition.test.mjs`
 - `test/site-pages.test.mjs`
-- `test/test-groups.test.mjs`
-
-Итого: 18 test-файлов вместо прежних 94.
+- `test/static-site-analytics.test.mjs`
 
 ### `npm run test:unit`
 
 Широкий дешёвый Node-набор для локальной/manual проверки. Он включает обычные `*.test.mjs`, но не physical media-tool fixtures и не derivative contracts.
-
-Это место для полезных component/runtime tests, которые не оправдывают стоимость каждого push.
 
 ### `npm run test:ci`
 
@@ -88,47 +80,34 @@ Media-specific integrity. Запускается media workflow или спец�
 
 ## Fast CI
 
-`.github/workflows/ci-fast.yml` выполняет:
+`.github/workflows/ci-fast.yml` выполняет exact shallow checkout, dependency install, canonical media cache verification/recovery, typecheck, `test:fast` и `build:site`.
 
-1. exact shallow checkout;
-2. `npm ci`;
-3. canonical media fingerprint и exact cache verification/recovery при реальном miss;
-4. typecheck;
-5. `test:fast`;
-6. `build:site`.
+Push в `dev` не запускает Fast CI для заведомо non-runtime путей, включая docs/archive/agent metadata, разрешённые copy-only CMS JSON и пути, принадлежащие отдельному media workflow. PR по-прежнему получает Fast CI как integration gate.
 
-Push в `dev` не запускает Fast CI для заведомо non-runtime путей:
+## Production Health
 
-- `docs/**`;
-- `AGENTS.md`;
-- `.agents/**`;
-- `archive/**`;
-- разрешённых copy-only CMS JSON;
-- путей, принадлежащих отдельному media workflow.
+`.github/workflows/production-health.yml` является единственным владельцем частой проверки опубликованного сайта.
 
-PR по-прежнему получает Fast CI как integration gate независимо от того, что отдельный text-only push мог быть тихим.
+Он запускается каждые 6 часов и вручную, использует `prod` как ожидаемый source SHA и проверяет production contract, `/cv/`, репрезентативный project route, главную и опубликованные CSS/JS assets. Это намеренно маленький smoke с лимитом 5 минут.
+
+`Quality` не дублирует этот schedule.
 
 ## Quality
 
 `.github/workflows/quality.yml` остаётся местом для широких и тяжёлых проверок:
 
-- production health — каждые 6 часов;
-- full Node + full E2E — nightly;
-- dependency audit — по расписанию/manual;
-- Lighthouse — по расписанию/manual;
-- external links — по расписанию/manual.
+- nightly `37 1 * * *`: dependency audit, external links, deterministic media preparation, full Node + full E2E и Lighthouse;
+- weekly `53 2 * * 0`: физический поиск дубликатов media через `media:dedupe:physical`;
+- manual: любой из этих quality suites на `dev` или `prod`;
+- PR-only contract: двухминутная статическая проверка расписаний и ownership при изменении Quality/Production Health CI-контрактов; тяжёлые jobs на PR не запускаются.
 
-Именно здесь допустима цена полного regression набора.
+Physical media duplicate scan специально вынесен из nightly: это самая дорогая дисковая проверка, а её риск не меняется настолько быстро, чтобы платить за неё каждую ночь. Lightweight `media:dedupe:check` при этом остаётся внутри nightly full E2E.
 
-## Что было изменено при введении политики
+Heavy manual/scheduled Quality runs сериализуются между собой. PR contract имеет отдельную PR-scoped concurrency group и отменяется при superseded commit, поэтому короткая проверка workflow не ждёт окончания ночного прогона.
 
-- Fast изменён с auto-discovery на explicit allowlist.
-- `unit` сохранён широким, чтобы полезные component tests не были потеряны.
-- Temporary mobile VisualViewport regression test удалён после подтверждённого production hotfix.
-- Очевидные migration tests исключены из Fast автоматически, но не удалены без разбора: часть из них всё ещё защищает runtime/typed composition contracts и остаётся в broad/full tier.
-- В нескольких historical component tests удалены literal assertions на пользовательский copy.
-- Из remaining-media migration test удалён чисто исторический check на уже завершённый temporary bridge.
-- Documentation/archive/agent-skill pushes исключены из Fast CI.
+## Responsive UI
+
+`.github/workflows/ui-responsive.yml` остаётся manual-only слоем. Он не запускается на обычные PR/push и используется для responsive/navigation/layout изменений. Расширенная cross-browser диагностика создаётся временно для конкретной задачи и удаляется после доказательства результата, если не появляется отдельный долгоживущий риск.
 
 ## Правило для будущей работы
 
