@@ -104,7 +104,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:vite
-      - run: npm run cv:content:apply
       - run: npm run check:external-links
       - if: always()
         uses: actions/upload-artifact@v7
