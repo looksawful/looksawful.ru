@@ -1,6 +1,12 @@
 name: Quality
 
 on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - ".github/workflows/quality.yml"
+      - ".github/workflows/production-health.yml"
+      - "test/ci-pipeline.test.mjs"
   workflow_dispatch:
     inputs:
       suite:
@@ -31,6 +37,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Verify Quality schedule contract
+        run: node --test test/ci-pipeline.test.mjs
+
   resolve-target:
     if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && inputs.suite != 'health')
     runs-on: ubuntu-latest
