@@ -6,6 +6,16 @@ import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 
+export function getExpectedStaticAnalyticsBootstrapCount(env = process.env) {
+  const cloudflareToken = typeof env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN === "string"
+    ? env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN.trim()
+    : "";
+  const yandexCounterId = typeof env.VITE_YANDEX_METRIKA_COUNTER_ID === "string"
+    ? env.VITE_YANDEX_METRIKA_COUNTER_ID.trim()
+    : "";
+  return cloudflareToken || /^[1-9]\d*$/.test(yandexCounterId) ? 1 : 0;
+}
+
 async function audit({ browser, baseUrl }, route, viewport, verify) {
   const context = await browser.newContext({ viewport, isMobile: viewport.width === 390, hasTouch: viewport.width === 390, deviceScaleFactor: 1 });
   const page = await context.newPage();
@@ -97,10 +107,11 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "production" })
     assert.equal(await page.locator(".experience-card").count(), getExpectedCvCardCount(cvMode));
     assert.equal(await page.locator(".experience-card[hidden]").count(), getExpectedCvHiddenCards(cvMode));
     if (cvMode === "production") {
+      const expectedStaticAnalytics = getExpectedStaticAnalyticsBootstrapCount();
       assert.equal(
         await page.locator("script[data-static-site-analytics]").count(),
-        1,
-        "Production CV must include exactly one isolated analytics bootstrap",
+        expectedStaticAnalytics,
+        `Production CV static analytics bootstrap count must match build configuration (${expectedStaticAnalytics})`,
       );
       assert.equal(
         await page.locator('script[src="/src/main.js"], script[src^="/assets/main-"]').count(),
