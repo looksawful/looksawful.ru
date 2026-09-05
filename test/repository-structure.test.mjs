@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readdir } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -8,6 +8,21 @@ import { pagePathToEntryPath } from "../src/site/build/inputs.ts";
 import { getEnabledSitePages } from "../src/site/pages/manifest.ts";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
+const legacyMediaDeskPath = ["src", "tools", "media-desk"].join("/");
+const sourceExtensions = new Set([
+  ".cjs",
+  ".css",
+  ".html",
+  ".js",
+  ".json",
+  ".md",
+  ".mjs",
+  ".mts",
+  ".ts",
+  ".tsx",
+  ".yaml",
+  ".yml",
+]);
 
 async function exists(relativePath) {
   try {
@@ -32,6 +47,14 @@ async function collectFiles(directory, prefix = "") {
   }
 
   return files;
+}
+
+async function collectRepositorySourceFiles() {
+  const files = ["vite.config.ts"];
+  for (const directory of [".github", "src", "test", "tools"]) {
+    files.push(...await collectFiles(path.join(root, directory), directory));
+  }
+  return files.filter((file) => sourceExtensions.has(path.extname(file)));
 }
 
 test("repository root contains only intentional source directories", async () => {
@@ -102,5 +125,20 @@ test("application development tooling has a canonical src/devtools boundary", as
     await exists("src/devtools/media-desk/server.ts"),
     true,
     "Media Desk application tooling must be available from src/devtools",
+  );
+});
+
+test("external Media Desk consumers use the canonical src/devtools path", async () => {
+  const offenders = [];
+  for (const file of await collectRepositorySourceFiles()) {
+    if (file.startsWith(`${legacyMediaDeskPath}/`)) continue;
+    const source = await readFile(path.join(root, file), "utf8");
+    if (source.includes(legacyMediaDeskPath)) offenders.push(file);
+  }
+
+  assert.deepEqual(
+    offenders,
+    [],
+    "external Media Desk consumers must not reference the legacy src/tools path",
   );
 });
