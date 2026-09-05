@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
+import { renderCvDevHtml } from "../src/site/build/site-pages-plugin.ts";
 import { getPageByPath } from "../src/site/pages/manifest.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
 
 const indexSource = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+const cvSource = readFileSync(new URL("../public/cv/index.html", import.meta.url), "utf8");
 
 const HOME_TITLE = "Иван Крушинский — арт-директор цифровых продуктов";
 const HOME_DESCRIPTION =
@@ -56,4 +58,17 @@ test("standalone indexable entity pages inherit the same social identity", () =>
   assert.match(html, /<meta property="og:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
   assert.match(html, /<meta name="twitter:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
+});
+
+test("CV uses the same social identity with resume-specific copy", async () => {
+  const html = await renderCvDevHtml(cvSource);
+
+  assert.match(html, /<title>Иван Крушинский — резюме<\/title>/);
+  assert.match(
+    html,
+    /<meta name="description" content="Резюме Ивана Крушинского — арт-директора цифровых продуктов и дизайнера: опыт, компетенции, инструменты и образование\.">/,
+  );
+  assert.match(html, /<meta property="og:site_name" content="looksawful">/);
+  assert.match(html, /<meta property="og:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
+  assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
 });
