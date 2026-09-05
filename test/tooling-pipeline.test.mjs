@@ -98,6 +98,14 @@ test("combined browser regression uses one shared runtime while individual suite
   }
 });
 
+test("full browser regression validates the production CV artifact produced by build:site", async () => {
+  const runAll = await readFile(new URL("../tools/e2e/run-all.mjs", import.meta.url), "utf8");
+  assert.match(
+    runAll,
+    /isDirectExecution[\s\S]*runAllSmokeSuites\(\{\s*browser,\s*baseUrl,\s*cvMode:\s*["']production["']\s*\}\)/,
+  );
+});
+
 test("shared E2E runtime terminates preview processes and preserves signal termination", async () => {
   const runtime = await readFile(new URL("../tools/e2e/runtime.mjs", import.meta.url), "utf8");
   assert.match(runtime, /server\.once\(["']exit["']/);
