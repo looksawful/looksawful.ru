@@ -104,5 +104,7 @@ jobs:
         run: npm run typecheck
       - name: Fast tests
         run: npm run test:fast
+      - name: Jestei static runtime migration contract
+        run: node --test test/jestei-theme-organism-mockup.test.mjs
       - name: Production build
         run: npm run build:site
