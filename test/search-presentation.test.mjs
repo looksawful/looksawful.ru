@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { test } from "node:test";
 
 import { getPageByPath } from "../src/site/pages/manifest.ts";
@@ -7,9 +10,12 @@ import { cvSearchPresentation } from "../src/site/pages/search-presentation.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
 import { replacePageMetadata } from "../src/site/shell/metadata.ts";
+import { checkProduction } from "../tools/check-production.mjs";
+import { validateSite } from "../tools/check-site-meta.mjs";
 
 const indexSource = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const cvSource = readFileSync(new URL("../public/cv/index.html", import.meta.url), "utf8");
+const pagesWorkflow = readFileSync(new URL("../.github/workflows/pages.yml", import.meta.url), "utf8");
 
 const HOME_TITLE = "Иван Крушинский — арт-директор цифровых продуктов";
 const HOME_DESCRIPTION =
@@ -79,4 +85,78 @@ test("CV uses the same social identity with resume-specific copy", () => {
   assert.match(html, /<meta property="og:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
   assert.match(html, /<link rel="icon" href="\/favicon\.svg" type="image\/svg\+xml">/);
+});
+
+test("site metadata validation rejects a missing favicon asset", async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), "site-meta-favicon-"));
+  try {
+    await mkdir(path.join(dir, "media", "hero"), { recursive: true });
+    await writeFile(path.join(dir, "index.html"), renderHomepagePage(indexSource), "utf8");
+    await writeFile(path.join(dir, "robots.txt"), "User-agent: *\nAllow: /\n\nSitemap: https://www.looksawful.ru/sitemap.xml\n", "utf8");
+    await writeFile(
+      path.join(dir, "sitemap.xml"),
+      '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://www.looksawful.ru/</loc></url></urlset>',
+      "utf8",
+    );
+    await writeFile(path.join(dir, "media", "hero", "hero-portrait.webp"), "fixture", "utf8");
+
+    await assert.rejects(
+      () => validateSite({ distDir: dir }),
+      /favicon/i,
+    );
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("production discovery health checks favicon as YandexBot", async () => {
+  const originalFetch = globalThis.fetch;
+  const requests = [];
+
+  globalThis.fetch = async (input, init = {}) => {
+    const url = new URL(String(input));
+    const headers = new Headers(init.headers ?? {});
+    requests.push({ pathname: url.pathname, userAgent: headers.get("User-Agent") ?? "" });
+
+    if (url.pathname === "/") {
+      return new Response("<!doctype html><html><head><title>fixture</title></head><body>ok</body></html>", {
+        status: 200,
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    }
+    if (url.pathname === "/robots.txt") {
+      return new Response("User-agent: *\nAllow: /\n\nSitemap: https://www.looksawful.ru/sitemap.xml\n", { status: 200 });
+    }
+    if (url.pathname === "/sitemap.xml") {
+      return new Response('<?xml version="1.0"?><urlset><url><loc>https://www.looksawful.ru/</loc></url></urlset>', { status: 200 });
+    }
+    if (url.pathname === "/deploy-version.txt") {
+      return new Response("commit=test-sha\ndeployed-from=prod\n", { status: 200 });
+    }
+    if (url.pathname === "/favicon.svg") {
+      return new Response('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"></svg>', {
+        status: 200,
+        headers: { "content-type": "image/svg+xml" },
+      });
+    }
+    throw new Error(`unexpected URL ${url.href}`);
+  };
+
+  try {
+    const result = await checkProduction({ expectedSha: "test-sha" });
+    assert.equal(result.favicon, "PASS");
+    const faviconRequest = requests.find((request) => request.pathname === "/favicon.svg");
+    assert.ok(faviconRequest, "production health check must request /favicon.svg");
+    assert.match(faviconRequest.userAgent, /YandexBot/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("Pages deployment verifies Yandex-visible discovery files after publish", () => {
+  assert.match(pagesWorkflow, /YandexBot\/3\.0/);
+  assert.match(pagesWorkflow, /favicon\.svg/);
+  assert.match(pagesWorkflow, /robots\.txt/);
+  assert.match(pagesWorkflow, /sitemap\.xml/);
+  assert.match(pagesWorkflow, /content-type:[^\n]*image\/svg/);
 });
