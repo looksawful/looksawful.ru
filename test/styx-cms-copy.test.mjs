@@ -4,6 +4,8 @@ import test from "node:test";
 
 import * as styx from "../src/data/content/styx.ts";
 import { getCase, getRole } from "../src/data/catalog/lookup.ts";
+import { styxMediaEntries } from "../src/data/media/entries/styx.ts";
+import { shootingCardGroups } from "../src/data/subproject-cards.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { renderSectionIntro } from "../src/templates/section-intro.ts";
 import { escapeHtml } from "../src/utils/html.ts";
@@ -35,6 +37,15 @@ function readCanonicalIntro() {
   const caseData = getCase("styx");
   const role = caseData.primaryRoleLabel ?? (caseData.primaryRoleId ? getRole(caseData.primaryRoleId).name : "");
   return { caseData, role, period: caseData.date ?? "" };
+}
+
+function assertCanonicalBrandName(value, label) {
+  if (!value) {
+    return;
+  }
+
+  assert.doesNotMatch(value, /\bStyx Jewels\b/, `${label} must not use the old plural brand name`);
+  assert.doesNotMatch(value, /\bStyx\b(?!\s+Jewel)/, `${label} must use the full Styx Jewel display name`);
 }
 
 test("Styx CMS source owns editorial copy while Case owns intro identity", async () => {
@@ -140,4 +151,44 @@ test("Pages CMS exposes Styx editorial copy without Case identity, route, media 
   for (const forbidden of ["role", "period", "entryId", "className", "layout", "route", "canonical", "href", "renderer"]) {
     assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
   }
+});
+
+test("Styx user-facing sources keep the canonical Styx Jewel display name", async () => {
+  const source = await readSource();
+  const archive = JSON.parse(
+    await readFile(
+      new URL("../archive/texts/2026-09-02-pre-simplification/src/content/cases/styx.json", import.meta.url),
+      "utf8",
+    ),
+  );
+
+  for (const [label, editorial] of [["live CMS", source], ["archived CMS", archive]]) {
+    const values = [
+      editorial.lead,
+      ...editorial.sections.flatMap(({ title, paragraphs }) => [title, ...paragraphs]),
+      ...editorial.credits.map(({ title }) => title),
+    ];
+    for (const value of values) {
+      assertCanonicalBrandName(value, `${label} copy`);
+    }
+  }
+
+  for (const entry of styxMediaEntries) {
+    const values = [entry.title, entry.alt, entry.caption?.title, entry.caption?.text, ...(entry.caption?.meta ?? [])];
+    for (const value of values) {
+      assertCanonicalBrandName(value, `media entry ${entry.id}`);
+    }
+  }
+
+  for (const group of shootingCardGroups) {
+    for (const card of group.cards) {
+      if (card.id.startsWith("styx-")) {
+        assertCanonicalBrandName(card.title, `subproject card ${card.id}`);
+      }
+    }
+  }
+
+  const legacyIndex = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  assert.doesNotMatch(legacyIndex, /\bStyx Jewels\b/, "legacy index must not use the old plural brand name");
+  assert.equal(getCase("styx").name, "Styx Jewel");
 });
