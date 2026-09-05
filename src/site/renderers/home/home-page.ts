@@ -9,6 +9,7 @@ import {
   type HomepageEntry,
 } from "../../pages/homepage.ts";
 import { getPageByPath } from "../../pages/manifest.ts";
+import { homeSearchPresentation } from "../../pages/search-presentation.ts";
 import type { EntityPageId } from "../../pages/types.ts";
 import { extractElementById } from "../../rendering/html.ts";
 import {
@@ -18,10 +19,6 @@ import {
 import { renderSiteNavigation } from "../../shell/navigation.ts";
 import { renderEntityShell } from "../entity/entity-shell.ts";
 import { renderHomepage } from "./home-slots.ts";
-
-const HOME_TITLE = "Иван Крушинский — арт-директор цифровых продуктов";
-const HOME_DESCRIPTION =
-  "Арт-директор цифровых продуктов и дизайнер. Проектирую интерфейсы, айдентику и визуальные системы, руковожу командами и довожу продукты до релиза.";
 
 const legacyHomepageNavigation = /<nav\b(?=[^>]*\bdata-site-navigation\b)(?=[^>]*\bhidden\b)[^>]*>[\s\S]*?<\/nav>/g;
 const homeStructuredData = /<script\b(?=[^>]*\btype=["']application\/ld\+json["'])[^>]*>[\s\S]*?<\/script>/i;
@@ -111,8 +108,7 @@ export function renderHomepagePage(html: string): string {
   );
   const withMetadata = replacePageMetadata(withNavigation, {
     page,
-    title: HOME_TITLE,
-    description: HOME_DESCRIPTION,
+    ...homeSearchPresentation,
   });
   const withStructuredData = replaceHomepageStructuredData(withMetadata);
 
