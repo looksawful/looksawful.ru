@@ -37,7 +37,7 @@ export function renderPageShell({
     ${renderPageMetadata({ page, title, description })}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link href="/src/styles/index.css" rel="stylesheet">
-    <script src="/src/main.js" type="module"></script>
+    <script src="/src/main.ts" type="module"></script>
   </head>
   <body ${renderBodyAttributes(page)}>
     ${renderSiteNavigation(page)}
