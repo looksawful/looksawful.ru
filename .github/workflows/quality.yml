@@ -7,6 +7,7 @@ on:
       - ".github/workflows/quality.yml"
       - ".github/workflows/production-health.yml"
       - "test/ci-pipeline.test.mjs"
+      - "test/ci-minimal-pipeline.test.mjs"
   workflow_dispatch:
     inputs:
       suite:
@@ -14,7 +15,7 @@ on:
         required: true
         default: all
         type: choice
-        options: [all, full-e2e, media-physical, lighthouse, dependency-audit, external-links, health]
+        options: [all, full-e2e, media-physical, lighthouse, dependency-audit, external-links]
       target:
         description: Branch/ref for manual quality jobs
         required: true
@@ -22,19 +23,19 @@ on:
         type: choice
         options: [dev, prod]
   schedule:
-    # Production health stays lightweight and frequent.
-    - cron: "17 */6 * * *"
-    # Nightly full quality suite. GitHub cron is UTC: 01:37 UTC = 04:37 Moscow.
+    # Nightly broad quality suite.
     - cron: "37 1 * * *"
+    # Weekly physical duplicate audit. Keep the expensive disk scan out of nightly.
+    - cron: "53 2 * * 0"
 
 permissions:
   contents: read
 
-# Never run two expensive Quality workflows at once. Jobs inside one run still
-# execute in parallel, but a manual run cannot collide with a scheduled run.
+# Heavy manual/scheduled runs serialize under one group. Tiny PR contract runs
+# get their own PR-scoped group and are cancelled when superseded.
 concurrency:
-  group: quality-${{ github.workflow }}
-  cancel-in-progress: false
+  group: quality-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'heavy' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   contract:
@@ -52,11 +53,14 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 24
-      - name: Verify Quality schedule contract
-        run: node --test test/ci-pipeline.test.mjs
+      - name: Verify Quality schedule contracts
+        run: >-
+          node --test
+          test/ci-pipeline.test.mjs
+          test/ci-minimal-pipeline.test.mjs
 
   resolve-target:
-    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && inputs.suite != 'health')
+    if: github.event.schedule == '37 1 * * *' || github.event.schedule == '53 2 * * 0' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -72,25 +76,6 @@ jobs:
         id: target
         shell: bash
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-  health:
-    if: github.event.schedule == '17 */6 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'health'))
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: prod
-          fetch-depth: 1
-          persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - name: Verify production health and published SHA
-        shell: bash
-        run: |
-          export EXPECTED_PROD_SHA="$(git rev-parse HEAD)"
-          node tools/check-production.mjs
 
   dependency-audit:
     needs: resolve-target
@@ -138,7 +123,7 @@ jobs:
 
   media-physical:
     needs: resolve-target
-    if: github.event.schedule == '37 1 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'media-physical'))
+    if: github.event.schedule == '53 2 * * 0' || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'all' || inputs.suite == 'media-physical'))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
