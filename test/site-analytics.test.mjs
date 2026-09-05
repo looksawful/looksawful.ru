@@ -133,10 +133,11 @@ test("analytics goal classification rejects non-web URL schemes without breaking
   });
 });
 
-test("consent control exposes the privacy notice", async () => {
+test("consent control exposes a short neutral cookie notice", async () => {
   const source = await readFile(consentUrl, "utf8");
   assert.match(source, /privacy\.href = "\/privacy\/"/);
-  assert.match(source, /Метрика загружается только с вашего согласия/);
+  assert.match(source, /Этот сайт использует cookies/);
+  assert.doesNotMatch(source, /Использую Яндекс Метрику/);
 });
 
 test("analytics is disabled on local preview hosts used by smoke tests", async () => {
