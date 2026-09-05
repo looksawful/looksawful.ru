@@ -21,10 +21,10 @@
 }
 
 @container projects (width <= 96rem) {
-  .project-nav[data-viewport-anchor] {
-    position: relative;
-    inset-block-start: var(--project-nav-viewport-offset, 0px);
-    translate: none;
+  .project-nav {
+    padding-block-end: calc(
+      var(--size-200) + env(safe-area-inset-bottom, 0px)
+    );
   }
 }
 

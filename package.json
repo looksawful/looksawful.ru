@@ -51,6 +51,7 @@
     "test:e2e:media-desk": "node tools/e2e/run-media-desk.mjs",
     "test:e2e:production": "node tools/e2e/run-production.mjs",
     "test:e2e:cv:production": "node tools/e2e/run-cv-production.mjs",
+    "test:ui:responsive": "node tools/e2e/run-responsive-ui.mjs",
     "verify:core": "npm run typecheck && npm run test:core && npm run build:site && npm run test:e2e:full",
     "verify": "npm run media:ensure && npm run typecheck && npm run test:fast && npm run test:media:contract && npm run build:site && npm run test:e2e:smoke",
     "verify:full": "npm run media:sync && npm run verify:core",
