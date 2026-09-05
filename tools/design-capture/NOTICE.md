@@ -1,1 +1,0 @@
-Manual design-capture utility. Not for CI, tests, builds, deployments, or client runtime.
