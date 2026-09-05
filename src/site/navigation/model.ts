@@ -1,9 +1,12 @@
 import { getCase, getCollection, getProject } from "../../data/catalog/lookup.ts";
+import { projectIndexMediaAssetFor } from "../../data/media/assets/project-index.ts";
+import { responsiveVariantsFor } from "../../data/media/responsive.ts";
 import {
   getNavigationLabel,
   navigationLabels,
   type NavigationLabelData,
 } from "../../data/navigation.ts";
+import { projectCardPresentations } from "../../data/projects.ts";
 import { sitePages } from "../pages/manifest.ts";
 import type { SitePageDefinition, SitePageId } from "../pages/types.ts";
 import {
@@ -11,10 +14,16 @@ import {
   type PrimaryNavigationPageId,
 } from "./primary.ts";
 
+const NAVIGATION_PREVIEW_OVERRIDES = {
+  home: "/media/hero/hero-portrait.webp",
+  cv: "/media/cv/portrait-signature.webp",
+} as const satisfies Partial<Record<PrimaryNavigationPageId, string>>;
+
 export interface SiteNavigationItem {
-  id: SitePageId;
+  id: PrimaryNavigationPageId;
   label: string;
   href: string;
+  previewSrc: string;
 }
 
 export interface SiteBreadcrumbItem {
@@ -63,6 +72,25 @@ function requirePage(
   return page;
 }
 
+function resolveProjectNavigationPreview(id: PrimaryNavigationPageId): string | undefined {
+  const card = projectCardPresentations.find((candidate) => candidate.pageId === id);
+  if (!card) return undefined;
+
+  const asset = projectIndexMediaAssetFor(card);
+  const preview = responsiveVariantsFor(asset).find((variant) => variant.width === 768);
+  return preview?.src ?? card.cover.src;
+}
+
+function getNavigationPreviewSrc(id: PrimaryNavigationPageId): string {
+  const override = NAVIGATION_PREVIEW_OVERRIDES[id as keyof typeof NAVIGATION_PREVIEW_OVERRIDES];
+  if (override) return override;
+
+  const projectPreview = resolveProjectNavigationPreview(id);
+  if (projectPreview) return projectPreview;
+
+  throw new Error(`Primary navigation preview is unavailable: ${id}`);
+}
+
 export function getPrimaryNavigationItems(
   labels: readonly NavigationLabelData[] = navigationLabels,
   pages: readonly SitePageDefinition[] = sitePages,
@@ -70,9 +98,10 @@ export function getPrimaryNavigationItems(
   return PRIMARY_NAVIGATION_PAGE_IDS.map((id) => {
     const page = requirePage(id, pages);
     return {
-      id: page.id,
+      id,
       label: getNavigationPageLabel(page, labels),
       href: page.path,
+      previewSrc: getNavigationPreviewSrc(id),
     };
   });
 }
