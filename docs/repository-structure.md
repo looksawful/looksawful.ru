@@ -42,11 +42,11 @@ src/
 
 ### Application devtools versus repository tools
 
-`src/devtools/**` is allowed to participate in the Vite development application. The current example is Media/Content Desk.
+`src/devtools/**` is allowed to participate in the Vite development application. Media/Content Desk lives at `src/devtools/media-desk/**`; this is its only application source boundary.
 
 `tools/**` is repository tooling executed by Node, CI or local commands. Production/runtime source must not start depending on arbitrary repository scripts.
 
-The old `src/tools/media-desk/**` tree is a temporary compatibility copy during Project 67 / issue #364. External consumers already use `src/devtools/media-desk/**`. The legacy tree remains only while concurrent PR ownership prevents conflict-free deletion and must not gain new consumers.
+The former duplicate `src/tools/media-desk/**` compatibility tree was retired after all external consumers moved to `src/devtools/media-desk/**` and the remaining #400 catalog-view delta was ported to the canonical copy. New code must not recreate the old boundary.
 
 ## `src/site/`
 
@@ -91,6 +91,7 @@ New browser/runtime source under `src/` should be TypeScript. The structural con
 - retired JS compatibility shims do not return;
 - authored JS remains restricted to an explicit migration allowlist;
 - application development tooling has a canonical `src/devtools` boundary;
+- the retired `src/tools/media-desk` duplicate cannot return;
 - external Media Desk consumers cannot regress to `src/tools/media-desk`;
 - literal path-specific `.gitattributes` rules cannot silently point at deleted files.
 
