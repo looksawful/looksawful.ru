@@ -6,6 +6,12 @@ import {
 
 type Destroy = () => void;
 
+type ScaledMockupFitOptions = {
+  targetSelector: string;
+  scaleProperty: string;
+  heightProperty: string;
+};
+
 const noop: Destroy = () => {};
 
 function initPlaylistFilter(host: Element): void {
@@ -99,15 +105,22 @@ function initPlaylistFilter(host: Element): void {
   form.addEventListener("submit", (event) => event.preventDefault());
 }
 
-function initJesteiFilterFit(mockup: Element): Destroy {
+function initScaledMockupFit(
+  mockup: Element,
+  {
+    targetSelector,
+    scaleProperty,
+    heightProperty,
+  }: ScaledMockupFitOptions,
+): Destroy {
   if (!(mockup instanceof HTMLElement)) return noop;
 
   const viewport = mockup.querySelector(".mockup__viewport");
-  const filter = mockup.querySelector("playlist-filter-workflow");
+  const target = mockup.querySelector(targetSelector);
 
   if (
     !(viewport instanceof HTMLElement) ||
-    !(filter instanceof HTMLElement)
+    !(target instanceof HTMLElement)
   ) {
     return noop;
   }
@@ -119,18 +132,15 @@ function initJesteiFilterFit(mockup: Element): Destroy {
       (Number.parseFloat(viewportStyles.paddingInlineEnd) || 0);
 
     const availableWidth = Math.max(0, viewport.clientWidth - paddingInline);
-    const designWidth = filter.offsetWidth;
-    const designHeight = filter.offsetHeight;
+    const designWidth = target.offsetWidth;
+    const designHeight = target.offsetHeight;
 
     if (!availableWidth || !designWidth || !designHeight) return;
 
     const scale = Math.min(1, availableWidth / designWidth);
 
-    mockup.style.setProperty("--filter-fit-scale", String(scale));
-    mockup.style.setProperty(
-      "--filter-fit-height",
-      `${designHeight * scale}px`,
-    );
+    mockup.style.setProperty(scaleProperty, String(scale));
+    mockup.style.setProperty(heightProperty, `${designHeight * scale}px`);
   };
 
   const observer =
@@ -143,57 +153,8 @@ function initJesteiFilterFit(mockup: Element): Destroy {
 
   return () => {
     observer?.disconnect();
-    mockup.style.removeProperty("--filter-fit-scale");
-    mockup.style.removeProperty("--filter-fit-height");
-  };
-}
-
-function initJesteiThemeOrganismFit(mockup: Element): Destroy {
-  if (!(mockup instanceof HTMLElement)) return noop;
-
-  const viewport = mockup.querySelector(".mockup__viewport");
-  const organism = mockup.querySelector("[data-jestei-theme-organism]");
-
-  if (
-    !(viewport instanceof HTMLElement) ||
-    !(organism instanceof HTMLElement)
-  ) {
-    return noop;
-  }
-
-  const render = (): void => {
-    const viewportStyles = getComputedStyle(viewport);
-    const paddingInline =
-      (Number.parseFloat(viewportStyles.paddingInlineStart) || 0) +
-      (Number.parseFloat(viewportStyles.paddingInlineEnd) || 0);
-
-    const availableWidth = Math.max(0, viewport.clientWidth - paddingInline);
-    const designWidth = organism.offsetWidth;
-    const designHeight = organism.offsetHeight;
-
-    if (!availableWidth || !designWidth || !designHeight) return;
-
-    const scale = Math.min(1, availableWidth / designWidth);
-
-    mockup.style.setProperty("--jestei-theme-fit-scale", String(scale));
-    mockup.style.setProperty(
-      "--jestei-theme-fit-height",
-      `${designHeight * scale}px`,
-    );
-  };
-
-  const observer =
-    typeof ResizeObserver === "function"
-      ? new ResizeObserver(render)
-      : null;
-
-  observer?.observe(viewport);
-  render();
-
-  return () => {
-    observer?.disconnect();
-    mockup.style.removeProperty("--jestei-theme-fit-scale");
-    mockup.style.removeProperty("--jestei-theme-fit-height");
+    mockup.style.removeProperty(scaleProperty);
+    mockup.style.removeProperty(heightProperty);
   };
 }
 
@@ -209,11 +170,23 @@ export function initSiteInteractive(
   root.querySelectorAll("playlist-filter-workflow").forEach(initPlaylistFilter);
 
   root.querySelectorAll(".jestei-filter-mockup").forEach((mockup) => {
-    destroys.push(initJesteiFilterFit(mockup));
+    destroys.push(
+      initScaledMockupFit(mockup, {
+        targetSelector: "playlist-filter-workflow",
+        scaleProperty: "--filter-fit-scale",
+        heightProperty: "--filter-fit-height",
+      }),
+    );
   });
 
   root.querySelectorAll(".jestei-theme-organism-mockup").forEach((mockup) => {
-    destroys.push(initJesteiThemeOrganismFit(mockup));
+    destroys.push(
+      initScaledMockupFit(mockup, {
+        targetSelector: "[data-jestei-theme-organism]",
+        scaleProperty: "--jestei-theme-fit-scale",
+        heightProperty: "--jestei-theme-fit-height",
+      }),
+    );
   });
 
   return () =>
