@@ -25,13 +25,7 @@ import {
 import { jesteiThemeOrganismMockup } from "../../../data/content/jestei-theme-organism.ts";
 import type { EntityPageContent } from "../../contracts/page-content.ts";
 
-/**
- * Canonical target composition for Jestei Pool.
- *
- * Deliberately not registered yet. The legacy page remains the runtime source
- * until the large playlist-filter workflow is moved out of index.html into the
- * specialized JesteiTrackFilter renderer without changing its DOM contract.
- */
+/** Canonical Jestei Pool composition consumed by standalone and Homepage rendering. */
 export const jesteiPoolPageContent = {
   pageId: "case:jestei-pool",
   intro: jesteiIntro,
