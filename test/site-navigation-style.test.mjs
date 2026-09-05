@@ -4,15 +4,18 @@ import test from "node:test";
 
 const indexPath = new URL("../src/styles/index.css", import.meta.url);
 const mainPath = new URL("../src/main.ts", import.meta.url);
-const componentPath = new URL("../src/styles/site-navigation.css", import.meta.url);
+const componentsPath = new URL("../src/styles/components.css", import.meta.url);
+const dedicatedPath = new URL("../src/styles/site-navigation.css", import.meta.url);
 const indexSource = readFileSync(indexPath, "utf8");
 const mainSource = readFileSync(mainPath, "utf8");
-const componentSource = existsSync(componentPath) ? readFileSync(componentPath, "utf8") : "";
+const componentSource = readFileSync(componentsPath, "utf8");
 
-test("dedicated navigation stylesheet stays component-owned", () => {
-  assert.ok(existsSync(componentPath), "site navigation stylesheet must exist");
+test("global navigation styles have one owner in components.css", () => {
+  assert.equal(existsSync(dedicatedPath), false, "duplicate site-navigation.css owner must be removed");
   assert.doesNotMatch(indexSource, /site-navigation\.css/);
-  assert.match(mainSource, /import\s+["']\.\/styles\/site-navigation\.css["'];/);
+  assert.doesNotMatch(mainSource, /site-navigation\.css/);
+  assert.match(componentSource, /\.site-nav__bar/);
+  assert.doesNotMatch(componentSource, /\.site-nav__brand\b|\.site-nav__list\b|\.site-nav__link\b/);
 });
 
 test("site navigation keeps one two-column header over a continuous fullscreen menu", () => {
