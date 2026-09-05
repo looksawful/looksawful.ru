@@ -142,3 +142,24 @@ test("external Media Desk consumers use the canonical src/devtools path", async 
     "external Media Desk consumers must not reference the legacy src/tools path",
   );
 });
+
+test("literal .gitattributes paths point to files that still exist", async () => {
+  const attributes = await readFile(path.join(root, ".gitattributes"), "utf8");
+  const literalPaths = attributes
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"))
+    .map((line) => line.split(/\s+/, 1)[0])
+    .filter((pattern) => pattern.includes("/") && !/[*?[{]/.test(pattern));
+  const missing = [];
+
+  for (const candidate of literalPaths) {
+    if (!(await exists(candidate))) missing.push(candidate);
+  }
+
+  assert.deepEqual(
+    missing,
+    [],
+    ".gitattributes must not retain path-specific rules for deleted files",
+  );
+});
