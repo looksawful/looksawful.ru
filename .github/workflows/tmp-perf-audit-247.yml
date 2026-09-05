@@ -1,0 +1,80 @@
+name: Tmp performance audit 247
+
+on:
+  push:
+    branches: [agent/perf-audit-247]
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Run production Lighthouse matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/perf-247
+          routes=(
+            "home|https://www.looksawful.ru/"
+            "jestei|https://www.looksawful.ru/work/jestei-pool/"
+            "cv|https://www.looksawful.ru/cv/"
+            "shootings|https://www.looksawful.ru/work/shootings/"
+          )
+          for pair in "${routes[@]}"; do
+            name="${pair%%|*}"
+            url="${pair#*|}"
+            npx lighthouse "$url" \
+              --output=json \
+              --output-path="artifacts/perf-247/${name}-mobile.json" \
+              --chrome-flags="--headless --no-sandbox" \
+              --quiet
+            npx lighthouse "$url" \
+              --preset=desktop \
+              --output=json \
+              --output-path="artifacts/perf-247/${name}-desktop.json" \
+              --chrome-flags="--headless --no-sandbox" \
+              --quiet
+          done
+      - name: Summarize measurements
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const dir = 'artifacts/perf-247';
+          const rows = [];
+          for (const file of fs.readdirSync(dir).filter((x) => x.endsWith('.json')).sort()) {
+            const r = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+            const a = r.audits;
+            const c = r.categories;
+            rows.push({
+              file,
+              perf: Math.round((c.performance?.score ?? 0) * 100),
+              lcp: Math.round(a['largest-contentful-paint']?.numericValue ?? 0),
+              cls: Number((a['cumulative-layout-shift']?.numericValue ?? 0).toFixed(3)),
+              tbt: Math.round(a['total-blocking-time']?.numericValue ?? 0),
+              si: Math.round(a['speed-index']?.numericValue ?? 0),
+              bytes: Math.round((a['total-byte-weight']?.numericValue ?? 0) / 1024),
+              requests: a['network-requests']?.details?.items?.length ?? 0,
+              thirdPartyBytes: Math.round((a['third-party-summary']?.details?.summary?.wastedBytes ?? 0) / 1024),
+              jsMs: Math.round(a['bootup-time']?.numericValue ?? 0),
+              mainThreadMs: Math.round(a['mainthread-work-breakdown']?.numericValue ?? 0),
+            });
+          }
+          console.log(JSON.stringify(rows, null, 2));
+          fs.writeFileSync(path.join(dir, 'summary.json'), JSON.stringify(rows, null, 2) + '\n');
+          NODE
+      - uses: actions/upload-artifact@v6
+        with:
+          name: perf-247
+          path: artifacts/perf-247
+          retention-days: 7
