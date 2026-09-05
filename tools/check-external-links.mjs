@@ -28,7 +28,7 @@ async function request(url, method) {
       method,
       redirect: "follow",
       signal: controller.signal,
-      headers: method === "GET" ? { Range: "bytes=0-0", "User-Agent": "looksawful-link-check/1.0" } : { "User-Agent": "looksawful-link-check/1.0" },
+      headers: { "User-Agent": "looksawful-link-check/1.0" },
     });
     await response.body?.cancel().catch(() => {});
     return response;
