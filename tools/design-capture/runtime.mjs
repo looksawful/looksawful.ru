@@ -41,7 +41,6 @@ export async function withDeadline(promise, timeoutMs, label) {
     timer = setTimeout(() => {
       reject(new Error(`${label} timed out after ${timeoutMs}ms`));
     }, timeoutMs);
-    timer.unref?.();
   });
 
   try {
