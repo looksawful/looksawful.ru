@@ -8,6 +8,7 @@ const expectedWorkflows = [
   "ci-fast.yml",
   "cms-media.yml",
   "codeql.yml",
+  "dependency-review.yml",
   "pages-cms-publish.yml",
   "pages.yml",
   "quality.yml",
