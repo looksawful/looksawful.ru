@@ -70,7 +70,7 @@ if (-not $repoState.permissions.admin) {
 }
 
 $repoSettings = [ordered]@{
-  default_branch         = "prod"
+  default_branch         = "dev"
   delete_branch_on_merge = $false
   allow_merge_commit     = $true
   allow_squash_merge     = $true
@@ -88,7 +88,7 @@ $repoSettings = [ordered]@{
 }
 
 $prodRuleset = [ordered]@{
-  name        = "prod-minimal-protection"
+  name        = "Protect prod"
   target      = "branch"
   enforcement = "active"
   bypass_actors = @()
@@ -104,7 +104,7 @@ $prodRuleset = [ordered]@{
     @{
       type = "pull_request"
       parameters = @{
-        allowed_merge_methods             = @("merge")
+        allowed_merge_methods             = @("merge", "squash", "rebase")
         dismiss_stale_reviews_on_push     = $false
         require_code_owner_review         = $false
         require_last_push_approval        = $false
@@ -124,7 +124,7 @@ $prodRuleset = [ordered]@{
 }
 
 $devRuleset = [ordered]@{
-  name        = "dev-safety"
+  name        = "Protect dev"
   target      = "branch"
   enforcement = "active"
   bypass_actors = @()
@@ -143,7 +143,8 @@ $devRuleset = [ordered]@{
 Write-Host "Repository: $Repo"
 Write-Host "Current default branch: $($repoState.default_branch)"
 Write-Host "Plan:"
-Write-Host "  prod: PR-only, merge commits, required check 'verify', no approvals, no strict up-to-date, no force-push/delete"
+Write-Host "  default branch: dev"
+Write-Host "  prod: PR-only, merge/squash/rebase, required check 'verify', no approvals, no strict up-to-date, no force-push/delete"
 Write-Host "  dev: direct fast-forward pushes allowed, no force-push/delete"
 Write-Host "  global auto-delete merged head branches: OFF"
 Write-Host "  Dependabot alerts + dependency graph: ON"
@@ -166,8 +167,8 @@ if (-not $Apply) {
   }
 }
 
-Upsert-Ruleset "prod-minimal-protection" $prodRuleset
-Upsert-Ruleset "dev-safety" $devRuleset
+Upsert-Ruleset "Protect prod" $prodRuleset
+Upsert-Ruleset "Protect dev" $devRuleset
 
 if ($Apply) {
   $finalRepo = Invoke-GhGet "repos/$Repo"
@@ -177,15 +178,15 @@ if ($Apply) {
   $alertsEnabled = Test-GhEndpoint "repos/$Repo/vulnerability-alerts"
   $dependencyReviewReady = Test-GhEndpoint "repos/$Repo/dependency-graph/compare/prod...dev"
 
-  if ($finalRepo.default_branch -ne "prod") { throw "Verification failed: default branch is not prod." }
+  if ($finalRepo.default_branch -ne "dev") { throw "Verification failed: default branch is not dev." }
   if ($finalRepo.delete_branch_on_merge) { throw "Verification failed: automatic head-branch deletion is enabled." }
   if (-not $finalRepo.allow_merge_commit) { throw "Verification failed: merge commits are disabled." }
   if (-not $alertsEnabled) { throw "Verification failed: Dependabot vulnerability alerts are not enabled." }
-  if (-not ($finalRulesets | Where-Object { $_.name -eq "prod-minimal-protection" -and $_.enforcement -eq "active" })) {
-    throw "Verification failed: prod-minimal-protection ruleset is not active."
+  if (-not ($finalRulesets | Where-Object { $_.name -eq "Protect prod" -and $_.enforcement -eq "active" })) {
+    throw "Verification failed: Protect prod ruleset is not active."
   }
-  if (-not ($finalRulesets | Where-Object { $_.name -eq "dev-safety" -and $_.enforcement -eq "active" })) {
-    throw "Verification failed: dev-safety ruleset is not active."
+  if (-not ($finalRulesets | Where-Object { $_.name -eq "Protect dev" -and $_.enforcement -eq "active" })) {
+    throw "Verification failed: Protect dev ruleset is not active."
   }
   if (-not $prodBranch.protected) {
     throw "Verification failed: GitHub still reports prod as unprotected after ruleset application."
