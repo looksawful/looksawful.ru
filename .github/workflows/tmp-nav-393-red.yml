@@ -1,4 +1,4 @@
-name: TEMP Nav 393 RED
+name: TEMP Nav 393 Migration
 
 on:
   push:
@@ -6,18 +6,252 @@ on:
       - fix/site-nav-css-owner-393-v2
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  red:
+  migrate-and-verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Navigation CSS ownership contract
-        run: node --test test/site-navigation-style.test.mjs
+      - name: Apply audited CSS ownership migration
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          components_path = Path("src/styles/components.css")
+          dedicated_path = Path("src/styles/site-navigation.css")
+          main_path = Path("src/main.ts")
+          smoke_path = Path("tools/smoke-site-navigation.mjs")
+
+          components = components_path.read_text(encoding="utf-8")
+          dedicated = dedicated_path.read_text(encoding="utf-8").strip()
+
+          legacy_start = """/* ==================================================
+             Portfolio navigation
+             ================================================== */
+
+          """
+          project_marker = """/* One global project navigator replaces both the former projects index and
+             the four per-project chapter TOCs. Narrow view stays at the bottom; the
+             wide view reuses the existing left rail. */"""
+          assert components.count(legacy_start) == 1, "expected one legacy Portfolio navigation block"
+          assert components.count(project_marker) == 1, "expected one project-nav boundary marker"
+          start = components.index(legacy_start)
+          project_start = components.index(project_marker, start)
+          replacement = """/* ==================================================
+             Site navigation
+             ================================================== */
+
+          """ + dedicated + "\n\n"
+          components_path.write_text(
+              components[:start] + replacement + components[project_start:],
+              encoding="utf-8",
+          )
+
+          main = main_path.read_text(encoding="utf-8")
+          import_line = 'import "./styles/site-navigation.css";\n'
+          assert main.count(import_line) == 1, "expected one dedicated navigation CSS import"
+          main_path.write_text(main.replace(import_line, "", 1), encoding="utf-8")
+
+          smoke = smoke_path.read_text(encoding="utf-8")
+
+          needle = '      const root = document.documentElement;\n      return {\n'
+          replacement = (
+              '      const root = document.documentElement;\n'
+              '      const siteNav = document.querySelector(".site-nav");\n'
+              '      const siteNavStyle = siteNav instanceof HTMLElement ? getComputedStyle(siteNav) : null;\n'
+              '      return {\n'
+          )
+          assert smoke.count(needle) == 1, "initial nav metrics insertion point changed"
+          smoke = smoke.replace(needle, replacement, 1)
+
+          needle = '        overflow: root.scrollWidth - root.clientWidth,\n'
+          replacement = needle + '        navBorderBlockEndWidth: siteNavStyle?.borderBlockEndWidth || "",\n'
+          assert smoke.count(needle) == 1, "initial nav border return point changed"
+          smoke = smoke.replace(needle, replacement, 1)
+
+          needle = '    assert(initial.overflow <= 1, `${label}: initial horizontal overflow ${initial.overflow}px`);\n'
+          replacement = needle + '    assert(initial.navBorderBlockEndWidth === "0px", `${label}: closed global nav still has separator ${initial.navBorderBlockEndWidth}`);\n'
+          assert smoke.count(needle) == 1, "initial nav border assertion point changed"
+          smoke = smoke.replace(needle, replacement, 1)
+
+          needle = '      const barStyle = bar instanceof HTMLElement ? getComputedStyle(bar) : null;\n'
+          replacement = needle + '      const siteNavStyle = siteNav instanceof HTMLElement ? getComputedStyle(siteNav) : null;\n'
+          assert smoke.count(needle) == 1, "open nav metrics insertion point changed"
+          smoke = smoke.replace(needle, replacement, 1)
+
+          needle = '        navHeight: navRect?.height ?? null,\n'
+          replacement = needle + '        navBorderBlockEndWidth: siteNavStyle?.borderBlockEndWidth || "",\n'
+          assert smoke.count(needle) == 1, "open nav border return point changed"
+          smoke = smoke.replace(needle, replacement, 1)
+
+          needle = '    assert(typeof opened.navHeight === "number" && opened.navHeight <= 1, `${label}: open site-nav still reserves ${opened.navHeight}px`);\n'
+          replacement = needle + '    assert(opened.navBorderBlockEndWidth === "0px", `${label}: open global nav still has separator ${opened.navBorderBlockEndWidth}`);\n'
+          assert smoke.count(needle) == 1, "open nav border assertion point changed"
+          smoke = smoke.replace(needle, replacement, 1)
+
+          smoke_path.write_text(smoke, encoding="utf-8")
+          dedicated_path.unlink()
+          PY
+      - name: Focused navigation contracts
+        run: >-
+          node --test
+          test/site-navigation.test.mjs
+          test/site-navigation-runtime.test.mjs
+          test/site-navigation-style.test.mjs
+          test/navigation-labels-cms.test.mjs
+      - name: Build site
+        run: npm run build:vite
+      - name: Install browser engines
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Existing Chromium affected smoke
+        run: node tools/smoke-site-navigation.mjs
+      - name: Cross-browser breakpoint visual matrix
+        run: |
+          cat > tools/tmp-nav-393-matrix.mjs <<'NODE'
+          import { spawn } from "node:child_process";
+          import { mkdir } from "node:fs/promises";
+          import { chromium, firefox, webkit } from "playwright";
+          import { setTimeout as delay } from "node:timers/promises";
+
+          const host = "127.0.0.1";
+          const port = 4177;
+          const base = `http://${host}:${port}`;
+          const out = "_local/nav-393";
+          const cases = [
+            ["desktop", "/", 1440, 900],
+            ["width-above-32rem", "/", 513, 844],
+            ["width-at-32rem", "/", 512, 844],
+            ["mobile", "/", 390, 844],
+            ["height-above-36rem", "/", 390, 577],
+            ["height-at-36rem", "/", 390, 576],
+            ["height-above-28rem", "/", 390, 449],
+            ["height-at-28rem", "/", 390, 448],
+            ["project-breadcrumb", "/work/jestei-pool/", 390, 844],
+          ];
+          const engines = { chromium, firefox, webkit };
+          const server = spawn(process.execPath, [
+            "node_modules/vite/bin/vite.js", "preview", "--host", host, "--port", String(port), "--strictPort",
+          ], { stdio: ["ignore", "pipe", "pipe"] });
+          let serverOutput = "";
+          server.stdout.on("data", (chunk) => { serverOutput += chunk.toString(); });
+          server.stderr.on("data", (chunk) => { serverOutput += chunk.toString(); });
+
+          async function waitForServer() {
+            for (let i = 0; i < 80; i += 1) {
+              try {
+                const response = await fetch(base);
+                if (response.ok) return;
+              } catch {}
+              await delay(250);
+            }
+            throw new Error(`preview did not start\n${serverOutput}`);
+          }
+
+          function assert(condition, message) {
+            if (!condition) throw new Error(message);
+          }
+
+          async function runEngine(name, browserType) {
+            const browser = await browserType.launch({ headless: true });
+            try {
+              for (const [caseName, path, width, height] of cases) {
+                const context = await browser.newContext({
+                  viewport: { width, height },
+                  hasTouch: width <= 512,
+                  deviceScaleFactor: 1,
+                });
+                const page = await context.newPage();
+                const label = `${name}/${caseName}/${width}x${height}`;
+                try {
+                  await page.goto(`${base}${path}`, { waitUntil: "domcontentloaded", timeout: 30_000 });
+                  await page.evaluate(() => document.fonts?.ready);
+                  const closed = await page.evaluate(() => {
+                    const nav = document.querySelector(".site-nav");
+                    const toggle = document.querySelector("[data-site-menu-toggle]");
+                    const style = nav instanceof HTMLElement ? getComputedStyle(nav) : null;
+                    return {
+                      border: style?.borderBlockEndWidth || "",
+                      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                      toggleWidth: toggle instanceof HTMLElement ? toggle.getBoundingClientRect().width : 0,
+                    };
+                  });
+                  assert(closed.border === "0px", `${label}: closed separator is ${closed.border}`);
+                  assert(closed.overflow <= 1, `${label}: closed horizontal overflow ${closed.overflow}px`);
+                  assert(closed.toggleWidth >= 44, `${label}: toggle target ${closed.toggleWidth}px`);
+                  await page.screenshot({ path: `${out}/${name}-${caseName}-closed.png`, fullPage: true });
+
+                  await page.locator("[data-site-menu-toggle]").click();
+                  await page.waitForTimeout(700);
+                  const opened = await page.evaluate(() => {
+                    const nav = document.querySelector(".site-nav");
+                    const bar = document.querySelector(".site-nav__bar");
+                    const menu = document.querySelector("[data-site-menu]");
+                    const link = document.querySelector(".site-nav__menu-link");
+                    const navStyle = nav instanceof HTMLElement ? getComputedStyle(nav) : null;
+                    const menuRect = menu instanceof HTMLElement ? menu.getBoundingClientRect() : null;
+                    return {
+                      border: navStyle?.borderBlockEndWidth || "",
+                      barHeight: bar instanceof HTMLElement ? bar.getBoundingClientRect().height : null,
+                      covers: Boolean(menuRect && menuRect.top <= 1 && menuRect.bottom >= innerHeight - 1 && menuRect.width >= innerWidth - 1),
+                      textAlign: link instanceof HTMLElement ? getComputedStyle(link).textAlign : "",
+                      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                    };
+                  });
+                  assert(opened.border === "0px", `${label}: open separator is ${opened.border}`);
+                  assert(typeof opened.barHeight === "number" && opened.barHeight <= 1, `${label}: open bar height ${opened.barHeight}px`);
+                  assert(opened.covers, `${label}: menu does not cover viewport`);
+                  assert(opened.overflow <= 1, `${label}: open horizontal overflow ${opened.overflow}px`);
+                  if (width <= 512) {
+                    assert(opened.textAlign === "center", `${label}: mobile text align ${opened.textAlign}`);
+                  } else {
+                    assert(opened.textAlign === "start" || opened.textAlign === "left", `${label}: desktop text align ${opened.textAlign}`);
+                  }
+                  await page.screenshot({ path: `${out}/${name}-${caseName}-open.png`, fullPage: true });
+                  await page.keyboard.press("Escape");
+                } finally {
+                  await context.close();
+                }
+              }
+            } finally {
+              await browser.close();
+            }
+          }
+
+          await mkdir(out, { recursive: true });
+          await waitForServer();
+          try {
+            await Promise.all(Object.entries(engines).map(([name, type]) => runEngine(name, type)));
+          } finally {
+            server.kill("SIGTERM");
+          }
+          console.log("nav-393 cross-browser matrix PASS");
+          NODE
+          node tools/tmp-nav-393-matrix.mjs
+      - name: Upload visual matrix
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nav-393-cross-browser-${{ github.sha }}
+          path: _local/nav-393
+          if-no-files-found: ignore
+          retention-days: 3
+      - name: Final diff sanity and cleanup commit
+        run: |
+          rm -f tools/tmp-nav-393-matrix.mjs
+          rm -f .github/workflows/tmp-nav-393-red.yml
+          git diff --check
+          git status --short
+          git config user.name "looksawful"
+          git config user.email "118225585+looksawful@users.noreply.github.com"
+          git add src/styles/components.css src/main.ts src/styles/site-navigation.css test/site-navigation-style.test.mjs tools/smoke-site-navigation.mjs .github/workflows/tmp-nav-393-red.yml
+          git commit -m "fix(ui): consolidate site navigation CSS owner"
+          git push origin HEAD:fix/site-nav-css-owner-393-v2
