@@ -1,0 +1,4 @@
+{
+  "install": "git clone https://github.com/looksawful/awful-cases.git\ncd awful-cases",
+  "run": ".\\awful-cases.exe\n# AutoHotkey v2 is required only when running the source file directly.\n.\\awful-cases.ahk"
+}

@@ -1,0 +1,4 @@
+{
+  "install": "git clone https://github.com/looksawful/berserk-timer\ncd berserk-timer\npip install -r requirements.txt",
+  "usage": "# start a 10 minute timer\npython -m src.main 10\n\n# start a 1.5 minute timer\npython -m src.main 1.5\n\n# start the small preset\npython -m src.main -s\n\n# start silently\npython -m src.main 25 --mute"
+}
