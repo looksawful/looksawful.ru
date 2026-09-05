@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import {
   SITE_ORIGIN,
   collectHtmlFiles,
+  decodeEntities,
   extractJsonLdBlocks,
   getCanonical,
   getMetaContent,
@@ -21,13 +22,7 @@ const EXPECTED_ROBOTS = "index,follow,max-image-preview:large";
 
 function parseSitemapLocs(xml) {
   return [...xml.matchAll(/<loc>([\s\S]*?)<\/loc>/gi)].map((match) =>
-    match[1]
-      .replaceAll("&amp;", "&")
-      .replaceAll("&lt;", "<")
-      .replaceAll("&gt;", ">")
-      .replaceAll("&quot;", '"')
-      .replaceAll("&apos;", "'")
-      .trim(),
+    decodeEntities(match[1]).trim(),
   );
 }
 

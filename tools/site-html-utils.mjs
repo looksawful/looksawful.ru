@@ -125,26 +125,71 @@ export function parseAttributes(tag) {
   return attrs;
 }
 
+const DECODED_ENTITIES = Object.freeze({
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#34;": '"',
+  "&#39;": "'",
+  "&apos;": "'",
+});
+
 export function decodeEntities(value) {
-  return value
-    .replaceAll("&amp;", "&")
-    .replaceAll("&lt;", "<")
-    .replaceAll("&gt;", ">")
-    .replaceAll("&quot;", '"')
-    .replaceAll("&#39;", "'")
-    .replaceAll("&apos;", "'");
+  return String(value).replace(
+    /&(amp|lt|gt|quot|#34|#39|apos);/g,
+    (entity) => DECODED_ENTITIES[entity],
+  );
+}
+
+function findHtmlTagEnd(html, start) {
+  let quote = null;
+  for (let index = start; index < html.length; index += 1) {
+    const char = html[index];
+    if (quote) {
+      if (char === quote) quote = null;
+      continue;
+    }
+    if (char === '"' || char === "'") {
+      quote = char;
+      continue;
+    }
+    if (char === ">") return index;
+  }
+  return -1;
+}
+
+function isTagBoundary(char) {
+  return !char || char === ">" || char === "/" || /\s/u.test(char);
 }
 
 export function extractJsonLdBlocks(html) {
   const blocks = [];
-  const pattern = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
-  let match;
-  while ((match = pattern.exec(html)) !== null) {
-    const attrs = parseAttributes(`<script${match[1]}>`);
-    if ((attrs.type ?? "").toLowerCase() === "application/ld+json") {
-      blocks.push(match[2].trim());
+  const lower = html.toLowerCase();
+  let cursor = 0;
+
+  while (cursor < html.length) {
+    const start = lower.indexOf("<script", cursor);
+    if (start === -1) break;
+    const boundary = lower[start + "<script".length];
+    if (!isTagBoundary(boundary)) {
+      cursor = start + "<script".length;
+      continue;
     }
+
+    const openEnd = findHtmlTagEnd(html, start);
+    if (openEnd === -1) break;
+    const closeStart = lower.indexOf("</script>", openEnd + 1);
+    if (closeStart === -1) break;
+
+    const openingTag = html.slice(start, openEnd + 1);
+    const attrs = parseAttributes(openingTag);
+    if ((attrs.type ?? "").toLowerCase() === "application/ld+json") {
+      blocks.push(html.slice(openEnd + 1, closeStart).trim());
+    }
+    cursor = closeStart + "</script>".length;
   }
+
   return blocks;
 }
 

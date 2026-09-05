@@ -4,13 +4,19 @@ const path = require("node:path");
 const ORIGIN = "https://www.looksawful.ru";
 const MAX_URLS = 30;
 
+const DECODED_XML_ENTITIES = Object.freeze({
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&apos;": "'",
+});
+
 function decodeXml(value) {
-  return value
-    .replaceAll("&amp;", "&")
-    .replaceAll("&lt;", "<")
-    .replaceAll("&gt;", ">")
-    .replaceAll("&quot;", '"')
-    .replaceAll("&apos;", "'");
+  return String(value).replace(
+    /&(amp|lt|gt|quot|apos);/g,
+    (entity) => DECODED_XML_ENTITIES[entity],
+  );
 }
 
 function locs(xml) {
