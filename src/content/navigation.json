@@ -1,7 +1,7 @@
 [
   {
     "id": "home",
-    "label": "Главная"
+    "label": "Иван Крушинский"
   },
   {
     "id": "case:jestei-pool",
@@ -17,7 +17,7 @@
   },
   {
     "id": "collection:music-photography",
-    "label": "Shootings"
+    "label": "Съемки"
   },
   {
     "id": "cv",
