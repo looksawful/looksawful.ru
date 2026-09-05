@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { renderSectionIntro } from "../src/components/composition/section-intro.ts";
+import {
+  renderEntityIntro as renderProjectIntro,
+  renderPortfolioEntityCard as renderProjectCard,
+  renderSectionIntro,
+} from "../src/components/composition/index.ts";
 import {
   renderBeforeAfter,
   renderJustifiedGallery,
@@ -15,8 +19,6 @@ import {
 } from "../src/components/content/index.ts";
 import { renderAnimatedCanvasGallery } from "../src/components/specialized/index.ts";
 import { projectCardPresentations } from "../src/data/projects.ts";
-import { renderProjectCard } from "../src/templates/project-card.ts";
-import { renderProjectIntro } from "../src/templates/project-intro.ts";
 
 const imageEntry = "styx-06-source-01-1920x913-use-01";
 const secondImageEntry = "styx-06-source-02-1920x917-use-01";

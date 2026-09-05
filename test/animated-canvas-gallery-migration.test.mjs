@@ -1,13 +1,9 @@
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
 import test from "node:test";
 
-const templateUrl = new URL("../src/templates/animated-canvas-gallery.ts", import.meta.url);
+import { renderAnimatedCanvasGallery } from "../src/components/specialized/index.ts";
 
-test("animated canvas gallery renderer supports production fallback and moves JSON profiles", async () => {
-  assert.equal(existsSync(templateUrl), true, "animated-canvas-gallery.ts must exist");
-  const { renderAnimatedCanvasGallery } = await import(templateUrl);
-
+test("animated canvas gallery renderer supports production fallback and moves JSON profiles", () => {
   const production = renderAnimatedCanvasGallery({
     profile: "production",
     variant: "masonry",

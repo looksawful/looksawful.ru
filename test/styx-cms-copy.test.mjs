@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import * as styx from "../src/data/content/styx.ts";
+import {
+  renderEntityIntro as renderProjectIntro,
+  renderSectionIntro,
+} from "../src/components/composition/index.ts";
 import { getCase, getRole } from "../src/data/catalog/lookup.ts";
-import { renderProjectIntro } from "../src/templates/project-intro.ts";
-import { renderSectionIntro } from "../src/templates/section-intro.ts";
+import * as styx from "../src/data/content/styx.ts";
 import { escapeHtml } from "../src/utils/html.ts";
 
 const sectionIds = ["brand", "production", "scanography", "shootings", "lookbook"];

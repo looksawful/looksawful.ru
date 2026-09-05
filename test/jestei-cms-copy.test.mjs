@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import * as jestei from "../src/data/content/jestei-pool.ts";
+import {
+  renderEntityIntro as renderProjectIntro,
+  renderSectionIntro,
+} from "../src/components/composition/index.ts";
 import { getCase, getRole } from "../src/data/catalog/lookup.ts";
-import { renderProjectIntro } from "../src/templates/project-intro.ts";
-import { renderSectionIntro } from "../src/templates/section-intro.ts";
+import * as jestei from "../src/data/content/jestei-pool.ts";
 import { escapeHtml } from "../src/utils/html.ts";
 
 const sectionIds = ["home", "brand", "interface", "editorial", "event", "landings", "promo"];

@@ -4,9 +4,9 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { renderClientLogo } from "../src/components/composition/index.ts";
 import { clients } from "../src/data/catalog/clients.ts";
 import { clientLogos } from "../src/data/clients.ts";
-import { renderClientLogo } from "../src/templates/client-logo.ts";
 
 const visibilityUrl = new URL("../src/content/client-logo-visibility.json", import.meta.url);
 const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
