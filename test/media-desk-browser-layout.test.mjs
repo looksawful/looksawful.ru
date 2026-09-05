@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   applyMediaDeskMetadata,
   idsBetween,
-} from "../src/tools/media-desk/browser-layout.ts";
+} from "../src/devtools/media-desk/browser-layout.ts";
 
 const item = {
   origin: "registered",
