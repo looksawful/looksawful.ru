@@ -105,6 +105,11 @@
   .media-group[data-layout="strip"] .portfolio-logo-wall__item .media__surface > img {
     mix-blend-mode: darken;
   }
+
+  /* The Jestei landing sequence is presentation media: every slide fills the authored surface. */
+  .jestei-event-video-deck .slider__slide > video {
+    object-fit: cover;
+  }
 }
 
 @layer captions {
