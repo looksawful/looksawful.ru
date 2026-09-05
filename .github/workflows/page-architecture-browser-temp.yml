@@ -5,6 +5,7 @@ on:
     branches:
       - agent/page-architecture-wave2-render-pipeline-20260904
     paths:
+      - '.github/workflows/page-architecture-browser-temp.yml'
       - index.html
       - src/content/contracts/content-block.ts
       - src/content/pages/projects/awful-cases.ts
