@@ -24,9 +24,13 @@ type CatalogFacetKey =
 type CatalogUsageEntry = Pick<
   MediaEntryData,
   | "assetId"
+  | "posterAssetId"
   | CatalogScalarKey
   | CatalogFacetKey
 >;
+
+const VIDEO_FALLBACK_POSTER_LANDSCAPE_SRC = "/media/fallback/video-16x9.svg";
+const VIDEO_FALLBACK_POSTER_PORTRAIT_SRC = "/media/fallback/video-9x16.svg";
 
 function stableUnion(values: readonly (readonly string[])[]): readonly string[] {
   const seen = new Set<string>();
@@ -71,6 +75,32 @@ function deriveFacet(
     : stableUnion([item[key], ...explicitUsageValues]);
 }
 
+function resolveVideoPosterSrc(
+  item: MediaCatalogItem,
+  entries: readonly CatalogUsageEntry[],
+  itemByAssetId: ReadonlyMap<string, MediaCatalogItem>,
+): string | undefined {
+  if (item.asset.type !== "video") return item.posterSrc;
+  if (item.posterSrc) return item.posterSrc;
+
+  const explicitPosterAssetIds = stableUnion([
+    entries
+      .map((entry) => entry.posterAssetId)
+      .filter((id): id is string => Boolean(id)),
+  ]);
+
+  for (const posterAssetId of explicitPosterAssetIds) {
+    const poster = itemByAssetId.get(posterAssetId)?.asset;
+    if (poster?.type === "image") return poster.src;
+  }
+
+  return typeof item.asset.width === "number"
+      && typeof item.asset.height === "number"
+      && item.asset.height > item.asset.width
+    ? VIDEO_FALLBACK_POSTER_PORTRAIT_SRC
+    : VIDEO_FALLBACK_POSTER_LANDSCAPE_SRC;
+}
+
 /**
  * Builds the read-only browsing projection.
  *
@@ -91,11 +121,18 @@ export function deriveMediaCatalogItems(
     else entriesByAssetId.set(entry.assetId, [entry]);
   }
 
+  const itemByAssetId = new Map(
+    baseItems.map((item) => [item.asset.id, item] as const),
+  );
+
   return baseItems
     .filter((item) => !retiredMediaAssetIds.has(item.asset.id))
     .map((item) => {
       const assetEntries = entriesByAssetId.get(item.asset.id) ?? [];
-      if (assetEntries.length === 0) return item;
+      const posterSrc = resolveVideoPosterSrc(item, assetEntries, itemByAssetId);
+      if (assetEntries.length === 0) {
+        return posterSrc === undefined ? item : { ...item, posterSrc };
+      }
 
       return {
         ...item,
@@ -109,6 +146,7 @@ export function deriveMediaCatalogItems(
         deliverableIds: deriveFacet(item, assetEntries, "deliverableIds"),
         tags: deriveFacet(item, assetEntries, "tags"),
         credits: deriveFacet(item, assetEntries, "credits"),
+        ...(posterSrc !== undefined ? { posterSrc } : {}),
       } as MediaCatalogItem;
     });
 }
