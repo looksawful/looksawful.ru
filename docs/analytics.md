@@ -13,13 +13,14 @@ Do not add Clarity, GA4, PostHog or another behavioral tracker without an explic
 
 Counter ID: `112065623`.
 
-The browser tag is loaded from `https://mc.yandex.ru/metrika/tag.js` only after analytics consent is stored as:
+The browser tag at `https://mc.yandex.ru/metrika/tag.js` loads when either:
 
-```text
-looksawful:analytics-consent = granted
-```
+- explicit analytics consent is stored as `looksawful:analytics-consent = granted`; or
+- no explicit choice is stored and the current browser session is resolved as `RU`.
 
-A stored `denied` value suppresses the consent control and keeps Yandex Metrica unloaded. Global Privacy Control and `Do Not Track: 1` suppress site analytics before provider loading.
+A stored `denied` value always suppresses Yandex Metrica, including in an RU session. Global Privacy Control and `Do Not Track: 1` suppress site analytics before provider loading regardless of region or stored consent.
+
+Regional resolution is session-scoped, not permanent consent. A normalized two-letter country code is stored in `sessionStorage` under `looksawful:analytics-region`. When no explicit consent and no cached region exist, the runtime resolves the country from `/cdn-cgi/trace` and then `https://api.country.is/`. RU may auto-start Yandex; non-RU or unresolved sessions render the consent control instead.
 
 The counter initializes with:
 
@@ -49,17 +50,19 @@ Do not turn generic clicks, slider changes, lightbox navigation or scroll depth 
 
 Portfolio-runtime pages mount the shared consent component from `src/components/site-analytics-consent.ts`.
 
-The consent control links to the canonical public `/privacy/` page. That page also allows the visitor to clear the stored choice so the site asks again on the next tracked page.
+The runtime first respects GPC/DNT and any explicit stored choice. Without an explicit choice it reuses the session-scoped region when available; otherwise it resolves the region and stores only that country code for the current browser session. An RU result may mount Yandex without showing the consent control. A non-RU or unresolved result renders the control, where `granted` or `denied` is stored in localStorage as the explicit user choice.
 
-`/cv/` is a `public-static` page and does not load `src/main.js`. Its production artifact is finalized by `src/site/build/public-static-build-plugin.ts` during the Vite production build. That step composes the canonical CV content, removes disabled experience entries and injects the small isolated analytics bootstrap. The bootstrap uses the same localStorage consent key and the same goal IDs.
+The consent control links to the canonical public `/privacy/` page. That page allows the visitor to clear only the explicit localStorage choice. Clearing it does not turn the session region into consent or erase it: the next tracked page applies the same regional rule again, so RU may auto-start and non-RU/unknown sessions may ask again.
 
-The Yandex `<noscript>` tracking pixel is intentionally omitted. A pixel that fires with JavaScript disabled cannot observe the JavaScript consent state and would bypass the delayed-loading contract.
+`/cv/` is a `public-static` page and does not load `src/main.js`. Its production artifact is finalized by `src/site/build/public-static-build-plugin.ts` during the Vite production build. That step composes the canonical CV content, removes disabled experience entries and injects the small isolated analytics bootstrap. The bootstrap uses the same explicit-consent localStorage key, the same session-scoped region key, the same RU/non-RU decision rule and the same goal IDs.
+
+The Yandex `<noscript>` tracking pixel is intentionally omitted. A pixel that fires with JavaScript disabled cannot observe the JavaScript consent/region state and would bypass the delayed-loading contract.
 
 ## Privacy page
 
 `/privacy/` is a canonical indexable SitePage backed by `public/privacy/index.html`. It is intentionally excluded from the primary navigation and reachable from the consent control.
 
-The page describes the actual technical behavior of the site and links to the provider documentation. Keep it synchronized with any changes to provider configuration, goal IDs or consent behavior.
+The page describes the actual technical behavior of the site and links to the provider documentation. Keep it synchronized with any changes to provider configuration, goal IDs, privacy signals, regional resolution or consent behavior.
 
 ## Production configuration
 
@@ -99,4 +102,4 @@ npm run build:site
 npm run cv:prod:verify
 ```
 
-Yandex Metrica supports `_ym_debug=2` for browser-side counter and goal debugging. Use it on a deployed URL after granting analytics consent, then verify each goal once without generating repeated synthetic conversions.
+Yandex Metrica supports `_ym_debug=2` for browser-side counter and goal debugging. Use it on a deployed URL after Yandex is enabled for the current session, then verify each goal once without generating repeated synthetic conversions.
