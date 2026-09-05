@@ -506,6 +506,10 @@ content:
             label: Авторы и кредиты по умолчанию
             type: string
             list: true
+          - name: showInCatalog
+            label: Показывать в галерее
+            type: boolean
+            default: false
           - name: reusable
             label: Можно переиспользовать
             type: boolean
@@ -667,6 +671,10 @@ content:
             type: string
             list: true
             default: []
+          - name: showInCatalog
+            label: Показывать в галерее
+            type: boolean
+            default: false
           - name: reusable
             label: Можно переиспользовать
             type: boolean

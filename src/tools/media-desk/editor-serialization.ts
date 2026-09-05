@@ -16,6 +16,7 @@ export interface MediaEditorValues {
   deliverableIds: readonly string[];
   tags: readonly string[];
   credits: readonly string[];
+  showInCatalog: boolean;
   reusable: boolean;
   archived: boolean;
 }
@@ -36,6 +37,7 @@ function fullMediaEditorialPatch(values: MediaEditorValues): MediaEditorialPatch
     deliverableIds: cleanStrings(values.deliverableIds) as MediaEditorialPatch["deliverableIds"],
     tags: cleanStrings(values.tags),
     credits: cleanStrings(values.credits),
+    showInCatalog: values.showInCatalog,
     reusable: values.reusable,
     archived: values.archived,
   };

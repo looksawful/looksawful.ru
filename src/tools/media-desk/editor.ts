@@ -349,6 +349,15 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
   const statusGroup = group("Статус", { open: false });
   const statusGrid = element("div", "md-check-grid");
 
+  const showInCatalog = element("label", "md-check");
+  const showInCatalogInput = element("input");
+  showInCatalogInput.type = "checkbox";
+  showInCatalogInput.checked = metadata.showInCatalog;
+  showInCatalog.append(
+    showInCatalogInput,
+    document.createTextNode("Показывать в галерее"),
+  );
+
   const reusable = element("label", "md-check");
   const reusableInput = element("input");
   reusableInput.type = "checkbox";
@@ -367,7 +376,7 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
     document.createTextNode("В архиве"),
   );
 
-  statusGrid.append(reusable, archived);
+  statusGrid.append(showInCatalog, reusable, archived);
   statusGroup.append(statusGrid);
 
   const actions = element("footer", "md-editor-actions");
@@ -430,6 +439,7 @@ function buildMediaEditor(item: MediaCatalogItem): EditorSession {
       deliverableIds: tomValues(deliverable.tom),
       tags: tomValues(tags.tom),
       credits: tomValues(credits.tom),
+      showInCatalog: showInCatalogInput.checked,
       reusable: reusableInput.checked,
       archived: archivedInput.checked,
     });

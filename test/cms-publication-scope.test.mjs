@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -34,6 +35,37 @@ test("explicit Pages CMS-owned content paths are publishable", () => {
   ]) {
     assert.equal(classify(path), CMS_CONTENT, path);
   }
+});
+
+test("Public Catalog visibility is authorable from Pages CMS and Content Desk", async () => {
+  const [cms, editorModel, editorSerialization, editor] = await Promise.all([
+    readFile(new URL("../.pages.yml", import.meta.url), "utf8"),
+    readFile(new URL("../src/tools/media-desk/editor-model.ts", import.meta.url), "utf8"),
+    readFile(new URL("../src/tools/media-desk/editor-serialization.ts", import.meta.url), "utf8"),
+    readFile(new URL("../src/tools/media-desk/editor.ts", import.meta.url), "utf8"),
+  ]);
+
+  const registeredStart = cms.indexOf("      - name: registered-media-catalog\n");
+  const uploadedStart = cms.indexOf("      - name: uploaded-media-catalog\n", registeredStart);
+  const casesStart = cms.indexOf("  - name: cases\n", uploadedStart);
+
+  assert.notEqual(registeredStart, -1);
+  assert.notEqual(uploadedStart, -1);
+  assert.notEqual(casesStart, -1);
+
+  const registered = cms.slice(registeredStart, uploadedStart);
+  const uploaded = cms.slice(uploadedStart, casesStart);
+
+  for (const config of [registered, uploaded]) {
+    assert.match(config, /- name: showInCatalog\n\s+label: Показывать в галерее\n\s+type: boolean/);
+  }
+  assert.match(uploaded, /- name: showInCatalog[\s\S]*?default: false/);
+
+  assert.match(editorModel, /"showInCatalog"/);
+  assert.match(editorSerialization, /showInCatalog: boolean;/);
+  assert.match(editorSerialization, /showInCatalog: values\.showInCatalog/);
+  assert.match(editor, /document\.createTextNode\("Показывать в галерее"\)/);
+  assert.match(editor, /showInCatalog: showInCatalogInput\.checked/);
 });
 
 test("CMS media sources are narrowly scoped to configured Pages CMS folders", () => {
