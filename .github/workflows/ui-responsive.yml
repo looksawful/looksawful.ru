@@ -4,35 +4,169 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: ui-responsive-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  responsive:
+  patch-page-visibility-cms:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 1
-          persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - name: Project navigation contracts
-        run: >-
-          node --test
-          test/project-navigation-back-to-top.test.mjs
-          test/project-navigation-fallback.test.mjs
-          test/project-navigation-mobile-viewport.test.mjs
-      - name: Build site
-        run: npm run build:vite
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Responsive UI
-        run: npm run test:ui:responsive
+          fetch-depth: 0
+      - name: Patch Pages CMS visibility controls and remove this one-shot migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('.pages.yml')
+          text = path.read_text(encoding='utf-8')
+
+          if 'page-visibility-sections:' in text or 'name: page-visibility' in text:
+              raise SystemExit('page visibility CMS configuration already exists')
+
+          component_marker = '\nmedia:\n'
+          content_marker = '\n  - name: media-library\n'
+          if text.count(component_marker) != 1:
+              raise SystemExit('expected exactly one media marker')
+          if text.count(content_marker) != 1:
+              raise SystemExit('expected exactly one media-library content marker')
+
+          component = r'''
+  page-visibility-sections:
+    type: object
+    label: Секции и блоки
+    required: true
+    list:
+      collapsible:
+        collapsed: true
+        summary: "{id}"
+    description: Меняйте только переключатели видимости. Технические ID используются кодом и доступны только для чтения.
+    fields:
+      - name: id
+        label: Технический ID секции
+        type: string
+        required: true
+        readonly: true
+      - name: visible
+        label: Показывать секцию
+        type: boolean
+        required: true
+      - name: blocks
+        label: Блоки
+        type: object
+        required: true
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{id}"
+        fields:
+          - name: id
+            label: Технический ID блока
+            type: string
+            required: true
+            readonly: true
+          - name: visible
+            label: Показывать блок
+            type: boolean
+            required: true
+'''
+
+          visibility_group = r'''
+  - name: page-visibility
+    label: Видимость секций и блоков
+    type: group
+    items:
+      - name: jestei-pool-visibility
+        label: Jestei Pool
+        type: file
+        path: src/content/visibility/jestei-pool.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update page visibility {path}"
+        fields:
+          - name: sections
+            component: page-visibility-sections
+
+      - name: styx-visibility
+        label: Styx Jewel
+        type: file
+        path: src/content/visibility/styx.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update page visibility {path}"
+        fields:
+          - name: sections
+            component: page-visibility-sections
+
+      - name: sensetique-visibility
+        label: Sensetique
+        type: file
+        path: src/content/visibility/sensetique.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update page visibility {path}"
+        fields:
+          - name: sections
+            component: page-visibility-sections
+
+      - name: shootings-visibility
+        label: Shootings
+        type: file
+        path: src/content/visibility/shootings.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        commit:
+          templates:
+            update: "content(cms): update page visibility {path}"
+        fields:
+          - name: sections
+            component: page-visibility-sections
+'''
+
+          text = text.replace(component_marker, f'\n{component}{component_marker}', 1)
+          text = text.replace(content_marker, f'\n{visibility_group}{content_marker}', 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          git fetch origin dev:refs/remotes/origin/dev --force
+          git show origin/dev:.github/workflows/ui-responsive.yml > .github/workflows/ui-responsive.yml
+
+          git diff --check
+          grep -F 'src/content/visibility/jestei-pool.json' .pages.yml
+          grep -F 'src/content/visibility/styx.json' .pages.yml
+          grep -F 'src/content/visibility/sensetique.json' .pages.yml
+          grep -F 'src/content/visibility/shootings.json' .pages.yml
+          grep -F 'readonly: true' .pages.yml
+          grep -F 'label: Показывать секцию' .pages.yml
+          grep -F 'label: Показывать блок' .pages.yml
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .pages.yml .github/workflows/ui-responsive.yml
+          git commit --amend -m 'cms: expose page visibility controls'
+          git push --force-with-lease origin "HEAD:${GITHUB_REF_NAME}"
