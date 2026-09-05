@@ -15,6 +15,7 @@ import {
   is404Html,
   isFixtureHtml,
   isNoIndex,
+  parseAttributes,
   readUtf8,
   validateCanonical,
 } from "./site-html-utils.mjs";
@@ -23,13 +24,19 @@ const EXPECTED_ROBOTS = "index,follow,max-image-preview:large";
 const EXPECTED_FAVICON = "/favicon.svg";
 const EXPECTED_OG_SITE_NAME = "looksawful";
 const EXPECTED_OG_TYPE = "website";
-const EXPECTED_OG_LOCALE = "ru_RU";
-const EXPECTED_TWITTER_CARD = "summary_large_image";
 
 function parseSitemapLocs(xml) {
   return [...xml.matchAll(/<loc>([\s\S]*?)<\/loc>/gi)].map((match) =>
     decodeEntities(match[1]).trim(),
   );
+}
+
+function expectedLocale(html, label) {
+  const htmlTag = html.match(/<html\b[^>]*>/i)?.[0];
+  const lang = htmlTag ? (parseAttributes(htmlTag).lang ?? "").toLowerCase() : "";
+  if (lang === "ru" || lang.startsWith("ru-")) return "ru_RU";
+  if (lang === "en" || lang.startsWith("en-")) return "en_US";
+  throw new Error(`${label}: unsupported or missing html lang for og:locale`);
 }
 
 async function validateOwnAssetUrl(value, distDir, label, kind) {
@@ -99,6 +106,9 @@ export async function validateSite({ distDir = "dist" } = {}) {
     const twitterDescription = getMetaContent(html, "twitter:description");
     const twitterImage = getMetaContent(html, "twitter:image");
 
+    let locale = null;
+    try { locale = expectedLocale(html, label); } catch (error) { errors.push(error.message); }
+
     if (!title?.trim()) errors.push(`${label}: missing or empty title`);
     if (!description?.trim()) errors.push(`${label}: missing or empty description`);
     if (!robots?.trim()) errors.push(`${label}: missing meta robots`);
@@ -113,15 +123,17 @@ export async function validateSite({ distDir = "dist" } = {}) {
     }
 
     if (ogType !== EXPECTED_OG_TYPE) errors.push(`${label}: og:type must be ${EXPECTED_OG_TYPE}`);
-    if (ogLocale !== EXPECTED_OG_LOCALE) errors.push(`${label}: og:locale must be ${EXPECTED_OG_LOCALE}`);
+    if (locale && ogLocale !== locale) errors.push(`${label}: og:locale must be ${locale}`);
     if (ogSiteName !== EXPECTED_OG_SITE_NAME) errors.push(`${label}: og:site_name must be ${EXPECTED_OG_SITE_NAME}`);
     if (!ogTitle?.trim()) errors.push(`${label}: missing og:title`);
     if (!ogDescription?.trim()) errors.push(`${label}: missing og:description`);
     if (!ogUrl?.trim()) errors.push(`${label}: missing og:url`);
-    if (twitterCard !== EXPECTED_TWITTER_CARD) errors.push(`${label}: twitter:card must be ${EXPECTED_TWITTER_CARD}`);
+
+    const expectedTwitterCard = ogImage ? "summary_large_image" : "summary";
+    if (twitterCard !== expectedTwitterCard) errors.push(`${label}: twitter:card must be ${expectedTwitterCard}`);
     if (!twitterTitle?.trim()) errors.push(`${label}: missing twitter:title`);
     if (!twitterDescription?.trim()) errors.push(`${label}: missing twitter:description`);
-    if (!twitterImage?.trim()) errors.push(`${label}: missing twitter:image`);
+    if (ogImage && !twitterImage?.trim()) errors.push(`${label}: missing twitter:image`);
 
     let canonical = null;
     try {
