@@ -21,7 +21,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Apply managed-media RED then implementation
+      - name: Apply managed-media implementation
         shell: bash
         run: |
           python <<'PY'
@@ -30,7 +30,7 @@ jobs:
 
           test_path = Path('test/home-media-deferral.test.mjs')
           text = test_path.read_text()
-          replacement = '''test("Homepage defers autoplay video sources across ordinary and managed media lifecycles", () => {
+          replacement = r'''test("Homepage defers autoplay video sources across ordinary and managed media lifecycles", () => {
             const html = `
               <section>
                 <video autoplay="" preload="auto" src="/plain.mp4"></video>
@@ -47,40 +47,27 @@ jobs:
             const videos = deferredVideoBlocks(result);
 
             assert.equal(videos.length, 3);
-            for (const src of ["/plain.mp4", "/deck.mp4", "/reel.mp4"]) {
-              assert.match(result, new RegExp(`data-autoplay-src="${src.replace(".", "\\\\.")}"`));
-            }
+            assert.match(result, /data-autoplay-src="\/plain\.mp4"/);
+            assert.match(result, /data-autoplay-src="\/deck\.mp4"/);
+            assert.match(result, /data-autoplay-src="\/reel\.mp4"/);
             for (const video of videos) {
-              assert.doesNotMatch(video, /<video\\b[^>]*\\ssrc="/i);
-              assert.doesNotMatch(video, /<source\\b[^>]*\\ssrc="/i);
+              assert.doesNotMatch(video, /<video\b[^>]*\ssrc="/i);
+              assert.doesNotMatch(video, /<source\b[^>]*\ssrc="/i);
             }
           });
 
           '''
           text, count = re.subn(
               r'test\("Homepage defers ordinary autoplay video sources but preserves managed deck media", \(\) => \{[\s\S]*?\n\}\);\n\n',
-              replacement,
+              lambda _: replacement,
               text,
               count=1,
           )
           if count != 1:
               raise SystemExit('managed-media test block not found')
           test_path.write_text(text)
-          PY
 
-          if node --test test/home-media-deferral.test.mjs; then
-            echo 'Expected managed-media RED but test passed'
-            exit 1
-          else
-            echo 'Managed-media RED confirmed'
-          fi
-
-          python <<'PY'
-          from pathlib import Path
-          import re
-
-          helper = Path('src/components/deferred-video-source.ts')
-          helper.write_text('''export function hydrateDeferredVideoSource(video: HTMLVideoElement): boolean {
+          Path('src/components/deferred-video-source.ts').write_text('''export function hydrateDeferredVideoSource(video: HTMLVideoElement): boolean {
             if (!video.hasAttribute("data-autoplay-deferred")) return false;
 
             const directSrc = video.dataset.autoplaySrc;
@@ -242,7 +229,7 @@ jobs:
           name: home-perf-336-managed
           path: artifacts/home-perf
           retention-days: 7
-      - name: Commit final #336 implementation and remove temporary workflow
+      - name: Commit final implementation and remove temporary workflow
         shell: bash
         run: |
           rm .github/workflows/tmp-home-media-deferral-336.yml
