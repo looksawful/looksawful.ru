@@ -4,6 +4,7 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const step = (workflow, name) => workflow.match(new RegExp(`      - name: ${name}\\n[\\s\\S]*?(?=\\n      - name: |$)`))?.[0] ?? "";
+const job = (workflow, name) => workflow.match(new RegExp(`  ${name}:[\\s\\S]*?(?=\\n  [a-z][\\w-]*:|$)`))?.[0] ?? "";
 
 const workflows = [
   "ci-fast",
@@ -68,11 +69,13 @@ test("production deploy builds exact prod SHA, validates fast safety, compact br
   assert.doesNotMatch(workflow, /test:e2e:full/);
 });
 
-test("full regression remains scheduled and manual outside push CI", async () => {
+test("full regression remains nightly/manual while physical media audit is weekly/manual", async () => {
   const workflow = await read(".github/workflows/quality.yml");
   assert.match(workflow, /schedule:/);
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /37 1 \* \* \*/);
+  assert.match(workflow, /53 2 \* \* 0/);
+  assert.doesNotMatch(workflow, /17 \*\/6 \* \* \*/);
   assert.match(workflow, /Resolve exact target SHA/);
   assert.match(workflow, /needs\.resolve-target\.outputs\.target-sha/);
   assert.match(workflow, /npm run test:core/);
@@ -80,6 +83,10 @@ test("full regression remains scheduled and manual outside push CI", async () =>
   assert.match(workflow, /npm run media:sync/);
   assert.match(workflow, /npm run media:dedupe:physical/);
   assert.doesNotMatch(workflow, /^\s*push:/m);
+
+  const mediaPhysical = job(workflow, "media-physical");
+  assert.match(mediaPhysical, /github\.event\.schedule == '53 2 \* \* 0'/);
+  assert.doesNotMatch(mediaPhysical, /github\.event\.schedule == '37 1 \* \* \*'/);
 
   const runner = await read("tools/e2e/run-all.mjs");
   for (const suite of ["runSmokeSite", "runSmokeNavigation", "runSmokeMpa", "runSmokeProjectPages", "runSmokeCv"]) {
@@ -103,16 +110,21 @@ test("CMS media mutation is explicit, allowlisted, race-safe and does one final 
   assert.doesNotMatch(workflow, /git add -A/);
 });
 
-test("scheduled quality and CodeQL remain automatic without schedule overlap", async () => {
+test("production health owns frequent monitoring while Quality owns nightly and weekly heavy schedules", async () => {
   const quality = await read(".github/workflows/quality.yml");
-  for (const marker of ["17 */6 * * *", "37 1 * * *"]) {
+  for (const marker of ["37 1 * * *", "53 2 * * 0"]) {
     assert.ok(quality.includes(marker), marker);
   }
-  for (const retired of ["31 2 * * *", "41 4 * * 2", "13 5 * * 3", "23 6 * * 4"]) {
+  for (const retired of ["17 */6 * * *", "31 2 * * *", "41 4 * * 2", "13 5 * * 3", "23 6 * * 4"]) {
     assert.equal(quality.includes(retired), false, retired);
   }
   assert.match(quality, /workflow_dispatch:/);
   assert.match(quality, /concurrency:[\s\S]*?cancel-in-progress: false/);
+  assert.equal(job(quality, "health"), "");
+
+  const productionHealth = await read(".github/workflows/production-health.yml");
+  assert.match(productionHealth, /17 \*\/6 \* \* \*/);
+  assert.match(productionHealth, /workflow_dispatch:/);
 
   const codeql = await read(".github/workflows/codeql.yml");
   assert.match(codeql, /pull_request:/);
