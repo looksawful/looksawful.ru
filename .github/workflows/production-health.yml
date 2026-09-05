@@ -1,0 +1,97 @@
+name: Production Health
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - ".github/workflows/production-health.yml"
+      - "test/production-health-workflow.test.mjs"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-health-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Verify production health contract
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Run production health contract
+        run: node --test test/production-health-workflow.test.mjs
+
+  health:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact prod head
+        uses: actions/checkout@v7
+        with:
+          ref: prod
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Pin expected production SHA
+        shell: bash
+        run: echo "EXPECTED_PROD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Check production contract
+        run: node tools/check-production.mjs
+
+      - name: Check CV route
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 \
+            -H 'Cache-Control: no-cache' \
+            https://www.looksawful.ru/cv/ > /dev/null
+
+      - name: Check representative project route
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 \
+            -H 'Cache-Control: no-cache' \
+            https://www.looksawful.ru/work/jestei-pool/ > /dev/null
+
+      - name: Check homepage built assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          html="$(curl --fail --silent --show-error --location --max-time 20 \
+            -H 'Cache-Control: no-cache' \
+            https://www.looksawful.ru/)"
+          assets="$(grep -Eo '/assets/[^\" ]+\.(css|js)' <<< "$html" | sort -u)"
+          test -n "$assets"
+          while IFS= read -r asset; do
+            test -z "$asset" && continue
+            curl --fail --silent --show-error --location --max-time 20 \
+              -H 'Cache-Control: no-cache' \
+              "https://www.looksawful.ru${asset}" > /dev/null
+          done <<< "$assets"
