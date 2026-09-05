@@ -24,12 +24,15 @@ import {
   shootingsOfeliaIntro,
   shootingsOfeliaStrip,
 } from "../../../data/content/shootings.ts";
+import { getShootingEditorialRecord } from "../../../data/content/shootings-editorial.ts";
 import type { MediaEntryId } from "../../../data/media/index.ts";
 import type { MediaGroupData } from "../../../types/media-group.ts";
 import type { MediaFigureData } from "../../../types/media-presentation.ts";
 import type { ContentBlock } from "../../contracts/content-block.ts";
 import type { EntityPageContent } from "../../contracts/page-content.ts";
 import { withoutLegacySectionFrame } from "../legacy-frame.ts";
+
+const shootingsEsmiEditorial = getShootingEditorialRecord("shootings-esmi");
 
 function mediaGroup(data: MediaGroupData<MediaEntryId>): ContentBlock {
   return {
@@ -147,9 +150,7 @@ export const shootingsPageContent = {
       type: "project",
       id: "shootings-esmi-banner",
       projectId: "shootings-esmi",
-      credits: {
-        lines: ["Фотограф Иван Крушинский"],
-      },
+      credits: { lines: shootingsEsmiEditorial.credits },
       blocks: [mediaFigure(shootingsEsmiBanner)],
     },
     {

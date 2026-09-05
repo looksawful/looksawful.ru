@@ -11,6 +11,11 @@
       ]
     },
     {
+      "id": "equipment",
+      "title": "Оборудование",
+      "paragraphs": []
+    },
+    {
       "id": "production",
       "title": "Продакшен",
       "paragraphs": [

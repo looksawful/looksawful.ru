@@ -11,7 +11,7 @@ import {
 } from "./editorial-validation.ts";
 import { resolveCaseIntroIdentity } from "./case-intro-identity.ts";
 
-export const SENSETIQUE_SECTION_IDS = ["studio", "production"] as const;
+export const SENSETIQUE_SECTION_IDS = ["studio", "equipment", "production"] as const;
 export const SENSETIQUE_CREDIT_IDS = [
   "buro247",
   "olovo-booklet",
