@@ -30,7 +30,7 @@ jobs:
             label: Вводный текст
             type: text
             description: Только текст существующего проекта Awful Cases. Ссылки, маршрут, видимость, taxonomy, media и композиция остаются в коде.
-'''
+          '''
           addition = '''          - name: codeBlocks
             label: Кодовые блоки
             type: object
@@ -61,7 +61,7 @@ jobs:
                     label: Код
                     type: text
                     required: true
-'''
+          '''
           count = text.count(needle)
           if count != 1:
               raise SystemExit(f'expected exactly one Awful lead anchor, found {count}')
