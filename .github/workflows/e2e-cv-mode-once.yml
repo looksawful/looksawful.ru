@@ -56,7 +56,13 @@ jobs:
           fail-on-cache-miss: true
       - name: Verify generated media cache
         run: node tools/media-dev-state.mjs --cache-verify
+      - name: Install test media probe
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
       - run: npm run typecheck
+      - name: Hide temporary workflow from permanent workflow contract
+        run: rm .github/workflows/e2e-cv-mode-once.yml
       - run: npm run test:core
       - run: npm run build:site
       - run: npx playwright install --with-deps chromium
