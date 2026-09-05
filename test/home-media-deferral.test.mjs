@@ -11,7 +11,7 @@ function deferredVideoBlocks(html) {
     .filter((video) => /data-autoplay-deferred=""/i.test(video));
 }
 
-test("Homepage defers ordinary autoplay video sources but preserves managed deck media", () => {
+test("Homepage defers autoplay video sources across ordinary and managed media lifecycles", () => {
   const html = `
     <section>
       <video autoplay="" preload="auto" src="/plain.mp4"></video>
@@ -25,13 +25,16 @@ test("Homepage defers ordinary autoplay video sources but preserves managed deck
   `;
 
   const result = deferHomepageAutoplayMedia(html);
+  const videos = deferredVideoBlocks(result);
 
-  assert.match(
-    result,
-    /<video autoplay="" preload="none" data-autoplay-src="\/plain\.mp4" data-autoplay-deferred="" data-autoplay-preload="auto"><\/video>/,
-  );
-  assert.match(result, /<source src="\/deck\.mp4" type="video\/mp4">/);
-  assert.match(result, /<video autoplay="" preload="metadata" src="\/reel\.mp4"><\/video>/);
+  assert.equal(videos.length, 3);
+  assert.match(result, /data-autoplay-src="\/plain\.mp4"/);
+  assert.match(result, /data-autoplay-src="\/deck\.mp4"/);
+  assert.match(result, /data-autoplay-src="\/reel\.mp4"/);
+  for (const video of videos) {
+    assert.doesNotMatch(video, /<video\b[^>]*\ssrc="/i);
+    assert.doesNotMatch(video, /<source\b[^>]*\ssrc="/i);
+  }
 });
 
 test("built Homepage contains deferred autoplay media with no live network source", async () => {

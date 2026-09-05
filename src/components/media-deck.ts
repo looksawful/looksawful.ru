@@ -2,6 +2,7 @@ import {
   createEmblaDeck,
   type EmblaDeckController,
 } from "./embla-deck.ts";
+import { hydrateDeferredVideoSource } from "./deferred-video-source.ts";
 
 const pad = (value: number): string => String(value).padStart(2, "0");
 const clamp = (value: number, min: number, max: number): number =>
@@ -143,6 +144,8 @@ export function createMediaDeck(
             playbackIndex = index;
           }
 
+          hydrateDeferredVideoSource(video);
+          if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
           void video.play().catch(() => {});
         });
       });
@@ -162,6 +165,8 @@ export function createMediaDeck(
         (slide instanceof HTMLElement && slides[index] === slide);
 
       if (shouldPlay) {
+        hydrateDeferredVideoSource(video);
+        if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
         if (video.paused) void video.play().catch(() => {});
       } else if (!video.paused) {
         video.pause();

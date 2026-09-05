@@ -1,4 +1,5 @@
 import type { createMotionPreference } from "./motion-preference.ts";
+import { hydrateDeferredVideoSource } from "./deferred-video-source.ts";
 
 type MotionPreference = ReturnType<typeof createMotionPreference>;
 type Destroy = () => void;
@@ -55,7 +56,12 @@ export function createInfiniteReel(root: Element | null | undefined, { motion }:
   );
   const syncVideoPlayback = (active = isActive()) => {
     autoplayVideos().forEach((video) => {
-      if (active) { if (video.paused) void video.play().catch(() => {}); return; }
+      if (active) {
+        hydrateDeferredVideoSource(video);
+        if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
+        if (video.paused) void video.play().catch(() => {});
+        return;
+      }
       if (!video.paused) video.pause();
     });
   };

@@ -2,6 +2,7 @@ import "./styles/site-navigation.css";
 import "./styles/site-analytics-consent.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
+import { hydrateDeferredVideoSource } from "./components/deferred-video-source.ts";
 import { createMotionPreference } from "./components/motion-preference.ts";
 import { createInfiniteReels } from "./components/infinite-reel.ts";
 import { createMediaDecks } from "./components/media-deck.ts";
@@ -48,36 +49,6 @@ function initBeforeAfter(root: Element): Destroy {
   return () => range.removeEventListener("input", render);
 }
 
-function hydrateDeferredAutoplaySource(video: HTMLVideoElement): void {
-  if (!video.hasAttribute("data-autoplay-deferred")) return;
-
-  const directSrc = video.dataset.autoplaySrc;
-  if (directSrc) {
-    video.src = directSrc;
-    delete video.dataset.autoplaySrc;
-  }
-
-  video.querySelectorAll<HTMLSourceElement>("source[data-autoplay-src]").forEach((source) => {
-    const src = source.dataset.autoplaySrc;
-    if (!src) return;
-    source.src = src;
-    delete source.dataset.autoplaySrc;
-  });
-
-  const preload = video.dataset.autoplayPreload;
-  if (
-    preload === "" ||
-    preload === "metadata" ||
-    preload === "auto" ||
-    preload === "none"
-  ) {
-    video.preload = preload;
-  }
-  delete video.dataset.autoplayPreload;
-
-  video.removeAttribute("data-autoplay-deferred");
-}
-
 function initViewportAutoplayVideos(root: ParentNode = document): Destroy {
   const videos = [...root.querySelectorAll<HTMLVideoElement>("video[autoplay]")].filter(
     (video) => !video.closest("[data-media-deck], [data-infinite-reel]"),
@@ -92,7 +63,7 @@ function initViewportAutoplayVideos(root: ParentNode = document): Destroy {
     video.playsInline = true;
 
     if (!document.hidden && nearViewport.has(video)) {
-      hydrateDeferredAutoplaySource(video);
+      hydrateDeferredVideoSource(video);
       if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
       if (video.paused) void video.play().catch(() => {});
       return;

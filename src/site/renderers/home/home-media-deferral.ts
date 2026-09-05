@@ -17,7 +17,6 @@ const VOID_TAGS = new Set([
 
 type StackEntry = {
   tagName: string;
-  mediaContainer: boolean;
   deferredVideo: boolean;
 };
 
@@ -72,10 +71,8 @@ export function deferHomepageAutoplayMedia(html: string): string {
       continue;
     }
 
-    const insideManagedMedia = stack.some((entry) => entry.mediaContainer);
     const parentVideo = [...stack].reverse().find((entry) => entry.tagName === "video");
-    const isDeferredVideo =
-      tagName === "video" && attributePresent(tag, "autoplay") && !insideManagedMedia;
+    const isDeferredVideo = tagName === "video" && attributePresent(tag, "autoplay");
 
     let renderedTag = tag;
     if (isDeferredVideo) {
@@ -90,10 +87,6 @@ export function deferHomepageAutoplayMedia(html: string): string {
     if (!selfClosing) {
       stack.push({
         tagName,
-        mediaContainer:
-          insideManagedMedia ||
-          attributePresent(tag, "data-media-deck") ||
-          attributePresent(tag, "data-infinite-reel"),
         deferredVideo: isDeferredVideo,
       });
     }
