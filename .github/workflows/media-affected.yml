@@ -50,10 +50,11 @@ jobs:
             --base "$BASE_SHA" \
             --head "$HEAD_SHA" \
             --github-output "$GITHUB_OUTPUT"
-          if [[ "${{ steps.affected.outputs.image_only }}" != 'true' ]]; then
-            echo 'Raster PR contains an unregistered media source, video, or media-infrastructure change; use the full safe CI path.' >&2
-            exit 1
-          fi
+      - name: Require registered image-only scope
+        if: steps.affected.outputs.image_only != 'true'
+        run: |
+          echo 'Raster PR contains an unregistered media source, video, or media-infrastructure change; use the full safe CI path.' >&2
+          exit 1
       - name: Build affected responsive variants only
         id: build
         shell: bash
