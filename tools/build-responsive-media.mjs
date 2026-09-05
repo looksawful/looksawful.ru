@@ -23,7 +23,6 @@ import {
 export const DEFAULT_WIDTHS = [...RESPONSIVE_WIDTHS];
 const DEFAULT_MANIFEST = "public/media/generated/responsive-manifest.json";
 const DEFAULT_CATALOG = "src/data/media/responsive-generated.ts";
-const OUTPUT_PREFIX = "/media/generated/responsive";
 const RASTER_INPUT_FORMATS = new Set(["jpg", "jpeg", "png", "webp"]);
 const CONFIG = {
   format: "webp",
@@ -51,15 +50,8 @@ async function exists(filePath) {
 
 async function resolveMediaFile(repoRoot, src) {
   const clean = normalizePublicSrc(src);
-  const candidates = [
-    path.join(repoRoot, "public", clean),
-  ];
-
-  for (const candidate of candidates) {
-    if (await exists(candidate)) return candidate;
-  }
-
-  return null;
+  const candidate = path.join(repoRoot, "public", clean);
+  return await exists(candidate) ? candidate : null;
 }
 
 async function hashFile(filePath) {
@@ -88,10 +80,7 @@ export function selectVariantWidths(sourceWidth, widths = DEFAULT_WIDTHS) {
 }
 
 async function readManifest(manifestPath) {
-  if (!(await exists(manifestPath))) {
-    return null;
-  }
-
+  if (!(await exists(manifestPath))) return null;
   return JSON.parse(await readFile(manifestPath, "utf8"));
 }
 
@@ -131,19 +120,34 @@ function previousEntryFor(previousManifest, asset, sourceHash, buildConfigHash) 
   );
 }
 
+function mergeAffectedManifestEntries(previousManifest, affectedEntries) {
+  if (!previousManifest) {
+    throw new Error("affected-only responsive build requires an existing manifest to preserve untouched records");
+  }
+
+  const replacements = new Map(affectedEntries.map((entry) => [entry.id, entry]));
+  const merged = previousManifest.assets.map((entry) => replacements.get(entry.id) ?? entry);
+  const existingIds = new Set(previousManifest.assets.map((entry) => entry.id));
+  for (const entry of affectedEntries) {
+    if (!existingIds.has(entry.id)) merged.push(entry);
+  }
+  return merged;
+}
+
 export async function buildResponsiveVariants({
   repoRoot = process.cwd(),
   mediaAssets: assets = mediaAssets,
   widths = DEFAULT_WIDTHS,
   manifestPath = path.join(repoRoot, DEFAULT_MANIFEST),
   catalogPath = path.join(repoRoot, DEFAULT_CATALOG),
+  preserveUntouched = false,
 } = {}) {
   const resolvedRoot = path.resolve(repoRoot);
   const resolvedManifestPath = path.resolve(manifestPath);
   const resolvedCatalogPath = path.resolve(catalogPath);
   const previousManifest = await readManifest(resolvedManifestPath);
   const buildConfigHash = configHash(widths);
-  const manifestAssets = [];
+  const affectedEntries = [];
   let generatedCount = 0;
   let skippedCount = 0;
   let sourceCount = 0;
@@ -162,6 +166,15 @@ export async function buildResponsiveVariants({
     const sourceHeight = metadata.height;
     if (!sourceWidth || !sourceHeight) continue;
 
+    if (preserveUntouched) {
+      if (Number.isFinite(asset.width) && asset.width !== sourceWidth) {
+        throw new Error(`${asset.id} registered width ${asset.width} does not match source width ${sourceWidth}`);
+      }
+      if (Number.isFinite(asset.height) && asset.height !== sourceHeight) {
+        throw new Error(`${asset.id} registered height ${asset.height} does not match source height ${sourceHeight}`);
+      }
+    }
+
     const selectedWidths = selectVariantWidths(sourceWidth, widths);
     if (!selectedWidths.length) continue;
 
@@ -175,7 +188,9 @@ export async function buildResponsiveVariants({
     for (const width of selectedWidths) {
       const outputSrc = responsiveVariantSrc(asset.src, width);
       const outputPath = outputPathFor(resolvedRoot, outputSrc);
-      const previousVariant = previousEntry?.variants?.find((variant) => variant.src === outputSrc && variant.width === width);
+      const previousVariant = previousEntry?.variants?.find(
+        (variant) => variant.src === outputSrc && variant.width === width,
+      );
       let outputStat = previousVariant ? await stat(outputPath).catch(() => null) : null;
 
       if (previousVariant && outputStat && outputStat.size === previousVariant.bytes) {
@@ -202,7 +217,7 @@ export async function buildResponsiveVariants({
       });
     }
 
-    manifestAssets.push({
+    affectedEntries.push({
       id: asset.id,
       src: asset.src,
       sourceWidth,
@@ -214,6 +229,9 @@ export async function buildResponsiveVariants({
     });
   }
 
+  const manifestAssets = preserveUntouched
+    ? mergeAffectedManifestEntries(previousManifest, affectedEntries)
+    : affectedEntries;
   const manifest = {
     widthPolicy: widths,
     outputFormat: CONFIG.format,
@@ -251,9 +269,39 @@ export async function buildResponsiveMedia(options = {}) {
   return result;
 }
 
+function parseCliAssetIds(argv) {
+  const ids = [];
+  for (let index = 0; index < argv.length; index += 1) {
+    if (argv[index] !== "--asset-id") throw new Error(`unknown responsive-media argument: ${argv[index]}`);
+    const id = argv[++index];
+    if (!id) throw new Error("--asset-id requires an id");
+    ids.push(id);
+  }
+  return [...new Set(ids)];
+}
+
 const isDirectRun = process.argv[1]
   && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 
 if (isDirectRun) {
-  await buildResponsiveMedia();
+  const assetIds = parseCliAssetIds(process.argv.slice(2));
+  if (!assetIds.length) {
+    await buildResponsiveMedia();
+  } else {
+    const requested = new Set(assetIds);
+    const selectedAssets = mediaAssets.filter((asset) => requested.has(asset.id));
+    const selectedIds = new Set(selectedAssets.map((asset) => asset.id));
+    const missing = assetIds.filter((id) => !selectedIds.has(id));
+    if (missing.length) throw new Error(`unknown responsive media asset id(s): ${missing.join(", ")}`);
+    const nonImages = selectedAssets.filter((asset) => asset.type !== "image").map((asset) => asset.id);
+    if (nonImages.length) throw new Error(`responsive media asset is not an image: ${nonImages.join(", ")}`);
+
+    const result = await buildResponsiveMedia({
+      mediaAssets: selectedAssets,
+      preserveUntouched: true,
+    });
+    if (result.sourceCount !== selectedAssets.length) {
+      throw new Error(`affected responsive build processed ${result.sourceCount}/${selectedAssets.length} requested image sources`);
+    }
+  }
 }
