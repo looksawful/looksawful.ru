@@ -1,0 +1,71 @@
+name: Core Baseline Fix Once
+
+on:
+  push:
+    branches:
+      - fix/core-baseline-fixtures-20260905
+    paths:
+      - .github/workflows/core-baseline-fix-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repair branch
+        uses: actions/checkout@v7
+        with:
+          ref: fix/core-baseline-fixtures-20260905
+          fetch-depth: 1
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Repair stale test fixtures and concurrency expectation
+        shell: python
+        run: |
+          from pathlib import Path
+
+          fixture_files = [
+              Path("test/media-tools/media-dev-state.test.mjs"),
+              Path("test/media-tools/media-fingerprint-sync.test.mjs"),
+          ]
+          old = '''    await write(repoRoot, configPath, `fixture:${configPath}\\n`);'''
+          new = '''    await write(
+              repoRoot,
+              configPath,
+              configPath === "package-lock.json"
+                ? `${JSON.stringify({ lockfileVersion: 3, packages: {} }, null, 2)}\\n`
+                : `fixture:${configPath}\\n`,
+            );'''
+          for file in fixture_files:
+              text = file.read_text(encoding="utf-8")
+              if old not in text:
+                  raise SystemExit(f"expected fixture pattern missing in {file}")
+              file.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          ci = Path("test/ci-minimal-pipeline.test.mjs")
+          text = ci.read_text(encoding="utf-8")
+          old_ci = r'''  assert.match(workflow, /group: fast-ci-\$\{\{ github\.workflow \}\}-\$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.number \|\| github\.ref \}\}/);'''
+          new_ci = r'''  assert.match(workflow, /group: fast-ci-\$\{\{ github\.workflow \}\}-\$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.number \|\| github\.event_name == 'push' && github\.ref \|\| github\.run_id \}\}/);'''
+          if old_ci not in text:
+              raise SystemExit("expected Fast CI concurrency assertion missing")
+          ci.write_text(text.replace(old_ci, new_ci, 1), encoding="utf-8")
+      - name: Remove one-time workflow before workflow-set contract
+        run: git rm .github/workflows/core-baseline-fix-once.yml
+      - name: Verify focused baseline repairs
+        run: node --test test/media-tools/media-dev-state.test.mjs test/media-tools/media-fingerprint-sync.test.mjs test/ci-minimal-pipeline.test.mjs
+      - name: Commit verified repairs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add test/media-tools/media-dev-state.test.mjs test/media-tools/media-fingerprint-sync.test.mjs test/ci-minimal-pipeline.test.mjs
+          git diff --cached --check
+          git commit -m "test(core): repair media fingerprint fixtures"
+          git push origin HEAD:fix/core-baseline-fixtures-20260905
