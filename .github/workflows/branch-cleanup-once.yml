@@ -1,0 +1,73 @@
+name: One-time branch cleanup
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/branch-cleanup-once.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-branch-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    if: github.actor == 'looksawful'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout dev with repository credentials
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Delete every temporary remote branch
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t branches < <(
+            git ls-remote --heads origin |
+              awk '{sub("refs/heads/", "", $2); print $2}' |
+              sort
+          )
+
+          deleted=0
+          for branch in "${branches[@]}"; do
+            case "$branch" in
+              dev|prod)
+                echo "Keeping protected permanent branch: $branch"
+                continue
+                ;;
+            esac
+
+            echo "Deleting temporary branch: $branch"
+            git push origin --delete "$branch"
+            deleted=$((deleted + 1))
+          done
+
+          mapfile -t remaining < <(
+            git ls-remote --heads origin |
+              awk '{sub("refs/heads/", "", $2); print $2}' |
+              sort
+          )
+
+          printf 'Deleted %d temporary branches. Remaining refs:\n' "$deleted"
+          printf '  %s\n' "${remaining[@]}"
+
+          unexpected=()
+          for branch in "${remaining[@]}"; do
+            case "$branch" in
+              dev|prod) ;;
+              *) unexpected+=("$branch") ;;
+            esac
+          done
+
+          if (( ${#unexpected[@]} > 0 )); then
+            printf 'Unexpected branches remain:\n' >&2
+            printf '  %s\n' "${unexpected[@]}" >&2
+            exit 1
+          fi
