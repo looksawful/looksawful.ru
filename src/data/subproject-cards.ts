@@ -124,7 +124,7 @@ const photographedCards = [
   },
   {
     id: "styx-evident-things",
-    title: "Styx × Evident Things",
+    title: "Styx Jewel × Evident Things",
     description: "Коллаборация · фотограф и продюсер · 2022",
     coverEntryId: "styx-05-source-02-2x3-use-01",
     shape: "portrait",
@@ -132,7 +132,7 @@ const photographedCards = [
   },
   {
     id: "styx-founder",
-    title: "Портрет основателя Styx",
+    title: "Портрет основателя Styx Jewel",
     description: "Портретная съёмка · фотограф и продюсер · 2022",
     coverEntryId: "styx-05-source-08-4x5-use-01",
     shape: "portrait",
@@ -140,7 +140,7 @@ const photographedCards = [
   },
   {
     id: "styx-lookbook-2023",
-    title: "Styx · lookbook 2023",
+    title: "Styx Jewel · lookbook 2023",
     description: "Лукбук бренда · 2023",
     coverEntryId: "styx-03-source-01-4x5-use-01",
     shape: "portrait",
@@ -148,7 +148,7 @@ const photographedCards = [
   },
   {
     id: "styx-lookbook-2024",
-    title: "Styx · lookbook 2024",
+    title: "Styx Jewel · lookbook 2024",
     description: "Лукбук бренда · фотография и продакшен · 2024",
     coverEntryId: "styx-05-source-14-4x5-use-01",
     shape: "portrait",
@@ -156,7 +156,7 @@ const photographedCards = [
   },
   {
     id: "styx-lookbook-2025",
-    title: "Styx · lookbook 2025",
+    title: "Styx Jewel · lookbook 2025",
     description: "Лукбук бренда · фотограф · 2025",
     coverEntryId: "styx-09-source-02-3x4-use-01",
     shape: "portrait",
@@ -164,7 +164,7 @@ const photographedCards = [
   },
   {
     id: "styx-catalog-2021",
-    title: "Styx · jewellery catalogue 2021",
+    title: "Styx Jewel · jewellery catalogue 2021",
     description: "Каталог украшений · 2021",
     coverEntryId: "styx-04-source-01-16x9-use-01",
     shape: "landscape",
@@ -172,7 +172,7 @@ const photographedCards = [
   },
   {
     id: "styx-campaign-2022",
-    title: "Styx · campaign 2022",
+    title: "Styx Jewel · campaign 2022",
     description: "Экспериментальные сканографические портреты · 2022",
     coverEntryId: "styx-07-source-05-4x5-use-01",
     shape: "portrait",
@@ -180,7 +180,7 @@ const photographedCards = [
   },
   {
     id: "styx-product-2024",
-    title: "Styx · product 2024",
+    title: "Styx Jewel · product 2024",
     description: "Предметная и каталожная съёмка упаковки и объектов · 2024",
     coverEntryId: "styx-01-source-01-1x1-use-01",
     shape: "square",
