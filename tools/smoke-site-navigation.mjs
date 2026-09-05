@@ -76,20 +76,51 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(!initial.oldBrandPresent, `${label}: old brand/hamburger markup is still rendered`);
     assert(initial.overflow <= 1, `${label}: initial horizontal overflow ${initial.overflow}px`);
 
+    if (mobile) {
+      const neutralEyes = await page.evaluate(() => {
+        const left = document.querySelector("[data-awfulface-eye-left]");
+        const right = document.querySelector("[data-awfulface-eye-right]");
+        return {
+          left: left instanceof SVGElement ? getComputedStyle(left).transform : "",
+          right: right instanceof SVGElement ? getComputedStyle(right).transform : "",
+        };
+      });
+      await page.mouse.move(Math.max(1, width - 24), Math.max(1, height - 24));
+      await page.waitForTimeout(100);
+      const afterPointerMove = await page.evaluate(() => {
+        const left = document.querySelector("[data-awfulface-eye-left]");
+        const right = document.querySelector("[data-awfulface-eye-right]");
+        return {
+          left: left instanceof SVGElement ? getComputedStyle(left).transform : "",
+          right: right instanceof SVGElement ? getComputedStyle(right).transform : "",
+        };
+      });
+      assert(
+        afterPointerMove.left === neutralEyes.left && afterPointerMove.right === neutralEyes.right,
+        `${label}: coarse/mobile Awfulface eyes moved even though eye tracking must stay disabled`,
+      );
+    }
+
     const toggle = page.locator("[data-site-menu-toggle]");
     await toggle.click();
 
     const opened = await page.evaluate(({ primaryLinks, current, mobileViewport }) => {
       const toggle = document.querySelector("[data-site-menu-toggle]");
       const menu = document.querySelector("[data-site-menu]");
+      const bar = document.querySelector(".site-nav__bar");
       const main = document.querySelector("main");
       const preview = document.querySelector("[data-menu-preview]");
+      const faceBackground = document.querySelector(".awfulface__background");
+      const firstMenuLink = document.querySelector(".site-nav__menu-link");
       const links = [...document.querySelectorAll(".site-nav__menu-link")].map((link) => [
         link.textContent?.trim() || "",
         link.getAttribute("href") || "",
       ]);
       const currentLink = document.querySelector('.site-nav__menu-link[aria-current="page"]');
       const menuRect = menu instanceof HTMLElement ? menu.getBoundingClientRect() : null;
+      const menuLinkStyle = firstMenuLink instanceof HTMLElement ? getComputedStyle(firstMenuLink) : null;
+      const barStyle = bar instanceof HTMLElement ? getComputedStyle(bar) : null;
+      const faceBackgroundStyle = faceBackground instanceof SVGElement ? getComputedStyle(faceBackground) : null;
       return {
         expanded: toggle?.getAttribute("aria-expanded") || "",
         menuHidden: menu instanceof HTMLElement ? menu.hidden : null,
@@ -97,7 +128,16 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
         mainInert: main instanceof HTMLElement ? main.inert : null,
         links,
         currentLabel: currentLink?.textContent?.trim() || "",
-        menuCoversViewport: Boolean(menuRect && menuRect.width >= innerWidth - 1 && menuRect.bottom >= innerHeight - 1),
+        menuCoversViewport: Boolean(
+          menuRect
+          && menuRect.top <= 1
+          && menuRect.width >= innerWidth - 1
+          && menuRect.bottom >= innerHeight - 1
+        ),
+        barBackground: barStyle?.backgroundColor || "",
+        faceBackgroundFill: faceBackgroundStyle?.fill || "",
+        menuTextAlign: menuLinkStyle?.textAlign || "",
+        menuJustifyContent: menuLinkStyle?.justifyContent || "",
         mobilePreviewHidden: mobileViewport && preview instanceof HTMLElement ? preview.hidden : null,
         expected: primaryLinks,
         current,
@@ -108,11 +148,24 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(opened.menuHidden === false, `${label}: menu stayed hidden after click`);
     assert(opened.bodyOverflow === "hidden", `${label}: page scroll was not locked`);
     assert(opened.mainInert === true, `${label}: main content was not made inert`);
-    assert(opened.menuCoversViewport, `${label}: menu does not cover the available viewport`);
+    assert(opened.menuCoversViewport, `${label}: menu does not form one continuous fullscreen surface`);
+    assert(
+      opened.barBackground === "rgba(0, 0, 0, 0)" || opened.barBackground === "transparent",
+      `${label}: open menu header still paints a detached strip (${opened.barBackground})`,
+    );
+    assert(opened.faceBackgroundFill === "none", `${label}: Awfulface backing disc is still visible (${opened.faceBackgroundFill})`);
     assert(JSON.stringify(opened.links) === JSON.stringify(PRIMARY_LINKS), `${label}: primary menu destinations differ`);
     assert(opened.currentLabel === currentLabel, `${label}: wrong active menu item ${opened.currentLabel}`);
     if (mobile) {
       assert(opened.mobilePreviewHidden === true, `${label}: coarse/mobile preview should stay hidden`);
+      assert(opened.menuTextAlign === "center", `${label}: mobile menu labels must stay centered`);
+      assert(opened.menuJustifyContent === "center", `${label}: mobile menu label flex alignment must stay centered`);
+    } else {
+      assert(
+        opened.menuTextAlign === "start" || opened.menuTextAlign === "left",
+        `${label}: desktop menu labels must align from the start edge (${opened.menuTextAlign})`,
+      );
+      assert(opened.menuJustifyContent === "flex-start", `${label}: desktop menu labels are still centered`);
     }
 
     if (!mobile) {
