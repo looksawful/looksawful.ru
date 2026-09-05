@@ -2,11 +2,19 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 4173;
 const SERVER_STOP_GRACE_MS = 2_000;
+
+const BROWSER_TARGETS = {
+  chromium: { type: chromium, launchOptions: {} },
+  firefox: { type: firefox, launchOptions: {} },
+  webkit: { type: webkit, launchOptions: {} },
+  chrome: { type: chromium, launchOptions: { channel: "chrome" } },
+  msedge: { type: chromium, launchOptions: { channel: "msedge" } },
+};
 
 export function isDirectExecution(metaUrl) {
   return Boolean(
@@ -63,6 +71,12 @@ export async function withE2ERuntime(callback, options = {}) {
     throw new Error(`invalid E2E preview port: ${port}`);
   }
 
+  const browserName = options.browserName ?? process.env.E2E_BROWSER ?? "chromium";
+  const browserTarget = BROWSER_TARGETS[browserName];
+  if (!browserTarget) {
+    throw new Error(`unsupported E2E browser target: ${browserName}`);
+  }
+
   const baseUrl = options.baseUrl ?? `http://${host}:${port}`;
   const server = spawn(
     process.execPath,
@@ -112,8 +126,8 @@ export async function withE2ERuntime(callback, options = {}) {
 
   try {
     await waitForServer(baseUrl, server, () => serverOutput, options.waitAttempts);
-    browser = await chromium.launch({ headless: true });
-    return await callback({ browser, baseUrl, host, port });
+    browser = await browserTarget.type.launch({ headless: true, ...browserTarget.launchOptions });
+    return await callback({ browser, browserName, baseUrl, host, port });
   } finally {
     process.removeListener("SIGINT", onSignal);
     process.removeListener("SIGTERM", onSignal);
