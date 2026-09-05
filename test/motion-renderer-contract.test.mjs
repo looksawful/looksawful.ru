@@ -2,19 +2,21 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { renderSectionIntro } from "../src/components/composition/section-intro.ts";
+import {
+  renderBeforeAfter,
+  renderJustifiedGallery,
+  renderMediaFigure,
+  renderMediaGroup,
+  renderMediaSlider,
+  renderMockup,
+  renderMockupDeck,
+  renderPageFlip,
+} from "../src/components/content/index.ts";
+import { renderAnimatedCanvasGallery } from "../src/components/specialized/index.ts";
 import { projectCardPresentations } from "../src/data/projects.ts";
-import { renderAnimatedCanvasGallery } from "../src/templates/animated-canvas-gallery.ts";
-import { renderBeforeAfter } from "../src/templates/before-after.ts";
-import { renderJustifiedGallery } from "../src/templates/justified-gallery.ts";
-import { renderMediaFigure } from "../src/templates/media-figure.ts";
-import { renderMediaGroup } from "../src/templates/media-group.ts";
-import { renderMediaSlider } from "../src/templates/media-slider.ts";
-import { renderMockup } from "../src/templates/mockup.ts";
-import { renderMockupDeck } from "../src/templates/mockup-deck.ts";
-import { renderPageFlip } from "../src/templates/page-flip.ts";
 import { renderProjectCard } from "../src/templates/project-card.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
-import { renderSectionIntro } from "../src/templates/section-intro.ts";
 
 const imageEntry = "styx-06-source-01-1920x913-use-01";
 const secondImageEntry = "styx-06-source-02-1920x917-use-01";
