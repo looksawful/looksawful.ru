@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
+import { pathToFileURL } from "node:url";
 
 import { captureComponents } from "./capture-components.mjs";
 import { capturePages } from "./capture-pages.mjs";
@@ -126,7 +127,12 @@ export async function runDesignCapture(args = process.argv.slice(2)) {
   return { outputDir, manifestPath, manifest };
 }
 
-if (import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+const isDirectExecution = Boolean(
+  process.argv[1]
+  && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href,
+);
+
+if (isDirectExecution) {
   runDesignCapture().catch((error) => {
     console.error(`[design-capture] ${error instanceof Error ? error.stack ?? error.message : String(error)}`);
     process.exitCode = 1;
