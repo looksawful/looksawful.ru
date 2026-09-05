@@ -85,7 +85,7 @@ test("combined browser regression uses one shared runtime while individual suite
   const suites = [
     ["smoke-site.mjs", "runSmokeSite"],
     ["smoke-site-navigation.mjs", "runSmokeNavigation"],
-    ["smoke-mpa.mjs", "runSmokeMpa"],
+    ["e2e/smoke-mpa.mjs", "runSmokeMpa"],
     ["e2e/smoke-project-pages.mjs", "runSmokeProjectPages"],
     ["smoke-cv.mjs", "runSmokeCv"],
   ];
