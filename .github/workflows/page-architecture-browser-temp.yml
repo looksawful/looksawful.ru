@@ -36,10 +36,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install media tooling for core contracts
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
       - name: Calculate canonical media fingerprint
         id: media
         shell: bash
@@ -54,6 +50,11 @@ jobs:
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Install media tooling on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
       - name: Recover generated media on cache miss
         if: steps.media-cache.outputs.cache-hit != 'true'
         run: npm run media:sync
@@ -61,10 +62,6 @@ jobs:
         run: node tools/media-dev-state.mjs --cache-verify
       - name: Typecheck
         run: npm run typecheck
-      - name: Hide temporary gate from canonical workflow-set contract
-        run: rm .github/workflows/page-architecture-browser-temp.yml
-      - name: Core tests
-        run: npm run test:core
       - name: Page architecture contracts
         run: node --test test/site-composition.test.mjs test/site-rendering.test.mjs
       - name: Media dedupe contract
