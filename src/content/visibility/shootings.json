@@ -1,0 +1,27 @@
+{
+  "sections": [
+    { "id": "shootings-obladaet", "visible": true, "blocks": [] },
+    { "id": "shootings-obladaet-collage", "visible": true, "blocks": [{ "id": "shootings-obladaet-collage:media-group", "visible": true }] },
+    { "id": "shootings-obladaet-portraits", "visible": true, "blocks": [{ "id": "shootings-obladaet-portraits:media-group", "visible": true }] },
+    { "id": "shootings-obladaet-mixed-media", "visible": true, "blocks": [{ "id": "shootings-obladaet-mixed-media:media-group", "visible": true }] },
+    { "id": "shootings-obladaet-pair", "visible": true, "blocks": [{ "id": "shootings-obladaet-pair:media-group", "visible": true }] },
+    { "id": "shootings-evasha", "visible": true, "blocks": [] },
+    { "id": "shootings-evasha-banner", "visible": true, "blocks": [{ "id": "shootings-evasha-banner:media-figure", "visible": true }] },
+    { "id": "shootings-evasha-portraits-reel", "visible": true, "blocks": [{ "id": "shootings-evasha-portraits-reel:media-group", "visible": true }] },
+    { "id": "shootings-evasha-covers-reel", "visible": true, "blocks": [{ "id": "shootings-evasha-covers-reel:media-group", "visible": true }] },
+    { "id": "shootings-evasha-mixed", "visible": true, "blocks": [{ "id": "shootings-evasha-mixed:media-group", "visible": true }] },
+    { "id": "shootings-evasha-pair", "visible": true, "blocks": [{ "id": "shootings-evasha-pair:media-figure", "visible": true }] },
+    { "id": "shootings-evasha-portraits", "visible": true, "blocks": [{ "id": "shootings-evasha-portraits:media-group", "visible": true }] },
+    { "id": "shootings-igguana", "visible": true, "blocks": [] },
+    { "id": "shootings-igguana-masonry", "visible": true, "blocks": [{ "id": "shootings-igguana-masonry:media-group", "visible": true }] },
+    { "id": "shootings-esmi", "visible": true, "blocks": [] },
+    { "id": "shootings-esmi-banner", "visible": true, "blocks": [{ "id": "shootings-esmi-banner:media-figure", "visible": true }] },
+    { "id": "shootings-hypression", "visible": true, "blocks": [] },
+    { "id": "shootings-hypression-banner", "visible": true, "blocks": [{ "id": "shootings-hypression-banner:media-figure", "visible": true }] },
+    { "id": "shootings-hypression-collage", "visible": true, "blocks": [{ "id": "shootings-hypression-collage:media-group", "visible": true }] },
+    { "id": "shootings-hypression-mixed-media", "visible": true, "blocks": [{ "id": "shootings-hypression-mixed-media:media-group", "visible": true }] },
+    { "id": "shootings-hypression-portraits", "visible": true, "blocks": [{ "id": "shootings-hypression-portraits:media-group", "visible": true }] },
+    { "id": "shootings-ofelia", "visible": true, "blocks": [] },
+    { "id": "shootings-ofelia-strip", "visible": true, "blocks": [{ "id": "shootings-ofelia-strip:media-group", "visible": true }] }
+  ]
+}
