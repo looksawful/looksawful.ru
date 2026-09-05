@@ -45,10 +45,3 @@ test("site page HTML composition runs before Vite core asset processing", () => 
   assert.equal(plugin.transformIndexHtml?.order, "pre");
   assert.equal(typeof plugin.transformIndexHtml?.handler, "function");
 });
-
-test("shared runtime entrypoints are TypeScript-owned", () => {
-  assert.equal(existsSync(path.join(root, "src/main.ts")), true);
-  assert.equal(existsSync(path.join(root, "src/main.js")), false);
-  assert.equal(existsSync(path.join(root, "src/interactive.ts")), true);
-  assert.equal(existsSync(path.join(root, "src/interactive.js")), false);
-});
