@@ -10,6 +10,7 @@ import {
 } from "../../../components/content/index.ts";
 import {
   renderAnimatedCanvasGallery,
+  renderAwfulCasesGame,
   renderJesteiThemeOrganismMockup,
 } from "../../../components/specialized/index.ts";
 import {
@@ -57,6 +58,8 @@ export function renderContentBlock(
       return renderAnimatedCanvasGallery(block.data);
     case "jestei-theme":
       return renderJesteiThemeOrganismMockup(block.data);
+    case "awful-cases-game":
+      return renderAwfulCasesGame();
     default:
       return assertNeverContentBlock(block);
   }
