@@ -130,6 +130,7 @@ test("scheduled quality remains automatic but expensive suites are outside ordin
   assert.match(workflow, /npm run audit:deps/);
   assert.match(workflow, /npm run lighthouse/);
   assert.match(workflow, /npm run check:external-links/);
+  assert.doesNotMatch(workflow, /cv:content:apply/);
   assert.match(workflow, /check-production\.mjs/);
   assert.doesNotMatch(workflow, /^\s*push:/m);
 });
