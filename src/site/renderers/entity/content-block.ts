@@ -1,5 +1,6 @@
 import {
   renderBeforeAfter,
+  renderCodeBlock,
   renderJustifiedGallery,
   renderMediaFigure,
   renderMediaGroup,
@@ -33,6 +34,8 @@ export function renderContentBlock(
   options: ContentBlockRenderOptions = {},
 ): string {
   switch (block.type) {
+    case "code-block":
+      return renderCodeBlock(block.data);
     case "media-figure":
       return renderMediaFigure(block.data, {
         ...(options.reveal === false ? { reveal: false as const } : {}),
