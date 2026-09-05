@@ -4,16 +4,44 @@ on:
   schedule:
     - cron: "17 */6 * * *"
   workflow_dispatch:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - ".github/workflows/production-health.yml"
+      - "test/production-health-workflow.test.mjs"
 
 permissions:
   contents: read
 
 concurrency:
-  group: production-health
+  group: production-health-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
+  contract:
+    name: Verify production health contract
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Run production health contract
+        run: node --test test/production-health-workflow.test.mjs
+
   health:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
