@@ -15,11 +15,19 @@ test("CV smoke exposes authored and production hidden-card contracts", async () 
   assert.throws(() => smokeCv.getExpectedCvHiddenCards("invalid"), /invalid CV smoke mode/i);
 });
 
-test("CV runner accepts an explicit mode and direct execution stays authored", async () => {
+test("CV runner accepts explicit modes and direct preview execution uses production", async () => {
   const source = await read("tools/smoke-cv.mjs");
-  assert.match(source, /runSmokeCv\(\{\s*browser,\s*baseUrl,\s*mode\s*=\s*["']authored["']/s);
+  assert.match(source, /runSmokeCv\(\{\s*browser,\s*baseUrl,\s*mode\s*=\s*["']production["']/s);
   assert.match(source, /getExpectedCvHiddenCards\(mode\)/);
-  assert.match(source, /runSmokeCv\(\{\s*browser,\s*baseUrl,\s*mode:\s*["']authored["']/s);
+  assert.match(source, /runSmokeCv\(\{\s*browser,\s*baseUrl,\s*mode:\s*["']production["']/s);
+  assert.match(source, /authored/);
+});
+
+test("combined preview runners default CV checks to production artifacts", async () => {
+  const quick = await read("tools/e2e/run-smoke.mjs");
+  const full = await read("tools/e2e/run-all.mjs");
+  assert.match(quick, /runQuickSmoke\(\{\s*browser,\s*baseUrl,\s*cvMode\s*=\s*["']production["']/s);
+  assert.match(full, /runAllSmokeSuites\(\{\s*browser,\s*baseUrl,\s*cvMode\s*=\s*["']production["']/s);
 });
 
 test("caption QA stays optional and import-safe", async () => {
