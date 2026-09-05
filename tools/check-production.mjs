@@ -1,17 +1,14 @@
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 
+import { decodeEntities } from "./site-html-utils.mjs";
+
 const ORIGIN = "https://www.looksawful.ru";
 const TIMEOUT_MS = 20_000;
 const MAX_SAMPLE = 10;
 
 function decodeXml(value) {
-  return value
-    .replaceAll("&amp;", "&")
-    .replaceAll("&lt;", "<")
-    .replaceAll("&gt;", ">")
-    .replaceAll("&quot;", '"')
-    .replaceAll("&apos;", "'");
+  return decodeEntities(value);
 }
 
 function locs(xml) {
