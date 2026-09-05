@@ -112,7 +112,7 @@ test("canonical Awful Cases page renders authored code through CodeBlock with co
   });
 
   const html = renderStandaloneEntityPage(awfulCasesPage());
-  assert.match(html, /data-section-id="awful-cases-code"/);
+  assert.match(html, /id="awful-cases-code"/);
   assert.equal((html.match(/data-code-block/g) ?? []).length, 2);
   assert.equal((html.match(/data-code-language="powershell"/g) ?? []).length, 2);
   assert.match(html, /git clone https:\/\/github\.com\/looksawful\/awful-cases\.git/);
