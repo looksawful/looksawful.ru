@@ -44,17 +44,22 @@ test("Fast CI media generation exists only as explicit cache-miss recovery", asy
   assert.match(workflow, /actions\/cache\/save@v6/);
 });
 
-test("CMS media consumes an exact previous cache and saves one exact final cache", async () => {
+test("CMS media may reuse an exact previous cache, but image-only work does not require it", async () => {
   const workflow = await read(".github/workflows/cms-media.yml");
-  const previous = block(workflow, "Restore exact previous generated media cache");
-  const save = block(workflow, "Save exact generated media cache");
+  const previous = block(workflow, "Restore exact previous generated media cache when available");
+  const broadRequire = block(workflow, "Require exact base cache for broad non-video media mutation");
+  const save = block(workflow, "Save generated media cache");
 
   assert.match(previous, /actions\/cache\/restore@v6/);
   assertGeneratedMediaCache(previous, "cms previous cache");
   assert.match(previous, /steps\.previous-media\.outputs\.fingerprint/);
   assert.match(previous, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.previous-media\.outputs\.fingerprint \}\}/);
   assert.doesNotMatch(previous, /restore-keys:/);
-  assert.match(workflow, /Verify previous cache before incremental generation[\s\S]*?media-dev-state\.mjs --cache-verify/);
+
+  assert.match(broadRequire, /image_only != 'true'/);
+  assert.match(broadRequire, /cache-hit != 'true'/);
+  assert.doesNotMatch(broadRequire, /image-only/i);
+  assert.match(workflow, /Verify previous cache before broad incremental generation[\s\S]*?media-dev-state\.mjs --cache-verify/);
 
   assert.match(save, /actions\/cache\/save@v6/);
   assertGeneratedMediaCache(save, "cms final cache");

@@ -26,6 +26,13 @@ on:
       - 'public/media/generated/video-inventory.json'
   pull_request:
     branches: [dev, prod]
+    paths-ignore:
+      - 'public/media/**/*.jpg'
+      - 'public/media/**/*.jpeg'
+      - 'public/media/**/*.png'
+      - 'public/media/**/*.webp'
+      - 'src/data/media/responsive-generated.ts'
+      - 'public/media/generated/responsive-manifest.json'
   workflow_dispatch:
     inputs:
       payload:
