@@ -21,30 +21,35 @@ jobs:
       - name: Run production Lighthouse matrix
         shell: bash
         run: |
-          set -euo pipefail
+          set -u -o pipefail
           mkdir -p artifacts/perf-247
+          failed=0
           routes=(
             "home|https://www.looksawful.ru/"
             "jestei|https://www.looksawful.ru/work/jestei-pool/"
             "cv|https://www.looksawful.ru/cv/"
-            "shootings|https://www.looksawful.ru/work/shootings/"
+            "shootings|https://www.looksawful.ru/shootings/"
           )
           for pair in "${routes[@]}"; do
             name="${pair%%|*}"
             url="${pair#*|}"
-            npx lighthouse "$url" \
-              --output=json \
-              --output-path="artifacts/perf-247/${name}-mobile.json" \
-              --chrome-flags="--headless --no-sandbox" \
-              --quiet
-            npx lighthouse "$url" \
-              --preset=desktop \
-              --output=json \
-              --output-path="artifacts/perf-247/${name}-desktop.json" \
-              --chrome-flags="--headless --no-sandbox" \
-              --quiet
+            for mode in mobile desktop; do
+              args=()
+              if [ "$mode" = desktop ]; then args+=(--preset=desktop); fi
+              if ! npx lighthouse "$url" \
+                "${args[@]}" \
+                --output=json \
+                --output-path="artifacts/perf-247/${name}-${mode}.json" \
+                --chrome-flags="--headless --no-sandbox" \
+                --quiet; then
+                echo "Lighthouse failed: ${name} ${mode} ${url}" >&2
+                failed=1
+              fi
+            done
           done
+          echo "$failed" > artifacts/perf-247/failures.txt
       - name: Summarize measurements
+        if: always()
         shell: bash
         run: |
           node <<'NODE'
@@ -63,9 +68,8 @@ jobs:
               cls: Number((a['cumulative-layout-shift']?.numericValue ?? 0).toFixed(3)),
               tbt: Math.round(a['total-blocking-time']?.numericValue ?? 0),
               si: Math.round(a['speed-index']?.numericValue ?? 0),
-              bytes: Math.round((a['total-byte-weight']?.numericValue ?? 0) / 1024),
+              bytesKiB: Math.round((a['total-byte-weight']?.numericValue ?? 0) / 1024),
               requests: a['network-requests']?.details?.items?.length ?? 0,
-              thirdPartyBytes: Math.round((a['third-party-summary']?.details?.summary?.wastedBytes ?? 0) / 1024),
               jsMs: Math.round(a['bootup-time']?.numericValue ?? 0),
               mainThreadMs: Math.round(a['mainthread-work-breakdown']?.numericValue ?? 0),
             });
@@ -74,7 +78,13 @@ jobs:
           fs.writeFileSync(path.join(dir, 'summary.json'), JSON.stringify(rows, null, 2) + '\n');
           NODE
       - uses: actions/upload-artifact@v6
+        if: always()
         with:
           name: perf-247
           path: artifacts/perf-247
           retention-days: 7
+      - name: Fail if a route could not be measured
+        if: always()
+        shell: bash
+        run: |
+          test "$(cat artifacts/perf-247/failures.txt 2>/dev/null || echo 1)" = 0
