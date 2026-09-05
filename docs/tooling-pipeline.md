@@ -8,13 +8,15 @@ Use Node 24. Install dependencies with `npm ci` when the lockfile/dependencies a
 
 `npm run dev` currently runs Vite directly.
 
-`npm run build:site` runs the CMS generated-option check, Vite production build and site postbuild. Site postbuild applies CV content, generates the sitemap and validates metadata/local links. `npm run typecheck` remains a separate explicit command.
+`npm run build` is the ordinary fail-closed local build: it runs strict TypeScript checking first and then delegates to `npm run build:site`.
+
+`npm run build:site` remains the production site-build stage used by CI after typecheck has already run. It runs the CMS generated-option check, Vite production build and site postbuild without repeating TypeScript checking. Site postbuild generates the sitemap and validates metadata/local links.
 
 ## Fast verification
 
 `npm test` and `npm run test:fast` run the repository's fast Node-test group.
 
-`npm run typecheck` runs TypeScript checking. `npm run build:site` is the production site build contract used by the current fast CI flow.
+`npm run typecheck` runs TypeScript checking. `npm run build:site` is the production site build contract used by the current fast CI flow, where typecheck remains a separate preceding step to avoid duplicate work.
 
 The Pages CMS `Проверить сайт` actions dispatch `.github/workflows/ci-fast.yml` at explicit `ref: dev`. Fast CI performs its existing media-state cache/recovery guard, then typecheck, fast tests and `build:site`.
 
