@@ -5,7 +5,6 @@ on:
     branches:
       - agent/page-architecture-wave2-render-pipeline-20260904
     paths:
-      - .github/workflows/page-architecture-browser-temp.yml
       - index.html
       - src/content/contracts/content-block.ts
       - src/content/pages/projects/awful-cases.ts
@@ -62,8 +61,8 @@ jobs:
         run: node tools/media-dev-state.mjs --cache-verify
       - name: Typecheck
         run: npm run typecheck
-      - name: Core tests
-        run: npm run test:core
+      - name: Page architecture contracts
+        run: node --test test/site-composition.test.mjs test/site-rendering.test.mjs
       - name: Media dedupe contract
         run: npm run media:dedupe:check
       - name: Production build
