@@ -1,3 +1,9 @@
+import { heroMediaAssets } from "../../../data/media/assets/hero.ts";
+import { responsiveImageSrcSet } from "../../../data/media/responsive.ts";
+
+const HERO_PORTRAIT = heroMediaAssets[0];
+const HERO_SIZES = "(max-width: 32rem) 105vw, (max-width: 48rem) 92vw, (max-width: 64rem) 48vw, 35vw";
+
 const HOME_IMAGE_LOADER = `<script type="module" data-home-image-loader>
 (() => {
   const images = [...document.querySelectorAll('img[data-home-image-deferred]')];
@@ -47,8 +53,20 @@ function shouldKeepImageEager(tag: string): boolean {
   return /\sfetchpriority="high"/i.test(tag) || /\sloading="eager"/i.test(tag);
 }
 
+function enrichHeroPortrait(tag: string): string {
+  if (!/hero-portrait\.webp/i.test(tag) || !/\sfetchpriority="high"/i.test(tag)) return tag;
+
+  const srcset = responsiveImageSrcSet(HERO_PORTRAIT);
+  if (!srcset) return tag;
+
+  return tag.replace(
+    />$/,
+    ` width="${HERO_PORTRAIT.width}" height="${HERO_PORTRAIT.height}" sizes="${HERO_SIZES}" srcset="${srcset}">`,
+  );
+}
+
 function deferImageTag(tag: string): string {
-  if (shouldKeepImageEager(tag)) return tag;
+  if (shouldKeepImageEager(tag)) return enrichHeroPortrait(tag);
 
   let next = moveAttribute(tag, "sizes", "data-home-sizes");
   next = moveAttribute(next, "srcset", "data-home-srcset");
