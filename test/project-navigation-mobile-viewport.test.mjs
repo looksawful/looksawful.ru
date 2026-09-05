@@ -13,13 +13,16 @@ function blockBetween(source, start, end) {
 }
 
 test("mobile project navigation positioning stays browser-native and safe-area aware", async () => {
-  const components = await read("src/styles/components.css");
+  const [components, topStyles] = await Promise.all([
+    read("src/styles/components.css"),
+    read("src/styles/project-navigation-top.css"),
+  ]);
   const base = blockBetween(components, ".project-nav {", ".project-nav__inner {");
 
   assert.match(base, /position:\s*sticky;/);
   assert.match(base, /inset-block-start:\s*100dvh;/);
   assert.match(base, /translate:\s*0 -100%;/);
-  assert.match(base, /env\(safe-area-inset-bottom,\s*0px\)/);
+  assert.match(topStyles, /env\(safe-area-inset-bottom,\s*0px\)/);
 });
 
 test("project navigation installs no VisualViewport positioning loop", async () => {
