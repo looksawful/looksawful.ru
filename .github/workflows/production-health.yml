@@ -36,15 +36,21 @@ jobs:
       - name: Check production contract
         run: node tools/check-production.mjs
 
-      - name: Check representative routes
+      - name: Check CV route
         shell: bash
         run: |
           set -euo pipefail
-          for path in /cv/ /work/jestei-pool/; do
-            curl --fail --silent --show-error --location --max-time 20 \
-              -H 'Cache-Control: no-cache' \
-              "https://www.looksawful.ru${path}" > /dev/null
-          done
+          curl --fail --silent --show-error --location --max-time 20 \
+            -H 'Cache-Control: no-cache' \
+            https://www.looksawful.ru/cv/ > /dev/null
+
+      - name: Check representative project route
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 20 \
+            -H 'Cache-Control: no-cache' \
+            https://www.looksawful.ru/work/jestei-pool/ > /dev/null
 
       - name: Check homepage built assets
         shell: bash
