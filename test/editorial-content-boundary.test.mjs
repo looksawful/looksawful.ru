@@ -92,22 +92,23 @@ test("Jestei section visibility uses a separate strict CMS boundary", async () =
   ]);
 
   const expectedIds = jesteiPoolPageContent.sections.map(({ id }) => id);
+  const sectionVisibility = visibility.sections;
   assert.equal(typeof adapter.parseSectionVisibility, "function");
-  assert.deepEqual(visibility.map(({ id }) => id), expectedIds);
-  assert.ok(visibility.every(({ visible }) => typeof visible === "boolean"));
+  assert.deepEqual(sectionVisibility.map(({ id }) => id), expectedIds);
+  assert.ok(sectionVisibility.every(({ visible }) => typeof visible === "boolean"));
 
-  assert.doesNotThrow(() => adapter.parseSectionVisibility(visibility, expectedIds));
+  assert.doesNotThrow(() => adapter.parseSectionVisibility(sectionVisibility, expectedIds));
   assert.throws(
-    () => adapter.parseSectionVisibility([...visibility, visibility[0]], expectedIds),
+    () => adapter.parseSectionVisibility([...sectionVisibility, sectionVisibility[0]], expectedIds),
     /duplicate section visibility id/i,
   );
   assert.throws(
-    () => adapter.parseSectionVisibility(visibility.slice(0, -1), expectedIds),
+    () => adapter.parseSectionVisibility(sectionVisibility.slice(0, -1), expectedIds),
     /missing section visibility id/i,
   );
   assert.throws(
     () => adapter.parseSectionVisibility(
-      visibility.map((item, index) => index === 0 ? { ...item, id: "unknown-section" } : item),
+      sectionVisibility.map((item, index) => index === 0 ? { ...item, id: "unknown-section" } : item),
       expectedIds,
     ),
     /unexpected section visibility id/i,
