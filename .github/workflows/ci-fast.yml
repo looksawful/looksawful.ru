@@ -107,6 +107,6 @@ jobs:
       - name: Fast tests
         run: npm run test:fast
       - name: Repository structure contract
-        run: node --test test/repository-structure.test.mjs
+        run: node --test test/repository-structure.test.mjs test/change-scope.test.mjs
       - name: Production build
         run: npm run build:site
