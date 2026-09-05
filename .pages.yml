@@ -1110,6 +1110,36 @@ content:
             label: Вводный текст
             type: text
             description: Только текст существующего проекта Awful Cases. Ссылки, маршрут, видимость, taxonomy, media и композиция остаются в коде.
+          - name: codeBlocks
+            label: Кодовые блоки
+            type: object
+            required: true
+            description: Только редактируемые заголовки и команды. Язык, вариант, layout и поведение компонента остаются в TypeScript.
+            fields:
+              - name: install
+                label: Установка
+                type: object
+                required: true
+                fields:
+                  - name: title
+                    label: Заголовок
+                    type: string
+                  - name: code
+                    label: Код
+                    type: text
+                    required: true
+              - name: run
+                label: Запуск
+                type: object
+                required: true
+                fields:
+                  - name: title
+                    label: Заголовок
+                    type: string
+                  - name: code
+                    label: Код
+                    type: text
+                    required: true
 
   - name: client-logo-visibility
     label: Логотипы клиентов
