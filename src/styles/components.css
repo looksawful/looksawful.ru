@@ -422,36 +422,6 @@
   }
 }
 
-/* ==================================================
-   Portfolio navigation
-   ================================================== */
-
-.site-nav {
-  --wrapper-max-width: var(--content-max-width);
-  --cluster-align: baseline;
-  --cluster-justify: space-between;
-  --cluster-space: var(--size-400);
-
-  padding-block: var(--size-300);
-  border-block-end: var(--border-width-100) solid var(--clr-border);
-  font-size: var(--fs-300);
-}
-
-.site-nav__brand,
-.site-nav__link {
-  color: inherit;
-  font-weight: var(--fw-500);
-  text-decoration: none;
-}
-
-.site-nav__list {
-  --cluster-justify: flex-end;
-  --cluster-row-gap: var(--size-200);
-  --cluster-column-gap: var(--size-400);
-
-  list-style: none;
-}
-
 /* One global project navigator replaces both the former projects index and
    the four per-project chapter TOCs. Narrow view stays at the bottom; the
    wide view reuses the existing left rail. */
