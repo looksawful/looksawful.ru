@@ -57,6 +57,8 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
       const face = document.querySelector("[data-awfulface]");
       const preview = document.querySelector("[data-menu-preview]");
       const root = document.documentElement;
+      const siteNav = document.querySelector(".site-nav");
+      const siteNavStyle = siteNav instanceof HTMLElement ? getComputedStyle(siteNav) : null;
       return {
         toggleVisible: toggle instanceof HTMLElement && toggle.getBoundingClientRect().width >= 44,
         expanded: toggle?.getAttribute("aria-expanded") || "",
@@ -65,6 +67,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
         previewPresent: preview instanceof HTMLElement,
         oldBrandPresent: Boolean(document.querySelector(".site-nav__brand, .site-nav__toggle-icon")),
         overflow: root.scrollWidth - root.clientWidth,
+        navBorderBlockEndWidth: siteNavStyle?.borderBlockEndWidth || "",
       };
     });
 
@@ -75,6 +78,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     assert(initial.previewPresent, `${label}: shared menu preview is missing`);
     assert(!initial.oldBrandPresent, `${label}: old brand/hamburger markup is still rendered`);
     assert(initial.overflow <= 1, `${label}: initial horizontal overflow ${initial.overflow}px`);
+    assert(initial.navBorderBlockEndWidth === "0px", `${label}: closed global nav still has separator ${initial.navBorderBlockEndWidth}`);
 
     if (path !== "/") {
       const breadcrumb = await page.locator('[aria-label="Хлебные крошки"]').innerText();
@@ -133,6 +137,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
       const toggleRect = toggle instanceof HTMLElement ? toggle.getBoundingClientRect() : null;
       const menuLinkStyle = firstMenuLink instanceof HTMLElement ? getComputedStyle(firstMenuLink) : null;
       const barStyle = bar instanceof HTMLElement ? getComputedStyle(bar) : null;
+      const siteNavStyle = siteNav instanceof HTMLElement ? getComputedStyle(siteNav) : null;
       const contextStyle = navContext instanceof HTMLElement ? getComputedStyle(navContext) : null;
       const toggleStyle = toggle instanceof HTMLElement ? getComputedStyle(toggle) : null;
       const faceBackgroundStyle = faceBackground instanceof SVGElement ? getComputedStyle(faceBackground) : null;
@@ -152,6 +157,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
         barBackground: barStyle?.backgroundColor || "",
         barHeight: barRect?.height ?? null,
         navHeight: navRect?.height ?? null,
+        navBorderBlockEndWidth: siteNavStyle?.borderBlockEndWidth || "",
         contextDisplay: contextStyle?.display || "",
         togglePosition: toggleStyle?.position || "",
         toggleFloatsInViewport: Boolean(
@@ -181,6 +187,7 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     );
     assert(typeof opened.barHeight === "number" && opened.barHeight <= 1, `${label}: open header band still occupies ${opened.barHeight}px`);
     assert(typeof opened.navHeight === "number" && opened.navHeight <= 1, `${label}: open site-nav still reserves ${opened.navHeight}px`);
+    assert(opened.navBorderBlockEndWidth === "0px", `${label}: open global nav still has separator ${opened.navBorderBlockEndWidth}`);
     assert(opened.contextDisplay === "none", `${label}: breadcrumb/context remains in the open header band (${opened.contextDisplay})`);
     assert(opened.togglePosition === "fixed", `${label}: Awfulface is still positioned as part of the header row (${opened.togglePosition})`);
     assert(opened.toggleFloatsInViewport, `${label}: floating Awfulface control left the usable viewport`);
