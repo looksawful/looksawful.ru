@@ -96,3 +96,11 @@ test("authored JavaScript under src is limited to explicitly tracked legacy migr
 
   assert.deepEqual(javascript, allowed);
 });
+
+test("application development tooling has a canonical src/devtools boundary", async () => {
+  assert.equal(
+    await exists("src/devtools/media-desk/server.ts"),
+    true,
+    "Media Desk application tooling must be available from src/devtools",
+  );
+});
