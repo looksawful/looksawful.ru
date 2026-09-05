@@ -105,7 +105,7 @@
   align-items: center;
   min-block-size: 0;
   overflow: clip;
-  padding-block-start: calc(var(--site-nav-total-height) + clamp(2rem, 8svh, 5.5rem));
+  padding-block-start: max(clamp(2rem, 8svh, 5.5rem), env(safe-area-inset-top));
   padding-block-end: max(clamp(2rem, 8svh, 5.5rem), env(safe-area-inset-bottom));
   padding-inline-start: max(var(--page-padding-inline), env(safe-area-inset-left));
   padding-inline-end: max(var(--page-padding-inline), env(safe-area-inset-right));
@@ -150,6 +150,25 @@
 
 .site-nav__menu-link[aria-current="page"] {
   color: var(--clr-text-muted);
+}
+
+.site-nav[data-menu-open] .site-nav__bar {
+  min-block-size: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+.site-nav[data-menu-open] .site-nav__context,
+.site-nav[data-menu-open] .site-nav__breadcrumbs {
+  display: none;
+}
+
+.site-nav[data-menu-open] .site-nav__toggle {
+  position: fixed;
+  z-index: 5;
+  inset-block-start: var(--site-nav-safe-top);
+  inset-inline-end: max(var(--page-padding-inline), env(safe-area-inset-right));
+  pointer-events: auto;
 }
 
 .menu-preview {
@@ -222,7 +241,7 @@
   }
 
   .site-nav__menu {
-    padding-block-start: calc(var(--site-nav-total-height) + clamp(1.25rem, 5svh, 2.5rem));
+    padding-block-start: max(clamp(1.25rem, 5svh, 2.5rem), env(safe-area-inset-top));
     padding-block-end: max(clamp(1.25rem, 5svh, 2.5rem), env(safe-area-inset-bottom));
   }
 
@@ -240,7 +259,7 @@
 
 @media (width <= 32rem) and (height <= 36rem) {
   .site-nav__menu {
-    padding-block-start: calc(var(--site-nav-total-height) + 0.75rem);
+    padding-block-start: max(0.75rem, env(safe-area-inset-top));
     padding-block-end: max(0.75rem, env(safe-area-inset-bottom));
   }
 
@@ -252,7 +271,7 @@
 @media (pointer: coarse) and (height <= 36rem),
        (hover: none) and (height <= 36rem) {
   .site-nav__menu {
-    padding-block-start: calc(var(--site-nav-total-height) + 0.75rem);
+    padding-block-start: max(0.75rem, env(safe-area-inset-top));
     padding-block-end: max(0.75rem, env(safe-area-inset-bottom));
   }
 
