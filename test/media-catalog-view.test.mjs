@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { deriveMediaCatalogItems } from "../src/data/media/catalog-view.ts";
+import {
+  deriveMediaCatalogDisplayItems,
+  deriveMediaCatalogItems,
+} from "../src/data/media/catalog-view.ts";
 
 const asset = {
   id: "shared",
@@ -117,6 +120,26 @@ test("video poster projection preserves manual posters and supplies orientation 
   assert.equal(byId.get("video-manual").posterSrc, "/media/manual-poster.webp");
   assert.equal(byId.get("video-landscape").posterSrc, "/media/fallback/video-16x9.svg");
   assert.equal(byId.get("video-portrait").posterSrc, "/media/fallback/video-9x16.svg");
+});
+
+test("Media Desk display projection adds posters without replacing editable catalog metadata", () => {
+  const videoBase = [{
+    ...base[0],
+    asset: { id: "video", type: "video", src: "/media/video.mp4", width: 1920, height: 1080 },
+  }];
+
+  const [item] = deriveMediaCatalogDisplayItems(videoBase, [{
+    assetId: "video",
+    title: "Usage title",
+    alt: "Usage alt",
+    description: "Usage description",
+    posterAssetId: "missing-poster",
+  }]);
+
+  assert.equal(item.title, "Library title");
+  assert.equal(item.alt, "Library alt");
+  assert.equal(item.description, "Library description");
+  assert.equal(item.posterSrc, "/media/fallback/video-16x9.svg");
 });
 
 test("every canonical video exposed by the catalog has a resolved poster", async () => {
