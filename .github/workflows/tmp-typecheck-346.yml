@@ -20,5 +20,7 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: npm ci
+      - name: Strict tooling compiler
+        run: npx tsc -p tsconfig.tools.json
       - name: Tooling typecheck contract
         run: node --test test/tooling-typecheck-contract.test.mjs
