@@ -1,8 +1,20 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { CONTENT_BLOCK_TYPES } from "../src/content/contracts/content-block.ts";
+import { sitePages } from "../src/site/pages/manifest.ts";
+import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderContentBlock } from "../src/site/renderers/entity/content-block.ts";
+import { collectContentDeskTextEntries } from "../src/tools/media-desk/editor-model.ts";
+
+const awfulCasesSourcePath = "src/content/standalone-projects/awful-cases.json";
+
+function awfulCasesPage() {
+  const page = sitePages.find((candidate) => candidate.id === "project:awful-cases");
+  assert.ok(page, "missing project:awful-cases SitePage");
+  return page;
+}
 
 test("code-block is a first-class ContentBlock rendered through the canonical boundary", () => {
   assert.equal(CONTENT_BLOCK_TYPES.includes("code-block"), true);
@@ -41,4 +53,69 @@ test("code-block keeps optional metadata optional", () => {
   assert.doesNotMatch(html, /code-block__title/);
   assert.doesNotMatch(html, /code-block__meta/);
   assert.doesNotMatch(html, /data-code-language=/);
+});
+
+test("Awful Cases owns install and run snippets in authored content and exposes them through Content Desk", async () => {
+  const source = JSON.parse(await readFile(awfulCasesSourcePath, "utf8"));
+
+  assert.deepEqual(source.codeBlocks, {
+    install: {
+      title: "Установка",
+      code: "git clone https://github.com/looksawful/awful-cases.git\ncd awful-cases\\app",
+    },
+    run: {
+      title: "Запуск",
+      code: ".\\awful-cases.ahk",
+    },
+  });
+
+  const { parseAwfulCasesEditorialContent } = await import(
+    "../src/data/content/awful-cases-editorial.ts"
+  );
+  assert.deepEqual(parseAwfulCasesEditorialContent(structuredClone(source)), source);
+
+  const structuralLeak = structuredClone(source);
+  structuralLeak.codeBlocks.install.language = "powershell";
+  assert.throws(
+    () => parseAwfulCasesEditorialContent(structuralLeak),
+    /unexpected|field|key/i,
+  );
+
+  const entries = collectContentDeskTextEntries({
+    "../../content/standalone-projects/awful-cases.json": source,
+  });
+  const codeEntryPaths = entries
+    .filter((entry) => entry.fieldPath.startsWith("codeBlocks."))
+    .map((entry) => entry.fieldPath);
+  assert.deepEqual(codeEntryPaths, [
+    "codeBlocks.install.code",
+    "codeBlocks.install.title",
+    "codeBlocks.run.code",
+    "codeBlocks.run.title",
+  ]);
+});
+
+test("canonical Awful Cases page renders authored code through CodeBlock with code-owned semantics", async () => {
+  const { awfulCasesCodeBlocks } = await import("../src/data/content/awful-cases.ts");
+
+  assert.deepEqual(awfulCasesCodeBlocks, {
+    install: {
+      title: "Установка",
+      code: "git clone https://github.com/looksawful/awful-cases.git\ncd awful-cases\\app",
+      language: "powershell",
+    },
+    run: {
+      title: "Запуск",
+      code: ".\\awful-cases.ahk",
+      language: "powershell",
+    },
+  });
+
+  const html = renderStandaloneEntityPage(awfulCasesPage());
+  assert.match(html, /data-section-id="awful-cases-code"/);
+  assert.equal((html.match(/data-code-block/g) ?? []).length, 2);
+  assert.equal((html.match(/data-code-language="powershell"/g) ?? []).length, 2);
+  assert.match(html, /git clone https:\/\/github\.com\/looksawful\/awful-cases\.git/);
+  assert.match(html, /cd awful-cases\\app/);
+  assert.match(html, /\.\\awful-cases\.ahk/);
 });
