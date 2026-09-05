@@ -1,0 +1,19 @@
+name: Tmp home media deferral 336
+
+on:
+  push:
+    branches: [agent/home-media-deferral-336]
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: node --test test/home-media-deferral.test.mjs
