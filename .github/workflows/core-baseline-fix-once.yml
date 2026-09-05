@@ -41,7 +41,13 @@ jobs:
               repoRoot,
               configPath,
               configPath === "package-lock.json"
-                ? `${JSON.stringify({ lockfileVersion: 3, packages: {} }, null, 2)}\\n`
+                ? `${JSON.stringify({
+                    lockfileVersion: 3,
+                    packages: {
+                      "": { devDependencies: { sharp: "^0.34.5" } },
+                      "node_modules/sharp": { version: "0.34.5" },
+                    },
+                  }, null, 2)}\\n`
                 : `fixture:${configPath}\\n`,
             );'''
           for file in fixture_files:
