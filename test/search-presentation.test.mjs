@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { renderCvDevHtml } from "../src/site/build/site-pages-plugin.ts";
 import { getPageByPath } from "../src/site/pages/manifest.ts";
+import { cvSearchPresentation } from "../src/site/pages/search-presentation.ts";
 import { renderStandaloneEntityPage } from "../src/site/renderers/entity-page.ts";
 import { renderHomepagePage } from "../src/site/renderers/home/home-page.ts";
+import { replacePageMetadata } from "../src/site/shell/metadata.ts";
 
 const indexSource = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const cvSource = readFileSync(new URL("../public/cv/index.html", import.meta.url), "utf8");
@@ -60,8 +61,14 @@ test("standalone indexable entity pages inherit the same social identity", () =>
   assert.match(html, /<meta name="twitter:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
 });
 
-test("CV uses the same social identity with resume-specific copy", async () => {
-  const html = await renderCvDevHtml(cvSource);
+test("CV uses the same social identity with resume-specific copy", () => {
+  const page = getPageByPath("/cv/");
+  assert.ok(page && page.renderer === "cv");
+
+  const html = replacePageMetadata(cvSource, {
+    page,
+    ...cvSearchPresentation,
+  });
 
   assert.match(html, /<title>Иван Крушинский — резюме<\/title>/);
   assert.match(
@@ -71,4 +78,5 @@ test("CV uses the same social identity with resume-specific copy", async () => {
   assert.match(html, /<meta property="og:site_name" content="looksawful">/);
   assert.match(html, /<meta property="og:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
+  assert.match(html, /<link rel="icon" href="\/favicon\.svg" type="image\/svg\+xml">/);
 });
