@@ -1,0 +1,22 @@
+name: Tmp perf 363
+
+on:
+  push:
+    branches:
+      - agent/home-images-mainthread-363
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Focused RED/GREEN
+        run: node --test test/home-media-deferral.test.mjs
