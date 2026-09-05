@@ -75,20 +75,20 @@ test("every enabled SitePage has an existing build source", async () => {
   }
 });
 
-test("runtime TypeScript entry points do not retain JavaScript compatibility shims", async () => {
-  assert.equal(await exists("src/main.js"), false, "src/main.js must be retired");
+test("the obsolete interactive JavaScript compatibility shim is retired", async () => {
   assert.equal(
     await exists("src/interactive.js"),
     false,
-    "src/interactive.js must be retired",
+    "src/interactive.js must be retired after its test consumer moves to TypeScript",
   );
 });
 
-test("authored JavaScript under src is limited to explicitly tracked legacy migrations", async () => {
+test("authored JavaScript under src is limited to explicitly tracked legacy migrations and the still-consumed main entry shim", async () => {
   const allowed = [
     "components/animated-canvas-gallery.js",
     "components/awful-cases-game.js",
     "components/jestei-theme-organism/jestei-theme-organism.js",
+    "main.js",
   ];
   const javascript = (await collectFiles(path.join(root, "src")))
     .filter((file) => file.endsWith(".js"))
