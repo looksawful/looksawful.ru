@@ -124,7 +124,7 @@ jobs:
             --head "$HEAD_SHA" \
             --github-output "$GITHUB_OUTPUT"
       - name: Calculate previous media fingerprint
-        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
+        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true'
         id: previous-media
         shell: bash
         env:
@@ -134,8 +134,8 @@ jobs:
           git worktree add --detach /tmp/media-before "$BEFORE"
           previous="$(cd /tmp/media-before && node tools/media-dev-state.mjs --fingerprint)"
           echo "fingerprint=$previous" >> "$GITHUB_OUTPUT"
-      - name: Restore exact previous generated media cache
-        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
+      - name: Restore exact previous generated media cache when available
+        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true'
         id: previous-cache
         uses: actions/cache/restore@v6
         with:
@@ -169,6 +169,9 @@ jobs:
           cp -a public/media/generated/video-inventory.json /tmp/media-before/public/media/generated/video-inventory.json
           cp -a .cache/media/generated-cache.json /tmp/media-before/.cache/media/generated-cache.json
           (cd /tmp/media-before && node tools/media-dev-state.mjs --cache-verify)
+      - name: Remove previous worktree after image-only cache lookup
+        if: steps.affected.outputs.image_only == 'true'
+        run: git worktree remove --force /tmp/media-before
       - name: Synchronize catalog metadata
         if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         run: npm run media:catalog:sync
@@ -215,18 +218,18 @@ jobs:
         if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         run: npm run media:catalog:check
       - name: Write canonical generated-media cache marker
-        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
+        if: steps.scope.outputs.has_media_change == 'true' && (steps.affected.outputs.image_only != 'true' || steps.previous-cache.outputs.cache-hit == 'true')
         run: node tools/media-dev-state.mjs --cache-write
       - name: Calculate final media fingerprint
-        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
+        if: steps.scope.outputs.has_media_change == 'true' && (steps.affected.outputs.image_only != 'true' || steps.previous-cache.outputs.cache-hit == 'true')
         id: media
         shell: bash
         run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
       - name: Verify complete final generated media state
         if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         run: node tools/media-dev-state.mjs --cache-verify
-      - name: Save exact generated media cache
-        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true' && (github.event_name != 'push' || steps.previous-cache.outputs.cache-hit != 'true' || steps.media.outputs.fingerprint != steps.previous-media.outputs.fingerprint)
+      - name: Save generated media cache
+        if: steps.scope.outputs.has_media_change == 'true' && (steps.affected.outputs.image_only != 'true' || steps.previous-cache.outputs.cache-hit == 'true') && (github.event_name != 'push' || steps.previous-cache.outputs.cache-hit != 'true' || steps.media.outputs.fingerprint != steps.previous-media.outputs.fingerprint)
         uses: actions/cache/save@v6
         with:
           path: |
