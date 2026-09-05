@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
-const mainPath = new URL("../src/main.js", import.meta.url);
+const mainPath = new URL("../src/main.ts", import.meta.url);
 const componentPath = new URL("../src/components/site-navigation.ts", import.meta.url);
 const mainSource = readFileSync(mainPath, "utf8");
 const componentSource = existsSync(componentPath) ? readFileSync(componentPath, "utf8") : "";

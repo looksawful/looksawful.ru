@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const indexPath = new URL("../src/styles/index.css", import.meta.url);
-const mainPath = new URL("../src/main.js", import.meta.url);
+const mainPath = new URL("../src/main.ts", import.meta.url);
 const componentPath = new URL("../src/styles/site-navigation.css", import.meta.url);
 const indexSource = readFileSync(indexPath, "utf8");
 const mainSource = readFileSync(mainPath, "utf8");
