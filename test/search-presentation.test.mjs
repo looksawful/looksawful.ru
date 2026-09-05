@@ -15,6 +15,7 @@ import { validateSite } from "../tools/check-site-meta.mjs";
 
 const indexSource = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const cvSource = readFileSync(new URL("../public/cv/index.html", import.meta.url), "utf8");
+const pagesWorkflow = readFileSync(new URL("../.github/workflows/pages.yml", import.meta.url), "utf8");
 
 const HOME_TITLE = "Иван Крушинский — арт-директор цифровых продуктов";
 const HOME_DESCRIPTION =
@@ -150,4 +151,12 @@ test("production discovery health checks favicon as YandexBot", async () => {
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("Pages deployment verifies Yandex-visible discovery files after publish", () => {
+  assert.match(pagesWorkflow, /YandexBot\/3\.0/);
+  assert.match(pagesWorkflow, /favicon\.svg/);
+  assert.match(pagesWorkflow, /robots\.txt/);
+  assert.match(pagesWorkflow, /sitemap\.xml/);
+  assert.match(pagesWorkflow, /image\/svg\+xml/);
 });
