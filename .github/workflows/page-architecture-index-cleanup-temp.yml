@@ -10,15 +10,19 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: page-architecture-index-cleanup-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - name: Checkout feature branch
+      - name: Checkout exact feature revision
         uses: actions/checkout@v7
         with:
-          ref: agent/page-architecture-wave2-render-pipeline-20260904
+          ref: ${{ github.sha }}
           fetch-depth: 1
       - name: Setup Node
         uses: actions/setup-node@v7
