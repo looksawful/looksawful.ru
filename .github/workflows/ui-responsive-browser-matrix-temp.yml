@@ -1,0 +1,57 @@
+name: TEMP UI Responsive Browser Matrix
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: temp-ui-responsive-browser-matrix-${{ github.event.pull_request.number }}-${{ matrix.browser }}
+  cancel-in-progress: true
+
+jobs:
+  browser-matrix:
+    name: ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - chromium
+          - firefox
+          - webkit
+          - chrome
+          - msedge
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build site
+        run: npm run build:vite
+
+      - name: Install Playwright browser
+        if: matrix.browser == 'chromium' || matrix.browser == 'firefox' || matrix.browser == 'webkit'
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Install branded Chromium browser
+        if: matrix.browser == 'chrome' || matrix.browser == 'msedge'
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Responsive viewport diagnostic
+        env:
+          E2E_BROWSER: ${{ matrix.browser }}
+        run: npm run test:ui:responsive
