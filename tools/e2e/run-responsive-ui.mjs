@@ -16,13 +16,18 @@ async function settle(page) {
   );
 }
 
-async function openHomepage(browser, baseUrl, viewport, { mobile = false } = {}) {
-  const context = await browser.newContext({
+async function openHomepage(browser, browserName, baseUrl, viewport, { mobile = false } = {}) {
+  const contextOptions = {
     viewport,
-    isMobile: mobile,
     hasTouch: mobile,
     deviceScaleFactor: 1,
-  });
+  };
+
+  if (mobile && browserName !== "firefox") {
+    contextOptions.isMobile = true;
+  }
+
+  const context = await browser.newContext(contextOptions);
   const page = await context.newPage();
   const response = await page.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" });
 
@@ -83,62 +88,73 @@ function assertMobileGeometry(geometry, label) {
   );
 }
 
-async function checkMobileViewport(browser, baseUrl, viewport) {
-  const { context, page } = await openHomepage(browser, baseUrl, viewport, { mobile: true });
+async function checkMobileViewport(browser, browserName, baseUrl, viewport) {
+  const { context, page } = await openHomepage(browser, browserName, baseUrl, viewport, { mobile: true });
 
   try {
     await scrollInsideProjects(page);
-    assertMobileGeometry(await readGeometry(page), `${viewport.width}x${viewport.height}`);
+    assertMobileGeometry(
+      await readGeometry(page),
+      `${browserName} ${viewport.width}x${viewport.height}`,
+    );
 
     const reducedHeight = Math.max(640, viewport.height - 160);
     await page.setViewportSize({ width: viewport.width, height: reducedHeight });
     await settle(page);
     assertMobileGeometry(
       await readGeometry(page),
-      `${viewport.width}x${reducedHeight} after viewport shrink`,
+      `${browserName} ${viewport.width}x${reducedHeight} after viewport shrink`,
     );
 
     await page.setViewportSize(viewport);
     await settle(page);
     assertMobileGeometry(
       await readGeometry(page),
-      `${viewport.width}x${viewport.height} after viewport restore`,
+      `${browserName} ${viewport.width}x${viewport.height} after viewport restore`,
     );
   } finally {
     await context.close();
   }
 }
 
-async function checkWideViewport(browser, baseUrl) {
-  const { context, page } = await openHomepage(browser, baseUrl, WIDE_VIEWPORT);
+async function checkWideViewport(browser, browserName, baseUrl) {
+  const { context, page } = await openHomepage(browser, browserName, baseUrl, WIDE_VIEWPORT);
 
   try {
     await scrollInsideProjects(page);
     const geometry = await readGeometry(page);
 
-    assert.equal(geometry.position, "sticky", "wide navigation must remain sticky");
+    assert.equal(geometry.position, "sticky", `${browserName}: wide navigation must remain sticky`);
     assert.ok(
       geometry.navHeight <= 2,
-      `wide project navigation rail anchor must stay collapsed; got ${geometry.navHeight}px`,
+      `${browserName}: wide project navigation rail anchor must stay collapsed; got ${geometry.navHeight}px`,
     );
     assert.ok(
       geometry.horizontalOverflow <= 1,
-      `wide viewport horizontal overflow is ${geometry.horizontalOverflow}px`,
+      `${browserName}: wide viewport horizontal overflow is ${geometry.horizontalOverflow}px`,
     );
-    assert.equal(geometry.hasViewportAnchor, false, "wide navigation must not gain JS viewport anchor");
-    assert.equal(geometry.inlineViewportOffset, "", "wide navigation must not gain JS viewport offset");
+    assert.equal(
+      geometry.hasViewportAnchor,
+      false,
+      `${browserName}: wide navigation must not gain JS viewport anchor`,
+    );
+    assert.equal(
+      geometry.inlineViewportOffset,
+      "",
+      `${browserName}: wide navigation must not gain JS viewport offset`,
+    );
   } finally {
     await context.close();
   }
 }
 
-export async function runResponsiveUI({ browser, baseUrl }) {
+export async function runResponsiveUI({ browser, browserName = "chromium", baseUrl }) {
   for (const viewport of MOBILE_VIEWPORTS) {
-    await checkMobileViewport(browser, baseUrl, viewport);
+    await checkMobileViewport(browser, browserName, baseUrl, viewport);
   }
 
-  await checkWideViewport(browser, baseUrl);
-  console.log("Responsive UI checks passed");
+  await checkWideViewport(browser, browserName, baseUrl);
+  console.log(`Responsive UI checks passed in ${browserName}`);
 }
 
 if (isDirectExecution(import.meta.url)) {
