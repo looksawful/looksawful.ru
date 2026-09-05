@@ -46,6 +46,16 @@ async function write(root, relativePath, contents) {
   return filePath;
 }
 
+function packageLockFixture() {
+  return `${JSON.stringify({
+    lockfileVersion: 3,
+    packages: {
+      "": { devDependencies: { sharp: "0.34.3" } },
+      "node_modules/sharp": { version: "0.34.3" },
+    },
+  }, null, 2)}\n`;
+}
+
 async function createFixture() {
   const repoRoot = await mkdtemp(path.join(os.tmpdir(), "media-dev-state-"));
   await write(repoRoot, "public/media/source/image.jpg", "image-source");
@@ -55,7 +65,11 @@ async function createFixture() {
   await write(repoRoot, "public/media/generated/video/video.web.mp4", "video");
 
   for (const configPath of CONFIG_FILES) {
-    await write(repoRoot, configPath, `fixture:${configPath}\n`);
+    await write(
+      repoRoot,
+      configPath,
+      configPath === "package-lock.json" ? packageLockFixture() : `fixture:${configPath}\n`,
+    );
   }
 
   await write(
