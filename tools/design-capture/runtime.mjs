@@ -5,6 +5,12 @@ import { setTimeout as delay } from "node:timers/promises";
 
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
 const STOP_GRACE_MS = 2_000;
+const RESOURCE_WAIT_MS = 1_500;
+const RAF_WAIT_MS = 750;
+const STYLE_TIMEOUT_MS = 3_000;
+
+export const SETTLE_DEADLINE_MS = 6_000;
+export const SCREENSHOT_TIMEOUT_MS = 12_000;
 
 export function validateRuntimeOptions({ host = "127.0.0.1", port }) {
   if (!LOOPBACK_HOSTS.has(host)) {
@@ -27,6 +33,22 @@ export function createDeterministicStyleTag() {
     }
     html { scroll-behavior: auto !important; }
   `;
+}
+
+export async function withDeadline(promise, timeoutMs, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+    timer.unref?.();
+  });
+
+  try {
+    return await Promise.race([Promise.resolve(promise), timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function getFreePort(host) {
@@ -79,27 +101,54 @@ async function stopServer(server) {
 }
 
 export async function settleDesignPage(page) {
-  await page.addStyleTag({ content: createDeterministicStyleTag() });
-  await page.evaluate(async () => {
-    for (const video of document.querySelectorAll("video")) {
-      try { video.pause(); } catch {}
-    }
-    if (document.fonts?.ready) await document.fonts.ready;
-    const images = [...document.images];
-    await Promise.all(images.map(async (image) => {
-      if (image.complete) {
-        try { await image.decode?.(); } catch {}
-        return;
+  await withDeadline(
+    page.addStyleTag({ content: createDeterministicStyleTag() }),
+    STYLE_TIMEOUT_MS,
+    "inject deterministic styles",
+  );
+
+  await withDeadline(
+    page.evaluate(async ({ resourceWaitMs, rafWaitMs }) => {
+      const bounded = async (promise, timeoutMs) => {
+        await Promise.race([
+          Promise.resolve(promise).catch(() => undefined),
+          new Promise((resolve) => setTimeout(resolve, timeoutMs)),
+        ]);
+      };
+
+      for (const video of document.querySelectorAll("video")) {
+        try { video.pause(); } catch {}
       }
-      await new Promise((resolve) => {
-        image.addEventListener("load", resolve, { once: true });
-        image.addEventListener("error", resolve, { once: true });
-        setTimeout(resolve, 3_000);
-      });
-      try { await image.decode?.(); } catch {}
-    }));
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  });
+
+      if (document.fonts?.ready) {
+        await bounded(document.fonts.ready, resourceWaitMs);
+      }
+
+      const images = [...document.images];
+      await Promise.all(images.map(async (image) => {
+        if (!image.complete) {
+          await Promise.race([
+            new Promise((resolve) => {
+              image.addEventListener("load", resolve, { once: true });
+              image.addEventListener("error", resolve, { once: true });
+            }),
+            new Promise((resolve) => setTimeout(resolve, resourceWaitMs)),
+          ]);
+        }
+
+        if (typeof image.decode === "function") {
+          await bounded(image.decode(), resourceWaitMs);
+        }
+      }));
+
+      await Promise.race([
+        new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+        new Promise((resolve) => setTimeout(resolve, rafWaitMs)),
+      ]);
+    }, { resourceWaitMs: RESOURCE_WAIT_MS, rafWaitMs: RAF_WAIT_MS }),
+    SETTLE_DEADLINE_MS,
+    "settle design page",
+  );
 }
 
 export async function openDesignPage({ browser, baseUrl, route, viewport }) {
@@ -109,17 +158,26 @@ export async function openDesignPage({ browser, baseUrl, route, viewport }) {
     reducedMotion: "reduce",
     colorScheme: "light",
   });
-  const page = await context.newPage();
-  const response = await page.goto(new URL(route, baseUrl).href, {
-    waitUntil: "domcontentloaded",
-    timeout: 30_000,
-  });
-  if (!response?.ok()) {
+
+  try {
+    const page = await context.newPage();
+    page.setDefaultTimeout(SCREENSHOT_TIMEOUT_MS);
+    page.setDefaultNavigationTimeout(30_000);
+
+    const response = await page.goto(new URL(route, baseUrl).href, {
+      waitUntil: "domcontentloaded",
+      timeout: 30_000,
+    });
+    if (!response?.ok()) {
+      throw new Error(`${route}: navigation failed with ${response?.status() ?? "no response"}`);
+    }
+
+    await settleDesignPage(page);
+    return { context, page };
+  } catch (error) {
     await context.close();
-    throw new Error(`${route}: navigation failed with ${response?.status() ?? "no response"}`);
+    throw error;
   }
-  await settleDesignPage(page);
-  return { context, page };
 }
 
 export async function withDesignCaptureRuntime(callback, options = {}) {
