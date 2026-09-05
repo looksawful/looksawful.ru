@@ -9,11 +9,7 @@ import { movesAwfulPageContent } from "./projects/moves-awful.ts";
 import { createEntityPageContentRegistry } from "./registry.ts";
 import { validateEntityPageContents } from "./validation.ts";
 
-/**
- * Migration registry. Page modules are added here only after their canonical
- * PageContent has passed focused structural review and are verified through
- * the normal page/build gates before integration.
- */
+/** Canonical PageContent registry for every enabled Entity page. */
 export const entityPageContents = [
   jesteiPoolPageContent,
   styxPageContent,
