@@ -23,8 +23,8 @@ test("Production health reuses the production checker and avoids expensive QA", 
   const source = await workflow();
 
   assert.match(source, /node tools\/check-production[.]mjs/);
-  assert.match(source, /https:\/\/www[.]looksawful[.]ru\/cv\//);
-  assert.match(source, /https:\/\/www[.]looksawful[.]ru\/work\/jestei-pool\//);
+  assert.match(source, /for path in \/cv\/ \/work\/jestei-pool\//);
+  assert.match(source, /https:\/\/www[.]looksawful[.]ru\$\{path\}/);
   assert.match(source, /\/assets\//);
   assert.doesNotMatch(source, /npm ci|playwright|lighthouse|media:sync/i);
 });
