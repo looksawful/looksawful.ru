@@ -1,0 +1,53 @@
+name: Page Architecture Parity Once
+
+on:
+  push:
+    branches:
+      - agent/page-architecture-wave2-render-pipeline-20260904
+
+permissions:
+  contents: read
+
+concurrency:
+  group: page-architecture-parity-once-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact feature SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Rebuild and validate generated media
+        run: |
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Core tests
+        run: npm run test:core
+      - name: Media integrity
+        run: npm run media:dedupe:check
+      - name: Production build
+        run: npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Full browser parity regression
+        run: npm run test:e2e:full
