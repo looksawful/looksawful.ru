@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { analyzeTextDeskEntries, filterTextDeskEntries } from "../src/tools/media-desk/text-analysis.ts";
-import { analyzeMediaDeskItems } from "../src/tools/media-desk/media-analysis.ts";
+import { analyzeTextDeskEntries, filterTextDeskEntries } from "../src/devtools/media-desk/text-analysis.ts";
+import { analyzeMediaDeskItems } from "../src/devtools/media-desk/media-analysis.ts";
 
 const textEntries = [
   { sourcePath: "src/content/a.json", fieldPath: "title", value: "Hello world repeated" },
