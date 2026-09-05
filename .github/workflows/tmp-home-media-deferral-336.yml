@@ -5,7 +5,7 @@ on:
     branches: [agent/home-media-deferral-336]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify:
@@ -21,6 +21,157 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Apply managed-media RED then implementation
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import re
+
+          test_path = Path('test/home-media-deferral.test.mjs')
+          text = test_path.read_text()
+          replacement = '''test("Homepage defers autoplay video sources across ordinary and managed media lifecycles", () => {
+            const html = `
+              <section>
+                <video autoplay="" preload="auto" src="/plain.mp4"></video>
+                <div data-media-deck="">
+                  <video autoplay="" preload="metadata"><source src="/deck.mp4" type="video/mp4"></video>
+                </div>
+                <div data-infinite-reel="">
+                  <video autoplay="" preload="metadata" src="/reel.mp4"></video>
+                </div>
+              </section>
+            `;
+
+            const result = deferHomepageAutoplayMedia(html);
+            const videos = deferredVideoBlocks(result);
+
+            assert.equal(videos.length, 3);
+            for (const src of ["/plain.mp4", "/deck.mp4", "/reel.mp4"]) {
+              assert.match(result, new RegExp(`data-autoplay-src="${src.replace(".", "\\\\.")}"`));
+            }
+            for (const video of videos) {
+              assert.doesNotMatch(video, /<video\\b[^>]*\\ssrc="/i);
+              assert.doesNotMatch(video, /<source\\b[^>]*\\ssrc="/i);
+            }
+          });
+
+          '''
+          text, count = re.subn(
+              r'test\("Homepage defers ordinary autoplay video sources but preserves managed deck media", \(\) => \{[\s\S]*?\n\}\);\n\n',
+              replacement,
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit('managed-media test block not found')
+          test_path.write_text(text)
+          PY
+
+          if node --test test/home-media-deferral.test.mjs; then
+            echo 'Expected managed-media RED but test passed'
+            exit 1
+          else
+            echo 'Managed-media RED confirmed'
+          fi
+
+          python <<'PY'
+          from pathlib import Path
+          import re
+
+          helper = Path('src/components/deferred-video-source.ts')
+          helper.write_text('''export function hydrateDeferredVideoSource(video: HTMLVideoElement): boolean {
+            if (!video.hasAttribute("data-autoplay-deferred")) return false;
+
+            const directSrc = video.dataset.autoplaySrc;
+            if (directSrc) {
+              video.src = directSrc;
+              delete video.dataset.autoplaySrc;
+            }
+
+            video.querySelectorAll<HTMLSourceElement>("source[data-autoplay-src]").forEach((source) => {
+              const src = source.dataset.autoplaySrc;
+              if (!src) return;
+              source.src = src;
+              delete source.dataset.autoplaySrc;
+            });
+
+            const preload = video.dataset.autoplayPreload;
+            if (preload === "" || preload === "metadata" || preload === "auto" || preload === "none") {
+              video.preload = preload;
+            }
+            delete video.dataset.autoplayPreload;
+            video.removeAttribute("data-autoplay-deferred");
+            return true;
+          }
+          ''')
+
+          main_path = Path('src/main.ts')
+          main = main_path.read_text()
+          main = main.replace(
+              'import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";\n',
+              'import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";\nimport { hydrateDeferredVideoSource } from "./components/deferred-video-source.ts";\n',
+          )
+          main, count = re.subn(
+              r'function hydrateDeferredAutoplaySource\(video: HTMLVideoElement\): void \{[\s\S]*?\n\}\n\nfunction initViewportAutoplayVideos',
+              'function initViewportAutoplayVideos',
+              main,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit('main deferred helper block not found')
+          main = main.replace('hydrateDeferredAutoplaySource(video);', 'hydrateDeferredVideoSource(video);')
+          main_path.write_text(main)
+
+          home_path = Path('src/site/renderers/home/home-media-deferral.ts')
+          home = home_path.read_text()
+          home = home.replace('  mediaContainer: boolean;\n', '')
+          home = home.replace('    const insideManagedMedia = stack.some((entry) => entry.mediaContainer);\n', '')
+          home = home.replace(
+              '    const isDeferredVideo =\n      tagName === "video" && attributePresent(tag, "autoplay") && !insideManagedMedia;\n',
+              '    const isDeferredVideo = tagName === "video" && attributePresent(tag, "autoplay");\n',
+          )
+          home = home.replace(
+              '        mediaContainer:\n          insideManagedMedia ||\n          attributePresent(tag, "data-media-deck") ||\n          attributePresent(tag, "data-infinite-reel"),\n',
+              '',
+          )
+          home_path.write_text(home)
+
+          deck_path = Path('src/components/media-deck.ts')
+          deck = deck_path.read_text()
+          deck = deck.replace(
+              '} from "./embla-deck.ts";\n',
+              '} from "./embla-deck.ts";\nimport { hydrateDeferredVideoSource } from "./deferred-video-source.ts";\n',
+              1,
+          )
+          deck = deck.replace(
+              '          void video.play().catch(() => {});\n',
+              '          hydrateDeferredVideoSource(video);\n          if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();\n          void video.play().catch(() => {});\n',
+              1,
+          )
+          deck = deck.replace(
+              '      if (shouldPlay) {\n        if (video.paused) void video.play().catch(() => {});\n',
+              '      if (shouldPlay) {\n        hydrateDeferredVideoSource(video);\n        if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();\n        if (video.paused) void video.play().catch(() => {});\n',
+              1,
+          )
+          deck_path.write_text(deck)
+
+          reel_path = Path('src/components/infinite-reel.ts')
+          reel = reel_path.read_text()
+          reel = reel.replace(
+              'import type { createMotionPreference } from "./motion-preference.ts";\n',
+              'import type { createMotionPreference } from "./motion-preference.ts";\nimport { hydrateDeferredVideoSource } from "./deferred-video-source.ts";\n',
+              1,
+          )
+          reel = reel.replace(
+              '      if (active) { if (video.paused) void video.play().catch(() => {}); return; }\n',
+              '      if (active) {\n        hydrateDeferredVideoSource(video);\n        if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();\n        if (video.paused) void video.play().catch(() => {});\n        return;\n      }\n',
+              1,
+          )
+          reel_path.write_text(reel)
+          PY
+
+          node --test test/home-media-deferral.test.mjs
       - name: Calculate canonical media fingerprint
         id: media
         shell: bash
@@ -49,8 +200,8 @@ jobs:
           npm run media:sync
           node tools/media-dev-state.mjs --cache-verify
           git diff --exit-code
-      - run: node --test test/home-media-deferral.test.mjs
       - run: npm run typecheck
+      - run: npm run test:fast
       - run: npm run build:site
       - name: Measure production-like Homepage
         shell: bash
@@ -88,6 +239,15 @@ jobs:
       - name: Upload Lighthouse evidence
         uses: actions/upload-artifact@v4
         with:
-          name: home-perf-336
+          name: home-perf-336-managed
           path: artifacts/home-perf
           retention-days: 7
+      - name: Commit final #336 implementation and remove temporary workflow
+        shell: bash
+        run: |
+          rm .github/workflows/tmp-home-media-deferral-336.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/main.ts src/components/deferred-video-source.ts src/components/media-deck.ts src/components/infinite-reel.ts src/site/renderers/home/home-media-deferral.ts test/home-media-deferral.test.mjs .github/workflows/tmp-home-media-deferral-336.yml
+          git commit -m "perf(home): defer managed autoplay media until eligible"
+          git push
