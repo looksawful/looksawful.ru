@@ -81,10 +81,19 @@ export function replacePageMetadata(
     throw new Error("Cannot replace page metadata: missing </head>");
   }
 
-  return cleaned.replace(
+  let output = cleaned.replace(
     /<\/head>/i,
     `${renderPageMetadata(options)}\n</head>`,
   );
+
+  if (!/<link\b(?=[^>]*\brel=["']icon["'])[^>]*>/i.test(output)) {
+    output = output.replace(
+      /<\/head>/i,
+      '<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n</head>',
+    );
+  }
+
+  return output;
 }
 
 export function renderHomeStructuredData(): string {
