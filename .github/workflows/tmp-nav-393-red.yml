@@ -1,0 +1,23 @@
+name: TEMP Nav 393 RED
+
+on:
+  push:
+    branches:
+      - fix/site-nav-css-owner-393-v2
+
+permissions:
+  contents: read
+
+jobs:
+  red:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Navigation CSS ownership contract
+        run: node --test test/site-navigation-style.test.mjs
