@@ -23,7 +23,6 @@ export const fastTests = new Set([
   "test/editorial-content-boundary.test.mjs",
   "test/editorial-copy-optional.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
-  "test/media-catalog-view.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
   "test/repository-growth-policy.test.mjs",
