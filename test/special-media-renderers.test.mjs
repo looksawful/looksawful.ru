@@ -2,14 +2,16 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import test from "node:test";
 
-import { renderMediaFigure } from "../src/templates/media-figure.ts";
-import { renderMediaGroup } from "../src/templates/media-group.ts";
+import {
+  renderMediaFigure,
+  renderMediaGroup,
+} from "../src/components/content/index.ts";
 import { jesteiBrandSystemGroup } from "../src/data/content/jestei-pool.ts";
 import { styxProductionMediaGroup } from "../src/data/content/styx.ts";
 import { sensetiqueStudioJustifiedGallery } from "../src/data/content/sensetique.ts";
 
-const sliderModuleUrl = new URL("../src/templates/media-slider.ts", import.meta.url);
-const galleryModuleUrl = new URL("../src/templates/justified-gallery.ts", import.meta.url);
+const sliderModuleUrl = new URL("../src/components/content/media-slider.ts", import.meta.url);
+const galleryModuleUrl = new URL("../src/components/content/justified-gallery.ts", import.meta.url);
 
 test("media figure can preserve compound authored surfaces", () => {
   const overlay = renderMediaFigure({
