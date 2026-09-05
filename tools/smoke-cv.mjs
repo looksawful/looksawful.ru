@@ -32,6 +32,18 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+function hasStaticAnalyticsConfig(env = process.env) {
+  const cloudflareToken = env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN?.trim() ?? "";
+  const yandexCounterId = env.VITE_YANDEX_METRIKA_COUNTER_ID?.trim() ?? "";
+  return Boolean(cloudflareToken || /^[1-9]\d*$/.test(yandexCounterId));
+}
+
+export function getExpectedCvStaticAnalyticsBootstrapCount(mode, env = process.env) {
+  if (mode === "authored") return 0;
+  if (mode === "production") return hasStaticAnalyticsConfig(env) ? 1 : 0;
+  throw new Error(`invalid CV smoke mode: ${String(mode)}`);
+}
+
 export function getExpectedCvHiddenCards(mode) {
   if (mode === "authored") return AUTHORED_HIDDEN_CARDS;
   if (mode === "production") return 0;
@@ -107,6 +119,9 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
         experienceCards: document.querySelectorAll(".experience-card").length,
         hiddenCards: document.querySelectorAll(".experience-card[hidden]").length,
         scriptCount: document.scripts.length,
+        staticAnalyticsBootstrapCount: document.querySelectorAll("script[data-static-site-analytics]").length,
+        siteRuntimeCount: document.querySelectorAll('script[src="/src/main.js"], script[src^="/assets/main-"]').length,
+        yandexRuntimeCount: document.querySelectorAll('script[data-site-analytics="yandex"]').length,
       };
     });
 
@@ -122,10 +137,16 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
     assert(state.overflow <= 1, `${label}: horizontal document overflow ${state.overflow}px`);
     if (mode === "production") {
       assert(state.hiddenCards === 0, `${label}: production CV must contain zero hidden experience cards, got ${state.hiddenCards}`);
+      assert(
+        state.staticAnalyticsBootstrapCount === getExpectedCvStaticAnalyticsBootstrapCount(mode),
+        `${label}: production CV analytics bootstrap does not match configured providers`,
+      );
+      assert(state.siteRuntimeCount === 0, `${label}: production CV must not load the site application runtime`);
+      assert(state.yandexRuntimeCount === 0, `${label}: Yandex Metrica must remain unloaded before analytics consent`);
     } else {
       assert(state.hiddenCards === expectedHiddenCards, `${label}: expected ${expectedHiddenCards} hidden experience cards, got ${state.hiddenCards}`);
+      assert(state.scriptCount === 0, `${label}: authored CV unexpectedly loads JavaScript`);
     }
-    assert(state.scriptCount === 0, `${label}: standalone CV unexpectedly loads JavaScript`);
     assert(!errors.length, `${label}: browser errors:\n${errors.join("\n")}`);
 
     if (CAPTURE_DIR) {
