@@ -41,11 +41,11 @@ export function mountSiteAnalyticsConsent({
   const panel = root.createElement("aside");
   panel.className = "site-analytics-consent";
   panel.dataset.siteAnalyticsConsent = "";
-  panel.setAttribute("aria-label", "Настройки аналитики");
+  panel.setAttribute("aria-label", "Настройки cookies");
 
   const copy = root.createElement("p");
   copy.className = "site-analytics-consent__copy";
-  copy.append("Использую Яндекс Метрику, чтобы понимать, какие страницы и проекты смотрят. Метрика загружается только с вашего согласия. ");
+  copy.append("Этот сайт использует cookies. ");
   const privacy = root.createElement("a");
   privacy.className = "site-analytics-consent__privacy";
   privacy.href = "/privacy/";
