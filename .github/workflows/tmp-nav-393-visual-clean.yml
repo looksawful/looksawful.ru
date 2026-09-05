@@ -1,0 +1,242 @@
+name: TEMP Nav 393 Clean Visual Gate
+
+on:
+  push:
+    branches:
+      - fix/site-nav-surface-393-clean
+
+permissions:
+  contents: write
+
+jobs:
+  visual-gate:
+    if: ${{ !startsWith(github.event.head_commit.message, 'fix(ui): remove legacy site-nav surface') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install browser engines
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: RED baseline and deletion-only fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('src/styles/components.css')
+          source = path.read_text()
+          legacy = re.compile(
+              r'/\* ==================================================\n'
+              r'   Portfolio navigation\n'
+              r'   ================================================== \*/\n\n'
+              r'\.site-nav \{.*?\n\}\n\n'
+              r'\.site-nav__brand,\n\.site-nav__link \{.*?\n\}\n\n'
+              r'\.site-nav__list \{.*?\n\}\n\n'
+              r'(?=/\* One global project navigator)',
+              re.S,
+          )
+          match = legacy.search(source)
+          if not match:
+              raise SystemExit('RED failed: expected legacy site-nav block is already absent')
+          if 'border-block-end:' not in match.group(0):
+              raise SystemExit('RED failed: expected legacy separator border not found')
+          print('RED_CONFIRMED: legacy global navigation block owns the separator border')
+          updated, count = legacy.subn('', source, count=1)
+          if count != 1:
+              raise SystemExit(f'expected one legacy block, removed {count}')
+          path.write_text(updated)
+          PY
+
+          if git diff -- src/styles/site-navigation.css | grep -q .; then
+            echo 'site-navigation.css must remain untouched' >&2
+            exit 1
+          fi
+
+      - name: Targeted navigation contracts
+        run: >-
+          node --test
+          test/site-navigation.test.mjs
+          test/site-navigation-runtime.test.mjs
+          test/site-navigation-style.test.mjs
+          test/navigation-labels-cms.test.mjs
+
+      - name: Build for browser matrix
+        run: npm run build:vite
+
+      - name: Cross-browser breakpoint matrix
+        shell: bash
+        run: |
+          cat > /tmp/nav393.mjs <<'EOF'
+          import { chromium, firefox, webkit } from 'playwright';
+          import { spawn } from 'node:child_process';
+          import { mkdir } from 'node:fs/promises';
+          import net from 'node:net';
+          import path from 'node:path';
+
+          const port = 4176;
+          const base = `http://127.0.0.1:${port}`;
+          const out = 'tmp-nav-393-visuals';
+          await mkdir(out, { recursive: true });
+
+          const cases = [
+            ['desktop-1440x900', 1440, 900, '/', false],
+            ['width-above-32rem-513x844', 513, 844, '/', false],
+            ['width-at-32rem-512x844', 512, 844, '/', true],
+            ['mobile-390x844', 390, 844, '/', true],
+            ['height-above-36rem-390x577', 390, 577, '/', true],
+            ['height-at-36rem-390x576', 390, 576, '/', true],
+            ['height-above-28rem-390x449', 390, 449, '/', true],
+            ['height-at-28rem-390x448', 390, 448, '/', true],
+            ['inner-breadcrumb-390x844', 390, 844, '/work/jestei-pool/', true],
+          ];
+
+          const waitPort = () => new Promise((resolve, reject) => {
+            const start = Date.now();
+            const probe = () => {
+              const socket = net.connect(port, '127.0.0.1');
+              socket.once('connect', () => { socket.end(); resolve(); });
+              socket.once('error', () => {
+                socket.destroy();
+                if (Date.now() - start > 15000) reject(new Error('preview did not start'));
+                else setTimeout(probe, 120);
+              });
+            };
+            probe();
+          });
+
+          const server = spawn('npm', ['run', 'preview', '--', '--host', '127.0.0.1', '--port', String(port), '--strictPort'], {
+            stdio: ['ignore', 'pipe', 'pipe'],
+          });
+          server.stdout.on('data', c => process.stdout.write(`[preview] ${c}`));
+          server.stderr.on('data', c => process.stderr.write(`[preview] ${c}`));
+
+          const runBrowser = async (browserName, launcher) => {
+            const browser = await launcher.launch({ headless: true });
+            const results = [];
+            try {
+              for (const [name, width, height, route, touch] of cases) {
+                const contextOptions = { viewport: { width, height }, deviceScaleFactor: 1 };
+                if (touch) contextOptions.hasTouch = true;
+                if (touch && browserName !== 'firefox') contextOptions.isMobile = true;
+                const context = await browser.newContext(contextOptions);
+                const page = await context.newPage();
+                await page.route('**/*', async routeReq => {
+                  const type = routeReq.request().resourceType();
+                  if (type === 'image' || type === 'media') await routeReq.abort();
+                  else await routeReq.continue();
+                });
+                try {
+                  await page.goto(`${base}${route}`, { waitUntil: 'domcontentloaded', timeout: 15000 });
+                  await page.screenshot({ path: path.join(out, `${browserName}-${name}-closed.png`) });
+                  const closed = await page.evaluate(() => {
+                    const nav = document.querySelector('.site-nav');
+                    const bg = document.querySelector('.awfulface__background');
+                    const ns = nav instanceof HTMLElement ? getComputedStyle(nav) : null;
+                    const bs = bg instanceof SVGElement ? getComputedStyle(bg) : null;
+                    return {
+                      border: ns?.borderBlockEndWidth || ns?.borderBottomWidth || '',
+                      backgroundFill: bs?.fill || '',
+                      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                    };
+                  });
+                  if ((Number.parseFloat(closed.border) || 0) > 0.01) throw new Error(`${browserName}/${name}: border ${closed.border}`);
+                  if (!['none', 'rgba(0, 0, 0, 0)'].includes(closed.backgroundFill)) throw new Error(`${browserName}/${name}: Awfulface backing ${closed.backgroundFill}`);
+                  if (closed.overflow > 1) throw new Error(`${browserName}/${name}: closed overflow ${closed.overflow}`);
+
+                  await page.locator('[data-site-menu-toggle]').click({ timeout: 5000 });
+                  await page.screenshot({ path: path.join(out, `${browserName}-${name}-open.png`) });
+                  const opened = await page.evaluate(() => {
+                    const nav = document.querySelector('.site-nav');
+                    const bar = document.querySelector('.site-nav__bar');
+                    const menu = document.querySelector('[data-site-menu]');
+                    const link = document.querySelector('.site-nav__menu-link');
+                    const context = document.querySelector('.site-nav__context, .site-nav__breadcrumbs');
+                    const ns = nav instanceof HTMLElement ? getComputedStyle(nav) : null;
+                    const ls = link instanceof HTMLElement ? getComputedStyle(link) : null;
+                    const mr = menu instanceof HTMLElement ? menu.getBoundingClientRect() : null;
+                    return {
+                      border: ns?.borderBlockEndWidth || ns?.borderBottomWidth || '',
+                      barHeight: bar instanceof HTMLElement ? bar.getBoundingClientRect().height : null,
+                      contextDisplay: context instanceof HTMLElement ? getComputedStyle(context).display : '',
+                      textAlign: ls?.textAlign || '',
+                      menuTop: mr?.top ?? null,
+                      menuBottomGap: mr ? innerHeight - mr.bottom : null,
+                      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                    };
+                  });
+                  if ((Number.parseFloat(opened.border) || 0) > 0.01) throw new Error(`${browserName}/${name}: open border ${opened.border}`);
+                  if ((opened.barHeight ?? 99) > 1) throw new Error(`${browserName}/${name}: open bar ${opened.barHeight}`);
+                  if (opened.contextDisplay !== 'none') throw new Error(`${browserName}/${name}: context ${opened.contextDisplay}`);
+                  if (Math.abs(opened.menuTop ?? 99) > 1 || Math.abs(opened.menuBottomGap ?? 99) > 1) throw new Error(`${browserName}/${name}: menu is not fullscreen`);
+                  if (opened.overflow > 1) throw new Error(`${browserName}/${name}: open overflow ${opened.overflow}`);
+                  if (width <= 512 && opened.textAlign !== 'center') throw new Error(`${browserName}/${name}: mobile align ${opened.textAlign}`);
+                  if (width > 512 && !['start', 'left'].includes(opened.textAlign)) throw new Error(`${browserName}/${name}: desktop align ${opened.textAlign}`);
+                  results.push({ name, width, height, closed, opened });
+                } finally {
+                  await context.close();
+                }
+              }
+            } finally {
+              await browser.close();
+            }
+            console.log(`NAV393_${browserName.toUpperCase()}=${JSON.stringify(results)}`);
+          };
+
+          try {
+            await waitPort();
+            await Promise.all([
+              runBrowser('chromium', chromium),
+              runBrowser('firefox', firefox),
+              runBrowser('webkit', webkit),
+            ]);
+          } finally {
+            server.kill('SIGTERM');
+          }
+          EOF
+
+          node /tmp/nav393.mjs
+
+      - name: Existing navigation browser smoke
+        run: npm run test:e2e:navigation
+
+      - name: Upload visual evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: nav-393-cross-browser-breakpoints
+          path: tmp-nav-393-visuals
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Commit clean permanent fix and remove temporary harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/tmp-nav-393-visual-clean.yml
+          rm -rf tmp-nav-393-visuals
+
+          changed="$(git status --short | awk '{print $2}' | sort)"
+          expected="$(printf '%s\n' '.github/workflows/tmp-nav-393-visual-clean.yml' 'src/styles/components.css' | sort)"
+          if [ "$changed" != "$expected" ]; then
+            echo 'Unexpected permanent diff:' >&2
+            git status --short >&2
+            exit 1
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/styles/components.css .github/workflows/tmp-nav-393-visual-clean.yml
+          git commit -m 'fix(ui): remove legacy site-nav surface (#393)'
+          git push origin HEAD:fix/site-nav-surface-393-clean
