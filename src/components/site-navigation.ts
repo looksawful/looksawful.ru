@@ -48,11 +48,11 @@ export function initSiteNavigation(
   const win = doc.defaultView;
   const body = doc.body;
   const main = doc.querySelector<HTMLElement>("main");
-  const previousMainInert = main?.inert ?? false;
   const precisePointer = win?.matchMedia?.(PRECISE_POINTER_QUERY) ?? null;
 
   let open = false;
   let previousOverflow = "";
+  let previousMainInert = main?.inert ?? false;
   let motionAllowed = motion?.allowsMotion() ?? false;
   let setFaceOpen: (nextOpen: boolean) => void = noop;
   let syncFaceCapability: () => void = noop;
@@ -69,14 +69,14 @@ export function initSiteNavigation(
     navigation.toggleAttribute("data-menu-open", open);
     menu.hidden = !open;
 
-    if (main instanceof HTMLElement) {
-      main.inert = open ? true : previousMainInert;
-    }
-
     hideMenuPreview();
     setFaceOpen(open);
 
     if (open) {
+      if (main instanceof HTMLElement) {
+        previousMainInert = main.inert;
+        main.inert = true;
+      }
       prepareMenuPreviews();
       previousOverflow = body.style.overflow;
       body.style.overflow = "hidden";
@@ -84,6 +84,7 @@ export function initSiteNavigation(
     }
 
     body.style.overflow = previousOverflow;
+    if (main instanceof HTMLElement) main.inert = previousMainInert;
     if (returnFocus) toggle.focus();
   };
 
@@ -104,7 +105,6 @@ export function initSiteNavigation(
   toggle.setAttribute("aria-label", "Открыть меню");
   navigation.removeAttribute("data-menu-open");
   menu.hidden = true;
-  if (main instanceof HTMLElement) main.inert = previousMainInert;
 
   toggle.addEventListener("click", onToggle);
   doc.addEventListener("keydown", onKeyDown);
@@ -208,7 +208,7 @@ export function initSiteNavigation(
     }
   };
 
-  const showPreviewFor = (link: HTMLAnchorElement, event?: PointerEvent): void => {
+  const showPreviewFor = (link: HTMLAnchorElement, event: PointerEvent): void => {
     if (
       !open ||
       !precisePointer?.matches ||
@@ -229,7 +229,7 @@ export function initSiteNavigation(
     previewVisible = true;
     updatePreviewHeaderBottom();
 
-    if (event && motionAllowed) {
+    if (motionAllowed) {
       startPreviewFollower(event);
       return;
     }
@@ -255,25 +255,9 @@ export function initSiteNavigation(
     hideMenuPreview();
   };
 
-  const onMenuFocusIn = (event: FocusEvent): void => {
-    const target = event.target;
-    if (target instanceof HTMLAnchorElement && target.matches(".site-nav__menu-link[data-preview]")) {
-      showPreviewFor(target);
-    }
-  };
-
-  const onMenuFocusOut = (event: FocusEvent): void => {
-    const target = event.target;
-    if (target instanceof HTMLAnchorElement && target.matches(".site-nav__menu-link[data-preview]")) {
-      hideMenuPreview();
-    }
-  };
-
   if (preview instanceof HTMLElement && previewImage instanceof HTMLImageElement && previewLinks.length) {
     menu.addEventListener("pointerover", onMenuPointerOver);
     menu.addEventListener("pointerout", onMenuPointerOut);
-    menu.addEventListener("focusin", onMenuFocusIn);
-    menu.addEventListener("focusout", onMenuFocusOut);
 
     prepareMenuPreviews = (): void => {
       if (previewPreloaded || !precisePointer?.matches || !win) return;
@@ -588,8 +572,6 @@ export function initSiteNavigation(
     menu.removeEventListener("click", onMenuClick);
     menu.removeEventListener("pointerover", onMenuPointerOver);
     menu.removeEventListener("pointerout", onMenuPointerOut);
-    menu.removeEventListener("focusin", onMenuFocusIn);
-    menu.removeEventListener("focusout", onMenuFocusOut);
     precisePointer?.removeEventListener("change", onPointerCapabilityChange);
     win?.removeEventListener("resize", updatePreviewHeaderBottom);
     unsubscribeMotion();
@@ -607,8 +589,8 @@ export function initSiteNavigation(
     if (open) {
       open = false;
       body.style.overflow = previousOverflow;
+      if (main instanceof HTMLElement) main.inert = previousMainInert;
     }
-    if (main instanceof HTMLElement) main.inert = previousMainInert;
 
     toggle.setAttribute("aria-expanded", "false");
     toggle.setAttribute("aria-label", "Открыть меню");
