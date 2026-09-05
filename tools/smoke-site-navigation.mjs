@@ -116,6 +116,16 @@ async function auditNavigation(browser, path, currentLabel, width, height) {
     }
 
     if (!mobile) {
+      await page.keyboard.press("Tab");
+      const previewOnFocus = await page.evaluate(() => {
+        const preview = document.querySelector("[data-menu-preview]");
+        return preview instanceof HTMLElement
+          && preview.dataset.visible === "true"
+          && !preview.hidden;
+      });
+      assert(!previewOnFocus, `${label}: keyboard focus must not show a hover-only preview`);
+      await page.keyboard.press("Shift+Tab");
+
       const previewLink = page.locator('.site-nav__menu-link:not([aria-current="page"])').first();
       await previewLink.hover();
       await page.waitForFunction(() => {
