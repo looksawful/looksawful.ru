@@ -33,6 +33,25 @@ test("site navigation keeps one two-column header over a continuous fullscreen m
   assert.doesNotMatch(componentSource, /box-shadow|backdrop-filter|border-radius/);
 });
 
+test("open menu removes the header band instead of only making it transparent", () => {
+  assert.match(
+    componentSource,
+    /\.site-nav\[data-menu-open\]\s+\.site-nav__bar\s*\{[\s\S]*?min-block-size:\s*0/,
+  );
+  assert.match(
+    componentSource,
+    /\.site-nav\[data-menu-open\]\s+\.site-nav__context\s*\{[\s\S]*?visibility:\s*hidden/,
+  );
+  assert.match(
+    componentSource,
+    /\.site-nav\[data-menu-open\]\s+\.site-nav__toggle\s*\{[\s\S]*?position:\s*fixed/,
+  );
+  assert.doesNotMatch(
+    componentSource,
+    /padding-block-start:\s*[^;\n]*var\(--site-nav-total-height\)/,
+  );
+});
+
 test("Awfulface has no visible backing disc and desktop menu labels align from the start edge", () => {
   assert.match(componentSource, /\.awfulface__background\s*\{[\s\S]*?fill:\s*none/);
   assert.match(componentSource, /\.site-nav__menu-nav\b[\s\S]*?inline-size:\s*100%/);
