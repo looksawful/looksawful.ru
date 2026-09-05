@@ -129,7 +129,7 @@ test("application development tooling has a canonical src/devtools boundary", as
   assert.equal(
     await exists(legacyMediaDeskPath),
     false,
-    "legacy src/tools/media-desk must be retired once all consumers use src/devtools",
+    "legacy Media Desk source boundary must stay retired",
   );
 });
 
