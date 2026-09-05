@@ -5,6 +5,7 @@ import { waitForDocumentReady, waitForLightboxClosed } from "./readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
+const CAPTION_TOUCH_VIEWPORTS = [{ width: 390, height: 844 }, { width: 770, height: 900 }];
 
 export function getExpectedStaticAnalyticsBootstrapCount(env = process.env) {
   const cloudflareToken = typeof env?.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN === "string"
@@ -89,8 +90,14 @@ export async function assertBasicAccessibility(page, route) {
   assert.deepEqual(violations, [], `${route}: basic accessibility violations`);
 }
 
-async function audit({ browser, baseUrl }, route, viewport, verify) {
-  const context = await browser.newContext({ viewport, isMobile: viewport.width === 390, hasTouch: viewport.width === 390, deviceScaleFactor: 1 });
+async function audit({ browser, baseUrl }, route, viewport, verify, contextOptions = {}) {
+  const defaultTouch = viewport.width === 390;
+  const context = await browser.newContext({
+    viewport,
+    isMobile: contextOptions.isMobile ?? defaultTouch,
+    hasTouch: contextOptions.hasTouch ?? defaultTouch,
+    deviceScaleFactor: 1,
+  });
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -154,6 +161,73 @@ async function verifyCase(page) {
   }
 }
 
+async function verifyDenseMobileCaptions(page, { requireMiddleReel = false } = {}) {
+  const state = await page.evaluate(({ requireMiddleReel }) => {
+    const denseSelectors = [
+      '.media-group[data-layout="sequence"]',
+      '.media-group[data-layout="bento"]',
+      '.media-group[data-compact-layout="reel"]',
+    ];
+    const denseGroups = denseSelectors.flatMap((selector) => [...document.querySelectorAll(selector)]);
+    const denseOverlayCaptions = denseGroups.flatMap((group) => [
+      ...group.querySelectorAll('figure.media[data-caption-view="overlay"] > .media__caption'),
+    ]);
+    const summaryCaptions = [...document.querySelectorAll('figure.media[data-caption-view="summary"] > .media__caption')];
+    const middleReelCaptions = [...document.querySelectorAll(
+      '.media-group[data-layout="sequence"][data-middle-overflow="reel"] figure.media[data-caption-view="overlay"] > .media__caption',
+    )];
+    const isOutOfGeometry = (caption) => {
+      const style = getComputedStyle(caption);
+      return style.display === "none" || style.position === "absolute" || style.position === "fixed";
+    };
+    const isVisible = (caption) => {
+      const style = getComputedStyle(caption);
+      const rect = caption.getBoundingClientRect();
+      return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+    };
+
+    return {
+      denseGroupCount: denseGroups.length,
+      denseOverlayCount: denseOverlayCaptions.length,
+      denseOverlayInGeometry: denseOverlayCaptions.filter((caption) => !isOutOfGeometry(caption)).length,
+      summaryCount: summaryCaptions.length,
+      visibleSummaryCount: summaryCaptions.filter(isVisible).length,
+      middleReelCount: middleReelCaptions.length,
+      middleReelInGeometry: middleReelCaptions.filter((caption) => !isOutOfGeometry(caption)).length,
+      requireMiddleReel,
+    };
+  }, { requireMiddleReel });
+
+  assert.ok(state.denseGroupCount > 0, "Jestei route must contain a dense sequence/bento/compact-reel group");
+  assert.ok(state.denseOverlayCount > 0, "Jestei dense groups must contain overlay captions");
+  assert.equal(state.denseOverlayInGeometry, 0, "dense overlay captions must stay out of touch page geometry");
+  assert.ok(state.summaryCount > 0, "Jestei route must contain a summary caption control case");
+  assert.ok(state.visibleSummaryCount > 0, "summary captions must remain visible on touch layouts");
+  if (state.requireMiddleReel) {
+    assert.ok(state.middleReelCount > 0, "Jestei route must contain a sequence middle-overflow reel caption");
+    assert.equal(state.middleReelInGeometry, 0, "middle-overflow reel captions must stay out of touch geometry above 48rem");
+  }
+
+  const hiddenOverlay = page.locator([
+    '.media-group[data-layout="sequence"] figure.media[data-caption-view="overlay"]:has([data-lightbox-source])',
+    '.media-group[data-layout="bento"] figure.media[data-caption-view="overlay"]:has([data-lightbox-source])',
+    '.media-group[data-compact-layout="reel"] figure.media[data-caption-view="overlay"]:has([data-lightbox-source])',
+  ].join(", ")).first();
+  if (await hiddenOverlay.count()) {
+    const authoredCaption = (await hiddenOverlay.locator(".media__caption").innerText()).trim();
+    assert.ok(authoredCaption, "hidden dense overlay must retain authored caption content in DOM");
+    const source = hiddenOverlay.locator("[data-lightbox-source]").first();
+    await source.scrollIntoViewIfNeeded();
+    await source.click({ force: true });
+    await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
+    const lightboxCaption = page.locator(".media-lightbox__caption").first();
+    await lightboxCaption.waitFor({ state: "attached" });
+    assert.ok((await lightboxCaption.innerText()).trim(), "hidden dense overlay caption must reach the lightbox");
+    await page.keyboard.press("Escape");
+    await waitForLightboxClosed(page);
+  }
+}
+
 async function verifyCanvas(page) {
   await page.locator("[data-animated-canvas-gallery]").first().scrollIntoViewIfNeeded();
   await page.waitForFunction(() => {
@@ -176,6 +250,13 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     ["/work/jestei-pool/", verifyCase],
     ["/work/moves-awful/", verifyCanvas],
   ], 2, ([route, verify]) => audit(runtime, route, VIEWPORTS[1], verify));
+  await mapWithConcurrency(CAPTION_TOUCH_VIEWPORTS, 2, (viewport) => audit(
+    runtime,
+    "/work/jestei-pool/",
+    viewport,
+    (page) => verifyDenseMobileCaptions(page, { requireMiddleReel: viewport.width > 768 }),
+    { hasTouch: true, isMobile: viewport.width === 390 },
+  ));
   await audit(runtime, "/cv/", VIEWPORTS[1], async (page) => {
     assert.equal(await page.locator("main.resume").count(), 1);
     assert.equal(await page.locator(".experience-card").count(), getExpectedCvCardCount(cvMode));
