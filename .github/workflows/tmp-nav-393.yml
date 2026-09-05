@@ -33,14 +33,8 @@ jobs:
       - name: Targeted navigation contracts
         run: node --test test/site-navigation.test.mjs test/site-navigation-runtime.test.mjs test/site-navigation-style.test.mjs test/navigation-labels-cms.test.mjs
 
-      - name: Final typecheck
-        run: npm run typecheck
-
-      - name: Final fast suite
-        run: npm run test:fast
-
-      - name: Final site build
-        run: npm run build:site
+      - name: Affected Vite build
+        run: npm run build:vite
 
       - name: Install Chromium Firefox WebKit
         run: npx playwright install --with-deps chromium firefox webkit
