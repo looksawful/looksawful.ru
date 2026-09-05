@@ -46,7 +46,6 @@ test("production deploy builds exact prod SHA, validates fast safety, compact br
     "npm run typecheck",
     "npm run test:fast",
     "npm run build:site",
-    "npm run cv:prod:prepare",
     "npm run test:e2e:production",
     "npm run cv:prod:verify",
     "dist/deploy-version.txt",
@@ -55,6 +54,8 @@ test("production deploy builds exact prod SHA, validates fast safety, compact br
     "actions/deploy-pages",
     "github-pages/production",
   ]) assert.ok(workflow.includes(command), command);
+  assert.doesNotMatch(workflow, /npm run cv:prod:prepare/);
+  assert.equal((workflow.match(/npm run cv:prod:verify/g) ?? []).length, 1);
   assert.match(workflow, /actions\/cache\/restore@v6/);
   assert.doesNotMatch(workflow, /restore-keys:/);
   assert.match(workflow, /media-dev-state\.mjs --cache-verify/);

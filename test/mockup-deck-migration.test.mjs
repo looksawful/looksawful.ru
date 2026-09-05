@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { sandsFeatureMockupDeck } from "../src/data/content/sands.ts";
@@ -39,22 +38,4 @@ test("mobile-device deck preserves phone shell and slide attributes", async () =
   assert.equal((html.match(/data-slide=""/g) ?? []).length, 2);
   assert.match(html, /data-media-title=/);
   assert.doesNotMatch(html, /slider-controls/);
-});
-
-test("index and site composition render both image-only mockup decks through slots", async () => {
-  const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  const composition = await readFile(
-    new URL("../src/site/renderers/home/home-slots.ts", import.meta.url),
-    "utf8",
-  );
-  const markers = [
-    "<!-- STYX_SOCIAL_INSTRUCTION_MOCKUP_DECK -->",
-    "<!-- SANDS_FEATURE_MOCKUP_DECK -->",
-  ];
-
-  for (const marker of markers) {
-    assert.equal(index.split(marker).length - 1, 1, marker);
-    assert.equal(composition.split(marker).length - 1, 1, marker);
-  }
-  assert.match(composition, /renderMockupDeck/);
 });

@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 
 import { createSiteInputs } from "./src/site/build/inputs.ts";
+import { createPublicStaticBuildPlugin } from "./src/site/build/public-static-build-plugin.ts";
 import { createSitePagesPlugin } from "./src/site/build/site-pages-plugin.ts";
 import { createMediaDeskWritePlugin } from "./src/tools/media-desk/server.ts";
 
@@ -19,6 +20,7 @@ export default defineConfig({
 
   plugins: [
     createSitePagesPlugin(root),
+    createPublicStaticBuildPlugin(root),
     ...(contentDeskWrite ? [createMediaDeskWritePlugin(root)] : []),
   ],
 

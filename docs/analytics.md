@@ -51,7 +51,7 @@ Portfolio-runtime pages mount the shared consent component from `src/components/
 
 The consent control links to the canonical public `/privacy/` page. That page also allows the visitor to clear the stored choice so the site asks again on the next tracked page.
 
-`/cv/` is a `public-static` page and does not load `src/main.js`. Its production artifact receives a small isolated analytics bootstrap during `npm run cv:prod:prepare`. The bootstrap uses the same localStorage consent key and the same goal IDs.
+`/cv/` is a `public-static` page and does not load `src/main.js`. Its production artifact is finalized by `src/site/build/public-static-build-plugin.ts` during the Vite production build. That step composes the canonical CV content, removes disabled experience entries and injects the small isolated analytics bootstrap. The bootstrap uses the same localStorage consent key and the same goal IDs.
 
 The Yandex `<noscript>` tracking pixel is intentionally omitted. A pixel that fires with JavaScript disabled cannot observe the JavaScript consent state and would bypass the delayed-loading contract.
 
@@ -92,10 +92,10 @@ npm run test:fast
 npm run build:site
 ```
 
-For a production-like CV artifact, run with the production analytics environment configured:
+For a production-like CV artifact, configure the production analytics environment before the build, then verify the generated artifact:
 
 ```bash
-npm run cv:prod:prepare
+npm run build:site
 npm run cv:prod:verify
 ```
 

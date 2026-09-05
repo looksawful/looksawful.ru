@@ -10,8 +10,8 @@ test("strict motion runtime is isolated from site interaction code", async () =>
 
   const [motion, interactive, main] = await Promise.all([
     read("src/motion.ts"),
-    read("src/interactive.js"),
-    read("src/main.js"),
+    read("src/interactive.ts"),
+    read("src/main.ts"),
   ]);
 
   assert.match(motion, /export function initMotion/);
@@ -35,7 +35,7 @@ test("strict motion runtime is isolated from site interaction code", async () =>
     /ScrollTrigger|initGsapMotionLayer|createViewportReveal|getTextRevealTargets|initStaticMediaReveals|data-hero-motion|figure\.media|project-card/,
   );
 
-  assert.match(main, /import \{\s*initMotion,\s*\} from "\.\/motion\.ts";/s);
+  assert.match(main, /import\s*\{\s*initMotion\s*\}\s*from "\.\/motion\.ts";/s);
   assert.match(main, /destroys\.push\(\s*initMotion\(\{\s*root: document,\s*\}\),\s*\);/s);
   assert.match(main, /destroys\.push\(\s*initSiteInteractive\(\{\s*root: document,\s*\}\),\s*\);/s);
   assert.doesNotMatch(main, /initSiteInteractive\(\{\s*root: document,\s*motion\s*\}\)/);

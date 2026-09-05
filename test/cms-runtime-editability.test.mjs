@@ -31,8 +31,8 @@ test("CV browser smoke derives editable copy and structural visibility from comp
 test("production deployment verifies stable CV output without pinning editable literal copy", async () => {
   const workflow = await read(".github/workflows/pages.yml");
   assert.doesNotMatch(workflow, /ИВАН КРУШИНСКИЙ/);
-  assert.match(workflow, /npm run cv:prod:prepare/);
-  assert.match(workflow, /npm run cv:prod:verify/);
+  assert.doesNotMatch(workflow, /npm run cv:prod:prepare/);
+  assert.equal((workflow.match(/npm run cv:prod:verify/g) ?? []).length, 1);
   assert.match(workflow, /https:\/\/www\.looksawful\.ru\/cv\//);
 });
 

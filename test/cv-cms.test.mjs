@@ -1,19 +1,16 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { spawnSync } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+
+import { transformCvContent } from "../tools/lib/cv-content.mjs";
 
 const cvDataModuleUrl = new URL("../src/data/cv.ts", import.meta.url);
 const cvStructureUrl = new URL("../src/content/cv.json", import.meta.url);
 const cvEditorialUrl = new URL("../src/content/editorial/cv.json", import.meta.url);
 const cvSourceUrl = new URL("../public/cv/index.html", import.meta.url);
 const cmsConfigUrl = new URL("../.pages.yml", import.meta.url);
-const applyScriptUrl = new URL("../tools/apply-cv-content.mjs", import.meta.url);
-const productionScriptUrl = new URL("../tools/prepare-cv-production.mjs", import.meta.url);
 
 const experienceIds = ["jestei", "styx", "illumihand", "madcow", "sensetique", "line", "berry", "ss", "olovo", "theatre", "soroka", "kursovoy", "ran", "progress", "ria"];
 
@@ -70,41 +67,41 @@ test("full CV parser still rejects incomplete, duplicate and unknown runtime ide
   assert.throws(() => parseCvContent(unknown), /unexpected CV experience id/i);
 });
 
-test("CV build visibility is controlled by composed content rather than legacy hidden attributes", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "cv-content-"));
-  const htmlPath = join(dir, "index.html");
-  const contentPath = join(dir, "cv.json");
-  await writeFile(htmlPath, await fixtureHtml({ forceHidden: ["jestei"] }), "utf8");
-  await writeFile(contentPath, JSON.stringify(await fixtureContent({ jestei: true, styx: false })), "utf8");
-  const result = spawnSync(process.execPath, [fileURLToPath(applyScriptUrl), htmlPath, contentPath], { encoding: "utf8" });
-  assert.equal(result.status, 0, result.stderr || result.stdout);
-  const builtHtml = await readFile(htmlPath, "utf8");
+test("CV composition visibility is controlled by composed content rather than legacy hidden attributes", async () => {
+  const content = await fixtureContent({ jestei: true, styx: false });
+  const builtHtml = transformCvContent(
+    await fixtureHtml({ forceHidden: ["jestei"] }),
+    content,
+  ).html;
+
   assert.doesNotMatch(articleFor(builtHtml, "jestei"), /\bhidden(?:\s*=|\s|>)/i);
   assert.match(articleFor(builtHtml, "styx"), /\bhidden(?:\s*=|\s|>)/i);
 });
 
-test("CV build fails closed when HTML and runtime registry drift apart", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "cv-content-drift-"));
-  const htmlPath = join(dir, "index.html");
-  const contentPath = join(dir, "cv.json");
-  await writeFile(htmlPath, (await fixtureHtml()).replace(/<article\b(?=[^>]*\bclass=["'][^"']*\bexperience-card--ria\b[^"']*["'])[^>]*>[\s\S]*?<\/article>/i, ""), "utf8");
-  await writeFile(contentPath, JSON.stringify(await fixtureContent()), "utf8");
-  const result = spawnSync(process.execPath, [fileURLToPath(applyScriptUrl), htmlPath, contentPath], { encoding: "utf8" });
-  assert.notEqual(result.status, 0);
-  assert.match(`${result.stderr}\n${result.stdout}`, /missing CV experience card.*ria/i);
+test("CV composition fails closed when HTML and runtime registry drift apart", async () => {
+  const content = await fixtureContent();
+  const driftedHtml = (await fixtureHtml()).replace(
+    /<article\b(?=[^>]*\bclass=["'][^"']*\bexperience-card--ria\b[^"']*["'])[^>]*>[\s\S]*?<\/article>/i,
+    "",
+  );
+
+  assert.throws(
+    () => transformCvContent(driftedHtml, content),
+    /missing CV experience card.*ria/i,
+  );
 });
 
-test("production CV physically removes exactly runtime-disabled entries", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "cv-production-content-"));
-  const htmlPath = join(dir, "index.html");
-  const contentPath = join(dir, "cv.json");
+test("production CV transform physically removes exactly runtime-disabled entries", async () => {
   const content = await fixtureContent({ jestei: true, styx: false });
-  await writeFile(htmlPath, await fixtureHtml({ forceHidden: ["jestei"] }), "utf8");
-  await writeFile(contentPath, JSON.stringify(content), "utf8");
-  const result = spawnSync(process.execPath, [fileURLToPath(productionScriptUrl), htmlPath, contentPath], { encoding: "utf8" });
-  assert.equal(result.status, 0, result.stderr || result.stdout);
-  const productionHtml = await readFile(htmlPath, "utf8");
-  for (const { id, visible } of content.experience) assert.equal(Boolean(articleFor(productionHtml, id)), visible, id);
+  const productionHtml = transformCvContent(
+    await fixtureHtml({ forceHidden: ["jestei"] }),
+    content,
+    { removeHidden: true },
+  ).html;
+
+  for (const { id, visible } of content.experience) {
+    assert.equal(Boolean(articleFor(productionHtml, id)), visible, id);
+  }
   assert.doesNotMatch(productionHtml, /<article\b[^>]*\bexperience-card\b[^>]*\bhidden\b/i);
 });
 
