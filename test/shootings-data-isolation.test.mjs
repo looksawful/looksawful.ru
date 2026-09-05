@@ -11,9 +11,6 @@ const requiredArchiveFiles = [
   "src/data/media/assets/berserk-timer.ts",
   "src/data/media/entries/berserk-timer.ts",
   "src/data/media/assets/project-index.ts",
-  "src/data/subproject-cards.ts",
-  "src/templates/subproject-card.ts",
-  "src/styles/subproject-cards.css",
   "src/components/infinite-reel.ts",
   "public/media/projects/shootings/behance/manifest.json",
   "public/media/projects/berserk-timer/cover.webp",
@@ -64,7 +61,7 @@ test("shootings archive data stays isolated while the Collection route remains d
     /\{\s*id:\s*["']shootings["'],\s*pageId:\s*["']collection:music-photography["']\s*\}/,
   );
 
-  const cardSource = readFileSync("src/templates/project-card.ts", "utf8");
+  const cardSource = readFileSync("src/components/portfolio-entity-card-renderer.ts", "utf8");
   assert.match(cardSource, /getProjectCardHref\(card\)/);
   assert.doesNotMatch(cardSource, /const href = `#project-\$\{card\.id\}`/);
 
