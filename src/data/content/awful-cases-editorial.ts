@@ -23,7 +23,7 @@ export interface AwfulCasesEditorialContent {
 
 function parseCodeBlock(value: unknown, label: string): AwfulCasesEditorialCodeBlock {
   const record = expectRecord(value, label);
-  expectAllowedKeys(record, ["title", "code", "description"], ["code"], label);
+  expectAllowedKeys(record, ["title", "code", "description"], [], label);
 
   const title = readEditorialText(record.title, `${label} title`);
   const code = readEditorialText(record.code, `${label} code`);
