@@ -16,5 +16,7 @@ export async function runAllSmokeSuites({ browser, baseUrl, cvMode = "authored" 
 }
 
 if (isDirectExecution(import.meta.url)) {
-  await withE2ERuntime(({ browser, baseUrl }) => runAllSmokeSuites({ browser, baseUrl }));
+  await withE2ERuntime(({ browser, baseUrl }) =>
+    runAllSmokeSuites({ browser, baseUrl, cvMode: "production" }),
+  );
 }
