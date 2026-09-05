@@ -57,10 +57,34 @@ jobs:
       - run: npm run build:site
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run accessibility-enabled quick smoke in production CV mode
+      - name: Run isolated accessibility smoke
         run: |
           node --input-type=module <<'NODE'
-          import { runQuickSmoke } from './tools/e2e/run-smoke.mjs';
+          import { assertBasicAccessibility } from './tools/e2e/run-smoke.mjs';
+          import { waitForDocumentReady } from './tools/e2e/readiness.mjs';
           import { withE2ERuntime } from './tools/e2e/runtime.mjs';
-          await withE2ERuntime(({ browser, baseUrl }) => runQuickSmoke({ browser, baseUrl, cvMode: 'production' }));
+
+          const cases = [
+            ['/', { width: 390, height: 844 }],
+            ['/', { width: 1440, height: 900 }],
+            ['/work/jestei-pool/', { width: 1440, height: 900 }],
+            ['/work/moves-awful/', { width: 1440, height: 900 }],
+            ['/cv/', { width: 1440, height: 900 }],
+          ];
+
+          await withE2ERuntime(async ({ browser, baseUrl }) => {
+            for (const [route, viewport] of cases) {
+              const context = await browser.newContext({ viewport });
+              const page = await context.newPage();
+              try {
+                const response = await page.goto(`${baseUrl}${route}`, { waitUntil: 'domcontentloaded' });
+                if (!response?.ok()) throw new Error(`${route}: HTTP ${response?.status()}`);
+                await waitForDocumentReady(page);
+                await assertBasicAccessibility(page, route);
+                console.log(`[a11y-smoke] ${route} ${viewport.width}x${viewport.height}: OK`);
+              } finally {
+                await context.close();
+              }
+            }
+          });
           NODE
