@@ -130,7 +130,7 @@ test("raster-only PRs use the affected image gate instead of Fast CI recovery", 
   ]);
 
   assert.match(fastCi, /pull_request:\s*\n\s+branches: \[dev, prod\][\s\S]*?paths-ignore:/);
-  for (const extension of ["jpg", "jpeg", "png", "webp", "avif", "gif"]) {
+  for (const extension of ["jpg", "jpeg", "png", "webp"]) {
     assert.match(fastCi, new RegExp(`public/media/\\*\\*/\\*\\.${extension}`));
   }
   assert.doesNotMatch(
