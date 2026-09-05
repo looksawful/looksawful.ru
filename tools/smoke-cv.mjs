@@ -142,7 +142,7 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
   }
 }
 
-export async function runSmokeCv({ browser, baseUrl, mode = "authored" }) {
+export async function runSmokeCv({ browser, baseUrl, mode = "production" }) {
   BASE_URL = baseUrl;
   const expectedHiddenCards = getExpectedCvHiddenCards(mode);
   for (const viewport of VIEWPORTS) {
@@ -152,5 +152,5 @@ export async function runSmokeCv({ browser, baseUrl, mode = "authored" }) {
 }
 
 if (isDirectExecution(import.meta.url)) {
-  await withE2ERuntime(({ browser, baseUrl }) => runSmokeCv({ browser, baseUrl, mode: "authored" }));
+  await withE2ERuntime(({ browser, baseUrl }) => runSmokeCv({ browser, baseUrl, mode: "production" }));
 }
