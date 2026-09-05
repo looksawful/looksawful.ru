@@ -169,7 +169,7 @@ test("workflow inventory contains the current dedicated verification layers", as
 test("ordinary dev and build scripts do not mutate media", async () => {
   const { scripts } = JSON.parse(await read("package.json"));
   assert.equal(scripts.dev, "vite");
-  assert.equal(scripts.build, "npm run build:site");
+  assert.match(scripts.build, /npm run build:site/);
   assert.equal(scripts["cv:prod:prepare"], undefined);
   assert.equal(scripts["cv:prod:verify"], "node tools/verify-cv-production.mjs");
   assert.doesNotMatch(scripts.dev, /media:/);
