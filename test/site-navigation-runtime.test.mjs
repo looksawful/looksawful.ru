@@ -40,3 +40,20 @@ test("Awfulface and preview are progressive fine-pointer enhancements with reduc
   assert.match(componentSource, /cancelAnimationFrame/);
   assert.match(componentSource, /allowsMotion|isReduced|subscribe/);
 });
+
+test("eye tracking never activates on coarse pointers and capability changes clean it up", () => {
+  assert.match(componentSource, /const\s+PRECISE_POINTER_QUERY\s*=\s*["']\(hover:\s*hover\) and \(pointer:\s*fine\)["']/);
+  assert.match(
+    componentSource,
+    /const\s+shouldTrack\s*=\s*Boolean\([\s\S]*?faceReady\s*&&\s*precisePointer\?\.matches\s*&&\s*motionAllowed\s*&&\s*!open\s*&&\s*!morphing/,
+  );
+  assert.match(
+    componentSource,
+    /const\s+stopEyeTracking[\s\S]*?removeEventListener\(["']pointermove["'][\s\S]*?removeEventListener\(["']pointerout["'][\s\S]*?trackingResizeObserver\?\.disconnect\(\)[\s\S]*?resetEyes\(\)/,
+  );
+  assert.match(
+    componentSource,
+    /const\s+onPointerCapabilityChange[\s\S]*?syncFaceCapability\(\)/,
+  );
+  assert.match(componentSource, /const\s+mode:\s*FaceMode\s*=\s*precisePointer\?\.matches\s*\?\s*["']desktop["']\s*:\s*["']coarse["']/);
+});

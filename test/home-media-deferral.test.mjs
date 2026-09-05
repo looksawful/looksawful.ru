@@ -11,6 +11,10 @@ function deferredVideoBlocks(html) {
     .filter((video) => /data-autoplay-deferred=""/i.test(video));
 }
 
+function imageTags(html) {
+  return [...html.matchAll(/<img\b[^>]*>/gi)].map((match) => match[0]);
+}
+
 test("Homepage defers autoplay video sources across ordinary and managed media lifecycles", () => {
   const html = `
     <section>
@@ -55,4 +59,48 @@ test("built Homepage contains deferred autoplay media with no live network sourc
     assert.doesNotMatch(video, /<source\b[^>]*\ssrc="/i);
     assert.match(video, /data-autoplay-src="/i);
   }
+});
+
+test("built Homepage keeps explicit eager images live and defers every other image source", async () => {
+  const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const plugin = createSitePagesPlugin();
+  const hook = plugin.transformIndexHtml;
+
+  assert.equal(typeof hook, "object");
+  assert.equal(typeof hook.handler, "function");
+
+  const html = await hook.handler(source, { path: "/" });
+  const images = imageTags(html);
+  const eagerImages = images.filter((image) => /\bfetchpriority="high"|\bloading="eager"/i.test(image));
+  const deferredImages = images.filter((image) => !/\bfetchpriority="high"|\bloading="eager"/i.test(image));
+
+  assert.ok(deferredImages.length > 0, "expected deferred Homepage images");
+  assert.ok(eagerImages.some((image) => /hero-portrait\.webp/i.test(image)), "expected eager hero portrait");
+
+  for (const image of eagerImages) {
+    assert.match(image, /\ssrc="/i);
+  }
+
+  for (const image of deferredImages) {
+    assert.doesNotMatch(image, /\ssrc="/i);
+    assert.doesNotMatch(image, /\ssrcset="/i);
+    assert.match(image, /\bdata-home-src="/i);
+  }
+
+  assert.match(html, /\bdata-home-image-loader\b/i);
+});
+
+test("Homepage hero exposes generated responsive candidates with intrinsic dimensions", async () => {
+  const source = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const plugin = createSitePagesPlugin();
+  const hook = plugin.transformIndexHtml;
+  const html = await hook.handler(source, { path: "/" });
+  const hero = imageTags(html).find((image) => /hero-portrait\.webp/i.test(image));
+
+  assert.ok(hero, "expected Homepage hero portrait");
+  assert.match(hero, /\bwidth="1122"/i);
+  assert.match(hero, /\bheight="739"/i);
+  assert.match(hero, /\bsizes="\(max-width: 32rem\) 105vw, \(max-width: 48rem\) 92vw, \(max-width: 64rem\) 48vw, 35vw"/i);
+  assert.match(hero, /hero-portrait@480\.webp 480w/i);
+  assert.match(hero, /hero-portrait@768\.webp 768w/i);
 });
