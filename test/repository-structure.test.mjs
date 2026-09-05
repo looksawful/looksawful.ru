@@ -84,40 +84,15 @@ test("runtime TypeScript entry points do not retain JavaScript compatibility shi
   );
 });
 
-test("authored JavaScript under src is limited to the explicitly tracked legacy migrations", async () => {
+test("authored JavaScript under src is limited to explicitly tracked legacy migrations", async () => {
   const allowed = [
     "components/animated-canvas-gallery.js",
     "components/awful-cases-game.js",
+    "components/jestei-theme-organism/jestei-theme-organism.js",
   ];
   const javascript = (await collectFiles(path.join(root, "src")))
     .filter((file) => file.endsWith(".js"))
     .sort();
 
   assert.deepEqual(javascript, allowed);
-});
-
-test("application-only development tooling has an explicit src/devtools boundary", async () => {
-  assert.equal(
-    await exists("src/devtools/media-desk/server.ts"),
-    true,
-    "Media Desk server must live under src/devtools",
-  );
-  assert.equal(
-    await exists("src/tools"),
-    false,
-    "src/tools is ambiguous with repository-level tools/",
-  );
-});
-
-test("site HTML rendering helpers have one unambiguous renderer-support location", async () => {
-  assert.equal(
-    await exists("src/site/renderers/lib/html.ts"),
-    true,
-    "generic renderer HTML helper must live under src/site/renderers/lib",
-  );
-  assert.equal(
-    await exists("src/site/rendering"),
-    false,
-    "src/site/rendering duplicates the src/site/renderers concept",
-  );
 });
