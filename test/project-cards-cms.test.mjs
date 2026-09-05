@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import sharp from "sharp";
 
+import { renderPortfolioEntityCard as renderProjectCard } from "../src/components/composition/index.ts";
 import {
   projectIndexMediaAssetFor,
   projectIndexMediaAssets,
@@ -14,7 +15,6 @@ import {
   projectCardPresentations,
 } from "../src/data/projects.ts";
 import { getProjectCardHref } from "../src/site/pages/project-card-routes.ts";
-import { renderProjectCard } from "../src/templates/project-card.ts";
 
 const cmsConfig = readFileSync(new URL("../.pages.yml", import.meta.url), "utf8");
 const structure = JSON.parse(readFileSync(new URL("../src/content/projects.json", import.meta.url), "utf8"));
