@@ -1,16 +1,6 @@
 name: UI Responsive
 
 on:
-  pull_request:
-    paths:
-      - "package.json"
-      - "src/components/project-navigation.ts"
-      - "src/interactive.ts"
-      - "src/styles/components.css"
-      - "src/styles/project-navigation-top.css"
-      - "test/project-navigation-mobile-viewport.test.mjs"
-      - "tools/e2e/run-responsive-ui.mjs"
-      - ".github/workflows/ui-responsive.yml"
   workflow_dispatch:
 
 permissions:
