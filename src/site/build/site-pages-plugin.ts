@@ -2,6 +2,9 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Plugin } from "vite";
 
+import { entityPageContentRegistry } from "../../content/pages/index.ts";
+import { validateEntityPageArchitecture } from "../pages/content-validation.ts";
+import { entityShellPresentationRegistry } from "../pages/entity-presentation.ts";
 import {
   assertHomepagePresentationSupported,
   homepageEntries,
@@ -88,6 +91,11 @@ export function renderNotFoundPage(page: NonNullable<ReturnType<typeof getPageBy
 }
 
 export function createSitePagesPlugin(root = process.cwd()): Plugin {
+  validateEntityPageArchitecture(
+    sitePages,
+    entityPageContentRegistry,
+    entityShellPresentationRegistry,
+  );
   assertHomepagePresentationSupported(homepageEntries);
 
   return {
