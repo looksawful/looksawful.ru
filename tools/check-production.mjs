@@ -1,17 +1,16 @@
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 
+import { decodeEntities } from "./site-html-utils.mjs";
+
 const ORIGIN = "https://www.looksawful.ru";
 const TIMEOUT_MS = 20_000;
 const MAX_SAMPLE = 10;
+const HEALTHCHECK_USER_AGENT = "looksawful-healthcheck/1.0";
+const YANDEX_BOT_USER_AGENT = "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)";
 
 function decodeXml(value) {
-  return value
-    .replaceAll("&amp;", "&")
-    .replaceAll("&lt;", "<")
-    .replaceAll("&gt;", ">")
-    .replaceAll("&quot;", '"')
-    .replaceAll("&apos;", "'");
+  return decodeEntities(value);
 }
 
 function locs(xml) {
@@ -25,7 +24,14 @@ function assertSitemapShape(xml, label) {
   return hasIndex ? "index" : "urlset";
 }
 
-async function fetchChecked(url, { expectHtml = false } = {}) {
+async function fetchChecked(
+  url,
+  {
+    expectHtml = false,
+    expectedContentType = null,
+    userAgent = HEALTHCHECK_USER_AGENT,
+  } = {},
+) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
   let response;
@@ -33,7 +39,7 @@ async function fetchChecked(url, { expectHtml = false } = {}) {
     response = await fetch(url, {
       redirect: "follow",
       signal: controller.signal,
-      headers: { "Cache-Control": "no-cache", "User-Agent": "looksawful-healthcheck/1.0" },
+      headers: { "Cache-Control": "no-cache", "User-Agent": userAgent },
     });
   } finally {
     clearTimeout(timeout);
@@ -41,20 +47,24 @@ async function fetchChecked(url, { expectHtml = false } = {}) {
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
   const text = await response.text();
   if (!text.trim()) throw new Error(`${url}: empty response`);
+
+  const contentType = response.headers.get("content-type") ?? "";
   if (expectHtml) {
-    const contentType = response.headers.get("content-type") ?? "";
     if (!contentType.toLowerCase().includes("text/html")) throw new Error(`${url}: expected HTML Content-Type, got ${contentType || "missing"}`);
     if (/There isn't a GitHub Pages site here|<title>\s*404\b|404 File not found/i.test(text)) {
       throw new Error(`${url}: response resembles a GitHub Pages 404`);
     }
   }
+  if (expectedContentType && !contentType.toLowerCase().includes(expectedContentType.toLowerCase())) {
+    throw new Error(`${url}: expected ${expectedContentType} Content-Type, got ${contentType || "missing"}`);
+  }
   return { response, text };
 }
 
-async function readSitemap(url, visited = new Set()) {
+async function readSitemap(url, visited = new Set(), userAgent = HEALTHCHECK_USER_AGENT) {
   if (visited.has(url)) throw new Error(`sitemap loop detected: ${url}`);
   visited.add(url);
-  const { text } = await fetchChecked(url);
+  const { text } = await fetchChecked(url, { userAgent });
   const type = assertSitemapShape(text, url);
   const entries = locs(text);
   if (type === "urlset") return entries;
@@ -63,7 +73,7 @@ async function readSitemap(url, visited = new Set()) {
   for (const child of entries) {
     const parsed = new URL(child);
     if (parsed.origin !== ORIGIN) throw new Error(`${url}: child sitemap has wrong origin ${child}`);
-    urls.push(...await readSitemap(parsed.href, visited));
+    urls.push(...await readSitemap(parsed.href, visited, userAgent));
   }
   return urls;
 }
@@ -90,15 +100,23 @@ function deterministicSample(urls, max = MAX_SAMPLE) {
 
 export async function checkProduction({ expectedSha = process.env.EXPECTED_PROD_SHA ?? null } = {}) {
   const homepage = `${ORIGIN}/`;
+  const faviconUrl = `${ORIGIN}/favicon.svg`;
   const robotsUrl = `${ORIGIN}/robots.txt`;
   const sitemapUrl = `${ORIGIN}/sitemap.xml`;
   const versionUrl = `${ORIGIN}/deploy-version.txt`;
 
   await fetchChecked(homepage, { expectHtml: true });
-  const { text: robots } = await fetchChecked(robotsUrl);
+
+  const { text: favicon } = await fetchChecked(faviconUrl, {
+    expectedContentType: "image/svg+xml",
+    userAgent: YANDEX_BOT_USER_AGENT,
+  });
+  if (!/<svg\b/i.test(favicon)) throw new Error("favicon.svg: response is not SVG");
+
+  const { text: robots } = await fetchChecked(robotsUrl, { userAgent: YANDEX_BOT_USER_AGENT });
   if (!robots.includes(`Sitemap: ${sitemapUrl}`)) throw new Error("robots.txt: production sitemap declaration missing");
 
-  const sitemapUrls = await readSitemap(sitemapUrl);
+  const sitemapUrls = await readSitemap(sitemapUrl, new Set(), YANDEX_BOT_USER_AGENT);
   if (sitemapUrls.length === 0) throw new Error("sitemap contains no URLs");
   for (const url of sitemapUrls) {
     const parsed = new URL(url);
@@ -115,6 +133,7 @@ export async function checkProduction({ expectedSha = process.env.EXPECTED_PROD_
 
   return {
     homepage: "PASS",
+    favicon: "PASS",
     robots: "PASS",
     sitemap: "PASS",
     deployVersion: expectedSha ? "PASS" : "CHECKED",
