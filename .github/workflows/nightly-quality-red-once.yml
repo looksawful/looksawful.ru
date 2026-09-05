@@ -1,4 +1,4 @@
-name: Nightly Quality RED Once
+name: External Links RED Once
 
 on:
   push:
@@ -25,7 +25,5 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Hide temporary workflow from canonical workflow-set contract
-        run: rm .github/workflows/nightly-quality-red-once.yml
-      - name: Run CI contracts
-        run: npm run test:ci
+      - name: Run external-link contracts
+        run: node --test test/external-links.test.mjs
