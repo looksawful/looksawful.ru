@@ -233,6 +233,7 @@ export function applyEntityPageVisibility(
 }
 
 export function resolveEntityPageContentVisibility(content: EntityPageContent): EntityPageContent {
-  const source = getEntityPageVisibilitySource(content.pageId);
+  const source = visibilitySources[content.pageId as keyof typeof visibilitySources];
+  if (!source) return content;
   return applyEntityPageVisibility(content, parseEntityPageVisibility(source, content));
 }
