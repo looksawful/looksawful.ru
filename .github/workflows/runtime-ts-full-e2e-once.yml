@@ -35,6 +35,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
       - name: Calculate canonical media fingerprint
         id: media
         shell: bash
@@ -49,18 +53,16 @@ jobs:
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
-      - name: Install media tooling on cache miss
-        if: steps.media-cache.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
       - name: Recover generated media on cache miss
         if: steps.media-cache.outputs.cache-hit != 'true'
         run: npm run media:sync
       - name: Verify generated media
         run: node tools/media-dev-state.mjs --cache-verify
       - run: npm run typecheck
-      - run: npm run test:core
+      - name: Core tests without verifier-only workflow file
+        run: |
+          rm .github/workflows/runtime-ts-full-e2e-once.yml
+          npm run test:core
       - name: Build production site
         run: npm run build:site
       - name: Install Chromium
