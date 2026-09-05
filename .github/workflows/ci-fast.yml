@@ -51,20 +51,46 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
+      - name: Fetch PR base for media routing
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          git cat-file -e "$BASE_SHA^{commit}"
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
+      - name: Classify pull request media scope
+        if: github.event_name == 'pull_request'
+        id: affected
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          node tools/media/affected-media.mjs \
+            --base "$BASE_SHA" \
+            --head "$HEAD_SHA" \
+            --github-output "$GITHUB_OUTPUT"
       - name: Check repository growth
+        if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: npm run check:repo-growth
       - name: Install dependencies
+        if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: npm ci
       - name: Calculate canonical media fingerprint
+        if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         id: media
         shell: bash
         run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
       - name: Restore exact generated media cache
+        if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         id: media-cache
         uses: actions/cache/restore@v6
         with:
@@ -75,17 +101,17 @@ jobs:
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Verify restored generated media
-        if: steps.media-cache.outputs.cache-hit == 'true'
+        if: (github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true') && steps.media-cache.outputs.cache-hit == 'true'
         run: node tools/media-dev-state.mjs --cache-verify
       - name: Install recovery video tooling on cache miss
-        if: steps.media-cache.outputs.cache-hit != 'true'
+        if: (github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true') && steps.media-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install --yes ffmpeg
       - name: Recover generated media on cache miss
-        if: steps.media-cache.outputs.cache-hit != 'true'
+        if: (github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true') && steps.media-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -93,7 +119,7 @@ jobs:
           node tools/media-dev-state.mjs --cache-verify
           git diff --exit-code
       - name: Save recovered generated media cache
-        if: steps.media-cache.outputs.cache-hit != 'true'
+        if: (github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true') && steps.media-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
           path: |
@@ -103,8 +129,11 @@ jobs:
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Typecheck
+        if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: npm run typecheck
       - name: Fast tests
+        if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: npm run test:fast
       - name: Production build
+        if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: npm run build:site

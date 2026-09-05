@@ -110,8 +110,21 @@ jobs:
           fi
           printf 'has_image_source=%s\nhas_video_source=%s\nhas_media_reference_or_metadata=%s\nhas_image=%s\nhas_video=%s\nhas_source=%s\nhas_media_change=%s\nrebuild=%s\n' \
             "$has_image_source" "$has_video_source" "$has_media_reference_or_metadata" "$has_image" "$has_video" "$has_source" "$has_media_change" "$rebuild" >> "$GITHUB_OUTPUT"
-      - name: Calculate previous media fingerprint
+      - name: Resolve affected media assets
         if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true'
+        id: affected
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          node tools/media/affected-media.mjs \
+            --base "$BEFORE" \
+            --head "$HEAD_SHA" \
+            --github-output "$GITHUB_OUTPUT"
+      - name: Calculate previous media fingerprint
+        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         id: previous-media
         shell: bash
         env:
@@ -122,7 +135,7 @@ jobs:
           previous="$(cd /tmp/media-before && node tools/media-dev-state.mjs --fingerprint)"
           echo "fingerprint=$previous" >> "$GITHUB_OUTPUT"
       - name: Restore exact previous generated media cache
-        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true'
+        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         id: previous-cache
         uses: actions/cache/restore@v6
         with:
@@ -132,15 +145,15 @@ jobs:
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.previous-media.outputs.fingerprint }}
-      - name: Require exact base cache for non-video media mutation
-        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.scope.outputs.has_video != 'true' && steps.previous-cache.outputs.cache-hit != 'true'
+      - name: Require exact base cache for broad non-video media mutation
+        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true' && steps.scope.outputs.has_video != 'true' && steps.previous-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          echo "Exact previous generated-media cache is missing for a reference/metadata or image-only media update." >&2
-          echo "Run CMS media with rebuild_cache=true, then retry. ffmpeg and heavy video generation are intentionally not used for this path." >&2
+          echo "Exact previous generated-media cache is missing for a broad reference/metadata media update." >&2
+          echo "Run CMS media with rebuild_cache=true, then retry. The affected-only registered image path does not use this gate." >&2
           exit 1
-      - name: Verify previous cache before incremental generation or targeted validation
-        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
+      - name: Verify previous cache before broad incremental generation
+        if: github.event_name == 'push' && steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true' && steps.previous-cache.outputs.cache-hit == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -157,7 +170,7 @@ jobs:
           cp -a .cache/media/generated-cache.json /tmp/media-before/.cache/media/generated-cache.json
           (cd /tmp/media-before && node tools/media-dev-state.mjs --cache-verify)
       - name: Synchronize catalog metadata
-        if: steps.scope.outputs.has_media_change == 'true'
+        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         run: npm run media:catalog:sync
       - name: Install video tooling
         if: steps.scope.outputs.has_video == 'true'
@@ -173,30 +186,47 @@ jobs:
         if: steps.scope.outputs.rebuild != 'true' && steps.scope.outputs.has_video == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
         run: npm run media:video:build
       - name: Build image derivatives incrementally
-        if: steps.scope.outputs.rebuild != 'true' && steps.scope.outputs.has_image == 'true' && steps.previous-cache.outputs.cache-hit == 'true'
+        if: steps.scope.outputs.rebuild != 'true' && steps.scope.outputs.has_image == 'true' && steps.affected.outputs.image_only != 'true' && steps.previous-cache.outputs.cache-hit == 'true'
         run: npm run media:build
+      - name: Build affected image derivatives only
+        if: steps.affected.outputs.image_only == 'true'
+        shell: bash
+        env:
+          IMAGE_ASSET_IDS: ${{ steps.affected.outputs.image_asset_ids }}
+        run: |
+          set -euo pipefail
+          IFS=',' read -ra ids <<< "$IMAGE_ASSET_IDS"
+          args=()
+          for id in "${ids[@]}"; do
+            [[ -n "$id" ]] && args+=(--asset-id "$id")
+          done
+          (( ${#args[@]} > 0 )) || { echo 'No affected image assets resolved.' >&2; exit 1; }
+          node tools/build-responsive-media.mjs "${args[@]}"
+      - name: Verify affected image contract
+        if: steps.affected.outputs.image_only == 'true'
+        run: node --test test/media-tools/affected-media-ci.test.mjs
       - name: Validate media references
-        if: steps.scope.outputs.has_media_change == 'true'
+        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         run: npm run test:media:contract
       - name: Validate generated media
-        if: steps.scope.outputs.has_media_change == 'true'
+        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         run: npm run test:media:checks
       - name: Confirm normalized media catalog is stable
-        if: steps.scope.outputs.has_media_change == 'true'
+        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         run: npm run media:catalog:check
       - name: Write canonical generated-media cache marker
-        if: steps.scope.outputs.has_media_change == 'true'
+        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         run: node tools/media-dev-state.mjs --cache-write
       - name: Calculate final media fingerprint
-        if: steps.scope.outputs.has_media_change == 'true'
+        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         id: media
         shell: bash
         run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
       - name: Verify complete final generated media state
-        if: steps.scope.outputs.has_media_change == 'true'
+        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         run: node tools/media-dev-state.mjs --cache-verify
       - name: Save exact generated media cache
-        if: steps.scope.outputs.has_media_change == 'true' && (github.event_name != 'push' || steps.previous-cache.outputs.cache-hit != 'true' || steps.media.outputs.fingerprint != steps.previous-media.outputs.fingerprint)
+        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true' && (github.event_name != 'push' || steps.previous-cache.outputs.cache-hit != 'true' || steps.media.outputs.fingerprint != steps.previous-media.outputs.fingerprint)
         uses: actions/cache/save@v6
         with:
           path: |
@@ -205,8 +235,8 @@ jobs:
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
-      - name: Final Fast validation for source mutation
-        if: steps.scope.outputs.has_image == 'true' || steps.scope.outputs.has_video == 'true' || steps.scope.outputs.rebuild == 'true'
+      - name: Final Fast validation for broad source mutation
+        if: steps.affected.outputs.image_only != 'true' && (steps.scope.outputs.has_image == 'true' || steps.scope.outputs.has_video == 'true' || steps.scope.outputs.rebuild == 'true')
         shell: bash
         run: |
           set -euo pipefail
