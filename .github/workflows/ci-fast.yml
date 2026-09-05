@@ -123,6 +123,8 @@ jobs:
           - webkit
           - chrome
           - msedge
+          - opera
+          - yandex
     steps:
       - name: Checkout exact source tree
         uses: actions/checkout@v7
@@ -138,8 +140,38 @@ jobs:
         run: npm ci
       - name: Build site
         run: npm run build:vite
-      - name: Install browser
+      - name: Install Playwright browser
+        if: matrix.browser != 'opera' && matrix.browser != 'yandex'
         run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Install Chromium runtime dependencies
+        if: matrix.browser == 'opera' || matrix.browser == 'yandex'
+        run: npx playwright install-deps chromium
+      - name: Install Opera Stable
+        if: matrix.browser == 'opera'
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://deb.opera.com/archive.key | gpg --dearmor | sudo tee /usr/share/keyrings/opera-browser.gpg >/dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/opera-browser.gpg] https://deb.opera.com/opera-stable/ stable non-free' | sudo tee /etc/apt/sources.list.d/opera-stable.list
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install --yes opera-stable
+          executable="$(command -v opera || command -v opera-stable)"
+          test -n "$executable"
+          echo "E2E_EXECUTABLE_PATH=$executable" >> "$GITHUB_ENV"
+          "$executable" --version
+      - name: Install Yandex Browser Stable
+        if: matrix.browser == 'yandex'
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://repo.yandex.ru/yandex-browser/YANDEX-BROWSER-KEY.GPG | gpg --dearmor | sudo tee /usr/share/keyrings/yandex-browser.gpg >/dev/null
+          echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/yandex-browser.gpg] https://repo.yandex.ru/yandex-browser/deb stable main' | sudo tee /etc/apt/sources.list.d/yandex-browser.list
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install --yes yandex-browser-stable
+          executable="$(command -v yandex-browser-stable || command -v yandex-browser)"
+          test -n "$executable"
+          echo "E2E_EXECUTABLE_PATH=$executable" >> "$GITHUB_ENV"
+          "$executable" --version
       - name: Run project-nav responsive diagnostic
         env:
           E2E_BROWSER: ${{ matrix.browser }}
