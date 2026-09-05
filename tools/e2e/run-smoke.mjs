@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import { getExpectedCvCardCount, getExpectedCvHiddenCards } from "../smoke-cv.mjs";
 import { mapWithConcurrency } from "./concurrency.mjs";
+import { hasConfiguredCvAnalytics } from "./cv-analytics.mjs";
 import { waitForDocumentReady, waitForLightboxClosed } from "./readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
+
+export { hasConfiguredCvAnalytics } from "./cv-analytics.mjs";
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 
@@ -154,7 +157,7 @@ async function verifyCanvas(page) {
   assert.notEqual(await page.locator("[data-animated-canvas-gallery]").first().getAttribute("data-gallery-state"), "error");
 }
 
-export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
+export async function runQuickSmoke({ browser, baseUrl, cvMode = "production" }) {
   const runtime = { browser, baseUrl };
   // These are the only parallel contexts; callers run quick smoke before deep suites.
   await mapWithConcurrency(VIEWPORTS, 2, (viewport) => audit(runtime, "/", viewport, async (page) => {
@@ -171,21 +174,26 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     assert.equal(await page.locator(".experience-card").count(), getExpectedCvCardCount(cvMode));
     assert.equal(await page.locator(".experience-card[hidden]").count(), getExpectedCvHiddenCards(cvMode));
     if (cvMode === "production") {
+      const analyticsConfigured = hasConfiguredCvAnalytics();
       assert.equal(
         await page.locator("script[data-static-site-analytics]").count(),
-        1,
-        "Production CV must include exactly one isolated analytics bootstrap",
+        analyticsConfigured ? 1 : 0,
+        analyticsConfigured
+          ? "Production CV must include exactly one isolated analytics bootstrap when analytics is configured"
+          : "Production CV must not inject an analytics bootstrap when no provider is configured",
       );
       assert.equal(
         await page.locator('script[src="/src/main.js"], script[src^="/assets/main-"]').count(),
         0,
         "Production CV must not load the site application runtime",
       );
-      assert.equal(
-        await page.locator('script[data-site-analytics="yandex"]').count(),
-        0,
-        "Yandex Metrica must remain unloaded before analytics consent",
-      );
+      if (!analyticsConfigured) {
+        assert.equal(
+          await page.locator('script[data-site-analytics="yandex"]').count(),
+          0,
+          "Yandex Metrica must stay absent when no analytics provider is configured",
+        );
+      }
     } else {
       assert.equal(await page.locator("script").count(), 0, "Authored CV must remain script-free");
     }
