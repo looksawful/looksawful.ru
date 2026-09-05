@@ -46,14 +46,14 @@ test("production public-static CV is finalized during the Vite build instead of 
   const plugin = read("src/site/build/public-static-build-plugin.ts");
   const vite = read("vite.config.ts");
   const pkg = JSON.parse(read("package.json"));
-  const workflow = read(".github/workflows/pages.yml");
 
   assert.match(vite, /createPublicStaticBuildPlugin/);
   assert.match(plugin, /transformCvContent/);
   assert.match(plugin, /removeHidden:\s*true/);
   assert.match(plugin, /injectStaticSiteAnalytics/);
   assert.equal(pkg.scripts?.["cv:content:apply"], undefined);
-  assert.equal(pkg.scripts?.["cv:prod:prepare"], undefined);
+  assert.equal(pkg.scripts?.["cv:prod:prepare"], "npm run cv:prod:verify");
   assert.doesNotMatch(pkg.scripts?.["site:postbuild"] ?? "", /cv:content:apply/);
-  assert.doesNotMatch(workflow, /cv:prod:prepare|Prepare production CV/);
+  assert.equal(existsSync(new URL("../tools/apply-cv-content.mjs", import.meta.url)), false);
+  assert.equal(existsSync(new URL("../tools/prepare-cv-production.mjs", import.meta.url)), false);
 });
