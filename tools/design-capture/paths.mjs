@@ -7,13 +7,18 @@ function safeSegment(value) {
     .replace(/^\/+|\/+$/g, "")
     .replace(/\.html$/i, "-html")
     .replace(/[^a-z0-9_-]+/g, "-")
-    .replace(/-{2,}/g, "-")
     .replace(/^-|-$/g, "") || "home";
 }
 
 export function pageSlug(route) {
   if (route === "/") return "home";
-  return safeSegment(route.replaceAll("/", "--"));
+  return String(route)
+    .replace(/^\/+|\/+$/g, "")
+    .replaceAll("/", "--")
+    .replace(/\.html$/i, "-html")
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-|-$/g, "") || "home";
 }
 
 export function pageCapturePath({ viewport, route, kind }) {
