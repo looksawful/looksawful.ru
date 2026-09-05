@@ -25,12 +25,26 @@ async function write(root, relativePath, contents) {
   return filePath;
 }
 
+function packageLockFixture() {
+  return `${JSON.stringify({
+    lockfileVersion: 3,
+    packages: {
+      "": { devDependencies: { sharp: "0.34.3" } },
+      "node_modules/sharp": { version: "0.34.3" },
+    },
+  }, null, 2)}\n`;
+}
+
 test("sync-media-catalog bytes invalidate the default canonical media fingerprint", async () => {
   const repoRoot = await mkdtemp(path.join(os.tmpdir(), "media-fingerprint-sync-"));
   try {
     await write(repoRoot, "public/media/source/image.jpg", "image-source");
     for (const configPath of CONFIG_FILES) {
-      await write(repoRoot, configPath, `fixture:${configPath}\n`);
+      await write(
+        repoRoot,
+        configPath,
+        configPath === "package-lock.json" ? packageLockFixture() : `fixture:${configPath}\n`,
+      );
     }
 
     const assets = [{ id: "image", type: "image", src: "/media/source/image.jpg" }];
