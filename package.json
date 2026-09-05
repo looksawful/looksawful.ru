@@ -19,8 +19,7 @@
     "build:vite": "vite build",
     "build:site": "npm run cms:check && npm run build:vite && npm run site:postbuild",
     "build": "npm run build:site",
-    "cv:content:apply": "node tools/apply-cv-content.mjs",
-    "site:postbuild": "npm run cv:content:apply && node tools/generate-sitemap.mjs && node tools/check-site-meta.mjs && node tools/check-local-links.mjs",
+    "site:postbuild": "node tools/generate-sitemap.mjs && node tools/check-site-meta.mjs && node tools/check-local-links.mjs",
     "check:site-meta": "node tools/check-site-meta.mjs",
     "check:links": "node tools/check-local-links.mjs",
     "check:external-links": "node tools/check-external-links.mjs",
@@ -54,7 +53,6 @@
     "verify:core": "npm run typecheck && npm run test:core && npm run build:site && npm run test:e2e:full",
     "verify": "npm run media:ensure && npm run typecheck && npm run test:fast && npm run test:media:contract && npm run build:site && npm run test:e2e:smoke",
     "verify:full": "npm run media:sync && npm run verify:core",
-    "cv:prod:prepare": "node tools/prepare-cv-production.mjs",
     "cv:prod:verify": "node tools/verify-cv-production.mjs"
   },
   "devDependencies": {

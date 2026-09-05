@@ -98,8 +98,6 @@ jobs:
         run: npm run test:fast
       - name: Build site
         run: npm run build:site
-      - name: Prepare production CV
-        run: npm run cv:prod:prepare
       - name: Cache Playwright Chromium
         uses: actions/cache@v6
         with:

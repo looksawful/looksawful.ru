@@ -8,6 +8,7 @@ const expectedWorkflows = [
   "ci-fast.yml",
   "cms-media.yml",
   "codeql.yml",
+  "dependency-review.yml",
   "pages-cms-publish.yml",
   "pages.yml",
   "quality.yml",
@@ -70,9 +71,9 @@ test("production validates exact prod tree, exact media cache, fast safety, comp
   assert.match(workflow, /npm run typecheck/);
   assert.match(workflow, /npm run test:fast/);
   assert.match(workflow, /npm run build:site/);
-  assert.match(workflow, /npm run cv:prod:prepare/);
+  assert.doesNotMatch(workflow, /npm run cv:prod:prepare/);
   assert.match(workflow, /npm run test:e2e:production/);
-  assert.match(workflow, /npm run cv:prod:verify/);
+  assert.equal((workflow.match(/npm run cv:prod:verify/g) ?? []).length, 1);
   assert.match(workflow, /deploy-version\.txt/);
   assert.match(workflow, /actions\/upload-pages-artifact@v5/);
   assert.match(workflow, /include-hidden-files:\s*true/);
@@ -124,11 +125,13 @@ test("scheduled quality remains automatic but expensive suites are outside ordin
   assert.match(workflow, /concurrency:[\s\S]*?cancel-in-progress: false/);
   assert.match(workflow, /Resolve exact target SHA/);
   assert.match(workflow, /needs\.resolve-target\.outputs\.target-sha/);
+  assert.match(workflow, /full-e2e:[\s\S]*?Install media tooling[\s\S]*?ffmpeg[\s\S]*?npm run test:core/);
   assert.match(workflow, /npm run test:e2e:full/);
   assert.match(workflow, /npm run media:dedupe:physical/);
   assert.match(workflow, /npm run audit:deps/);
   assert.match(workflow, /npm run lighthouse/);
   assert.match(workflow, /npm run check:external-links/);
+  assert.doesNotMatch(workflow, /cv:content:apply/);
   assert.match(workflow, /check-production\.mjs/);
   assert.doesNotMatch(workflow, /^\s*push:/m);
 });
@@ -158,6 +161,8 @@ test("ordinary dev and build scripts do not mutate media", async () => {
   const { scripts } = JSON.parse(await read("package.json"));
   assert.equal(scripts.dev, "vite");
   assert.equal(scripts.build, "npm run build:site");
+  assert.equal(scripts["cv:prod:prepare"], undefined);
+  assert.equal(scripts["cv:prod:verify"], "node tools/verify-cv-production.mjs");
   assert.doesNotMatch(scripts.dev, /media:/);
   assert.doesNotMatch(scripts.build, /media:/);
 });

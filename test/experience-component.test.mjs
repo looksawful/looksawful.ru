@@ -5,7 +5,7 @@ import test from "node:test";
 
 const componentUrl = new URL("../src/components/experience.ts", import.meta.url);
 const stylesUrl = new URL("../src/styles/experience.css", import.meta.url);
-const mainUrl = new URL("../src/main.js", import.meta.url);
+const mainUrl = new URL("../src/main.ts", import.meta.url);
 const indexStylesUrl = new URL("../src/styles/index.css", import.meta.url);
 
 test("experience component is mounted and styled as an isolated component", async () => {

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const main = await readFile(new URL("../src/main.js", import.meta.url), "utf8");
+const main = await readFile(new URL("../src/main.ts", import.meta.url), "utf8");
 
 test("project-specific side-effect runtimes are loaded only when matching DOM exists", () => {
   assert.doesNotMatch(main, /^import\s+["']\.\/components\/awful-cases-game\.js["'];/m);

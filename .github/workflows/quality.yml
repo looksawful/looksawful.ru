@@ -104,7 +104,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:vite
-      - run: npm run cv:content:apply
       - run: npm run check:external-links
       - if: always()
         uses: actions/upload-artifact@v7
@@ -189,6 +188,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
       - name: Restore exact prepared media
         uses: actions/cache/restore@v6
         with:
