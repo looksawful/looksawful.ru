@@ -1,0 +1,54 @@
+name: Nightly Quality Fix Validation Once
+
+on:
+  pull_request:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    if: github.head_ref == 'agent/nightly-quality-fix-20260905'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Run focused nightly regression contracts
+        run: >-
+          node --test
+          test/ci-minimal-pipeline.test.mjs
+          test/media-tools/media-dev-state.test.mjs
+          test/media-tools/media-fingerprint-sync.test.mjs
+          test/external-links.test.mjs
+
+  ffprobe-environment:
+    if: github.head_ref == 'agent/nightly-quality-fix-20260905'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Prove catalog probe passes with declared media tooling
+        run: node --test test/media-tools/catalog-probe.test.mjs
