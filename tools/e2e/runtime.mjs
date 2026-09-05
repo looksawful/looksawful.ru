@@ -14,6 +14,8 @@ const BROWSER_TARGETS = {
   webkit: { type: webkit, launchOptions: {} },
   chrome: { type: chromium, launchOptions: { channel: "chrome" } },
   msedge: { type: chromium, launchOptions: { channel: "msedge" } },
+  opera: { type: chromium, launchOptions: {} },
+  yandex: { type: chromium, launchOptions: {} },
 };
 
 export function isDirectExecution(metaUrl) {
@@ -77,6 +79,11 @@ export async function withE2ERuntime(callback, options = {}) {
     throw new Error(`unsupported E2E browser target: ${browserName}`);
   }
 
+  const customExecutablePath = options.executablePath ?? process.env.E2E_EXECUTABLE_PATH;
+  if ((browserName === "opera" || browserName === "yandex") && !customExecutablePath) {
+    throw new Error(`${browserName} requires E2E_EXECUTABLE_PATH`);
+  }
+
   const baseUrl = options.baseUrl ?? `http://${host}:${port}`;
   const server = spawn(
     process.execPath,
@@ -126,7 +133,11 @@ export async function withE2ERuntime(callback, options = {}) {
 
   try {
     await waitForServer(baseUrl, server, () => serverOutput, options.waitAttempts);
-    browser = await browserTarget.type.launch({ headless: true, ...browserTarget.launchOptions });
+    browser = await browserTarget.type.launch({
+      headless: true,
+      ...browserTarget.launchOptions,
+      ...(customExecutablePath ? { executablePath: customExecutablePath } : {}),
+    });
     return await callback({ browser, browserName, baseUrl, host, port });
   } finally {
     process.removeListener("SIGINT", onSignal);
