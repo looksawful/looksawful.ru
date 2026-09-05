@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { cases } from "../src/data/catalog/cases.ts";
@@ -167,6 +168,13 @@ const catalogs = {
   Client: clients,
 };
 
+function collectStrings(value) {
+  if (typeof value === "string") return [value];
+  if (Array.isArray(value)) return value.flatMap(collectStrings);
+  if (value && typeof value === "object") return Object.values(value).flatMap(collectStrings);
+  return [];
+}
+
 for (const [entityName, expectedIds] of Object.entries(expectedIdentitySets)) {
   test(`${entityName} canonical identity set stays fixed during architecture migration`, () => {
     const actualIds = catalogs[entityName].map(({ id }) => id);
@@ -192,5 +200,22 @@ test("Jestei Pool human-readable catalog naming stays exact", () => {
       /\bJestei\b(?! Pool\b)/,
       `Human-readable Jestei Pool project name must not abbreviate the brand: ${project.name}`,
     );
+  }
+});
+
+test("Jestei Pool canonical RU and EN copy never abbreviates the brand", async () => {
+  const sources = await Promise.all([
+    readFile(new URL("../src/content/cases/jestei-pool.json", import.meta.url), "utf8"),
+    readFile(new URL("../src/content/i18n/en/cases/jestei-pool.json", import.meta.url), "utf8"),
+  ]);
+
+  for (const source of sources.map(JSON.parse)) {
+    for (const value of collectStrings(source)) {
+      assert.doesNotMatch(
+        value,
+        /\bJestei\b(?! Pool\b)/,
+        `Canonical Jestei Pool copy must use the full brand name: ${value}`,
+      );
+    }
   }
 });
