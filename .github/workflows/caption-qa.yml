@@ -1,0 +1,53 @@
+name: Caption QA
+
+on:
+  pull_request:
+    paths:
+      - "tools/capture-caption-qa.mjs"
+      - "test/caption-qa-route-matrix.test.mjs"
+      - ".github/workflows/caption-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: caption-qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Verify caption QA contract
+        run: node --test test/caption-qa-route-matrix.test.mjs
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Prepare media and build site
+        run: |
+          npm run media:sync
+          npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Capture caption evidence
+        run: node tools/capture-caption-qa.mjs
+      - name: Upload caption evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: caption-qa-${{ github.sha }}
+          path: artifacts/caption-qa
+          if-no-files-found: error
+          retention-days: 7
