@@ -1,4 +1,4 @@
-import { access, readFile, stat } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -8,6 +8,7 @@ import {
   decodeEntities,
   extractJsonLdBlocks,
   getCanonical,
+  getLinkHref,
   getMetaContent,
   getRobots,
   getTitle,
@@ -19,11 +20,30 @@ import {
 } from "./site-html-utils.mjs";
 
 const EXPECTED_ROBOTS = "index,follow,max-image-preview:large";
+const EXPECTED_FAVICON = "/favicon.svg";
+const EXPECTED_OG_SITE_NAME = "looksawful";
+const EXPECTED_OG_TYPE = "website";
+const EXPECTED_OG_LOCALE = "ru_RU";
+const EXPECTED_TWITTER_CARD = "summary_large_image";
 
 function parseSitemapLocs(xml) {
   return [...xml.matchAll(/<loc>([\s\S]*?)<\/loc>/gi)].map((match) =>
     decodeEntities(match[1]).trim(),
   );
+}
+
+async function validateOwnAssetUrl(value, distDir, label, kind) {
+  let url;
+  try {
+    url = new URL(value, SITE_ORIGIN);
+  } catch {
+    throw new Error(`${label}: ${kind} has invalid URL: ${value}`);
+  }
+  if (url.origin !== SITE_ORIGIN) throw new Error(`${label}: ${kind} must use ${SITE_ORIGIN}: ${value}`);
+  const assetPath = path.join(distDir, decodeURIComponent(url.pathname).replace(/^\/+/, ""));
+  const info = await stat(assetPath).catch(() => null);
+  if (!info?.isFile()) throw new Error(`${label}: ${kind} asset does not exist: ${assetPath}`);
+  return assetPath;
 }
 
 async function validateOwnOgImage(value, distDir, label) {
@@ -37,9 +57,7 @@ async function validateOwnOgImage(value, distDir, label) {
   if (!new Set(["looksawful.ru", "www.looksawful.ru"]).has(url.hostname)) {
     throw new Error(`${label}: og:image host is not looksawful.ru: ${value}`);
   }
-  const assetPath = path.join(distDir, decodeURIComponent(url.pathname).replace(/^\/+/, ""));
-  const info = await stat(assetPath).catch(() => null);
-  if (!info?.isFile()) throw new Error(`${label}: og:image asset does not exist: ${assetPath}`);
+  await validateOwnAssetUrl(value, distDir, label, "og:image");
 }
 
 export async function validateSite({ distDir = "dist" } = {}) {
@@ -68,10 +86,18 @@ export async function validateSite({ distDir = "dist" } = {}) {
     const title = getTitle(html);
     const description = getMetaContent(html, "description");
     const robots = getRobots(html);
+    const favicon = getLinkHref(html, "icon");
+    const ogType = getMetaContent(html, "og:type", "property");
+    const ogLocale = getMetaContent(html, "og:locale", "property");
+    const ogSiteName = getMetaContent(html, "og:site_name", "property");
     const ogTitle = getMetaContent(html, "og:title", "property");
     const ogDescription = getMetaContent(html, "og:description", "property");
     const ogUrl = getMetaContent(html, "og:url", "property");
     const ogImage = getMetaContent(html, "og:image", "property");
+    const twitterCard = getMetaContent(html, "twitter:card");
+    const twitterTitle = getMetaContent(html, "twitter:title");
+    const twitterDescription = getMetaContent(html, "twitter:description");
+    const twitterImage = getMetaContent(html, "twitter:image");
 
     if (!title?.trim()) errors.push(`${label}: missing or empty title`);
     if (!description?.trim()) errors.push(`${label}: missing or empty description`);
@@ -79,9 +105,23 @@ export async function validateSite({ distDir = "dist" } = {}) {
     else if (robots.replace(/\s+/g, "").toLowerCase() !== EXPECTED_ROBOTS) {
       errors.push(`${label}: robots must be ${EXPECTED_ROBOTS}`);
     }
+
+    if (favicon !== EXPECTED_FAVICON) {
+      errors.push(`${label}: favicon must be ${EXPECTED_FAVICON}`);
+    } else {
+      try { await validateOwnAssetUrl(favicon, root, label, "favicon"); } catch (error) { errors.push(error.message); }
+    }
+
+    if (ogType !== EXPECTED_OG_TYPE) errors.push(`${label}: og:type must be ${EXPECTED_OG_TYPE}`);
+    if (ogLocale !== EXPECTED_OG_LOCALE) errors.push(`${label}: og:locale must be ${EXPECTED_OG_LOCALE}`);
+    if (ogSiteName !== EXPECTED_OG_SITE_NAME) errors.push(`${label}: og:site_name must be ${EXPECTED_OG_SITE_NAME}`);
     if (!ogTitle?.trim()) errors.push(`${label}: missing og:title`);
     if (!ogDescription?.trim()) errors.push(`${label}: missing og:description`);
     if (!ogUrl?.trim()) errors.push(`${label}: missing og:url`);
+    if (twitterCard !== EXPECTED_TWITTER_CARD) errors.push(`${label}: twitter:card must be ${EXPECTED_TWITTER_CARD}`);
+    if (!twitterTitle?.trim()) errors.push(`${label}: missing twitter:title`);
+    if (!twitterDescription?.trim()) errors.push(`${label}: missing twitter:description`);
+    if (!twitterImage?.trim()) errors.push(`${label}: missing twitter:image`);
 
     let canonical = null;
     try {
@@ -96,6 +136,9 @@ export async function validateSite({ distDir = "dist" } = {}) {
     if (canonical && ogUrl && ogUrl !== canonical) errors.push(`${label}: og:url must equal canonical`);
     if (ogTitle && title && ogTitle.trim() !== title.trim()) errors.push(`${label}: og:title must equal title`);
     if (ogDescription && description && ogDescription !== description) errors.push(`${label}: og:description must equal description`);
+    if (twitterTitle && title && twitterTitle.trim() !== title.trim()) errors.push(`${label}: twitter:title must equal title`);
+    if (twitterDescription && description && twitterDescription !== description) errors.push(`${label}: twitter:description must equal description`);
+    if (twitterImage && ogImage && twitterImage !== ogImage) errors.push(`${label}: twitter:image must equal og:image`);
     if (ogImage) {
       try { await validateOwnOgImage(ogImage, root, label); } catch (error) { errors.push(error.message); }
     }
@@ -134,11 +177,23 @@ export async function validateSite({ distDir = "dist" } = {}) {
   try { sitemapText = await readFile(sitemapPath, "utf8"); } catch { errors.push("missing sitemap.xml"); }
 
   if (sitemapText) {
-    for (const loc of parseSitemapLocs(sitemapText)) {
+    const sitemapLocs = parseSitemapLocs(sitemapText);
+    const sitemapUrls = new Set();
+    for (const loc of sitemapLocs) {
       let url;
       try { url = new URL(loc); } catch { errors.push(`sitemap: invalid URL ${loc}`); continue; }
       if (url.origin !== SITE_ORIGIN) errors.push(`sitemap: URL has wrong origin ${loc}`);
       if (noindexCanonicals.has(loc)) errors.push(`sitemap: noindex URL included ${loc}`);
+      sitemapUrls.add(url.href);
+    }
+
+    if (/<urlset\b/i.test(sitemapText)) {
+      for (const canonical of canonicals.keys()) {
+        if (!sitemapUrls.has(canonical)) errors.push(`sitemap: missing indexable canonical ${canonical}`);
+      }
+      for (const sitemapUrl of sitemapUrls) {
+        if (!canonicals.has(sitemapUrl)) errors.push(`sitemap: URL has no indexable canonical ${sitemapUrl}`);
+      }
     }
   }
 
