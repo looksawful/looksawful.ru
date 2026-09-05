@@ -3,6 +3,7 @@ name: UI Responsive
 on:
   pull_request:
     paths:
+      - "package.json"
       - "src/components/project-navigation.ts"
       - "src/interactive.ts"
       - "src/styles/components.css"
@@ -22,7 +23,7 @@ concurrency:
 jobs:
   responsive:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v7
         with:
@@ -33,5 +34,15 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Project navigation contract
-        run: node --test test/project-navigation-mobile-viewport.test.mjs
+      - name: Project navigation contracts
+        run: >-
+          node --test
+          test/project-navigation-back-to-top.test.mjs
+          test/project-navigation-fallback.test.mjs
+          test/project-navigation-mobile-viewport.test.mjs
+      - name: Build site
+        run: npm run build:vite
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Responsive UI
+        run: npm run test:ui:responsive
