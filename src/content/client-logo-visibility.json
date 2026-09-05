@@ -1,182 +1,182 @@
 [
   {
     "id": "kursovoy",
-    "name": "KURSOVOY",
     "previewSrc": "/media/clients/logo-wall/client-logo-01.webp",
+    "name": "KURSOVOY",
     "visible": true
   },
   {
     "id": "players-club",
-    "name": "PLAYERS CLUB",
     "previewSrc": "/media/clients/logo-wall/client-logo-02.webp",
+    "name": "PLAYERS CLUB",
     "visible": true
   },
   {
     "id": "vk-music",
-    "name": "VK Музыка",
     "previewSrc": "/media/clients/logo-wall/client-logo-03.webp",
+    "name": "VK Музыка",
     "visible": true
   },
   {
     "id": "sensetique-photostudio",
-    "name": "Sensetique Photostudio",
     "previewSrc": "/media/clients/logo-wall/client-logo-05.webp",
+    "name": "Sensetique Photostudio",
     "visible": true
   },
   {
     "id": "48-jewelry",
-    "name": "48 Jewelry",
     "previewSrc": "/media/clients/logo-wall/client-logo-06.webp",
+    "name": "48 Jewelry",
     "visible": true
   },
   {
     "id": "second-friends-store",
-    "name": "Second Friends Store",
     "previewSrc": "/media/clients/logo-wall/client-logo-08.webp",
+    "name": "Second Friends Store",
     "visible": true
   },
   {
     "id": "li-ne-agency",
-    "name": "LI-NE Agency",
     "previewSrc": "/media/clients/logo-wall/client-logo-09.webp",
+    "name": "LI-NE Agency",
     "visible": true
   },
   {
     "id": "moch-fashn",
-    "name": "Moch Fashn",
     "previewSrc": "/media/clients/logo-wall/client-logo-10.webp",
+    "name": "Moch Fashn",
     "visible": true
   },
   {
     "id": "jestei-pool",
-    "name": "Jestei Pool",
     "previewSrc": "/media/clients/logo-wall/client-logo-11.webp",
-    "visible": true
+    "name": "Jestei Pool",
+    "visible": false
   },
   {
     "id": "lyve-moscow",
-    "name": "LYVÈ Moscow",
     "previewSrc": "/media/clients/logo-wall/client-logo-12.webp",
+    "name": "LYVÈ Moscow",
     "visible": true
   },
   {
     "id": "mad-cow-films",
-    "name": "Mad Cow Films",
     "previewSrc": "/media/clients/logo-wall/client-logo-13.webp",
+    "name": "Mad Cow Films",
     "visible": true
   },
   {
     "id": "moskovskie-novosti",
-    "name": "Газета «Московские Новости»",
     "previewSrc": "/media/clients/logo-wall/client-logo-14.webp",
+    "name": "Газета «Московские Новости»",
     "visible": true
   },
   {
     "id": "progress-tradition",
-    "name": "Прогресс-Традиция",
     "previewSrc": "/media/clients/logo-wall/client-logo-15.webp",
+    "name": "Прогресс-Традиция",
     "visible": true
   },
   {
     "id": "puma",
-    "name": "PUMA",
     "previewSrc": "/media/clients/logo-wall/client-logo-16.webp",
+    "name": "PUMA",
     "visible": true
   },
   {
     "id": "sensetique-production-agency",
-    "name": "Sensetique Production Agency",
     "previewSrc": "/media/clients/logo-wall/client-logo-17.webp",
-    "visible": true
+    "name": "Sensetique Production Agency",
+    "visible": false
   },
   {
     "id": "buro-24-7",
-    "name": "BURO 24/7",
     "previewSrc": "/media/clients/logo-wall/client-logo-18.webp",
+    "name": "BURO 24/7",
     "visible": true
   },
   {
     "id": "channel-one",
-    "name": "Первый канал",
     "previewSrc": "/media/clients/logo-wall/client-logo-19.webp",
+    "name": "Первый канал",
     "visible": true
   },
   {
     "id": "lenfilm",
-    "name": "Ленфильм",
     "previewSrc": "/media/clients/logo-wall/client-logo-20.webp",
-    "visible": true
+    "name": "Ленфильм",
+    "visible": false
   },
   {
     "id": "stereotactic",
-    "name": "STEREOTACTIC",
     "previewSrc": "/media/clients/logo-wall/client-logo-21.webp",
-    "visible": true
+    "name": "STEREOTACTIC",
+    "visible": false
   },
   {
     "id": "kaltblut",
-    "name": "KALTBLUT",
     "previewSrc": "/media/clients/logo-wall/client-logo-22.webp",
+    "name": "KALTBLUT",
     "visible": true
   },
   {
     "id": "s-and-s",
-    "name": "S&S",
     "previewSrc": "/media/clients/logo-wall/client-logo-23.webp",
+    "name": "S&S",
     "visible": true
   },
   {
     "id": "offmi",
-    "name": "OFFMi",
     "previewSrc": "/media/clients/logo-wall/client-logo-24.webp",
+    "name": "OFFMi",
     "visible": true
   },
   {
     "id": "evasha",
-    "name": "EVASHA",
     "previewSrc": "/media/clients/logo-wall/client-logo-25.webp",
+    "name": "EVASHA",
     "visible": true
   },
   {
     "id": "inna-honour",
-    "name": "Inna Honour",
     "previewSrc": "/media/clients/logo-wall/client-logo-26.webp",
+    "name": "Inna Honour",
     "visible": true
   },
   {
     "id": "flashin",
-    "name": "FLASHIN",
     "previewSrc": "/media/clients/logo-wall/client-logo-27.webp",
+    "name": "FLASHIN",
     "visible": true
   },
   {
     "id": "kislak",
-    "name": "Ki$lak",
     "previewSrc": "/media/clients/logo-wall/client-logo-28.webp",
+    "name": "Ki$lak",
     "visible": true
   },
   {
     "id": "dava",
-    "name": "DAVA",
     "previewSrc": "/media/clients/logo-wall/client-logo-29.webp",
+    "name": "DAVA",
     "visible": true
   },
   {
     "id": "styx-jewel",
-    "name": "Styx Jewel",
     "previewSrc": "/media/clients/logo-wall/client-logo-30.webp",
+    "name": "Styx Jewel",
     "visible": true
   },
   {
     "id": "affa-media",
-    "name": "AFFA MEDIA",
     "previewSrc": "/media/clients/logo-wall/client-logo-31.webp",
+    "name": "AFFA MEDIA",
     "visible": true
   },
   {
     "id": "vinne",
-    "name": "VINNE",
     "previewSrc": "/media/clients/logo-wall/client-logo-32.webp",
-    "visible": true
+    "name": "VINNE",
+    "visible": false
   }
 ]
