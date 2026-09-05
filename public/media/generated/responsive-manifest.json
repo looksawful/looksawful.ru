@@ -7776,29 +7776,29 @@
       "src": "/media/projects/index/shootings-cover.webp",
       "sourceWidth": 1580,
       "sourceHeight": 1360,
-      "sourceBytes": 1147684,
-      "sourceHash": "c05a6c38aa7cbd437342ed220f44b8b052ecbbec28ce07ed00c78ffcdb6a753e",
+      "sourceBytes": 1148382,
+      "sourceHash": "06409f7b43374748745ac30b68fbe638f84c1069a872b826d04925d3ee95eb0a",
       "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
       "variants": [
         {
           "src": "/media/generated/responsive/projects/index/shootings-cover@480.webp",
           "width": 480,
           "height": 413,
-          "bytes": 21664,
+          "bytes": 21916,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/index/shootings-cover@768.webp",
           "width": 768,
           "height": 661,
-          "bytes": 44964,
+          "bytes": 45208,
           "format": "webp"
         },
         {
           "src": "/media/generated/responsive/projects/index/shootings-cover@1280.webp",
           "width": 1280,
           "height": 1102,
-          "bytes": 93368,
+          "bytes": 93988,
           "format": "webp"
         }
       ]
