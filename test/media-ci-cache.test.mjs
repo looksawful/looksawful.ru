@@ -33,18 +33,20 @@ test("Fast CI and production consume only exact fingerprinted generated-media ca
   }
 });
 
-test("Fast CI media generation exists only as explicit cache-miss recovery", async () => {
+test("Fast CI media recovery is disabled for affected-only image PRs", async () => {
   const workflow = await read(".github/workflows/ci-fast.yml");
   const tooling = block(workflow, "Install recovery video tooling on cache miss");
   const recovery = block(workflow, "Recover generated media on cache miss");
   assert.match(tooling, /cache-hit != 'true'/);
+  assert.match(tooling, /image_only != 'true'/);
   assert.match(tooling, /ffmpeg/);
   assert.match(recovery, /cache-hit != 'true'/);
+  assert.match(recovery, /image_only != 'true'/);
   assert.match(recovery, /npm run media:sync/);
   assert.match(workflow, /actions\/cache\/save@v6/);
 });
 
-test("CMS media consumes an exact previous cache and saves one exact final cache", async () => {
+test("CMS media may reuse an exact previous cache but image-only work does not require it", async () => {
   const workflow = await read(".github/workflows/cms-media.yml");
   const previous = block(workflow, "Restore exact previous generated media cache");
   const save = block(workflow, "Save exact generated media cache");
@@ -52,16 +54,22 @@ test("CMS media consumes an exact previous cache and saves one exact final cache
   assert.match(previous, /actions\/cache\/restore@v6/);
   assertGeneratedMediaCache(previous, "cms previous cache");
   assert.match(previous, /steps\.previous-media\.outputs\.fingerprint/);
+  assert.match(previous, /image_only != 'true'/);
   assert.match(previous, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.previous-media\.outputs\.fingerprint \}\}/);
   assert.doesNotMatch(previous, /restore-keys:/);
-  assert.match(workflow, /Verify previous cache before incremental generation[\s\S]*?media-dev-state\.mjs --cache-verify/);
+
+  const requireBroad = block(workflow, "Require exact base cache for broad non-video media mutation");
+  assert.match(requireBroad, /image_only != 'true'/);
+  assert.doesNotMatch(requireBroad, /image-only/i);
+  assert.match(workflow, /Verify previous cache before broad incremental generation[\s\S]*?media-dev-state\.mjs --cache-verify/);
 
   assert.match(save, /actions\/cache\/save@v6/);
   assertGeneratedMediaCache(save, "cms final cache");
   assert.match(save, /steps\.media\.outputs\.fingerprint/);
+  assert.match(save, /image_only != 'true'/);
   assert.match(save, /generated-media-v3-\$\{\{ runner\.os \}\}-\$\{\{ steps\.media\.outputs\.fingerprint \}\}/);
-  assert.match(workflow, /Write canonical generated-media cache marker[\s\S]*?--cache-write/);
-  assert.match(workflow, /Verify complete final generated media state[\s\S]*?--cache-verify/);
+  assert.match(workflow, /Write canonical generated-media cache marker[\s\S]*?image_only != 'true'[\s\S]*?--cache-write/);
+  assert.match(workflow, /Verify complete final generated media state[\s\S]*?image_only != 'true'[\s\S]*?--cache-verify/);
   assert.doesNotMatch(workflow, /generated-media-v2-/, "cms media must not expose the retired v2 cache namespace");
 });
 
