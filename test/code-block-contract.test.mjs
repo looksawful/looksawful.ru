@@ -16,6 +16,14 @@ function awfulCasesPage() {
   return page;
 }
 
+function awfulCasesCmsEntry(cms) {
+  const start = cms.indexOf("      - name: awful-cases-standalone-project\n");
+  assert.notEqual(start, -1, "Awful Cases Pages CMS entry must exist");
+  const rest = cms.slice(start);
+  const next = rest.indexOf("\n  - name: ", 1);
+  return next === -1 ? rest : rest.slice(0, next);
+}
+
 test("code-block is a first-class ContentBlock rendered through the canonical boundary", () => {
   assert.equal(CONTENT_BLOCK_TYPES.includes("code-block"), true);
 
@@ -93,6 +101,18 @@ test("Awful Cases owns install and run snippets in authored content and exposes 
     "codeBlocks.run.code",
     "codeBlocks.run.title",
   ]);
+});
+
+test("Pages CMS exposes authored Awful code fields but keeps rendering metadata protected", async () => {
+  const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
+  const entry = awfulCasesCmsEntry(cms);
+
+  assert.match(entry, /- name: codeBlocks\n\s+label: Кодовые блоки\n\s+type: object/);
+  assert.match(entry, /- name: install\n\s+label: Установка\n\s+type: object/);
+  assert.match(entry, /- name: run\n\s+label: Запуск\n\s+type: object/);
+  assert.equal((entry.match(/- name: code\n/g) ?? []).length, 2);
+  assert.equal((entry.match(/- name: title\n/g) ?? []).length >= 3, true);
+  assert.doesNotMatch(entry, /- name: (?:language|variant|layout|skin)\n/);
 });
 
 test("canonical Awful Cases page renders authored code through CodeBlock with code-owned semantics", async () => {
