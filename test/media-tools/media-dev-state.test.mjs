@@ -55,7 +55,19 @@ async function createFixture() {
   await write(repoRoot, "public/media/generated/video/video.web.mp4", "video");
 
   for (const configPath of CONFIG_FILES) {
-    await write(repoRoot, configPath, `fixture:${configPath}\n`);
+    await write(
+    repoRoot,
+    configPath,
+    configPath === "package-lock.json"
+      ? `${JSON.stringify({
+          lockfileVersion: 3,
+          packages: {
+            "": { devDependencies: { sharp: "^0.34.5" } },
+            "node_modules/sharp": { version: "0.34.5" },
+          },
+        }, null, 2)}\n`
+      : `fixture:${configPath}\n`,
+  );
   }
 
   await write(

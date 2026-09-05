@@ -54,7 +54,7 @@ test("shootings archive data stays isolated while the Collection route remains d
 
   const indexSource = readFileSync("index.html", "utf8");
   assert.match(indexSource, /id="project-shootings"/);
-  assert.match(indexSource, /<!-- SHOOTINGS_INTRO -->/);
+  assert.doesNotMatch(indexSource, /<!-- SHOOTINGS_INTRO -->/);
   assert.doesNotMatch(indexSource, /\/media\/projects\/shootings\/behance\//);
 
   const projectsSource = readFileSync("src/data/projects.ts", "utf8");
@@ -68,7 +68,7 @@ test("shootings archive data stays isolated while the Collection route remains d
   assert.match(cardSource, /getProjectCardHref\(card\)/);
   assert.doesNotMatch(cardSource, /const href = `#project-\$\{card\.id\}`/);
 
-  const mainSource = readFileSync("src/main.js", "utf8");
+  const mainSource = readFileSync("src/main.ts", "utf8");
   assert.doesNotMatch(mainSource, /^import\s+["']\.\/components\/(?:awful-cases-game|animated-canvas-gallery)\.js["'];/m);
   assert.match(mainSource, /import\(["']\.\/components\/awful-cases-game\.js["']\)/);
   assert.match(mainSource, /import\(["']\.\/components\/animated-canvas-gallery\.js["']\)/);

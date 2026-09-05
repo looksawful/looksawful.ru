@@ -38,6 +38,40 @@ test("production E2E runner reuses one runtime for compact production smoke and 
   assert.doesNotMatch(source, /captureCaptionQa|runAllSmokeSuites|runSmokeNavigation|runSmokeMpa/);
 });
 
+test("full combined E2E validates production CV output on direct execution", async () => {
+  const source = await read("tools/e2e/run-all.mjs");
+  assert.match(source, /runAllSmokeSuites\(\{\s*browser,\s*baseUrl,\s*cvMode\s*=\s*["']authored["']/s);
+  assert.match(
+    source,
+    /isDirectExecution\(import\.meta\.url\)[\s\S]*?runAllSmokeSuites\(\{\s*browser,\s*baseUrl,\s*cvMode:\s*["']production["']/s,
+  );
+});
+
+test("production CV analytics bootstrap expectation follows configured providers", async () => {
+  const smoke = await import("../tools/e2e/run-smoke.mjs");
+  assert.equal(typeof smoke.getExpectedStaticAnalyticsBootstrapCount, "function");
+  assert.equal(smoke.getExpectedStaticAnalyticsBootstrapCount({}), 0);
+  assert.equal(
+    smoke.getExpectedStaticAnalyticsBootstrapCount({
+      VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: " ",
+      VITE_YANDEX_METRIKA_COUNTER_ID: "not-a-counter",
+    }),
+    0,
+  );
+  assert.equal(
+    smoke.getExpectedStaticAnalyticsBootstrapCount({
+      VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: "cf-token",
+    }),
+    1,
+  );
+  assert.equal(
+    smoke.getExpectedStaticAnalyticsBootstrapCount({
+      VITE_YANDEX_METRIKA_COUNTER_ID: "112065623",
+    }),
+    1,
+  );
+});
+
 test("package scripts expose production E2E without changing standalone smoke commands", async () => {
   const pkg = JSON.parse(await read("package.json"));
   assert.equal(pkg.scripts["test:e2e:production"], "node tools/e2e/run-production.mjs");

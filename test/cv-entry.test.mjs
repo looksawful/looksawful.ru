@@ -6,8 +6,8 @@ const rootHtmlUrl = new URL("../index.html", import.meta.url);
 const cvHtmlUrl = new URL("../public/cv/index.html", import.meta.url);
 const cvCssUrl = new URL("../public/cv/cv.css", import.meta.url);
 const portraitUrl = new URL("../public/media/hero/hero-portrait.webp", import.meta.url);
-const pagesWorkflowUrl = new URL("../.github/workflows/pages.yml", import.meta.url);
-const packageUrl = new URL("../package.json", import.meta.url);
+const buildPluginUrl = new URL("../src/site/build/public-static-build-plugin.ts", import.meta.url);
+const viteConfigUrl = new URL("../vite.config.ts", import.meta.url);
 
 test("CV remains a direct-link-only page", async () => {
   const rootHtml = await readFile(rootHtmlUrl, "utf8");
@@ -29,17 +29,18 @@ test("CV remains indexable", async () => {
   );
 });
 
-test("production deployment strips hidden CV experience cards before upload", async () => {
-  const [workflow, packageRaw] = await Promise.all([
-    readFile(pagesWorkflowUrl, "utf8"),
-    readFile(packageUrl, "utf8"),
+test("production build strips hidden CV experience cards before upload", async () => {
+  const [plugin, vite] = await Promise.all([
+    readFile(buildPluginUrl, "utf8"),
+    readFile(viteConfigUrl, "utf8"),
   ]);
-  const { scripts } = JSON.parse(packageRaw);
 
-  assert.match(workflow, /run: npm run cv:prod:prepare(?:\n|$)/);
-  assert.equal(scripts["cv:prod:prepare"], "node tools/prepare-cv-production.mjs");
-  assert.doesNotMatch(workflow, /node tools\/prepare-cv-production\.mjs\s+dist\/cv\/index\.html/);
+  assert.match(vite, /createPublicStaticBuildPlugin/);
+  assert.match(plugin, /transformCvContent/);
+  assert.match(plugin, /removeHidden:\s*true/);
+  assert.match(plugin, /closeBundle/);
 });
+
 test("CV exposes only navigation back to the portfolio", async () => {
   const cvHtml = await readFile(cvHtmlUrl, "utf8");
 

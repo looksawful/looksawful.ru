@@ -19,9 +19,11 @@ export const fastTests = new Set([
   "test/domain-taxonomy-references.test.mjs",
   "test/editorial-content-boundary.test.mjs",
   "test/editorial-copy-optional.test.mjs",
+  "test/lighthouse-ci-config.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
   "test/site-analytics.test.mjs",
+  "test/site-composition.test.mjs",
   "test/site-pages.test.mjs",
   "test/static-site-analytics.test.mjs",
 ]);

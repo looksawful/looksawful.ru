@@ -19,7 +19,7 @@ test("local dev and ordinary build stay non-mutating while explicit media prepar
   const mediaSync = requireScript("media:sync");
   const mediaEnsure = requireScript("media:ensure");
   assert.equal(requireScript("dev"), "vite");
-  assert.equal(requireScript("build"), "npm run build:site");
+  assert.equal(requireScript("build"), "npm run typecheck && npm run build:site");
   assert.equal(requireScript("test"), "npm run test:fast");
 
   assert.match(mediaSync, /media:catalog:sync/);
@@ -31,7 +31,7 @@ test("local dev and ordinary build stay non-mutating while explicit media prepar
 
   assert.doesNotMatch(requireScript("dev"), /media:/);
   assert.doesNotMatch(requireScript("build"), /media:/);
-  assert.doesNotMatch(requireScript("build:site"), /media:sync|media:ensure|media:prepare/);
+  assert.doesNotMatch(requireScript("build:site"), /media:sync|media:ensure|media:prepare|typecheck/);
 });
 
 test("explicit full verification performs expensive core stages exactly once", () => {

@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Plugin } from "vite";
@@ -75,7 +74,6 @@ export function renderNotFoundPage(page: NonNullable<ReturnType<typeof getPageBy
 }
 
 export function createSitePagesPlugin(root = process.cwd()): Plugin {
-  const homepageTemplatePath = path.resolve(root, "index.html");
   assertHomepagePresentationSupported(homepageEntries);
 
   return {
@@ -98,8 +96,7 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
         if (page.renderer === "home") return renderHomepagePage(html);
 
         if (page.renderer === "entity") {
-          const homepageTemplate = readFileSync(homepageTemplatePath, "utf8");
-          return renderStandaloneEntityPage(homepageTemplate, page);
+          return renderStandaloneEntityPage(page);
         }
 
         if (page.renderer === "not-found") return renderNotFoundPage(page);
