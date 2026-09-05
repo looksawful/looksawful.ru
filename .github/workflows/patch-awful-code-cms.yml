@@ -1,0 +1,78 @@
+name: Patch Awful code CMS
+
+on:
+  push:
+    branches:
+      - agent/code-block-contract-268
+    paths:
+      - .github/workflows/patch-awful-code-cms.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: agent/code-block-contract-268
+          fetch-depth: 1
+      - name: Patch Pages CMS entry
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('.pages.yml')
+          text = path.read_text(encoding='utf-8')
+          needle = '''          - name: lead
+            label: Вводный текст
+            type: text
+            description: Только текст существующего проекта Awful Cases. Ссылки, маршрут, видимость, taxonomy, media и композиция остаются в коде.
+'''
+          addition = '''          - name: codeBlocks
+            label: Кодовые блоки
+            type: object
+            required: true
+            description: Только редактируемые заголовки и команды. Язык, вариант, layout и поведение компонента остаются в TypeScript.
+            fields:
+              - name: install
+                label: Установка
+                type: object
+                required: true
+                fields:
+                  - name: title
+                    label: Заголовок
+                    type: string
+                  - name: code
+                    label: Код
+                    type: text
+                    required: true
+              - name: run
+                label: Запуск
+                type: object
+                required: true
+                fields:
+                  - name: title
+                    label: Заголовок
+                    type: string
+                  - name: code
+                    label: Код
+                    type: text
+                    required: true
+'''
+          count = text.count(needle)
+          if count != 1:
+              raise SystemExit(f'expected exactly one Awful lead anchor, found {count}')
+          path.write_text(text.replace(needle, needle + addition), encoding='utf-8')
+          PY
+      - name: Commit Pages CMS patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .pages.yml
+          git diff --cached --check
+          git commit -m "cms: expose Awful code block fields"
+          git push origin HEAD:agent/code-block-contract-268
