@@ -17,6 +17,7 @@ export const fastTests = new Set([
   "test/cms-publication-workflow.test.mjs",
   "test/domain-catalog-identity.test.mjs",
   "test/domain-taxonomy-references.test.mjs",
+  "test/e2e-cv-preview-contract.test.mjs",
   "test/editorial-content-boundary.test.mjs",
   "test/editorial-copy-optional.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
