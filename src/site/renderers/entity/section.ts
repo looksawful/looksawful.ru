@@ -12,7 +12,7 @@ import {
   type SectionPresentation,
 } from "../../../content/contracts/sections.ts";
 import { renderRevealAttribute, renderRevealGroupAttribute } from "../../../motion-contract.ts";
-import type { CreditsData, SectionHeadingData, SectionNoteData } from "../../../types/content.ts";
+import type { CreditsData, SectionNoteData } from "../../../types/content.ts";
 import { escapeHtml } from "../../../utils/html.ts";
 import { renderContentBlock, renderContentBlocks } from "./content-block.ts";
 
@@ -45,11 +45,6 @@ function renderCredits(credits?: CreditsData, reveal = true): string {
     }
     ${lines.map((line) => `<span class="credits__line">${escapeHtml(line)}</span>`).join("")}
   </p>`;
-}
-
-function renderSectionHeading(heading?: SectionHeadingData, reveal = true): string {
-  if (!heading?.text) return "";
-  return `<h3${renderRevealAttribute(reveal ? "copy" : false)}>${escapeHtml(heading.text)}</h3>`;
 }
 
 function renderSectionNote(note?: SectionNoteData, reveal = true): string {
@@ -223,7 +218,6 @@ function renderIntroAndBlocks(section: Extract<Section, { type: "content" | "pro
     reveal,
     section.presentation?.headOrder,
   );
-  const heading = renderSectionHeading(section.heading, reveal);
   const blocks = renderBlockBody(section.blocks, section.presentation);
   const trailingNote =
     notePlacement === "after-blocks" ? renderSectionNote(section.note, reveal) : "";
@@ -231,7 +225,7 @@ function renderIntroAndBlocks(section: Extract<Section, { type: "content" | "pro
     ? renderResourceLinks(section.resources, { reveal })
     : "";
   const body = wrapSectionBody(
-    `${intro}\n${head}\n${heading}\n${blocks}\n${trailingNote}\n${resources}`,
+    `${intro}\n${head}\n${blocks}\n${trailingNote}\n${resources}`,
     section.presentation,
   );
   const projectAttribute =
@@ -250,7 +244,6 @@ function renderProjectPresentation(item: ProjectPresentation): string {
     reveal,
     item.presentation?.headOrder,
   );
-  const heading = renderSectionHeading(item.heading, reveal);
   const blockHtml = renderContentBlocks(item.blocks, { reveal });
   const blocks =
     item.presentation?.layout === "mockup-grid-reel"
@@ -266,7 +259,7 @@ function renderProjectPresentation(item: ProjectPresentation): string {
     notePlacement === "after-blocks" ? renderSectionNote(item.note, reveal) : "";
   const resources = item.resources ? renderResourceLinks(item.resources, { reveal }) : "";
   const body = wrapSectionBody(
-    `${intro}\n${head}\n${heading}\n${blocks}\n${trailingNote}\n${resources}`,
+    `${intro}\n${head}\n${blocks}\n${trailingNote}\n${resources}`,
     item.presentation,
   );
   const presentation = sectionShellPresentation(item.presentation);
@@ -287,11 +280,10 @@ function renderProjectGroup(section: ProjectGroupSection): string {
     reveal,
     section.presentation?.headOrder,
   );
-  const heading = renderSectionHeading(section.heading, reveal);
   const items = section.items.map(renderProjectPresentation).join("\n");
   const resources = section.resources ? renderResourceLinks(section.resources, { reveal }) : "";
 
-  return renderSectionShell(section, `${intro}\n${head}\n${heading}\n${items}\n${resources}`);
+  return renderSectionShell(section, `${intro}\n${head}\n${items}\n${resources}`);
 }
 
 function renderMovesCanvasDemoSection(section: MovesCanvasDemoSection): string {
