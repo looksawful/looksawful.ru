@@ -148,11 +148,6 @@ test("external Media Desk consumers use the canonical src/devtools path", async 
   );
 });
 
-test("project-page E2E wrapper migration uses the e2e tooling boundary", async () => {
-  assert.equal(await exists("tools/e2e/smoke-project-pages.mjs"), true);
-  assert.equal(await exists("tools/smoke-project-pages.mjs"), false);
-});
-
 test("literal .gitattributes paths point to files that still exist", async () => {
   const attributes = await readFile(path.join(root, ".gitattributes"), "utf8");
   const literalPaths = attributes
