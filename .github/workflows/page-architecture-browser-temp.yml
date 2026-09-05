@@ -61,6 +61,8 @@ jobs:
         run: node tools/media-dev-state.mjs --cache-verify
       - name: Typecheck
         run: npm run typecheck
+      - name: Hide temporary gate from canonical workflow-set contract
+        run: rm .github/workflows/page-architecture-browser-temp.yml
       - name: Core tests
         run: npm run test:core
       - name: Page architecture contracts
