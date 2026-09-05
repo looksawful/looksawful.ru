@@ -124,6 +124,7 @@ test("scheduled quality remains automatic but expensive suites are outside ordin
   assert.match(workflow, /concurrency:[\s\S]*?cancel-in-progress: false/);
   assert.match(workflow, /Resolve exact target SHA/);
   assert.match(workflow, /needs\.resolve-target\.outputs\.target-sha/);
+  assert.match(workflow, /full-e2e:[\s\S]*?Install media tooling[\s\S]*?ffmpeg[\s\S]*?npm run test:core/);
   assert.match(workflow, /npm run test:e2e:full/);
   assert.match(workflow, /npm run media:dedupe:physical/);
   assert.match(workflow, /npm run audit:deps/);
