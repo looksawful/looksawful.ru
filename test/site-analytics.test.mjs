@@ -87,6 +87,30 @@ test("stored analytics consent distinguishes unknown, granted and denied states"
   assert.equal(readStoredAnalyticsConsent(target("other")), null);
 });
 
+test("Russia auto-consent is session-scoped and explicit consent still wins", async () => {
+  const {
+    hasSiteAnalyticsConsent,
+    parseAnalyticsCountryResponse,
+    shouldAutoGrantAnalyticsConsent,
+  } = await loadAnalytics();
+
+  assert.equal(parseAnalyticsCountryResponse("fl=123\nloc=RU\ntls=v1.3\n"), "RU");
+  assert.equal(parseAnalyticsCountryResponse('{"ip":"203.0.113.10","country":"DE"}'), "DE");
+  assert.equal(parseAnalyticsCountryResponse("not-a-country-response"), null);
+  assert.equal(shouldAutoGrantAnalyticsConsent("RU"), true);
+  assert.equal(shouldAutoGrantAnalyticsConsent("DE"), false);
+  assert.equal(shouldAutoGrantAnalyticsConsent(null), false);
+
+  const target = (localValue, sessionCountry) => ({
+    localStorage: { getItem: () => localValue },
+    sessionStorage: { getItem: () => sessionCountry },
+  });
+  assert.equal(hasSiteAnalyticsConsent(target(null, "RU")), true, "RU session should auto-consent");
+  assert.equal(hasSiteAnalyticsConsent(target(null, "DE")), false, "non-RU session should not auto-consent");
+  assert.equal(hasSiteAnalyticsConsent(target("granted", "DE")), true, "explicit grant should win");
+  assert.equal(hasSiteAnalyticsConsent(target("denied", "RU")), false, "explicit denial should win");
+});
+
 test("the Yandex event taxonomy stays small and conversion-oriented", async () => {
   const source = await readFile(componentUrl, "utf8");
   for (const goal of ["project_open", "cv_open", "contact_email", "contact_phone", "contact_telegram", "download"]) {
