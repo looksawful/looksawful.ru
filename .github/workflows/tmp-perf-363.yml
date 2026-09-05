@@ -22,7 +22,22 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Build canonical media derivatives
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Restore generated media cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+          restore-keys: |
+            generated-media-v3-${{ runner.os }}-
+      - name: Build canonical responsive derivatives
         run: npm run media:build
       - name: Focused GREEN
         run: node --test test/home-media-deferral.test.mjs
