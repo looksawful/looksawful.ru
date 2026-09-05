@@ -18,5 +18,5 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Inspect hero source
-        run: node --input-type=module -e "import sharp from 'sharp'; console.log(JSON.stringify(await sharp('public/media/hero/hero-portrait.webp').metadata()))"
+      - name: Focused RED/GREEN
+        run: node --test test/home-media-deferral.test.mjs
