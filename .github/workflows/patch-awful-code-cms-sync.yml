@@ -1,0 +1,85 @@
+name: Patch Awful code CMS after dev sync
+
+on:
+  push:
+    branches:
+      - agent/code-block-contract-268
+    paths:
+      - .github/workflows/patch-awful-code-cms-sync.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: agent/code-block-contract-268
+          fetch-depth: 1
+      - name: Restore Awful authored code fields
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('.pages.yml')
+          text = path.read_text(encoding='utf-8')
+          start = text.index('      - name: awful-cases-standalone-project\n')
+          tail = text[start:]
+          next_top = tail.find('\n  - name: ', 1)
+          end = len(text) if next_top == -1 else start + next_top
+          entry = text[start:end]
+          if '          - name: codeBlocks\n' in entry:
+              raise SystemExit('Awful codeBlocks already exist; refusing duplicate insertion')
+          needle = (
+              "          - name: lead\n"
+              "            label: Вводный текст\n"
+              "            type: text\n"
+              "            description: Только текст существующего проекта Awful Cases. Ссылки, маршрут, видимость, taxonomy, media и композиция остаются в коде.\n"
+          )
+          if entry.count(needle) != 1:
+              raise SystemExit(f'expected exactly one Awful lead anchor, found {entry.count(needle)}')
+          addition = (
+              "          - name: codeBlocks\n"
+              "            label: Кодовые блоки\n"
+              "            type: object\n"
+              "            required: true\n"
+              "            description: Только редактируемые заголовки и команды. Язык, вариант, layout и поведение компонента остаются в TypeScript.\n"
+              "            fields:\n"
+              "              - name: install\n"
+              "                label: Установка\n"
+              "                type: object\n"
+              "                required: true\n"
+              "                fields:\n"
+              "                  - name: title\n"
+              "                    label: Заголовок\n"
+              "                    type: string\n"
+              "                  - name: code\n"
+              "                    label: Код\n"
+              "                    type: text\n"
+              "              - name: run\n"
+              "                label: Запуск\n"
+              "                type: object\n"
+              "                required: true\n"
+              "                fields:\n"
+              "                  - name: title\n"
+              "                    label: Заголовок\n"
+              "                    type: string\n"
+              "                  - name: code\n"
+              "                    label: Код\n"
+              "                    type: text\n"
+          )
+          entry = entry.replace(needle, needle + addition, 1)
+          path.write_text(text[:start] + entry + text[end:], encoding='utf-8')
+          PY
+      - name: Commit synced Pages CMS fields
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .pages.yml
+          git diff --cached --check
+          git commit -m "cms: restore Awful code fields after dev sync"
+          git push origin HEAD:agent/code-block-contract-268
