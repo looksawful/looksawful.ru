@@ -177,3 +177,20 @@ for (const [entityName, expectedIds] of Object.entries(expectedIdentitySets)) {
     );
   });
 }
+
+test("Jestei Pool human-readable catalog naming stays exact", () => {
+  const client = clients.find(({ id }) => id === "jestei-pool");
+  assert.ok(client, "Jestei Pool client must exist");
+  assert.equal(client.name, "Jestei Pool");
+
+  const jesteiPoolProjects = projects.filter(({ caseIds }) => caseIds?.includes("jestei-pool"));
+  assert.ok(jesteiPoolProjects.length > 0, "Jestei Pool projects must exist");
+
+  for (const project of jesteiPoolProjects) {
+    assert.doesNotMatch(
+      project.name,
+      /\bJestei\b(?! Pool\b)/,
+      `Human-readable Jestei Pool project name must not abbreviate the brand: ${project.name}`,
+    );
+  }
+});
