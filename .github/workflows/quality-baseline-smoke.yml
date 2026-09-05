@@ -28,7 +28,9 @@ jobs:
       - name: Oxlint starts with project config
         run: npm run lint
       - name: Oxfmt wrapper and config work
-        run: npm run format:check -- tools/quality/format.mjs
+        run: |
+          npm run format -- tools/quality/format.mjs
+          node --check tools/quality/format.mjs
       - name: CSpell starts with RU/EN config
         shell: bash
         run: |
