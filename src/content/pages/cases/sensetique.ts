@@ -68,7 +68,7 @@ export const sensetiquePageContent = {
     {
       type: "content",
       id: "sensetique-equipment",
-      heading: { text: "Оборудование" },
+      intro: { title: "Оборудование" },
       resources: sensetiqueEquipmentResources,
       blocks: [{ type: "media-group", data: sensetiqueStudioInfiniteStrip }],
     },
