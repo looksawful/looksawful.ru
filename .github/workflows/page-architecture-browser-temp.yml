@@ -1,0 +1,64 @@
+name: Temporary Page Architecture Browser Gate
+
+on:
+  push:
+    branches:
+      - agent/page-architecture-wave2-render-pipeline-20260904
+
+permissions:
+  contents: read
+
+concurrency:
+  group: page-architecture-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact feature revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Restore exact generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Install media tooling on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Recover generated media on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: npm run media:sync
+      - name: Verify generated media
+        run: node tools/media-dev-state.mjs --cache-verify
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Full browser regression
+        run: npm run test:e2e:full
