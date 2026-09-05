@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 
@@ -7,8 +8,9 @@ import {
   jesteiThemeOrganismThemes,
 } from "../src/data/content/jestei-theme-organism.ts";
 import { getMediaAsset, getMediaEntry } from "../src/data/media/index.ts";
-import { JESTEI_THEME_NAMES } from "../src/components/jestei-theme-organism/jestei-theme-organism-data.js";
 import { renderJesteiThemeOrganismMockup } from "../src/templates/jestei-theme-organism.ts";
+
+const componentUrl = new URL("../src/components/jestei-theme-organism/", import.meta.url);
 
 test("Jestei theme organism model is registered as project media", () => {
   const entry = getMediaEntry(jesteiThemeOrganismMockup.modelEntryId);
@@ -60,7 +62,27 @@ test("Jestei theme organism renderer preserves mockup and runtime markup contrac
   }
 });
 
+test("Jestei theme organism static runtime dependencies are strict TypeScript owners", async () => {
+  const dataTs = new URL("jestei-theme-organism-data.ts", componentUrl);
+  const shadersTs = new URL("jestei-theme-organism-shaders.ts", componentUrl);
+  const dataJs = new URL("jestei-theme-organism-data.js", componentUrl);
+  const shadersJs = new URL("jestei-theme-organism-shaders.js", componentUrl);
+
+  assert.equal(existsSync(dataTs), true, "theme runtime data must be owned by TypeScript");
+  assert.equal(existsSync(shadersTs), true, "theme shaders must be owned by TypeScript");
+  assert.equal(existsSync(dataJs), false, "legacy theme runtime data JS must be removed");
+  assert.equal(existsSync(shadersJs), false, "legacy theme shader JS must be removed");
+
+  const runtime = await readFile(new URL("jestei-theme-organism.js", componentUrl), "utf8");
+  assert.match(runtime, /from "[.]\/jestei-theme-organism-data[.]ts"/);
+  assert.match(runtime, /from "[.]\/jestei-theme-organism-shaders[.]ts"/);
+});
+
 test("Jestei theme organism runtime keeps the restored animation contracts", async () => {
+  const { JESTEI_THEME_NAMES } = await import(
+    "../src/components/jestei-theme-organism/jestei-theme-organism-data.ts"
+  );
+
   assert.deepEqual(
     JESTEI_THEME_NAMES,
     jesteiThemeOrganismThemes.map((theme) => theme.name),
@@ -71,7 +93,7 @@ test("Jestei theme organism runtime keeps the restored animation contracts", asy
     "utf8",
   );
   const shaders = await readFile(
-    new URL("../src/components/jestei-theme-organism/jestei-theme-organism-shaders.js", import.meta.url),
+    new URL("../src/components/jestei-theme-organism/jestei-theme-organism-shaders.ts", import.meta.url),
     "utf8",
   );
 
