@@ -1,4 +1,4 @@
-name: Nightly Quality GREEN Once
+name: Nightly Full Quality GREEN Once
 
 on:
   push:
@@ -11,9 +11,9 @@ permissions:
   contents: read
 
 jobs:
-  contracts:
+  full-quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
@@ -25,9 +25,24 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Rebuild and verify generated media
+        run: |
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+      - run: npm run typecheck
       - name: Hide temporary workflow from canonical workflow-set contract
         run: rm .github/workflows/nightly-quality-green-once.yml
-      - name: Run CI contracts
-        run: npm run test:ci
-      - name: Run external-link contracts
-        run: node --test test/external-links.test.mjs
+      - run: npm run test:core
+      - run: npm run media:dedupe:check
+      - run: npm run build:site
+      - name: Verify live external links from runner
+        run: npm run check:external-links
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Full browser regression
+        run: npm run test:e2e:full
