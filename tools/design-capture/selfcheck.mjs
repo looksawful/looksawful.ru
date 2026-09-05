@@ -31,7 +31,10 @@ import {
 } from "./paths.mjs";
 import {
   createDeterministicStyleTag,
+  SCREENSHOT_TIMEOUT_MS,
+  SETTLE_DEADLINE_MS,
   validateRuntimeOptions,
+  withDeadline,
 } from "./runtime.mjs";
 
 function expectThrow(fn, pattern) {
@@ -111,5 +114,13 @@ expectThrow(() => validateRuntimeOptions({ host: "0.0.0.0", port: 4173 }), /loop
 expectThrow(() => validateRuntimeOptions({ host: "127.0.0.1", port: 70000 }), /port/i);
 assert.match(createDeterministicStyleTag(), /animation-duration:\s*0s/i);
 assert.match(createDeterministicStyleTag(), /caret-color:\s*transparent/i);
+
+assert.ok(SETTLE_DEADLINE_MS >= 1_000 && SETTLE_DEADLINE_MS <= 30_000);
+assert.ok(SCREENSHOT_TIMEOUT_MS >= 1_000 && SCREENSHOT_TIMEOUT_MS <= 30_000);
+assert.equal(await withDeadline(Promise.resolve("ok"), 100, "fast stage"), "ok");
+await assert.rejects(
+  withDeadline(new Promise(() => {}), 5, "hung stage"),
+  /hung stage.*5ms/i,
+);
 
 console.log("design-capture selfcheck passed");
