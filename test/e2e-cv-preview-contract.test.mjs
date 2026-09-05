@@ -15,6 +15,7 @@ test("shared Vite preview smoke defaults CV checks to production output", async 
 
   assert.match(runAll, /cvMode\s*=\s*["']production["']/);
   assert.match(runSmoke, /cvMode\s*=\s*["']production["']/);
+  assert.match(runSmoke, /hasConfiguredCvAnalytics\(\)/);
   assert.match(smokeCv, /mode\s*=\s*["']production["']/);
   assert.match(smokeCv, /mode\s*===\s*["']authored["']/);
   assert.match(smokeCv, /mode\s*===\s*["']production["']/);
