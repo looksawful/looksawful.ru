@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
@@ -32,6 +33,13 @@ const expectedRoutes = new Map([
 
 test("site page manifest validates without errors", () => {
   assert.doesNotThrow(() => validateSitePages(sitePages));
+});
+
+test("shared portfolio runtime entrypoints are TypeScript-owned", () => {
+  assert.equal(existsSync(new URL("../src/main.ts", import.meta.url)), true);
+  assert.equal(existsSync(new URL("../src/main.js", import.meta.url)), false);
+  assert.equal(existsSync(new URL("../src/interactive.ts", import.meta.url)), true);
+  assert.equal(existsSync(new URL("../src/interactive.js", import.meta.url)), false);
 });
 
 test("managed SitePage routes are stable and unique", () => {
