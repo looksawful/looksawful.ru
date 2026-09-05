@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { jesteiEventGroup } from "../src/data/content/jestei-pool.ts";
 import { renderMediaGroup } from "../src/templates/media-group.ts";
+
+const indexCss = readFileSync(new URL("../src/styles/index.css", import.meta.url), "utf8");
 
 test("Jestei Event is typed content and uses registry-backed Moves Awful media", () => {
   const html = renderMediaGroup(jesteiEventGroup);
@@ -22,4 +25,11 @@ test("Jestei Event is typed content and uses registry-backed Moves Awful media",
   assert.equal((html.match(/data-lightbox-caption-copy/g) ?? []).length, 4);
   assert.equal((html.match(/class="media__caption-line"/g) ?? []).length, 4);
   assert.doesNotMatch(html, /class="media__index"/);
+});
+
+test("Jestei landing video deck fills its fixed surface instead of letterboxing", () => {
+  assert.match(
+    indexCss,
+    /\.jestei-event-video-deck\s+\.slider__slide\s*>\s*video\s*\{[^}]*object-fit:\s*cover\s*;/s,
+  );
 });
