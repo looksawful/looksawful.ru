@@ -27,7 +27,7 @@ test("site navigation keeps one two-column header over a continuous fullscreen m
   assert.match(componentSource, /\.site-nav__menu\b[\s\S]*?overflow:\s*clip/);
   assert.doesNotMatch(
     componentSource,
-    /\.site-nav\[data-menu-open\]\s+\.site-nav__bar\s*\{[\s\S]*?background:\s*var\(--clr-bg\)/,
+    /\.site-nav\[data-menu-open\]\s+\.site-nav__bar\s*\{[^}]*background:\s*var\(--clr-bg\)/,
   );
   assert.match(componentSource, /background:\s*var\(--clr-bg\)/);
   assert.doesNotMatch(componentSource, /box-shadow|backdrop-filter|border-radius/);
