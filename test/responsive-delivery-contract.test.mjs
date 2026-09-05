@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { renderMediaElement } from "../src/components/content/media-figure.ts";
 import { mediaAssets } from "../src/data/media/assets/index.ts";
 import {
   responsiveImageSrcSet,
   responsiveVariantsFor,
 } from "../src/data/media/responsive.ts";
-import { renderMediaElement } from "../src/templates/media-figure.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
