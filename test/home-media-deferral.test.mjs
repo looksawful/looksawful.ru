@@ -82,5 +82,5 @@ test("built Homepage keeps the eager hero but removes live sources from lazy ima
     assert.match(image, /\bdata-home-src="/i);
   }
 
-  assert.match(html, /data-home-image-loader=/i);
+  assert.match(html, /\bdata-home-image-loader\b/i);
 });
