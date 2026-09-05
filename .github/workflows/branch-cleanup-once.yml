@@ -47,6 +47,7 @@ jobs:
             agent/media-normalization-dedupe-wave1-finalize-20260904
             agent/media-normalization-dedupe-wave1-apply-final-20260904
             agent/minimal-ci-migration-20260902
+            agent/reviewed-stale-branch-cleanup-20260905
           )
 
           declare -A superseded_safe=(
