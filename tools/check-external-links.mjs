@@ -11,6 +11,11 @@ import {
 
 const CONCURRENCY = 5;
 const TIMEOUT_MS = 10_000;
+const BROWSER_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "Accept-Language": "en-US,en;q=0.9",
+};
 
 function classifyStatus(status, redirected) {
   if (status >= 200 && status < 300) return { classification: redirected ? "redirect" : "ok", severity: "ok" };
@@ -28,7 +33,7 @@ async function request(url, method) {
       method,
       redirect: "follow",
       signal: controller.signal,
-      headers: { "User-Agent": "looksawful-link-check/1.0" },
+      headers: BROWSER_HEADERS,
     });
     await response.body?.cancel().catch(() => {});
     return response;
