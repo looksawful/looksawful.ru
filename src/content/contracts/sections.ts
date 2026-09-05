@@ -4,7 +4,6 @@ import type { MovesAnimatedCanvasGalleryData } from "../../types/animated-canvas
 import type {
   CreditsData,
   ResourceLinksData,
-  SectionHeadingData,
   SectionIntroData,
   SectionNoteData,
 } from "../../types/content.ts";
@@ -39,7 +38,6 @@ export interface ContentSection {
   type: "content";
   id: SectionId;
   intro?: SectionIntroData;
-  heading?: SectionHeadingData;
   credits?: CreditsData;
   note?: SectionNoteData;
   resources?: ResourceLinksData;
@@ -52,7 +50,6 @@ export interface ProjectSection {
   id: SectionId;
   projectId: ProjectId;
   intro?: SectionIntroData;
-  heading?: SectionHeadingData;
   credits?: CreditsData;
   note?: SectionNoteData;
   resources?: ResourceLinksData;
@@ -63,7 +60,6 @@ export interface ProjectSection {
 export interface ProjectPresentation {
   projectId: ProjectId;
   intro?: SectionIntroData;
-  heading?: SectionHeadingData;
   credits?: CreditsData;
   note?: SectionNoteData;
   resources?: ResourceLinksData;
@@ -75,7 +71,6 @@ export interface ProjectGroupSection {
   type: "project-group";
   id: SectionId;
   intro?: SectionIntroData;
-  heading?: SectionHeadingData;
   credits?: CreditsData;
   note?: SectionNoteData;
   resources?: ResourceLinksData;
