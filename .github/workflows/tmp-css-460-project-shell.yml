@@ -1,0 +1,85 @@
+name: tmp-css-460-project-shell
+
+on:
+  push:
+    branches:
+      - refactor/css-460-project-shell-owner
+
+permissions:
+  contents: write
+
+jobs:
+  consolidate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Characterize current project shell behavior
+        run: |
+          node --test \
+            test/site-rendering.test.mjs \
+            test/motion-renderer-contract.test.mjs \
+            test/site-composition.test.mjs
+          npm run build:vite
+          npx playwright install --with-deps chromium
+          npm run test:ui:responsive
+          node tools/tmp-css-460-project-shell-browser.mjs capture /tmp/css460d-project-shell.json
+      - name: Confirm RED project shell ownership contracts
+        shell: bash
+        run: |
+          set +e
+          node --test test/css-refactor-wave4d-project-shell.test.mjs > /tmp/css460d-red.log 2>&1
+          shell_status=$?
+          node --test test/css-refactor-wave4b-project-navigation.test.mjs > /tmp/css460d-nav-red.log 2>&1
+          nav_status=$?
+          set -e
+          cat /tmp/css460d-red.log
+          cat /tmp/css460d-nav-red.log
+          if [ "$shell_status" -eq 0 ] || [ "$nav_status" -eq 0 ]; then
+            echo "Expected Wave 4D structural contracts to be RED before extraction."
+            exit 1
+          fi
+          grep -F "✖ project shell has one canonical stylesheet owner at the project-navigation boundary" /tmp/css460d-red.log
+          grep -F "✖ components aggregate no longer owns project shell and section-copy presentation" /tmp/css460d-red.log
+          grep -F "✖ index no longer carries late project shell typography patches" /tmp/css460d-red.log
+          grep -F "✖ canonical project shell preserves base, responsive and late-refinement source order" /tmp/css460d-red.log
+          grep -F "✖ project navigation has one canonical stylesheet owner before project shell and expertise" /tmp/css460d-nav-red.log
+      - name: Apply exact project shell consolidation
+        run: node tools/tmp-css-460-project-shell.mjs
+      - name: Confirm GREEN static contracts
+        run: |
+          node --test \
+            test/css-refactor-wave4d-project-shell.test.mjs \
+            test/css-refactor-wave4b-project-navigation.test.mjs \
+            test/css-refactor-wave4c-project-header.test.mjs \
+            test/site-rendering.test.mjs \
+            test/motion-renderer-contract.test.mjs \
+            test/site-composition.test.mjs \
+            test/site-navigation-style.test.mjs \
+            test/repository-structure.test.mjs
+      - name: Confirm GREEN browser/computed behavior
+        run: |
+          npm run build:vite
+          npm run test:ui:responsive
+          node tools/tmp-css-460-project-shell-browser.mjs compare /tmp/css460d-project-shell.json
+          git diff --check
+      - name: Commit GREEN consolidation
+        shell: bash
+        run: |
+          git status --short
+          test -n "$(git status --short src/styles/components.css)"
+          test -n "$(git status --short src/styles/index.css)"
+          test -n "$(git status --short src/styles/project-shell.css)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/styles/components.css src/styles/index.css src/styles/project-shell.css
+          git commit -m "refactor(css): GREEN extract canonical project shell owner (#460)"
+          git push origin HEAD:refactor/css-460-project-shell-owner
