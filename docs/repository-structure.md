@@ -70,7 +70,7 @@ Generated media paths remain governed by the media build policy and must not be 
 
 Repository tooling is being normalized incrementally. Existing subject directories such as `ci/`, `e2e/`, `media/`, and `quality/` are preferred over adding more unrelated scripts directly at `tools/` root.
 
-The main-site, MPA, and standalone-project browser smoke wrappers now live with the shared browser runtime under `tools/e2e/`. Remaining root-level smoke wrappers are migrated only as separate, independently verified packages; their presence is not permission to add new root-level E2E scripts.
+The main-site, navigation, MPA, and standalone-project browser smoke wrappers now live with the shared browser runtime under `tools/e2e/`. Remaining root-level smoke wrappers are migrated only as separate, independently verified packages; their presence is not permission to add new root-level E2E scripts.
 
 Moves must update every `package.json`, workflow, test and source reference atomically. CI/test-manifest files are shared policy surfaces and must not be reorganized while another active PR owns the same contract.
 
