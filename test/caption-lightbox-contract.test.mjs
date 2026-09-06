@@ -21,7 +21,10 @@ test("caption architecture has one authored data-caption-view contract and no le
   assert.doesNotMatch(index, /<figure\b[^>]*\btabindex="0"/);
 
   assert.doesNotMatch(main, /media-caption\.js/);
-  assert.doesNotMatch(interactive, /initMediaCaptionInteractions|data-caption-open|data-caption-rest|data-caption="overlay"/);
+  assert.doesNotMatch(
+    interactive,
+    /initMediaCaptionInteractions|data-caption-open|data-caption-rest|data-caption="overlay"/,
+  );
   assert.doesNotMatch(components, /data-caption-open|data-caption-rest|data-caption="overlay"/);
   assert.doesNotMatch(captions, /data-caption-rest|data-caption="overlay"/);
 });
@@ -56,7 +59,10 @@ test("lightbox navigation is project-scoped and media shell belongs to the Photo
   assert.match(facade, /createPhotoSwipeLightbox/);
   assert.match(facade, /\[data-slide\]\[data-active\] img, \[data-slide\]\[data-active\] video/);
   assert.doesNotMatch(facade, /source\.classList\.contains\("mockup__viewport"\)/);
-  assert.doesNotMatch(facade, /showModal\(|HTMLDialogElement|data-lightbox-image|data-lightbox-video/);
+  assert.doesNotMatch(
+    facade,
+    /showModal\(|HTMLDialogElement|data-lightbox-image|data-lightbox-video/,
+  );
 
   assert.match(adapter, /photoswipe\/lightbox/);
   assert.match(adapter, /contentLoad/);
@@ -78,7 +84,10 @@ test("persistent rails and standalone sliders keep captions out of page geometry
     styles,
     /\.slider\[data-media-deck\] \[data-slide-caption\]:not\(\[data-caption-view="full"\]\)/,
   );
-  assert.match(styles, /figure\.media\[data-caption-view="overlay"\]::after[\s\S]*?content:\s*none/);
+  assert.match(
+    styles,
+    /figure\.media\[data-caption-view="overlay"\]::after[\s\S]*?content:\s*none/,
+  );
 
   assert.match(facade, /MARKABLE_SOURCE_SELECTOR/);
   assert.match(facade, /\.slider\[data-media-deck\] > \.slider__viewport/);
