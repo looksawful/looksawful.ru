@@ -13,31 +13,28 @@ function blockBetween(source, start, end) {
 }
 
 test("mobile project navigation positioning stays browser-native and safe-area aware", async () => {
-  const [components, topStyles] = await Promise.all([
-    read("src/styles/components.css"),
-    read("src/styles/project-navigation-top.css"),
-  ]);
-  const base = blockBetween(components, ".project-nav {", ".project-nav__inner {");
+  const owner = await read("src/styles/project-navigation.css");
+  const base = blockBetween(owner, ".project-nav {", ".project-nav__inner {");
 
   assert.match(base, /position:\s*sticky;/);
   assert.match(base, /inset-block-start:\s*100dvh;/);
   assert.match(base, /translate:\s*0 -100%;/);
-  assert.match(topStyles, /env\(safe-area-inset-bottom,\s*0px\)/);
+  assert.match(owner, /env\(safe-area-inset-bottom,\s*0px\)/);
 });
 
 test("compact project navigation has no full-width backdrop layer", async () => {
-  const components = await read("src/styles/components.css");
-  const base = blockBetween(components, ".project-nav {", ".project-nav__inner {");
+  const owner = await read("src/styles/project-navigation.css");
+  const base = blockBetween(owner, ".project-nav {", ".project-nav__inner {");
 
   assert.match(base, /background:\s*transparent;/);
   assert.doesNotMatch(base, /border-block-start\s*:/);
 });
 
 test("project navigation installs no VisualViewport positioning loop", async () => {
-  const [source, interactive, topStyles] = await Promise.all([
+  const [source, interactive, owner] = await Promise.all([
     read("src/components/project-navigation.ts"),
     read("src/interactive.ts"),
-    read("src/styles/project-navigation-top.css"),
+    read("src/styles/project-navigation.css"),
   ]);
 
   for (const value of [source, interactive]) {
@@ -48,15 +45,15 @@ test("project navigation installs no VisualViewport positioning loop", async () 
     source,
     /visualViewport|calculateProjectNavigationViewportOffset|ProjectNavigationViewportGeometry|project-nav-viewport-offset/,
   );
-  assert.doesNotMatch(topStyles, /data-viewport-anchor|project-nav-viewport-offset/);
+  assert.doesNotMatch(owner, /data-viewport-anchor|project-nav-viewport-offset/);
 });
 
 test("wide project navigation keeps the desktop rail constraint", async () => {
-  const components = await read("src/styles/components.css");
-  const wideStart = components.indexOf("@container projects (width > 96rem)");
+  const owner = await read("src/styles/project-navigation.css");
+  const wideStart = owner.indexOf("@container projects (width > 96rem)");
   assert.notEqual(wideStart, -1, "missing wide project navigation container rule");
 
-  const wide = components.slice(wideStart);
+  const wide = owner.slice(wideStart);
   const nav = blockBetween(wide, ".project-nav {", ".project-nav__index {");
 
   assert.match(nav, /inset-block-start:\s*calc\(100svh/);
