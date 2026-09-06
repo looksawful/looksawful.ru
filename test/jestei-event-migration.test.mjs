@@ -33,3 +33,11 @@ test("Jestei landing video deck fills its fixed surface instead of letterboxing"
     /\.jestei-event-video-deck\s+\.slider__slide\s*>\s*video\s*\{[^}]*object-fit:\s*cover\s*;/s,
   );
 });
+
+test("Jestei media visuals inherit the surface radius instead of relying on ancestor clipping alone", () => {
+  assert.match(
+    indexCss,
+    /:is\(\s*\.jestei-interface-group,\s*\.jestei-event-group\s*\)\s+\.media__surface\s*>\s*:is\(img,\s*video,\s*picture\)[\s\S]*?border-radius:\s*inherit\s*;/s,
+    "Jestei raster media must share the exact radius owned by its media surface",
+  );
+});
