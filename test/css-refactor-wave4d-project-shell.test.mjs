@@ -22,10 +22,19 @@ test("components aggregate no longer owns project shell and section-copy present
   assert.doesNotMatch(components, /(?:^|\n)\.project\s*\{/);
   assert.doesNotMatch(
     components,
-    /(?:^|\n)\s*\.project__(?:intro|title|summary|lead|links|section)(?:\s|>|,|\{|\.)/,
+    /(?:^|\n)\s*\.project__(?:intro|title|summary|lead|links)(?:\s|>|,|\{|\.)/,
   );
+  assert.doesNotMatch(components, /(?:^|\n)\s*\.project__section\s*\{/);
+  assert.doesNotMatch(components, /(?:^|\n)\s*\.project__section\s*>\s*:is\(h2, h3\)/);
+  assert.doesNotMatch(components, /(?:^|\n)\s*\.project__section\s*>\s*p:not\(\[class\]\)/);
   assert.doesNotMatch(components, /(?:^|\n)\.section-copy(?:\s|__|\{|\.)/);
   assert.doesNotMatch(components, /(?:^|\n)\.text-lead\s*\{/);
+
+  // This is a media integration boundary, not project-shell ownership.
+  assert.match(
+    components,
+    /\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child\s*\{/,
+  );
 });
 
 test("index no longer carries late project shell typography patches", () => {
@@ -73,4 +82,8 @@ test("canonical project shell preserves base, responsive and late-refinement sou
   assert.doesNotMatch(owner, /(?:^|\n)\.editorial-note\b/);
   assert.doesNotMatch(owner, /(?:^|\n)\.credits\b/);
   assert.doesNotMatch(owner, /(?:^|\n)\.divider\b/);
+  assert.doesNotMatch(
+    owner,
+    /\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child\s*\{/,
+  );
 });
