@@ -10,6 +10,7 @@ const expectedWorkflows = [
   "cms-media.yml",
   "codeql.yml",
   "dependency-review.yml",
+  "media-affected.yml",
   "pages-cms-publish.yml",
   "pages.yml",
   "production-health.yml",
@@ -37,8 +38,8 @@ test("Fast CI automatically validates engineering dev pushes and PRs while warm-
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.doesNotMatch(workflow, /restore-keys:/);
 
-  assert.match(workflow, /Install recovery video tooling on cache miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?ffmpeg/);
-  assert.match(workflow, /Recover generated media on cache miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
+  assert.match(workflow, /Install recovery video tooling on cache miss[\s\S]*?if: \(github\.event_name != 'pull_request' \|\| steps\.affected\.outputs\.image_only != 'true'\) && steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?ffmpeg/);
+  assert.match(workflow, /Recover generated media on cache miss[\s\S]*?if: \(github\.event_name != 'pull_request' \|\| steps\.affected\.outputs\.image_only != 'true'\) && steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
 
   for (const forbidden of [/playwright/i, /test:e2e:full/i, /lighthouse/i, /change-scope/i]) {
     assert.doesNotMatch(workflow, forbidden);
