@@ -57,6 +57,8 @@ async function readGeometry(page) {
       navHeight: rect.height,
       viewportHeight: window.innerHeight,
       position: styles.position,
+      backgroundColor: styles.backgroundColor,
+      borderBlockStartWidth: styles.borderBlockStartWidth,
       horizontalOverflow:
         document.documentElement.scrollWidth - document.documentElement.clientWidth,
       hasViewportAnchor: nav.hasAttribute("data-viewport-anchor"),
@@ -94,6 +96,19 @@ async function readProjectHeaders(page) {
   });
 }
 
+function assertNoNavigationBackdrop(geometry, label) {
+  assert.equal(
+    geometry.backgroundColor,
+    "rgba(0, 0, 0, 0)",
+    `${label}: project navigation must not paint a backdrop`,
+  );
+  assert.equal(
+    geometry.borderBlockStartWidth,
+    "0px",
+    `${label}: project navigation must not paint a panel border`,
+  );
+}
+
 function assertMobileGeometry(geometry, label) {
   assert.equal(geometry.position, "sticky", `${label}: navigation must remain sticky`);
   assert.ok(
@@ -110,6 +125,7 @@ function assertMobileGeometry(geometry, label) {
     "",
     `${label}: JS viewport offset must stay absent`,
   );
+  assertNoNavigationBackdrop(geometry, label);
 }
 
 function assertMobileProjectHeaders(headers, label) {
@@ -184,6 +200,7 @@ async function checkWideViewport(browser, baseUrl) {
     );
     assert.equal(geometry.hasViewportAnchor, false, "wide navigation must not gain JS viewport anchor");
     assert.equal(geometry.inlineViewportOffset, "", "wide navigation must not gain JS viewport offset");
+    assertNoNavigationBackdrop(geometry, "wide viewport");
     assertWideProjectHeaders(await readProjectHeaders(page));
   } finally {
     await context.close();
