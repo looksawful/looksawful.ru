@@ -82,5 +82,9 @@ test("Jestei theme organism uses a sharper but bounded baseline DPR", () => {
   assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 3, inlineSize: 1060 }), 2);
   assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 1, inlineSize: 1060 }), 1);
   assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 0, inlineSize: 1060 }), 1);
-  assert.match(themeOrganismRuntime, /resolveJesteiThemePixelRatio/);
+  assert.match(
+    themeOrganismRuntime,
+    /JESTEI_THEME_SETTINGS\.pixelRatioLimit/,
+    "renderer must consume the bounded quality policy on every resize",
+  );
 });
