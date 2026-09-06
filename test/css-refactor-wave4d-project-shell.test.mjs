@@ -39,15 +39,15 @@ test("components aggregate no longer owns project shell and section-copy present
 
 test("index no longer carries late project shell typography patches", () => {
   const withoutImport = index.replace(/@import "\.\/project-shell\.css" layer\(components\);\n?/, "");
-  for (const selector of [
-    ".project__title",
-    ".project__summary",
-    ".project__lead",
-    ".text-lead",
-    ".section-copy__title",
-    ".section-copy__text",
+  for (const pattern of [
+    /\.project__title\s*\{/,
+    /\.project__summary\s*\{/,
+    /\.project__lead\s*,/,
+    /\.text-lead\s*\{/,
+    /\.section-copy__title\s*\{/,
+    /\.section-copy__text\s*\{/,
   ]) {
-    assert.doesNotMatch(withoutImport, new RegExp(`\\${selector.replaceAll("__", "__")}\\s*\\{`));
+    assert.doesNotMatch(withoutImport, pattern);
   }
   assert.doesNotMatch(withoutImport, /\.project__section\s*>\s*:is\(h2, h3\)/);
   assert.doesNotMatch(withoutImport, /\.project__section\s*>\s*p:not\(\[class\]\)/);
