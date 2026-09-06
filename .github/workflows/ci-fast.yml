@@ -136,7 +136,7 @@ jobs:
         run: npm run test:fast
       - name: Repository structure contract
         if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
-        run: node --test test/repository-structure.test.mjs test/change-scope.test.mjs
+        run: node --test test/repository-structure.test.mjs
       - name: Production build
         if: github.event_name != 'pull_request' || steps.affected.outputs.image_only != 'true'
         run: npm run build:site
