@@ -49,3 +49,11 @@ test("Jestei compact BPM labels stay on one line", () => {
     "BPM Min/Max labels must not wrap or clip vertically",
   );
 });
+
+test("Jestei BPM value row stays visually attached to the range control", () => {
+  assert.match(
+    readLayoutCss(),
+    /\.tempo-main,\s*\.compact-bpm-slider\s*\{[^}]*gap:\s*6px\s*;/s,
+    "BPM title, values and rail must fit the fixed 62px block without separating the values from the range",
+  );
+});
