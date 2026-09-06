@@ -11,4 +11,13 @@
     .compact-bpm-slider {
         gap: 6px;
     }
+
+    .type-shell {
+        block-size: 48px;
+    }
+
+    .check-options--track-type {
+        flex-wrap: nowrap;
+        block-size: 16px;
+    }
 }
