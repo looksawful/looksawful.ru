@@ -77,13 +77,26 @@ jobs:
           test "$(sha256sum package-lock.json | cut -d' ' -f1)" = "$(sha256sum /tmp/css-current/package-lock.json | cut -d' ' -f1)"
           test "$(sha256sum package-lock.json | cut -d' ' -f1)" = "$(sha256sum /tmp/css-wave5/package-lock.json | cut -d' ' -f1)"
 
-      - name: Prepare generated media independently for all compared trees
+      - name: Prove media inputs match and prepare one canonical generated set
         shell: bash
         run: |
           set -euo pipefail
-          for tree in /tmp/css-original /tmp/css-current /tmp/css-wave5; do
-            echo "== media sync: $tree =="
-            (cd "$tree" && npm run media:sync)
+          original_fp="$(cd /tmp/css-original && node tools/media-dev-state.mjs --fingerprint)"
+          current_fp="$(cd /tmp/css-current && node tools/media-dev-state.mjs --fingerprint)"
+          wave5_fp="$(cd /tmp/css-wave5 && node tools/media-dev-state.mjs --fingerprint)"
+          printf 'original=%s\ncurrent=%s\nwave5=%s\n' "$original_fp" "$current_fp" "$wave5_fp"
+          test "$original_fp" = "$current_fp"
+          test "$current_fp" = "$wave5_fp"
+
+          (cd /tmp/css-current && npm run media:sync)
+          (cd /tmp/css-current && node tools/media-dev-state.mjs --cache-verify)
+          (cd /tmp/css-current && git diff --exit-code)
+
+          for tree in /tmp/css-original /tmp/css-wave5; do
+            rm -rf "$tree/public/media/generated"
+            mkdir -p "$tree/public/media/generated" "$tree/.cache/media"
+            cp -a /tmp/css-current/public/media/generated/. "$tree/public/media/generated/"
+            cp /tmp/css-current/.cache/media/generated-cache.json "$tree/.cache/media/generated-cache.json"
             (cd "$tree" && node tools/media-dev-state.mjs --cache-verify)
             (cd "$tree" && git diff --exit-code)
           done
