@@ -40,9 +40,9 @@ test("explicit Pages CMS-owned content paths are publishable", () => {
 test("Public Catalog visibility is authorable from Pages CMS and Content Desk", async () => {
   const [cms, editorModel, editorSerialization, editor] = await Promise.all([
     readFile(new URL("../.pages.yml", import.meta.url), "utf8"),
-    readFile(new URL("../src/tools/media-desk/editor-model.ts", import.meta.url), "utf8"),
-    readFile(new URL("../src/tools/media-desk/editor-serialization.ts", import.meta.url), "utf8"),
-    readFile(new URL("../src/tools/media-desk/editor.ts", import.meta.url), "utf8"),
+    readFile(new URL("../src/devtools/media-desk/editor-model.ts", import.meta.url), "utf8"),
+    readFile(new URL("../src/devtools/media-desk/editor-serialization.ts", import.meta.url), "utf8"),
+    readFile(new URL("../src/devtools/media-desk/editor.ts", import.meta.url), "utf8"),
   ]);
 
   const registeredStart = cms.indexOf("      - name: registered-media-catalog\n");

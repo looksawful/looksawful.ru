@@ -1,9 +1,9 @@
-import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./e2e/readiness.mjs";
+import { waitForDocumentReady, waitForAnimationFrames, waitForLightboxClosed } from "./readiness.mjs";
 import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
-import { cvContent } from "../src/data/cv.ts";
-import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
+import { cvContent } from "../../src/data/cv.ts";
+import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 let BASE_URL = "";
 const CAPTURE_DIR = process.env.CV_SMOKE_CAPTURE_DIR

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { getExpectedCvCardCount, getExpectedCvHiddenCards } from "../smoke-cv.mjs";
+import { getExpectedCvCardCount, getExpectedCvHiddenCards } from "./smoke-cv.mjs";
 import { mapWithConcurrency } from "./concurrency.mjs";
 import { waitForDocumentReady, waitForLightboxClosed } from "./readiness.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";

@@ -11,7 +11,7 @@ import {
   saveContentDeskText,
   saveMediaDeskMetadata,
   saveMediaDeskMetadataBulk,
-} from "../src/tools/media-desk/server.ts";
+} from "../src/devtools/media-desk/server.ts";
 
 const ASSET_ID = "awful-cases-assets-recording-2026-08-15-121210-poster";
 const ORIGINAL = {

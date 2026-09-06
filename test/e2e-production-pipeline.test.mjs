@@ -7,7 +7,7 @@ import { cvContent } from "../src/data/cv.ts";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("CV smoke exposes authored and production hidden-card contracts", async () => {
-  const smokeCv = await import("../tools/smoke-cv.mjs");
+  const smokeCv = await import("../tools/e2e/smoke-cv.mjs");
   assert.equal(typeof smokeCv.getExpectedCvHiddenCards, "function");
   const authoredHidden = cvContent.experience.filter(({ visible }) => !visible).length;
   assert.equal(smokeCv.getExpectedCvHiddenCards("authored"), authoredHidden);
@@ -16,7 +16,7 @@ test("CV smoke exposes authored and production hidden-card contracts", async () 
 });
 
 test("CV runner accepts an explicit mode and direct execution stays authored", async () => {
-  const source = await read("tools/smoke-cv.mjs");
+  const source = await read("tools/e2e/smoke-cv.mjs");
   assert.match(source, /runSmokeCv\(\{\s*browser,\s*baseUrl,\s*mode\s*=\s*["']authored["']/s);
   assert.match(source, /getExpectedCvHiddenCards\(mode\)/);
   assert.match(source, /runSmokeCv\(\{\s*browser,\s*baseUrl,\s*mode:\s*["']authored["']/s);
@@ -75,6 +75,6 @@ test("production CV analytics bootstrap expectation follows configured providers
 test("package scripts expose production E2E without changing standalone smoke commands", async () => {
   const pkg = JSON.parse(await read("package.json"));
   assert.equal(pkg.scripts["test:e2e:production"], "node tools/e2e/run-production.mjs");
-  assert.equal(pkg.scripts["test:e2e"], "node tools/smoke-site.mjs");
-  assert.equal(pkg.scripts["test:e2e:cv"], "node tools/smoke-cv.mjs");
+  assert.equal(pkg.scripts["test:e2e"], "node tools/e2e/smoke-site.mjs");
+  assert.equal(pkg.scripts["test:e2e:cv"], "node tools/e2e/smoke-cv.mjs");
 });

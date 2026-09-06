@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const rules = [
   ["cv", /^(public\/cv\/|src\/(content\/cv[^/]*|data\/cv[^/]*)|tools\/(apply-cv-content|prepare-cv-production|smoke-cv)\.mjs$|tools\/lib\/cv-content\.mjs$|test\/cv-)/],
   ["navigation", /^(src\/(content\/navigation\.json|data\/navigation\.ts|components\/site-nav[^/]*|styles\/site-nav[^/]*)|test\/(site-navigation|navigation-labels|project-navigation)|tools\/smoke-site-navigation\.mjs$)/],
-  ["media-desk", /^(src\/tools\/media-desk\/|tools\/media-desk\/|tools\/e2e\/run-media-desk\.mjs$|test\/media-desk)/],
+  ["media-desk", /^(src\/(?:devtools|tools)\/media-desk\/|tools\/media-desk\/|tools\/e2e\/run-media-desk\.mjs$|test\/media-desk)/],
   ["media-tooling", /^(tools\/(build-responsive-media|build-video-media|media-dev-state|sync-media-catalog)\.mjs$|test\/(media-|responsive-|video-delivery))/],
   ["media", /^(public\/media\/|media\/|src\/content\/(media-catalog\/|projects\.json$)|src\/data\/media\/|src\/types\/media\.ts$)/],
   ["dependencies", /^package(-lock)?\.json$/],

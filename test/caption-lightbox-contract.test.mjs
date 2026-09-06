@@ -120,7 +120,7 @@ test("custom Jestei hover copy is a fine-pointer enhancement, while touch goes s
 });
 
 test("browser smoke exercises first-tap lightbox behavior on touch viewports too", async () => {
-  const smoke = await read("tools/smoke-site.mjs");
+  const smoke = await read("tools/e2e/smoke-site.mjs");
 
   assert.match(smoke, /await verifyLightbox\(page, label/);
   assert.doesNotMatch(smoke, /viewport\.width\s*>=\s*768[^\n]*verifyLightbox/);

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
-const source = await readFile(new URL("../src/tools/media-desk/text-desk.ts", import.meta.url), "utf8");
+const source = await readFile(new URL("../src/devtools/media-desk/text-desk.ts", import.meta.url), "utf8");
 
 test("text desk guards dirty detail before switching and uses one guarded close lifecycle", () => {
   assert.match(source, /export function canLeaveTextEditor/);

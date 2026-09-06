@@ -48,9 +48,9 @@ test("rendered media data keeps global, media and Media Desk coverage", () => {
 });
 test("media desk changes stay focused and request the dedicated internal browser smoke", () => {
   for (const file of [
-    "src/tools/media-desk/main.ts",
-    "src/tools/media-desk/model.ts",
-    "src/tools/media-desk/media-desk.css",
+    "src/devtools/media-desk/main.ts",
+    "src/devtools/media-desk/model.ts",
+    "src/devtools/media-desk/media-desk.css",
     "tools/media-desk/index.html",
     "tools/e2e/run-media-desk.mjs",
     "test/media-desk-model.test.mjs",
