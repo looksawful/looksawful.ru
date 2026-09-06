@@ -1,0 +1,31 @@
+name: tmp-css-460-project-navigation-sync
+
+on:
+  push:
+    branches:
+      - refactor/css-460-project-navigation-owner-sync
+
+permissions:
+  contents: read
+
+jobs:
+  verify-focused:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Verify focused project navigation contracts on synced dev
+        run: |
+          node --test \
+            test/css-refactor-wave4b-project-navigation.test.mjs \
+            test/project-navigation-mobile-viewport.test.mjs \
+            test/project-navigation-back-to-top.test.mjs \
+            test/project-navigation-fallback.test.mjs \
+            test/site-navigation-style.test.mjs \
+            test/css-refactor-wave3-code-block.test.mjs \
+            test/repository-structure.test.mjs
+          git diff --check HEAD^ HEAD
