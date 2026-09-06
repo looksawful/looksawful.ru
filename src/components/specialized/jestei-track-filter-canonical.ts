@@ -2,6 +2,10 @@ import type { JesteiTrackFilterSection } from "../../content/contracts/sections.
 import { renderJesteiTrackFilter as renderExtractedJesteiTrackFilter } from "./jestei-track-filter.ts";
 
 const LEGACY_FILTER_CAPTION = /Новый\s+дизайн системы фильтрации треков\./;
+const FILTER_STYLESHEET =
+  '<link href="/components/playlist-filter-workflow.css" rel="stylesheet">';
+const FILTER_STYLESHEETS = `${FILTER_STYLESHEET}
+                        <link href="/components/playlist-filter-workflow-layout.css" rel="stylesheet">`;
 
 /**
  * Transitional parity adapter.
@@ -14,8 +18,7 @@ const LEGACY_FILTER_CAPTION = /Новый\s+дизайн системы филь
 export function renderJesteiTrackFilter(
   section: JesteiTrackFilterSection,
 ): string {
-  return renderExtractedJesteiTrackFilter(section).replace(
-    LEGACY_FILTER_CAPTION,
-    "Новый интерфейс фильтрации треков.",
-  );
+  return renderExtractedJesteiTrackFilter(section)
+    .replace(FILTER_STYLESHEET, FILTER_STYLESHEETS)
+    .replace(LEGACY_FILTER_CAPTION, "Новый интерфейс фильтрации треков.");
 }

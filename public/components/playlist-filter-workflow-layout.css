@@ -1,0 +1,5 @@
+@layer components {
+    .advanced-button {
+        white-space: nowrap;
+    }
+}
