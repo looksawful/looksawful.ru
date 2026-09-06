@@ -12,9 +12,12 @@ const mainSource = readFileSync(mainPath, "utf8");
 const { path: navigationOwnerPath, source: navigationSource } = readStyleOwner("site-navigation");
 
 test("global navigation styles have one declared owner", () => {
-  assert.equal(navigationOwnerPath, "src/styles/components.css");
-  assert.equal(existsSync(dedicatedPath), false, "duplicate site-navigation.css owner must be removed");
-  assert.doesNotMatch(indexSource, /site-navigation\.css/);
+  assert.equal(navigationOwnerPath, "src/styles/site-navigation.css");
+  assert.equal(existsSync(dedicatedPath), true, "site-navigation.css must own global navigation styles");
+  assert.match(
+    indexSource,
+    /@import "\.\/experience\.css" layer\(components\);\n@import "\.\/site-navigation\.css" layer\(components\);\n@import "\.\.\/components\/jestei-theme-organism\/jestei-theme-organism\.css";/,
+  );
   assert.doesNotMatch(mainSource, /site-navigation\.css/);
   assert.match(navigationSource, /\.site-nav__bar/);
   assert.doesNotMatch(navigationSource, /\.site-nav__brand\b|\.site-nav__list\b|\.site-nav__link\b/);
