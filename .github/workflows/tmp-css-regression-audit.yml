@@ -6,6 +6,10 @@ on:
       - test/css-refactor-regression-audit
   workflow_dispatch:
 
+concurrency:
+  group: tmp-css-regression-audit
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -18,10 +22,19 @@ jobs:
       CURRENT_SHA: 72751d54d4228e7ff301d430c9699077741422b0
       WAVE5_SHA: 89582bbf69aa336106b6be4072741b304536e6a9
     steps:
-      - name: Checkout audit harness with full history
+      - name: Checkout bounded audit history
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          fetch-depth: 100
+
+      - name: Fetch frozen Wave 5A history
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=30 origin "$WAVE5_SHA"
+          git cat-file -e "$BASELINE_SHA^{commit}"
+          git cat-file -e "$CURRENT_SHA^{commit}"
+          git cat-file -e "$WAVE5_SHA^{commit}"
 
       - name: Setup Node
         uses: actions/setup-node@v7
