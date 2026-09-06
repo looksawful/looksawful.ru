@@ -2,9 +2,7 @@ import { readFileSync } from "node:fs";
 
 const STYLE_OWNERS = Object.freeze({
   "site-navigation": Object.freeze({
-    path: "src/styles/components.css",
-    start: ".site-nav {",
-    end: "/* One global project navigator replaces both the former projects index",
+    path: "src/styles/site-navigation.css",
   }),
 });
 
