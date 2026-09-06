@@ -2,27 +2,17 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
+import { readStyleOwner } from "./helpers/style-owner.mjs";
+
 const indexPath = new URL("../src/styles/index.css", import.meta.url);
 const mainPath = new URL("../src/main.ts", import.meta.url);
-const componentsPath = new URL("../src/styles/components.css", import.meta.url);
 const dedicatedPath = new URL("../src/styles/site-navigation.css", import.meta.url);
 const indexSource = readFileSync(indexPath, "utf8");
 const mainSource = readFileSync(mainPath, "utf8");
-const componentSource = readFileSync(componentsPath, "utf8");
+const { path: navigationOwnerPath, source: navigationSource } = readStyleOwner("site-navigation");
 
-const navigationStart = componentSource.indexOf(".site-nav {");
-const projectNavigationStart = componentSource.indexOf(
-  "/* One global project navigator replaces both the former projects index",
-  Math.max(0, navigationStart),
-);
-const navigationSource = navigationStart >= 0
-  ? componentSource.slice(
-      navigationStart,
-      projectNavigationStart > navigationStart ? projectNavigationStart : componentSource.length,
-    )
-  : "";
-
-test("global navigation styles have one owner in components.css", () => {
+test("global navigation styles have one declared owner", () => {
+  assert.equal(navigationOwnerPath, "src/styles/components.css");
   assert.equal(existsSync(dedicatedPath), false, "duplicate site-navigation.css owner must be removed");
   assert.doesNotMatch(indexSource, /site-navigation\.css/);
   assert.doesNotMatch(mainSource, /site-navigation\.css/);
