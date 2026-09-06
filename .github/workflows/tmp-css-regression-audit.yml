@@ -142,6 +142,31 @@ jobs:
           expect_known_failure css-original-smoke npm run test:e2e:smoke
           expect_known_failure css-original-full npm run test:e2e:full
 
+      - name: Probe original and current homepage canvas health directly
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          probe_smoke_site() {
+            tree="$1"
+            label="$2"
+            script="$3"
+            log="/tmp/${label}.log"
+            status_file="/tmp/${label}.status"
+
+            set +e
+            (cd "$tree" && node "$script") >"$log" 2>&1
+            status=$?
+            set -e
+
+            printf '%s\n' "$status" >"$status_file"
+            printf '\n===== %s (exit %s) =====\n' "$label" "$status"
+            cat "$log"
+          }
+
+          probe_smoke_site /tmp/css-original css-original-homepage-smoke tools/smoke-site.mjs
+          probe_smoke_site /tmp/css-current css-current-homepage-smoke tools/e2e/smoke-site.mjs
+
       - name: Run merged current repository gates
         shell: bash
         run: |
@@ -203,6 +228,10 @@ jobs:
             /tmp/css-regression-current-wave5
             /tmp/css-original-smoke.log
             /tmp/css-original-full.log
+            /tmp/css-original-homepage-smoke.log
+            /tmp/css-original-homepage-smoke.status
+            /tmp/css-current-homepage-smoke.log
+            /tmp/css-current-homepage-smoke.status
             /tmp/css-original-preview.log
             /tmp/css-current-preview.log
             /tmp/css-wave5-preview.log
