@@ -22,6 +22,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Install media tooling required by canonical verify
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
       - name: Diff hygiene GREEN
         run: git diff --check 72751d54d4228e7ff301d430c9699077741422b0 HEAD -- src/styles/code-block.css src/styles/site-navigation.css
       - name: Focused ownership and behavior contracts
