@@ -53,7 +53,7 @@ requireOnce(indexOriginal, lateRule, "late project header typography refinement"
 let components = replaceOnce(componentsOriginal, baseBlock, "", "base project header family");
 components = replaceOnce(components, wideHeaderBody, "", "wide project header family");
 
-const canonicalHeader = `${baseBlock}${wideBlock}${compactOriginal}\n${lateRule}`;
+const canonicalHeader = `${baseBlock}${wideBlock}${compactOriginal}\n${lateRule}`.replace(/\n+$/, "\n");
 let index = replaceOnce(indexOriginal, lateRule, "", "late project header typography refinement");
 
 const captureMarker = 'name: "project-header"';
@@ -88,5 +88,5 @@ writeFileSync(capturePath, capture);
 console.log(`project header base preserved: ${Buffer.byteLength(baseBlock)} bytes`);
 console.log(`project header wide rules preserved: ${Buffer.byteLength(wideHeaderBody)} bytes`);
 console.log(`project header compact owner preserved: ${Buffer.byteLength(compactOriginal)} bytes`);
-console.log(`project header late typography rule preserved: ${Buffer.byteLength(lateRule)} bytes`);
+console.log(`project header late typography rule preserved: ${Buffer.byteLength(lateRule)} bytes before EOF normalization`);
 console.log(`components.css lines: ${componentsOriginal.split("\n").length} -> ${components.split("\n").length}`);
