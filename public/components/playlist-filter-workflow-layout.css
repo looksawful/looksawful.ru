@@ -6,4 +6,9 @@
     .compact-bpm-fields label {
         white-space: nowrap;
     }
+
+    .tempo-main,
+    .compact-bpm-slider {
+        gap: 6px;
+    }
 }
