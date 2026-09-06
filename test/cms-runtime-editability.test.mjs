@@ -21,7 +21,7 @@ test("CV dev rendering uses canonical SitePage and composed CV content", async (
 });
 
 test("CV browser smoke derives editable copy and structural visibility from composed content", async () => {
-  const smoke = await read("tools/smoke-cv.mjs");
+  const smoke = await read("tools/e2e/smoke-cv.mjs");
   assert.match(smoke, /cvContent/);
   assert.match(smoke, /cvContent\.profile\.name/);
   assert.match(smoke, /experience[\s\S]*visible/);

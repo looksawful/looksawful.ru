@@ -1,5 +1,5 @@
 import { scopeFromGit } from "../ci/change-scope.mjs";
-import { runSmokeCv } from "../smoke-cv.mjs";
+import { runSmokeCv } from "./smoke-cv.mjs";
 import { runSmokeNavigation } from "./smoke-site-navigation.mjs";
 import { runSmokeSite } from "./smoke-site.mjs";
 import { mapWithConcurrency } from "./concurrency.mjs";

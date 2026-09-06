@@ -1,4 +1,4 @@
-import { runSmokeCv } from "../smoke-cv.mjs";
+import { runSmokeCv } from "./smoke-cv.mjs";
 import { runSmokeNavigation } from "./smoke-site-navigation.mjs";
 import { runSmokeSite } from "./smoke-site.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
