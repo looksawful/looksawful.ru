@@ -1,0 +1,26 @@
+name: tmp-test-491-caption-contract
+
+on:
+  push:
+    branches:
+      - fix/test-491-caption-copy-contract
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Verify repaired caption/lightbox contract
+        run: node --test test/caption-lightbox-contract.test.mjs
+      - name: Verify fast suite
+        run: npm run test:fast
+      - name: Verify formatting
+        run: npm run format:check
