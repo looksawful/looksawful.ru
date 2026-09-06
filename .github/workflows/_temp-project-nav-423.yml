@@ -1,0 +1,58 @@
+name: Temp Project Nav 423
+
+on:
+  push:
+    branches:
+      - fix/project-nav-backdrop-423
+
+permissions:
+  contents: write
+
+jobs:
+  red-green:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - name: Confirm RED
+        shell: bash
+        run: |
+          set +e
+          node --test test/project-navigation-mobile-viewport.test.mjs > /tmp/project-nav-red.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/project-nav-red.log
+          if [ "$status" -eq 0 ]; then
+            echo "Expected focused project-navigation contract to fail before the fix"
+            exit 1
+          fi
+          grep -q "compact project navigation has no full-width backdrop layer" /tmp/project-nav-red.log
+      - name: Apply minimal source fix
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/styles/components.css')
+          source = path.read_text()
+          old = '''  border-block-start: var(--border-width-100) solid var(--clr-border);\n  border-block-end: 0;\n  background: var(--clr-bg);'''
+          new = '''  border-block-end: 0;\n  background: transparent;'''
+          count = source.count(old)
+          if count != 1:
+              raise SystemExit(f'expected exactly one compact project-nav panel block, found {count}')
+          path.write_text(source.replace(old, new, 1))
+          PY
+      - name: Confirm GREEN
+        run: node --test test/project-navigation-mobile-viewport.test.mjs
+      - name: Commit source fix and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/_temp-project-nav-423.yml
+          git add src/styles/components.css
+          git commit -m "fix(project-nav): remove compact backdrop layer"
+          git push origin HEAD:fix/project-nav-backdrop-423
