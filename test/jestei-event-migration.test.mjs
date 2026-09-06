@@ -7,9 +7,17 @@ import {
   jesteiInstagramPlayerStrip,
 } from "../src/data/content/jestei-pool.ts";
 import { jesteiPoolPageContent } from "../src/content/pages/cases/jestei-pool.ts";
+import {
+  JESTEI_THEME_RENDER_QUALITY,
+  resolveJesteiThemePixelRatio,
+} from "../src/components/jestei-theme-organism/jestei-theme-organism-data.ts";
 import { renderMediaGroup } from "../src/templates/media-group.ts";
 
 const indexCss = readFileSync(new URL("../src/styles/index.css", import.meta.url), "utf8");
+const themeOrganismRuntime = readFileSync(
+  new URL("../src/components/jestei-theme-organism/jestei-theme-organism.js", import.meta.url),
+  "utf8",
+);
 
 test("Jestei Event is typed content and uses registry-backed Moves Awful media", () => {
   const html = renderMediaGroup(jesteiEventGroup);
@@ -61,4 +69,18 @@ test("Jestei Instagram player copy belongs to the section, not hover captions", 
     title: "Промокоммуникация Jestei Pool",
     paragraphs: ["Интерактивный плеер для Instagram-постов."],
   });
+});
+
+test("Jestei theme organism uses a sharper but bounded baseline DPR", () => {
+  assert.deepEqual(JESTEI_THEME_RENDER_QUALITY, {
+    compactMaxInlineSize: 672,
+    compactPixelRatioLimit: 1.5,
+    widePixelRatioLimit: 2,
+  });
+
+  assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 3, inlineSize: 480 }), 1.5);
+  assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 3, inlineSize: 1060 }), 2);
+  assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 1, inlineSize: 1060 }), 1);
+  assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 0, inlineSize: 1060 }), 1);
+  assert.match(themeOrganismRuntime, /resolveJesteiThemePixelRatio/);
 });
