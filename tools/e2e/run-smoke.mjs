@@ -254,7 +254,7 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     runtime,
     "/work/jestei-pool/",
     viewport,
-    (page) => verifyDenseMobileCaptions(page, { requireMiddleReel: viewport.width > 768 }),
+    (page) => verifyDenseMobileCaptions(page),
     { hasTouch: true, isMobile: viewport.width === 390 },
   ));
   await audit(runtime, "/cv/", VIEWPORTS[1], async (page) => {
