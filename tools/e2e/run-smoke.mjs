@@ -301,4 +301,6 @@ export async function runMediaSanity({ browser, baseUrl }) {
   });
 }
 
-if (isDirectExecution(import.meta.url)) await withE2ERuntime(runQuickSmoke);
+if (isDirectExecution(import.meta.url)) {
+  await withE2ERuntime(({ browser, baseUrl }) => runQuickSmoke({ browser, baseUrl, cvMode: "production" }));
+}
