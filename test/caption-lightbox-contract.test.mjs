@@ -31,8 +31,12 @@ test("custom surface copy remains authored once and is explicitly available to t
   const interfaceGroup = renderMediaGroup(jesteiInterfaceGroup);
   const extractLightboxCopy = (html) =>
     [...html.matchAll(/data-lightbox-caption-copy>([^<]*)</g)].map((match) => match[1]);
-  const brandCopy = jesteiBrandSystemGroup.items.map((item) => item.surfaceOverlay?.text).filter(Boolean);
-  const interfaceCopy = jesteiInterfaceGroup.items.map((item) => item.surfaceOverlay?.text).filter(Boolean);
+  const brandCopy = jesteiBrandSystemGroup.items
+    .map((item) => item.surfaceOverlay?.text)
+    .filter(Boolean);
+  const interfaceCopy = jesteiInterfaceGroup.items
+    .map((item) => item.surfaceOverlay?.text)
+    .filter(Boolean);
 
   assert.equal((brand.match(/data-lightbox-caption-copy/g) ?? []).length, 6);
   assert.equal((interfaceGroup.match(/data-lightbox-caption-copy/g) ?? []).length, 3);
