@@ -382,7 +382,7 @@ Application, CSS, пользовательский контент, CMS schema и
 | tools/e2e/run-affected.mjs | Smoke и выбранные оригинальные focused suites. |
 | tools/e2e/run-all.mjs | Все оригинальные suites сохранены, ограниченный параллелизм. |
 | tools/e2e/run-production.mjs | Compact production smoke/video/caption QA вместо повторного exhaustive suite. |
-| tools/smoke-site.mjs | Убраны игнорируемые networkidle; сохранены motion/swipe/deck time contracts; pageshow readiness для reveal. |
+| tools/e2e/smoke-site.mjs | Убраны игнорируемые networkidle; сохранены motion/swipe/deck time contracts; pageshow readiness для reveal. |
 | tools/smoke-mpa.mjs | DOM/frame/lightbox/page-flip signals вместо произвольных задержек. |
 | tools/smoke-project-pages.mjs | Canvas bitmap/CSS/error readiness вместо sleep. |
 | tools/smoke-cv.mjs | DOM/fonts/frame readiness; authored/production contracts сохранены. |

@@ -75,6 +75,6 @@ test("production CV analytics bootstrap expectation follows configured providers
 test("package scripts expose production E2E without changing standalone smoke commands", async () => {
   const pkg = JSON.parse(await read("package.json"));
   assert.equal(pkg.scripts["test:e2e:production"], "node tools/e2e/run-production.mjs");
-  assert.equal(pkg.scripts["test:e2e"], "node tools/smoke-site.mjs");
+  assert.equal(pkg.scripts["test:e2e"], "node tools/e2e/smoke-site.mjs");
   assert.equal(pkg.scripts["test:e2e:cv"], "node tools/smoke-cv.mjs");
 });

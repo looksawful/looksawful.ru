@@ -1,6 +1,6 @@
 import { runSmokeCv } from "../smoke-cv.mjs";
 import { runSmokeNavigation } from "../smoke-site-navigation.mjs";
-import { runSmokeSite } from "../smoke-site.mjs";
+import { runSmokeSite } from "./smoke-site.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 import { mapWithConcurrency } from "./concurrency.mjs";
 import { runSmokeMpa } from "./smoke-mpa.mjs";
