@@ -61,6 +61,13 @@ jobs:
       - name: Run cumulative source and cascade audit
         run: node tools/tmp-css-source-audit.mjs
 
+      - name: Check refactor diffs for whitespace errors
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check "$BASELINE_SHA" "$CURRENT_SHA" -- src/styles test tools/design-capture/config.mjs
+          git diff --check "$CURRENT_SHA" "$WAVE5_SHA" -- src/styles test tools
+
       - name: Create exact comparison worktrees
         shell: bash
         run: |
@@ -106,23 +113,7 @@ jobs:
         run: |
           set -euo pipefail
           cd /tmp/css-original
-          paths=(src/styles)
-          for candidate in \
-            test/helpers/style-owner.mjs \
-            test/site-navigation-style.test.mjs \
-            test/project-navigation-mobile-viewport.test.mjs \
-            test/css-refactor-wave2a.test.mjs \
-            test/css-refactor-wave3-code-block.test.mjs \
-            test/css-refactor-wave4b-project-navigation.test.mjs \
-            test/css-refactor-wave4c-project-header.test.mjs \
-            test/css-refactor-wave4d-project-shell.test.mjs \
-            test/caption-lightbox-contract.test.mjs \
-            test/css-refactor-wave5a-media-core.test.mjs \
-            tools/design-capture/config.mjs; do
-            [[ -e "$candidate" ]] && paths+=("$candidate")
-          done
           npm run lint
-          npm run format:check -- "${paths[@]}"
           npm run verify
           npm run test:ui:responsive
           npm run test:e2e:full
@@ -132,23 +123,7 @@ jobs:
         run: |
           set -euo pipefail
           cd /tmp/css-current
-          paths=(src/styles)
-          for candidate in \
-            test/helpers/style-owner.mjs \
-            test/site-navigation-style.test.mjs \
-            test/project-navigation-mobile-viewport.test.mjs \
-            test/css-refactor-wave2a.test.mjs \
-            test/css-refactor-wave3-code-block.test.mjs \
-            test/css-refactor-wave4b-project-navigation.test.mjs \
-            test/css-refactor-wave4c-project-header.test.mjs \
-            test/css-refactor-wave4d-project-shell.test.mjs \
-            test/caption-lightbox-contract.test.mjs \
-            test/css-refactor-wave5a-media-core.test.mjs \
-            tools/design-capture/config.mjs; do
-            [[ -e "$candidate" ]] && paths+=("$candidate")
-          done
           npm run lint
-          npm run format:check -- "${paths[@]}"
           npm run verify
           npm run test:ui:responsive
           npm run test:e2e:full
@@ -158,23 +133,7 @@ jobs:
         run: |
           set -euo pipefail
           cd /tmp/css-wave5
-          paths=(src/styles)
-          for candidate in \
-            test/helpers/style-owner.mjs \
-            test/site-navigation-style.test.mjs \
-            test/project-navigation-mobile-viewport.test.mjs \
-            test/css-refactor-wave2a.test.mjs \
-            test/css-refactor-wave3-code-block.test.mjs \
-            test/css-refactor-wave4b-project-navigation.test.mjs \
-            test/css-refactor-wave4c-project-header.test.mjs \
-            test/css-refactor-wave4d-project-shell.test.mjs \
-            test/caption-lightbox-contract.test.mjs \
-            test/css-refactor-wave5a-media-core.test.mjs \
-            tools/design-capture/config.mjs; do
-            [[ -e "$candidate" ]] && paths+=("$candidate")
-          done
           npm run lint
-          npm run format:check -- "${paths[@]}"
           npm run verify
           npm run test:ui:responsive
           npm run test:e2e:full
