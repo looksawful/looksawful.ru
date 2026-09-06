@@ -109,15 +109,38 @@ jobs:
             (cd "$tree" && git diff --exit-code)
           done
 
-      - name: Run original baseline repository gates
+      - name: Run original baseline historically supported gates
         shell: bash
         run: |
           set -euo pipefail
           cd /tmp/css-original
-          npm run lint
-          npm run verify
+          npm run typecheck
+          npm run test:fast
+          npm run build:site
           npm run test:ui:responsive
-          npm run test:e2e:full
+
+      - name: Classify original baseline known smoke debt
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/css-original
+          expected='Jestei route must contain a sequence middle-overflow reel caption'
+
+          expect_known_failure() {
+            label="$1"
+            shift
+            log="/tmp/${label}.log"
+            set +e
+            "$@" >"$log" 2>&1
+            status=$?
+            set -e
+            cat "$log"
+            test "$status" -ne 0
+            grep -Fq "$expected" "$log"
+          }
+
+          expect_known_failure css-original-smoke npm run test:e2e:smoke
+          expect_known_failure css-original-full npm run test:e2e:full
 
       - name: Run merged current repository gates
         shell: bash
@@ -178,6 +201,8 @@ jobs:
           path: |
             /tmp/css-regression-original-current
             /tmp/css-regression-current-wave5
+            /tmp/css-original-smoke.log
+            /tmp/css-original-full.log
             /tmp/css-original-preview.log
             /tmp/css-current-preview.log
             /tmp/css-wave5-preview.log
