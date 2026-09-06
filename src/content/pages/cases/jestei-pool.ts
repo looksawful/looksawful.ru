@@ -7,6 +7,7 @@ import {
   jesteiFeaturedMedia,
   jesteiHomeIntro,
   jesteiHomeMockup,
+  jesteiInstagramPlayerIntro,
   jesteiInstagramPlayerStrip,
   jesteiInterfaceGroup,
   jesteiInterfaceIntro,
@@ -87,6 +88,7 @@ export const jesteiPoolPageContent = {
       type: "project",
       id: "jestei-instagram-player",
       projectId: "jestei-promo-communication",
+      intro: jesteiInstagramPlayerIntro,
       blocks: [{ type: "media-group", data: jesteiInstagramPlayerStrip }],
     },
     {
