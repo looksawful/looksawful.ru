@@ -1,0 +1,231 @@
+/* ==================================================
+   Project shell and typography
+   ================================================== */
+
+.projects {
+  container: projects / inline-size;
+  inline-size: 100%;
+}
+
+.project {
+  --project-gutter: var(--page-padding-inline);
+  --project-media-max: 72.5rem;
+  --project-copy-max: 42rem;
+  --project-section-padding: clamp(2.5rem, 5cqi, 5rem);
+  --project-section-gap: clamp(1.25rem, 2.5cqi, 2.5rem);
+  --project-media-gap: clamp(0.75rem, 1.4cqi, 1.25rem);
+  --project-media-row-gap: clamp(1rem, 2cqi, 1.75rem);
+  --project-caption-gap: clamp(0.45rem, 0.8cqi, 0.7rem);
+
+  container: project / inline-size;
+  inline-size: 100%;
+  overflow: clip;
+  color: var(--clr-text);
+  background: var(--clr-bg);
+
+  & + & {
+    border-block-start: var(--border-width-100) solid var(--clr-border);
+  }
+
+  & ::selection {
+    color: var(--clr-selection-text);
+    background: var(--clr-selection-bg);
+  }
+}
+
+.project__intro {
+  --wrapper-max-width: var(--content-max-width);
+  --prose-space: 0;
+  --editorial-columns: 6;
+  --editorial-align: normal;
+  --editorial-column-gap: clamp(0.55rem, 2cqi, 1.25rem);
+  --editorial-row-gap: clamp(1rem, 2.5cqi, 2rem);
+
+  padding-block: clamp(2.75rem, 5cqi, 5rem);
+}
+
+.project__title {
+  grid-column: 1 / -1;
+  max-inline-size: 16ch;
+  font-size: var(--fs-800);
+  font-weight: var(--fw-700);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+
+  & > img {
+    display: block;
+    /*inline-size: min(100%, 10rem);*/
+    block-size: auto;
+  }
+}
+
+.project__summary {
+  grid-column: 1 / -1;
+  max-inline-size: 68ch;
+  font-size: var(--fs-400);
+  font-weight: var(--fw-400);
+  line-height: 1.38;
+  letter-spacing: -0.012em;
+}
+
+.project__lead,
+.text-lead {
+  max-inline-size: 32ch;
+  font-size: var(--fs-600);
+  font-weight: var(--fw-500);
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+}
+
+.project__lead {
+  grid-column: 1 / -1;
+}
+
+.project__links {
+  --cluster-space: var(--size-200);
+  grid-column: 1 / -1;
+  font-size: var(--fs-300);
+  font-weight: var(--fw-500);
+}
+
+.project :where(a) {
+  color: inherit;
+  text-decoration-color: currentColor;
+  text-underline-offset: 0.18em;
+}
+
+.project__section {
+  --wrapper-max-width: var(--content-max-width);
+  --stack-space: var(--project-section-gap);
+
+  container: project-section / inline-size;
+  padding-block: var(--project-section-padding);
+  /*border-block-start: var(--border-width-100) solid var(--clr-border);*/
+
+  &:last-of-type {
+    padding-block-end: clamp(3.5rem, 7cqi, 7rem);
+  }
+}
+
+/* A few old standalone figures/sliders sit directly under the project.
+   They receive the same outer contract as a project section until their
+   source order is intentionally re-authored. */
+
+.project > :is(.media, .slider) {
+  inline-size: min(calc(100% - (var(--project-gutter) * 2)), var(--project-media-max));
+  margin-inline: auto;
+  margin-block: var(--project-section-padding);
+}
+
+@container project (width > 50rem) {
+  .project__intro {
+    --editorial-columns: 12;
+    --editorial-column-gap: clamp(0.75rem, 1.5cqi, 1.5rem);
+  }
+
+  .project__title {
+    grid-column: 1 / 6;
+  }
+
+  .project__summary {
+    grid-column: 6 / -1;
+  }
+
+  .project__lead {
+    grid-column: 1 / -1;
+    max-inline-size: none;
+    padding-block-start: clamp(2rem, 4cqi, 4rem);
+  }
+
+  .project__links {
+    grid-column: 6 / -1;
+  }
+}
+
+/* Section copy: Sensetique is the baseline for all projects. */
+
+.section-copy {
+  max-inline-size: none;
+}
+
+.section-copy__title {
+  max-inline-size: 12ch;
+  font-size: clamp(1.55rem, 1.2rem + 1.15cqi, 2.35rem);
+  font-weight: var(--fw-600);
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.section-copy__text {
+  max-inline-size: var(--project-copy-max);
+  font-size: clamp(1rem, 0.925rem + 0.35cqi, 1.25rem);
+  font-weight: var(--fw-400);
+  line-height: 1.48;
+  letter-spacing: -0.012em;
+}
+
+@container project-section (width > 45rem) {
+  .section-copy {
+    --flow-space: 0;
+
+    display: grid;
+    grid-template-columns: minmax(10rem, 0.72fr) minmax(0, 1.28fr);
+    column-gap: clamp(2rem, 6cqi, 7rem);
+    align-items: start;
+  }
+}
+
+.project__section > :is(h2, h3),
+.project__section > section > :is(h2, h3) {
+  max-inline-size: 15ch;
+  font-size: clamp(1.4rem, 1.1rem + 1cqi, 2.15rem);
+  font-weight: var(--fw-600);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.project__section > p:not([class]),
+.project__section > section > p:not([class]) {
+  max-inline-size: var(--project-copy-max);
+  font-size: var(--fs-400);
+  line-height: 1.48;
+  letter-spacing: -0.012em;
+}
+
+  .project__title {
+    line-height: var(--lh-display);
+    letter-spacing: var(--ls-heading);
+  }
+
+  .project__summary {
+    letter-spacing: var(--ls-copy);
+  }
+
+  .project__lead,
+  .text-lead {
+    max-inline-size: 36ch;
+    line-height: var(--lh-tight);
+    letter-spacing: var(--ls-tight);
+  }
+
+  .section-copy__title {
+    line-height: var(--lh-heading);
+    letter-spacing: var(--ls-display);
+  }
+
+  .section-copy__text {
+    line-height: var(--lh-copy);
+    letter-spacing: var(--ls-copy);
+  }
+
+  .project__section > :is(h2, h3),
+  .project__section > section > :is(h2, h3) {
+    line-height: var(--lh-heading);
+    letter-spacing: var(--ls-heading);
+  }
+
+  .project__section > p:not([class]),
+  .project__section > section > p:not([class]) {
+    line-height: var(--lh-copy);
+    letter-spacing: var(--ls-copy);
+  }

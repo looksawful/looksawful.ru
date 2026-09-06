@@ -10,12 +10,12 @@ const legacyTopPath = new URL("../src/styles/project-navigation-top.css", import
 const components = readFileSync(componentsPath, "utf8");
 const index = readFileSync(indexPath, "utf8");
 
-test("project navigation has one canonical stylesheet owner at the existing import slot", () => {
+test("project navigation has one canonical stylesheet owner before project shell and expertise", () => {
   assert.equal(existsSync(ownerPath), true, "project-navigation.css must exist");
   assert.equal(existsSync(legacyTopPath), false, "project-navigation-top.css must be retired after consolidation");
   assert.match(
     index,
-    /@import "\.\/project-header\.css" layer\(components\);\n@import "\.\/project-navigation\.css" layer\(components\);\n@import "\.\/expertise\.css" layer\(components\);/,
+    /@import "\.\/project-header\.css" layer\(components\);\n@import "\.\/project-navigation\.css" layer\(components\);\n@import "\.\/project-shell\.css" layer\(components\);\n@import "\.\/expertise\.css" layer\(components\);/,
   );
   assert.doesNotMatch(index, /project-navigation-top\.css/);
 });
