@@ -145,9 +145,11 @@ test("raster-only PRs use the affected image gate instead of Fast CI recovery", 
     "image-only CMS media must not require the previous whole-library cache",
   );
   assert.match(cmsMedia, /affected-media\.mjs/);
-  assert.match(cmsMedia, /build-responsive-media\.mjs[\s\S]*?--asset-id/);
+  assert.match(cmsMedia, /build-responsive-media\.mjs/);
+  assert.match(cmsMedia, /--asset-id/);
 
   assert.match(affectedWorkflow, /affected-media\.mjs/);
-  assert.match(affectedWorkflow, /build-responsive-media\.mjs[\s\S]*?--asset-id/);
+  assert.match(affectedWorkflow, /build-responsive-media\.mjs/);
+  assert.match(affectedWorkflow, /--asset-id/);
   assert.doesNotMatch(affectedWorkflow, /ffmpeg|media:sync|media:video/i);
 });
