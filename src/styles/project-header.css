@@ -1,3 +1,64 @@
+.project__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  grid-template-areas: "project period" "role role";
+  align-items: center;
+  gap: 0.45rem var(--size-300);
+  min-block-size: 3.25rem;
+  padding: var(--size-200) var(--project-gutter);
+  border-block-end: var(--border-width-100) solid var(--clr-border);
+  font-size: var(--fs-300);
+  line-height: 1;
+
+  img {
+    display: block;
+    inline-size: min(100%, 10rem);
+    block-size: auto;
+  }
+
+  & > img {
+    grid-area: project;
+    min-inline-size: 0;
+  }
+}
+
+.project__name {
+  grid-area: project;
+  min-inline-size: 0;
+  overflow: hidden;
+  font-weight: var(--fw-700);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project__role {
+  grid-area: role;
+  font-weight: var(--fw-500);
+}
+
+.project__period {
+  grid-area: period;
+  justify-self: end;
+  color: var(--clr-text-muted);
+  font-weight: var(--fw-500);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@container project (width > 50rem) {
+  .project__head {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "project role period";
+    gap: var(--size-400);
+    min-block-size: 4.5rem;
+  }
+
+  .project__role {
+    justify-self: center;
+  }
+
+}
+
 /* Compact project headers keep only metadata when the project identity is
    already established by the case itself. The canonical DOM stays shared;
    wide layouts restore the identity through the base project header rules. */
@@ -12,3 +73,7 @@
     display: none;
   }
 }
+
+  .project__head {
+    line-height: var(--lh-heading);
+  }
