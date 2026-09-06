@@ -1,0 +1,164 @@
+name: tmp-css-regression-audit
+
+on:
+  push:
+    branches:
+      - test/css-refactor-regression-audit
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
+      CURRENT_SHA: 72751d54d4228e7ff301d430c9699077741422b0
+      WAVE5_SHA: 89582bbf69aa336106b6be4072741b304536e6a9
+    steps:
+      - name: Checkout audit harness with full history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install audit dependencies
+        run: npm ci
+
+      - name: Install canonical browser and media tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npx playwright install --with-deps chromium
+
+      - name: Validate audit harness syntax
+        run: |
+          node --check tools/tmp-css-source-audit.mjs
+          node --check tools/tmp-css-regression-audit.mjs
+
+      - name: Run cumulative source and cascade audit
+        run: node tools/tmp-css-source-audit.mjs
+
+      - name: Create exact comparison worktrees
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/css-original /tmp/css-current /tmp/css-wave5
+          git worktree add --detach /tmp/css-original "$BASELINE_SHA"
+          git worktree add --detach /tmp/css-current "$CURRENT_SHA"
+          git worktree add --detach /tmp/css-wave5 "$WAVE5_SHA"
+          for tree in /tmp/css-original /tmp/css-current /tmp/css-wave5; do
+            ln -s "$GITHUB_WORKSPACE/node_modules" "$tree/node_modules"
+          done
+          sha256sum package-lock.json /tmp/css-original/package-lock.json /tmp/css-current/package-lock.json /tmp/css-wave5/package-lock.json
+          test "$(sha256sum package-lock.json | cut -d' ' -f1)" = "$(sha256sum /tmp/css-original/package-lock.json | cut -d' ' -f1)"
+          test "$(sha256sum package-lock.json | cut -d' ' -f1)" = "$(sha256sum /tmp/css-current/package-lock.json | cut -d' ' -f1)"
+          test "$(sha256sum package-lock.json | cut -d' ' -f1)" = "$(sha256sum /tmp/css-wave5/package-lock.json | cut -d' ' -f1)"
+
+      - name: Prepare generated media independently for all compared trees
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tree in /tmp/css-original /tmp/css-current /tmp/css-wave5; do
+            echo "== media sync: $tree =="
+            (cd "$tree" && npm run media:sync)
+            (cd "$tree" && node tools/media-dev-state.mjs --cache-verify)
+            (cd "$tree" && git diff --exit-code)
+          done
+
+      - name: Run original baseline repository gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/css-original
+          npm run lint
+          npm run format:check
+          npm run typecheck
+          npm run test:fast
+          npm run test:media:contract
+          npm run build:site
+          npm run test:ui:responsive
+          npm run test:e2e:full
+          npm run test:e2e:smoke
+
+      - name: Run merged current repository gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/css-current
+          npm run lint
+          npm run format:check
+          npm run typecheck
+          npm run test:fast
+          npm run test:media:contract
+          npm run build:site
+          npm run test:ui:responsive
+          npm run test:e2e:full
+          npm run test:e2e:smoke
+
+      - name: Run frozen Wave 5A repository gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/css-wave5
+          npm run lint
+          npm run format:check
+          npm run typecheck
+          npm run test:fast
+          npm run test:media:contract
+          npm run build:site
+          npm run test:ui:responsive
+          npm run test:e2e:full
+          npm run test:e2e:smoke
+
+      - name: Start exact static previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp/css-original && npx vite preview --host 127.0.0.1 --port 4171 > /tmp/css-original-preview.log 2>&1 & echo $! > /tmp/css-original-preview.pid)
+          (cd /tmp/css-current && npx vite preview --host 127.0.0.1 --port 4172 > /tmp/css-current-preview.log 2>&1 & echo $! > /tmp/css-current-preview.pid)
+          (cd /tmp/css-wave5 && npx vite preview --host 127.0.0.1 --port 4173 > /tmp/css-wave5-preview.log 2>&1 & echo $! > /tmp/css-wave5-preview.pid)
+          for port in 4171 4172 4173; do
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent "http://127.0.0.1:$port/" > /dev/null; then break; fi
+              if [[ "$attempt" -eq 60 ]]; then exit 1; fi
+              sleep 1
+            done
+          done
+
+      - name: Compare original baseline with merged current site
+        shell: bash
+        env:
+          BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
+          CURRENT_SHA: 72751d54d4228e7ff301d430c9699077741422b0
+        run: node tools/tmp-css-regression-audit.mjs http://127.0.0.1:4171 http://127.0.0.1:4172 /tmp/css-regression-original-current
+
+      - name: Compare merged current site with frozen Wave 5A
+        shell: bash
+        env:
+          BASELINE_SHA: 72751d54d4228e7ff301d430c9699077741422b0
+          CURRENT_SHA: 89582bbf69aa336106b6be4072741b304536e6a9
+        run: node tools/tmp-css-regression-audit.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 /tmp/css-regression-current-wave5
+
+      - name: Archive regression evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-regression-audit-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            /tmp/css-regression-original-current
+            /tmp/css-regression-current-wave5
+            /tmp/css-original-preview.log
+            /tmp/css-current-preview.log
+            /tmp/css-wave5-preview.log
