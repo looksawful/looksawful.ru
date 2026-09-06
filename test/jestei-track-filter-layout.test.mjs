@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import { renderJesteiTrackFilter } from "../src/components/specialized/jestei-track-filter-canonical.ts";
+import { buildJesteiFilterSummary } from "../src/components/specialized/jestei-track-filter-summary.ts";
 
 const section = {
   type: "specialized",
@@ -70,5 +71,81 @@ test("Jestei track-type options stay in one horizontal row", () => {
     css,
     /\.type-shell\s*\{[^}]*block-size:\s*48px\s*;/s,
     "the track-type fieldset must not retain the old two-row height",
+  );
+});
+
+test("Jestei canonical filter does not present seeded summary as live state", () => {
+  const html = renderJesteiTrackFilter(section);
+
+  assert.doesNotMatch(
+    html,
+    /data-summary-seed="true"/,
+    "the production filter must not advertise the static demo summary as real state",
+  );
+  assert.match(
+    html,
+    /data-summary-seed="pending"/,
+    "the migrated seed may exist only as hidden bootstrapping markup until interactive state takes over",
+  );
+});
+
+test("Jestei selected-filter summary is derived from one normalized state", () => {
+  const summary = buildJesteiFilterSummary({
+    genres: [
+      { value: "House", selection: "included" },
+      { value: "Nu Disco", selection: "included" },
+      { value: "Techno", selection: "excluded" },
+    ],
+    tags: [{ value: "Транзишн", selection: "included" }],
+    bpm: { min: 80, max: 128, defaultMin: 0, defaultMax: 200 },
+    rating: 3,
+    top: true,
+    trackTypes: [{ value: "Оригинал", selection: "included" }],
+    nightParts: [{ value: "Primetime", selection: "included" }],
+    keys: [],
+  });
+
+  assert.deepEqual(
+    summary.map(({ id, label, value, extraCount }) => ({
+      id,
+      label,
+      value,
+      extraCount,
+    })),
+    [
+      { id: "genres:included", label: "Жанры:", value: "House", extraCount: 1 },
+      {
+        id: "genres:excluded",
+        label: "Жанры исключены:",
+        value: "Techno",
+        extraCount: 0,
+      },
+      { id: "tags:included", label: "Теги:", value: "Транзишн", extraCount: 0 },
+      { id: "bpm", label: "BPM:", value: "80–128", extraCount: 0 },
+      { id: "rating", label: "Рейтинг:", value: "3 · Топ", extraCount: 0 },
+      { id: "track-types:included", label: "Тип:", value: "Оригинал", extraCount: 0 },
+      {
+        id: "night-parts:included",
+        label: "Часть ночи:",
+        value: "Primetime",
+        extraCount: 0,
+      },
+    ],
+  );
+});
+
+test("Jestei summary is empty for the actual default filter state", () => {
+  assert.deepEqual(
+    buildJesteiFilterSummary({
+      genres: [],
+      tags: [],
+      bpm: { min: 0, max: 200, defaultMin: 0, defaultMax: 200 },
+      rating: null,
+      top: false,
+      trackTypes: [],
+      nightParts: [],
+      keys: [],
+    }),
+    [],
   );
 });
