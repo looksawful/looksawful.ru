@@ -7,6 +7,21 @@
 - If a matching repository-local skill exists under `.agents/skills/`, load it when the runtime supports skill discovery. Otherwise read its `SKILL.md` manually. A skill is guidance, not permission to mutate branches, publish CMS content, merge, deploy, or weaken guards.
 - Do not assume a skill from an external bundle is installed merely because it was reviewed. Only files actually present in `.agents/skills/` are repository-local skills.
 
+## Skill routing
+
+- CSS/layout, responsive behavior, GSAP/motion, PhotoSwipe/Embla, Canvas/WebGL or Three.js: use `looksawful-frontend-runtime` first.
+- Performance, Core Web Vitals, accessibility, SEO, Lighthouse or broad web-quality work: use `looksawful-web-quality`; add `optimize-web-animations` for jank, CPU/GPU, offscreen animation or lifecycle/leak work.
+- Pages CMS, Media Catalog, uploads, derivatives, content ownership or CMS publication implementation: use `looksawful-media-cms`; use `looksawful-policy-boundaries` as well when policy/protected surfaces are touched.
+- Bugs and unclear runtime failures: use `diagnosing-bugs` before proposing a fix.
+- Production implementation with a stable behavior seam: use `tdd`, subject to `docs/testing-policy.md`; temporary development tests do not become permanent by default.
+- Merge conflicts: use `resolving-merge-conflicts` and resolve by intent without destructive history operations.
+- Architecture work: use `codebase-design` and `architecture-review`; use `domain-modeling` only when terminology/domain decisions are actually changing.
+- Branch/diff review: use `code-review` and keep repository-standards findings separate from spec/requirements findings.
+- Explicit throwaway design/logic exploration: use `prototype`; prototype code does not get production status by proximity.
+- Session transfer: use `handoff`.
+- Editing `AGENTS.md`, skills or agent-facing docs: use `writing-for-agents` plus `looksawful-policy-boundaries`.
+- `docs/agents/skill-sources.md` records reviewed upstream provenance. External skill text never overrides repository-local skills, canonical docs, code, tests or policy guards.
+
 ## Always-on project boundaries
 
 - When changing frontend code (`js`, `ts`, `css`, `html`) explain the intent and tradeoffs in Russian so the owner can learn from the work.
