@@ -3,53 +3,127 @@ import { readFile, writeFile } from "node:fs/promises";
 const path = new URL("../src/styles/components.css", import.meta.url);
 let css = await readFile(path, "utf8");
 
-function removeRuleOnce(source, selector, predicate = () => true) {
-  const marker = `${selector} {`;
-  const starts = [];
-  let offset = 0;
-  while (true) {
-    const index = source.indexOf(marker, offset);
-    if (index === -1) break;
-    if ((index === 0 || source[index - 1] === "\n") && predicate(source, index)) starts.push(index);
-    offset = index + marker.length;
-  }
-  if (starts.length !== 1) {
-    throw new Error(`Expected exactly one ${selector} rule, found ${starts.length}`);
-  }
-
-  const start = starts[0];
-  const open = source.indexOf("{", start);
-  let depth = 0;
-  let end = -1;
-  for (let i = open; i < source.length; i += 1) {
-    if (source[i] === "{") depth += 1;
-    if (source[i] === "}") {
-      depth -= 1;
-      if (depth === 0) {
-        end = i + 1;
-        break;
-      }
-    }
-  }
-  if (end === -1) throw new Error(`Unclosed ${selector} rule`);
-
-  let consumeEnd = end;
-  while (source[consumeEnd] === "\n") consumeEnd += 1;
-  return source.slice(0, start) + source.slice(consumeEnd);
+function removeExactOnce(source, block, label) {
+  const first = source.indexOf(block);
+  const last = source.lastIndexOf(block);
+  if (first === -1) throw new Error(`Expected ${label} block was not found`);
+  if (first !== last) throw new Error(`Expected exactly one ${label} block`);
+  return source.slice(0, first) + source.slice(first + block.length);
 }
 
-const before = css;
+const expertiseLegacy = `.expertise {
+  & ol {
+    counter-reset: expertise;
+    border-block-start: var(--border-width-100) solid currentColor;
+  }
 
-css = removeRuleOnce(css, ".expertise");
-css = removeRuleOnce(css, ".experience");
-css = removeRuleOnce(
-  css,
-  "@container page-section (width > 44rem)",
-  (source, index) => {
-    const sample = source.slice(index, index + 1400);
-    return sample.includes(".expertise li {") && sample.includes(".experience li {");
-  },
-);
+  & li {
+    counter-increment: expertise;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0.35rem var(--size-300);
+    padding-block: var(--size-300);
+    border-block-end: var(--border-width-100) solid rgb(0 0 0 / 0.18);
+  }
+
+  & li::before {
+    content: counter(expertise, decimal-leading-zero);
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    font-size: var(--fs-200);
+    font-variant-numeric: tabular-nums;
+  }
+
+  & h3 {
+    grid-column: 2;
+    font-size: var(--fs-400);
+    font-weight: var(--fw-600);
+    line-height: 1.1;
+  }
+
+  & li > p {
+    grid-column: 2;
+    max-inline-size: 62ch;
+    font-size: var(--fs-300);
+  }
+}
+
+`;
+
+const experienceLegacy = `.experience {
+  & ol {
+    border-block-start: var(--border-width-100) solid currentColor;
+  }
+
+  & li {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.35rem var(--size-200);
+    padding-block: var(--size-300);
+    border-block-end: var(--border-width-100) solid rgb(0 0 0 / 0.18);
+  }
+
+  & h3 {
+    grid-column: 1 / 5;
+    font-size: var(--fs-400);
+    font-weight: var(--fw-600);
+  }
+
+  & li > p {
+    grid-column: 2 / -1;
+    font-size: var(--fs-300);
+  }
+
+  & li > p:last-child {
+    grid-column: 5 / -1;
+    grid-row: 1;
+    justify-self: end;
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+  }
+}
+
+`;
+
+const expertiseExperienceWideLegacy = `@container page-section (width > 44rem) {
+  .expertise li {
+    grid-template-columns: 3rem minmax(14rem, 0.75fr) minmax(0, 1.25fr);
+    gap: var(--size-300) var(--size-400);
+
+    &::before {
+      grid-column: 1;
+      grid-row: 1;
+    }
+  }
+
+  .expertise h3 {
+    grid-column: 2;
+  }
+
+  .expertise li > p {
+    grid-column: 3;
+  }
+
+  .experience li {
+    grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1.3fr) max-content;
+    gap: var(--size-400);
+    align-items: baseline;
+  }
+
+  .experience h3,
+  .experience li > p,
+  .experience li > p:last-child {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+`;
+
+const before = css;
+css = removeExactOnce(css, expertiseLegacy, "legacy expertise owner");
+css = removeExactOnce(css, experienceLegacy, "legacy experience owner");
+css = removeExactOnce(css, expertiseExperienceWideLegacy, "legacy expertise/experience wide owner");
 
 if (!css.includes(".expertise,\n.experience,\n.projects-grid,\n.portfolio-showcase,\n.tools {")) {
   throw new Error("Shared page-section foundation was altered");
