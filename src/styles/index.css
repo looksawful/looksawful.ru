@@ -10,7 +10,7 @@
 @import "./components.css" layer(components);
 @import "./code-block.css" layer(components);
 @import "./project-header.css" layer(components);
-@import "./project-navigation-top.css" layer(components);
+@import "./project-navigation.css" layer(components);
 @import "./expertise.css" layer(components);
 @import "./experience.css" layer(components);
 @import "./site-navigation.css" layer(components);
