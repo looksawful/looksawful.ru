@@ -36,7 +36,7 @@ export const COMPONENTS = [
     route: "/",
     selector: ".project__head",
     selectorHints: [".project__head", ".project__name", ".project__role", ".project__period"],
-    stylesheetHints: ["src/styles/components.css"],
+    stylesheetHints: ["src/styles/project-header.css"],
   },
   {
     name: "media-caption",

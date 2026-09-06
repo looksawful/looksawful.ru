@@ -31,10 +31,6 @@
     letter-spacing: var(--ls-lead);
   }
 
-  .project__head {
-    line-height: var(--lh-heading);
-  }
-
   .project__title {
     line-height: var(--lh-display);
     letter-spacing: var(--ls-heading);
