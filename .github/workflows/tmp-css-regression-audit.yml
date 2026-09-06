@@ -58,6 +58,7 @@ jobs:
         run: |
           node --check tools/tmp-css-source-audit.mjs
           node --check tools/tmp-css-regression-audit.mjs
+          node --check tools/tmp-css-canvas-diagnostics.mjs
 
       - name: Run cumulative source and cascade audit
         run: node tools/tmp-css-source-audit.mjs
@@ -142,32 +143,21 @@ jobs:
           expect_known_failure css-original-smoke npm run test:e2e:smoke
           expect_known_failure css-original-full npm run test:e2e:full
 
-      - name: Probe original and current homepage canvas health directly
+      - name: Probe original homepage canvas health directly
         shell: bash
         run: |
           set -euo pipefail
+          log="/tmp/css-original-homepage-smoke.log"
+          status_file="/tmp/css-original-homepage-smoke.status"
+          set +e
+          (cd /tmp/css-original && node tools/smoke-site.mjs) >"$log" 2>&1
+          status=$?
+          set -e
+          printf '%s\n' "$status" >"$status_file"
+          printf '\n===== css-original-homepage-smoke (exit %s) =====\n' "$status"
+          cat "$log"
 
-          probe_smoke_site() {
-            tree="$1"
-            label="$2"
-            script="$3"
-            log="/tmp/${label}.log"
-            status_file="/tmp/${label}.status"
-
-            set +e
-            (cd "$tree" && node "$script") >"$log" 2>&1
-            status=$?
-            set -e
-
-            printf '%s\n' "$status" >"$status_file"
-            printf '\n===== %s (exit %s) =====\n' "$label" "$status"
-            cat "$log"
-          }
-
-          probe_smoke_site /tmp/css-original css-original-homepage-smoke tools/smoke-site.mjs
-          probe_smoke_site /tmp/css-current css-current-homepage-smoke tools/e2e/smoke-site.mjs
-
-      - name: Run merged current repository gates
+      - name: Run merged current pre-full gates
         shell: bash
         run: |
           set -euo pipefail
@@ -175,6 +165,32 @@ jobs:
           npm run lint
           npm run verify
           npm run test:ui:responsive
+
+      - name: Collect structured current canvas diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          diagnostic_path=/tmp/css-current/tools/tmp-css-canvas-diagnostics.mjs
+          log=/tmp/css-current-canvas-diagnostics.log
+          status_file=/tmp/css-current-canvas-diagnostics.status
+
+          cp "$GITHUB_WORKSPACE/tools/tmp-css-canvas-diagnostics.mjs" "$diagnostic_path"
+          set +e
+          (cd /tmp/css-current && node tools/tmp-css-canvas-diagnostics.mjs) >"$log" 2>&1
+          status=$?
+          set -e
+          rm -f "$diagnostic_path"
+
+          printf '%s\n' "$status" >"$status_file"
+          printf '\n===== css-current-canvas-diagnostics (exit %s) =====\n' "$status"
+          cat "$log"
+          (cd /tmp/css-current && git diff --exit-code)
+
+      - name: Run merged current full E2E
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/css-current
           npm run test:e2e:full
 
       - name: Run frozen Wave 5A repository gates
@@ -230,8 +246,8 @@ jobs:
             /tmp/css-original-full.log
             /tmp/css-original-homepage-smoke.log
             /tmp/css-original-homepage-smoke.status
-            /tmp/css-current-homepage-smoke.log
-            /tmp/css-current-homepage-smoke.status
+            /tmp/css-current-canvas-diagnostics.log
+            /tmp/css-current-canvas-diagnostics.status
             /tmp/css-original-preview.log
             /tmp/css-current-preview.log
             /tmp/css-wave5-preview.log
