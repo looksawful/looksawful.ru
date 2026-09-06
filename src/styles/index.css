@@ -111,6 +111,18 @@
     object-fit: cover;
   }
 
+  /* Surface and raster share one radius, avoiding square media clipped only by an ancestor. */
+  :is(
+    .jestei-interface-group,
+    .jestei-event-group
+  ) .media__surface > :is(img, video, picture),
+  :is(
+    .jestei-interface-group,
+    .jestei-event-group
+  ) .media__surface > picture > img {
+    border-radius: inherit;
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .project-card__media {
       position: relative;
