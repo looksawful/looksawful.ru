@@ -1,0 +1,62 @@
+name: tmp-css-459-code-block
+
+on:
+  push:
+    branches:
+      - refactor/css-459-code-block-owner
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Characterize existing code-block behavior
+        run: node --test test/code-block-contract.test.mjs
+
+      - name: Confirm RED for dedicated stylesheet ownership
+        shell: bash
+        run: |
+          set +e
+          node --test test/css-refactor-wave3-code-block.test.mjs > /tmp/css459-red.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/css459-red.log
+          if [ "$status" -eq 0 ]; then
+            echo "Expected code-block ownership contract to be RED before extraction."
+            exit 1
+          fi
+          grep -F "code-block owner is imported immediately after the aggregate in the components layer" /tmp/css459-red.log
+          grep -F "components.css no longer physically owns code-block presentation" /tmp/css459-red.log
+          grep -F "dedicated code-block owner preserves the public selector and custom-property contract" /tmp/css459-red.log
+
+      - name: Apply byte-for-byte CSS extraction
+        run: node tools/tmp-css-459-code-block.mjs
+
+      - name: Confirm GREEN behavior and ownership contracts
+        run: |
+          node --test test/code-block-contract.test.mjs test/css-refactor-wave3-code-block.test.mjs
+          git diff --check
+
+      - name: Commit GREEN CSS extraction
+        shell: bash
+        run: |
+          git status --short
+          test -n "$(git status --short src/styles/components.css)"
+          test -n "$(git status --short src/styles/code-block.css)"
+          test -n "$(git status --short src/styles/index.css)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/styles/components.css src/styles/code-block.css src/styles/index.css
+          git commit -m "refactor(css): GREEN extract code-block stylesheet owner (#459)"
+          git push origin HEAD:refactor/css-459-code-block-owner
