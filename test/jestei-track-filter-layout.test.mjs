@@ -17,6 +17,15 @@ const layoutCssUrl = new URL(
   import.meta.url,
 );
 
+function readLayoutCss() {
+  assert.equal(
+    existsSync(fileURLToPath(layoutCssUrl)),
+    true,
+    "the focused layout stylesheet must exist",
+  );
+  return readFileSync(layoutCssUrl, "utf8");
+}
+
 test("Jestei advanced-filter label has a dedicated no-wrap layout contract", () => {
   const html = renderJesteiTrackFilter(section);
 
@@ -26,16 +35,17 @@ test("Jestei advanced-filter label has a dedicated no-wrap layout contract", () 
     "the shadow-root filter must load its focused layout stylesheet",
   );
 
-  assert.equal(
-    existsSync(fileURLToPath(layoutCssUrl)),
-    true,
-    "the focused layout stylesheet must exist",
-  );
-
-  const css = readFileSync(layoutCssUrl, "utf8");
   assert.match(
-    css,
+    readLayoutCss(),
     /\.advanced-button\s*\{[^}]*white-space:\s*nowrap\s*;/s,
     "the advanced-filter control must keep its label on one line",
+  );
+});
+
+test("Jestei compact BPM labels stay on one line", () => {
+  assert.match(
+    readLayoutCss(),
+    /\.compact-bpm-fields\s+label\s*\{[^}]*white-space:\s*nowrap\s*;/s,
+    "BPM Min/Max labels must not wrap or clip vertically",
   );
 });

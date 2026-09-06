@@ -2,4 +2,8 @@
     .advanced-button {
         white-space: nowrap;
     }
+
+    .compact-bpm-fields label {
+        white-space: nowrap;
+    }
 }
