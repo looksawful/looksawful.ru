@@ -1,0 +1,36 @@
+name: tmp-css-494-eof
+
+on:
+  push:
+    branches:
+      - fix/css-audit-494-eof-whitespace
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 100
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Diff hygiene GREEN
+        run: git diff --check 72751d54d4228e7ff301d430c9699077741422b0 HEAD -- src/styles/code-block.css src/styles/site-navigation.css
+      - name: Focused ownership and behavior contracts
+        run: >-
+          node --test
+          test/code-block-contract.test.mjs
+          test/css-refactor-wave3-code-block.test.mjs
+          test/site-navigation-style.test.mjs
+          test/site-navigation.test.mjs
+          test/site-navigation-runtime.test.mjs
+      - name: Canonical verify
+        run: npm run verify
