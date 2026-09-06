@@ -19,18 +19,19 @@ jobs:
     timeout-minutes: 60
     env:
       BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
-      CURRENT_SHA: 72751d54d4228e7ff301d430c9699077741422b0
-      WAVE5_SHA: 89582bbf69aa336106b6be4072741b304536e6a9
+      CURRENT_SHA: 910c9dd388521607c457712d829be52d6a71bd56
+      WAVE5_SHA: 6c4709883c23339e7ca5d48b385fa7d1b82ef1f1
     steps:
       - name: Checkout bounded audit history
         uses: actions/checkout@v7
         with:
           fetch-depth: 100
 
-      - name: Fetch frozen Wave 5A history
+      - name: Fetch refreshed current and frozen Wave 5A history
         shell: bash
         run: |
           set -euo pipefail
+          git fetch --no-tags --depth=30 origin "$CURRENT_SHA"
           git fetch --no-tags --depth=30 origin "$WAVE5_SHA"
           git cat-file -e "$BASELINE_SHA^{commit}"
           git cat-file -e "$CURRENT_SHA^{commit}"
@@ -157,14 +158,14 @@ jobs:
         shell: bash
         env:
           BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
-          CURRENT_SHA: 72751d54d4228e7ff301d430c9699077741422b0
+          CURRENT_SHA: 910c9dd388521607c457712d829be52d6a71bd56
         run: node tools/tmp-css-regression-audit.mjs http://127.0.0.1:4171 http://127.0.0.1:4172 /tmp/css-regression-original-current
 
       - name: Compare merged current site with frozen Wave 5A
         shell: bash
         env:
-          BASELINE_SHA: 72751d54d4228e7ff301d430c9699077741422b0
-          CURRENT_SHA: 89582bbf69aa336106b6be4072741b304536e6a9
+          BASELINE_SHA: 910c9dd388521607c457712d829be52d6a71bd56
+          CURRENT_SHA: 6c4709883c23339e7ca5d48b385fa7d1b82ef1f1
         run: node tools/tmp-css-regression-audit.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 /tmp/css-regression-current-wave5
 
       - name: Archive regression evidence
