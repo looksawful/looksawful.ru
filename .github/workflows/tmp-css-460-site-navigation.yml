@@ -1,0 +1,67 @@
+name: tmp-css-460-site-navigation
+
+on:
+  push:
+    branches:
+      - refactor/css-460-site-navigation-owner
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Confirm RED ownership with behavior still characterized
+        shell: bash
+        run: |
+          set +e
+          node --test test/site-navigation-style.test.mjs > /tmp/css460-red.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/css460-red.log
+          if [ "$status" -eq 0 ]; then
+            echo "Expected site navigation ownership contract to be RED before extraction."
+            exit 1
+          fi
+          grep -F "✖ global navigation styles have one declared owner" /tmp/css460-red.log
+          grep -F "✖ components aggregate no longer owns global navigation presentation" /tmp/css460-red.log
+          grep -F "✔ site navigation keeps one two-column header over a continuous fullscreen menu" /tmp/css460-red.log
+          grep -F "✔ open menu removes the header band instead of only making it transparent" /tmp/css460-red.log
+          grep -F "✔ Awfulface has no visible backing disc and desktop menu labels align from the start edge" /tmp/css460-red.log
+          grep -F "✔ mobile menu labels stay centered while coarse-pointer geometry remains capability-owned" /tmp/css460-red.log
+
+      - name: Apply byte-for-byte site navigation extraction
+        run: node tools/tmp-css-460-site-navigation.mjs
+
+      - name: Confirm GREEN navigation and prior ownership contracts
+        run: |
+          node --test \
+            test/site-navigation-style.test.mjs \
+            test/site-navigation.test.mjs \
+            test/site-navigation-runtime.test.mjs \
+            test/css-refactor-wave3-code-block.test.mjs
+          git diff --check
+
+      - name: Commit GREEN extraction
+        shell: bash
+        run: |
+          git status --short
+          test -n "$(git status --short src/styles/components.css)"
+          test -n "$(git status --short src/styles/site-navigation.css)"
+          test -n "$(git status --short src/styles/index.css)"
+          test -n "$(git status --short test/helpers/style-owner.mjs)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/styles/components.css src/styles/site-navigation.css src/styles/index.css test/helpers/style-owner.mjs
+          git commit -m "refactor(css): GREEN extract site navigation stylesheet owner (#460)"
+          git push origin HEAD:refactor/css-460-site-navigation-owner
