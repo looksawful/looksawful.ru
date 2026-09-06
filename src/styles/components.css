@@ -769,9 +769,8 @@
   padding-block: var(--size-200);
   padding-inline: var(--page-padding-inline);
 
-  border-block-start: var(--border-width-100) solid var(--clr-border);
   border-block-end: 0;
-  background: var(--clr-bg);
+  background: transparent;
 }
 
 .project-nav__inner {
