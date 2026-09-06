@@ -7,7 +7,11 @@ import {
   jesteiThemeOrganismThemes,
 } from "../src/data/content/jestei-theme-organism.ts";
 import { getMediaAsset, getMediaEntry } from "../src/data/media/index.ts";
-import { JESTEI_THEME_NAMES } from "../src/components/jestei-theme-organism/jestei-theme-organism-data.ts";
+import {
+  JESTEI_THEME_NAMES,
+  JESTEI_THEME_RENDER_QUALITY,
+  resolveJesteiThemePixelRatio,
+} from "../src/components/jestei-theme-organism/jestei-theme-organism-data.ts";
 import { renderJesteiThemeOrganismMockup } from "../src/templates/jestei-theme-organism.ts";
 
 test("Jestei theme organism model is registered as project media", () => {
@@ -60,6 +64,19 @@ test("Jestei theme organism renderer preserves mockup and runtime markup contrac
   }
 });
 
+test("Jestei theme organism uses a sharper but bounded baseline DPR", () => {
+  assert.deepEqual(JESTEI_THEME_RENDER_QUALITY, {
+    compactMaxInlineSize: 672,
+    compactPixelRatioLimit: 1.5,
+    widePixelRatioLimit: 2,
+  });
+
+  assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 3, inlineSize: 480 }), 1.5);
+  assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 3, inlineSize: 1060 }), 2);
+  assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 1, inlineSize: 1060 }), 1);
+  assert.equal(resolveJesteiThemePixelRatio({ devicePixelRatio: 0, inlineSize: 1060 }), 1);
+});
+
 test("Jestei theme organism runtime keeps the restored animation contracts", async () => {
   assert.deepEqual(
     JESTEI_THEME_NAMES,
@@ -84,6 +101,7 @@ test("Jestei theme organism runtime keeps the restored animation contracts", asy
   assert.match(runtime, /jesteiThemeModelSrc/);
   assert.match(runtime, /modelBufferPromises/);
   assert.match(runtime, /themeCopyShell\.offsetWidth/);
+  assert.match(runtime, /resolveJesteiThemePixelRatio/);
   assert.match(runtime, /IntersectionObserver/);
   assert.match(runtime, /prefers-reduced-motion|motionPreference/);
   assert.match(shaders, /uLineWidth/);
