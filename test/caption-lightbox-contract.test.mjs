@@ -29,18 +29,15 @@ test("caption architecture has one authored data-caption-view contract and no le
 test("custom surface copy remains authored once and is explicitly available to the lightbox", () => {
   const brand = renderMediaGroup(jesteiBrandSystemGroup);
   const interfaceGroup = renderMediaGroup(jesteiInterfaceGroup);
+  const extractLightboxCopy = (html) =>
+    [...html.matchAll(/data-lightbox-caption-copy>([^<]*)</g)].map((match) => match[1]);
+  const brandCopy = jesteiBrandSystemGroup.items.map((item) => item.surfaceOverlay?.text).filter(Boolean);
+  const interfaceCopy = jesteiInterfaceGroup.items.map((item) => item.surfaceOverlay?.text).filter(Boolean);
 
   assert.equal((brand.match(/data-lightbox-caption-copy/g) ?? []).length, 6);
   assert.equal((interfaceGroup.match(/data-lightbox-caption-copy/g) ?? []).length, 3);
-
-  assert.match(
-    brand,
-    /data-lightbox-caption-copy[^>]*>Переработали логотип Jestei Pool/,
-  );
-  assert.match(
-    interfaceGroup,
-    /data-lightbox-caption-copy[^>]*>Сгруппировали плейлисты и добавили к ним заголовки и описания/,
-  );
+  assert.deepEqual(extractLightboxCopy(brand), brandCopy);
+  assert.deepEqual(extractLightboxCopy(interfaceGroup), interfaceCopy);
 });
 
 test("lightbox navigation is project-scoped and media shell belongs to the PhotoSwipe adapter", async () => {
