@@ -1,0 +1,45 @@
+name: Temp Project Nav Visual 423
+
+on:
+  push:
+    branches:
+      - fix/project-nav-backdrop-423
+
+permissions:
+  contents: write
+
+jobs:
+  responsive:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Project navigation contracts
+        run: >-
+          node --test
+          test/project-navigation-back-to-top.test.mjs
+          test/project-navigation-fallback.test.mjs
+          test/project-navigation-mobile-viewport.test.mjs
+      - name: Build site
+        run: npm run build:vite
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Responsive UI
+        run: npm run test:ui:responsive
+      - name: Remove temporary workflow
+        if: success()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/_temp-project-nav-visual-423.yml
+          git commit -m "chore(test): remove temporary project-nav visual workflow"
+          git push origin HEAD:fix/project-nav-backdrop-423
