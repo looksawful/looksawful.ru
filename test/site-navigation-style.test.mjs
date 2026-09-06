@@ -6,9 +6,11 @@ import { readStyleOwner } from "./helpers/style-owner.mjs";
 
 const indexPath = new URL("../src/styles/index.css", import.meta.url);
 const mainPath = new URL("../src/main.ts", import.meta.url);
+const componentsPath = new URL("../src/styles/components.css", import.meta.url);
 const dedicatedPath = new URL("../src/styles/site-navigation.css", import.meta.url);
 const indexSource = readFileSync(indexPath, "utf8");
 const mainSource = readFileSync(mainPath, "utf8");
+const componentsSource = readFileSync(componentsPath, "utf8");
 const { path: navigationOwnerPath, source: navigationSource } = readStyleOwner("site-navigation");
 
 test("global navigation styles have one declared owner", () => {
@@ -21,6 +23,12 @@ test("global navigation styles have one declared owner", () => {
   assert.doesNotMatch(mainSource, /site-navigation\.css/);
   assert.match(navigationSource, /\.site-nav__bar/);
   assert.doesNotMatch(navigationSource, /\.site-nav__brand\b|\.site-nav__list\b|\.site-nav__link\b/);
+});
+
+test("components aggregate no longer owns global navigation presentation", () => {
+  assert.doesNotMatch(componentsSource, /(?:^|\n)\.site-nav(?:\s|__|\[|\{|\.)/);
+  assert.doesNotMatch(componentsSource, /(?:^|\n)\.menu-preview(?:\s|__|\[|\{|\.)/);
+  assert.doesNotMatch(componentsSource, /(?:^|\n)\.awfulface__(?:background|morph-targets)\b/);
 });
 
 test("site navigation keeps one two-column header over a continuous fullscreen menu", () => {
