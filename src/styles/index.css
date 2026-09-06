@@ -11,6 +11,7 @@
 @import "./code-block.css" layer(components);
 @import "./project-header.css" layer(components);
 @import "./project-navigation.css" layer(components);
+@import "./project-shell.css" layer(components);
 @import "./expertise.css" layer(components);
 @import "./experience.css" layer(components);
 @import "./site-navigation.css" layer(components);
@@ -29,44 +30,6 @@
   .hero > footer > p {
     line-height: var(--lh-tight);
     letter-spacing: var(--ls-lead);
-  }
-
-  .project__title {
-    line-height: var(--lh-display);
-    letter-spacing: var(--ls-heading);
-  }
-
-  .project__summary {
-    letter-spacing: var(--ls-copy);
-  }
-
-  .project__lead,
-  .text-lead {
-    max-inline-size: 36ch;
-    line-height: var(--lh-tight);
-    letter-spacing: var(--ls-tight);
-  }
-
-  .section-copy__title {
-    line-height: var(--lh-heading);
-    letter-spacing: var(--ls-display);
-  }
-
-  .section-copy__text {
-    line-height: var(--lh-copy);
-    letter-spacing: var(--ls-copy);
-  }
-
-  .project__section > :is(h2, h3),
-  .project__section > section > :is(h2, h3) {
-    line-height: var(--lh-heading);
-    letter-spacing: var(--ls-heading);
-  }
-
-  .project__section > p:not([class]),
-  .project__section > section > p:not([class]) {
-    line-height: var(--lh-copy);
-    letter-spacing: var(--ls-copy);
   }
 
   .group-note,
