@@ -43,12 +43,8 @@ jobs:
           node --test \
             test/special-media-renderers.test.mjs \
             test/media-group-renderer-parity.test.mjs \
+            test/caption-lightbox-contract.test.mjs \
             test/motion-renderer-contract.test.mjs
-          # #491 tracks one pre-existing stale authored-copy literal in this file.
-          # Run every other caption/lightbox contract without changing product copy.
-          node --test \
-            --test-name-pattern='^(?!custom surface copy remains authored once)' \
-            test/caption-lightbox-contract.test.mjs
           npm run build:vite
           npx playwright install --with-deps chromium
           npm run test:ui:responsive
@@ -85,12 +81,10 @@ jobs:
             test/css-refactor-wave5a-media-core.test.mjs \
             test/special-media-renderers.test.mjs \
             test/media-group-renderer-parity.test.mjs \
+            test/caption-lightbox-contract.test.mjs \
             test/motion-renderer-contract.test.mjs \
             test/css-refactor-wave4d-project-shell.test.mjs \
             test/site-navigation-style.test.mjs
-          node --test \
-            --test-name-pattern='^(?!custom surface copy remains authored once)' \
-            test/caption-lightbox-contract.test.mjs
           git diff --check
 
       - name: Confirm GREEN browser and smoke behavior
