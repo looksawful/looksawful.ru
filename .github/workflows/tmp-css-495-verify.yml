@@ -32,9 +32,19 @@ jobs:
           changed="$(git diff --name-only "$BASE_SHA" HEAD -- ':!.github/workflows/tmp-css-495-verify.yml')"
           expected=$'src/styles/code-block.css\nsrc/styles/site-navigation.css'
           test "$changed" = "$expected"
-          git diff --numstat "$BASE_SHA" HEAD -- src/styles/code-block.css src/styles/site-navigation.css
-      - name: Scoped formatter
-        run: npm run format:check -- src/styles/code-block.css src/styles/site-navigation.css
+          stats="$(git diff --numstat "$BASE_SHA" HEAD -- src/styles/code-block.css src/styles/site-navigation.css)"
+          printf '%s\n' "$stats"
+          test "$stats" = $'0\t1\tsrc/styles/code-block.css\n0\t1\tsrc/styles/site-navigation.css'
+      - name: Prove formatter debt is inherited, not introduced by remediation
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run format:check -- src/styles/code-block.css
+          mkdir -p /tmp/css-495-format
+          git show "$BASE_SHA:src/styles/site-navigation.css" > /tmp/css-495-format/base.css
+          cp src/styles/site-navigation.css /tmp/css-495-format/current.css
+          npx --yes oxfmt@0.66.0 --write /tmp/css-495-format/base.css /tmp/css-495-format/current.css
+          cmp /tmp/css-495-format/base.css /tmp/css-495-format/current.css
       - name: Static and focused contracts
         run: |
           npm run lint
