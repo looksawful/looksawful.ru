@@ -303,76 +303,6 @@
   }
 }
 
-.expertise {
-  & ol {
-    counter-reset: expertise;
-    border-block-start: var(--border-width-100) solid currentColor;
-  }
-
-  & li {
-    counter-increment: expertise;
-    display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr);
-    gap: 0.35rem var(--size-300);
-    padding-block: var(--size-300);
-    border-block-end: var(--border-width-100) solid rgb(0 0 0 / 0.18);
-  }
-
-  & li::before {
-    content: counter(expertise, decimal-leading-zero);
-    grid-column: 1;
-    grid-row: 1 / span 2;
-    font-size: var(--fs-200);
-    font-variant-numeric: tabular-nums;
-  }
-
-  & h3 {
-    grid-column: 2;
-    font-size: var(--fs-400);
-    font-weight: var(--fw-600);
-    line-height: 1.1;
-  }
-
-  & li > p {
-    grid-column: 2;
-    max-inline-size: 62ch;
-    font-size: var(--fs-300);
-  }
-}
-
-.experience {
-  & ol {
-    border-block-start: var(--border-width-100) solid currentColor;
-  }
-
-  & li {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0.35rem var(--size-200);
-    padding-block: var(--size-300);
-    border-block-end: var(--border-width-100) solid rgb(0 0 0 / 0.18);
-  }
-
-  & h3 {
-    grid-column: 1 / 5;
-    font-size: var(--fs-400);
-    font-weight: var(--fw-600);
-  }
-
-  & li > p {
-    grid-column: 2 / -1;
-    font-size: var(--fs-300);
-  }
-
-  & li > p:last-child {
-    grid-column: 5 / -1;
-    grid-row: 1;
-    justify-self: end;
-    font-variant-numeric: tabular-nums;
-    text-align: end;
-  }
-}
-
 .tools {
   & ul {
     --auto-grid-min: 9rem;
@@ -386,39 +316,6 @@
     padding-inline-end: var(--size-300);
     border-block-end: var(--border-width-100) solid rgb(0 0 0 / 0.18);
     font-size: var(--fs-300);
-  }
-}
-
-@container page-section (width > 44rem) {
-  .expertise li {
-    grid-template-columns: 3rem minmax(14rem, 0.75fr) minmax(0, 1.25fr);
-    gap: var(--size-300) var(--size-400);
-
-    &::before {
-      grid-column: 1;
-      grid-row: 1;
-    }
-  }
-
-  .expertise h3 {
-    grid-column: 2;
-  }
-
-  .expertise li > p {
-    grid-column: 3;
-  }
-
-  .experience li {
-    grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1.3fr) max-content;
-    gap: var(--size-400);
-    align-items: baseline;
-  }
-
-  .experience h3,
-  .experience li > p,
-  .experience li > p:last-child {
-    grid-column: auto;
-    grid-row: auto;
   }
 }
 
