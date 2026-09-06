@@ -74,12 +74,12 @@ test("publication prepares or reuses the PR and stops without checks, merge, dep
   assert.doesNotMatch(workflow, /actions\/deploy-pages|git push[^\n]*prod/);
 });
 
-test("text-only CMS saves are silent on dev while publication PRs always run Fast CI", async () => {
+test("text-only CMS saves are silent on dev while publication PRs still run Fast CI", async () => {
   const workflow = await read(".github/workflows/ci-fast.yml");
   const pushBlock = workflow.match(/push:\n([\s\S]*?)\n  pull_request:/)?.[1] ?? "";
   const prBlock = workflow.match(/pull_request:\n([\s\S]*?)\n  workflow_dispatch:/)?.[1] ?? "";
 
-  for (const path of [
+  const editorialPaths = [
     "src/content/editorial/cv.json",
     "src/content/editorial/home-project-cards.json",
     "src/content/navigation.json",
@@ -87,9 +87,16 @@ test("text-only CMS saves are silent on dev while publication PRs always run Fas
     "src/content/collections/shootings.json",
     "src/content/shootings/**",
     "src/content/standalone-projects/**",
-  ]) {
-    assert.match(pushBlock, new RegExp(path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  ];
+
+  for (const path of editorialPaths) {
+    const escaped = new RegExp(path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    assert.match(pushBlock, escaped);
+    assert.doesNotMatch(prBlock, escaped, `editorial PR path must still run Fast CI: ${path}`);
   }
 
-  assert.doesNotMatch(prBlock, /paths-ignore:/, "publication and engineering PRs must run Fast CI even for editorial-only diffs");
+  assert.match(prBlock, /paths-ignore:/);
+  for (const extension of ["jpg", "jpeg", "png", "webp"]) {
+    assert.match(prBlock, new RegExp(`public/media/\\*\\*/\\*\\.${extension}`));
+  }
 });
