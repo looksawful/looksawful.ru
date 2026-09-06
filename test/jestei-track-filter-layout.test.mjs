@@ -57,3 +57,18 @@ test("Jestei BPM value row stays visually attached to the range control", () => 
     "BPM title, values and rail must fit the fixed 62px block without separating the values from the range",
   );
 });
+
+test("Jestei track-type options stay in one horizontal row", () => {
+  const css = readLayoutCss();
+
+  assert.match(
+    css,
+    /\.check-options--track-type\s*\{[^}]*flex-wrap:\s*nowrap\s*;[^}]*block-size:\s*16px\s*;/s,
+    "Remix and Original must remain one horizontal checkbox row",
+  );
+  assert.match(
+    css,
+    /\.type-shell\s*\{[^}]*block-size:\s*48px\s*;/s,
+    "the track-type fieldset must not retain the old two-row height",
+  );
+});
