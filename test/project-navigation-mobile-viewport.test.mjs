@@ -25,6 +25,14 @@ test("mobile project navigation positioning stays browser-native and safe-area a
   assert.match(topStyles, /env\(safe-area-inset-bottom,\s*0px\)/);
 });
 
+test("compact project navigation has no full-width backdrop layer", async () => {
+  const components = await read("src/styles/components.css");
+  const base = blockBetween(components, ".project-nav {", ".project-nav__inner {");
+
+  assert.match(base, /background:\s*transparent;/);
+  assert.doesNotMatch(base, /border-block-start\s*:/);
+});
+
 test("project navigation installs no VisualViewport positioning loop", async () => {
   const [source, interactive, topStyles] = await Promise.all([
     read("src/components/project-navigation.ts"),
