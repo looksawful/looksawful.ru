@@ -254,7 +254,7 @@ export async function runQuickSmoke({ browser, baseUrl, cvMode = "authored" }) {
     runtime,
     "/work/jestei-pool/",
     viewport,
-    (page) => verifyDenseMobileCaptions(page, { requireMiddleReel: viewport.width > 768 }),
+    (page) => verifyDenseMobileCaptions(page),
     { hasTouch: true, isMobile: viewport.width === 390 },
   ));
   await audit(runtime, "/cv/", VIEWPORTS[1], async (page) => {
@@ -301,4 +301,6 @@ export async function runMediaSanity({ browser, baseUrl }) {
   });
 }
 
-if (isDirectExecution(import.meta.url)) await withE2ERuntime(runQuickSmoke);
+if (isDirectExecution(import.meta.url)) {
+  await withE2ERuntime(({ browser, baseUrl }) => runQuickSmoke({ browser, baseUrl, cvMode: "production" }));
+}
