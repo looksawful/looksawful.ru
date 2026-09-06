@@ -1,5 +1,5 @@
-import navigationJson from "../src/content/navigation.json" with { type: "json" };
-import { isDirectExecution, withE2ERuntime } from "./e2e/runtime.mjs";
+import navigationJson from "../../src/content/navigation.json" with { type: "json" };
+import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 let BASE_URL = "";
 
