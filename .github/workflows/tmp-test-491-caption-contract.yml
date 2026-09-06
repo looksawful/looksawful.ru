@@ -6,7 +6,7 @@ on:
       - fix/test-491-caption-copy-contract
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify:
@@ -18,6 +18,17 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Apply canonical formatting to the repaired test only
+        shell: bash
+        run: |
+          npm run format -- test/caption-lightbox-contract.test.mjs
+          if ! git diff --quiet -- test/caption-lightbox-contract.test.mjs; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add test/caption-lightbox-contract.test.mjs
+            git commit -m "style: apply canonical formatting to #491 test"
+            git push
+          fi
       - name: Verify repaired caption/lightbox contract
         run: node --test test/caption-lightbox-contract.test.mjs
       - name: Verify fast suite
