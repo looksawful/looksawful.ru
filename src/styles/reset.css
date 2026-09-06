@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html {
   -moz-text-size-adjust: none;
   -webkit-text-size-adjust: none;
