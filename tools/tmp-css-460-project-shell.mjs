@@ -98,9 +98,24 @@ if (ownerOrder.some((value) => value < 0) || ownerOrder.some((value, index) => i
   throw new Error(`project shell source order was not preserved: ${ownerOrder.join(", ")}`);
 }
 
-const forbiddenAggregate = /(?:^|\n)\s*\.project__(?:intro|title|summary|lead|links|section)(?:\s|>|,|\{|\.)/;
-if (forbiddenAggregate.test(components)) throw new Error("components.css still owns project shell presentation");
+for (const forbidden of [
+  /(?:^|\n)\.projects\s*\{/,
+  /(?:^|\n)\.project\s*\{/,
+  /(?:^|\n)\s*\.project__(?:intro|title|summary|lead|links)(?:\s|>|,|\{|\.)/,
+  /(?:^|\n)\s*\.project__section\s*\{/,
+  /(?:^|\n)\s*\.project__section\s*>\s*:is\(h2, h3\)/,
+  /(?:^|\n)\s*\.project__section\s*>\s*p:not\(\[class\]\)/,
+]) {
+  if (forbidden.test(components)) throw new Error(`components.css still owns project shell presentation: ${forbidden}`);
+}
 if (/(?:^|\n)\.section-copy(?:\s|__|\{|\.)/.test(components)) throw new Error("components.css still owns section-copy presentation");
+if (/(?:^|\n)\.text-lead\s*\{/.test(components)) throw new Error("components.css still owns text-lead presentation");
+if (!/\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child\s*\{/.test(components)) {
+  throw new Error("media integration boundary must remain in components.css during Wave 4D");
+}
+if (/\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child\s*\{/.test(owner)) {
+  throw new Error("project-shell.css must not absorb the media integration boundary");
+}
 if (/\.project__title\s*\{/.test(index) || /\.section-copy__title\s*\{/.test(index)) {
   throw new Error("index.css still owns project shell late typography");
 }
