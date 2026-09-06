@@ -36,6 +36,10 @@ jobs:
         if: steps.state.outputs.already_green != 'true'
         run: npm ci
 
+      - name: Prepare canonical generated media
+        if: steps.state.outputs.already_green != 'true'
+        run: npm run media:ensure
+
       - name: Characterize current media core behavior
         if: steps.state.outputs.already_green != 'true'
         shell: bash
