@@ -23,6 +23,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Install media probe dependency
+        run: sudo apt-get update && sudo apt-get install --yes ffmpeg
       - name: Prove #517 GREEN on exact content head
         shell: bash
         run: |
