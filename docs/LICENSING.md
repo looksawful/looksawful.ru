@@ -41,7 +41,7 @@ The project therefore uses a custom All Rights Reserved portfolio license rather
 
 ## Limited portfolio access
 
-Version 1.0 grants only a narrow permission to access and view Owner-Controlled Material for personal portfolio evaluation, plus transient technical copies necessary for ordinary browser/service functionality.
+Version 1.0 grants only a narrow permission to access and view Owner-Controlled Material for evaluation of the Licensor's portfolio and technical work, plus transient technical copies necessary for ordinary browser/service functionality.
 
 It does not grant a general right to retain, reuse, redistribute, adapt, republish or incorporate the material elsewhere.
 
