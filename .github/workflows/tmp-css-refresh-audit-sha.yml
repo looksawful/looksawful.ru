@@ -1,0 +1,67 @@
+name: tmp-css-refresh-audit-sha
+
+on:
+  push:
+    branches:
+      - test/css-refactor-regression-audit
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      OLD_CURRENT: 303cd5de8e4534cf8c7611edbe07f54b0d12edf7
+      NEW_CURRENT: d2a061f8e25925aebe13e1c53442d631bb6e75e7
+      OLD_WAVE5: c1dd6013d81fb14ce73139459c6143fcd53d59cd
+      NEW_WAVE5: 4844ffaaa3f3c93114aaa84dadc9d22218989f36
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 100
+      - name: Refresh source-audit constants and prove them
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import os
+
+          path = Path('tools/tmp-css-source-audit.mjs')
+          text = path.read_text()
+          pairs = [
+              (os.environ['OLD_CURRENT'], os.environ['NEW_CURRENT']),
+              (os.environ['OLD_WAVE5'], os.environ['NEW_WAVE5']),
+          ]
+          changed = False
+          for old, new in pairs:
+              if old in text:
+                  text = text.replace(old, new)
+                  changed = True
+              elif new not in text:
+                  raise SystemExit(f'neither old nor new SHA found: {old} / {new}')
+          if changed:
+              path.write_text(text)
+          PY
+          node --check tools/tmp-css-source-audit.mjs
+          grep -Fq "$NEW_CURRENT" tools/tmp-css-source-audit.mjs
+          grep -Fq "$NEW_WAVE5" tools/tmp-css-source-audit.mjs
+          ! grep -Fq "$OLD_CURRENT" tools/tmp-css-source-audit.mjs
+          ! grep -Fq "$OLD_WAVE5" tools/tmp-css-source-audit.mjs
+          git diff --check
+      - name: Commit source-audit refresh when needed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- tools/tmp-css-source-audit.mjs; then
+            echo 'source-audit SHAs already current'
+            exit 0
+          fi
+          git config user.name 'looksawful-audit-bot'
+          git config user.email '118225585+looksawful@users.noreply.github.com'
+          git add tools/tmp-css-source-audit.mjs
+          git commit -m 'test(css): refresh cumulative audit SHAs (#493)'
+          git push origin HEAD:test/css-refactor-regression-audit
