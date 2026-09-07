@@ -49,7 +49,7 @@ jobs:
               sleep 1
             done
           done
-      - name: Capture stable section identities
+      - name: Capture tablet section identities using comparator settle semantics
         shell: bash
         run: |
           cat > "$GITHUB_WORKSPACE/tmp-jestei-identity.mjs" <<'JS'
@@ -57,15 +57,30 @@ jobs:
           const browser = await chromium.launch({ headless: true });
           const outputs = {};
           for (const [name, base] of [['current','http://127.0.0.1:4172'], ['wave5','http://127.0.0.1:4173']]) {
-            const context = await browser.newContext({ viewport: { width: 1728, height: 1000 }, reducedMotion: 'no-preference' });
+            const context = await browser.newContext({ viewport: { width: 834, height: 1112 }, reducedMotion: 'no-preference', hasTouch: true, isMobile: false, deviceScaleFactor: 1, colorScheme: 'light', locale: 'en-US' });
             const page = await context.newPage();
             await page.addInitScript(() => {
               try { Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }); } catch {}
               try { Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' }); } catch {}
             });
             await page.goto(base + '/work/jestei-pool/', { waitUntil: 'domcontentloaded', timeout: 60000 });
-            await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
-            await page.waitForTimeout(500);
+            await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+            await page.evaluate(async () => {
+              await document.fonts?.ready;
+              const decodes = [...document.images].map((image) => image.decode().catch(() => {}));
+              await Promise.race([Promise.all(decodes), new Promise((resolve) => setTimeout(resolve, 2500))]);
+              for (const video of document.querySelectorAll('video')) {
+                video.pause();
+                try { video.currentTime = 0; } catch {}
+              }
+              window.scrollTo(0, 0);
+            });
+            await page.waitForTimeout(150);
+            await page.evaluate(() => {
+              for (const animation of document.getAnimations()) {
+                try { animation.pause(); animation.currentTime = 0; } catch {}
+              }
+            });
             outputs[name] = await page.evaluate(() => [...document.querySelectorAll('.project__section')].map((el, index) => {
               const s = getComputedStyle(el);
               const r = el.getBoundingClientRect();
@@ -77,19 +92,10 @@ jobs:
                 className: el.className,
                 data,
                 heading: heading?.textContent?.replace(/\s+/g,' ').trim() ?? '',
+                includedByAudit: s.display !== 'none' && r.width > 0 && r.height > 0,
                 rect: { x:r.x,y:r.y,width:r.width,height:r.height },
-                computed: {
-                  display:s.display, visibility:s.visibility, opacity:s.opacity,
-                  marginLeft:s.marginLeft, marginRight:s.marginRight,
-                  width:s.width, maxWidth:s.maxWidth,
-                  containerName:s.containerName, containerType:s.containerType,
-                  position:s.position,
-                },
-                vars: {
-                  groupMax:s.getPropertyValue('--group-max').trim(),
-                  projectMediaMax:s.getPropertyValue('--project-media-max').trim(),
-                  groupColumns:s.getPropertyValue('--group-columns').trim(),
-                },
+                computed: { display:s.display, visibility:s.visibility, opacity:s.opacity, marginLeft:s.marginLeft, marginRight:s.marginRight, width:s.width, maxWidth:s.maxWidth, containerName:s.containerName, containerType:s.containerType, position:s.position, transform:s.transform, scale:s.scale, translate:s.translate },
+                vars: { groupMax:s.getPropertyValue('--group-max').trim(), projectMediaMax:s.getPropertyValue('--project-media-max').trim(), groupColumns:s.getPropertyValue('--group-columns').trim() },
                 children:[...el.children].slice(0,5).map(c => ({tag:c.tagName,className:c.className,id:c.id}))
               };
             }));
