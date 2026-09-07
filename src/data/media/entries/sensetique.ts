@@ -102,7 +102,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-50-5x7-use-01",
     assetId: "sensetique-13-source-50-5x7",
     projectIds: ["sensetique-editorial-andrey-raputo-02"],
-    alt: "Эдиториал фотосъъемка",
+    alt: "Эдиториал фотосъемка",
     caption: {
         title: "Эдиториал фотосъемка",
         meta: [
@@ -114,7 +114,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-51-5x4-use-01",
     assetId: "sensetique-13-source-51-5x4",
     projectIds: ["sensetique-editorial-andrey-raputo-02"],
-    alt: "Эдиториал фотосъъемка",
+    alt: "Эдиториал фотосъемка",
     caption: {
         title: "Эдиториал фотосъемка",
         meta: [
@@ -2336,7 +2336,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-50-5x7-use-02",
     assetId: "sensetique-13-source-50-5x7",
     projectIds: ["sensetique-editorial-andrey-raputo-02"],
-    alt: "Эдиториал фотосъъемка",
+    alt: "Эдиториал фотосъемка",
     caption: {
         title: "Эдиториал фотосъемка",
         index: 35,
@@ -2349,7 +2349,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-51-5x4-use-02",
     assetId: "sensetique-13-source-51-5x4",
     projectIds: ["sensetique-editorial-andrey-raputo-02"],
-    alt: "Эдиториал фотосъъемка",
+    alt: "Эдиториал фотосъемка",
     caption: {
         title: "Эдиториал фотосъемка",
         index: 36,
