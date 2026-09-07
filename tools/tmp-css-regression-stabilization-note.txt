@@ -1,0 +1,5 @@
+Temporary evidence note for #493 only.
+Run 34139124538 on head 8946572b61701f33ae1fb0dedb536c7a81643713 keeps all existing comparator assertions/tolerances but stabilizes two audit-only runtime races:
+1. document visibility is fixed hidden before runtime initialization so media-deck autoplay/advance timers cannot move one preview to a different slide while preserving the requested reduced-motion media query mode;
+2. after each screenshot scroll position, the comparator waits for visible deferred images to hydrate and decode (bounded) instead of using a fixed 100 ms sleep.
+No product/CSS/runtime/content ref changes. Delete this note with the temporary matrix branch after #493 evidence is archived.
