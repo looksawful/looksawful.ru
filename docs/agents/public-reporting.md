@@ -29,7 +29,7 @@ Prefer evidence that is already public or repository-scoped:
 
 Do not copy private planning URLs merely to prove that planning exists. Refer to internal planning objects by a neutral identifier such as `Project 98` when a planning reference materially helps execution.
 
-## Data that stays private unless explicitly public and necessary
+## Data that stays private
 
 Do not transfer these values from private/local context into GitHub:
 
@@ -115,8 +115,8 @@ Use synthetic placeholders in documentation examples. Never insert real secret o
 
 Before posting or attaching GitHub evidence, confirm all three statements are true:
 
-- the material is sanitized;
-- the material is minimized to what execution or review requires;
-- every remaining value is intentionally public or safely synthetic.
+- no secrets or authentication material remains;
+- the material is sanitized and minimized to what execution or review requires;
+- every other remaining value is intentionally public or safely synthetic.
 
 When any statement is false, keep the raw material private and publish a sanitized summary instead.
