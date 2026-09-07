@@ -1,0 +1,53 @@
+name: tmp-css-mask-repro
+
+on:
+  push:
+    branches:
+      - test/css-refactor-regression-audit
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Reproduce screenshot mask primitive
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { chromium } from 'playwright';
+
+          const browser = await chromium.launch();
+          try {
+            const page = await browser.newPage({ viewport: { width: 480, height: 320 } });
+            await page.setContent(`
+              <main style="width:400px;height:240px;background:white">
+                <canvas width="80" height="80"></canvas>
+                <video style="width:80px;height:80px"></video>
+                <iframe style="width:80px;height:80px"></iframe>
+              </main>
+            `);
+            const one = [page.locator('canvas')];
+            const three = [page.locator('canvas'), page.locator('video'), page.locator('iframe')];
+            console.log(JSON.stringify({ oneIsArray: Array.isArray(one), oneLength: one.length, threeIsArray: Array.isArray(three), threeLength: three.length, playwrightVersion: (await import('playwright/package.json', { with: { type: 'json' } })).default.version }));
+            assert.equal(Array.isArray(one), true);
+            assert.equal(Array.isArray(three), true);
+            await page.screenshot({ path: '/tmp/mask-one.png', mask: one, maskColor: '#777777' });
+            console.log('single-mask screenshot PASS');
+            await page.screenshot({ path: '/tmp/mask-three.png', mask: three, maskColor: '#777777' });
+            console.log('three-mask screenshot PASS');
+          } finally {
+            await browser.close();
+          }
+          NODE
