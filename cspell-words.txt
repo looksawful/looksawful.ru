@@ -34,3 +34,6 @@ Osmani
 addyosmani
 Meng
 ffprobe
+jank
+retranscode
+nojekyll
