@@ -210,8 +210,12 @@ Generated derivative binaries and `dist` are also tool-owned. Do not hand-edit g
 
 Layout/runtime internals remain code-owned: filters, component composition, PageFlip/decks, lightbox mechanics, GSAP/Three.js/Canvas behavior, route extraction, responsive composition and similar implementation details.
 
-## Publication ownership
+## Authoring and publication ownership
 
-CMS content ownership does not imply publication-policy ownership. `.pages.yml`, `.github/**`, `tools/**`, tests, documentation and `AGENTS.md` are engineering changes.
+CMS content ownership does not imply branch or publication-policy ownership. `.pages.yml`, `.github/**`, `tools/**`, tests, documentation and `AGENTS.md` are engineering changes.
 
-Pages CMS works on `dev`; publication authorization executes from trusted `prod` and uses the fail-closed classifier documented in `docs/cms-architecture.md`. Safe diverged release history is allowed only when `prod` contains no content that would be added back to `dev`. A new CMS source becomes publishable only after its model and trusted authorization policy have passed the normal engineering release path.
+Manual Pages CMS / local Desk editing uses a temporary `content/<purpose>` authoring branch/worktree created from fresh `origin/dev`. The same batch must use the same Git worktree/branch across editing tools. `tools/cms-authoring-topology.mjs` reports branch/base/current `origin/dev`, stale/dirty state and classifies the complete committed branch diff with the existing fail-closed CMS classifier before content-only integration.
+
+`content/*` is not a source of truth and has no direct publication authority. Its only intended target is reviewable integration into `dev`. If `origin/dev` advances, the authoring state is reported stale; do not silently rebase beneath an open editor session. Finish the saved batch, then transfer only intended authored changes onto fresh `origin/dev` and revalidate.
+
+After validated integration, `dev` is the CMS publication source; publication authorization executes from trusted `prod` and uses the fail-closed classifier documented in `docs/cms-architecture.md`. Safe diverged release history is allowed only when `prod` contains no content that would be added back to `dev`. A new CMS source becomes publishable only after its model and trusted authorization policy have passed the normal engineering release path.
