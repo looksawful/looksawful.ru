@@ -9,11 +9,11 @@ const ownerPath = new URL("../src/styles/media.css", import.meta.url);
 const index = readFileSync(indexPath, "utf8");
 const components = readFileSync(componentsPath, "utf8");
 
-test("media core has one canonical owner in the existing components layer", () => {
+test("media core has one canonical base owner before component specializations", () => {
   assert.equal(existsSync(ownerPath), true, "src/styles/media.css must exist");
   assert.match(
     index,
-    /@import "\.\/expertise\.css" layer\(components\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/experience\.css" layer\(components\);/,
+    /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
   );
 });
 
@@ -23,9 +23,10 @@ test("components aggregate no longer owns generic media core presentation", () =
   assert.doesNotMatch(components, /(?:^|\n)\.media__surface\.media__surface--center-crop\s*\{/);
   assert.doesNotMatch(components, /(?:^|\n)\.media__surface\.media__surface--center-crop\s*>\s*video\s*\{/);
 
-  // These are deliberately outside Wave 5A.
+  // These are deliberately outside Wave 5A and must remain later specializations.
   assert.match(components, /(?:^|\n)\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child\s*\{/);
   assert.match(components, /(?:^|\n)\.media-group\s*\{/);
+  assert.match(components, /(?:^|\n)\.brand-system__surface\s*\{/);
 });
 
 test("canonical media owner preserves the public sizing and crop API", () => {
@@ -51,4 +52,5 @@ test("Wave 5A owner does not absorb media-group, captions or project integration
   assert.doesNotMatch(owner, /(?:^|\n)\.media-group(?:\s|__|\[|\{|\.)/);
   assert.doesNotMatch(owner, /(?:^|\n)\.media__caption(?:\s|__|\{|\.)/);
   assert.doesNotMatch(owner, /(?:^|\n)\.project__section\s*>/);
+  assert.doesNotMatch(owner, /(?:^|\n)\.brand-system__surface\s*\{/);
 });
