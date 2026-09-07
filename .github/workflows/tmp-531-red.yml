@@ -1,4 +1,4 @@
-name: tmp-531-red
+name: tmp-531-regression
 
 on:
   push:
@@ -9,11 +9,11 @@ permissions:
   contents: read
 
 jobs:
-  red:
+  regression:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Detect classified print line-break corruption
+      - name: Require classified print line-break corruption to be absent
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -42,22 +42,23 @@ jobs:
               'по- казателей',
           ]
           total = 0
-          print('CLASSIFIED COUNTS')
           for needle in classified:
               count = sum(p.read_text(encoding='utf-8').count(needle) for p in paths)
               print(f'{needle}: {count}')
               total += count
 
-          print('\nGENERIC HYPHEN-SPACE MATCHES')
           rx = re.compile(r'[А-Яа-яЁё]+- [А-Яа-яЁё]+')
+          generic = []
           for p in paths:
               for lineno, line in enumerate(p.read_text(encoding='utf-8').splitlines(), 1):
-                  matches = rx.findall(line)
-                  if matches:
-                      print(f'{p}:{lineno}: {matches}')
+                  for match in rx.findall(line):
+                      generic.append(f'{p}:{lineno}: {match}')
 
-          print(f'\nclassified_total={total}')
-          if total == 0:
-              raise SystemExit('Expected RED: no classified corruption found')
-          raise SystemExit(f'RED as expected: {total} classified split-word occurrences remain')
+          print(f'classified_total={total}')
+          print(f'generic_total={len(generic)}')
+          for match in generic:
+              print(match)
+
+          if total != 0 or generic:
+              raise SystemExit('Print line-break corruption remains in #531 scope')
           PY
