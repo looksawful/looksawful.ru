@@ -27,12 +27,27 @@ jobs:
         with:
           fetch-depth: 100
 
-      - name: Fetch refreshed current and frozen Wave 5A history
+      - name: Fetch refreshed current, Wave 5A, and exact historical audit ancestry
         shell: bash
         run: |
           set -euo pipefail
           git fetch --no-tags --depth=30 origin "$CURRENT_SHA"
           git fetch --no-tags --depth=30 origin "$WAVE5_SHA"
+          for historical in \
+            d9b22ebb3cb0d1ca403a6d71985ea1a8b2962cb0 \
+            e418db814f4493607b34f21491d5606e53980cfe \
+            3b0ded9485c4a9b3f56783966a9b27cff8faac05 \
+            a89980412bf924b558c3aee91d5ee6bc7d171006 \
+            a8df2a662875215dce6aff53f3256e4b553935f7 \
+            ed25f48574d5bb13e9c26168dd0eb88a1ddc14ee \
+            a40b3ed56e32a6586818e8069819c86b0d92c209 \
+            72751d54d4228e7ff301d430c9699077741422b0 \
+            910c9dd388521607c457712d829be52d6a71bd56
+          do
+            git fetch --no-tags --depth=2 origin "$historical"
+            git cat-file -e "$historical^{commit}"
+            git cat-file -e "$historical^1^{commit}"
+          done
           git cat-file -e "$BASELINE_SHA^{commit}"
           git cat-file -e "$CURRENT_SHA^{commit}"
           git cat-file -e "$WAVE5_SHA^{commit}"
