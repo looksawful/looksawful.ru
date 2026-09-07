@@ -29,7 +29,7 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "8ac0378ddfe6d5175bb0805d17c6422146fc967a"
           target='фотосъъемка'
-          count="$(grep -Roh --include='*.json' --include='*.ts' "$target" src | wc -l | tr -d ' ')"
+          count="$({ grep -Roh --include='*.json' --include='*.ts' "$target" src || true; } | wc -l | tr -d ' ')"
           echo "exact_target_occurrences=$count"
           test "$count" = "0"
           set +e
@@ -44,7 +44,7 @@ jobs:
             echo "target typo still reported by CSpell"
             exit 1
           fi
-          echo "CSpell GREEN for target token; unrelated baseline noise may remain"
+          echo "CSpell GREEN for target token; unrelated baseline noise may remain; cspell_status=$status"
           git diff --check HEAD^ HEAD
           npm run media:catalog:check
           npm run media:ensure
