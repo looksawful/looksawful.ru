@@ -1,0 +1,185 @@
+name: tmp-css-regression-parallel
+
+on:
+  push:
+    branches:
+      - test/css-regression-parallel-matrix
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tmp-css-regression-parallel
+  cancel-in-progress: true
+
+env:
+  BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
+  CURRENT_SHA: dc45129e08389107a05aa3a960bd94d6a3a7d511
+  WAVE5_SHA: 3902a77a5d14946ce3243baf2ac21ccb6b42df45
+
+jobs:
+  browser-matrix:
+    name: browser-${{ matrix.viewport }}-${{ matrix.motion }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        viewport: [mobile, tablet, desktop]
+        motion: [reduce, no-preference]
+    env:
+      CSS_AUDIT_VIEWPORT: ${{ matrix.viewport }}
+      CSS_AUDIT_MOTION: ${{ matrix.motion }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 100
+
+      - name: Fetch exact refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=30 origin "$CURRENT_SHA"
+          git fetch --no-tags --depth=30 origin "$WAVE5_SHA"
+          git cat-file -e "$BASELINE_SHA^{commit}"
+          git cat-file -e "$CURRENT_SHA^{commit}"
+          git cat-file -e "$WAVE5_SHA^{commit}"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install browser and media tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npx playwright install --with-deps chromium
+
+      - name: Build sliced comparator without changing assertions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          source_path = Path("tools/tmp-css-regression-audit.mjs")
+          source = source_path.read_text()
+          source = source.replace("const viewports = [", "const allViewports = [", 1)
+          needle = 'const motionModes = ["reduce", "no-preference"];'
+          replacement = '''const viewports = allViewports.filter(
+            (item) => !process.env.CSS_AUDIT_VIEWPORT || item.name === process.env.CSS_AUDIT_VIEWPORT,
+          );
+          if (viewports.length !== 1) {
+            throw new Error(`expected exactly one sliced viewport, got ${viewports.map((item) => item.name).join(", ")}`);
+          }
+
+          const allMotionModes = ["reduce", "no-preference"];
+          const motionModes = allMotionModes.filter(
+            (item) => !process.env.CSS_AUDIT_MOTION || item === process.env.CSS_AUDIT_MOTION,
+          );
+          if (motionModes.length !== 1) {
+            throw new Error(`expected exactly one sliced motion mode, got ${motionModes.join(", ")}`);
+          }'''
+          if needle not in source:
+            raise SystemExit("motion-mode marker not found")
+          source = source.replace(needle, replacement, 1)
+          Path("tools/tmp-css-regression-slice.mjs").write_text(source)
+
+          bounded = Path("tools/tmp-css-regression-bounded.mjs").read_text()
+          marker = './tmp-css-regression-audit.mjs'
+          if marker not in bounded:
+            raise SystemExit("bounded import marker not found")
+          bounded = bounded.replace(marker, './tmp-css-regression-slice.mjs', 1)
+          Path("tools/tmp-css-regression-sliced-bounded.mjs").write_text(bounded)
+          PY
+          node --check tools/tmp-css-regression-slice.mjs
+          node --check tools/tmp-css-regression-sliced-bounded.mjs
+
+      - name: Create exact comparison worktrees
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/css-original /tmp/css-current /tmp/css-wave5
+          git worktree add --detach /tmp/css-original "$BASELINE_SHA"
+          git worktree add --detach /tmp/css-current "$CURRENT_SHA"
+          git worktree add --detach /tmp/css-wave5 "$WAVE5_SHA"
+          for tree in /tmp/css-original /tmp/css-current /tmp/css-wave5; do
+            ln -s "$GITHUB_WORKSPACE/node_modules" "$tree/node_modules"
+          done
+
+      - name: Prepare identical generated media
+        shell: bash
+        run: |
+          set -euo pipefail
+          original_fp="$(cd /tmp/css-original && node tools/media-dev-state.mjs --fingerprint)"
+          current_fp="$(cd /tmp/css-current && node tools/media-dev-state.mjs --fingerprint)"
+          wave5_fp="$(cd /tmp/css-wave5 && node tools/media-dev-state.mjs --fingerprint)"
+          test "$original_fp" = "$current_fp"
+          test "$current_fp" = "$wave5_fp"
+          (cd /tmp/css-current && npm run media:sync)
+          (cd /tmp/css-current && node tools/media-dev-state.mjs --cache-verify)
+          for tree in /tmp/css-original /tmp/css-wave5; do
+            rm -rf "$tree/public/media/generated"
+            mkdir -p "$tree/public/media/generated" "$tree/.cache/media"
+            cp -a /tmp/css-current/public/media/generated/. "$tree/public/media/generated/"
+            cp /tmp/css-current/.cache/media/generated-cache.json "$tree/.cache/media/generated-cache.json"
+            (cd "$tree" && node tools/media-dev-state.mjs --cache-verify)
+          done
+
+      - name: Build exact trees
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp/css-original && npm run build:site)
+          (cd /tmp/css-current && npm run build:site)
+          (cd /tmp/css-wave5 && npm run build:site)
+
+      - name: Start exact previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp/css-original && npx vite preview --host 127.0.0.1 --port 4171 > /tmp/css-original-preview.log 2>&1 &)
+          (cd /tmp/css-current && npx vite preview --host 127.0.0.1 --port 4172 > /tmp/css-current-preview.log 2>&1 &)
+          (cd /tmp/css-wave5 && npx vite preview --host 127.0.0.1 --port 4173 > /tmp/css-wave5-preview.log 2>&1 &)
+          for port in 4171 4172 4173; do
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent "http://127.0.0.1:$port/" > /dev/null; then break; fi
+              test "$attempt" -lt 60
+              sleep 1
+            done
+          done
+
+      - name: Compare both exact pairs for this matrix slice
+        shell: bash
+        run: |
+          set +e
+          status=0
+          BASELINE_SHA="$BASELINE_SHA" CURRENT_SHA="$CURRENT_SHA" \
+            node tools/tmp-css-regression-sliced-bounded.mjs \
+              http://127.0.0.1:4171 http://127.0.0.1:4172 \
+              "/tmp/css-regression-original-current-${CSS_AUDIT_VIEWPORT}-${CSS_AUDIT_MOTION}" || status=1
+          BASELINE_SHA="$CURRENT_SHA" CURRENT_SHA="$WAVE5_SHA" \
+            node tools/tmp-css-regression-sliced-bounded.mjs \
+              http://127.0.0.1:4172 http://127.0.0.1:4173 \
+              "/tmp/css-regression-current-wave5-${CSS_AUDIT_VIEWPORT}-${CSS_AUDIT_MOTION}" || status=1
+          exit "$status"
+
+      - name: Archive sliced evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-regression-${{ matrix.viewport }}-${{ matrix.motion }}-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            /tmp/css-regression-original-current-*
+            /tmp/css-regression-current-wave5-*
+            /tmp/css-original-preview.log
+            /tmp/css-current-preview.log
+            /tmp/css-wave5-preview.log
