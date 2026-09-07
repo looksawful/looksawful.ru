@@ -9,7 +9,7 @@ This repository and the website it builds are made publicly accessible so that t
 
 2. PROJECT MATERIAL
 
-For purposes of this license, "Project Material" means only source code, design, text, graphics, media, data, documentation and other material for which the copyright holder of this repository owns or controls the rights necessary to impose these terms.
+For purposes of this license, "Project Material" means only source code, design, text, graphics, media, data, documentation and other material for which the copyright holder of this repository owns or controls the rights necessary to impose these terms and which is not subject to a more specific license identified for that material.
 
 All rights in Project Material are reserved except for the limited rights that must exist under applicable law or are independently granted by the terms of the platform through which the material is accessed.
 
@@ -27,9 +27,11 @@ Nothing in this license attempts to revoke or narrow rights that the copyright h
 
 Those platform rights arise from the applicable platform terms, not from this license. This license grants no additional right to reuse Project Material outside the scope of those terms.
 
-5. THIRD-PARTY AND OTHER EXCLUDED MATERIAL
+5. SPECIFIC, LEGACY AND THIRD-PARTY LICENSES
 
-This license does not apply to material that the repository owner does not own or does not have authority to license. Such material may include, without limitation:
+This license does not override a more specific license notice that applies to a file, directory, subproject, component or version of material. If material was expressly distributed under another license, that license continues to govern the copies or versions to which that grant applies. A later repository-wide license does not purport to retroactively revoke rights already granted under an applicable license.
+
+This license also does not apply to material that the repository owner does not own or does not have authority to license. Such material may include, without limitation:
 
 - third-party software libraries, packages, plugins and source code;
 - fonts, font software and typeface files;
@@ -40,9 +42,9 @@ This license does not apply to material that the repository owner does not own o
 - externally hosted, embedded, linked or referenced material; and
 - material whose ownership or publication status has not yet been verified.
 
-Excluded material remains subject to the rights and licenses of its respective owners. See THIRD_PARTY_NOTICES.md and docs/RIGHTS_AND_PROVENANCE.md for the repository's current notice and classification policy.
+Specific-license and excluded material remains subject to the rights and licenses that actually govern it. See THIRD_PARTY_NOTICES.md, docs/LICENSING.md and docs/RIGHTS_AND_PROVENANCE.md for the repository's current notice and classification policy.
 
-The presence of excluded material in this repository or on the website does not grant any permission to copy, reuse, redistribute or sublicense it.
+The presence of excluded material in this repository or on the website does not grant any permission to copy, reuse, redistribute or sublicense it beyond whatever rights its controlling license or rightsholder separately provides.
 
 6. NO IMPLIED RIGHTS
 
