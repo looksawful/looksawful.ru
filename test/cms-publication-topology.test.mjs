@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const topologyScript = fileURLToPath(new URL("../tools/cms-publication-topology.mjs", import.meta.url));
+const authoringScript = fileURLToPath(new URL("../tools/cms-authoring-topology.mjs", import.meta.url));
 
 function git(root, ...args) {
   return execFileSync("git", ["-C", root, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
@@ -18,6 +19,8 @@ function fixture(name) {
   git(root, "config", "user.name", "Topology Test");
   git(root, "config", "user.email", "topology@example.test");
   writeFileSync(join(root, "content.txt"), "base\n");
+  mkdirSync(join(root, "src", "content"), { recursive: true });
+  writeFileSync(join(root, "src", "content", "navigation.json"), "{}\n");
   git(root, "add", ".");
   git(root, "commit", "-qm", "base");
   git(root, "branch", "prod");
@@ -42,6 +45,22 @@ function inspect(root) {
     payload = JSON.parse(result.stdout || "null");
   } catch {
     assert.fail(`topology helper must print JSON; stdout=${result.stdout}; stderr=${result.stderr}`);
+  }
+  return { result, payload };
+}
+
+function inspectAuthoring(root, ...extraArgs) {
+  assert.ok(existsSync(authoringScript), "cms authoring topology helper must exist");
+  const result = spawnSync(
+    process.execPath,
+    [authoringScript, "--repo", root, "--dev", "dev", ...extraArgs],
+    { encoding: "utf8" },
+  );
+  let payload = null;
+  try {
+    payload = JSON.parse(result.stdout || "null");
+  } catch {
+    assert.fail(`authoring helper must print JSON; stdout=${result.stdout}; stderr=${result.stderr}`);
   }
   return { result, payload };
 }
@@ -148,4 +167,86 @@ test("Pages CMS publication delegates topology decisions to the content-aware gu
   assert.doesNotMatch(workflow, /merge-base --is-ancestor origin\/prod origin\/dev/);
   assert.match(workflow, /steps\.topology\.outputs\.nothing_to_publish != 'true'/);
   assert.match(workflow, /node tools\/cms-publication-scope\.mjs/);
+});
+
+test("fresh content authoring branch reports integration-ready CMS-only state", () => {
+  withFixture("authoring-ready", (root) => {
+    git(root, "checkout", "-qb", "content/copy", "dev");
+    writeFileSync(join(root, "src", "content", "navigation.json"), '{"label":"updated"}\n');
+    git(root, "add", "src/content/navigation.json");
+    git(root, "commit", "-qm", "content edit");
+
+    const { result, payload } = inspectAuthoring(root, "--require-integration-ready");
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(payload.branch, "content/copy");
+    assert.equal(payload.allowedAuthoringBranch, true);
+    assert.equal(payload.stale, false);
+    assert.equal(payload.dirty, false);
+    assert.equal(payload.scope.safe, true);
+    assert.equal(payload.integrationReady, true);
+  });
+});
+
+test("prod and dev are never accepted as CMS authoring branches", () => {
+  withFixture("authoring-forbidden", (root) => {
+    for (const branch of ["prod", "dev"]) {
+      git(root, "checkout", "-q", branch);
+      const { result, payload } = inspectAuthoring(root, "--require-integration-ready");
+      assert.notEqual(result.status, 0);
+      assert.equal(payload.branch, branch);
+      assert.equal(payload.allowedAuthoringBranch, false);
+      assert.equal(payload.integrationReady, false);
+    }
+  });
+});
+
+test("authoring status detects when dev advanced after the branch base", () => {
+  withFixture("authoring-stale", (root) => {
+    git(root, "checkout", "-qb", "content/copy", "dev");
+    writeFileSync(join(root, "src", "content", "navigation.json"), '{"label":"branch"}\n');
+    git(root, "add", "src/content/navigation.json");
+    git(root, "commit", "-qm", "content edit");
+
+    git(root, "checkout", "-q", "dev");
+    writeFileSync(join(root, "content.txt"), "dev advanced\n");
+    git(root, "add", "content.txt");
+    git(root, "commit", "-qm", "advance dev");
+    git(root, "checkout", "-q", "content/copy");
+
+    const { result, payload } = inspectAuthoring(root, "--require-integration-ready");
+    assert.notEqual(result.status, 0);
+    assert.equal(payload.stale, true);
+    assert.equal(payload.integrationReady, false);
+    assert.notEqual(payload.baseSha, payload.devSha);
+  });
+});
+
+test("authoring integration classification rejects engineering paths", () => {
+  withFixture("authoring-engineering", (root) => {
+    git(root, "checkout", "-qb", "content/copy", "dev");
+    mkdirSync(join(root, "tools"), { recursive: true });
+    writeFileSync(join(root, "tools", "unexpected.mjs"), "export {};\n");
+    git(root, "add", "tools/unexpected.mjs");
+    git(root, "commit", "-qm", "engineering edit");
+
+    const { result, payload } = inspectAuthoring(root, "--require-integration-ready");
+    assert.notEqual(result.status, 0);
+    assert.equal(payload.scope.safe, false);
+    assert.deepEqual(payload.scope.blocked, [
+      { path: "tools/unexpected.mjs", classification: "ENGINEERING" },
+    ]);
+    assert.equal(payload.integrationReady, false);
+  });
+});
+
+test("authoring status reports dirty worktree without hiding it", () => {
+  withFixture("authoring-dirty", (root) => {
+    git(root, "checkout", "-qb", "content/copy", "dev");
+    writeFileSync(join(root, "src", "content", "navigation.json"), '{"label":"unsaved"}\n');
+
+    const { result, payload } = inspectAuthoring(root);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(payload.dirty, true);
+    assert.equal(payload.integrationReady, false);
+  });
 });
