@@ -1,7 +1,7 @@
 # Rights in owner-controlled content are expressly reserved to the extent
 # legally available, including for text and data mining under Article 4(3)
 # of Directive (EU) 2019/790 and § 44b(3) UrhG.
-# See /LICENSE and the repository licensing documentation for human-readable terms.
+# Human-readable terms: https://github.com/looksawful/looksawful.ru/blob/dev/LICENSE
 
 User-agent: *
 Content-Signal: search=yes, ai-input=no, ai-train=no, use=reference
