@@ -12,7 +12,7 @@ permissions:
 jobs:
   fix-and-verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v7
         with:
@@ -87,7 +87,8 @@ jobs:
             exit 1
           fi
           echo "focused CSpell exit=$cspell_status; target typo absent; unrelated baseline findings preserved"
-          node --test test/media-catalog.test.mjs test/media-entry.test.mjs test/media-data.test.mjs 2>/dev/null || npm run test:media:contract
+          npm run media:ensure
+          npm run test:media:contract
           npm run test:fast
           git diff --check
       - name: Commit only the three scoped source files
