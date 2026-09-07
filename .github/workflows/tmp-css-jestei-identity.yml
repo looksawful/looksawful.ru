@@ -52,7 +52,7 @@ jobs:
       - name: Capture stable section identities
         shell: bash
         run: |
-          cat > /tmp/identity.mjs <<'JS'
+          cat > "$GITHUB_WORKSPACE/tmp-jestei-identity.mjs" <<'JS'
           import { chromium } from 'playwright';
           const browser = await chromium.launch({ headless: true });
           const outputs = {};
@@ -98,7 +98,7 @@ jobs:
           console.log(JSON.stringify(outputs,null,2));
           await browser.close();
           JS
-          node /tmp/identity.mjs | tee /tmp/jestei-identity.json
+          node "$GITHUB_WORKSPACE/tmp-jestei-identity.mjs" | tee /tmp/jestei-identity.json
       - name: Upload diagnostic
         uses: actions/upload-artifact@v6
         with:
