@@ -17,6 +17,8 @@ Fontsource
 TomSelect
 Supabase
 Yandex
+Metrica
+METRIKA
 Oxfmt
 Oxlint
 CSpell
@@ -25,3 +27,10 @@ bentogrid
 lightbox
 preloader
 skeletons
+Pocock
+mattpocock
+Addy
+Osmani
+addyosmani
+Meng
+ffprobe
