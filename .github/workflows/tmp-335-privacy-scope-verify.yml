@@ -1,0 +1,39 @@
+name: tmp-335-privacy-scope-verify
+
+on:
+  pull_request:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Verify privacy spelling scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          export npm_config_cache=/tmp/qcache/cspell-privacy
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const cfg = JSON.parse(fs.readFileSync('cspell.json', 'utf8'));
+          if (!pkg.scripts.spell.includes('public/privacy/index.html')) {
+            throw new Error('spell script does not include public/privacy/index.html');
+          }
+          if (cfg.ignorePaths.includes('public/**')) {
+            throw new Error('cspell still ignores all public/**');
+          }
+          for (const required of ['public/cv/**', 'public/docs/**', 'public/media/**', 'public/vendor/**']) {
+            if (!cfg.ignorePaths.includes(required)) throw new Error(`missing scoped ignore: ${required}`);
+          }
+          NODE
+          npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 \
+            cspell --config cspell.json --no-cache --no-progress --verbose public/privacy/index.html
