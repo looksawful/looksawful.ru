@@ -9,7 +9,7 @@ import { composeCvSourceJson } from "../../src/data/cv-source.ts";
 
 const experienceArticlePattern = /<article\b([^>]*)>[\s\S]*?<\/article>/gi;
 const hiddenAttributePattern = /\s+hidden(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi;
-const skillSectionIds = ["hard", "tech", "soft", "tools"];
+const skillSectionIds = ["hard", "tech", "soft"];
 
 function getClasses(attrs) {
   const classMatch = attrs.match(/\bclass\s*=\s*["']([^"']*)["']/i);

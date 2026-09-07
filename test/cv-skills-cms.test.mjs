@@ -50,22 +50,6 @@ const expectedSkills = {
       { id: "responsible", label: "Ответственный:", text: "довожу задачи от постановки до реализации, контролирую сроки и качество." },
     ],
   },
-  tools: {
-    visible: false,
-    titleVisible: false,
-    title: "СОФТ",
-    rows: [
-      { id: "design", label: "Дизайн:", text: "Figma, Photoshop, Blender, ComfyUI, InDesign, CorelDRAW, Krita, Illustrator, Material Designer, Font Forge, Maya, ZBrush" },
-      { id: "code", label: "Код:", text: "VS Code, WebStorm, Zed" },
-      { id: "tests", label: "Тесты:", text: "DevTools, Playwright" },
-      { id: "audio", label: "Звук:", text: "Ableton Live, Adobe Audition" },
-      { id: "color", label: "Цвет:", text: "Lightroom, Capture One" },
-      { id: "shootings", label: "Съёмки:", text: "Set a Light" },
-      { id: "editing", label: "Монтаж:", text: "Premiere Pro, After Effects, Final Cut Pro" },
-      { id: "ai", label: "ИИ:", text: "Codex, Claude, Ollama, Open Claw, ComfyUI, Automatic1111, SwarmUI" },
-      { id: "utilities", label: "Утилиты:", text: "ImageMagick • FFmpeg" },
-    ],
-  },
 };
 
 function clone(value) {
@@ -83,7 +67,7 @@ test("CV skill migration fixture reproduces authored blocks while live copy rema
     contentLib.transformCvSkills(sourceHtml, { ...cvContent, skills: expectedSkills }),
     sourceHtml,
   );
-  for (const sectionId of ["hard", "tech", "soft", "tools"]) {
+  for (const sectionId of ["hard", "tech", "soft"]) {
     assert.deepEqual(
       cvContent.skills[sectionId].rows.map(({ id }) => id),
       expectedSkills[sectionId].rows.map(({ id }) => id),
@@ -116,11 +100,10 @@ test("CV skill transform escapes CMS copy while preserving section and paragraph
   assert.match(transformed, /<section class="block hard copy">/);
   assert.match(transformed, /<section class="block tech">/);
   assert.match(transformed, /<section class="block soft copy" hidden>/);
-  assert.match(transformed, /<section class="block tools" hidden>/);
   assert.match(transformed, /<section class="block soft copy" hidden><h2 class="section-title" hidden>/);
   assert.equal(
-    (transformed.match(/<section class="block (?:hard copy|tech|soft copy|tools)"(?: hidden)?>/g) ?? []).length,
-    4,
+    (transformed.match(/<section class="block (?:hard copy|tech|soft copy)"(?: hidden)?>/g) ?? []).length,
+    3,
   );
 });
 
@@ -141,10 +124,10 @@ test("CV skill adapter fails closed on missing blocks and malformed stable row i
   );
 
   const unknown = clone(expectedSkills);
-  unknown.tools.rows[0].id = "unknown";
+  unknown.tech.rows[0].id = "unknown";
   assert.throws(
     () => parseCvContent({ ...current, skills: unknown }),
-    /unexpected.*tools|tools.*unexpected|unexpected.*row/i,
+    /unexpected.*tech|tech.*unexpected|unexpected.*row/i,
   );
 
   const missing = clone(expectedSkills);
@@ -178,7 +161,7 @@ test("Pages CMS exposes keyed authored skill copy without structural visibility 
   const cvConfig = cmsConfig.match(/\n  - name: cv\b[\s\S]*$/)?.[0] ?? "";
   const skillsConfig = cvConfig.match(/\n      - name: skills\b[\s\S]*?(?=\n      - name: education\b)/)?.[0] ?? "";
 
-  for (const id of ["hard", "tech", "soft", "tools"]) {
+  for (const id of ["hard", "tech", "soft"]) {
     assert.match(skillsConfig, new RegExp(`name: ${id}\\b[\\s\\S]*?type: object`));
   }
   assert.match(skillsConfig, /name: rows\b[\s\S]*?type: object/);

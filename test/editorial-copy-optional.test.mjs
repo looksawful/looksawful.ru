@@ -163,3 +163,26 @@ test("empty composed CV copy is normalized and hidden without generating broken 
   assert.match(html, /<h3\b[^>]*class="experience-company"[^>]* hidden>/);
   assert.match(html, /<div\b[^>]*class="experience-cases"[^>]* hidden>/);
 });
+
+test("CV exposes one tools inventory and places experience before technologies", async () => {
+  const [sourceHtml, cmsConfig] = await Promise.all([
+    readFile(new URL("../public/cv/index.html", import.meta.url), "utf8"),
+    readFile(new URL("../.pages.yml", import.meta.url), "utf8"),
+  ]);
+  const rendered = transformCvContent(sourceHtml, cvContent).html;
+  const cvConfig = extractTopLevelCollection(cmsConfig, "cv");
+
+  assert.deepEqual(Object.keys(cvContent.skills), ["hard", "tech", "soft"]);
+  assert.doesNotMatch(cvConfig, /\n\s+- name: tools\b/);
+  assert.doesNotMatch(rendered, /class="[^"]*\btools\b/);
+  assert.doesNotMatch(rendered, />СОФТ<\/h2>/);
+
+  const experienceIndex = rendered.indexOf('class="experience-sheet"');
+  const hardIndex = rendered.indexOf('class="block hard copy"');
+  const techIndex = rendered.indexOf('class="block tech"');
+  assert.ok(experienceIndex !== -1, "CV experience surface must exist");
+  assert.ok(hardIndex !== -1, "CV competencies surface must exist");
+  assert.ok(techIndex !== -1, "CV technologies surface must exist");
+  assert.ok(experienceIndex < hardIndex, "experience/results must precede competencies");
+  assert.ok(hardIndex < techIndex, "competencies must precede technologies/tools");
+});

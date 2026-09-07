@@ -133,47 +133,6 @@
           "text": "веду задачи от постановки до реализации, контролирую сроки и качество."
         }
       }
-    },
-    "tools": {
-      "title": "СОФТ",
-      "rows": {
-        "design": {
-          "label": "Дизайн:",
-          "text": "Figma, Photoshop, Blender, ComfyUI, InDesign, CorelDRAW, Krita, Illustrator, Material Designer, Font Forge, Maya, ZBrush"
-        },
-        "code": {
-          "label": "Код:",
-          "text": "VS Code, WebStorm, Zed"
-        },
-        "tests": {
-          "label": "Тесты:",
-          "text": "DevTools, Playwright"
-        },
-        "audio": {
-          "label": "Звук:",
-          "text": "Ableton Live, Adobe Audition"
-        },
-        "color": {
-          "label": "Цвет:",
-          "text": "Lightroom, Capture One"
-        },
-        "shootings": {
-          "label": "Съёмки:",
-          "text": "Set a Light"
-        },
-        "editing": {
-          "label": "Монтаж:",
-          "text": "Premiere Pro, After Effects, Final Cut Pro"
-        },
-        "ai": {
-          "label": "ИИ:",
-          "text": "Codex, Claude, Ollama, Open Claw, ComfyUI, Automatic1111, SwarmUI"
-        },
-        "utilities": {
-          "label": "Утилиты:",
-          "text": "ImageMagick • FFmpeg"
-        }
-      }
     }
   },
   "education": {

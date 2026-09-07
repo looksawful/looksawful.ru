@@ -7,13 +7,12 @@ export const CV_PRINCIPLE_IDS = [
 ] as const;
 
 export const CV_LANGUAGE_IDS = ["english", "czech"] as const;
-export const CV_SKILL_SECTION_IDS = ["hard", "tech", "soft", "tools"] as const;
+export const CV_SKILL_SECTION_IDS = ["hard", "tech", "soft"] as const;
 
 export const CV_SKILL_ROW_IDS = {
   hard: ["identity", "direction", "product", "communications", "motion", "graphic", "generative", "production"],
   tech: ["design", "development", "graphics-3d", "images", "ai", "motion"],
   soft: ["leader", "researcher", "teacher", "negotiator", "multitasking", "responsible"],
-  tools: ["design", "code", "tests", "audio", "color", "shootings", "editing", "ai", "utilities"],
 } as const;
 
 export const CV_EDUCATION_COURSE_IDS = [
@@ -155,7 +154,6 @@ export interface CvSkillsData {
   hard: CvSkillSectionData;
   tech: CvSkillSectionData;
   soft: CvSkillSectionData;
-  tools: CvSkillSectionData;
 }
 
 export interface CvEducationEntryData {

@@ -308,7 +308,6 @@ function parseSkills(value: unknown): CvSkillsData {
     hard: parseSkillSection(value.hard, "hard"),
     tech: parseSkillSection(value.tech, "tech"),
     soft: parseSkillSection(value.soft, "soft"),
-    tools: parseSkillSection(value.tools, "tools"),
   });
 }
 
