@@ -53,6 +53,10 @@ function shouldKeepImageEager(tag: string): boolean {
   return /\sfetchpriority="high"/i.test(tag) || /\sloading="eager"/i.test(tag);
 }
 
+function isRuntimeOwnedImage(tag: string): boolean {
+  return /\sdata-masonry-source(?:\s*=|\s|>)/i.test(`${tag}>`);
+}
+
 function enrichHeroPortrait(tag: string): string {
   if (!/hero-portrait\.webp/i.test(tag) || !/\sfetchpriority="high"/i.test(tag)) return tag;
 
@@ -66,6 +70,7 @@ function enrichHeroPortrait(tag: string): string {
 }
 
 function deferImageTag(tag: string): string {
+  if (isRuntimeOwnedImage(tag)) return tag;
   if (shouldKeepImageEager(tag)) return enrichHeroPortrait(tag);
 
   let next = moveAttribute(tag, "sizes", "data-home-sizes");
