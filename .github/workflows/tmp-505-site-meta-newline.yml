@@ -1,0 +1,36 @@
+name: tmp-505-site-meta-newline
+
+on:
+  push:
+    branches:
+      - fix/505-site-meta-final-newline
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Prove terminal LF and focused contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFile } from 'node:fs/promises';
+          const bytes = await readFile('test/site-meta.test.mjs');
+          assert.equal(bytes.at(-1), 0x0a, 'site-meta test must end with LF');
+          console.log('terminal LF PASS');
+          NODE
+          node --test test/site-meta.test.mjs
+          git diff --check HEAD^ HEAD
