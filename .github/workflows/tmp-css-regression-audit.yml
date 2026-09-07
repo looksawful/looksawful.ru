@@ -19,8 +19,8 @@ jobs:
     timeout-minutes: 180
     env:
       BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
-      CURRENT_SHA: 149843ca8d475d9f1b3e69f1dbcaf039bb21167d
-      WAVE5_SHA: c031339d1134d65bf8b75817a85a3fcb40b5655b
+      CURRENT_SHA: c9858e9ec1d66c47a77b6d295d86db1a1f3c8731
+      WAVE5_SHA: 5b03c314e588ccb4f47cd2e926b6a1a24febe807
     steps:
       - name: Checkout bounded audit history
         uses: actions/checkout@v7
@@ -224,28 +224,28 @@ jobs:
         shell: bash
         env:
           BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
-          CURRENT_SHA: 149843ca8d475d9f1b3e69f1dbcaf039bb21167d
+          CURRENT_SHA: c9858e9ec1d66c47a77b6d295d86db1a1f3c8731
         run: node tools/tmp-css-media-fit-audit.mjs http://127.0.0.1:4171 http://127.0.0.1:4172 /tmp/css-media-fit-original-current
 
       - name: Compare media fit merged current site with frozen Wave 5A
         shell: bash
         env:
-          BASELINE_SHA: 149843ca8d475d9f1b3e69f1dbcaf039bb21167d
-          CURRENT_SHA: c031339d1134d65bf8b75817a85a3fcb40b5655b
+          BASELINE_SHA: c9858e9ec1d66c47a77b6d295d86db1a1f3c8731
+          CURRENT_SHA: 5b03c314e588ccb4f47cd2e926b6a1a24febe807
         run: node tools/tmp-css-media-fit-audit.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 /tmp/css-media-fit-current-wave5
 
       - name: Compare original baseline with merged current site
         shell: bash
         env:
           BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
-          CURRENT_SHA: 149843ca8d475d9f1b3e69f1dbcaf039bb21167d
+          CURRENT_SHA: c9858e9ec1d66c47a77b6d295d86db1a1f3c8731
         run: node tools/tmp-css-regression-bounded.mjs http://127.0.0.1:4171 http://127.0.0.1:4172 /tmp/css-regression-original-current
 
       - name: Compare merged current site with frozen Wave 5A
         shell: bash
         env:
-          BASELINE_SHA: 149843ca8d475d9f1b3e69f1dbcaf039bb21167d
-          CURRENT_SHA: c031339d1134d65bf8b75817a85a3fcb40b5655b
+          BASELINE_SHA: c9858e9ec1d66c47a77b6d295d86db1a1f3c8731
+          CURRENT_SHA: 5b03c314e588ccb4f47cd2e926b6a1a24febe807
         run: node tools/tmp-css-regression-bounded.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 /tmp/css-regression-current-wave5
 
       - name: Archive regression evidence
