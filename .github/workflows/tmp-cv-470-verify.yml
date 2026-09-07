@@ -26,6 +26,10 @@ jobs:
         run: npm run test:cv
       - name: Typecheck
         run: npm run typecheck
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
       - name: Ensure generated media
         run: npm run media:ensure
       - name: Production build
