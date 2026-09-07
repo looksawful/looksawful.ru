@@ -17,6 +17,8 @@
     "spell": "npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell --config cspell.json --cache --no-progress \"src/**/*.{ts,js,mjs,cjs,html,css,json,md}\" \"tools/**/*.{ts,js,mjs,cjs,json,md}\" \"docs/**/*.md\" \"*.md\"",
     "cms:generate": "node tools/generate-pages-cms-options.mjs",
     "cms:check": "node tools/generate-pages-cms-options.mjs --check",
+    "cms:authoring:status": "node tools/cms-authoring-topology.mjs",
+    "cms:authoring:check": "node tools/cms-authoring-topology.mjs --require-integration-ready",
     "media:catalog:sync": "node tools/sync-media-catalog.mjs",
     "media:catalog:check": "node tools/sync-media-catalog.mjs --check",
     "media:dedupe:check": "node tools/media/check-dedupe-integrity.mjs",
