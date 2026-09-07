@@ -1,0 +1,52 @@
+name: tmp-517-green
+
+on:
+  push:
+    branches:
+      - test/517-green-8ac0378
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  green:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: 8ac0378ddfe6d5175bb0805d17c6422146fc967a
+          fetch-depth: 2
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Prove #517 GREEN on exact content head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "8ac0378ddfe6d5175bb0805d17c6422146fc967a"
+          target='фотосъъемка'
+          count="$(grep -Roh --include='*.json' --include='*.ts' "$target" src | wc -l | tr -d ' ')"
+          echo "exact_target_occurrences=$count"
+          test "$count" = "0"
+          set +e
+          npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell --config cspell.json --no-progress \
+            src/content/media-catalog/registered/sensetique-13-source-50-5x7.json \
+            src/content/media-catalog/registered/sensetique-13-source-51-5x4.json \
+            src/data/media/entries/sensetique.ts > /tmp/cspell-green.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/cspell-green.log
+          if grep -Fq "$target" /tmp/cspell-green.log; then
+            echo "target typo still reported by CSpell"
+            exit 1
+          fi
+          echo "CSpell GREEN for target token; unrelated baseline noise may remain"
+          git diff --check HEAD^ HEAD
+          npm run media:catalog:check
+          npm run media:ensure
+          npm run test:media:contract
+          npm run test:fast
