@@ -18,6 +18,7 @@ TomSelect
 Supabase
 Yandex
 Metrica
+METRIKA
 Oxfmt
 Oxlint
 CSpell
