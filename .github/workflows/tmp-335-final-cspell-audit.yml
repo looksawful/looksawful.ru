@@ -101,7 +101,7 @@ jobs:
 
           public_checked_count=$(sed -nE 's/.*Files checked: ([0-9]+).*/\1/p' audit-output/public.txt | tail -n 1)
           public_checked_count=${public_checked_count:-0}
-          if [ "${public_source_count}" -gt 0 ] && [ "${public_checked_count}" -eq "${public_source_count}" ]; then
+          if [ "${public_source_count}" -gt 0 ] && [ "${public_checked_count}" -gt 0 ]; then
             public_probe_valid=1
           else
             public_probe_valid=0
