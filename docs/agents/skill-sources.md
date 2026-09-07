@@ -9,6 +9,8 @@ Status: review record for repository-local agent guidance. External sources are 
 | Matt Pocock `mattpocock/skills` | `3cca18b368ae95cdbdebbff572ccafa662551015` | debugging/TDD/codebase-design/merge-conflict skills already present; standards-vs-spec review, domain modeling, architecture-review, prototype, handoff and agent-writing workflow patterns |
 | Addy Osmani `addyosmani/web-quality-skills` | `afa8da942115f2961fdbfa80807ea0b232ff6c00` | measurement-first performance/Core Web Vitals, accessibility, SEO and best-practice audit principles |
 | Meng To `MengTo/Skills` | `321c769739b823de5eb94eb3a52aa1974fe783a2` | animation profiling, offscreen work gating, lifecycle/leak cleanup patterns for CSS/GSAP/Canvas/WebGL/Three.js |
+| PyModel `PyModel/css-pro-tips` | `7332ca009ecc469f1bc26bd4083620b022896610` | modern CSS decision order, intrinsic/container-driven layout, progressive enhancement and explicit protection against incidental framework/toolchain migration |
+| CloudAI-X `CloudAI-X/threejs-skills` | `b1c623076c661fc9b03dac19292e825a5d106823` | focused Three.js shader, material, texture and loader reference patterns, adapted behind the repository's existing runtime/lifecycle rules |
 
 ## Local adaptation rule
 
