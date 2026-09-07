@@ -1,0 +1,67 @@
+LOOKSAWFUL PORTFOLIO VIEWING LICENSE
+Version 1.0 — 7 September 2026
+
+Copyright © 2026 looksawful. All rights reserved.
+
+1. PURPOSE
+
+This repository and the website it builds are made publicly accessible so that the author's work, source code and implementation may be inspected as a portfolio. This is a proprietary, source-visible project. It is not open-source software and it is not offered as a reusable template, component library, design system, asset library or content collection.
+
+2. PROJECT MATERIAL
+
+For purposes of this license, "Project Material" means only source code, design, text, graphics, media, data, documentation and other material for which the copyright holder of this repository owns or controls the rights necessary to impose these terms and which is not subject to a more specific license identified for that material.
+
+All rights in Project Material are reserved except for the limited rights that must exist under applicable law or are independently granted by the terms of the platform through which the material is accessed.
+
+3. NO REUSE LICENSE
+
+Except as expressly stated in Section 4, no permission is granted to copy, reproduce, download for redistribution, modify, adapt, translate, publish, republish, distribute, sublicense, sell, lease, incorporate into another product or service, create derivative works from, or otherwise reuse Project Material, whether for commercial or non-commercial purposes.
+
+Without limiting the previous paragraph, no permission is granted to extract or reuse Project Material as templates, UI patterns, design-system assets, code snippets, datasets, training corpora, evaluation sets, model inputs or other reusable source material.
+
+Automated collection, scraping, dataset creation, machine-learning training, fine-tuning, evaluation or similar use of Project Material is not licensed by this document, except to the extent such activity is independently authorized by applicable law or by binding platform terms that the copyright holder cannot restrict through this license.
+
+4. PUBLIC PLATFORM ACCESS
+
+Nothing in this license attempts to revoke or narrow rights that the copyright holder has separately granted to GitHub, GitHub users or other service providers under binding terms of service for hosting and operating a public repository, including platform functionality such as viewing and forking where those terms apply.
+
+Those platform rights arise from the applicable platform terms, not from this license. This license grants no additional right to reuse Project Material outside the scope of those terms.
+
+5. SPECIFIC, LEGACY AND THIRD-PARTY LICENSES
+
+This license does not override a more specific license notice that applies to a file, directory, subproject, component or version of material. If material was expressly distributed under another license, that license continues to govern the copies or versions to which that grant applies. A later repository-wide license does not purport to retroactively revoke rights already granted under an applicable license.
+
+This license also does not apply to material that the repository owner does not own or does not have authority to license. Such material may include, without limitation:
+
+- third-party software libraries, packages, plugins and source code;
+- fonts, font software and typeface files;
+- client, employer, commissioner or collaborator work;
+- photographs, video, audio, illustrations, 3D assets or other media created by third parties;
+- trademarks, service marks, logos, product names and brand identities;
+- names, likenesses, performances and other personality or publicity rights;
+- externally hosted, embedded, linked or referenced material; and
+- material whose ownership or publication status has not yet been verified.
+
+Specific-license and excluded material remains subject to the rights and licenses that actually govern it. See THIRD_PARTY_NOTICES.md, docs/LICENSING.md and docs/RIGHTS_AND_PROVENANCE.md for the repository's current notice and classification policy.
+
+The presence of excluded material in this repository or on the website does not grant any permission to copy, reuse, redistribute or sublicense it beyond whatever rights its controlling license or rightsholder separately provides.
+
+6. NO IMPLIED RIGHTS
+
+No patent, trademark, publicity, privacy, moral-right, database-right or other intellectual-property right is granted by implication, estoppel or otherwise. A public link, credit, screenshot, case study or repository path is not a representation that the repository owner can license every right embodied in that material.
+
+7. SEPARATE PERMISSION
+
+Any permission beyond the rights described above must be granted expressly in writing by the relevant rightsholder. Permission from the repository owner cannot grant rights owned by a third party.
+
+8. NOTICES
+
+Copyright, authorship, attribution, trademark and license notices attached to any material must not be removed or misrepresented.
+
+9. DISCLAIMER
+
+To the maximum extent permitted by law, Project Material is provided for inspection on an "AS IS" and "AS AVAILABLE" basis, without warranties or conditions of any kind. The copyright holder is not liable for damages arising from access to or reliance on Project Material except where liability cannot lawfully be excluded.
+
+10. RESERVATION OF RIGHTS
+
+Any right not expressly granted by this license is reserved. If any provision is unenforceable, the remaining provisions continue to apply to the fullest extent permitted by law.

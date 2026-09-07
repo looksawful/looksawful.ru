@@ -25,6 +25,9 @@ export default defineConfig({
   ],
 
   build: {
+    license: {
+      fileName: "THIRD_PARTY_LICENSES.md",
+    },
     rollupOptions: {
       input: createSiteInputs(root),
     },
