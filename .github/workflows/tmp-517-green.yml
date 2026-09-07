@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 8ac0378ddfe6d5175bb0805d17c6422146fc967a
+          ref: 8c32f03a7c29515b107131f1932bd0cba32e029d
           fetch-depth: 2
       - uses: actions/setup-node@v7
         with:
@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "8ac0378ddfe6d5175bb0805d17c6422146fc967a"
+          test "$(git rev-parse HEAD)" = "8c32f03a7c29515b107131f1932bd0cba32e029d"
           target='фотосъъемка'
           count="$({ grep -Roh --include='*.json' --include='*.ts' "$target" src || true; } | wc -l | tr -d ' ')"
           echo "exact_target_occurrences=$count"
