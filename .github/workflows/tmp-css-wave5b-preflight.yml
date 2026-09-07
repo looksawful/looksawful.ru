@@ -1,0 +1,36 @@
+name: tmp-css-wave5b-preflight
+
+on:
+  push:
+    branches:
+      - prep/css-461-media-groups-owner
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Check transform syntax and dry-run
+        run: |
+          node --check tools/tmp-css-461-media-groups.mjs
+          node tools/tmp-css-461-media-groups.mjs
+      - name: Prove structural contract is RED before production move
+        shell: bash
+        run: |
+          set +e
+          node --test test/css-refactor-wave5b-media-groups.test.mjs > /tmp/wave5b-red.log 2>&1
+          status=$?
+          cat /tmp/wave5b-red.log
+          if [ "$status" -eq 0 ]; then
+            echo "Wave5B structural contract unexpectedly GREEN before the move" >&2
+            exit 1
+          fi
+          grep -Eq "media ownership order drift|aggregate no longer owns|missing marker" /tmp/wave5b-red.log
