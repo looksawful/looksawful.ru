@@ -35,7 +35,7 @@ jobs:
             end=$(date +%s%N)
             ms=$(( (end-start)/1000000 ))
             printf '\n=== %s: %sms exit=%s ===\n' "$label" "$ms" "$status"
-            sed -n '1,320p' "/tmp/${label}.log"
+            sed -n '1,360p' "/tmp/${label}.log"
           }
 
           echo "HEAD=$(git rev-parse HEAD)"
@@ -43,6 +43,16 @@ jobs:
 
           measure broad npm run spell -- --no-cache
 
+          echo '\n=== broad unique unknown words ==='
+          set +e
+          npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 \
+            cspell --config cspell.json --no-cache --no-progress --words-only --unique \
+            "src/**/*.{ts,js,mjs,cjs,html,css,json,md}" \
+            "tools/**/*.{ts,js,mjs,cjs,json,md}" \
+            "docs/**/*.md" "*.md" 2>/dev/null | sort -fu
+          set -e
+
+          cp cspell.json /tmp/cspell-original.json
           jq '.useGitignore = false | .ignorePaths = [
             "node_modules/**",
             "dist/**",
@@ -57,13 +67,12 @@ jobs:
             "**/generated/**",
             "**/fixtures/**",
             "**/*.{png,jpg,jpeg,webp,avif,gif,svg,mp4,webm,mov,mp3,wav,woff,woff2,ttf,otf}"
-          ]' cspell.json > cspell-public.tmp.json
-          cat cspell-public.tmp.json
+          ]' /tmp/cspell-original.json > cspell.json
 
-          CSPELL=(npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell --config cspell-public.tmp.json --no-cache --no-progress)
-          measure public_privacy "${CSPELL[@]}" "public/privacy/index.html"
+          CSPELL=(npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell --config cspell.json --no-gitignore --no-cache --no-progress --verbose)
+          measure public_privacy "${CSPELL[@]}" public/privacy/index.html
           measure public_docs "${CSPELL[@]}" "public/docs/*.html"
-          measure public_cv "${CSPELL[@]}" "public/cv/index.html"
+          measure public_cv "${CSPELL[@]}" public/cv/index.html
 
-          rm -f cspell-public.tmp.json
+          cp /tmp/cspell-original.json cspell.json
           git status --short
