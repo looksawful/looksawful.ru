@@ -37,7 +37,10 @@ function exists(ref, path) {
 }
 
 function parent(ref) {
-  return git(["rev-parse", `${ref}^1`]).trim();
+  const commit = git(["cat-file", "-p", ref]);
+  const match = commit.match(/^parent ([0-9a-f]{40})$/m);
+  assert.ok(match, `${ref}: missing first-parent metadata`);
+  return match[1];
 }
 
 function changed(base, head) {
