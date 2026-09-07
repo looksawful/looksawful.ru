@@ -161,6 +161,33 @@ jobs:
             raise SystemExit("current page creation marker not found")
           source = source.replace(current_page_marker, page_replacement, 1)
 
+          # Explicitly neutralize deck autoplay before runtime initializes while preserving
+          # the requested prefers-reduced-motion mode and all CSS/motion assertions.
+          settle_marker = 'await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 });'
+          settle_replacement = r'''await page.route("**/*", async (route) => {
+            const request = route.request();
+            if (request.resourceType() !== "document") {
+              await route.continue();
+              return;
+            }
+            const response = await route.fetch();
+            const contentType = response.headers()["content-type"] ?? "";
+            if (!contentType.includes("text/html")) {
+              await route.fulfill({ response });
+              return;
+            }
+            let body = await response.text();
+            body = body
+              .replace(/data-deck-autoplay="[^"]*"/g, 'data-deck-autoplay="off"')
+              .replace(/\sdata-deck-advance-on-ended(?:="")?/g, "");
+            await route.fulfill({ response, body });
+          });
+          await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 });
+          await page.unroute("**/*");'''
+          if settle_marker not in source:
+            raise SystemExit("settle navigation marker not found")
+          source = source.replace(settle_marker, settle_replacement, 1)
+
           Path("tools/tmp-css-regression-slice.mjs").write_text(source)
 
           bounded = Path("tools/tmp-css-regression-bounded.mjs").read_text()
