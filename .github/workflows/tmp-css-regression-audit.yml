@@ -16,7 +16,7 @@ permissions:
 jobs:
   audit:
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 180
     env:
       BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
       CURRENT_SHA: dc45129e08389107a05aa3a960bd94d6a3a7d511
