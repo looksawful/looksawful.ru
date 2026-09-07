@@ -98,13 +98,16 @@
   --wrapper-max-width: var(--content-max-width);
   --stack-space: var(--project-section-gap);
 
-  container: project-section / inline-size;
   padding-block: var(--project-section-padding);
   /*border-block-start: var(--border-width-100) solid var(--clr-border);*/
 
   &:last-of-type {
     padding-block-end: clamp(3.5rem, 7cqi, 7rem);
   }
+}
+
+.project__section:not(.media-group) {
+  container: project-section / inline-size;
 }
 
 /* A few old standalone figures/sliders sit directly under the project.
