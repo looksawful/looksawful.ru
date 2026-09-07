@@ -14,6 +14,7 @@ jobs:
     timeout-minutes: 30
     env:
       BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
+      CURRENT_SHA: e5aca09d95738d2d6e83b10573f1fc96ec464336
     steps:
       - name: Checkout remediation head
         uses: actions/checkout@v7
@@ -37,44 +38,52 @@ jobs:
           sudo apt-get install --yes ffmpeg
           npx playwright install --with-deps chromium
 
-      - name: Create exact baseline worktree
+      - name: Create exact baseline and current worktrees
         shell: bash
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=100 origin "$BASELINE_SHA"
-          rm -rf /tmp/css-wave4-baseline
+          git fetch --no-tags --depth=100 origin "$BASELINE_SHA" "$CURRENT_SHA"
+          rm -rf /tmp/css-wave4-baseline /tmp/css-wave4-current
           git worktree add --detach /tmp/css-wave4-baseline "$BASELINE_SHA"
+          git worktree add --detach /tmp/css-wave4-current "$CURRENT_SHA"
           ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-wave4-baseline/node_modules
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-wave4-current/node_modules
 
       - name: Prepare identical generated media
         shell: bash
         run: |
           set -euo pipefail
-          current_fp="$(node tools/media-dev-state.mjs --fingerprint)"
+          remediation_fp="$(node tools/media-dev-state.mjs --fingerprint)"
           baseline_fp="$(cd /tmp/css-wave4-baseline && node tools/media-dev-state.mjs --fingerprint)"
-          test "$current_fp" = "$baseline_fp"
+          current_fp="$(cd /tmp/css-wave4-current && node tools/media-dev-state.mjs --fingerprint)"
+          test "$remediation_fp" = "$baseline_fp"
+          test "$remediation_fp" = "$current_fp"
           npm run media:sync
           node tools/media-dev-state.mjs --cache-verify
-          rm -rf /tmp/css-wave4-baseline/public/media/generated
-          mkdir -p /tmp/css-wave4-baseline/public/media/generated /tmp/css-wave4-baseline/.cache/media
-          cp -a public/media/generated/. /tmp/css-wave4-baseline/public/media/generated/
-          cp .cache/media/generated-cache.json /tmp/css-wave4-baseline/.cache/media/generated-cache.json
-          (cd /tmp/css-wave4-baseline && node tools/media-dev-state.mjs --cache-verify)
+          for tree in /tmp/css-wave4-baseline /tmp/css-wave4-current; do
+            rm -rf "$tree/public/media/generated"
+            mkdir -p "$tree/public/media/generated" "$tree/.cache/media"
+            cp -a public/media/generated/. "$tree/public/media/generated/"
+            cp .cache/media/generated-cache.json "$tree/.cache/media/generated-cache.json"
+            (cd "$tree" && node tools/media-dev-state.mjs --cache-verify)
+          done
 
-      - name: Build remediation and baseline
+      - name: Build remediation baseline and current
         shell: bash
         run: |
           set -euo pipefail
           npm run build:site
           (cd /tmp/css-wave4-baseline && npm run build:site)
+          (cd /tmp/css-wave4-current && npm run build:site)
 
       - name: Start previews
         shell: bash
         run: |
           set -euo pipefail
-          (npx vite preview --host 127.0.0.1 --port 4182 > /tmp/css-wave4-fix-preview.log 2>&1 &)
           (cd /tmp/css-wave4-baseline && npx vite preview --host 127.0.0.1 --port 4181 > /tmp/css-wave4-baseline-preview.log 2>&1 &)
-          for port in 4181 4182; do
+          (cd /tmp/css-wave4-current && npx vite preview --host 127.0.0.1 --port 4182 > /tmp/css-wave4-current-preview.log 2>&1 &)
+          (npx vite preview --host 127.0.0.1 --port 4183 > /tmp/css-wave4-fix-preview.log 2>&1 &)
+          for port in 4181 4182 4183; do
             for attempt in $(seq 1 60); do
               if curl --fail --silent "http://127.0.0.1:$port/" > /dev/null; then break; fi
               test "$attempt" -lt 60
@@ -82,7 +91,7 @@ jobs:
             done
           done
 
-      - name: Compare Berry container and compact-caption geometry
+      - name: Compare Berry ownership and geometry
         shell: bash
         run: |
           set -euo pipefail
@@ -135,20 +144,27 @@ jobs:
           async function main() {
             for (const [name, reduced] of modes) {
               const baseline = await snapshot('http://127.0.0.1:4181', reduced);
-              const fixed = await snapshot('http://127.0.0.1:4182', reduced);
-              console.log(name, { baseline, fixed });
+              const current = await snapshot('http://127.0.0.1:4182', reduced);
+              const fixed = await snapshot('http://127.0.0.1:4183', reduced);
+              console.log(name, { baseline, current, fixed });
+
               assert.equal(baseline.containerName, 'media-group');
-              assert.equal(fixed.containerName, 'media-group');
-              assert.deepEqual(baseline.captionDisplays, ['none', 'none', 'none', 'none']);
-              assert.deepEqual(fixed.captionDisplays, ['none', 'none', 'none', 'none']);
+              assert.equal(current.containerName, 'project-section');
+              assert.equal(fixed.containerName, baseline.containerName);
+              assert.equal(fixed.containerType, baseline.containerType);
+              assert.deepEqual(fixed.captionDisplays, baseline.captionDisplays);
               assert.deepEqual(fixed.captionTexts, baseline.captionTexts);
               assert.equal(fixed.figureHeights.length, baseline.figureHeights.length);
               for (let i = 0; i < baseline.figureHeights.length; i += 1) {
-                assert.ok(Math.abs(fixed.figureHeights[i] - baseline.figureHeights[i]) <= 0.75,
-                  `${name} figure ${i + 1} height drift: ${baseline.figureHeights[i]} -> ${fixed.figureHeights[i]}`);
+                assert.ok(
+                  Math.abs(fixed.figureHeights[i] - baseline.figureHeights[i]) <= 0.75,
+                  `${name} figure ${i + 1} height drift: ${baseline.figureHeights[i]} -> ${fixed.figureHeights[i]}`,
+                );
               }
-              assert.ok(Math.abs(fixed.sectionHeight - baseline.sectionHeight) <= 0.75,
-                `${name} section height drift: ${baseline.sectionHeight} -> ${fixed.sectionHeight}`);
+              assert.ok(
+                Math.abs(fixed.sectionHeight - baseline.sectionHeight) <= 0.75,
+                `${name} section height drift: ${baseline.sectionHeight} -> ${fixed.sectionHeight}`,
+              );
             }
           }
 
@@ -166,4 +182,5 @@ jobs:
           retention-days: 14
           path: |
             /tmp/css-wave4-baseline-preview.log
+            /tmp/css-wave4-current-preview.log
             /tmp/css-wave4-fix-preview.log
