@@ -1,0 +1,63 @@
+name: tmp-531-red
+
+on:
+  push:
+    branches:
+      - fix/531-sensetique-equipment-hyphenation
+
+permissions:
+  contents: read
+
+jobs:
+  red:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Detect classified print line-break corruption
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          paths = [
+              Path('src/content/media-catalog/registered/sensetique-13-source-01-1x1.json'),
+              Path('src/content/media-catalog/registered/sensetique-13-source-09-1x1.json'),
+              Path('src/content/media-catalog/registered/sensetique-13-source-11-1x1.json'),
+              Path('src/content/media-catalog/registered/sensetique-13-source-12-1x1.json'),
+              Path('src/content/media-catalog/registered/sensetique-13-source-13-1x1.json'),
+              Path('src/data/media/entries/sensetique.ts'),
+          ]
+          classified = [
+              'высококаче- ственных',
+              'обеспе- чивается',
+              'по- лучения',
+              'кото- рый',
+              'пре- красно',
+              'га- рантируют',
+              'де- монтаж',
+              'отсоеди- нения',
+              'эксперта- ми',
+              'рассеивате- ля',
+              'поверх- ности',
+              'по- казателей',
+          ]
+          total = 0
+          print('CLASSIFIED COUNTS')
+          for needle in classified:
+              count = sum(p.read_text(encoding='utf-8').count(needle) for p in paths)
+              print(f'{needle}: {count}')
+              total += count
+
+          print('\nGENERIC HYPHEN-SPACE MATCHES')
+          rx = re.compile(r'[А-Яа-яЁё]+- [А-Яа-яЁё]+')
+          for p in paths:
+              for lineno, line in enumerate(p.read_text(encoding='utf-8').splitlines(), 1):
+                  matches = rx.findall(line)
+                  if matches:
+                      print(f'{p}:{lineno}: {matches}')
+
+          print(f'\nclassified_total={total}')
+          if total == 0:
+              raise SystemExit('Expected RED: no classified corruption found')
+          raise SystemExit(f'RED as expected: {total} classified split-word occurrences remain')
+          PY
