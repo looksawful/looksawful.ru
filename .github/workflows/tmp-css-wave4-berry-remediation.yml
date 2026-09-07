@@ -132,23 +132,30 @@ jobs:
             return result;
           }
 
-          for (const [name, reduced] of modes) {
-            const baseline = await snapshot('http://127.0.0.1:4181', reduced);
-            const fixed = await snapshot('http://127.0.0.1:4182', reduced);
-            console.log(name, { baseline, fixed });
-            assert.equal(baseline.containerName, 'media-group');
-            assert.equal(fixed.containerName, 'media-group');
-            assert.deepEqual(baseline.captionDisplays, ['none', 'none', 'none', 'none']);
-            assert.deepEqual(fixed.captionDisplays, ['none', 'none', 'none', 'none']);
-            assert.deepEqual(fixed.captionTexts, baseline.captionTexts);
-            assert.equal(fixed.figureHeights.length, baseline.figureHeights.length);
-            for (let i = 0; i < baseline.figureHeights.length; i += 1) {
-              assert.ok(Math.abs(fixed.figureHeights[i] - baseline.figureHeights[i]) <= 0.75,
-                `${name} figure ${i + 1} height drift: ${baseline.figureHeights[i]} -> ${fixed.figureHeights[i]}`);
+          async function main() {
+            for (const [name, reduced] of modes) {
+              const baseline = await snapshot('http://127.0.0.1:4181', reduced);
+              const fixed = await snapshot('http://127.0.0.1:4182', reduced);
+              console.log(name, { baseline, fixed });
+              assert.equal(baseline.containerName, 'media-group');
+              assert.equal(fixed.containerName, 'media-group');
+              assert.deepEqual(baseline.captionDisplays, ['none', 'none', 'none', 'none']);
+              assert.deepEqual(fixed.captionDisplays, ['none', 'none', 'none', 'none']);
+              assert.deepEqual(fixed.captionTexts, baseline.captionTexts);
+              assert.equal(fixed.figureHeights.length, baseline.figureHeights.length);
+              for (let i = 0; i < baseline.figureHeights.length; i += 1) {
+                assert.ok(Math.abs(fixed.figureHeights[i] - baseline.figureHeights[i]) <= 0.75,
+                  `${name} figure ${i + 1} height drift: ${baseline.figureHeights[i]} -> ${fixed.figureHeights[i]}`);
+              }
+              assert.ok(Math.abs(fixed.sectionHeight - baseline.sectionHeight) <= 0.75,
+                `${name} section height drift: ${baseline.sectionHeight} -> ${fixed.sectionHeight}`);
             }
-            assert.ok(Math.abs(fixed.sectionHeight - baseline.sectionHeight) <= 0.75,
-              `${name} section height drift: ${baseline.sectionHeight} -> ${fixed.sectionHeight}`);
           }
+
+          main().catch((error) => {
+            console.error(error);
+            process.exitCode = 1;
+          });
           NODE
 
       - name: Archive focused evidence
