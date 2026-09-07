@@ -3,8 +3,9 @@ import { execFileSync } from "node:child_process";
 
 const BASELINE = "113232f654a8f7f79ed9dba64e7b8774487e9099";
 const TEST491 = "72751d54d4228e7ff301d430c9699077741422b0";
-const CURRENT = "910c9dd388521607c457712d829be52d6a71bd56";
-const WAVE5 = "6c4709883c23339e7ca5d48b385fa7d1b82ef1f1";
+const REMEDIATION495 = "910c9dd388521607c457712d829be52d6a71bd56";
+const CURRENT = "303cd5de8e4534cf8c7611edbe07f54b0d12edf7";
+const WAVE5 = "c1dd6013d81fb14ce73139459c6143fcd53d59cd";
 
 const merges = Object.freeze({
   wave1: "d9b22ebb3cb0d1ca403a6d71985ea1a8b2962cb0",
@@ -15,7 +16,7 @@ const merges = Object.freeze({
   wave4c: "ed25f48574d5bb13e9c26168dd0eb88a1ddc14ee",
   wave4d: "a40b3ed56e32a6586818e8069819c86b0d92c209",
   test491: TEST491,
-  remediation495: CURRENT,
+  remediation495: REMEDIATION495,
 });
 
 function git(args, options = {}) {
