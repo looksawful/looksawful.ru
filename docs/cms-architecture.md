@@ -114,6 +114,7 @@ Media masters are preserved. Source and delivery assets have different ownership
 | Uploaded media technical metadata | media tooling | no | probe/media checks | Media Catalog/build |
 | Routes / canonical / renderer identity | TypeScript `SitePage` architecture | no | route/meta/build tests | runtime/build |
 | CMS option lists | canonical TypeScript IDs + generator | no direct hand sync | `cms:generate` / `cms:check` | `.pages.yml` |
+| CMS authoring topology | temporary `content/*` from fresh `origin/dev` | n/a | `cms-authoring-topology.mjs` + topology tests | operator/integration flow |
 | CMS publication policy | trusted `prod` engineering code | no | publication-scope/workflow tests | Pages CMS publication action |
 
 ## CMS generator contract
@@ -152,15 +153,55 @@ CMS uploads:
 
 Placement-specific captions, alt text and presentation remain with the placement model. Catalog defaults do not silently overwrite page-specific copy.
 
-## CMS publication trust boundary
+## CMS authoring topology
 
-Pages CMS edits `dev`. CMS publication authorization is executed from trusted `prod`.
+Manual CMS/Desk authoring and release integration are separate stages.
 
 ```text
-Pages CMS on dev
+fresh origin/dev
         |
         v
-save/verify dev
+content/<purpose> authoring branch/worktree
+        |
+        v
+Pages CMS / local Desk edits canonical authored sources
+        |
+        v
+small saved commits + authoring status/check
+        |
+        v
+content-only PR / controlled integration -> dev
+        |
+        v
+validated integrated dev
+        |
+        v
+existing trusted dev -> prod publication flow
+```
+
+Branch roles:
+
+- `content/*` is temporary, batch-scoped manual authoring only;
+- `dev` is the integration/source branch for validated content and engineering work;
+- `prod` is the release/deployment branch and trusted source of publication policy.
+
+`tools/cms-authoring-topology.mjs` is a read-only authoring/integration guard. It reports the current branch, HEAD, merge-base against current `origin/dev`, current `origin/dev` SHA, dirty/stale state, changed files and their existing CMS publication classification. It never rebases, commits, merges or publishes.
+
+A content batch is integration-ready only when the current branch is `content/<purpose>`, its merge-base is the current `origin/dev`, the worktree is clean and the complete committed branch diff is CMS-safe under the existing fail-closed classifier. `ENGINEERING` / `UNKNOWN` paths block content-only integration.
+
+If `origin/dev` advances during an open authoring session, the helper reports stale state. Do not silently force/rebase beneath unsaved editor state. Finish a coherent saved batch, stop writing, then transfer/replay only intended authored changes onto fresh `origin/dev` through a reviewable integration step. After successful integration, start the next batch from a new fresh `content/*` branch/worktree.
+
+Pages CMS and local Content/Media Desk must point at the same authoring worktree/branch when they participate in the same batch. A folder name is not evidence of branch identity; check the actual Git state before writes.
+
+## CMS publication trust boundary
+
+CMS publication still operates only from integrated `dev`. CMS publication authorization is executed from trusted `prod`.
+
+```text
+validated content/* -> dev integration
+        |
+        v
+integrated dev
         |
         v
 prepare publication action
@@ -182,7 +223,7 @@ classify prod..dev changed paths
         +-- explicit CMS-only scope -> create/reuse dev -> prod PR
 ```
 
-The invariant is: unpublished `dev` cannot expand the permissions used to authorize publication of that same `dev`.
+An authoring branch never becomes a direct publication source for `prod`. The invariant is: unpublished `dev` cannot expand the permissions used to authorize publication of that same `dev`, and temporary `content/*` branches have no publication authority at all.
 
 ### Branch topology
 
@@ -204,6 +245,8 @@ Release-only merge history is therefore not itself a blocker. Production-only co
 - `UNKNOWN`
 
 Only the first three are publishable, and only for explicit current ownership paths. `ENGINEERING` and `UNKNOWN` always block. A mixed diff always blocks.
+
+The same classifier is reused by the authoring-topology status/check to prevent a nominal `content/*` branch from hiding engineering or unknown changes. Reuse does not grant publication authority to that branch.
 
 The publication classifier is intentionally separate from `tools/ci/change-scope.mjs`. The latter selects regression coverage; it does not grant production publication rights.
 
@@ -231,9 +274,11 @@ Required repository configuration is external to the code contracts.
 
 `prod` should prevent force pushes and deletion and require normal updates through a controlled, reviewable release path with appropriate verification checks. A mandatory approval count is not required solely for ceremony in a solo-maintainer repository.
 
-`dev` should prevent destructive force-push/history rewrite and deletion while retaining direct writes required by Pages CMS/media synchronization automation and normal development.
+`dev` should prevent destructive force-push/history rewrite and deletion while retaining the controlled integration paths required by development and approved automation. Manual CMS authoring no longer depends on treating moving `dev` as the editor worktree.
 
-Code/tests must not claim these settings are active until the GitHub protection/ruleset state is re-read and confirms them.
+Temporary `content/*` branches are disposable authoring surfaces. Their safety comes from fresh-base detection, content-only diff classification and reviewable integration, not from granting them permanent-branch privileges.
+
+Code/tests must not claim repository protection settings are active until the GitHub protection/ruleset state is re-read and confirms them.
 
 ## Development independence
 
