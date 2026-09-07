@@ -1,0 +1,45 @@
+name: Temporary CV 470 verification
+
+on:
+  push:
+    branches:
+      - fix/cv-470-single-tools-hierarchy
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/cv-470-single-tools-hierarchy
+          fetch-depth: 1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Focused CV tests
+        run: npm run test:cv
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: CV browser smoke
+        run: npm run test:e2e:cv
+      - name: Self-clean verification workflow
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/tmp-cv-470-verify.yml
+          git config user.name "looksawful"
+          git config user.email "118225585+looksawful@users.noreply.github.com"
+          git add .github/workflows/tmp-cv-470-verify.yml
+          git commit -m "chore(cv): remove temporary #470 verifier"
+          git push origin HEAD:fix/cv-470-single-tools-hierarchy
