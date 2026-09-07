@@ -1,4 +1,28 @@
+# Rights in owner-controlled content are expressly reserved to the extent
+# legally available, including for text and data mining under Article 4(3)
+# of Directive (EU) 2019/790 and § 44b(3) UrhG.
+# See /LICENSE and the repository licensing documentation for human-readable terms.
+
 User-agent: *
+Content-Signal: search=yes, ai-input=no, ai-train=no, use=reference
 Allow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
 
 Sitemap: https://www.looksawful.ru/sitemap.xml
