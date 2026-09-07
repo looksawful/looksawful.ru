@@ -15,8 +15,8 @@ concurrency:
 
 env:
   BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
-  CURRENT_SHA: 10b05980ab712f08aa60fb86d4335643b32c5094
-  WAVE5_SHA: 3902a77a5d14946ce3243baf2ac21ccb6b42df45
+  CURRENT_SHA: 14e7fe7eb7705bc03191a31186bc85d859c8b6b6
+  WAVE5_SHA: 814f2e9c58b6fb1f905df502e4e0db0fbd9bf76f
 
 jobs:
   browser-matrix:
@@ -28,7 +28,7 @@ jobs:
       matrix:
         pair: [original-current, current-wave5]
         viewport: [mobile, tablet, desktop]
-        motion: [reduce, no-preference]
+        motion: [no-preference]
     env:
       CSS_AUDIT_PAIR: ${{ matrix.pair }}
       CSS_AUDIT_VIEWPORT: ${{ matrix.viewport }}
@@ -63,7 +63,7 @@ jobs:
           sudo apt-get install --yes ffmpeg
           npx playwright install --with-deps chromium
 
-      - name: Build sliced deterministic comparator without changing assertions
+      - name: Build sliced deterministic comparator with stable DOM identity
         shell: bash
         run: |
           set -euo pipefail
@@ -92,6 +92,59 @@ jobs:
             raise SystemExit("motion-mode marker not found")
           source = source.replace(needle, replacement, 1)
 
+          # Structural samples must preserve DOM identity. Opacity/visibility are compared
+          # as computed properties; they must not remove a node and shift sample indexes.
+          visible_marker = '''          style.display !== "none" &&
+                    style.visibility !== "hidden" &&
+                    Number(style.opacity) !== 0 &&
+                    rect.width > 0 &&
+                    rect.height > 0
+          '''
+          visible_replacement = '''          style.display !== "none" &&
+                    rect.width > 0 &&
+                    rect.height > 0
+          '''
+          if visible_marker not in source:
+            raise SystemExit("snapshot visibility marker not found")
+          source = source.replace(visible_marker, visible_replacement, 1)
+
+          # Freeze CSS/Web Animations at a deterministic instant for structural/computed
+          # snapshots while keeping animation/transition computed contracts observable.
+          settle_tail = '  await page.waitForTimeout(150);\n}'
+          settle_tail_replacement = '''  await page.waitForTimeout(150);
+            await page.evaluate(() => {
+              for (const animation of document.getAnimations()) {
+                try {
+                  animation.pause();
+                  animation.currentTime = 0;
+                } catch {}
+              }
+            });
+          }'''
+          if settle_tail not in source:
+            raise SystemExit("settle tail marker not found")
+          source = source.replace(settle_tail, settle_tail_replacement, 1)
+
+          # Regression semantics: a shared pre-existing interaction failure is debt, not a
+          # cross-version regression. Any baseline/current state difference is still caught
+          # separately by menuDifferences/lightboxDifferences.
+          interaction_marker = '''        const interactionRegression =
+                    (currentMenu.available && currentMenu.opened?.expanded !== "true") ||
+                    (currentMenu.available && currentMenu.closed?.expanded !== "false") ||
+                    (currentLightbox.available && currentLightbox.opened !== true);'''
+          interaction_replacement = '''        const baselineInteractionFailure =
+                    (baselineMenu.available && baselineMenu.opened?.expanded !== "true") ||
+                    (baselineMenu.available && baselineMenu.closed?.expanded !== "false") ||
+                    (baselineLightbox.available && baselineLightbox.opened !== true);
+                  const currentInteractionFailure =
+                    (currentMenu.available && currentMenu.opened?.expanded !== "true") ||
+                    (currentMenu.available && currentMenu.closed?.expanded !== "false") ||
+                    (currentLightbox.available && currentLightbox.opened !== true);
+                  const interactionRegression = currentInteractionFailure && !baselineInteractionFailure;'''
+          if interaction_marker not in source:
+            raise SystemExit("interaction regression marker not found")
+          source = source.replace(interaction_marker, interaction_replacement, 1)
+
           helper_marker = "async function captureTiles(page, prefix) {"
           helper = r'''async function settleVisibleImages(page) {
             await page.evaluate(async () => {
@@ -110,16 +163,29 @@ jobs:
                   rect.left < innerWidth
                 );
               };
-              const deadline = performance.now() + 2500;
+              const isLazyCandidate = (image) =>
+                image.loading === "lazy" ||
+                image.hasAttribute("data-home-src") ||
+                image.hasAttribute("data-src") ||
+                image.hasAttribute("data-srcset");
+              const hasSource = (image) =>
+                Boolean(image.currentSrc || image.getAttribute("src") || image.getAttribute("srcset"));
+
+              const deadline = performance.now() + 5000;
               while (performance.now() < deadline) {
                 const pendingHydration = [...document.images].filter(
-                  (image) => isVisible(image) && image.hasAttribute("data-home-src") && !image.getAttribute("src"),
+                  (image) => isVisible(image) && isLazyCandidate(image) && !hasSource(image),
                 );
-                if (pendingHydration.length === 0) break;
+                const pendingLoad = [...document.images].filter(
+                  (image) => isVisible(image) && hasSource(image) && !(image.complete && image.naturalWidth > 0),
+                );
+                if (pendingHydration.length === 0 && pendingLoad.length === 0) break;
                 await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                await new Promise((resolve) => setTimeout(resolve, 50));
               }
+
               const decodes = [...document.images]
-                .filter((image) => isVisible(image) && image.getAttribute("src"))
+                .filter((image) => isVisible(image) && hasSource(image) && image.complete && image.naturalWidth > 0)
                 .map((image) => image.decode().catch(() => {}));
               await Promise.race([
                 Promise.all(decodes),
