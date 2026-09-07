@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: tmp-css-regression-parallel
-  cancel-in-progress: true
+  group: tmp-css-regression-parallel-${{ github.sha }}
+  cancel-in-progress: false
 
 env:
   BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
@@ -20,15 +20,17 @@ env:
 
 jobs:
   browser-matrix:
-    name: browser-${{ matrix.viewport }}-${{ matrix.motion }}
+    name: browser-${{ matrix.pair }}-${{ matrix.viewport }}-${{ matrix.motion }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
+        pair: [original-current, current-wave5]
         viewport: [mobile, tablet, desktop]
         motion: [reduce, no-preference]
     env:
+      CSS_AUDIT_PAIR: ${{ matrix.pair }}
       CSS_AUDIT_VIEWPORT: ${{ matrix.viewport }}
       CSS_AUDIT_MOTION: ${{ matrix.motion }}
     steps:
@@ -106,10 +108,15 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf /tmp/css-original /tmp/css-current /tmp/css-wave5
-          git worktree add --detach /tmp/css-original "$BASELINE_SHA"
           git worktree add --detach /tmp/css-current "$CURRENT_SHA"
-          git worktree add --detach /tmp/css-wave5 "$WAVE5_SHA"
-          for tree in /tmp/css-original /tmp/css-current /tmp/css-wave5; do
+          if [ "$CSS_AUDIT_PAIR" = "original-current" ]; then
+            git worktree add --detach /tmp/css-original "$BASELINE_SHA"
+            trees="/tmp/css-original /tmp/css-current"
+          else
+            git worktree add --detach /tmp/css-wave5 "$WAVE5_SHA"
+            trees="/tmp/css-current /tmp/css-wave5"
+          fi
+          for tree in $trees; do
             ln -s "$GITHUB_WORKSPACE/node_modules" "$tree/node_modules"
           done
 
@@ -117,37 +124,47 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          original_fp="$(cd /tmp/css-original && node tools/media-dev-state.mjs --fingerprint)"
           current_fp="$(cd /tmp/css-current && node tools/media-dev-state.mjs --fingerprint)"
-          wave5_fp="$(cd /tmp/css-wave5 && node tools/media-dev-state.mjs --fingerprint)"
-          test "$original_fp" = "$current_fp"
-          test "$current_fp" = "$wave5_fp"
+          if [ "$CSS_AUDIT_PAIR" = "original-current" ]; then
+            peer=/tmp/css-original
+          else
+            peer=/tmp/css-wave5
+          fi
+          peer_fp="$(cd "$peer" && node tools/media-dev-state.mjs --fingerprint)"
+          test "$current_fp" = "$peer_fp"
           (cd /tmp/css-current && npm run media:sync)
           (cd /tmp/css-current && node tools/media-dev-state.mjs --cache-verify)
-          for tree in /tmp/css-original /tmp/css-wave5; do
-            rm -rf "$tree/public/media/generated"
-            mkdir -p "$tree/public/media/generated" "$tree/.cache/media"
-            cp -a /tmp/css-current/public/media/generated/. "$tree/public/media/generated/"
-            cp /tmp/css-current/.cache/media/generated-cache.json "$tree/.cache/media/generated-cache.json"
-            (cd "$tree" && node tools/media-dev-state.mjs --cache-verify)
-          done
+          rm -rf "$peer/public/media/generated"
+          mkdir -p "$peer/public/media/generated" "$peer/.cache/media"
+          cp -a /tmp/css-current/public/media/generated/. "$peer/public/media/generated/"
+          cp /tmp/css-current/.cache/media/generated-cache.json "$peer/.cache/media/generated-cache.json"
+          (cd "$peer" && node tools/media-dev-state.mjs --cache-verify)
 
       - name: Build exact trees
         shell: bash
         run: |
           set -euo pipefail
-          (cd /tmp/css-original && npm run build:site)
           (cd /tmp/css-current && npm run build:site)
-          (cd /tmp/css-wave5 && npm run build:site)
+          if [ "$CSS_AUDIT_PAIR" = "original-current" ]; then
+            (cd /tmp/css-original && npm run build:site)
+          else
+            (cd /tmp/css-wave5 && npm run build:site)
+          fi
 
       - name: Start exact previews
         shell: bash
         run: |
           set -euo pipefail
-          (cd /tmp/css-original && npx vite preview --host 127.0.0.1 --port 4171 > /tmp/css-original-preview.log 2>&1 &)
           (cd /tmp/css-current && npx vite preview --host 127.0.0.1 --port 4172 > /tmp/css-current-preview.log 2>&1 &)
-          (cd /tmp/css-wave5 && npx vite preview --host 127.0.0.1 --port 4173 > /tmp/css-wave5-preview.log 2>&1 &)
-          for port in 4171 4172 4173; do
+          ports="4172"
+          if [ "$CSS_AUDIT_PAIR" = "original-current" ]; then
+            (cd /tmp/css-original && npx vite preview --host 127.0.0.1 --port 4171 > /tmp/css-original-preview.log 2>&1 &)
+            ports="4171 4172"
+          else
+            (cd /tmp/css-wave5 && npx vite preview --host 127.0.0.1 --port 4173 > /tmp/css-wave5-preview.log 2>&1 &)
+            ports="4172 4173"
+          fi
+          for port in $ports; do
             for attempt in $(seq 1 60); do
               if curl --fail --silent "http://127.0.0.1:$port/" > /dev/null; then break; fi
               test "$attempt" -lt 60
@@ -155,26 +172,27 @@ jobs:
             done
           done
 
-      - name: Compare both exact pairs for this matrix slice
+      - name: Compare one exact pair for this matrix slice
         shell: bash
         run: |
-          set +e
-          status=0
-          BASELINE_SHA="$BASELINE_SHA" CURRENT_SHA="$CURRENT_SHA" \
-            node tools/tmp-css-regression-sliced-bounded.mjs \
-              http://127.0.0.1:4171 http://127.0.0.1:4172 \
-              "/tmp/css-regression-original-current-${CSS_AUDIT_VIEWPORT}-${CSS_AUDIT_MOTION}" || status=1
-          BASELINE_SHA="$CURRENT_SHA" CURRENT_SHA="$WAVE5_SHA" \
-            node tools/tmp-css-regression-sliced-bounded.mjs \
-              http://127.0.0.1:4172 http://127.0.0.1:4173 \
-              "/tmp/css-regression-current-wave5-${CSS_AUDIT_VIEWPORT}-${CSS_AUDIT_MOTION}" || status=1
-          exit "$status"
+          set -euo pipefail
+          if [ "$CSS_AUDIT_PAIR" = "original-current" ]; then
+            BASELINE_SHA="$BASELINE_SHA" CURRENT_SHA="$CURRENT_SHA" \
+              node tools/tmp-css-regression-sliced-bounded.mjs \
+                http://127.0.0.1:4171 http://127.0.0.1:4172 \
+                "/tmp/css-regression-original-current-${CSS_AUDIT_VIEWPORT}-${CSS_AUDIT_MOTION}"
+          else
+            BASELINE_SHA="$CURRENT_SHA" CURRENT_SHA="$WAVE5_SHA" \
+              node tools/tmp-css-regression-sliced-bounded.mjs \
+                http://127.0.0.1:4172 http://127.0.0.1:4173 \
+                "/tmp/css-regression-current-wave5-${CSS_AUDIT_VIEWPORT}-${CSS_AUDIT_MOTION}"
+          fi
 
       - name: Archive sliced evidence
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: css-regression-${{ matrix.viewport }}-${{ matrix.motion }}-${{ github.sha }}
+          name: css-regression-${{ matrix.pair }}-${{ matrix.viewport }}-${{ matrix.motion }}-${{ github.sha }}
           retention-days: 14
           if-no-files-found: warn
           path: |
