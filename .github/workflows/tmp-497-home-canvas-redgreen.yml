@@ -1,0 +1,20 @@
+name: tmp-497-home-canvas-redgreen
+
+on:
+  push:
+    branches:
+      - fix/497-home-canvas-source-deferral
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Focused #497 contract
+        run: node --test test/home-image-deferral-canvas.test.mjs
