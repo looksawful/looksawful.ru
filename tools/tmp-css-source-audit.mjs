@@ -5,7 +5,7 @@ const BASELINE = "113232f654a8f7f79ed9dba64e7b8774487e9099";
 const TEST491 = "72751d54d4228e7ff301d430c9699077741422b0";
 const REMEDIATION495 = "910c9dd388521607c457712d829be52d6a71bd56";
 const CURRENT = "dc45129e08389107a05aa3a960bd94d6a3a7d511";
-const WAVE5 = "5ca5b931fa9c344df1581a0bf8e7e43d84fac284";
+const WAVE5 = "3902a77a5d14946ce3243baf2ac21ccb6b42df45";
 
 const merges = Object.freeze({
   wave1: "d9b22ebb3cb0d1ca403a6d71985ea1a8b2962cb0",
@@ -236,7 +236,7 @@ audit("Merged dev contains no temporary CSS-refactor execution tooling", () => {
   assert.deepEqual(temporary, []);
 });
 
-audit("Frozen Wave 5A media core is an exact move from merged dev", () => {
+audit("Frozen Wave 5A media core is an exact move with generic base before aggregate specializations", () => {
   const aggregate = show(CURRENT, "src/styles/components.css");
   const marker = "/* ==================================================\n   Media item\n   ================================================== */\n";
   const integration = ".project__section > :is(.media, .mockup, .slider):only-child {";
@@ -244,12 +244,21 @@ audit("Frozen Wave 5A media core is an exact move from merged dev", () => {
   const owner = show(WAVE5, "src/styles/media.css");
   assert.equal(normalize(owner), normalize(core));
   assert.equal(normalize(show(WAVE5, "src/styles/components.css")), normalize(aggregate.replace(core, "")));
+
   const currentIndex = show(CURRENT, "src/styles/index.css");
   const expectedIndex = currentIndex.replace(
-    '@import "./expertise.css" layer(components);\n@import "./experience.css" layer(components);',
-    '@import "./expertise.css" layer(components);\n@import "./media.css" layer(components);\n@import "./experience.css" layer(components);',
+    '@import "./patterns.css" layer(patterns);\n@import "./components.css" layer(components);',
+    '@import "./patterns.css" layer(patterns);\n@import "./media.css" layer(components);\n@import "./components.css" layer(components);',
   );
   assert.equal(show(WAVE5, "src/styles/index.css"), expectedIndex);
+
+  const index = show(WAVE5, "src/styles/index.css");
+  assert.ok(
+    index.indexOf('@import "./media.css" layer(components);') <
+      index.indexOf('@import "./components.css" layer(components);'),
+    "generic media base must precede aggregate component specializations",
+  );
+  assert.match(aggregate, /\.brand-system__surface\s*\{[\s\S]*aspect-ratio:\s*var\(--brand-system-surface-ratio\);/);
   assert.equal(exists(WAVE5, ".github/workflows/tmp-css-461-media-core.yml"), false, "Wave 5A auto-writer must stay frozen");
   assert.equal(exists(WAVE5, "tools/tmp-css-461-media-core.mjs"), true);
   assert.equal(exists(WAVE5, "tools/tmp-css-461-media-core-browser.mjs"), true);
