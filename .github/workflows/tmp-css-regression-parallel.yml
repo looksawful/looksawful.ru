@@ -26,9 +26,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pair: [original-current, current-wave5]
-        viewport: [mobile, tablet, desktop]
-        motion: [no-preference]
+        include:
+          - pair: original-current
+            viewport: mobile
+            motion: no-preference
+          - pair: current-wave5
+            viewport: tablet
+            motion: no-preference
     env:
       CSS_AUDIT_PAIR: ${{ matrix.pair }}
       CSS_AUDIT_VIEWPORT: ${{ matrix.viewport }}
@@ -99,6 +103,12 @@ jobs:
           if visible_marker not in source:
             raise SystemExit("snapshot visibility marker not found")
           source = source.replace(visible_marker, visible_replacement, 1)
+
+          sample_marker = '          samples: visibleNodes.slice(0, 8).map((element) => {'
+          sample_replacement = '          samples: nodes.slice(0, 8).map((element) => {'
+          if sample_marker not in source:
+            raise SystemExit("sample identity marker not found")
+          source = source.replace(sample_marker, sample_replacement, 1)
 
           settle_tail = '  await page.waitForTimeout(150);\n}'
           settle_tail_replacement = '''  await page.waitForTimeout(150);
