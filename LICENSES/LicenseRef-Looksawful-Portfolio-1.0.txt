@@ -1,0 +1,170 @@
+LOOKSAWFUL PORTFOLIO LICENSE
+Version 1.0 — 7 September 2026
+Machine-readable identifier: LicenseRef-Looksawful-Portfolio-1.0
+
+Copyright © 2026 Ivan Krushinsky (looksawful). All rights reserved.
+
+1. PURPOSE AND STATUS
+
+This repository and the website it builds are made publicly accessible so that the work, source code, implementation and documented projects may be inspected as a portfolio.
+
+This is a proprietary, source-visible project. It is not open-source software and it is not offered as a reusable template, component library, design system, UI kit, asset library, dataset, reference pack or content collection.
+
+This License governs only Owner-Controlled Material as defined below. It does not purport to license material controlled by clients, employers, collaborators, photographers, performers, software authors, font authors, trademark owners or other third parties.
+
+2. DEFINITIONS
+
+“Licensor” means Ivan Krushinsky, also publicly identified as looksawful.
+
+“Owner-Controlled Material” means source code, documentation, written content, original interface implementation, original design, graphics, photography, video, 3D work, motion work, prompts, workflows, compilations and other material for which the Licensor owns or controls the rights necessary to grant or withhold the permissions described in this License, and which is not governed by a more specific license.
+
+“Excluded Material” means material that is not Owner-Controlled Material, including material owned or controlled by a client, employer, commissioner, collaborator or other third party; separately licensed software, fonts or assets; trademarks and brand identifiers; names, likenesses and performances; externally hosted or embedded material; and material whose ownership, publication basis or sublicensing status is unknown or unverified.
+
+“Service Terms” means binding terms of a hosting, repository, CDN, search, browser or other service through which material is accessed, including GitHub’s applicable Terms of Service.
+
+3. LIMITED PORTFOLIO ACCESS
+
+Subject to this License, permission is granted only to access and view Owner-Controlled Material for personal evaluation of the Licensor’s portfolio and technical work.
+
+You may make transient or incidental technical copies only to the extent reasonably necessary for ordinary browser access, caching, or functionality expressly provided by the service through which the material is accessed.
+
+No permission is granted by this License to retain, reuse, redistribute or repurpose those copies for another purpose. Any rights that arise independently under applicable law or binding Service Terms remain governed by those sources rather than by this License.
+
+No ownership or other intellectual-property right is transferred.
+
+4. NO REUSE LICENSE
+
+Except where a more specific license, applicable law or binding Service Terms independently provide otherwise, no permission is granted to:
+
+- copy, reproduce, download for retention or redistribution, mirror or republish Owner-Controlled Material;
+- modify, adapt, translate, transform or create derivative works from it;
+- distribute, sublicense, sell, rent, lease, commercialize or otherwise provide it to another person or service;
+- incorporate it into another website, product, application, portfolio, presentation, publication, service, repository or commercial or non-commercial project;
+- extract or reconstruct source code, components, tokens, layouts, interaction systems, motion systems, visual rules, data structures or reusable implementation patterns for use elsewhere; or
+- remove Owner-Controlled Material from its portfolio context and use it as reusable source material.
+
+Without limiting the previous paragraph, no permission is granted to reuse Owner-Controlled Material as or within templates, UI kits, design systems, component libraries, code snippets, motion presets, 3D assets, asset libraries, mood boards, reference packs, datasets, corpora, benchmarks or evaluation sets.
+
+Public visibility, source availability, a Git clone, a fork, a screenshot, a browser cache, a public URL or a credit does not by itself create a reuse license.
+
+5. TEXT AND DATA MINING, AUTOMATED COLLECTION AND AI
+
+To the extent the relevant rights are controlled by the Licensor, no permission is granted by this License for systematic scraping, automated collection, dataset creation, corpus creation, extraction, embedding-corpus creation, retrieval-augmented-generation corpora, model training, fine-tuning, distillation, model development, benchmarking, evaluation, synthetic-dataset creation or similar machine-processing use of Owner-Controlled Material.
+
+The Licensor expressly reserves, to the extent legally available, rights in Owner-Controlled Material for text and data mining under Article 4(3) of Directive (EU) 2019/790 and § 44b(3) of the German Copyright Act (UrhG). For material made available online, this reservation is intended to be supplemented by machine-readable signals served with the website.
+
+Machine-readable search or crawler signals may expressly permit ordinary search indexing while refusing AI input, AI training or broader reuse. Such signals must be read together with this License and do not grant rights beyond the purposes they expressly permit.
+
+Nothing in this Section restricts a use that applicable law makes mandatory, non-waivable or otherwise not subject to an effective reservation, including statutory research exceptions where their legal requirements are satisfied.
+
+6. GITHUB AND OTHER PLATFORM RIGHTS
+
+Nothing in this License attempts to revoke or narrow rights that the Licensor has separately granted under binding Service Terms.
+
+In particular, when this repository is public on GitHub, GitHub and GitHub users may receive rights under GitHub’s Terms of Service to host, process, view, display, reproduce or fork public repository content through GitHub’s Service, and GitHub and its Affiliates may receive additional rights stated in those Terms for operating, developing and improving the Service.
+
+Those rights arise from the applicable Service Terms, not from this License. This License grants no additional right to reuse Owner-Controlled Material outside the scope of those Service Terms.
+
+7. SPECIFIC, LEGACY AND THIRD-PARTY LICENSES
+
+A specific license notice that applies to a file, directory, subproject, component, dependency or particular version of material takes precedence over this License for that material.
+
+A valid license grant already made for an earlier or separately identified copy or version is not retroactively revoked by this repository-wide License.
+
+The standalone Awful Cases source repository is expressly distributed under the MIT License. That MIT grant applies to the source code and associated software material covered by that repository’s MIT License. It does not, merely by association, license the Awful Cases name, icon, visual identity, branding, third-party material or any portfolio content that is outside the scope of that MIT grant.
+
+Third-party libraries, packages, plugins, fonts, font software and other separately licensed components remain governed by their applicable upstream terms. Their presence does not make this repository, its design or its portfolio content available under those upstream licenses.
+
+See THIRD_PARTY_NOTICES.md, CONTENT_RIGHTS.md, docs/LICENSING.md and docs/RIGHTS_AND_PROVENANCE.md for the current repository notices and rights-classification policy.
+
+8. CLIENT, EMPLOYER, COMMISSIONED AND COLLABORATIVE MATERIAL
+
+Portfolio pages may document work created for or with clients, employers, commissioners, studios, teams, photographers, stylists, designers, developers, musicians, labels, models, performers and other collaborators.
+
+Authorship, permission to display a work in a portfolio, ownership of copyright, ownership of supplied assets, and authority to sublicense material to third parties are separate questions. A portfolio credit, authorship statement or project role does not by itself establish that the Licensor owns every right embodied in the displayed material.
+
+Excluded Material remains subject to the rights, contracts, permissions and licenses that actually govern it. This License does not grant permission to copy, reuse, redistribute or sublicense Excluded Material.
+
+9. CREDITS, AUTHORSHIP AND NOTICES
+
+Credits identify known creative, technical or production contributions. A credit is not, by itself, evidence of copyright ownership, assignment, transfer, license scope or authority to sublicense.
+
+Copyright, authorship, attribution, license, trademark and other rights notices attached to material must not be removed, falsified or misrepresented.
+
+No moral right, authorship right or attribution right is waived by this License except to the extent an effective waiver is expressly permitted and separately made under applicable law.
+
+10. TRADEMARKS, LOGOS AND BRAND IDENTIFIERS
+
+Names, logos, trademarks, service marks, product identities, trade dress and other brand identifiers shown in the portfolio remain the property of their respective owners unless expressly stated otherwise.
+
+They are shown solely to identify or document the relevant project, product, client, collaborator or context. No trademark or branding license is granted by this License, and display does not imply endorsement, sponsorship or a continuing relationship beyond the relationship actually described.
+
+11. NAMES, LIKENESSES, PRIVACY AND PERFORMANCES
+
+Photographs, video, audio and other portfolio material may depict or contain identifiable people, models, performers, voices or performances. Copyright in a photograph, video or recording does not by itself determine all privacy, personality, publicity, model-release, performance or related rights.
+
+This License grants no permission to reuse a person’s name, image, likeness, voice or performance. Any such rights remain governed by applicable law and by the relevant consent, release, contract or rightsholder.
+
+12. EXTERNAL LINKS, EMBEDS AND REMOTE ASSETS
+
+A hyperlink, embed, CDN URL, social-media reference, Behance reference or other external source reference is provided only for navigation, attribution, provenance or portfolio context.
+
+Public availability at an external URL is not a license grant. Linking to, embedding or referencing external material does not make that material Owner-Controlled Material and does not import it into this License.
+
+If externally hosted material is downloaded, copied or redistributed, any reproduction or distribution rights must be established separately.
+
+13. GENERATED AND AI-ASSISTED MATERIAL
+
+Generated or AI-assisted material may be identified where relevant. Any rights asserted by the Licensor in such material extend only to the extent those rights exist under applicable law and are actually controlled by the Licensor.
+
+No claim in this License transfers or overrides rights in third-party source material, trademarks, likenesses, performances or other protected elements that may appear in or underlie generated output.
+
+Owner-authored prompts, workflows, node graphs, generation recipes, model configurations and production documentation included in the repository are Owner-Controlled Material only where the Licensor actually owns or controls the relevant rights and no more specific terms apply.
+
+14. DATABASES, COMPILATIONS, METRICS AND FACTS
+
+To the extent copyright, database rights or database-producer rights subsist in an Owner-Controlled compilation, catalog, taxonomy, selection or arrangement, those rights are reserved.
+
+Facts, ideas and information that are not protected as such are not converted into proprietary rights by this License. Project metrics, factual statements or business-context information shown in a case study do not grant access to or rights in an underlying client database, confidential dataset or business information.
+
+15. NO IMPLIED RIGHTS
+
+No patent, trademark, design, database, privacy, publicity, personality, performance or other intellectual-property or related right is granted by implication, estoppel or otherwise.
+
+A public repository path, file presence, screenshot, case study, caption, source URL, credit or project role is not a representation that the Licensor owns or can sublicense every right embodied in that material.
+
+16. PERMISSION REQUESTS
+
+Any permission beyond the rights expressly described in this License must be granted in writing by the person or entity that controls the relevant rights.
+
+A request to the Licensor should identify the specific material, intended use, media or channel, territory, duration, audience, whether the proposed use is commercial, and any proposed modification or adaptation.
+
+Permission from the Licensor can cover only rights the Licensor actually controls. It cannot grant rights owned by a client, collaborator, photographer, performer, software author, font author, trademark owner or other third party.
+
+Permission requests concerning Owner-Controlled Material may be sent to: i@lookawful.ru
+
+17. CONTRIBUTIONS
+
+This repository is a proprietary portfolio, not a general-purpose open-source collaboration project. Unsolicited code, design, media and content contributions are not accepted unless expressly requested.
+
+Do not submit material unless you have authority to make the submission and to provide every permission required by the applicable repository and platform terms. Separate contribution terms, if any, must be stated expressly.
+
+18. MANDATORY LAW
+
+Nothing in this License excludes, restricts or overrides rights, exceptions, limitations, defenses or uses that cannot lawfully be excluded or restricted.
+
+Where applicable law gives a user a right regardless of this License, that law controls to the extent required.
+
+19. DISCLAIMER AND LIMITATION OF LIABILITY
+
+To the maximum extent permitted by applicable law, Owner-Controlled Material is provided for portfolio inspection on an “AS IS” and “AS AVAILABLE” basis, without warranties or conditions of any kind, express or implied.
+
+To the maximum extent permitted by applicable law, the Licensor is not liable for damages, losses, claims, costs or liabilities arising from access to, use of, inability to use, or reliance on Owner-Controlled Material, except where liability cannot lawfully be excluded or limited.
+
+20. SEVERABILITY, NO WAIVER AND RESERVATION OF RIGHTS
+
+If any provision of this License is held invalid or unenforceable, the remaining provisions continue to apply to the fullest extent permitted by law.
+
+A failure to enforce a provision does not waive that provision or any other right.
+
+All rights not expressly granted by this License are reserved.
