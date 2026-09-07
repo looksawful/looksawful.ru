@@ -178,7 +178,11 @@ async function settle(page, url) {
   await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
   await page.evaluate(async () => {
     await document.fonts?.ready;
-    await Promise.all([...document.images].map((image) => image.decode().catch(() => {})));
+    const decodes = [...document.images].map((image) => image.decode().catch(() => {}));
+    await Promise.race([
+      Promise.all(decodes),
+      new Promise((resolve) => setTimeout(resolve, 2500)),
+    ]);
     for (const video of document.querySelectorAll("video")) {
       video.pause();
       try {
@@ -476,8 +480,11 @@ try {
 
       for (const route of routes) {
         const key = `${slug(route)}-${viewport.name}-${motion}`;
-        await settle(baselinePage, new URL(route, baselineUrl).href);
-        await settle(currentPage, new URL(route, currentUrl).href);
+        console.log(`BEGIN ${key}`);
+        await Promise.all([
+          settle(baselinePage, new URL(route, baselineUrl).href),
+          settle(currentPage, new URL(route, currentUrl).href),
+        ]);
 
         const [baselineSnapshot, currentSnapshot] = await Promise.all([snapshotPage(baselinePage), snapshotPage(currentPage)]);
         for (const selector of requiredCoverage) {
@@ -489,18 +496,24 @@ try {
         const [baselineFocus, currentFocus] = await Promise.all([focusSequence(baselinePage), focusSequence(currentPage)]);
         const focusDifferences = compareValues(baselineFocus, currentFocus, "focus");
 
-        await settle(baselinePage, new URL(route, baselineUrl).href);
-        await settle(currentPage, new URL(route, currentUrl).href);
+        await Promise.all([
+          settle(baselinePage, new URL(route, baselineUrl).href),
+          settle(currentPage, new URL(route, currentUrl).href),
+        ]);
         const [baselineMenu, currentMenu] = await Promise.all([siteMenuContract(baselinePage), siteMenuContract(currentPage)]);
         const menuDifferences = compareValues(baselineMenu, currentMenu, "siteMenu");
 
-        await settle(baselinePage, new URL(route, baselineUrl).href);
-        await settle(currentPage, new URL(route, currentUrl).href);
+        await Promise.all([
+          settle(baselinePage, new URL(route, baselineUrl).href),
+          settle(currentPage, new URL(route, currentUrl).href),
+        ]);
         const [baselineLightbox, currentLightbox] = await Promise.all([lightboxContract(baselinePage), lightboxContract(currentPage)]);
         const lightboxDifferences = compareValues(baselineLightbox, currentLightbox, "lightbox");
 
-        await settle(baselinePage, new URL(route, baselineUrl).href);
-        await settle(currentPage, new URL(route, currentUrl).href);
+        await Promise.all([
+          settle(baselinePage, new URL(route, baselineUrl).href),
+          settle(currentPage, new URL(route, currentUrl).href),
+        ]);
         const [baselineTiles, currentTiles] = await Promise.all([
           captureTiles(baselinePage, `${key}-baseline`),
           captureTiles(currentPage, `${key}-current`),
