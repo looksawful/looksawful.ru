@@ -58,6 +58,7 @@ jobs:
         run: |
           node --check tools/tmp-css-source-audit.mjs
           node --check tools/tmp-css-regression-audit.mjs
+          node --check tools/tmp-css-media-fit-audit.mjs
           node --check tools/tmp-css-canvas-diagnostics.mjs
 
       - name: Run cumulative source and cascade audit
@@ -218,6 +219,20 @@ jobs:
             done
           done
 
+      - name: Compare media fit original baseline with merged current site
+        shell: bash
+        env:
+          BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
+          CURRENT_SHA: dc45129e08389107a05aa3a960bd94d6a3a7d511
+        run: node tools/tmp-css-media-fit-audit.mjs http://127.0.0.1:4171 http://127.0.0.1:4172 /tmp/css-media-fit-original-current
+
+      - name: Compare media fit merged current site with frozen Wave 5A
+        shell: bash
+        env:
+          BASELINE_SHA: dc45129e08389107a05aa3a960bd94d6a3a7d511
+          CURRENT_SHA: 5ca5b931fa9c344df1581a0bf8e7e43d84fac284
+        run: node tools/tmp-css-media-fit-audit.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 /tmp/css-media-fit-current-wave5
+
       - name: Compare original baseline with merged current site
         shell: bash
         env:
@@ -240,6 +255,8 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
           path: |
+            /tmp/css-media-fit-original-current
+            /tmp/css-media-fit-current-wave5
             /tmp/css-regression-original-current
             /tmp/css-regression-current-wave5
             /tmp/css-original-smoke.log
