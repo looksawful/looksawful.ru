@@ -56,6 +56,7 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const config = JSON.parse(fs.readFileSync('cspell.json', 'utf8'));
+          config.useGitignore = false;
           config.ignorePaths = (config.ignorePaths ?? []).filter((entry) => entry !== 'public/**');
           fs.writeFileSync('tmp-335-public-cspell.json', `${JSON.stringify(config, null, 2)}\n`);
           NODE
@@ -75,6 +76,12 @@ jobs:
 
           rm -f tmp-335-public-cspell.json
 
+          if grep -Eq 'Files checked: [1-9][0-9]*' audit-output/public.txt; then
+            public_probe_valid=1
+          else
+            public_probe_valid=0
+          fi
+
           {
             echo "head=${GITHUB_SHA}"
             echo "broad_exit=${broad_exit}"
@@ -83,9 +90,11 @@ jobs:
             echo "editorial_ms=${editorial_ms}"
             echo "public_exit=${public_exit}"
             echo "public_ms=${public_ms}"
+            echo "public_probe_valid=${public_probe_valid}"
           } > audit-output/meta.txt
 
           cat audit-output/meta.txt
+          test "${public_probe_valid}" -eq 1
 
       - name: Upload evidence
         if: always()
