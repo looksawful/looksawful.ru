@@ -2,13 +2,13 @@
 
 ## Decision
 
-`looksawful.ru` uses a custom proprietary Portfolio Viewing License for material the repository owner is entitled to license.
+`looksawful.ru` uses a custom proprietary Portfolio Viewing License for material the repository owner is entitled to license and that is not already governed by a more specific license.
 
 The repository is public for portfolio inspection, not because the project is intended to be open source. A permissive or source-available software license would grant rights that are intentionally not being granted here.
 
 ## Why a custom proprietary license
 
-Without a repository license, default copyright already reserves reproduction, distribution and derivative-work rights. The explicit `LICENSE` exists to remove ambiguity about the portfolio-only purpose, define third-party exclusions and acknowledge the independent rights created by GitHub's public-repository Terms of Service.
+Without a repository license, default copyright already reserves reproduction, distribution and derivative-work rights. The explicit `LICENSE` exists to remove ambiguity about the portfolio-only purpose, define third-party and specific-license exclusions, and acknowledge the independent rights created by GitHub's public-repository Terms of Service.
 
 The following common alternatives are intentionally not used as the repository-wide license:
 
@@ -24,7 +24,8 @@ The project therefore uses a custom all-rights-reserved license rather than pret
 
 | Material | Controlling terms |
 | --- | --- |
-| Owner-controlled original source code, design, text, documentation and media | Root `LICENSE` |
+| Owner-controlled original source code, design, text, documentation and media with no more specific license | Root `LICENSE` |
+| File/directory/subproject/version with an explicit specific license | That specific license for the material/versions to which it applies |
 | Third-party libraries and packages | Their upstream licenses; see `THIRD_PARTY_NOTICES.md` |
 | Fonts and font software | Their font/package licenses, including OFL-1.1 where applicable |
 | Client, employer, commissioner or collaborator material | The rights/agreements applicable to that material; never the root license by default |
@@ -32,9 +33,17 @@ The project therefore uses a custom all-rights-reserved license rather than pret
 | External links, embeds and references | Rights remain with the external rightsholders |
 | Material with unknown or unverified status | No redistribution clearance is assumed |
 
+## Existing project-specific license exception
+
+The current repository already contains a public declaration that **Awful Cases source code is licensed under the MIT License**, while its name, icon, visual identity and branding assets are expressly not licensed for branding reuse (`public/pets/awful-cases/index.html`).
+
+The root `LICENSE` therefore does not attempt to retroactively erase that declaration. Issue #548 tracks the evidence needed to decide whether future Awful Cases versions can and should be relicensed prospectively. Earlier copies/versions already distributed under an applicable license must be treated according to the grant that applied to them.
+
 ## GitHub public-repository boundary
 
-GitHub's Terms of Service grant GitHub and other GitHub users certain rights required to operate a public repository, including public viewing and platform forking. The root license does not attempt to override those binding platform grants and does not grant additional reuse rights outside them.
+GitHub's Terms of Service grant GitHub and other GitHub users rights that apply independently of the root repository license. Under the Terms effective 27 April 2026, making a repository public permits other users to view it and fork/reproduce the content through GitHub's Service. The root license cannot cancel those platform grants; it only avoids granting additional reuse rights beyond them and applicable law.
+
+The same current Terms grant GitHub and its Affiliates rights to store, host, archive, parse, display and copy public content for operating, developing and improving the Service, including stated AI/ML training and development purposes. A repository-level "no AI training" clause therefore cannot honestly be described as an absolute restriction against GitHub's own uses while the repository remains hosted publicly under those Terms. The root license instead states that this repository grants no *additional* AI-training/scraping permission beyond binding platform terms or applicable law.
 
 GitHub also requires repository owners to have the right to post third-party content under terms compatible with GitHub's public-repository functionality. That is why content-rights verification is maintained separately from software licensing.
 
@@ -52,7 +61,7 @@ The root package remains `private: true` and uses:
 "license": "SEE LICENSE IN LICENSE"
 ```
 
-This is npm's supported form for a custom license that has no SPDX identifier. It describes the root package only; it does not replace the licenses of dependencies.
+This is npm's supported form for a custom license that has no SPDX identifier. It describes the root package only; it does not replace the licenses of dependencies or project-specific license grants.
 
 ## Third-party compliance
 
@@ -74,6 +83,7 @@ Review this licensing layer when any of the following changes:
 - a new font, CDN or externally served asset is introduced;
 - a new client/collaborator/third-party media group becomes public;
 - code or assets are copied or substantially adapted from an external source;
+- an explicit file/subproject license is added, removed or changed;
 - the repository's visibility or hosting platform changes; or
 - GitHub materially changes the public-repository rights relevant to this model.
 
