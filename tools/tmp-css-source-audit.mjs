@@ -4,8 +4,8 @@ import { execFileSync } from "node:child_process";
 const BASELINE = "113232f654a8f7f79ed9dba64e7b8774487e9099";
 const TEST491 = "72751d54d4228e7ff301d430c9699077741422b0";
 const REMEDIATION495 = "910c9dd388521607c457712d829be52d6a71bd56";
-const CURRENT = "d2a061f8e25925aebe13e1c53442d631bb6e75e7";
-const WAVE5 = "4844ffaaa3f3c93114aaa84dadc9d22218989f36";
+const CURRENT = "dc45129e08389107a05aa3a960bd94d6a3a7d511";
+const WAVE5 = "5ca5b931fa9c344df1581a0bf8e7e43d84fac284";
 
 const merges = Object.freeze({
   wave1: "d9b22ebb3cb0d1ca403a6d71985ea1a8b2962cb0",
