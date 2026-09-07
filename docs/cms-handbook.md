@@ -2,17 +2,48 @@
 
 Pages CMS используется для обычного редакторского контента и разрешённых metadata. Маршруты, ID, layout, runtime и инженерный код через него менять не нужно.
 
-## Рабочая ветвь
+## Рабочие ветви
 
-Обычная работа в CMS выполняется в `dev`.
+Роли ветвей разделены:
 
-Для обычного редактирования всегда используй `dev` независимо от GitHub default branch. Перед редактированием убедись, что в Pages CMS выбрана именно `dev`.
+- `content/<purpose>` — временная authoring-ветвь для одного связного редакторского batch;
+- `dev` — integration/source branch для проверенного контента и engineering changes;
+- `prod` — release/deployment branch и trusted source publication policy.
+
+Обычная ручная работа в Pages CMS и локальном Content/Media Desk выполняется не напрямую в движущемся `dev`, а в `content/<purpose>` branch/worktree, созданном от свежего `origin/dev`.
+
+Перед началом batch:
+
+```text
+git fetch origin dev
+git switch -c content/<purpose> origin/dev
+npm run cms:authoring:status
+```
+
+Если используется отдельный worktree, Pages CMS и локальный Desk должны указывать на один и тот же authoring worktree/branch. Перед первой записью оператор должен проверить фактическую ветвь, а не полагаться на имя папки или старую CMS-сессию.
+
+## Authoring status
+
+`npm run cms:authoring:status` показывает:
+
+- текущую ветвь;
+- HEAD/base SHA;
+- текущий `origin/dev` SHA;
+- stale/dirty state;
+- changed files и их CMS publication classification;
+- intended integration target (`dev`).
+
+`npm run cms:authoring:check` дополнительно завершится ошибкой, если branch нельзя безопасно считать готовым к content-only integration: это не `content/*`, base устарел относительно `origin/dev`, worktree dirty или diff содержит `ENGINEERING` / `UNKNOWN`.
+
+Этот helper ничего не ребейзит, не коммитит, не мержит и не публикует.
 
 ## Save
 
-`Save` создаёт реальный Git commit в выбранной CMS branch. Для обычного редактирования используется `dev`.
+`Save` создаёт реальный Git commit в выбранной CMS branch. Для ручного authoring выбирается текущая batch-ветвь `content/<purpose>`.
 
-Сохранение в `dev` не является production deployment и само по себе не меняет опубликованный сайт.
+Сохранение в `content/*` не является integration в `dev` и тем более production deployment.
+
+Делай небольшие связные commits. Не держи разные редакторские задачи в одной долгоживущей ветви.
 
 ## Что можно менять
 
@@ -46,22 +77,48 @@ Pages CMS используется для обычного редакторск�
 
 Лимиты и детали загрузки описаны отдельно в `docs/media-upload-policy.md`.
 
-## Проверить сайт
+## Проверить authoring batch
 
-`Проверить сайт` запускает существующий fast verification flow для `dev`. Проверка ничего не публикует.
+Перед integration обнови знание о `origin/dev` и проверь batch:
 
-Если проверка не прошла, изменение не нужно продвигать в production до выяснения причины.
+```text
+git fetch origin dev
+npm run cms:authoring:status
+npm run cms:authoring:check
+```
+
+Если `dev` ушёл вперёд, не выполняй скрытый force/rebase под открытой CMS-сессией. Сначала сохрани связный batch, закрой/останови запись, затем перенеси только intended authored commits/changes на свежий `origin/dev` через обычный reviewable integration flow и снова проверь результат.
+
+Текущая Pages CMS action `Проверить сайт` всё ещё dispatches Fast CI на explicit `ref: dev`. Поэтому она проверяет уже интегрированный `dev`, а не произвольную `content/*` authoring branch. Проверку authoring branch даёт обычный PR/Fast CI при `content/* -> dev` integration; не считай кнопку доказательством состояния ещё не интегрированной ветви.
+
+## Integration в dev
+
+Готовый batch интегрируется только в `dev` через reviewable content-only PR/controlled integration.
+
+Перед integration должны быть одновременно истинны:
+
+- ветвь имеет форму `content/<purpose>`;
+- base соответствует свежему `origin/dev`;
+- worktree чистый;
+- полный branch diff состоит только из разрешённых CMS content/media/generated paths;
+- relevant checks зелёные.
+
+`ENGINEERING`, `UNKNOWN` или mixed diff не является content-only batch и идёт через normal engineering flow.
+
+После успешной integration authoring branch считается одноразовой: следующий batch начинается с новой ветви от свежего `origin/dev`. Не превращай `content/*` в третий permanent branch.
 
 ## Подготовить публикацию
 
-`Подготовить публикацию` запускает trusted publication workflow из `prod`.
+`Подготовить публикацию` запускает trusted publication workflow из `prod` только после того, как intended content уже интегрирован в `dev`.
 
 Он должен:
 
-1. убедиться, что CMS source — `dev`, а trusted policy выполняется из `prod`;
+1. использовать интегрированный `dev` как CMS publication source, а trusted policy — из `prod`;
 2. проверить допустимость текущего состояния и полного `dev -> prod` diff;
 3. пропустить только разрешённый CMS-only scope;
 4. создать или переиспользовать pull request `dev -> prod`.
+
+`content/*` никогда не является прямым publication source для `prod`.
 
 Подготовка публикации не должна merge PR и не должна автоматически deploy production. Merge и production deployment остаются отдельным release-действием.
 
@@ -69,4 +126,4 @@ Pages CMS используется для обычного редакторск�
 
 Даже если Pages CMS позволяет открыть или изменить documentation/agent files, `docs/**` и `AGENTS.md` являются engineering changes.
 
-Они не должны проходить CMS-only publication allowlist как обычный content-only release. Такие изменения публикуются через normal engineering flow.
+Они не должны проходить content-only authoring/integration или CMS-only publication allowlist как обычный content-only release. Такие изменения публикуются через normal engineering flow.
