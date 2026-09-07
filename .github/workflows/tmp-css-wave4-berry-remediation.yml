@@ -1,0 +1,157 @@
+name: Temporary CSS Wave4 Berry remediation proof
+
+on:
+  push:
+    branches:
+      - fix/css-wave4-media-group-container-493
+
+permissions:
+  contents: read
+
+jobs:
+  berry-container-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
+    steps:
+      - name: Checkout remediation head
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 100
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Create exact baseline worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=100 origin "$BASELINE_SHA"
+          rm -rf /tmp/css-wave4-baseline
+          git worktree add --detach /tmp/css-wave4-baseline "$BASELINE_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-wave4-baseline/node_modules
+
+      - name: Prepare identical generated media
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_fp="$(node tools/media-dev-state.mjs --fingerprint)"
+          baseline_fp="$(cd /tmp/css-wave4-baseline && node tools/media-dev-state.mjs --fingerprint)"
+          test "$current_fp" = "$baseline_fp"
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          rm -rf /tmp/css-wave4-baseline/public/media/generated
+          mkdir -p /tmp/css-wave4-baseline/public/media/generated /tmp/css-wave4-baseline/.cache/media
+          cp -a public/media/generated/. /tmp/css-wave4-baseline/public/media/generated/
+          cp .cache/media/generated-cache.json /tmp/css-wave4-baseline/.cache/media/generated-cache.json
+          (cd /tmp/css-wave4-baseline && node tools/media-dev-state.mjs --cache-verify)
+
+      - name: Build remediation and baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run build:site
+          (cd /tmp/css-wave4-baseline && npm run build:site)
+
+      - name: Start previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          (npx vite preview --host 127.0.0.1 --port 4182 > /tmp/css-wave4-fix-preview.log 2>&1 &)
+          (cd /tmp/css-wave4-baseline && npx vite preview --host 127.0.0.1 --port 4181 > /tmp/css-wave4-baseline-preview.log 2>&1 &)
+          for port in 4181 4182; do
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent "http://127.0.0.1:$port/" > /dev/null; then break; fi
+              test "$attempt" -lt 60
+              sleep 1
+            done
+          done
+
+      - name: Compare Berry container and compact-caption geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const assert = require('node:assert/strict');
+
+          const route = '/work/berry-social-content-2020/';
+          const modes = [
+            ['reduce', true],
+            ['no-preference', false],
+          ];
+
+          async function snapshot(baseUrl, reducedMotion) {
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({
+              viewport: { width: 390, height: 844 },
+              deviceScaleFactor: 1,
+              reducedMotion: reducedMotion ? 'reduce' : 'no-preference',
+            });
+            const page = await context.newPage();
+            await page.goto(baseUrl + route, { waitUntil: 'networkidle', timeout: 60_000 });
+            await page.evaluate(async () => {
+              const images = [...document.images].filter((image) => image.getAttribute('src'));
+              await Promise.race([
+                Promise.all(images.map((image) => image.decode().catch(() => {}))),
+                new Promise((resolve) => setTimeout(resolve, 2500)),
+              ]);
+              await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            });
+            const result = await page.evaluate(() => {
+              const section = document.querySelector('.project__section.media-group[data-layout="grid"][data-compact-layout="reel"]');
+              if (!section) throw new Error('Berry compact media-group section not found');
+              const sectionStyle = getComputedStyle(section);
+              const figures = [...section.querySelectorAll('figure.media.mockup')];
+              const captions = figures.map((figure) => figure.querySelector('.media__caption'));
+              return {
+                containerName: sectionStyle.containerName,
+                containerType: sectionStyle.containerType,
+                sectionHeight: section.getBoundingClientRect().height,
+                figureHeights: figures.map((figure) => figure.getBoundingClientRect().height),
+                captionDisplays: captions.map((caption) => caption ? getComputedStyle(caption).display : null),
+                captionTexts: captions.map((caption) => caption?.textContent?.trim() ?? null),
+              };
+            });
+            await browser.close();
+            return result;
+          }
+
+          for (const [name, reduced] of modes) {
+            const baseline = await snapshot('http://127.0.0.1:4181', reduced);
+            const fixed = await snapshot('http://127.0.0.1:4182', reduced);
+            console.log(name, { baseline, fixed });
+            assert.equal(baseline.containerName, 'media-group');
+            assert.equal(fixed.containerName, 'media-group');
+            assert.deepEqual(baseline.captionDisplays, ['none', 'none', 'none', 'none']);
+            assert.deepEqual(fixed.captionDisplays, ['none', 'none', 'none', 'none']);
+            assert.deepEqual(fixed.captionTexts, baseline.captionTexts);
+            assert.equal(fixed.figureHeights.length, baseline.figureHeights.length);
+            for (let i = 0; i < baseline.figureHeights.length; i += 1) {
+              assert.ok(Math.abs(fixed.figureHeights[i] - baseline.figureHeights[i]) <= 0.75,
+                `${name} figure ${i + 1} height drift: ${baseline.figureHeights[i]} -> ${fixed.figureHeights[i]}`);
+            }
+            assert.ok(Math.abs(fixed.sectionHeight - baseline.sectionHeight) <= 0.75,
+              `${name} section height drift: ${baseline.sectionHeight} -> ${fixed.sectionHeight}`);
+          }
+          NODE
+
+      - name: Archive focused evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-wave4-berry-remediation-${{ github.sha }}
+          retention-days: 14
+          path: |
+            /tmp/css-wave4-baseline-preview.log
+            /tmp/css-wave4-fix-preview.log
