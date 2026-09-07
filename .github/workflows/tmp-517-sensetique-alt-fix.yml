@@ -38,10 +38,12 @@ jobs:
           test "$(grep -o 'фотосъъемка' src/content/media-catalog/registered/sensetique-13-source-51-5x4.json | wc -l | tr -d ' ')" = "1"
           test "$(grep -o 'фотосъъемка' src/data/media/entries/sensetique.ts | wc -l | tr -d ' ')" = "4"
           set +e
-          npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell --config cspell.json --no-progress "${files[@]}"
+          npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell --config cspell.json --no-progress "${files[@]}" > /tmp/cspell-red.log 2>&1
           cspell_status=$?
           set -e
+          cat /tmp/cspell-red.log
           test "$cspell_status" -ne 0
+          test "$(grep -o 'фотосъъемка' /tmp/cspell-red.log | wc -l | tr -d ' ')" = "6"
       - name: Apply exact authored-alt typo correction
         shell: bash
         run: |
@@ -75,7 +77,16 @@ jobs:
             echo 'typo remains in source' >&2
             exit 1
           fi
-          npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell --config cspell.json --no-progress "${files[@]}"
+          set +e
+          npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell --config cspell.json --no-progress "${files[@]}" > /tmp/cspell-green.log 2>&1
+          cspell_status=$?
+          set -e
+          cat /tmp/cspell-green.log
+          if grep -Fq 'фотосъъемка' /tmp/cspell-green.log; then
+            echo 'target typo still reported by focused CSpell' >&2
+            exit 1
+          fi
+          echo "focused CSpell exit=$cspell_status; target typo absent; unrelated baseline findings preserved"
           node --test test/media-catalog.test.mjs test/media-entry.test.mjs test/media-data.test.mjs 2>/dev/null || npm run test:media:contract
           npm run test:fast
           git diff --check
@@ -94,6 +105,9 @@ jobs:
           test "$changed" = "$expected"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- ${expected//$'\n'/ }
+          git add -- \
+            src/content/media-catalog/registered/sensetique-13-source-50-5x7.json \
+            src/content/media-catalog/registered/sensetique-13-source-51-5x4.json \
+            src/data/media/entries/sensetique.ts
           git commit -m 'fix(content): correct Sensetique photo alt typo (#517)'
           git push origin HEAD:fix/517-sensetique-alt-typo-v2
