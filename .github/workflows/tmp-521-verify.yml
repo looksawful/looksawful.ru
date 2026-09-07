@@ -1,0 +1,48 @@
+name: tmp-521-verify
+
+on:
+  push:
+    branches:
+      - docs/521-route-public-reporting
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Verify protected-policy diff
+        env:
+          BASE_SHA: 149843ca8d475d9f1b3e69f1dbcaf039bb21167d
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          agents = Path('AGENTS.md').read_text(encoding='utf-8')
+          policy = Path('docs/agent-context/policy.md').read_text(encoding='utf-8')
+          assert agents.count('docs/agents/public-reporting.md') == 1
+          assert policy.count('docs/agents/public-reporting.md') == 1
+          assert 'GitHub is a public reporting surface.' in agents
+          assert 'sanitize and minimize evidence before publication' in policy
+          PY
+
+          mapfile -t durable < <(git diff --name-only "$BASE_SHA" HEAD -- . ':(exclude).github/workflows/tmp-521-verify.yml')
+          printf 'durable changed: %s\n' "${durable[*]}"
+          expected=(AGENTS.md docs/agent-context/policy.md)
+          [[ "${durable[*]}" == "${expected[*]}" ]]
+          git diff --quiet "$BASE_SHA" HEAD -- .agents/skills
+          git diff --quiet "$BASE_SHA" HEAD -- docs/agents/public-reporting.md
+          git diff --check "$BASE_SHA" HEAD
+      - name: Focused policy boundary test
+        run: node --test test/cms-publication-scope.test.mjs
+      - name: Fast CI contract
+        run: npm run test:fast
