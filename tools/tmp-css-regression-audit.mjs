@@ -441,7 +441,12 @@ async function captureTiles(page, prefix) {
     }, fraction);
     await page.waitForTimeout(100);
     const screenshotPath = path.join(outputDir, "screenshots", `${prefix}-${fraction}.png`);
-    await page.screenshot({ path: screenshotPath, animations: "disabled", mask: page.locator("canvas, video, iframe"), maskColor: "#777777" });
+    await page.screenshot({
+      path: screenshotPath,
+      animations: "disabled",
+      mask: [page.locator("canvas"), page.locator("video"), page.locator("iframe")],
+      maskColor: "#777777",
+    });
     results.push({ fraction, scrollState, screenshotPath });
   }
   return results;
