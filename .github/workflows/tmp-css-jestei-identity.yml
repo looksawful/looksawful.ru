@@ -1,0 +1,110 @@
+name: tmp-css-jestei-identity
+
+on:
+  push:
+    branches:
+      - test/css-jestei-identity-diagnostic
+
+permissions:
+  contents: read
+
+env:
+  CURRENT_SHA: 14e7fe7eb7705bc03191a31186bc85d859c8b6b6
+  WAVE5_SHA: 814f2e9c58b6fb1f905df502e4e0db0fbd9bf76f
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 30
+      - name: Fetch refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=20 origin "$CURRENT_SHA"
+          git fetch --no-tags --depth=20 origin "$WAVE5_SHA"
+          git worktree add --detach /tmp/current "$CURRENT_SHA"
+          git worktree add --detach /tmp/wave5 "$WAVE5_SHA"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Link dependencies and start Vite dev servers
+        shell: bash
+        run: |
+          set -euo pipefail
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/current/node_modules
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/wave5/node_modules
+          (cd /tmp/current && npx vite --host 127.0.0.1 --port 4172 > /tmp/current.log 2>&1 &)
+          (cd /tmp/wave5 && npx vite --host 127.0.0.1 --port 4173 > /tmp/wave5.log 2>&1 &)
+          for port in 4172 4173; do
+            for i in $(seq 1 60); do
+              curl --fail --silent "http://127.0.0.1:$port/work/jestei-pool/" >/dev/null && break
+              test "$i" -lt 60
+              sleep 1
+            done
+          done
+      - name: Capture stable section identities
+        shell: bash
+        run: |
+          cat > /tmp/identity.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({ headless: true });
+          const outputs = {};
+          for (const [name, base] of [['current','http://127.0.0.1:4172'], ['wave5','http://127.0.0.1:4173']]) {
+            const context = await browser.newContext({ viewport: { width: 1728, height: 1000 }, reducedMotion: 'no-preference' });
+            const page = await context.newPage();
+            await page.addInitScript(() => {
+              try { Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }); } catch {}
+              try { Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' }); } catch {}
+            });
+            await page.goto(base + '/work/jestei-pool/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+            await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+            await page.waitForTimeout(500);
+            outputs[name] = await page.evaluate(() => [...document.querySelectorAll('.project__section')].map((el, index) => {
+              const s = getComputedStyle(el);
+              const r = el.getBoundingClientRect();
+              const heading = el.querySelector('h1,h2,h3,.section-copy__title');
+              const data = Object.fromEntries([...el.attributes].filter(a => a.name.startsWith('data-')).map(a => [a.name,a.value]));
+              return {
+                index,
+                id: el.id,
+                className: el.className,
+                data,
+                heading: heading?.textContent?.replace(/\s+/g,' ').trim() ?? '',
+                rect: { x:r.x,y:r.y,width:r.width,height:r.height },
+                computed: {
+                  display:s.display, visibility:s.visibility, opacity:s.opacity,
+                  marginLeft:s.marginLeft, marginRight:s.marginRight,
+                  width:s.width, maxWidth:s.maxWidth,
+                  containerName:s.containerName, containerType:s.containerType,
+                  position:s.position,
+                },
+                vars: {
+                  groupMax:s.getPropertyValue('--group-max').trim(),
+                  projectMediaMax:s.getPropertyValue('--project-media-max').trim(),
+                  groupColumns:s.getPropertyValue('--group-columns').trim(),
+                },
+                children:[...el.children].slice(0,5).map(c => ({tag:c.tagName,className:c.className,id:c.id}))
+              };
+            }));
+            await context.close();
+          }
+          console.log(JSON.stringify(outputs,null,2));
+          await browser.close();
+          JS
+          node /tmp/identity.mjs | tee /tmp/jestei-identity.json
+      - name: Upload diagnostic
+        uses: actions/upload-artifact@v6
+        with:
+          name: jestei-identity-${{ github.sha }}
+          retention-days: 7
+          path: |
+            /tmp/jestei-identity.json
+            /tmp/current.log
+            /tmp/wave5.log
