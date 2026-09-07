@@ -28,6 +28,16 @@ test("animated canvas gallery renderer supports production fallback and moves JS
   assert.match(production, /data-gallery-state="loading"/);
   assert.match(production, /class="production-gallery"/);
   assert.match(production, /<canvas aria-label="Production masonry gallery"><\/canvas>/);
+  assert.equal(
+    [...production.matchAll(/aria-label="Production masonry gallery"/g)].length,
+    1,
+    "production gallery accessible name must be owned only by the canvas",
+  );
+  assert.doesNotMatch(
+    production,
+    /<div\b[^>]*data-animated-canvas-gallery=""[^>]*aria-label=/,
+    "production gallery wrapper must not duplicate the canvas accessible name",
+  );
   assert.match(production, /data-masonry-source=""/);
   assert.match(production, /data-source-index="98"/);
   assert.match(production, /data-media-title="Title"/);
