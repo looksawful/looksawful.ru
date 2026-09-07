@@ -72,6 +72,17 @@ jobs:
           }
           JSON
 
+          rm -rf tmp-335-public-copy
+          mkdir -p tmp-335-public-copy
+          public_source_count=0
+          while IFS= read -r -d '' source; do
+            relative="${source#public/}"
+            destination="tmp-335-public-copy/${relative}"
+            mkdir -p "$(dirname "${destination}")"
+            cp "${source}" "${destination}"
+            public_source_count=$((public_source_count + 1))
+          done < <(find public -type f \( -name '*.html' -o -name '*.md' -o -name '*.json' -o -name '*.txt' \) -print0)
+
           start_ms=$(date +%s%3N)
           set +e
           npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell \
@@ -79,16 +90,18 @@ jobs:
             --no-gitignore \
             --no-progress \
             --no-cache \
-            "public/**/*.{html,md,json,txt}" \
+            "tmp-335-public-copy/**/*.{html,md,json,txt}" \
             > audit-output/public.txt 2>&1
           public_exit=$?
           set -e
           end_ms=$(date +%s%3N)
           public_ms=$((end_ms - start_ms))
 
-          rm -f tmp-335-public-cspell.json
+          rm -rf tmp-335-public-copy tmp-335-public-cspell.json
 
-          if grep -Eq 'Files checked: [1-9][0-9]*' audit-output/public.txt; then
+          public_checked_count=$(sed -nE 's/.*Files checked: ([0-9]+).*/\1/p' audit-output/public.txt | tail -n 1)
+          public_checked_count=${public_checked_count:-0}
+          if [ "${public_source_count}" -gt 0 ] && [ "${public_checked_count}" -eq "${public_source_count}" ]; then
             public_probe_valid=1
           else
             public_probe_valid=0
@@ -102,6 +115,8 @@ jobs:
             echo "editorial_ms=${editorial_ms}"
             echo "public_exit=${public_exit}"
             echo "public_ms=${public_ms}"
+            echo "public_source_count=${public_source_count}"
+            echo "public_checked_count=${public_checked_count}"
             echo "public_probe_valid=${public_probe_valid}"
           } > audit-output/meta.txt
 
