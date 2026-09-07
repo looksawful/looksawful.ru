@@ -9,12 +9,37 @@ permissions:
   contents: read
 
 jobs:
-  focused:
+  regression:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-      - name: Focused #497 contract
-        run: node --test test/home-image-deferral-canvas.test.mjs
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install media tooling
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Prepare generated media
+        run: npm run media:sync
+      - name: Focused #497 and neighboring contracts
+        run: |
+          node --test \
+            test/home-image-deferral-canvas.test.mjs \
+            test/animated-canvas-gallery-migration.test.mjs \
+            test/motion-renderer-contract.test.mjs \
+            test/site-composition.test.mjs
+      - name: Production build
+        run: npm run build:site
+      - name: Responsive UI
+        run: npm run test:ui:responsive
+      - name: Full E2E
+        run: npm run test:e2e:full
+      - name: Diff hygiene
+        run: git diff --check && git status --short
