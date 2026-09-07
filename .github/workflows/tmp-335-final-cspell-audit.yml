@@ -1,0 +1,97 @@
+name: tmp 335 final CSpell audit
+
+on:
+  push:
+    branches:
+      - test/335-final-cspell-audit
+    paths:
+      - ".github/workflows/tmp-335-final-cspell-audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  cspell-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact audit head
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Run CSpell evidence probes
+        shell: bash
+        run: |
+          set -u
+          mkdir -p audit-output
+
+          start_ms=$(date +%s%3N)
+          set +e
+          npm run spell -- --no-cache > audit-output/broad.txt 2>&1
+          broad_exit=$?
+          set -e
+          end_ms=$(date +%s%3N)
+          broad_ms=$((end_ms - start_ms))
+
+          start_ms=$(date +%s%3N)
+          set +e
+          npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell \
+            --config cspell.json \
+            --no-progress \
+            --no-cache \
+            "src/content/editorial/**/*.json" \
+            > audit-output/editorial.txt 2>&1
+          editorial_exit=$?
+          set -e
+          end_ms=$(date +%s%3N)
+          editorial_ms=$((end_ms - start_ms))
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const config = JSON.parse(fs.readFileSync('cspell.json', 'utf8'));
+          config.ignorePaths = (config.ignorePaths ?? []).filter((entry) => entry !== 'public/**');
+          fs.writeFileSync('tmp-335-public-cspell.json', `${JSON.stringify(config, null, 2)}\n`);
+          NODE
+
+          start_ms=$(date +%s%3N)
+          set +e
+          npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell \
+            --config tmp-335-public-cspell.json \
+            --no-progress \
+            --no-cache \
+            "public/**/*.{html,md,json,txt}" \
+            > audit-output/public.txt 2>&1
+          public_exit=$?
+          set -e
+          end_ms=$(date +%s%3N)
+          public_ms=$((end_ms - start_ms))
+
+          rm -f tmp-335-public-cspell.json
+
+          {
+            echo "head=${GITHUB_SHA}"
+            echo "broad_exit=${broad_exit}"
+            echo "broad_ms=${broad_ms}"
+            echo "editorial_exit=${editorial_exit}"
+            echo "editorial_ms=${editorial_ms}"
+            echo "public_exit=${public_exit}"
+            echo "public_ms=${public_ms}"
+          } > audit-output/meta.txt
+
+          cat audit-output/meta.txt
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cspell-335-final-audit
+          path: audit-output/
+          if-no-files-found: error
+          retention-days: 7
