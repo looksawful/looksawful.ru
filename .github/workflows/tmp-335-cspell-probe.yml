@@ -1,0 +1,40 @@
+name: tmp 335 CSpell probe
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - ".github/workflows/tmp-335-cspell-probe.yml"
+      - "cspell.json"
+      - "cspell-words.txt"
+      - "package.json"
+
+permissions:
+  contents: read
+
+jobs:
+  spell-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Cold spelling baseline
+        shell: bash
+        run: |
+          set -o pipefail
+          TIMEFORMAT='cold_seconds=%3R'
+          time npm run spell -- --no-cache
+      - name: Warm spelling baseline
+        shell: bash
+        run: |
+          set -o pipefail
+          TIMEFORMAT='warm_seconds=%3R'
+          time npm run spell
