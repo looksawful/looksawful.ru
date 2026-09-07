@@ -1,0 +1,72 @@
+name: tmp-css-refresh-audit-shas
+
+on:
+  push:
+    branches:
+      - test/css-refactor-regression-audit
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 100
+      - name: Refresh exact current and Wave5 SHAs
+        shell: python
+        run: |
+          from pathlib import Path
+
+          old_current = "910c9dd388521607c457712d829be52d6a71bd56"
+          new_current = "303cd5de8e4534cf8c7611edbe07f54b0d12edf7"
+          old_wave5 = "6c4709883c23339e7ca5d48b385fa7d1b82ef1f1"
+          new_wave5 = "c1dd6013d81fb14ce73139459c6143fcd53d59cd"
+
+          source_path = Path("tools/tmp-css-source-audit.mjs")
+          source = source_path.read_text()
+          source = source.replace(
+              f'const CURRENT = "{old_current}";',
+              f'const REMEDIATION495 = "{old_current}";\nconst CURRENT = "{new_current}";',
+              1,
+          )
+          source = source.replace(f'const WAVE5 = "{old_wave5}";', f'const WAVE5 = "{new_wave5}";', 1)
+          source = source.replace("remediation495: CURRENT,", "remediation495: REMEDIATION495,", 1)
+          source_path.write_text(source)
+
+          workflow_path = Path(".github/workflows/tmp-css-regression-audit.yml")
+          workflow = workflow_path.read_text()
+          workflow = workflow.replace(old_current, new_current)
+          workflow = workflow.replace(old_wave5, new_wave5)
+          workflow_path.write_text(workflow)
+
+          assert f'const REMEDIATION495 = "{old_current}";' in source
+          assert f'const CURRENT = "{new_current}";' in source
+          assert f'const WAVE5 = "{new_wave5}";' in source
+          assert old_wave5 not in source
+          assert old_current not in workflow
+          assert old_wave5 not in workflow
+          assert new_current in workflow
+          assert new_wave5 in workflow
+      - name: Validate refreshed source audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=30 origin 303cd5de8e4534cf8c7611edbe07f54b0d12edf7
+          git fetch --no-tags --depth=30 origin c1dd6013d81fb14ce73139459c6143fcd53d59cd
+          node --check tools/tmp-css-source-audit.mjs
+          node tools/tmp-css-source-audit.mjs
+          git diff --check
+      - name: Commit refreshed audit inputs and remove this helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/tmp-css-refresh-audit-shas.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/tmp-css-regression-audit.yml tools/tmp-css-source-audit.mjs
+          git commit -m "test(css): rebase cumulative audit on post-497 dev (#493)"
+          git push origin HEAD:test/css-refactor-regression-audit
