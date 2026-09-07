@@ -1,0 +1,182 @@
+name: tmp-css-wave5-fix-acceptance
+
+on:
+  push:
+    branches:
+      - test/css-wave5-fix-acceptance
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tmp-css-wave5-fix-acceptance
+  cancel-in-progress: true
+
+env:
+  BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
+  CURRENT_SHA: dc45129e08389107a05aa3a960bd94d6a3a7d511
+  WAVE5_SHA: 3902a77a5d14946ce3243baf2ac21ccb6b42df45
+
+jobs:
+  corrected-wave5:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 100
+      - name: Fetch exact refs
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=30 origin "$CURRENT_SHA"
+          git fetch --no-tags --depth=30 origin "$WAVE5_SHA"
+          git cat-file -e "$BASELINE_SHA^{commit}"
+          git cat-file -e "$CURRENT_SHA^{commit}"
+          git cat-file -e "$WAVE5_SHA^{commit}"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install browser and media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npx playwright install --with-deps chromium
+      - name: Source/cascade and diff gates
+        run: |
+          node --check tools/tmp-css-source-audit.mjs
+          node --check tools/tmp-css-media-fit-audit.mjs
+          node --check tools/tmp-css-regression-bounded.mjs
+          node tools/tmp-css-source-audit.mjs
+          git diff --check "$CURRENT_SHA" "$WAVE5_SHA" -- src/styles test tools
+      - name: Create exact current and Wave5 worktrees
+        run: |
+          rm -rf /tmp/css-current /tmp/css-wave5
+          git worktree add --detach /tmp/css-current "$CURRENT_SHA"
+          git worktree add --detach /tmp/css-wave5 "$WAVE5_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-current/node_modules
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-wave5/node_modules
+      - name: Prove media identity and prepare canonical generated media
+        run: |
+          set -euo pipefail
+          current_fp="$(cd /tmp/css-current && node tools/media-dev-state.mjs --fingerprint)"
+          wave5_fp="$(cd /tmp/css-wave5 && node tools/media-dev-state.mjs --fingerprint)"
+          printf 'current=%s\nwave5=%s\n' "$current_fp" "$wave5_fp"
+          test "$current_fp" = "$wave5_fp"
+          (cd /tmp/css-current && npm run media:sync)
+          (cd /tmp/css-current && node tools/media-dev-state.mjs --cache-verify)
+          rm -rf /tmp/css-wave5/public/media/generated
+          mkdir -p /tmp/css-wave5/public/media/generated /tmp/css-wave5/.cache/media
+          cp -a /tmp/css-current/public/media/generated/. /tmp/css-wave5/public/media/generated/
+          cp /tmp/css-current/.cache/media/generated-cache.json /tmp/css-wave5/.cache/media/generated-cache.json
+          (cd /tmp/css-wave5 && node tools/media-dev-state.mjs --cache-verify)
+      - name: Corrected Wave5 repository gates
+        run: |
+          cd /tmp/css-wave5
+          npm run lint
+          npm run verify
+          npm run test:ui:responsive
+          npm run test:e2e:full
+          npm run build:site
+      - name: Build accepted current
+        run: cd /tmp/css-current && npm run build:site
+      - name: Start current and Wave5 previews
+        run: |
+          (cd /tmp/css-current && npx vite preview --host 127.0.0.1 --port 4172 > /tmp/css-current-preview.log 2>&1 &)
+          (cd /tmp/css-wave5 && npx vite preview --host 127.0.0.1 --port 4173 > /tmp/css-wave5-preview.log 2>&1 &)
+          for port in 4172 4173; do
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent "http://127.0.0.1:$port/" > /dev/null; then break; fi
+              test "$attempt" -lt 60
+              sleep 1
+            done
+          done
+      - name: Corrected Wave5 media-fit parity
+        run: node tools/tmp-css-media-fit-audit.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 /tmp/css-media-fit-current-wave5
+      - name: Corrected Wave5 cumulative browser parity
+        run: node tools/tmp-css-regression-bounded.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 /tmp/css-regression-current-wave5
+      - name: Archive corrected Wave5 evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-wave5-fix-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            /tmp/css-media-fit-current-wave5
+            /tmp/css-regression-current-wave5
+            /tmp/css-current-preview.log
+            /tmp/css-wave5-preview.log
+
+  original-current-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 100
+      - name: Fetch exact refs
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=30 origin "$CURRENT_SHA"
+          git cat-file -e "$BASELINE_SHA^{commit}"
+          git cat-file -e "$CURRENT_SHA^{commit}"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install browser and media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npx playwright install --with-deps chromium
+      - name: Create exact original/current worktrees
+        run: |
+          rm -rf /tmp/css-original /tmp/css-current
+          git worktree add --detach /tmp/css-original "$BASELINE_SHA"
+          git worktree add --detach /tmp/css-current "$CURRENT_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-original/node_modules
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-current/node_modules
+      - name: Prepare one canonical generated media set
+        run: |
+          set -euo pipefail
+          original_fp="$(cd /tmp/css-original && node tools/media-dev-state.mjs --fingerprint)"
+          current_fp="$(cd /tmp/css-current && node tools/media-dev-state.mjs --fingerprint)"
+          printf 'original=%s\ncurrent=%s\n' "$original_fp" "$current_fp"
+          test "$original_fp" = "$current_fp"
+          (cd /tmp/css-current && npm run media:sync)
+          rm -rf /tmp/css-original/public/media/generated
+          mkdir -p /tmp/css-original/public/media/generated /tmp/css-original/.cache/media
+          cp -a /tmp/css-current/public/media/generated/. /tmp/css-original/public/media/generated/
+          cp /tmp/css-current/.cache/media/generated-cache.json /tmp/css-original/.cache/media/generated-cache.json
+      - name: Build exact original/current
+        run: |
+          (cd /tmp/css-original && npm run build:site)
+          (cd /tmp/css-current && npm run build:site)
+      - name: Start exact original/current previews
+        run: |
+          (cd /tmp/css-original && npx vite preview --host 127.0.0.1 --port 4171 > /tmp/css-original-preview.log 2>&1 &)
+          (cd /tmp/css-current && npx vite preview --host 127.0.0.1 --port 4172 > /tmp/css-current-preview.log 2>&1 &)
+          for port in 4171 4172; do
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent "http://127.0.0.1:$port/" > /dev/null; then break; fi
+              test "$attempt" -lt 60
+              sleep 1
+            done
+          done
+      - name: Original to current cumulative browser parity
+        run: node tools/tmp-css-regression-bounded.mjs http://127.0.0.1:4171 http://127.0.0.1:4172 /tmp/css-regression-original-current
+      - name: Archive original/current evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-original-current-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            /tmp/css-regression-original-current
+            /tmp/css-original-preview.log
+            /tmp/css-current-preview.log
