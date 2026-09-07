@@ -19,8 +19,8 @@ jobs:
     timeout-minutes: 60
     env:
       BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
-      CURRENT_SHA: 910c9dd388521607c457712d829be52d6a71bd56
-      WAVE5_SHA: 6c4709883c23339e7ca5d48b385fa7d1b82ef1f1
+      CURRENT_SHA: 303cd5de8e4534cf8c7611edbe07f54b0d12edf7
+      WAVE5_SHA: c1dd6013d81fb14ce73139459c6143fcd53d59cd
     steps:
       - name: Checkout bounded audit history
         uses: actions/checkout@v7
@@ -222,14 +222,14 @@ jobs:
         shell: bash
         env:
           BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
-          CURRENT_SHA: 910c9dd388521607c457712d829be52d6a71bd56
+          CURRENT_SHA: 303cd5de8e4534cf8c7611edbe07f54b0d12edf7
         run: node tools/tmp-css-regression-audit.mjs http://127.0.0.1:4171 http://127.0.0.1:4172 /tmp/css-regression-original-current
 
       - name: Compare merged current site with frozen Wave 5A
         shell: bash
         env:
-          BASELINE_SHA: 910c9dd388521607c457712d829be52d6a71bd56
-          CURRENT_SHA: 6c4709883c23339e7ca5d48b385fa7d1b82ef1f1
+          BASELINE_SHA: 303cd5de8e4534cf8c7611edbe07f54b0d12edf7
+          CURRENT_SHA: c1dd6013d81fb14ce73139459c6143fcd53d59cd
         run: node tools/tmp-css-regression-audit.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 /tmp/css-regression-current-wave5
 
       - name: Archive regression evidence
