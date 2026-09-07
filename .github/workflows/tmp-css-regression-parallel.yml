@@ -138,9 +138,8 @@ jobs:
             raise SystemExit("capture sleep marker not found")
           source = source.replace(sleep_marker, "    await settleVisibleImages(page);", 1)
 
-          page_marker = '''      const baselinePage = await baselineContext.newPage();
-          const currentPage = await currentContext.newPage();'''
-          page_replacement = page_marker + r'''
+          current_page_marker = "      const currentPage = await currentContext.newPage();"
+          page_replacement = current_page_marker + r'''
 
           for (const page of [baselinePage, currentPage]) {
             await page.addInitScript(() => {
@@ -158,9 +157,9 @@ jobs:
               } catch {}
             });
           }'''
-          if page_marker not in source:
-            raise SystemExit("page creation marker not found")
-          source = source.replace(page_marker, page_replacement, 1)
+          if current_page_marker not in source:
+            raise SystemExit("current page creation marker not found")
+          source = source.replace(current_page_marker, page_replacement, 1)
 
           Path("tools/tmp-css-regression-slice.mjs").write_text(source)
 
