@@ -1,0 +1,126 @@
+name: tmp-css-wave5-tablet-diagnostic
+
+on:
+  push:
+    branches:
+      - test/css-wave5-tablet-diagnostic
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CURRENT_SHA: dc45129e08389107a05aa3a960bd94d6a3a7d511
+  WAVE5_SHA: 3902a77a5d14946ce3243baf2ac21ccb6b42df45
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 100
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Create exact trees and build
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=30 origin "$CURRENT_SHA" "$WAVE5_SHA"
+          rm -rf /tmp/css-current /tmp/css-wave5
+          git worktree add --detach /tmp/css-current "$CURRENT_SHA"
+          git worktree add --detach /tmp/css-wave5 "$WAVE5_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-current/node_modules
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-wave5/node_modules
+          (cd /tmp/css-current && npm run build:site)
+          (cd /tmp/css-wave5 && npm run build:site)
+      - name: Start previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp/css-current && npx vite preview --host 127.0.0.1 --port 4172 > /tmp/current.log 2>&1 &)
+          (cd /tmp/css-wave5 && npx vite preview --host 127.0.0.1 --port 4173 > /tmp/wave5.log 2>&1 &)
+          for port in 4172 4173; do
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent "http://127.0.0.1:$port/" >/dev/null; then break; fi
+              test "$attempt" -lt 60
+              sleep 1
+            done
+          done
+      - name: Diagnose exact project sections
+        shell: bash
+        run: |
+          cat > /tmp/diagnose.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch();
+          const context = await browser.newContext({
+            viewport: { width: 834, height: 1112 },
+            hasTouch: true,
+            reducedMotion: 'reduce',
+            colorScheme: 'light',
+            locale: 'en-US',
+          });
+          async function read(base) {
+            const page = await context.newPage();
+            await page.goto(base, { waitUntil: 'domcontentloaded' });
+            await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+            await page.evaluate(async () => { await document.fonts?.ready; window.scrollTo(0,0); });
+            const data = await page.evaluate(() => [...document.querySelectorAll('.project__section')].map((el, index) => {
+              const s = getComputedStyle(el);
+              const p = el.parentElement;
+              const ps = p ? getComputedStyle(p) : null;
+              const r = el.getBoundingClientRect();
+              const pr = p?.getBoundingClientRect();
+              return {
+                index,
+                tag: el.tagName,
+                id: el.id,
+                className: el.className,
+                hidden: el.hidden,
+                parentTag: p?.tagName ?? '',
+                parentId: p?.id ?? '',
+                parentClass: p?.className ?? '',
+                rect: { x:r.x, y:r.y, width:r.width, height:r.height },
+                parentRect: pr ? { x:pr.x, y:pr.y, width:pr.width, height:pr.height } : null,
+                width: s.width,
+                inlineSize: s.inlineSize,
+                marginLeft: s.marginLeft,
+                marginRight: s.marginRight,
+                marginInlineStart: s.marginInlineStart,
+                marginInlineEnd: s.marginInlineEnd,
+                display: s.display,
+                containerType: s.containerType,
+                containerName: s.containerName,
+                wrapperMax: s.getPropertyValue('--wrapper-max-width').trim(),
+                groupMax: s.getPropertyValue('--group-max').trim(),
+                projectMediaMax: s.getPropertyValue('--project-media-max').trim(),
+                pagePadding: s.getPropertyValue('--page-padding-inline').trim(),
+                inlineStyle: el.getAttribute('style') ?? '',
+                isMedia: el.matches('.media'),
+                isMediaGroup: el.matches('.media-group'),
+                isWrapper: el.matches('.wrapper'),
+                childCount: el.children.length,
+                firstChild: el.firstElementChild ? `${el.firstElementChild.tagName}.${el.firstElementChild.className}` : '',
+                parentWidth: ps?.width ?? '',
+              };
+            }));
+            await page.close();
+            return data;
+          }
+          const current = await read('http://127.0.0.1:4172/');
+          const wave5 = await read('http://127.0.0.1:4173/');
+          console.log('CURRENT_PROJECT_SECTIONS='+JSON.stringify(current));
+          console.log('WAVE5_PROJECT_SECTIONS='+JSON.stringify(wave5));
+          console.log('DIFFS');
+          for (let i=0; i<Math.max(current.length,wave5.length); i++) {
+            const a=current[i], b=wave5[i];
+            if (JSON.stringify(a)!==JSON.stringify(b)) console.log(JSON.stringify({index:i,current:a,wave5:b}));
+          }
+          await browser.close();
+          JS
+          node /tmp/diagnose.mjs
