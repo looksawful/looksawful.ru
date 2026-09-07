@@ -7,13 +7,13 @@
 @import "./colors.css" layer(colors);
 @import "./base.css" layer(base);
 @import "./patterns.css" layer(patterns);
+@import "./media.css" layer(components);
 @import "./components.css" layer(components);
 @import "./code-block.css" layer(components);
 @import "./project-header.css" layer(components);
 @import "./project-navigation.css" layer(components);
 @import "./project-shell.css" layer(components);
 @import "./expertise.css" layer(components);
-@import "./media.css" layer(components);
 @import "./experience.css" layer(components);
 @import "./site-navigation.css" layer(components);
 @import "../components/jestei-theme-organism/jestei-theme-organism.css";
