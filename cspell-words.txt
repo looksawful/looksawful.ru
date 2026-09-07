@@ -34,11 +34,8 @@ Osmani
 addyosmani
 Meng
 ffprobe
-jank
-retranscode
 Kursovoy
 unintegrated
-nojekyll
 неизменившихся
 неинтегрированную
 неизменившиеся
