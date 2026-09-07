@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: tmp-css-regression-parallel-${{ github.sha }}
-  cancel-in-progress: false
+  group: tmp-css-regression-parallel-canonical
+  cancel-in-progress: true
 
 env:
   BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
