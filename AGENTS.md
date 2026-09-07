@@ -9,7 +9,7 @@
 
 ## Skill routing
 
-- CSS/layout, responsive behavior, GSAP/motion, PhotoSwipe/Embla, Canvas/WebGL or Three.js: use `looksawful-frontend-runtime` first.
+- CSS/layout, responsive behavior, GSAP/motion, PhotoSwipe/Embla, Canvas/WebGL or Three.js: use `looksawful-frontend-runtime` first. Add `looksawful-modern-css` for modern CSS/cascade/intrinsic-layout decisions, `looksawful-threejs-shaders` for GLSL/custom-material work, and `looksawful-threejs-assets` for PBR/textures/GLTF asset work.
 - Performance, Core Web Vitals, accessibility, SEO, Lighthouse or broad web-quality work: use `looksawful-web-quality`; add `optimize-web-animations` for jank, CPU/GPU, offscreen animation or lifecycle/leak work.
 - Pages CMS, Media Catalog, uploads, derivatives, content ownership or CMS publication implementation: use `looksawful-media-cms`; use `looksawful-policy-boundaries` as well when policy/protected surfaces are touched.
 - Bugs and unclear runtime failures: use `diagnosing-bugs` before proposing a fix.
