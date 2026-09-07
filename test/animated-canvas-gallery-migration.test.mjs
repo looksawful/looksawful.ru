@@ -28,6 +28,11 @@ test("animated canvas gallery renderer supports production fallback and moves JS
   assert.match(production, /data-gallery-state="loading"/);
   assert.match(production, /class="production-gallery"/);
   assert.match(production, /<canvas aria-label="Production masonry gallery"><\/canvas>/);
+  assert.equal(
+    production.match(/aria-label="Production masonry gallery"/g)?.length,
+    1,
+    "production gallery accessible name must belong to the canvas only",
+  );
   assert.match(production, /data-masonry-source=""/);
   assert.match(production, /data-source-index="98"/);
   assert.match(production, /data-media-title="Title"/);
