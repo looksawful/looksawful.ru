@@ -47,7 +47,7 @@ The tracked source currently references the following font resources in addition
 | Rubik | Fontsource package and Google Fonts references | SIL Open Font License 1.1 | https://github.com/googlefonts/rubik |
 | Golos Text | Google Fonts reference | SIL Open Font License 1.1 | https://github.com/googlefonts/golos-text |
 | Press Start 2P | Google Fonts reference | SIL Open Font License 1.1 | https://github.com/google/fonts/tree/main/ofl/pressstart2p |
-| Pixelated MS Sans Serif assets | WOFF/WOFF2 files referenced from `unpkg.com/98.css@0.1.20` | Distributed as part of the 98.css package; 98.css is MIT. The Microsoft-related font/typeface naming does not grant Microsoft trademark or other rights. | https://github.com/jdan/98.css |
+| Pixelated MS Sans Serif assets | WOFF/WOFF2 files referenced from `unpkg.com/98.css@0.1.20` | **Needs provenance verification.** 98.css is MIT-licensed, but the package-level MIT declaration does not by itself establish that every historical Microsoft-derived font binary, typeface right or trademark is licensed under MIT. Treat the font binaries as separate third-party material until verified. | https://github.com/jdan/98.css |
 
 System font fallbacks named in CSS are not redistributed merely because their family names appear in a stylesheet.
 
@@ -69,7 +69,7 @@ Official OFL text: https://openfontlicense.org/open-font-license-official-text/
 
 ### GreenSock / GSAP
 
-GSAP is distributed under GreenSock's Standard "no charge" License. The current upstream repository explicitly points to that license and reserves GreenSock's copyright. Treat the upstream license as controlling; do not replace it with MIT or with this repository's custom license.
+GSAP is distributed under GreenSock's applicable upstream Standard "no charge" License. The current GSAP documentation and package terms control. Treat the upstream license as controlling; do not replace it with MIT or with this repository's custom license.
 
 Official license: https://gsap.com/standard-license
 
@@ -81,7 +81,7 @@ The build configuration generates a license report for dependencies actually bun
 
 ## External media, brands and portfolio content
 
-Third-party notices for npm packages/fonts are not a rights clearance for photographs, video, audio, client work, collaborator work, logos, trademarks, likenesses, references or externally linked media. Those are handled by `docs/RIGHTS_AND_PROVENANCE.md` and the asset-level rights audit tracked in issue #546.
+Third-party notices for npm packages/fonts are not a rights clearance for photographs, video, audio, client work, collaborator work, logos, trademarks, likenesses, references or externally linked media. Those are handled by `CONTENT_RIGHTS.md`, `docs/RIGHTS_AND_PROVENANCE.md` and the asset-level rights audit tracked in issue #546.
 
 ## Maintenance
 
