@@ -87,3 +87,23 @@ test("canonical project shell preserves base, responsive and late-refinement sou
     /\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child\s*\{/,
   );
 });
+
+test("project sections do not clobber specialized media-group container ownership", () => {
+  const owner = readFileSync(ownerPath, "utf8");
+
+  assert.match(
+    components,
+    /\.media-group\s*\{[\s\S]*?container:\s*media-group\s*\/\s*inline-size;/,
+    "media-group must remain the named container owner for media-group queries",
+  );
+  assert.doesNotMatch(
+    owner,
+    /\.project__section\s*\{[^}]*container:\s*project-section\s*\/\s*inline-size;/,
+    "the generic project-section block must not overwrite a specialized media-group container name",
+  );
+  assert.match(
+    owner,
+    /\.project__section:not\(\.media-group\)\s*\{\s*container:\s*project-section\s*\/\s*inline-size;\s*\}/,
+    "non-media project sections must keep the project-section container contract",
+  );
+});
