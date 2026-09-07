@@ -4,7 +4,7 @@
 
 `looksawful.ru` uses the custom proprietary **LOOKSAWFUL PORTFOLIO LICENSE, Version 1.0** for material Ivan Krushinsky owns or controls and that is not governed by a more specific license.
 
-Machine-readable custom identifier: `LicenseRef-Looksawful-Portfolio-1.0`.
+Reserved custom SPDX-style identifier: `LicenseRef-Looksawful-Portfolio-1.0`.
 
 The repository is public for portfolio inspection, not because the project is intended to be open source. Public source visibility is not a general reuse grant.
 
@@ -68,7 +68,7 @@ The website `robots.txt` should express the intended policy separately from the 
 - AI training / fine-tuning: not permitted by the site policy;
 - broader stored/reproduced use: limited to reference-level use where the signal framework supports it.
 
-Cloudflare Content Signals are a rights/preference signal, not a magical access-control wall. Crawler compliance is not universal, so technical bot controls should be used in addition to legal and machine-readable notices where available.
+Cloudflare Content Signals are a rights/preference signal, not an access-control wall. Crawler compliance is not universal, so technical bot controls should be used in addition to legal and machine-readable notices where available.
 
 Primary reference: https://developers.cloudflare.com/bots/additional-configurations/managed-robots-txt/
 
@@ -121,15 +121,11 @@ This is an appropriate npm form for a custom license text. It describes the root
 
 ## SPDX / REUSE
 
-The canonical custom text is duplicated at:
+`LicenseRef-Looksawful-Portfolio-1.0` is reserved as the SPDX-style custom identifier for this License.
 
-`LICENSES/LicenseRef-Looksawful-Portfolio-1.0.txt`
+Version 1.0 launch intentionally does **not** add repository-wide REUSE annotations or a new `LICENSES/` root directory. REUSE annotations assert file-level licensing; applying them before the mixed-rights audit in issue #546 is complete would risk a machine-readable overclaim about files whose ownership or sublicensing status is not yet established. The repository also has a deliberate root-structure contract, so a new root policy directory should be introduced only as an explicit architecture/compliance change rather than as an incidental side effect.
 
-This follows the `LicenseRef-*` mechanism used by SPDX-aware tooling for custom licenses.
-
-A repository-wide `REUSE.toml` is **not** applied indiscriminately at this stage. REUSE annotations are powerful precisely because they assert file-level licensing. Assigning the proprietary License to broad paths before the mixed media/client/collaborator audit is complete would turn a compliance tool into a machine-readable false ownership claim, which would be a particularly elaborate way to make the documentation worse.
-
-REUSE file-level annotations should be rolled out only to paths whose copyright and license status are sufficiently verified, with more-specific licenses taking precedence.
+When verified file-level REUSE annotations are introduced, the corresponding `LICENSES/LicenseRef-Looksawful-Portfolio-1.0.txt` should be added at the same time and only sufficiently verified files should be annotated. More-specific licenses must remain controlling.
 
 Primary reference: https://reuse.software/spec/
 
