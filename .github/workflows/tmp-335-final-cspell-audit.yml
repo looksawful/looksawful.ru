@@ -53,18 +53,30 @@ jobs:
           end_ms=$(date +%s%3N)
           editorial_ms=$((end_ms - start_ms))
 
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          const config = JSON.parse(fs.readFileSync('cspell.json', 'utf8'));
-          config.useGitignore = false;
-          config.ignorePaths = (config.ignorePaths ?? []).filter((entry) => entry !== 'public/**');
-          fs.writeFileSync('tmp-335-public-cspell.json', `${JSON.stringify(config, null, 2)}\n`);
-          NODE
+          cat > tmp-335-public-cspell.json <<'JSON'
+          {
+            "version": "0.2",
+            "language": "en,ru",
+            "import": ["@cspell/dict-ru_ru/cspell-ext.json"],
+            "useGitignore": false,
+            "allowCompoundWords": true,
+            "caseSensitive": false,
+            "dictionaryDefinitions": [
+              {
+                "name": "looksawful-project",
+                "path": "./cspell-words.txt",
+                "addWords": true
+              }
+            ],
+            "dictionaries": ["looksawful-project"]
+          }
+          JSON
 
           start_ms=$(date +%s%3N)
           set +e
           npx --yes --package=cspell@10.2.1 --package=@cspell/dict-ru_ru@2.3.2 cspell \
             --config tmp-335-public-cspell.json \
+            --no-gitignore \
             --no-progress \
             --no-cache \
             "public/**/*.{html,md,json,txt}" \
