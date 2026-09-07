@@ -26,6 +26,15 @@ Classify the requested change as one of:
 
 Do not turn Pages CMS into a generic page builder.
 
+## Manual authoring topology
+
+- Start each manual CMS/Desk batch from fresh `origin/dev` on a temporary `content/<purpose>` branch/worktree.
+- Pages CMS and local Content/Media Desk must point at the same authoring worktree/branch for the same batch.
+- Before writes and before integration, verify the real Git state with `npm run cms:authoring:status`; use `npm run cms:authoring:check` for the fail-closed integration-ready gate.
+- `content/*` is temporary authoring only. Its integration target is `dev`; it never publishes directly to `prod`.
+- If `origin/dev` advances, do not silently rebase under an open editor session. Finish/save the coherent batch, stop writes, then transfer only intended authored changes onto fresh `origin/dev` through reviewable integration.
+- After successful integration, start the next batch from a new fresh `content/*` branch rather than keeping a permanent content branch.
+
 ## Media Catalog
 
 - Registered assets and CMS uploads are two authored entry paths into one typed Media Catalog, not parallel registries.
@@ -38,14 +47,17 @@ Do not turn Pages CMS into a generic page builder.
 ## CMS publication boundary
 
 - CMS publication authorization and classifiers are protected policy surfaces.
-- `dev` is the CMS working source; trusted publication policy is executed from `prod` according to the current architecture.
-- `ENGINEERING`, `UNKNOWN`, mixed scope, or unsafe topology must block publication. Do not add an override to bypass this.
+- `dev` is the integrated CMS publication source; trusted publication policy is executed from `prod` according to the current architecture.
+- Temporary `content/*` authoring branches have no direct publication authority.
+- `ENGINEERING`, `UNKNOWN`, mixed scope, stale authoring state, or unsafe release topology must block the corresponding integration/publication step. Do not add an override to bypass this.
 - Do not change `.pages.yml`, workflows, scope/topology tools or publication semantics as a side effect of an ordinary content/media task.
 
 ## Validation
 
 Choose the narrowest sufficient checks:
 
+- Authoring branch state: `npm run cms:authoring:status`
+- Content-only integration readiness: `npm run cms:authoring:check`
 - CMS schema/options: `npm run cms:check`
 - Media Catalog consistency: `npm run media:catalog:check`
 - Media contract changes: the existing media contract/affected checks
