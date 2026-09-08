@@ -172,7 +172,7 @@
 }
 
 .portfolio-showcase__group {
-  --group-gap: var(--portfolio-group-gap);
+  --media-group-gap: var(--portfolio-group-gap);
   --group-max: 100%;
   --strip-height: var(--portfolio-strip-height);
 }
@@ -365,8 +365,9 @@
 }
 
 .media-group {
-  --group-gap: var(--project-media-gap);
-  --group-row-gap: var(--project-media-row-gap);
+  /* Resolve authored component inputs before project and system fallbacks. */
+  --group-gap: var(--media-group-gap, var(--project-media-gap, var(--size-300)));
+  --group-row-gap: var(--media-group-row-gap, var(--project-media-row-gap, var(--group-gap)));
   --group-columns: 2;
   --group-mobile-columns: 2;
 
