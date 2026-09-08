@@ -30,10 +30,18 @@ test("Wave5B first safe slice moves only media-group substructure to the canonic
   }
 });
 
-test("media-group spacing resolves authored inputs before project and system fallbacks", () => {
-  assert.match(
+test("media-group spacing resolves explicit specialization inputs before project and system fallbacks", () => {
+  // A broad portfolio family must not opt every group into authored spacing:
+  // doing so changes the historical effective 12/16px system fallback across
+  // unrelated groups. Only a specialization that intends a different rhythm
+  // opts into the public input slot.
+  assert.doesNotMatch(
     components,
     /\.portfolio-showcase__group\s*\{[\s\S]*?--media-group-gap:\s*var\(--portfolio-group-gap\);[\s\S]*?--group-max:\s*100%;/,
+  );
+  assert.match(
+    components,
+    /\.portfolio-logo-wall\s*\{[\s\S]*?--media-group-gap:\s*var\(--portfolio-group-gap\);[\s\S]*?--portfolio-strip-height:/,
   );
   assert.doesNotMatch(
     components,
