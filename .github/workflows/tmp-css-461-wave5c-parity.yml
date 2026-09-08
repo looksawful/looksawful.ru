@@ -84,7 +84,13 @@ jobs:
             await page.waitForLoadState('networkidle',{timeout:10000}).catch(()=>{});
             await page.evaluate(async()=>{
               await document.fonts?.ready;
-              for(const img of document.images){ try { await img.decode(); } catch {} }
+              const activeDecodes = [...document.images]
+                .filter((img) => img.currentSrc && img.complete)
+                .map((img) => img.decode().catch(() => {}));
+              await Promise.race([
+                Promise.all(activeDecodes),
+                new Promise((resolve) => setTimeout(resolve, 2000)),
+              ]);
               for (const v of document.querySelectorAll('video')) { v.pause(); try { v.currentTime=0; } catch {} }
               window.scrollTo(0,0);
             });
