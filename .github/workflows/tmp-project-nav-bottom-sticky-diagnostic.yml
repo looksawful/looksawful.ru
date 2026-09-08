@@ -1,0 +1,180 @@
+name: tmp-project-nav-bottom-sticky-diagnostic
+
+on:
+  push:
+    branches:
+      - test/project-nav-bottom-sticky-diagnostic
+    paths:
+      - .github/workflows/tmp-project-nav-bottom-sticky-diagnostic.yml
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start Vite
+        shell: bash
+        run: |
+          nohup npm run dev -- --host 127.0.0.1 --port 4173 > "$RUNNER_TEMP/project-nav.log" 2>&1 &
+          for i in {1..60}; do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173/ >/dev/null
+      - name: Diagnose current vs direct bottom sticky
+        shell: bash
+        run: |
+          cat > project-nav-diagnostic.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const viewports = [
+            { name: 'iphone-ish-a', width: 390, height: 844 },
+            { name: 'iphone-ish-b', width: 393, height: 852 },
+            { name: 'android-ish', width: 412, height: 915 },
+          ];
+
+          const modes = {
+            current: '',
+            bottomSticky: `
+              @container projects (width <= 96rem) {
+                .project-nav {
+                  inset-block-start: auto !important;
+                  inset-block-end: 0 !important;
+                  translate: none !important;
+                }
+              }
+            `,
+          };
+
+          const round = (value) => Math.round(value * 100) / 100;
+
+          async function settle(page) {
+            await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+          }
+
+          async function geometry(page) {
+            return page.evaluate(() => {
+              const nav = document.querySelector('[data-projects-navigation]');
+              const projects = document.querySelector('.projects');
+              if (!(nav instanceof HTMLElement) || !(projects instanceof HTMLElement)) {
+                throw new Error('missing project navigation geometry');
+              }
+              const nr = nav.getBoundingClientRect();
+              const pr = projects.getBoundingClientRect();
+              const cs = getComputedStyle(nav);
+              return {
+                scrollY: Math.round(window.scrollY * 100) / 100,
+                viewportHeight: window.innerHeight,
+                nav: {
+                  top: Math.round(nr.top * 100) / 100,
+                  bottom: Math.round(nr.bottom * 100) / 100,
+                  height: Math.round(nr.height * 100) / 100,
+                },
+                projects: {
+                  top: Math.round(pr.top * 100) / 100,
+                  bottom: Math.round(pr.bottom * 100) / 100,
+                  height: Math.round(pr.height * 100) / 100,
+                },
+                position: cs.position,
+                insetBlockStart: cs.insetBlockStart,
+                insetBlockEnd: cs.insetBlockEnd,
+                translate: cs.translate,
+                bottomDelta: Math.round((window.innerHeight - nr.bottom) * 100) / 100,
+                visible: nr.bottom > 0 && nr.top < window.innerHeight,
+              };
+            });
+          }
+
+          async function runCase(browser, viewport, mode, style) {
+            const context = await browser.newContext({
+              viewport: { width: viewport.width, height: viewport.height },
+              isMobile: true,
+              hasTouch: true,
+              deviceScaleFactor: 1,
+              reducedMotion: 'reduce',
+            });
+            const page = await context.newPage();
+            await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
+            if (style) await page.addStyleTag({ content: style });
+            await settle(page);
+
+            const bounds = await page.evaluate(() => {
+              const projects = document.querySelector('.projects');
+              if (!(projects instanceof HTMLElement)) throw new Error('missing .projects');
+              const rect = projects.getBoundingClientRect();
+              const top = rect.top + window.scrollY;
+              return { top, bottom: top + rect.height, height: rect.height };
+            });
+
+            const positions = [
+              ['before', Math.max(0, bounds.top - viewport.height * 0.5)],
+              ['entry', Math.max(0, bounds.top)],
+              ['inside-100', bounds.top + 100],
+              ['inside-700', bounds.top + Math.min(700, Math.max(150, bounds.height * 0.12))],
+              ['near-end', Math.max(bounds.top, bounds.bottom - viewport.height - 100)],
+              ['after', bounds.bottom + 50],
+            ];
+
+            const samples = [];
+            for (const [label, y] of positions) {
+              await page.evaluate((targetY) => window.scrollTo(0, targetY), y);
+              await settle(page);
+              samples.push({ label, ...(await geometry(page)) });
+            }
+
+            await page.evaluate((targetY) => window.scrollTo(0, targetY), bounds.top + Math.min(700, Math.max(150, bounds.height * 0.12)));
+            await settle(page);
+            const resize = [{ label: 'initial', ...(await geometry(page)) }];
+            const reducedHeight = Math.max(640, viewport.height - 160);
+            await page.setViewportSize({ width: viewport.width, height: reducedHeight });
+            await settle(page);
+            resize.push({ label: 'shrunk', ...(await geometry(page)) });
+            await page.setViewportSize({ width: viewport.width, height: viewport.height });
+            await settle(page);
+            resize.push({ label: 'restored', ...(await geometry(page)) });
+
+            await context.close();
+            return { viewport, mode, bounds, samples, resize };
+          }
+
+          const browser = await chromium.launch({ headless: true });
+          const results = [];
+          try {
+            for (const viewport of viewports) {
+              for (const [mode, style] of Object.entries(modes)) {
+                const result = await runCase(browser, viewport, mode, style);
+                results.push(result);
+                console.log(`\n${viewport.name} ${viewport.width}x${viewport.height} ${mode}`);
+                for (const sample of result.samples) {
+                  console.log(`${sample.label.padEnd(10)} nav=${sample.nav.top}..${sample.nav.bottom} vh=${sample.viewportHeight} delta=${sample.bottomDelta} projects=${sample.projects.top}..${sample.projects.bottom} visible=${sample.visible}`);
+                }
+                console.log('resize', result.resize.map((x) => `${x.label}:${x.bottomDelta}`).join(' '));
+              }
+            }
+          } finally {
+            await browser.close();
+          }
+
+          await writeFile('project-nav-diagnostic.json', JSON.stringify(results, null, 2));
+          NODE
+          node project-nav-diagnostic.mjs
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: project-nav-bottom-sticky-diagnostic
+          path: |
+            project-nav-diagnostic.json
+            ${{ runner.temp }}/project-nav.log
