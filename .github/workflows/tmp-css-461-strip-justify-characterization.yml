@@ -32,7 +32,7 @@ jobs:
             echo '=== safe-center history ==='
             git log --oneline --all -S'--reel-justify: safe center' -- src/styles/components.css | head -20
           } | tee /tmp/strip-history.txt
-      - name: Start exact dev
+      - name: Start exact dev-equivalent tree
         shell: bash
         run: |
           set -euo pipefail
@@ -42,57 +42,143 @@ jobs:
             test "$i" -lt 60
             sleep 1
           done
-      - name: Characterize current Home strip winner
+      - name: Characterize strip justify across real routes
         shell: bash
         run: |
           cat > "$GITHUB_WORKSPACE/strip-characterize.mjs" <<'JS'
           import { chromium } from 'playwright';
           import { writeFile } from 'node:fs/promises';
 
+          const routes = ['/', '/work/jestei-pool/', '/work/styx/', '/work/sensetique/', '/shootings/'];
           const viewports = [
-            {name:'mobile',width:390,height:844},
-            {name:'near-breakpoint',width:800,height:1000},
-            {name:'tablet',width:900,height:1000},
-            {name:'desktop',width:1728,height:1000},
+            { name: 'tablet', width: 900, height: 1000 },
+            { name: 'desktop', width: 1728, height: 1000 },
           ];
-          const browser = await chromium.launch({headless:true});
+          const round = (value) => Math.round(value * 1000) / 1000;
+          const browser = await chromium.launch({ headless: true });
           const report = [];
+
           try {
-            for (const vp of viewports) {
-              const ctx = await browser.newContext({viewport:{width:vp.width,height:vp.height},reducedMotion:'reduce'});
-              const page = await ctx.newPage();
-              await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle',timeout:60000});
-              await page.evaluate(async()=>{ await document.fonts?.ready; window.scrollTo(0,0); });
-              const groups = await page.evaluate(() => [...document.querySelectorAll('.portfolio-showcase__group[data-layout="strip"]')].map((group,index)=>{
-                const items = group.querySelector(':scope > .media-group__items');
-                const gs = getComputedStyle(group);
-                const is = items ? getComputedStyle(items) : null;
-                const gr = group.getBoundingClientRect();
-                const ir = items?.getBoundingClientRect();
-                return {
-                  index,
-                  className: group.className,
-                  groupWidth: Math.round(gr.width*1000)/1000,
-                  itemsWidth: ir ? Math.round(ir.width*1000)/1000 : null,
-                  clientWidth: items?.clientWidth ?? null,
-                  scrollWidth: items?.scrollWidth ?? null,
-                  groupReelJustify: gs.getPropertyValue('--reel-justify').trim(),
-                  itemsReelJustify: is?.getPropertyValue('--reel-justify').trim() ?? null,
-                  justifyContent: is?.justifyContent ?? null,
-                  display: is?.display ?? null,
-                  overflowX: is?.overflowX ?? null,
-                  childCount: items?.children.length ?? 0,
-                  firstChildX: items?.firstElementChild ? Math.round(items.firstElementChild.getBoundingClientRect().x*1000)/1000 : null,
-                  itemsX: ir ? Math.round(ir.x*1000)/1000 : null,
-                };
-              }));
-              report.push({viewport:vp,groups});
-              console.log(JSON.stringify({viewport:vp,groups},null,2));
-              await ctx.close();
+            for (const route of routes) {
+              for (const viewport of viewports) {
+                const context = await browser.newContext({
+                  viewport: { width: viewport.width, height: viewport.height },
+                  reducedMotion: 'reduce',
+                });
+                const page = await context.newPage();
+                await page.goto(`http://127.0.0.1:4173${route}`, {
+                  waitUntil: 'networkidle',
+                  timeout: 60000,
+                });
+                await page.evaluate(async () => {
+                  await document.fonts?.ready;
+                  const imgs = [...document.querySelectorAll('.portfolio-showcase__group[data-layout="strip"] img')];
+                  for (const img of imgs) img.loading = 'eager';
+                  await Promise.allSettled(imgs.map((img) => img.decode?.()));
+                  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                });
+
+                const groups = await page.evaluate(async () => {
+                  const round = (value) => Math.round(value * 1000) / 1000;
+                  const raf2 = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                  const nodes = [...document.querySelectorAll('.portfolio-showcase__group[data-layout="strip"]')];
+                  const results = [];
+
+                  for (let index = 0; index < nodes.length; index += 1) {
+                    const group = nodes[index];
+                    const items = group.querySelector(':scope > .media-group__items');
+                    if (!items) continue;
+                    const groupRect = group.getBoundingClientRect();
+                    const visible = groupRect.width > 0 && groupRect.height > 0 && getComputedStyle(group).display !== 'none';
+                    if (!visible) continue;
+
+                    const measure = () => {
+                      const rect = items.getBoundingClientRect();
+                      const first = items.firstElementChild?.getBoundingClientRect();
+                      const last = items.lastElementChild?.getBoundingClientRect();
+                      const style = getComputedStyle(items);
+                      return {
+                        reelJustify: style.getPropertyValue('--reel-justify').trim(),
+                        justifyContent: style.justifyContent,
+                        clientWidth: items.clientWidth,
+                        scrollWidth: items.scrollWidth,
+                        itemsX: round(rect.x),
+                        firstX: first ? round(first.x) : null,
+                        lastRight: last ? round(last.right) : null,
+                      };
+                    };
+
+                    const originalInline = items.style.getPropertyValue('--reel-justify');
+                    const originalPriority = items.style.getPropertyPriority('--reel-justify');
+                    const current = measure();
+
+                    items.style.setProperty('--reel-justify', 'flex-start', 'important');
+                    await raf2();
+                    const flexStart = measure();
+
+                    items.style.setProperty('--reel-justify', 'safe center', 'important');
+                    await raf2();
+                    const safeCenter = measure();
+
+                    const childStates = [...items.children].map((child) => ({
+                      child,
+                      display: child.style.display,
+                    }));
+                    for (let i = 1; i < childStates.length; i += 1) childStates[i].child.style.display = 'none';
+                    items.style.setProperty('--reel-justify', 'flex-start', 'important');
+                    await raf2();
+                    const shortFlexStart = measure();
+                    items.style.setProperty('--reel-justify', 'safe center', 'important');
+                    await raf2();
+                    const shortSafeCenter = measure();
+                    for (const state of childStates) state.child.style.display = state.display;
+
+                    if (originalInline) items.style.setProperty('--reel-justify', originalInline, originalPriority);
+                    else items.style.removeProperty('--reel-justify');
+                    await raf2();
+
+                    results.push({
+                      index,
+                      className: group.className,
+                      current,
+                      flexStart,
+                      safeCenter,
+                      currentOverflowing: current.scrollWidth > current.clientWidth + 1,
+                      liveGeometryDelta: {
+                        firstX: flexStart.firstX === null || safeCenter.firstX === null ? null : round(safeCenter.firstX - flexStart.firstX),
+                        lastRight: flexStart.lastRight === null || safeCenter.lastRight === null ? null : round(safeCenter.lastRight - flexStart.lastRight),
+                      },
+                      shortProbe: {
+                        flexStart: shortFlexStart,
+                        safeCenter: shortSafeCenter,
+                        firstXDelta: shortFlexStart.firstX === null || shortSafeCenter.firstX === null ? null : round(shortSafeCenter.firstX - shortFlexStart.firstX),
+                      },
+                    });
+                  }
+                  return results;
+                });
+
+                const entry = { route, viewport, groups };
+                report.push(entry);
+                console.log(JSON.stringify(entry));
+                await context.close();
+              }
             }
-          } finally { await browser.close(); }
-          await writeFile('/tmp/strip-characterization.json',JSON.stringify(report,null,2)+'\n');
-          if (!report.some(entry => entry.groups.length)) throw new Error('No portfolio strip groups found');
+          } finally {
+            await browser.close();
+          }
+
+          const visibleCount = report.reduce((sum, entry) => sum + entry.groups.length, 0);
+          const liveDeltas = report.flatMap((entry) => entry.groups.map((group) => ({ route: entry.route, viewport: entry.viewport.name, ...group })))
+            .filter((group) => Math.abs(group.liveGeometryDelta.firstX ?? 0) > 0.5 || Math.abs(group.liveGeometryDelta.lastRight ?? 0) > 0.5);
+          const shortDeltas = report.flatMap((entry) => entry.groups.map((group) => ({ route: entry.route, viewport: entry.viewport.name, ...group })))
+            .filter((group) => Math.abs(group.shortProbe.firstXDelta ?? 0) > 0.5);
+
+          const summary = { visibleCount, liveDeltaCount: liveDeltas.length, shortDeltaCount: shortDeltas.length, liveDeltas, shortDeltas };
+          console.log('SUMMARY ' + JSON.stringify(summary, null, 2));
+          await writeFile('/tmp/strip-characterization.json', JSON.stringify({ report, summary }, null, 2) + '\n');
+          if (!visibleCount) throw new Error('No visible portfolio strip groups found across real routes');
+          if (!shortDeltas.length) throw new Error('Short-strip probe did not demonstrate semantic difference between flex-start and safe center');
           JS
           node "$GITHUB_WORKSPACE/strip-characterize.mjs"
       - name: Upload characterization
