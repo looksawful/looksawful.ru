@@ -31,7 +31,6 @@ test("components aggregate no longer owns project shell and section-copy present
   assert.doesNotMatch(components, /(?:^|\n)\.section-copy(?:\s|__|\{|\.)/);
   assert.doesNotMatch(components, /(?:^|\n)\.text-lead\s*\{/);
 
-  // This is a media integration boundary, not project-shell ownership.
   assert.match(
     components,
     /\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child\s*\{/,
@@ -78,7 +77,6 @@ test("canonical project shell preserves base, responsive and late-refinement sou
   assert.match(owner, /\.project\s*>\s*:is\(\.media, \.slider\)/);
   assert.match(owner, /@container project-section \(width > 45rem\)/);
 
-  // Cross-cutting media/content helpers intentionally remain outside this owner.
   assert.doesNotMatch(owner, /(?:^|\n)\.group-note\b/);
   assert.doesNotMatch(owner, /(?:^|\n)\.editorial-note\b/);
   assert.doesNotMatch(owner, /(?:^|\n)\.credits\b/);
@@ -92,9 +90,10 @@ test("canonical project shell preserves base, responsive and late-refinement sou
 test("project sections do not clobber specialized media-group container ownership", () => {
   const owner = readFileSync(ownerPath, "utf8");
   const media = readFileSync(mediaPath, "utf8");
+  const loadedMediaContract = `${media}\n${components}`;
 
   assert.match(
-    media,
+    loadedMediaContract,
     /\.media-group\s*\{[\s\S]*?container:\s*media-group\s*\/\s*inline-size;/,
     "media-group must remain the named container owner for media-group queries regardless of physical stylesheet",
   );
