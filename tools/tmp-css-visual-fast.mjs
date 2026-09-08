@@ -73,6 +73,7 @@ async function comparePng(aPath, bPath, diffPath) {
   return { sameDimensions: true, changedPixels, changedRatio: changedPixels / (aMeta.width * aMeta.height), maxDelta };
 }
 
+const screenshotMasks = (page) => [page.locator("canvas"), page.locator("video"), page.locator("iframe")];
 const browser = await chromium.launch(); const cases = [];
 try {
   for (const viewport of viewports) {
@@ -85,7 +86,7 @@ try {
       for (const fraction of scrollFractions) {
         await Promise.all([basePage.evaluate((f) => scrollTo(0, Math.max(0, (document.documentElement.scrollHeight - innerHeight) * f)), fraction), currentPage.evaluate((f) => scrollTo(0, Math.max(0, (document.documentElement.scrollHeight - innerHeight) * f)), fraction)]); await Promise.all([basePage.waitForTimeout(80), currentPage.waitForTimeout(80)]);
         const label = fraction === 0 ? "top" : fraction === 0.5 ? "middle" : "bottom"; const aPath = path.join(outputDir, "screenshots", `${key}-${label}-baseline.png`); const bPath = path.join(outputDir, "screenshots", `${key}-${label}-current.png`); const dPath = path.join(outputDir, "screenshots", `${key}-${label}-diff.png`);
-        await Promise.all([basePage.screenshot({ path: aPath, animations: "disabled", mask: basePage.locator("canvas, video, iframe") }), currentPage.screenshot({ path: bPath, animations: "disabled", mask: currentPage.locator("canvas, video, iframe") })]); visual.push({ label, ...(await comparePng(aPath, bPath, dPath)) });
+        await Promise.all([basePage.screenshot({ path: aPath, animations: "disabled", mask: screenshotMasks(basePage) }), currentPage.screenshot({ path: bPath, animations: "disabled", mask: screenshotMasks(currentPage) })]); visual.push({ label, ...(await comparePng(aPath, bPath, dPath)) });
       }
       const visualFailures = visual.filter((v) => !v.sameDimensions || v.changedRatio > pixelRatioThreshold); const record = { key, route, viewport: viewport.name, structuralDifferenceCount: structuralDifferences.length, structuralDifferences, visual, visualFailureCount: visualFailures.length, newHorizontalOverflow: currentSnapshot.horizontalOverflow && !baseSnapshot.horizontalOverflow }; cases.push(record); console.log(`${visualFailures.length || structuralDifferences.length ? "DIFF" : "PASS"} ${key} structure=${structuralDifferences.length} visual=${visualFailures.length}`);
     }
