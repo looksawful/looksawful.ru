@@ -9,7 +9,8 @@ const components = readFileSync(new URL("../src/styles/components.css", import.m
 const sequencePatterns = [
   [/\/\* Sequence = wide \+ middle collection \+ wide\. \*\//, "sequence marker"],
   [/(?:^|\n)\.media-group\[data-layout="sequence"\]\s*\{/, "sequence family"],
-  [/(?:^|\n)\.media-group\[data-layout="sequence"\]\s*>\s*\.media-group__items\s*>\s*\.media-group__middle\s*\{/, "sequence middle"],
+  [/(?:^|\n)\.media-group__middle\s*\{/, "sequence middle owner"],
+  [/(?:^|\n)\.media-group\[data-layout="sequence"\]\s*>\s*\.media-group__items\s*>\s*\.media-group__middle\s*\{/, "sequence middle integration"],
   [/@container media-group \(width > 48rem\)[\s\S]*?\.media-group\[data-layout="sequence"\]/, "sequence wide-container transition"],
 ];
 
@@ -27,7 +28,7 @@ test("Wave5E sequence keeps authored configuration and intrinsic geometry contra
   );
   assert.match(
     media,
-    /\.media-group\[data-layout="sequence"\][\s\S]*?\.media-group__middle[\s\S]*?grid-template-rows:\s*repeat\(var\(--sequence-mobile-rows,\s*2\),\s*auto\);[\s\S]*?grid-auto-flow:\s*column;[\s\S]*?grid-auto-columns:\s*var\(--sequence-cell\);/,
+    /\.media-group__middle\s*\{[\s\S]*?--reel-align:\s*stretch;[\s\S]*?grid-template-rows:\s*repeat\(var\(--sequence-mobile-rows,\s*2\),\s*auto\);[\s\S]*?grid-auto-flow:\s*column;[\s\S]*?grid-auto-columns:\s*var\(--sequence-cell\);/,
   );
   assert.match(
     media,
