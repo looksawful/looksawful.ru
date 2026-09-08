@@ -40,10 +40,9 @@ test("Wave5C preserves the authored grid/rail/compact contract", () => {
   );
 });
 
-test("Wave5C does not absorb neighboring Brand/Jestei or later layout families", () => {
+test("Wave5C does not absorb neighboring Brand/Jestei or still-unmoved layout families", () => {
   for (const pattern of [
     /(?:^|\n)\.media-group\.brand-system\s*\{/,
-    /(?:^|\n)\.media-group\[data-layout="masonry"\]/,
     /(?:^|\n)\.media-group\[data-layout="bento"\]/,
     /(?:^|\n)\[data-infinite-reel\]\s*\{/,
   ]) {
