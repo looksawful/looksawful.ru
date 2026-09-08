@@ -1,3 +1,25 @@
+.portfolio-showcase__group {
+  --group-gap: var(--portfolio-group-gap);
+  --group-max: 100%;
+  --strip-height: var(--portfolio-strip-height);
+}
+
+.media-group.portfolio-showcase__group[data-layout="strip"] {
+  --strip-height: var(--portfolio-strip-height);
+}
+
+.portfolio-logo-wall {
+  --portfolio-group-gap: clamp(0.5rem, 0.9cqi, 0.8rem);
+  --portfolio-strip-height: clamp(2rem, 3.5cqi, 3.25rem);
+  --infinite-reel-fade-size: clamp(1.5rem, 4cqi, 4rem);
+}
+
+@container media-group (width > 48rem) {
+  .portfolio-showcase__group[data-layout="strip"] > .media-group__items {
+    --reel-justify: flex-start;
+  }
+}
+
 /* ==================================================
    Media item
    ================================================== */
@@ -70,4 +92,609 @@
   min-block-size: 100%;
   max-inline-size: none;
   translate: -50% -50%;
+}
+
+/* ==================================================
+   Media groups
+   ================================================== */
+
+.media-group {
+  --group-gap: var(--project-media-gap);
+  --group-row-gap: var(--project-media-row-gap);
+  --group-columns: 2;
+  --group-mobile-columns: 2;
+
+  container: media-group / inline-size;
+  display: grid;
+  gap: clamp(0.9rem, 1.6cqi, 1.5rem);
+  inline-size: min(100%, var(--group-max, var(--project-media-max)));
+  margin-inline: auto;
+  min-inline-size: 0;
+}
+
+.media-group__head {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.media-group__items {
+  min-inline-size: 0;
+}
+
+/* Every media-group rail uses the shared reel mechanics. Layout variants only
+   define their own geometry. */
+.media-group > .media-group__items.reel,
+.media-group .media-group__middle.reel {
+  --reel-gap: var(--group-gap);
+}
+
+/* Plain grid. */
+.media-group[data-layout="grid"]:not([data-compact-layout="reel"]) > .media-group__items {
+  display: grid;
+  grid-template-columns: repeat(var(--group-mobile-columns), minmax(0, 1fr));
+  column-gap: var(--group-gap);
+  row-gap: var(--group-row-gap);
+  align-items: start;
+
+  & > .media[data-role="wide"] {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Grid rail: one/two rows with width driven by each authored media ratio. */
+.media-group[data-layout="grid"][data-overflow="reel"] > .media-group__items {
+  --reel-display: grid;
+
+  grid-template-columns: none;
+  grid-template-rows: repeat(var(--group-mobile-rows, 1), max-content);
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+
+  & > .media {
+    inline-size: auto;
+    max-inline-size: none;
+  }
+}
+
+.media-group[data-layout="grid"][data-overflow="reel"] .media__surface {
+  inline-size: auto;
+  block-size: var(--group-reel-height, clamp(11rem, 42cqi, 18rem));
+  aspect-ratio: var(--media-ratio, auto);
+
+  & > :is(img, video),
+  & > picture > img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: var(--object-fit, var(--media-fit, cover));
+  }
+}
+
+/* A compact reel that becomes the authored desktop grid. This replaces the
+   separate brand/Jestei/mobile-device rail implementations. */
+.media-group[data-compact-layout="reel"] > .media-group__items {
+  --reel-align: var(--group-compact-align, flex-start);
+  --reel-item-size: var(--group-compact-item-size, auto);
+
+  & > * {
+    inline-size: var(--group-compact-item-inline-size, var(--group-compact-item-size, auto));
+    max-inline-size: none;
+  }
+}
+
+@container media-group (width > 42rem) {
+  .media-group[data-layout="grid"]:not([data-overflow="reel"]):not([data-compact-layout="reel"])
+    > .media-group__items {
+    grid-template-columns: repeat(var(--group-columns), minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    column-gap: var(--group-gap);
+    row-gap: var(--group-row-gap);
+  }
+
+  .media-group[data-compact-layout="reel"] > .media-group__items {
+    --reel-display: grid;
+    --reel-overflow-x: visible;
+    --reel-overflow-y: visible;
+    --reel-snap-type: none;
+    --reel-item-size: auto;
+    --reel-snap-align: none;
+
+    grid-template-columns: repeat(var(--group-columns), minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    column-gap: var(--group-gap);
+    row-gap: var(--group-row-gap);
+
+    & > * {
+      inline-size: var(--group-wide-item-inline-size, auto);
+      max-inline-size: none;
+    }
+  }
+}
+
+/* Jestei Pool — identity / brand-system media group. */
+.media-group.brand-system {
+  --brand-system-surface-ratio: 16 / 10;
+  --brand-system-mobile-item-size: clamp(18rem, 82cqi, 28rem);
+  --brand-system-hover-inset: clamp(0.55rem, 1.2cqi, 0.9rem);
+  --group-compact-item-size: var(--brand-system-mobile-item-size);
+}
+
+.brand-system__intro {
+  display: grid;
+  gap: 0.75rem;
+
+  & > p {
+    margin: 0;
+  }
+}
+
+.brand-system__surface {
+  --radius-max: var(--radius-contained);
+
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: var(--brand-system-surface-ratio);
+  border-radius: clamp(
+    0px,
+    calc((100vw - var(--radius-edge-offset) - 100%) * 9999),
+    var(--radius-max)
+  );
+  background: var(--surface-bg, #000);
+}
+
+.brand-system__item--light {
+  --surface-bg: #fff;
+}
+
+.brand-system__surface > picture {
+  border-radius: inherit;
+}
+
+.brand-system__surface > :is(img, video),
+.brand-system__surface > picture > img {
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  border-radius: inherit;
+  object-fit: var(--object-fit, cover);
+  object-position: var(--object-position, center);
+}
+
+.brand-system__caption {
+  max-inline-size: none;
+}
+
+.brand-system__hover-copy {
+  position: absolute;
+  z-index: 2;
+  inset-inline: var(--brand-system-hover-inset);
+  inset-block-end: var(--brand-system-hover-inset);
+  max-inline-size: min(42ch, calc(100% - (var(--brand-system-hover-inset) * 2)));
+  margin: 0;
+  color: #fff;
+  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-weight: var(--fw-400);
+  line-height: 1.36;
+  opacity: 0;
+  translate: 0 0.35rem;
+  pointer-events: none;
+  text-shadow: 0 1px 0.75rem rgb(0 0 0 / 0.6);
+  transition:
+    opacity 160ms ease,
+    translate 160ms ease;
+}
+
+.brand-system__item--light .brand-system__hover-copy {
+  color: #000;
+  text-shadow: 0 1px 0.75rem rgb(255 255 255 / 0.72);
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-system__hover-copy {
+    translate: none;
+    transition: none;
+  }
+}
+
+/* Jestei Pool — interface and Event media groups share the generic compact
+   reel and only provide their authored compact item width. */
+.jestei-section-copy-list {
+  display: grid;
+  gap: 0.75rem;
+
+  & > p {
+    margin: 0;
+  }
+}
+
+.media-group.jestei-interface-group,
+.media-group.jestei-event-group {
+  --group-compact-item-size: min(86cqi, 36rem);
+}
+
+:is(
+  .jestei-interface-group,
+  .jestei-event-group
+) .media__surface {
+  --radius-max: var(--radius-contained);
+
+  border-radius: clamp(
+    0px,
+    calc((100vw - var(--radius-edge-offset) - 100%) * 9999),
+    var(--radius-max)
+  );
+}
+
+.jestei-captioned-group .jestei-captioned-media > .media__surface {
+  position: relative;
+}
+
+.jestei-captioned-group .jestei-media__hover-copy {
+  position: absolute;
+  z-index: 3;
+  inset-inline: clamp(0.55rem, 1.2cqi, 0.9rem);
+  inset-block-end: clamp(0.55rem, 1.2cqi, 0.9rem);
+  max-inline-size: min(42ch, calc(100% - clamp(1.1rem, 2.4cqi, 1.8rem)));
+  max-block-size: calc(100% - clamp(1.1rem, 2.4cqi, 1.8rem));
+  margin: 0;
+  overflow: auto;
+  color: #fff;
+  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-weight: var(--fw-400);
+  line-height: 1.36;
+  opacity: 0;
+  translate: 0 0.35rem;
+  pointer-events: none;
+  text-shadow: 0 1px 0.75rem rgb(0 0 0 / 0.6);
+  scrollbar-width: none;
+  transition:
+    opacity 160ms ease,
+    translate 160ms ease;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
+@media (hover: hover) and (pointer: fine) {
+  .brand-system__item:is(:hover, :focus-visible, :focus-within) .brand-system__hover-copy {
+    opacity: 1;
+    translate: 0;
+  }
+
+  .jestei-captioned-group
+    .jestei-captioned-media:is(:hover, :focus-visible, :focus-within)
+    .jestei-media__hover-copy {
+    opacity: 1;
+    translate: 0;
+    pointer-events: auto;
+  }
+}
+
+/* The video deck occupies exactly the old 08 surface. Each source keeps its
+   natural aspect ratio inside that fixed surface. */
+.jestei-event-video-deck,
+.jestei-event-video-deck .slider__viewport,
+.jestei-event-video-deck .slider__slides,
+.jestei-event-video-deck .slider__slide {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.jestei-event-video-deck {
+  display: grid;
+  background: #000;
+
+  & .slider__slide {
+    place-items: stretch;
+
+    & > video {
+      display: block;
+      inline-size: 100%;
+      block-size: 100%;
+      max-inline-size: none;
+      object-fit: contain;
+      object-position: center;
+      background: #000;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jestei-captioned-group .jestei-media__hover-copy {
+    translate: none;
+    transition: none;
+  }
+}
+
+/* Sequence = wide + middle collection + wide. */
+.media-group[data-layout="sequence"] {
+  --sequence-cell: clamp(5.5rem, 22cqi, 8.5rem);
+  --sequence-ratio: 1 / 1;
+  --sequence-columns: 3;
+
+  & > .media-group__items > .media[data-role="wide"] {
+    flex: 0 0 min(88cqi, calc((var(--sequence-cell) * 4) + (var(--group-gap) * 3)));
+  }
+
+  & > .media-group__items > .media[data-role="wide"] .media__surface {
+    inline-size: 100%;
+    aspect-ratio: var(--media-ratio, auto);
+  }
+}
+
+.media-group__middle {
+  --reel-align: stretch;
+
+  display: grid;
+  grid-template-rows: repeat(var(--sequence-mobile-rows, 2), auto);
+  grid-auto-flow: column;
+  grid-auto-columns: var(--sequence-cell);
+  gap: var(--group-gap);
+
+  & > .media {
+    inline-size: var(--sequence-cell);
+  }
+
+  & .media__surface {
+    --media-ratio: var(--sequence-ratio);
+    --media-block-size: 100%;
+  }
+}
+
+.media-group[data-layout="sequence"] > .media-group__items > .media-group__middle {
+  min-inline-size: auto;
+  scroll-snap-align: none;
+}
+
+.media-group[data-layout="sequence"][data-middle-overflow="reel"] > .media-group__items {
+  display: grid;
+  gap: var(--group-row-gap);
+  overflow: visible;
+  overscroll-behavior-inline: contain;
+}
+
+.media-group[data-layout="sequence"][data-middle-overflow="reel"]
+  > .media-group__items
+  > .media[data-role="wide"] {
+  inline-size: 100%;
+}
+
+.media-group[data-layout="sequence"][data-middle-overflow="reel"] .media-group__middle {
+  --reel-display: grid;
+
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+/* data-middle-overflow="reel" also stays horizontally scrollable at desktop sizes. */
+@container media-group (width > 48rem) {
+  .media-group[data-layout="sequence"]:not([data-middle-overflow="reel"]) > .media-group__items {
+    --reel-display: grid;
+    --reel-gap: var(--group-row-gap);
+    --reel-overflow-x: visible;
+  }
+
+  .media-group[data-layout="sequence"]:not([data-middle-overflow="reel"])
+    > .media-group__items
+    > .media[data-role="wide"] {
+    inline-size: 100%;
+  }
+
+  .media-group[data-layout="sequence"]:not([data-middle-overflow="reel"]) .media-group__middle {
+    grid-template-columns: repeat(var(--sequence-columns), minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    inline-size: 100%;
+  }
+
+  .media-group[data-layout="sequence"]:not([data-middle-overflow="reel"])
+    .media-group__middle
+    > .media {
+    inline-size: auto;
+  }
+}
+
+/* ==================================================
+   Equal-height media strip
+   ================================================== */
+.media-group[data-layout="strip"] {
+  --strip-height: clamp(12rem, 34cqi, 20rem);
+
+  & > .media-group__items > .media {
+    inline-size: max-content;
+    max-inline-size: none;
+  }
+
+  /* Every strip surface already carries its authored aspect ratio. A shared
+     definite height plus that ratio gives each item its natural width. */
+  & .media__surface {
+    display: block;
+    block-size: var(--strip-height);
+    inline-size: auto;
+    aspect-ratio: var(--media-ratio, 1);
+    overflow: hidden;
+    background: transparent;
+
+    & > :is(img, video),
+    & > picture > img {
+      display: block;
+      inline-size: 100%;
+      block-size: 100%;
+      max-inline-size: none;
+      max-block-size: none;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    & > picture {
+      display: contents;
+    }
+  }
+
+  @container media-group (width > 48rem) {
+    & > .media-group__items {
+      --reel-justify: safe center;
+    }
+  }
+}
+
+/* Caption follows the media width but never participates in intrinsic sizing. */
+.media-group[data-layout="strip"] .media__caption {
+  inline-size: 0;
+  min-inline-size: 100%;
+  max-inline-size: 100%;
+}
+
+/* Explicit editorial grid. Item spans are local custom properties. */
+.media-group[data-layout="editorial"] > .media-group__items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--group-gap);
+  row-gap: var(--group-row-gap);
+  align-items: start;
+
+  & > .media[data-role="wide"] {
+    grid-column: 1 / -1;
+  }
+
+  @container media-group (width > 48rem) {
+    & {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+
+      & > .media {
+        grid-column: var(--start, auto) / span var(--span, 4);
+
+        &[data-role="wide"] {
+          grid-column: var(--start, auto) / span var(--span, 8);
+        }
+      }
+    }
+  }
+}
+
+/* Column masonry. Each image is its own media item. */
+.media-group[data-layout="masonry"] > .media-group__items {
+  columns: var(--masonry-mobile-columns, 2);
+  column-gap: var(--group-gap);
+}
+
+.media-group[data-layout="masonry"] > .media-group__items > .media {
+  break-inside: avoid;
+  margin-block-end: var(--group-gap);
+}
+
+@container media-group (width > 48rem) {
+  .media-group[data-layout="masonry"] > .media-group__items {
+    columns: var(--masonry-columns, 3);
+  }
+}
+
+/* Fixed-row bento is a different layout algorithm from column masonry. */
+.media-group[data-layout="bento"] > .media-group__items {
+  --reel-display: grid;
+  --reel-align: stretch;
+  --reel-overflow-y: hidden;
+
+  grid-template-rows: repeat(var(--bento-rows, 3), var(--bento-cell-size, 9rem));
+  grid-auto-flow: column dense;
+  grid-auto-columns: var(--bento-cell-size, 9rem);
+}
+
+.media-group[data-layout="bento"] .media {
+  grid-column: span var(--bento-col-span, 1);
+  grid-row: span var(--bento-row-span, 1);
+  block-size: 100%;
+}
+
+.media-group[data-layout="bento"] .media__surface {
+  block-size: 100%;
+  aspect-ratio: auto;
+
+  & > :is(img, video),
+  & > picture > img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+}
+
+@container media-group (width > 48rem) {
+  .media-group[data-layout="bento"] > .media-group__items {
+    --reel-overflow-x: visible;
+    --reel-overflow-y: visible;
+
+    grid-template-columns: repeat(var(--bento-columns, 8), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--bento-rows, 3), minmax(0, 1fr));
+    grid-auto-flow: dense;
+    grid-auto-columns: auto;
+    block-size: var(--bento-height, clamp(30rem, 50cqi, 46rem));
+  }
+}
+
+/* ==================================================
+   Infinite reel
+   ================================================== */
+
+[data-infinite-reel] {
+  --infinite-reel-gap: var(--group-gap, var(--size-300));
+  --infinite-reel-duration: 30s;
+  --infinite-reel-fade-size: clamp(2rem, 7cqi, 6rem);
+  min-inline-size: 0;
+
+  @media (prefers-reduced-motion: no-preference) {
+    &[data-animated="true"] {
+      /* Clip only the scrolling axis. Never crop the media vertically. */
+      overflow-x: clip;
+      overflow-y: visible;
+
+      -webkit-mask-image: linear-gradient(
+        90deg,
+        transparent,
+        black var(--infinite-reel-fade-size),
+        black calc(100% - var(--infinite-reel-fade-size)),
+        transparent
+      );
+
+      mask-image: linear-gradient(
+        90deg,
+        transparent,
+        black var(--infinite-reel-fade-size),
+        black calc(100% - var(--infinite-reel-fade-size)),
+        transparent
+      );
+
+      & > [data-infinite-reel-track] {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: var(--infinite-reel-gap);
+        inline-size: max-content;
+        max-inline-size: none;
+        overflow: visible;
+        scroll-snap-type: none;
+        animation: infinite-reel-scroll var(--infinite-reel-duration) linear infinite;
+        will-change: transform;
+
+        & > .media {
+          flex: 0 0 auto;
+        }
+      }
+    }
+  }
+}
+
+@keyframes infinite-reel-scroll {
+  to {
+    transform: translate3d(calc(-50% - (var(--infinite-reel-gap) / 2)), 0, 0);
+  }
 }
