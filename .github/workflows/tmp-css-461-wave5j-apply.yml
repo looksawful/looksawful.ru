@@ -40,11 +40,7 @@ jobs:
           assert block.count('.media-group[data-layout="bento"]') == 4, 'unexpected Bento block shape'
 
           components = components[:start] + components[end:]
-          if not media.endswith('\n'):
-              media += '\n'
-          if not media.endswith('\n\n'):
-              media += '\n'
-          media += block
+          media = media.rstrip('\n') + '\n\n' + block.rstrip('\n') + '\n'
 
           components_path.write_text(components)
           media_path.write_text(media)
