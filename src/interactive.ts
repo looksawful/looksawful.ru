@@ -1,5 +1,6 @@
 import {
   initProjectNavigationBackToTop,
+  initProjectNavigationDock,
   initProjectNavigationFallback,
 } from "./components/project-navigation.ts";
 
@@ -160,6 +161,7 @@ export function initSiteInteractive(
 ): Destroy {
   const destroys: Destroy[] = [];
 
+  destroys.push(initProjectNavigationDock(root));
   destroys.push(initProjectNavigationBackToTop(root));
   destroys.push(initProjectNavigationFallback(root));
 

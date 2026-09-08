@@ -5,10 +5,8 @@
   --wrapper-max-width: 100%;
   --wrapper-gutter: 0;
 
-  position: sticky;
+  position: relative;
   z-index: 30;
-  inset-block-start: 100dvh;
-  translate: 0 -100%;
 
   inline-size: 100%;
   max-inline-size: none;
@@ -95,6 +93,7 @@
     --project-nav-rail-width: 16rem;
     --project-nav-section-gap: 3rem;
 
+    position: sticky;
     inset-block-start: calc(100svh - var(--page-padding-inline) + var(--project-nav-section-gap));
     translate: none;
 
@@ -191,9 +190,45 @@
       var(--size-200) + env(safe-area-inset-bottom, 0px)
     );
   }
+
+  .project-nav[data-project-nav-enhanced] {
+    min-block-size: calc(
+      1lh
+      + var(--size-200)
+      + var(--size-200)
+      + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .project-nav[data-project-nav-enhanced] .project-nav__inner {
+    position: fixed;
+    inset-inline: var(--page-padding-inline);
+    inset-block-end: calc(
+      var(--size-200) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .project-nav[data-project-nav-enhanced]:not([data-project-nav-docked]) .project-nav__inner {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .project-nav[data-project-nav-docked] .project-nav__inner {
+    visibility: visible;
+    pointer-events: auto;
+  }
 }
 
 @container projects (width <= 40rem) {
+  .project-nav[data-project-nav-enhanced] {
+    min-block-size: calc(
+      2.75rem
+      + var(--size-200)
+      + var(--size-200)
+      + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
   .project-nav__top {
     align-items: center;
     justify-content: center;

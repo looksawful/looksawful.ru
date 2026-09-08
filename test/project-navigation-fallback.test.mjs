@@ -8,6 +8,7 @@ class FakeElement {
     this.id = id;
     this.hidden = false;
     this.attributes = new Map();
+    this.inert = false;
   }
 
   setAttribute(name, value) {
@@ -18,13 +19,25 @@ class FakeElement {
     this.attributes.delete(name);
   }
 
+  hasAttribute(name) {
+    return this.attributes.has(name);
+  }
+
   getAttribute(name) {
     return this.attributes.get(name) ?? null;
+  }
+
+  querySelector() {
+    return null;
+  }
+
+  querySelectorAll() {
+    return [];
   }
 }
 
 class FakeAnchorElement extends FakeElement {
-  constructor(hash, ownerDocument) {
+  constructor(hash, ownerDocument = null) {
     super();
     this.hash = hash;
     this.ownerDocument = ownerDocument;
@@ -56,33 +69,23 @@ class FakeIntersectionObserver {
 }
 
 function createFixture() {
-  const projects = [
+  const projectEntries = [
     new FakeElement("project-jestei"),
     new FakeElement("project-styx"),
     new FakeElement("project-sensetique"),
     new FakeElement("project-shootings"),
   ];
+  const projectsCollection = new FakeElement("projects");
   const top = new FakeElement("top");
 
   const byId = new Map(
-    [...projects, top].map((element) => [element.id, element]),
+    [...projectEntries, top].map((element) => [element.id, element]),
   );
-  const root = {
-    querySelector(selector) {
-      return selector === "[data-projects-navigation]" ? navigation : null;
-    },
-    querySelectorAll() {
-      return [];
-    },
-    getElementById(id) {
-      return byId.get(id) ?? null;
-    },
-  };
 
-  const links = projects.map(
-    (project) => new FakeAnchorElement(`#${project.id}`, root),
+  const links = projectEntries.map(
+    (project) => new FakeAnchorElement(`#${project.id}`),
   );
-  const backTop = new FakeAnchorElement("#top", root);
+  const backTop = new FakeAnchorElement("#top");
 
   const list = new FakeElement();
   list.scrollWidth = 900;
@@ -96,16 +99,48 @@ function createFixture() {
     link.getBoundingClientRect = () => ({ left: index * 180, width: 140 });
   });
 
+  const inner = new FakeElement();
   const navigation = new FakeElement();
-  navigation.querySelector = (selector) =>
-    selector === ".project-nav__list" ? list : null;
+  navigation.querySelector = (selector) => {
+    if (selector === ".project-nav__inner") return inner;
+    if (selector === ".project-nav__list") return list;
+    return null;
+  };
   navigation.querySelectorAll = (selector) => {
     if (selector === '.project-nav__link[href^="#"]') return links;
     if (selector === 'a[href^="#"]') return [...links, backTop];
     return [];
   };
 
-  return { root, projects, links, list, backTop };
+  const root = {
+    querySelector(selector) {
+      if (selector === "[data-projects-navigation]") return navigation;
+      if (selector === ".projects") return projectsCollection;
+      return null;
+    },
+    querySelectorAll() {
+      return [];
+    },
+    getElementById(id) {
+      return byId.get(id) ?? null;
+    },
+  };
+
+  links.forEach((link) => {
+    link.ownerDocument = root;
+  });
+  backTop.ownerDocument = root;
+
+  return {
+    root,
+    projectsCollection,
+    projectEntries,
+    links,
+    list,
+    backTop,
+    navigation,
+    inner,
+  };
 }
 
 function installDomGlobals({ nativeSupport }) {
@@ -145,26 +180,44 @@ function installDomGlobals({ nativeSupport }) {
   };
 }
 
-test("unsupported browsers observe only project links and update aria-current without scroll listeners", () => {
+test("unsupported browsers use one dock observer plus the active-project fallback without scroll listeners", () => {
   const globals = installDomGlobals({ nativeSupport: false });
 
   try {
-    const { root, projects, links, list, backTop } = createFixture();
+    const {
+      root,
+      projectsCollection,
+      projectEntries,
+      links,
+      list,
+      backTop,
+    } = createFixture();
     const destroy = initSiteInteractive({ root });
 
-    assert.equal(FakeIntersectionObserver.instances.length, 1);
+    assert.equal(FakeIntersectionObserver.instances.length, 2);
 
-    const observer = FakeIntersectionObserver.instances[0];
-    assert.deepEqual(observer.options, {
+    const dockObserver = FakeIntersectionObserver.instances.find(
+      (observer) => observer.options?.rootMargin === undefined,
+    );
+    const activeObserver = FakeIntersectionObserver.instances.find(
+      (observer) => observer.options?.rootMargin === "-20% 0px -79% 0px",
+    );
+
+    assert.ok(dockObserver);
+    assert.deepEqual(dockObserver.options, { root: null, threshold: 0 });
+    assert.deepEqual(dockObserver.observed, [projectsCollection]);
+
+    assert.ok(activeObserver);
+    assert.deepEqual(activeObserver.options, {
       root: null,
       rootMargin: "-20% 0px -79% 0px",
       threshold: 0,
     });
-    assert.deepEqual(observer.observed, projects);
+    assert.deepEqual(activeObserver.observed, projectEntries);
     assert.equal(globals.windowEvents.includes("scroll"), false);
 
-    observer.emit([
-      { target: projects[1], isIntersecting: true },
+    activeObserver.emit([
+      { target: projectEntries[1], isIntersecting: true },
     ]);
 
     assert.equal(links[1].getAttribute("aria-current"), "location");
@@ -175,23 +228,28 @@ test("unsupported browsers observe only project links and update aria-current wi
     assert.equal(list.scrollCalls.length, 1);
 
     destroy();
-    assert.equal(observer.disconnected, true);
+    assert.equal(dockObserver.disconnected, true);
+    assert.equal(activeObserver.disconnected, true);
   } finally {
     globals.restore();
   }
 });
 
-test("browsers with native CSS project navigation create no JS observer", () => {
+test("native CSS project navigation still uses only the dock presence observer", () => {
   const globals = installDomGlobals({ nativeSupport: true });
 
   try {
-    const { root } = createFixture();
+    const { root, projectsCollection } = createFixture();
     const destroy = initSiteInteractive({ root });
 
-    assert.equal(FakeIntersectionObserver.instances.length, 0);
+    assert.equal(FakeIntersectionObserver.instances.length, 1);
+    const observer = FakeIntersectionObserver.instances[0];
+    assert.deepEqual(observer.options, { root: null, threshold: 0 });
+    assert.deepEqual(observer.observed, [projectsCollection]);
     assert.equal(globals.windowEvents.includes("scroll"), false);
 
     destroy();
+    assert.equal(observer.disconnected, true);
   } finally {
     globals.restore();
   }

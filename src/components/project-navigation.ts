@@ -63,6 +63,59 @@ function supportsNativeProjectNavigation(): boolean {
   );
 }
 
+export function initProjectNavigationDock(
+  root: Document | HTMLElement = document,
+): () => void {
+  if (typeof IntersectionObserver !== "function") return noop;
+
+  const navigation = root.querySelector<HTMLElement>("[data-projects-navigation]");
+  const projects = root.querySelector<HTMLElement>(".projects");
+
+  if (
+    !(navigation instanceof HTMLElement)
+    || !(projects instanceof HTMLElement)
+  ) {
+    return noop;
+  }
+
+  const inner = navigation.querySelector<HTMLElement>(".project-nav__inner");
+  if (!(inner instanceof HTMLElement)) return noop;
+
+  const setDocked = (docked: boolean): void => {
+    if (docked) {
+      navigation.setAttribute("data-project-nav-docked", "");
+      inner.inert = false;
+      inner.removeAttribute("aria-hidden");
+      return;
+    }
+
+    navigation.removeAttribute("data-project-nav-docked");
+    inner.inert = true;
+    inner.setAttribute("aria-hidden", "true");
+  };
+
+  navigation.setAttribute("data-project-nav-enhanced", "");
+  setDocked(false);
+
+  const observer = new IntersectionObserver(
+    (observedEntries) => {
+      const entry = observedEntries.find(({ target }) => target === projects);
+      if (entry) setDocked(entry.isIntersecting);
+    },
+    { root: null, threshold: 0 },
+  );
+
+  observer.observe(projects);
+
+  return () => {
+    observer.disconnect();
+    navigation.removeAttribute("data-project-nav-enhanced");
+    navigation.removeAttribute("data-project-nav-docked");
+    inner.inert = false;
+    inner.removeAttribute("aria-hidden");
+  };
+}
+
 export function initProjectNavigationFallback(
   root: Document | HTMLElement = document,
 ): () => void {

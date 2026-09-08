@@ -28,6 +28,7 @@ jobs:
         run: >-
           node --test
           test/project-navigation-back-to-top.test.mjs
+          test/project-navigation-dock.test.mjs
           test/project-navigation-fallback.test.mjs
           test/project-navigation-mobile-viewport.test.mjs
       - name: Build site
