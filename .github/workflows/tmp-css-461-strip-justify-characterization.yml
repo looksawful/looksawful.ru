@@ -1,0 +1,107 @@
+name: tmp-css-461-strip-justify-characterization
+
+on:
+  push:
+    branches:
+      - test/css-461-strip-justify-characterization
+
+permissions:
+  contents: read
+
+jobs:
+  characterize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Record source history for both writers
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '=== flex-start history ==='
+            git log --oneline --all -S'--reel-justify: flex-start' -- src/styles/components.css | head -20
+            echo '=== safe-center history ==='
+            git log --oneline --all -S'--reel-justify: safe center' -- src/styles/components.css | head -20
+          } | tee /tmp/strip-history.txt
+      - name: Start exact dev
+        shell: bash
+        run: |
+          set -euo pipefail
+          (npx vite --host 127.0.0.1 --port 4173 > /tmp/dev.log 2>&1 &)
+          for i in $(seq 1 60); do
+            curl --fail --silent http://127.0.0.1:4173/ >/dev/null && break
+            test "$i" -lt 60
+            sleep 1
+          done
+      - name: Characterize current Home strip winner
+        shell: bash
+        run: |
+          cat > /tmp/strip-characterize.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const viewports = [
+            {name:'mobile',width:390,height:844},
+            {name:'near-breakpoint',width:800,height:1000},
+            {name:'tablet',width:900,height:1000},
+            {name:'desktop',width:1728,height:1000},
+          ];
+          const browser = await chromium.launch({headless:true});
+          const report = [];
+          try {
+            for (const vp of viewports) {
+              const ctx = await browser.newContext({viewport:{width:vp.width,height:vp.height},reducedMotion:'reduce'});
+              const page = await ctx.newPage();
+              await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle',timeout:60000});
+              await page.evaluate(async()=>{ await document.fonts?.ready; window.scrollTo(0,0); });
+              const groups = await page.evaluate(() => [...document.querySelectorAll('.portfolio-showcase__group[data-layout="strip"]')].map((group,index)=>{
+                const items = group.querySelector(':scope > .media-group__items');
+                const gs = getComputedStyle(group);
+                const is = items ? getComputedStyle(items) : null;
+                const gr = group.getBoundingClientRect();
+                const ir = items?.getBoundingClientRect();
+                return {
+                  index,
+                  className: group.className,
+                  groupWidth: Math.round(gr.width*1000)/1000,
+                  itemsWidth: ir ? Math.round(ir.width*1000)/1000 : null,
+                  clientWidth: items?.clientWidth ?? null,
+                  scrollWidth: items?.scrollWidth ?? null,
+                  groupReelJustify: gs.getPropertyValue('--reel-justify').trim(),
+                  itemsReelJustify: is?.getPropertyValue('--reel-justify').trim() ?? null,
+                  justifyContent: is?.justifyContent ?? null,
+                  display: is?.display ?? null,
+                  overflowX: is?.overflowX ?? null,
+                  childCount: items?.children.length ?? 0,
+                  firstChildX: items?.firstElementChild ? Math.round(items.firstElementChild.getBoundingClientRect().x*1000)/1000 : null,
+                  itemsX: ir ? Math.round(ir.x*1000)/1000 : null,
+                };
+              }));
+              report.push({viewport:vp,groups});
+              console.log(JSON.stringify({viewport:vp,groups},null,2));
+              await ctx.close();
+            }
+          } finally { await browser.close(); }
+          await writeFile('/tmp/strip-characterization.json',JSON.stringify(report,null,2)+'\n');
+          if (!report.some(entry => entry.groups.length)) throw new Error('No portfolio strip groups found');
+          JS
+          node /tmp/strip-characterize.mjs
+      - name: Upload characterization
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-461-strip-justify-${{ github.sha }}
+          retention-days: 7
+          path: |
+            /tmp/strip-characterization.json
+            /tmp/strip-history.txt
+            /tmp/dev.log
