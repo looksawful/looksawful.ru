@@ -27,6 +27,7 @@ jobs:
 
           components_path = Path('src/styles/components.css')
           media_path = Path('src/styles/media.css')
+          g_path = Path('test/css-refactor-wave5g-strip.test.mjs')
           h_path = Path('test/css-refactor-wave5h-editorial.test.mjs')
           workflow_path = Path('.github/workflows/tmp-css-461-wave5i-apply.yml')
 
@@ -53,12 +54,19 @@ jobs:
           components_path.write_text(components)
           media_path.write_text(media)
 
+          g = g_path.read_text()
+          g_old = '''test("Wave5G stops before editorial, masonry, bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\.media-group\\[data-layout="masonry"\\]/,\n    /(?:^|\\n)\\.media-group\\[data-layout="bento"\\]/,\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});'''
+          g_new = '''test("Wave5G stops before bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\.media-group\\[data-layout="bento"\\]/,\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});'''
+          if g.count(g_old) != 1:
+              raise SystemExit('Wave5G masonry boundary assertion not found exactly once')
+          g_path.write_text(g.replace(g_old, g_new))
+
           h = h_path.read_text()
-          old = '''test("Wave5H stops before masonry, bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\.media-group\\[data-layout="masonry"\\]/,\n    /(?:^|\\n)\\.media-group\\[data-layout="bento"\\]/,\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});'''
-          new = '''test("Wave5H stops before bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\.media-group\\[data-layout="bento"\\]/,\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});'''
-          if h.count(old) != 1:
+          h_old = '''test("Wave5H stops before masonry, bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\.media-group\\[data-layout="masonry"\\]/,\n    /(?:^|\\n)\\.media-group\\[data-layout="bento"\\]/,\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});'''
+          h_new = '''test("Wave5H stops before bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\.media-group\\[data-layout="bento"\\]/,\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});'''
+          if h.count(h_old) != 1:
               raise SystemExit('Wave5H masonry boundary assertion not found exactly once')
-          h_path.write_text(h.replace(old, new))
+          h_path.write_text(h.replace(h_old, h_new))
 
           workflow_path.unlink()
           PY
@@ -74,6 +82,6 @@ jobs:
         run: |
           git config user.name "looksawful"
           git config user.email "118225585+looksawful@users.noreply.github.com"
-          git add src/styles/components.css src/styles/media.css test/css-refactor-wave5h-editorial.test.mjs test/css-refactor-wave5i-masonry.test.mjs tools/ci/run-tests.mjs .github/workflows/tmp-css-461-wave5i-apply.yml
+          git add src/styles/components.css src/styles/media.css test/css-refactor-wave5g-strip.test.mjs test/css-refactor-wave5h-editorial.test.mjs test/css-refactor-wave5i-masonry.test.mjs tools/ci/run-tests.mjs .github/workflows/tmp-css-461-wave5i-apply.yml
           git commit -m "refactor(css): extract Wave5I masonry layout ownership"
           git push origin HEAD:refactor/css-461-wave5i-masonry
