@@ -42,9 +42,8 @@ test("Wave5H keeps editorial authored inputs in the renderer rather than inventi
   assert.doesNotMatch(media, /--span\s*:/);
 });
 
-test("Wave5H stops before masonry, bento and infinite-reel ownership", () => {
+test("Wave5H stops before bento and infinite-reel ownership", () => {
   for (const pattern of [
-    /(?:^|\n)\.media-group\[data-layout="masonry"\]/,
     /(?:^|\n)\.media-group\[data-layout="bento"\]/,
     /(?:^|\n)\[data-infinite-reel\]\s*\{/,
   ]) {
