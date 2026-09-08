@@ -54,6 +54,19 @@ jobs:
           test "$lock" = "$(sha256sum /tmp/css-fast-current/package-lock.json | cut -d' ' -f1)"
           test "$lock" = "$(sha256sum /tmp/css-fast-wave5f/package-lock.json | cut -d' ' -f1)"
 
+      - name: Prepare one canonical generated media set
+        run: |
+          set -euo pipefail
+          (cd /tmp/css-fast-current && npm run media:sync)
+          (cd /tmp/css-fast-current && node tools/media-dev-state.mjs --cache-verify)
+          for tree in /tmp/css-fast-original /tmp/css-fast-wave5f; do
+            rm -rf "$tree/public/media/generated" "$tree/.cache/media"
+            mkdir -p "$tree/public/media/generated" "$tree/.cache/media"
+            cp -a /tmp/css-fast-current/public/media/generated/. "$tree/public/media/generated/"
+            cp /tmp/css-fast-current/.cache/media/generated-cache.json "$tree/.cache/media/generated-cache.json"
+            (cd "$tree" && node tools/media-dev-state.mjs --cache-verify)
+          done
+
       - name: Build exact sites
         run: |
           set -euo pipefail
