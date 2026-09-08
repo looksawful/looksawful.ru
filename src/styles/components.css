@@ -193,7 +193,7 @@
 
 @container media-group (width > 48rem) {
   .portfolio-showcase__group[data-layout="strip"] > .media-group__items {
-    --reel-justify: flex-start;
+    --strip-justify: flex-start;
   }
 }
 
@@ -707,7 +707,7 @@
 
   @container media-group (width > 48rem) {
     & > .media-group__items {
-      --reel-justify: safe center;
+      --reel-justify: var(--strip-justify, safe center);
     }
   }
 }
