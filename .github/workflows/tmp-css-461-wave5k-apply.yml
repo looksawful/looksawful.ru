@@ -1,0 +1,162 @@
+name: tmp-css-461-wave5k-apply
+on:
+  push:
+    branches: [refactor/css-461-wave5k-infinite-reel]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: refactor/css-461-wave5k-infinite-reel
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Split infinite-reel structural and motion ownership
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          components_path = Path('src/styles/components.css')
+          media_path = Path('src/styles/media.css')
+          motion_path = Path('src/styles/motion.css')
+
+          components = components_path.read_text()
+          media = media_path.read_text()
+          motion = motion_path.read_text()
+
+          reel_marker = '/* ==================================================\n   Infinite reel\n   ================================================== */'
+          slider_marker = '/* ==================================================\n   Slider and magazine — interaction without motion\n   ================================================== */'
+          assert components.count(reel_marker) == 1, 'expected one infinite-reel marker in components.css'
+          assert components.count(slider_marker) == 1, 'expected one Slider marker in components.css'
+          assert '[data-infinite-reel]' not in media, 'media.css already owns infinite reel unexpectedly'
+
+          start = components.index(reel_marker)
+          end = components.index(slider_marker, start)
+          segment = components[start:end]
+          assert segment.count('[data-infinite-reel]') >= 1
+          assert segment.count('animation: infinite-reel-scroll var(--infinite-reel-duration) linear infinite;') == 1
+          assert segment.count('will-change: transform;') == 1
+          assert segment.count('@keyframes infinite-reel-scroll') == 1
+          assert segment.count('var(--infinite-reel-fade-size, clamp(2rem, 7cqi, 6rem))') == 4
+          assert '--infinite-reel-fade-size:' not in segment
+
+          keyframes_start = segment.index('@keyframes infinite-reel-scroll')
+          structural = segment[:keyframes_start]
+          keyframes = segment[keyframes_start:].strip()
+          structural = structural.replace(
+              '        animation: infinite-reel-scroll var(--infinite-reel-duration) linear infinite;\n        will-change: transform;\n',
+              '',
+              1,
+          )
+          assert 'animation: infinite-reel-scroll' not in structural
+          assert 'will-change:' not in structural
+          assert '@keyframes infinite-reel-scroll' not in structural
+
+          components = components[:start] + components[end:]
+          media = media.rstrip('\n') + '\n\n' + structural.rstrip('\n') + '\n'
+
+          paused = '''  [data-infinite-reel][data-animated="true"] > [data-infinite-reel-track] {\n    animation-play-state: paused;\n    will-change: auto;\n  }'''
+          replacement = '''  [data-infinite-reel][data-animated="true"] > [data-infinite-reel-track] {\n    animation: infinite-reel-scroll var(--infinite-reel-duration) linear infinite;\n    animation-play-state: paused;\n    will-change: auto;\n  }'''
+          assert motion.count(paused) == 1, 'motion paused rule shape changed'
+          assert '@keyframes infinite-reel-scroll' not in motion
+          motion = motion.replace(paused, replacement, 1).rstrip('\n') + '\n\n' + keyframes + '\n'
+
+          components_path.write_text(components)
+          media_path.write_text(media)
+          motion_path.write_text(motion)
+
+          # The accepted #575 fade contract follows the generic owner into media.css.
+          fade_path = Path('test/css-refactor-wave5k-fade-input.test.mjs')
+          fade = fade_path.read_text()
+          assert 'const media = ' not in fade
+          fade = fade.replace(
+              'const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");\n\nconst genericInfiniteReelBlock = components.match',
+              'const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");\nconst media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");\n\nconst genericInfiniteReelBlock = media.match',
+              1,
+          )
+          fade = fade.replace('assert.equal(components.includes(`black ${fadeFallback}`), true);', 'assert.equal(media.includes(`black ${fadeFallback}`), true);', 1)
+          fade = fade.replace('assert.equal(components.includes(`black calc(100% - ${fadeFallback})`), true);', 'assert.equal(media.includes(`black calc(100% - ${fadeFallback})`), true);', 1)
+          fade = fade.replace('const fallbackOccurrences = components.split(fadeFallback).length - 1;', 'const fallbackOccurrences = media.split(fadeFallback).length - 1;', 1)
+          fade = fade.replace(
+              'assert.doesNotMatch(components, /--(?:media-group|reel)-infinite-reel-fade-size\\s*:/);',
+              'assert.doesNotMatch(`${components}\\n${media}`, /--(?:media-group|reel)-infinite-reel-fade-size\\s*:/);',
+              1,
+          )
+          fade_path.write_text(fade)
+
+          # Earlier Wave5 guards stop treating the now-accepted infinite-reel family as future ownership.
+          c_path = Path('test/css-refactor-wave5c-grid-compact.test.mjs')
+          c = c_path.read_text()
+          old_c = '''test("Wave5C does not absorb neighboring Brand/Jestei or still-unmoved layout families", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\.media-group\\.brand-system\\s*\\{/,\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});'''
+          new_c = '''test("Wave5C does not absorb neighboring Brand/Jestei specialization", () => {\n  const brandSystem = /(?:^|\\n)\\.media-group\\.brand-system\\s*\\{/;\n  assert.doesNotMatch(media, brandSystem);\n  assert.match(components, brandSystem);\n});'''
+          assert c.count(old_c) == 1
+          c_path.write_text(c.replace(old_c, new_c, 1))
+
+          replacements = {
+              'test/css-refactor-wave5e-sequence.test.mjs': (
+                  '''test("Wave5E sequence move stops before still-unmoved media families", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});''',
+                  '''test("Wave5E sequence remains before infinite reel in media source order", () => {\n  const sequence = media.indexOf("Sequence = wide + middle collection + wide.");\n  const infiniteReel = media.indexOf("Infinite reel");\n  assert.notEqual(sequence, -1);\n  assert.notEqual(infiniteReel, -1);\n  assert.ok(sequence < infiniteReel);\n});'''
+              ),
+              'test/css-refactor-wave5g-strip.test.mjs': (
+                  '''test("Wave5G stops before bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});''',
+                  '''test("Wave5G strip remains before infinite reel in media source order", () => {\n  const strip = media.indexOf("Equal-height media strip");\n  const infiniteReel = media.indexOf("Infinite reel");\n  assert.notEqual(strip, -1);\n  assert.notEqual(infiniteReel, -1);\n  assert.ok(strip < infiniteReel);\n});'''
+              ),
+              'test/css-refactor-wave5h-editorial.test.mjs': (
+                  '''test("Wave5H stops before bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});''',
+                  '''test("Wave5H editorial remains before infinite reel in media source order", () => {\n  const editorial = media.indexOf("Explicit editorial grid");\n  const infiniteReel = media.indexOf("Infinite reel");\n  assert.notEqual(editorial, -1);\n  assert.notEqual(infiniteReel, -1);\n  assert.ok(editorial < infiniteReel);\n});'''
+              ),
+              'test/css-refactor-wave5i-masonry.test.mjs': (
+                  '''test("Wave5I stops before bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});''',
+                  '''test("Wave5I masonry remains before infinite reel in media source order", () => {\n  const masonry = media.indexOf("Column masonry");\n  const infiniteReel = media.indexOf("Infinite reel");\n  assert.notEqual(masonry, -1);\n  assert.notEqual(infiniteReel, -1);\n  assert.ok(masonry < infiniteReel);\n});'''
+              ),
+              'test/css-refactor-wave5j-bento.test.mjs': (
+                  '''test("Wave5J stops before infinite-reel ownership", () => {\n  const infiniteReel = /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/;\n  assert.doesNotMatch(media, infiniteReel, "media.css must not absorb infinite-reel runtime ownership");\n  assert.match(components, infiniteReel, "components.css must retain infinite-reel runtime ownership");\n});''',
+                  '''test("Wave5J bento remains before infinite reel in media source order", () => {\n  const bento = media.indexOf("Fixed-row bento");\n  const infiniteReel = media.indexOf("Infinite reel");\n  assert.notEqual(bento, -1);\n  assert.notEqual(infiniteReel, -1);\n  assert.ok(bento < infiniteReel);\n});'''
+              ),
+          }
+          for name, (old, new) in replacements.items():
+              path = Path(name)
+              text = path.read_text()
+              assert text.count(old) == 1, f'expected stale guard once in {name}'
+              path.write_text(text.replace(old, new, 1))
+          PY
+          git diff --check
+          node --test \
+            test/css-refactor-wave5c-grid-compact.test.mjs \
+            test/css-refactor-wave5e-sequence.test.mjs \
+            test/css-refactor-wave5g-strip.test.mjs \
+            test/css-refactor-wave5h-editorial.test.mjs \
+            test/css-refactor-wave5i-masonry.test.mjs \
+            test/css-refactor-wave5j-bento.test.mjs \
+            test/css-refactor-wave5k-fade-input.test.mjs \
+            test/css-refactor-wave5k-infinite-reel.test.mjs
+          node tools/ci/run-tests.mjs fast
+      - name: Commit clean Wave5K tree
+        shell: bash
+        run: |
+          rm .github/workflows/tmp-css-461-wave5k-apply.yml
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/styles/components.css src/styles/media.css src/styles/motion.css \
+            test/css-refactor-wave5c-grid-compact.test.mjs \
+            test/css-refactor-wave5e-sequence.test.mjs \
+            test/css-refactor-wave5g-strip.test.mjs \
+            test/css-refactor-wave5h-editorial.test.mjs \
+            test/css-refactor-wave5i-masonry.test.mjs \
+            test/css-refactor-wave5j-bento.test.mjs \
+            test/css-refactor-wave5k-fade-input.test.mjs \
+            test/css-refactor-wave5k-infinite-reel.test.mjs \
+            tools/ci/run-tests.mjs \
+            .github/workflows/tmp-css-461-wave5k-apply.yml
+          git commit -m 'refactor(css): split Wave5K infinite reel ownership'
+          git push origin HEAD:refactor/css-461-wave5k-infinite-reel
