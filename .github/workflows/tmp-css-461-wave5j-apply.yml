@@ -1,0 +1,93 @@
+name: tmp-css-461-wave5j-apply
+on:
+  push:
+    branches: [refactor/css-461-wave5j-bento]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: refactor/css-461-wave5j-bento
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Move Bento owner and refresh historical guards
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          components_path = Path('src/styles/components.css')
+          media_path = Path('src/styles/media.css')
+          components = components_path.read_text()
+          media = media_path.read_text()
+
+          marker = '/* Fixed-row bento is a different layout algorithm from column masonry. */'
+          next_marker = '/* ==================================================\n   Infinite reel\n   ================================================== */'
+          assert marker in components, 'Bento marker missing from components.css'
+          assert marker not in media, 'Bento marker already present in media.css'
+          start = components.index(marker)
+          end = components.index(next_marker, start)
+          block = components[start:end]
+          assert block.count('.media-group[data-layout="bento"]') == 4, 'unexpected Bento block shape'
+
+          components = components[:start] + components[end:]
+          if not media.endswith('\n'):
+              media += '\n'
+          if not media.endswith('\n\n'):
+              media += '\n'
+          media += block
+
+          components_path.write_text(components)
+          media_path.write_text(media)
+
+          guard_files = [
+              'test/css-refactor-wave5c-grid-compact.test.mjs',
+              'test/css-refactor-wave5e-sequence.test.mjs',
+              'test/css-refactor-wave5g-strip.test.mjs',
+              'test/css-refactor-wave5h-editorial.test.mjs',
+              'test/css-refactor-wave5i-masonry.test.mjs',
+          ]
+          bento_guard = '    /(?:^|\\n)\\.media-group\\[data-layout="bento"\\]/,\n'
+          for name in guard_files:
+              path = Path(name)
+              text = path.read_text()
+              assert text.count(bento_guard) == 1, f'unexpected Bento guard count in {name}'
+              path.write_text(text.replace(bento_guard, '', 1))
+          PY
+          git diff --check
+          node --test \
+            test/css-refactor-wave5c-grid-compact.test.mjs \
+            test/css-refactor-wave5e-sequence.test.mjs \
+            test/css-refactor-wave5g-strip.test.mjs \
+            test/css-refactor-wave5h-editorial.test.mjs \
+            test/css-refactor-wave5i-masonry.test.mjs \
+            test/css-refactor-wave5j-bento.test.mjs \
+            test/motion-renderer-contract.test.mjs \
+            test/caption-lower-third.test.mjs
+      - name: Commit clean Wave5J tree
+        shell: bash
+        run: |
+          rm .github/workflows/tmp-css-461-wave5j-apply.yml
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/styles/components.css src/styles/media.css \
+            test/css-refactor-wave5c-grid-compact.test.mjs \
+            test/css-refactor-wave5e-sequence.test.mjs \
+            test/css-refactor-wave5g-strip.test.mjs \
+            test/css-refactor-wave5h-editorial.test.mjs \
+            test/css-refactor-wave5i-masonry.test.mjs \
+            test/css-refactor-wave5j-bento.test.mjs \
+            tools/ci/run-tests.mjs \
+            .github/workflows/tmp-css-461-wave5j-apply.yml
+          git commit -m 'refactor(css): move Wave5J Bento ownership'
+          git push origin HEAD:refactor/css-461-wave5j-bento
