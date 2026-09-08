@@ -578,23 +578,6 @@
   }
 }
 
-/* Column masonry. Each image is its own media item. */
-.media-group[data-layout="masonry"] > .media-group__items {
-  columns: var(--masonry-mobile-columns, 2);
-  column-gap: var(--group-gap);
-}
-
-.media-group[data-layout="masonry"] > .media-group__items > .media {
-  break-inside: avoid;
-  margin-block-end: var(--group-gap);
-}
-
-@container media-group (width > 48rem) {
-  .media-group[data-layout="masonry"] > .media-group__items {
-    columns: var(--masonry-columns, 3);
-  }
-}
-
 /* Fixed-row bento is a different layout algorithm from column masonry. */
 .media-group[data-layout="bento"] > .media-group__items {
   --reel-display: grid;

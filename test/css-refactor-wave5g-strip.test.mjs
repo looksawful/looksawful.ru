@@ -50,9 +50,8 @@ test("Wave5G keeps portfolio strip inputs in the component owner", () => {
   assert.doesNotMatch(media, /portfolio-showcase/);
 });
 
-test("Wave5G stops before editorial, masonry, bento and infinite-reel ownership", () => {
+test("Wave5G stops before bento and infinite-reel ownership", () => {
   for (const pattern of [
-    /(?:^|\n)\.media-group\[data-layout="masonry"\]/,
     /(?:^|\n)\.media-group\[data-layout="bento"\]/,
     /(?:^|\n)\[data-infinite-reel\]\s*\{/,
   ]) {
