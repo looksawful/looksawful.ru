@@ -18,6 +18,8 @@ export const fastTests = new Set([
   "test/cms-publication-topology.test.mjs",
   "test/cms-publication-workflow.test.mjs",
   "test/css-refactor-wave5b-media-group-foundation.test.mjs",
+  "test/css-refactor-wave5c-grid-compact.test.mjs",
+  "test/css-refactor-wave5d-strip-justify-contract.test.mjs",
   "test/cv-principles-lowercase.test.mjs",
   "test/domain-catalog-identity.test.mjs",
   "test/domain-taxonomy-references.test.mjs",
