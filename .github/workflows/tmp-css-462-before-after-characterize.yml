@@ -11,7 +11,7 @@ permissions:
 jobs:
   characterize:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -19,8 +19,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - run: npx playwright install --with-deps chromium
-      - run: npm run media:ensure
       - run: npm run build:site
       - run: node tools/e2e/tmp-css-462-before-after-characterize.mjs
