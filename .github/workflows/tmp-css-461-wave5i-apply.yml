@@ -1,0 +1,79 @@
+name: tmp-css-461-wave5i-apply
+on:
+  pull_request:
+    branches: [dev]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: github.head_ref == 'refactor/css-461-wave5i-masonry'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: refactor/css-461-wave5i-masonry
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Apply exact masonry ownership move
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          components_path = Path('src/styles/components.css')
+          media_path = Path('src/styles/media.css')
+          h_path = Path('test/css-refactor-wave5h-editorial.test.mjs')
+          workflow_path = Path('.github/workflows/tmp-css-461-wave5i-apply.yml')
+
+          components = components_path.read_text()
+          media = media_path.read_text()
+
+          start_marker = '/* Column masonry. Each image is its own media item. */\n'
+          end_marker = '/* Fixed-row bento is a different layout algorithm from column masonry. */\n'
+          if components.count(start_marker) != 1 or components.count(end_marker) != 1:
+              raise SystemExit('masonry boundary markers are not unique')
+          start = components.index(start_marker)
+          end = components.index(end_marker)
+          if start >= end:
+              raise SystemExit('masonry boundary order is invalid')
+          block = components[start:end]
+          forbidden = ['data-layout="bento"', 'data-infinite-reel', 'data-layout="editorial"']
+          if any(token in block for token in forbidden):
+              raise SystemExit('masonry block crossed an ownership boundary')
+          if start_marker in media:
+              raise SystemExit('media.css already contains masonry block')
+
+          components = components[:start] + components[end:]
+          media = media.rstrip() + '\n\n' + block.rstrip() + '\n'
+          components_path.write_text(components)
+          media_path.write_text(media)
+
+          h = h_path.read_text()
+          old = '''test("Wave5H stops before masonry, bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\.media-group\\[data-layout="masonry"\\]/,\n    /(?:^|\\n)\\.media-group\\[data-layout="bento"\\]/,\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});'''
+          new = '''test("Wave5H stops before bento and infinite-reel ownership", () => {\n  for (const pattern of [\n    /(?:^|\\n)\\.media-group\\[data-layout="bento"\\]/,\n    /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,\n  ]) {\n    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);\n    assert.match(components, pattern, `components.css must retain later family ${pattern}`);\n  }\n});'''
+          if h.count(old) != 1:
+              raise SystemExit('Wave5H masonry boundary assertion not found exactly once')
+          h_path.write_text(h.replace(old, new))
+
+          workflow_path.unlink()
+          PY
+      - name: Verify focused contracts
+        run: |
+          node --test \
+            test/css-refactor-wave5g-strip.test.mjs \
+            test/css-refactor-wave5h-editorial.test.mjs \
+            test/css-refactor-wave5i-masonry.test.mjs
+          git diff --check
+      - name: Commit clean Wave5I tree
+        shell: bash
+        run: |
+          git config user.name "looksawful"
+          git config user.email "118225585+looksawful@users.noreply.github.com"
+          git add src/styles/components.css src/styles/media.css test/css-refactor-wave5h-editorial.test.mjs test/css-refactor-wave5i-masonry.test.mjs tools/ci/run-tests.mjs .github/workflows/tmp-css-461-wave5i-apply.yml
+          git commit -m "refactor(css): extract Wave5I masonry layout ownership"
+          git push origin HEAD:refactor/css-461-wave5i-masonry
