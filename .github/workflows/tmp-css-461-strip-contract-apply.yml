@@ -1,0 +1,65 @@
+name: tmp-css-461-strip-contract-apply
+
+on:
+  push:
+    branches:
+      - fix/css-461-strip-justify-contract
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Apply exact strip input/resolver correction
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/styles/components.css')
+          text = path.read_text()
+          replacements = [
+              ('--reel-justify: flex-start;', '--strip-justify: flex-start;'),
+              ('--reel-justify: safe center;', '--reel-justify: var(--strip-justify, safe center);'),
+          ]
+          for old, new in replacements:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'expected exactly one {old!r}, found {count}')
+              text = text.replace(old, new, 1)
+          path.write_text(text)
+          PY
+      - name: Focused structural verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test \
+            test/css-refactor-wave5b-media-group-foundation.test.mjs \
+            test/css-refactor-wave5c-grid-compact.test.mjs \
+            test/css-refactor-wave5d-strip-justify-contract.test.mjs
+          git diff --check
+      - name: Remove temporary workflows and push clean branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm \
+            .github/workflows/tmp-css-461-strip-contract.yml \
+            .github/workflows/tmp-css-461-strip-contract-apply.yml
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/styles/components.css test/css-refactor-wave5d-strip-justify-contract.test.mjs
+          git commit -m 'fix(css): make portfolio strip justification explicit'
+          git push origin HEAD:fix/css-461-strip-justify-contract
