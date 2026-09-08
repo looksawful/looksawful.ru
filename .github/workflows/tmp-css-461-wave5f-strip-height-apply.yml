@@ -69,6 +69,19 @@ jobs:
           text = text.replace(old_reader, new_reader)
           path.write_text(text)
 
+          # Wave5B's integration guard used to pin the old high-specificity
+          # selector shape. Preserve its real invariant instead: portfolio
+          # strip integration stays in components.css, regardless of the
+          # specificity hack that Wave5F intentionally removes.
+          wave5b_path = Path('test/css-refactor-wave5b-media-group-foundation.test.mjs')
+          wave5b = wave5b_path.read_text()
+          old_guard = '  assert.match(components, /\\.media-group\\.portfolio-showcase__group\\[data-layout="strip"\\]/);'
+          new_guard = '  assert.match(components, /\\.portfolio-showcase__group\\[data-layout="strip"\\]/);'
+          if wave5b.count(old_guard) != 1:
+              raise SystemExit(f'Wave5B stale portfolio selector guard count={wave5b.count(old_guard)}')
+          wave5b = wave5b.replace(old_guard, new_guard)
+          wave5b_path.write_text(wave5b)
+
           fast_path = Path('tools/ci/run-tests.mjs')
           fast = fast_path.read_text()
           anchor = '  "test/css-refactor-wave5e-sequence.test.mjs",\n'
@@ -84,6 +97,7 @@ jobs:
         run: |
           set -euo pipefail
           node --test \
+            test/css-refactor-wave5b-media-group-foundation.test.mjs \
             test/css-refactor-wave5d-strip-justify-contract.test.mjs \
             test/css-refactor-wave5e-sequence.test.mjs \
             test/css-refactor-wave5f-strip-height-contract.test.mjs
@@ -98,6 +112,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add src/styles/components.css tools/ci/run-tests.mjs \
+            test/css-refactor-wave5b-media-group-foundation.test.mjs \
             test/css-refactor-wave5f-strip-height-contract.test.mjs \
             .github/workflows/tmp-css-461-wave5f-strip-height-red.yml \
             .github/workflows/tmp-css-461-wave5f-strip-height-apply.yml
