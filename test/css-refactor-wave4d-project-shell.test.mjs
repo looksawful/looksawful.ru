@@ -4,6 +4,7 @@ import test from "node:test";
 
 const indexPath = new URL("../src/styles/index.css", import.meta.url);
 const componentsPath = new URL("../src/styles/components.css", import.meta.url);
+const mediaPath = new URL("../src/styles/media.css", import.meta.url);
 const ownerPath = new URL("../src/styles/project-shell.css", import.meta.url);
 
 const index = readFileSync(indexPath, "utf8");
@@ -90,11 +91,12 @@ test("canonical project shell preserves base, responsive and late-refinement sou
 
 test("project sections do not clobber specialized media-group container ownership", () => {
   const owner = readFileSync(ownerPath, "utf8");
+  const media = readFileSync(mediaPath, "utf8");
 
   assert.match(
-    components,
+    media,
     /\.media-group\s*\{[\s\S]*?container:\s*media-group\s*\/\s*inline-size;/,
-    "media-group must remain the named container owner for media-group queries",
+    "media-group must remain the named container owner for media-group queries regardless of physical stylesheet",
   );
   assert.doesNotMatch(
     owner,
