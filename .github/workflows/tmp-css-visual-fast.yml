@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: tmp-css-visual-fast-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   visual-fast:
     runs-on: ubuntu-24.04
@@ -37,11 +41,8 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - name: Install browser and media tooling
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes ffmpeg
-          npx playwright install --with-deps chromium
+      - name: Install browser only
+        run: npx playwright install --with-deps chromium
 
       - name: Create exact worktrees and verify dependency lock
         run: |
@@ -58,16 +59,47 @@ jobs:
           test "$lock" = "$(sha256sum /tmp/css-fast-current/package-lock.json | cut -d' ' -f1)"
           test "$lock" = "$(sha256sum /tmp/css-fast-wave5f/package-lock.json | cut -d' ' -f1)"
 
-      - name: Prepare one canonical generated media set
+      - name: Prove media fingerprints match
+        id: media
         run: |
           set -euo pipefail
-          (cd /tmp/css-fast-current && npm run media:sync)
-          (cd /tmp/css-fast-current && node tools/media-dev-state.mjs --cache-verify)
-          for tree in /tmp/css-fast-original /tmp/css-fast-wave5f; do
-            rm -rf "$tree/public/media/generated" "$tree/.cache/media"
+          original="$(cd /tmp/css-fast-original && node tools/media-dev-state.mjs --fingerprint)"
+          current="$(cd /tmp/css-fast-current && node tools/media-dev-state.mjs --fingerprint)"
+          wave5f="$(cd /tmp/css-fast-wave5f && node tools/media-dev-state.mjs --fingerprint)"
+          test "$original" = "$current"
+          test "$current" = "$wave5f"
+          echo "fingerprint=$current" >> "$GITHUB_OUTPUT"
+          echo "media fingerprint: $current"
+
+      - name: Restore exact generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
+      - name: Require existing generated media cache
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: |
+          echo "Exact generated-media cache is missing. CSS visual audit must not regenerate media."
+          exit 1
+
+      - name: Verify and distribute cached media
+        if: steps.media-cache.outputs.cache-hit == 'true'
+        run: |
+          set -euo pipefail
+          node tools/media-dev-state.mjs --cache-verify
+          for tree in /tmp/css-fast-original /tmp/css-fast-current /tmp/css-fast-wave5f; do
+            rm -rf "$tree/public/media/generated/responsive" "$tree/public/media/generated/video" "$tree/public/media/generated/video-inventory.json" "$tree/.cache/media"
             mkdir -p "$tree/public/media/generated" "$tree/.cache/media"
-            cp -a /tmp/css-fast-current/public/media/generated/. "$tree/public/media/generated/"
-            cp /tmp/css-fast-current/.cache/media/generated-cache.json "$tree/.cache/media/generated-cache.json"
+            cp -a "$GITHUB_WORKSPACE/public/media/generated/responsive" "$tree/public/media/generated/responsive"
+            cp -a "$GITHUB_WORKSPACE/public/media/generated/video" "$tree/public/media/generated/video"
+            cp "$GITHUB_WORKSPACE/public/media/generated/video-inventory.json" "$tree/public/media/generated/video-inventory.json"
+            cp "$GITHUB_WORKSPACE/.cache/media/generated-cache.json" "$tree/.cache/media/generated-cache.json"
             (cd "$tree" && node tools/media-dev-state.mjs --cache-verify)
           done
 
