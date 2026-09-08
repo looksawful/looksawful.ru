@@ -40,14 +40,9 @@ test("Wave5C preserves the authored grid/rail/compact contract", () => {
   );
 });
 
-test("Wave5C does not absorb neighboring Brand/Jestei or later layout families", () => {
+test("Wave5C boundary still excludes Brand/Jestei and infinite reel ownership", () => {
   for (const pattern of [
     /(?:^|\n)\.media-group\.brand-system\s*\{/,
-    /(?:^|\n)\.media-group\[data-layout="sequence"\]\s*\{/,
-    /(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/,
-    /(?:^|\n)\.media-group\[data-layout="editorial"\]/,
-    /(?:^|\n)\.media-group\[data-layout="masonry"\]/,
-    /(?:^|\n)\.media-group\[data-layout="bento"\]/,
     /(?:^|\n)\[data-infinite-reel\]\s*\{/,
   ]) {
     assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);
