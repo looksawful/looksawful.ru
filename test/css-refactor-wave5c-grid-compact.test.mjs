@@ -40,14 +40,10 @@ test("Wave5C preserves the authored grid/rail/compact contract", () => {
   );
 });
 
-test("Wave5C does not absorb neighboring Brand/Jestei or still-unmoved layout families", () => {
-  for (const pattern of [
-    /(?:^|\n)\.media-group\.brand-system\s*\{/,
-    /(?:^|\n)\[data-infinite-reel\]\s*\{/,
-  ]) {
-    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);
-    assert.match(components, pattern, `components.css must retain later family ${pattern}`);
-  }
+test("Wave5C does not absorb neighboring Brand/Jestei specialization", () => {
+  const brandSystem = /(?:^|\n)\.media-group\.brand-system\s*\{/;
+  assert.doesNotMatch(media, brandSystem);
+  assert.match(components, brandSystem);
 });
 
 test("generic media-group base keeps the explicit spacing resolver outside Wave5C", () => {

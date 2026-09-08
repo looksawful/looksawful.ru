@@ -42,13 +42,12 @@ test("Wave5I keeps masonry authored inputs in the typed renderer", () => {
   assert.doesNotMatch(media, /--masonry-mobile-columns\s*:/);
 });
 
-test("Wave5I stops before bento and infinite-reel ownership", () => {
-  for (const pattern of [
-    /(?:^|\n)\[data-infinite-reel\]\s*\{/,
-  ]) {
-    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);
-    assert.match(components, pattern, `components.css must retain later family ${pattern}`);
-  }
+test("Wave5I masonry remains before infinite reel in media source order", () => {
+  const masonry = media.indexOf("Column masonry");
+  const infiniteReel = media.indexOf("Infinite reel");
+  assert.notEqual(masonry, -1);
+  assert.notEqual(infiniteReel, -1);
+  assert.ok(masonry < infiniteReel);
 });
 
 test("Wave5I masonry follows editorial in media source order", () => {

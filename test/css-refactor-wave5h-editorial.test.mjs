@@ -42,13 +42,12 @@ test("Wave5H keeps editorial authored inputs in the renderer rather than inventi
   assert.doesNotMatch(media, /--span\s*:/);
 });
 
-test("Wave5H stops before bento and infinite-reel ownership", () => {
-  for (const pattern of [
-    /(?:^|\n)\[data-infinite-reel\]\s*\{/,
-  ]) {
-    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);
-    assert.match(components, pattern, `components.css must retain later family ${pattern}`);
-  }
+test("Wave5H editorial remains before infinite reel in media source order", () => {
+  const editorial = media.indexOf("Explicit editorial grid");
+  const infiniteReel = media.indexOf("Infinite reel");
+  assert.notEqual(editorial, -1);
+  assert.notEqual(infiniteReel, -1);
+  assert.ok(editorial < infiniteReel);
 });
 
 test("Wave5H follows the accepted strip family in media source order", () => {

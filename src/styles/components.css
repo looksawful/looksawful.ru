@@ -579,64 +579,6 @@
 }
 
 /* ==================================================
-   Infinite reel
-   ================================================== */
-
-[data-infinite-reel] {
-  --infinite-reel-gap: var(--group-gap, var(--size-300));
-  --infinite-reel-duration: 30s;
-  min-inline-size: 0;
-
-  @media (prefers-reduced-motion: no-preference) {
-    &[data-animated="true"] {
-      /* Clip only the scrolling axis. Never crop the media vertically. */
-      overflow-x: clip;
-      overflow-y: visible;
-
-      -webkit-mask-image: linear-gradient(
-        90deg,
-        transparent,
-        black var(--infinite-reel-fade-size, clamp(2rem, 7cqi, 6rem)),
-        black calc(100% - var(--infinite-reel-fade-size, clamp(2rem, 7cqi, 6rem))),
-        transparent
-      );
-
-      mask-image: linear-gradient(
-        90deg,
-        transparent,
-        black var(--infinite-reel-fade-size, clamp(2rem, 7cqi, 6rem)),
-        black calc(100% - var(--infinite-reel-fade-size, clamp(2rem, 7cqi, 6rem))),
-        transparent
-      );
-
-      & > [data-infinite-reel-track] {
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: flex-start;
-        justify-content: flex-start;
-        gap: var(--infinite-reel-gap);
-        inline-size: max-content;
-        max-inline-size: none;
-        overflow: visible;
-        scroll-snap-type: none;
-        animation: infinite-reel-scroll var(--infinite-reel-duration) linear infinite;
-        will-change: transform;
-
-        & > .media {
-          flex: 0 0 auto;
-        }
-      }
-    }
-  }
-}
-
-@keyframes infinite-reel-scroll {
-  to {
-    transform: translate3d(calc(-50% - (var(--infinite-reel-gap) / 2)), 0, 0);
-  }
-}
-
-/* ==================================================
    Slider and magazine — interaction without motion
    ================================================== */
 

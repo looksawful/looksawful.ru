@@ -36,13 +36,12 @@ test("Wave5E sequence keeps authored configuration and intrinsic geometry contra
   );
 });
 
-test("Wave5E sequence move stops before still-unmoved media families", () => {
-  for (const pattern of [
-    /(?:^|\n)\[data-infinite-reel\]\s*\{/,
-  ]) {
-    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);
-    assert.match(components, pattern, `components.css must retain later family ${pattern}`);
-  }
+test("Wave5E sequence remains before infinite reel in media source order", () => {
+  const sequence = media.indexOf("Sequence = wide + middle collection + wide.");
+  const infiniteReel = media.indexOf("Infinite reel");
+  assert.notEqual(sequence, -1);
+  assert.notEqual(infiniteReel, -1);
+  assert.ok(sequence < infiniteReel);
 });
 
 test("Wave5E sequence ownership contract is mandatory in Fast CI", () => {
