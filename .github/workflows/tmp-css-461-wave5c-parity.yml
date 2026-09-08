@@ -59,9 +59,7 @@ jobs:
             { name:'desktop', width:1728, height:1000 },
           ];
           const groupSelectors = [
-            '.media-group',
-            '.media-group__head',
-            '.media-group__items',
+            '.media-group', '.media-group__head', '.media-group__items',
             '.media-group[data-layout="grid"]',
             '.media-group[data-layout="grid"][data-overflow="reel"]',
             '.media-group[data-compact-layout="reel"]',
@@ -81,15 +79,17 @@ jobs:
 
           const settle = async (page,url) => {
             await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
-            await page.waitForLoadState('networkidle',{timeout:10000}).catch(()=>{});
+            await page.evaluate(() => {
+              for (const img of document.querySelectorAll('.media-group img')) img.loading = 'eager';
+              for (const video of document.querySelectorAll('.media-group video')) video.preload = 'metadata';
+            });
+            await page.waitForLoadState('networkidle',{timeout:15000}).catch(()=>{});
             await page.evaluate(async()=>{
               await document.fonts?.ready;
-              const activeDecodes = [...document.images]
-                .filter((img) => img.currentSrc && img.complete)
-                .map((img) => img.decode().catch(() => {}));
+              const decodes = [...document.querySelectorAll('.media-group img')].map((img) => img.decode().catch(() => {}));
               await Promise.race([
-                Promise.all(activeDecodes),
-                new Promise((resolve) => setTimeout(resolve, 2000)),
+                Promise.all(decodes),
+                new Promise((resolve) => setTimeout(resolve, 8000)),
               ]);
               for (const v of document.querySelectorAll('video')) { v.pause(); try { v.currentTime=0; } catch {} }
               window.scrollTo(0,0);
@@ -99,11 +99,16 @@ jobs:
           const snap = page => page.evaluate(({groupSelectors,mediaSelectors,groupProps,mediaProps,groupVars,mediaVars}) => {
             const round=n=>Math.round(n*1000)/1000;
             const attrs=el=>Object.fromEntries([...el.attributes].filter(a=>a.name.startsWith('data-')).map(a=>[a.name,a.value]));
+            const sourceKey=(value)=>{ if(!value) return ''; try { const u=new URL(value); return `${u.pathname}${u.search}`; } catch { return value; } };
             const one=(el,index,props,vars)=>{
               const s=getComputedStyle(el),r=el.getBoundingClientRect();
               const computed={}; for(const p of props) computed[p]=s[p];
               const variables={}; for(const v of vars) variables[v]=s.getPropertyValue(v).trim();
-              const intrinsic = el instanceof HTMLImageElement ? {naturalWidth:el.naturalWidth,naturalHeight:el.naturalHeight,complete:el.complete,currentSrc:el.currentSrc} : el instanceof HTMLVideoElement ? {videoWidth:el.videoWidth,videoHeight:el.videoHeight,currentSrc:el.currentSrc} : null;
+              const intrinsic = el instanceof HTMLImageElement
+                ? {naturalWidth:el.naturalWidth,naturalHeight:el.naturalHeight,currentSrc:sourceKey(el.currentSrc)}
+                : el instanceof HTMLVideoElement
+                  ? {videoWidth:el.videoWidth,videoHeight:el.videoHeight,currentSrc:sourceKey(el.currentSrc)}
+                  : null;
               return {index,tag:el.tagName,id:el.id,className:typeof el.className==='string'?el.className:'',data:attrs(el),rect:{x:round(r.x),y:round(r.y),width:round(r.width),height:round(r.height)},computed,variables,intrinsic};
             };
             const groups={}, media={};
