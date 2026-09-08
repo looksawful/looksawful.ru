@@ -1,0 +1,85 @@
+name: tmp-css-461-final-layout-audit
+
+on:
+  push:
+    branches:
+      - test/css-461-final-layout-audit
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Audit exact Sequence-to-Slider ownership boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('src/styles/components.css')
+          text = path.read_text()
+          start_marker = '/* Sequence = wide + middle collection + wide. */'
+          end_marker = '/* ==================================================\n   Slider and magazine — interaction without motion'
+          if text.count(start_marker) != 1:
+              raise SystemExit(f'start marker count={text.count(start_marker)}')
+          if text.count(end_marker) != 1:
+              raise SystemExit(f'end marker count={text.count(end_marker)}')
+          start = text.index(start_marker)
+          end = text.index(end_marker, start)
+          block = text[start:end]
+          Path('/tmp/css461-final-layout-block.css').write_text(block)
+
+          print(f'BLOCK_BYTES={len(block.encode())}')
+          print(f'BLOCK_LINES={block.count(chr(10))}')
+          print('LAYOUT_SELECTORS')
+          for layout in ['sequence','strip','editorial','masonry','bento']:
+              count = block.count(f'data-layout="{layout}"')
+              print(f'{layout}={count}')
+          print(f'infinite_reel={block.count("data-infinite-reel")}')
+          print(f'keyframes={block.count("@keyframes infinite-reel-scroll")}')
+
+          forbidden = ['.portfolio-', '.project-', '.jestei', '.event-', '.brand-', '.slider', '.mockup', '.before-after', '.media-deck', '.lightbox']
+          bad = [token for token in forbidden if token in block]
+          print('FORBIDDEN_SPECIALIZATION_TOKENS=' + ','.join(bad))
+          if bad:
+              raise SystemExit('generic block contains specialization/interactive tokens')
+
+          props = sorted(set(re.findall(r'(?m)^\s*(--[a-z0-9-]+)\s*:', block)))
+          print('DECLARED_CUSTOM_PROPERTIES')
+          for prop in props:
+              block_writes = len(re.findall(rf'(?m)^\s*{re.escape(prop)}\s*:', block))
+              print(f'{prop} block_writes={block_writes}')
+
+          print('OUTSIDE_WRITERS')
+          styles = list(Path('src/styles').rglob('*.css'))
+          outside = []
+          for prop in props:
+              rows = []
+              for style in styles:
+                  for lineno, line in enumerate(style.read_text().splitlines(), 1):
+                      if re.search(rf'^\s*{re.escape(prop)}\s*:', line):
+                          if style == path:
+                              absolute_offset = sum(len(x)+1 for x in text.splitlines()[:lineno-1])
+                              inside = start <= absolute_offset < end
+                          else:
+                              inside = False
+                          if not inside:
+                              rows.append((str(style), lineno, line.strip()))
+              if rows:
+                  outside.append(prop)
+                  print(prop)
+                  for row in rows:
+                      print('  ' + ':'.join(map(str,row)))
+          print('OUTSIDE_WRITER_PROPERTIES=' + ','.join(outside))
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: css-461-final-layout-audit-${{ github.sha }}
+          retention-days: 7
+          path: /tmp/css461-final-layout-block.css
