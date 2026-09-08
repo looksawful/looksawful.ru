@@ -1,0 +1,132 @@
+name: tmp-css-461-wave5k-fade-characterization
+on:
+  push:
+    branches: [test/css-461-wave5k-fade-characterization]
+permissions:
+  contents: read
+jobs:
+  characterize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: test/css-461-wave5k-fade-characterization
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Restore exact generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Require exact existing media cache
+        shell: bash
+        env:
+          CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
+        run: |
+          set -euo pipefail
+          test "$CACHE_HIT" = "true" || { echo 'Exact generated-media cache miss; CSS characterization must not regenerate media.' >&2; exit 1; }
+          node tools/media-dev-state.mjs --cache-verify
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build:site
+      - name: Start preview
+        shell: bash
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/wave5k-preview.log 2>&1 &
+          echo $! > /tmp/wave5k-preview.pid
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/wave5k-preview.log
+          exit 1
+      - name: Characterize current versus authored fade
+        shell: bash
+        run: |
+          mkdir -p evidence
+          cat > wave5k-fade-characterization.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const browser = await chromium.launch({ headless: true });
+          const results = [];
+          const viewports = [
+            { name: 'mobile', width: 390, height: 844 },
+            { name: 'tablet', width: 900, height: 1000 },
+            { name: 'desktop', width: 1728, height: 1000 },
+          ];
+
+          for (const viewport of viewports) {
+            const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, reducedMotion: 'no-preference' });
+            const page = await context.newPage();
+            await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
+            const root = page.locator('.portfolio-logo-wall[data-infinite-reel]').first();
+            await root.waitFor({ state: 'attached' });
+            await root.scrollIntoViewIfNeeded();
+            await page.waitForTimeout(800);
+
+            const row = await root.evaluate(async (element, viewportName) => {
+              const root = /** @type {HTMLElement} */ (element);
+              const track = root.querySelector(':scope > [data-infinite-reel-track]');
+              if (!(track instanceof HTMLElement)) throw new Error('logo-wall infinite reel track missing');
+              track.style.setProperty('animation-play-state', 'paused', 'important');
+
+              const read = () => {
+                const rootStyle = getComputedStyle(root);
+                const trackStyle = getComputedStyle(track);
+                const first = track.querySelector('.media');
+                const firstRect = first instanceof HTMLElement ? first.getBoundingClientRect() : null;
+                const rootRect = root.getBoundingClientRect();
+                const trackRect = track.getBoundingClientRect();
+                return {
+                  viewport: viewportName,
+                  animated: root.getAttribute('data-animated'),
+                  active: root.hasAttribute('data-infinite-reel-active'),
+                  fadeVariable: rootStyle.getPropertyValue('--infinite-reel-fade-size').trim(),
+                  maskImage: rootStyle.maskImage,
+                  webkitMaskImage: rootStyle.webkitMaskImage,
+                  rootRect: { width: rootRect.width, height: rootRect.height },
+                  trackRect: { width: trackRect.width, height: trackRect.height },
+                  firstRect: firstRect ? { width: firstRect.width, height: firstRect.height } : null,
+                  clientWidth: root.clientWidth,
+                  scrollWidth: root.scrollWidth,
+                  trackGap: trackStyle.columnGap,
+                };
+              };
+
+              const current = read();
+              root.style.setProperty('--infinite-reel-fade-size', 'clamp(1.5rem, 4cqi, 4rem)');
+              await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+              const authored = read();
+              root.style.removeProperty('--infinite-reel-fade-size');
+              return { current, authored };
+            }, viewport.name);
+
+            results.push(row);
+            await root.screenshot({ path: `evidence/${viewport.name}-authored.png` });
+            await root.evaluate((element) => /** @type {HTMLElement} */ (element).style.removeProperty('--infinite-reel-fade-size'));
+            await context.close();
+          }
+
+          await browser.close();
+          await writeFile('evidence/summary.json', JSON.stringify(results, null, 2));
+          console.log(JSON.stringify(results, null, 2));
+          EOF
+          node wave5k-fade-characterization.mjs
+      - uses: actions/upload-artifact@v6
+        with:
+          name: wave5k-fade-characterization
+          path: evidence
+          if-no-files-found: error
