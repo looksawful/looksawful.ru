@@ -11,7 +11,7 @@ permissions:
 jobs:
   parity:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v7
         with:
@@ -64,7 +64,6 @@ jobs:
             ["candidate", "http://127.0.0.1:4174"],
           ];
 
-          const round = (value) => Math.round(value * 100) / 100;
           const browser = await chromium.launch({ headless: true });
           let visibleTotal = 0;
 
@@ -73,12 +72,7 @@ jobs:
             await page.goto(origin + route, { waitUntil: "domcontentloaded", timeout: 30000 });
             await page.evaluate(async () => {
               await document.fonts?.ready;
-              const roots = [...document.querySelectorAll('.media-group[data-layout="sequence"]')]
-                .filter((node) => {
-                  const rect = node.getBoundingClientRect();
-                  return rect.width > 0 && rect.height > 0;
-                });
-              await Promise.all(roots.flatMap((root) => [...root.querySelectorAll("img")].map((img) => img.decode?.().catch(() => {}))));
+              await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
             });
             await page.waitForTimeout(100);
             const data = await page.evaluate(() => {
@@ -154,11 +148,15 @@ jobs:
                     middleMedia: middleMedia.map((node) => relativeRect(node, rootRect)),
                     surfaces: surfaces.map((node) => {
                       const style = getComputedStyle(node);
+                      const media = node.querySelector('img, video');
+                      const mediaStyle = media ? getComputedStyle(media) : null;
                       return {
                         rect: relativeRect(node, rootRect),
                         aspectRatio: style.aspectRatio,
                         mediaRatio: style.getPropertyValue('--media-ratio').trim(),
                         mediaBlockSize: style.getPropertyValue('--media-block-size').trim(),
+                        objectFit: mediaStyle?.objectFit ?? "",
+                        objectPosition: mediaStyle?.objectPosition ?? "",
                       };
                     }),
                   };
