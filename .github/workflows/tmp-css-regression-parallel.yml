@@ -30,8 +30,20 @@ jobs:
           - pair: original-current
             viewport: mobile
             motion: no-preference
+          - pair: original-current
+            viewport: tablet
+            motion: no-preference
+          - pair: original-current
+            viewport: desktop
+            motion: no-preference
+          - pair: current-wave5
+            viewport: mobile
+            motion: no-preference
           - pair: current-wave5
             viewport: tablet
+            motion: no-preference
+          - pair: current-wave5
+            viewport: desktop
             motion: no-preference
     env:
       CSS_AUDIT_PAIR: ${{ matrix.pair }}
