@@ -7,146 +7,127 @@ permissions:
 jobs:
   characterize:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: test/css-461-wave5k-fade-characterization
+          ref: d4a7a2ae93adac6f187f840abeedf9c1f3104945
+          path: candidate
+      - uses: actions/checkout@v7
+        with:
+          ref: 3052400b9d8333bf62fe0147244faa4822e97a8b
+          path: base
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      - name: Calculate canonical media fingerprint
+          cache-dependency-path: candidate/package-lock.json
+      - name: Install dependencies
+        shell: bash
+        run: |
+          (cd candidate && npm ci)
+          (cd base && npm ci)
+      - name: Calculate and require identical media fingerprint
         id: media
         shell: bash
-        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+        run: |
+          set -euo pipefail
+          BASE_FP=$(cd base && node tools/media-dev-state.mjs --fingerprint)
+          CAND_FP=$(cd candidate && node tools/media-dev-state.mjs --fingerprint)
+          echo "base=$BASE_FP"
+          echo "candidate=$CAND_FP"
+          test "$BASE_FP" = "$CAND_FP"
+          echo "fingerprint=$CAND_FP" >> "$GITHUB_OUTPUT"
       - name: Restore exact generated media cache
         id: media-cache
         uses: actions/cache/restore@v6
         with:
           path: |
-            public/media/generated/responsive
-            public/media/generated/video
-            public/media/generated/video-inventory.json
-            .cache/media/generated-cache.json
+            candidate/public/media/generated/responsive
+            candidate/public/media/generated/video
+            candidate/public/media/generated/video-inventory.json
+            candidate/.cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
-      - name: Require exact existing media cache
+      - name: Require exact existing media cache and mirror into base
         shell: bash
         env:
           CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
         run: |
           set -euo pipefail
-          test "$CACHE_HIT" = "true" || { echo 'Exact generated-media cache miss; CSS characterization must not regenerate media.' >&2; exit 1; }
-          node tools/media-dev-state.mjs --cache-verify
+          test "$CACHE_HIT" = "true" || { echo 'Exact generated-media cache miss; CSS parity must not regenerate media.' >&2; exit 1; }
+          (cd candidate && node tools/media-dev-state.mjs --cache-verify)
+          mkdir -p base/public/media/generated base/.cache/media
+          cp -a candidate/public/media/generated/responsive base/public/media/generated/
+          cp -a candidate/public/media/generated/video base/public/media/generated/
+          cp -a candidate/public/media/generated/video-inventory.json base/public/media/generated/
+          cp candidate/.cache/media/generated-cache.json base/.cache/media/
+          (cd base && node tools/media-dev-state.mjs --cache-verify)
       - run: npx playwright install --with-deps chromium
-      - run: npm run build:site
-      - name: Start preview
+        working-directory: candidate
+      - name: Build exact base and candidate
         shell: bash
         run: |
-          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/wave5k-preview.log 2>&1 &
+          (cd base && npm run build:site)
+          (cd candidate && npm run build:site)
+      - name: Start exact previews
+        shell: bash
+        run: |
+          (cd base && npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/base-preview.log 2>&1) &
+          (cd candidate && npm run preview -- --host 127.0.0.1 --port 4174 > /tmp/candidate-preview.log 2>&1) &
           for i in {1..60}; do
-            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null && curl -fsS http://127.0.0.1:4174/ >/dev/null; then exit 0; fi
             sleep 1
           done
-          cat /tmp/wave5k-preview.log
+          cat /tmp/base-preview.log || true
+          cat /tmp/candidate-preview.log || true
           exit 1
-      - name: Characterize current versus authored fade
+      - name: Compare live infinite-reel structure and lifecycle
+        working-directory: candidate
         shell: bash
         run: |
           mkdir -p evidence
-          cat > wave5k-fade-characterization.mjs <<'EOF'
+          cat > wave5k-parity.mjs <<'EOF'
           import { chromium } from 'playwright';
           import { writeFile } from 'node:fs/promises';
-
-          const browser = await chromium.launch({ headless: true });
-          const results = [];
-          const viewports = [
-            { name: 'mobile', width: 390, height: 844 },
-            { name: 'tablet', width: 900, height: 1000 },
-            { name: 'desktop', width: 1728, height: 1000 },
-          ];
-
-          for (const viewport of viewports) {
-            const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, reducedMotion: 'no-preference' });
-            const page = await context.newPage();
-            await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
-            const root = page.locator('.portfolio-logo-wall[data-infinite-reel]').first();
-            await root.waitFor({ state: 'attached' });
-            await root.scrollIntoViewIfNeeded();
-            await page.waitForTimeout(800);
-            await root.evaluate((element) => {
-              const track = element.querySelector(':scope > [data-infinite-reel-track]');
-              if (track instanceof HTMLElement) track.style.setProperty('animation-play-state', 'paused', 'important');
-            });
-            await root.screenshot({ path: `evidence/${viewport.name}-current.png` });
-
-            const current = await root.evaluate((element, viewportName) => {
-              const root = /** @type {HTMLElement} */ (element);
-              const track = root.querySelector(':scope > [data-infinite-reel-track]');
-              if (!(track instanceof HTMLElement)) throw new Error('logo-wall infinite reel track missing');
-              const rootStyle = getComputedStyle(root);
-              const trackStyle = getComputedStyle(track);
-              const first = track.querySelector('.media');
-              const firstRect = first instanceof HTMLElement ? first.getBoundingClientRect() : null;
-              const rootRect = root.getBoundingClientRect();
-              const trackRect = track.getBoundingClientRect();
-              return {
-                viewport: viewportName,
-                animated: root.getAttribute('data-animated'),
-                active: root.hasAttribute('data-infinite-reel-active'),
-                fadeVariable: rootStyle.getPropertyValue('--infinite-reel-fade-size').trim(),
-                maskImage: rootStyle.maskImage,
-                webkitMaskImage: rootStyle.webkitMaskImage,
-                rootRect: { width: rootRect.width, height: rootRect.height },
-                trackRect: { width: trackRect.width, height: trackRect.height },
-                firstRect: firstRect ? { width: firstRect.width, height: firstRect.height } : null,
-                clientWidth: root.clientWidth,
-                scrollWidth: root.scrollWidth,
-                trackGap: trackStyle.columnGap,
-              };
-            }, viewport.name);
-
-            await root.evaluate((element) => /** @type {HTMLElement} */ (element).style.setProperty('--infinite-reel-fade-size', 'clamp(1.5rem, 4cqi, 4rem)'));
-            await page.waitForTimeout(100);
-            await root.screenshot({ path: `evidence/${viewport.name}-authored.png` });
-            const authored = await root.evaluate((element, viewportName) => {
-              const root = /** @type {HTMLElement} */ (element);
-              const track = root.querySelector(':scope > [data-infinite-reel-track]');
-              if (!(track instanceof HTMLElement)) throw new Error('logo-wall infinite reel track missing');
-              const rootStyle = getComputedStyle(root);
-              const trackStyle = getComputedStyle(track);
-              const first = track.querySelector('.media');
-              const firstRect = first instanceof HTMLElement ? first.getBoundingClientRect() : null;
-              const rootRect = root.getBoundingClientRect();
-              const trackRect = track.getBoundingClientRect();
-              return {
-                viewport: viewportName,
-                animated: root.getAttribute('data-animated'),
-                active: root.hasAttribute('data-infinite-reel-active'),
-                fadeVariable: rootStyle.getPropertyValue('--infinite-reel-fade-size').trim(),
-                maskImage: rootStyle.maskImage,
-                webkitMaskImage: rootStyle.webkitMaskImage,
-                rootRect: { width: rootRect.width, height: rootRect.height },
-                trackRect: { width: trackRect.width, height: trackRect.height },
-                firstRect: firstRect ? { width: firstRect.width, height: firstRect.height } : null,
-                clientWidth: root.clientWidth,
-                scrollWidth: root.scrollWidth,
-                trackGap: trackStyle.columnGap,
-              };
-            }, viewport.name);
-            await root.evaluate((element) => /** @type {HTMLElement} */ (element).style.removeProperty('--infinite-reel-fade-size'));
-            results.push({ current, authored });
-            await context.close();
+          const baseURL='http://127.0.0.1:4173', candidateURL='http://127.0.0.1:4174';
+          const routes=['/','/work/jestei-pool/','/shootings/','/work/sensetique/','/work/moves/'];
+          const viewports=[['mobile',390,844],['tablet',900,1000],['desktop',1728,1000]];
+          const motions=['reduce','no-preference'];
+          const browser=await chromium.launch({headless:true});
+          const evidence=[]; let failures=0;
+          const round=v=>Math.round(v*1000)/1000;
+          const normMask=v=>v.replaceAll(/\s+/g,' ').trim();
+          async function snap(origin,route,[name,width,height],reducedMotion){
+            const context=await browser.newContext({viewport:{width,height},reducedMotion});
+            const page=await context.newPage(); await page.goto(origin+route,{waitUntil:'domcontentloaded'}); await page.waitForTimeout(250);
+            const roots=page.locator('[data-infinite-reel]'); const count=await roots.count(); const reels=[];
+            for(let i=0;i<count;i++){
+              const root=roots.nth(i), box=await root.boundingBox(); if(!box||box.width<=0||box.height<=0) continue;
+              await root.scrollIntoViewIfNeeded(); await page.waitForTimeout(reducedMotion==='no-preference'?450:120);
+              reels.push(await root.evaluate((element,index)=>{
+                const root=element, track=root.querySelector(':scope > [data-infinite-reel-track]'); if(!(track instanceof HTMLElement)) throw new Error(`reel ${index} missing track`);
+                const rs=getComputedStyle(root), ts=getComputedStyle(track), originals=[...track.children].filter(x=>!x.hasAttribute('data-infinite-reel-clone')), clones=[...track.children].filter(x=>x.hasAttribute('data-infinite-reel-clone'));
+                const first=originals[0] instanceof HTMLElement?originals[0]:null, surface=first?.querySelector('.media__surface'), media=surface?.querySelector('img,video,picture > img');
+                const rr=root.getBoundingClientRect(), tr=track.getBoundingClientRect(), fr=first?.getBoundingClientRect(), sr=surface instanceof HTMLElement?surface.getBoundingClientRect():null, ss=surface instanceof HTMLElement?getComputedStyle(surface):null, ms=media instanceof HTMLElement?getComputedStyle(media):null;
+                return {index,className:root.className,animated:root.getAttribute('data-animated'),active:root.hasAttribute('data-infinite-reel-active'),originalCount:originals.length,cloneCount:clones.length,durationVar:rs.getPropertyValue('--infinite-reel-duration').trim(),fadeVar:rs.getPropertyValue('--infinite-reel-fade-size').trim(),maskImage:rs.maskImage,webkitMaskImage:rs.webkitMaskImage,overflowX:rs.overflowX,overflowY:rs.overflowY,minInlineSize:rs.minInlineSize,rootWidth:rr.width,rootHeight:rr.height,rootClientWidth:root.clientWidth,rootScrollWidth:root.scrollWidth,trackWidth:tr.width,trackHeight:tr.height,trackScrollWidth:track.scrollWidth,trackDisplay:ts.display,trackFlexWrap:ts.flexWrap,trackAlignItems:ts.alignItems,trackJustifyContent:ts.justifyContent,trackGap:ts.columnGap,trackWidthCss:ts.width,trackMaxInlineSize:ts.maxInlineSize,trackOverflow:ts.overflow,trackScrollSnapType:ts.scrollSnapType,animationName:ts.animationName,animationDuration:ts.animationDuration,animationTimingFunction:ts.animationTimingFunction,animationIterationCount:ts.animationIterationCount,animationPlayState:ts.animationPlayState,willChange:ts.willChange,firstWidth:fr?.width??null,firstHeight:fr?.height??null,surfaceWidth:sr?.width??null,surfaceHeight:sr?.height??null,surfaceAspectRatio:ss?.aspectRatio??null,objectFit:ms?.objectFit??null,objectPosition:ms?.objectPosition??null};
+              },i));
+            }
+            const doc=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth})); await context.close(); return {reels,doc};
           }
-
-          await browser.close();
-          await writeFile('evidence/summary.json', JSON.stringify(results, null, 2));
-          console.log(JSON.stringify(results, null, 2));
+          const normalized=v=>({...v,maskImage:normMask(v.maskImage),webkitMaskImage:normMask(v.webkitMaskImage),rootWidth:round(v.rootWidth),rootHeight:round(v.rootHeight),trackWidth:round(v.trackWidth),trackHeight:round(v.trackHeight),firstWidth:v.firstWidth==null?null:round(v.firstWidth),firstHeight:v.firstHeight==null?null:round(v.firstHeight),surfaceWidth:v.surfaceWidth==null?null:round(v.surfaceWidth),surfaceHeight:v.surfaceHeight==null?null:round(v.surfaceHeight)});
+          for(const route of routes) for(const viewport of viewports) for(const motion of motions){
+            const base=await snap(baseURL,route,viewport,motion), candidate=await snap(candidateURL,route,viewport,motion), errs=[];
+            if(base.reels.length!==candidate.reels.length) errs.push(`count ${base.reels.length}->${candidate.reels.length}`);
+            for(let i=0;i<Math.min(base.reels.length,candidate.reels.length);i++) if(JSON.stringify(normalized(base.reels[i]))!==JSON.stringify(normalized(candidate.reels[i]))) errs.push(`reel ${i} stable state differs`);
+            if(JSON.stringify(base.doc)!==JSON.stringify(candidate.doc)) errs.push('document overflow differs'); failures+=errs.length;
+            evidence.push({route,viewport:viewport[0],motion,base,candidate,failures:errs}); console.log(`${errs.length?'FAIL':'PASS'} ${route} ${viewport[0]} ${motion} reels=${base.reels.length}/${candidate.reels.length}${errs.length?` :: ${errs.join('; ')}`:''}`);
+          }
+          await writeFile('evidence/summary.json',JSON.stringify({failures,evidence},null,2)); await browser.close(); if(failures) process.exitCode=1;
           EOF
-          node wave5k-fade-characterization.mjs
+          node wave5k-parity.mjs
       - uses: actions/upload-artifact@v6
+        if: always()
         with:
-          name: wave5k-fade-characterization
-          path: evidence
+          name: css-578-infinite-reel-parity
+          path: candidate/evidence
           if-no-files-found: error
