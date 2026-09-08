@@ -11,57 +11,71 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: d4a7a2ae93adac6f187f840abeedf9c1f3104945
-          path: candidate
-      - uses: actions/checkout@v7
-        with:
-          ref: 3052400b9d8333bf62fe0147244faa4822e97a8b
-          path: base
+          ref: test/css-461-wave5k-fade-characterization
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: candidate/package-lock.json
-      - name: Install dependencies
-        shell: bash
-        run: |
-          (cd candidate && npm ci)
-          (cd base && npm ci)
-      - name: Calculate and require identical media fingerprint
+      - name: Calculate canonical media fingerprint
         id: media
         shell: bash
-        run: |
-          set -euo pipefail
-          BASE_FP=$(cd base && node tools/media-dev-state.mjs --fingerprint)
-          CAND_FP=$(cd candidate && node tools/media-dev-state.mjs --fingerprint)
-          echo "base=$BASE_FP"
-          echo "candidate=$CAND_FP"
-          test "$BASE_FP" = "$CAND_FP"
-          echo "fingerprint=$CAND_FP" >> "$GITHUB_OUTPUT"
-      - name: Restore exact generated media cache
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Restore exact generated media cache at canonical root paths
         id: media-cache
         uses: actions/cache/restore@v6
         with:
           path: |
-            candidate/public/media/generated/responsive
-            candidate/public/media/generated/video
-            candidate/public/media/generated/video-inventory.json
-            candidate/.cache/media/generated-cache.json
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
-      - name: Require exact existing media cache and mirror into base
+      - name: Require and snapshot existing media cache
         shell: bash
         env:
           CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
         run: |
           set -euo pipefail
           test "$CACHE_HIT" = "true" || { echo 'Exact generated-media cache miss; CSS parity must not regenerate media.' >&2; exit 1; }
-          (cd candidate && node tools/media-dev-state.mjs --cache-verify)
-          mkdir -p base/public/media/generated base/.cache/media
-          cp -a candidate/public/media/generated/responsive base/public/media/generated/
-          cp -a candidate/public/media/generated/video base/public/media/generated/
-          cp -a candidate/public/media/generated/video-inventory.json base/public/media/generated/
-          cp candidate/.cache/media/generated-cache.json base/.cache/media/
-          (cd base && node tools/media-dev-state.mjs --cache-verify)
+          node tools/media-dev-state.mjs --cache-verify
+          mkdir -p /tmp/wave5k-media/public/media/generated /tmp/wave5k-media/.cache/media
+          cp -a public/media/generated/responsive /tmp/wave5k-media/public/media/generated/
+          cp -a public/media/generated/video /tmp/wave5k-media/public/media/generated/
+          cp -a public/media/generated/video-inventory.json /tmp/wave5k-media/public/media/generated/
+          cp .cache/media/generated-cache.json /tmp/wave5k-media/.cache/media/
+      - uses: actions/checkout@v7
+        with:
+          ref: d4a7a2ae93adac6f187f840abeedf9c1f3104945
+          path: candidate
+      - uses: actions/checkout@v7
+        with:
+          ref: 3052400b9d8333bf62fe0147244faa4822e97a8b
+          path: base
+      - name: Install exact base/candidate dependencies
+        shell: bash
+        run: |
+          (cd candidate && npm ci)
+          (cd base && npm ci)
+      - name: Mirror and verify exact generated media cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_FP=$(cd base && node tools/media-dev-state.mjs --fingerprint)
+          CAND_FP=$(cd candidate && node tools/media-dev-state.mjs --fingerprint)
+          ROOT_FP=$(node tools/media-dev-state.mjs --fingerprint)
+          echo "root=$ROOT_FP"
+          echo "base=$BASE_FP"
+          echo "candidate=$CAND_FP"
+          test "$ROOT_FP" = "$BASE_FP"
+          test "$ROOT_FP" = "$CAND_FP"
+          for target in base candidate; do
+            mkdir -p "$target/public/media/generated" "$target/.cache/media"
+            cp -a /tmp/wave5k-media/public/media/generated/responsive "$target/public/media/generated/"
+            cp -a /tmp/wave5k-media/public/media/generated/video "$target/public/media/generated/"
+            cp -a /tmp/wave5k-media/public/media/generated/video-inventory.json "$target/public/media/generated/"
+            cp /tmp/wave5k-media/.cache/media/generated-cache.json "$target/.cache/media/"
+            (cd "$target" && node tools/media-dev-state.mjs --cache-verify)
+          done
       - run: npx playwright install --with-deps chromium
         working-directory: candidate
       - name: Build exact base and candidate
