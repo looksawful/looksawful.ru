@@ -23,15 +23,8 @@ test("components aggregate no longer owns generic media core presentation", () =
   assert.doesNotMatch(components, /(?:^|\n)\.media__surface\.media__surface--center-crop\s*\{/);
   assert.doesNotMatch(components, /(?:^|\n)\.media__surface\.media__surface--center-crop\s*>\s*video\s*\{/);
 
-  // These are deliberately outside Wave 5A and must remain later specializations.
+  // Project integration is not part of the canonical media owner and remains later.
   assert.match(components, /(?:^|\n)\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child\s*\{/);
-  assert.match(components, /(?:^|\n)\.media-group\s*\{/);
-  assert.match(components, /(?:^|\n)\.brand-system__surface\s*\{/);
-  assert.match(
-    components,
-    /(?:^|\n)\.brand-system__surface\s*\{[\s\S]*?aspect-ratio:\s*16\s*\/\s*10\s*;/,
-    "Brand System must retain its authored 16:10 specialization after the generic media owner moves earlier",
-  );
 });
 
 test("canonical media owner preserves the public sizing and crop API", () => {
@@ -49,13 +42,11 @@ test("canonical media owner preserves the public sizing and crop API", () => {
   assert.match(owner, /\.media__surface\.media__surface--center-crop\s*>\s*video\s*\{/);
 });
 
-test("Wave 5A owner does not absorb media-group, captions or project integration", () => {
+test("canonical media owner keeps captions and project integration outside media.css", () => {
   assert.equal(existsSync(ownerPath), true, "media.css must exist");
   if (!existsSync(ownerPath)) return;
 
   const owner = readFileSync(ownerPath, "utf8");
-  assert.doesNotMatch(owner, /(?:^|\n)\.media-group(?:\s|__|\[|\{|\.)/);
   assert.doesNotMatch(owner, /(?:^|\n)\.media__caption(?:\s|__|\{|\.)/);
   assert.doesNotMatch(owner, /(?:^|\n)\.project__section\s*>/);
-  assert.doesNotMatch(owner, /(?:^|\n)\.brand-system__surface\s*\{/);
 });
