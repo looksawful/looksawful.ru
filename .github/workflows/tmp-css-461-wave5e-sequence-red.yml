@@ -1,0 +1,34 @@
+name: tmp-css-461-wave5e-sequence-red
+
+on:
+  push:
+    branches:
+      - refactor/css-461-wave5e-sequence
+
+permissions:
+  contents: read
+
+jobs:
+  red:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Require structural RED before sequence move
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          node --test test/css-refactor-wave5e-sequence.test.mjs > /tmp/wave5e-sequence-red.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/wave5e-sequence-red.log
+          if [ "$status" -eq 0 ]; then
+            echo 'Wave5E sequence contract unexpectedly passed before ownership move' >&2
+            exit 1
+          fi
+          grep -F 'Wave5E sequence family has one canonical media owner' /tmp/wave5e-sequence-red.log
+          grep -F 'Wave5E sequence ownership contract is mandatory in Fast CI' /tmp/wave5e-sequence-red.log
