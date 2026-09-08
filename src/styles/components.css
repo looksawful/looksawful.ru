@@ -172,7 +172,6 @@
 }
 
 .portfolio-showcase__group {
-  --group-gap: var(--portfolio-group-gap);
   --group-max: 100%;
   --strip-height: var(--portfolio-strip-height);
 }
@@ -187,6 +186,7 @@
 
 .portfolio-logo-wall {
   --portfolio-group-gap: clamp(0.5rem, 0.9cqi, 0.8rem);
+  --media-group-gap: var(--portfolio-group-gap);
   --portfolio-strip-height: clamp(2rem, 3.5cqi, 3.25rem);
   --infinite-reel-fade-size: clamp(1.5rem, 4cqi, 4rem);
 }
@@ -365,8 +365,9 @@
 }
 
 .media-group {
-  --group-gap: var(--project-media-gap);
-  --group-row-gap: var(--project-media-row-gap);
+  /* Resolve authored component inputs before project and system fallbacks. */
+  --group-gap: var(--media-group-gap, var(--project-media-gap, var(--size-300)));
+  --group-row-gap: var(--media-group-row-gap, var(--project-media-row-gap, var(--group-gap)));
   --group-columns: 2;
   --group-mobile-columns: 2;
 
