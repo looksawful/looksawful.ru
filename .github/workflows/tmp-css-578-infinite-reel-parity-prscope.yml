@@ -12,7 +12,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: d4a7a2ae93adac6f187f840abeedf9c1f3104945
-          path: candidate
       - uses: actions/checkout@v7
         with:
           ref: 3052400b9d8333bf62fe0147244faa4822e97a8b
@@ -21,11 +20,11 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: candidate/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Install dependencies
         shell: bash
         run: |
-          (cd candidate && npm ci)
+          npm ci
           (cd base && npm ci)
       - name: Require identical media fingerprint
         id: media
@@ -33,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           BASE_FP=$(cd base && node tools/media-dev-state.mjs --fingerprint)
-          CAND_FP=$(cd candidate && node tools/media-dev-state.mjs --fingerprint)
+          CAND_FP=$(node tools/media-dev-state.mjs --fingerprint)
           test "$BASE_FP" = "$CAND_FP"
           echo "fingerprint=$CAND_FP" >> "$GITHUB_OUTPUT"
       - name: Restore exact generated media cache once
@@ -41,10 +40,10 @@ jobs:
         uses: actions/cache/restore@v6
         with:
           path: |
-            candidate/public/media/generated/responsive
-            candidate/public/media/generated/video
-            candidate/public/media/generated/video-inventory.json
-            candidate/.cache/media/generated-cache.json
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
       - name: Require existing cache and mirror into base
         shell: bash
@@ -53,25 +52,24 @@ jobs:
         run: |
           set -euo pipefail
           test "$CACHE_HIT" = "true" || { echo 'Exact generated-media cache miss; CSS parity must not regenerate media.' >&2; exit 1; }
-          (cd candidate && node tools/media-dev-state.mjs --cache-verify)
+          node tools/media-dev-state.mjs --cache-verify
           mkdir -p base/public/media/generated base/.cache/media
-          cp -a candidate/public/media/generated/responsive base/public/media/generated/
-          cp -a candidate/public/media/generated/video base/public/media/generated/
-          cp -a candidate/public/media/generated/video-inventory.json base/public/media/generated/
-          cp candidate/.cache/media/generated-cache.json base/.cache/media/
+          cp -a public/media/generated/responsive base/public/media/generated/
+          cp -a public/media/generated/video base/public/media/generated/
+          cp -a public/media/generated/video-inventory.json base/public/media/generated/
+          cp .cache/media/generated-cache.json base/.cache/media/
           (cd base && node tools/media-dev-state.mjs --cache-verify)
       - run: npx playwright install --with-deps chromium
-        working-directory: candidate
       - name: Build exact base and candidate
         shell: bash
         run: |
           (cd base && npm run build:site)
-          (cd candidate && npm run build:site)
+          npm run build:site
       - name: Start exact previews
         shell: bash
         run: |
           (cd base && npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/base-preview.log 2>&1) &
-          (cd candidate && npm run preview -- --host 127.0.0.1 --port 4174 > /tmp/candidate-preview.log 2>&1) &
+          (npm run preview -- --host 127.0.0.1 --port 4174 > /tmp/candidate-preview.log 2>&1) &
           for i in {1..60}; do
             if curl -fsS http://127.0.0.1:4173/ >/dev/null && curl -fsS http://127.0.0.1:4174/ >/dev/null; then exit 0; fi
             sleep 1
@@ -80,7 +78,6 @@ jobs:
           cat /tmp/candidate-preview.log || true
           exit 1
       - name: Compare live infinite-reel structure and lifecycle
-        working-directory: candidate
         shell: bash
         run: |
           mkdir -p evidence
@@ -147,5 +144,5 @@ jobs:
         if: always()
         with:
           name: css-578-infinite-reel-parity-prscope
-          path: candidate/evidence
+          path: evidence
           if-no-files-found: warn
