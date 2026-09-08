@@ -7,15 +7,145 @@ permissions:
 jobs:
   focused:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: true
+          fetch-depth: 2
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Prove editorial ownership contract is RED
-        run: node --test test/css-refactor-wave5h-editorial.test.mjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Characterize current editorial layout before move
+        shell: bash
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/wave5h-vite.log 2>&1 &
+          VITE_PID=$!
+          trap 'kill $VITE_PID 2>/dev/null || true' EXIT
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:4173/work/sensetique/ >/dev/null; then break; fi
+            sleep 1
+          done
+          cat > "$GITHUB_WORKSPACE/.tmp-wave5h-characterize.mjs" <<'NODE'
+          import { chromium } from "playwright";
+          import { writeFileSync } from "node:fs";
+
+          const browser = await chromium.launch({ headless: true });
+          const page = await browser.newPage();
+          const results = [];
+          for (const width of [390, 900, 1728]) {
+            await page.setViewportSize({ width, height: 1000 });
+            await page.goto("http://127.0.0.1:4173/work/sensetique/", { waitUntil: "domcontentloaded" });
+            await page.evaluate(async () => {
+              await document.fonts?.ready;
+              const media = [...document.querySelectorAll('.media-group[data-layout="editorial"] img')];
+              await Promise.all(media.map((img) => img.decode?.().catch(() => undefined)));
+            });
+            const snapshot = await page.locator('.media-group[data-layout="editorial"]').evaluateAll((groups, viewportWidth) =>
+              groups.filter((group) => group.getBoundingClientRect().width > 0).map((group) => {
+                const items = group.querySelector(':scope > .media-group__items');
+                if (!items) throw new Error('editorial group missing direct items');
+                const style = getComputedStyle(items);
+                return {
+                  viewportWidth,
+                  groupClass: group.className,
+                  groupRect: group.getBoundingClientRect().toJSON(),
+                  display: style.display,
+                  gridTemplateColumns: style.gridTemplateColumns,
+                  columnGap: style.columnGap,
+                  rowGap: style.rowGap,
+                  alignItems: style.alignItems,
+                  children: [...items.children].map((child) => {
+                    const childStyle = getComputedStyle(child);
+                    const surface = child.querySelector('.media__surface');
+                    const surfaceStyle = surface ? getComputedStyle(surface) : null;
+                    return {
+                      role: child.getAttribute('data-role'),
+                      rect: child.getBoundingClientRect().toJSON(),
+                      gridColumnStart: childStyle.gridColumnStart,
+                      gridColumnEnd: childStyle.gridColumnEnd,
+                      surfaceRect: surface?.getBoundingClientRect().toJSON() ?? null,
+                      objectFit: surfaceStyle?.getPropertyValue('--media-fit').trim() ?? '',
+                    };
+                  }),
+                };
+              }), width);
+            if (snapshot.length === 0) throw new Error(`no visible editorial group at ${width}px`);
+            if (snapshot.some((entry) => entry.display !== 'grid')) throw new Error(`editorial items not grid at ${width}px`);
+            results.push(...snapshot);
+          }
+          await browser.close();
+          writeFileSync('wave5h-editorial-base.json', JSON.stringify(results, null, 2));
+          console.log(JSON.stringify(results, null, 2));
+          NODE
+          node "$GITHUB_WORKSPACE/.tmp-wave5h-characterize.mjs"
+          rm "$GITHUB_WORKSPACE/.tmp-wave5h-characterize.mjs"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: wave5h-editorial-base
+          path: wave5h-editorial-base.json
+      - name: Apply minimal editorial ownership move
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from "node:fs";
+
+          const componentsPath = "src/styles/components.css";
+          const mediaPath = "src/styles/media.css";
+          const startMarker = "/* Explicit editorial grid. Item spans are local custom properties. */";
+          const nextMarker = "/* Column masonry. Each image is its own media item. */";
+
+          let components = readFileSync(componentsPath, "utf8");
+          let media = readFileSync(mediaPath, "utf8");
+          const start = components.indexOf(startMarker);
+          const next = components.indexOf(nextMarker);
+          if (start < 0 || next < 0 || next <= start) throw new Error("editorial source markers are not unique/in order");
+          if (components.indexOf(startMarker, start + 1) !== -1) throw new Error("duplicate editorial source marker");
+          if (media.includes(startMarker)) throw new Error("editorial already exists in media.css");
+
+          const block = components.slice(start, next).trimEnd();
+          components = components.slice(0, start) + components.slice(next);
+          media = media.trimEnd() + "\n\n" + block + "\n";
+          writeFileSync(componentsPath, components);
+          writeFileSync(mediaPath, media);
+
+          for (const path of [
+            "test/css-refactor-wave5c-grid-compact.test.mjs",
+            "test/css-refactor-wave5e-sequence.test.mjs",
+            "test/css-refactor-wave5g-strip.test.mjs",
+          ]) {
+            let source = readFileSync(path, "utf8");
+            const line = '    /(?:^|\\n)\\.media-group\\[data-layout="editorial"\\]/,\n';
+            if (!source.includes(line)) throw new Error(`${path}: editorial boundary assertion not found`);
+            source = source.replace(line, "");
+            writeFileSync(path, source);
+          }
+
+          const fastPath = "tools/ci/run-tests.mjs";
+          let fast = readFileSync(fastPath, "utf8");
+          const anchor = '  "test/css-refactor-wave5g-strip.test.mjs",\n';
+          const addition = anchor + '  "test/css-refactor-wave5h-editorial.test.mjs",\n';
+          if (!fast.includes(anchor)) throw new Error("Fast CI Wave5G anchor missing");
+          if (fast.includes("css-refactor-wave5h-editorial")) throw new Error("Wave5H already registered");
+          fast = fast.replace(anchor, addition);
+          writeFileSync(fastPath, fast);
+          NODE
+      - name: Focused ownership tests
+        run: node --test test/css-refactor-wave5c-grid-compact.test.mjs test/css-refactor-wave5e-sequence.test.mjs test/css-refactor-wave5g-strip.test.mjs test/css-refactor-wave5h-editorial.test.mjs
+      - name: Fast CI suite
+        run: npm run test:fast
+      - name: Diff hygiene
+        run: git diff --check
+      - name: Commit candidate and remove temporary workflow
+        shell: bash
+        run: |
+          rm .github/workflows/tmp-css-461-wave5h-editorial.yml wave5h-editorial-base.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/styles/components.css src/styles/media.css test/css-refactor-wave5c-grid-compact.test.mjs test/css-refactor-wave5e-sequence.test.mjs test/css-refactor-wave5g-strip.test.mjs test/css-refactor-wave5h-editorial.test.mjs tools/ci/run-tests.mjs .github/workflows/tmp-css-461-wave5h-editorial.yml
+          git diff --cached --check
+          git commit -m "refactor(css): extract Wave5H editorial layout ownership"
+          git push origin HEAD:refactor/css-461-wave5h-editorial
