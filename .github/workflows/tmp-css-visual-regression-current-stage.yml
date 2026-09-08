@@ -1,0 +1,232 @@
+name: tmp-css-visual-regression-current-stage
+
+on:
+  push:
+    branches:
+      - test/css-visual-regression-current-stage-20260908
+
+concurrency:
+  group: tmp-css-visual-regression-current-stage
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  visual-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      ORIGINAL_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
+      DEV_SHA: a21c3bceec6a8ff8692cf60c83a38c15789d4811
+      WIP_SHA: 264696a762722b94e7649f44c6a9d863d8752c8d
+    steps:
+      - name: Checkout temporary audit harness
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Fetch exact comparison commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$ORIGINAL_SHA"
+          git fetch --no-tags --depth=1 origin "$DEV_SHA"
+          git fetch --no-tags --depth=1 origin "$WIP_SHA"
+          git cat-file -e "$ORIGINAL_SHA^{commit}"
+          git cat-file -e "$DEV_SHA^{commit}"
+          git cat-file -e "$WIP_SHA^{commit}"
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install audit dependencies
+        run: npm ci
+
+      - name: Install browser and media tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npx playwright install --with-deps chromium
+
+      - name: Verify shared dependency lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          original_lock="$(git show "$ORIGINAL_SHA:package-lock.json" | sha256sum | cut -d' ' -f1)"
+          dev_lock="$(git show "$DEV_SHA:package-lock.json" | sha256sum | cut -d' ' -f1)"
+          wip_lock="$(git show "$WIP_SHA:package-lock.json" | sha256sum | cut -d' ' -f1)"
+          printf 'original=%s\ndev=%s\nwip=%s\n' "$original_lock" "$dev_lock" "$wip_lock"
+          test "$original_lock" = "$dev_lock"
+          test "$dev_lock" = "$wip_lock"
+
+      - name: Create exact worktrees
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/css-original /tmp/css-dev /tmp/css-wip
+          git worktree add --detach /tmp/css-original "$ORIGINAL_SHA"
+          git worktree add --detach /tmp/css-dev "$DEV_SHA"
+          git worktree add --detach /tmp/css-wip "$WIP_SHA"
+          for tree in /tmp/css-original /tmp/css-dev /tmp/css-wip; do
+            ln -s "$GITHUB_WORKSPACE/node_modules" "$tree/node_modules"
+          done
+
+      - name: Prove media inputs match and prepare one generated set
+        shell: bash
+        run: |
+          set -euo pipefail
+          original_fp="$(cd /tmp/css-original && node tools/media-dev-state.mjs --fingerprint)"
+          dev_fp="$(cd /tmp/css-dev && node tools/media-dev-state.mjs --fingerprint)"
+          wip_fp="$(cd /tmp/css-wip && node tools/media-dev-state.mjs --fingerprint)"
+          printf 'original=%s\ndev=%s\nwip=%s\n' "$original_fp" "$dev_fp" "$wip_fp"
+          test "$original_fp" = "$dev_fp"
+          test "$dev_fp" = "$wip_fp"
+
+          (cd /tmp/css-dev && npm run media:sync)
+          (cd /tmp/css-dev && node tools/media-dev-state.mjs --cache-verify)
+
+          for tree in /tmp/css-original /tmp/css-wip; do
+            rm -rf "$tree/public/media/generated"
+            mkdir -p "$tree/public/media/generated" "$tree/.cache/media"
+            cp -a /tmp/css-dev/public/media/generated/. "$tree/public/media/generated/"
+            cp /tmp/css-dev/.cache/media/generated-cache.json "$tree/.cache/media/generated-cache.json"
+            (cd "$tree" && node tools/media-dev-state.mjs --cache-verify)
+          done
+
+      - name: Build exact sites
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp/css-original && npm run build:site)
+          (cd /tmp/css-dev && npm run build:site)
+          (cd /tmp/css-wip && npm run build:site)
+
+      - name: Start exact static previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp/css-original && npx vite preview --host 127.0.0.1 --port 4171 > /tmp/css-original-preview.log 2>&1 & echo $! > /tmp/css-original-preview.pid)
+          (cd /tmp/css-dev && npx vite preview --host 127.0.0.1 --port 4172 > /tmp/css-dev-preview.log 2>&1 & echo $! > /tmp/css-dev-preview.pid)
+          (cd /tmp/css-wip && npx vite preview --host 127.0.0.1 --port 4173 > /tmp/css-wip-preview.log 2>&1 & echo $! > /tmp/css-wip-preview.pid)
+          for port in 4171 4172 4173; do
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent "http://127.0.0.1:$port/" > /dev/null; then break; fi
+              if [[ "$attempt" -eq 60 ]]; then exit 1; fi
+              sleep 1
+            done
+          done
+
+      - name: Original to current dev media-fit audit
+        shell: bash
+        run: |
+          set +e
+          BASELINE_SHA="$ORIGINAL_SHA" CURRENT_SHA="$DEV_SHA" \
+            node tools/tmp-css-media-fit-audit.mjs http://127.0.0.1:4171 http://127.0.0.1:4172 /tmp/visual-original-dev \
+            > /tmp/visual-original-dev-media.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/visual-original-dev-media.log
+          printf '%s\n' "$status" > /tmp/visual-original-dev-media.status
+
+      - name: Original to current dev full visual audit
+        shell: bash
+        run: |
+          set +e
+          BASELINE_SHA="$ORIGINAL_SHA" CURRENT_SHA="$DEV_SHA" \
+            node tools/tmp-css-regression-bounded.mjs http://127.0.0.1:4171 http://127.0.0.1:4172 /tmp/regression-original-dev \
+            > /tmp/regression-original-dev.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/regression-original-dev.log
+          printf '%s\n' "$status" > /tmp/regression-original-dev.status
+
+      - name: Current dev to Wave5F WIP media-fit audit
+        shell: bash
+        run: |
+          set +e
+          BASELINE_SHA="$DEV_SHA" CURRENT_SHA="$WIP_SHA" \
+            node tools/tmp-css-media-fit-audit.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 /tmp/visual-dev-wip \
+            > /tmp/visual-dev-wip-media.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/visual-dev-wip-media.log
+          printf '%s\n' "$status" > /tmp/visual-dev-wip-media.status
+
+      - name: Current dev to Wave5F WIP full visual audit
+        shell: bash
+        run: |
+          set +e
+          BASELINE_SHA="$DEV_SHA" CURRENT_SHA="$WIP_SHA" \
+            node tools/tmp-css-regression-bounded.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 /tmp/regression-dev-wip \
+            > /tmp/regression-dev-wip.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/regression-dev-wip.log
+          printf '%s\n' "$status" > /tmp/regression-dev-wip.status
+
+      - name: Print audit summaries
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          for report in \
+            /tmp/visual-original-dev/report.md \
+            /tmp/regression-original-dev/report.md \
+            /tmp/visual-dev-wip/report.md \
+            /tmp/regression-dev-wip/report.md; do
+            if [[ -f "$report" ]]; then
+              printf '\n===== %s =====\n' "$report"
+              cat "$report"
+            fi
+          done
+
+      - name: Archive one-time visual evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-visual-regression-current-stage-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 7
+          path: |
+            /tmp/visual-original-dev
+            /tmp/regression-original-dev
+            /tmp/visual-dev-wip
+            /tmp/regression-dev-wip
+            /tmp/visual-original-dev-media.log
+            /tmp/visual-original-dev-media.status
+            /tmp/regression-original-dev.log
+            /tmp/regression-original-dev.status
+            /tmp/visual-dev-wip-media.log
+            /tmp/visual-dev-wip-media.status
+            /tmp/regression-dev-wip.log
+            /tmp/regression-dev-wip.status
+            /tmp/css-original-preview.log
+            /tmp/css-dev-preview.log
+            /tmp/css-wip-preview.log
+
+      - name: Classify audit result
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          failed=0
+          for status_file in \
+            /tmp/visual-original-dev-media.status \
+            /tmp/regression-original-dev.status \
+            /tmp/visual-dev-wip-media.status \
+            /tmp/regression-dev-wip.status; do
+            if [[ ! -f "$status_file" ]] || [[ "$(cat "$status_file")" != "0" ]]; then
+              failed=1
+            fi
+          done
+          if [[ "$failed" -ne 0 ]]; then
+            echo 'One or more visual comparisons reported differences; inspect archived evidence.' >&2
+            exit 1
+          fi
+          echo 'All one-time visual comparisons are green.'
