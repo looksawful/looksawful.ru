@@ -1,0 +1,240 @@
+name: tmp-css-560-wave5c-parity
+
+on:
+  push:
+    branches:
+      - test/css-560-wave5c-parity-diagnostic
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: dc03e52be8351521b1605e70b546493491bfb06d
+  CANDIDATE_SHA: 0f00179bc8b1d534cfa458561829f087bfd68d21
+
+jobs:
+  parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 30
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Prepare exact refs and servers
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=30 origin "$BASE_SHA"
+          git fetch --no-tags --depth=30 origin "$CANDIDATE_SHA"
+          git worktree add --detach /tmp/base "$BASE_SHA"
+          git worktree add --detach /tmp/candidate "$CANDIDATE_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/base/node_modules
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/candidate/node_modules
+          (cd /tmp/base && npx vite --host 127.0.0.1 --port 4172 > /tmp/base.log 2>&1 &)
+          (cd /tmp/candidate && npx vite --host 127.0.0.1 --port 4173 > /tmp/candidate.log 2>&1 &)
+          for port in 4172 4173; do
+            for i in $(seq 1 60); do
+              curl --fail --silent "http://127.0.0.1:$port/" >/dev/null && break
+              test "$i" -lt 60
+              sleep 1
+            done
+          done
+      - name: Compare Wave5C computed geometry and media-fit parity
+        shell: bash
+        run: |
+          cat > "$GITHUB_WORKSPACE/wave5c-parity.mjs" <<'JS'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const routes = [
+            '/',
+            '/work/jestei-pool/',
+            '/work/styx/',
+            '/work/sensetique/',
+            '/shootings/',
+            '/work/awful-cases/',
+            '/work/moves/',
+          ];
+          const viewports = [
+            { name:'mobile', width:390, height:844 },
+            { name:'tablet', width:900, height:1000 },
+            { name:'desktop', width:1728, height:1000 },
+          ];
+          const props = [
+            'display','position','width','height','minWidth','maxWidth','marginLeft','marginRight',
+            'paddingLeft','paddingRight','gap','rowGap','columnGap','gridTemplateColumns','gridTemplateRows',
+            'gridAutoFlow','gridAutoColumns','justifyContent','alignItems','overflowX','overflowY',
+            'containerName','containerType','visibility','opacity','transform','translate'
+          ];
+          const vars = [
+            '--group-gap','--group-row-gap','--group-columns','--group-mobile-columns','--group-max',
+            '--group-reel-height','--group-compact-align','--group-compact-item-size',
+            '--reel-gap','--reel-display','--reel-justify','--reel-align','--reel-item-size'
+          ];
+          const browser = await chromium.launch({ headless:true });
+          const report = { base:process.env.BASE_SHA, candidate:process.env.CANDIDATE_SHA, cases:[], failures:[] };
+          const round = n => Math.round(n * 1000) / 1000;
+          const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+          const settle = async (page, url) => {
+            await page.goto(url, { waitUntil:'domcontentloaded', timeout:60000 });
+            await page.evaluate(() => {
+              for (const img of document.querySelectorAll('.media-group img')) img.loading = 'eager';
+            });
+            await page.waitForLoadState('networkidle', { timeout:10000 }).catch(() => {});
+            await page.evaluate(async () => {
+              await document.fonts?.ready;
+              const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+              await Promise.all([...document.querySelectorAll('.media-group img')].map(async img => {
+                if (!img.complete) {
+                  await Promise.race([
+                    new Promise(resolve => {
+                      img.addEventListener('load', resolve, { once:true });
+                      img.addEventListener('error', resolve, { once:true });
+                    }),
+                    wait(2500),
+                  ]);
+                }
+                if (img.complete && img.naturalWidth > 0) {
+                  try { await Promise.race([img.decode?.() ?? Promise.resolve(), wait(2500)]); } catch {}
+                }
+              }));
+              for (const video of document.querySelectorAll('video')) {
+                video.pause();
+                try { video.currentTime = 0; } catch {}
+              }
+              window.scrollTo(0, 0);
+            });
+            await page.waitForTimeout(500);
+          };
+
+          const snap = page => page.evaluate(({ props, vars }) => {
+            const round = n => Math.round(n * 1000) / 1000;
+            const rect = el => {
+              const r = el.getBoundingClientRect();
+              return { x:round(r.x), y:round(r.y), width:round(r.width), height:round(r.height) };
+            };
+            const computed = el => {
+              const s = getComputedStyle(el);
+              const out = {};
+              for (const p of props) out[p] = s[p];
+              const variables = {};
+              for (const v of vars) variables[v] = s.getPropertyValue(v).trim();
+              return { props:out, vars:variables };
+            };
+            return {
+              scrollWidth: document.documentElement.scrollWidth,
+              scrollHeight: document.documentElement.scrollHeight,
+              groups: [...document.querySelectorAll('.media-group')].map((group, groupIndex) => {
+                const items = group.querySelector(':scope > .media-group__items');
+                return {
+                  groupIndex,
+                  className: typeof group.className === 'string' ? group.className : '',
+                  data: Object.fromEntries([...group.attributes].filter(a => a.name.startsWith('data-')).map(a => [a.name, a.value])),
+                  rect: rect(group),
+                  computed: computed(group),
+                  items: items ? { rect:rect(items), computed:computed(items) } : null,
+                  media: [...group.querySelectorAll('.media')].map((item, mediaIndex) => {
+                    const surface = item.querySelector('.media__surface');
+                    const asset = surface?.querySelector(':scope > img, :scope > video, :scope > picture > img') ?? null;
+                    const surfaceStyle = surface ? getComputedStyle(surface) : null;
+                    const assetStyle = asset ? getComputedStyle(asset) : null;
+                    return {
+                      mediaIndex,
+                      rect: rect(item),
+                      surface: surface ? {
+                        rect: rect(surface),
+                        aspectRatio: surfaceStyle.aspectRatio,
+                      } : null,
+                      asset: asset ? {
+                        tag: asset.tagName,
+                        rect: rect(asset),
+                        objectFit: assetStyle.objectFit,
+                        objectPosition: assetStyle.objectPosition,
+                        aspectRatio: assetStyle.aspectRatio,
+                        loaded: asset.tagName !== 'IMG' || (asset.complete && asset.naturalWidth > 0),
+                        intrinsic: {
+                          width: asset.naturalWidth ?? asset.videoWidth ?? 0,
+                          height: asset.naturalHeight ?? asset.videoHeight ?? 0,
+                        },
+                      } : null,
+                    };
+                  }),
+                };
+              }),
+            };
+          }, { props, vars });
+
+          const diff = (a, b, path='root', out=[]) => {
+            if (typeof a === 'number' && typeof b === 'number') {
+              if (Math.abs(a - b) > 0.75) out.push({ path, base:a, candidate:b });
+              return out;
+            }
+            if (Array.isArray(a) || Array.isArray(b)) {
+              if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) {
+                out.push({ path, base:a, candidate:b }); return out;
+              }
+              for (let i = 0; i < a.length; i++) diff(a[i], b[i], `${path}[${i}]`, out);
+              return out;
+            }
+            if (a && b && typeof a === 'object' && typeof b === 'object') {
+              for (const k of [...new Set([...Object.keys(a), ...Object.keys(b)])].sort()) diff(a[k], b[k], `${path}.${k}`, out);
+              return out;
+            }
+            if (a !== b) out.push({ path, base:a, candidate:b });
+            return out;
+          };
+
+          try {
+            for (const vp of viewports) {
+              const bc = await browser.newContext({ viewport:{width:vp.width,height:vp.height}, reducedMotion:'reduce' });
+              const cc = await browser.newContext({ viewport:{width:vp.width,height:vp.height}, reducedMotion:'reduce' });
+              const bp = await bc.newPage();
+              const cp = await cc.newPage();
+              for (const route of routes) {
+                await Promise.all([
+                  settle(bp, 'http://127.0.0.1:4172' + route),
+                  settle(cp, 'http://127.0.0.1:4173' + route),
+                ]);
+                const [b1, c1] = await Promise.all([snap(bp), snap(cp)]);
+                await Promise.all([bp.waitForTimeout(500), cp.waitForTimeout(500)]);
+                const [b2, c2] = await Promise.all([snap(bp), snap(cp)]);
+                const baseStability = diff(b1, b2, 'base');
+                const candidateStability = diff(c1, c2, 'candidate');
+                const parity = diff(b2, c2, 'parity');
+                const key = `${vp.name}:${route}`;
+                const result = { key, baseStability, candidateStability, parity };
+                report.cases.push(result);
+                if (baseStability.length || candidateStability.length || parity.length) report.failures.push(result);
+                const failed = baseStability.length || candidateStability.length || parity.length;
+                console.log(`${failed ? 'FAIL' : 'PASS'} ${key} base-stability=${baseStability.length} candidate-stability=${candidateStability.length} parity=${parity.length}`);
+                if (failed) console.log(JSON.stringify(result, null, 2));
+              }
+              await bc.close();
+              await cc.close();
+            }
+          } finally {
+            await browser.close();
+          }
+
+          await writeFile('/tmp/wave5c-parity.json', JSON.stringify(report, null, 2) + '\n');
+          if (report.failures.length) throw new Error(`Wave5C parity failed ${report.failures.length}/${report.cases.length} cases`);
+          console.log(`Wave5C parity passed ${report.cases.length}/${report.cases.length} cases.`);
+          JS
+          node "$GITHUB_WORKSPACE/wave5c-parity.mjs"
+      - name: Upload parity evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: wave5c-parity-${{ github.sha }}
+          retention-days: 7
+          path: |
+            /tmp/wave5c-parity.json
+            /tmp/base.log
+            /tmp/candidate.log
