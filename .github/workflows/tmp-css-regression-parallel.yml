@@ -110,6 +110,23 @@ jobs:
             raise SystemExit("sample identity marker not found")
           source = source.replace(sample_marker, sample_replacement, 1)
 
+          computed_marker = '            for (const property of styleProperties) computed[property] = style[property];'
+          computed_replacement = '''            const typedStyle = typeof element.computedStyleMap === "function" ? element.computedStyleMap() : null;
+                    const semanticAutoMargins = new Map([
+                      ["marginTop", "margin-top"],
+                      ["marginRight", "margin-right"],
+                      ["marginBottom", "margin-bottom"],
+                      ["marginLeft", "margin-left"],
+                    ]);
+                    for (const property of styleProperties) {
+                      const cssName = semanticAutoMargins.get(property);
+                      const typedValue = cssName && typedStyle ? String(typedStyle.get(cssName) ?? "") : "";
+                      computed[property] = typedValue === "auto" ? "auto" : style[property];
+                    }'''
+          if computed_marker not in source:
+            raise SystemExit("computed-style marker not found")
+          source = source.replace(computed_marker, computed_replacement, 1)
+
           settle_tail = '  await page.waitForTimeout(150);\n}'
           settle_tail_replacement = '''  await page.waitForTimeout(150);
             await page.evaluate(() => {
@@ -207,7 +224,7 @@ jobs:
             body = body
               .replace(/data-deck-autoplay="[^"]*"/g, 'data-deck-autoplay="off"')
               .replace(/\sdata-deck-advance-on-ended(?:="")?/g, "")
-              .replace(/\sdata-reveal="[^"]*"/g, "")
+              .replace(/\sdata-reveal(?:="[^"]*")?/g, "")
               .replace(/\sdata-reveal-group(?:="")?/g, "")
               .replace(/\sdata-reveal-rail(?:="")?/g, "");
             await route.fulfill({ response, body });
