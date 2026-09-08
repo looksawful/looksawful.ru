@@ -63,10 +63,7 @@ test("Wave5B boundary still excludes neighboring authored specializations", () =
   // Later ownership waves may move their own isolated layout families into
   // media.css. Wave5B guards only the boundaries it actually owns.
   assert.doesNotMatch(media, /(?:^|\n)\.media-group\.brand-system\s*\{/);
-  assert.doesNotMatch(media, /(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/);
-
   assert.match(components, /(?:^|\n)\.media-group\.brand-system\s*\{/);
-  assert.match(components, /(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/);
 });
 
 test("portfolio and project-specific media integration remain outside the canonical substructure owner", () => {

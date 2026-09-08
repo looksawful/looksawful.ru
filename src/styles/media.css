@@ -266,3 +266,52 @@
     inline-size: auto;
   }
 }
+
+/* ==================================================
+   Equal-height media strip
+   ================================================== */
+.media-group[data-layout="strip"] {
+  & > .media-group__items > .media {
+    inline-size: max-content;
+    max-inline-size: none;
+  }
+
+  /* Every strip surface already carries its authored aspect ratio. A shared
+     definite height plus that ratio gives each item its natural width. */
+  & .media__surface {
+    display: block;
+    block-size: var(--strip-height, clamp(12rem, 34cqi, 20rem));
+    inline-size: auto;
+    aspect-ratio: var(--media-ratio, 1);
+    overflow: hidden;
+    background: transparent;
+
+    & > :is(img, video),
+    & > picture > img {
+      display: block;
+      inline-size: 100%;
+      block-size: 100%;
+      max-inline-size: none;
+      max-block-size: none;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    & > picture {
+      display: contents;
+    }
+  }
+
+  @container media-group (width > 48rem) {
+    & > .media-group__items {
+      --reel-justify: var(--strip-justify, safe center);
+    }
+  }
+}
+
+/* Caption follows the media width but never participates in intrinsic sizing. */
+.media-group[data-layout="strip"] .media__caption {
+  inline-size: 0;
+  min-inline-size: 100%;
+  max-inline-size: 100%;
+}
