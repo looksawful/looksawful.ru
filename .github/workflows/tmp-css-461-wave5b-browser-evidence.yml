@@ -15,7 +15,7 @@ env:
 jobs:
   browser-parity:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v7
         with:
@@ -26,6 +26,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Install repository media tooling dependency
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Prepare exact base and candidate
         shell: bash
         run: |
@@ -71,7 +73,6 @@ jobs:
           const tolerance = 0.75;
           const browser = await chromium.launch({headless:true});
           const failures=[];
-          const snapshots={};
           const snap = async(page) => page.evaluate(({selectors,props,vars}) => {
             const out={};
             for (const selector of selectors) {
@@ -91,7 +92,7 @@ jobs:
           try {
             for (const vp of viewports) for (const motion of motions) {
               const contexts={}; const pages={};
-              for(const [name,origin] of Object.entries(bases)){
+              for(const [name] of Object.entries(bases)){
                 contexts[name]=await browser.newContext({viewport:{width:vp.width,height:vp.height},reducedMotion:motion});
                 pages[name]=await contexts[name].newPage();
               }
@@ -106,7 +107,6 @@ jobs:
                 const base=await snap(pages.base); const candidate=await snap(pages.candidate);
                 const key=`${route}|${vp.name}|${motion}`;
                 const diffs=cmp(base,candidate,key,[]);
-                snapshots[key]={diffs};
                 if(diffs.length){failures.push({key,diffs}); console.log(`FAIL ${key} diffs=${diffs.length}`);} else console.log(`PASS ${key}`);
               }
               await contexts.base.close(); await contexts.candidate.close();
