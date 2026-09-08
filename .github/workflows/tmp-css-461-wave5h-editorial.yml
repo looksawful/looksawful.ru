@@ -1,0 +1,21 @@
+name: tmp-css-461-wave5h-editorial
+on:
+  push:
+    branches: [refactor/css-461-wave5h-editorial]
+permissions:
+  contents: write
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Prove editorial ownership contract is RED
+        run: node --test test/css-refactor-wave5h-editorial.test.mjs
