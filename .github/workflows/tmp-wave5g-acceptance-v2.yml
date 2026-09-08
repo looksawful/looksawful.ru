@@ -1,0 +1,134 @@
+name: tmp-wave5g-acceptance-v2
+
+on:
+  push:
+    branches: [test/css-461-wave5g-acceptance]
+    paths: [.github/workflows/tmp-wave5g-acceptance-v2.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BASE_SHA: 004c8ccd3c13a7418fb4a3b21196fd062552bca0
+      CANDIDATE_SHA: 4fe154b6c0f5fe603e23ce109621627901735f5e
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Prepare exact worktrees and servers
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          git fetch --no-tags --depth=1 origin "$CANDIDATE_SHA"
+          mkdir -p _accept
+          git worktree add --detach _accept/base "$BASE_SHA"
+          git worktree add --detach _accept/candidate "$CANDIDATE_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" _accept/base/node_modules
+          ln -s "$GITHUB_WORKSPACE/node_modules" _accept/candidate/node_modules
+          (cd _accept/base && nohup npm run dev -- --host 127.0.0.1 --port 4173 > "$RUNNER_TEMP/wave5g-base.log" 2>&1 &)
+          (cd _accept/candidate && nohup npm run dev -- --host 127.0.0.1 --port 4174 > "$RUNNER_TEMP/wave5g-candidate.log" 2>&1 &)
+          for port in 4173 4174; do
+            for i in {1..60}; do curl -fsS "http://127.0.0.1:${port}/" >/dev/null && break || sleep 1; done
+            curl -fsS "http://127.0.0.1:${port}/" >/dev/null
+          done
+      - name: Compare exact live strip contract
+        shell: bash
+        run: |
+          cat > wave5g-acceptance-v2.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const routes = ['/', '/work/jestei-pool/', '/work/styx/', '/work/sensetique/', '/shootings/', '/work/awful-cases/', '/work/moves/'];
+          const viewports = [
+            { name: 'mobile', width: 390, height: 844 },
+            { name: 'tablet', width: 900, height: 1000 },
+            { name: 'desktop', width: 1728, height: 1000 },
+          ];
+          const urls = { base: 'http://127.0.0.1:4173', candidate: 'http://127.0.0.1:4174' };
+
+          async function snap(browser, root, route, viewport) {
+            const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+            const page = await context.newPage();
+            page.setDefaultTimeout(5000);
+            await page.goto(root + route, { waitUntil: 'domcontentloaded', timeout: 10000 });
+            await page.addStyleTag({ content: '*{animation:none!important;transition:none!important;scroll-behavior:auto!important}' });
+            await page.waitForTimeout(900);
+            await page.locator('img').evaluateAll(async (imgs) => {
+              await Promise.all(imgs.filter((img) => img.complete && img.naturalWidth).map(async (img) => { try { await img.decode(); } catch {} }));
+            });
+            await page.waitForTimeout(100);
+            const out = await page.evaluate(() => {
+              const q = (n) => Math.round(n * 100) / 100;
+              const box = (el) => { if (!el) return null; const b = el.getBoundingClientRect(); return [q(b.x), q(b.y), q(b.width), q(b.height)]; };
+              const visible = (el) => { const b = el.getBoundingClientRect(); const s = getComputedStyle(el); return b.width > 0 && b.height > 0 && s.display !== 'none' && s.visibility !== 'hidden'; };
+              const strips = [...document.querySelectorAll('.media-group[data-layout="strip"]')].filter(visible).map((group) => {
+                const items = group.querySelector(':scope > .media-group__items');
+                const is = items ? getComputedStyle(items) : null;
+                const figures = items ? [...items.children].filter((el) => el.classList.contains('media') && visible(el)) : [];
+                return {
+                  className: group.className,
+                  group: box(group),
+                  items: box(items),
+                  clientWidth: items?.clientWidth ?? null,
+                  scrollWidth: items?.scrollWidth ?? null,
+                  display: is?.display ?? null,
+                  justifyContent: is?.justifyContent ?? null,
+                  reelJustify: is?.getPropertyValue('--reel-justify').trim() ?? '',
+                  stripJustify: is?.getPropertyValue('--strip-justify').trim() ?? '',
+                  stripHeight: getComputedStyle(group).getPropertyValue('--strip-height').trim(),
+                  media: figures.map((figure) => {
+                    const surface = figure.querySelector(':scope > .media__surface');
+                    const visual = surface?.querySelector(':scope > img, :scope > video, :scope > picture > img');
+                    const vs = visual ? getComputedStyle(visual) : null;
+                    return {
+                      figure: box(figure), surface: box(surface), visual: box(visual),
+                      objectFit: vs?.objectFit ?? null, objectPosition: vs?.objectPosition ?? null,
+                      mediaRatio: surface ? getComputedStyle(surface).getPropertyValue('--media-ratio').trim() : '',
+                    };
+                  }),
+                };
+              });
+              return { clientWidth: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth, strips };
+            });
+            await context.close();
+            return out;
+          }
+
+          const browser = await chromium.launch({ headless: true });
+          const results = [];
+          let failures = 0;
+          try {
+            for (const viewport of viewports) for (const route of routes) {
+              const base = await snap(browser, urls.base, route, viewport);
+              const candidate = await snap(browser, urls.candidate, route, viewport);
+              const same = JSON.stringify(base) === JSON.stringify(candidate);
+              failures += same ? 0 : 1;
+              results.push({ viewport: viewport.name, route, same, base, candidate });
+              console.log(`${same ? 'PASS' : 'FAIL'} ${viewport.name} ${route} strips=${base.strips.length}/${candidate.strips.length}`);
+            }
+          } finally { await browser.close(); }
+          await writeFile('wave5g-acceptance-v2.json', JSON.stringify({ failures, cases: results.length, results }, null, 2));
+          console.log(`Wave5G exact acceptance: ${results.length - failures}/${results.length}`);
+          if (failures) process.exit(1);
+          NODE
+          node wave5g-acceptance-v2.mjs
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: wave5g-acceptance-v2
+          path: |
+            wave5g-acceptance-v2.json
+            ${{ runner.temp }}/wave5g-base.log
+            ${{ runner.temp }}/wave5g-candidate.log
