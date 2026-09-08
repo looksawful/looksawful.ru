@@ -1,0 +1,253 @@
+name: tmp-css-461-wave5k-infinite-reel-parity
+on:
+  push:
+    branches: [test/css-461-wave5k-infinite-reel-parity]
+permissions:
+  contents: read
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_SHA: 3052400b9d8333bf62fe0147244faa4822e97a8b
+      CANDIDATE_SHA: d4a7a2ae93adac6f187f840abeedf9c1f3104945
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: test/css-461-wave5k-infinite-reel-parity
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Verify exact revisions
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "$BASE_SHA^{commit}"
+          git cat-file -e "$CANDIDATE_SHA^{commit}"
+          test "$(git rev-parse refactor/css-461-wave5k-infinite-reel 2>/dev/null || git rev-parse origin/refactor/css-461-wave5k-infinite-reel)" = "$CANDIDATE_SHA"
+      - name: Restore exact generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-39869092c6bf6c2919c9f144e91047835dddb6e9d0e6accf1c5d73f76ca4fe7a
+      - name: Require existing generated media
+        shell: bash
+        env:
+          CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
+        run: |
+          set -euo pipefail
+          test "$CACHE_HIT" = "true" || { echo 'cache miss: visual CSS audit must not regenerate media' >&2; exit 1; }
+          node tools/media-dev-state.mjs --cache-verify
+      - run: npx playwright install --with-deps chromium
+      - name: Build exact base and candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git worktree add --detach /tmp/wave5k-base "$BASE_SHA"
+          rsync -a public/media/generated/ /tmp/wave5k-base/public/media/generated/
+          mkdir -p /tmp/wave5k-base/.cache/media
+          rsync -a .cache/media/ /tmp/wave5k-base/.cache/media/
+          (cd /tmp/wave5k-base && npm ci && node tools/media-dev-state.mjs --cache-verify && npm run build:site)
+          npm run build:site
+          test "$(git rev-parse "$CANDIDATE_SHA^{tree}")" = "$(git rev-parse refactor/css-461-wave5k-infinite-reel^{tree})"
+      - name: Start exact static previews
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory /tmp/wave5k-base/dist >/tmp/wave5k-base.log 2>&1 &
+          python3 -m http.server 4174 --bind 127.0.0.1 --directory dist >/tmp/wave5k-candidate.log 2>&1 &
+          for port in 4173 4174; do
+            for i in {1..30}; do
+              if curl -fsS "http://127.0.0.1:$port/" >/dev/null; then break; fi
+              sleep 1
+            done
+            curl -fsS "http://127.0.0.1:$port/" >/dev/null
+          done
+      - name: Compare live infinite reels
+        shell: bash
+        run: |
+          mkdir -p evidence
+          cat > wave5k-parity.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const BASE = 'http://127.0.0.1:4173';
+          const CANDIDATE = 'http://127.0.0.1:4174';
+          const routes = ['/', '/work/jestei-pool/', '/shootings/', '/work/sensetique/'];
+          const viewports = [
+            { name: 'mobile', width: 390, height: 844 },
+            { name: 'tablet', width: 900, height: 1000 },
+            { name: 'desktop', width: 1728, height: 1000 },
+          ];
+          const motions = ['no-preference', 'reduce'];
+          const browser = await chromium.launch({ headless: true });
+
+          const round = (value) => Math.round(value * 1000) / 1000;
+          const settleImages = async (root) => {
+            await root.evaluate(async (element) => {
+              const waits = [...element.querySelectorAll('img')].map((img) => Promise.race([
+                img.decode?.().catch(() => {}),
+                new Promise((resolve) => setTimeout(resolve, 750)),
+              ]));
+              await Promise.allSettled(waits);
+            });
+          };
+
+          async function collect(origin, route, viewport, motion) {
+            const context = await browser.newContext({
+              viewport: { width: viewport.width, height: viewport.height },
+              reducedMotion: motion,
+            });
+            const page = await context.newPage();
+            await page.goto(origin + route, { waitUntil: 'domcontentloaded' });
+            await page.evaluate(() => document.fonts?.ready);
+            const roots = page.locator('[data-infinite-reel]');
+            const count = await roots.count();
+            const visible = [];
+            for (let index = 0; index < count; index += 1) {
+              const root = roots.nth(index);
+              const box = await root.boundingBox();
+              if (!box || box.width <= 0 || box.height <= 0) continue;
+              visible.push(index);
+            }
+
+            const rows = [];
+            for (const index of visible) {
+              const root = roots.nth(index);
+              await root.scrollIntoViewIfNeeded();
+              await settleImages(root);
+              await page.waitForTimeout(300);
+              if (motion === 'no-preference' && viewport.width > 768) {
+                await root.evaluate(async (element) => {
+                  const deadline = performance.now() + 1800;
+                  while (performance.now() < deadline && !element.hasAttribute('data-animated')) {
+                    await new Promise((resolve) => requestAnimationFrame(resolve));
+                  }
+                });
+              }
+              const row = await root.evaluate((element, meta) => {
+                const root = /** @type {HTMLElement} */ (element);
+                const track = root.querySelector(':scope > [data-infinite-reel-track]');
+                if (!(track instanceof HTMLElement)) throw new Error(`missing track at ${meta.route}#${meta.index}`);
+                const rootStyle = getComputedStyle(root);
+                const trackStyle = getComputedStyle(track);
+                const firstOriginal = [...track.children].find((child) => child instanceof HTMLElement && !child.hasAttribute('data-infinite-reel-clone'));
+                const rootRect = root.getBoundingClientRect();
+                const trackRect = track.getBoundingClientRect();
+                const firstRect = firstOriginal instanceof HTMLElement ? firstOriginal.getBoundingClientRect() : null;
+                return {
+                  identity: `${root.className}|${root.getAttribute('data-layout') ?? ''}`,
+                  dataAnimated: root.getAttribute('data-animated'),
+                  active: root.hasAttribute('data-infinite-reel-active'),
+                  root: {
+                    width: rootRect.width,
+                    height: rootRect.height,
+                    clientWidth: root.clientWidth,
+                    scrollWidth: root.scrollWidth,
+                    overflowX: rootStyle.overflowX,
+                    overflowY: rootStyle.overflowY,
+                    maskImage: rootStyle.maskImage,
+                    webkitMaskImage: rootStyle.webkitMaskImage,
+                    gapVar: rootStyle.getPropertyValue('--infinite-reel-gap').trim(),
+                    durationVar: rootStyle.getPropertyValue('--infinite-reel-duration').trim(),
+                    fadeVar: rootStyle.getPropertyValue('--infinite-reel-fade-size').trim(),
+                  },
+                  track: {
+                    width: trackRect.width,
+                    height: trackRect.height,
+                    scrollWidth: track.scrollWidth,
+                    display: trackStyle.display,
+                    flexWrap: trackStyle.flexWrap,
+                    alignItems: trackStyle.alignItems,
+                    justifyContent: trackStyle.justifyContent,
+                    columnGap: trackStyle.columnGap,
+                    overflowX: trackStyle.overflowX,
+                    overflowY: trackStyle.overflowY,
+                    scrollSnapType: trackStyle.scrollSnapType,
+                    animationName: trackStyle.animationName,
+                    animationDuration: trackStyle.animationDuration,
+                    animationTimingFunction: trackStyle.animationTimingFunction,
+                    animationIterationCount: trackStyle.animationIterationCount,
+                    animationPlayState: trackStyle.animationPlayState,
+                    willChange: trackStyle.willChange,
+                  },
+                  originals: [...track.children].filter((child) => !child.hasAttribute('data-infinite-reel-clone')).length,
+                  clones: track.querySelectorAll('[data-infinite-reel-clone]').length,
+                  first: firstRect ? { width: firstRect.width, height: firstRect.height } : null,
+                };
+              }, { route, index });
+              const normalize = (obj) => {
+                for (const key of ['width', 'height']) if (typeof obj?.[key] === 'number') obj[key] = round(obj[key]);
+                if (obj?.first) { obj.first.width = round(obj.first.width); obj.first.height = round(obj.first.height); }
+                return obj;
+              };
+              normalize(row.root); normalize(row.track);
+              if (row.first) normalize(row.first);
+              rows.push(row);
+            }
+            await context.close();
+            return rows;
+          }
+
+          const numericPaths = new Set([
+            'root.width','root.height','root.clientWidth','root.scrollWidth',
+            'track.width','track.height','track.scrollWidth','first.width','first.height',
+          ]);
+          const differences = [];
+          const cases = [];
+
+          function compareValue(base, candidate, path, label) {
+            if (numericPaths.has(path)) {
+              const a = Number(base); const b = Number(candidate);
+              if (!Number.isFinite(a) || !Number.isFinite(b) || Math.abs(a - b) > 0.75) {
+                differences.push({ label, path, base, candidate });
+              }
+              return;
+            }
+            if (base !== candidate) differences.push({ label, path, base, candidate });
+          }
+          function walk(base, candidate, prefix, label) {
+            if (base && candidate && typeof base === 'object' && typeof candidate === 'object') {
+              const keys = new Set([...Object.keys(base), ...Object.keys(candidate)]);
+              for (const key of keys) walk(base[key], candidate[key], prefix ? `${prefix}.${key}` : key, label);
+              return;
+            }
+            compareValue(base, candidate, prefix, label);
+          }
+
+          for (const route of routes) {
+            for (const viewport of viewports) {
+              for (const motion of motions) {
+                const base = await collect(BASE, route, viewport, motion);
+                const candidate = await collect(CANDIDATE, route, viewport, motion);
+                const label = `${route}|${viewport.name}|${motion}`;
+                cases.push({ label, baseCount: base.length, candidateCount: candidate.length });
+                if (base.length !== candidate.length) {
+                  differences.push({ label, path: 'visibleReelCount', base: base.length, candidate: candidate.length });
+                  continue;
+                }
+                for (let i = 0; i < base.length; i += 1) walk(base[i], candidate[i], '', `${label}|reel${i}`);
+              }
+            }
+          }
+
+          await browser.close();
+          const summary = { baseSha: process.env.BASE_SHA, candidateSha: process.env.CANDIDATE_SHA, cases, differences };
+          await writeFile('evidence/summary.json', JSON.stringify(summary, null, 2));
+          console.log(JSON.stringify(summary, null, 2));
+          if (differences.length) process.exitCode = 1;
+          EOF
+          BASE_SHA="$BASE_SHA" CANDIDATE_SHA="$CANDIDATE_SHA" node wave5k-parity.mjs
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: wave5k-infinite-reel-parity
+          path: evidence/summary.json
+          if-no-files-found: error
