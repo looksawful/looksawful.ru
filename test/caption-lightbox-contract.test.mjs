@@ -117,14 +117,20 @@ test("content facade re-exports the single media presentation contract instead o
 });
 
 test("custom Jestei hover copy is a fine-pointer enhancement, while touch goes straight to lightbox", async () => {
-  const components = await read("src/styles/components.css");
+  const [media, components] = await Promise.all([
+    read("src/styles/media.css"),
+    read("src/styles/components.css"),
+  ]);
+  // Verify behavior in effective component-layer source order rather than tying
+  // the contract to whichever physical owner currently contains the family.
+  const componentStyles = `${media}\n${components}`;
 
   assert.match(
-    components,
+    componentStyles,
     /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?\.brand-system__item:is\(:hover, :focus-visible, :focus-within\)[\s\S]*?\.brand-system__hover-copy/,
   );
   assert.match(
-    components,
+    componentStyles,
     /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?\.jestei-captioned-media:is\(:hover, :focus-visible, :focus-within\)[\s\S]*?\.jestei-media__hover-copy/,
   );
 });
