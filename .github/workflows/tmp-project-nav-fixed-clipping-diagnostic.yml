@@ -1,0 +1,63 @@
+name: tmp-project-nav-fixed-clipping-diagnostic
+
+on:
+  push:
+    branches:
+      - test/project-nav-bottom-sticky-diagnostic
+    paths:
+      - .github/workflows/tmp-project-nav-fixed-clipping-diagnostic.yml
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - shell: bash
+        run: |
+          nohup npm run dev -- --host 127.0.0.1 --port 4173 > "$RUNNER_TEMP/project-nav-fixed.log" 2>&1 &
+          for i in {1..60}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && break; sleep 1; done
+          curl -fsS http://127.0.0.1:4173/ >/dev/null
+      - name: Probe fixed clipping
+        shell: bash
+        run: |
+          cat > fixed-clipping.mjs <<'NODE'
+          import { chromium } from 'playwright';
+
+          const modes = {
+            fixed: `@container projects (width <= 96rem){.project-nav{position:fixed!important;inset-block-start:auto!important;inset-block-end:0!important;inset-inline:0!important;translate:none!important;}}`,
+            fixedOverflowClip: `.projects{overflow:clip!important}@container projects (width <= 96rem){.project-nav{position:fixed!important;inset-block-start:auto!important;inset-block-end:0!important;inset-inline:0!important;translate:none!important;}}`,
+            fixedClipPath: `.projects{clip-path:inset(0)!important}@container projects (width <= 96rem){.project-nav{position:fixed!important;inset-block-start:auto!important;inset-block-end:0!important;inset-inline:0!important;translate:none!important;}}`,
+          };
+          const browser = await chromium.launch({headless:true});
+          try {
+            for (const [mode, css] of Object.entries(modes)) {
+              const context = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+              const page = await context.newPage();
+              await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+              await page.addStyleTag({content:css});
+              const bounds = await page.evaluate(()=>{const p=document.querySelector('.projects'); const r=p.getBoundingClientRect(); return {top:r.top+scrollY,bottom:r.bottom+scrollY}});
+              const positions = [['top',0],['before',Math.max(0,bounds.top-422)],['entry',bounds.top],['inside',bounds.top+700]];
+              console.log(`\n${mode}`);
+              for (const [label,y] of positions) {
+                await page.evaluate(y=>scrollTo(0,y),y);
+                await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+                const g=await page.evaluate(()=>{const n=document.querySelector('[data-projects-navigation]');const p=document.querySelector('.projects');const nr=n.getBoundingClientRect();const pr=p.getBoundingClientRect();return{navTop:nr.top,navBottom:nr.bottom,projectsTop:pr.top,projectsBottom:pr.bottom,visible:nr.bottom>0&&nr.top<innerHeight,bottomDelta:innerHeight-nr.bottom,position:getComputedStyle(n).position}});
+                console.log(label, JSON.stringify(g));
+              }
+              await context.close();
+            }
+          } finally { await browser.close(); }
+          NODE
+          node fixed-clipping.mjs
