@@ -4,6 +4,7 @@ import test from "node:test";
 import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
+const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const template = readFileSync(new URL("../src/templates/media-group.ts", import.meta.url), "utf8");
 const types = readFileSync(new URL("../src/types/media-group.ts", import.meta.url), "utf8");
 
@@ -17,11 +18,11 @@ test("strip height remains one optional authored input with a local consumer fal
     /case "strip":[\s\S]*?pushVariable\(variables,\s*"--strip-height",\s*data\.height\);/,
   );
   assert.doesNotMatch(
-    components,
+    media,
     /\.media-group\[data-layout="strip"\]\s*\{\s*--strip-height:\s*clamp\(12rem,\s*34cqi,\s*20rem\);/,
   );
   assert.match(
-    components,
+    media,
     /\.media-group\[data-layout="strip"\]\s*\{[\s\S]*?&\s+\.media__surface\s*\{[\s\S]*?block-size:\s*var\(--strip-height,\s*clamp\(12rem,\s*34cqi,\s*20rem\)\);/,
   );
 });
@@ -47,7 +48,7 @@ test("strip height cleanup preserves the existing strip justify contract", () =>
     /\.portfolio-showcase__group\[data-layout="strip"\]\s*>\s*\.media-group__items\s*\{[\s\S]*?--strip-justify:\s*flex-start;/,
   );
   assert.match(
-    components,
+    media,
     /--reel-justify:\s*var\(--strip-justify,\s*safe center\);/,
   );
 });

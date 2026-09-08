@@ -4,6 +4,7 @@ import test from "node:test";
 import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
+const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const patterns = readFileSync(new URL("../src/styles/patterns.css", import.meta.url), "utf8");
 
 test("portfolio strip justify is an authored input resolved by the generic strip owner", () => {
@@ -16,10 +17,10 @@ test("portfolio strip justify is an authored input resolved by the generic strip
     /\.portfolio-showcase__group\[data-layout="strip"\]\s*>\s*\.media-group__items\s*\{[\s\S]*?--reel-justify:\s*flex-start;/,
   );
   assert.match(
-    components,
+    media,
     /\.media-group\[data-layout="strip"\]\s*\{[\s\S]*?@container media-group \(width > 48rem\)\s*\{[\s\S]*?&\s*>\s*\.media-group__items\s*\{[\s\S]*?--reel-justify:\s*var\(--strip-justify,\s*safe center\);[\s\S]*?\}/,
   );
-  assert.doesNotMatch(components, /--reel-justify:\s*safe center;/);
+  assert.doesNotMatch(media, /--reel-justify:\s*safe center;/);
 });
 
 test("the reel primitive remains a reader and strip input inheritance stays available", () => {
