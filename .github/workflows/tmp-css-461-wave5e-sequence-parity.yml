@@ -11,7 +11,7 @@ permissions:
 jobs:
   parity:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v7
         with:
@@ -39,21 +39,14 @@ jobs:
             done
             curl -fsS "http://127.0.0.1:$port/" >/dev/null
           done
-      - name: Compare live sequence computed state and relative geometry
+      - name: Compare live sequence consumers
         run: |
           cat > tools/tmp-wave5e-sequence-parity.mjs <<'EOF'
           import assert from "node:assert/strict";
           import { chromium } from "playwright";
 
-          const routes = [
-            "/",
-            "/work/jestei-pool/",
-            "/work/styx/",
-            "/work/sensetique/",
-            "/shootings/",
-            "/work/awful-cases/",
-            "/work/moves/",
-          ];
+          // Code search proves these are the two production sequence consumers.
+          const routes = ["/work/jestei-pool/", "/work/sensetique/"];
           const viewports = [
             { name: "mobile", width: 390, height: 844 },
             { name: "tablet", width: 900, height: 1000 },
@@ -69,12 +62,11 @@ jobs:
 
           async function capture(origin, route, viewport) {
             const page = await browser.newPage({ viewport });
-            await page.goto(origin + route, { waitUntil: "domcontentloaded", timeout: 30000 });
+            await page.goto(origin + route, { waitUntil: "domcontentloaded", timeout: 20000 });
             await page.evaluate(async () => {
               await document.fonts?.ready;
               await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
             });
-            await page.waitForTimeout(100);
             const data = await page.evaluate(() => {
               const round = (value) => Math.round(value * 100) / 100;
               const relativeRect = (node, rootRect) => {
@@ -172,6 +164,7 @@ jobs:
                 const captured = {};
                 for (const [name, origin] of bases) captured[name] = await capture(origin, route, viewport);
                 visibleTotal += captured.base.length;
+                assert.ok(captured.base.length > 0, `${route} must exercise a live sequence at ${viewport.name}`);
                 try {
                   assert.deepEqual(captured.candidate, captured.base);
                   console.log(`PASS ${viewport.name} ${route} sequences=${captured.base.length}`);
@@ -182,7 +175,6 @@ jobs:
                 }
               }
             }
-            assert.ok(visibleTotal > 0, "parity matrix must exercise at least one live sequence group");
             console.log(`SEQUENCE_PARITY_GREEN visible-sequence-cases=${visibleTotal}`);
           } finally {
             await browser.close();
