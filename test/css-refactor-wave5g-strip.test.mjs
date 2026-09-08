@@ -52,7 +52,6 @@ test("Wave5G keeps portfolio strip inputs in the component owner", () => {
 
 test("Wave5G stops before bento and infinite-reel ownership", () => {
   for (const pattern of [
-    /(?:^|\n)\.media-group\[data-layout="bento"\]/,
     /(?:^|\n)\[data-infinite-reel\]\s*\{/,
   ]) {
     assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);

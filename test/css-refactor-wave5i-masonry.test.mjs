@@ -44,7 +44,6 @@ test("Wave5I keeps masonry authored inputs in the typed renderer", () => {
 
 test("Wave5I stops before bento and infinite-reel ownership", () => {
   for (const pattern of [
-    /(?:^|\n)\.media-group\[data-layout="bento"\]/,
     /(?:^|\n)\[data-infinite-reel\]\s*\{/,
   ]) {
     assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);

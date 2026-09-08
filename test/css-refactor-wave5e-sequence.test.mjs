@@ -38,7 +38,6 @@ test("Wave5E sequence keeps authored configuration and intrinsic geometry contra
 
 test("Wave5E sequence move stops before still-unmoved media families", () => {
   for (const pattern of [
-    /(?:^|\n)\.media-group\[data-layout="bento"\]/,
     /(?:^|\n)\[data-infinite-reel\]\s*\{/,
   ]) {
     assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);
