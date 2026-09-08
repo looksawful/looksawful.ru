@@ -1,0 +1,68 @@
+name: Temporary CSS media-group spacing GREEN
+
+on:
+  push:
+    branches:
+      - fix/css-media-group-spacing-contract
+    paths:
+      - .github/workflows/tmp-css-media-group-spacing-green.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tmp-css-media-group-spacing-green-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apply-green:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v7
+        with:
+          ref: fix/css-media-group-spacing-contract
+          fetch-depth: 1
+
+      - name: Apply exact spacing contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'src/styles/components.css';
+          let css = fs.readFileSync(path, 'utf8');
+
+          const replacements = [
+            [
+              '  --group-gap: var(--portfolio-group-gap);\n  --group-max: 100%;',
+              '  --media-group-gap: var(--portfolio-group-gap);\n  --group-max: 100%;',
+            ],
+            [
+              '  --group-gap: var(--project-media-gap);\n  --group-row-gap: var(--project-media-row-gap);\n  --group-columns: 2;',
+              '  /* Resolve authored component inputs before project and system fallbacks. */\n  --group-gap: var(--media-group-gap, var(--project-media-gap, var(--size-300)));\n  --group-row-gap: var(--media-group-row-gap, var(--project-media-row-gap, var(--group-gap)));\n  --group-columns: 2;',
+            ],
+          ];
+
+          for (const [from, to] of replacements) {
+            const first = css.indexOf(from);
+            if (first < 0) throw new Error(`missing exact source fragment: ${from}`);
+            if (css.indexOf(from, first + 1) >= 0) throw new Error(`ambiguous source fragment: ${from}`);
+            css = css.replace(from, to);
+          }
+
+          fs.writeFileSync(path, css);
+          NODE
+
+          git diff --check
+          node --test test/css-refactor-wave5b-media-group-foundation.test.mjs
+
+      - name: Commit GREEN production change
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/styles/components.css
+          git commit -m "fix(css): resolve media-group spacing from authored inputs"
+          git push origin HEAD:fix/css-media-group-spacing-contract
