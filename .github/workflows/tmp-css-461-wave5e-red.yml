@@ -1,0 +1,35 @@
+name: tmp-css-461-wave5e-red
+
+on:
+  push:
+    branches:
+      - prep/css-461-wave5e-finite-layouts
+
+permissions:
+  contents: read
+
+jobs:
+  red:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Require clean structural RED
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          node --test test/css-refactor-wave5e-finite-layouts.test.mjs > /tmp/wave5e-red.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/wave5e-red.log
+          if [ "$status" -eq 0 ]; then
+            echo 'Wave5E contract unexpectedly passed before ownership move' >&2
+            exit 1
+          fi
+          grep -F 'Wave5E finite media layout families have one canonical media owner' /tmp/wave5e-red.log
