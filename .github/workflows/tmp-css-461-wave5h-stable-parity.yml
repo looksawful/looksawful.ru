@@ -1,0 +1,145 @@
+name: tmp-css-461-wave5h-stable-parity
+on:
+  pull_request:
+    branches: [dev]
+permissions:
+  contents: read
+jobs:
+  parity:
+    if: github.head_ref == 'refactor/css-461-wave5h-editorial'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: refactor/css-461-wave5h-editorial
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Compare stable editorial geometry
+        shell: bash
+        run: |
+          git worktree add --detach /tmp/wave5h-base f461cd27421ddd77016df0fa071fca828e463504
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/wave5h-base/node_modules
+          ./node_modules/.bin/vite . --host 127.0.0.1 --port 4173 > /tmp/wave5h-candidate.log 2>&1 &
+          CANDIDATE_PID=$!
+          ./node_modules/.bin/vite /tmp/wave5h-base --host 127.0.0.1 --port 4174 > /tmp/wave5h-base.log 2>&1 &
+          BASE_PID=$!
+          trap 'kill $CANDIDATE_PID $BASE_PID 2>/dev/null || true' EXIT
+          for PORT in 4173 4174; do
+            READY=0
+            for i in {1..30}; do
+              if curl -fsS "http://127.0.0.1:$PORT/work/sensetique/" >/dev/null; then READY=1; break; fi
+              sleep 1
+            done
+            test "$READY" = 1
+          done
+          cat > "$GITHUB_WORKSPACE/.tmp-wave5h-stable-parity.mjs" <<'NODE'
+          import { chromium } from "playwright";
+          const widths = [390, 900, 1728];
+          const tolerance = 0.25;
+          const browser = await chromium.launch({ headless: true });
+          const round = (value) => Math.round(value * 1000) / 1000;
+          const relativeRect = (rect, origin) => ({
+            x: round(rect.x - origin.x), y: round(rect.y - origin.y),
+            width: round(rect.width), height: round(rect.height),
+          });
+          async function capture(port) {
+            const page = await browser.newPage({ reducedMotion: "reduce" });
+            page.setDefaultTimeout(12000);
+            const output = [];
+            for (const width of widths) {
+              await page.setViewportSize({ width, height: 1000 });
+              await page.goto(`http://127.0.0.1:${port}/work/sensetique/`, { waitUntil: "domcontentloaded" });
+              await page.evaluate(() => document.fonts?.ready);
+              const groups = page.locator('.media-group[data-layout="editorial"]');
+              const count = await groups.count();
+              if (!count) throw new Error(`no editorial groups at ${width}px`);
+              for (let index = 0; index < count; index += 1) {
+                const group = groups.nth(index);
+                const initialBox = await group.boundingBox();
+                if (!initialBox || initialBox.width === 0) continue;
+                await group.scrollIntoViewIfNeeded();
+                await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+                output.push(await group.evaluate((node, viewportWidth) => {
+                  const items = node.querySelector(':scope > .media-group__items');
+                  if (!items) throw new Error('missing editorial items');
+                  const itemsRect = items.getBoundingClientRect();
+                  const style = getComputedStyle(items);
+                  return {
+                    viewportWidth,
+                    display: style.display,
+                    gridTemplateColumns: style.gridTemplateColumns,
+                    columnGap: style.columnGap,
+                    rowGap: style.rowGap,
+                    alignItems: style.alignItems,
+                    itemsRect: { x: itemsRect.x, y: itemsRect.y, width: itemsRect.width, height: itemsRect.height },
+                    children: [...items.children].map((child) => {
+                      const rect = child.getBoundingClientRect();
+                      const childStyle = getComputedStyle(child);
+                      const surface = child.querySelector('.media__surface');
+                      const surfaceRect = surface?.getBoundingClientRect() ?? null;
+                      const surfaceStyle = surface ? getComputedStyle(surface) : null;
+                      const media = surface?.querySelector(':scope > img, :scope > video, :scope > picture > img') ?? null;
+                      const mediaStyle = media ? getComputedStyle(media) : null;
+                      return {
+                        role: child.getAttribute('data-role'),
+                        transform: childStyle.transform,
+                        gridColumnStart: childStyle.gridColumnStart,
+                        gridColumnEnd: childStyle.gridColumnEnd,
+                        rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+                        surfaceRect: surfaceRect ? { x: surfaceRect.x, y: surfaceRect.y, width: surfaceRect.width, height: surfaceRect.height } : null,
+                        objectFit: mediaStyle?.objectFit ?? null,
+                        objectPosition: mediaStyle?.objectPosition ?? null,
+                        aspectRatio: surfaceStyle?.aspectRatio ?? null,
+                        mediaRatio: surfaceStyle?.getPropertyValue('--media-ratio').trim() ?? null,
+                        mediaFit: surfaceStyle?.getPropertyValue('--media-fit').trim() ?? null,
+                        mediaPosition: surfaceStyle?.getPropertyValue('--media-position').trim() ?? null,
+                      };
+                    }),
+                  };
+                }, width));
+              }
+            }
+            await page.close();
+            return output;
+          }
+          const base = await capture(4174);
+          const candidate = await capture(4173);
+          const failures = [];
+          const strings = ['display','gridTemplateColumns','columnGap','rowGap','alignItems'];
+          const childStrings = ['role','transform','gridColumnStart','gridColumnEnd','objectFit','objectPosition','aspectRatio','mediaRatio','mediaFit','mediaPosition'];
+          const rectKeys = ['x','y','width','height'];
+          if (base.length !== candidate.length) failures.push(`group count ${base.length} != ${candidate.length}`);
+          for (let i = 0; i < Math.min(base.length, candidate.length); i += 1) {
+            const a = base[i], b = candidate[i];
+            if (a.viewportWidth !== b.viewportWidth) failures.push(`group ${i}: viewport mismatch`);
+            for (const key of strings) if (a[key] !== b[key]) failures.push(`group ${i} ${key}: ${a[key]} != ${b[key]}`);
+            if (a.children.length !== b.children.length) failures.push(`group ${i}: child count mismatch`);
+            for (let j = 0; j < Math.min(a.children.length, b.children.length); j += 1) {
+              const ac = a.children[j], bc = b.children[j];
+              for (const key of childStrings) if (ac[key] !== bc[key]) failures.push(`group ${i} child ${j} ${key}: ${ac[key]} != ${bc[key]}`);
+              for (const rectName of ['rect','surfaceRect']) {
+                if (!ac[rectName] || !bc[rectName]) {
+                  if (Boolean(ac[rectName]) !== Boolean(bc[rectName])) failures.push(`group ${i} child ${j} ${rectName}: presence mismatch`);
+                  continue;
+                }
+                const ar = relativeRect(ac[rectName], a.itemsRect);
+                const br = relativeRect(bc[rectName], b.itemsRect);
+                for (const key of rectKeys) if (Math.abs(ar[key] - br[key]) > tolerance) failures.push(`group ${i} child ${j} ${rectName}.${key}: ${ar[key]} != ${br[key]}`);
+              }
+            }
+          }
+          console.log(`Wave5H stable parity: groups=${base.length}, failures=${failures.length}`);
+          if (failures.length) {
+            console.error(failures.join('\n'));
+            process.exitCode = 1;
+          }
+          await browser.close();
+          NODE
+          node "$GITHUB_WORKSPACE/.tmp-wave5h-stable-parity.mjs"
+          rm "$GITHUB_WORKSPACE/.tmp-wave5h-stable-parity.mjs"
