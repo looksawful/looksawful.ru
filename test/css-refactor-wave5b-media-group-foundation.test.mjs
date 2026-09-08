@@ -59,17 +59,16 @@ test("media-group spacing resolves explicit specialization inputs before project
   );
 });
 
-test("Wave5B first safe slice does not absorb layout variants or authored specializations", () => {
-  assert.doesNotMatch(media, /(?:^|\n)\.media-group\[data-layout="grid"\]/);
-  assert.doesNotMatch(media, /(?:^|\n)\.media-group\[data-compact-layout="reel"\]/);
+test("Wave5B boundary still excludes neighboring authored specializations", () => {
+  // Later ownership waves may move their own isolated layout families into
+  // media.css. Wave5B guards only the boundaries it actually owns.
   assert.doesNotMatch(media, /(?:^|\n)\.media-group\.brand-system\s*\{/);
   assert.doesNotMatch(media, /(?:^|\n)\.media-group\[data-layout="sequence"\]\s*\{/);
   assert.doesNotMatch(media, /(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/);
 
-  assert.match(components, /(?:^|\n)\.media-group\[data-layout="grid"\]/);
-  assert.match(components, /(?:^|\n)\.media-group\[data-compact-layout="reel"\]/);
   assert.match(components, /(?:^|\n)\.media-group\.brand-system\s*\{/);
   assert.match(components, /(?:^|\n)\.media-group\[data-layout="sequence"\]\s*\{/);
+  assert.match(components, /(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/);
 });
 
 test("portfolio and project-specific media integration remain outside the canonical substructure owner", () => {
