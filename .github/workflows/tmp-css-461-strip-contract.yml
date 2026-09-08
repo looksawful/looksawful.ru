@@ -1,0 +1,17 @@
+name: tmp-css-461-strip-contract
+
+on:
+  push:
+    branches:
+      - fix/css-461-strip-justify-contract
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - run: node --test test/css-refactor-wave5d-strip-justify-contract.test.mjs
