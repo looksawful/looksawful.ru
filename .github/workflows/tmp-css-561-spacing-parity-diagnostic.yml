@@ -10,7 +10,7 @@ permissions:
 
 env:
   BASE_SHA: b65325afe36b8e78f9d2a7108024ff17dd5b55f1
-  CANDIDATE_SHA: 8daefaa90221499bfff6110d86b960a2be6d8507
+  CANDIDATE_SHA: 61479f016168af9c42ae8ced6ee2c0d2467bf4fe
 
 jobs:
   parity:
