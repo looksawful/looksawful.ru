@@ -76,20 +76,6 @@
    Media groups
    ================================================== */
 
-.media-group {
-  --group-gap: var(--project-media-gap);
-  --group-row-gap: var(--project-media-row-gap);
-  --group-columns: 2;
-  --group-mobile-columns: 2;
-
-  container: media-group / inline-size;
-  display: grid;
-  gap: clamp(0.9rem, 1.6cqi, 1.5rem);
-  inline-size: min(100%, var(--group-max, var(--project-media-max)));
-  margin-inline: auto;
-  min-inline-size: 0;
-}
-
 .media-group__head {
   display: grid;
   gap: 0.35rem;
