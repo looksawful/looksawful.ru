@@ -364,10 +364,6 @@
   margin-inline: auto;
 }
 
-/* ==================================================
-   Media groups
-   ================================================== */
-
 .media-group {
   --group-gap: var(--project-media-gap);
   --group-row-gap: var(--project-media-row-gap);
@@ -380,22 +376,6 @@
   inline-size: min(100%, var(--group-max, var(--project-media-max)));
   margin-inline: auto;
   min-inline-size: 0;
-}
-
-.media-group__head {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.media-group__items {
-  min-inline-size: 0;
-}
-
-/* Every media-group rail uses the shared reel mechanics. Layout variants only
-   define their own geometry. */
-.media-group > .media-group__items.reel,
-.media-group .media-group__middle.reel {
-  --reel-gap: var(--group-gap);
 }
 
 /* Plain grid. */

@@ -71,3 +71,23 @@
   max-inline-size: none;
   translate: -50% -50%;
 }
+
+/* ==================================================
+   Media groups
+   ================================================== */
+
+.media-group__head {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.media-group__items {
+  min-inline-size: 0;
+}
+
+/* Every media-group rail uses the shared reel mechanics. Layout variants only
+   define their own geometry. */
+.media-group > .media-group__items.reel,
+.media-group .media-group__middle.reel {
+  --reel-gap: var(--group-gap);
+}
