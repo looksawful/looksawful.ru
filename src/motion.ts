@@ -39,6 +39,9 @@ const REVEAL_PRESETS = {
     },
   },
 
+  // 0.99 is intentional visual compensation. Preserve it through structural refactors;
+  // remove only after explicit visual acceptance of the underlying source/presentation fix.
+  // Tracking issue: https://github.com/looksawful/looksawful.ru/issues/570
   media: {
     initial: {
       autoAlpha: 0,
@@ -55,6 +58,9 @@ const REVEAL_PRESETS = {
     },
   },
 
+  // 0.985 is intentional visual compensation. Preserve it through structural refactors;
+  // remove only after explicit visual acceptance of the underlying source/presentation fix.
+  // Tracking issue: https://github.com/looksawful/looksawful.ru/issues/570
   card: {
     initial: {
       autoAlpha: 0,
