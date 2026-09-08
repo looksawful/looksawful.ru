@@ -45,7 +45,7 @@ jobs:
       - name: Characterize current Home strip winner
         shell: bash
         run: |
-          cat > /tmp/strip-characterize.mjs <<'JS'
+          cat > "$GITHUB_WORKSPACE/strip-characterize.mjs" <<'JS'
           import { chromium } from 'playwright';
           import { writeFile } from 'node:fs/promises';
 
@@ -94,7 +94,7 @@ jobs:
           await writeFile('/tmp/strip-characterization.json',JSON.stringify(report,null,2)+'\n');
           if (!report.some(entry => entry.groups.length)) throw new Error('No portfolio strip groups found');
           JS
-          node /tmp/strip-characterize.mjs
+          node "$GITHUB_WORKSPACE/strip-characterize.mjs"
       - name: Upload characterization
         if: always()
         uses: actions/upload-artifact@v6
