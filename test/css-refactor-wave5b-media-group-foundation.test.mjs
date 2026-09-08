@@ -70,7 +70,7 @@ test("Wave5B boundary still excludes neighboring authored specializations", () =
 });
 
 test("portfolio and project-specific media integration remain outside the canonical substructure owner", () => {
-  assert.match(components, /\.media-group\.portfolio-showcase__group\[data-layout="strip"\]/);
+  assert.match(components, /\.portfolio-showcase__group\[data-layout="strip"\]/);
   assert.match(components, /\.portfolio-showcase__group\s*\{/);
   assert.match(components, /\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child/);
   assert.doesNotMatch(media, /portfolio-showcase/);

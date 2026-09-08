@@ -173,10 +173,9 @@
 
 .portfolio-showcase__group {
   --group-max: 100%;
-  --strip-height: var(--portfolio-strip-height);
 }
 
-.media-group.portfolio-showcase__group[data-layout="strip"] {
+.portfolio-showcase__group[data-layout="strip"] {
   --strip-height: var(--portfolio-strip-height);
 }
 
@@ -583,8 +582,6 @@
    Equal-height media strip
    ================================================== */
 .media-group[data-layout="strip"] {
-  --strip-height: clamp(12rem, 34cqi, 20rem);
-
   & > .media-group__items > .media {
     inline-size: max-content;
     max-inline-size: none;
@@ -594,7 +591,7 @@
      definite height plus that ratio gives each item its natural width. */
   & .media__surface {
     display: block;
-    block-size: var(--strip-height);
+    block-size: var(--strip-height, clamp(12rem, 34cqi, 20rem));
     inline-size: auto;
     aspect-ratio: var(--media-ratio, 1);
     overflow: hidden;
