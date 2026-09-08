@@ -18,9 +18,9 @@ test("Wave5B first safe slice moves only media-group substructure to the canonic
     /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
   );
 
-  // Browser parity proved that moving the generic .media-group base earlier in
-  // cascade changes portfolio gap behavior, so it intentionally remains in the
-  // later components owner until a wider source-order-preserving package exists.
+  // The generic media-group base still stays outside this ownership slice.
+  // Spacing behavior no longer relies on keeping that base later than an
+  // authored specialization; the base resolves explicit input slots instead.
   assert.doesNotMatch(media, /(?:^|\n)\.media-group\s*\{/);
   assert.match(components, /(?:^|\n)\.media-group\s*\{/);
 
@@ -30,10 +30,18 @@ test("Wave5B first safe slice moves only media-group substructure to the canonic
   }
 });
 
-test("remaining media-group base preserves the exact historical cascade contract", () => {
+test("media-group spacing resolves authored inputs before project and system fallbacks", () => {
   assert.match(
     components,
-    /\.media-group\s*\{[\s\S]*?--group-gap:\s*var\(--project-media-gap\);[\s\S]*?--group-row-gap:\s*var\(--project-media-row-gap\);[\s\S]*?--group-columns:\s*2;[\s\S]*?--group-mobile-columns:\s*2;[\s\S]*?container:\s*media-group\s*\/\s*inline-size;[\s\S]*?display:\s*grid;[\s\S]*?inline-size:\s*min\(100%,\s*var\(--group-max,\s*var\(--project-media-max\)\)\);[\s\S]*?min-inline-size:\s*0;/,
+    /\.portfolio-showcase__group\s*\{[\s\S]*?--media-group-gap:\s*var\(--portfolio-group-gap\);[\s\S]*?--group-max:\s*100%;/,
+  );
+  assert.doesNotMatch(
+    components,
+    /\.portfolio-showcase__group\s*\{[\s\S]*?--group-gap:\s*var\(--portfolio-group-gap\);/,
+  );
+  assert.match(
+    components,
+    /\.media-group\s*\{[\s\S]*?--group-gap:\s*var\(--media-group-gap,\s*var\(--project-media-gap,\s*var\(--size-300\)\)\);[\s\S]*?--group-row-gap:\s*var\(--media-group-row-gap,\s*var\(--project-media-row-gap,\s*var\(--group-gap\)\)\);[\s\S]*?--group-columns:\s*2;[\s\S]*?--group-mobile-columns:\s*2;[\s\S]*?container:\s*media-group\s*\/\s*inline-size;[\s\S]*?display:\s*grid;[\s\S]*?inline-size:\s*min\(100%,\s*var\(--group-max,\s*var\(--project-media-max\)\)\);[\s\S]*?min-inline-size:\s*0;/,
   );
   assert.match(media, /\.media-group__head\s*\{[\s\S]*?display:\s*grid;[\s\S]*?gap:\s*0\.35rem;/);
   assert.match(media, /\.media-group__items\s*\{[\s\S]*?min-inline-size:\s*0;/);
