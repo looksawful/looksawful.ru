@@ -2,10 +2,13 @@ name: tmp-css-461-wave5h-editorial
 on:
   push:
     branches: [refactor/css-461-wave5h-editorial]
+  pull_request:
+    branches: [dev]
 permissions:
   contents: write
 jobs:
   focused:
+    if: github.head_ref == 'refactor/css-461-wave5h-editorial' || github.ref_name == 'refactor/css-461-wave5h-editorial'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -13,6 +16,7 @@ jobs:
         with:
           persist-credentials: true
           fetch-depth: 2
+          ref: refactor/css-461-wave5h-editorial
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -62,14 +66,12 @@ jobs:
                   children: [...items.children].map((child) => {
                     const childStyle = getComputedStyle(child);
                     const surface = child.querySelector('.media__surface');
-                    const surfaceStyle = surface ? getComputedStyle(surface) : null;
                     return {
                       role: child.getAttribute('data-role'),
                       rect: child.getBoundingClientRect().toJSON(),
                       gridColumnStart: childStyle.gridColumnStart,
                       gridColumnEnd: childStyle.gridColumnEnd,
                       surfaceRect: surface?.getBoundingClientRect().toJSON() ?? null,
-                      objectFit: surfaceStyle?.getPropertyValue('--media-fit').trim() ?? '',
                     };
                   }),
                 };
