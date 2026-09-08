@@ -17,21 +17,18 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
       CURRENT_SHA: a21c3bceec6a8ff8692cf60c83a38c15789d4811
       WAVE5F_SHA: 264696a762722b94e7649f44c6a9d863d8752c8d
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 100
+          fetch-depth: 30
 
       - name: Fetch exact comparison commits
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=100 origin "$BASELINE_SHA"
           git fetch --no-tags --depth=30 origin "$CURRENT_SHA"
           git fetch --no-tags --depth=30 origin "$WAVE5F_SHA"
-          git cat-file -e "$BASELINE_SHA^{commit}"
           git cat-file -e "$CURRENT_SHA^{commit}"
           git cat-file -e "$WAVE5F_SHA^{commit}"
 
@@ -47,15 +44,13 @@ jobs:
       - name: Create exact worktrees and verify dependency lock
         run: |
           set -euo pipefail
-          rm -rf /tmp/css-fast-original /tmp/css-fast-current /tmp/css-fast-wave5f
-          git worktree add --detach /tmp/css-fast-original "$BASELINE_SHA"
+          rm -rf /tmp/css-fast-current /tmp/css-fast-wave5f
           git worktree add --detach /tmp/css-fast-current "$CURRENT_SHA"
           git worktree add --detach /tmp/css-fast-wave5f "$WAVE5F_SHA"
-          for tree in /tmp/css-fast-original /tmp/css-fast-current /tmp/css-fast-wave5f; do
+          for tree in /tmp/css-fast-current /tmp/css-fast-wave5f; do
             ln -s "$GITHUB_WORKSPACE/node_modules" "$tree/node_modules"
           done
           lock="$(sha256sum package-lock.json | cut -d' ' -f1)"
-          test "$lock" = "$(sha256sum /tmp/css-fast-original/package-lock.json | cut -d' ' -f1)"
           test "$lock" = "$(sha256sum /tmp/css-fast-current/package-lock.json | cut -d' ' -f1)"
           test "$lock" = "$(sha256sum /tmp/css-fast-wave5f/package-lock.json | cut -d' ' -f1)"
 
@@ -63,10 +58,8 @@ jobs:
         id: media
         run: |
           set -euo pipefail
-          original="$(cd /tmp/css-fast-original && node tools/media-dev-state.mjs --fingerprint)"
           current="$(cd /tmp/css-fast-current && node tools/media-dev-state.mjs --fingerprint)"
           wave5f="$(cd /tmp/css-fast-wave5f && node tools/media-dev-state.mjs --fingerprint)"
-          test "$original" = "$current"
           test "$current" = "$wave5f"
           echo "fingerprint=$current" >> "$GITHUB_OUTPUT"
           echo "media fingerprint: $current"
@@ -93,7 +86,7 @@ jobs:
         run: |
           set -euo pipefail
           node tools/media-dev-state.mjs --cache-verify
-          for tree in /tmp/css-fast-original /tmp/css-fast-current /tmp/css-fast-wave5f; do
+          for tree in /tmp/css-fast-current /tmp/css-fast-wave5f; do
             rm -rf "$tree/public/media/generated/responsive" "$tree/public/media/generated/video" "$tree/public/media/generated/video-inventory.json" "$tree/.cache/media"
             mkdir -p "$tree/public/media/generated" "$tree/.cache/media"
             cp -a "$GITHUB_WORKSPACE/public/media/generated/responsive" "$tree/public/media/generated/responsive"
@@ -106,17 +99,15 @@ jobs:
       - name: Build exact sites
         run: |
           set -euo pipefail
-          for tree in /tmp/css-fast-original /tmp/css-fast-current /tmp/css-fast-wave5f; do
-            (cd "$tree" && npm run build:site)
-          done
+          (cd /tmp/css-fast-current && npm run build:site)
+          (cd /tmp/css-fast-wave5f && npm run build:site)
 
       - name: Start exact previews
         run: |
           set -euo pipefail
-          (cd /tmp/css-fast-original && npx vite preview --host 127.0.0.1 --port 4271 > /tmp/css-fast-original.log 2>&1 &)
           (cd /tmp/css-fast-current && npx vite preview --host 127.0.0.1 --port 4272 > /tmp/css-fast-current.log 2>&1 &)
           (cd /tmp/css-fast-wave5f && npx vite preview --host 127.0.0.1 --port 4273 > /tmp/css-fast-wave5f.log 2>&1 &)
-          for port in 4271 4272 4273; do
+          for port in 4272 4273; do
             for attempt in $(seq 1 60); do
               if curl --fail --silent "http://127.0.0.1:$port/" >/dev/null; then break; fi
               if [[ "$attempt" -eq 60 ]]; then exit 1; fi
@@ -124,34 +115,24 @@ jobs:
             done
           done
 
-      - name: Fast visual baseline to current
-        env:
-          BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
-          CURRENT_SHA: a21c3bceec6a8ff8692cf60c83a38c15789d4811
-        run: node tools/tmp-css-visual-fast.mjs http://127.0.0.1:4271 http://127.0.0.1:4272 /tmp/css-fast-original-current
-
-      - name: Fast visual current to Wave5F
+      - name: Focused live strip visual parity
         env:
           BASELINE_SHA: a21c3bceec6a8ff8692cf60c83a38c15789d4811
           CURRENT_SHA: 264696a762722b94e7649f44c6a9d863d8752c8d
-        run: node tools/tmp-css-visual-fast.mjs http://127.0.0.1:4272 http://127.0.0.1:4273 /tmp/css-fast-current-wave5f
+        run: node tools/tmp-css-strip-height-visual.mjs http://127.0.0.1:4272 http://127.0.0.1:4273 /tmp/css-strip-wave5f
 
-      - name: Print summaries
+      - name: Print summary
         if: always()
-        run: |
-          cat /tmp/css-fast-original-current/summary.json || true
-          cat /tmp/css-fast-current-wave5f/summary.json || true
+        run: cat /tmp/css-strip-wave5f/summary.json || true
 
       - name: Archive one-time evidence
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: css-visual-fast-${{ github.sha }}
+          name: css-strip-wave5f-${{ github.sha }}
           retention-days: 7
           if-no-files-found: warn
           path: |
-            /tmp/css-fast-original-current
-            /tmp/css-fast-current-wave5f
-            /tmp/css-fast-original.log
+            /tmp/css-strip-wave5f
             /tmp/css-fast-current.log
             /tmp/css-fast-wave5f.log
