@@ -1,0 +1,148 @@
+name: tmp-css-461-wave5e-apply
+
+on:
+  push:
+    branches:
+      - prep/css-461-wave5e-finite-layouts
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Move finite layout block exactly into media.css
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          components_path = Path('src/styles/components.css')
+          media_path = Path('src/styles/media.css')
+          components = components_path.read_text()
+          media = media_path.read_text()
+
+          start_marker = '/* Sequence = wide + middle collection + wide. */'
+          end_marker = '/* ==================================================\n   Infinite reel\n   ================================================== */'
+          if components.count(start_marker) != 1:
+              raise SystemExit(f'sequence start marker count={components.count(start_marker)}')
+          if components.count(end_marker) != 1:
+              raise SystemExit(f'infinite reel marker count={components.count(end_marker)}')
+          start = components.index(start_marker)
+          end = components.index(end_marker, start)
+          block = components[start:end].rstrip() + '\n'
+          if '[data-infinite-reel]' in block or '.slider' in block:
+              raise SystemExit('finite block unexpectedly includes runtime/interactive ownership')
+          for layout in ('sequence','strip','editorial','masonry','bento'):
+              if f'data-layout="{layout}"' not in block:
+                  raise SystemExit(f'missing {layout} in finite block')
+          if start_marker in media:
+              raise SystemExit('finite block already present in media.css')
+
+          components = components[:start] + components[end:]
+          media = media.rstrip() + '\n\n' + block
+          components_path.write_text(components)
+          media_path.write_text(media)
+          PY
+      - name: Advance Wave5C and Wave5D ownership tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          wave5c = Path('test/css-refactor-wave5c-grid-compact.test.mjs')
+          text = wave5c.read_text()
+          start_marker = 'test("Wave5C does not absorb neighboring Brand/Jestei or later layout families", () => {'
+          end_marker = '\ntest("generic media-group base keeps the explicit spacing resolver outside Wave5C", () => {'
+          if text.count(start_marker) != 1 or text.count(end_marker) != 1:
+              raise SystemExit('Wave5C boundary markers changed unexpectedly')
+          start = text.index(start_marker)
+          end = text.index(end_marker, start)
+          replacement = '''test("Wave5C boundary still excludes Brand/Jestei and infinite reel ownership", () => {
+            for (const pattern of [
+              /(?:^|\\n)\\.media-group\\.brand-system\\s*\\{/,
+              /(?:^|\\n)\\[data-infinite-reel\\]\\s*\\{/,
+            ]) {
+              assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);
+              assert.match(components, pattern, `components.css must retain later family ${pattern}`);
+            }
+          });
+          '''
+          wave5c.write_text(text[:start] + replacement + text[end:])
+
+          wave5d = Path('test/css-refactor-wave5d-strip-justify-contract.test.mjs')
+          text = wave5d.read_text()
+          old = 'const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");\nconst patterns = readFileSync'
+          new = 'const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");\nconst media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");\nconst patterns = readFileSync'
+          if text.count(old) != 1:
+              raise SystemExit('Wave5D owner declarations changed unexpectedly')
+          text = text.replace(old, new, 1)
+          generic = '''  assert.match(
+            components,
+            /\\.media-group\\[data-layout="strip"\\]\\s*\\{[\\s\\S]*?@container media-group \\(width > 48rem\\)\\s*\\{[\\s\\S]*?&\\s*>\\s*\\.media-group__items\\s*\\{[\\s\\S]*?--reel-justify:\\s*var\\(--strip-justify,\\s*safe center\\);[\\s\\S]*?\\}/,
+          );'''
+          replacement = '''  assert.match(
+            media,
+            /\\.media-group\\[data-layout="strip"\\]\\s*\\{[\\s\\S]*?@container media-group \\(width > 48rem\\)\\s*\\{[\\s\\S]*?&\\s*>\\s*\\.media-group__items\\s*\\{[\\s\\S]*?--reel-justify:\\s*var\\(--strip-justify,\\s*safe center\\);[\\s\\S]*?\\}/,
+          );'''
+          if text.count(generic) != 1:
+              raise SystemExit('Wave5D generic resolver assertion changed unexpectedly')
+          wave5d.write_text(text.replace(generic, replacement, 1))
+          PY
+      - name: Register Wave5E in mandatory Fast CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('tools/ci/run-tests.mjs')
+          text = path.read_text()
+          anchor = '  "test/css-refactor-wave5d-strip-justify-contract.test.mjs",\n'
+          target = '  "test/css-refactor-wave5e-finite-layouts.test.mjs",\n'
+          if text.count(anchor) != 1:
+              raise SystemExit(f'Wave5D Fast CI anchor count={text.count(anchor)}')
+          if target in text:
+              raise SystemExit('Wave5E unexpectedly already registered')
+          path.write_text(text.replace(anchor, anchor + target, 1))
+          PY
+      - name: Focused and mandatory verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test \
+            test/test-groups.test.mjs \
+            test/css-refactor-wave5b-media-group-foundation.test.mjs \
+            test/css-refactor-wave5c-grid-compact.test.mjs \
+            test/css-refactor-wave5d-strip-justify-contract.test.mjs \
+            test/css-refactor-wave5e-finite-layouts.test.mjs
+          node tools/ci/run-tests.mjs fast
+          git diff --check
+      - name: Remove temporary workflows and push prepared GREEN tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm \
+            .github/workflows/tmp-css-461-wave5e-red.yml \
+            .github/workflows/tmp-css-461-wave5e-apply.yml
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/styles/components.css src/styles/media.css tools/ci/run-tests.mjs \
+            test/css-refactor-wave5c-grid-compact.test.mjs \
+            test/css-refactor-wave5d-strip-justify-contract.test.mjs \
+            test/css-refactor-wave5e-finite-layouts.test.mjs
+          git commit -m 'refactor(css): prepare Wave5E finite media layout ownership'
+          git push origin HEAD:prep/css-461-wave5e-finite-layouts
