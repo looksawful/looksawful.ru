@@ -1,0 +1,63 @@
+name: tmp-project-nav-height-characterization
+on:
+  push:
+    branches: [test/project-nav-bottom-sticky-diagnostic]
+permissions:
+  contents: read
+jobs:
+  characterize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start Vite
+        shell: bash
+        run: |
+          nohup npm run dev -- --host 127.0.0.1 --port 4173 > "$RUNNER_TEMP/project-nav-height.log" 2>&1 &
+          for i in {1..60}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && break; sleep 1; done
+          curl -fsS http://127.0.0.1:4173/ >/dev/null
+      - name: Characterize nav height
+        shell: bash
+        run: |
+          cat > project-nav-height.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          const widths = [390, 412, 512, 640, 641, 768, 900, 1200, 1536];
+          const browser = await chromium.launch({headless:true});
+          try {
+            for (const width of widths) {
+              const context = await browser.newContext({viewport:{width,height:900},isMobile:width<=640,hasTouch:width<=640});
+              const page = await context.newPage();
+              await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+              const result = await page.evaluate(()=>{
+                const nav=document.querySelector('[data-projects-navigation]');
+                const inner=nav?.querySelector('.project-nav__inner');
+                const top=nav?.querySelector('.project-nav__top');
+                if (!(nav instanceof HTMLElement) || !(inner instanceof HTMLElement)) throw new Error('missing nav');
+                const nr=nav.getBoundingClientRect();
+                const ir=inner.getBoundingClientRect();
+                const cs=getComputedStyle(nav);
+                const ts=top instanceof HTMLElement ? getComputedStyle(top) : null;
+                return {
+                  navHeight:nr.height,
+                  innerHeight:ir.height,
+                  paddingTop:cs.paddingTop,
+                  paddingBottom:cs.paddingBottom,
+                  topMinHeight:ts?.minHeight ?? null,
+                  fontSize:ts?.fontSize ?? null,
+                  lineHeight:ts?.lineHeight ?? null,
+                };
+              });
+              console.log(width, JSON.stringify(result));
+              await context.close();
+            }
+          } finally { await browser.close(); }
+          NODE
+          node project-nav-height.mjs
