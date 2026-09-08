@@ -315,3 +315,30 @@
   min-inline-size: 100%;
   max-inline-size: 100%;
 }
+
+/* Explicit editorial grid. Item spans are local custom properties. */
+.media-group[data-layout="editorial"] > .media-group__items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--group-gap);
+  row-gap: var(--group-row-gap);
+  align-items: start;
+
+  & > .media[data-role="wide"] {
+    grid-column: 1 / -1;
+  }
+
+  @container media-group (width > 48rem) {
+    & {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+
+      & > .media {
+        grid-column: var(--start, auto) / span var(--span, 4);
+
+        &[data-role="wide"] {
+          grid-column: var(--start, auto) / span var(--span, 8);
+        }
+      }
+    }
+  }
+}

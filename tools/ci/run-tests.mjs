@@ -23,6 +23,7 @@ export const fastTests = new Set([
   "test/css-refactor-wave5e-sequence.test.mjs",
   "test/css-refactor-wave5f-strip-height-contract.test.mjs",
   "test/css-refactor-wave5g-strip.test.mjs",
+  "test/css-refactor-wave5h-editorial.test.mjs",
   "test/cv-principles-lowercase.test.mjs",
   "test/domain-catalog-identity.test.mjs",
   "test/domain-taxonomy-references.test.mjs",

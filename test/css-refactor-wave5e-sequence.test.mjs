@@ -38,7 +38,6 @@ test("Wave5E sequence keeps authored configuration and intrinsic geometry contra
 
 test("Wave5E sequence move stops before later media families", () => {
   for (const pattern of [
-    /(?:^|\n)\.media-group\[data-layout="editorial"\]/,
     /(?:^|\n)\.media-group\[data-layout="masonry"\]/,
     /(?:^|\n)\.media-group\[data-layout="bento"\]/,
     /(?:^|\n)\[data-infinite-reel\]\s*\{/,
