@@ -23,7 +23,6 @@ jobs:
         shell: bash
         run: |
           npx vite --host 127.0.0.1 --port 4173 > /tmp/css574-vite.log 2>&1 &
-          echo $! > /tmp/css574-vite.pid
           for i in {1..40}; do
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
             sleep 1
@@ -46,14 +45,45 @@ jobs:
           const failures = [];
           const results = [];
           const round = (n) => Math.round(n * 1000) / 1000;
-          const geometry = (r) => r && ({ x: round(r.x), y: round(r.y), width: round(r.width), height: round(r.height) });
-          const equalGeometry = (a, b, tolerance = 0.05) => {
-            if (!a || !b) return a === b;
-            return ['x','y','width','height'].every((key) => Math.abs(a[key] - b[key]) <= tolerance);
-          };
+          const close = (a, b, tolerance = 0.05) => Math.abs(a - b) <= tolerance;
+          const sameSize = (a, b) => Boolean(a && b) && close(a.width, b.width) && close(a.height, b.height);
+
+          const capture = async (reel) => reel.evaluate((root) => {
+            const track = root.querySelector(':scope > [data-infinite-reel-track]');
+            const style = getComputedStyle(root);
+            const trackStyle = track instanceof HTMLElement ? getComputedStyle(track) : null;
+            const rect = root.getBoundingClientRect();
+            const trackRect = track instanceof HTMLElement ? track.getBoundingClientRect() : null;
+            const childSizes = track instanceof HTMLElement
+              ? [...track.children].slice(0, 8).map((child) => {
+                  const childRect = child.getBoundingClientRect();
+                  return { width: childRect.width, height: childRect.height };
+                })
+              : [];
+            return {
+              rawFade: style.getPropertyValue('--infinite-reel-fade-size').trim(),
+              mask: style.maskImage,
+              webkitMask: style.webkitMaskImage,
+              overflowX: style.overflowX,
+              overflowY: style.overflowY,
+              duration: style.getPropertyValue('--infinite-reel-duration').trim(),
+              gap: trackStyle?.columnGap ?? '',
+              animationName: trackStyle?.animationName ?? '',
+              animationDuration: trackStyle?.animationDuration ?? '',
+              rect: { width: rect.width, height: rect.height },
+              trackRect: trackRect ? { width: trackRect.width, height: trackRect.height } : null,
+              scrollWidth: track instanceof HTMLElement ? track.scrollWidth : null,
+              scrollHeight: track instanceof HTMLElement ? track.scrollHeight : null,
+              childCount: track instanceof HTMLElement ? track.children.length : null,
+              childSizes,
+            };
+          });
 
           for (const viewport of viewports) {
-            const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, reducedMotion: 'no-preference' });
+            const context = await browser.newContext({
+              viewport: { width: viewport.width, height: viewport.height },
+              reducedMotion: 'no-preference',
+            });
             const page = await context.newPage();
             for (const route of routes) {
               await page.goto(`http://127.0.0.1:4173${route}`, { waitUntil: 'domcontentloaded' });
@@ -64,32 +94,9 @@ jobs:
                 if (!(await reel.isVisible())) continue;
                 await reel.scrollIntoViewIfNeeded().catch(() => {});
                 await page.waitForTimeout(120);
-                const record = await reel.evaluate((root) => {
-                  const track = root.querySelector(':scope > [data-infinite-reel-track]');
-                  if (track instanceof HTMLElement) track.style.animationPlayState = 'paused';
-                  const style = getComputedStyle(root);
-                  const trackStyle = track instanceof HTMLElement ? getComputedStyle(track) : null;
-                  const rect = root.getBoundingClientRect();
-                  const trackRect = track instanceof HTMLElement ? track.getBoundingClientRect() : null;
-                  return {
-                    specialized: root.classList.contains('portfolio-logo-wall'),
-                    className: root.className,
-                    rawFade: style.getPropertyValue('--infinite-reel-fade-size').trim(),
-                    mask: style.maskImage,
-                    webkitMask: style.webkitMaskImage,
-                    overflowX: style.overflowX,
-                    overflowY: style.overflowY,
-                    duration: style.getPropertyValue('--infinite-reel-duration').trim(),
-                    gap: trackStyle?.columnGap ?? '',
-                    animationName: trackStyle?.animationName ?? '',
-                    animationDuration: trackStyle?.animationDuration ?? '',
-                    animationPlayState: trackStyle?.animationPlayState ?? '',
-                    rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-                    trackRect: trackRect ? { x: trackRect.x, y: trackRect.y, width: trackRect.width, height: trackRect.height } : null,
-                    scrollWidth: track instanceof HTMLElement ? track.scrollWidth : null,
-                    childCount: track instanceof HTMLElement ? track.children.length : null,
-                  };
-                });
+
+                const specialized = await reel.evaluate((root) => root.classList.contains('portfolio-logo-wall'));
+                const current = await capture(reel);
 
                 const styleId = 'css574-historical-winner';
                 await page.evaluate((id) => {
@@ -99,49 +106,49 @@ jobs:
                   style.textContent = '[data-infinite-reel]{--infinite-reel-fade-size:clamp(2rem,7cqi,6rem);}';
                   document.head.append(style);
                 }, styleId);
-                const historical = await reel.evaluate((root) => {
-                  const track = root.querySelector(':scope > [data-infinite-reel-track]');
-                  const style = getComputedStyle(root);
-                  const trackStyle = track instanceof HTMLElement ? getComputedStyle(track) : null;
-                  const rect = root.getBoundingClientRect();
-                  const trackRect = track instanceof HTMLElement ? track.getBoundingClientRect() : null;
-                  return {
-                    rawFade: style.getPropertyValue('--infinite-reel-fade-size').trim(),
-                    mask: style.maskImage,
-                    webkitMask: style.webkitMaskImage,
-                    overflowX: style.overflowX,
-                    overflowY: style.overflowY,
-                    duration: style.getPropertyValue('--infinite-reel-duration').trim(),
-                    gap: trackStyle?.columnGap ?? '',
-                    animationName: trackStyle?.animationName ?? '',
-                    animationDuration: trackStyle?.animationDuration ?? '',
-                    animationPlayState: trackStyle?.animationPlayState ?? '',
-                    rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-                    trackRect: trackRect ? { x: trackRect.x, y: trackRect.y, width: trackRect.width, height: trackRect.height } : null,
-                    scrollWidth: track instanceof HTMLElement ? track.scrollWidth : null,
-                    childCount: track instanceof HTMLElement ? track.children.length : null,
-                  };
-                });
+                const historical = await capture(reel);
                 await page.evaluate((id) => document.getElementById(id)?.remove(), styleId);
 
-                const currentRect = geometry(record.rect);
-                const historicalRect = geometry(historical.rect);
-                const currentTrackRect = geometry(record.trackRect);
-                const historicalTrackRect = geometry(historical.trackRect);
-                const geometryStable = equalGeometry(currentRect, historicalRect) && equalGeometry(currentTrackRect, historicalTrackRect) && record.scrollWidth === historical.scrollWidth && record.childCount === historical.childCount;
-                const mechanicsStable = record.overflowX === historical.overflowX && record.overflowY === historical.overflowY && record.duration === historical.duration && record.gap === historical.gap && record.animationName === historical.animationName && record.animationDuration === historical.animationDuration;
-                const maskChanged = record.mask !== historical.mask || record.webkitMask !== historical.webkitMask;
+                const childSizesStable = current.childSizes.length === historical.childSizes.length && current.childSizes.every((size, childIndex) => sameSize(size, historical.childSizes[childIndex]));
+                const geometryStable = sameSize(current.rect, historical.rect)
+                  && sameSize(current.trackRect, historical.trackRect)
+                  && current.scrollWidth === historical.scrollWidth
+                  && current.scrollHeight === historical.scrollHeight
+                  && current.childCount === historical.childCount
+                  && childSizesStable;
+                const mechanicsStable = current.overflowX === historical.overflowX
+                  && current.overflowY === historical.overflowY
+                  && current.duration === historical.duration
+                  && current.gap === historical.gap
+                  && current.animationName === historical.animationName
+                  && current.animationDuration === historical.animationDuration;
+                const maskChanged = current.mask !== historical.mask || current.webkitMask !== historical.webkitMask;
 
-                if (!geometryStable) failures.push(`${viewport.name} ${route} reel ${index}: geometry changed`);
+                if (!geometryStable) failures.push(`${viewport.name} ${route} reel ${index}: transform-invariant geometry changed`);
                 if (!mechanicsStable) failures.push(`${viewport.name} ${route} reel ${index}: non-fade mechanics changed`);
-                if (record.specialized) {
-                  if (!record.rawFade.includes('1.5rem') || !record.rawFade.includes('4cqi')) failures.push(`${viewport.name} ${route} reel ${index}: specialized authored fade not effective (${record.rawFade})`);
+                if (specialized) {
+                  if (!current.rawFade.includes('1.5rem') || !current.rawFade.includes('4cqi')) failures.push(`${viewport.name} ${route} reel ${index}: specialized authored fade not effective (${current.rawFade})`);
                   if (viewport.width > 768 && !maskChanged) failures.push(`${viewport.name} ${route} reel ${index}: specialized animated mask did not change from historical generic winner`);
                 } else {
-                  if (record.rawFade !== '') failures.push(`${viewport.name} ${route} reel ${index}: generic reel still has authored raw fade (${record.rawFade})`);
-                  if (record.mask !== historical.mask || record.webkitMask !== historical.webkitMask) failures.push(`${viewport.name} ${route} reel ${index}: generic effective mask changed`);
+                  if (current.rawFade !== '') failures.push(`${viewport.name} ${route} reel ${index}: generic reel still has authored raw fade (${current.rawFade})`);
+                  if (maskChanged) failures.push(`${viewport.name} ${route} reel ${index}: generic effective mask changed`);
                 }
-                results.push({ viewport: viewport.name, route, index, specialized: record.specialized, rawFade: record.rawFade, historicalRawFade: historical.rawFade, maskChanged, geometryStable, mechanicsStable, rect: currentRect, trackRect: currentTrackRect });
+
+                results.push({
+                  viewport: viewport.name,
+                  route,
+                  index,
+                  specialized,
+                  rawFade: current.rawFade,
+                  historicalRawFade: historical.rawFade,
+                  maskChanged,
+                  geometryStable,
+                  mechanicsStable,
+                  rootSize: { width: round(current.rect.width), height: round(current.rect.height) },
+                  trackSize: current.trackRect ? { width: round(current.trackRect.width), height: round(current.trackRect.height) } : null,
+                  scrollWidth: current.scrollWidth,
+                  childCount: current.childCount,
+                });
               }
             }
             await context.close();
@@ -154,6 +161,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: css574-fade-browser-evidence
+          name: css574-fade-browser-evidence-v2
           path: css574-browser-result.json
           retention-days: 14
