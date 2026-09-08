@@ -25,14 +25,19 @@ test("components aggregate no longer owns generic media core presentation", () =
 
   // These are deliberately outside the Wave 5A media-core move. Later Wave 5
   // slices may move them under the same canonical media owner with their own RED
-  // ownership contracts, so this test only guards the specializations that must
-  // remain later than the generic media foundation.
+  // ownership contracts, so this test guards behavior rather than pinning a
+  // specialization to an obsolete physical owner.
   assert.match(components, /(?:^|\n)\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child\s*\{/);
   assert.match(components, /(?:^|\n)\.brand-system__surface\s*\{/);
   assert.match(
     components,
-    /(?:^|\n)\.brand-system__surface\s*\{[\s\S]*?aspect-ratio:\s*16\s*\/\s*10\s*;/,
-    "Brand System must retain its authored 16:10 specialization after the generic media owner moves earlier",
+    /(?:^|\n)\.media-group\.brand-system\s*\{[\s\S]*?--brand-system-surface-ratio:\s*16\s*\/\s*10\s*;/,
+    "Brand System must retain its authored 16:10 ratio token",
+  );
+  assert.match(
+    components,
+    /(?:^|\n)\.brand-system__surface\s*\{[\s\S]*?aspect-ratio:\s*var\(--brand-system-surface-ratio\)\s*;/,
+    "Brand System surface must continue consuming the authored ratio token",
   );
 });
 
