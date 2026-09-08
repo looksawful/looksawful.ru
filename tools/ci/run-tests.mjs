@@ -24,6 +24,7 @@ export const fastTests = new Set([
   "test/css-refactor-wave5f-strip-height-contract.test.mjs",
   "test/css-refactor-wave5g-strip.test.mjs",
   "test/css-refactor-wave5h-editorial.test.mjs",
+  "test/css-refactor-wave5i-masonry.test.mjs",
   "test/cv-principles-lowercase.test.mjs",
   "test/domain-catalog-identity.test.mjs",
   "test/domain-taxonomy-references.test.mjs",
@@ -79,32 +80,36 @@ export function selectTests(group, files) {
     );
   }
 
-  if (group === "media-contract") {
-    return tests.filter((file) => derivativeTests.has(file));
-  }
-
-  if (group === "media") {
-    return tests.filter((file) => /^test\/(media-|responsive-|video-delivery)/.test(file));
-  }
-
-  if (group === "cv") {
-    return tests.filter((file) => /^test\/cv-/.test(file));
-  }
-
   if (group === "ci") {
     return tests.filter((file) => ciTests.has(file));
   }
 
-  throw new Error(`unknown test group: ${group}`);
+  return [];
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
-  const files = readdirSync("test", { recursive: true }).map(
-    (file) => `test/${file.replaceAll("\\", "/")}`,
-  );
-  const selected = selectTests(process.argv[2], files);
-  if (!selected.length) throw new Error("test group is empty");
-  const result = spawnSync(process.execPath, ["--test", ...selected], { stdio: "inherit" });
-  if (result.error) throw result.error;
-  process.exit(result.status ?? 1);
+export function runTests(group) {
+  const testRoot = fileURLToPath(new URL("../../test/", import.meta.url));
+  const files = readdirSync(testRoot, { recursive: true })
+    .filter((file) => typeof file === "string")
+    .map((file) => `test/${file.replaceAll(path.sep, "/")}`);
+  const selected = selectTests(group, files);
+
+  if (!selected.length) {
+    console.error(`No tests selected for group: ${group}`);
+    process.exitCode = 1;
+    return;
+  }
+
+  const result = spawnSync(process.execPath, ["--test", ...selected], {
+    cwd: fileURLToPath(new URL("../../", import.meta.url)),
+    stdio: "inherit",
+  });
+
+  process.exitCode = result.status ?? 1;
+}
+
+const group = process.argv[2];
+
+if (group) {
+  runTests(group);
 }
