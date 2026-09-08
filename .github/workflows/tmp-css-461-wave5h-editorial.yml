@@ -10,7 +10,7 @@ jobs:
   focused:
     if: github.head_ref == 'refactor/css-461-wave5h-editorial' || github.ref_name == 'refactor/css-461-wave5h-editorial'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v7
         with:
@@ -30,25 +30,26 @@ jobs:
           npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/wave5h-vite.log 2>&1 &
           VITE_PID=$!
           trap 'kill $VITE_PID 2>/dev/null || true' EXIT
-          for i in {1..40}; do
-            if curl -fsS http://127.0.0.1:4173/work/sensetique/ >/dev/null; then break; fi
+          READY=0
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/work/sensetique/ >/dev/null; then READY=1; break; fi
             sleep 1
           done
+          test "$READY" = 1 || { cat /tmp/wave5h-vite.log; exit 1; }
           cat > "$GITHUB_WORKSPACE/.tmp-wave5h-characterize.mjs" <<'NODE'
           import { chromium } from "playwright";
           import { writeFileSync } from "node:fs";
 
           const browser = await chromium.launch({ headless: true });
           const page = await browser.newPage();
+          page.setDefaultTimeout(10000);
+          page.setDefaultNavigationTimeout(15000);
           const results = [];
           for (const width of [390, 900, 1728]) {
             await page.setViewportSize({ width, height: 1000 });
             await page.goto("http://127.0.0.1:4173/work/sensetique/", { waitUntil: "domcontentloaded" });
-            await page.evaluate(async () => {
-              await document.fonts?.ready;
-              const media = [...document.querySelectorAll('.media-group[data-layout="editorial"] img')];
-              await Promise.all(media.map((img) => img.decode?.().catch(() => undefined)));
-            });
+            await page.evaluate(() => document.fonts?.ready);
+            await page.waitForTimeout(350);
             const snapshot = await page.locator('.media-group[data-layout="editorial"]').evaluateAll((groups, viewportWidth) =>
               groups.filter((group) => group.getBoundingClientRect().width > 0).map((group) => {
                 const items = group.querySelector(':scope > .media-group__items');
