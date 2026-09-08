@@ -29,7 +29,7 @@ jobs:
         run: |
           cat > project-nav-height.mjs <<'NODE'
           import { chromium } from 'playwright';
-          const widths = [390, 412, 512, 640, 641, 768, 900, 1200, 1536];
+          const widths = [390, 640, 641, 768, 900, 1200, 1536];
           const browser = await chromium.launch({headless:true});
           try {
             for (const width of widths) {
@@ -39,20 +39,20 @@ jobs:
               const result = await page.evaluate(()=>{
                 const nav=document.querySelector('[data-projects-navigation]');
                 const inner=nav?.querySelector('.project-nav__inner');
+                const list=nav?.querySelector('.project-nav__list');
+                const first=nav?.querySelector('.project-nav__link');
+                const current=nav?.querySelector('.project-nav__link[aria-current="location"]');
                 const top=nav?.querySelector('.project-nav__top');
                 if (!(nav instanceof HTMLElement) || !(inner instanceof HTMLElement)) throw new Error('missing nav');
-                const nr=nav.getBoundingClientRect();
-                const ir=inner.getBoundingClientRect();
-                const cs=getComputedStyle(nav);
-                const ts=top instanceof HTMLElement ? getComputedStyle(top) : null;
+                const rect = (el) => el instanceof HTMLElement ? ({height:el.getBoundingClientRect().height,width:el.getBoundingClientRect().width}) : null;
+                const style = (el) => el instanceof HTMLElement ? ({fontSize:getComputedStyle(el).fontSize,lineHeight:getComputedStyle(el).lineHeight,minHeight:getComputedStyle(el).minHeight,paddingTop:getComputedStyle(el).paddingTop,paddingBottom:getComputedStyle(el).paddingBottom}) : null;
                 return {
-                  navHeight:nr.height,
-                  innerHeight:ir.height,
-                  paddingTop:cs.paddingTop,
-                  paddingBottom:cs.paddingBottom,
-                  topMinHeight:ts?.minHeight ?? null,
-                  fontSize:ts?.fontSize ?? null,
-                  lineHeight:ts?.lineHeight ?? null,
+                  nav: {...rect(nav), ...style(nav)},
+                  inner: {...rect(inner), ...style(inner)},
+                  list: list instanceof HTMLElement ? {...rect(list), ...style(list)} : null,
+                  first: first instanceof HTMLElement ? {...rect(first), ...style(first)} : null,
+                  current: current instanceof HTMLElement ? {...rect(current), ...style(current)} : null,
+                  top: top instanceof HTMLElement ? {...rect(top), ...style(top)} : null,
                 };
               });
               console.log(width, JSON.stringify(result));
