@@ -49,7 +49,15 @@ jobs:
           import { chromium } from 'playwright';
           import { writeFile } from 'node:fs/promises';
 
-          const routes = ['/', '/work/jestei-pool/', '/work/styx/', '/work/sensetique/', '/shootings/'];
+          const routes = [
+            '/',
+            '/work/jestei-pool/',
+            '/work/styx/',
+            '/work/sensetique/',
+            '/shootings/',
+            '/work/awful-cases/',
+            '/work/moves/',
+          ];
           const viewports = [
             { name: 'tablet', width: 900, height: 1000 },
             { name: 'desktop', width: 1728, height: 1000 },
