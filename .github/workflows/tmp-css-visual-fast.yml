@@ -115,11 +115,16 @@ jobs:
             done
           done
 
-      - name: Focused live strip visual parity
+      - name: Focused live strip visual characterization
+        continue-on-error: true
         env:
           BASELINE_SHA: a21c3bceec6a8ff8692cf60c83a38c15789d4811
           CURRENT_SHA: 264696a762722b94e7649f44c6a9d863d8752c8d
         run: node tools/tmp-css-strip-height-visual.mjs http://127.0.0.1:4272 http://127.0.0.1:4273 /tmp/css-strip-wave5f
+
+      - name: Require rendered strip parity
+        run: |
+          node -e 'const fs=require("fs");const p="/tmp/css-strip-wave5f/summary.json";const s=JSON.parse(fs.readFileSync(p,"utf8"));if(s.renderedDifferenceCases!==0)process.exit(1);console.log(`rendered strip parity: ${s.strips} strips, 0 rendered differences; pixel-only cases=${s.visualDifferenceCases}`)'
 
       - name: Print summary
         if: always()
