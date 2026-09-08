@@ -1,0 +1,161 @@
+name: tmp-css-561-spacing-parity-diagnostic
+
+on:
+  push:
+    branches:
+      - test/css-561-spacing-parity-diagnostic
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: b65325afe36b8e78f9d2a7108024ff17dd5b55f1
+  CANDIDATE_SHA: 8daefaa90221499bfff6110d86b960a2be6d8507
+
+jobs:
+  parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 30
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Prepare exact refs and servers
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=30 origin "$BASE_SHA"
+          git fetch --no-tags --depth=30 origin "$CANDIDATE_SHA"
+          git worktree add --detach /tmp/base "$BASE_SHA"
+          git worktree add --detach /tmp/candidate "$CANDIDATE_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/base/node_modules
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/candidate/node_modules
+          (cd /tmp/base && npx vite --host 127.0.0.1 --port 4172 > /tmp/base.log 2>&1 &)
+          (cd /tmp/candidate && npx vite --host 127.0.0.1 --port 4173 > /tmp/candidate.log 2>&1 &)
+          for port in 4172 4173; do
+            for i in $(seq 1 60); do
+              curl --fail --silent "http://127.0.0.1:$port/" >/dev/null && break
+              test "$i" -lt 60
+              sleep 1
+            done
+          done
+      - name: Diagnose computed geometry and media-fit deltas
+        shell: bash
+        run: |
+          cat > "$GITHUB_WORKSPACE/css-561-parity.mjs" <<'JS'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const routes = ['/', '/work/jestei-pool/', '/work/styx/', '/work/sensetique/', '/shootings/', '/work/awful-cases/', '/work/moves/'];
+          const viewports = [
+            { name:'mobile', width:390, height:844 },
+            { name:'tablet', width:900, height:1000 },
+            { name:'desktop', width:1728, height:1000 },
+          ];
+          const groupProps = ['display','position','width','height','gap','rowGap','columnGap','gridTemplateColumns','gridTemplateRows','gridAutoFlow','gridAutoColumns','justifyContent','alignItems','overflowX','overflowY','containerName','containerType'];
+          const groupVars = ['--media-group-gap','--media-group-row-gap','--group-gap','--group-row-gap','--group-columns','--group-mobile-columns','--group-max','--reel-gap','--reel-display','--reel-justify','--portfolio-group-gap'];
+          const mediaVars = ['--media-fit','--media-position','--media-ratio','--object-fit','--object-position'];
+          const browser = await chromium.launch({headless:true});
+          const report = {base:process.env.BASE_SHA,candidate:process.env.CANDIDATE_SHA,cases:[],changedCases:[]};
+
+          const settle = async (page,url) => {
+            await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForLoadState('networkidle',{timeout:10000}).catch(()=>{});
+            await page.evaluate(async()=>{
+              await document.fonts?.ready;
+              for (const v of document.querySelectorAll('video')) { v.pause(); try { v.currentTime=0; } catch {} }
+              window.scrollTo(0,0);
+            });
+            await page.waitForTimeout(300);
+          };
+
+          const snap = page => page.evaluate(({groupProps,groupVars,mediaVars}) => {
+            const round=n=>Math.round(n*1000)/1000;
+            const rect=el=>{const r=el.getBoundingClientRect();return {x:round(r.x),y:round(r.y),width:round(r.width),height:round(r.height)};};
+            const vars=(s,names)=>Object.fromEntries(names.map(v=>[v,s.getPropertyValue(v).trim()]));
+            const groups=[...document.querySelectorAll('.media-group')].map((group,index)=>{
+              const gs=getComputedStyle(group);
+              const computed=Object.fromEntries(groupProps.map(p=>[p,gs[p]]));
+              const items=group.querySelector(':scope > .media-group__items');
+              const media=[...group.querySelectorAll('.media')].map((item,mediaIndex)=>{
+                const surface=item.querySelector('.media__surface');
+                const asset=surface?.querySelector(':scope > img, :scope > video, :scope > picture > img') ?? null;
+                const ss=surface?getComputedStyle(surface):null;
+                const as=asset?getComputedStyle(asset):null;
+                return {
+                  mediaIndex,
+                  className:typeof item.className==='string'?item.className:'',
+                  data:Object.fromEntries([...item.attributes].filter(a=>a.name.startsWith('data-')).map(a=>[a.name,a.value])),
+                  rect:rect(item),
+                  surface:surface?{rect:rect(surface),aspectRatio:ss.aspectRatio,vars:vars(ss,mediaVars)}:null,
+                  asset:asset?{
+                    tag:asset.tagName,
+                    rect:rect(asset),
+                    objectFit:as.objectFit,
+                    objectPosition:as.objectPosition,
+                    aspectRatio:as.aspectRatio,
+                    vars:vars(as,mediaVars),
+                    intrinsic:{width:asset.naturalWidth??asset.videoWidth??0,height:asset.naturalHeight??asset.videoHeight??0}
+                  }:null
+                };
+              });
+              return {
+                index,
+                className:typeof group.className==='string'?group.className:'',
+                data:Object.fromEntries([...group.attributes].filter(a=>a.name.startsWith('data-')).map(a=>[a.name,a.value])),
+                rect:rect(group),
+                computed,
+                variables:vars(gs,groupVars),
+                items:items?{rect:rect(items),gap:getComputedStyle(items).gap,rowGap:getComputedStyle(items).rowGap,columnGap:getComputedStyle(items).columnGap,justifyContent:getComputedStyle(items).justifyContent}:null,
+                media
+              };
+            });
+            return {scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,groups};
+          },{groupProps,groupVars,mediaVars});
+
+          const diff=(a,b,path='root',out=[])=>{
+            if(typeof a==='number'&&typeof b==='number'){if(Math.abs(a-b)>0.75)out.push({path,base:a,candidate:b});return out;}
+            if(Array.isArray(a)||Array.isArray(b)){if(!Array.isArray(a)||!Array.isArray(b)||a.length!==b.length){out.push({path,base:a,candidate:b});return out;} for(let i=0;i<a.length;i++)diff(a[i],b[i],`${path}[${i}]`,out);return out;}
+            if(a&&b&&typeof a==='object'&&typeof b==='object'){for(const k of [...new Set([...Object.keys(a),...Object.keys(b)])].sort())diff(a[k],b[k],`${path}.${k}`,out);return out;}
+            if(a!==b)out.push({path,base:a,candidate:b}); return out;
+          };
+
+          try {
+            for(const vp of viewports){
+              const bc=await browser.newContext({viewport:{width:vp.width,height:vp.height},reducedMotion:'reduce'});
+              const cc=await browser.newContext({viewport:{width:vp.width,height:vp.height},reducedMotion:'reduce'});
+              const bp=await bc.newPage(), cp=await cc.newPage();
+              for(const route of routes){
+                await Promise.all([settle(bp,'http://127.0.0.1:4172'+route),settle(cp,'http://127.0.0.1:4173'+route)]);
+                const [base,candidate]=await Promise.all([snap(bp),snap(cp)]);
+                const differences=diff(base,candidate);
+                const key=`${vp.name}:${route}`;
+                report.cases.push({key,differences});
+                if(differences.length) report.changedCases.push({key,differences});
+                console.log(`${differences.length?'CHANGED':'PASS'} ${key} differences=${differences.length}`);
+                if(differences.length) console.log(JSON.stringify(differences.slice(0,120),null,2));
+              }
+              await bc.close(); await cc.close();
+            }
+          } finally { await browser.close(); }
+
+          await writeFile('/tmp/css-561-parity.json',JSON.stringify(report,null,2)+'\n');
+          console.log(`Diagnostic complete: ${report.changedCases.length}/${report.cases.length} changed cases.`);
+          JS
+          node "$GITHUB_WORKSPACE/css-561-parity.mjs"
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-561-spacing-parity-${{ github.sha }}
+          retention-days: 7
+          path: |
+            /tmp/css-561-parity.json
+            /tmp/base.log
+            /tmp/candidate.log
