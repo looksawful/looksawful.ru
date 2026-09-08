@@ -27,53 +27,57 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-
           components_path = Path('src/styles/components.css')
           media_path = Path('src/styles/media.css')
           components = components_path.read_text(encoding='utf-8')
           media = media_path.read_text(encoding='utf-8')
-
           start_marker = "/* ==================================================\n   Media groups\n   ================================================== */\n\n.media-group {"
           end_marker = "/* Plain grid. */"
-
           start = components.find(start_marker)
           end = components.find(end_marker, start if start >= 0 else 0)
-          if start < 0 or end < 0:
-              raise SystemExit('guard failed: exact Media groups foundation markers not found')
-          if components.find(start_marker, start + 1) >= 0:
-              raise SystemExit('guard failed: duplicate Media groups foundation start marker')
-
+          if start < 0 or end < 0: raise SystemExit('guard failed: exact Media groups foundation markers not found')
+          if components.find(start_marker, start + 1) >= 0: raise SystemExit('guard failed: duplicate Media groups foundation start marker')
           block = components[start:end]
-          required = [
-              'container: media-group / inline-size;',
-              '.media-group__head {',
-              '.media-group__items {',
-              '.media-group > .media-group__items.reel,',
-              '.media-group .media-group__middle.reel {',
-              '--reel-gap: var(--group-gap);',
-          ]
+          required = ['container: media-group / inline-size;', '.media-group__head {', '.media-group__items {', '.media-group > .media-group__items.reel,', '.media-group .media-group__middle.reel {', '--reel-gap: var(--group-gap);']
           for needle in required:
-              if needle not in block:
-                  raise SystemExit(f'guard failed: missing expected foundation fragment: {needle}')
-          forbidden = [
-              '.media-group[data-layout="grid"]',
-              '.media-group[data-compact-layout="reel"]',
-              '.media-group.brand-system',
-              '.media-group[data-layout="sequence"]',
-          ]
+              if needle not in block: raise SystemExit(f'guard failed: missing expected foundation fragment: {needle}')
+          forbidden = ['.media-group[data-layout="grid"]', '.media-group[data-compact-layout="reel"]', '.media-group.brand-system', '.media-group[data-layout="sequence"]']
           for needle in forbidden:
-              if needle in block:
-                  raise SystemExit(f'guard failed: slice widened into excluded family: {needle}')
-          if start_marker in media or '.media-group__head {' in media:
-              raise SystemExit('guard failed: media.css already contains Wave5B foundation owner')
-
-          new_components = components[:start] + components[end:]
-          new_media = media.rstrip() + '\n\n' + block.rstrip() + '\n'
-          components_path.write_text(new_components, encoding='utf-8')
-          media_path.write_text(new_media, encoding='utf-8')
-      - name: Focused owner contracts
+              if needle in block: raise SystemExit(f'guard failed: slice widened into excluded family: {needle}')
+          if start_marker in media or '.media-group__head {' in media: raise SystemExit('guard failed: media.css already contains Wave5B foundation owner')
+          components_path.write_text(components[:start] + components[end:], encoding='utf-8')
+          media_path.write_text(media.rstrip() + '\n\n' + block.rstrip() + '\n', encoding='utf-8')
+      - name: Focused owner contracts with diagnostics
+        id: focused
+        shell: bash
+        continue-on-error: true
         run: |
-          node --test test/css-refactor-wave5a-media-core.test.mjs test/css-refactor-wave5b-media-group-foundation.test.mjs test/css-refactor-wave4d-project-shell.test.mjs
+          set +e
+          mkdir -p /tmp/wave5b-test-logs
+          failed=0
+          for t in \
+            test/css-refactor-wave5a-media-core.test.mjs \
+            test/css-refactor-wave5b-media-group-foundation.test.mjs \
+            test/css-refactor-wave4d-project-shell.test.mjs; do
+            name="$(basename "$t")"
+            node --test "$t" > "/tmp/wave5b-test-logs/$name.log" 2>&1
+            code=$?
+            printf '%s exit=%s\n' "$t" "$code" | tee -a /tmp/wave5b-test-logs/summary.txt
+            cat "/tmp/wave5b-test-logs/$name.log"
+            if [ "$code" -ne 0 ]; then failed=1; fi
+          done
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
+          exit "$failed"
+      - name: Upload focused diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: wave5b-focused-${{ github.sha }}
+          path: /tmp/wave5b-test-logs
+          retention-days: 3
+      - name: Stop on focused failure
+        if: steps.focused.outputs.failed == '1'
+        run: exit 1
       - name: Commit exact move
         shell: bash
         run: |
