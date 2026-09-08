@@ -12,7 +12,7 @@ const movedSelectors = [
   /(?:^|\n)\.media-group\s*>\s*\.media-group__items\.reel,\n\.media-group\s+\.media-group__middle\.reel\s*\{/,
 ];
 
-test("Wave5B first safe slice moves only media-group substructure to the canonical media owner", () => {
+test("Wave5B first safe slice keeps its canonical media-group substructure owner", () => {
   assert.match(
     index,
     /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
@@ -43,17 +43,17 @@ test("remaining media-group base preserves the exact historical cascade contract
   );
 });
 
-test("Wave5B first safe slice does not absorb layout variants or authored specializations", () => {
-  assert.doesNotMatch(media, /(?:^|\n)\.media-group\[data-layout="grid"\]/);
-  assert.doesNotMatch(media, /(?:^|\n)\.media-group\[data-compact-layout="reel"\]/);
+test("Wave5B boundary still excludes neighboring authored specializations", () => {
+  // Later ownership waves may move their own isolated layout families into
+  // media.css. Wave5B must keep guarding only the boundaries it actually owns:
+  // the cascade-sensitive generic base and unrelated authored specializations.
   assert.doesNotMatch(media, /(?:^|\n)\.media-group\.brand-system\s*\{/);
   assert.doesNotMatch(media, /(?:^|\n)\.media-group\[data-layout="sequence"\]\s*\{/);
   assert.doesNotMatch(media, /(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/);
 
-  assert.match(components, /(?:^|\n)\.media-group\[data-layout="grid"\]/);
-  assert.match(components, /(?:^|\n)\.media-group\[data-compact-layout="reel"\]/);
   assert.match(components, /(?:^|\n)\.media-group\.brand-system\s*\{/);
   assert.match(components, /(?:^|\n)\.media-group\[data-layout="sequence"\]\s*\{/);
+  assert.match(components, /(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/);
 });
 
 test("portfolio and project-specific media integration remain outside the canonical substructure owner", () => {
