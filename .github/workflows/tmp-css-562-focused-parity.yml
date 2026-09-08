@@ -1,0 +1,153 @@
+name: tmp-css-562-focused-parity
+
+on:
+  push:
+    branches:
+      - test/css-562-strip-focused-parity
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      BASE_SHA: 0c581d033f33dcad785b7c5d1e2183cb3f0fb1ad
+      CANDIDATE_SHA: bf237a67fbff196e490754e730ac48440fa825f8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start exact trees
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/base
+          git archive "$BASE_SHA" | tar -x -C /tmp/base
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/base/node_modules
+          (cd /tmp/base && "$GITHUB_WORKSPACE/node_modules/.bin/vite" --host 127.0.0.1 --port 4173 >/tmp/base.log 2>&1) &
+          (cd "$GITHUB_WORKSPACE" && "$GITHUB_WORKSPACE/node_modules/.bin/vite" --host 127.0.0.1 --port 4174 >/tmp/candidate.log 2>&1) &
+          for port in 4173 4174; do
+            for i in $(seq 1 60); do
+              curl --fail --silent "http://127.0.0.1:${port}/" >/dev/null && break
+              test "$i" -lt 60
+              sleep 1
+            done
+          done
+      - name: Compare only affected visible portfolio strips
+        shell: bash
+        run: |
+          cat > "$GITHUB_WORKSPACE/focused.mjs" <<'JS'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const viewports = [
+            {name:'mobile',width:390,height:844},
+            {name:'tablet',width:900,height:1000},
+            {name:'desktop',width:1728,height:1000},
+          ];
+          const ports = {base:4173,candidate:4174};
+          const round = n => Math.round(n*1000)/1000;
+          const tolerance = 0.75;
+          const browser = await chromium.launch({headless:true});
+          const report = [];
+          const failures = [];
+
+          async function capture(port, viewport) {
+            const context = await browser.newContext({viewport:{width:viewport.width,height:viewport.height}, reducedMotion:'reduce'});
+            const page = await context.newPage();
+            await page.goto(`http://127.0.0.1:${port}/`, {waitUntil:'domcontentloaded', timeout:30000});
+            await page.addStyleTag({content:'*,*::before,*::after{animation-play-state:paused!important;transition:none!important}'});
+            await page.evaluate(async()=>{
+              await document.fonts?.ready;
+              const groups=[...document.querySelectorAll('.portfolio-showcase__group[data-layout="strip"]')];
+              const visible=el=>{const r=el.getBoundingClientRect();const s=getComputedStyle(el);return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'};
+              const imgs=groups.filter(visible).flatMap(g=>[...g.querySelectorAll('img')]).filter(visible);
+              for(const img of imgs) img.loading='eager';
+              await Promise.race([
+                Promise.allSettled(imgs.map(img=>img.decode?.())),
+                new Promise(resolve=>setTimeout(resolve,1800)),
+              ]);
+              await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+            });
+            const snap = await page.evaluate(() => {
+              const round=n=>Math.round(n*1000)/1000;
+              const visible=el=>{const r=el.getBoundingClientRect();const s=getComputedStyle(el);return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'};
+              return [...document.querySelectorAll('.portfolio-showcase__group[data-layout="strip"]')].filter(visible).map(group=>{
+                const gr=group.getBoundingClientRect();
+                const items=group.querySelector(':scope > .media-group__items');
+                const ir=items.getBoundingClientRect();
+                const first=items.firstElementChild?.getBoundingClientRect();
+                const style=getComputedStyle(items);
+                const media=[...group.querySelectorAll('.media__surface > :is(img,video), .media__surface > picture > img')].filter(visible).slice(0,12).map(asset=>{
+                  const r=asset.getBoundingClientRect(); const s=getComputedStyle(asset);
+                  return {tag:asset.tagName,objectFit:s.objectFit,objectPosition:s.objectPosition,width:round(r.width),height:round(r.height)};
+                });
+                return {
+                  className:group.className,
+                  groupWidth:round(gr.width), groupHeight:round(gr.height),
+                  itemsWidth:round(ir.width), itemsHeight:round(ir.height),
+                  firstOffset:first?round(first.x-ir.x):null,
+                  reelJustify:style.getPropertyValue('--reel-justify').trim(),
+                  stripJustify:style.getPropertyValue('--strip-justify').trim(),
+                  justifyContent:style.justifyContent,
+                  clientWidth:items.clientWidth, scrollWidth:items.scrollWidth,
+                  media,
+                };
+              });
+            });
+            await context.close();
+            return snap;
+          }
+
+          try {
+            for (const viewport of viewports) {
+              const base=await capture(ports.base, viewport);
+              const candidate=await capture(ports.candidate, viewport);
+              const caseFailures=[];
+              if(base.length!==candidate.length) caseFailures.push({type:'count',base:base.length,candidate:candidate.length});
+              for(let i=0;i<Math.min(base.length,candidate.length);i++){
+                const a=base[i],b=candidate[i];
+                if(a.className!==b.className) caseFailures.push({type:'identity',i});
+                const wide=a.groupWidth>768;
+                const computedOK = wide
+                  ? a.reelJustify==='safe center' && b.reelJustify==='flex-start' && b.stripJustify==='flex-start'
+                  : a.reelJustify===b.reelJustify && b.stripJustify==='';
+                if(!computedOK) caseFailures.push({type:'computed',i,base:{r:a.reelJustify,s:a.stripJustify,j:a.justifyContent},candidate:{r:b.reelJustify,s:b.stripJustify,j:b.justifyContent}});
+                for(const field of ['groupWidth','groupHeight','itemsWidth','itemsHeight','firstOffset','clientWidth','scrollWidth']){
+                  if(Math.abs((a[field]??0)-(b[field]??0))>tolerance) caseFailures.push({type:'geometry',i,field,base:a[field],candidate:b[field]});
+                }
+                if(a.media.length!==b.media.length) caseFailures.push({type:'media-count',i});
+                for(let m=0;m<Math.min(a.media.length,b.media.length);m++){
+                  const ma=a.media[m],mb=b.media[m];
+                  for(const p of ['tag','objectFit','objectPosition']) if(ma[p]!==mb[p]) caseFailures.push({type:'media-prop',i,m,p,base:ma[p],candidate:mb[p]});
+                  for(const p of ['width','height']) if(Math.abs(ma[p]-mb[p])>tolerance) caseFailures.push({type:'media-geometry',i,m,p,base:ma[p],candidate:mb[p]});
+                }
+              }
+              const entry={viewport,base,candidate,failures:caseFailures};
+              report.push(entry); failures.push(...caseFailures.map(f=>({viewport:viewport.name,...f})));
+              console.log(JSON.stringify({viewport:viewport.name,groups:base.length,failures:caseFailures}));
+            }
+          } finally { await browser.close(); }
+          const summary={cases:report.length,failedCases:report.filter(x=>x.failures.length).length,failureCount:failures.length,failures};
+          console.log('SUMMARY '+JSON.stringify(summary,null,2));
+          await writeFile('/tmp/focused.json',JSON.stringify({report,summary},null,2)+'\n');
+          if(failures.length) process.exitCode=1;
+          JS
+          node "$GITHUB_WORKSPACE/focused.mjs"
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: css-562-focused-${{ github.sha }}
+          retention-days: 7
+          path: |
+            /tmp/focused.json
+            /tmp/base.log
+            /tmp/candidate.log
