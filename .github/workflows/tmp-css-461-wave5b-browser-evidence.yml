@@ -1,0 +1,128 @@
+name: tmp-css-461-wave5b-browser-evidence
+
+on:
+  push:
+    branches:
+      - test/css-461-wave5b-browser-evidence
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: d4558dc94952fdcaf66caedac15ccd6d9c25799c
+  CANDIDATE_SHA: d1b054c6dc74acc5bde3d4b236aab5e81939e69d
+
+jobs:
+  browser-parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 30
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Prepare exact base and candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=30 origin "$BASE_SHA" "$CANDIDATE_SHA"
+          git worktree add --detach /tmp/w5-base "$BASE_SHA"
+          git worktree add --detach /tmp/w5-candidate "$CANDIDATE_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/w5-base/node_modules
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/w5-candidate/node_modules
+      - name: Candidate browser smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/w5-candidate
+          npm run media:ensure
+          npm run build:vite
+          npm run test:e2e:smoke
+      - name: Start exact Vite servers
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp/w5-base && npx vite --host 127.0.0.1 --port 4172 > /tmp/w5-base.log 2>&1 &)
+          (cd /tmp/w5-candidate && npx vite --host 127.0.0.1 --port 4173 > /tmp/w5-candidate.log 2>&1 &)
+          for port in 4172 4173; do
+            for i in $(seq 1 60); do
+              curl --fail --silent "http://127.0.0.1:$port/" >/dev/null && break
+              test "$i" -lt 60
+              sleep 1
+            done
+          done
+      - name: Compare media-group computed geometry
+        shell: bash
+        run: |
+          cat > "$GITHUB_WORKSPACE/tmp-wave5b-parity.mjs" <<'JS'
+          import { chromium } from 'playwright';
+          const bases = { base:'http://127.0.0.1:4172', candidate:'http://127.0.0.1:4173' };
+          const routes = ['/', '/work/jestei-pool/', '/work/styx/', '/work/sensetique/', '/shootings/', '/work/awful-cases/', '/work/moves-awful/', '/work/berry-social-content-2020/'];
+          const viewports = [{name:'mobile',width:390,height:844},{name:'tablet',width:1024,height:900},{name:'desktop',width:1728,height:1000}];
+          const motions = ['reduce','no-preference'];
+          const selectors = ['.media-group','.media-group__items','.media-group__middle','.media__surface','.brand-system__surface','[data-infinite-reel]','[data-infinite-reel] > *'];
+          const props = ['display','position','boxSizing','width','height','minWidth','maxWidth','minHeight','maxHeight','marginTop','marginRight','marginBottom','marginLeft','paddingTop','paddingRight','paddingBottom','paddingLeft','gap','rowGap','columnGap','gridTemplateColumns','gridTemplateRows','gridAutoFlow','flexDirection','justifyContent','alignItems','alignContent','overflowX','overflowY','objectFit','objectPosition','aspectRatio','borderRadius'];
+          const vars = ['--reel-justify','--reel-gap','--media-fit','--media-position','--media-ratio','--media-block-size','--group-columns','--group-max'];
+          const tolerance = 0.75;
+          const browser = await chromium.launch({headless:true});
+          const failures=[];
+          const snapshots={};
+          const snap = async(page) => page.evaluate(({selectors,props,vars}) => {
+            const out={};
+            for (const selector of selectors) {
+              out[selector]=[...document.querySelectorAll(selector)].map((el,index)=>{
+                const s=getComputedStyle(el); const r=el.getBoundingClientRect();
+                return {index,tag:el.tagName,id:el.id,className:typeof el.className==='string'?el.className:'',rect:{width:r.width,height:r.height},computed:Object.fromEntries(props.map(p=>[p,s[p]])),vars:Object.fromEntries(vars.map(v=>[v,s.getPropertyValue(v).trim()]))};
+              });
+            }
+            return out;
+          },{selectors,props,vars});
+          const cmp=(a,b,path,diffs=[])=>{
+            if(typeof a==='number'&&typeof b==='number'){if(Math.abs(a-b)>tolerance)diffs.push({path,base:a,candidate:b});return diffs;}
+            if(Array.isArray(a)||Array.isArray(b)){if(!Array.isArray(a)||!Array.isArray(b)||a.length!==b.length){diffs.push({path,base:a?.length,candidate:b?.length});return diffs;} for(let i=0;i<a.length;i++){cmp(a[i],b[i],`${path}[${i}]`,diffs);if(diffs.length>100)return diffs;}return diffs;}
+            if(a&&b&&typeof a==='object'&&typeof b==='object'){for(const k of [...new Set([...Object.keys(a),...Object.keys(b)])].sort()){cmp(a[k],b[k],`${path}.${k}`,diffs);if(diffs.length>100)return diffs;}return diffs;}
+            if(a!==b)diffs.push({path,base:a,candidate:b}); return diffs;
+          };
+          try {
+            for (const vp of viewports) for (const motion of motions) {
+              const contexts={}; const pages={};
+              for(const [name,origin] of Object.entries(bases)){
+                contexts[name]=await browser.newContext({viewport:{width:vp.width,height:vp.height},reducedMotion:motion});
+                pages[name]=await contexts[name].newPage();
+              }
+              for(const route of routes){
+                for(const [name,origin] of Object.entries(bases)){
+                  const page=pages[name];
+                  await page.goto(origin+route,{waitUntil:'domcontentloaded',timeout:60000});
+                  await page.waitForLoadState('networkidle',{timeout:10000}).catch(()=>{});
+                  await page.evaluate(async()=>{await document.fonts?.ready; for(const img of document.images) await img.decode().catch(()=>{}); window.scrollTo(0,0);});
+                  await page.waitForTimeout(250);
+                }
+                const base=await snap(pages.base); const candidate=await snap(pages.candidate);
+                const key=`${route}|${vp.name}|${motion}`;
+                const diffs=cmp(base,candidate,key,[]);
+                snapshots[key]={diffs};
+                if(diffs.length){failures.push({key,diffs}); console.log(`FAIL ${key} diffs=${diffs.length}`);} else console.log(`PASS ${key}`);
+              }
+              await contexts.base.close(); await contexts.candidate.close();
+            }
+          } finally { await browser.close(); }
+          console.log(JSON.stringify({base:process.env.BASE_SHA,candidate:process.env.CANDIDATE_SHA,failures},null,2));
+          if(failures.length) process.exit(1);
+          JS
+          node "$GITHUB_WORKSPACE/tmp-wave5b-parity.mjs" | tee /tmp/wave5b-browser-parity.json
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wave5b-browser-parity-${{ github.sha }}
+          retention-days: 14
+          path: |
+            /tmp/wave5b-browser-parity.json
+            /tmp/w5-base.log
+            /tmp/w5-candidate.log
