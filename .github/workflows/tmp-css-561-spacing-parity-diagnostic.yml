@@ -45,7 +45,7 @@ jobs:
               sleep 1
             done
           done
-      - name: Verify Jestei and Styx media geometry after decode
+      - name: Verify Jestei and Styx media geometry after bounded decode
         shell: bash
         run: |
           cat > "$GITHUB_WORKSPACE/css-561-focused.mjs" <<'JS'
@@ -60,19 +60,29 @@ jobs:
           ];
           const browser = await chromium.launch({headless:true});
           const report = {base:process.env.BASE_SHA,candidate:process.env.CANDIDATE_SHA,cases:[],failures:[]};
-          const round=n=>Math.round(n*1000)/1000;
 
           const settle = async (page,url) => {
             await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
-            await page.waitForLoadState('networkidle',{timeout:15000}).catch(()=>{});
+            await page.evaluate(() => {
+              for (const img of document.querySelectorAll('.media-group img')) img.loading = 'eager';
+            });
+            await page.waitForLoadState('networkidle',{timeout:10000}).catch(()=>{});
             await page.evaluate(async()=>{
               await document.fonts?.ready;
-              await Promise.all([...document.images].map(async img => {
-                if (!img.complete) await new Promise(resolve => {
-                  img.addEventListener('load', resolve, {once:true});
-                  img.addEventListener('error', resolve, {once:true});
-                });
-                try { await img.decode?.(); } catch {}
+              const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
+              await Promise.all([...document.querySelectorAll('.media-group img')].map(async img => {
+                if (!img.complete) {
+                  await Promise.race([
+                    new Promise(resolve => {
+                      img.addEventListener('load', resolve, {once:true});
+                      img.addEventListener('error', resolve, {once:true});
+                    }),
+                    timeout(2500),
+                  ]);
+                }
+                if (img.complete && img.naturalWidth > 0) {
+                  try { await Promise.race([img.decode?.() ?? Promise.resolve(), timeout(2500)]); } catch {}
+                }
               }));
               for (const v of document.querySelectorAll('video')) { v.pause(); try { v.currentTime=0; } catch {} }
               window.scrollTo(0,0);
@@ -106,6 +116,7 @@ jobs:
                       objectFit:as.objectFit,
                       objectPosition:as.objectPosition,
                       aspectRatio:as.aspectRatio,
+                      loaded:asset.tagName !== 'IMG' || (asset.complete && asset.naturalWidth > 0),
                       intrinsic:{width:asset.naturalWidth??asset.videoWidth??0,height:asset.naturalHeight??asset.videoHeight??0}
                     }:null
                   };
@@ -138,8 +149,9 @@ jobs:
                 const result={key,baseStability,candidateStability,parity};
                 report.cases.push(result);
                 if(baseStability.length||candidateStability.length||parity.length) report.failures.push(result);
-                console.log(`${report.failures.at(-1)===result?'FAIL':'PASS'} ${key} base-stability=${baseStability.length} candidate-stability=${candidateStability.length} parity=${parity.length}`);
-                if(baseStability.length||candidateStability.length||parity.length) console.log(JSON.stringify(result,null,2));
+                const failed=baseStability.length||candidateStability.length||parity.length;
+                console.log(`${failed?'FAIL':'PASS'} ${key} base-stability=${baseStability.length} candidate-stability=${candidateStability.length} parity=${parity.length}`);
+                if(failed) console.log(JSON.stringify(result,null,2));
               }
               await bc.close(); await cc.close();
             }
