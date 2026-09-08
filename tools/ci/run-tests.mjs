@@ -27,6 +27,7 @@ export const fastTests = new Set([
   "test/css-refactor-wave5i-masonry.test.mjs",
   "test/css-refactor-wave5j-bento.test.mjs",
   "test/css-refactor-wave5k-fade-input.test.mjs",
+  "test/css-refactor-wave5k-infinite-reel.test.mjs",
   "test/cv-principles-lowercase.test.mjs",
   "test/domain-catalog-identity.test.mjs",
   "test/domain-taxonomy-references.test.mjs",
