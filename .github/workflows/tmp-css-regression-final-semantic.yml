@@ -1,0 +1,328 @@
+name: tmp-css-regression-final-semantic
+
+on:
+  push:
+    branches:
+      - test/css-regression-parallel-matrix
+
+permissions:
+  contents: read
+
+env:
+  BASELINE_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
+  CURRENT_SHA: 14e7fe7eb7705bc03191a31186bc85d859c8b6b6
+  WAVE5_SHA: 814f2e9c58b6fb1f905df502e4e0db0fbd9bf76f
+
+jobs:
+  browser:
+    name: browser-${{ matrix.pair }}-${{ matrix.viewport }}-no-preference
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        pair: [original-current, current-wave5]
+        viewport: [mobile, tablet, desktop]
+    env:
+      CSS_AUDIT_PAIR: ${{ matrix.pair }}
+      CSS_AUDIT_VIEWPORT: ${{ matrix.viewport }}
+      CSS_AUDIT_MOTION: no-preference
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 100
+
+      - name: Fetch exact comparison refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=30 origin "$CURRENT_SHA"
+          git fetch --no-tags --depth=30 origin "$WAVE5_SHA"
+          git cat-file -e "$BASELINE_SHA^{commit}"
+          git cat-file -e "$CURRENT_SHA^{commit}"
+          git cat-file -e "$WAVE5_SHA^{commit}"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install browser and media dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npx playwright install --with-deps chromium
+
+      - name: Build deterministic sliced comparator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          source = Path("tools/tmp-css-regression-audit.mjs").read_text()
+          source = source.replace("const viewports = [", "const allViewports = [", 1)
+          needle = 'const motionModes = ["reduce", "no-preference"];'
+          replacement = '''const viewports = allViewports.filter(
+            (item) => !process.env.CSS_AUDIT_VIEWPORT || item.name === process.env.CSS_AUDIT_VIEWPORT,
+          );
+          if (viewports.length !== 1) throw new Error(`expected exactly one sliced viewport, got ${viewports.map((item) => item.name).join(", ")}`);
+          const allMotionModes = ["reduce", "no-preference"];
+          const motionModes = allMotionModes.filter(
+            (item) => !process.env.CSS_AUDIT_MOTION || item === process.env.CSS_AUDIT_MOTION,
+          );
+          if (motionModes.length !== 1) throw new Error(`expected exactly one sliced motion mode, got ${motionModes.join(", ")}`);'''
+          if needle not in source:
+            raise SystemExit("motion-mode marker not found")
+          source = source.replace(needle, replacement, 1)
+
+          visible_marker = '''          style.display !== "none" &&
+                    style.visibility !== "hidden" &&
+                    Number(style.opacity) !== 0 &&
+                    rect.width > 0 &&
+                    rect.height > 0
+          '''
+          visible_replacement = '''          style.display !== "none" &&
+                    rect.width > 0 &&
+                    rect.height > 0
+          '''
+          if visible_marker not in source:
+            raise SystemExit("snapshot visibility marker not found")
+          source = source.replace(visible_marker, visible_replacement, 1)
+
+          sample_marker = '          samples: visibleNodes.slice(0, 8).map((element) => {'
+          if sample_marker not in source:
+            raise SystemExit("sample identity marker not found")
+          source = source.replace(sample_marker, '          samples: nodes.slice(0, 8).map((element) => {', 1)
+
+          computed_marker = '''            const style = getComputedStyle(element);
+                    const computed = {};
+                    for (const property of styleProperties) computed[property] = style[property];'''
+          computed_replacement = '''            const style = getComputedStyle(element);
+                    const computed = {};
+                    const typedStyle = typeof element.computedStyleMap === "function" ? element.computedStyleMap() : null;
+                    const semanticAutoMargins = new Map([
+                      ["marginTop", "margin-top"],
+                      ["marginRight", "margin-right"],
+                      ["marginBottom", "margin-bottom"],
+                      ["marginLeft", "margin-left"],
+                    ]);
+                    for (const property of styleProperties) {
+                      const cssName = semanticAutoMargins.get(property);
+                      const typedValue = cssName && typedStyle ? String(typedStyle.get(cssName) ?? "") : "";
+                      computed[property] = typedValue === "auto" ? "auto" : style[property];
+                    }'''
+          if computed_marker not in source:
+            raise SystemExit("computed-style marker not found")
+          source = source.replace(computed_marker, computed_replacement, 1)
+
+          settle_tail = '  await page.waitForTimeout(150);\n}'
+          settle_tail_replacement = '''  await page.waitForTimeout(150);
+            await page.evaluate(() => {
+              for (const animation of document.getAnimations()) {
+                try {
+                  animation.pause();
+                  animation.currentTime = 0;
+                } catch {}
+              }
+            });
+          }'''
+          if settle_tail not in source:
+            raise SystemExit("settle tail marker not found")
+          source = source.replace(settle_tail, settle_tail_replacement, 1)
+
+          interaction_marker = '''        const interactionRegression =
+                    (currentMenu.available && currentMenu.opened?.expanded !== "true") ||
+                    (currentMenu.available && currentMenu.closed?.expanded !== "false") ||
+                    (currentLightbox.available && currentLightbox.opened !== true);'''
+          interaction_replacement = '''        const baselineInteractionFailure =
+                    (baselineMenu.available && baselineMenu.opened?.expanded !== "true") ||
+                    (baselineMenu.available && baselineMenu.closed?.expanded !== "false") ||
+                    (baselineLightbox.available && baselineLightbox.opened !== true);
+                  const currentInteractionFailure =
+                    (currentMenu.available && currentMenu.opened?.expanded !== "true") ||
+                    (currentMenu.available && currentMenu.closed?.expanded !== "false") ||
+                    (currentLightbox.available && currentLightbox.opened !== true);
+                  const interactionRegression = currentInteractionFailure && !baselineInteractionFailure;'''
+          if interaction_marker not in source:
+            raise SystemExit("interaction regression marker not found")
+          source = source.replace(interaction_marker, interaction_replacement, 1)
+
+          helper_marker = "async function captureTiles(page, prefix) {"
+          helper = r'''async function settleVisibleImages(page) {
+            await page.evaluate(async () => {
+              const isVisible = (image) => {
+                const rect = image.getBoundingClientRect();
+                const style = getComputedStyle(image);
+                return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) !== 0 && rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 && rect.top < innerHeight && rect.left < innerWidth;
+              };
+              const isLazyCandidate = (image) => image.loading === "lazy" || image.hasAttribute("data-home-src") || image.hasAttribute("data-src") || image.hasAttribute("data-srcset");
+              const hasSource = (image) => Boolean(image.currentSrc || image.getAttribute("src") || image.getAttribute("srcset"));
+              const deadline = performance.now() + 5000;
+              while (performance.now() < deadline) {
+                const pendingHydration = [...document.images].filter((image) => isVisible(image) && isLazyCandidate(image) && !hasSource(image));
+                const pendingLoad = [...document.images].filter((image) => isVisible(image) && hasSource(image) && !(image.complete && image.naturalWidth > 0));
+                if (pendingHydration.length === 0 && pendingLoad.length === 0) break;
+                await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                await new Promise((resolve) => setTimeout(resolve, 50));
+              }
+              const decodes = [...document.images]
+                .filter((image) => isVisible(image) && hasSource(image) && image.complete && image.naturalWidth > 0)
+                .map((image) => image.decode().catch(() => {}));
+              await Promise.race([Promise.all(decodes), new Promise((resolve) => setTimeout(resolve, 2500))]);
+              await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            });
+          }
+
+          async function captureTiles(page, prefix) {'''
+          if helper_marker not in source:
+            raise SystemExit("captureTiles marker not found")
+          source = source.replace(helper_marker, helper, 1)
+          sleep_marker = "    await page.waitForTimeout(100);"
+          if sleep_marker not in source:
+            raise SystemExit("capture sleep marker not found")
+          source = source.replace(sleep_marker, "    await settleVisibleImages(page);", 1)
+
+          current_page_marker = "      const currentPage = await currentContext.newPage();"
+          page_replacement = current_page_marker + r'''
+
+          for (const page of [baselinePage, currentPage]) {
+            await page.addInitScript(() => {
+              try { Object.defineProperty(document, "hidden", { configurable: true, get: () => true }); } catch {}
+              try { Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "hidden" }); } catch {}
+            });
+          }'''
+          if current_page_marker not in source:
+            raise SystemExit("current page creation marker not found")
+          source = source.replace(current_page_marker, page_replacement, 1)
+
+          settle_marker = 'await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 });'
+          settle_replacement = r'''await page.route("**/*", async (route) => {
+            const request = route.request();
+            if (request.resourceType() !== "document") {
+              await route.continue();
+              return;
+            }
+            const response = await route.fetch();
+            const contentType = response.headers()["content-type"] ?? "";
+            if (!contentType.includes("text/html")) {
+              await route.fulfill({ response });
+              return;
+            }
+            let body = await response.text();
+            body = body
+              .replace(/data-deck-autoplay="[^"]*"/g, 'data-deck-autoplay="off"')
+              .replace(/\sdata-deck-advance-on-ended(?:="")?/g, "")
+              .replace(/\sdata-reveal(?:="[^"]*")?/g, "")
+              .replace(/\sdata-reveal-group(?:="")?/g, "")
+              .replace(/\sdata-reveal-rail(?:="")?/g, "");
+            await route.fulfill({ response, body });
+          });
+          await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 });
+          await page.unroute("**/*");'''
+          if settle_marker not in source:
+            raise SystemExit("settle navigation marker not found")
+          source = source.replace(settle_marker, settle_replacement, 1)
+
+          Path("tools/tmp-css-regression-final-slice.mjs").write_text(source)
+          bounded = Path("tools/tmp-css-regression-bounded.mjs").read_text()
+          marker = './tmp-css-regression-audit.mjs'
+          if marker not in bounded:
+            raise SystemExit("bounded import marker not found")
+          bounded = bounded.replace(marker, './tmp-css-regression-final-slice.mjs', 1)
+          Path("tools/tmp-css-regression-final-bounded.mjs").write_text(bounded)
+          PY
+          node --check tools/tmp-css-regression-final-slice.mjs
+          node --check tools/tmp-css-regression-final-bounded.mjs
+
+      - name: Prepare exact worktrees
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/css-original /tmp/css-current /tmp/css-wave5
+          git worktree add --detach /tmp/css-current "$CURRENT_SHA"
+          if [ "$CSS_AUDIT_PAIR" = "original-current" ]; then
+            git worktree add --detach /tmp/css-original "$BASELINE_SHA"
+            trees="/tmp/css-original /tmp/css-current"
+          else
+            git worktree add --detach /tmp/css-wave5 "$WAVE5_SHA"
+            trees="/tmp/css-current /tmp/css-wave5"
+          fi
+          for tree in $trees; do
+            ln -s "$GITHUB_WORKSPACE/node_modules" "$tree/node_modules"
+          done
+
+      - name: Align generated media
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_fp="$(cd /tmp/css-current && node tools/media-dev-state.mjs --fingerprint)"
+          if [ "$CSS_AUDIT_PAIR" = "original-current" ]; then peer=/tmp/css-original; else peer=/tmp/css-wave5; fi
+          peer_fp="$(cd "$peer" && node tools/media-dev-state.mjs --fingerprint)"
+          test "$current_fp" = "$peer_fp"
+          (cd /tmp/css-current && npm run media:sync)
+          (cd /tmp/css-current && node tools/media-dev-state.mjs --cache-verify)
+          rm -rf "$peer/public/media/generated"
+          mkdir -p "$peer/public/media/generated" "$peer/.cache/media"
+          cp -a /tmp/css-current/public/media/generated/. "$peer/public/media/generated/"
+          cp /tmp/css-current/.cache/media/generated-cache.json "$peer/.cache/media/generated-cache.json"
+          (cd "$peer" && node tools/media-dev-state.mjs --cache-verify)
+
+      - name: Build exact sites
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp/css-current && npm run build:site)
+          if [ "$CSS_AUDIT_PAIR" = "original-current" ]; then
+            (cd /tmp/css-original && npm run build:site)
+          else
+            (cd /tmp/css-wave5 && npm run build:site)
+          fi
+
+      - name: Start previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp/css-current && npx vite preview --host 127.0.0.1 --port 4172 > /tmp/css-current-preview.log 2>&1 &)
+          ports="4172"
+          if [ "$CSS_AUDIT_PAIR" = "original-current" ]; then
+            (cd /tmp/css-original && npx vite preview --host 127.0.0.1 --port 4171 > /tmp/css-original-preview.log 2>&1 &)
+            ports="4171 4172"
+          else
+            (cd /tmp/css-wave5 && npx vite preview --host 127.0.0.1 --port 4173 > /tmp/css-wave5-preview.log 2>&1 &)
+            ports="4172 4173"
+          fi
+          for port in $ports; do
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent "http://127.0.0.1:$port/" > /dev/null; then break; fi
+              test "$attempt" -lt 60
+              sleep 1
+            done
+          done
+
+      - name: Run final semantic comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$CSS_AUDIT_PAIR" = "original-current" ]; then
+            BASELINE_SHA="$BASELINE_SHA" CURRENT_SHA="$CURRENT_SHA" node tools/tmp-css-regression-final-bounded.mjs http://127.0.0.1:4171 http://127.0.0.1:4172 "/tmp/css-regression-final-original-current-${CSS_AUDIT_VIEWPORT}-no-preference"
+          else
+            BASELINE_SHA="$CURRENT_SHA" CURRENT_SHA="$WAVE5_SHA" node tools/tmp-css-regression-final-bounded.mjs http://127.0.0.1:4172 http://127.0.0.1:4173 "/tmp/css-regression-final-current-wave5-${CSS_AUDIT_VIEWPORT}-no-preference"
+          fi
+
+      - name: Upload final semantic evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-regression-final-${{ matrix.pair }}-${{ matrix.viewport }}-no-preference-${{ github.sha }}
+          retention-days: 14
+          path: |
+            /tmp/css-regression-final-original-current-*
+            /tmp/css-regression-final-current-wave5-*
+            /tmp/css-original-preview.log
+            /tmp/css-current-preview.log
+            /tmp/css-wave5-preview.log
