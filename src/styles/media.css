@@ -91,3 +91,89 @@
 .media-group .media-group__middle.reel {
   --reel-gap: var(--group-gap);
 }
+
+/* Plain grid. */
+.media-group[data-layout="grid"]:not([data-compact-layout="reel"]) > .media-group__items {
+  display: grid;
+  grid-template-columns: repeat(var(--group-mobile-columns), minmax(0, 1fr));
+  column-gap: var(--group-gap);
+  row-gap: var(--group-row-gap);
+  align-items: start;
+
+  & > .media[data-role="wide"] {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Grid rail: one/two rows with width driven by each authored media ratio. */
+.media-group[data-layout="grid"][data-overflow="reel"] > .media-group__items {
+  --reel-display: grid;
+
+  grid-template-columns: none;
+  grid-template-rows: repeat(var(--group-mobile-rows, 1), max-content);
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+
+  & > .media {
+    inline-size: auto;
+    max-inline-size: none;
+  }
+}
+
+.media-group[data-layout="grid"][data-overflow="reel"] .media__surface {
+  inline-size: auto;
+  block-size: var(--group-reel-height, clamp(11rem, 42cqi, 18rem));
+  aspect-ratio: var(--media-ratio, auto);
+
+  & > :is(img, video),
+  & > picture > img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: var(--object-fit, var(--media-fit, cover));
+  }
+}
+
+/* A compact reel that becomes the authored desktop grid. This replaces the
+   separate brand/Jestei/mobile-device rail implementations. */
+.media-group[data-compact-layout="reel"] > .media-group__items {
+  --reel-align: var(--group-compact-align, flex-start);
+  --reel-item-size: var(--group-compact-item-size, auto);
+
+  & > * {
+    inline-size: var(--group-compact-item-inline-size, var(--group-compact-item-size, auto));
+    max-inline-size: none;
+  }
+}
+
+@container media-group (width > 42rem) {
+  .media-group[data-layout="grid"]:not([data-overflow="reel"]):not([data-compact-layout="reel"])
+    > .media-group__items {
+    grid-template-columns: repeat(var(--group-columns), minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    column-gap: var(--group-gap);
+    row-gap: var(--group-row-gap);
+  }
+
+  .media-group[data-compact-layout="reel"] > .media-group__items {
+    --reel-display: grid;
+    --reel-overflow-x: visible;
+    --reel-overflow-y: visible;
+    --reel-snap-type: none;
+    --reel-item-size: auto;
+    --reel-snap-align: none;
+
+    grid-template-columns: repeat(var(--group-columns), minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    column-gap: var(--group-gap);
+    row-gap: var(--group-row-gap);
+
+    & > * {
+      inline-size: var(--group-wide-item-inline-size, auto);
+      max-inline-size: none;
+    }
+  }
+}
