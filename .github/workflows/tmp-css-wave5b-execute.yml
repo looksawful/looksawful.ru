@@ -45,12 +45,21 @@ jobs:
           node --test test/media-group-renderer-parity.test.mjs
           node --test test/caption-lightbox-contract.test.mjs
           node --test test/jestei-event-migration.test.mjs
+      - name: Recreate generated-media prerequisite used by Fast CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npm run media:sync
       - name: Repository gates
         shell: bash
         run: |
           set -euo pipefail
           npm run typecheck
-          npm run build
+          npm run test:fast
+          node --test test/repository-structure.test.mjs
+          npm run build:site
       - name: Remove execution-only tooling and commit candidate
         shell: bash
         run: |
@@ -58,7 +67,14 @@ jobs:
           rm tools/tmp-css-461-media-groups.mjs .github/workflows/tmp-css-wave5b-execute.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/styles/components.css src/styles/media.css test/css-refactor-wave5b-media-groups.test.mjs tools/tmp-css-461-media-groups.mjs .github/workflows/tmp-css-wave5b-execute.yml
+          git add \
+            src/styles/components.css \
+            src/styles/media.css \
+            test/css-refactor-wave5a-media-core.test.mjs \
+            test/css-refactor-wave5b-media-groups.test.mjs \
+            test/caption-lightbox-contract.test.mjs \
+            tools/tmp-css-461-media-groups.mjs \
+            .github/workflows/tmp-css-wave5b-execute.yml
           git diff --cached --check
           git commit -m 'refactor(css): move Wave5B media ownership'
           git push
