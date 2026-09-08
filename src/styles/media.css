@@ -177,3 +177,92 @@
     }
   }
 }
+
+/* Sequence = wide + middle collection + wide. */
+.media-group[data-layout="sequence"] {
+  --sequence-cell: clamp(5.5rem, 22cqi, 8.5rem);
+  --sequence-ratio: 1 / 1;
+  --sequence-columns: 3;
+
+  & > .media-group__items > .media[data-role="wide"] {
+    flex: 0 0 min(88cqi, calc((var(--sequence-cell) * 4) + (var(--group-gap) * 3)));
+  }
+
+  & > .media-group__items > .media[data-role="wide"] .media__surface {
+    inline-size: 100%;
+    aspect-ratio: var(--media-ratio, auto);
+  }
+}
+
+.media-group__middle {
+  --reel-align: stretch;
+
+  display: grid;
+  grid-template-rows: repeat(var(--sequence-mobile-rows, 2), auto);
+  grid-auto-flow: column;
+  grid-auto-columns: var(--sequence-cell);
+  gap: var(--group-gap);
+
+  & > .media {
+    inline-size: var(--sequence-cell);
+  }
+
+  & .media__surface {
+    --media-ratio: var(--sequence-ratio);
+    --media-block-size: 100%;
+  }
+}
+
+.media-group[data-layout="sequence"] > .media-group__items > .media-group__middle {
+  min-inline-size: auto;
+  scroll-snap-align: none;
+}
+
+.media-group[data-layout="sequence"][data-middle-overflow="reel"] > .media-group__items {
+  display: grid;
+  gap: var(--group-row-gap);
+  overflow: visible;
+  overscroll-behavior-inline: contain;
+}
+
+.media-group[data-layout="sequence"][data-middle-overflow="reel"]
+  > .media-group__items
+  > .media[data-role="wide"] {
+  inline-size: 100%;
+}
+
+.media-group[data-layout="sequence"][data-middle-overflow="reel"] .media-group__middle {
+  --reel-display: grid;
+
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+/* data-middle-overflow="reel" also stays horizontally scrollable at desktop sizes. */
+@container media-group (width > 48rem) {
+  .media-group[data-layout="sequence"]:not([data-middle-overflow="reel"]) > .media-group__items {
+    --reel-display: grid;
+    --reel-gap: var(--group-row-gap);
+    --reel-overflow-x: visible;
+  }
+
+  .media-group[data-layout="sequence"]:not([data-middle-overflow="reel"])
+    > .media-group__items
+    > .media[data-role="wide"] {
+    inline-size: 100%;
+  }
+
+  .media-group[data-layout="sequence"]:not([data-middle-overflow="reel"]) .media-group__middle {
+    grid-template-columns: repeat(var(--sequence-columns), minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    inline-size: 100%;
+  }
+
+  .media-group[data-layout="sequence"]:not([data-middle-overflow="reel"])
+    .media-group__middle
+    > .media {
+    inline-size: auto;
+  }
+}
