@@ -1,0 +1,25 @@
+name: tmp css 462 before-after characterize
+
+on:
+  push:
+    branches:
+      - refactor/css-462-before-after-characterization
+
+permissions:
+  contents: read
+
+jobs:
+  characterize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run media:ensure
+      - run: npm run build:site
+      - run: node tools/e2e/tmp-css-462-before-after-characterize.mjs
