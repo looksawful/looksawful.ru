@@ -23,9 +23,11 @@ test("components aggregate no longer owns generic media core presentation", () =
   assert.doesNotMatch(components, /(?:^|\n)\.media__surface\.media__surface--center-crop\s*\{/);
   assert.doesNotMatch(components, /(?:^|\n)\.media__surface\.media__surface--center-crop\s*>\s*video\s*\{/);
 
-  // These are deliberately outside Wave 5A and must remain later specializations.
+  // These are deliberately outside the Wave 5A media-core move. Later Wave 5
+  // slices may move them under the same canonical media owner with their own RED
+  // ownership contracts, so this test only guards the specializations that must
+  // remain later than the generic media foundation.
   assert.match(components, /(?:^|\n)\.project__section\s*>\s*:is\(\.media, \.mockup, \.slider\):only-child\s*\{/);
-  assert.match(components, /(?:^|\n)\.media-group\s*\{/);
   assert.match(components, /(?:^|\n)\.brand-system__surface\s*\{/);
   assert.match(
     components,
@@ -49,12 +51,11 @@ test("canonical media owner preserves the public sizing and crop API", () => {
   assert.match(owner, /\.media__surface\.media__surface--center-crop\s*>\s*video\s*\{/);
 });
 
-test("Wave 5A owner does not absorb media-group, captions or project integration", () => {
+test("Wave 5A owner does not absorb captions, project integration or Brand System specialization", () => {
   assert.equal(existsSync(ownerPath), true, "media.css must exist");
   if (!existsSync(ownerPath)) return;
 
   const owner = readFileSync(ownerPath, "utf8");
-  assert.doesNotMatch(owner, /(?:^|\n)\.media-group(?:\s|__|\[|\{|\.)/);
   assert.doesNotMatch(owner, /(?:^|\n)\.media__caption(?:\s|__|\{|\.)/);
   assert.doesNotMatch(owner, /(?:^|\n)\.project__section\s*>/);
   assert.doesNotMatch(owner, /(?:^|\n)\.brand-system__surface\s*\{/);
