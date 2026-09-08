@@ -1,0 +1,56 @@
+name: tmp-css-574-fade-apply
+on:
+  push:
+    branches: [fix/css-574-infinite-reel-fade-input]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: fix/css-574-infinite-reel-fade-input
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Canonicalize infinite-reel fade input
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/styles/components.css')
+          text = path.read_text()
+          generic = '  --infinite-reel-fade-size: clamp(2rem, 7cqi, 6rem);\n'
+          assert text.count(generic) == 1, f'unexpected generic fade writer count: {text.count(generic)}'
+          text = text.replace(generic, '', 1)
+
+          old = 'var(--infinite-reel-fade-size)'
+          new = 'var(--infinite-reel-fade-size, clamp(2rem, 7cqi, 6rem))'
+          assert text.count(old) == 4, f'unexpected fade consumer count: {text.count(old)}'
+          text = text.replace(old, new)
+          path.write_text(text)
+          PY
+          git diff --check
+          node --test \
+            test/css-refactor-wave5b-media-group-foundation.test.mjs \
+            test/css-refactor-wave5f-strip-height-contract.test.mjs \
+            test/css-refactor-wave5g-strip.test.mjs \
+            test/css-refactor-wave5k-fade-input.test.mjs
+          npm run test:fast
+      - name: Commit clean remediation tree
+        shell: bash
+        run: |
+          rm .github/workflows/tmp-css-574-fade-apply.yml
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/styles/components.css test/css-refactor-wave5k-fade-input.test.mjs tools/ci/run-tests.mjs .github/workflows/tmp-css-574-fade-apply.yml
+          git commit -m 'fix(css): canonicalize infinite reel fade input'
+          git push origin HEAD:fix/css-574-infinite-reel-fade-input
