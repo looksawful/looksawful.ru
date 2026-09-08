@@ -1,0 +1,278 @@
+name: tmp-css-562-strip-parity
+
+on:
+  push:
+    branches:
+      - test/css-562-strip-parity
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      BASE_SHA: 0c581d033f33dcad785b7c5d1e2183cb3f0fb1ad
+      CANDIDATE_SHA: bf237a67fbff196e490754e730ac48440fa825f8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Materialize exact base and start both trees
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/css562-base
+          git archive "$BASE_SHA" | tar -x -C /tmp/css562-base
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css562-base/node_modules
+          (
+            cd /tmp/css562-base
+            "$GITHUB_WORKSPACE/node_modules/.bin/vite" --host 127.0.0.1 --port 4173 > /tmp/css562-base.log 2>&1
+          ) &
+          (
+            cd "$GITHUB_WORKSPACE"
+            "$GITHUB_WORKSPACE/node_modules/.bin/vite" --host 127.0.0.1 --port 4174 > /tmp/css562-candidate.log 2>&1
+          ) &
+          for port in 4173 4174; do
+            for i in $(seq 1 60); do
+              curl --fail --silent "http://127.0.0.1:${port}/" >/dev/null && break
+              test "$i" -lt 60
+              sleep 1
+            done
+          done
+      - name: Exact browser computed and media-fit parity
+        shell: bash
+        run: |
+          cat > "$GITHUB_WORKSPACE/css562-parity.mjs" <<'JS'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const routes = ['/', '/work/jestei-pool/', '/work/styx/', '/work/sensetique/', '/shootings/'];
+          const viewports = [
+            { name: 'mobile', width: 390, height: 844 },
+            { name: 'tablet', width: 900, height: 1000 },
+            { name: 'desktop', width: 1728, height: 1000 },
+          ];
+          const ports = { base: 4173, candidate: 4174 };
+          const tolerance = 0.75;
+          const round = (n) => Math.round(n * 1000) / 1000;
+
+          function numericDelta(a, b) {
+            if (a == null || b == null) return a === b ? 0 : Infinity;
+            return Math.abs(a - b);
+          }
+
+          function compareGeometry(base, candidate) {
+            const fields = ['x','y','width','height','firstX','lastRight','clientWidth','scrollWidth'];
+            return Object.fromEntries(fields.map((field) => [field, numericDelta(base[field], candidate[field])]));
+          }
+
+          async function settle(page) {
+            await page.addStyleTag({ content: `
+              *, *::before, *::after {
+                animation-play-state: paused !important;
+                transition-duration: 0s !important;
+                transition-delay: 0s !important;
+              }
+            `});
+            await page.evaluate(async () => {
+              await document.fonts?.ready;
+              const images = [...document.images];
+              for (const img of images) img.loading = 'eager';
+              await Promise.allSettled(images.map((img) => img.decode?.()));
+              await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+            });
+            await page.waitForTimeout(250);
+          }
+
+          async function snapshot(page) {
+            return page.evaluate(() => {
+              const round = (n) => Math.round(n * 1000) / 1000;
+              const visible = (el) => {
+                const rect = el.getBoundingClientRect();
+                const style = getComputedStyle(el);
+                return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+              };
+              return [...document.querySelectorAll('.media-group[data-layout="strip"]')]
+                .filter(visible)
+                .map((group, index) => {
+                  const items = group.querySelector(':scope > .media-group__items');
+                  if (!items) return null;
+                  const groupRect = group.getBoundingClientRect();
+                  const rect = items.getBoundingClientRect();
+                  const first = items.firstElementChild?.getBoundingClientRect();
+                  const last = items.lastElementChild?.getBoundingClientRect();
+                  const style = getComputedStyle(items);
+                  const media = [...group.querySelectorAll('.media__surface > :is(img,video), .media__surface > picture > img')]
+                    .filter(visible)
+                    .slice(0, 12)
+                    .map((asset) => {
+                      const assetStyle = getComputedStyle(asset);
+                      const assetRect = asset.getBoundingClientRect();
+                      return {
+                        tag: asset.tagName,
+                        objectFit: assetStyle.objectFit,
+                        objectPosition: assetStyle.objectPosition,
+                        aspectRatio: assetStyle.aspectRatio,
+                        width: round(assetRect.width),
+                        height: round(assetRect.height),
+                      };
+                    });
+                  return {
+                    index,
+                    className: group.className,
+                    portfolio: group.classList.contains('portfolio-showcase__group'),
+                    infinite: group.hasAttribute('data-infinite-reel'),
+                    groupWidth: round(groupRect.width),
+                    reelJustify: style.getPropertyValue('--reel-justify').trim(),
+                    stripJustify: style.getPropertyValue('--strip-justify').trim(),
+                    justifyContent: style.justifyContent,
+                    display: style.display,
+                    overflowX: style.overflowX,
+                    x: round(rect.x),
+                    y: round(rect.y),
+                    width: round(rect.width),
+                    height: round(rect.height),
+                    firstX: first ? round(first.x) : null,
+                    lastRight: last ? round(last.right) : null,
+                    clientWidth: items.clientWidth,
+                    scrollWidth: items.scrollWidth,
+                    childCount: items.children.length,
+                    media,
+                  };
+                })
+                .filter(Boolean);
+            });
+          }
+
+          async function stableSnapshot(page) {
+            let previous = null;
+            for (let attempt = 0; attempt < 6; attempt += 1) {
+              const current = await snapshot(page);
+              const signature = JSON.stringify(current.map((group) => ({
+                className: group.className,
+                x: round(group.x), y: round(group.y), width: round(group.width), height: round(group.height),
+                firstX: group.firstX, lastRight: group.lastRight,
+                clientWidth: group.clientWidth, scrollWidth: group.scrollWidth,
+                reelJustify: group.reelJustify, justifyContent: group.justifyContent,
+                media: group.media,
+              })));
+              if (previous?.signature === signature) return { snapshot: current, attempts: attempt + 1 };
+              previous = { signature, snapshot: current };
+              await page.waitForTimeout(250);
+            }
+            return { snapshot: previous.snapshot, attempts: 6 };
+          }
+
+          const browser = await chromium.launch({ headless: true });
+          const report = [];
+          const failures = [];
+          try {
+            for (const route of routes) {
+              for (const viewport of viewports) {
+                const results = {};
+                for (const [kind, port] of Object.entries(ports)) {
+                  const context = await browser.newContext({
+                    viewport: { width: viewport.width, height: viewport.height },
+                    reducedMotion: 'reduce',
+                  });
+                  const page = await context.newPage();
+                  await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+                  await settle(page);
+                  results[kind] = await stableSnapshot(page);
+                  await context.close();
+                }
+
+                const base = results.base.snapshot;
+                const candidate = results.candidate.snapshot;
+                const caseFailures = [];
+                if (base.length !== candidate.length) {
+                  caseFailures.push({ type: 'group-count', base: base.length, candidate: candidate.length });
+                }
+                const count = Math.min(base.length, candidate.length);
+                for (let i = 0; i < count; i += 1) {
+                  const a = base[i];
+                  const b = candidate[i];
+                  if (a.className !== b.className || a.childCount !== b.childCount) {
+                    caseFailures.push({ type: 'identity', index: i, base: { className: a.className, childCount: a.childCount }, candidate: { className: b.className, childCount: b.childCount } });
+                    continue;
+                  }
+
+                  const widePortfolio = a.portfolio && a.groupWidth > 768;
+                  const expectedComputedChange = widePortfolio && a.reelJustify === 'safe center' && b.reelJustify === 'flex-start' && b.stripJustify === 'flex-start';
+                  const computedSame = a.reelJustify === b.reelJustify && a.justifyContent === b.justifyContent && a.stripJustify === b.stripJustify;
+                  if (!computedSame && !expectedComputedChange) {
+                    caseFailures.push({ type: 'computed', index: i, base: { reelJustify: a.reelJustify, stripJustify: a.stripJustify, justifyContent: a.justifyContent }, candidate: { reelJustify: b.reelJustify, stripJustify: b.stripJustify, justifyContent: b.justifyContent } });
+                  }
+
+                  for (const [field, delta] of Object.entries(compareGeometry(a, b))) {
+                    if (delta > tolerance) caseFailures.push({ type: 'geometry', index: i, field, delta, base: a[field], candidate: b[field], portfolio: a.portfolio, overflowing: a.scrollWidth > a.clientWidth + 1 });
+                  }
+
+                  if (a.display !== b.display || a.overflowX !== b.overflowX) {
+                    caseFailures.push({ type: 'layout-prop', index: i, base: { display: a.display, overflowX: a.overflowX }, candidate: { display: b.display, overflowX: b.overflowX } });
+                  }
+
+                  if (a.media.length !== b.media.length) {
+                    caseFailures.push({ type: 'media-count', index: i, base: a.media.length, candidate: b.media.length });
+                  }
+                  const mediaCount = Math.min(a.media.length, b.media.length);
+                  for (let m = 0; m < mediaCount; m += 1) {
+                    const ma = a.media[m];
+                    const mb = b.media[m];
+                    for (const prop of ['tag','objectFit','objectPosition','aspectRatio']) {
+                      if (ma[prop] !== mb[prop]) caseFailures.push({ type: 'media-prop', index: i, media: m, prop, base: ma[prop], candidate: mb[prop] });
+                    }
+                    for (const prop of ['width','height']) {
+                      const delta = numericDelta(ma[prop], mb[prop]);
+                      if (delta > tolerance) caseFailures.push({ type: 'media-geometry', index: i, media: m, prop, delta, base: ma[prop], candidate: mb[prop] });
+                    }
+                  }
+                }
+
+                const entry = {
+                  route,
+                  viewport,
+                  baseAttempts: results.base.attempts,
+                  candidateAttempts: results.candidate.attempts,
+                  baseGroups: base.length,
+                  candidateGroups: candidate.length,
+                  failures: caseFailures,
+                };
+                report.push(entry);
+                failures.push(...caseFailures.map((failure) => ({ route, viewport: viewport.name, ...failure })));
+                console.log(JSON.stringify(entry));
+              }
+            }
+          } finally {
+            await browser.close();
+          }
+
+          const summary = {
+            cases: report.length,
+            failedCases: report.filter((entry) => entry.failures.length).length,
+            failureCount: failures.length,
+            failures,
+          };
+          console.log('SUMMARY ' + JSON.stringify(summary, null, 2));
+          await writeFile('/tmp/css562-parity.json', JSON.stringify({ report, summary }, null, 2) + '\n');
+          if (failures.length) process.exitCode = 1;
+          JS
+          node "$GITHUB_WORKSPACE/css562-parity.mjs"
+      - name: Upload exact parity evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-562-strip-parity-${{ github.sha }}
+          retention-days: 7
+          path: |
+            /tmp/css562-parity.json
+            /tmp/css562-base.log
+            /tmp/css562-candidate.log
