@@ -20,5 +20,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run build:site
+      - run: npm run cms:check
+      - run: npm run build:vite
       - run: node tools/e2e/tmp-css-462-before-after-characterize.mjs
