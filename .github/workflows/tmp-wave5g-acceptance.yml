@@ -1,0 +1,179 @@
+name: tmp-wave5g-acceptance
+
+on:
+  push:
+    branches:
+      - test/css-461-wave5g-acceptance
+    paths:
+      - .github/workflows/tmp-wave5g-acceptance.yml
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BASE_SHA: 004c8ccd3c13a7418fb4a3b21196fd062552bca0
+      CANDIDATE_SHA: 4fe154b6c0f5fe603e23ce109621627901735f5e
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Prepare exact worktrees
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          git fetch --no-tags --depth=1 origin "$CANDIDATE_SHA"
+          mkdir -p _accept
+          git worktree add --detach _accept/base "$BASE_SHA"
+          git worktree add --detach _accept/candidate "$CANDIDATE_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$GITHUB_WORKSPACE/_accept/base/node_modules"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$GITHUB_WORKSPACE/_accept/candidate/node_modules"
+      - name: Start exact Vite servers
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd _accept/base && nohup npm run dev -- --host 127.0.0.1 --port 4173 > "$RUNNER_TEMP/wave5g-base.log" 2>&1 & echo $! > "$RUNNER_TEMP/wave5g-base.pid")
+          (cd _accept/candidate && nohup npm run dev -- --host 127.0.0.1 --port 4174 > "$RUNNER_TEMP/wave5g-candidate.log" 2>&1 & echo $! > "$RUNNER_TEMP/wave5g-candidate.pid")
+          for port in 4173 4174; do
+            for i in {1..60}; do
+              if curl -fsS "http://127.0.0.1:${port}/" >/dev/null; then break; fi
+              sleep 1
+            done
+            curl -fsS "http://127.0.0.1:${port}/" >/dev/null
+          done
+      - name: Compare live strip geometry and media fit
+        shell: bash
+        run: |
+          cat > wave5g-acceptance.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const routes = [
+            '/',
+            '/work/jestei-pool/',
+            '/work/styx/',
+            '/work/sensetique/',
+            '/shootings/',
+            '/work/awful-cases/',
+            '/work/moves/',
+          ];
+          const viewports = [
+            { name: 'mobile', width: 390, height: 844 },
+            { name: 'tablet', width: 900, height: 1000 },
+            { name: 'desktop', width: 1728, height: 1000 },
+          ];
+          const bases = {
+            base: 'http://127.0.0.1:4173',
+            candidate: 'http://127.0.0.1:4174',
+          };
+          const round = (n) => Math.round(n * 100) / 100;
+
+          async function snapshot(browser, baseURL, route, viewport) {
+            const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+            const page = await context.newPage();
+            await page.goto(baseURL + route, { waitUntil: 'domcontentloaded' });
+            await page.addStyleTag({ content: `*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}` });
+            await page.locator('img').evaluateAll(async (imgs) => {
+              await Promise.all(imgs.map(async (img) => {
+                if (!img.complete) await new Promise((resolve) => img.addEventListener('load', resolve, { once: true }));
+                try { await img.decode(); } catch {}
+              }));
+            });
+            await page.waitForTimeout(150);
+            const data = await page.evaluate(() => {
+              const r = (n) => Math.round(n * 100) / 100;
+              const rect = (el) => {
+                if (!el) return null;
+                const b = el.getBoundingClientRect();
+                return { x: r(b.x), y: r(b.y), width: r(b.width), height: r(b.height) };
+              };
+              const visible = (el) => {
+                const b = el.getBoundingClientRect();
+                const cs = getComputedStyle(el);
+                return b.width > 0 && b.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden';
+              };
+              const strips = [...document.querySelectorAll('.media-group[data-layout="strip"]')]
+                .filter(visible)
+                .map((group, index) => {
+                  const items = group.querySelector(':scope > .media-group__items');
+                  const itemStyle = items ? getComputedStyle(items) : null;
+                  const media = items ? [...items.children].filter((el) => el.classList.contains('media') && visible(el)) : [];
+                  return {
+                    index,
+                    className: group.className,
+                    group: rect(group),
+                    items: rect(items),
+                    clientWidth: items?.clientWidth ?? null,
+                    scrollWidth: items?.scrollWidth ?? null,
+                    display: itemStyle?.display ?? null,
+                    justifyContent: itemStyle?.justifyContent ?? null,
+                    reelJustify: itemStyle?.getPropertyValue('--reel-justify').trim() ?? '',
+                    stripJustify: itemStyle?.getPropertyValue('--strip-justify').trim() ?? '',
+                    stripHeight: getComputedStyle(group).getPropertyValue('--strip-height').trim(),
+                    media: media.map((figure) => {
+                      const surface = figure.querySelector(':scope > .media__surface');
+                      const visual = surface?.querySelector(':scope > img, :scope > video, :scope > picture > img');
+                      const visualStyle = visual ? getComputedStyle(visual) : null;
+                      return {
+                        figure: rect(figure),
+                        surface: rect(surface),
+                        visual: rect(visual),
+                        objectFit: visualStyle?.objectFit ?? null,
+                        objectPosition: visualStyle?.objectPosition ?? null,
+                        mediaRatio: surface ? getComputedStyle(surface).getPropertyValue('--media-ratio').trim() : '',
+                      };
+                    }),
+                  };
+                });
+              return {
+                pageClientWidth: document.documentElement.clientWidth,
+                pageScrollWidth: document.documentElement.scrollWidth,
+                strips,
+              };
+            });
+            await context.close();
+            return data;
+          }
+
+          const browser = await chromium.launch({ headless: true });
+          const results = [];
+          let failures = 0;
+          try {
+            for (const viewport of viewports) {
+              for (const route of routes) {
+                const base = await snapshot(browser, bases.base, route, viewport);
+                const candidate = await snapshot(browser, bases.candidate, route, viewport);
+                const same = JSON.stringify(base) === JSON.stringify(candidate);
+                if (!same) failures++;
+                results.push({ route, viewport: viewport.name, same, base, candidate });
+                console.log(`${same ? 'PASS' : 'FAIL'} ${viewport.name} ${route} strips=${base.strips.length}/${candidate.strips.length}`);
+              }
+            }
+          } finally {
+            await browser.close();
+          }
+          await writeFile('wave5g-acceptance.json', JSON.stringify({ failures, cases: results.length, results }, null, 2));
+          console.log(`Wave5G acceptance: ${results.length - failures}/${results.length} route/viewport cases identical`);
+          if (failures) process.exit(1);
+          NODE
+          node wave5g-acceptance.mjs
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: wave5g-acceptance
+          path: |
+            wave5g-acceptance.json
+            ${{ runner.temp }}/wave5g-base.log
+            ${{ runner.temp }}/wave5g-candidate.log
