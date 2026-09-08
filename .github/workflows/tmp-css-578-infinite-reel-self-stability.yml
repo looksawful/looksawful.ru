@@ -1,0 +1,163 @@
+name: tmp-css-578-infinite-reel-self-stability
+on:
+  pull_request:
+    branches: [dev]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: d4a7a2ae93adac6f187f840abeedf9c1f3104945
+      - uses: actions/checkout@v7
+        with:
+          ref: 3052400b9d8333bf62fe0147244faa4822e97a8b
+          path: base
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: |
+          npm ci
+          (cd base && npm ci)
+      - name: Verify identical media input
+        id: media
+        shell: bash
+        run: |
+          BASE_FP=$(cd base && node tools/media-dev-state.mjs --fingerprint)
+          CAND_FP=$(node tools/media-dev-state.mjs --fingerprint)
+          test "$BASE_FP" = "$CAND_FP"
+          echo "fingerprint=$CAND_FP" >> "$GITHUB_OUTPUT"
+      - id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Require cache hit and mirror to base
+        env:
+          CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
+        shell: bash
+        run: |
+          test "$CACHE_HIT" = "true" || exit 1
+          node tools/media-dev-state.mjs --cache-verify
+          mkdir -p base/public/media/generated base/.cache/media
+          cp -a public/media/generated/responsive base/public/media/generated/
+          cp -a public/media/generated/video base/public/media/generated/
+          cp -a public/media/generated/video-inventory.json base/public/media/generated/
+          cp .cache/media/generated-cache.json base/.cache/media/
+          (cd base && node tools/media-dev-state.mjs --cache-verify)
+      - run: npx playwright install --with-deps chromium
+      - name: Build and preview exact refs
+        shell: bash
+        run: |
+          (cd base && npm run build:site)
+          npm run build:site
+          (cd base && npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/base.log 2>&1) &
+          (npm run preview -- --host 127.0.0.1 --port 4174 >/tmp/candidate.log 2>&1) &
+          for i in {1..60}; do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && curl -fsS http://127.0.0.1:4174/ >/dev/null && exit 0
+            sleep 1
+          done
+          exit 1
+      - name: Probe repeated 12-item reel geometry
+        shell: bash
+        run: |
+          mkdir -p evidence
+          cat > probe.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+          const browser=await chromium.launch({headless:true});
+          const cases=[
+            {label:'home-tablet',route:'/',width:900,height:1000},
+            {label:'moves-desktop',route:'/work/moves/',width:1728,height:1000},
+          ];
+          const origins=[['base','http://127.0.0.1:4173'],['candidate','http://127.0.0.1:4174']];
+          const results=[];
+          const round=v=>Math.round(v*1000)/1000;
+          for(const spec of cases){
+            for(const [kind,origin] of origins){
+              for(let attempt=1;attempt<=3;attempt++){
+                const context=await browser.newContext({viewport:{width:spec.width,height:spec.height},reducedMotion:'no-preference'});
+                const page=await context.newPage();
+                await page.goto(origin+spec.route,{waitUntil:'domcontentloaded'});
+                const roots=page.locator('[data-infinite-reel]');
+                let target=null;
+                for(let i=0;i<await roots.count();i++){
+                  const root=roots.nth(i);
+                  const box=await root.boundingBox();
+                  if(!box||box.width<=0||box.height<=0) continue;
+                  const originalCount=await root.locator(':scope > [data-infinite-reel-track] > :not([data-infinite-reel-clone])').count();
+                  if(originalCount===12){ target=root; break; }
+                }
+                if(!target) throw new Error(`${spec.label} ${kind} missing 12-item reel`);
+                await target.scrollIntoViewIfNeeded();
+                await target.evaluate(async element=>{
+                  const imgs=[...element.querySelectorAll('img')];
+                  for(const img of imgs) img.loading='eager';
+                  await Promise.all(imgs.map(img=>img.complete&&img.naturalWidth>0?Promise.resolve():new Promise(resolve=>{
+                    const done=()=>resolve();
+                    img.addEventListener('load',done,{once:true});
+                    img.addEventListener('error',done,{once:true});
+                    setTimeout(done,3000);
+                  })));
+                });
+                let prev=''; let stable=0;
+                for(let i=0;i<30;i++){
+                  const sig=await target.evaluate(element=>{
+                    const track=element.querySelector(':scope > [data-infinite-reel-track]');
+                    return track instanceof HTMLElement?`${track.scrollWidth}:${track.getBoundingClientRect().width}`:'missing';
+                  });
+                  stable=sig===prev?stable+1:0; prev=sig;
+                  if(stable>=3) break;
+                  await page.waitForTimeout(100);
+                }
+                const snap=await target.evaluate(element=>{
+                  const track=element.querySelector(':scope > [data-infinite-reel-track]');
+                  if(!(track instanceof HTMLElement)) throw new Error('missing track');
+                  for(const animation of track.getAnimations()){ animation.pause(); try{animation.currentTime=0}catch{} }
+                  const originals=[...track.children].filter(x=>x instanceof HTMLElement&&!x.hasAttribute('data-infinite-reel-clone'));
+                  const items=originals.map((item,index)=>{
+                    const surface=item.querySelector('.media__surface');
+                    const media=surface?.querySelector('img,video,picture > img');
+                    const ir=item.getBoundingClientRect();
+                    const sr=surface instanceof HTMLElement?surface.getBoundingClientRect():null;
+                    const ss=surface instanceof HTMLElement?getComputedStyle(surface):null;
+                    return {
+                      index,
+                      width:ir.width,
+                      height:ir.height,
+                      surfaceWidth:sr?.width??null,
+                      surfaceHeight:sr?.height??null,
+                      ratio:ss?.aspectRatio??null,
+                      src:media instanceof HTMLImageElement?media.currentSrc:media instanceof HTMLVideoElement?media.currentSrc:'',
+                      naturalWidth:media instanceof HTMLImageElement?media.naturalWidth:media instanceof HTMLVideoElement?media.videoWidth:null,
+                      naturalHeight:media instanceof HTMLImageElement?media.naturalHeight:media instanceof HTMLVideoElement?media.videoHeight:null,
+                    };
+                  });
+                  return {trackWidth:track.getBoundingClientRect().width,trackScrollWidth:track.scrollWidth,duration:getComputedStyle(element).getPropertyValue('--infinite-reel-duration').trim(),items};
+                });
+                const normalized={...snap,trackWidth:round(snap.trackWidth),items:snap.items.map(x=>({...x,width:round(x.width),height:round(x.height),surfaceWidth:x.surfaceWidth==null?null:round(x.surfaceWidth),surfaceHeight:x.surfaceHeight==null?null:round(x.surfaceHeight),src:x.src.split('/').pop()}))};
+                results.push({...spec,kind,attempt,snapshot:normalized});
+                console.log(`${spec.label} ${kind} #${attempt} width=${normalized.trackWidth} duration=${normalized.duration} items=${normalized.items.map(x=>x.width).join(',')}`);
+                await context.close();
+              }
+            }
+          }
+          await writeFile('evidence/summary.json',JSON.stringify(results,null,2));
+          await browser.close();
+          EOF
+          node probe.mjs
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: css-578-infinite-reel-self-stability
+          path: evidence
+          if-no-files-found: warn
