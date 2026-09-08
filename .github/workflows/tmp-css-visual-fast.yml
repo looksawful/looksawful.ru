@@ -37,7 +37,11 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Install browser and media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          npx playwright install --with-deps chromium
 
       - name: Create exact worktrees and verify dependency lock
         run: |
