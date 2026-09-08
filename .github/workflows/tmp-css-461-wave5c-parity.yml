@@ -13,9 +13,9 @@ env:
   CANDIDATE_SHA: e77689618682d6b7cb47d08bfbe17e4fa01ad7d3
 
 jobs:
-  parity:
+  diagnose:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -36,8 +36,8 @@ jobs:
           git worktree add --detach /tmp/candidate "$CANDIDATE_SHA"
           ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/base/node_modules
           ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/candidate/node_modules
-          (cd /tmp/base && npx vite --host 127.0.0.1 --port 4172 > /tmp/wave5c-base.log 2>&1 &)
-          (cd /tmp/candidate && npx vite --host 127.0.0.1 --port 4173 > /tmp/wave5c-candidate.log 2>&1 &)
+          (cd /tmp/base && npx vite --host 127.0.0.1 --port 4172 > /tmp/base.log 2>&1 &)
+          (cd /tmp/candidate && npx vite --host 127.0.0.1 --port 4173 > /tmp/candidate.log 2>&1 &)
           for port in 4172 4173; do
             for i in $(seq 1 60); do
               curl --fail --silent "http://127.0.0.1:$port/" >/dev/null && break
@@ -45,152 +45,84 @@ jobs:
               sleep 1
             done
           done
-      - name: Compare Wave5C computed geometry and media-fit parity
+      - name: Diagnose authored reel height propagation
         shell: bash
         run: |
-          cat > "$GITHUB_WORKSPACE/wave5c-parity.mjs" <<'JS'
+          cat > "$GITHUB_WORKSPACE/wave5c-diagnostic.mjs" <<'JS'
           import { chromium } from 'playwright';
           import { writeFile } from 'node:fs/promises';
 
-          const routes = [
-            '/',
-            '/work/jestei-pool/',
-            '/work/styx/',
-            '/work/sensetique/',
-            '/shootings/',
-            '/work/awful-cases/',
-            '/work/moves/',
+          const cases = [
+            {name:'shootings-tablet', route:'/shootings/', width:900, height:1000},
+            {name:'shootings-desktop', route:'/shootings/', width:1728, height:1000},
+            {name:'styx-desktop', route:'/work/styx/', width:1728, height:1000},
           ];
-          const viewports = [
-            { name:'mobile', width:390, height:844 },
-            { name:'tablet', width:900, height:1000 },
-            { name:'desktop', width:1728, height:1000 },
-          ];
-          const selectors = [
-            '.media-group[data-layout="grid"]:not([data-compact-layout="reel"]) > .media-group__items',
-            '.media-group[data-layout="grid"][data-overflow="reel"] > .media-group__items',
-            '.media-group[data-layout="grid"][data-overflow="reel"] .media__surface',
-            '.media-group[data-compact-layout="reel"] > .media-group__items',
-          ];
-          const props = [
-            'display','position','width','height','minWidth','maxWidth','marginLeft','marginRight',
-            'paddingLeft','paddingRight','gap','rowGap','columnGap','gridTemplateColumns','gridTemplateRows',
-            'gridAutoFlow','gridAutoColumns','flexDirection','justifyContent','alignItems','overflowX','overflowY',
-            'containerName','containerType','visibility','opacity','transform','translate','aspectRatio',
-          ];
-          const vars = [
-            '--group-gap','--group-row-gap','--group-columns','--group-mobile-columns','--group-mobile-rows',
-            '--group-reel-height','--group-compact-align','--group-compact-item-size','--group-compact-item-inline-size',
-            '--group-wide-item-inline-size','--reel-display','--reel-align','--reel-item-size','--reel-overflow-x',
-            '--reel-overflow-y','--reel-snap-type','--reel-snap-align','--media-fit','--media-position','--media-ratio','--object-fit',
-          ];
-          const mediaSelector = '.media-group[data-layout="grid"][data-overflow="reel"] .media__surface > :is(img, video), .media-group[data-layout="grid"][data-overflow="reel"] .media__surface > picture > img';
-          const mediaProps = ['width','height','maxWidth','maxHeight','objectFit','objectPosition','aspectRatio','visibility','opacity','transform'];
           const browser = await chromium.launch({headless:true});
-          const report = {base:process.env.BASE_SHA,candidate:process.env.CANDIDATE_SHA,cases:[],failures:[],coverage:{}};
-          for (const selector of [...selectors, mediaSelector]) report.coverage[selector]={base:0,candidate:0};
+          const report = {base:process.env.BASE_SHA,candidate:process.env.CANDIDATE_SHA,cases:{}};
 
-          const settle = async (page,url) => {
-            await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+          async function inspect(port, spec) {
+            const context = await browser.newContext({viewport:{width:spec.width,height:spec.height}, reducedMotion:'reduce'});
+            const page = await context.newPage();
+            await page.goto(`http://127.0.0.1:${port}${spec.route}`,{waitUntil:'domcontentloaded',timeout:60000});
             await page.waitForLoadState('networkidle',{timeout:10000}).catch(()=>{});
-            await page.evaluate(async()=>{
-              await document.fonts?.ready;
-              for (const v of document.querySelectorAll('video')) { v.pause(); try { v.currentTime=0; } catch {} }
-              for (const img of document.querySelectorAll('img')) {
-                if (img.loading === 'lazy') img.loading = 'eager';
-              }
-              window.scrollTo(0,0);
-            });
+            await page.evaluate(async()=>{ await document.fonts?.ready; for(const img of document.images){if(img.loading==='lazy')img.loading='eager';} });
             await page.waitForTimeout(350);
-          };
-          const snap = page => page.evaluate(({selectors,props,vars,mediaSelector,mediaProps}) => {
-            const round=n=>Math.round(n*1000)/1000;
-            const identity=(el,index)=>({
-              index,
-              tag:el.tagName,
-              id:el.id,
-              className:typeof el.className==='string'?el.className:'',
-              data:Object.fromEntries([...el.attributes].filter(a=>a.name.startsWith('data-')).map(a=>[a.name,a.value])),
-            });
-            const out={};
-            for(const selector of selectors){
-              out[selector]=[...document.querySelectorAll(selector)].map((el,index)=>{
-                const s=getComputedStyle(el),r=el.getBoundingClientRect();
-                const computed={}; for(const p of props) computed[p]=s[p];
-                const variables={}; for(const v of vars) variables[v]=s.getPropertyValue(v).trim();
-                return {...identity(el,index),rect:{x:round(r.x),y:round(r.y),width:round(r.width),height:round(r.height)},computed,variables};
-              });
-            }
-            const media=[...document.querySelectorAll(mediaSelector)].map((el,index)=>{
-              const s=getComputedStyle(el),r=el.getBoundingClientRect();
-              const computed={}; for(const p of mediaProps) computed[p]=s[p];
-              const surface=el.closest('.media__surface');
-              const ss=surface?getComputedStyle(surface):null;
-              const sr=surface?surface.getBoundingClientRect():null;
+            const value = await page.evaluate(() => [...document.querySelectorAll('.media-group[data-layout="grid"][data-overflow="reel"]')].map((group,groupIndex)=>{
+              const gs=getComputedStyle(group);
               return {
-                ...identity(el,index),
-                src:el.getAttribute('src')||'',
-                rect:{x:round(r.x),y:round(r.y),width:round(r.width),height:round(r.height)},
-                natural:{width:el.naturalWidth||el.videoWidth||0,height:el.naturalHeight||el.videoHeight||0},
-                computed,
-                surface:surface?{
-                  rect:{x:round(sr.x),y:round(sr.y),width:round(sr.width),height:round(sr.height)},
-                  aspectRatio:ss.aspectRatio,
-                  mediaFit:ss.getPropertyValue('--media-fit').trim(),
-                  mediaPosition:ss.getPropertyValue('--media-position').trim(),
-                  mediaRatio:ss.getPropertyValue('--media-ratio').trim(),
-                  objectFitVar:ss.getPropertyValue('--object-fit').trim(),
-                }:null,
+                groupIndex,
+                className:group.className,
+                style:group.getAttribute('style'),
+                data:Object.fromEntries([...group.attributes].filter(a=>a.name.startsWith('data-')).map(a=>[a.name,a.value])),
+                reelHeightInline:group.style.getPropertyValue('--group-reel-height'),
+                reelHeightComputed:gs.getPropertyValue('--group-reel-height').trim(),
+                groupWidth:group.getBoundingClientRect().width,
+                surfaces:[...group.querySelectorAll('.media__surface')].map((surface,surfaceIndex)=>{
+                  const ss=getComputedStyle(surface), rect=surface.getBoundingClientRect();
+                  const media=surface.querySelector(':scope > img, :scope > video, :scope > picture > img');
+                  const ms=media?getComputedStyle(media):null;
+                  return {
+                    surfaceIndex,
+                    reelHeightComputed:ss.getPropertyValue('--group-reel-height').trim(),
+                    blockSize:ss.blockSize,
+                    inlineSize:ss.inlineSize,
+                    aspectRatio:ss.aspectRatio,
+                    mediaRatio:ss.getPropertyValue('--media-ratio').trim(),
+                    objectFitVar:ss.getPropertyValue('--object-fit').trim(),
+                    mediaFit:ss.getPropertyValue('--media-fit').trim(),
+                    rect:{width:rect.width,height:rect.height},
+                    src:media?.getAttribute('src')||'',
+                    objectFit:ms?.objectFit||'',
+                    objectPosition:ms?.objectPosition||'',
+                    natural:media?{width:media.naturalWidth||media.videoWidth||0,height:media.naturalHeight||media.videoHeight||0}:null,
+                  };
+                }),
               };
-            });
-            return {scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,selectors:out,media};
-          },{selectors,props,vars,mediaSelector,mediaProps});
-          const diff=(a,b,path='root',out=[])=>{
-            if(typeof a==='number'&&typeof b==='number'){if(Math.abs(a-b)>0.75)out.push({path,base:a,candidate:b});return out;}
-            if(Array.isArray(a)||Array.isArray(b)){if(!Array.isArray(a)||!Array.isArray(b)||a.length!==b.length){out.push({path,base:a,candidate:b});return out;} for(let i=0;i<a.length;i++)diff(a[i],b[i],`${path}[${i}]`,out);return out;}
-            if(a&&b&&typeof a==='object'&&typeof b==='object'){for(const k of [...new Set([...Object.keys(a),...Object.keys(b)])].sort())diff(a[k],b[k],`${path}.${k}`,out);return out;}
-            if(a!==b)out.push({path,base:a,candidate:b}); return out;
-          };
+            }));
+            await context.close();
+            return value;
+          }
 
           try {
-            for(const vp of viewports){
-              const bc=await browser.newContext({viewport:{width:vp.width,height:vp.height},reducedMotion:'reduce'});
-              const cc=await browser.newContext({viewport:{width:vp.width,height:vp.height},reducedMotion:'reduce'});
-              const bp=await bc.newPage(), cp=await cc.newPage();
-              for(const route of routes){
-                await Promise.all([settle(bp,'http://127.0.0.1:4172'+route),settle(cp,'http://127.0.0.1:4173'+route)]);
-                const [base,candidate]=await Promise.all([snap(bp),snap(cp)]);
-                for(const selector of selectors){
-                  report.coverage[selector].base += base.selectors[selector].length;
-                  report.coverage[selector].candidate += candidate.selectors[selector].length;
-                }
-                report.coverage[mediaSelector].base += base.media.length;
-                report.coverage[mediaSelector].candidate += candidate.media.length;
-                const differences=diff(base,candidate);
-                const key=`${vp.name}:${route}`;
-                report.cases.push({key,differences});
-                if(differences.length) report.failures.push({key,differences});
-                console.log(`${differences.length?'FAIL':'PASS'} ${key} differences=${differences.length}`);
-                if(differences.length) console.log(JSON.stringify(differences.slice(0,60),null,2));
-              }
-              await bc.close(); await cc.close();
+            for(const spec of cases){
+              report.cases[spec.name]={
+                base:await inspect(4172,spec),
+                candidate:await inspect(4173,spec),
+              };
+              console.log(`CASE ${spec.name}`);
+              console.log(JSON.stringify(report.cases[spec.name],null,2));
             }
           } finally { await browser.close(); }
-          for(const [selector,counts] of Object.entries(report.coverage)){
-            if(counts.base===0||counts.candidate===0){report.failures.push({key:`coverage:${selector}`,differences:[{path:'coverage',base:counts.base,candidate:counts.candidate}]});}
-          }
-          await writeFile('/tmp/wave5c-parity.json',JSON.stringify(report,null,2)+'\n');
-          if(report.failures.length) throw new Error(`Wave5C parity found ${report.failures.length} failing case(s)`);
-          console.log(`Wave5C parity passed ${report.cases.length}/${report.cases.length} route×viewport cases with complete selector/media coverage.`);
+          await writeFile('/tmp/wave5c-diagnostic.json',JSON.stringify(report,null,2)+'\n');
           JS
-          node "$GITHUB_WORKSPACE/wave5c-parity.mjs"
-      - name: Upload Wave5C parity evidence
+          node "$GITHUB_WORKSPACE/wave5c-diagnostic.mjs"
+      - name: Upload diagnostic evidence
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: wave5c-parity-${{ github.sha }}
+          name: wave5c-root-cause-${{ github.sha }}
           retention-days: 7
           path: |
-            /tmp/wave5c-parity.json
-            /tmp/wave5c-base.log
-            /tmp/wave5c-candidate.log
+            /tmp/wave5c-diagnostic.json
+            /tmp/base.log
+            /tmp/candidate.log
