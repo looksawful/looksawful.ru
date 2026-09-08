@@ -1,0 +1,103 @@
+name: tmp-css-461-wave5c-grid-compact
+
+on:
+  push:
+    branches:
+      - refactor/css-461-wave5c-grid-compact
+
+permissions:
+  contents: write
+
+jobs:
+  red-green:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: refactor/css-461-wave5c-grid-compact
+          fetch-depth: 2
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Prove focused ownership RED before production move
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          node --test test/css-refactor-wave5c-grid-compact.test.mjs > /tmp/wave5c-red.log 2>&1
+          code=$?
+          set -e
+          cat /tmp/wave5c-red.log
+          if [ "$code" -eq 0 ]; then
+            echo "Expected Wave5C ownership contract to be RED before move, but it passed." >&2
+            exit 1
+          fi
+          grep -Eq 'media\.css must own|does not match|AssertionError' /tmp/wave5c-red.log || {
+            echo "RED occurred for an unexpected reason." >&2
+            exit 1
+          }
+          echo "Observed expected structural RED before transform."
+      - name: Guarded exact grid/compact family move
+        shell: python
+        run: |
+          from pathlib import Path
+          components_path = Path('src/styles/components.css')
+          media_path = Path('src/styles/media.css')
+          components = components_path.read_text(encoding='utf-8')
+          media = media_path.read_text(encoding='utf-8')
+
+          start_marker = '/* Plain grid. */'
+          end_marker = '/* Jestei Pool — identity / brand-system media group. */'
+          start = components.find(start_marker)
+          end = components.find(end_marker, start if start >= 0 else 0)
+          if start < 0 or end < 0:
+              raise SystemExit('guard failed: exact Wave5C boundary markers missing')
+          if components.find(start_marker, start + 1) >= 0:
+              raise SystemExit('guard failed: duplicate Plain grid marker')
+          block = components[start:end]
+          required = [
+              '.media-group[data-layout="grid"]:not([data-compact-layout="reel"]) > .media-group__items {',
+              '.media-group[data-layout="grid"][data-overflow="reel"] > .media-group__items {',
+              '.media-group[data-layout="grid"][data-overflow="reel"] .media__surface {',
+              '.media-group[data-compact-layout="reel"] > .media-group__items {',
+              '@container media-group (width > 42rem) {',
+          ]
+          forbidden = [
+              '.media-group.brand-system {',
+              '.media-group[data-layout="sequence"]',
+              '.media-group[data-layout="strip"]',
+              '[data-infinite-reel]',
+          ]
+          for needle in required:
+              if needle not in block:
+                  raise SystemExit(f'guard failed: missing expected Wave5C fragment: {needle}')
+          for needle in forbidden:
+              if needle in block:
+                  raise SystemExit(f'guard failed: Wave5C block widened into excluded family: {needle}')
+          if start_marker in media:
+              raise SystemExit('guard failed: Wave5C family already exists in media.css')
+
+          components_path.write_text(components[:start] + components[end:], encoding='utf-8')
+          media_path.write_text(media.rstrip() + '\n\n' + block.rstrip() + '\n', encoding='utf-8')
+      - name: Focused GREEN after exact move
+        run: |
+          node --test \
+            test/css-refactor-wave5a-media-core.test.mjs \
+            test/css-refactor-wave5b-media-group-foundation.test.mjs \
+            test/css-refactor-wave5c-grid-compact.test.mjs \
+            test/css-refactor-wave4d-project-shell.test.mjs
+      - name: Diff hygiene and commit exact move
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          git status --short
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/styles/components.css src/styles/media.css
+          git commit -m "refactor(css): move grid and compact media layouts to canonical owner"
+          git push origin HEAD:refactor/css-461-wave5c-grid-compact
