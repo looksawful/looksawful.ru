@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
@@ -14,21 +13,6 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const packageJson = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
-
-test("temporary Wave2B verification executes pinned CSS gates", () => {
-  for (const script of ["lint:style", "css:check"]) {
-    const result = spawnSync("npm", ["run", script], {
-      cwd: root,
-      encoding: "utf8",
-      shell: process.platform === "win32",
-    });
-    assert.equal(
-      result.status,
-      0,
-      `${script} failed\n${result.stdout ?? ""}\n${result.stderr ?? ""}`,
-    );
-  }
-});
 
 test("css:check is wired as a small repository-owned architecture command", () => {
   assert.equal(packageJson.scripts["css:check"], "node tools/css/check.mjs");
