@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 const require = createRequire(import.meta.url);
 
@@ -123,7 +124,8 @@ function renderHuman(report) {
   }
 }
 
-if (import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+const isDirectRun = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+if (isDirectRun) {
   const json = process.argv.includes("--json");
   const launchBrowser = process.argv.includes("--launch-browser");
   const report = await collectToolchainReport({ launchBrowser });
