@@ -95,15 +95,15 @@ test("persistent rails and standalone sliders keep captions out of page geometry
 });
 
 test("lightbox CSS has bounded media and explicit touch portrait/landscape layouts", async () => {
-  const [components, captions] = await Promise.all([
-    read("src/styles/components.css"),
+  const [lightboxStyles, captions] = await Promise.all([
+    read("src/styles/media-lightbox.css"),
     read("src/styles/captions.css"),
   ]);
 
-  assert.match(components, /\.media-lightbox__figure[\s\S]*?block-size:\s*100%/);
-  assert.match(components, /touch-action:\s*pan-y/);
-  assert.match(components, /orientation:\s*portrait/);
-  assert.match(components, /orientation:\s*landscape/);
+  assert.match(lightboxStyles, /\.media-lightbox__figure[\s\S]*?block-size:\s*100%/);
+  assert.match(lightboxStyles, /touch-action:\s*pan-y/);
+  assert.match(lightboxStyles, /orientation:\s*portrait/);
+  assert.match(lightboxStyles, /orientation:\s*landscape/);
   assert.match(captions, /orientation:\s*landscape[\s\S]*?max-block-size:\s*100%/);
 });
 

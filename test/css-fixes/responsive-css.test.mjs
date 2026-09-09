@@ -4,6 +4,7 @@ import { test } from "node:test";
 
 const css = await readFile(new URL("../../src/styles/components.css", import.meta.url), "utf8");
 const mediaDeckCss = await readFile(new URL("../../src/styles/media-deck.css", import.meta.url), "utf8");
+const mediaLightboxCss = await readFile(new URL("../../src/styles/media-lightbox.css", import.meta.url), "utf8");
 
 test("project-card caption uses card container without moving the grid breakpoint", () => {
   assert.match(css, /\.project-card\s*{[^}]*container:\s*project-card \/ inline-size;/s);
@@ -28,8 +29,8 @@ test("media deck dots keep small visual dots on larger hit targets", () => {
 });
 
 test("lightbox controls and gutters include safe-area insets", () => {
-  assert.match(css, /padding-block-start:\s*calc\(var\(--media-lightbox-inset\) \+ env\(safe-area-inset-top,\s*0px\)\);/);
-  assert.match(css, /padding-inline-end:\s*calc\(var\(--media-lightbox-inset\) \+ env\(safe-area-inset-right,\s*0px\)\);/);
-  assert.match(css, /inset-block-start:\s*calc\(var\(--media-lightbox-control-offset\) \+ env\(safe-area-inset-top,\s*0px\)\);/);
-  assert.match(css, /inset-inline-end:\s*calc\(var\(--media-lightbox-control-offset\) \+ env\(safe-area-inset-right,\s*0px\)\);/);
+  assert.match(mediaLightboxCss, /padding-block-start:\s*calc\(var\(--media-lightbox-inset\) \+ env\(safe-area-inset-top,\s*0px\)\);/);
+  assert.match(mediaLightboxCss, /padding-inline-end:\s*calc\(var\(--media-lightbox-inset\) \+ env\(safe-area-inset-right,\s*0px\)\);/);
+  assert.match(mediaLightboxCss, /inset-block-start:\s*calc\(var\(--media-lightbox-control-offset\) \+ env\(safe-area-inset-top,\s*0px\)\);/);
+  assert.match(mediaLightboxCss, /inset-inline-end:\s*calc\(var\(--media-lightbox-control-offset\) \+ env\(safe-area-inset-right,\s*0px\)\);/);
 });
