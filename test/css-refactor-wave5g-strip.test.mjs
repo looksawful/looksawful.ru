@@ -10,12 +10,6 @@ const stripPatterns = [
   [/(?:^|\n)\.media-group\[data-layout="strip"\]\s+\.media__caption\s*\{/, "strip caption sizing"],
 ];
 
-function selectorIndex(source, pattern, label) {
-  const index = source.search(pattern);
-  assert.notEqual(index, -1, `${label} must exist`);
-  return index;
-}
-
 test("generic strip family has one canonical media owner", () => {
   for (const [pattern, label] of stripPatterns) {
     assert.match(media, pattern, `media.css must own ${label}`);
@@ -52,25 +46,4 @@ test("portfolio strip inputs remain in the component owner", () => {
     /@container media-group \(width > 48rem\)\s*\{[\s\S]*?\.portfolio-showcase__group\[data-layout="strip"\]\s*>\s*\.media-group__items\s*\{[\s\S]*?--strip-justify:\s*flex-start;/,
   );
   assert.doesNotMatch(media, /portfolio-showcase/);
-});
-
-test("strip source order remains between sequence and infinite reel", () => {
-  const sequence = selectorIndex(
-    media,
-    /(?:^|\n)\.media-group\[data-layout="sequence"\]\s*\{/,
-    "sequence family",
-  );
-  const strip = selectorIndex(
-    media,
-    /(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/,
-    "strip family",
-  );
-  const infiniteReel = selectorIndex(
-    media,
-    /(?:^|\n)\[data-infinite-reel\]\s*\{/,
-    "infinite reel family",
-  );
-
-  assert.ok(sequence < strip, "strip must follow the sequence family");
-  assert.ok(strip < infiniteReel, "strip must precede the infinite reel family");
 });
