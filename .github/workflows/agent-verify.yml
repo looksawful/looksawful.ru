@@ -103,8 +103,8 @@ jobs:
           npm run test:fast
           npm run build:vite
 
-      - name: Build responsive target
-        if: ${{ steps.request.outputs.suite == 'responsive' }}
+      - name: Build browser target
+        if: ${{ steps.request.outputs.suite == 'browser-smoke' || steps.request.outputs.suite == 'responsive' }}
         run: npm run build:vite
 
       - name: Install pinned Chromium headless shell
