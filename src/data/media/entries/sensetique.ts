@@ -6,9 +6,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-04-source-07-2x3-use-01",
     assetId: "sensetique-04-source-07-2x3",
     projectIds: ["sensetique-editorial-andrey-raputo-01"],
-    alt: "Эдиториал-фотосъемка Sensetique,",
+    alt: "Эдиториал-фотосъёмка Sensetique,",
     caption: {
-        title: "Эдиториал фотосъемка Sensetique, стилист Мария Жукова, фотограф Андрей Рапуто.",
+        title: "Эдиториал фотосъёмка Sensetique, стилист Мария Жукова, фотограф Андрей Рапуто.",
         meta: [
             "стилист Мария Жукова, фотограф Андрей Рапуто.",
         ],
@@ -18,9 +18,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-04-source-08-2x3-use-01",
     assetId: "sensetique-04-source-08-2x3",
     projectIds: ["sensetique-editorial-andrey-raputo-01"],
-    alt: "Эдиториал фотосъемка Sensetique, стилист Мария Жукова, фотограф АНдрей Рапуто.",
+    alt: "Эдиториал фотосъёмка Sensetique, стилист Мария Жукова, фотограф Андрей Рапуто.",
     caption: {
-        title: "Эдиториал фотосъемка Sensetique, стилист Мария Жукова, фотограф Андрей Рапуто.",
+        title: "Эдиториал фотосъёмка Sensetique, стилист Мария Жукова, фотограф Андрей Рапуто.",
         meta: [
             "стилист Мария Жукова, фотограф Андрей Рапуто.",
         ],
@@ -32,9 +32,9 @@ export const sensetiqueMediaEntries = [
     projectIds: ["sensetique-harsh-light-2018"],
     alt: "Harshlight эдиториал фотсъемка 2018",
     caption: {
-        title: "Harshlight эдиториал фотосъемка 2018",
+        title: "Harshlight эдиториал фотосъёмка 2018",
         meta: [
-            "Фотограф Андрей Рапуто,стилист Мария Жукова,продюсер Иван Крушинский",
+            "Фотограф Андрей Рапуто, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
     }
 },
@@ -44,9 +44,9 @@ export const sensetiqueMediaEntries = [
     projectIds: ["sensetique-harsh-light-2018"],
     alt: "Harshlight эдиториал фотсъемка 2018",
     caption: {
-        title: "Harshlight эдиториал фотосъемка 2018",
+        title: "Harshlight эдиториал фотосъёмка 2018",
         meta: [
-            "Фотограф Андрей Рапуто,стилист Мария Жукова,продюсер Иван Крушинский",
+            "Фотограф Андрей Рапуто, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
     }
 },
@@ -102,9 +102,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-50-5x7-use-01",
     assetId: "sensetique-13-source-50-5x7",
     projectIds: ["sensetique-editorial-andrey-raputo-02"],
-    alt: "Эдиториал фотосъемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         meta: [
             "Фотограф Андрей Рапуто, Стилист Мария Жукова.",
         ],
@@ -114,9 +114,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-51-5x4-use-01",
     assetId: "sensetique-13-source-51-5x4",
     projectIds: ["sensetique-editorial-andrey-raputo-02"],
-    alt: "Эдиториал фотосъемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         meta: [
             "Фотограф Андрей Рапуто, Стилист Мария Жукова.",
         ],
@@ -138,9 +138,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-09-source-37-17x11-use-01",
     assetId: "sensetique-09-source-37-17x11",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -150,9 +150,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-05-source-02-4x5-use-01",
     assetId: "sensetique-05-source-02-4x5",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -162,9 +162,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-88-128x175-use-01",
     assetId: "sensetique-11-source-88-128x175",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -174,9 +174,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-89-103x140-use-01",
     assetId: "sensetique-11-source-89-103x140",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -186,9 +186,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-90-117x160-use-01",
     assetId: "sensetique-11-source-90-117x160",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -198,9 +198,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-92-47x70-use-01",
     assetId: "sensetique-11-source-92-47x70",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -210,9 +210,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-93-128x175-use-01",
     assetId: "sensetique-11-source-93-128x175",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -222,9 +222,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-09-source-46-175x128-use-01",
     assetId: "sensetique-09-source-46-175x128",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -752,9 +752,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-04-source-11-2x3-use-01",
     assetId: "sensetique-04-source-11-2x3",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -764,9 +764,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-09-source-13-2x3-use-01",
     assetId: "sensetique-09-source-13-2x3",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -776,9 +776,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-74-187x280-use-01",
     assetId: "sensetique-11-source-74-187x280",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -788,9 +788,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-76-187x280-use-01",
     assetId: "sensetique-11-source-76-187x280",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -800,9 +800,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-78-933x1400-use-01",
     assetId: "sensetique-11-source-78-933x1400",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -812,9 +812,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-80-1280x911-use-01",
     assetId: "sensetique-11-source-80-1280x911",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -824,9 +824,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-82-160x113-use-01",
     assetId: "sensetique-11-source-82-160x113",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -836,9 +836,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-83-40x71-use-01",
     assetId: "sensetique-11-source-83-40x71",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -848,9 +848,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-84-640x491-use-01",
     assetId: "sensetique-11-source-84-640x491",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -860,9 +860,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-85-1280x911-use-01",
     assetId: "sensetique-11-source-85-1280x911",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -872,9 +872,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-87-256x181-use-01",
     assetId: "sensetique-11-source-87-256x181",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
         ],
@@ -884,9 +884,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-01-source-08-3x2-use-01",
     assetId: "sensetique-01-source-08-3x2",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал-фотосъемка.",
+    alt: "Эдиториал-фотосъёмка.",
     caption: {
-        title: "Эдиториал фотосъемка.",
+        title: "Эдиториал фотосъёмка.",
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -896,9 +896,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-05-source-01-3x4-use-01",
     assetId: "sensetique-05-source-01-3x4",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал-фотосъемка Sensetique.",
+    alt: "Эдиториал-фотосъёмка Sensetique.",
     caption: {
-        title: "Эдиториал фотосъемка Sensetique.",
+        title: "Эдиториал фотосъёмка Sensetique.",
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -908,9 +908,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-09-source-12-2x3-use-01",
     assetId: "sensetique-09-source-12-2x3",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосъемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -920,9 +920,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-03-7x8-use-01",
     assetId: "sensetique-11-source-03-7x8",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -932,9 +932,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-04-1159x1280-use-01",
     assetId: "sensetique-11-source-04-1159x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -944,9 +944,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-05-969x1280-use-01",
     assetId: "sensetique-11-source-05-969x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -980,9 +980,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-12-source-15-953x1280-use-01",
     assetId: "sensetique-12-source-15-953x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосъемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -992,9 +992,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-34-985x1280-use-01",
     assetId: "sensetique-13-source-34-985x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
@@ -2091,9 +2091,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-04-source-07-2x3-use-02",
     assetId: "sensetique-04-source-07-2x3",
     projectIds: ["sensetique-editorial-andrey-raputo-01"],
-    alt: "Эдиториал-фотосъемка Sensetique,",
+    alt: "Эдиториал-фотосъёмка Sensetique,",
     caption: {
-        title: "Эдиториал фотосъемка Sensetique, стилист Мария Жукова, фотограф Андрей Рапуто.",
+        title: "Эдиториал фотосъёмка Sensetique, стилист Мария Жукова, фотограф Андрей Рапуто.",
         index: 15,
         meta: [
             "стилист Мария Жукова, фотограф Андрей Рапуто.",
@@ -2104,9 +2104,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-04-source-08-2x3-use-03",
     assetId: "sensetique-04-source-08-2x3",
     projectIds: ["sensetique-editorial-andrey-raputo-01"],
-    alt: "Эдиториал фотосъемка Sensetique, стилист Мария Жукова, фотограф АНдрей Рапуто.",
+    alt: "Эдиториал фотосъёмка Sensetique, стилист Мария Жукова, фотограф Андрей Рапуто.",
     caption: {
-        title: "Эдиториал фотосъемка Sensetique, стилист Мария Жукова, фотограф Андрей Рапуто.",
+        title: "Эдиториал фотосъёмка Sensetique, стилист Мария Жукова, фотограф Андрей Рапуто.",
         index: 16,
         meta: [
             "стилист Мария Жукова, фотограф Андрей Рапуто.",
@@ -2260,10 +2260,10 @@ export const sensetiqueMediaEntries = [
     projectIds: ["sensetique-harsh-light-2018"],
     alt: "Harshlight эдиториал фотсъемка 2018",
     caption: {
-        title: "Harshlight эдиториал фотосъемка 2018",
+        title: "Harshlight эдиториал фотосъёмка 2018",
         index: 29,
         meta: [
-            "Фотограф Андрей Рапуто,стилист Мария Жукова,продюсер Иван Крушинский",
+            "Фотограф Андрей Рапуто, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
     }
 },
@@ -2273,10 +2273,10 @@ export const sensetiqueMediaEntries = [
     projectIds: ["sensetique-harsh-light-2018"],
     alt: "Harshlight эдиториал фотсъемка 2018",
     caption: {
-        title: "Harshlight эдиториал фотосъемка 2018",
+        title: "Harshlight эдиториал фотосъёмка 2018",
         index: 30,
         meta: [
-            "Фотограф Андрей Рапуто,стилист Мария Жукова,продюсер Иван Крушинский",
+            "Фотограф Андрей Рапуто, Стилист Мария Жукова, Продюсер Иван Крушинский.",
         ],
     }
 },
@@ -2336,9 +2336,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-50-5x7-use-02",
     assetId: "sensetique-13-source-50-5x7",
     projectIds: ["sensetique-editorial-andrey-raputo-02"],
-    alt: "Эдиториал фотосъемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         index: 35,
         meta: [
             "Фотограф Андрей Рапуто, Стилист Мария Жукова.",
@@ -2349,9 +2349,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-51-5x4-use-02",
     assetId: "sensetique-13-source-51-5x4",
     projectIds: ["sensetique-editorial-andrey-raputo-02"],
-    alt: "Эдиториал фотосъемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         index: 36,
         meta: [
             "Фотограф Андрей Рапуто, Стилист Мария Жукова.",
@@ -2375,9 +2375,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-09-source-37-17x11-use-02",
     assetId: "sensetique-09-source-37-17x11",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 38,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -2388,9 +2388,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-05-source-02-4x5-use-03",
     assetId: "sensetique-05-source-02-4x5",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 39,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -2401,9 +2401,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-88-128x175-use-03",
     assetId: "sensetique-11-source-88-128x175",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 40,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -2414,9 +2414,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-89-103x140-use-03",
     assetId: "sensetique-11-source-89-103x140",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 41,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -2427,9 +2427,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-90-117x160-use-03",
     assetId: "sensetique-11-source-90-117x160",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 42,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -2440,9 +2440,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-92-47x70-use-03",
     assetId: "sensetique-11-source-92-47x70",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 43,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -2453,9 +2453,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-93-128x175-use-03",
     assetId: "sensetique-11-source-93-128x175",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 44,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -2466,9 +2466,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-09-source-46-175x128-use-02",
     assetId: "sensetique-09-source-46-175x128",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 45,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -3077,9 +3077,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-04-source-11-2x3-use-02",
     assetId: "sensetique-04-source-11-2x3",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 90,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3090,9 +3090,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-09-source-13-2x3-use-03",
     assetId: "sensetique-09-source-13-2x3",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 91,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3103,9 +3103,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-74-187x280-use-02",
     assetId: "sensetique-11-source-74-187x280",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 92,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3116,9 +3116,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-76-187x280-use-02",
     assetId: "sensetique-11-source-76-187x280",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 93,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3129,9 +3129,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-78-933x1400-use-02",
     assetId: "sensetique-11-source-78-933x1400",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 94,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3142,9 +3142,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-80-1280x911-use-02",
     assetId: "sensetique-11-source-80-1280x911",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 95,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3155,9 +3155,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-82-160x113-use-02",
     assetId: "sensetique-11-source-82-160x113",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 96,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3168,9 +3168,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-83-40x71-use-03",
     assetId: "sensetique-11-source-83-40x71",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 97,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3181,9 +3181,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-84-640x491-use-02",
     assetId: "sensetique-11-source-84-640x491",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 98,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3194,9 +3194,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-85-1280x911-use-02",
     assetId: "sensetique-11-source-85-1280x911",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 99,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3207,9 +3207,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-87-256x181-use-02",
     assetId: "sensetique-11-source-87-256x181",
     projectIds: ["sensetique-young-pioneer-kaltblut"],
-    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027",
+    alt: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine",
     caption: {
-        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.",
+        title: "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine.",
         index: 100,
         meta: [
             "Фотографы Дарья Сеничева и Никита Игнатов, Стилист Мария Жукова, Продюсер Иван Крушинский, Kaltblut Magazine.",
@@ -3220,9 +3220,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-01-source-08-3x2-use-02",
     assetId: "sensetique-01-source-08-3x2",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал-фотосъемка.",
+    alt: "Эдиториал-фотосъёмка.",
     caption: {
-        title: "Эдиториал фотосъемка.",
+        title: "Эдиториал фотосъёмка.",
         index: 101,
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -3233,9 +3233,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-05-source-01-3x4-use-02",
     assetId: "sensetique-05-source-01-3x4",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал-фотосъемка Sensetique.",
+    alt: "Эдиториал-фотосъёмка Sensetique.",
     caption: {
-        title: "Эдиториал фотосъемка Sensetique.",
+        title: "Эдиториал фотосъёмка Sensetique.",
         index: 102,
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -3246,9 +3246,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-09-source-12-2x3-use-02",
     assetId: "sensetique-09-source-12-2x3",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосъемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         index: 103,
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -3259,9 +3259,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-03-7x8-use-02",
     assetId: "sensetique-11-source-03-7x8",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         index: 104,
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -3272,9 +3272,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-04-1159x1280-use-02",
     assetId: "sensetique-11-source-04-1159x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         index: 105,
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -3285,9 +3285,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-05-969x1280-use-02",
     assetId: "sensetique-11-source-05-969x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         index: 106,
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -3324,9 +3324,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-12-source-15-953x1280-use-02",
     assetId: "sensetique-12-source-15-953x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосъемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         index: 109,
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
@@ -3337,9 +3337,9 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-13-source-34-985x1280-use-02",
     assetId: "sensetique-13-source-34-985x1280",
     projectIds: ["sensetique-editorial-daniil-korotechenkov"],
-    alt: "Эдиториал фотосхемка",
+    alt: "Эдиториал фотосъёмка",
     caption: {
-        title: "Эдиториал фотосъемка",
+        title: "Эдиториал фотосъёмка",
         index: 110,
         meta: [
             "Фотограф Даниил Коротеченков, Стилист Мария Жукова, Продюсер Иван Крушинский.",
