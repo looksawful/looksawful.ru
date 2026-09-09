@@ -33,28 +33,28 @@ const OWNER_RULES = Object.freeze([
   Object.freeze({
     name: "before-after",
     owner: "src/styles/before-after.css",
-    patterns: [/(?:^|[\n,{])\s*\.before-after(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
+    patterns: [/(?:^|[\n{}])\s*\.before-after(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
   }),
   Object.freeze({
     name: "page-flip",
     owner: "src/styles/page-flip.css",
-    patterns: [/(?:^|[\n,{])\s*\.page-flip(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
+    patterns: [/(?:^|[\n{}])\s*\.page-flip(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
   }),
   Object.freeze({
     name: "slider",
     owner: "src/styles/slider.css",
     patterns: [
-      /(?:^|[\n,{])\s*\.slider(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
-      /(?:^|[\n,{])\s*\.slider-controls(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|[\n{}])\s*\.slider(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|[\n{}])\s*\.slider-controls(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
     ],
   }),
   Object.freeze({
     name: "media-deck",
     owner: "src/styles/media-deck.css",
     patterns: [
-      /(?:^|[\n,{])\s*\[data-media-deck\](?=[\s,{.:#>\[])/,
-      /(?:^|[\n,{])\s*\.media-deck(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
-      /(?:^|[\n,{])\s*\[data-deck-(?:dragging|fit(?:-viewport)?)\](?=[\s,{.:#>\[])/,
+      /(?:^|[\n{}])\s*\[data-media-deck\](?=[\s,{.:#>\[])/,
+      /(?:^|[\n{}])\s*\.media-deck(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|[\n{}])\s*\[data-deck-(?:dragging|fit(?:-viewport)?)\](?=[\s,{.:#>\[])/,
     ],
   }),
   // Guard only the structural Lightbox shell. captions.css intentionally owns
@@ -63,8 +63,8 @@ const OWNER_RULES = Object.freeze([
     name: "media-lightbox",
     owner: "src/styles/media-lightbox.css",
     patterns: [
-      /(?:^|[\n,{])\s*\[data-lightbox-source\](?=\s*\{)/,
-      /(?:^|[\n,{])\s*\.media-lightbox__(?:layout|figure|button|prev|next|close|video-slide)\b/,
+      /(?:^|[\n{}])\s*\[data-lightbox-source\](?=\s*\{)/,
+      /(?:^|[\n{}])\s*\.media-lightbox__(?:layout|figure|button|prev|next|close|video-slide)\b/,
     ],
   }),
 ]);
@@ -86,6 +86,13 @@ const EXPECTED_LAYER_ORDER =
 
 function stripComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//g, "");
+}
+
+function normalizeSimpleGroupedSelectors(source) {
+  return source.replace(
+    /(^|[\n{}])([ \t]*[^{}\n;():]+)(?=\s*\{)/g,
+    (_match, boundary, prelude) => `${boundary}${prelude.replaceAll(",", "\n")}`,
+  );
 }
 
 function listCssFiles(root) {
@@ -113,7 +120,7 @@ export function findOwnerViolations(sources, rules = OWNER_RULES) {
   for (const rule of rules) {
     for (const [file, rawSource] of sources) {
       if (file === rule.owner) continue;
-      const source = stripComments(rawSource);
+      const source = normalizeSimpleGroupedSelectors(stripComments(rawSource));
       for (const pattern of rule.patterns) {
         if (pattern.test(source)) {
           errors.push(
