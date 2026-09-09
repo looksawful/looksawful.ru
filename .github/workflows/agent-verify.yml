@@ -96,6 +96,56 @@ jobs:
       - name: Report toolchain
         run: npm run toolchain:doctor -- --json
 
+      - name: Calculate canonical media fingerprint
+        if: ${{ steps.request.outputs.suite != 'fast' }}
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore exact generated media cache
+        if: ${{ steps.request.outputs.suite != 'fast' }}
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
+      - name: Verify restored generated media
+        if: ${{ steps.request.outputs.suite != 'fast' && steps.media-cache.outputs.cache-hit == 'true' }}
+        run: node tools/media-dev-state.mjs --cache-verify
+
+      - name: Install recovery video tooling on cache miss
+        if: ${{ steps.request.outputs.suite != 'fast' && steps.media-cache.outputs.cache-hit != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+
+      - name: Recover generated media on cache miss
+        if: ${{ steps.request.outputs.suite != 'fast' && steps.media-cache.outputs.cache-hit != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+
+      - name: Save recovered generated media cache
+        if: ${{ steps.request.outputs.suite != 'fast' && steps.media-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
       - name: Fast verification
         if: ${{ steps.request.outputs.suite == 'fast' }}
         run: |
