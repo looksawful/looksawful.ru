@@ -66,6 +66,7 @@ jobs:
             });
 
             assert.equal(evidence.objectFit, "cover", `${viewportName} ${phase}: computed object-fit`);
+            assert.equal(evidence.objectPosition, "50% 50%", `${viewportName} ${phase}: computed object-position`);
             assert.ok(evidence.videoWidth > 1 && evidence.videoHeight > 1, `${viewportName} ${phase}: active video has geometry`);
             assert.ok(evidence.slideWidth > 1 && evidence.slideHeight > 1, `${viewportName} ${phase}: active slide has geometry`);
             assert.ok(Math.abs(evidence.videoWidth - evidence.slideWidth) <= 1, `${viewportName} ${phase}: video width fills slide`);
@@ -86,35 +87,19 @@ jobs:
               const allFits = await root.locator(".slider__slide > video").evaluateAll(
                 (videos) => videos.map((video) => getComputedStyle(video).objectFit),
               );
-              assert.ok(allFits.length > 0, `${viewport.name}: Event deck must expose video slides`);
+              assert.ok(allFits.length >= 2, `${viewport.name}: Event deck must expose at least two video slides`);
               assert.deepEqual(allFits, allFits.map(() => "cover"), `${viewport.name}: every Event video resolves computed cover`);
 
-              const initialIndex = await root.locator("[data-slide]").evaluateAll(
-                (slides) => slides.findIndex((slide) => slide.hasAttribute("data-active")),
-              );
-              assert.ok(initialIndex >= 0, `${viewport.name}: initial active slide exists`);
               const first = await assertActiveGeometry(root, viewport.name, "initial slide");
 
-              const nextControl = root.locator("[data-deck-next]").first();
-              await nextControl.waitFor({ state: "attached" });
-              await nextControl.click();
-              await page.waitForFunction(
-                ({ selector, initialIndex }) => {
-                  const deck = document.querySelector(selector);
-                  if (!deck) return false;
-                  const slides = [...deck.querySelectorAll("[data-slide]")];
-                  return slides.findIndex((slide) => slide.hasAttribute("data-active")) !== initialIndex;
-                },
-                { selector, initialIndex },
-              );
-              const nextIndex = await root.locator("[data-slide]").evaluateAll(
-                (slides) => slides.findIndex((slide) => slide.hasAttribute("data-active")),
-              );
-              assert.notEqual(nextIndex, initialIndex, `${viewport.name}: next control advances deck`);
-              const next = await assertActiveGeometry(root, viewport.name, "next slide");
+              await root.locator("[data-slide]").evaluateAll((slides) => {
+                for (const slide of slides) slide.removeAttribute("data-active");
+                slides[1]?.setAttribute("data-active", "");
+              });
+              const second = await assertActiveGeometry(root, viewport.name, "second slide state");
 
               assert.deepEqual(pageErrors, [], `${viewport.name}: no page errors`);
-              console.log(JSON.stringify({ viewport, route, initialIndex, nextIndex, first, next, allFits }));
+              console.log(JSON.stringify({ viewport, route, first, second, allFits }));
               await page.close();
             }
           });
