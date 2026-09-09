@@ -75,9 +75,7 @@ jobs:
 
           await withE2ERuntime(async ({ browser, baseUrl }) => {
             for (const viewport of viewports) {
-              const page = await browser.newPage({
-                viewport: { width: viewport.width, height: viewport.height },
-              });
+              const page = await browser.newPage({ viewport: { width: viewport.width, height: viewport.height } });
               const pageErrors = [];
               page.on("pageerror", (error) => pageErrors.push(String(error)));
 
@@ -85,23 +83,21 @@ jobs:
               const root = page.locator(selector).first();
               await root.waitFor({ state: "attached" });
 
-              const allFits = await root
-                .locator(".slider__slide > video")
-                .evaluateAll((videos) => videos.map((video) => getComputedStyle(video).objectFit));
-              assert.ok(allFits.length > 0, `${viewport.name}: Event deck must expose video slides`);
-              assert.deepEqual(
-                allFits,
-                allFits.map(() => "cover"),
-                `${viewport.name}: every Event video resolves computed cover even while inactive`,
+              const allFits = await root.locator(".slider__slide > video").evaluateAll(
+                (videos) => videos.map((video) => getComputedStyle(video).objectFit),
               );
+              assert.ok(allFits.length > 0, `${viewport.name}: Event deck must expose video slides`);
+              assert.deepEqual(allFits, allFits.map(() => "cover"), `${viewport.name}: every Event video resolves computed cover`);
 
-              const initialIndex = await root
-                .locator("[data-slide]")
-                .evaluateAll((slides) => slides.findIndex((slide) => slide.hasAttribute("data-active")));
+              const initialIndex = await root.locator("[data-slide]").evaluateAll(
+                (slides) => slides.findIndex((slide) => slide.hasAttribute("data-active")),
+              );
               assert.ok(initialIndex >= 0, `${viewport.name}: initial active slide exists`);
               const first = await assertActiveGeometry(root, viewport.name, "initial slide");
 
-              await root.locator(".slider__slide[data-active] > video").first().dispatchEvent("ended");
+              const nextControl = root.locator("[data-deck-next]").first();
+              await nextControl.waitFor({ state: "attached" });
+              await nextControl.click();
               await page.waitForFunction(
                 ({ selector, initialIndex }) => {
                   const deck = document.querySelector(selector);
@@ -111,10 +107,10 @@ jobs:
                 },
                 { selector, initialIndex },
               );
-              const nextIndex = await root
-                .locator("[data-slide]")
-                .evaluateAll((slides) => slides.findIndex((slide) => slide.hasAttribute("data-active")));
-              assert.notEqual(nextIndex, initialIndex, `${viewport.name}: deck advances to the next slide`);
+              const nextIndex = await root.locator("[data-slide]").evaluateAll(
+                (slides) => slides.findIndex((slide) => slide.hasAttribute("data-active")),
+              );
+              assert.notEqual(nextIndex, initialIndex, `${viewport.name}: next control advances deck`);
               const next = await assertActiveGeometry(root, viewport.name, "next slide");
 
               assert.deepEqual(pageErrors, [], `${viewport.name}: no page errors`);
