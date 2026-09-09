@@ -46,10 +46,10 @@ test("Wave5C does not absorb neighboring Brand/Jestei specialization", () => {
   assert.match(components, brandSystem);
 });
 
-test("generic media-group base keeps the explicit spacing resolver outside Wave5C", () => {
-  assert.doesNotMatch(media, /(?:^|\n)\.media-group\s*\{/);
+test("generic media-group base now shares the canonical media owner with Wave5C", () => {
   assert.match(
-    components,
+    media,
     /\.media-group\s*\{[\s\S]*?--group-gap:\s*var\(--media-group-gap,\s*var\(--project-media-gap,\s*var\(--size-300\)\)\);[\s\S]*?--group-row-gap:\s*var\(--media-group-row-gap,\s*var\(--project-media-row-gap,\s*var\(--group-gap\)\)\);[\s\S]*?container:\s*media-group\s*\/\s*inline-size;/,
   );
+  assert.doesNotMatch(components, /(?:^|\n)\.media-group\s*\{/);
 });

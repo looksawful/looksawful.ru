@@ -18,11 +18,10 @@ test("Wave5B first safe slice moves only media-group substructure to the canonic
     /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
   );
 
-  // The generic media-group base still stays outside this ownership slice.
-  // Spacing behavior no longer relies on keeping that base later than an
-  // authored specialization; the base resolves explicit input slots instead.
-  assert.doesNotMatch(media, /(?:^|\n)\.media-group\s*\{/);
-  assert.match(components, /(?:^|\n)\.media-group\s*\{/);
+  // Wave5L later moved the generic base into the same canonical media owner.
+  // Wave5B still guards the substructure and specialization boundaries.
+  assert.match(media, /(?:^|\n)\.media-group\s*\{/);
+  assert.doesNotMatch(components, /(?:^|\n)\.media-group\s*\{/);
 
   for (const selector of movedSelectors) {
     assert.match(media, selector, `media.css must own ${selector}`);
@@ -48,7 +47,7 @@ test("media-group spacing resolves explicit specialization inputs before project
     /\.portfolio-showcase__group\s*\{[\s\S]*?--group-gap:\s*var\(--portfolio-group-gap\);/,
   );
   assert.match(
-    components,
+    media,
     /\.media-group\s*\{[\s\S]*?--group-gap:\s*var\(--media-group-gap,\s*var\(--project-media-gap,\s*var\(--size-300\)\)\);[\s\S]*?--group-row-gap:\s*var\(--media-group-row-gap,\s*var\(--project-media-row-gap,\s*var\(--group-gap\)\)\);[\s\S]*?--group-columns:\s*2;[\s\S]*?--group-mobile-columns:\s*2;[\s\S]*?container:\s*media-group\s*\/\s*inline-size;[\s\S]*?display:\s*grid;[\s\S]*?inline-size:\s*min\(100%,\s*var\(--group-max,\s*var\(--project-media-max\)\)\);[\s\S]*?min-inline-size:\s*0;/,
   );
   assert.match(media, /\.media-group__head\s*\{[\s\S]*?display:\s*grid;[\s\S]*?gap:\s*0\.35rem;/);
