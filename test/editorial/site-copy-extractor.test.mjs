@@ -86,6 +86,31 @@ test("extractCaseDocument emits only auditable copy with stable source locations
   ]);
 });
 
+test("extractCaseDocument covers intro lead, credit lines and notes without generic recursion", () => {
+  const records = extractCaseDocument({
+    page: "case:sensetique",
+    route: "/work/sensetique/",
+    locale: "ru",
+    source: "src/content/cases/sensetique.json",
+    data: {
+      intro: { lead: "Nested lead", debugLabel: "ignore me" },
+      credits: [{ id: "shoot", lines: ["Photographer A", "Producer B"] }],
+      notes: [{ id: "shoot", text: "Editorial note" }],
+      metadata: { description: "ignore metadata" },
+    },
+  });
+
+  assert.deepEqual(
+    records.map(({ section, field, text }) => ({ section, field, text })),
+    [
+      { section: "intro", field: "intro.lead", text: "Nested lead" },
+      { section: "shoot", field: "credits[0].lines[0]", text: "Photographer A" },
+      { section: "shoot", field: "credits[0].lines[1]", text: "Producer B" },
+      { section: "shoot", field: "notes[0].text", text: "Editorial note" },
+    ],
+  );
+});
+
 test("resolveConfiguredCaseSources derives routes from the canonical site manifest", () => {
   const sources = resolveConfiguredCaseSources();
 
