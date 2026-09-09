@@ -28,6 +28,11 @@ test("agent verification workflow is finite, exact-SHA scoped, chat-triggerable,
   assert.match(workflow, /npm run toolchain:doctor -- --json/);
   assert.match(workflow, /npm run test:fast/);
   assert.match(workflow, /browser-launch-probe\.mjs/);
+  assert.match(
+    workflow,
+    /- name: Browser smoke\s*\n\s*if:\s*\$\{\{\s*steps\.request\.outputs\.suite == 'browser-smoke'\s*\}\}\s*\n\s*run:\s*npm run test:e2e:smoke/,
+  );
+  assert.doesNotMatch(workflow, /npm run test:e2e:full/);
   assert.match(workflow, /npm run test:ui:responsive/);
 
   assert.doesNotMatch(workflow, /pull_request_target:/);
