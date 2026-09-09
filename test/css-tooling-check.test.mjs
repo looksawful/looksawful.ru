@@ -55,6 +55,21 @@ test("owner checker catches indented and grouped durable owner selectors", () =>
   }
 });
 
+test("owner checker preserves parent composition through functional pseudos", () => {
+  const sources = new Map([
+    [
+      "src/styles/components.css",
+      ".project__section > :is(.media, .mockup, .slider):only-child { inline-size: 100%; }",
+    ],
+    [
+      "src/styles/project-shell.css",
+      ".project > :is(.media, .slider) { margin-inline: auto; }",
+    ],
+  ]);
+
+  assert.deepEqual(findOwnerViolations(sources), []);
+});
+
 test("owner checker does not confuse related but different class families", () => {
   const sources = new Map([
     ["src/styles/code-block.css", ".code-block { display: grid; }"],
