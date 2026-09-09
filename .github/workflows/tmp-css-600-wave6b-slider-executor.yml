@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
-          fetch-depth: 5
+          fetch-depth: 6
 
       - name: Verify exact RED ancestry and unchanged dev base
         shell: bash
@@ -89,14 +89,8 @@ jobs:
           harsh_test = harsh_test.replace(old_css_path, new_css_path, 1)
           harsh_test_path.write_text(harsh_test)
 
-          old_wave5k = '''test("Wave5K stops before Slider ownership", () => {
-  assert.match(components, /Slider and magazine — interaction without motion/);
-  assert.match(components, /(?:^|\\n)\\.slider\\s*\\{/);
-  assert.doesNotMatch(media, /(?:^|\\n)\\.slider\\s*\\{/);
-});'''
-          new_wave5k = '''test("Wave5K media ownership remains isolated from Slider", () => {
-  assert.doesNotMatch(media, /(?:^|\\n)\\.slider\\s*\\{/);
-});'''
+          old_wave5k = 'test("Wave5K stops before Slider ownership", () => {\n  assert.match(components, /Slider and magazine — interaction without motion/);\n  assert.match(components, /(?:^|\\n)\\.slider\\s*\\{/);\n  assert.doesNotMatch(media, /(?:^|\\n)\\.slider\\s*\\{/);\n});'
+          new_wave5k = 'test("Wave5K media ownership remains isolated from Slider", () => {\n  assert.doesNotMatch(media, /(?:^|\\n)\\.slider\\s*\\{/);\n});'
           if wave5k.count(old_wave5k) != 1:
               raise SystemExit('Wave5K historical Slider boundary did not match exactly once')
           wave5k = wave5k.replace(old_wave5k, new_wave5k, 1)
