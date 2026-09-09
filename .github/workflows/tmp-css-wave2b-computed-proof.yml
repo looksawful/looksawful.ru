@@ -1,0 +1,104 @@
+name: Temporary CSS Wave2B Computed Proof
+
+on:
+  push:
+    branches:
+      - refactor/css-wave2b-event-cover
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Vite site
+        run: npm run build:vite
+
+      - name: Install pinned Chromium headless shell
+        run: npx playwright install --with-deps --only-shell chromium
+
+      - name: Prove Jestei Event computed cover and geometry
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { withE2ERuntime } from "./tools/e2e/runtime.mjs";
+
+          const route = "/work/jestei-pool/";
+          const viewports = [
+            { name: "desktop", width: 1440, height: 1000 },
+            { name: "mobile", width: 390, height: 844 },
+          ];
+
+          await withE2ERuntime(async ({ browser, baseUrl }) => {
+            for (const viewport of viewports) {
+              const page = await browser.newPage({
+                viewport: { width: viewport.width, height: viewport.height },
+              });
+
+              const pageErrors = [];
+              page.on("pageerror", (error) => pageErrors.push(String(error)));
+
+              await page.goto(`${baseUrl}${route}`, { waitUntil: "domcontentloaded" });
+              await page.waitForSelector(
+                ".jestei-event-video-deck .slider__slide > video",
+                { state: "attached" },
+              );
+
+              const evidence = await page
+                .locator(".jestei-event-video-deck .slider__slide > video")
+                .evaluateAll((videos) =>
+                  videos.map((video, index) => {
+                    const slide = video.parentElement;
+                    const videoRect = video.getBoundingClientRect();
+                    const slideRect = slide?.getBoundingClientRect();
+                    const style = getComputedStyle(video);
+                    return {
+                      index,
+                      objectFit: style.objectFit,
+                      objectPosition: style.objectPosition,
+                      videoWidth: videoRect.width,
+                      videoHeight: videoRect.height,
+                      slideWidth: slideRect?.width ?? 0,
+                      slideHeight: slideRect?.height ?? 0,
+                    };
+                  }),
+                );
+
+              assert.ok(evidence.length > 0, `${viewport.name}: Event deck must expose video slides`);
+              for (const item of evidence) {
+                assert.equal(item.objectFit, "cover", `${viewport.name} slide ${item.index}: computed object-fit`);
+                assert.ok(item.videoWidth > 1 && item.videoHeight > 1, `${viewport.name} slide ${item.index}: video has geometry`);
+                assert.ok(item.slideWidth > 1 && item.slideHeight > 1, `${viewport.name} slide ${item.index}: slide has geometry`);
+                assert.ok(
+                  Math.abs(item.videoWidth - item.slideWidth) <= 1,
+                  `${viewport.name} slide ${item.index}: video width fills slide`,
+                );
+                assert.ok(
+                  Math.abs(item.videoHeight - item.slideHeight) <= 1,
+                  `${viewport.name} slide ${item.index}: video height fills slide`,
+                );
+              }
+
+              assert.deepEqual(pageErrors, [], `${viewport.name}: no page errors`);
+              console.log(JSON.stringify({ viewport, route, evidence }));
+              await page.close();
+            }
+          });
+          NODE
