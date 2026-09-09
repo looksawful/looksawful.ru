@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+const readOptional = async (path) => read(path).catch(() => "");
 
 test("agent verification workflow is finite, exact-SHA scoped, chat-triggerable, and read-only", async () => {
   const workflow = await read(".github/workflows/agent-verify.yml");
@@ -27,11 +28,48 @@ test("agent verification workflow is finite, exact-SHA scoped, chat-triggerable,
   assert.match(workflow, /git rev-parse HEAD/);
   assert.match(workflow, /npm run toolchain:doctor -- --json/);
   assert.match(workflow, /npm run test:fast/);
-  assert.match(workflow, /browser-launch-probe\.mjs/);
   assert.match(workflow, /npm run test:ui:responsive/);
 
   assert.doesNotMatch(workflow, /pull_request_target:/);
   assert.doesNotMatch(workflow, /permissions:[\s\S]*?contents:\s*write/);
   assert.doesNotMatch(workflow, /secrets:\s*inherit/);
   assert.doesNotMatch(workflow, /run:\s*\$\{\{\s*inputs\./);
+});
+
+test("proven headless consumers share one fixed browser setup and raw installs cannot regrow", async () => {
+  const [action, agentVerify, responsive] = await Promise.all([
+    readOptional(".github/actions/setup-browser/action.yml"),
+    read(".github/workflows/agent-verify.yml"),
+    read(".github/workflows/ui-responsive.yml"),
+  ]);
+
+  assert.match(action, /^name: Setup pinned headless browser/m);
+  assert.match(action, /npx playwright install --with-deps --only-shell chromium/);
+  assert.match(action, /node tools\/ci\/browser-launch-probe\.mjs/);
+  assert.doesNotMatch(action, /^inputs:/m);
+  assert.doesNotMatch(action, /actions\/cache|ms-playwright|playwright-chromium-/);
+
+  for (const workflow of [agentVerify, responsive]) {
+    assert.match(workflow, /uses: \.\/\.github\/actions\/setup-browser/);
+    assert.doesNotMatch(workflow, /npx playwright install/);
+    assert.doesNotMatch(workflow, /browser-launch-probe\.mjs/);
+  }
+
+  const legacyFullChromiumAllowlist = new Set([
+    "caption-qa.yml",
+    "pages.yml",
+    "quality.yml",
+  ]);
+  const workflowNames = (await readdir(new URL("../.github/workflows/", import.meta.url)))
+    .filter((name) => /\.ya?ml$/.test(name));
+
+  for (const name of workflowNames) {
+    const workflow = await read(`.github/workflows/${name}`);
+    if (/npx playwright install/.test(workflow)) {
+      assert.ok(
+        legacyFullChromiumAllowlist.has(name),
+        `raw Playwright install must use setup-browser or be an explicit legacy exception: ${name}`,
+      );
+    }
+  }
 });
