@@ -26,6 +26,29 @@ const OWNER_RULES = Object.freeze([
     patterns: [/\.project__(?:head|name|role|period)(?=[\s,{.:#>\[])/],
   }),
   Object.freeze({
+    name: "project-shell",
+    owner: "src/styles/project-shell.css",
+    patterns: [
+      /\.project__(?:intro|title|summary|lead|links)(?=[\s,{.:#>\[])/,
+      /\.section-copy(?:__(?:title|text))?(?=[\s,{.:#>\[])/,
+    ],
+  }),
+  Object.freeze({
+    name: "expertise",
+    owner: "src/styles/expertise.css",
+    patterns: [/\.expertise__[\w-]+(?=[\s,{.:#>\[])/],
+  }),
+  Object.freeze({
+    name: "experience",
+    owner: "src/styles/experience.css",
+    patterns: [/\.experience__[\w-]+(?=[\s,{.:#>\[])/],
+  }),
+  Object.freeze({
+    name: "media-core",
+    owner: "src/styles/media.css",
+    patterns: [/\.media-group__head(?=[\s,{.:#>\[])/],
+  }),
+  Object.freeze({
     name: "code-block",
     owner: "src/styles/code-block.css",
     patterns: [/\.code-block(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
@@ -72,16 +95,31 @@ const OWNER_RULES = Object.freeze([
   }),
 ]);
 
-const REQUIRED_COMPONENT_IMPORTS = Object.freeze([
-  "./before-after.css",
-  "./page-flip.css",
-  "./slider.css",
-  "./media-deck.css",
-  "./media-lightbox.css",
-  "./code-block.css",
-  "./project-header.css",
-  "./project-navigation.css",
-  "./site-navigation.css",
+const EXPECTED_IMPORT_GRAPH = Object.freeze([
+  '@import "@fontsource-variable/inter/wght.css";',
+  '@import "./reset.css" layer(reset);',
+  '@import "./tokens.css" layer(tokens);',
+  '@import "./colors.css" layer(colors);',
+  '@import "./base.css" layer(base);',
+  '@import "./patterns.css" layer(patterns);',
+  '@import "./media.css" layer(components);',
+  '@import "./components.css" layer(components);',
+  '@import "./before-after.css" layer(components);',
+  '@import "./code-block.css" layer(components);',
+  '@import "./project-header.css" layer(components);',
+  '@import "./project-navigation.css" layer(components);',
+  '@import "./project-shell.css" layer(components);',
+  '@import "./expertise.css" layer(components);',
+  '@import "./experience.css" layer(components);',
+  '@import "./site-navigation.css" layer(components);',
+  '@import "./page-flip.css" layer(components);',
+  '@import "./slider.css" layer(components);',
+  '@import "./media-deck.css" layer(components);',
+  '@import "./media-lightbox.css" layer(components);',
+  '@import "../components/jestei-theme-organism/jestei-theme-organism.css";',
+  '@import "./captions.css" layer(captions);',
+  '@import "./motion.css" layer(motion);',
+  '@import "./utilities.css" layer(utilities);',
 ]);
 
 const EXPECTED_LAYER_ORDER =
@@ -147,6 +185,12 @@ export function findOwnerViolations(sources, rules = OWNER_RULES) {
   return errors;
 }
 
+function readImportGraph(source) {
+  return (
+    stripComments(source).match(/^[ \t]*@import\s+[^;\n]+;/gm) ?? []
+  ).map((statement) => statement.trim());
+}
+
 function checkManifest(sources) {
   const source = sources.get("src/styles/index.css");
   if (!source) return ["manifest: missing src/styles/index.css"];
@@ -156,11 +200,14 @@ function checkManifest(sources) {
     errors.push("manifest: canonical @layer order changed");
   }
 
-  for (const importPath of REQUIRED_COMPONENT_IMPORTS) {
-    const statement = `@import "${importPath}" layer(components);`;
-    if (!source.includes(statement)) {
-      errors.push(`manifest: missing canonical import ${statement}`);
-    }
+  const actualImports = readImportGraph(source);
+  if (
+    actualImports.length !== EXPECTED_IMPORT_GRAPH.length ||
+    actualImports.some(
+      (statement, index) => statement !== EXPECTED_IMPORT_GRAPH[index],
+    )
+  ) {
+    errors.push("manifest: canonical ordered import graph changed");
   }
   return errors;
 }
@@ -239,7 +286,7 @@ if (isDirectRun) {
     process.exitCode = 1;
   } else {
     console.log(
-      "CSS architecture check passed (9 durable owner families + manifest + incoming lifecycle).",
+      `CSS architecture check passed (${OWNER_RULES.length} durable owner families + ordered manifest + incoming lifecycle).`,
     );
   }
 }
