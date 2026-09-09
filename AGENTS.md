@@ -12,9 +12,11 @@
 - CSS/layout, responsive behavior, GSAP/motion, PhotoSwipe/Embla, Canvas/WebGL or Three.js: use `looksawful-frontend-runtime` first. Add `looksawful-modern-css` for modern CSS/cascade/intrinsic-layout decisions, `looksawful-threejs-shaders` for GLSL/custom-material work, and `looksawful-threejs-assets` for PBR/textures/GLTF asset work.
 - Performance, Core Web Vitals, accessibility, SEO, Lighthouse or broad web-quality work: use `looksawful-web-quality`; add `optimize-web-animations` for jank, CPU/GPU, offscreen animation or lifecycle/leak work.
 - Pages CMS, Media Catalog, uploads, derivatives, content ownership or CMS publication implementation: use `looksawful-media-cms`; use `looksawful-policy-boundaries` as well when policy/protected surfaces are touched.
-- Bugs and unclear runtime failures: use `diagnosing-bugs` before proposing a fix.
+- TypeScript strictness, JS→TS replacement, unsafe casts, `any`, runtime boundary typing, or compiler-contract work: use `looksawful-typescript-strict`.
+- Bugs and unclear runtime failures: use `diagnosing-bugs` before proposing a fix; add `looksawful-playwright-debugging` when the evidence lives in Playwright/browser tests, traces, snapshots, console, network, or visual deltas.
+- GitHub Actions/Fast CI/Agent Verify/Dependency Review/CodeQL/build or browser-gate failures: use `looksawful-ci-debugging`; add `looksawful-policy-boundaries` if the proposed fix changes workflows, permissions, classifiers, package scripts, or another protected guard.
+- Branch creation, worktrees, parallel-agent branches, drift handling, bisect/recovery, or other nontrivial Git operations: use `looksawful-git-operations`. Merge conflicts still use `resolving-merge-conflicts` and are resolved by intent without destructive history operations.
 - Production implementation with a stable behavior seam: use `tdd`, subject to `docs/testing-policy.md`; temporary development tests do not become permanent by default.
-- Merge conflicts: use `resolving-merge-conflicts` and resolve by intent without destructive history operations.
 - Architecture work: use `codebase-design` and `architecture-review`; use `domain-modeling` only when terminology/domain decisions are actually changing.
 - Branch/diff review: use `code-review` and keep repository-standards findings separate from spec/requirements findings.
 - Explicit throwaway design/logic exploration: use `prototype`; prototype code does not get production status by proximity.
