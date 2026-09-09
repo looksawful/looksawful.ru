@@ -116,7 +116,6 @@ jobs:
               const vr = viewport.getBoundingClientRect();
               const es = getComputedStyle(el);
               const vs = getComputedStyle(viewport);
-              const rs = getComputedStyle(rangeEl);
               const revs = getComputedStyle(reveal);
               const ims = getComputedStyle(image);
               return {
@@ -126,7 +125,7 @@ jobs:
                 viewportWidth: vr.width,
                 viewportHeight: vr.height,
                 viewportAspectRatio: vs.aspectRatio,
-                touchAction: rs.touchAction,
+                touchAction: vs.touchAction,
                 revealClipPath: revs.clipPath,
                 objectFit: ims.objectFit,
                 rangeValue: rangeEl.value,
