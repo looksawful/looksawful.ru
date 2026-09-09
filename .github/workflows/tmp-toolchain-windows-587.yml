@@ -1,0 +1,32 @@
+name: Temporary Toolchain Windows Proof
+
+on:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - package.json
+      - tools/ci/toolchain-doctor.mjs
+      - test/toolchain-doctor.test.mjs
+      - .github/workflows/tmp-toolchain-windows-587.yml
+
+permissions:
+  contents: read
+
+jobs:
+  windows-doctor:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Focused doctor contract
+        run: node --test test/toolchain-doctor.test.mjs
+      - name: Human-readable doctor
+        run: npm run toolchain:doctor
+      - name: Machine-readable doctor
+        run: npm run toolchain:doctor -- --json
