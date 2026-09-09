@@ -19,18 +19,44 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
-          fetch-depth: 8
+          fetch-depth: 16
 
-      - name: Verify exact Wave5L lineage and base
+      - name: Refresh from fresh dev with overlap guard
         shell: bash
         env:
           EXPECTED_PREP_HEAD: 26cd512ac297f426c9e5d3218a3ca3defc4d7ff1
-          EXPECTED_BASE: 3e36f9e860d898b7de78564d8ac745819d37abab
+          ORIGINAL_BASE: 3e36f9e860d898b7de78564d8ac745819d37abab
         run: |
           set -euo pipefail
           git merge-base --is-ancestor "$EXPECTED_PREP_HEAD" HEAD
-          git fetch --no-tags --depth=1 origin dev
-          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_BASE"
+          git fetch --no-tags --depth=64 origin dev
+          CURRENT_DEV="$(git rev-parse FETCH_HEAD)"
+          git merge-base --is-ancestor "$ORIGINAL_BASE" "$CURRENT_DEV"
+
+          if git diff --name-only "$ORIGINAL_BASE" "$CURRENT_DEV" -- \
+            src/styles/index.css \
+            src/styles/components.css \
+            src/styles/media.css \
+            test/css-refactor-wave5b-media-group-foundation.test.mjs \
+            test/css-refactor-wave5c-grid-compact.test.mjs \
+            test/css-refactor-wave5l-media-group-base.test.mjs \
+            test/run-fast-tests.mjs | grep -q .; then
+            echo "Fresh dev overlaps Wave5L scope; refusing automatic refresh."
+            git diff --name-only "$ORIGINAL_BASE" "$CURRENT_DEV" -- \
+              src/styles/index.css \
+              src/styles/components.css \
+              src/styles/media.css \
+              test/css-refactor-wave5b-media-group-foundation.test.mjs \
+              test/css-refactor-wave5c-grid-compact.test.mjs \
+              test/css-refactor-wave5l-media-group-base.test.mjs \
+              test/run-fast-tests.mjs
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git merge --no-edit "$CURRENT_DEV"
+          echo "Refreshed Wave5L from dev $CURRENT_DEV"
 
       - name: Apply declaration-preserving Wave5L ownership move
         shell: bash
@@ -116,8 +142,6 @@ jobs:
           BRANCH: refactor/css-461-wave5l-media-group-base
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/tmp-css-583-wave5l-executor.yml
           git add src/styles/components.css src/styles/media.css test/css-refactor-wave5c-grid-compact.test.mjs
           git commit -m "refactor(css): finish generic media-group ownership"
