@@ -10,9 +10,18 @@ test("project cards use a restrained fine-pointer hover treatment", () => {
   assert.match(css, /\.project-card:hover\s+\.project-card__media\s+img\s*\{[^}]*transform:\s*scale\(1\.025\)/s);
 });
 
-test("project card zoom respects reduced motion", () => {
+test("project card zoom respects reduced motion with a winning hover override", () => {
+  const reduceStart = css.indexOf("@media (prefers-reduced-motion: reduce)");
+  assert.notEqual(reduceStart, -1, "reduced-motion media query must exist");
+
+  const reduceCss = css.slice(reduceStart);
   assert.match(
-    css,
-    /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.project-card__media\s+img\s*\{[^}]*transition:\s*none[^}]*transform:\s*none/s,
+    reduceCss,
+    /\.project-card__media\s+img\s*\{[^}]*transition:\s*none/s,
+  );
+  assert.match(
+    reduceCss,
+    /\.project-card:hover\s+\.project-card__media\s+img\s*\{[^}]*transform:\s*none/s,
+    "reduced motion must override the equally specific hover transform, not only the base image",
   );
 });
