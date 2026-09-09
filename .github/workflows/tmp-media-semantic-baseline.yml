@@ -1,0 +1,28 @@
+name: Temporary Media Semantic Baseline
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - "test/fixtures/media-semantic-baseline.json"
+      - "tools/media/export-semantic-baseline.mjs"
+      - ".github/workflows/tmp-media-semantic-baseline.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  export-current:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Export current migration semantic baseline
+        run: node tools/media/export-semantic-baseline.mjs --migration
+      - name: Prove current frozen baseline is stale
+        run: node --test test/media-semantic-baseline.test.mjs
