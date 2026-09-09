@@ -39,7 +39,8 @@ test("agent verification workflow is finite, exact-SHA scoped, chat-triggerable,
   assert.ok(mediaRestore > mediaFingerprint, "browser profiles must restore generated media after fingerprinting");
   assert.ok(mediaVerify > mediaRestore, "restored generated media must be verified before browser build");
   assert.ok(mediaRecover > mediaRestore, "cache miss must recover generated media instead of continuing with missing assets");
-  assert.ok(browserBuild > mediaVerify, "browser build must run only after generated media provisioning");
+  assert.ok(browserBuild > mediaVerify, "browser build must run only after restored generated media verification");
+  assert.ok(browserBuild > mediaRecover, "browser build must run only after cache-miss generated media recovery");
   assert.match(workflow, /generated-media-v3-\$\{\{\s*runner\.os\s*\}\}-\$\{\{\s*steps\.media\.outputs\.fingerprint\s*\}\}/);
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /npm run media:sync/);
