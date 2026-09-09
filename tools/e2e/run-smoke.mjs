@@ -17,6 +17,13 @@ export function getExpectedStaticAnalyticsBootstrapCount(env = process.env) {
   return cloudflareToken || /^[1-9]\d*$/.test(yandexCounterId) ? 1 : 0;
 }
 
+export function formatImageDecodeFailure({ route, src, detail }) {
+  const resolvedRoute = route || "<unknown-route>";
+  const resolvedSrc = src || "<unknown-image>";
+  const resolvedDetail = detail || "decode failed";
+  return `${resolvedRoute}: image decode failed: ${resolvedSrc} (${resolvedDetail})`;
+}
+
 export async function assertBasicAccessibility(page, route) {
   const violations = await page.evaluate(() => {
     const issues = [];
@@ -145,7 +152,18 @@ async function verifyNavigation(page) {
 async function verifyImage(page) {
   const image = page.locator("img:visible").first();
   await image.scrollIntoViewIfNeeded();
-  await image.evaluate(async (node) => { await node.decode(); if (!node.naturalWidth) throw new Error("image decode failed"); });
+  try {
+    await image.evaluate(async (node) => {
+      await node.decode();
+      if (!node.naturalWidth) throw new Error("naturalWidth is 0");
+    });
+  } catch (error) {
+    const src = await image.evaluate((node) => node.currentSrc || node.src || "<unknown-image>")
+      .catch(() => "<unknown-image>");
+    const route = new URL(page.url()).pathname || "/";
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(formatImageDecodeFailure({ route, src, detail }), { cause: error });
+  }
 }
 
 async function verifyCase(page) {
