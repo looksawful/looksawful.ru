@@ -88,11 +88,23 @@ export function selectTests(group, files) {
     );
   }
 
+  if (group === "media-contract") {
+    return tests.filter((file) => derivativeTests.has(file));
+  }
+
+  if (group === "media") {
+    return tests.filter((file) => /^test\/(media-|responsive-|video-delivery)/.test(file));
+  }
+
+  if (group === "cv") {
+    return tests.filter((file) => /^test\/cv-/.test(file));
+  }
+
   if (group === "ci") {
     return tests.filter((file) => ciTests.has(file));
   }
 
-  return [];
+  throw new Error(`unknown test group: ${group}`);
 }
 
 export function runTests(group) {
