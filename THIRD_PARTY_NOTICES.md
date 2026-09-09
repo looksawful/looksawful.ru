@@ -35,6 +35,7 @@ Repository scripts also invoke tooling through `npx` rather than declaring every
 
 - CSpell — MIT: https://github.com/streetsidesoftware/cspell
 - Oxc / Oxlint / Oxfmt — MIT, with Oxc's own third-party notices applying to incorporated components: https://github.com/oxc-project/oxc
+- Stylelint — MIT: https://github.com/stylelint/stylelint
 - CSpell dictionaries and other transient packages remain subject to the license files/metadata shipped by those packages; this repository does not relicense their word lists or data.
 
 ## Fonts and externally served CSS/font files
