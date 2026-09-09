@@ -73,11 +73,6 @@
     mix-blend-mode: darken;
   }
 
-  /* The Jestei landing sequence is presentation media: every slide fills the authored surface. */
-  .jestei-event-video-deck .slider__slide > video {
-    object-fit: cover;
-  }
-
   /* Surface and raster share one radius, avoiding square media clipped only by an ancestor. */
   :is(
     .jestei-interface-group,
