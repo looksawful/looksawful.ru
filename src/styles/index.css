@@ -115,6 +115,10 @@
       transform: none;
     }
 
+    .project-card:hover .project-card__media img {
+      transform: none;
+    }
+
     .project-card__media::after {
       transition: none;
     }
