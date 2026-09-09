@@ -57,6 +57,14 @@ const OWNER_RULES = Object.freeze([
       /(?:^|\n)\[data-deck-(?:dragging|fit(?:-viewport)?)\](?=[\s,{.:#>\[])/,
     ],
   }),
+  Object.freeze({
+    name: "media-lightbox",
+    owner: "src/styles/media-lightbox.css",
+    patterns: [
+      /(?:^|\n)\[data-lightbox-source\](?=\s*\{)/,
+      /(?:^|\n)\.media-lightbox(?:(?:__|--)[\w-]+)?(?=\s*(?:\{|,))/,
+    ],
+  }),
 ]);
 
 const REQUIRED_COMPONENT_IMPORTS = Object.freeze([
@@ -64,6 +72,7 @@ const REQUIRED_COMPONENT_IMPORTS = Object.freeze([
   "./page-flip.css",
   "./slider.css",
   "./media-deck.css",
+  "./media-lightbox.css",
   "./code-block.css",
   "./project-header.css",
   "./project-navigation.css",
@@ -206,7 +215,7 @@ if (isDirectRun) {
     process.exitCode = 1;
   } else {
     console.log(
-      "CSS architecture check passed (8 durable owner families + manifest + incoming lifecycle).",
+      "CSS architecture check passed (9 durable owner families + manifest + incoming lifecycle).",
     );
   }
 }
