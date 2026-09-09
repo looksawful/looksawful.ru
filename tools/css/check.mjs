@@ -57,6 +57,16 @@ const OWNER_RULES = Object.freeze([
       /(?:^|\n)\[data-deck-(?:dragging|fit(?:-viewport)?)\](?=[\s,{.:#>\[])/,
     ],
   }),
+  // Guard only the structural Lightbox shell. captions.css intentionally owns
+  // caption-state/presentation rules for .media-lightbox and __caption.
+  Object.freeze({
+    name: "media-lightbox",
+    owner: "src/styles/media-lightbox.css",
+    patterns: [
+      /(?:^|\n)\[data-lightbox-source\](?=\s*\{)/,
+      /(?:^|\n)\.media-lightbox__(?:layout|figure|button|prev|next|close|video-slide)\b/,
+    ],
+  }),
 ]);
 
 const REQUIRED_COMPONENT_IMPORTS = Object.freeze([
@@ -64,6 +74,7 @@ const REQUIRED_COMPONENT_IMPORTS = Object.freeze([
   "./page-flip.css",
   "./slider.css",
   "./media-deck.css",
+  "./media-lightbox.css",
   "./code-block.css",
   "./project-header.css",
   "./project-navigation.css",
@@ -206,7 +217,7 @@ if (isDirectRun) {
     process.exitCode = 1;
   } else {
     console.log(
-      "CSS architecture check passed (8 durable owner families + manifest + incoming lifecycle).",
+      "CSS architecture check passed (9 durable owner families + manifest + incoming lifecycle).",
     );
   }
 }
