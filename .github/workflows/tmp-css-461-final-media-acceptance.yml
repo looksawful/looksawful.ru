@@ -78,7 +78,8 @@ jobs:
           set -euo pipefail
           test "$CACHE_HIT" = "true" || { echo 'Exact generated-media cache miss; final CSS audit must not regenerate media.' >&2; exit 1; }
           for tree in /tmp/css-original /tmp/css-current; do
-            rm -rf "$tree/public/media/generated"
+            rm -rf "$tree/public/media/generated/responsive" "$tree/public/media/generated/video"
+            rm -f "$tree/public/media/generated/video-inventory.json"
             mkdir -p "$tree/public/media/generated" "$tree/.cache/media"
             cp -a public/media/generated/responsive "$tree/public/media/generated/"
             cp -a public/media/generated/video "$tree/public/media/generated/"
