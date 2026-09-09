@@ -40,11 +40,20 @@ const OWNER_RULES = Object.freeze([
     owner: "src/styles/page-flip.css",
     patterns: [/(?:^|\n)\.page-flip(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
   }),
+  Object.freeze({
+    name: "slider",
+    owner: "src/styles/slider.css",
+    patterns: [
+      /(?:^|\n)\.slider(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|\n)\.slider-controls(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+    ],
+  }),
 ]);
 
 const REQUIRED_COMPONENT_IMPORTS = Object.freeze([
   "./before-after.css",
   "./page-flip.css",
+  "./slider.css",
   "./code-block.css",
   "./project-header.css",
   "./project-navigation.css",
@@ -187,7 +196,7 @@ if (isDirectRun) {
     process.exitCode = 1;
   } else {
     console.log(
-      "CSS architecture check passed (6 durable owner families + manifest + incoming lifecycle).",
+      "CSS architecture check passed (7 durable owner families + manifest + incoming lifecycle).",
     );
   }
 }
