@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { findUnindexedVisibleCopy } from "./site-copy-coverage.mjs";
@@ -8,15 +9,15 @@ function argumentValue(name, fallback) {
   return index >= 0 ? process.argv[index + 1] : fallback;
 }
 
-const root = new URL("../../", import.meta.url);
-const indexPath = fileURLToPath(new URL(argumentValue("--index", "generated/site-copy/index.json"), root));
-const renderedPath = fileURLToPath(new URL(argumentValue("--rendered", "generated/site-copy/rendered.json"), root));
+const rootPath = fileURLToPath(new URL("../../", import.meta.url));
+const indexPath = path.resolve(rootPath, argumentValue("--index", "generated/site-copy/index.json"));
+const renderedPath = path.resolve(rootPath, argumentValue("--rendered", "generated/site-copy/rendered.json"));
 
-async function readJson(path, label) {
+async function readJson(filePath, label) {
   try {
-    return JSON.parse(await readFile(path, "utf8"));
+    return JSON.parse(await readFile(filePath, "utf8"));
   } catch (error) {
-    throw new Error(`${label} is unavailable or invalid: ${path}\n${error.message}`);
+    throw new Error(`${label} is unavailable or invalid: ${filePath}\n${error.message}`);
   }
 }
 
@@ -35,7 +36,7 @@ export async function checkSiteCopyCoverage({ indexFile = indexPath, renderedFil
   return findUnindexedVisibleCopy({ indexed: indexedEntries, rendered: renderedEntries });
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const missing = await checkSiteCopyCoverage();
   if (!missing.length) {
     console.log("Rendered site copy is covered by the source index.");
