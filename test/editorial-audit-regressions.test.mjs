@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
+// Regression coverage for the audited portfolio copy findings 3–9.
 function read(path) {
   return fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 }
