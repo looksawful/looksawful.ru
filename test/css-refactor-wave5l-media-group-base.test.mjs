@@ -15,6 +15,11 @@ test("Wave5L moves the generic media-group base into the canonical media owner",
     /@import "\.\/patterns\.css" layer\(patterns\);\n@import "\.\/media\.css" layer\(components\);\n@import "\.\/components\.css" layer\(components\);/,
   );
   assert.match(media, genericBase);
+  assert.equal(
+    (media.match(/(?:^|\n)\.media-group\s*\{/g) ?? []).length,
+    1,
+    "canonical media owner must contain exactly one generic media-group base",
+  );
   assert.doesNotMatch(components, /(?:^|\n)\.media-group\s*\{/);
 
   const baseIndex = media.search(/(?:^|\n)\.media-group\s*\{/);
