@@ -33,28 +33,28 @@ const OWNER_RULES = Object.freeze([
   Object.freeze({
     name: "before-after",
     owner: "src/styles/before-after.css",
-    patterns: [/(?:^|\n)\.before-after(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
+    patterns: [/(?:^|[\n,{])\s*\.before-after(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
   }),
   Object.freeze({
     name: "page-flip",
     owner: "src/styles/page-flip.css",
-    patterns: [/(?:^|\n)\.page-flip(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
+    patterns: [/(?:^|[\n,{])\s*\.page-flip(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
   }),
   Object.freeze({
     name: "slider",
     owner: "src/styles/slider.css",
     patterns: [
-      /(?:^|\n)\.slider(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
-      /(?:^|\n)\.slider-controls(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|[\n,{])\s*\.slider(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|[\n,{])\s*\.slider-controls(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
     ],
   }),
   Object.freeze({
     name: "media-deck",
     owner: "src/styles/media-deck.css",
     patterns: [
-      /(?:^|\n)\[data-media-deck\](?=[\s,{.:#>\[])/,
-      /(?:^|\n)\.media-deck(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
-      /(?:^|\n)\[data-deck-(?:dragging|fit(?:-viewport)?)\](?=[\s,{.:#>\[])/,
+      /(?:^|[\n,{])\s*\[data-media-deck\](?=[\s,{.:#>\[])/,
+      /(?:^|[\n,{])\s*\.media-deck(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|[\n,{])\s*\[data-deck-(?:dragging|fit(?:-viewport)?)\](?=[\s,{.:#>\[])/,
     ],
   }),
   // Guard only the structural Lightbox shell. captions.css intentionally owns
@@ -63,8 +63,8 @@ const OWNER_RULES = Object.freeze([
     name: "media-lightbox",
     owner: "src/styles/media-lightbox.css",
     patterns: [
-      /(?:^|\n)\[data-lightbox-source\](?=\s*\{)/,
-      /(?:^|\n)\.media-lightbox__(?:layout|figure|button|prev|next|close|video-slide)\b/,
+      /(?:^|[\n,{])\s*\[data-lightbox-source\](?=\s*\{)/,
+      /(?:^|[\n,{])\s*\.media-lightbox__(?:layout|figure|button|prev|next|close|video-slide)\b/,
     ],
   }),
 ]);
@@ -182,6 +182,10 @@ export function findIncomingLifecycleViolations(rawSource) {
 
   if (!readIncomingField(header, "reason")) {
     return ["incoming: lifecycle header requires non-empty reason metadata"];
+  }
+
+  if (!readIncomingField(header, "exit")) {
+    return ["incoming: lifecycle header requires non-empty exit metadata"];
   }
 
   return [];
