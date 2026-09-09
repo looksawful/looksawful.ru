@@ -363,21 +363,6 @@
   margin-inline: auto;
 }
 
-.media-group {
-  /* Resolve authored component inputs before project and system fallbacks. */
-  --group-gap: var(--media-group-gap, var(--project-media-gap, var(--size-300)));
-  --group-row-gap: var(--media-group-row-gap, var(--project-media-row-gap, var(--group-gap)));
-  --group-columns: 2;
-  --group-mobile-columns: 2;
-
-  container: media-group / inline-size;
-  display: grid;
-  gap: clamp(0.9rem, 1.6cqi, 1.5rem);
-  inline-size: min(100%, var(--group-max, var(--project-media-max)));
-  margin-inline: auto;
-  min-inline-size: 0;
-}
-
 /* Jestei Pool — identity / brand-system media group. */
 .media-group.brand-system {
   --brand-system-surface-ratio: 16 / 10;
