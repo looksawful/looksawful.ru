@@ -83,7 +83,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p evidence
-          cat > /tmp/before-after-parity.mjs <<'EOF'
+          cat > before-after-parity.mjs <<'EOF'
           import { chromium } from 'playwright';
           import { writeFile } from 'node:fs/promises';
 
@@ -169,7 +169,7 @@ jobs:
           await browser.close();
           if (failures) process.exitCode = 1;
           EOF
-          node /tmp/before-after-parity.mjs
+          node before-after-parity.mjs
       - uses: actions/upload-artifact@v6
         if: always()
         with:
