@@ -1,0 +1,102 @@
+name: Temporary PR 628 Reduced Motion Proof
+
+on:
+  push:
+    branches:
+      - proof/pr-628-reduced-motion-c31
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v7
+        with:
+          ref: c31ea9e7aefab63f3a8a336d54c6c9979054866b
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify checked-out SHA
+        run: test "$(git rev-parse HEAD)" = "c31ea9e7aefab63f3a8a336d54c6c9979054866b"
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Focused source test
+        run: node --test test/project-card-hover.test.mjs
+      - name: CSS architecture check
+        run: npm run css:check
+      - name: Style lint
+        run: npm run lint:style
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Fast tests
+        run: npm run test:fast
+      - name: Build Vite site
+        run: npm run build:vite
+      - name: Install pinned Chromium headless shell
+        run: npx playwright install --with-deps --only-shell chromium
+      - name: Prove computed reduced-motion behavior
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { withE2ERuntime } from "./tools/e2e/runtime.mjs";
+
+          await withE2ERuntime(async ({ browser, baseUrl }) => {
+            const scenarios = [
+              { name: "no-preference", reducedMotion: "no-preference", expectMotion: true },
+              { name: "reduce", reducedMotion: "reduce", expectMotion: false },
+            ];
+
+            for (const scenario of scenarios) {
+              const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+              await page.emulateMedia({ reducedMotion: scenario.reducedMotion });
+              await page.goto(`${baseUrl}/`, { waitUntil: "domcontentloaded" });
+              const fineHover = await page.evaluate(() => matchMedia("(hover: hover) and (pointer: fine)").matches);
+              assert.equal(fineHover, true, `${scenario.name}: fine hover must be active`);
+
+              await page.evaluate(() => {
+                const fixture = document.createElement("article");
+                fixture.className = "project-card";
+                fixture.setAttribute("data-test-project-card-motion", "");
+                fixture.style.cssText = "position:fixed;left:20px;top:20px;width:320px;height:220px;z-index:999999;display:block";
+                fixture.innerHTML = `<div class="project-card__media" style="width:320px;height:220px;display:block"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='220'%3E%3Crect width='320' height='220' fill='black'/%3E%3C/svg%3E" style="width:320px;height:220px;display:block" /></div>`;
+                document.body.append(fixture);
+              });
+
+              const card = page.locator("[data-test-project-card-motion]");
+              const image = card.locator(".project-card__media img");
+              await card.waitFor({ state: "visible" });
+              await image.waitFor({ state: "visible" });
+              await card.hover();
+              if (scenario.expectMotion) await page.waitForTimeout(950);
+
+              const evidence = await image.evaluate((node) => {
+                const style = getComputedStyle(node);
+                return {
+                  transform: style.transform,
+                  transitionProperty: style.transitionProperty,
+                  transitionDuration: style.transitionDuration,
+                };
+              });
+
+              if (scenario.expectMotion) {
+                assert.notEqual(evidence.transform, "none", "no-preference: hover zoom must remain enabled");
+                assert.notEqual(evidence.transitionProperty, "none", "no-preference: transition must remain enabled");
+              } else {
+                assert.equal(evidence.transform, "none", "reduce: hover zoom must be suppressed");
+                assert.equal(evidence.transitionProperty, "none", "reduce: transition must be disabled");
+              }
+
+              console.log(JSON.stringify({ scenario: scenario.name, evidence }));
+              await page.close();
+            }
+          });
+          NODE
