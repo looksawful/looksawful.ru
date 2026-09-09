@@ -33,7 +33,7 @@ jobs:
           test/project-navigation-mobile-viewport.test.mjs
       - name: Build site
         run: npm run build:vite
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Setup pinned headless browser
+        uses: ./.github/actions/setup-browser
       - name: Responsive UI
         run: npm run test:ui:responsive
