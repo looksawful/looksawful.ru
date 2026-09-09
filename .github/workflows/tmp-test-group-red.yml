@@ -14,7 +14,7 @@ permissions:
 jobs:
   test-group-entrypoints:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -22,7 +22,12 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Install media tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
       - run: node --test test/test-groups.test.mjs
       - run: npm run test:cv
+      - run: npm run test:media
       - run: npm run test:media:contract
       - run: npm run test:media:checks
