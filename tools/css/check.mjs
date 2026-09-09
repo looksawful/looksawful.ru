@@ -57,6 +57,8 @@ const OWNER_RULES = Object.freeze([
       /(?:^|\n)\[data-deck-(?:dragging|fit(?:-viewport)?)\](?=[\s,{.:#>\[])/,
     ],
   }),
+  // Guard only the structural Lightbox shell. captions.css intentionally owns
+  // caption-state/presentation rules for .media-lightbox and __caption.
   Object.freeze({
     name: "media-lightbox",
     owner: "src/styles/media-lightbox.css",
