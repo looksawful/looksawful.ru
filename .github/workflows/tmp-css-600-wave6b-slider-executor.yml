@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
-          fetch-depth: 2
+          fetch-depth: 5
 
       - name: Verify exact RED ancestry and unchanged dev base
         shell: bash
@@ -75,11 +75,8 @@ jobs:
           slider_path.write_text(slider_source)
           components_path.write_text(components)
 
-          old_imports = '''@import "./components.css" layer(components);
-          @import "./before-after.css" layer(components);'''.replace('          ', '')
-          new_imports = '''@import "./components.css" layer(components);
-          @import "./slider.css" layer(components);
-          @import "./before-after.css" layer(components);'''.replace('          ', '')
+          old_imports = '@import "./components.css" layer(components);\n@import "./before-after.css" layer(components);'
+          new_imports = '@import "./components.css" layer(components);\n@import "./slider.css" layer(components);\n@import "./before-after.css" layer(components);'
           if index.count(old_imports) != 1:
               raise SystemExit('components/before-after import anchor did not match exactly once')
           index = index.replace(old_imports, new_imports, 1)
@@ -93,13 +90,13 @@ jobs:
           harsh_test_path.write_text(harsh_test)
 
           old_wave5k = '''test("Wave5K stops before Slider ownership", () => {
-            assert.match(components, /Slider and magazine — interaction without motion/);
-            assert.match(components, /(?:^|\\n)\\.slider\\s*\\{/);
-            assert.doesNotMatch(media, /(?:^|\\n)\\.slider\\s*\\{/);
-          });'''.replace('            ', '')
+  assert.match(components, /Slider and magazine — interaction without motion/);
+  assert.match(components, /(?:^|\\n)\\.slider\\s*\\{/);
+  assert.doesNotMatch(media, /(?:^|\\n)\\.slider\\s*\\{/);
+});'''
           new_wave5k = '''test("Wave5K media ownership remains isolated from Slider", () => {
-            assert.doesNotMatch(media, /(?:^|\\n)\\.slider\\s*\\{/);
-          });'''.replace('            ', '')
+  assert.doesNotMatch(media, /(?:^|\\n)\\.slider\\s*\\{/);
+});'''
           if wave5k.count(old_wave5k) != 1:
               raise SystemExit('Wave5K historical Slider boundary did not match exactly once')
           wave5k = wave5k.replace(old_wave5k, new_wave5k, 1)
