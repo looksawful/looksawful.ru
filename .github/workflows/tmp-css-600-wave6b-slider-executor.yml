@@ -50,12 +50,8 @@ jobs:
           harsh_test = harsh_test_path.read_text()
           wave5k = wave5k_path.read_text()
 
-          slider_marker = '''/* ==================================================
-          Slider and magazine — interaction without motion
-          ================================================== */'''.replace('          ', '')
-          composite_marker = '''/* ==================================================
-          Composite layouts
-          ================================================== */'''.replace('          ', '')
+          slider_marker = "/* ==================================================\n   Slider and magazine — interaction without motion\n   ================================================== */"
+          composite_marker = "/* ==================================================\n   Composite layouts\n   ================================================== */"
 
           if components.count(slider_marker) != 1:
               raise SystemExit(f'expected one Slider section marker, got {components.count(slider_marker)}')
