@@ -1,0 +1,151 @@
+name: tmp-css-600-wave6b-slider-executor
+
+on:
+  push:
+    branches:
+      - refactor/css-462-wave6b-slider
+    paths:
+      - .github/workflows/tmp-css-600-wave6b-slider-executor.yml
+
+permissions:
+  contents: write
+
+jobs:
+  execute:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact RED branch head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+
+      - name: Verify exact RED ancestry and unchanged dev base
+        shell: bash
+        env:
+          EXPECTED_RED_HEAD: 7db2e59e03006fcfeb563edfc52a258b9ff6e49f
+          EXPECTED_BASE: c679ab405c803735af9575c1f64ec794d1bf681a
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$EXPECTED_RED_HEAD" HEAD
+          git fetch --no-tags --depth=1 origin dev
+          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_BASE"
+
+      - name: Apply declaration-preserving Slider ownership move
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          components_path = Path('src/styles/components.css')
+          slider_path = Path('src/styles/slider.css')
+          index_path = Path('src/styles/index.css')
+          harsh_test_path = Path('test/harsh-light-slider-width.test.mjs')
+          wave5k_path = Path('test/css-refactor-wave5k-infinite-reel.test.mjs')
+
+          components = components_path.read_text()
+          index = index_path.read_text()
+          harsh_test = harsh_test_path.read_text()
+          wave5k = wave5k_path.read_text()
+
+          slider_marker = '''/* ==================================================
+          Slider and magazine — interaction without motion
+          ================================================== */'''.replace('          ', '')
+          composite_marker = '''/* ==================================================
+          Composite layouts
+          ================================================== */'''.replace('          ', '')
+
+          if components.count(slider_marker) != 1:
+              raise SystemExit(f'expected one Slider section marker, got {components.count(slider_marker)}')
+          if components.count(composite_marker) != 1:
+              raise SystemExit(f'expected one Composite layouts marker, got {components.count(composite_marker)}')
+          if slider_path.exists():
+              raise SystemExit('src/styles/slider.css already exists')
+
+          start = components.index(slider_marker)
+          end = components.index(composite_marker, start)
+          slider_source = components[start:end].rstrip() + '\n'
+
+          if slider_source.count('\n.slider {') != 1:
+              raise SystemExit('expected exactly one generic .slider block in extracted source')
+          if slider_source.count('\n.slider-controls {') != 1:
+              raise SystemExit('expected exactly one generic .slider-controls block in extracted source')
+          if '!important' in slider_source:
+              raise SystemExit('generic Slider source unexpectedly contains !important')
+
+          components = components[:start] + components[end:]
+          slider_path.write_text(slider_source)
+          components_path.write_text(components)
+
+          old_imports = '''@import "./components.css" layer(components);
+          @import "./before-after.css" layer(components);'''.replace('          ', '')
+          new_imports = '''@import "./components.css" layer(components);
+          @import "./slider.css" layer(components);
+          @import "./before-after.css" layer(components);'''.replace('          ', '')
+          if index.count(old_imports) != 1:
+              raise SystemExit('components/before-after import anchor did not match exactly once')
+          index = index.replace(old_imports, new_imports, 1)
+          index_path.write_text(index)
+
+          old_css_path = 'new URL("../src/styles/components.css", import.meta.url)'
+          new_css_path = 'new URL("../src/styles/slider.css", import.meta.url)'
+          if harsh_test.count(old_css_path) != 1:
+              raise SystemExit('HARSH LIGHT slider CSS owner path did not match exactly once')
+          harsh_test = harsh_test.replace(old_css_path, new_css_path, 1)
+          harsh_test_path.write_text(harsh_test)
+
+          old_wave5k = '''test("Wave5K stops before Slider ownership", () => {
+            assert.match(components, /Slider and magazine — interaction without motion/);
+            assert.match(components, /(?:^|\\n)\\.slider\\s*\\{/);
+            assert.doesNotMatch(media, /(?:^|\\n)\\.slider\\s*\\{/);
+          });'''.replace('            ', '')
+          new_wave5k = '''test("Wave5K media ownership remains isolated from Slider", () => {
+            assert.doesNotMatch(media, /(?:^|\\n)\\.slider\\s*\\{/);
+          });'''.replace('            ', '')
+          if wave5k.count(old_wave5k) != 1:
+              raise SystemExit('Wave5K historical Slider boundary did not match exactly once')
+          wave5k = wave5k.replace(old_wave5k, new_wave5k, 1)
+          wave5k_path.write_text(wave5k)
+          PY
+
+      - name: Focused architecture and behavior contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test \
+            test/css-tooling-check.test.mjs \
+            test/harsh-light-slider-width.test.mjs \
+            test/css-refactor-wave5k-infinite-reel.test.mjs \
+            test/caption-lightbox-contract.test.mjs
+
+      - name: Stylelint and diff hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run lint:style
+          git diff --check
+          test "$(grep -c '^\.slider {$' src/styles/slider.css)" -eq 1
+          test "$(grep -c '^\.slider {$' src/styles/components.css || true)" -eq 0
+          test "$(grep -c '^\.slider-controls {$' src/styles/slider.css)" -eq 1
+          test "$(grep -c '^\.slider-controls {$' src/styles/components.css || true)" -eq 0
+          node tools/css/check.mjs
+
+      - name: Remove one-shot executor and commit product tree
+        shell: bash
+        env:
+          BRANCH: refactor/css-462-wave6b-slider
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/tmp-css-600-wave6b-slider-executor.yml
+          git add \
+            src/styles/components.css \
+            src/styles/slider.css \
+            src/styles/index.css \
+            test/harsh-light-slider-width.test.mjs \
+            test/css-refactor-wave5k-infinite-reel.test.mjs
+          git commit -m "refactor(css): extract Slider style ownership"
+          git push origin "HEAD:$BRANCH"
