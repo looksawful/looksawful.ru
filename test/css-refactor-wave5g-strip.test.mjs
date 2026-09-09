@@ -50,13 +50,12 @@ test("Wave5G keeps portfolio strip inputs in the component owner", () => {
   assert.doesNotMatch(media, /portfolio-showcase/);
 });
 
-test("Wave5G stops before bento and infinite-reel ownership", () => {
-  for (const pattern of [
-    /(?:^|\n)\[data-infinite-reel\]\s*\{/,
-  ]) {
-    assert.doesNotMatch(media, pattern, `media.css must not absorb later family ${pattern}`);
-    assert.match(components, pattern, `components.css must retain later family ${pattern}`);
-  }
+test("Wave5G strip remains before infinite reel in media source order", () => {
+  const strip = media.indexOf("Equal-height media strip");
+  const infiniteReel = media.indexOf("Infinite reel");
+  assert.notEqual(strip, -1);
+  assert.notEqual(infiniteReel, -1);
+  assert.ok(strip < infiniteReel);
 });
 
 test("Wave5G follows the already accepted sequence family in media source order", () => {

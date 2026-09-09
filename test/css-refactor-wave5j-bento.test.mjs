@@ -58,10 +58,12 @@ test("Wave5J keeps bento authored inputs in typed renderers", () => {
   assert.doesNotMatch(media, /--bento-(?:rows|columns|cell-size|height|col-span|row-span)\s*:/);
 });
 
-test("Wave5J stops before infinite-reel ownership", () => {
-  const infiniteReel = /(?:^|\n)\[data-infinite-reel\]\s*\{/;
-  assert.doesNotMatch(media, infiniteReel, "media.css must not absorb infinite-reel runtime ownership");
-  assert.match(components, infiniteReel, "components.css must retain infinite-reel runtime ownership");
+test("Wave5J bento remains before infinite reel in media source order", () => {
+  const bento = media.indexOf("Fixed-row bento");
+  const infiniteReel = media.indexOf("Infinite reel");
+  assert.notEqual(bento, -1);
+  assert.notEqual(infiniteReel, -1);
+  assert.ok(bento < infiniteReel);
 });
 
 test("Wave5J bento follows masonry in media source order", () => {

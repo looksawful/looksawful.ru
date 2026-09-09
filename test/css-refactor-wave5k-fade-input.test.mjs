@@ -4,8 +4,9 @@ import test from "node:test";
 import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
+const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 
-const genericInfiniteReelBlock = components.match(/\[data-infinite-reel\]\s*\{[\s\S]*?\n\}/)?.[0] ?? "";
+const genericInfiniteReelBlock = media.match(/\[data-infinite-reel\]\s*\{[\s\S]*?\n\}/)?.[0] ?? "";
 
 const fadeFallback = "var(--infinite-reel-fade-size, clamp(2rem, 7cqi, 6rem))";
 
@@ -22,15 +23,15 @@ test("Wave5K generic infinite reel does not overwrite the authored fade input", 
 });
 
 test("Wave5K mask consumers provide the generic fade fallback at the read site", () => {
-  assert.equal(components.includes(`black ${fadeFallback}`), true);
-  assert.equal(components.includes(`black calc(100% - ${fadeFallback})`), true);
+  assert.equal(media.includes(`black ${fadeFallback}`), true);
+  assert.equal(media.includes(`black calc(100% - ${fadeFallback})`), true);
 
-  const fallbackOccurrences = components.split(fadeFallback).length - 1;
+  const fallbackOccurrences = media.split(fadeFallback).length - 1;
   assert.equal(fallbackOccurrences, 4, "both prefixed and standard gradients must use the same fallback twice");
 });
 
 test("Wave5K fade remediation does not invent a duplicate configuration variable", () => {
-  assert.doesNotMatch(components, /--(?:media-group|reel)-infinite-reel-fade-size\s*:/);
+  assert.doesNotMatch(`${components}\n${media}`, /--(?:media-group|reel)-infinite-reel-fade-size\s*:/);
 });
 
 test("Wave5K fade input contract is mandatory in Fast CI", () => {

@@ -27,6 +27,7 @@
   }
 
   [data-infinite-reel][data-animated="true"] > [data-infinite-reel-track] {
+    animation: infinite-reel-scroll var(--infinite-reel-duration) linear infinite;
     animation-play-state: paused;
     will-change: auto;
   }
@@ -35,5 +36,11 @@
     > [data-infinite-reel-track] {
     animation-play-state: running;
     will-change: transform;
+  }
+}
+
+@keyframes infinite-reel-scroll {
+  to {
+    transform: translate3d(calc(-50% - (var(--infinite-reel-gap) / 2)), 0, 0);
   }
 }
