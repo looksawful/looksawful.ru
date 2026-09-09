@@ -72,6 +72,19 @@ test("production CV analytics bootstrap expectation follows configured providers
   );
 });
 
+test("production image decode diagnostics identify route and concrete image source", async () => {
+  const smoke = await import("../tools/e2e/run-smoke.mjs");
+  assert.equal(typeof smoke.formatImageDecodeFailure, "function");
+  assert.equal(
+    smoke.formatImageDecodeFailure({
+      route: "/work/styx/",
+      src: "https://www.looksawful.ru/media/example.webp",
+      detail: "The source image cannot be decoded.",
+    }),
+    "/work/styx/: image decode failed: https://www.looksawful.ru/media/example.webp (The source image cannot be decoded.)",
+  );
+});
+
 test("package scripts expose production E2E without changing standalone smoke commands", async () => {
   const pkg = JSON.parse(await read("package.json"));
   assert.equal(pkg.scripts["test:e2e:production"], "node tools/e2e/run-production.mjs");
