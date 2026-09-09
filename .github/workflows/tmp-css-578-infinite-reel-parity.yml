@@ -41,24 +41,29 @@ jobs:
         uses: actions/cache/restore@v6
         with:
           path: |
-            candidate/public/media/generated/responsive
-            candidate/public/media/generated/video
-            candidate/public/media/generated/video-inventory.json
-            candidate/.cache/media/generated-cache.json
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
           key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
-      - name: Require existing cache and mirror into base
+      - name: Require existing cache and mirror into exact trees
         shell: bash
         env:
           CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
         run: |
           set -euo pipefail
           test "$CACHE_HIT" = "true" || { echo 'Exact generated-media cache miss; CSS parity must not regenerate media.' >&2; exit 1; }
-          (cd candidate && node tools/media-dev-state.mjs --cache-verify)
+          mkdir -p candidate/public/media/generated candidate/.cache/media
           mkdir -p base/public/media/generated base/.cache/media
-          cp -a candidate/public/media/generated/responsive base/public/media/generated/
-          cp -a candidate/public/media/generated/video base/public/media/generated/
-          cp -a candidate/public/media/generated/video-inventory.json base/public/media/generated/
-          cp candidate/.cache/media/generated-cache.json base/.cache/media/
+          cp -a public/media/generated/responsive candidate/public/media/generated/
+          cp -a public/media/generated/video candidate/public/media/generated/
+          cp -a public/media/generated/video-inventory.json candidate/public/media/generated/
+          cp .cache/media/generated-cache.json candidate/.cache/media/
+          cp -a public/media/generated/responsive base/public/media/generated/
+          cp -a public/media/generated/video base/public/media/generated/
+          cp -a public/media/generated/video-inventory.json base/public/media/generated/
+          cp .cache/media/generated-cache.json base/.cache/media/
+          (cd candidate && node tools/media-dev-state.mjs --cache-verify)
           (cd base && node tools/media-dev-state.mjs --cache-verify)
       - run: npx playwright install --with-deps chromium
         working-directory: candidate
