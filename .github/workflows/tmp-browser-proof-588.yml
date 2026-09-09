@@ -1,0 +1,44 @@
+name: Temporary Browser Proof 588
+
+on:
+  push:
+    branches:
+      - ci/browser-bootstrap-586
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Browser provisioning contract
+        run: node --test test/browser-provisioning-contract.test.mjs
+      - name: Build site
+        run: npm run build:vite
+      - name: Install pinned Chromium headless shell
+        shell: bash
+        run: |
+          start=$(date +%s%3N)
+          npx playwright install --with-deps --only-shell chromium
+          end=$(date +%s%3N)
+          echo "install_ms=$((end-start))"
+      - name: Verify pinned browser launch
+        shell: bash
+        run: |
+          start=$(date +%s%3N)
+          node tools/ci/browser-launch-probe.mjs
+          end=$(date +%s%3N)
+          echo "launch_ms=$((end-start))"
+      - name: Responsive UI
+        run: npm run test:ui:responsive
