@@ -19,6 +19,7 @@
 @import "./site-navigation.css" layer(components);
 @import "./page-flip.css" layer(components);
 @import "./slider.css" layer(components);
+@import "./media-deck.css" layer(components);
 @import "../components/jestei-theme-organism/jestei-theme-organism.css";
 @import "./captions.css" layer(captions);
 @import "./motion.css" layer(motion);
