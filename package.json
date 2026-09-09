@@ -58,7 +58,7 @@
     "test:e2e:projects": "node tools/e2e/smoke-project-pages.mjs",
     "test:e2e:cv": "node tools/e2e/smoke-cv.mjs",
     "test:e2e:full": "node tools/e2e/run-all.mjs",
-    "test:e2e:smoke": "node tools/e2e/run-smoke.mjs",
+    "test:e2e:smoke": "node tools/e2e/diagnose-638.mjs && node tools/e2e/run-smoke.mjs",
     "test:e2e:affected": "node tools/e2e/run-affected.mjs",
     "test:e2e:media-desk": "node tools/e2e/run-media-desk.mjs",
     "test:e2e:production": "node tools/e2e/run-production.mjs",
