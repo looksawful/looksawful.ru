@@ -115,18 +115,53 @@ function checkManifest(sources) {
   return errors;
 }
 
+function readIncomingField(header, name) {
+  const pattern = new RegExp(
+    `(?:^|\\n)\\s*\\*?\\s*${name}:\\s*([^\\n\\r*]+)`,
+    "i",
+  );
+  return header.match(pattern)?.[1]?.trim() ?? "";
+}
+
+export function findIncomingLifecycleViolations(rawSource) {
+  if (!stripComments(rawSource).trim()) return [];
+
+  const markers = rawSource.match(/@incoming\b/g) ?? [];
+  if (markers.length === 0) {
+    return ["incoming: non-empty incoming.css requires @incoming lifecycle metadata"];
+  }
+  if (markers.length !== 1) {
+    return [
+      "incoming: incoming.css allows exactly one @incoming lifecycle header",
+    ];
+  }
+
+  const header = rawSource.match(/\/\*[\s\S]*?@incoming\b[\s\S]*?\*\//)?.[0];
+  if (!header) {
+    return ["incoming: @incoming lifecycle metadata must be inside a CSS comment"];
+  }
+
+  const issue = readIncomingField(header, "issue");
+  if (!/^#\d+$/.test(issue)) {
+    return ["incoming: lifecycle header requires issue: #<number> metadata"];
+  }
+
+  if (!readIncomingField(header, "target")) {
+    return ["incoming: lifecycle header requires non-empty target metadata"];
+  }
+
+  if (!readIncomingField(header, "reason")) {
+    return ["incoming: lifecycle header requires non-empty reason metadata"];
+  }
+
+  return [];
+}
+
 function checkIncoming(root) {
   const incomingPath = path.join(root, "src/styles/incoming.css");
   if (!existsSync(incomingPath)) return [];
 
-  const source = stripComments(readFileSync(incomingPath, "utf8")).trim();
-  if (!source) return [];
-
-  const rawSource = readFileSync(incomingPath, "utf8");
-  if (!rawSource.includes("@incoming")) {
-    return ["incoming: non-empty incoming.css requires @incoming lifecycle metadata"];
-  }
-  return [];
+  return findIncomingLifecycleViolations(readFileSync(incomingPath, "utf8"));
 }
 
 export function checkCssArchitecture(root) {
@@ -138,15 +173,21 @@ export function checkCssArchitecture(root) {
   ];
 }
 
-const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isDirectRun =
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
 if (isDirectRun) {
   const root = fileURLToPath(new URL("../../", import.meta.url));
   const errors = checkCssArchitecture(root);
+
   if (errors.length) {
     console.error("CSS architecture check failed:\n");
     for (const error of errors) console.error(`- ${error}`);
     process.exitCode = 1;
   } else {
-    console.log("CSS architecture check passed (6 durable owner families + manifest + incoming lifecycle).");
+    console.log(
+      "CSS architecture check passed (6 durable owner families + manifest + incoming lifecycle).",
+    );
   }
 }

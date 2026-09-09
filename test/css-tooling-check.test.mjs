@@ -5,6 +5,7 @@ import test from "node:test";
 
 import {
   checkCssArchitecture,
+  findIncomingLifecycleViolations,
   findOwnerViolations,
 } from "../tools/css/check.mjs";
 
@@ -52,4 +53,49 @@ test("owner checker does not confuse related but different class families", () =
   ]);
 
   assert.deepEqual(errors, []);
+});
+
+test("incoming lifecycle accepts one fully described temporary family", () => {
+  const source = `/* @incoming\n * issue: #590\n * target: component:example\n * reason: owner is not stable yet\n */\n.example { display: grid; }`;
+
+  assert.deepEqual(findIncomingLifecycleViolations(source), []);
+});
+
+test("incoming lifecycle rejects missing or malformed required metadata", () => {
+  const cases = [
+    {
+      source: ".example { display: grid; }",
+      expected:
+        "incoming: non-empty incoming.css requires @incoming lifecycle metadata",
+    },
+    {
+      source: `/* @incoming\n * issue: later\n * target: component:example\n * reason: owner is not stable yet\n */\n.example { display: grid; }`,
+      expected: "incoming: lifecycle header requires issue: #<number> metadata",
+    },
+    {
+      source: `/* @incoming\n * issue: #590\n * reason: owner is not stable yet\n */\n.example { display: grid; }`,
+      expected: "incoming: lifecycle header requires non-empty target metadata",
+    },
+    {
+      source: `/* @incoming\n * issue: #590\n * target: component:example\n */\n.example { display: grid; }`,
+      expected: "incoming: lifecycle header requires non-empty reason metadata",
+    },
+    {
+      source: `@incoming;\n.example { display: grid; }`,
+      expected:
+        "incoming: @incoming lifecycle metadata must be inside a CSS comment",
+    },
+  ];
+
+  for (const { source, expected } of cases) {
+    assert.deepEqual(findIncomingLifecycleViolations(source), [expected]);
+  }
+});
+
+test("incoming lifecycle is a single-slot quarantine", () => {
+  const source = `/* @incoming\n * issue: #590\n * target: component:first\n * reason: first owner is not stable\n */\n.first { display: grid; }\n\n/* @incoming\n * issue: #591\n * target: component:second\n * reason: second owner is not stable\n */\n.second { display: grid; }`;
+
+  assert.deepEqual(findIncomingLifecycleViolations(source), [
+    "incoming: incoming.css allows exactly one @incoming lifecycle header",
+  ]);
 });
