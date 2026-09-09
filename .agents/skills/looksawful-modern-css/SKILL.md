@@ -20,7 +20,19 @@ Use this as a focused reference after `looksawful-frontend-runtime`. The reposit
 
 Do not introduce Tailwind, UnoCSS, Sass/SCSS, CSS-in-JS, BEM migration, a new reset, a new token system or Animate.css without an explicit architecture/dependency decision.
 
-Do not treat MDN Baseline or a generic compatibility table as the project's browser policy. Read the current repository configuration and verify version-sensitive behavior when it matters.
+## Browser support comes from the repository
+
+The canonical browser-support contract is `docs/testing-policy.md#13-browser-support-and-verification-contract`.
+
+Treat MDN Baseline and current browser documentation as supporting evidence, not project policy. Normal repository browser acceptance is Chromium-centered; a GREEN Chromium run does not prove Firefox or Safari/WebKit behavior.
+
+Before adding version-sensitive CSS:
+
+1. read the canonical contract;
+2. identify whether the task requires an additional browser engine or version;
+3. add the smallest fallback or focused engine evidence only when the task's support requirement needs it.
+
+Do not add speculative compatibility scaffolding.
 
 ## Upstream reference
 
