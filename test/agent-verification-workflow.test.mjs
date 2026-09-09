@@ -20,6 +20,11 @@ test("agent verification workflow is finite, exact-SHA scoped, chat-triggerable,
   assert.match(workflow, /author_association/);
   assert.match(workflow, /OWNER/);
   assert.match(workflow, /COLLABORATOR/);
+  assert.match(
+    workflow,
+    /startsWith\(github\.event\.comment\.body, '\/verify'\)/,
+    "ordinary PR prose comments must not enter Agent Verify; /verify-prefixed attempts remain parser-validated",
+  );
   assert.match(workflow, /\/verify/);
   assert.match(workflow, /\[0-9a-fA-F\]\{40\}/);
   assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
