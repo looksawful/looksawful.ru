@@ -45,7 +45,7 @@ export const engagements = [
   },
   {
     id: "berry-agency-2020",
-    date: "2020",
+    date: "2016–2017",
     clientIds: ["berry-agency"],
     primaryRoleId: "smm-manager",
     primaryRoleLabel: "СММ",
@@ -63,7 +63,7 @@ export const engagements = [
   },
   {
     id: "mad-cow-films-2019",
-    date: "2019",
+    date: "2018",
     clientIds: ["mad-cow-films"],
     primaryRoleId: "assistant-producer",
     primaryRoleLabel: "ассистент продюсера",
@@ -71,7 +71,7 @@ export const engagements = [
   },
   {
     id: "li-ne-agency-2017",
-    date: "2017",
+    date: "2016–2017",
     clientIds: ["li-ne-agency"],
     primaryRoleId: "junior-producer",
     primaryRoleLabel: "JR продюсер",
