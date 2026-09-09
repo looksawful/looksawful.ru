@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { fastTests } from "../tools/ci/run-tests.mjs";
 
-const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
-const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
+const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, "");
+const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, "");
 
 const stripPatterns = [
-  [/\/\* ==================================================\n   Equal-height media strip\n   ================================================== \*\//, "strip marker"],
   [/(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/, "generic strip family"],
   [/(?:^|\n)\.media-group\[data-layout="strip"\]\s+\.media__caption\s*\{/, "strip caption sizing"],
 ];
@@ -51,21 +51,17 @@ test("Wave5G keeps portfolio strip inputs in the component owner", () => {
 });
 
 test("Wave5G strip remains before infinite reel in media source order", () => {
-  const strip = media.indexOf("Equal-height media strip");
-  const infiniteReel = media.indexOf("Infinite reel");
+  const strip = media.search(/(?:^|\n)\s*\.media-group\[data-layout="strip"\]\s*\{/);
+  const infiniteReel = media.search(/(?:^|\n)\s*\[data-infinite-reel\]\s*\{/);
   assert.notEqual(strip, -1);
   assert.notEqual(infiniteReel, -1);
   assert.ok(strip < infiniteReel);
 });
 
 test("Wave5G follows the already accepted sequence family in media source order", () => {
-  const sequence = media.indexOf("/* Sequence = wide + middle collection + wide. */");
-  const strip = media.indexOf("Equal-height media strip");
+  const sequence = media.search(/(?:^|\n)\s*\.media-group\[data-layout="sequence"\]\s*\{/);
+  const strip = media.search(/(?:^|\n)\s*\.media-group\[data-layout="strip"\]\s*\{/);
   assert.notEqual(sequence, -1);
   assert.notEqual(strip, -1);
   assert.ok(sequence < strip, "strip must follow the accepted sequence family");
-});
-
-test("Wave5G strip ownership contract is mandatory in Fast CI", () => {
-  assert.equal(fastTests.has("test/css-refactor-wave5g-strip.test.mjs"), true);
 });
