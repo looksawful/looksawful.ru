@@ -131,7 +131,10 @@ test("scheduled quality keeps broad nightly checks and moves physical media audi
   assert.match(workflow, /cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}/);
   assert.match(workflow, /Resolve exact target SHA/);
   assert.match(workflow, /needs\.resolve-target\.outputs\.target-sha/);
-  assert.match(workflow, /full-e2e:[\s\S]*?Install media tooling[\s\S]*?ffmpeg[\s\S]*?npm run test:core/);
+  assert.match(workflow, /prepare-media:[\s\S]*?Install media tooling[\s\S]*?ffmpeg[\s\S]*?Rebuild and validate generated media once[\s\S]*?npm run media:sync/);
+  const fullE2E = workflow.match(/\n  full-e2e:\n([\s\S]*?)\n  lighthouse:/)?.[1] ?? "";
+  assert.doesNotMatch(fullE2E, /ffmpeg|Install media tooling/);
+  assert.match(fullE2E, /Restore exact prepared media[\s\S]*?fail-on-cache-miss: true[\s\S]*?media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /npm run test:e2e:full/);
   assert.match(workflow, /media-physical:[\s\S]*?github\.event\.schedule == '53 2 \* \* 0'[\s\S]*?npm run media:dedupe:physical/);
   assert.match(workflow, /npm run audit:deps/);
