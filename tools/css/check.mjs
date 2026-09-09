@@ -48,12 +48,22 @@ const OWNER_RULES = Object.freeze([
       /(?:^|\n)\.slider-controls(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
     ],
   }),
+  Object.freeze({
+    name: "media-deck",
+    owner: "src/styles/media-deck.css",
+    patterns: [
+      /(?:^|\n)\[data-media-deck\](?=[\s,{.:#>\[])/,
+      /(?:^|\n)\.media-deck(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|\n)\[data-deck-(?:dragging|fit(?:-viewport)?)\](?=[\s,{.:#>\[])/,
+    ],
+  }),
 ]);
 
 const REQUIRED_COMPONENT_IMPORTS = Object.freeze([
   "./before-after.css",
   "./page-flip.css",
   "./slider.css",
+  "./media-deck.css",
   "./code-block.css",
   "./project-header.css",
   "./project-navigation.css",
@@ -196,7 +206,7 @@ if (isDirectRun) {
     process.exitCode = 1;
   } else {
     console.log(
-      "CSS architecture check passed (7 durable owner families + manifest + incoming lifecycle).",
+      "CSS architecture check passed (8 durable owner families + manifest + incoming lifecycle).",
     );
   }
 }
