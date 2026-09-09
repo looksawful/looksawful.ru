@@ -10,6 +10,7 @@
 @import "./media.css" layer(components);
 @import "./components.css" layer(components);
 @import "./before-after.css" layer(components);
+@import "./page-flip.css" layer(components);
 @import "./code-block.css" layer(components);
 @import "./project-header.css" layer(components);
 @import "./project-navigation.css" layer(components);
