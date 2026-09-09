@@ -33,7 +33,7 @@ jobs:
       - name: Install pinned Chromium headless shell
         run: npx playwright install --with-deps --only-shell chromium
 
-      - name: Prove Jestei Event computed cover and geometry
+      - name: Prove Jestei Event computed cover and active-slide geometry
         shell: bash
         run: |
           node --input-type=module <<'NODE'
@@ -41,63 +41,84 @@ jobs:
           import { withE2ERuntime } from "./tools/e2e/runtime.mjs";
 
           const route = "/work/jestei-pool/";
+          const selector = ".jestei-event-video-deck";
           const viewports = [
             { name: "desktop", width: 1440, height: 1000 },
             { name: "mobile", width: 390, height: 844 },
           ];
+
+          const assertActiveGeometry = async (root, viewportName, phase) => {
+            const active = root.locator(".slider__slide[data-active] > video").first();
+            await active.waitFor({ state: "attached" });
+            const evidence = await active.evaluate((video) => {
+              const slide = video.parentElement;
+              const videoRect = video.getBoundingClientRect();
+              const slideRect = slide?.getBoundingClientRect();
+              const style = getComputedStyle(video);
+              return {
+                objectFit: style.objectFit,
+                objectPosition: style.objectPosition,
+                videoWidth: videoRect.width,
+                videoHeight: videoRect.height,
+                slideWidth: slideRect?.width ?? 0,
+                slideHeight: slideRect?.height ?? 0,
+              };
+            });
+
+            assert.equal(evidence.objectFit, "cover", `${viewportName} ${phase}: computed object-fit`);
+            assert.ok(evidence.videoWidth > 1 && evidence.videoHeight > 1, `${viewportName} ${phase}: active video has geometry`);
+            assert.ok(evidence.slideWidth > 1 && evidence.slideHeight > 1, `${viewportName} ${phase}: active slide has geometry`);
+            assert.ok(Math.abs(evidence.videoWidth - evidence.slideWidth) <= 1, `${viewportName} ${phase}: video width fills slide`);
+            assert.ok(Math.abs(evidence.videoHeight - evidence.slideHeight) <= 1, `${viewportName} ${phase}: video height fills slide`);
+            return evidence;
+          };
 
           await withE2ERuntime(async ({ browser, baseUrl }) => {
             for (const viewport of viewports) {
               const page = await browser.newPage({
                 viewport: { width: viewport.width, height: viewport.height },
               });
-
               const pageErrors = [];
               page.on("pageerror", (error) => pageErrors.push(String(error)));
 
               await page.goto(`${baseUrl}${route}`, { waitUntil: "domcontentloaded" });
-              await page.waitForSelector(
-                ".jestei-event-video-deck .slider__slide > video",
-                { state: "attached" },
+              const root = page.locator(selector).first();
+              await root.waitFor({ state: "attached" });
+
+              const allFits = await root
+                .locator(".slider__slide > video")
+                .evaluateAll((videos) => videos.map((video) => getComputedStyle(video).objectFit));
+              assert.ok(allFits.length > 0, `${viewport.name}: Event deck must expose video slides`);
+              assert.deepEqual(
+                allFits,
+                allFits.map(() => "cover"),
+                `${viewport.name}: every Event video resolves computed cover even while inactive`,
               );
 
-              const evidence = await page
-                .locator(".jestei-event-video-deck .slider__slide > video")
-                .evaluateAll((videos) =>
-                  videos.map((video, index) => {
-                    const slide = video.parentElement;
-                    const videoRect = video.getBoundingClientRect();
-                    const slideRect = slide?.getBoundingClientRect();
-                    const style = getComputedStyle(video);
-                    return {
-                      index,
-                      objectFit: style.objectFit,
-                      objectPosition: style.objectPosition,
-                      videoWidth: videoRect.width,
-                      videoHeight: videoRect.height,
-                      slideWidth: slideRect?.width ?? 0,
-                      slideHeight: slideRect?.height ?? 0,
-                    };
-                  }),
-                );
+              const initialIndex = await root
+                .locator("[data-slide]")
+                .evaluateAll((slides) => slides.findIndex((slide) => slide.hasAttribute("data-active")));
+              assert.ok(initialIndex >= 0, `${viewport.name}: initial active slide exists`);
+              const first = await assertActiveGeometry(root, viewport.name, "initial slide");
 
-              assert.ok(evidence.length > 0, `${viewport.name}: Event deck must expose video slides`);
-              for (const item of evidence) {
-                assert.equal(item.objectFit, "cover", `${viewport.name} slide ${item.index}: computed object-fit`);
-                assert.ok(item.videoWidth > 1 && item.videoHeight > 1, `${viewport.name} slide ${item.index}: video has geometry`);
-                assert.ok(item.slideWidth > 1 && item.slideHeight > 1, `${viewport.name} slide ${item.index}: slide has geometry`);
-                assert.ok(
-                  Math.abs(item.videoWidth - item.slideWidth) <= 1,
-                  `${viewport.name} slide ${item.index}: video width fills slide`,
-                );
-                assert.ok(
-                  Math.abs(item.videoHeight - item.slideHeight) <= 1,
-                  `${viewport.name} slide ${item.index}: video height fills slide`,
-                );
-              }
+              await root.locator(".slider__slide[data-active] > video").first().dispatchEvent("ended");
+              await page.waitForFunction(
+                ({ selector, initialIndex }) => {
+                  const deck = document.querySelector(selector);
+                  if (!deck) return false;
+                  const slides = [...deck.querySelectorAll("[data-slide]")];
+                  return slides.findIndex((slide) => slide.hasAttribute("data-active")) !== initialIndex;
+                },
+                { selector, initialIndex },
+              );
+              const nextIndex = await root
+                .locator("[data-slide]")
+                .evaluateAll((slides) => slides.findIndex((slide) => slide.hasAttribute("data-active")));
+              assert.notEqual(nextIndex, initialIndex, `${viewport.name}: deck advances to the next slide`);
+              const next = await assertActiveGeometry(root, viewport.name, "next slide");
 
               assert.deepEqual(pageErrors, [], `${viewport.name}: no page errors`);
-              console.log(JSON.stringify({ viewport, route, evidence }));
+              console.log(JSON.stringify({ viewport, route, initialIndex, nextIndex, first, next, allFits }));
               await page.close();
             }
           });
