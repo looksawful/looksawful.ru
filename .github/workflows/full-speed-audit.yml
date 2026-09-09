@@ -1,0 +1,322 @@
+name: Temporary Full Speed Audit
+
+on:
+  pull_request:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: temporary-full-speed-audit-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  node-and-static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - id: npmci
+        name: npm ci
+        run: npm ci
+      - id: doctor
+        name: toolchain doctor
+        continue-on-error: true
+        run: npm run toolchain:doctor -- --json
+      - id: typecheck
+        name: typecheck
+        continue-on-error: true
+        run: npm run typecheck
+      - id: fast
+        name: test fast
+        continue-on-error: true
+        run: npm run test:fast
+      - id: unit
+        name: test unit
+        continue-on-error: true
+        run: npm run test:unit
+      - id: ci
+        name: test ci
+        continue-on-error: true
+        run: npm run test:ci
+      - id: core
+        name: test core
+        continue-on-error: true
+        run: npm run test:core
+      - id: cv
+        name: test cv
+        continue-on-error: true
+        run: npm run test:cv
+      - id: lint
+        name: lint oxlint
+        continue-on-error: true
+        run: npm run lint
+      - id: style
+        name: lint style
+        continue-on-error: true
+        run: npm run lint:style
+      - id: css
+        name: css check
+        continue-on-error: true
+        run: npm run css:check
+      - id: format
+        name: format check
+        continue-on-error: true
+        run: npm run format:check
+      - id: spell
+        name: spell
+        continue-on-error: true
+        run: npm run spell
+      - id: cms
+        name: cms check
+        continue-on-error: true
+        run: npm run cms:check
+      - id: catalog
+        name: media catalog check
+        continue-on-error: true
+        run: npm run media:catalog:check
+      - id: growth
+        name: repository growth
+        continue-on-error: true
+        run: npm run check:repo-growth
+      - id: audit
+        name: production dependency audit
+        continue-on-error: true
+        run: npm run audit:deps
+      - name: fail on node/static failures
+        if: always()
+        env:
+          OUTCOMES: ${{ join(steps.*.outcome, ' ') }}
+        run: |
+          echo "$OUTCOMES"
+          [[ "$OUTCOMES" != *failure* ]]
+
+  media:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: npm ci
+        run: npm ci
+      - id: ffmpeg
+        name: install ffmpeg
+        continue-on-error: true
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - id: sync
+        name: media sync
+        continue-on-error: true
+        run: npm run media:sync
+      - id: contract
+        name: test media contract
+        continue-on-error: true
+        run: npm run test:media:contract
+      - id: checks
+        name: test media checks
+        continue-on-error: true
+        run: npm run test:media:checks
+      - id: mediafull
+        name: test media full
+        continue-on-error: true
+        run: npm run test:media
+      - id: physical
+        name: physical media dedupe
+        continue-on-error: true
+        run: npm run media:dedupe:physical
+      - name: fail on media failures
+        if: always()
+        env:
+          OUTCOMES: ${{ join(steps.*.outcome, ' ') }}
+        run: |
+          echo "$OUTCOMES"
+          [[ "$OUTCOMES" != *failure* ]]
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: npm ci
+        run: npm ci
+      - id: browserinstall
+        name: install Chromium
+        continue-on-error: true
+        run: npx playwright install --with-deps chromium
+      - id: build
+        name: build site
+        continue-on-error: true
+        run: npm run build:site
+      - id: smoke
+        name: e2e smoke aggregate
+        continue-on-error: true
+        run: npm run test:e2e:smoke
+      - id: e2e
+        name: e2e site
+        continue-on-error: true
+        run: npm run test:e2e
+      - id: nav
+        name: e2e navigation
+        continue-on-error: true
+        run: npm run test:e2e:navigation
+      - id: mpa
+        name: e2e mpa
+        continue-on-error: true
+        run: npm run test:e2e:mpa
+      - id: projects
+        name: e2e projects
+        continue-on-error: true
+        run: npm run test:e2e:projects
+      - id: cv
+        name: e2e cv
+        continue-on-error: true
+        run: npm run test:e2e:cv
+      - id: full
+        name: e2e full
+        continue-on-error: true
+        run: npm run test:e2e:full
+      - id: affected
+        name: e2e affected forced full
+        continue-on-error: true
+        env:
+          E2E_AFFECTED_SUITES: full
+        run: npm run test:e2e:affected
+      - id: desk
+        name: e2e media desk
+        continue-on-error: true
+        run: npm run test:e2e:media-desk
+      - id: responsive
+        name: responsive UI
+        continue-on-error: true
+        run: npm run test:ui:responsive
+      - name: fail on browser failures
+        if: always()
+        env:
+          OUTCOMES: ${{ join(steps.*.outcome, ' ') }}
+        run: |
+          echo "$OUTCOMES"
+          [[ "$OUTCOMES" != *failure* ]]
+
+  production-and-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: npm ci
+        run: npm ci
+      - id: build
+        name: build site
+        continue-on-error: true
+        run: npm run build:site
+      - id: browserinstall
+        name: install Chromium
+        continue-on-error: true
+        run: npx playwright install --with-deps chromium
+      - id: external
+        name: external links
+        continue-on-error: true
+        run: npm run check:external-links
+      - id: prodcheck
+        name: production check
+        continue-on-error: true
+        run: npm run check:production
+      - id: prodE2E
+        name: production e2e
+        continue-on-error: true
+        run: npm run test:e2e:production
+      - id: prodCvE2E
+        name: production cv e2e
+        continue-on-error: true
+        run: npm run test:e2e:cv:production
+      - id: cvverify
+        name: cv production verify
+        continue-on-error: true
+        run: npm run cv:prod:verify
+      - id: lighthouse
+        name: Lighthouse CI
+        continue-on-error: true
+        shell: bash
+        run: |
+          export CHROME_PATH="$(node --input-type=module -e "import { chromium } from 'playwright'; process.stdout.write(chromium.executablePath())")"
+          npm run lighthouse
+      - name: fail on production/quality failures
+        if: always()
+        env:
+          OUTCOMES: ${{ join(steps.*.outcome, ' ') }}
+        run: |
+          echo "$OUTCOMES"
+          [[ "$OUTCOMES" != *failure* ]]
+
+  aggregate-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: npm ci
+        run: npm ci
+      - name: install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: install Chromium
+        run: npx playwright install --with-deps chromium
+      - id: verify
+        name: verify
+        continue-on-error: true
+        run: npm run verify
+      - id: core
+        name: verify core
+        continue-on-error: true
+        run: npm run verify:core
+      - id: full
+        name: verify full
+        continue-on-error: true
+        run: npm run verify:full
+      - name: fail on aggregate failures
+        if: always()
+        env:
+          OUTCOMES: ${{ join(steps.*.outcome, ' ') }}
+        run: |
+          echo "$OUTCOMES"
+          [[ "$OUTCOMES" != *failure* ]]
