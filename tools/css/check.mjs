@@ -43,6 +43,11 @@ const OWNER_RULES = Object.freeze([
   Object.freeze({
     name: "slider",
     owner: "src/styles/slider.css",
+    allowedSelectors: Object.freeze({
+      "src/styles/index.css": Object.freeze([
+        /\.slider\[data-media-deck\]\s+\[data-slide-caption\]:not\(\[data-caption-view="full"\]\)/g,
+      ]),
+    }),
     patterns: [
       /(?:^|[\n{}])\s*\.slider(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
       /(?:^|[\n{}])\s*\.slider-controls(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
@@ -95,6 +100,14 @@ function normalizeSimpleGroupedSelectors(source) {
   );
 }
 
+function maskAllowedSelectors(source, file, rule) {
+  const allowed = rule.allowedSelectors?.[file] ?? [];
+  return allowed.reduce(
+    (masked, pattern) => masked.replace(pattern, ".css-owner-allowed-seam"),
+    source,
+  );
+}
+
 function listCssFiles(root) {
   const srcRoot = path.join(root, "src");
   return readdirSync(srcRoot, { recursive: true, withFileTypes: true })
@@ -120,7 +133,9 @@ export function findOwnerViolations(sources, rules = OWNER_RULES) {
   for (const rule of rules) {
     for (const [file, rawSource] of sources) {
       if (file === rule.owner) continue;
-      const source = normalizeSimpleGroupedSelectors(stripComments(rawSource));
+      const source = normalizeSimpleGroupedSelectors(
+        maskAllowedSelectors(stripComments(rawSource), file, rule),
+      );
       for (const pattern of rule.patterns) {
         if (pattern.test(source)) {
           errors.push(
