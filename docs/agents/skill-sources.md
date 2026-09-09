@@ -11,6 +11,10 @@ Status: review record for repository-local agent guidance. External sources are 
 | Meng To `MengTo/Skills` | `321c769739b823de5eb94eb3a52aa1974fe783a2` | animation profiling, offscreen work gating, lifecycle/leak cleanup patterns for CSS/GSAP/Canvas/WebGL/Three.js |
 | PyModel `PyModel/css-pro-tips` | `7332ca009ecc469f1bc26bd4083620b022896610` | modern CSS decision order, intrinsic/container-driven layout, progressive enhancement and explicit protection against incidental framework/toolchain migration |
 | CloudAI-X `CloudAI-X/threejs-skills` | `b1c623076c661fc9b03dac19292e825a5d106823` | focused Three.js shader, material, texture and loader reference patterns, adapted behind the repository's existing runtime/lifecycle rules |
+| LobeHub `lobehub/lobehub` TypeScript skill | `906b10e03029648655e0257bda4f785a9e0973f0` | strict boundary typing, no-new-`any`, inference, precise contracts, safe JS→TS migration patterns; LobeHub-specific React/Ant/database conventions excluded |
+| Microsoft `microsoft/playwright` trace skill | `4302dbb90f65e80da3f4f08a2e028c9e642b64b9` | trace-first Playwright diagnosis across actions, errors, console, requests and snapshots; adapted to repository affected-test and temporary-test policy |
+| Seth Hobson `wshobson/agents` Git advanced workflows | `a30778f8c4e6b0a87567941b7cca4f534bf642b6` | worktrees, bisect, drift/recovery concepts and clean-branch discipline; destructive history recommendations constrained by repository policy |
+| GitHub `github/gh-aw` workflow debugging | `102cf77b34572420cedf251bb92198f6df709e77` | workflow/job/step failure classification, log-first triage and independent root-cause analysis; gh-aw orchestration itself not adopted |
 
 ## Local adaptation rule
 
