@@ -1,0 +1,162 @@
+name: tmp-css-583-wave5l-executor
+
+on:
+  push:
+    branches:
+      - refactor/css-461-wave5l-media-group-base
+    paths:
+      - .github/workflows/tmp-css-583-wave5l-executor.yml
+
+permissions:
+  contents: write
+
+jobs:
+  execute:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+
+      - name: Verify expected RED preparation head ancestry
+        shell: bash
+        env:
+          EXPECTED_RED_HEAD: 81eceedab401c78181d63e425b679790504d47c1
+          EXPECTED_BASE: 3e36f9e860d898b7de78564d8ac745819d37abab
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$EXPECTED_RED_HEAD" HEAD
+          git fetch --no-tags --depth=1 origin dev
+          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_BASE"
+
+      - name: Apply declaration-preserving Wave5L ownership move
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          components_path = Path('src/styles/components.css')
+          media_path = Path('src/styles/media.css')
+          wave5b_path = Path('test/css-refactor-wave5b-media-group-foundation.test.mjs')
+          wave5c_path = Path('test/css-refactor-wave5c-grid-compact.test.mjs')
+
+          components = components_path.read_text()
+          media = media_path.read_text()
+          wave5b = wave5b_path.read_text()
+          wave5c = wave5c_path.read_text()
+
+          block = '''.media-group {
+            /* Resolve authored component inputs before project and system fallbacks. */
+            --group-gap: var(--media-group-gap, var(--project-media-gap, var(--size-300)));
+            --group-row-gap: var(--media-group-row-gap, var(--project-media-row-gap, var(--group-gap)));
+            --group-columns: 2;
+            --group-mobile-columns: 2;
+
+            container: media-group / inline-size;
+            display: grid;
+            gap: clamp(0.9rem, 1.6cqi, 1.5rem);
+            inline-size: min(100%, var(--group-max, var(--project-media-max)));
+            margin-inline: auto;
+            min-inline-size: 0;
+          }'''.replace('          ', '')
+
+          if components.count(block) != 1:
+              raise SystemExit(f'expected exactly one generic media-group block in components.css, got {components.count(block)}')
+          if block in media:
+              raise SystemExit('generic media-group block already exists in media.css')
+
+          components = components.replace(block + '\n\n', '', 1)
+          anchor = '''/* ==================================================
+          Media groups
+          ================================================== */
+
+          .media-group__head {'''.replace('          ', '')
+          replacement = '''/* ==================================================
+          Media groups
+          ================================================== */
+
+          '''.replace('          ', '') + block + '''
+
+          .media-group__head {'''.replace('          ', '')
+          if media.count(anchor) != 1:
+              raise SystemExit(f'expected exactly one media-group anchor in media.css, got {media.count(anchor)}')
+          media = media.replace(anchor, replacement, 1)
+
+          old_wave5b_boundary = '''  // The generic media-group base still stays outside this ownership slice.
+            // Spacing behavior no longer relies on keeping that base later than an
+            // authored specialization; the base resolves explicit input slots instead.
+            assert.doesNotMatch(media, /(?:^|\\n)\\.media-group\\s*\\{/);
+            assert.match(components, /(?:^|\\n)\\.media-group\\s*\\{/);'''.replace('            ', '')
+          new_wave5b_boundary = '''  // Wave5L later moved the generic base into the same canonical media owner.
+            // Wave5B still guards the substructure and specialization boundaries.
+            assert.match(media, /(?:^|\\n)\\.media-group\\s*\\{/);
+            assert.doesNotMatch(components, /(?:^|\\n)\\.media-group\\s*\\{/);'''.replace('            ', '')
+          if wave5b.count(old_wave5b_boundary) != 1:
+              raise SystemExit('Wave5B historical base-boundary snippet did not match exactly once')
+          wave5b = wave5b.replace(old_wave5b_boundary, new_wave5b_boundary, 1)
+
+          old_wave5b_resolver = '''  assert.match(
+            components,
+            /\\.media-group\\s*\\{[\\s\\S]*?--group-gap:\\s*var\\(--media-group-gap,\\s*var\\(--project-media-gap,\\s*var\\(--size-300\\)\\)\\);[\\s\\S]*?--group-row-gap:\\s*var\\(--media-group-row-gap,\\s*var\\(--project-media-row-gap,\\s*var\\(--group-gap\\)\\)\\);[\\s\\S]*?--group-columns:\\s*2;[\\s\\S]*?--group-mobile-columns:\\s*2;[\\s\\S]*?container:\\s*media-group\\s*\\/\\s*inline-size;[\\s\\S]*?display:\\s*grid;[\\s\\S]*?inline-size:\\s*min\\(100%,\\s*var\\(--group-max,\\s*var\\(--project-media-max\\)\\)\\);[\\s\\S]*?min-inline-size:\\s*0;/,
+            );'''.replace('            ', '')
+          new_wave5b_resolver = old_wave5b_resolver.replace('components,', 'media,', 1)
+          if wave5b.count(old_wave5b_resolver) != 1:
+              raise SystemExit('Wave5B resolver-owner snippet did not match exactly once')
+          wave5b = wave5b.replace(old_wave5b_resolver, new_wave5b_resolver, 1)
+
+          old_wave5c = '''test("generic media-group base keeps the explicit spacing resolver outside Wave5C", () => {
+            assert.doesNotMatch(media, /(?:^|\\n)\\.media-group\\s*\\{/);
+            assert.match(
+              components,
+              /\\.media-group\\s*\\{[\\s\\S]*?--group-gap:\\s*var\\(--media-group-gap,\\s*var\\(--project-media-gap,\\s*var\\(--size-300\\)\\)\\);[\\s\\S]*?--group-row-gap:\\s*var\\(--media-group-row-gap,\\s*var\\(--project-media-row-gap,\\s*var\\(--group-gap\\)\\)\\);[\\s\\S]*?container:\\s*media-group\\s*\\/\\s*inline-size;/,
+            );
+          });'''.replace('            ', '')
+          new_wave5c = '''test("generic media-group base now shares the canonical media owner with Wave5C", () => {
+            assert.match(
+              media,
+              /\\.media-group\\s*\\{[\\s\\S]*?--group-gap:\\s*var\\(--media-group-gap,\\s*var\\(--project-media-gap,\\s*var\\(--size-300\\)\\)\\);[\\s\\S]*?--group-row-gap:\\s*var\\(--media-group-row-gap,\\s*var\\(--project-media-row-gap,\\s*var\\(--group-gap\\)\\)\\);[\\s\\S]*?container:\\s*media-group\\s*\\/\\s*inline-size;/,
+            );
+            assert.doesNotMatch(components, /(?:^|\\n)\\.media-group\\s*\\{/);
+          });'''.replace('            ', '')
+          if wave5c.count(old_wave5c) != 1:
+              raise SystemExit('Wave5C historical owner snippet did not match exactly once')
+          wave5c = wave5c.replace(old_wave5c, new_wave5c, 1)
+
+          components_path.write_text(components)
+          media_path.write_text(media)
+          wave5b_path.write_text(wave5b)
+          wave5c_path.write_text(wave5c)
+          PY
+
+      - name: Focused Wave5 ownership contracts
+        run: >-
+          node --test
+          test/css-refactor-wave5b-media-group-foundation.test.mjs
+          test/css-refactor-wave5c-grid-compact.test.mjs
+          test/css-refactor-wave5l-media-group-base.test.mjs
+
+      - name: Diff hygiene and exact moved-block proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          test "$(grep -c '^\.media-group {$' src/styles/media.css)" -eq 1
+          test "$(grep -c '^\.media-group {$' src/styles/components.css || true)" -eq 0
+          git diff -- src/styles/media.css src/styles/components.css test/css-refactor-wave5b-media-group-foundation.test.mjs test/css-refactor-wave5c-grid-compact.test.mjs
+
+      - name: Remove one-shot executor and commit product tree
+        shell: bash
+        env:
+          BRANCH: refactor/css-461-wave5l-media-group-base
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/tmp-css-583-wave5l-executor.yml
+          git add src/styles/components.css src/styles/media.css test/css-refactor-wave5b-media-group-foundation.test.mjs test/css-refactor-wave5c-grid-compact.test.mjs
+          git commit -m "refactor(css): finish generic media-group ownership"
+          git push origin "HEAD:$BRANCH"
