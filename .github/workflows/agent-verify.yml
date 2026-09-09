@@ -1,0 +1,93 @@
+name: Agent Verify
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: Exact 40-character commit SHA to verify
+        required: true
+        type: string
+      suite:
+        description: Finite verification profile
+        required: true
+        type: choice
+        default: fast
+        options:
+          - fast
+          - browser-smoke
+          - responsive
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-verify-${{ inputs.target_sha }}-${{ inputs.suite }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TARGET_SHA: ${{ inputs.target_sha }}
+      VERIFY_SUITE: ${{ inputs.suite }}
+    steps:
+      - name: Validate exact target SHA
+        shell: bash
+        run: |
+          if [[ ! "$TARGET_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "target_sha must be an exact 40-character commit SHA" >&2
+            exit 1
+          fi
+
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.target_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify checked-out SHA
+        shell: bash
+        run: |
+          actual="$(git rev-parse HEAD)"
+          expected="${TARGET_SHA,,}"
+          if [[ "$actual" != "$expected" ]]; then
+            echo "Expected $expected but checked out $actual" >&2
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Report toolchain
+        run: npm run toolchain:doctor -- --json
+
+      - name: Fast verification
+        if: ${{ inputs.suite == 'fast' }}
+        run: |
+          npm run typecheck
+          npm run test:fast
+          npm run build:vite
+
+      - name: Build responsive target
+        if: ${{ inputs.suite == 'responsive' }}
+        run: npm run build:vite
+
+      - name: Install pinned Chromium headless shell
+        if: ${{ inputs.suite != 'fast' }}
+        run: npx playwright install --with-deps --only-shell chromium
+
+      - name: Verify pinned browser launch
+        if: ${{ inputs.suite != 'fast' }}
+        run: node tools/ci/browser-launch-probe.mjs
+
+      - name: Responsive UI
+        if: ${{ inputs.suite == 'responsive' }}
+        run: npm run test:ui:responsive
