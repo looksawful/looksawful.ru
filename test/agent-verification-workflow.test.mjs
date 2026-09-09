@@ -28,6 +28,7 @@ test("agent verification workflow is finite, exact-SHA scoped, chat-triggerable,
   assert.match(workflow, /git rev-parse HEAD/);
   assert.match(workflow, /npm run toolchain:doctor -- --json/);
   assert.match(workflow, /npm run test:fast/);
+  assert.match(workflow, /npm run test:e2e:smoke/);
   assert.match(workflow, /npm run test:ui:responsive/);
 
   assert.doesNotMatch(workflow, /pull_request_target:/);
