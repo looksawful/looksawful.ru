@@ -1,0 +1,132 @@
+name: tmp-css-461-final-media-acceptance
+
+on:
+  push:
+    branches: [test/css-461-final-media-acceptance]
+
+permissions:
+  contents: read
+
+jobs:
+  final-media-fit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      ORIGINAL_SHA: 113232f654a8f7f79ed9dba64e7b8774487e9099
+      CURRENT_SHA: 703f27acfab9b92450ca892f9146abeb09c8088d
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Fetch exact comparison commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$ORIGINAL_SHA"
+          git fetch --no-tags --depth=1 origin "$CURRENT_SHA"
+          git cat-file -e "$ORIGINAL_SHA^{commit}"
+          git cat-file -e "$CURRENT_SHA^{commit}"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Verify shared dependency lock and create exact worktrees
+        shell: bash
+        run: |
+          set -euo pipefail
+          original_lock="$(git show "$ORIGINAL_SHA:package-lock.json" | sha256sum | cut -d' ' -f1)"
+          current_lock="$(git show "$CURRENT_SHA:package-lock.json" | sha256sum | cut -d' ' -f1)"
+          printf 'original=%s\ncurrent=%s\n' "$original_lock" "$current_lock"
+          test "$original_lock" = "$current_lock"
+          rm -rf /tmp/css-original /tmp/css-current
+          git worktree add --detach /tmp/css-original "$ORIGINAL_SHA"
+          git worktree add --detach /tmp/css-current "$CURRENT_SHA"
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-original/node_modules
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/css-current/node_modules
+
+      - name: Verify identical media input
+        id: media
+        shell: bash
+        run: |
+          set -euo pipefail
+          ORIGINAL_FP="$(cd /tmp/css-original && node tools/media-dev-state.mjs --fingerprint)"
+          CURRENT_FP="$(cd /tmp/css-current && node tools/media-dev-state.mjs --fingerprint)"
+          printf 'original=%s\ncurrent=%s\n' "$ORIGINAL_FP" "$CURRENT_FP"
+          test "$ORIGINAL_FP" = "$CURRENT_FP"
+          echo "fingerprint=$CURRENT_FP" >> "$GITHUB_OUTPUT"
+
+      - id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
+      - name: Require canonical cache hit and mirror exact generated media
+        env:
+          CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$CACHE_HIT" = "true" || { echo 'Exact generated-media cache miss; final CSS audit must not regenerate media.' >&2; exit 1; }
+          for tree in /tmp/css-original /tmp/css-current; do
+            rm -rf "$tree/public/media/generated"
+            mkdir -p "$tree/public/media/generated" "$tree/.cache/media"
+            cp -a public/media/generated/responsive "$tree/public/media/generated/"
+            cp -a public/media/generated/video "$tree/public/media/generated/"
+            cp -a public/media/generated/video-inventory.json "$tree/public/media/generated/"
+            cp .cache/media/generated-cache.json "$tree/.cache/media/"
+            (cd "$tree" && node tools/media-dev-state.mjs --cache-verify)
+          done
+
+      - run: npx playwright install --with-deps chromium
+
+      - name: Build and start exact previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd /tmp/css-original && npm run build:site)
+          (cd /tmp/css-current && npm run build:site)
+          (cd /tmp/css-original && npx vite preview --host 127.0.0.1 --port 4171 > /tmp/css-original-preview.log 2>&1) &
+          (cd /tmp/css-current && npx vite preview --host 127.0.0.1 --port 4172 > /tmp/css-current-preview.log 2>&1) &
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4171/ >/dev/null && curl -fsS http://127.0.0.1:4172/ >/dev/null; then break; fi
+            if [[ "$attempt" -eq 60 ]]; then
+              cat /tmp/css-original-preview.log || true
+              cat /tmp/css-current-preview.log || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+      - name: Run final original-to-Wave5 media-fit audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp tools/tmp-css-media-fit-audit.mjs tools/tmp-css-461-final-media-fit-run.mjs
+          sed -i 's#/work/moves-awful/#/work/moves/#g' tools/tmp-css-461-final-media-fit-run.mjs
+          BASELINE_SHA="$ORIGINAL_SHA" CURRENT_SHA="$CURRENT_SHA" \
+            node tools/tmp-css-461-final-media-fit-run.mjs \
+              http://127.0.0.1:4171 http://127.0.0.1:4172 /tmp/css-461-final-media-fit \
+              | tee /tmp/css-461-final-media-fit.log
+
+      - name: Archive one-time Wave5 evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: css-461-final-media-acceptance-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            /tmp/css-461-final-media-fit
+            /tmp/css-461-final-media-fit.log
+            /tmp/css-original-preview.log
+            /tmp/css-current-preview.log
