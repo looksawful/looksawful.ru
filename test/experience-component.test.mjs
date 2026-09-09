@@ -7,6 +7,7 @@ const componentUrl = new URL("../src/components/experience.ts", import.meta.url)
 const stylesUrl = new URL("../src/styles/experience.css", import.meta.url);
 const mainUrl = new URL("../src/main.ts", import.meta.url);
 const indexStylesUrl = new URL("../src/styles/index.css", import.meta.url);
+const utilitiesStylesUrl = new URL("../src/styles/utilities.css", import.meta.url);
 
 test("experience component is mounted and styled as an isolated component", async () => {
   const main = await readFile(mainUrl, "utf8");
@@ -20,16 +21,21 @@ test("experience component is mounted and styled as an isolated component", asyn
   assert.equal(existsSync(stylesUrl), true, "experience.css should exist");
 });
 
-test("experience visibility is controlled by a data attribute and defaults to hidden", async () => {
-  const [source, styles] = await Promise.all([
+test("experience hidden state uses the native hidden attribute and global utility owner", async () => {
+  const [source, styles, utilities] = await Promise.all([
     readFile(componentUrl, "utf8"),
     readFile(stylesUrl, "utf8"),
+    readFile(utilitiesStylesUrl, "utf8"),
   ]);
 
   assert.match(source, /section\.dataset\.experienceVisibility \?\? "hidden"/);
   assert.match(source, /section\.dataset\.experienceVisibility = visibility/);
   assert.match(source, /if \(visibility === "hidden"\) \{[\s\S]*section\.hidden = true;[\s\S]*return;/);
-  assert.match(styles, /\.experience\[data-experience-visibility="hidden"\]\s*\{[\s\S]*display:\s*none\s*!important/);
+  assert.match(utilities, /\[hidden\]\s*\{[\s\S]*?display:\s*none\s*!important;?[\s\S]*?\}/);
+  assert.doesNotMatch(
+    styles,
+    /\.experience\[data-experience-visibility="hidden"\]\s*\{[\s\S]*?display:\s*none\s*!important/,
+  );
 });
 
 test("experience renders only the approved seven engagements", async () => {
