@@ -60,6 +60,23 @@ function Upsert-Ruleset([string]$Name, $Payload) {
   }
 }
 
+function Assert-PrAndVerifyRules([string]$Name, $Ruleset) {
+  $ruleTypes = @($Ruleset.rules | ForEach-Object { $_.type })
+  if ($ruleTypes -notcontains "pull_request") {
+    throw "Verification failed: '$Name' does not require pull requests."
+  }
+
+  $requiredChecksRule = $Ruleset.rules | Where-Object { $_.type -eq "required_status_checks" } | Select-Object -First 1
+  if (-not $requiredChecksRule) {
+    throw "Verification failed: '$Name' does not require status checks."
+  }
+
+  $requiredContexts = @($requiredChecksRule.parameters.required_status_checks | ForEach-Object { $_.context })
+  if ($requiredContexts -notcontains "verify") {
+    throw "Verification failed: '$Name' does not require the stable 'verify' context."
+  }
+}
+
 Assert-Command "gh"
 & gh auth status
 if ($LASTEXITCODE -ne 0) { throw "GitHub CLI is not authenticated. Run: gh auth login" }
@@ -136,7 +153,26 @@ $devRuleset = [ordered]@{
   }
   rules = @(
     @{ type = "deletion" },
-    @{ type = "non_fast_forward" }
+    @{ type = "non_fast_forward" },
+    @{
+      type = "pull_request"
+      parameters = @{
+        allowed_merge_methods             = @("merge", "squash", "rebase")
+        dismiss_stale_reviews_on_push     = $false
+        require_code_owner_review         = $false
+        require_last_push_approval        = $false
+        required_approving_review_count   = 0
+        required_review_thread_resolution = $false
+      }
+    },
+    @{
+      type = "required_status_checks"
+      parameters = @{
+        do_not_enforce_on_create             = $false
+        required_status_checks               = @(@{ context = "verify" })
+        strict_required_status_checks_policy = $false
+      }
+    }
   )
 }
 
@@ -145,7 +181,7 @@ Write-Host "Current default branch: $($repoState.default_branch)"
 Write-Host "Plan:"
 Write-Host "  default branch: dev"
 Write-Host "  prod: PR-only, merge/squash/rebase, required check 'verify', no approvals, no strict up-to-date, no force-push/delete"
-Write-Host "  dev: direct fast-forward pushes allowed, no force-push/delete"
+Write-Host "  dev: PR-only, merge/squash/rebase, required check 'verify', no approvals, no strict up-to-date, no force-push/delete"
 Write-Host "  global auto-delete merged head branches: OFF"
 Write-Host "  Dependabot alerts + dependency graph: ON"
 Write-Host "  secret scanning + push protection: ON"
@@ -173,6 +209,8 @@ Upsert-Ruleset "Protect dev" $devRuleset
 if ($Apply) {
   $finalRepo = Invoke-GhGet "repos/$Repo"
   $finalRulesets = @(Invoke-GhGet "repos/$Repo/rulesets?includes_parents=false")
+  $prodRulesetSummary = $finalRulesets | Where-Object { $_.name -eq "Protect prod" } | Select-Object -First 1
+  $devRulesetSummary = $finalRulesets | Where-Object { $_.name -eq "Protect dev" } | Select-Object -First 1
   $prodBranch = Invoke-GhGet "repos/$Repo/branches/prod"
   $devBranch = Invoke-GhGet "repos/$Repo/branches/dev"
   $alertsEnabled = Test-GhEndpoint "repos/$Repo/vulnerability-alerts"
@@ -182,12 +220,18 @@ if ($Apply) {
   if ($finalRepo.delete_branch_on_merge) { throw "Verification failed: automatic head-branch deletion is enabled." }
   if (-not $finalRepo.allow_merge_commit) { throw "Verification failed: merge commits are disabled." }
   if (-not $alertsEnabled) { throw "Verification failed: Dependabot vulnerability alerts are not enabled." }
-  if (-not ($finalRulesets | Where-Object { $_.name -eq "Protect prod" -and $_.enforcement -eq "active" })) {
+  if (-not $prodRulesetSummary -or $prodRulesetSummary.enforcement -ne "active") {
     throw "Verification failed: Protect prod ruleset is not active."
   }
-  if (-not ($finalRulesets | Where-Object { $_.name -eq "Protect dev" -and $_.enforcement -eq "active" })) {
+  if (-not $devRulesetSummary -or $devRulesetSummary.enforcement -ne "active") {
     throw "Verification failed: Protect dev ruleset is not active."
   }
+
+  $finalProdRuleset = Invoke-GhGet "repos/$Repo/rulesets/$($prodRulesetSummary.id)"
+  $finalDevRuleset = Invoke-GhGet "repos/$Repo/rulesets/$($devRulesetSummary.id)"
+  Assert-PrAndVerifyRules "Protect prod" $finalProdRuleset
+  Assert-PrAndVerifyRules "Protect dev" $finalDevRuleset
+
   if (-not $prodBranch.protected) {
     throw "Verification failed: GitHub still reports prod as unprotected after ruleset application."
   }
@@ -212,8 +256,8 @@ if ($Apply) {
 
   Write-Host "VERIFIED"
   Write-Host "  default branch: $($finalRepo.default_branch)"
-  Write-Host "  prod protected: $($prodBranch.protected)"
-  Write-Host "  dev protected: $($devBranch.protected)"
+  Write-Host "  prod protected: $($prodBranch.protected), PR-only + required verify: true"
+  Write-Host "  dev protected: $($devBranch.protected), PR-only + required verify: true"
   Write-Host "  active rulesets: $((($finalRulesets | Where-Object enforcement -eq 'active').name) -join ', ')"
   Write-Host "  vulnerability alerts/dependency graph: enabled"
   Write-Host "  dependency review API: $(if ($dependencyReviewReady) { 'READY' } else { 'NOT READY YET; dependency graph may still be indexing' })"
