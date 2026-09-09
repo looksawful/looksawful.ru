@@ -95,10 +95,34 @@ jobs:
 
           const browser = await chromium.launch({ headless: true });
           const cases = [
-            { route: '/', width: 1440, height: 900 },
-            { route: '/', width: 390, height: 844 },
-            { route: '/work/jestei-pool/', width: 1440, height: 900 },
-            { route: '/work/jestei-pool/', width: 390, height: 844 },
+            {
+              route: '/',
+              width: 1440,
+              height: 900,
+              selector: '.media-group[data-layout="grid"]:not([data-overflow]):not([data-compact-layout])',
+              label: 'home plain grid',
+            },
+            {
+              route: '/',
+              width: 390,
+              height: 844,
+              selector: '.media-group[data-layout="grid"]:not([data-overflow]):not([data-compact-layout])',
+              label: 'home plain grid',
+            },
+            {
+              route: '/work/jestei-pool/',
+              width: 1440,
+              height: 900,
+              selector: '.media-group.brand-system',
+              label: 'Jestei brand specialization',
+            },
+            {
+              route: '/work/jestei-pool/',
+              width: 390,
+              height: 844,
+              selector: '.media-group.brand-system',
+              label: 'Jestei brand specialization',
+            },
           ];
 
           try {
@@ -113,8 +137,8 @@ jobs:
               const response = await page.goto(`http://127.0.0.1:4173${entry.route}`, { waitUntil: 'networkidle' });
               assert.ok(response?.ok(), `${entry.route} ${entry.width}: HTTP ${response?.status()}`);
 
-              const state = await page.evaluate(() => {
-                const groups = [...document.querySelectorAll('.media-group[data-layout="grid"]:not([data-overflow]):not([data-compact-layout])')]
+              const state = await page.evaluate((selector) => {
+                const groups = [...document.querySelectorAll(selector)]
                   .filter((node) => {
                     const rect = node.getBoundingClientRect();
                     const style = getComputedStyle(node);
@@ -154,10 +178,10 @@ jobs:
                     surfaceHeight: surfaceRect?.height ?? 0,
                   } : null,
                 };
-              });
+              }, entry.selector);
 
-              assert.equal(state.missing, false, `${entry.route} ${entry.width}: representative plain grid missing`);
-              assert.equal(state.display, 'grid', `${entry.route} ${entry.width}: generic media-group must remain grid`);
+              assert.equal(state.missing, false, `${entry.route} ${entry.width}: ${entry.label} missing`);
+              assert.equal(state.display, 'grid', `${entry.route} ${entry.width}: media-group root must remain grid`);
               assert.match(state.containerName, /(?:^|\s)media-group(?:\s|$)/, `${entry.route} ${entry.width}: named container lost`);
               assert.equal(state.containerType, 'inline-size', `${entry.route} ${entry.width}: container type drift`);
               assert.ok(Number.parseFloat(state.columnGap) > 0, `${entry.route} ${entry.width}: column gap must resolve positive`);
@@ -172,7 +196,7 @@ jobs:
               assert.ok(state.media.width <= state.media.surfaceWidth + 1, `${entry.route} ${entry.width}: media width escaped surface`);
               assert.ok(state.media.height <= state.media.surfaceHeight + 1, `${entry.route} ${entry.width}: media height escaped surface`);
 
-              console.log('[wave5l-browser]', entry.route, `${entry.width}x${entry.height}`, JSON.stringify(state));
+              console.log('[wave5l-browser]', entry.label, entry.route, `${entry.width}x${entry.height}`, JSON.stringify(state));
               await context.close();
             }
           } finally {
