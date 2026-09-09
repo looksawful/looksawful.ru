@@ -48,6 +48,7 @@ export const fastTests = new Set([
   "test/site-composition.test.mjs",
   "test/site-pages.test.mjs",
   "test/static-site-analytics.test.mjs",
+  "test/stylelint-tooling.test.mjs",
   "test/styx-cms-copy.test.mjs",
 ]);
 
