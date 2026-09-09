@@ -162,7 +162,7 @@
 
 .media-deck__terminal {
   overflow: hidden;
-  border-radius: var(--radius-m, 0.8rem);
+  border-radius: 0.8rem;
   color: #f3f3f3;
   background: #111;
 }
