@@ -1,0 +1,181 @@
+name: tmp-css-610-wave6e-media-lightbox-executor
+
+on:
+  push:
+    branches:
+      - refactor/css-462-wave6e-media-lightbox
+    paths:
+      - .github/workflows/tmp-css-610-wave6e-media-lightbox-executor.yml
+
+permissions:
+  contents: write
+
+jobs:
+  execute:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout guarded MediaLightbox branch head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 8
+
+      - name: Verify RED ancestor and unchanged dev base
+        shell: bash
+        env:
+          EXPECTED_RED_HEAD: a7d2009509aad20df12b3a15aa16e5771a52a1b0
+          EXPECTED_BASE: 1ef8f8503a14304ef7a01f7639e84678bae3357b
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "$EXPECTED_RED_HEAD" "$EXPECTED_BASE" dev
+          git merge-base --is-ancestor "$EXPECTED_RED_HEAD" HEAD
+          test "$(git rev-parse origin/dev)" = "$EXPECTED_BASE"
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply declaration-preserving MediaLightbox ownership move
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          components_path = Path("src/styles/components.css")
+          owner_path = Path("src/styles/media-lightbox.css")
+          index_path = Path("src/styles/index.css")
+          responsive_path = Path("test/css-fixes/responsive-css.test.mjs")
+          contract_path = Path("test/caption-lightbox-contract.test.mjs")
+
+          components = components_path.read_text()
+          index = index_path.read_text()
+          responsive = responsive_path.read_text()
+          contract = contract_path.read_text()
+
+          lightbox_marker = "/* --- media-lightbox --- */"
+          audio_marker = "/* --- berserk-audio-player --- */"
+          if components.count(lightbox_marker) != 1:
+              raise SystemExit(f"expected one MediaLightbox marker, got {components.count(lightbox_marker)}")
+          if components.count(audio_marker) != 1:
+              raise SystemExit(f"expected one Berserk Audio marker, got {components.count(audio_marker)}")
+          if owner_path.exists():
+              raise SystemExit("src/styles/media-lightbox.css already exists")
+
+          start = components.index(lightbox_marker)
+          end = components.index(audio_marker, start)
+          owner_source = components[start:end].rstrip() + "\n"
+
+          for required in [
+              "\n[data-lightbox-source] {",
+              "\n.media-lightbox {",
+              "\n.media-lightbox__layout {",
+              "\n.media-lightbox__figure {",
+              "\n.media-lightbox__button {",
+              "\n.media-lightbox__close {",
+              "\n.media-lightbox--photoswipe {",
+              "\n.media-lightbox--photoswipe .media-lightbox__video-slide {",
+              "\n@media ((hover: none) or (pointer: coarse)) and (orientation: portrait) {",
+              "\n@media ((hover: none) or (pointer: coarse)) and (orientation: landscape) {",
+          ]:
+              if required not in owner_source:
+                  raise SystemExit(f"missing expected MediaLightbox contract fragment: {required!r}")
+          if "berserk-audio" in owner_source:
+              raise SystemExit("Berserk Audio boundary leaked into MediaLightbox owner")
+          if "!important" in owner_source:
+              raise SystemExit("MediaLightbox move unexpectedly contains !important")
+
+          components_path.write_text(components[:start] + components[end:])
+          owner_path.write_text(owner_source)
+
+          old_imports = '@import "./media-deck.css" layer(components);\n@import "../components/jestei-theme-organism/jestei-theme-organism.css";'
+          new_imports = '@import "./media-deck.css" layer(components);\n@import "./media-lightbox.css" layer(components);\n@import "../components/jestei-theme-organism/jestei-theme-organism.css";'
+          if index.count(old_imports) != 1:
+              raise SystemExit("MediaDeck/Jestei import boundary did not match exactly once")
+          index_path.write_text(index.replace(old_imports, new_imports, 1))
+
+          old_readers = 'const css = await readFile(new URL("../../src/styles/components.css", import.meta.url), "utf8");\nconst mediaDeckCss = await readFile(new URL("../../src/styles/media-deck.css", import.meta.url), "utf8");'
+          new_readers = old_readers + '\nconst mediaLightboxCss = await readFile(new URL("../../src/styles/media-lightbox.css", import.meta.url), "utf8");'
+          if responsive.count(old_readers) != 1:
+              raise SystemExit("responsive CSS reader boundary did not match exactly once")
+          responsive = responsive.replace(old_readers, new_readers, 1)
+
+          old_lightbox_test = '''test("lightbox controls and gutters include safe-area insets", () => {
+            assert.match(css, /padding-block-start:\\s*calc\\(var\\(--media-lightbox-inset\\) \\+ env\\(safe-area-inset-top,\\s*0px\\)\\);/);
+            assert.match(css, /padding-inline-end:\\s*calc\\(var\\(--media-lightbox-inset\\) \\+ env\\(safe-area-inset-right,\\s*0px\\)\\);/);
+            assert.match(css, /inset-block-start:\\s*calc\\(var\\(--media-lightbox-control-offset\\) \\+ env\\(safe-area-inset-top,\\s*0px\\)\\);/);
+            assert.match(css, /inset-inline-end:\\s*calc\\(var\\(--media-lightbox-control-offset\\) \\+ env\\(safe-area-inset-right,\\s*0px\\)\\);/);
+          });'''
+          old_lightbox_test = "\n".join(line[10:] if line.startswith("          ") else line for line in old_lightbox_test.splitlines())
+          new_lightbox_test = old_lightbox_test.replace("assert.match(css,", "assert.match(mediaLightboxCss,")
+          if responsive.count(old_lightbox_test) != 1:
+              raise SystemExit("Lightbox responsive assertion block did not match exactly once")
+          responsive_path.write_text(responsive.replace(old_lightbox_test, new_lightbox_test, 1))
+
+          old_contract = '''test("lightbox CSS has bounded media and explicit touch portrait/landscape layouts", async () => {
+            const [components, captions] = await Promise.all([
+              read("src/styles/components.css"),
+              read("src/styles/captions.css"),
+            ]);
+
+            assert.match(components, /\\.media-lightbox__figure[\\s\\S]*?block-size:\\s*100%/);
+            assert.match(components, /touch-action:\\s*pan-y/);
+            assert.match(components, /orientation:\\s*portrait/);
+            assert.match(components, /orientation:\\s*landscape/);
+            assert.match(captions, /orientation:\\s*landscape[\\s\\S]*?max-block-size:\\s*100%/);
+          });'''
+          old_contract = "\n".join(line[10:] if line.startswith("          ") else line for line in old_contract.splitlines())
+          new_contract = old_contract.replace(
+              'const [components, captions] = await Promise.all([\n  read("src/styles/components.css"),',
+              'const [lightboxStyles, captions] = await Promise.all([\n  read("src/styles/media-lightbox.css"),',
+          ).replace("assert.match(components,", "assert.match(lightboxStyles,")
+          if contract.count(old_contract) != 1:
+              raise SystemExit("caption/lightbox CSS contract block did not match exactly once")
+          contract_path.write_text(contract.replace(old_contract, new_contract, 1))
+          PY
+
+      - name: Focused MediaLightbox architecture and behavior contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test test/css-tooling-check.test.mjs
+          node --test --test-name-pattern="lightbox controls and gutters" test/css-fixes/responsive-css.test.mjs
+          node --test test/caption-lightbox-contract.test.mjs
+          node tools/css/check.mjs
+
+      - name: Stylelint and diff hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run lint:style
+          git diff --check
+          test "$(grep -c '^\[data-lightbox-source\] {' src/styles/media-lightbox.css)" -eq 1
+          test "$(grep -c '^\[data-lightbox-source\] {' src/styles/components.css || true)" -eq 0
+          test "$(grep -c '^\.media-lightbox__layout {' src/styles/media-lightbox.css)" -eq 1
+          test "$(grep -c '^\.media-lightbox__layout {' src/styles/components.css || true)" -eq 0
+          grep -q '^\.media-lightbox {' src/styles/captions.css
+          grep -q '^\.media-lightbox__caption {' src/styles/captions.css
+
+      - name: Remove executor and commit durable MediaLightbox tree
+        shell: bash
+        env:
+          BRANCH: refactor/css-462-wave6e-media-lightbox
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/tmp-css-610-wave6e-media-lightbox-executor.yml
+          git add \
+            src/styles/components.css \
+            src/styles/media-lightbox.css \
+            src/styles/index.css \
+            test/css-fixes/responsive-css.test.mjs \
+            test/caption-lightbox-contract.test.mjs
+          git commit -m "refactor(css): extract MediaLightbox style ownership"
+          git push origin "HEAD:$BRANCH"
