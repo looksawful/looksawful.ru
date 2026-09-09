@@ -36,11 +36,14 @@ test("Jestei Event is typed content and uses registry-backed Moves Awful media",
 });
 
 test("Jestei landing video deck keeps cover at its canonical project owner", () => {
-  const coverRule =
-    /\.jestei-event-video-deck\s+\.slider__slide\s*>\s*video\s*\{[^}]*object-fit:\s*cover\s*;/s;
-
-  assert.match(componentsCss, coverRule);
-  assert.doesNotMatch(indexCss, coverRule);
+  assert.match(
+    componentsCss,
+    /\.jestei-event-video-deck\s*\{[\s\S]*?& \.slider__slide\s*\{[\s\S]*?& > video\s*\{[^}]*object-fit:\s*cover\s*;/s,
+  );
+  assert.doesNotMatch(
+    indexCss,
+    /\.jestei-event-video-deck\s+\.slider__slide\s*>\s*video\s*\{[^}]*object-fit:\s*cover\s*;/s,
+  );
 });
 
 test("Jestei media visuals inherit the surface radius instead of relying on ancestor clipping alone", () => {
