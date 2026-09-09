@@ -1,0 +1,67 @@
+name: Site Copy Audit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/content/**"
+      - "src/data/content/**"
+      - "src/data/catalog/**"
+      - "src/data/taxonomy/**"
+      - "tools/editorial/**"
+      - "test/site-copy-export-contract.test.mjs"
+      - "package.json"
+      - ".github/workflows/site-copy-audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact PR tree
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Measure source export
+        shell: bash
+        run: |
+          start=$(date +%s%3N)
+          npm run copy:audit:check
+          npm run copy:audit:export
+          end=$(date +%s%3N)
+          elapsed=$((end-start))
+          echo "### Site copy export" >> "$GITHUB_STEP_SUMMARY"
+          echo "- elapsed: ${elapsed} ms" >> "$GITHUB_STEP_SUMMARY"
+          node -e 'const r=require("./.audit/site-copy.json"); console.log(`- entries: ${r.stats.entries}\n- chars: ${r.stats.chars}\n- sources: ${r.stats.sources}\n- route coverage: ${r.stats.coveredRoutes}/${r.stats.totalRoutes}`)' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Copy audit contract tests
+        run: npm run test:copy-audit
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Fast contracts
+        run: npm run test:fast
+
+      - name: Vite build
+        run: npm run build:vite
+
+      - name: Upload source corpus
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-copy-${{ github.sha }}
+          path: .audit/site-copy.json
+          if-no-files-found: error
+          retention-days: 7
