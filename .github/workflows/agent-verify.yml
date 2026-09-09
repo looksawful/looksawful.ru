@@ -115,6 +115,10 @@ jobs:
         if: ${{ steps.request.outputs.suite != 'fast' }}
         run: node tools/ci/browser-launch-probe.mjs
 
+      - name: Browser smoke
+        if: ${{ steps.request.outputs.suite == 'browser-smoke' }}
+        run: npm run test:e2e:smoke
+
       - name: Responsive UI
         if: ${{ steps.request.outputs.suite == 'responsive' }}
         run: npm run test:ui:responsive
