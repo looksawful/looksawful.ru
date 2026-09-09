@@ -111,7 +111,7 @@ jobs:
             assert.doesNotMatch(components, /(?:^|\\n)\\.media-group\\s*\\{/);
           });
           '''.replace('          ', '')
-          wave5c, count = old_test.subn(new_test, wave5c)
+          wave5c, count = old_test.subn(lambda _match: new_test, wave5c)
           if count != 1:
               raise SystemExit(f'expected one historical Wave5C base-owner test, got {count}')
 
