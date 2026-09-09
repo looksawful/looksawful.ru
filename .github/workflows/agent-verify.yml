@@ -107,13 +107,9 @@ jobs:
         if: ${{ steps.request.outputs.suite == 'responsive' }}
         run: npm run build:vite
 
-      - name: Install pinned Chromium headless shell
+      - name: Setup pinned headless browser
         if: ${{ steps.request.outputs.suite != 'fast' }}
-        run: npx playwright install --with-deps --only-shell chromium
-
-      - name: Verify pinned browser launch
-        if: ${{ steps.request.outputs.suite != 'fast' }}
-        run: node tools/ci/browser-launch-probe.mjs
+        uses: ./.github/actions/setup-browser
 
       - name: Responsive UI
         if: ${{ steps.request.outputs.suite == 'responsive' }}
