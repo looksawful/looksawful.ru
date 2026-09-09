@@ -10,6 +10,10 @@ import { jesteiPoolPageContent } from "../src/content/pages/cases/jestei-pool.ts
 import { renderMediaGroup } from "../src/templates/media-group.ts";
 
 const indexCss = readFileSync(new URL("../src/styles/index.css", import.meta.url), "utf8");
+const componentsCss = readFileSync(
+  new URL("../src/styles/components.css", import.meta.url),
+  "utf8",
+);
 
 test("Jestei Event is typed content and uses registry-backed Moves Awful media", () => {
   const html = renderMediaGroup(jesteiEventGroup);
@@ -31,11 +35,12 @@ test("Jestei Event is typed content and uses registry-backed Moves Awful media",
   assert.doesNotMatch(html, /class="media__index"/);
 });
 
-test("Jestei landing video deck fills its fixed surface instead of letterboxing", () => {
-  assert.match(
-    indexCss,
-    /\.jestei-event-video-deck\s+\.slider__slide\s*>\s*video\s*\{[^}]*object-fit:\s*cover\s*;/s,
-  );
+test("Jestei landing video deck keeps cover at its canonical project owner", () => {
+  const coverRule =
+    /\.jestei-event-video-deck\s+\.slider__slide\s*>\s*video\s*\{[^}]*object-fit:\s*cover\s*;/s;
+
+  assert.match(componentsCss, coverRule);
+  assert.doesNotMatch(indexCss, coverRule);
 });
 
 test("Jestei media visuals inherit the surface radius instead of relying on ancestor clipping alone", () => {
