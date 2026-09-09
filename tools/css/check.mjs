@@ -33,38 +33,41 @@ const OWNER_RULES = Object.freeze([
   Object.freeze({
     name: "before-after",
     owner: "src/styles/before-after.css",
-    patterns: [/(?:^|\n)\.before-after(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
+    patterns: [/(?:^|[\n{}])\s*\.before-after(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
   }),
   Object.freeze({
     name: "page-flip",
     owner: "src/styles/page-flip.css",
-    patterns: [/(?:^|\n)\.page-flip(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
+    patterns: [/(?:^|[\n{}])\s*\.page-flip(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
   }),
   Object.freeze({
     name: "slider",
     owner: "src/styles/slider.css",
+    allowedSelectors: Object.freeze({
+      "src/styles/index.css": Object.freeze([
+        /\.slider\[data-media-deck\]\s+\[data-slide-caption\]:not\(\[data-caption-view="full"\]\)/g,
+      ]),
+    }),
     patterns: [
-      /(?:^|\n)\.slider(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
-      /(?:^|\n)\.slider-controls(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|[\n{}])\s*\.slider(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|[\n{}])\s*\.slider-controls(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
     ],
   }),
   Object.freeze({
     name: "media-deck",
     owner: "src/styles/media-deck.css",
     patterns: [
-      /(?:^|\n)\[data-media-deck\](?=[\s,{.:#>\[])/,
-      /(?:^|\n)\.media-deck(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
-      /(?:^|\n)\[data-deck-(?:dragging|fit(?:-viewport)?)\](?=[\s,{.:#>\[])/,
+      /(?:^|[\n{}])\s*\[data-media-deck\](?=[\s,{.:#>\[])/,
+      /(?:^|[\n{}])\s*\.media-deck(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|[\n{}])\s*\[data-deck-(?:dragging|fit(?:-viewport)?)\](?=[\s,{.:#>\[])/,
     ],
   }),
-  // Guard only the structural Lightbox shell. captions.css intentionally owns
-  // caption-state/presentation rules for .media-lightbox and __caption.
   Object.freeze({
     name: "media-lightbox",
     owner: "src/styles/media-lightbox.css",
     patterns: [
-      /(?:^|\n)\[data-lightbox-source\](?=\s*\{)/,
-      /(?:^|\n)\.media-lightbox__(?:layout|figure|button|prev|next|close|video-slide)\b/,
+      /(?:^|[\n{}])\s*\[data-lightbox-source\](?=\s*\{)/,
+      /(?:^|[\n{}])\s*\.media-lightbox__(?:layout|figure|button|prev|next|close|video-slide)\b/,
     ],
   }),
 ]);
@@ -86,6 +89,21 @@ const EXPECTED_LAYER_ORDER =
 
 function stripComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//g, "");
+}
+
+function normalizeSimpleGroupedSelectors(source) {
+  return source.replace(
+    /(^|[\n{}])([ \t]*[^{}\n;():]+)(?=\s*\{)/g,
+    (_match, boundary, prelude) => `${boundary}${prelude.replaceAll(",", "\n")}`,
+  );
+}
+
+function maskAllowedSelectors(source, file, rule) {
+  const allowed = rule.allowedSelectors?.[file] ?? [];
+  return allowed.reduce(
+    (masked, pattern) => masked.replace(pattern, ".css-owner-allowed-seam"),
+    source,
+  );
 }
 
 function listCssFiles(root) {
@@ -113,7 +131,9 @@ export function findOwnerViolations(sources, rules = OWNER_RULES) {
   for (const rule of rules) {
     for (const [file, rawSource] of sources) {
       if (file === rule.owner) continue;
-      const source = stripComments(rawSource);
+      const source = normalizeSimpleGroupedSelectors(
+        maskAllowedSelectors(stripComments(rawSource), file, rule),
+      );
       for (const pattern of rule.patterns) {
         if (pattern.test(source)) {
           errors.push(
@@ -184,13 +204,16 @@ export function findIncomingLifecycleViolations(rawSource) {
     return ["incoming: lifecycle header requires non-empty reason metadata"];
   }
 
+  if (!readIncomingField(header, "exit")) {
+    return ["incoming: lifecycle header requires non-empty exit metadata"];
+  }
+
   return [];
 }
 
 function checkIncoming(root) {
   const incomingPath = path.join(root, "src/styles/incoming.css");
   if (!existsSync(incomingPath)) return [];
-
   return findIncomingLifecycleViolations(readFileSync(incomingPath, "utf8"));
 }
 
@@ -210,7 +233,6 @@ const isDirectRun =
 if (isDirectRun) {
   const root = fileURLToPath(new URL("../../", import.meta.url));
   const errors = checkCssArchitecture(root);
-
   if (errors.length) {
     console.error("CSS architecture check failed:\n");
     for (const error of errors) console.error(`- ${error}`);
