@@ -95,6 +95,70 @@ const OWNER_RULES = Object.freeze([
   }),
 ]);
 
+const COMPONENTS_RESIDUAL_FAMILIES = Object.freeze([
+  "hero",
+  "projects-grid",
+  "portfolio-showcase",
+  "portfolio-logo-wall",
+  "project-card",
+  "tools",
+  "contact",
+  "divider",
+  "group-note",
+  "editorial-note",
+  "credits",
+  "brand-system",
+  "jestei-section-copy-list",
+  "jestei-interface-group",
+  "jestei-event-group",
+  "jestei-captioned-group",
+  "jestei-captioned-media",
+  "jestei-media",
+  "jestei-event-video-deck",
+  "feature-layout",
+  "resource-row",
+  "mockup",
+  "browser-screen",
+  "terminal",
+  "moves-awful-interactive",
+  "browser-mockup",
+  "moves-awful-stage",
+  "animated-canvas-gallery",
+  "gallery-title-pile",
+  "variant-tabs",
+  "variant-tab",
+  "awful-cases-game",
+  "runner-game-shell",
+  "game-title",
+  "start",
+  "restart",
+  "runner-controls",
+  "jestei-filter-mockup",
+  "justified-gallery",
+  "berserk-audio",
+  "mobile-mockup",
+]);
+
+const COMPONENTS_COMPOSITION_CLASSES = Object.freeze([
+  "expertise",
+  "experience",
+  "project__section",
+  "project__footer",
+  "media",
+  "media__caption",
+  "media__surface",
+  "media-group",
+  "media-group__items",
+  "slider",
+  "slider__viewport",
+  "slider__slides",
+  "slider__slide",
+  "slider-controls",
+  "code-block-grid",
+  "grid",
+  "is-active",
+]);
+
 const EXPECTED_IMPORT_GRAPH = Object.freeze([
   '@import "@fontsource-variable/inter/wght.css";',
   '@import "./reset.css" layer(reset);',
@@ -127,6 +191,27 @@ const EXPECTED_LAYER_ORDER =
 
 function stripComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//g, "");
+}
+
+function stripQuotedStrings(source) {
+  return source.replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, '""');
+}
+
+function selectorFamily(className) {
+  return className.split(/__|--/, 1)[0];
+}
+
+function listClassNames(rawSource) {
+  const source = stripQuotedStrings(stripComments(rawSource));
+  const classNames = [];
+  const seen = new Set();
+  for (const match of source.matchAll(/\.([_a-zA-Z][\w-]*)/g)) {
+    const className = match[1];
+    if (seen.has(className)) continue;
+    seen.add(className);
+    classNames.push(className);
+  }
+  return classNames;
 }
 
 function normalizeSimpleGroupedSelectors(source) {
@@ -185,6 +270,42 @@ export function findOwnerViolations(sources, rules = OWNER_RULES) {
   return errors;
 }
 
+export function findComponentsNoGrowthViolations(
+  rawSource,
+  residualFamilies = COMPONENTS_RESIDUAL_FAMILIES,
+  compositionClasses = COMPONENTS_COMPOSITION_CLASSES,
+) {
+  const residual = new Set(residualFamilies);
+  const composition = new Set(compositionClasses);
+  const compositionFamilies = new Set(
+    [...composition].map((className) => selectorFamily(className)),
+  );
+  const errors = [];
+  const rejectedFamilies = new Set();
+
+  for (const className of listClassNames(rawSource)) {
+    if (composition.has(className)) continue;
+
+    const family = selectorFamily(className);
+    if (residual.has(family)) continue;
+
+    if (compositionFamilies.has(family)) {
+      errors.push(
+        `components: selector .${className} is not an allowed composition seam`,
+      );
+      continue;
+    }
+
+    if (rejectedFamilies.has(family)) continue;
+    rejectedFamilies.add(family);
+    errors.push(
+      `components: new durable selector family .${family} is not in the residual allowlist`,
+    );
+  }
+
+  return errors;
+}
+
 function readImportGraph(source) {
   return (
     stripComments(source).match(/^[ \t]*@import\s+[^;\n]+;/gm) ?? []
@@ -210,6 +331,12 @@ function checkManifest(sources) {
     errors.push("manifest: canonical ordered import graph changed");
   }
   return errors;
+}
+
+function checkComponentsNoGrowth(sources) {
+  const source = sources.get("src/styles/components.css");
+  if (!source) return [];
+  return findComponentsNoGrowthViolations(source);
 }
 
 function readIncomingField(header, name) {
@@ -269,6 +396,7 @@ export function checkCssArchitecture(root) {
   return [
     ...findOwnerViolations(sources),
     ...checkManifest(sources),
+    ...checkComponentsNoGrowth(sources),
     ...checkIncoming(root),
   ];
 }
@@ -286,7 +414,7 @@ if (isDirectRun) {
     process.exitCode = 1;
   } else {
     console.log(
-      `CSS architecture check passed (${OWNER_RULES.length} durable owner families + ordered manifest + incoming lifecycle).`,
+      `CSS architecture check passed (${OWNER_RULES.length} durable owner families + components residual no-growth + ordered manifest + incoming lifecycle).`,
     );
   }
 }
