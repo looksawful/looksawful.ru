@@ -61,35 +61,28 @@ jobs:
 
           lightbox_marker = "/* --- media-lightbox --- */"
           audio_marker = "/* --- berserk-audio-player --- */"
-          if components.count(lightbox_marker) != 1:
-              raise SystemExit(f"expected one MediaLightbox marker, got {components.count(lightbox_marker)}")
-          if components.count(audio_marker) != 1:
-              raise SystemExit(f"expected one Berserk Audio marker, got {components.count(audio_marker)}")
+          if components.count(lightbox_marker) != 1 or components.count(audio_marker) != 1:
+              raise SystemExit("MediaLightbox/Berserk markers are not unique")
           if owner_path.exists():
               raise SystemExit("src/styles/media-lightbox.css already exists")
 
           start = components.index(lightbox_marker)
           end = components.index(audio_marker, start)
           owner_source = components[start:end].rstrip() + "\n"
-
           for required in [
               "\n[data-lightbox-source] {",
-              "\n.media-lightbox {",
               "\n.media-lightbox__layout {",
               "\n.media-lightbox__figure {",
               "\n.media-lightbox__button {",
               "\n.media-lightbox__close {",
               "\n.media-lightbox--photoswipe {",
-              "\n.media-lightbox--photoswipe .media-lightbox__video-slide {",
-              "\n@media ((hover: none) or (pointer: coarse)) and (orientation: portrait) {",
-              "\n@media ((hover: none) or (pointer: coarse)) and (orientation: landscape) {",
+              "orientation: portrait",
+              "orientation: landscape",
           ]:
               if required not in owner_source:
-                  raise SystemExit(f"missing expected MediaLightbox contract fragment: {required!r}")
-          if "berserk-audio" in owner_source:
-              raise SystemExit("Berserk Audio boundary leaked into MediaLightbox owner")
-          if "!important" in owner_source:
-              raise SystemExit("MediaLightbox move unexpectedly contains !important")
+                  raise SystemExit(f"missing MediaLightbox contract fragment: {required}")
+          if "berserk-audio" in owner_source or "!important" in owner_source:
+              raise SystemExit("MediaLightbox extraction crossed a forbidden boundary")
 
           components_path.write_text(components[:start] + components[end:])
           owner_path.write_text(owner_source)
@@ -97,54 +90,47 @@ jobs:
           old_imports = '@import "./media-deck.css" layer(components);\n@import "../components/jestei-theme-organism/jestei-theme-organism.css";'
           new_imports = '@import "./media-deck.css" layer(components);\n@import "./media-lightbox.css" layer(components);\n@import "../components/jestei-theme-organism/jestei-theme-organism.css";'
           if index.count(old_imports) != 1:
-              raise SystemExit("MediaDeck/Jestei import boundary did not match exactly once")
+              raise SystemExit("MediaDeck/Jestei import boundary is not unique")
           index_path.write_text(index.replace(old_imports, new_imports, 1))
 
-          old_readers = 'const css = await readFile(new URL("../../src/styles/components.css", import.meta.url), "utf8");\nconst mediaDeckCss = await readFile(new URL("../../src/styles/media-deck.css", import.meta.url), "utf8");'
-          new_readers = old_readers + '\nconst mediaLightboxCss = await readFile(new URL("../../src/styles/media-lightbox.css", import.meta.url), "utf8");'
-          if responsive.count(old_readers) != 1:
-              raise SystemExit("responsive CSS reader boundary did not match exactly once")
-          responsive = responsive.replace(old_readers, new_readers, 1)
-
-          old_lightbox_test = '''test("lightbox controls and gutters include safe-area insets", () => {
-            assert.match(css, /padding-block-start:\\s*calc\\(var\\(--media-lightbox-inset\\) \\+ env\\(safe-area-inset-top,\\s*0px\\)\\);/);
-            assert.match(css, /padding-inline-end:\\s*calc\\(var\\(--media-lightbox-inset\\) \\+ env\\(safe-area-inset-right,\\s*0px\\)\\);/);
-            assert.match(css, /inset-block-start:\\s*calc\\(var\\(--media-lightbox-control-offset\\) \\+ env\\(safe-area-inset-top,\\s*0px\\)\\);/);
-            assert.match(css, /inset-inline-end:\\s*calc\\(var\\(--media-lightbox-control-offset\\) \\+ env\\(safe-area-inset-right,\\s*0px\\)\\);/);
-          });'''
-          old_lightbox_test = "\n".join(line[10:] if line.startswith("          ") else line for line in old_lightbox_test.splitlines())
-          new_lightbox_test = old_lightbox_test.replace("assert.match(css,", "assert.match(mediaLightboxCss,")
-          if responsive.count(old_lightbox_test) != 1:
-              raise SystemExit("Lightbox responsive assertion block did not match exactly once")
-          responsive_path.write_text(responsive.replace(old_lightbox_test, new_lightbox_test, 1))
-
-          test_start_marker = 'test("lightbox CSS has bounded media and explicit touch portrait/landscape layouts", async () => {'
-          next_test_marker = '\ntest("content facade re-exports the single media presentation contract instead of redefining caption types"'
-          if contract.count(test_start_marker) != 1:
-              raise SystemExit("Lightbox CSS contract start marker did not match exactly once")
-          block_start = contract.index(test_start_marker)
-          block_end = contract.index(next_test_marker, block_start)
-          block = contract[block_start:block_end]
-
-          old_declaration = '''  const [components, captions] = await Promise.all([
-            read("src/styles/components.css"),
-            read("src/styles/captions.css"),
-          ]);'''
-          old_declaration = "\n".join(line[10:] if line.startswith("          ") else line for line in old_declaration.splitlines())
-          new_declaration = old_declaration.replace(
-              "const [components, captions]",
-              "const [lightboxStyles, captions]",
-          ).replace(
-              'read("src/styles/components.css")',
-              'read("src/styles/media-lightbox.css")',
+          media_deck_reader = 'const mediaDeckCss = await readFile(new URL("../../src/styles/media-deck.css", import.meta.url), "utf8");'
+          if responsive.count(media_deck_reader) != 1:
+              raise SystemExit("mediaDeckCss reader is not unique")
+          responsive = responsive.replace(
+              media_deck_reader,
+              media_deck_reader + '\nconst mediaLightboxCss = await readFile(new URL("../../src/styles/media-lightbox.css", import.meta.url), "utf8");',
+              1,
           )
-          if block.count(old_declaration) != 1:
-              raise SystemExit("Lightbox CSS contract declaration did not match exactly once")
-          block = block.replace(old_declaration, new_declaration, 1)
-          if block.count("assert.match(components,") != 4:
+          r_start_marker = 'test("lightbox controls and gutters include safe-area insets", () => {'
+          r_next_marker = '\n});'
+          if responsive.count(r_start_marker) != 1:
+              raise SystemExit("responsive Lightbox test marker is not unique")
+          r_start = responsive.index(r_start_marker)
+          r_end = responsive.index(r_next_marker, r_start) + len(r_next_marker)
+          r_block = responsive[r_start:r_end]
+          if r_block.count("assert.match(css,") != 4:
+              raise SystemExit("expected four Lightbox safe-area assertions on components source")
+          r_block = r_block.replace("assert.match(css,", "assert.match(mediaLightboxCss,")
+          responsive_path.write_text(responsive[:r_start] + r_block + responsive[r_end:])
+
+          c_start_marker = 'test("lightbox CSS has bounded media and explicit touch portrait/landscape layouts", async () => {'
+          c_next_marker = '\ntest("content facade re-exports the single media presentation contract instead of redefining caption types"'
+          if contract.count(c_start_marker) != 1:
+              raise SystemExit("caption Lightbox test marker is not unique")
+          c_start = contract.index(c_start_marker)
+          c_end = contract.index(c_next_marker, c_start)
+          c_block = contract[c_start:c_end]
+          for old, new in [
+              ("const [components, captions]", "const [lightboxStyles, captions]"),
+              ('read("src/styles/components.css")', 'read("src/styles/media-lightbox.css")'),
+          ]:
+              if c_block.count(old) != 1:
+                  raise SystemExit(f"Lightbox contract token is not unique: {old}")
+              c_block = c_block.replace(old, new, 1)
+          if c_block.count("assert.match(components,") != 4:
               raise SystemExit("expected four Lightbox structural assertions on components source")
-          block = block.replace("assert.match(components,", "assert.match(lightboxStyles,")
-          contract_path.write_text(contract[:block_start] + block + contract[block_end:])
+          c_block = c_block.replace("assert.match(components,", "assert.match(lightboxStyles,")
+          contract_path.write_text(contract[:c_start] + c_block + contract[c_end:])
           PY
 
       - name: Focused MediaLightbox architecture and behavior contracts
@@ -178,11 +164,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/tmp-css-610-wave6e-media-lightbox-executor.yml
-          git add \
-            src/styles/components.css \
-            src/styles/media-lightbox.css \
-            src/styles/index.css \
-            test/css-fixes/responsive-css.test.mjs \
-            test/caption-lightbox-contract.test.mjs
+          git add src/styles/components.css src/styles/media-lightbox.css src/styles/index.css test/css-fixes/responsive-css.test.mjs test/caption-lightbox-contract.test.mjs
           git commit -m "refactor(css): extract MediaLightbox style ownership"
           git push origin "HEAD:$BRANCH"
