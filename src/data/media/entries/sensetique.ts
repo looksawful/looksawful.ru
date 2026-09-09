@@ -30,7 +30,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-69-320x213-use-01",
     assetId: "sensetique-11-source-69-320x213",
     projectIds: ["sensetique-harsh-light-2018"],
-    alt: "Harshlight эдиториал фотсъемка 2018",
+    alt: "Harshlight эдиториал фотосъёмка 2018",
     caption: {
         title: "Harshlight эдиториал фотосъёмка 2018",
         meta: [
@@ -42,7 +42,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-70-929x800-use-01",
     assetId: "sensetique-11-source-70-929x800",
     projectIds: ["sensetique-harsh-light-2018"],
-    alt: "Harshlight эдиториал фотсъемка 2018",
+    alt: "Harshlight эдиториал фотосъёмка 2018",
     caption: {
         title: "Harshlight эдиториал фотосъёмка 2018",
         meta: [
@@ -1947,7 +1947,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-69-320x213-use-02",
     assetId: "sensetique-11-source-69-320x213",
     projectIds: ["sensetique-harsh-light-2018"],
-    alt: "Harshlight эдиториал фотсъемка 2018",
+    alt: "Harshlight эдиториал фотосъёмка 2018",
     caption: {
         title: "HARSH LIGHT, 2018.",
         index: 29,
@@ -2258,7 +2258,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-69-320x213-use-03",
     assetId: "sensetique-11-source-69-320x213",
     projectIds: ["sensetique-harsh-light-2018"],
-    alt: "Harshlight эдиториал фотсъемка 2018",
+    alt: "Harshlight эдиториал фотосъёмка 2018",
     caption: {
         title: "Harshlight эдиториал фотосъёмка 2018",
         index: 29,
@@ -2271,7 +2271,7 @@ export const sensetiqueMediaEntries = [
     id: "sensetique-11-source-70-929x800-use-02",
     assetId: "sensetique-11-source-70-929x800",
     projectIds: ["sensetique-harsh-light-2018"],
-    alt: "Harshlight эдиториал фотсъемка 2018",
+    alt: "Harshlight эдиториал фотосъёмка 2018",
     caption: {
         title: "Harshlight эдиториал фотосъёмка 2018",
         index: 30,
