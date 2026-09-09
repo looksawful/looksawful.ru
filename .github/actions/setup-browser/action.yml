@@ -1,0 +1,12 @@
+name: Setup Playwright browser
+description: Install the pinned Playwright Chromium headless shell and prove it launches.
+
+runs:
+  using: composite
+  steps:
+    - name: Install pinned Chromium headless shell
+      shell: bash
+      run: npx playwright install --with-deps --only-shell chromium
+    - name: Verify pinned browser launch
+      shell: bash
+      run: node tools/ci/browser-launch-probe.mjs
