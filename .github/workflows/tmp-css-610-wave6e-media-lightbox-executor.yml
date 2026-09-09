@@ -118,26 +118,33 @@ jobs:
               raise SystemExit("Lightbox responsive assertion block did not match exactly once")
           responsive_path.write_text(responsive.replace(old_lightbox_test, new_lightbox_test, 1))
 
-          old_contract = '''test("lightbox CSS has bounded media and explicit touch portrait/landscape layouts", async () => {
-            const [components, captions] = await Promise.all([
-              read("src/styles/components.css"),
-              read("src/styles/captions.css"),
-            ]);
+          test_start_marker = 'test("lightbox CSS has bounded media and explicit touch portrait/landscape layouts", async () => {'
+          next_test_marker = '\ntest("content facade re-exports the single media presentation contract instead of redefining caption types"'
+          if contract.count(test_start_marker) != 1:
+              raise SystemExit("Lightbox CSS contract start marker did not match exactly once")
+          block_start = contract.index(test_start_marker)
+          block_end = contract.index(next_test_marker, block_start)
+          block = contract[block_start:block_end]
 
-            assert.match(components, /\\.media-lightbox__figure[\\s\\S]*?block-size:\\s*100%/);
-            assert.match(components, /touch-action:\\s*pan-y/);
-            assert.match(components, /orientation:\\s*portrait/);
-            assert.match(components, /orientation:\\s*landscape/);
-            assert.match(captions, /orientation:\\s*landscape[\\s\\S]*?max-block-size:\\s*100%/);
-          });'''
-          old_contract = "\n".join(line[10:] if line.startswith("          ") else line for line in old_contract.splitlines())
-          new_contract = old_contract.replace(
-              'const [components, captions] = await Promise.all([\n  read("src/styles/components.css"),',
-              'const [lightboxStyles, captions] = await Promise.all([\n  read("src/styles/media-lightbox.css"),',
-          ).replace("assert.match(components,", "assert.match(lightboxStyles,")
-          if contract.count(old_contract) != 1:
-              raise SystemExit("caption/lightbox CSS contract block did not match exactly once")
-          contract_path.write_text(contract.replace(old_contract, new_contract, 1))
+          old_declaration = '''  const [components, captions] = await Promise.all([
+            read("src/styles/components.css"),
+            read("src/styles/captions.css"),
+          ]);'''
+          old_declaration = "\n".join(line[10:] if line.startswith("          ") else line for line in old_declaration.splitlines())
+          new_declaration = old_declaration.replace(
+              "const [components, captions]",
+              "const [lightboxStyles, captions]",
+          ).replace(
+              'read("src/styles/components.css")',
+              'read("src/styles/media-lightbox.css")',
+          )
+          if block.count(old_declaration) != 1:
+              raise SystemExit("Lightbox CSS contract declaration did not match exactly once")
+          block = block.replace(old_declaration, new_declaration, 1)
+          if block.count("assert.match(components,") != 4:
+              raise SystemExit("expected four Lightbox structural assertions on components source")
+          block = block.replace("assert.match(components,", "assert.match(lightboxStyles,")
+          contract_path.write_text(contract[:block_start] + block + contract[block_end:])
           PY
 
       - name: Focused MediaLightbox architecture and behavior contracts
