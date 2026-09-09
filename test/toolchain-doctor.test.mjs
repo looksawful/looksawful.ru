@@ -23,3 +23,21 @@ test("toolchain doctor keeps browser launch explicit and read-only", async () =>
   assert.notEqual(report.playwright.chromium.launch, "ok");
   assert.notEqual(report.playwright.chromium.launch, "failed");
 });
+
+test("toolchain doctor exposes FFmpeg and ffprobe build identity when available", async () => {
+  const report = await collectToolchainReport({ launchBrowser: false });
+
+  for (const tool of [report.ffmpeg, report.ffprobe]) {
+    assert.ok(Object.hasOwn(tool, "builtWith"));
+    assert.ok(Object.hasOwn(tool, "configuration"));
+    if (tool.available) {
+      assert.equal(typeof tool.builtWith, "string");
+      assert.equal(typeof tool.configuration, "string");
+      assert.match(tool.builtWith, /^built with /);
+      assert.match(tool.configuration, /^configuration:/);
+    } else {
+      assert.equal(tool.builtWith, null);
+      assert.equal(tool.configuration, null);
+    }
+  }
+});
