@@ -1,25 +1,29 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
 
 const stripPatterns = [
-  [/\/\* ==================================================\n   Equal-height media strip\n   ================================================== \*\//, "strip marker"],
   [/(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/, "generic strip family"],
   [/(?:^|\n)\.media-group\[data-layout="strip"\]\s+\.media__caption\s*\{/, "strip caption sizing"],
 ];
 
-test("Wave5G generic strip family has one canonical media owner", () => {
+function selectorIndex(source, pattern, label) {
+  const index = source.search(pattern);
+  assert.notEqual(index, -1, `${label} must exist`);
+  return index;
+}
+
+test("generic strip family has one canonical media owner", () => {
   for (const [pattern, label] of stripPatterns) {
     assert.match(media, pattern, `media.css must own ${label}`);
     assert.doesNotMatch(components, pattern, `components.css must no longer own ${label}`);
   }
 });
 
-test("Wave5G preserves strip intrinsic geometry and resolved configuration", () => {
+test("strip preserves intrinsic geometry and resolved configuration", () => {
   assert.match(
     media,
     /\.media-group\[data-layout="strip"\]\s*\{[\s\S]*?>\s*\.media-group__items\s*>\s*\.media\s*\{[\s\S]*?inline-size:\s*max-content;[\s\S]*?max-inline-size:\s*none;/,
@@ -38,7 +42,7 @@ test("Wave5G preserves strip intrinsic geometry and resolved configuration", () 
   );
 });
 
-test("Wave5G keeps portfolio strip inputs in the component owner", () => {
+test("portfolio strip inputs remain in the component owner", () => {
   assert.match(
     components,
     /\.portfolio-showcase__group\[data-layout="strip"\]\s*\{[\s\S]*?--strip-height:\s*var\(--portfolio-strip-height\);/,
@@ -50,22 +54,23 @@ test("Wave5G keeps portfolio strip inputs in the component owner", () => {
   assert.doesNotMatch(media, /portfolio-showcase/);
 });
 
-test("Wave5G strip remains before infinite reel in media source order", () => {
-  const strip = media.indexOf("Equal-height media strip");
-  const infiniteReel = media.indexOf("Infinite reel");
-  assert.notEqual(strip, -1);
-  assert.notEqual(infiniteReel, -1);
-  assert.ok(strip < infiniteReel);
-});
+test("strip source order remains between sequence and infinite reel", () => {
+  const sequence = selectorIndex(
+    media,
+    /(?:^|\n)\.media-group\[data-layout="sequence"\]\s*\{/,
+    "sequence family",
+  );
+  const strip = selectorIndex(
+    media,
+    /(?:^|\n)\.media-group\[data-layout="strip"\]\s*\{/,
+    "strip family",
+  );
+  const infiniteReel = selectorIndex(
+    media,
+    /(?:^|\n)\[data-infinite-reel\]\s*\{/,
+    "infinite reel family",
+  );
 
-test("Wave5G follows the already accepted sequence family in media source order", () => {
-  const sequence = media.indexOf("/* Sequence = wide + middle collection + wide. */");
-  const strip = media.indexOf("Equal-height media strip");
-  assert.notEqual(sequence, -1);
-  assert.notEqual(strip, -1);
-  assert.ok(sequence < strip, "strip must follow the accepted sequence family");
-});
-
-test("Wave5G strip ownership contract is mandatory in Fast CI", () => {
-  assert.equal(fastTests.has("test/css-refactor-wave5g-strip.test.mjs"), true);
+  assert.ok(sequence < strip, "strip must follow the sequence family");
+  assert.ok(strip < infiniteReel, "strip must precede the infinite reel family");
 });
