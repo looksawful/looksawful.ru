@@ -56,7 +56,8 @@
   inset-inline-start: 0.6rem;
   inset-block-end: 0.55rem;
   color: rgb(0 0 0 / 0.58);
-  font-size: 0.6875rem;
+  font-size: var(--fs-200);
+  line-height: var(--lh-heading);
   font-variant-numeric: tabular-nums;
 }
 
@@ -123,8 +124,8 @@
 .page-flip__count {
   min-inline-size: 4rem;
   text-align: center;
-  font-size: 0.6875rem;
-  line-height: 1;
+  font-size: var(--fs-200);
+  line-height: var(--lh-heading);
   font-variant-numeric: tabular-nums;
 }
 
