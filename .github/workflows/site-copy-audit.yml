@@ -31,31 +31,96 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        id: install
+        continue-on-error: true
+        shell: bash
+        run: |
+          start=$(date +%s%3N)
+          npm ci
+          status=$?
+          end=$(date +%s%3N)
+          echo "| npm ci | $((end-start)) ms | $status |" >> "$GITHUB_STEP_SUMMARY"
+          exit $status
 
-      - name: Measure source export
+      - name: Start measurements
+        if: always()
+        shell: bash
+        run: |
+          echo "## Site Copy Audit measurements" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Phase | Duration | Exit |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| --- | ---: | ---: |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Source export
+        id: export
+        if: always() && steps.install.outcome == 'success'
+        continue-on-error: true
         shell: bash
         run: |
           start=$(date +%s%3N)
           npm run copy:audit:check
+          check_status=$?
           npm run copy:audit:export
+          export_status=$?
+          status=$(( check_status != 0 ? check_status : export_status ))
           end=$(date +%s%3N)
-          elapsed=$((end-start))
-          echo "### Site copy export" >> "$GITHUB_STEP_SUMMARY"
-          echo "- elapsed: ${elapsed} ms" >> "$GITHUB_STEP_SUMMARY"
-          node -e 'const r=require("./.audit/site-copy.json"); console.log(`- entries: ${r.stats.entries}\n- chars: ${r.stats.chars}\n- sources: ${r.stats.sources}\n- route coverage: ${r.stats.coveredRoutes}/${r.stats.totalRoutes}`)' >> "$GITHUB_STEP_SUMMARY"
+          echo "| source export | $((end-start)) ms | $status |" >> "$GITHUB_STEP_SUMMARY"
+          if [[ -f .audit/site-copy.json ]]; then
+            node -e 'const r=require("./.audit/site-copy.json"); console.log(`\nCorpus: ${r.stats.entries} entries · ${r.stats.chars} chars · ${r.stats.sources} sources · ${r.stats.coveredRoutes}/${r.stats.totalRoutes} routes · exporter ${r.stats.elapsedMs} ms\n`)' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit $status
 
       - name: Copy audit contract tests
-        run: npm run test:copy-audit
+        id: audit_tests
+        if: always() && steps.install.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          start=$(date +%s%3N)
+          npm run test:copy-audit
+          status=$?
+          end=$(date +%s%3N)
+          echo "| copy audit contracts | $((end-start)) ms | $status |" >> "$GITHUB_STEP_SUMMARY"
+          exit $status
 
       - name: Typecheck
-        run: npm run typecheck
+        id: typecheck
+        if: always() && steps.install.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          start=$(date +%s%3N)
+          npm run typecheck
+          status=$?
+          end=$(date +%s%3N)
+          echo "| typecheck | $((end-start)) ms | $status |" >> "$GITHUB_STEP_SUMMARY"
+          exit $status
 
       - name: Fast contracts
-        run: npm run test:fast
+        id: fast
+        if: always() && steps.install.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          start=$(date +%s%3N)
+          npm run test:fast
+          status=$?
+          end=$(date +%s%3N)
+          echo "| test:fast | $((end-start)) ms | $status |" >> "$GITHUB_STEP_SUMMARY"
+          exit $status
 
       - name: Vite build
-        run: npm run build:vite
+        id: build
+        if: always() && steps.install.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          start=$(date +%s%3N)
+          npm run build:vite
+          status=$?
+          end=$(date +%s%3N)
+          echo "| build:vite | $((end-start)) ms | $status |" >> "$GITHUB_STEP_SUMMARY"
+          exit $status
 
       - name: Upload source corpus
         if: always()
@@ -63,5 +128,24 @@ jobs:
         with:
           name: site-copy-${{ github.sha }}
           path: .audit/site-copy.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
+
+      - name: Final audit gate
+        if: always()
+        shell: bash
+        env:
+          INSTALL: ${{ steps.install.outcome }}
+          EXPORT: ${{ steps.export.outcome }}
+          AUDIT_TESTS: ${{ steps.audit_tests.outcome }}
+          TYPECHECK: ${{ steps.typecheck.outcome }}
+          FAST: ${{ steps.fast.outcome }}
+          BUILD: ${{ steps.build.outcome }}
+        run: |
+          failed=0
+          for result in "$INSTALL" "$EXPORT" "$AUDIT_TESTS" "$TYPECHECK" "$FAST" "$BUILD"; do
+            if [[ "$result" != "success" ]]; then failed=1; fi
+          done
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Final gate: $([[ $failed -eq 0 ]] && echo PASS || echo FAIL)" >> "$GITHUB_STEP_SUMMARY"
+          exit $failed
