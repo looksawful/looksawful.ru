@@ -30,9 +30,24 @@ const OWNER_RULES = Object.freeze([
     owner: "src/styles/code-block.css",
     patterns: [/\.code-block(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
   }),
+  Object.freeze({
+    name: "before-after",
+    owner: "src/styles/before-after.css",
+    patterns: [/(?:^|\n)\.before-after(?:__[\w-]+)?(?=[\s,{.:#>\[])/],
+  }),
+  Object.freeze({
+    name: "slider",
+    owner: "src/styles/slider.css",
+    patterns: [
+      /(?:^|\n)\.slider(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+      /(?:^|\n)\.slider-controls(?:__[\w-]+)?(?=[\s,{.:#>\[])/,
+    ],
+  }),
 ]);
 
 const REQUIRED_COMPONENT_IMPORTS = Object.freeze([
+  "./before-after.css",
+  "./slider.css",
   "./code-block.css",
   "./project-header.css",
   "./project-navigation.css",
@@ -135,6 +150,6 @@ if (isDirectRun) {
     for (const error of errors) console.error(`- ${error}`);
     process.exitCode = 1;
   } else {
-    console.log("CSS architecture check passed (4 durable owner families + manifest + incoming lifecycle).");
+    console.log("CSS architecture check passed (6 durable owner families + manifest + incoming lifecycle).");
   }
 }
