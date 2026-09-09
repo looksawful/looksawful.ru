@@ -2,76 +2,35 @@ name: tmp-wave2b-event-cover
 
 on:
   push:
-    branches:
-      - refactor/css-wave2b-event-cover
+    branches: [refactor/css-wave2b-event-cover]
 
 permissions:
   contents: write
 
 jobs:
   apply:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
+      - run: npm ci
       - name: Apply exact ownership move
+        shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          components_path = Path('src/styles/components.css')
-          index_path = Path('src/styles/index.css')
-
-          components = components_path.read_text(encoding='utf-8')
-          index_css = index_path.read_text(encoding='utf-8')
-
-          old_components = '''    & > video {
-              display: block;
-              inline-size: 100%;
-              block-size: 100%;
-              max-inline-size: none;
-              object-fit: contain;
-              object-position: center;
-              background: #000;
-            }'''
-          new_components = old_components.replace('object-fit: contain;', 'object-fit: cover;')
-
-          old_index = '''
-          /* The Jestei landing sequence is presentation media: every slide fills the authored surface. */
-          .jestei-event-video-deck .slider__slide > video {
-            object-fit: cover;
-          }
-'''
-
-          if components.count(old_components) != 1:
-              raise SystemExit('expected exactly one Jestei Event contain rule in components.css')
-          if index_css.count(old_index) != 1:
-              raise SystemExit('expected exactly one late Jestei Event cover rule in index.css')
-
-          components_path.write_text(components.replace(old_components, new_components, 1), encoding='utf-8')
-          index_path.write_text(index_css.replace(old_index, '\n', 1), encoding='utf-8')
-          PY
-
+          python -c 'from pathlib import Path; p=Path("src/styles/components.css"); s=p.read_text(); old="object-fit: contain;"; anchor=".jestei-event-video-deck"; start=s.index(anchor); pos=s.index(old,start); assert s.find(old,pos+1)==-1 or s.find(old,pos+1)>s.index("/* ==================================================",pos); p.write_text(s[:pos]+"object-fit: cover;"+s[pos+len(old):])'
+          python -c 'from pathlib import Path; p=Path("src/styles/index.css"); s=p.read_text(); old="  /* The Jestei landing sequence is presentation media: every slide fills the authored surface. */\n  .jestei-event-video-deck .slider__slide > video {\n    object-fit: cover;\n  }\n"; assert s.count(old)==1; p.write_text(s.replace(old,"",1))'
       - name: Focused GREEN contract
         run: node --test test/jestei-event-migration.test.mjs
-
-      - name: Style and architecture checks
+      - name: Style architecture checks
         run: |
           npm run lint:style
           npm run css:check
-
-      - name: Remove temporary workflow and commit
+      - name: Commit clean durable diff
         run: |
           rm .github/workflows/tmp-wave2b-event-cover.yml
           git config user.name 'github-actions[bot]'
