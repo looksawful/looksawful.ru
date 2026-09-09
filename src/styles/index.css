@@ -48,13 +48,6 @@
     line-height: var(--lh-caption);
   }
 
-  .slider-controls,
-  .page-flip__index,
-  .page-flip__count {
-    font-size: var(--fs-200);
-    line-height: var(--lh-heading);
-  }
-
   .contact a {
     line-height: 0.95;
     letter-spacing: var(--ls-display);
