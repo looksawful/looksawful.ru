@@ -62,7 +62,7 @@ const OWNER_RULES = Object.freeze([
     owner: "src/styles/media-lightbox.css",
     patterns: [
       /(?:^|\n)\[data-lightbox-source\](?=\s*\{)/,
-      /(?:^|\n)\.media-lightbox(?:(?:__|--)[\w-]+)?\s*\{/,
+      /(?:^|\n)\.media-lightbox__(?:layout|figure|button|prev|next|close|video-slide)\b/,
     ],
   }),
 ]);
