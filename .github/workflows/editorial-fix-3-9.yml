@@ -1,0 +1,111 @@
+name: Editorial audit fixes 3-9
+
+on:
+  push:
+    branches:
+      - fix/editorial-audit-3-9
+    paths:
+      - .github/workflows/editorial-fix-3-9.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply-fixes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/editorial-audit-3-9
+          fetch-depth: 0
+
+      - name: Apply audited copy corrections
+        shell: python
+        run: |
+          from pathlib import Path
+          import json
+
+          def replace(path, old, new, minimum=1):
+              p = Path(path)
+              text = p.read_text(encoding="utf-8")
+              count = text.count(old)
+              if count < minimum:
+                  raise SystemExit(f"Expected at least {minimum} occurrence(s) in {path}: {old!r}; got {count}")
+              p.write_text(text.replace(old, new), encoding="utf-8")
+              print(f"{path}: {count} replacement(s): {old!r}")
+
+          # #3: preserve the measured object. The supported metric is banner-production cost, not time.
+          cv_path = Path("src/content/editorial/cv.json")
+          cv = json.loads(cv_path.read_text(encoding="utf-8"))
+          old = "сократили время производства контента"
+          new = "снизили стоимость производства баннеров в 2,5 раза"
+          description = cv["experience"]["jestei"]["description"]
+          if old not in description:
+              raise SystemExit("Expected Jestei production-time wording was not found")
+          cv["experience"]["jestei"]["description"] = description.replace(old, new)
+          cv_path.write_text(json.dumps(cv, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+          # #4/#5: correct the primary Sensetique media source.
+          media_path = "src/data/media/entries/sensetique.ts"
+          replacements = [
+              ("Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027.", "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine."),
+              ("Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine, 2027", "Young-pioneer — эдиториал-фотосъёмка для Kaltblut Magazine"),
+              ("АНдрей", "Андрей"),
+              ("фотосъемка", "фотосъёмка"),
+              ("фотосхемка", "фотосъёмка"),
+              ("Фотограф Андрей Рапуто,стилист Мария Жукова,продюсер Иван Крушинский", "Фотограф Андрей Рапуто, Стилист Мария Жукова, Продюсер Иван Крушинский."),
+          ]
+          for old, new in replacements:
+              replace(media_path, old, new)
+
+          # The page-presentation source contains an independent malformed credit override.
+          presentation_path = "src/data/content/sensetique.ts"
+          replace(
+              presentation_path,
+              "Фотограф Андрей Рапуто,стилист Мария Жукова,продюсер Иван Крушинский",
+              "Фотограф Андрей Рапуто, Стилист Мария Жукова, Продюсер Иван Крушинский.",
+          )
+          replace(
+              presentation_path,
+              "Фотограф Татьяна Никишина стилист Мария Жукова продюсер Иван Крушинский",
+              "Фотограф Татьяна Никишина, Стилист Мария Жукова, Продюсер Иван Крушинский.",
+          )
+
+          # Keep registered catalog mirrors consistent with the corrected source rather than leaving stale copies behind.
+          catalog_root = Path("src/content/media-catalog/registered")
+          for p in catalog_root.glob("sensetique-*.json"):
+              text = p.read_text(encoding="utf-8")
+              updated = text
+              for old, new in replacements:
+                  updated = updated.replace(old, new)
+              if updated != text:
+                  p.write_text(updated, encoding="utf-8")
+
+      - name: Verify focused editorial regressions
+        run: node --test test/editorial-audit-regressions.test.mjs
+
+      - name: Verify forbidden stale strings are gone from corrected Sensetique sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          if rg -n 'Young-pioneer.*2027|АНдрей|фотсъемка|фотосхемка|Рапуто,стилист|Жукова,продюсер' \
+            src/data/media/entries/sensetique.ts \
+            src/data/content/sensetique.ts \
+            src/content/media-catalog/registered; then
+            echo "Stale Sensetique copy remains" >&2
+            exit 1
+          fi
+
+      - name: Commit corrected sources and remove one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/editorial-fix-3-9.yml
+          git add src/content/editorial/cv.json \
+                  src/data/media/entries/sensetique.ts \
+                  src/data/content/sensetique.ts \
+                  src/content/media-catalog/registered
+          git commit -m "fix(copy): resolve audited Jestei and Sensetique conflicts"
+          git push origin HEAD:fix/editorial-audit-3-9
