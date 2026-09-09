@@ -13,6 +13,7 @@ import test from "node:test";
 
 import {
   checkCssArchitecture,
+  findComponentsNoGrowthViolations,
   findIncomingLifecycleViolations,
   findOwnerViolations,
 } from "../tools/css/check.mjs";
@@ -133,6 +134,68 @@ test("owner registry protects stabilized project, expertise, experience and medi
     ],
   ]);
   assert.deepEqual(findOwnerViolations(allowedComposition), []);
+});
+
+test("components residual guard freezes durable family growth without banning composition seams", () => {
+  const components = readFileSync(
+    new URL("../src/styles/components.css", import.meta.url),
+    "utf8",
+  );
+  assert.deepEqual(findComponentsNoGrowthViolations(components), []);
+
+  assert.deepEqual(
+    findComponentsNoGrowthViolations(".hero { display: grid; }"),
+    [],
+    "retiring existing residual families must remain legal",
+  );
+  assert.deepEqual(
+    findComponentsNoGrowthViolations(
+      `.project__section > :is(.media, .mockup, .slider):only-child { inline-size: 100%; }
+.project__footer { display: flex; }
+.media__surface { overflow: hidden; }
+.slider__slide { display: grid; }
+.expertise { padding: 1rem; }
+.experience { padding: 1rem; }`,
+    ),
+    [],
+    "documented composition/residual seams must remain legal",
+  );
+  assert.deepEqual(
+    findComponentsNoGrowthViolations(
+      `.hero { display: grid; }
+.new-widget__part { display: block; }`,
+    ),
+    [
+      "components: new durable selector family .new-widget is not in the residual allowlist",
+    ],
+  );
+  assert.deepEqual(
+    findComponentsNoGrowthViolations(
+      `.hero { display: grid; }
+.media__new-internal { display: block; }`,
+    ),
+    [
+      "components: selector .media__new-internal is not an allowed composition seam",
+    ],
+    "one allowed media seam must not grant the whole media owner family",
+  );
+  assert.deepEqual(
+    findComponentsNoGrowthViolations(
+      `.hero { display: grid; }
+.project__new-internal { display: block; }`,
+    ),
+    [
+      "components: selector .project__new-internal is not an allowed composition seam",
+    ],
+    "one deferred project seam must not grant the whole project owner family",
+  );
+  assert.deepEqual(
+    findComponentsNoGrowthViolations(
+      `.hero::before { content: ".new-widget__not-a-selector"; }`,
+    ),
+    [],
+    "quoted content must not be mistaken for a selector family",
+  );
 });
 
 test("owner checker catches indented and grouped durable owner selectors", () => {
