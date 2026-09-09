@@ -30,6 +30,11 @@ test("agent verification workflow is finite, exact-SHA scoped, chat-triggerable,
   assert.match(workflow, /browser-launch-probe\.mjs/);
   assert.match(
     workflow,
+    /- name: Build browser target\s*\n\s*if:\s*\$\{\{[\s\S]*?browser-smoke[\s\S]*?responsive[\s\S]*?\}\}\s*\n\s*run:\s*npm run build:vite/,
+    "browser-smoke and responsive must both build dist before preview-based browser checks",
+  );
+  assert.match(
+    workflow,
     /- name: Browser smoke\s*\n\s*if:\s*\$\{\{\s*steps\.request\.outputs\.suite == 'browser-smoke'\s*\}\}\s*\n\s*run:\s*npm run test:e2e:smoke/,
   );
   assert.doesNotMatch(workflow, /npm run test:e2e:full/);
