@@ -26,6 +26,34 @@ function runVersion(command, args = ["--version"]) {
   }
 }
 
+function runMediaBuildIdentity(command) {
+  try {
+    const output = execFileSync(command, ["-version"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const lines = String(output)
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    return {
+      available: true,
+      version: lines[0] ?? null,
+      builtWith: lines.find((line) => line.startsWith("built with ")) ?? null,
+      configuration: lines.find((line) => line.startsWith("configuration:")) ?? null,
+    };
+  } catch (error) {
+    return {
+      available: false,
+      version: null,
+      builtWith: null,
+      configuration: null,
+      error: error?.code === "ENOENT" ? "not found" : firstLine(error?.message),
+    };
+  }
+}
+
 function packageVersion(packageName) {
   try {
     const packagePath = require.resolve(`${packageName}/package.json`);
@@ -102,8 +130,8 @@ export async function collectToolchainReport(options = {}) {
     },
     npm: runVersion("npm"),
     playwright: await browserReport(options),
-    ffmpeg: runVersion("ffmpeg", ["-version"]),
-    ffprobe: runVersion("ffprobe", ["-version"]),
+    ffmpeg: runMediaBuildIdentity("ffmpeg"),
+    ffprobe: runMediaBuildIdentity("ffprobe"),
   };
 }
 
@@ -121,6 +149,14 @@ function renderHuman(report) {
 
   for (const [name, value, detail] of rows) {
     console.log(`${name}: ${value}${detail ? ` (${detail})` : ""}`);
+  }
+
+  for (const [name, tool] of [
+    ["FFmpeg", report.ffmpeg],
+    ["ffprobe", report.ffprobe],
+  ]) {
+    if (tool.builtWith) console.log(`${name} build: ${tool.builtWith}`);
+    if (tool.configuration) console.log(`${name} ${tool.configuration}`);
   }
 }
 
