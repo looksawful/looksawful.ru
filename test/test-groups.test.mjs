@@ -7,6 +7,8 @@ test("fast tests are opt-in contracts while broad cheap coverage stays available
     "test/css-fixes/responsive-css.test.mjs",
     "test/media-tools/video-builder.test.mjs",
     "test/responsive-manifest-contract.test.mjs",
+    "test/video-delivery-contract.test.mjs",
+    "test/cv-layout-contract.test.mjs",
     "test/before-after-migration.test.mjs",
     "test/new-widget-regression.test.mjs",
     "test/cms-publication-scope.test.mjs",
@@ -21,14 +23,23 @@ test("fast tests are opt-in contracts while broad cheap coverage stays available
     "test/before-after-migration.test.mjs",
     "test/cms-publication-scope.test.mjs",
     "test/css-fixes/responsive-css.test.mjs",
+    "test/cv-layout-contract.test.mjs",
     "test/new-widget-regression.test.mjs",
     "test/test-groups.test.mjs",
+  ]);
+
+  assert.deepEqual(selectTests("media-contract", files), [
+    "test/responsive-manifest-contract.test.mjs",
+    "test/video-delivery-contract.test.mjs",
   ]);
 
   assert.deepEqual(selectTests("media", files), [
     "test/media-tools/video-builder.test.mjs",
     "test/responsive-manifest-contract.test.mjs",
+    "test/video-delivery-contract.test.mjs",
   ]);
+
+  assert.deepEqual(selectTests("cv", files), ["test/cv-layout-contract.test.mjs"]);
 
   assert.equal(fastTests.has("test/new-widget-regression.test.mjs"), false);
   assert.equal(fastTests.has("test/before-after-migration.test.mjs"), false);
