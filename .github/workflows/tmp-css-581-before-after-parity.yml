@@ -1,0 +1,178 @@
+name: tmp-css-581-before-after-parity
+
+on:
+  push:
+    branches: [test/css-581-before-after-parity]
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          ref: 3e36f9e860d898b7de78564d8ac745819d37abab
+          path: base
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
+        shell: bash
+        run: |
+          npm ci
+          (cd base && npm ci)
+      - name: Resolve media fingerprint
+        id: media
+        shell: bash
+        run: |
+          set -euo pipefail
+          CAND_FP=$(node tools/media-dev-state.mjs --fingerprint)
+          BASE_FP=$(cd base && node tools/media-dev-state.mjs --fingerprint)
+          test "$CAND_FP" = "$BASE_FP"
+          echo "fingerprint=$CAND_FP" >> "$GITHUB_OUTPUT"
+      - name: Restore canonical generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Require cache and mirror to base
+        shell: bash
+        env:
+          CACHE_HIT: ${{ steps.media-cache.outputs.cache-hit }}
+        run: |
+          set -euo pipefail
+          test "$CACHE_HIT" = "true" || { echo 'Exact generated-media cache miss; parity must not regenerate media.' >&2; exit 1; }
+          mkdir -p base/public/media/generated base/.cache/media
+          cp -a public/media/generated/responsive base/public/media/generated/
+          cp -a public/media/generated/video base/public/media/generated/
+          cp -a public/media/generated/video-inventory.json base/public/media/generated/
+          cp .cache/media/generated-cache.json base/.cache/media/
+          node tools/media-dev-state.mjs --cache-verify
+          (cd base && node tools/media-dev-state.mjs --cache-verify)
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Build base and candidate
+        shell: bash
+        run: |
+          npm run build:site
+          (cd base && npm run build:site)
+      - name: Start previews
+        shell: bash
+        run: |
+          (npm run preview -- --host 127.0.0.1 --port 4174 > /tmp/candidate.log 2>&1) &
+          (cd base && npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/base.log 2>&1) &
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:4173/work/jestei-pool/ >/dev/null && curl -fsS http://127.0.0.1:4174/work/jestei-pool/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/base.log || true
+          cat /tmp/candidate.log || true
+          exit 1
+      - name: Compare focused before-after browser contract
+        shell: bash
+        run: |
+          mkdir -p evidence
+          cat > /tmp/before-after-parity.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+
+          const browser = await chromium.launch({ headless: true });
+          const origins = { base: 'http://127.0.0.1:4173', candidate: 'http://127.0.0.1:4174' };
+          const round = (n) => Math.round(n * 100) / 100;
+
+          async function run(origin, mode) {
+            const mobile = mode === 'mobile';
+            const context = await browser.newContext({
+              viewport: mobile ? { width: 390, height: 844 } : { width: 1440, height: 900 },
+              hasTouch: mobile,
+              isMobile: mobile,
+              reducedMotion: mobile ? 'reduce' : 'no-preference',
+            });
+            const page = await context.newPage();
+            await page.goto(`${origin}/work/jestei-pool/`, { waitUntil: 'domcontentloaded' });
+            const root = page.locator('#jestei-subscription [data-before-after]').first();
+            await root.waitFor({ state: 'visible' });
+            await root.scrollIntoViewIfNeeded();
+            const range = root.locator('.before-after__range');
+
+            const snapshot = async () => root.evaluate((el) => {
+              const viewport = el.querySelector('.before-after__viewport');
+              const rangeEl = el.querySelector('.before-after__range');
+              const reveal = el.querySelector('.before-after__reveal');
+              const image = el.querySelector('.before-after__image');
+              if (!(viewport instanceof HTMLElement) || !(rangeEl instanceof HTMLInputElement) || !(reveal instanceof HTMLElement) || !(image instanceof HTMLElement)) throw new Error('before-after structure missing');
+              const er = el.getBoundingClientRect();
+              const vr = viewport.getBoundingClientRect();
+              const es = getComputedStyle(el);
+              const vs = getComputedStyle(viewport);
+              const rs = getComputedStyle(rangeEl);
+              const revs = getComputedStyle(reveal);
+              const ims = getComputedStyle(image);
+              return {
+                split: es.getPropertyValue('--before-after-split').trim(),
+                rootWidth: er.width,
+                rootHeight: er.height,
+                viewportWidth: vr.width,
+                viewportHeight: vr.height,
+                viewportAspectRatio: vs.aspectRatio,
+                touchAction: rs.touchAction,
+                revealClipPath: revs.clipPath,
+                objectFit: ims.objectFit,
+                rangeValue: rangeEl.value,
+                outlineWidth: vs.outlineWidth,
+                outlineStyle: vs.outlineStyle,
+              };
+            });
+
+            const initial = await snapshot();
+            if (mobile) {
+              await range.evaluate((el) => { el.value = '25'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+            } else {
+              await range.focus();
+              await range.press('Home');
+            }
+            await page.waitForTimeout(80);
+            const after = await snapshot();
+            await context.close();
+            for (const s of [initial, after]) {
+              s.rootWidth = round(s.rootWidth); s.rootHeight = round(s.rootHeight);
+              s.viewportWidth = round(s.viewportWidth); s.viewportHeight = round(s.viewportHeight);
+            }
+            return { initial, after };
+          }
+
+          const evidence = {};
+          let failures = 0;
+          for (const mode of ['mobile', 'desktop']) {
+            const base = await run(origins.base, mode);
+            const candidate = await run(origins.candidate, mode);
+            const equal = JSON.stringify(base) === JSON.stringify(candidate);
+            const contract = mode === 'mobile'
+              ? candidate.initial.split === '50%' && candidate.initial.touchAction === 'pan-y' && candidate.after.split === '25%'
+              : candidate.after.split === '0%' && candidate.after.outlineWidth === '2px' && candidate.after.outlineStyle !== 'none';
+            if (!equal || !contract) failures++;
+            evidence[mode] = { equal, contract, base, candidate };
+            console.log(`${equal && contract ? 'PASS' : 'FAIL'} ${mode}`);
+          }
+          await writeFile('evidence/before-after-parity.json', JSON.stringify({ failures, evidence }, null, 2));
+          await browser.close();
+          if (failures) process.exitCode = 1;
+          EOF
+          node /tmp/before-after-parity.mjs
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: css-581-before-after-parity
+          path: evidence
+          if-no-files-found: error
