@@ -28,6 +28,23 @@ test("agent verification workflow is finite, exact-SHA scoped, chat-triggerable,
   assert.match(workflow, /npm run toolchain:doctor -- --json/);
   assert.match(workflow, /npm run test:fast/);
   assert.match(workflow, /browser-launch-probe\.mjs/);
+
+  const mediaFingerprint = workflow.indexOf("- name: Calculate canonical media fingerprint");
+  const mediaRestore = workflow.indexOf("- name: Restore exact generated media cache");
+  const mediaVerify = workflow.indexOf("- name: Verify restored generated media");
+  const mediaRecover = workflow.indexOf("- name: Recover generated media on cache miss");
+  const browserBuild = workflow.indexOf("- name: Build browser target");
+
+  assert.ok(mediaFingerprint >= 0, "browser profiles must calculate the canonical generated-media fingerprint");
+  assert.ok(mediaRestore > mediaFingerprint, "browser profiles must restore generated media after fingerprinting");
+  assert.ok(mediaVerify > mediaRestore, "restored generated media must be verified before browser build");
+  assert.ok(mediaRecover > mediaRestore, "cache miss must recover generated media instead of continuing with missing assets");
+  assert.ok(browserBuild > mediaVerify, "browser build must run only after generated media provisioning");
+  assert.match(workflow, /generated-media-v3-\$\{\{\s*runner\.os\s*\}\}-\$\{\{\s*steps\.media\.outputs\.fingerprint\s*\}\}/);
+  assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
+  assert.match(workflow, /npm run media:sync/);
+  assert.match(workflow, /git diff --exit-code/);
+
   assert.match(
     workflow,
     /- name: Build browser target\s*\n\s*if:\s*\$\{\{[\s\S]*?browser-smoke[\s\S]*?responsive[\s\S]*?\}\}\s*\n\s*run:\s*npm run build:vite/,
