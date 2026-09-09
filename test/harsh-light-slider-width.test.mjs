@@ -11,7 +11,7 @@ test("HARSH LIGHT keeps intrinsic image sizing without changing the generic slid
   assert.match(html, /<img[^>]*height="426"[^>]*width="640"/);
   assert.match(html, /<img[^>]*height="800"[^>]*width="929"/);
 
-  const css = await readFile(new URL("../src/styles/components.css", import.meta.url), "utf8");
+  const css = await readFile(new URL("../src/styles/slider.css", import.meta.url), "utf8");
   const rule = css.match(/\.slider\s*\{(?<body>[\s\S]*?)\}/)?.groups?.body ?? "";
 
   assert.match(rule, /inline-size:\s*min\(100%,\s*var\(--project-media-max,\s*72\.5rem\)\)\s*;/);

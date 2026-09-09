@@ -71,9 +71,7 @@ test("Wave5K preserves runtime and authored duration boundaries", () => {
   assert.match(renderer, /data-infinite-reel-track/);
 });
 
-test("Wave5K stops before Slider ownership", () => {
-  assert.match(components, /Slider and magazine — interaction without motion/);
-  assert.match(components, /(?:^|\n)\.slider\s*\{/);
+test("Wave5K media ownership remains isolated from Slider", () => {
   assert.doesNotMatch(media, /(?:^|\n)\.slider\s*\{/);
 });
 
