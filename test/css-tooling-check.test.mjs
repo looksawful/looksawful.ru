@@ -1,5 +1,13 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
@@ -14,9 +22,68 @@ const packageJson = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
 
+const canonicalManifest = `@layer reset, tokens, colors, base, patterns, components, captions, motion, utilities;
+
+@import "@fontsource-variable/inter/wght.css";
+
+@import "./reset.css" layer(reset);
+@import "./tokens.css" layer(tokens);
+@import "./colors.css" layer(colors);
+@import "./base.css" layer(base);
+@import "./patterns.css" layer(patterns);
+@import "./media.css" layer(components);
+@import "./components.css" layer(components);
+@import "./before-after.css" layer(components);
+@import "./code-block.css" layer(components);
+@import "./project-header.css" layer(components);
+@import "./project-navigation.css" layer(components);
+@import "./project-shell.css" layer(components);
+@import "./expertise.css" layer(components);
+@import "./experience.css" layer(components);
+@import "./site-navigation.css" layer(components);
+@import "./page-flip.css" layer(components);
+@import "./slider.css" layer(components);
+@import "./media-deck.css" layer(components);
+@import "./media-lightbox.css" layer(components);
+@import "../components/jestei-theme-organism/jestei-theme-organism.css";
+@import "./captions.css" layer(captions);
+@import "./motion.css" layer(motion);
+@import "./utilities.css" layer(utilities);
+`;
+
+function checkFixture(indexSource) {
+  const fixtureRoot = mkdtempSync(path.join(tmpdir(), "looksawful-css-check-"));
+  try {
+    const styles = path.join(fixtureRoot, "src/styles");
+    mkdirSync(styles, { recursive: true });
+    writeFileSync(path.join(styles, "index.css"), indexSource);
+    return checkCssArchitecture(fixtureRoot);
+  } finally {
+    rmSync(fixtureRoot, { recursive: true, force: true });
+  }
+}
+
 test("css:check is wired as a small repository-owned architecture command", () => {
   assert.equal(packageJson.scripts["css:check"], "node tools/css/check.mjs");
   assert.deepEqual(checkCssArchitecture(root), []);
+});
+
+test("manifest checker enforces the complete ordered stylesheet load graph", () => {
+  assert.deepEqual(checkFixture(canonicalManifest), []);
+
+  const withoutMedia = canonicalManifest.replace(
+    '@import "./media.css" layer(components);\n',
+    "",
+  );
+  assert.match(checkFixture(withoutMedia).join("\n"), /manifest:/);
+
+  const reordered = canonicalManifest
+    .replace('@import "./project-shell.css" layer(components);\n', "")
+    .replace(
+      '@import "./expertise.css" layer(components);\n',
+      '@import "./expertise.css" layer(components);\n@import "./project-shell.css" layer(components);\n',
+    );
+  assert.match(checkFixture(reordered).join("\n"), /manifest:/);
 });
 
 test("owner checker catches selector family regrowth outside its canonical owner", () => {
@@ -34,6 +101,38 @@ test("owner checker catches selector family regrowth outside its canonical owner
   assert.deepEqual(errors, [
     "site-navigation: selector family belongs to src/styles/site-navigation.css, found in src/styles/components.css",
   ]);
+});
+
+test("owner registry protects stabilized project, expertise, experience and media internals", () => {
+  const regrowth = new Map([
+    [
+      "src/styles/unrelated.css",
+      `.project__intro { display: grid; }
+.expertise__item { display: grid; }
+.experience__period { display: block; }
+.media-group__head { display: grid; }`,
+    ],
+  ]);
+  const errors = findOwnerViolations(regrowth);
+  assert.equal(errors.length, 4, errors.join("\n"));
+  assert.match(errors.join("\n"), /src\/styles\/project-shell\.css/);
+  assert.match(errors.join("\n"), /src\/styles\/expertise\.css/);
+  assert.match(errors.join("\n"), /src\/styles\/experience\.css/);
+  assert.match(errors.join("\n"), /src\/styles\/media\.css/);
+
+  const allowedComposition = new Map([
+    [
+      "src/styles/components.css",
+      `.expertise { padding-block: 1rem; }
+.experience { padding-block: 1rem; }
+.project__section > :is(.media, .mockup, .slider):only-child { inline-size: 100%; }`,
+    ],
+    [
+      "src/styles/index.css",
+      `.media-group[data-layout="strip"] .portfolio-logo-wall__item .media__surface { isolation: isolate; }`,
+    ],
+  ]);
+  assert.deepEqual(findOwnerViolations(allowedComposition), []);
 });
 
 test("owner checker catches indented and grouped durable owner selectors", () => {
