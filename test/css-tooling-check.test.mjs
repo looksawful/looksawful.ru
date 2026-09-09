@@ -5,6 +5,7 @@ import test from "node:test";
 
 import {
   checkCssArchitecture,
+  findComponentsNoGrowthViolations,
   findIncomingLifecycleViolations,
   findOwnerViolations,
 } from "../tools/css/check.mjs";
@@ -53,6 +54,31 @@ test("owner checker does not confuse related but different class families", () =
   ]);
 
   assert.deepEqual(errors, []);
+});
+
+test("components residual guard allows retirement but rejects a new selector family", () => {
+  const allowedFamilies = new Set(["hero", "project-card"]);
+
+  assert.deepEqual(
+    findComponentsNoGrowthViolations(
+      ".hero__portrait { display: block; }\n.project-card__media { display: grid; }",
+      allowedFamilies,
+    ),
+    [],
+  );
+
+  assert.deepEqual(
+    findComponentsNoGrowthViolations(
+      ".hero { display: block; }\n.new-widget { display: grid; }",
+      allowedFamilies,
+    ),
+    ["components: new durable selector family .new-widget is not in the residual allowlist"],
+  );
+
+  assert.deepEqual(
+    findComponentsNoGrowthViolations(".hero { display: block; }", allowedFamilies),
+    [],
+  );
 });
 
 test("incoming lifecycle accepts one fully described temporary family", () => {
