@@ -65,7 +65,7 @@ The stable package-level API should be:
 
 ## CI policy
 
-- Add the tooling-contract test to `fastTests` only after the exporter lands.
-- Add `npm run copy:check` to ordinary verification after the committed generated index exists.
+- Keep the cheap tooling and matcher contract tests in `fastTests`; they do not execute the exporter or Playwright.
+- Add `npm run copy:check` to ordinary verification only after the exporter and committed generated index exist.
 - Keep `npm run copy:coverage` outside normal `verify`; run it manually, on a scheduled job, or in a release/deep-audit workflow.
 - A missing rendered snapshot is an explicit deep-audit setup error, not proof that source coverage passed.
