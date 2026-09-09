@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 import { sitePages } from "../../src/site/pages/manifest.ts";
 
@@ -48,7 +49,11 @@ export function extractCaseDocument({ page, route, locale, source, data }) {
   const context = { page, route, locale, source };
   const records = [];
 
-  pushRecord(records, context, "intro", "lead", data?.lead);
+  if (typeof data?.lead === "string") {
+    pushRecord(records, context, "intro", "lead", data.lead);
+  } else {
+    pushRecord(records, context, "intro", "intro.lead", data?.intro?.lead);
+  }
 
   for (const [sectionIndex, section] of (data?.sections ?? []).entries()) {
     const sectionId = section?.id || `section-${sectionIndex}`;
@@ -82,12 +87,32 @@ export function extractCaseDocument({ page, route, locale, source, data }) {
   }
 
   for (const [creditIndex, credit] of (data?.credits ?? []).entries()) {
+    const creditId = credit?.id || `credit-${creditIndex}`;
     pushRecord(
       records,
       context,
-      credit?.id || `credit-${creditIndex}`,
+      creditId,
       `credits[${creditIndex}].title`,
       credit?.title,
+    );
+    for (const [lineIndex, line] of (credit?.lines ?? []).entries()) {
+      pushRecord(
+        records,
+        context,
+        creditId,
+        `credits[${creditIndex}].lines[${lineIndex}]`,
+        line,
+      );
+    }
+  }
+
+  for (const [noteIndex, note] of (data?.notes ?? []).entries()) {
+    pushRecord(
+      records,
+      context,
+      note?.id || `note-${noteIndex}`,
+      `notes[${noteIndex}].text`,
+      note?.text,
     );
   }
 
@@ -112,8 +137,8 @@ export async function loadConfiguredCaseCopy({ root = process.cwd() } = {}) {
   const records = [];
 
   for (const entry of resolveConfiguredCaseSources()) {
-    const sourceUrl = new URL(entry.source, `file://${root.replaceAll("\\", "/")}/`);
-    const data = JSON.parse(await readFile(sourceUrl, "utf8"));
+    const sourcePath = path.resolve(root, entry.source);
+    const data = JSON.parse(await readFile(sourcePath, "utf8"));
     records.push(...extractCaseDocument({ ...entry, data }));
   }
 
