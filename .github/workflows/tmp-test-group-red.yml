@@ -1,4 +1,4 @@
-name: Temporary Test Group RED
+name: Temporary Test Group Proof
 
 on:
   pull_request:
@@ -12,12 +12,17 @@ permissions:
   contents: read
 
 jobs:
-  test-group-contract:
+  test-group-entrypoints:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+          cache: npm
+      - run: npm ci
       - run: node --test test/test-groups.test.mjs
+      - run: npm run test:cv
+      - run: npm run test:media:contract
+      - run: npm run test:media:checks
