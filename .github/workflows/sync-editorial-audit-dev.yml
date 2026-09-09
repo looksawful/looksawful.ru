@@ -1,0 +1,40 @@
+name: Sync editorial audit fixes with dev
+
+on:
+  push:
+    branches:
+      - fix/editorial-audit-3-9
+    paths:
+      - .github/workflows/sync-editorial-audit-dev.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/editorial-audit-3-9
+          fetch-depth: 0
+
+      - name: Merge current dev
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin dev
+          git merge --no-edit origin/dev
+
+      - name: Verify focused editorial regressions after sync
+        run: node --test test/editorial-audit-regressions.test.mjs
+
+      - name: Remove one-shot workflow and push
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/sync-editorial-audit-dev.yml
+          git commit -m "chore: remove one-shot dev sync workflow"
+          git push origin HEAD:fix/editorial-audit-3-9
