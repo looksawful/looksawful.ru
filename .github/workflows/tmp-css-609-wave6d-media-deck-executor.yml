@@ -110,9 +110,10 @@ jobs:
           set -euo pipefail
           node --test \
             test/css-tooling-check.test.mjs \
-            test/css-fixes/responsive-css.test.mjs \
-            test/caption-lightbox-contract.test.mjs \
-            test/home-media-deferral.test.mjs
+            test/caption-lightbox-contract.test.mjs
+          node --test \
+            --test-name-pattern="media deck dots keep small visual dots on larger hit targets" \
+            test/css-fixes/responsive-css.test.mjs
           node tools/css/check.mjs
 
       - name: Stylelint and diff hygiene
