@@ -10,6 +10,7 @@ on:
       - ".github/workflows/yandex-control.yml"
       - "tools/yandex-control.mjs"
       - "test/yandex-control-workflow.test.mjs"
+      - "docs/yandex-control.md"
 
 permissions:
   contents: read
@@ -49,6 +50,9 @@ jobs:
     permissions:
       contents: read
       issues: write
+    concurrency:
+      group: yandex-control-${{ github.event.issue.number }}
+      cancel-in-progress: false
     steps:
       - name: Checkout exact default-branch source
         uses: actions/checkout@v7
@@ -71,6 +75,9 @@ jobs:
           YANDEX_CONTROL_RESULT_PATH: ${{ runner.temp }}/yandex-control-result.md
           YANDEX_OAUTH_TOKEN: ${{ secrets.YANDEX_OAUTH_TOKEN }}
           YANDEX_METRIKA_COUNTER_ID: ${{ vars.YANDEX_METRIKA_COUNTER_ID }}
+          YANDEX_DISK_ROOT: ${{ vars.YANDEX_DISK_ROOT }}
+          YANDEX_CLOUD_ID: ${{ vars.YANDEX_CLOUD_ID }}
+          YANDEX_CLOUD_FOLDER_ID: ${{ vars.YANDEX_CLOUD_FOLDER_ID }}
         run: node tools/yandex-control.mjs
 
       - name: Comment sanitized result
