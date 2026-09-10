@@ -60,7 +60,7 @@ Copy the environment template:
 
 ```bash
 sudo install -d -m 750 /etc/looksawful
-sudo cp deploy/media-desk/media-desk.env.example /etc/looksawful/media-desk.env
+sudo cp tools/deploy/media-desk/media-desk.env.example /etc/looksawful/media-desk.env
 sudo chmod 600 /etc/looksawful/media-desk.env
 ```
 
@@ -69,7 +69,7 @@ Fill the real username, scrypt hash, session secret and public origin in that fi
 Install the service:
 
 ```bash
-sudo cp deploy/media-desk/looksawful-media-desk.service /etc/systemd/system/
+sudo cp tools/deploy/media-desk/looksawful-media-desk.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now looksawful-media-desk
 sudo systemctl status looksawful-media-desk
@@ -84,7 +84,7 @@ Create one named Cloudflare Tunnel for Media Desk and route `media.looksawful.ru
 A configuration template is provided at:
 
 ```text
-deploy/media-desk/cloudflared-config.example.yml
+tools/deploy/media-desk/cloudflared-config.example.yml
 ```
 
 Do not expose port `4174` publicly in the Yandex Cloud security group. The only intended path is the local Cloudflare Tunnel process.
