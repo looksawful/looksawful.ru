@@ -29,7 +29,7 @@ Nightly Quality при этом уже выполняет `test:core`, а `test:
 
 Fast является opt-in allowlist в `tools/ci/run-tests.mjs`. Новый тест не попадает сюда автоматически.
 
-Текущий Fast содержит 41 дешёвый долгоживущий contract:
+Текущий Fast содержит 43 дешёвых долгоживущих contract:
 
 - `test/agent-verification-workflow.test.mjs`
 - `test/awful-cases-cms-editorial.test.mjs`
@@ -62,6 +62,8 @@ Fast является opt-in allowlist в `tools/ci/run-tests.mjs`. Новый �
 - `test/media-tools/affected-media-ci.test.mjs`
 - `test/media-tools/media-cache-fingerprint-scope.test.mjs`
 - `test/pages-cms-yaml-syntax.test.mjs`
+- `test/pr-preview-media-packaging.test.mjs`
+- `test/pr-preview-workflow.test.mjs`
 - `test/project-card-hover.test.mjs`
 - `test/repository-growth-policy.test.mjs`
 - `test/search-presentation.test.mjs`
