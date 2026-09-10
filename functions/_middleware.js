@@ -1,11 +1,22 @@
 const USERNAME = "lab";
 const REALM = "looksawful lab";
+const CANONICAL_HOST = "lab.looksawful.ru";
+const CANONICAL_PATH = "/lab/";
+
+function securityHeaders() {
+  return {
+    "Cache-Control": "private, no-store",
+    "Referrer-Policy": "no-referrer",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "SAMEORIGIN",
+    "X-Robots-Tag": "noindex, nofollow, noarchive",
+  };
+}
 
 function protectedResponse(message, status) {
   const headers = {
-    "Cache-Control": "no-store",
+    ...securityHeaders(),
     "Content-Type": "text/plain; charset=utf-8",
-    "X-Robots-Tag": "noindex, nofollow, noarchive",
   };
   if (status === 401) {
     headers["WWW-Authenticate"] = `Basic realm="${REALM}", charset="UTF-8"`;
@@ -28,6 +39,21 @@ function readCredentials(header) {
   }
 }
 
+function canonicalRedirect(request) {
+  const url = new URL(request.url);
+  if (url.hostname !== CANONICAL_HOST || url.pathname !== "/") return null;
+
+  const destination = new URL(CANONICAL_PATH, url);
+  destination.search = url.search;
+  return new Response(null, {
+    status: 302,
+    headers: {
+      ...securityHeaders(),
+      Location: destination.toString(),
+    },
+  });
+}
+
 export async function onRequest(context) {
   const expectedPassword = context.env.LAB_PASSWORD;
   if (typeof expectedPassword !== "string" || expectedPassword.length === 0) {
@@ -39,9 +65,14 @@ export async function onRequest(context) {
     return protectedResponse("Authentication required", 401);
   }
 
+  const redirect = canonicalRedirect(context.request);
+  if (redirect) return redirect;
+
   const response = await context.next();
   const headers = new Headers(response.headers);
-  headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  for (const [name, value] of Object.entries(securityHeaders())) {
+    headers.set(name, value);
+  }
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
