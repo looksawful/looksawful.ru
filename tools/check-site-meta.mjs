@@ -22,7 +22,11 @@ import {
 
 const EXPECTED_ROBOTS = "index,follow,max-image-preview:large";
 const EXPECTED_FAVICON = "/favicon.png";
+const EXPECTED_FAVICON_TYPE = "image/png";
+const EXPECTED_FAVICON_SIZES = "120x120";
 const EXPECTED_APPLE_TOUCH_ICON = "/apple-touch-icon.png";
+const EXPECTED_APPLE_TOUCH_ICON_SIZES = "180x180";
+const EXPECTED_MANIFEST = "/site.webmanifest";
 const EXPECTED_THEME_COLOR = "#ffffff";
 const EXPECTED_OG_SITE_NAME = "looksawful";
 const EXPECTED_OG_TYPE = "website";
@@ -39,6 +43,16 @@ function expectedLocale(html, label) {
   if (lang === "ru" || lang.startsWith("ru-")) return "ru_RU";
   if (lang === "en" || lang.startsWith("en-")) return "en_US";
   throw new Error(`${label}: unsupported or missing html lang for og:locale`);
+}
+
+function getLinkAttributes(html, rel, href) {
+  for (const match of html.matchAll(/<link\b[^>]*>/gi)) {
+    const attributes = parseAttributes(match[0]);
+    if ((attributes.rel ?? "").toLowerCase() !== rel) continue;
+    if (href && attributes.href !== href) continue;
+    return attributes;
+  }
+  return null;
 }
 
 async function validateOwnAssetUrl(value, distDir, label, kind) {
@@ -96,7 +110,10 @@ export async function validateSite({ distDir = "dist" } = {}) {
     const description = getMetaContent(html, "description");
     const robots = getRobots(html);
     const favicon = getLinkHref(html, "icon");
+    const faviconAttributes = getLinkAttributes(html, "icon", EXPECTED_FAVICON);
     const appleTouchIcon = getLinkHref(html, "apple-touch-icon");
+    const appleTouchIconAttributes = getLinkAttributes(html, "apple-touch-icon", EXPECTED_APPLE_TOUCH_ICON);
+    const manifest = getLinkHref(html, "manifest");
     const themeColor = getMetaContent(html, "theme-color");
     const ogType = getMetaContent(html, "og:type", "property");
     const ogLocale = getMetaContent(html, "og:locale", "property");
@@ -123,13 +140,28 @@ export async function validateSite({ distDir = "dist" } = {}) {
     if (favicon !== EXPECTED_FAVICON) {
       errors.push(`${label}: favicon must be ${EXPECTED_FAVICON}`);
     } else {
+      if (faviconAttributes?.type !== EXPECTED_FAVICON_TYPE) {
+        errors.push(`${label}: favicon type must be ${EXPECTED_FAVICON_TYPE}`);
+      }
+      if (faviconAttributes?.sizes !== EXPECTED_FAVICON_SIZES) {
+        errors.push(`${label}: favicon sizes must be ${EXPECTED_FAVICON_SIZES}`);
+      }
       try { await validateOwnAssetUrl(favicon, root, label, "favicon"); } catch (error) { errors.push(error.message); }
     }
 
     if (appleTouchIcon !== EXPECTED_APPLE_TOUCH_ICON) {
       errors.push(`${label}: apple-touch-icon must be ${EXPECTED_APPLE_TOUCH_ICON}`);
     } else {
+      if (appleTouchIconAttributes?.sizes !== EXPECTED_APPLE_TOUCH_ICON_SIZES) {
+        errors.push(`${label}: apple-touch-icon sizes must be ${EXPECTED_APPLE_TOUCH_ICON_SIZES}`);
+      }
       try { await validateOwnAssetUrl(appleTouchIcon, root, label, "apple-touch-icon"); } catch (error) { errors.push(error.message); }
+    }
+
+    if (manifest !== EXPECTED_MANIFEST) {
+      errors.push(`${label}: manifest must be ${EXPECTED_MANIFEST}`);
+    } else {
+      try { await validateOwnAssetUrl(manifest, root, label, "manifest"); } catch (error) { errors.push(error.message); }
     }
 
     if (themeColor !== EXPECTED_THEME_COLOR) {
@@ -192,6 +224,24 @@ export async function validateSite({ distDir = "dist" } = {}) {
       if (!types.includes("WebSite")) errors.push("index.html: JSON-LD missing WebSite");
       if (!types.includes("Person")) errors.push("index.html: JSON-LD missing Person");
     }
+  }
+
+  const manifestPath = path.join(root, "site.webmanifest");
+  try {
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    if (manifest.theme_color !== EXPECTED_THEME_COLOR) {
+      errors.push(`site.webmanifest: theme_color must be ${EXPECTED_THEME_COLOR}`);
+    }
+    const icons = Array.isArray(manifest.icons) ? manifest.icons : [];
+    const favicon = icons.find((icon) => icon?.src === EXPECTED_FAVICON);
+    if (!favicon) {
+      errors.push(`site.webmanifest: missing ${EXPECTED_FAVICON} icon`);
+    } else {
+      if (favicon.type !== EXPECTED_FAVICON_TYPE) errors.push(`site.webmanifest: favicon type must be ${EXPECTED_FAVICON_TYPE}`);
+      if (favicon.sizes !== EXPECTED_FAVICON_SIZES) errors.push(`site.webmanifest: favicon sizes must be ${EXPECTED_FAVICON_SIZES}`);
+    }
+  } catch (error) {
+    errors.push(`site.webmanifest: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   const robotsPath = path.join(root, "robots.txt");
