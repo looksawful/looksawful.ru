@@ -1,7 +1,7 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-const ACCESS_LOGIN_PATH = "/cdn-cgi/access/login";
+const ACCESS_LOGIN_PATH = "/cdn-cgi/access/";
 
 function envValue(env, key) {
   const value = env?.[key];
@@ -21,11 +21,23 @@ export function getAccessServiceHeaders(env = process.env) {
   };
 }
 
+function isCloudflareAccessRedirect(location, responseUrl = "") {
+  if (!location) return false;
+  try {
+    const base = responseUrl || "https://preview.invalid/";
+    const target = new URL(location, base);
+    const host = target.hostname.toLowerCase();
+    const isAccessHost = host.endsWith(".cloudflareaccess.com");
+    return isAccessHost && target.pathname.startsWith(ACCESS_LOGIN_PATH);
+  } catch {
+    return false;
+  }
+}
+
 export function isAccessChallenge(response) {
   if ([401, 403].includes(response.status)) return true;
   if (![301, 302, 303, 307, 308].includes(response.status)) return false;
-  const location = response.headers.get("location") ?? "";
-  return location.includes(ACCESS_LOGIN_PATH) || location.includes(".cloudflareaccess.com/");
+  return isCloudflareAccessRedirect(response.headers.get("location") ?? "", response.url);
 }
 
 export async function verifyPreviewPrivacy({
@@ -43,17 +55,17 @@ export async function verifyPreviewPrivacy({
   });
   const anonymousBlocked = isAccessChallenge(anonymous);
 
+  if (!anonymousBlocked) {
+    throw new Error(`Anonymous request still reaches preview content (HTTP ${anonymous.status}).`);
+  }
+
   if (!serviceConfigured) {
     return {
       serviceConfigured: false,
-      anonymousBlocked,
+      anonymousBlocked: true,
       authenticated: false,
       anonymousStatus: anonymous.status,
     };
-  }
-
-  if (!anonymousBlocked) {
-    throw new Error(`Anonymous request still reaches preview content (HTTP ${anonymous.status}).`);
   }
 
   const authenticatedResponse = await fetchImpl(url, {
@@ -192,11 +204,7 @@ async function runCli() {
     if (!url) throw new Error("cloudflare-access verify requires --url.");
     const result = await verifyPreviewPrivacy({ url, marker });
     if (!result.serviceConfigured) {
-      const state = result.anonymousBlocked ? "anonymous-blocked" : "PUBLIC";
-      console.log(`[preview-access] service credentials not configured; observed state: ${state} (HTTP ${result.anonymousStatus}).`);
-      if (!result.anonymousBlocked) {
-        console.log("::warning::Preview privacy is incomplete. Enable Cloudflare Access and configure CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET.");
-      }
+      console.log(`[preview-access] anonymous access is denied (HTTP ${result.anonymousStatus}); CI service credentials are not configured.`);
       return;
     }
     console.log(`[preview-access] anonymous denied; CI service authentication succeeded (HTTP ${result.authenticatedStatus}).`);
