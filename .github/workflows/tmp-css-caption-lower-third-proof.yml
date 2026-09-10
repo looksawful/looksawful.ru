@@ -1,0 +1,21 @@
+name: Temporary CSS caption lower-third proof
+
+on:
+  push:
+    branches:
+      - fix/css-caption-lower-third-owner-test
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Run caption lower-third contract
+        run: node --test test/caption-lower-third.test.mjs
