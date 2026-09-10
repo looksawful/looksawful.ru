@@ -2,6 +2,8 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import sharp from "sharp";
+
 import {
   collectHtmlFiles,
   getCanonical,
@@ -15,7 +17,17 @@ import {
 } from "./site-html-utils.mjs";
 
 const SITE_NAME = "looksawful";
-const FAVICON = "/favicon.svg";
+const SEARCH_FAVICON = "/favicon-48.png";
+const SVG_FAVICON = "/favicon.svg";
+const APPLE_TOUCH_ICON = "/apple-touch-icon.png";
+const SITE_MANIFEST = "/site.webmanifest";
+const THEME_COLOR = "#f9f9f9";
+const GENERATED_ICONS = Object.freeze([
+  { file: "favicon-48.png", size: 48 },
+  { file: "apple-touch-icon.png", size: 180 },
+  { file: "favicon-192.png", size: 192 },
+  { file: "favicon-512.png", size: 512 },
+]);
 
 function escapeAttribute(value) {
   return String(value)
@@ -41,6 +53,24 @@ function metaName(name, content) {
   return `<meta name="${name}" content="${escapeAttribute(content)}">`;
 }
 
+function stripDisplayMetadata(html) {
+  return html
+    .replace(/\s*<link\b(?=[^>]*\brel=["']icon["'])[^>]*>/gi, "")
+    .replace(/\s*<link\b(?=[^>]*\brel=["']apple-touch-icon["'])[^>]*>/gi, "")
+    .replace(/\s*<link\b(?=[^>]*\brel=["']manifest["'])[^>]*>/gi, "")
+    .replace(/\s*<meta\b(?=[^>]*\bname=["']theme-color["'])[^>]*>/gi, "");
+}
+
+function displayMetadata() {
+  return [
+    `<link rel="icon" href="${SEARCH_FAVICON}" sizes="48x48" type="image/png">`,
+    `<link rel="icon" href="${SVG_FAVICON}" type="image/svg+xml">`,
+    `<link rel="apple-touch-icon" href="${APPLE_TOUCH_ICON}" sizes="180x180">`,
+    `<link rel="manifest" href="${SITE_MANIFEST}">`,
+    metaName("theme-color", THEME_COLOR),
+  ];
+}
+
 export function finalizeStaticDiscoveryHtml(html, label = "HTML") {
   if (isNoIndex(html)) return html;
 
@@ -49,31 +79,40 @@ export function finalizeStaticDiscoveryHtml(html, label = "HTML") {
   const canonical = getCanonical(html);
   const ogImage = getMetaContent(html, "og:image", "property");
   const locale = pageLocale(html, label);
-  const additions = [];
+  const normalized = stripDisplayMetadata(html);
+  const additions = displayMetadata();
 
-  if (!getLinkHref(html, "icon")) {
-    additions.push(`<link rel="icon" href="${FAVICON}" type="image/svg+xml">`);
-  }
-  if (!getMetaContent(html, "og:type", "property")) additions.push(metaProperty("og:type", "website"));
-  if (!getMetaContent(html, "og:locale", "property")) additions.push(metaProperty("og:locale", locale));
-  if (!getMetaContent(html, "og:site_name", "property")) additions.push(metaProperty("og:site_name", SITE_NAME));
-  if (!getMetaContent(html, "og:title", "property") && title) additions.push(metaProperty("og:title", title));
-  if (!getMetaContent(html, "og:description", "property") && description) additions.push(metaProperty("og:description", description));
-  if (!getMetaContent(html, "og:url", "property") && canonical) additions.push(metaProperty("og:url", canonical));
+  if (!getMetaContent(normalized, "og:type", "property")) additions.push(metaProperty("og:type", "website"));
+  if (!getMetaContent(normalized, "og:locale", "property")) additions.push(metaProperty("og:locale", locale));
+  if (!getMetaContent(normalized, "og:site_name", "property")) additions.push(metaProperty("og:site_name", SITE_NAME));
+  if (!getMetaContent(normalized, "og:title", "property") && title) additions.push(metaProperty("og:title", title));
+  if (!getMetaContent(normalized, "og:description", "property") && description) additions.push(metaProperty("og:description", description));
+  if (!getMetaContent(normalized, "og:url", "property") && canonical) additions.push(metaProperty("og:url", canonical));
 
   const twitterCard = ogImage ? "summary_large_image" : "summary";
-  if (!getMetaContent(html, "twitter:card")) additions.push(metaName("twitter:card", twitterCard));
-  if (!getMetaContent(html, "twitter:title") && title) additions.push(metaName("twitter:title", title));
-  if (!getMetaContent(html, "twitter:description") && description) additions.push(metaName("twitter:description", description));
-  if (!getMetaContent(html, "twitter:image") && ogImage) additions.push(metaName("twitter:image", ogImage));
+  if (!getMetaContent(normalized, "twitter:card")) additions.push(metaName("twitter:card", twitterCard));
+  if (!getMetaContent(normalized, "twitter:title") && title) additions.push(metaName("twitter:title", title));
+  if (!getMetaContent(normalized, "twitter:description") && description) additions.push(metaName("twitter:description", description));
+  if (!getMetaContent(normalized, "twitter:image") && ogImage) additions.push(metaName("twitter:image", ogImage));
 
-  if (additions.length === 0) return html;
-  if (!/<\/head>/i.test(html)) throw new Error(`${label}: missing </head>`);
-  return html.replace(/<\/head>/i, `${additions.join("\n")}\n</head>`);
+  if (!/<\/head>/i.test(normalized)) throw new Error(`${label}: missing </head>`);
+  return normalized.replace(/<\/head>/i, `${additions.join("\n")}\n</head>`);
+}
+
+async function generateSiteIcons(root) {
+  const source = path.join(root, "favicon.svg");
+  await Promise.all(GENERATED_ICONS.map(async ({ file, size }) => {
+    await sharp(source)
+      .resize(size, size, { fit: "contain" })
+      .png({ compressionLevel: 9 })
+      .toFile(path.join(root, file));
+  }));
 }
 
 export async function finalizeStaticDiscovery({ distDir = "dist" } = {}) {
   const root = path.resolve(distDir);
+  await generateSiteIcons(root);
+
   const htmlFiles = await collectHtmlFiles(root);
   const changed = [];
 
