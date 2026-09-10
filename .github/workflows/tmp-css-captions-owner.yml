@@ -6,6 +6,8 @@ on:
     paths:
       - "src/styles/index.css"
       - "src/styles/captions.css"
+      - "tools/css/check.mjs"
+      - "test/css-tooling-check.test.mjs"
       - "test/caption-lightbox-contract.test.mjs"
       - ".github/workflows/tmp-css-captions-owner.yml"
 
@@ -25,7 +27,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - name: Apply deterministic move-only implementation
+      - name: Apply deterministic ownership update
         shell: bash
         run: |
           python - <<'PY'
@@ -37,54 +39,85 @@ jobs:
           captions = captions_path.read_text()
           marker = "\n@layer captions {\n"
           marker_pos = index.find(marker)
-          if marker_pos == -1:
-              print("Late captions layer already absent; nothing to move.")
-              raise SystemExit(0)
+          if marker_pos != -1:
+              start = marker_pos + 1
+              brace_start = index.find("{", start)
+              depth = 0
+              end = None
+              for offset in range(brace_start, len(index)):
+                  char = index[offset]
+                  if char == "{":
+                      depth += 1
+                  elif char == "}":
+                      depth -= 1
+                      if depth == 0:
+                          end = offset + 1
+                          break
+              if end is None:
+                  raise SystemExit("Could not find balanced end of @layer captions block")
+              if index[end:].strip():
+                  raise SystemExit("Refusing move: unexpected content follows late captions block")
+              block = index[start:end]
+              inner = block[block.find("{") + 1 : block.rfind("}")]
+              lines = inner.splitlines()
+              while lines and not lines[0].strip():
+                  lines.pop(0)
+              while lines and not lines[-1].strip():
+                  lines.pop()
+              moved = "\n".join(line[2:] if line.startswith("  ") else line for line in lines).rstrip() + "\n"
+              index_path.write_text(index[:start].rstrip() + "\n")
+              captions_path.write_text(captions.rstrip() + "\n\n" + moved)
 
-          start = marker_pos + 1
-          brace_start = index.find("{", start)
-          depth = 0
-          end = None
-          for offset in range(brace_start, len(index)):
-              char = index[offset]
-              if char == "{":
-                  depth += 1
-              elif char == "}":
-                  depth -= 1
-                  if depth == 0:
-                      end = offset + 1
-                      break
-          if end is None:
-              raise SystemExit("Could not find balanced end of @layer captions block")
-          if index[end:].strip():
-              raise SystemExit("Refusing move: unexpected content follows late captions block")
+          checker_path = Path("tools/css/check.mjs")
+          checker = checker_path.read_text()
+          old_checker = '''      "src/styles/index.css": Object.freeze([\n        /\\.slider\\[data-media-deck\\]\\s+\\[data-slide-caption\\]:not\\(\\[data-caption-view="full"\\]\\)/g,\n      ]),'''
+          new_checker = '''      "src/styles/captions.css": Object.freeze([\n        /\\.slider\\[data-media-deck\\]\\s+\\[data-slide-caption\\]:not\\(\\[data-caption-view="full"\\]\\)/g,\n      ]),'''
+          if old_checker in checker:
+              checker_path.write_text(checker.replace(old_checker, new_checker, 1))
+          elif new_checker not in checker:
+              raise SystemExit("Expected slider seam allowance was not found in CSS checker")
 
-          block = index[start:end]
-          inner = block[block.find("{") + 1 : block.rfind("}")]
-          lines = inner.splitlines()
-          while lines and not lines[0].strip():
-              lines.pop(0)
-          while lines and not lines[-1].strip():
-              lines.pop()
-          moved = "\n".join(line[2:] if line.startswith("  ") else line for line in lines).rstrip() + "\n"
+          test_path = Path("test/css-tooling-check.test.mjs")
+          test_source = test_path.read_text()
+          start_marker = 'test("owner checker allows the documented captions-layer slider seam only", () => {'
+          end_marker = '\n\ntest("owner checker does not confuse related but different class families"'
+          start = test_source.find(start_marker)
+          end = test_source.find(end_marker, start)
+          if start == -1 or end == -1:
+              raise SystemExit("Expected slider seam tooling test block was not found")
+          replacement = '''test("owner checker allows the documented captions-layer slider seam only", () => {
+  const seam = `.slider[data-media-deck] [data-slide-caption]:not([data-caption-view="full"]) { display: none; }`;
+  const allowed = new Map([["src/styles/captions.css", seam]]);
+  assert.deepEqual(findOwnerViolations(allowed), []);
 
-          new_index = index[:start].rstrip() + "\n"
-          new_captions = captions.rstrip() + "\n\n" + moved
-          index_path.write_text(new_index)
-          captions_path.write_text(new_captions)
+  const staleIndex = new Map([["src/styles/index.css", seam]]);
+  assert.deepEqual(findOwnerViolations(staleIndex), [
+    "slider: selector family belongs to src/styles/slider.css, found in src/styles/index.css",
+  ]);
+
+  const regrowth = new Map([
+    ["src/styles/captions.css", `${seam}\\n.slider { padding: 1rem; }`],
+  ]);
+  assert.deepEqual(findOwnerViolations(regrowth), [
+    "slider: selector family belongs to src/styles/slider.css, found in src/styles/captions.css",
+  ]);
+});'''
+          test_path.write_text(test_source[:start] + replacement + test_source[end:])
           PY
-          if git diff --quiet -- src/styles/index.css src/styles/captions.css; then
-            echo "No production move required."
+          if git diff --quiet -- src/styles/index.css src/styles/captions.css tools/css/check.mjs test/css-tooling-check.test.mjs; then
+            echo "No ownership update required."
           else
             git config user.name "looksawful-css-proof"
             git config user.email "118225585+looksawful@users.noreply.github.com"
-            git add src/styles/index.css src/styles/captions.css
-            git commit -m "refactor(css): move late caption rules to canonical owner"
+            git add src/styles/index.css src/styles/captions.css tools/css/check.mjs test/css-tooling-check.test.mjs
+            git commit -m "fix(css): move caption seam allowance with owner"
             git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
           fi
       - run: npm ci
       - name: Caption/lightbox contract
         run: node --test test/caption-lightbox-contract.test.mjs
+      - name: CSS tooling contract
+        run: node --test test/css-tooling-check.test.mjs
       - name: CSS architecture check
         run: npm run css:check
       - name: Stylelint
