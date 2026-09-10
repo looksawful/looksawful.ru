@@ -90,6 +90,9 @@ jobs:
       - name: Fast tests
         run: npm run test:fast
 
+      - name: Lab workspace contract
+        run: node --test test/lab-workspace-contract.test.mjs
+
       - name: Build Lab without production analytics
         run: npm run build:site
 
