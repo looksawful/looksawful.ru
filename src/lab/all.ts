@@ -87,6 +87,19 @@ function projectMedia(id: string): readonly MediaCatalogItem[] {
   );
 }
 
+function collectionMedia(item: CollectionData, relatedProjects: readonly CanonicalProjectData[]): readonly MediaCatalogItem[] {
+  return mediaCatalogItems.filter((media) => {
+    if (media.archived) return false;
+    const projectMatch = relatedProjects.some((project) =>
+      media.projectIds.some((projectId) => projectId === project.id),
+    );
+    const workAreaMatch = (item.workAreaIds ?? []).some((workAreaId) =>
+      media.workAreaIds.some((mediaWorkAreaId) => mediaWorkAreaId === workAreaId),
+    );
+    return projectMatch || workAreaMatch;
+  });
+}
+
 function card(title: string, status?: string): HTMLElement {
   const node = element("article", "lab-data-card stack");
   node.style.setProperty("--stack-space", "0.75rem");
@@ -182,11 +195,10 @@ for (const item of allProjects) {
 const collectionsRoot = required<HTMLElement>("[data-lab-collections]");
 for (const item of allCollections) {
   const relatedProjects = allProjects.filter((project) => project.collectionIds?.includes(item.id));
-  const relatedMedia = mediaCatalogItems.filter((media) =>
-    !media.archived
-    && relatedProjects.some((project) => media.projectIds.some((projectId) => projectId === project.id)),
-  );
+  const relatedMedia = collectionMedia(item, relatedProjects);
   const node = card(item.displayName ?? item.name, item.visibility);
+  const preview = createPreview(relatedMedia.find((asset) => asset.showInCatalog) ?? relatedMedia[0]);
+  if (preview) node.prepend(preview);
   addCopy(node, item.summary || item.description);
   addTags(node, [
     item.id,
