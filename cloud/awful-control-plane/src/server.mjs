@@ -7,7 +7,6 @@ const SERVICE = "awful-control-plane";
 const MAX_BODY_BYTES = 1024 * 1024;
 const REQUEST_TIMEOUT_MS = Number.parseInt(process.env.UPSTREAM_TIMEOUT_MS ?? "120000", 10);
 
-const OPENAI_BASE_URL = stripTrailingSlash(process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1");
 const YANDEX_AI_BASE_URL = stripTrailingSlash(process.env.YANDEX_AI_BASE_URL ?? "https://ai.api.cloud.yandex.net/v1");
 const ALLOWED_ORIGINS = new Set(
   (process.env.ALLOWED_ORIGINS ?? "")
@@ -86,32 +85,11 @@ async function readJson(req) {
   }
 }
 
-function providerConfig(provider) {
-  if (provider === "openai") {
-    return {
-      apiKey: process.env.OPENAI_API_KEY,
-      baseUrl: OPENAI_BASE_URL,
-      defaultModel: process.env.OPENAI_MODEL,
-    };
-  }
+async function forwardYandexResponseRequest({ model, input, instructions, tools }) {
+  const apiKey = process.env.YANDEX_AI_API_KEY;
+  if (!apiKey) return { status: 503, body: { error: "yandex_not_configured" } };
 
-  if (provider === "yandex") {
-    return {
-      apiKey: process.env.YANDEX_AI_API_KEY,
-      baseUrl: YANDEX_AI_BASE_URL,
-      defaultModel: process.env.YANDEX_AI_MODEL,
-    };
-  }
-
-  return null;
-}
-
-async function forwardResponseRequest({ provider, model, input, instructions, tools }) {
-  const config = providerConfig(provider);
-  if (!config) return { status: 400, body: { error: "unsupported_provider" } };
-  if (!config.apiKey) return { status: 503, body: { error: `${provider}_not_configured` } };
-
-  const selectedModel = model ?? config.defaultModel;
+  const selectedModel = model ?? process.env.YANDEX_AI_MODEL;
   if (!selectedModel) return { status: 400, body: { error: "model_required" } };
   if (input === undefined || input === null || input === "") {
     return { status: 400, body: { error: "input_required" } };
@@ -123,10 +101,10 @@ async function forwardResponseRequest({ provider, model, input, instructions, to
 
   let upstream;
   try {
-    upstream = await fetch(`${config.baseUrl}/responses`, {
+    upstream = await fetch(`${YANDEX_AI_BASE_URL}/responses`, {
       method: "POST",
       headers: {
-        authorization: `Bearer ${config.apiKey}`,
+        authorization: `Bearer ${apiKey}`,
         "content-type": "application/json",
       },
       body: JSON.stringify(upstreamBody),
@@ -137,7 +115,7 @@ async function forwardResponseRequest({ provider, model, input, instructions, to
       status: 502,
       body: {
         error: "upstream_unreachable",
-        provider,
+        provider: "yandex",
         detail: error?.name === "TimeoutError" ? "timeout" : "network_error",
       },
     };
@@ -148,7 +126,7 @@ async function forwardResponseRequest({ provider, model, input, instructions, to
   try {
     body = text ? JSON.parse(text) : {};
   } catch {
-    body = { error: "upstream_non_json_response", provider, status: upstream.status };
+    body = { error: "upstream_non_json_response", provider: "yandex", status: upstream.status };
   }
 
   return { status: upstream.status, body };
@@ -157,10 +135,13 @@ async function forwardResponseRequest({ provider, model, input, instructions, to
 function capabilities() {
   return {
     service: SERVICE,
-    version: "0.1.0",
-    providers: {
-      openai: Boolean(process.env.OPENAI_API_KEY),
+    version: "0.2.0",
+    serverAiProvider: {
       yandex: Boolean(process.env.YANDEX_AI_API_KEY),
+    },
+    clients: {
+      chatgpt: "planned_via_mcp_app",
+      codex: "planned_via_mcp",
     },
     planned: {
       mcp: false,
@@ -216,7 +197,7 @@ const server = createServer(async (req, res) => {
   if (req.method === "POST" && url.pathname === "/v1/ai/responses") {
     try {
       const body = await readJson(req);
-      const result = await forwardResponseRequest(body);
+      const result = await forwardYandexResponseRequest(body);
       json(res, result.status, result.body, cors);
     } catch (error) {
       json(res, error.status ?? 500, { error: error.message ?? "internal_error" }, cors);
