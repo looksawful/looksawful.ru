@@ -25,7 +25,7 @@ test("Access service headers require the complete credential pair", () => {
   );
 });
 
-test("Access challenge recognizes login redirects and denied responses", () => {
+test("Access challenge recognizes only Cloudflare Access login redirects and denied responses", () => {
   assert.equal(isAccessChallenge(new Response(null, { status: 403 })), true);
   assert.equal(
     isAccessChallenge(new Response(null, {
@@ -34,10 +34,37 @@ test("Access challenge recognizes login redirects and denied responses", () => {
     })),
     true,
   );
+  assert.equal(
+    isAccessChallenge(new Response(null, {
+      status: 302,
+      headers: { location: "https://example.cloudflareaccess.com.evil.test/cdn-cgi/access/login/app" },
+    })),
+    false,
+  );
+  assert.equal(
+    isAccessChallenge(new Response(null, {
+      status: 302,
+      headers: { location: "https://example.cloudflareaccess.com/not-access/login" },
+    })),
+    false,
+  );
   assert.equal(isAccessChallenge(new Response("public", { status: 200 })), false);
 });
 
-test("privacy verification rejects a public preview once CI service auth is configured", async () => {
+test("privacy verification always rejects a public preview", async () => {
+  const fetchImpl = async () => new Response("public preview", { status: 200 });
+  await assert.rejects(
+    verifyPreviewPrivacy({
+      url: "https://preview.example.test/",
+      marker: "preview",
+      env: {},
+      fetchImpl,
+    }),
+    /anonymous request still reaches preview content/i,
+  );
+});
+
+test("privacy verification rejects a public preview when CI service auth is configured", async () => {
   const fetchImpl = async () => new Response("public preview", { status: 200 });
   await assert.rejects(
     verifyPreviewPrivacy({
@@ -57,7 +84,9 @@ test("privacy verification accepts anonymous denial plus authenticated exact con
   const requests = [];
   const fetchImpl = async (_url, options = {}) => {
     requests.push(options);
-    if (!options.headers || Object.keys(options.headers).length === 0) {
+    const headers = options.headers ?? {};
+    const hasServiceAuth = Boolean(headers["CF-Access-Client-Id"] && headers["CF-Access-Client-Secret"]);
+    if (!hasServiceAuth) {
       return new Response(null, {
         status: 302,
         headers: { location: "https://example.cloudflareaccess.com/cdn-cgi/access/login/app" },
