@@ -51,7 +51,7 @@ async function collectFiles(directory, prefix = "") {
 
 async function collectRepositorySourceFiles() {
   const files = ["vite.config.ts"];
-  for (const directory of [".github", "src", "test", "tools"]) {
+  for (const directory of [".github", "cloud", "src", "test", "tools"]) {
     files.push(...await collectFiles(path.join(root, directory), directory));
   }
   return files.filter((file) => sourceExtensions.has(path.extname(file)));
@@ -62,6 +62,7 @@ test("repository root contains only intentional source directories", async () =>
   const expected = [
     ".agents",
     ".github",
+    "cloud",
     "docs",
     "public",
     "shootings",
