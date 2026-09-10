@@ -1,0 +1,252 @@
+name: Visual Regression Diagnostics
+
+on:
+  push:
+    branches:
+      - audit/home-media-diagnostic-20260910
+
+permissions:
+  contents: read
+
+env:
+  TARGET_SHA: 8d384eeaeac58f1213fc7bccf81d42786952b625
+  BASE_URL: https://www.looksawful.ru
+
+jobs:
+  cv-live-diagnostic:
+    name: Diagnose production CV smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact production source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Require exact deployed production SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location -H 'Cache-Control: no-cache' \
+            "$BASE_URL/deploy-version.txt?audit=$GITHUB_RUN_ID" > /tmp/deploy-version.txt
+          grep -Fxq "commit=$TARGET_SHA" /tmp/deploy-version.txt
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Inspect CV readiness and static runtime contract
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+
+          const browser = await chromium.launch({ headless: true });
+          const viewports = [
+            ['phone', 390, 844],
+            ['tablet', 1024, 768],
+            ['desktop', 1440, 900],
+          ];
+          const withDeadline = async (label, promise, ms = 15_000) => {
+            let timer;
+            try {
+              return await Promise.race([
+                promise,
+                new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms); }),
+              ]);
+            } finally {
+              clearTimeout(timer);
+            }
+          };
+
+          try {
+            for (const [label, width, height] of viewports) {
+              console.log(`[cv-diagnostic] ${label}: create context`);
+              const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1 });
+              const page = await context.newPage();
+              const responses = [];
+              const pageErrors = [];
+              page.on('pageerror', (error) => pageErrors.push(error.message));
+              page.on('response', (response) => {
+                if (response.status() >= 400 && new URL(response.url()).origin === process.env.BASE_URL) {
+                  responses.push(`${response.status()} ${response.request().resourceType()} ${response.url()}`);
+                }
+              });
+              try {
+                console.log(`[cv-diagnostic] ${label}: goto`);
+                const response = await page.goto(`${process.env.BASE_URL}/cv/`, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+                console.log(`[cv-diagnostic] ${label}: document=${response?.status()}`);
+                await withDeadline(`${label} fonts.ready`, page.evaluate(() => document.fonts?.ready));
+                console.log(`[cv-diagnostic] ${label}: fonts.ready`);
+                await withDeadline(`${label} resume attached`, page.locator('main.resume').first().waitFor({ state: 'attached' }));
+                console.log(`[cv-diagnostic] ${label}: resume attached`);
+                await withDeadline(`${label} animation frame`, page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => resolve(true))), 5_000));
+                console.log(`[cv-diagnostic] ${label}: animation frame`);
+
+                const state = await page.evaluate(async () => {
+                  const portrait = document.querySelector('.portrait');
+                  if (portrait instanceof HTMLImageElement && !portrait.complete) {
+                    await Promise.race([
+                      new Promise((resolve) => {
+                        portrait.addEventListener('load', resolve, { once: true });
+                        portrait.addEventListener('error', resolve, { once: true });
+                      }),
+                      new Promise((resolve) => setTimeout(resolve, 5_000)),
+                    ]);
+                  }
+                  return {
+                    scriptCount: document.scripts.length,
+                    scripts: [...document.scripts].map((script) => ({
+                      src: script.getAttribute('src'),
+                      type: script.getAttribute('type'),
+                      staticAnalytics: script.hasAttribute('data-static-site-analytics'),
+                      siteAnalytics: script.getAttribute('data-site-analytics'),
+                    })),
+                    experienceCards: document.querySelectorAll('.experience-card').length,
+                    hiddenCards: document.querySelectorAll('.experience-card[hidden]').length,
+                    portrait: portrait instanceof HTMLImageElement ? {
+                      complete: portrait.complete,
+                      naturalWidth: portrait.naturalWidth,
+                      naturalHeight: portrait.naturalHeight,
+                    } : null,
+                    overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                  };
+                });
+                console.log(`[cv-diagnostic] ${label}: ${JSON.stringify({ state, responses, pageErrors })}`);
+              } finally {
+                await context.close();
+              }
+            }
+          } finally {
+            await browser.close();
+          }
+          NODE
+      - name: Reproduce existing CV smoke with hard deadline
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          timeout --signal=TERM 120s node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          import { runSmokeCv } from './tools/e2e/smoke-cv.mjs';
+          const browser = await chromium.launch({ headless: true });
+          try {
+            await runSmokeCv({ browser, baseUrl: process.env.BASE_URL, mode: 'production' });
+          } finally {
+            await browser.close();
+          }
+          NODE
+          code=$?
+          echo "existing_cv_smoke_exit=$code"
+          if [ "$code" -eq 124 ]; then
+            echo "Existing CV smoke timed out"
+          fi
+          exit 0
+
+  homepage-lazy-media:
+    name: Diagnose homepage lazy media
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact production source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Require exact deployed production SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location -H 'Cache-Control: no-cache' \
+            "$BASE_URL/deploy-version.txt?audit=$GITHUB_RUN_ID" > /tmp/deploy-version.txt
+          grep -Fxq "commit=$TARGET_SHA" /tmp/deploy-version.txt
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify deferred images hydrate after actual viewport dwell
+        shell: bash
+        run: |
+          mkdir -p artifacts/home-lazy
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          import { chromium } from 'playwright';
+
+          const browser = await chromium.launch({ headless: true });
+          const results = [];
+          try {
+            for (const viewport of [
+              { name: 'mobile', width: 390, height: 844 },
+              { name: 'desktop', width: 1440, height: 900 },
+              { name: 'wide', width: 1920, height: 1080 },
+            ]) {
+              const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: 1 });
+              const page = await context.newPage();
+              const errors = [];
+              page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+              page.on('response', (response) => {
+                if (response.status() >= 400 && new URL(response.url()).origin === process.env.BASE_URL && !response.url().endsWith('/cdn-cgi/trace')) {
+                  errors.push(`HTTP ${response.status()} ${response.request().resourceType()} ${response.url()}`);
+                }
+              });
+              await page.goto(process.env.BASE_URL, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+              await page.evaluate(() => document.fonts?.ready);
+
+              const initial = await page.evaluate(() => ({
+                deferredCount: document.querySelectorAll('img[data-home-image-deferred]').length,
+                ofeliaDeferred: [...document.querySelectorAll('img[data-home-image-deferred]')]
+                  .filter((image) => image.getAttribute('data-home-src')?.includes('/media/projects/shootings/19/')).length,
+              }));
+
+              const candidates = page.locator('img[data-home-src*="/media/projects/shootings/19/"], img[src*="/media/projects/shootings/19/"]');
+              const count = await candidates.count();
+              for (let index = 0; index < count; index += 1) {
+                const image = candidates.nth(index);
+                await image.scrollIntoViewIfNeeded();
+                await page.waitForTimeout(1_500);
+                const state = await image.evaluate((node) => ({
+                  deferred: node.hasAttribute('data-home-image-deferred'),
+                  dataSrc: node.getAttribute('data-home-src'),
+                  src: node.getAttribute('src'),
+                  currentSrc: node.currentSrc,
+                  complete: node.complete,
+                  naturalWidth: node.naturalWidth,
+                  naturalHeight: node.naturalHeight,
+                  rect: (() => { const r = node.getBoundingClientRect(); return { width: r.width, height: r.height, top: r.top, bottom: r.bottom }; })(),
+                }));
+                results.push({ viewport: viewport.name, index, state });
+                if (state.deferred || !state.complete || state.naturalWidth < 1 || state.naturalHeight < 1) {
+                  errors.push(`Ofelia image ${index} failed to hydrate: ${JSON.stringify(state)}`);
+                }
+                await image.screenshot({ path: `artifacts/home-lazy/ofelia-${viewport.name}-${index}.png`, animations: 'disabled' });
+              }
+
+              const finalState = await page.evaluate(() => ({
+                deferredCount: document.querySelectorAll('img[data-home-image-deferred]').length,
+                ofeliaDeferred: [...document.querySelectorAll('img[data-home-image-deferred]')]
+                  .filter((image) => image.getAttribute('data-home-src')?.includes('/media/projects/shootings/19/')).length,
+              }));
+              results.push({ viewport: viewport.name, initial, candidateCount: count, finalState, errors });
+              await context.close();
+              if (errors.length) throw new Error(`${viewport.name}: ${errors.join('\n')}`);
+            }
+          } finally {
+            await browser.close();
+          }
+          await fs.writeFile('artifacts/home-lazy/report.json', JSON.stringify(results, null, 2));
+          console.log(JSON.stringify(results, null, 2));
+          NODE
+      - name: Upload lazy media evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: homepage-lazy-media-diagnostic
+          path: artifacts/home-lazy
+          if-no-files-found: warn
