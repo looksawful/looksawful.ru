@@ -42,6 +42,42 @@ const TEXT_SOURCE_DIRECTORIES = [
   "src/content/standalone-projects/",
 ];
 
+const STRUCTURAL_TEXT_KEYS = new Set([
+  "id",
+  "ids",
+  "href",
+  "url",
+  "src",
+  "sourcesrc",
+  "deliverysrc",
+  "postersrc",
+  "path",
+  "route",
+  "slug",
+  "type",
+  "kind",
+  "layout",
+  "device",
+  "theme",
+  "variant",
+  "captionview",
+  "mediatype",
+  "entryid",
+  "assetid",
+  "projectid",
+  "projectids",
+  "clientid",
+  "clientids",
+  "engagementid",
+  "engagementids",
+  "roleid",
+  "roleids",
+  "workareaids",
+  "projecttypeids",
+  "deliverableids",
+  "tags",
+]);
+
 const ARRAY_INDEX = /^(0|[1-9]\d*)$/;
 
 function expectPatchShape(current, key, value) {
@@ -112,6 +148,47 @@ export function isAllowedTextSource(sourcePath) {
   if (!sourcePath.endsWith(".json")) return false;
   if (TEXT_SOURCE_FILES.has(sourcePath)) return true;
   return TEXT_SOURCE_DIRECTORIES.some((directory) => sourcePath.startsWith(directory));
+}
+
+function isStructuralTextKey(key) {
+  const normalized = key.toLocaleLowerCase();
+  return STRUCTURAL_TEXT_KEYS.has(normalized)
+    || normalized.endsWith("id")
+    || normalized.endsWith("ids");
+}
+
+function walkTextEntries(value, sourcePath, path, parentKey, result) {
+  if (typeof value === "string") {
+    if (!isStructuralTextKey(parentKey)) {
+      result.push({ sourcePath, fieldPath: path.join("."), value });
+    }
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      walkTextEntries(item, sourcePath, [...path, String(index)], parentKey, result);
+    });
+    return;
+  }
+
+  if (!value || typeof value !== "object") return;
+
+  for (const [key, child] of Object.entries(value)) {
+    walkTextEntries(child, sourcePath, [...path, key], key, result);
+  }
+}
+
+export function collectTextEntries(sources) {
+  const result = [];
+  for (const [sourcePath, source] of Object.entries(sources)) {
+    if (!isAllowedTextSource(sourcePath)) continue;
+    walkTextEntries(source, sourcePath, [], "", result);
+  }
+  return result.sort((left, right) =>
+    left.sourcePath.localeCompare(right.sourcePath)
+      || left.fieldPath.localeCompare(right.fieldPath)
+  );
 }
 
 function parseArrayIndex(segment) {
