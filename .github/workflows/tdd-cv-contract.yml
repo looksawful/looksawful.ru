@@ -1,0 +1,26 @@
+name: TDD CV Contract
+
+on:
+  push:
+    branches:
+      - fix/720-cv-production-smoke
+
+permissions:
+  contents: read
+
+jobs:
+  focused-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Run focused CV production contract test
+        run: node --test test/e2e-production-pipeline.test.mjs
