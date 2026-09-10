@@ -1,0 +1,13 @@
+{
+  "cloudId": "b1gc8dg95g5ibfsei6al",
+  "folderId": "b1gccfh8f63ut5b9eogf",
+  "runtimeServiceAccountId": "aje7sk32o4io6m5s30sc",
+  "deployerServiceAccountId": "ajeuf4oo2pv8mlmlihjh",
+  "registryId": "crplsoo7okmv83u9o5gc",
+  "containerId": "bbavst3pldfkk7mc0v68",
+  "lockboxSecretId": "e6qk60qugdijk0msveru",
+  "workloadIdentityFederationId": "aje0jlnb3lh6qhqh726e",
+  "federatedCredentialId": "aje4h8rqvj5vm7uqkhjv",
+  "githubAudience": "https://github.com/looksawful",
+  "githubSubject": "repo:looksawful/looksawful.ru:ref:refs/heads/dev"
+}
