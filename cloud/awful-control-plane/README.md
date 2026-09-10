@@ -18,7 +18,9 @@ Implemented in v0.1.0:
 - 1 MiB request-body limit;
 - upstream timeout;
 - explicit CORS allowlist;
-- Docker image running as the unprivileged `node` user.
+- Docker image running as the unprivileged `node` user;
+- Windows bootstrap for Yandex Cloud resources and GitHub OIDC federation;
+- local secret provisioning that writes directly to Lockbox without committing or printing payloads.
 
 Not implemented yet:
 
@@ -48,6 +50,43 @@ curl -H "Authorization: Bearer dev-only-token" http://127.0.0.1:8080/v1/capabili
 ```
 
 Do not commit a real internal token or provider API key.
+
+## Yandex Cloud bootstrap on Windows
+
+After installing the current `yc` CLI and running `yc init`, execute from the repository root:
+
+```powershell
+pwsh -File .\cloud\awful-control-plane\scripts\bootstrap-yandex.ps1
+```
+
+The script creates or reuses:
+
+- service account `awful-runtime`;
+- service account `awful-deployer`;
+- Container Registry `awful`;
+- Serverless Container `awful-control-plane`;
+- Lockbox secret metadata `awful-control-plane`;
+- Workload Identity Federation `awful-github`;
+- GitHub federated credential restricted to `looksawful/looksawful.ru` and the `dev` branch;
+- minimal runtime/deploy roles required by the current architecture.
+
+It does not create an OpenAI key and does not write any secret payload.
+
+After bootstrap, create the runtime secrets locally:
+
+```powershell
+pwsh -File .\cloud\awful-control-plane\scripts\configure-secrets.ps1
+```
+
+This second script:
+
+- creates a Yandex AI Studio API key restricted to `yc.ai.languageModels.execute`;
+- generates the internal AWFUL server-to-server token locally;
+- prompts for the OpenAI API key locally unless `-SkipOpenAI` is supplied;
+- sends the payload to Lockbox over stdin;
+- never writes the secret values to the repository or prints them.
+
+Do not rerun secret provisioning casually. Yandex API key secret values are only returned at creation time. Use `-RotateYandexApiKey` only for an intentional rotation.
 
 ## AI request
 
@@ -107,3 +146,4 @@ See `docs/yandex-cloud-architecture.md` for the resource and access plan.
 - Yandex AI Studio OpenAI-compatible API: https://yandex.cloud/en/docs/tutorials/ml-ai/ai-model-ide-integration
 - Serverless Containers: https://yandex.cloud/en/docs/serverless-containers/
 - Lockbox secrets in Serverless Containers: https://yandex.cloud/en/docs/lockbox/operations/serverless/containers
+- Workload Identity Federation: https://yandex.cloud/en/docs/iam/operations/wlif/setup-wlif
