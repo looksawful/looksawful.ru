@@ -40,15 +40,21 @@ test("desktop overlay lower-third grows intrinsically and scrolls only when cont
 });
 
 test("persistent rail overlays stay out of touch geometry without being disabled on desktop", async () => {
-  const styles = await read("src/styles/index.css");
+  const captions = await read("src/styles/captions.css");
+  const lateCaptionsStart = captions.indexOf(
+    ".project__section .media__caption-line",
+  );
+  assert.ok(lateCaptionsStart >= 0, "late caption ownership block should exist");
+  const lateCaptions = captions.slice(lateCaptionsStart);
 
   assert.match(
-    styles,
+    lateCaptions,
     /@media \(\(hover: none\) or \(pointer: coarse\)\) \{[\s\S]*?\.media-group\[data-layout="strip"\][\s\S]*?\.media-group\[data-layout="grid"\]\[data-overflow="reel"\][\s\S]*?\.justified-gallery__row[\s\S]*?display:\s*none;/,
   );
 
-  const captionsLayer = styles.match(/@layer captions \{([\s\S]*)\}\s*$/)?.[1] ?? "";
-  const beforeTouchRule = captionsLayer.split(/@media \(\(hover: none\) or \(pointer: coarse\)\)/)[0];
+  const beforeTouchRule = lateCaptions.split(
+    /@media \(\(hover: none\) or \(pointer: coarse\)\)/,
+  )[0];
 
   assert.doesNotMatch(
     beforeTouchRule,
@@ -57,15 +63,15 @@ test("persistent rail overlays stay out of touch geometry without being disabled
 });
 
 test("dense compact layouts keep overlay captions out of touch geometry only while compact", async () => {
-  const styles = await read("src/styles/index.css");
+  const captions = await read("src/styles/captions.css");
 
   assert.match(
-    styles,
+    captions,
     /@media \(\(hover: none\) or \(pointer: coarse\)\) \{[\s\S]*?@container media-group \(width <= 42rem\) \{[\s\S]*?\.media-group\[data-layout="grid"\]\[data-compact-layout="reel"\][\s\S]*?figure\.media\[data-caption-view="overlay"\][\s\S]*?> \.media__caption[\s\S]*?display:\s*none;/,
   );
 
   assert.match(
-    styles,
+    captions,
     /@container media-group \(width <= 48rem\) \{[\s\S]*?\.media-group\[data-layout="sequence"\][\s\S]*?figure\.media\[data-caption-view="overlay"\][\s\S]*?> \.media__caption,[\s\S]*?\.media-group\[data-layout="bento"\][\s\S]*?figure\.media\[data-caption-view="overlay"\][\s\S]*?> \.media__caption[\s\S]*?display:\s*none;/,
   );
 });
