@@ -16,6 +16,7 @@ import {
 
 const SITE_NAME = "looksawful";
 const FAVICON = "/favicon.svg";
+const MANIFEST = "/site.webmanifest";
 
 function escapeAttribute(value) {
   return String(value)
@@ -53,6 +54,9 @@ export function finalizeStaticDiscoveryHtml(html, label = "HTML") {
 
   if (!getLinkHref(html, "icon")) {
     additions.push(`<link rel="icon" href="${FAVICON}" type="image/svg+xml">`);
+  }
+  if (!getLinkHref(html, "manifest")) {
+    additions.push(`<link rel="manifest" href="${MANIFEST}">`);
   }
   if (!getMetaContent(html, "og:type", "property")) additions.push(metaProperty("og:type", "website"));
   if (!getMetaContent(html, "og:locale", "property")) additions.push(metaProperty("og:locale", locale));
