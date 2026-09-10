@@ -43,6 +43,7 @@ export const fastTests = new Set([
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
   "test/pr-preview-media-packaging.test.mjs",
+  "test/pr-preview-workflow.test.mjs",
   "test/project-card-hover.test.mjs",
   "test/repository-growth-policy.test.mjs",
   "test/search-presentation.test.mjs",
