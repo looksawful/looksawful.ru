@@ -3,6 +3,7 @@ import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 async function inspectImage(locator, label) {
   await locator.waitFor({ state: "attached", timeout: 10_000 });
+  await locator.scrollIntoViewIfNeeded();
   const result = await locator.evaluate((element) => {
     if (!(element instanceof HTMLImageElement)) {
       return { ok: false, reason: "not-an-image" };
@@ -129,6 +130,7 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
     if (visibleKeyButtons.length !== 1) {
       throw new Error(`[jestei-filter-art] expected 1 visible Camelot modal trigger, found ${visibleKeyButtons.length}`);
     }
+    await visibleKeyButtons[0].scrollIntoViewIfNeeded();
     await visibleKeyButtons[0].click();
     const dialog = filter.locator("#playlist-filter-key-dialog");
     await dialog.waitFor({ state: "visible", timeout: 5_000 });
