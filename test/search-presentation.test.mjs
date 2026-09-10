@@ -28,6 +28,9 @@ test("homepage search and social presentation stays coherent", () => {
   assert.match(html, new RegExp(`<title>${HOME_TITLE}</title>`));
   assert.match(html, new RegExp(`<meta name="description" content="${HOME_DESCRIPTION}">`));
   assert.match(html, /<link rel="manifest" href="\/site\.webmanifest">/);
+  assert.match(html, /<link rel="icon" href="\/favicon-120\.png" type="image\/png">/);
+  assert.match(html, /<link rel="apple-touch-icon" href="\/apple-touch-icon\.png">/);
+  assert.match(html, /<meta name="theme-color" content="#ffffff">/);
   assert.match(html, /<meta property="og:type" content="website">/);
   assert.match(html, /<meta property="og:site_name" content="looksawful">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
@@ -83,10 +86,12 @@ test("CV uses the same social identity with resume-specific copy", () => {
     /<meta name="description" content="Резюме Ивана Крушинского — арт-директора цифровых продуктов и дизайнера: опыт, компетенции, инструменты и образование\.">/,
   );
   assert.match(html, /<link rel="manifest" href="\/site\.webmanifest">/);
+  assert.match(html, /<link rel="icon" href="\/favicon-120\.png" type="image\/png">/);
+  assert.match(html, /<link rel="apple-touch-icon" href="\/apple-touch-icon\.png">/);
+  assert.match(html, /<meta name="theme-color" content="#ffffff">/);
   assert.match(html, /<meta property="og:site_name" content="looksawful">/);
   assert.match(html, /<meta property="og:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
-  assert.match(html, /<link rel="icon" href="\/favicon\.svg" type="image\/svg\+xml">/);
 });
 
 test("site metadata validation rejects a missing favicon asset", async () => {
@@ -135,10 +140,10 @@ test("production discovery health checks favicon as YandexBot", async () => {
     if (url.pathname === "/deploy-version.txt") {
       return new Response("commit=test-sha\ndeployed-from=prod\n", { status: 200 });
     }
-    if (url.pathname === "/favicon.svg") {
-      return new Response('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"></svg>', {
+    if (url.pathname === "/favicon-120.png") {
+      return new Response("png-fixture", {
         status: 200,
-        headers: { "content-type": "image/svg+xml" },
+        headers: { "content-type": "image/png" },
       });
     }
     throw new Error(`unexpected URL ${url.href}`);
@@ -147,8 +152,8 @@ test("production discovery health checks favicon as YandexBot", async () => {
   try {
     const result = await checkProduction({ expectedSha: "test-sha" });
     assert.equal(result.favicon, "PASS");
-    const faviconRequest = requests.find((request) => request.pathname === "/favicon.svg");
-    assert.ok(faviconRequest, "production health check must request /favicon.svg");
+    const faviconRequest = requests.find((request) => request.pathname === "/favicon-120.png");
+    assert.ok(faviconRequest, "production health check must request /favicon-120.png");
     assert.match(faviconRequest.userAgent, /YandexBot/i);
   } finally {
     globalThis.fetch = originalFetch;
@@ -157,8 +162,8 @@ test("production discovery health checks favicon as YandexBot", async () => {
 
 test("Pages deployment verifies Yandex-visible discovery files after publish", () => {
   assert.match(pagesWorkflow, /YandexBot\/3\.0/);
-  assert.match(pagesWorkflow, /favicon\.svg/);
+  assert.match(pagesWorkflow, /favicon-120\.png/);
   assert.match(pagesWorkflow, /robots\.txt/);
   assert.match(pagesWorkflow, /sitemap\.xml/);
-  assert.match(pagesWorkflow, /content-type:[^\n]*image\/svg/);
+  assert.match(pagesWorkflow, /content-type:[^\n]*image\/png/);
 });
