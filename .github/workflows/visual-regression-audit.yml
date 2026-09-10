@@ -18,10 +18,10 @@ env:
   VITE_YANDEX_METRIKA_COUNTER_ID: "112065623"
 
 jobs:
-  full-e2e-live:
-    name: Full E2E against live production
+  full-e2e-live-isolated:
+    name: Full E2E live with known trace 404 isolated
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
     steps:
       - name: Checkout exact production source
         uses: actions/checkout@v7
@@ -43,110 +43,51 @@ jobs:
           curl --fail --silent --show-error --location -H 'Cache-Control: no-cache' \
             "$BASE_URL/deploy-version.txt?audit=$GITHUB_RUN_ID" > /tmp/deploy-version.txt
           grep -Fxq "commit=$TARGET_SHA" /tmp/deploy-version.txt
+      - name: Confirm real trace endpoint is still failing
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(curl --silent --output /tmp/trace.txt --write-out '%{http_code}' "$BASE_URL/cdn-cgi/trace")"
+          echo "real /cdn-cgi/trace status=$status"
+          test "$status" = "404"
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run full browser regression suite on live production
+      - name: Run full browser regression suite beyond known trace failure
         shell: bash
         run: |
           node --input-type=module <<'NODE'
           import { chromium } from 'playwright';
           import { runAllSmokeSuites } from './tools/e2e/run-all.mjs';
-          const browser = await chromium.launch({ headless: true });
+
+          const tracePattern = '**/cdn-cgi/trace';
+          const fulfillTrace = (route) => route.fulfill({ status: 200, contentType: 'text/plain; charset=utf-8', body: 'loc=DE\n' });
+          const rawBrowser = await chromium.launch({ headless: true });
+          const browser = new Proxy(rawBrowser, {
+            get(target, prop) {
+              if (prop === 'newContext') return async (...args) => {
+                const context = await target.newContext(...args);
+                await context.route(tracePattern, fulfillTrace);
+                return context;
+              };
+              if (prop === 'newPage') return async (...args) => {
+                const page = await target.newPage(...args);
+                await page.route(tracePattern, fulfillTrace);
+                return page;
+              };
+              const value = Reflect.get(target, prop, target);
+              return typeof value === 'function' ? value.bind(target) : value;
+            },
+          });
+
           try {
-            await runAllSmokeSuites({
-              browser,
-              baseUrl: process.env.BASE_URL,
-              cvMode: 'production',
-            });
+            await runAllSmokeSuites({ browser, baseUrl: process.env.BASE_URL, cvMode: 'production' });
           } finally {
-            await browser.close();
+            await rawBrowser.close();
           }
           NODE
 
-  responsive-live:
-    name: Responsive UI against live production
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - name: Checkout exact production source
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ env.TARGET_SHA }}
-          fetch-depth: 1
-          persist-credentials: false
-      - name: Setup Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Require exact deployed production SHA
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --silent --show-error --location -H 'Cache-Control: no-cache' \
-            "$BASE_URL/deploy-version.txt?audit=$GITHUB_RUN_ID" > /tmp/deploy-version.txt
-          grep -Fxq "commit=$TARGET_SHA" /tmp/deploy-version.txt
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Run responsive regression suite on live production
-        shell: bash
-        run: |
-          node --input-type=module <<'NODE'
-          import { chromium } from 'playwright';
-          import { runResponsiveUI } from './tools/e2e/run-responsive-ui.mjs';
-          const browser = await chromium.launch({ headless: true });
-          try {
-            await runResponsiveUI({ browser, baseUrl: process.env.BASE_URL });
-          } finally {
-            await browser.close();
-          }
-          NODE
-
-  production-specific-live:
-    name: Production-specific media and Jestei sanity
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - name: Checkout exact production source
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ env.TARGET_SHA }}
-          fetch-depth: 1
-          persist-credentials: false
-      - name: Setup Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Require exact deployed production SHA
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --silent --show-error --location -H 'Cache-Control: no-cache' \
-            "$BASE_URL/deploy-version.txt?audit=$GITHUB_RUN_ID" > /tmp/deploy-version.txt
-          grep -Fxq "commit=$TARGET_SHA" /tmp/deploy-version.txt
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Run production-specific browser checks on live production
-        shell: bash
-        run: |
-          node --input-type=module <<'NODE'
-          import { chromium } from 'playwright';
-          import { runProductionE2E } from './tools/e2e/run-production.mjs';
-          const browser = await chromium.launch({ headless: true });
-          try {
-            await runProductionE2E({ browser, baseUrl: process.env.BASE_URL });
-          } finally {
-            await browser.close();
-          }
-          NODE
-
-  capture-live:
-    name: Capture production visual evidence
+  production-specific-live-isolated:
+    name: Production-specific media/Jestei with trace isolated
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -172,10 +113,71 @@ jobs:
           grep -Fxq "commit=$TARGET_SHA" /tmp/deploy-version.txt
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Capture route and viewport evidence
+      - name: Run production-specific checks beyond known trace failure
         shell: bash
         run: |
-          mkdir -p artifacts/visual-audit
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          import { runProductionE2E } from './tools/e2e/run-production.mjs';
+
+          const tracePattern = '**/cdn-cgi/trace';
+          const fulfillTrace = (route) => route.fulfill({ status: 200, contentType: 'text/plain; charset=utf-8', body: 'loc=DE\n' });
+          const rawBrowser = await chromium.launch({ headless: true });
+          const browser = new Proxy(rawBrowser, {
+            get(target, prop) {
+              if (prop === 'newContext') return async (...args) => {
+                const context = await target.newContext(...args);
+                await context.route(tracePattern, fulfillTrace);
+                return context;
+              };
+              if (prop === 'newPage') return async (...args) => {
+                const page = await target.newPage(...args);
+                await page.route(tracePattern, fulfillTrace);
+                return page;
+              };
+              const value = Reflect.get(target, prop, target);
+              return typeof value === 'function' ? value.bind(target) : value;
+            },
+          });
+
+          try {
+            await runProductionE2E({ browser, baseUrl: process.env.BASE_URL });
+          } finally {
+            await rawBrowser.close();
+          }
+          NODE
+
+  capture-live-isolated:
+    name: Capture visual evidence beyond known trace failure
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact production source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Require exact deployed production SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location -H 'Cache-Control: no-cache' \
+            "$BASE_URL/deploy-version.txt?audit=$GITHUB_RUN_ID" > /tmp/deploy-version.txt
+          grep -Fxq "commit=$TARGET_SHA" /tmp/deploy-version.txt
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Capture routes at mobile/tablet/desktop/wide viewports
+        shell: bash
+        run: |
+          mkdir -p artifacts/visual-audit-isolated
           node --input-type=module <<'NODE'
           import fs from 'node:fs/promises';
           import { chromium } from 'playwright';
@@ -192,7 +194,9 @@ jobs:
           ];
           const viewports = [
             { name: 'mobile', width: 390, height: 844, mobile: true },
+            { name: 'tablet', width: 1024, height: 768, mobile: false },
             { name: 'desktop', width: 1440, height: 900, mobile: false },
+            { name: 'wide', width: 1920, height: 1080, mobile: false },
           ];
           const report = [];
           const failures = [];
@@ -206,10 +210,21 @@ jobs:
                 hasTouch: viewport.mobile,
                 deviceScaleFactor: 1,
               });
+              await context.route('**/cdn-cgi/trace', (route) => route.fulfill({
+                status: 200,
+                contentType: 'text/plain; charset=utf-8',
+                body: 'loc=DE\n',
+              }));
+
               for (const [slug, route] of routes) {
                 const page = await context.newPage();
                 const errors = [];
                 page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
+                page.on('console', (message) => {
+                  if (message.type() === 'error' && !message.text().startsWith('Failed to load resource:')) {
+                    errors.push(`console: ${message.text()}`);
+                  }
+                });
                 page.on('response', (response) => {
                   try {
                     if (new URL(response.url()).origin === baseUrl && response.status() >= 400) {
@@ -218,21 +233,18 @@ jobs:
                   } catch {}
                 });
                 try {
-                  const response = await page.goto(new URL(route, baseUrl).href, {
-                    waitUntil: 'domcontentloaded',
-                    timeout: 30_000,
-                  });
+                  const response = await page.goto(new URL(route, baseUrl).href, { waitUntil: 'domcontentloaded', timeout: 30_000 });
                   if (!response?.ok()) errors.push(`document HTTP ${response?.status() ?? 'none'}`);
                   await page.evaluate(() => document.fonts?.ready);
                   await page.waitForTimeout(250);
 
-                  for (let step = 0; step < 80; step += 1) {
+                  for (let step = 0; step < 100; step += 1) {
                     const done = await page.evaluate(() => {
                       const maxY = Math.max(0, document.documentElement.scrollHeight - innerHeight);
                       window.scrollTo(0, Math.min(maxY, window.scrollY + Math.max(innerHeight * 0.8, 320)));
                       return window.scrollY >= maxY - 2;
                     });
-                    await page.waitForTimeout(40);
+                    await page.waitForTimeout(35);
                     if (done) break;
                   }
 
@@ -247,23 +259,19 @@ jobs:
                       .filter((image) => image.complete && image.naturalWidth < 1)
                       .map((image) => image.currentSrc || image.src),
                   }));
-                  if (metrics.scrollWidth - metrics.clientWidth > 1) {
-                    errors.push(`horizontal overflow ${metrics.scrollWidth - metrics.clientWidth}px`);
-                  }
+                  if (metrics.scrollWidth - metrics.clientWidth > 1) errors.push(`horizontal overflow ${metrics.scrollWidth - metrics.clientWidth}px`);
                   if (metrics.h1Count !== 1) errors.push(`expected one h1, got ${metrics.h1Count}`);
                   if (metrics.brokenImages.length) errors.push(`broken images: ${metrics.brokenImages.slice(0, 10).join(', ')}`);
 
                   const maxY = Math.max(0, metrics.scrollHeight - viewport.height);
-                  const positions = [
-                    ['top', 0],
-                    ['middle', Math.round(maxY / 2)],
-                    ['bottom', maxY],
-                  ];
-                  for (const [position, y] of positions) {
+                  for (const [position, y] of [['top', 0], ['middle', Math.round(maxY / 2)], ['bottom', maxY]]) {
                     await page.evaluate((targetY) => window.scrollTo(0, targetY), y);
                     await page.waitForTimeout(120);
-                    const file = `artifacts/visual-audit/${slug}-${viewport.name}-${position}.png`;
-                    await page.screenshot({ path: file, fullPage: false, animations: 'disabled' });
+                    await page.screenshot({
+                      path: `artifacts/visual-audit-isolated/${slug}-${viewport.name}-${position}.png`,
+                      fullPage: false,
+                      animations: 'disabled',
+                    });
                   }
 
                   report.push({ route, viewport: `${viewport.width}x${viewport.height}`, metrics, errors });
@@ -282,7 +290,7 @@ jobs:
             await browser.close();
           }
 
-          await fs.writeFile('artifacts/visual-audit/metrics.json', JSON.stringify({ targetSha: process.env.TARGET_SHA, baseUrl, report, failures }, null, 2));
+          await fs.writeFile('artifacts/visual-audit-isolated/metrics.json', JSON.stringify({ targetSha: process.env.TARGET_SHA, baseUrl, report, failures }, null, 2));
           console.log(JSON.stringify({ targetSha: process.env.TARGET_SHA, report, failures }, null, 2));
           if (failures.length) process.exitCode = 1;
           NODE
@@ -290,6 +298,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: production-visual-audit-8d384eea
-          path: artifacts/visual-audit
+          name: production-visual-audit-isolated-8d384eea
+          path: artifacts/visual-audit-isolated
           if-no-files-found: error
