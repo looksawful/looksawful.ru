@@ -30,7 +30,6 @@ before(async () => {
       PORT: String(PORT),
       HOST: "127.0.0.1",
       AWFUL_INTERNAL_TOKEN: TOKEN,
-      OPENAI_API_KEY: "",
       YANDEX_AI_API_KEY: "",
     },
   });
@@ -66,31 +65,22 @@ test("protected endpoint accepts the configured bearer token", async () => {
     headers: { authorization: `Bearer ${TOKEN}` },
   });
   assert.equal(response.status, 200);
-  assert.equal((await response.json()).service, "awful-control-plane");
+  const body = await response.json();
+  assert.equal(body.service, "awful-control-plane");
+  assert.equal(body.serverAiProvider.yandex, false);
+  assert.equal(body.clients.chatgpt, "planned_via_mcp_app");
+  assert.equal(body.clients.codex, "planned_via_mcp");
 });
 
-test("AI route refuses an unconfigured provider key", async () => {
+test("AI route refuses an unconfigured Yandex key", async () => {
   const response = await fetch(`${BASE_URL}/v1/ai/responses`, {
     method: "POST",
     headers: {
       authorization: `Bearer ${TOKEN}`,
       "content-type": "application/json",
     },
-    body: JSON.stringify({ provider: "openai", model: "test", input: "ping" }),
+    body: JSON.stringify({ model: "test", input: "ping" }),
   });
   assert.equal(response.status, 503);
-  assert.deepEqual(await response.json(), { error: "openai_not_configured" });
-});
-
-test("AI route rejects unsupported providers", async () => {
-  const response = await fetch(`${BASE_URL}/v1/ai/responses`, {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${TOKEN}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({ provider: "unknown", model: "test", input: "ping" }),
-  });
-  assert.equal(response.status, 400);
-  assert.deepEqual(await response.json(), { error: "unsupported_provider" });
+  assert.deepEqual(await response.json(), { error: "yandex_not_configured" });
 });
