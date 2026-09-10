@@ -27,6 +27,7 @@ test("homepage search and social presentation stays coherent", () => {
 
   assert.match(html, new RegExp(`<title>${HOME_TITLE}</title>`));
   assert.match(html, new RegExp(`<meta name="description" content="${HOME_DESCRIPTION}">`));
+  assert.match(html, /<link rel="manifest" href="\/site\.webmanifest">/);
   assert.match(html, /<meta property="og:type" content="website">/);
   assert.match(html, /<meta property="og:site_name" content="looksawful">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
@@ -81,6 +82,7 @@ test("CV uses the same social identity with resume-specific copy", () => {
     html,
     /<meta name="description" content="Резюме Ивана Крушинского — арт-директора цифровых продуктов и дизайнера: опыт, компетенции, инструменты и образование\.">/,
   );
+  assert.match(html, /<link rel="manifest" href="\/site\.webmanifest">/);
   assert.match(html, /<meta property="og:site_name" content="looksawful">/);
   assert.match(html, /<meta property="og:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);

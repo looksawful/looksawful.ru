@@ -5,6 +5,7 @@ import { escapeHtml } from "../../utils/html.ts";
 export const SITE_NAME = "looksawful";
 export const SITE_OWNER_NAME = "Иван Крушинский";
 export const SITE_OWNER_ROLE = "Арт-директор цифровых продуктов";
+export const SITE_MANIFEST = "/site.webmanifest";
 export const DEFAULT_SOCIAL_IMAGE = `${SITE_ORIGIN}/media/hero/hero-portrait.webp`;
 export const DEFAULT_SOCIAL_IMAGE_ALT = SITE_OWNER_NAME;
 
@@ -37,6 +38,7 @@ export function renderPageMetadata({
     `<title>${safeTitle}</title>`,
     `<meta name="description" content="${safeDescription}">`,
     `<meta name="robots" content="${robots}">`,
+    `<link rel="manifest" href="${SITE_MANIFEST}">`,
   ];
 
   if (page.discovery.indexable) {
@@ -73,6 +75,7 @@ export function replacePageMetadata(
     .replace(/\s*<title\b[^>]*>[\s\S]*?<\/title>/i, "")
     .replace(/\s*<meta\b(?=[^>]*\bname=["']description["'])[^>]*>/i, "")
     .replace(/\s*<meta\b(?=[^>]*\bname=["']robots["'])[^>]*>/i, "")
+    .replace(/\s*<link\b(?=[^>]*\brel=["']manifest["'])[^>]*>/i, "")
     .replace(/\s*<link\b(?=[^>]*\brel=["']canonical["'])[^>]*>/i, "")
     .replace(/\s*<meta\b(?=[^>]*\bproperty=["']og:[^"']+["'])[^>]*>/gi, "")
     .replace(/\s*<meta\b(?=[^>]*\bname=["']twitter:[^"']+["'])[^>]*>/gi, "");
