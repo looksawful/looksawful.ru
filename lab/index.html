@@ -7,6 +7,7 @@
     <title>looksawful lab</title>
     <script type="module" src="/src/lab/index.ts"></script>
     <script type="module" src="/src/lab/scratch.ts"></script>
+    <script type="module" src="/src/lab/reveal-hidden.ts"></script>
   </head>
   <body>
     <main class="lab-shell" data-lab-shell>
@@ -26,16 +27,22 @@
 
       <aside class="lab-sidebar lab-sidebar-left" aria-label="Lab navigation">
         <nav class="lab-route-list" data-route-list>
-          <button type="button" data-route="/">home</button>
+          <button type="button" data-route="/lab/all/">all work / current</button>
+          <button type="button" data-route="/">home / public</button>
+          <button type="button" data-route="/?lab-hidden=1">home / hidden current</button>
+          <button type="button" data-route="/lab/about/">about / current</button>
           <button type="button" data-route="/lab/blog/?view=index">blog / index</button>
           <button type="button" data-route="/lab/blog/?view=article">blog / article</button>
           <button type="button" data-route="/work/jestei-pool/">jestei pool</button>
           <button type="button" data-route="/work/styx/">styx</button>
           <button type="button" data-route="/work/sensetique/">sensetique</button>
           <button type="button" data-route="/shootings/">shootings</button>
-          <button type="button" data-route="/work/awful-cases/">awful cases</button>
+          <button type="button" data-route="/work/awful-cases/">awful cases / project</button>
           <button type="button" data-route="/work/moves-awful/">moves awful</button>
-          <button type="button" data-route="/cv/">cv</button>
+          <button type="button" data-route="/work/berry-social-content-2020/">berry</button>
+          <button type="button" data-route="/pets/awful-cases/">awful cases / pet</button>
+          <button type="button" data-route="/pets/berserk-timer/">berserk timer / pet</button>
+          <button type="button" data-route="/cv/">cv / public</button>
           <button type="button" data-route="/privacy/">privacy</button>
         </nav>
 
