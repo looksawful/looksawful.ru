@@ -62,14 +62,25 @@ async function ensurePagesDomain() {
   return domain;
 }
 
-async function resolveZone() {
+async function resolveZone(domain) {
+  if (typeof domain?.zone_tag === "string" && domain.zone_tag.trim()) {
+    console.log("[lab-cloudflare] using zone id exposed by Pages domain metadata");
+    return { id: domain.zone_tag.trim(), source: "pages-domain" };
+  }
+
+  const currentDomain = await readPagesDomain();
+  if (typeof currentDomain?.result?.zone_tag === "string" && currentDomain.result.zone_tag.trim()) {
+    console.log("[lab-cloudflare] using zone id exposed by Pages domain lookup");
+    return { id: currentDomain.result.zone_tag.trim(), source: "pages-domain" };
+  }
+
   const query = new URLSearchParams({ name: zoneName, status: "active", per_page: "50" });
   const payload = await request(`/zones?${query}`);
   const zones = Array.isArray(payload?.result) ? payload.result : [];
   const zone = zones.find((entry) => entry?.name === zoneName && entry?.account?.id === accountId)
     ?? zones.find((entry) => entry?.name === zoneName);
   if (!zone?.id) throw new Error(`Active Cloudflare zone not found: ${zoneName}`);
-  return zone;
+  return { id: zone.id, source: "zone-list" };
 }
 
 async function ensureDnsRecord(zoneId) {
@@ -128,7 +139,7 @@ async function waitForDomain() {
   return "pending";
 }
 
-async function appendSummary(domainStatus) {
+async function appendSummary(domainStatus, zoneSource) {
   const summaryPath = process.env.GITHUB_STEP_SUMMARY;
   if (!summaryPath) return;
   const { appendFile } = await import("node:fs/promises");
@@ -141,15 +152,16 @@ async function appendSummary(domainStatus) {
       `- custom domain: https://${customDomain}`,
       `- domain status: ${domainStatus}`,
       `- DNS: proxied CNAME to branch alias`,
+      `- zone resolution: ${zoneSource}`,
       "",
     ].join("\n"),
   );
 }
 
-await ensurePagesDomain();
-const zone = await resolveZone();
+const domain = await ensurePagesDomain();
+const zone = await resolveZone(domain);
 await ensureDnsRecord(zone.id);
 const domainStatus = await waitForDomain();
-await appendSummary(domainStatus);
+await appendSummary(domainStatus, zone.source);
 
 console.log(`[lab-cloudflare] ready: https://${customDomain}/lab/ (${domainStatus})`);
