@@ -100,7 +100,11 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
 
   try {
     await page.goto(new URL("/work/jestei-pool/", baseUrl).href, {
-      waitUntil: "networkidle",
+      waitUntil: "domcontentloaded",
+      timeout: 30_000,
+    });
+    await page.locator(".case-section--artwork img").first().waitFor({
+      state: "attached",
       timeout: 30_000,
     });
 
