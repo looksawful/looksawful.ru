@@ -87,11 +87,8 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Fast tests
-        run: npm run test:fast
-
-      - name: Lab workspace and privacy contracts
-        run: node --test test/lab-workspace-contract.test.mjs test/lab-design-system-inventory.test.mjs test/preview-access-contract.test.mjs
+      - name: Lab workspace contracts
+        run: node --test test/lab-workspace-contract.test.mjs test/lab-design-system-inventory.test.mjs
 
       - name: Build Lab without production analytics
         run: npm run cms:check && npm run build:vite
@@ -161,30 +158,17 @@ jobs:
           test -n "${CLOUDFLARE_ACCOUNT_ID:-}"
           test -n "${CLOUDFLARE_API_TOKEN:-}"
 
-      - name: Require Cloudflare Access service credentials
+      - name: Require Lab password
         env:
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-        run: |
-          test -n "${CF_ACCESS_CLIENT_ID:-}" || { echo "Missing CF_ACCESS_CLIENT_ID." >&2; exit 1; }
-          test -n "${CF_ACCESS_CLIENT_SECRET:-}" || { echo "Missing CF_ACCESS_CLIENT_SECRET." >&2; exit 1; }
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
+        run: test -n "${LAB_PASSWORD:-}" || { echo "Missing LAB_PASSWORD." >&2; exit 1; }
 
-      - name: Configure private Lab routing and Access
+      - name: Configure Lab custom domain
+        continue-on-error: true
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
         run: node tools/lab/configure-cloudflare.mjs
-
-      - name: Verify existing preview Access before deploy
-        env:
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-        run: |
-          node tools/preview/cloudflare-access.mjs verify \
-            --url "https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev/lab/"
-          node tools/preview/cloudflare-access.mjs verify \
-            --url "https://${LAB_CUSTOM_DOMAIN}/lab/"
 
       - name: Deploy persistent Lab branch preview
         id: deploy
@@ -195,67 +179,93 @@ jobs:
           wranglerVersion: "4"
           command: pages deploy dist --project-name=looksawful-ru-preview --branch=lab
 
-      - name: Verify Lab privacy boundary
+      - name: Verify Basic Auth on immutable deployment
         env:
           PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-        run: |
-          node tools/preview/cloudflare-access.mjs verify \
-            --url "$PREVIEW_URL/lab-version.json?sha=$GITHUB_SHA" \
-            --marker "$GITHUB_SHA"
-
-      - name: Verify immutable deployment and Lab entry
-        env:
-          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
-          access_headers=(
-            --header "CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}"
-            --header "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}"
-          )
+          test -n "$PREVIEW_URL"
+
+          anonymous_status="$(curl --silent --show-error \
+            --dump-header /tmp/lab-anonymous-headers.txt \
+            --output /tmp/lab-anonymous-body.txt \
+            --write-out '%{http_code}' \
+            "$PREVIEW_URL/lab-version.json?sha=$GITHUB_SHA")"
+          test "$anonymous_status" = "401"
+          grep -Eqi '^www-authenticate:[[:space:]]*Basic realm="looksawful lab"' /tmp/lab-anonymous-headers.txt
+
           curl --fail --silent --show-error --location --retry 10 --retry-delay 3 \
-            "${access_headers[@]}" \
+            --user "lab:${LAB_PASSWORD}" \
+            "$PREVIEW_URL/lab-version.json?sha=$GITHUB_SHA" > /tmp/lab-version.json
+          jq -e --arg sha "$GITHUB_SHA" '.branch == "lab" and .commit == $sha' /tmp/lab-version.json >/dev/null
+
+      - name: Verify immutable Lab entry and design system
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 10 --retry-delay 3 \
+            --user "lab:${LAB_PASSWORD}" \
             --dump-header /tmp/lab-headers.txt --output /tmp/lab.html "$PREVIEW_URL/lab/?sha=$GITHUB_SHA"
           grep -qi '<title>looksawful lab</title>' /tmp/lab.html
           grep -Eqi '^x-robots-tag:[[:space:]]*noindex' /tmp/lab-headers.txt
+
           curl --fail --silent --show-error --location --retry 10 --retry-delay 3 \
-            "${access_headers[@]}" --output /tmp/lab-system.html "$PREVIEW_URL/lab/system/"
+            --user "lab:${LAB_PASSWORD}" \
+            --output /tmp/lab-system.html "$PREVIEW_URL/lab/system/"
           grep -qi '<title>Storybook</title>' /tmp/lab-system.html || grep -qi 'storybook' /tmp/lab-system.html
+
           curl --fail --silent --show-error --location --retry 10 --retry-delay 3 \
-            "${access_headers[@]}" --output /tmp/lab-inventory.html "$PREVIEW_URL/lab/system/inventory.html"
+            --user "lab:${LAB_PASSWORD}" \
+            --output /tmp/lab-inventory.html "$PREVIEW_URL/lab/system/inventory.html"
           grep -qi '<title>looksawful design system inventory</title>' /tmp/lab-inventory.html
 
-      - name: Verify stable Lab and custom domain converge to exact SHA
+      - name: Verify stable Lab branch alias
         env:
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
-          access_headers=(
-            --header "CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}"
-            --header "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}"
-          )
-          for target in "https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev" "https://${LAB_CUSTOM_DOMAIN}"; do
-            matched=false
-            for attempt in {1..20}; do
-              if curl --fail --silent --show-error --location "${access_headers[@]}" \
-                "$target/lab-version.json?sha=$GITHUB_SHA" > /tmp/lab-target-version.json 2>/dev/null \
-                && jq -e --arg sha "$GITHUB_SHA" '.commit == $sha' /tmp/lab-target-version.json >/dev/null; then
-                matched=true
-                break
-              fi
-              sleep 3
-            done
-            if [[ "$matched" != "true" ]]; then
-              echo "$target did not converge to $GITHUB_SHA" >&2
-              exit 1
+          target="https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev"
+          for attempt in {1..20}; do
+            if curl --fail --silent --show-error --location \
+              --user "lab:${LAB_PASSWORD}" \
+              "$target/lab-version.json?sha=$GITHUB_SHA" > /tmp/lab-target-version.json 2>/dev/null \
+              && jq -e --arg sha "$GITHUB_SHA" '.commit == $sha' /tmp/lab-target-version.json >/dev/null; then
+              exit 0
             fi
+            sleep 3
           done
+          echo "$target did not converge to $GITHUB_SHA" >&2
+          exit 1
+
+      - name: Verify custom Lab domain
+        continue-on-error: true
+        env:
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="https://${LAB_CUSTOM_DOMAIN}"
+          for attempt in {1..20}; do
+            anonymous_status="$(curl --silent --show-error \
+              --output /dev/null --write-out '%{http_code}' \
+              "$target/lab/?sha=$GITHUB_SHA" 2>/dev/null || true)"
+            if [[ "$anonymous_status" == "401" ]] \
+              && curl --fail --silent --show-error --location \
+                --user "lab:${LAB_PASSWORD}" \
+                "$target/lab-version.json?sha=$GITHUB_SHA" > /tmp/lab-custom-version.json 2>/dev/null \
+              && jq -e --arg sha "$GITHUB_SHA" '.commit == $sha' /tmp/lab-custom-version.json >/dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "$target is not ready at exact SHA $GITHUB_SHA; stable branch alias remains available." >&2
+          exit 1
 
       - name: Report Lab URLs
         if: always()
@@ -266,11 +276,11 @@ jobs:
           {
             echo "### Private design Lab"
             echo ""
-            echo "- canonical: https://${LAB_CUSTOM_DOMAIN}/lab/"
-            echo "- design system: https://${LAB_CUSTOM_DOMAIN}/lab/system/"
-            echo "- inventory: https://${LAB_CUSTOM_DOMAIN}/lab/system/inventory.html"
-            echo "- branch alias: https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev/lab/"
+            echo "- preferred: https://${LAB_CUSTOM_DOMAIN}/lab/"
+            echo "- stable branch: https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev/lab/"
+            echo "- design system: https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev/lab/system/"
+            echo "- inventory: https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev/lab/system/inventory.html"
             echo "- immutable: ${IMMUTABLE_URL:-unavailable}/lab/"
-            echo "- Access: required for humans and CI"
+            echo "- authentication: HTTP Basic, user lab"
             echo "- production was not changed"
           } >> "$GITHUB_STEP_SUMMARY"

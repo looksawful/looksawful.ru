@@ -19,7 +19,7 @@ test("Lab is a Vite build entry and is explicitly non-indexable", async () => {
   assert.match(scratch, /dataset\.labOnly = "scratch-css"/);
 });
 
-test("Lab deployment is fail-closed behind Access and can only publish the lab branch", async () => {
+test("Lab deployment stays isolated and uses one password secret instead of Zero Trust", async () => {
   const workflow = await read(".github/workflows/lab-preview.yml");
 
   assert.match(workflow, /branches: \[lab\]/);
@@ -27,28 +27,36 @@ test("Lab deployment is fail-closed behind Access and can only publish the lab b
   assert.match(workflow, /pages deploy dist --project-name=looksawful-ru-preview --branch=lab/);
   assert.doesNotMatch(workflow, /--branch=prod/);
   assert.match(workflow, /Build Lab without production analytics/);
-  assert.match(workflow, /Require Cloudflare Access service credentials/);
-  assert.match(workflow, /Verify existing preview Access before deploy/);
-  assert.match(workflow, /Configure private Lab routing and Access/);
+  assert.match(workflow, /Require Lab password/);
+  assert.match(workflow, /LAB_PASSWORD/);
+  assert.match(workflow, /Verify Basic Auth on immutable deployment/);
+  assert.doesNotMatch(workflow, /CF_ACCESS_CLIENT_(?:ID|SECRET)/);
+  assert.doesNotMatch(workflow, /cloudflare-access\.mjs/);
   assert.match(workflow, /x-robots-tag:/i);
-  assert.ok(
-    workflow.indexOf("Verify existing preview Access before deploy") < workflow.indexOf("Deploy persistent Lab branch preview"),
-    "the public boundary must be checked before publishing a new Lab build",
-  );
 });
 
-test("Lab custom domain targets the branch alias, stays proxied, and has a private Access application", async () => {
+test("Lab Basic Auth middleware is fail-closed and forwards only valid requests", async () => {
+  const middleware = await read("functions/_middleware.js");
+
+  assert.match(middleware, /USERNAME = "lab"/);
+  assert.match(middleware, /LAB_PASSWORD/);
+  assert.match(middleware, /WWW-Authenticate/);
+  assert.match(middleware, /Authentication required/);
+  assert.match(middleware, /authentication is not configured/i);
+  assert.match(middleware, /503/);
+  assert.match(middleware, /context\.next\(\)/);
+  assert.match(middleware, /X-Robots-Tag/);
+});
+
+test("Lab custom domain targets the branch alias and stays proxied without Access provisioning", async () => {
   const bootstrap = await read("tools/lab/configure-cloudflare.mjs");
 
   assert.match(bootstrap, /customDomain.*lab\./s);
   assert.match(bootstrap, /branchAlias = `\$\{branch\}\.\$\{project\}\.pages\.dev`/);
   assert.match(bootstrap, /type: "CNAME"/);
   assert.match(bootstrap, /proxied: true/);
-  assert.match(bootstrap, /\/access\/apps/);
-  assert.match(bootstrap, /type: "self_hosted"/);
-  assert.match(bootstrap, /cloudflare_account_member/);
-  assert.match(bootstrap, /decision: "allow"/);
-  assert.match(bootstrap, /decision: "non_identity"/);
+  assert.doesNotMatch(bootstrap, /\/access\//);
+  assert.doesNotMatch(bootstrap, /CF_ACCESS_CLIENT/);
 });
 
 test("Local Lab command opens the workbench instead of production", async () => {
