@@ -266,16 +266,16 @@ jobs:
           wranglerVersion: "4"
           command: pages deploy dist --project-name=looksawful-ru-preview --branch=pr-${{ env.PR_NUMBER }}
 
-      - name: Verify published preview identity and noindex
+      - name: Verify immutable published preview identity and noindex
         env:
-          PREVIEW_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
         shell: bash
         run: |
           set -euo pipefail
           test -n "$PREVIEW_URL"
           case "$PREVIEW_URL" in
             https://*) ;;
-            *) echo "Unexpected Cloudflare deployment alias URL: $PREVIEW_URL" >&2; exit 1 ;;
+            *) echo "Unexpected immutable Cloudflare deployment URL: $PREVIEW_URL" >&2; exit 1 ;;
           esac
 
           curl --fail --silent --show-error --location \
@@ -291,7 +291,7 @@ jobs:
 
       - name: Verify oversized preview media routes remain reachable
         env:
-          PREVIEW_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
         shell: bash
         run: |
           set -euo pipefail
@@ -324,6 +324,29 @@ jobs:
           }
           NODE
 
+      - name: Wait for human preview alias to converge
+        env:
+          PREVIEW_ALIAS_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          if [[ -z "${PREVIEW_ALIAS_URL:-}" ]]; then
+            echo "::warning::Cloudflare did not return a preview alias URL. Immutable deployment remains verified."
+            exit 0
+          fi
+
+          for attempt in {1..20}; do
+            if curl --fail --silent --show-error --location \
+              "$PREVIEW_ALIAS_URL/preview-version.txt?sha=$PR_HEAD_SHA" > /tmp/preview-alias-version.txt 2>/dev/null \
+              && grep -Fxq "commit=$PR_HEAD_SHA" /tmp/preview-alias-version.txt; then
+              echo "Preview alias now serves exact SHA $PR_HEAD_SHA."
+              exit 0
+            fi
+            sleep 3
+          done
+
+          echo "::warning::Cloudflare branch alias has not converged yet. Exact immutable deployment is already verified and remains the CI source of truth."
+
   remote-qa:
     name: Remote browser QA
     needs: [build, deploy]
@@ -336,8 +359,8 @@ jobs:
     env:
       PR_NUMBER: ${{ needs.build.outputs.preview_number }}
       PR_HEAD_SHA: ${{ needs.build.outputs.target_sha }}
-      PREVIEW_URL: ${{ needs.deploy.outputs.preview_alias_url }}
-      PREVIEW_IMMUTABLE_URL: ${{ needs.deploy.outputs.preview_url }}
+      PREVIEW_URL: ${{ needs.deploy.outputs.preview_url }}
+      PREVIEW_ALIAS_URL: ${{ needs.deploy.outputs.preview_alias_url }}
     steps:
       - name: Checkout exact preview target SHA without Cloudflare credentials
         uses: actions/checkout@v7
@@ -358,7 +381,7 @@ jobs:
       - name: Install Chromium for remote preview QA
         run: npx playwright install --with-deps chromium
 
-      - name: Run candidate browser smoke against published internet preview
+      - name: Run candidate browser smoke against immutable internet preview
         shell: bash
         run: |
           set -euo pipefail
@@ -385,12 +408,13 @@ jobs:
           {
             echo "### Verified browser preview"
             echo "- exact SHA: \`$PR_HEAD_SHA\`"
-            echo "- preview: $PREVIEW_URL"
-            echo "- immutable deployment: $PREVIEW_IMMUTABLE_URL"
+            echo "- stable human preview: ${PREVIEW_ALIAS_URL:-not available yet}"
+            echo "- verified immutable deployment: $PREVIEW_URL"
             echo "- release gate: manual visual approval is still required before merge/deploy"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Publish verified preview URL in PR
+        if: github.event_name == 'pull_request'
         continue-on-error: true
         uses: actions/github-script@v9
         env:
@@ -399,15 +423,15 @@ jobs:
         with:
           script: |
             const marker = '<!-- looksawful-cloudflare-pr-preview -->';
-            const aliasUrl = process.env.PREVIEW_URL;
-            const immutableUrl = process.env.PREVIEW_IMMUTABLE_URL || aliasUrl;
+            const immutableUrl = process.env.PREVIEW_URL;
+            const aliasUrl = process.env.PREVIEW_ALIAS_URL || immutableUrl;
             const sha = process.env.PREVIEW_SHA;
             const issueNumber = Number(process.env.PREVIEW_PR_NUMBER);
             if (!Number.isInteger(issueNumber) || issueNumber < 1) {
               core.setFailed('Invalid preview PR number.');
               return;
             }
-            const body = `${marker}\n## Browser preview\n\n✅ Published exact target \`${sha}\`\n✅ Remote HTTP identity/noindex check passed\n✅ Oversized preview media routes verified without deleting repository sources\n✅ Playwright browser smoke passed against the public internet deployment\n\n**Preview:** ${aliasUrl}\n\nImmutable deployment: ${immutableUrl}\n\nProduction \`looksawful.ru\` was not changed.\n\n**Release rule:** this preview is evidence only. Merge/deploy still requires explicit manual visual approval.`;
+            const body = `${marker}\n## Browser preview\n\n✅ Published exact target \`${sha}\`\n✅ Immutable HTTP identity/noindex check passed\n✅ Oversized preview media routes verified without deleting repository sources\n✅ Playwright browser smoke passed against the immutable public internet deployment\n\n**Preview:** ${aliasUrl}\n\nVerified immutable deployment: ${immutableUrl}\n\nProduction \`looksawful.ru\` was not changed.\n\n**Release rule:** this preview is evidence only. Merge/deploy still requires explicit manual visual approval.`;
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
