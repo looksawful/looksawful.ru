@@ -97,7 +97,7 @@ test("CMS media distinguishes references, image sources and video sources, saves
   assert.match(workflow, /has_video/);
   assert.match(workflow, /has_source/);
 
-  assert.match(workflow, /Install video tooling[\s\S]*?if: steps\.scope\.outputs\.has_media_change == 'true' && steps\.affected\.outputs\.image_only != 'true'[\s\S]*?ffmpeg/);
+  assert.match(workflow, /Install video tooling[\s\S]*?if: steps\.scope\.outputs\.has_video == 'true'[\s\S]*?ffmpeg/);
   assert.match(workflow, /Build image derivatives incrementally[\s\S]*?if: steps\.scope\.outputs\.rebuild != 'true' && steps\.scope\.outputs\.has_image == 'true'/);
   assert.match(workflow, /npm run test:media:contract/);
   assert.match(workflow, /npm run test:media:checks/);
