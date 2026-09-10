@@ -43,3 +43,35 @@ jobs:
         run: npm test
       - name: Build container image
         run: docker build --tag awful-control-plane:ci .
+
+  powershell-syntax:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact source tree
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - name: Parse provisioning scripts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = @(
+            'cloud/awful-control-plane/scripts/bootstrap-yandex.ps1',
+            'cloud/awful-control-plane/scripts/configure-secrets.ps1'
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$file: $($_.Message)" }
+              exit 1
+            }
+            Write-Host "PowerShell syntax OK: $file"
+          }
