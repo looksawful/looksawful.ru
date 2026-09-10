@@ -1,3 +1,5 @@
+export {};
+
 const storageKey = "looksawful:lab:scratch-css:v1";
 const styleId = "looksawful-lab-scratch-style";
 
