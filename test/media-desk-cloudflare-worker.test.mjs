@@ -5,12 +5,15 @@ import { handleRequest } from "../tools/cloudflare/media-desk/worker.mjs";
 
 const env = {
   MEDIA_DESK_USERNAME: "looksawful",
-  MEDIA_DESK_PASSWORD_SHA256: "2bb80d537b1da3e38bd30361aa855686bde0ba0d9670a54e8c3f7187cae1c2f",
+  MEDIA_DESK_PASSWORD_SHA256: "2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b",
   MEDIA_DESK_SESSION_SECRET: "test-session-secret-that-is-long-enough",
   MEDIA_DESK_GITHUB_TOKEN: "test-token",
   MEDIA_DESK_REPOSITORY: "looksawful/looksawful.ru",
   MEDIA_DESK_BRANCH: "dev",
   MEDIA_DESK_MEDIA_ORIGIN: "https://www.looksawful.ru",
+  LOGIN_RATE_LIMITER: {
+    limit: async () => ({ success: true }),
+  },
   ASSETS: {
     fetch: async () => new Response("asset"),
   },
@@ -35,4 +38,28 @@ test("Cloudflare Media Desk rejects unauthenticated write API requests", async (
   }), env);
   assert.equal(response.status, 401);
   assert.deepEqual(await response.json(), { ok: false, error: "Authentication required" });
+});
+
+test("Cloudflare Media Desk rejects login attempts when the native limiter is exhausted", async () => {
+  const limitedEnv = {
+    ...env,
+    LOGIN_RATE_LIMITER: {
+      limit: async ({ key }) => {
+        assert.equal(key, "login:looksawful");
+        return { success: false };
+      },
+    },
+  };
+
+  const response = await handleRequest(new Request("https://media.looksawful.ru/__media-desk/auth/login", {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+      origin: "https://media.looksawful.ru",
+    },
+    body: "username=looksawful&password=secret",
+  }), limitedEnv);
+
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get("retry-after"), "60");
 });
