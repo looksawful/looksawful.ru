@@ -16,7 +16,7 @@ test("Lab is a Vite build entry and is explicitly non-indexable", async () => {
   assert.match(labHtml, /src="\/src\/lab\/index\.ts"/);
   assert.match(labHtml, /src="\/src\/lab\/scratch\.ts"/);
   assert.match(scratch, /looksawful:lab:scratch-css:v1/);
-  assert.match(scratch, /data\.labOnly = "scratch-css"/);
+  assert.match(scratch, /dataset\.labOnly = "scratch-css"/);
 });
 
 test("Lab deployment can only publish the lab branch to the isolated preview project", async () => {
@@ -46,8 +46,8 @@ test("Local Lab command opens the workbench instead of production", async () => 
 
 test("Lab design system is a static Storybook viewer over canonical source", async () => {
   const [main, preview, builder, workflow, labHtml] = await Promise.all([
-    read("tools/lab/storybook/main.ts"),
-    read("tools/lab/storybook/preview.ts"),
+    read("tools/lab/storybook/main.mjs"),
+    read("tools/lab/storybook/preview.mjs"),
     read("tools/lab/build-storybook.mjs"),
     read(".github/workflows/lab-preview.yml"),
     read("lab/index.html"),
@@ -73,8 +73,9 @@ test("Lab design system is a static Storybook viewer over canonical source", asy
 });
 
 test("Lab design-system inventory is generated from canonical source rather than a hand-maintained registry", async () => {
-  const [inventory, workflow] = await Promise.all([
+  const [inventory, packageJsonText, workflow] = await Promise.all([
     read("tools/lab/design-system-inventory.mjs"),
+    read("package.json"),
     read(".github/workflows/lab-preview.yml"),
   ]);
 
@@ -83,5 +84,6 @@ test("Lab design-system inventory is generated from canonical source rather than
   assert.match(inventory, /src\/templates/);
   assert.match(inventory, /system-inventory\.json/);
   assert.match(inventory, /inventory\.html/);
-  assert.match(workflow, /design-system-inventory\.mjs/);
+  assert.match(packageJsonText, /"lab:inventory":\s*"node tools\/lab\/design-system-inventory\.mjs"/);
+  assert.match(workflow, /npm run lab:inventory/);
 });
