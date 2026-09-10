@@ -19,7 +19,7 @@ test("Lab is a Vite build entry and is explicitly non-indexable", async () => {
   assert.match(scratch, /dataset\.labOnly = "scratch-css"/);
 });
 
-test("Lab deployment can only publish the lab branch to the isolated preview project", async () => {
+test("Lab deployment is fail-closed behind Access and can only publish the lab branch", async () => {
   const workflow = await read(".github/workflows/lab-preview.yml");
 
   assert.match(workflow, /branches: \[lab\]/);
@@ -27,16 +27,28 @@ test("Lab deployment can only publish the lab branch to the isolated preview pro
   assert.match(workflow, /pages deploy dist --project-name=looksawful-ru-preview --branch=lab/);
   assert.doesNotMatch(workflow, /--branch=prod/);
   assert.match(workflow, /Build Lab without production analytics/);
+  assert.match(workflow, /Require Cloudflare Access service credentials/);
+  assert.match(workflow, /Verify existing preview Access before deploy/);
+  assert.match(workflow, /Configure private Lab routing and Access/);
   assert.match(workflow, /x-robots-tag:/i);
+  assert.ok(
+    workflow.indexOf("Verify existing preview Access before deploy") < workflow.indexOf("Deploy persistent Lab branch preview"),
+    "the public boundary must be checked before publishing a new Lab build",
+  );
 });
 
-test("Lab custom domain targets the Cloudflare branch alias and stays proxied", async () => {
+test("Lab custom domain targets the branch alias, stays proxied, and has a private Access application", async () => {
   const bootstrap = await read("tools/lab/configure-cloudflare.mjs");
 
   assert.match(bootstrap, /customDomain.*lab\./s);
   assert.match(bootstrap, /branchAlias = `\$\{branch\}\.\$\{project\}\.pages\.dev`/);
   assert.match(bootstrap, /type: "CNAME"/);
   assert.match(bootstrap, /proxied: true/);
+  assert.match(bootstrap, /\/access\/apps/);
+  assert.match(bootstrap, /type: "self_hosted"/);
+  assert.match(bootstrap, /cloudflare_account_member/);
+  assert.match(bootstrap, /decision: "allow"/);
+  assert.match(bootstrap, /decision: "non_identity"/);
 });
 
 test("Local Lab command opens the workbench instead of production", async () => {
