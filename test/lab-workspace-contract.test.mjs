@@ -84,3 +84,17 @@ test("Lab design-system inventory is generated from canonical source rather than
   assert.match(inventory, /inventory\.html/);
   assert.match(workflow, /design-system-inventory\.mjs/);
 });
+
+test("Lab navigation exposes current hidden projects, pets and the complete work inventory", async () => {
+  const [labHtml, homeVisibilitySource] = await Promise.all([
+    read("lab/index.html"),
+    read("src/content/visibility/home.json"),
+  ]);
+  const homeVisibility = JSON.parse(homeVisibilitySource);
+
+  assert.match(labHtml, /data-route="\/lab\/all\/"/);
+  assert.match(labHtml, /data-route="\/work\/berry-social-content-2020\/"/);
+  assert.match(labHtml, /data-route="\/pets\/awful-cases\/"/);
+  assert.match(labHtml, /data-route="\/pets\/berserk-timer\/"/);
+  assert.deepEqual(homeVisibility, [{ id: "client-logo-wall", visible: true }]);
+});
