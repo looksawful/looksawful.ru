@@ -4,7 +4,6 @@ import { after, before, test } from "node:test";
 
 const PORT = 18765;
 const BASE_URL = `http://127.0.0.1:${PORT}`;
-const TOKEN = "smoke-test-token";
 let child;
 
 async function waitForServer() {
@@ -29,7 +28,7 @@ before(async () => {
       ...process.env,
       PORT: String(PORT),
       HOST: "127.0.0.1",
-      AWFUL_INTERNAL_TOKEN: TOKEN,
+      AWFUL_INTERNAL_TOKEN: "",
       YANDEX_AI_API_KEY: "",
     },
   });
@@ -40,7 +39,7 @@ after(() => {
   child?.kill("SIGTERM");
 });
 
-test("health endpoint is public", async () => {
+test("health endpoint is available to an already-authorized container caller", async () => {
   const response = await fetch(`${BASE_URL}/healthz`);
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), {
@@ -49,21 +48,17 @@ test("health endpoint is public", async () => {
   });
 });
 
-test("ready endpoint reports configured internal auth", async () => {
+test("ready endpoint does not depend on an application bearer secret", async () => {
   const response = await fetch(`${BASE_URL}/readyz`);
   assert.equal(response.status, 200);
-  assert.equal((await response.json()).authConfigured, true);
-});
-
-test("protected endpoint rejects missing bearer token", async () => {
-  const response = await fetch(`${BASE_URL}/v1/capabilities`);
-  assert.equal(response.status, 401);
-});
-
-test("protected endpoint accepts the configured bearer token", async () => {
-  const response = await fetch(`${BASE_URL}/v1/capabilities`, {
-    headers: { authorization: `Bearer ${TOKEN}` },
+  assert.deepEqual(await response.json(), {
+    status: "ready",
+    service: "awful-control-plane",
   });
+});
+
+test("capabilities rely on Yandex container IAM rather than an application bearer token", async () => {
+  const response = await fetch(`${BASE_URL}/v1/capabilities`);
   assert.equal(response.status, 200);
   const body = await response.json();
   assert.equal(body.service, "awful-control-plane");
@@ -72,11 +67,10 @@ test("protected endpoint accepts the configured bearer token", async () => {
   assert.equal(body.clients.codex, "planned_via_mcp");
 });
 
-test("AI route refuses an unconfigured Yandex key", async () => {
+test("AI route refuses an unconfigured Yandex key after platform authorization", async () => {
   const response = await fetch(`${BASE_URL}/v1/ai/responses`, {
     method: "POST",
     headers: {
-      authorization: `Bearer ${TOKEN}`,
       "content-type": "application/json",
     },
     body: JSON.stringify({ model: "test", input: "ping" }),
