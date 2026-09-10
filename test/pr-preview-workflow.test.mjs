@@ -46,11 +46,14 @@ test("PR preview keeps candidate execution separate from Cloudflare credentials"
   assert.match(deploy, /preview-media-manifest\.json/);
   assert.match(deploy, /oversized preview media routes remain reachable/i);
   assert.match(deploy, /x-robots-tag:\[\[:space:\]\]\*noindex/i);
+  assert.match(deploy, /PREVIEW_URL: \$\{\{ steps\.deploy\.outputs\.deployment-url \}\}/);
 
   assert.match(remoteQa, /npm ci/);
   assert.match(remoteQa, /playwright install --with-deps chromium/);
   assert.match(remoteQa, /runProductionE2E/);
   assert.doesNotMatch(remoteQa, /secrets\.CLOUDFLARE_/);
+  assert.match(remoteQa, /PREVIEW_URL: \$\{\{ needs\.deploy\.outputs\.preview_url \}\}/);
+  assert.match(remoteQa, /PREVIEW_ALIAS_URL: \$\{\{ needs\.deploy\.outputs\.preview_alias_url \}\}/);
   assert.match(remoteQa, /manual visual approval/);
 
   assert.doesNotMatch(workflow, /VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN|VITE_YANDEX_METRIKA_COUNTER_ID/);
