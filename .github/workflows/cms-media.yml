@@ -173,7 +173,7 @@ jobs:
         if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         run: npm run media:catalog:sync
       - name: Install video tooling
-        if: steps.scope.outputs.has_video == 'true'
+        if: steps.scope.outputs.has_media_change == 'true' && steps.affected.outputs.image_only != 'true'
         shell: bash
         run: |
           set -euo pipefail
