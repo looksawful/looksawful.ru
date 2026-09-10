@@ -8,7 +8,7 @@ import {
 } from "../tools/cloudflare/media-desk/auth.mjs";
 
 test("Cloudflare Media Desk password verification uses SHA-256 digest", async () => {
-  const expected = "2bb80d537b1da3e38bd30361aa855686bde0ba0d9670a54e8c3f7187cae1c2f";
+  const expected = "2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b";
   assert.equal(await passwordMatches("secret", expected), true);
   assert.equal(await passwordMatches("wrong", expected), false);
   assert.equal(await passwordMatches("secret", "not-a-digest"), false);
