@@ -1,7 +1,0 @@
-tunnel: REPLACE_WITH_TUNNEL_ID
-credentials-file: /etc/cloudflared/REPLACE_WITH_TUNNEL_ID.json
-
-ingress:
-  - hostname: media.looksawful.ru
-    service: http://127.0.0.1:4174
-  - service: http_status:404
