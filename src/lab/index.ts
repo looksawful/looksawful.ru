@@ -141,9 +141,7 @@ function scaleFrame(): void {
   const availableHeight = Math.max(1, rect.height - gap * 2);
   const naturalWidth = state.width;
   const naturalHeight = state.height;
-  const scale = state.preset === "fit"
-    ? Math.min(1, availableWidth / naturalWidth, availableHeight / naturalHeight)
-    : Math.min(1, availableWidth / naturalWidth, availableHeight / naturalHeight);
+  const scale = Math.min(1, availableWidth / naturalWidth, availableHeight / naturalHeight);
 
   frameWrap.style.width = `${naturalWidth}px`;
   frameWrap.style.height = `${naturalHeight}px`;
@@ -180,17 +178,24 @@ function elementSelector(element: Element): string {
   let current: Element | null = element;
   while (current && current !== current.ownerDocument.body && parts.length < 5) {
     let part = current.tagName.toLowerCase();
-    const classNames = Array.from(current.classList).filter((name) => !name.startsWith("is-")).slice(0, 2);
+    const classNames = Array.from(current.classList)
+      .filter((name) => !name.startsWith("is-"))
+      .slice(0, 2);
     if (classNames.length) part += classNames.map((name) => `.${CSS.escape(name)}`).join("");
 
-    const parent = current.parentElement;
-    if (parent) {
-      const siblings = Array.from(parent.children).filter((sibling) => sibling.tagName === current?.tagName);
-      if (siblings.length > 1) part += `:nth-of-type(${siblings.indexOf(current) + 1})`;
+    const currentElement: Element = current;
+    const parentElement: Element | null = currentElement.parentElement;
+    if (parentElement) {
+      const siblings: Element[] = Array.from(parentElement.children).filter(
+        (sibling: Element) => sibling.tagName === currentElement.tagName,
+      );
+      if (siblings.length > 1) {
+        part += `:nth-of-type(${siblings.indexOf(currentElement) + 1})`;
+      }
     }
 
     parts.unshift(part);
-    current = parent;
+    current = parentElement;
   }
   return parts.join(" > ");
 }
