@@ -154,7 +154,7 @@ jobs:
         run: |
           set -euo pipefail
           file_count="$(find dist -type f | wc -l | tr -d ' ')"
-          largest="$(find dist -type f -printf '%s %p\n' | sort -nr | head -n 1 || true)"
+          largest="$(find dist -type f -printf '%s %p\n' | sort -nr | sed -n '1p')"
           {
             echo "### Cloudflare Pages preflight"
             echo "- files: ${file_count} / 20000"
@@ -268,28 +268,30 @@ jobs:
 
       - name: Verify published preview identity and noindex
         env:
-          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
+          PREVIEW_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
         shell: bash
         run: |
           set -euo pipefail
           test -n "$PREVIEW_URL"
           case "$PREVIEW_URL" in
             https://*) ;;
-            *) echo "Unexpected Cloudflare deployment URL: $PREVIEW_URL" >&2; exit 1 ;;
+            *) echo "Unexpected Cloudflare deployment alias URL: $PREVIEW_URL" >&2; exit 1 ;;
           esac
 
-          curl --fail --silent --show-error --location --retry 5 --retry-delay 2 \
+          curl --fail --silent --show-error --location \
+            --retry 10 --retry-delay 3 --retry-all-errors \
             "$PREVIEW_URL/preview-version.txt?sha=$PR_HEAD_SHA" > /tmp/preview-version.txt
           grep -Fxq "commit=$PR_HEAD_SHA" /tmp/preview-version.txt
           grep -Fxq "pull_request=$PR_NUMBER" /tmp/preview-version.txt
 
-          curl --fail --silent --show-error --location --retry 5 --retry-delay 2 \
+          curl --fail --silent --show-error --location \
+            --retry 10 --retry-delay 3 --retry-all-errors \
             --dump-header /tmp/preview-headers.txt --output /dev/null "$PREVIEW_URL/?sha=$PR_HEAD_SHA"
           grep -Eqi '^x-robots-tag:[[:space:]]*noindex' /tmp/preview-headers.txt
 
       - name: Verify oversized preview media routes remain reachable
         env:
-          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
+          PREVIEW_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
         shell: bash
         run: |
           set -euo pipefail
@@ -301,11 +303,24 @@ jobs:
           for (const record of manifest.records) {
             const encodedPath = record.path.split("/").map(encodeURIComponent).join("/");
             const url = new URL(encodedPath, `${base.origin}/`);
-            const response = await fetch(url, { method: "HEAD", redirect: "follow" });
-            if (!response.ok) {
-              throw new Error(`oversized preview media route failed: ${record.path} -> HTTP ${response.status}`);
+            let lastError;
+            for (let attempt = 1; attempt <= 10; attempt += 1) {
+              try {
+                const response = await fetch(url, { method: "HEAD", redirect: "follow" });
+                if (response.ok) {
+                  console.log(`[preview-media] reachable: ${record.path} (${record.handling})`);
+                  lastError = undefined;
+                  break;
+                }
+                lastError = new Error(`HTTP ${response.status}`);
+              } catch (error) {
+                lastError = error;
+              }
+              await new Promise((resolve) => setTimeout(resolve, 3000));
             }
-            console.log(`[preview-media] reachable: ${record.path} (${record.handling})`);
+            if (lastError) {
+              throw new Error(`oversized preview media route failed: ${record.path}: ${lastError.message}`);
+            }
           }
           NODE
 
@@ -317,11 +332,12 @@ jobs:
     permissions:
       contents: read
       issues: write
+      pull-requests: write
     env:
       PR_NUMBER: ${{ needs.build.outputs.preview_number }}
       PR_HEAD_SHA: ${{ needs.build.outputs.target_sha }}
-      PREVIEW_URL: ${{ needs.deploy.outputs.preview_url }}
-      PREVIEW_ALIAS_URL: ${{ needs.deploy.outputs.preview_alias_url }}
+      PREVIEW_URL: ${{ needs.deploy.outputs.preview_alias_url }}
+      PREVIEW_IMMUTABLE_URL: ${{ needs.deploy.outputs.preview_url }}
     steps:
       - name: Checkout exact preview target SHA without Cloudflare credentials
         uses: actions/checkout@v7
@@ -363,7 +379,19 @@ jobs:
           }
           NODE
 
+      - name: Publish preview URLs in job summary
+        shell: bash
+        run: |
+          {
+            echo "### Verified browser preview"
+            echo "- exact SHA: \`$PR_HEAD_SHA\`"
+            echo "- preview: $PREVIEW_URL"
+            echo "- immutable deployment: $PREVIEW_IMMUTABLE_URL"
+            echo "- release gate: manual visual approval is still required before merge/deploy"
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Publish verified preview URL in PR
+        continue-on-error: true
         uses: actions/github-script@v9
         env:
           PREVIEW_PR_NUMBER: ${{ env.PR_NUMBER }}
@@ -371,8 +399,8 @@ jobs:
         with:
           script: |
             const marker = '<!-- looksawful-cloudflare-pr-preview -->';
-            const immutableUrl = process.env.PREVIEW_URL;
-            const aliasUrl = process.env.PREVIEW_ALIAS_URL || immutableUrl;
+            const aliasUrl = process.env.PREVIEW_URL;
+            const immutableUrl = process.env.PREVIEW_IMMUTABLE_URL || aliasUrl;
             const sha = process.env.PREVIEW_SHA;
             const issueNumber = Number(process.env.PREVIEW_PR_NUMBER);
             if (!Number.isInteger(issueNumber) || issueNumber < 1) {
