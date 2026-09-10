@@ -1,0 +1,29 @@
+.media-desk-session {
+  position: fixed;
+  z-index: 1000;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid rgb(0 0 0 / 14%);
+  background: rgb(255 255 255 / 92%);
+  backdrop-filter: blur(12px);
+}
+
+.media-desk-session__logout {
+  appearance: none;
+  border: 0;
+  background: #111;
+  color: #fff;
+  padding: 8px 11px;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.media-desk-session__logout:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 3px;
+}
