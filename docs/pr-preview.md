@@ -20,12 +20,41 @@ For each eligible pull request or manually selected repository SHA the workflow:
 4. Runs typecheck and the Fast test suite.
 5. Builds with `npm run build:site` without production analytics environment variables.
 6. Stamps `dist/preview-version.txt` with the exact target SHA and preview/PR number.
-7. Rejects a build that exceeds Cloudflare Pages Direct Upload file-count or per-file size limits before upload.
-8. Ensures the isolated Cloudflare Pages project `looksawful-ru-preview` exists. The project is created automatically on the first authenticated run if needed, with `prod` recorded as the Cloudflare Pages production branch.
-9. Deploys only to the preview branch alias `pr-<number>`.
-10. Fetches the published deployment over HTTPS, verifies the stamped SHA/PR identity, and requires Cloudflare's preview `X-Robots-Tag: noindex` response header.
-11. Launches Playwright Chromium and runs the repository's production browser smoke from the checked-out target revision against the published internet URL.
-12. Creates or updates one PR comment containing the preview URL and immutable deployment URL.
+7. Prepares a Cloudflare-compatible preview artifact without deleting or rewriting repository media sources.
+8. Keeps tracked files larger than the Cloudflare Pages per-asset limit in Git and removes only their temporary copies from `dist`; explicit `_redirects` rules point the preview URL to the same file at the exact target SHA on `raw.githubusercontent.com`.
+9. Re-encodes only oversized generated browser-delivery video into a preview-only surrogate below the Pages asset limit. The generated cache source/master and repository files remain untouched.
+10. Fails closed for any other oversized untracked asset until an explicit safe preview strategy exists.
+11. Enforces Cloudflare Pages file-count and per-file limits after preview packaging.
+12. Ensures the isolated Cloudflare Pages project `looksawful-ru-preview` exists. The project is created automatically on the first authenticated run if needed, with `prod` recorded as the Cloudflare Pages production branch.
+13. Deploys only to the preview branch alias `pr-<number>`.
+14. Fetches the published deployment over HTTPS, verifies the stamped SHA/PR identity, and requires Cloudflare's preview `X-Robots-Tag: noindex` response header.
+15. Verifies that every oversized-media preview route remains reachable after deployment.
+16. Launches Playwright Chromium and runs the repository's production browser smoke from the checked-out target revision against the published internet URL.
+17. Creates or updates one PR comment containing the preview URL and immutable deployment URL.
+
+## Oversized media contract
+
+Cloudflare Pages cannot store an individual static asset larger than its current per-file limit. That deployment limit is not allowed to become a deletion policy for the repository.
+
+The repository remains the source of truth for original media. Preview packaging is ephemeral and runs only against the generated `dist` directory on the CI runner.
+
+For an oversized file already tracked under `public/`:
+
+- the original file stays in Git unchanged;
+- the original path stays in the media/catalog architecture unchanged;
+- only the temporary copy inside `dist` is removed before upload;
+- the preview gets an explicit 302 redirect from the original public path to `raw.githubusercontent.com/<repository>/<exact-sha>/public/<path>`;
+- therefore a changed tracked media file is still previewed from the exact candidate commit rather than silently falling back to production.
+
+For an oversized generated browser-delivery video under `dist/media/generated/video/`:
+
+- the repository source/master is not touched;
+- the canonical generated-media cache is not rewritten in Git;
+- CI creates a smaller H.264/AAC surrogate only inside the preview artifact;
+- `preview-media-manifest.json` records that the deployed file is a preview-only surrogate;
+- this surrogate is suitable for layout, playback, interaction and browser-regression review, but final compression/quality review must use the canonical media source/delivery artifact.
+
+Any oversized untracked asset outside the supported generated-video path fails the workflow. The pipeline must never make an unknown file disappear merely to satisfy a hosting limit.
 
 ## Trigger modes
 
@@ -62,6 +91,7 @@ The workflow cannot and must not create these GitHub secrets itself. Add them in
 - The workflow uses `pull_request`, never `pull_request_target`.
 - Checkout uses the exact resolved SHA with persisted Git credentials disabled.
 - Cloudflare credentials exist only as GitHub Actions secrets.
+- Candidate PR code executes in the build and remote-QA jobs without Cloudflare credentials. The deploy job receives Cloudflare credentials but does not checkout or execute candidate source code.
 - No production analytics variables are injected into preview builds.
 - No custom production domain is attached to `looksawful-ru-preview`.
 - The Cloudflare Pages deploy command always uses `--branch=pr-<number>`, never `--branch=prod`.
@@ -75,7 +105,7 @@ Cloudflare Pages preview deployments are public by default but receive `X-Robots
 
 ## Manual review gate
 
-A green preview workflow means the exact target SHA was built, published, identity-checked over the internet, and passed automated browser smoke. It does not replace human visual review.
+A green preview workflow means the exact target SHA was built, published, identity-checked over the internet, oversized-media routes were verified, and the published site passed automated browser smoke. It does not replace human visual review.
 
 Before merge, open the PR's preview URL on the actual target devices/browsers and inspect layout, typography, media, motion, touch/hover behavior, WebGL/Three.js content, sliders, galleries, lightboxes and project-specific interactions affected by the change.
 
@@ -85,7 +115,9 @@ Production release policy is explicit: **no merge/deployment to `prod` until the
 
 - Missing credential error: add the two required GitHub Actions secrets.
 - Cloudflare project lookup/create error: verify Account ID and token scope.
-- Asset limit error: the generated `dist` contains too many files or a file larger than the current Cloudflare Pages Direct Upload limit; do not silently omit the asset from preview.
+- Unsupported oversized asset: the repository source remains untouched; add an explicit preview delivery strategy instead of deleting the source.
+- Preview-media route failure: an exact-SHA redirect or preview-only surrogate is not reachable; do not approve that preview.
+- File-count/per-file limit error after packaging: the prepared artifact still violates Cloudflare Pages limits and must not be uploaded.
 - Preview identity mismatch: treat the deployment as invalid. Do not review or merge based on that URL.
 - Missing `X-Robots-Tag: noindex`: treat preview publication as failed until indexing protection is restored.
 - Remote Playwright failure: the published internet build is not considered preview-green even if local CI passed.
