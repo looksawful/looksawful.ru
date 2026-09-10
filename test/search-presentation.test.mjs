@@ -21,6 +21,7 @@ const HOME_TITLE = "Иван Крушинский — арт-директор ц
 const HOME_DESCRIPTION =
   "Арт-директор цифровых продуктов и дизайнер. Проектирую интерфейсы, айдентику и визуальные системы, руковожу командами и довожу продукты до релиза.";
 const SOCIAL_IMAGE = "https://www.looksawful.ru/media/hero/hero-portrait.webp";
+const PNG_BYTES = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
 
 test("homepage search and social presentation stays coherent", () => {
   const html = renderHomepagePage(indexSource);
@@ -116,7 +117,7 @@ test("site metadata validation rejects a missing favicon asset", async () => {
   }
 });
 
-test("production discovery health checks favicon as YandexBot", async () => {
+test("production discovery health checks search icons as YandexBot", async () => {
   const originalFetch = globalThis.fetch;
   const requests = [];
 
@@ -140,10 +141,10 @@ test("production discovery health checks favicon as YandexBot", async () => {
     if (url.pathname === "/deploy-version.txt") {
       return new Response("commit=test-sha\ndeployed-from=prod\n", { status: 200 });
     }
-    if (url.pathname === "/favicon.svg") {
-      return new Response('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"></svg>', {
+    if (url.pathname === "/favicon.png" || url.pathname === "/apple-touch-icon.png") {
+      return new Response(PNG_BYTES, {
         status: 200,
-        headers: { "content-type": "image/svg+xml" },
+        headers: { "content-type": "image/png" },
       });
     }
     throw new Error(`unexpected URL ${url.href}`);
@@ -152,9 +153,12 @@ test("production discovery health checks favicon as YandexBot", async () => {
   try {
     const result = await checkProduction({ expectedSha: "test-sha" });
     assert.equal(result.favicon, "PASS");
-    const faviconRequest = requests.find((request) => request.pathname === "/favicon.svg");
-    assert.ok(faviconRequest, "production health check must request /favicon.svg");
-    assert.match(faviconRequest.userAgent, /YandexBot/i);
+    assert.equal(result.appleTouchIcon, "PASS");
+    for (const pathname of ["/favicon.png", "/apple-touch-icon.png"]) {
+      const request = requests.find((item) => item.pathname === pathname);
+      assert.ok(request, `production health check must request ${pathname}`);
+      assert.match(request.userAgent, /YandexBot/i);
+    }
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -162,8 +166,9 @@ test("production discovery health checks favicon as YandexBot", async () => {
 
 test("Pages deployment verifies Yandex-visible discovery files after publish", () => {
   assert.match(pagesWorkflow, /YandexBot\/3\.0/);
-  assert.match(pagesWorkflow, /favicon\.svg/);
+  assert.match(pagesWorkflow, /favicon\.png/);
+  assert.match(pagesWorkflow, /apple-touch-icon\.png/);
   assert.match(pagesWorkflow, /robots\.txt/);
   assert.match(pagesWorkflow, /sitemap\.xml/);
-  assert.match(pagesWorkflow, /content-type:[^\n]*image\/svg/);
+  assert.match(pagesWorkflow, /content-type:[^\n]*image\/png/);
 });
