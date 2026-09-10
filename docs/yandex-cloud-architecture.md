@@ -1,6 +1,6 @@
 # Yandex Cloud integration architecture
 
-Status: initial control-plane scaffold. The existing public portfolio remains on GitHub Pages + Cloudflare.
+Status: control-plane infrastructure bootstrapped in the dedicated `awful` folder. The existing public portfolio remains on GitHub Pages + Cloudflare.
 
 ## Goals
 
@@ -8,51 +8,67 @@ Status: initial control-plane scaffold. The existing public portfolio remains on
 2. Give ChatGPT/Codex/Yandex agents/Alice access through explicit tools instead of broad cloud-admin credentials.
 3. Host a secure online CMS and Media Desk backend.
 4. Store heavy media separately from Git and make it addressable by metadata.
-5. Keep all provider keys and service credentials out of browser code and Git.
-6. Make every destructive or privileged operation auditable and narrowly scoped.
+5. Keep all service credentials out of browser code, Git and model-visible tool results.
+6. Make destructive or privileged operations auditable and narrowly scoped.
+7. Do not require the OpenAI API. ChatGPT conversations and Codex are clients of AWFUL tools, not model providers inside the backend.
 
-## Target domains
+## Target topology
 
-- `looksawful.ru` - existing public portfolio, unchanged.
-- `api.looksawful.ru` - API Gateway / AWFUL Control Plane entrypoint.
-- `studio.looksawful.ru` - future authenticated CMS UI.
-- `media.looksawful.ru` - future authenticated Media Desk UI.
+```text
+looksawful.ru
+  -> GitHub Pages + Cloudflare                         (unchanged)
 
-The last three domains are targets, not DNS changes performed by this branch.
+Codex
+  -> Yandex AI Studio MCP Gateway                     (direct during development)
+  -> AWFUL tool actions
+  -> private Serverless Container / Yandex services
 
-## Initial Yandex Cloud resources
+ChatGPT
+  -> mcp.looksawful.ru                                (future OAuth/mTLS facade)
+  -> Yandex AI Studio MCP Gateway
+  -> AWFUL tool actions
 
-Create these first in one dedicated folder:
+studio.looksawful.ru
+  -> future authenticated CMS UI
 
-- service account: `awful-runtime`;
-- Container Registry: `awful`;
-- Serverless Container: `awful-control-plane`;
-- Lockbox secret: `awful-control-plane`;
-- Object Storage bucket: globally unique name chosen during provisioning;
-- API Gateway: `awful-api` after the container is healthy;
-- Audit Trails / observability destination before write-capable agent tools are enabled.
+media.looksawful.ru
+  -> future authenticated Media Desk UI
 
-PostgreSQL, Cloud Video, Tracker, Vision, Translate, SpeechKit, AI Search and GPU resources are phase-two resources. Do not provision everything merely because the console contains a button for it.
+api.looksawful.ru
+  -> future browser/API Gateway facade where needed
+```
 
-## Secret keys
+The target subdomains are architectural names only. This branch does not change Cloudflare DNS.
 
-The `awful-control-plane` Lockbox secret is expected to contain separate key/value items:
+## Bootstrapped Yandex resources
 
-- `awful-internal-token`;
-- `openai-api-key`;
-- `yandex-ai-api-key`.
+The following resources already exist in folder `awful` and their non-secret IDs are recorded in `cloud/awful-control-plane/yandex.resources.json`:
 
-Map them to runtime variables:
+- service account `awful-runtime`;
+- service account `awful-deployer`;
+- Container Registry `awful`;
+- Serverless Container `awful-control-plane`;
+- Lockbox secret metadata `awful-control-plane`;
+- GitHub Workload Identity Federation `awful-github`;
+- federated credential limited to `looksawful/looksawful.ru` branch `dev`.
 
-- `AWFUL_INTERNAL_TOKEN`;
-- `OPENAI_API_KEY`;
-- `YANDEX_AI_API_KEY`.
+The GitHub deployer uses OIDC/WIF. Do not create or store a permanent Yandex service-account JSON key in GitHub.
 
-Never put these values in `.env.example`, GitHub issues, pull requests, browser storage or chat messages.
+## Runtime secret
 
-## AI routing
+The control plane currently needs only the Yandex AI Studio credential:
 
-The control plane exposes one internal route:
+- Lockbox entry `yandex-ai-api-key` -> runtime variable `YANDEX_AI_API_KEY`.
+
+The Yandex API key is scoped to `yc.ai.languageModels.execute`.
+
+There is no OpenAI API key in this architecture.
+
+Never put secret values in `.env.example`, GitHub issues, pull requests, browser storage, tool responses or chat messages.
+
+## Yandex AI routing
+
+The control plane exposes an internal Yandex-only route:
 
 `POST /v1/ai/responses`
 
@@ -60,53 +76,106 @@ Request shape:
 
 ```json
 {
-  "provider": "openai | yandex",
-  "model": "optional model id/uri",
+  "model": "optional model URI",
   "input": "Responses API input",
   "instructions": "optional",
   "tools": []
 }
 ```
 
-OpenAI goes to `https://api.openai.com/v1/responses`.
+The backend sends the request to the OpenAI-compatible Yandex AI Studio endpoint `https://ai.api.cloud.yandex.net/v1/responses`. A typical model URI is `gpt://<folder-id>/yandexgpt/latest`.
 
-Yandex goes to the OpenAI-compatible AI Studio base URL `https://ai.api.cloud.yandex.net/v1` and uses the same Responses API concept. A typical Yandex model URI is `gpt://<folder-id>/yandexgpt/latest`.
+ChatGPT and Codex do not call this route in order to become GPT model providers. They connect to AWFUL as MCP clients using their own ChatGPT/Codex product sessions.
+
+## MCP architecture decision
+
+Do not implement the MCP transport inside `awful-control-plane` unless the managed gateway proves insufficient.
+
+Use Yandex AI Studio MCP Gateway as the MCP protocol layer. It natively supports Streamable HTTP and can expose tools whose actions call Serverless Containers, functions, HTTP endpoints, other MCP servers, gRPC endpoints or Workflows.
+
+```text
+Codex --------------------------+
+                                |
+ChatGPT -> auth facade ---------+--> AWFUL MCP Gateway
+                                      |
+                                      +--> containerCall -> awful-control-plane
+                                      +--> httpCall
+                                      +--> mcpCall
+                                      +--> startWorkflow
+```
+
+Why this boundary is deliberate:
+
+- OpenAI requires production MCP servers to support Streamable HTTP at a stable HTTPS endpoint and preserve authentication/authorization boundaries.
+- Yandex Serverless Containers removes incoming `Authorization` before passing requests to the application, so a custom MCP bearer/OAuth implementation mounted directly inside the container would not receive the original authorization header.
+- Yandex MCP Gateway already implements the MCP transport and has its own invocation access model, logs and metrics.
+- The control plane can remain ordinary HTTP business logic instead of reimplementing protocol transport, sessions and compatibility behavior.
+
+## Codex authentication path
+
+During development, Codex can connect directly to the Yandex MCP Gateway using Streamable HTTP.
+
+Yandex supports API-key authentication for MCP Gateway invocation with scope:
+
+`yc.serverless.mcpGateways.invoke`
+
+Codex supports HTTP MCP servers with static headers, environment-backed headers and helper-generated headers. The caller API key must therefore live in a local environment variable or secure helper, never in `.codex/config.toml` as a literal secret.
+
+Target shape:
+
+```toml
+[mcp_servers.awful]
+url = "https://<managed-mcp-domain>/mcp"
+env_http_headers = { Authorization = "AWFUL_MCP_AUTH" }
+default_tools_approval_mode = "writes"
+```
+
+`AWFUL_MCP_AUTH` contains `Api-Key <secret>` in the local environment. This caller credential is separate from the Yandex AI key used by the backend.
+
+## ChatGPT authentication path
+
+Do not make a private AWFUL MCP Gateway unauthenticated merely to connect ChatGPT.
+
+For ChatGPT, the production target is a stable public HTTPS MCP facade at `mcp.looksawful.ru` which preserves the private managed gateway behind it and implements the authentication method supported by the ChatGPT plugin/app connection. OpenAI production guidance currently calls for OAuth 2.1 when user authentication is required and supports OpenAI-managed mTLS for authenticating ChatGPT as the MCP client.
+
+This facade is deliberately deferred until the first managed MCP tools work end to end. Authentication is a boundary, not a decorative checkbox to add after publishing private storage tools.
 
 ## Access model
 
-Do not grant ChatGPT, Codex, Alice or an MCP server a general-purpose cloud administrator credential.
+Do not grant ChatGPT, Codex, Alice or an MCP caller general cloud administrator credentials.
 
-Expose narrow tools instead:
+Expose narrow tools instead.
 
 ### Safe read tools
 
-- `media.search`
-- `media.get`
-- `storage.list`
-- `storage.stat`
-- `cms.get_project`
-- `tracker.search`
-- `logs.search`
-- `metrics.query`
-- `backup.status`
+- `awful_status`
+- `media_search`
+- `media_get`
+- `storage_list`
+- `storage_stat`
+- `cms_get_project`
+- `tracker_search`
+- `logs_search`
+- `metrics_query`
+- `backup_status`
 
 ### Scoped write tools
 
-- `media.tag`
-- `media.move`
-- `cms.create_draft`
-- `cms.update_project`
-- `tracker.create_issue`
-- `tracker.update_issue`
-- `video.submit`
-- `render.submit`
+- `media_tag`
+- `media_move`
+- `cms_create_draft`
+- `cms_update_project`
+- `tracker_create_issue`
+- `tracker_update_issue`
+- `video_submit`
+- `render_submit`
 
 ### Confirmation-required tools
 
-- `cms.publish`
-- `storage.archive`
-- `deploy.promote`
-- `backup.request_restore`
+- `cms_publish`
+- `storage_archive`
+- `deploy_promote`
+- `backup_request_restore`
 
 ### Never expose as general agent tools
 
@@ -117,9 +186,11 @@ Expose narrow tools instead:
 - unrestricted object/bucket deletion;
 - unrestricted database administration.
 
+Tool metadata must truthfully mark read-only, destructive and open-world behavior. The server/gateway policy remains authoritative even when a model or client marks an action as approved.
+
 ## Media Desk migration rule
 
-The existing Media Desk is local and its launcher explicitly enables write mode. Therefore it must not be published directly to the internet.
+The existing Media Desk is local and its launcher explicitly enables write mode. It must not be published directly to the internet.
 
 Migration order:
 
@@ -131,47 +202,60 @@ Migration order:
 6. add user/session authorization;
 7. only then expose `media.looksawful.ru`.
 
-## MCP plan
+## Deployment and trust boundaries
 
-`AWFUL MCP` will sit on top of the control-plane service layer. It is an adapter, not the authority itself.
+`awful-control-plane` stays private. GitHub Actions deploys revisions through the dedicated `awful-deployer` service account using Workload Identity Federation.
+
+Future Yandex MCP Gateway should use its own service account and receive only the ability to invoke the specific AWFUL backend resources required by its tool actions. It must not reuse `awful-deployer`.
+
+The managed MCP caller credential is also separate from runtime AI credentials:
 
 ```text
-ChatGPT / Codex / Yandex Agent / Alice
-                 |
-             AWFUL MCP
-                 |
-        AWFUL Control Plane
-                 |
-  IAM-scoped Yandex Cloud services
+Codex caller key
+  scope: yc.serverless.mcpGateways.invoke
+  -> invokes MCP Gateway only
+
+MCP Gateway service account
+  -> invokes approved private backend resources
+
+awful-runtime
+  -> runtime access needed by the container
+
+Yandex AI API key
+  scope: yc.ai.languageModels.execute
+  -> AI Studio only
+
+awful-deployer
+  -> deployment only via GitHub OIDC
 ```
 
-The backend performs authorization and policy checks even if the MCP client is trusted.
+## Provisioning order from current state
 
-## Provisioning order
+1. Re-run the idempotent `configure-secrets.ps1` to inspect the existing Yandex AI key / Lockbox state without reading secret values.
+2. If the current Lockbox already contains the required Yandex AI key, make no credential changes.
+3. If an earlier API key exists but its value was never persisted in Lockbox, rotate it once with `-RotateYandexApiKey`; write the replacement to Lockbox before deleting the old managed key.
+4. Merge the staging PR into `dev` only after credential state is healthy.
+5. Let GitHub Actions build/push the image and deploy the first private Serverless Container revision through OIDC/WIF.
+6. Verify container health and Yandex AI end to end.
+7. Create a dedicated MCP Gateway service account with only the required invocation permissions.
+8. Create the managed `awful` MCP Gateway with Streamable HTTP and logging.
+9. Add the first read-only `awful_status` tool and test it through MCP Inspector / Codex.
+10. Create a dedicated MCP caller service account + API key scoped only to `yc.serverless.mcpGateways.invoke` for Codex development.
+11. Add Object Storage and metadata persistence before any media-write tools.
+12. Add the ChatGPT OAuth/mTLS MCP facade only after the managed gateway tool contract is stable.
+13. Add CMS/Media Desk, Tracker, Video, Vision, Translate, Speech and Yandex 360 tools only for concrete workflows.
+14. Add GPU jobs only after queue, cancellation and cost controls exist.
 
-1. Dedicated cloud folder and billing.
-2. Runtime service account.
-3. Lockbox secret and minimal secret access.
-4. Container Registry.
-5. Build and deploy `awful-control-plane`.
-6. Verify `/healthz` and `/readyz`.
-7. Add Yandex AI Studio key and test provider `yandex`.
-8. Add OpenAI API key and test provider `openai`.
-9. Add API Gateway and `api.looksawful.ru`.
-10. Add Object Storage.
-11. Build the authenticated CMS/Media Desk API.
-12. Add AWFUL MCP.
-13. Add Tracker/Video/Vision/Translate/Speech/360 adapters only when a concrete workflow needs them.
-14. Add GPU jobs only after queue, cost limits and cancellation controls exist.
+## Current safety boundary
 
-## Current branch safety boundary
-
-This branch does not:
+The branch does not:
 
 - touch `prod`;
 - change GitHub Pages deployment;
 - change Cloudflare DNS;
 - expose the local Media Desk;
-- add real API keys;
-- provision paid Yandex Cloud resources;
-- create broad IAM permissions.
+- contain API-key values;
+- use the OpenAI API;
+- make the Serverless Container public;
+- make the future MCP Gateway public without authentication;
+- grant agents or MCP callers broad IAM permissions.
