@@ -22,6 +22,17 @@ test("CV runner accepts an explicit mode and direct execution stays authored", a
   assert.match(source, /runSmokeCv\(\{\s*browser,\s*baseUrl,\s*mode:\s*["']authored["']/s);
 });
 
+test("CV smoke keeps authored output script-free while production forbids only application and pre-consent analytics runtime", async () => {
+  const source = await read("tools/e2e/smoke-cv.mjs");
+  assert.match(source, /siteApplicationRuntimeCount/);
+  assert.match(source, /staticAnalyticsBootstrapCount/);
+  assert.match(source, /yandexRuntimeCount/);
+  assert.match(
+    source,
+    /if \(mode === ["']production["']\)[\s\S]*?siteApplicationRuntimeCount[\s\S]*?yandexRuntimeCount[\s\S]*?else \{[\s\S]*?scriptCount === 0/s,
+  );
+});
+
 test("caption QA stays optional and import-safe", async () => {
   const source = await read("tools/capture-caption-qa.mjs");
   assert.match(source, /export async function captureCaptionQa\(\{\s*browser,\s*baseUrl,/s);
