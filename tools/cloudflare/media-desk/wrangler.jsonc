@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "looksawful-media-desk",
+  "main": "./worker.mjs",
+  "compatibility_date": "2026-09-10",
+  "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "media.looksawful.ru",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": "../../../.cache/media-desk-cloudflare/dist",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "vars": {
+    "MEDIA_DESK_USERNAME": "looksawful",
+    "MEDIA_DESK_REPOSITORY": "looksawful/looksawful.ru",
+    "MEDIA_DESK_BRANCH": "dev",
+    "MEDIA_DESK_MEDIA_ORIGIN": "https://www.looksawful.ru"
+  }
+}
