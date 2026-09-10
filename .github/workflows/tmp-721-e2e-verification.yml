@@ -1,0 +1,115 @@
+name: TEMP 721 E2E Verification
+
+on:
+  pull_request:
+    branches: [prod]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tmp-721-e2e-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  prepare-media:
+    if: github.event.pull_request.head.ref == 'test/721-e2e-suite-deadlines'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      fingerprint: ${{ steps.media.outputs.fingerprint }}
+      cache-hit: ${{ steps.cache.outputs.cache-hit }}
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+      - name: Restore exact generated media cache
+        id: cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+      - name: Install media tooling on cache miss
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - name: Rebuild generated media on cache miss
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          npm run media:sync
+          node tools/media-dev-state.mjs --cache-verify
+          git diff --exit-code
+      - name: Verify restored generated media
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: node tools/media-dev-state.mjs --cache-verify
+      - name: Save recovered generated media cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
+  verify:
+    needs: prepare-media
+    if: github.event.pull_request.head.ref == 'test/721-e2e-suite-deadlines'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Restore exact prepared media
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ needs.prepare-media.outputs.fingerprint }}
+          fail-on-cache-miss: true
+      - name: Verify prepared generated media
+        run: node tools/media-dev-state.mjs --cache-verify
+      - name: CI orchestration contracts
+        run: npm run test:ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build site
+        run: npm run build:site
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Full browser regression with named suite deadlines
+        run: npm run test:e2e:full
