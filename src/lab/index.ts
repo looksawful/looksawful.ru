@@ -67,6 +67,7 @@ function parseBackground(value: string | null): StageBackground {
 }
 
 function parseDimension(value: string | null, fallback: number, min: number, max: number): number {
+  if (value === null || value.trim() === "") return fallback;
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.min(max, Math.max(min, Math.round(parsed)));
