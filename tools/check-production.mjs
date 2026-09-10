@@ -24,6 +24,22 @@ function assertSitemapShape(xml, label) {
   return hasIndex ? "index" : "urlset";
 }
 
+async function fetchResponse(url, { userAgent = HEALTHCHECK_USER_AGENT } = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      redirect: "follow",
+      signal: controller.signal,
+      headers: { "Cache-Control": "no-cache", "User-Agent": userAgent },
+    });
+    if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+    return response;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function fetchChecked(
   url,
   {
@@ -32,19 +48,7 @@ async function fetchChecked(
     userAgent = HEALTHCHECK_USER_AGENT,
   } = {},
 ) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  let response;
-  try {
-    response = await fetch(url, {
-      redirect: "follow",
-      signal: controller.signal,
-      headers: { "Cache-Control": "no-cache", "User-Agent": userAgent },
-    });
-  } finally {
-    clearTimeout(timeout);
-  }
-  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+  const response = await fetchResponse(url, { userAgent });
   const text = await response.text();
   if (!text.trim()) throw new Error(`${url}: empty response`);
 
@@ -59,6 +63,24 @@ async function fetchChecked(
     throw new Error(`${url}: expected ${expectedContentType} Content-Type, got ${contentType || "missing"}`);
   }
   return { response, text };
+}
+
+async function fetchBinaryChecked(url, { expectedContentType, userAgent = HEALTHCHECK_USER_AGENT } = {}) {
+  const response = await fetchResponse(url, { userAgent });
+  const contentType = response.headers.get("content-type") ?? "";
+  if (expectedContentType && !contentType.toLowerCase().includes(expectedContentType.toLowerCase())) {
+    throw new Error(`${url}: expected ${expectedContentType} Content-Type, got ${contentType || "missing"}`);
+  }
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  if (bytes.length === 0) throw new Error(`${url}: empty response`);
+  return bytes;
+}
+
+function assertPng(bytes, label) {
+  const signature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  if (bytes.length < signature.length || signature.some((byte, index) => bytes[index] !== byte)) {
+    throw new Error(`${label}: response is not PNG`);
+  }
 }
 
 async function readSitemap(url, visited = new Set(), userAgent = HEALTHCHECK_USER_AGENT) {
@@ -100,18 +122,25 @@ function deterministicSample(urls, max = MAX_SAMPLE) {
 
 export async function checkProduction({ expectedSha = process.env.EXPECTED_PROD_SHA ?? null } = {}) {
   const homepage = `${ORIGIN}/`;
-  const faviconUrl = `${ORIGIN}/favicon.svg`;
+  const faviconUrl = `${ORIGIN}/favicon.png`;
+  const appleTouchIconUrl = `${ORIGIN}/apple-touch-icon.png`;
   const robotsUrl = `${ORIGIN}/robots.txt`;
   const sitemapUrl = `${ORIGIN}/sitemap.xml`;
   const versionUrl = `${ORIGIN}/deploy-version.txt`;
 
   await fetchChecked(homepage, { expectHtml: true });
 
-  const { text: favicon } = await fetchChecked(faviconUrl, {
-    expectedContentType: "image/svg+xml",
+  const favicon = await fetchBinaryChecked(faviconUrl, {
+    expectedContentType: "image/png",
     userAgent: YANDEX_BOT_USER_AGENT,
   });
-  if (!/<svg\b/i.test(favicon)) throw new Error("favicon.svg: response is not SVG");
+  assertPng(favicon, "favicon.png");
+
+  const appleTouchIcon = await fetchBinaryChecked(appleTouchIconUrl, {
+    expectedContentType: "image/png",
+    userAgent: YANDEX_BOT_USER_AGENT,
+  });
+  assertPng(appleTouchIcon, "apple-touch-icon.png");
 
   const { text: robots } = await fetchChecked(robotsUrl, { userAgent: YANDEX_BOT_USER_AGENT });
   if (!robots.includes(`Sitemap: ${sitemapUrl}`)) throw new Error("robots.txt: production sitemap declaration missing");
@@ -134,6 +163,7 @@ export async function checkProduction({ expectedSha = process.env.EXPECTED_PROD_
   return {
     homepage: "PASS",
     favicon: "PASS",
+    appleTouchIcon: "PASS",
     robots: "PASS",
     sitemap: "PASS",
     deployVersion: expectedSha ? "PASS" : "CHECKED",
