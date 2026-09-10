@@ -82,7 +82,7 @@ function renderCaptions(data: MockupDeckData<MediaEntryId>): string {
 }
 
 function renderControls(slideCount: number): string {
-  return `<div aria-label="Навигация по слайдам" class="slider-controls cluster"><button aria-label="Предыдущий кадр" class="slider-controls__button" data-deck-prev="" type="button">←</button><span aria-live="polite" class="slider-controls__count" data-deck-count="">01 / ${String(
+  return `<div aria-label="Навигация по слайдам" class="slider-controls cluster" role="group"><button aria-label="Предыдущий кадр" class="slider-controls__button" data-deck-prev="" type="button">←</button><span aria-live="polite" class="slider-controls__count" data-deck-count="">01 / ${String(
     slideCount,
   ).padStart(2, "0")}</span><button aria-label="Следующий кадр" class="slider-controls__button" data-deck-next="" type="button">→</button></div>`;
 }
