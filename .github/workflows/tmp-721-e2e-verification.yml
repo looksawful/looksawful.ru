@@ -103,8 +103,16 @@ jobs:
           fail-on-cache-miss: true
       - name: Verify prepared generated media
         run: node tools/media-dev-state.mjs --cache-verify
-      - name: CI orchestration contracts
-        run: npm run test:ci
+      - name: Focused #721 orchestration and CI contracts
+        run: >-
+          node --test
+          test/ci-pipeline.test.mjs
+          test/e2e-concurrency.test.mjs
+          test/e2e-production-pipeline.test.mjs
+          test/e2e-readiness-contract.test.mjs
+          test/e2e-suite-deadline.test.mjs
+          test/test-groups.test.mjs
+          test/tooling-pipeline.test.mjs
       - name: Typecheck
         run: npm run typecheck
       - name: Build site
