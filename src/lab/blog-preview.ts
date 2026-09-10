@@ -34,27 +34,27 @@ const KIND_LABELS: Record<BlogKind, string> = {
 
 const entries: readonly PreviewEntry[] = [
   {
-    title: "Как я собираю визуальный пайплайн без лишних инструментов",
-    summary: "Рабочая схема для задачи, где референсы, генерация, постпродакшен и код должны оставаться одной понятной системой.",
-    kind: "tutorial",
-    date: "10.09.2026",
-    tags: ["workflow", "design", "ai"],
+    title: "Как я собираю пайплайн для изображений",
+    summary: "От референсов и генерации до отбора, постобработки и экспорта. Без превращения каждого шага в отдельный сервис.",
+    kind: "tool",
+    date: "09.09.2026",
+    tags: ["images", "pipeline"],
     cover: {
-      src: "/media/projects/index/jestei-pool-cover.webp",
+      src: "/media/projects/index/jestei-cover.webp",
       alt: "Фрагмент проекта Jestei Pool",
       width: 1580,
       height: 1360,
     },
   },
   {
-    title: "Инструменты, которые действительно остаются в работе",
-    summary: "Короткий список утилит и подходов, которые пережили эксперименты и не требуют отдельного ритуала обслуживания.",
-    kind: "tool",
-    date: "08.09.2026",
-    tags: ["tools", "workflow"],
+    title: "Три способа не потерять структуру в большом CSS",
+    summary: "Практический разбор границ компонентов, слоёв и ownership-проверок, которые помогают не чинить каскад методом археологии.",
+    kind: "tutorial",
+    date: "07.09.2026",
+    tags: ["css", "architecture"],
     cover: {
-      src: "/media/projects/index/styx-jewel-cover.webp",
-      alt: "Фрагмент проекта Styx Jewel",
+      src: "/media/projects/index/styx-cover.webp",
+      alt: "Фрагмент проекта Styx",
       width: 1580,
       height: 1360,
     },
@@ -94,103 +94,100 @@ const entries: readonly PreviewEntry[] = [
   },
 ];
 
-const root = document.querySelector<HTMLElement>("#blog-preview-root");
-if (!root) throw new Error("Missing blog preview root");
-
-function formatCount(count: number): string {
-  const mod100 = count % 100;
-  const mod10 = count % 10;
-  if (mod100 >= 11 && mod100 <= 14) return `${count} материалов`;
-  if (mod10 === 1) return `${count} материал`;
-  if (mod10 >= 2 && mod10 <= 4) return `${count} материала`;
-  return `${count} материалов`;
+function required<T extends Element>(selector: string): T {
+  const element = document.querySelector<T>(selector);
+  if (!element) throw new Error(`Missing blog preview element: ${selector}`);
+  return element;
 }
 
-function renderCard(entry: PreviewEntry, index: number): string {
-  const featured = index === 0;
-  const media = entry.cover
-    ? `<figure class="blog-card__media">
-        <img src="${entry.cover.src}" alt="${entry.cover.alt}" width="${entry.cover.width}" height="${entry.cover.height}" decoding="async" ${featured ? 'fetchpriority="high"' : 'loading="lazy"'}>
-      </figure>`
-    : "";
+const root = required<HTMLElement>("#blog-preview-root");
 
-  return `<li class="blog-feed__item" data-blog-kind="${entry.kind}" data-blog-search="${[entry.title, entry.summary, KIND_LABELS[entry.kind], ...entry.tags].join(" ").toLocaleLowerCase("ru")}">
-    <a class="blog-card blog-card--${entry.cover ? "media" : "text"}${featured ? " blog-card--featured" : ""}" href="/lab/blog/?view=article">
-      <div class="blog-card__meta">
-        <span>${KIND_LABELS[entry.kind]}</span>
-        <time>${entry.date}</time>
+function formatCount(count: number): string {
+  return `${count} ${count === 1 ? "материал" : count > 1 && count < 5 ? "материала" : "материалов"}`;
+}
+
+function renderCover(entry: PreviewEntry): string {
+  if (!entry.cover) return "";
+  return `<div class="blog-card__media"><img alt="${entry.cover.alt}" height="${entry.cover.height}" loading="lazy" src="${entry.cover.src}" width="${entry.cover.width}"></div>`;
+}
+
+function renderCard(entry: PreviewEntry): string {
+  const searchable = [entry.title, entry.summary, entry.kind, ...entry.tags].join(" ").toLocaleLowerCase("ru");
+  return `<article class="blog-card" data-blog-kind="${entry.kind}" data-blog-search="${searchable}">
+    <a class="blog-card__link" href="/lab/blog/?view=article">
+      ${renderCover(entry)}
+      <div class="blog-card__body">
+        <div class="blog-card__meta"><span>${KIND_LABELS[entry.kind]}</span><span>${entry.date}</span></div>
+        <h2>${entry.title}</h2>
+        <p>${entry.summary}</p>
+        <div class="blog-card__tags">${entry.tags.map((tag) => `<span>${tag}</span>`).join("")}</div>
       </div>
-      <div class="blog-card__content">
-        <h2 class="blog-card__title">${entry.title}</h2>
-        <p class="blog-card__summary">${entry.summary}</p>
-        <p class="blog-card__tags">${entry.tags.map((tag) => `#${tag}`).join(" · ")}</p>
-      </div>
-      ${media}
     </a>
-  </li>`;
+  </article>`;
 }
 
 function renderIndex(): string {
-  const filters = FILTER_LABELS.map(([kind, label], index) => (
-    `<button class="blog-filter__button" type="button" data-blog-filter-kind="${kind}" aria-pressed="${index === 0 ? "true" : "false"}">${label}</button>`
-  )).join("");
-
-  return `<main class="blog-preview-page blog-index" data-blog-index>
-    <header class="blog-index__header wrapper editorial-grid">
-      <h1 class="blog-index__title">блог</h1>
-      <p class="blog-index__intro">Инструменты, курсы, видеоуроки и заметки о дизайне, коде и нейросетях.</p>
-    </header>
-
-    <section class="blog-index__controls wrapper" aria-label="Фильтры блога">
-      <div class="blog-filter__types" role="group" aria-label="Тип материала">${filters}</div>
-      <label class="blog-search">
-        <span class="blog-search__label">поиск</span>
-        <input class="blog-search__input" type="search" autocomplete="off" spellcheck="false" data-blog-search-input>
-      </label>
-      <p class="blog-filter__count" data-blog-count>${formatCount(entries.length)}</p>
+  return `<main class="blog-preview">
+    <section class="blog-preview__intro wrapper">
+      <p class="blog-preview__eyebrow">looksawful / lab</p>
+      <h1>Блог</h1>
+      <p class="blog-preview__lead">Черновой визуальный стенд для будущего раздела: инструменты, курсы, уроки и заметки в одной системе.</p>
     </section>
 
-    <ol class="blog-feed wrapper">
-      ${entries.map(renderCard).join("\n")}
-    </ol>
-    <p class="blog-index__empty wrapper" data-blog-empty hidden>Ничего не найдено.</p>
+    <section class="blog-controls wrapper" aria-label="Фильтры блога">
+      <label class="blog-search">
+        <span>поиск</span>
+        <input autocomplete="off" data-blog-search-input placeholder="css, blender, pipeline…" type="search">
+      </label>
+      <div class="blog-filters" aria-label="Тип материала">
+        ${FILTER_LABELS.map(([value, label], index) => `<button aria-pressed="${index === 0}" data-blog-filter-kind="${value}" type="button">${label}</button>`).join("")}
+      </div>
+      <p class="blog-count" data-blog-count>${formatCount(entries.length)}</p>
+    </section>
+
+    <section class="blog-grid wrapper" data-blog-grid>
+      ${entries.map(renderCard).join("")}
+    </section>
+    <p class="blog-empty wrapper" data-blog-empty hidden>Ничего не найдено.</p>
   </main>`;
 }
 
 function renderArticle(): string {
-  return `<main class="blog-preview-page blog-post">
-    <article>
-      <header class="blog-post__header wrapper editorial-grid">
-        <p class="blog-post__meta"><span>урок</span><time>10.09.2026</time></p>
-        <h1 class="blog-post__title">Как я собираю визуальный пайплайн без лишних инструментов</h1>
-        <p class="blog-post__lead">Система полезна только тогда, когда она уменьшает количество решений по дороге от идеи до готового результата.</p>
-        <p class="blog-post__tags">#workflow · #design · #ai</p>
+  return `<main class="blog-preview blog-preview--article">
+    <article class="blog-post">
+      <header class="blog-post__header wrapper">
+        <a class="blog-post__back" href="/lab/blog/?view=index">← блог</a>
+        <p class="blog-preview__eyebrow">инструмент · 09.09.2026</p>
+        <h1>Как я собираю пайплайн для изображений</h1>
+        <p class="blog-preview__lead">От референсов и генерации до отбора, постобработки и экспорта. Без превращения каждого шага в отдельный сервис.</p>
       </header>
 
-      <figure class="blog-post__cover wrapper">
-        <img src="/media/projects/index/jestei-pool-cover.webp" alt="Фрагмент проекта Jestei Pool" width="1580" height="1360" decoding="async" fetchpriority="high">
-      </figure>
+      <div class="blog-post__hero wrapper">
+        <img alt="Фрагмент проекта Jestei Pool" height="1360" src="/media/projects/index/jestei-cover.webp" width="1580">
+      </div>
 
-      <div class="blog-post__body">
+      <div class="blog-post__layout wrapper">
+        <aside class="blog-post__toc" aria-label="Содержание">
+          <span>содержание</span>
+          <a href="#input">Входные данные</a>
+          <a href="#selection">Отбор</a>
+          <a href="#automation">Автоматизация</a>
+        </aside>
+
         <div class="blog-prose">
-          <p>Я стараюсь не строить отдельный процесс вокруг каждого инструмента. Сначала фиксирую задачу и ожидаемый результат, потом выбираю минимальный набор средств, который действительно сокращает путь.</p>
+          <p>Рабочий пайплайн полезен ровно до тех пор, пока сокращает число решений, которые приходится принимать заново. Если для каждого изображения нужно вспоминать порядок действий, система уже проиграла.</p>
 
-          <h2>Начинать с результата, а не с программы</h2>
-          <p>Если задача — собрать серию изображений, важнее заранее определить общий визуальный контракт: формат, ритм, диапазон вариативности, правила обработки и то, что должно оставаться неизменным.</p>
-          <blockquote>Хороший пайплайн убирает повторяющиеся решения. Плохой требует помнить, в каком именно окне сегодня нужно нажать ещё одну кнопку.</blockquote>
-          <p>После этого инструменты становятся заменяемыми. Один этап может выполнять локальная модель, другой — скрипт, третий — ручная работа. Система остаётся понятной, потому что границы определены результатом.</p>
+          <h2 id="input">Начать с входных данных</h2>
+          <p>До генерации я фиксирую формат, назначение изображения, референсы и технические ограничения. Это даёт модели и человеку один и тот же набор условий вместо свободного толкования задачи.</p>
 
-          <figure class="blog-figure">
-            <img src="/media/projects/index/styx-jewel-cover.webp" alt="Фрагмент проекта Styx Jewel" width="1580" height="1360" loading="lazy" decoding="async">
-            <figcaption>Широкий медиаблок выходит за reading column, но остаётся в общей editorial-сетке.</figcaption>
-          </figure>
+          <blockquote>Хороший процесс не убирает решения. Он оставляет только те решения, которые действительно требуют внимания.</blockquote>
 
-          <h2>Фиксировать только то, что повторяется</h2>
-          <p>Не каждая удачная последовательность действий заслуживает собственной системы. Я сохраняю правило только после того, как оно несколько раз оказалось полезным и перестало зависеть от конкретной задачи.</p>
+          <h2 id="selection">Отбирать до постобработки</h2>
+          <p>Обрабатывать десятки слабых вариантов бессмысленно. Сначала остаётся короткий список кандидатов, и только потом начинается ручная работа.</p>
 
-          <div class="blog-table" tabindex="0" aria-label="Пример структуры пайплайна">
+          <div class="blog-table-wrap">
             <table>
-              <thead><tr><th>Этап</th><th>Что фиксируется</th><th>Что остаётся свободным</th></tr></thead>
+              <thead><tr><th>этап</th><th>фиксируем</th><th>оставляем свободным</th></tr></thead>
               <tbody>
                 <tr><td>референсы</td><td>визуальная цель и ограничения</td><td>конкретные источники</td></tr>
                 <tr><td>генерация</td><td>формат и диапазон вариаций</td><td>модель и sampler</td></tr>
@@ -199,7 +196,7 @@ function renderArticle(): string {
             </table>
           </div>
 
-          <h2>Автоматизировать скучное</h2>
+          <h2 id="automation">Автоматизировать скучное</h2>
           <p>Повторяемые операции удобнее оставлять коду. Небольшой скрипт ценнее сложного workflow, если его назначение очевидно и он не требует отдельного обслуживания.</p>
 
           <div class="blog-code" data-blog-code-block>
