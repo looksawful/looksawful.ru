@@ -15,7 +15,9 @@ import {
 } from "./site-html-utils.mjs";
 
 const SITE_NAME = "looksawful";
-const FAVICON = "/favicon.svg";
+const FAVICON = "/favicon.png";
+const APPLE_TOUCH_ICON = "/apple-touch-icon.png";
+const THEME_COLOR = "#ffffff";
 const MANIFEST = "/site.webmanifest";
 
 function escapeAttribute(value) {
@@ -53,7 +55,13 @@ export function finalizeStaticDiscoveryHtml(html, label = "HTML") {
   const additions = [];
 
   if (!getLinkHref(html, "icon")) {
-    additions.push(`<link rel="icon" href="${FAVICON}" type="image/svg+xml">`);
+    additions.push(`<link rel="icon" href="${FAVICON}" type="image/png" sizes="120x120">`);
+  }
+  if (!getLinkHref(html, "apple-touch-icon")) {
+    additions.push(`<link rel="apple-touch-icon" href="${APPLE_TOUCH_ICON}" sizes="180x180">`);
+  }
+  if (!getMetaContent(html, "theme-color")) {
+    additions.push(metaName("theme-color", THEME_COLOR));
   }
   if (!getLinkHref(html, "manifest")) {
     additions.push(`<link rel="manifest" href="${MANIFEST}">`);
