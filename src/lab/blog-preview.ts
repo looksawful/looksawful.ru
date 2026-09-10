@@ -94,8 +94,13 @@ const entries: readonly PreviewEntry[] = [
   },
 ];
 
-const root = document.querySelector<HTMLElement>("#blog-preview-root");
-if (!root) throw new Error("Missing blog preview root");
+function required<T extends Element>(selector: string): T {
+  const element = document.querySelector<T>(selector);
+  if (!element) throw new Error(`Missing blog preview element: ${selector}`);
+  return element;
+}
+
+const root = required<HTMLElement>("#blog-preview-root");
 
 function formatCount(count: number): string {
   const mod100 = count % 100;
