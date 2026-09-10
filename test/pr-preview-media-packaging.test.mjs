@@ -10,6 +10,8 @@ import {
 } from "../tools/preview/prepare-cloudflare-pages.mjs";
 
 const SHA = "0123456789abcdef0123456789abcdef01234567";
+const TEST_LIMIT_BYTES = 1024;
+const TEST_OVERSIZED_BYTES = 2048;
 
 test("raw GitHub fallback is exact-SHA scoped and path-safe", () => {
   assert.equal(
@@ -31,15 +33,15 @@ test("preview packaging redirects tracked oversized assets and only surrogates g
   const trackedLarge = path.join(dist, "media/projects/demo/master.mov");
   const generatedLarge = path.join(dist, "media/generated/video/demo/delivery.web.mp4");
   const small = path.join(dist, "small.txt");
-  await writeFile(trackedLarge, "x".repeat(32));
-  await writeFile(generatedLarge, "y".repeat(32));
+  await writeFile(trackedLarge, "x".repeat(TEST_OVERSIZED_BYTES));
+  await writeFile(generatedLarge, "y".repeat(TEST_OVERSIZED_BYTES));
   await writeFile(small, "small");
 
   const manifest = await prepareCloudflarePagesPreview({
     distDir: dist,
     repository: "looksawful/looksawful.ru",
     headSha: SHA,
-    limitBytes: 16,
+    limitBytes: TEST_LIMIT_BYTES,
     isTracked: (repoPath) => repoPath === "public/media/projects/demo/master.mov",
     transcodeGeneratedVideo: async (filePath) => {
       await writeFile(filePath, "preview");
@@ -74,14 +76,14 @@ test("unknown oversized files fail closed and remain on disk", async () => {
   const dist = path.join(root, "dist");
   await mkdir(path.join(dist, "mystery"), { recursive: true });
   const filePath = path.join(dist, "mystery/blob.bin");
-  await writeFile(filePath, "z".repeat(32));
+  await writeFile(filePath, "z".repeat(TEST_OVERSIZED_BYTES));
 
   await assert.rejects(
     prepareCloudflarePagesPreview({
       distDir: dist,
       repository: "looksawful/looksawful.ru",
       headSha: SHA,
-      limitBytes: 16,
+      limitBytes: TEST_LIMIT_BYTES,
       isTracked: () => false,
       transcodeGeneratedVideo: async () => {
         throw new Error("should not transcode unknown assets");
@@ -90,5 +92,5 @@ test("unknown oversized files fail closed and remain on disk", async () => {
     /unsupported oversized preview asset/,
   );
 
-  assert.equal((await stat(filePath)).size, 32);
+  assert.equal((await stat(filePath)).size, TEST_OVERSIZED_BYTES);
 });
