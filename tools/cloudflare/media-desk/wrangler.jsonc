@@ -15,6 +15,16 @@
     "binding": "ASSETS",
     "run_worker_first": true
   },
+  "ratelimits": [
+    {
+      "name": "LOGIN_RATE_LIMITER",
+      "namespace_id": "71701",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ],
   "vars": {
     "MEDIA_DESK_USERNAME": "looksawful",
     "MEDIA_DESK_REPOSITORY": "looksawful/looksawful.ru",
