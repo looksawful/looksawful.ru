@@ -45,15 +45,20 @@ test("Lab deployment stays isolated and syncs one password secret into the Pages
   );
 });
 
-test("Lab Basic Auth middleware is fail-closed and forwards only valid requests", async () => {
+test("Lab Basic Auth middleware is fail-closed and makes the custom-domain root the private entry", async () => {
   const middleware = await read("functions/_middleware.js");
 
   assert.match(middleware, /USERNAME = "lab"/);
   assert.match(middleware, /LAB_PASSWORD/);
+  assert.match(middleware, /CANONICAL_HOST = "lab\.looksawful\.ru"/);
+  assert.match(middleware, /CANONICAL_PATH = "\/lab\/"/);
   assert.match(middleware, /WWW-Authenticate/);
   assert.match(middleware, /Authentication required/);
   assert.match(middleware, /authentication is not configured/i);
   assert.match(middleware, /503/);
+  assert.match(middleware, /status: 302/);
+  assert.match(middleware, /Cache-Control": "private, no-store"/);
+  assert.match(middleware, /X-Frame-Options": "SAMEORIGIN"/);
   assert.match(middleware, /context\.next\(\)/);
   assert.match(middleware, /X-Robots-Tag/);
 });
