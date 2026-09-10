@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   applyCloudflareMediaPatch,
+  collectTextEntries,
   isAllowedTextSource,
   replaceTextLeaf,
 } from "../tools/cloudflare/media-desk/domain.mjs";
@@ -58,4 +59,35 @@ test("Cloudflare Content Desk replaces only an existing string leaf", () => {
   assert.equal(next.hero.count, 2);
   assert.throws(() => replaceTextLeaf(structuredClone(source), "hero.count", "3"), /must still be a string/);
   assert.throws(() => replaceTextLeaf(structuredClone(source), "hero.missing", "x"), /no longer exists/);
+});
+
+test("Cloudflare Content Desk text index skips structural ids and keeps authored strings", () => {
+  const entries = collectTextEntries({
+    "src/content/cases/demo.json": {
+      id: "demo",
+      hero: {
+        title: "Hello",
+        projectId: "styx",
+        paragraphs: ["One", "Two"],
+      },
+    },
+  });
+
+  assert.deepEqual(entries, [
+    {
+      sourcePath: "src/content/cases/demo.json",
+      fieldPath: "hero.paragraphs.0",
+      value: "One",
+    },
+    {
+      sourcePath: "src/content/cases/demo.json",
+      fieldPath: "hero.paragraphs.1",
+      value: "Two",
+    },
+    {
+      sourcePath: "src/content/cases/demo.json",
+      fieldPath: "hero.title",
+      value: "Hello",
+    },
+  ]);
 });
