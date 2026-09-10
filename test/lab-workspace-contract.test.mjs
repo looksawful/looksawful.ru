@@ -5,14 +5,18 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("Lab is a Vite build entry and is explicitly non-indexable", async () => {
-  const [viteConfig, labHtml] = await Promise.all([
+  const [viteConfig, labHtml, scratch] = await Promise.all([
     read("vite.config.ts"),
     read("lab/index.html"),
+    read("src/lab/scratch.ts"),
   ]);
 
   assert.match(viteConfig, /lab:\s*fileURLToPath\(new URL\("\.\/lab\/index\.html"/);
   assert.match(labHtml, /<meta name="robots" content="noindex,nofollow,noarchive"/);
   assert.match(labHtml, /src="\/src\/lab\/index\.ts"/);
+  assert.match(labHtml, /src="\/src\/lab\/scratch\.ts"/);
+  assert.match(scratch, /looksawful:lab:scratch-css:v1/);
+  assert.match(scratch, /data\.labOnly = "scratch-css"/);
 });
 
 test("Lab deployment can only publish the lab branch to the isolated preview project", async () => {
