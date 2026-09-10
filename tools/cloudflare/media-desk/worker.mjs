@@ -93,6 +93,14 @@ function redirect(location, extraHeaders = {}) {
   });
 }
 
+function escapeHtml(value) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
 function loginPage(error = "") {
   const errorBlock = error
     ? `<p class="error" role="alert">${escapeHtml(error)}</p>`
@@ -132,14 +140,6 @@ function loginPage(error = "") {
   </main>
 </body>
 </html>`;
-}
-
-function escapeHtml(value) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
 }
 
 function cookieValue(request, name) {
@@ -400,7 +400,7 @@ async function proxyMedia(request, config, fetchImpl) {
   return response;
 }
 
-async function handleLogin(request, config) {
+async function handleLogin(request, config, env) {
   if (request.method !== "POST") return json(405, { ok: false, error: "Method not allowed" });
   if (!sameOrigin(request)) return json(403, { ok: false, error: "Origin rejected" });
 
@@ -408,6 +408,19 @@ async function handleLogin(request, config) {
   const form = new URLSearchParams(source);
   const username = form.get("username") ?? "";
   const password = form.get("password") ?? "";
+
+  if (!env.LOGIN_RATE_LIMITER || typeof env.LOGIN_RATE_LIMITER.limit !== "function") {
+    return json(503, { ok: false, error: "Login rate limiter is unavailable" });
+  }
+
+  const rateLimit = await env.LOGIN_RATE_LIMITER.limit({
+    key: `login:${username.trim().toLocaleLowerCase()}`,
+  });
+  if (!rateLimit.success) {
+    return html(429, loginPage("Слишком много попыток входа. Попробуйте через минуту."), {
+      "retry-after": "60",
+    });
+  }
 
   const validPassword = await passwordMatches(password, config.passwordHash);
   if (username !== config.username || !validPassword) {
@@ -494,7 +507,7 @@ export async function handleRequest(request, env, fetchImpl = fetch) {
       : html(200, loginPage());
   }
 
-  if (path === LOGIN_API) return handleLogin(request, config);
+  if (path === LOGIN_API) return handleLogin(request, config, env);
 
   if (path === LOGOUT_API) {
     if (request.method !== "POST") return json(405, { ok: false, error: "Method not allowed" });
