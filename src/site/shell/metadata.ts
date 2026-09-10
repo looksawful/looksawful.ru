@@ -6,6 +6,10 @@ export const SITE_NAME = "looksawful";
 export const SITE_OWNER_NAME = "Иван Крушинский";
 export const SITE_OWNER_ROLE = "Арт-директор цифровых продуктов";
 export const SITE_MANIFEST = "/site.webmanifest";
+export const SITE_FAVICON = "/favicon.png";
+export const SITE_FAVICON_SVG = "/favicon.svg";
+export const SITE_APPLE_TOUCH_ICON = "/apple-touch-icon.png";
+export const SITE_THEME_COLOR = "#ffffff";
 export const DEFAULT_SOCIAL_IMAGE = `${SITE_ORIGIN}/media/hero/hero-portrait.webp`;
 export const DEFAULT_SOCIAL_IMAGE_ALT = SITE_OWNER_NAME;
 
@@ -19,6 +23,16 @@ export interface PageMetadataOptions {
 
 export function getPageCanonical(page: SitePageDefinition): string {
   return new URL(page.path, `${SITE_ORIGIN}/`).href;
+}
+
+export function renderBrowserIdentity(): string {
+  return [
+    `<link rel="icon" href="${SITE_FAVICON}" type="image/png" sizes="120x120">`,
+    `<link rel="icon" href="${SITE_FAVICON_SVG}" type="image/svg+xml" sizes="any">`,
+    `<link rel="apple-touch-icon" href="${SITE_APPLE_TOUCH_ICON}" sizes="180x180">`,
+    `<link rel="manifest" href="${SITE_MANIFEST}">`,
+    `<meta name="theme-color" content="${SITE_THEME_COLOR}">`,
+  ].join("\n");
 }
 
 export function renderPageMetadata({
@@ -38,7 +52,7 @@ export function renderPageMetadata({
     `<title>${safeTitle}</title>`,
     `<meta name="description" content="${safeDescription}">`,
     `<meta name="robots" content="${robots}">`,
-    `<link rel="manifest" href="${SITE_MANIFEST}">`,
+    renderBrowserIdentity(),
   ];
 
   if (page.discovery.indexable) {
@@ -75,7 +89,10 @@ export function replacePageMetadata(
     .replace(/\s*<title\b[^>]*>[\s\S]*?<\/title>/i, "")
     .replace(/\s*<meta\b(?=[^>]*\bname=["']description["'])[^>]*>/i, "")
     .replace(/\s*<meta\b(?=[^>]*\bname=["']robots["'])[^>]*>/i, "")
-    .replace(/\s*<link\b(?=[^>]*\brel=["']manifest["'])[^>]*>/i, "")
+    .replace(/\s*<meta\b(?=[^>]*\bname=["']theme-color["'])[^>]*>/gi, "")
+    .replace(/\s*<link\b(?=[^>]*\brel=["']manifest["'])[^>]*>/gi, "")
+    .replace(/\s*<link\b(?=[^>]*\brel=["']icon["'])[^>]*>/gi, "")
+    .replace(/\s*<link\b(?=[^>]*\brel=["']apple-touch-icon["'])[^>]*>/gi, "")
     .replace(/\s*<link\b(?=[^>]*\brel=["']canonical["'])[^>]*>/i, "")
     .replace(/\s*<meta\b(?=[^>]*\bproperty=["']og:[^"']+["'])[^>]*>/gi, "")
     .replace(/\s*<meta\b(?=[^>]*\bname=["']twitter:[^"']+["'])[^>]*>/gi, "");
@@ -84,19 +101,10 @@ export function replacePageMetadata(
     throw new Error("Cannot replace page metadata: missing </head>");
   }
 
-  let output = cleaned.replace(
+  return cleaned.replace(
     /<\/head>/i,
     `${renderPageMetadata(options)}\n</head>`,
   );
-
-  if (!/<link\b(?=[^>]*\brel=["']icon["'])[^>]*>/i.test(output)) {
-    output = output.replace(
-      /<\/head>/i,
-      '<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n</head>',
-    );
-  }
-
-  return output;
 }
 
 export function renderHomeStructuredData(): string {
