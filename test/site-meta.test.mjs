@@ -14,7 +14,11 @@ function validPage(overrides = {}) {
     title: "Existing title",
     description: "Existing published description.",
     robots: "index,follow,max-image-preview:large",
-    favicon: "/favicon.svg",
+    favicon: "/favicon.png",
+    faviconSvg: "/favicon.svg",
+    appleTouchIcon: "/apple-touch-icon.png",
+    manifest: "/site.webmanifest",
+    themeColor: "#ffffff",
     canonical,
     ogType: "website",
     ogLocale: "ru_RU",
@@ -31,14 +35,23 @@ function validPage(overrides = {}) {
     ] }),
     ...overrides,
   };
-  return `<!doctype html><html lang="${values.lang}"><head>${values.title === null ? "" : `<title>${values.title}</title>`}${values.description === null ? "" : `<meta name="description" content="${values.description}">`}${values.robots === null ? "" : `<meta name="robots" content="${values.robots}">`}${values.favicon === null ? "" : `<link rel="icon" href="${values.favicon}">`}${values.canonical === null ? "" : `<link rel="canonical" href="${values.canonical}">`}${values.ogType === null ? "" : `<meta property="og:type" content="${values.ogType}">`}${values.ogLocale === null ? "" : `<meta property="og:locale" content="${values.ogLocale}">`}${values.ogSiteName === null ? "" : `<meta property="og:site_name" content="${values.ogSiteName}">`}${values.ogTitle === null ? "" : `<meta property="og:title" content="${values.ogTitle}">`}${values.ogDescription === null ? "" : `<meta property="og:description" content="${values.ogDescription}">`}${values.ogUrl === null ? "" : `<meta property="og:url" content="${values.ogUrl}">`}${values.twitterCard === null ? "" : `<meta name="twitter:card" content="${values.twitterCard}">`}${values.twitterTitle === null ? "" : `<meta name="twitter:title" content="${values.twitterTitle}">`}${values.twitterDescription === null ? "" : `<meta name="twitter:description" content="${values.twitterDescription}">`}${values.jsonLd === null ? "" : `<script type="application/ld+json">${values.jsonLd}</script>`}</head><body><main id="x">x</main></body></html>`;
+  return `<!doctype html><html lang="${values.lang}"><head>${values.title === null ? "" : `<title>${values.title}</title>`}${values.description === null ? "" : `<meta name="description" content="${values.description}">`}${values.robots === null ? "" : `<meta name="robots" content="${values.robots}">`}${values.favicon === null ? "" : `<link rel="icon" href="${values.favicon}" type="image/png" sizes="120x120">`}${values.faviconSvg === null ? "" : `<link rel="icon" href="${values.faviconSvg}" type="image/svg+xml" sizes="any">`}${values.appleTouchIcon === null ? "" : `<link rel="apple-touch-icon" href="${values.appleTouchIcon}" sizes="180x180">`}${values.manifest === null ? "" : `<link rel="manifest" href="${values.manifest}">`}${values.themeColor === null ? "" : `<meta name="theme-color" content="${values.themeColor}">`}${values.canonical === null ? "" : `<link rel="canonical" href="${values.canonical}">`}${values.ogType === null ? "" : `<meta property="og:type" content="${values.ogType}">`}${values.ogLocale === null ? "" : `<meta property="og:locale" content="${values.ogLocale}">`}${values.ogSiteName === null ? "" : `<meta property="og:site_name" content="${values.ogSiteName}">`}${values.ogTitle === null ? "" : `<meta property="og:title" content="${values.ogTitle}">`}${values.ogDescription === null ? "" : `<meta property="og:description" content="${values.ogDescription}">`}${values.ogUrl === null ? "" : `<meta property="og:url" content="${values.ogUrl}">`}${values.twitterCard === null ? "" : `<meta name="twitter:card" content="${values.twitterCard}">`}${values.twitterTitle === null ? "" : `<meta name="twitter:title" content="${values.twitterTitle}">`}${values.twitterDescription === null ? "" : `<meta name="twitter:description" content="${values.twitterDescription}">`}${values.jsonLd === null ? "" : `<script type="application/ld+json">${values.jsonLd}</script>`}</head><body><main id="x">x</main></body></html>`;
 }
 
 async function withSite(pageHtml, run = async (dir) => validateSite({ distDir: dir })) {
   const dir = await mkdtemp(path.join(os.tmpdir(), "site-meta-test-"));
   try {
     await writeFile(path.join(dir, "index.html"), pageHtml, "utf8");
+    await writeFile(path.join(dir, "favicon.png"), "png-fixture", "utf8");
     await writeFile(path.join(dir, "favicon.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>\n", "utf8");
+    await writeFile(path.join(dir, "apple-touch-icon.png"), "png-fixture", "utf8");
+    await writeFile(path.join(dir, "site.webmanifest"), JSON.stringify({
+      theme_color: "#ffffff",
+      icons: [
+        { src: "/favicon.png", sizes: "120x120", type: "image/png" },
+        { src: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
+      ],
+    }), "utf8");
     await writeFile(path.join(dir, "robots.txt"), "User-agent: *\nAllow: /\n\nSitemap: https://www.looksawful.ru/sitemap.xml\n", "utf8");
     await writeFile(path.join(dir, "sitemap.xml"), `<?xml version="1.0"?><urlset><url><loc>${canonical}</loc></url></urlset>`, "utf8");
     return await run(dir);
@@ -60,6 +73,9 @@ for (const [label, overrides, pattern] of [
   ["wrong origin", { canonical: "https://looksawful.ru/", ogUrl: "https://looksawful.ru/" }, /origin must be/],
   ["invalid JSON-LD", { jsonLd: "{" }, /invalid JSON-LD/],
   ["og:url mismatch", { ogUrl: "https://www.looksawful.ru/other/" }, /og:url must equal canonical/],
+  ["missing primary favicon", { favicon: null }, /primary favicon|missing favicon/],
+  ["missing apple touch icon", { appleTouchIcon: null }, /apple-touch-icon/],
+  ["wrong theme color", { themeColor: "#000000" }, /theme-color/],
 ]) {
   test(`${label} fails`, async () => {
     await assert.rejects(() => withSite(validPage(overrides)), pattern);
