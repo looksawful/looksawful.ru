@@ -14,6 +14,7 @@ export const fastTests = new Set([
   "test/agent-verification-workflow.test.mjs",
   "test/ai-portfolio-pet-foundation.test.mjs",
   "test/ai-portfolio-pet-knowledge.test.mjs",
+  "test/ai-portfolio-pet-shell.test.mjs",
   "test/awful-cases-cms-editorial.test.mjs",
   "test/ci-fast-concurrency.test.mjs",
   "test/code-block-contract.test.mjs",
