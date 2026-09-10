@@ -4,8 +4,12 @@ import test from "node:test";
 
 import {
   assertAllowedSiteUrl,
+  classifyAction,
   isPublicSafeAction,
   parseIssueCommand,
+  requiresConfirmation,
+  validateDiskPath,
+  validateMetrikaGoalPayload,
 } from "../tools/yandex-control.mjs";
 
 const workflow = () =>
@@ -56,7 +60,7 @@ test("Yandex control confines recrawl URLs to the canonical public site", () => 
   );
 });
 
-test("public repository mode never exposes private Metrika reporting actions", () => {
+test("public repository mode never exposes private reporting or management actions", () => {
   for (const action of [
     "webmaster-status",
     "webmaster-recrawl",
@@ -66,9 +70,65 @@ test("public repository mode never exposes private Metrika reporting actions", (
     assert.equal(isPublicSafeAction(action), true, action);
   }
 
-  for (const action of ["metrika-summary", "metrika-goals"]) {
+  for (const action of [
+    "metrika-summary",
+    "metrika-goals",
+    "metrika-counter",
+    "metrika-goal-create",
+    "metrika-goal-update",
+    "metrika-goal-delete",
+    "disk-info",
+    "disk-list",
+    "disk-mkdir",
+    "disk-move",
+    "disk-copy",
+    "disk-delete",
+    "cloud-inventory",
+  ]) {
     assert.equal(isPublicSafeAction(action), false, action);
   }
+});
+
+test("control actions have explicit risk classes and destructive confirmation", () => {
+  assert.equal(classifyAction("webmaster-status"), "read");
+  assert.equal(classifyAction("metrika-goal-create"), "write");
+  assert.equal(classifyAction("disk-move"), "write");
+  assert.equal(classifyAction("metrika-goal-delete"), "destructive");
+  assert.equal(classifyAction("disk-delete"), "destructive");
+  assert.equal(requiresConfirmation("disk-delete"), true);
+  assert.equal(requiresConfirmation("metrika-goal-delete"), true);
+  assert.equal(requiresConfirmation("metrika-goal-create"), false);
+});
+
+test("Yandex Disk paths are confined to an explicit project root", () => {
+  assert.equal(validateDiskPath("/looksawful/backups/site.zip"), "/looksawful/backups/site.zip");
+  assert.equal(validateDiskPath("disk:/looksawful/assets"), "disk:/looksawful/assets");
+  assert.throws(() => validateDiskPath("/other-project/file.txt"), /\/looksawful/);
+  assert.throws(() => validateDiskPath("../looksawful/file.txt"), /absolute/);
+  assert.throws(() => validateDiskPath("/looksawful/../private"), /traversal/);
+});
+
+test("Metrika goal mutations accept only supported structured goals", () => {
+  assert.deepEqual(
+    validateMetrikaGoalPayload({
+      name: "portfolio_contact",
+      type: "action",
+      conditions: [{ type: "exact", url: "portfolio_contact" }],
+    }),
+    {
+      name: "portfolio_contact",
+      type: "action",
+      conditions: [{ type: "exact", url: "portfolio_contact" }],
+    },
+  );
+  assert.throws(
+    () => validateMetrikaGoalPayload({ name: "x", type: "arbitrary" }),
+    /unsupported Metrika goal type/,
+  );
+  assert.throws(
+    () => validateMetrikaGoalPayload({ name: "", type: "action" }),
+    /goal name/,
+  );
 });
 
 test("Yandex control workflow gates secrets behind an owner-only issue job", async () => {
@@ -89,6 +149,10 @@ test("Yandex control workflow gates secrets behind an owner-only issue job", asy
   assert.match(source, /permissions:\s*\n\s*contents: read/);
   assert.match(source, /issues: write/);
   assert.match(source, /YANDEX_OAUTH_TOKEN:\s*\$\{\{ secrets\.YANDEX_OAUTH_TOKEN \}\}/);
+  assert.match(source, /YANDEX_CONTROL_PRIVATE_OUTPUT:\s*"1"/);
+  assert.match(source, /YANDEX_DISK_ROOT:/);
+  assert.match(source, /YANDEX_CLOUD_ID:/);
+  assert.match(source, /YANDEX_CLOUD_FOLDER_ID:/);
   assert.match(source, /persist-credentials: false/);
   assert.doesNotMatch(source, /repository_dispatch:/);
   assert.doesNotMatch(source, /workflow_dispatch:/);
