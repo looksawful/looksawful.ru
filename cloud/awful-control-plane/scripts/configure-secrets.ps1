@@ -1,6 +1,7 @@
 param(
   [switch]$SkipOpenAI,
-  [switch]$RotateYandexApiKey
+  [switch]$RotateYandexApiKey,
+  [switch]$OpenAIOnly
 )
 
 Set-StrictMode -Version Latest
@@ -32,6 +33,20 @@ function Convert-SecureStringToPlainText {
   }
 }
 
+function Read-OpenAIKey {
+  Write-Host "Paste the OpenAI API key locally. It will not be printed or committed."
+  $secureOpenAi = Read-Host "OpenAI API key" -AsSecureString
+  $openAi = Convert-SecureStringToPlainText -Value $secureOpenAi
+  if (-not $openAi) {
+    throw "OpenAI API key was empty. No Lockbox version was written."
+  }
+  return $openAi
+}
+
+if ($SkipOpenAI -and $OpenAIOnly) {
+  throw "Use either -SkipOpenAI or -OpenAIOnly, not both."
+}
+
 if (-not (Get-Command yc -ErrorAction SilentlyContinue)) {
   throw "Yandex Cloud CLI (yc) is not installed or is not in PATH."
 }
@@ -48,6 +63,39 @@ $secret = Invoke-YcJson -Arguments @(
   "lockbox", "secret", "get", "--name", "awful-control-plane", "--folder-id", $folderId
 )
 
+if ($OpenAIOnly) {
+  if (-not $secret.current_version.id) {
+    throw "The Lockbox secret has no current version. Run this script without -OpenAIOnly first."
+  }
+
+  $openAi = Read-OpenAIKey
+  $entries = @(
+    [ordered]@{
+      key = "openai-api-key"
+      text_value = $openAi
+    }
+  )
+  $payload = ConvertTo-Json -InputObject $entries -Compress
+
+  $output = $payload | & yc lockbox secret add-version `
+    --id $secret.id `
+    --description "Add OpenAI API key" `
+    --base-version-id $secret.current_version.id `
+    --payload - `
+    --folder-id $folderId `
+    --format json
+
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to add the OpenAI API key to the Lockbox secret."
+  }
+
+  $newVersion = (($output -join "`n").Trim() | ConvertFrom-Json)
+  Write-Host "OpenAI API key added to Lockbox successfully."
+  Write-Host "Lockbox version ID: $($newVersion.id)"
+  Write-Host "Secret values were not written to Git or printed to the terminal."
+  return
+}
+
 $existingApiKeys = Invoke-YcJson -Arguments @(
   "iam", "api-key", "list", "--service-account-id", $runtime.id, "--folder-id", $folderId
 )
@@ -57,7 +105,7 @@ $managedApiKey = @($existingApiKeys) | Where-Object {
 } | Select-Object -First 1
 
 if ($null -ne $managedApiKey -and -not $RotateYandexApiKey) {
-  throw "A managed Yandex AI API key already exists. Its secret cannot be retrieved again. Use -RotateYandexApiKey only when you intentionally want to issue a replacement key."
+  throw "A managed Yandex AI API key already exists. Its secret cannot be retrieved again. Use -OpenAIOnly to add OpenAI later, or -RotateYandexApiKey only when you intentionally want to issue a replacement Yandex key."
 }
 
 Write-Host "Creating a scoped Yandex AI Studio API key for awful-runtime..."
@@ -87,30 +135,27 @@ $entries = @(
 )
 
 if (-not $SkipOpenAI) {
-  Write-Host "Paste the OpenAI API key locally. It will not be printed or committed."
-  $secureOpenAi = Read-Host "OpenAI API key (leave empty only if you want to configure OpenAI later)" -AsSecureString
-  $openAi = Convert-SecureStringToPlainText -Value $secureOpenAi
-
-  if ($openAi) {
-    $entries += [ordered]@{
-      key = "openai-api-key"
-      text_value = $openAi
-    }
+  $openAi = Read-OpenAIKey
+  $entries += [ordered]@{
+    key = "openai-api-key"
+    text_value = $openAi
   }
 }
 
-$payload = $entries | ConvertTo-Json -Compress
-$payload | & yc lockbox secret add-version `
+$payload = ConvertTo-Json -InputObject $entries -Compress
+$output = $payload | & yc lockbox secret add-version `
   --id $secret.id `
   --description "AWFUL control plane runtime secrets" `
   --payload - `
   --folder-id $folderId `
-  --format json | Out-Null
+  --format json
 
 if ($LASTEXITCODE -ne 0) {
   throw "Failed to write the Lockbox secret version. The newly issued Yandex API key should be revoked before retrying."
 }
 
+$newVersion = (($output -join "`n").Trim() | ConvertFrom-Json)
 Write-Host "Lockbox version created successfully."
+Write-Host "Lockbox version ID: $($newVersion.id)"
 Write-Host "Yandex AI API key expires at $expiresAt."
 Write-Host "Secret values were not written to Git or printed to the terminal."
