@@ -13,7 +13,7 @@ function sliceJob(workflow, name, nextName) {
   return workflow.slice(start, end);
 }
 
-test("PR preview keeps candidate execution separate from Cloudflare credentials", async () => {
+test("PR preview keeps candidate execution separate from Cloudflare infrastructure credentials", async () => {
   const workflow = await readFile(workflowUrl, "utf8");
   const build = sliceJob(workflow, "build", "deploy");
   const deploy = sliceJob(workflow, "deploy", "remote-qa");
@@ -24,6 +24,7 @@ test("PR preview keeps candidate execution separate from Cloudflare credentials"
   assert.match(workflow, /target_sha:/);
   assert.match(workflow, /preview_number:/);
   assert.match(workflow, /github\.event\.pull_request\.head\.sha/);
+  assert.match(workflow, /github\.event\.pull_request\.base\.sha/);
 
   assert.match(build, /npm ci/);
   assert.match(build, /npm run typecheck/);
@@ -35,38 +36,49 @@ test("PR preview keeps candidate execution separate from Cloudflare credentials"
   assert.match(build, /file_count > 20000/);
   assert.match(build, /\+26214400c/);
   assert.doesNotMatch(build, /secrets\.CLOUDFLARE_/);
+  assert.doesNotMatch(build, /secrets\.CF_ACCESS_/);
 
   assert.match(deploy, /actions\/download-artifact@v4/);
   assert.match(deploy, /secrets\.CLOUDFLARE_ACCOUNT_ID/);
   assert.match(deploy, /secrets\.CLOUDFLARE_API_TOKEN/);
+  assert.match(deploy, /secrets\.CF_ACCESS_CLIENT_ID/);
+  assert.match(deploy, /secrets\.CF_ACCESS_CLIENT_SECRET/);
+  assert.match(deploy, /Verify shared preview Access before deploy/);
   assert.match(deploy, /--branch=pr-\$\{\{ env\.PR_NUMBER \}\}/);
   assert.doesNotMatch(deploy, /--branch=prod/);
-  assert.doesNotMatch(deploy, /npm ci|npm run/);
+  assert.doesNotMatch(deploy, /npm ci|npm run|actions\/checkout/);
   assert.match(deploy, /preview-version\.txt/);
   assert.match(deploy, /preview-media-manifest\.json/);
   assert.match(deploy, /oversized preview media routes remain reachable/i);
   assert.match(deploy, /x-robots-tag:\[\[:space:\]\]\*noindex/i);
   assert.match(deploy, /PREVIEW_URL: \$\{\{ steps\.deploy\.outputs\.deployment-url \}\}/);
 
+  assert.match(remoteQa, /QA_REF: \$\{\{ needs\.build\.outputs\.qa_ref \}\}/);
+  assert.match(remoteQa, /ref: \$\{\{ env\.QA_REF \}\}/);
+  assert.doesNotMatch(remoteQa, /ref: \$\{\{ env\.PR_HEAD_SHA \}\}/);
   assert.match(remoteQa, /npm ci/);
   assert.match(remoteQa, /playwright install --with-deps chromium/);
   assert.match(remoteQa, /runProductionE2E/);
-  assert.doesNotMatch(remoteQa, /secrets\.CLOUDFLARE_/);
-  assert.match(remoteQa, /PREVIEW_URL: \$\{\{ needs\.deploy\.outputs\.preview_url \}\}/);
-  assert.match(remoteQa, /PREVIEW_ALIAS_URL: \$\{\{ needs\.deploy\.outputs\.preview_alias_url \}\}/);
+  assert.doesNotMatch(remoteQa, /secrets\.CLOUDFLARE_ACCOUNT_ID|secrets\.CLOUDFLARE_API_TOKEN/);
+  assert.match(remoteQa, /secrets\.CF_ACCESS_CLIENT_ID/);
+  assert.match(remoteQa, /secrets\.CF_ACCESS_CLIENT_SECRET/);
+  assert.match(remoteQa, /samePreviewOrigin/);
   assert.match(remoteQa, /manual visual approval/);
 
   assert.doesNotMatch(workflow, /VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN|VITE_YANDEX_METRIKA_COUNTER_ID/);
 });
 
-test("preview documentation preserves release gate and repository media sources", async () => {
+test("preview documentation preserves release gate, privacy boundary and repository media sources", async () => {
   const docs = await readFile(docsUrl, "utf8");
   assert.match(docs, /no merge\/deployment to `prod` until the exact candidate preview has been manually approved/i);
   assert.match(docs, /CLOUDFLARE_ACCOUNT_ID/);
   assert.match(docs, /CLOUDFLARE_API_TOKEN/);
+  assert.match(docs, /CF_ACCESS_CLIENT_ID/);
+  assert.match(docs, /CF_ACCESS_CLIENT_SECRET/);
   assert.match(docs, /manual exact-SHA mode/i);
   assert.match(docs, /repository remains the source of truth for original media/i);
   assert.match(docs, /only the temporary copy inside `dist` is removed/i);
   assert.match(docs, /preview-only surrogate/i);
   assert.match(docs, /must never make an unknown file disappear/i);
+  assert.match(docs, /public `200` response.*deployment failure/i);
 });
