@@ -24,12 +24,20 @@ function assertSitemapShape(xml, label) {
   return hasIndex ? "index" : "urlset";
 }
 
+function assertPng(bytes, label) {
+  const signature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  if (bytes.length < signature.length || signature.some((value, index) => bytes[index] !== value)) {
+    throw new Error(`${label}: response is not PNG`);
+  }
+}
+
 async function fetchChecked(
   url,
   {
     expectHtml = false,
     expectedContentType = null,
     userAgent = HEALTHCHECK_USER_AGENT,
+    binary = false,
   } = {},
 ) {
   const controller = new AbortController();
@@ -45,20 +53,27 @@ async function fetchChecked(
     clearTimeout(timeout);
   }
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
-  const text = await response.text();
-  if (!text.trim()) throw new Error(`${url}: empty response`);
 
   const contentType = response.headers.get("content-type") ?? "";
+  if (expectedContentType && !contentType.toLowerCase().includes(expectedContentType.toLowerCase())) {
+    throw new Error(`${url}: expected ${expectedContentType} Content-Type, got ${contentType || "missing"}`);
+  }
+
+  if (binary) {
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (bytes.byteLength === 0) throw new Error(`${url}: empty response`);
+    return { response, text: null, bytes };
+  }
+
+  const text = await response.text();
+  if (!text.trim()) throw new Error(`${url}: empty response`);
   if (expectHtml) {
     if (!contentType.toLowerCase().includes("text/html")) throw new Error(`${url}: expected HTML Content-Type, got ${contentType || "missing"}`);
     if (/There isn't a GitHub Pages site here|<title>\s*404\b|404 File not found/i.test(text)) {
       throw new Error(`${url}: response resembles a GitHub Pages 404`);
     }
   }
-  if (expectedContentType && !contentType.toLowerCase().includes(expectedContentType.toLowerCase())) {
-    throw new Error(`${url}: expected ${expectedContentType} Content-Type, got ${contentType || "missing"}`);
-  }
-  return { response, text };
+  return { response, text, bytes: null };
 }
 
 async function readSitemap(url, visited = new Set(), userAgent = HEALTHCHECK_USER_AGENT) {
@@ -100,18 +115,51 @@ function deterministicSample(urls, max = MAX_SAMPLE) {
 
 export async function checkProduction({ expectedSha = process.env.EXPECTED_PROD_SHA ?? null } = {}) {
   const homepage = `${ORIGIN}/`;
-  const faviconUrl = `${ORIGIN}/favicon.svg`;
+  const faviconUrl = `${ORIGIN}/favicon.png`;
+  const faviconSvgUrl = `${ORIGIN}/favicon.svg`;
+  const appleTouchIconUrl = `${ORIGIN}/apple-touch-icon.png`;
+  const manifestUrl = `${ORIGIN}/site.webmanifest`;
   const robotsUrl = `${ORIGIN}/robots.txt`;
   const sitemapUrl = `${ORIGIN}/sitemap.xml`;
   const versionUrl = `${ORIGIN}/deploy-version.txt`;
 
-  await fetchChecked(homepage, { expectHtml: true });
+  const { text: homepageHtml } = await fetchChecked(homepage, { expectHtml: true });
+  if (!/<link\b(?=[^>]*rel=["']icon["'])(?=[^>]*href=["']\/favicon\.png["'])[^>]*>/i.test(homepageHtml)) {
+    throw new Error("homepage: missing primary /favicon.png link");
+  }
+  if (!/<link\b(?=[^>]*rel=["']apple-touch-icon["'])(?=[^>]*href=["']\/apple-touch-icon\.png["'])[^>]*>/i.test(homepageHtml)) {
+    throw new Error("homepage: missing apple-touch-icon link");
+  }
+  if (!/<meta\b(?=[^>]*name=["']theme-color["'])(?=[^>]*content=["']#ffffff["'])[^>]*>/i.test(homepageHtml)) {
+    throw new Error("homepage: missing expected theme-color");
+  }
 
-  const { text: favicon } = await fetchChecked(faviconUrl, {
+  const { bytes: favicon } = await fetchChecked(faviconUrl, {
+    expectedContentType: "image/png",
+    userAgent: YANDEX_BOT_USER_AGENT,
+    binary: true,
+  });
+  assertPng(favicon, "favicon.png");
+
+  const { text: faviconSvg } = await fetchChecked(faviconSvgUrl, {
     expectedContentType: "image/svg+xml",
     userAgent: YANDEX_BOT_USER_AGENT,
   });
-  if (!/<svg\b/i.test(favicon)) throw new Error("favicon.svg: response is not SVG");
+  if (!/<svg\b/i.test(faviconSvg)) throw new Error("favicon.svg: response is not SVG");
+
+  const { bytes: appleTouchIcon } = await fetchChecked(appleTouchIconUrl, {
+    expectedContentType: "image/png",
+    binary: true,
+  });
+  assertPng(appleTouchIcon, "apple-touch-icon.png");
+
+  const { text: manifestText } = await fetchChecked(manifestUrl);
+  let manifest;
+  try { manifest = JSON.parse(manifestText); } catch { throw new Error("site.webmanifest: invalid JSON"); }
+  const icons = Array.isArray(manifest.icons) ? manifest.icons : [];
+  if (!icons.some((icon) => icon?.src === "/favicon.png" && icon?.sizes === "120x120" && icon?.type === "image/png")) {
+    throw new Error("site.webmanifest: missing 120x120 PNG favicon");
+  }
 
   const { text: robots } = await fetchChecked(robotsUrl, { userAgent: YANDEX_BOT_USER_AGENT });
   if (!robots.includes(`Sitemap: ${sitemapUrl}`)) throw new Error("robots.txt: production sitemap declaration missing");
@@ -134,6 +182,9 @@ export async function checkProduction({ expectedSha = process.env.EXPECTED_PROD_
   return {
     homepage: "PASS",
     favicon: "PASS",
+    faviconSvg: "PASS",
+    appleTouchIcon: "PASS",
+    manifest: "PASS",
     robots: "PASS",
     sitemap: "PASS",
     deployVersion: expectedSha ? "PASS" : "CHECKED",
