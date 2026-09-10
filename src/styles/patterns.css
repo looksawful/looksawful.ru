@@ -96,16 +96,6 @@
     var(--auto-grid-column-gap, var(--auto-grid-gap, var(--size-400)));
 }
 
-/* Equal columns become as numerous as the available inline size allows. */
-.equal-columns {
-  display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(min(var(--equal-columns-min, 16rem), 100%), 1fr)
-  );
-  gap: var(--equal-columns-gap, var(--size-400));
-}
-
 /* Intrinsic split. --split-min is the content-driven point at which another
    column can exist; no viewport breakpoint is involved. */
 .split {
