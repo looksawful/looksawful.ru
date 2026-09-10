@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <title>all work — looksawful lab</title>
+    <link rel="stylesheet" href="/src/styles/index.css" />
+    <script type="module" src="/src/lab/all.ts"></script>
+  </head>
+  <body class="lab-all-page">
+    <header class="wrapper stack lab-all-head">
+      <div class="cluster lab-all-head__nav">
+        <a href="/lab/">lab</a>
+        <a href="/lab/system/">design system</a>
+        <a href="/lab/system/inventory.html">component inventory</a>
+      </div>
+      <h1>all work / current</h1>
+      <p>Текущая каноническая база сайта без public-фильтра: страницы, кейсы, проекты, скрытые коллекции, CV и pet-инструменты.</p>
+    </header>
+
+    <main class="wrapper stack lab-all" data-lab-all>
+      <section class="stack" aria-labelledby="lab-surfaces-title">
+        <h2 id="lab-surfaces-title">Поверхности</h2>
+        <div class="auto-grid" data-lab-surfaces></div>
+      </section>
+
+      <section class="stack" aria-labelledby="lab-pages-title">
+        <h2 id="lab-pages-title">Страницы</h2>
+        <div class="auto-grid" data-lab-pages></div>
+      </section>
+
+      <section class="stack" aria-labelledby="lab-cases-title">
+        <h2 id="lab-cases-title">Кейсы</h2>
+        <div class="auto-grid" data-lab-cases></div>
+      </section>
+
+      <section class="stack" aria-labelledby="lab-projects-title">
+        <div class="cluster lab-section-head">
+          <h2 id="lab-projects-title">Все проекты</h2>
+          <span data-lab-project-count></span>
+        </div>
+        <div class="auto-grid" data-lab-projects></div>
+      </section>
+
+      <section class="stack" aria-labelledby="lab-collections-title">
+        <h2 id="lab-collections-title">Коллекции</h2>
+        <div class="auto-grid" data-lab-collections></div>
+      </section>
+
+      <section class="stack" aria-labelledby="lab-cv-title">
+        <h2 id="lab-cv-title">CV / скрытое сейчас</h2>
+        <div class="auto-grid" data-lab-cv></div>
+      </section>
+    </main>
+  </body>
+</html>
