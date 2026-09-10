@@ -15,7 +15,9 @@ import {
 } from "./site-html-utils.mjs";
 
 const SITE_NAME = "looksawful";
-const FAVICON = "/favicon.svg";
+const FAVICON = "/favicon.png";
+const APPLE_TOUCH_ICON = "/apple-touch-icon.png";
+const THEME_COLOR = "#ffffff";
 const MANIFEST = "/site.webmanifest";
 
 function escapeAttribute(value) {
@@ -45,35 +47,40 @@ function metaName(name, content) {
 export function finalizeStaticDiscoveryHtml(html, label = "HTML") {
   if (isNoIndex(html)) return html;
 
-  const title = getTitle(html);
-  const description = getMetaContent(html, "description");
-  const canonical = getCanonical(html);
-  const ogImage = getMetaContent(html, "og:image", "property");
-  const locale = pageLocale(html, label);
-  const additions = [];
+  const normalized = html
+    .replace(/\s*<link\b(?=[^>]*\brel=["'](?:icon|shortcut icon)["'])[^>]*>/gi, "")
+    .replace(/\s*<link\b(?=[^>]*\brel=["']apple-touch-icon["'])[^>]*>/gi, "")
+    .replace(/\s*<meta\b(?=[^>]*\bname=["']theme-color["'])[^>]*>/gi, "");
 
-  if (!getLinkHref(html, "icon")) {
-    additions.push(`<link rel="icon" href="${FAVICON}" type="image/svg+xml">`);
-  }
-  if (!getLinkHref(html, "manifest")) {
+  const title = getTitle(normalized);
+  const description = getMetaContent(normalized, "description");
+  const canonical = getCanonical(normalized);
+  const ogImage = getMetaContent(normalized, "og:image", "property");
+  const locale = pageLocale(normalized, label);
+  const additions = [
+    `<meta name="theme-color" content="${THEME_COLOR}">`,
+    `<link rel="icon" href="${FAVICON}" type="image/png" sizes="120x120">`,
+    `<link rel="apple-touch-icon" href="${APPLE_TOUCH_ICON}" sizes="180x180">`,
+  ];
+
+  if (!getLinkHref(normalized, "manifest")) {
     additions.push(`<link rel="manifest" href="${MANIFEST}">`);
   }
-  if (!getMetaContent(html, "og:type", "property")) additions.push(metaProperty("og:type", "website"));
-  if (!getMetaContent(html, "og:locale", "property")) additions.push(metaProperty("og:locale", locale));
-  if (!getMetaContent(html, "og:site_name", "property")) additions.push(metaProperty("og:site_name", SITE_NAME));
-  if (!getMetaContent(html, "og:title", "property") && title) additions.push(metaProperty("og:title", title));
-  if (!getMetaContent(html, "og:description", "property") && description) additions.push(metaProperty("og:description", description));
-  if (!getMetaContent(html, "og:url", "property") && canonical) additions.push(metaProperty("og:url", canonical));
+  if (!getMetaContent(normalized, "og:type", "property")) additions.push(metaProperty("og:type", "website"));
+  if (!getMetaContent(normalized, "og:locale", "property")) additions.push(metaProperty("og:locale", locale));
+  if (!getMetaContent(normalized, "og:site_name", "property")) additions.push(metaProperty("og:site_name", SITE_NAME));
+  if (!getMetaContent(normalized, "og:title", "property") && title) additions.push(metaProperty("og:title", title));
+  if (!getMetaContent(normalized, "og:description", "property") && description) additions.push(metaProperty("og:description", description));
+  if (!getMetaContent(normalized, "og:url", "property") && canonical) additions.push(metaProperty("og:url", canonical));
 
   const twitterCard = ogImage ? "summary_large_image" : "summary";
-  if (!getMetaContent(html, "twitter:card")) additions.push(metaName("twitter:card", twitterCard));
-  if (!getMetaContent(html, "twitter:title") && title) additions.push(metaName("twitter:title", title));
-  if (!getMetaContent(html, "twitter:description") && description) additions.push(metaName("twitter:description", description));
-  if (!getMetaContent(html, "twitter:image") && ogImage) additions.push(metaName("twitter:image", ogImage));
+  if (!getMetaContent(normalized, "twitter:card")) additions.push(metaName("twitter:card", twitterCard));
+  if (!getMetaContent(normalized, "twitter:title") && title) additions.push(metaName("twitter:title", title));
+  if (!getMetaContent(normalized, "twitter:description") && description) additions.push(metaName("twitter:description", description));
+  if (!getMetaContent(normalized, "twitter:image") && ogImage) additions.push(metaName("twitter:image", ogImage));
 
-  if (additions.length === 0) return html;
-  if (!/<\/head>/i.test(html)) throw new Error(`${label}: missing </head>`);
-  return html.replace(/<\/head>/i, `${additions.join("\n")}\n</head>`);
+  if (!/<\/head>/i.test(normalized)) throw new Error(`${label}: missing </head>`);
+  return normalized.replace(/<\/head>/i, `${additions.join("\n")}\n</head>`);
 }
 
 export async function finalizeStaticDiscovery({ distDir = "dist" } = {}) {

@@ -21,7 +21,9 @@ import {
 } from "./site-html-utils.mjs";
 
 const EXPECTED_ROBOTS = "index,follow,max-image-preview:large";
-const EXPECTED_FAVICON = "/favicon.svg";
+const EXPECTED_FAVICON = "/favicon.png";
+const EXPECTED_APPLE_TOUCH_ICON = "/apple-touch-icon.png";
+const EXPECTED_THEME_COLOR = "#ffffff";
 const EXPECTED_OG_SITE_NAME = "looksawful";
 const EXPECTED_OG_TYPE = "website";
 
@@ -94,6 +96,8 @@ export async function validateSite({ distDir = "dist" } = {}) {
     const description = getMetaContent(html, "description");
     const robots = getRobots(html);
     const favicon = getLinkHref(html, "icon");
+    const appleTouchIcon = getLinkHref(html, "apple-touch-icon");
+    const themeColor = getMetaContent(html, "theme-color");
     const ogType = getMetaContent(html, "og:type", "property");
     const ogLocale = getMetaContent(html, "og:locale", "property");
     const ogSiteName = getMetaContent(html, "og:site_name", "property");
@@ -120,6 +124,16 @@ export async function validateSite({ distDir = "dist" } = {}) {
       errors.push(`${label}: favicon must be ${EXPECTED_FAVICON}`);
     } else {
       try { await validateOwnAssetUrl(favicon, root, label, "favicon"); } catch (error) { errors.push(error.message); }
+    }
+
+    if (appleTouchIcon !== EXPECTED_APPLE_TOUCH_ICON) {
+      errors.push(`${label}: apple-touch-icon must be ${EXPECTED_APPLE_TOUCH_ICON}`);
+    } else {
+      try { await validateOwnAssetUrl(appleTouchIcon, root, label, "apple-touch-icon"); } catch (error) { errors.push(error.message); }
+    }
+
+    if (themeColor !== EXPECTED_THEME_COLOR) {
+      errors.push(`${label}: theme-color must be ${EXPECTED_THEME_COLOR}`);
     }
 
     if (ogType !== EXPECTED_OG_TYPE) errors.push(`${label}: og:type must be ${EXPECTED_OG_TYPE}`);
