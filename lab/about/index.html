@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <title>about / current — looksawful lab</title>
+    <link rel="stylesheet" href="/src/styles/index.css" />
+    <script type="module" src="/src/lab/about.ts"></script>
+  </head>
+  <body class="lab-about-page">
+    <main class="wrapper stack lab-about" data-lab-about>
+      <nav class="cluster lab-about__nav" aria-label="Lab navigation">
+        <a href="/lab/">lab</a>
+        <a href="/lab/all/">all work</a>
+        <a href="/cv/">cv</a>
+      </nav>
+      <header class="stack lab-about__hero" data-about-profile></header>
+      <section class="stack" aria-labelledby="about-principles-title">
+        <h2 id="about-principles-title">Принципы</h2>
+        <div class="auto-grid" data-about-principles></div>
+      </section>
+      <section class="stack" aria-labelledby="about-languages-title">
+        <h2 id="about-languages-title">Языки</h2>
+        <div class="cluster" data-about-languages></div>
+      </section>
+    </main>
+  </body>
+</html>
