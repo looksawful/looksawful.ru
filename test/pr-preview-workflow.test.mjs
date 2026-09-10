@@ -29,6 +29,8 @@ test("PR preview keeps candidate execution separate from Cloudflare credentials"
   assert.match(build, /npm run typecheck/);
   assert.match(build, /npm run test:fast/);
   assert.match(build, /npm run build:site/);
+  assert.match(build, /prepare-cloudflare-pages\.mjs dist/);
+  assert.match(build, /without deleting sources/i);
   assert.match(build, /actions\/upload-artifact@v4/);
   assert.match(build, /file_count > 20000/);
   assert.match(build, /\+26214400c/);
@@ -39,8 +41,10 @@ test("PR preview keeps candidate execution separate from Cloudflare credentials"
   assert.match(deploy, /secrets\.CLOUDFLARE_API_TOKEN/);
   assert.match(deploy, /--branch=pr-\$\{\{ env\.PR_NUMBER \}\}/);
   assert.doesNotMatch(deploy, /--branch=prod/);
-  assert.doesNotMatch(deploy, /npm ci|npm run|node --input-type/);
+  assert.doesNotMatch(deploy, /npm ci|npm run/);
   assert.match(deploy, /preview-version\.txt/);
+  assert.match(deploy, /preview-media-manifest\.json/);
+  assert.match(deploy, /oversized preview media routes remain reachable/i);
   assert.match(deploy, /x-robots-tag:\[\[:space:\]\]\*noindex/i);
 
   assert.match(remoteQa, /npm ci/);
@@ -52,10 +56,14 @@ test("PR preview keeps candidate execution separate from Cloudflare credentials"
   assert.doesNotMatch(workflow, /VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN|VITE_YANDEX_METRIKA_COUNTER_ID/);
 });
 
-test("preview documentation preserves the explicit production release gate", async () => {
+test("preview documentation preserves release gate and repository media sources", async () => {
   const docs = await readFile(docsUrl, "utf8");
   assert.match(docs, /no merge\/deployment to `prod` until the exact candidate preview has been manually approved/i);
   assert.match(docs, /CLOUDFLARE_ACCOUNT_ID/);
   assert.match(docs, /CLOUDFLARE_API_TOKEN/);
   assert.match(docs, /manual exact-SHA mode/i);
+  assert.match(docs, /repository remains the source of truth for original media/i);
+  assert.match(docs, /only the temporary copy inside `dist` is removed/i);
+  assert.match(docs, /preview-only surrogate/i);
+  assert.match(docs, /must never make an unknown file disappear/i);
 });
