@@ -8,11 +8,13 @@ function required(name) {
 
 const token = required("CLOUDFLARE_API_TOKEN");
 const accountId = required("CLOUDFLARE_ACCOUNT_ID");
+const serviceClientId = required("CF_ACCESS_CLIENT_ID");
 const project = process.env.CLOUDFLARE_PAGES_PROJECT?.trim() || "looksawful-ru-preview";
 const zoneName = process.env.LAB_ZONE_NAME?.trim() || "looksawful.ru";
 const customDomain = process.env.LAB_CUSTOM_DOMAIN?.trim() || `lab.${zoneName}`;
 const branch = process.env.LAB_BRANCH?.trim() || "lab";
 const branchAlias = `${branch}.${project}.pages.dev`;
+const accessAppName = "looksawful Lab";
 
 async function request(path, options = {}) {
   const response = await fetch(`${apiBase}${path}`, {
@@ -40,6 +42,125 @@ async function request(path, options = {}) {
   }
 
   return payload;
+}
+
+async function ensureZeroTrustReady() {
+  const payload = await request(`/accounts/${encodeURIComponent(accountId)}/access/organizations`);
+  const organization = payload?.result;
+  if (!organization || typeof organization !== "object") {
+    throw new Error("Cloudflare Zero Trust is not initialized for this account. Complete the one-time Zero Trust onboarding first.");
+  }
+  console.log(`[lab-cloudflare] Zero Trust organization ready: ${organization.name ?? organization.auth_domain ?? "configured"}`);
+}
+
+function appDestinations(app) {
+  const destinations = Array.isArray(app?.destinations) ? app.destinations : [];
+  return destinations
+    .filter((entry) => entry?.type === "public" && typeof entry?.uri === "string")
+    .map((entry) => entry.uri);
+}
+
+function appMatchesDomain(app, domain) {
+  return app?.domain === domain || appDestinations(app).includes(domain);
+}
+
+function appMatchesPreviewProject(app) {
+  const values = [app?.domain, ...appDestinations(app)].filter((value) => typeof value === "string");
+  return values.some((value) => value.includes(`${project}.pages.dev`));
+}
+
+async function listAccessApplications() {
+  const payload = await request(`/accounts/${encodeURIComponent(accountId)}/access/apps?per_page=100`);
+  return Array.isArray(payload?.result) ? payload.result : [];
+}
+
+async function requirePreviewAccessApplication() {
+  const applications = await listAccessApplications();
+  const app = applications.find((entry) => appMatchesPreviewProject(entry));
+  if (!app?.id) {
+    throw new Error(`Cloudflare Pages preview Access is not enabled for ${project}. Enable the Pages preview access policy before publishing Lab.`);
+  }
+  console.log(`[lab-cloudflare] Pages preview Access application ready: ${app.name ?? app.id}`);
+  return app;
+}
+
+async function resolveServiceTokenId() {
+  const payload = await request(`/accounts/${encodeURIComponent(accountId)}/access/service_tokens?per_page=1000`);
+  const tokens = Array.isArray(payload?.result) ? payload.result : [];
+  const serviceToken = tokens.find((entry) => entry?.client_id === serviceClientId && entry?.enabled !== false);
+  if (!serviceToken?.id) {
+    throw new Error("CF_ACCESS_CLIENT_ID does not match an enabled Cloudflare Access service token in this account.");
+  }
+  console.log(`[lab-cloudflare] CI service token resolved: ${serviceToken.name ?? serviceToken.id}`);
+  return serviceToken.id;
+}
+
+async function listApplicationPolicies(appId) {
+  const payload = await request(`/accounts/${encodeURIComponent(accountId)}/access/apps/${encodeURIComponent(appId)}/policies?per_page=100`);
+  return Array.isArray(payload?.result) ? payload.result : [];
+}
+
+function hasEveryoneRule(policy) {
+  const include = Array.isArray(policy?.include) ? policy.include : [];
+  return include.some((rule) => rule?.everyone && typeof rule.everyone === "object");
+}
+
+function hasAccountMemberRule(policy) {
+  const include = Array.isArray(policy?.include) ? policy.include : [];
+  return policy?.decision === "allow" && include.some(
+    (rule) => rule?.cloudflare_account_member?.account_id === accountId,
+  );
+}
+
+function hasServiceTokenRule(policy, serviceTokenId) {
+  const include = Array.isArray(policy?.include) ? policy.include : [];
+  return policy?.decision === "non_identity" && include.some(
+    (rule) => rule?.service_token?.token_id === serviceTokenId,
+  );
+}
+
+function assertNoPublicPolicy(policies, label) {
+  const unsafe = policies.find((policy) => hasEveryoneRule(policy) && ["allow", "bypass"].includes(policy?.decision));
+  if (unsafe) {
+    throw new Error(`${label} has an unsafe Everyone ${unsafe.decision} policy (${unsafe.name ?? unsafe.id}). Remove it before using Lab.`);
+  }
+}
+
+async function ensureAccountMemberPolicy(appId) {
+  const policies = await listApplicationPolicies(appId);
+  assertNoPublicPolicy(policies, "Lab Access application");
+  if (policies.some(hasAccountMemberRule)) {
+    console.log("[lab-cloudflare] Cloudflare-account member policy already present");
+    return;
+  }
+  await request(`/accounts/${encodeURIComponent(accountId)}/access/apps/${encodeURIComponent(appId)}/policies`, {
+    method: "POST",
+    body: JSON.stringify({
+      name: "Lab Cloudflare account members",
+      decision: "allow",
+      include: [{ cloudflare_account_member: { account_id: accountId } }],
+      session_duration: "12h",
+    }),
+  });
+  console.log("[lab-cloudflare] created Cloudflare-account member allow policy");
+}
+
+async function ensureServiceAuthPolicy(appId, serviceTokenId, name) {
+  const policies = await listApplicationPolicies(appId);
+  assertNoPublicPolicy(policies, name);
+  if (policies.some((policy) => hasServiceTokenRule(policy, serviceTokenId))) {
+    console.log(`[lab-cloudflare] ${name} service policy already present`);
+    return;
+  }
+  await request(`/accounts/${encodeURIComponent(accountId)}/access/apps/${encodeURIComponent(appId)}/policies`, {
+    method: "POST",
+    body: JSON.stringify({
+      name,
+      decision: "non_identity",
+      include: [{ service_token: { token_id: serviceTokenId } }],
+    }),
+  });
+  console.log(`[lab-cloudflare] created ${name} service policy`);
 }
 
 async function ensurePagesDomain() {
@@ -139,6 +260,31 @@ async function waitForDomain() {
   return "pending";
 }
 
+async function ensureLabAccessApplication() {
+  const applications = await listAccessApplications();
+  let app = applications.find((entry) => appMatchesDomain(entry, customDomain));
+  if (!app) {
+    const created = await request(`/accounts/${encodeURIComponent(accountId)}/access/apps`, {
+      method: "POST",
+      body: JSON.stringify({
+        name: accessAppName,
+        type: "self_hosted",
+        domain: customDomain,
+        destinations: [{ type: "public", uri: customDomain }],
+        session_duration: "12h",
+        app_launcher_visible: false,
+        allow_iframe: true,
+      }),
+    });
+    app = created?.result;
+    console.log(`[lab-cloudflare] created private Access application: ${customDomain}`);
+  } else {
+    console.log(`[lab-cloudflare] Access application already exists: ${customDomain}`);
+  }
+  if (!app?.id) throw new Error(`Cloudflare Access application id missing for ${customDomain}.`);
+  return app;
+}
+
 async function appendSummary(domainStatus, zoneSource) {
   const summaryPath = process.env.GITHUB_STEP_SUMMARY;
   if (!summaryPath) return;
@@ -146,22 +292,34 @@ async function appendSummary(domainStatus, zoneSource) {
   await appendFile(
     summaryPath,
     [
-      "### Lab Cloudflare routing",
+      "### Lab Cloudflare routing and Access",
       "",
       `- branch alias: https://${branchAlias}`,
       `- custom domain: https://${customDomain}`,
       `- domain status: ${domainStatus}`,
-      `- DNS: proxied CNAME to branch alias`,
+      "- DNS: proxied CNAME to branch alias",
       `- zone resolution: ${zoneSource}`,
+      "- human access: Cloudflare account members only",
+      "- CI access: exact Access service token",
+      "- unsafe Everyone allow/bypass: rejected",
       "",
     ].join("\n"),
   );
 }
 
+await ensureZeroTrustReady();
+const previewAccessApp = await requirePreviewAccessApplication();
+const serviceTokenId = await resolveServiceTokenId();
+await ensureServiceAuthPolicy(previewAccessApp.id, serviceTokenId, "looksawful Preview CI");
+
 const domain = await ensurePagesDomain();
 const zone = await resolveZone(domain);
 await ensureDnsRecord(zone.id);
 const domainStatus = await waitForDomain();
+
+const labAccessApp = await ensureLabAccessApplication();
+await ensureAccountMemberPolicy(labAccessApp.id);
+await ensureServiceAuthPolicy(labAccessApp.id, serviceTokenId, "looksawful Lab CI");
 await appendSummary(domainStatus, zone.source);
 
-console.log(`[lab-cloudflare] ready: https://${customDomain}/lab/ (${domainStatus})`);
+console.log(`[lab-cloudflare] private Lab ready: https://${customDomain}/lab/ (${domainStatus})`);
