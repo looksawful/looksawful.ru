@@ -17,9 +17,6 @@ on:
 
 permissions:
   contents: read
-  deployments: write
-  issues: write
-  pull-requests: write
 
 concurrency:
   group: pr-preview-${{ github.event_name == 'pull_request' && github.event.pull_request.number || inputs.preview_number }}
@@ -29,25 +26,27 @@ env:
   CLOUDFLARE_PAGES_PROJECT: looksawful-ru-preview
 
 jobs:
-  preview:
-    name: Cloudflare preview + remote browser QA
+  build:
+    name: Build exact preview artifact
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
+    outputs:
+      target_sha: ${{ steps.meta.outputs.target_sha }}
+      preview_number: ${{ steps.meta.outputs.preview_number }}
     env:
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || inputs.preview_number }}
       PR_HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.target_sha }}
     steps:
-      - name: Require preview inputs and Cloudflare credentials
+      - name: Validate exact preview identity
+        id: meta
         shell: bash
         run: |
           set -euo pipefail
           [[ "$PR_NUMBER" =~ ^[0-9]+$ ]] || { echo "Preview number must be numeric." >&2; exit 1; }
           [[ "$PR_HEAD_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || { echo "Preview target must be an exact 40-character commit SHA." >&2; exit 1; }
-          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "Missing GitHub Actions secret: CLOUDFLARE_ACCOUNT_ID" >&2; exit 1; }
-          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "Missing GitHub Actions secret: CLOUDFLARE_API_TOKEN" >&2; exit 1; }
+          printf 'target_sha=%s\n' "$PR_HEAD_SHA" >> "$GITHUB_OUTPUT"
+          printf 'preview_number=%s\n' "$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Checkout exact preview target SHA
         uses: actions/checkout@v7
@@ -142,10 +141,18 @@ jobs:
         run: |
           set -euo pipefail
           file_count="$(find dist -type f | wc -l | tr -d ' ')"
+          largest="$(find dist -type f -printf '%s %p\n' | sort -nr | head -n 1 || true)"
+          {
+            echo "### Cloudflare Pages preflight"
+            echo "- files: ${file_count} / 20000"
+            echo "- largest: ${largest:-none}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
           if (( file_count > 20000 )); then
             echo "Preview has ${file_count} files; Cloudflare Pages Direct Upload supports at most 20,000 files." >&2
             exit 1
           fi
+
           oversized="$(find dist -type f -size +26214400c -print)"
           if [[ -n "$oversized" ]]; then
             echo "Cloudflare Pages cannot upload files larger than 25 MiB:" >&2
@@ -153,7 +160,54 @@ jobs:
             exit 1
           fi
 
+      - name: Upload exact preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-preview-${{ env.PR_NUMBER }}-${{ env.PR_HEAD_SHA }}
+          path: dist
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    name: Deploy isolated Cloudflare preview
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      preview_url: ${{ steps.deploy.outputs.deployment-url }}
+      preview_alias_url: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+    env:
+      PR_NUMBER: ${{ needs.build.outputs.preview_number }}
+      PR_HEAD_SHA: ${{ needs.build.outputs.target_sha }}
+    steps:
+      - name: Require Cloudflare preview credentials
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "Missing GitHub Actions secret: CLOUDFLARE_ACCOUNT_ID" >&2; exit 1; }
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "Missing GitHub Actions secret: CLOUDFLARE_API_TOKEN" >&2; exit 1; }
+
+      - name: Download exact preview artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudflare-preview-${{ env.PR_NUMBER }}-${{ env.PR_HEAD_SHA }}
+          path: dist
+
+      - name: Verify artifact identity before Cloudflare access
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fxq "commit=$PR_HEAD_SHA" dist/preview-version.txt
+          grep -Fxq "pull_request=$PR_NUMBER" dist/preview-version.txt
+
       - name: Ensure isolated Cloudflare Pages preview project exists
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
@@ -190,13 +244,12 @@ jobs:
           fi
           jq -e '.success == true' /tmp/cf-pages-create.json >/dev/null
 
-      - name: Deploy exact target build to Cloudflare Pages preview
+      - name: Deploy exact artifact to Cloudflare Pages preview
         id: deploy
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           wranglerVersion: "4"
           command: pages deploy dist --project-name=looksawful-ru-preview --branch=pr-${{ env.PR_NUMBER }}
 
@@ -221,12 +274,40 @@ jobs:
             --dump-header /tmp/preview-headers.txt --output /dev/null "$PREVIEW_URL/?sha=$PR_HEAD_SHA"
           grep -Eqi '^x-robots-tag:[[:space:]]*noindex' /tmp/preview-headers.txt
 
+  remote-qa:
+    name: Remote browser QA
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+    env:
+      PR_NUMBER: ${{ needs.build.outputs.preview_number }}
+      PR_HEAD_SHA: ${{ needs.build.outputs.target_sha }}
+      PREVIEW_URL: ${{ needs.deploy.outputs.preview_url }}
+      PREVIEW_ALIAS_URL: ${{ needs.deploy.outputs.preview_alias_url }}
+    steps:
+      - name: Checkout exact preview target SHA without Cloudflare credentials
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PR_HEAD_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Install Chromium for remote preview QA
         run: npx playwright install --with-deps chromium
 
-      - name: Run browser smoke against published internet preview
-        env:
-          E2E_BASE_URL: ${{ steps.deploy.outputs.deployment-url }}
+      - name: Run candidate browser smoke against published internet preview
         shell: bash
         run: |
           set -euo pipefail
@@ -234,8 +315,8 @@ jobs:
           import { chromium } from "playwright";
           import { runProductionE2E } from "./tools/e2e/run-production.mjs";
 
-          const rawBaseUrl = process.env.E2E_BASE_URL?.trim() ?? "";
-          if (!rawBaseUrl) throw new Error("E2E_BASE_URL is required.");
+          const rawBaseUrl = process.env.PREVIEW_URL?.trim() ?? "";
+          if (!rawBaseUrl) throw new Error("PREVIEW_URL is required.");
           const url = new URL(rawBaseUrl);
           if (url.protocol !== "https:") throw new Error(`Remote preview must use HTTPS: ${url.href}`);
 
@@ -247,11 +328,9 @@ jobs:
           }
           NODE
 
-      - name: Publish preview URL in PR
+      - name: Publish verified preview URL in PR
         uses: actions/github-script@v9
         env:
-          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
-          PREVIEW_ALIAS_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
           PREVIEW_PR_NUMBER: ${{ env.PR_NUMBER }}
           PREVIEW_SHA: ${{ env.PR_HEAD_SHA }}
         with:
