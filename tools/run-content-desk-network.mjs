@@ -20,6 +20,7 @@ const child = spawn(process.execPath, args, {
     CONTENT_DESK_WRITE: "1",
     VITE_CONTENT_DESK_WRITE: "1",
     MEDIA_DESK_AUTH: "1",
+    VITE_MEDIA_DESK_AUTH: "1",
   },
 });
 
