@@ -10,7 +10,7 @@ on:
       - ".github/workflows/tmp-css-captions-owner.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   captions-owner:
@@ -18,10 +18,74 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
+      - name: Apply deterministic move-only implementation
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          index_path = Path("src/styles/index.css")
+          captions_path = Path("src/styles/captions.css")
+          index = index_path.read_text()
+          captions = captions_path.read_text()
+          marker = "\n@layer captions {\n"
+          marker_pos = index.find(marker)
+          if marker_pos == -1:
+              print("Late captions layer already absent; nothing to move.")
+              raise SystemExit(0)
+
+          start = marker_pos + 1
+          brace_start = index.find("{", start)
+          depth = 0
+          end = None
+          for offset in range(brace_start, len(index)):
+              char = index[offset]
+              if char == "{":
+                  depth += 1
+              elif char == "}":
+                  depth -= 1
+                  if depth == 0:
+                      end = offset + 1
+                      break
+          if end is None:
+              raise SystemExit("Could not find balanced end of @layer captions block")
+          if index[end:].strip():
+              raise SystemExit("Refusing move: unexpected content follows late captions block")
+
+          block = index[start:end]
+          inner = block[block.find("{") + 1 : block.rfind("}")]
+          lines = inner.splitlines()
+          while lines and not lines[0].strip():
+              lines.pop(0)
+          while lines and not lines[-1].strip():
+              lines.pop()
+          moved = "\n".join(line[2:] if line.startswith("  ") else line for line in lines).rstrip() + "\n"
+
+          new_index = index[:start].rstrip() + "\n"
+          new_captions = captions.rstrip() + "\n\n" + moved
+          index_path.write_text(new_index)
+          captions_path.write_text(new_captions)
+          PY
+          if git diff --quiet -- src/styles/index.css src/styles/captions.css; then
+            echo "No production move required."
+          else
+            git config user.name "looksawful-css-proof"
+            git config user.email "118225585+looksawful@users.noreply.github.com"
+            git add src/styles/index.css src/styles/captions.css
+            git commit -m "refactor(css): move late caption rules to canonical owner"
+            git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+          fi
       - run: npm ci
       - name: Caption/lightbox contract
         run: node --test test/caption-lightbox-contract.test.mjs
+      - name: CSS architecture check
+        run: npm run css:check
+      - name: Stylelint
+        run: npm run lint:style
