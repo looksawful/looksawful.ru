@@ -21,7 +21,9 @@ import {
 } from "./site-html-utils.mjs";
 
 const EXPECTED_ROBOTS = "index,follow,max-image-preview:large";
-const EXPECTED_FAVICON = "/favicon.svg";
+const EXPECTED_FAVICON = "/favicon.png";
+const EXPECTED_APPLE_TOUCH_ICON = "/apple-touch-icon.png";
+const EXPECTED_THEME_COLOR = "#ffffff";
 const EXPECTED_OG_SITE_NAME = "looksawful";
 const EXPECTED_OG_TYPE = "website";
 
@@ -67,6 +69,36 @@ async function validateOwnOgImage(value, distDir, label) {
   await validateOwnAssetUrl(value, distDir, label, "og:image");
 }
 
+async function validateManifest(root, errors) {
+  const manifestPath = path.join(root, "site.webmanifest");
+  let manifest;
+  try {
+    manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  } catch {
+    errors.push("site.webmanifest: missing or invalid JSON");
+    return;
+  }
+
+  if (manifest.theme_color !== EXPECTED_THEME_COLOR) {
+    errors.push(`site.webmanifest: theme_color must be ${EXPECTED_THEME_COLOR}`);
+  }
+
+  const icons = Array.isArray(manifest.icons) ? manifest.icons : [];
+  const favicon = icons.find((icon) => icon?.src === EXPECTED_FAVICON);
+  if (!favicon || favicon.type !== "image/png" || favicon.sizes !== "120x120") {
+    errors.push("site.webmanifest: missing 120x120 PNG favicon contract");
+  }
+
+  for (const icon of icons) {
+    if (!icon?.src) continue;
+    try {
+      await validateOwnAssetUrl(icon.src, root, "site.webmanifest", "icon");
+    } catch (error) {
+      errors.push(error.message);
+    }
+  }
+}
+
 export async function validateSite({ distDir = "dist" } = {}) {
   const root = path.resolve(distDir);
   const errors = [];
@@ -94,6 +126,8 @@ export async function validateSite({ distDir = "dist" } = {}) {
     const description = getMetaContent(html, "description");
     const robots = getRobots(html);
     const favicon = getLinkHref(html, "icon");
+    const appleTouchIcon = getLinkHref(html, "apple-touch-icon");
+    const themeColor = getMetaContent(html, "theme-color");
     const ogType = getMetaContent(html, "og:type", "property");
     const ogLocale = getMetaContent(html, "og:locale", "property");
     const ogSiteName = getMetaContent(html, "og:site_name", "property");
@@ -117,9 +151,19 @@ export async function validateSite({ distDir = "dist" } = {}) {
     }
 
     if (favicon !== EXPECTED_FAVICON) {
-      errors.push(`${label}: favicon must be ${EXPECTED_FAVICON}`);
+      errors.push(`${label}: primary favicon must be ${EXPECTED_FAVICON}`);
     } else {
       try { await validateOwnAssetUrl(favicon, root, label, "favicon"); } catch (error) { errors.push(error.message); }
+    }
+
+    if (appleTouchIcon !== EXPECTED_APPLE_TOUCH_ICON) {
+      errors.push(`${label}: apple-touch-icon must be ${EXPECTED_APPLE_TOUCH_ICON}`);
+    } else {
+      try { await validateOwnAssetUrl(appleTouchIcon, root, label, "apple-touch-icon"); } catch (error) { errors.push(error.message); }
+    }
+
+    if (themeColor !== EXPECTED_THEME_COLOR) {
+      errors.push(`${label}: theme-color must be ${EXPECTED_THEME_COLOR}`);
     }
 
     if (ogType !== EXPECTED_OG_TYPE) errors.push(`${label}: og:type must be ${EXPECTED_OG_TYPE}`);
@@ -179,6 +223,8 @@ export async function validateSite({ distDir = "dist" } = {}) {
       if (!types.includes("Person")) errors.push("index.html: JSON-LD missing Person");
     }
   }
+
+  await validateManifest(root, errors);
 
   const robotsPath = path.join(root, "robots.txt");
   const sitemapPath = path.join(root, "sitemap.xml");
