@@ -2,36 +2,55 @@
 
 Server-side integration layer for looksawful.ru and AWFUL tools.
 
-The public portfolio stays on GitHub Pages/Cloudflare. This service is intended to run separately in Yandex Serverless Containers and become the controlled API/MCP boundary for AI providers, CMS/Media Desk, storage and automation.
+The public portfolio stays on GitHub Pages/Cloudflare. This service runs separately in Yandex Serverless Containers and becomes the controlled API/MCP boundary for CMS, Media Desk, storage, Yandex AI and automation.
+
+ChatGPT conversations and Codex are external clients of AWFUL through MCP/apps. This project does not require or use the OpenAI API.
 
 ## Current status
 
-Implemented in v0.1.0:
+Implemented:
 
 - public `GET /healthz` health check;
 - public `GET /readyz` readiness check without exposing secret values;
 - authenticated `GET /v1/capabilities`;
-- authenticated `POST /v1/ai/responses`;
-- OpenAI Responses API upstream;
-- Yandex AI Studio OpenAI-compatible Responses API upstream;
+- authenticated `POST /v1/ai/responses` for Yandex AI Studio;
 - constant-time comparison for the internal bearer token;
 - 1 MiB request-body limit;
 - upstream timeout;
 - explicit CORS allowlist;
 - Docker image running as the unprivileged `node` user;
 - Windows bootstrap for Yandex Cloud resources and GitHub OIDC federation;
-- local secret provisioning that writes directly to Lockbox without committing or printing payloads.
+- local Yandex-only secret provisioning that writes directly to Lockbox without committing or printing payloads;
+- GitHub Actions deployment path using Workload Identity Federation instead of a permanent Yandex service-account key.
 
 Not implemented yet:
 
 - remote MCP endpoint;
+- ChatGPT custom app/plugin connection;
+- Codex MCP connection;
 - Object Storage adapter;
 - remote Media Desk write backend;
 - CMS API;
 - user/session authentication for browser access;
 - Tracker, Cloud Video, Vision, Translate, SpeechKit and observability adapters.
 
-Those are intentionally not faked before the actual Yandex Cloud resource IDs, service accounts and authorization model exist.
+## Architecture
+
+```text
+ChatGPT conversations ----\
+                          \
+Codex ---------------------> AWFUL MCP / Control Plane
+                             |
+                             +-- Yandex AI Studio
+                             +-- Object Storage
+                             +-- CMS / Media Desk
+                             +-- GitHub / Tracker
+                             +-- Video / Vision / Translate / Speech
+
+looksawful.ru remains on GitHub Pages + Cloudflare.
+```
+
+ChatGPT and Codex do not need an OpenAI API key to act as clients. Their ability to call a custom MCP app depends on the capabilities enabled for the user's ChatGPT/Codex product and plan. The server itself never receives the user's ChatGPT subscription credentials.
 
 ## Local check
 
@@ -70,80 +89,60 @@ The script creates or reuses:
 - GitHub federated credential restricted to `looksawful/looksawful.ru` and the `dev` branch;
 - minimal runtime/deploy roles required by the current architecture.
 
-It does not create an OpenAI key and does not write any secret payload.
+It does not write secret payloads.
 
-After bootstrap, create the runtime secrets locally:
+## Runtime secrets
+
+After bootstrap, create the Yandex runtime secrets locally:
 
 ```powershell
 pwsh -File .\cloud\awful-control-plane\scripts\configure-secrets.ps1
 ```
 
-This second script:
+This script:
 
 - creates a Yandex AI Studio API key restricted to `yc.ai.languageModels.execute`;
 - generates the internal AWFUL server-to-server token locally;
-- prompts for the OpenAI API key locally unless `-SkipOpenAI` is supplied;
-- sends the payload to Lockbox over stdin;
-- never writes the secret values to the repository or prints them.
+- sends both values to Yandex Lockbox over stdin;
+- never writes the secret values to Git or prints them.
+
+It does not ask for or create an OpenAI API key.
 
 Do not rerun secret provisioning casually. Yandex API key secret values are only returned at creation time. Use `-RotateYandexApiKey` only for an intentional rotation.
 
-## AI request
+## Yandex AI request
 
 ```bash
 curl -X POST http://127.0.0.1:8080/v1/ai/responses \
   -H "Authorization: Bearer dev-only-token" \
   -H "Content-Type: application/json" \
   -d '{
-    "provider": "yandex",
     "input": "Ping"
   }'
 ```
 
-The model may be supplied in the request or configured with `YANDEX_AI_MODEL` / `OPENAI_MODEL`.
+The model may be supplied in the request or configured with `YANDEX_AI_MODEL`.
 
 ## Secrets
 
-Production secret values belong in Yandex Lockbox and must be injected into the Serverless Container revision. The service expects:
+Production secret values belong in Yandex Lockbox and must be injected into the Serverless Container revision. The service currently expects:
 
 - `AWFUL_INTERNAL_TOKEN`;
-- `OPENAI_API_KEY`;
 - `YANDEX_AI_API_KEY`.
 
-The application must not receive permission to enumerate unrelated secrets. The runtime service account should receive `lockbox.payloadViewer` only for the secrets required by this container.
+The runtime service account should receive `lockbox.payloadViewer` only for the secret required by this container.
 
-## Browser access
+`AWFUL_INTERNAL_TOKEN` is a server-to-server credential. It must never be shipped to looksawful.ru JavaScript or stored in a browser.
 
-`AWFUL_INTERNAL_TOKEN` is a server-to-server credential. It must never be shipped to looksawful.ru JavaScript or stored in the browser.
+Before CMS or Media Desk is exposed over the internet, add real user/session authentication and scoped authorization. The existing local Media Desk starts with write mode enabled, so publishing it directly as-is is explicitly forbidden.
 
-Before CMS or Media Desk is exposed over the internet, add real user/session authentication and a scoped authorization layer. The existing local Media Desk starts with write mode enabled, so publishing it directly as-is is explicitly forbidden.
+## Next stages
 
-## Planned topology
-
-```text
-looksawful.ru (GitHub Pages + Cloudflare)
-        |
-        | HTTPS
-        v
-api.looksawful.ru
-        |
-        v
-AWFUL Control Plane (Yandex Serverless Containers)
-        |
-        +-- OpenAI
-        +-- Yandex AI Studio
-        +-- AWFUL MCP
-        +-- Object Storage
-        +-- CMS / Media Desk backend
-        +-- Tracker / Video / Vision / Translate / Speech
-        +-- logs / audit / backup status
-```
-
-See `docs/yandex-cloud-architecture.md` for the resource and access plan.
-
-## Official references
-
-- Yandex AI Studio OpenAI-compatible API: https://yandex.cloud/en/docs/tutorials/ml-ai/ai-model-ide-integration
-- Serverless Containers: https://yandex.cloud/en/docs/serverless-containers/
-- Lockbox secrets in Serverless Containers: https://yandex.cloud/en/docs/lockbox/operations/serverless/containers
-- Workload Identity Federation: https://yandex.cloud/en/docs/iam/operations/wlif/setup-wlif
+1. Provision the Lockbox runtime secrets.
+2. Merge the staging PR into `dev` after CI is green.
+3. Let GitHub Actions build/push the image and deploy the first Serverless Container revision via OIDC/WIF.
+4. Add API Gateway and HTTPS endpoint.
+5. Implement the remote AWFUL MCP server.
+6. Connect Codex to AWFUL MCP.
+7. Package the MCP tools as a ChatGPT app/plugin to the extent supported by the current ChatGPT plan.
+8. Add Object Storage, Media Desk backend and CMS.
