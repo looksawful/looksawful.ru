@@ -70,6 +70,9 @@ jobs:
       - name: Build isolated Media Desk assets
         run: npm run desk:cloudflare:build
 
+      - name: Dry-run Worker bundle
+        run: npx --yes wrangler@4 deploy --dry-run --outdir .cache/media-desk-wrangler --config tools/cloudflare/media-desk/wrangler.jsonc
+
   deploy:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: verify
