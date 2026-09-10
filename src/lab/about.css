@@ -1,0 +1,70 @@
+.lab-about-page {
+  margin: 0;
+  background: #f7f7f3;
+  color: #111;
+}
+
+.lab-about {
+  --wrapper-max-width: 80rem;
+  --stack-space: clamp(4rem, 9vw, 9rem);
+  padding-block: 1.5rem 8rem;
+}
+
+.lab-about__nav {
+  justify-content: space-between;
+}
+
+.lab-about__nav a {
+  color: inherit;
+}
+
+.lab-about__hero {
+  --stack-space: 1.25rem;
+  max-width: 70rem;
+}
+
+.lab-about__role,
+.lab-about__name,
+.lab-about__lead,
+.lab-about__secondary,
+.lab-about-card h3,
+.lab-about-card p,
+.lab-about h2 {
+  margin: 0;
+}
+
+.lab-about__name {
+  font-size: clamp(4rem, 13vw, 11rem);
+  line-height: 0.82;
+  letter-spacing: -0.07em;
+}
+
+.lab-about__lead {
+  max-width: 55rem;
+  font-size: clamp(1.5rem, 3vw, 2.75rem);
+  line-height: 1.02;
+}
+
+.lab-about__secondary {
+  max-width: 45rem;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.lab-about .auto-grid {
+  --auto-grid-min: 18rem;
+  --auto-grid-space: 1rem;
+}
+
+.lab-about-card {
+  padding: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.lab-about-language {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
