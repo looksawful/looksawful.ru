@@ -229,22 +229,20 @@ test("owner checker preserves parent composition through functional pseudos", ()
 });
 
 test("owner checker allows the documented captions-layer slider seam only", () => {
-  const allowed = new Map([
-    [
-      "src/styles/index.css",
-      `.slider[data-media-deck] [data-slide-caption]:not([data-caption-view="full"]) { display: none; }`,
-    ],
-  ]);
+  const seam = `.slider[data-media-deck] [data-slide-caption]:not([data-caption-view="full"]) { display: none; }`;
+  const allowed = new Map([["src/styles/captions.css", seam]]);
   assert.deepEqual(findOwnerViolations(allowed), []);
 
+  const staleIndex = new Map([["src/styles/index.css", seam]]);
+  assert.deepEqual(findOwnerViolations(staleIndex), [
+    "slider: selector family belongs to src/styles/slider.css, found in src/styles/index.css",
+  ]);
+
   const regrowth = new Map([
-    [
-      "src/styles/index.css",
-      `.slider[data-media-deck] [data-slide-caption]:not([data-caption-view="full"]) { display: none; }\n.slider { padding: 1rem; }`,
-    ],
+    ["src/styles/captions.css", `${seam}\n.slider { padding: 1rem; }`],
   ]);
   assert.deepEqual(findOwnerViolations(regrowth), [
-    "slider: selector family belongs to src/styles/slider.css, found in src/styles/index.css",
+    "slider: selector family belongs to src/styles/slider.css, found in src/styles/captions.css",
   ]);
 });
 
