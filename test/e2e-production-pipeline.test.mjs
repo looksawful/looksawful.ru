@@ -22,14 +22,69 @@ test("CV runner accepts an explicit mode and direct execution stays authored", a
   assert.match(source, /runSmokeCv\(\{\s*browser,\s*baseUrl,\s*mode:\s*["']authored["']/s);
 });
 
-test("CV smoke keeps authored output script-free while production forbids only application and pre-consent analytics runtime", async () => {
-  const source = await read("tools/e2e/smoke-cv.mjs");
-  assert.match(source, /siteApplicationRuntimeCount/);
-  assert.match(source, /staticAnalyticsBootstrapCount/);
-  assert.match(source, /yandexRuntimeCount/);
-  assert.match(
-    source,
-    /if \(mode === ["']production["']\)[\s\S]*?siteApplicationRuntimeCount[\s\S]*?yandexRuntimeCount[\s\S]*?else \{[\s\S]*?scriptCount === 0/s,
+test("CV script contract distinguishes authored output from isolated production analytics", async () => {
+  const smokeCv = await import("../tools/e2e/smoke-cv.mjs");
+  assert.equal(typeof smokeCv.getCvScriptContractViolations, "function");
+
+  assert.deepEqual(smokeCv.getCvScriptContractViolations("authored", {
+    scriptCount: 0,
+    siteApplicationRuntimeCount: 0,
+    staticAnalyticsBootstrapCount: 0,
+    cloudflareAnalyticsCount: 0,
+    yandexRuntimeCount: 0,
+    unexpectedScriptCount: 0,
+  }), []);
+  assert.deepEqual(smokeCv.getCvScriptContractViolations("authored", {
+    scriptCount: 1,
+    siteApplicationRuntimeCount: 0,
+    staticAnalyticsBootstrapCount: 1,
+    cloudflareAnalyticsCount: 0,
+    yandexRuntimeCount: 0,
+    unexpectedScriptCount: 0,
+  }), ["authored CV must remain script-free"]);
+
+  assert.deepEqual(smokeCv.getCvScriptContractViolations("production", {
+    scriptCount: 2,
+    siteApplicationRuntimeCount: 0,
+    staticAnalyticsBootstrapCount: 1,
+    cloudflareAnalyticsCount: 1,
+    yandexRuntimeCount: 0,
+    unexpectedScriptCount: 0,
+  }), []);
+  assert.deepEqual(smokeCv.getCvScriptContractViolations("production", {
+    scriptCount: 3,
+    siteApplicationRuntimeCount: 1,
+    staticAnalyticsBootstrapCount: 1,
+    cloudflareAnalyticsCount: 1,
+    yandexRuntimeCount: 0,
+    unexpectedScriptCount: 0,
+  }), ["production CV must not load the site application runtime"]);
+  assert.deepEqual(smokeCv.getCvScriptContractViolations("production", {
+    scriptCount: 3,
+    siteApplicationRuntimeCount: 0,
+    staticAnalyticsBootstrapCount: 1,
+    cloudflareAnalyticsCount: 1,
+    yandexRuntimeCount: 1,
+    unexpectedScriptCount: 0,
+  }), ["Yandex Metrica must remain unloaded before analytics consent"]);
+  assert.deepEqual(smokeCv.getCvScriptContractViolations("production", {
+    scriptCount: 3,
+    siteApplicationRuntimeCount: 0,
+    staticAnalyticsBootstrapCount: 1,
+    cloudflareAnalyticsCount: 1,
+    yandexRuntimeCount: 0,
+    unexpectedScriptCount: 1,
+  }), ["production CV contains an unexpected script"]);
+  assert.throws(
+    () => smokeCv.getCvScriptContractViolations("invalid", {
+      scriptCount: 0,
+      siteApplicationRuntimeCount: 0,
+      staticAnalyticsBootstrapCount: 0,
+      cloudflareAnalyticsCount: 0,
+      yandexRuntimeCount: 0,
+      unexpectedScriptCount: 0,
+    }),
+    /invalid CV smoke mode/i,
   );
 });
 
