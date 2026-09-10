@@ -84,3 +84,40 @@ test("Lab design-system inventory is generated from canonical source rather than
   assert.match(inventory, /inventory\.html/);
   assert.match(workflow, /design-system-inventory\.mjs/);
 });
+
+test("Lab exposes current hidden work without changing the public page manifest", async () => {
+  const [viteConfig, labHtml, allHtml, allSource, revealSource, aboutSource, homeVisibilitySource, manifest] = await Promise.all([
+    read("vite.config.ts"),
+    read("lab/index.html"),
+    read("lab/all/index.html"),
+    read("src/lab/all.ts"),
+    read("src/lab/reveal-hidden.ts"),
+    read("src/lab/about.ts"),
+    read("src/content/visibility/home.json"),
+    read("src/site/pages/manifest.ts"),
+  ]);
+  const homeVisibility = JSON.parse(homeVisibilitySource);
+
+  assert.match(viteConfig, /labAll:\s*fileURLToPath\(new URL\("\.\/lab\/all\/index\.html"/);
+  assert.match(viteConfig, /labAbout:\s*fileURLToPath\(new URL\("\.\/lab\/about\/index\.html"/);
+  assert.match(labHtml, /src="\/src\/lab\/reveal-hidden\.ts"/);
+  assert.match(labHtml, /data-route="\/lab\/all\/"/);
+  assert.match(labHtml, /data-route="\/\?lab-hidden=1"/);
+  assert.match(labHtml, /data-route="\/work\/berry-social-content-2020\/"/);
+  assert.match(labHtml, /data-route="\/pets\/awful-cases\/"/);
+  assert.match(labHtml, /data-route="\/pets\/berserk-timer\/"/);
+  assert.match(allHtml, /noindex,nofollow,noarchive/);
+  assert.match(allSource, /from "\.\.\/data\/catalog\/cases\.ts"/);
+  assert.match(allSource, /from "\.\.\/data\/catalog\/collections\.ts"/);
+  assert.match(allSource, /from "\.\.\/data\/catalog\/projects\/index\.ts"/);
+  assert.match(allSource, /mediaCatalogItems/);
+  assert.match(allSource, /cvContent/);
+  assert.match(allSource, /sitePages/);
+  assert.match(revealSource, /mountExperience/);
+  assert.match(revealSource, /lab-hidden/);
+  assert.match(revealSource, /placeholder-surface/);
+  assert.match(aboutSource, /cvContent/);
+  assert.deepEqual(homeVisibility, [{ id: "client-logo-wall", visible: true }]);
+  assert.doesNotMatch(manifest, /\/lab\/all\//);
+  assert.doesNotMatch(manifest, /\/lab\/about\//);
+});
