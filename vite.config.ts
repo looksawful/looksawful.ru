@@ -20,6 +20,8 @@ export default defineConfig({
     },
   },
 
+  server: mediaDeskAuth ? { hmr: false } : undefined,
+
   plugins: [
     ...(mediaDeskAuth ? [createMediaDeskAuthPlugin()] : []),
     createSitePagesPlugin(root),
