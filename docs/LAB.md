@@ -31,8 +31,13 @@ It provides:
 - optional element outlines;
 - optional 8px debug grid;
 - same-origin element inspection with selector, dimensions and key computed styles;
+- a live CSS scratchpad that injects temporary overrides into the real preview page;
+- browser-local persistence for scratch CSS across reloads and route changes;
+- copy/reset controls for moving an approved scratch rule into source code deliberately;
 - shareable workbench state through URL query parameters;
 - direct link to the current rendered page.
+
+Scratch CSS is browser-local diagnostic state. It is never written to the repository, included in a deployment artifact as authored site CSS, or promoted automatically to `dev`.
 
 Keyboard shortcuts: `1`, `2`, `3` select desktop/tablet/mobile, `f` selects fit mode, `r` reloads the preview, and `i` toggles element inspection.
 
@@ -79,12 +84,14 @@ The Lab HTML also carries `noindex,nofollow,noarchive`; Cloudflare preview respo
 1. Make experiments in `lab`, preferably as small focused commits.
 2. Push and wait for the `Lab Preview` deployment plus the existing PR Preview checks.
 3. Review the actual deployed result through `/lab/` at desktop, tablet, mobile and any feature-specific dimensions.
-4. Use the stable Lab URL during iteration and immutable deployment URLs when comparing exact revisions.
-5. Keep rejected or unfinished experiments in Lab instead of sending them through `dev`.
-6. When a design is approved, create a clean feature branch from current `dev`.
-7. Port or cherry-pick only the approved product/component changes. Exclude Lab-only infrastructure.
-8. Open a normal PR to `dev` and use the existing PR preview as release evidence.
-9. Reach `prod` only through the existing release path from `dev`.
+4. Use the inspector and live CSS scratchpad for fast visual iteration before changing source code.
+5. Copy only approved scratch rules into the actual component/style owner and verify them normally.
+6. Use the stable Lab URL during iteration and immutable deployment URLs when comparing exact revisions.
+7. Keep rejected or unfinished experiments in Lab instead of sending them through `dev`.
+8. When a design is approved, create a clean feature branch from current `dev`.
+9. Port or cherry-pick only the approved product/component changes. Exclude Lab-only infrastructure.
+10. Open a normal PR to `dev` and use the existing PR preview as release evidence.
+11. Reach `prod` only through the existing release path from `dev`.
 
 If a prototype commit mixes Lab infrastructure and product code, do not cherry-pick it wholesale. Reapply the approved product diff to a clean branch created from `dev`.
 
@@ -99,6 +106,7 @@ These files belong to the persistent workspace and normally stay only on `lab`:
 - `docs/LAB.md`;
 - `.agents/skills/looksawful-design-lab/**`;
 - `test/lab-workspace-contract.test.mjs`;
+- the Lab-only `lab` allowance in `test/repository-structure.test.mjs`;
 - the Lab-specific Vite build input;
 - the `npm run lab` package script.
 
