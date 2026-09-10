@@ -21,7 +21,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -54,6 +55,7 @@ button:hover,
 
 button:focus-visible,
 input:focus-visible,
+textarea:focus-visible,
 .lab-button:focus-visible,
 .lab-brand:focus-visible {
   outline: 2px solid #f2f2f2;
@@ -282,9 +284,15 @@ button:disabled {
   font-size: 10px;
 }
 
+.lab-inline-actions {
+  display: flex;
+  gap: 4px;
+}
+
 .lab-empty,
 .lab-status,
-.lab-meta {
+.lab-meta,
+.lab-scratch-status {
   color: #858585;
   font-size: 11px;
   line-height: 1.5;
@@ -320,6 +328,34 @@ button:disabled {
   font-size: 11px;
   line-height: 1.4;
   overflow-wrap: anywhere;
+}
+
+.lab-scratch textarea {
+  display: block;
+  width: 100%;
+  min-height: 170px;
+  resize: vertical;
+  border: 1px solid #2d2d2d;
+  border-radius: 7px;
+  padding: 9px;
+  color: #e6e6e6;
+  background: #0a0a0a;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+  line-height: 1.55;
+  tab-size: 2;
+}
+
+.lab-scratch textarea::placeholder {
+  color: #4f4f4f;
+}
+
+.lab-scratch-status {
+  margin-top: 6px;
+}
+
+.lab-scratch-status[data-active="true"] {
+  color: #d7d7d7;
 }
 
 .lab-status[data-state="ready"] {
