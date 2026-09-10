@@ -46,8 +46,8 @@ test("Local Lab command opens the workbench instead of production", async () => 
 
 test("Lab design system is a static Storybook viewer over canonical source", async () => {
   const [main, preview, builder, workflow, labHtml] = await Promise.all([
-    read(".storybook/main.ts"),
-    read(".storybook/preview.ts"),
+    read("tools/lab/storybook/main.ts"),
+    read("tools/lab/storybook/preview.ts"),
     read("tools/lab/build-storybook.mjs"),
     read(".github/workflows/lab-preview.yml"),
     read("lab/index.html"),
@@ -64,6 +64,7 @@ test("Lab design system is a static Storybook viewer over canonical source", asy
   assert.match(builder, /@storybook\/addon-docs@10\.6\.0/);
   assert.match(builder, /@storybook\/addon-a11y@10\.6\.0/);
   assert.match(builder, /storybook-design-token@5\.0\.0/);
+  assert.match(builder, /tools\/lab\/storybook/);
   assert.match(builder, /dist\/lab\/system/);
   assert.match(workflow, /Build Lab design system/);
   assert.match(workflow, /dist\/lab\/system\/index\.html/);

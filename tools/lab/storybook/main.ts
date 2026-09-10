@@ -1,5 +1,5 @@
 const config = {
-  stories: ["../src/lab/stories/**/*.stories.@(js|mjs)"],
+  stories: ["../../../src/lab/stories/**/*.stories.@(js|mjs)"],
   addons: [
     "@storybook/addon-docs",
     "@storybook/addon-a11y",
@@ -9,7 +9,7 @@ const config = {
     name: "@storybook/html-vite",
     options: {},
   },
-  staticDirs: [{ from: "../public", to: "/" }],
+  staticDirs: [{ from: "../../../public", to: "/" }],
   docs: {
     autodocs: "tag",
   },

@@ -44,7 +44,7 @@ run(npmCommand, [
   "storybook",
   "build",
   "--config-dir",
-  ".storybook",
+  "tools/lab/storybook",
   "--output-dir",
   "dist/lab/system",
   "--quiet",
