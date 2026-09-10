@@ -1,0 +1,27 @@
+name: Temporary CSS Captions Owner Proof
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - "src/styles/index.css"
+      - "src/styles/captions.css"
+      - "test/caption-lightbox-contract.test.mjs"
+      - ".github/workflows/tmp-css-captions-owner.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  captions-owner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Caption/lightbox contract
+        run: node --test test/caption-lightbox-contract.test.mjs
