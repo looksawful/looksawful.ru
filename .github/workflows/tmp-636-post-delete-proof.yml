@@ -1,0 +1,65 @@
+name: Temporary 636 post-delete proof
+
+on:
+  push:
+    branches:
+      - proof/636-post-delete
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Verify source state
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -R --line-number --fixed-strings 'runner-demo-pulse' src public test tools
+          grep -n --fixed-strings 'animation:awful-cases-demo-pulse' public/pets/awful-cases/awful-cases.css
+          grep -n --fixed-strings '@keyframes awful-cases-demo-pulse' public/pets/awful-cases/awful-cases.css
+      - run: npm run lint:style
+      - run: npm run css:check
+      - run: npm run typecheck
+      - run: npm run build:vite
+      - run: npx playwright install --with-deps --only-shell chromium
+      - name: Start preview
+        shell: bash
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/preview.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl --fail --silent http://127.0.0.1:4173/work/awful-cases/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/preview.log
+          exit 1
+      - name: Post-delete computed proof
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({ headless: true });
+          const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+          await page.goto('http://127.0.0.1:4173/work/awful-cases/', { waitUntil: 'networkidle' });
+          await page.waitForSelector('.awful-cases-game');
+          const portfolio = await page.locator('.awful-cases-game').evaluate((root) => {
+            const nodes = [root, ...root.querySelectorAll('*')];
+            const consumers = nodes.map((node) => ({animationName: getComputedStyle(node).animationName})).filter((x) => x.animationName.split(',').map((v) => v.trim()).includes('runner-demo-pulse'));
+            return { totalNodes: nodes.length, consumers };
+          });
+          if (portfolio.consumers.length) throw new Error(JSON.stringify(portfolio));
+          console.log('PORTFOLIO_POST_PROOF', JSON.stringify(portfolio));
+          await page.goto('http://127.0.0.1:4173/pets/awful-cases/', { waitUntil: 'networkidle' });
+          const standalone = await page.locator('.awful-cases .start__label').evaluate((node) => ({ animationName: getComputedStyle(node).animationName, display: getComputedStyle(node).display }));
+          if (!standalone.animationName.split(',').map((v) => v.trim()).includes('awful-cases-demo-pulse')) throw new Error(JSON.stringify(standalone));
+          console.log('STANDALONE_POST_PROOF', JSON.stringify(standalone));
+          await browser.close();
+          NODE
