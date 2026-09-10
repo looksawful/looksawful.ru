@@ -19,7 +19,7 @@ test("Lab is a Vite build entry and is explicitly non-indexable", async () => {
   assert.match(scratch, /dataset\.labOnly = "scratch-css"/);
 });
 
-test("Lab deployment stays isolated and uses one password secret instead of Zero Trust", async () => {
+test("Lab deployment stays isolated and syncs one password secret into the Pages preview runtime", async () => {
   const workflow = await read(".github/workflows/lab-preview.yml");
 
   assert.match(workflow, /branches: \[lab\]/);
@@ -27,12 +27,22 @@ test("Lab deployment stays isolated and uses one password secret instead of Zero
   assert.match(workflow, /pages deploy dist --project-name=looksawful-ru-preview --branch=lab/);
   assert.doesNotMatch(workflow, /--branch=prod/);
   assert.match(workflow, /Build Lab without production analytics/);
+  assert.match(workflow, /Fast tests/);
+  assert.match(workflow, /npm run test:fast/);
   assert.match(workflow, /Require Lab password/);
+  assert.match(workflow, /Sync Lab password to Cloudflare Pages preview runtime/);
+  assert.match(workflow, /pages secret put LAB_PASSWORD/);
+  assert.match(workflow, /--env preview/);
   assert.match(workflow, /LAB_PASSWORD/);
   assert.match(workflow, /Verify Basic Auth on immutable deployment/);
   assert.doesNotMatch(workflow, /CF_ACCESS_CLIENT_(?:ID|SECRET)/);
   assert.doesNotMatch(workflow, /cloudflare-access\.mjs/);
   assert.match(workflow, /x-robots-tag:/i);
+  assert.ok(
+    workflow.indexOf("Sync Lab password to Cloudflare Pages preview runtime")
+      < workflow.indexOf("Deploy persistent Lab branch preview"),
+    "the encrypted runtime secret must exist before the protected deployment is published",
+  );
 });
 
 test("Lab Basic Auth middleware is fail-closed and forwards only valid requests", async () => {
