@@ -22,6 +22,7 @@ const FIXED_CMS_CONTENT = new Set([
   "src/content/navigation.json",
   "src/content/projects.json",
   "src/content/client-logo-visibility.json",
+  "src/content/visibility/home.json",
   "src/content/cv.json",
   "src/content/editorial/cv.json",
   "src/content/editorial/home-project-cards.json",
