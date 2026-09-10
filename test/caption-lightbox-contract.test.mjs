@@ -72,7 +72,8 @@ test("lightbox navigation is project-scoped and media shell belongs to the Photo
 });
 
 test("persistent rails and standalone sliders keep captions out of page geometry but available to lightbox", async () => {
-  const [styles, facade] = await Promise.all([
+  const [styles, indexStyles, facade] = await Promise.all([
+    read("src/styles/captions.css"),
     read("src/styles/index.css"),
     read("src/components/media-lightbox.ts"),
   ]);
@@ -87,6 +88,12 @@ test("persistent rails and standalone sliders keep captions out of page geometry
   assert.match(
     styles,
     /figure\.media\[data-caption-view="overlay"\]::after[\s\S]*?content:\s*none/,
+  );
+  assert.doesNotMatch(indexStyles, /@layer\s+captions\s*\{/);
+  assert.doesNotMatch(indexStyles, /\.media__caption-line:not\(\[data-media-index\]\)/);
+  assert.doesNotMatch(
+    indexStyles,
+    /\.slider\[data-media-deck\] \[data-slide-caption\]:not\(\[data-caption-view="full"\]\)/,
   );
 
   assert.match(facade, /MARKABLE_SOURCE_SELECTOR/);

@@ -67,7 +67,7 @@ const OWNER_RULES = Object.freeze([
     name: "slider",
     owner: "src/styles/slider.css",
     allowedSelectors: Object.freeze({
-      "src/styles/index.css": Object.freeze([
+      "src/styles/captions.css": Object.freeze([
         /\.slider\[data-media-deck\]\s+\[data-slide-caption\]:not\(\[data-caption-view="full"\]\)/g,
       ]),
     }),
