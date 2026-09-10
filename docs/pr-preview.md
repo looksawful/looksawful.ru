@@ -26,11 +26,12 @@ For each eligible pull request or manually selected repository SHA the workflow:
 10. Fails closed for any other oversized untracked asset until an explicit safe preview strategy exists.
 11. Enforces Cloudflare Pages file-count and per-file limits after preview packaging.
 12. Ensures the isolated Cloudflare Pages project `looksawful-ru-preview` exists. The project is created automatically on the first authenticated run if needed, with `prod` recorded as the Cloudflare Pages production branch.
-13. Deploys only to the preview branch alias `pr-<number>`.
-14. Fetches the published deployment over HTTPS, verifies the stamped SHA/PR identity, and requires Cloudflare's preview `X-Robots-Tag: noindex` response header.
-15. Verifies that every oversized-media preview route remains reachable after deployment.
-16. Launches Playwright Chromium and runs the repository's production browser smoke from the checked-out target revision against the published internet URL.
-17. Creates or updates one PR comment containing the preview URL and immutable deployment URL.
+13. Deploys only to the preview branch alias `pr-<number>` and receives both an immutable deployment URL and a stable branch alias from Cloudflare.
+14. Uses the immutable deployment URL as the CI source of truth: fetches it over HTTPS, verifies the stamped exact SHA/PR identity, and requires Cloudflare's preview `X-Robots-Tag: noindex` response header.
+15. Verifies every oversized-media preview route against the same immutable deployment URL.
+16. Launches Playwright Chromium against the immutable internet deployment and runs the repository's production browser smoke from the checked-out target revision, including Jestei Pool filter artwork visibility and Camelot modal interaction checks.
+17. Waits briefly for the human-friendly `pr-<number>` alias to converge to the same SHA, but alias propagation delay cannot invalidate an already verified immutable deployment.
+18. Creates or updates one PR comment containing both the stable human preview URL and the verified immutable deployment URL.
 
 ## Oversized media contract
 
@@ -55,6 +56,15 @@ For an oversized generated browser-delivery video under `dist/media/generated/vi
 - this surrogate is suitable for layout, playback, interaction and browser-regression review, but final compression/quality review must use the canonical media source/delivery artifact.
 
 Any oversized untracked asset outside the supported generated-video path fails the workflow. The pipeline must never make an unknown file disappear merely to satisfy a hosting limit.
+
+## Preview URLs
+
+Cloudflare returns two URLs for every deployment and they have different jobs:
+
+- the immutable deployment URL identifies one exact Cloudflare deployment and is used for all mandatory CI verification;
+- `https://pr-<number>.looksawful-ru-preview.pages.dev` is the stable human review URL and may take a short time to update after a new deployment.
+
+A temporary branch-alias propagation delay is therefore informational, not a failed deployment. The release evidence is the exact SHA plus its verified immutable URL. The stable alias is published for convenience after Cloudflare has had time to converge.
 
 ## Trigger modes
 
@@ -105,7 +115,7 @@ Cloudflare Pages preview deployments are public by default but receive `X-Robots
 
 ## Manual review gate
 
-A green preview workflow means the exact target SHA was built, published, identity-checked over the internet, oversized-media routes were verified, and the published site passed automated browser smoke. It does not replace human visual review.
+A green preview workflow means the exact target SHA was built, published, identity-checked over the internet at its immutable deployment URL, oversized-media routes were verified, and the published site passed automated browser smoke. It does not replace human visual review.
 
 Before merge, open the PR's preview URL on the actual target devices/browsers and inspect layout, typography, media, motion, touch/hover behavior, WebGL/Three.js content, sliders, galleries, lightboxes and project-specific interactions affected by the change.
 
@@ -118,6 +128,7 @@ Production release policy is explicit: **no merge/deployment to `prod` until the
 - Unsupported oversized asset: the repository source remains untouched; add an explicit preview delivery strategy instead of deleting the source.
 - Preview-media route failure: an exact-SHA redirect or preview-only surrogate is not reachable; do not approve that preview.
 - File-count/per-file limit error after packaging: the prepared artifact still violates Cloudflare Pages limits and must not be uploaded.
-- Preview identity mismatch: treat the deployment as invalid. Do not review or merge based on that URL.
+- Immutable preview identity mismatch: treat the deployment as invalid. Do not review or merge based on that URL.
+- Stable `pr-<number>` alias lag: wait for Cloudflare propagation; this does not invalidate a separately verified immutable deployment.
 - Missing `X-Robots-Tag: noindex`: treat preview publication as failed until indexing protection is restored.
 - Remote Playwright failure: the published internet build is not considered preview-green even if local CI passed.
