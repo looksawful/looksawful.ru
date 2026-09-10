@@ -1475,19 +1475,7 @@
   background: #000;
 }
 
-@keyframes runner-demo-pulse {
-  0%,
-  49.999% {
-    color: #000;
-    background: #fff;
-  }
 
-  50%,
-  100% {
-    color: #fff;
-    background: #000;
-  }
-}
 
 /* ==================================================
    Consolidated component styles
