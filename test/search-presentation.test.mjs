@@ -59,6 +59,14 @@ test("homepage search and social presentation stays coherent", () => {
     html,
     /<!--noindex--><footer class="project__footer cluster" data-reveal-group data-nosnippet>[\s\S]*?<\/footer><!--\/noindex-->/,
   );
+  assert.match(
+    html,
+    /<!--noindex--><figcaption class="media__caption"[^>]*data-nosnippet>[\s\S]*?<\/figcaption><!--\/noindex-->/,
+  );
+  assert.match(
+    html,
+    /<!--noindex--><p class="credits"[^>]*data-nosnippet>[\s\S]*?<\/p><!--\/noindex-->/,
+  );
 });
 
 test("standalone indexable entity pages inherit the same social identity", () => {
@@ -70,6 +78,8 @@ test("standalone indexable entity pages inherit the same social identity", () =>
   assert.match(html, /<meta property="og:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
   assert.match(html, /<meta name="twitter:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
+  assert.doesNotMatch(html, /<!--noindex--><figcaption class="media__caption"/);
+  assert.doesNotMatch(html, /<!--noindex--><p class="credits"/);
 });
 
 test("CV uses the same social identity with resume-specific copy", () => {
