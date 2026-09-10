@@ -1,0 +1,135 @@
+.lab-all-page {
+  margin: 0;
+  background: #f4f4f0;
+  color: #111;
+}
+
+.lab-all-head,
+.lab-all {
+  --wrapper-max-width: 92rem;
+}
+
+.lab-all-head {
+  padding-block: clamp(2rem, 6vw, 6rem) 2rem;
+}
+
+.lab-all-head h1,
+.lab-all h2,
+.lab-data-card h3,
+.lab-all-head p {
+  margin: 0;
+}
+
+.lab-all-head h1 {
+  font-size: clamp(2.5rem, 8vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+}
+
+.lab-all-head p {
+  max-width: 52rem;
+  font-size: clamp(1rem, 1.8vw, 1.35rem);
+}
+
+.lab-all-head__nav {
+  justify-content: space-between;
+}
+
+.lab-all-head a,
+.lab-card__link {
+  color: inherit;
+}
+
+.lab-all {
+  --stack-space: clamp(4rem, 8vw, 8rem);
+  padding-block-end: 8rem;
+}
+
+.lab-all > section {
+  --stack-space: 1.25rem;
+}
+
+.lab-all .auto-grid {
+  --auto-grid-min: 19rem;
+  --auto-grid-space: 1rem;
+}
+
+.lab-section-head {
+  justify-content: space-between;
+}
+
+.lab-data-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.lab-card__heading {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.lab-card__title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 1.1rem;
+  line-height: 1.05;
+}
+
+.lab-status-pill,
+.lab-tag {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.lab-status-pill {
+  flex: none;
+  white-space: nowrap;
+}
+
+.lab-tags {
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.lab-card__copy {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.lab-card__link {
+  width: fit-content;
+  margin-top: auto;
+}
+
+.lab-card__preview {
+  margin: -1rem -1rem 0;
+  overflow: hidden;
+  border-bottom: 1px solid currentColor;
+  border-radius: 0.7rem 0.7rem 0 0;
+  aspect-ratio: 16 / 10;
+  background: #ddd;
+}
+
+.lab-card__preview img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+@media (width <= 48rem) {
+  .lab-all-head__nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
