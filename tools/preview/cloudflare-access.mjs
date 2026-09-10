@@ -1,3 +1,6 @@
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
 const ACCESS_LOGIN_PATH = "/cdn-cgi/access/login";
 
 function envValue(env, key) {
@@ -78,6 +81,49 @@ export async function verifyPreviewPrivacy({
   };
 }
 
+async function addScopedAccessRoute(target, previewOrigin, headers) {
+  if (Object.keys(headers).length === 0) return target;
+  await target.route("**/*", async (route) => {
+    const request = route.request();
+    let origin = "";
+    try {
+      origin = new URL(request.url()).origin;
+    } catch {
+      await route.continue();
+      return;
+    }
+    if (origin !== previewOrigin) {
+      await route.continue();
+      return;
+    }
+    await route.continue({
+      headers: {
+        ...request.headers(),
+        ...headers,
+      },
+    });
+  });
+  return target;
+}
+
+export function wrapBrowserWithAccess(browser, previewOrigin, env = process.env) {
+  const headers = getAccessServiceHeaders(env);
+  if (Object.keys(headers).length === 0) return browser;
+
+  return new Proxy(browser, {
+    get(target, property) {
+      if (property === "newPage") {
+        return async (options) => addScopedAccessRoute(await target.newPage(options), previewOrigin, headers);
+      }
+      if (property === "newContext") {
+        return async (options) => addScopedAccessRoute(await target.newContext(options), previewOrigin, headers);
+      }
+      const value = Reflect.get(target, property, target);
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  });
+}
+
 export async function probeAccessApi({
   accountId = envValue(process.env, "CLOUDFLARE_ACCOUNT_ID"),
   apiToken = envValue(process.env, "CLOUDFLARE_API_TOKEN"),
@@ -130,7 +176,6 @@ async function runCli() {
     const status = await probeAccessApi();
     if (!status.accessible) {
       console.log(`[preview-access] API probe unavailable: ${status.reason}`);
-      process.exitCode = 0;
       return;
     }
     const matches = status.applications.filter((app) => app.matchesPreviewProject);
@@ -161,7 +206,7 @@ async function runCli() {
   throw new Error(`Unknown cloudflare-access command: ${command}`);
 }
 
-const directPath = process.argv[1] ? new URL(`file://${process.argv[1].replaceAll("\\", "/")}`).href : "";
+const directPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : "";
 if (import.meta.url === directPath) {
   await runCli();
 }
