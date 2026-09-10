@@ -2,10 +2,17 @@ import "./all.css";
 
 import { cases } from "../data/catalog/cases.ts";
 import { collections } from "../data/catalog/collections.ts";
-import { projects, type ProjectId } from "../data/catalog/projects/index.ts";
+import { projects } from "../data/catalog/projects/index.ts";
+import type { CanonicalProjectData } from "../data/catalog/projects/types.ts";
 import { cvContent } from "../data/cv.ts";
 import { mediaCatalogItems, type MediaCatalogItem } from "../data/media/index.ts";
 import { sitePages } from "../site/pages/manifest.ts";
+import type { CaseData } from "../types/case.ts";
+import type { CollectionData } from "../types/collection.ts";
+
+const allCases: readonly CaseData[] = cases;
+const allCollections: readonly CollectionData[] = collections;
+const allProjects: readonly CanonicalProjectData[] = projects;
 
 function required<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -22,6 +29,10 @@ function element<K extends keyof HTMLElementTagNameMap>(
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
+}
+
+function compact(values: readonly (string | undefined)[]): string[] {
+  return values.filter((value): value is string => Boolean(value));
 }
 
 function addTags(parent: HTMLElement, values: readonly string[]): void {
@@ -61,7 +72,7 @@ function createPreview(item: MediaCatalogItem | undefined): HTMLElement | null {
   return figure;
 }
 
-function projectRoute(id: ProjectId): string | undefined {
+function projectRoute(id: string): string | undefined {
   const page = sitePages.find((candidate) =>
     candidate.type === "project"
     && "entityId" in candidate
@@ -70,8 +81,10 @@ function projectRoute(id: ProjectId): string | undefined {
   return page?.path;
 }
 
-function projectMedia(id: ProjectId): readonly MediaCatalogItem[] {
-  return mediaCatalogItems.filter((item) => !item.archived && item.projectIds.includes(id));
+function projectMedia(id: string): readonly MediaCatalogItem[] {
+  return mediaCatalogItems.filter((item) =>
+    !item.archived && item.projectIds.some((projectId) => projectId === id),
+  );
 }
 
 function card(title: string, status?: string): HTMLElement {
@@ -137,41 +150,41 @@ for (const page of sitePages) {
 }
 
 const casesRoot = required<HTMLElement>("[data-lab-cases]");
-for (const item of cases) {
+for (const item of allCases) {
   const node = card(item.name, item.visibility);
-  addCopy(node, item.description);
-  addTags(node, [item.id, item.date ?? "", ...(item.roleIds ?? [])].filter(Boolean));
+  addCopy(node, item.description || item.summary);
+  addTags(node, compact([item.id, item.date, ...(item.roleIds ?? [])]));
   const route = sitePages.find((page) => page.type === "case" && "entityId" in page && page.entityId === item.id)?.path;
   if (route) addLink(node, route);
   casesRoot.append(node);
 }
 
 const projectsRoot = required<HTMLElement>("[data-lab-projects]");
-required<HTMLElement>("[data-lab-project-count]").textContent = String(projects.length);
-for (const item of projects) {
+required<HTMLElement>("[data-lab-project-count]").textContent = String(allProjects.length);
+for (const item of allProjects) {
   const media = projectMedia(item.id);
   const node = card(item.name, item.status ?? "current");
   const preview = createPreview(media.find((asset) => asset.showInCatalog) ?? media[0]);
   if (preview) node.prepend(preview);
   addCopy(node, item.summary || item.description);
-  addTags(node, [
+  addTags(node, compact([
     item.id,
-    item.date ?? "",
+    item.date,
     ...(item.caseIds ?? []),
     ...(item.collectionIds ?? []),
     `media:${media.length}`,
-  ].filter(Boolean));
+  ]));
   const route = projectRoute(item.id);
   if (route) addLink(node, route);
   projectsRoot.append(node);
 }
 
 const collectionsRoot = required<HTMLElement>("[data-lab-collections]");
-for (const item of collections) {
-  const relatedProjects = projects.filter((project) => project.collectionIds?.includes(item.id));
+for (const item of allCollections) {
+  const relatedProjects = allProjects.filter((project) => project.collectionIds?.includes(item.id));
   const relatedMedia = mediaCatalogItems.filter((media) =>
     !media.archived
-    && relatedProjects.some((project) => media.projectIds.includes(project.id)),
+    && relatedProjects.some((project) => media.projectIds.some((projectId) => projectId === project.id)),
   );
   const node = card(item.displayName ?? item.name, item.visibility);
   addCopy(node, item.summary || item.description);
@@ -190,7 +203,7 @@ const cvRoot = required<HTMLElement>("[data-lab-cv]");
 for (const experience of cvContent.experience.filter((item) => !item.visible)) {
   const node = card(experience.company || experience.id, "hidden in CV");
   addCopy(node, experience.description || experience.context);
-  addTags(node, [experience.id, experience.period, experience.role].filter(Boolean));
+  addTags(node, compact([experience.id, experience.period, experience.role]));
   cvRoot.append(node);
 }
 
