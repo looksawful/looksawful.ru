@@ -64,7 +64,7 @@ MEDIA_DESK_GITHUB_TOKEN
 
 They are Cloudflare Worker secrets and must never be committed.
 
-The browser receives a signed 12-hour host-only session cookie with:
+Use a unique random Media Desk password with at least 16 characters. The browser receives a signed 12-hour host-only session cookie with:
 
 ```text
 HttpOnly; Secure; SameSite=Strict
