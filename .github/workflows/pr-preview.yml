@@ -30,7 +30,7 @@ jobs:
     name: Build exact preview artifact
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     outputs:
       target_sha: ${{ steps.meta.outputs.target_sha }}
       preview_number: ${{ steps.meta.outputs.preview_number }}
@@ -136,7 +136,20 @@ jobs:
           printf 'pull_request=%s\n' "$PR_NUMBER" >> dist/preview-version.txt
           printf 'source=cloudflare-pr-preview\n' >> dist/preview-version.txt
 
-      - name: Enforce Cloudflare Pages asset limits before upload
+      - name: Ensure ffmpeg for generated preview-video surrogates
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+            exit 0
+          fi
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+
+      - name: Prepare Cloudflare-compatible preview media without deleting sources
+        run: node tools/preview/prepare-cloudflare-pages.mjs dist
+
+      - name: Enforce Cloudflare Pages asset limits after preview packaging
         shell: bash
         run: |
           set -euo pipefail
@@ -146,6 +159,8 @@ jobs:
             echo "### Cloudflare Pages preflight"
             echo "- files: ${file_count} / 20000"
             echo "- largest: ${largest:-none}"
+            echo "- oversized tracked sources: kept in Git and exposed through exact-SHA redirects"
+            echo "- oversized generated web video: preview-only surrogate, source untouched"
           } >> "$GITHUB_STEP_SUMMARY"
 
           if (( file_count > 20000 )); then
@@ -155,7 +170,7 @@ jobs:
 
           oversized="$(find dist -type f -size +26214400c -print)"
           if [[ -n "$oversized" ]]; then
-            echo "Cloudflare Pages cannot upload files larger than 25 MiB:" >&2
+            echo "Preview packaging left files larger than 25 MiB:" >&2
             printf '%s\n' "$oversized" >&2
             exit 1
           fi
@@ -227,9 +242,7 @@ jobs:
             exit 1
           fi
 
-          payload="$(jq -n \
-            --arg name "$CLOUDFLARE_PAGES_PROJECT" \
-            '{name: $name, production_branch: "prod"}')"
+          payload="$(jq -n --arg name "$CLOUDFLARE_PAGES_PROJECT" '{name: $name, production_branch: "prod"}')"
           create_status="$(curl --silent --show-error --output /tmp/cf-pages-create.json --write-out '%{http_code}' \
             --request POST \
             --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
@@ -273,6 +286,28 @@ jobs:
           curl --fail --silent --show-error --location --retry 5 --retry-delay 2 \
             --dump-header /tmp/preview-headers.txt --output /dev/null "$PREVIEW_URL/?sha=$PR_HEAD_SHA"
           grep -Eqi '^x-robots-tag:[[:space:]]*noindex' /tmp/preview-headers.txt
+
+      - name: Verify oversized preview media routes remain reachable
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { readFile } from "node:fs/promises";
+
+          const manifest = JSON.parse(await readFile("dist/preview-media-manifest.json", "utf8"));
+          const base = new URL(process.env.PREVIEW_URL);
+          for (const record of manifest.records) {
+            const encodedPath = record.path.split("/").map(encodeURIComponent).join("/");
+            const url = new URL(encodedPath, `${base.origin}/`);
+            const response = await fetch(url, { method: "HEAD", redirect: "follow" });
+            if (!response.ok) {
+              throw new Error(`oversized preview media route failed: ${record.path} -> HTTP ${response.status}`);
+            }
+            console.log(`[preview-media] reachable: ${record.path} (${record.handling})`);
+          }
+          NODE
 
   remote-qa:
     name: Remote browser QA
@@ -344,7 +379,7 @@ jobs:
               core.setFailed('Invalid preview PR number.');
               return;
             }
-            const body = `${marker}\n## Browser preview\n\n✅ Published exact target \`${sha}\`\n✅ Remote HTTP identity/noindex check passed\n✅ Playwright browser smoke passed against the public internet deployment\n\n**Preview:** ${aliasUrl}\n\nImmutable deployment: ${immutableUrl}\n\nProduction \`looksawful.ru\` was not changed.\n\n**Release rule:** this preview is evidence only. Merge/deploy still requires explicit manual visual approval.`;
+            const body = `${marker}\n## Browser preview\n\n✅ Published exact target \`${sha}\`\n✅ Remote HTTP identity/noindex check passed\n✅ Oversized preview media routes verified without deleting repository sources\n✅ Playwright browser smoke passed against the public internet deployment\n\n**Preview:** ${aliasUrl}\n\nImmutable deployment: ${immutableUrl}\n\nProduction \`looksawful.ru\` was not changed.\n\n**Release rule:** this preview is evidence only. Merge/deploy still requires explicit manual visual approval.`;
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
