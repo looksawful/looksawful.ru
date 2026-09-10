@@ -94,13 +94,16 @@ jobs:
         run: node --test test/lab-workspace-contract.test.mjs test/lab-design-system-inventory.test.mjs test/preview-access-contract.test.mjs
 
       - name: Build Lab without production analytics
-        run: npm run build:site
+        run: npm run cms:check && npm run build:vite
 
       - name: Build Lab design system
         run: npm run lab:system
 
       - name: Generate Lab design-system inventory
         run: npm run lab:inventory
+
+      - name: Finalize Lab site and validate local links
+        run: npm run site:postbuild
 
       - name: Verify Lab design-system artifact
         shell: bash
