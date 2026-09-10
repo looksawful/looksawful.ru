@@ -1,19 +1,10 @@
-import { randomBytes, scryptSync } from "node:crypto";
-
-const KEY_BYTES = 32;
+import { createHash } from "node:crypto";
 
 function hashPassword(password) {
   if (password.length < 12) {
     throw new Error("Password must contain at least 12 characters.");
   }
-  const salt = randomBytes(16);
-  const digest = scryptSync(password, salt, KEY_BYTES, {
-    N: 16384,
-    r: 8,
-    p: 1,
-    maxmem: 64 * 1024 * 1024,
-  });
-  return `scrypt$v1$${salt.toString("base64url")}$${digest.toString("base64url")}`;
+  return createHash("sha256").update(password, "utf8").digest("hex");
 }
 
 async function readHiddenPassword() {
