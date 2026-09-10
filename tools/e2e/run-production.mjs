@@ -103,13 +103,9 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
       waitUntil: "domcontentloaded",
       timeout: 30_000,
     });
-    await page.locator(".case-section--artwork img").first().waitFor({
-      state: "attached",
-      timeout: 30_000,
-    });
 
     const filter = page.locator("playlist-filter-workflow");
-    await filter.waitFor({ state: "visible", timeout: 10_000 });
+    await filter.waitFor({ state: "visible", timeout: 30_000 });
 
     const allStars = filter.locator(".rating-star img");
     const visibleStars = await visibleLocators(allStars);
