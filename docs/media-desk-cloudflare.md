@@ -17,7 +17,7 @@ The public portfolio remains on its existing release path. Media Desk is a separ
 ```text
 browser
   -> media.looksawful.ru
-  -> Cloudflare Worker auth
+  -> Cloudflare Worker auth + native rate limiter
   -> Worker Static Assets (Media Desk UI)
   -> Worker API
        -> GitHub GraphQL
@@ -69,6 +69,8 @@ The browser receives a signed 12-hour host-only session cookie with:
 ```text
 HttpOnly; Secure; SameSite=Strict
 ```
+
+Login attempts pass through Cloudflare's native Worker Rate Limiting binding. The current policy allows 10 attempts per account name per 60 seconds and returns HTTP 429 after that limit. The Worker fails closed if the limiter binding is unavailable.
 
 All static assets run through the Worker first, so authentication protects HTML, JavaScript, CSS, source maps/API routes and media proxy requests rather than only the save endpoints.
 
@@ -157,6 +159,7 @@ The Cloudflare static-assets configuration uses `run_worker_first: true`. Do not
 - no browser-visible GitHub token;
 - no VM, SSH endpoint, public dev port or Tunnel dependency;
 - auth executes before static asset serving;
+- login is protected by Cloudflare's native rate limiter;
 - write requests are same-origin only;
 - session cookies are `HttpOnly`, `Secure` and `SameSite=Strict`;
 - all Desk responses are `noindex`;
