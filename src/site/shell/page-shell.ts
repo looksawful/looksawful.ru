@@ -35,7 +35,6 @@ export function renderPageShell({
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     ${renderPageMetadata({ page, title, description })}
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link href="/src/styles/index.css" rel="stylesheet">
     <script src="/src/main.js" type="module"></script>
   </head>
