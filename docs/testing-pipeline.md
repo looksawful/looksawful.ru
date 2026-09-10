@@ -29,21 +29,40 @@ Nightly Quality при этом уже выполняет `test:core`, а `test:
 
 Fast является opt-in allowlist в `tools/ci/run-tests.mjs`. Новый тест не попадает сюда автоматически.
 
-Текущий Fast содержит 20 дешёвых долгоживущих contracts:
+Текущий Fast содержит 41 дешёвый долгоживущий contract:
 
+- `test/agent-verification-workflow.test.mjs`
 - `test/awful-cases-cms-editorial.test.mjs`
 - `test/ci-fast-concurrency.test.mjs`
 - `test/code-block-contract.test.mjs`
 - `test/cms-publication-scope.test.mjs`
 - `test/cms-publication-topology.test.mjs`
 - `test/cms-publication-workflow.test.mjs`
+- `test/css-refactor-wave5b-media-group-foundation.test.mjs`
+- `test/css-refactor-wave5c-grid-compact.test.mjs`
+- `test/css-refactor-wave5d-strip-justify-contract.test.mjs`
+- `test/css-refactor-wave5e-sequence.test.mjs`
+- `test/css-refactor-wave5f-strip-height-contract.test.mjs`
+- `test/css-refactor-wave5g-strip.test.mjs`
+- `test/css-refactor-wave5h-editorial.test.mjs`
+- `test/css-refactor-wave5i-masonry.test.mjs`
+- `test/css-refactor-wave5j-bento.test.mjs`
+- `test/css-refactor-wave5k-fade-input.test.mjs`
+- `test/css-refactor-wave5k-infinite-reel.test.mjs`
+- `test/css-refactor-wave5l-media-group-base.test.mjs`
+- `test/css-refactor-wave6a-before-after.test.mjs`
+- `test/css-tooling-check.test.mjs`
+- `test/cv-principles-lowercase.test.mjs`
 - `test/domain-catalog-identity.test.mjs`
 - `test/domain-taxonomy-references.test.mjs`
 - `test/editorial-content-boundary.test.mjs`
 - `test/editorial-copy-optional.test.mjs`
+- `test/jestei-event-migration.test.mjs`
 - `test/lighthouse-ci-config.test.mjs`
+- `test/media-tools/affected-media-ci.test.mjs`
 - `test/media-tools/media-cache-fingerprint-scope.test.mjs`
 - `test/pages-cms-yaml-syntax.test.mjs`
+- `test/project-card-hover.test.mjs`
 - `test/repository-growth-policy.test.mjs`
 - `test/search-presentation.test.mjs`
 - `test/security-tooling.test.mjs`
@@ -51,6 +70,8 @@ Fast является opt-in allowlist в `tools/ci/run-tests.mjs`. Новый �
 - `test/site-composition.test.mjs`
 - `test/site-pages.test.mjs`
 - `test/static-site-analytics.test.mjs`
+- `test/stylelint-tooling.test.mjs`
+- `test/styx-cms-copy.test.mjs`
 
 ### `npm run test:unit`
 
