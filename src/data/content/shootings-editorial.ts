@@ -21,6 +21,7 @@ import {
   expectKnownId,
   expectRecord,
   readEditorialText,
+  readEditorialTextList,
 } from "./editorial-validation.ts";
 
 export const SHOOTING_RECORD_IDS = [
@@ -57,6 +58,7 @@ export interface ShootingEditorialRecord {
   title: string;
   date: string;
   description: string;
+  credits: readonly string[];
 }
 
 export function parseShootingsOverview(value: unknown): ShootingsOverview {
@@ -76,7 +78,7 @@ export function parseShootingsOverview(value: unknown): ShootingsOverview {
 export function parseShootingEditorialRecord(value: unknown): ShootingEditorialRecord {
   const label = "Shooting editorial record";
   const record = expectRecord(value, label);
-  expectAllowedKeys(record, ["id", "title", "date", "description"], ["id"], label);
+  expectAllowedKeys(record, ["id", "title", "date", "description", "credits"], ["id"], label);
   const id = expectKnownId(record.id, SHOOTING_RECORD_IDS, `${label}.id`);
 
   return {
@@ -84,6 +86,7 @@ export function parseShootingEditorialRecord(value: unknown): ShootingEditorialR
     title: readEditorialText(record.title, `${label}.title`),
     date: readEditorialText(record.date, `${label}.date`),
     description: readEditorialText(record.description, `${label}.description`),
+    credits: readEditorialTextList(record.credits, `${label}.credits`),
   };
 }
 

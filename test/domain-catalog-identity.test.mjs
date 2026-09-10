@@ -177,3 +177,13 @@ for (const [entityName, expectedIds] of Object.entries(expectedIdentitySets)) {
     );
   });
 }
+
+test("Jestei Pool and Jestei Event human-readable names stay exact", () => {
+  const client = clients.find(({ id }) => id === "jestei-pool");
+  assert.ok(client, "Jestei Pool client must exist");
+  assert.equal(client.name, "Jestei Pool");
+
+  const eventProject = projects.find(({ id }) => id === "jestei-event");
+  assert.ok(eventProject, "Jestei Event project must exist");
+  assert.equal(eventProject.name, "Jestei Event");
+});

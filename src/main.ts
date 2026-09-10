@@ -1,6 +1,7 @@
 import "./styles/site-analytics-consent.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
+import { hydrateDeferredVideoSource } from "./components/deferred-video-source.ts";
 import { createMotionPreference } from "./components/motion-preference.ts";
 import { createInfiniteReels } from "./components/infinite-reel.ts";
 import { createMediaDecks } from "./components/media-deck.ts";
@@ -16,6 +17,7 @@ import {
   mountSiteAnalytics,
   mountSiteAnalyticsGoalTracking,
 } from "./components/site-analytics.ts";
+import { initBeforeAfter } from "./components/before-after.ts";
 import { initSiteNavigation } from "./components/site-navigation.ts";
 import { initSiteInteractive } from "./interactive.ts";
 import { initMotion } from "./motion.ts";
@@ -32,21 +34,6 @@ if (document.querySelector("[data-animated-canvas-gallery]")) {
   void import("./components/animated-canvas-gallery.js");
 }
 
-function initBeforeAfter(root: Element): Destroy {
-  if (!(root instanceof HTMLElement)) return noop;
-
-  const range = root.querySelector(".before-after__range");
-  if (!(range instanceof HTMLInputElement)) return noop;
-
-  const render = (): void => {
-    root.style.setProperty("--before-after-split", `${range.value}%`);
-  };
-
-  range.addEventListener("input", render, { passive: true });
-  render();
-  return () => range.removeEventListener("input", render);
-}
-
 function initViewportAutoplayVideos(root: ParentNode = document): Destroy {
   const videos = [...root.querySelectorAll<HTMLVideoElement>("video[autoplay]")].filter(
     (video) => !video.closest("[data-media-deck], [data-infinite-reel]"),
@@ -59,11 +46,14 @@ function initViewportAutoplayVideos(root: ParentNode = document): Destroy {
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
-    if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
+
     if (!document.hidden && nearViewport.has(video)) {
+      hydrateDeferredVideoSource(video);
+      if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
       if (video.paused) void video.play().catch(() => {});
       return;
     }
+
     if (!video.paused) video.pause();
   };
 
@@ -83,7 +73,7 @@ function initViewportAutoplayVideos(root: ParentNode = document): Destroy {
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
-    if (!video.poster) video.preload = "auto";
+    if (!video.poster && !video.hasAttribute("data-autoplay-deferred")) video.preload = "auto";
     if (observer) {
       video.pause();
       observer.observe(video);
@@ -184,7 +174,12 @@ destroys.push(createPageFlips({ root: document, motion }));
 destroys.push(createBerserkAudioPlayers(document));
 
 document.querySelectorAll("[data-before-after]").forEach((root) => {
-  destroys.push(initBeforeAfter(root));
+  destroys.push(
+    initBeforeAfter(root, {
+      motion,
+      autoReveal: root.closest("#jestei-subscription") !== null,
+    }),
+  );
 });
 
 window.addEventListener("pagehide", (event) => {

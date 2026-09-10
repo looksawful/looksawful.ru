@@ -3123,6 +3123,31 @@
       ]
     },
     {
+      "id": "hero-portrait",
+      "src": "/media/hero/hero-portrait.webp",
+      "sourceWidth": 1122,
+      "sourceHeight": 739,
+      "sourceBytes": 755394,
+      "sourceHash": "ad539052d81749b95097f689bb576ca738765bfc91dd441048dbb0404de0195f",
+      "configHash": "652cb3cad0c17618bf0cf60f199b562306e3244674c076f16ececfd6a486b6b9",
+      "variants": [
+        {
+          "src": "/media/generated/responsive/hero/hero-portrait@480.webp",
+          "width": 480,
+          "height": 316,
+          "bytes": 21494,
+          "format": "webp"
+        },
+        {
+          "src": "/media/generated/responsive/hero/hero-portrait@768.webp",
+          "width": 768,
+          "height": 506,
+          "bytes": 48150,
+          "format": "webp"
+        }
+      ]
+    },
+    {
       "id": "hypression-14-source-01-5x4",
       "src": "/media/projects/shootings/14/source/01-5x4.webp",
       "sourceWidth": 1280,

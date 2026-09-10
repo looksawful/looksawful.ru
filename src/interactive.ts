@@ -1,7 +1,7 @@
 import {
   initProjectNavigationBackToTop,
+  initProjectNavigationDock,
   initProjectNavigationFallback,
-  initProjectNavigationViewportAnchor,
 } from "./components/project-navigation.ts";
 
 type Destroy = () => void;
@@ -161,8 +161,8 @@ export function initSiteInteractive(
 ): Destroy {
   const destroys: Destroy[] = [];
 
+  destroys.push(initProjectNavigationDock(root));
   destroys.push(initProjectNavigationBackToTop(root));
-  destroys.push(initProjectNavigationViewportAnchor(root));
   destroys.push(initProjectNavigationFallback(root));
 
   root.querySelectorAll("playlist-filter-workflow").forEach(initPlaylistFilter);

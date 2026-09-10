@@ -4,11 +4,11 @@ import {
   JESTEI_THEME_MODEL_URL,
   JESTEI_THEME_NAMES,
   JESTEI_THEME_SETTINGS,
-} from "./jestei-theme-organism-data.js";
+} from "./jestei-theme-organism-data.ts";
 import {
   FRAGMENT_SHADER,
   VERTEX_SHADER,
-} from "./jestei-theme-organism-shaders.js";
+} from "./jestei-theme-organism-shaders.ts";
 
 const ORGANISM_DESTROY = Symbol.for("looksawful.jesteiThemeOrganism.destroy");
 const MAX_PREPARE_ATTEMPTS = 2;

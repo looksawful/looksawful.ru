@@ -1,0 +1,259 @@
+/* One global project navigator replaces both the former projects index and
+   the four per-project chapter TOCs. Narrow view stays at the bottom; the
+   wide view reuses the existing left rail. */
+.project-nav {
+  --wrapper-max-width: 100%;
+  --wrapper-gutter: 0;
+
+  position: relative;
+  z-index: 30;
+
+  inline-size: 100%;
+  max-inline-size: none;
+  margin-inline: 0;
+
+  padding-block: var(--size-200);
+  padding-inline: var(--page-padding-inline);
+
+  border-block-end: 0;
+  background: transparent;
+}
+
+.project-nav__inner {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: var(--size-300);
+  min-inline-size: 0;
+}
+
+.project-nav__label {
+  color: var(--clr-text-muted);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-500);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.project-nav__list {
+  --reel-item-size: max-content;
+  --reel-gap: var(--size-300);
+  --reel-snap-type: inline proximity;
+
+  min-inline-size: 0;
+  list-style: none;
+}
+
+.project-nav__link {
+  display: inline-grid;
+  grid-template-columns: max-content max-content;
+  align-items: baseline;
+  gap: 0.32rem;
+
+  color: var(--clr-text-muted);
+  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-weight: var(--fw-400);
+  line-height: 1.36;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.project-nav__index {
+  display: none;
+  color: inherit;
+  font-size: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.project-nav__link:is(:hover, :focus-visible),
+.project-nav__link[aria-current="location"] {
+  color: var(--clr-text);
+}
+
+.project-nav__link[aria-current="location"] {
+  font-weight: var(--fw-600);
+
+  .project-nav__index {
+    text-decoration: underline;
+    text-decoration-thickness: 0.02em;
+    text-underline-offset: 0.4em;
+  }
+}
+
+[data-navigation-project] {
+  scroll-margin-block-start: var(--size-300);
+}
+
+/* The navigator belongs to the complete projects collection, not to an
+   individual project. On wide containers it therefore remains a single rail
+   while the active project changes underneath it. */
+@container projects (width > 96rem) {
+  .project-nav {
+    --project-nav-rail-width: 16rem;
+    --project-nav-section-gap: 3rem;
+
+    position: sticky;
+    inset-block-start: calc(100svh - var(--page-padding-inline) + var(--project-nav-section-gap));
+    translate: none;
+
+    inline-size: 100%;
+    max-inline-size: none;
+    margin-inline: 0;
+    padding-inline: 0;
+
+    block-size: 1px;
+    padding-block: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+  }
+  .project-nav__index {
+    display: inline;
+  }
+  .project-nav__inner {
+    position: absolute;
+    inset-block-start: auto;
+    inset-block-end: var(--project-nav-section-gap);
+    inset-inline-start: var(--page-padding-inline);
+
+    display: block;
+    inline-size: var(--project-nav-rail-width);
+    background: transparent;
+  }
+
+  .project-nav__label {
+    margin-block-end: var(--size-300);
+  }
+
+  .project-nav__list {
+    --reel-display: grid;
+    --reel-gap: 0.6rem;
+    --reel-overflow-x: visible;
+    --reel-snap-type: none;
+  }
+
+  .project-nav__link {
+    display: grid;
+    grid-template-columns: 1.45rem minmax(0, 1fr);
+    gap: var(--size-100);
+    inline-size: 100%;
+    white-space: normal;
+  }
+}
+
+/* Progressive enhancement only; anchors + JS aria-current remain the
+   compatibility baseline. */
+@supports (scroll-target-group: auto) {
+  .project-nav__list {
+    scroll-target-group: auto;
+  }
+}
+
+@supports selector(:target-current) {
+  .project-nav__link:target-current {
+    color: var(--clr-text);
+
+    .project-nav__index {
+      text-decoration: underline;
+      text-decoration-thickness: 0.02em;
+      text-underline-offset: 0.4em;
+    }
+  }
+}
+
+.project-nav__inner {
+  grid-template-columns: minmax(0, 1fr) max-content;
+}
+
+.project-nav__top {
+  display: inline-flex;
+  align-items: baseline;
+  justify-self: end;
+  gap: 0.32rem;
+
+  color: var(--clr-text-muted);
+  font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
+  font-weight: var(--fw-400);
+  line-height: 1.36;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.project-nav__top:is(:hover, :focus-visible) {
+  color: var(--clr-text);
+}
+
+@container projects (width <= 96rem) {
+  .project-nav {
+    padding-block-end: calc(
+      var(--size-200) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .project-nav[data-project-nav-enhanced] {
+    min-block-size: calc(
+      1lh
+      + var(--size-200)
+      + var(--size-200)
+      + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .project-nav[data-project-nav-enhanced] .project-nav__inner {
+    position: fixed;
+    inset-inline: var(--page-padding-inline);
+    inset-block-end: calc(
+      var(--size-200) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .project-nav[data-project-nav-enhanced]:not([data-project-nav-docked]) .project-nav__inner {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .project-nav[data-project-nav-docked] .project-nav__inner {
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
+@container projects (width <= 40rem) {
+  .project-nav[data-project-nav-enhanced] {
+    min-block-size: calc(
+      2.75rem
+      + var(--size-200)
+      + var(--size-200)
+      + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .project-nav__top {
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    min-inline-size: 2.75rem;
+    min-block-size: 2.75rem;
+  }
+
+  .project-nav__top-label {
+    display: none;
+  }
+}
+
+@container projects (width > 96rem) {
+  .project-nav__inner {
+    inline-size: calc(100cqi - (var(--page-padding-inline) * 2));
+  }
+
+  .project-nav__list {
+    inline-size: var(--project-nav-rail-width);
+  }
+
+  .project-nav__top {
+    position: absolute;
+    inset-inline-end: 0;
+    inset-block-end: 0;
+  }
+}

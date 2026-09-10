@@ -83,11 +83,11 @@ test("combined browser regression uses one shared runtime while individual suite
   assert.match(runAll, /withE2ERuntime/);
 
   const suites = [
-    ["smoke-site.mjs", "runSmokeSite"],
-    ["smoke-site-navigation.mjs", "runSmokeNavigation"],
-    ["smoke-mpa.mjs", "runSmokeMpa"],
-    ["smoke-project-pages.mjs", "runSmokeProjectPages"],
-    ["smoke-cv.mjs", "runSmokeCv"],
+    ["e2e/smoke-site.mjs", "runSmokeSite"],
+    ["e2e/smoke-site-navigation.mjs", "runSmokeNavigation"],
+    ["e2e/smoke-mpa.mjs", "runSmokeMpa"],
+    ["e2e/smoke-project-pages.mjs", "runSmokeProjectPages"],
+    ["e2e/smoke-cv.mjs", "runSmokeCv"],
   ];
   for (const [fileName, exportName] of suites) {
     const source = await readFile(new URL(`../tools/${fileName}`, import.meta.url), "utf8");
@@ -108,7 +108,7 @@ test("shared E2E runtime terminates preview processes and preserves signal termi
 });
 
 test("CV smoke retains authored and production fail-closed modes", async () => {
-  const source = await readFile(new URL("../tools/smoke-cv.mjs", import.meta.url), "utf8");
+  const source = await readFile(new URL("../tools/e2e/smoke-cv.mjs", import.meta.url), "utf8");
   assert.match(source, /mode\s*=\s*["']authored["']/);
   assert.match(source, /production/);
   assert.match(source, /unsupported CV smoke mode|invalid CV smoke mode/i);

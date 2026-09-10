@@ -63,3 +63,90 @@ test("catalog taxonomy references remain closed after domain dependency normaliz
     "professionalQualityIds",
   ]);
 });
+
+test("Public Catalog exposes one compact closed direction layer", async () => {
+  const {
+    catalogDirections,
+    catalogDirectionIdsForTaxonomy,
+    getPublicCatalogItems,
+  } = await import("../src/data/media/public-catalog.ts");
+
+  assert.deepEqual(
+    catalogDirections.map(({ id }) => id),
+    ["photo", "production", "graphic", "identity", "illustration", "motion", "3d", "product"],
+  );
+  assert.equal(typeof getPublicCatalogItems, "function");
+
+  assert.deepEqual(
+    catalogDirectionIdsForTaxonomy({
+      workAreaIds: ["photography", "art-direction"],
+      projectTypeIds: ["identity-project", "3d-animation"],
+      deliverableIds: ["screen-mockup", "music-cover"],
+    }),
+    ["photo", "graphic", "identity", "motion", "3d", "product"],
+  );
+
+  assert.throws(
+    () => catalogDirectionIdsForTaxonomy({
+      workAreaIds: ["invented-area"],
+      projectTypeIds: [],
+      deliverableIds: [],
+    }),
+    /unknown work area/i,
+  );
+});
+
+test("Public Catalog visibility is explicit and reusable stays independent", async () => {
+  const { getPublicCatalogItems } = await import("../src/data/media/public-catalog.ts");
+
+  const base = {
+    origin: "registered",
+    asset: {
+      id: "public-a",
+      type: "image",
+      src: "/a.webp",
+      width: 1200,
+      height: 800,
+      rating: 4,
+    },
+    title: "Public work",
+    alt: "Public work preview",
+    description: "Case explanation must not leak into Gallery",
+    date: "2024–2025",
+    projectIds: ["jestei-brand-system"],
+    workAreaIds: ["photography"],
+    projectTypeIds: ["identity-project"],
+    deliverableIds: ["screen-mockup"],
+    tags: ["editorial"],
+    credits: ["Photo: A"],
+    showInCatalog: true,
+    reusable: false,
+    archived: false,
+  };
+
+  const hidden = {
+    ...base,
+    asset: { ...base.asset, id: "hidden-a" },
+    showInCatalog: false,
+  };
+  const archived = {
+    ...base,
+    asset: { ...base.asset, id: "archived-a" },
+    archived: true,
+  };
+
+  const result = getPublicCatalogItems([base, hidden, archived]);
+
+  assert.equal(result.length, 1);
+  assert.equal(result[0].id, "public-a");
+  assert.deepEqual(result[0].directions, ["photo", "identity", "product"]);
+  assert.deepEqual(result[0].projectIds, ["jestei-brand-system"]);
+  assert.deepEqual(result[0].tags, ["editorial"]);
+  assert.deepEqual(result[0].credits, ["Photo: A"]);
+  assert.equal(result[0].year, 2024);
+  assert.equal(result[0].width, 1200);
+  assert.equal(result[0].height, 800);
+  assert.equal(result[0].aspectRatio, 1.5);
+  assert.equal(result[0].rating, 4);
+  assert.equal("description" in result[0], false);
+});

@@ -5,13 +5,17 @@ import test from "node:test";
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), "utf8");
 
 const expectedWorkflows = [
+  "caption-qa.yml",
   "ci-fast.yml",
   "cms-media.yml",
   "codeql.yml",
   "dependency-review.yml",
+  "media-affected.yml",
   "pages-cms-publish.yml",
   "pages.yml",
+  "production-health.yml",
   "quality.yml",
+  "ui-responsive.yml",
 ];
 
 test("Fast CI automatically validates engineering dev pushes and PRs while warm-cache path stays cheap", async () => {
@@ -34,8 +38,8 @@ test("Fast CI automatically validates engineering dev pushes and PRs while warm-
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.doesNotMatch(workflow, /restore-keys:/);
 
-  assert.match(workflow, /Install recovery video tooling on cache miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?ffmpeg/);
-  assert.match(workflow, /Recover generated media on cache miss[\s\S]*?if: steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
+  assert.match(workflow, /Install recovery video tooling on cache miss[\s\S]*?if: \(github\.event_name != 'pull_request' \|\| steps\.affected\.outputs\.image_only != 'true'\) && steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?ffmpeg/);
+  assert.match(workflow, /Recover generated media on cache miss[\s\S]*?if: \(github\.event_name != 'pull_request' \|\| steps\.affected\.outputs\.image_only != 'true'\) && steps\.media-cache\.outputs\.cache-hit != 'true'[\s\S]*?npm run media:sync/);
 
   for (const forbidden of [/playwright/i, /test:e2e:full/i, /lighthouse/i, /change-scope/i]) {
     assert.doesNotMatch(workflow, forbidden);
@@ -111,29 +115,38 @@ test("CMS media distinguishes references, image sources and video sources, saves
   assert.doesNotMatch(workflow, /git add -A/);
 });
 
-test("scheduled quality remains automatic but expensive suites are outside ordinary push CI", async () => {
+test("scheduled quality keeps broad nightly checks and moves physical media audit to weekly", async () => {
   const workflow = await read(".github/workflows/quality.yml");
 
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /schedule:/);
-  assert.match(workflow, /17 \*\/6 \* \* \*/);
   assert.match(workflow, /37 1 \* \* \*/);
+  assert.match(workflow, /53 2 \* \* 0/);
+  assert.doesNotMatch(workflow, /17 \*\/6 \* \* \*/);
   assert.doesNotMatch(workflow, /31 2 \* \* \*/);
   assert.doesNotMatch(workflow, /41 4 \* \* 2/);
   assert.doesNotMatch(workflow, /13 5 \* \* 3/);
   assert.doesNotMatch(workflow, /23 6 \* \* 4/);
-  assert.match(workflow, /concurrency:[\s\S]*?cancel-in-progress: false/);
+  assert.match(workflow, /group: quality-\$\{\{ github\.workflow \}\}-\$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.number \|\| 'heavy' \}\}/);
+  assert.match(workflow, /cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}/);
   assert.match(workflow, /Resolve exact target SHA/);
   assert.match(workflow, /needs\.resolve-target\.outputs\.target-sha/);
-  assert.match(workflow, /full-e2e:[\s\S]*?Install media tooling[\s\S]*?ffmpeg[\s\S]*?npm run test:core/);
+  assert.match(workflow, /prepare-media:[\s\S]*?Install media tooling[\s\S]*?ffmpeg[\s\S]*?Rebuild and validate generated media once[\s\S]*?npm run media:sync/);
+  const fullE2E = workflow.match(/\n  full-e2e:\n([\s\S]*?)\n  lighthouse:/)?.[1] ?? "";
+  assert.doesNotMatch(fullE2E, /ffmpeg|Install media tooling/);
+  assert.match(fullE2E, /Restore exact prepared media[\s\S]*?fail-on-cache-miss: true[\s\S]*?media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /npm run test:e2e:full/);
-  assert.match(workflow, /npm run media:dedupe:physical/);
+  assert.match(workflow, /media-physical:[\s\S]*?github\.event\.schedule == '53 2 \* \* 0'[\s\S]*?npm run media:dedupe:physical/);
   assert.match(workflow, /npm run audit:deps/);
   assert.match(workflow, /npm run lighthouse/);
   assert.match(workflow, /npm run check:external-links/);
   assert.doesNotMatch(workflow, /cv:content:apply/);
-  assert.match(workflow, /check-production\.mjs/);
+  assert.doesNotMatch(workflow, /check-production\.mjs/);
   assert.doesNotMatch(workflow, /^\s*push:/m);
+
+  const productionHealth = await read(".github/workflows/production-health.yml");
+  assert.match(productionHealth, /17 \*\/6 \* \* \*/);
+  assert.match(productionHealth, /check-production\.mjs/);
 });
 
 test("CodeQL remains automatic for PRs and weekly schedule and remains manually runnable", async () => {
@@ -148,7 +161,7 @@ test("CodeQL remains automatic for PRs and weekly schedule and remains manually 
   assert.doesNotMatch(workflow, /^\s*push:/m);
 });
 
-test("minimal workflow set contains no retired verification or migration runners", async () => {
+test("workflow inventory contains the current dedicated verification layers", async () => {
   const names = (await readdir(new URL("../.github/workflows/", import.meta.url)))
     .filter((name) => name.endsWith(".yml"))
     .sort();
@@ -160,7 +173,7 @@ test("minimal workflow set contains no retired verification or migration runners
 test("ordinary dev and build scripts do not mutate media", async () => {
   const { scripts } = JSON.parse(await read("package.json"));
   assert.equal(scripts.dev, "vite");
-  assert.equal(scripts.build, "npm run build:site");
+  assert.match(scripts.build, /npm run build:site/);
   assert.equal(scripts["cv:prod:prepare"], undefined);
   assert.equal(scripts["cv:prod:verify"], "node tools/verify-cv-production.mjs");
   assert.doesNotMatch(scripts.dev, /media:/);

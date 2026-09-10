@@ -1,0 +1,207 @@
+/* --- media-deck --- */
+
+[data-media-deck] {
+  min-inline-size: 0;
+
+  &:not([data-deck-layout="track"]) [data-slide] {
+    visibility: hidden;
+    pointer-events: none;
+
+    &[data-active] {
+      visibility: visible;
+      pointer-events: auto;
+    }
+  }
+}
+
+.media-deck {
+  --media-deck-gap: clamp(0.75rem, 2cqi, 1.25rem);
+  --media-deck-slide-size: min(86cqi, 58rem);
+
+  display: grid;
+  gap: var(--media-deck-gap);
+  min-inline-size: 0;
+  container: media-deck / inline-size;
+}
+
+.media-deck__toolbar {
+  --cluster-wrap: nowrap;
+  --cluster-justify: flex-end;
+  --cluster-space: 0.35rem;
+}
+
+.media-deck__button,
+.media-deck__dot {
+  appearance: none;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.media-deck__button {
+  min-block-size: 2rem;
+  padding-inline: 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+
+  &:hover,
+  &:focus-visible,
+  &[aria-pressed="true"] {
+    background: color-mix(in srgb, currentColor, transparent 90%);
+  }
+}
+
+.media-deck__viewport {
+  min-inline-size: 0;
+  overflow: hidden;
+}
+
+.media-deck__track {
+  --reel-align: stretch;
+  --reel-gap: var(--media-deck-gap);
+  --reel-item-size: var(--media-deck-slide-size);
+  --reel-snap-type: inline mandatory;
+
+  cursor: grab;
+}
+
+[data-deck-dragging] .media-deck__track {
+  --reel-snap-type: none;
+
+  cursor: grabbing;
+}
+
+.media-deck__slide {
+  min-inline-size: 0;
+}
+
+.media-deck__dots {
+  --cluster-wrap: nowrap;
+  --cluster-align: stretch;
+  --cluster-justify: center;
+  --cluster-space: 0.35rem;
+}
+
+.media-deck__dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+
+  &::before {
+    content: "";
+    inline-size: 0.45rem;
+    block-size: 0.45rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    opacity: 0.45;
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    opacity: 0.7;
+  }
+
+  &:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: -0.35rem;
+  }
+
+  &[data-active],
+  &[aria-current="true"] {
+    &::before {
+      background: currentColor;
+      opacity: 1;
+    }
+  }
+}
+
+.media-deck[data-deck-view="grid"] .media-deck__viewport {
+  overflow: visible;
+}
+
+.media-deck[data-deck-view="grid"] .media-deck__track {
+  --reel-display: grid;
+  --reel-overflow-x: visible;
+  --reel-snap-type: none;
+  --reel-item-size: auto;
+  --reel-snap-align: none;
+
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  align-items: start;
+  cursor: default;
+}
+
+.media-deck[data-deck-view="grid"] .media-deck__slide {
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.media-deck[data-deck-view="grid"] .media-deck__dots {
+  display: none;
+}
+
+[data-deck-fit-viewport] {
+  block-size: var(--deck-fit-height, auto);
+  min-inline-size: 0;
+  overflow: hidden;
+}
+
+[data-deck-fit] {
+  inline-size: max-content;
+  max-inline-size: none;
+  transform: scale(var(--deck-fit-scale, 1));
+  transform-origin: top left;
+}
+
+.media-deck__terminal {
+  overflow: hidden;
+  border-radius: 0.8rem;
+  color: #f3f3f3;
+  background: #111;
+}
+
+.media-deck__terminal-bar {
+  --cluster-wrap: nowrap;
+  --cluster-justify: space-between;
+  --cluster-space: 1rem;
+
+  min-block-size: 2rem;
+  padding-inline: 0.75rem;
+  border-block-end: 1px solid rgb(255 255 255 / 0.14);
+  color: rgb(255 255 255 / 0.58);
+  font:
+    0.7rem / 1 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+}
+
+.media-deck__terminal-body {
+  min-inline-size: 0;
+  padding: clamp(0.8rem, 2cqi, 1.2rem);
+}
+
+.media-deck__terminal pre {
+  margin: 0;
+  color: inherit;
+  background: transparent;
+  font:
+    clamp(0.68rem, 0.62rem + 0.18cqi, 0.86rem) / 1.45 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  white-space: pre;
+}
+
+@container media-deck (width > 48rem) {
+  .media-deck {
+    --media-deck-slide-size: min(72cqi, 58rem);
+  }
+}

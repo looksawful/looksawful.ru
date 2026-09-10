@@ -58,6 +58,7 @@ _rollback-audit/
 
 # local-only working area
 _local/*
+_local/design-capture/
 !_local/comments/
 _local/comments/*
 !_local/comments/.gitkeep
@@ -88,10 +89,20 @@ public/assets/media/cases/jesteipool/**/placeholders/
 *.tmp.*
 *.__opt*
 
-# heavy source formats
+# heavyweight source/master formats stay outside Git
 *.psd
 *.psb
+*.blend
 *.blend1
+*.aep
+*.aepx
+*.tif
+*.tiff
+*.exr
+*.dng
+*.cr2
+*.nef
+*.arw
 
 # archives
 *.7z

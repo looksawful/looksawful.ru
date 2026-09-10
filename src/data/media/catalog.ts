@@ -84,6 +84,8 @@ const UPLOADED_KEYS = [
   "archived",
 ] as const;
 
+const OPTIONAL_METADATA_KEYS = ["showInCatalog"] as const;
+
 const projectIdSet = new Set<string>(projects.map(({ id }) => id));
 const workAreaIdSet = new Set<string>(MEDIA_CATALOG_WORK_AREA_IDS);
 const projectTypeIdSet = new Set<string>(MEDIA_CATALOG_PROJECT_TYPE_IDS);
@@ -155,8 +157,9 @@ function expectExactKeys(
   record: Record<string, unknown>,
   expected: readonly string[],
   label: string,
+  optional: readonly string[] = [],
 ): void {
-  const allowed = new Set(expected);
+  const allowed = new Set([...expected, ...optional]);
   for (const key of Object.keys(record)) {
     if (!allowed.has(key)) throw new Error(`${label} has unexpected field "${key}"`);
   }
@@ -241,6 +244,9 @@ function parseMetadata(
     ),
     tags: expectUniqueStrings(record.tags, `${label}.tags`),
     credits: expectUniqueStrings(record.credits, `${label}.credits`),
+    showInCatalog: record.showInCatalog === undefined
+      ? false
+      : expectBoolean(record.showInCatalog, `${label}.showInCatalog`),
     reusable: expectBoolean(record.reusable, `${label}.reusable`),
     archived: expectBoolean(record.archived, `${label}.archived`),
   };
@@ -312,6 +318,7 @@ export function parseRegisteredMediaCatalogRecord(
     record,
     legacy ? REGISTERED_LEGACY_KEYS : REGISTERED_COMPACT_KEYS,
     "Registered media catalog record",
+    OPTIONAL_METADATA_KEYS,
   );
   const id = expectString(record.id, "Registered media catalog record.id", { empty: false });
   const asset = assets.find((candidate) => candidate.id === id);
@@ -354,7 +361,7 @@ function assetFromUploadedRecord(
 
 export function parseUploadedMediaCatalogRecord(value: unknown): ParsedUploadedMediaCatalogRecord {
   const record = expectRecord(value, "Uploaded media catalog record");
-  expectExactKeys(record, UPLOADED_KEYS, "Uploaded media catalog record");
+  expectExactKeys(record, UPLOADED_KEYS, "Uploaded media catalog record", OPTIONAL_METADATA_KEYS);
   const id = expectString(record.id, "Uploaded media catalog record.id", { empty: false });
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
     throw new Error(`Uploaded media catalog record has invalid UUID "${id}"`);
@@ -446,6 +453,7 @@ export const mediaCatalogItems: readonly MediaCatalogItem[] = [
       deliverableIds: record.deliverableIds,
       tags: record.tags,
       credits: record.credits,
+      showInCatalog: record.showInCatalog,
       reusable: record.reusable,
       archived: record.archived,
       ...(technical.mimeType ? { mimeType: technical.mimeType } : {}),
@@ -465,6 +473,7 @@ export const mediaCatalogItems: readonly MediaCatalogItem[] = [
     deliverableIds: record.deliverableIds,
     tags: record.tags,
     credits: record.credits,
+    showInCatalog: record.showInCatalog,
     reusable: record.reusable,
     archived: record.archived,
     ...(record.posterSrc ? { posterSrc: record.posterSrc } : {}),

@@ -64,6 +64,7 @@ export interface MediaCatalogMetadata<
   deliverableIds: readonly DeliverableId[];
   tags: readonly string[];
   credits: readonly string[];
+  showInCatalog: boolean;
   reusable: boolean;
   archived: boolean;
 }

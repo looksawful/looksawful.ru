@@ -1,0 +1,102 @@
+/* --- code-block --- */
+
+.code-block {
+  --code-block-surface: #111;
+  --code-block-text: #fff;
+  --code-block-muted: rgb(255 255 255 / 0.58);
+  --code-block-border: rgb(255 255 255 / 0.18);
+
+  container: code-block / inline-size;
+  display: grid;
+  align-content: start;
+  min-inline-size: 0;
+  overflow: hidden;
+  border: 1px solid var(--code-block-border);
+  border-radius: 0.8rem;
+  color: var(--code-block-text);
+  background: var(--code-block-surface);
+}
+
+.code-block__head {
+  --cluster-align: baseline;
+  --cluster-justify: space-between;
+  --cluster-row-gap: 0.5rem;
+  --cluster-column-gap: 1rem;
+
+  padding: 0.75rem 0.9rem;
+  border-block-end: 1px solid var(--code-block-border);
+}
+
+.code-block__heading {
+  --cluster-wrap: nowrap;
+  --cluster-align: baseline;
+  --cluster-space: 0.45rem;
+
+  min-inline-size: 0;
+}
+
+.code-block__index {
+  color: var(--code-block-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.code-block__title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: var(--fw-600, 600);
+  line-height: 1.2;
+}
+
+.code-block__copy {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible,
+  &.is-copied {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+}
+
+.code-block pre {
+  min-inline-size: 0;
+  margin: 0;
+  padding: clamp(0.9rem, 2.5cqi, 1.35rem);
+  overflow-x: auto;
+  scrollbar-width: none;
+  color: inherit;
+  background: transparent;
+  font:
+    clamp(0.76rem, 0.72rem + 0.15cqi, 0.9rem) / 1.5 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    "Liberation Mono",
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.code-block code {
+  font: inherit;
+}
+
+.code-block__meta {
+  margin: 0;
+  padding: 0 0.9rem 0.85rem;
+  color: var(--code-block-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}

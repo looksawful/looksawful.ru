@@ -1,3 +1,4 @@
+import type { CodeBlockData } from "../../content/contracts/content-block.ts";
 import type { MediaFigureData, MockupData, ProjectIntroData } from "../../types/content.ts";
 import type { MediaEntryId } from "../media/index.ts";
 import type { LogoUsageId } from "../logos/index.ts";
@@ -15,6 +16,17 @@ export const awfulCasesIntro = {
     { label: "Download ZIP", href: "https://github.com/looksawful/awful-cases/archive/refs/heads/main.zip" },
   ],
 } as const satisfies ProjectIntroData<LogoUsageId>;
+
+export const awfulCasesCodeBlocks = {
+  install: {
+    ...awfulCasesEditorialContent.codeBlocks.install,
+    language: "powershell",
+  },
+  run: {
+    ...awfulCasesEditorialContent.codeBlocks.run,
+    language: "powershell",
+  },
+} as const satisfies Record<"install" | "run", CodeBlockData>;
 
 export const awfulCasesDemo = {
   entryId: "awful-cases-assets-recording-2026-08-15-121210-use-01",

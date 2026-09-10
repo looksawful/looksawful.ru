@@ -18,6 +18,28 @@ test("navigation and standalone projects select their actual browser suites", ()
   assert.deepEqual(classifyChangedFiles(["src/content/navigation.json"]).suites, ["smoke", "navigation"]);
   assert.deepEqual(classifyChangedFiles(["src/content/berry.json"]).suites, ["smoke", "project-pages"]);
 });
+test("known project-navigation CSS uses focused navigation verification while unknown CSS keeps broad fallback", () => {
+  const known = classifyChangedFiles(["src/styles/project-navigation.css"]);
+  assert.equal(known.scope, "affected");
+  assert.equal(known.mediaChanged, false);
+  assert.deepEqual(known.groups, ["navigation"]);
+  assert.deepEqual(known.suites, ["smoke", "navigation"]);
+
+  const unknown = classifyChangedFiles(["src/styles/unregistered-component.css"]);
+  assert.equal(unknown.scope, "affected");
+  assert.equal(unknown.mediaChanged, false);
+  assert.deepEqual(unknown.groups, ["styles"]);
+  assert.deepEqual(unknown.suites, ["smoke", "mpa", "project-pages"]);
+
+  const mixed = classifyChangedFiles([
+    "src/styles/project-navigation.css",
+    "src/styles/unregistered-component.css",
+  ]);
+  assert.equal(mixed.scope, "affected");
+  assert.equal(mixed.mediaChanged, false);
+  assert.deepEqual(mixed.groups, ["navigation", "styles"]);
+  assert.deepEqual(mixed.suites, ["smoke", "navigation", "mpa", "project-pages"]);
+});
 test("media changes always validate real derivatives and browser media", () => {
   for (const file of ["public/media/catalog/new.webp", "src/content/projects.json", "src/data/media/assets/styx.ts", "tools/build-video-media.mjs", "package-lock.json"]) {
     const scope = classifyChangedFiles([file]);
@@ -48,9 +70,9 @@ test("rendered media data keeps global, media and Media Desk coverage", () => {
 });
 test("media desk changes stay focused and request the dedicated internal browser smoke", () => {
   for (const file of [
-    "src/tools/media-desk/main.ts",
-    "src/tools/media-desk/model.ts",
-    "src/tools/media-desk/media-desk.css",
+    "src/devtools/media-desk/main.ts",
+    "src/devtools/media-desk/model.ts",
+    "src/devtools/media-desk/media-desk.css",
     "tools/media-desk/index.html",
     "tools/e2e/run-media-desk.mjs",
     "test/media-desk-model.test.mjs",

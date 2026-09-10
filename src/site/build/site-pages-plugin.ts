@@ -1,38 +1,22 @@
-import path from "node:path";
-import { pathToFileURL } from "node:url";
 import type { Plugin } from "vite";
 
+import { entityPageContentRegistry } from "../../content/pages/index.ts";
+import { validateEntityPageArchitecture } from "../pages/content-validation.ts";
+import { entityShellPresentationRegistry } from "../pages/entity-presentation.ts";
 import {
   assertHomepagePresentationSupported,
   homepageEntries,
 } from "../pages/homepage.ts";
 import { getPageByPath, sitePages } from "../pages/manifest.ts";
-import { cvSearchPresentation } from "../pages/search-presentation.ts";
 import type { SitePageDefinition } from "../pages/types.ts";
 import { normalizePagePath } from "../pages/validation.ts";
+import { renderCvDevHtml } from "../renderers/cv-page.ts";
 import { renderStandaloneEntityPage } from "../renderers/entity-page.ts";
+import { deferHomepageLazyImages } from "../renderers/home/home-image-deferral.ts";
+import { deferHomepageAutoplayMedia } from "../renderers/home/home-media-deferral.ts";
 import { renderHomepagePage } from "../renderers/home/home-page.ts";
-import { replacePageMetadata } from "../shell/metadata.ts";
-import { renderPageShell } from "../shell/page-shell.ts";
+import { renderNotFoundPage } from "../renderers/not-found-page.ts";
 import { publicStaticRequestPath } from "./public-static.ts";
-
-interface CvContentModule {
-  readCvContent(contentPath: string): Promise<unknown>;
-  transformCvContent(html: string, content: unknown): { readonly html: string };
-}
-
-async function loadCvContentModule(root: string): Promise<CvContentModule> {
-  const moduleUrl = pathToFileURL(path.resolve(root, "tools/lib/cv-content.mjs")).href;
-  return await import(/* @vite-ignore */ moduleUrl) as CvContentModule;
-}
-
-function getCvPage() {
-  const page = getPageByPath("/cv/");
-  if (!page || page.renderer !== "cv") {
-    throw new Error("CV route is unavailable");
-  }
-  return page;
-}
 
 export function entryRequestToPagePath(requestPath: string): string {
   const pathname = requestPath.split(/[?#]/, 1)[0] || "/";
@@ -68,26 +52,12 @@ export function rewritePublicStaticDevRequest(
   return `${publicStaticRequestPath(page)}${suffix}`;
 }
 
-export async function renderCvDevHtml(html: string, root = process.cwd()): Promise<string> {
-  const contentLib = await loadCvContentModule(root);
-  const content = await contentLib.readCvContent(path.resolve(root, "src/content/cv.json"));
-  const rendered = contentLib.transformCvContent(html, content).html;
-  return replacePageMetadata(rendered, {
-    page: getCvPage(),
-    ...cvSearchPresentation,
-  });
-}
-
-export function renderNotFoundPage(page: NonNullable<ReturnType<typeof getPageByPath>>): string {
-  return renderPageShell({
-    page,
-    title: "404 — Иван Крушинский",
-    description: "Страница не найдена.",
-    content: '<section class="wrapper stack"><h1>404</h1><p><a href="/">На главную</a></p></section>',
-  });
-}
-
 export function createSitePagesPlugin(root = process.cwd()): Plugin {
+  validateEntityPageArchitecture(
+    sitePages,
+    entityPageContentRegistry,
+    entityShellPresentationRegistry,
+  );
   assertHomepagePresentationSupported(homepageEntries);
 
   return {
@@ -107,12 +77,12 @@ export function createSitePagesPlugin(root = process.cwd()): Plugin {
         if (!page) return html;
 
         if (page.renderer === "cv") return renderCvDevHtml(html, root);
-        if (page.renderer === "home") return renderHomepagePage(html);
-
-        if (page.renderer === "entity") {
-          return renderStandaloneEntityPage(page);
+        if (page.renderer === "home") {
+          return deferHomepageLazyImages(
+            deferHomepageAutoplayMedia(renderHomepagePage(html)),
+          );
         }
-
+        if (page.renderer === "entity") return renderStandaloneEntityPage(page);
         if (page.renderer === "not-found") return renderNotFoundPage(page);
 
         return html;

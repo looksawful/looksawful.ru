@@ -2,6 +2,8 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
+import { decodeEntities } from "./site-html-utils.mjs";
+
 const ROOT = process.cwd();
 const MEDIA_ROOT = path.join(
   ROOT,
@@ -80,18 +82,10 @@ const projects = [
   },
 ];
 
-const escapeTs = (value) =>
-  JSON.stringify(value)
-    .replaceAll("\\u2028", "\\u2028")
-    .replaceAll("\\u2029", "\\u2029");
+const escapeTs = (value) => JSON.stringify(value);
 
 function htmlEntityDecode(value) {
-  return value
-    .replaceAll("&quot;", '"')
-    .replaceAll("&#34;", '"')
-    .replaceAll("&amp;", "&")
-    .replaceAll("&lt;", "<")
-    .replaceAll("&gt;", ">");
+  return decodeEntities(value);
 }
 
 function extractStoreState(html) {

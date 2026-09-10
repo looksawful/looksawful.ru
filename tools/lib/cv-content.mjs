@@ -51,6 +51,14 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function lowercaseFirstLetter(value) {
+  const text = String(value);
+  const match = text.match(/\p{L}/u);
+  if (!match || match.index === undefined) return text;
+  const index = match.index;
+  return `${text.slice(0, index)}${match[0].toLocaleLowerCase("ru-RU")}${text.slice(index + match[0].length)}`;
+}
+
 function replaceExactlyOnce(html, pattern, replacer, label) {
   const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
   const matches = [...html.matchAll(new RegExp(pattern.source, flags))];
@@ -180,7 +188,8 @@ export function transformCvProfile(html, content) {
     .map(({ title, text }) => {
       const titleHtml = title ? `<b>${escapeHtml(title)}</b>` : "";
       const separator = title && text ? " " : "";
-      return `<p>${titleHtml}${separator}${escapeHtml(text)}</p>`;
+      const bodyText = title && text ? lowercaseFirstLetter(text) : text;
+      return `<p>${titleHtml}${separator}${escapeHtml(bodyText)}</p>`;
     })
     .join("");
   transformed = replaceExactlyOnce(

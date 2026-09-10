@@ -21,7 +21,10 @@ test("caption architecture has one authored data-caption-view contract and no le
   assert.doesNotMatch(index, /<figure\b[^>]*\btabindex="0"/);
 
   assert.doesNotMatch(main, /media-caption\.js/);
-  assert.doesNotMatch(interactive, /initMediaCaptionInteractions|data-caption-open|data-caption-rest|data-caption="overlay"/);
+  assert.doesNotMatch(
+    interactive,
+    /initMediaCaptionInteractions|data-caption-open|data-caption-rest|data-caption="overlay"/,
+  );
   assert.doesNotMatch(components, /data-caption-open|data-caption-rest|data-caption="overlay"/);
   assert.doesNotMatch(captions, /data-caption-rest|data-caption="overlay"/);
 });
@@ -29,18 +32,19 @@ test("caption architecture has one authored data-caption-view contract and no le
 test("custom surface copy remains authored once and is explicitly available to the lightbox", () => {
   const brand = renderMediaGroup(jesteiBrandSystemGroup);
   const interfaceGroup = renderMediaGroup(jesteiInterfaceGroup);
+  const extractLightboxCopy = (html) =>
+    [...html.matchAll(/data-lightbox-caption-copy>([^<]*)</g)].map((match) => match[1]);
+  const brandCopy = jesteiBrandSystemGroup.items
+    .map((item) => item.surfaceOverlay?.text)
+    .filter(Boolean);
+  const interfaceCopy = jesteiInterfaceGroup.items
+    .map((item) => item.surfaceOverlay?.text)
+    .filter(Boolean);
 
   assert.equal((brand.match(/data-lightbox-caption-copy/g) ?? []).length, 6);
   assert.equal((interfaceGroup.match(/data-lightbox-caption-copy/g) ?? []).length, 3);
-
-  assert.match(
-    brand,
-    /data-lightbox-caption-copy[^>]*>Переработали логотип Jestei Pool/,
-  );
-  assert.match(
-    interfaceGroup,
-    /data-lightbox-caption-copy[^>]*>Сгруппировали плейлисты, добавили заголовки и описания/,
-  );
+  assert.deepEqual(extractLightboxCopy(brand), brandCopy);
+  assert.deepEqual(extractLightboxCopy(interfaceGroup), interfaceCopy);
 });
 
 test("lightbox navigation is project-scoped and media shell belongs to the PhotoSwipe adapter", async () => {
@@ -55,7 +59,10 @@ test("lightbox navigation is project-scoped and media shell belongs to the Photo
   assert.match(facade, /createPhotoSwipeLightbox/);
   assert.match(facade, /\[data-slide\]\[data-active\] img, \[data-slide\]\[data-active\] video/);
   assert.doesNotMatch(facade, /source\.classList\.contains\("mockup__viewport"\)/);
-  assert.doesNotMatch(facade, /showModal\(|HTMLDialogElement|data-lightbox-image|data-lightbox-video/);
+  assert.doesNotMatch(
+    facade,
+    /showModal\(|HTMLDialogElement|data-lightbox-image|data-lightbox-video/,
+  );
 
   assert.match(adapter, /photoswipe\/lightbox/);
   assert.match(adapter, /contentLoad/);
@@ -65,7 +72,8 @@ test("lightbox navigation is project-scoped and media shell belongs to the Photo
 });
 
 test("persistent rails and standalone sliders keep captions out of page geometry but available to lightbox", async () => {
-  const [styles, facade] = await Promise.all([
+  const [styles, indexStyles, facade] = await Promise.all([
+    read("src/styles/captions.css"),
     read("src/styles/index.css"),
     read("src/components/media-lightbox.ts"),
   ]);
@@ -77,7 +85,16 @@ test("persistent rails and standalone sliders keep captions out of page geometry
     styles,
     /\.slider\[data-media-deck\] \[data-slide-caption\]:not\(\[data-caption-view="full"\]\)/,
   );
-  assert.match(styles, /figure\.media\[data-caption-view="overlay"\]::after[\s\S]*?content:\s*none/);
+  assert.match(
+    styles,
+    /figure\.media\[data-caption-view="overlay"\]::after[\s\S]*?content:\s*none/,
+  );
+  assert.doesNotMatch(indexStyles, /@layer\s+captions\s*\{/);
+  assert.doesNotMatch(indexStyles, /\.media__caption-line:not\(\[data-media-index\]\)/);
+  assert.doesNotMatch(
+    indexStyles,
+    /\.slider\[data-media-deck\] \[data-slide-caption\]:not\(\[data-caption-view="full"\]\)/,
+  );
 
   assert.match(facade, /MARKABLE_SOURCE_SELECTOR/);
   assert.match(facade, /\.slider\[data-media-deck\] > \.slider__viewport/);
@@ -85,15 +102,15 @@ test("persistent rails and standalone sliders keep captions out of page geometry
 });
 
 test("lightbox CSS has bounded media and explicit touch portrait/landscape layouts", async () => {
-  const [components, captions] = await Promise.all([
-    read("src/styles/components.css"),
+  const [lightboxStyles, captions] = await Promise.all([
+    read("src/styles/media-lightbox.css"),
     read("src/styles/captions.css"),
   ]);
 
-  assert.match(components, /\.media-lightbox__figure[\s\S]*?block-size:\s*100%/);
-  assert.match(components, /touch-action:\s*pan-y/);
-  assert.match(components, /orientation:\s*portrait/);
-  assert.match(components, /orientation:\s*landscape/);
+  assert.match(lightboxStyles, /\.media-lightbox__figure[\s\S]*?block-size:\s*100%/);
+  assert.match(lightboxStyles, /touch-action:\s*pan-y/);
+  assert.match(lightboxStyles, /orientation:\s*portrait/);
+  assert.match(lightboxStyles, /orientation:\s*landscape/);
   assert.match(captions, /orientation:\s*landscape[\s\S]*?max-block-size:\s*100%/);
 });
 
@@ -120,7 +137,7 @@ test("custom Jestei hover copy is a fine-pointer enhancement, while touch goes s
 });
 
 test("browser smoke exercises first-tap lightbox behavior on touch viewports too", async () => {
-  const smoke = await read("tools/smoke-site.mjs");
+  const smoke = await read("tools/e2e/smoke-site.mjs");
 
   assert.match(smoke, /await verifyLightbox\(page, label/);
   assert.doesNotMatch(smoke, /viewport\.width\s*>=\s*768[^\n]*verifyLightbox/);

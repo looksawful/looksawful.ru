@@ -1,3 +1,4 @@
+export * from "./code-block.ts";
 export * from "./media-figure.ts";
 export * from "./media-group.ts";
 export * from "./media-slider.ts";

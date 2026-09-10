@@ -31,10 +31,11 @@ test("CMS media routes registered image replacement through affected-only genera
   assert.match(noVideoCache, /reference\/metadata/i);
   assert.doesNotMatch(noVideoCache, /image-only/i);
 
-  const videoTooling = step(workflow, "Install video tooling");
-  assert.match(videoTooling, /has_video == 'true'/);
-  assert.doesNotMatch(videoTooling, /has_media_reference_or_metadata/);
-  assert.match(videoTooling, /ffmpeg/);
+  const validationTooling = step(workflow, "Install video tooling");
+  assert.match(validationTooling, /has_media_change == 'true'/);
+  assert.match(validationTooling, /image_only != 'true'/);
+  assert.doesNotMatch(validationTooling, /has_video == 'true'/);
+  assert.match(validationTooling, /ffmpeg/);
 
   const videoBuild = step(workflow, "Build video derivatives incrementally");
   assert.match(videoBuild, /has_video == 'true'/);

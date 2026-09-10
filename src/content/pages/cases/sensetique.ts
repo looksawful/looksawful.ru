@@ -42,7 +42,10 @@ import {
   sensetiqueOlovoCampaignOuterCredits,
   sensetiquePublicationsNote,
 } from "../../../data/content/sensetique-page-presentation.ts";
+import { getSensetiqueEditorialSection } from "../../../data/content/sensetique-editorial.ts";
 import type { EntityPageContent } from "../../contracts/page-content.ts";
+
+const sensetiqueEquipmentEditorial = getSensetiqueEditorialSection("equipment");
 
 /**
  * Canonical Sensetique composition follows the actual rendered article order.
@@ -68,7 +71,7 @@ export const sensetiquePageContent = {
     {
       type: "content",
       id: "sensetique-equipment",
-      heading: { text: "Оборудование" },
+      heading: { text: sensetiqueEquipmentEditorial.title },
       resources: sensetiqueEquipmentResources,
       blocks: [{ type: "media-group", data: sensetiqueStudioInfiniteStrip }],
     },

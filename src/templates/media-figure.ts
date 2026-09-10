@@ -58,6 +58,21 @@ function renderVideoBooleanAttribute(name: string, enabled?: boolean): string {
   return enabled ? ` ${name}=""` : "";
 }
 
+const VIDEO_FALLBACK_POSTER_LANDSCAPE_SRC = "/media/fallback/video-16x9.svg";
+const VIDEO_FALLBACK_POSTER_PORTRAIT_SRC = "/media/fallback/video-9x16.svg";
+
+function resolveVideoPosterSrc(
+  width: number | undefined,
+  height: number | undefined,
+  explicitPosterSrc?: string,
+): string {
+  if (explicitPosterSrc) return explicitPosterSrc;
+
+  return typeof width === "number" && typeof height === "number" && height > width
+    ? VIDEO_FALLBACK_POSTER_PORTRAIT_SRC
+    : VIDEO_FALLBACK_POSTER_LANDSCAPE_SRC;
+}
+
 export function renderMediaElement(
   entryId: MediaEntryId,
   options: MediaElementOptions = {},
@@ -85,6 +100,7 @@ export function renderMediaElement(
 
   const video = options.video ?? {};
   const poster = entry.posterAssetId ? getMediaAsset(entry.posterAssetId) : undefined;
+  const posterSrc = resolveVideoPosterSrc(asset.width, asset.height, poster?.src);
 
   const preload = video.preload ?? (video.autoplay ? "auto" : "metadata");
 
@@ -96,9 +112,9 @@ export function renderMediaElement(
     video.muted,
   )}${renderVideoBooleanAttribute("playsinline", video.playsInline)}${
     options.dimensions === false ? "" : renderDimensions(asset.width, asset.height)
-  }${renderMediaMetadataDimensions(asset.width, asset.height)}${
-    poster ? ` poster="${escapeHtml(poster.src)}"` : ""
-  } preload="${preload}"`;
+  }${renderMediaMetadataDimensions(asset.width, asset.height)} poster="${escapeHtml(
+    posterSrc,
+  )}" preload="${preload}"`;
 
   if (video.mimeType) {
     return `${attributes}><source src="${escapeHtml(asset.src)}" type="${escapeHtml(

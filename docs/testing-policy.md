@@ -174,3 +174,40 @@ PRODUCTION SMOKE не должен превращаться в архив все
 6. release PR из `dev` в `prod` не считать готовым, пока открыта незавершённая CI-fix ветка, меняющая его обязательные проверки или release semantics.
 
 Цель правила — не запрет параллельной работы, а один источник истины для каждого CI-инварианта. Параллельные feature-ветки допустимы, параллельные взаимоисключающие определения одной и той же проверки — нет.
+
+## 12. Необязательный responsive/UI слой
+
+Адаптивные browser checks, которым нужен реальный layout engine, но которые слишком дороги для обычного `test:fast`, живут отдельным ручным слоем.
+
+Канонический локальный запуск:
+
+`npm run test:ui:responsive`
+
+Канонический GitHub Actions workflow:
+
+`UI Responsive` → `workflow_dispatch`.
+
+Правила слоя:
+
+- не запускать автоматически на обычные push/PR;
+- использовать небольшой набор репрезентативных viewport, а не полный device zoo;
+- начинать с Chromium, если конкретная задача не требует другого browser engine;
+- проверять наблюдаемую геометрию и поведение: overflow, sticky/fixed placement, resize/reflow, основные responsive invariants;
+- дешёвые статические/contract assertions оставлять отдельно и не заменять ими browser proof там, где риск именно layout/runtime;
+- browser emulation не выдавать за проверку реального iOS/Android browser chrome, safe-area hardware или OS-level поведения;
+- временный PR-trigger допустим только внутри конкретной разработки для RED/GREEN доказательства и должен быть удалён до merge.
+
+Слой относится к `AFFECTED / FULL / QUALITY`: его запускают вручную после значимых responsive/navigation/layout изменений, перед крупным релизом или при воспроизведении UI-регрессии. Он не является обязательным gate каждого изменения.
+
+## 13. Browser support and verification contract
+
+This policy intentionally separates the browser behavior that the repository proves in normal automated verification from broader compatibility targets.
+
+- The required automated browser acceptance engine for ordinary frontend work is the Chromium revision provisioned by the repository's pinned Playwright toolchain. A GREEN Chromium run proves only the Chromium behavior exercised by that run.
+- Firefox and Safari/WebKit are compatibility targets for public-facing work, but they are not implied acceptance evidence from a GREEN Chromium run and they are not permanent merge gates today.
+- Do not invent minimum historical browser versions. If an issue, product requirement, or reported defect requires a specific engine or version, record that requirement in the issue and obtain the smallest focused browser evidence needed for that work.
+- For version-sensitive CSS or browser APIs, check current support against this contract before relying on the feature. MDN Baseline and current platform documentation are supporting evidence, not a replacement for repository policy.
+- Modern CSS may be used without compatibility scaffolding when unsupported enhancement behavior still leaves a usable baseline. If missing support would make required content, navigation, or interaction unusable, add the smallest fallback or focused engine-specific proof required by the task.
+- Prefer progressive enhancement, `@supports`, or a simpler static fallback over broad polyfill/transpilation machinery unless a concrete issue proves that heavier compatibility work is necessary.
+
+This section is the canonical repository browser-support contract. `docs/testing-pipeline.md` describes where automated evidence runs; frontend and agent guidance must link here rather than infer a browser floor from generic compatibility tables.

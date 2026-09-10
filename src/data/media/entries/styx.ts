@@ -17,7 +17,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
         ],
@@ -43,7 +43,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-founder-portraits-2022"],
     alt: "",
     caption: {
-        title: "Фотография основателя Styx Jewels.",
+        title: "Фотография основателя Styx Jewel.",
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
         ],
@@ -55,7 +55,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
         ],
@@ -107,7 +107,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
         ],
@@ -119,7 +119,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-founder-portraits-2022"],
     alt: "",
     caption: {
-        title: "Фотография основателя Styx Jewels.",
+        title: "Фотография основателя Styx Jewel.",
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
         ],
@@ -131,7 +131,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
         ],
@@ -143,7 +143,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
         ],
@@ -155,7 +155,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
         ],
@@ -168,7 +168,7 @@ export const styxMediaEntries = [
     caption: {
         title: "Перекладная анимация для подарочной скульптуры.",
         meta: [
-            "Это экспериментальная технология, которую я придумал для Styx. Я по отдельности сканировал объект разными сканерами и вручную монтировал полученные кадры, чтобы все искажения и эффекты были не цифровыми, а аналоговыми.",
+            "Это экспериментальная технология, которую я придумал для Styx Jewel. Я по отдельности сканировал объект разными сканерами и вручную монтировал полученные кадры, чтобы все искажения и эффекты были не цифровыми, а аналоговыми.",
             "/ 2025.",
         ],
     }
@@ -451,7 +451,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-brand-system"],
     alt: "",
     caption: {
-        title: "Основная цветная версия логотипа Styx Jewels.",
+        title: "Основная цветная версия логотипа Styx Jewel.",
         index: 1,
     }
 },
@@ -488,7 +488,7 @@ export const styxMediaEntries = [
   {
     id: "styx-07-source-04-4x5-use-01",
     assetId: "styx-05-source-06-4x5",
-    title: "\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444\u0438\u044F \u0438\u0437 \u043A\u043E\u043B\u043B\u0430\u0431\u043E\u0440\u0430\u0446\u0438\u0438 Styx Jewels \u0438 Evident Things",
+    title: "\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444\u0438\u044F \u0438\u0437 \u043A\u043E\u043B\u043B\u0430\u0431\u043E\u0440\u0430\u0446\u0438\u0438 Styx Jewel \u0438 Evident Things",
     projectIds: ["styx-evident-things-collaboration-2022"],
     workAreaIds: ["photography"],
     tags: ["\u0444\u043E\u0442\u043E"],
@@ -637,7 +637,7 @@ export const styxMediaEntries = [
     caption: {
         title: "Перекладная анимация для подарочной скульптуры.",
         index: 9,
-        text: "Это экспериментальная технология, которую я придумал для Styx. Я по отдельности сканировал объект\n                      разными сканерами и вручную монтировал полученные кадры, чтобы все искажения и эффекты были не\n                      цифровыми, а аналоговыми.",
+        text: "Это экспериментальная технология, которую я придумал для Styx Jewel. Я по отдельности сканировал объект\n                      разными сканерами и вручную монтировал полученные кадры, чтобы все искажения и эффекты были не\n                      цифровыми, а аналоговыми.",
         meta: [
             "/ 2025.",
         ],
@@ -750,7 +750,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         index: 18,
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
@@ -763,7 +763,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         index: 19,
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
@@ -776,7 +776,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         index: 20,
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
@@ -789,7 +789,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         index: 21,
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
@@ -802,7 +802,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         index: 22,
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
@@ -815,7 +815,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         index: 23,
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
@@ -828,7 +828,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-founder-portraits-2022"],
     alt: "",
     caption: {
-        title: "Фотография основателя Styx Jewels.",
+        title: "Фотография основателя Styx Jewel.",
         index: 24,
         meta: [
             "Фотограф\n                      и продюсер: Иван Крушинский / 2022.",
@@ -972,7 +972,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-founder-portraits-2022"],
     alt: "",
     caption: {
-        title: "Фотография основателя Styx Jewels.",
+        title: "Фотография основателя Styx Jewel.",
         index: 34,
         meta: [
             "Фотограф\n                      и продюсер: Иван Крушинский / 2022.",
@@ -985,7 +985,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things.",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things.",
         index: 35,
         meta: [
             "Фотограф и продюсер: Иван Крушинский / 2022.",
@@ -1130,7 +1130,7 @@ export const styxMediaEntries = [
     projectIds: ["styx-evident-things-collaboration-2022"],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things",
         index: 48,
         meta: [
             "/ 2022.",
@@ -1140,14 +1140,14 @@ export const styxMediaEntries = [
   {
     id: "styx-07-source-04-4x5-use-02",
     assetId: "styx-05-source-06-4x5",
-    title: "\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444\u0438\u044F \u0438\u0437 \u043A\u043E\u043B\u043B\u0430\u0431\u043E\u0440\u0430\u0446\u0438\u0438 Styx Jewels \u0438 Evident Things",
+    title: "\u0424\u043E\u0442\u043E\u0433\u0440\u0430\u0444\u0438\u044F \u0438\u0437 \u043A\u043E\u043B\u043B\u0430\u0431\u043E\u0440\u0430\u0446\u0438\u0438 Styx Jewel \u0438 Evident Things",
     projectIds: ["styx-evident-things-collaboration-2022"],
     workAreaIds: ["photography"],
     tags: ["\u0444\u043E\u0442\u043E"],
     credits: ["/ 2022."],
     alt: "",
     caption: {
-        title: "Фотография из коллаборации Styx Jewels и Evident Things",
+        title: "Фотография из коллаборации Styx Jewel и Evident Things",
         index: 49,
         meta: [
             "/ 2022.",

@@ -42,7 +42,7 @@ function renderProductionGallery(
     })
     .join("");
 
-  return `<div aria-label="${escapeHtml(data.ariaLabel)}"${className} data-animated-canvas-gallery="" data-gallery-profile="production" data-gallery-state="loading" data-gallery-variant="masonry"><canvas aria-label="${escapeHtml(data.ariaLabel)}"></canvas><div aria-hidden="true" data-gallery-fallback="" hidden="">${sources}</div></div>`;
+  return `<div${className} data-animated-canvas-gallery="" data-gallery-profile="production" data-gallery-state="loading" data-gallery-variant="masonry"><canvas aria-label="${escapeHtml(data.ariaLabel)}"></canvas><div aria-hidden="true" data-gallery-fallback="" hidden="">${sources}</div></div>`;
 }
 
 function safeJson(value: unknown): string {

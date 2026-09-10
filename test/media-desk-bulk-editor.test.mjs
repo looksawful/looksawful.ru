@@ -5,7 +5,7 @@ import {
   applyBulkArrayOperation,
   applyBulkEditorialPlan,
   buildBulkMetadataRequest,
-} from "../src/tools/media-desk/bulk-editor-model.ts";
+} from "../src/devtools/media-desk/bulk-editor-model.ts";
 
 const base = {
   title: "Asset",

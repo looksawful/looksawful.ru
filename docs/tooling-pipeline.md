@@ -12,13 +12,33 @@ Use Node 24. Install dependencies with `npm ci` when the lockfile/dependencies a
 
 `npm run build:site` remains the production site-build stage used by CI after typecheck has already run. It runs the CMS generated-option check, Vite production build and site postbuild without repeating TypeScript checking. Site postbuild generates the sitemap and validates metadata/local links.
 
+### Lightweight clones
+
+Routine development does not require downloading the complete repository history. Prefer a partial clone of the development branch:
+
+```bash
+git clone --filter=blob:none --single-branch --branch dev https://github.com/looksawful/looksawful.ru.git
+```
+
+This keeps historical blobs lazy while checking out the complete current `dev` tree. For disposable CI-like work where history is not needed at all, use a shallow clone:
+
+```bash
+git clone --depth=1 --single-branch --branch dev https://github.com/looksawful/looksawful.ru.git
+```
+
+If a shallow working copy later genuinely needs complete history, opt into it explicitly with `git fetch --unshallow` rather than paying that cost on every clone.
+
+Large source masters and archives belong outside Git. `npm run check:repo-growth` rejects tracked heavyweight source formats, legacy/generated media roots and files above the repository limits before they become routine history.
+
+Git LFS is intentionally not used for the GitHub Pages media contract. Do not add LFS attributes for `public/media/**`; GitHub Pages delivery must continue to receive normal web-ready files. Heavy masters should live outside the repository instead of moving into LFS while Pages remains the production host.
+
 ## Fast verification
 
 `npm test` and `npm run test:fast` run the repository's fast Node-test group.
 
 `npm run typecheck` runs TypeScript checking. `npm run build:site` is the production site build contract used by the current fast CI flow, where typecheck remains a separate preceding step to avoid duplicate work.
 
-The Pages CMS `Проверить сайт` actions dispatch `.github/workflows/ci-fast.yml` at explicit `ref: dev`. Fast CI performs its existing media-state cache/recovery guard, then typecheck, fast tests and `build:site`.
+The Pages CMS `Проверить сайт` actions dispatch `.github/workflows/ci-fast.yml` at explicit `ref: dev`. Fast CI performs the repository-growth guard and existing media-state cache/recovery guard, then typecheck, fast tests and `build:site`.
 
 ## CMS push behavior
 
@@ -31,6 +51,8 @@ Use `Проверить сайт` when a manual fast verification is needed. Pul
 The current mutation workflow is `.github/workflows/cms-media.yml` (`CMS media`). It is explicitly tied to `dev` media/content paths.
 
 It can normalize catalog metadata and generated media state, but persistence is guarded to explicit allowed paths. Before writing back it confirms `origin/dev` still matches the source SHA and pushes non-force to `dev`. Verification workflows themselves should not gain arbitrary mutation behavior.
+
+CMS media checks out the source SHA shallowly and fetches only the exact previous push commit needed for diffing and cache comparison. It does not require complete repository history.
 
 Source masters remain preserved; generated technical metadata and derivatives remain tooling-owned. Size limits and upload ownership are documented in `docs/media-upload-policy.md`.
 
@@ -45,6 +67,8 @@ production deployment branch: prod
 ```
 
 `Подготовить публикацию` must validate current branch topology and the full `prod..dev` publication scope using trusted `prod` policy, then create/reuse a `dev -> prod` PR. It must not perform the merge/deploy itself.
+
+Publication starts from shallow `prod`/`dev` tips. When their trees differ and the common history is not yet available, the workflow deepens history in bounded stages before using a full-history fallback. The content-aware topology guard remains fail-closed.
 
 The publication classifier is separate from ordinary CI change classification: verification coverage is not publication authorization.
 

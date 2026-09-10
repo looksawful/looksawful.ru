@@ -14,8 +14,14 @@ const step = (workflow, name) =>
   workflow.match(new RegExp(`\\n      - name: ${name}\\b[\\s\\S]*?(?=\\n      - name: |$)`))?.[0] ?? "";
 
 test("a single changed image resolves to exactly its MediaAsset id", async () => {
-  const { resolveAffectedMediaPaths } = await import("../../tools/media/affected-media.mjs");
-  const result = resolveAffectedMediaPaths([
+  let affectedMedia;
+  try {
+    affectedMedia = await import("../../tools/media/affected-media.mjs");
+  } catch (error) {
+    assert.fail(`affected-media resolver must exist: ${error.message}`);
+  }
+
+  const result = affectedMedia.resolveAffectedMediaPaths([
     "public/media/projects/index/shootings-cover.webp",
   ]);
 
@@ -127,15 +133,22 @@ test("raster-only PRs keep required Fast CI but route expensive media work to th
   const [fastCi, cmsMedia, affectedWorkflow] = await Promise.all([
     readRepo(".github/workflows/ci-fast.yml"),
     readRepo(".github/workflows/cms-media.yml"),
-    readRepo(".github/workflows/media-affected.yml"),
+    readRepo(".github/workflows/media-affected.yml").catch((error) => {
+      assert.fail(`affected media workflow must exist: ${error.message}`);
+    }),
   ]);
 
   const prBlock = fastCi.match(/pull_request:\n([\s\S]*?)\n  workflow_dispatch:/)?.[1] ?? "";
-  assert.doesNotMatch(prBlock, /paths-ignore:/);
+  assert.doesNotMatch(
+    prBlock,
+    /paths-ignore:/,
+    "Fast CI must remain a required PR check; image-only routing happens inside verify",
+  );
   assert.match(fastCi, /name: Classify pull request media scope/);
   assert.match(fastCi, /affected-media\.mjs/);
 
   for (const name of [
+    "Check repository growth",
     "Install dependencies",
     "Calculate canonical media fingerprint",
     "Restore exact generated media cache",
@@ -145,7 +158,11 @@ test("raster-only PRs keep required Fast CI but route expensive media work to th
     "Fast tests",
     "Production build",
   ]) {
-    assert.match(step(fastCi, name), /image_only != 'true'/, `${name} must stay off image-only PRs`);
+    assert.match(
+      step(fastCi, name),
+      /image_only != 'true'/,
+      `${name} must stay off the image-only PR path`,
+    );
   }
 
   assert.match(cmsMedia, /affected-media\.mjs/);
@@ -159,5 +176,10 @@ test("raster-only PRs keep required Fast CI but route expensive media work to th
   assert.match(targetedPrBuild, /image_only == 'true'/);
   assert.match(targetedPrBuild, /args\+=\(--asset-id "\$id"\)/);
   assert.match(targetedPrBuild, /node tools\/build-responsive-media\.mjs "\$\{args\[@\]\}"/);
+  assert.equal(
+    step(affectedWorkflow, "Require registered image-only scope"),
+    "",
+    "mixed image+code PRs belong to full Fast CI and must not fail the affected workflow",
+  );
   assert.doesNotMatch(affectedWorkflow, /ffmpeg|media:sync|media:video/i);
 });

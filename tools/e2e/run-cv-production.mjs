@@ -1,4 +1,4 @@
-import { runSmokeCv } from "../smoke-cv.mjs";
+import { runSmokeCv } from "./smoke-cv.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 export async function runProductionCvSmoke({ browser, baseUrl }) {

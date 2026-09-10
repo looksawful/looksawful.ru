@@ -2,28 +2,25 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import {
-  extractElementById,
-  extractElementContainingMarker,
-} from "../src/site/rendering/html.ts";
+import { extractElementContainingMarker } from "../src/site/rendering/html.ts";
 import { renderProjectIntro } from "../src/templates/project-intro.ts";
 import { jesteiIntro } from "../src/data/content/jestei-pool.ts";
 
 const indexHtml = await readFile(new URL("../index.html", import.meta.url), "utf8");
 
-test("canonical homepage entity source shells contain no legacy body", () => {
+test("homepage source delegates canonical entity composition to one mount", () => {
+  assert.match(indexHtml, /<div data-home-entities><\/div>/);
   for (const articleId of [
     "project-jestei",
     "project-styx",
     "project-sensetique",
     "project-shootings",
   ]) {
-    const article = extractElementById(indexHtml, "article", articleId);
-    assert.match(article, new RegExp(`^<article\\b[^>]*\\bid=["']${articleId}["'][^>]*>`));
-    const body = article
-      .replace(/^<article\b[^>]*>/, "")
-      .replace(/<\/article>$/, "");
-    assert.equal(body.trim(), "", `${articleId} still carries legacy source-template body`);
+    assert.doesNotMatch(
+      indexHtml,
+      new RegExp(`<article\\b[^>]*\\bid=["']${articleId}["'][^>]*>`),
+      `${articleId} must not remain as a source-template shell`,
+    );
   }
 });
 

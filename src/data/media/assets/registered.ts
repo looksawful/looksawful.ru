@@ -6,6 +6,7 @@ import { berryMediaAssets } from "./berry.ts";
 import { berserkTimerMediaAssets } from "./berserk-timer.ts";
 import { esmiMediaAssets } from "./esmi.ts";
 import { evashaMediaAssets } from "./evasha.ts";
+import { heroMediaAssets } from "./hero.ts";
 import { hypressionMediaAssets } from "./hypression.ts";
 import { igguanaMediaAssets } from "./igguana.ts";
 import { jesteiMediaAssets } from "./jestei.ts";
@@ -28,6 +29,7 @@ export const registeredMediaAssets = [
   ...berserkTimerMediaAssets,
   ...esmiMediaAssets,
   ...evashaMediaAssets,
+  ...heroMediaAssets,
   ...hypressionMediaAssets,
   ...igguanaMediaAssets,
   ...jesteiMediaAssets,

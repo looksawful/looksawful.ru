@@ -113,11 +113,14 @@ export const jesteiEventGroup = {
 export const jesteiLandingsIntro = { title: jesteiLandingsEditorial.title, paragraphs: jesteiLandingsEditorial.paragraphs } as const satisfies SectionIntroData;
 export const jesteiLandingsMockup = { entryId: "jestei-13-source-13-1280x588-use-01", device: "desktop", captionView: "summary", video: { autoplay: true, loop: true, muted: true, playsInline: true, preload: "auto" } } as const satisfies MockupData<MediaEntryId>;
 export const jesteiPromoIntro = { title: jesteiPromoEditorial.title, paragraphs: jesteiPromoEditorial.paragraphs } as const satisfies SectionIntroData;
-
+export const jesteiInstagramPlayerIntro = {
+  title: "Промокоммуникация Jestei Pool",
+  paragraphs: ["Интерактивный плеер для Instagram-постов."],
+} as const satisfies SectionIntroData;
 
 export const jesteiInstagramPlayerStrip = {
   "layout": "strip",
-  "captionView": "overlay",
+  "captionView": "lightbox-only",
   "infiniteReel": {
     "duration": "30s"
   },

@@ -38,13 +38,6 @@ export const homepageEntries = [
   },
 ] as const satisfies readonly HomepageEntry[];
 
-const implementedFullRenderers = new Set<string>([
-  "case:jestei-pool",
-  "case:styx",
-  "case:sensetique",
-  "collection:music-photography",
-]);
-
 function entityKey(entity: HomepageEntityReference): string {
   return `${entity.type}:${entity.id}`;
 }
@@ -53,9 +46,10 @@ export function assertHomepagePresentationSupported(
   entries: readonly HomepageEntry[],
 ): void {
   for (const entry of entries) {
-    const key = entityKey(entry.entity);
-    if (entry.mode !== "full" || !implementedFullRenderers.has(key)) {
-      throw new Error(`Homepage render mode is not implemented: ${key} -> ${entry.mode}`);
+    if (entry.mode !== "full") {
+      throw new Error(
+        `Homepage render mode is not implemented: ${entityKey(entry.entity)} -> ${entry.mode}`,
+      );
     }
   }
 }

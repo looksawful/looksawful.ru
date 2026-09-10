@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
+  awfulCasesCodeBlocks,
   awfulCasesDemo,
   awfulCasesIntro,
   awfulCasesSettingsMockup,
@@ -15,6 +16,7 @@ import { escapeHtml } from "../src/utils/html.ts";
 
 const contentPath = "src/content/standalone-projects/awful-cases.json";
 const adapterPath = "src/data/content/awful-cases-editorial.ts";
+const introFields = ["head", "title", "role", "period", "summary", "lead"];
 
 const clone = (value) => structuredClone(value);
 
@@ -25,8 +27,14 @@ test("Awful Cases has a strict CMS-owned editorial source", async () => {
   const source = JSON.parse(await readFile(contentPath, "utf8"));
   assert.deepEqual(
     Object.keys(source).sort(),
-    ["head", "title", "role", "period", "summary", "lead"].sort(),
+    [...introFields, "codeBlocks"].sort(),
   );
+  assert.deepEqual(Object.keys(source.codeBlocks).sort(), ["install", "run"]);
+  for (const id of ["install", "run"]) {
+    assert.equal(typeof source.codeBlocks[id].title, "string");
+    assert.equal(typeof source.codeBlocks[id].code, "string");
+    assert.ok(source.codeBlocks[id].code.length > 0);
+  }
 
   const { awfulCasesEditorialContent, parseAwfulCasesEditorialContent } = await import(
     "../src/data/content/awful-cases-editorial.ts"
@@ -38,6 +46,13 @@ test("Awful Cases has a strict CMS-owned editorial source", async () => {
   const unexpected = clone(source);
   unexpected.route = "/work/changed-by-cms/";
   assert.throws(() => parseAwfulCasesEditorialContent(unexpected), /unexpected|field|key/i);
+
+  const structuralCodeMetadata = clone(source);
+  structuralCodeMetadata.codeBlocks.install.language = "powershell";
+  assert.throws(
+    () => parseAwfulCasesEditorialContent(structuralCodeMetadata),
+    /unexpected|field|key/i,
+  );
 
   const whitespace = clone(source);
   whitespace.summary = "   ";
@@ -52,7 +67,7 @@ test("Awful Cases has a strict CMS-owned editorial source", async () => {
   assert.throws(() => parseAwfulCasesEditorialContent(invalid), /string/i);
 });
 
-test("Awful Cases CMS copy feeds the intro and matching catalog fields", async () => {
+test("Awful Cases CMS copy feeds intro, code blocks and matching catalog fields", async () => {
   const source = JSON.parse(await readFile(contentPath, "utf8"));
 
   assert.equal(awfulCasesIntro.head.type, "text");
@@ -65,12 +80,19 @@ test("Awful Cases CMS copy feeds the intro and matching catalog fields", async (
   assert.equal(awfulCasesIntro.lead, source.lead);
 
   const rendered = renderProjectIntro(awfulCasesIntro);
-  for (const value of Object.values(source)) {
+  for (const field of introFields) {
     assert.ok(
-      rendered.includes(escapeHtml(value)),
-      `Rendered Awful Cases intro must contain the escaped current CMS value: ${value}`,
+      rendered.includes(escapeHtml(source[field])),
+      `Rendered Awful Cases intro must contain the escaped current CMS value: ${field}`,
     );
   }
+
+  assert.equal(awfulCasesCodeBlocks.install.title, source.codeBlocks.install.title);
+  assert.equal(awfulCasesCodeBlocks.install.code, source.codeBlocks.install.code);
+  assert.equal(awfulCasesCodeBlocks.install.language, "powershell");
+  assert.equal(awfulCasesCodeBlocks.run.title, source.codeBlocks.run.title);
+  assert.equal(awfulCasesCodeBlocks.run.code, source.codeBlocks.run.code);
+  assert.equal(awfulCasesCodeBlocks.run.language, "powershell");
 
   const project = otherProjects.find((candidate) => candidate.id === "awful-cases");
   assert.ok(project);
@@ -122,7 +144,7 @@ test("Awful Cases CMS leaves links, media, route and discovery code-owned", asyn
   assert.deepEqual(page.discovery, { listed: false, indexable: false });
 });
 
-test("Pages CMS exposes Awful Cases copy without link, route, taxonomy or media controls", async () => {
+test("Pages CMS exposes Awful Cases copy and code without structural controls", async () => {
   const cms = await readFile(new URL("../.pages.yml", import.meta.url), "utf8");
   const start = cms.indexOf("      - name: awful-cases-standalone-project\n");
   assert.notEqual(start, -1, "Awful Cases standalone Project CMS entry must exist");
@@ -140,9 +162,12 @@ test("Pages CMS exposes Awful Cases copy without link, route, taxonomy or media 
   assert.match(config, /rename: false/);
   assert.match(config, /delete: false/);
 
-  for (const field of ["head", "title", "role", "period", "summary", "lead"]) {
+  for (const field of [...introFields, "codeBlocks"]) {
     assert.match(config, new RegExp(`name: ${field}\\b`));
   }
+  assert.match(config, /name: install\b/);
+  assert.match(config, /name: run\b/);
+  assert.equal((config.match(/name: code\b/g) ?? []).length, 2);
 
   for (const forbidden of [
     "id",
@@ -161,6 +186,10 @@ test("Pages CMS exposes Awful Cases copy without link, route, taxonomy or media 
     "captionView",
     "presentation",
     "video",
+    "language",
+    "variant",
+    "layout",
+    "skin",
   ]) {
     assert.doesNotMatch(config, new RegExp(`name: ${forbidden}\\b`));
   }

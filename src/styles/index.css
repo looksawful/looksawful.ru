@@ -7,11 +7,20 @@
 @import "./colors.css" layer(colors);
 @import "./base.css" layer(base);
 @import "./patterns.css" layer(patterns);
+@import "./media.css" layer(components);
 @import "./components.css" layer(components);
+@import "./before-after.css" layer(components);
+@import "./code-block.css" layer(components);
 @import "./project-header.css" layer(components);
-@import "./project-navigation-top.css" layer(components);
+@import "./project-navigation.css" layer(components);
+@import "./project-shell.css" layer(components);
 @import "./expertise.css" layer(components);
 @import "./experience.css" layer(components);
+@import "./site-navigation.css" layer(components);
+@import "./page-flip.css" layer(components);
+@import "./slider.css" layer(components);
+@import "./media-deck.css" layer(components);
+@import "./media-lightbox.css" layer(components);
 @import "../components/jestei-theme-organism/jestei-theme-organism.css";
 @import "./captions.css" layer(captions);
 @import "./motion.css" layer(motion);
@@ -29,48 +38,6 @@
     letter-spacing: var(--ls-lead);
   }
 
-  .project__head {
-    line-height: var(--lh-heading);
-  }
-
-  .project__title {
-    line-height: var(--lh-display);
-    letter-spacing: var(--ls-heading);
-  }
-
-  .project__summary {
-    letter-spacing: var(--ls-copy);
-  }
-
-  .project__lead,
-  .text-lead {
-    max-inline-size: 36ch;
-    line-height: var(--lh-tight);
-    letter-spacing: var(--ls-tight);
-  }
-
-  .section-copy__title {
-    line-height: var(--lh-heading);
-    letter-spacing: var(--ls-display);
-  }
-
-  .section-copy__text {
-    line-height: var(--lh-copy);
-    letter-spacing: var(--ls-copy);
-  }
-
-  .project__section > :is(h2, h3),
-  .project__section > section > :is(h2, h3) {
-    line-height: var(--lh-heading);
-    letter-spacing: var(--ls-heading);
-  }
-
-  .project__section > p:not([class]),
-  .project__section > section > p:not([class]) {
-    line-height: var(--lh-copy);
-    letter-spacing: var(--ls-copy);
-  }
-
   .group-note,
   .editorial-note {
     line-height: var(--lh-body);
@@ -79,13 +46,6 @@
   .brand-system__hover-copy,
   .jestei-captioned-group .jestei-media__hover-copy {
     line-height: var(--lh-caption);
-  }
-
-  .slider-controls,
-  .page-flip__index,
-  .page-flip__count {
-    font-size: var(--fs-200);
-    line-height: var(--lh-heading);
   }
 
   .contact a {
@@ -105,82 +65,62 @@
   .media-group[data-layout="strip"] .portfolio-logo-wall__item .media__surface > img {
     mix-blend-mode: darken;
   }
-}
 
-@layer captions {
-  .project__section .media__caption-line:not([data-media-index]) > .media__index {
-    display: none;
+  /* Surface and raster share one radius, avoiding square media clipped only by an ancestor. */
+  :is(
+    .jestei-interface-group,
+    .jestei-event-group
+  ) .media__surface > :is(img, video, picture),
+  :is(
+    .jestei-interface-group,
+    .jestei-event-group
+  ) .media__surface > picture > img {
+    border-radius: inherit;
   }
 
-  .media__caption {
-    line-height: var(--lh-caption);
+  @media (hover: hover) and (pointer: fine) {
+    .project-card__media {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .project-card__media img {
+      transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+      transform-origin: center;
+    }
+
+    .project-card__media::after {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      background: color-mix(in srgb, var(--clr-accent), transparent 94%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 700ms ease;
+    }
+
+    .project-card:hover .project-card__media img {
+      transform: scale(1.025);
+    }
+
+    .project-card:hover .project-card__media::after {
+      opacity: 1;
+    }
   }
 
-  .media-lightbox__caption {
-    line-height: var(--lh-body);
-  }
-
-  /* Standalone deck captions live outside the media viewport, so keeping them
-     hidden prevents them from becoming a second caption layout. Their authored
-     content remains in the DOM for the lightbox. */
-  .slider[data-media-deck] [data-slide-caption]:not([data-caption-view="full"]) {
-    display: none;
-  }
-
-  /* Persistent horizontal compositions cannot afford below-media captions on
-     touch because those captions would change the rail cross-size. Fine-pointer
-     devices use the absolutely positioned lower-third from captions.css, so the
-     same authored caption remains available there without affecting geometry. */
-  @media ((hover: none) or (pointer: coarse)) {
-    :is(
-      .media-group[data-layout="strip"],
-      .media-group[data-layout="grid"][data-overflow="reel"]
-    ) > .media-group__items > figure.media[data-caption-view="overlay"] > .media__caption,
-    .justified-gallery__row > figure.media[data-caption-view="overlay"] > .media__caption {
-      display: none;
+  @media (prefers-reduced-motion: reduce) {
+    .project-card__media img {
+      transition: none;
+      transform: none;
     }
 
-    :is(
-      .media-group[data-layout="strip"],
-      .media-group[data-layout="grid"][data-overflow="reel"]
-    ) > .media-group__items > figure.media[data-caption-view="overlay"]::after,
-    .justified-gallery__row > figure.media[data-caption-view="overlay"]::after {
-      content: none;
+    .project-card:hover .project-card__media img {
+      transform: none;
     }
 
-    /* Compact reels are rails only until their authored 42rem grid breakpoint.
-       Keep the original caption node for the lightbox, but do not let the touch
-       fallback add variable-height rows while the composition is still a rail. */
-    @container media-group (width <= 42rem) {
-      .media-group[data-layout="grid"][data-compact-layout="reel"]
-        > .media-group__items
-        > figure.media[data-caption-view="overlay"]
-        > .media__caption {
-        display: none;
-      }
-    }
-
-    /* Sequence and bento use constrained rail/cell geometry until 48rem. Their
-       below-media touch fallback would make row height depend on caption length,
-       so overlay captions stay in the DOM but out of compact page geometry. */
-    @container media-group (width <= 48rem) {
-      .media-group[data-layout="sequence"]:not([data-middle-overflow="reel"])
-        figure.media[data-caption-view="overlay"]
-        > .media__caption,
-      .media-group[data-layout="bento"]
-        > .media-group__items
-        > figure.media[data-caption-view="overlay"]
-        > .media__caption {
-        display: none;
-      }
-    }
-
-    /* Authored sequence middle reels remain rails at every container width. */
-    .media-group[data-layout="sequence"][data-middle-overflow="reel"]
-      .media-group__middle
-      > figure.media[data-caption-view="overlay"]
-      > .media__caption {
-      display: none;
+    .project-card__media::after {
+      transition: none;
     }
   }
 }

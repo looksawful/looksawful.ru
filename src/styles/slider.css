@@ -1,0 +1,93 @@
+/* ==================================================
+   Slider and magazine — interaction without motion
+   ================================================== */
+
+.slider {
+  inline-size: min(100%, var(--project-media-max, 72.5rem));
+  margin-inline: auto;
+  min-inline-size: 0;
+}
+
+.slider__viewport,
+.slider__slide {
+  display: grid;
+}
+
+.slider__viewport,
+.slider__slides,
+.slider__slide {
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.slider__viewport {
+  overflow: hidden;
+  background: transparent;
+}
+
+.slider__slides {
+  --pile-place-items: normal;
+  grid-area: 1 / 1;
+}
+
+.slider__slide {
+  display: none;
+  place-items: center;
+  pointer-events: none;
+
+  &[data-active] {
+    display: grid;
+    pointer-events: auto;
+  }
+
+  & > :is(img, video, picture),
+  & > picture > img {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    max-inline-size: none;
+    object-fit: contain;
+  }
+}
+
+.slider__captions {
+  --pile-place-items: normal;
+  inline-size: 100%;
+}
+
+.slider__caption-slide {
+  display: none;
+
+  &[data-active] {
+    display: block;
+  }
+}
+
+.slider-controls {
+  --cluster-wrap: nowrap;
+  --cluster-justify: flex-end;
+  --cluster-space: 0.35rem;
+
+  inline-size: 100%;
+  margin-block-start: 0.55rem;
+  font-size: var(--fs-200);
+  line-height: var(--lh-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.slider-controls__button {
+  display: grid;
+  place-items: center;
+  min-inline-size: 1.75rem;
+  min-block-size: 1.75rem;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.slider-controls__count {
+  min-inline-size: 4.5ch;
+  text-align: center;
+}

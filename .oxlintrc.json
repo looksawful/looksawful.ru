@@ -1,0 +1,21 @@
+{
+  "categories": {
+    "correctness": "warn",
+    "suspicious": "off",
+    "pedantic": "off",
+    "perf": "off",
+    "style": "off",
+    "restriction": "off",
+    "nursery": "off"
+  },
+  "ignorePatterns": [
+    "dist/**",
+    "archive/**",
+    "node_modules/**",
+    "coverage/**",
+    "**/*.min.js",
+    "**/*.generated.*",
+    "**/generated/**",
+    "**/fixtures/**"
+  ]
+}

@@ -7,7 +7,7 @@ import {
   jesteiThemeOrganismThemes,
 } from "../src/data/content/jestei-theme-organism.ts";
 import { getMediaAsset, getMediaEntry } from "../src/data/media/index.ts";
-import { JESTEI_THEME_NAMES } from "../src/components/jestei-theme-organism/jestei-theme-organism-data.js";
+import { JESTEI_THEME_NAMES } from "../src/components/jestei-theme-organism/jestei-theme-organism-data.ts";
 import { renderJesteiThemeOrganismMockup } from "../src/templates/jestei-theme-organism.ts";
 
 test("Jestei theme organism model is registered as project media", () => {
@@ -71,7 +71,7 @@ test("Jestei theme organism runtime keeps the restored animation contracts", asy
     "utf8",
   );
   const shaders = await readFile(
-    new URL("../src/components/jestei-theme-organism/jestei-theme-organism-shaders.js", import.meta.url),
+    new URL("../src/components/jestei-theme-organism/jestei-theme-organism-shaders.ts", import.meta.url),
     "utf8",
   );
 

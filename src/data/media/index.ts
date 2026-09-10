@@ -4,24 +4,46 @@ import { mediaAssets, type MediaAssetId, type MediaAssetRecord } from "./assets/
 
 import { mediaEntries, type MediaEntryId, type MediaEntryRecord } from "./entries/index.ts";
 import {
+  contextualMediaCatalogItems as mediaCatalogItems,
   findMediaCatalogItems,
   getMediaCatalogItem,
-  mediaCatalogItems,
 } from "./catalog-view.ts";
+import {
+  catalogDirections,
+  catalogDirectionIdsForTaxonomy,
+  getPublicCatalogItems,
+  isPublicCatalogItem,
+  toCatalogItem,
+} from "./public-catalog.ts";
 import type {
   MediaCatalogFilters,
   MediaCatalogItem,
 } from "./catalog.ts";
+import type {
+  CatalogDirection,
+  CatalogDirectionId,
+  CatalogItem,
+  CatalogTaxonomyInput,
+} from "./public-catalog.ts";
 
 export {
+  catalogDirections,
+  catalogDirectionIdsForTaxonomy,
   findMediaCatalogItems,
   getMediaCatalogItem,
+  getPublicCatalogItems,
+  isPublicCatalogItem,
   mediaAssets,
   mediaCatalogItems,
   mediaEntries,
+  toCatalogItem,
 };
 
 export type {
+  CatalogDirection,
+  CatalogDirectionId,
+  CatalogItem,
+  CatalogTaxonomyInput,
   MediaAssetId,
   MediaAssetRecord,
   MediaCatalogFilters,
