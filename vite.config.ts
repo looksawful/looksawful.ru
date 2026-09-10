@@ -33,6 +33,8 @@ export default defineConfig({
         ...createSiteInputs(root),
         lab: fileURLToPath(new URL("./lab/index.html", import.meta.url)),
         labBlog: fileURLToPath(new URL("./lab/blog/index.html", import.meta.url)),
+        labAll: fileURLToPath(new URL("./lab/all/index.html", import.meta.url)),
+        labAbout: fileURLToPath(new URL("./lab/about/index.html", import.meta.url)),
       },
     },
   },
