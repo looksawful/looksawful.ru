@@ -43,3 +43,44 @@ test("Local Lab command opens the workbench instead of production", async () => 
   const packageJson = JSON.parse(await read("package.json"));
   assert.equal(packageJson.scripts.lab, "vite --open /lab/");
 });
+
+test("Lab design system is a static Storybook viewer over canonical source", async () => {
+  const [main, preview, builder, workflow, labHtml] = await Promise.all([
+    read(".storybook/main.ts"),
+    read(".storybook/preview.ts"),
+    read("tools/lab/build-storybook.mjs"),
+    read(".github/workflows/lab-preview.yml"),
+    read("lab/index.html"),
+  ]);
+
+  assert.match(main, /@storybook\/html-vite/);
+  assert.match(main, /@storybook\/addon-docs/);
+  assert.match(main, /@storybook\/addon-a11y/);
+  assert.match(main, /storybook-design-token/);
+  assert.match(main, /src\/lab\/stories/);
+  assert.match(preview, /src\/styles\/index\.css/);
+  assert.match(builder, /storybook@10\.6\.0/);
+  assert.match(builder, /@storybook\/html-vite@10\.6\.0/);
+  assert.match(builder, /@storybook\/addon-docs@10\.6\.0/);
+  assert.match(builder, /@storybook\/addon-a11y@10\.6\.0/);
+  assert.match(builder, /storybook-design-token@5\.0\.0/);
+  assert.match(builder, /dist\/lab\/system/);
+  assert.match(workflow, /Build Lab design system/);
+  assert.match(workflow, /dist\/lab\/system\/index\.html/);
+  assert.match(labHtml, /href="\/lab\/system\/"/);
+  assert.match(labHtml, /href="\/lab\/system\/inventory\.html"/);
+});
+
+test("Lab design-system inventory is generated from canonical source rather than a hand-maintained registry", async () => {
+  const [inventory, workflow] = await Promise.all([
+    read("tools/lab/design-system-inventory.mjs"),
+    read(".github/workflows/lab-preview.yml"),
+  ]);
+
+  assert.match(inventory, /src\/components/);
+  assert.match(inventory, /src\/styles/);
+  assert.match(inventory, /src\/templates/);
+  assert.match(inventory, /system-inventory\.json/);
+  assert.match(inventory, /inventory\.html/);
+  assert.match(workflow, /design-system-inventory\.mjs/);
+});
