@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "vite",
     "desk": "npm run media:ensure && node tools/run-content-desk.mjs",
-    "desk:network": "npm run media:ensure && node tools/run-content-desk-network.mjs",
+    "desk:cloudflare:build": "npm run media:catalog:sync && node tools/cloudflare/media-desk/build.mjs",
+    "desk:cloudflare:dev": "npm run desk:cloudflare:build && npx --yes wrangler@4 dev --config tools/cloudflare/media-desk/wrangler.jsonc",
+    "desk:cloudflare:deploy": "npm run desk:cloudflare:build && npx --yes wrangler@4 deploy --config tools/cloudflare/media-desk/wrangler.jsonc",
     "desk:password-hash": "node tools/media-desk/hash-password.mjs",
     "design:capture": "node tools/design-capture/cli.mjs",
     "design:capture:pages": "node tools/design-capture/cli.mjs --mode=pages",
