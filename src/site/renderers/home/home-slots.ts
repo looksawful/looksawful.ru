@@ -5,6 +5,7 @@ import {
   awfulCasesSettingsMockup,
 } from "../../../data/content/awful-cases.ts";
 import { berryIntro, berryStoryMockups } from "../../../data/content/berry.ts";
+import { isHomeSectionVisible } from "../../../data/content/home-visibility.ts";
 import { liNeAgencyIntro } from "../../../data/content/li-ne-agency.ts";
 import { madCowFilmsIntro } from "../../../data/content/mad-cow-films.ts";
 import { moskovskieNovostiIntro } from "../../../data/content/moskovskie-novosti.ts";
@@ -35,6 +36,7 @@ import { renderProjectCard } from "../../../templates/project-card.ts";
 import { renderProjectIntro } from "../../../templates/project-intro.ts";
 import { renderSectionIntro } from "../../../templates/section-intro.ts";
 import {
+  extractElementContainingMarker,
   replaceRequiredSlots,
   type HtmlSlot,
 } from "../../rendering/html.ts";
@@ -78,6 +80,21 @@ export function createHomepageSlots(): readonly HtmlSlot[] {
   ] as const;
 }
 
+export function applyClientLogoWallVisibility(html: string, visible: boolean): string {
+  if (visible) return html;
+
+  const logoWallSection = extractElementContainingMarker(
+    html,
+    "section",
+    'aria-labelledby="portfolio-clients-title"',
+  );
+  return html.replace(logoWallSection, "");
+}
+
 export function renderHomepage(html: string): string {
-  return replaceRequiredSlots(html, createHomepageSlots());
+  const rendered = replaceRequiredSlots(html, createHomepageSlots());
+  return applyClientLogoWallVisibility(
+    rendered,
+    isHomeSectionVisible("client-logo-wall"),
+  );
 }
