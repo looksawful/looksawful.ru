@@ -113,11 +113,15 @@ jobs:
             public/media/generated/video
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
-          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+          key: agent-verify-generated-media-v1-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
 
       - name: Verify restored generated media
         if: ${{ steps.request.outputs.suite != 'fast' && steps.media-cache.outputs.cache-hit == 'true' }}
         run: node tools/media-dev-state.mjs --cache-verify
+
+      - name: Verify cache hit preserves exact source tree
+        if: ${{ steps.request.outputs.suite != 'fast' && steps.media-cache.outputs.cache-hit == 'true' }}
+        run: git diff --exit-code
 
       - name: Install recovery video tooling on cache miss
         if: ${{ steps.request.outputs.suite != 'fast' && steps.media-cache.outputs.cache-hit != 'true' }}
@@ -145,7 +149,7 @@ jobs:
             public/media/generated/video
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
-          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+          key: agent-verify-generated-media-v1-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
 
       - name: Fast verification
         if: ${{ steps.request.outputs.suite == 'fast' }}

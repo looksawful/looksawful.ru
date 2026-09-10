@@ -37,18 +37,31 @@ test("agent verification workflow is finite, exact-SHA scoped, chat-triggerable,
   const mediaFingerprint = workflow.indexOf("- name: Calculate canonical media fingerprint");
   const mediaRestore = workflow.indexOf("- name: Restore exact generated media cache");
   const mediaVerify = workflow.indexOf("- name: Verify restored generated media");
+  const mediaCleanTree = workflow.indexOf("- name: Verify cache hit preserves exact source tree");
   const mediaRecover = workflow.indexOf("- name: Recover generated media on cache miss");
   const browserBuild = workflow.indexOf("- name: Build browser target");
 
   assert.ok(mediaFingerprint >= 0, "browser profiles must calculate the canonical generated-media fingerprint");
   assert.ok(mediaRestore > mediaFingerprint, "browser profiles must restore generated media after fingerprinting");
   assert.ok(mediaVerify > mediaRestore, "restored generated media must be verified before browser build");
+  assert.ok(mediaCleanTree > mediaVerify, "cache hits must prove restored tracked files preserve the exact checkout");
   assert.ok(mediaRecover > mediaRestore, "cache miss must recover generated media instead of continuing with missing assets");
   assert.ok(browserBuild > mediaVerify, "browser build must run only after restored generated media verification");
+  assert.ok(browserBuild > mediaCleanTree, "browser build must run only after cache-hit clean-tree verification");
   assert.ok(browserBuild > mediaRecover, "browser build must run only after cache-miss generated media recovery");
-  assert.match(workflow, /generated-media-v3-\$\{\{\s*runner\.os\s*\}\}-\$\{\{\s*steps\.media\.outputs\.fingerprint\s*\}\}/);
+  assert.match(workflow, /agent-verify-generated-media-v1-\$\{\{\s*runner\.os\s*\}\}-\$\{\{\s*steps\.media\.outputs\.fingerprint\s*\}\}/);
+  assert.doesNotMatch(
+    workflow,
+    /generated-media-v3-\$\{\{\s*runner\.os\s*\}\}-\$\{\{\s*steps\.media\.outputs\.fingerprint\s*\}\}/,
+    "untrusted exact-SHA verification must not publish or restore the production generated-media cache namespace",
+  );
   assert.match(workflow, /node tools\/media-dev-state\.mjs --cache-verify/);
   assert.match(workflow, /npm run media:sync/);
+  assert.match(
+    workflow,
+    /- name: Verify cache hit preserves exact source tree\s*\n\s*if:\s*\$\{\{[\s\S]*?cache-hit == 'true'[\s\S]*?\}\}\s*\n\s*run:\s*git diff --exit-code/,
+    "cache hits must reject restored tracked-file drift before browser build",
+  );
   assert.match(workflow, /git diff --exit-code/);
 
   assert.match(
