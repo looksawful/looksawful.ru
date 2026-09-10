@@ -47,7 +47,7 @@ Promote Stylelint into a required gate only after this low-noise baseline remain
 
 ### CSpell
 
-Scans source, tooling, Markdown documentation and root Markdown files. `public`, generated output, media-heavy paths, archives and lockfiles are ignored for the first pass. The Russian dictionary is loaded alongside English.
+Scans source, tooling, Markdown documentation, root Markdown files, and the bounded public privacy page `public/privacy/index.html`. Public CV/docs, media, pet pages, vendored/component surfaces, generated output, archives and lockfiles remain outside the current scan through explicit exclusions. `public/cv/**` and `public/docs/**` still require their own finding classification before broader inclusion. The Russian dictionary is loaded alongside English.
 
 ### Oxfmt
 
@@ -64,12 +64,13 @@ Running either command without an explicit path exits with code 2 instead of tou
 
 ### Stage 1 — baseline
 
-- local, pinned commands;
-- conservative scope;
+- initially local, pinned commands with a conservative scope;
 - no required CI;
 - collect false positives and expand the project dictionary;
 - measure command duration on normal changes;
 - characterize Stylelint without changing production CSS merely to satisfy the tool.
+
+The original Stage 1 CSpell scope excluded public content broadly. The current post-#515 scope has deliberately expanded only to `public/privacy/index.html`; other public families remain explicitly excluded until their findings are classified.
 
 ### Stage 2 — harden
 
