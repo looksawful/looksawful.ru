@@ -138,7 +138,7 @@ jobs:
             --concurrency 8 \
             --execution-timeout 120s \
             --service-account-id "$YC_RUNTIME_SA_ID" \
-            --environment "ALLOWED_ORIGINS=https://looksawful.ru,UPSTREAM_TIMEOUT_MS=120000,YANDEX_AI_BASE_URL=https://ai.api.cloud.yandex.net/v1,YANDEX_AI_MODEL=gpt://$YC_FOLDER_ID/yandexgpt/latest,OPENAI_BASE_URL=https://api.openai.com/v1" \
+            --environment "ALLOWED_ORIGINS=https://looksawful.ru,UPSTREAM_TIMEOUT_MS=120000,YANDEX_AI_BASE_URL=https://ai.api.cloud.yandex.net/v1,YANDEX_AI_MODEL=gpt://$YC_FOLDER_ID/yandexgpt/latest" \
             --secret "environment-variable=AWFUL_INTERNAL_TOKEN,id=$YC_LOCKBOX_SECRET_ID,key=awful-internal-token" \
             --secret "environment-variable=YANDEX_AI_API_KEY,id=$YC_LOCKBOX_SECRET_ID,key=yandex-ai-api-key" \
             --folder-id "$YC_FOLDER_ID" \
