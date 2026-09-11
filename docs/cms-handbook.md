@@ -1,37 +1,30 @@
 # CMS handbook
 
-Status: CURRENT Pages CMS operator handbook. CURRENT behavior and open TARGET authoring work are separated explicitly.
+Status: CURRENT Pages CMS operator handbook. Project branch policy, current executable behavior and open hardening work are separated explicitly.
 
 Pages CMS используется для обычного редакторского контента и разрешённых metadata. Маршруты, ID, layout, runtime и инженерный код через него менять не нужно.
 
 ## Рабочая ветвь
 
-В CURRENT Pages CMS модели обычная работа выполняется в `dev`.
+Текущий проектный контракт:
 
-`dev` является GitHub default branch и working/integration branch. `prod` является production/release/deploy branch.
+- `dev` — GitHub default branch и working/integration branch;
+- `prod` — production/release/deploy branch;
+- `content/text-cms` — постоянная редакторская ветвь для Pages CMS/контентных циклов.
 
-Перед редактированием убедись, что в Pages CMS выбрана именно `dev`. Не используй `prod` как обычную редакторскую ветвь.
+Новые редакторские изменения не нужно сохранять напрямую в `dev` или `prod`. Перед новым циклом `content/text-cms` должна быть безопасно сверена с текущим `dev` без force-reset и без скрытого rebase открытой редакторской сессии. GitHub #451 владеет этим reconciliation contract.
 
-### TARGET: изолированное authoring
+Изменения остаются в `content/text-cms`, пока пользователь явно не подтвердит `готово`. После этого batch сверяется с fresh `dev`, проходит content-only validation и интегрируется в `dev`. Production publication остаётся отдельным `dev -> prod` release.
 
-GitHub #451 отслеживает более безопасную модель параллельной редакторской работы:
-
-```text
-fresh dev
-  -> temporary content/* branch/worktree
-  -> authoring
-  -> validation/review
-  -> integration into fresh dev
-  -> existing dev -> prod publication flow
-```
-
-Это TARGET, а не текущая инструкция. Не переключай рабочий процесс на эту схему частично, пока executable tooling/tests и связанные operator docs не будут согласованы вместе.
+Текущий executable tooling ещё не полностью защищает этот процесс автоматически. Поэтому branch provenance, stale-session checks и ready gate из #451 нельзя считать реализованными только потому, что политика уже зафиксирована.
 
 ## Save
 
-`Save` создаёт реальный Git commit в выбранной CMS branch. В CURRENT Pages CMS модели для обычного редактирования используется `dev`.
+`Save` создаёт реальный Git commit в выбранной CMS branch.
 
-Сохранение в `dev` не является production deployment и само по себе не меняет опубликованный сайт.
+Для нового редакторского цикла выбранной ветвью должна быть `content/text-cms`. Сохранение в `content/text-cms` не является интеграцией в `dev`, production deployment или разрешением на публикацию.
+
+Не переключай CMS на `prod` для обычной редакторской работы. Не используй direct `dev` save как обход постоянной editorial branch.
 
 ## Что можно менять
 
@@ -73,26 +66,37 @@ Local Desk — отдельный developer/operator tool, а не второе 
 
 Поэтому текущий `npm run desk` нельзя считать read-only browser. Локальный HTTP/write contract описан в `docs/content-media-desk-api.md`.
 
-GitHub #452/#453 владеют TARGET hardening: read-only-by-default launch, guarded write activation, более строгая source authorization, revision/conflict semantics и atomic persistence. Не считать эти protections реализованными до появления executable evidence.
+GitHub #452/#453 владеют TARGET hardening: read-only-by-default launch, guarded write activation, более строгая source authorization, revision/conflict semantics и atomic persistence. #451 владеет branch/worktree authorization для `content/text-cms`. Не считать эти protections реализованными до появления executable evidence.
 
 ## Проверить сайт
 
-`Проверить сайт` запускает существующий fast verification flow для `dev`. Проверка ничего не публикует.
+Текущие `Проверить сайт` actions проверяют `dev`; они не публикуют production.
 
-Если проверка не прошла, изменение не нужно продвигать в production до выяснения причины.
+Для изменений, которые ещё находятся только в `content/text-cms`, #451 должен определить/реализовать безопасную branch-specific verification перед интеграцией. Не считать проверку `dev` доказательством непроинтегрированного editorial batch.
+
+После интеграции в `dev` существующий verification flow используется как integration gate перед release.
+
+## Интеграция редакторского batch
+
+До явного `готово` изменения остаются в `content/text-cms`.
+
+После `готово`:
+
+1. получить fresh `dev` и проверить drift `content/text-cms`;
+2. не выполнять force-reset и не прятать конфликт автоматическим rebase;
+3. убедиться, что batch содержит только ожидаемые editorial/media изменения;
+4. выполнить доступные content/media validation checks;
+5. интегрировать batch в `dev` через контролируемый review/merge flow;
+6. проверить resulting `dev`;
+7. только после этого рассматривать отдельный `dev -> prod` release.
 
 ## Подготовить публикацию
 
-`Подготовить публикацию` запускает trusted publication workflow из `prod`.
+`Подготовить публикацию` относится к release boundary после того, как approved editorial batch уже находится в `dev`.
 
-Он должен:
+Trusted publication policy выполняется из `prod` и должна проверять полный `dev -> prod` diff. Она может создать или переиспользовать pull request `dev -> prod`, но не должна merge PR и автоматически deploy production.
 
-1. убедиться, что CURRENT CMS source — `dev`, а trusted policy выполняется из `prod`;
-2. проверить допустимость текущего состояния и полного `dev -> prod` diff;
-3. пропустить только разрешённый CMS-only scope;
-4. создать или переиспользовать pull request `dev -> prod`.
-
-Подготовка публикации не должна merge PR и не должна автоматически deploy production. Merge и production deployment остаются отдельным release-действием.
+Подготовка publication никогда не должна публиковать напрямую из `content/text-cms`.
 
 ## Docs и AGENTS.md
 
