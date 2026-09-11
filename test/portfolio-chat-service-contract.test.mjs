@@ -250,3 +250,32 @@ test("transport-style unavailable state survives orchestration", async () => {
 
   assert.deepEqual(result, { kind: "unavailable" });
 });
+
+test("approved free-form strips PII-bearing page metadata before provider context", async () => {
+  const { createPortfolioChatService } = await loadService();
+  let providerInput = null;
+
+  const service = createPortfolioChatService({
+    provider: {
+      async generate(input) {
+        providerInput = input;
+        return { text: "Короткий ответ." };
+      },
+    },
+    router: await approvedRouter(["project.jestei"]),
+  });
+
+  const result = await service.reply({
+    message: "Расскажи подробнее про проект",
+    locale: "ru",
+    context: {
+      page: "https://looksawful.ru/work/jestei/?email=private@example.com#secret",
+      email: "private@example.com",
+    },
+  });
+
+  assert.equal(result.kind, "generated");
+  assert.equal(providerInput.context.page, "jestei");
+  assert.deepEqual(providerInput.context.sourceIds, ["project.jestei"]);
+  assert.equal(JSON.stringify(providerInput.context).includes("private@example.com"), false);
+});
