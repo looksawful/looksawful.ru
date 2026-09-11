@@ -2,15 +2,17 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const vite = fileURLToPath(new URL("../node_modules/vite/bin/vite.js", import.meta.url));
-const args = [vite, "--open", "/tools/media-desk/", ...process.argv.slice(2)];
+const args = [
+  vite,
+  "--host",
+  "127.0.0.1",
+  "--open",
+  "/tools/media-desk/",
+  ...process.argv.slice(2),
+];
 
 const child = spawn(process.execPath, args, {
   stdio: "inherit",
-  env: {
-    ...process.env,
-    CONTENT_DESK_WRITE: "1",
-    VITE_CONTENT_DESK_WRITE: "1",
-  },
 });
 
 child.once("error", (error) => {
