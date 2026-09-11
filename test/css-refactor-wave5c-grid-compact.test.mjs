@@ -6,7 +6,6 @@ const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), 
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
 
 const patterns = [
-  /\/\* Plain grid\. \*\//,
   /\.media-group\[data-layout="grid"\]:not\(\[data-compact-layout="reel"\]\)\s*>\s*\.media-group__items\s*\{/,
   /\.media-group\[data-layout="grid"\]\[data-overflow="reel"\]\s*>\s*\.media-group__items\s*\{/,
   /\.media-group\[data-layout="grid"\]\[data-overflow="reel"\]\s+\.media__surface\s*\{/,
@@ -14,14 +13,14 @@ const patterns = [
   /@container media-group \(width > 42rem\)/,
 ];
 
-test("Wave5C grid and compact layout family has one canonical media owner", () => {
+test("grid and compact layout family has one canonical media owner", () => {
   for (const pattern of patterns) {
     assert.match(media, pattern, `media.css must own ${pattern}`);
     assert.doesNotMatch(components, pattern, `components.css must no longer own ${pattern}`);
   }
 });
 
-test("Wave5C preserves the authored grid/rail/compact contract", () => {
+test("grid, rail and compact authored geometry contract remains intact", () => {
   assert.match(
     media,
     /\.media-group\[data-layout="grid"\]:not\(\[data-compact-layout="reel"\]\)\s*>\s*\.media-group__items\s*\{[\s\S]*?grid-template-columns:\s*repeat\(var\(--group-mobile-columns\),\s*minmax\(0,\s*1fr\)\);[\s\S]*?column-gap:\s*var\(--group-gap\);[\s\S]*?row-gap:\s*var\(--group-row-gap\);/,
@@ -40,13 +39,13 @@ test("Wave5C preserves the authored grid/rail/compact contract", () => {
   );
 });
 
-test("Wave5C does not absorb neighboring Brand/Jestei specialization", () => {
+test("grid and compact media ownership excludes Brand/Jestei specialization", () => {
   const brandSystem = /(?:^|\n)\.media-group\.brand-system\s*\{/;
   assert.doesNotMatch(media, brandSystem);
   assert.match(components, brandSystem);
 });
 
-test("generic media-group base now shares the canonical media owner with Wave5C", () => {
+test("generic media-group base shares the canonical media owner", () => {
   assert.match(
     media,
     /\.media-group\s*\{[\s\S]*?--group-gap:\s*var\(--media-group-gap,\s*var\(--project-media-gap,\s*var\(--size-300\)\)\);[\s\S]*?--group-row-gap:\s*var\(--media-group-row-gap,\s*var\(--project-media-row-gap,\s*var\(--group-gap\)\)\);[\s\S]*?container:\s*media-group\s*\/\s*inline-size;/,
