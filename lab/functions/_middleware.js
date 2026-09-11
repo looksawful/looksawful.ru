@@ -1,5 +1,4 @@
-const USERNAME = "lab";
-const REALM = "looksawful lab";
+import { handleGitHubOAuth, verifyAdminSession } from "./github-oauth.js";
 
 function securityHeaders() {
   return {
@@ -11,50 +10,46 @@ function securityHeaders() {
   };
 }
 
-function protectedResponse(message, status) {
-  const headers = {
-    ...securityHeaders(),
-    "Content-Type": "text/plain; charset=utf-8",
-  };
-  if (status === 401) {
-    headers["WWW-Authenticate"] = `Basic realm="${REALM}", charset="UTF-8"`;
-  }
-  return new Response(message, { status, headers });
-}
-
-function readCredentials(header) {
-  if (!header || !header.startsWith("Basic ")) return null;
-  try {
-    const decoded = atob(header.slice(6).trim());
-    const separator = decoded.indexOf(":");
-    if (separator < 0) return null;
-    return {
-      username: decoded.slice(0, separator),
-      password: decoded.slice(separator + 1),
-    };
-  } catch {
-    return null;
-  }
-}
-
-export async function onRequest(context) {
-  const expectedPassword = context.env.LAB_PASSWORD;
-  if (typeof expectedPassword !== "string" || expectedPassword.length === 0) {
-    return protectedResponse("Lab authentication is not configured.", 503);
-  }
-
-  const credentials = readCredentials(context.request.headers.get("Authorization"));
-  if (!credentials || credentials.username !== USERNAME || credentials.password !== expectedPassword) {
-    return protectedResponse("Authentication required", 401);
-  }
-
-  const response = await context.next();
+function withSecurityHeaders(response) {
   const headers = new Headers(response.headers);
   for (const [name, value] of Object.entries(securityHeaders())) headers.set(name, value);
-
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
     headers,
   });
+}
+
+function protectedResponse(message, status) {
+  return withSecurityHeaders(
+    new Response(message, {
+      status,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    }),
+  );
+}
+
+export async function onRequest(context) {
+  let authResponse;
+  try {
+    authResponse = await handleGitHubOAuth({
+      request: context.request,
+      env: context.env,
+    });
+  } catch {
+    return protectedResponse("Admin authentication failed.", 503);
+  }
+  if (authResponse) return withSecurityHeaders(authResponse);
+
+  const session = await verifyAdminSession(context.request, context.env);
+  if (!session) {
+    if (context.request.method === "GET" || context.request.method === "HEAD") {
+      return withSecurityHeaders(
+        Response.redirect(new URL("/auth/github", context.request.url).toString(), 302),
+      );
+    }
+    return protectedResponse("Authentication required.", 401);
+  }
+
+  return withSecurityHeaders(await context.next());
 }
