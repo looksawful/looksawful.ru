@@ -16,7 +16,7 @@ Use Node 24. Install dependencies with `npm ci` when the lockfile/dependencies a
 
 ### Lightweight clones
 
-Routine development does not require downloading the complete repository history. Prefer a partial clone of the development branch:
+Routine engineering development does not require downloading the complete repository history. Prefer a partial clone of the integration branch:
 
 ```bash
 git clone --filter=blob:none --single-branch --branch dev https://github.com/looksawful/looksawful.ru.git
@@ -40,19 +40,32 @@ Git LFS is intentionally not used for the GitHub Pages media contract. Do not ad
 
 `npm run typecheck` runs TypeScript checking. `npm run build:site` is the production site build contract used by the current fast CI flow, where typecheck remains a separate preceding step to avoid duplicate work.
 
-The Pages CMS `Проверить сайт` actions dispatch `.github/workflows/ci-fast.yml` at explicit `ref: dev`. Fast CI performs the repository-growth guard and existing media-state cache/recovery guard, then typecheck, fast tests and `build:site`.
+The current Pages CMS `Проверить сайт` actions dispatch `.github/workflows/ci-fast.yml` at explicit `ref: dev`. Fast CI performs the repository-growth guard and existing media-state cache/recovery guard, then typecheck, fast tests and `build:site`.
 
-## CMS push behavior
+Important: this verifies `dev`. It does **not** prove an editorial batch that still exists only on `content/text-cms`. #451 owns the missing safe branch-specific pre-integration verification/reconciliation contract.
 
-`.github/workflows/ci-fast.yml` listens to pushes on `dev`, but deliberately ignores the configured CMS text/content paths and media paths that have their own handling. Therefore a normal text-only CMS save does not automatically run Fast CI merely because it created a commit.
+## CMS / editorial branch behavior
 
-Use `Проверить сайт` when a manual fast verification is needed. Pull requests targeting `dev` or `prod` are still in the Fast CI PR trigger.
+Project branch policy is explicit:
+
+```text
+engineering: feature/fix/chore -> dev -> separate release -> prod
+editorial: content/text-cms -> explicit READY/"готово" -> dev -> separate release -> prod
+```
+
+`content/text-cms` is permanent, not a disposable temporary branch. It currently exists but must be deliberately reconciled with fresh `dev` before the next authoring cycle. Do not force-reset it and do not silently rebase under an open editor.
+
+`.github/workflows/ci-fast.yml` listens to pushes on `dev`, but deliberately ignores configured CMS text/content paths and media paths that have their own handling. That behavior applies at the integration branch. It does not create verification for unintegrated `content/text-cms` commits.
+
+Pull requests targeting `dev` remain part of the normal engineering verification path.
 
 ## CMS media mutation
 
 The current mutation workflow is `.github/workflows/cms-media.yml` (`CMS media`). It is explicitly tied to `dev` media/content paths.
 
 It can normalize catalog metadata and generated media state, but persistence is guarded to explicit allowed paths. Before writing back it confirms `origin/dev` still matches the source SHA and pushes non-force to `dev`. Verification workflows themselves should not gain arbitrary mutation behavior.
+
+Because the permanent editorial branch is `content/text-cms`, this existing dev-only mutation path must not be mistaken for branch-specific authoring validation. #451 owns the reconciliation/integration boundary; any future branch-specific media tooling must preserve the same generated ownership and fail-closed write guards.
 
 CMS media checks out the source SHA shallowly and fetches only the exact previous push commit needed for diffing and cache comparison. It does not require complete repository history.
 
@@ -64,21 +77,22 @@ Source masters remain preserved; generated technical metadata and derivatives re
 
 The current local HTTP contract is documented in `docs/content-media-desk-api.md`.
 
-Safer read-only-by-default launch, guarded write activation, revision-aware conflict handling and atomic persistence are TARGET work owned by GitHub #452/#453. Do not describe those protections as current behavior until executable code/tests prove them.
+#451/#452/#453 own safer operation: permanent `content/text-cms` provenance and explicit ready gate, read-only-by-default launch, guarded write activation, revision-aware conflict handling and atomic persistence. Do not describe those protections as executable current behavior until code/tests prove them.
 
 ## CMS publication
 
-Pages CMS editing and publication trust are intentionally separate:
+Authoring, integration and publication trust are intentionally separate:
 
 ```text
-edit/save branch: dev
+editorial authoring branch: content/text-cms
+integration branch: dev
 trusted publication workflow ref: prod
 production deployment branch: prod
 ```
 
-This is the CURRENT implemented/documented topology. GitHub #451 tracks a TARGET authoring topology where temporary `content/*` branches/worktrees integrate into fresh `dev` before the existing `dev -> prod` publication boundary. Until #451 lands, do not rewrite current operator instructions as though isolated authoring is already implemented.
+A content batch remains on `content/text-cms` until explicit user `готово`, then is reconciled/validated and integrated into fresh `dev`. Publication preparation begins only from the resulting validated `dev` state.
 
-`Подготовить публикацию` must validate current branch topology and the full `prod..dev` publication scope using trusted `prod` policy, then create/reuse a `dev -> prod` PR. It must not perform the merge/deploy itself.
+`Подготовить публикацию` must validate current `dev`/`prod` topology and the full candidate publication scope using trusted `prod` policy, then create/reuse a `dev -> prod` PR. It must not publish directly from `content/text-cms`, perform the merge, or deploy production itself.
 
 Publication starts from shallow `prod`/`dev` tips. When their trees differ and the common history is not yet available, the workflow deepens history in bounded stages before using a full-history fallback. The content-aware topology guard remains fail-closed.
 
@@ -86,14 +100,15 @@ The publication classifier is separate from ordinary CI change classification: v
 
 ## Production deployment
 
-`.github/workflows/pages.yml` remains explicitly tied to `prod` by both its push branch and job guard. It checks out the exact production SHA and builds/deploys that production state. Changing the repository default branch must not weaken or implicitize this explicit `prod` deployment contract.
+`.github/workflows/pages.yml` remains explicitly tied to `prod` by both its push branch and job guard. It checks out the exact production SHA and builds/deploys that production state. The repository default branch must not weaken or implicitize this explicit `prod` deployment contract.
 
 ## Default-branch assumptions
 
 The GitHub repository default branch is currently `dev`. Operational branch names remain explicit and must not depend on that repository setting:
 
-- development/CMS automation explicitly targets `dev`;
+- engineering integration and existing development automation explicitly target `dev`;
+- permanent editorial authoring policy uses `content/text-cms` before integration to `dev`;
 - production deployment and trusted CMS publication policy explicitly target `prod`;
 - Dependabot explicitly targets `dev`.
 
-If the GitHub default branch changes again in the future, these operational contracts must remain explicit rather than inheriting the new default implicitly.
+If the GitHub default branch changes in the future, these operational contracts must be reviewed explicitly rather than inheriting the new default implicitly.
