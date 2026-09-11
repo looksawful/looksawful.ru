@@ -2,13 +2,37 @@
 
 Status: current authoritative architecture for Pages CMS, content ownership, media ownership and CMS publication safety.
 
-This document supersedes roadmap-era assumptions when they conflict with current code or tests. `docs/cms-content-map.md` remains a detailed inventory, but ownership decisions are governed by this document plus the executable contracts in TypeScript, tests and workflows.
+This document supersedes roadmap-era assumptions when they conflict with the current branch contract. Executable code and tests remain the implementation truth, but stale workflows do not redefine the intended architecture.
+
+## Branch contract
+
+`prod` is the active working / integration / production / deployment source-of-truth branch.
+
+`dev` is archive only. It remains in the repository for historical reference and must not be used for current development, CMS authoring, Media Desk writes, preview, release or deployment.
+
+Writable editorial work uses a temporary `content/*` branch or isolated worktree created from fresh `origin/prod`. Engineering work uses an appropriate temporary feature/fix/chore branch from the same fresh base. Neither CMS nor Media Desk writes directly to `prod`.
+
+The intended authoring flow is:
+
+```text
+fresh origin/prod
+  -> temporary content/* branch or isolated worktree
+  -> CMS / Media Desk authored changes
+  -> exact-SHA validation
+  -> explicit user readiness
+  -> reviewed PR to prod
+  -> normal prod deployment
+```
+
+Any repository workflow that still assumes a permanent development branch is migration debt and must be changed in its own tested engineering slice. It does not override this contract.
 
 ## Architectural rule
 
-Pages CMS edits authored data. TypeScript owns domain identity, architecture and presentation contracts. Media Catalog owns reusable media identity/metadata. Generators own derivatives and generated indexes. Git and GitHub Actions provide audit, validation and controlled publication.
+Pages CMS edits authored data. TypeScript owns domain identity, architecture and presentation contracts. Media Catalog owns reusable media identity/metadata. Generators own derivatives and generated indexes. Git and GitHub Actions provide audit, validation and controlled integration.
 
 A new page or domain entity does not become CMS-managed merely because it exists. CMS integration is added only after the domain/content boundary is stable and editorial editing is useful.
+
+Media Desk is an operator UI over the same canonical CMS/media boundary, not a second CMS or an alternate canonical store. Opening the ordinary Desk must be read-only and side-effect-free.
 
 ## Ownership classes
 
@@ -114,7 +138,7 @@ Media masters are preserved. Source and delivery assets have different ownership
 | Uploaded media technical metadata | media tooling | no | probe/media checks | Media Catalog/build |
 | Routes / canonical / renderer identity | TypeScript `SitePage` architecture | no | route/meta/build tests | runtime/build |
 | CMS option lists | canonical TypeScript IDs + generator | no direct hand sync | `cms:generate` / `cms:check` | `.pages.yml` |
-| CMS publication policy | trusted `prod` engineering code | no | publication-scope/workflow tests | Pages CMS publication action |
+| CMS integration policy | trusted `prod` engineering code | no | scope/workflow tests | authoring/integration actions |
 
 ## CMS generator contract
 
@@ -145,57 +169,30 @@ Registered assets:
 CMS uploads:
 
 - source files are stored only in the configured CMS media surface;
-- Pages CMS supplies the upload record/UUID;
+- the authoring layer supplies the upload record/UUID;
 - media tooling probes and generates technical metadata/derivatives;
 - source masters remain preserved;
 - generated fields are not editorial fields.
 
 Placement-specific captions, alt text and presentation remain with the placement model. Catalog defaults do not silently overwrite page-specific copy.
 
-## CMS publication trust boundary
+## Authoring and integration trust boundary
 
-Pages CMS edits `dev`. CMS publication authorization is executed from trusted `prod`.
+A writable CMS or Media Desk session must operate only inside an explicitly authorized temporary `content/*` branch/worktree derived from fresh `origin/prod`.
 
-```text
-Pages CMS on dev
-        |
-        v
-save/verify dev
-        |
-        v
-prepare publication action
-        |
-        v
-workflow ref = prod
-        |
-        v
-trusted prod checkout + trusted classifier
-        |
-        v
-validate prod/dev topology
-        |
-        v
-classify prod..dev changed paths
-        |
-        +-- engineering or unknown -> BLOCK
-        |
-        +-- explicit CMS-only scope -> create/reuse dev -> prod PR
-```
+Before any mutation, the write boundary must be able to prove at least:
 
-The invariant is: unpublished `dev` cannot expand the permissions used to authorize publication of that same `dev`.
+- the working tree/worktree is not `prod`;
+- the branch is not archival `dev`;
+- the branch matches the allowed temporary authoring pattern;
+- the known base/provenance points to the intended `prod` source state;
+- the operation is within the narrow CMS/media ownership allowlist.
 
-### Branch topology
+Before integration, the candidate is compared with current `origin/prod`, validated at its exact head SHA, and opened as a reviewed PR targeting `prod`. The authoring branch has no deployment authority and cannot expand its own publication permissions.
 
-- identical refs, or different release-history SHAs with identical trees: successful no-op; nothing to publish;
-- `prod` is an ancestor of `dev`: inspect the exact current `origin/prod..origin/dev` file set and apply the publication classifier;
-- diverged history is allowed only when a hypothetical conflict-free merge of current `prod` back into current `dev` produces exactly the current `dev` tree;
-- if that merge would add/change content in `dev`, conflicts, or cannot be proven safe: block before path authorization and synchronize through the normal engineering workflow.
+### Integration classes
 
-Release-only merge history is therefore not itself a blocker. Production-only content missing from `dev` is a blocker.
-
-### Publication classes
-
-`tools/cms-publication-scope.mjs` has five outcomes:
+Existing scope classification concepts remain useful:
 
 - `CMS_CONTENT`
 - `CMS_MEDIA`
@@ -203,37 +200,21 @@ Release-only merge history is therefore not itself a blocker. Production-only co
 - `ENGINEERING`
 - `UNKNOWN`
 
-Only the first three are publishable, and only for explicit current ownership paths. `ENGINEERING` and `UNKNOWN` always block. A mixed diff always blocks.
+Only explicitly configured CMS/content/media/generated paths may qualify as authoring-only changes. `ENGINEERING`, `UNKNOWN`, or mixed scope must fail closed. New files do not gain authoring/integration rights merely by living under `src/content` or `public/media`.
 
-The publication classifier is intentionally separate from `tools/ci/change-scope.mjs`. The latter selects regression coverage; it does not grant production publication rights.
-
-### CMS_CONTENT
-
-Authorization uses explicit current Pages CMS files/collections rather than `src/content/**` as a blanket rule. New files do not gain publication rights merely by being placed under `src/content`.
-
-### CMS_MEDIA
-
-Only configured Pages CMS source media surfaces are allowed. Broad `public/media/**` authorization is forbidden.
-
-### CMS_GENERATED
-
-Only exact deterministic metadata outputs produced by the existing CMS/media synchronization contract are allowed. Broad `public/media/generated/**` authorization is forbidden.
-
-### Engineering/unknown
-
-At minimum, `.pages.yml`, `.github/**`, `tools/**`, application TypeScript, CSS, tests, docs, package/build configuration and all unrecognized paths are not CMS-publishable.
-
-Future CMS ownership must first be introduced as a normal engineering change and reach trusted `prod`; only then may the trusted classifier authorize that new surface.
+The publication/integration classifier is intentionally separate from ordinary CI change classification. Regression coverage is not write or merge authorization.
 
 ## Branch protection policy
 
 Required repository configuration is external to the code contracts.
 
-`prod` should prevent force pushes and deletion and require normal updates through a controlled, reviewable release path with appropriate verification checks. A mandatory approval count is not required solely for ceremony in a solo-maintainer repository.
+`prod` should prevent force pushes and deletion and require controlled, reviewable updates with the appropriate verification checks. A mandatory approval count is not required solely for ceremony in a solo-maintainer repository.
 
-`dev` should prevent destructive force-push/history rewrite and deletion while retaining direct writes required by Pages CMS/media synchronization automation and normal development.
+`dev` is archival. It should remain preserved and disconnected from current write, preview, release and deployment automation. No current workflow should require direct writes to it.
 
-Code/tests must not claim these settings are active until the GitHub protection/ruleset state is re-read and confirms them.
+Temporary `content/*` branches are disposable authoring branches. Their safety comes from fresh-base creation, explicit write guards, exact-SHA validation and reviewed integration into `prod`, not from treating them as permanent infrastructure.
+
+Code/tests must not claim repository settings are active until the GitHub protection/ruleset state is re-read and confirms them.
 
 ## Development independence
 
@@ -246,14 +227,19 @@ code-only experiment
   -> Pages CMS model only when useful
 ```
 
-A new page does not require Media Desk changes. A new media asset uses the existing Media Catalog. Public runtime must not depend on CMS tooling or future internal Media Desk dependencies.
+A new page does not require Media Desk changes. A new media asset uses the existing Media Catalog. Public runtime must not depend on CMS tooling or internal Media Desk dependencies.
+
+## Migration debt
+
+Some current workflows and tests may still encode the historical development-branch topology. They must be characterized and migrated in separate TDD slices. Documentation must not present those legacy assumptions as the intended architecture merely because the implementation has not yet been fully retired.
 
 ## Sources of executable truth
 
-When documentation conflicts with current behavior, inspect in this order:
+For implementation work, inspect in this order:
 
-1. current code and strict parsers;
-2. current tests/contracts;
-3. current workflows/build tooling;
-4. this architecture document;
-5. older roadmaps/inventory notes.
+1. current explicit project branch contract;
+2. current code and strict parsers;
+3. current tests/contracts, distinguishing migration debt from target invariants;
+4. current workflows/build tooling;
+5. this architecture document;
+6. older roadmaps/inventory notes.
