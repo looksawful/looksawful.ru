@@ -3,8 +3,17 @@ import {
   type PortfolioAssistantRoute,
 } from "./prepared-answers.ts";
 
+type GenerateRoute = Extract<PortfolioAssistantRoute, { kind: "generate" }>;
+
+export type PortfolioChatProviderResult =
+  | { text: string }
+  | { kind: "answer"; text: string; sources: readonly string[] }
+  | { kind: "no_data"; text: string; sources: readonly string[] }
+  | { kind: "rate_limited" }
+  | { kind: "unavailable" };
+
 export interface PortfolioChatProvider {
-  generate(input: Extract<PortfolioAssistantRoute, { kind: "generate" }>): Promise<{ text: string }>;
+  generate(input: GenerateRoute): Promise<PortfolioChatProviderResult>;
 }
 
 export interface PortfolioChatServiceInput {
@@ -17,7 +26,20 @@ export type PortfolioChatServiceResult =
   | Extract<PortfolioAssistantRoute, { kind: "prepared" }>
   | { kind: "generated"; text: string; sourceIds: readonly string[] }
   | { kind: "no_data" }
+  | { kind: "rate_limited" }
   | { kind: "unavailable" };
+
+function providerState(
+  result: PortfolioChatProviderResult,
+): "answer" | "no_data" | "rate_limited" | "unavailable" {
+  if (!("kind" in result)) return "answer";
+  return result.kind;
+}
+
+function providerText(result: PortfolioChatProviderResult): string {
+  if ("kind" in result && result.kind !== "answer") return "";
+  return result.text.trim();
+}
 
 export function createPortfolioChatService({ provider }: { provider: PortfolioChatProvider }) {
   return Object.freeze({
@@ -28,7 +50,13 @@ export function createPortfolioChatService({ provider }: { provider: PortfolioCh
 
       try {
         const generated = await provider.generate(route);
-        const text = generated.text.trim();
+        const state = providerState(generated);
+
+        if (state === "no_data") return Object.freeze({ kind: "no_data" as const });
+        if (state === "rate_limited") return Object.freeze({ kind: "rate_limited" as const });
+        if (state === "unavailable") return Object.freeze({ kind: "unavailable" as const });
+
+        const text = providerText(generated);
         if (!text) return Object.freeze({ kind: "unavailable" as const });
 
         return Object.freeze({
