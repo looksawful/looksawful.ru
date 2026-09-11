@@ -207,7 +207,7 @@ jobs:
           test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "Missing GitHub Actions secret: CLOUDFLARE_API_TOKEN" >&2; exit 1; }
 
       - name: Download exact preview artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cloudflare-preview-${{ env.PR_NUMBER }}-${{ env.PR_HEAD_SHA }}
           path: dist
