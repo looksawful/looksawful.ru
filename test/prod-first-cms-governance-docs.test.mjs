@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const GOVERNANCE_FILES = [
+  "AGENTS.md",
   "docs/cms-architecture.md",
   "docs/cms-handbook.md",
   ".agents/skills/looksawful-media-cms/SKILL.md",
@@ -33,7 +34,7 @@ test("authoritative CMS guidance uses prod-first authoring and keeps dev archiva
     );
     assert.doesNotMatch(
       text,
-      /Pages CMS edits `dev`|CMS working source[^\n]*`dev`|ordinary work[^\n]*`dev`|обычная работа[^\n]*`dev`|edit\/save branch:\s*dev|dev\s*->\s*prod|`dev`\s*->\s*`prod`|content\/text-cms/i,
+      /Pages CMS edits `dev`|CMS working source[^\n]*`dev`|ordinary work[^\n]*`dev`|обычная работа[^\n]*`dev`|edit\/save branch:\s*dev|dev\s*->\s*prod|`dev`\s*->\s*`prod`|content\/text-cms|`dev` is the working\/integration branch/i,
       `${path} must not teach the superseded dev-first or permanent content/text-cms topology`,
     );
   }
