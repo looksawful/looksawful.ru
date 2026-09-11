@@ -25,12 +25,16 @@ test("write Desk launch is explicit and uses the guarded launcher path", () => {
   assert.equal(packageJson.scripts["desk:write"], "node tools/run-content-desk.mjs --write");
   assert.match(launcher, /--write/);
   assert.match(launcher, /content-desk-policy\.mjs/);
-  assert.match(launcher, /127\.0\.0\.1|localhost/);
 });
 
 test("Desk write policy fails closed outside the authorized local authoring checkout", async () => {
   assert.match(launcher, /content-desk-policy\.mjs/);
-  const { assertContentDeskWriteAllowed } = await import("../tools/content-desk-policy.mjs");
+  const {
+    assertContentDeskWriteAllowed,
+    CONTENT_DESK_LOOPBACK_HOST,
+  } = await import("../tools/content-desk-policy.mjs");
+
+  assert.equal(CONTENT_DESK_LOOPBACK_HOST, "127.0.0.1");
 
   for (const branch of ["dev", "prod", "feature/test", "fix/test"]) {
     assert.throws(
@@ -58,15 +62,17 @@ test("Desk write policy fails closed outside the authorized local authoring chec
     }),
     /CI\/GitHub Actions/i,
   );
-  assert.throws(
-    () => assertContentDeskWriteAllowed({
-      branch: "content/text-cms",
-      ci: false,
-      githubActions: false,
-      args: ["--host=0.0.0.0"],
-    }),
-    /host/i,
-  );
+  for (const args of [["--host"], ["--host=0.0.0.0"], ["--host=localhost"]]) {
+    assert.throws(
+      () => assertContentDeskWriteAllowed({
+        branch: "content/text-cms",
+        ci: false,
+        githubActions: false,
+        args,
+      }),
+      /host/i,
+    );
+  }
   assert.doesNotThrow(() => assertContentDeskWriteAllowed({
     branch: "content/text-cms",
     ci: false,
