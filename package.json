@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "desk": "npm run media:ensure && node tools/run-content-desk.mjs",
+    "desk": "node tools/run-content-desk.mjs",
     "design:capture": "node tools/design-capture/cli.mjs",
     "design:capture:pages": "node tools/design-capture/cli.mjs --mode=pages",
     "design:capture:components": "node tools/design-capture/cli.mjs --mode=components",
