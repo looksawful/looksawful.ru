@@ -102,6 +102,37 @@ test("assistant transport strips unapproved context values before the provider c
   assert.equal(JSON.stringify(requestBody.context).includes("private@example.com"), false);
 });
 
+test("assistant transport rejects backend source claims outside request evidence", async () => {
+  const { createPortfolioAssistantTransport } = await loadTransport();
+
+  const transport = createPortfolioAssistantTransport({
+    sessionId: "session-source-boundary-1",
+    fetchImpl: async () => new Response(
+      JSON.stringify({
+        kind: "answer",
+        text: "Ответ.",
+        sources: ["project.jestei", "profile.role", "private@example.com"],
+      }),
+      { status: 200, headers: { "content-type": "application/json" } },
+    ),
+  });
+
+  const result = await transport.generate(generateRoute({
+    context: {
+      sourceIds: ["project.jestei"],
+      page: "/work/jestei/",
+      locale: "ru",
+    },
+  }));
+
+  assert.deepEqual(result, {
+    kind: "answer",
+    text: "Ответ.",
+    sources: ["project.jestei"],
+  });
+  assert.equal(JSON.stringify(result).includes("private@example.com"), false);
+});
+
 test("assistant transport maps backend no_data without inventing an answer", async () => {
   const { createPortfolioAssistantTransport } = await loadTransport();
   const transport = createPortfolioAssistantTransport({
