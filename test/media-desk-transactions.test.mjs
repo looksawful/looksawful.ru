@@ -217,7 +217,8 @@ test("text index exposes the exact source revision and save advances it", async 
     const entry = (await loadContentDeskTextEntries(root)).find(
       (item) => item.sourcePath === "src/content/navigation.json" && item.fieldPath === "title",
     );
-    assert.equal(entry?.revision, revision(before));
+    assert.ok(entry, "expected navigation title entry");
+    assert.equal(entry.revision, revision(before));
 
     const saved = await saveContentDeskText(root, {
       sourcePath: "src/content/navigation.json",
