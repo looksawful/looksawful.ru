@@ -2,17 +2,35 @@
 
 Pages CMS используется для обычного редакторского контента и разрешённых metadata. Маршруты, ID, layout, runtime и инженерный код через него менять не нужно.
 
-## Рабочая ветвь
+## Ветви и источник истины
 
-Обычная работа в CMS выполняется в `dev`.
+`prod` — active working / integration / production / deployment source-of-truth branch проекта.
 
-Для обычного редактирования всегда используй `dev` независимо от GitHub default branch. Перед редактированием убедись, что в Pages CMS выбрана именно `dev`.
+`dev` — archive only. Архивная ветвь сохраняется для истории, но не используется для текущего CMS authoring, Media Desk, preview, deployment или release flow.
+
+Редакторская работа, требующая Git-записи, выполняется в изолированной временной ветви `content/*`, созданной от свежего `origin/prod`. CMS/Desk не должны писать напрямую в `prod` или архивный `dev`.
+
+Типовой поток:
+
+```text
+fresh origin/prod
+  -> temporary content/* branch or isolated worktree
+  -> CMS / Media Desk edits
+  -> validation
+  -> explicit user READY / «готово»
+  -> reviewed PR to prod
+  -> normal prod deployment
+```
+
+Если интерфейс Pages CMS ещё технически привязан к старой ветви или workflow, это migration debt, а не разрешение использовать старую topology. До миграции такой путь нельзя считать текущим безопасным authoring flow.
 
 ## Save
 
-`Save` создаёт реальный Git commit в выбранной CMS branch. Для обычного редактирования используется `dev`.
+`Save` создаёт реальный Git commit в выбранной CMS branch. Перед сохранением writable CMS session должна показывать точную ветвь, HEAD/base revision и target.
 
-Сохранение в `dev` не является production deployment и само по себе не меняет опубликованный сайт.
+Разрешённая writable branch — только временная `content/*`, созданная от свежего `origin/prod` и прошедшая branch/worktree guard.
+
+Сохранение в authoring branch не является production deployment и само по себе не меняет опубликованный сайт.
 
 ## Что можно менять
 
@@ -44,29 +62,28 @@ Pages CMS используется для обычного редакторск�
 
 Технические свойства — размеры, MIME, byte length, duration и generated delivery metadata — заполняет tooling. Они не становятся editorial fields. Source master сохраняется.
 
+Media Desk — operator UI поверх того же canonical CMS/media boundary, а не отдельная CMS. Обычный browse-запуск должен быть read-only и не должен синхронизировать или менять repository state просто из-за открытия интерфейса.
+
 Лимиты и детали загрузки описаны отдельно в `docs/media-upload-policy.md`.
 
-## Проверить сайт
+## Проверка
 
-`Проверить сайт` запускает существующий fast verification flow для `dev`. Проверка ничего не публикует.
+Authoring candidate проверяется на точном SHA временной `content/*` ветви. Проверка ничего не публикует и не должна менять canonical authored state.
 
-Если проверка не прошла, изменение не нужно продвигать в production до выяснения причины.
+Перед PR необходимы релевантные narrow checks, а перед merge — обязательные repository gates для candidate SHA.
 
-## Подготовить публикацию
+Если проверка не прошла, изменение не продвигается в `prod` до выяснения причины.
 
-`Подготовить публикацию` запускает trusted publication workflow из `prod`.
+## Подготовка к публикации
 
-Он должен:
+После явного `готово` редакторский candidate сравнивается со свежим `origin/prod`, проверяется на допустимый content/media-only scope и открывает reviewed PR в `prod`.
 
-1. убедиться, что CMS source — `dev`, а trusted policy выполняется из `prod`;
-2. проверить допустимость текущего состояния и полного `dev -> prod` diff;
-3. пропустить только разрешённый CMS-only scope;
-4. создать или переиспользовать pull request `dev -> prod`.
+Подготовка не должна автоматически merge PR, обходить проверки или давать authoring branch самостоятельную deployment authority.
 
-Подготовка публикации не должна merge PR и не должна автоматически deploy production. Merge и production deployment остаются отдельным release-действием.
+Некоторые существующие repository workflows всё ещё могут содержать старые branch assumptions. Пока отдельный migration PR не переведёт их на эту модель и не докажет GREEN тестами, они считаются implementation debt и не переопределяют данный branch contract.
 
 ## Docs и AGENTS.md
 
-Даже если Pages CMS позволяет открыть или изменить documentation/agent files, `docs/**` и `AGENTS.md` являются engineering changes.
+Даже если Pages CMS позволяет открыть или изменить documentation/agent files, `docs/**`, `.agents/**` и `AGENTS.md` являются engineering changes.
 
-Они не должны проходить CMS-only publication allowlist как обычный content-only release. Такие изменения публикуются через normal engineering flow.
+Они не должны проходить CMS-only allowlist как обычный content-only candidate. Такие изменения выполняются через normal engineering branch от свежего `origin/prod` и reviewed PR в `prod`.
