@@ -36,11 +36,14 @@ function commit(root, branch, file, value) {
   git(root, "commit", "-qm", `${branch}: ${value}`);
 }
 
-function inspect(root, { ready = false, files = [] } = {}) {
+function inspect(root, { ready = false, files = [], ci = false } = {}) {
   const args = [topologyScript, "--repo", root, "--dev", "dev"];
   if (ready) args.push("--ready");
   if (files.length) args.push("--files-json", JSON.stringify(files));
-  const result = spawnSync(process.execPath, args, { encoding: "utf8" });
+  const result = spawnSync(process.execPath, args, {
+    encoding: "utf8",
+    env: { ...process.env, CI: ci ? "true" : "0" },
+  });
   let payload = null;
   try {
     payload = JSON.parse(result.stdout || "null");
@@ -77,6 +80,19 @@ test("permanent content/text-cms checkout is recognized and provenance points to
     assert.equal(payload.ready, false);
     assert.equal(payload.integrationAllowed, false);
     assert.equal(payload.integrationReason, "ready-required");
+  });
+});
+
+test("CI never recognizes an editorial checkout as write-authorized", () => {
+  withFixture("ci-blocked", (root) => {
+    git(root, "checkout", "-q", "content/text-cms");
+    const { result, payload } = inspect(root, { ci: true });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(payload.branch, "content/text-cms");
+    assert.equal(payload.authoringAllowed, false);
+    assert.equal(payload.integrationAllowed, false);
+    assert.equal(payload.integrationReason, "authoring-checkout-required");
   });
 });
 
