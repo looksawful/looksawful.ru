@@ -196,12 +196,12 @@ export function filterMediaDeskInventoryRecords(
 export function summarizeMediaDeskDiagnostics(
   records: readonly MediaDeskInventoryRecord[],
 ): MediaDeskInventoryDiagnosticSummary {
-  const summary: MediaDeskInventoryDiagnosticSummary = {
+  const summary = {
     orphan: 0,
     "missing-source": 0,
     "duplicate-id": 0,
     "duplicate-path": 0,
-  };
+  } satisfies Record<MediaDeskInventoryDiagnostic, number>;
 
   for (const record of records) {
     for (const diagnostic of record.diagnostics) {
