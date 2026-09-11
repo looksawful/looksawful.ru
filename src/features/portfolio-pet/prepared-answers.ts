@@ -1,5 +1,6 @@
 import {
   buildPortfolioPetKnowledgeCandidates,
+  selectApprovedKnowledge,
   type PortfolioPetKnowledgeCandidate,
 } from "./knowledge.ts";
 
@@ -18,7 +19,14 @@ export type PortfolioAssistantRoute =
         page: string;
         locale: "ru" | "en";
       };
-    };
+    }
+  | { kind: "no_data" };
+
+export type PortfolioAssistantRouter = (input: {
+  message: string;
+  locale: "ru" | "en";
+  context: Record<string, unknown>;
+}) => PortfolioAssistantRoute;
 
 interface PreparedDefinition {
   id: "about" | "cases" | "resume";
@@ -75,66 +83,92 @@ function preparedIntent(message: string): PreparedDefinition["id"] | null {
   return null;
 }
 
-function candidateMap(): Map<string, PortfolioPetKnowledgeCandidate> {
-  return new Map(buildPortfolioPetKnowledgeCandidates().map((candidate) => [candidate.id, candidate]));
+function pageFromContext(context: Record<string, unknown>): string {
+  return typeof context.page === "string" && context.page.trim()
+    ? context.page.trim()
+    : "home";
 }
 
-function buildPreparedAnswer(id: PreparedDefinition["id"]): Extract<PortfolioAssistantRoute, { kind: "prepared" }> {
-  const candidates = candidateMap();
+function buildPreparedAnswer(
+  id: PreparedDefinition["id"],
+  approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
+): Extract<PortfolioAssistantRoute, { kind: "prepared" }> | null {
   const definition = preparedDefinitions[id];
   const sourceIds = definition.sourceIds === "visible-projects"
-    ? [...candidates.keys()].filter((sourceId) => sourceId.startsWith("project."))
+    ? [...approvedById.keys()].filter((sourceId) => sourceId.startsWith("project."))
     : [...definition.sourceIds];
 
+  if (sourceIds.length === 0) return null;
+
   const selected = sourceIds
-    .map((sourceId) => candidates.get(sourceId))
+    .map((sourceId) => approvedById.get(sourceId))
     .filter((candidate): candidate is PortfolioPetKnowledgeCandidate => Boolean(candidate));
 
-  if (selected.length === 0) {
-    throw new Error(`prepared answer ${id} has no approved source candidates`);
+  if (definition.sourceIds !== "visible-projects" && selected.length !== sourceIds.length) {
+    return null;
   }
+  if (selected.length === 0) return null;
 
   const text = selected
     .map((candidate) => candidate.title ? `${candidate.title}: ${candidate.text}` : candidate.text)
     .filter((value) => value.trim().length > 0)
     .join("\n");
 
-  if (!text.trim()) throw new Error(`prepared answer ${id} resolved to empty content`);
+  if (!text.trim()) return null;
 
   return Object.freeze({
     kind: "prepared",
     answerId: id,
     text,
-    sourceIds: Object.freeze(sourceIds),
+    sourceIds: Object.freeze(selected.map((candidate) => candidate.id)),
   });
 }
 
-function safeSourceIds(context: Record<string, unknown>): readonly string[] {
-  if (!Array.isArray(context.approvedSourceIds)) return Object.freeze([]);
-  const values = context.approvedSourceIds
-    .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
-    .map((value) => value.trim())
-    .slice(0, 12);
-  return Object.freeze([...new Set(values)]);
+function relevantApprovedSourceIds(
+  page: string,
+  approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
+): readonly string[] {
+  const projectId = `project.${page}`;
+  if (approvedById.has(projectId)) return Object.freeze([projectId]);
+  if (page === "home" && approvedById.has("profile.about")) {
+    return Object.freeze(["profile.about"]);
+  }
+  return Object.freeze([]);
 }
 
-export function routePortfolioAssistantRequest(input: {
-  message: string;
-  locale: "ru" | "en";
-  context: Record<string, unknown>;
-}): PortfolioAssistantRoute {
-  const intent = preparedIntent(input.message);
-  if (intent) return buildPreparedAnswer(intent);
+export function createPortfolioAssistantRouter({
+  approvedSourceIds,
+}: {
+  approvedSourceIds: readonly string[];
+}): PortfolioAssistantRouter {
+  const candidates = buildPortfolioPetKnowledgeCandidates();
+  const knownIds = new Set(candidates.map((candidate) => candidate.id));
+  const trustedApprovedIds = [...new Set(approvedSourceIds)]
+    .filter((sourceId) => knownIds.has(sourceId));
+  const approved = selectApprovedKnowledge(candidates, trustedApprovedIds);
+  const approvedById = new Map(approved.map((candidate) => [candidate.id, candidate]));
 
-  return Object.freeze({
-    kind: "generate",
-    message: input.message,
-    context: Object.freeze({
-      sourceIds: safeSourceIds(input.context),
-      page: typeof input.context.page === "string" && input.context.page.trim()
-        ? input.context.page.trim()
-        : "home",
-      locale: input.locale,
-    }),
-  });
+  return (input) => {
+    const intent = preparedIntent(input.message);
+    if (intent) {
+      return buildPreparedAnswer(intent, approvedById)
+        ?? Object.freeze({ kind: "no_data" as const });
+    }
+
+    const page = pageFromContext(input.context);
+    return Object.freeze({
+      kind: "generate",
+      message: input.message,
+      context: Object.freeze({
+        sourceIds: relevantApprovedSourceIds(page, approvedById),
+        page,
+        locale: input.locale,
+      }),
+    });
+  };
 }
+
+// #718 is still awaiting owner approval. Production retrieval therefore fails closed.
+export const routePortfolioAssistantRequest = createPortfolioAssistantRouter({
+  approvedSourceIds: Object.freeze([]),
+});
