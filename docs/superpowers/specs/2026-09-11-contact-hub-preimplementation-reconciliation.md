@@ -62,7 +62,7 @@ Before activating the direct form publicly:
 
 ## 5. PR #724 reconciliation rule
 
-PR #724 is not merged wholesale. Reconciliation occurs file-by-file against current `dev`:
+PR #724 is not merged wholesale. Reconciliation occurs file-by-file against current `dev` lineage:
 
 Keep/refine candidates:
 - feature-flag/lazy mount;
@@ -91,17 +91,25 @@ Frontend production implementation may start only when all are true:
 3. frontend plan and backend plan exist;
 4. five audit reports exist and their blocking findings are incorporated;
 5. broad acceptance no longer forces speculative tab/copy decisions;
-6. a runnable checkout has produced intended RED for the first frontend slice;
+6. an isolated runnable environment has produced intended RED for the first frontend slice;
 7. RED failure is due to missing required behavior, not syntax, imports, toolchain or stale branch state.
 
-At present items 1-5 can be prepared remotely. Item 6 requires a runnable repository environment and fresh evidence.
+**Gate status: SATISFIED.**
+
+Cloud evidence is GitHub Actions run `34619142083` on commit `eb16730fa0c6dd6a82271434721fe64fab26e416`. The branch-only temporary workflow proved successful checkout, Node 24 setup, `npm ci`, intended contract RED, successful `npm run build:vite`, pinned Chromium installation, and intended browser acceptance RED.
+
+The canonical development rule for this feature is now: ordinary verification runs in an isolated cloud environment. A personal/local workstation is not required for normal RED/GREEN work. The temporary workflow must be removed before merge.
 
 ## 7. Frontend Definition of Ready after RED
 
-Once intended RED is observed, implementation proceeds task-by-task with one behavior seam at a time. A later task cannot be used as an excuse to make an earlier RED green through a giant cross-cutting implementation.
+Frontend implementation is ready to start.
+
+Implementation proceeds task-by-task with one behavior seam at a time. A later task cannot be used as an excuse to make an earlier RED green through a giant cross-cutting implementation.
 
 At each task:
 
-`write/refine focused test -> observe intended RED -> minimal implementation -> observe GREEN -> refactor -> focused verification -> provisional KEEP/MOVE/DELETE classification`.
+`write/refine focused test -> cloud RED -> minimal implementation -> cloud GREEN -> focused review -> provisional KEEP/MOVE/DELETE classification`.
+
+This project does not require every exploratory browser detail to be proven before code can move forward. Cheap domain/contract behavior is tested early; responsive/browser/visual checks run at the appropriate AFFECTED stage once the corresponding UI exists.
 
 Final frontend completion additionally requires affected browser acceptance, visual review, focused real-device mobile evidence, accessibility checks and no regression to underlying site behavior.
