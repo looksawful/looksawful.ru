@@ -1,6 +1,6 @@
 import { sitePages } from "../../site/pages/manifest.ts";
-
-export type LabPageVisibility = "live" | "hidden";
+import type { SitePageDefinition } from "../../site/pages/types.ts";
+import { deriveLabPageLifecycle, type LabLifecycle } from "./types.ts";
 
 export interface LabPageCatalogEntry {
   id: string;
@@ -9,16 +9,25 @@ export interface LabPageCatalogEntry {
   listed: boolean;
   indexable: boolean;
   labVisible: true;
-  visibility: LabPageVisibility;
+  visibility: LabLifecycle;
 }
 
-export const LAB_PAGE_CATALOG: readonly LabPageCatalogEntry[] = sitePages.map((page) => ({
-  id: page.id,
-  path: page.path,
-  type: page.type,
-  listed: page.discovery.listed,
-  indexable: page.discovery.indexable,
-  labVisible: true,
-  visibility:
-    page.discovery.listed && page.discovery.indexable ? "live" : "hidden",
-}));
+function toLabPageCatalogEntry(page: SitePageDefinition): LabPageCatalogEntry {
+  return {
+    id: page.id,
+    path: page.path,
+    type: page.type,
+    listed: page.discovery.listed,
+    indexable: page.discovery.indexable,
+    labVisible: true,
+    visibility: deriveLabPageLifecycle({
+      listed: page.discovery.listed,
+      indexable: page.discovery.indexable,
+      developmentStatus: page.development?.status,
+    }),
+  };
+}
+
+export const LAB_PAGE_CATALOG: readonly LabPageCatalogEntry[] = sitePages.map(
+  (page) => toLabPageCatalogEntry(page),
+);
