@@ -1,4 +1,4 @@
-name: Contact Hub Cloud RED
+name: Contact Hub Cloud Domain
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/contact-hub-cloud-red.yml
       - test/contact-hub-domain-contract.test.mjs
+      - test/contact-hub-persistence.test.mjs
       - test/portfolio-pet-interaction-contract.test.mjs
       - test/portfolio-assistant-prepared-contract.test.mjs
       - tools/e2e/contact-hub-acceptance-v2.mjs
@@ -16,11 +17,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: contact-hub-cloud-red-${{ github.ref }}
+  group: contact-hub-cloud-domain-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  expected-red:
+  domain-green:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -36,25 +37,16 @@ jobs:
 
       - run: npm ci
 
-      - name: Confirm intended contract RED
-        shell: bash
-        run: |
-          set +e
-          output="$(node --test \
-            test/contact-hub-domain-contract.test.mjs \
-            test/portfolio-pet-interaction-contract.test.mjs \
-            test/portfolio-assistant-prepared-contract.test.mjs 2>&1)"
-          status=$?
-          set -e
-          printf '%s\n' "$output"
-          if [[ $status -eq 0 ]]; then
-            echo "Expected Contact Hub contract suite to be RED before implementation." >&2
-            exit 1
-          fi
-          if ! grep -q "RED:" <<<"$output"; then
-            echo "Contract suite failed, but not for the intended missing-behavior RED." >&2
-            exit 1
-          fi
+      - name: Contact Hub domain contracts GREEN
+        run: >-
+          node --test
+          test/contact-hub-domain-contract.test.mjs
+          test/contact-hub-persistence.test.mjs
+          test/portfolio-pet-interaction-contract.test.mjs
+          test/portfolio-assistant-prepared-contract.test.mjs
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Build current site
         run: npm run build:vite
@@ -62,7 +54,7 @@ jobs:
       - name: Install pinned Chromium headless shell
         run: npx playwright install --with-deps --only-shell chromium
 
-      - name: Confirm browser acceptance is RED
+      - name: Browser UI remains intentionally RED
         shell: bash
         run: |
           set +e
@@ -70,7 +62,7 @@ jobs:
           status=$?
           set -e
           if [[ $status -eq 0 ]]; then
-            echo "Expected browser acceptance to be RED before Contact Hub implementation." >&2
+            echo "Browser acceptance unexpectedly passed before Contact Hub UI exists." >&2
             exit 1
           fi
-          echo "Browser acceptance is RED as expected before implementation."
+          echo "Domain is GREEN; browser UI is still RED as intended."
