@@ -13,6 +13,15 @@ import {
   collectContentDeskTextEntries,
   type ContentDeskTextEntry,
 } from "./editor-model.ts";
+import {
+  readVersionedFile,
+  replaceFileTransactionally,
+  replaceFilesTransactionally,
+  requireExpectedRevision,
+  RevisionConflictError,
+  serializeCanonicalJson,
+  type TransactionHooks,
+} from "./transaction-store.ts";
 
 const METADATA_API_PATH = "/__media-desk/metadata";
 const METADATA_BULK_API_PATH = "/__media-desk/metadata/bulk";
@@ -38,6 +47,7 @@ const TEXT_SOURCE_DIRECTORIES = [
 
 interface SaveRequest {
   id: string;
+  expectedRevision: string;
   metadata: Record<string, unknown>;
 }
 
@@ -50,6 +60,8 @@ interface TextSaveRequest {
 interface PreparedMediaSave {
   path: string;
   record: Record<string, unknown>;
+  expectedRevision: string;
+  nextSource: string;
 }
 
 function json(
@@ -60,6 +72,10 @@ function json(
   response.statusCode = status;
   response.setHeader("content-type", "application/json; charset=utf-8");
   response.end(`${JSON.stringify(body)}\n`);
+}
+
+function writeErrorStatus(error: unknown): number {
+  return error instanceof RevisionConflictError ? 409 : 400;
 }
 
 async function readJsonBody(request: IncomingMessage): Promise<unknown> {
@@ -81,7 +97,9 @@ function parseSaveRequest(value: unknown): SaveRequest {
     throw new TypeError("Media Desk save request must be an object");
   }
   const record = value as Record<string, unknown>;
-  const unexpected = Object.keys(record).filter((key) => key !== "id" && key !== "metadata");
+  const unexpected = Object.keys(record).filter(
+    (key) => key !== "id" && key !== "metadata" && key !== "expectedRevision",
+  );
   if (unexpected.length > 0) {
     throw new Error(`Media Desk save request has unexpected field "${unexpected[0]}"`);
   }
@@ -91,7 +109,11 @@ function parseSaveRequest(value: unknown): SaveRequest {
   if (!record.metadata || typeof record.metadata !== "object" || Array.isArray(record.metadata)) {
     throw new TypeError("Media Desk save request metadata must be an object");
   }
-  return { id: record.id, metadata: record.metadata as Record<string, unknown> };
+  return {
+    id: record.id,
+    expectedRevision: requireExpectedRevision(record.expectedRevision),
+    metadata: record.metadata as Record<string, unknown>,
+  };
 }
 
 function validateBulkSaveRequests(requests: readonly SaveRequest[]): void {
@@ -103,6 +125,7 @@ function validateBulkSaveRequests(requests: readonly SaveRequest[]): void {
   }
   const ids = new Set<string>();
   for (const request of requests) {
+    requireExpectedRevision(request.expectedRevision);
     if (ids.has(request.id)) {
       throw new Error(`Media Desk bulk save request contains duplicate id "${request.id}"`);
     }
@@ -298,8 +321,13 @@ async function prepareMediaDeskMetadata(
   root: string,
   request: SaveRequest,
 ): Promise<PreparedMediaSave> {
+  const expectedRevision = requireExpectedRevision(request.expectedRevision);
   const target = await existingRecordPath(root, request.id);
-  const current = JSON.parse(await readFile(target.path, "utf8")) as Record<string, unknown>;
+  const versioned = await readVersionedFile(target.path);
+  if (versioned.revision !== expectedRevision) {
+    throw new RevisionConflictError(`Revision conflict for media catalog record "${request.id}"`);
+  }
+  const current = JSON.parse(versioned.source) as Record<string, unknown>;
   if (current.id !== target.recordId) {
     throw new Error(`Media catalog record id mismatch for "${request.id}"`);
   }
@@ -313,11 +341,26 @@ async function prepareMediaDeskMetadata(
   } else {
     parseUploadedMediaCatalogRecord(next);
   }
-  return { path: target.path, record: next };
+  return {
+    path: target.path,
+    record: next,
+    expectedRevision,
+    nextSource: serializeCanonicalJson(next),
+  };
 }
 
-async function writePreparedMediaSave(prepared: PreparedMediaSave): Promise<void> {
-  await writeFile(prepared.path, `${JSON.stringify(prepared.record, null, 2)}\n`, "utf8");
+async function writePreparedMediaSave(
+  prepared: PreparedMediaSave,
+  hooks: TransactionHooks = {},
+): Promise<void> {
+  await replaceFileTransactionally(
+    {
+      path: prepared.path,
+      expectedRevision: prepared.expectedRevision,
+      nextSource: prepared.nextSource,
+    },
+    hooks,
+  );
 }
 
 export async function saveMediaDeskMetadata(
@@ -332,6 +375,7 @@ export async function saveMediaDeskMetadata(
 export async function saveMediaDeskMetadataBulk(
   root: string,
   requests: readonly SaveRequest[],
+  hooks: TransactionHooks = {},
 ): Promise<readonly Record<string, unknown>[]> {
   validateBulkSaveRequests(requests);
 
@@ -340,9 +384,14 @@ export async function saveMediaDeskMetadataBulk(
     prepared.push(await prepareMediaDeskMetadata(root, request));
   }
 
-  for (const item of prepared) {
-    await writePreparedMediaSave(item);
-  }
+  await replaceFilesTransactionally(
+    prepared.map((item) => ({
+      path: item.path,
+      expectedRevision: item.expectedRevision,
+      nextSource: item.nextSource,
+    })),
+    hooks,
+  );
   return prepared.map(({ record }) => record);
 }
 
@@ -370,7 +419,7 @@ export function createMediaDeskWritePlugin(root: string): Plugin {
           json(response, 200, { ok: true, entry });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown Content Desk error";
-          json(response, request.method === "GET" ? 500 : 400, { ok: false, error: message });
+          json(response, request.method === "GET" ? 500 : writeErrorStatus(error), { ok: false, error: message });
         }
       });
 
@@ -386,7 +435,7 @@ export function createMediaDeskWritePlugin(root: string): Plugin {
           json(response, 200, { ok: true, records });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown Media Desk error";
-          json(response, 400, { ok: false, error: message });
+          json(response, writeErrorStatus(error), { ok: false, error: message });
         }
       });
 
@@ -402,7 +451,7 @@ export function createMediaDeskWritePlugin(root: string): Plugin {
           json(response, 200, { ok: true, record });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown Media Desk error";
-          json(response, 400, { ok: false, error: message });
+          json(response, writeErrorStatus(error), { ok: false, error: message });
         }
       });
     },
