@@ -21,7 +21,7 @@
   color: var(--clr-text-muted);
   font-size: clamp(0.72rem, 0.68rem + 0.15cqi, 0.84rem);
   font-weight: var(--fw-400);
-  line-height: 1.36;
+  line-height: var(--lh-caption);
 }
 
 .media__caption-line {
@@ -308,7 +308,7 @@
   overscroll-behavior: contain;
   color: rgb(255 255 255 / 0.72);
   font-size: clamp(0.76rem, 0.72rem + 0.14vw, 0.9rem);
-  line-height: 1.42;
+  line-height: var(--lh-body);
   scrollbar-width: thin;
 }
 
@@ -395,14 +395,6 @@
 
 .project__section .media__caption-line:not([data-media-index]) > .media__index {
   display: none;
-}
-
-.media__caption {
-  line-height: var(--lh-caption);
-}
-
-.media-lightbox__caption {
-  line-height: var(--lh-body);
 }
 
 /* Standalone deck captions live outside the media viewport, so keeping them
