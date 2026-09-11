@@ -26,37 +26,8 @@
 @import "./motion.css" layer(motion);
 @import "./utilities.css" layer(utilities);
 
-/* Typography-only refinements live in the existing cascade layers. */
+/* Deferred component seams remain in the existing components layer. */
 @layer components {
-  .hero h1 {
-    line-height: var(--lh-hero);
-    letter-spacing: var(--ls-hero);
-  }
-
-  .hero > footer > p {
-    line-height: var(--lh-tight);
-    letter-spacing: var(--ls-lead);
-  }
-
-  .group-note,
-  .editorial-note {
-    line-height: var(--lh-body);
-  }
-
-  .brand-system__hover-copy,
-  .jestei-captioned-group .jestei-media__hover-copy {
-    line-height: var(--lh-caption);
-  }
-
-  .contact a {
-    line-height: 0.95;
-    letter-spacing: var(--ls-display);
-  }
-
-  .hero__role {
-    line-height: var(--lh-display);
-  }
-
   .media-group[data-layout="strip"] .portfolio-logo-wall__item .media__surface {
     isolation: isolate;
     background: var(--clr-bg);
