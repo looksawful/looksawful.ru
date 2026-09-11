@@ -266,7 +266,7 @@ test("approved free-form strips PII-bearing page metadata before provider contex
   });
 
   const result = await service.reply({
-    message: "Расскажи подробнее про проект",
+    message: "Как этот подход работает в сложном сценарии?",
     locale: "ru",
     context: {
       page: "https://looksawful.ru/work/jestei/?email=private@example.com#secret",
