@@ -3,6 +3,7 @@ export type SiteAnalyticsConsent = "granted" | "denied" | null;
 
 export type SiteAnalyticsGoal =
   | "project_open"
+  | "case_end"
   | "cv_open"
   | "contact_email"
   | "contact_phone"
@@ -44,6 +45,12 @@ interface MountSiteAnalyticsGoalTrackingOptions {
   config: SiteAnalyticsConfig;
 }
 
+interface MountSiteAnalyticsCaseEndTrackingOptions {
+  root: Document;
+  target: Window;
+  config: SiteAnalyticsConfig;
+}
+
 type YandexMetrikaFunction = ((...args: unknown[]) => void) & {
   a?: unknown[][];
   l?: number;
@@ -62,6 +69,8 @@ const YANDEX_METRIKA_SRC = "https://mc.yandex.ru/metrika/tag.js";
 const ANALYTICS_CONSENT_KEY = "looksawful:analytics-consent";
 const ANALYTICS_INTERNAL_KEY = "looksawful:analytics-internal";
 const ANALYTICS_REGION_KEY = "looksawful:analytics-region";
+const ANALYTICS_ENTITY_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const ANALYTICS_ENTITY_ID_MAX_LENGTH = 64;
 const noop = () => {};
 
 function clean(value: string | null | undefined): string {
@@ -72,6 +81,13 @@ function normalizeAnalyticsCountry(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const normalized = value.trim().toUpperCase();
   return /^[A-Z]{2}$/.test(normalized) ? normalized : null;
+}
+
+function canonicalAnalyticsEntityId(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  if (!normalized || normalized.length > ANALYTICS_ENTITY_ID_MAX_LENGTH) return null;
+  return ANALYTICS_ENTITY_ID_PATTERN.test(normalized) ? normalized : null;
 }
 
 export function parseAnalyticsCountryResponse(value: string): string | null {
@@ -374,6 +390,56 @@ export function reachSiteAnalyticsGoal(
     action_info: event.params,
   });
   return true;
+}
+
+export function mountSiteAnalyticsCaseEndTracking({
+  root,
+  target,
+  config,
+}: MountSiteAnalyticsCaseEndTrackingOptions): () => void {
+  if (isLocalAnalyticsHostname(target.location.hostname)) return noop;
+  if (isSiteAnalyticsInternalTraffic(target)) return noop;
+  if (!parseYandexCounterId(config.yandexCounterId)) return noop;
+  if (root.body?.dataset.pageType !== "case") return noop;
+
+  const entityId = canonicalAnalyticsEntityId(root.body?.dataset.entityId);
+  if (!entityId) return noop;
+
+  let completed = false;
+
+  const destroy = (): void => {
+    target.removeEventListener("scroll", onProgress);
+    target.removeEventListener("resize", onProgress);
+  };
+
+  const onProgress = (): void => {
+    if (completed) return;
+    const scrollHeight = Math.max(
+      root.documentElement?.scrollHeight ?? 0,
+      root.body?.scrollHeight ?? 0,
+    );
+    if (scrollHeight <= 0) return;
+
+    const viewportEnd = Math.ceil(target.scrollY + target.innerHeight);
+    if (viewportEnd < scrollHeight) return;
+
+    const emitted = reachSiteAnalyticsGoal(target, config, {
+      goal: "case_end",
+      params: Object.freeze({
+        page: analyticsPagePath(target),
+        target: entityId,
+      }),
+    });
+    if (!emitted) return;
+
+    completed = true;
+    destroy();
+  };
+
+  target.addEventListener("scroll", onProgress, { passive: true });
+  target.addEventListener("resize", onProgress);
+  onProgress();
+  return destroy;
 }
 
 export function mountSiteAnalyticsGoalTracking({
