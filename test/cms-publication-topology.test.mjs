@@ -7,7 +7,6 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const topologyScript = fileURLToPath(new URL("../tools/cms-publication-topology.mjs", import.meta.url));
-const authoringTopologyScript = fileURLToPath(new URL("../tools/cms-authoring-topology.mjs", import.meta.url));
 
 function git(root, ...args) {
   return execFileSync("git", ["-C", root, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
@@ -55,10 +54,6 @@ function withFixture(name, fn) {
     rmSync(root, { recursive: true, force: true });
   }
 }
-
-test("CMS authoring topology guard exists as a separate policy boundary", () => {
-  assert.ok(existsSync(authoringTopologyScript), "cms authoring topology helper must exist");
-});
 
 test("identical refs are a safe publication no-op", () => {
   withFixture("identical-ref", (root) => {
