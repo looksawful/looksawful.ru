@@ -9,6 +9,7 @@ if (url.searchParams.has("view")) {
 async function bootMediaDesk(): Promise<void> {
   await import("./main.ts");
   await import("./editor.ts");
+  await import("./inventory-readonly.ts");
 }
 
 void bootMediaDesk();
