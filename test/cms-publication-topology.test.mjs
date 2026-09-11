@@ -21,7 +21,7 @@ function fixture(name) {
   git(root, "add", ".");
   git(root, "commit", "-qm", "base");
   git(root, "branch", "prod");
-  git(root, "branch", "dev");
+  git(root, "branch", "source");
   return root;
 }
 
@@ -34,7 +34,7 @@ function writeCommit(root, branch, value, message) {
 
 function inspect(root) {
   assert.ok(existsSync(topologyScript), "cms publication topology helper must exist");
-  const result = spawnSync(process.execPath, [topologyScript, "--repo", root, "--prod", "prod", "--dev", "dev"], {
+  const result = spawnSync(process.execPath, [topologyScript, "--repo", root, "--prod", "prod", "--source", "source"], {
     encoding: "utf8",
   });
   let payload = null;
@@ -55,7 +55,7 @@ function withFixture(name, fn) {
   }
 }
 
-test("identical refs are a safe publication no-op", () => {
+test("identical prod and authoring source are a safe publication no-op", () => {
   withFixture("identical-ref", (root) => {
     const { result, payload } = inspect(root);
     assert.equal(result.status, 0, result.stderr);
@@ -65,14 +65,13 @@ test("identical refs are a safe publication no-op", () => {
   });
 });
 
-test("normal dev-to-prod merge commit with the same tree is a safe publication no-op", () => {
-  withFixture("release-tree", (root) => {
-    writeCommit(root, "dev", "release", "dev release");
-    git(root, "checkout", "-q", "prod");
-    git(root, "merge", "--no-ff", "-qm", "release dev", "dev");
+test("different commits with identical trees are a safe publication no-op", () => {
+  withFixture("identical-tree", (root) => {
+    git(root, "checkout", "-q", "source");
+    git(root, "commit", "--allow-empty", "-qm", "metadata-only source commit");
 
-    assert.notEqual(git(root, "rev-parse", "prod"), git(root, "rev-parse", "dev"));
-    assert.equal(git(root, "rev-parse", "prod^{tree}"), git(root, "rev-parse", "dev^{tree}"));
+    assert.notEqual(git(root, "rev-parse", "prod"), git(root, "rev-parse", "source"));
+    assert.equal(git(root, "rev-parse", "prod^{tree}"), git(root, "rev-parse", "source^{tree}"));
 
     const { result, payload } = inspect(root);
     assert.equal(result.status, 0, result.stderr);
@@ -82,9 +81,9 @@ test("normal dev-to-prod merge commit with the same tree is a safe publication n
   });
 });
 
-test("linear dev changes after prod remain publishable", () => {
+test("temporary source descended from current prod is publishable", () => {
   withFixture("linear", (root) => {
-    writeCommit(root, "dev", "cms edit", "cms edit");
+    writeCommit(root, "source", "cms edit", "cms edit");
     const { result, payload } = inspect(root);
     assert.equal(result.status, 0, result.stderr);
     assert.equal(payload.safe, true);
@@ -93,59 +92,37 @@ test("linear dev changes after prod remain publishable", () => {
   });
 });
 
-test("dev may advance after a normal release merge when merging prod back would not change dev content", () => {
-  withFixture("aligned-divergence", (root) => {
-    writeCommit(root, "dev", "release", "release content");
-    git(root, "checkout", "-q", "prod");
-    git(root, "merge", "--no-ff", "-qm", "release dev", "dev");
-    writeCommit(root, "dev", "cms edit after release", "cms edit");
-
-    const ancestor = spawnSync("git", ["-C", root, "merge-base", "--is-ancestor", "prod", "dev"]);
-    assert.equal(ancestor.status, 1, "fixture must reproduce non-linear release history");
-
-    const { result, payload } = inspect(root);
-    assert.equal(result.status, 0, result.stderr);
-    assert.equal(payload.safe, true);
-    assert.equal(payload.nothingToPublish, false);
-    assert.equal(payload.mode, "history-diverged-content-aligned");
-  });
-});
-
-test("production-only content blocks CMS publication even when histories otherwise look like a normal release", () => {
-  withFixture("prod-hotfix", (root) => {
-    writeCommit(root, "dev", "release", "release content");
-    git(root, "checkout", "-q", "prod");
-    git(root, "merge", "--no-ff", "-qm", "release dev", "dev");
-    writeFileSync(join(root, "prod-only.txt"), "production hotfix\n");
-    git(root, "add", "prod-only.txt");
-    git(root, "commit", "-qm", "prod hotfix");
-    writeCommit(root, "dev", "cms edit after release", "cms edit");
+test("authoring source becomes stale when prod advances after branch creation", () => {
+  withFixture("stale-source", (root) => {
+    writeCommit(root, "prod", "prod advanced", "prod advanced");
 
     const { result, payload } = inspect(root);
     assert.notEqual(result.status, 0);
     assert.equal(payload.safe, false);
     assert.equal(payload.nothingToPublish, false);
-    assert.equal(payload.mode, "prod-content-not-in-dev");
+    assert.equal(payload.mode, "source-stale");
   });
 });
 
-test("conflicting prod and dev content blocks CMS publication", () => {
-  withFixture("conflict", (root) => {
+test("diverged authoring source fails closed", () => {
+  withFixture("diverged", (root) => {
     writeCommit(root, "prod", "prod version", "prod change");
-    writeCommit(root, "dev", "dev version", "dev change");
+    writeCommit(root, "source", "source version", "source change");
 
     const { result, payload } = inspect(root);
     assert.notEqual(result.status, 0);
     assert.equal(payload.safe, false);
     assert.equal(payload.nothingToPublish, false);
-    assert.equal(payload.mode, "diverged-conflict");
+    assert.equal(payload.mode, "source-diverged");
   });
 });
 
-test("Pages CMS publication delegates topology decisions to the content-aware guard", () => {
+test("Pages CMS publication delegates prod/source topology before scope authorization", () => {
   const workflow = readFileSync(new URL("../.github/workflows/pages-cms-publish.yml", import.meta.url), "utf8");
   assert.match(workflow, /node tools\/cms-publication-topology\.mjs/);
-  assert.doesNotMatch(workflow, /merge-base --is-ancestor origin\/prod origin\/dev/);
+  assert.match(workflow, /--prod origin\/prod/);
+  assert.match(workflow, /--source origin\/cms-source/);
+  assert.doesNotMatch(workflow, /origin\/dev|--dev\b/);
   assert.match(workflow, /steps\.topology\.outputs\.nothing_to_publish != 'true'/);
   assert.match(workflow, /node tools\/cms-publication-scope\.mjs/);
 });
