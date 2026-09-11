@@ -72,8 +72,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "Missing CLOUDFLARE_ACCOUNT_ID." >&2; exit 1; }
-          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "Missing CLOUDFLARE_API_TOKEN." >&2; exit 1; }
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { printf '%s\n' "Missing Cloudflare account id." >&2; exit 1; }
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { printf '%s\n' "Missing Cloudflare API token." >&2; exit 1; }
 
       - name: Ensure dedicated private Admin Pages project
         env:
@@ -136,9 +136,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${ADMIN_GITHUB_CLIENT_ID:-}" || { echo "Missing ADMIN_GITHUB_CLIENT_ID." >&2; exit 1; }
-          test -n "${ADMIN_GITHUB_CLIENT_SECRET:-}" || { echo "Missing ADMIN_GITHUB_CLIENT_SECRET." >&2; exit 1; }
-          test -n "${ADMIN_SESSION_SECRET:-}" || { echo "Missing ADMIN_SESSION_SECRET." >&2; exit 1; }
+          test -n "${ADMIN_GITHUB_CLIENT_ID:-}" || { printf '%s\n' "Missing required private Admin runtime binding." >&2; exit 1; }
+          test -n "${ADMIN_GITHUB_CLIENT_SECRET:-}" || { printf '%s\n' "Missing required private Admin runtime binding." >&2; exit 1; }
+          test -n "${ADMIN_SESSION_SECRET:-}" || { printf '%s\n' "Missing required private Admin runtime binding." >&2; exit 1; }
 
           secrets_file="${RUNNER_TEMP}/looksawful-admin-secrets.json"
           jq -n \
@@ -258,7 +258,7 @@ jobs:
             --dump-header /tmp/admin-auth-headers.txt --output /dev/null \
             "${admin_origin}/auth/github"
           grep -Eqi '^HTTP/[0-9.]+ 302' /tmp/admin-auth-headers.txt
-          grep -Eqi '^location: https://github\.com/login/oauth/authorize\?' /tmp/admin-auth-headers.txt
+          grep -Fqi 'location: https://github.com/login/oauth/authorize?' /tmp/admin-auth-headers.txt
           grep -Eqi '^set-cookie: __Host-looksawful-oauth-state=' /tmp/admin-auth-headers.txt
           grep -Eqi '^set-cookie: .*HttpOnly' /tmp/admin-auth-headers.txt
           grep -Eqi '^set-cookie: .*Secure' /tmp/admin-auth-headers.txt
