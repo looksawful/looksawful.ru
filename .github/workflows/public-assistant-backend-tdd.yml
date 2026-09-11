@@ -1,0 +1,40 @@
+name: Public Assistant Backend TDD
+
+on:
+  push:
+    branches:
+      - public-assistant-backend-current
+    paths:
+      - .github/workflows/public-assistant-backend-tdd.yml
+      - test/public-assistant-handler-contract.test.mjs
+      - server/public-assistant/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-assistant-backend-tdd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Focused public assistant backend contracts
+        run: node --test test/public-assistant-handler-contract.test.mjs
+
+      - name: Typecheck
+        run: npm run typecheck
