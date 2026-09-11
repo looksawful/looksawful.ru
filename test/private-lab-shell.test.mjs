@@ -19,18 +19,23 @@ test("private Lab is an isolated non-production build", async () => {
   assert.match(labHtml, /data-mode="read-only"/);
 });
 
-test("private Lab middleware is deployment-scoped, fail-closed, and non-indexable", async () => {
-  const middleware = await read("lab/functions/_middleware.js");
+test("private Lab middleware is deployment-scoped, fail-closed, OAuth-protected, and non-indexable", async () => {
+  const [middleware, oauth] = await Promise.all([
+    read("lab/functions/_middleware.js"),
+    read("lab/functions/github-oauth.js"),
+  ]);
 
-  assert.match(middleware, /LAB_PASSWORD/);
-  assert.match(middleware, /authentication is not configured/i);
+  assert.match(middleware, /github-oauth\.js/);
+  assert.doesNotMatch(middleware, /LAB_PASSWORD|WWW-Authenticate|\bBasic\b/);
   assert.match(middleware, /503/);
-  assert.match(middleware, /WWW-Authenticate/);
   assert.match(middleware, /X-Robots-Tag/);
   assert.match(middleware, /noindex, nofollow, noarchive/);
   assert.match(middleware, /Cache-Control/);
   assert.match(middleware, /private, no-store/);
   assert.match(middleware, /X-Frame-Options/);
+  assert.match(oauth, /ADMIN_GITHUB_CLIENT_ID/);
+  assert.match(oauth, /ADMIN_GITHUB_CLIENT_SECRET/);
+  assert.match(oauth, /ADMIN_SESSION_SECRET/);
 });
 
 test("Lab client stays read-only and carries exact build provenance fields", async () => {
