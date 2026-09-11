@@ -37,12 +37,14 @@ function unavailable(): PortfolioAssistantTransportResult {
   return Object.freeze({ kind: "unavailable" as const });
 }
 
-function safeSources(value: unknown): readonly string[] {
+function safeSources(value: unknown, allowedSourceIds: readonly string[]): readonly string[] {
   if (!Array.isArray(value)) return Object.freeze([]);
+  const allowed = new Set(allowedSourceIds);
 
   const sources = value
     .filter((source): source is string => typeof source === "string" && source.trim().length > 0)
     .map((source) => source.trim())
+    .filter((source) => allowed.has(source))
     .slice(0, MAX_SOURCE_IDS);
 
   return Object.freeze([...new Set(sources)]);
@@ -82,7 +84,10 @@ function safeCurrentPath(value: string, sourceIds: readonly string[]): string {
   return `/work/${projectSlug}/`;
 }
 
-function parseResponse(payload: unknown): PortfolioAssistantTransportResult {
+function parseResponse(
+  payload: unknown,
+  allowedSourceIds: readonly string[],
+): PortfolioAssistantTransportResult {
   if (!payload || typeof payload !== "object") return unavailable();
 
   const record = payload as Record<string, unknown>;
@@ -96,7 +101,7 @@ function parseResponse(payload: unknown): PortfolioAssistantTransportResult {
     return Object.freeze({
       kind: "answer" as const,
       text: record.text.trim(),
-      sources: safeSources(record.sources),
+      sources: safeSources(record.sources, allowedSourceIds),
     });
   }
 
@@ -105,7 +110,7 @@ function parseResponse(payload: unknown): PortfolioAssistantTransportResult {
     return Object.freeze({
       kind: "no_data" as const,
       text: record.text.trim(),
-      sources: safeSources(record.sources),
+      sources: safeSources(record.sources, allowedSourceIds),
     });
   }
 
@@ -152,7 +157,7 @@ export function createPortfolioAssistantTransport({
         if (!response.ok) return unavailable();
 
         try {
-          return parseResponse(await response.json());
+          return parseResponse(await response.json(), sourceIds);
         } catch {
           return unavailable();
         }
