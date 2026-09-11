@@ -218,7 +218,7 @@ export async function renderContentDeskTextView(app: HTMLElement): Promise<void>
     const payload = await response.json() as { ok?: boolean; entries?: VersionedTextEntry[]; error?: string };
     if (!response.ok || !payload.ok || !Array.isArray(payload.entries)) throw new Error(payload.error ?? `HTTP ${response.status}`);
 
-    const entries = payload.entries.map((entry) => ({ ...entry }));
+    const entries: VersionedTextEntry[] = payload.entries.map((entry) => ({ ...entry }));
     const sources = [...new Set(entries.map(({ sourcePath }) => sourcePath))].sort();
     let selected: VersionedTextEntry | null = null;
     let currentDetail: DetailController | null = null;
