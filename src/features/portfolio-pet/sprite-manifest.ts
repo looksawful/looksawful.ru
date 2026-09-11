@@ -122,3 +122,15 @@ export function parseSpriteManifest(value: unknown): SpriteManifest {
     animations,
   };
 }
+
+export function resolveSpriteAnimation(
+  manifest: SpriteManifest,
+  animationName: string,
+): SpriteAnimationDefinition {
+  const requested = manifest.animations[animationName];
+  if (requested) return requested;
+
+  const idle = manifest.animations.idle;
+  if (!idle) throw new Error("sprite manifest.animations.idle is required");
+  return idle;
+}
