@@ -40,6 +40,7 @@ export const fastTests = new Set([
   "test/jestei-event-migration.test.mjs",
   "test/lab-catalog-contract.test.mjs",
   "test/lab-component-catalog.test.mjs",
+  "test/lab-frame-tools-contract.test.mjs",
   "test/lab-lifecycle-contract.test.mjs",
   "test/lab-state.test.mjs",
   "test/lab-target-policy.test.mjs",
