@@ -1,16 +1,35 @@
 # CMS handbook
 
+Status: CURRENT Pages CMS operator handbook. CURRENT behavior and open TARGET authoring work are separated explicitly.
+
 Pages CMS используется для обычного редакторского контента и разрешённых metadata. Маршруты, ID, layout, runtime и инженерный код через него менять не нужно.
 
 ## Рабочая ветвь
 
-Обычная работа в CMS выполняется в `dev`.
+В CURRENT Pages CMS модели обычная работа выполняется в `dev`.
 
-Для обычного редактирования всегда используй `dev` независимо от GitHub default branch. Перед редактированием убедись, что в Pages CMS выбрана именно `dev`.
+`dev` является GitHub default branch и working/integration branch. `prod` является production/release/deploy branch.
+
+Перед редактированием убедись, что в Pages CMS выбрана именно `dev`. Не используй `prod` как обычную редакторскую ветвь.
+
+### TARGET: изолированное authoring
+
+GitHub #451 отслеживает более безопасную модель параллельной редакторской работы:
+
+```text
+fresh dev
+  -> temporary content/* branch/worktree
+  -> authoring
+  -> validation/review
+  -> integration into fresh dev
+  -> existing dev -> prod publication flow
+```
+
+Это TARGET, а не текущая инструкция. Не переключай рабочий процесс на эту схему частично, пока executable tooling/tests и связанные operator docs не будут согласованы вместе.
 
 ## Save
 
-`Save` создаёт реальный Git commit в выбранной CMS branch. Для обычного редактирования используется `dev`.
+`Save` создаёт реальный Git commit в выбранной CMS branch. В CURRENT Pages CMS модели для обычного редактирования используется `dev`.
 
 Сохранение в `dev` не является production deployment и само по себе не меняет опубликованный сайт.
 
@@ -46,6 +65,16 @@ Pages CMS используется для обычного редакторск�
 
 Лимиты и детали загрузки описаны отдельно в `docs/media-upload-policy.md`.
 
+## Local Content / Media Desk
+
+Local Desk — отдельный developer/operator tool, а не второе имя Pages CMS.
+
+`npm run desk` CURRENTLY запускает write-capable mode: launcher включает `CONTENT_DESK_WRITE=1` / `VITE_CONTENT_DESK_WRITE=1`, а startup выполняет `media:ensure`, который может синхронизировать derived media state до открытия интерфейса.
+
+Поэтому текущий `npm run desk` нельзя считать read-only browser. Локальный HTTP/write contract описан в `docs/content-media-desk-api.md`.
+
+GitHub #452/#453 владеют TARGET hardening: read-only-by-default launch, guarded write activation, более строгая source authorization, revision/conflict semantics и atomic persistence. Не считать эти protections реализованными до появления executable evidence.
+
 ## Проверить сайт
 
 `Проверить сайт` запускает существующий fast verification flow для `dev`. Проверка ничего не публикует.
@@ -58,7 +87,7 @@ Pages CMS используется для обычного редакторск�
 
 Он должен:
 
-1. убедиться, что CMS source — `dev`, а trusted policy выполняется из `prod`;
+1. убедиться, что CURRENT CMS source — `dev`, а trusted policy выполняется из `prod`;
 2. проверить допустимость текущего состояния и полного `dev -> prod` diff;
 3. пропустить только разрешённый CMS-only scope;
 4. создать или переиспользовать pull request `dev -> prod`.
