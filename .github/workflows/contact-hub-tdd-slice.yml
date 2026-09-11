@@ -7,7 +7,9 @@ on:
     paths:
       - .github/workflows/contact-hub-tdd-slice.yml
       - test/portfolio-pet-sprite-manifest-contract.test.mjs
+      - test/portfolio-pet-venus-manifest-contract.test.mjs
       - src/features/portfolio-pet/sprite-manifest.ts
+      - src/features/portfolio-pet/venus-manifest.ts
 
 permissions:
   contents: read
@@ -33,8 +35,11 @@ jobs:
 
       - run: npm ci
 
-      - name: Focused sprite manifest contract
-        run: node --test test/portfolio-pet-sprite-manifest-contract.test.mjs
+      - name: Focused Venus sprite contracts
+        run: >-
+          node --test
+          test/portfolio-pet-sprite-manifest-contract.test.mjs
+          test/portfolio-pet-venus-manifest-contract.test.mjs
 
       - name: Typecheck
         run: npm run typecheck
