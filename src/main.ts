@@ -1,4 +1,5 @@
 import "./styles/site-analytics-consent.css";
+import "./styles/contact-hub.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
 import { hydrateDeferredVideoSource } from "./components/deferred-video-source.ts";
@@ -12,6 +13,7 @@ import { createPageFlips } from "./components/page-flip.ts";
 import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
 import { mountExpertise } from "./components/expertise.ts";
 import { mountExperience } from "./components/experience.ts";
+import { mountContactHub } from "./components/contact-hub.ts";
 import { mountSiteAnalyticsConsent } from "./components/site-analytics-consent.ts";
 import {
   mountSiteAnalytics,
@@ -130,10 +132,12 @@ mountExpertise(document);
 mountExperience(document);
 
 const motion = createMotionPreference();
+const destroyContactHub = mountContactHub(document);
 const destroys: Destroy[] = [
   destroySiteAnalyticsGoalTracking,
   destroySiteAnalyticsCaseEndTracking,
   destroySiteAnalyticsConsent,
+  destroyContactHub,
 ];
 let destroyed = false;
 
