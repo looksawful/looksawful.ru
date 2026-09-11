@@ -50,6 +50,8 @@ export const fastTests = new Set([
   "test/security-tooling.test.mjs",
   "test/site-analytics.test.mjs",
   "test/site-composition.test.mjs",
+  "test/site-copy-coverage.test.mjs",
+  "test/site-copy-tooling-contract.test.mjs",
   "test/site-pages.test.mjs",
   "test/static-site-analytics.test.mjs",
   "test/stylelint-tooling.test.mjs",
