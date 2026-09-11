@@ -7,7 +7,9 @@ on:
     paths:
       - .github/workflows/portfolio-assistant-transport-tdd.yml
       - test/portfolio-assistant-transport-contract.test.mjs
+      - test/portfolio-assistant-client-contract.test.mjs
       - src/features/portfolio-pet/assistant-transport.ts
+      - src/features/portfolio-pet/assistant-client.ts
       - src/features/portfolio-pet/portfolio-chat-service.ts
 
 permissions:
@@ -34,8 +36,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Focused assistant transport contract
-        run: node --test test/portfolio-assistant-transport-contract.test.mjs
+      - name: Focused assistant transport contracts
+        run: node --test test/portfolio-assistant-transport-contract.test.mjs test/portfolio-assistant-client-contract.test.mjs
 
       - name: Typecheck
         run: npm run typecheck
