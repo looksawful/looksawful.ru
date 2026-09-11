@@ -19,8 +19,8 @@ test("private Lab is an isolated non-production build", async () => {
   assert.match(labHtml, /data-mode="read-only"/);
 });
 
-test("private Lab middleware fails closed and adds non-indexing security headers", async () => {
-  const middleware = await read("functions/_middleware.js");
+test("private Lab middleware is deployment-scoped, fail-closed, and non-indexable", async () => {
+  const middleware = await read("lab/functions/_middleware.js");
 
   assert.match(middleware, /LAB_PASSWORD/);
   assert.match(middleware, /authentication is not configured/i);
