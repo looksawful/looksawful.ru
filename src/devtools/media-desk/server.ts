@@ -1,4 +1,4 @@
-import { access, readFile, readdir, writeFile } from "node:fs/promises";
+import { access, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
@@ -18,6 +18,7 @@ import {
   replaceFileTransactionally,
   replaceFilesTransactionally,
   requireExpectedRevision,
+  revisionForSource,
   RevisionConflictError,
   serializeCanonicalJson,
   type TransactionHooks,
@@ -55,6 +56,11 @@ interface TextSaveRequest {
   sourcePath: string;
   fieldPath: string;
   value: string;
+  expectedRevision: string;
+}
+
+export interface VersionedContentDeskTextEntry extends ContentDeskTextEntry {
+  revision: string;
 }
 
 interface PreparedMediaSave {
@@ -147,7 +153,7 @@ function parseTextSaveRequest(value: unknown): TextSaveRequest {
     throw new TypeError("Content Desk text save request must be an object");
   }
   const record = value as Record<string, unknown>;
-  const allowed = new Set(["sourcePath", "fieldPath", "value"]);
+  const allowed = new Set(["sourcePath", "fieldPath", "value", "expectedRevision"]);
   const unexpected = Object.keys(record).filter((key) => !allowed.has(key));
   if (unexpected.length > 0) {
     throw new Error(`Content Desk text save request has unexpected field "${unexpected[0]}"`);
@@ -165,6 +171,7 @@ function parseTextSaveRequest(value: unknown): TextSaveRequest {
     sourcePath: record.sourcePath,
     fieldPath: record.fieldPath,
     value: record.value,
+    expectedRevision: requireExpectedRevision(record.expectedRevision),
   };
 }
 
@@ -203,9 +210,18 @@ async function existingRecordPath(root: string, id: string): Promise<{
   throw new Error(`Media catalog record "${id}" was not found`);
 }
 
-async function readTextSource(root: string, sourcePath: string): Promise<[string, unknown]> {
+async function readTextSource(
+  root: string,
+  sourcePath: string,
+): Promise<{ sourcePath: string; value: unknown; source: string; revision: string }> {
   const absolutePath = resolve(root, sourcePath);
-  return [sourcePath, JSON.parse(await readFile(absolutePath, "utf8"))];
+  const versioned = await readVersionedFile(absolutePath);
+  return {
+    sourcePath,
+    value: JSON.parse(versioned.source),
+    source: versioned.source,
+    revision: versioned.revision,
+  };
 }
 
 function arrayIndex(segment: string): number | null {
@@ -271,12 +287,20 @@ export function replaceContentDeskTextLeaf(
   return source;
 }
 
-export async function loadContentDeskTextEntries(root: string): Promise<readonly ContentDeskTextEntry[]> {
+export async function loadContentDeskTextEntries(
+  root: string,
+): Promise<readonly VersionedContentDeskTextEntry[]> {
   const sources: Record<string, unknown> = {};
+  const revisions = new Map<string, string>();
+
+  const addSource = async (sourcePath: string): Promise<void> => {
+    const loaded = await readTextSource(root, sourcePath);
+    sources[sourcePath] = loaded.value;
+    revisions.set(sourcePath, loaded.revision);
+  };
 
   for (const sourcePath of TEXT_SOURCE_FILES) {
-    const [path, value] = await readTextSource(root, sourcePath);
-    sources[path] = value;
+    await addSource(sourcePath);
   }
 
   for (const directoryPath of TEXT_SOURCE_DIRECTORIES) {
@@ -289,18 +313,21 @@ export async function loadContentDeskTextEntries(root: string): Promise<readonly
 
     for (const filename of jsonFiles) {
       const sourcePath = join(directoryPath, filename).replaceAll("\\", "/");
-      const [path, value] = await readTextSource(root, sourcePath);
-      sources[path] = value;
+      await addSource(sourcePath);
     }
   }
 
-  return collectContentDeskTextEntries(sources);
+  return collectContentDeskTextEntries(sources).map((entry) => ({
+    ...entry,
+    revision: revisions.get(entry.sourcePath) ?? "",
+  }));
 }
 
 export async function saveContentDeskText(
   root: string,
   request: TextSaveRequest,
-): Promise<ContentDeskTextEntry> {
+): Promise<VersionedContentDeskTextEntry> {
+  const expectedRevision = requireExpectedRevision(request.expectedRevision);
   const entries = await loadContentDeskTextEntries(root);
   const allowed = entries.some(
     (entry) => entry.sourcePath === request.sourcePath && entry.fieldPath === request.fieldPath,
@@ -311,10 +338,40 @@ export async function saveContentDeskText(
     );
   }
 
-  const [sourcePath, current] = await readTextSource(root, request.sourcePath);
-  const next = replaceContentDeskTextLeaf(current, request.fieldPath, request.value);
-  await writeFile(resolve(root, sourcePath), `${JSON.stringify(next, null, 2)}\n`, "utf8");
-  return { sourcePath, fieldPath: request.fieldPath, value: request.value };
+  const current = await readTextSource(root, request.sourcePath);
+  if (current.revision !== expectedRevision) {
+    throw new RevisionConflictError(
+      `Revision conflict for Content Desk source "${request.sourcePath}"`,
+    );
+  }
+
+  const next = replaceContentDeskTextLeaf(current.value, request.fieldPath, request.value);
+  const candidateEntries = collectContentDeskTextEntries({ [request.sourcePath]: next });
+  if (!candidateEntries.some((entry) => entry.fieldPath === request.fieldPath)) {
+    throw new Error(
+      `Content Desk text entry "${request.sourcePath}#${request.fieldPath}" is not editable after validation`,
+    );
+  }
+
+  const nextSource = serializeCanonicalJson(next);
+  await replaceFileTransactionally({
+    path: resolve(root, request.sourcePath),
+    expectedRevision,
+    nextSource,
+  });
+
+  return {
+    sourcePath: request.sourcePath,
+    fieldPath: request.fieldPath,
+    value: request.value,
+    revision: revisionForSource(nextSource),
+  };
+}
+
+export async function loadMediaDeskRevision(root: string, id: string): Promise<string> {
+  if (!SAFE_ASSET_ID.test(id)) throw new TypeError("Media Desk asset id is invalid");
+  const target = await existingRecordPath(root, id);
+  return (await readVersionedFile(target.path)).revision;
 }
 
 async function prepareMediaDeskMetadata(
@@ -395,6 +452,13 @@ export async function saveMediaDeskMetadataBulk(
   return prepared.map(({ record }) => record);
 }
 
+function requestAssetId(request: IncomingMessage): string {
+  const url = new URL(request.url ?? "/", "http://localhost");
+  const id = url.searchParams.get("id") ?? "";
+  if (!SAFE_ASSET_ID.test(id)) throw new TypeError("Media Desk asset id is invalid");
+  return id;
+}
+
 export function createMediaDeskWritePlugin(root: string): Plugin {
   return {
     name: "looksawful-media-desk-write",
@@ -419,7 +483,11 @@ export function createMediaDeskWritePlugin(root: string): Plugin {
           json(response, 200, { ok: true, entry });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown Content Desk error";
-          json(response, request.method === "GET" ? 500 : writeErrorStatus(error), { ok: false, error: message });
+          json(
+            response,
+            request.method === "GET" ? 500 : writeErrorStatus(error),
+            { ok: false, error: message },
+          );
         }
       });
 
@@ -432,7 +500,10 @@ export function createMediaDeskWritePlugin(root: string): Plugin {
         try {
           const payload = parseBulkSaveRequest(await readJsonBody(request));
           const records = await saveMediaDeskMetadataBulk(root, payload);
-          json(response, 200, { ok: true, records });
+          const revisions = await Promise.all(
+            payload.map(async ({ id }) => ({ id, revision: await loadMediaDeskRevision(root, id) })),
+          );
+          json(response, 200, { ok: true, records, revisions });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown Media Desk error";
           json(response, writeErrorStatus(error), { ok: false, error: message });
@@ -440,18 +511,30 @@ export function createMediaDeskWritePlugin(root: string): Plugin {
       });
 
       server.middlewares.use(METADATA_API_PATH, async (request, response) => {
-        if (request.method !== "POST") {
+        if (request.method !== "GET" && request.method !== "POST") {
           json(response, 405, { ok: false, error: "Method not allowed" });
           return;
         }
 
         try {
+          if (request.method === "GET") {
+            const id = requestAssetId(request);
+            const revision = await loadMediaDeskRevision(root, id);
+            json(response, 200, { ok: true, id, revision });
+            return;
+          }
+
           const payload = parseSaveRequest(await readJsonBody(request));
           const record = await saveMediaDeskMetadata(root, payload);
-          json(response, 200, { ok: true, record });
+          const revision = await loadMediaDeskRevision(root, payload.id);
+          json(response, 200, { ok: true, record, revision });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown Media Desk error";
-          json(response, writeErrorStatus(error), { ok: false, error: message });
+          json(
+            response,
+            request.method === "GET" ? 400 : writeErrorStatus(error),
+            { ok: false, error: message },
+          );
         }
       });
     },
