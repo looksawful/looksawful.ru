@@ -9,6 +9,9 @@ on:
       - test/portfolio-chat-service-contract.test.mjs
       - test/portfolio-assistant-client-contract.test.mjs
       - test/contact-hub-handoff-contract.test.mjs
+      - test/contact-hub-prototype-ui-contract.test.mjs
+      - src/components/contact-hub.ts
+      - src/styles/contact-hub.css
       - src/features/portfolio-pet/knowledge.ts
       - src/features/portfolio-pet/prepared-answers.ts
       - src/features/portfolio-pet/portfolio-chat-service.ts
@@ -47,6 +50,7 @@ jobs:
           test/portfolio-chat-service-contract.test.mjs
           test/portfolio-assistant-client-contract.test.mjs
           test/contact-hub-handoff-contract.test.mjs
+          test/contact-hub-prototype-ui-contract.test.mjs
 
       - name: Typecheck
         run: npm run typecheck
