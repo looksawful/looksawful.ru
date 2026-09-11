@@ -13,7 +13,7 @@ This repository has two permanent operational branches:
 
 Production deployment is explicitly tied to `prod`; the repository default branch is not used as an implicit deployment selector.
 
-Before changing the project, read [AGENTS.md](./AGENTS.md). Current documentation is indexed in [docs/README.md](./docs/README.md). Executable code, parsers, tests and workflows outrank prose when they disagree.
+Before changing the project, read [AGENTS.md](./AGENTS.md). Current documentation is indexed in [docs/README.md](./docs/README.md). Use [docs/agent-context/](./docs/agent-context/) as a compact navigation layer for agent work; canonical project documents remain the detailed guidance. Executable code, parsers, tests and workflows outrank prose when they disagree.
 
 Common entry points:
 
