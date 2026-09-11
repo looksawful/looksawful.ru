@@ -10,6 +10,7 @@ const UNSAVED_CONFIRM_MESSAGE = "Есть несохранённые измен�
 
 type SaveState = "saved" | "unsaved" | "saving" | "error";
 type ConfirmDiscard = (message: string) => boolean;
+type VersionedTextEntry = ContentDeskTextEntry & { revision: string };
 
 interface DetailController {
   node: HTMLElement;
@@ -85,7 +86,7 @@ function setSaveState(node: HTMLElement, state: SaveState, message?: string): vo
   node.textContent = message ? `${labels[state]} · ${message}` : labels[state];
 }
 
-function detailPane(entry: ContentDeskTextEntry, onBack: () => void, onSaved: () => void): DetailController {
+function detailPane(entry: VersionedTextEntry, onBack: () => void, onSaved: () => void): DetailController {
   const pane = element("aside", "text-desk__detail");
   const header = element("header", "text-desk__detail-header");
   const back = element("button", "text-desk__back", "Назад");
@@ -142,11 +143,23 @@ function detailPane(entry: ContentDeskTextEntry, onBack: () => void, onSaved: ()
       const response = await fetch(TEXT_API, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ sourcePath: entry.sourcePath, fieldPath: entry.fieldPath, value: textarea.value }),
+        body: JSON.stringify({
+          sourcePath: entry.sourcePath,
+          fieldPath: entry.fieldPath,
+          value: textarea.value,
+          expectedRevision: entry.revision,
+        }),
       });
-      const payload = await response.json() as { ok?: boolean; error?: string };
-      if (!response.ok || !payload.ok) throw new Error(payload.error ?? `HTTP ${response.status}`);
+      const payload = await response.json() as {
+        ok?: boolean;
+        entry?: { revision?: string };
+        error?: string;
+      };
+      if (!response.ok || !payload.ok || typeof payload.entry?.revision !== "string") {
+        throw new Error(payload.error ?? `HTTP ${response.status}`);
+      }
       entry.value = textarea.value;
+      entry.revision = payload.entry.revision;
       state = "saved";
       save.disabled = true;
       setSaveState(stateNode, state);
@@ -202,12 +215,12 @@ export async function renderContentDeskTextView(app: HTMLElement): Promise<void>
 
   try {
     const response = await fetch(TEXT_API);
-    const payload = await response.json() as { ok?: boolean; entries?: ContentDeskTextEntry[]; error?: string };
+    const payload = await response.json() as { ok?: boolean; entries?: VersionedTextEntry[]; error?: string };
     if (!response.ok || !payload.ok || !Array.isArray(payload.entries)) throw new Error(payload.error ?? `HTTP ${response.status}`);
 
-    const entries = payload.entries.map((entry) => ({ ...entry }));
+    const entries: VersionedTextEntry[] = payload.entries.map((entry) => ({ ...entry }));
     const sources = [...new Set(entries.map(({ sourcePath }) => sourcePath))].sort();
-    let selected: ContentDeskTextEntry | null = null;
+    let selected: VersionedTextEntry | null = null;
     let currentDetail: DetailController | null = null;
     const summary = app.querySelector(".media-desk__summary");
     if (summary) summary.textContent = `${entries.length} текстовых полей · ${sources.length} sources`;
@@ -255,7 +268,7 @@ export async function renderContentDeskTextView(app: HTMLElement): Promise<void>
       root.classList.remove("text-desk--detail-open");
       render();
     };
-    const select = (entry: ContentDeskTextEntry): void => {
+    const select = (entry: VersionedTextEntry): void => {
       if (selected === entry) return;
       if (currentDetail && !currentDetail.canLeave()) return;
       selected = entry;
