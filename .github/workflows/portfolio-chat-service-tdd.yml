@@ -1,0 +1,39 @@
+name: Portfolio Chat Service TDD
+
+on:
+  push:
+    branches:
+      - contact-hub-frontend-current
+    paths:
+      - test/portfolio-chat-service-contract.test.mjs
+      - src/features/portfolio-pet/portfolio-chat-service.ts
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-chat-service-tdd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Focused portfolio chat contract
+        run: node --test test/portfolio-chat-service-contract.test.mjs
+
+      - name: Typecheck
+        run: npm run typecheck
