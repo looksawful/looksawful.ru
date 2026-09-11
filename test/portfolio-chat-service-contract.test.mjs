@@ -3,10 +3,16 @@ import { existsSync } from "node:fs";
 import test from "node:test";
 
 const serviceUrl = new URL("../src/features/portfolio-pet/portfolio-chat-service.ts", import.meta.url);
+const answersUrl = new URL("../src/features/portfolio-pet/prepared-answers.ts", import.meta.url);
 
 async function loadService() {
   assert.equal(existsSync(serviceUrl), true, "RED: portfolio chat service is not implemented yet");
   return import(serviceUrl.href);
+}
+
+async function approvedRouter(sourceIds) {
+  const { createPortfolioAssistantRouter } = await import(answersUrl.href);
+  return createPortfolioAssistantRouter({ approvedSourceIds: sourceIds });
 }
 
 test("AI prepared answers never call the generative provider", async () => {
@@ -20,6 +26,7 @@ test("AI prepared answers never call the generative provider", async () => {
         return { text: "provider should not be called" };
       },
     },
+    router: await approvedRouter(["profile.role", "profile.about"]),
   });
 
   const result = await service.reply({
@@ -33,7 +40,7 @@ test("AI prepared answers never call the generative provider", async () => {
   assert.ok(result.text.trim().length > 0);
 });
 
-test("free-form input without approved evidence returns no_data without calling the provider", async () => {
+test("production-default service ignores caller-declared approvals and returns no_data", async () => {
   const { createPortfolioChatService } = await loadService();
   let providerCalls = 0;
 
@@ -47,9 +54,36 @@ test("free-form input without approved evidence returns no_data without calling 
   });
 
   const result = await service.reply({
+    message: "Как устроено решение?",
+    locale: "ru",
+    context: {
+      page: "jestei",
+      approvedSourceIds: ["project.jestei"],
+    },
+  });
+
+  assert.equal(result.kind, "no_data");
+  assert.equal(providerCalls, 0);
+});
+
+test("free-form input without approved evidence returns no_data without calling the provider", async () => {
+  const { createPortfolioChatService } = await loadService();
+  let providerCalls = 0;
+
+  const service = createPortfolioChatService({
+    provider: {
+      async generate() {
+        providerCalls += 1;
+        return { text: "provider should not be called" };
+      },
+    },
+    router: await approvedRouter([]),
+  });
+
+  const result = await service.reply({
     message: "Как ты относишься к космической архитектуре?",
     locale: "ru",
-    context: { page: "home", approvedSourceIds: [] },
+    context: { page: "home" },
   });
 
   assert.equal(result.kind, "no_data");
@@ -69,6 +103,7 @@ test("approved free-form input calls the provider once with only routed safe con
         return { text: "Короткий ответ." };
       },
     },
+    router: await approvedRouter(["profile.about", "project.jestei"]),
   });
 
   const result = await service.reply({
@@ -76,7 +111,7 @@ test("approved free-form input calls the provider once with only routed safe con
     locale: "ru",
     context: {
       page: "jestei",
-      approvedSourceIds: ["profile.about", "project.jestei"],
+      approvedSourceIds: ["attacker.injected"],
       email: "private@example.com",
       formMessage: "secret form draft",
     },
@@ -84,13 +119,13 @@ test("approved free-form input calls the provider once with only routed safe con
 
   assert.equal(providerCalls, 1);
   assert.equal(providerInput.kind, "generate");
-  assert.deepEqual(providerInput.context.sourceIds, ["profile.about", "project.jestei"]);
+  assert.deepEqual(providerInput.context.sourceIds, ["project.jestei"]);
   assert.equal(Object.hasOwn(providerInput.context, "email"), false);
   assert.equal(Object.hasOwn(providerInput.context, "formMessage"), false);
   assert.deepEqual(result, {
     kind: "generated",
     text: "Короткий ответ.",
-    sourceIds: ["profile.about", "project.jestei"],
+    sourceIds: ["project.jestei"],
   });
 });
 
@@ -103,12 +138,13 @@ test("provider failure becomes unavailable instead of rejecting the Hub request"
         throw new Error("provider offline");
       },
     },
+    router: await approvedRouter(["project.jestei"]),
   });
 
   const result = await service.reply({
     message: "Расскажи подробнее про дизайн продукта",
     locale: "ru",
-    context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
+    context: { page: "jestei" },
   });
 
   assert.deepEqual(result, { kind: "unavailable" });
@@ -123,12 +159,13 @@ test("blank provider response becomes unavailable instead of an empty generated 
         return { text: "   \n  " };
       },
     },
+    router: await approvedRouter(["project.jestei"]),
   });
 
   const result = await service.reply({
     message: "Как этот подход масштабируется на необычный сценарий?",
     locale: "ru",
-    context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
+    context: { page: "jestei" },
   });
 
   assert.deepEqual(result, { kind: "unavailable" });
@@ -147,12 +184,13 @@ test("transport-style answer becomes a generated service result", async () => {
         };
       },
     },
+    router: await approvedRouter(["project.jestei"]),
   });
 
   const result = await service.reply({
     message: "Как устроено решение для сложного сценария?",
     locale: "ru",
-    context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
+    context: { page: "jestei" },
   });
 
   assert.deepEqual(result, {
@@ -164,10 +202,11 @@ test("transport-style answer becomes a generated service result", async () => {
 
 test("transport-style no_data and rate_limited states survive orchestration", async () => {
   const { createPortfolioChatService } = await loadService();
+  const router = await approvedRouter(["project.jestei"]);
   const input = {
     message: "Как устроено решение для сложного сценария?",
     locale: "ru",
-    context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
+    context: { page: "jestei" },
   };
 
   const noDataService = createPortfolioChatService({
@@ -176,6 +215,7 @@ test("transport-style no_data and rate_limited states survive orchestration", as
         return { kind: "no_data", text: "", sources: [] };
       },
     },
+    router,
   });
   assert.deepEqual(await noDataService.reply(input), { kind: "no_data" });
 
@@ -185,6 +225,7 @@ test("transport-style no_data and rate_limited states survive orchestration", as
         return { kind: "rate_limited" };
       },
     },
+    router,
   });
   assert.deepEqual(await limitedService.reply(input), { kind: "rate_limited" });
 });
@@ -198,12 +239,13 @@ test("transport-style unavailable state survives orchestration", async () => {
         return { kind: "unavailable" };
       },
     },
+    router: await approvedRouter(["project.jestei"]),
   });
 
   const result = await service.reply({
     message: "Как устроено решение для сложного сценария?",
     locale: "ru",
-    context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
+    context: { page: "jestei" },
   });
 
   assert.deepEqual(result, { kind: "unavailable" });
