@@ -35,12 +35,5 @@ export function resetScratchCss(
   storage: Pick<Storage, "removeItem">,
 ): void {
   storage.removeItem(LAB_SCRATCH_STORAGE_KEY);
-
-  const style = doc.getElementById(LAB_SCRATCH_STYLE_ID);
-  if (style instanceof HTMLElement) {
-    style.remove();
-    return;
-  }
-
-  style?.remove();
+  doc.getElementById(LAB_SCRATCH_STYLE_ID)?.remove();
 }
