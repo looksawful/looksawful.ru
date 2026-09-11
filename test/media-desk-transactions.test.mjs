@@ -6,6 +6,8 @@ import path from "node:path";
 import test from "node:test";
 
 import {
+  loadContentDeskTextEntries,
+  saveContentDeskText,
   saveMediaDeskMetadata,
   saveMediaDeskMetadataBulk,
 } from "../src/devtools/media-desk/server.ts";
@@ -53,6 +55,24 @@ async function fixture(records) {
     files.set(record.id, file);
   }
   return { root, files };
+}
+
+async function textFixture(navigation) {
+  const root = await mkdtemp(path.join(os.tmpdir(), "text-desk-transactions-"));
+  const contentRoot = path.join(root, "src/content");
+  for (const directory of [
+    "editorial",
+    "cases",
+    "collections",
+    "shootings",
+    "standalone-projects",
+  ]) {
+    await mkdir(path.join(contentRoot, directory), { recursive: true });
+  }
+  const file = path.join(contentRoot, "navigation.json");
+  await writeFile(file, `${JSON.stringify(navigation, null, 2)}\n`, "utf8");
+  await writeFile(path.join(contentRoot, "projects.json"), "{}\n", "utf8");
+  return { root, file };
 }
 
 test("single media mutation requires expectedRevision", async () => {
@@ -185,6 +205,53 @@ test("mid-bulk persistence failure rolls back already replaced files", async () 
 
     assert.equal(await readFile(firstFile, "utf8"), firstBefore);
     assert.equal(await readFile(secondFile, "utf8"), secondBefore);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("text index exposes the exact source revision and save advances it", async () => {
+  const { root, file } = await textFixture({ title: "Old", route: "/protected" });
+  try {
+    const before = await readFile(file, "utf8");
+    const entry = (await loadContentDeskTextEntries(root)).find(
+      (item) => item.sourcePath === "src/content/navigation.json" && item.fieldPath === "title",
+    );
+    assert.equal(entry?.revision, revision(before));
+
+    const saved = await saveContentDeskText(root, {
+      sourcePath: "src/content/navigation.json",
+      fieldPath: "title",
+      value: "New",
+      expectedRevision: entry.revision,
+    });
+    const after = await readFile(file, "utf8");
+    assert.equal(JSON.parse(after).title, "New");
+    assert.equal(JSON.parse(after).route, "/protected");
+    assert.equal(saved.revision, revision(after));
+    assert.notEqual(saved.revision, entry.revision);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("stale text mutation is rejected and preserves newer bytes", async () => {
+  const { root, file } = await textFixture({ title: "Old" });
+  try {
+    const before = await readFile(file, "utf8");
+    const newer = `${JSON.stringify({ title: "Newer" }, null, 2)}\n`;
+    await writeFile(file, newer, "utf8");
+
+    await assert.rejects(
+      saveContentDeskText(root, {
+        sourcePath: "src/content/navigation.json",
+        fieldPath: "title",
+        value: "Stale",
+        expectedRevision: revision(before),
+      }),
+      /conflict|revision/i,
+    );
+    assert.equal(await readFile(file, "utf8"), newer);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
