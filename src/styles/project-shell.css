@@ -49,8 +49,8 @@
   max-inline-size: 16ch;
   font-size: var(--fs-800);
   font-weight: var(--fw-700);
-  line-height: 0.9;
-  letter-spacing: -0.04em;
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-heading);
 
   & > img {
     display: block;
@@ -65,16 +65,16 @@
   font-size: var(--fs-400);
   font-weight: var(--fw-400);
   line-height: 1.38;
-  letter-spacing: -0.012em;
+  letter-spacing: var(--ls-copy);
 }
 
 .project__lead,
 .text-lead {
-  max-inline-size: 32ch;
+  max-inline-size: 36ch;
   font-size: var(--fs-600);
   font-weight: var(--fw-500);
-  line-height: 1.18;
-  letter-spacing: -0.035em;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
 }
 
 .project__lead {
@@ -155,16 +155,16 @@
   max-inline-size: 12ch;
   font-size: clamp(1.55rem, 1.2rem + 1.15cqi, 2.35rem);
   font-weight: var(--fw-600);
-  line-height: 1;
-  letter-spacing: -0.045em;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-display);
 }
 
 .section-copy__text {
   max-inline-size: var(--project-copy-max);
   font-size: clamp(1rem, 0.925rem + 0.35cqi, 1.25rem);
   font-weight: var(--fw-400);
-  line-height: 1.48;
-  letter-spacing: -0.012em;
+  line-height: var(--lh-copy);
+  letter-spacing: var(--ls-copy);
 }
 
 @container project-section (width > 45rem) {
@@ -183,52 +183,14 @@
   max-inline-size: 15ch;
   font-size: clamp(1.4rem, 1.1rem + 1cqi, 2.15rem);
   font-weight: var(--fw-600);
-  line-height: 1;
-  letter-spacing: -0.04em;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-heading);
 }
 
 .project__section > p:not([class]),
 .project__section > section > p:not([class]) {
   max-inline-size: var(--project-copy-max);
   font-size: var(--fs-400);
-  line-height: 1.48;
-  letter-spacing: -0.012em;
+  line-height: var(--lh-copy);
+  letter-spacing: var(--ls-copy);
 }
-
-  .project__title {
-    line-height: var(--lh-display);
-    letter-spacing: var(--ls-heading);
-  }
-
-  .project__summary {
-    letter-spacing: var(--ls-copy);
-  }
-
-  .project__lead,
-  .text-lead {
-    max-inline-size: 36ch;
-    line-height: var(--lh-tight);
-    letter-spacing: var(--ls-tight);
-  }
-
-  .section-copy__title {
-    line-height: var(--lh-heading);
-    letter-spacing: var(--ls-display);
-  }
-
-  .section-copy__text {
-    line-height: var(--lh-copy);
-    letter-spacing: var(--ls-copy);
-  }
-
-  .project__section > :is(h2, h3),
-  .project__section > section > :is(h2, h3) {
-    line-height: var(--lh-heading);
-    letter-spacing: var(--ls-heading);
-  }
-
-  .project__section > p:not([class]),
-  .project__section > section > p:not([class]) {
-    line-height: var(--lh-copy);
-    letter-spacing: var(--ls-copy);
-  }

@@ -10,13 +10,15 @@ const index = read("src/styles/index.css");
 const captureConfig = read("tools/design-capture/config.mjs");
 
 test("project header canonical owner contains base, wide, compact and typography contracts", () => {
-  assert.match(header, /\.project__head\s*\{[\s\S]*?display:\s*grid;/);
+  assert.match(
+    header,
+    /\.project__head\s*\{[\s\S]*?display:\s*grid;[\s\S]*?font-size:\s*var\(--fs-300\);[\s\S]*?line-height:\s*var\(--lh-heading\);/,
+  );
   assert.match(header, /\.project__name\s*\{[\s\S]*?grid-area:\s*project;/);
   assert.match(header, /\.project__role\s*\{[\s\S]*?grid-area:\s*role;/);
   assert.match(header, /\.project__period\s*\{[\s\S]*?grid-area:\s*period;/);
   assert.match(header, /@container project \(width > 50rem\)[\s\S]*?\.project__head\s*\{/);
   assert.match(header, /@container project \(width <= 50rem\)[\s\S]*?\.project__name,[\s\S]*?\.project__head > img/);
-  assert.match(header, /\.project__head\s*\{\s*line-height:\s*var\(--lh-heading\);\s*\}/);
 });
 
 test("components aggregate no longer owns project header presentation", () => {
@@ -30,16 +32,14 @@ test("index no longer carries a late project header patch", () => {
   assert.doesNotMatch(index, /\.project__head\s*\{\s*line-height:\s*var\(--lh-heading\);\s*\}/);
 });
 
-test("project header source order and Design Capture ownership stay explicit", () => {
+test("project header responsive source order and Design Capture ownership stay explicit", () => {
   const base = header.indexOf(".project__head {\n  display: grid;");
   const wide = header.indexOf("@container project (width > 50rem)");
   const compact = header.indexOf("@container project (width <= 50rem)");
-  const typography = header.lastIndexOf(".project__head {\n    line-height: var(--lh-heading);");
 
   assert.ok(base >= 0, "missing base project header block");
   assert.ok(wide > base, "wide header contract must follow base");
   assert.ok(compact > wide, "compact extension must preserve its later source order");
-  assert.ok(typography > compact, "late typography refinement must remain last within the owner");
 
   const marker = 'name: "project-header"';
   const from = captureConfig.indexOf(marker);
