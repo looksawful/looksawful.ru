@@ -11,6 +11,7 @@
     "design:capture:pages": "node tools/design-capture/cli.mjs --mode=pages",
     "design:capture:components": "node tools/design-capture/cli.mjs --mode=components",
     "design:capture:selfcheck": "node tools/design-capture/selfcheck.mjs",
+    "outreach:link": "node tools/outreach-link.mjs",
     "toolchain:doctor": "node tools/ci/toolchain-doctor.mjs",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.tools.json",
     "lint": "npx --yes oxlint@1.80.0 src tools",
