@@ -28,9 +28,12 @@ export function createPortfolioChatService({ provider }: { provider: PortfolioCh
 
       try {
         const generated = await provider.generate(route);
+        const text = generated.text.trim();
+        if (!text) return Object.freeze({ kind: "unavailable" as const });
+
         return Object.freeze({
           kind: "generated" as const,
-          text: generated.text,
+          text,
           sourceIds: route.context.sourceIds,
         });
       } catch {
