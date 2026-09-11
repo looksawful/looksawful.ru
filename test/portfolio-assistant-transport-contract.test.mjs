@@ -70,6 +70,38 @@ test("assistant transport sends only the narrow public request contract", async 
   });
 });
 
+test("assistant transport strips unapproved context values before the provider call", async () => {
+  const { createPortfolioAssistantTransport } = await loadTransport();
+  let requestBody = null;
+
+  const transport = createPortfolioAssistantTransport({
+    sessionId: "session-privacy-1",
+    fetchImpl: async (_url, init) => {
+      requestBody = JSON.parse(init.body);
+      return new Response(
+        JSON.stringify({ kind: "answer", text: "Ответ.", sources: ["project.jestei"] }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    },
+  });
+
+  const route = generateRoute({
+    context: {
+      sourceIds: ["project.jestei", "private@example.com", "unknown.source"],
+      page: "https://looksawful.ru/work/jestei/?email=private@example.com#secret",
+      locale: "ru",
+    },
+  });
+
+  await transport.generate(route);
+
+  assert.deepEqual(requestBody.context, {
+    currentPath: "/work/jestei/",
+    sourceIds: ["project.jestei"],
+  });
+  assert.equal(JSON.stringify(requestBody.context).includes("private@example.com"), false);
+});
+
 test("assistant transport maps backend no_data without inventing an answer", async () => {
   const { createPortfolioAssistantTransport } = await loadTransport();
   const transport = createPortfolioAssistantTransport({
