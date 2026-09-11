@@ -1,0 +1,66 @@
+:root {
+  color: #111;
+  background: #f4f4f0;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+a { color: inherit; }
+
+.lab-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 64px;
+}
+
+.lab-header,
+.lab-panel,
+.lab-warning {
+  border: 1px solid rgb(17 17 17 / 18%);
+  background: #fff;
+}
+
+.lab-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+}
+
+.lab-kicker,
+.lab-mode,
+.lab-panel h2,
+.lab-provenance dt,
+.lab-tool small {
+  text-transform: lowercase;
+  letter-spacing: .04em;
+}
+
+.lab-kicker { margin: 0 0 8px; font-size: 12px; }
+h1 { margin: 0; font-size: clamp(32px, 6vw, 72px); font-weight: 500; line-height: .95; }
+.lab-mode { font-size: 12px; border: 1px solid currentColor; padding: 8px 10px; white-space: nowrap; }
+
+.lab-panel { margin-top: 16px; padding: 24px; }
+.lab-panel h2 { margin: 0 0 20px; font-size: 13px; font-weight: 600; }
+
+.lab-provenance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.lab-provenance > div { min-width: 0; padding: 14px; background: #f4f4f0; }
+.lab-provenance dt { font-size: 11px; opacity: .55; }
+.lab-provenance dd { margin: 6px 0 0; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; }
+
+.lab-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.lab-tool { display: flex; min-height: 112px; flex-direction: column; justify-content: space-between; padding: 16px; border: 1px solid rgb(17 17 17 / 18%); text-decoration: none; }
+a.lab-tool:hover, a.lab-tool:focus-visible { background: #111; color: #fff; outline: none; }
+.lab-tool[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.lab-tool small { font-size: 11px; line-height: 1.4; }
+
+.lab-warning { margin-top: 16px; padding: 16px 24px; font-size: 13px; line-height: 1.5; }
+
+@media (max-width: 700px) {
+  .lab-shell { width: min(100% - 20px, 1120px); padding-top: 10px; }
+  .lab-header { flex-direction: column; }
+  .lab-provenance, .lab-tools { grid-template-columns: 1fr; }
+}
