@@ -93,3 +93,23 @@ test("approved free-form input calls the provider once with only routed safe con
     sourceIds: ["profile.about", "project.jestei"],
   });
 });
+
+test("provider failure becomes unavailable instead of rejecting the Hub request", async () => {
+  const { createPortfolioChatService } = await loadService();
+
+  const service = createPortfolioChatService({
+    provider: {
+      async generate() {
+        throw new Error("provider offline");
+      },
+    },
+  });
+
+  const result = await service.reply({
+    message: "Расскажи подробнее про дизайн продукта",
+    locale: "ru",
+    context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
+  });
+
+  assert.deepEqual(result, { kind: "unavailable" });
+});
