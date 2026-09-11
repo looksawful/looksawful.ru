@@ -7,6 +7,10 @@ User-agent: *
 Content-Signal: search=yes, ai-input=no, ai-train=no, use=reference
 Allow: /
 
+User-agent: Yandex
+Allow: /
+Clean-param: sha
+
 User-agent: GPTBot
 Disallow: /
 
