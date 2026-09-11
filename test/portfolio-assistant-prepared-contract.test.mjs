@@ -94,7 +94,7 @@ test("AI-011/AI-012: unknown ids in the trusted approval list fail closed instea
   });
 
   const result = routePortfolioAssistantRequest({
-    message: "Расскажи подробнее про этот проект",
+    message: "Как устроено это решение подробнее?",
     locale: "ru",
     context: { page: "jestei" },
   });
