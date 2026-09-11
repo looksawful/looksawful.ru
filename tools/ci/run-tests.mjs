@@ -66,6 +66,7 @@ export const fastTests = new Set([
   "test/stylelint-tooling.test.mjs",
   "test/styx-cms-copy.test.mjs",
   "test/webvisor-retained-assets.test.mjs",
+  "test/yandex-discovery-contract.test.mjs",
 ]);
 
 const ciTests = new Set([

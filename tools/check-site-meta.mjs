@@ -2,6 +2,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { collectManifestIndexableCanonicals } from "./generate-sitemap.mjs";
 import {
   SITE_ORIGIN,
   collectHtmlFiles,
@@ -205,6 +206,7 @@ export async function validateSite({ distDir = "dist" } = {}) {
   if (sitemapText) {
     const sitemapLocs = parseSitemapLocs(sitemapText);
     const sitemapUrls = new Set();
+    const expectedSitemapUrls = new Set(collectManifestIndexableCanonicals());
     for (const loc of sitemapLocs) {
       let url;
       try { url = new URL(loc); } catch { errors.push(`sitemap: invalid URL ${loc}`); continue; }
@@ -214,11 +216,12 @@ export async function validateSite({ distDir = "dist" } = {}) {
     }
 
     if (/<urlset\b/i.test(sitemapText)) {
-      for (const canonical of canonicals.keys()) {
-        if (!sitemapUrls.has(canonical)) errors.push(`sitemap: missing indexable canonical ${canonical}`);
+      for (const canonical of expectedSitemapUrls) {
+        if (!sitemapUrls.has(canonical)) errors.push(`sitemap: missing SitePage canonical ${canonical}`);
+        if (!canonicals.has(canonical)) errors.push(`sitemap: SitePage canonical has no indexable built page ${canonical}`);
       }
       for (const sitemapUrl of sitemapUrls) {
-        if (!canonicals.has(sitemapUrl)) errors.push(`sitemap: URL has no indexable canonical ${sitemapUrl}`);
+        if (!expectedSitemapUrls.has(sitemapUrl)) errors.push(`sitemap: URL is not an indexable SitePage ${sitemapUrl}`);
       }
     }
   }
