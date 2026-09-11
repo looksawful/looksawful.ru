@@ -17,6 +17,8 @@ export interface SpriteAnimationDefinition {
   frameCount: number;
   fps: number;
   loop: boolean;
+  sourceX: number;
+  sourceY: number;
   anchor: SpriteAnchor;
   hitbox?: SpriteHitbox;
 }
@@ -25,6 +27,13 @@ export interface SpriteManifest {
   version: 1;
   characterId: string;
   animations: Readonly<Record<string, SpriteAnimationDefinition>>;
+}
+
+export interface SpriteFrameRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 function expectRecord(value: unknown, label: string): Record<string, unknown> {
@@ -61,6 +70,12 @@ function expectFiniteNumber(value: unknown, label: string): number {
   return value;
 }
 
+function expectNonNegativeNumber(value: unknown, label: string): number {
+  const parsed = expectFiniteNumber(value, label);
+  if (parsed < 0) throw new Error(`${label} must not be negative`);
+  return parsed;
+}
+
 function parseAnchor(value: unknown, label: string): SpriteAnchor {
   const record = expectRecord(value, label);
   const x = expectFiniteNumber(record.x, `${label}.x`);
@@ -92,6 +107,8 @@ function parseAnimation(value: unknown, label: string): SpriteAnimationDefinitio
     frameCount: expectPositiveInteger(record.frameCount, `${label}.frameCount`),
     fps: expectPositiveNumber(record.fps, `${label}.fps`),
     loop: record.loop,
+    sourceX: record.sourceX === undefined ? 0 : expectNonNegativeNumber(record.sourceX, `${label}.sourceX`),
+    sourceY: record.sourceY === undefined ? 0 : expectNonNegativeNumber(record.sourceY, `${label}.sourceY`),
     anchor: parseAnchor(record.anchor, `${label}.anchor`),
   };
 
@@ -133,4 +150,17 @@ export function resolveSpriteAnimation(
   const idle = manifest.animations.idle;
   if (!idle) throw new Error("sprite manifest.animations.idle is required");
   return idle;
+}
+
+export function resolveSpriteFrameRect(
+  animation: SpriteAnimationDefinition,
+  frameIndex: number,
+): SpriteFrameRect {
+  const safeIndex = Math.max(0, Math.min(animation.frameCount - 1, Math.trunc(frameIndex)));
+  return {
+    x: animation.sourceX + (safeIndex * animation.frameWidth),
+    y: animation.sourceY,
+    width: animation.frameWidth,
+    height: animation.frameHeight,
+  };
 }
