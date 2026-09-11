@@ -7,6 +7,12 @@ const commit = process.env.LAB_BUILD_COMMIT ?? process.env.GITHUB_SHA ?? "local"
 const buildTime = process.env.LAB_BUILD_TIME ?? new Date().toISOString();
 
 export default defineConfig({
+  server: {
+    host: "127.0.0.1",
+  },
+  preview: {
+    host: "127.0.0.1",
+  },
   define: {
     __LAB_BRANCH__: JSON.stringify(branch),
     __LAB_COMMIT__: JSON.stringify(commit),
