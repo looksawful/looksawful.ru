@@ -8,7 +8,7 @@
   padding: var(--size-200) var(--project-gutter);
   border-block-end: var(--border-width-100) solid var(--clr-border);
   font-size: var(--fs-300);
-  line-height: 1;
+  line-height: var(--lh-heading);
 
   img {
     display: block;
@@ -73,7 +73,3 @@
     display: none;
   }
 }
-
-  .project__head {
-    line-height: var(--lh-heading);
-  }
