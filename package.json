@@ -71,7 +71,7 @@
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
-    "playwright": "^1.61.1",
+    "playwright": "^1.63.0",
     "sharp": "^0.35.4",
     "typescript": "^7.0.2",
     "vite": "^8.2.2"
