@@ -126,7 +126,7 @@ test("blank provider response becomes unavailable instead of an empty generated 
   });
 
   const result = await service.reply({
-    message: "Расскажи подробнее про проект",
+    message: "Как этот подход масштабируется на необычный сценарий?",
     locale: "ru",
     context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
   });
