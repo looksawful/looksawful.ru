@@ -124,3 +124,38 @@ test("enforces an explicit retained asset size bound instead of growing forever"
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("Pages production pipeline restores, overlays, saves and verifies retained Webvisor CSS", async () => {
+  const workflow = await readFile(
+    new URL("../.github/workflows/pages.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(
+    workflow,
+    /outputs:\s*\n\s+retained_css: \$\{\{ steps\.webvisor-assets\.outputs\.retained_css \}\}/,
+  );
+  assert.match(
+    workflow,
+    /- name: Restore Webvisor retained assets[\s\S]*?uses: actions\/cache\/restore@v6[\s\S]*?path: \.cache\/webvisor-assets[\s\S]*?restore-keys: \|[\s\S]*?webvisor-assets-v1-\$\{\{ runner\.os \}\}-/,
+  );
+
+  const buildIndex = workflow.indexOf("- name: Build site");
+  const prepareIndex = workflow.indexOf("- name: Prepare Webvisor retained assets");
+  const saveIndex = workflow.indexOf("- name: Save Webvisor retained assets");
+  const uploadIndex = workflow.indexOf("- name: Upload Pages artifact");
+  assert.ok(buildIndex >= 0 && buildIndex < prepareIndex, "retention overlay must run after the current Vite build");
+  assert.ok(prepareIndex < saveIndex && saveIndex < uploadIndex, "prepared pool must be saved before upload");
+
+  assert.match(
+    workflow,
+    /- name: Prepare Webvisor retained assets[\s\S]*?id: webvisor-assets[\s\S]*?node tools\/webvisor-retained-assets\.mjs --dist dist --cache \.cache\/webvisor-assets/,
+  );
+  assert.match(
+    workflow,
+    /- name: Save Webvisor retained assets[\s\S]*?uses: actions\/cache\/save@v6[\s\S]*?path: \.cache\/webvisor-assets/,
+  );
+  assert.match(workflow, /retained_css="\$\{\{ needs\.build\.outputs\.retained_css \}\}"/);
+  assert.match(workflow, /webvisor-retained\.headers/);
+  assert.match(workflow, /content-type:\[\[:space:\]\]\*text\/css/i);
+});
