@@ -24,9 +24,55 @@ test("ordinary Desk launch is read-only and has no mutable media startup", () =>
 test("write Desk launch is explicit and uses the guarded launcher path", () => {
   assert.equal(packageJson.scripts["desk:write"], "node tools/run-content-desk.mjs --write");
   assert.match(launcher, /--write/);
-  assert.match(launcher, /content\/text-cms/);
-  assert.match(launcher, /GITHUB_ACTIONS|CI/);
+  assert.match(launcher, /content-desk-policy\.mjs/);
   assert.match(launcher, /127\.0\.0\.1|localhost/);
+});
+
+test("Desk write policy fails closed outside the authorized local authoring checkout", async () => {
+  assert.match(launcher, /content-desk-policy\.mjs/);
+  const { assertContentDeskWriteAllowed } = await import("../tools/content-desk-policy.mjs");
+
+  for (const branch of ["dev", "prod", "feature/test", "fix/test"]) {
+    assert.throws(
+      () => assertContentDeskWriteAllowed({ branch, ci: false, githubActions: false, args: [] }),
+      /content\/text-cms/i,
+      `must reject ${branch}`,
+    );
+  }
+
+  assert.throws(
+    () => assertContentDeskWriteAllowed({
+      branch: "content/text-cms",
+      ci: true,
+      githubActions: false,
+      args: [],
+    }),
+    /CI\/GitHub Actions/i,
+  );
+  assert.throws(
+    () => assertContentDeskWriteAllowed({
+      branch: "content/text-cms",
+      ci: false,
+      githubActions: true,
+      args: [],
+    }),
+    /CI\/GitHub Actions/i,
+  );
+  assert.throws(
+    () => assertContentDeskWriteAllowed({
+      branch: "content/text-cms",
+      ci: false,
+      githubActions: false,
+      args: ["--host=0.0.0.0"],
+    }),
+    /host/i,
+  );
+  assert.doesNotThrow(() => assertContentDeskWriteAllowed({
+    branch: "content/text-cms",
+    ci: false,
+    githubActions: false,
+    args: [],
+  }));
 });
 
 test("Desk exposes mode and checkout provenance in the operator UI", async () => {
