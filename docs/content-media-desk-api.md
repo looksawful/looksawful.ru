@@ -2,7 +2,7 @@
 
 Status: CURRENT IMPLEMENTATION / TRANSITIONAL.
 
-This document describes the local Desk HTTP contract implemented on `dev` at the time of reconciliation. It is not a promise that the current write model is the final safe architecture. GitHub #452 and #453 own read-only-by-default launch, guarded write activation, source authorization, stale-write/concurrency and atomic-persistence hardening.
+This document describes the local Desk HTTP contract implemented on `dev` at the time of reconciliation. It is not a promise that the current write model is the final safe architecture. GitHub #451/#452/#453 own authoring-branch provenance, read-only-by-default launch, guarded write activation, source authorization, stale-write/concurrency and atomic-persistence hardening.
 
 Executable authority remains `src/devtools/media-desk/server.ts` plus its tests. If this document conflicts with executable code, fix the documentation or contract deliberately rather than treating prose as stronger evidence.
 
@@ -17,6 +17,8 @@ CONTENT_DESK_WRITE=1
 `npm run desk` currently enables that flag through the Desk launcher. It also runs `media:ensure` before opening the Desk, so the ordinary Desk command is not a side-effect-free read-only inspection mode.
 
 No authentication or authorization mechanism beyond this local write-mode gate is defined by `src/devtools/media-desk/server.ts`. Do not expose the current write interface as a network-admin API merely because the endpoints exist.
+
+Branch policy is a separate concern: intended editorial writes belong on the permanent `content/text-cms` authoring branch under #451, not directly on `dev` or `prod`. Current server code does not itself prove/enforce that branch authorization yet.
 
 ## Global request rules
 
@@ -152,7 +154,7 @@ Prevalidation prevents an invalid later item from starting the write phase, but 
 
 ## CURRENT vs TARGET
 
-CURRENT:
+CURRENT executable behavior:
 
 ```text
 npm run desk
@@ -162,18 +164,20 @@ npm run desk
   -> current JSON write endpoints
 ```
 
-TARGET under #451/#452/#453:
+CURRENT project branch policy + OPEN hardening under #451/#452/#453:
 
 ```text
-fresh dev
-  -> temporary content/* authoring branch/worktree
+permanent content/text-cms authoring branch
+  -> branch/worktree provenance + drift against fresh dev
   -> read-only Desk by default
-  -> explicit guarded write mode
+  -> explicit guarded write mode only on the authorized authoring checkout
   -> explicit source authorization + canonical validation
   -> revision-aware conflict handling
   -> atomic/rollback-safe persistence
-  -> reviewed integration into dev
+  -> explicit user READY / "готово"
+  -> reviewed integration into fresh dev
+  -> verification on resulting dev
   -> existing trusted dev -> prod publication boundary
 ```
 
-The TARGET diagram is planning state, not current behavior.
+The branch policy is authoritative, but the hardening steps in this diagram are not all executable CURRENT behavior yet. Do not claim branch guards, read-only default, revision protection or atomic persistence until code/tests provide evidence.
