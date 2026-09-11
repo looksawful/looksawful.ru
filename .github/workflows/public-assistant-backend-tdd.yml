@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/public-assistant-backend-tdd.yml
       - test/public-assistant-handler-contract.test.mjs
+      - test/public-assistant-yandex-provider-contract.test.mjs
       - server/public-assistant/**
 
 permissions:
@@ -34,7 +35,10 @@ jobs:
       - run: npm ci
 
       - name: Focused public assistant backend contracts
-        run: node --test test/public-assistant-handler-contract.test.mjs
+        run: node --test test/public-assistant-handler-contract.test.mjs test/public-assistant-yandex-provider-contract.test.mjs
 
-      - name: Typecheck
+      - name: Frontend typecheck safety
         run: npm run typecheck
+
+      - name: Public assistant server typecheck
+        run: npx tsc -p server/public-assistant/tsconfig.json
