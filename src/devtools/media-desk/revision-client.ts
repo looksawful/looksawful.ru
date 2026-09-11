@@ -14,14 +14,10 @@ interface RevisionPayload {
 const revisionCache = new Map<string, string>();
 const revisionLoads = new Map<string, Promise<string>>();
 
-async function fetchRevision(
-  fetcher: FetchLike,
-  id: string,
-): Promise<string> {
-  const response = await fetcher(
-    `${MEDIA_METADATA_ENDPOINT}?${new URLSearchParams({ id })}`,
-    { headers: { accept: "application/json" } },
-  );
+async function fetchRevision(fetcher: FetchLike, id: string): Promise<string> {
+  const response = await fetcher(`${MEDIA_METADATA_ENDPOINT}?${new URLSearchParams({ id })}`, {
+    headers: { accept: "application/json" },
+  });
   const payload = await response.json() as RevisionPayload;
   if (!response.ok || !payload.ok || typeof payload.revision !== "string") {
     throw new Error(payload.error ?? `HTTP ${response.status}`);
@@ -32,7 +28,6 @@ async function fetchRevision(
 async function primeRevision(fetcher: FetchLike, id: string): Promise<string> {
   const cached = revisionCache.get(id);
   if (cached) return cached;
-
   const existing = revisionLoads.get(id);
   if (existing) return existing;
 
@@ -41,9 +36,7 @@ async function primeRevision(fetcher: FetchLike, id: string): Promise<string> {
       revisionCache.set(id, revision);
       return revision;
     })
-    .finally(() => {
-      revisionLoads.delete(id);
-    });
+    .finally(() => revisionLoads.delete(id));
   revisionLoads.set(id, loading);
   return loading;
 }
@@ -52,14 +45,9 @@ export async function loadMediaDeskRevision(id: string): Promise<string> {
   return primeRevision(window.fetch.bind(window), id);
 }
 
-export async function loadMediaDeskRevisions(
-  ids: readonly string[],
-): Promise<ReadonlyMap<string, string>> {
+export async function loadMediaDeskRevisions(ids: readonly string[]): Promise<ReadonlyMap<string, string>> {
   const fetcher = window.fetch.bind(window);
-  const entries = await Promise.all(
-    ids.map(async (id) => [id, await primeRevision(fetcher, id)] as const),
-  );
-  return new Map(entries);
+  return new Map(await Promise.all(ids.map(async (id) => [id, await primeRevision(fetcher, id)] as const)));
 }
 
 function requestPath(input: RequestInfo | URL): string | null {
@@ -92,11 +80,12 @@ function expectedRevisionFor(id: string): string {
   return revision;
 }
 
-async function updateCacheFromResponse(response: Response): Promise<void> {
+async function updateCacheFromResponse(response: Response, fallbackId?: string): Promise<void> {
   if (!response.ok) return;
   const payload = await response.clone().json() as RevisionPayload;
-  if (payload.ok && typeof payload.id === "string" && typeof payload.revision === "string") {
-    revisionCache.set(payload.id, payload.revision);
+  const id = payload.id ?? fallbackId;
+  if (payload.ok && typeof id === "string" && typeof payload.revision === "string") {
+    revisionCache.set(id, payload.revision);
   }
   for (const entry of payload.revisions ?? []) {
     if (typeof entry.id === "string" && typeof entry.revision === "string") {
@@ -110,34 +99,26 @@ export function installRevisionAwareMediaFetch(): void {
 
   document.addEventListener("media-desk:selection-change", (event) => {
     for (const id of selectedIds(event)) {
-      void primeRevision(nativeFetch, id).catch(() => {
-        revisionCache.delete(id);
-      });
+      void primeRevision(nativeFetch, id).catch(() => revisionCache.delete(id));
     }
   });
 
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const path = requestPath(input);
-    if (requestMethod(input, init) !== "POST") {
-      return nativeFetch(input, init);
-    }
+    if (requestMethod(input, init) !== "POST") return nativeFetch(input, init);
 
     if (path === MEDIA_METADATA_ENDPOINT) {
       const payload = parseJsonBody(init);
-      if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-        return nativeFetch(input, init);
-      }
+      if (!payload || typeof payload !== "object" || Array.isArray(payload)) return nativeFetch(input, init);
       const record = payload as Record<string, unknown>;
-      if (typeof record.id !== "string" || record.expectedRevision !== undefined) {
-        return nativeFetch(input, init);
-      }
+      if (typeof record.id !== "string" || record.expectedRevision !== undefined) return nativeFetch(input, init);
+
       await revisionLoads.get(record.id);
-      const expectedRevision = expectedRevisionFor(record.id);
       const response = await nativeFetch(input, {
         ...init,
-        body: JSON.stringify({ ...record, expectedRevision }),
+        body: JSON.stringify({ ...record, expectedRevision: expectedRevisionFor(record.id) }),
       });
-      await updateCacheFromResponse(response);
+      await updateCacheFromResponse(response, record.id);
       return response;
     }
 
@@ -156,15 +137,9 @@ export function installRevisionAwareMediaFetch(): void {
         const record = item as Record<string, unknown>;
         if (record.expectedRevision !== undefined) return record;
         const id = record.id as string;
-        return {
-          ...record,
-          expectedRevision: expectedRevisionFor(id),
-        };
+        return { ...record, expectedRevision: expectedRevisionFor(id) };
       });
-      const response = await nativeFetch(input, {
-        ...init,
-        body: JSON.stringify(versioned),
-      });
+      const response = await nativeFetch(input, { ...init, body: JSON.stringify(versioned) });
       await updateCacheFromResponse(response);
       return response;
     }
