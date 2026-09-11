@@ -1,0 +1,76 @@
+name: Contact Hub Cloud RED
+
+on:
+  push:
+    branches:
+      - contact-hub-contracts
+    paths:
+      - .github/workflows/contact-hub-cloud-red.yml
+      - test/contact-hub-domain-contract.test.mjs
+      - test/portfolio-pet-interaction-contract.test.mjs
+      - test/portfolio-assistant-prepared-contract.test.mjs
+      - tools/e2e/contact-hub-acceptance-v2.mjs
+      - src/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contact-hub-cloud-red-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  expected-red:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Confirm intended contract RED
+        shell: bash
+        run: |
+          set +e
+          output="$(node --test \
+            test/contact-hub-domain-contract.test.mjs \
+            test/portfolio-pet-interaction-contract.test.mjs \
+            test/portfolio-assistant-prepared-contract.test.mjs 2>&1)"
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [[ $status -eq 0 ]]; then
+            echo "Expected Contact Hub contract suite to be RED before implementation." >&2
+            exit 1
+          fi
+          if ! grep -q "RED:" <<<"$output"; then
+            echo "Contract suite failed, but not for the intended missing-behavior RED." >&2
+            exit 1
+          fi
+
+      - name: Build current site
+        run: npm run build:vite
+
+      - name: Install pinned Chromium headless shell
+        run: npx playwright install --with-deps --only-shell chromium
+
+      - name: Confirm browser acceptance is RED
+        shell: bash
+        run: |
+          set +e
+          node tools/e2e/contact-hub-acceptance-v2.mjs
+          status=$?
+          set -e
+          if [[ $status -eq 0 ]]; then
+            echo "Expected browser acceptance to be RED before Contact Hub implementation." >&2
+            exit 1
+          fi
+          echo "Browser acceptance is RED as expected before implementation."
