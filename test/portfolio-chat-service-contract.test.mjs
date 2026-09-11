@@ -133,3 +133,78 @@ test("blank provider response becomes unavailable instead of an empty generated 
 
   assert.deepEqual(result, { kind: "unavailable" });
 });
+
+test("transport-style answer becomes a generated service result", async () => {
+  const { createPortfolioChatService } = await loadService();
+
+  const service = createPortfolioChatService({
+    provider: {
+      async generate() {
+        return {
+          kind: "answer",
+          text: "Ответ из public backend.",
+          sources: ["project.jestei"],
+        };
+      },
+    },
+  });
+
+  const result = await service.reply({
+    message: "Как устроено решение для сложного сценария?",
+    locale: "ru",
+    context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
+  });
+
+  assert.deepEqual(result, {
+    kind: "generated",
+    text: "Ответ из public backend.",
+    sourceIds: ["project.jestei"],
+  });
+});
+
+test("transport-style no_data and rate_limited states survive orchestration", async () => {
+  const { createPortfolioChatService } = await loadService();
+  const input = {
+    message: "Как устроено решение для сложного сценария?",
+    locale: "ru",
+    context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
+  };
+
+  const noDataService = createPortfolioChatService({
+    provider: {
+      async generate() {
+        return { kind: "no_data", text: "", sources: [] };
+      },
+    },
+  });
+  assert.deepEqual(await noDataService.reply(input), { kind: "no_data" });
+
+  const limitedService = createPortfolioChatService({
+    provider: {
+      async generate() {
+        return { kind: "rate_limited" };
+      },
+    },
+  });
+  assert.deepEqual(await limitedService.reply(input), { kind: "rate_limited" });
+});
+
+test("transport-style unavailable state survives orchestration", async () => {
+  const { createPortfolioChatService } = await loadService();
+
+  const service = createPortfolioChatService({
+    provider: {
+      async generate() {
+        return { kind: "unavailable" };
+      },
+    },
+  });
+
+  const result = await service.reply({
+    message: "Как устроено решение для сложного сценария?",
+    locale: "ru",
+    context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
+  });
+
+  assert.deepEqual(result, { kind: "unavailable" });
+});
