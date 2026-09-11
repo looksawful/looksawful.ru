@@ -8,8 +8,10 @@ on:
       - .github/workflows/contact-hub-tdd-slice.yml
       - test/portfolio-pet-sprite-manifest-contract.test.mjs
       - test/portfolio-pet-venus-manifest-contract.test.mjs
+      - test/portfolio-pet-sprite-runtime-contract.test.mjs
       - src/features/portfolio-pet/sprite-manifest.ts
       - src/features/portfolio-pet/venus-manifest.ts
+      - src/features/portfolio-pet/sprite-runtime.ts
 
 permissions:
   contents: read
@@ -40,6 +42,7 @@ jobs:
           node --test
           test/portfolio-pet-sprite-manifest-contract.test.mjs
           test/portfolio-pet-venus-manifest-contract.test.mjs
+          test/portfolio-pet-sprite-runtime-contract.test.mjs
 
       - name: Typecheck
         run: npm run typecheck
