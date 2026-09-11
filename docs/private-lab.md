@@ -1,6 +1,6 @@
 # Private Lab
 
-Status: INTEGRATION CANDIDATE / non-production internal tooling foundation.
+Status: OAUTH SECURITY CANDIDATE / non-production internal tooling foundation.
 
 Private Lab is a read-only internal tooling surface. It is not a CMS branch, not a source of truth, not a deployment authority and not a shortcut around Media/Content Desk write policy.
 
@@ -16,16 +16,47 @@ Local Lab serving/preview defaults to `127.0.0.1`.
 
 ## Access boundary
 
-This integration slice does **not** introduce a new network-authentication mechanism.
+The repository-owned authentication candidate uses application-level GitHub OAuth for the private Admin/Lab surface. It does not use a parallel Basic Auth/password mechanism.
 
-Current #732 contract is authoritative:
+Runtime bindings required by the candidate:
 
-- do not invent a parallel Basic Auth/password system merely for this Lab foundation;
-- remote private access should reuse the existing Admin/GitHub OAuth authentication boundary, or remain local-only until that boundary is implemented and verified;
-- repository isolation/noindex is not equivalent to authentication;
+```text
+ADMIN_GITHUB_CLIENT_ID
+ADMIN_GITHUB_CLIENT_SECRET
+ADMIN_SESSION_SECRET
+```
+
+Accepted application origins are deliberately narrow:
+
+```text
+https://admin.looksawful.ru
+http://127.0.0.1:8787
+```
+
+OAuth endpoints:
+
+```text
+/auth/github
+/auth/github/callback
+/auth/logout
+```
+
+Security contract:
+
+- request no broad GitHub OAuth scopes;
+- reject a token response that reports inherited/non-empty scopes;
+- verify the authenticated identity directly through GitHub `GET /user`;
+- authorize only GitHub login `looksawful`;
+- keep the GitHub access token server-side and never put it in cookies/browser storage;
+- HMAC-SHA256 sign OAuth state and the application Admin session;
+- production session/state cookies are `Secure`, `HttpOnly`, `SameSite=Lax` and `__Host-` scoped;
+- unauthenticated GET/HEAD requests redirect to GitHub login;
+- unauthenticated mutation-like requests fail `401`;
+- missing/broken authentication configuration fails closed;
+- protected responses retain private/no-store/noindex/frame/content-type headers;
 - network authentication never grants Media Desk write authority.
 
-Therefore this integration candidate should be treated as local-only until the reviewed Admin/GitHub OAuth security slice is wired to the Lab deployment.
+Repository code alone does **not** prove that the remote Admin is deployed or protected. `ADMIN_GITHUB_CLIENT_ID`, `ADMIN_GITHUB_CLIENT_SECRET`, `ADMIN_SESSION_SECRET`, the GitHub OAuth application callback and the `admin.looksawful.ru` runtime/custom-domain configuration must exist in the actual deployment environment before remote access can be claimed operational.
 
 ## Read-only rule
 
@@ -40,18 +71,21 @@ npm run desk:write
   -> revision-aware guarded writes
 ```
 
+Authentication does not change those write gates.
+
 ## Scope boundary
 
-This PR provides only a Lab foundation: isolated build, provenance, noindex and read-only shell. It does not claim to complete the broader #732 product scope for the full LIVE/HIDDEN/WIP page and organism catalog, viewport/debug tooling, Berserk visibility or GitHub OAuth/Admin integration.
+This slice provides the authentication boundary for the existing isolated Lab foundation. It does not claim to complete the broader #732 product scope for the full LIVE/HIDDEN/WIP page and organism catalog, viewport/debug tooling or Berserk visibility.
 
 ## Verification
 
 `.github/workflows/private-lab-verify.yml` checks:
 
 - typecheck;
-- the Lab foundation contract test;
+- the Lab shell contract;
+- the permanent GitHub OAuth security contract;
 - isolated Lab build;
 - noindex artifact;
 - absence of a Lab entry from the public production artifact.
 
-A green repository build proves only this repository-owned foundation. It must not be used to claim that remote Lab authentication or the full #732 Lab workspace is complete.
+A green repository build proves the repository-owned OAuth/Lab contract only. It must not be used to claim that Cloudflare runtime secrets, the production OAuth app/callback, the custom domain or the full #732 Lab workspace are deployed and operational.
