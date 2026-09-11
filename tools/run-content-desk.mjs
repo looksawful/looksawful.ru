@@ -1,10 +1,12 @@
 import { execFileSync, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import {
+  assertContentDeskWriteAllowed,
+  CONTENT_DESK_LOOPBACK_HOST,
+} from "./content-desk-policy.mjs";
 
 const vite = fileURLToPath(new URL("../node_modules/vite/bin/vite.js", import.meta.url));
 const WRITE_FLAG = "--write";
-const ALLOWED_AUTHORING_BRANCH = "content/text-cms";
-const LOOPBACK_HOST = "127.0.0.1";
 
 function git(args) {
   return execFileSync("git", args, { encoding: "utf8" }).trim();
@@ -21,20 +23,6 @@ function currentProvenance() {
   return { branch, head, dirty, devDivergence };
 }
 
-function assertSafeWriteMode(passthroughArgs, provenance) {
-  if (process.env.CI || process.env.GITHUB_ACTIONS) {
-    throw new Error("Content Desk write mode is disabled in CI/GitHub Actions");
-  }
-  if (provenance.branch !== ALLOWED_AUTHORING_BRANCH) {
-    throw new Error(
-      `Content Desk write mode requires ${ALLOWED_AUTHORING_BRANCH}; current branch is ${provenance.branch}`,
-    );
-  }
-  if (passthroughArgs.some((arg) => arg === "--host" || arg.startsWith("--host="))) {
-    throw new Error(`Content Desk write mode host is fixed to ${LOOPBACK_HOST}`);
-  }
-}
-
 const requestedArgs = process.argv.slice(2);
 const writeMode = requestedArgs.includes(WRITE_FLAG);
 const passthroughArgs = requestedArgs.filter((arg) => arg !== WRITE_FLAG);
@@ -46,8 +34,22 @@ let provenance = {
 };
 
 if (writeMode) {
+  if (process.env.CI || process.env.GITHUB_ACTIONS) {
+    assertContentDeskWriteAllowed({
+      branch: "unknown",
+      ci: Boolean(process.env.CI),
+      githubActions: Boolean(process.env.GITHUB_ACTIONS),
+      args: passthroughArgs,
+    });
+  }
+
   provenance = currentProvenance();
-  assertSafeWriteMode(passthroughArgs, provenance);
+  assertContentDeskWriteAllowed({
+    branch: provenance.branch,
+    ci: Boolean(process.env.CI),
+    githubActions: Boolean(process.env.GITHUB_ACTIONS),
+    args: passthroughArgs,
+  });
 } else {
   try {
     provenance = currentProvenance();
@@ -62,7 +64,7 @@ console.log(
 const args = [
   vite,
   "--host",
-  LOOPBACK_HOST,
+  CONTENT_DESK_LOOPBACK_HOST,
   "--open",
   "/tools/media-desk/",
   ...passthroughArgs,
