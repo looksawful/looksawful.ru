@@ -11,7 +11,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
 
   const cta = page.locator('.contact a[href="mailto:i@lookawful.ru"]').first();
   assert.equal(await cta.count(), 1, "canonical site contact CTA must still exist");
-  assert.equal((await cta.innerText()).trim(), "Связаться со мной");
+  assert.equal((await cta.textContent()).trim(), "Связаться со мной");
 
   const before = await page.evaluate(() => {
     const main = document.querySelector("main");
