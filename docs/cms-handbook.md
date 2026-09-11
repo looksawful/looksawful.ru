@@ -16,7 +16,7 @@ Pages CMS используется для обычного редакторск�
 
 Изменения остаются в `content/text-cms`, пока пользователь явно не подтвердит `готово`. После этого batch сверяется с fresh `dev`, проходит content-only validation и интегрируется в `dev`. Production publication остаётся отдельным `dev -> prod` release.
 
-Текущий executable tooling ещё не полностью защищает этот процесс автоматически. Поэтому branch provenance, stale-session checks и ready gate из #451 нельзя считать реализованными только потому, что политика уже зафиксирована.
+`tools/cms-authoring-topology.mjs` — read-only guard для этой границы. Он показывает текущую ветвь/worktree, HEAD, exact `dev` ref, dirty state, ahead/behind/divergence и intended integration target. Guard не делает reset, rebase, merge или commit и не заменяет ручное разрешение конфликтов.
 
 ## Save
 
@@ -66,19 +66,29 @@ Local Desk — отдельный developer/operator tool, а не второе 
 
 Поэтому текущий `npm run desk` нельзя считать read-only browser. Локальный HTTP/write contract описан в `docs/content-media-desk-api.md`.
 
-GitHub #452/#453 владеют TARGET hardening: read-only-by-default launch, guarded write activation, более строгая source authorization, revision/conflict semantics и atomic persistence. #451 владеет branch/worktree authorization для `content/text-cms`. Не считать эти protections реализованными до появления executable evidence.
+GitHub #452/#453 владеют TARGET hardening: read-only-by-default launch, guarded write activation, более строгая source authorization, revision/conflict semantics и atomic persistence. #451 теперь предоставляет отдельный branch/worktree/READY/scope guard; его наличие не означает, что #452/#453 уже реализованы в Desk transport/persistence.
 
 ## Проверить сайт
 
 Текущие `Проверить сайт` actions проверяют `dev`; они не публикуют production.
 
-Для изменений, которые ещё находятся только в `content/text-cms`, #451 должен определить/реализовать безопасную branch-specific verification перед интеграцией. Не считать проверку `dev` доказательством непроинтегрированного editorial batch.
+Для изменений, которые ещё находятся только в `content/text-cms`, authoring topology guard фиксирует branch-specific provenance и drift до интеграции. Проверку `dev` нельзя считать доказательством непроинтегрированного editorial batch.
 
 После интеграции в `dev` существующий verification flow используется как integration gate перед release.
 
 ## Интеграция редакторского batch
 
 До явного `готово` изменения остаются в `content/text-cms`.
+
+Перед любым integration decision сначала обнови remote refs обычным безопасным fetch и запусти из checkout `content/text-cms`:
+
+```bash
+node tools/cms-authoring-topology.mjs --dev origin/dev
+```
+
+До `готово` результат обязан оставаться `integrationAllowed: false` с `integrationReason: "ready-required"`. Если `diverged: true`, guard возвращает `reconciliation-required`: это сигнал для явного conflict/reconciliation review, а не разрешение на автоматическое переписывание истории.
+
+После `готово` передай guard точный список candidate paths, например через `--files-json '["src/content/cases/styx.json"]'`. Он повторно использует канонический CMS publication classifier: `ENGINEERING` и `UNKNOWN` блокируют candidate, а разрешённый CMS-only diff может получить `integrationReason: "ready-and-cms-only"` только на чистом авторизованном checkout без divergence.
 
 После `готово`:
 
@@ -87,7 +97,7 @@ GitHub #452/#453 владеют TARGET hardening: read-only-by-default launch, g
 3. убедиться, что batch содержит только ожидаемые editorial/media изменения;
 4. выполнить доступные content/media validation checks;
 5. интегрировать batch в `dev` через контролируемый review/merge flow;
-6. проверить resulting `dev`;
+6. проверить resulting `dev` exact SHA;
 7. только после этого рассматривать отдельный `dev -> prod` release.
 
 ## Подготовить публикацию
