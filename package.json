@@ -6,6 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "lab": "vite --open /lab/",
+    "lab:system": "node tools/lab/build-storybook.mjs",
+    "lab:inventory": "node tools/lab/design-system-inventory.mjs",
     "desk": "npm run media:ensure && node tools/run-content-desk.mjs",
     "design:capture": "node tools/design-capture/cli.mjs",
     "design:capture:pages": "node tools/design-capture/cli.mjs --mode=pages",

@@ -1,0 +1,305 @@
+name: Lab Preview
+
+on:
+  push:
+    branches: [lab]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: persistent-design-lab
+  cancel-in-progress: true
+
+env:
+  CLOUDFLARE_PAGES_PROJECT: looksawful-ru-preview
+  LAB_BRANCH: lab
+  LAB_CUSTOM_DOMAIN: lab.looksawful.ru
+  LAB_ZONE_NAME: looksawful.ru
+
+jobs:
+  build-and-deploy:
+    name: Build and deploy private Lab
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact Lab commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
+      - name: Install ffmpeg on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+
+      - name: Regenerate media cache on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: npm run media:sync
+
+      - name: Write generated-media cache marker on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: node tools/media-dev-state.mjs --cache-write
+
+      - name: Verify generated media cache
+        run: node tools/media-dev-state.mjs --cache-verify
+
+      - name: Save generated media cache on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Fast tests
+        run: npm run test:fast
+
+      - name: Lab workspace contracts
+        run: node --test test/lab-workspace-contract.test.mjs test/lab-design-system-inventory.test.mjs
+
+      - name: Build Lab without production analytics
+        run: npm run cms:check && npm run build:vite
+
+      - name: Build Lab design system
+        run: npm run lab:system
+
+      - name: Generate Lab design-system inventory
+        run: npm run lab:inventory
+
+      - name: Finalize Lab site and validate local links
+        run: npm run site:postbuild
+
+      - name: Verify Lab design-system artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s dist/lab/system/index.html
+          test -s dist/lab/system/inventory.html
+          test -s dist/lab/system-inventory.json
+          grep -qi '<title>looksawful design system inventory</title>' dist/lab/system/inventory.html
+
+      - name: Stamp Lab identity
+        shell: bash
+        run: |
+          cat > dist/lab-version.json <<EOF
+          {
+            "branch": "lab",
+            "commit": "${GITHUB_SHA}",
+            "source": "cloudflare-lab-preview"
+          }
+          EOF
+
+      - name: Ensure ffmpeg for Cloudflare media packaging
+        shell: bash
+        run: |
+          if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+            exit 0
+          fi
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+
+      - name: Prepare Cloudflare-compatible preview media
+        run: node tools/preview/prepare-cloudflare-pages.mjs dist
+
+      - name: Enforce Cloudflare Pages limits
+        shell: bash
+        run: |
+          set -euo pipefail
+          file_count="$(find dist -type f | wc -l | tr -d ' ')"
+          if (( file_count > 20000 )); then
+            echo "Lab has ${file_count} files; Cloudflare Pages supports at most 20,000." >&2
+            exit 1
+          fi
+          oversized="$(find dist -type f -size +26214400c -print)"
+          if [[ -n "$oversized" ]]; then
+            echo "Lab packaging left files larger than 25 MiB:" >&2
+            printf '%s\n' "$oversized" >&2
+            exit 1
+          fi
+
+      - name: Require Cloudflare credentials
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}"
+          test -n "${CLOUDFLARE_API_TOKEN:-}"
+
+      - name: Require Lab password
+        env:
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
+        run: test -n "${LAB_PASSWORD:-}" || { echo "Missing LAB_PASSWORD." >&2; exit 1; }
+
+      - name: Sync Lab password to Cloudflare Pages preview runtime
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "$LAB_PASSWORD" \
+            | npx --yes wrangler@4 pages secret put LAB_PASSWORD \
+                --project-name="$CLOUDFLARE_PAGES_PROJECT" \
+                --env preview
+          npx --yes wrangler@4 pages secret list \
+            --project-name="$CLOUDFLARE_PAGES_PROJECT" \
+            --env preview \
+            | grep -q 'LAB_PASSWORD'
+
+      - name: Configure Lab custom domain
+        continue-on-error: true
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node tools/lab/configure-cloudflare.mjs
+
+      - name: Deploy persistent Lab branch preview
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: pages deploy dist --project-name=looksawful-ru-preview --branch=lab
+
+      - name: Verify Basic Auth on immutable deployment
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$PREVIEW_URL"
+
+          anonymous_status="$(curl --silent --show-error \
+            --dump-header /tmp/lab-anonymous-headers.txt \
+            --output /tmp/lab-anonymous-body.txt \
+            --write-out '%{http_code}' \
+            "$PREVIEW_URL/lab-version.json?sha=$GITHUB_SHA")"
+          test "$anonymous_status" = "401"
+          grep -Eqi '^www-authenticate:[[:space:]]*Basic realm="looksawful lab"' /tmp/lab-anonymous-headers.txt
+
+          curl --fail --silent --show-error --location --retry 10 --retry-delay 3 \
+            --user "lab:${LAB_PASSWORD}" \
+            "$PREVIEW_URL/lab-version.json?sha=$GITHUB_SHA" > /tmp/lab-version.json
+          jq -e --arg sha "$GITHUB_SHA" '.branch == "lab" and .commit == $sha' /tmp/lab-version.json >/dev/null
+
+      - name: Verify immutable Lab entry and design system
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 10 --retry-delay 3 \
+            --user "lab:${LAB_PASSWORD}" \
+            --dump-header /tmp/lab-headers.txt --output /tmp/lab.html "$PREVIEW_URL/lab/?sha=$GITHUB_SHA"
+          grep -qi '<title>looksawful lab</title>' /tmp/lab.html
+          grep -Eqi '^x-robots-tag:[[:space:]]*noindex' /tmp/lab-headers.txt
+
+          curl --fail --silent --show-error --location --retry 10 --retry-delay 3 \
+            --user "lab:${LAB_PASSWORD}" \
+            --output /tmp/lab-system.html "$PREVIEW_URL/lab/system/"
+          grep -qi '<title>Storybook</title>' /tmp/lab-system.html || grep -qi 'storybook' /tmp/lab-system.html
+
+          curl --fail --silent --show-error --location --retry 10 --retry-delay 3 \
+            --user "lab:${LAB_PASSWORD}" \
+            --output /tmp/lab-inventory.html "$PREVIEW_URL/lab/system/inventory.html"
+          grep -qi '<title>looksawful design system inventory</title>' /tmp/lab-inventory.html
+
+      - name: Verify stable Lab branch alias
+        env:
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev"
+          for attempt in {1..20}; do
+            if curl --fail --silent --show-error --location \
+              --user "lab:${LAB_PASSWORD}" \
+              "$target/lab-version.json?sha=$GITHUB_SHA" > /tmp/lab-target-version.json 2>/dev/null \
+              && jq -e --arg sha "$GITHUB_SHA" '.commit == $sha' /tmp/lab-target-version.json >/dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "$target did not converge to $GITHUB_SHA" >&2
+          exit 1
+
+      - name: Verify custom Lab domain
+        env:
+          LAB_PASSWORD: ${{ secrets.LAB_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="https://${LAB_CUSTOM_DOMAIN}"
+          for attempt in {1..20}; do
+            anonymous_status="$(curl --silent --show-error \
+              --output /dev/null --write-out '%{http_code}' \
+              "$target/lab/?sha=$GITHUB_SHA" 2>/dev/null || true)"
+            if [[ "$anonymous_status" == "401" ]] \
+              && curl --fail --silent --show-error --location \
+                --user "lab:${LAB_PASSWORD}" \
+                "$target/lab-version.json?sha=$GITHUB_SHA" > /tmp/lab-custom-version.json 2>/dev/null \
+              && jq -e --arg sha "$GITHUB_SHA" '.commit == $sha' /tmp/lab-custom-version.json >/dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "$target is not ready at exact SHA $GITHUB_SHA." >&2
+          exit 1
+
+      - name: Report Lab URLs
+        if: always()
+        env:
+          IMMUTABLE_URL: ${{ steps.deploy.outputs.deployment-url }}
+        shell: bash
+        run: |
+          {
+            echo "### Private design Lab"
+            echo ""
+            echo "- preferred: https://${LAB_CUSTOM_DOMAIN}/lab/"
+            echo "- stable branch: https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev/lab/"
+            echo "- design system: https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev/lab/system/"
+            echo "- inventory: https://lab.${CLOUDFLARE_PAGES_PROJECT}.pages.dev/lab/system/inventory.html"
+            echo "- immutable: ${IMMUTABLE_URL:-unavailable}/lab/"
+            echo "- authentication: HTTP Basic, user lab"
+            echo "- production was not changed"
+          } >> "$GITHUB_STEP_SUMMARY"

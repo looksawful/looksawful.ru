@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <title>looksawful lab</title>
+    <script type="module" src="/src/lab/index.ts"></script>
+    <script type="module" src="/src/lab/scratch.ts"></script>
+  </head>
+  <body>
+    <main class="lab-shell" data-lab-shell>
+      <header class="lab-toolbar">
+        <a class="lab-brand" href="/lab/" aria-label="looksawful lab home">looksawful lab</a>
+        <label class="lab-route-field">
+          <span>route</span>
+          <input data-route-input value="/" spellcheck="false" autocomplete="off" />
+        </label>
+        <button type="button" data-action="go">go</button>
+        <button type="button" data-action="reload">reload</button>
+        <a class="lab-button" data-open-page href="/" target="_blank" rel="noreferrer">open</a>
+        <a class="lab-button" href="/lab/system/">system</a>
+        <a class="lab-button" href="/lab/system/inventory.html">inventory</a>
+        <button type="button" data-action="copy-view">copy view link</button>
+      </header>
+
+      <aside class="lab-sidebar lab-sidebar-left" aria-label="Lab navigation">
+        <nav class="lab-route-list" data-route-list>
+          <button type="button" data-route="/">home</button>
+          <button type="button" data-route="/lab/blog/?view=index">blog / index</button>
+          <button type="button" data-route="/lab/blog/?view=article">blog / article</button>
+          <button type="button" data-route="/work/jestei-pool/">jestei pool</button>
+          <button type="button" data-route="/work/styx/">styx</button>
+          <button type="button" data-route="/work/sensetique/">sensetique</button>
+          <button type="button" data-route="/shootings/">shootings</button>
+          <button type="button" data-route="/work/awful-cases/">awful cases</button>
+          <button type="button" data-route="/work/moves-awful/">moves awful</button>
+          <button type="button" data-route="/cv/">cv</button>
+          <button type="button" data-route="/privacy/">privacy</button>
+        </nav>
+
+        <section class="lab-panel">
+          <h2>viewport</h2>
+          <div class="lab-segmented" data-viewport-presets>
+            <button type="button" data-preset="fit">fit</button>
+            <button type="button" data-preset="desktop">1440</button>
+            <button type="button" data-preset="tablet">834</button>
+            <button type="button" data-preset="mobile">390</button>
+          </div>
+          <div class="lab-dimensions">
+            <label><span>w</span><input type="number" min="240" max="3840" step="1" data-width /></label>
+            <label><span>h</span><input type="number" min="320" max="2400" step="1" data-height /></label>
+          </div>
+        </section>
+
+        <section class="lab-panel">
+          <h2>canvas</h2>
+          <div class="lab-segmented" data-stage-background>
+            <button type="button" data-bg="checker">grid</button>
+            <button type="button" data-bg="light">light</button>
+            <button type="button" data-bg="dark">dark</button>
+          </div>
+        </section>
+
+        <section class="lab-panel">
+          <h2>debug</h2>
+          <label class="lab-switch"><input type="checkbox" data-debug-outline /> <span>outline elements</span></label>
+          <label class="lab-switch"><input type="checkbox" data-debug-grid /> <span>page grid</span></label>
+          <label class="lab-switch"><input type="checkbox" data-debug-inspect /> <span>inspect element</span></label>
+        </section>
+      </aside>
+
+      <section class="lab-stage" data-stage data-background="checker" aria-label="Preview canvas">
+        <div class="lab-frame-wrap" data-frame-wrap>
+          <iframe data-preview-frame title="Lab preview" src="/"></iframe>
+        </div>
+      </section>
+
+      <aside class="lab-sidebar lab-sidebar-right" aria-label="Inspector and CSS scratchpad">
+        <section class="lab-panel lab-inspector">
+          <div class="lab-panel-heading">
+            <h2>inspector</h2>
+            <button type="button" data-action="copy-selector" disabled>copy selector</button>
+          </div>
+          <div class="lab-empty" data-inspector-empty>enable inspect and click an element in the preview</div>
+          <dl class="lab-inspector-data" data-inspector-data hidden>
+            <div><dt>selector</dt><dd data-inspect="selector"></dd></div>
+            <div><dt>size</dt><dd data-inspect="size"></dd></div>
+            <div><dt>display</dt><dd data-inspect="display"></dd></div>
+            <div><dt>position</dt><dd data-inspect="position"></dd></div>
+            <div><dt>font</dt><dd data-inspect="font"></dd></div>
+            <div><dt>color</dt><dd data-inspect="color"></dd></div>
+            <div><dt>background</dt><dd data-inspect="background"></dd></div>
+          </dl>
+        </section>
+
+        <section class="lab-panel lab-scratch">
+          <div class="lab-panel-heading">
+            <h2>css scratch</h2>
+            <div class="lab-inline-actions">
+              <button type="button" data-action="scratch-copy">copy</button>
+              <button type="button" data-action="scratch-reset">reset</button>
+            </div>
+          </div>
+          <textarea data-scratch-css spellcheck="false" aria-label="Live Lab CSS override" placeholder=".project-card {&#10;  border-radius: 24px;&#10;}"></textarea>
+          <div class="lab-scratch-status" data-scratch-status>no override</div>
+        </section>
+
+        <section class="lab-panel lab-shortcuts">
+          <h2>shortcuts</h2>
+          <dl>
+            <div><dt>1 / 2 / 3</dt><dd>desktop / tablet / mobile</dd></div>
+            <div><dt>f</dt><dd>fit viewport</dd></div>
+            <div><dt>r</dt><dd>reload</dd></div>
+            <div><dt>i</dt><dd>inspect</dd></div>
+          </dl>
+        </section>
+
+        <section class="lab-panel lab-status-panel">
+          <h2>build</h2>
+          <div class="lab-status" data-frame-status>loading</div>
+          <div class="lab-meta" data-frame-meta></div>
+        </section>
+      </aside>
+    </main>
+  </body>
+</html>
