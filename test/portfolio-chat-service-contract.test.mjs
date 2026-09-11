@@ -55,3 +55,41 @@ test("free-form input without approved evidence returns no_data without calling 
   assert.equal(result.kind, "no_data");
   assert.equal(providerCalls, 0);
 });
+
+test("approved free-form input calls the provider once with only routed safe context", async () => {
+  const { createPortfolioChatService } = await loadService();
+  let providerCalls = 0;
+  let providerInput = null;
+
+  const service = createPortfolioChatService({
+    provider: {
+      async generate(input) {
+        providerCalls += 1;
+        providerInput = input;
+        return { text: "Короткий ответ." };
+      },
+    },
+  });
+
+  const result = await service.reply({
+    message: "Сравни свой подход с нестандартным продуктом",
+    locale: "ru",
+    context: {
+      page: "jestei",
+      approvedSourceIds: ["profile.about", "project.jestei"],
+      email: "private@example.com",
+      formMessage: "secret form draft",
+    },
+  });
+
+  assert.equal(providerCalls, 1);
+  assert.equal(providerInput.kind, "generate");
+  assert.deepEqual(providerInput.context.sourceIds, ["profile.about", "project.jestei"]);
+  assert.equal(Object.hasOwn(providerInput.context, "email"), false);
+  assert.equal(Object.hasOwn(providerInput.context, "formMessage"), false);
+  assert.deepEqual(result, {
+    kind: "generated",
+    text: "Короткий ответ.",
+    sourceIds: ["profile.about", "project.jestei"],
+  });
+});
