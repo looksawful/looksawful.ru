@@ -83,12 +83,6 @@ function preparedIntent(message: string): PreparedDefinition["id"] | null {
   return null;
 }
 
-function pageFromContext(context: Record<string, unknown>): string {
-  return typeof context.page === "string" && context.page.trim()
-    ? context.page.trim()
-    : "home";
-}
-
 function pageProjectSlug(page: string): string | null {
   const normalized = page.trim().replace(/^https?:\/\/[^/]+/u, "").replace(/[?#].*$/u, "");
   const segments = normalized.split("/").filter(Boolean);
@@ -96,6 +90,25 @@ function pageProjectSlug(page: string): string | null {
   if (segments[0] === "work" && segments[1]) return segments[1];
   if (segments.length === 1) return segments[0];
   return null;
+}
+
+function pageFromContext(context: Record<string, unknown>): string {
+  if (typeof context.page !== "string") return "home";
+
+  const raw = context.page.trim();
+  if (!raw || raw === "home" || raw === "/") return "home";
+
+  if (/^https?:\/\//iu.test(raw)) {
+    try {
+      const url = new URL(raw);
+      if (url.hostname !== "looksawful.ru" && url.hostname !== "www.looksawful.ru") return "home";
+      return pageProjectSlug(url.pathname) ?? "home";
+    } catch {
+      return "home";
+    }
+  }
+
+  return pageProjectSlug(raw) ?? "home";
 }
 
 function buildPreparedAnswer(
