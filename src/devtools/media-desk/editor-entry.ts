@@ -13,6 +13,7 @@ async function bootMediaDesk(): Promise<void> {
   installRevisionAwareMediaFetch();
   await import("./main.ts");
   await import("./editor.ts");
+  await import("./inventory-readonly.ts");
 }
 
 void bootMediaDesk();
