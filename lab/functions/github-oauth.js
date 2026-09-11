@@ -1,4 +1,5 @@
 const ADMIN_REPOSITORY = "looksawful/looksawful.ru";
+const ADMIN_OWNER = ADMIN_REPOSITORY.slice(0, ADMIN_REPOSITORY.indexOf("/"));
 const PRODUCTION_ORIGIN = "https://admin.looksawful.ru";
 const LOCAL_ORIGIN = "http://127.0.0.1:8787";
 const STATE_TTL_SECONDS = 10 * 60;
@@ -207,23 +208,21 @@ async function exchangeCode(request, env, fetcher) {
     return textResponse("GitHub OAuth returned unexpected permissions.", 403);
   }
 
-  const repositoriesResponse = await fetcher(
-    "https://api.github.com/user/repos?affiliation=owner&visibility=public&per_page=100",
-    {
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${accessToken}`,
-        "X-GitHub-Api-Version": "2026-03-10",
-      },
+  const identityResponse = await fetcher("https://api.github.com/user", {
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${accessToken}`,
+      "User-Agent": "looksawful-admin",
+      "X-GitHub-Api-Version": "2026-03-10",
     },
-  );
-  if (!repositoriesResponse.ok) return textResponse("GitHub identity verification failed.", 502);
+  });
+  if (!identityResponse.ok) return textResponse("GitHub identity verification failed.", 502);
 
-  const repositories = await repositoriesResponse.json();
-  const ownedRepository = Array.isArray(repositories)
-    ? repositories.find((repository) => repository?.full_name === ADMIN_REPOSITORY)
-    : null;
-  if (!ownedRepository) return textResponse("GitHub account is not authorized for this Admin.", 403);
+  const identity = await identityResponse.json();
+  const login = typeof identity?.login === "string" ? identity.login.trim() : "";
+  if (login.toLowerCase() !== ADMIN_OWNER.toLowerCase()) {
+    return textResponse("GitHub account is not authorized for this Admin.", 403);
+  }
 
   const session = await signToken(
     {
