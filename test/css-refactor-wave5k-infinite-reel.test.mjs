@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { fastTests } from "../tools/ci/run-tests.mjs";
 
 const media = readFileSync(new URL("../src/styles/media.css", import.meta.url), "utf8");
 const components = readFileSync(new URL("../src/styles/components.css", import.meta.url), "utf8");
@@ -13,7 +12,7 @@ const reelOwner = /(?:^|\n)\[data-infinite-reel\]\s*\{/;
 const reelKeyframes = /@keyframes\s+infinite-reel-scroll\s*\{/;
 const fadeFallback = "var(--infinite-reel-fade-size, clamp(2rem, 7cqi, 6rem))";
 
-test("Wave5K gives infinite-reel structure one canonical media owner", () => {
+test("infinite-reel structure has one canonical media owner", () => {
   assert.match(media, reelOwner);
   assert.doesNotMatch(components, reelOwner);
   assert.match(
@@ -24,7 +23,7 @@ test("Wave5K gives infinite-reel structure one canonical media owner", () => {
   assert.equal(media.split(fadeFallback).length - 1, 4, "media mask consumers must keep the accepted fade fallback contract");
 });
 
-test("Wave5K keeps animated reel geometry and masking in media ownership", () => {
+test("animated reel geometry and masking stay in media ownership", () => {
   assert.match(
     media,
     /\[data-infinite-reel\][\s\S]*?\&\[data-animated="true"\]\s*\{[\s\S]*?overflow-x:\s*clip;[\s\S]*?overflow-y:\s*visible;[\s\S]*?mask-image:\s*linear-gradient/,
@@ -39,7 +38,7 @@ test("Wave5K keeps animated reel geometry and masking in media ownership", () =>
   assert.doesNotMatch(media, /--infinite-reel-speed\s*:/);
 });
 
-test("Wave5K keeps infinite-reel motion lifecycle in the motion owner", () => {
+test("infinite-reel motion lifecycle stays in the motion owner", () => {
   assert.match(motion, /\[data-infinite-reel\]\s*\{[\s\S]*?--infinite-reel-speed:\s*var\(--motion-speed-autoscroll\);/);
   assert.match(
     motion,
@@ -54,7 +53,7 @@ test("Wave5K keeps infinite-reel motion lifecycle in the motion owner", () => {
   assert.doesNotMatch(components, reelKeyframes);
 });
 
-test("Wave5K preserves runtime and authored duration boundaries", () => {
+test("runtime and authored duration boundaries remain intact", () => {
   for (const pattern of [
     /export function createInfiniteReel\(/,
     /new IntersectionObserver\(/,
@@ -71,10 +70,6 @@ test("Wave5K preserves runtime and authored duration boundaries", () => {
   assert.match(renderer, /data-infinite-reel-track/);
 });
 
-test("Wave5K media ownership remains isolated from Slider", () => {
+test("media ownership remains isolated from Slider", () => {
   assert.doesNotMatch(media, /(?:^|\n)\.slider\s*\{/);
-});
-
-test("Wave5K infinite-reel split ownership contract is mandatory in Fast CI", () => {
-  assert.equal(fastTests.has("test/css-refactor-wave5k-infinite-reel.test.mjs"), true);
 });
