@@ -6,13 +6,22 @@ const clientUrl = new URL(
   "../src/features/portfolio-pet/assistant-client.ts",
   import.meta.url,
 );
+const answersUrl = new URL(
+  "../src/features/portfolio-pet/prepared-answers.ts",
+  import.meta.url,
+);
 
 async function loadClient() {
   assert.equal(existsSync(clientUrl), true, "RED: composed assistant client is not implemented yet");
   return import(clientUrl.href);
 }
 
-test("prepared assistant reply bypasses the public HTTP transport", async () => {
+async function approvedRouter(sourceIds) {
+  const { createPortfolioAssistantRouter } = await import(answersUrl.href);
+  return createPortfolioAssistantRouter({ approvedSourceIds: sourceIds });
+}
+
+test("approved prepared assistant reply bypasses the public HTTP transport", async () => {
   const { createPortfolioAssistantClient } = await loadClient();
   let fetchCalls = 0;
 
@@ -22,6 +31,8 @@ test("prepared assistant reply bypasses the public HTTP transport", async () => 
       fetchCalls += 1;
       throw new Error("prepared replies must not reach fetch");
     },
+  }, {
+    router: await approvedRouter(["profile.role", "profile.about"]),
   });
 
   const result = await client.reply({
@@ -34,7 +45,7 @@ test("prepared assistant reply bypasses the public HTTP transport", async () => 
   assert.equal(fetchCalls, 0);
 });
 
-test("free-form assistant reply uses the public transport and returns generated content", async () => {
+test("approved free-form assistant reply uses the public transport and returns generated content", async () => {
   const { createPortfolioAssistantClient } = await loadClient();
   let request = null;
 
@@ -51,6 +62,8 @@ test("free-form assistant reply uses the public transport and returns generated 
         { status: 200, headers: { "content-type": "application/json" } },
       );
     },
+  }, {
+    router: await approvedRouter(["project.jestei"]),
   });
 
   const result = await client.reply({
@@ -58,7 +71,7 @@ test("free-form assistant reply uses the public transport and returns generated 
     locale: "ru",
     context: {
       page: "/work/jestei/",
-      approvedSourceIds: ["project.jestei"],
+      approvedSourceIds: ["attacker.injected"],
       email: "must-not-leak@example.com",
       formMessage: "must not leak",
     },
@@ -87,12 +100,14 @@ test("public backend rate limiting remains a recoverable assistant state", async
   const client = createPortfolioAssistantClient({
     sessionId: "session-limited",
     fetchImpl: async () => new Response("", { status: 429 }),
+  }, {
+    router: await approvedRouter(["project.jestei"]),
   });
 
   const result = await client.reply({
     message: "Как этот подход помогает нестандартному сценарию?",
     locale: "ru",
-    context: { page: "/work/jestei/", approvedSourceIds: ["project.jestei"] },
+    context: { page: "/work/jestei/" },
   });
 
   assert.deepEqual(result, { kind: "rate_limited" });
