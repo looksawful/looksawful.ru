@@ -9,6 +9,10 @@ const launcher = await readFile(
   new URL("../tools/run-content-desk.mjs", import.meta.url),
   "utf8",
 );
+const editorEntry = await readFile(
+  new URL("../src/devtools/media-desk/editor-entry.ts", import.meta.url),
+  "utf8",
+);
 
 test("ordinary Desk launch is read-only and has no mutable media startup", () => {
   assert.equal(packageJson.scripts.desk, "node tools/run-content-desk.mjs");
@@ -23,4 +27,16 @@ test("write Desk launch is explicit and uses the guarded launcher path", () => {
   assert.match(launcher, /content\/text-cms/);
   assert.match(launcher, /GITHUB_ACTIONS|CI/);
   assert.match(launcher, /127\.0\.0\.1|localhost/);
+});
+
+test("Desk exposes mode and checkout provenance in the operator UI", async () => {
+  assert.match(editorEntry, /mode-status\.ts/);
+  const modeStatus = await readFile(
+    new URL("../src/devtools/media-desk/mode-status.ts", import.meta.url),
+    "utf8",
+  );
+  assert.match(modeStatus, /VITE_CONTENT_DESK_MODE/);
+  assert.match(modeStatus, /VITE_CONTENT_DESK_BRANCH/);
+  assert.match(modeStatus, /VITE_CONTENT_DESK_HEAD/);
+  assert.match(modeStatus, /READ ONLY|WRITE/);
 });
