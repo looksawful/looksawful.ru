@@ -1,3 +1,4 @@
+import { buildPortfolioPetKnowledgeCandidates } from "./knowledge.ts";
 import type { PortfolioAssistantRoute } from "./prepared-answers.ts";
 
 type GenerateRoute = Extract<PortfolioAssistantRoute, { kind: "generate" }>;
@@ -27,6 +28,10 @@ export interface PortfolioAssistantTransportOptions {
 const DEFAULT_ENDPOINT = "https://api.looksawful.ru/v1/portfolio-chat";
 const DEFAULT_TIMEOUT_MS = 8_000;
 const MAX_SOURCE_IDS = 12;
+const PUBLIC_SITE_ORIGIN = "https://looksawful.ru";
+const KNOWN_SOURCE_IDS = new Set(
+  buildPortfolioPetKnowledgeCandidates().map((candidate) => candidate.id),
+);
 
 function unavailable(): PortfolioAssistantTransportResult {
   return Object.freeze({ kind: "unavailable" as const });
@@ -41,6 +46,40 @@ function safeSources(value: unknown): readonly string[] {
     .slice(0, MAX_SOURCE_IDS);
 
   return Object.freeze([...new Set(sources)]);
+}
+
+function safeRequestSourceIds(value: readonly string[]): readonly string[] {
+  const sourceIds = value
+    .filter((sourceId) => KNOWN_SOURCE_IDS.has(sourceId))
+    .slice(0, MAX_SOURCE_IDS);
+
+  return Object.freeze([...new Set(sourceIds)]);
+}
+
+function safeCurrentPath(value: string, sourceIds: readonly string[]): string {
+  const raw = value.trim();
+  if (!raw || raw === "home") return "/";
+
+  let parsed: URL;
+  try {
+    parsed = new URL(raw, `${PUBLIC_SITE_ORIGIN}/`);
+  } catch {
+    return "/";
+  }
+
+  if (/^https?:\/\//iu.test(raw) && parsed.origin !== PUBLIC_SITE_ORIGIN) return "/";
+
+  const segments = parsed.pathname.split("/").filter(Boolean);
+  if (segments.length === 0) return "/";
+
+  const projectSlug = segments.length === 1
+    ? segments[0]
+    : segments.length === 2 && segments[0] === "work"
+      ? segments[1]
+      : null;
+
+  if (!projectSlug || !sourceIds.includes(`project.${projectSlug}`)) return "/";
+  return `/work/${projectSlug}/`;
 }
 
 function parseResponse(payload: unknown): PortfolioAssistantTransportResult {
@@ -89,6 +128,7 @@ export function createPortfolioAssistantTransport({
     async generate(route: GenerateRoute): Promise<PortfolioAssistantTransportResult> {
       const controller = new AbortController();
       const timeout = globalThis.setTimeout(() => controller.abort(), requestTimeoutMs);
+      const sourceIds = safeRequestSourceIds(route.context.sourceIds);
 
       try {
         const response = await fetchImpl(endpoint, {
@@ -99,8 +139,8 @@ export function createPortfolioAssistantTransport({
             locale: route.context.locale,
             sessionId,
             context: {
-              currentPath: route.context.page,
-              sourceIds: route.context.sourceIds,
+              currentPath: safeCurrentPath(route.context.page, sourceIds),
+              sourceIds,
             },
           }),
           signal: controller.signal,
