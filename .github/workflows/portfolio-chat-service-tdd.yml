@@ -5,8 +5,12 @@ on:
     branches:
       - contact-hub-frontend-current
     paths:
+      - test/portfolio-assistant-prepared-contract.test.mjs
       - test/portfolio-chat-service-contract.test.mjs
+      - src/features/portfolio-pet/knowledge.ts
+      - src/features/portfolio-pet/prepared-answers.ts
       - src/features/portfolio-pet/portfolio-chat-service.ts
+      - .github/workflows/portfolio-chat-service-tdd.yml
 
 permissions:
   contents: read
@@ -32,8 +36,11 @@ jobs:
 
       - run: npm ci
 
-      - name: Focused portfolio chat contract
-        run: node --test test/portfolio-chat-service-contract.test.mjs
+      - name: Focused portfolio assistant contracts
+        run: >-
+          node --test
+          test/portfolio-assistant-prepared-contract.test.mjs
+          test/portfolio-chat-service-contract.test.mjs
 
       - name: Typecheck
         run: npm run typecheck
