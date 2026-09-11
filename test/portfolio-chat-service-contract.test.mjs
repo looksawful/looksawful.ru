@@ -32,3 +32,26 @@ test("AI prepared answers never call the generative provider", async () => {
   assert.equal(providerCalls, 0);
   assert.ok(result.text.trim().length > 0);
 });
+
+test("free-form input without approved evidence returns no_data without calling the provider", async () => {
+  const { createPortfolioChatService } = await loadService();
+  let providerCalls = 0;
+
+  const service = createPortfolioChatService({
+    provider: {
+      async generate() {
+        providerCalls += 1;
+        return { text: "provider should not be called" };
+      },
+    },
+  });
+
+  const result = await service.reply({
+    message: "Как ты относишься к космической архитектуре?",
+    locale: "ru",
+    context: { page: "home", approvedSourceIds: [] },
+  });
+
+  assert.equal(result.kind, "no_data");
+  assert.equal(providerCalls, 0);
+});
