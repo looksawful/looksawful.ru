@@ -1,0 +1,21 @@
+.media-desk-mode-status {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid rgb(0 0 0 / 14%);
+  font: 500 0.75rem/1.35 Inter, system-ui, sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.media-desk-mode-status strong {
+  font-weight: 700;
+}
+
+.media-desk-mode-status[data-mode="write"] strong {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
