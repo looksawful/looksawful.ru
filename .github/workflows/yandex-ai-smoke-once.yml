@@ -1,11 +1,7 @@
-name: Yandex AI One-shot Smoke
+name: Yandex AI Manual Smoke
 
 on:
-  push:
-    branches:
-      - contact-hub-frontend-current
-    paths:
-      - .github/workflows/yandex-ai-smoke-once.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
