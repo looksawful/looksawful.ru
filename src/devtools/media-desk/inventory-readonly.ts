@@ -13,7 +13,9 @@ import "./inventory-readonly.css";
 
 const records = buildMediaDeskInventoryIndex(mediaCatalogItems, mediaEntries);
 const summary = summarizeMediaDeskDiagnostics(records);
-const projectNames = new Map(projects.map((project) => [project.id, project.name] as const));
+const projectNames = new Map<string, string>(
+  projects.map((project) => [project.id, project.name]),
+);
 
 const diagnosticLabels: Record<Exclude<MediaDeskInventoryDiagnosticFilter, "all">, string> = {
   orphan: "orphan",
@@ -132,6 +134,9 @@ function recordCard(record: MediaDeskInventoryRecord): HTMLElement {
     row("Alt", valueOrDash(record.item.alt)),
     row("Caption", valueOrDash(record.item.description)),
     row("Projects", projectLabels(record.item.projectIds)),
+    row("Visibility", record.item.showInCatalog ? "catalog visible" : "catalog hidden"),
+    row("State", record.item.archived ? "archived" : "active"),
+    row("Reusable", record.item.reusable ? "yes" : "no"),
   ]);
 
   const placement = group("Placement metadata", [
