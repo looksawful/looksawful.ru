@@ -1,5 +1,6 @@
 import "./desk.css";
 import { mountMediaDeskModeStatus } from "./mode-status.ts";
+import { installRevisionAwareMediaFetch } from "./revision-client.ts";
 
 const url = new URL(location.href);
 if (url.searchParams.has("view")) {
@@ -9,6 +10,7 @@ if (url.searchParams.has("view")) {
 
 async function bootMediaDesk(): Promise<void> {
   mountMediaDeskModeStatus();
+  installRevisionAwareMediaFetch();
   await import("./main.ts");
   await import("./editor.ts");
 }

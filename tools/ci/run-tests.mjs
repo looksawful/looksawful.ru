@@ -41,6 +41,7 @@ export const fastTests = new Set([
   "test/jestei-event-migration.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/media-desk-launcher-policy.test.mjs",
+  "test/media-desk-transactions.test.mjs",
   "test/media-tools/affected-media-ci.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
   "test/pages-cms-yaml-syntax.test.mjs",
