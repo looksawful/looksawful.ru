@@ -32,7 +32,19 @@ async function readProjectCardGeometry(page) {
     if (!(list instanceof HTMLElement)) throw new Error("missing projects grid list");
     if (!(media instanceof HTMLElement)) throw new Error("missing first project card media");
 
-    const rootStyles = getComputedStyle(document.documentElement);
+    const resolveRootLength = (name) => {
+      const probe = document.createElement("div");
+      probe.style.position = "fixed";
+      probe.style.visibility = "hidden";
+      probe.style.pointerEvents = "none";
+      probe.style.inlineSize = `var(${name})`;
+      probe.style.blockSize = "0";
+      document.body.append(probe);
+      const value = probe.getBoundingClientRect().width;
+      probe.remove();
+      return value;
+    };
+
     const listStyles = getComputedStyle(list);
     const mediaStyles = getComputedStyle(media);
     const cardRect = firstCard.getBoundingClientRect();
@@ -41,8 +53,8 @@ async function readProjectCardGeometry(page) {
     const sameRow = secondRect !== null && Math.abs(secondRect.top - cardRect.top) <= 1;
     const columns = sameRow ? 2 : 1;
     const columnGap = Number.parseFloat(listStyles.columnGap) || 0;
-    const edgeOffset = Number.parseFloat(rootStyles.getPropertyValue("--radius-edge-offset")) || 0;
-    const posterRadius = Number.parseFloat(rootStyles.getPropertyValue("--radius-poster")) || 0;
+    const edgeOffset = resolveRootLength("--radius-edge-offset");
+    const posterRadius = resolveRootLength("--radius-poster");
     const actualRadius = Number.parseFloat(mediaStyles.borderTopLeftRadius) || 0;
     const expectedTrackWidth = columns === 2
       ? (listRect.width - columnGap) / 2
