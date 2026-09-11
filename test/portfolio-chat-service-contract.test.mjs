@@ -113,3 +113,23 @@ test("provider failure becomes unavailable instead of rejecting the Hub request"
 
   assert.deepEqual(result, { kind: "unavailable" });
 });
+
+test("blank provider response becomes unavailable instead of an empty generated answer", async () => {
+  const { createPortfolioChatService } = await loadService();
+
+  const service = createPortfolioChatService({
+    provider: {
+      async generate() {
+        return { text: "   \n  " };
+      },
+    },
+  });
+
+  const result = await service.reply({
+    message: "Расскажи подробнее про проект",
+    locale: "ru",
+    context: { page: "jestei", approvedSourceIds: ["project.jestei"] },
+  });
+
+  assert.deepEqual(result, { kind: "unavailable" });
+});
