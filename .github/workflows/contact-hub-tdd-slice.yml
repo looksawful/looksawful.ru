@@ -1,0 +1,40 @@
+name: Contact Hub TDD Slice
+
+on:
+  push:
+    branches:
+      - contact-hub-frontend-current
+    paths:
+      - .github/workflows/contact-hub-tdd-slice.yml
+      - test/portfolio-pet-sprite-manifest-contract.test.mjs
+      - src/features/portfolio-pet/sprite-manifest.ts
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contact-hub-tdd-slice-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sprite-manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Focused sprite manifest contract
+        run: node --test test/portfolio-pet-sprite-manifest-contract.test.mjs
+
+      - name: Typecheck
+        run: npm run typecheck
