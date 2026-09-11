@@ -94,11 +94,15 @@ Write API использует revision-aware optimistic concurrency: mutation �
 
 ## Private Lab
 
-Private Lab — отдельная non-production read-only поверхность. Она не является CMS branch, source of truth или способом обойти Desk write policy.
+Private Lab — отдельная non-production read-only поверхность. Она не является CMS branch, source of truth, deployment authority или способом обойти Desk write policy.
 
-Lab build содержит exact branch/commit/build provenance, `noindex/nofollow/noarchive` и fail-closed middleware: без configured `LAB_PASSWORD` запрос получает `503`, а неверные credentials — `401`.
+Текущий integration candidate предоставляет только foundation: отдельный build, exact branch/commit/build provenance, `noindex/nofollow/noarchive` и local-only serving на `127.0.0.1`.
+
+Он **не** вводит собственный пароль/Basic Auth. По актуальному #732 удалённый private access должен использовать существующий Admin/GitHub OAuth boundary либо оставаться local-only, пока этот security slice не реализован и не проверен.
 
 Даже успешная network authentication не даёт право на CMS/media mutation. Write authority по-прежнему определяется локальным `content/text-cms` contract.
+
+Foundation не считается завершением всего #732: full LIVE/HIDDEN/WIP catalog, hidden organisms/Berserk, viewport/debug tooling и GitHub OAuth/Admin integration остаются отдельным scope.
 
 ## Проверить сайт
 
