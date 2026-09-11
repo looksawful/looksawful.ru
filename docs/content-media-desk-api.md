@@ -2,23 +2,66 @@
 
 Status: CURRENT IMPLEMENTATION / TRANSITIONAL.
 
-This document describes the local Desk HTTP contract implemented on `dev` at the time of reconciliation. It is not a promise that the current write model is the final safe architecture. GitHub #451/#452/#453 own authoring-branch provenance, read-only-by-default launch, guarded write activation, source authorization, stale-write/concurrency and atomic-persistence hardening.
+This document describes the local Desk HTTP contract implemented on the current #452 candidate. Executable authority remains `tools/run-content-desk.mjs`, `tools/content-desk-policy.mjs`, `src/devtools/media-desk/server.ts` and their tests. #451 owns authoring reconciliation/integration topology; #453 owns source authorization, revision/concurrency and atomic persistence hardening.
 
-Executable authority remains `src/devtools/media-desk/server.ts` plus its tests. If this document conflicts with executable code, fix the documentation or contract deliberately rather than treating prose as stronger evidence.
+## Launch modes
+
+### Read-only mode
+
+```text
+npm run desk
+```
+
+Ordinary Desk launch is now the safe inspection path:
+
+- it does not run `media:ensure`, `media:sync` or another mutable media synchronization command on startup;
+- it binds Vite to `127.0.0.1`;
+- it sets `CONTENT_DESK_WRITE=0` and `VITE_CONTENT_DESK_WRITE=0`;
+- therefore the write plugin in `src/devtools/media-desk/server.ts` does not register mutation endpoints;
+- opening/browsing the Desk itself is not an authorization to mutate canonical content/media files;
+- the operator UI shows `READ ONLY` plus current branch, HEAD, dirty state and divergence information when available.
+
+Read-only startup attempts to display repository provenance but does not fail just because Git provenance cannot be read. It must remain useful as an inspection surface without silently enabling writes.
+
+### Explicit write mode
+
+```text
+npm run desk:write
+```
+
+Write mode is a separate explicit launcher path. Before Vite starts with write flags, the launcher fails closed unless all repository-owned guards pass:
+
+- CI and GitHub Actions are rejected;
+- the current checkout must be exactly the permanent `content/text-cms` authoring branch;
+- direct write mode on `dev`, `prod`, feature/fix branches or another checkout is rejected;
+- the host is fixed to `127.0.0.1`;
+- user-supplied `--host` / `--host=...` overrides are rejected;
+- mode/provenance are printed by the launcher and surfaced in the operator UI as `WRITE`.
+
+Passing these local guards is not publication authority. Approved authored work still follows the project contract:
+
+```text
+content/text-cms
+  -> explicit user READY / "готово"
+  -> deliberate reconciliation and validation
+  -> dev
+  -> exact dev verification
+  -> separate reviewed dev -> prod release
+```
+
+Remote authentication or a future private Lab does not bypass this branch/write policy.
 
 ## Registration gate
 
-The write plugin registers these endpoints only when:
+The write plugin registers its HTTP endpoints only when:
 
 ```text
 CONTENT_DESK_WRITE=1
 ```
 
-`npm run desk` currently enables that flag through the Desk launcher. It also runs `media:ensure` before opening the Desk, so the ordinary Desk command is not a side-effect-free read-only inspection mode.
+The guarded `npm run desk:write` launcher is the intended local way to set that flag. Ordinary `npm run desk` explicitly sets it to `0`.
 
-No authentication or authorization mechanism beyond this local write-mode gate is defined by `src/devtools/media-desk/server.ts`. Do not expose the current write interface as a network-admin API merely because the endpoints exist.
-
-Branch policy is a separate concern: intended editorial writes belong on the permanent `content/text-cms` authoring branch under #451, not directly on `dev` or `prod`. Current server code does not itself prove/enforce that branch authorization yet.
+No network authentication mechanism is defined by `src/devtools/media-desk/server.ts`. The current write interface is local operator tooling and must not be exposed as a network-admin API merely because the endpoints exist.
 
 ## Global request rules
 
@@ -49,7 +92,7 @@ The existence of a string in the repository does not by itself make it a safe lo
 
 ## `POST /__media-desk/texts`
 
-Request body has exactly these top-level fields:
+Request body currently has exactly these top-level fields:
 
 ```json
 {
@@ -87,11 +130,11 @@ Success:
 
 ### Known current limitation
 
-The request does not contain an expected revision/hash/ETag. Current Desk text saves therefore do not provide optimistic-concurrency protection against another editor/worktree changing the same source after it was read. #453 owns the target revision/conflict contract.
+The request does not yet contain an expected revision/hash/ETag in the #452 candidate. Optimistic-concurrency protection is owned by #453 and must not be inferred from the launcher safety work.
 
 ## `POST /__media-desk/metadata`
 
-Request body has exactly:
+Request body currently has exactly:
 
 ```json
 {
@@ -133,7 +176,7 @@ Current constraints:
 - maximum items: `100`;
 - IDs must be unique within the request;
 - all candidate records are prepared and parser-validated before the write phase;
-- prepared files are then written sequentially.
+- prepared files are then written sequentially in the current #452 baseline.
 
 Success:
 
@@ -150,34 +193,34 @@ Success:
 
 ### Known current limitation
 
-Prevalidation prevents an invalid later item from starting the write phase, but sequential multi-file persistence is not a filesystem transaction. A later filesystem failure after an earlier successful write does not have a documented rollback guarantee. #453 owns the target atomic/rollback semantics.
+Prevalidation prevents an invalid later item from starting the write phase, but sequential multi-file persistence is not a filesystem transaction. #453 owns the revision-aware atomic/rollback-safe persistence contract.
 
-## CURRENT vs TARGET
+## CURRENT vs remaining hardening
 
-CURRENT executable behavior:
+CURRENT #452 candidate behavior:
 
 ```text
 npm run desk
-  -> media:ensure may synchronize derived media state
-  -> write mode enabled
-  -> local Vite Desk
-  -> current JSON write endpoints
+  -> no mutable media startup
+  -> loopback-only Vite
+  -> READ ONLY
+  -> no Desk write plugin endpoints
+
+npm run desk:write
+  -> reject CI/GitHub Actions
+  -> require exact content/text-cms checkout
+  -> reject host override
+  -> loopback-only Vite
+  -> visible WRITE + repository provenance
+  -> current local JSON write endpoints
 ```
 
-CURRENT project branch policy + OPEN hardening under #451/#452/#453:
+Remaining OPEN hardening is deliberately separate:
 
 ```text
-permanent content/text-cms authoring branch
-  -> branch/worktree provenance + drift against fresh dev
-  -> read-only Desk by default
-  -> explicit guarded write mode only on the authorized authoring checkout
-  -> explicit source authorization + canonical validation
-  -> revision-aware conflict handling
-  -> atomic/rollback-safe persistence
-  -> explicit user READY / "готово"
-  -> reviewed integration into fresh dev
-  -> verification on resulting dev
-  -> existing trusted dev -> prod publication boundary
+#451: permanent content/text-cms provenance/reconciliation + READY gate
+#453: explicit editable-source authorization + expected revision/conflicts
+      + atomic single-file persistence + bulk rollback/all-or-nothing guarantee
 ```
 
-The branch policy is authoritative, but the hardening steps in this diagram are not all executable CURRENT behavior yet. Do not claim branch guards, read-only default, revision protection or atomic persistence until code/tests provide evidence.
+Do not describe #453 guarantees as CURRENT until its exact implementation/tests land. Do not expose the local write server remotely; a private Lab/network boundary is a separate concern and does not grant write authorization.
