@@ -20,6 +20,8 @@ jobs:
     if: github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      retained_css: ${{ steps.webvisor-assets.outputs.retained_css }}
     env:
       VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
       VITE_YANDEX_METRIKA_COUNTER_ID: "112065623"
@@ -96,8 +98,18 @@ jobs:
         run: npm run typecheck
       - name: Fast tests
         run: npm run test:fast
+      - name: Restore Webvisor retained assets
+        uses: actions/cache/restore@v6
+        with:
+          path: .cache/webvisor-assets
+          key: webvisor-assets-v1-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            webvisor-assets-v1-${{ runner.os }}-
       - name: Build site
         run: npm run build:site
+      - name: Prepare Webvisor retained assets
+        id: webvisor-assets
+        run: node tools/webvisor-retained-assets.mjs --dist dist --cache .cache/webvisor-assets
       - name: Cache Playwright Chromium
         uses: actions/cache@v6
         with:
@@ -109,6 +121,11 @@ jobs:
         run: npm run test:e2e:production
       - name: Verify production CV artifact
         run: npm run cv:prod:verify
+      - name: Save Webvisor retained assets
+        uses: actions/cache/save@v6
+        with:
+          path: .cache/webvisor-assets
+          key: webvisor-assets-v1-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Stamp exact deployment SHA
         shell: bash
         run: |
@@ -137,6 +154,7 @@ jobs:
         run: |
           set -euo pipefail
           expected="commit=${GITHUB_SHA}"
+          retained_css="${{ needs.build.outputs.retained_css }}"
           yandex_user_agent='Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)'
           for delay in 0 5 10 20 30; do
             if (( delay > 0 )); then sleep "$delay"; fi
@@ -166,6 +184,15 @@ jobs:
               test -z "$asset" && continue
               curl --fail --silent --show-error --location --max-time 20 "https://www.looksawful.ru${asset}?sha=${GITHUB_SHA}" > /dev/null
             done <<< "$assets"
+
+            if [[ -n "$retained_css" ]]; then
+              curl --fail --silent --show-error --location --max-time 20 \
+                -D /tmp/webvisor-retained.headers \
+                "https://www.looksawful.ru/assets/${retained_css}" \
+                > /tmp/webvisor-retained.css
+              grep -Eqi '^content-type:[[:space:]]*text/css' /tmp/webvisor-retained.headers
+              test -s /tmp/webvisor-retained.css
+            fi
             exit 0
           done
           echo "Production did not expose expected SHA or discovery files: ${GITHUB_SHA}" >&2
