@@ -7,9 +7,11 @@ on:
     paths:
       - test/portfolio-assistant-prepared-contract.test.mjs
       - test/portfolio-chat-service-contract.test.mjs
+      - test/portfolio-assistant-client-contract.test.mjs
       - src/features/portfolio-pet/knowledge.ts
       - src/features/portfolio-pet/prepared-answers.ts
       - src/features/portfolio-pet/portfolio-chat-service.ts
+      - src/features/portfolio-pet/assistant-client.ts
       - .github/workflows/portfolio-chat-service-tdd.yml
 
 permissions:
@@ -41,6 +43,7 @@ jobs:
           node --test
           test/portfolio-assistant-prepared-contract.test.mjs
           test/portfolio-chat-service-contract.test.mjs
+          test/portfolio-assistant-client-contract.test.mjs
 
       - name: Typecheck
         run: npm run typecheck
