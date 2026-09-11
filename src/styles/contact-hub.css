@@ -1,0 +1,94 @@
+.contact-hub {
+  position: fixed;
+  z-index: 90;
+  inset-inline-end: max(var(--page-padding-inline), env(safe-area-inset-right));
+  inset-block-end: max(var(--page-padding-inline), env(safe-area-inset-bottom));
+  inline-size: min(32rem, calc(100vw - (2 * var(--page-padding-inline))));
+  max-block-size: calc(100dvh - (2 * var(--page-padding-inline)));
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: var(--border-width-100) solid var(--clr-border);
+  border-radius: var(--radius-shell);
+  background: var(--clr-surface-elevated);
+  color: var(--clr-text);
+  box-shadow: var(--shadow-surface-elevated);
+}
+
+.contact-hub[hidden] {
+  display: none;
+}
+
+.contact-hub__shell {
+  min-inline-size: 0;
+}
+
+.contact-hub__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--size-300);
+  padding: var(--size-400);
+  border-block-end: var(--border-width-100) solid var(--clr-border);
+}
+
+.contact-hub__title {
+  margin: 0;
+  font-size: var(--fs-600);
+  font-weight: var(--fw-500);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-heading);
+}
+
+.contact-hub__close {
+  display: grid;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  margin: calc(var(--size-100) * -1);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.contact-hub__close:focus-visible {
+  outline: var(--border-width-200) solid currentColor;
+  outline-offset: 0.125rem;
+}
+
+.contact-hub__screen {
+  min-block-size: 8rem;
+  padding: var(--size-400);
+}
+
+@media (width <= 32rem) {
+  .contact-hub {
+    inset-inline-start: max(var(--page-padding-inline), env(safe-area-inset-left));
+    inset-inline-end: max(var(--page-padding-inline), env(safe-area-inset-right));
+    inline-size: auto;
+    max-block-size: calc(100dvh - max(var(--page-padding-inline), env(safe-area-inset-top)) - max(var(--page-padding-inline), env(safe-area-inset-bottom)));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .contact-hub {
+    animation: contact-hub-enter 140ms ease-out both;
+  }
+
+  @keyframes contact-hub-enter {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
