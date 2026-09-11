@@ -14,7 +14,8 @@
   box-shadow: var(--shadow-surface-elevated);
 }
 
-.contact-hub[hidden] {
+.contact-hub[hidden],
+.contact-hub [hidden] {
   display: none;
 }
 
@@ -23,20 +24,42 @@
 }
 
 .contact-hub__header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--size-300);
-  padding: var(--size-400);
+  padding: var(--size-300) var(--size-400);
   border-block-end: var(--border-width-100) solid var(--clr-border);
 }
 
-.contact-hub__title {
-  margin: 0;
-  font-size: var(--fs-600);
-  font-weight: var(--fw-500);
-  line-height: var(--lh-tight);
-  letter-spacing: var(--ls-heading);
+.contact-hub__modes,
+.contact-hub__form-actions,
+.contact-hub__handoff-decision {
+  display: flex;
+  align-items: center;
+  gap: var(--size-300);
+}
+
+.contact-hub__text-action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.contact-hub__text-action[aria-pressed="false"] {
+  opacity: 0.45;
+}
+
+.contact-hub__text-action:focus-visible,
+.contact-hub__field :is(input, textarea):focus-visible,
+.contact-hub__mail-fallback:focus-visible {
+  outline: var(--border-width-200) solid currentColor;
+  outline-offset: 0.125rem;
 }
 
 .contact-hub__close {
@@ -45,20 +68,8 @@
   inline-size: 2.75rem;
   block-size: 2.75rem;
   margin: calc(var(--size-100) * -1);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
   font-size: 1.75rem;
   line-height: 1;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.contact-hub__close:focus-visible {
-  outline: var(--border-width-200) solid currentColor;
-  outline-offset: 0.125rem;
 }
 
 .contact-hub__screen {
@@ -66,12 +77,91 @@
   padding: var(--size-400);
 }
 
+.contact-hub__screen--form {
+  display: grid;
+  gap: var(--size-400);
+}
+
+.contact-hub__field {
+  display: grid;
+  grid-template-columns: minmax(5rem, 0.28fr) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--size-300);
+  padding-block-end: var(--size-300);
+  border-block-end: var(--border-width-100) solid var(--clr-border);
+}
+
+.contact-hub__field :is(input, textarea),
+.contact-hub__draft,
+.contact-hub__composer textarea {
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+
+.contact-hub__field textarea {
+  min-block-size: 7rem;
+}
+
+.contact-hub__form-actions {
+  justify-content: space-between;
+}
+
+.contact-hub__mail-fallback {
+  color: inherit;
+  text-decoration-thickness: var(--border-width-100);
+  text-underline-offset: 0.18em;
+}
+
+.contact-hub__screen--ai {
+  display: grid;
+  gap: var(--size-400);
+}
+
+.contact-hub__ai-log {
+  min-block-size: 8rem;
+  max-block-size: 14rem;
+  overflow: auto;
+}
+
+.contact-hub__draft {
+  min-block-size: 6rem;
+  padding-block: var(--size-300);
+  border-block: var(--border-width-100) solid var(--clr-border);
+}
+
+.contact-hub__composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--size-300);
+  padding-block-start: var(--size-300);
+  border-block-start: var(--border-width-100) solid var(--clr-border);
+}
+
+.contact-hub__composer textarea {
+  min-block-size: 2.75rem;
+  max-block-size: 8rem;
+}
+
 @media (width <= 32rem) {
   .contact-hub {
-    inset-inline-start: max(var(--page-padding-inline), env(safe-area-inset-left));
-    inset-inline-end: max(var(--page-padding-inline), env(safe-area-inset-right));
-    inline-size: auto;
-    max-block-size: calc(100dvh - max(var(--page-padding-inline), env(safe-area-inset-top)) - max(var(--page-padding-inline), env(safe-area-inset-bottom)));
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    inset-block-end: 0;
+    inline-size: 100%;
+    max-block-size: calc(100dvh - env(safe-area-inset-top));
+    border-inline: 0;
+    border-block-end: 0;
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+    padding-block-end: env(safe-area-inset-bottom);
   }
 }
 
