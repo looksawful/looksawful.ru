@@ -41,6 +41,7 @@ export const fastTests = new Set([
   "test/lab-catalog-contract.test.mjs",
   "test/lab-component-catalog.test.mjs",
   "test/lab-lifecycle-contract.test.mjs",
+  "test/lab-state.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/media-tools/affected-media-ci.test.mjs",
   "test/media-tools/media-cache-fingerprint-scope.test.mjs",
