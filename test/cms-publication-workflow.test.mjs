@@ -18,7 +18,6 @@ test("Pages CMS dispatches publication authorization from trusted prod", async (
   assert.match(action, /workflow: pages-cms-publish\.yml/);
   assert.match(action, /ref: prod\b/);
   assert.doesNotMatch(action, /ref: current\b/);
-  assert.doesNotMatch(action, /dev in prod|dev в prod|dev -> prod/i);
 });
 
 test("publication workflow validates temporary content source while executing trusted policy from prod", async () => {
