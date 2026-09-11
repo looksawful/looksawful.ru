@@ -26,7 +26,7 @@ async function loadPersistence() {
   return import(persistenceUrl.href);
 }
 
-test("F-021/PRV-003: session draft survives same-tab store recreation and excludes attachment data", async () => {
+test("F-026/F-027/F-029/F-030: session draft survives same-tab store recreation and excludes attachment data", async () => {
   const { createSessionContactDraftStore } = await loadPersistence();
   const storage = new MemoryStorage();
   const first = createSessionContactDraftStore(storage);
@@ -51,7 +51,7 @@ test("F-021/PRV-003: session draft survives same-tab store recreation and exclud
   assert.equal(first.read(), null);
 });
 
-test("F-021: corrupt session data fails closed instead of breaking Contact Hub", async () => {
+test("F-026: corrupt session draft fails closed instead of breaking Contact Hub", async () => {
   const { createSessionContactDraftStore } = await loadPersistence();
   const storage = new MemoryStorage();
   const store = createSessionContactDraftStore(storage);
