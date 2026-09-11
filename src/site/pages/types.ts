@@ -8,6 +8,10 @@ export interface PageDiscovery {
   indexable: boolean;
 }
 
+export interface PageDevelopmentMetadata {
+  status: "wip";
+}
+
 export type EntityPageId = CanonicalEntityPageId;
 
 export type StaticPageId = "cv" | "privacy";
@@ -30,6 +34,7 @@ interface BasePageDefinition {
   path: string;
   enabled: boolean;
   discovery: PageDiscovery;
+  development?: PageDevelopmentMetadata;
   renderer: SitePageRenderer;
   build: SitePageBuild;
 }
