@@ -261,6 +261,18 @@ test("owner checker does not confuse related but different class families", () =
   assert.deepEqual(errors, []);
 });
 
+test("index stylesheet does not own typography refinements", () => {
+  const index = readFileSync(new URL("../src/styles/index.css", import.meta.url), "utf8");
+  const typographyDeclarations =
+    index.match(/^[ \t]*(?:font(?:-[\w-]+)?|line-height|letter-spacing)\s*:/gm) ?? [];
+
+  assert.deepEqual(
+    typographyDeclarations,
+    [],
+    "typography declarations belong to canonical selector owners, not index.css",
+  );
+});
+
 test("incoming lifecycle accepts one fully described temporary family", () => {
   const source = `/* @incoming\n * issue: #590\n * target: component:example\n * reason: owner is not stable yet\n * exit: move to a durable owner before final regression\n */\n.example { display: grid; }`;
   assert.deepEqual(findIncomingLifecycleViolations(source), []);
