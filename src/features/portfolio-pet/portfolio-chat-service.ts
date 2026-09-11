@@ -16,7 +16,8 @@ export interface PortfolioChatServiceInput {
 export type PortfolioChatServiceResult =
   | Extract<PortfolioAssistantRoute, { kind: "prepared" }>
   | { kind: "generated"; text: string; sourceIds: readonly string[] }
-  | { kind: "no_data" };
+  | { kind: "no_data" }
+  | { kind: "unavailable" };
 
 export function createPortfolioChatService({ provider }: { provider: PortfolioChatProvider }) {
   return Object.freeze({
@@ -25,12 +26,16 @@ export function createPortfolioChatService({ provider }: { provider: PortfolioCh
       if (route.kind === "prepared") return route;
       if (route.context.sourceIds.length === 0) return Object.freeze({ kind: "no_data" as const });
 
-      const generated = await provider.generate(route);
-      return Object.freeze({
-        kind: "generated" as const,
-        text: generated.text,
-        sourceIds: route.context.sourceIds,
-      });
+      try {
+        const generated = await provider.generate(route);
+        return Object.freeze({
+          kind: "generated" as const,
+          text: generated.text,
+          sourceIds: route.context.sourceIds,
+        });
+      } catch {
+        return Object.freeze({ kind: "unavailable" as const });
+      }
     },
   });
 }
