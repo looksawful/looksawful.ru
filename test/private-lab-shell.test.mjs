@@ -12,6 +12,7 @@ test("private Lab is an isolated non-production build", async () => {
   ]);
 
   assert.match(labConfig, /lab\/index\.html/);
+  assert.match(labConfig, /127\.0\.0\.1/);
   assert.doesNotMatch(labConfig, /media-desk\/server/);
   assert.doesNotMatch(publicConfig, /lab\/index\.html/);
   assert.match(labHtml, /<meta name="robots" content="noindex,nofollow,noarchive"/);
@@ -19,18 +20,12 @@ test("private Lab is an isolated non-production build", async () => {
   assert.match(labHtml, /data-mode="read-only"/);
 });
 
-test("private Lab middleware is deployment-scoped, fail-closed, and non-indexable", async () => {
-  const middleware = await read("lab/functions/_middleware.js");
+test("integration Lab does not invent a parallel authentication mechanism", async () => {
+  const labHtml = await read("lab/index.html");
+  const source = await read("src/lab/index.ts");
 
-  assert.match(middleware, /LAB_PASSWORD/);
-  assert.match(middleware, /authentication is not configured/i);
-  assert.match(middleware, /503/);
-  assert.match(middleware, /WWW-Authenticate/);
-  assert.match(middleware, /X-Robots-Tag/);
-  assert.match(middleware, /noindex, nofollow, noarchive/);
-  assert.match(middleware, /Cache-Control/);
-  assert.match(middleware, /private, no-store/);
-  assert.match(middleware, /X-Frame-Options/);
+  assert.doesNotMatch(labHtml, /LAB_PASSWORD|basic auth|WWW-Authenticate/i);
+  assert.doesNotMatch(source, /LAB_PASSWORD|Authorization|github oauth/i);
 });
 
 test("Lab client stays read-only and carries exact build provenance fields", async () => {
