@@ -1,6 +1,7 @@
 import {
   routePortfolioAssistantRequest,
   type PortfolioAssistantRoute,
+  type PortfolioAssistantRouter,
 } from "./prepared-answers.ts";
 
 type GenerateRoute = Extract<PortfolioAssistantRoute, { kind: "generate" }>;
@@ -41,11 +42,18 @@ function providerText(result: PortfolioChatProviderResult): string {
   return result.text.trim();
 }
 
-export function createPortfolioChatService({ provider }: { provider: PortfolioChatProvider }) {
+export function createPortfolioChatService({
+  provider,
+  router = routePortfolioAssistantRequest,
+}: {
+  provider: PortfolioChatProvider;
+  router?: PortfolioAssistantRouter;
+}) {
   return Object.freeze({
     async reply(input: PortfolioChatServiceInput): Promise<PortfolioChatServiceResult> {
-      const route = routePortfolioAssistantRequest(input);
+      const route = router(input);
       if (route.kind === "prepared") return route;
+      if (route.kind === "no_data") return Object.freeze({ kind: "no_data" as const });
       if (route.context.sourceIds.length === 0) return Object.freeze({ kind: "no_data" as const });
 
       try {
