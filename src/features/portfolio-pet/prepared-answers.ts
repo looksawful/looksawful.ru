@@ -89,6 +89,15 @@ function pageFromContext(context: Record<string, unknown>): string {
     : "home";
 }
 
+function pageProjectSlug(page: string): string | null {
+  const normalized = page.trim().replace(/^https?:\/\/[^/]+/u, "").replace(/[?#].*$/u, "");
+  const segments = normalized.split("/").filter(Boolean);
+  if (segments.length === 0) return page === "home" ? null : page;
+  if (segments[0] === "work" && segments[1]) return segments[1];
+  if (segments.length === 1) return segments[0];
+  return null;
+}
+
 function buildPreparedAnswer(
   id: PreparedDefinition["id"],
   approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
@@ -128,9 +137,10 @@ function relevantApprovedSourceIds(
   page: string,
   approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
 ): readonly string[] {
-  const projectId = `project.${page}`;
-  if (approvedById.has(projectId)) return Object.freeze([projectId]);
-  if (page === "home" && approvedById.has("profile.about")) {
+  const projectSlug = pageProjectSlug(page);
+  const projectId = projectSlug ? `project.${projectSlug}` : null;
+  if (projectId && approvedById.has(projectId)) return Object.freeze([projectId]);
+  if ((page === "home" || page === "/") && approvedById.has("profile.about")) {
     return Object.freeze(["profile.about"]);
   }
   return Object.freeze([]);
