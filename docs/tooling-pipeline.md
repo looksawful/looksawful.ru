@@ -1,5 +1,7 @@
 # Tooling pipeline
 
+Status: CURRENT operational map. See `docs/README.md` for documentation authority/classification.
+
 This document records the current command/workflow contracts that matter for routine development and CMS operation. It intentionally avoids duplicating the full CI implementation.
 
 ## Local development
@@ -56,6 +58,14 @@ CMS media checks out the source SHA shallowly and fetches only the exact previou
 
 Source masters remain preserved; generated technical metadata and derivatives remain tooling-owned. Size limits and upload ownership are documented in `docs/media-upload-policy.md`.
 
+## Local Content / Media Desk
+
+`npm run desk` is currently a **write-capable** operator mode, not a read-only browser. Its launcher enables `CONTENT_DESK_WRITE=1` / `VITE_CONTENT_DESK_WRITE=1`, and startup runs `media:ensure`, which may synchronize derived media state before the UI opens.
+
+The current local HTTP contract is documented in `docs/content-media-desk-api.md`.
+
+Safer read-only-by-default launch, guarded write activation, revision-aware conflict handling and atomic persistence are TARGET work owned by GitHub #452/#453. Do not describe those protections as current behavior until executable code/tests prove them.
+
 ## CMS publication
 
 Pages CMS editing and publication trust are intentionally separate:
@@ -65,6 +75,8 @@ edit/save branch: dev
 trusted publication workflow ref: prod
 production deployment branch: prod
 ```
+
+This is the CURRENT implemented/documented topology. GitHub #451 tracks a TARGET authoring topology where temporary `content/*` branches/worktrees integrate into fresh `dev` before the existing `dev -> prod` publication boundary. Until #451 lands, do not rewrite current operator instructions as though isolated authoring is already implemented.
 
 `Подготовить публикацию` must validate current branch topology and the full `prod..dev` publication scope using trusted `prod` policy, then create/reuse a `dev -> prod` PR. It must not perform the merge/deploy itself.
 
@@ -78,10 +90,10 @@ The publication classifier is separate from ordinary CI change classification: v
 
 ## Default-branch assumptions
 
-Repository default-branch choice is not used as a substitute for operational branch names:
+The GitHub repository default branch is currently `dev`. Operational branch names remain explicit and must not depend on that repository setting:
 
-- development/CMS automation should explicitly target `dev`;
-- production deployment and trusted CMS publication policy should explicitly target `prod`;
-- Dependabot should explicitly target `dev`.
+- development/CMS automation explicitly targets `dev`;
+- production deployment and trusted CMS publication policy explicitly target `prod`;
+- Dependabot explicitly targets `dev`.
 
-This keeps behavior stable if the GitHub repository default branch is later changed from `prod` to `dev`.
+If the GitHub default branch changes again in the future, these operational contracts must remain explicit rather than inheriting the new default implicitly.
