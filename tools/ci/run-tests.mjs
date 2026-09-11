@@ -48,6 +48,7 @@ export const fastTests = new Set([
   "test/repository-growth-policy.test.mjs",
   "test/search-presentation.test.mjs",
   "test/security-tooling.test.mjs",
+  "test/site-analytics-case-end.test.mjs",
   "test/site-analytics-internal.test.mjs",
   "test/site-analytics.test.mjs",
   "test/site-composition.test.mjs",
