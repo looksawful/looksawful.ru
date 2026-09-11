@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 
+const repoRoot = fileURLToPath(new URL("../", import.meta.url));
 const packageJson = JSON.parse(
   await readFile(new URL("../package.json", import.meta.url), "utf8"),
 );
@@ -19,6 +22,22 @@ test("ordinary Desk launch is read-only and has no mutable media startup", () =>
   assert.doesNotMatch(packageJson.scripts.desk, /media:ensure|media:sync|media:catalog:sync/);
   assert.doesNotMatch(launcher, /CONTENT_DESK_WRITE:\s*["']1["']/);
   assert.doesNotMatch(launcher, /VITE_CONTENT_DESK_WRITE:\s*["']1["']/);
+});
+
+test("ordinary Desk startup does not change tracked repository state", () => {
+  const gitStatus = () => execFileSync("git", ["status", "--porcelain"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+  });
+  const before = gitStatus();
+
+  execFileSync(process.execPath, ["tools/run-content-desk.mjs", "--help"], {
+    cwd: repoRoot,
+    env: { ...process.env, BROWSER: "none" },
+    stdio: "pipe",
+  });
+
+  assert.equal(gitStatus(), before);
 });
 
 test("write Desk launch is explicit and uses the guarded launcher path", () => {
