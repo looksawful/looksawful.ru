@@ -8,6 +8,7 @@ const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 4173;
 const SERVER_STOP_GRACE_MS = 2_000;
 export const ANALYTICS_INTERNAL_STORAGE_KEY = "looksawful:analytics-internal";
+const internalAnalyticsBrowsers = new WeakMap();
 
 export function isDirectExecution(metaUrl) {
   return Boolean(
@@ -26,7 +27,10 @@ export async function markAnalyticsInternal(target) {
 }
 
 export function createInternalAnalyticsBrowser(browser) {
-  return new Proxy(browser, {
+  const existing = internalAnalyticsBrowsers.get(browser);
+  if (existing) return existing;
+
+  const wrapped = new Proxy(browser, {
     get(target, property) {
       if (property === "newContext") {
         return async (options) => {
@@ -46,6 +50,10 @@ export function createInternalAnalyticsBrowser(browser) {
       return typeof value === "function" ? value.bind(target) : value;
     },
   });
+
+  internalAnalyticsBrowsers.set(browser, wrapped);
+  internalAnalyticsBrowsers.set(wrapped, wrapped);
+  return wrapped;
 }
 
 async function waitForServer(baseUrl, server, getOutput, attempts = 80) {

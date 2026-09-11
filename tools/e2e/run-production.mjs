@@ -1,5 +1,5 @@
 import { runQuickSmoke, runMediaSanity } from "./run-smoke.mjs";
-import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
+import { createInternalAnalyticsBrowser, isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 async function inspectImage(locator, label) {
   await locator.waitFor({ state: "attached", timeout: 10_000 });
@@ -100,7 +100,7 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
 
   try {
     await page.goto(new URL("/work/jestei-pool/", baseUrl).href, {
-      waitUntil: "networkidle",
+      waitUntil: "domcontentloaded",
       timeout: 30_000,
     });
 
@@ -146,9 +146,10 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
 }
 
 export async function runProductionE2E({ browser, baseUrl }) {
-  await runQuickSmoke({ browser, baseUrl, cvMode: "production" });
-  await runMediaSanity({ browser, baseUrl });
-  await runJesteiFilterArtworkSanity({ browser, baseUrl });
+  const analyticsSafeBrowser = createInternalAnalyticsBrowser(browser);
+  await runQuickSmoke({ browser: analyticsSafeBrowser, baseUrl, cvMode: "production" });
+  await runMediaSanity({ browser: analyticsSafeBrowser, baseUrl });
+  await runJesteiFilterArtworkSanity({ browser: analyticsSafeBrowser, baseUrl });
 }
 
 if (isDirectExecution(import.meta.url)) {

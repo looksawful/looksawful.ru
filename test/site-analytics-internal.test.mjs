@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const componentUrl = new URL("../src/components/site-analytics.ts", import.meta.url);
 const runtimeUrl = new URL("../tools/e2e/runtime.mjs", import.meta.url);
+const productionRunnerUrl = new URL("../tools/e2e/run-production.mjs", import.meta.url);
 
 async function loadAnalytics() {
   return import(componentUrl.href);
@@ -116,6 +118,7 @@ test("E2E browser contexts and pages receive the internal marker before navigati
   };
 
   const wrapped = createInternalAnalyticsBrowser(browser);
+  assert.equal(createInternalAnalyticsBrowser(wrapped), wrapped, "analytics-safe browser wrapping must be idempotent");
   assert.equal(await wrapped.newContext(), context);
   assert.equal(await wrapped.newPage(), page);
   assert.deepEqual(calls, [
@@ -124,4 +127,10 @@ test("E2E browser contexts and pages receive the internal marker before navigati
     ["new-page"],
     ["page-init", { key: ANALYTICS_INTERNAL_STORAGE_KEY }],
   ]);
+});
+
+test("production E2E protects externally supplied browsers and does not depend on network idle", async () => {
+  const source = await readFile(productionRunnerUrl, "utf8");
+  assert.match(source, /createInternalAnalyticsBrowser\(browser\)/);
+  assert.doesNotMatch(source, /waitUntil:\s*["']networkidle["']/);
 });
