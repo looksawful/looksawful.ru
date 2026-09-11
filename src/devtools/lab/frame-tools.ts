@@ -79,8 +79,9 @@ export function createElementSelector(element: Element): string {
   let current: Element | null = element;
 
   while (current !== null && current !== current.ownerDocument.body && parts.length < 5) {
-    let part = current.tagName.toLowerCase();
-    const classes = Array.from(current.classList)
+    const currentElement: Element = current;
+    let part = currentElement.tagName.toLowerCase();
+    const classes = Array.from(currentElement.classList)
       .filter((name) => !name.startsWith("is-"))
       .slice(0, 2);
 
@@ -88,18 +89,19 @@ export function createElementSelector(element: Element): string {
       part += classes.map((name) => `.${escapeCssIdentifier(name)}`).join("");
     }
 
-    const parent = current.parentElement;
-    if (parent !== null) {
-      const siblings = Array.from(parent.children).filter(
-        (sibling) => sibling.tagName === current?.tagName,
+    const parentElement: Element | null = currentElement.parentElement;
+    if (parentElement !== null) {
+      const siblings: Element[] = Array.from(parentElement.children);
+      const sameTagSiblings = siblings.filter(
+        (sibling: Element) => sibling.tagName === currentElement.tagName,
       );
-      if (siblings.length > 1) {
-        part += `:nth-of-type(${siblings.indexOf(current) + 1})`;
+      if (sameTagSiblings.length > 1) {
+        part += `:nth-of-type(${sameTagSiblings.indexOf(currentElement) + 1})`;
       }
     }
 
     parts.unshift(part);
-    current = parent;
+    current = parentElement;
   }
 
   return parts.join(" > ");
