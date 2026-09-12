@@ -51,6 +51,7 @@ test("Yandex provider sends one bounded non-streaming chat completion request", 
   assert.equal(request.init.method, "POST");
   assert.equal(request.init.headers.authorization, "Api-Key secret-test-value");
   assert.equal(request.init.headers["content-type"], "application/json");
+  assert.equal(request.init.signal instanceof AbortSignal, true);
 
   const body = JSON.parse(request.init.body);
   assert.equal(body.model, modelUri);
@@ -64,6 +65,26 @@ test("Yandex provider sends one bounded non-streaming chat completion request", 
   assert.equal(body.messages[1].role, "user");
   assert.equal(body.messages[1].content, "Как устроен нестандартный сценарий?");
   assert.deepEqual(result, { kind: "answer", text: "Короткий ответ." });
+});
+
+test("Yandex provider aborts a stuck upstream within the hard provider deadline", async () => {
+  const { createYandexPortfolioProvider } = await loadProvider();
+  let fetchCalls = 0;
+
+  const provider = createYandexPortfolioProvider({
+    modelUri,
+    authorizationHeader: "Api-Key secret-test-value",
+    timeoutMs: 5,
+    fetchImpl: async (_url, init) => {
+      fetchCalls += 1;
+      return await new Promise((_resolve, reject) => {
+        init.signal.addEventListener("abort", () => reject(new Error("aborted")), { once: true });
+      });
+    },
+  });
+
+  assert.deepEqual(await provider(input()), { kind: "unavailable" });
+  assert.equal(fetchCalls, 1);
 });
 
 test("Yandex provider maps 429 without retrying automatically", async () => {

@@ -100,6 +100,15 @@ test("invalid requests fail before generation", async () => {
     context: { currentPath: "/", sourceIds: ["project.jestei"] },
   }));
   assert.equal(tooLong.statusCode, 400);
+
+  const oversizedBody = await handler(event({
+    message: "ok",
+    locale: "ru",
+    sessionId: "session-1",
+    context: { currentPath: "/", sourceIds: ["project.jestei"] },
+    ignoredPadding: "x".repeat(9_000),
+  }));
+  assert.equal(oversizedBody.statusCode, 400);
   assert.equal(providerCalls, 0);
 });
 
@@ -128,6 +137,38 @@ test("unknown source ids return no_data without a paid provider call", async () 
   assert.equal(providerCalls, 0);
 });
 
+test("oversized approved source context fails closed before a paid provider call", async () => {
+  const { createPublicAssistantHandler } = await loadHandler();
+  let providerCalls = 0;
+  const oversizedSources = {
+    "project.large": {
+      id: "project.large",
+      title: "Large approved source",
+      text: "x".repeat(4_001),
+    },
+  };
+  const handler = createPublicAssistantHandler({
+    enabled: true,
+    allowedOrigins: ["https://looksawful.ru"],
+    sources: oversizedSources,
+    provider: async () => {
+      providerCalls += 1;
+      return { kind: "answer", text: "must not run" };
+    },
+  });
+
+  const response = await handler(event({
+    message: "Расскажи подробнее",
+    locale: "ru",
+    sessionId: "session-1",
+    context: { currentPath: "/", sourceIds: ["project.large"] },
+  }));
+
+  assert.equal(response.statusCode, 503);
+  assert.deepEqual(parse(response), { kind: "unavailable" });
+  assert.equal(providerCalls, 0);
+});
+
 test("valid request calls provider once with server-approved context only", async () => {
   const { createPublicAssistantHandler } = await loadHandler();
   let providerCalls = 0;
@@ -149,6 +190,7 @@ test("valid request calls provider once with server-approved context only", asyn
     sessionId: "session-1",
     email: "must-not-leak@example.com",
     formMessage: "must not leak",
+    authorizationHeader: "must not leak",
     context: {
       currentPath: "/work/jestei/",
       sourceIds: ["project.jestei", "unknown.source"],
@@ -168,6 +210,26 @@ test("valid request calls provider once with server-approved context only", asyn
     text: "Короткий ответ.",
     sources: ["project.jestei"],
   });
+});
+
+test("oversized provider output fails closed", async () => {
+  const { createPublicAssistantHandler } = await loadHandler();
+  const handler = createPublicAssistantHandler({
+    enabled: true,
+    allowedOrigins: ["https://looksawful.ru"],
+    sources,
+    provider: async () => ({ kind: "answer", text: "x".repeat(4_001) }),
+  });
+
+  const response = await handler(event({
+    message: "Как устроен нестандартный сценарий?",
+    locale: "ru",
+    sessionId: "session-1",
+    context: { currentPath: "/work/jestei/", sourceIds: ["project.jestei"] },
+  }));
+
+  assert.equal(response.statusCode, 503);
+  assert.deepEqual(parse(response), { kind: "unavailable" });
 });
 
 test("provider rate limit and failure become recoverable public states", async () => {

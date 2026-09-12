@@ -11,12 +11,14 @@ type FetchLike = (
 export interface YandexPortfolioProviderOptions {
   modelUri: string;
   authorizationHeader: string;
+  timeoutMs?: number;
   fetchImpl?: FetchLike;
 }
 
 const YANDEX_CHAT_COMPLETIONS_URL = "https://ai.api.cloud.yandex.net/v1/chat/completions";
 const MAX_OUTPUT_TOKENS = 256;
 const TEMPERATURE = 0.2;
+const MAX_PROVIDER_TIMEOUT_MS = 7_000;
 
 function systemPrompt(input: PublicAssistantProviderInput): string {
   const rules = input.locale === "ru"
@@ -65,15 +67,22 @@ function readAssistantText(payload: unknown): string {
 export function createYandexPortfolioProvider({
   modelUri,
   authorizationHeader,
+  timeoutMs = MAX_PROVIDER_TIMEOUT_MS,
   fetchImpl = globalThis.fetch.bind(globalThis),
 }: YandexPortfolioProviderOptions): PublicAssistantProvider {
   const model = modelUri.trim();
   const authorization = authorizationHeader.trim();
+  const requestTimeoutMs = Number.isFinite(timeoutMs) && timeoutMs > 0
+    ? Math.min(timeoutMs, MAX_PROVIDER_TIMEOUT_MS)
+    : MAX_PROVIDER_TIMEOUT_MS;
 
   if (!model) throw new Error("Yandex provider requires a model URI");
   if (!authorization) throw new Error("Yandex provider requires an authorization header");
 
   return async (input: PublicAssistantProviderInput) => {
+    const controller = new AbortController();
+    const timeout = globalThis.setTimeout(() => controller.abort(), requestTimeoutMs);
+
     try {
       const response = await fetchImpl(YANDEX_CHAT_COMPLETIONS_URL, {
         method: "POST",
@@ -91,6 +100,7 @@ export function createYandexPortfolioProvider({
             { role: "user", content: input.message },
           ],
         }),
+        signal: controller.signal,
       });
 
       if (response.status === 429) return Object.freeze({ kind: "rate_limited" as const });
@@ -109,6 +119,8 @@ export function createYandexPortfolioProvider({
       return Object.freeze({ kind: "answer" as const, text });
     } catch {
       return Object.freeze({ kind: "unavailable" as const });
+    } finally {
+      globalThis.clearTimeout(timeout);
     }
   };
 }

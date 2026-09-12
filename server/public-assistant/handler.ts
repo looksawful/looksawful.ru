@@ -46,9 +46,14 @@ interface PublicAssistantRequest {
   sourceIds: readonly string[];
 }
 
+const MAX_REQUEST_BODY_LENGTH = 8_192;
 const MAX_MESSAGE_LENGTH = 2_000;
 const MAX_SESSION_ID_LENGTH = 128;
 const MAX_SOURCE_IDS = 12;
+const MAX_SOURCE_ID_LENGTH = 128;
+const MAX_SOURCE_TEXT_LENGTH = 4_000;
+const MAX_TOTAL_SOURCE_TEXT_LENGTH = 12_000;
+const MAX_RESPONSE_TEXT_LENGTH = 4_000;
 
 function header(event: PublicAssistantEvent, name: string): string {
   const expected = name.toLowerCase();
@@ -82,7 +87,7 @@ function jsonResponse(
 }
 
 function parseRequest(body: string | null | undefined): PublicAssistantRequest | null {
-  if (!body) return null;
+  if (!body || body.length > MAX_REQUEST_BODY_LENGTH) return null;
 
   let value: unknown;
   try {
@@ -113,7 +118,20 @@ function parseRequest(body: string | null | undefined): PublicAssistantRequest |
       .filter(Boolean),
   )];
 
+  if (sourceIds.some((sourceId) => sourceId.length > MAX_SOURCE_ID_LENGTH)) return null;
+
   return { message, locale, sessionId, sourceIds };
+}
+
+function approvedSourceContextIsBounded(sources: readonly PublicAssistantSource[]): boolean {
+  let totalTextLength = 0;
+  for (const source of sources) {
+    const textLength = source.text.length;
+    if (textLength === 0 || textLength > MAX_SOURCE_TEXT_LENGTH) return false;
+    totalTextLength += textLength;
+    if (totalTextLength > MAX_TOTAL_SOURCE_TEXT_LENGTH) return false;
+  }
+  return true;
 }
 
 export function createPublicAssistantHandler({
@@ -170,6 +188,10 @@ export function createPublicAssistantHandler({
       );
     }
 
+    if (!approvedSourceContextIsBounded(approvedSources)) {
+      return jsonResponse(503, { kind: "unavailable" }, origin, true);
+    }
+
     try {
       const result = await provider({
         message: request.message,
@@ -188,7 +210,7 @@ export function createPublicAssistantHandler({
       }
 
       const text = result.text.trim();
-      if (!text) {
+      if (!text || text.length > MAX_RESPONSE_TEXT_LENGTH) {
         return jsonResponse(503, { kind: "unavailable" }, origin, true);
       }
 
