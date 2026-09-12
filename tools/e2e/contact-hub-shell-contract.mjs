@@ -16,7 +16,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   await page.goto(`${baseUrl}/?pet=1`, { waitUntil: "networkidle" });
 
-  const cta = page.locator('.contact a[href="mailto:i@lookawful.ru"]').first();
+  let cta = page.locator('.contact a[href="mailto:i@lookawful.ru"]').first();
   assert.equal(await cta.count(), 1, "canonical site contact CTA must still exist");
   assert.equal((await cta.textContent()).trim(), "Связаться со мной");
   await cta.scrollIntoViewIfNeeded();
@@ -36,7 +36,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   await cta.click();
   await settle(page);
 
-  const hub = page.locator("[data-contact-hub]");
+  let hub = page.locator("[data-contact-hub]");
   await hub.waitFor({ state: "visible", timeout: 2_000 });
 
   assert.equal(await hub.getAttribute("data-mode"), "form");
@@ -77,6 +77,27 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   await page.keyboard.press("Escape");
   await hub.waitFor({ state: "hidden", timeout: 2_000 });
   assert.equal(await cta.evaluate((element) => document.activeElement === element), true, "closing Hub must restore focus to its opener");
+
+  await cta.click();
+  await settle(page);
+  hub = page.locator("[data-contact-hub]");
+  const name = hub.locator('input[name="name"]');
+  const email = hub.locator('input[name="email"]');
+  const message = hub.locator('textarea[name="message"]');
+  await name.fill("Иван");
+  await email.fill("person@example.com");
+  await message.fill("Черновик должен пережить reload");
+
+  await page.reload({ waitUntil: "networkidle" });
+  cta = page.locator('.contact a[href="mailto:i@lookawful.ru"]').first();
+  await cta.scrollIntoViewIfNeeded();
+  await cta.waitFor({ state: "visible" });
+  await cta.click();
+  await settle(page);
+  hub = page.locator("[data-contact-hub]");
+  assert.equal(await hub.locator('input[name="name"]').inputValue(), "Иван", "same-tab reload must preserve name draft");
+  assert.equal(await hub.locator('input[name="email"]').inputValue(), "person@example.com", "same-tab reload must preserve email draft");
+  assert.equal(await hub.locator('textarea[name="message"]').inputValue(), "Черновик должен пережить reload", "same-tab reload must preserve message draft");
 
   await page.close();
 });
