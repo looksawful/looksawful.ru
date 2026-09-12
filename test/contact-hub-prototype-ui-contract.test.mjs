@@ -79,5 +79,5 @@ test("visible mobile consent is moved clear of the bottom sheet", () => {
   assert.match(component, /documentElement\.classList\.toggle\("contact-hub-open"/);
   assert.match(consentCss, /@media \(max-width: 42\.5rem\)/);
   assert.match(consentCss, /html\.contact-hub-open \.site-analytics-consent/);
-  assert.match(consentCss, /inset-block-end:\s*calc\(min\(62dvh,\s*520px\)/);
+  assert.match(consentCss, /inset-block-end:\s*calc\(\s*min\(62dvh,\s*520px\)/);
 });
