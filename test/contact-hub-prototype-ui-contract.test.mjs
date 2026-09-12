@@ -23,7 +23,8 @@ test("Contact Hub restores the v7 shared AI/Form surface", () => {
 test("AI composer preserves the approved v7 input language", () => {
   assert.match(component, /documentRef\.createElement\("input"\)/);
   assert.match(component, /placeholder = "спросить Venus"/);
-  assert.match(component, /createTextButton\(documentRef, "↑"\)/);
+  assert.match(component, /composerSend\.type = "submit"/);
+  assert.match(component, /composerSend\.textContent = "↑"/);
   assert.match(component, /setAttribute\("aria-label", "Отправить"\)/);
 });
 
@@ -51,7 +52,7 @@ test("v7 visual contract stays compact beside Venus on desktop", () => {
 test("v7 form uses stacked editorial rows rather than a two-column field grid", () => {
   assert.match(css, /\.contact-hub__field\s*\{[\s\S]*display:\s*grid;[\s\S]*gap:\s*3px;/);
   assert.doesNotMatch(css, /grid-template-columns:\s*minmax\(5rem/);
-  assert.match(css, /\.contact-hub__field\s*:\s*focus-within/);
+  assert.match(css, /\.contact-hub__field:focus-within/);
 });
 
 test("v7 mobile shell is a 62dvh bottom sheet", () => {
