@@ -43,11 +43,16 @@ function createHubElement(documentRef: Document) {
   formModeButton.dataset.contactHubMode = "form";
   modes.append(aiModeButton, formModeButton);
 
+  const collapseButton = createTextButton(documentRef, "−");
+  collapseButton.classList.add("contact-hub__collapse");
+  collapseButton.dataset.contactHubCollapse = "";
+  collapseButton.setAttribute("aria-label", "Свернуть");
+
   const closeButton = createTextButton(documentRef, "×");
   closeButton.classList.add("contact-hub__close");
   closeButton.dataset.contactHubClose = "";
   closeButton.setAttribute("aria-label", "Закрыть");
-  header.append(modes, closeButton);
+  header.append(modes, collapseButton, closeButton);
 
   const formScreen = documentRef.createElement("form");
   formScreen.className = "contact-hub__screen contact-hub__screen--form";
@@ -147,8 +152,18 @@ function createHubElement(documentRef: Document) {
   shell.append(header, formScreen, aiScreen, composer);
   hub.append(shell);
 
+  const collapsedLauncher = documentRef.createElement("button");
+  collapsedLauncher.type = "button";
+  collapsedLauncher.className = "contact-hub-launcher";
+  collapsedLauncher.dataset.contactHubLauncher = "";
+  collapsedLauncher.setAttribute("aria-label", "Развернуть");
+  collapsedLauncher.textContent = "↗";
+  collapsedLauncher.hidden = true;
+
   return {
     hub,
+    collapsedLauncher,
+    collapseButton,
     closeButton,
     aiModeButton,
     formModeButton,
@@ -177,25 +192,28 @@ export function mountContactHub(root: Document = document): Destroy {
 
   const elements = createHubElement(root);
   const {
-    hub, closeButton, aiModeButton, formModeButton, formScreen, aiScreen,
-    nameInput, emailInput, messageInput, draft, handoffButton, handoffDecision,
-    appendButton, replaceButton, cancelButton, composer,
+    hub, collapsedLauncher, collapseButton, closeButton, aiModeButton, formModeButton,
+    formScreen, aiScreen, nameInput, emailInput, messageInput, draft, handoffButton,
+    handoffDecision, appendButton, replaceButton, cancelButton, composer,
   } = elements;
-  root.body.append(hub);
+  root.body.append(hub, collapsedLauncher);
 
   let state: ContactHubState = createContactHubState({ aiAvailable: true });
   let opener: HTMLElement | null = null;
   let pendingDraft = "";
 
   const render = (): void => {
+    const isOpen = state.visibility === "open";
     hub.dataset.mode = state.mode;
     hub.dataset.visibility = state.visibility;
-    hub.hidden = state.visibility !== "open";
+    hub.hidden = !isOpen;
+    collapsedLauncher.hidden = state.visibility !== "collapsed";
     formScreen.hidden = state.mode !== "form";
     aiScreen.hidden = state.mode !== "ai";
     composer.hidden = state.mode !== "ai";
     aiModeButton.setAttribute("aria-current", state.mode === "ai" ? "page" : "false");
     formModeButton.setAttribute("aria-current", state.mode === "form" ? "page" : "false");
+    root.documentElement.classList.toggle("contact-hub-open", isOpen);
   };
 
   const setMode = (mode: "ai" | "form"): void => {
@@ -252,6 +270,20 @@ export function mountContactHub(root: Document = document): Destroy {
     handoffDecision.hidden = true;
   };
 
+  const collapse = (): void => {
+    if (state.visibility !== "open") return;
+    state = transitionContactHub(state, { type: "COLLAPSE" });
+    render();
+    collapsedLauncher.focus({ preventScroll: true });
+  };
+
+  const restore = (): void => {
+    if (state.visibility !== "collapsed") return;
+    state = transitionContactHub(state, { type: "RESTORE" });
+    render();
+    closeButton.focus({ preventScroll: true });
+  };
+
   const close = (): void => {
     if (state.visibility === "closed") return;
     const focusTarget = opener;
@@ -279,6 +311,8 @@ export function mountContactHub(root: Document = document): Destroy {
   appendButton.addEventListener("click", onAppend);
   replaceButton.addEventListener("click", onReplace);
   cancelButton.addEventListener("click", onCancel);
+  collapseButton.addEventListener("click", collapse);
+  collapsedLauncher.addEventListener("click", restore);
   formScreen.addEventListener("submit", preventPrototypeSubmit);
   composer.addEventListener("submit", preventPrototypeSubmit);
   closeButton.addEventListener("click", close);
@@ -292,10 +326,14 @@ export function mountContactHub(root: Document = document): Destroy {
     appendButton.removeEventListener("click", onAppend);
     replaceButton.removeEventListener("click", onReplace);
     cancelButton.removeEventListener("click", onCancel);
+    collapseButton.removeEventListener("click", collapse);
+    collapsedLauncher.removeEventListener("click", restore);
     formScreen.removeEventListener("submit", preventPrototypeSubmit);
     composer.removeEventListener("submit", preventPrototypeSubmit);
     closeButton.removeEventListener("click", close);
     root.removeEventListener("keydown", onKeyDown);
+    root.documentElement.classList.remove("contact-hub-open");
     hub.remove();
+    collapsedLauncher.remove();
   };
 }
