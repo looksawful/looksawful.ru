@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Styx approval prototype</title>
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#fff;color:#111}
+    html{scroll-behavior:smooth} body{margin:0;background:#fff;color:#111}
+    .proto-loading,.proto-error{max-width:72rem;margin:8rem auto;padding:0 2rem;font-size:clamp(1.4rem,3vw,3rem);line-height:1.05}
+    .proto-shell{display:none}.proto-shell[data-ready="true"]{display:block}
+    .proto-toolbar{position:fixed;z-index:99999;right:1rem;bottom:1rem;display:flex;gap:.5rem;align-items:center;padding:.45rem;background:rgba(255,255,255,.92);border:1px solid #111;backdrop-filter:blur(10px);font-size:12px}
+    .proto-toolbar button{font:inherit;border:1px solid #111;background:#fff;color:#111;padding:.55rem .7rem;cursor:pointer}.proto-toolbar button[aria-pressed="true"]{background:#111;color:#fff}
+    .proto-chapter{--wrapper-max-width:72rem;inline-size:min(calc(100% - 2rem),var(--wrapper-max-width));margin-inline:auto;padding-top:clamp(5rem,10vw,10rem)}
+    .proto-chapter__index{font-size:.72rem;letter-spacing:.04em;margin:0 0 .35rem}.proto-chapter__title{font-size:clamp(3rem,8vw,7rem);line-height:.85;letter-spacing:-.065em;margin:0 0 1.5rem;max-width:11ch}
+    .proto-chapter__rule{border:0;border-top:1px solid #111;margin:0}
+    .proto-chapter--overview{padding-top:2rem}
+    .proto-draft{--wrapper-max-width:72rem;inline-size:min(calc(100% - 2rem),var(--wrapper-max-width));margin:2rem auto 0;padding:1rem;border:1px dashed #111;font-size:.9rem;line-height:1.45}
+    .proto-draft strong{display:block;margin-bottom:.3rem;text-transform:uppercase;font-size:.72rem;letter-spacing:.08em}
+    .proto-review-panel{display:none;position:relative;z-index:2;max-width:72rem;margin:2rem auto;padding:1rem;border:1px solid #111;font-size:12px;line-height:1.45}
+    .proto-review-panel h2{font-size:1rem;margin:0 0 .75rem}.proto-review-panel code{font:inherit;background:#eee;padding:.1rem .25rem}.proto-review-panel ul{margin:.5rem 0 0;padding-left:1.2rem}
+    body[data-review="true"] .proto-review-panel{display:block}
+    body[data-review="true"] [data-proto-source-id]{outline:1px dashed rgba(255,0,0,.45);outline-offset:3px;position:relative}
+    body[data-review="true"] [data-proto-source-id]::before{content:attr(data-proto-source-id);position:absolute;z-index:20;top:.25rem;left:.25rem;background:#ffef65;color:#111;padding:.15rem .3rem;font:10px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;pointer-events:none}
+    .proto-note{display:none}.proto-note[data-visible="true"]{display:block}
+    @media(max-width:700px){.proto-toolbar{left:.5rem;right:.5rem;bottom:.5rem;justify-content:space-between}.proto-chapter{inline-size:calc(100% - 2rem)}.proto-chapter__title{font-size:clamp(2.7rem,17vw,5rem)}}
+  </style>
+</head>
+<body>
+  <p class="proto-loading" id="loading">Собираю Styx из текущей preview-сборки…</p>
+  <p class="proto-error" id="error" hidden></p>
+  <div class="proto-shell" id="shell">
+    <div id="site-nav-slot"></div>
+    <main id="prototype-main"></main>
+  </div>
+  <div class="proto-toolbar" aria-label="Режим просмотра">
+    <span>STYX APPROVAL</span>
+    <button id="review-toggle" type="button" aria-pressed="false">Review info</button>
+  </div>
+<script>
+const sourcePath='/work/styx/';
+const chapters=[
+  {id:'overview',title:'Overview',sections:['styx-production-preview']},
+  {id:'brand-system',title:'Brand System',sections:['styx-brand','styx-logo-banner','styx-production-media','styx-gift-certificate','styx-print-links','styx-social-instructions']},
+  {id:'scanography',title:'Scanography',sections:['styx-scanography','styx-scanography-media','styx-scanography-campaign','styx-scanography-strip']},
+  {id:'photography-production',title:'Photography & Production',sections:['styx-production','styx-brand-lookbook-2023','styx-catalog','styx-shootings','styx-lookbook-masonry','styx-lookbook','styx-lookbook-2025']}
+];
+const unresolved={
+  duplicates:['styx-07-02','styx-07-03','styx-07-04','styx-05-09','styx-05-14','styx-05-15','styx-05-16','styx-05-17'],
+  productLinks:['styx-09-01','styx-09-02','styx-09-03','styx-07-06'],
+  open:['Формат показа credits пока не выбран','S5 принят только как черновое направление и требует доработки текста']
+};
+function chapterHead(index,title,extra=''){
+  const el=document.createElement('header'); el.className='proto-chapter'+(index===0?' proto-chapter--overview':'');
+  el.innerHTML=`<p class="proto-chapter__index">0${index+1} / 04</p><h2 class="proto-chapter__title">${title}</h2>${extra}<hr class="proto-chapter__rule">`;
+  return el;
+}
+function markSource(el){if(el?.id)el.dataset.protoSourceId='#'+el.id;return el}
+function loadStyles(doc){doc.querySelectorAll('link[rel="stylesheet"]').forEach(link=>{const clone=document.createElement('link');clone.rel='stylesheet';clone.href=new URL(link.getAttribute('href'),location.origin).href;document.head.appendChild(clone)})}
+function reviewPanel(){const p=document.createElement('aside');p.className='proto-review-panel';p.innerHTML=`<h2>Review data</h2><div><strong>Known duplicate candidates:</strong> ${unresolved.duplicates.map(x=>`<code>${x}</code>`).join(' ')}</div><div style="margin-top:.6rem"><strong>Product-link candidates:</strong> ${unresolved.productLinks.map(x=>`<code>${x}</code>`).join(' ')}</div><ul>${unresolved.open.map(x=>`<li>${x}</li>`).join('')}</ul><p><strong>Важно:</strong> это approval prototype. Он не меняет canonical Styx content, media order или visibility.</p>`;return p}
+async function boot(){
+  try{
+    const html=await fetch(sourcePath,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`Styx source: HTTP ${r.status}`);return r.text()});
+    const doc=new DOMParser().parseFromString(html,'text/html'); loadStyles(doc);
+    const srcArticle=doc.querySelector('#project-styx'); if(!srcArticle)throw new Error('Не найден #project-styx');
+    const article=srcArticle.cloneNode(true); article.removeAttribute('id'); article.id='project-styx-prototype';
+    const main=document.querySelector('#prototype-main'); const nav=doc.querySelector('.site-nav'); if(nav)document.querySelector('#site-nav-slot').append(nav.cloneNode(true));
+    const head=article.querySelector('.project__head'); const intro=article.querySelector('.project__intro'); if(head)main.append(head); if(intro)main.append(intro);
+    main.append(reviewPanel());
+    chapters.forEach((chapter,index)=>{
+      let extra='';
+      if(chapter.id==='brand-system')extra='<div class="proto-draft proto-note" data-visible="false"><strong>S5 draft</strong><b>Система коммуникации для соцсетей.</b> Текст блока принят только как черновое направление и будет доработан после визуального согласования структуры.</div>';
+      main.append(chapterHead(index,chapter.title,extra));
+      chapter.sections.forEach(id=>{const el=article.querySelector('#'+id);if(el){markSource(el);main.append(el)}else{const n=document.createElement('div');n.className='proto-review-panel';n.textContent='Не найден source section #'+id;main.append(n)}});
+    });
+    document.querySelectorAll('.proto-draft').forEach(x=>x.dataset.visible='true');
+    document.querySelector('#loading').remove(); document.querySelector('#shell').dataset.ready='true';
+  }catch(err){document.querySelector('#loading').hidden=true;const e=document.querySelector('#error');e.hidden=false;e.textContent='Prototype error: '+(err?.message||err)}
+}
+const toggle=document.querySelector('#review-toggle');toggle.addEventListener('click',()=>{const next=document.body.dataset.review!=='true';document.body.dataset.review=String(next);toggle.setAttribute('aria-pressed',String(next));toggle.textContent=next?'Hide review info':'Review info'});
+boot();
+</script>
+</body>
+</html>
