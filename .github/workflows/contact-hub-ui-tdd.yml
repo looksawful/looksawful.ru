@@ -8,7 +8,7 @@ on:
       - .github/workflows/contact-hub-ui-tdd.yml
       - tools/e2e/contact-hub-shell-contract.mjs
       - src/components/contact-hub.ts
-      - src/components/contact-hub.css
+      - src/styles/contact-hub.css
       - src/main.ts
 
 permissions:
