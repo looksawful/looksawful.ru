@@ -58,6 +58,21 @@ test("Jestei BPM value row stays visually attached to the range control", () => 
   );
 });
 
+test("Jestei wide compact BPM fields reserve real control and separator widths", () => {
+  const css = readLayoutCss();
+
+  assert.match(
+    css,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-fields\s*\{[^}]*grid-template-columns:\s*60px\s+14px\s+60px\s*;/s,
+    "wide BPM labels and 60px inputs need matching grid tracks plus a real separator column",
+  );
+  assert.match(
+    css,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-separator\s*\{[^}]*display:\s*grid\s*;[^}]*place-items:\s*center\s*;[^}]*align-self:\s*end\s*;[^}]*block-size:\s*28px\s*;[^}]*padding-block-end:\s*0\s*;/s,
+    "the BPM separator must be centered inside the same 28px-high row as the wide inputs",
+  );
+});
+
 test("Jestei track-type options stay in one horizontal row", () => {
   const css = readLayoutCss();
 
