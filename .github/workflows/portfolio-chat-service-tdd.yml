@@ -12,6 +12,7 @@ on:
       - test/contact-hub-prototype-ui-contract.test.mjs
       - src/components/contact-hub.ts
       - src/styles/contact-hub.css
+      - src/styles/site-analytics-consent.css
       - src/features/portfolio-pet/knowledge.ts
       - src/features/portfolio-pet/prepared-answers.ts
       - src/features/portfolio-pet/portfolio-chat-service.ts
