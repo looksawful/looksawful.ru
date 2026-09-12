@@ -1,4 +1,7 @@
 import { clampPetPosition } from "../features/portfolio-pet/interaction.ts";
+import { resolveSpriteAnimation, resolveSpriteFrameRect } from "../features/portfolio-pet/sprite-manifest.ts";
+import { resolveAnimationFrame } from "../features/portfolio-pet/sprite-runtime.ts";
+import { createVenusSpriteManifest } from "../features/portfolio-pet/venus-manifest.ts";
 
 type Destroy = () => void;
 type PetVisualState = "idle" | "thinking" | "speaking" | "success" | "error" | "dragging";
@@ -11,6 +14,12 @@ const PET_SELECTOR = "[data-portfolio-pet-launcher]";
 const POSITION_STORAGE_KEY = "looksawful:portfolio-pet-position:v1";
 const DRAG_THRESHOLD = 6;
 const MIN_VISIBLE = { width: 72, height: 96 } as const;
+const VENUS_SPRITESHEET = "/pets/venus/venus-v2-spritesheet.webp";
+const venusManifest = createVenusSpriteManifest(VENUS_SPRITESHEET);
+
+function animationForState(state: PetVisualState): string {
+  return state;
+}
 
 interface StoredPosition {
   x: number;
@@ -82,16 +91,49 @@ export function mountPortfolioPet(
   launcher.dataset.draggable = "true";
   launcher.setAttribute("aria-label", "Открыть чат с Venus");
 
+  const viewport = root.createElement("span");
+  viewport.className = "portfolio-pet__viewport";
+  viewport.setAttribute("aria-hidden", "true");
+
   const image = root.createElement("img");
   image.className = "portfolio-pet__image";
-  image.src = "/pets/venus/venus-idle.webp";
+  image.src = VENUS_SPRITESHEET;
   image.alt = "";
   image.draggable = false;
   image.decoding = "async";
   image.fetchPriority = "high";
 
-  launcher.append(image);
+  viewport.append(image);
+  launcher.append(viewport);
   root.body.append(launcher);
+
+  const view = root.defaultView;
+  const reducedMotionQuery = view?.matchMedia("(prefers-reduced-motion: reduce)") ?? null;
+  let frameRequest = 0;
+  let currentAnimation = "idle";
+  let animationStartedAt = performance.now();
+
+  const startAnimation = (name: string): void => {
+    currentAnimation = name;
+    animationStartedAt = performance.now();
+    launcher.dataset.animation = name;
+  };
+
+  const renderSprite = (now: number): void => {
+    const animation = resolveSpriteAnimation(venusManifest, currentAnimation);
+    const frame = resolveAnimationFrame(
+      animation,
+      now - animationStartedAt,
+      reducedMotionQuery?.matches ?? false,
+    );
+    const rect = resolveSpriteFrameRect(animation, frame.frameIndex);
+    image.style.transform = `translate(${-rect.x}px, ${-rect.y}px)`;
+    image.dataset.frame = String(frame.frameIndex);
+    frameRequest = view?.requestAnimationFrame(renderSprite) ?? 0;
+  };
+
+  startAnimation("idle");
+  frameRequest = view?.requestAnimationFrame(renderSprite) ?? 0;
 
   let dragSession: DragSession | null = null;
   let suppressNextClick = false;
@@ -99,7 +141,10 @@ export function mountPortfolioPet(
 
   const setVisualState = (state: PetVisualState): void => {
     currentVisualState = state;
-    if (!dragSession?.moved) launcher.dataset.state = state;
+    if (!dragSession?.moved) {
+      launcher.dataset.state = state;
+      startAnimation(animationForState(state));
+    }
   };
 
   const applyPosition = (position: StoredPosition): StoredPosition => {
@@ -151,6 +196,7 @@ export function mountPortfolioPet(
     dragSession.moved = true;
     launcher.dataset.dragging = "true";
     launcher.dataset.state = "dragging";
+    if (currentAnimation !== "dragging") startAnimation(animationForState("dragging"));
     event.preventDefault();
 
     applyPosition({
@@ -166,6 +212,7 @@ export function mountPortfolioPet(
     dragSession = null;
     launcher.removeAttribute("data-dragging");
     launcher.dataset.state = currentVisualState;
+    startAnimation(animationForState(currentVisualState));
 
     if (launcher.hasPointerCapture(event.pointerId)) launcher.releasePointerCapture(event.pointerId);
     if (!moved) return;
@@ -198,6 +245,15 @@ export function mountPortfolioPet(
     dispatchMoved(root, launcher);
   };
 
+  const onPointerEnter = (): void => {
+    if (!dragSession && currentVisualState === "idle") startAnimation("hover");
+  };
+  const onPointerLeave = (): void => {
+    if (!dragSession && currentVisualState === "idle") startAnimation("idle");
+  };
+
+  launcher.addEventListener("pointerenter", onPointerEnter);
+  launcher.addEventListener("pointerleave", onPointerLeave);
   launcher.addEventListener("pointerdown", onPointerDown);
   launcher.addEventListener("pointermove", onPointerMove);
   launcher.addEventListener("pointerup", finishPointer);
@@ -207,6 +263,9 @@ export function mountPortfolioPet(
   root.defaultView?.addEventListener("resize", onResize);
 
   return () => {
+    if (frameRequest && view) view.cancelAnimationFrame(frameRequest);
+    launcher.removeEventListener("pointerenter", onPointerEnter);
+    launcher.removeEventListener("pointerleave", onPointerLeave);
     launcher.removeEventListener("pointerdown", onPointerDown);
     launcher.removeEventListener("pointermove", onPointerMove);
     launcher.removeEventListener("pointerup", finishPointer);

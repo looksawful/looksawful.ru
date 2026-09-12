@@ -34,6 +34,7 @@ test("PET-001..014: canonical Venus v2 semantic states use the verified atlas ro
 
   const expectations = [
     ["idle", 0, 6],
+    ["dragging", 208, 8],
     ["open", 624, 4],
     ["thinking", 1248, 6],
     ["review", 1664, 6],

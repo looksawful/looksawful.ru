@@ -41,8 +41,22 @@ try {
 
   const before = await pet.boundingBox();
   assert.ok(before && before.width > 100 && before.height > 100, "Venus must occupy a visible screen area");
-  const animationName = await image.evaluate((node) => getComputedStyle(node).animationName);
-  assert.notEqual(animationName, "none", "Venus must have a visible idle animation");
+  const atlas = await image.evaluate((node) => ({
+    width: node.naturalWidth,
+    height: node.naturalHeight,
+    frame: node.dataset.frame ?? "",
+    transform: getComputedStyle(node).transform,
+  }));
+  assert.equal(atlas.width, 1536, "published preview must decode the canonical Venus atlas width");
+  assert.equal(atlas.height, 2288, "published preview must decode the canonical Venus atlas height");
+  assert.equal(await pet.getAttribute("data-animation"), "idle", "published Venus must use the idle sprite clip");
+  await page.waitForTimeout(360);
+  const animated = await image.evaluate((node) => ({
+    frame: node.dataset.frame ?? "",
+    transform: getComputedStyle(node).transform,
+  }));
+  assert.notEqual(animated.frame, atlas.frame, "published Venus must advance real sprite frames");
+  assert.notEqual(animated.transform, atlas.transform, "published Venus must animate the atlas itself");
 
   const centerX = before.x + before.width / 2;
   const centerY = before.y + before.height / 2;

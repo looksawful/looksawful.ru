@@ -36,6 +36,7 @@ export function createVenusSpriteManifest(src: string): SpriteManifest {
     characterId: "venus",
     animations: {
       idle: createClip(src, { row: 0, frameCount: 6, frameDurationMs: 280, loop: true }),
+      dragging: createClip(src, { row: 1, frameCount: 8, frameDurationMs: 110, loop: true }),
       open: createClip(src, { row: 3, frameCount: 4, frameDurationMs: 140, loop: false }),
       thinking: createClip(src, { row: 6, frameCount: 6, frameDurationMs: 150, loop: true }),
       review: createClip(src, { row: 8, frameCount: 6, frameDurationMs: 150, loop: false }),
