@@ -4,6 +4,7 @@ import test from "node:test";
 
 const component = fs.readFileSync(new URL("../src/components/contact-hub.ts", import.meta.url), "utf8");
 const css = fs.readFileSync(new URL("../src/styles/contact-hub.css", import.meta.url), "utf8");
+const consentCss = fs.readFileSync(new URL("../src/styles/site-analytics-consent.css", import.meta.url), "utf8");
 
 // P-001/P-003/P-007/P-008/P-009/AI-013: restore the approved v7 interaction surface
 // without reintroducing prototype ownership or implicit cross-mode mutation.
@@ -58,7 +59,25 @@ test("v7 form uses stacked editorial rows rather than a two-column field grid", 
 test("v7 mobile shell is a 62dvh bottom sheet", () => {
   assert.match(css, /@media \(width <= 42\.5rem\)/);
   assert.match(css, /block-size:\s*min\(62dvh,\s*520px\)/);
-  assert.match(css, /100dvh/);
+  assert.match(css, /max-block-size:\s*calc\(100dvh - env\(safe-area-inset-top\)\)/);
+  assert.match(css, /padding-block-end:\s*env\(safe-area-inset-bottom\)/);
   assert.doesNotMatch(css, /backdrop-filter/);
   assert.doesNotMatch(css, /100vh/);
+});
+
+test("mobile collapse and restore are wired without clearing form draft", () => {
+  assert.match(component, /dataset\.contactHubCollapse/);
+  assert.match(component, /dataset\.contactHubLauncher/);
+  assert.match(component, /transitionContactHub\(state, \{ type: "COLLAPSE" \}\)/);
+  assert.match(component, /transitionContactHub\(state, \{ type: "RESTORE" \}\)/);
+  assert.doesNotMatch(component, /nameInput\.value\s*=\s*""/);
+  assert.doesNotMatch(component, /emailInput\.value\s*=\s*""/);
+  assert.doesNotMatch(component, /messageInput\.value\s*=\s*""/);
+});
+
+test("visible mobile consent is moved clear of the bottom sheet", () => {
+  assert.match(component, /documentElement\.classList\.toggle\("contact-hub-open"/);
+  assert.match(consentCss, /@media \(max-width: 42\.5rem\)/);
+  assert.match(consentCss, /html\.contact-hub-open \.site-analytics-consent/);
+  assert.match(consentCss, /inset-block-end:\s*calc\(min\(62dvh,\s*520px\)/);
 });
