@@ -5,6 +5,13 @@ function rounded(value) {
   return Math.round(value * 100) / 100;
 }
 
+async function settle(page) {
+  await page.evaluate(() => new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  }));
+  await page.waitForTimeout(180);
+}
+
 await withE2ERuntime(async ({ browser, baseUrl }) => {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   await page.goto(`${baseUrl}/?pet=1`, { waitUntil: "networkidle" });
@@ -12,6 +19,8 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   const cta = page.locator('.contact a[href="mailto:i@lookawful.ru"]').first();
   assert.equal(await cta.count(), 1, "canonical site contact CTA must still exist");
   assert.equal((await cta.textContent()).trim(), "Связаться со мной");
+  await cta.scrollIntoViewIfNeeded();
+  await cta.waitFor({ state: "visible" });
 
   const before = await page.evaluate(() => {
     const main = document.querySelector("main");
@@ -25,6 +34,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
 
   await cta.focus();
   await cta.click();
+  await settle(page);
 
   const hub = page.locator("[data-contact-hub]");
   await hub.waitFor({ state: "visible", timeout: 2_000 });
