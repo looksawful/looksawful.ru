@@ -8,11 +8,16 @@ import {
   createSessionContactDraftStore,
   type ContactDraftStore,
 } from "../features/contact-hub/persistence.ts";
+import { createPortfolioAssistantClient } from "../features/portfolio-pet/assistant-client.ts";
 
 type Destroy = () => void;
 
+type AiAuthor = "bot" | "user";
+
 const SITE_CONTACT_SELECTOR = '.contact a[href="mailto:i@lookawful.ru"]';
 const PET_SELECTOR = "[data-portfolio-pet-launcher]";
+const ASSISTANT_SESSION_KEY = "looksawful:portfolio-assistant-session:v1";
+const MOBILE_MEDIA = "(width <= 42.5rem)";
 
 function createTextButton(documentRef: Document, text: string): HTMLButtonElement {
   const button = documentRef.createElement("button");
@@ -29,6 +34,28 @@ function resolveDraftStore(documentRef: Document): ContactDraftStore | null {
   } catch {
     return null;
   }
+}
+
+function resolveAssistantSessionId(documentRef: Document): string {
+  try {
+    const storage = documentRef.defaultView?.sessionStorage;
+    const existing = storage?.getItem(ASSISTANT_SESSION_KEY)?.trim();
+    if (existing) return existing;
+
+    const generated = documentRef.defaultView?.crypto.randomUUID?.()
+      ?? `venus-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    storage?.setItem(ASSISTANT_SESSION_KEY, generated);
+    return generated;
+  } catch {
+    return `venus-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  }
+}
+
+function createAiMessage(documentRef: Document, text: string, author: AiAuthor): HTMLParagraphElement {
+  const message = documentRef.createElement("p");
+  message.className = `contact-hub__message contact-hub__message--${author}`;
+  message.textContent = text;
+  return message;
 }
 
 function createHubElement(documentRef: Document) {
@@ -140,12 +167,38 @@ function createHubElement(documentRef: Document) {
   const aiLog = documentRef.createElement("div");
   aiLog.className = "contact-hub__ai-log";
   aiLog.setAttribute("role", "log");
+  aiLog.setAttribute("aria-live", "polite");
+  aiLog.append(createAiMessage(
+    documentRef,
+    "Привет. Могу рассказать о проектах или помочь найти нужное.",
+    "bot",
+  ));
+
+  const quickActions = documentRef.createElement("div");
+  quickActions.className = "contact-hub__quick-actions";
+  const quickActionDefinitions = [
+    ["кейсы", "Покажи кейсы"],
+    ["резюме", "Покажи резюме"],
+    ["обо мне", "Расскажи о Ване"],
+  ] as const;
+  const quickActionButtons = quickActionDefinitions.map(([label, query]) => {
+    const button = createTextButton(documentRef, label);
+    button.classList.add("contact-hub__quick-action");
+    button.dataset.contactHubQuickQuery = query;
+    return button;
+  });
+  quickActions.append(...quickActionButtons);
+  aiLog.append(quickActions);
+
   const draft = documentRef.createElement("textarea");
   draft.className = "contact-hub__draft";
   draft.dataset.contactHubAiDraft = "";
   draft.setAttribute("aria-label", "AI draft");
-  const handoffButton = createTextButton(documentRef, "написать напрямую");
+  draft.hidden = true;
+  const handoffButton = createTextButton(documentRef, "перенести в сообщение");
   handoffButton.dataset.contactHubHandoff = "";
+  handoffButton.classList.add("contact-hub__handoff");
+  handoffButton.hidden = true;
   aiScreen.append(aiLog, draft, handoffButton);
 
   const composer = documentRef.createElement("form");
@@ -182,6 +235,7 @@ function createHubElement(documentRef: Document) {
     formModeButton,
     formScreen,
     aiScreen,
+    aiLog,
     nameInput,
     emailInput,
     messageInput,
@@ -192,6 +246,9 @@ function createHubElement(documentRef: Document) {
     replaceButton,
     cancelButton,
     composer,
+    composerInput,
+    composerSend,
+    quickActionButtons,
   };
 }
 
@@ -206,15 +263,19 @@ export function mountContactHub(root: Document = document): Destroy {
   const elements = createHubElement(root);
   const {
     hub, collapsedLauncher, collapseButton, closeButton, aiModeButton, formModeButton,
-    formScreen, aiScreen, nameInput, emailInput, messageInput, draft, handoffButton,
-    handoffDecision, appendButton, replaceButton, cancelButton, composer,
+    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, draft, handoffButton,
+    handoffDecision, appendButton, replaceButton, cancelButton, composer, composerInput,
+    composerSend, quickActionButtons,
   } = elements;
   root.body.append(hub, collapsedLauncher);
 
   let state: ContactHubState = createContactHubState({ aiAvailable: true });
   let opener: HTMLElement | null = null;
   let pendingDraft = "";
+  let assistantBusy = false;
+  let petStateTimer = 0;
   const draftStore = resolveDraftStore(root);
+  const assistantClient = createPortfolioAssistantClient({ sessionId: resolveAssistantSessionId(root) });
 
   const formDraft = () => ({ name: nameInput.value, email: emailInput.value, message: messageInput.value });
 
@@ -237,6 +298,56 @@ export function mountContactHub(root: Document = document): Destroy {
     // Corrupt/blocked storage fails closed and leaves an empty form.
   }
 
+  const setPetState = (visualState: "idle" | "thinking" | "speaking" | "success" | "error"): void => {
+    root.dispatchEvent(new CustomEvent("portfolio-pet:state", { detail: { state: visualState } }));
+  };
+
+  const schedulePetIdle = (delayMs: number): void => {
+    const view = root.defaultView;
+    if (!view) return;
+    view.clearTimeout(petStateTimer);
+    petStateTimer = view.setTimeout(() => setPetState("idle"), delayMs);
+  };
+
+  const isMobile = (): boolean => root.defaultView?.matchMedia(MOBILE_MEDIA).matches ?? false;
+
+  const resetHubPosition = (): void => {
+    hub.style.removeProperty("inset-inline-start");
+    hub.style.removeProperty("inset-block-start");
+    hub.style.removeProperty("inset-block-end");
+    hub.style.removeProperty("inline-size");
+  };
+
+  const positionHubNearPet = (pet: HTMLElement): void => {
+    const view = root.defaultView;
+    if (!view || isMobile()) {
+      resetHubPosition();
+      return;
+    }
+
+    const petRect = pet.getBoundingClientRect();
+    const margin = 12;
+    const gap = 12;
+    const viewportWidth = view.visualViewport?.width ?? view.innerWidth;
+    const viewportHeight = view.visualViewport?.height ?? view.innerHeight;
+    const hubWidth = Math.min(356, Math.max(280, viewportWidth - (margin * 2)));
+    const requestedHeight = state.mode === "form" ? 430 : 464;
+    const hubHeight = Math.min(requestedHeight, viewportHeight - (margin * 2));
+
+    let left = petRect.right + gap;
+    if (left + hubWidth > viewportWidth - margin) left = petRect.left - gap - hubWidth;
+    left = Math.max(margin, Math.min(left, viewportWidth - hubWidth - margin));
+    const top = Math.max(margin, Math.min(
+      petRect.bottom - hubHeight,
+      viewportHeight - hubHeight - margin,
+    ));
+
+    hub.style.insetInlineStart = `${Math.round(left)}px`;
+    hub.style.insetBlockStart = `${Math.round(top)}px`;
+    hub.style.insetBlockEnd = "auto";
+    hub.style.inlineSize = `${Math.round(hubWidth)}px`;
+  };
+
   const render = (): void => {
     const isOpen = state.visibility === "open";
     hub.dataset.mode = state.mode;
@@ -254,13 +365,24 @@ export function mountContactHub(root: Document = document): Destroy {
   const setMode = (mode: "ai" | "form"): void => {
     state = transitionContactHub(state, { type: "SET_MODE", mode });
     render();
+    if (opener?.matches(PET_SELECTOR)) positionHubNearPet(opener);
+    if (mode === "ai") composerInput.focus({ preventScroll: true });
+    else (nameInput.value ? messageInput : nameInput).focus({ preventScroll: true });
   };
 
   const open = (current: HTMLElement, entryPoint: "site-contact" | "pet"): void => {
     opener = current;
     state = transitionContactHub(state, { type: "OPEN", entryPoint });
     render();
-    closeButton.focus({ preventScroll: true });
+    if (entryPoint === "pet") {
+      positionHubNearPet(current);
+      setPetState("success");
+      schedulePetIdle(760);
+      requestAnimationFrame(() => composerInput.focus({ preventScroll: true }));
+      return;
+    }
+    resetHubPosition();
+    requestAnimationFrame(() => (nameInput.value ? messageInput : nameInput).focus({ preventScroll: true }));
   };
 
   const openFromSiteContact = (event: Event): void => {
@@ -304,6 +426,73 @@ export function mountContactHub(root: Document = document): Destroy {
     handoffDecision.hidden = true;
   };
 
+  const scrollAiToEnd = (): void => {
+    requestAnimationFrame(() => {
+      aiScreen.scrollTop = aiScreen.scrollHeight;
+    });
+  };
+
+  const submitAiMessage = async (rawMessage: string): Promise<void> => {
+    const message = rawMessage.trim();
+    if (!message || assistantBusy || state.mode !== "ai" || state.visibility !== "open") return;
+
+    assistantBusy = true;
+    composerInput.value = "";
+    composerInput.disabled = true;
+    composerSend.disabled = true;
+    aiLog.append(createAiMessage(root, message, "user"));
+
+    const pendingMessage = createAiMessage(root, "думаю…", "bot");
+    pendingMessage.dataset.pending = "true";
+    aiLog.append(pendingMessage);
+    scrollAiToEnd();
+    setPetState("thinking");
+
+    const result = await assistantClient.reply({
+      message,
+      locale: root.documentElement.lang.toLowerCase().startsWith("en") ? "en" : "ru",
+      context: { page: root.defaultView?.location.pathname ?? "home" },
+    });
+
+    let responseText: string;
+    let successfulAnswer = false;
+    if (result.kind === "prepared" || result.kind === "generated") {
+      responseText = result.text;
+      successfulAnswer = true;
+      draft.value = result.text;
+      handoffButton.hidden = false;
+    } else if (result.kind === "no_data") {
+      responseText = "Пока нет согласованных данных для ответа на это. Можно переключиться на «написать» и связаться напрямую.";
+    } else if (result.kind === "rate_limited") {
+      responseText = "Слишком много запросов. Попробуй ещё раз через минуту.";
+    } else {
+      responseText = "Чат сейчас недоступен. Можно переключиться на «написать» и связаться напрямую.";
+    }
+
+    pendingMessage.textContent = responseText;
+    delete pendingMessage.dataset.pending;
+    assistantBusy = false;
+    composerInput.disabled = false;
+    composerSend.disabled = false;
+    composerInput.focus({ preventScroll: true });
+    scrollAiToEnd();
+
+    setPetState(successfulAnswer ? "speaking" : result.kind === "unavailable" ? "error" : "speaking");
+    schedulePetIdle(successfulAnswer ? 1_150 : 900);
+  };
+
+  const onComposerSubmit = (event: SubmitEvent): void => {
+    event.preventDefault();
+    void submitAiMessage(composerInput.value);
+  };
+
+  const onQuickAction = (event: Event): void => {
+    const button = event.currentTarget;
+    if (!(button instanceof HTMLButtonElement)) return;
+    const query = button.dataset.contactHubQuickQuery;
+    if (query) void submitAiMessage(query);
+  };
+
   const collapse = (): void => {
     if (state.visibility !== "open") return;
     state = transitionContactHub(state, { type: "COLLAPSE" });
@@ -315,7 +504,9 @@ export function mountContactHub(root: Document = document): Destroy {
     if (state.visibility !== "collapsed") return;
     state = transitionContactHub(state, { type: "RESTORE" });
     render();
-    closeButton.focus({ preventScroll: true });
+    if (opener?.matches(PET_SELECTOR)) positionHubNearPet(opener);
+    if (state.mode === "ai") composerInput.focus({ preventScroll: true });
+    else closeButton.focus({ preventScroll: true });
   };
 
   const close = (): void => {
@@ -326,6 +517,8 @@ export function mountContactHub(root: Document = document): Destroy {
     opener = null;
     pendingDraft = "";
     handoffDecision.hidden = true;
+    resetHubPosition();
+    setPetState("idle");
     if (focusTarget?.isConnected) focusTarget.focus({ preventScroll: true });
   };
 
@@ -333,6 +526,17 @@ export function mountContactHub(root: Document = document): Destroy {
     if (event.key !== "Escape" || state.visibility !== "open") return;
     event.preventDefault();
     close();
+  };
+
+  const onPetMoved = (): void => {
+    if (state.visibility !== "open" || state.entryPoint !== "pet" || !opener) return;
+    positionHubNearPet(opener);
+  };
+
+  const onViewportChange = (): void => {
+    if (state.visibility !== "open") return;
+    if (state.entryPoint === "pet" && opener) positionHubNearPet(opener);
+    else resetHubPosition();
   };
 
   const preventPrototypeSubmit = (event: SubmitEvent): void => event.preventDefault();
@@ -351,9 +555,13 @@ export function mountContactHub(root: Document = document): Destroy {
   emailInput.addEventListener("input", persistDraft);
   messageInput.addEventListener("input", persistDraft);
   formScreen.addEventListener("submit", preventPrototypeSubmit);
-  composer.addEventListener("submit", preventPrototypeSubmit);
+  composer.addEventListener("submit", onComposerSubmit);
+  quickActionButtons.forEach((button) => button.addEventListener("click", onQuickAction));
   closeButton.addEventListener("click", close);
   root.addEventListener("keydown", onKeyDown);
+  root.addEventListener("portfolio-pet:moved", onPetMoved);
+  root.defaultView?.addEventListener("resize", onViewportChange);
+  root.defaultView?.visualViewport?.addEventListener("resize", onViewportChange);
   render();
 
   return () => {
@@ -369,9 +577,14 @@ export function mountContactHub(root: Document = document): Destroy {
     emailInput.removeEventListener("input", persistDraft);
     messageInput.removeEventListener("input", persistDraft);
     formScreen.removeEventListener("submit", preventPrototypeSubmit);
-    composer.removeEventListener("submit", preventPrototypeSubmit);
+    composer.removeEventListener("submit", onComposerSubmit);
+    quickActionButtons.forEach((button) => button.removeEventListener("click", onQuickAction));
     closeButton.removeEventListener("click", close);
     root.removeEventListener("keydown", onKeyDown);
+    root.removeEventListener("portfolio-pet:moved", onPetMoved);
+    root.defaultView?.removeEventListener("resize", onViewportChange);
+    root.defaultView?.visualViewport?.removeEventListener("resize", onViewportChange);
+    if (root.defaultView) root.defaultView.clearTimeout(petStateTimer);
     root.documentElement.classList.remove("contact-hub-open");
     hub.remove();
     collapsedLauncher.remove();
