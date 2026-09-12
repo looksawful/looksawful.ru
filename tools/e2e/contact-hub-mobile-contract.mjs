@@ -8,6 +8,13 @@ const VIEWPORTS = [
   { width: 320, height: 568 },
 ];
 
+async function settle(page) {
+  await page.evaluate(() => new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  }));
+  await page.waitForTimeout(180);
+}
+
 async function box(locator, label) {
   await locator.waitFor({ state: "visible" });
   const value = await locator.boundingBox();
@@ -47,6 +54,7 @@ async function revealAndClickContactCta(page) {
   await cta.scrollIntoViewIfNeeded();
   await cta.waitFor({ state: "visible" });
   await cta.click();
+  await settle(page);
 }
 
 async function verifyViewport(browser, baseUrl, viewport) {
@@ -93,11 +101,13 @@ async function verifyViewport(browser, baseUrl, viewport) {
     assertInside(await box(launcher, "collapsed launcher"), viewport, "collapsed launcher");
     await launcher.click();
     await hub.waitFor({ state: "visible" });
+    await settle(page);
     assert.equal(await name.inputValue(), "draft name");
     assert.equal(await email.inputValue(), "draft@example.com");
     assert.equal(await message.inputValue(), "draft message");
 
     await hub.locator('[data-contact-hub-mode="ai"]').click();
+    await settle(page);
     const composer = hub.locator("[data-contact-hub-ai-composer]");
     assertInside(await box(composer, "composer"), viewport, "AI composer");
     assertInside(await box(close, "close after mode switch"), viewport, "close after mode switch");
@@ -109,6 +119,7 @@ async function verifyViewport(browser, baseUrl, viewport) {
       consent.textContent = "analytics consent";
       document.body.append(consent);
     });
+    await settle(page);
     const consent = page.locator(".site-analytics-consent");
     const consentBox = await box(consent, "consent");
     assertInside(consentBox, viewport, "consent");
