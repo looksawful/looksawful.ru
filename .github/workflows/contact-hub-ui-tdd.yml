@@ -7,9 +7,14 @@ on:
     paths:
       - .github/workflows/contact-hub-ui-tdd.yml
       - tools/e2e/contact-hub-shell-contract.mjs
+      - tools/e2e/portfolio-pet-launcher-contract.mjs
       - src/components/contact-hub.ts
+      - src/components/portfolio-pet.ts
+      - src/features/portfolio-pet/**
       - src/styles/contact-hub.css
+      - src/styles/portfolio-pet.css
       - src/main.ts
+      - public/pets/venus/**
 
 permissions:
   contents: read
@@ -39,3 +44,5 @@ jobs:
       - run: npx playwright install --with-deps --only-shell chromium
       - name: Focused Contact Hub shell contract
         run: node tools/e2e/contact-hub-shell-contract.mjs
+      - name: Focused Venus launcher contract
+        run: node tools/e2e/portfolio-pet-launcher-contract.mjs
