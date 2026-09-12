@@ -32,10 +32,10 @@ test("static analytics injects Cloudflare, consent-gated Yandex and conversion g
   assert.doesNotMatch(html, /<noscript/i, "consent-gated analytics must not be bypassed by a noscript pixel");
 });
 
-test("static analytics auto-starts Yandex only for RU sessions and keeps an external geo fallback", () => {
+test("static analytics auto-starts Yandex only for RU sessions without probing unavailable Cloudflare trace", () => {
   const html = injectStaticSiteAnalytics(source, { yandexCounterId: 112065623 });
   assert.match(html, /looksawful:analytics-region/);
-  assert.match(html, /\/cdn-cgi\/trace/);
+  assert.doesNotMatch(html, /\/cdn-cgi\/trace/);
   assert.match(html, /https:\/\/api\.country\.is\//);
   assert.match(html, /country===\"RU\"/);
 });
