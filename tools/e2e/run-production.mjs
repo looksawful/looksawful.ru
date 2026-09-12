@@ -1,3 +1,4 @@
+import { runProjectCardGeometryContract } from "./project-card-geometry.mjs";
 import { runQuickSmoke, runMediaSanity } from "./run-smoke.mjs";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
@@ -149,6 +150,7 @@ export async function runProductionE2E({ browser, baseUrl }) {
   await runQuickSmoke({ browser, baseUrl, cvMode: "production" });
   await runMediaSanity({ browser, baseUrl });
   await runJesteiFilterArtworkSanity({ browser, baseUrl });
+  await runProjectCardGeometryContract({ browser, baseUrl });
 }
 
 if (isDirectExecution(import.meta.url)) {
