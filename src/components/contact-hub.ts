@@ -81,14 +81,17 @@ function createHubElement(documentRef: Document) {
   attachButton.dataset.contactHubAttach = "";
   const submitButton = documentRef.createElement("button");
   submitButton.type = "submit";
-  submitButton.className = "contact-hub__text-action";
+  submitButton.className = "contact-hub__text-action contact-hub__submit";
   submitButton.textContent = "отправить";
   formActions.append(attachButton, submitButton);
 
-  const mailFallback = documentRef.createElement("a");
+  const mailFallback = documentRef.createElement("p");
   mailFallback.className = "contact-hub__mail-fallback";
-  mailFallback.href = "mailto:i@lookawful.ru";
-  mailFallback.textContent = "i@lookawful.ru";
+  mailFallback.append("или ");
+  const mailFallbackLink = documentRef.createElement("a");
+  mailFallbackLink.href = "mailto:i@lookawful.ru";
+  mailFallbackLink.textContent = "i@lookawful.ru";
+  mailFallback.append(mailFallbackLink);
 
   const handoffDecision = documentRef.createElement("div");
   handoffDecision.className = "contact-hub__handoff-decision";
@@ -125,16 +128,23 @@ function createHubElement(documentRef: Document) {
   draft.setAttribute("aria-label", "AI draft");
   const handoffButton = createTextButton(documentRef, "написать напрямую");
   handoffButton.dataset.contactHubHandoff = "";
-  const composer = documentRef.createElement("div");
+  aiScreen.append(aiLog, draft, handoffButton);
+
+  const composer = documentRef.createElement("form");
   composer.className = "contact-hub__composer";
   composer.dataset.contactHubAiComposer = "";
-  const composerInput = documentRef.createElement("textarea");
+  const composerInput = documentRef.createElement("input");
+  composerInput.autocomplete = "off";
+  composerInput.placeholder = "спросить Venus";
   composerInput.setAttribute("aria-label", "Сообщение AI");
-  const composerSend = createTextButton(documentRef, "отправить");
+  const composerSend = documentRef.createElement("button");
+  composerSend.type = "submit";
+  composerSend.className = "contact-hub__send";
+  composerSend.textContent = "↑";
+  composerSend.setAttribute("aria-label", "Отправить");
   composer.append(composerInput, composerSend);
-  aiScreen.append(aiLog, draft, handoffButton, composer);
 
-  shell.append(header, formScreen, aiScreen);
+  shell.append(header, formScreen, aiScreen, composer);
   hub.append(shell);
 
   return {
@@ -153,6 +163,7 @@ function createHubElement(documentRef: Document) {
     appendButton,
     replaceButton,
     cancelButton,
+    composer,
   };
 }
 
@@ -168,7 +179,7 @@ export function mountContactHub(root: Document = document): Destroy {
   const {
     hub, closeButton, aiModeButton, formModeButton, formScreen, aiScreen,
     nameInput, emailInput, messageInput, draft, handoffButton, handoffDecision,
-    appendButton, replaceButton, cancelButton,
+    appendButton, replaceButton, cancelButton, composer,
   } = elements;
   root.body.append(hub);
 
@@ -182,8 +193,9 @@ export function mountContactHub(root: Document = document): Destroy {
     hub.hidden = state.visibility !== "open";
     formScreen.hidden = state.mode !== "form";
     aiScreen.hidden = state.mode !== "ai";
-    aiModeButton.setAttribute("aria-pressed", String(state.mode === "ai"));
-    formModeButton.setAttribute("aria-pressed", String(state.mode === "form"));
+    composer.hidden = state.mode !== "ai";
+    aiModeButton.setAttribute("aria-current", state.mode === "ai" ? "page" : "false");
+    formModeButton.setAttribute("aria-current", state.mode === "form" ? "page" : "false");
   };
 
   const setMode = (mode: "ai" | "form"): void => {
@@ -268,6 +280,7 @@ export function mountContactHub(root: Document = document): Destroy {
   replaceButton.addEventListener("click", onReplace);
   cancelButton.addEventListener("click", onCancel);
   formScreen.addEventListener("submit", preventPrototypeSubmit);
+  composer.addEventListener("submit", preventPrototypeSubmit);
   closeButton.addEventListener("click", close);
   root.addEventListener("keydown", onKeyDown);
   render();
@@ -280,6 +293,7 @@ export function mountContactHub(root: Document = document): Destroy {
     replaceButton.removeEventListener("click", onReplace);
     cancelButton.removeEventListener("click", onCancel);
     formScreen.removeEventListener("submit", preventPrototypeSubmit);
+    composer.removeEventListener("submit", preventPrototypeSubmit);
     closeButton.removeEventListener("click", close);
     root.removeEventListener("keydown", onKeyDown);
     hub.remove();
