@@ -1,6 +1,6 @@
 .contact-hub {
   position: fixed;
-  z-index: 90;
+  z-index: 2147482990;
   inset-inline-start: 214px;
   inset-block-end: 18px;
   inline-size: min(356px, calc(100vw - 236px));
@@ -11,6 +11,7 @@
   border-radius: var(--radius-shell);
   overflow: hidden;
   box-shadow: var(--shadow-surface-elevated);
+  transform-origin: bottom left;
 }
 
 .contact-hub[data-mode="form"] {
@@ -91,7 +92,6 @@
   inline-size: 28px;
   block-size: 28px;
   padding: 0;
-  display: grid;
   place-items: center;
   color: var(--clr-text-muted);
   font-size: 18px;
@@ -99,12 +99,18 @@
 }
 
 .contact-hub__collapse {
+  display: none;
+  margin-inline-start: auto;
+}
+
+.contact-hub__close {
+  display: grid;
   margin-inline-start: auto;
 }
 
 .contact-hub-launcher {
   position: fixed;
-  z-index: 90;
+  z-index: 2147482990;
   inset-inline-end: max(var(--page-padding-inline), env(safe-area-inset-right));
   inset-block-end: max(var(--page-padding-inline), env(safe-area-inset-bottom));
   inline-size: 44px;
@@ -125,18 +131,64 @@
 .contact-hub__screen {
   min-block-size: 0;
   overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .contact-hub__screen--ai {
   padding: 18px 16px 16px;
+  scroll-behavior: smooth;
 }
 
 .contact-hub__ai-log {
-  min-block-size: 0;
+  min-block-size: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   gap: 14px;
+}
+
+.contact-hub__message {
+  max-inline-size: 91%;
+  margin: 0;
+  font-size: var(--fs-300);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-copy);
+  white-space: pre-wrap;
+}
+
+.contact-hub__message--bot {
+  align-self: flex-start;
+}
+
+.contact-hub__message--user {
+  align-self: flex-end;
+  color: var(--clr-text-muted);
+  text-align: end;
+}
+
+.contact-hub__message[data-pending="true"] {
+  color: var(--clr-text-muted);
+}
+
+.contact-hub__quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-block-start: 2px;
+}
+
+.contact-hub__quick-action,
+.contact-hub__handoff {
+  color: var(--clr-text-muted);
+  font-size: var(--fs-200);
+  text-decoration: underline;
+  text-decoration-thickness: var(--border-width-100);
+  text-underline-offset: 0.18em;
+}
+
+.contact-hub__quick-action:hover,
+.contact-hub__handoff:hover {
+  color: var(--clr-text);
 }
 
 .contact-hub__draft {
@@ -151,6 +203,10 @@
   color: inherit;
   font: inherit;
   resize: vertical;
+}
+
+.contact-hub__handoff {
+  margin-block-start: 14px;
 }
 
 .contact-hub__screen--form {
@@ -255,6 +311,10 @@
   color: var(--clr-text-muted);
 }
 
+.contact-hub__composer input:disabled {
+  opacity: 0.65;
+}
+
 .contact-hub__send {
   inline-size: 34px;
   block-size: 34px;
@@ -269,24 +329,39 @@
   cursor: pointer;
 }
 
+.contact-hub__send:disabled {
+  color: var(--clr-text-muted);
+  cursor: default;
+}
+
 @media (width <= 42.5rem) {
   .contact-hub,
   .contact-hub[data-mode="form"] {
-    inset-inline-start: 0;
+    inset-inline-start: 0 !important;
     inset-inline-end: 0;
-    inset-block-end: 0;
-    inline-size: 100%;
+    inset-block-start: auto !important;
+    inset-block-end: 0 !important;
+    inline-size: 100% !important;
     block-size: min(62dvh, 520px);
     max-block-size: calc(100dvh - env(safe-area-inset-top));
     border-inline: 0;
     border-block-end: 0;
     border-radius: var(--radius-shell) var(--radius-shell) 0 0;
     padding-block-end: env(safe-area-inset-bottom);
+    transform-origin: bottom center;
   }
 
   .contact-hub-launcher {
     inset-inline-end: max(16px, env(safe-area-inset-right));
     inset-block-end: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .contact-hub__collapse {
+    display: grid;
+  }
+
+  .contact-hub__close {
+    margin-inline-start: 0;
   }
 
   .contact-hub__header {
@@ -304,18 +379,18 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .contact-hub {
-    animation: contact-hub-enter 140ms ease-out both;
+    animation: contact-hub-enter 160ms ease-out both;
   }
 
   @keyframes contact-hub-enter {
     from {
       opacity: 0;
-      transform: translateY(0.5rem);
+      transform: translateY(0.5rem) scale(0.992);
     }
 
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
   }
 }
