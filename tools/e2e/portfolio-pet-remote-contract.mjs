@@ -67,7 +67,21 @@ try {
   await page.waitForTimeout(160);
   const after = await pet.boundingBox();
   assert.ok(after && after.x - before.x > 100 && before.y - after.y > 50, "Venus must follow pointer drag on published preview");
+  assert.equal(await pet.getAttribute("data-facing"), "right", "published Venus must face right while dragging right");
+  const rightScale = await pet.locator(".portfolio-pet__viewport").evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).a);
+  assert.ok(rightScale > 0, "published right-facing Venus must not be mirrored");
   assert.equal(await page.locator("[data-contact-hub]").isVisible(), false, "dragging must not open the chat");
+
+  const afterX = after.x + after.width / 2;
+  const afterY = after.y + after.height / 2;
+  await page.mouse.move(afterX, afterY);
+  await page.mouse.down();
+  await page.mouse.move(afterX - 120, afterY, { steps: 8 });
+  await page.mouse.up();
+  await page.waitForTimeout(160);
+  assert.equal(await pet.getAttribute("data-facing"), "left", "published Venus must face left while dragging left");
+  const leftScale = await pet.locator(".portfolio-pet__viewport").evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).a);
+  assert.ok(leftScale < 0, "published left-facing Venus must mirror the sprite viewport");
 
   await pet.click();
   const hub = page.locator("[data-contact-hub]");

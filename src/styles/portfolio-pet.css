@@ -1,5 +1,6 @@
 .portfolio-pet {
   --pet-scale: 1;
+  --pet-facing: 1;
   position: fixed;
   z-index: 2147483000;
   inset-inline-start: max(18px, env(safe-area-inset-left));
@@ -41,7 +42,7 @@
   inline-size: 192px;
   block-size: 208px;
   overflow: hidden;
-  transform: translateX(-50%) scale(var(--pet-scale));
+  transform: translateX(-50%) scale(var(--pet-scale)) scaleX(var(--pet-facing));
   transform-origin: 50% 100%;
   pointer-events: none;
   user-select: none;

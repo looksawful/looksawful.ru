@@ -71,7 +71,23 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   assert.ok(draggedBox, "Venus must remain visible after dragging");
   assert.ok(draggedBox.x - startBox.x > 100, "Venus must move horizontally with the pointer");
   assert.ok(startBox.y - draggedBox.y > 50, "Venus must move vertically with the pointer");
+  assert.equal(await pet.getAttribute("data-facing"), "right", "dragging right must face Venus right");
+  const rightFacingScale = await pet.locator(".portfolio-pet__viewport").evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a);
+  assert.ok(rightFacingScale > 0, "right-facing Venus must not mirror the sprite viewport");
   assert.equal(await page.locator("[data-contact-hub]").isVisible(), false, "dragging must not accidentally open chat");
+
+  const rightBox = await pet.boundingBox();
+  assert.ok(rightBox, "Venus must expose a draggable box before leftward drag");
+  const rightX = rightBox.x + (rightBox.width / 2);
+  const rightY = rightBox.y + (rightBox.height / 2);
+  await page.mouse.move(rightX, rightY);
+  await page.mouse.down();
+  await page.mouse.move(rightX - 120, rightY, { steps: 8 });
+  await page.mouse.up();
+  await settle(page);
+  assert.equal(await pet.getAttribute("data-facing"), "left", "dragging left must face Venus left");
+  const leftFacingScale = await pet.locator(".portfolio-pet__viewport").evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a);
+  assert.ok(leftFacingScale < 0, "left-facing Venus must mirror the sprite viewport");
 
   await pet.click();
   await settle(page);

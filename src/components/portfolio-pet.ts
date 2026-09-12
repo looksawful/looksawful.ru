@@ -30,6 +30,7 @@ interface DragSession {
   pointerId: number;
   startX: number;
   startY: number;
+  lastX: number;
   startTime: number;
   startRect: DOMRect;
   moved: boolean;
@@ -88,7 +89,9 @@ export function mountPortfolioPet(
   launcher.className = "portfolio-pet";
   launcher.dataset.portfolioPetLauncher = "";
   launcher.dataset.state = "idle";
+  launcher.dataset.facing = "right";
   launcher.dataset.draggable = "true";
+  launcher.style.setProperty("--pet-facing", "1");
   launcher.setAttribute("aria-label", "Открыть чат с Venus");
 
   const viewport = root.createElement("span");
@@ -139,6 +142,13 @@ export function mountPortfolioPet(
   let suppressNextClick = false;
   let currentVisualState: PetVisualState = "idle";
 
+  const setFacingFromDelta = (dx: number): void => {
+    if (Math.abs(dx) < 0.5) return;
+    const facing = dx < 0 ? "left" : "right";
+    launcher.dataset.facing = facing;
+    launcher.style.setProperty("--pet-facing", facing === "left" ? "-1" : "1");
+  };
+
   const setVisualState = (state: PetVisualState): void => {
     currentVisualState = state;
     if (!dragSession?.moved) {
@@ -180,6 +190,7 @@ export function mountPortfolioPet(
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
+      lastX: event.clientX,
       startTime: performance.now(),
       startRect: rect,
       moved: false,
@@ -191,8 +202,11 @@ export function mountPortfolioPet(
     if (!dragSession || dragSession.pointerId !== event.pointerId) return;
     const dx = event.clientX - dragSession.startX;
     const dy = event.clientY - dragSession.startY;
+    const stepDx = event.clientX - dragSession.lastX;
+    dragSession.lastX = event.clientX;
     if (!dragSession.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
 
+    setFacingFromDelta(Math.abs(stepDx) >= 0.5 ? stepDx : dx);
     dragSession.moved = true;
     launcher.dataset.dragging = "true";
     launcher.dataset.state = "dragging";
