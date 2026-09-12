@@ -18,7 +18,8 @@
 }
 
 .contact-hub[hidden],
-.contact-hub [hidden] {
+.contact-hub [hidden],
+.contact-hub-launcher[hidden] {
   display: none;
 }
 
@@ -33,7 +34,7 @@
   min-block-size: 44px;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 10px;
   padding: 0 12px 0 16px;
   border-block-end: var(--border-width-100) solid var(--clr-border);
 }
@@ -79,13 +80,14 @@
 .contact-hub__field :is(input, textarea):focus-visible,
 .contact-hub__mail-fallback a:focus-visible,
 .contact-hub__composer input:focus-visible,
-.contact-hub__send:focus-visible {
+.contact-hub__send:focus-visible,
+.contact-hub-launcher:focus-visible {
   outline: var(--border-width-200) solid currentColor;
   outline-offset: 0.125rem;
 }
 
+.contact-hub__collapse,
 .contact-hub__close {
-  margin-inline-start: auto;
   inline-size: 28px;
   block-size: 28px;
   padding: 0;
@@ -94,6 +96,30 @@
   color: var(--clr-text-muted);
   font-size: 18px;
   line-height: 1;
+}
+
+.contact-hub__collapse {
+  margin-inline-start: auto;
+}
+
+.contact-hub-launcher {
+  position: fixed;
+  z-index: 90;
+  inset-inline-end: max(var(--page-padding-inline), env(safe-area-inset-right));
+  inset-block-end: max(var(--page-padding-inline), env(safe-area-inset-bottom));
+  inline-size: 44px;
+  block-size: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: var(--border-width-100) solid var(--clr-border);
+  border-radius: var(--radius-shell);
+  background: var(--clr-surface-elevated);
+  color: var(--clr-text);
+  box-shadow: var(--shadow-surface-elevated);
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 .contact-hub__screen {
@@ -256,6 +282,11 @@
     border-block-end: 0;
     border-radius: var(--radius-shell) var(--radius-shell) 0 0;
     padding-block-end: env(safe-area-inset-bottom);
+  }
+
+  .contact-hub-launcher {
+    inset-inline-end: max(16px, env(safe-area-inset-right));
+    inset-block-end: max(16px, env(safe-area-inset-bottom));
   }
 
   .contact-hub__header {
