@@ -16,6 +16,7 @@ on:
       - src/styles/portfolio-pet.css
       - src/main.ts
       - public/pets/venus/**
+      - docs/venus-animation-source.md
 
 permissions:
   contents: read
