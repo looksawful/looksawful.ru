@@ -4,6 +4,10 @@ import {
   type ContactHubState,
 } from "../features/contact-hub/state.ts";
 import { applyExplicitAiDraftHandoff } from "../features/contact-hub/handoff.ts";
+import {
+  createSessionContactDraftStore,
+  type ContactDraftStore,
+} from "../features/contact-hub/persistence.ts";
 
 type Destroy = () => void;
 
@@ -16,6 +20,15 @@ function createTextButton(documentRef: Document, text: string): HTMLButtonElemen
   button.className = "contact-hub__text-action";
   button.textContent = text;
   return button;
+}
+
+function resolveDraftStore(documentRef: Document): ContactDraftStore | null {
+  try {
+    const storage = documentRef.defaultView?.sessionStorage;
+    return storage ? createSessionContactDraftStore(storage) : null;
+  } catch {
+    return null;
+  }
 }
 
 function createHubElement(documentRef: Document) {
@@ -201,6 +214,28 @@ export function mountContactHub(root: Document = document): Destroy {
   let state: ContactHubState = createContactHubState({ aiAvailable: true });
   let opener: HTMLElement | null = null;
   let pendingDraft = "";
+  const draftStore = resolveDraftStore(root);
+
+  const formDraft = () => ({ name: nameInput.value, email: emailInput.value, message: messageInput.value });
+
+  const persistDraft = (): void => {
+    try {
+      draftStore?.write(formDraft());
+    } catch {
+      // Storage is a convenience boundary; failures must not break Contact Hub.
+    }
+  };
+
+  try {
+    const storedDraft = draftStore?.read();
+    if (storedDraft) {
+      nameInput.value = storedDraft.name;
+      emailInput.value = storedDraft.email;
+      messageInput.value = storedDraft.message;
+    }
+  } catch {
+    // Corrupt/blocked storage fails closed and leaves an empty form.
+  }
 
   const render = (): void => {
     const isOpen = state.visibility === "open";
@@ -241,8 +276,6 @@ export function mountContactHub(root: Document = document): Destroy {
     open(current, "pet");
   };
 
-  const formDraft = () => ({ name: nameInput.value, email: emailInput.value, message: messageInput.value });
-
   const commitHandoff = (selectedDraftText: string, messageStrategy?: "append" | "replace"): void => {
     const result = applyExplicitAiDraftHandoff({ selectedDraftText, formDraft: formDraft(), messageStrategy });
     if (result.kind === "needs_message_decision") {
@@ -255,6 +288,7 @@ export function mountContactHub(root: Document = document): Destroy {
       nameInput.value = result.draft.name;
       emailInput.value = result.draft.email;
       messageInput.value = result.draft.message;
+      persistDraft();
       pendingDraft = "";
       handoffDecision.hidden = true;
       setMode("form");
@@ -313,6 +347,9 @@ export function mountContactHub(root: Document = document): Destroy {
   cancelButton.addEventListener("click", onCancel);
   collapseButton.addEventListener("click", collapse);
   collapsedLauncher.addEventListener("click", restore);
+  nameInput.addEventListener("input", persistDraft);
+  emailInput.addEventListener("input", persistDraft);
+  messageInput.addEventListener("input", persistDraft);
   formScreen.addEventListener("submit", preventPrototypeSubmit);
   composer.addEventListener("submit", preventPrototypeSubmit);
   closeButton.addEventListener("click", close);
@@ -328,6 +365,9 @@ export function mountContactHub(root: Document = document): Destroy {
     cancelButton.removeEventListener("click", onCancel);
     collapseButton.removeEventListener("click", collapse);
     collapsedLauncher.removeEventListener("click", restore);
+    nameInput.removeEventListener("input", persistDraft);
+    emailInput.removeEventListener("input", persistDraft);
+    messageInput.removeEventListener("input", persistDraft);
     formScreen.removeEventListener("submit", preventPrototypeSubmit);
     composer.removeEventListener("submit", preventPrototypeSubmit);
     closeButton.removeEventListener("click", close);
