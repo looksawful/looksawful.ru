@@ -18,6 +18,18 @@ test("site smoke waits for a lightbox-open condition before asserting state", as
   assert.ok(helper.indexOf("waitForLightboxOpen") < helper.indexOf("lightboxState"));
 });
 
+test("shared readiness helpers have explicit finite browser wait bounds", async () => {
+  const readiness = await read("tools/e2e/readiness.mjs");
+
+  assert.match(readiness, /const READINESS_TIMEOUT_MS = 10_000/);
+  assert.match(readiness, /const MEDIA_METADATA_TIMEOUT_MS = 8_000/);
+  assert.match(readiness, /waitFor\(\{[\s\S]*state: "attached",[\s\S]*timeout: READINESS_TIMEOUT_MS/);
+  assert.match(readiness, /document\.fonts\.status === "loaded"[\s\S]*timeout: READINESS_TIMEOUT_MS/);
+  assert.match(readiness, /animation frame readiness timed out after \$\{timeoutMs\} ms/);
+  assert.match(readiness, /lightbox video metadata timed out after \$\{timeoutMs\} ms/);
+  assert.match(readiness, /data-media-lightbox\]\[open\][\s\S]*timeout: READINESS_TIMEOUT_MS/);
+});
+
 test("video resume smoke proves a non-zero seek without failing as autoplay advances", async () => {
   const smoke = await read("tools/e2e/smoke-site.mjs");
 
