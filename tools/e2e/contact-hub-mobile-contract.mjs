@@ -42,11 +42,17 @@ async function openMobilePage(browser, baseUrl, viewport) {
   return { context, page };
 }
 
+async function revealAndClickContactCta(page) {
+  const cta = page.locator('.contact a[href="mailto:i@lookawful.ru"]').first();
+  await cta.scrollIntoViewIfNeeded();
+  await cta.waitFor({ state: "visible" });
+  await cta.click();
+}
+
 async function verifyViewport(browser, baseUrl, viewport) {
   const { context, page } = await openMobilePage(browser, baseUrl, viewport);
   try {
-    const cta = page.locator('.contact a[href="mailto:i@lookawful.ru"]').first();
-    await cta.click();
+    await revealAndClickContactCta(page);
 
     const hub = page.locator("[data-contact-hub]").first();
     const hubBox = await box(hub, "hub");
