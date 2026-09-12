@@ -8,6 +8,7 @@ on:
       - .github/workflows/contact-hub-ui-tdd.yml
       - tools/e2e/contact-hub-shell-contract.mjs
       - tools/e2e/portfolio-pet-launcher-contract.mjs
+      - tools/e2e/portfolio-pet-remote-contract.mjs
       - src/components/contact-hub.ts
       - src/components/portfolio-pet.ts
       - src/features/portfolio-pet/**
@@ -26,7 +27,7 @@ concurrency:
 jobs:
   hub-shell:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -46,3 +47,16 @@ jobs:
         run: node tools/e2e/contact-hub-shell-contract.mjs
       - name: Focused Venus launcher contract
         run: node tools/e2e/portfolio-pet-launcher-contract.mjs
+      - name: Published Venus preview contract
+        env:
+          PREVIEW_URL: https://pr-788.looksawful-ru-preview.pages.dev
+          PREVIEW_SHA: ${{ github.sha }}
+        run: node tools/e2e/portfolio-pet-remote-contract.mjs
+      - name: Upload published Venus screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: venus-preview-${{ github.sha }}
+          path: artifacts/venus-preview-desktop.png
+          if-no-files-found: ignore
+          retention-days: 3
