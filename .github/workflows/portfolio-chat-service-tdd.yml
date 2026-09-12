@@ -10,6 +10,7 @@ on:
       - test/portfolio-assistant-client-contract.test.mjs
       - test/contact-hub-handoff-contract.test.mjs
       - test/contact-hub-prototype-ui-contract.test.mjs
+      - tools/e2e/contact-hub-mobile-contract.mjs
       - src/components/contact-hub.ts
       - src/styles/contact-hub.css
       - src/styles/site-analytics-consent.css
@@ -30,7 +31,7 @@ concurrency:
 jobs:
   contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v7
         with:
@@ -55,3 +56,12 @@ jobs:
 
       - name: Typecheck
         run: npm run typecheck
+
+      - name: Build mobile runtime fixture
+        run: npm run build:vite
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Mobile Contact Hub viewport contract
+        run: node tools/e2e/contact-hub-mobile-contract.mjs
