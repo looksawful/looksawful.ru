@@ -1,0 +1,59 @@
+name: Yandex Metrika Audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: Reporting window in days
+        required: false
+        default: "30"
+        type: choice
+        options:
+          - "7"
+          - "30"
+          - "90"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: yandex-metrika-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      YANDEX_METRIKA_COUNTER_ID: "112065623"
+      YANDEX_METRIKA_OAUTH_TOKEN: ${{ secrets.YANDEX_METRIKA_OAUTH_TOKEN }}
+    steps:
+      - name: Checkout exact workflow SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Validate client syntax
+        run: node --check tools/yandex-metrika-api.mjs
+
+      - name: Require configured OAuth secret
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${YANDEX_METRIKA_OAUTH_TOKEN:-}" ]]; then
+            echo "YANDEX_METRIKA_OAUTH_TOKEN repository secret is not configured." >&2
+            exit 1
+          fi
+
+      - name: Run read-only counter and goal audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/yandex-metrika-api.mjs audit --days '${{ inputs.days }}' --format markdown >> "$GITHUB_STEP_SUMMARY"
