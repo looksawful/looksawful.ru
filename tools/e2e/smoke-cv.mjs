@@ -44,6 +44,31 @@ export function getExpectedCvCardCount(mode) {
   throw new Error(`invalid CV smoke mode: ${String(mode)}`);
 }
 
+export function getCvScriptContractViolations(mode, state) {
+  if (mode === "authored") {
+    return state.scriptCount === 0 ? [] : ["authored CV must remain script-free"];
+  }
+  if (mode !== "production") throw new Error(`invalid CV smoke mode: ${String(mode)}`);
+
+  const violations = [];
+  if (state.siteApplicationRuntimeCount !== 0) {
+    violations.push("production CV must not load the site application runtime");
+  }
+  if (state.yandexRuntimeCount !== 0) {
+    violations.push("Yandex Metrica must remain unloaded before analytics consent");
+  }
+  if (state.unexpectedScriptCount !== 0) {
+    violations.push("production CV contains an unexpected script");
+  }
+  if (state.staticAnalyticsBootstrapCount > 1) {
+    violations.push("production CV contains duplicate static analytics bootstraps");
+  }
+  if (state.cloudflareAnalyticsCount > 1) {
+    violations.push("production CV contains duplicate Cloudflare analytics scripts");
+  }
+  return violations;
+}
+
 async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
@@ -93,6 +118,15 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
         try { await portrait.decode(); } catch {}
       }
 
+      const scripts = [...document.scripts];
+      const isSiteApplicationRuntime = (script) => {
+        const src = script.getAttribute("src") || "";
+        return src === "/src/main.js" || /^\/assets\/main-[^/]+\.js(?:\?.*)?$/.test(src);
+      };
+      const isStaticAnalyticsBootstrap = (script) => script.hasAttribute("data-static-site-analytics");
+      const isCloudflareAnalytics = (script) => script.getAttribute("data-site-analytics") === "cloudflare";
+      const isYandexRuntime = (script) => script.getAttribute("data-site-analytics") === "yandex";
+
       return {
         title: document.title,
         profileName: profileName?.textContent?.trim() ?? "",
@@ -106,7 +140,17 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
         resumePresent: resume instanceof HTMLElement,
         experienceCards: document.querySelectorAll(".experience-card").length,
         hiddenCards: document.querySelectorAll(".experience-card[hidden]").length,
-        scriptCount: document.scripts.length,
+        scriptCount: scripts.length,
+        siteApplicationRuntimeCount: scripts.filter(isSiteApplicationRuntime).length,
+        staticAnalyticsBootstrapCount: scripts.filter(isStaticAnalyticsBootstrap).length,
+        cloudflareAnalyticsCount: scripts.filter(isCloudflareAnalytics).length,
+        yandexRuntimeCount: scripts.filter(isYandexRuntime).length,
+        unexpectedScriptCount: scripts.filter((script) => !(
+          isSiteApplicationRuntime(script)
+          || isStaticAnalyticsBootstrap(script)
+          || isCloudflareAnalytics(script)
+          || isYandexRuntime(script)
+        )).length,
       };
     });
 
@@ -125,7 +169,8 @@ async function auditViewport(browser, viewport, mode, expectedHiddenCards) {
     } else {
       assert(state.hiddenCards === expectedHiddenCards, `${label}: expected ${expectedHiddenCards} hidden experience cards, got ${state.hiddenCards}`);
     }
-    assert(state.scriptCount === 0, `${label}: standalone CV unexpectedly loads JavaScript`);
+    const scriptViolations = getCvScriptContractViolations(mode, state);
+    assert(scriptViolations.length === 0, `${label}: ${scriptViolations.join("; ")}`);
     assert(!errors.length, `${label}: browser errors:\n${errors.join("\n")}`);
 
     if (CAPTURE_DIR) {
