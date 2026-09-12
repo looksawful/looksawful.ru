@@ -1,6 +1,6 @@
 .portfolio-pet {
   position: fixed;
-  z-index: 89;
+  z-index: 2147483000;
   inset-inline-start: max(18px, env(safe-area-inset-left));
   inset-block-end: max(18px, env(safe-area-inset-bottom));
   inline-size: 178px;
@@ -9,9 +9,16 @@
   place-items: end center;
   padding: 0;
   border: 0;
-  background: transparent;
+  background-color: transparent;
+  background-image: url("/pets/venus/venus-idle.webp");
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: auto 210px;
   color: var(--clr-text);
+  opacity: 1;
+  visibility: visible;
   cursor: pointer;
+  isolation: isolate;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
@@ -22,6 +29,8 @@
   block-size: 210px;
   max-inline-size: 100%;
   object-fit: contain;
+  opacity: 1;
+  visibility: visible;
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
@@ -38,6 +47,7 @@
     inset-block-end: max(8px, env(safe-area-inset-bottom));
     inline-size: 132px;
     block-size: 188px;
+    background-size: auto 180px;
   }
 
   .portfolio-pet__image {
