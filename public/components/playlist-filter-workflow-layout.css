@@ -1,4 +1,13 @@
 @layer components {
+    .title-row h2 {
+        color: #ffffff;
+        font-family: var(--font-display);
+        font-size: var(--fs-title);
+        font-weight: var(--fw-medium);
+        line-height: var(--lh-title);
+        letter-spacing: 0;
+    }
+
     .advanced-button {
         white-space: nowrap;
     }
