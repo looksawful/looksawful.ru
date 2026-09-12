@@ -1,0 +1,46 @@
+.portfolio-pet {
+  position: fixed;
+  z-index: 89;
+  inset-inline-start: max(18px, env(safe-area-inset-left));
+  inset-block-end: max(18px, env(safe-area-inset-bottom));
+  inline-size: 178px;
+  block-size: 220px;
+  display: grid;
+  place-items: end center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--clr-text);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.portfolio-pet__image {
+  display: block;
+  inline-size: auto;
+  block-size: 210px;
+  max-inline-size: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.portfolio-pet:focus-visible {
+  outline: var(--border-width-200) solid currentColor;
+  outline-offset: 4px;
+}
+
+@media (width <= 42.5rem) {
+  .portfolio-pet {
+    inset-inline-start: max(8px, env(safe-area-inset-left));
+    inset-block-end: max(8px, env(safe-area-inset-bottom));
+    inline-size: 132px;
+    block-size: 188px;
+  }
+
+  .portfolio-pet__image {
+    block-size: 180px;
+  }
+}
