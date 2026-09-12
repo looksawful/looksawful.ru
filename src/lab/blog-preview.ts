@@ -34,63 +34,32 @@ const KIND_LABELS: Record<BlogKind, string> = {
 
 const entries: readonly PreviewEntry[] = [
   {
-    title: "Как я собираю визуальный пайплайн без лишних инструментов",
-    summary: "Рабочая схема для задачи, где референсы, генерация, постпродакшен и код должны оставаться одной понятной системой.",
-    kind: "tutorial",
-    date: "10.09.2026",
-    tags: ["workflow", "design", "ai"],
-    cover: {
-      src: "/media/projects/index/jestei-pool-cover.webp",
-      alt: "Фрагмент проекта Jestei Pool",
-      width: 1580,
-      height: 1360,
-    },
-  },
-  {
-    title: "Инструменты, которые действительно остаются в работе",
-    summary: "Короткий список утилит и подходов, которые пережили эксперименты и не требуют отдельного ритуала обслуживания.",
+    title: "AWFUL STUDIO: как я собираю виртуальную предметную студию в Blender",
+    summary: "Blender-native инструмент для предметной и рекламной съёмки: физически понятная студия, готовые световые постановки и автоматизация, которая не мешает вручную править сцену.",
     kind: "tool",
-    date: "08.09.2026",
-    tags: ["tools", "workflow"],
-    cover: {
-      src: "/media/projects/index/styx-jewel-cover.webp",
-      alt: "Фрагмент проекта Styx Jewel",
-      width: 1580,
-      height: 1360,
-    },
+    date: "12.09.2026",
+    tags: ["blender", "awful-studio", "3d"],
   },
   {
-    title: "Что я оставляю после курса, а что выбрасываю",
-    summary: "Конспект как рабочий артефакт: не пересказ программы, а набор приёмов, решений и ссылок, к которым есть смысл вернуться.",
+    title: "Conquering Responsive Layouts — Kevin Powell",
+    summary: "Что из курса по адаптивным интерфейсам действительно осталось в моей ежедневной работе с CSS.",
+    kind: "course",
+    date: "08.09.2026",
+    tags: ["css", "responsive", "learning"],
+  },
+  {
+    title: "Discover three.js: заметки после прохождения",
+    summary: "Не пересказ курса, а набор вещей, к которым имеет смысл возвращаться при работе с Three.js и WebGL на сайте.",
     kind: "course",
     date: "05.09.2026",
-    tags: ["learning", "notes"],
+    tags: ["threejs", "webgl", "learning"],
   },
   {
-    title: "Почему дизайн-система должна сокращать количество решений",
-    summary: "Заметка о том, где система действительно помогает продукту, а где превращается в коллекцию аккуратно подписанных сущностей.",
+    title: "The Book of Shaders как рабочий справочник",
+    summary: "Почему я возвращаюсь к нему не как к учебнику по порядку, а как к визуальному словарю для GLSL-экспериментов.",
     kind: "note",
     date: "02.09.2026",
-    tags: ["systems", "product"],
-    cover: {
-      src: "/media/projects/index/sensetique-cover.webp",
-      alt: "Фрагмент проекта Sensetique",
-      width: 1580,
-      height: 1360,
-    },
-  },
-  {
-    title: "Как хранить референсы так, чтобы они снова находились",
-    summary: "Минимальная структура библиотеки визуальных материалов без папочного фольклора и названий вроде final-final-2-new.",
-    kind: "tutorial",
-    date: "30.08.2026",
-    tags: ["references", "library"],
-    cover: {
-      src: "/media/projects/index/shootings-cover.webp",
-      alt: "Фрагмент коллекции Shootings",
-      width: 1580,
-      height: 1360,
-    },
+    tags: ["glsl", "shaders", "reference"],
   },
 ];
 
@@ -166,57 +135,63 @@ function renderArticle(): string {
   return `<main class="blog-preview-page blog-post">
     <article>
       <header class="blog-post__header wrapper editorial-grid">
-        <p class="blog-post__meta"><span>урок</span><time>10.09.2026</time></p>
-        <h1 class="blog-post__title">Как я собираю визуальный пайплайн без лишних инструментов</h1>
-        <p class="blog-post__lead">Система полезна только тогда, когда она уменьшает количество решений по дороге от идеи до готового результата.</p>
-        <p class="blog-post__tags">#workflow · #design · #ai</p>
+        <p class="blog-post__meta"><span>инструмент</span><time>12.09.2026</time></p>
+        <h1 class="blog-post__title">AWFUL STUDIO: как я собираю виртуальную предметную студию в Blender</h1>
+        <p class="blog-post__lead">Мне нужен был не генератор красивой процедурной сцены, а подготовленная виртуальная студия, в которой свет, камера и окружение ведут себя как понятные рабочие инструменты.</p>
+        <p class="blog-post__tags">#blender · #awful-studio · #3d</p>
       </header>
-
-      <figure class="blog-post__cover wrapper">
-        <img src="/media/projects/index/jestei-pool-cover.webp" alt="Фрагмент проекта Jestei Pool" width="1580" height="1360" decoding="async" fetchpriority="high">
-      </figure>
 
       <div class="blog-post__body">
         <div class="blog-prose">
-          <p>Я стараюсь не строить отдельный процесс вокруг каждого инструмента. Сначала фиксирую задачу и ожидаемый результат, потом выбираю минимальный набор средств, который действительно сокращает путь.</p>
+          <p>AWFUL STUDIO — мой Blender-native инструмент для предметной и рекламной работы. Идея простая: собрать внутри Blender подготовленную студию, дать быстрые стартовые постановки и при этом не отбирать у пользователя обычные Blender-контролы.</p>
 
-          <h2>Начинать с результата, а не с программы</h2>
-          <p>Если задача — собрать серию изображений, важнее заранее определить общий визуальный контракт: формат, ритм, диапазон вариативности, правила обработки и то, что должно оставаться неизменным.</p>
-          <blockquote>Хороший пайплайн убирает повторяющиеся решения. Плохой требует помнить, в каком именно окне сегодня нужно нажать ещё одну кнопку.</blockquote>
-          <p>После этого инструменты становятся заменяемыми. Один этап может выполнять локальная модель, другой — скрипт, третий — ручная работа. Система остаётся понятной, потому что границы определены результатом.</p>
+          <h2>Не procedural demo scene, а физически понятная студия</h2>
+          <p>В текущем Alpha 0.0.15 базовая сцена построена как помещение примерно 14 × 18 × 7 метров. Внутри — 12-метровая циклорама, большая боковая витрина и пьедестал. Размеры здесь важны не ради технической аккуратности: я хочу, чтобы расстояния между продуктом, камерой, светом и фоном оставались понятными как в реальной студии.</p>
 
-          <figure class="blog-figure">
-            <img src="/media/projects/index/styx-jewel-cover.webp" alt="Фрагмент проекта Styx Jewel" width="1580" height="1360" loading="lazy" decoding="async">
-            <figcaption>Широкий медиаблок выходит за reading column, но остаётся в общей editorial-сетке.</figcaption>
-          </figure>
+          <blockquote>Плагин должен давать хороший старт, а не превращать Blender в закрытый конструктор, который начинает бороться с ручными правками.</blockquote>
 
-          <h2>Фиксировать только то, что повторяется</h2>
-          <p>Не каждая удачная последовательность действий заслуживает собственной системы. Я сохраняю правило только после того, как оно несколько раз оказалось полезным и перестало зависеть от конкретной задачи.</p>
+          <h2>Любой объект остаётся обычным объектом Blender</h2>
+          <p><strong>Use Selected</strong> монтирует выбранный пользователем контент в product rig. Auto Fit может привести импорт к рабочему масштабу студии, а если его выключить — метрический масштаб сохраняется. Габариты продукта затем используются для адаптации камеры, света и шейперов.</p>
 
-          <div class="blog-table" tabindex="0" aria-label="Пример структуры пайплайна">
+          <h2>Свет как библиотека постановок</h2>
+          <p>В Alpha 0.0.15 есть постоянный light bank, карты, флаги, diffusion, gobo и flash backdrop. Поверх него собраны 16 световых пресетов в четырёх семействах: Commercial, Flash, Cinema и Natural.</p>
+
+          <div class="blog-table" tabindex="0" aria-label="Световые семейства AWFUL STUDIO">
             <table>
-              <thead><tr><th>Этап</th><th>Что фиксируется</th><th>Что остаётся свободным</th></tr></thead>
+              <thead><tr><th>Семейство</th><th>Примеры</th><th>Задача</th></tr></thead>
               <tbody>
-                <tr><td>референсы</td><td>визуальная цель и ограничения</td><td>конкретные источники</td></tr>
-                <tr><td>генерация</td><td>формат и диапазон вариаций</td><td>модель и sampler</td></tr>
-                <tr><td>пост</td><td>контраст, зерно, экспорт</td><td>локальные художественные решения</td></tr>
+                <tr><td>Commercial</td><td>Classic 3-Light, Top Soft Packshot, Dual Strip Hero</td><td>предметная и каталожная постановка</td></tr>
+                <tr><td>Flash</td><td>Direct Camera Flash, Direct Flash Wide</td><td>жёсткая фотографическая логика прямой вспышки</td></tr>
+                <tr><td>Cinema</td><td>Teal/Orange, Red/Black Luxury, Hard Sun/Gobo</td><td>более художественные рекламные схемы</td></tr>
+                <tr><td>Natural</td><td>Window + Negative Fill, Window Balanced</td><td>работа через большую боковую витрину</td></tr>
               </tbody>
             </table>
           </div>
 
-          <h2>Автоматизировать скучное</h2>
-          <p>Повторяемые операции удобнее оставлять коду. Небольшой скрипт ценнее сложного workflow, если его назначение очевидно и он не требует отдельного обслуживания.</p>
+          <h2>Камера и продукт двигаются независимо</h2>
+          <p>У камеры уже есть Static, Custom Path, дуги в обе стороны, Push In, Pull Out, Dolly Zoom, Orbit + Push, Orbit + Rise, Hero Arc и Figure 8. Отдельно живёт product motion: вращения по осям, Float + Spin, Hero Reveal, Tumble, Pendulum, Orbit + Bob и Breath.</p>
+          <p>Базовая дистанция камеры вычисляется из габаритов продукта и FOV. При этом текущий 0.0.15 ещё не выдаётся за финальную систему framing: независимый camera target и safe framing остаются отдельной задачей.</p>
+
+          <h2>Плагин не должен уничтожать сцену</h2>
+          <p>Safe Rebuild удаляет только данные, которыми управляет AWFUL STUDIO. Пользовательские модели, материалы, камеры и коллекции не должны становиться расходным материалом только потому, что кому-то захотелось нажать Rebuild. Удивительно, но программам иногда приходится специально объяснять эту мысль.</p>
 
           <div class="blog-code" data-blog-code-block>
-            <div class="blog-code__head"><span>typescript</span><button type="button" data-blog-code-copy>копировать</button></div>
-            <pre><code data-blog-code-source>const result = pipeline.run({
-  source,
-  references,
-  output: "webp",
-});</code></pre>
+            <div class="blog-code__head"><span>workflow</span><button class="blog-code__copy" type="button" data-blog-code-copy>копировать</button></div>
+            <pre><code data-blog-code-source>Use Selected
+→ Auto Fit
+→ Lighting preset
+→ Camera motion
+→ Product motion
+→ Build Post Pipeline — только когда он нужен</code></pre>
           </div>
 
-          <p>В итоге цель не в том, чтобы автоматизировать всё. Цель — оставить ручными именно те решения, где ручная работа что-то добавляет.</p>
+          <h2>Панель как switchboard</h2>
+          <p>В интерфейсе я не хочу дублировать весь Blender Inspector. Power, Temperature, focal length, произвольные значения шейдеров и сотни render settings уже существуют в Blender. В панели AWFUL STUDIO должны оставаться именно workflow-контролы: выбор постановки, режим движения, видимость, Auto Fit, окружение и операции сборки.</p>
+
+          <h2>Что дальше</h2>
+          <p>Следующий TDD-срез после Alpha 0.0.15 посвящён фотографической логике flash-пресетов: отдельной экспозиции для вспышки, более закрытой aperture intent, нейтральной температуре и физически осмысленному положению on-camera flash. Это следующий этап разработки, а не функция, которую я приписываю текущему релизу задним числом.</p>
+
+          <p><a href="https://github.com/looksawful/awful-studio">AWFUL STUDIO на GitHub</a></p>
         </div>
       </div>
 
