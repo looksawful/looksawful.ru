@@ -22,6 +22,32 @@ const HOME_DESCRIPTION =
   "Арт-директор цифровых продуктов и дизайнер. Проектирую интерфейсы, айдентику и визуальные системы, руковожу командами и довожу продукты до релиза.";
 const SOCIAL_IMAGE = "https://www.looksawful.ru/media/hero/hero-portrait.webp";
 const PNG_BYTES = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
+const ENTITY_SEARCH_PRESENTATIONS = [
+  {
+    path: "/work/jestei-pool/",
+    title: "Jestei Pool — арт-дирекшн, UX/UI и дизайн-система | Иван Крушинский",
+    description:
+      "Кейс Jestei Pool: арт-дирекшн музыкального сервиса, UX/UI-стратегия, дизайн-система, ребрендинг, продуктовые сценарии и результаты 2024–2026.",
+  },
+  {
+    path: "/work/styx/",
+    title: "Styx Jewel — айдентика, арт-дирекшн и съёмки | Иван Крушинский",
+    description:
+      "Кейс Styx Jewel: айдентика, арт-дирекшн, упаковка, каталоги, рекламная графика, fashion-съёмки и экспериментальный визуальный продакшен.",
+  },
+  {
+    path: "/work/sensetique/",
+    title: "Sensetique — фотостудия и продакшен | Иван Крушинский",
+    description:
+      "Кейс Sensetique: запуск и управление fashion-фотостудией и продакшеном полного цикла, команда, съёмки, сайты и рекламная коммуникация.",
+  },
+  {
+    path: "/shootings/",
+    title: "Shootings — фотография и микс-медиа | Иван Крушинский",
+    description:
+      "Фотография и микс-медиа Ивана Крушинского: съёмки для музыкантов, брендов и выставок, обложки, портреты, коллажи и визуальные эксперименты.",
+  },
+];
 
 test("homepage search and social presentation stays coherent", () => {
   const html = renderHomepagePage(indexSource);
@@ -80,6 +106,21 @@ test("standalone indexable entity pages inherit the same social identity", () =>
   assert.match(html, /<meta name="twitter:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
   assert.doesNotMatch(html, /<!--noindex--><figcaption class="media__caption"/);
   assert.doesNotMatch(html, /<!--noindex--><p class="credits"/);
+});
+
+test("indexable entity pages expose concise page-specific search metadata", () => {
+  for (const expected of ENTITY_SEARCH_PRESENTATIONS) {
+    const page = getPageByPath(expected.path);
+    assert.ok(page && (page.type === "case" || page.type === "collection"));
+
+    const html = renderStandaloneEntityPage(page);
+    assert.ok(html.includes(`<title>${expected.title}</title>`));
+    assert.ok(
+      html.includes(`<meta name="description" content="${expected.description}">`),
+      `${expected.path} must expose its dedicated search description`,
+    );
+    assert.ok(expected.description.length >= 120 && expected.description.length <= 160);
+  }
 });
 
 test("CV uses the same social identity with resume-specific copy", () => {
