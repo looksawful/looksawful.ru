@@ -16,6 +16,19 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   await page.goto(`${baseUrl}/?pet=1`, { waitUntil: "networkidle" });
 
+  const pet = page.locator("[data-portfolio-pet-launcher]").first();
+  assert.equal(await pet.count(), 1, "Venus must exist as a visible launcher before Contact Hub opens");
+  await pet.waitFor({ state: "visible", timeout: 2_000 });
+  assert.equal(await pet.getAttribute("aria-label"), "Открыть чат с Venus");
+
+  await pet.click();
+  await settle(page);
+  let hub = page.locator("[data-contact-hub]");
+  await hub.waitFor({ state: "visible", timeout: 2_000 });
+  assert.equal(await hub.getAttribute("data-mode"), "ai", "clicking Venus must open Contact Hub directly in AI mode");
+  await page.keyboard.press("Escape");
+  await hub.waitFor({ state: "hidden", timeout: 2_000 });
+
   let cta = page.locator('.contact a[href="mailto:i@lookawful.ru"]').first();
   assert.equal(await cta.count(), 1, "canonical site contact CTA must still exist");
   assert.equal((await cta.textContent()).trim(), "Связаться со мной");
@@ -36,7 +49,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   await cta.click();
   await settle(page);
 
-  let hub = page.locator("[data-contact-hub]");
+  hub = page.locator("[data-contact-hub]");
   await hub.waitFor({ state: "visible", timeout: 2_000 });
 
   assert.equal(await hub.getAttribute("data-mode"), "form");
