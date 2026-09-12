@@ -21,13 +21,17 @@ const HOME_TITLE = "Иван Крушинский — арт-директор ц
 const HOME_DESCRIPTION =
   "Арт-директор цифровых продуктов и дизайнер. Проектирую интерфейсы, айдентику и визуальные системы, руковожу командами и довожу продукты до релиза.";
 const SOCIAL_IMAGE = "https://www.looksawful.ru/media/hero/hero-portrait.webp";
+const PNG_BYTES = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
 
 test("homepage search and social presentation stays coherent", () => {
   const html = renderHomepagePage(indexSource);
 
   assert.match(html, new RegExp(`<title>${HOME_TITLE}</title>`));
   assert.match(html, new RegExp(`<meta name="description" content="${HOME_DESCRIPTION}">`));
+  assert.match(html, /<meta name="theme-color" content="#ffffff">/);
   assert.match(html, /<link rel="manifest" href="\/site\.webmanifest">/);
+  assert.match(html, /<link rel="icon" href="\/favicon\.png" type="image\/png" sizes="120x120">/);
+  assert.match(html, /<link rel="apple-touch-icon" href="\/apple-touch-icon\.png" sizes="180x180">/);
   assert.match(html, /<meta property="og:type" content="website">/);
   assert.match(html, /<meta property="og:site_name" content="looksawful">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
@@ -55,6 +59,14 @@ test("homepage search and social presentation stays coherent", () => {
     html,
     /<!--noindex--><footer class="project__footer cluster" data-reveal-group data-nosnippet>[\s\S]*?<\/footer><!--\/noindex-->/,
   );
+  assert.match(
+    html,
+    /<!--noindex--><figcaption class="media__caption"[^>]*data-nosnippet>[\s\S]*?<\/figcaption><!--\/noindex-->/,
+  );
+  assert.match(
+    html,
+    /<!--noindex--><p class="credits"[^>]*data-nosnippet>[\s\S]*?<\/p><!--\/noindex-->/,
+  );
 });
 
 test("standalone indexable entity pages inherit the same social identity", () => {
@@ -66,6 +78,8 @@ test("standalone indexable entity pages inherit the same social identity", () =>
   assert.match(html, /<meta property="og:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
   assert.match(html, /<meta name="twitter:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
+  assert.doesNotMatch(html, /<!--noindex--><figcaption class="media__caption"/);
+  assert.doesNotMatch(html, /<!--noindex--><p class="credits"/);
 });
 
 test("CV uses the same social identity with resume-specific copy", () => {
@@ -82,11 +96,13 @@ test("CV uses the same social identity with resume-specific copy", () => {
     html,
     /<meta name="description" content="Резюме Ивана Крушинского — арт-директора цифровых продуктов и дизайнера: опыт, компетенции, инструменты и образование\.">/,
   );
+  assert.match(html, /<meta name="theme-color" content="#ffffff">/);
   assert.match(html, /<link rel="manifest" href="\/site\.webmanifest">/);
   assert.match(html, /<meta property="og:site_name" content="looksawful">/);
   assert.match(html, /<meta property="og:image" content="https:\/\/www\.looksawful\.ru\/media\/hero\/hero-portrait\.webp">/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
-  assert.match(html, /<link rel="icon" href="\/favicon\.svg" type="image\/svg\+xml">/);
+  assert.match(html, /<link rel="icon" href="\/favicon\.png" type="image\/png" sizes="120x120">/);
+  assert.match(html, /<link rel="apple-touch-icon" href="\/apple-touch-icon\.png" sizes="180x180">/);
 });
 
 test("site metadata validation rejects a missing favicon asset", async () => {
@@ -111,7 +127,7 @@ test("site metadata validation rejects a missing favicon asset", async () => {
   }
 });
 
-test("production discovery health checks favicon as YandexBot", async () => {
+test("production discovery health checks search icons as YandexBot", async () => {
   const originalFetch = globalThis.fetch;
   const requests = [];
 
@@ -135,10 +151,10 @@ test("production discovery health checks favicon as YandexBot", async () => {
     if (url.pathname === "/deploy-version.txt") {
       return new Response("commit=test-sha\ndeployed-from=prod\n", { status: 200 });
     }
-    if (url.pathname === "/favicon.svg") {
-      return new Response('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"></svg>', {
+    if (url.pathname === "/favicon.png" || url.pathname === "/apple-touch-icon.png") {
+      return new Response(PNG_BYTES, {
         status: 200,
-        headers: { "content-type": "image/svg+xml" },
+        headers: { "content-type": "image/png" },
       });
     }
     throw new Error(`unexpected URL ${url.href}`);
@@ -147,9 +163,12 @@ test("production discovery health checks favicon as YandexBot", async () => {
   try {
     const result = await checkProduction({ expectedSha: "test-sha" });
     assert.equal(result.favicon, "PASS");
-    const faviconRequest = requests.find((request) => request.pathname === "/favicon.svg");
-    assert.ok(faviconRequest, "production health check must request /favicon.svg");
-    assert.match(faviconRequest.userAgent, /YandexBot/i);
+    assert.equal(result.appleTouchIcon, "PASS");
+    for (const pathname of ["/favicon.png", "/apple-touch-icon.png"]) {
+      const request = requests.find((item) => item.pathname === pathname);
+      assert.ok(request, `production health check must request ${pathname}`);
+      assert.match(request.userAgent, /YandexBot/i);
+    }
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -157,8 +176,9 @@ test("production discovery health checks favicon as YandexBot", async () => {
 
 test("Pages deployment verifies Yandex-visible discovery files after publish", () => {
   assert.match(pagesWorkflow, /YandexBot\/3\.0/);
-  assert.match(pagesWorkflow, /favicon\.svg/);
+  assert.match(pagesWorkflow, /favicon\.png/);
+  assert.match(pagesWorkflow, /apple-touch-icon\.png/);
   assert.match(pagesWorkflow, /robots\.txt/);
   assert.match(pagesWorkflow, /sitemap\.xml/);
-  assert.match(pagesWorkflow, /content-type:[^\n]*image\/svg/);
+  assert.match(pagesWorkflow, /content-type:[^\n]*image\/png/);
 });

@@ -8,6 +8,7 @@ const TIMEOUT_MS = 20_000;
 const MAX_SAMPLE = 10;
 const HEALTHCHECK_USER_AGENT = "looksawful-healthcheck/1.0";
 const YANDEX_BOT_USER_AGENT = "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)";
+const PNG_SIGNATURE = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 function decodeXml(value) {
   return decodeEntities(value);
@@ -24,12 +25,20 @@ function assertSitemapShape(xml, label) {
   return hasIndex ? "index" : "urlset";
 }
 
+function assertPng(bytes, label) {
+  if (bytes.byteLength < PNG_SIGNATURE.byteLength) throw new Error(`${label}: response is too small to be a PNG`);
+  for (let index = 0; index < PNG_SIGNATURE.byteLength; index += 1) {
+    if (bytes[index] !== PNG_SIGNATURE[index]) throw new Error(`${label}: response is not PNG`);
+  }
+}
+
 async function fetchChecked(
   url,
   {
     expectHtml = false,
     expectedContentType = null,
     userAgent = HEALTHCHECK_USER_AGENT,
+    responseType = "text",
   } = {},
 ) {
   const controller = new AbortController();
@@ -45,20 +54,28 @@ async function fetchChecked(
     clearTimeout(timeout);
   }
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+
+  const contentType = response.headers.get("content-type") ?? "";
+  if (expectedContentType && !contentType.toLowerCase().includes(expectedContentType.toLowerCase())) {
+    throw new Error(`${url}: expected ${expectedContentType} Content-Type, got ${contentType || "missing"}`);
+  }
+
+  if (responseType === "bytes") {
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (bytes.byteLength === 0) throw new Error(`${url}: empty response`);
+    return { response, bytes, text: null };
+  }
+
   const text = await response.text();
   if (!text.trim()) throw new Error(`${url}: empty response`);
 
-  const contentType = response.headers.get("content-type") ?? "";
   if (expectHtml) {
     if (!contentType.toLowerCase().includes("text/html")) throw new Error(`${url}: expected HTML Content-Type, got ${contentType || "missing"}`);
     if (/There isn't a GitHub Pages site here|<title>\s*404\b|404 File not found/i.test(text)) {
       throw new Error(`${url}: response resembles a GitHub Pages 404`);
     }
   }
-  if (expectedContentType && !contentType.toLowerCase().includes(expectedContentType.toLowerCase())) {
-    throw new Error(`${url}: expected ${expectedContentType} Content-Type, got ${contentType || "missing"}`);
-  }
-  return { response, text };
+  return { response, text, bytes: null };
 }
 
 async function readSitemap(url, visited = new Set(), userAgent = HEALTHCHECK_USER_AGENT) {
@@ -100,18 +117,27 @@ function deterministicSample(urls, max = MAX_SAMPLE) {
 
 export async function checkProduction({ expectedSha = process.env.EXPECTED_PROD_SHA ?? null } = {}) {
   const homepage = `${ORIGIN}/`;
-  const faviconUrl = `${ORIGIN}/favicon.svg`;
+  const faviconUrl = `${ORIGIN}/favicon.png`;
+  const appleTouchIconUrl = `${ORIGIN}/apple-touch-icon.png`;
   const robotsUrl = `${ORIGIN}/robots.txt`;
   const sitemapUrl = `${ORIGIN}/sitemap.xml`;
   const versionUrl = `${ORIGIN}/deploy-version.txt`;
 
   await fetchChecked(homepage, { expectHtml: true });
 
-  const { text: favicon } = await fetchChecked(faviconUrl, {
-    expectedContentType: "image/svg+xml",
+  const { bytes: favicon } = await fetchChecked(faviconUrl, {
+    expectedContentType: "image/png",
     userAgent: YANDEX_BOT_USER_AGENT,
+    responseType: "bytes",
   });
-  if (!/<svg\b/i.test(favicon)) throw new Error("favicon.svg: response is not SVG");
+  assertPng(favicon, "favicon.png");
+
+  const { bytes: appleTouchIcon } = await fetchChecked(appleTouchIconUrl, {
+    expectedContentType: "image/png",
+    userAgent: YANDEX_BOT_USER_AGENT,
+    responseType: "bytes",
+  });
+  assertPng(appleTouchIcon, "apple-touch-icon.png");
 
   const { text: robots } = await fetchChecked(robotsUrl, { userAgent: YANDEX_BOT_USER_AGENT });
   if (!robots.includes(`Sitemap: ${sitemapUrl}`)) throw new Error("robots.txt: production sitemap declaration missing");
@@ -134,6 +160,7 @@ export async function checkProduction({ expectedSha = process.env.EXPECTED_PROD_
   return {
     homepage: "PASS",
     favicon: "PASS",
+    appleTouchIcon: "PASS",
     robots: "PASS",
     sitemap: "PASS",
     deployVersion: expectedSha ? "PASS" : "CHECKED",

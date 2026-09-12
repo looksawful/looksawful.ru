@@ -83,6 +83,16 @@ function excludeUtilityTextFromSnippets(html: string): string {
     '<!--noindex--><footer class="project__footer cluster" data-reveal-group data-nosnippet>$1</footer><!--/noindex-->',
   );
 
+  output = output.replace(
+    /<figcaption class="media__caption"([^>]*)>([\s\S]*?)<\/figcaption>/gi,
+    '<!--noindex--><figcaption class="media__caption"$1 data-nosnippet>$2</figcaption><!--/noindex-->',
+  );
+
+  output = output.replace(
+    /<p class="credits"([^>]*)>([\s\S]*?)<\/p>/gi,
+    '<!--noindex--><p class="credits"$1 data-nosnippet>$2</p><!--/noindex-->',
+  );
+
   return output;
 }
 
