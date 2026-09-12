@@ -56,6 +56,8 @@ export const fastTests = new Set([
   "test/project-card-hover.test.mjs",
   "test/repository-growth-policy.test.mjs",
   "test/search-presentation.test.mjs",
+  // CONTRACT: one document H1 on Home and one textual H1 on every indexable portfolio page.
+  "test/seo-heading-structure-contract.test.mjs",
   "test/security-tooling.test.mjs",
   "test/site-analytics-case-end.test.mjs",
   "test/site-analytics-internal.test.mjs",
