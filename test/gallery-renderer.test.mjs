@@ -46,6 +46,25 @@ test("Gallery output keeps invisible series boundaries and intrinsic image geome
   assert.doesNotMatch(html, /gallery-series__title|data-gallery-series-title/);
 });
 
+test("Gallery cards never expose an empty accessible image label when canonical title exists", () => {
+  const cards = [...html.matchAll(/<figure class="gallery-card"[\s\S]*?<\/figure>/g)].map((match) => match[0]);
+  assert.ok(cards.length > 0, "Gallery must render cards");
+
+  for (const card of cards) {
+    const title = card.match(/data-gallery-title="([^"]*)"/)?.[1] ?? "";
+    const alt = card.match(/<img[^>]*\balt="([^"]*)"/)?.[1] ?? "";
+    if (title.trim()) {
+      assert.ok(alt.trim(), `Gallery card with title ${title} must have a non-empty image alt`);
+    }
+  }
+});
+
+test("Gallery exposes canonical credits to the PhotoSwipe caption adapter", () => {
+  assert.match(html, /data-gallery-credits=/);
+  assert.match(lightboxSource, /galleryCredits/);
+  assert.match(lightboxSource, /captionHtml/);
+});
+
 test("Gallery CSS follows site typography and explicitly avoids masonry mechanics", () => {
   assert.match(galleryCss, /\.gallery__title\s*\{[\s\S]*font-size:\s*var\(--fs-800\)/);
   assert.match(galleryCss, /\.gallery__title\s*\{[\s\S]*font-weight:\s*var\(--fw-700\)/);
