@@ -27,9 +27,11 @@ function renderGalleryCard(item: GalleryItem): string {
   const srcset = responsiveImageSrcSet(item.asset);
   const srcsetAttribute = srcset ? ` srcset="${escapeHtml(srcset)}"` : "";
   const title = item.title || item.alt || "";
+  const accessibleAlt = item.alt.trim() || title;
+  const credits = JSON.stringify([...new Set(item.credits.filter((credit) => credit.trim()))]);
 
-  return `<figure class="gallery-card" data-gallery-card data-gallery-item-id="${escapeHtml(item.id)}" data-gallery-src="${escapeHtml(item.asset.src)}" data-gallery-width="${item.width}" data-gallery-height="${item.height}" data-gallery-alt="${escapeHtml(item.alt)}" data-gallery-title="${escapeHtml(title)}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Открыть изображение">
-  <img class="gallery-card__image" src="${escapeHtml(item.asset.src)}"${srcsetAttribute} sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw" width="${item.width}" height="${item.height}" alt="${escapeHtml(item.alt)}" loading="lazy" decoding="async">
+  return `<figure class="gallery-card" data-gallery-card data-gallery-item-id="${escapeHtml(item.id)}" data-gallery-src="${escapeHtml(item.asset.src)}" data-gallery-width="${item.width}" data-gallery-height="${item.height}" data-gallery-alt="${escapeHtml(accessibleAlt)}" data-gallery-title="${escapeHtml(title)}" data-gallery-credits="${escapeHtml(credits)}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Открыть изображение">
+  <img class="gallery-card__image" src="${escapeHtml(item.asset.src)}"${srcsetAttribute} sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw" width="${item.width}" height="${item.height}" alt="${escapeHtml(accessibleAlt)}" loading="lazy" decoding="async">
 </figure>`;
 }
 
