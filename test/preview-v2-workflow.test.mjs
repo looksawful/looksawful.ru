@@ -46,7 +46,7 @@ test("preview v2 packages candidate data in a separate trusted unprivileged job"
 
   assert.match(packageJob, /needs:\s*build/);
   assert.match(packageJob, /if:\s*github\.ref\s*==\s*'refs\/heads\/dev'/);
-  assert.match(packageJob, /ref:\s*dev/);
+  assert.match(packageJob, /ref:\s*\$\{\{\s*github\.sha\s*\}\}/);
   assert.match(packageJob, /path:\s*trusted/);
   assert.match(packageJob, /actions\/download-artifact@v4/);
   assert.match(packageJob, /name:\s*preview-v2-site/);
@@ -72,6 +72,7 @@ test("preview v2 deployment is a separate trusted workflow", async () => {
   assert.match(workflow, /github\.event\.workflow_run\.conclusion\s*==\s*'success'/);
   assert.match(workflow, /github\.event\.workflow_run\.head_branch\s*==\s*'dev'/);
   assert.match(deploy, /environment:\s*preview-deploy/);
+  assert.match(deploy, /ref:\s*\$\{\{\s*github\.event\.workflow_run\.head_sha\s*\}\}/);
   assert.match(deploy, /actions\/download-artifact@v4|github-script|api\.github\.com/);
   assert.match(deploy, /trusted\/tools\/preview\/preview-metadata\.mjs/);
   assert.match(deploy, /validate-candidate-artifact\.mjs/);
