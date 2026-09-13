@@ -39,6 +39,23 @@ const preparedDefinitions: Readonly<Record<PreparedDefinition["id"], PreparedDef
   resume: Object.freeze({ id: "resume", sourceIds: Object.freeze(["profile.role", "profile.about"]) }),
 });
 
+export const OWNER_APPROVED_SOURCE_IDS = Object.freeze([
+  "profile.name",
+  "profile.role",
+  "profile.about",
+  "profile.location",
+  "profile.contact",
+  "profile.skills",
+  "profile.experience",
+  "profile.education",
+  "profile.languages",
+  "profile.principles",
+  "project.jestei",
+  "project.styx",
+  "project.sensetique",
+  "project.shootings",
+] as const);
+
 function normalize(message: string): string {
   return message
     .trim()
@@ -146,19 +163,70 @@ function buildPreparedAnswer(
   });
 }
 
+function addIfApproved(
+  target: string[],
+  sourceId: string,
+  approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
+): void {
+  if (approvedById.has(sourceId) && !target.includes(sourceId)) target.push(sourceId);
+}
+
 function relevantApprovedSourceIds(
+  message: string,
   page: string,
   approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
   groundingMode: "page" | "all",
 ): readonly string[] {
   if (groundingMode === "all") return Object.freeze([...approvedById.keys()].slice(0, 12));
+
+  const value = normalize(message);
+  const selected: string[] = [];
   const projectSlug = pageProjectSlug(page);
   const projectId = projectSlug ? `project.${projectSlug}` : null;
-  if (projectId && approvedById.has(projectId)) return Object.freeze([projectId]);
-  if ((page === "home" || page === "/") && approvedById.has("profile.about")) {
-    return Object.freeze(["profile.about"]);
+  if (projectId) addIfApproved(selected, projectId, approvedById);
+
+  if (/\b(jestei|джестей)\b/u.test(value)) addIfApproved(selected, "project.jestei", approvedById);
+  if (/\b(styx|стикс)\b/u.test(value)) addIfApproved(selected, "project.styx", approvedById);
+  if (/\b(sensetique|сенсетик)\b/u.test(value)) addIfApproved(selected, "project.sensetique", approvedById);
+  if (/\b(shootings?|съ[её]мк|фотограф|микс медиа|микс-медиа)\b/u.test(value)) {
+    addIfApproved(selected, "project.shootings", approvedById);
   }
-  return Object.freeze([]);
+
+  if (/\b(навык|уме|компетен|технолог|инструмент|стек|figma|blender|javascript|typescript|python|three|webgl|glsl|ai|ии|нейросет|ребрендинг|айдентик|ux|ui|cjm|motion|моушен|дизайн-систем)\b/u.test(value)) {
+    addIfApproved(selected, "profile.skills", approvedById);
+    addIfApproved(selected, "profile.principles", approvedById);
+  }
+
+  if (/\b(опыт|карьер|работал|работа|компан|должност|роль|mad cow|li-ne|line agency|прогресс|риа|московские новости|puma|h&m|детск)\b/u.test(value)) {
+    addIfApproved(selected, "profile.experience", approvedById);
+  }
+
+  if (/\b(образован|учил|учился|университет|мпгу|диплом|курс|обучен|hexlet|stepik|figma academy)\b/u.test(value)) {
+    addIfApproved(selected, "profile.education", approvedById);
+  }
+
+  if (/\b(язык|английск|чешск|english|czech)\b/u.test(value)) {
+    addIfApproved(selected, "profile.languages", approvedById);
+  }
+
+  if (/\b(где жив|город|локаци|москв)\b/u.test(value)) {
+    addIfApproved(selected, "profile.location", approvedById);
+  }
+
+  if (/\b(email|e-mail|почт|связаться|контакт|написать)\b/u.test(value)) {
+    addIfApproved(selected, "profile.contact", approvedById);
+  }
+
+  if (/\b(принцип|подход|процесс|руковод|команд|дирекшн)\b/u.test(value)) {
+    addIfApproved(selected, "profile.principles", approvedById);
+  }
+
+  if (selected.length === 0 || page === "home" || page === "/") {
+    addIfApproved(selected, "profile.role", approvedById);
+    addIfApproved(selected, "profile.about", approvedById);
+  }
+
+  return Object.freeze(selected.slice(0, 12));
 }
 
 export function createPortfolioAssistantRouter({
@@ -187,7 +255,7 @@ export function createPortfolioAssistantRouter({
       kind: "generate",
       message: input.message,
       context: Object.freeze({
-        sourceIds: relevantApprovedSourceIds(page, approvedById, groundingMode),
+        sourceIds: relevantApprovedSourceIds(input.message, page, approvedById, groundingMode),
         page,
         locale: input.locale,
       }),
@@ -200,7 +268,7 @@ export function createPreviewPortfolioAssistantRouter(): PortfolioAssistantRoute
   return createPortfolioAssistantRouter({ approvedSourceIds, groundingMode: "all" });
 }
 
-// #718 is still awaiting owner approval. Production retrieval therefore fails closed.
+// Owner content approval was completed on 2026-09-13. Visual/deployment approval remains separate.
 export const routePortfolioAssistantRequest = createPortfolioAssistantRouter({
-  approvedSourceIds: Object.freeze([]),
+  approvedSourceIds: OWNER_APPROVED_SOURCE_IDS,
 });
