@@ -1,11 +1,32 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { contextualMediaCatalogItems } from "../src/data/media/catalog-view.ts";
+import { catalogDirectionIdsForTaxonomy } from "../src/data/media/public-catalog.ts";
 import { getPageByPath, sitePages } from "../src/site/pages/manifest.ts";
 import { PRIMARY_NAVIGATION_PAGE_IDS } from "../src/site/navigation/primary.ts";
 import { getPrimaryNavigationItems } from "../src/site/navigation/model.ts";
 
 const galleryPage = () => sitePages.find((page) => page.id === "gallery");
+
+const requiredMusicianProjectIds = [
+  "shootings-obladaet",
+  "shootings-evasha",
+  "shootings-igguana",
+  "shootings-esmi",
+  "shootings-hypression",
+  "shootings-behance-offmi",
+  "shootings-dava",
+];
+
+const defaultHiddenProjectIds = [
+  "shootings-ofelia",
+  "shootings-behance-ecobasik",
+  "shootings-behance-cinema-stills-2",
+  "shootings-behance-anka-model-tests",
+  "shootings-behance-choose-your-character",
+  "shootings-behance-editorial-photography",
+];
 
 test("Gallery is a first-class manifest-owned SitePage", () => {
   const page = galleryPage();
@@ -55,15 +76,87 @@ test("Gallery public contract is one photo-only collection without layer APIs", 
   assert.equal(gallery.getGalleryItemsForLayer, undefined, "public Gallery must not filter by production/art layers");
 });
 
-test("Gallery projection keeps only canonical photo-direction images with dimensions and stable series", async () => {
+test("Gallery defaults to musician photography plus Styx photography", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
   const items = gallery.getGalleryItems();
 
-  assert.ok(items.length >= 140, `expected a full photo archive, got only ${items.length} items`);
+  assert.ok(items.length > 0, "Gallery must not be empty");
+
+  for (const projectId of requiredMusicianProjectIds) {
+    assert.ok(
+      items.some((item) => item.projectIds.includes(projectId)),
+      `missing musician photography project ${projectId}`,
+    );
+  }
+
+  assert.ok(
+    items.some((item) => item.projectIds.some((projectId) => projectId.startsWith("styx-"))),
+    "missing Styx photography",
+  );
+
+  for (const projectId of defaultHiddenProjectIds) {
+    assert.equal(
+      items.some((item) => item.projectIds.includes(projectId)),
+      false,
+      `${projectId} must be hidden from Gallery by default`,
+    );
+  }
+});
+
+test("Gallery requires canonical photography work area, not a derived photo direction", async () => {
+  const gallery = await import("../src/data/media/gallery.ts");
+  assert.equal(typeof gallery.getGalleryItemsFromMediaCatalog, "function");
+
+  const designFalsePositive = contextualMediaCatalogItems.find((item) => (
+    item.asset.type === "image"
+    && !item.archived
+    && !item.workAreaIds.includes("photography")
+    && catalogDirectionIdsForTaxonomy(item).includes("photo")
+  ));
+  assert.ok(designFalsePositive, "fixture must contain a non-photo asset with derived photo direction");
+
+  assert.deepEqual(
+    gallery.getGalleryItemsFromMediaCatalog([
+      { ...designFalsePositive, showInCatalog: true },
+    ]),
+    [],
+    `${designFalsePositive.asset.id} is a design asset and must not enter Gallery`,
+  );
+});
+
+test("Other real photography is off by default and can be enabled with showInCatalog", async () => {
+  const gallery = await import("../src/data/media/gallery.ts");
+  assert.equal(typeof gallery.getGalleryItemsFromMediaCatalog, "function");
+
+  const optionalPhoto = contextualMediaCatalogItems.find((item) => (
+    item.asset.type === "image"
+    && !item.archived
+    && item.workAreaIds.includes("photography")
+    && item.projectIds.includes("shootings-behance-ecobasik")
+  ));
+  assert.ok(optionalPhoto, "missing optional photography fixture");
+
+  assert.deepEqual(
+    gallery.getGalleryItemsFromMediaCatalog([
+      { ...optionalPhoto, showInCatalog: false },
+    ]),
+    [],
+    "optional photography must remain hidden while showInCatalog is false",
+  );
+
+  const enabled = gallery.getGalleryItemsFromMediaCatalog([
+    { ...optionalPhoto, showInCatalog: true },
+  ]);
+  assert.equal(enabled.length, 1, "showInCatalog must enable optional photography");
+  assert.equal(enabled[0].id, optionalPhoto.asset.id);
+});
+
+test("Gallery projection keeps intrinsic dimensions and stable series", async () => {
+  const gallery = await import("../src/data/media/gallery.ts");
+  const items = gallery.getGalleryItems();
 
   for (const item of items) {
     assert.equal(item.asset.type, "image", `${item.id} must be an image`);
-    assert.ok(item.directions.includes("photo"), `${item.id} is not classified as photography`);
     assert.ok(item.width && item.width > 0, `${item.id} is missing width`);
     assert.ok(item.height && item.height > 0, `${item.id} is missing height`);
     assert.equal("layers" in item, false, `${item.id} still leaks the retired layer model`);
