@@ -1,4 +1,6 @@
 import "./styles/site-analytics-consent.css";
+import "./styles/portfolio-pet.css";
+import "./styles/contact-hub.css";
 
 import { createMediaRuntimeHealth } from "./components/media-runtime-health.ts";
 import { hydrateDeferredVideoSource } from "./components/deferred-video-source.ts";
@@ -12,6 +14,8 @@ import { createPageFlips } from "./components/page-flip.ts";
 import { createBerserkAudioPlayers } from "./components/berserk-audio-player.ts";
 import { mountExpertise } from "./components/expertise.ts";
 import { mountExperience } from "./components/experience.ts";
+import { mountPortfolioPet } from "./components/portfolio-pet.ts";
+import { mountContactHub } from "./components/contact-hub.ts";
 import { mountSiteAnalyticsConsent } from "./components/site-analytics-consent.ts";
 import {
   mountSiteAnalytics,
@@ -20,6 +24,7 @@ import {
 } from "./components/site-analytics.ts";
 import { initBeforeAfter } from "./components/before-after.ts";
 import { initSiteNavigation } from "./components/site-navigation.ts";
+import { resolvePortfolioPetEnabled } from "./features/portfolio-pet/feature-flag.ts";
 import { initSiteInteractive } from "./interactive.ts";
 import { initMotion } from "./motion.ts";
 
@@ -130,10 +135,19 @@ mountExpertise(document);
 mountExperience(document);
 
 const motion = createMotionPreference();
+const portfolioPetEnabled = resolvePortfolioPetEnabled({
+  isDev: import.meta.env.DEV,
+  envValue: import.meta.env.VITE_PORTFOLIO_PET_ENABLED,
+  previewRequested: new URLSearchParams(window.location.search).get("pet") === "1",
+});
+const destroyPortfolioPet = mountPortfolioPet(document, { enabled: portfolioPetEnabled });
+const destroyContactHub = mountContactHub(document);
 const destroys: Destroy[] = [
   destroySiteAnalyticsGoalTracking,
   destroySiteAnalyticsCaseEndTracking,
   destroySiteAnalyticsConsent,
+  destroyPortfolioPet,
+  destroyContactHub,
 ];
 let destroyed = false;
 

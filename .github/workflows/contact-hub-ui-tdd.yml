@@ -1,0 +1,71 @@
+name: Contact Hub UI TDD Slice
+
+on:
+  push:
+    branches:
+      - contact-hub-frontend-current
+    paths:
+      - .github/workflows/contact-hub-ui-tdd.yml
+      - tools/e2e/contact-hub-shell-contract.mjs
+      - tools/e2e/contact-hub-mobile-contract.mjs
+      - tools/e2e/portfolio-pet-launcher-contract.mjs
+      - tools/e2e/portfolio-pet-scale-contract.mjs
+      - tools/e2e/portfolio-pet-remote-contract.mjs
+      - src/components/contact-hub.ts
+      - src/components/portfolio-pet.ts
+      - src/features/portfolio-pet/**
+      - src/styles/contact-hub.css
+      - src/styles/portfolio-pet.css
+      - src/styles/site-analytics-consent.css
+      - src/styles/tokens.css
+      - src/main.ts
+      - public/pets/awful/**
+      - docs/awful-animation-source.md
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contact-hub-ui-tdd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hub-shell:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build:vite
+      - run: npx playwright install --with-deps --only-shell chromium
+      - name: Focused Contact Hub shell contract
+        run: node tools/e2e/contact-hub-shell-contract.mjs
+      - name: Focused Contact Hub mobile contract
+        run: node tools/e2e/contact-hub-mobile-contract.mjs
+      - name: Focused Awful launcher contract
+        run: node tools/e2e/portfolio-pet-launcher-contract.mjs
+      - name: Focused Awful visual scale contract
+        run: node tools/e2e/portfolio-pet-scale-contract.mjs
+      - name: Published Awful preview contract
+        env:
+          PREVIEW_URL: https://pr-788.looksawful-ru-preview.pages.dev
+          PREVIEW_SHA: ${{ github.sha }}
+        run: node tools/e2e/portfolio-pet-remote-contract.mjs
+      - name: Upload published Awful screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: awful-preview-${{ github.sha }}
+          path: artifacts/awful-preview-desktop.png
+          if-no-files-found: ignore
+          retention-days: 3

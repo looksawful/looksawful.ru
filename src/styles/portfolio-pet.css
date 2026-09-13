@@ -1,0 +1,151 @@
+.portfolio-pet {
+  --pet-scale: 1.22;
+  --pet-facing: 1;
+  --pet-safe-top: env(safe-area-inset-top, 0px);
+  --pet-safe-right: env(safe-area-inset-right, 0px);
+  --pet-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --pet-safe-left: env(safe-area-inset-left, 0px);
+  --pet-consent-offset: 0px;
+  position: fixed;
+  z-index: var(--layer-assistant-pet);
+  inset-inline-start: max(18px, var(--pet-safe-left));
+  inset-block-end: calc(max(18px, var(--pet-safe-bottom)) + var(--pet-consent-offset));
+  inline-size: 236px;
+  block-size: 254px;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--clr-text);
+  opacity: 1;
+  visibility: visible;
+  cursor: grab;
+  isolation: isolate;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.portfolio-pet::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-inline-start: 50%;
+  inset-block-end: 2px;
+  inline-size: 82px;
+  block-size: 6px;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.08);
+  filter: blur(3px);
+  transform: translateX(-50%);
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.portfolio-pet__viewport {
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-end: 0;
+  inline-size: 192px;
+  block-size: 208px;
+  overflow: hidden;
+  transform: translateX(-50%) scale(var(--pet-scale)) scaleX(var(--pet-facing));
+  transform-origin: 50% 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.portfolio-pet__image {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
+  inline-size: 1536px;
+  block-size: 2288px;
+  max-inline-size: none;
+  max-block-size: none;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+}
+
+.portfolio-pet:hover .portfolio-pet__image,
+.portfolio-pet:focus-visible .portfolio-pet__image {
+  filter: brightness(1.035);
+}
+
+.portfolio-pet[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+.portfolio-pet[data-dragging="true"] .portfolio-pet__viewport {
+  inset-block-end: 2px;
+}
+
+.portfolio-pet[data-dragging="true"]::after {
+  opacity: 0.6;
+  transform: translateX(-50%) scaleX(0.86);
+}
+
+.portfolio-pet:focus-visible {
+  outline: var(--border-width-200) solid currentColor;
+  outline-offset: 4px;
+}
+
+.portfolio-pet__dismiss,
+.portfolio-pet__restore {
+  position: fixed;
+  z-index: var(--layer-assistant-pet);
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: var(--clr-bg, #fff);
+  color: var(--clr-text, #000);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.portfolio-pet__dismiss {
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: 999px;
+  box-shadow: 0 1px 8px rgb(0 0 0 / 0.12);
+}
+
+.portfolio-pet__restore {
+  inset-inline-start: 0;
+  inline-size: 32px;
+  block-size: 44px;
+  border-radius: 0 999px 999px 0;
+  box-shadow: 1px 1px 8px rgb(0 0 0 / 0.12);
+}
+
+.portfolio-pet__dismiss:focus-visible,
+.portfolio-pet__restore:focus-visible {
+  outline: var(--border-width-200) solid currentColor;
+  outline-offset: 2px;
+}
+
+@media (width <= 42.5rem) {
+  .portfolio-pet {
+    --pet-scale: 0.92;
+    inset-inline-start: max(8px, var(--pet-safe-left));
+    inset-block-end: calc(max(8px, var(--pet-safe-bottom)) + var(--pet-consent-offset));
+    inline-size: 178px;
+    block-size: 194px;
+  }
+
+  html.contact-hub-open .portfolio-pet,
+  html.contact-hub-open .portfolio-pet__dismiss {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-pet__viewport {
+    transition: none;
+  }
+}
