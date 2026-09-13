@@ -49,6 +49,14 @@
     border-radius: inherit;
   }
 
+  .project-card__media {
+    border-radius: clamp(
+      0px,
+      calc((100vw - (var(--radius-edge-offset) * 2) - 100cqi) * 9999),
+      var(--radius-max)
+    );
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .project-card__media {
       position: relative;
