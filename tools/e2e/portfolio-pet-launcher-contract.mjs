@@ -13,7 +13,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   await page.goto(`${baseUrl}/?pet=1`, { waitUntil: "networkidle" });
 
   const pet = page.locator("[data-portfolio-pet-launcher]");
-  assert.equal(await pet.count(), 1, "Venus launcher must exist exactly once in preview mode");
+  assert.equal(await pet.count(), 1, "Awful launcher must exist exactly once in preview mode");
   await pet.waitFor({ state: "visible", timeout: 2_000 });
 
   const initial = await pet.evaluate((element) => {
@@ -40,25 +40,25 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
     };
   });
 
-  assert.equal(initial.position, "fixed", "Venus must float above the site without reflow");
-  assert.ok(initial.width >= 120 && initial.height >= 120, "Venus must be visibly present, not a tiny launcher icon");
-  assert.ok(initial.left >= 0 && initial.top >= 0, "Venus must start inside the viewport");
-  assert.ok(initial.right <= initial.viewportWidth, "Venus must not clip horizontally");
-  assert.ok(initial.bottom <= initial.viewportHeight, "Venus must not clip vertically");
-  assert.equal(initial.cursor, "grab", "Venus must advertise pointer dragging");
-  assert.equal(initial.animation, "idle", "Venus must start on the canonical idle sprite clip");
-  assert.equal(initial.naturalWidth, 1536, "Venus atlas must decode at canonical width");
-  assert.equal(initial.naturalHeight, 2288, "Venus atlas must decode at canonical height");
+  assert.equal(initial.position, "fixed", "Awful must float above the site without reflow");
+  assert.ok(initial.width >= 120 && initial.height >= 120, "Awful must be visibly present, not a tiny launcher icon");
+  assert.ok(initial.left >= 0 && initial.top >= 0, "Awful must start inside the viewport");
+  assert.ok(initial.right <= initial.viewportWidth, "Awful must not clip horizontally");
+  assert.ok(initial.bottom <= initial.viewportHeight, "Awful must not clip vertically");
+  assert.equal(initial.cursor, "grab", "Awful must advertise pointer dragging");
+  assert.equal(initial.animation, "idle", "Awful must start on the canonical idle sprite clip");
+  assert.equal(initial.naturalWidth, 1536, "Awful atlas must decode at canonical width");
+  assert.equal(initial.naturalHeight, 2288, "Awful atlas must decode at canonical height");
   await page.waitForTimeout(360);
   const animated = await pet.locator(".portfolio-pet__image").evaluate((image) => ({
     frame: image.dataset.frame ?? "",
     transform: getComputedStyle(image).transform,
   }));
-  assert.notEqual(animated.frame, initial.frame, "Venus idle must advance through real sprite frames");
-  assert.notEqual(animated.transform, initial.spriteTransform, "Venus idle must move the atlas, not CSS-wobble one bitmap");
+  assert.notEqual(animated.frame, initial.frame, "Awful idle must advance through real sprite frames");
+  assert.notEqual(animated.transform, initial.spriteTransform, "Awful idle must move the atlas, not CSS-wobble one bitmap");
 
   const startBox = await pet.boundingBox();
-  assert.ok(startBox, "Venus must expose a draggable bounding box");
+  assert.ok(startBox, "Awful must expose a draggable bounding box");
   const startX = startBox.x + (startBox.width / 2);
   const startY = startBox.y + (startBox.height / 2);
   await page.mouse.move(startX, startY);
@@ -68,16 +68,16 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   await settle(page);
 
   const draggedBox = await pet.boundingBox();
-  assert.ok(draggedBox, "Venus must remain visible after dragging");
-  assert.ok(draggedBox.x - startBox.x > 100, "Venus must move horizontally with the pointer");
-  assert.ok(startBox.y - draggedBox.y > 50, "Venus must move vertically with the pointer");
-  assert.equal(await pet.getAttribute("data-facing"), "right", "dragging right must face Venus right");
+  assert.ok(draggedBox, "Awful must remain visible after dragging");
+  assert.ok(draggedBox.x - startBox.x > 100, "Awful must move horizontally with the pointer");
+  assert.ok(startBox.y - draggedBox.y > 50, "Awful must move vertically with the pointer");
+  assert.equal(await pet.getAttribute("data-facing"), "right", "dragging right must face Awful right");
   const rightFacingScale = await pet.locator(".portfolio-pet__viewport").evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a);
-  assert.ok(rightFacingScale > 0, "right-facing Venus must not mirror the sprite viewport");
+  assert.ok(rightFacingScale > 0, "right-facing Awful must not mirror the sprite viewport");
   assert.equal(await page.locator("[data-contact-hub]").isVisible(), false, "dragging must not accidentally open chat");
 
   const rightBox = await pet.boundingBox();
-  assert.ok(rightBox, "Venus must expose a draggable box before leftward drag");
+  assert.ok(rightBox, "Awful must expose a draggable box before leftward drag");
   const rightX = rightBox.x + (rightBox.width / 2);
   const rightY = rightBox.y + (rightBox.height / 2);
   await page.mouse.move(rightX, rightY);
@@ -85,9 +85,9 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   await page.mouse.move(rightX - 120, rightY, { steps: 8 });
   await page.mouse.up();
   await settle(page);
-  assert.equal(await pet.getAttribute("data-facing"), "left", "dragging left must face Venus left");
+  assert.equal(await pet.getAttribute("data-facing"), "left", "dragging left must face Awful left");
   const leftFacingScale = await pet.locator(".portfolio-pet__viewport").evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a);
-  assert.ok(leftFacingScale < 0, "left-facing Venus must mirror the sprite viewport");
+  assert.ok(leftFacingScale < 0, "left-facing Awful must mirror the sprite viewport");
 
   await pet.evaluate((element) => {
     element.style.setProperty("--pet-safe-top", "36px");
@@ -96,7 +96,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
     element.style.setProperty("--pet-safe-left", "48px");
   });
   const safeAreaStart = await pet.boundingBox();
-  assert.ok(safeAreaStart, "Venus must remain draggable while safe-area values are active");
+  assert.ok(safeAreaStart, "Awful must remain draggable while safe-area values are active");
   const safeStartX = safeAreaStart.x + (safeAreaStart.width / 2);
   const safeStartY = safeAreaStart.y + (safeAreaStart.height / 2);
   await page.mouse.move(safeStartX, safeStartY);
@@ -105,7 +105,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   await page.mouse.up();
   await settle(page);
   const safeAreaBox = await pet.boundingBox();
-  assert.ok(safeAreaBox, "Venus must remain recoverable after safe-area clamp");
+  assert.ok(safeAreaBox, "Awful must remain recoverable after safe-area clamp");
   assert.ok(safeAreaBox.x >= 48 - (safeAreaBox.width - 72) - 1, "PET-020: runtime clamp must use effective left safe area");
   assert.ok(safeAreaBox.y >= 36 - (safeAreaBox.height - 96) - 1, "PET-020: runtime clamp must use effective top safe area");
 
@@ -114,7 +114,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
 
   const hub = page.locator("[data-contact-hub]");
   await hub.waitFor({ state: "visible", timeout: 2_000 });
-  assert.equal(await hub.getAttribute("data-mode"), "ai", "clicking Venus must open Contact Hub in AI mode");
+  assert.equal(await hub.getAttribute("data-mode"), "ai", "clicking Awful must open Contact Hub in AI mode");
   assert.equal(await hub.getAttribute("data-visibility"), "open");
 
   const composerInput = page.getByLabel("Сообщение AI");
@@ -129,7 +129,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   assert.equal(
     await pet.evaluate((element) => document.activeElement === element),
     true,
-    "closing the Hub must restore focus to Venus",
+    "closing the Hub must restore focus to Awful",
   );
 
   await pet.evaluate((element) => {
@@ -142,7 +142,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   });
   await settle(page);
   const beforeHide = await pet.boundingBox();
-  assert.ok(beforeHide, "Venus must be visible before deliberate swipe-to-hide");
+  assert.ok(beforeHide, "Awful must be visible before deliberate swipe-to-hide");
   const hideStartX = beforeHide.x + (beforeHide.width / 2);
   const hideStartY = beforeHide.y + (beforeHide.height / 2);
   await page.mouse.move(hideStartX, hideStartY);
@@ -150,7 +150,7 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   await page.mouse.move(18, hideStartY + 4, { steps: 2 });
   await page.mouse.up();
   await settle(page);
-  assert.equal(await pet.isVisible(), false, "DR-006/PET-024: deliberate fast swipe to the left edge must hide Venus");
+  assert.equal(await pet.isVisible(), false, "DR-006/PET-024: deliberate fast swipe to the left edge must hide Awful");
   assert.equal(await hub.isVisible(), false, "swipe-to-hide must not open Contact Hub");
 
   await page.close();
