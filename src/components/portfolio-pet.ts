@@ -159,6 +159,21 @@ export function mountPortfolioPet(
   restoreButton.textContent = "→";
   restoreButton.hidden = true;
 
+  const dismissButton = root.createElement("button");
+  dismissButton.type = "button";
+  dismissButton.className = "portfolio-pet__dismiss";
+  dismissButton.dataset.portfolioPetDismiss = "";
+  dismissButton.setAttribute("aria-label", "Скрыть Awful");
+  dismissButton.textContent = "×";
+
+  const restoreButton = root.createElement("button");
+  restoreButton.type = "button";
+  restoreButton.className = "portfolio-pet__restore";
+  restoreButton.dataset.portfolioPetRestore = "";
+  restoreButton.setAttribute("aria-label", "Показать Awful");
+  restoreButton.textContent = "→";
+  restoreButton.hidden = true;
+
   const viewport = root.createElement("span");
   viewport.className = "portfolio-pet__viewport";
   viewport.setAttribute("aria-hidden", "true");
@@ -207,6 +222,30 @@ export function mountPortfolioPet(
   let suppressNextClick = false;
   let currentVisualState: PetVisualState = "idle";
   let observedConsent: HTMLElement | null = null;
+
+  const syncPetControls = (): void => {
+    if (launcher.hidden) return;
+    const rect = launcher.getBoundingClientRect();
+    dismissButton.style.left = `${Math.round(rect.right - 26)}px`;
+    dismissButton.style.top = `${Math.round(rect.top + 8)}px`;
+  };
+
+  const hidePet = (): void => {
+    const rect = launcher.getBoundingClientRect();
+    launcher.hidden = true;
+    dismissButton.hidden = true;
+    restoreButton.style.top = `${Math.round(Math.max(16, Math.min(rect.top + rect.height / 2 - 18, (view?.innerHeight ?? 800) - 52)))}px`;
+    restoreButton.hidden = false;
+    restoreButton.focus({ preventScroll: true });
+  };
+
+  const restorePet = (): void => {
+    restoreButton.hidden = true;
+    launcher.hidden = false;
+    dismissButton.hidden = false;
+    updateConsentOffset();
+    requestAnimationFrame(() => { syncPetControls(); launcher.focus({ preventScroll: true }); });
+  };
 
   const syncPetControls = (): void => {
     if (launcher.hidden) return;
@@ -455,6 +494,8 @@ export function mountPortfolioPet(
 
   dismissButton.addEventListener("click", hidePet);
   restoreButton.addEventListener("click", restorePet);
+  dismissButton.addEventListener("click", hidePet);
+  restoreButton.addEventListener("click", restorePet);
   launcher.addEventListener("pointerenter", onPointerEnter);
   launcher.addEventListener("pointerleave", onPointerLeave);
   launcher.addEventListener("pointerdown", onPointerDown);
@@ -474,6 +515,8 @@ export function mountPortfolioPet(
     consentResizeObserver?.disconnect();
     dismissButton.removeEventListener("click", hidePet);
     restoreButton.removeEventListener("click", restorePet);
+    dismissButton.removeEventListener("click", hidePet);
+    restoreButton.removeEventListener("click", restorePet);
     launcher.removeEventListener("pointerenter", onPointerEnter);
     launcher.removeEventListener("pointerleave", onPointerLeave);
     launcher.removeEventListener("pointerdown", onPointerDown);
@@ -487,6 +530,8 @@ export function mountPortfolioPet(
     view?.visualViewport?.removeEventListener("resize", onResize);
     view?.visualViewport?.removeEventListener("scroll", onResize);
     launcher.remove();
+    dismissButton.remove();
+    restoreButton.remove();
     dismissButton.remove();
     restoreButton.remove();
   };
