@@ -23,6 +23,7 @@ import { renderHomepage } from "./home-slots.ts";
 const homeEntitiesMount = '<div data-home-entities></div>';
 const legacyHomepageNavigation = /<nav\b(?=[^>]*\bdata-site-navigation\b)(?=[^>]*\bhidden\b)[^>]*>[\s\S]*?<\/nav>/g;
 const homeStructuredData = /<script\b(?=[^>]*\btype=["']application\/ld\+json["'])[^>]*>[\s\S]*?<\/script>/i;
+const compactHomepageSectionCount = 2;
 
 function getHomePage() {
   const page = getPageByPath("/");
@@ -42,8 +43,11 @@ function renderCanonicalHomepageEntity(entry: HomepageEntry): string {
   const pageId = pageIdForHomepageEntry(entry);
   const content = getEntityPageContent(entityPageContentRegistry, pageId);
   const presentation = getEntityShellPresentation(pageId);
+  const homepageContent = entry.mode === "compact"
+    ? { ...content, sections: content.sections.slice(0, compactHomepageSectionCount) }
+    : content;
 
-  return renderEntityShell(content, {
+  return renderEntityShell(homepageContent, {
     ...presentation,
     introHeadingLevel: 2,
     specialized: {
