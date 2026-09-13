@@ -5,24 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>Pet Projects / AWFUL STUDIO preview</title>
-  <style>
-    :root{--bg:#f9f9f9;--fg:#111;--muted:rgba(17,17,17,.62);--border:rgba(17,17,17,.18);--pad:clamp(1rem,2.2vw,2.5rem);--wide:90rem;--max:72rem;--s1:clamp(.25rem,.4vw,.5rem);--s2:clamp(.5rem,.7vw,.75rem);--s3:clamp(.75rem,1vw,1rem);--s4:clamp(1rem,2vw,2rem);--s5:clamp(1.5rem,3vw,3rem);--s6:clamp(2rem,5vw,5rem);--s7:clamp(3rem,8vw,8rem);--r:.5rem;font-family:"Inter Variable",Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--fg);background:var(--bg)}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--fg)}a{color:inherit}img{display:block;max-width:100%}button{font:inherit}
-    .shell{width:min(calc(100% - var(--pad)*2),var(--wide));margin:auto}.section-label{font-size:clamp(.875rem,.84rem + .18vw,1rem);font-weight:600;margin:0 0 var(--s4)}
-    .preview-head{padding:var(--s6) 0 var(--s4);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:end;gap:1rem}.preview-head h1{font-size:clamp(2.5rem,1.6rem + 3.6vw,5rem);letter-spacing:-.045em;line-height:.9;margin:0}.preview-head p{margin:0;color:var(--muted);font-size:.875rem}
-    .pet-preview{padding:var(--s6) 0 var(--s7)}.card{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(15rem,.55fr);gap:var(--s3);align-items:end;text-decoration:none}.card-media{aspect-ratio:16/10;overflow:hidden;background:#111;border-radius:var(--r)}.card-media img{width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .22s ease}.card:hover .card-media img{transform:scale(1.025)}.card-copy{display:grid;gap:.35rem;padding-bottom:var(--s2);font-size:clamp(.75rem,.72rem + .15vw,.875rem);line-height:1.36}.card-copy strong{font-weight:600}.card-copy span{color:var(--muted)}
-    .divider{border-top:1px solid var(--border)}.project-head{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-areas:"name role period";align-items:center;gap:var(--s4);min-height:4.5rem;padding:var(--s2) var(--pad);border-bottom:1px solid var(--border);font-size:clamp(.875rem,.84rem + .18vw,1rem);line-height:1}.project-head .name{grid-area:name;font-weight:700}.project-head .role{grid-area:role;justify-self:center;font-weight:500}.project-head .period{grid-area:period;justify-self:end;color:var(--muted);font-weight:500}
-    .intro{width:min(calc(100% - var(--pad)*2),var(--max));margin:auto;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--s4);padding:var(--s6) 0 var(--s7)}.intro h2{grid-column:1/6;margin:0;font-size:clamp(2.5rem,1.6rem + 3.6vw,5rem);font-weight:700;line-height:.9;letter-spacing:-.045em}.summary{grid-column:6/-1;margin:0;font-size:clamp(1rem,.94rem + .3vw,1.125rem);line-height:1.45}.lead{grid-column:1/-1;margin:var(--s5) 0 0;max-width:58rem;font-size:clamp(1.4rem,1.1rem + 1.3vw,2.15rem);font-weight:500;line-height:1.18;letter-spacing:-.035em}.links{grid-column:6/-1;display:flex;gap:var(--s3);flex-wrap:wrap;color:var(--muted);font-size:.875rem}.links a{color:var(--fg)}
-    .media{width:min(calc(100% - var(--pad)*2),72.5rem);margin:auto;padding:0 0 var(--s7)}.media button{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in}.media img{width:100%;height:auto;border-radius:var(--r);background:#111}.caption{display:grid;grid-template-columns:minmax(8rem,.62fr) minmax(0,1.38fr);gap:var(--s3);padding:var(--s2) 0;color:var(--muted);font-size:.8rem;line-height:1.36}.caption strong{color:var(--fg);font-weight:600}.caption p{margin:0;max-width:42ch}
-    .copy{width:min(calc(100% - var(--pad)*2),var(--max));margin:auto;padding:0 0 var(--s6);display:grid;grid-template-columns:minmax(10rem,.72fr) minmax(0,1.28fr);gap:clamp(2rem,6vw,7rem)}.copy h3{margin:0;font-size:clamp(1.55rem,1.2rem + 1.15vw,2.35rem);line-height:1;letter-spacing:-.045em}.copy p{margin:0;max-width:42rem;font-size:clamp(1rem,.925rem + .35vw,1.25rem);line-height:1.48;letter-spacing:-.012em}
-    .facts{width:min(calc(100% - var(--pad)*2),var(--max));margin:0 auto var(--s7);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.fact{min-height:9rem;padding:var(--s3);border-right:1px solid var(--border)}.fact:first-child{padding-left:0}.fact:last-child{border-right:0}.fact span{display:block;margin-bottom:var(--s3);color:var(--muted);font-size:.75rem}.fact strong{font-size:clamp(1.35rem,1.05rem + 1.4vw,2.5rem);font-weight:600;line-height:1;letter-spacing:-.04em}
-    .principles{width:min(calc(100% - var(--pad)*2),var(--max));margin:auto;padding:0 0 var(--s7)}.principle{display:grid;grid-template-columns:minmax(10rem,.72fr) minmax(0,1.28fr);gap:clamp(2rem,6vw,7rem);padding:var(--s4) 0;border-top:1px solid var(--border);font-size:.875rem;line-height:1.48}.principle:last-child{border-bottom:1px solid var(--border)}.principle b{font-weight:600}.principle p{margin:0;color:var(--muted);max-width:42rem}
-    .project-nav{border-top:1px solid var(--border);padding:var(--s4) var(--pad) var(--s7);display:flex;justify-content:space-between;gap:1rem;color:var(--muted);font-size:.8rem}.project-nav a{text-decoration:none}.project-nav a:hover{color:var(--fg)}
-    dialog{width:min(96vw,1500px);max-width:none;max-height:94vh;padding:0;border:0;background:transparent;overflow:visible}dialog::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(8px)}dialog img{max-width:100%;max-height:92vh;width:auto;height:auto;margin:auto;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,.4)}.close{position:fixed;right:16px;top:14px;width:42px;height:42px;border:1px solid rgba(255,255,255,.35);border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:26px;line-height:1;cursor:pointer}
-    @media(max-width:800px){.card{grid-template-columns:1fr}.project-head{grid-template-columns:1fr auto;grid-template-areas:"role period";min-height:3.25rem}.project-head .name{display:none}.project-head .role{justify-self:start}.intro{grid-template-columns:repeat(6,minmax(0,1fr))}.intro h2,.summary,.lead,.links{grid-column:1/-1}.lead{margin-top:var(--s4)}.copy,.principle{grid-template-columns:1fr;gap:var(--s3)}.facts{grid-template-columns:repeat(2,1fr)}.fact:nth-child(2){border-right:0}.fact:nth-child(-n+2){border-bottom:1px solid var(--border)}}
-    @media(max-width:520px){.preview-head{align-items:start;flex-direction:column}.caption{grid-template-columns:1fr;gap:.3rem}.facts{grid-template-columns:1fr}.fact,.fact:first-child{padding-left:0;border-right:0;border-bottom:1px solid var(--border)}.fact:last-child{border-bottom:0}.project-nav{flex-wrap:wrap}}
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card-media img{transition:none}.card:hover .card-media img{transform:none}}
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main>
@@ -43,15 +26,38 @@
         <nav class="links" aria-label="Ссылки проекта"><a href="https://github.com/looksawful/awful-studio" target="_blank" rel="noopener">GitHub ↗</a><span>Alpha 0.0.15 baseline</span><span>0.0.16 Extension candidate</span><span>Blender 5.2 LTS</span></nav>
       </section>
 
-      <figure class="media"><button type="button" data-lightbox="assets/awful-studio-tutorial.webp"><img src="assets/awful-studio-tutorial.webp" alt="AWFUL STUDIO Blender Tutorial Cheat Sheet"></button><figcaption class="caption"><strong>AWFUL STUDIO / quick start</strong><p>Общий вид сцены, структура Outliner, N-panel и пресеты движения продукта и камеры.</p></figcaption></figure>
+      <figure class="banner">
+        <div class="banner__surface"><button type="button" data-lightbox="assets/awful-studio-tutorial.webp"><img src="assets/awful-studio-tutorial.webp" alt="AWFUL STUDIO Blender Tutorial Cheat Sheet"></button></div>
+        <figcaption class="caption"><strong>AWFUL STUDIO / quick start</strong><p>Общий вид сцены, структура Outliner, N-panel и пресеты движения продукта и камеры.</p></figcaption>
+      </figure>
 
       <section class="copy"><h3>Product studio</h3><p>Одна сцена, любой объект, любая анимация, полный контроль. Презентационная схема показывает назначение элементов сцены, структуру Outliner, систему координат, безопасную посадку объекта и основные motion-пресеты.</p></section>
-      <figure class="media"><button type="button" data-lightbox="assets/awful-studio-overview.webp"><img src="assets/awful-studio-overview.webp" alt="Awful Studio Blender Product Studio Infographic"></button><figcaption class="caption"><strong>Product Studio Infographic</strong><p>Сцена, Outliner, панель управления, product motion, camera motion и presets света в одной карте.</p></figcaption></figure>
+
+      <figure class="media mockup" data-device="desktop" data-mockup-theme="dark" data-media-deck tabindex="0" aria-label="AWFUL STUDIO presentation gallery">
+        <div class="mockup__frame">
+          <div class="mockup__chrome" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="mockup__viewport">
+            <div class="mockup__slides">
+              <button class="mockup__slide" type="button" data-slide data-active data-lightbox="assets/awful-studio-tutorial.webp"><img src="assets/awful-studio-tutorial.webp" alt="AWFUL STUDIO Blender Tutorial Cheat Sheet"></button>
+              <button class="mockup__slide" type="button" data-slide data-lightbox="assets/awful-studio-overview.webp"><img src="assets/awful-studio-overview.webp" alt="Awful Studio Blender Product Studio Infographic"></button>
+              <button class="mockup__slide" type="button" data-slide data-lightbox="assets/awful-studio-lighting.webp"><img src="assets/awful-studio-lighting.webp" alt="AWFUL STUDIO: Световые схемы для Blender"></button>
+            </div>
+          </div>
+        </div>
+        <figcaption class="mockup__caption" aria-live="polite">
+          <strong data-deck-caption-title>AWFUL STUDIO / quick start</strong>
+          <p data-deck-caption-text>Общий вид сцены, структура Outliner, N-panel и пресеты движения продукта и камеры.</p>
+        </figcaption>
+        <div class="slider-controls" role="group" aria-label="Навигация по слайдам">
+          <button class="slider-controls__button" data-deck-prev type="button" aria-label="Предыдущий кадр">←</button>
+          <span class="slider-controls__count" data-deck-count aria-live="polite">01 / 03</span>
+          <button class="slider-controls__button" data-deck-next type="button" aria-label="Следующий кадр">→</button>
+        </div>
+      </figure>
 
       <section class="facts"><div class="fact"><span>Physical shell</span><strong>14 × 18 × 7 m</strong></div><div class="fact"><span>Cyclorama</span><strong>12 m wide</strong></div><div class="fact"><span>Lighting</span><strong>16 presets</strong></div><div class="fact"><span>Environment</span><strong>5 HDRIs + Sky</strong></div></section>
 
       <section class="copy"><h3>Lighting presets</h3><p>Свет рассматривается как отдельная система пресетов. В презентации показаны готовые схемы для product, beauty и cinematic задач с расположением источников и визуальным результатом.</p></section>
-      <figure class="media"><button type="button" data-lightbox="assets/awful-studio-lighting.webp"><img src="assets/awful-studio-lighting.webp" alt="AWFUL STUDIO: Световые схемы для Blender"></button><figcaption class="caption"><strong>AWFUL STUDIO / Lighting</strong><p>Световые схемы для пресетов: product, fashion / beauty и cinematic / drama.</p></figcaption></figure>
 
       <section class="copy"><h3>Архитектура</h3><p>Blender остаётся авторитетным источником настроек. Build и Rebuild являются явными действиями пользователя, а managed-данные AWFUL STUDIO отделены от пользовательской сцены.</p></section>
       <section class="principles"><div class="principle"><b>01 / Blender stays authoritative</b><p>Power, Color, Temperature, focal length, materials и детальные render controls остаются в нативных свойствах Blender. Presets здесь только отправная точка.</p></div><div class="principle"><b>02 / Safe lifecycle</b><p>Import/register/enable не должны строить или менять сцену. Build и Rebuild являются явными действиями пользователя.</p></div><div class="principle"><b>03 / Preserve user data</b><p>Rebuild и Remove могут удалять только AWFUL-managed data, сохраняя unmanaged и shared user data.</p></div><div class="principle"><b>04 / Lightweight by default</b><p>Compositor, Light Groups, heavy passes и тяжёлые post paths не создаются базовой сборкой и подключаются отдельно.</p></div></section>
@@ -59,11 +65,6 @@
     </article>
   </main>
   <dialog id="lightbox"><button class="close" type="button" aria-label="Закрыть">×</button><img alt=""></dialog>
-  <script>
-    const dialog=document.querySelector('#lightbox'),image=dialog.querySelector('img');
-    document.querySelectorAll('[data-lightbox]').forEach(b=>b.addEventListener('click',()=>{image.src=b.dataset.lightbox;dialog.showModal()}));
-    dialog.querySelector('.close').addEventListener('click',()=>dialog.close());
-    dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
-  </script>
+  <script src="app.js" defer></script>
 </body>
 </html>
