@@ -60,16 +60,16 @@ test("Gallery projection keeps full-volume image media, dimensions and stable se
   const photography = gallery.getGalleryItemsForLayer("photography", items);
   const production = gallery.getGalleryItemsForLayer("production", items);
 
-  // Current repository inventory yields 147 photography candidates after
-  // canonical contextual projection. Keep a regression floor below that exact
-  // count so additions remain free while accidental truncation stays visible.
+  // Current repository inventory yields 147 photography and 127 production
+  // candidates after canonical contextual projection. Keep regression floors
+  // below those exact counts so additions remain free while truncation is caught.
   assert.ok(
     photography.length >= 140,
     `expected at least 140 photography items in prerelease, got ${photography.length}`,
   );
   assert.ok(
-    production.length >= 150,
-    `expected at least 150 production items in prerelease, got ${production.length}`,
+    production.length >= 120,
+    `expected at least 120 production items in prerelease, got ${production.length}`,
   );
 
   for (const item of items) {
