@@ -45,25 +45,57 @@
 
 @container playlist-filter (inline-size >= 768px) {
     @layer layout {
-        .bpm-group .tempo-fields,
+        .bpm-group .tempo-fields {
+            display: grid;
+            grid-template-columns: 70px 6px 70px;
+            gap: 4px;
+            inline-size: 154px;
+            block-size: 44px;
+            align-items: end;
+        }
+
         .compact-bpm-fields {
             display: grid;
             grid-template-columns: 70px 6px 70px;
             gap: 4px;
             inline-size: 154px;
+            block-size: 44px;
             align-items: end;
         }
     }
 
     @layer components {
-        .bpm-group .tempo-fields label,
-        .bpm-group .tempo-fields input,
-        .compact-bpm-fields label,
-        .compact-bpm-fields input {
+        .bpm-group .tempo-fields label {
             inline-size: 70px;
+            block-size: 44px;
+            gap: 0;
         }
 
-        .bpm-group .tempo-fields__separator,
+        .bpm-group .tempo-fields input {
+            inline-size: 70px;
+            block-size: 28px;
+        }
+
+        .bpm-group .tempo-fields__separator {
+            display: grid;
+            place-items: center;
+            align-self: end;
+            inline-size: 6px;
+            block-size: 28px;
+            padding-block-end: 0;
+        }
+
+        .compact-bpm-fields label {
+            inline-size: 70px;
+            block-size: 44px;
+            gap: 0;
+        }
+
+        .compact-bpm-fields input {
+            inline-size: 70px;
+            block-size: 28px;
+        }
+
         .compact-bpm-separator {
             display: grid;
             place-items: center;
