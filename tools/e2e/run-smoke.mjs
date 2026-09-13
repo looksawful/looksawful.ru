@@ -236,7 +236,8 @@ async function verifyDenseMobileCaptions(page, { requireMiddleReel = false } = {
     assert.ok(authoredCaption, "hidden dense overlay must retain authored caption content in DOM");
     const source = hiddenOverlay.locator("[data-lightbox-source]").first();
     await source.scrollIntoViewIfNeeded();
-    await source.click({ force: true });
+    await source.focus();
+    await page.keyboard.press("Enter");
     await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
     const lightboxCaption = page.locator(".media-lightbox__caption").first();
     await lightboxCaption.waitFor({ state: "attached" });
