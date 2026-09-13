@@ -15,7 +15,9 @@
 }
 
 .contact-hub[data-mode="form"] {
-  block-size: min(430px, calc(100dvh - 36px));
+  inline-size: min(328px, calc(100vw - 236px));
+  block-size: min(382px, calc(100dvh - 36px));
+  box-shadow: none;
 }
 
 .contact-hub[hidden],
@@ -38,6 +40,11 @@
   gap: 10px;
   padding: 0 12px 0 16px;
   border-block-end: var(--border-width-100) solid var(--clr-border);
+}
+
+.contact-hub[data-mode="form"] .contact-hub__header {
+  min-block-size: 38px;
+  padding-inline: 14px 10px;
 }
 
 .contact-hub__modes {
@@ -210,15 +217,15 @@
 }
 
 .contact-hub__screen--form {
-  padding: 0 16px 14px;
+  padding: 0 14px 10px;
   display: grid;
   align-content: start;
 }
 
 .contact-hub__field {
   display: grid;
-  gap: 3px;
-  padding: 13px 0 10px;
+  gap: 2px;
+  padding: 10px 0 8px;
   border-block-end: var(--border-width-100) solid var(--clr-border);
   transition: border-color 120ms ease;
 }
@@ -249,13 +256,13 @@
 }
 
 .contact-hub__field textarea {
-  min-block-size: 112px;
+  min-block-size: 84px;
   resize: none;
 }
 
 .contact-hub__form-actions {
   justify-content: space-between;
-  padding-block-start: 14px;
+  padding-block-start: 10px;
   font-size: var(--fs-200);
 }
 
@@ -266,7 +273,7 @@
 }
 
 .contact-hub__mail-fallback {
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   color: var(--clr-text-muted);
   font-size: var(--fs-200);
   line-height: 1.35;

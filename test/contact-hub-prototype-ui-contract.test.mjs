@@ -51,7 +51,7 @@ test("v7 visual contract stays compact beside Venus on desktop", () => {
 });
 
 test("v7 form uses stacked editorial rows rather than a two-column field grid", () => {
-  assert.match(css, /\.contact-hub__field\s*\{[\s\S]*display:\s*grid;[\s\S]*gap:\s*3px;/);
+  assert.match(css, /\.contact-hub__field\s*\{[\s\S]*display:\s*grid;[\s\S]*gap:\s*2px;/);
   assert.doesNotMatch(css, /grid-template-columns:\s*minmax\(5rem/);
   assert.match(css, /\.contact-hub__field:focus-within/);
 });
@@ -80,4 +80,15 @@ test("visible mobile consent is moved clear of the bottom sheet", () => {
   assert.match(consentCss, /@media \(max-width: 42\.5rem\)/);
   assert.match(consentCss, /html\.contact-hub-open \.site-analytics-consent/);
   assert.match(consentCss, /inset-block-end:\s*calc\(\s*min\(62dvh,\s*520px\)/);
+});
+
+
+test("form mode is deliberately flatter and more compact than AI mode", () => {
+  assert.match(css, /\.contact-hub\[data-mode="form"\]\s*\{[\s\S]*inline-size:\s*min\(328px,/);
+  assert.match(css, /\.contact-hub\[data-mode="form"\]\s*\{[\s\S]*block-size:\s*min\(382px,/);
+  assert.match(css, /\.contact-hub\[data-mode="form"\]\s*\{[\s\S]*box-shadow:\s*none;/);
+  assert.match(css, /\.contact-hub\[data-mode="form"\] \.contact-hub__header\s*\{[\s\S]*min-block-size:\s*38px;/);
+  assert.match(css, /\.contact-hub__field textarea\s*\{[\s\S]*min-block-size:\s*84px;/);
+  assert.match(component, /state\.mode === "form" \? 328 : 356/);
+  assert.match(component, /state\.mode === "form" \? 382 : 464/);
 });

@@ -345,8 +345,8 @@ export function mountContactHub(root: Document = document): Destroy {
     const gap = 12;
     const viewportWidth = view.visualViewport?.width ?? view.innerWidth;
     const viewportHeight = view.visualViewport?.height ?? view.innerHeight;
-    const hubWidth = Math.min(356, Math.max(280, viewportWidth - (margin * 2)));
-    const requestedHeight = state.mode === "form" ? 430 : 464;
+    const hubWidth = Math.min(state.mode === "form" ? 328 : 356, Math.max(280, viewportWidth - (margin * 2)));
+    const requestedHeight = state.mode === "form" ? 382 : 464;
     const hubHeight = Math.min(requestedHeight, viewportHeight - (margin * 2));
 
     let left = petRect.right + gap;
