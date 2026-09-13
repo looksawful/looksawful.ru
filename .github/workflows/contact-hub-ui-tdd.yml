@@ -19,8 +19,8 @@ on:
       - src/styles/site-analytics-consent.css
       - src/styles/tokens.css
       - src/main.ts
-      - public/pets/venus/**
-      - docs/venus-animation-source.md
+      - public/pets/awful/**
+      - docs/awful-animation-source.md
 
 permissions:
   contents: read
@@ -52,20 +52,20 @@ jobs:
         run: node tools/e2e/contact-hub-shell-contract.mjs
       - name: Focused Contact Hub mobile contract
         run: node tools/e2e/contact-hub-mobile-contract.mjs
-      - name: Focused Venus launcher contract
+      - name: Focused Awful launcher contract
         run: node tools/e2e/portfolio-pet-launcher-contract.mjs
-      - name: Focused Venus visual scale contract
+      - name: Focused Awful visual scale contract
         run: node tools/e2e/portfolio-pet-scale-contract.mjs
-      - name: Published Venus preview contract
+      - name: Published Awful preview contract
         env:
           PREVIEW_URL: https://pr-788.looksawful-ru-preview.pages.dev
           PREVIEW_SHA: ${{ github.sha }}
         run: node tools/e2e/portfolio-pet-remote-contract.mjs
-      - name: Upload published Venus screenshot
+      - name: Upload published Awful screenshot
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: venus-preview-${{ github.sha }}
-          path: artifacts/venus-preview-desktop.png
+          name: awful-preview-${{ github.sha }}
+          path: artifacts/awful-preview-desktop.png
           if-no-files-found: ignore
           retention-days: 3
