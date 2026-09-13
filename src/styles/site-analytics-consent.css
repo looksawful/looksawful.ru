@@ -1,6 +1,6 @@
 .site-analytics-consent {
   position: fixed;
-  z-index: 110;
+  z-index: var(--layer-site-consent);
   inset-inline-start: var(--page-padding-inline);
   inset-inline-end: auto;
   inset-block-end: max(var(--size-200), env(safe-area-inset-bottom, 0px));
