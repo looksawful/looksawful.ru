@@ -28,6 +28,17 @@ test("PET-015..020/DR-001: click and drag are distinguishable and dragged pet st
   assert.ok(clamped.y <= 768 - 88, "enough vertical pet area must remain grab-able");
   assert.ok(clamped.x >= -(280 - 88), "pet cannot be stranded beyond left edge");
   assert.ok(clamped.y >= -(320 - 88), "pet cannot be stranded beyond top edge");
+
+  const shiftedViewport = clampPetPosition({
+    position: { x: -999, y: -999 },
+    widgetSize: { width: 150, height: 170 },
+    viewport: { x: 24, y: 40, width: 390, height: 560 },
+    safeArea: { top: 12, right: 10, bottom: 18, left: 14 },
+    minimumVisible: { width: 72, height: 96 },
+  });
+
+  assert.equal(shiftedViewport.x, 24 + 14 - (150 - 72), "visual viewport left origin and safe area must both participate in clamp");
+  assert.equal(shiftedViewport.y, 40 + 12 - (170 - 96), "visual viewport top origin and safe area must both participate in clamp");
 });
 
 test("DR-006: swipe-to-hide is distinct from normal reposition drag", async () => {
