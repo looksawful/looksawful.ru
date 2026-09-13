@@ -24,12 +24,15 @@ assert.match(currentVersion, new RegExp(`commit=${expectedSha}`), "preview alias
 const browser = await chromium.launch({ headless: true });
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const runtimeErrors = [];
+  page.on("pageerror", (error) => runtimeErrors.push(error.message));
   await page.addInitScript(() => {
     try { localStorage.setItem("looksawful:analytics-internal", "1"); } catch {}
   });
   await page.goto(`${origin}/?pet=1&sha=${expectedSha}`, { waitUntil: "networkidle" });
 
   const pet = page.locator("[data-portfolio-pet-launcher]");
+  assert.equal(await pet.count(), 1, "published preview must mount exactly one Venus launcher");
   await pet.waitFor({ state: "visible", timeout: 5_000 });
   const image = pet.locator(".portfolio-pet__image");
   await image.waitFor({ state: "visible", timeout: 5_000 });
@@ -85,6 +88,7 @@ try {
 
   await pet.click();
   const hub = page.locator("[data-contact-hub]");
+  assert.equal(await hub.count(), 1, "published preview must mount exactly one Contact Hub");
   await hub.waitFor({ state: "visible", timeout: 3_000 });
   assert.equal(await hub.getAttribute("data-mode"), "ai", "Venus must open AI mode");
 
@@ -111,6 +115,31 @@ try {
 
   await mkdir("artifacts", { recursive: true });
   await page.screenshot({ path: "artifacts/venus-preview-desktop.png", fullPage: false });
+
+  await page.evaluate(() => {
+    window.addEventListener("pagehide", (event) => {
+      sessionStorage.setItem("looksawful:venus-pagehide-audit", JSON.stringify({
+        persisted: event.persisted,
+        petCount: document.querySelectorAll("[data-portfolio-pet-launcher]").length,
+        hubCount: document.querySelectorAll("[data-contact-hub]").length,
+      }));
+    });
+  });
+  await page.goto(`${origin}/?sha=${expectedSha}&lifecycle=1`, { waitUntil: "domcontentloaded" });
+  const lifecycle = await page.evaluate(() => {
+    const raw = sessionStorage.getItem("looksawful:venus-pagehide-audit");
+    return raw ? JSON.parse(raw) : null;
+  });
+  assert.ok(lifecycle, "pagehide lifecycle audit marker must be recorded");
+  if (lifecycle.persisted) {
+    assert.equal(lifecycle.petCount, 1, "bfcache pagehide must preserve Venus DOM for restoration");
+    assert.equal(lifecycle.hubCount, 1, "bfcache pagehide must preserve Contact Hub DOM for restoration");
+  } else {
+    assert.equal(lifecycle.petCount, 0, "non-bfcache pagehide must destroy Venus DOM");
+    assert.equal(lifecycle.hubCount, 0, "non-bfcache pagehide must destroy Contact Hub DOM");
+  }
+
+  assert.deepEqual(runtimeErrors, [], `published preview must not raise runtime exceptions: ${runtimeErrors.join(" | ")}`);
   console.log(`Venus published-preview contract passed: ${origin}/?pet=1&sha=${expectedSha}`);
 } finally {
   await browser.close();
