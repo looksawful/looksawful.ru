@@ -15,6 +15,7 @@ function sliceJob(workflow, name, nextName) {
 
 test("preview v2 candidate build is exact-SHA, manual-only and unprivileged", async () => {
   const workflow = await readFile(buildWorkflowUrl, "utf8");
+  const build = sliceJob(workflow, "build", "package");
 
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /target_sha:/);
@@ -24,21 +25,41 @@ test("preview v2 candidate build is exact-SHA, manual-only and unprivileged", as
   assert.doesNotMatch(workflow, /push:/);
   assert.doesNotMatch(workflow, /pull_request_target/);
 
-  assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
-  assert.match(workflow, /ref:\s*\$\{\{[^}]*target_sha[^}]*\}\}/);
-  assert.match(workflow, /node-version:\s*24/);
-  assert.match(workflow, /npm ci/);
-  assert.match(workflow, /npm run typecheck/);
-  assert.match(workflow, /npm run test:fast/);
-  assert.match(workflow, /npm run build:site/);
-  assert.match(workflow, /prepare-cloudflare-pages-v2\.mjs dist/);
-  assert.doesNotMatch(workflow, /prepare-cloudflare-pages\.mjs dist/);
-  assert.match(workflow, /preview-metadata\.mjs/);
-  assert.match(workflow, /preview-metadata\.json/);
-  assert.match(workflow, /actions\/upload-artifact@v4/);
+  assert.match(build, /if:\s*github\.ref\s*==\s*'refs\/heads\/dev'/);
+  assert.match(build, /ref:\s*\$\{\{[^}]*target_sha[^}]*\}\}/);
+  assert.match(build, /persist-credentials:\s*false/);
+  assert.match(build, /node-version:\s*24/);
+  assert.match(build, /npm ci/);
+  assert.match(build, /npm run typecheck/);
+  assert.match(build, /npm run test:fast/);
+  assert.match(build, /npm run build:site/);
+  assert.match(build, /prepare-cloudflare-pages-v2\.mjs dist/);
+  assert.match(build, /name:\s*preview-v2-site/);
+  assert.doesNotMatch(build, /preview-metadata\.json/);
+  assert.doesNotMatch(build, /preview-metadata\.mjs/);
+  assert.doesNotMatch(build, /secrets\./);
+});
 
-  assert.doesNotMatch(workflow, /secrets\.CLOUDFLARE_/);
-  assert.doesNotMatch(workflow, /PREVIEW_PASSWORD|PREVIEW_SESSION_SECRET|PREVIEW_CI_TOKEN/);
+test("preview v2 packages candidate data in a separate trusted unprivileged job", async () => {
+  const workflow = await readFile(buildWorkflowUrl, "utf8");
+  const packageJob = sliceJob(workflow, "package");
+
+  assert.match(packageJob, /needs:\s*build/);
+  assert.match(packageJob, /if:\s*github\.ref\s*==\s*'refs\/heads\/dev'/);
+  assert.match(packageJob, /ref:\s*dev/);
+  assert.match(packageJob, /path:\s*trusted/);
+  assert.match(packageJob, /actions\/download-artifact@v4/);
+  assert.match(packageJob, /name:\s*preview-v2-site/);
+  assert.match(packageJob, /validate-candidate-artifact\.mjs/);
+  assert.match(packageJob, /trusted\/tools\/preview\/preview-metadata\.mjs/);
+  assert.match(packageJob, /preview-metadata\.json/);
+  assert.match(packageJob, /name:\s*preview-v2-candidate/);
+  assert.match(packageJob, /actions\/upload-artifact@v4/);
+
+  assert.doesNotMatch(packageJob, /npm ci/);
+  assert.doesNotMatch(packageJob, /npm run/);
+  assert.doesNotMatch(packageJob, /node\s+candidate\//);
+  assert.doesNotMatch(packageJob, /secrets\./);
 });
 
 test("preview v2 deployment is a separate trusted workflow", async () => {
@@ -49,6 +70,7 @@ test("preview v2 deployment is a separate trusted workflow", async () => {
   assert.match(workflow, /Preview V2 Build/);
   assert.match(workflow, /types:\s*\[completed\]/);
   assert.match(workflow, /github\.event\.workflow_run\.conclusion\s*==\s*'success'/);
+  assert.match(workflow, /github\.event\.workflow_run\.head_branch\s*==\s*'dev'/);
   assert.match(deploy, /environment:\s*preview-deploy/);
   assert.match(deploy, /actions\/download-artifact@v4|github-script|api\.github\.com/);
   assert.match(deploy, /trusted\/tools\/preview\/preview-metadata\.mjs/);
@@ -59,6 +81,8 @@ test("preview v2 deployment is a separate trusted workflow", async () => {
   assert.match(deploy, /secrets\.CLOUDFLARE_ACCOUNT_ID/);
   assert.match(deploy, /secrets\.CLOUDFLARE_API_TOKEN/);
 
+  assert.doesNotMatch(deploy, /metadata\.sha\s*!==\s*expectedSha/);
+  assert.doesNotMatch(deploy, /workflow_run\.head_sha[^\n]*metadata\.sha|metadata\.sha[^\n]*workflow_run\.head_sha/);
   assert.doesNotMatch(deploy, /jq -e?r? '\.(?:sha|kind|key|repository)'/);
   assert.doesNotMatch(deploy, /npm ci/);
   assert.doesNotMatch(deploy, /npm run/);
