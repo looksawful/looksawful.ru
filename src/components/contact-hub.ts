@@ -37,18 +37,32 @@ function resolveDraftStore(documentRef: Document): ContactDraftStore | null {
   }
 }
 
+function createAssistantSessionId(documentRef: Document): string {
+  const cryptoRef = documentRef.defaultView?.crypto;
+  const uuid = cryptoRef?.randomUUID?.();
+  if (uuid) return `venus-${uuid}`;
+
+  if (cryptoRef?.getRandomValues) {
+    const bytes = new Uint8Array(16);
+    cryptoRef.getRandomValues(bytes);
+    const token = Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("");
+    return `venus-${token}`;
+  }
+
+  return `venus-${Date.now().toString(36)}`;
+}
+
 function resolveAssistantSessionId(documentRef: Document): string {
   try {
     const storage = documentRef.defaultView?.sessionStorage;
     const existing = storage?.getItem(ASSISTANT_SESSION_KEY)?.trim();
     if (existing) return existing;
 
-    const generated = documentRef.defaultView?.crypto.randomUUID?.()
-      ?? `awful-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    const generated = createAssistantSessionId(documentRef);
     storage?.setItem(ASSISTANT_SESSION_KEY, generated);
     return generated;
   } catch {
-    return `awful-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    return createAssistantSessionId(documentRef);
   }
 }
 
@@ -168,27 +182,7 @@ function createHubElement(documentRef: Document) {
   aiLog.className = "contact-hub__ai-log";
   aiLog.setAttribute("role", "log");
   aiLog.setAttribute("aria-live", "polite");
-  aiLog.append(createAiMessage(
-    documentRef,
-    "Привет. Могу рассказать о проектах или помочь найти нужное.",
-    "bot",
-  ));
-
-  const quickActions = documentRef.createElement("div");
-  quickActions.className = "contact-hub__quick-actions";
-  const quickActionDefinitions = [
-    ["кейсы", "Покажи кейсы"],
-    ["резюме", "Покажи резюме"],
-    ["обо мне", "Расскажи о Ване"],
-  ] as const;
-  const quickActionButtons = quickActionDefinitions.map(([label, query]) => {
-    const button = createTextButton(documentRef, label);
-    button.classList.add("contact-hub__quick-action");
-    button.dataset.contactHubQuickQuery = query;
-    return button;
-  });
-  quickActions.append(...quickActionButtons);
-  aiLog.append(quickActions);
+  aiLog.append(createAiMessage(documentRef, "Привет. Я Venus.", "bot"));
 
   const draft = documentRef.createElement("textarea");
   draft.className = "contact-hub__draft";
@@ -206,7 +200,7 @@ function createHubElement(documentRef: Document) {
   composer.dataset.contactHubAiComposer = "";
   const composerInput = documentRef.createElement("input");
   composerInput.autocomplete = "off";
-  composerInput.placeholder = "follow up";
+  composerInput.placeholder = "спросить";
   composerInput.setAttribute("aria-label", "Сообщение AI");
   const composerSend = documentRef.createElement("button");
   composerSend.type = "submit";
@@ -246,7 +240,6 @@ function createHubElement(documentRef: Document) {
     composer,
     composerInput,
     composerSend,
-    quickActionButtons,
   };
 }
 
@@ -263,7 +256,7 @@ export function mountContactHub(root: Document = document): Destroy {
     hub, collapsedLauncher, collapseButton, closeButton,
     formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, draft, handoffButton,
     handoffDecision, appendButton, replaceButton, cancelButton, composer, composerInput,
-    composerSend, quickActionButtons,
+    composerSend,
   } = elements;
   root.body.append(hub, collapsedLauncher);
 
@@ -465,11 +458,11 @@ export function mountContactHub(root: Document = document): Destroy {
       draft.value = result.text;
       handoffButton.hidden = false;
     } else if (result.kind === "no_data") {
-      responseText = "Пока нет согласованных данных для ответа на это. Можно связаться напрямую через форму контакта.";
+      responseText = "Про это у меня нет точной информации. Лучше написать мне напрямую.";
     } else if (result.kind === "rate_limited") {
       responseText = "Слишком много запросов. Попробуй ещё раз через минуту.";
     } else {
-      responseText = "Чат сейчас недоступен. Можно связаться напрямую через форму контакта.";
+      responseText = "Чат сейчас недоступен. Лучше написать мне напрямую через форму.";
     }
 
     pendingMessage.textContent = responseText;
@@ -487,13 +480,6 @@ export function mountContactHub(root: Document = document): Destroy {
   const onComposerSubmit = (event: SubmitEvent): void => {
     event.preventDefault();
     void submitAiMessage(composerInput.value);
-  };
-
-  const onQuickAction = (event: Event): void => {
-    const button = event.currentTarget;
-    if (!(button instanceof HTMLButtonElement)) return;
-    const query = button.dataset.contactHubQuickQuery;
-    if (query) void submitAiMessage(query);
   };
 
   const collapse = (): void => {
@@ -556,7 +542,6 @@ export function mountContactHub(root: Document = document): Destroy {
   messageInput.addEventListener("input", persistDraft);
   formScreen.addEventListener("submit", preventPrototypeSubmit);
   composer.addEventListener("submit", onComposerSubmit);
-  quickActionButtons.forEach((button) => button.addEventListener("click", onQuickAction));
   closeButton.addEventListener("click", close);
   root.addEventListener("keydown", onKeyDown);
   root.addEventListener("portfolio-pet:moved", onPetMoved);
@@ -578,7 +563,6 @@ export function mountContactHub(root: Document = document): Destroy {
     messageInput.removeEventListener("input", persistDraft);
     formScreen.removeEventListener("submit", preventPrototypeSubmit);
     composer.removeEventListener("submit", onComposerSubmit);
-    quickActionButtons.forEach((button) => button.removeEventListener("click", onQuickAction));
     closeButton.removeEventListener("click", close);
     root.removeEventListener("keydown", onKeyDown);
     root.removeEventListener("portfolio-pet:moved", onPetMoved);
