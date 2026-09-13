@@ -54,6 +54,7 @@ export const fastTests = new Set([
   "test/preview-auth-runtime.test.mjs",
   "test/preview-metadata.test.mjs",
   "test/preview-security-contract.test.mjs",
+  "test/preview-v2-media-packaging.test.mjs",
   "test/preview-v2-workflow.test.mjs",
   "test/private-admin-github-oauth.test.mjs",
   "test/private-lab-shell.test.mjs",
