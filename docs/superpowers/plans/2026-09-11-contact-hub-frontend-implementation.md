@@ -1,18 +1,18 @@
-# Contact Hub + Venus Frontend Implementation Plan
+# Contact Hub + Awful Frontend Implementation Plan
 
 > **For agentic workers:** implement this plan vertically, one observable behavior seam at a time. The repository testing policy remains authoritative. The cloud runner is the normal execution environment; the owner's desktop is not required for ordinary TDD or verification.
 
-**Goal:** Build the production frontend overlay for canonical Venus + one shared Contact Hub with prepared/local assistant answers, Yandex-backed free-form AI, and an independent direct-contact form, while leaving the existing site layout unchanged.
+**Goal:** Build the production frontend overlay for canonical Awful + one shared Contact Hub with prepared/local assistant answers, Yandex-backed free-form AI, and an independent direct-contact form, while leaving the existing site layout unchanged.
 
-**Architecture:** `portfolio-pet` owns Venus rendering, animation, gesture and visibility preferences only. `contact-hub` owns the shared overlay shell, mode/visibility lifecycle, focus, responsive geometry, form state and safe UI context. Assistant routing resolves deterministic/prepared answers before any network call. Free-form AI crosses one narrow public assistant boundary. Direct-contact delivery crosses a different contact boundary. Neither backend is allowed to become a dependency of the other.
+**Architecture:** `portfolio-pet` owns Awful rendering, animation, gesture and visibility preferences only. `contact-hub` owns the shared overlay shell, mode/visibility lifecycle, focus, responsive geometry, form state and safe UI context. Assistant routing resolves deterministic/prepared answers before any network call. Free-form AI crosses one narrow public assistant boundary. Direct-contact delivery crosses a different contact boundary. Neither backend is allowed to become a dependency of the other.
 
-**Tech Stack:** Vite 8, strict TypeScript, vanilla DOM, Canvas2D Venus renderer, current site tokens/CSS architecture, Node 24 contract tests, Playwright affected browser tests, cloud GitHub Actions execution.
+**Tech Stack:** Vite 8, strict TypeScript, vanilla DOM, Canvas2D Awful renderer, current site tokens/CSS architecture, Node 24 contract tests, Playwright affected browser tests, cloud GitHub Actions execution.
 
 **Canonical spec:** `docs/superpowers/specs/2026-09-11-contact-hub-pet-product-contract.md`
 
 ## 0. Resolved implementation decisions
 
-These decisions directly integrate the useful evidence from the earlier Venus/Contact Hub prototypes. There is no separate prototype implementation authority.
+These decisions directly integrate the useful evidence from the earlier Awful/Contact Hub prototypes. There is no separate prototype implementation authority.
 
 ### Keep and productionize
 
@@ -21,15 +21,15 @@ These decisions directly integrate the useful evidence from the earlier Venus/Co
 - AI degraded mode: prepared/local answers and direct form continue to work when Yandex generation is unavailable.
 - Prepared/local route before generation. Existing prototype `cases`, `resume`, `about`, `write` canned behaviors become approved answer IDs backed by #713, not duplicated strings inside components.
 - Focus lifecycle demonstrated by the prototype: intentional focus on open, Escape/close, return focus to the actual opener.
-- AI request lifecycle synchronized with Venus: actual async request -> quiet thinking state + Venus thinking animation; answer -> speaking/review -> idle; error -> recoverable error. Prepared answers do **not** fake a thinking delay.
+- AI request lifecycle synchronized with Awful: actual async request -> quiet thinking state + Awful thinking animation; answer -> speaking/review -> idle; error -> recoverable error. Prepared answers do **not** fake a thinking delay.
 - Internal Hub scrolling and `overscroll-behavior: contain` where useful. Composer/actions remain reachable independently of underlying page scroll.
 - Safe-area padding belongs to the overlay widget, never to the site's layout.
 - Minimal editorial form language: site tokens, thin separators, restrained controls, no nested SaaS cards.
 - Hover hint is allowed as a delayed enhancement on real hover devices and disappears during drag/open.
 
-### Reuse from the uploaded Venus widget runtime
+### Reuse from the uploaded Awful widget runtime
 
-The uploaded Venus prototype proves a useful renderer shape:
+The uploaded Awful prototype proves a useful renderer shape:
 
 - external `pet.json` identity + sprite version;
 - external atlas/manifest mapping semantic animation states to clips;
@@ -38,7 +38,7 @@ The uploaded Venus prototype proves a useful renderer shape:
 - state-specific FPS/loop/next semantics;
 - reduced-motion can render a stable frame instead of running the loop.
 
-Production must **not** embed thousands of frame rectangles or temporary `row-00` semantics inside `portfolio-pet.ts`. The current prototype atlas was automatically inferred from transparency and explicitly labels its row semantics temporary. Convert that evidence into the existing generic `sprite-manifest.ts` contract and canonical Venus asset data.
+Production must **not** embed thousands of frame rectangles or temporary `row-00` semantics inside `portfolio-pet.ts`. The current prototype atlas was automatically inferred from transparency and explicitly labels its row semantics temporary. Convert that evidence into the existing generic `sprite-manifest.ts` contract and canonical Awful asset data.
 
 ### Reject and replace
 
@@ -52,7 +52,7 @@ Do not copy from old prototypes:
 - full-screen-only mobile behavior;
 - glass blur/scrim as product identity;
 - green `online` dot/status pill;
-- duplicated `Venus`/`Contact Hub` labels;
+- duplicated `Awful`/`Contact Hub` labels;
 - black SaaS message bubbles and button styling;
 - dashboard-like 2-column quick-action grids;
 - `setTimeout()` fake provider responses or fake waiting delays;
@@ -82,7 +82,7 @@ These dimensions may coordinate but must remain separately owned.
 
 - Do not change authored/user-facing site copy during structural/runtime work.
 - Preserve `Связаться со мной` and intentional address `i@lookawful.ru`.
-- Default pet is canonical Venus; Awful Cases assets are not acceptable substitutes.
+- Default pet is canonical Awful; Awful Cases assets are not acceptable substitutes.
 - Pet and Hub are overlay-only and must not change underlying site flow/geometry.
 - Form remains usable when AI is disabled, failing, rate-limited or feature-off.
 - Form values never silently enter AI context; AI history never silently enters mail payload.
@@ -154,12 +154,12 @@ The first production AI integration is intentionally **non-streaming**: the UI a
 - `src/features/portfolio-pet/preferences.ts` — temporary hide/permanent disable persistence policy.
 - `src/features/portfolio-pet/prepared-answers.ts` — approved answer registry + conservative natural-language routing.
 - `src/features/portfolio-pet/assistant-transport.ts` — narrow `/v1/portfolio-chat` adapter; local/prepared paths never call it.
-- Canonical Venus asset metadata lives outside the UI component and implements the generic sprite-manifest contract.
+- Canonical Awful asset metadata lives outside the UI component and implements the generic sprite-manifest contract.
 
 ### DOM/runtime
 
 - `src/components/portfolio-pet.ts` — launcher/Canvas renderer, drag, hint, hide, direct-form callbacks. **No panel ownership.**
-- `src/components/portfolio-pet.css` — large Venus overlay geometry using site tokens and overlay arbitration.
+- `src/components/portfolio-pet.css` — large Awful overlay geometry using site tokens and overlay arbitration.
 - `src/components/contact-hub.ts` — shared shell/focus/mode/collapse composition.
 - `src/components/contact-hub.css` — desktop overlay + stable mobile sheet/collapse + safe-area/viewport rules.
 - `src/components/contact-hub-form.ts` — form DOM + local validation/draft + injected contact transport.
@@ -175,18 +175,18 @@ The first production AI integration is intentionally **non-streaming**: the UI a
 
 ## 4. Task plan
 
-### Task 1 — Reconcile PR #724 foundation and canonical Venus assets
+### Task 1 — Reconcile PR #724 foundation and canonical Awful assets
 
 **Requirements:** P-003, PET-001..014, AI-001..015.
 
 - [ ] Compare current `dev`, PR #724 and canonical contract. Preserve only feature flag, approved knowledge boundary, character resolver, generic manifest/runtime concepts and deterministic-router evidence.
 - [ ] Do not import PR #724 panel/action-grid/placeholder anatomy.
-- [ ] Convert uploaded Venus `pet.json` + atlas evidence into the generic production sprite-manifest representation. Preserve `id=venus`, sprite version and real spritesheet identity; do not preserve temporary row names as semantic truth.
+- [ ] Convert uploaded Awful `pet.json` + atlas evidence into the generic production sprite-manifest representation. Preserve `id=awful`, sprite version and real spritesheet identity; do not preserve temporary row names as semantic truth.
 - [ ] Renderer contract supports `idle`, `open`, `thinking`, `speaking/review`, `reaction`, and future movement clips through data rather than hard-coded component branches.
 - [ ] Focused tests prove invalid manifests fail safely and missing animation state falls back predictably.
 - [ ] Cloud typecheck/tests GREEN.
 
-**Ready when:** canonical Venus can be rendered by a generic runtime without any Contact Hub panel existing.
+**Ready when:** canonical Awful can be rendered by a generic runtime without any Contact Hub panel existing.
 
 ### Task 2 — Shared Contact Hub state and safe context
 
@@ -255,12 +255,12 @@ known UI action
 
 **Ready when:** the assistant is already useful with the provider entirely absent.
 
-### Task 6 — Large canonical Venus launcher runtime
+### Task 6 — Large canonical Awful launcher runtime
 
 **Requirements:** PET-001..035, DR-001..007, V-009, PERF-001..007.
 
 - [ ] Canvas renderer loads external image/manifest once and draws frames with bottom-anchor stability.
-- [ ] Use real canonical Venus and make her visually large according to product contract; the uploaded prototype's 148x196 canvas is renderer evidence, **not** production display size.
+- [ ] Use real canonical Awful and make her visually large according to product contract; the uploaded prototype's 148x196 canvas is renderer evidence, **not** production display size.
 - [ ] Idle loops; hover/focus reaction; actual request thinking; answer speaking/review; success/error states.
 - [ ] Prepared/local answer may trigger a brief response/review state but no fake thinking delay.
 - [ ] Reduced motion draws stable representative frames and suppresses autonomous movement.
@@ -268,9 +268,9 @@ known UI action
 - [ ] Delayed hover hint only on hover-capable devices.
 - [ ] Temporary close/swipe hide + persistent disable.
 - [ ] No panel/chat markup in the pet component.
-- [ ] Browser slice proves large Venus, bounds, drag and underlying-page geometry.
+- [ ] Browser slice proves large Awful, bounds, drag and underlying-page geometry.
 
-**Ready when:** Venus is a complete independent overlay control.
+**Ready when:** Awful is a complete independent overlay control.
 
 ### Task 7 — Shared desktop Hub and focus lifecycle
 
@@ -295,7 +295,7 @@ known UI action
 - [ ] Use `dvh`/safe-area baseline and internal overflow; never brittle `100vh` sizing.
 - [ ] Form close/current field/submit remain reachable on 320x568 fallback and representative phone viewports.
 - [ ] Collapse -> compact edge launcher; one tap restores same mode/draft/conversation.
-- [ ] Large Venus, collapsed launcher and open Hub obey collision arbitration.
+- [ ] Large Awful, collapsed launcher and open Hub obey collision arbitration.
 - [ ] Add `visualViewport` normalization only if CSS baseline cannot satisfy observed browser behavior; avoid resize thrash.
 - [ ] Chromium geometry GREEN; real Mobile Safari/Android chrome remains focused release evidence.
 
@@ -333,9 +333,9 @@ known UI action
 - [ ] Minimal message stream/composer inside the shared shell. User/assistant distinction does not require heavy bubbles.
 - [ ] Prepared quick action renders locally and produces zero `api.looksawful.ru` requests.
 - [ ] Free-form route calls injected `AssistantTransport` at `/v1/portfolio-chat`.
-- [ ] Actual pending network request shows one restrained matte/thinking animation and Venus thinking state.
+- [ ] Actual pending network request shows one restrained matte/thinking animation and Awful thinking state.
 - [ ] No `setTimeout()` fake delay in production. Thinking exists exactly while asynchronous work is unresolved.
-- [ ] Full response replaces thinking without layout jump and moves Venus through speaking/review -> idle.
+- [ ] Full response replaces thinking without layout jump and moves Awful through speaking/review -> idle.
 - [ ] `no_data`, `rate_limited`, timeout and `unavailable` are recoverable and keep prepared answers + direct form available.
 - [ ] AI state is retained across mode switch/collapse for the active browser session.
 - [ ] Reduced motion uses a static/minimal pending indicator.
@@ -372,7 +372,7 @@ known UI action
 - [ ] Run focused Node contracts, typecheck, CSS checks/style lint and site build.
 - [ ] Run existing responsive suite to detect unrelated navigation/layout regressions.
 - [ ] Keyboard/focus/reduced-motion pass.
-- [ ] Deterministic visual capture uses a stable Venus frame/state; never compare random animation frames.
+- [ ] Deterministic visual capture uses a stable Awful frame/state; never compare random animation frames.
 - [ ] Real Mobile Safari/Android browser-chrome checks before public release.
 - [ ] Verify widget adds no meaningful CLS and closed idle does not create unreasonable background CPU work.
 
