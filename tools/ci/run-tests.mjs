@@ -38,6 +38,7 @@ export const fastTests = new Set([
   "test/editorial-content-boundary.test.mjs",
   "test/editorial-copy-optional.test.mjs",
   "test/gallery-prerelease.test.mjs",
+  "test/gallery-renderer.test.mjs",
   "test/jestei-event-migration.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/media-tools/affected-media-ci.test.mjs",
