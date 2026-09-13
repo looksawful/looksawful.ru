@@ -12,6 +12,7 @@
         white-space: nowrap;
     }
 
+    .bpm-group .tempo-fields label,
     .compact-bpm-fields label {
         white-space: nowrap;
     }
@@ -43,16 +44,26 @@
 }
 
 @container playlist-filter (inline-size >= 768px) {
-    @layer components {
+    @layer layout {
+        .bpm-group .tempo-fields,
         .compact-bpm-fields {
+            display: grid;
             grid-template-columns: 70px 6px 70px;
+            gap: 4px;
+            inline-size: 154px;
+            align-items: end;
         }
+    }
 
+    @layer components {
+        .bpm-group .tempo-fields label,
+        .bpm-group .tempo-fields input,
         .compact-bpm-fields label,
         .compact-bpm-fields input {
             inline-size: 70px;
         }
 
+        .bpm-group .tempo-fields__separator,
         .compact-bpm-separator {
             display: grid;
             place-items: center;
