@@ -92,7 +92,6 @@
   outline-offset: 4px;
 }
 
-
 .portfolio-pet__dismiss,
 .portfolio-pet__restore {
   position: fixed;
@@ -107,9 +106,26 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.portfolio-pet__dismiss { inline-size: 28px; block-size: 28px; border-radius: 999px; box-shadow: 0 1px 8px rgb(0 0 0 / 0.12); }
-.portfolio-pet__restore { inset-inline-start: 0; inline-size: 32px; block-size: 44px; border-radius: 0 999px 999px 0; box-shadow: 1px 1px 8px rgb(0 0 0 / 0.12); }
-.portfolio-pet__dismiss:focus-visible, .portfolio-pet__restore:focus-visible { outline: var(--border-width-200) solid currentColor; outline-offset: 2px; }
+.portfolio-pet__dismiss {
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: 999px;
+  box-shadow: 0 1px 8px rgb(0 0 0 / 0.12);
+}
+
+.portfolio-pet__restore {
+  inset-inline-start: 0;
+  inline-size: 32px;
+  block-size: 44px;
+  border-radius: 0 999px 999px 0;
+  box-shadow: 1px 1px 8px rgb(0 0 0 / 0.12);
+}
+
+.portfolio-pet__dismiss:focus-visible,
+.portfolio-pet__restore:focus-visible {
+  outline: var(--border-width-200) solid currentColor;
+  outline-offset: 2px;
+}
 
 @media (width <= 42.5rem) {
   .portfolio-pet {
@@ -120,7 +136,8 @@
     block-size: 194px;
   }
 
-  html.contact-hub-open .portfolio-pet {
+  html.contact-hub-open .portfolio-pet,
+  html.contact-hub-open .portfolio-pet__dismiss {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
