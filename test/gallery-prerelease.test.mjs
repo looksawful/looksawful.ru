@@ -186,3 +186,58 @@ test("Gallery URL state owns only the open photo id and ignores retired layer pa
     "?item=media-42",
   );
 });
+
+test("Gallery viewer history pushes once, replaces slides, and closes without ejecting deep links", async () => {
+  const state = await import("../src/components/gallery/gallery-state.ts");
+  assert.equal(typeof state.galleryViewerHistoryTransition, "function");
+
+  assert.deepEqual(
+    state.galleryViewerHistoryTransition({
+      currentItemId: null,
+      nextItemId: "media-a",
+      ownsViewerEntry: false,
+      cause: "viewer-change",
+    }),
+    { action: "push", ownsViewerEntry: true },
+  );
+
+  assert.deepEqual(
+    state.galleryViewerHistoryTransition({
+      currentItemId: "media-a",
+      nextItemId: "media-b",
+      ownsViewerEntry: true,
+      cause: "viewer-change",
+    }),
+    { action: "replace", ownsViewerEntry: true },
+  );
+
+  assert.deepEqual(
+    state.galleryViewerHistoryTransition({
+      currentItemId: "media-a",
+      nextItemId: "media-a",
+      ownsViewerEntry: true,
+      cause: "viewer-change",
+    }),
+    { action: "none", ownsViewerEntry: true },
+  );
+
+  assert.deepEqual(
+    state.galleryViewerHistoryTransition({
+      currentItemId: "media-a",
+      nextItemId: null,
+      ownsViewerEntry: true,
+      cause: "viewer-close",
+    }),
+    { action: "back", ownsViewerEntry: false },
+  );
+
+  assert.deepEqual(
+    state.galleryViewerHistoryTransition({
+      currentItemId: "media-a",
+      nextItemId: null,
+      ownsViewerEntry: false,
+      cause: "viewer-close",
+    }),
+    { action: "replace", ownsViewerEntry: false },
+  );
+});
