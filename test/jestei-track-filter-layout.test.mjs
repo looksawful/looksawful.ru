@@ -89,17 +89,17 @@ test("Jestei initial advanced BPM fields fit the audited 154px column", () => {
   );
   assert.match(
     css,
-    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields\s*\{[^}]*display:\s*grid\s*;[^}]*grid-template-columns:\s*70px\s+6px\s+70px\s*;[^}]*gap:\s*4px\s*;[^}]*inline-size:\s*154px\s*;/s,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields,\s*\.compact-bpm-fields\s*\{[^}]*display:\s*grid\s*;[^}]*grid-template-columns:\s*70px\s+6px\s+70px\s*;[^}]*gap:\s*4px\s*;[^}]*inline-size:\s*154px\s*;/s,
     "the visible advanced BPM fields must allocate the whole audited 154px column without collisions",
   );
   assert.match(
     css,
-    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields\s+label,\s*\.bpm-group\s+\.tempo-fields\s+input\s*\{[^}]*inline-size:\s*70px\s*;/s,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields\s+label,\s*\.bpm-group\s+\.tempo-fields\s+input,\s*\.compact-bpm-fields\s+label,\s*\.compact-bpm-fields\s+input\s*\{[^}]*inline-size:\s*70px\s*;/s,
     "advanced BPM labels and inputs must use 70px field tracks",
   );
   assert.match(
     css,
-    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields__separator\s*\{[^}]*display:\s*grid\s*;[^}]*place-items:\s*center\s*;[^}]*align-self:\s*end\s*;[^}]*inline-size:\s*6px\s*;[^}]*block-size:\s*28px\s*;/s,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields__separator,\s*\.compact-bpm-separator\s*\{[^}]*display:\s*grid\s*;[^}]*place-items:\s*center\s*;[^}]*align-self:\s*end\s*;[^}]*inline-size:\s*6px\s*;[^}]*block-size:\s*28px\s*;/s,
     "the advanced BPM separator must be centered on the input row",
   );
 });
