@@ -30,6 +30,11 @@
         flex-wrap: nowrap;
         block-size: 16px;
     }
+
+    .summary-pill[data-summary-clipped="true"] {
+        visibility: hidden;
+        pointer-events: none;
+    }
 }
 
 @container playlist-filter (inline-size >= 359px) {
