@@ -1,5 +1,5 @@
 .portfolio-pet {
-  --pet-scale: 1;
+  --pet-scale: 1.22;
   --pet-facing: 1;
   --pet-safe-top: env(safe-area-inset-top, 0px);
   --pet-safe-right: env(safe-area-inset-right, 0px);
@@ -10,8 +10,8 @@
   z-index: var(--layer-assistant-pet);
   inset-inline-start: max(18px, var(--pet-safe-left));
   inset-block-end: calc(max(18px, var(--pet-safe-bottom)) + var(--pet-consent-offset));
-  inline-size: 192px;
-  block-size: 220px;
+  inline-size: 236px;
+  block-size: 254px;
   display: block;
   padding: 0;
   border: 0;
@@ -94,11 +94,11 @@
 
 @media (width <= 42.5rem) {
   .portfolio-pet {
-    --pet-scale: 0.78;
+    --pet-scale: 0.92;
     inset-inline-start: max(8px, var(--pet-safe-left));
     inset-block-end: calc(max(8px, var(--pet-safe-bottom)) + var(--pet-consent-offset));
-    inline-size: 150px;
-    block-size: 170px;
+    inline-size: 178px;
+    block-size: 194px;
   }
 
   html.contact-hub-open .portfolio-pet {
