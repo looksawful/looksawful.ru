@@ -14,6 +14,7 @@ const PET_SELECTOR = "[data-portfolio-pet-launcher]";
 const POSITION_STORAGE_KEY = "looksawful:portfolio-pet-position:v1";
 const DRAG_THRESHOLD = 10;
 const MIN_VISIBLE = { width: 72, height: 96 } as const;
+const MIN_SAFE_MARGIN = 8;
 const VENUS_SPRITESHEET = "/pets/venus/venus-v2-spritesheet.webp";
 const venusManifest = createVenusSpriteManifest(VENUS_SPRITESHEET);
 
@@ -62,12 +63,33 @@ function writeStoredPosition(root: Document, position: StoredPosition): void {
   }
 }
 
-function viewportSize(root: Document): { width: number; height: number } {
+function viewportSize(root: Document): { x: number; y: number; width: number; height: number } {
   const view = root.defaultView;
   const visualViewport = view?.visualViewport;
   return {
+    x: visualViewport?.offsetLeft ?? 0,
+    y: visualViewport?.offsetTop ?? 0,
     width: visualViewport?.width ?? view?.innerWidth ?? root.documentElement.clientWidth,
     height: visualViewport?.height ?? view?.innerHeight ?? root.documentElement.clientHeight,
+  };
+}
+
+function parseCssPixels(value: string): number {
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+}
+
+function safeAreaFor(root: Document, launcher: HTMLElement) {
+  const style = root.defaultView?.getComputedStyle(launcher);
+  const read = (property: string): number => Math.max(
+    MIN_SAFE_MARGIN,
+    parseCssPixels(style?.getPropertyValue(property) ?? ""),
+  );
+  return {
+    top: read("--pet-safe-top"),
+    right: read("--pet-safe-right"),
+    bottom: read("--pet-safe-bottom"),
+    left: read("--pet-safe-left"),
   };
 }
 
@@ -159,12 +181,12 @@ export function mountPortfolioPet(
 
   const applyPosition = (position: StoredPosition): StoredPosition => {
     const rect = launcher.getBoundingClientRect();
-    const viewport = viewportSize(root);
+    const viewportRect = viewportSize(root);
     const clamped = clampPetPosition({
       position,
       widgetSize: { width: rect.width, height: rect.height },
-      viewport,
-      safeArea: { top: 8, right: 8, bottom: 8, left: 8 },
+      viewport: viewportRect,
+      safeArea: safeAreaFor(root, launcher),
       minimumVisible: MIN_VISIBLE,
     });
 
@@ -227,7 +249,7 @@ export function mountPortfolioPet(
     const dx = event.clientX - session.startX;
     const dy = event.clientY - session.startY;
     const durationMs = Math.max(1, performance.now() - session.startTime);
-    const viewportLeft = root.defaultView?.visualViewport?.offsetLeft ?? 0;
+    const viewportLeft = viewportSize(root).x;
     const gesture = event.type === "pointercancel"
       ? "drag"
       : classifyPetGesture({
@@ -295,7 +317,9 @@ export function mountPortfolioPet(
   launcher.addEventListener("pointercancel", finishPointer);
   launcher.addEventListener("click", onClickCapture, true);
   root.addEventListener("portfolio-pet:state", onPetState);
-  root.defaultView?.addEventListener("resize", onResize);
+  view?.addEventListener("resize", onResize);
+  view?.visualViewport?.addEventListener("resize", onResize);
+  view?.visualViewport?.addEventListener("scroll", onResize);
 
   return () => {
     if (frameRequest && view) view.cancelAnimationFrame(frameRequest);
@@ -307,7 +331,9 @@ export function mountPortfolioPet(
     launcher.removeEventListener("pointercancel", finishPointer);
     launcher.removeEventListener("click", onClickCapture, true);
     root.removeEventListener("portfolio-pet:state", onPetState);
-    root.defaultView?.removeEventListener("resize", onResize);
+    view?.removeEventListener("resize", onResize);
+    view?.visualViewport?.removeEventListener("resize", onResize);
+    view?.visualViewport?.removeEventListener("scroll", onResize);
     launcher.remove();
   };
 }
