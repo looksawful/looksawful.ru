@@ -6,9 +6,11 @@ on:
     paths:
       - "lab/**"
       - "src/lab/**"
+      - "src/devtools/lab/**"
       - "vite.lab.config.ts"
       - "test/private-admin-github-oauth.test.mjs"
       - "test/private-lab-shell.test.mjs"
+      - "test/lab-target-policy.test.mjs"
       - "tools/ci/run-tests.mjs"
       - ".github/workflows/private-lab-verify.yml"
       - "docs/private-lab.md"
@@ -43,7 +45,7 @@ jobs:
         run: npm run typecheck
 
       - name: Protected Admin/Lab contracts
-        run: node --test test/private-lab-shell.test.mjs test/private-admin-github-oauth.test.mjs
+        run: node --test test/private-lab-shell.test.mjs test/private-admin-github-oauth.test.mjs test/lab-target-policy.test.mjs
 
       - name: Build isolated Lab
         env:
