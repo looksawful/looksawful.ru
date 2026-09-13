@@ -39,8 +39,6 @@ export const fastTests = new Set([
   "test/editorial-content-boundary.test.mjs",
   "test/editorial-copy-optional.test.mjs",
   "test/jestei-event-migration.test.mjs",
-  // TEMP TDD: prove the default advanced BPM state fails before the visual fix.
-  "test/jestei-track-filter-layout.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/media-desk-launcher-policy.test.mjs",
   "test/media-desk-model.test.mjs",
