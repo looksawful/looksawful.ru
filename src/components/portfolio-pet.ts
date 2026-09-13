@@ -1,4 +1,4 @@
-import { clampPetPosition } from "../features/portfolio-pet/interaction.ts";
+import { classifyPetGesture, clampPetPosition } from "../features/portfolio-pet/interaction.ts";
 import { resolveSpriteAnimation, resolveSpriteFrameRect } from "../features/portfolio-pet/sprite-manifest.ts";
 import { resolveAnimationFrame } from "../features/portfolio-pet/sprite-runtime.ts";
 import { createVenusSpriteManifest } from "../features/portfolio-pet/venus-manifest.ts";
@@ -12,7 +12,7 @@ export interface MountPortfolioPetOptions {
 
 const PET_SELECTOR = "[data-portfolio-pet-launcher]";
 const POSITION_STORAGE_KEY = "looksawful:portfolio-pet-position:v1";
-const DRAG_THRESHOLD = 6;
+const DRAG_THRESHOLD = 10;
 const MIN_VISIBLE = { width: 72, height: 96 } as const;
 const VENUS_SPRITESHEET = "/pets/venus/venus-v2-spritesheet.webp";
 const venusManifest = createVenusSpriteManifest(VENUS_SPRITESHEET);
@@ -222,16 +222,37 @@ export function mountPortfolioPet(
 
   const finishPointer = (event: PointerEvent): void => {
     if (!dragSession || dragSession.pointerId !== event.pointerId) return;
-    const moved = dragSession.moved;
+
+    const session = dragSession;
+    const dx = event.clientX - session.startX;
+    const dy = event.clientY - session.startY;
+    const durationMs = Math.max(1, performance.now() - session.startTime);
+    const viewportLeft = root.defaultView?.visualViewport?.offsetLeft ?? 0;
+    const gesture = event.type === "pointercancel"
+      ? "drag"
+      : classifyPetGesture({
+        dx,
+        dy,
+        durationMs,
+        velocityX: dx / durationMs,
+        viewportEdgeDistance: Math.max(0, event.clientX - viewportLeft),
+      });
+
     dragSession = null;
     launcher.removeAttribute("data-dragging");
     launcher.dataset.state = currentVisualState;
     startAnimation(animationForState(currentVisualState));
 
     if (launcher.hasPointerCapture(event.pointerId)) launcher.releasePointerCapture(event.pointerId);
-    if (!moved) return;
+
+    if (gesture === "activate") return;
 
     suppressNextClick = true;
+    if (gesture === "hide") {
+      launcher.hidden = true;
+      return;
+    }
+
     const rect = launcher.getBoundingClientRect();
     writeStoredPosition(root, { x: rect.left, y: rect.top });
     dispatchMoved(root, launcher);
