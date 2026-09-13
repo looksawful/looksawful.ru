@@ -37,6 +37,18 @@ function overlaps(a, b) {
   );
 }
 
+async function insertSyntheticConsent(page) {
+  await page.evaluate(() => {
+    document.querySelector(".site-analytics-consent")?.remove();
+    const consent = document.createElement("aside");
+    consent.className = "site-analytics-consent";
+    consent.textContent = "analytics consent";
+    document.body.append(consent);
+  });
+  await settle(page);
+  return page.locator(".site-analytics-consent");
+}
+
 async function openMobilePage(browser, baseUrl, viewport) {
   const context = await browser.newContext({
     viewport,
@@ -61,6 +73,18 @@ async function revealAndClickContactCta(page) {
 async function verifyViewport(browser, baseUrl, viewport) {
   const { context, page } = await openMobilePage(browser, baseUrl, viewport);
   try {
+    const pet = page.locator("[data-portfolio-pet-launcher]");
+    const closedConsent = await insertSyntheticConsent(page);
+    const closedConsentBox = await box(closedConsent, "closed-state consent");
+    assertInside(closedConsentBox, viewport, "closed-state consent");
+    assert.equal(
+      overlaps(closedConsentBox, await box(pet, "closed Venus with consent")),
+      false,
+      `${viewport.width}x${viewport.height}: consent must not overlap canonical closed Venus`,
+    );
+    await closedConsent.evaluate((node) => node.remove());
+    await settle(page);
+
     await revealAndClickContactCta(page);
 
     const hub = page.locator("[data-contact-hub]").first();
@@ -113,15 +137,7 @@ async function verifyViewport(browser, baseUrl, viewport) {
     assertInside(await box(composer, "composer"), viewport, "AI composer");
     assertInside(await box(close, "close after mode switch"), viewport, "close after mode switch");
 
-    await page.evaluate(() => {
-      document.querySelector(".site-analytics-consent")?.remove();
-      const consent = document.createElement("aside");
-      consent.className = "site-analytics-consent";
-      consent.textContent = "analytics consent";
-      document.body.append(consent);
-    });
-    await settle(page);
-    const consent = page.locator(".site-analytics-consent");
+    const consent = await insertSyntheticConsent(page);
     const consentBox = await box(consent, "consent");
     assertInside(consentBox, viewport, "consent");
     assert.equal(overlaps(consentBox, await box(hub, "hub with consent")), false, "consent must not overlap the open hub");
