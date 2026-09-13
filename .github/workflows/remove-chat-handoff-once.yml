@@ -1,0 +1,154 @@
+name: Remove obsolete chat handoff once
+
+on:
+  push:
+    branches: [contact-hub-frontend-current]
+    paths:
+      - .github/workflows/remove-chat-handoff-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: contact-hub-frontend-current
+          fetch-depth: 1
+      - name: Remove AI-to-form handoff implementation
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("src/components/contact-hub.ts")
+          text = path.read_text(encoding="utf-8")
+
+          def once(old: str, new: str = "") -> None:
+              global text
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"expected exactly one handoff fragment, found {count}: {old[:70]!r}")
+              text = text.replace(old, new, 1)
+
+          once('import { applyExplicitAiDraftHandoff } from "../features/contact-hub/handoff.ts";\n')
+          once('''  const handoffDecision = documentRef.createElement("div");
+          handoffDecision.className = "contact-hub__handoff-decision";
+          handoffDecision.dataset.contactHubHandoffDecision = "";
+          handoffDecision.hidden = true;
+          const appendButton = createTextButton(documentRef, "добавить");
+          appendButton.dataset.contactHubHandoffAppend = "";
+          const replaceButton = createTextButton(documentRef, "заменить");
+          replaceButton.dataset.contactHubHandoffReplace = "";
+          const cancelButton = createTextButton(documentRef, "отмена");
+          cancelButton.dataset.contactHubHandoffCancel = "";
+          handoffDecision.append(appendButton, replaceButton, cancelButton);
+
+          ''')
+          once('''    createField("сообщение", messageInput),
+              handoffDecision,
+              formActions,
+          ''', '''    createField("сообщение", messageInput),
+              formActions,
+          ''')
+          once('''  const draft = documentRef.createElement("textarea");
+          draft.className = "contact-hub__draft";
+          draft.dataset.contactHubAiDraft = "";
+          draft.setAttribute("aria-label", "AI draft");
+          draft.hidden = true;
+          const handoffButton = createTextButton(documentRef, "перенести в сообщение");
+          handoffButton.dataset.contactHubHandoff = "";
+          handoffButton.classList.add("contact-hub__handoff");
+          handoffButton.hidden = true;
+          aiScreen.append(aiLog, draft, handoffButton);
+          ''', '''  aiScreen.append(aiLog);
+          ''')
+          once('''    messageInput,
+              draft,
+              handoffButton,
+              handoffDecision,
+              appendButton,
+              replaceButton,
+              cancelButton,
+              composer,
+          ''', '''    messageInput,
+              composer,
+          ''')
+          once('''    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, draft, handoffButton,
+              handoffDecision, appendButton, replaceButton, cancelButton, composer, composerInput,
+              composerSend,
+          ''', '''    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, composer, composerInput,
+              composerSend,
+          ''')
+          once('  let pendingDraft = "";\n')
+          once('''  const commitHandoff = (selectedDraftText: string, messageStrategy?: "append" | "replace"): void => {
+              const result = applyExplicitAiDraftHandoff({ selectedDraftText, formDraft: formDraft(), messageStrategy });
+              if (result.kind === "needs_message_decision") {
+                pendingDraft = selectedDraftText;
+                handoffDecision.hidden = false;
+                setMode("form");
+                return;
+              }
+              if (result.kind === "ready") {
+                nameInput.value = result.draft.name;
+                emailInput.value = result.draft.email;
+                messageInput.value = result.draft.message;
+                persistDraft();
+                pendingDraft = "";
+                handoffDecision.hidden = true;
+                setMode("form");
+                messageInput.focus({ preventScroll: true });
+              }
+            };
+
+            const onHandoff = (): void => commitHandoff(draft.value);
+            const onAppend = (): void => commitHandoff(pendingDraft, "append");
+            const onReplace = (): void => commitHandoff(pendingDraft, "replace");
+            const onCancel = (): void => {
+              pendingDraft = "";
+              handoffDecision.hidden = true;
+            };
+
+          ''')
+          once('''      successfulAnswer = true;
+                draft.value = result.text;
+                handoffButton.hidden = false;
+          ''', '''      successfulAnswer = true;
+          ''')
+          once('''    opener = null;
+              pendingDraft = "";
+              handoffDecision.hidden = true;
+              resetHubPosition();
+          ''', '''    opener = null;
+              resetHubPosition();
+          ''')
+          once('''  handoffButton.addEventListener("click", onHandoff);
+            appendButton.addEventListener("click", onAppend);
+            replaceButton.addEventListener("click", onReplace);
+            cancelButton.addEventListener("click", onCancel);
+          ''')
+          once('''    handoffButton.removeEventListener("click", onHandoff);
+              appendButton.removeEventListener("click", onAppend);
+              replaceButton.removeEventListener("click", onReplace);
+              cancelButton.removeEventListener("click", onCancel);
+          ''')
+
+          forbidden = ["перенести в сообщение", "contactHubHandoff", "applyExplicitAiDraftHandoff"]
+          for token in forbidden:
+              if token in text:
+                  raise SystemExit(f"handoff token remains: {token}")
+
+          path.write_text(text, encoding="utf-8")
+      - name: Commit focused removal
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          git diff -- src/components/contact-hub.ts
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/components/contact-hub.ts
+          git commit -m "refactor(chat): remove AI answer handoff"
+          git push origin HEAD:contact-hub-frontend-current
