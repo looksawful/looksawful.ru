@@ -78,9 +78,9 @@ async function verifyViewport(browser, baseUrl, viewport) {
     const closedConsentBox = await box(closedConsent, "closed-state consent");
     assertInside(closedConsentBox, viewport, "closed-state consent");
     assert.equal(
-      overlaps(closedConsentBox, await box(pet, "closed Venus with consent")),
+      overlaps(closedConsentBox, await box(pet, "closed Awful with consent")),
       false,
-      `${viewport.width}x${viewport.height}: consent must not overlap canonical closed Venus`,
+      `${viewport.width}x${viewport.height}: consent must not overlap canonical closed Awful`,
     );
     await closedConsent.evaluate((node) => node.remove());
     await settle(page);
