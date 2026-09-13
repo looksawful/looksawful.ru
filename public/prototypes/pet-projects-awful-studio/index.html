@@ -4,36 +4,39 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <title>Pet Projects / AWFUL STUDIO preview</title>
+  <title>AWFUL STUDIO preview</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main>
-    <section class="shell pet-preview" id="cover">
-      <header class="preview-head"><div><p class="section-label">Pet Projects</p><h1>Обложка проекта</h1></div><p>production-like preview</p></header>
-      <a class="card" href="#project">
-        <div class="card-media"><img src="assets/awful-studio-tutorial.webp" alt="AWFUL STUDIO Blender Tutorial Cheat Sheet"></div>
-        <div class="card-copy"><strong>AWFUL STUDIO</strong><span>Blender-native virtual product and advertising studio.</span><span>Разработчик · 2026</span></div>
-      </a>
-    </section>
+    <article class="project">
+      <div class="project__head">
+        <p class="project__name">AWFUL STUDIO</p>
+        <p class="project__role">Разработчик</p>
+        <p class="project__period">2026</p>
+      </div>
 
-    <article class="divider" id="project">
-      <header class="project-head"><div class="name">AWFUL STUDIO</div><div class="role">Разработчик</div><div class="period">2026</div></header>
-      <section class="intro">
-        <h2>AWFUL STUDIO</h2>
-        <p class="summary">Blender-native virtual product and advertising studio for editable product-shooting scenes, lighting rigs, camera setups, environments and motion presets.</p>
-        <p class="lead">AWFUL STUDIO создаёт редактируемую продуктовую студию внутри Blender: сцену, product rig, camera rig, свет, окружение и motion-пресеты. После применения пресета нативные свойства Blender остаются главными.</p>
-        <nav class="links" aria-label="Ссылки проекта"><a href="https://github.com/looksawful/awful-studio" target="_blank" rel="noopener">GitHub ↗</a><span>Alpha 0.0.15 baseline</span><span>0.0.16 Extension candidate</span><span>Blender 5.2 LTS</span></nav>
-      </section>
+      <header class="project__intro">
+        <h1 class="project__title">AWFUL STUDIO</h1>
+        <p class="project__summary">Blender-native virtual product and advertising studio for editable product-shooting scenes, lighting rigs, camera setups, environments and motion presets.</p>
+        <p class="project__lead">AWFUL STUDIO создаёт редактируемую продуктовую студию внутри Blender: сцену, product rig, camera rig, свет, окружение и motion-пресеты. После применения пресета нативные свойства Blender остаются главными.</p>
+        <nav class="project__links" aria-label="Ссылки проекта">
+          <a href="https://github.com/looksawful/awful-studio" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/looksawful/awful-studio/archive/refs/heads/main.zip">Download ZIP</a>
+        </nav>
+      </header>
 
       <figure class="banner">
-        <div class="banner__surface"><button type="button" data-lightbox="assets/awful-studio-tutorial.webp"><img src="assets/awful-studio-tutorial.webp" alt="AWFUL STUDIO Blender Tutorial Cheat Sheet"></button></div>
-        <figcaption class="caption"><strong>AWFUL STUDIO / quick start</strong><p>Общий вид сцены, структура Outliner, N-panel и пресеты движения продукта и камеры.</p></figcaption>
+        <button class="banner__surface" type="button" data-lightbox="assets/awful-studio-tutorial.webp">
+          <img src="assets/awful-studio-tutorial.webp" alt="AWFUL STUDIO Blender Tutorial Cheat Sheet">
+        </button>
+        <figcaption class="caption">
+          <strong>AWFUL STUDIO / quick start</strong>
+          <p>Общий вид сцены, структура Outliner, N-panel и пресеты движения продукта и камеры.</p>
+        </figcaption>
       </figure>
 
-      <section class="copy"><h3>Product studio</h3><p>Одна сцена, любой объект, любая анимация, полный контроль. Презентационная схема показывает назначение элементов сцены, структуру Outliner, систему координат, безопасную посадку объекта и основные motion-пресеты.</p></section>
-
-      <figure class="media mockup" data-device="desktop" data-mockup-theme="dark" data-media-deck tabindex="0" aria-label="AWFUL STUDIO presentation gallery">
+      <figure class="mockup" data-media-deck tabindex="0" aria-label="AWFUL STUDIO presentation gallery">
         <div class="mockup__frame">
           <div class="mockup__chrome" aria-hidden="true"><i></i><i></i><i></i></div>
           <div class="mockup__viewport">
@@ -44,27 +47,26 @@
             </div>
           </div>
         </div>
-        <figcaption class="mockup__caption" aria-live="polite">
-          <strong data-deck-caption-title>AWFUL STUDIO / quick start</strong>
-          <p data-deck-caption-text>Общий вид сцены, структура Outliner, N-panel и пресеты движения продукта и камеры.</p>
-        </figcaption>
-        <div class="slider-controls" role="group" aria-label="Навигация по слайдам">
-          <button class="slider-controls__button" data-deck-prev type="button" aria-label="Предыдущий кадр">←</button>
-          <span class="slider-controls__count" data-deck-count aria-live="polite">01 / 03</span>
-          <button class="slider-controls__button" data-deck-next type="button" aria-label="Следующий кадр">→</button>
+
+        <div class="mockup__meta">
+          <figcaption class="caption" aria-live="polite">
+            <strong data-deck-caption-title>AWFUL STUDIO / quick start</strong>
+            <p data-deck-caption-text>Общий вид сцены, структура Outliner, N-panel и пресеты движения продукта и камеры.</p>
+          </figcaption>
+          <div class="slider-controls" role="group" aria-label="Навигация по слайдам">
+            <button data-deck-prev type="button" aria-label="Предыдущий кадр">←</button>
+            <span data-deck-count aria-live="polite">01 / 03</span>
+            <button data-deck-next type="button" aria-label="Следующий кадр">→</button>
+          </div>
         </div>
       </figure>
-
-      <section class="facts"><div class="fact"><span>Physical shell</span><strong>14 × 18 × 7 m</strong></div><div class="fact"><span>Cyclorama</span><strong>12 m wide</strong></div><div class="fact"><span>Lighting</span><strong>16 presets</strong></div><div class="fact"><span>Environment</span><strong>5 HDRIs + Sky</strong></div></section>
-
-      <section class="copy"><h3>Lighting presets</h3><p>Свет рассматривается как отдельная система пресетов. В презентации показаны готовые схемы для product, beauty и cinematic задач с расположением источников и визуальным результатом.</p></section>
-
-      <section class="copy"><h3>Архитектура</h3><p>Blender остаётся авторитетным источником настроек. Build и Rebuild являются явными действиями пользователя, а managed-данные AWFUL STUDIO отделены от пользовательской сцены.</p></section>
-      <section class="principles"><div class="principle"><b>01 / Blender stays authoritative</b><p>Power, Color, Temperature, focal length, materials и детальные render controls остаются в нативных свойствах Blender. Presets здесь только отправная точка.</p></div><div class="principle"><b>02 / Safe lifecycle</b><p>Import/register/enable не должны строить или менять сцену. Build и Rebuild являются явными действиями пользователя.</p></div><div class="principle"><b>03 / Preserve user data</b><p>Rebuild и Remove могут удалять только AWFUL-managed data, сохраняя unmanaged и shared user data.</p></div><div class="principle"><b>04 / Lightweight by default</b><p>Compositor, Light Groups, heavy passes и тяжёлые post paths не создаются базовой сборкой и подключаются отдельно.</p></div></section>
-      <nav class="project-nav"><a href="#cover">↑ Обложка</a><span>Awful Cases · Moves Awful · Berserk Timer · <strong>AWFUL STUDIO</strong></span></nav>
     </article>
   </main>
-  <dialog id="lightbox"><button class="close" type="button" aria-label="Закрыть">×</button><img alt=""></dialog>
+
+  <dialog id="lightbox">
+    <button class="close" type="button" aria-label="Закрыть">×</button>
+    <img alt="">
+  </dialog>
   <script src="app.js" defer></script>
 </body>
 </html>
