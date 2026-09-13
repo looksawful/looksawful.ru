@@ -83,6 +83,7 @@ export function renderGalleryPage(page: GalleryPageDefinition): string {
   <div class="gallery__content">
 ${panels}
   </div>
-</section>`,
+</section>
+<script type="module" src="/src/components/gallery/gallery-entry.ts"></script>`,
   });
 }
