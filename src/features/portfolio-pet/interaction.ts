@@ -30,7 +30,7 @@ export function classifyPetGesture(input: PetGestureInput): PetGestureResult {
 export interface PetPositionInput {
   position: { x: number; y: number };
   widgetSize: { width: number; height: number };
-  viewport: { width: number; height: number };
+  viewport: { x?: number; y?: number; width: number; height: number };
   safeArea: { top: number; right: number; bottom: number; left: number };
   minimumVisible: { width: number; height: number };
 }
@@ -43,11 +43,13 @@ function clamp(value: number, min: number, max: number): number {
 export function clampPetPosition(input: PetPositionInput): { x: number; y: number } {
   const visibleWidth = Math.min(input.widgetSize.width, Math.max(0, input.minimumVisible.width));
   const visibleHeight = Math.min(input.widgetSize.height, Math.max(0, input.minimumVisible.height));
+  const viewportX = input.viewport.x ?? 0;
+  const viewportY = input.viewport.y ?? 0;
 
-  const minX = input.safeArea.left - (input.widgetSize.width - visibleWidth);
-  const maxX = input.viewport.width - input.safeArea.right - visibleWidth;
-  const minY = input.safeArea.top - (input.widgetSize.height - visibleHeight);
-  const maxY = input.viewport.height - input.safeArea.bottom - visibleHeight;
+  const minX = viewportX + input.safeArea.left - (input.widgetSize.width - visibleWidth);
+  const maxX = viewportX + input.viewport.width - input.safeArea.right - visibleWidth;
+  const minY = viewportY + input.safeArea.top - (input.widgetSize.height - visibleHeight);
+  const maxY = viewportY + input.viewport.height - input.safeArea.bottom - visibleHeight;
 
   return {
     x: clamp(input.position.x, minX, maxX),
