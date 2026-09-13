@@ -1,16 +1,9 @@
-import type { ProjectData } from "../../types/project.ts";
-import { projects } from "../catalog/projects/index.ts";
 import { contextualMediaCatalogItems } from "./catalog-view.ts";
 import {
+  catalogDirectionIdsForTaxonomy,
   getPublicCatalogItems,
   type CatalogItem,
 } from "./public-catalog.ts";
-
-export const galleryLayers = ["photography", "production"] as const;
-
-export type GalleryLayer = (typeof galleryLayers)[number];
-
-export const DEFAULT_GALLERY_LAYER: GalleryLayer = "photography";
 
 export type GalleryImageAsset = Extract<CatalogItem["asset"], { type: "image" }>;
 
@@ -18,87 +11,30 @@ export interface GalleryItem extends Omit<CatalogItem, "asset" | "width" | "heig
   asset: GalleryImageAsset;
   width: number;
   height: number;
-  layers: readonly GalleryLayer[];
   seriesId: string;
-  seriesByLayer: Readonly<Partial<Record<GalleryLayer, string>>>;
   seriesOrder: number;
 }
 
-const projectById = new Map<string, ProjectData>(
-  projects.map((project) => [project.id, project]),
-);
-
-const PHOTOGRAPHY_ROLE_IDS = new Set(["photographer", "digital-artist"]);
-
-export function isGalleryLayer(value: string | null | undefined): value is GalleryLayer {
-  return value === "photography" || value === "production";
-}
-
-function projectRoleIds(projectId: string): readonly string[] {
-  const project = projectById.get(projectId);
-  if (!project) return [];
-
-  return [
-    ...(project.primaryRoleId ? [project.primaryRoleId] : []),
-    ...(project.roleIds ?? []),
-  ];
-}
-
-function projectSupportsPhotography(projectId: string): boolean {
-  if (projectId.startsWith("shootings-")) return true;
-  return projectRoleIds(projectId).some((roleId) => PHOTOGRAPHY_ROLE_IDS.has(roleId));
-}
-
-function projectSupportsProduction(projectId: string): boolean {
-  // Sensetique is an established production case. A few historical subprojects
-  // do not yet carry normalized role metadata, so the stable project identity
-  // remains the prerelease migration fallback until CMS layer flags land.
-  if (projectId.startsWith("sensetique-")) return true;
-  return projectRoleIds(projectId).includes("producer");
-}
-
-function contextualItemSupportsGallery(projectIds: readonly string[]): boolean {
-  return projectIds.some(
-    (projectId) => projectSupportsPhotography(projectId) || projectSupportsProduction(projectId),
-  );
-}
-
 function getPrereleaseCatalogItems(): readonly CatalogItem[] {
-  // Historical Shootings/Sensetique records already have canonical contextual
-  // usages but most have not yet had showInCatalog materialized by the CMS.
-  // The isolated noindex PR preview promotes only those stable contextual
-  // candidates into the existing Public Catalog converter. Production release
-  // still requires the explicit publication flags to be migrated and this
-  // preview-only bridge removed.
+  // Historical photo records already have canonical taxonomy/usages but many
+  // have not yet had showInCatalog materialized by the CMS. The isolated
+  // prerelease bridge promotes only canonical photo-direction image records
+  // through the existing Public Catalog converter. It does not invent a
+  // production/art layer and does not change the global publication default.
   const candidates = contextualMediaCatalogItems
     .filter((item) => (
       item.asset.type === "image"
       && !item.archived
-      && contextualItemSupportsGallery(item.projectIds)
+      && catalogDirectionIdsForTaxonomy(item).includes("photo")
     ))
     .map((item) => item.showInCatalog ? item : { ...item, showInCatalog: true });
 
-  return getPublicCatalogItems(candidates);
+  return getPublicCatalogItems(candidates)
+    .filter((item) => item.asset.type === "image" && item.directions.includes("photo"));
 }
 
-function firstSeriesId(
-  item: CatalogItem,
-  layer: GalleryLayer,
-): string | undefined {
-  return item.projectIds.find((projectId) => (
-    layer === "photography"
-      ? projectSupportsPhotography(projectId)
-      : projectSupportsProduction(projectId)
-  ));
-}
-
-function layersFor(item: CatalogItem): readonly GalleryLayer[] {
-  const layers: GalleryLayer[] = [];
-
-  if (item.projectIds.some(projectSupportsPhotography)) layers.push("photography");
-  if (item.projectIds.some(projectSupportsProduction)) layers.push("production");
-
-  return layers;
+function seriesIdFor(item: CatalogItem): string {
+  return item.projectIds[0] ?? `catalog:${item.id}`;
 }
 
 export function getGalleryItems(
@@ -109,18 +45,10 @@ export function getGalleryItems(
 
   for (const item of catalogItems) {
     if (item.asset.type !== "image") continue;
+    if (!item.directions.includes("photo")) continue;
     if (!item.width || !item.height || item.width <= 0 || item.height <= 0) continue;
 
-    const layers = layersFor(item);
-    if (!layers.length) continue;
-
-    const seriesByLayer: Partial<Record<GalleryLayer, string>> = {};
-    for (const layer of layers) {
-      const seriesId = firstSeriesId(item, layer);
-      if (seriesId) seriesByLayer[layer] = seriesId;
-    }
-
-    const seriesId = seriesByLayer[layers[0]] ?? `catalog:${item.id}`;
+    const seriesId = seriesIdFor(item);
     const seriesOrder = seriesCounts.get(seriesId) ?? 0;
     seriesCounts.set(seriesId, seriesOrder + 1);
 
@@ -129,9 +57,7 @@ export function getGalleryItems(
       asset: item.asset,
       width: item.width,
       height: item.height,
-      layers,
       seriesId,
-      seriesByLayer,
       seriesOrder,
     });
   }
@@ -139,13 +65,6 @@ export function getGalleryItems(
   return result;
 }
 
-export function getGalleryItemsForLayer(
-  layer: GalleryLayer,
-  items: readonly GalleryItem[] = getGalleryItems(),
-): readonly GalleryItem[] {
-  return items.filter((item) => item.layers.includes(layer));
-}
-
-export function getGallerySeriesId(item: GalleryItem, layer: GalleryLayer): string {
-  return item.seriesByLayer[layer] ?? item.seriesId;
+export function getGallerySeriesId(item: GalleryItem): string {
+  return item.seriesId;
 }
