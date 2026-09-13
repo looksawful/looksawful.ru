@@ -91,6 +91,23 @@ function profilePrinciplesText(): string {
   return compact(cvContent.profile.principles.map((item) => `${item.title} ${item.text}`));
 }
 
+const PRODUCT_UI_TEXT = [
+  "В интерфейсах я исследую аудиторию и конкурентов, провожу глубинные интервью, коридорные и usability-тесты и формулирую гипотезы.",
+  "Я проектирую функции и пользовательские сценарии, информационную архитектуру, CJM и user flow, делаю прототипы и адаптивные интерфейсы, развиваю дизайн-системы и анализирую продуктовые метрики.",
+].join(" ");
+
+const COMMERCIAL_TEXT = [
+  "Если человек хочет обсудить новый дизайн-проект, сначала нужно понять, что это за проект, какая задача, на каком он этапе, что уже есть из материалов, макетов или референсов и какой результат нужен.",
+  "Цену, сроки и возможность взять проект нельзя обещать без обсуждения задачи.",
+  "Для продолжения разговора доступен email i@lookawful.ru.",
+].join(" ");
+
+const JESTEI_INTERFACE_TEXT = [
+  "В Jestei я работал над навигацией и поиском музыки, прогрессивной фильтрацией треков и ключевыми пользовательскими сценариями.",
+  "Фильтрация сочетает быстрый и расширенный режимы; среди параметров есть жанры, BPM и тональность в Classic/Camelot.",
+  "Также я проектировал сценарии Event-направления, тарифов и подписок, лендинги и другие части core-продукта.",
+].join(" ");
+
 const APPROVED_PROJECT_TEXT: Readonly<Record<string, string>> = Object.freeze({
   jestei: [
     "Я работал арт-директором Jestei Pool в 2024–2026 годах.",
@@ -122,6 +139,8 @@ export function buildPortfolioPetKnowledgeCandidates(): readonly PortfolioPetKno
     pendingCandidate({ id: "profile.location", text: "Москва", source: "owner-approved:cv.profile.location" }),
     pendingCandidate({ id: "profile.contact", text: "i@lookawful.ru", source: "owner-approved:cv.profile.contacts.email" }),
     pendingCandidate({ id: "profile.skills", text: profileSkillText(), source: "owner-approved:cv.skills.hard+tech" }),
+    pendingCandidate({ id: "profile.product_ui", text: PRODUCT_UI_TEXT, source: "owner-approved:derived.cv.skills.product-ux-ui" }),
+    pendingCandidate({ id: "profile.commercial", text: COMMERCIAL_TEXT, source: "owner-approved:assistant.commercial-intake-policy" }),
     pendingCandidate({ id: "profile.experience", text: profileExperienceText(), source: "owner-approved:cv.experience" }),
     pendingCandidate({ id: "profile.education", text: profileEducationText(), source: "owner-approved:cv.education" }),
     pendingCandidate({ id: "profile.languages", text: profileLanguageText(), source: "owner-approved:cv.profile.languages" }),
@@ -137,7 +156,16 @@ export function buildPortfolioPetKnowledgeCandidates(): readonly PortfolioPetKno
     }),
   );
 
-  return Object.freeze([...profileCandidates, ...projectCandidates]);
+  const detailCandidates: PortfolioPetKnowledgeCandidate[] = [
+    pendingCandidate({
+      id: "project.jestei.interfaces",
+      title: "Jestei Pool — интерфейсы",
+      text: JESTEI_INTERFACE_TEXT,
+      source: "owner-approved:jestei.interface-details",
+    }),
+  ];
+
+  return Object.freeze([...profileCandidates, ...projectCandidates, ...detailCandidates]);
 }
 
 export function selectApprovedKnowledge(
