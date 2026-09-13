@@ -2,6 +2,7 @@ import {
   routePortfolioAssistantRequest,
   type PortfolioAssistantRoute,
   type PortfolioAssistantRouter,
+  type PortfolioConversationState,
   type PortfolioConversationTurn,
 } from "./prepared-answers.ts";
 
@@ -24,6 +25,11 @@ export interface PortfolioChatServiceInput {
   context: Record<string, unknown>;
 }
 
+export interface PortfolioConversationStore {
+  load(): PortfolioConversationState | null;
+  save(state: PortfolioConversationState): void;
+}
+
 export type PortfolioChatServiceResult =
   | Extract<PortfolioAssistantRoute, { kind: "prepared" }>
   | { kind: "generated"; text: string; sourceIds: readonly string[] }
@@ -32,6 +38,8 @@ export type PortfolioChatServiceResult =
   | { kind: "unavailable" };
 
 const MAX_HISTORY_TURNS = 6;
+const MAX_HISTORY_TEXT = 700;
+const MAX_ACTIVE_SOURCE_IDS = 12;
 
 function providerState(
   result: PortfolioChatProviderResult,
@@ -45,23 +53,70 @@ function providerText(result: PortfolioChatProviderResult): string {
   return result.text.trim();
 }
 
+function sanitizeTurn(turn: PortfolioConversationTurn): PortfolioConversationTurn | null {
+  if (turn.role !== "user" && turn.role !== "assistant") return null;
+  const text = turn.text.trim().slice(0, MAX_HISTORY_TEXT);
+  if (!text) return null;
+  return Object.freeze({ role: turn.role, text });
+}
+
+function sanitizeState(value: PortfolioConversationState | null): PortfolioConversationState {
+  const history = (value?.history ?? [])
+    .map(sanitizeTurn)
+    .filter((turn): turn is PortfolioConversationTurn => Boolean(turn))
+    .slice(-MAX_HISTORY_TURNS);
+  const activeSourceIds = [...new Set(
+    (value?.activeSourceIds ?? [])
+      .filter((sourceId): sourceId is string => typeof sourceId === "string")
+      .map((sourceId) => sourceId.trim())
+      .filter(Boolean),
+  )].slice(0, MAX_ACTIVE_SOURCE_IDS);
+
+  return Object.freeze({
+    history: Object.freeze(history),
+    activeSourceIds: Object.freeze(activeSourceIds),
+  });
+}
+
 export function createPortfolioChatService({
   provider,
   router = routePortfolioAssistantRequest,
+  conversationStore,
 }: {
   provider: PortfolioChatProvider;
   router?: PortfolioAssistantRouter;
+  conversationStore?: PortfolioConversationStore | null;
 }) {
-  const history: PortfolioConversationTurn[] = [];
-  let activeSourceIds: readonly string[] = Object.freeze([]);
+  let initialState: PortfolioConversationState;
+  try {
+    initialState = sanitizeState(conversationStore?.load() ?? null);
+  } catch {
+    initialState = sanitizeState(null);
+  }
+
+  const history: PortfolioConversationTurn[] = [...initialState.history];
+  let activeSourceIds: readonly string[] = initialState.activeSourceIds;
+
+  const persist = (): void => {
+    if (!conversationStore) return;
+    try {
+      conversationStore.save(Object.freeze({
+        history: Object.freeze([...history]),
+        activeSourceIds: Object.freeze([...activeSourceIds]),
+      }));
+    } catch {
+      // Session persistence is a convenience boundary; chat must remain usable if storage fails.
+    }
+  };
 
   const remember = (userText: string, assistantText: string, sourceIds: readonly string[]): void => {
-    history.push(
-      Object.freeze({ role: "user", text: userText.trim() }),
-      Object.freeze({ role: "assistant", text: assistantText.trim() }),
-    );
+    const userTurn = sanitizeTurn({ role: "user", text: userText });
+    const assistantTurn = sanitizeTurn({ role: "assistant", text: assistantText });
+    if (userTurn) history.push(userTurn);
+    if (assistantTurn) history.push(assistantTurn);
     if (history.length > MAX_HISTORY_TURNS) history.splice(0, history.length - MAX_HISTORY_TURNS);
-    activeSourceIds = Object.freeze([...sourceIds]);
+    activeSourceIds = Object.freeze([...new Set(sourceIds.map((sourceId) => sourceId.trim()).filter(Boolean))].slice(0, MAX_ACTIVE_SOURCE_IDS));
+    persist();
   };
 
   return Object.freeze({
