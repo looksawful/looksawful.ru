@@ -1,6 +1,6 @@
 .contact-hub {
   position: fixed;
-  z-index: 2147482990;
+  z-index: var(--layer-contact-hub);
   inset-inline-start: 214px;
   inset-block-end: 18px;
   inline-size: min(356px, calc(100vw - 236px));
@@ -117,7 +117,7 @@
 
 .contact-hub-launcher {
   position: fixed;
-  z-index: 2147482990;
+  z-index: var(--layer-contact-hub);
   inset-inline-end: max(var(--page-padding-inline), env(safe-area-inset-right));
   inset-block-end: max(var(--page-padding-inline), env(safe-area-inset-bottom));
   inline-size: 44px;
@@ -354,17 +354,17 @@
     inset-block-end: 0 !important;
     inline-size: 100% !important;
     block-size: min(62dvh, 520px);
-    max-block-size: calc(100dvh - env(safe-area-inset-top));
+    max-block-size: calc(100dvh - env(safe-area-inset-top, 0px));
     border-inline: 0;
     border-block-end: 0;
     border-radius: var(--radius-shell) var(--radius-shell) 0 0;
-    padding-block-end: env(safe-area-inset-bottom);
+    padding-block-end: env(safe-area-inset-bottom, 0px);
     transform-origin: bottom center;
   }
 
   .contact-hub-launcher {
-    inset-inline-end: max(16px, env(safe-area-inset-right));
-    inset-block-end: max(16px, env(safe-area-inset-bottom));
+    inset-inline-end: max(16px, env(safe-area-inset-right, 0px));
+    inset-block-end: max(16px, env(safe-area-inset-bottom, 0px));
   }
 
   .contact-hub__collapse {
@@ -375,16 +375,26 @@
     margin-inline-start: 0;
   }
 
-  .contact-hub__header {
-    padding-inline-start: 16px;
+  .contact-hub__header,
+  .contact-hub[data-mode="form"] .contact-hub__header {
+    padding-inline-start: max(16px, env(safe-area-inset-left, 0px));
+    padding-inline-end: max(12px, env(safe-area-inset-right, 0px));
   }
 
   .contact-hub__screen--ai {
-    padding: 16px;
+    padding-block: 16px;
+    padding-inline-start: max(16px, env(safe-area-inset-left, 0px));
+    padding-inline-end: max(16px, env(safe-area-inset-right, 0px));
   }
 
   .contact-hub__screen--form {
-    padding-inline: 16px;
+    padding-inline-start: max(16px, env(safe-area-inset-left, 0px));
+    padding-inline-end: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .contact-hub__composer {
+    padding-inline-start: max(16px, env(safe-area-inset-left, 0px));
+    padding-inline-end: max(8px, env(safe-area-inset-right, 0px));
   }
 }
 
