@@ -39,6 +39,8 @@ export const fastTests = new Set([
   "test/editorial-content-boundary.test.mjs",
   "test/editorial-copy-optional.test.mjs",
   "test/jestei-event-migration.test.mjs",
+  // TEMP TDD: route the focused BPM geometry regression through Fast until RED/GREEN is proven.
+  "test/jestei-track-filter-layout.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/media-desk-launcher-policy.test.mjs",
   "test/media-desk-model.test.mjs",
