@@ -1,4 +1,4 @@
-# Contact Hub + Venus Pet Product Contract
+# Contact Hub + Awful Pet Product Contract
 
 Status: **CANONICAL PRE-IMPLEMENTATION CONTRACT**
 
@@ -12,12 +12,12 @@ This document supersedes prototype-specific assumptions from Contact Hub prototy
 
 Contact Hub is one independent overlay widget with two modes:
 
-- `ai`: portfolio assistant, opened by the Venus pet;
+- `ai`: portfolio assistant, opened by the Awful pet;
 - `form`: direct message to Ivan, opened by the existing site contact CTA or a one-action direct-contact affordance on the pet.
 
 The modes share one visual shell and lifecycle but keep data and backend contracts independent. The form is never gated by AI. The AI never silently receives form data. Chat history is never silently attached to delivered mail.
 
-The default portfolio pet is **Venus**. Awful Cases characters are not valid substitutes for the default portfolio pet.
+The default portfolio pet is **Awful**. Awful Cases characters are not valid substitutes for the default portfolio pet.
 
 ## 2. Non-negotiable boundaries
 
@@ -84,13 +84,13 @@ A production state model may use different internal names, but every observable 
 - **W-009** Resizing or rotating the viewport clamps widget geometry into the new visual viewport.
 - **W-010** 200% browser zoom keeps every required control reachable.
 
-### PET — Venus asset, size, motion and control
+### PET — Awful asset, size, motion and control
 
-- **PET-001** Default character is canonical Venus.
+- **PET-001** Default character is canonical Awful.
 - **PET-002** No Awful Cases asset is accepted as the default portfolio pet.
-- **PET-003** Closed Venus is visually large and reads as a character, not a launcher icon.
-- **PET-004** On a typical desktop viewport Venus occupies roughly 28-38% of viewport height unless a future approved visual spec narrows the range.
-- **PET-005** On mobile Venus remains visually substantial in the closed state and is not reduced to a tiny FAB.
+- **PET-003** Closed Awful is visually large and reads as a character, not a launcher icon.
+- **PET-004** On a typical desktop viewport Awful occupies roughly 28-38% of viewport height unless a future approved visual spec narrows the range.
+- **PET-005** On mobile Awful remains visually substantial in the closed state and is not reduced to a tiny FAB.
 - **PET-006** Head, hair, hands, legs and footwear are not clipped by the widget viewport in normal idle/hover states.
 - **PET-007** Transparent sprite background remains transparent.
 - **PET-008** Idle motion loops without a visible discontinuity or baseline jump.
@@ -104,7 +104,7 @@ A production state model may use different internal names, but every observable 
 - **PET-016** Pet can be dragged by touch.
 - **PET-017** Drag does not simultaneously scroll/select the underlying page.
 - **PET-018** A short click/tap opens the configured pet action; drag beyond threshold does not accidentally click-open Hub.
-- **PET-019** After drag, enough of Venus remains inside the viewport to grab her again.
+- **PET-019** After drag, enough of Awful remains inside the viewport to grab her again.
 - **PET-020** Dragged position is clamped to safe viewport/safe-area bounds.
 - **PET-021** Drag position survives navigation/reopen for the current session where technically safe.
 - **PET-022** Invalid persisted coordinates are automatically clamped after resize/orientation change.
@@ -150,7 +150,7 @@ A production state model may use different internal names, but every observable 
 - **M-006** Appearing/disappearing Safari/Chrome browser chrome does not make the sheet visibly shake or repeatedly restart transitions.
 - **M-007** Browser toolbar changes do not permanently crop sheet top/bottom.
 - **M-008** Orientation changes recalculate valid geometry once and keep controls accessible.
-- **M-009** Open Hub and large Venus do not overlap form fields or required controls.
+- **M-009** Open Hub and large Awful do not overlap form fields or required controls.
 - **M-010** Mobile Hub can be collapsed without losing state.
 - **M-011** Collapse animates toward a screen edge and becomes a compact launcher.
 - **M-012** Collapsed launcher uses a touch-friendly hit target and minimal visual footprint.
@@ -254,7 +254,7 @@ Response priority is normative:
 - **AI-018** Thinking reserves stable answer space enough to avoid a large layout jump on completion.
 - **AI-019** Thinking clears on success, error and timeout.
 - **AI-020** Reduced motion has a static/minimal thinking representation.
-- **AI-021** Venus may enter a waiting/thinking state, but pet animation and UI loader do not compete for attention.
+- **AI-021** Awful may enter a waiting/thinking state, but pet animation and UI loader do not compete for attention.
 - **AI-022** User can always switch to direct form while AI is thinking or failing.
 - **AI-023** AI timeout/error preserves conversation and exposes recoverable state.
 - **AI-024** Free-form output is rendered safely as content, not executable arbitrary HTML.
@@ -280,7 +280,7 @@ Response priority is normative:
 - **V-006** Form is primarily structured by typography, spacing and thin rules rather than nested filled controls.
 - **V-007** User/AI messages are distinguishable without requiring heavy chat bubbles.
 - **V-008** Submit has more emphasis than attachment/fallback without introducing an unrelated SaaS button language.
-- **V-009** Venus remains the expressive visual element; shell motion stays restrained.
+- **V-009** Awful remains the expressive visual element; shell motion stays restrained.
 - **V-010** No decorative online dot/status chrome exists unless it communicates a real service state the visitor can act on.
 
 ### AX — accessibility and input
