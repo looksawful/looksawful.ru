@@ -1,6 +1,8 @@
 import { projects } from "../../data/catalog/projects/index.ts";
 import { mediaCatalogItems } from "../../data/media/catalog-view.ts";
 import { mediaEntries } from "../../data/media/entries/index.ts";
+import { projectCardPresentations } from "../../data/projects.ts";
+import { petProjectCards } from "../../data/subproject-cards.ts";
 import {
   buildMediaDeskInventoryIndex,
   filterMediaDeskInventoryRecords,
@@ -8,10 +10,23 @@ import {
   type MediaDeskInventoryDiagnosticFilter,
   type MediaDeskInventoryRecord,
   type MediaDeskInventoryUsageFilter,
+  type MediaDeskUnifiedUsage,
 } from "./inventory-model.ts";
+import {
+  galleryUsages,
+  mediaEntryUsages,
+  petCoverUsages,
+  projectCoverUsages,
+} from "./usage-sources.ts";
 import "./inventory-readonly.css";
 
-const records = buildMediaDeskInventoryIndex(mediaCatalogItems, mediaEntries);
+const unifiedBindings = [
+  ...galleryUsages(mediaCatalogItems),
+  ...mediaEntryUsages(mediaEntries),
+  ...projectCoverUsages(projectCardPresentations, mediaCatalogItems),
+  ...petCoverUsages(petProjectCards, mediaEntries),
+];
+const records = buildMediaDeskInventoryIndex(mediaCatalogItems, mediaEntries, unifiedBindings);
 const summary = summarizeMediaDeskDiagnostics(records);
 const projectNames = new Map<string, string>(
   projects.map((project) => [project.id, project.name]),
@@ -75,6 +90,12 @@ function group(label: string, rows: readonly HTMLDivElement[]): HTMLElement {
   return section;
 }
 
+function usageValue(usage: MediaDeskUnifiedUsage): string {
+  const location = usage.route ? ` · ${usage.route}` : "";
+  const field = usage.fieldPath ? `#${usage.fieldPath}` : "";
+  return `${usage.ownerId}${location} · ${usage.sourcePath}${field}`;
+}
+
 function showInGallery(record: MediaDeskInventoryRecord): void {
   const search = document.querySelector<HTMLInputElement>(".md-search");
   if (!search) return;
@@ -112,7 +133,7 @@ function recordCard(record: MediaDeskInventoryRecord): HTMLElement {
   const badges = element("div", "md-inventory-badges");
   badges.append(
     element("span", "md-inventory-badge", `canonical · ${record.item.origin}`),
-    element("span", "md-inventory-badge", `placement · ${record.usage.total}`),
+    element("span", "md-inventory-badge", `usage · ${record.usages.length}`),
   );
   for (const diagnostic of record.diagnostics) {
     badges.append(
@@ -146,6 +167,13 @@ function recordCard(record: MediaDeskInventoryRecord): HTMLElement {
     row("Placement projects", projectLabels(record.usage.projectIds)),
   ]);
 
+  const provenance = group(
+    "Usage provenance",
+    record.usages.length > 0
+      ? record.usages.map((usage) => row(usage.kind, usageValue(usage)))
+      : [row("Usage", "—")],
+  );
+
   const derived = group("Derived diagnostics", [
     row(
       "State",
@@ -155,7 +183,7 @@ function recordCard(record: MediaDeskInventoryRecord): HTMLElement {
     ),
   ]);
 
-  card.append(header, badges, canonical, placement, derived);
+  card.append(header, badges, canonical, placement, provenance, derived);
   return card;
 }
 
@@ -179,7 +207,7 @@ function mount(): void {
 
   const search = element("input", "md-control md-inventory-search");
   search.type = "search";
-  search.placeholder = "ID, path, placement, caption…";
+  search.placeholder = "ID, path, placement, cover, route, caption…";
   search.setAttribute("aria-label", "Поиск по inventory metadata");
 
   const usage = element("select", "md-control");
@@ -217,9 +245,7 @@ function mount(): void {
       ? `${visible.length} / ${filtered.length}`
       : String(filtered.length);
     list.replaceChildren(...visible.map(recordCard));
-    if (visible.length === 0) {
-      list.append(element("p", "md-inventory-empty", "Совпадений нет"));
-    }
+    if (visible.length === 0) list.append(element("p", "md-inventory-empty", "Совпадений нет"));
   };
 
   search.addEventListener("input", render);
