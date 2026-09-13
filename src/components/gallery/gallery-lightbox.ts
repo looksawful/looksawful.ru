@@ -24,8 +24,7 @@ export interface GalleryLightboxController {
 }
 
 function activeCards(root: HTMLElement): HTMLElement[] {
-  const panel = root.querySelector<HTMLElement>("[data-gallery-layer-panel]:not([hidden])");
-  return panel ? [...panel.querySelectorAll<HTMLElement>("[data-gallery-card]")] : [];
+  return [...root.querySelectorAll<HTMLElement>("[data-gallery-card]")];
 }
 
 function slideFor(card: HTMLElement): GallerySlide | null {
