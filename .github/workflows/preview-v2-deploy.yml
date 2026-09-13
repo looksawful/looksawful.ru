@@ -74,6 +74,8 @@ jobs:
           NODE
 
       - name: Assemble trusted Pages runtime
+        env:
+          PREVIEW_SHA: ${{ steps.meta.outputs.sha }}
         shell: bash
         run: |
           set -euo pipefail
@@ -83,6 +85,10 @@ jobs:
             distDir: "candidate",
             workspaceDir: "workspace",
             trustedRuntimeDir: "trusted/tools/preview/runtime",
+            previewMetadata: {
+              repository: process.env.GITHUB_REPOSITORY,
+              sha: process.env.PREVIEW_SHA,
+            },
           });
           NODE
 
