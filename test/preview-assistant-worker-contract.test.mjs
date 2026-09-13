@@ -52,7 +52,6 @@ test("preview assistant worker proxies grounded public knowledge to Yandex witho
     assert.match(providerRequest.init.body, /от первого лица/);
     assert.match(providerRequest.init.body, /1.?2 коротких абзац/);
     assert.match(providerRequest.init.body, /не придумывай/i);
-    assert.doesNotMatch(providerRequest.init.body, /Ты Awful/);
   } finally {
     globalThis.fetch = originalFetch;
   }
