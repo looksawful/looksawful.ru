@@ -27,6 +27,34 @@ function activeCards(root: HTMLElement): HTMLElement[] {
   return [...root.querySelectorAll<HTMLElement>("[data-gallery-card]")];
 }
 
+function escapeCaption(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function galleryCredits(card: HTMLElement): readonly string[] {
+  const raw = card.dataset.galleryCredits || "[]";
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return [...new Set(parsed.filter((credit): credit is string => (
+      typeof credit === "string" && credit.trim().length > 0
+    )))];
+  } catch {
+    return [];
+  }
+}
+
+function captionHtml(card: HTMLElement, title: string): string {
+  const lines = [
+    ...(title ? [title] : []),
+    ...galleryCredits(card),
+  ];
+  return lines.map((line) => `<span>${escapeCaption(line)}</span>`).join("<br>");
+}
+
 function slideFor(card: HTMLElement): GallerySlide | null {
   const image = card.querySelector<HTMLImageElement>("img");
   const id = card.dataset.galleryItemId || "";
@@ -46,7 +74,7 @@ function slideFor(card: HTMLElement): GallerySlide | null {
     width,
     height,
     alt: card.dataset.galleryAlt || image?.alt || "",
-    captionHtml: title ? `<span>${title.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</span>` : "",
+    captionHtml: captionHtml(card, title),
   };
 }
 
