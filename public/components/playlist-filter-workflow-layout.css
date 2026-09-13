@@ -41,3 +41,25 @@
         }
     }
 }
+
+@container playlist-filter (inline-size >= 768px) {
+    @layer components {
+        .compact-bpm-fields {
+            grid-template-columns: 70px 6px 70px;
+        }
+
+        .compact-bpm-fields label,
+        .compact-bpm-fields input {
+            inline-size: 70px;
+        }
+
+        .compact-bpm-separator {
+            display: grid;
+            place-items: center;
+            align-self: end;
+            inline-size: 6px;
+            block-size: 28px;
+            padding-block-end: 0;
+        }
+    }
+}
