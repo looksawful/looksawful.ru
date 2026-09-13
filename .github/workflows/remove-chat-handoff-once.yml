@@ -22,121 +22,68 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import re
 
           path = Path("src/components/contact-hub.ts")
           text = path.read_text(encoding="utf-8")
 
-          def once(old: str, new: str = "") -> None:
+          def sub(pattern: str, replacement: str = "") -> None:
               global text
-              count = text.count(old)
+              text, count = re.subn(pattern, replacement, text, count=1, flags=re.S)
               if count != 1:
-                  raise SystemExit(f"expected exactly one handoff fragment, found {count}: {old[:70]!r}")
-              text = text.replace(old, new, 1)
+                  raise SystemExit(f"expected exactly one handoff fragment: {pattern[:90]!r}")
 
-          once('import { applyExplicitAiDraftHandoff } from "../features/contact-hub/handoff.ts";\n')
-          once('''  const handoffDecision = documentRef.createElement("div");
-          handoffDecision.className = "contact-hub__handoff-decision";
-          handoffDecision.dataset.contactHubHandoffDecision = "";
-          handoffDecision.hidden = true;
-          const appendButton = createTextButton(documentRef, "добавить");
-          appendButton.dataset.contactHubHandoffAppend = "";
-          const replaceButton = createTextButton(documentRef, "заменить");
-          replaceButton.dataset.contactHubHandoffReplace = "";
-          const cancelButton = createTextButton(documentRef, "отмена");
-          cancelButton.dataset.contactHubHandoffCancel = "";
-          handoffDecision.append(appendButton, replaceButton, cancelButton);
+          sub(r'import \{ applyExplicitAiDraftHandoff \} from "\.\./features/contact-hub/handoff\.ts";\n')
+          sub(
+              r'  const handoffDecision = documentRef\.createElement\("div"\);\n.*?'
+              r'  handoffDecision\.append\(appendButton, replaceButton, cancelButton\);\n\n'
+          )
+          sub(
+              r'(    createField\("сообщение", messageInput\),\n)    handoffDecision,\n',
+              r'\1'
+          )
+          sub(
+              r'  const draft = documentRef\.createElement\("textarea"\);\n.*?'
+              r'  aiScreen\.append\(aiLog, draft, handoffButton\);\n',
+              '  aiScreen.append(aiLog);\n'
+          )
+          sub(
+              r'    messageInput,\n    draft,\n    handoffButton,\n    handoffDecision,\n'
+              r'    appendButton,\n    replaceButton,\n    cancelButton,\n    composer,\n',
+              '    messageInput,\n    composer,\n'
+          )
+          sub(
+              r'    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, draft, handoffButton,\n'
+              r'    handoffDecision, appendButton, replaceButton, cancelButton, composer, composerInput,\n',
+              '    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, composer, composerInput,\n'
+          )
+          sub(r'  let pendingDraft = "";\n')
+          sub(
+              r'  const commitHandoff = .*?\n\n  const scrollAiToEnd =',
+              '  const scrollAiToEnd ='
+          )
+          sub(
+              r'      successfulAnswer = true;\n      draft\.value = result\.text;\n      handoffButton\.hidden = false;\n',
+              '      successfulAnswer = true;\n'
+          )
+          sub(
+              r'    opener = null;\n    pendingDraft = "";\n    handoffDecision\.hidden = true;\n    resetHubPosition\(\);\n',
+              '    opener = null;\n    resetHubPosition();\n'
+          )
+          sub(
+              r'  handoffButton\.addEventListener\("click", onHandoff\);\n'
+              r'  appendButton\.addEventListener\("click", onAppend\);\n'
+              r'  replaceButton\.addEventListener\("click", onReplace\);\n'
+              r'  cancelButton\.addEventListener\("click", onCancel\);\n'
+          )
+          sub(
+              r'    handoffButton\.removeEventListener\("click", onHandoff\);\n'
+              r'    appendButton\.removeEventListener\("click", onAppend\);\n'
+              r'    replaceButton\.removeEventListener\("click", onReplace\);\n'
+              r'    cancelButton\.removeEventListener\("click", onCancel\);\n'
+          )
 
-          ''')
-          once('''    createField("сообщение", messageInput),
-              handoffDecision,
-              formActions,
-          ''', '''    createField("сообщение", messageInput),
-              formActions,
-          ''')
-          once('''  const draft = documentRef.createElement("textarea");
-          draft.className = "contact-hub__draft";
-          draft.dataset.contactHubAiDraft = "";
-          draft.setAttribute("aria-label", "AI draft");
-          draft.hidden = true;
-          const handoffButton = createTextButton(documentRef, "перенести в сообщение");
-          handoffButton.dataset.contactHubHandoff = "";
-          handoffButton.classList.add("contact-hub__handoff");
-          handoffButton.hidden = true;
-          aiScreen.append(aiLog, draft, handoffButton);
-          ''', '''  aiScreen.append(aiLog);
-          ''')
-          once('''    messageInput,
-              draft,
-              handoffButton,
-              handoffDecision,
-              appendButton,
-              replaceButton,
-              cancelButton,
-              composer,
-          ''', '''    messageInput,
-              composer,
-          ''')
-          once('''    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, draft, handoffButton,
-              handoffDecision, appendButton, replaceButton, cancelButton, composer, composerInput,
-              composerSend,
-          ''', '''    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, composer, composerInput,
-              composerSend,
-          ''')
-          once('  let pendingDraft = "";\n')
-          once('''  const commitHandoff = (selectedDraftText: string, messageStrategy?: "append" | "replace"): void => {
-              const result = applyExplicitAiDraftHandoff({ selectedDraftText, formDraft: formDraft(), messageStrategy });
-              if (result.kind === "needs_message_decision") {
-                pendingDraft = selectedDraftText;
-                handoffDecision.hidden = false;
-                setMode("form");
-                return;
-              }
-              if (result.kind === "ready") {
-                nameInput.value = result.draft.name;
-                emailInput.value = result.draft.email;
-                messageInput.value = result.draft.message;
-                persistDraft();
-                pendingDraft = "";
-                handoffDecision.hidden = true;
-                setMode("form");
-                messageInput.focus({ preventScroll: true });
-              }
-            };
-
-            const onHandoff = (): void => commitHandoff(draft.value);
-            const onAppend = (): void => commitHandoff(pendingDraft, "append");
-            const onReplace = (): void => commitHandoff(pendingDraft, "replace");
-            const onCancel = (): void => {
-              pendingDraft = "";
-              handoffDecision.hidden = true;
-            };
-
-          ''')
-          once('''      successfulAnswer = true;
-                draft.value = result.text;
-                handoffButton.hidden = false;
-          ''', '''      successfulAnswer = true;
-          ''')
-          once('''    opener = null;
-              pendingDraft = "";
-              handoffDecision.hidden = true;
-              resetHubPosition();
-          ''', '''    opener = null;
-              resetHubPosition();
-          ''')
-          once('''  handoffButton.addEventListener("click", onHandoff);
-            appendButton.addEventListener("click", onAppend);
-            replaceButton.addEventListener("click", onReplace);
-            cancelButton.addEventListener("click", onCancel);
-          ''')
-          once('''    handoffButton.removeEventListener("click", onHandoff);
-              appendButton.removeEventListener("click", onAppend);
-              replaceButton.removeEventListener("click", onReplace);
-              cancelButton.removeEventListener("click", onCancel);
-          ''')
-
-          forbidden = ["перенести в сообщение", "contactHubHandoff", "applyExplicitAiDraftHandoff"]
-          for token in forbidden:
+          for token in ("перенести в сообщение", "contactHubHandoff", "applyExplicitAiDraftHandoff"):
               if token in text:
                   raise SystemExit(f"handoff token remains: {token}")
 
@@ -146,7 +93,6 @@ jobs:
         run: |
           set -euo pipefail
           git diff --check
-          git diff -- src/components/contact-hub.ts
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/components/contact-hub.ts
