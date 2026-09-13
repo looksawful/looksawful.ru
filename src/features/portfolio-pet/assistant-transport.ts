@@ -60,7 +60,8 @@ function safeRequestSourceIds(value: readonly string[]): readonly string[] {
   return Object.freeze([...new Set(sourceIds)]);
 }
 
-function safeHistory(value: readonly PortfolioConversationTurn[]): readonly PortfolioConversationTurn[] {
+function safeHistory(value: readonly PortfolioConversationTurn[] | undefined): readonly PortfolioConversationTurn[] {
+  if (!Array.isArray(value)) return Object.freeze([]);
   return Object.freeze(value
     .filter((turn) => (turn.role === "user" || turn.role === "assistant") && Boolean(turn.text.trim()))
     .slice(-MAX_HISTORY_TURNS)
