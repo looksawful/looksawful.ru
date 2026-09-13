@@ -3,6 +3,7 @@ export type SiteAnalyticsConsent = "granted" | "denied" | null;
 
 export type SiteAnalyticsGoal =
   | "project_open"
+  | "case_end"
   | "cv_open"
   | "contact_email"
   | "contact_phone"
@@ -44,6 +45,12 @@ interface MountSiteAnalyticsGoalTrackingOptions {
   config: SiteAnalyticsConfig;
 }
 
+interface MountSiteAnalyticsCaseEndTrackingOptions {
+  root: Document;
+  target: Window;
+  config: SiteAnalyticsConfig;
+}
+
 type YandexMetrikaFunction = ((...args: unknown[]) => void) & {
   a?: unknown[][];
   l?: number;
@@ -60,7 +67,10 @@ type PrivacyNavigator = Navigator & {
 const CLOUDFLARE_BEACON_SRC = "https://static.cloudflareinsights.com/beacon.min.js";
 const YANDEX_METRIKA_SRC = "https://mc.yandex.ru/metrika/tag.js";
 const ANALYTICS_CONSENT_KEY = "looksawful:analytics-consent";
+const ANALYTICS_INTERNAL_KEY = "looksawful:analytics-internal";
 const ANALYTICS_REGION_KEY = "looksawful:analytics-region";
+const ANALYTICS_ENTITY_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const ANALYTICS_ENTITY_ID_MAX_LENGTH = 64;
 const noop = () => {};
 
 function clean(value: string | null | undefined): string {
@@ -71,6 +81,13 @@ function normalizeAnalyticsCountry(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const normalized = value.trim().toUpperCase();
   return /^[A-Z]{2}$/.test(normalized) ? normalized : null;
+}
+
+function canonicalAnalyticsEntityId(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  if (!normalized || normalized.length > ANALYTICS_ENTITY_ID_MAX_LENGTH) return null;
+  return ANALYTICS_ENTITY_ID_PATTERN.test(normalized) ? normalized : null;
 }
 
 export function parseAnalyticsCountryResponse(value: string): string | null {
@@ -119,12 +136,21 @@ export function isLocalAnalyticsHostname(hostname: string): boolean {
     || normalized.endsWith(".localhost");
 }
 
+export function isSiteAnalyticsInternalTraffic(target: Pick<Window, "localStorage">): boolean {
+  try {
+    return target.localStorage.getItem(ANALYTICS_INTERNAL_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export function selectSiteAnalyticsProviders(
   config: SiteAnalyticsConfig,
   privacy: SitePrivacySignals,
   analyticsConsent: boolean,
+  internalTraffic = false,
 ): SiteAnalyticsProvider[] {
-  if (isSiteAnalyticsOptedOut(privacy)) return [];
+  if (internalTraffic || isSiteAnalyticsOptedOut(privacy)) return [];
 
   const providers: SiteAnalyticsProvider[] = [];
   if (clean(config.cloudflareToken)) providers.push("cloudflare");
@@ -136,8 +162,9 @@ export function buildSiteAnalyticsScripts(
   config: SiteAnalyticsConfig,
   privacy: SitePrivacySignals,
   analyticsConsent: boolean,
+  internalTraffic = false,
 ): SiteAnalyticsScript[] {
-  const providers = selectSiteAnalyticsProviders(config, privacy, analyticsConsent);
+  const providers = selectSiteAnalyticsProviders(config, privacy, analyticsConsent, internalTraffic);
   const scripts: SiteAnalyticsScript[] = [];
 
   for (const provider of providers) {
@@ -252,7 +279,8 @@ export function mountSiteAnalytics({ root, target, config }: MountSiteAnalyticsO
 
   const privacy = readSitePrivacySignals(target);
   const analyticsConsent = hasSiteAnalyticsConsent(target);
-  const scripts = buildSiteAnalyticsScripts(config, privacy, analyticsConsent);
+  const internalTraffic = isSiteAnalyticsInternalTraffic(target);
+  const scripts = buildSiteAnalyticsScripts(config, privacy, analyticsConsent, internalTraffic);
   const host = root.head ?? root.documentElement;
   const mounted: SiteAnalyticsProvider[] = [];
 
@@ -350,6 +378,7 @@ export function reachSiteAnalyticsGoal(
   event: SiteAnalyticsGoalEvent,
 ): boolean {
   if (isLocalAnalyticsHostname(target.location.hostname)) return false;
+  if (isSiteAnalyticsInternalTraffic(target)) return false;
   if (isSiteAnalyticsOptedOut(readSitePrivacySignals(target))) return false;
   if (!hasSiteAnalyticsConsent(target)) return false;
 
@@ -363,12 +392,63 @@ export function reachSiteAnalyticsGoal(
   return true;
 }
 
+export function mountSiteAnalyticsCaseEndTracking({
+  root,
+  target,
+  config,
+}: MountSiteAnalyticsCaseEndTrackingOptions): () => void {
+  if (isLocalAnalyticsHostname(target.location.hostname)) return noop;
+  if (isSiteAnalyticsInternalTraffic(target)) return noop;
+  if (!parseYandexCounterId(config.yandexCounterId)) return noop;
+  if (root.body?.dataset.pageType !== "case") return noop;
+
+  const entityId = canonicalAnalyticsEntityId(root.body?.dataset.entityId);
+  if (!entityId) return noop;
+
+  let completed = false;
+
+  const destroy = (): void => {
+    target.removeEventListener("scroll", onProgress);
+    target.removeEventListener("resize", onProgress);
+  };
+
+  const onProgress = (): void => {
+    if (completed) return;
+    const scrollHeight = Math.max(
+      root.documentElement?.scrollHeight ?? 0,
+      root.body?.scrollHeight ?? 0,
+    );
+    if (scrollHeight <= 0) return;
+
+    const viewportEnd = Math.ceil(target.scrollY + target.innerHeight);
+    if (viewportEnd < scrollHeight) return;
+
+    const emitted = reachSiteAnalyticsGoal(target, config, {
+      goal: "case_end",
+      params: Object.freeze({
+        page: analyticsPagePath(target),
+        target: entityId,
+      }),
+    });
+    if (!emitted) return;
+
+    completed = true;
+    destroy();
+  };
+
+  target.addEventListener("scroll", onProgress, { passive: true });
+  target.addEventListener("resize", onProgress);
+  onProgress();
+  return destroy;
+}
+
 export function mountSiteAnalyticsGoalTracking({
   root,
   target,
   config,
 }: MountSiteAnalyticsGoalTrackingOptions): () => void {
   if (isLocalAnalyticsHostname(target.location.hostname)) return noop;
+  if (isSiteAnalyticsInternalTraffic(target)) return noop;
   if (!parseYandexCounterId(config.yandexCounterId)) return noop;
 
   const onClick = (event: MouseEvent): void => {

@@ -7,12 +7,53 @@ import { chromium } from "playwright";
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 4173;
 const SERVER_STOP_GRACE_MS = 2_000;
+export const ANALYTICS_INTERNAL_STORAGE_KEY = "looksawful:analytics-internal";
+const internalAnalyticsBrowsers = new WeakMap();
 
 export function isDirectExecution(metaUrl) {
   return Boolean(
     process.argv[1]
       && fileURLToPath(metaUrl) === path.resolve(process.argv[1]),
   );
+}
+
+export async function markAnalyticsInternal(target) {
+  await target.addInitScript(({ key }) => {
+    try {
+      window.localStorage.setItem(key, "1");
+    } catch {}
+  }, { key: ANALYTICS_INTERNAL_STORAGE_KEY });
+  return target;
+}
+
+export function createInternalAnalyticsBrowser(browser) {
+  const existing = internalAnalyticsBrowsers.get(browser);
+  if (existing) return existing;
+
+  const wrapped = new Proxy(browser, {
+    get(target, property) {
+      if (property === "newContext") {
+        return async (options) => {
+          const context = await target.newContext(options);
+          return markAnalyticsInternal(context);
+        };
+      }
+
+      if (property === "newPage") {
+        return async (options) => {
+          const page = await target.newPage(options);
+          return markAnalyticsInternal(page);
+        };
+      }
+
+      const value = Reflect.get(target, property, target);
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  });
+
+  internalAnalyticsBrowsers.set(browser, wrapped);
+  internalAnalyticsBrowsers.set(wrapped, wrapped);
+  return wrapped;
 }
 
 async function waitForServer(baseUrl, server, getOutput, attempts = 80) {
@@ -113,7 +154,8 @@ export async function withE2ERuntime(callback, options = {}) {
   try {
     await waitForServer(baseUrl, server, () => serverOutput, options.waitAttempts);
     browser = await chromium.launch({ headless: true });
-    return await callback({ browser, baseUrl, host, port });
+    const analyticsSafeBrowser = createInternalAnalyticsBrowser(browser);
+    return await callback({ browser: analyticsSafeBrowser, baseUrl, host, port });
   } finally {
     process.removeListener("SIGINT", onSignal);
     process.removeListener("SIGTERM", onSignal);

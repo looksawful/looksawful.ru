@@ -2,6 +2,7 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { sitePages } from "../src/site/pages/manifest.ts";
 import {
   SITE_ORIGIN,
   collectHtmlFiles,
@@ -49,6 +50,30 @@ export function buildSitemapFiles(urls, maxUrls = MAX_URLS_PER_SITEMAP) {
   return files;
 }
 
+export function collectManifestIndexableCanonicals(pages = sitePages) {
+  const canonicals = [];
+  const seen = new Set();
+
+  for (const page of pages) {
+    if (!page.enabled || !page.discovery.indexable) continue;
+
+    const url = new URL(page.path, `${SITE_ORIGIN}/`);
+    if (url.origin !== SITE_ORIGIN || url.search || url.hash) {
+      throw new Error(`invalid indexable SitePage canonical path: ${page.path}`);
+    }
+
+    const canonical = url.href;
+    if (seen.has(canonical)) {
+      throw new Error(`duplicate indexable SitePage canonical: ${canonical}`);
+    }
+    seen.add(canonical);
+    canonicals.push(canonical);
+  }
+
+  canonicals.sort((a, b) => a.localeCompare(b));
+  return canonicals;
+}
+
 export async function collectIndexableCanonicals(distDir) {
   const htmlFiles = await collectHtmlFiles(distDir);
   const canonicals = [];
@@ -73,6 +98,20 @@ export async function collectIndexableCanonicals(distDir) {
   return canonicals;
 }
 
+export async function validateBuiltIndexableCanonicals(distDir, pages = sitePages) {
+  const expected = collectManifestIndexableCanonicals(pages);
+  const actual = await collectIndexableCanonicals(distDir);
+  const actualSet = new Set(actual);
+
+  for (const canonical of expected) {
+    if (!actualSet.has(canonical)) {
+      throw new Error(`missing indexable canonical in built output: ${canonical}`);
+    }
+  }
+
+  return expected;
+}
+
 async function removeGeneratedSitemaps(outputDir) {
   const { readdir } = await import("node:fs/promises");
   const entries = await readdir(outputDir, { withFileTypes: true }).catch(() => []);
@@ -86,7 +125,7 @@ async function removeGeneratedSitemaps(outputDir) {
 export async function generateSitemaps({ distDir = "dist", outputDir = distDir } = {}) {
   const absoluteDist = path.resolve(distDir);
   const absoluteOutput = path.resolve(outputDir);
-  const urls = await collectIndexableCanonicals(absoluteDist);
+  const urls = await validateBuiltIndexableCanonicals(absoluteDist);
   const files = buildSitemapFiles(urls);
 
   await mkdir(absoluteOutput, { recursive: true });

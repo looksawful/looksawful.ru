@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <title>looksawful lab</title>
+  </head>
+  <body data-environment="non-production" data-mode="read-only">
+    <main class="lab-shell" aria-labelledby="lab-title">
+      <header class="lab-header">
+        <div>
+          <p class="lab-kicker">internal tooling · non-production</p>
+          <h1 id="lab-title">looksawful lab</h1>
+        </div>
+        <strong class="lab-mode" aria-label="Lab access mode">READ ONLY</strong>
+      </header>
+
+      <section class="lab-panel" aria-labelledby="lab-status-title">
+        <h2 id="lab-status-title">build provenance</h2>
+        <dl class="lab-provenance">
+          <div><dt>branch</dt><dd id="lab-branch">loading</dd></div>
+          <div><dt>commit</dt><dd id="lab-commit">loading</dd></div>
+          <div><dt>build</dt><dd id="lab-build-time">loading</dd></div>
+        </dl>
+      </section>
+
+      <section class="lab-panel" aria-labelledby="lab-tools-title">
+        <h2 id="lab-tools-title">tools</h2>
+        <div class="lab-tools">
+          <a class="lab-tool" href="https://looksawful.ru/" rel="noreferrer">
+            <span>public site</span>
+            <small>production view · external</small>
+          </a>
+          <div class="lab-tool" aria-disabled="true">
+            <span>media base</span>
+            <small>read-only inventory integration target</small>
+          </div>
+          <div class="lab-tool" aria-disabled="true">
+            <span>design system</span>
+            <small>viewer integration target</small>
+          </div>
+          <div class="lab-tool" aria-disabled="true">
+            <span>diagnostics</span>
+            <small>shell provenance only in this PR</small>
+          </div>
+        </div>
+      </section>
+
+      <aside class="lab-warning" role="note">
+        Network authentication does not grant CMS write authority. Editorial and media mutations remain governed by the dedicated authoring contracts before integration into dev.
+      </aside>
+    </main>
+    <script type="module" src="/src/lab/index.ts"></script>
+  </body>
+</html>

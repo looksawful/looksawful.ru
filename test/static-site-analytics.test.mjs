@@ -21,6 +21,8 @@ test("static analytics injects Cloudflare, consent-gated Yandex and conversion g
   assert.match(html, /static\.cloudflareinsights\.com\/beacon\.min\.js/);
   assert.match(html, /mc\.yandex\.ru\/metrika\/tag\.js/);
   assert.match(html, /looksawful:analytics-consent/);
+  assert.match(html, /looksawful:analytics-internal/);
+  assert.match(html, /if\(optedOut\|\|internalTraffic\)return/);
   assert.match(html, /href=\"\/privacy\/\"/);
   assert.match(html, /project_open/);
   assert.match(html, /cv_open/);
