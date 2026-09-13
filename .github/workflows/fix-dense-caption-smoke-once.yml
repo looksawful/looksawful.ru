@@ -1,0 +1,51 @@
+name: Fix Dense Caption Smoke Once
+
+on:
+  push:
+    branches: [contact-hub-frontend-current]
+    paths:
+      - .github/workflows/fix-dense-caption-smoke-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: contact-hub-frontend-current
+          fetch-depth: 1
+      - name: Use keyboard lightbox contract for dense touch captions
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path("tools/e2e/run-smoke.mjs")
+          text = path.read_text(encoding="utf-8")
+          old = '''    await source.scrollIntoViewIfNeeded();
+    await source.click({ force: true });
+    await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
+    const lightboxCaption = page.locator(".media-lightbox__caption").first();
+'''
+          new = '''    await source.scrollIntoViewIfNeeded();
+    await source.focus();
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => window.pswp?.opener?.isOpen === true || document.querySelector("[data-media-lightbox][open]"));
+    const lightboxCaption = page.locator(".media-lightbox__caption").first();
+'''
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f"expected one dense-caption lightbox interaction, found {count}")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+      - name: Commit focused smoke repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/e2e/run-smoke.mjs
+          git commit -m "test(e2e): use accessible dense lightbox path"
+          git push origin HEAD:contact-hub-frontend-current
