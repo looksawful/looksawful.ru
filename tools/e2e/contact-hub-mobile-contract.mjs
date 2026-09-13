@@ -124,6 +124,17 @@ async function verifyViewport(browser, baseUrl, viewport) {
     await hub.waitFor({ state: "hidden" });
     const launcher = page.locator("[data-contact-hub-launcher]");
     assertInside(await box(launcher, "collapsed launcher"), viewport, "collapsed launcher");
+
+    const collapsedConsent = await insertSyntheticConsent(page);
+    const collapsedConsentBox = await box(collapsedConsent, "collapsed-state consent");
+    assert.equal(
+      overlaps(collapsedConsentBox, await box(launcher, "collapsed launcher with consent")),
+      false,
+      `${viewport.width}x${viewport.height}: consent must not overlap collapsed Hub launcher`,
+    );
+    await collapsedConsent.evaluate((node) => node.remove());
+    await settle(page);
+
     await launcher.click();
     await hub.waitFor({ state: "visible" });
     await settle(page);
