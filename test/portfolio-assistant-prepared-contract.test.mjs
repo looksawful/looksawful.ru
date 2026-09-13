@@ -119,20 +119,36 @@ test("AI-009: approved prepared answer content is usable without provider availa
   assert.ok(result.text.trim().length > 0);
 });
 
-test("preview assistant exposes all public portfolio sources only in preview mode", async () => {
+test("preview assistant routes only relevant approved sources instead of dumping the whole knowledge base", async () => {
   const { createPreviewPortfolioAssistantRouter } = await loadPreparedAnswers();
   assert.equal(typeof createPreviewPortfolioAssistantRouter, "function");
   const router = createPreviewPortfolioAssistantRouter();
   const result = router({
-    message: "\u041a\u0430\u043a\u0438\u043c\u0438 \u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442\u0430\u043c\u0438 \u0438 \u0442\u0435\u0445\u043d\u043e\u043b\u043e\u0433\u0438\u044f\u043c\u0438 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442 \u0418\u0432\u0430\u043d?",
+    message: "Какими инструментами и технологиями я работаю?",
     locale: "ru",
     context: { page: "home" },
   });
   assert.equal(result.kind, "generate");
   assert.ok(result.context.sourceIds.includes("profile.skills"));
-  assert.ok(result.context.sourceIds.includes("profile.experience"));
-  assert.ok(result.context.sourceIds.includes("profile.education"));
-  assert.ok(result.context.sourceIds.includes("project.jestei"));
+  assert.ok(result.context.sourceIds.includes("profile.principles"));
+  assert.ok(result.context.sourceIds.includes("profile.role"));
+  assert.ok(result.context.sourceIds.includes("profile.about"));
+  assert.equal(result.context.sourceIds.includes("profile.contact"), false);
+  assert.equal(result.context.sourceIds.includes("profile.education"), false);
+  assert.equal(result.context.sourceIds.includes("project.jestei"), false);
+});
+
+test("preview assistant includes the current project before generic profile context", async () => {
+  const { createPreviewPortfolioAssistantRouter } = await loadPreparedAnswers();
+  const router = createPreviewPortfolioAssistantRouter();
+  const result = router({
+    message: "Почему студия закрылась?",
+    locale: "ru",
+    context: { page: "/work/sensetique/" },
+  });
+
+  assert.equal(result.kind, "generate");
+  assert.equal(result.context.sourceIds[0], "project.sensetique");
 });
 
 test("OWNER-718: approved AI knowledge is first-person, human-readable and excludes rejected facts", async () => {
