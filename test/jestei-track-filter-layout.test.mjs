@@ -58,6 +58,26 @@ test("Jestei BPM value row stays visually attached to the range control", () => 
   );
 });
 
+test("Jestei wide compact BPM fields fit the audited 154px column without label collisions", () => {
+  const css = readLayoutCss();
+
+  assert.match(
+    css,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-fields\s*\{[^}]*grid-template-columns:\s*70px\s+6px\s+70px\s*;/s,
+    "two 70px fields, a 6px separator and two 4px gaps must consume the full 154px audited BPM column",
+  );
+  assert.match(
+    css,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-fields\s+label,\s*\.compact-bpm-fields\s+input\s*\{[^}]*inline-size:\s*70px\s*;/s,
+    "wide labels and controls must use the full 70px field tracks instead of overflowing 60px boxes",
+  );
+  assert.match(
+    css,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-separator\s*\{[^}]*display:\s*grid\s*;[^}]*place-items:\s*center\s*;[^}]*align-self:\s*end\s*;[^}]*inline-size:\s*6px\s*;[^}]*block-size:\s*28px\s*;[^}]*padding-block-end:\s*0\s*;/s,
+    "the separator must stay centered between the 28px-high wide inputs",
+  );
+});
+
 test("Jestei track-type options stay in one horizontal row", () => {
   const css = readLayoutCss();
 
