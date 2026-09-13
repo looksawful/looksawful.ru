@@ -30,8 +30,8 @@ test("AI composer preserves the approved simple input language", () => {
   assert.match(component, /setAttribute\("aria-label", "Отправить"\)/);
 });
 
-test("OWNER-718: Venus opens with one simple line and no suggested questions", () => {
-  assert.match(component, /"Привет\. Я Venus\."/);
+test("OWNER-718: Awful opens with one simple line and no suggested questions", () => {
+  assert.match(component, /"Привет\. Я Awful\."/);
   assert.doesNotMatch(component, /contact-hub__quick-actions/);
   assert.doesNotMatch(component, /contactHubQuickQuery/);
   assert.doesNotMatch(component, /Покажи кейсы|Покажи резюме|Расскажи о Ване/);
@@ -49,7 +49,7 @@ test("explicit AI-to-form handoff uses the canonical domain seam", () => {
   assert.doesNotMatch(component, /\.requestSubmit\(/);
 });
 
-test("visual contract stays compact beside Venus on desktop", () => {
+test("visual contract stays compact beside Awful on desktop", () => {
   assert.match(css, /inset-inline-start:\s*214px/);
   assert.match(css, /inset-block-end:\s*18px/);
   assert.match(css, /inline-size:\s*min\(356px,\s*calc\(100vw - 236px\)\)/);
