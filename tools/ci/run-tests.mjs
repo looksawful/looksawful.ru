@@ -55,6 +55,7 @@ export const fastTests = new Set([
   "test/private-lab-shell.test.mjs",
   "test/project-card-hover.test.mjs",
   "test/repository-growth-policy.test.mjs",
+  // CONTRACT: cheap rendered-HTML checks protect durable metadata/noindex/snippet boundaries.
   "test/search-presentation.test.mjs",
   // CONTRACT: one document H1 on Home and one textual H1 on every indexable portfolio page.
   "test/seo-heading-structure-contract.test.mjs",
