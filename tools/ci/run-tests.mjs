@@ -41,6 +41,7 @@ export const fastTests = new Set([
   "test/jestei-event-migration.test.mjs",
   "test/lighthouse-ci-config.test.mjs",
   "test/media-desk-cloudflare-auth.test.mjs",
+  "test/media-desk-cloudflare-github.test.mjs",
   "test/media-desk-cloudflare-worker.test.mjs",
   "test/media-desk-launcher-policy.test.mjs",
   "test/media-desk-model.test.mjs",
