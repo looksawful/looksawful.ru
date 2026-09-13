@@ -270,7 +270,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s' "$YANDEX_AI_API_KEY" | npx --yes wrangler@4 pages secret put YANDEX_AI_API_KEY --project-name="$CLOUDFLARE_PAGES_PROJECT"
+          printf '%s' "$YANDEX_AI_API_KEY" | npx --yes wrangler@4 pages secret put YANDEX_AI_API_KEY --project-name="$CLOUDFLARE_PAGES_PROJECT" --env=preview
 
       - name: Deploy exact artifact to Cloudflare Pages preview
         id: deploy
