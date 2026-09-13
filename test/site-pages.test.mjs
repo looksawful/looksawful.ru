@@ -28,6 +28,7 @@ const homepageSource = await readFile(
 
 const expectedRoutes = new Map([
   ["home", "/"],
+  ["gallery", "/gallery/"],
   ["case:jestei-pool", "/work/jestei-pool/"],
   ["case:styx", "/work/styx/"],
   ["case:sensetique", "/work/sensetique/"],
@@ -181,7 +182,7 @@ test("only enabled pages are returned for build ownership decisions", () => {
 
 test("public Case, Collection, CV and privacy pages are listed and indexable while selected Project pages stay unlisted", () => {
   for (const page of sitePages) {
-    if (page.type === "case" || page.type === "collection" || page.id === "cv" || page.id === "privacy") {
+    if (page.type === "case" || page.type === "collection" || page.type === "gallery" || page.id === "cv" || page.id === "privacy") {
       assert.equal(page.discovery.listed, true);
       assert.equal(page.discovery.indexable, true);
     }
