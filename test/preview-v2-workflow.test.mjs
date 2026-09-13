@@ -32,6 +32,7 @@ test("preview v2 candidate build is exact-SHA, manual-only and unprivileged", as
   assert.match(workflow, /npm run test:fast/);
   assert.match(workflow, /npm run build:site/);
   assert.match(workflow, /prepare-cloudflare-pages\.mjs dist/);
+  assert.match(workflow, /preview-metadata\.mjs/);
   assert.match(workflow, /preview-metadata\.json/);
   assert.match(workflow, /actions\/upload-artifact@v4/);
 
@@ -49,11 +50,13 @@ test("preview v2 deployment is a separate trusted workflow", async () => {
   assert.match(workflow, /github\.event\.workflow_run\.conclusion\s*==\s*'success'/);
   assert.match(deploy, /environment:\s*preview-deploy/);
   assert.match(deploy, /actions\/download-artifact@v4|github-script|api\.github\.com/);
+  assert.match(deploy, /trusted\/tools\/preview\/preview-metadata\.mjs/);
   assert.match(deploy, /validate-candidate-artifact\.mjs/);
   assert.match(deploy, /assemble-trusted-runtime\.mjs/);
   assert.match(deploy, /secrets\.CLOUDFLARE_ACCOUNT_ID/);
   assert.match(deploy, /secrets\.CLOUDFLARE_API_TOKEN/);
 
+  assert.doesNotMatch(deploy, /jq -e?r? '\.(?:sha|kind|key|repository)'/);
   assert.doesNotMatch(deploy, /npm ci/);
   assert.doesNotMatch(deploy, /npm run/);
   assert.doesNotMatch(deploy, /node dist\//);
