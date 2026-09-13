@@ -1,5 +1,6 @@
 import type { ProjectData } from "../../types/project.ts";
 import { projects } from "../catalog/projects/index.ts";
+import { contextualMediaCatalogItems } from "./catalog-view.ts";
 import {
   getPublicCatalogItems,
   type CatalogItem,
@@ -56,6 +57,30 @@ function projectSupportsProduction(projectId: string): boolean {
   return projectRoleIds(projectId).includes("producer");
 }
 
+function contextualItemSupportsGallery(projectIds: readonly string[]): boolean {
+  return projectIds.some(
+    (projectId) => projectSupportsPhotography(projectId) || projectSupportsProduction(projectId),
+  );
+}
+
+function getPrereleaseCatalogItems(): readonly CatalogItem[] {
+  // Historical Shootings/Sensetique records already have canonical contextual
+  // usages but most have not yet had showInCatalog materialized by the CMS.
+  // The isolated noindex PR preview promotes only those stable contextual
+  // candidates into the existing Public Catalog converter. Production release
+  // still requires the explicit publication flags to be migrated and this
+  // preview-only bridge removed.
+  const candidates = contextualMediaCatalogItems
+    .filter((item) => (
+      item.asset.type === "image"
+      && !item.archived
+      && contextualItemSupportsGallery(item.projectIds)
+    ))
+    .map((item) => item.showInCatalog ? item : { ...item, showInCatalog: true });
+
+  return getPublicCatalogItems(candidates);
+}
+
 function firstSeriesId(
   item: CatalogItem,
   layer: GalleryLayer,
@@ -77,7 +102,7 @@ function layersFor(item: CatalogItem): readonly GalleryLayer[] {
 }
 
 export function getGalleryItems(
-  catalogItems: readonly CatalogItem[] = getPublicCatalogItems(),
+  catalogItems: readonly CatalogItem[] = getPrereleaseCatalogItems(),
 ): readonly GalleryItem[] {
   const seriesCounts = new Map<string, number>();
   const result: GalleryItem[] = [];
