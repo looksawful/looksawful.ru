@@ -44,11 +44,11 @@ function resolveAssistantSessionId(documentRef: Document): string {
     if (existing) return existing;
 
     const generated = documentRef.defaultView?.crypto.randomUUID?.()
-      ?? `venus-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+      ?? `awful-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
     storage?.setItem(ASSISTANT_SESSION_KEY, generated);
     return generated;
   } catch {
-    return `venus-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    return `awful-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
   }
 }
 
@@ -83,14 +83,6 @@ function createHubElement(documentRef: Document) {
   const header = documentRef.createElement("header");
   header.className = "contact-hub__header";
 
-  const modes = documentRef.createElement("div");
-  modes.className = "contact-hub__modes";
-  const aiModeButton = createTextButton(documentRef, "AI");
-  aiModeButton.dataset.contactHubMode = "ai";
-  const formModeButton = createTextButton(documentRef, "написать");
-  formModeButton.dataset.contactHubMode = "form";
-  modes.append(aiModeButton, formModeButton);
-
   const collapseButton = createTextButton(documentRef, "−");
   collapseButton.classList.add("contact-hub__collapse");
   collapseButton.dataset.contactHubCollapse = "";
@@ -100,7 +92,7 @@ function createHubElement(documentRef: Document) {
   closeButton.classList.add("contact-hub__close");
   closeButton.dataset.contactHubClose = "";
   closeButton.setAttribute("aria-label", "Закрыть");
-  header.append(modes, collapseButton, closeButton);
+  header.append(collapseButton, closeButton);
 
   const formScreen = documentRef.createElement("form");
   formScreen.className = "contact-hub__screen contact-hub__screen--form";
@@ -214,7 +206,7 @@ function createHubElement(documentRef: Document) {
   composer.dataset.contactHubAiComposer = "";
   const composerInput = documentRef.createElement("input");
   composerInput.autocomplete = "off";
-  composerInput.placeholder = "спросить Venus";
+  composerInput.placeholder = "follow up";
   composerInput.setAttribute("aria-label", "Сообщение AI");
   const composerSend = documentRef.createElement("button");
   composerSend.type = "submit";
@@ -239,8 +231,6 @@ function createHubElement(documentRef: Document) {
     collapsedLauncher,
     collapseButton,
     closeButton,
-    aiModeButton,
-    formModeButton,
     formScreen,
     aiScreen,
     aiLog,
@@ -270,7 +260,7 @@ export function mountContactHub(root: Document = document): Destroy {
 
   const elements = createHubElement(root);
   const {
-    hub, collapsedLauncher, collapseButton, closeButton, aiModeButton, formModeButton,
+    hub, collapsedLauncher, collapseButton, closeButton,
     formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, draft, handoffButton,
     handoffDecision, appendButton, replaceButton, cancelButton, composer, composerInput,
     composerSend, quickActionButtons,
@@ -372,8 +362,6 @@ export function mountContactHub(root: Document = document): Destroy {
     formScreen.hidden = state.mode !== "form";
     aiScreen.hidden = state.mode !== "ai";
     composer.hidden = state.mode !== "ai";
-    aiModeButton.setAttribute("aria-current", state.mode === "ai" ? "page" : "false");
-    formModeButton.setAttribute("aria-current", state.mode === "form" ? "page" : "false");
     root.documentElement.classList.toggle("contact-hub-open", isOpen);
   };
 
@@ -477,11 +465,11 @@ export function mountContactHub(root: Document = document): Destroy {
       draft.value = result.text;
       handoffButton.hidden = false;
     } else if (result.kind === "no_data") {
-      responseText = "Пока нет согласованных данных для ответа на это. Можно переключиться на «написать» и связаться напрямую.";
+      responseText = "Пока нет согласованных данных для ответа на это. Можно связаться напрямую через форму контакта.";
     } else if (result.kind === "rate_limited") {
       responseText = "Слишком много запросов. Попробуй ещё раз через минуту.";
     } else {
-      responseText = "Чат сейчас недоступен. Можно переключиться на «написать» и связаться напрямую.";
+      responseText = "Чат сейчас недоступен. Можно связаться напрямую через форму контакта.";
     }
 
     pendingMessage.textContent = responseText;
@@ -555,13 +543,8 @@ export function mountContactHub(root: Document = document): Destroy {
   };
 
   const preventPrototypeSubmit = (event: SubmitEvent): void => event.preventDefault();
-  const openAiMode = (): void => setMode("ai");
-  const openFormMode = (): void => setMode("form");
-
   openers.forEach((contact) => contact.addEventListener("click", openFromSiteContact));
   petOpeners.forEach((pet) => pet.addEventListener("click", openFromPet));
-  aiModeButton.addEventListener("click", openAiMode);
-  formModeButton.addEventListener("click", openFormMode);
   handoffButton.addEventListener("click", onHandoff);
   appendButton.addEventListener("click", onAppend);
   replaceButton.addEventListener("click", onReplace);
@@ -584,8 +567,6 @@ export function mountContactHub(root: Document = document): Destroy {
   return () => {
     openers.forEach((contact) => contact.removeEventListener("click", openFromSiteContact));
     petOpeners.forEach((pet) => pet.removeEventListener("click", openFromPet));
-    aiModeButton.removeEventListener("click", openAiMode);
-    formModeButton.removeEventListener("click", openFormMode);
     handoffButton.removeEventListener("click", onHandoff);
     appendButton.removeEventListener("click", onAppend);
     replaceButton.removeEventListener("click", onReplace);
