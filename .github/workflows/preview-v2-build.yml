@@ -44,16 +44,11 @@ jobs:
       PR_NUMBER: ${{ inputs.pr_number }}
       PR_HEAD_SHA: ${{ inputs.target_sha }}
     steps:
-      - name: Validate preview identity
+      - name: Require an exact SHA before checkout
         shell: bash
         run: |
           set -euo pipefail
           [[ "$TARGET_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || { echo "target_sha must be an exact 40-character commit SHA" >&2; exit 1; }
-          [[ "$PREVIEW_KIND" =~ ^(feature|lab|cms|release)$ ]] || { echo "unsupported preview_kind" >&2; exit 1; }
-          [[ "$PREVIEW_KEY" =~ ^[a-z0-9][a-z0-9-]{0,62}$ ]] || { echo "preview_key must be a safe lowercase slug" >&2; exit 1; }
-          if [[ -n "${PR_NUMBER:-}" ]]; then
-            [[ "$PR_NUMBER" =~ ^[0-9]+$ ]] || { echo "pr_number must be numeric when supplied" >&2; exit 1; }
-          fi
 
       - name: Checkout exact preview target SHA
         uses: actions/checkout@v7
@@ -144,19 +139,26 @@ jobs:
       - name: Prepare Cloudflare-compatible preview media
         run: node tools/preview/prepare-cloudflare-pages.mjs dist
 
-      - name: Stamp exact candidate metadata
+      - name: Validate and stamp exact candidate metadata
         shell: bash
         run: |
+          set -euo pipefail
           node --input-type=module <<'NODE'
           import { writeFile } from "node:fs/promises";
-          const value = {
+          import { parsePreviewMetadata } from "./tools/preview/preview-metadata.mjs";
+
+          let pr;
+          if (process.env.PR_NUMBER) {
+            pr = Number(process.env.PR_NUMBER);
+          }
+          const metadata = parsePreviewMetadata({
             repository: process.env.GITHUB_REPOSITORY,
             sha: process.env.TARGET_SHA,
             kind: process.env.PREVIEW_KIND,
             key: process.env.PREVIEW_KEY,
-            ...(process.env.PR_NUMBER ? { pr: Number(process.env.PR_NUMBER) } : {}),
-          };
-          await writeFile("dist/preview-metadata.json", `${JSON.stringify(value, null, 2)}\n`, "utf8");
+            ...(pr === undefined ? {} : { pr }),
+          });
+          await writeFile("dist/preview-metadata.json", `${JSON.stringify(metadata, null, 2)}\n`, "utf8");
           NODE
 
       - name: Enforce Cloudflare Pages asset limits
