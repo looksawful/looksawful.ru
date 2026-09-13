@@ -25,6 +25,7 @@ import { portfolioSensetiqueStrip } from "../../../data/content/sensetique.ts";
 import { portfolioShootingsStrip } from "../../../data/content/shootings.ts";
 import { portfolioScanographyStrip } from "../../../data/content/styx.ts";
 import { getVisibleProjectCardPresentations } from "../../../data/projects.ts";
+import { petProjectCards } from "../../../data/subproject-cards.ts";
 
 import { renderAnimatedCanvasGallery } from "../../../templates/animated-canvas-gallery.ts";
 import { renderClientLogo } from "../../../templates/client-logo.ts";
@@ -35,11 +36,40 @@ import { renderMockupDeck } from "../../../templates/mockup-deck.ts";
 import { renderProjectCard } from "../../../templates/project-card.ts";
 import { renderProjectIntro } from "../../../templates/project-intro.ts";
 import { renderSectionIntro } from "../../../templates/section-intro.ts";
+import { renderPetProjectCards } from "../../../templates/subproject-card.ts";
 import {
   extractElementContainingMarker,
   replaceRequiredSlots,
   type HtmlSlot,
 } from "../../rendering/html.ts";
+
+const petProjectPreviewCards = petProjectCards.map((card) => {
+  if (card.id === "awful-cases") return { ...card, href: "/work/awful-cases/" };
+  if (card.id === "moves-awful") return { ...card, href: "/work/moves-awful/" };
+  return card;
+});
+
+function renderPetProjectsSection(): string {
+  return `
+      <section class="pet-projects" aria-labelledby="pet-projects-title" data-reveal-group>
+        <h2 id="pet-projects-title" data-reveal="copy">Pet Projects</h2>
+        <div class="pet-projects__grid" data-reveal-group>
+          ${renderPetProjectCards(petProjectPreviewCards)}
+        </div>
+      </section>`;
+}
+
+function injectPetProjectsSection(html: string): string {
+  const insertionPoint = '<section class="expertise" hidden>';
+  if (!html.includes(insertionPoint)) {
+    throw new Error("Homepage Pet Projects insertion point is missing.");
+  }
+
+  return html.replace(
+    insertionPoint,
+    `${renderPetProjectsSection()}\n      ${insertionPoint}`,
+  );
+}
 
 export function createHomepageSlots(): readonly HtmlSlot[] {
   const projectCards = getVisibleProjectCardPresentations().map(renderProjectCard).join("\n");
@@ -93,8 +123,9 @@ export function applyClientLogoWallVisibility(html: string, visible: boolean): s
 
 export function renderHomepage(html: string): string {
   const rendered = replaceRequiredSlots(html, createHomepageSlots());
+  const withPetProjects = injectPetProjectsSection(rendered);
   return applyClientLogoWallVisibility(
-    rendered,
+    withPetProjects,
     isHomeSectionVisible("client-logo-wall"),
   );
 }
