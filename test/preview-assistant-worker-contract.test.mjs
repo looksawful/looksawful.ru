@@ -18,7 +18,7 @@ test("preview assistant worker proxies grounded public knowledge to Yandex witho
     providerRequest = { url: String(url), init };
     return new Response(JSON.stringify({
       result: {
-        alternatives: [{ message: { text: "Иван работает с Figma, TypeScript, Blender и AI-пайплайнами." } }],
+        alternatives: [{ message: { text: "Я работаю с Figma, TypeScript, Blender и AI-пайплайнами." } }],
       },
     }), { status: 200, headers: { "content-type": "application/json" } });
   };
@@ -28,7 +28,7 @@ test("preview assistant worker proxies grounded public knowledge to Yandex witho
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        message: "Какими инструментами работает Иван?",
+        message: "Какими инструментами ты работаешь?",
         locale: "ru",
         sessionId: "preview-test",
         context: { sourceIds: ["profile.skills"] },
@@ -43,11 +43,16 @@ test("preview assistant worker proxies grounded public knowledge to Yandex witho
     assert.equal(response.status, 200);
     const payload = await response.json();
     assert.equal(payload.kind, "answer");
-    assert.match(payload.text, /Figma|TypeScript|Blender/);
+    assert.match(payload.text, /Я работаю/);
     assert.deepEqual(payload.sources, ["profile.skills"]);
     assert.match(providerRequest.url, /foundationModels\/v1\/completion$/);
     assert.equal(providerRequest.init.headers.Authorization, "Api-Key test-secret");
     assert.match(providerRequest.init.body, /profile\.skills/);
+    assert.match(providerRequest.init.body, /Ты Venus/);
+    assert.match(providerRequest.init.body, /от первого лица/);
+    assert.match(providerRequest.init.body, /1.?2 коротких абзац/);
+    assert.match(providerRequest.init.body, /не придумывай/i);
+    assert.doesNotMatch(providerRequest.init.body, /Ты Awful/);
   } finally {
     globalThis.fetch = originalFetch;
   }
