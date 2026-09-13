@@ -1,0 +1,38 @@
+name: Portfolio Conversation Depth TDD
+
+on:
+  push:
+    branches: [contact-hub-frontend-current]
+    paths:
+      - .github/workflows/portfolio-conversation-depth-tdd.yml
+      - test/portfolio-conversation-depth-contract.test.mjs
+      - src/components/contact-hub.ts
+      - src/features/portfolio-pet/knowledge.ts
+      - src/features/portfolio-pet/prepared-answers.ts
+      - src/features/portfolio-pet/portfolio-chat-service.ts
+      - src/features/portfolio-pet/assistant-transport.ts
+      - tools/build-preview-assistant-worker.mjs
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-conversation-depth-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node --test test/portfolio-conversation-depth-contract.test.mjs
+      - run: npm run typecheck
