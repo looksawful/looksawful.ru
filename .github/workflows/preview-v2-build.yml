@@ -1,0 +1,182 @@
+name: Preview V2 Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: Exact 40-character repository commit SHA to preview
+        required: true
+        type: string
+      preview_kind:
+        description: Preview kind (feature, lab, cms, release)
+        required: true
+        type: choice
+        options:
+          - feature
+          - lab
+          - cms
+          - release
+      preview_key:
+        description: Stable preview key such as pr-801, lab, cms-ab12 or release-123
+        required: true
+        type: string
+      pr_number:
+        description: Optional numeric pull request number
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-v2-build-${{ inputs.preview_key }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build exact unprivileged candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TARGET_SHA: ${{ inputs.target_sha }}
+      PREVIEW_KIND: ${{ inputs.preview_kind }}
+      PREVIEW_KEY: ${{ inputs.preview_key }}
+      PR_NUMBER: ${{ inputs.pr_number }}
+      PR_HEAD_SHA: ${{ inputs.target_sha }}
+    steps:
+      - name: Validate preview identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$TARGET_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || { echo "target_sha must be an exact 40-character commit SHA" >&2; exit 1; }
+          [[ "$PREVIEW_KIND" =~ ^(feature|lab|cms|release)$ ]] || { echo "unsupported preview_kind" >&2; exit 1; }
+          [[ "$PREVIEW_KEY" =~ ^[a-z0-9][a-z0-9-]{0,62}$ ]] || { echo "preview_key must be a safe lowercase slug" >&2; exit 1; }
+          if [[ -n "${PR_NUMBER:-}" ]]; then
+            [[ "$PR_NUMBER" =~ ^[0-9]+$ ]] || { echo "pr_number must be numeric when supplied" >&2; exit 1; }
+          fi
+
+      - name: Checkout exact preview target SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.target_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Calculate canonical media fingerprint
+        id: media
+        shell: bash
+        run: echo "fingerprint=$(node tools/media-dev-state.mjs --fingerprint)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore exact generated media cache
+        id: media-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
+      - name: Install media tooling on cache miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+
+      - name: Regenerate exact media cache on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: npm run media:sync
+
+      - name: Write generated-media cache marker on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        run: node tools/media-dev-state.mjs --cache-write
+
+      - name: Verify exact generated media cache
+        run: node tools/media-dev-state.mjs --cache-verify
+
+      - name: Require clean tracked tree after cache recovery
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: git diff --exit-code --
+
+      - name: Save exact generated media cache on miss
+        if: steps.media-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            public/media/generated/responsive
+            public/media/generated/video
+            public/media/generated/video-inventory.json
+            .cache/media/generated-cache.json
+          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Fast tests
+        run: npm run test:fast
+
+      - name: Build preview without production analytics
+        run: npm run build:site
+
+      - name: Ensure ffmpeg for preview media packaging
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+            exit 0
+          fi
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+
+      - name: Prepare Cloudflare-compatible preview media
+        run: node tools/preview/prepare-cloudflare-pages.mjs dist
+
+      - name: Stamp exact candidate metadata
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { writeFile } from "node:fs/promises";
+          const value = {
+            repository: process.env.GITHUB_REPOSITORY,
+            sha: process.env.TARGET_SHA,
+            kind: process.env.PREVIEW_KIND,
+            key: process.env.PREVIEW_KEY,
+            ...(process.env.PR_NUMBER ? { pr: Number(process.env.PR_NUMBER) } : {}),
+          };
+          await writeFile("dist/preview-metadata.json", `${JSON.stringify(value, null, 2)}\n`, "utf8");
+          NODE
+
+      - name: Enforce Cloudflare Pages asset limits
+        shell: bash
+        run: |
+          set -euo pipefail
+          file_count="$(find dist -type f | wc -l | tr -d ' ')"
+          (( file_count <= 20000 )) || { echo "Preview has ${file_count} files; limit is 20000." >&2; exit 1; }
+          oversized="$(find dist -type f -size +26214400c -print)"
+          if [[ -n "$oversized" ]]; then
+            echo "Preview packaging left files larger than 25 MiB:" >&2
+            printf '%s\n' "$oversized" >&2
+            exit 1
+          fi
+
+      - name: Upload exact preview candidate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-v2-candidate
+          path: dist
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
