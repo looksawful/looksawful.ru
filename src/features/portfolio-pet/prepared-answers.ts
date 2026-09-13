@@ -221,28 +221,28 @@ function addProjectDetail(
     if (includesAny(value, ["интерфейс", "ux", "ui", "навигац", "фильтр", "поиск", "сценари", "пример", "конкретн"])) {
       addIfApproved(selected, "project.jestei.interfaces", approvedById);
     }
-    if (includesAny(value, ["дизайн-систем", "компонент", "ревью", "процесс", "команд", "разработ"]))) {
+    if (includesAny(value, ["дизайн-систем", "компонент", "ревью", "процесс", "команд", "разработ"])) {
       addIfApproved(selected, "project.jestei.design_system", approvedById);
     }
-    if (includesAny(value, ["бренд", "ребрендинг", "коммуникац", "tone", "редполит", "рассыл", "лендинг", "реклам"]))) {
+    if (includesAny(value, ["бренд", "ребрендинг", "коммуникац", "tone", "редполит", "рассыл", "лендинг", "реклам"])) {
       addIfApproved(selected, "project.jestei.communication", approvedById);
     }
   }
 
   if (activeStyx) {
-    if (includesAny(value, ["айдентик", "бренд", "логотип", "упаков", "каталог", "лукбук", "печат"]))) {
+    if (includesAny(value, ["айдентик", "бренд", "логотип", "упаков", "каталог", "лукбук", "печат"])) {
       addIfApproved(selected, "project.styx.identity", approvedById);
     }
-    if (includesAny(value, ["съём", "съем", "фото", "кампейн", "лукбук", "каталог", "сканограф", "анимац"]))) {
+    if (includesAny(value, ["съём", "съем", "фото", "кампейн", "лукбук", "каталог", "сканограф", "анимац"])) {
       addIfApproved(selected, "project.styx.production", approvedById);
     }
   }
 
-  if (activeSensetique && includesAny(value, ["продакш", "студи", "зал", "команд", "кастинг", "локац", "съём", "съем", "постпрод"]))) {
+  if (activeSensetique && includesAny(value, ["продакш", "студи", "зал", "команд", "кастинг", "локац", "съём", "съем", "постпрод"])) {
     addIfApproved(selected, "project.sensetique.production", approvedById);
   }
 
-  if (activeShootings && includesAny(value, ["съём", "съем", "фото", "продакш", "постпрод", "микс", "как дел"]))) {
+  if (activeShootings && includesAny(value, ["съём", "съем", "фото", "продакш", "постпрод", "микс", "как дел"])) {
     addIfApproved(selected, "project.shootings.details", approvedById);
     addIfApproved(selected, "profile.shoot_production", approvedById);
   }
@@ -297,7 +297,7 @@ function relevantApprovedSourceIds(
     addIfApproved(selected, "project.shootings", approvedById);
   }
 
-  if (includesAny(value, ["что ты делаешь", "чем занима", "твоя работа", "что делаешь вообще", "чем ты занима"]))) {
+  if (includesAny(value, ["что ты делаешь", "чем занима", "твоя работа", "что делаешь вообще", "чем ты занима"])) {
     addIfApproved(selected, "profile.work_scope", approvedById);
   }
 
@@ -310,19 +310,19 @@ function relevantApprovedSourceIds(
     addIfApproved(selected, "profile.skills", approvedById);
   }
 
-  if (includesAny(value, ["ребрендинг", "брендинг", "айдентик", "визуальн систем", "логотип", "шрифт", "палитр", "упаков"]))) {
+  if (includesAny(value, ["ребрендинг", "брендинг", "айдентик", "визуальн систем", "логотип", "шрифт", "палитр", "упаков"])) {
     addIfApproved(selected, "profile.branding", approvedById);
   }
 
-  if (includesAny(value, ["креативн", "команд", "руковод", "ревью", "ставишь задач", "управляешь", "дизайн-лид"]))) {
+  if (includesAny(value, ["креативн", "команд", "руковод", "ревью", "ставишь задач", "управляешь", "дизайн-лид"])) {
     addIfApproved(selected, "profile.team_leadership", approvedById);
   }
 
-  if (includesAny(value, ["съёмочн", "съемочн", "продюсирован", "кастинг", "локац", "ретуш", "цветокорр", "постпрод"]))) {
+  if (includesAny(value, ["съёмочн", "съемочн", "продюсирован", "кастинг", "локац", "ретуш", "цветокорр", "постпрод"])) {
     addIfApproved(selected, "profile.shoot_production", approvedById);
   }
 
-  if (followUp && inherited.includes("profile.work_scope") && includesAny(value, ["подробнее", "конкретн", "пример", "что именно"]))) {
+  if (followUp && inherited.includes("profile.work_scope") && includesAny(value, ["подробнее", "конкретн", "пример", "что именно"])) {
     addIfApproved(selected, "profile.product_ui", approvedById);
     addIfApproved(selected, "profile.branding", approvedById);
     addIfApproved(selected, "profile.team_leadership", approvedById);
