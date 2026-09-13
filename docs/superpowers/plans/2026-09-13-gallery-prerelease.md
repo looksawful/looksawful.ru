@@ -11,7 +11,8 @@
 - no tabs, filters, sort, search or `all` mode;
 - no masonry, multi-column packing or JS row-span layout;
 - every photograph remains an individual card;
-- shoot/series boundaries stay invisible but prevent cross-series interleaving;
+- shoot/series boundaries stay invisible but prevent cross-series interleaving where canonical series context exists;
+- historical photos without canonical series context remain an explicit metadata blocker rather than being grouped from filenames/titles;
 - existing SitePage, page shell, site navigation, Public Catalog, PhotoSwipe and design tokens remain the owners;
 - no second media registry, runtime folder scan or new layout/lightbox dependency;
 - URL state is only optional `?item=<stable-id>`;
@@ -84,7 +85,9 @@ TDD covers empty state, `?item=`, ignored retired layer parameters and lightbox 
 
 ## Task 5: Series and duplicate/content readiness
 
-The prerelease must preserve current canonical series context without inventing grouping from filenames or titles. Known gaps in historical media with missing contextual series metadata remain explicit content blockers rather than hidden heuristics.
+The prerelease uses existing contextual project identity only where it is already canonical. It does not infer grouping from titles, filenames, URLs or free-form credits. Historical records without contextual project/series identity currently remain individual structural groups. This is acceptable for noindex prerelease inspection but is a blocker for final production grouping.
+
+Final CMS/MediaDeck work may add canonical `seriesId` and optional `seriesOrder`. Do not add `galleryLayers`.
 
 Duplicate policy:
 
@@ -93,8 +96,6 @@ Duplicate policy:
 - keep the record with the stronger metadata where appropriate;
 - do not automatically delete source files;
 - do not create a Gallery-specific duplicate registry.
-
-Final CMS/MediaDeck work may add canonical `seriesId` and optional `seriesOrder`. Do not add `galleryLayers`.
 
 ## Task 6: Verification and PR Preview
 
