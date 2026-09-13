@@ -46,6 +46,7 @@ const canonicalManifest = `@layer reset, tokens, colors, base, patterns, compone
 @import "./slider.css" layer(components);
 @import "./media-deck.css" layer(components);
 @import "./media-lightbox.css" layer(components);
+@import "./gallery.css" layer(components);
 @import "../components/jestei-theme-organism/jestei-theme-organism.css";
 @import "./captions.css" layer(captions);
 @import "./motion.css" layer(motion);
