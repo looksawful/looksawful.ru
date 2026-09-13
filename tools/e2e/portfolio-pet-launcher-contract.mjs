@@ -137,7 +137,10 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
     element.style.removeProperty("--pet-safe-right");
     element.style.removeProperty("--pet-safe-bottom");
     element.style.removeProperty("--pet-safe-left");
+    element.style.left = "220px";
+    element.style.top = "320px";
   });
+  await settle(page);
   const beforeHide = await pet.boundingBox();
   assert.ok(beforeHide, "Venus must be visible before deliberate swipe-to-hide");
   const hideStartX = beforeHide.x + (beforeHide.width / 2);
