@@ -20,10 +20,25 @@ export type PublicAssistantProvider = (
   input: PublicAssistantProviderInput,
 ) => Promise<PublicAssistantProviderResult>;
 
+export interface PublicAssistantAdmissionInput {
+  origin: string;
+  sessionId: string;
+}
+
+export type PublicAssistantAdmissionResult =
+  | { kind: "allow" }
+  | { kind: "rate_limited" }
+  | { kind: "unavailable" };
+
+export type PublicAssistantAdmission = (
+  input: PublicAssistantAdmissionInput,
+) => Promise<PublicAssistantAdmissionResult>;
+
 export interface PublicAssistantHandlerOptions {
   enabled: boolean;
   allowedOrigins: readonly string[];
   sources: Readonly<Record<string, PublicAssistantSource>>;
+  admitRequest: PublicAssistantAdmission;
   provider: PublicAssistantProvider;
 }
 
@@ -46,7 +61,7 @@ interface PublicAssistantRequest {
   sourceIds: readonly string[];
 }
 
-const MAX_REQUEST_BODY_LENGTH = 8_192;
+const MAX_REQUEST_BODY_BYTES = 8_192;
 const MAX_MESSAGE_LENGTH = 2_000;
 const MAX_SESSION_ID_LENGTH = 128;
 const MAX_SOURCE_IDS = 12;
@@ -54,6 +69,7 @@ const MAX_SOURCE_ID_LENGTH = 128;
 const MAX_SOURCE_TEXT_LENGTH = 4_000;
 const MAX_TOTAL_SOURCE_TEXT_LENGTH = 12_000;
 const MAX_RESPONSE_TEXT_LENGTH = 4_000;
+const utf8Encoder = new TextEncoder();
 
 function header(event: PublicAssistantEvent, name: string): string {
   const expected = name.toLowerCase();
@@ -67,6 +83,7 @@ function responseHeaders(origin: string, allowed: boolean): Record<string, strin
   const headers: Record<string, string> = {
     "content-type": "application/json; charset=utf-8",
     "cache-control": "no-store",
+    "x-content-type-options": "nosniff",
     vary: "Origin",
   };
   if (allowed) headers["access-control-allow-origin"] = origin;
@@ -86,8 +103,16 @@ function jsonResponse(
   };
 }
 
+function isJsonRequest(event: PublicAssistantEvent): boolean {
+  const contentType = header(event, "content-type")
+    .split(";", 1)[0]
+    .trim()
+    .toLowerCase();
+  return contentType === "application/json";
+}
+
 function parseRequest(body: string | null | undefined): PublicAssistantRequest | null {
-  if (!body || body.length > MAX_REQUEST_BODY_LENGTH) return null;
+  if (!body || utf8Encoder.encode(body).byteLength > MAX_REQUEST_BODY_BYTES) return null;
 
   let value: unknown;
   try {
@@ -95,7 +120,7 @@ function parseRequest(body: string | null | undefined): PublicAssistantRequest |
   } catch {
     return null;
   }
-  if (!value || typeof value !== "object") return null;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
 
   const record = value as Record<string, unknown>;
   const message = typeof record.message === "string" ? record.message.trim() : "";
@@ -107,7 +132,7 @@ function parseRequest(body: string | null | undefined): PublicAssistantRequest |
   if (!sessionId || sessionId.length > MAX_SESSION_ID_LENGTH) return null;
 
   const context = record.context;
-  if (!context || typeof context !== "object") return null;
+  if (!context || typeof context !== "object" || Array.isArray(context)) return null;
   const rawSourceIds = (context as Record<string, unknown>).sourceIds;
   if (!Array.isArray(rawSourceIds) || rawSourceIds.length > MAX_SOURCE_IDS) return null;
   if (!rawSourceIds.every((sourceId) => typeof sourceId === "string")) return null;
@@ -138,6 +163,7 @@ export function createPublicAssistantHandler({
   enabled,
   allowedOrigins,
   sources,
+  admitRequest,
   provider,
 }: PublicAssistantHandlerOptions) {
   const originSet = new Set(allowedOrigins);
@@ -146,6 +172,8 @@ export function createPublicAssistantHandler({
     const origin = header(event, "origin");
     const allowedOrigin = originSet.has(origin);
 
+    // CORS is a browser boundary only. Paid-call abuse protection belongs in admitRequest,
+    // which must be backed by a trusted gateway / external rate limiter in deployed runtimes.
     if (!allowedOrigin) {
       return jsonResponse(403, { kind: "unavailable" }, origin, false);
     }
@@ -170,9 +198,27 @@ export function createPublicAssistantHandler({
       return jsonResponse(503, { kind: "unavailable" }, origin, true);
     }
 
+    if (!isJsonRequest(event)) {
+      return jsonResponse(415, { kind: "unavailable" }, origin, true);
+    }
+
     const request = parseRequest(event.body);
     if (!request) {
       return jsonResponse(400, { kind: "unavailable" }, origin, true);
+    }
+
+    let admission: PublicAssistantAdmissionResult;
+    try {
+      admission = await admitRequest({ origin, sessionId: request.sessionId });
+    } catch {
+      return jsonResponse(503, { kind: "unavailable" }, origin, true);
+    }
+
+    if (admission.kind === "rate_limited") {
+      return jsonResponse(429, { kind: "rate_limited" }, origin, true);
+    }
+    if (admission.kind !== "allow") {
+      return jsonResponse(503, { kind: "unavailable" }, origin, true);
     }
 
     const approvedSources = request.sourceIds

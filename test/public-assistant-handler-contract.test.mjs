@@ -25,6 +25,8 @@ function parse(response) {
   return response.body ? JSON.parse(response.body) : null;
 }
 
+const allowAdmission = async () => ({ kind: "allow" });
+
 const sources = Object.freeze({
   "project.jestei": Object.freeze({
     id: "project.jestei",
@@ -33,18 +35,32 @@ const sources = Object.freeze({
   }),
 });
 
-test("kill switch disables generation before any provider call", async () => {
-  const { createPublicAssistantHandler } = await loadHandler();
-  let providerCalls = 0;
-  const handler = createPublicAssistantHandler({
-    enabled: false,
+function handlerOptions(overrides = {}) {
+  return {
+    enabled: true,
     allowedOrigins: ["https://looksawful.ru"],
     sources,
+    admitRequest: allowAdmission,
+    provider: async () => ({ kind: "answer", text: "Короткий ответ." }),
+    ...overrides,
+  };
+}
+
+test("kill switch disables generation before admission or provider calls", async () => {
+  const { createPublicAssistantHandler } = await loadHandler();
+  let admissionCalls = 0;
+  let providerCalls = 0;
+  const handler = createPublicAssistantHandler(handlerOptions({
+    enabled: false,
+    admitRequest: async () => {
+      admissionCalls += 1;
+      return { kind: "allow" };
+    },
     provider: async () => {
       providerCalls += 1;
       return { kind: "answer", text: "must not run" };
     },
-  });
+  }));
 
   const response = await handler(event({
     message: "Расскажи подробнее",
@@ -55,43 +71,60 @@ test("kill switch disables generation before any provider call", async () => {
 
   assert.equal(response.statusCode, 503);
   assert.deepEqual(parse(response), { kind: "unavailable" });
+  assert.equal(admissionCalls, 0);
   assert.equal(providerCalls, 0);
 });
 
-test("CORS preflight is handled without invoking the provider", async () => {
+test("CORS preflight is handled without admission or provider calls", async () => {
   const { createPublicAssistantHandler } = await loadHandler();
+  let admissionCalls = 0;
   let providerCalls = 0;
-  const handler = createPublicAssistantHandler({
-    enabled: true,
-    allowedOrigins: ["https://looksawful.ru"],
-    sources,
+  const handler = createPublicAssistantHandler(handlerOptions({
+    admitRequest: async () => {
+      admissionCalls += 1;
+      return { kind: "allow" };
+    },
     provider: async () => {
       providerCalls += 1;
       return { kind: "answer", text: "must not run" };
     },
-  });
+  }));
 
   const response = await handler(event({}, { httpMethod: "OPTIONS", body: "" }));
   assert.equal(response.statusCode, 204);
   assert.equal(response.headers["access-control-allow-origin"], "https://looksawful.ru");
+  assert.equal(response.headers["x-content-type-options"], "nosniff");
+  assert.equal(admissionCalls, 0);
   assert.equal(providerCalls, 0);
 });
 
-test("invalid requests fail before generation", async () => {
+test("invalid method, media type and bodies fail before admission or generation", async () => {
   const { createPublicAssistantHandler } = await loadHandler();
+  let admissionCalls = 0;
   let providerCalls = 0;
-  const handler = createPublicAssistantHandler({
-    enabled: true,
-    allowedOrigins: ["https://looksawful.ru"],
-    sources,
+  const handler = createPublicAssistantHandler(handlerOptions({
+    admitRequest: async () => {
+      admissionCalls += 1;
+      return { kind: "allow" };
+    },
     provider: async () => {
       providerCalls += 1;
       return { kind: "answer", text: "must not run" };
     },
-  });
+  }));
 
   const wrongMethod = await handler(event({}, { httpMethod: "GET" }));
   assert.equal(wrongMethod.statusCode, 405);
+
+  const wrongContentType = await handler(event({
+    message: "ok",
+    locale: "ru",
+    sessionId: "session-1",
+    context: { currentPath: "/", sourceIds: ["project.jestei"] },
+  }, {
+    headers: { origin: "https://looksawful.ru", "content-type": "text/plain" },
+  }));
+  assert.equal(wrongContentType.statusCode, 415);
 
   const tooLong = await handler(event({
     message: "x".repeat(2001),
@@ -101,29 +134,75 @@ test("invalid requests fail before generation", async () => {
   }));
   assert.equal(tooLong.statusCode, 400);
 
-  const oversizedBody = await handler(event({
+  const oversizedAsciiBody = await handler(event({
     message: "ok",
     locale: "ru",
     sessionId: "session-1",
     context: { currentPath: "/", sourceIds: ["project.jestei"] },
     ignoredPadding: "x".repeat(9_000),
   }));
-  assert.equal(oversizedBody.statusCode, 400);
+  assert.equal(oversizedAsciiBody.statusCode, 400);
+
+  const oversizedUtf8Body = await handler(event({
+    message: "ok",
+    locale: "ru",
+    sessionId: "session-1",
+    context: { currentPath: "/", sourceIds: ["project.jestei"] },
+    ignoredPadding: "я".repeat(4_500),
+  }));
+  assert.equal(oversizedUtf8Body.statusCode, 400);
+  assert.equal(admissionCalls, 0);
+  assert.equal(providerCalls, 0);
+});
+
+test("request admission is fail-closed and runs before any paid provider call", async () => {
+  const { createPublicAssistantHandler } = await loadHandler();
+  const request = event({
+    message: "Расскажи подробнее",
+    locale: "ru",
+    sessionId: "session-1",
+    context: { currentPath: "/", sourceIds: ["project.jestei"] },
+  });
+
+  for (const [kind, statusCode] of [["rate_limited", 429], ["unavailable", 503]]) {
+    let providerCalls = 0;
+    const handler = createPublicAssistantHandler(handlerOptions({
+      admitRequest: async (input) => {
+        assert.deepEqual(input, { origin: "https://looksawful.ru", sessionId: "session-1" });
+        return { kind };
+      },
+      provider: async () => {
+        providerCalls += 1;
+        return { kind: "answer", text: "must not run" };
+      },
+    }));
+    assert.equal((await handler(request)).statusCode, statusCode);
+    assert.equal(providerCalls, 0);
+  }
+
+  let providerCalls = 0;
+  const throwing = createPublicAssistantHandler(handlerOptions({
+    admitRequest: async () => {
+      throw new Error("admission unavailable");
+    },
+    provider: async () => {
+      providerCalls += 1;
+      return { kind: "answer", text: "must not run" };
+    },
+  }));
+  assert.equal((await throwing(request)).statusCode, 503);
   assert.equal(providerCalls, 0);
 });
 
 test("unknown source ids return no_data without a paid provider call", async () => {
   const { createPublicAssistantHandler } = await loadHandler();
   let providerCalls = 0;
-  const handler = createPublicAssistantHandler({
-    enabled: true,
-    allowedOrigins: ["https://looksawful.ru"],
-    sources,
+  const handler = createPublicAssistantHandler(handlerOptions({
     provider: async () => {
       providerCalls += 1;
       return { kind: "answer", text: "must not run" };
     },
-  });
+  }));
 
   const response = await handler(event({
     message: "Расскажи подробнее",
@@ -147,15 +226,13 @@ test("oversized approved source context fails closed before a paid provider call
       text: "x".repeat(4_001),
     },
   };
-  const handler = createPublicAssistantHandler({
-    enabled: true,
-    allowedOrigins: ["https://looksawful.ru"],
+  const handler = createPublicAssistantHandler(handlerOptions({
     sources: oversizedSources,
     provider: async () => {
       providerCalls += 1;
       return { kind: "answer", text: "must not run" };
     },
-  });
+  }));
 
   const response = await handler(event({
     message: "Расскажи подробнее",
@@ -173,16 +250,13 @@ test("valid request calls provider once with server-approved context only", asyn
   const { createPublicAssistantHandler } = await loadHandler();
   let providerCalls = 0;
   let providerInput = null;
-  const handler = createPublicAssistantHandler({
-    enabled: true,
-    allowedOrigins: ["https://looksawful.ru"],
-    sources,
+  const handler = createPublicAssistantHandler(handlerOptions({
     provider: async (input) => {
       providerCalls += 1;
       providerInput = input;
       return { kind: "answer", text: "  Короткий ответ.  " };
     },
-  });
+  }));
 
   const response = await handler(event({
     message: "Как устроен нестандартный сценарий?",
@@ -214,12 +288,9 @@ test("valid request calls provider once with server-approved context only", asyn
 
 test("oversized provider output fails closed", async () => {
   const { createPublicAssistantHandler } = await loadHandler();
-  const handler = createPublicAssistantHandler({
-    enabled: true,
-    allowedOrigins: ["https://looksawful.ru"],
-    sources,
+  const handler = createPublicAssistantHandler(handlerOptions({
     provider: async () => ({ kind: "answer", text: "x".repeat(4_001) }),
-  });
+  }));
 
   const response = await handler(event({
     message: "Как устроен нестандартный сценарий?",
@@ -241,22 +312,16 @@ test("provider rate limit and failure become recoverable public states", async (
     context: { currentPath: "/work/jestei/", sourceIds: ["project.jestei"] },
   });
 
-  const limited = createPublicAssistantHandler({
-    enabled: true,
-    allowedOrigins: ["https://looksawful.ru"],
-    sources,
+  const limited = createPublicAssistantHandler(handlerOptions({
     provider: async () => ({ kind: "rate_limited" }),
-  });
+  }));
   assert.equal((await limited(request)).statusCode, 429);
 
-  const unavailable = createPublicAssistantHandler({
-    enabled: true,
-    allowedOrigins: ["https://looksawful.ru"],
-    sources,
+  const unavailable = createPublicAssistantHandler(handlerOptions({
     provider: async () => {
       throw new Error("provider offline");
     },
-  });
+  }));
   const response = await unavailable(request);
   assert.equal(response.statusCode, 503);
   assert.deepEqual(parse(response), { kind: "unavailable" });
