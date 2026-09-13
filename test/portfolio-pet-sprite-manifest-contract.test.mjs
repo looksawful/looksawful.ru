@@ -8,10 +8,10 @@ const manifestModuleUrl = new URL(
 
 const validManifest = {
   version: 1,
-  characterId: "venus",
+  characterId: "awful",
   animations: {
     idle: {
-      src: "/assets/venus.webp",
+      src: "/assets/awful.webp",
       frameWidth: 148,
       frameHeight: 196,
       frameCount: 8,
@@ -20,7 +20,7 @@ const validManifest = {
       anchor: { x: 0.5, y: 1 },
     },
     open: {
-      src: "/assets/venus.webp",
+      src: "/assets/awful.webp",
       frameWidth: 148,
       frameHeight: 196,
       frameCount: 4,
@@ -66,10 +66,10 @@ test("PET-004/PET-007: an atlas row resolves to the intended visible frame recta
 
   const atlasManifest = parseSpriteManifest({
     version: 1,
-    characterId: "venus",
+    characterId: "awful",
     animations: {
       idle: {
-        src: "/pets/venus/Venus-v2-spritesheet.png",
+        src: "/pets/awful/Awful-v2-spritesheet.png",
         frameWidth: 192,
         frameHeight: 208,
         frameCount: 6,
@@ -80,7 +80,7 @@ test("PET-004/PET-007: an atlas row resolves to the intended visible frame recta
         anchor: { x: 0.5, y: 1 },
       },
       wave: {
-        src: "/pets/venus/Venus-v2-spritesheet.png",
+        src: "/pets/awful/Awful-v2-spritesheet.png",
         frameWidth: 192,
         frameHeight: 208,
         frameCount: 4,
