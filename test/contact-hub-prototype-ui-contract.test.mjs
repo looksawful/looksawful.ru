@@ -6,12 +6,13 @@ const component = fs.readFileSync(new URL("../src/components/contact-hub.ts", im
 const css = fs.readFileSync(new URL("../src/styles/contact-hub.css", import.meta.url), "utf8");
 const consentCss = fs.readFileSync(new URL("../src/styles/site-analytics-consent.css", import.meta.url), "utf8");
 
-// P-001/P-003/P-007/P-008/P-009/AI-013: restore the approved v7 interaction surface
-// without reintroducing prototype ownership or implicit cross-mode mutation.
-test("Contact Hub restores the v7 shared AI/Form surface", () => {
-  assert.match(component, /dataset\.contactHubMode/);
-  assert.match(component, /createTextButton\(documentRef, "AI"\)/);
-  assert.match(component, /createTextButton\(documentRef, "написать"\)/);
+// P-001/P-003/P-007/P-008/P-009/AI-013: shared AI/Form surface without
+// reintroducing prototype ownership or implicit cross-mode mutation.
+test("Contact Hub keeps the shared AI/Form surface without obsolete mode tabs", () => {
+  assert.match(component, /hub\.dataset\.mode = "form"/);
+  assert.doesNotMatch(component, /dataset\.contactHubMode/);
+  assert.doesNotMatch(component, /createTextButton\(documentRef, "AI"\)/);
+  assert.doesNotMatch(component, /createTextButton\(documentRef, "написать"\)/);
   assert.match(component, /dataset\.contactHubAiComposer/);
   assert.match(component, /dataset\.contactHubForm/);
   assert.match(component, /nameInput/);
@@ -37,10 +38,9 @@ test("OWNER-718: Venus opens with one simple line and no suggested questions", (
   assert.match(component, /"Про это у меня нет точной информации\. Лучше написать мне напрямую\."/);
 });
 
-test("mode switching is state-only and explicit handoff uses the canonical domain seam", () => {
+test("explicit AI-to-form handoff uses the canonical domain seam", () => {
   assert.match(component, /applyExplicitAiDraftHandoff/);
   assert.match(component, /transitionContactHub\(state, \{ type: "SET_MODE", mode \}\)/);
-  assert.match(component, /setMode\("ai"\)/);
   assert.match(component, /setMode\("form"\)/);
   assert.match(component, /commitHandoff\(pendingDraft, "append"\)/);
   assert.match(component, /commitHandoff\(pendingDraft, "replace"\)/);
@@ -49,7 +49,7 @@ test("mode switching is state-only and explicit handoff uses the canonical domai
   assert.doesNotMatch(component, /\.requestSubmit\(/);
 });
 
-test("v7 visual contract stays compact beside Awful on desktop", () => {
+test("visual contract stays compact beside Venus on desktop", () => {
   assert.match(css, /inset-inline-start:\s*214px/);
   assert.match(css, /inset-block-end:\s*18px/);
   assert.match(css, /inline-size:\s*min\(356px,\s*calc\(100vw - 236px\)\)/);
@@ -58,17 +58,17 @@ test("v7 visual contract stays compact beside Awful on desktop", () => {
   assert.match(css, /overflow:\s*hidden/);
 });
 
-test("v7 form uses stacked editorial rows rather than a two-column field grid", () => {
+test("form uses stacked editorial rows rather than a two-column field grid", () => {
   assert.match(css, /\.contact-hub__field\s*\{[\s\S]*display:\s*grid;[\s\S]*gap:\s*2px;/);
   assert.doesNotMatch(css, /grid-template-columns:\s*minmax\(5rem/);
   assert.match(css, /\.contact-hub__field:focus-within/);
 });
 
-test("v7 mobile shell is a 62dvh bottom sheet", () => {
+test("mobile shell is a 62dvh safe-area-aware bottom sheet", () => {
   assert.match(css, /@media \(width <= 42\.5rem\)/);
   assert.match(css, /block-size:\s*min\(62dvh,\s*520px\)/);
-  assert.match(css, /max-block-size:\s*calc\(100dvh - env\(safe-area-inset-top\)\)/);
-  assert.match(css, /padding-block-end:\s*env\(safe-area-inset-bottom\)/);
+  assert.match(css, /max-block-size:\s*calc\(100dvh - env\(safe-area-inset-top,\s*0px\)\)/);
+  assert.match(css, /padding-block-end:\s*env\(safe-area-inset-bottom,\s*0px\)/);
   assert.doesNotMatch(css, /backdrop-filter/);
   assert.doesNotMatch(css, /100vh/);
 });
