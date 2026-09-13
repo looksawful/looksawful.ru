@@ -48,7 +48,7 @@ test("preview assistant worker proxies grounded public knowledge to Yandex witho
     assert.match(providerRequest.url, /foundationModels\/v1\/completion$/);
     assert.equal(providerRequest.init.headers.Authorization, "Api-Key test-secret");
     assert.match(providerRequest.init.body, /profile\.skills/);
-    assert.match(providerRequest.init.body, /Ты Venus/);
+    assert.match(providerRequest.init.body, /Ты Awful/);
     assert.match(providerRequest.init.body, /от первого лица/);
     assert.match(providerRequest.init.body, /1.?2 коротких абзац/);
     assert.match(providerRequest.init.body, /не придумывай/i);
