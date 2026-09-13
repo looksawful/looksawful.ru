@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import test from "node:test";
 
 const answersUrl = new URL("../src/features/portfolio-pet/prepared-answers.ts", import.meta.url);
+const knowledgeUrl = new URL("../src/features/portfolio-pet/knowledge.ts", import.meta.url);
 
 async function loadPreparedAnswers() {
   assert.equal(existsSync(answersUrl), true, "RED: prepared-answer resolver is not implemented yet");
@@ -118,7 +119,6 @@ test("AI-009: approved prepared answer content is usable without provider availa
   assert.ok(result.text.trim().length > 0);
 });
 
-
 test("preview assistant exposes all public portfolio sources only in preview mode", async () => {
   const { createPreviewPortfolioAssistantRouter } = await loadPreparedAnswers();
   assert.equal(typeof createPreviewPortfolioAssistantRouter, "function");
@@ -133,4 +133,45 @@ test("preview assistant exposes all public portfolio sources only in preview mod
   assert.ok(result.context.sourceIds.includes("profile.experience"));
   assert.ok(result.context.sourceIds.includes("profile.education"));
   assert.ok(result.context.sourceIds.includes("project.jestei"));
+});
+
+test("OWNER-718: approved AI knowledge is first-person, human-readable and excludes rejected facts", async () => {
+  assert.equal(existsSync(knowledgeUrl), true);
+  const { buildPortfolioPetKnowledgeCandidates } = await import(knowledgeUrl.href);
+  const candidates = buildPortfolioPetKnowledgeCandidates();
+  const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]));
+  const allText = candidates.map((candidate) => candidate.text).join("\n");
+
+  assert.equal(byId.get("profile.role")?.text, "Я арт-директор цифровых продуктов и продуктовый дизайнер.");
+  assert.equal(byId.get("profile.location")?.text, "Москва");
+  assert.equal(byId.get("profile.contact")?.text, "i@lookawful.ru");
+
+  assert.doesNotMatch(allText, /\+7\s*999|@looksawful|6\s*до\s*2|четыр[её]х\s+сегмент|рынок\s+США|GAC\s*Motors|Vanish|Дмитрия\s+Ульянова|\+15%|×2\.5/iu);
+
+  const experience = byId.get("profile.experience")?.text ?? "";
+  assert.match(experience, /клубн[^\n]*event|event[^\n]*клубн/iu);
+  assert.match(experience, /повышени[^\n]*стоимост[^\n]*подписк/iu);
+  assert.match(experience, /PUMA/);
+  assert.match(experience, /H&M/);
+
+  const education = byId.get("profile.education")?.text ?? "";
+  assert.match(education, /неоконченн[^\n]*высш/iu);
+
+  const shootings = byId.get("project.shootings")?.text ?? "";
+  assert.match(shootings, /фотограф/iu);
+  assert.match(shootings, /продюсирован/iu);
+  assert.match(shootings, /микс-медиа/iu);
+});
+
+test("OWNER-718: production router uses the owner-approved knowledge allowlist", async () => {
+  const { routePortfolioAssistantRequest } = await loadPreparedAnswers();
+  const result = routePortfolioAssistantRequest({
+    message: "Какими технологиями я работаю?",
+    locale: "ru",
+    context: { page: "home" },
+  });
+
+  assert.equal(result.kind, "generate");
+  assert.ok(result.context.sourceIds.includes("profile.skills"));
+  assert.equal(result.context.sourceIds.includes("profile.contact"), false);
 });
