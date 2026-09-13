@@ -16,6 +16,7 @@ import {
 
 const NAVIGATION_PREVIEW_OVERRIDES = {
   home: "/media/hero/hero-portrait.webp",
+  gallery: "/media/projects/shootings/01/source/01-32x45.webp",
   cv: "/media/cv/portrait-signature.webp",
 } as const satisfies Partial<Record<PrimaryNavigationPageId, string>>;
 
@@ -37,6 +38,8 @@ function getDomainPageLabel(page: SitePageDefinition): string {
   switch (page.type) {
     case "home":
       return getNavigationLabel("home");
+    case "gallery":
+      return "Gallery";
     case "case":
       return getCase(page.entityId).name || page.entityId;
     case "collection": {
