@@ -1,171 +1,125 @@
 # Gallery prerelease implementation plan
 
-> Implement from `feature/gallery-prerelease`, based on `prod@415676bc993519c9e2cf3f54b779cd2f421b7946`. Do not merge to `prod` during this plan.
+> Work only in `feature/gallery-prerelease`, based on `prod@415676bc993519c9e2cf3f54b779cd2f421b7946`. Do not merge to `prod` during this plan.
 
-## Task 1: Lock the SitePage contract with RED tests
+## Canonical contract
 
-**Files**
-- Modify: `test/site-pages.test.mjs`
-- Modify: `tools/ci/run-tests.mjs` only if a new cheap Gallery test file is added
+`/gallery/` is one public photography stream.
 
-**RED assertions**
-1. Add `gallery -> /gallery/` to the canonical route map.
-2. Assert Gallery is an enabled, listed, indexable, Vite-owned SitePage with renderer `gallery`.
-3. Assert normalized lookup resolves `/gallery` to `gallery`.
+- photographs only;
+- no Production or Digital Art category;
+- no tabs, filters, sort, search or `all` mode;
+- no masonry, multi-column packing or JS row-span layout;
+- every photograph remains an individual card;
+- shoot/series boundaries stay invisible but prevent cross-series interleaving;
+- existing SitePage, page shell, site navigation, Public Catalog, PhotoSwipe and design tokens remain the owners;
+- no second media registry, runtime folder scan or new layout/lightbox dependency;
+- URL state is only optional `?item=<stable-id>`;
+- preview only until explicit visual/content approval.
 
-Commit the test-only change. Open a draft PR to `prod`. Confirm Fast CI fails for the expected missing Gallery manifest/type implementation rather than syntax or harness setup.
+The detailed source of truth is `docs/superpowers/specs/2026-09-13-gallery-prerelease-design.md`.
 
-## Task 2: Add minimal manifest/build ownership
+## Task 1: SitePage/build ownership
 
-**Files**
-- Modify: `src/site/pages/types.ts`
-- Modify: `src/site/pages/manifest.ts`
-- Modify: `src/site/build/site-pages-plugin.ts`
-- Create: `src/site/renderers/gallery-page.ts`
-- Create: `gallery/index.html`
+Keep Gallery as a first-class, manifest-owned SitePage:
 
-**Implementation**
-1. Add `gallery` SitePage id/type/renderer without changing entity semantics.
-2. Add `/gallery/` Vite SitePage to manifest.
-3. Add renderer dispatch in central site-pages plugin.
-4. Add a minimal build-time Gallery renderer wrapped with `renderPageShell()`.
-5. Add the physical Vite input expected by existing input generation.
+- `gallery` SitePage id/type/renderer;
+- `/gallery/` Vite route;
+- central `site-pages-plugin.ts` dispatch;
+- semantic build-time renderer in `renderPageShell()`;
+- primary navigation identity resolved from the manifest.
 
-Run/observe `test/site-pages.test.mjs`, typecheck and build. Keep implementation minimal until tests are green.
+Tests must cover route normalization, manifest validation and shared navigation ownership.
 
-## Task 3: Lock and implement navigation integration
+## Task 2: Photo-only data projection
 
-**Files**
-- Modify: `src/site/navigation/primary.ts`
-- Modify: `src/site/navigation/model.ts`
-- Modify: `src/content/navigation.json`
-- Modify/add relevant navigation tests
+`src/data/media/gallery.ts` projects from the existing canonical media/Public Catalog pipeline.
 
-**RED assertions**
-1. Gallery appears in primary navigation by SitePage id.
-2. Label is `Gallery`.
-3. Navigation href resolves from manifest to `/gallery/`.
-4. Gallery has a stable preview image override and breadcrumb label.
+TDD contract:
 
-**Implementation**
-Add the Gallery id, content label and a canonical existing media preview asset. Extend domain label handling for the new page type. Do not hard-code a second href.
+1. only `asset.type === "image"` is eligible;
+2. only canonical taxonomy resolving to Public Catalog direction `photo` is eligible;
+3. archived/retired material stays out;
+4. dimensions are preserved;
+5. stable series id/order is preserved where current contextual data provides it;
+6. there is no `galleryLayers`, `DEFAULT_GALLERY_LAYER` or layer-filter API;
+7. no credits/title/path parsing is used to infer photography.
 
-## Task 4: Lock the two-layer data projection
+For the isolated noindex prerelease only, historical canonical photo records may pass through a compatibility bridge when `showInCatalog` has not yet been materialized. Final production readiness requires that publication/series metadata be authored through the existing CMS/MediaDesk pipeline.
 
-**Files**
-- Create: `src/data/media/gallery.ts`
-- Create: `test/gallery-data.test.mjs`
-- Modify: `tools/ci/run-tests.mjs`
+## Task 3: Semantic renderer and site-consistent CSS
 
-**RED assertions**
-1. Only `photography` and `production` are public layers.
-2. Default layer is photography.
-3. Only public, non-archived image catalog items enter prerelease output.
-4. Items retain stable catalog ids and dimensions.
-5. Series order is deterministic and groups remain contiguous.
-6. No title/path/free-form credit parsing is used for layer membership.
+Renderer output:
 
-**Implementation**
-Build a pure projection over `getPublicCatalogItems()`. Prefer canonical explicit Gallery editorial metadata where present; use only stable contextual identity as a migration fallback for historical prerelease content. Preserve an interface that can move fully to explicit `galleryLayers/seriesId/seriesOrder` without runtime changes.
+- shared site shell/navigation;
+- one `gallery` heading;
+- one photo stream;
+- invisible series sections;
+- individual keyboard-openable photo cards;
+- intrinsic width/height and responsive image sources;
+- no layer controls/panels, sort/search UI or invented series headings.
 
-## Task 5: Build semantic Gallery HTML and consistent CSS
+Gallery CSS:
 
-**Files**
-- Modify: `src/site/renderers/gallery-page.ts`
-- Create: `src/styles/gallery.css`
-- Modify: `src/styles/index.css`
-- Create/modify Gallery render/style contract tests
+- use shared page padding and semantic spacing;
+- use project-title scale `--fs-800`, `--fw-700`, `--lh-display`, `--ls-heading`;
+- ordinary row-major CSS Grid only;
+- 5 → 4 → 3 → 2 responsive columns unless later visual review changes the authored grid contract;
+- intrinsic image aspect ratios;
+- no `column-count`, dense packing, grid auto-row masonry, row spans or layout-ready JS state;
+- no image hover zoom/scale/translation;
+- zero-radius editorial media and shared focus behavior.
 
-**RED assertions**
-1. Build-time output contains heading, two layer controls and semantic image cards.
-2. No custom Gallery site header, pills, sort/search/all controls or visible series labels.
-3. Cards carry stable item/series identity and intrinsic dimensions.
-4. CSS does not use multi-column masonry for Gallery.
-5. Gallery styles use shared page/color/type tokens and zero editorial radius.
+## Task 4: Viewer/history runtime
 
-**Implementation**
-Use existing site shell/navigation. Render a project-title-like `gallery` heading, text-only layer controls and invisible series-bounded grids. Provide a JS-off photography baseline.
+Runtime stays deliberately small:
 
-## Task 6: Lock and implement URL/history state
+- `gallery-state.ts` parses/serializes only `itemId`;
+- legacy `?layer=...` is ignored and normalized away;
+- `gallery-lightbox.ts` reads all `[data-gallery-card]` cards from the single stream and adapts them to existing PhotoSwipe;
+- `gallery-controller.ts` owns viewer/history/popstate/focus cleanup only;
+- there is no Gallery layout runtime and no layer runtime.
 
-**Files**
-- Create: `src/components/gallery/gallery-state.ts`
-- Create: `test/gallery-state.test.mjs`
-- Modify: `tools/ci/run-tests.mjs`
+TDD covers empty state, `?item=`, ignored retired layer parameters and lightbox independence from layer-panel DOM.
 
-**RED assertions**
-1. Empty query normalizes to photography.
-2. `layer=production` round-trips.
-3. Unknown layers normalize safely.
-4. `item` preserves stable ids and combines with layer.
-5. Serialization omits default photography from URL.
+## Task 5: Series and duplicate/content readiness
 
-**Implementation**
-Pure functions only; no DOM or global history access in this module.
+The prerelease must preserve current canonical series context without inventing grouping from filenames or titles. Known gaps in historical media with missing contextual series metadata remain explicit content blockers rather than hidden heuristics.
 
-## Task 7: Layout runtime with bounded series
+Duplicate policy:
 
-**Files**
-- Create: `src/components/gallery/gallery-layout.ts`
-- Create: relevant cheap unit/contract test where practical
+- do not intentionally publish exact duplicate assets;
+- review near duplicates editorially;
+- keep the record with the stronger metadata where appropriate;
+- do not automatically delete source files;
+- do not create a Gallery-specific duplicate registry.
 
-**Implementation**
-Own only card sizing/reflow. Keep series as independent layout boundaries so a new series never starts in a free column of the previous one. Start with existing platform/CSS capabilities and no new dependency. Respect intrinsic dimensions and resize events.
+Final CMS/MediaDeck work may add canonical `seriesId` and optional `seriesOrder`. Do not add `galleryLayers`.
 
-## Task 8: PhotoSwipe adapter and controller
+## Task 6: Verification and PR Preview
 
-**Files**
-- Inspect/reuse existing PhotoSwipe wrapper
-- Create: `src/components/gallery/gallery-lightbox.ts`
-- Create: `src/components/gallery/gallery-controller.ts`
-- Modify: shared runtime entry only to dynamically import Gallery when `[data-gallery]` exists
-- Add tests for adapter/state/lifecycle contracts
-
-**RED assertions**
-1. Gallery viewer datasource comes from typed Gallery/Catalog items, not DOM scraping.
-2. Open item state updates URL.
-3. Close restores URL and focus.
-4. next/previous replaces current item state without flooding history.
-5. layer changes push meaningful history state.
-6. popstate restores layer/viewer state.
-7. reduced motion uses existing motion preference contract.
-
-**Implementation**
-Use existing PhotoSwipe runtime and cleanup conventions. Do not modify project-page lightbox behavior unless a tiny reusable extraction is required and covered by regression tests.
-
-## Task 9: Responsive/full-volume and content safety
-
-**Files**
-- Extend existing e2e/responsive smoke tools only as needed
-- No production content migration beyond the minimum needed for prerelease rendering
-
-**Checks**
-1. Current full Gallery dataset renders without cross-series mixing.
-2. Desktop/tablet/mobile layouts have no horizontal overflow.
-3. Mobile keeps two columns where viable.
-4. Broken/missing metadata fails safely.
-5. Images have intrinsic dimensions; current source URLs remain canonical.
-6. Document remaining alt/credits/duplicate/editorial-tagging blockers for final production approval.
-
-## Task 10: Full verification and PR Preview
-
-Run or require green results for:
+Before declaring the corrected preview ready, require fresh evidence for:
 
 ```bash
 npm run typecheck
 npm run test:fast
 npm run css:check
-npm run lint:style
 npm run test:media:contract
 npm run build:site
-npm run test:e2e:smoke
-npm run test:ui:responsive
 ```
 
-Review changed files and PR diff for unrelated changes. Confirm branch still targets `prod` and does not include `dev` history.
+Plus the existing PR Preview pipeline must prove:
 
-Let the existing PR Preview workflow deploy the exact head SHA to `looksawful-ru-preview`. Verify noindex, exact SHA and browser smoke. Return the live PR Preview URL for manual visual approval.
+- exact head SHA build;
+- Cloudflare asset/media limits;
+- isolated noindex deployment;
+- direct `/gallery/` load;
+- remote Chromium/Playwright smoke against the immutable internet preview.
 
-## Task 11: Stop before production
+Review the PR diff for unrelated changes. Keep PR #799 draft and targeting `prod`.
 
-Do not merge. Record remaining content/CMS/MediaDeck/performance findings on the PR. Production merge happens only after visual approval and final content/editorial cleanup.
+## Task 7: Stop before production
+
+Do not merge.
+
+Manual visual/content review comes next. Production approval additionally requires cleanup of missing alt/credits, duplicate decisions, explicit publication state and stable series metadata through the existing media/CMS/MediaDesk ownership.
