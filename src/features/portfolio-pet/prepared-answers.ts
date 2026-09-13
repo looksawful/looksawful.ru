@@ -64,6 +64,10 @@ function normalize(message: string): string {
     .replace(/\s+/gu, " ");
 }
 
+function includesAny(value: string, fragments: readonly string[]): boolean {
+  return fragments.some((fragment) => value.includes(fragment));
+}
+
 function preparedIntent(message: string): PreparedDefinition["id"] | null {
   const value = normalize(message);
   if (!value) return null;
@@ -175,49 +179,56 @@ function relevantApprovedSourceIds(
   message: string,
   page: string,
   approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
-  groundingMode: "page" | "all",
 ): readonly string[] {
-  if (groundingMode === "all") return Object.freeze([...approvedById.keys()].slice(0, 12));
-
   const value = normalize(message);
   const selected: string[] = [];
   const projectSlug = pageProjectSlug(page);
   const projectId = projectSlug ? `project.${projectSlug}` : null;
   if (projectId) addIfApproved(selected, projectId, approvedById);
 
-  if (/\b(jestei|джестей)\b/u.test(value)) addIfApproved(selected, "project.jestei", approvedById);
-  if (/\b(styx|стикс)\b/u.test(value)) addIfApproved(selected, "project.styx", approvedById);
-  if (/\b(sensetique|сенсетик)\b/u.test(value)) addIfApproved(selected, "project.sensetique", approvedById);
-  if (/\b(shootings?|съ[её]мк|фотограф|микс медиа|микс-медиа)\b/u.test(value)) {
+  if (includesAny(value, ["jestei", "джестей"])) addIfApproved(selected, "project.jestei", approvedById);
+  if (includesAny(value, ["styx", "стикс"])) addIfApproved(selected, "project.styx", approvedById);
+  if (includesAny(value, ["sensetique", "сенсетик"])) addIfApproved(selected, "project.sensetique", approvedById);
+  if (includesAny(value, ["shooting", "съём", "съем", "фотограф", "микс медиа", "микс-медиа"])) {
     addIfApproved(selected, "project.shootings", approvedById);
   }
 
-  if (/\b(навык|уме|компетен|технолог|инструмент|стек|figma|blender|javascript|typescript|python|three|webgl|glsl|ai|ии|нейросет|ребрендинг|айдентик|ux|ui|cjm|motion|моушен|дизайн-систем)\b/u.test(value)) {
+  if (includesAny(value, [
+    "навык", "уме", "компетен", "технолог", "инструмент", "стек", "figma", "blender",
+    "javascript", "typescript", "python", "three", "webgl", "glsl", " ai", "ии", "нейросет",
+    "ребрендинг", "айдентик", "ux", "ui", "cjm", "motion", "моушен", "дизайн-систем",
+  ])) {
     addIfApproved(selected, "profile.skills", approvedById);
     addIfApproved(selected, "profile.principles", approvedById);
   }
 
-  if (/\b(опыт|карьер|работал|работа|компан|должност|роль|mad cow|li-ne|line agency|прогресс|риа|московские новости|puma|h&m|детск)\b/u.test(value)) {
+  if (includesAny(value, [
+    "опыт", "карьер", "работал", "работа", "компан", "должност", "роль", "mad cow", "li-ne",
+    "line agency", "прогресс", "риа", "московские новости", "puma", "h&m", "детск",
+  ])) {
     addIfApproved(selected, "profile.experience", approvedById);
   }
 
-  if (/\b(образован|учил|учился|университет|мпгу|диплом|курс|обучен|hexlet|stepik|figma academy)\b/u.test(value)) {
+  if (includesAny(value, [
+    "образован", "учил", "учился", "университет", "мпгу", "диплом", "курс", "обучен", "hexlet",
+    "stepik", "figma academy",
+  ])) {
     addIfApproved(selected, "profile.education", approvedById);
   }
 
-  if (/\b(язык|английск|чешск|english|czech)\b/u.test(value)) {
+  if (includesAny(value, ["язык", "английск", "чешск", "english", "czech"])) {
     addIfApproved(selected, "profile.languages", approvedById);
   }
 
-  if (/\b(где жив|город|локаци|москв)\b/u.test(value)) {
+  if (includesAny(value, ["где жив", "город", "локаци", "москв"])) {
     addIfApproved(selected, "profile.location", approvedById);
   }
 
-  if (/\b(email|e-mail|почт|связаться|контакт|написать)\b/u.test(value)) {
+  if (includesAny(value, ["email", "e-mail", "почт", "связаться", "контакт", "написать"])) {
     addIfApproved(selected, "profile.contact", approvedById);
   }
 
-  if (/\b(принцип|подход|процесс|руковод|команд|дирекшн)\b/u.test(value)) {
+  if (includesAny(value, ["принцип", "подход", "процесс", "руковод", "команд", "дирекшн"])) {
     addIfApproved(selected, "profile.principles", approvedById);
   }
 
@@ -231,7 +242,6 @@ function relevantApprovedSourceIds(
 
 export function createPortfolioAssistantRouter({
   approvedSourceIds,
-  groundingMode = "page",
 }: {
   approvedSourceIds: readonly string[];
   groundingMode?: "page" | "all";
@@ -255,7 +265,7 @@ export function createPortfolioAssistantRouter({
       kind: "generate",
       message: input.message,
       context: Object.freeze({
-        sourceIds: relevantApprovedSourceIds(input.message, page, approvedById, groundingMode),
+        sourceIds: relevantApprovedSourceIds(input.message, page, approvedById),
         page,
         locale: input.locale,
       }),
@@ -265,7 +275,7 @@ export function createPortfolioAssistantRouter({
 
 export function createPreviewPortfolioAssistantRouter(): PortfolioAssistantRouter {
   const approvedSourceIds = buildPortfolioPetKnowledgeCandidates().map((candidate) => candidate.id);
-  return createPortfolioAssistantRouter({ approvedSourceIds, groundingMode: "all" });
+  return createPortfolioAssistantRouter({ approvedSourceIds });
 }
 
 // Owner content approval was completed on 2026-09-13. Visual/deployment approval remains separate.
