@@ -17,6 +17,18 @@ export const sitePages = [
     },
   },
   {
+    id: "gallery",
+    type: "gallery",
+    path: "/gallery/",
+    enabled: true,
+    renderer: "gallery",
+    build: VITE_BUILD,
+    discovery: {
+      listed: true,
+      indexable: true,
+    },
+  },
+  {
     id: "case:jestei-pool",
     type: "case",
     entityId: "jestei-pool",
