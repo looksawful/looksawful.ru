@@ -78,9 +78,9 @@ async function verifyViewport(browser, baseUrl, viewport) {
     const closedConsentBox = await box(closedConsent, "closed-state consent");
     assertInside(closedConsentBox, viewport, "closed-state consent");
     assert.equal(
-      overlaps(closedConsentBox, await box(pet, "closed Awful with consent")),
+      overlaps(closedConsentBox, await box(pet, "closed Venus with consent")),
       false,
-      `${viewport.width}x${viewport.height}: consent must not overlap canonical closed Awful`,
+      `${viewport.width}x${viewport.height}: consent must not overlap canonical closed Venus`,
     );
     await closedConsent.evaluate((node) => node.remove());
     await settle(page);
@@ -142,11 +142,15 @@ async function verifyViewport(browser, baseUrl, viewport) {
     assert.equal(await email.inputValue(), "draft@example.com");
     assert.equal(await message.inputValue(), "draft message");
 
-    await hub.locator('[data-contact-hub-mode="ai"]').click();
+    await close.click();
+    await hub.waitFor({ state: "hidden" });
+    await pet.click();
+    await hub.waitFor({ state: "visible" });
     await settle(page);
+
     const composer = hub.locator("[data-contact-hub-ai-composer]");
     assertInside(await box(composer, "composer"), viewport, "AI composer");
-    assertInside(await box(close, "close after mode switch"), viewport, "close after mode switch");
+    assertInside(await box(close, "close after Venus open"), viewport, "close after Venus open");
 
     const consent = await insertSyntheticConsent(page);
     const consentBox = await box(consent, "consent");
