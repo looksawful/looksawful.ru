@@ -14,6 +14,10 @@ const componentsCss = readFileSync(
   new URL("../src/styles/components.css", import.meta.url),
   "utf8",
 );
+const playlistFilterLayoutCss = readFileSync(
+  new URL("../public/components/playlist-filter-workflow-layout.css", import.meta.url),
+  "utf8",
+);
 
 test("Jestei Event is typed content and uses registry-backed Moves Awful media", () => {
   const html = renderMediaGroup(jesteiEventGroup);
@@ -69,4 +73,22 @@ test("Jestei Instagram player copy belongs to the section, not hover captions", 
     title: "Промокоммуникация Jestei Pool",
     paragraphs: ["Интерактивный плеер для Instagram-постов."],
   });
+});
+
+test("temporary RED: wide Jestei BPM labels and inputs fit the 44px content row", () => {
+  assert.match(
+    playlistFilterLayoutCss,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields\s*\{[^}]*block-size:\s*44px\s*;/s,
+    "advanced BPM fields must not inherit the 62px mobile height inside a 44px wide row",
+  );
+  assert.match(
+    playlistFilterLayoutCss,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields\s+label\s*\{[^}]*block-size:\s*44px\s*;[^}]*gap:\s*0\s*;/s,
+    "advanced BPM label line and 28px input must fit exactly inside the 44px row",
+  );
+  assert.match(
+    playlistFilterLayoutCss,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-fields\s+label\s*\{[^}]*block-size:\s*44px\s*;[^}]*gap:\s*0\s*;/s,
+    "compact BPM label line and input must not retain the 6px mobile gap in the 44px row",
+  );
 });
