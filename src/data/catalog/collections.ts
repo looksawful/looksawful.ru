@@ -64,7 +64,7 @@ export const collections = [
   {
     id: "pet-projects",
     name: "Pet Projects",
-    visibility: "hidden",
+    visibility: "public",
   },
 ] as const satisfies readonly CollectionData[];
 
