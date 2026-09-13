@@ -31,7 +31,8 @@ test("AI composer preserves the approved simple input language", () => {
 });
 
 test("OWNER-718: Awful opens with one simple line and no suggested questions", () => {
-  assert.match(component, /"Привет\. Я Awful\."/);
+  assert.match(component, /createAiMessage\(documentRef, "Привет\.", "bot"\)/);
+  assert.doesNotMatch(component, /Привет\. Я Awful\./);
   assert.doesNotMatch(component, /contact-hub__quick-actions/);
   assert.doesNotMatch(component, /contactHubQuickQuery/);
   assert.doesNotMatch(component, /Покажи кейсы|Покажи резюме|Расскажи о Ване/);
