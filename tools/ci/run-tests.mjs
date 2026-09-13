@@ -53,6 +53,7 @@ export const fastTests = new Set([
   "test/pr-preview-workflow.test.mjs",
   "test/preview-auth-runtime.test.mjs",
   "test/preview-media-proxy.test.mjs",
+  "test/preview-qa-profile.test.mjs",
   "test/preview-metadata.test.mjs",
   "test/preview-security-contract.test.mjs",
   "test/preview-v2-media-packaging.test.mjs",
