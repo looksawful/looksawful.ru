@@ -112,5 +112,17 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
     "closing the Hub must restore focus to Venus",
   );
 
+  const beforeHide = await pet.boundingBox();
+  assert.ok(beforeHide, "Venus must be visible before deliberate swipe-to-hide");
+  const hideStartX = beforeHide.x + (beforeHide.width / 2);
+  const hideStartY = beforeHide.y + (beforeHide.height / 2);
+  await page.mouse.move(hideStartX, hideStartY);
+  await page.mouse.down();
+  await page.mouse.move(18, hideStartY + 4, { steps: 2 });
+  await page.mouse.up();
+  await settle(page);
+  assert.equal(await pet.isVisible(), false, "DR-006/PET-024: deliberate fast swipe to the left edge must hide Venus");
+  assert.equal(await hub.isVisible(), false, "swipe-to-hide must not open Contact Hub");
+
   await page.close();
 });
