@@ -1,4 +1,4 @@
-# Contact Hub + Venus Pre-implementation Reconciliation
+# Contact Hub + Awful Pre-implementation Reconciliation
 
 Status: **NORMATIVE COMPANION TO THE CANONICAL PRODUCT CONTRACT**
 
@@ -8,11 +8,11 @@ This document records requirements discovered by the five pre-implementation aud
 
 ## 1. Overlay arbitration contract
 
-The existing site already has fixed/sticky surfaces. In particular, site navigation uses a high stacking layer and the analytics-consent control is fixed in the bottom-left, the same default region as Venus. A solution that merely assigns the pet an even larger `z-index` is invalid.
+The existing site already has fixed/sticky surfaces. In particular, site navigation uses a high stacking layer and the analytics-consent control is fixed in the bottom-left, the same default region as Awful. A solution that merely assigns the pet an even larger `z-index` is invalid.
 
 Add the following observable requirements:
 
-- **OV-001** The analytics-consent control is never covered by Venus, the Contact Hub, or the collapsed launcher.
+- **OV-001** The analytics-consent control is never covered by Awful, the Contact Hub, or the collapsed launcher.
 - **OV-002** When analytics consent and the closed pet would occupy the same bottom-left region, the widget runtime resolves the collision by moving/suppressing/temporarily compacting the widget, not by changing page flow.
 - **OV-003** The visitor can complete analytics-consent actions without first interacting with the pet.
 - **OV-004** An open Contact Hub has one deterministic priority rule relative to site navigation and media/lightbox surfaces.
