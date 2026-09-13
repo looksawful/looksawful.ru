@@ -48,61 +48,48 @@ test("Gallery participates in primary navigation by SitePage identity", () => {
   assert.match(item.previewSrc, /^\/media\//);
 });
 
-test("Gallery prerelease exposes only photography and production as public layers", async () => {
+test("Gallery public contract is one photo-only collection without layer APIs", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
-  assert.deepEqual(gallery.galleryLayers, ["photography", "production"]);
-  assert.equal(gallery.DEFAULT_GALLERY_LAYER, "photography");
+  assert.equal(gallery.galleryLayers, undefined, "public Gallery must not expose layer tabs");
+  assert.equal(gallery.DEFAULT_GALLERY_LAYER, undefined, "public Gallery must not have a layer state");
+  assert.equal(gallery.getGalleryItemsForLayer, undefined, "public Gallery must not filter by production/art layers");
 });
 
-test("Gallery projection keeps full-volume image media, dimensions and stable series", async () => {
+test("Gallery projection keeps only canonical photo-direction images with dimensions and stable series", async () => {
   const gallery = await import("../src/data/media/gallery.ts");
   const items = gallery.getGalleryItems();
-  const photography = gallery.getGalleryItemsForLayer("photography", items);
-  const production = gallery.getGalleryItemsForLayer("production", items);
 
-  // Current repository inventory yields 147 photography and 127 production
-  // candidates after canonical contextual projection. Keep regression floors
-  // below those exact counts so additions remain free while truncation is caught.
-  assert.ok(
-    photography.length >= 140,
-    `expected at least 140 photography items in prerelease, got ${photography.length}`,
-  );
-  assert.ok(
-    production.length >= 120,
-    `expected at least 120 production items in prerelease, got ${production.length}`,
-  );
+  assert.ok(items.length >= 140, `expected a full photo archive, got only ${items.length} items`);
 
   for (const item of items) {
-    assert.equal(item.asset.type, "image", `${item.id} must be an image in the first prerelease`);
+    assert.equal(item.asset.type, "image", `${item.id} must be an image`);
+    assert.ok(item.directions.includes("photo"), `${item.id} is not classified as photography`);
     assert.ok(item.width && item.width > 0, `${item.id} is missing width`);
     assert.ok(item.height && item.height > 0, `${item.id} is missing height`);
-    assert.ok(item.layers.length > 0, `${item.id} has no Gallery layer`);
+    assert.equal("layers" in item, false, `${item.id} still leaks the retired layer model`);
     assert.ok(item.seriesId.length > 0, `${item.id} has no stable series id`);
     assert.ok(Number.isInteger(item.seriesOrder) && item.seriesOrder >= 0, `${item.id} has invalid series order`);
   }
 });
 
-test("Gallery URL state keeps photography implicit and production shareable", async () => {
+test("Gallery URL state owns only the open photo id and ignores retired layer parameters", async () => {
   const state = await import("../src/components/gallery/gallery-state.ts");
 
   assert.deepEqual(state.parseGallerySearch(""), {
-    layer: "photography",
     itemId: null,
   });
   assert.deepEqual(state.parseGallerySearch("?layer=production&item=media-42"), {
-    layer: "production",
     itemId: "media-42",
   });
   assert.deepEqual(state.parseGallerySearch("?layer=unknown"), {
-    layer: "photography",
     itemId: null,
   });
   assert.equal(
-    state.serializeGalleryState({ layer: "photography", itemId: null }),
+    state.serializeGalleryState({ itemId: null }),
     "",
   );
   assert.equal(
-    state.serializeGalleryState({ layer: "production", itemId: "media-42" }),
-    "?layer=production&item=media-42",
+    state.serializeGalleryState({ itemId: "media-42" }),
+    "?item=media-42",
   );
 });
