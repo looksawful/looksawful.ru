@@ -2,17 +2,11 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import test from "node:test";
 
-const clientUrl = new URL(
-  "../src/features/portfolio-pet/assistant-client.ts",
-  import.meta.url,
-);
-const answersUrl = new URL(
-  "../src/features/portfolio-pet/prepared-answers.ts",
-  import.meta.url,
-);
+const clientUrl = new URL("../src/features/portfolio-pet/assistant-client.ts", import.meta.url);
+const answersUrl = new URL("../src/features/portfolio-pet/prepared-answers.ts", import.meta.url);
 
 async function loadClient() {
-  assert.equal(existsSync(clientUrl), true, "RED: composed assistant client is not implemented yet");
+  assert.equal(existsSync(clientUrl), true, "composed assistant client must exist");
   return import(clientUrl.href);
 }
 
@@ -32,15 +26,11 @@ test("approved prepared assistant reply bypasses the public HTTP transport", asy
       throw new Error("prepared replies must not reach fetch");
     },
   }, {
-    router: await approvedRouter(["profile.role", "profile.about"]),
+    router: await approvedRouter(["profile.role", "profile.work_scope", "profile.experience"]),
+    conversationStore: null,
   });
 
-  const result = await client.reply({
-    message: "Покажи резюме",
-    locale: "ru",
-    context: { page: "home" },
-  });
-
+  const result = await client.reply({ message: "Покажи резюме", locale: "ru", context: { page: "home" } });
   assert.equal(result.kind, "prepared");
   assert.equal(fetchCalls, 0);
 });
@@ -54,16 +44,13 @@ test("approved free-form assistant reply uses the public transport and returns g
     fetchImpl: async (url, init) => {
       request = { url, init };
       return new Response(
-        JSON.stringify({
-          kind: "answer",
-          text: "Короткий grounded ответ.",
-          sources: ["project.jestei"],
-        }),
+        JSON.stringify({ kind: "answer", text: "Короткий grounded ответ.", sources: ["project.jestei"] }),
         { status: 200, headers: { "content-type": "application/json" } },
       );
     },
   }, {
     router: await approvedRouter(["project.jestei"]),
+    conversationStore: null,
   });
 
   const result = await client.reply({
@@ -82,26 +69,19 @@ test("approved free-form assistant reply uses the public transport and returns g
     message: "Как этот подход помогает нестандартному сценарию?",
     locale: "ru",
     sessionId: "session-generated",
-    context: {
-      currentPath: "/work/jestei/",
-      sourceIds: ["project.jestei"],
-    },
+    context: { currentPath: "/work/jestei/", sourceIds: ["project.jestei"] },
   });
-  assert.deepEqual(result, {
-    kind: "generated",
-    text: "Короткий grounded ответ.",
-    sourceIds: ["project.jestei"],
-  });
+  assert.deepEqual(result, { kind: "generated", text: "Короткий grounded ответ.", sourceIds: ["project.jestei"] });
 });
 
 test("public backend rate limiting remains a recoverable assistant state", async () => {
   const { createPortfolioAssistantClient } = await loadClient();
-
   const client = createPortfolioAssistantClient({
     sessionId: "session-limited",
     fetchImpl: async () => new Response("", { status: 429 }),
   }, {
     router: await approvedRouter(["project.jestei"]),
+    conversationStore: null,
   });
 
   const result = await client.reply({
@@ -109,6 +89,5 @@ test("public backend rate limiting remains a recoverable assistant state", async
     locale: "ru",
     context: { page: "/work/jestei/" },
   });
-
   assert.deepEqual(result, { kind: "rate_limited" });
 });
