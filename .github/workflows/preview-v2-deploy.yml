@@ -15,7 +15,7 @@ env:
 jobs:
   deploy:
     name: Deploy trusted private preview workspace
-    if: github.event.workflow_run.conclusion == 'success' && vars.PREVIEW_V2_ENABLED == 'true'
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && vars.PREVIEW_V2_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: preview-deploy
@@ -37,27 +37,32 @@ jobs:
           repository: ${{ github.repository }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Validate candidate metadata as data
+      - name: Validate candidate metadata as trusted data
         id: meta
+        env:
+          TRIGGER_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         shell: bash
         run: |
           set -euo pipefail
           test -f candidate/preview-metadata.json
-          sha="$(jq -er '.sha' candidate/preview-metadata.json)"
-          kind="$(jq -er '.kind' candidate/preview-metadata.json)"
-          key="$(jq -er '.key' candidate/preview-metadata.json)"
-          repository="$(jq -er '.repository' candidate/preview-metadata.json)"
+          node --input-type=module <<'NODE'
+          import { appendFile, readFile } from "node:fs/promises";
+          import { parsePreviewMetadata } from "./trusted/tools/preview/preview-metadata.mjs";
 
-          [[ "$sha" =~ ^[0-9a-fA-F]{40}$ ]] || { echo "invalid candidate SHA" >&2; exit 1; }
-          [[ "$kind" =~ ^(feature|lab|cms|release)$ ]] || { echo "invalid preview kind" >&2; exit 1; }
-          [[ "$key" =~ ^[a-z0-9][a-z0-9-]{0,62}$ ]] || { echo "invalid preview key" >&2; exit 1; }
-          [[ "$repository" == "$GITHUB_REPOSITORY" ]] || { echo "candidate repository mismatch" >&2; exit 1; }
-          [[ "$sha" == "${{ github.event.workflow_run.head_sha }}" ]] || { echo "candidate SHA does not match triggering workflow run" >&2; exit 1; }
-
-          printf 'sha=%s\n' "$sha" >> "$GITHUB_OUTPUT"
-          printf 'kind=%s\n' "$kind" >> "$GITHUB_OUTPUT"
-          printf 'key=%s\n' "$key" >> "$GITHUB_OUTPUT"
-          printf 'branch=v2-%s\n' "$key" >> "$GITHUB_OUTPUT"
+          const metadata = parsePreviewMetadata(await readFile("candidate/preview-metadata.json", "utf8"));
+          const expectedSha = process.env.TRIGGER_HEAD_SHA.toLowerCase();
+          if (metadata.repository !== process.env.GITHUB_REPOSITORY) {
+            throw new Error("candidate repository mismatch");
+          }
+          if (metadata.sha !== expectedSha) {
+            throw new Error("candidate SHA does not match triggering workflow run");
+          }
+          await appendFile(
+            process.env.GITHUB_OUTPUT,
+            `sha=${metadata.sha}\nkind=${metadata.kind}\nkey=${metadata.key}\nbranch=v2-${metadata.key}\n`,
+            "utf8",
+          );
+          NODE
 
       - name: Validate untrusted candidate artifact
         shell: bash
