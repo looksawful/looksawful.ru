@@ -6,17 +6,17 @@ Target: PR #788 / `contact-hub-frontend-current`
 
 ## Source of truth
 
-The visual and interaction reference is the approved `contact-hub-venus-minimal-v7.html` prototype from the ChatGPT Library. The current Contact Hub product contract and state/domain modules remain the architectural source of truth. Prototype code is reference material only and must not reintroduce obsolete ownership or routing.
+The visual and interaction reference is the approved `contact-hub-awful-minimal-v7.html` prototype from the ChatGPT Library. The current Contact Hub product contract and state/domain modules remain the architectural source of truth. Prototype code is reference material only and must not reintroduce obsolete ownership or routing.
 
 ## Restore from v7
 
 - One shared Contact Hub shell for AI and Form.
 - Header mode actions: `AI` and `написать`, plus close action.
-- Venus opens the Hub in AI mode; the existing site contact CTA opens it in Form mode.
+- Awful opens the Hub in AI mode; the existing site contact CTA opens it in Form mode.
 - AI view uses the prototype's plain message stream, inline text actions, and bottom composer.
 - Form view uses editorial rows for `имя`, `email`, `сообщение`, plus `+ файл`, `отправить`, and the existing mail fallback.
 - Visual direction stays site-like: Inter, thin borders, light elevation, restrained radius, text actions, no status dot/name, bubbles, pills, glass, or nested card UI.
-- Desktop remains a compact fixed shell adjacent to Venus; mobile remains a bottom sheet using dynamic viewport units.
+- Desktop remains a compact fixed shell adjacent to Awful; mobile remains a bottom sheet using dynamic viewport units.
 
 ## AI → Form handoff
 
@@ -45,7 +45,7 @@ The production assistant stays fail-closed for unapproved knowledge. This restor
 
 RED tests must be added before production UI code. They must prove:
 
-1. Site CTA opens the shared shell in Form mode and Venus opens it in AI mode.
+1. Site CTA opens the shared shell in Form mode and Awful opens it in AI mode.
 2. Mode switching alone does not copy AI text into Form.
 3. Explicit handoff inserts selected AI draft into an empty message while preserving name/email.
 4. Existing message requires an explicit decision; append and replace work; cancel leaves the draft untouched.
