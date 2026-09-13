@@ -306,6 +306,59 @@ async function inspectJesteiLayoutEscapes(filter, viewportLabel, stateLabel) {
   }
 }
 
+async function inspectJesteiSummaryPartialClipping(filter, viewportLabel) {
+  const report = await filter.evaluate((host) => {
+    const root = host.shadowRoot;
+    if (!root) throw new Error("missing playlist-filter-workflow shadow root");
+
+    const shell = root.querySelector(".contains-shell");
+    if (!(shell instanceof HTMLElement)) throw new Error("missing .contains-shell");
+
+    const shellRect = shell.getBoundingClientRect();
+    const tolerance = 1;
+    const partial = [];
+
+    for (const pill of root.querySelectorAll(".contains-shell .summary-pill")) {
+      if (!(pill instanceof HTMLElement)) continue;
+      const style = getComputedStyle(pill);
+      if (style.display === "none" || style.visibility === "hidden") continue;
+
+      const rect = pill.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) continue;
+
+      const visibleLeft = Math.max(rect.left, shellRect.left);
+      const visibleRight = Math.min(rect.right, shellRect.right);
+      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+      const isPartial = visibleWidth > tolerance && visibleWidth < rect.width - tolerance;
+      if (!isPartial) continue;
+
+      partial.push({
+        text: (pill.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 80),
+        left: Number(rect.left.toFixed(2)),
+        right: Number(rect.right.toFixed(2)),
+        width: Number(rect.width.toFixed(2)),
+        visibleWidth: Number(visibleWidth.toFixed(2)),
+      });
+    }
+
+    return {
+      shell: {
+        left: Number(shellRect.left.toFixed(2)),
+        right: Number(shellRect.right.toFixed(2)),
+        width: Number(shellRect.width.toFixed(2)),
+        scrollLeft: Number(shell.scrollLeft.toFixed(2)),
+        scrollWidth: shell.scrollWidth,
+      },
+      partial,
+    };
+  });
+
+  console.log(`[jestei-summary-clip] ${viewportLabel}: ${JSON.stringify(report)}`);
+  if (report.partial.length) {
+    throw new Error(`[jestei-summary-clip] ${viewportLabel}: ${report.partial.length} summary pills are partially clipped`);
+  }
+}
+
 async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const browserMessages = [];
@@ -340,6 +393,7 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
 
       await setJesteiFilterState(filter, page, { open: true, advanced: true });
       await inspectJesteiLayoutEscapes(filter, `${viewport.width}x${viewport.height}`, "advanced");
+      await inspectJesteiSummaryPartialClipping(filter, `${viewport.width}x${viewport.height}`);
 
       await setJesteiFilterState(filter, page, { open: true, advanced: false });
       await inspectJesteiLayoutEscapes(filter, `${viewport.width}x${viewport.height}`, "compact");
