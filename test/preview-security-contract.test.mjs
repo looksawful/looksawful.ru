@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, symlink, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -43,15 +43,23 @@ test("candidate artifact rejects symlinks", async (t) => {
   await assert.rejects(validatePreviewArtifact({ distDir }), /symlink/i);
 });
 
-test("trusted runtime owns the catch-all route policy", async () => {
+test("trusted runtime owns Pages Functions and catch-all route policy", async () => {
   const { root, distDir } = await makeDist();
-  const outputDir = path.join(root, "deploy");
+  const workspaceDir = path.join(root, "workspace");
   const trustedRuntimeDir = path.join(root, "trusted-runtime");
   await mkdir(path.join(trustedRuntimeDir, "functions"), { recursive: true });
-  await writeFile(path.join(trustedRuntimeDir, "functions", "_middleware.js"), "export const onRequest = () => new Response('trusted');\n", "utf8");
+  await writeFile(
+    path.join(trustedRuntimeDir, "functions", "_middleware.js"),
+    "export const onRequest = () => new Response('trusted');\n",
+    "utf8",
+  );
 
-  await assembleTrustedPreviewRuntime({ distDir, outputDir, trustedRuntimeDir });
+  const result = await assembleTrustedPreviewRuntime({ distDir, workspaceDir, trustedRuntimeDir });
 
-  const routes = JSON.parse(await import("node:fs/promises").then(({ readFile }) => readFile(path.join(outputDir, "_routes.json"), "utf8")));
+  assert.equal(result.siteDir, path.join(workspaceDir, "site"));
+  assert.equal(result.functionsDir, path.join(workspaceDir, "functions"));
+  assert.match(await readFile(path.join(result.functionsDir, "_middleware.js"), "utf8"), /trusted/);
+
+  const routes = JSON.parse(await readFile(path.join(result.siteDir, "_routes.json"), "utf8"));
   assert.deepEqual(routes, { version: 1, include: ["/*"], exclude: [] });
 });
