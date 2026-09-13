@@ -13,6 +13,10 @@ const galleryCss = await readFile(
   new URL("../src/styles/gallery.css", import.meta.url),
   "utf8",
 );
+const lightboxSource = await readFile(
+  new URL("../src/components/gallery/gallery-lightbox.ts", import.meta.url),
+  "utf8",
+);
 
 const galleryPage = sitePages.find((page) => page.id === "gallery");
 assert.ok(galleryPage && galleryPage.type === "gallery");
@@ -51,6 +55,11 @@ test("Gallery CSS follows site typography and explicitly avoids masonry mechanic
   assert.doesNotMatch(galleryCss, /grid-row-end\s*:/);
   assert.doesNotMatch(galleryCss, /gallery-row-span/);
   assert.doesNotMatch(galleryCss, /data-gallery-layout-ready/);
+});
+
+test("Gallery lightbox reads the one public photo stream instead of retired layer panels", () => {
+  assert.doesNotMatch(lightboxSource, /data-gallery-layer-panel/);
+  assert.match(lightboxSource, /root\.querySelectorAll<HTMLElement>\("\[data-gallery-card\]"\)/);
 });
 
 test("Gallery build plugin owns the renderer instead of leaving the physical input untouched", () => {
