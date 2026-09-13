@@ -58,49 +58,59 @@ test("Jestei BPM value row stays visually attached to the range control", () => 
   );
 });
 
-test("Jestei wide compact BPM fields fit the audited 154px column without label collisions", () => {
-  const css = readLayoutCss();
-
-  assert.match(
-    css,
-    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-fields\s*\{[^}]*grid-template-columns:\s*70px\s+6px\s+70px\s*;/s,
-    "two 70px fields, a 6px separator and two 4px gaps must consume the full 154px audited BPM column",
-  );
-  assert.match(
-    css,
-    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-fields\s+label,\s*\.compact-bpm-fields\s+input\s*\{[^}]*inline-size:\s*70px\s*;/s,
-    "wide labels and controls must use the full 70px field tracks instead of overflowing 60px boxes",
-  );
-  assert.match(
-    css,
-    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-separator\s*\{[^}]*display:\s*grid\s*;[^}]*place-items:\s*center\s*;[^}]*align-self:\s*end\s*;[^}]*inline-size:\s*6px\s*;[^}]*block-size:\s*28px\s*;[^}]*padding-block-end:\s*0\s*;/s,
-    "the separator must stay centered between the 28px-high wide inputs",
-  );
-});
-
-test("Jestei initial advanced BPM fields fit the audited 154px column", () => {
+test("Jestei initial advanced BPM anatomy fits the audited 154x44 field area", () => {
   const html = renderJesteiTrackFilter(section);
   const css = readLayoutCss();
 
   assert.match(
     html,
     /data-filter-advanced="true"/,
-    "the rendered filter starts in advanced mode, so the advanced BPM fields are the user-visible contract",
+    "the rendered filter starts in advanced mode, so the advanced BPM fields are the initial user-visible contract",
   );
   assert.match(
     css,
-    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields,\s*\.compact-bpm-fields\s*\{[^}]*display:\s*grid\s*;[^}]*grid-template-columns:\s*70px\s+6px\s+70px\s*;[^}]*gap:\s*4px\s*;[^}]*inline-size:\s*154px\s*;/s,
-    "the visible advanced BPM fields must allocate the whole audited 154px column without collisions",
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields\s*\{[^}]*display:\s*grid\s*;[^}]*grid-template-columns:\s*70px\s+6px\s+70px\s*;[^}]*gap:\s*4px\s*;[^}]*inline-size:\s*154px\s*;[^}]*block-size:\s*44px\s*;/s,
+    "advanced BPM fields must fill the 154px column and the 44px content row without inheriting the 62px mobile height",
   );
   assert.match(
     css,
-    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields\s+label,\s*\.bpm-group\s+\.tempo-fields\s+input,\s*\.compact-bpm-fields\s+label,\s*\.compact-bpm-fields\s+input\s*\{[^}]*inline-size:\s*70px\s*;/s,
-    "advanced BPM labels and inputs must use 70px field tracks",
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields\s+label\s*\{[^}]*inline-size:\s*70px\s*;[^}]*block-size:\s*44px\s*;[^}]*gap:\s*0\s*;/s,
+    "advanced BPM labels must fit a 16px label line plus a 28px input exactly inside the 44px row",
   );
   assert.match(
     css,
-    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields__separator,\s*\.compact-bpm-separator\s*\{[^}]*display:\s*grid\s*;[^}]*place-items:\s*center\s*;[^}]*align-self:\s*end\s*;[^}]*inline-size:\s*6px\s*;[^}]*block-size:\s*28px\s*;/s,
-    "the advanced BPM separator must be centered on the input row",
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields\s+input\s*\{[^}]*inline-size:\s*70px\s*;[^}]*block-size:\s*28px\s*;/s,
+    "advanced BPM inputs must remain symmetric 70x28 controls",
+  );
+  assert.match(
+    css,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.bpm-group\s+\.tempo-fields__separator\s*\{[^}]*align-self:\s*end\s*;[^}]*inline-size:\s*6px\s*;[^}]*block-size:\s*28px\s*;/s,
+    "advanced BPM separator must align to the 28px input row",
+  );
+});
+
+test("Jestei wide compact BPM anatomy fits the audited 154x44 field area", () => {
+  const css = readLayoutCss();
+
+  assert.match(
+    css,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-fields\s*\{[^}]*display:\s*grid\s*;[^}]*grid-template-columns:\s*70px\s+6px\s+70px\s*;[^}]*gap:\s*4px\s*;[^}]*inline-size:\s*154px\s*;[^}]*block-size:\s*44px\s*;/s,
+    "compact BPM fields must fill the same 154px column and 44px row when the user leaves advanced mode",
+  );
+  assert.match(
+    css,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-fields\s+label\s*\{[^}]*inline-size:\s*70px\s*;[^}]*block-size:\s*44px\s*;[^}]*gap:\s*0\s*;/s,
+    "compact BPM labels must not retain their 6px mobile label/input gap inside the 44px wide row",
+  );
+  assert.match(
+    css,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-fields\s+input\s*\{[^}]*inline-size:\s*70px\s*;[^}]*block-size:\s*28px\s*;/s,
+    "compact BPM inputs must remain symmetric 70x28 controls",
+  );
+  assert.match(
+    css,
+    /@container\s+playlist-filter\s*\(inline-size\s*>=\s*768px\)[\s\S]*?\.compact-bpm-separator\s*\{[^}]*align-self:\s*end\s*;[^}]*inline-size:\s*6px\s*;[^}]*block-size:\s*28px\s*;[^}]*padding-block-end:\s*0\s*;/s,
+    "compact BPM separator must align to the same 28px input row",
   );
 });
 
