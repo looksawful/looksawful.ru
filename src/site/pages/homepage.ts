@@ -18,22 +18,22 @@ export interface HomepageEntry {
 export const homepageEntries = [
   {
     entity: { type: "case", id: "jestei-pool" },
-    mode: "full",
+    mode: "compact",
     order: 10,
   },
   {
     entity: { type: "case", id: "styx" },
-    mode: "full",
+    mode: "compact",
     order: 20,
   },
   {
     entity: { type: "case", id: "sensetique" },
-    mode: "full",
+    mode: "compact",
     order: 30,
   },
   {
     entity: { type: "collection", id: "music-photography" },
-    mode: "full",
+    mode: "compact",
     order: 40,
   },
 ] as const satisfies readonly HomepageEntry[];
@@ -46,7 +46,7 @@ export function assertHomepagePresentationSupported(
   entries: readonly HomepageEntry[],
 ): void {
   for (const entry of entries) {
-    if (entry.mode !== "full") {
+    if (entry.mode !== "full" && entry.mode !== "compact") {
       throw new Error(
         `Homepage render mode is not implemented: ${entityKey(entry.entity)} -> ${entry.mode}`,
       );
