@@ -76,6 +76,10 @@
       max(var(--size-200), env(safe-area-inset-bottom, 0px))
     );
   }
+
+  html:has(.contact-hub-launcher:not([hidden])) .site-analytics-consent {
+    inset-block-end: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 @media (max-width: 32rem) {
