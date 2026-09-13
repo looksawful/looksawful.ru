@@ -555,11 +555,13 @@ export function mountContactHub(root: Document = document): Destroy {
   };
 
   const preventPrototypeSubmit = (event: SubmitEvent): void => event.preventDefault();
+  const openAiMode = (): void => setMode("ai");
+  const openFormMode = (): void => setMode("form");
 
   openers.forEach((contact) => contact.addEventListener("click", openFromSiteContact));
   petOpeners.forEach((pet) => pet.addEventListener("click", openFromPet));
-  aiModeButton.addEventListener("click", () => setMode("ai"));
-  formModeButton.addEventListener("click", () => setMode("form"));
+  aiModeButton.addEventListener("click", openAiMode);
+  formModeButton.addEventListener("click", openFormMode);
   handoffButton.addEventListener("click", onHandoff);
   appendButton.addEventListener("click", onAppend);
   replaceButton.addEventListener("click", onReplace);
@@ -582,6 +584,8 @@ export function mountContactHub(root: Document = document): Destroy {
   return () => {
     openers.forEach((contact) => contact.removeEventListener("click", openFromSiteContact));
     petOpeners.forEach((pet) => pet.removeEventListener("click", openFromPet));
+    aiModeButton.removeEventListener("click", openAiMode);
+    formModeButton.removeEventListener("click", openFormMode);
     handoffButton.removeEventListener("click", onHandoff);
     appendButton.removeEventListener("click", onAppend);
     replaceButton.removeEventListener("click", onReplace);
