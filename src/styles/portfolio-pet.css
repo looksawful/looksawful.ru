@@ -1,10 +1,14 @@
 .portfolio-pet {
   --pet-scale: 1;
   --pet-facing: 1;
+  --pet-safe-top: env(safe-area-inset-top, 0px);
+  --pet-safe-right: env(safe-area-inset-right, 0px);
+  --pet-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --pet-safe-left: env(safe-area-inset-left, 0px);
   position: fixed;
   z-index: 2147483000;
-  inset-inline-start: max(18px, env(safe-area-inset-left));
-  inset-block-end: max(18px, env(safe-area-inset-bottom));
+  inset-inline-start: max(18px, var(--pet-safe-left));
+  inset-block-end: max(18px, var(--pet-safe-bottom));
   inline-size: 192px;
   block-size: 220px;
   display: block;
@@ -90,8 +94,8 @@
 @media (width <= 42.5rem) {
   .portfolio-pet {
     --pet-scale: 0.78;
-    inset-inline-start: max(8px, env(safe-area-inset-left));
-    inset-block-end: max(8px, env(safe-area-inset-bottom));
+    inset-inline-start: max(8px, var(--pet-safe-left));
+    inset-block-end: max(8px, var(--pet-safe-bottom));
     inline-size: 150px;
     block-size: 170px;
   }
