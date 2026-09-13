@@ -16,16 +16,19 @@ async function makeDist() {
 }
 
 test("candidate artifact rejects runtime takeover files", async () => {
-  for (const relativePath of ["_worker.js", "_routes.json", "functions/auth.js"]) {
+  const cases = [
+    ["_worker.js", /_worker\.js/],
+    ["_routes.json", /_routes\.json/],
+    ["functions/auth.js", /functions/],
+  ];
+
+  for (const [relativePath, expectedError] of cases) {
     const { distDir } = await makeDist();
     const absolute = path.join(distDir, relativePath);
     await mkdir(path.dirname(absolute), { recursive: true });
     await writeFile(absolute, "candidate runtime takeover\n", "utf8");
 
-    await assert.rejects(
-      validatePreviewArtifact({ distDir }),
-      new RegExp(relativePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
-    );
+    await assert.rejects(validatePreviewArtifact({ distDir }), expectedError);
   }
 });
 
