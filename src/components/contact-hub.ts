@@ -40,16 +40,16 @@ function resolveDraftStore(documentRef: Document): ContactDraftStore | null {
 function createAssistantSessionId(documentRef: Document): string {
   const cryptoRef = documentRef.defaultView?.crypto;
   const uuid = cryptoRef?.randomUUID?.();
-  if (uuid) return `venus-${uuid}`;
+  if (uuid) return `awful-${uuid}`;
 
   if (cryptoRef?.getRandomValues) {
     const bytes = new Uint8Array(16);
     cryptoRef.getRandomValues(bytes);
     const token = Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("");
-    return `venus-${token}`;
+    return `awful-${token}`;
   }
 
-  return `venus-${Date.now().toString(36)}`;
+  return `awful-${Date.now().toString(36)}`;
 }
 
 function resolveAssistantSessionId(documentRef: Document): string {
@@ -182,7 +182,7 @@ function createHubElement(documentRef: Document) {
   aiLog.className = "contact-hub__ai-log";
   aiLog.setAttribute("role", "log");
   aiLog.setAttribute("aria-live", "polite");
-  aiLog.append(createAiMessage(documentRef, "Привет. Я Venus.", "bot"));
+  aiLog.append(createAiMessage(documentRef, "Привет.", "bot"));
 
   const draft = documentRef.createElement("textarea");
   draft.className = "contact-hub__draft";
