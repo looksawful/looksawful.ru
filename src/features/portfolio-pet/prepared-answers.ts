@@ -4,6 +4,16 @@ import {
   type PortfolioPetKnowledgeCandidate,
 } from "./knowledge.ts";
 
+export type PortfolioConversationTurn = Readonly<{
+  role: "user" | "assistant";
+  text: string;
+}>;
+
+export type PortfolioConversationState = Readonly<{
+  history: readonly PortfolioConversationTurn[];
+  activeSourceIds: readonly string[];
+}>;
+
 export type PortfolioAssistantRoute =
   | {
       kind: "prepared";
@@ -18,6 +28,7 @@ export type PortfolioAssistantRoute =
         sourceIds: readonly string[];
         page: string;
         locale: "ru" | "en";
+        history: readonly PortfolioConversationTurn[];
       };
     }
   | { kind: "no_data" };
@@ -26,6 +37,7 @@ export type PortfolioAssistantRouter = (input: {
   message: string;
   locale: "ru" | "en";
   context: Record<string, unknown>;
+  conversation?: PortfolioConversationState;
 }) => PortfolioAssistantRoute;
 
 interface PreparedDefinition {
@@ -46,11 +58,14 @@ export const OWNER_APPROVED_SOURCE_IDS = Object.freeze([
   "profile.location",
   "profile.contact",
   "profile.skills",
+  "profile.product_ui",
+  "profile.commercial",
   "profile.experience",
   "profile.education",
   "profile.languages",
   "profile.principles",
   "project.jestei",
+  "project.jestei.interfaces",
   "project.styx",
   "project.sensetique",
   "project.shootings",
@@ -66,6 +81,17 @@ function normalize(message: string): string {
 
 function includesAny(value: string, fragments: readonly string[]): boolean {
   return fragments.some((fragment) => value.includes(fragment));
+}
+
+function isDependentFollowUp(message: string): boolean {
+  const value = normalize(message);
+  if (!value) return false;
+  if (value.startsWith("а ")) return true;
+  return includesAny(value, [
+    "там", "это", "этот", "эта ", "эти ", "подробнее", "поподробнее", "конкретн", "пример",
+    "что именно", "как именно", "почему", "проще", "не понял", "не поняла", "не понятно", "непонят",
+    "для старта", "что нужно", "что тебе нужно", "и дальше", "а дальше",
+  ]);
 }
 
 function preparedIntent(message: string): PreparedDefinition["id"] | null {
@@ -138,7 +164,7 @@ function buildPreparedAnswer(
 ): Extract<PortfolioAssistantRoute, { kind: "prepared" }> | null {
   const definition = preparedDefinitions[id];
   const sourceIds = definition.sourceIds === "visible-projects"
-    ? [...approvedById.keys()].filter((sourceId) => sourceId.startsWith("project."))
+    ? [...approvedById.keys()].filter((sourceId) => /^project\.[^.]+$/u.test(sourceId))
     : [...definition.sourceIds];
 
   if (sourceIds.length === 0) return null;
@@ -147,9 +173,7 @@ function buildPreparedAnswer(
     .map((sourceId) => approvedById.get(sourceId))
     .filter((candidate): candidate is PortfolioPetKnowledgeCandidate => Boolean(candidate));
 
-  if (definition.sourceIds !== "visible-projects" && selected.length !== sourceIds.length) {
-    return null;
-  }
+  if (definition.sourceIds !== "visible-projects" && selected.length !== sourceIds.length) return null;
   if (selected.length === 0) return null;
 
   const text = selected
@@ -175,28 +199,78 @@ function addIfApproved(
   if (approvedById.has(sourceId) && !target.includes(sourceId)) target.push(sourceId);
 }
 
+function addInherited(
+  target: string[],
+  inherited: readonly string[],
+  approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
+): void {
+  inherited.forEach((sourceId) => addIfApproved(target, sourceId, approvedById));
+}
+
+function isCommercialIntent(value: string): boolean {
+  return includesAny(value, [
+    "заказать", "заказ дизай", "хочу дизайн", "нужен дизайнер", "нужна дизайн", "есть проект",
+    "поработать вместе", "сотруднич", "нанять", "обсудить проект", "обсудить дизайн",
+    "сколько стоит", "стоимость", "цена", "срок", "для старта", "что нужно от меня",
+  ]);
+}
+
 function relevantApprovedSourceIds(
   message: string,
   page: string,
   approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
+  conversation?: PortfolioConversationState,
 ): readonly string[] {
   const value = normalize(message);
   const selected: string[] = [];
+  const inherited = conversation?.activeSourceIds ?? [];
+  const followUp = isDependentFollowUp(value);
+  const activeCommercial = inherited.includes("profile.commercial");
+  const commercial = isCommercialIntent(value) || (activeCommercial && followUp);
+
+  if (commercial) {
+    addIfApproved(selected, "profile.commercial", approvedById);
+    addIfApproved(selected, "profile.contact", approvedById);
+    if (includesAny(value, ["интерфейс", "продукт", "ux", "ui", "сайт", "приложен", "дизайн"])) {
+      addIfApproved(selected, "profile.product_ui", approvedById);
+    }
+    return Object.freeze(selected.slice(0, 12));
+  }
+
+  if (followUp) addInherited(selected, inherited, approvedById);
+
   const projectSlug = pageProjectSlug(page);
   const projectId = projectSlug ? `project.${projectSlug}` : null;
   if (projectId) addIfApproved(selected, projectId, approvedById);
 
-  if (includesAny(value, ["jestei", "джестей"])) addIfApproved(selected, "project.jestei", approvedById);
+  const mentionsJestei = includesAny(value, ["jestei", "джестей"]);
+  if (mentionsJestei) addIfApproved(selected, "project.jestei", approvedById);
   if (includesAny(value, ["styx", "стикс"])) addIfApproved(selected, "project.styx", approvedById);
   if (includesAny(value, ["sensetique", "сенсетик"])) addIfApproved(selected, "project.sensetique", approvedById);
   if (includesAny(value, ["shooting", "съём", "съем", "фотограф", "микс медиа", "микс-медиа"])) {
     addIfApproved(selected, "project.shootings", approvedById);
   }
 
+  const interfaceQuestion = includesAny(value, [
+    "интерфейс", "ux", "ui", "навигац", "фильтр", "поиск", "сценари", "user flow", "cjm",
+    "прототип", "дизайн-систем", "удоб", "экран",
+  ]);
+  const activeJestei = selected.includes("project.jestei") || inherited.includes("project.jestei");
+  if (interfaceQuestion) {
+    addIfApproved(selected, "profile.product_ui", approvedById);
+    addIfApproved(selected, "profile.skills", approvedById);
+    addIfApproved(selected, "profile.principles", approvedById);
+    if (activeJestei) addIfApproved(selected, "project.jestei.interfaces", approvedById);
+  }
+
+  if (followUp && activeJestei && includesAny(value, ["пример", "конкретн", "что именно", "подробнее", "там"])) {
+    addIfApproved(selected, "project.jestei.interfaces", approvedById);
+  }
+
   if (includesAny(value, [
     "навык", "уме", "компетен", "технолог", "инструмент", "стек", "figma", "blender",
     "javascript", "typescript", "python", "three", "webgl", "glsl", " ai", "ии", "нейросет",
-    "ребрендинг", "айдентик", "ux", "ui", "cjm", "motion", "моушен", "дизайн-систем",
+    "ребрендинг", "айдентик", "motion", "моушен",
   ])) {
     addIfApproved(selected, "profile.skills", approvedById);
     addIfApproved(selected, "profile.principles", approvedById);
@@ -232,7 +306,7 @@ function relevantApprovedSourceIds(
     addIfApproved(selected, "profile.principles", approvedById);
   }
 
-  if (selected.length === 0 || page === "home" || page === "/") {
+  if (selected.length === 0) {
     addIfApproved(selected, "profile.role", approvedById);
     addIfApproved(selected, "profile.about", approvedById);
   }
@@ -248,13 +322,13 @@ export function createPortfolioAssistantRouter({
 }): PortfolioAssistantRouter {
   const candidates = buildPortfolioPetKnowledgeCandidates();
   const knownIds = new Set(candidates.map((candidate) => candidate.id));
-  const trustedApprovedIds = [...new Set(approvedSourceIds)]
-    .filter((sourceId) => knownIds.has(sourceId));
+  const trustedApprovedIds = [...new Set(approvedSourceIds)].filter((sourceId) => knownIds.has(sourceId));
   const approved = selectApprovedKnowledge(candidates, trustedApprovedIds);
   const approvedById = new Map(approved.map((candidate) => [candidate.id, candidate]));
 
   return (input) => {
-    const intent = preparedIntent(input.message);
+    const followUp = isDependentFollowUp(input.message) && Boolean(input.conversation?.history.length);
+    const intent = followUp ? null : preparedIntent(input.message);
     if (intent) {
       return buildPreparedAnswer(intent, approvedById)
         ?? Object.freeze({ kind: "no_data" as const });
@@ -265,9 +339,10 @@ export function createPortfolioAssistantRouter({
       kind: "generate",
       message: input.message,
       context: Object.freeze({
-        sourceIds: relevantApprovedSourceIds(input.message, page, approvedById),
+        sourceIds: relevantApprovedSourceIds(input.message, page, approvedById, input.conversation),
         page,
         locale: input.locale,
+        history: Object.freeze([...(input.conversation?.history ?? [])].slice(-6)),
       }),
     });
   };
