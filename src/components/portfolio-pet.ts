@@ -11,10 +11,12 @@ export interface MountPortfolioPetOptions {
 }
 
 const PET_SELECTOR = "[data-portfolio-pet-launcher]";
+const CONSENT_SELECTOR = ".site-analytics-consent";
 const POSITION_STORAGE_KEY = "looksawful:portfolio-pet-position:v1";
 const DRAG_THRESHOLD = 10;
 const MIN_VISIBLE = { width: 72, height: 96 } as const;
 const MIN_SAFE_MARGIN = 8;
+const CONSENT_GAP = 12;
 const VENUS_SPRITESHEET = "/pets/venus/venus-v2-spritesheet.webp";
 const venusManifest = createVenusSpriteManifest(VENUS_SPRITESHEET);
 
@@ -93,6 +95,13 @@ function safeAreaFor(root: Document, launcher: HTMLElement) {
   };
 }
 
+function rectsOverlap(a: DOMRect, b: DOMRect): boolean {
+  return !(
+    a.right <= b.left || b.right <= a.left ||
+    a.bottom <= b.top || b.bottom <= a.top
+  );
+}
+
 function dispatchMoved(root: Document, launcher: HTMLElement): void {
   const rect = launcher.getBoundingClientRect();
   root.dispatchEvent(new CustomEvent("portfolio-pet:moved", {
@@ -163,6 +172,51 @@ export function mountPortfolioPet(
   let dragSession: DragSession | null = null;
   let suppressNextClick = false;
   let currentVisualState: PetVisualState = "idle";
+  let observedConsent: HTMLElement | null = null;
+
+  const consentResizeObserver = typeof ResizeObserver === "function"
+    ? new ResizeObserver(() => updateConsentOffset())
+    : null;
+
+  function bindConsentObserver(consent: HTMLElement | null): void {
+    if (consent === observedConsent) return;
+    consentResizeObserver?.disconnect();
+    observedConsent = consent;
+    if (consent) consentResizeObserver?.observe(consent);
+  }
+
+  function updateConsentOffset(): void {
+    if (launcher.style.left || launcher.style.top || launcher.hidden) {
+      launcher.style.setProperty("--pet-consent-offset", "0px");
+      return;
+    }
+
+    const consent = root.querySelector<HTMLElement>(CONSENT_SELECTOR);
+    bindConsentObserver(consent);
+    if (!consent) {
+      launcher.style.setProperty("--pet-consent-offset", "0px");
+      return;
+    }
+
+    const consentStyle = view?.getComputedStyle(consent);
+    if (consentStyle?.display === "none" || consentStyle?.visibility === "hidden") {
+      launcher.style.setProperty("--pet-consent-offset", "0px");
+      return;
+    }
+
+    const petRect = launcher.getBoundingClientRect();
+    const consentRect = consent.getBoundingClientRect();
+    const offset = rectsOverlap(petRect, consentRect)
+      ? Math.ceil(consentRect.height + CONSENT_GAP)
+      : 0;
+    launcher.style.setProperty("--pet-consent-offset", `${offset}px`);
+  }
+
+  const consentMutationObserver = typeof MutationObserver === "function"
+    ? new MutationObserver(() => updateConsentOffset())
+    : null;
+  consentMutationObserver?.observe(root.body, { childList: true, subtree: true });
+  view?.requestAnimationFrame(() => updateConsentOffset());
 
   const setFacingFromDelta = (dx: number): void => {
     if (Math.abs(dx) < 0.5) return;
@@ -194,6 +248,7 @@ export function mountPortfolioPet(
     launcher.style.insetBlockEnd = "auto";
     launcher.style.left = `${Math.round(clamped.x)}px`;
     launcher.style.top = `${Math.round(clamped.y)}px`;
+    launcher.style.setProperty("--pet-consent-offset", "0px");
     return clamped;
   };
 
@@ -295,7 +350,10 @@ export function mountPortfolioPet(
   };
 
   const onResize = (): void => {
-    if (!launcher.style.left || !launcher.style.top) return;
+    if (!launcher.style.left || !launcher.style.top) {
+      updateConsentOffset();
+      return;
+    }
     const rect = launcher.getBoundingClientRect();
     const clamped = applyPosition({ x: rect.left, y: rect.top });
     writeStoredPosition(root, clamped);
@@ -323,6 +381,8 @@ export function mountPortfolioPet(
 
   return () => {
     if (frameRequest && view) view.cancelAnimationFrame(frameRequest);
+    consentMutationObserver?.disconnect();
+    consentResizeObserver?.disconnect();
     launcher.removeEventListener("pointerenter", onPointerEnter);
     launcher.removeEventListener("pointerleave", onPointerLeave);
     launcher.removeEventListener("pointerdown", onPointerDown);
