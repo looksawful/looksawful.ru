@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { isDirectExecution, withE2ERuntime } from "./runtime.mjs";
 
 const VIEWPORTS = [
+  { width: 430, height: 932 },
   { width: 390, height: 844 },
   { width: 360, height: 800 },
   { width: 320, height: 568 },
@@ -129,11 +130,39 @@ async function verifyViewport(browser, baseUrl, viewport) {
   }
 }
 
+async function verifyKeyboardLikeResize(browser, baseUrl) {
+  const initialViewport = { width: 390, height: 844 };
+  const reducedViewport = { width: 390, height: 560 };
+  const { context, page } = await openMobilePage(browser, baseUrl, initialViewport);
+  try {
+    await revealAndClickContactCta(page);
+    const hub = page.locator("[data-contact-hub]").first();
+    const message = hub.locator('textarea[name="message"]');
+    const submit = hub.locator('button[type="submit"]').filter({ hasText: "отправить" }).first();
+
+    await message.focus();
+    await page.setViewportSize(reducedViewport);
+    await settle(page);
+
+    assertInside(await box(hub, "keyboard-like resized hub"), reducedViewport, "keyboard-like resized hub");
+    await message.scrollIntoViewIfNeeded();
+    assertInside(await box(message, "focused message after viewport shrink"), reducedViewport, "focused message after viewport shrink");
+    await submit.scrollIntoViewIfNeeded();
+    assertInside(await box(submit, "submit after viewport shrink"), reducedViewport, "submit after viewport shrink");
+
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    assert.ok(overflow <= 1, `keyboard-like resize: horizontal overflow ${overflow}px`);
+  } finally {
+    await context.close();
+  }
+}
+
 export async function runContactHubMobileContract({ browser, baseUrl }) {
   for (const viewport of VIEWPORTS) {
     await verifyViewport(browser, baseUrl, viewport);
   }
-  console.log(`Contact Hub mobile viewport contract passed: ${VIEWPORTS.map(({ width, height }) => `${width}x${height}`).join(", ")}`);
+  await verifyKeyboardLikeResize(browser, baseUrl);
+  console.log(`Contact Hub mobile viewport contract passed: ${VIEWPORTS.map(({ width, height }) => `${width}x${height}`).join(", ")} + keyboard-like 390x560`);
 }
 
 if (isDirectExecution(import.meta.url)) {
