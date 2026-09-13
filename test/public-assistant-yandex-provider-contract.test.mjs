@@ -67,6 +67,36 @@ test("Yandex provider sends one bounded non-streaming chat completion request", 
   assert.deepEqual(result, { kind: "answer", text: "Короткий ответ." });
 });
 
+test("OWNER-718: production prompt uses the approved first-person Venus voice and privacy rules", async () => {
+  const { createYandexPortfolioProvider } = await loadProvider();
+  let request = null;
+
+  const provider = createYandexPortfolioProvider({
+    modelUri,
+    authorizationHeader: "Api-Key secret-test-value",
+    fetchImpl: async (_url, init) => {
+      request = init;
+      return new Response(
+        JSON.stringify({ choices: [{ message: { role: "assistant", content: "Ответ." } }] }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    },
+  });
+
+  await provider(input());
+  const body = JSON.parse(request.body);
+  const prompt = body.messages[0].content;
+
+  assert.match(prompt, /Ты Venus/);
+  assert.match(prompt, /от первого лица/);
+  assert.match(prompt, /1.?2 коротких абзац/);
+  assert.match(prompt, /не придумывай/i);
+  assert.match(prompt, /Никогда не сообщай номер телефона/);
+  assert.match(prompt, /очевидн[^\n]*вывод/iu);
+  assert.match(prompt, /неоконченн[^\n]*высш/iu);
+  assert.doesNotMatch(prompt, /Ты не Иван и не должна выдавать себя за него/);
+});
+
 test("Yandex provider aborts a stuck upstream within the hard provider deadline", async () => {
   const { createYandexPortfolioProvider } = await loadProvider();
   let fetchCalls = 0;
