@@ -136,8 +136,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes ffmpeg
 
-      - name: Prepare Cloudflare-compatible preview media
-        run: node tools/preview/prepare-cloudflare-pages.mjs dist
+      - name: Prepare private Cloudflare preview media
+        run: node tools/preview/prepare-cloudflare-pages-v2.mjs dist
 
       - name: Validate and stamp exact candidate metadata
         shell: bash
