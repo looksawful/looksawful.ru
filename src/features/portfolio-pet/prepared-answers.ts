@@ -42,23 +42,29 @@ export type PortfolioAssistantRouter = (input: {
 
 interface PreparedDefinition {
   id: "about" | "cases" | "resume";
-  sourceIds: readonly string[] | "visible-projects";
+  sourceIds: readonly string[];
 }
 
 const preparedDefinitions: Readonly<Record<PreparedDefinition["id"], PreparedDefinition>> = Object.freeze({
-  about: Object.freeze({ id: "about", sourceIds: Object.freeze(["profile.about"]) }),
-  cases: Object.freeze({ id: "cases", sourceIds: "visible-projects" }),
-  resume: Object.freeze({ id: "resume", sourceIds: Object.freeze(["profile.role", "profile.about"]) }),
+  about: Object.freeze({ id: "about", sourceIds: Object.freeze(["profile.role"]) }),
+  cases: Object.freeze({ id: "cases", sourceIds: Object.freeze(["profile.cases_index"]) }),
+  resume: Object.freeze({ id: "resume", sourceIds: Object.freeze(["profile.role", "profile.work_scope", "profile.experience"]) }),
 });
 
 export const OWNER_APPROVED_SOURCE_IDS = Object.freeze([
   "profile.name",
   "profile.role",
   "profile.about",
+  "profile.about_plain",
+  "profile.work_scope",
+  "profile.cases_index",
   "profile.location",
   "profile.contact",
   "profile.skills",
   "profile.product_ui",
+  "profile.branding",
+  "profile.team_leadership",
+  "profile.shoot_production",
   "profile.commercial",
   "profile.experience",
   "profile.education",
@@ -66,9 +72,15 @@ export const OWNER_APPROVED_SOURCE_IDS = Object.freeze([
   "profile.principles",
   "project.jestei",
   "project.jestei.interfaces",
+  "project.jestei.design_system",
+  "project.jestei.communication",
   "project.styx",
+  "project.styx.identity",
+  "project.styx.production",
   "project.sensetique",
+  "project.sensetique.production",
   "project.shootings",
+  "project.shootings.details",
 ] as const);
 
 function normalize(message: string): string {
@@ -94,6 +106,10 @@ function isDependentFollowUp(message: string): boolean {
   ]);
 }
 
+function isSimplificationRequest(value: string): boolean {
+  return includesAny(value, ["проще", "не понял", "не поняла", "не понятно", "непонят", "ничего не понял", "ничего не поняла"]);
+}
+
 function preparedIntent(message: string): PreparedDefinition["id"] | null {
   const value = normalize(message);
   if (!value) return null;
@@ -102,19 +118,15 @@ function preparedIntent(message: string): PreparedDefinition["id"] | null {
     /(^| )(резюме|cv|resume)( |$)/u.test(value) ||
     value.includes("покажи резюме") ||
     value.includes("show resume")
-  ) {
-    return "resume";
-  }
+  ) return "resume";
 
   if (
-    /(^| )(кейсы|кейс|проекты|проект|работы|работ)( |$)/u.test(value) ||
+    /(^| )(кейсы|кейс|проекты|работы)( |$)/u.test(value) ||
+    value.includes("какие у тебя кейсы") ||
     value.includes("что из работ") ||
     value.includes("можно посмотреть") ||
-    /\b(projects?|cases?)\b/u.test(value) ||
-    value.includes("worked on")
-  ) {
-    return "cases";
-  }
+    /\b(projects?|cases?)\b/u.test(value)
+  ) return "cases";
 
   if (
     value === "обо мне" ||
@@ -123,9 +135,7 @@ function preparedIntent(message: string): PreparedDefinition["id"] | null {
     value === "about" ||
     value.includes("about you") ||
     value.includes("who are you")
-  ) {
-    return "about";
-  }
+  ) return "about";
 
   return null;
 }
@@ -141,7 +151,6 @@ function pageProjectSlug(page: string): string | null {
 
 function pageFromContext(context: Record<string, unknown>): string {
   if (typeof context.page !== "string") return "home";
-
   const raw = context.page.trim();
   if (!raw || raw === "home" || raw === "/") return "home";
 
@@ -154,7 +163,6 @@ function pageFromContext(context: Record<string, unknown>): string {
       return "home";
     }
   }
-
   return pageProjectSlug(raw) ?? "home";
 }
 
@@ -162,25 +170,16 @@ function buildPreparedAnswer(
   id: PreparedDefinition["id"],
   approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
 ): Extract<PortfolioAssistantRoute, { kind: "prepared" }> | null {
-  const definition = preparedDefinitions[id];
-  const sourceIds = definition.sourceIds === "visible-projects"
-    ? [...approvedById.keys()].filter((sourceId) => /^project\.[^.]+$/u.test(sourceId))
-    : [...definition.sourceIds];
-
-  if (sourceIds.length === 0) return null;
-
+  const sourceIds = [...preparedDefinitions[id].sourceIds];
   const selected = sourceIds
     .map((sourceId) => approvedById.get(sourceId))
     .filter((candidate): candidate is PortfolioPetKnowledgeCandidate => Boolean(candidate));
 
-  if (definition.sourceIds !== "visible-projects" && selected.length !== sourceIds.length) return null;
-  if (selected.length === 0) return null;
-
+  if (selected.length !== sourceIds.length || selected.length === 0) return null;
   const text = selected
     .map((candidate) => candidate.title ? `${candidate.title}: ${candidate.text}` : candidate.text)
     .filter((value) => value.trim().length > 0)
     .join("\n");
-
   if (!text.trim()) return null;
 
   return Object.freeze({
@@ -205,6 +204,48 @@ function addInherited(
   approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
 ): void {
   inherited.forEach((sourceId) => addIfApproved(target, sourceId, approvedById));
+}
+
+function addProjectDetail(
+  selected: string[],
+  inherited: readonly string[],
+  value: string,
+  approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
+): void {
+  const activeJestei = selected.includes("project.jestei") || inherited.includes("project.jestei");
+  const activeStyx = selected.includes("project.styx") || inherited.includes("project.styx");
+  const activeSensetique = selected.includes("project.sensetique") || inherited.includes("project.sensetique");
+  const activeShootings = selected.includes("project.shootings") || inherited.includes("project.shootings");
+
+  if (activeJestei) {
+    if (includesAny(value, ["интерфейс", "ux", "ui", "навигац", "фильтр", "поиск", "сценари", "пример", "конкретн"])) {
+      addIfApproved(selected, "project.jestei.interfaces", approvedById);
+    }
+    if (includesAny(value, ["дизайн-систем", "компонент", "ревью", "процесс", "команд", "разработ"]))) {
+      addIfApproved(selected, "project.jestei.design_system", approvedById);
+    }
+    if (includesAny(value, ["бренд", "ребрендинг", "коммуникац", "tone", "редполит", "рассыл", "лендинг", "реклам"]))) {
+      addIfApproved(selected, "project.jestei.communication", approvedById);
+    }
+  }
+
+  if (activeStyx) {
+    if (includesAny(value, ["айдентик", "бренд", "логотип", "упаков", "каталог", "лукбук", "печат"]))) {
+      addIfApproved(selected, "project.styx.identity", approvedById);
+    }
+    if (includesAny(value, ["съём", "съем", "фото", "кампейн", "лукбук", "каталог", "сканограф", "анимац"]))) {
+      addIfApproved(selected, "project.styx.production", approvedById);
+    }
+  }
+
+  if (activeSensetique && includesAny(value, ["продакш", "студи", "зал", "команд", "кастинг", "локац", "съём", "съем", "постпрод"]))) {
+    addIfApproved(selected, "project.sensetique.production", approvedById);
+  }
+
+  if (activeShootings && includesAny(value, ["съём", "съем", "фото", "продакш", "постпрод", "микс", "как дел"]))) {
+    addIfApproved(selected, "project.shootings.details", approvedById);
+    addIfApproved(selected, "profile.shoot_production", approvedById);
+  }
 }
 
 function isCommercialIntent(value: string): boolean {
@@ -237,74 +278,79 @@ function relevantApprovedSourceIds(
     return Object.freeze(selected.slice(0, 12));
   }
 
+  const inheritedProjects = inherited.filter((sourceId) => sourceId.startsWith("project."));
+  if (isSimplificationRequest(value) && inheritedProjects.length === 0) {
+    addIfApproved(selected, "profile.about_plain", approvedById);
+    return Object.freeze(selected);
+  }
+
   if (followUp) addInherited(selected, inherited, approvedById);
 
   const projectSlug = pageProjectSlug(page);
   const projectId = projectSlug ? `project.${projectSlug}` : null;
   if (projectId) addIfApproved(selected, projectId, approvedById);
 
-  const mentionsJestei = includesAny(value, ["jestei", "джестей"]);
-  if (mentionsJestei) addIfApproved(selected, "project.jestei", approvedById);
+  if (includesAny(value, ["jestei", "джестей"])) addIfApproved(selected, "project.jestei", approvedById);
   if (includesAny(value, ["styx", "стикс"])) addIfApproved(selected, "project.styx", approvedById);
   if (includesAny(value, ["sensetique", "сенсетик"])) addIfApproved(selected, "project.sensetique", approvedById);
   if (includesAny(value, ["shooting", "съём", "съем", "фотограф", "микс медиа", "микс-медиа"])) {
     addIfApproved(selected, "project.shootings", approvedById);
   }
 
+  if (includesAny(value, ["что ты делаешь", "чем занима", "твоя работа", "что делаешь вообще", "чем ты занима"]))) {
+    addIfApproved(selected, "profile.work_scope", approvedById);
+  }
+
   const interfaceQuestion = includesAny(value, [
     "интерфейс", "ux", "ui", "навигац", "фильтр", "поиск", "сценари", "user flow", "cjm",
     "прототип", "дизайн-систем", "удоб", "экран",
   ]);
-  const activeJestei = selected.includes("project.jestei") || inherited.includes("project.jestei");
   if (interfaceQuestion) {
     addIfApproved(selected, "profile.product_ui", approvedById);
     addIfApproved(selected, "profile.skills", approvedById);
-    addIfApproved(selected, "profile.principles", approvedById);
-    if (activeJestei) addIfApproved(selected, "project.jestei.interfaces", approvedById);
   }
 
-  if (followUp && activeJestei && includesAny(value, ["пример", "конкретн", "что именно", "подробнее", "там"])) {
-    addIfApproved(selected, "project.jestei.interfaces", approvedById);
+  if (includesAny(value, ["ребрендинг", "брендинг", "айдентик", "визуальн систем", "логотип", "шрифт", "палитр", "упаков"]))) {
+    addIfApproved(selected, "profile.branding", approvedById);
   }
+
+  if (includesAny(value, ["креативн", "команд", "руковод", "ревью", "ставишь задач", "управляешь", "дизайн-лид"]))) {
+    addIfApproved(selected, "profile.team_leadership", approvedById);
+  }
+
+  if (includesAny(value, ["съёмочн", "съемочн", "продюсирован", "кастинг", "локац", "ретуш", "цветокорр", "постпрод"]))) {
+    addIfApproved(selected, "profile.shoot_production", approvedById);
+  }
+
+  if (followUp && inherited.includes("profile.work_scope") && includesAny(value, ["подробнее", "конкретн", "пример", "что именно"]))) {
+    addIfApproved(selected, "profile.product_ui", approvedById);
+    addIfApproved(selected, "profile.branding", approvedById);
+    addIfApproved(selected, "profile.team_leadership", approvedById);
+  }
+
+  addProjectDetail(selected, inherited, value, approvedById);
 
   if (includesAny(value, [
     "навык", "уме", "компетен", "технолог", "инструмент", "стек", "figma", "blender",
-    "javascript", "typescript", "python", "three", "webgl", "glsl", " ai", "ии", "нейросет",
-    "ребрендинг", "айдентик", "motion", "моушен",
+    "javascript", "typescript", "python", "three", "webgl", "glsl", " ai", "ии", "нейросет", "motion", "моушен",
   ])) {
     addIfApproved(selected, "profile.skills", approvedById);
-    addIfApproved(selected, "profile.principles", approvedById);
   }
 
   if (includesAny(value, [
     "опыт", "карьер", "работал", "работа", "компан", "должност", "роль", "mad cow", "li-ne",
     "line agency", "прогресс", "риа", "московские новости", "puma", "h&m", "детск",
-  ])) {
-    addIfApproved(selected, "profile.experience", approvedById);
-  }
+  ])) addIfApproved(selected, "profile.experience", approvedById);
 
   if (includesAny(value, [
     "образован", "учил", "учился", "университет", "мпгу", "диплом", "курс", "обучен", "hexlet",
     "stepik", "figma academy",
-  ])) {
-    addIfApproved(selected, "profile.education", approvedById);
-  }
+  ])) addIfApproved(selected, "profile.education", approvedById);
 
-  if (includesAny(value, ["язык", "английск", "чешск", "english", "czech"])) {
-    addIfApproved(selected, "profile.languages", approvedById);
-  }
-
-  if (includesAny(value, ["где жив", "город", "локаци", "москв"])) {
-    addIfApproved(selected, "profile.location", approvedById);
-  }
-
-  if (includesAny(value, ["email", "e-mail", "почт", "связаться", "контакт", "написать"])) {
-    addIfApproved(selected, "profile.contact", approvedById);
-  }
-
-  if (includesAny(value, ["принцип", "подход", "процесс", "руковод", "команд", "дирекшн"])) {
-    addIfApproved(selected, "profile.principles", approvedById);
-  }
+  if (includesAny(value, ["язык", "английск", "чешск", "english", "czech"])) addIfApproved(selected, "profile.languages", approvedById);
+  if (includesAny(value, ["где жив", "город", "локаци", "москв"])) addIfApproved(selected, "profile.location", approvedById);
+  if (includesAny(value, ["email", "e-mail", "почт", "связаться", "контакт", "написать"])) addIfApproved(selected, "profile.contact", approvedById);
+  if (includesAny(value, ["принцип", "подход", "процесс", "дирекшн"])) addIfApproved(selected, "profile.principles", approvedById);
 
   if (selected.length === 0) {
     addIfApproved(selected, "profile.role", approvedById);
