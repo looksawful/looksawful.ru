@@ -89,6 +89,26 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
   const leftFacingScale = await pet.locator(".portfolio-pet__viewport").evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a);
   assert.ok(leftFacingScale < 0, "left-facing Venus must mirror the sprite viewport");
 
+  await pet.evaluate((element) => {
+    element.style.setProperty("--pet-safe-top", "36px");
+    element.style.setProperty("--pet-safe-right", "44px");
+    element.style.setProperty("--pet-safe-bottom", "52px");
+    element.style.setProperty("--pet-safe-left", "48px");
+  });
+  const safeAreaStart = await pet.boundingBox();
+  assert.ok(safeAreaStart, "Venus must remain draggable while safe-area values are active");
+  const safeStartX = safeAreaStart.x + (safeAreaStart.width / 2);
+  const safeStartY = safeAreaStart.y + (safeAreaStart.height / 2);
+  await page.mouse.move(safeStartX, safeStartY);
+  await page.mouse.down();
+  await page.mouse.move(-600, -420, { steps: 20 });
+  await page.mouse.up();
+  await settle(page);
+  const safeAreaBox = await pet.boundingBox();
+  assert.ok(safeAreaBox, "Venus must remain recoverable after safe-area clamp");
+  assert.ok(safeAreaBox.x >= 48 - (safeAreaBox.width - 72) - 1, "PET-020: runtime clamp must use effective left safe area");
+  assert.ok(safeAreaBox.y >= 36 - (safeAreaBox.height - 96) - 1, "PET-020: runtime clamp must use effective top safe area");
+
   await pet.click();
   await settle(page);
 
@@ -112,6 +132,12 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
     "closing the Hub must restore focus to Venus",
   );
 
+  await pet.evaluate((element) => {
+    element.style.removeProperty("--pet-safe-top");
+    element.style.removeProperty("--pet-safe-right");
+    element.style.removeProperty("--pet-safe-bottom");
+    element.style.removeProperty("--pet-safe-left");
+  });
   const beforeHide = await pet.boundingBox();
   assert.ok(beforeHide, "Venus must be visible before deliberate swipe-to-hide");
   const hideStartX = beforeHide.x + (beforeHide.width / 2);
