@@ -1,29 +1,20 @@
 import {
-  DEFAULT_GALLERY_LAYER,
-  galleryLayers,
   getGalleryItems,
-  getGalleryItemsForLayer,
   getGallerySeriesId,
   type GalleryItem,
-  type GalleryLayer,
 } from "../../data/media/gallery.ts";
 import { responsiveImageSrcSet } from "../../data/media/responsive.ts";
 import { escapeHtml } from "../../utils/html.ts";
 import type { GalleryPageDefinition } from "../pages/types.ts";
 import { renderPageShell } from "../shell/page-shell.ts";
 
-function layerLabel(layer: GalleryLayer): string {
-  return layer === "photography" ? "photography" : "production";
-}
-
 function groupBySeries(
-  layer: GalleryLayer,
   items: readonly GalleryItem[],
 ): readonly { id: string; items: readonly GalleryItem[] }[] {
   const groups = new Map<string, GalleryItem[]>();
 
   for (const item of items) {
-    const seriesId = getGallerySeriesId(item, layer);
+    const seriesId = getGallerySeriesId(item);
     const group = groups.get(seriesId);
     if (group) group.push(item);
     else groups.set(seriesId, [item]);
@@ -42,46 +33,29 @@ function renderGalleryCard(item: GalleryItem): string {
 </figure>`;
 }
 
-function renderLayerPanel(
-  layer: GalleryLayer,
-  items: readonly GalleryItem[],
-): string {
-  const hidden = layer === DEFAULT_GALLERY_LAYER ? "" : " hidden";
-  const series = groupBySeries(layer, items)
+function renderGallerySeries(items: readonly GalleryItem[]): string {
+  return groupBySeries(items)
     .map(({ id, items: seriesItems }) => `<section class="gallery-series" data-gallery-series="${escapeHtml(id)}">
   <div class="gallery-series__grid" data-gallery-series-grid>
     ${seriesItems.map(renderGalleryCard).join("\n    ")}
   </div>
 </section>`)
     .join("\n");
-
-  return `<div class="gallery__panel" data-gallery-layer-panel="${layer}"${hidden}>
-${series}
-</div>`;
 }
 
 export function renderGalleryPage(page: GalleryPageDefinition): string {
   const items = getGalleryItems();
-  const controls = galleryLayers
-    .map((layer) => `<button class="gallery__layer-control" type="button" data-gallery-layer-control="${layer}" aria-pressed="${layer === DEFAULT_GALLERY_LAYER ? "true" : "false"}">${layerLabel(layer)}</button>`)
-    .join("\n        ");
-  const panels = galleryLayers
-    .map((layer) => renderLayerPanel(layer, getGalleryItemsForLayer(layer, items)))
-    .join("\n");
 
   return renderPageShell({
     page,
     title: "gallery — Иван Крушинский",
-    description: "Photography and production archive by Ivan Krushinsky.",
-    content: `<section class="gallery" data-gallery data-gallery-layer="${DEFAULT_GALLERY_LAYER}">
+    description: "Photography archive by Ivan Krushinsky.",
+    content: `<section class="gallery" data-gallery>
   <header class="gallery__header">
     <h1 class="gallery__title">gallery</h1>
-    <nav class="gallery__layers" aria-label="Gallery layer">
-      ${controls}
-    </nav>
   </header>
   <div class="gallery__content">
-${panels}
+${renderGallerySeries(items)}
   </div>
 </section>
 <script type="module" src="/src/components/gallery/gallery-entry.ts"></script>`,
