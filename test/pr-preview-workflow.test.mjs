@@ -42,6 +42,7 @@ test("PR preview keeps candidate execution separate from Cloudflare credentials"
   assert.match(deploy, /secrets\.CLOUDFLARE_API_TOKEN/);
   assert.match(deploy, /secrets\.YANDEX_AI_API_KEY/);
   assert.match(deploy, /pages secret put YANDEX_AI_API_KEY/);
+  assert.match(deploy, /pages secret put YANDEX_AI_API_KEY[^\n]*--env=preview/);
   assert.match(deploy, /--branch=pr-\$\{\{ env\.PR_NUMBER \}\}/);
   assert.doesNotMatch(deploy, /--branch=prod/);
   assert.doesNotMatch(deploy, /npm ci|npm run/);
