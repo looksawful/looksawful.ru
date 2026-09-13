@@ -8,13 +8,9 @@ type PreviewEntry = {
   readonly summary: string;
   readonly kind: BlogKind;
   readonly date: string;
-  readonly tags: readonly string[];
-  readonly cover?: {
-    readonly src: string;
-    readonly alt: string;
-    readonly width: number;
-    readonly height: number;
-  };
+  readonly source: string;
+  readonly topics: readonly string[];
+  readonly href?: string;
 };
 
 const FILTER_LABELS: readonly [BlogKind | "all", string][] = [
@@ -35,31 +31,44 @@ const KIND_LABELS: Record<BlogKind, string> = {
 const entries: readonly PreviewEntry[] = [
   {
     title: "AWFUL STUDIO: как я собираю виртуальную предметную студию в Blender",
-    summary: "Blender-native инструмент для предметной и рекламной съёмки: физически понятная студия, готовые световые постановки и автоматизация, которая не мешает вручную править сцену.",
+    summary: "Рабочие заметки о Blender-native инструменте для предметной и рекламной работы: студия, свет, камера, движение и автоматизация без закрытого конструктора.",
     kind: "tool",
     date: "12.09.2026",
-    tags: ["blender", "awful-studio", "3d"],
+    source: "looksawful / GitHub",
+    topics: ["blender", "3d", "workflow"],
+    href: "/lab/blog/?view=article",
   },
   {
     title: "Conquering Responsive Layouts — Kevin Powell",
-    summary: "Что из курса по адаптивным интерфейсам действительно осталось в моей ежедневной работе с CSS.",
+    summary: "Курс, который я использую как базовую точку отсчёта для адаптивной вёрстки и современных CSS-layout подходов.",
     kind: "course",
     date: "08.09.2026",
-    tags: ["css", "responsive", "learning"],
+    source: "Kevin Powell",
+    topics: ["css", "responsive"],
   },
   {
-    title: "Discover three.js: заметки после прохождения",
-    summary: "Не пересказ курса, а набор вещей, к которым имеет смысл возвращаться при работе с Three.js и WebGL на сайте.",
+    title: "You probably want position: sticky instead of fixed",
+    summary: "Один из сохранённых материалов Kevin Powell, к которому удобно возвращаться при проектировании закреплённых элементов интерфейса.",
+    kind: "tutorial",
+    date: "07.09.2026",
+    source: "Kevin Powell",
+    topics: ["css", "layout"],
+  },
+  {
+    title: "Discover three.js",
+    summary: "Курс Lewy Blue в моей рабочей библиотеке по Three.js: не витрина сертификатов, а источник, к которому можно вернуться в реальной задаче.",
     kind: "course",
     date: "05.09.2026",
-    tags: ["threejs", "webgl", "learning"],
+    source: "Lewy Blue",
+    topics: ["three.js", "webgl"],
   },
   {
-    title: "The Book of Shaders как рабочий справочник",
-    summary: "Почему я возвращаюсь к нему не как к учебнику по порядку, а как к визуальному словарю для GLSL-экспериментов.",
+    title: "The Book of Shaders",
+    summary: "Интерактивный материал Patricio Gonzalez Vivo и Jen Lowe, который остаётся полезным визуальным справочником по GLSL и шейдерам.",
     kind: "note",
     date: "02.09.2026",
-    tags: ["glsl", "shaders", "reference"],
+    source: "Patricio Gonzalez Vivo & Jen Lowe",
+    topics: ["glsl", "shaders"],
   },
 ];
 
@@ -80,16 +89,15 @@ function formatCount(count: number): string {
   return `${count} материалов`;
 }
 
+function renderTopics(topics: readonly string[]): string {
+  return topics.map((topic) => `#${topic}`).join(" · ");
+}
+
 function renderCard(entry: PreviewEntry, index: number): string {
   const featured = index === 0;
-  const media = entry.cover
-    ? `<figure class="blog-card__media">
-        <img src="${entry.cover.src}" alt="${entry.cover.alt}" width="${entry.cover.width}" height="${entry.cover.height}" decoding="async" ${featured ? 'fetchpriority="high"' : 'loading="lazy"'}>
-      </figure>`
-    : "";
-
-  return `<li class="blog-feed__item" data-blog-kind="${entry.kind}" data-blog-search="${[entry.title, entry.summary, KIND_LABELS[entry.kind], ...entry.tags].join(" ").toLocaleLowerCase("ru")}">
-    <a class="blog-card blog-card--${entry.cover ? "media" : "text"}${featured ? " blog-card--featured" : ""}" href="/lab/blog/?view=article">
+  const className = `blog-card${featured ? " blog-card--featured" : ""}${entry.href ? " blog-card--linked" : ""}`;
+  const content = `
+      <span class="blog-card__index" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>
       <div class="blog-card__meta">
         <span>${KIND_LABELS[entry.kind]}</span>
         <time>${entry.date}</time>
@@ -97,10 +105,19 @@ function renderCard(entry: PreviewEntry, index: number): string {
       <div class="blog-card__content">
         <h2 class="blog-card__title">${entry.title}</h2>
         <p class="blog-card__summary">${entry.summary}</p>
-        <p class="blog-card__tags">${entry.tags.map((tag) => `#${tag}`).join(" · ")}</p>
+        <p class="blog-card__topics">${renderTopics(entry.topics)}</p>
       </div>
-      ${media}
-    </a>
+      <p class="blog-card__source"><span>источник</span><strong>${entry.source}</strong></p>
+  `;
+
+  if (entry.href) {
+    return `<li class="blog-feed__item" data-blog-kind="${entry.kind}">
+      <a class="${className}" href="${entry.href}">${content}</a>
+    </li>`;
+  }
+
+  return `<li class="blog-feed__item" data-blog-kind="${entry.kind}">
+    <article class="${className}">${content}</article>
   </li>`;
 }
 
@@ -112,23 +129,31 @@ function renderIndex(): string {
   return `<main class="blog-preview-page blog-index" data-blog-index>
     <header class="blog-index__header wrapper editorial-grid">
       <h1 class="blog-index__title">блог</h1>
-      <p class="blog-index__intro">Инструменты, курсы, видеоуроки и заметки о дизайне, коде и нейросетях.</p>
+      <p class="blog-index__intro">Инструменты, курсы, видеоуроки и заметки о дизайне, коде и нейросетях. Сохраняю здесь то, к чему действительно возвращаюсь в работе.</p>
     </header>
 
     <section class="blog-index__controls wrapper" aria-label="Фильтры блога">
       <div class="blog-filter__types" role="group" aria-label="Тип материала">${filters}</div>
-      <label class="blog-search">
-        <span class="blog-search__label">поиск</span>
-        <input class="blog-search__input" type="search" autocomplete="off" spellcheck="false" data-blog-search-input>
-      </label>
       <p class="blog-filter__count" data-blog-count>${formatCount(entries.length)}</p>
     </section>
 
     <ol class="blog-feed wrapper">
       ${entries.map(renderCard).join("\n")}
     </ol>
-    <p class="blog-index__empty wrapper" data-blog-empty hidden>Ничего не найдено.</p>
+    <p class="blog-index__empty wrapper" data-blog-empty hidden>В этой категории пока ничего нет.</p>
   </main>`;
+}
+
+function renderRelatedEntries(): string {
+  return entries.slice(1, 4).map((entry, index) => `
+    <li>
+      <span>${String(index + 2).padStart(2, "0")}</span>
+      <div>
+        <strong>${entry.title}</strong>
+        <small>${KIND_LABELS[entry.kind]} · ${entry.source}</small>
+      </div>
+    </li>
+  `).join("");
 }
 
 function renderArticle(): string {
@@ -137,63 +162,77 @@ function renderArticle(): string {
       <header class="blog-post__header wrapper editorial-grid">
         <p class="blog-post__meta"><span>инструмент</span><time>12.09.2026</time></p>
         <h1 class="blog-post__title">AWFUL STUDIO: как я собираю виртуальную предметную студию в Blender</h1>
-        <p class="blog-post__lead">Мне нужен был не генератор красивой процедурной сцены, а подготовленная виртуальная студия, в которой свет, камера и окружение ведут себя как понятные рабочие инструменты.</p>
-        <p class="blog-post__tags">#blender · #awful-studio · #3d</p>
+        <p class="blog-post__lead">Мне нужна не procedural demo scene, а подготовленная виртуальная студия, где свет, камера, продукт и окружение остаются понятными Blender-инструментами.</p>
+        <div class="blog-post__source">
+          <span>источник</span>
+          <a href="https://github.com/looksawful/awful-studio">github.com/looksawful/awful-studio</a>
+        </div>
+        <p class="blog-post__topics">#blender · #3d · #workflow</p>
       </header>
 
       <div class="blog-post__body">
         <div class="blog-prose">
-          <p>AWFUL STUDIO — мой Blender-native инструмент для предметной и рекламной работы. Идея простая: собрать внутри Blender подготовленную студию, дать быстрые стартовые постановки и при этом не отбирать у пользователя обычные Blender-контролы.</p>
+          <p class="blog-prose__opening">AWFUL STUDIO — мой Blender-native инструмент для предметной и рекламной работы. Я собираю его вокруг простой идеи: хороший старт должен ускорять постановку, но не отнимать обычные Blender-контролы и возможность в любой момент вмешаться вручную.</p>
 
-          <h2>Не procedural demo scene, а физически понятная студия</h2>
-          <p>В текущем Alpha 0.0.15 базовая сцена построена как помещение примерно 14 × 18 × 7 метров. Внутри — 12-метровая циклорама, большая боковая витрина и пьедестал. Размеры здесь важны не ради технической аккуратности: я хочу, чтобы расстояния между продуктом, камерой, светом и фоном оставались понятными как в реальной студии.</p>
+          <h2>Физически понятная студия вместо генератора красивой сцены</h2>
+          <p>Сцена строится как рабочее пространство с циклорамой, витриной, пьедесталом, светом и шейперами. Важна не сама процедурность, а понятная пространственная логика: продукт, камера и источники света должны существовать в масштабе и вести себя предсказуемо.</p>
 
           <blockquote>Плагин должен давать хороший старт, а не превращать Blender в закрытый конструктор, который начинает бороться с ручными правками.</blockquote>
 
-          <h2>Любой объект остаётся обычным объектом Blender</h2>
-          <p><strong>Use Selected</strong> монтирует выбранный пользователем контент в product rig. Auto Fit может привести импорт к рабочему масштабу студии, а если его выключить — метрический масштаб сохраняется. Габариты продукта затем используются для адаптации камеры, света и шейперов.</p>
+          <h2>Объект пользователя остаётся обычным объектом Blender</h2>
+          <p>Основной сценарий начинается с выбранного объекта. Плагин подключает его к product rig, может привести к удобному рабочему масштабу и дальше использует габариты продукта как контекст для камеры и света. При этом исходная модель не должна становиться внутренней сущностью, которой можно распоряжаться без пользователя.</p>
+
+          <div class="blog-note">
+            <span>принцип</span>
+            <p>Автоматизировать повторяемую постановку, но не дублировать Blender Inspector и не прятать сцену за собственным закрытым API.</p>
+          </div>
 
           <h2>Свет как библиотека постановок</h2>
-          <p>В Alpha 0.0.15 есть постоянный light bank, карты, флаги, diffusion, gobo и flash backdrop. Поверх него собраны 16 световых пресетов в четырёх семействах: Commercial, Flash, Cinema и Natural.</p>
+          <p>Я разделяю освещение на рабочие семейства: предметные commercial-схемы, прямую flash-логику, более выразительные cinema-постановки и natural-сценарии через большую боковую витрину. Пресет здесь — стартовая постановка, а не финальный кадр.</p>
 
           <div class="blog-table" tabindex="0" aria-label="Световые семейства AWFUL STUDIO">
             <table>
-              <thead><tr><th>Семейство</th><th>Примеры</th><th>Задача</th></tr></thead>
+              <thead><tr><th>Семейство</th><th>Характер</th><th>Когда полезно</th></tr></thead>
               <tbody>
-                <tr><td>Commercial</td><td>Classic 3-Light, Top Soft Packshot, Dual Strip Hero</td><td>предметная и каталожная постановка</td></tr>
-                <tr><td>Flash</td><td>Direct Camera Flash, Direct Flash Wide</td><td>жёсткая фотографическая логика прямой вспышки</td></tr>
-                <tr><td>Cinema</td><td>Teal/Orange, Red/Black Luxury, Hard Sun/Gobo</td><td>более художественные рекламные схемы</td></tr>
-                <tr><td>Natural</td><td>Window + Negative Fill, Window Balanced</td><td>работа через большую боковую витрину</td></tr>
+                <tr><td>Commercial</td><td>контролируемый предметный свет</td><td>каталог, packshot, hero product</td></tr>
+                <tr><td>Flash</td><td>прямая фотографическая вспышка</td><td>жёсткий fashion / snapshot характер</td></tr>
+                <tr><td>Cinema</td><td>цвет, контраст, gobo и драматургия</td><td>рекламный и имиджевый кадр</td></tr>
+                <tr><td>Natural</td><td>окно, мягкий источник, negative fill</td><td>естественная предметная сцена</td></tr>
               </tbody>
             </table>
           </div>
 
-          <h2>Камера и продукт двигаются независимо</h2>
-          <p>У камеры уже есть Static, Custom Path, дуги в обе стороны, Push In, Pull Out, Dolly Zoom, Orbit + Push, Orbit + Rise, Hero Arc и Figure 8. Отдельно живёт product motion: вращения по осям, Float + Spin, Hero Reveal, Tumble, Pendulum, Orbit + Bob и Breath.</p>
-          <p>Базовая дистанция камеры вычисляется из габаритов продукта и FOV. При этом текущий 0.0.15 ещё не выдаётся за финальную систему framing: независимый camera target и safe framing остаются отдельной задачей.</p>
-
-          <h2>Плагин не должен уничтожать сцену</h2>
-          <p>Safe Rebuild удаляет только данные, которыми управляет AWFUL STUDIO. Пользовательские модели, материалы, камеры и коллекции не должны становиться расходным материалом только потому, что кому-то захотелось нажать Rebuild. Удивительно, но программам иногда приходится специально объяснять эту мысль.</p>
+          <h2>Камера и продукт — два независимых уровня движения</h2>
+          <p>Камера может строить дугу, push/pull, orbit или более сложный проход. Продукт при этом получает собственное движение. Такое разделение позволяет собирать комбинации вместо того, чтобы хранить каждый ролик как отдельный жёстко зашитый preset.</p>
 
           <div class="blog-code" data-blog-code-block>
             <div class="blog-code__head"><span>workflow</span><button class="blog-code__copy" type="button" data-blog-code-copy>копировать</button></div>
             <pre><code data-blog-code-source>Use Selected
-→ Auto Fit
+→ Auto Fit при необходимости
 → Lighting preset
 → Camera motion
 → Product motion
-→ Build Post Pipeline — только когда он нужен</code></pre>
+→ ручная доводка сцены</code></pre>
           </div>
 
+          <h2>Safe Rebuild важнее эффектной кнопки Rebuild</h2>
+          <p>Автоматическая пересборка полезна только пока она умеет отличать собственные данные плагина от пользовательской сцены. Камеры, материалы, модели и коллекции пользователя не должны становиться расходным материалом из-за удобства автоматизации.</p>
+
           <h2>Панель как switchboard</h2>
-          <p>В интерфейсе я не хочу дублировать весь Blender Inspector. Power, Temperature, focal length, произвольные значения шейдеров и сотни render settings уже существуют в Blender. В панели AWFUL STUDIO должны оставаться именно workflow-контролы: выбор постановки, режим движения, видимость, Auto Fit, окружение и операции сборки.</p>
+          <p>В интерфейсе я оставляю workflow-контролы: постановка, движение, видимость, окружение и операции сборки. Power, Temperature, focal length и обычные параметры материалов уже есть в Blender. Если повторить их второй раз, плагин станет длиннее, но не полезнее.</p>
 
-          <h2>Что дальше</h2>
-          <p>Следующий TDD-срез после Alpha 0.0.15 посвящён фотографической логике flash-пресетов: отдельной экспозиции для вспышки, более закрытой aperture intent, нейтральной температуре и физически осмысленному положению on-camera flash. Это следующий этап разработки, а не функция, которую я приписываю текущему релизу задним числом.</p>
-
-          <p><a href="https://github.com/looksawful/awful-studio">AWFUL STUDIO на GitHub</a></p>
+          <h2>Что я проверяю дальше</h2>
+          <p>Следующие итерации для меня про качество постановки: framing, световую логику, работу с реальными импортированными объектами и то, насколько быстро можно перейти от стартового preset к нормальной ручной сцене.</p>
         </div>
       </div>
+
+      <aside class="blog-related wrapper" aria-labelledby="blog-related-title">
+        <div class="blog-related__head">
+          <h2 id="blog-related-title">ещё в блоге</h2>
+          <a href="/lab/blog/?view=index">все материалы</a>
+        </div>
+        <ol>${renderRelatedEntries()}</ol>
+      </aside>
 
       <footer class="blog-post__footer wrapper">
         <a href="/lab/blog/?view=index">← блог</a>
@@ -203,21 +242,16 @@ function renderArticle(): string {
 }
 
 function initIndex(): void {
-  const input = root.querySelector<HTMLInputElement>("[data-blog-search-input]");
   const cards = Array.from(root.querySelectorAll<HTMLElement>("[data-blog-kind]"));
   const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-blog-filter-kind]"));
   const count = root.querySelector<HTMLElement>("[data-blog-count]");
   const empty = root.querySelector<HTMLElement>("[data-blog-empty]");
-  if (!input || !count || !empty) return;
+  if (!count || !empty) return;
 
-  let kind = "all";
-  const apply = (): void => {
-    const query = input.value.trim().toLocaleLowerCase("ru");
+  const apply = (kind: string): void => {
     let visible = 0;
     for (const card of cards) {
-      const kindMatch = kind === "all" || card.dataset.blogKind === kind;
-      const searchMatch = !query || (card.dataset.blogSearch ?? "").includes(query);
-      card.hidden = !(kindMatch && searchMatch);
+      card.hidden = kind !== "all" && card.dataset.blogKind !== kind;
       if (!card.hidden) visible += 1;
     }
     count.textContent = formatCount(visible);
@@ -226,19 +260,18 @@ function initIndex(): void {
 
   for (const button of buttons) {
     button.addEventListener("click", () => {
-      kind = button.dataset.blogFilterKind ?? "all";
+      const kind = button.dataset.blogFilterKind ?? "all";
       for (const current of buttons) current.setAttribute("aria-pressed", String(current === button));
-      apply();
+      apply(kind);
     });
   }
-
-  input.addEventListener("input", apply);
 }
 
 function initArticle(): void {
   const button = root.querySelector<HTMLButtonElement>("[data-blog-code-copy]");
   const source = root.querySelector<HTMLElement>("[data-blog-code-source]");
   if (!button || !source) return;
+
   button.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(source.textContent ?? "");
