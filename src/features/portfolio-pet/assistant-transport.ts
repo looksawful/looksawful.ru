@@ -1,5 +1,5 @@
 import { buildPortfolioPetKnowledgeCandidates } from "./knowledge.ts";
-import type { PortfolioAssistantRoute } from "./prepared-answers.ts";
+import type { PortfolioAssistantRoute, PortfolioConversationTurn } from "./prepared-answers.ts";
 
 type GenerateRoute = Extract<PortfolioAssistantRoute, { kind: "generate" }>;
 
@@ -28,6 +28,8 @@ export interface PortfolioAssistantTransportOptions {
 const DEFAULT_ENDPOINT = "https://api.looksawful.ru/v1/portfolio-chat";
 const DEFAULT_TIMEOUT_MS = 8_000;
 const MAX_SOURCE_IDS = 12;
+const MAX_HISTORY_TURNS = 6;
+const MAX_HISTORY_TEXT = 700;
 const PUBLIC_SITE_ORIGIN = "https://looksawful.ru";
 const KNOWN_SOURCE_IDS = new Set(
   buildPortfolioPetKnowledgeCandidates().map((candidate) => candidate.id),
@@ -56,6 +58,16 @@ function safeRequestSourceIds(value: readonly string[]): readonly string[] {
     .slice(0, MAX_SOURCE_IDS);
 
   return Object.freeze([...new Set(sourceIds)]);
+}
+
+function safeHistory(value: readonly PortfolioConversationTurn[]): readonly PortfolioConversationTurn[] {
+  return Object.freeze(value
+    .filter((turn) => (turn.role === "user" || turn.role === "assistant") && Boolean(turn.text.trim()))
+    .slice(-MAX_HISTORY_TURNS)
+    .map((turn) => Object.freeze({
+      role: turn.role,
+      text: turn.text.trim().slice(0, MAX_HISTORY_TEXT),
+    })));
 }
 
 function safeCurrentPath(value: string, sourceIds: readonly string[]): string {
@@ -134,6 +146,7 @@ export function createPortfolioAssistantTransport({
       const controller = new AbortController();
       const timeout = globalThis.setTimeout(() => controller.abort(), requestTimeoutMs);
       const sourceIds = safeRequestSourceIds(route.context.sourceIds);
+      const history = safeHistory(route.context.history);
 
       try {
         const response = await fetchImpl(endpoint, {
@@ -146,6 +159,7 @@ export function createPortfolioAssistantTransport({
             context: {
               currentPath: safeCurrentPath(route.context.page, sourceIds),
               sourceIds,
+              ...(history.length ? { history } : {}),
             },
           }),
           signal: controller.signal,
