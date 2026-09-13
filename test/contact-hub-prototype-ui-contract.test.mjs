@@ -25,7 +25,7 @@ test("AI composer preserves the approved v7 input language", () => {
   assert.match(component, /documentRef\.createElement\("input"\)/);
   assert.match(component, /placeholder = "спросить Venus"/);
   assert.match(component, /composerSend\.type = "submit"/);
-  assert.match(component, /composerSend\.textContent = "↑"/);
+  assert.match(component, /composerSend\.textContent = "\\u043e\\u0442\\u043f\\u0440\\u0430\\u0432\\u0438\\u0442\\u044c"/);
   assert.match(component, /setAttribute\("aria-label", "Отправить"\)/);
 });
 

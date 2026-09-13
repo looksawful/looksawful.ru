@@ -29,6 +29,7 @@ test("PR preview keeps candidate execution separate from Cloudflare credentials"
   assert.match(build, /npm run typecheck/);
   assert.match(build, /npm run test:fast/);
   assert.match(build, /npm run build:site/);
+  assert.match(build, /build-preview-assistant-worker\.mjs/);
   assert.match(build, /prepare-cloudflare-pages\.mjs dist/);
   assert.match(build, /without deleting sources/i);
   assert.match(build, /actions\/upload-artifact@v4/);
@@ -39,6 +40,8 @@ test("PR preview keeps candidate execution separate from Cloudflare credentials"
   assert.match(deploy, /actions\/download-artifact@v4/);
   assert.match(deploy, /secrets\.CLOUDFLARE_ACCOUNT_ID/);
   assert.match(deploy, /secrets\.CLOUDFLARE_API_TOKEN/);
+  assert.match(deploy, /secrets\.YANDEX_AI_API_KEY/);
+  assert.match(deploy, /pages secret put YANDEX_AI_API_KEY/);
   assert.match(deploy, /--branch=pr-\$\{\{ env\.PR_NUMBER \}\}/);
   assert.doesNotMatch(deploy, /--branch=prod/);
   assert.doesNotMatch(deploy, /npm ci|npm run/);

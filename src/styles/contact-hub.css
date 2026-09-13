@@ -316,16 +316,20 @@
 }
 
 .contact-hub__send {
-  inline-size: 34px;
+  inline-size: auto;
+  min-inline-size: 78px;
   block-size: 34px;
   border: 0;
   background: transparent;
-  padding: 0;
+  padding: 0 8px;
   display: grid;
   place-items: center;
   color: inherit;
   font: inherit;
-  font-size: 19px;
+  font-size: var(--fs-200);
+  font-weight: var(--fw-600);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
   cursor: pointer;
 }
 

@@ -9,6 +9,7 @@ import {
   type ContactDraftStore,
 } from "../features/contact-hub/persistence.ts";
 import { createPortfolioAssistantClient } from "../features/portfolio-pet/assistant-client.ts";
+import { createPreviewPortfolioAssistantRouter } from "../features/portfolio-pet/prepared-answers.ts";
 
 type Destroy = () => void;
 
@@ -49,6 +50,13 @@ function resolveAssistantSessionId(documentRef: Document): string {
   } catch {
     return `venus-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
   }
+}
+
+function isPreviewAssistantRuntime(documentRef: Document): boolean {
+  const hostname = documentRef.defaultView?.location.hostname ?? "";
+  return hostname === "localhost"
+    || hostname === "127.0.0.1"
+    || hostname.endsWith(".looksawful-ru-preview.pages.dev");
 }
 
 function createAiMessage(documentRef: Document, text: string, author: AiAuthor): HTMLParagraphElement {
@@ -211,7 +219,7 @@ function createHubElement(documentRef: Document) {
   const composerSend = documentRef.createElement("button");
   composerSend.type = "submit";
   composerSend.className = "contact-hub__send";
-  composerSend.textContent = "↑";
+  composerSend.textContent = "\u043e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c";
   composerSend.setAttribute("aria-label", "Отправить");
   composer.append(composerInput, composerSend);
 
@@ -275,7 +283,14 @@ export function mountContactHub(root: Document = document): Destroy {
   let assistantBusy = false;
   let petStateTimer = 0;
   const draftStore = resolveDraftStore(root);
-  const assistantClient = createPortfolioAssistantClient({ sessionId: resolveAssistantSessionId(root) });
+  const previewAssistant = isPreviewAssistantRuntime(root);
+  const assistantClient = createPortfolioAssistantClient(
+    {
+      sessionId: resolveAssistantSessionId(root),
+      endpoint: previewAssistant ? "/api/portfolio-chat" : undefined,
+    },
+    previewAssistant ? { router: createPreviewPortfolioAssistantRouter() } : {},
+  );
 
   const formDraft = () => ({ name: nameInput.value, email: emailInput.value, message: messageInput.value });
 

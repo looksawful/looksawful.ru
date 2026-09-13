@@ -129,6 +129,9 @@ jobs:
       - name: Build preview without production analytics
         run: npm run build:site
 
+      - name: Build preview-only assistant worker
+        run: node tools/build-preview-assistant-worker.mjs dist/_worker.js
+
       - name: Stamp exact preview identity
         shell: bash
         run: |
@@ -200,9 +203,11 @@ jobs:
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          YANDEX_AI_API_KEY: ${{ secrets.YANDEX_AI_API_KEY }}
         shell: bash
         run: |
           set -euo pipefail
+          test -n "${YANDEX_AI_API_KEY:-}" || { echo "Missing GitHub Actions secret: YANDEX_AI_API_KEY" >&2; exit 1; }
           test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "Missing GitHub Actions secret: CLOUDFLARE_ACCOUNT_ID" >&2; exit 1; }
           test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "Missing GitHub Actions secret: CLOUDFLARE_API_TOKEN" >&2; exit 1; }
 
@@ -256,6 +261,16 @@ jobs:
             exit 1
           fi
           jq -e '.success == true' /tmp/cf-pages-create.json >/dev/null
+
+      - name: Configure preview-only Yandex AI secret
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          YANDEX_AI_API_KEY: ${{ secrets.YANDEX_AI_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "$YANDEX_AI_API_KEY" | npx --yes wrangler@4 pages secret put YANDEX_AI_API_KEY --project-name="$CLOUDFLARE_PAGES_PROJECT"
 
       - name: Deploy exact artifact to Cloudflare Pages preview
         id: deploy

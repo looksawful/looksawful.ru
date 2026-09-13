@@ -149,7 +149,9 @@ function buildPreparedAnswer(
 function relevantApprovedSourceIds(
   page: string,
   approvedById: ReadonlyMap<string, PortfolioPetKnowledgeCandidate>,
+  groundingMode: "page" | "all",
 ): readonly string[] {
+  if (groundingMode === "all") return Object.freeze([...approvedById.keys()].slice(0, 12));
   const projectSlug = pageProjectSlug(page);
   const projectId = projectSlug ? `project.${projectSlug}` : null;
   if (projectId && approvedById.has(projectId)) return Object.freeze([projectId]);
@@ -161,8 +163,10 @@ function relevantApprovedSourceIds(
 
 export function createPortfolioAssistantRouter({
   approvedSourceIds,
+  groundingMode = "page",
 }: {
   approvedSourceIds: readonly string[];
+  groundingMode?: "page" | "all";
 }): PortfolioAssistantRouter {
   const candidates = buildPortfolioPetKnowledgeCandidates();
   const knownIds = new Set(candidates.map((candidate) => candidate.id));
@@ -183,12 +187,17 @@ export function createPortfolioAssistantRouter({
       kind: "generate",
       message: input.message,
       context: Object.freeze({
-        sourceIds: relevantApprovedSourceIds(page, approvedById),
+        sourceIds: relevantApprovedSourceIds(page, approvedById, groundingMode),
         page,
         locale: input.locale,
       }),
     });
   };
+}
+
+export function createPreviewPortfolioAssistantRouter(): PortfolioAssistantRouter {
+  const approvedSourceIds = buildPortfolioPetKnowledgeCandidates().map((candidate) => candidate.id);
+  return createPortfolioAssistantRouter({ approvedSourceIds, groundingMode: "all" });
 }
 
 // #718 is still awaiting owner approval. Production retrieval therefore fails closed.

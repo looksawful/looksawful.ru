@@ -88,10 +88,25 @@ try {
   await hub.waitFor({ state: "visible", timeout: 3_000 });
   assert.equal(await hub.getAttribute("data-mode"), "ai", "Venus must open AI mode");
 
-  const composer = page.getByLabel("Сообщение AI");
-  await composer.fill("привет");
-  await composer.press("Enter");
-  await page.locator(".contact-hub__message--user", { hasText: "привет" }).waitFor({ state: "visible", timeout: 3_000 });
+  const composer = page.getByLabel("\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435 AI");
+  const sendButton = page.getByRole("button", { name: "\u041e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c" });
+  await sendButton.waitFor({ state: "visible", timeout: 3_000 });
+  assert.equal((await sendButton.textContent())?.trim(), "\u043e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c", "published AI composer must show an explicit send button");
+  const botMessages = page.locator(".contact-hub__message--bot");
+  const botCountBefore = await botMessages.count();
+  const question = "\u041a\u0430\u043a\u0438\u043c\u0438 \u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442\u0430\u043c\u0438 \u0438 \u0442\u0435\u0445\u043d\u043e\u043b\u043e\u0433\u0438\u044f\u043c\u0438 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442 \u0418\u0432\u0430\u043d?";
+  await composer.fill(question);
+  await sendButton.click();
+  const answer = botMessages.nth(botCountBefore);
+  await answer.waitFor({ state: "visible", timeout: 15_000 });
+  await page.waitForFunction((index) => {
+    const nodes = document.querySelectorAll(".contact-hub__message--bot");
+    const node = nodes[index];
+    return node && !node.hasAttribute("data-pending") && (node.textContent?.trim().length ?? 0) > 0;
+  }, botCountBefore, { timeout: 15_000 });
+  const answerText = (await answer.textContent())?.trim() ?? "";
+  assert.match(answerText, /Figma|Blender|TypeScript|Photoshop|ComfyUI|JavaScript/i, "published preview must return a grounded Yandex answer");
+  assert.doesNotMatch(answerText, /\u043d\u0435\u0442 \u0441\u043e\u0433\u043b\u0430\u0441\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u0434\u0430\u043d\u043d\u044b\u0445|\u0447\u0430\u0442 \u0441\u0435\u0439\u0447\u0430\u0441 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u0435\u043d/i);
   assert.equal(await composer.inputValue(), "", "composer must clear after sending");
 
   await mkdir("artifacts", { recursive: true });
