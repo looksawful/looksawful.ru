@@ -7,10 +7,10 @@ on:
     paths:
       - .github/workflows/contact-hub-tdd-slice.yml
       - test/portfolio-pet-sprite-manifest-contract.test.mjs
-      - test/portfolio-pet-venus-manifest-contract.test.mjs
+      - test/portfolio-pet-awful-manifest-contract.test.mjs
       - test/portfolio-pet-sprite-runtime-contract.test.mjs
       - src/features/portfolio-pet/sprite-manifest.ts
-      - src/features/portfolio-pet/venus-manifest.ts
+      - src/features/portfolio-pet/awful-manifest.ts
       - src/features/portfolio-pet/sprite-runtime.ts
 
 permissions:
@@ -37,11 +37,11 @@ jobs:
 
       - run: npm ci
 
-      - name: Focused Venus sprite contracts
+      - name: Focused Awful sprite contracts
         run: >-
           node --test
           test/portfolio-pet-sprite-manifest-contract.test.mjs
-          test/portfolio-pet-venus-manifest-contract.test.mjs
+          test/portfolio-pet-awful-manifest-contract.test.mjs
           test/portfolio-pet-sprite-runtime-contract.test.mjs
 
       - name: Typecheck
