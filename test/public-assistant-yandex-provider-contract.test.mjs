@@ -67,7 +67,7 @@ test("Yandex provider sends one bounded non-streaming chat completion request", 
   assert.deepEqual(result, { kind: "answer", text: "Короткий ответ." });
 });
 
-test("OWNER-718: production prompt uses the approved first-person Venus voice and privacy rules", async () => {
+test("OWNER-718: production prompt uses the approved first-person Awful voice and privacy rules", async () => {
   const { createYandexPortfolioProvider } = await loadProvider();
   let request = null;
 
@@ -87,7 +87,7 @@ test("OWNER-718: production prompt uses the approved first-person Venus voice an
   const body = JSON.parse(request.body);
   const prompt = body.messages[0].content;
 
-  assert.match(prompt, /Ты Venus/);
+  assert.match(prompt, /Ты Awful/);
   assert.match(prompt, /от первого лица/);
   assert.match(prompt, /1.?2 коротких абзац/);
   assert.match(prompt, /не придумывай/i);
