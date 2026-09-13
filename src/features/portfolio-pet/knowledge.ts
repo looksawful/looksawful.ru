@@ -91,14 +91,44 @@ function profilePrinciplesText(): string {
   return compact(cvContent.profile.principles.map((item) => `${item.title} ${item.text}`));
 }
 
+const ABOUT_PLAIN_TEXT = "Если проще: я помогаю цифровому продукту стать понятнее, удобнее и визуально цельнее. Разбираюсь в задаче и аудитории, проектирую сценарии и интерфейсы, формирую визуальную систему и организую работу дизайна вместе с разработкой.";
+
+const WORK_SCOPE_TEXT = [
+  "Моя работа обычно идёт сразу на нескольких уровнях: продукт, интерфейс, визуальный язык и дизайн-процесс.",
+  "Я исследую аудиторию и конкурентов, формирую UX/UI-стратегию, проектирую пользовательские сценарии и интерфейсы, развиваю визуальные системы и брендинг, провожу дизайн-ревью и координирую работу дизайна и разработки от идеи до релиза.",
+].join(" ");
+
 const PRODUCT_UI_TEXT = [
   "В интерфейсах я исследую аудиторию и конкурентов, провожу глубинные интервью, коридорные и usability-тесты и формулирую гипотезы.",
   "Я проектирую функции и пользовательские сценарии, информационную архитектуру, CJM и user flow, делаю прототипы и адаптивные интерфейсы, развиваю дизайн-системы и анализирую продуктовые метрики.",
 ].join(" ");
 
+const BRANDING_TEXT = [
+  "В брендинге я разрабатываю визуальные концепции и системы, провожу ребрендинги и веду арт- и дизайн-направление.",
+  "В практической работе это может включать логотип, типографику, цветовую палитру, печатные материалы, упаковку, мерч, маскота, иконки и графику, а также брендбук.",
+].join(" ");
+
+const TEAM_LEADERSHIP_TEXT = [
+  "Под руководством дизайн- и креативной командой в моей работе я имею в виду конкретный процесс: ставлю задачи, обучаю дизайнеров, выстраиваю продакшн, провожу дизайн-ревью и контролирую реализацию.",
+  "Я координирую работу дизайнеров и разработчиков от идеи до релиза.",
+].join(" ");
+
+const SHOOT_PRODUCTION_TEXT = [
+  "В съёмочном продакшне я умею формировать команду и координировать подрядчиков, работать с бюджетом, кастингом, локациями, стилизацией, арендой оборудования и организацией съёмочного процесса.",
+  "Также занимаюсь постановкой света, постпродакшеном, ретушью и цветокоррекцией.",
+].join(" ");
+
+const CASE_INDEX_TEXT = [
+  "Основные кейсы в портфолио:",
+  "Jestei Pool — музыкальный сервис для диджеев, где я работал арт-директором.",
+  "Styx Jewel — нишевый бренд украшений: айдентика, дизайн, упаковка, каталоги и съёмки.",
+  "Sensetique — основанные мной фото-/видеопродакшен и коммерческая фотостудия.",
+  "Shootings — фотография, съёмочный продакшн и экспериментальный микс-медиа.",
+].join("\n");
+
 const COMMERCIAL_TEXT = [
-  "Если человек хочет обсудить новый дизайн-проект, сначала нужно понять, что это за проект, какая задача, на каком он этапе, что уже есть из материалов, макетов или референсов и какой результат нужен.",
-  "Цену, сроки и возможность взять проект нельзя обещать без обсуждения задачи.",
+  "Для первичного обсуждения нового дизайн-проекта нужно понять, что это за проект, какая задача, на каком он этапе, что уже есть из материалов, макетов или референсов и какой результат нужен.",
+  "Это нужно, чтобы понять задачу и предметно обсудить проект. Нельзя обещать, что проект уже принят в работу, и нельзя называть цену или сроки без обсуждения задачи.",
   "Для продолжения разговора доступен email i@lookawful.ru.",
 ].join(" ");
 
@@ -106,6 +136,36 @@ const JESTEI_INTERFACE_TEXT = [
   "В Jestei я работал над навигацией и поиском музыки, прогрессивной фильтрацией треков и ключевыми пользовательскими сценариями.",
   "Фильтрация сочетает быстрый и расширенный режимы; среди параметров есть жанры, BPM и тональность в Classic/Camelot.",
   "Также я проектировал сценарии Event-направления, тарифов и подписок, лендинги и другие части core-продукта.",
+].join(" ");
+
+const JESTEI_DESIGN_SYSTEM_TEXT = [
+  "В Jestei я реорганизовал дизайн-систему, создавал документацию и использовал её как основу для работы над продуктом.",
+  "Я также проводил дизайн-ревью, координировал дизайн и разработку и работал над тем, чтобы подготовка макетов и прототипов происходила быстрее и последовательнее.",
+].join(" ");
+
+const JESTEI_COMMUNICATION_TEXT = [
+  "В Jestei я работал не только с интерфейсом, но и с коммуникацией продукта: коммуникационной платформой, ключевыми сообщениями, tone of voice, редакционной политикой, лендингами и рассылками.",
+  "Я также делал материалы для рекламы и работал над разной подачей продукта для клубных и event-диджеев.",
+].join(" ");
+
+const STYX_IDENTITY_TEXT = [
+  "Для Styx Jewel я разработал логотип и фирменный стиль и поддерживал единую визуальную систему бренда.",
+  "Она охватывала упаковку, печатные материалы, соцсети, рекламные публикации и баннеры, каталоги и лукбуки.",
+].join(" ");
+
+const STYX_PRODUCTION_TEXT = [
+  "Для Styx Jewel я продюсировал и снимал кампейны, лукбуки и каталоги.",
+  "После съёмки занимался обработкой фотографий, а также создавал сканографические изображения и экспериментальную анимацию.",
+].join(" ");
+
+const SENSETIQUE_PRODUCTION_TEXT = [
+  "В Sensetique я отвечал за производство от организации команды до готового материала: препродакшн, кастинги, локации, сметы и логистику, съёмку и постпродакшен.",
+  "Параллельно я запустил коммерческую фотостудию с тремя съёмочными залами.",
+].join(" ");
+
+const SHOOTINGS_DETAIL_TEXT = [
+  "В направлении Shootings я совмещаю фотографию, продюсирование съёмок и экспериментальный микс-медиа.",
+  "Работа включает как саму съёмку, так и подготовку производства и постпродакшен; в портфолио есть проекты для музыкантов, брендов и выставок.",
 ].join(" ");
 
 const APPROVED_PROJECT_TEXT: Readonly<Record<string, string>> = Object.freeze({
@@ -136,10 +196,16 @@ export function buildPortfolioPetKnowledgeCandidates(): readonly PortfolioPetKno
       text: "Я проектирую цифровые продукты и визуальные системы, провожу ребрендинги, разрабатываю дизайн и руковожу креативными командами.",
       source: "owner-approved:cv.profile.aboutPrimary",
     }),
+    pendingCandidate({ id: "profile.about_plain", text: ABOUT_PLAIN_TEXT, source: "owner-approved:derived.cv.profile.plain-language" }),
+    pendingCandidate({ id: "profile.work_scope", text: WORK_SCOPE_TEXT, source: "owner-approved:derived.cv.profile.work-scope" }),
+    pendingCandidate({ id: "profile.cases_index", text: CASE_INDEX_TEXT, source: "owner-approved:derived.project-index" }),
     pendingCandidate({ id: "profile.location", text: "Москва", source: "owner-approved:cv.profile.location" }),
     pendingCandidate({ id: "profile.contact", text: "i@lookawful.ru", source: "owner-approved:cv.profile.contacts.email" }),
     pendingCandidate({ id: "profile.skills", text: profileSkillText(), source: "owner-approved:cv.skills.hard+tech" }),
     pendingCandidate({ id: "profile.product_ui", text: PRODUCT_UI_TEXT, source: "owner-approved:derived.cv.skills.product-ux-ui" }),
+    pendingCandidate({ id: "profile.branding", text: BRANDING_TEXT, source: "owner-approved:derived.cv.skills.identity-art-direction" }),
+    pendingCandidate({ id: "profile.team_leadership", text: TEAM_LEADERSHIP_TEXT, source: "owner-approved:derived.cv.principles.team-process" }),
+    pendingCandidate({ id: "profile.shoot_production", text: SHOOT_PRODUCTION_TEXT, source: "owner-approved:derived.cv.skills.shoot-production" }),
     pendingCandidate({ id: "profile.commercial", text: COMMERCIAL_TEXT, source: "owner-approved:assistant.commercial-intake-policy" }),
     pendingCandidate({ id: "profile.experience", text: profileExperienceText(), source: "owner-approved:cv.experience" }),
     pendingCandidate({ id: "profile.education", text: profileEducationText(), source: "owner-approved:cv.education" }),
@@ -157,12 +223,13 @@ export function buildPortfolioPetKnowledgeCandidates(): readonly PortfolioPetKno
   );
 
   const detailCandidates: PortfolioPetKnowledgeCandidate[] = [
-    pendingCandidate({
-      id: "project.jestei.interfaces",
-      title: "Jestei Pool — интерфейсы",
-      text: JESTEI_INTERFACE_TEXT,
-      source: "owner-approved:jestei.interface-details",
-    }),
+    pendingCandidate({ id: "project.jestei.interfaces", title: "Jestei Pool — интерфейсы", text: JESTEI_INTERFACE_TEXT, source: "owner-approved:jestei.interface-details" }),
+    pendingCandidate({ id: "project.jestei.design_system", title: "Jestei Pool — дизайн-система и процесс", text: JESTEI_DESIGN_SYSTEM_TEXT, source: "owner-approved:jestei.design-system-process" }),
+    pendingCandidate({ id: "project.jestei.communication", title: "Jestei Pool — коммуникация", text: JESTEI_COMMUNICATION_TEXT, source: "owner-approved:jestei.communication" }),
+    pendingCandidate({ id: "project.styx.identity", title: "Styx Jewel — айдентика", text: STYX_IDENTITY_TEXT, source: "owner-approved:styx.identity" }),
+    pendingCandidate({ id: "project.styx.production", title: "Styx Jewel — съёмки и медиа", text: STYX_PRODUCTION_TEXT, source: "owner-approved:styx.production" }),
+    pendingCandidate({ id: "project.sensetique.production", title: "Sensetique — продакшн", text: SENSETIQUE_PRODUCTION_TEXT, source: "owner-approved:sensetique.production" }),
+    pendingCandidate({ id: "project.shootings.details", title: "Shootings — процесс", text: SHOOTINGS_DETAIL_TEXT, source: "owner-approved:shootings.details" }),
   ];
 
   return Object.freeze([...profileCandidates, ...projectCandidates, ...detailCandidates]);
