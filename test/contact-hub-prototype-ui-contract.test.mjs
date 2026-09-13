@@ -23,7 +23,7 @@ test("Contact Hub restores the v7 shared AI/Form surface", () => {
 
 test("AI composer preserves the approved v7 input language", () => {
   assert.match(component, /documentRef\.createElement\("input"\)/);
-  assert.match(component, /placeholder = "спросить Venus"/);
+  assert.match(component, /placeholder = "спросить Awful"/);
   assert.match(component, /composerSend\.type = "submit"/);
   assert.match(component, /composerSend\.textContent = "\\u043e\\u0442\\u043f\\u0440\\u0430\\u0432\\u0438\\u0442\\u044c"/);
   assert.match(component, /setAttribute\("aria-label", "Отправить"\)/);
@@ -41,7 +41,7 @@ test("mode switching is state-only and explicit handoff uses the canonical domai
   assert.doesNotMatch(component, /\.requestSubmit\(/);
 });
 
-test("v7 visual contract stays compact beside Venus on desktop", () => {
+test("v7 visual contract stays compact beside Awful on desktop", () => {
   assert.match(css, /inset-inline-start:\s*214px/);
   assert.match(css, /inset-block-end:\s*18px/);
   assert.match(css, /inline-size:\s*min\(356px,\s*calc\(100vw - 236px\)\)/);
