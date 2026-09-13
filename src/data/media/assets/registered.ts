@@ -4,6 +4,7 @@ import { awfulCasesMediaAssets } from "./awful-cases.ts";
 import { behanceShootingMediaAssets } from "./behance-shootings.ts";
 import { berryMediaAssets } from "./berry.ts";
 import { berserkTimerMediaAssets } from "./berserk-timer.ts";
+import { davaMediaAssets } from "./dava.ts";
 import { esmiMediaAssets } from "./esmi.ts";
 import { evashaMediaAssets } from "./evasha.ts";
 import { heroMediaAssets } from "./hero.ts";
@@ -27,6 +28,7 @@ export const registeredMediaAssets = [
   ...behanceShootingMediaAssets,
   ...berryMediaAssets,
   ...berserkTimerMediaAssets,
+  ...davaMediaAssets,
   ...esmiMediaAssets,
   ...evashaMediaAssets,
   ...heroMediaAssets,
