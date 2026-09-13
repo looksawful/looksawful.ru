@@ -19,7 +19,7 @@ There is exactly one public stream:
 - no search;
 - no public category switcher.
 
-`production` may describe the context or role of a photographic asset, but it is never a separate Gallery category. A Sensetique image classified canonically as both `photography` and `production` is eligible as a photograph. Production-only material is not eligible.
+`production` may describe the context or role of a photographic asset, but it is never a separate Gallery category. A media item classified canonically as both `photography` and `production` is eligible as a photograph. Production-only material is not eligible.
 
 Standalone digital art, collage, illustration, graphic design, 3D renders, identity work, UI/product work, equipment/documentation imagery and other non-photographic material are outside Gallery. Post-production, compositing, AI treatment or strong styling do not by themselves disqualify an image when the work remains canonically classified as photography. Standalone 3D/digital-art work must not be smuggled back into Gallery by treating a virtual camera as sufficient evidence of photography.
 
@@ -71,6 +71,8 @@ This is a content-readiness rule, not permission to create a Gallery-specific du
 Every photograph remains an individual card. A shoot/series is not collapsed into an album card.
 
 Series labels are invisible in the public UI, but series are real structural boundaries: one series finishes before the next begins, so two shoots cannot visually interleave.
+
+The prerelease uses current canonical contextual project identity as the series boundary when it exists. Historical photo records without contextual project/series identity currently fall back to individual boundaries rather than title/path heuristics. That is a deliberate prerelease limitation, not the final grouping model. Final production readiness requires canonical `seriesId` / `seriesOrder` to be authored for those records through the existing media/CMS boundary.
 
 Masonry is explicitly forbidden for Gallery. This includes:
 
@@ -178,7 +180,8 @@ Required before calling the corrected preview candidate ready:
 - no production/art/filter controls in rendered HTML;
 - every Gallery item is a canonical `photo` direction image;
 - no masonry CSS/runtime mechanics;
-- series do not interleave;
+- series do not interleave where canonical series boundaries exist;
+- historical unassigned photos remain an explicit series-metadata blocker instead of being grouped heuristically;
 - `?item=` deep link and Back/Forward;
 - viewer open/close/next/previous and focus restoration;
 - responsive desktop/tablet/mobile;
