@@ -1,68 +1,91 @@
+import type { MediaCatalogItem } from "./catalog.ts";
 import { contextualMediaCatalogItems } from "./catalog-view.ts";
 import {
-  catalogDirectionIdsForTaxonomy,
-  getPublicCatalogItems,
+  toCatalogItem,
   type CatalogItem,
 } from "./public-catalog.ts";
 
-export type GalleryImageAsset = Extract<CatalogItem["asset"], { type: "image" }>;
-
-export interface GalleryItem extends Omit<CatalogItem, "asset" | "width" | "height"> {
-  asset: GalleryImageAsset;
+export interface GalleryItem extends CatalogItem {
+  asset: Extract<CatalogItem["asset"], { type: "image" }>;
   width: number;
   height: number;
+  aspectRatio: number;
   seriesId: string;
   seriesOrder: number;
 }
 
-function getPrereleaseCatalogItems(): readonly CatalogItem[] {
-  // Historical photo records already have canonical taxonomy/usages but many
-  // have not yet had showInCatalog materialized by the CMS. The isolated
-  // prerelease bridge promotes only canonical photo-direction image records
-  // through the existing Public Catalog converter. It does not invent a
-  // production/art layer and does not change the global publication default.
-  const candidates = contextualMediaCatalogItems
-    .filter((item) => (
-      item.asset.type === "image"
-      && !item.archived
-      && catalogDirectionIdsForTaxonomy(item).includes("photo")
-    ))
-    .map((item) => item.showInCatalog ? item : { ...item, showInCatalog: true });
+const DEFAULT_MUSICIAN_PROJECT_IDS = new Set([
+  "shootings-obladaet",
+  "shootings-evasha",
+  "shootings-igguana",
+  "shootings-esmi",
+  "shootings-hypression",
+  "shootings-behance-offmi",
+  "shootings-dava",
+]);
 
-  return getPublicCatalogItems(candidates)
-    .filter((item) => item.asset.type === "image" && item.directions.includes("photo"));
+function isCanonicalPhotograph(item: MediaCatalogItem): boolean {
+  return item.asset.type === "image"
+    && !item.archived
+    && item.workAreaIds.includes("photography");
+}
+
+function isDefaultGalleryPhotograph(item: MediaCatalogItem): boolean {
+  return item.projectIds.some((projectId) => (
+    DEFAULT_MUSICIAN_PROJECT_IDS.has(projectId)
+    || projectId.startsWith("styx-")
+  ));
 }
 
 function seriesIdFor(item: CatalogItem): string {
-  return item.projectIds[0] ?? `catalog:${item.id}`;
+  return item.projectIds[0] ?? `asset-${item.id}`;
 }
 
-export function getGalleryItems(
-  catalogItems: readonly CatalogItem[] = getPrereleaseCatalogItems(),
-): readonly GalleryItem[] {
-  const seriesCounts = new Map<string, number>();
-  const result: GalleryItem[] = [];
+function toGalleryItems(catalogItems: readonly CatalogItem[]): readonly GalleryItem[] {
+  const sequenceBySeries = new Map<string, number>();
 
-  for (const item of catalogItems) {
-    if (item.asset.type !== "image") continue;
-    if (!item.directions.includes("photo")) continue;
-    if (!item.width || !item.height || item.width <= 0 || item.height <= 0) continue;
-
-    const seriesId = seriesIdFor(item);
-    const seriesOrder = seriesCounts.get(seriesId) ?? 0;
-    seriesCounts.set(seriesId, seriesOrder + 1);
-
-    result.push({
-      ...item,
-      asset: item.asset,
-      width: item.width,
-      height: item.height,
-      seriesId,
-      seriesOrder,
+  return catalogItems
+    .filter((item): item is CatalogItem & {
+      asset: Extract<CatalogItem["asset"], { type: "image" }>;
+      width: number;
+      height: number;
+      aspectRatio: number;
+    } => (
+      item.asset.type === "image"
+      && item.width !== undefined
+      && item.height !== undefined
+      && item.aspectRatio !== undefined
+    ))
+    .map((item) => {
+      const seriesId = seriesIdFor(item);
+      const seriesOrder = sequenceBySeries.get(seriesId) ?? 0;
+      sequenceBySeries.set(seriesId, seriesOrder + 1);
+      return { ...item, seriesId, seriesOrder };
     });
-  }
+}
 
-  return result;
+/**
+ * Gallery is a curated view over the canonical Media Catalog.
+ *
+ * Musician and Styx photography form the default portfolio selection.
+ * Any other real photograph remains hidden until the existing
+ * `showInCatalog` / "Показывать в галерее" editorial flag is enabled in
+ * CMS or MediaDesk. Non-photographic assets never enter Gallery even when a
+ * broader Public Catalog direction can resolve to `photo`.
+ */
+export function getGalleryItemsFromMediaCatalog(
+  mediaItems: readonly MediaCatalogItem[] = contextualMediaCatalogItems,
+): readonly GalleryItem[] {
+  const catalogItems = mediaItems
+    .filter(isCanonicalPhotograph)
+    .filter((item) => isDefaultGalleryPhotograph(item) || item.showInCatalog)
+    .map(toCatalogItem);
+
+  return toGalleryItems(catalogItems);
+}
+
+export function getGalleryItems(): readonly GalleryItem[] {
+  return getGalleryItemsFromMediaCatalog();
 }
 
 export function getGallerySeriesId(item: GalleryItem): string {
