@@ -20,6 +20,7 @@ import {
 } from "./components/site-analytics.ts";
 import { initBeforeAfter } from "./components/before-after.ts";
 import { initSiteNavigation } from "./components/site-navigation.ts";
+import { resolvePortfolioPetEnabled } from "./features/portfolio-pet/feature-flag.ts";
 import { initSiteInteractive } from "./interactive.ts";
 import { initMotion } from "./motion.ts";
 
@@ -136,6 +137,25 @@ const destroys: Destroy[] = [
   destroySiteAnalyticsConsent,
 ];
 let destroyed = false;
+
+const portfolioPetPrototypeRequested = new URLSearchParams(window.location.search).get("pet") === "1";
+const portfolioPetEnabled = resolvePortfolioPetEnabled({
+  isDev: import.meta.env.DEV,
+  envValue: import.meta.env.VITE_PORTFOLIO_PET_ENABLED,
+  previewRequested: portfolioPetPrototypeRequested,
+});
+
+if (portfolioPetEnabled) {
+  void import("./components/portfolio-pet.ts")
+    .then(({ mountPortfolioPet }) => {
+      if (destroyed) return;
+      const portfolioPet = mountPortfolioPet({ root: document.body });
+      destroys.push(() => portfolioPet.destroy());
+    })
+    .catch((error: unknown) => {
+      console.error("Portfolio pet prototype failed to load.", error);
+    });
+}
 
 numberMediaCaptions(document);
 destroys.push(
