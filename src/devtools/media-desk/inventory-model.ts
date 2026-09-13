@@ -9,11 +9,34 @@ export type MediaDeskInventoryDiagnostic =
 export type MediaDeskInventoryUsageFilter = "all" | "used" | "orphan";
 export type MediaDeskInventoryDiagnosticFilter = "all" | MediaDeskInventoryDiagnostic;
 
+export type MediaDeskUsageKind =
+  | "gallery"
+  | "project-cover"
+  | "pet-cover"
+  | "character-cover"
+  | "page-media"
+  | "video-poster"
+  | "direct-placement";
+
 export interface MediaDeskUsageRecordLike {
   readonly id: string;
   readonly assetId: string;
   readonly posterAssetId?: string;
   readonly projectIds?: readonly string[];
+}
+
+export interface MediaDeskUnifiedUsage {
+  readonly kind: MediaDeskUsageKind;
+  readonly ownerId: string;
+  readonly sourcePath: string;
+  readonly fieldPath?: string;
+  readonly route?: string;
+  readonly blockingDelete: boolean;
+}
+
+export interface MediaDeskUsageBinding {
+  readonly assetId: string;
+  readonly usage: MediaDeskUnifiedUsage;
 }
 
 export interface MediaDeskInventoryUsage {
@@ -28,6 +51,7 @@ export interface MediaDeskInventoryRecord {
   readonly assetId: string;
   readonly item: MediaCatalogItem;
   readonly usage: MediaDeskInventoryUsage;
+  readonly usages: readonly MediaDeskUnifiedUsage[];
   readonly diagnostics: readonly MediaDeskInventoryDiagnostic[];
 }
 
@@ -57,6 +81,20 @@ const DIAGNOSTIC_ORDER: readonly MediaDeskInventoryDiagnostic[] = [
   "duplicate-id",
   "duplicate-path",
 ];
+
+const USAGE_ORDER: readonly MediaDeskUsageKind[] = [
+  "gallery",
+  "project-cover",
+  "pet-cover",
+  "character-cover",
+  "page-media",
+  "video-poster",
+  "direct-placement",
+];
+
+const usageRank = new Map<MediaDeskUsageKind, number>(
+  USAGE_ORDER.map((kind, index) => [kind, index]),
+);
 
 function addUnique(target: string[], value: string): void {
   if (value && !target.includes(value)) target.push(value);
@@ -95,6 +133,85 @@ function countBy(values: readonly string[]): ReadonlyMap<string, number> {
   return counts;
 }
 
+function defaultEntryBindings(
+  entries: readonly MediaDeskUsageRecordLike[],
+): readonly MediaDeskUsageBinding[] {
+  const bindings: MediaDeskUsageBinding[] = [];
+  for (const entry of entries) {
+    bindings.push({
+      assetId: entry.assetId,
+      usage: {
+        kind: "direct-placement",
+        ownerId: entry.id,
+        sourcePath: "src/data/media/entries",
+        fieldPath: entry.id,
+        blockingDelete: true,
+      },
+    });
+    if (entry.posterAssetId) {
+      bindings.push({
+        assetId: entry.posterAssetId,
+        usage: {
+          kind: "video-poster",
+          ownerId: entry.id,
+          sourcePath: "src/data/media/entries",
+          fieldPath: `${entry.id}.posterAssetId`,
+          blockingDelete: true,
+        },
+      });
+    }
+  }
+  return bindings;
+}
+
+function usageIdentity(usage: MediaDeskUnifiedUsage): string {
+  return [
+    usage.kind,
+    usage.ownerId,
+    usage.sourcePath,
+    usage.fieldPath ?? "",
+    usage.route ?? "",
+    usage.blockingDelete ? "1" : "0",
+  ].join("\u0000");
+}
+
+function sortUsages(usages: readonly MediaDeskUnifiedUsage[]): readonly MediaDeskUnifiedUsage[] {
+  return [...usages].sort((left, right) => {
+    const rank = (usageRank.get(left.kind) ?? Number.MAX_SAFE_INTEGER)
+      - (usageRank.get(right.kind) ?? Number.MAX_SAFE_INTEGER);
+    if (rank !== 0) return rank;
+    const owner = left.ownerId.localeCompare(right.ownerId);
+    if (owner !== 0) return owner;
+    const source = left.sourcePath.localeCompare(right.sourcePath);
+    if (source !== 0) return source;
+    return (left.fieldPath ?? "").localeCompare(right.fieldPath ?? "");
+  });
+}
+
+function unifiedUsagesByAsset(
+  bindings: readonly MediaDeskUsageBinding[],
+): ReadonlyMap<string, readonly MediaDeskUnifiedUsage[]> {
+  const grouped = new Map<string, MediaDeskUnifiedUsage[]>();
+  const identities = new Map<string, Set<string>>();
+
+  for (const binding of bindings) {
+    if (!binding.assetId) continue;
+    const list = grouped.get(binding.assetId) ?? [];
+    const seen = identities.get(binding.assetId) ?? new Set<string>();
+    const identity = usageIdentity(binding.usage);
+    if (!seen.has(identity)) {
+      list.push(binding.usage);
+      seen.add(identity);
+    }
+    grouped.set(binding.assetId, list);
+    identities.set(binding.assetId, seen);
+  }
+
+  return new Map(
+    [...grouped].map(([assetId, usages]) => [assetId, sortUsages(usages)] as const),
+  );
+}
+
 function searchableText(record: MediaDeskInventoryRecord): string {
   const { item, usage } = record;
   const sourceMaster = item.asset.type === "video" ? item.asset.sourceSrc ?? "" : "";
@@ -116,6 +233,13 @@ function searchableText(record: MediaDeskInventoryRecord): string {
     ...item.credits,
     ...usage.entryIds,
     ...usage.projectIds,
+    ...record.usages.flatMap((itemUsage) => [
+      itemUsage.kind,
+      itemUsage.ownerId,
+      itemUsage.sourcePath,
+      itemUsage.fieldPath ?? "",
+      itemUsage.route ?? "",
+    ]),
     ...record.diagnostics,
   ]
     .join(" ")
@@ -126,6 +250,7 @@ function searchableText(record: MediaDeskInventoryRecord): string {
 export function buildMediaDeskInventoryIndex(
   items: readonly MediaCatalogItem[],
   entries: readonly MediaDeskUsageRecordLike[],
+  bindings: readonly MediaDeskUsageBinding[] = defaultEntryBindings(entries),
 ): readonly MediaDeskInventoryRecord[] {
   const usageByAssetId = new Map<string, MutableUsage>();
 
@@ -141,6 +266,7 @@ export function buildMediaDeskInventoryIndex(
     }
   }
 
+  const unifiedByAssetId = unifiedUsagesByAsset(bindings);
   const idCounts = countBy(items.map(({ asset }) => asset.id));
   const pathCounts = countBy(items.map(({ asset }) => asset.src.trim()));
 
@@ -152,9 +278,10 @@ export function buildMediaDeskInventoryIndex(
       projectIds: [],
     };
     const total = usage.direct + usage.poster;
+    const usages = unifiedByAssetId.get(item.asset.id) ?? [];
     const diagnostics: MediaDeskInventoryDiagnostic[] = [];
 
-    if (total === 0) diagnostics.push("orphan");
+    if (usages.length === 0) diagnostics.push("orphan");
     if (!item.asset.src.trim()) diagnostics.push("missing-source");
     if ((idCounts.get(item.asset.id) ?? 0) > 1) diagnostics.push("duplicate-id");
     if (item.asset.src.trim() && (pathCounts.get(item.asset.src.trim()) ?? 0) > 1) {
@@ -171,6 +298,7 @@ export function buildMediaDeskInventoryIndex(
         entryIds: [...usage.entryIds],
         projectIds: [...usage.projectIds],
       },
+      usages,
       diagnostics: DIAGNOSTIC_ORDER.filter((diagnostic) => diagnostics.includes(diagnostic)),
     };
   });
@@ -185,8 +313,8 @@ export function filterMediaDeskInventoryRecords(
   const diagnostic = state.diagnostic ?? "all";
 
   return records.filter((record) => {
-    if (usage === "used" && record.usage.total === 0) return false;
-    if (usage === "orphan" && record.usage.total !== 0) return false;
+    if (usage === "used" && record.usages.length === 0) return false;
+    if (usage === "orphan" && record.usages.length !== 0) return false;
     if (diagnostic !== "all" && !record.diagnostics.includes(diagnostic)) return false;
     if (search && !searchableText(record).includes(search)) return false;
     return true;
@@ -204,9 +332,7 @@ export function summarizeMediaDeskDiagnostics(
   } satisfies Record<MediaDeskInventoryDiagnostic, number>;
 
   for (const record of records) {
-    for (const diagnostic of record.diagnostics) {
-      summary[diagnostic] += 1;
-    }
+    for (const diagnostic of record.diagnostics) summary[diagnostic] += 1;
   }
   return summary;
 }
