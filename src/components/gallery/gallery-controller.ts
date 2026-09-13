@@ -1,5 +1,3 @@
-import "../../styles/gallery.css";
-
 import type { GalleryLayer } from "../../data/media/gallery.ts";
 import { createGalleryLayout } from "./gallery-layout.ts";
 import { createGalleryLightbox } from "./gallery-lightbox.ts";
