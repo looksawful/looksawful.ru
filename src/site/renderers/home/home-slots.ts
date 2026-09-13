@@ -57,6 +57,7 @@ const petProjectsPreviewStyles = `
     );
     container: pet-projects / inline-size;
     padding: var(--size-700) var(--section-inline);
+    overflow: clip;
     border-block-start: var(--border-width-100) solid var(--clr-border);
   }
 
@@ -69,6 +70,7 @@ const petProjectsPreviewStyles = `
   .pet-projects__grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
+    align-items: start;
     gap: var(--space-group) var(--size-300);
   }
 
@@ -124,8 +126,8 @@ const petProjectsPreviewStyles = `
 
   .subproject-card__caption {
     display: grid;
-    grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1.4fr);
-    gap: var(--size-100) var(--size-300);
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--size-100);
     min-block-size: 4.5rem;
     padding-block: var(--size-200);
     color: var(--clr-text-muted);
@@ -148,9 +150,35 @@ const petProjectsPreviewStyles = `
     transform: scale(1.025);
   }
 
-  @container pet-projects (width > 44rem) {
+  .pet-projects .subproject-card {
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  .pet-projects .subproject-card__media :is(img, video) {
+    object-fit: contain;
+  }
+
+  .pet-projects .subproject-card:is(a:hover, a:focus-visible) .subproject-card__media :is(img, video) {
+    transform: none;
+  }
+
+  @container pet-projects (width > 42rem) {
     .pet-projects__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @container pet-projects (width > 68rem) {
+    .pet-projects__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @container subproject-card (width > 20rem) {
+    .subproject-card__caption {
+      grid-template-columns: minmax(6.5rem, 0.72fr) minmax(0, 1.28fr);
+      gap: var(--size-100) var(--size-300);
     }
   }
 
