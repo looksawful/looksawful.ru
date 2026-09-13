@@ -1,3 +1,4 @@
+import type { ProjectData } from "../../types/project.ts";
 import { projects } from "../catalog/projects/index.ts";
 import {
   getPublicCatalogItems,
@@ -22,8 +23,8 @@ export interface GalleryItem extends Omit<CatalogItem, "asset" | "width" | "heig
   seriesOrder: number;
 }
 
-const projectById = new Map(
-  projects.map((project) => [project.id, project] as const),
+const projectById = new Map<string, ProjectData>(
+  projects.map((project) => [project.id, project]),
 );
 
 const PHOTOGRAPHY_ROLE_IDS = new Set(["photographer", "digital-artist"]);
@@ -33,7 +34,7 @@ export function isGalleryLayer(value: string | null | undefined): value is Galle
 }
 
 function projectRoleIds(projectId: string): readonly string[] {
-  const project = projectById.get(projectId as (typeof projects)[number]["id"]);
+  const project = projectById.get(projectId);
   if (!project) return [];
 
   return [
