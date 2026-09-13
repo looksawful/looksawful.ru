@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+// Focused regression contract for conversational depth; intentionally independent of mascot rendering.
 const serviceUrl = new URL("../src/features/portfolio-pet/portfolio-chat-service.ts", import.meta.url);
 const answersUrl = new URL("../src/features/portfolio-pet/prepared-answers.ts", import.meta.url);
 const hubUrl = new URL("../src/components/contact-hub.ts", import.meta.url);
