@@ -40,15 +40,17 @@ test("AI prepared answers never call the generative provider", async () => {
   assert.ok(result.text.trim().length > 0);
 });
 
-test("production-default service ignores caller-declared approvals and returns no_data", async () => {
+test("production-default service uses owner-approved evidence and ignores caller-declared approvals", async () => {
   const { createPortfolioChatService } = await loadService();
   let providerCalls = 0;
+  let providerInput = null;
 
   const service = createPortfolioChatService({
     provider: {
-      async generate() {
+      async generate(input) {
         providerCalls += 1;
-        return { text: "provider should not be called" };
+        providerInput = input;
+        return { text: "Я рассказываю только по согласованным данным." };
       },
     },
   });
@@ -58,12 +60,21 @@ test("production-default service ignores caller-declared approvals and returns n
     locale: "ru",
     context: {
       page: "jestei",
-      approvedSourceIds: ["project.jestei"],
+      approvedSourceIds: ["attacker.injected", "profile.contact"],
+      phone: "+7 000 000 00 00",
     },
   });
 
-  assert.equal(result.kind, "no_data");
-  assert.equal(providerCalls, 0);
+  assert.equal(providerCalls, 1);
+  assert.equal(providerInput.kind, "generate");
+  assert.deepEqual(providerInput.context.sourceIds, ["project.jestei"]);
+  assert.equal(Object.hasOwn(providerInput.context, "approvedSourceIds"), false);
+  assert.equal(Object.hasOwn(providerInput.context, "phone"), false);
+  assert.deepEqual(result, {
+    kind: "generated",
+    text: "Я рассказываю только по согласованным данным.",
+    sourceIds: ["project.jestei"],
+  });
 });
 
 test("free-form input without approved evidence returns no_data without calling the provider", async () => {
