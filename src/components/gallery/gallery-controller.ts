@@ -20,7 +20,8 @@ function galleryUrl(state: GalleryState): string {
 export function createGalleryController(root: HTMLElement): Destroy {
   const controls = [...root.querySelectorAll<HTMLButtonElement>("[data-gallery-layer-control]")];
   const panels = [...root.querySelectorAll<HTMLElement>("[data-gallery-layer-panel]")];
-  let state = parseGallerySearch(window.location.search);
+  const initialState = parseGallerySearch(window.location.search);
+  let state = initialState;
   let syncingHistory = false;
 
   const writeHistory = (next: GalleryState, mode: HistoryMode): void => {
@@ -66,7 +67,7 @@ export function createGalleryController(root: HTMLElement): Destroy {
     }
     if (!lightbox.openItem(itemId)) {
       state = { ...state, itemId: null };
-      writeHistory(state, "replace");
+      if (!syncingHistory) writeHistory(state, "replace");
     }
   };
 
@@ -93,10 +94,10 @@ export function createGalleryController(root: HTMLElement): Destroy {
   window.addEventListener("popstate", handlePopState);
 
   const destroyLayout = createGalleryLayout(root);
-  applyLayer(state.layer, "replace");
-  const initialItem = parseGallerySearch(window.location.search).itemId;
-  state = { ...state, itemId: initialItem };
-  if (initialItem) requestAnimationFrame(() => openStateItem(initialItem));
+  applyLayer(initialState.layer, "none");
+  state = initialState;
+  writeHistory(state, "replace");
+  if (initialState.itemId) requestAnimationFrame(() => openStateItem(initialState.itemId));
 
   return () => {
     controls.forEach((control) => control.removeEventListener("click", handleControlClick));
