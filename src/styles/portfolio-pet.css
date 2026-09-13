@@ -5,10 +5,11 @@
   --pet-safe-right: env(safe-area-inset-right, 0px);
   --pet-safe-bottom: env(safe-area-inset-bottom, 0px);
   --pet-safe-left: env(safe-area-inset-left, 0px);
+  --pet-consent-offset: 0px;
   position: fixed;
-  z-index: 2147483000;
+  z-index: var(--layer-assistant-pet);
   inset-inline-start: max(18px, var(--pet-safe-left));
-  inset-block-end: max(18px, var(--pet-safe-bottom));
+  inset-block-end: calc(max(18px, var(--pet-safe-bottom)) + var(--pet-consent-offset));
   inline-size: 192px;
   block-size: 220px;
   display: block;
@@ -95,7 +96,7 @@
   .portfolio-pet {
     --pet-scale: 0.78;
     inset-inline-start: max(8px, var(--pet-safe-left));
-    inset-block-end: max(8px, var(--pet-safe-bottom));
+    inset-block-end: calc(max(8px, var(--pet-safe-bottom)) + var(--pet-consent-offset));
     inline-size: 150px;
     block-size: 170px;
   }
