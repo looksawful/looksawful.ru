@@ -14,7 +14,7 @@ export const moskovskieNovostiIntro = {
   },
 
   role: "Дизайнер-верстальщик",
-  period: "2012",
+  period: "2012–2013",
 
   summary: "Ежедневная городская общественно-политическая газета о Москве.",
 } as const satisfies ProjectIntroData<LogoUsageId>;
