@@ -3,7 +3,6 @@ import {
   transitionContactHub,
   type ContactHubState,
 } from "../features/contact-hub/state.ts";
-import { applyExplicitAiDraftHandoff } from "../features/contact-hub/handoff.ts";
 import {
   createSessionContactDraftStore,
   type ContactDraftStore,
@@ -152,23 +151,10 @@ function createHubElement(documentRef: Document) {
   mailFallbackLink.textContent = "i@lookawful.ru";
   mailFallback.append(mailFallbackLink);
 
-  const handoffDecision = documentRef.createElement("div");
-  handoffDecision.className = "contact-hub__handoff-decision";
-  handoffDecision.dataset.contactHubHandoffDecision = "";
-  handoffDecision.hidden = true;
-  const appendButton = createTextButton(documentRef, "добавить");
-  appendButton.dataset.contactHubHandoffAppend = "";
-  const replaceButton = createTextButton(documentRef, "заменить");
-  replaceButton.dataset.contactHubHandoffReplace = "";
-  const cancelButton = createTextButton(documentRef, "отмена");
-  cancelButton.dataset.contactHubHandoffCancel = "";
-  handoffDecision.append(appendButton, replaceButton, cancelButton);
-
   formScreen.append(
     createField("имя", nameInput),
     createField("email", emailInput),
     createField("сообщение", messageInput),
-    handoffDecision,
     formActions,
     mailFallback,
   );
@@ -184,16 +170,7 @@ function createHubElement(documentRef: Document) {
   aiLog.setAttribute("aria-live", "polite");
   aiLog.append(createAiMessage(documentRef, "Привет.", "bot"));
 
-  const draft = documentRef.createElement("textarea");
-  draft.className = "contact-hub__draft";
-  draft.dataset.contactHubAiDraft = "";
-  draft.setAttribute("aria-label", "AI draft");
-  draft.hidden = true;
-  const handoffButton = createTextButton(documentRef, "перенести в сообщение");
-  handoffButton.dataset.contactHubHandoff = "";
-  handoffButton.classList.add("contact-hub__handoff");
-  handoffButton.hidden = true;
-  aiScreen.append(aiLog, draft, handoffButton);
+  aiScreen.append(aiLog);
 
   const composer = documentRef.createElement("form");
   composer.className = "contact-hub__composer";
@@ -231,12 +208,6 @@ function createHubElement(documentRef: Document) {
     nameInput,
     emailInput,
     messageInput,
-    draft,
-    handoffButton,
-    handoffDecision,
-    appendButton,
-    replaceButton,
-    cancelButton,
     composer,
     composerInput,
     composerSend,
@@ -254,15 +225,13 @@ export function mountContactHub(root: Document = document): Destroy {
   const elements = createHubElement(root);
   const {
     hub, collapsedLauncher, collapseButton, closeButton,
-    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, draft, handoffButton,
-    handoffDecision, appendButton, replaceButton, cancelButton, composer, composerInput,
+    formScreen, aiScreen, aiLog, nameInput, emailInput, messageInput, composer, composerInput,
     composerSend,
   } = elements;
   root.body.append(hub, collapsedLauncher);
 
   let state: ContactHubState = createContactHubState({ aiAvailable: true });
   let opener: HTMLElement | null = null;
-  let pendingDraft = "";
   let assistantBusy = false;
   let petStateTimer = 0;
   const draftStore = resolveDraftStore(root);
@@ -394,34 +363,6 @@ export function mountContactHub(root: Document = document): Destroy {
     open(current, "pet");
   };
 
-  const commitHandoff = (selectedDraftText: string, messageStrategy?: "append" | "replace"): void => {
-    const result = applyExplicitAiDraftHandoff({ selectedDraftText, formDraft: formDraft(), messageStrategy });
-    if (result.kind === "needs_message_decision") {
-      pendingDraft = selectedDraftText;
-      handoffDecision.hidden = false;
-      setMode("form");
-      return;
-    }
-    if (result.kind === "ready") {
-      nameInput.value = result.draft.name;
-      emailInput.value = result.draft.email;
-      messageInput.value = result.draft.message;
-      persistDraft();
-      pendingDraft = "";
-      handoffDecision.hidden = true;
-      setMode("form");
-      messageInput.focus({ preventScroll: true });
-    }
-  };
-
-  const onHandoff = (): void => commitHandoff(draft.value);
-  const onAppend = (): void => commitHandoff(pendingDraft, "append");
-  const onReplace = (): void => commitHandoff(pendingDraft, "replace");
-  const onCancel = (): void => {
-    pendingDraft = "";
-    handoffDecision.hidden = true;
-  };
-
   const scrollAiToEnd = (): void => {
     requestAnimationFrame(() => {
       aiScreen.scrollTop = aiScreen.scrollHeight;
@@ -455,8 +396,6 @@ export function mountContactHub(root: Document = document): Destroy {
     if (result.kind === "prepared" || result.kind === "generated") {
       responseText = result.text;
       successfulAnswer = true;
-      draft.value = result.text;
-      handoffButton.hidden = false;
     } else if (result.kind === "no_data") {
       responseText = "Про это у меня нет точной информации. Лучше написать мне напрямую.";
     } else if (result.kind === "rate_limited") {
@@ -504,8 +443,6 @@ export function mountContactHub(root: Document = document): Destroy {
     state = transitionContactHub(state, { type: "CLOSE" });
     render();
     opener = null;
-    pendingDraft = "";
-    handoffDecision.hidden = true;
     resetHubPosition();
     setPetState("idle");
     if (focusTarget?.isConnected) focusTarget.focus({ preventScroll: true });
@@ -531,10 +468,6 @@ export function mountContactHub(root: Document = document): Destroy {
   const preventPrototypeSubmit = (event: SubmitEvent): void => event.preventDefault();
   openers.forEach((contact) => contact.addEventListener("click", openFromSiteContact));
   petOpeners.forEach((pet) => pet.addEventListener("click", openFromPet));
-  handoffButton.addEventListener("click", onHandoff);
-  appendButton.addEventListener("click", onAppend);
-  replaceButton.addEventListener("click", onReplace);
-  cancelButton.addEventListener("click", onCancel);
   collapseButton.addEventListener("click", collapse);
   collapsedLauncher.addEventListener("click", restore);
   nameInput.addEventListener("input", persistDraft);
@@ -552,10 +485,6 @@ export function mountContactHub(root: Document = document): Destroy {
   return () => {
     openers.forEach((contact) => contact.removeEventListener("click", openFromSiteContact));
     petOpeners.forEach((pet) => pet.removeEventListener("click", openFromPet));
-    handoffButton.removeEventListener("click", onHandoff);
-    appendButton.removeEventListener("click", onAppend);
-    replaceButton.removeEventListener("click", onReplace);
-    cancelButton.removeEventListener("click", onCancel);
     collapseButton.removeEventListener("click", collapse);
     collapsedLauncher.removeEventListener("click", restore);
     nameInput.removeEventListener("input", persistDraft);
