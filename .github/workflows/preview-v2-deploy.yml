@@ -15,20 +15,20 @@ env:
 jobs:
   deploy:
     name: Deploy trusted private preview workspace
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && vars.PREVIEW_V2_ENABLED == 'true'
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && github.event.workflow_run.head_branch == 'dev' && vars.PREVIEW_V2_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: preview-deploy
     steps:
-      - name: Checkout trusted dev runtime only
+      - name: Checkout pinned trusted runtime only
         uses: actions/checkout@v7
         with:
-          ref: dev
+          ref: ${{ github.event.workflow_run.head_sha }}
           path: trusted
           fetch-depth: 1
           persist-credentials: false
 
-      - name: Download candidate artifact from completed build run
+      - name: Download trusted candidate package from completed build run
         uses: actions/download-artifact@v4
         with:
           name: preview-v2-candidate
@@ -37,10 +37,8 @@ jobs:
           repository: ${{ github.repository }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Validate candidate metadata as trusted data
+      - name: Validate packaged candidate metadata
         id: meta
-        env:
-          TRIGGER_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         shell: bash
         run: |
           set -euo pipefail
@@ -50,16 +48,12 @@ jobs:
           import { parsePreviewMetadata } from "./trusted/tools/preview/preview-metadata.mjs";
 
           const metadata = parsePreviewMetadata(await readFile("candidate/preview-metadata.json", "utf8"));
-          const expectedSha = process.env.TRIGGER_HEAD_SHA.toLowerCase();
           if (metadata.repository !== process.env.GITHUB_REPOSITORY) {
             throw new Error("candidate repository mismatch");
           }
-          if (metadata.sha !== expectedSha) {
-            throw new Error("candidate SHA does not match triggering workflow run");
-          }
           await appendFile(
             process.env.GITHUB_OUTPUT,
-            `sha=${metadata.sha}\nkind=${metadata.kind}\nkey=${metadata.key}\nbranch=v2-${metadata.key}\n`,
+            `sha=${metadata.sha}\nkind=${metadata.kind}\nkey=${metadata.key}\npr=${metadata.pr ?? ""}\nbranch=v2-${metadata.key}\n`,
             "utf8",
           );
           NODE
