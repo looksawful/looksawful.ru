@@ -19,7 +19,8 @@ LEGACY_UPPER = "VE" + "NUS"
 
 
 def replace_name(value: str) -> str:
-    return value.replace(LEGACY_UPPER, "AWFUL").replace(LEGACY_TITLE, "Awful").replace(LEGACY_LOWER, "awful")
+    canonical = value.replace(LEGACY_UPPER, "AWFUL").replace(LEGACY_TITLE, "Awful").replace(LEGACY_LOWER, "awful")
+    return canonical.replace("Привет. Я Awful.", "Привет.").replace("Hi. I'm Awful.", "Hi.")
 
 
 def replace_file(path: str, replacements: list[tuple[str, str]]) -> None:
