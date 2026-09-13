@@ -63,6 +63,7 @@ export function validateSitePages(pages: readonly SitePageDefinition[]): void {
         }
         break;
       case "home":
+      case "gallery":
       case "static":
       case "not-found":
         break;
