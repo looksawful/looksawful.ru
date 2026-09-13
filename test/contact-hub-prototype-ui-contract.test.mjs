@@ -6,8 +6,6 @@ const component = fs.readFileSync(new URL("../src/components/contact-hub.ts", im
 const css = fs.readFileSync(new URL("../src/styles/contact-hub.css", import.meta.url), "utf8");
 const consentCss = fs.readFileSync(new URL("../src/styles/site-analytics-consent.css", import.meta.url), "utf8");
 
-// P-001/P-003/P-007/P-008/P-009/AI-013: shared AI/Form surface without
-// reintroducing prototype ownership or implicit cross-mode mutation.
 test("Contact Hub keeps the shared AI/Form surface without obsolete mode tabs", () => {
   assert.match(component, /hub\.dataset\.mode = "form"/);
   assert.doesNotMatch(component, /dataset\.contactHubMode/);
@@ -39,14 +37,11 @@ test("OWNER-718: Awful opens with one simple line and no suggested questions", (
   assert.match(component, /"Про это у меня нет точной информации\. Лучше написать мне напрямую\."/);
 });
 
-test("explicit AI-to-form handoff uses the canonical domain seam", () => {
-  assert.match(component, /applyExplicitAiDraftHandoff/);
-  assert.match(component, /transitionContactHub\(state, \{ type: "SET_MODE", mode \}\)/);
-  assert.match(component, /setMode\("form"\)/);
-  assert.match(component, /commitHandoff\(pendingDraft, "append"\)/);
-  assert.match(component, /commitHandoff\(pendingDraft, "replace"\)/);
-  assert.match(component, /needs_message_decision/);
-  assert.match(component, /kind === "ready"/);
+test("AI answers remain in chat and never transfer into the contact form", () => {
+  assert.doesNotMatch(component, /applyExplicitAiDraftHandoff/);
+  assert.doesNotMatch(component, /contactHubHandoff/);
+  assert.doesNotMatch(component, /перенести в сообщение/iu);
+  assert.doesNotMatch(component, /commitHandoff|pendingDraft|needs_message_decision/);
   assert.doesNotMatch(component, /\.requestSubmit\(/);
 });
 
