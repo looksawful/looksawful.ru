@@ -88,15 +88,68 @@ async function visibleLocators(locator) {
   return visible;
 }
 
-async function inspectJesteiLayoutEscapes(filter, viewportLabel) {
+async function settle(page) {
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  );
+}
+
+async function setJesteiFilterState(filter, page, { open, advanced }) {
+  const form = filter.locator(".filter");
+
+  if (typeof open === "boolean") {
+    const currentOpen = (await form.getAttribute("data-filter-open")) !== "false";
+    if (currentOpen !== open) {
+      await filter.locator(".filter-button[data-action=\"toggle-open\"]").click();
+      await form.waitFor({ state: "visible" });
+      await page.waitForFunction(
+        ({ expected }) => {
+          const host = document.querySelector("playlist-filter-workflow");
+          const innerForm = host?.shadowRoot?.querySelector(".filter");
+          return innerForm?.getAttribute("data-filter-open") === String(expected);
+        },
+        { expected: open },
+      );
+    }
+  }
+
+  if (typeof advanced === "boolean" && open !== false) {
+    const currentAdvanced = (await form.getAttribute("data-filter-advanced")) === "true";
+    if (currentAdvanced !== advanced) {
+      await filter.locator(".advanced-button[data-action=\"toggle-advanced\"]").click();
+      await page.waitForFunction(
+        ({ expected }) => {
+          const host = document.querySelector("playlist-filter-workflow");
+          const innerForm = host?.shadowRoot?.querySelector(".filter");
+          return innerForm?.getAttribute("data-filter-advanced") === String(expected);
+        },
+        { expected: advanced },
+      );
+    }
+  }
+
+  await settle(page);
+}
+
+async function inspectJesteiLayoutEscapes(filter, viewportLabel, stateLabel) {
   const report = await filter.evaluate((host) => {
     const root = host.shadowRoot;
     if (!root) throw new Error("missing playlist-filter-workflow shadow root");
 
     const shell = root.querySelector(".filter-shell");
+    const form = root.querySelector(".filter");
     if (!(shell instanceof HTMLElement)) throw new Error("missing .filter-shell");
+    if (!(form instanceof HTMLElement)) throw new Error("missing .filter");
+
+    const mockupViewport = host.closest(".mockup__viewport");
+    const mockupFrame = host.closest(".mockup__frame");
+    if (!(mockupViewport instanceof HTMLElement)) throw new Error("missing parent .mockup__viewport");
+    if (!(mockupFrame instanceof HTMLElement)) throw new Error("missing parent .mockup__frame");
 
     const shellRect = shell.getBoundingClientRect();
+    const hostRect = host.getBoundingClientRect();
+    const viewportRect = mockupViewport.getBoundingClientRect();
+    const frameRect = mockupFrame.getBoundingClientRect();
     const tolerance = 1;
     const clippingValues = new Set(["hidden", "clip", "scroll", "auto"]);
     const targetSelector = [
@@ -115,6 +168,11 @@ async function inspectJesteiLayoutEscapes(filter, viewportLabel) {
       ".compact-rating-row",
       ".check-options",
       ".range-control",
+      ".key-art",
+      ".icon",
+      ".toggle-art",
+      ".rating-star",
+      ".crown",
     ].join(",");
     const panelSelector = [
       ".bpm-group",
@@ -126,6 +184,8 @@ async function inspectJesteiLayoutEscapes(filter, viewportLabel) {
       ".check-section",
       ".harmony-shell",
       ".filter-bottom",
+      ".filter-controls",
+      ".primary-controls",
     ].join(",");
 
     function visible(element) {
@@ -167,14 +227,37 @@ async function inspectJesteiLayoutEscapes(filter, viewportLabel) {
     }
 
     const offenders = [];
+
+    const hostEscapesViewportX = hostRect.left < viewportRect.left - tolerance
+      || hostRect.right > viewportRect.right + tolerance;
+    const hostEscapesViewportY = hostRect.top < viewportRect.top - tolerance
+      || hostRect.bottom > viewportRect.bottom + tolerance;
+    if (hostEscapesViewportX || hostEscapesViewportY) {
+      offenders.push({
+        kind: "host-vs-mockup-viewport",
+        axes: `${hostEscapesViewportX ? "x" : ""}${hostEscapesViewportY ? "y" : ""}`,
+        rect: box(hostRect),
+        boundary: box(viewportRect),
+      });
+    }
+
     for (const element of root.querySelectorAll(targetSelector)) {
       if (!(element instanceof HTMLElement) || !visible(element)) continue;
       const rect = element.getBoundingClientRect();
 
       const escapesShellX = rect.left < shellRect.left - tolerance || rect.right > shellRect.right + tolerance;
+      const escapesShellY = rect.top < shellRect.top - tolerance || rect.bottom > shellRect.bottom + tolerance;
       if (escapesShellX && !hasClipBetween(element, shell, "x")) {
         offenders.push({
           kind: "shell-x",
+          element: describe(element),
+          rect: box(rect),
+          boundary: box(shellRect),
+        });
+      }
+      if (escapesShellY && !hasClipBetween(element, shell, "y")) {
+        offenders.push({
+          kind: "shell-y",
           element: describe(element),
           rect: box(rect),
           boundary: box(shellRect),
@@ -201,15 +284,25 @@ async function inspectJesteiLayoutEscapes(filter, viewportLabel) {
     }
 
     return {
+      state: {
+        open: form.getAttribute("data-filter-open"),
+        advanced: form.getAttribute("data-filter-advanced"),
+      },
       shell: box(shellRect),
-      host: box(host.getBoundingClientRect()),
+      host: box(hostRect),
+      viewport: box(viewportRect),
+      frame: box(frameRect),
+      transform: {
+        scale: getComputedStyle(host).scale,
+        translate: getComputedStyle(host).translate,
+      },
       offenders,
     };
   });
 
-  console.log(`[jestei-layout] ${viewportLabel}: ${JSON.stringify(report)}`);
+  console.log(`[jestei-layout] ${viewportLabel} ${stateLabel}: ${JSON.stringify(report)}`);
   if (report.offenders.length) {
-    throw new Error(`[jestei-layout] ${viewportLabel}: ${report.offenders.length} visible controls escape their layout owner`);
+    throw new Error(`[jestei-layout] ${viewportLabel} ${stateLabel}: ${report.offenders.length} visible controls escape their layout owner`);
   }
 }
 
@@ -237,14 +330,28 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
       { width: 1180, height: 900 },
       { width: 1024, height: 900 },
       { width: 900, height: 900 },
+      { width: 770, height: 900 },
+      { width: 650, height: 900 },
+      { width: 390, height: 844 },
     ]) {
       await page.setViewportSize(viewport);
       await filter.scrollIntoViewIfNeeded();
-      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-      await inspectJesteiLayoutEscapes(filter, `${viewport.width}x${viewport.height}`);
+      await settle(page);
+
+      await setJesteiFilterState(filter, page, { open: true, advanced: true });
+      await inspectJesteiLayoutEscapes(filter, `${viewport.width}x${viewport.height}`, "advanced");
+
+      await setJesteiFilterState(filter, page, { open: true, advanced: false });
+      await inspectJesteiLayoutEscapes(filter, `${viewport.width}x${viewport.height}`, "compact");
+
+      await setJesteiFilterState(filter, page, { open: false });
+      await inspectJesteiLayoutEscapes(filter, `${viewport.width}x${viewport.height}`, "collapsed");
+
+      await setJesteiFilterState(filter, page, { open: true, advanced: true });
     }
 
     await page.setViewportSize({ width: 1440, height: 900 });
+    await setJesteiFilterState(filter, page, { open: true, advanced: true });
     const allStars = filter.locator(".rating-star img");
     const visibleStars = await visibleLocators(allStars);
     console.log(`[jestei-filter-art] rating stars: total=${await allStars.count()} visible=${visibleStars.length}`);
