@@ -1,7 +1,18 @@
 import { classifyPetGesture, clampPetPosition } from "../features/portfolio-pet/interaction.ts";
-import { resolveSpriteAnimation, resolveSpriteFrameRect } from "../features/portfolio-pet/sprite-manifest.ts";
+import {
+  resolveSpriteAnimation,
+  resolveSpriteFrameRect,
+} from "../features/portfolio-pet/sprite-manifest.ts";
 import { resolveAnimationFrame } from "../features/portfolio-pet/sprite-runtime.ts";
-import { createAwfulSpriteManifest } from "../features/portfolio-pet/awful-manifest.ts";
+import {
+  createAwfulSpriteManifest,
+  type AwfulSpriteSources,
+} from "../features/portfolio-pet/awful-manifest.ts";
+import {
+  AWFUL_DECORATIVE_ANIMATION_POLICY,
+  isAwfulDecorativeAnimation,
+  type AwfulDecorativeAnimation,
+} from "../features/portfolio-pet/awful-animation-policy.ts";
 
 type Destroy = () => void;
 type PetVisualState = "idle" | "thinking" | "speaking" | "success" | "error" | "dragging";
@@ -18,8 +29,17 @@ const DRAG_THRESHOLD = 10;
 const MIN_VISIBLE = { width: 72, height: 96 } as const;
 const MIN_SAFE_MARGIN = 8;
 const OBSTACLE_GAP = 12;
-const AWFUL_SPRITESHEET = "/pets/awful/awful-v2-spritesheet.webp";
-const awfulManifest = createAwfulSpriteManifest(AWFUL_SPRITESHEET);
+const AWFUL_V2_FALLBACK_SPRITESHEET = "/pets/awful/awful-v2-spritesheet.webp";
+const AWFUL_V6_SOURCES: AwfulSpriteSources = {
+  main: "/pets/awful/v6/spritesheet.webp",
+  extras: "/pets/awful/v6/extras/extra-animations.webp",
+  musicHouseDance: "/pets/awful/v6/extras/animations/music-house-dance.webp",
+  cameraProFlash: "/pets/awful/v6/extras/animations/camera-pro-flash.webp",
+  phonePacing: "/pets/awful/v6/extras/animations/phone-pacing.webp",
+  sleepCrossLegged: "/pets/awful/v6/extras/animations/sleep-cross-legged.webp",
+};
+const awfulV6Manifest = createAwfulSpriteManifest(AWFUL_V6_SOURCES);
+const awfulV2FallbackManifest = createAwfulSpriteManifest(AWFUL_V2_FALLBACK_SPRITESHEET);
 
 function animationForState(state: PetVisualState): string {
   return state;
@@ -50,8 +70,12 @@ interface RectEdges {
 function isStoredPosition(value: unknown): value is StoredPosition {
   if (!value || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
-  return typeof record.x === "number" && Number.isFinite(record.x)
-    && typeof record.y === "number" && Number.isFinite(record.y);
+  return (
+    typeof record.x === "number" &&
+    Number.isFinite(record.x) &&
+    typeof record.y === "number" &&
+    Number.isFinite(record.y)
+  );
 }
 
 function readStoredPosition(root: Document): StoredPosition | null {
@@ -91,10 +115,8 @@ function parseCssPixels(value: string): number {
 
 function safeAreaFor(root: Document, launcher: HTMLElement) {
   const style = root.defaultView?.getComputedStyle(launcher);
-  const read = (property: string): number => Math.max(
-    MIN_SAFE_MARGIN,
-    parseCssPixels(style?.getPropertyValue(property) ?? ""),
-  );
+  const read = (property: string): number =>
+    Math.max(MIN_SAFE_MARGIN, parseCssPixels(style?.getPropertyValue(property) ?? ""));
   return {
     top: read("--pet-safe-top"),
     right: read("--pet-safe-right"),
@@ -104,28 +126,35 @@ function safeAreaFor(root: Document, launcher: HTMLElement) {
 }
 
 function rectsOverlap(a: RectEdges, b: RectEdges): boolean {
-  return !(
-    a.right <= b.left || b.right <= a.left ||
-    a.bottom <= b.top || b.bottom <= a.top
-  );
+  return !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
 }
 
 function isVisibleElement(root: Document, element: HTMLElement): boolean {
   const style = root.defaultView?.getComputedStyle(element);
-  if (!style || style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) return false;
+  if (
+    !style ||
+    style.display === "none" ||
+    style.visibility === "hidden" ||
+    Number(style.opacity) === 0
+  )
+    return false;
   const rect = element.getBoundingClientRect();
   const viewport = viewportSize(root);
-  return rect.right > viewport.x
-    && rect.left < viewport.x + viewport.width
-    && rect.bottom > viewport.y
-    && rect.top < viewport.y + viewport.height;
+  return (
+    rect.right > viewport.x &&
+    rect.left < viewport.x + viewport.width &&
+    rect.bottom > viewport.y &&
+    rect.top < viewport.y + viewport.height
+  );
 }
 
 function dispatchMoved(root: Document, launcher: HTMLElement): void {
   const rect = launcher.getBoundingClientRect();
-  root.dispatchEvent(new CustomEvent("portfolio-pet:moved", {
-    detail: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-  }));
+  root.dispatchEvent(
+    new CustomEvent("portfolio-pet:moved", {
+      detail: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+    }),
+  );
 }
 
 export function mountPortfolioPet(
@@ -165,7 +194,7 @@ export function mountPortfolioPet(
 
   const image = root.createElement("img");
   image.className = "portfolio-pet__image";
-  image.src = AWFUL_SPRITESHEET;
+  image.src = AWFUL_V6_SOURCES.main;
   image.alt = "";
   image.draggable = false;
   image.decoding = "async";
@@ -180,6 +209,18 @@ export function mountPortfolioPet(
   let frameRequest = 0;
   let currentAnimation = "idle";
   let animationStartedAt = performance.now();
+  let renderedSrc = AWFUL_V6_SOURCES.main;
+  let pendingSrc: string | null = null;
+  let sourceRequestToken = 0;
+  let fallbackActive = false;
+  let destroyed = false;
+  let dragSession: DragSession | null = null;
+  let suppressNextClick = false;
+  let currentVisualState: PetVisualState = "idle";
+  let observedConsent: HTMLElement | null = null;
+  let lastUserActivityAt = performance.now();
+  const lastDecorativeStartedAt = new Map<AwfulDecorativeAnimation, number>();
+  launcher.dataset.assetVersion = "v6";
 
   const startAnimation = (name: string): void => {
     currentAnimation = name;
@@ -187,8 +228,86 @@ export function mountPortfolioPet(
     launcher.dataset.animation = name;
   };
 
+  const requestDecorativeAnimation = (
+    animation: AwfulDecorativeAnimation,
+    now = performance.now(),
+  ): boolean => {
+    if (fallbackActive || dragSession || currentVisualState === "error") return false;
+
+    const policy = AWFUL_DECORATIVE_ANIMATION_POLICY[animation];
+    const lastStartedAt = lastDecorativeStartedAt.get(animation);
+    if (lastStartedAt !== undefined && now - lastStartedAt < policy.cooldownMs) return false;
+
+    if (isAwfulDecorativeAnimation(currentAnimation)) {
+      const currentPriority = AWFUL_DECORATIVE_ANIMATION_POLICY[currentAnimation].priority;
+      if (policy.priority <= currentPriority) return false;
+    }
+
+    lastDecorativeStartedAt.set(animation, now);
+    startAnimation(animation);
+    return true;
+  };
+
+  const cancelPendingSpriteSource = (): void => {
+    pendingSrc = null;
+    sourceRequestToken += 1;
+  };
+
+  const activateFallback = (): void => {
+    if (fallbackActive || destroyed) return;
+    cancelPendingSpriteSource();
+    fallbackActive = true;
+    launcher.dataset.assetVersion = "v2-fallback";
+    renderedSrc = AWFUL_V2_FALLBACK_SPRITESHEET;
+    image.src = renderedSrc;
+    startAnimation(animationForState(currentVisualState));
+  };
+
+  const requestSpriteSource = (src: string): void => {
+    if (pendingSrc === src || destroyed) return;
+    pendingSrc = src;
+    const requestToken = ++sourceRequestToken;
+    const preload = root.createElement("img");
+    preload.decoding = "async";
+    const sourceRequestIsCurrent = (): boolean =>
+      !destroyed && requestToken === sourceRequestToken && pendingSrc === src;
+    const failSourceRequest = (): void => {
+      if (sourceRequestIsCurrent()) activateFallback();
+    };
+    preload.addEventListener(
+      "load",
+      () => {
+        void preload
+          .decode()
+          .then(() => {
+            if (!sourceRequestIsCurrent()) return;
+            pendingSrc = null;
+            renderedSrc = src;
+            image.src = src;
+            animationStartedAt = performance.now();
+          })
+          .catch(failSourceRequest);
+      },
+      { once: true },
+    );
+    preload.addEventListener("error", failSourceRequest, { once: true });
+    preload.src = src;
+  };
+
   const renderSprite = (now: number): void => {
-    const animation = resolveSpriteAnimation(awfulManifest, currentAnimation);
+    if (!fallbackActive && currentAnimation === "idle") {
+      const inactiveFor = now - lastUserActivityAt;
+      if (inactiveFor >= 180_000) requestDecorativeAnimation("sleep-cross-legged", now);
+      else if (inactiveFor >= 15_000) requestDecorativeAnimation("coffee", now);
+    }
+    const manifest = fallbackActive ? awfulV2FallbackManifest : awfulV6Manifest;
+    const animation = resolveSpriteAnimation(manifest, currentAnimation);
+    if (animation.src !== renderedSrc) {
+      requestSpriteSource(animation.src);
+      frameRequest = view?.requestAnimationFrame(renderSprite) ?? 0;
+      return;
+    }
+    if (pendingSrc) cancelPendingSpriteSource();
     const frame = resolveAnimationFrame(
       animation,
       now - animationStartedAt,
@@ -197,16 +316,22 @@ export function mountPortfolioPet(
     const rect = resolveSpriteFrameRect(animation, frame.frameIndex);
     image.style.transform = `translate(${-rect.x}px, ${-rect.y}px)`;
     image.dataset.frame = String(frame.frameIndex);
+
+    if (
+      isAwfulDecorativeAnimation(currentAnimation) &&
+      (frame.completed ||
+        now - animationStartedAt >=
+          AWFUL_DECORATIVE_ANIMATION_POLICY[currentAnimation].maxPlaybackMs)
+    ) {
+      startAnimation(animationForState(currentVisualState));
+    }
     frameRequest = view?.requestAnimationFrame(renderSprite) ?? 0;
   };
 
   startAnimation("idle");
   frameRequest = view?.requestAnimationFrame(renderSprite) ?? 0;
 
-  let dragSession: DragSession | null = null;
-  let suppressNextClick = false;
-  let currentVisualState: PetVisualState = "idle";
-  let observedConsent: HTMLElement | null = null;
+  const onImageError = activateFallback;
 
   const syncPetControls = (): void => {
     if (launcher.hidden) return;
@@ -229,15 +354,19 @@ export function mountPortfolioPet(
     launcher.hidden = false;
     dismissButton.hidden = false;
     updateDefaultObstacleOffset();
-    requestAnimationFrame(() => { syncPetControls(); launcher.focus({ preventScroll: true }); });
+    requestAnimationFrame(() => {
+      syncPetControls();
+      launcher.focus({ preventScroll: true });
+    });
   };
 
-  const consentResizeObserver = typeof ResizeObserver === "function"
-    ? new ResizeObserver(() => {
-      updateDefaultObstacleOffset();
-      syncPetControls();
-    })
-    : null;
+  const consentResizeObserver =
+    typeof ResizeObserver === "function"
+      ? new ResizeObserver(() => {
+          updateDefaultObstacleOffset();
+          syncPetControls();
+        })
+      : null;
 
   function bindConsentObserver(consent: HTMLElement | null): void {
     if (consent === observedConsent) return;
@@ -268,7 +397,10 @@ export function mountPortfolioPet(
     if (consent && isVisibleElement(root, consent)) {
       const consentRect = consent.getBoundingClientRect();
       if (rectsOverlap(baseRect, consentRect)) {
-        requestedOffset = Math.max(requestedOffset, baseRect.bottom - consentRect.top + OBSTACLE_GAP);
+        requestedOffset = Math.max(
+          requestedOffset,
+          baseRect.bottom - consentRect.top + OBSTACLE_GAP,
+        );
       }
     }
 
@@ -276,7 +408,10 @@ export function mountPortfolioPet(
     if (contactCta && isVisibleElement(root, contactCta)) {
       const contactRect = contactCta.getBoundingClientRect();
       if (rectsOverlap(baseRect, contactRect)) {
-        requestedOffset = Math.max(requestedOffset, baseRect.bottom - contactRect.top + OBSTACLE_GAP);
+        requestedOffset = Math.max(
+          requestedOffset,
+          baseRect.bottom - contactRect.top + OBSTACLE_GAP,
+        );
       }
     }
 
@@ -284,14 +419,18 @@ export function mountPortfolioPet(
     launcher.style.setProperty("--pet-consent-offset", `${Math.min(requestedOffset, maxOffset)}px`);
   }
 
-  const consentMutationObserver = typeof MutationObserver === "function"
-    ? new MutationObserver(() => {
-      updateDefaultObstacleOffset();
-      syncPetControls();
-    })
-    : null;
+  const consentMutationObserver =
+    typeof MutationObserver === "function"
+      ? new MutationObserver(() => {
+          updateDefaultObstacleOffset();
+          syncPetControls();
+        })
+      : null;
   consentMutationObserver?.observe(root.body, { childList: true, subtree: true });
-  view?.requestAnimationFrame(() => { updateDefaultObstacleOffset(); syncPetControls(); });
+  view?.requestAnimationFrame(() => {
+    updateDefaultObstacleOffset();
+    syncPetControls();
+  });
 
   const setFacingFromDelta = (dx: number): void => {
     if (Math.abs(dx) < 0.5) return;
@@ -382,22 +521,24 @@ export function mountPortfolioPet(
     const dy = event.clientY - session.startY;
     const durationMs = Math.max(1, performance.now() - session.startTime);
     const viewportLeft = viewportSize(root).x;
-    const gesture = event.type === "pointercancel"
-      ? "drag"
-      : classifyPetGesture({
-        dx,
-        dy,
-        durationMs,
-        velocityX: dx / durationMs,
-        viewportEdgeDistance: Math.max(0, event.clientX - viewportLeft),
-      });
+    const gesture =
+      event.type === "pointercancel"
+        ? "drag"
+        : classifyPetGesture({
+            dx,
+            dy,
+            durationMs,
+            velocityX: dx / durationMs,
+            viewportEdgeDistance: Math.max(0, event.clientX - viewportLeft),
+          });
 
     dragSession = null;
     launcher.removeAttribute("data-dragging");
     launcher.dataset.state = currentVisualState;
     startAnimation(animationForState(currentVisualState));
 
-    if (launcher.hasPointerCapture(event.pointerId)) launcher.releasePointerCapture(event.pointerId);
+    if (launcher.hasPointerCapture(event.pointerId))
+      launcher.releasePointerCapture(event.pointerId);
 
     if (gesture === "activate") return;
 
@@ -423,8 +564,22 @@ export function mountPortfolioPet(
   const onPetState = (event: Event): void => {
     const detail = (event as CustomEvent<{ state?: PetVisualState }>).detail;
     const state = detail?.state;
-    if (!state || !["idle", "thinking", "speaking", "success", "error", "dragging"].includes(state)) return;
+    if (!state || !["idle", "thinking", "speaking", "success", "error", "dragging"].includes(state))
+      return;
     setVisualState(state);
+  };
+
+  const onPetAnimation = (event: Event): void => {
+    const animation = (event as CustomEvent<{ animation?: unknown }>).detail?.animation;
+    if (!isAwfulDecorativeAnimation(animation)) return;
+    requestDecorativeAnimation(animation);
+  };
+
+  const onUserActivity = (): void => {
+    lastUserActivityAt = performance.now();
+    if (currentAnimation === "sleep-cross-legged" || currentAnimation === "coffee") {
+      startAnimation(animationForState(currentVisualState));
+    }
   };
 
   const onResize = (): void => {
@@ -462,13 +617,19 @@ export function mountPortfolioPet(
   launcher.addEventListener("pointerup", finishPointer);
   launcher.addEventListener("pointercancel", finishPointer);
   launcher.addEventListener("click", onClickCapture, true);
+  image.addEventListener("error", onImageError);
   root.addEventListener("portfolio-pet:state", onPetState);
+  root.addEventListener("portfolio-pet:animation", onPetAnimation);
+  root.addEventListener("pointerdown", onUserActivity, true);
+  root.addEventListener("keydown", onUserActivity, true);
   view?.addEventListener("resize", onResize);
   view?.addEventListener("scroll", onScroll, { passive: true });
   view?.visualViewport?.addEventListener("resize", onResize);
   view?.visualViewport?.addEventListener("scroll", onResize);
 
   return () => {
+    destroyed = true;
+    cancelPendingSpriteSource();
     if (frameRequest && view) view.cancelAnimationFrame(frameRequest);
     consentMutationObserver?.disconnect();
     consentResizeObserver?.disconnect();
@@ -481,7 +642,11 @@ export function mountPortfolioPet(
     launcher.removeEventListener("pointerup", finishPointer);
     launcher.removeEventListener("pointercancel", finishPointer);
     launcher.removeEventListener("click", onClickCapture, true);
+    image.removeEventListener("error", onImageError);
     root.removeEventListener("portfolio-pet:state", onPetState);
+    root.removeEventListener("portfolio-pet:animation", onPetAnimation);
+    root.removeEventListener("pointerdown", onUserActivity, true);
+    root.removeEventListener("keydown", onUserActivity, true);
     view?.removeEventListener("resize", onResize);
     view?.removeEventListener("scroll", onScroll);
     view?.visualViewport?.removeEventListener("resize", onResize);

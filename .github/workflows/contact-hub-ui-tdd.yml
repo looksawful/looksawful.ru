@@ -1,6 +1,25 @@
 name: Contact Hub UI TDD Slice
 
 on:
+  pull_request:
+    branches:
+      - contact-hub-frontend-current
+    paths:
+      - .github/workflows/contact-hub-ui-tdd.yml
+      - tools/e2e/contact-hub-shell-contract.mjs
+      - tools/e2e/contact-hub-mobile-contract.mjs
+      - tools/e2e/portfolio-pet-launcher-contract.mjs
+      - tools/e2e/portfolio-pet-scale-contract.mjs
+      - src/components/contact-hub.ts
+      - src/components/portfolio-pet.ts
+      - src/features/portfolio-pet/**
+      - src/styles/contact-hub.css
+      - src/styles/portfolio-pet.css
+      - src/styles/site-analytics-consent.css
+      - src/styles/tokens.css
+      - src/main.ts
+      - public/pets/awful/**
+      - docs/awful-animation-source.md
   push:
     branches:
       - contact-hub-frontend-current
@@ -57,6 +76,7 @@ jobs:
       - name: Focused Awful visual scale contract
         run: node tools/e2e/portfolio-pet-scale-contract.mjs
       - name: Published Awful preview contract
+        if: github.event_name == 'push'
         env:
           PREVIEW_URL: https://pr-788.looksawful-ru-preview.pages.dev
           PREVIEW_SHA: ${{ github.sha }}

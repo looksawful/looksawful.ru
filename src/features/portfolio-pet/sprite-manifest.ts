@@ -16,6 +16,7 @@ export interface SpriteAnimationDefinition {
   frameHeight: number;
   frameCount: number;
   fps: number;
+  frameDurationsMs?: readonly number[];
   loop: boolean;
   sourceX: number;
   sourceY: number;
@@ -100,17 +101,33 @@ function parseAnimation(value: unknown, label: string): SpriteAnimationDefinitio
   const record = expectRecord(value, label);
   if (typeof record.loop !== "boolean") throw new Error(`${label}.loop must be a boolean`);
 
+  const frameCount = expectPositiveInteger(record.frameCount, `${label}.frameCount`);
   const animation: SpriteAnimationDefinition = {
     src: expectNonEmptyString(record.src, `${label}.src`),
     frameWidth: expectPositiveInteger(record.frameWidth, `${label}.frameWidth`),
     frameHeight: expectPositiveInteger(record.frameHeight, `${label}.frameHeight`),
-    frameCount: expectPositiveInteger(record.frameCount, `${label}.frameCount`),
+    frameCount,
     fps: expectPositiveNumber(record.fps, `${label}.fps`),
     loop: record.loop,
-    sourceX: record.sourceX === undefined ? 0 : expectNonNegativeNumber(record.sourceX, `${label}.sourceX`),
-    sourceY: record.sourceY === undefined ? 0 : expectNonNegativeNumber(record.sourceY, `${label}.sourceY`),
+    sourceX:
+      record.sourceX === undefined
+        ? 0
+        : expectNonNegativeNumber(record.sourceX, `${label}.sourceX`),
+    sourceY:
+      record.sourceY === undefined
+        ? 0
+        : expectNonNegativeNumber(record.sourceY, `${label}.sourceY`),
     anchor: parseAnchor(record.anchor, `${label}.anchor`),
   };
+
+  if (record.frameDurationsMs !== undefined) {
+    if (!Array.isArray(record.frameDurationsMs) || record.frameDurationsMs.length !== frameCount) {
+      throw new Error(`${label}.frameDurationsMs must contain one duration per frame`);
+    }
+    animation.frameDurationsMs = record.frameDurationsMs.map((duration, index) =>
+      expectPositiveNumber(duration, `${label}.frameDurationsMs[${index}]`),
+    );
+  }
 
   if (record.hitbox !== undefined) {
     animation.hitbox = parseHitbox(record.hitbox, `${label}.hitbox`);
@@ -158,7 +175,7 @@ export function resolveSpriteFrameRect(
 ): SpriteFrameRect {
   const safeIndex = Math.max(0, Math.min(animation.frameCount - 1, Math.trunc(frameIndex)));
   return {
-    x: animation.sourceX + (safeIndex * animation.frameWidth),
+    x: animation.sourceX + safeIndex * animation.frameWidth,
     y: animation.sourceY,
     width: animation.frameWidth,
     height: animation.frameHeight,

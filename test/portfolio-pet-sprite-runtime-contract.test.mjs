@@ -2,17 +2,15 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import test from "node:test";
 
-const runtimeUrl = new URL(
-  "../src/features/portfolio-pet/sprite-runtime.ts",
-  import.meta.url,
-);
-const awfulUrl = new URL(
-  "../src/features/portfolio-pet/awful-manifest.ts",
-  import.meta.url,
-);
+const runtimeUrl = new URL("../src/features/portfolio-pet/sprite-runtime.ts", import.meta.url);
+const awfulUrl = new URL("../src/features/portfolio-pet/awful-manifest.ts", import.meta.url);
 
 async function loadRuntime() {
-  assert.equal(existsSync(runtimeUrl), true, "RED: sprite animation runtime is not implemented yet");
+  assert.equal(
+    existsSync(runtimeUrl),
+    true,
+    "RED: sprite animation runtime is not implemented yet",
+  );
   const runtime = await import(runtimeUrl.href);
   const { createAwfulSpriteManifest } = await import(awfulUrl.href);
   return { ...runtime, createAwfulSpriteManifest };
@@ -49,6 +47,52 @@ test("PET-012/MO-004: reduced motion stays on a stable representative frame", as
     completed: false,
   });
   assert.deepEqual(resolveAnimationFrame(manifest.animations.success, 9000, true), {
+    frameIndex: 0,
+    completed: false,
+  });
+});
+
+test("variable frame timings preserve the authored rhythm and wrap on the exact cycle boundary", async () => {
+  const { resolveAnimationFrame } = await loadRuntime();
+  const animation = {
+    src: "/timed-strip.webp",
+    frameWidth: 192,
+    frameHeight: 208,
+    frameCount: 4,
+    fps: 10,
+    frameDurationsMs: [50, 100, 200, 150],
+    loop: true,
+    sourceX: 0,
+    sourceY: 0,
+    anchor: { x: 0.5, y: 1 },
+  };
+
+  assert.deepEqual(resolveAnimationFrame(animation, 0, false), { frameIndex: 0, completed: false });
+  assert.deepEqual(resolveAnimationFrame(animation, 49, false), {
+    frameIndex: 0,
+    completed: false,
+  });
+  assert.deepEqual(resolveAnimationFrame(animation, 50, false), {
+    frameIndex: 1,
+    completed: false,
+  });
+  assert.deepEqual(resolveAnimationFrame(animation, 149, false), {
+    frameIndex: 1,
+    completed: false,
+  });
+  assert.deepEqual(resolveAnimationFrame(animation, 150, false), {
+    frameIndex: 2,
+    completed: false,
+  });
+  assert.deepEqual(resolveAnimationFrame(animation, 349, false), {
+    frameIndex: 2,
+    completed: false,
+  });
+  assert.deepEqual(resolveAnimationFrame(animation, 350, false), {
+    frameIndex: 3,
+    completed: false,
+  });
+  assert.deepEqual(resolveAnimationFrame(animation, 500, false), {
     frameIndex: 0,
     completed: false,
   });
