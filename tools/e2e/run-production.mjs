@@ -155,11 +155,12 @@ async function inspectJesteiLayoutEscapes(filter, viewportLabel) {
       };
     }
 
-    function hasHorizontalClipBetween(element, boundary) {
+    function hasClipBetween(element, boundary, axis) {
       let ancestor = element.parentElement;
       while (ancestor && ancestor !== boundary) {
         const style = getComputedStyle(ancestor);
-        if (clippingValues.has(style.overflowX)) return true;
+        const overflow = axis === "x" ? style.overflowX : style.overflowY;
+        if (clippingValues.has(overflow)) return true;
         ancestor = ancestor.parentElement;
       }
       return false;
@@ -170,8 +171,8 @@ async function inspectJesteiLayoutEscapes(filter, viewportLabel) {
       if (!(element instanceof HTMLElement) || !visible(element)) continue;
       const rect = element.getBoundingClientRect();
 
-      const escapesShell = rect.left < shellRect.left - tolerance || rect.right > shellRect.right + tolerance;
-      if (escapesShell && !hasHorizontalClipBetween(element, shell)) {
+      const escapesShellX = rect.left < shellRect.left - tolerance || rect.right > shellRect.right + tolerance;
+      if (escapesShellX && !hasClipBetween(element, shell, "x")) {
         offenders.push({
           kind: "shell-x",
           element: describe(element),
@@ -183,13 +184,14 @@ async function inspectJesteiLayoutEscapes(filter, viewportLabel) {
       const panel = element.closest(panelSelector);
       if (!(panel instanceof HTMLElement) || panel === element || !visible(panel)) continue;
       const panelRect = panel.getBoundingClientRect();
-      const escapesPanel = rect.left < panelRect.left - tolerance
-        || rect.right > panelRect.right + tolerance
-        || rect.top < panelRect.top - tolerance
-        || rect.bottom > panelRect.bottom + tolerance;
-      if (escapesPanel) {
+      const escapesPanelX = rect.left < panelRect.left - tolerance || rect.right > panelRect.right + tolerance;
+      const escapesPanelY = rect.top < panelRect.top - tolerance || rect.bottom > panelRect.bottom + tolerance;
+      const visibleEscapeX = escapesPanelX && !hasClipBetween(element, panel, "x");
+      const visibleEscapeY = escapesPanelY && !hasClipBetween(element, panel, "y");
+      if (visibleEscapeX || visibleEscapeY) {
         offenders.push({
           kind: "panel",
+          axes: `${visibleEscapeX ? "x" : ""}${visibleEscapeY ? "y" : ""}`,
           element: describe(element),
           panel: describe(panel),
           rect: box(rect),
