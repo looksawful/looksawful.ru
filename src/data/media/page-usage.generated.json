@@ -1,0 +1,65 @@
+{
+  "records": [],
+  "unresolved": [
+    {
+      "ownerId": "awful-cases",
+      "route": "/pets/awful-cases/",
+      "sourcePath": "public/pets/awful-cases/awful-cases.js",
+      "referencedPath": "/media/interactive/awful-cases-atlas.png"
+    },
+    {
+      "ownerId": "awful-cases",
+      "route": "/pets/awful-cases/",
+      "sourcePath": "public/pets/awful-cases/awful-cases.js",
+      "referencedPath": "/pets/awful-cases/assets/decor-1.png"
+    },
+    {
+      "ownerId": "awful-cases",
+      "route": "/pets/awful-cases/",
+      "sourcePath": "public/pets/awful-cases/awful-cases.js",
+      "referencedPath": "/pets/awful-cases/assets/decor-2.png"
+    },
+    {
+      "ownerId": "awful-cases",
+      "route": "/pets/awful-cases/",
+      "sourcePath": "public/pets/awful-cases/awful-cases.js",
+      "referencedPath": "/pets/awful-cases/assets/decor-3.png"
+    },
+    {
+      "ownerId": "awful-cases",
+      "route": "/pets/awful-cases/",
+      "sourcePath": "public/pets/awful-cases/awful-cases.js",
+      "referencedPath": "/pets/awful-cases/assets/fall1.png"
+    },
+    {
+      "ownerId": "awful-cases",
+      "route": "/pets/awful-cases/",
+      "sourcePath": "public/pets/awful-cases/awful-cases.js",
+      "referencedPath": "/pets/awful-cases/assets/fall2.png"
+    },
+    {
+      "ownerId": "awful-cases",
+      "route": "/pets/awful-cases/",
+      "sourcePath": "public/pets/awful-cases/awful-cases.js",
+      "referencedPath": "/pets/awful-cases/assets/flag.png"
+    },
+    {
+      "ownerId": "awful-cases",
+      "route": "/pets/awful-cases/",
+      "sourcePath": "public/pets/awful-cases/awful-cases.js",
+      "referencedPath": "/pets/awful-cases/assets/ground.png"
+    },
+    {
+      "ownerId": "awful-cases",
+      "route": "/pets/awful-cases/",
+      "sourcePath": "public/pets/awful-cases/awful-cases.js",
+      "referencedPath": "/pets/awful-cases/assets/pit.png"
+    },
+    {
+      "ownerId": "awful-cases",
+      "route": "/pets/awful-cases/",
+      "sourcePath": "public/pets/awful-cases/awful-cases.js",
+      "referencedPath": "/pets/awful-cases/assets/victory.png"
+    }
+  ]
+}
