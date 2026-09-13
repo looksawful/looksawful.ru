@@ -12,11 +12,12 @@ export interface MountPortfolioPetOptions {
 
 const PET_SELECTOR = "[data-portfolio-pet-launcher]";
 const CONSENT_SELECTOR = ".site-analytics-consent";
+const CONTACT_CTA_SELECTOR = '.contact a[href="mailto:i@lookawful.ru"]';
 const POSITION_STORAGE_KEY = "looksawful:portfolio-pet-position:v1";
 const DRAG_THRESHOLD = 10;
 const MIN_VISIBLE = { width: 72, height: 96 } as const;
 const MIN_SAFE_MARGIN = 8;
-const CONSENT_GAP = 12;
+const OBSTACLE_GAP = 12;
 const AWFUL_SPRITESHEET = "/pets/awful/awful-v2-spritesheet.webp";
 const awfulManifest = createAwfulSpriteManifest(AWFUL_SPRITESHEET);
 
@@ -37,6 +38,13 @@ interface DragSession {
   startTime: number;
   startRect: DOMRect;
   moved: boolean;
+}
+
+interface RectEdges {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
 }
 
 function isStoredPosition(value: unknown): value is StoredPosition {
@@ -95,11 +103,22 @@ function safeAreaFor(root: Document, launcher: HTMLElement) {
   };
 }
 
-function rectsOverlap(a: DOMRect, b: DOMRect): boolean {
+function rectsOverlap(a: RectEdges, b: RectEdges): boolean {
   return !(
     a.right <= b.left || b.right <= a.left ||
     a.bottom <= b.top || b.bottom <= a.top
   );
+}
+
+function isVisibleElement(root: Document, element: HTMLElement): boolean {
+  const style = root.defaultView?.getComputedStyle(element);
+  if (!style || style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) return false;
+  const rect = element.getBoundingClientRect();
+  const viewport = viewportSize(root);
+  return rect.right > viewport.x
+    && rect.left < viewport.x + viewport.width
+    && rect.bottom > viewport.y
+    && rect.top < viewport.y + viewport.height;
 }
 
 function dispatchMoved(root: Document, launcher: HTMLElement): void {
@@ -209,12 +228,15 @@ export function mountPortfolioPet(
     restoreButton.hidden = true;
     launcher.hidden = false;
     dismissButton.hidden = false;
-    updateConsentOffset();
+    updateDefaultObstacleOffset();
     requestAnimationFrame(() => { syncPetControls(); launcher.focus({ preventScroll: true }); });
   };
 
   const consentResizeObserver = typeof ResizeObserver === "function"
-    ? new ResizeObserver(() => updateConsentOffset())
+    ? new ResizeObserver(() => {
+      updateDefaultObstacleOffset();
+      syncPetControls();
+    })
     : null;
 
   function bindConsentObserver(consent: HTMLElement | null): void {
@@ -224,38 +246,52 @@ export function mountPortfolioPet(
     if (consent) consentResizeObserver?.observe(consent);
   }
 
-  function updateConsentOffset(): void {
+  function updateDefaultObstacleOffset(): void {
     if (launcher.style.left || launcher.style.top || launcher.hidden) {
       launcher.style.setProperty("--pet-consent-offset", "0px");
       return;
     }
 
+    const style = view?.getComputedStyle(launcher);
+    const currentOffset = parseCssPixels(style?.getPropertyValue("--pet-consent-offset") ?? "");
+    const petRect = launcher.getBoundingClientRect();
+    const baseRect: RectEdges = {
+      left: petRect.left,
+      right: petRect.right,
+      top: petRect.top + currentOffset,
+      bottom: petRect.bottom + currentOffset,
+    };
+    let requestedOffset = 0;
+
     const consent = root.querySelector<HTMLElement>(CONSENT_SELECTOR);
     bindConsentObserver(consent);
-    if (!consent) {
-      launcher.style.setProperty("--pet-consent-offset", "0px");
-      return;
+    if (consent && isVisibleElement(root, consent)) {
+      const consentRect = consent.getBoundingClientRect();
+      if (rectsOverlap(baseRect, consentRect)) {
+        requestedOffset = Math.max(requestedOffset, baseRect.bottom - consentRect.top + OBSTACLE_GAP);
+      }
     }
 
-    const consentStyle = view?.getComputedStyle(consent);
-    if (consentStyle?.display === "none" || consentStyle?.visibility === "hidden") {
-      launcher.style.setProperty("--pet-consent-offset", "0px");
-      return;
+    const contactCta = root.querySelector<HTMLElement>(CONTACT_CTA_SELECTOR);
+    if (contactCta && isVisibleElement(root, contactCta)) {
+      const contactRect = contactCta.getBoundingClientRect();
+      if (rectsOverlap(baseRect, contactRect)) {
+        requestedOffset = Math.max(requestedOffset, baseRect.bottom - contactRect.top + OBSTACLE_GAP);
+      }
     }
 
-    const petRect = launcher.getBoundingClientRect();
-    const consentRect = consent.getBoundingClientRect();
-    const offset = rectsOverlap(petRect, consentRect)
-      ? Math.ceil(consentRect.height + CONSENT_GAP)
-      : 0;
-    launcher.style.setProperty("--pet-consent-offset", `${offset}px`);
+    const maxOffset = Math.max(0, baseRect.top - safeAreaFor(root, launcher).top);
+    launcher.style.setProperty("--pet-consent-offset", `${Math.min(requestedOffset, maxOffset)}px`);
   }
 
   const consentMutationObserver = typeof MutationObserver === "function"
-    ? new MutationObserver(() => updateConsentOffset())
+    ? new MutationObserver(() => {
+      updateDefaultObstacleOffset();
+      syncPetControls();
+    })
     : null;
   consentMutationObserver?.observe(root.body, { childList: true, subtree: true });
-  view?.requestAnimationFrame(() => { updateConsentOffset(); syncPetControls(); });
+  view?.requestAnimationFrame(() => { updateDefaultObstacleOffset(); syncPetControls(); });
 
   const setFacingFromDelta = (dx: number): void => {
     if (Math.abs(dx) < 0.5) return;
@@ -393,7 +429,7 @@ export function mountPortfolioPet(
 
   const onResize = (): void => {
     if (!launcher.style.left || !launcher.style.top) {
-      updateConsentOffset();
+      updateDefaultObstacleOffset();
       syncPetControls();
       return;
     }
@@ -401,6 +437,12 @@ export function mountPortfolioPet(
     const clamped = applyPosition({ x: rect.left, y: rect.top });
     writeStoredPosition(root, clamped);
     dispatchMoved(root, launcher);
+    syncPetControls();
+  };
+
+  const onScroll = (): void => {
+    if (launcher.style.left || launcher.style.top || launcher.hidden) return;
+    updateDefaultObstacleOffset();
     syncPetControls();
   };
 
@@ -422,6 +464,7 @@ export function mountPortfolioPet(
   launcher.addEventListener("click", onClickCapture, true);
   root.addEventListener("portfolio-pet:state", onPetState);
   view?.addEventListener("resize", onResize);
+  view?.addEventListener("scroll", onScroll, { passive: true });
   view?.visualViewport?.addEventListener("resize", onResize);
   view?.visualViewport?.addEventListener("scroll", onResize);
 
@@ -440,6 +483,7 @@ export function mountPortfolioPet(
     launcher.removeEventListener("click", onClickCapture, true);
     root.removeEventListener("portfolio-pet:state", onPetState);
     view?.removeEventListener("resize", onResize);
+    view?.removeEventListener("scroll", onScroll);
     view?.visualViewport?.removeEventListener("resize", onResize);
     view?.visualViewport?.removeEventListener("scroll", onResize);
     launcher.remove();
