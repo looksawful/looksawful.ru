@@ -2,6 +2,7 @@ import {
   routePortfolioAssistantRequest,
   type PortfolioAssistantRoute,
   type PortfolioAssistantRouter,
+  type PortfolioConversationTurn,
 } from "./prepared-answers.ts";
 
 type GenerateRoute = Extract<PortfolioAssistantRoute, { kind: "generate" }>;
@@ -30,6 +31,8 @@ export type PortfolioChatServiceResult =
   | { kind: "rate_limited" }
   | { kind: "unavailable" };
 
+const MAX_HISTORY_TURNS = 6;
+
 function providerState(
   result: PortfolioChatProviderResult,
 ): "answer" | "no_data" | "rate_limited" | "unavailable" {
@@ -49,10 +52,32 @@ export function createPortfolioChatService({
   provider: PortfolioChatProvider;
   router?: PortfolioAssistantRouter;
 }) {
+  const history: PortfolioConversationTurn[] = [];
+  let activeSourceIds: readonly string[] = Object.freeze([]);
+
+  const remember = (userText: string, assistantText: string, sourceIds: readonly string[]): void => {
+    history.push(
+      Object.freeze({ role: "user", text: userText.trim() }),
+      Object.freeze({ role: "assistant", text: assistantText.trim() }),
+    );
+    if (history.length > MAX_HISTORY_TURNS) history.splice(0, history.length - MAX_HISTORY_TURNS);
+    activeSourceIds = Object.freeze([...sourceIds]);
+  };
+
   return Object.freeze({
     async reply(input: PortfolioChatServiceInput): Promise<PortfolioChatServiceResult> {
-      const route = router(input);
-      if (route.kind === "prepared") return route;
+      const route = router({
+        ...input,
+        conversation: Object.freeze({
+          history: Object.freeze([...history]),
+          activeSourceIds,
+        }),
+      });
+
+      if (route.kind === "prepared") {
+        remember(input.message, route.text, route.sourceIds);
+        return route;
+      }
       if (route.kind === "no_data") return Object.freeze({ kind: "no_data" as const });
       if (route.context.sourceIds.length === 0) return Object.freeze({ kind: "no_data" as const });
 
@@ -67,6 +92,7 @@ export function createPortfolioChatService({
         const text = providerText(generated);
         if (!text) return Object.freeze({ kind: "unavailable" as const });
 
+        remember(input.message, text, route.context.sourceIds);
         return Object.freeze({
           kind: "generated" as const,
           text,
