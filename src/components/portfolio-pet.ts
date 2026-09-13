@@ -1,7 +1,7 @@
 import { classifyPetGesture, clampPetPosition } from "../features/portfolio-pet/interaction.ts";
 import { resolveSpriteAnimation, resolveSpriteFrameRect } from "../features/portfolio-pet/sprite-manifest.ts";
 import { resolveAnimationFrame } from "../features/portfolio-pet/sprite-runtime.ts";
-import { createVenusSpriteManifest } from "../features/portfolio-pet/venus-manifest.ts";
+import { createAwfulSpriteManifest } from "../features/portfolio-pet/awful-manifest.ts";
 
 type Destroy = () => void;
 type PetVisualState = "idle" | "thinking" | "speaking" | "success" | "error" | "dragging";
@@ -17,8 +17,8 @@ const DRAG_THRESHOLD = 10;
 const MIN_VISIBLE = { width: 72, height: 96 } as const;
 const MIN_SAFE_MARGIN = 8;
 const CONSENT_GAP = 12;
-const VENUS_SPRITESHEET = "/pets/venus/venus-v2-spritesheet.webp";
-const venusManifest = createVenusSpriteManifest(VENUS_SPRITESHEET);
+const AWFUL_SPRITESHEET = "/pets/awful/awful-v2-spritesheet.webp";
+const awfulManifest = createAwfulSpriteManifest(AWFUL_SPRITESHEET);
 
 function animationForState(state: PetVisualState): string {
   return state;
@@ -123,7 +123,22 @@ export function mountPortfolioPet(
   launcher.dataset.facing = "right";
   launcher.dataset.draggable = "true";
   launcher.style.setProperty("--pet-facing", "1");
-  launcher.setAttribute("aria-label", "Открыть чат с Venus");
+  launcher.setAttribute("aria-label", "Открыть чат с Awful");
+
+  const dismissButton = root.createElement("button");
+  dismissButton.type = "button";
+  dismissButton.className = "portfolio-pet__dismiss";
+  dismissButton.dataset.portfolioPetDismiss = "";
+  dismissButton.setAttribute("aria-label", "Скрыть Awful");
+  dismissButton.textContent = "×";
+
+  const restoreButton = root.createElement("button");
+  restoreButton.type = "button";
+  restoreButton.className = "portfolio-pet__restore";
+  restoreButton.dataset.portfolioPetRestore = "";
+  restoreButton.setAttribute("aria-label", "Показать Awful");
+  restoreButton.textContent = "→";
+  restoreButton.hidden = true;
 
   const viewport = root.createElement("span");
   viewport.className = "portfolio-pet__viewport";
@@ -131,7 +146,7 @@ export function mountPortfolioPet(
 
   const image = root.createElement("img");
   image.className = "portfolio-pet__image";
-  image.src = VENUS_SPRITESHEET;
+  image.src = AWFUL_SPRITESHEET;
   image.alt = "";
   image.draggable = false;
   image.decoding = "async";
@@ -139,7 +154,7 @@ export function mountPortfolioPet(
 
   viewport.append(image);
   launcher.append(viewport);
-  root.body.append(launcher);
+  root.body.append(launcher, dismissButton, restoreButton);
 
   const view = root.defaultView;
   const reducedMotionQuery = view?.matchMedia("(prefers-reduced-motion: reduce)") ?? null;
@@ -154,7 +169,7 @@ export function mountPortfolioPet(
   };
 
   const renderSprite = (now: number): void => {
-    const animation = resolveSpriteAnimation(venusManifest, currentAnimation);
+    const animation = resolveSpriteAnimation(awfulManifest, currentAnimation);
     const frame = resolveAnimationFrame(
       animation,
       now - animationStartedAt,
@@ -173,6 +188,30 @@ export function mountPortfolioPet(
   let suppressNextClick = false;
   let currentVisualState: PetVisualState = "idle";
   let observedConsent: HTMLElement | null = null;
+
+  const syncPetControls = (): void => {
+    if (launcher.hidden) return;
+    const rect = launcher.getBoundingClientRect();
+    dismissButton.style.left = `${Math.round(rect.right - 26)}px`;
+    dismissButton.style.top = `${Math.round(rect.top + 8)}px`;
+  };
+
+  const hidePet = (): void => {
+    const rect = launcher.getBoundingClientRect();
+    launcher.hidden = true;
+    dismissButton.hidden = true;
+    restoreButton.style.top = `${Math.round(Math.max(16, Math.min(rect.top + rect.height / 2 - 18, (view?.innerHeight ?? 800) - 52)))}px`;
+    restoreButton.hidden = false;
+    restoreButton.focus({ preventScroll: true });
+  };
+
+  const restorePet = (): void => {
+    restoreButton.hidden = true;
+    launcher.hidden = false;
+    dismissButton.hidden = false;
+    updateConsentOffset();
+    requestAnimationFrame(() => { syncPetControls(); launcher.focus({ preventScroll: true }); });
+  };
 
   const consentResizeObserver = typeof ResizeObserver === "function"
     ? new ResizeObserver(() => updateConsentOffset())
@@ -216,7 +255,7 @@ export function mountPortfolioPet(
     ? new MutationObserver(() => updateConsentOffset())
     : null;
   consentMutationObserver?.observe(root.body, { childList: true, subtree: true });
-  view?.requestAnimationFrame(() => updateConsentOffset());
+  view?.requestAnimationFrame(() => { updateConsentOffset(); syncPetControls(); });
 
   const setFacingFromDelta = (dx: number): void => {
     if (Math.abs(dx) < 0.5) return;
@@ -257,6 +296,7 @@ export function mountPortfolioPet(
     requestAnimationFrame(() => {
       applyPosition(storedPosition);
       dispatchMoved(root, launcher);
+      syncPetControls();
     });
   }
 
@@ -295,6 +335,7 @@ export function mountPortfolioPet(
       y: dragSession.startRect.top + dy,
     });
     dispatchMoved(root, launcher);
+    syncPetControls();
   };
 
   const finishPointer = (event: PointerEvent): void => {
@@ -326,13 +367,14 @@ export function mountPortfolioPet(
 
     suppressNextClick = true;
     if (gesture === "hide") {
-      launcher.hidden = true;
+      hidePet();
       return;
     }
 
     const rect = launcher.getBoundingClientRect();
     writeStoredPosition(root, { x: rect.left, y: rect.top });
     dispatchMoved(root, launcher);
+    syncPetControls();
   };
 
   const onClickCapture = (event: MouseEvent): void => {
@@ -352,12 +394,14 @@ export function mountPortfolioPet(
   const onResize = (): void => {
     if (!launcher.style.left || !launcher.style.top) {
       updateConsentOffset();
+      syncPetControls();
       return;
     }
     const rect = launcher.getBoundingClientRect();
     const clamped = applyPosition({ x: rect.left, y: rect.top });
     writeStoredPosition(root, clamped);
     dispatchMoved(root, launcher);
+    syncPetControls();
   };
 
   const onPointerEnter = (): void => {
@@ -367,6 +411,8 @@ export function mountPortfolioPet(
     if (!dragSession && currentVisualState === "idle") startAnimation("idle");
   };
 
+  dismissButton.addEventListener("click", hidePet);
+  restoreButton.addEventListener("click", restorePet);
   launcher.addEventListener("pointerenter", onPointerEnter);
   launcher.addEventListener("pointerleave", onPointerLeave);
   launcher.addEventListener("pointerdown", onPointerDown);
@@ -383,6 +429,8 @@ export function mountPortfolioPet(
     if (frameRequest && view) view.cancelAnimationFrame(frameRequest);
     consentMutationObserver?.disconnect();
     consentResizeObserver?.disconnect();
+    dismissButton.removeEventListener("click", hidePet);
+    restoreButton.removeEventListener("click", restorePet);
     launcher.removeEventListener("pointerenter", onPointerEnter);
     launcher.removeEventListener("pointerleave", onPointerLeave);
     launcher.removeEventListener("pointerdown", onPointerDown);
@@ -395,5 +443,7 @@ export function mountPortfolioPet(
     view?.visualViewport?.removeEventListener("resize", onResize);
     view?.visualViewport?.removeEventListener("scroll", onResize);
     launcher.remove();
+    dismissButton.remove();
+    restoreButton.remove();
   };
 }
