@@ -88,6 +88,129 @@ async function visibleLocators(locator) {
   return visible;
 }
 
+async function inspectJesteiLayoutEscapes(filter, viewportLabel) {
+  const report = await filter.evaluate((host) => {
+    const root = host.shadowRoot;
+    if (!root) throw new Error("missing playlist-filter-workflow shadow root");
+
+    const shell = root.querySelector(".filter-shell");
+    if (!(shell instanceof HTMLElement)) throw new Error("missing .filter-shell");
+
+    const shellRect = shell.getBoundingClientRect();
+    const tolerance = 1;
+    const clippingValues = new Set(["hidden", "clip", "scroll", "auto"]);
+    const targetSelector = [
+      "button",
+      "input",
+      "label",
+      "fieldset",
+      ".summary-pill",
+      ".genre-chip",
+      ".compact-genre-chip",
+      ".tag-chip",
+      ".checkbox",
+      ".tempo-fields",
+      ".compact-bpm-fields",
+      ".rating-row",
+      ".compact-rating-row",
+      ".check-options",
+      ".range-control",
+    ].join(",");
+    const panelSelector = [
+      ".bpm-group",
+      ".compact-bpm-card",
+      ".genre-group",
+      ".tags-shell",
+      ".compact-tags-shell",
+      ".track-state",
+      ".check-section",
+      ".harmony-shell",
+      ".filter-bottom",
+    ].join(",");
+
+    function visible(element) {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return style.display !== "none"
+        && style.visibility !== "hidden"
+        && Number.parseFloat(style.opacity || "1") > 0
+        && rect.width > 0
+        && rect.height > 0;
+    }
+
+    function describe(element) {
+      const className = typeof element.className === "string" ? element.className.trim().replace(/\s+/g, ".") : "";
+      const text = (element.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 80);
+      return `${element.tagName.toLowerCase()}${className ? `.${className}` : ""}${text ? ` [${text}]` : ""}`;
+    }
+
+    function box(rect) {
+      return {
+        left: Number(rect.left.toFixed(2)),
+        right: Number(rect.right.toFixed(2)),
+        top: Number(rect.top.toFixed(2)),
+        bottom: Number(rect.bottom.toFixed(2)),
+        width: Number(rect.width.toFixed(2)),
+        height: Number(rect.height.toFixed(2)),
+      };
+    }
+
+    function hasHorizontalClipBetween(element, boundary) {
+      let ancestor = element.parentElement;
+      while (ancestor && ancestor !== boundary) {
+        const style = getComputedStyle(ancestor);
+        if (clippingValues.has(style.overflowX)) return true;
+        ancestor = ancestor.parentElement;
+      }
+      return false;
+    }
+
+    const offenders = [];
+    for (const element of root.querySelectorAll(targetSelector)) {
+      if (!(element instanceof HTMLElement) || !visible(element)) continue;
+      const rect = element.getBoundingClientRect();
+
+      const escapesShell = rect.left < shellRect.left - tolerance || rect.right > shellRect.right + tolerance;
+      if (escapesShell && !hasHorizontalClipBetween(element, shell)) {
+        offenders.push({
+          kind: "shell-x",
+          element: describe(element),
+          rect: box(rect),
+          boundary: box(shellRect),
+        });
+      }
+
+      const panel = element.closest(panelSelector);
+      if (!(panel instanceof HTMLElement) || panel === element || !visible(panel)) continue;
+      const panelRect = panel.getBoundingClientRect();
+      const escapesPanel = rect.left < panelRect.left - tolerance
+        || rect.right > panelRect.right + tolerance
+        || rect.top < panelRect.top - tolerance
+        || rect.bottom > panelRect.bottom + tolerance;
+      if (escapesPanel) {
+        offenders.push({
+          kind: "panel",
+          element: describe(element),
+          panel: describe(panel),
+          rect: box(rect),
+          boundary: box(panelRect),
+        });
+      }
+    }
+
+    return {
+      shell: box(shellRect),
+      host: box(host.getBoundingClientRect()),
+      offenders,
+    };
+  });
+
+  console.log(`[jestei-layout] ${viewportLabel}: ${JSON.stringify(report)}`);
+  if (report.offenders.length) {
+    throw new Error(`[jestei-layout] ${viewportLabel}: ${report.offenders.length} visible controls escape their layout owner`);
+  }
+}
+
 async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const browserMessages = [];
@@ -107,6 +230,19 @@ async function runJesteiFilterArtworkSanity({ browser, baseUrl }) {
     const filter = page.locator("playlist-filter-workflow");
     await filter.waitFor({ state: "visible", timeout: 10_000 });
 
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 1180, height: 900 },
+      { width: 1024, height: 900 },
+      { width: 900, height: 900 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await filter.scrollIntoViewIfNeeded();
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      await inspectJesteiLayoutEscapes(filter, `${viewport.width}x${viewport.height}`);
+    }
+
+    await page.setViewportSize({ width: 1440, height: 900 });
     const allStars = filter.locator(".rating-star img");
     const visibleStars = await visibleLocators(allStars);
     console.log(`[jestei-filter-art] rating stars: total=${await allStars.count()} visible=${visibleStars.length}`);
