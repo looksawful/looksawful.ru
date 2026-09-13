@@ -22,18 +22,18 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
       await pet.waitFor({ state: "visible", timeout: 2_000 });
       const character = pet.locator(".portfolio-pet__viewport");
       const rect = await character.boundingBox();
-      assert.ok(rect, `${viewport.width}x${viewport.height}: Venus character viewport must render`);
+      assert.ok(rect, `${viewport.width}x${viewport.height}: Awful character viewport must render`);
       const ratio = rect.height / viewport.height;
       assert.ok(
         ratio >= viewport.minRatio,
-        `${viewport.width}x${viewport.height}: PET-004/PET-005 Venus is too small (${ratio.toFixed(3)} viewport height)`,
+        `${viewport.width}x${viewport.height}: PET-004/PET-005 Awful is too small (${ratio.toFixed(3)} viewport height)`,
       );
       assert.ok(
         ratio <= viewport.maxRatio,
-        `${viewport.width}x${viewport.height}: Venus is too large (${ratio.toFixed(3)} viewport height)`,
+        `${viewport.width}x${viewport.height}: Awful is too large (${ratio.toFixed(3)} viewport height)`,
       );
       const petRect = await pet.boundingBox();
-      assert.ok(petRect, `${viewport.width}x${viewport.height}: Venus launcher must have geometry`);
+      assert.ok(petRect, `${viewport.width}x${viewport.height}: Awful launcher must have geometry`);
       assert.ok(rect.x >= petRect.x - 1 && rect.x + rect.width <= petRect.x + petRect.width + 1,
         `${viewport.width}x${viewport.height}: character visual must remain inside launcher hitbox horizontally`);
       assert.ok(rect.y >= petRect.y - 1 && rect.y + rect.height <= petRect.y + petRect.height + 1,
@@ -43,5 +43,5 @@ await withE2ERuntime(async ({ browser, baseUrl }) => {
     }
   }
 
-  console.log("Venus visual scale contract passed for desktop and representative mobile viewports");
+  console.log("Awful visual scale contract passed for desktop and representative mobile viewports");
 });
