@@ -1,0 +1,118 @@
+name: Preview V2 Deploy
+
+on:
+  workflow_run:
+    workflows: [Preview V2 Build]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  CLOUDFLARE_PAGES_PROJECT: looksawful-ru-preview
+
+jobs:
+  deploy:
+    name: Deploy trusted private preview workspace
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && github.event.workflow_run.head_branch == 'dev' && vars.PREVIEW_V2_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: preview-deploy
+    steps:
+      - name: Checkout pinned trusted runtime only
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          path: trusted
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Download trusted candidate package from completed build run
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-v2-candidate
+          path: candidate
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Validate packaged candidate metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f candidate/preview-metadata.json
+          node --input-type=module <<'NODE'
+          import { appendFile, readFile } from "node:fs/promises";
+          import { parsePreviewMetadata } from "./trusted/tools/preview/preview-metadata.mjs";
+
+          const metadata = parsePreviewMetadata(await readFile("candidate/preview-metadata.json", "utf8"));
+          if (metadata.repository !== process.env.GITHUB_REPOSITORY) {
+            throw new Error("candidate repository mismatch");
+          }
+          await appendFile(
+            process.env.GITHUB_OUTPUT,
+            `sha=${metadata.sha}\nkind=${metadata.kind}\nkey=${metadata.key}\npr=${metadata.pr ?? ""}\nbranch=v2-${metadata.key}\n`,
+            "utf8",
+          );
+          NODE
+
+      - name: Validate untrusted candidate artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { validatePreviewArtifact } from "./trusted/tools/preview/validate-candidate-artifact.mjs";
+          await validatePreviewArtifact({ distDir: "candidate" });
+          NODE
+
+      - name: Assemble trusted Pages runtime
+        env:
+          PREVIEW_SHA: ${{ steps.meta.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { assembleTrustedPreviewRuntime } from "./trusted/tools/preview/assemble-trusted-runtime.mjs";
+          await assembleTrustedPreviewRuntime({
+            distDir: "candidate",
+            workspaceDir: "workspace",
+            trustedRuntimeDir: "trusted/tools/preview/runtime",
+            previewMetadata: {
+              repository: process.env.GITHUB_REPOSITORY,
+              sha: process.env.PREVIEW_SHA,
+            },
+          });
+          NODE
+
+      - name: Require Cloudflare preview credentials
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "Missing CLOUDFLARE_ACCOUNT_ID" >&2; exit 1; }
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "Missing CLOUDFLARE_API_TOKEN" >&2; exit 1; }
+
+      - name: Deploy trusted private preview workspace
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          workingDirectory: workspace
+          command: pages deploy site --project-name=looksawful-ru-preview --branch=${{ steps.meta.outputs.branch }} --commit-hash=${{ steps.meta.outputs.sha }}
+
+      - name: Record deployment identity
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
+          PREVIEW_ALIAS_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${PREVIEW_URL:-}"
+          printf 'Immutable: %s\n' "$PREVIEW_URL" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Alias: %s\n' "${PREVIEW_ALIAS_URL:-unavailable}" >> "$GITHUB_STEP_SUMMARY"
