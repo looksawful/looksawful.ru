@@ -35,13 +35,11 @@ concurrency:
 jobs:
   build:
     name: Build exact unprivileged candidate
+    if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       TARGET_SHA: ${{ inputs.target_sha }}
-      PREVIEW_KIND: ${{ inputs.preview_kind }}
-      PREVIEW_KEY: ${{ inputs.preview_key }}
-      PR_NUMBER: ${{ inputs.pr_number }}
       PR_HEAD_SHA: ${{ inputs.target_sha }}
     steps:
       - name: Require an exact SHA before checkout
@@ -139,18 +137,73 @@ jobs:
       - name: Prepare private Cloudflare preview media
         run: node tools/preview/prepare-cloudflare-pages-v2.mjs dist
 
-      - name: Validate and stamp exact candidate metadata
+      - name: Upload untrusted candidate site data
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-v2-site
+          path: dist
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  package:
+    name: Package trusted preview identity
+    needs: build
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TARGET_SHA: ${{ inputs.target_sha }}
+      PREVIEW_KIND: ${{ inputs.preview_kind }}
+      PREVIEW_KEY: ${{ inputs.preview_key }}
+      PR_NUMBER: ${{ inputs.pr_number }}
+    steps:
+      - name: Checkout pinned trusted workflow runtime
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          path: trusted
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Download untrusted candidate site data
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-v2-site
+          path: candidate
+
+      - name: Validate candidate artifact with trusted code
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { validatePreviewArtifact } from "./trusted/tools/preview/validate-candidate-artifact.mjs";
+          await validatePreviewArtifact({ distDir: "candidate" });
+          NODE
+
+      - name: Re-enforce Cloudflare Pages artifact limits
+        shell: bash
+        run: |
+          set -euo pipefail
+          file_count="$(find candidate -type f | wc -l | tr -d ' ')"
+          (( file_count <= 20000 )) || { echo "Preview has ${file_count} files; limit is 20000." >&2; exit 1; }
+          oversized="$(find candidate -type f -size +26214400c -print)"
+          if [[ -n "$oversized" ]]; then
+            echo "Preview candidate contains files larger than 25 MiB:" >&2
+            printf '%s\n' "$oversized" >&2
+            exit 1
+          fi
+
+      - name: Stamp trusted exact candidate metadata
         shell: bash
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
           import { writeFile } from "node:fs/promises";
-          import { parsePreviewMetadata } from "./tools/preview/preview-metadata.mjs";
+          import { parsePreviewMetadata } from "./trusted/tools/preview/preview-metadata.mjs";
 
           let pr;
-          if (process.env.PR_NUMBER) {
-            pr = Number(process.env.PR_NUMBER);
-          }
+          if (process.env.PR_NUMBER) pr = Number(process.env.PR_NUMBER);
           const metadata = parsePreviewMetadata({
             repository: process.env.GITHUB_REPOSITORY,
             sha: process.env.TARGET_SHA,
@@ -158,27 +211,18 @@ jobs:
             key: process.env.PREVIEW_KEY,
             ...(pr === undefined ? {} : { pr }),
           });
-          await writeFile("dist/preview-metadata.json", `${JSON.stringify(metadata, null, 2)}\n`, "utf8");
+          await writeFile(
+            "candidate/preview-metadata.json",
+            `${JSON.stringify(metadata, null, 2)}\n`,
+            "utf8",
+          );
           NODE
 
-      - name: Enforce Cloudflare Pages asset limits
-        shell: bash
-        run: |
-          set -euo pipefail
-          file_count="$(find dist -type f | wc -l | tr -d ' ')"
-          (( file_count <= 20000 )) || { echo "Preview has ${file_count} files; limit is 20000." >&2; exit 1; }
-          oversized="$(find dist -type f -size +26214400c -print)"
-          if [[ -n "$oversized" ]]; then
-            echo "Preview packaging left files larger than 25 MiB:" >&2
-            printf '%s\n' "$oversized" >&2
-            exit 1
-          fi
-
-      - name: Upload exact preview candidate artifact
+      - name: Upload trusted candidate package
         uses: actions/upload-artifact@v4
         with:
           name: preview-v2-candidate
-          path: dist
+          path: candidate
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 1
