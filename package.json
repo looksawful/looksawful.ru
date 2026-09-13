@@ -8,6 +8,8 @@
     "dev": "vite",
     "desk": "node tools/run-content-desk.mjs",
     "desk:write": "node tools/run-content-desk.mjs --write",
+    "media-desk:build": "node tools/cloudflare/media-desk/build.mjs",
+    "media-desk:cf:dry-run": "npm run media-desk:build && npx --yes wrangler@4 deploy --dry-run --config tools/cloudflare/media-desk/wrangler.jsonc",
     "design:capture": "node tools/design-capture/cli.mjs",
     "design:capture:pages": "node tools/design-capture/cli.mjs --mode=pages",
     "design:capture:components": "node tools/design-capture/cli.mjs --mode=components",
