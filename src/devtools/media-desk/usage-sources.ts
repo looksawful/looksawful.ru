@@ -6,6 +6,14 @@ import type {
   MediaDeskUsageRecordLike,
 } from "./inventory-model.ts";
 
+export interface MediaDeskPageUsageRecord {
+  readonly assetId: string;
+  readonly ownerId: string;
+  readonly route: string;
+  readonly sourcePath: string;
+  readonly referencedPath: string;
+}
+
 function binding(
   assetId: string,
   usage: MediaDeskUsageBinding["usage"],
@@ -101,4 +109,17 @@ export function petCoverUsages(
       blockingDelete: true,
     });
   });
+}
+
+export function pageMediaUsages(
+  records: readonly MediaDeskPageUsageRecord[],
+): readonly MediaDeskUsageBinding[] {
+  return records.map((record) => binding(record.assetId, {
+    kind: "page-media",
+    ownerId: record.ownerId,
+    route: record.route,
+    sourcePath: record.sourcePath,
+    fieldPath: record.referencedPath,
+    blockingDelete: true,
+  }));
 }
