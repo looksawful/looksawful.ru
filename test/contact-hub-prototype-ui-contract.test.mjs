@@ -21,12 +21,20 @@ test("Contact Hub restores the v7 shared AI/Form surface", () => {
   assert.match(component, /textContent = "отправить"/);
 });
 
-test("AI composer preserves the approved v7 input language", () => {
+test("AI composer preserves the approved simple input language", () => {
   assert.match(component, /documentRef\.createElement\("input"\)/);
-  assert.match(component, /placeholder = "спросить Awful"/);
+  assert.match(component, /placeholder = "спросить"/);
   assert.match(component, /composerSend\.type = "submit"/);
   assert.match(component, /composerSend\.textContent = "\\u043e\\u0442\\u043f\\u0440\\u0430\\u0432\\u0438\\u0442\\u044c"/);
   assert.match(component, /setAttribute\("aria-label", "Отправить"\)/);
+});
+
+test("OWNER-718: Venus opens with one simple line and no suggested questions", () => {
+  assert.match(component, /"Привет\. Я Venus\."/);
+  assert.doesNotMatch(component, /contact-hub__quick-actions/);
+  assert.doesNotMatch(component, /contactHubQuickQuery/);
+  assert.doesNotMatch(component, /Покажи кейсы|Покажи резюме|Расскажи о Ване/);
+  assert.match(component, /"Про это у меня нет точной информации\. Лучше написать мне напрямую\."/);
 });
 
 test("mode switching is state-only and explicit handoff uses the canonical domain seam", () => {
@@ -81,7 +89,6 @@ test("visible mobile consent is moved clear of the bottom sheet", () => {
   assert.match(consentCss, /html\.contact-hub-open \.site-analytics-consent/);
   assert.match(consentCss, /inset-block-end:\s*calc\(\s*min\(62dvh,\s*520px\)/);
 });
-
 
 test("form mode is deliberately flatter and more compact than AI mode", () => {
   assert.match(css, /\.contact-hub\[data-mode="form"\]\s*\{[\s\S]*inline-size:\s*min\(328px,/);
