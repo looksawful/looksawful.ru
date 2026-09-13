@@ -19,8 +19,9 @@ jobs:
           ref: contact-hub-frontend-current
           fetch-depth: 1
       - name: Use keyboard lightbox contract for dense touch captions
-        shell: python
+        shell: bash
         run: |
+          python3 - <<'PY'
           from pathlib import Path
           path = Path("tools/e2e/run-smoke.mjs")
           text = path.read_text(encoding="utf-8")
@@ -39,6 +40,7 @@ jobs:
           if count != 1:
               raise SystemExit(f"expected one dense-caption lightbox interaction, found {count}")
           path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
       - name: Commit focused smoke repair
         shell: bash
         run: |
