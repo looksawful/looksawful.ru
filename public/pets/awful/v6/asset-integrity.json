@@ -1,0 +1,24 @@
+{
+  "version": 6,
+  "algorithm": "sha256",
+  "files": {
+    "ANIMATION-ACTIVATION-GUIDE-RU.txt": "2cc35acc4a84c0fb453d5469a092260e1f789745297a2e30774840c25ecf83e4",
+    "extras/animations/camera-pro-flash.webp": "619d93f4d962b4b4aaee6ad7d9b86b869144dde5b25ba29f2088067e691f8e04",
+    "extras/animations/music-house-dance.webp": "8352e96798a038a7488132430db21463c1630827b5081354c9c7c148a9446777",
+    "extras/animations/phone-pacing.webp": "50e9255ceb3415c2f1185a6cb43fa0aa0c64537d60d2cb655729980718ef8998",
+    "extras/animations/sleep-cross-legged.webp": "db8a8e6c8ce03521336176b35e9a574e16d85e767e0ff2aa33b4d8d407557ee2",
+    "extras/extra-animations.json": "02b328b0aa573fb63b1f7ed76b0504f472ba15001b179667fde283122d23fced",
+    "extras/extra-animations.webp": "b5404fe465e3a8c32056696f2e03cb8a1a0987db05a2222bf339baeaabc928aa",
+    "extras/previews/camera-pro-flash.webp": "2ada9009b71640f8c450fd55f16d7ec0a3ec1ee3240e42a59fe2011504325918",
+    "extras/previews/camera.webp": "c18138cc7cccdd38e819bedbb986a3b276752c14b3e2e02e4de9f2dbefd5dbf6",
+    "extras/previews/coffee.webp": "ee1394699d5a110fec5affea5d19249a025ba0439b338b0d1001fc4d07f2aefb",
+    "extras/previews/drawing-cross-legged.webp": "6af13821abf6f86f90a6e69b0fbcd8f76ff872f1cfc214e6cf0eba640bbef6f8",
+    "extras/previews/flipchart.webp": "307dcbe2770dffc6ca9cb150b9a33333a70b9c89bd20e9d494696ad9aed56783",
+    "extras/previews/laptop.webp": "9f37a37469a7653fcb0e95049bba3ae16327ae69ba17a500ab4cc6fb13e04db4",
+    "extras/previews/music-house-dance.webp": "7ac9a93d6e4fb1a06ab774cd01f47d33338bfdf6f05e520c0982e480457681a8",
+    "extras/previews/phone-pacing.webp": "ae0eb8198fbac65405cde59cfedf6f7630ed8411302bf433c2a520576fe848c6",
+    "extras/previews/sleep-cross-legged.webp": "fe902b08aa6025c7feb5a9e15bdb48d5d91330bbb99206fe40ac992178ada3cf",
+    "pet.json": "b77d1a8023a8f685e349a0ef83b2e2f048ac7f1f953a45a428d05967aba420e9",
+    "spritesheet.webp": "ee76d2748f9740754ba06966bfea840b516c2584dd715e1c295d6041e9a600fe"
+  }
+}

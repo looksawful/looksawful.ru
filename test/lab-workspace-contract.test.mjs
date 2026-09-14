@@ -139,3 +139,29 @@ test("Lab design-system inventory is generated from canonical source rather than
   assert.match(packageJsonText, /"lab:inventory":\s*"node tools\/lab\/design-system-inventory\.mjs"/);
   assert.match(workflow, /npm run lab:inventory/);
 });
+
+test("Lab Storybook exposes the canonical Awful + Contact release candidate", async () => {
+  await assert.doesNotReject(() => read("src/lab/stories/portfolio-pet.stories.js"));
+  const story = await read("src/lab/stories/portfolio-pet.stories.js");
+
+  assert.match(story, /mountPortfolioPet/);
+  assert.match(story, /mountContactFormHub/);
+  assert.match(story, /03 Organisms\/Awful Contact/);
+  assert.match(story, /Interactive/);
+  assert.match(story, /ContactOpen/);
+  assert.match(story, /LeftFacing/);
+  assert.match(story, /HiddenRestore/);
+  assert.match(story, /ReducedMotion/);
+  assert.match(story, /portfolio-pet\.css/);
+  assert.match(story, /contact-form-hub\.css/);
+});
+
+test("Lab Storybook documents the canonical contact form owner separately", async () => {
+  await assert.doesNotReject(() => read("src/lab/stories/contact-form-hub.stories.js"));
+  const story = await read("src/lab/stories/contact-form-hub.stories.js");
+  assert.match(story, /mountContactFormHub/);
+  assert.match(story, /03 Organisms\/Contact Form Hub/);
+  assert.match(story, /Open/);
+  assert.match(story, /ShortMobile/);
+  assert.match(story, /contact-form-hub\.css/);
+});
