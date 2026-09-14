@@ -1,4 +1,5 @@
 import { createGalleryLightbox } from "./gallery-lightbox.ts";
+import { createGalleryMasonry } from "./gallery-masonry.ts";
 import {
   galleryViewerHistoryTransition,
   parseGallerySearch,
@@ -19,6 +20,8 @@ export function createGalleryController(root: HTMLElement): Destroy {
   let state = initialState;
   let syncingHistory = false;
   let viewerHistoryEntryOwned = false;
+
+  const masonry = createGalleryMasonry(root);
 
   const writeHistory = (next: GalleryState, mode: WritableHistoryMode): void => {
     const url = galleryUrl(next);
@@ -85,12 +88,13 @@ export function createGalleryController(root: HTMLElement): Destroy {
   window.addEventListener("popstate", handlePopState);
 
   // Normalize retired query parameters such as ?layer=production away while
-  // preserving a valid deep-linked photo id.
+  // preserving a valid deep-linked media id.
   writeHistory(state, "replace");
   if (initialState.itemId) requestAnimationFrame(() => openStateItem(initialState.itemId));
 
   return () => {
     window.removeEventListener("popstate", handlePopState);
     lightbox.destroy();
+    masonry.destroy();
   };
 }
