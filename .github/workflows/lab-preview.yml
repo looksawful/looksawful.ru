@@ -219,10 +219,21 @@ jobs:
           test "$anonymous_status" = "401"
           grep -Eqi '^www-authenticate:[[:space:]]*Basic realm="looksawful lab"' /tmp/lab-anonymous-headers.txt
 
-          curl --fail --silent --show-error --location --retry 10 --retry-delay 3 \
-            --user "lab:${LAB_PASSWORD}" \
-            "$PREVIEW_URL/lab-version.json?sha=$GITHUB_SHA" > /tmp/lab-version.json
-          jq -e --arg sha "$GITHUB_SHA" '.branch == "lab" and .commit == $sha' /tmp/lab-version.json >/dev/null
+          identity_ready=0
+          for attempt in {1..20}; do
+            if curl --fail --silent --show-error --location \
+              --user "lab:${LAB_PASSWORD}" \
+              "$PREVIEW_URL/lab-version.json?sha=$GITHUB_SHA" > /tmp/lab-version.json 2>/dev/null \
+              && jq -e --arg sha "$GITHUB_SHA" '.branch == "lab" and .commit == $sha' /tmp/lab-version.json >/dev/null; then
+              identity_ready=1
+              break
+            fi
+            sleep 3
+          done
+          if [[ "$identity_ready" != "1" ]]; then
+            echo "$PREVIEW_URL did not expose exact Lab identity $GITHUB_SHA" >&2
+            exit 1
+          fi
 
       - name: Verify immutable Lab entry and design system
         env:

@@ -165,3 +165,16 @@ test("Lab Storybook documents the canonical contact form owner separately", asyn
   assert.match(story, /ShortMobile/);
   assert.match(story, /contact-form-hub\.css/);
 });
+
+test("immutable Lab verification tolerates Cloudflare static propagation after auth activates", async () => {
+  const workflow = await read(".github/workflows/lab-preview.yml");
+  const start = workflow.indexOf("Verify Basic Auth on immutable deployment");
+  const end = workflow.indexOf("Verify immutable Lab entry and design system");
+  const verification = workflow.slice(start, end);
+
+  assert.match(verification, /for attempt in \{1\.\.20\}/);
+  assert.match(verification, /lab-version\.json\?sha=\$GITHUB_SHA/);
+  assert.match(verification, /jq -e --arg sha "\$GITHUB_SHA"/);
+  assert.match(verification, /sleep 3/);
+  assert.match(verification, /did not expose exact Lab identity/);
+});
