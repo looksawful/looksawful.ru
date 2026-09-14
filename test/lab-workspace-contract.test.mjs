@@ -43,6 +43,11 @@ test("Lab deployment stays isolated and syncs one password secret into the Pages
       < workflow.indexOf("Deploy persistent Lab branch preview"),
     "the encrypted runtime secret must exist before the protected deployment is published",
   );
+  assert.ok(
+    workflow.indexOf("Finalize Lab site and validate local links")
+      < workflow.indexOf("Build Lab design system"),
+    "production-style site finalization must finish before generated Storybook HTML is added",
+  );
 });
 
 test("Lab Basic Auth middleware is fail-closed and makes the custom-domain root the private entry", async () => {
