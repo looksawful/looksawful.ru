@@ -77,6 +77,16 @@ test("duplicate canonical fails", async () => {
   }), /duplicate canonical/);
 });
 
+test("generated Lab design-system HTML is outside the production metadata contract", async () => {
+  const result = await withSite(validPage(), async (dir) => {
+    await mkdir(path.join(dir, "lab", "system"), { recursive: true });
+    await writeFile(path.join(dir, "lab", "system", "iframe.html"), "<!doctype html><html><head><title>Storybook iframe</title></head><body>x</body></html>", "utf8");
+    await writeFile(path.join(dir, "lab", "system", "index.html"), "<!doctype html><html><head><title>Storybook</title></head><body>x</body></html>", "utf8");
+    return validateSite({ distDir: dir });
+  });
+  assert.equal(result.indexableCount, 1);
+});
+
 test("noindex page is excluded from the indexable metadata contract", async () => {
   const result = await withSite('<!doctype html><html><head><title>private</title><meta name="robots" content="noindex,follow"></head><body>x</body></html>', async (dir) => {
     await writeFile(path.join(dir, "sitemap.xml"), "<?xml version=\"1.0\"?><urlset></urlset>", "utf8");
