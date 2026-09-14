@@ -4,9 +4,9 @@
 
 **Goal:** Build a preview-only `/gallery/` mixed-media masonry wall containing the approved STYX, Sensetique, musician, OFFMi, Moves Awful and Jestei media while preserving canonical media ownership, mixed image/video lightbox behavior, accessibility, performance and existing site styling.
 
-**Architecture:** Extend the existing Gallery projection from image-only to a discriminated image/video model over `contextualMediaCatalogItems`. Render one continuous semantic Gallery wall, hand it to one `MasonryInfiniteGrid` runtime controller from the already-installed `@egjs/infinitegrid@4.13.0`, keep video playback under a separate viewport/reduced-motion controller, and extend the existing PhotoSwipe adapter to support both image and video slides without changing History API ownership. Exact approved Jestei/Moves Awful selections use canonical identity sets; STYX/Sensetique use project-family selection rather than copied media URLs.
+**Architecture:** Extend the existing Gallery projection from image-only to a discriminated image/video model over the canonical `MediaEntry -> MediaAsset -> MediaCatalogItem` graph. Render one continuous semantic wall, hand it to one `MasonryInfiniteGrid` controller from the already-installed `@egjs/infinitegrid@4.13.0`, keep wall video playback in a separate observer/reduced-motion controller, and extend the existing PhotoSwipe adapter to support both image and video slides without changing History API ownership. Exact Jestei/Moves Awful selections resolve approved MediaEntry IDs to canonical asset IDs; STYX/Sensetique bulk inclusion uses project-family context, never copied paths.
 
-**Tech Stack:** TypeScript 7, Vite 8, vanilla DOM, `@egjs/infinitegrid@4.13.0`, PhotoSwipe 5.4.4, existing responsive image/video media pipeline, Node test runner, Playwright/Chromium, Cloudflare Pages PR Preview.
+**Tech Stack:** TypeScript 7, Vite 8, vanilla DOM, `@egjs/infinitegrid@4.13.0`, PhotoSwipe 5.4.4, existing responsive media pipeline, Node test runner, Playwright/Chromium, Cloudflare Pages PR Preview.
 
 **Spec:** `docs/superpowers/specs/2026-09-14-gallery-media-wall-design.md`
 
@@ -14,67 +14,83 @@
 
 - Work only on `feature/gallery-media-wall-preview`; do not merge this feature to `prod` before explicit preview approval.
 - Gallery primary-navigation button remains hidden; registered label remains `галерея`.
-- Keep one continuous public wall: no tabs, filters, search, sort or visible project grouping.
-- Keep approved musician photography: OBLADAET, EVASHA, IGGUANA, ESMI, HYPRESSION, OFELIA; restore OFFMi; keep DAVA hidden.
-- Include all canonical non-archived/non-retired STYX image MediaEntry content, including design work.
-- Include all canonical non-archived/non-retired Sensetique image MediaEntry content except technical poster-only video derivatives; do not include Sensetique video.
-- Include exactly the three canonical Moves Awful entries named in the spec.
-- Include exactly the five approved Jestei brand/logo entries, the one Jestei landings video, and all eleven approved Jestei promo/banner entries.
-- Do not introduce a second Gallery media registry, copied media URLs, runtime folder scanning or destructive duplicate cleanup.
-- Use `MasonryInfiniteGrid` from the existing dependency; no new layout dependency and no CSS multi-column / row-span masonry hack.
+- One continuous wall only: no tabs, filters, search, sort or visible project grouping.
+- Keep OBLADAET, EVASHA, IGGUANA, ESMI, HYPRESSION and OFELIA; restore OFFMi; keep DAVA hidden.
+- Include all canonical non-archived/non-retired STYX image content, including design work.
+- Include all canonical non-archived/non-retired Sensetique image content except technical poster-only video derivatives; do not include Sensetique video.
+- Include exactly three approved Moves Awful entries, five Jestei brand/logo entries, one Jestei landings video and eleven Jestei promo/banner entries from the spec.
+- Do not introduce a second Gallery registry, copied media URLs, runtime folder scanning or destructive duplicate cleanup.
+- Use the existing `MasonryInfiniteGrid`; no new layout dependency, CSS columns or `grid-row-end` masonry.
 - Preserve intrinsic aspect ratios; do not crop media merely to normalize the wall.
 - Use equal horizontal/vertical Gallery gap and responsive 5/4/3/2-column targets.
-- Video wall playback is muted, looping, inline, metadata-preloaded, viewport-controlled, and disabled for reduced motion.
-- Mixed-media PhotoSwipe must preserve title/credits, History API item state, Back/Forward and focus restoration.
-- Do not invent missing captions/credits/alt text. Report metadata gaps after projection is materialized.
-- Keep all existing source text unchanged unless a task explicitly changes generated accessibility fallback behavior.
+- Wall videos are muted, looping, inline, metadata-preloaded, viewport-controlled and do not autoplay under reduced motion.
+- Mixed-media PhotoSwipe preserves title/credits, `?item=` History state, Back/Forward and focus restoration.
+- Never infer missing captions, credits or alt text. Report metadata gaps separately.
+- Keep existing authored text unchanged.
 
 ---
 
-## File Structure
+## File Map
 
-### Existing files to modify
+**Modify**
+- `src/data/media/gallery.ts` — mixed-media selection and projection.
+- `src/site/renderers/gallery-page.ts` — one semantic image/video wall.
+- `src/styles/gallery.css` — wall/card visual surface, no layout algorithm.
+- `src/components/gallery/gallery-controller.ts` — compose masonry, wall-video, lightbox and history cleanup.
+- `src/components/gallery/gallery-lightbox.ts` — mixed image/video PhotoSwipe data source.
+- `test/gallery-prerelease.test.mjs` — content/data contracts.
+- `test/gallery-renderer.test.mjs` — renderer/viewer/style contracts.
+- `tools/ci/run-tests.mjs` — register new cheap Gallery tests in Fast CI.
+- `tools/e2e/run-production.mjs` — browser QA for masonry and mixed media.
+- `test/e2e-production-pipeline.test.mjs` — QA source contract when needed by current test structure.
 
-- `src/data/media/gallery.ts` — canonical Gallery selection and discriminated `GalleryItem` projection.
-- `src/site/renderers/gallery-page.ts` — semantic image/video card rendering into one continuous wall.
-- `src/styles/gallery.css` — wall/card presentation only; remove fixed CSS-grid ownership and expose intrinsic card surfaces for InfiniteGrid.
-- `src/components/gallery/gallery-controller.ts` — compose masonry/video/lightbox/history subcontrollers and cleanup.
-- `src/components/gallery/gallery-lightbox.ts` — convert image/video Gallery cards into one PhotoSwipe data source and manage video slide lifecycle.
-- `src/components/gallery/gallery-entry.ts` — remains thin bootstrap; only change if controller signature needs an option.
-- `tools/e2e/run-production.mjs` — extend Gallery browser QA to cover mixed media/masonry/reduced motion/long scroll.
-- `test/gallery-prerelease.test.mjs` — canonical composition/data-model tests.
-- `test/gallery-renderer.test.mjs` — mixed semantic renderer + styling/runtime ownership contracts.
+**Create**
+- `src/components/gallery/gallery-masonry.ts` — one `MasonryInfiniteGrid` owner.
+- `src/components/gallery/gallery-video-playback.ts` — one wall-video playback owner.
+- `test/gallery-masonry.test.mjs` — responsive masonry contract.
+- `test/gallery-video-playback.test.mjs` — observer/reduced-motion contract.
+- `docs/reports/2026-09-14-gallery-media-wall-inventory.md` — exact preview inventory and metadata gaps.
 
-### New focused files
-
-- `src/components/gallery/gallery-masonry.ts` — owns `MasonryInfiniteGrid`, responsive column resolution, relayout and destroy.
-- `src/components/gallery/gallery-video-playback.ts` — owns wall video IntersectionObserver/reduced-motion playback and cleanup.
-- `test/gallery-masonry.test.mjs` — cheap source/behavior contracts for responsive masonry config and cleanup surface.
-- `test/gallery-video-playback.test.mjs` — reduced-motion/observer playback contracts.
-- `docs/reports/2026-09-14-gallery-media-wall-inventory.md` — generated/verified release inventory containing exact counts and missing metadata groups after implementation.
-
-The existing `gallery-state.ts` remains the sole History state machine and should not be structurally changed unless a mixed-media test exposes a real media-type assumption.
+`gallery-state.ts` stays the sole History state machine unless a test demonstrates a real media-type assumption.
 
 ---
 
-### Task 1: Expand the Gallery projection to canonical mixed media
+### Task 1: Project the approved canonical mixed-media set
 
 **Files:**
 - Modify: `src/data/media/gallery.ts`
 - Modify: `test/gallery-prerelease.test.mjs`
 
-**Interfaces:**
-- Consumes: `contextualMediaCatalogItems: readonly MediaCatalogItem[]`, `toCatalogItem(item): CatalogItem`.
-- Produces:
-  - `export type GalleryItem = GalleryImageItem | GalleryVideoItem`
-  - `export interface GalleryImageItem extends GalleryBaseItem { kind: "image"; asset: Extract<CatalogItem["asset"], { type: "image" }> }`
-  - `export interface GalleryVideoItem extends GalleryBaseItem { kind: "video"; asset: Extract<CatalogItem["asset"], { type: "video" }>; posterSrc: string }`
-  - `export function getGalleryItemsFromMediaCatalog(mediaItems?: readonly MediaCatalogItem[]): readonly GalleryItem[]`
-  - `export function getGalleryItems(): readonly GalleryItem[]`
+**Interfaces produced:**
 
-- [ ] **Step 1: Replace the old photo-only assertions with failing composition contracts**
+```ts
+interface GalleryBaseItem extends CatalogItem {
+  width: number;
+  height: number;
+  aspectRatio: number;
+}
 
-Add explicit constants and assertions to `test/gallery-prerelease.test.mjs`:
+export interface GalleryImageItem extends GalleryBaseItem {
+  kind: "image";
+  asset: Extract<CatalogItem["asset"], { type: "image" }>;
+}
+
+export interface GalleryVideoItem extends GalleryBaseItem {
+  kind: "video";
+  asset: Extract<CatalogItem["asset"], { type: "video" }>;
+  posterSrc: string;
+}
+
+export type GalleryItem = GalleryImageItem | GalleryVideoItem;
+
+export function getGalleryItemsFromMediaCatalog(
+  mediaItems?: readonly MediaCatalogItem[],
+): readonly GalleryItem[];
+```
+
+- [ ] **Step 1: Write failing composition tests**
+
+In `test/gallery-prerelease.test.mjs`, require these musician projects:
 
 ```js
 const requiredMusicianProjectIds = [
@@ -86,16 +102,33 @@ const requiredMusicianProjectIds = [
   "shootings-ofelia",
   "shootings-behance-offmi",
 ];
+```
 
-const hiddenProjectIds = ["shootings-dava"];
+Require `shootings-dava` to be absent.
 
-const requiredMovesAwfulEntryIds = [
+Require the exact approved MediaEntry IDs from the spec by resolving them through exported `mediaEntries` to canonical `assetId` values in the test. For example:
+
+```js
+function assetIdsForEntryIds(entryIds) {
+  const wanted = new Set(entryIds);
+  return new Set(
+    mediaEntries
+      .filter((entry) => wanted.has(entry.id))
+      .map((entry) => entry.assetId),
+  );
+}
+```
+
+Use that for:
+
+```js
+const movesAwfulEntryIds = [
   "moves-awful-jestei-landing-animation-01-use-01",
   "moves-awful-jestei-landing-animation-02-use-01",
   "moves-awful-jestei-landing-animation-03-use-01",
 ];
 
-const requiredJesteiBrandEntryIds = [
+const jesteiBrandEntryIds = [
   "jestei-system-logo-source-logo-anatomy-slide-use-01",
   "jestei-system-logo-source-logo-color-slide-use-01",
   "jestei-system-logo-source-logo-type-slide-use-01",
@@ -103,7 +136,7 @@ const requiredJesteiBrandEntryIds = [
   "jestei-system-type-source-logo-druk-slide-use-01",
 ];
 
-const requiredJesteiBannerEntryIds = [
+const jesteiBannerEntryIds = [
   "jestei-05-source-01-701x452-use-01",
   "jestei-05-source-02-1x1-use-01",
   "jestei-05-source-03-1x1-use-01",
@@ -116,73 +149,58 @@ const requiredJesteiBannerEntryIds = [
   "jestei-05-source-10-1x1-use-01",
   "jestei-05-source-11-3x2-use-01",
 ];
+
+const jesteiLandingsEntryIds = ["jestei-13-source-13-1280x588-use-01"];
 ```
 
-Add tests that derive expected STYX/Sensetique canonical **usage-backed** assets from `contextualMediaCatalogItems`, then require every expected image to appear exactly once in `getGalleryItems()` while requiring Sensetique videos to be absent. Require the exact three Moves Awful videos, the five Jestei brand images, `jestei-13-source-13-1280x588-use-01`, and all eleven Jestei promo entries. Require `item.kind` to agree with `item.asset.type` and require intrinsic dimensions for both kinds.
+For bulk STYX/Sensetique expectations, derive expected asset IDs from `contextualMediaCatalogItems` using `projectIds.some(id => id.startsWith("styx-"))` / `sensetique-`, `asset.type === "image"`, and `!archived`.
 
-The test must compare canonical IDs rather than paths. For bulk families, compute expected IDs by `projectIds.some(id => id.startsWith("styx-"))` and `projectIds.some(id => id.startsWith("sensetique-"))`, then filter `asset.type === "image" && !archived`.
+Exclude technical poster-only assets by building:
 
-- [ ] **Step 2: Run the focused data test and confirm RED**
+```js
+const posterAssetIds = new Set(mediaEntries.flatMap((entry) =>
+  entry.posterAssetId ? [entry.posterAssetId] : []
+));
+const usageAssetIds = new Set(mediaEntries.map((entry) => entry.assetId));
+const isTechnicalPosterOnly = (assetId) => posterAssetIds.has(assetId) && !usageAssetIds.has(assetId);
+```
 
-Run:
+Require every output item to have `kind === asset.type`, positive width/height/aspect ratio, and videos to have non-empty `posterSrc`. Require no models and no Sensetique video.
+
+- [ ] **Step 2: Run RED**
 
 ```bash
 node --test test/gallery-prerelease.test.mjs
 ```
 
-Expected: FAIL because the current projection rejects videos, OFFMi and non-photographic STYX/Sensetique images.
+Expected: FAIL because current Gallery is image-only, photo-only, OFFMi-hidden and lacks approved videos/design content.
 
-- [ ] **Step 3: Implement explicit selection predicates without copied URLs**
+- [ ] **Step 3: Implement exact-entry-to-asset resolution in `gallery.ts`**
 
-Refactor `src/data/media/gallery.ts` around identity predicates:
+Import `mediaEntries` and define canonical identity helpers:
 
 ```ts
-const DEFAULT_MUSICIAN_PROJECT_IDS = new Set([
-  "shootings-obladaet",
-  "shootings-evasha",
-  "shootings-igguana",
-  "shootings-esmi",
-  "shootings-hypression",
-  "shootings-ofelia",
-  "shootings-behance-offmi",
-]);
+function canonicalAssetIdsForEntryIds(entryIds: ReadonlySet<string>): ReadonlySet<string> {
+  return new Set(
+    mediaEntries
+      .filter((entry) => entryIds.has(entry.id))
+      .map((entry) => entry.assetId),
+  );
+}
 
-const HIDDEN_PROJECT_IDS = new Set(["shootings-dava"]);
+const posterAssetIds = new Set(
+  mediaEntries.flatMap((entry) => entry.posterAssetId ? [entry.posterAssetId] : []),
+);
+const usageAssetIds = new Set(mediaEntries.map((entry) => entry.assetId));
 
-const MOVES_AWFUL_ENTRY_IDS = new Set([
-  "moves-awful-jestei-landing-animation-01-use-01",
-  "moves-awful-jestei-landing-animation-02-use-01",
-  "moves-awful-jestei-landing-animation-03-use-01",
-]);
-
-const JESTEI_BRAND_ENTRY_IDS = new Set([
-  "jestei-system-logo-source-logo-anatomy-slide-use-01",
-  "jestei-system-logo-source-logo-color-slide-use-01",
-  "jestei-system-logo-source-logo-type-slide-use-01",
-  "jestei-system-logo-source-logo-system-01-use-01",
-  "jestei-system-type-source-logo-druk-slide-use-01",
-]);
-
-const JESTEI_BANNER_ENTRY_IDS = new Set([
-  "jestei-05-source-01-701x452-use-01",
-  "jestei-05-source-02-1x1-use-01",
-  "jestei-05-source-03-1x1-use-01",
-  "jestei-05-source-04-1x1-use-01",
-  "jestei-05-source-05-1x1-use-01",
-  "jestei-05-source-06-1x1-use-01",
-  "jestei-05-source-07-1x1-use-01",
-  "jestei-05-source-08-1x1-use-01",
-  "jestei-05-source-09-1x1-use-01",
-  "jestei-05-source-10-1x1-use-01",
-  "jestei-05-source-11-3x2-use-01",
-]);
-
-const JESTEI_LANDINGS_VIDEO_ENTRY_ID = "jestei-13-source-13-1280x588-use-01";
+function isTechnicalPosterOnly(assetId: string): boolean {
+  return posterAssetIds.has(assetId) && !usageAssetIds.has(assetId);
+}
 ```
 
-Use `MediaCatalogItem.id` / contextual entry identity if the type exposes it; if contextual items expose only asset identity, derive the exact approved entry selections before `toCatalogItem()` from the existing MediaEntry join rather than falling back to path matching. Preserve one canonical public item per contextual usage/identity and dedupe only already-canonicalized duplicate identities.
+Create exact entry-ID sets from the spec, resolve them once to `APPROVED_EXACT_ASSET_IDS`, and use only asset IDs after that point. Do not compare file paths or title strings.
 
-Implement:
+Use this selection predicate:
 
 ```ts
 function belongsToFamily(item: MediaCatalogItem, prefix: string): boolean {
@@ -191,37 +209,53 @@ function belongsToFamily(item: MediaCatalogItem, prefix: string): boolean {
 
 function isApprovedGalleryItem(item: MediaCatalogItem): boolean {
   if (item.archived) return false;
-  if (item.projectIds.some((id) => HIDDEN_PROJECT_IDS.has(id))) return false;
+  if (item.projectIds.includes("shootings-dava")) return false;
+  if (item.asset.type === "model") return false;
+  if (isTechnicalPosterOnly(item.asset.id)) return false;
 
-  if (item.asset.type === "image") {
-    if (belongsToFamily(item, "styx-")) return true;
-    if (belongsToFamily(item, "sensetique-")) return true;
-    if (item.projectIds.some((id) => DEFAULT_MUSICIAN_PROJECT_IDS.has(id))) return true;
-    if (isApprovedJesteiEntry(item)) return true;
-    return item.showInCatalog && item.workAreaIds.includes("photography");
-  }
+  if (APPROVED_EXACT_ASSET_IDS.has(item.asset.id)) return true;
 
-  if (item.asset.type === "video") {
-    return isApprovedMovesAwfulEntry(item) || isApprovedJesteiLandingsVideo(item);
-  }
+  if (item.asset.type === "image" && belongsToFamily(item, "styx-")) return true;
+  if (item.asset.type === "image" && belongsToFamily(item, "sensetique-")) return true;
 
-  return false;
+  if (item.asset.type === "image" && item.projectIds.some((projectId) =>
+    DEFAULT_MUSICIAN_PROJECT_IDS.has(projectId)
+  )) return true;
+
+  return item.asset.type === "image"
+    && item.showInCatalog
+    && item.workAreaIds.includes("photography");
 }
 ```
 
-Do not include model assets. For video output, require `posterSrc` and width/height before it becomes a `GalleryVideoItem`; if an approved video lacks these, let the focused test fail and repair canonical metadata rather than inventing Gallery metadata.
+Map selected `MediaCatalogItem` through `toCatalogItem()`, then discriminate:
 
-- [ ] **Step 4: Run focused data tests and confirm GREEN**
+```ts
+function toGalleryItem(item: CatalogItem): GalleryItem | null {
+  if (!item.width || !item.height || !item.aspectRatio) return null;
 
-Run:
+  if (item.asset.type === "image") {
+    return { ...item, kind: "image", asset: item.asset, width: item.width, height: item.height, aspectRatio: item.aspectRatio };
+  }
+
+  if (item.asset.type === "video" && item.posterSrc) {
+    return { ...item, kind: "video", asset: item.asset, posterSrc: item.posterSrc, width: item.width, height: item.height, aspectRatio: item.aspectRatio };
+  }
+
+  return null;
+}
+```
+
+- [ ] **Step 4: Run GREEN**
 
 ```bash
 node --test test/gallery-prerelease.test.mjs
+npm run typecheck
 ```
 
-Expected: PASS with exact mixed-media composition contracts.
+Expected: PASS.
 
-- [ ] **Step 5: Commit the projection**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add src/data/media/gallery.ts test/gallery-prerelease.test.mjs
@@ -237,80 +271,71 @@ git commit -m "feat(gallery): project approved mixed media"
 - Modify: `src/styles/gallery.css`
 - Modify: `test/gallery-renderer.test.mjs`
 
-**Interfaces:**
-- Consumes: `GalleryItem` union from Task 1.
-- Produces DOM contract:
-  - root `[data-gallery]`
-  - one wall `[data-gallery-grid]`
-  - card `[data-gallery-card][data-gallery-kind="image|video"]`
-  - common identity/metadata data attributes
-  - image cards contain `<img>`
-  - video cards contain `<video muted loop playsinline preload="metadata" poster="...">`
+**DOM contract:** one `[data-gallery-grid]` containing `[data-gallery-card][data-gallery-kind]`; images use `<img>`, videos use semantic `<video>`.
 
-- [ ] **Step 1: Write failing renderer tests for one wall and semantic video cards**
+- [ ] **Step 1: Write RED renderer tests**
 
-Replace the old invisible-series assertion with:
+Require:
 
 ```js
 assert.equal((html.match(/data-gallery-grid/g) ?? []).length, 1);
 assert.doesNotMatch(html, /data-gallery-series=/);
 assert.match(html, /data-gallery-kind="image"/);
 assert.match(html, /data-gallery-kind="video"/);
-assert.match(html, /<video[^>]*muted[^>]*loop[^>]*playsinline[^>]*preload="metadata"/);
+assert.match(html, /<video[^>]*data-gallery-video[^>]*muted[^>]*loop[^>]*playsinline[^>]*preload="metadata"/);
 assert.match(html, /<video[^>]*poster="\/media\//);
+assert.doesNotMatch(html, /<h1[^>]*>gallery<\/h1>/i);
 ```
 
-Require every video card to expose `data-gallery-src`, `data-gallery-poster`, width/height, title and credits. Require the page to keep no page-level `<h1>`.
+Require video cards to expose `data-gallery-src`, `data-gallery-poster`, width, height, title and credits. Require Gallery CSS to contain no `grid-template-columns`, `column-count`, `grid-auto-rows` or `grid-row-end` layout ownership.
 
-Update CSS source assertions so `.gallery__content` is not the layout engine and the old `grid-template-columns: repeat(...)` rules are absent.
-
-- [ ] **Step 2: Run renderer test and confirm RED**
+- [ ] **Step 2: Run RED**
 
 ```bash
 node --test test/gallery-renderer.test.mjs
 ```
 
-Expected: FAIL because the renderer still groups images by series and cannot render videos.
+- [ ] **Step 3: Implement complete image/video card renderers**
 
-- [ ] **Step 3: Implement focused image/video card renderers**
-
-In `gallery-page.ts`, replace `groupBySeries()` and `renderGallerySeries()` with one wall:
+Use shared attribute creation and two renderers:
 
 ```ts
-function renderImageCard(item: GalleryImageItem): string { /* canonical attrs + img */ }
-function renderVideoCard(item: GalleryVideoItem): string { /* canonical attrs + video */ }
-function renderGalleryCard(item: GalleryItem): string {
-  return item.kind === "video" ? renderVideoCard(item) : renderImageCard(item);
+function commonGalleryCardAttributes(item: GalleryItem, title: string, alt: string, credits: string): string {
+  const poster = item.kind === "video"
+    ? ` data-gallery-poster="${escapeHtml(item.posterSrc)}"`
+    : "";
+  return `class="gallery-card" data-gallery-card data-gallery-kind="${item.kind}" data-gallery-item-id="${escapeHtml(item.id)}" data-gallery-src="${escapeHtml(item.asset.src)}"${poster} data-gallery-width="${item.width}" data-gallery-height="${item.height}" data-gallery-alt="${escapeHtml(alt)}" data-gallery-title="${escapeHtml(title)}" data-gallery-credits="${escapeHtml(credits)}" tabindex="0" role="button" aria-haspopup="dialog"`;
+}
+
+function renderImageCard(item: GalleryImageItem): string {
+  const srcset = responsiveImageSrcSet(item.asset);
+  const srcsetAttribute = srcset ? ` srcset="${escapeHtml(srcset)}"` : "";
+  const title = item.title || item.alt || "";
+  const alt = item.alt.trim() || title;
+  const credits = JSON.stringify([...new Set(item.credits.filter((credit) => credit.trim()))]);
+  return `<figure ${commonGalleryCardAttributes(item, title, alt, credits)} aria-label="Открыть изображение"><img class="gallery-card__image" src="${escapeHtml(item.asset.src)}"${srcsetAttribute} sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, (max-width: 1500px) 25vw, 20vw" width="${item.width}" height="${item.height}" alt="${escapeHtml(alt)}" loading="lazy" decoding="async"></figure>`;
+}
+
+function renderVideoCard(item: GalleryVideoItem): string {
+  const title = item.title || item.alt || "";
+  const alt = item.alt.trim() || title;
+  const credits = JSON.stringify([...new Set(item.credits.filter((credit) => credit.trim()))]);
+  return `<figure ${commonGalleryCardAttributes(item, title, alt, credits)} aria-label="Открыть видео"><video class="gallery-card__video" data-gallery-video src="${escapeHtml(item.asset.src)}" poster="${escapeHtml(item.posterSrc)}" width="${item.width}" height="${item.height}" muted loop playsinline preload="metadata" aria-label="${escapeHtml(alt)}"></video></figure>`;
 }
 ```
 
-Common card attributes must include:
+Render one continuous wall:
 
-```html
-data-gallery-card
-data-gallery-kind="image|video"
-data-gallery-item-id="..."
-data-gallery-src="..."
-data-gallery-width="..."
-data-gallery-height="..."
-data-gallery-title="..."
-data-gallery-credits="[...]"
-tabindex="0"
-role="button"
-aria-haspopup="dialog"
+```ts
+content: `<section class="gallery" data-gallery>
+  <div class="gallery__content" data-gallery-grid>
+    ${items.map(renderGalleryCard).join("\n    ")}
+  </div>
+</section>
+<script type="module" src="/src/components/gallery/gallery-entry.ts"></script>`
 ```
 
-Video adds `data-gallery-poster`. Use `aria-label="Открыть видео"` for video and existing image label for images. Render:
-
-```html
-<div class="gallery__content" data-gallery-grid>
-  ...cards...
-</div>
-```
-
-Keep `responsiveImageSrcSet()` only for image cards.
-
-- [ ] **Step 4: Change CSS from fixed grid to runtime-owned wall surface**
+- [ ] **Step 4: Make CSS layout-neutral but measurable**
 
 Use:
 
@@ -318,10 +343,11 @@ Use:
 .gallery__content {
   position: relative;
   min-inline-size: 0;
+  column-gap: var(--gallery-gap);
+  row-gap: var(--gallery-gap);
 }
 
 .gallery-card {
-  position: absolute;
   display: block;
   min-inline-size: 0;
   margin: 0;
@@ -340,26 +366,20 @@ Use:
 }
 ```
 
-Do not encode column count in CSS; Task 3 owns it. Preserve page padding/gap token and no decorative hover transform.
+Remove fixed CSS-grid column rules and old per-series selectors.
 
-- [ ] **Step 5: Run renderer tests and confirm GREEN**
+- [ ] **Step 5: Run GREEN and commit**
 
 ```bash
 node --test test/gallery-renderer.test.mjs
-```
-
-Expected: PASS.
-
-- [ ] **Step 6: Commit semantic mixed-media rendering**
-
-```bash
+npm run typecheck
 git add src/site/renderers/gallery-page.ts src/styles/gallery.css test/gallery-renderer.test.mjs
 git commit -m "feat(gallery): render mixed media wall"
 ```
 
 ---
 
-### Task 3: Add the MasonryInfiniteGrid controller
+### Task 3: Give MasonryInfiniteGrid sole layout ownership
 
 **Files:**
 - Create: `src/components/gallery/gallery-masonry.ts`
@@ -367,56 +387,38 @@ git commit -m "feat(gallery): render mixed media wall"
 - Modify: `src/components/gallery/gallery-controller.ts`
 - Modify: `tools/ci/run-tests.mjs`
 
-**Interfaces:**
-- Produces:
+**Interface:**
 
 ```ts
-export interface GalleryMasonryOptions {
-  root: HTMLElement;
-  gap: number;
-}
-
 export interface GalleryMasonryController {
-  relayout: () => void;
-  destroy: () => void;
+  relayout(): void;
+  destroy(): void;
 }
 
 export function galleryColumnCount(inlineSize: number): 2 | 3 | 4 | 5;
-export function createGalleryMasonry(options: GalleryMasonryOptions): GalleryMasonryController;
+export function createGalleryMasonry(root: HTMLElement): GalleryMasonryController;
 ```
 
-- [ ] **Step 1: Add failing pure column-count and source ownership tests**
-
-Create `test/gallery-masonry.test.mjs`:
+- [ ] **Step 1: Write RED masonry tests**
 
 ```js
-import assert from "node:assert/strict";
-import test from "node:test";
-import { galleryColumnCount } from "../src/components/gallery/gallery-masonry.ts";
-
-test("Gallery masonry resolves 5/4/3/2 responsive columns", () => {
-  assert.equal(galleryColumnCount(1600), 5);
+test("Gallery masonry resolves 5/4/3/2 columns", () => {
+  assert.equal(galleryColumnCount(1601), 5);
   assert.equal(galleryColumnCount(1200), 4);
   assert.equal(galleryColumnCount(900), 3);
   assert.equal(galleryColumnCount(600), 2);
 });
 ```
 
-Also source-check `gallery-masonry.ts` for `MasonryInfiniteGrid`, `gap`, `column`, `renderItems`, `updateItems`, `destroy`, and source-check Gallery CSS to ensure no CSS multi-column or row-span masonry returns.
+Source-check that the module imports `MasonryInfiniteGrid`, uses equal horizontal/vertical gap, calls `renderItems()`/`updateItems()`, observes resize, and destroys its observer/grid. Add this test to Fast CI.
 
-Add this test to `fastTests` in `tools/ci/run-tests.mjs` because it is cheap and protects a long-lived layout contract.
-
-- [ ] **Step 2: Run the new test and confirm RED**
+- [ ] **Step 2: Run RED**
 
 ```bash
 node --test test/gallery-masonry.test.mjs
 ```
 
-Expected: FAIL because the module does not exist.
-
-- [ ] **Step 3: Implement responsive MasonryInfiniteGrid ownership**
-
-Create `gallery-masonry.ts` using the installed API:
+- [ ] **Step 3: Implement the controller without mutating private library state**
 
 ```ts
 import { MasonryInfiniteGrid } from "@egjs/infinitegrid";
@@ -428,26 +430,49 @@ export function galleryColumnCount(inlineSize: number): 2 | 3 | 4 | 5 {
   return 2;
 }
 
-export function createGalleryMasonry({ root, gap }: GalleryMasonryOptions): GalleryMasonryController {
+function measuredGap(grid: HTMLElement): number {
+  const style = getComputedStyle(grid);
+  const value = Number.parseFloat(style.columnGap);
+  return Number.isFinite(value) ? value : 8;
+}
+
+export function createGalleryMasonry(root: HTMLElement): GalleryMasonryController {
   const grid = root.querySelector<HTMLElement>("[data-gallery-grid]");
   if (!grid) return { relayout: () => {}, destroy: () => {} };
 
-  const masonry = new MasonryInfiniteGrid(grid, {
-    gap: { horizontal: gap, vertical: gap },
-    column: galleryColumnCount(grid.clientWidth),
-    align: "stretch",
+  let columnCount = galleryColumnCount(grid.clientWidth);
+  let masonry = new MasonryInfiniteGrid(grid, {
+    column: columnCount,
+    gap: { horizontal: measuredGap(grid), vertical: measuredGap(grid) },
+    align: "justify",
     useResizeObserver: true,
     observeChildren: true,
     autoResize: true,
     preserveUIOnDestroy: false,
   });
-
   masonry.renderItems();
 
-  const resizeObserver = new ResizeObserver(() => {
-    masonry.column = galleryColumnCount(grid.clientWidth);
-    masonry.updateItems();
-  });
+  const rebuild = (): void => {
+    const nextColumns = galleryColumnCount(grid.clientWidth);
+    if (nextColumns === columnCount) {
+      masonry.updateItems();
+      return;
+    }
+    masonry.destroy();
+    columnCount = nextColumns;
+    masonry = new MasonryInfiniteGrid(grid, {
+      column: columnCount,
+      gap: { horizontal: measuredGap(grid), vertical: measuredGap(grid) },
+      align: "justify",
+      useResizeObserver: true,
+      observeChildren: true,
+      autoResize: true,
+      preserveUIOnDestroy: false,
+    });
+    masonry.renderItems();
+  };
+
+  const resizeObserver = new ResizeObserver(rebuild);
   resizeObserver.observe(grid);
 
   return {
@@ -460,36 +485,20 @@ export function createGalleryMasonry({ root, gap }: GalleryMasonryOptions): Gall
 }
 ```
 
-If TypeScript shows `column` is not writable on the InfiniteGrid class, rebuild the instance only when `galleryColumnCount()` changes rather than forcing the type. Do not cast to `any`.
+Compose in `gallery-controller.ts` immediately after root initialization and call `destroy()` during controller cleanup.
 
-Read the equal gap from the computed Gallery CSS custom property in `gallery-controller.ts`:
-
-```ts
-const gap = Number.parseFloat(getComputedStyle(root).getPropertyValue("--gallery-gap")) || 8;
-const masonry = createGalleryMasonry({ root, gap });
-```
-
-Call `masonry.destroy()` during Gallery controller cleanup.
-
-- [ ] **Step 4: Run focused tests and typecheck**
+- [ ] **Step 4: Run GREEN and commit**
 
 ```bash
 node --test test/gallery-masonry.test.mjs
 npm run typecheck
-```
-
-Expected: PASS.
-
-- [ ] **Step 5: Commit masonry runtime**
-
-```bash
 git add src/components/gallery/gallery-masonry.ts src/components/gallery/gallery-controller.ts test/gallery-masonry.test.mjs tools/ci/run-tests.mjs
 git commit -m "feat(gallery): add responsive masonry runtime"
 ```
 
 ---
 
-### Task 4: Add viewport-controlled wall video playback
+### Task 4: Control wall-video playback by viewport and motion preference
 
 **Files:**
 - Create: `src/components/gallery/gallery-video-playback.ts`
@@ -497,19 +506,15 @@ git commit -m "feat(gallery): add responsive masonry runtime"
 - Modify: `src/components/gallery/gallery-controller.ts`
 - Modify: `tools/ci/run-tests.mjs`
 
-**Interfaces:**
-- Produces:
+**Interface:**
 
 ```ts
-export interface GalleryVideoPlaybackController {
-  destroy: () => void;
-}
-
+export interface GalleryVideoPlaybackController { destroy(): void }
 export function galleryVideoShouldAutoplay(reducedMotion: boolean, visibleRatio: number): boolean;
 export function createGalleryVideoPlayback(root: HTMLElement): GalleryVideoPlaybackController;
 ```
 
-- [ ] **Step 1: Write RED tests for motion and visibility policy**
+- [ ] **Step 1: Write RED policy tests**
 
 ```js
 assert.equal(galleryVideoShouldAutoplay(false, 0.75), true);
@@ -517,72 +522,38 @@ assert.equal(galleryVideoShouldAutoplay(false, 0.25), false);
 assert.equal(galleryVideoShouldAutoplay(true, 1), false);
 ```
 
-Source-check that the implementation uses one `IntersectionObserver`, watches `matchMedia("(prefers-reduced-motion: reduce)")`, pauses on non-visible entries, and disconnects/removes listeners on destroy.
+Source-check one `IntersectionObserver`, `matchMedia("(prefers-reduced-motion: reduce)")`, pause behavior and cleanup. Add to Fast CI.
 
-Add the test to the Fast set.
-
-- [ ] **Step 2: Run the test and confirm RED**
+- [ ] **Step 2: Run RED**
 
 ```bash
 node --test test/gallery-video-playback.test.mjs
 ```
 
-Expected: FAIL because module does not exist.
+- [ ] **Step 3: Implement observer/reduced-motion controller**
 
-- [ ] **Step 3: Implement one observer for all wall videos**
+Use a `0.6` visible-ratio threshold. Query `video[data-gallery-video]`, force `muted`, `loop`, `playsInline`, observe every video, call `void video.play().catch(() => {})` only when policy is true, otherwise `pause()`. On media-query change to reduced motion, pause all immediately. On destroy: disconnect observer, remove the media-query listener and pause all videos.
 
-```ts
-export function galleryVideoShouldAutoplay(reducedMotion: boolean, visibleRatio: number): boolean {
-  return !reducedMotion && visibleRatio >= 0.6;
-}
-```
+- [ ] **Step 4: Compose controller and verify**
 
-`createGalleryVideoPlayback()` must:
-
-1. query `video[data-gallery-video]`;
-2. force `muted = true`, `loop = true`, `playsInline = true`;
-3. create one IntersectionObserver with thresholds `[0, 0.6, 1]`;
-4. call `void video.play().catch(() => {})` only when policy returns true;
-5. otherwise `video.pause()`;
-6. on reduced-motion preference change, pause all videos immediately when enabled;
-7. on destroy, disconnect observer, remove media-query listener and pause all videos.
-
-- [ ] **Step 4: Compose video playback in Gallery controller**
-
-Instantiate after masonry:
-
-```ts
-const videoPlayback = createGalleryVideoPlayback(root);
-```
-
-Destroy before masonry/lightbox cleanup so videos stop before DOM layout is released.
-
-- [ ] **Step 5: Run focused tests + typecheck**
+Instantiate `const videoPlayback = createGalleryVideoPlayback(root);` in `gallery-controller.ts`; destroy it before masonry/lightbox cleanup.
 
 ```bash
 node --test test/gallery-video-playback.test.mjs
 npm run typecheck
-```
-
-Expected: PASS.
-
-- [ ] **Step 6: Commit video wall playback**
-
-```bash
 git add src/components/gallery/gallery-video-playback.ts src/components/gallery/gallery-controller.ts test/gallery-video-playback.test.mjs tools/ci/run-tests.mjs
 git commit -m "feat(gallery): control wall video playback"
 ```
 
 ---
 
-### Task 5: Extend the PhotoSwipe adapter to mixed image/video slides
+### Task 5: Extend PhotoSwipe to image and video slides
 
 **Files:**
 - Modify: `src/components/gallery/gallery-lightbox.ts`
 - Modify: `test/gallery-renderer.test.mjs`
 
-**Interfaces:**
-- `GallerySlide` becomes discriminated:
+**Slide model:**
 
 ```ts
 type GalleryImageSlide = SlideData & {
@@ -601,167 +572,114 @@ type GalleryVideoSlide = SlideData & {
 type GallerySlide = GalleryImageSlide | GalleryVideoSlide;
 ```
 
-- [ ] **Step 1: Write failing source/runtime contracts for video slide support**
+- [ ] **Step 1: Write RED mixed-viewer tests**
 
-Extend `test/gallery-renderer.test.mjs` to require:
+Require source to read `data-gallery-kind` / `data-gallery-poster`, generate `<video class="gallery-lightbox__video" controls playsinline preload="metadata">`, escape source/poster attributes, pause viewer videos on `change`, `close`, `destroy`, and retain title + credits caption generation.
 
-- `gallery-lightbox.ts` reads `data-gallery-kind` and `data-gallery-poster`;
-- video slide HTML contains `<video controls playsinline preload="metadata"`;
-- video source is escaped before insertion;
-- a pause helper is called from PhotoSwipe `change`, `close` and `destroy` lifecycle paths;
-- captions still combine title + canonical credits for both kinds.
-
-- [ ] **Step 2: Run renderer/lightbox tests and confirm RED**
+- [ ] **Step 2: Run RED**
 
 ```bash
 node --test test/gallery-renderer.test.mjs
 ```
 
-Expected: FAIL because `slideFor()` assumes an `<img>`.
+- [ ] **Step 3: Split card-to-slide conversion**
 
-- [ ] **Step 3: Split card parsing by kind**
-
-Implement:
+Keep current image logic in `imageSlideFor()`. Add:
 
 ```ts
-function imageSlideFor(card: HTMLElement): GalleryImageSlide | null { /* current image path */ }
-function videoSlideFor(card: HTMLElement): GalleryVideoSlide | null { /* canonical video path */ }
+function escapeAttribute(value: string): string {
+  return escapeCaption(value).replaceAll('"', "&quot;");
+}
+
+function videoSlideFor(card: HTMLElement): GalleryVideoSlide | null {
+  const id = card.dataset.galleryItemId || "";
+  const src = card.dataset.gallerySrc || "";
+  const poster = card.dataset.galleryPoster || "";
+  const width = Number.parseInt(card.dataset.galleryWidth || "", 10);
+  const height = Number.parseInt(card.dataset.galleryHeight || "", 10);
+  if (!id || !src || !poster || !Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0) return null;
+  const title = card.dataset.galleryTitle?.trim() || "";
+  return {
+    galleryItemId: id,
+    kind: "video",
+    type: "html",
+    html: `<video class="gallery-lightbox__video" controls playsinline preload="metadata" poster="${escapeAttribute(poster)}"><source src="${escapeAttribute(src)}"></video>`,
+    width,
+    height,
+    captionHtml: captionHtml(card, title),
+  };
+}
+
 function slideFor(card: HTMLElement): GallerySlide | null {
-  return card.dataset.galleryKind === "video"
-    ? videoSlideFor(card)
-    : imageSlideFor(card);
+  return card.dataset.galleryKind === "video" ? videoSlideFor(card) : imageSlideFor(card);
 }
 ```
 
-Video HTML must be generated from escaped dataset values:
+Do not autoplay fullscreen video by default.
+
+- [ ] **Step 4: Add viewer-video lifecycle cleanup**
 
 ```ts
-const html = `<video class="gallery-lightbox__video" controls playsinline preload="metadata" poster="${escapeAttribute(poster)}"><source src="${escapeAttribute(src)}"></video>`;
-```
-
-Do not autoplay video in the fullscreen viewer by default. Native controls own user playback.
-
-- [ ] **Step 4: Pause non-active/fullscreen videos on lifecycle transitions**
-
-Implement a scoped helper:
-
-```ts
-function pauseViewerVideos(root: ParentNode): void {
-  root.querySelectorAll<HTMLVideoElement>(".gallery-lightbox__video").forEach((video) => video.pause());
+function pauseViewerVideos(): void {
+  document.querySelectorAll<HTMLVideoElement>(".gallery-lightbox .gallery-lightbox__video")
+    .forEach((video) => video.pause());
 }
 ```
 
-On PhotoSwipe `change`, pause all viewer videos before syncing caption/item state. On `close` and `destroy`, pause all viewer videos. Do not touch wall videos outside the PhotoSwipe root.
+Call it on PhotoSwipe `change` before sync, on `close`, and on `destroy`. This selector is scoped to Gallery PhotoSwipe and does not pause wall videos.
 
-- [ ] **Step 5: Run focused tests + typecheck**
+- [ ] **Step 5: Run GREEN and commit**
 
 ```bash
 node --test test/gallery-renderer.test.mjs test/gallery-prerelease.test.mjs
 npm run typecheck
-```
-
-Expected: PASS.
-
-- [ ] **Step 6: Commit mixed-media viewer**
-
-```bash
 git add src/components/gallery/gallery-lightbox.ts test/gallery-renderer.test.mjs
 git commit -m "feat(gallery): support video lightbox slides"
 ```
 
 ---
 
-### Task 6: Add browser QA for masonry and mixed media
+### Task 6: Extend browser QA and create exact inventory report
 
 **Files:**
 - Modify: `tools/e2e/run-production.mjs`
-- Modify: `test/e2e-production-pipeline.test.mjs` if the workflow contract asserts existing QA steps.
+- Modify: `test/e2e-production-pipeline.test.mjs` when current test structure source-checks QA behavior.
+- Create: `docs/reports/2026-09-14-gallery-media-wall-inventory.md`
 
-**Interfaces:**
-- Consumes current `runProductionE2E` Gallery flow.
-- Produces deterministic browser assertions for mixed media and masonry on local/Cloudflare preview targets.
+- [ ] **Step 1: Add RED browser-QA source contracts**
 
-- [ ] **Step 1: Add failing source-contract assertions for new browser coverage**
-
-If `test/e2e-production-pipeline.test.mjs` inspects production QA, add strings/functions requiring the Gallery flow to inspect:
-
-- both `[data-gallery-kind="image"]` and `[data-gallery-kind="video"]`;
-- long-scroll to the bottom and back;
-- horizontal overflow at desktop and mobile widths;
-- masonry gap variance;
-- reduced-motion video paused state;
-- normal-motion visible video playback attempt/state;
-- image lightbox;
-- video lightbox with `controls`;
-- Arrow navigation across a media-kind boundary;
-- credits surface;
-- Back/Forward deep-link state;
-- Escape/focus restoration.
-
-- [ ] **Step 2: Run the focused contract test and confirm RED**
+Require Gallery QA markers for image and video cards, long scroll, horizontal overflow, reduced-motion video pause, normal visible-video playback attempt, image lightbox, video lightbox controls, mixed Arrow navigation, credits, Back/Forward and focus restoration.
 
 ```bash
 node --test test/e2e-production-pipeline.test.mjs
 ```
 
-Expected: FAIL on missing mixed-media Gallery QA markers.
+Expected: FAIL until browser flow is extended.
 
-- [ ] **Step 3: Extend the Gallery browser QA flow**
+- [ ] **Step 2: Extend Chromium Gallery QA**
 
-In `tools/e2e/run-production.mjs`, add assertions using actual DOM geometry. For equal gaps, collect visible masonry cards sorted by their rendered column/row positions and assert that horizontal/vertical gap values cluster within a small pixel tolerance (for example `<= 2px`) around the computed `--gallery-gap`, rather than expecting a mathematically identical float.
-
-Check density by asserting no systematic empty rectangular holes larger than one normal card-width/gap region within the masonry container. Do not assert exact card coordinates because viewport fonts/media decode timing can vary.
+At desktop and mobile widths, assert both media kinds exist, scroll to last card and back, and verify `document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1`.
 
 For reduced motion:
 
 ```js
 await page.emulateMedia({ reducedMotion: "reduce" });
 await page.reload();
-const playing = await page.locator("[data-gallery-kind=video] video").evaluateAll((videos) =>
+const anyPlaying = await page.locator("[data-gallery-video]").evaluateAll((videos) =>
   videos.some((video) => !video.paused)
 );
-assert.equal(playing, false);
+assert.equal(anyPlaying, false);
 ```
 
-Restore normal motion before subsequent tests.
+Restore normal motion before lightbox tests. Open one image and one video by keyboard. Require `.gallery-lightbox__video[controls]` for video. Navigate across an image/video boundary, verify `?item=`, Back/Forward, Escape, credits and focus restoration.
 
-For video lightbox, find a video card, activate it via keyboard, assert `.gallery-lightbox__video[controls]`, then close and verify wall focus returns to the originating card.
+For masonry, inspect card bounding boxes and computed `columnGap`/`rowGap`; allow <=2px rendering tolerance. Assert there is no repeated fixed row baseline and no systematic hole wider/taller than a normal gap between neighboring packed cards. Do not assert exact card coordinates.
 
-- [ ] **Step 4: Run browser QA against a local production-like build in CI-compatible mode**
+- [ ] **Step 3: Generate exact canonical inventory**
 
-Run:
+Run a one-shot Node script importing `getGalleryItems()` and emit counts for:
 
-```bash
-npm run build:site
-npm run test:e2e:production
-```
-
-Expected: PASS.
-
-- [ ] **Step 5: Commit browser QA**
-
-```bash
-git add tools/e2e/run-production.mjs test/e2e-production-pipeline.test.mjs
-git commit -m "test(gallery): cover mixed media masonry in browser qa"
-```
-
----
-
-### Task 7: Produce the exact content inventory and metadata-gap report
-
-**Files:**
-- Create: `docs/reports/2026-09-14-gallery-media-wall-inventory.md`
-- Modify tests only if inventory exposes a canonical-registration defect that blocks the approved content.
-
-**Interfaces:**
-- Consumes `getGalleryItems()` after Tasks 1–5.
-- Produces a committed factual report, not runtime data.
-
-- [ ] **Step 1: Generate exact counts from the canonical projection**
-
-Use a one-shot Node invocation importing `getGalleryItems()` and output counts by these source families:
-
-- musician photography total and per project;
+- each musician project;
 - OFFMi;
 - STYX images;
 - Sensetique images;
@@ -773,121 +691,56 @@ Use a one-shot Node invocation importing `getGalleryItems()` and output counts b
 - total videos;
 - total Gallery items.
 
-Do not count poster assets as separate Gallery items.
+Audit repeated Gallery IDs, repeated exact `asset.src`, missing width/height, videos missing poster, items missing both title and alt, empty credits, and placeholder-only credits such as `/ 2023.` or `/ 2024.`. Do not modify authorship metadata in this task.
 
-- [ ] **Step 2: Audit exact duplicates and metadata gaps in the projected set**
+- [ ] **Step 4: Write report with exact IDs/counts/commands**
 
-Report:
+Create `docs/reports/2026-09-14-gallery-media-wall-inventory.md` containing branch/head, commands, exact counts, duplicate findings and missing metadata grouped by family.
 
-- repeated canonical item IDs (must be zero);
-- repeated exact asset `src` values and whether they are already canonical aliases;
-- items missing intrinsic width/height (must be zero for release candidate);
-- image items whose canonical alt and title are both empty;
-- video items missing poster;
-- items with empty credits;
-- suspicious placeholder credits such as `/ 2023.` or `/ 2024.` without an author/role.
-
-Do not modify metadata in this task unless missing dimensions/poster make the approved item technically unusable. Human/editorial credit corrections remain a report.
-
-- [ ] **Step 3: Write the report with IDs grouped by family**
-
-The report must include the exact branch/head used for the audit and the exact commands used to generate it. No estimates such as “about 200”.
-
-- [ ] **Step 4: Commit inventory**
+- [ ] **Step 5: Verify and commit**
 
 ```bash
-git add docs/reports/2026-09-14-gallery-media-wall-inventory.md
-git commit -m "docs(gallery): record mixed media inventory"
+npm run build:site
+npm run test:e2e:production
+git add tools/e2e/run-production.mjs test/e2e-production-pipeline.test.mjs docs/reports/2026-09-14-gallery-media-wall-inventory.md
+git commit -m "test(gallery): verify mixed media masonry preview"
 ```
 
 ---
 
-### Task 8: Run full exact-head verification and publish preview only
+### Task 7: Publish exact-head Cloudflare preview, do not merge
 
-**Files:**
-- No production source changes unless verification finds a real defect.
-- Create/update PR metadata for `feature/gallery-media-wall-preview` -> `prod`.
+**Files:** no production source changes unless verification reveals a real defect.
 
-**Interfaces:**
-- Produces an exact-head Cloudflare Preview and immutable deployment URL for manual review.
-
-- [ ] **Step 1: Run the complete local/repository gate**
+- [ ] **Step 1: Run complete repository gate**
 
 ```bash
 npm run typecheck
 npm run test:fast
-node tools/check-repository-structure.mjs
 npm run build:site
 npm run test:e2e:production
 ```
 
-Expected: all PASS. If repository structure uses a different direct script path in current `prod`, use the same command invoked by Fast CI rather than creating another checker.
+Also run the same repository-structure check command used by Fast CI. Do not invent a second checker.
 
-- [ ] **Step 2: Self-review the diff against the spec**
+- [ ] **Step 2: Self-review `prod...HEAD` against the spec**
 
-Verify manually from `git diff prod...HEAD`:
+Confirm: no copied Gallery media URLs; DAVA remains hidden; Sensetique video absent; sixth Jestei audience slide absent; no filters/tabs/search/sort; no CSS columns/row-span masonry; Gallery nav button remains hidden; no unrelated text rewrite; no destructive media deletion.
 
-- no new media URLs hard-coded into Gallery selection;
-- no DAVA enablement;
-- no Sensetique video enablement;
-- no sixth Jestei audience/product slide;
-- no filters/tabs/search/sort;
-- no CSS columns/row-span masonry;
-- no production-navigation Gallery button enablement;
-- no source-text rewrites unrelated to Gallery;
-- no destructive media deletion.
+- [ ] **Step 3: Open draft PR**
 
-- [ ] **Step 3: Open a draft PR to `prod`**
+Title: `gallery: mixed-media masonry preview`
 
-Use title:
+Body must include exact inventory counts and the sentence: `Preview only. Do not merge before manual visual approval.`
 
-```text
-gallery: mixed-media masonry preview
-```
+- [ ] **Step 4: Require exact-head checks**
 
-PR body must summarize exact inventory counts from Task 7 and state explicitly: `Preview only. Do not merge before manual visual approval.`
+Wait for Fast CI, production build, Dependency Review, CodeQL, PR Preview exact-SHA build, isolated Cloudflare deploy and remote Chromium QA. Any queued/in-progress/failed required run means the candidate is not ready.
 
-- [ ] **Step 4: Wait for exact-head checks**
+- [ ] **Step 5: Externally verify immutable preview**
 
-Require:
+Require `/gallery/` HTTP 200, noindex, exact card/image/video counts from the report, long-scroll completion, no horizontal overflow, consistent masonry spacing, one image lightbox, one video lightbox with controls, video paused after close, credits, deep-link `?item=`, Back/Forward and Escape/focus restoration.
 
-- Fast CI success;
-- production build success;
-- Dependency Review success;
-- CodeQL success;
-- PR Preview exact-SHA build success;
-- isolated Cloudflare deploy success;
-- remote Chromium QA success.
+- [ ] **Step 6: Hand off preview only**
 
-Do not claim readiness while any required run is queued/in-progress/failed.
-
-- [ ] **Step 5: Verify preview from the outside**
-
-On the immutable exact-SHA preview URL, verify:
-
-- `/gallery/` returns 200;
-- response is noindex;
-- page contains the exact expected total Gallery card count from Task 7;
-- image/video counts match report;
-- long scroll reaches final card;
-- no horizontal overflow desktop/mobile;
-- visible masonry spacing is consistent;
-- opening at least one image and one video works;
-- video slide has controls and pauses after close;
-- credits render;
-- deep-link `?item=` works;
-- Back/Forward works.
-
-- [ ] **Step 6: Hand off preview without merging**
-
-Report:
-
-- PR number;
-- exact verified head SHA;
-- human preview alias;
-- immutable preview URL;
-- exact inventory counts;
-- missing credits/metadata groups from Task 7;
-- statement that `prod` is unchanged.
-
-Stop there. Production merge requires a new explicit user approval after visual review.
+Report PR number, exact verified SHA, human alias, immutable preview URL, exact inventory counts, missing metadata groups and explicitly state that `prod` is unchanged. Stop. Production merge requires a new explicit user approval after visual review.
