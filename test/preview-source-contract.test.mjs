@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { validateCmsSnapshot } from "../tools/preview/cms-snapshot.mjs";
+import {
+  cmsPreviewLeaseArgument,
+  validateCmsSnapshot,
+} from "../tools/preview/cms-snapshot.mjs";
 import {
   DEFAULT_CMS_PREVIEW_TTL_HOURS,
   normalizeSelectedPrNumbers,
@@ -65,10 +68,22 @@ test("CMS snapshot reuses fail-closed publication scope", () => {
   assert.throws(() => validateCmsSnapshot({ id: "unknown", files: ["src/content/new-unconfigured.json"] }), /blocked/);
 });
 
+test("CMS snapshot lease pins the exact previously observed ref state", () => {
+  const ref = "refs/heads/cms-preview/styx-copy";
+  assert.equal(
+    cmsPreviewLeaseArgument(ref, "a".repeat(40)),
+    `--force-with-lease=${ref}:${"a".repeat(40)}`,
+  );
+  assert.equal(cmsPreviewLeaseArgument(ref, null), `--force-with-lease=${ref}:`);
+  assert.throws(() => cmsPreviewLeaseArgument(ref, "main"), /exact SHA/);
+});
+
 test("Lab composer is source-only and cannot mutate dev or prod", () => {
   const workflow = readFileSync(new URL("../.github/workflows/lab-compose.yml", import.meta.url), "utf8");
   assert.match(workflow, /ref: dev/);
   assert.match(workflow, /\.base\.ref/);
+  assert.match(workflow, /lab_expected_sha/);
+  assert.match(workflow, /--force-with-lease=refs\/heads\/lab:\$\{\{ steps\.resolve\.outputs\.lab_expected_sha \}\}/);
   assert.match(workflow, /HEAD:refs\/heads\/lab/);
   assert.doesNotMatch(workflow, /HEAD:refs\/heads\/(?:dev|prod)/);
   assert.doesNotMatch(workflow, /CLOUDFLARE|API_TOKEN|ACCOUNT_ID|PASSWORD|SESSION_SECRET/i);
