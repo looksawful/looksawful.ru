@@ -11,6 +11,7 @@ export interface EntityShellOptions extends SectionRenderOptions {
   /** Home uses this hook for intra-page project navigation; standalone pages do not require it. */
   navigationProject?: boolean;
   introHeadingLevel?: 1 | 2;
+  visuallyHideIntroTitle?: boolean;
 }
 
 export function renderEntityShell(
@@ -32,6 +33,7 @@ export function renderEntityShell(
 
   const intro = renderEntityIntro(content.intro, {
     headingLevel: options.introHeadingLevel ?? 1,
+    visuallyHideTitle: options.visuallyHideIntroTitle === true,
   });
   const sections = renderSections(content.sections, options);
 
