@@ -8,15 +8,29 @@ const meta = {
   parameters: {
     layout: "padded",
     looksawful: {
-      sources: ["src/templates/section-intro.ts", "src/data/content/moves-awful.ts"],
+      sources: [
+        "src/data/content/moves-awful.ts",
+        "src/templates/section-intro.ts",
+        "src/site/renderers/home/home-slots.ts",
+      ],
       layer: "molecule",
-      policy: "isolated",
+      policy: "composition",
       canonical: true,
-      state: "default",
+      state: "embedded-no-reveal",
       visibility: ["always"],
+      motion: ["settled"],
+      responsive: {
+        review: ["desktop", "tablet", "mobile"],
+      },
+    },
+    docs: {
+      description: {
+        component: "Uses the canonical Moves Awful section data and the production section-intro renderer in the same reveal-disabled mode used by the nested homepage composition.",
+      },
     },
   },
 };
 
 export default meta;
-export const Default = {};
+
+export const EmbeddedNoReveal = {};
