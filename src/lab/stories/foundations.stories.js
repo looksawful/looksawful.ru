@@ -105,3 +105,7 @@ export const SpacingAndLayout = {
 export const Motion = {
   render: () => tokenTable((name) => /(motion|duration|ease|transition)/i.test(name)),
 };
+
+export const Controls = {
+  render: () => tokenTable((name) => /(control|field|button|focus|shadow)/i.test(name)),
+};
