@@ -1,4 +1,4 @@
-name: Lab Preview
+﻿name: Lab Preview
 
 on:
   push:
@@ -54,7 +54,7 @@ jobs:
             public/media/generated/video
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
-          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+          key: generated-media-v4-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
 
       - name: Install ffmpeg on cache miss
         if: steps.media-cache.outputs.cache-hit != 'true'
@@ -82,7 +82,7 @@ jobs:
             public/media/generated/video
             public/media/generated/video-inventory.json
             .cache/media/generated-cache.json
-          key: generated-media-v3-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
+          key: generated-media-v4-${{ runner.os }}-${{ steps.media.outputs.fingerprint }}
 
       - name: Typecheck
         run: npm run typecheck
