@@ -1,18 +1,32 @@
 import type { MediaCatalogItem } from "./catalog.ts";
 import { contextualMediaCatalogItems } from "./catalog-view.ts";
+import { mediaEntries } from "./entries/index.ts";
 import {
   toCatalogItem,
   type CatalogItem,
 } from "./public-catalog.ts";
 
-export interface GalleryItem extends CatalogItem {
-  asset: Extract<CatalogItem["asset"], { type: "image" }>;
+export type GalleryBaseItem = Omit<
+  CatalogItem,
+  "asset" | "width" | "height" | "aspectRatio"
+> & {
   width: number;
   height: number;
   aspectRatio: number;
-  seriesId: string;
-  seriesOrder: number;
-}
+};
+
+export type GalleryImageItem = GalleryBaseItem & {
+  kind: "image";
+  asset: Extract<CatalogItem["asset"], { type: "image" }>;
+};
+
+export type GalleryVideoItem = GalleryBaseItem & {
+  kind: "video";
+  asset: Extract<CatalogItem["asset"], { type: "video" }>;
+  posterSrc: string;
+};
+
+export type GalleryItem = GalleryImageItem | GalleryVideoItem;
 
 const DEFAULT_MUSICIAN_PROJECT_IDS = new Set([
   "shootings-obladaet",
@@ -21,72 +35,144 @@ const DEFAULT_MUSICIAN_PROJECT_IDS = new Set([
   "shootings-esmi",
   "shootings-hypression",
   "shootings-ofelia",
+  "shootings-behance-offmi",
 ]);
 
-function isCanonicalPhotograph(item: MediaCatalogItem): boolean {
+const HIDDEN_PROJECT_IDS = new Set(["shootings-dava"]);
+
+const APPROVED_MOVES_AWFUL_ENTRY_IDS = new Set([
+  "moves-awful-jestei-landing-animation-01-use-01",
+  "moves-awful-jestei-landing-animation-02-use-01",
+  "moves-awful-jestei-landing-animation-03-use-01",
+]);
+
+const APPROVED_JESTEI_BRAND_ENTRY_IDS = new Set([
+  "jestei-system-logo-source-logo-anatomy-slide-use-01",
+  "jestei-system-logo-source-logo-color-slide-use-01",
+  "jestei-system-logo-source-logo-type-slide-use-01",
+  "jestei-system-logo-source-logo-system-01-use-01",
+  "jestei-system-type-source-logo-druk-slide-use-01",
+]);
+
+const APPROVED_JESTEI_BANNER_ENTRY_IDS = new Set([
+  "jestei-05-source-01-701x452-use-01",
+  "jestei-05-source-02-1x1-use-01",
+  "jestei-05-source-03-1x1-use-01",
+  "jestei-05-source-04-1x1-use-01",
+  "jestei-05-source-05-1x1-use-01",
+  "jestei-05-source-06-1x1-use-01",
+  "jestei-05-source-07-1x1-use-01",
+  "jestei-05-source-08-1x1-use-01",
+  "jestei-05-source-09-1x1-use-01",
+  "jestei-05-source-10-1x1-use-01",
+  "jestei-05-source-11-3x2-use-01",
+]);
+
+const APPROVED_JESTEI_LANDINGS_ENTRY_IDS = new Set([
+  "jestei-13-source-13-1280x588-use-01",
+]);
+
+function canonicalAssetIdsForEntryIds(entryIds: ReadonlySet<string>): ReadonlySet<string> {
+  return new Set(
+    mediaEntries
+      .filter((entry) => entryIds.has(entry.id))
+      .map((entry) => entry.assetId),
+  );
+}
+
+const APPROVED_EXACT_ASSET_IDS = new Set([
+  ...canonicalAssetIdsForEntryIds(APPROVED_MOVES_AWFUL_ENTRY_IDS),
+  ...canonicalAssetIdsForEntryIds(APPROVED_JESTEI_BRAND_ENTRY_IDS),
+  ...canonicalAssetIdsForEntryIds(APPROVED_JESTEI_BANNER_ENTRY_IDS),
+  ...canonicalAssetIdsForEntryIds(APPROVED_JESTEI_LANDINGS_ENTRY_IDS),
+]);
+
+const posterAssetIds = new Set(
+  mediaEntries.flatMap((entry) => entry.posterAssetId ? [entry.posterAssetId] : []),
+);
+const usageAssetIds = new Set(mediaEntries.map((entry) => entry.assetId));
+
+function isTechnicalPosterOnly(assetId: string): boolean {
+  return posterAssetIds.has(assetId) && !usageAssetIds.has(assetId);
+}
+
+function belongsToFamily(item: MediaCatalogItem, prefix: string): boolean {
+  return item.projectIds.some((projectId) => projectId.startsWith(prefix));
+}
+
+function isApprovedGalleryItem(item: MediaCatalogItem): boolean {
+  if (item.archived) return false;
+  if (item.projectIds.some((projectId) => HIDDEN_PROJECT_IDS.has(projectId))) return false;
+  if (item.asset.type === "model") return false;
+  if (isTechnicalPosterOnly(item.asset.id)) return false;
+
+  if (APPROVED_EXACT_ASSET_IDS.has(item.asset.id)) return true;
+
+  if (item.asset.type === "image" && belongsToFamily(item, "styx-")) return true;
+  if (item.asset.type === "image" && belongsToFamily(item, "sensetique-")) return true;
+
+  if (
+    item.asset.type === "image"
+    && item.projectIds.some((projectId) => DEFAULT_MUSICIAN_PROJECT_IDS.has(projectId))
+  ) {
+    return true;
+  }
+
   return item.asset.type === "image"
-    && !item.archived
+    && item.showInCatalog
     && item.workAreaIds.includes("photography");
 }
 
-function isDefaultGalleryPhotograph(item: MediaCatalogItem): boolean {
-  return item.projectIds.some((projectId) => (
-    DEFAULT_MUSICIAN_PROJECT_IDS.has(projectId)
-    || projectId.startsWith("styx-")
-  ));
-}
+function toGalleryItem(item: CatalogItem): GalleryItem | null {
+  if (!item.width || !item.height || !item.aspectRatio) return null;
 
-function seriesIdFor(item: CatalogItem): string {
-  return item.projectIds[0] ?? `asset-${item.id}`;
-}
+  const base = {
+    ...item,
+    width: item.width,
+    height: item.height,
+    aspectRatio: item.aspectRatio,
+  };
 
-function toGalleryItems(catalogItems: readonly CatalogItem[]): readonly GalleryItem[] {
-  const sequenceBySeries = new Map<string, number>();
+  if (item.asset.type === "image") {
+    return {
+      ...base,
+      kind: "image",
+      asset: item.asset,
+    };
+  }
 
-  return catalogItems
-    .filter((item): item is CatalogItem & {
-      asset: Extract<CatalogItem["asset"], { type: "image" }>;
-      width: number;
-      height: number;
-      aspectRatio: number;
-    } => (
-      item.asset.type === "image"
-      && item.width !== undefined
-      && item.height !== undefined
-      && item.aspectRatio !== undefined
-    ))
-    .map((item) => {
-      const seriesId = seriesIdFor(item);
-      const seriesOrder = sequenceBySeries.get(seriesId) ?? 0;
-      sequenceBySeries.set(seriesId, seriesOrder + 1);
-      return { ...item, seriesId, seriesOrder };
-    });
+  if (item.asset.type === "video" && item.posterSrc) {
+    return {
+      ...base,
+      kind: "video",
+      asset: item.asset,
+      posterSrc: item.posterSrc,
+    };
+  }
+
+  return null;
 }
 
 /**
- * Gallery is a curated view over the canonical Media Catalog.
- *
- * Musician and Styx photography form the default portfolio selection.
- * Any other real photograph remains hidden until the existing
- * `showInCatalog` / "Показывать в галерее" editorial flag is enabled in
- * CMS or MediaDesk. Non-photographic assets never enter Gallery even when a
- * broader Public Catalog direction can resolve to `photo`.
+ * Curated mixed-media Gallery projection over canonical media ownership.
+ * Bulk project families are selected by canonical context; exact Jestei and
+ * Moves Awful selections resolve MediaEntry IDs to canonical asset IDs once.
  */
 export function getGalleryItemsFromMediaCatalog(
   mediaItems: readonly MediaCatalogItem[] = contextualMediaCatalogItems,
 ): readonly GalleryItem[] {
-  const catalogItems = mediaItems
-    .filter(isCanonicalPhotograph)
-    .filter((item) => isDefaultGalleryPhotograph(item) || item.showInCatalog)
-    .map(toCatalogItem);
-
-  return toGalleryItems(catalogItems);
+  return mediaItems
+    .filter(isApprovedGalleryItem)
+    .map(toCatalogItem)
+    .map(toGalleryItem)
+    .filter((item): item is GalleryItem => item !== null);
 }
 
 export function getGalleryItems(): readonly GalleryItem[] {
   return getGalleryItemsFromMediaCatalog();
 }
 
+/** @deprecated Layout no longer groups the public wall by series. */
 export function getGallerySeriesId(item: GalleryItem): string {
-  return item.seriesId;
+  return item.projectIds[0] ?? `asset-${item.id}`;
 }
