@@ -56,17 +56,16 @@ test("Gallery is a first-class manifest-owned SitePage", () => {
   assert.equal(getPageByPath("/gallery")?.id, "gallery");
 });
 
-test("Gallery participates in primary navigation by SitePage identity", () => {
+test("Gallery keeps primary navigation identity but is hidden from rendered primary items", () => {
   assert.ok(
     PRIMARY_NAVIGATION_PAGE_IDS.includes("gallery"),
-    "primary navigation must contain the gallery SitePage id",
+    "navigation identity must retain the gallery SitePage id",
   );
-
-  const item = getPrimaryNavigationItems().find((candidate) => candidate.id === "gallery");
-  assert.ok(item, "missing gallery primary navigation item");
-  assert.equal(item.label, "Gallery");
-  assert.equal(item.href, "/gallery/");
-  assert.match(item.previewSrc, /^\/media\//);
+  assert.equal(
+    getPrimaryNavigationItems().some((candidate) => candidate.id === "gallery"),
+    false,
+    "Gallery must remain hidden from the primary menu",
+  );
 });
 
 test("Gallery public contract is one photo-only collection without layer APIs", async () => {
